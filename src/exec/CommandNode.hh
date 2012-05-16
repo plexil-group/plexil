@@ -71,7 +71,6 @@ namespace PLEXIL
 
     // Specific behaviors for derived classes
     virtual void specializedPostInit(const PlexilNodeId& node);
-    virtual void createSpecializedConditions();
     virtual void createConditionWrappers();
     virtual void specializedActivateInternalVariables();
     virtual void specializedHandleExecution();
@@ -79,21 +78,21 @@ namespace PLEXIL
     virtual void specializedReset();
 
     virtual NodeState getDestStateFromExecuting();
+    virtual NodeState getDestStateFromFinishing();
     virtual NodeState getDestStateFromFailing();
 
-    virtual void transitionFromExecuting(NodeState toState);
-    virtual void transitionFromFailing(NodeState toState);
-
     virtual void transitionToExecuting();
+    virtual void transitionToFinishing();
     virtual void transitionToFailing();
 
-    virtual void printCommandHandle(std::ostream& stream, const unsigned int indent, bool always = false) const;
+    virtual void transitionFromExecuting(NodeState toState);
+    virtual void transitionFromFinishing(NodeState toState);
+    virtual void transitionFromFailing(NodeState toState);
 
     // Not useful if called from base class destructor!
     virtual void cleanUpNodeBody();
 
-    // Used in command handle processing - to be deleted.
-    double getAcknowledgementValue() const;
+    virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const;
 
   private:
 
@@ -102,8 +101,6 @@ namespace PLEXIL
     void createDummyCommand(); // unit test variant
 
     CommandId m_command; /*<! The command to be performed. */
-    VariableId m_ack; /*<! The destination for acknowledgement of the command.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
-    VariableId m_commandHandleVariable;
   };
 
 }

@@ -180,6 +180,11 @@ namespace PLEXIL
 	void enqueueAssignment(const AssignmentId& assign);
 
 	/**
+	 * @brief Schedule this assignment for retraction.
+	 */
+	void enqueueAssignmentForRetraction(const AssignmentId& assign);
+
+	/**
 	 * @brief Schedule this command for execution.
 	 */
 	void enqueueCommand(const CommandId& cmd);
@@ -263,6 +268,7 @@ namespace PLEXIL
     std::vector<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
     StateChangeQueue m_stateChangeQueue; /*<! A list of nodes that are eligible for state transition.*/
     std::vector<AssignmentId> m_assignmentsToExecute;
+    std::vector<AssignmentId> m_assignmentsToRetract;
     std::list<CommandId> m_commandsToExecute;
     std::list<UpdateId> m_updatesToExecute;
     VariableConflictMap m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.

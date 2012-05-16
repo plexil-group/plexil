@@ -343,26 +343,6 @@ namespace PLEXIL
     const char* operatorString() const { return "InterruptibleCommandHandleValues"; }
   };
 
-  class AllCommandHandleValues : public UnaryExpression 
-  {
-  public:
-    AllCommandHandleValues(const PlexilExprId& expr, const NodeConnectorId& node);
-    AllCommandHandleValues(ExpressionId e);
-
-    void print(std::ostream& s) const;
-    double recalculate();
-    bool checkValue(const double val);
-    
-    /**
-     * @brief Retrieve the value type of this Expression.
-     * @return The value type of this Expression.
-     */
-    virtual PlexilType getValueType() const { return BOOLEAN; }
-    
-  protected:
-    const char* operatorString() const { return "AllCommandHandleValues"; }
-  };
-
 }
 
 #endif

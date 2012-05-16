@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,26 +43,27 @@ namespace PLEXIL
   {
   public:
     Command(const ExpressionId nameExpr, 
-			const std::list<ExpressionId>& args, 
+            const std::list<ExpressionId>& args, 
             const VariableId dest,
             const LabelStr& dest_name,
-			const VariableId ack,
-			const std::vector<ExpressionId>& garbage,
+            const std::vector<ExpressionId>& garbage,
             const ResourceList& resource,
-			const NodeId& parent);
+            const NodeId& parent);
     ~Command();
 
     CommandId& getId() {return m_id;}
     VariableId& getDest() {return m_dest;}
     VariableId& getAck() {return m_ack;}
+    VariableId& getAbortComplete() {return m_abortComplete;}
     const std::list<double>& getArgValues() const {return m_argValues;}
     const ResourceValuesList& getResourceValues() const {return m_resourceValuesList;}
-	const NodeId& getNode() const { return m_node; }
-	LabelStr getName() const;
+    const NodeId& getNode() const { return m_node; }
+    LabelStr getName() const;
     const std::string& getDestName() const;
 
     void activate();
     void deactivate();
+    void reset();
 
   protected:
     friend class CommandNode;
@@ -71,17 +72,23 @@ namespace PLEXIL
     void fixResourceValues();
 
   private:
+    // Deliberately not implemented
+    Command();
+    Command(const Command&);
+    Command& operator=(const Command&);
+
     CommandId m_id;
+    NodeId m_node; // backpointer to parent
     ExpressionId m_nameExpr;
-    std::list<ExpressionId> m_args;
     VariableId m_dest;
     LabelStr m_destName;
     VariableId m_ack;
+    VariableId m_abortComplete;
     std::vector<ExpressionId> m_garbage;
+    std::list<ExpressionId> m_args;
     std::list<double> m_argValues;
     ResourceList m_resourceList;
     ResourceValuesList m_resourceValuesList;
-	NodeId m_node; // backpointer to parent
   };
 
 }

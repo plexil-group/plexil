@@ -51,7 +51,7 @@ namespace PLEXIL
     static NodeFactory* *sl_factories = NULL;
     if (sl_factories == NULL) {
       sl_factories = new NodeFactory*[NodeType_error];
-      for (size_t i = 0; i < NodeType_error; i++)
+      for (size_t i = 0; i < NodeType_error; ++i)
         sl_factories[i] = NULL;
     }
     return sl_factories;

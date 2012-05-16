@@ -240,7 +240,7 @@ namespace PLEXIL {
   template <typename T>
   void insertUnique(std::vector<T>& vec, const T& thing)
   {
-	for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); it++) {
+	for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
 	  if (*it == thing)
 		return;
 	}
@@ -271,7 +271,7 @@ namespace PLEXIL {
       const std::vector<PlexilNodeId>& kids = listBody->children();
       for (std::vector<PlexilNodeId>::const_iterator it = kids.begin();
 	   it != kids.end();
-	   it++) {
+	   ++it) {
 	(*it)->getLibraryReferences(refs);
       }
       break;

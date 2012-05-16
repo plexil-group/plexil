@@ -78,10 +78,9 @@ namespace PLEXIL {
                                                                                                     (checked in state INACTIVE, transitions to state WAITING). */
     DECLARE_STATIC_CLASS_CONST(LabelStr, PARENT_FINISHED_CONDITION, "ParentFinishedCondition"); /*!< The name for the ancestor-executing condition
                                                                                                   (checked in state INACTIVE, transitions to state WAITING). */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, CHILDREN_WAITING_OR_FINISHED, "AllChildrenWaitingOrFinishedCondition"); /*!< The name for the node's all-children-waiting-or-finished condition. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, ABORT_COMPLETE, "AbortCompleteCondition"); /*!< The name for the command-abort-complete condition. */
     DECLARE_STATIC_CLASS_CONST(LabelStr, PARENT_WAITING_CONDITION, "ParentWaitingCondition");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_HANDLE_RECEIVED_CONDITION, "CommandHandleReceivedCondition");
+    DECLARE_STATIC_CLASS_CONST(LabelStr, ACTION_COMPLETE, "ActionCompleteCondition"); /*!< The name for the action-complete condition. */
+    DECLARE_STATIC_CLASS_CONST(LabelStr, ABORT_COMPLETE, "AbortCompleteCondition"); /*!< The name for the abort-complete condition. */
 
     static const std::vector<double>& ALL_CONDITIONS();
 
@@ -295,9 +294,8 @@ namespace PLEXIL {
     const ExpressionId& getPostCondition() const                      { return m_conditions[postIdx]; }
     const ExpressionId& getRepeatCondition() const                    { return m_conditions[repeatIdx]; }
     // These are for specialized node types
-    const ExpressionId& getChildrenWaitingOrFinishedCondition() const { return m_conditions[childrenWaitingOrFinishedIdx]; }
+    const ExpressionId& getActionCompleteCondition() const            { return m_conditions[actionCompleteIdx]; }
     const ExpressionId& getAbortCompleteCondition() const             { return m_conditions[abortCompleteIdx]; }
-    const ExpressionId& getCommandHandleReceivedCondition() const     { return m_conditions[commandHandleReceivedIdx]; }
 
     // Activate a condition
     // These are public only to appease the module test
@@ -344,9 +342,8 @@ namespace PLEXIL {
     void activatePostCondition()                      { activatePair(postIdx); }
     void activateRepeatCondition()                    { activatePair(repeatIdx); }
     // These are for specialized node types
-    void activateChildrenWaitingOrFinishedCondition() { activatePair(childrenWaitingOrFinishedIdx); }
+    void activateActionCompleteCondition()            { activatePair(actionCompleteIdx); }
     void activateAbortCompleteCondition()             { activatePair(abortCompleteIdx); }
-    void activateCommandHandleReceivedCondition()     { activatePair(commandHandleReceivedIdx); }
 
     // Test whether a condition is active
     // These are public only to appease the module test
@@ -369,9 +366,8 @@ namespace PLEXIL {
     bool isPostConditionActive()                      { return pairActive(postIdx); }
     bool isRepeatConditionActive()                    { return pairActive(repeatIdx); }
     // These are for specialized node types
-    bool isChildrenWaitingOrFinishedConditionActive() { return pairActive(childrenWaitingOrFinishedIdx); }
+    bool isActionCompleteConditionActive()            { return pairActive(actionCompleteIdx); }
     bool isAbortCompleteConditionActive()             { return pairActive(abortCompleteIdx); }
-    bool isCommandHandleReceivedConditionActive()     { return pairActive(commandHandleReceivedIdx); }
 
     // Should only be used by LuvListener.
     const ExpressionId& getCondition(const LabelStr& name) const;
@@ -395,8 +391,6 @@ namespace PLEXIL {
       parentExecutingIdx,
       parentFinishedIdx,
       parentWaitingIdx,
-      // Only for list or library call nodes
-      childrenWaitingOrFinishedIdx,
       // User specified conditions
       skipIdx,
       startIdx,
@@ -406,9 +400,10 @@ namespace PLEXIL {
       preIdx,
       postIdx,
       repeatIdx,
-      // Only for command nodes
+      // For all but Empty nodes
+      actionCompleteIdx,
+      // For all but Empty and Update nodes
       abortCompleteIdx,
-      commandHandleReceivedIdx,
 
       conditionIndexMax
     };
@@ -469,18 +464,18 @@ namespace PLEXIL {
     void deactivateSkipCondition()                      { deactivatePair(skipIdx); }
     void deactivateStartCondition()                     { deactivatePair(startIdx); }
     void deactivateEndCondition()                       { deactivatePair(endIdx); }
-    void deactivateExitCondition()                       { deactivatePair(exitIdx); }
+    void deactivateExitCondition()                      { deactivatePair(exitIdx); }
     void deactivateInvariantCondition()                 { deactivatePair(invariantIdx); }
     void deactivatePreCondition()                       { deactivatePair(preIdx); }
     void deactivatePostCondition()                      { deactivatePair(postIdx); }
     void deactivateRepeatCondition()                    { deactivatePair(repeatIdx); }
     // These are for specialized node types
-    void deactivateChildrenWaitingOrFinishedCondition() { deactivatePair(childrenWaitingOrFinishedIdx); }
+    void deactivateActionCompleteCondition()            { deactivatePair(actionCompleteIdx); }
     void deactivateAbortCompleteCondition()             { deactivatePair(abortCompleteIdx); }
-    void deactivateCommandHandleReceivedCondition()     { deactivatePair(commandHandleReceivedIdx); }
 
     // Specific behaviors for derived classes
     virtual void specializedPostInit(const PlexilNodeId& node);
+    virtual void specializedPostInitLate(const PlexilNodeId& node);
     virtual void createSpecializedConditions();
     virtual void createConditionWrappers();
     virtual void specializedActivate();
@@ -514,13 +509,14 @@ namespace PLEXIL {
     virtual void transitionToFailing();
     virtual void transitionToIterationEnded(); 
 
-    virtual void printCommandHandle(std::ostream& stream, const unsigned int indent, bool always = false) const;
-
     // Phases of destructor
     // Not useful if called from base class destructor!
     virtual void cleanUpConditions();
     virtual void cleanUpVars();
     virtual void cleanUpNodeBody();
+
+    // Printing utility
+    virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const;
 
     //
     // Common state

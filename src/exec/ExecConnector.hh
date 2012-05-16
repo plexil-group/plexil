@@ -49,6 +49,11 @@ namespace PLEXIL
 	virtual void enqueueAssignment(const AssignmentId& assign) = 0;
 
 	/**
+	 * @brief Schedule this assignment for execution.
+	 */
+	virtual void enqueueAssignmentForRetraction(const AssignmentId& assign) = 0;
+
+	/**
 	 * @brief Schedule this command for execution.
 	 */
 	virtual void enqueueCommand(const CommandId& cmd) = 0;

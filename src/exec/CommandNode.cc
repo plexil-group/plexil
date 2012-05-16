@@ -46,18 +46,11 @@ namespace PLEXIL
   CommandNode::CommandNode(const PlexilNodeId& nodeProto,
                            const ExecConnectorId& exec, 
                            const NodeId& parent)
-    : Node(nodeProto, exec, parent),
-      m_ack((new StringVariable(Expression::UNKNOWN()))->getId()),
-      m_commandHandleVariable((new CommandHandleVariable(m_nodeId.toString()))->getId())
+    : Node(nodeProto, exec, parent)
   {
     checkError(nodeProto->nodeType() == NodeType_Command,
                "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
                << "\" for a CommandNode");
-
-    // Make ack pretty
-    ((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
-    // Make command handle accessible
-    m_variablesByName[COMMAND_HANDLE().getKey()] = m_commandHandleVariable;
   }
 
   /**
@@ -68,28 +61,33 @@ namespace PLEXIL
                            const NodeState state,
                            const ExecConnectorId& exec,
                            const NodeId& parent)
-    : Node(type, name, state, exec, parent),
-      m_ack((new StringVariable(Expression::UNKNOWN()))->getId()),
-      m_commandHandleVariable((new CommandHandleVariable(m_nodeId.toString()))->getId())
+    : Node(type, name, state, exec, parent)
   {
     checkError(type == COMMAND(),
                "Invalid node type \"" << type.toString() << "\" for a CommandNode");
-
-    // Make ack pretty
-    ((VariableImpl*) m_ack)->setName(m_nodeId.toString() + " ack");
-    // Make command handle accessible
-    m_variablesByName[COMMAND_HANDLE().getKey()] = m_commandHandleVariable;
 
     // Create dummy command for unit test
     createDummyCommand();
 
     switch (m_state) {
     case EXECUTING_STATE:
-      activateCommandHandleReceivedCondition();
+      deactivatePostCondition();
+      m_command->activate();
+      break;
+
+    case FINISHING_STATE:
+      activateActionCompleteCondition();
+      activateAncestorExitCondition();
+      activateAncestorInvariantCondition();
+      activateExitCondition();
+      activateInvariantCondition();
+      activatePostCondition();
+      m_command->activate();
       break;
 
     case FAILING_STATE:
       activateAbortCompleteCondition();
+      m_command->activate();
       break;
 
     default:
@@ -106,12 +104,6 @@ namespace PLEXIL
     // Redundant with base class destructor
     cleanUpConditions();
     cleanUpNodeBody();
-
-    // Now safe to delete ack and command handle
-    delete (Variable*) m_ack;
-    m_ack = VariableId::noId();
-    delete (Variable*) m_commandHandleVariable;
-    m_commandHandleVariable = VariableId::noId();
   }
 
   // Not useful if called from base class destructor!
@@ -132,42 +124,39 @@ namespace PLEXIL
     checkError(Id<PlexilCommandBody>::convertable(node->body()),
                "Node is a command node but doesn't have a command body.");
     createCommand((PlexilCommandBody*)node->body());
-  }
+    m_variablesByName[COMMAND_HANDLE().getKey()] = m_command->getAck();
 
-  void CommandNode::createSpecializedConditions()
-  {
+    // Construct action-complete condition
+    ExpressionId actionComplete = (new IsKnown(m_command->getAck()))->getId();
+    actionComplete->addListener(makeConditionListener(actionCompleteIdx));
+    m_conditions[actionCompleteIdx] = actionComplete;
+    m_garbageConditions[actionCompleteIdx] = true;
+
     // Construct command-aborted condition
-    VariableId commandAbort = (new BooleanVariable())->getId();
+    ExpressionId commandAbort = (ExpressionId) m_command->getAbortComplete();
     commandAbort->addListener(makeConditionListener(abortCompleteIdx));
     m_conditions[abortCompleteIdx] = commandAbort;
-    m_garbageConditions[abortCompleteIdx] = true;
-          
-    // Listen to any change in the command handle so that the internal variable 
-    // CommandHandleVariable can be updated
-    ExpressionId commandHandleCondition = (new AllCommandHandleValues(m_ack))->getId();
-    commandHandleCondition->ignoreCachedValue();
-    commandHandleCondition->addListener(makeConditionListener(commandHandleReceivedIdx));
-    m_conditions[commandHandleReceivedIdx] = commandHandleCondition;
-    m_garbageConditions[commandHandleReceivedIdx] = true;
+    m_garbageConditions[abortCompleteIdx] = false;
   }
 
   void CommandNode::createConditionWrappers()
   {
-    // Construct real end condition by wrapping existing
-    if (m_listeners[endIdx].isId())
-      m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
-    else
-      makeConditionListener(endIdx); // for effect
-    ExpressionId interruptEndCond = (new InterruptibleCommandHandleValues(m_ack))->getId();
-    ExpressionId conjunctCondition = (new Conjunction((new IsKnown(m_ack))->getId(),
-                                                      true, 
-                                                      m_conditions[endIdx],
-                                                      m_garbageConditions[endIdx]))->getId();
-    ExpressionId realEndCondition =
-      (new Disjunction(interruptEndCond, true, conjunctCondition, true))->getId();
-    realEndCondition->addListener(m_listeners[endIdx]);
-    m_conditions[endIdx] = realEndCondition;
-    m_garbageConditions[endIdx] = true;
+    // No need to wrap if end condition is default - (True || anything) == True
+    if (m_conditions[endIdx] != BooleanVariable::TRUE_EXP()) {
+      // Construct real end condition by wrapping existing
+      if (m_listeners[endIdx].isId())
+        m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
+      else
+        makeConditionListener(endIdx); // for effect
+      ExpressionId realEndCondition =
+        (new Disjunction((new InterruptibleCommandHandleValues(m_command->getAck()))->getId(),
+                         true,
+                         m_conditions[endIdx],
+                         m_garbageConditions[endIdx]))->getId();
+      realEndCondition->addListener(m_listeners[endIdx]);
+      m_conditions[endIdx] = realEndCondition;
+      m_garbageConditions[endIdx] = true;
+    }
   }
 
   //
@@ -178,105 +167,68 @@ namespace PLEXIL
   // EXECUTING 
   // 
   // Legal predecessor states: WAITING
-  // Conditions active: AncestorExit, AncestorInvariant, CommandHandleReceived, End, Exit, Invariant, Post
-  // Legal successor states: FAILING, FINISHED, ITERATION_ENDED
+  // Conditions active: AncestorExit, AncestorInvariant, End, Exit, Invariant
+  // Legal successor states: FAILING, FINISHING
 
   void CommandNode::transitionToExecuting()
   {
-    Node::transitionToExecuting(); // defer to super
-    activateCommandHandleReceivedCondition();
+    activateInvariantCondition();
+    activateEndCondition();
   }
 
   NodeState CommandNode::getDestStateFromExecuting()
   {
     checkError(isAncestorExitConditionActive(),
                "Ancestor exit for " << getNodeId().toString() << " is inactive.");
-    checkError(isEndConditionActive(),
-               "End for " << getNodeId().toString() << " is inactive.");
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId.toString() << 
-                 "' destination: FINISHED. Command node, ancestor exit true and end true.");
-        return FINISHED_STATE;
-      }
-      else {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << 
-                 "' destination: FAILING. Command node, ancestor exit true and end false or unknown.");
+                 "' destination: FAILING. Command node and ancestor exit true.");
         return FAILING_STATE;
-      }
     }
 
     checkError(isExitConditionActive(),
                "Exit for " << getNodeId().toString() << " is inactive.");
     if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId.toString() << 
-                 "' destination: ITERATION_ENDED. Command node, exit true and end true.");
-        return ITERATION_ENDED_STATE;
-      }
-      else {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << 
-                 "' destination: FAILING. Command node, exit true and end false or unknown.");
+                 "' destination: FAILING. Command node and exit true.");
         return FAILING_STATE;
-      }
     }
 
     checkError(isAncestorInvariantConditionActive(),
                "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
     if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-      if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId.toString() << 
-                 "' destination: FINISHED. Command node, ancestor invariant false and end true.");
-        return FINISHED_STATE;
-      }
-      else {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << 
-                 "' destination: FAILING. Command node, ancestor invariant false and end false or unknown.");
+                 "' destination: FAILING. Command node and ancestor invariant false.");
         return FAILING_STATE;
-      }
     }
 
     checkError(isInvariantConditionActive(),
                "Invariant for " << getNodeId().toString() << " is inactive.");
     if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-      if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId.toString() << 
-                 "' destination: ITERATION_ENDED. Command node, invariant false and end true.");
-        return ITERATION_ENDED_STATE;
-      }
-      else {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << 
-                 "' destination: FAILING. Command node, invariant false and end false or unknown.");
+                 "' destination: FAILING. Command node and invariant false.");
         return FAILING_STATE;
-      }
     }
 
-    // FIXME: Command handle logic doesn't belong here!
-    checkError(isCommandHandleReceivedConditionActive(),
-               "Command handle received condition for " << getNodeId().toString() << " is inactive.");
-    if ((getCommandHandleReceivedCondition()->getValue() == BooleanVariable::TRUE_VALUE())) {
-      m_commandHandleVariable->setValue(getAcknowledgementValue());
-    }
-
+    checkError(isEndConditionActive(),
+               "End for " << getNodeId().toString() << " is inactive.");
     if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << 
-               "' destination: ITERATION_ENDED.  Command node, end condition true.");
-      return ITERATION_ENDED_STATE;
+               "' destination: FINISHING.  Command node and end condition true.");
+      return FINISHING_STATE;
     }
       
     debugMsg("Node:getDestState",
              " '" << m_nodeId.toString() << 
-             "' destination from EXECUTING: no state.\n  Ancestor invariant: " 
-             << getAncestorInvariantCondition()->toString() 
+             "' destination from EXECUTING: no state."
+             << "\n  Ancestor exit: " << getAncestorExitCondition()->toString() 
+             << "\n  Exit: " << getExitCondition()->toString() 
+             << "\n  Ancestor invariant: " << getAncestorInvariantCondition()->toString() 
              << "\n  Invariant: " << getInvariantCondition()->toString() 
              << "\n  End: " << getEndCondition()->toString());
     return NO_NODE_STATE;
@@ -284,35 +236,126 @@ namespace PLEXIL
 
   void CommandNode::transitionFromExecuting(NodeState destState)
   {
-    checkError(destState == FINISHED_STATE ||
-               destState == FAILING_STATE ||
-               destState == ITERATION_ENDED_STATE,
+    checkError(destState == FINISHING_STATE ||
+               destState == FAILING_STATE,
                "Attempting to transition Command node from EXECUTING to invalid state '"
                << StateVariable::nodeStateName(destState).toString() << "'");
 
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
       getFailureTypeVariable()->setValue(FailureVariable::PARENT_EXITED());
-      if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
-        abort();
     }
     else if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
       getFailureTypeVariable()->setValue(FailureVariable::EXITED());
-      if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
-        abort();
     }
     else if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
       m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
       m_failureTypeVariable->setValue(FailureVariable::PARENT_FAILED());
-      if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
-        abort();
     }
     else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
       m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
       m_failureTypeVariable->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
-      if (getEndCondition()->getValue() != BooleanVariable::TRUE_VALUE())
-        abort();
+    }
+
+    deactivateEndCondition();
+    if (destState == FAILING_STATE) {
+      deactivateExitCondition();
+      deactivateInvariantCondition();
+      deactivateAncestorExitCondition();
+      deactivateAncestorInvariantCondition();
+    }
+  }
+
+  //
+  // FINISHING
+  //
+  // Legal predecessor states: EXECUTING
+  // Conditions active: ActionComplete, AncestorExit, AncestorInvariant, Exit, Invariant, Post
+  // Legal successor states: FAILING, ITERATION_ENDED
+
+  void CommandNode::transitionToFinishing()
+  {
+    activateActionCompleteCondition();
+    activatePostCondition();
+  }
+
+  NodeState CommandNode::getDestStateFromFinishing()
+  {
+    checkError(isAncestorExitConditionActive(),
+               "Ancestor exit for " << getNodeId().toString() << " is inactive.");
+    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << 
+               "' destination: FAILING. Command node and ancestor exit true.");
+      return FAILING_STATE;
+    }
+
+    checkError(isExitConditionActive(),
+               "Exit for " << getNodeId().toString() << " is inactive.");
+    if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << 
+               "' destination: FAILING. Command node and exit true.");
+      return FAILING_STATE;
+    }
+
+    checkError(isAncestorInvariantConditionActive(),
+               "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
+    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << 
+               "' destination: FAILING. Command node and ancestor invariant false.");
+      return FAILING_STATE;
+    }
+
+    checkError(isInvariantConditionActive(),
+               "Invariant for " << getNodeId().toString() << " is inactive.");
+    if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << 
+               "' destination: FAILING. Command node, invariant false and end false or unknown.");
+      return FAILING_STATE;
+    }
+
+    if (getActionCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << 
+               "' destination: ITERATION_ENDED.  Command node and action complete true.");
+      return ITERATION_ENDED_STATE;
+    }
+      
+    debugMsg("Node:getDestState",
+             " '" << m_nodeId.toString() << 
+             "' destination from FINISHING: no state."
+             << "\n  Ancestor exit: " << getAncestorExitCondition()->toString() 
+             << "\n  Exit: " << getExitCondition()->toString()
+             << "\n  Ancestor invariant: " << getAncestorInvariantCondition()->toString() 
+             << "\n  Invariant: " << getInvariantCondition()->toString()
+             << "\n  Action complete: " << getActionCompleteCondition()->toString());
+    return NO_NODE_STATE;
+  }
+
+  void CommandNode::transitionFromFinishing(NodeState destState)
+  {
+    checkError(isPostConditionActive(),
+               "Post for " << getNodeId().toString() << " is inactive.");
+
+    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
+      getFailureTypeVariable()->setValue(FailureVariable::PARENT_EXITED());
+    }
+    else if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
+      getFailureTypeVariable()->setValue(FailureVariable::EXITED());
+    }
+    else if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
+      m_failureTypeVariable->setValue(FailureVariable::PARENT_FAILED());
+    }
+    else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
+      m_failureTypeVariable->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
     }
     else if (getPostCondition()->getValue() != BooleanVariable::TRUE_VALUE()) {
       m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
@@ -322,33 +365,32 @@ namespace PLEXIL
       m_outcomeVariable->setValue(OutcomeVariable::SUCCESS());
     }
 
-    deactivateEndCondition();
+    deactivateActionCompleteCondition();
     deactivateExitCondition();
     deactivateInvariantCondition();
     deactivatePostCondition();
-    deactivateCommandHandleReceivedCondition();
-    if (destState == ITERATION_ENDED_STATE) {
-      activateAncestorEndCondition();
-    }
-    else { // FAILING, FINISHED
+    if (destState == FAILING_STATE) {
       deactivateAncestorExitCondition();
       deactivateAncestorInvariantCondition();
     }
-
-    if (destState != FAILING_STATE)
+    else { // ITERATION_ENDED
+      activateAncestorEndCondition();
       deactivateExecutable();
+    }
   }
+
 
   //
   // FAILING
   //
-  // Legal predecessor states: EXECUTING
+  // Legal predecessor states: EXECUTING, FINISHING
   // Conditions active: AbortComplete
   // Legal successor states: FINISHED, ITERATION_ENDED
 
   void CommandNode::transitionToFailing()
   {
     activateAbortCompleteCondition();
+    abort();
   }
 
   NodeState CommandNode::getDestStateFromFailing()
@@ -362,6 +404,13 @@ namespace PLEXIL
                  " '" << m_nodeId.toString() << 
                  "' destination: FINISHED.  Command node abort complete, " <<
                  "and parent failed.");
+        return FINISHED_STATE;
+      }
+      else if (m_failureTypeVariable->getValue() == FailureVariable::PARENT_EXITED()) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << 
+                 "' destination: FINISHED.  Command node abort complete, " <<
+                 "and parent exited.");
         return FINISHED_STATE;
       }
       else {
@@ -397,7 +446,6 @@ namespace PLEXIL
   // TODO: figure out if this should be activated on entering EXECUTING state
   void CommandNode::specializedActivateInternalVariables()
   {
-    m_commandHandleVariable->activate();
   }
 
   void CommandNode::specializedHandleExecution()
@@ -411,29 +459,26 @@ namespace PLEXIL
 
   void CommandNode::abort()
   {
-    if (m_command.isValid()) {
-      // Handle stupid unit test
-      if (m_exec->getExternalInterface().isId()) {
-        m_exec->getExternalInterface()->invokeAbort(m_command->getName(),
-                                                    m_command->getArgValues(),
-                                                    m_conditions[abortCompleteIdx],
-                                                    m_command->m_ack);
-      }
+    checkError(m_command.isValid(), "CommandNode::abort: Command is invalid");
+    // Handle stupid unit test
+    if (m_exec->getExternalInterface().isId()) {
+      m_exec->getExternalInterface()->invokeAbort(m_command->getName(),
+                                                  m_command->getArgValues(),
+                                                  m_command->getAbortComplete(),
+                                                  m_command->getAck());
     }
-    else       
-      debugMsg("Warning", "Invalid command id in " << m_nodeId.toString());
   }
 
   void CommandNode::specializedDeactivateExecutable()
   {
-    if (m_command.isValid())
-      m_command->deactivate();
+    checkError(m_command.isValid(), "CommandNode::specializedDeactivateExecutable: Command is invalid");
+    m_command->deactivate();
   }
 
   void CommandNode::specializedReset()
   {
-    m_commandHandleVariable->reset();
-    m_ack->reset();
+    checkError(m_command.isValid(), "CommandNode::specializedReset: Command is invalid");
+    m_command->reset();
   }
 
   void CommandNode::createCommand(const PlexilCommandBody* command) 
@@ -517,8 +562,7 @@ namespace PLEXIL
              "Creating command"
              << (nameExpr->getValue() == UNKNOWN() ? "" : " '" + LabelStr(nameExpr->getValue()).toString() + "'")
              << " for node '" << m_nodeId.toString() << "'");
-    m_command = (new Command(nameExpr, args, destVar, dest_name, m_ack, garbage, resourceList, getId()))->getId();
-    check_error(m_command.isValid());
+    m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getId()))->getId();
   }
 
   // Unit test variant of above
@@ -537,24 +581,14 @@ namespace PLEXIL
 
     // No resource
     ResourceList resourceList;
-    m_command = (new Command(nameExpr, args, destVar, dest_name, m_ack, garbage, resourceList, getId()))->getId();
-    check_error(m_command.isValid());
+    m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getId()))->getId();
   }
 
-  double CommandNode::getAcknowledgementValue() const 
+  void CommandNode::printCommandHandle(std::ostream& stream, const unsigned int indent) const
   {
-    return ((Variable*)m_ack)->getValue();
-  }
-
-  void CommandNode::printCommandHandle(std::ostream& stream, 
-                                       const unsigned int indent,
-                                       bool always) const
-  {
-    if (always || m_commandHandleVariable->getValue() != Expression::UNKNOWN()) {
-      std::string indentStr(indent, ' ');
-      stream << indentStr << " Command handle: " <<
-        m_commandHandleVariable->toString() << '\n';
-    }
+    std::string indentStr(indent, ' ');
+    stream << indentStr << " Command handle: " <<
+      m_command->getAck()->toString() << '\n';
   }
 
 }

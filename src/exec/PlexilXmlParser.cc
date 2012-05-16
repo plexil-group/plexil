@@ -796,7 +796,7 @@ namespace PLEXIL
                  << p.what());
         return PlexilNodeId::noId();
       }
-      it++;
+      ++it;
     }
 
     // check current working directory
@@ -1080,6 +1080,7 @@ namespace PLEXIL
       || name == POST_CONDITION_TAG()
       || name == INVARIANT_CONDITION_TAG()
       || name == END_CONDITION_TAG()
+      || name == EXIT_CONDITION_TAG()
       || name == SKIP_CONDITION_TAG();
   }
 
@@ -1637,7 +1638,7 @@ namespace PLEXIL
         ((PlexilArrayValue *) arrayVar->value())->values();
       for (std::vector<string>::const_iterator it = values.begin();
            it != values.end();
-           it++) 
+           ++it) 
         appendNamedTextElement(valueTag.c_str(), it->c_str(), vals);
     }
     else if (var->value() != NULL) {
@@ -1812,7 +1813,7 @@ namespace PLEXIL
     // format variable aliases
     for (PlexilAliasMap::const_iterator it = body->aliases().begin();
          it != body->aliases().end(); 
-         it++) {
+         ++it) {
       // double is key to LabelStr of formal param name
       // expr is actual param
       const std::pair<double, PlexilExprId>& entry = *it;

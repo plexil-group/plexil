@@ -104,7 +104,7 @@ namespace PLEXIL
     case FINISHING_STATE:
       activateAncestorExitCondition();
       activateAncestorInvariantCondition();
-      activateChildrenWaitingOrFinishedCondition();
+      activateActionCompleteCondition();
       activateExitCondition();
       activateInvariantCondition();
       activatePostCondition();
@@ -114,7 +114,7 @@ namespace PLEXIL
       break;
 
     case FAILING_STATE:
-      activateChildrenWaitingOrFinishedCondition();
+      activateActionCompleteCondition();
       m_conditions[ancestorEndIdx]->activate();
       m_conditions[ancestorExitIdx]->activate();
       m_conditions[ancestorInvariantIdx]->activate();
@@ -149,14 +149,28 @@ namespace PLEXIL
   void ListNode::createSpecializedConditions()
   {
     ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-    cond->addListener(makeConditionListener(childrenWaitingOrFinishedIdx));
-    m_conditions[childrenWaitingOrFinishedIdx] = cond;
-    m_garbageConditions[childrenWaitingOrFinishedIdx] = true;
+    cond->addListener(makeConditionListener(actionCompleteIdx));
+    m_conditions[actionCompleteIdx] = cond;
+    m_garbageConditions[actionCompleteIdx] = true;
 
     ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
     endCond->addListener(makeConditionListener(endIdx));
     m_conditions[endIdx] = endCond;
     m_garbageConditions[endIdx] = true;
+  }
+
+  void ListNode::specializedPostInitLate(const PlexilNodeId& node)
+  {
+    //call postInit on all children
+    const PlexilListBody* body = (const PlexilListBody*) node->body();
+    check_error(body != NULL);
+    std::vector<NodeId>::iterator it = m_children.begin();
+    std::vector<PlexilNodeId>::const_iterator pit = body->children().begin();   
+    while (it != m_children.end() && pit != body->children().end()) {
+      (*it++)->postInit(*pit++);
+    }
+    checkError(it == m_children.end() && pit == body->children().end(),
+               "Node:postInit: mismatch between PlexilNode and list node children");
   }
 
   // Create the ancestor end, ancestor exit, and ancestor invariant conditions required by children
@@ -247,20 +261,6 @@ namespace PLEXIL
     if (it == m_children.end())
       return NodeId::noId();
     return *it;
-  }
-
-  void ListNode::specializedPostInit(const PlexilNodeId& node)
-  {
-    //call postInit on all children
-    const PlexilListBody* body = (const PlexilListBody*) node->body();
-    check_error(body != NULL);
-    std::vector<NodeId>::iterator it = m_children.begin();
-    std::vector<PlexilNodeId>::const_iterator pit = body->children().begin();   
-    while (it != m_children.end() && pit != body->children().end()) {
-      (*it++)->postInit(*pit++);
-    }
-    checkError(it == m_children.end() && pit == body->children().end(),
-               "Node:postInit: mismatch between PlexilNode and list node children");
   }
 
   //////////////////////////////////////
@@ -362,7 +362,7 @@ namespace PLEXIL
       
     deactivateEndCondition();
     // Both successor states will need this
-    activateChildrenWaitingOrFinishedCondition();
+    activateActionCompleteCondition();
 
     if (destState == FAILING_STATE) {
       deactivateAncestorExitCondition();
@@ -381,12 +381,12 @@ namespace PLEXIL
   // State is only valid for NodeList and LibraryNodeCall nodes
   //
   // Legal predecessor states: EXECUTING
-  // Conditions active: AllChildrenWaitingOrFinished, AncestorExit, AncestorInvariant, Exit, Invariant, Post
+  // Conditions active: ActionComplete, AncestorExit, AncestorInvariant, Exit, Invariant, Post
   // Legal successor states: FAILING, ITERATION_ENDED
 
   void ListNode::transitionToFinishing()
   {
-    // activateChildrenWaitingOrFinishedCondition(); // see transitionFromExecuting() above
+    // activateActionCompleteCondition(); // see transitionFromExecuting() above
     activatePostCondition();
   }
 
@@ -424,26 +424,16 @@ namespace PLEXIL
       return FAILING_STATE;
     }
 
-    checkError(isChildrenWaitingOrFinishedConditionActive(),
+    checkError(isActionCompleteConditionActive(),
                "Children waiting or finished for " << getNodeId().toString() <<
                " is inactive.");
-    if (getChildrenWaitingOrFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      if (!getPostCondition()->isActive())
-        getPostCondition()->activate();
-
-      if (getPostCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-          debugMsg("Node:getDestState",
-                   " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED. List node, " <<
-                   "ALL_CHILDREN_WAITING_OR_FINISHED true and POST_CONDITION true.");
-      }
-      else {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << "' destination: FINISHED. List node, ALL_CHILDREN_WAITING_OR_FINISHED " <<
-                 "true and POST_CONDITION false or unknown.");
-      }
-
+    if (getActionCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED. List node " <<
+               "and ALL_CHILDREN_WAITING_OR_FINISHED true.");
       return ITERATION_ENDED_STATE;
     }
+
     debugMsg("Node:getDestState",
              " '" << m_nodeId.toString() << "' destination: no state. ALL_CHILDREN_WAITING_OR_FINISHED false or unknown.");
     return NO_NODE_STATE;
@@ -453,7 +443,7 @@ namespace PLEXIL
   {
     checkError(destState == ITERATION_ENDED_STATE ||
                destState == FAILING_STATE,
-               "Attempting to transition to invalid state '"
+               "Attempting to transition List node from FINISHING to invalid state '"
                << StateVariable::nodeStateName(destState).toString() << "'");
 
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
@@ -485,7 +475,7 @@ namespace PLEXIL
     deactivatePostCondition();
 
     if (destState == ITERATION_ENDED_STATE) {
-      deactivateChildrenWaitingOrFinishedCondition();
+      deactivateActionCompleteCondition();
       activateAncestorEndCondition();
 
       // N.B. These are conditions for the children.
@@ -507,22 +497,22 @@ namespace PLEXIL
   // Description and methods here apply only to NodeList and LibraryNodeCall nodes
   //
   // Legal predecessor states: EXECUTING, FINISHING
-  // Conditions active: AllChildrenWaitingOrFinished
+  // Conditions active: ActionComplete
   // Legal successor states: FINISHED, ITERATION_ENDED
 
   void ListNode::transitionToFailing()
   {
-    // From EXECUTING: ChildrenWaitingOrFinished active (see transitionFromExecuting() above)
-    // From FINISHING: ChildrenWaitingOrFinished active
+    // From EXECUTING: ActionComplete active (see transitionFromExecuting() above)
+    // From FINISHING: ActionComplete active
   }
 
   NodeState ListNode::getDestStateFromFailing()
   {
-    checkError(isChildrenWaitingOrFinishedConditionActive(),
+    checkError(isActionCompleteConditionActive(),
                "Children waiting or finished for " << getNodeId().toString() <<
                " is inactive.");
 
-    if (getChildrenWaitingOrFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+    if (getActionCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       if (m_failureTypeVariable->getValue() == FailureVariable::PARENT_EXITED()) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId.toString() << "' destination: FINISHED. "
@@ -555,7 +545,7 @@ namespace PLEXIL
                "Attempting to transition NodeList/LibraryNodeCall node from FAILING to invalid state '"
                << StateVariable::nodeStateName(destState).toString() << "'");
 
-    deactivateChildrenWaitingOrFinishedCondition();
+    deactivateActionCompleteCondition();
 
     // N.B. These are conditions for the children.
     m_conditions[ancestorEndIdx]->deactivate();

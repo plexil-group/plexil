@@ -65,7 +65,7 @@ namespace PLEXIL
     virtual NodeId findChild(const LabelStr& childName) const;
 
     // Specific behaviors for derived classes
-    virtual void specializedPostInit(const PlexilNodeId& node);
+    virtual void specializedPostInitLate(const PlexilNodeId& node);
     virtual void createSpecializedConditions();
     virtual void createConditionWrappers();
     virtual void specializedActivate();

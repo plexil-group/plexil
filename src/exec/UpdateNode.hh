@@ -70,19 +70,22 @@ namespace PLEXIL
 
     // Specific behaviors for derived classes
     virtual void specializedPostInit(const PlexilNodeId& node);
-    virtual void createSpecializedConditions();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
     virtual void specializedReset();
     virtual void cleanUpNodeBody();
 
     virtual NodeState getDestStateFromExecuting();
+    virtual NodeState getDestStateFromFinishing();
     virtual NodeState getDestStateFromFailing();
 
-    virtual void transitionFromExecuting(NodeState toState);
-    virtual void transitionFromFailing(NodeState toState);
-
+    virtual void transitionToExecuting();
+    virtual void transitionToFinishing();
     virtual void transitionToFailing();
+
+    virtual void transitionFromExecuting(NodeState toState);
+    virtual void transitionFromFinishing(NodeState toState);
+    virtual void transitionFromFailing(NodeState toState);
 
   private:
 
@@ -90,7 +93,6 @@ namespace PLEXIL
     void createDummyUpdate(); // unit test variant
 
     UpdateId m_update;
-    VariableId m_ack; /*<! The destination for acknowledgement of the update.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
   };
 
 }

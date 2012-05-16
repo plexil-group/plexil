@@ -70,8 +70,6 @@ namespace PLEXIL {
       sl_allConds->push_back(PARENT_EXECUTING_CONDITION());
       sl_allConds->push_back(PARENT_FINISHED_CONDITION());
       sl_allConds->push_back(PARENT_WAITING_CONDITION());
-      // Only for list or library call nodes
-      sl_allConds->push_back(CHILDREN_WAITING_OR_FINISHED());
       // User specified conditions
       sl_allConds->push_back(SKIP_CONDITION());
       sl_allConds->push_back(START_CONDITION());
@@ -81,9 +79,10 @@ namespace PLEXIL {
       sl_allConds->push_back(PRE_CONDITION());
       sl_allConds->push_back(POST_CONDITION());
       sl_allConds->push_back(REPEAT_CONDITION());
-      // Only for command nodes
+      // For all but Empty nodes
+      sl_allConds->push_back(ACTION_COMPLETE());
+      // For all but Empty and Update nodes
       sl_allConds->push_back(ABORT_COMPLETE());
-      sl_allConds->push_back(COMMAND_HANDLE_RECEIVED_CONDITION());
       // inexpensive sanity check
       assertTrue(sl_allConds->size() == conditionIndexMax,
                  "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
@@ -94,7 +93,7 @@ namespace PLEXIL {
   size_t Node::getConditionIndex(const LabelStr& cName) {
     double nameKey = cName.getKey();
     const std::vector<double>& allConds = ALL_CONDITIONS();
-    for (size_t i = 0; i < conditionIndexMax; i++) {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
       if (allConds[i] == nameKey)
         return i;
     }
@@ -189,7 +188,7 @@ namespace PLEXIL {
     commonInit();
     activateInternalVariables();
 
-    for (size_t i = 0; i < conditionIndexMax; i++) {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
       ExpressionId expr = (new BooleanVariable(BooleanVariable::FALSE_VALUE(), false))->getId();
       debugMsg("Node:node",
                " Created internal variable "
@@ -228,13 +227,13 @@ namespace PLEXIL {
       break;
 
     case FAILING_STATE:
-      assertTrueMsg(m_nodeType == COMMAND() || m_nodeType == LIST() || m_nodeType == LIBRARYNODECALL() || m_nodeType == UPDATE(),
+      assertTrueMsg(m_nodeType != EMPTY(),
                     "Node module test constructor: FAILING state invalid for " << m_nodeType.toString() << " nodes");
       // Defer to subclass
       break;
 
     case FINISHING_STATE:
-      assertTrueMsg(m_nodeType == LIST() || m_nodeType == LIBRARYNODECALL(),
+      assertTrueMsg(m_nodeType != EMPTY(),
                     "Node module test constructor: FINISHING state invalid for " << m_nodeType.toString() << " nodes");
       // Defer to subclass
       break;
@@ -271,7 +270,7 @@ namespace PLEXIL {
 
     //instantiate timepoint variables
     debugMsg("Node:node", "Instantiating timepoint variables.");
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
       ExpressionId stp = (new RealVariable())->getId();
       double stpName = START_TIMEPOINT_NAMES()[s];
       m_startTimepoints[s] = m_variablesByName[stpName] = stp;
@@ -282,7 +281,7 @@ namespace PLEXIL {
     }
 
     // initialize m_garbageConditions
-    for (size_t i = 0; i < conditionIndexMax; i++) {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
       m_garbageConditions[i] = false;
     }
   }
@@ -508,6 +507,22 @@ namespace PLEXIL {
     return expr;
   }
 
+  void Node::postInit(const PlexilNodeId& node) 
+  {
+    checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
+    m_postInitCalled = true;
+
+    // create assignment/command/update
+    specializedPostInit(node);
+
+    // create conditions and listeners
+    debugMsg("Node:postInit", "Creating conditions for node '" << m_nodeId.toString() << "'");
+    createConditions(node->conditions());
+
+    // late post init (for NodeList)
+    specializedPostInitLate(node);
+  }
+
   void Node::createConditions(const std::map<std::string, PlexilExprId>& conds) 
   {
     // Attach listeners to ancestor invariant and ancestor end conditions
@@ -529,7 +544,7 @@ namespace PLEXIL {
       ancestorInvariant->addListener(makeConditionListener(ancestorInvariantIdx));
     }
 
-    // Let the derived class do its thing
+    // Let the derived class do its thing (currently only ListNode)
     createSpecializedConditions();
 
     // Add user-specified conditions
@@ -572,6 +587,16 @@ namespace PLEXIL {
   {
   }
 
+  // Default method
+  void Node::specializedPostInit(const PlexilNodeId& node)
+  {
+  }
+
+  // Default method
+  void Node::specializedPostInitLate(const PlexilNodeId& node)
+  {
+  }
+
   Node::~Node() 
   {
     debugMsg("Node:~Node", " base class destructor for " << m_nodeId.toString());
@@ -594,7 +619,7 @@ namespace PLEXIL {
     debugMsg("Node:cleanUpConditions", " for " << m_nodeId.toString());
 
     // Clean up condition listeners
-    for (size_t i = 0; i < conditionIndexMax; i++) {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
       if (m_listeners[i].isId()) {
         debugMsg("Node:cleanUpConditions",
                  "<" << m_nodeId.toString() << "> Removing condition listener for " <<
@@ -610,7 +635,7 @@ namespace PLEXIL {
     // Clean up conditions
     // N.B.: Ancestor-end and ancestor-invariant MUST be cleaned up before
     // end and invariant, respectively. 
-    for (size_t i = 0; i < conditionIndexMax; i++) {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
       if (m_garbageConditions[i]) {
         debugMsg("Node:cleanUpConds",
                  "<" << m_nodeId.toString() << "> Removing condition " << getConditionName(i).toString());
@@ -649,7 +674,7 @@ namespace PLEXIL {
     m_localVariables.clear();
 
     // Delete timepoint variables
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
       delete (Variable*) m_startTimepoints[s];
       delete (Variable*) m_endTimepoints[s];
       m_startTimepoints[s] = m_endTimepoints[s] = VariableId::noId();
@@ -664,24 +689,6 @@ namespace PLEXIL {
     m_stateVariable = VariableId::noId();
 
     m_cleanedVars = true;
-  }
-
-  void Node::postInit(const PlexilNodeId& node) 
-  {
-    checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
-    m_postInitCalled = true;
-
-    debugMsg("Node:postInit", "Creating conditions for node '" << m_nodeId.toString() << "'");
-    //create conditions and listeners
-    createConditions(node->conditions());
-
-    //create assignment/command
-    specializedPostInit(node);
-  }
-
-  // Default method
-  void Node::specializedPostInit(const PlexilNodeId& node)
-  {
   }
 
   // Make the node (and its children, if any) active.
@@ -707,7 +714,7 @@ namespace PLEXIL {
 
     // Activate timepoints
     // TODO: figure out if they should be inactive until entering the corresponding state
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
       m_startTimepoints[s]->activate();
       m_endTimepoints[s]->activate();
     }
@@ -1270,7 +1277,7 @@ namespace PLEXIL {
   //
   // Description and methods here apply to ALL nodes
   //
-  // Legal predecessor states: EXECUTING, FAILING, WAITING
+  // Legal predecessor states: EXECUTING, FAILING, FINISHING, WAITING
   // Conditions active: AncestorEnd, AncestorExit, AncestorInvariant, Repeat
   // Legal successor states: FINISHED, WAITING
 
@@ -1702,7 +1709,7 @@ namespace PLEXIL {
     if (!condition->isActive())
       return false;
 
-    // N.B. Root nodes may not have listeners on parent conditions,
+    // N.B. Root nodes will not have listeners on parent conditions,
     // which are constants and thus cannot change.
     if (m_listeners[idx].isNoId())
       return true;
@@ -1716,7 +1723,7 @@ namespace PLEXIL {
     // activate local variables
     for (std::vector<VariableId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
-         vit++) {
+         ++vit) {
       (*vit)->activate();
     }
     handleExecution();
@@ -1754,7 +1761,7 @@ namespace PLEXIL {
     m_failureTypeVariable->reset();
 
     //reset timepoints
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
       m_startTimepoints[s]->reset();
       m_endTimepoints[s]->reset();
     }
@@ -1832,7 +1839,7 @@ namespace PLEXIL {
   {
     for (std::vector<VariableId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
-         vit++)
+         ++vit)
       (*vit)->deactivate();
   }
 
@@ -1862,7 +1869,7 @@ namespace PLEXIL {
         stream << indentStr << " Failure type: " <<
           m_failureTypeVariable->toString() << '\n';
       // Print variables, starting with command handle
-      printCommandHandle(stream, indent, false);
+      printCommandHandle(stream, indent);
       printVariables(stream, indent);
     }
     else if (m_state != INACTIVE_STATE) {
@@ -1873,8 +1880,8 @@ namespace PLEXIL {
             getCondition(i)->toString() << '\n';
         }
       }
-      // Print variables, starting with command handle (if appropriate)
-      printCommandHandle(stream, indent, true);
+      // Print variables, starting with command handle
+      printCommandHandle(stream, indent);
       printVariables(stream, indent);
     }
     // print children
@@ -1884,6 +1891,11 @@ namespace PLEXIL {
     stream << indentStr << "}" << std::endl;
   }
 
+  // Default method does nothing
+  void Node::printCommandHandle(std::ostream& stream, const unsigned int indent) const
+  {
+  }
+
   // Print variables
   void Node::printVariables(std::ostream& stream, const unsigned int indent) const
   {
@@ -1891,15 +1903,10 @@ namespace PLEXIL {
     ensureSortedVariableNames(); // for effect
     for (std::vector<double>::const_iterator it = m_sortedVariableNames->begin();
          it != m_sortedVariableNames->end();
-         it++) {
+         ++it) {
       stream << indentStr << " " << LabelStr(*it).toString() << ": " <<
         *(getInternalVariable(LabelStr(*it))) << '\n';
     }
-  }
-
-  // Default method does nothing
-  void Node::printCommandHandle(std::ostream& stream, const unsigned int indent, bool always) const
-  {
   }
 
   const ExecListenerHubId& Node::getExecListenerHub() const
@@ -1926,7 +1933,7 @@ namespace PLEXIL {
       // Collect the variable names
       for (VariableMap::const_iterator it = m_variablesByName.begin();
            it != m_variablesByName.end();
-           it++) {
+           ++it) {
         double nameKey = it->first;
         if (nameKey == STATE().getKey()
             || nameKey == OUTCOME().getKey()

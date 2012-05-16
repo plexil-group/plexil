@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,11 +32,6 @@
 #include "ParserException.hh"
 #include "PlexilExec.hh"
 
-/**
-   TODO:
-   2) factor planner interface, fl interface, and ue interface
- */
-
 namespace PLEXIL {
   class ExternalInterface {
   public:
@@ -55,64 +50,64 @@ namespace PLEXIL {
      */
     virtual double lookupNow(const State& state) = 0;
 
-	/**
-	 * @brief Inform the interface that it should report changes in value of this state.
-	 * @param state The state.
-	 */
-	virtual void subscribe(const State& state) = 0;
+    /**
+     * @brief Inform the interface that it should report changes in value of this state.
+     * @param state The state.
+     */
+    virtual void subscribe(const State& state) = 0;
 
     /**
      * @brief Inform the interface that a lookup should no longer receive updates.
      */
     virtual void unsubscribe(const State& state) = 0;
 
-	/**
-	 * @brief Advise the interface of the current thresholds to use when reporting this state.
-	 * @param state The state.
-	 * @param hi The upper threshold, at or above which to report changes.
-	 * @param lo The lower threshold, at or below which to report changes.
-	 */
-	virtual void setThresholds(const State& state, double hi, double lo) = 0;
+    /**
+     * @brief Advise the interface of the current thresholds to use when reporting this state.
+     * @param state The state.
+     * @param hi The upper threshold, at or above which to report changes.
+     * @param lo The lower threshold, at or below which to report changes.
+     */
+    virtual void setThresholds(const State& state, double hi, double lo) = 0;
 
     //@ Perform the set of actions from quiescence completion.
     virtual void batchActions(std::list<CommandId>& commands) = 0;
 
-	// This batches planner updates.
+    // This batches planner updates.
     virtual void updatePlanner(std::list<UpdateId>& updates) = 0;
 
     /**
      * @brief Abort the pending command with the supplied name and arguments.
      * @param cmdName The LabelString representing the command name.
      * @param cmdArgs The command arguments expressed as doubles.
-     * @param cmdAck The acknowledgment of the pending command
      * @param abrtAck The expression in which to store an acknowledgment of command abort.
+     * @param cmdAck The acknowledgment of the pending command
      * @note Derived classes may implement this method.  The default method causes an assertion to fail.
      */
 
     virtual void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck) = 0;
 
-	// Returns the current time.
+    // Returns the current time.
     virtual double currentTime() = 0;
 
     virtual void setExec(const PlexilExecId& exec)
-	{
-	  m_exec = exec;
-	  m_exec->setExternalInterface(m_id);
-	}
+    {
+      m_exec = exec;
+      m_exec->setExternalInterface(m_id);
+    }
 
     virtual ~ExternalInterface()   
-	{
-	  m_id.remove();
-	}
+    {
+      m_id.remove();
+    }
 
 
   protected:
 
     //this should eventually take a domain description as well
     ExternalInterface()
-	  : m_id(this) 
-	{
-	}
+      : m_id(this) 
+    {
+    }
 
     PlexilExecId m_exec;
 

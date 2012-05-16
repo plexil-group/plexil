@@ -65,7 +65,7 @@ namespace PLEXIL
 	  m_name("anonymous") 
   {
     if(this->isConst())
-      m_activeCount++;
+      ++m_activeCount;
   }
 
   VariableImpl::VariableImpl(const double value, const bool isConst)
@@ -77,7 +77,7 @@ namespace PLEXIL
   {
     m_value = m_initialValue;
     if(this->isConst())
-      m_activeCount++;
+      ++m_activeCount;
   }
 
   //
@@ -139,7 +139,7 @@ namespace PLEXIL
    */
   void VariableImpl::handleDeactivate(const bool changed) {
     if(this->isConst() && changed)
-      m_activeCount++;
+      ++m_activeCount;
   }
 
   void VariableImpl::setValue(const double value) {

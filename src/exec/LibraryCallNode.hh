@@ -63,7 +63,7 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    virtual void specializedPostInit(const PlexilNodeId& node);
+    virtual void specializedPostInitLate(const PlexilNodeId& node);
 
   private:
 

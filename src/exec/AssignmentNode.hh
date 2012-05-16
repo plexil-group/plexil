@@ -68,30 +68,34 @@ namespace PLEXIL
      * @return the priority of this node.
      */
     virtual double getPriority() const {return m_priority;}
-
-    // Called from the transition handler
-    virtual void abort();
     
   protected:
 
     // Specific behaviors for derived classes
     virtual void specializedPostInit(const PlexilNodeId& node);
-    virtual void createSpecializedConditions();
+    virtual void createConditionWrappers();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
     virtual void specializedReset();
 
     virtual void cleanUpNodeBody();
 
+    virtual NodeState getDestStateFromExecuting();
+    virtual NodeState getDestStateFromFailing();
+
     virtual void transitionFromExecuting(NodeState toState);
+    virtual void transitionFromFailing(NodeState toState);
+
+    virtual void transitionToExecuting();
+    virtual void transitionToFailing();
 
   private:
 
     void createAssignment(const PlexilAssignmentBody* body);
     void createDummyAssignment(); // unit test variant
+    void abort();
 
     AssignmentId m_assignment;
-    VariableId m_ack; /*<! The destination for acknowledgement of the assignment.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
     double m_priority; /*<! The priority of this node. */
   };
 

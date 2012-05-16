@@ -257,7 +257,7 @@ namespace PLEXIL
   }
 
   // Specific behaviors for derived classes
-  void LibraryCallNode::specializedPostInit(const PlexilNodeId& node)
+  void LibraryCallNode::specializedPostInitLate(const PlexilNodeId& node)
   {
     // Get node body
     const PlexilLibNodeCallBody* body = (PlexilLibNodeCallBody*) node->body();
