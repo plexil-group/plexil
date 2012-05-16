@@ -89,6 +89,7 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 
             // Conditions
         case PlexilLexer.END_CONDITION_KYWD:
+        case PlexilLexer.EXIT_CONDITION_KYWD:
         case PlexilLexer.INVARIANT_CONDITION_KYWD:
         case PlexilLexer.POST_CONDITION_KYWD:
         case PlexilLexer.PRE_CONDITION_KYWD:
@@ -184,21 +185,26 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.VARIABLE_DECLARATION:
             return new VariableDeclNode(payload);
 
-            // Literals
+            // Assorted literals
+            // Boolean
         case PlexilLexer.TRUE_KYWD:
         case PlexilLexer.FALSE_KYWD:
+            // Numeric
         case PlexilLexer.INT:
         case PlexilLexer.NEG_INT:
         case PlexilLexer.DOUBLE:
         case PlexilLexer.NEG_DOUBLE:
+            // Date/duration
         case PlexilLexer.DATE_LITERAL:
         case PlexilLexer.DURATION_LITERAL:
+            // Command handle
         case PlexilLexer.COMMAND_ACCEPTED_KYWD:
         case PlexilLexer.COMMAND_DENIED_KYWD:
         case PlexilLexer.COMMAND_FAILED_KYWD:
         case PlexilLexer.COMMAND_RCVD_KYWD:
         case PlexilLexer.COMMAND_SENT_KYWD:
         case PlexilLexer.COMMAND_SUCCESS_KYWD:
+            // Node states
         case PlexilLexer.EXECUTING_STATE_KYWD:
         case PlexilLexer.FAILING_STATE_KYWD:
         case PlexilLexer.FINISHED_STATE_KYWD:
@@ -206,9 +212,19 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.INACTIVE_STATE_KYWD:
         case PlexilLexer.ITERATION_ENDED_STATE_KYWD:
         case PlexilLexer.WAITING_STATE_KYWD:
+            // Node outcomes
         case PlexilLexer.SUCCESS_OUTCOME_KYWD:
         case PlexilLexer.FAILURE_OUTCOME_KYWD:
         case PlexilLexer.SKIPPED_OUTCOME_KYWD:
+        case PlexilLexer.INTERRUPTED_OUTCOME_KYWD:
+            // Node failure types
+        case PlexilLexer.PRE_CONDITION_FAILED_KYWD:
+        case PlexilLexer.POST_CONDITION_FAILED_KYWD:
+        case PlexilLexer.INVARIANT_CONDITION_FAILED_KYWD:
+        case PlexilLexer.PARENT_FAILED_KYWD:
+        case PlexilLexer.PARENT_EXITED_KYWD:
+        case PlexilLexer.EXITED_KYWD:
+
             return new LiteralNode(payload);
 
         case PlexilLexer.ARRAY_LITERAL:

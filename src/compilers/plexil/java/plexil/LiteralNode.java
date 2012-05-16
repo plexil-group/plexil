@@ -111,6 +111,7 @@ public class LiteralNode extends ExpressionNode
         case PlexilLexer.SUCCESS_OUTCOME_KYWD:
         case PlexilLexer.FAILURE_OUTCOME_KYWD:
         case PlexilLexer.SKIPPED_OUTCOME_KYWD:
+        case PlexilLexer.INTERRUPTED_OUTCOME_KYWD:
             m_dataType = PlexilDataType.NODE_OUTCOME_TYPE;
             break;
 
@@ -119,6 +120,8 @@ public class LiteralNode extends ExpressionNode
         case PlexilLexer.POST_CONDITION_FAILED_KYWD:
         case PlexilLexer.INVARIANT_CONDITION_FAILED_KYWD:
         case PlexilLexer.PARENT_FAILED_KYWD:
+        case PlexilLexer.PARENT_EXITED_KYWD:
+        case PlexilLexer.EXITED_KYWD:
             m_dataType = PlexilDataType.NODE_FAILURE_TYPE;
             break;
 
