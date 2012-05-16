@@ -59,11 +59,8 @@ GoalSearch:
 		InitReadSensor:
 		{
 			ReadUp:
-			{
-				EndCondition isKnown(HighestSensorVal);
-				// Set value to start a comparison
-				HighestSensorVal = RobotGoal[0];
-			}
+            // Set value to start a comparison
+			HighestSensorVal = RobotGoal[0];
 
 			ResetDir:
 			// Set direction to an invalid value. In 'Move' stage if the 
@@ -78,10 +75,7 @@ GoalSearch:
 			for (Integer i = 1; i < 4; i + 1) {
 				if (HighestSensorVal < RobotGoal[i]) {
 					SetVal:
-					{ 
-						EndCondition isKnown(HighestSensorVal);
-						HighestSensorVal = RobotGoal[i];
-					}
+					HighestSensorVal = RobotGoal[i];
 					ChangeDir:
 					Direction = i;
 				}
