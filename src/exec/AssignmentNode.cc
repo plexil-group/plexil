@@ -210,20 +210,6 @@ namespace PLEXIL
   // Conditions active: AncestorExit, AncestorInvariant, End, Exit, Invariant, Post
   // Legal successor states: FAILING, ITERATION_ENDED
 
-  void AssignmentNode::transitionToExecuting()
-  {
-    activateInvariantCondition();
-    activateEndCondition();
-    activatePostCondition();
-
-    // Perform assignment
-    checkError(m_assignment.isValid(),
-               "Node::handleExecution: Assignment is invalid");
-    m_assignment->activate();
-    m_assignment->fixValue();
-    m_exec->enqueueAssignment(m_assignment);
-  }
-
   NodeState AssignmentNode::getDestStateFromExecuting()
   {
     checkError(isAncestorExitConditionActive(),
@@ -271,6 +257,12 @@ namespace PLEXIL
 
   void AssignmentNode::specializedHandleExecution()
   {
+    // Perform assignment
+    checkError(m_assignment.isValid(),
+               "Node::handleExecution: Assignment is invalid");
+    m_assignment->activate();
+    m_assignment->fixValue();
+    m_exec->enqueueAssignment(m_assignment);
   }
 
   void AssignmentNode::transitionFromExecuting(NodeState destState)

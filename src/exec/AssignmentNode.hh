@@ -86,7 +86,6 @@ namespace PLEXIL
     virtual void transitionFromExecuting(NodeState toState);
     virtual void transitionFromFailing(NodeState toState);
 
-    virtual void transitionToExecuting();
     virtual void transitionToFailing();
 
   private:
