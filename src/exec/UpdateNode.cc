@@ -70,18 +70,11 @@ namespace PLEXIL
     // Activate conditions not activated by the base class constructor
     switch (m_state) {
     case EXECUTING_STATE:
-      deactivatePostCondition();
       m_update->activate();
       break;
 
     case FINISHING_STATE:
-      activateActionCompleteCondition();
-      activateAncestorExitCondition();
-      activateAncestorInvariantCondition();
-      activateExitCondition();
-      activateInvariantCondition();
-      activatePostCondition();
-      m_update->activate();
+      checkError(ALWAYS_FAIL, "Invalid state FINISHING for an UpdateNode");
       break;
 
     case FAILING_STATE:
@@ -123,7 +116,7 @@ namespace PLEXIL
     createUpdate((PlexilUpdateBody*) node->body());
 
     // Create action-complete condition
-    ExpressionId actionComplete = (ExpressionId)  m_update->getAck();
+    ExpressionId actionComplete = (ExpressionId) m_update->getAck();
     actionComplete->addListener(makeConditionListener(actionCompleteIdx));
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = false;
@@ -132,6 +125,31 @@ namespace PLEXIL
   void UpdateNode::createUpdate(const PlexilUpdateBody* body) 
   {
     m_update = (new Update(m_id, body->update()))->getId();
+  }
+
+  void UpdateNode::createConditionWrappers()
+  {
+    ExpressionId ack = (ExpressionId) m_update->getAck();
+    if (m_conditions[endIdx] == BooleanVariable::TRUE_EXP()) {
+      // Default - don't wrap, replace - (True && anything) == anything
+      m_conditions[endIdx] = ack;
+      ack->addListener(makeConditionListener(endIdx));
+      m_garbageConditions[endIdx] = false;
+    }
+    else {
+      // Wrap user-provided condition
+      if (m_listeners[endIdx].isId())
+        m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
+      else
+        makeConditionListener(endIdx); // for effect
+      ExpressionId realEnd = (new Conjunction(ack,
+                                              false,
+                                              m_conditions[endIdx],
+                                              m_garbageConditions[endIdx]))->getId();
+      realEnd->addListener(m_listeners[endIdx]);
+      m_conditions[endIdx] = realEnd;
+      m_garbageConditions[endIdx] = true;
+    }
   }
 
   // Unit test variant
@@ -148,14 +166,8 @@ namespace PLEXIL
   // EXECUTING 
   // 
   // Legal predecessor states: WAITING
-  // Conditions active: AncestorExit, AncestorInvariant, End, Exit, Invariant
-  // Legal successor states: FAILING, FINISHING
-
-  void UpdateNode::transitionToExecuting()
-  {
-    activateEndCondition();
-    activateInvariantCondition();
-  }
+  // Conditions active: AncestorExit, AncestorInvariant, End, Exit, Invariant, Post
+  // Legal successor states: FAILING, ITERATION_ENDED
 
   void UpdateNode::specializedHandleExecution()
   {
@@ -209,8 +221,8 @@ namespace PLEXIL
     if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << 
-               "' destination: FINISHING.  Update node and end condition true.");
-      return FINISHING_STATE;
+               "' destination: ITERATION_ENDED.  Update node and end condition true.");
+      return ITERATION_ENDED_STATE;
     }
       
     debugMsg("Node:getDestState",
@@ -224,8 +236,8 @@ namespace PLEXIL
 
   void UpdateNode::transitionFromExecuting(NodeState destState)
   {
-    checkError(destState == FINISHING_STATE ||
-               destState == FAILING_STATE,
+    checkError(destState == FAILING_STATE ||
+               destState == ITERATION_ENDED_STATE,
                "Attempting to transition Update node from EXECUTING to invalid state '"
                << StateVariable::nodeStateName(destState).toString() << "'");
 
@@ -245,146 +257,41 @@ namespace PLEXIL
       m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
       m_failureTypeVariable->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
     }
-
-    deactivateEndCondition();
-    if (destState == FAILING_STATE) {
-      deactivateExitCondition();
-      deactivateInvariantCondition();
-      deactivateAncestorExitCondition();
-      deactivateAncestorInvariantCondition();
-      // N.B. FAILING waits on ActionComplete, *not* AbortComplete!
-      activateActionCompleteCondition();
-    }
-    else { // FINISHING
-    }
-
-  }
-
-  //
-  // FINISHING
-  //
-  // Legal predecessor states: EXECUTING
-  // Conditions active: ActionComplete, AncestorExit, AncestorInvariant, Exit, Invariant, Post
-  // Legal successor states: FAILING, FINISHED, ITERATION_ENDED
-
-  void UpdateNode::transitionToFinishing()
-  {
-    activateActionCompleteCondition();
-    activatePostCondition();
-  }
-
-  NodeState UpdateNode::getDestStateFromFinishing()
-  {
-    checkError(isAncestorExitConditionActive(),
-               "Ancestor exit for " << getNodeId().toString() << " is inactive.");
-    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << 
-               "' destination: FAILING. Update node and ancestor exit true.");
-      return FAILING_STATE;
-    }
-
-    checkError(isExitConditionActive(),
-               "Exit for " << getNodeId().toString() << " is inactive.");
-    if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << 
-               "' destination: FAILING. Update node and exit true.");
-      return FAILING_STATE;
-    }
-
-    checkError(isAncestorInvariantConditionActive(),
-               "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
-    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << 
-                 "' destination: FAILING. Update node and ancestor invariant false.");
-        return FAILING_STATE;
-    }
-
-    checkError(isInvariantConditionActive(),
-               "Invariant for " << getNodeId().toString() << " is inactive.");
-    if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << 
-               "' destination: FAILING. Update node and invariant false.");
-      return FAILING_STATE;
-    }
-
-    checkError(isActionCompleteConditionActive(),
-               "Action complete for " << getNodeId().toString() << " is inactive.");
-    if (getActionCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << 
-               "' destination: ITERATION_ENDED. Update node and action complete true.");
-      return ITERATION_ENDED_STATE;
-    }
-      
-    debugMsg("Node:getDestState",
-             " '" << m_nodeId.toString() << "' destination from FINISHING: no state."
-             << "\n  Ancestor exit: " << getAncestorExitCondition()->toString()
-             << "\n  Exit: " << getExitCondition()->toString() 
-             << "\n  Ancestor invariant: " << getAncestorInvariantCondition()->toString()
-             << "\n  Invariant: " << getInvariantCondition()->toString() 
-             << "\n  Action complete: " << getActionCompleteCondition()->toString());
-    return NO_NODE_STATE;
-  }
-
-  void UpdateNode::transitionFromFinishing(NodeState destState)
-  {
-    checkError(destState == FAILING_STATE ||
-               destState == ITERATION_ENDED_STATE,
-               "Attempting to transition Update node from FINISHING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
-
-    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
-      getFailureTypeVariable()->setValue(FailureVariable::PARENT_EXITED());
-    }
-    else if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
-      getFailureTypeVariable()->setValue(FailureVariable::EXITED());
-    }
-    else if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-      m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
-      m_failureTypeVariable->setValue(FailureVariable::PARENT_FAILED());
-    }
-    else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-      m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
-      m_failureTypeVariable->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
-    }
-    else if (getActionCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+    else { // End true -> ITERATION_ENDED
       checkError(isPostConditionActive(),
-                 "Post for " << getNodeId().toString() << " is inactive.");
+                 "AssignmentNode::transitionFromExecuting: Post for " << m_nodeId.toString() << " is inactive.");
       if (getPostCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-        m_outcomeVariable->setValue(OutcomeVariable::SUCCESS());
+        getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
       }
       else {
-        m_outcomeVariable->setValue(OutcomeVariable::FAILURE());
-        m_failureTypeVariable->setValue(FailureVariable::POST_CONDITION_FAILED());
+        getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+        getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
       }
     }
 
+    deactivateEndCondition();
     deactivateExitCondition();
     deactivateInvariantCondition();
     deactivatePostCondition();
 
     if (destState == FAILING_STATE) {
-      // N.B. FAILING waits on ActionComplete, *not* AbortComplete!
       deactivateAncestorExitCondition();
       deactivateAncestorInvariantCondition();
+      // N.B. FAILING waits on ActionComplete, *not* AbortComplete!
+      activateActionCompleteCondition();
     }
     else { // ITERATION_ENDED
-      deactivateActionCompleteCondition();
-      deactivateExecutable();
       activateAncestorEndCondition();
+
+      deactivateExecutable();
     }
+
   }
 
   //
   // FAILING
   //
-  // Legal predecessor states: EXECUTING, FINISHING
+  // Legal predecessor states: EXECUTING
   // Conditions active: ActionComplete
   // Legal successor states: FINISHED, ITERATION_ENDED
 

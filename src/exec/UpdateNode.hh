@@ -70,21 +70,18 @@ namespace PLEXIL
 
     // Specific behaviors for derived classes
     virtual void specializedPostInit(const PlexilNodeId& node);
+    virtual void createConditionWrappers();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
     virtual void specializedReset();
     virtual void cleanUpNodeBody();
 
     virtual NodeState getDestStateFromExecuting();
-    virtual NodeState getDestStateFromFinishing();
     virtual NodeState getDestStateFromFailing();
 
-    virtual void transitionToExecuting();
-    virtual void transitionToFinishing();
     virtual void transitionToFailing();
 
     virtual void transitionFromExecuting(NodeState toState);
-    virtual void transitionFromFinishing(NodeState toState);
     virtual void transitionFromFailing(NodeState toState);
 
   private:
