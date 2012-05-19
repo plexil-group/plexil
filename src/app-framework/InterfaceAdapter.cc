@@ -91,8 +91,7 @@ namespace PLEXIL
 
   void InterfaceAdapter::setThresholds(const State& /* state */, double /* hi */, double /* lo */)
   {
-    assertTrue(ALWAYS_FAIL,
-			   "InterfaceAdapter::setThresholds: default method called!");
+    debugMsg("InterfaceAdapter:setThresholds", " default method called");
   }
 
   void InterfaceAdapter::sendPlannerUpdate(const NodeId& /* node */,

@@ -144,7 +144,7 @@ namespace PLEXIL
 	 * @param state The state.
 	 * @param hi The upper threshold, at or above which to report changes.
 	 * @param lo The lower threshold, at or below which to report changes.
-     * @note Adapters should provide their own methods.  The default method raises an assertion.
+     * @note Adapters should provide their own methods as appropriate.  The default method does nothing.
 	 */
 	virtual void setThresholds(const State& state, double hi, double lo);
 
