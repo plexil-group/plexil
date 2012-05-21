@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -75,7 +75,7 @@ namespace PLEXIL
      * @note The instance maintains a shared reference to the XML.
      */
     InterfaceAdapter(AdapterExecInterface& execInterface, 
-					 const pugi::xml_node& xml);
+                     const pugi::xml_node& xml);
 
     /**
      * @brief Destructor.
@@ -126,12 +126,12 @@ namespace PLEXIL
      */
     virtual double lookupNow(const State& state);
 
-	/**
-	 * @brief Inform the interface that it should report changes in value of this state.
-	 * @param state The state.
+    /**
+     * @brief Inform the interface that it should report changes in value of this state.
+     * @param state The state.
      * @note Adapters should provide their own methods.  The default method raises an assertion.
-	 */
-	virtual void subscribe(const State& state);
+     */
+    virtual void subscribe(const State& state);
 
     /**
      * @brief Inform the interface that a lookup should no longer receive updates.
@@ -139,14 +139,14 @@ namespace PLEXIL
      */
     virtual void unsubscribe(const State& state);
 
-	/**
-	 * @brief Advise the interface of the current thresholds to use when reporting this state.
-	 * @param state The state.
-	 * @param hi The upper threshold, at or above which to report changes.
-	 * @param lo The lower threshold, at or below which to report changes.
+    /**
+     * @brief Advise the interface of the current thresholds to use when reporting this state.
+     * @param state The state.
+     * @param hi The upper threshold, at or above which to report changes.
+     * @param lo The lower threshold, at or below which to report changes.
      * @note Adapters should provide their own methods as appropriate.  The default method does nothing.
-	 */
-	virtual void setThresholds(const State& state, double hi, double lo);
+     */
+    virtual void setThresholds(const State& state, double hi, double lo);
 
     /**
      * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.
@@ -157,15 +157,15 @@ namespace PLEXIL
      */
 
     virtual void sendPlannerUpdate(const NodeId& node,
-				   const std::map<double, double>& valuePairs,
-				   ExpressionId ack);
+                                   const std::map<double, double>& valuePairs,
+                                   ExpressionId ack);
 
-	/**
+    /**
      * @brief Execute a command with the requested arguments.
      * @param cmd The Command instance.
-	 * @note The default method calls the method below.
-	 */
-	virtual void executeCommand(CommandId cmd);
+     * @note The default method calls the method below.
+     */
+    virtual void executeCommand(CommandId cmd);
 
     /**
      * @brief Execute a command with the requested arguments.
@@ -177,9 +177,15 @@ namespace PLEXIL
      */
 
     virtual void executeCommand(const LabelStr& name,
-				const std::list<double>& args,
-				ExpressionId dest,
-				ExpressionId ack);
+                                const std::list<double>& args,
+                                ExpressionId dest,
+                                ExpressionId ack);
+
+    /**
+     * @brief Abort the pending command.
+     * @note Derived classes may implement this method. The default method calls the compatibility method below.
+     */
+    virtual void invokeAbort(const CommandId& name);
 
     /**
      * @brief Abort the pending command with the supplied name and arguments.
@@ -189,10 +195,10 @@ namespace PLEXIL
      * @param ack The expression in which to store an acknowledgement of command abort.
      * @note Derived classes may implement this method.  The default method causes an assertion to fail.
      */
-
     virtual void invokeAbort(const LabelStr& name, 
-			     const std::list<double>& args, 
-			     ExpressionId cmd_ack, ExpressionId ack);
+                             const std::list<double>& args, 
+                             ExpressionId cmd_ack,
+                             ExpressionId ack);
 
     /**
      * @brief Register this adapter based on its XML configuration data.

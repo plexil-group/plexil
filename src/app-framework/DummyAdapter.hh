@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -92,41 +92,35 @@ namespace PLEXIL
      */
     double lookupNow(const State& state);
 
-	/**
-	 * @brief Inform the interface that it should report changes in value of this state.
-	 * @param state The state.
-	 */
-	void subscribe(const State& state);
+    /**
+     * @brief Inform the interface that it should report changes in value of this state.
+     * @param state The state.
+     */
+    void subscribe(const State& state);
 
     /**
      * @brief Inform the interface that a lookup should no longer receive updates.
-	 * @param state The state.
+     * @param state The state.
      */
     void unsubscribe(const State& state);
 
-	/**
-	 * @brief Advise the interface of the current thresholds to use when reporting this state.
-	 * @param state The state.
-	 * @param hi The upper threshold, at or above which to report changes.
-	 * @param lo The lower threshold, at or below which to report changes.
-	 */
-	void setThresholds(const State& state, double hi, double lo);
+    /**
+     * @brief Advise the interface of the current thresholds to use when reporting this state.
+     * @param state The state.
+     * @param hi The upper threshold, at or above which to report changes.
+     * @param lo The lower threshold, at or below which to report changes.
+     */
+    void setThresholds(const State& state, double hi, double lo);
 
     void sendPlannerUpdate(const NodeId& node,
-			   const std::map<double, double>& valuePairs,
-			   ExpressionId ack);
+                           const std::map<double, double>& valuePairs,
+                           ExpressionId ack);
 
-    // executes a command with the given arguments
-    void executeCommand(const LabelStr& name,
-			const std::list<double>& args,
-			ExpressionId dest,
-			ExpressionId ack);
+    // execute a command
+    void executeCommand(const CommandId& cmd);
 
-    //abort the given command with the given arguments.  store the abort-complete into ack
-    void invokeAbort(const LabelStr& name, 
-		     const std::list<double>& args, 
-		     ExpressionId dest,
-		     ExpressionId ack);
+    //abort the given command
+    void invokeAbort(const CommandId& cmd);
     
   private:
     // deliberately unimplemented

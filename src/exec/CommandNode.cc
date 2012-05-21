@@ -462,10 +462,7 @@ namespace PLEXIL
     checkError(m_command.isValid(), "CommandNode::abort: Command is invalid");
     // Handle stupid unit test
     if (m_exec->getExternalInterface().isId()) {
-      m_exec->getExternalInterface()->invokeAbort(m_command->getName(),
-                                                  m_command->getArgValues(),
-                                                  m_command->getAbortComplete(),
-                                                  m_command->getAck());
+      m_exec->getExternalInterface()->invokeAbort(m_command);
     }
   }
 

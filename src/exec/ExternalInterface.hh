@@ -76,15 +76,10 @@ namespace PLEXIL {
     virtual void updatePlanner(std::list<UpdateId>& updates) = 0;
 
     /**
-     * @brief Abort the pending command with the supplied name and arguments.
-     * @param cmdName The LabelString representing the command name.
-     * @param cmdArgs The command arguments expressed as doubles.
-     * @param abrtAck The expression in which to store an acknowledgment of command abort.
-     * @param cmdAck The acknowledgment of the pending command
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+     * @brief Abort the pending command.
+     * @param cmd The command.
      */
-
-    virtual void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck) = 0;
+    virtual void invokeAbort(const CommandId& cmd) = 0;
 
     // Returns the current time.
     virtual double currentTime() = 0;
