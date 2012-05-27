@@ -13,6 +13,19 @@ start =
   | CommandAck
   | (notAllowed
      | element PLEXILScript { InitialState?, Script })
+State =
+  notAllowed
+  | element State {
+      type?,
+      attribute name { xsd:string }?,
+      Param*,
+      element Value { \string }+
+    }
+UpdateAck =
+  notAllowed
+  | element UpdateAck {
+      attribute name { xsd:string }?
+    }
 CommandAck =
   notAllowed
   | element CommandAck { command-type }
@@ -27,33 +40,21 @@ type =
     | xsd:NMTOKEN "bool-array"
     | xsd:NMTOKEN "real-array"
   }
-Script =
-  notAllowed
-  | element Script {
-      (State
-       | UpdateAck
-       | Command
-       | CommandAck
-       | CommandAbort
-       | Simultaneous)*
-    }
-Command =
-  notAllowed
-  | element Command { command-type }
-State =
-  notAllowed
-  | element State {
-      type?,
-      attribute name { xsd:string }?,
-      Param*,
-      element Value { \string }+
-    }
-\string = xsd:string
 Simultaneous =
   notAllowed
   | element Simultaneous {
       (State | UpdateAck | Command | CommandAck | CommandAbort)*
     }
+\string = xsd:string
+Param =
+  notAllowed
+  | element Param { type?, xsd:string }
+InitialState =
+  notAllowed
+  | element InitialState { State* }
+Command =
+  notAllowed
+  | element Command { command-type }
 CommandAbort =
   notAllowed
   | element CommandAbort { command-type }
@@ -64,16 +65,15 @@ command-type =
    (notAllowed
     | element Result { \string })+),
   empty
-InitialState =
+Script =
   notAllowed
-  | element InitialState { State* }
-Param =
-  notAllowed
-  | element Param { type?, xsd:string }
-UpdateAck =
-  notAllowed
-  | element UpdateAck {
-      attribute name { xsd:string }?
+  | element Script {
+      (State
+       | UpdateAck
+       | Command
+       | CommandAck
+       | CommandAbort
+       | Simultaneous)*
     }
 PlexilPlanAttributes = 
   notAllowed

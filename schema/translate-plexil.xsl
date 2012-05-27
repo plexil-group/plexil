@@ -1298,6 +1298,13 @@
     </AND>
   </xsl:template>
 
+  <xsl:template match="Interrupted">
+    <AND>
+      <xsl:call-template name="node-finished" />
+      <xsl:call-template name="node-interrupted" />
+    </AND>
+  </xsl:template>
+
   <xsl:template match="IterationFailed">
     <AND>
       <xsl:call-template name="node-iteration-ended" />
@@ -1752,6 +1759,14 @@
     </xsl:call-template>
   </xsl:template>
 
+  <xsl:template name="node-interrupted">
+    <xsl:param name="id" select="*" />
+    <xsl:call-template name="node-outcome-check">
+      <xsl:with-param name="id" select="$id" />
+      <xsl:with-param name="outcome" select="'INTERRUPTED'" />
+    </xsl:call-template>
+  </xsl:template>
+
   <xsl:template name="node-succeeded">
     <xsl:param name="id" select="*" />
     <xsl:call-template name="node-outcome-check">
@@ -1837,8 +1852,7 @@
     <xsl:choose>
       <xsl:when test= "ancestor::Command|ancestor::Assignment|ancestor::Update|
                        ancestor::Command|ancestor::PreCondition|
-                       ancestor::PostCondition|ancestor::InvariantCondition|
-                       ancestor::ExitCondition">
+                       ancestor::PostCondition|ancestor::InvariantCondition">
         <LookupNow>
           <Name>
             <xsl:apply-templates select= "Name/*"/>
