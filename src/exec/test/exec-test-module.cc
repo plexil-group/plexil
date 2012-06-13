@@ -965,7 +965,7 @@ public:
   {
   }
 
-  void invokeAbort(const LabelStr& /* cmdName */, const std::list<double>& /* cmdArgs */, ExpressionId /* abrtAck */, ExpressionId /* cmdAck */)
+  void invokeAbort(const CommandId& /* cmd */)
   {
   }
 
@@ -2846,7 +2846,7 @@ public:
   {
   }
 
-  void invokeAbort(const LabelStr& /* cmdName */, const std::list<double>& /* cmdArgs */, ExpressionId /* abrtAck */, ExpressionId /* cmdAck */)
+  void invokeAbort(const CommandId& /* cmd */)
   {
   }
 
