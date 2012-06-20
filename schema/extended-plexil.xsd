@@ -83,6 +83,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:element ref="Succeeded"/>
         <xsd:element ref="IterationSucceeded"/>
         <xsd:element ref="Failed"/>
+        <xsd:element ref="Interrupted"/>
         <xsd:element ref="IterationFailed"/>
         <xsd:element ref="Skipped"/>
         <xsd:element ref="InvariantFailed"/>
@@ -362,6 +363,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
   <xsd:element name="Succeeded" type="node-reference"/>
   <xsd:element name="IterationSucceeded" type="node-reference"/>
   <xsd:element name="Failed" type="node-reference"/>
+  <xsd:element name="Interrupted" type="node-reference"/>
   <xsd:element name="IterationFailed" type="node-reference"/>
   <xsd:element name="Skipped" type="node-reference"/>
   <xsd:element name="InvariantFailed" type="node-reference"/>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,127 +42,98 @@ namespace PLEXIL
   class NodeFactory
   {
   public:
-	/**
-	 * @brief Primary factory method.
-	 */
-	static NodeId createNode(const PlexilNodeId& nodeProto, 
-							 const ExecConnectorId& exec, 
-							 const NodeId& parent = NodeId::noId());
+    /**
+     * @brief Primary factory method.
+     */
+    static NodeId createNode(const PlexilNodeId& nodeProto, 
+                             const ExecConnectorId& exec, 
+                             const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Alternate factory method.  Used only by Exec test module.
      */
     static NodeId createNode(const LabelStr& type, 
-							 const LabelStr& name, 
-							 const NodeState state,
-							 const bool skip = false,
-							 const bool start = true,
-							 const bool pre = true,
-							 const bool invariant = true, 
-							 const bool post = true,
-							 const bool end = true,
-							 const bool repeat = false,
-							 const bool ancestorInvariant = true,
-							 const bool ancestorEnd = false,
-							 const bool parentExecuting = true,
-							 const bool childrenFinished = false,
-							 const bool commandAbort = false,
-							 const bool parentWaiting = false,
-							 const bool parentFinished = false,
-							 const bool cmdHdlRcvdCondition = false,
-							 const ExecConnectorId& exec = ExecConnectorId::noId(),
-							 const NodeId& parent = NodeId::noId());
+                             const LabelStr& name, 
+                             const NodeState state,
+                             const ExecConnectorId& exec = ExecConnectorId::noId(),
+                             const NodeId& parent = NodeId::noId());
 
-	static void ensureNodeFactoriesRegistered();
+    static void ensureNodeFactoriesRegistered();
 
   protected:
-	NodeFactory(PlexilNodeType nodeType);
-	virtual ~NodeFactory();
+    NodeFactory(PlexilNodeType nodeType);
+    virtual ~NodeFactory();
 
-	/**
-	 * @brief Primary factory method.
-	 */
-	virtual NodeId create(const PlexilNodeId& node, 
-						  const ExecConnectorId& exec, 
-						  const NodeId& parent = NodeId::noId()) const = 0;
+    /**
+     * @brief Primary factory method.
+     */
+    virtual NodeId create(const PlexilNodeId& node, 
+                          const ExecConnectorId& exec, 
+                          const NodeId& parent = NodeId::noId()) const = 0;
 
     /**
      * @brief Alternate factory method.  Used only by Exec test module.
      */
-    virtual NodeId create(const LabelStr& type, const LabelStr& name, const NodeState state,
-						  const bool skip, const bool start, const bool pre,
-						  const bool invariant, const bool post, const bool end, const bool repeat,
-						  const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
-						  const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
-						  const bool parentFinished, const bool cmdHdlRcvdCondition,
-						  const ExecConnectorId& exec = ExecConnectorId::noId(),
-						  const NodeId& parent = NodeId::noId()) const = 0;
 
-	PlexilNodeType m_nodeType;
+    virtual NodeId create(const LabelStr& type, const LabelStr& name, const NodeState state,
+                          const ExecConnectorId& exec = ExecConnectorId::noId(),
+                          const NodeId& parent = NodeId::noId()) const = 0;
+
+    PlexilNodeType m_nodeType;
 
   private:
-	// Deliberately unimplemented
-	NodeFactory();
-	NodeFactory(const NodeFactory&);
-	NodeFactory& operator=(const NodeFactory&);
+    // Deliberately unimplemented
+    NodeFactory();
+    NodeFactory(const NodeFactory&);
+    NodeFactory& operator=(const NodeFactory&);
 
-	static NodeFactory** factoryMap(); // reference to array of pointers was just too hard!
+    static NodeFactory** factoryMap(); // reference to array of pointers was just too hard!
   };
 
   template<class NODE_TYPE>
   class ConcreteNodeFactory : public NodeFactory
   {
   public:
-	ConcreteNodeFactory(PlexilNodeType nodeType)
-	: NodeFactory(nodeType)
-	{
-	}
+    ConcreteNodeFactory(PlexilNodeType nodeType)
+    : NodeFactory(nodeType)
+    {
+    }
 
-	virtual ~ConcreteNodeFactory()
-	{
-	}
+    virtual ~ConcreteNodeFactory()
+    {
+    }
 
   private:
-	// Deliberately unimplemented
-	ConcreteNodeFactory();
-	ConcreteNodeFactory(const ConcreteNodeFactory&);
-	ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
+    // Deliberately unimplemented
+    ConcreteNodeFactory();
+    ConcreteNodeFactory(const ConcreteNodeFactory&);
+    ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
 
-	NodeId create(const PlexilNodeId& nodeProto, 
-				  const ExecConnectorId& exec, 
-				  const NodeId& parent) const
-	{
-	  // Shouldn't happen
-	  checkError(nodeProto->nodeType() == m_nodeType,
-				 "Factory for node type " << PlexilParser::nodeTypeString(m_nodeType)
-				 << " invoked on node type "
-				 << PlexilParser::nodeTypeString(nodeProto->nodeType()));
-	  return (new NODE_TYPE(nodeProto, exec, parent))->getId();
-	}
+    NodeId create(const PlexilNodeId& nodeProto, 
+                  const ExecConnectorId& exec, 
+                  const NodeId& parent) const
+    {
+      // Shouldn't happen
+      checkError(nodeProto->nodeType() == m_nodeType,
+                 "Factory for node type " << PlexilParser::nodeTypeString(m_nodeType)
+                 << " invoked on node type "
+                 << PlexilParser::nodeTypeString(nodeProto->nodeType()));
+      return (new NODE_TYPE(nodeProto, exec, parent))->getId();
+    }
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
+
     NodeId create(const LabelStr& type, const LabelStr& name, const NodeState state,
-				  const bool skip, const bool start, const bool pre,
-				  const bool invariant, const bool post, const bool end, const bool repeat,
-				  const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
-				  const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
-				  const bool parentFinished, const bool cmdHdlRcvdCondition,
-				  const ExecConnectorId& exec, const NodeId& parent) const
-	{
-	  // Shouldn't happen
-	  checkError(PlexilParser::parseNodeType(type.toString()) == m_nodeType,
-				 "Factory for node type " << PlexilParser::nodeTypeString(m_nodeType)
-				 << " invoked on node type " << type.toString());
-	  return (new NODE_TYPE(type, name, state,
-							skip, start, pre,
-							invariant, post, end, repeat,
-							ancestorInvariant, ancestorEnd, parentExecuting,
-							childrenFinished, commandAbort, parentWaiting,
-							parentFinished, cmdHdlRcvdCondition,
-							exec, parent))->getId();
-	}
+                  const ExecConnectorId& exec, const NodeId& parent) const
+    {
+      // Shouldn't happen
+      checkError(PlexilParser::parseNodeType(type.toString()) == m_nodeType,
+                 "Factory for node type " << PlexilParser::nodeTypeString(m_nodeType)
+                 << " invoked on node type " << type.toString());
+      return (new NODE_TYPE(type, name, state, exec, parent))->getId();
+    }
 
   };
 

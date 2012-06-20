@@ -104,7 +104,7 @@
       </xsl:choose>
       <!-- Elements that may need translation -->
       <xsl:apply-templates select="RepeatCondition|PreCondition|PostCondition|
-                                   InvariantCondition|EndCondition" />
+                                   InvariantCondition|ExitCondition|EndCondition" />
       <xsl:apply-templates select="NodeBody" />
     <!-- Handle skip condition -->
     <xsl:choose>
@@ -611,6 +611,7 @@
       <xsl:apply-templates select="PreCondition"/>
       <xsl:apply-templates select="PostCondition"/>
       <xsl:apply-templates select="InvariantCondition"/>
+      <xsl:apply-templates select="ExitCondition"/>
       <xsl:call-template name= "wait-end-condition"/>
       <xsl:apply-templates select="SkipCondition"/>
     </Node>
@@ -626,6 +627,7 @@
       <xsl:apply-templates select="PreCondition"/>
       <xsl:apply-templates select="PostCondition"/>
       <xsl:apply-templates select="InvariantCondition"/>
+      <xsl:apply-templates select="ExitCondition"/>
       <xsl:call-template name= "wait-end-condition"/>
       <xsl:call-template name="ordered-skip-condition"/>
     </Node>
@@ -964,6 +966,7 @@
     <xsl:apply-templates select="PreCondition"/>
     <xsl:apply-templates select="PostCondition"/>
     <xsl:apply-templates select="InvariantCondition"/>
+    <xsl:apply-templates select="ExitCondition"/>
     <xsl:apply-templates select="EndCondition"/>
     <xsl:apply-templates select="SkipCondition"/>
     <!-- <xsl:copy-of select="VariableDeclarations"/> -->
@@ -977,6 +980,7 @@
     <xsl:apply-templates select="PreCondition"/>
     <xsl:apply-templates select="PostCondition"/>
     <xsl:apply-templates select="InvariantCondition"/>
+    <xsl:apply-templates select="ExitCondition"/>
     <xsl:call-template name= "wait-end-condition"/>
     <xsl:call-template name="ordered-skip-condition"/>
     <!-- <xsl:copy-of select="VariableDeclarations"/> -->
@@ -1043,6 +1047,7 @@
     <!-- Translate remaining conditions, handling special cases -->
     <xsl:apply-templates select="RepeatCondition" />
     <xsl:apply-templates select="PreCondition" />
+    <xsl:apply-templates select="ExitCondition" />
     <xsl:choose>
       <xsl:when test="$try-clauses">
         <PostCondition>
@@ -1135,7 +1140,7 @@
   <xsl:template
     match="StartCondition|RepeatCondition|PreCondition|
                       PostCondition|InvariantCondition|EndCondition|
-                      SkipCondition">
+                      ExitCondition|SkipCondition">
     <xsl:element name="{name()}">
       <xsl:apply-templates select="*" />
     </xsl:element>
@@ -1290,6 +1295,13 @@
     <AND>
       <xsl:call-template name="node-finished" />
       <xsl:call-template name="node-failed" />
+    </AND>
+  </xsl:template>
+
+  <xsl:template match="Interrupted">
+    <AND>
+      <xsl:call-template name="node-finished" />
+      <xsl:call-template name="node-interrupted" />
     </AND>
   </xsl:template>
 
@@ -1744,6 +1756,14 @@
     <xsl:call-template name="node-outcome-check">
       <xsl:with-param name="id" select="$id" />
       <xsl:with-param name="outcome" select="'FAILURE'" />
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="node-interrupted">
+    <xsl:param name="id" select="*" />
+    <xsl:call-template name="node-outcome-check">
+      <xsl:with-param name="id" select="$id" />
+      <xsl:with-param name="outcome" select="'INTERRUPTED'" />
     </xsl:call-template>
   </xsl:template>
 

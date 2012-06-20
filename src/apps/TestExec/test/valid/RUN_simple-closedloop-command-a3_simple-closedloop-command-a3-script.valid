@@ -51,43 +51,47 @@ SimpleDrive{
 [PlexilExec:unlock]Unlocking node Drive
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Drive' was previously eligible to transition but isn't now.
-[PlexilExec:performAssignments] performing 0 assignments
-[Test:testOutput]Executing drive() into retTestFunction (id_68[au](-1): int) with ack Drive ack (id_124[au](UNKNOWN): string)
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
+[Test:testOutput]Executing drive() into retTestFunction (id_68[au](-1): int) with ack Drive command_handle (id_137[au](UNKNOWN): command_handle)
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleDrive{
  State: SimpleDrive (id_26[au](EXECUTING): state) (0)
  AncestorEndCondition: Boolean constant false (id_64[au](0): boolean)
+ AncestorExitCondition: Boolean constant false (id_64[au](0): boolean)
  AncestorInvariantCondition: Boolean constant true (id_66[au](1): boolean)
  ParentExecutingCondition: Boolean constant true (id_66[au](1): boolean)
  ParentFinishedCondition: Boolean constant false (id_64[au](0): boolean)
  ParentWaitingCondition: Boolean constant false (id_64[au](0): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_128[iu](UNKNOWN): childrenWaitingOrFinished(0:1))
  SkipCondition: Boolean constant false (id_64[au](0): boolean)
  StartCondition: Boolean constant true (id_66[au](1): boolean)
- EndCondition: (id_133[au](0): childrenFinished(0:1))
+ EndCondition: (id_129[au](0): childrenFinished(0:1))
+ ExitCondition: Boolean constant false (id_64[au](0): boolean)
  InvariantCondition: Boolean constant true (id_66[au](1): boolean)
  PreCondition: Boolean constant true (id_66[au](1): boolean)
  PostCondition: Boolean constant true (id_66[au](1): boolean)
  RepeatCondition: Boolean constant false (id_64[au](0): boolean)
+ ActionCompleteCondition: (id_124[iu](UNKNOWN): childrenWaitingOrFinished(0:1))
  retTestFunction: retTestFunction (id_68[au](-1): int)
   Drive{
    State: Drive (id_83[au](EXECUTING): state) (0)
-   AncestorEndCondition: (id_133[au](0): childrenFinished(0:1))
+   AncestorEndCondition: (id_129[au](0): childrenFinished(0:1))
+   AncestorExitCondition: Boolean constant false (id_64[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_66[au](1): boolean)
    ParentExecutingCondition: (id_72[au](1): (SimpleDrive (id_26[au](EXECUTING): state) == anonymous (id_70[au](EXECUTING): state)))
    ParentFinishedCondition: (id_76[au](0): (SimpleDrive (id_26[au](EXECUTING): state) == anonymous (id_74[au](FINISHED): state)))
    ParentWaitingCondition: (id_80[au](0): (SimpleDrive (id_26[au](EXECUTING): state) == anonymous (id_78[au](WAITING): state)))
    SkipCondition: Boolean constant false (id_64[au](0): boolean)
    StartCondition: Boolean constant true (id_66[au](1): boolean)
-   EndCondition: (id_164[au](0): ((id_158[au](0): interruptibleCommandHandleValues(Drive ack (id_124[au](UNKNOWN): string))) || (id_162[au](0): ((id_160[au](0): isknown(Drive ack (id_124[au](UNKNOWN): string))) && (id_147[au](0): (IntegerValue (id_149[au](10): int) == retTestFunction (id_68[au](-1): int)))))))
+   EndCondition: (id_162[au](0): ((id_160[au](0): interruptibleCommandHandleValues(Drive command_handle (id_137[au](UNKNOWN): command_handle))) || (id_149[au](0): (IntegerValue (id_151[au](10): int) == retTestFunction (id_68[au](-1): int)))))
+   ExitCondition: Boolean constant false (id_64[au](0): boolean)
    InvariantCondition: Boolean constant true (id_66[au](1): boolean)
    PreCondition: Boolean constant true (id_66[au](1): boolean)
-   PostCondition: (id_152[au](UNKNOWN): (id_156[au](UNKNOWN): (Drive (id_126[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_154[au](COMMAND_DENIED): command_handle))))
+   PostCondition: (id_154[iu](UNKNOWN): (id_158[iu](UNKNOWN): (Drive command_handle (id_137[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_156[iu](COMMAND_DENIED): command_handle))))
    RepeatCondition: Boolean constant false (id_64[au](0): boolean)
-   AbortCompleteCondition: anonymous (id_140[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_143[au](0): allCommandHandleValues(Drive ack (id_124[au](UNKNOWN): string)))
-   Command handle: Drive (id_126[au](UNKNOWN): command_handle)
+   ActionCompleteCondition: (id_141[iu](UNKNOWN): isknown(Drive command_handle (id_137[au](UNKNOWN): command_handle)))
+   AbortCompleteCondition: Drive abortComplete (id_139[au](UNKNOWN): boolean)
+   Command handle: Drive command_handle (id_137[au](UNKNOWN): command_handle)
    retTestFunction: retTestFunction (id_68[au](-1): int)
   }
 }
@@ -97,7 +101,6 @@ SimpleDrive{
 [Test:testOutput]Looking up immediately time()
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 2
-[PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 5
@@ -114,17 +117,17 @@ SimpleDrive{
 [PlexilExec:step][2:1:0] Transitioning node Drive
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:unlock]Unlocking node Drive
+[PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 7
+[PlexilExec:step][2:2] State change queue: Drive 
+[PlexilExec:lock]Locking node Drive
+[PlexilExec:step][2:2:0] Transitioning node Drive
+[PlexilExec:notifyNodeConditionChanged] for node Drive
+[PlexilExec:unlock]Unlocking node Drive
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Drive' was previously eligible to transition but isn't now.
-[PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 7
-[PlexilExec:step][2:2] State change queue: SimpleDrive 
-[PlexilExec:lock]Locking node SimpleDrive
-[PlexilExec:step][2:2:0] Transitioning node SimpleDrive
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
-[PlexilExec:unlock]Unlocking node SimpleDrive
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 8
@@ -142,8 +145,16 @@ SimpleDrive{
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:unlock]Unlocking node SimpleDrive
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 10
+[PlexilExec:step][2:5] State change queue: SimpleDrive 
+[PlexilExec:lock]Locking node SimpleDrive
+[PlexilExec:step][2:5:0] Transitioning node SimpleDrive
+[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:unlock]Unlocking node SimpleDrive
+[PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'SimpleDrive' was previously eligible to transition but isn't now.
-[PlexilExec:performAssignments] performing 0 assignments
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 SimpleDrive{
@@ -153,7 +164,7 @@ SimpleDrive{
   Drive{
    State: Drive (id_83[au](FINISHED): state) (0)
    Outcome: Drive (id_85[au](SUCCESS): outcome)
-   Command handle: Drive (id_126[au](COMMAND_DENIED): command_handle)
+   Command handle: Drive command_handle (id_137[iu](COMMAND_DENIED): command_handle)
    retTestFunction: retTestFunction (id_68[iu](-1): int)
   }
 }
@@ -162,7 +173,7 @@ SimpleDrive{
 [Test:testOutput]Looking up immediately time()
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 3
-[PlexilExec:performAssignments] performing 0 assignments
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 SimpleDrive{
@@ -172,7 +183,7 @@ SimpleDrive{
   Drive{
    State: Drive (id_83[au](FINISHED): state) (0)
    Outcome: Drive (id_85[au](SUCCESS): outcome)
-   Command handle: Drive (id_126[au](COMMAND_DENIED): command_handle)
+   Command handle: Drive command_handle (id_137[iu](COMMAND_DENIED): command_handle)
    retTestFunction: retTestFunction (id_68[iu](10): int)
   }
 }

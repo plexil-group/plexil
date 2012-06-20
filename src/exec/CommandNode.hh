@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,68 +45,62 @@ namespace PLEXIL
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    CommandNode(const LabelStr& type, const LabelStr& name, const NodeState state,
-				const bool skip, const bool start, const bool pre,
-				const bool invariant, const bool post, const bool end, const bool repeat,
-				const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
-				const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
-				const bool parentFinished, const bool cmdHdlRcvdCondition,
-				const ExecConnectorId& exec = ExecConnectorId::noId(),
-				const NodeId& parent = NodeId::noId());
+    CommandNode(const LabelStr& type,
+                const LabelStr& name,
+                const NodeState state,
+                const ExecConnectorId& exec = ExecConnectorId::noId(),
+                const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
      */
     virtual ~CommandNode();
 
-	// Called from the transition handler
+    // Called from the transition handler
     virtual void abort();
 
-	/**
-	 * @brief Get the node's command.
-	 */
-	const CommandId& getCommand()
-	{
-	  return m_command; 
-	}
+    /**
+     * @brief Get the node's command.
+     */
+    const CommandId& getCommand()
+    {
+      return m_command; 
+    }
 
   protected:
 
-	// Specific behaviors for derived classes
-	virtual void specializedPostInit(const PlexilNodeId& node);
-	virtual void createSpecializedConditions();
-	virtual void createConditionWrappers();
-	virtual void specializedActivateInternalVariables();
-	virtual void specializedHandleExecution();
-	virtual void specializedDeactivateExecutable();
-	virtual void specializedReset();
+    // Specific behaviors for derived classes
+    virtual void specializedPostInit(const PlexilNodeId& node);
+    virtual void createConditionWrappers();
+    virtual void specializedActivateInternalVariables();
+    virtual void specializedHandleExecution();
+    virtual void specializedDeactivateExecutable();
+    virtual void specializedReset();
 
-	virtual NodeState getDestStateFromExecuting();
-	virtual NodeState getDestStateFromFailing();
+    virtual NodeState getDestStateFromExecuting();
+    virtual NodeState getDestStateFromFinishing();
+    virtual NodeState getDestStateFromFailing();
 
-	virtual void transitionFromExecuting(NodeState toState);
-	virtual void transitionFromFailing(NodeState toState);
+    virtual void transitionToExecuting();
+    virtual void transitionToFinishing();
+    virtual void transitionToFailing();
 
-	virtual void transitionToExecuting();
-	virtual void transitionToFailing();
+    virtual void transitionFromExecuting(NodeState toState);
+    virtual void transitionFromFinishing(NodeState toState);
+    virtual void transitionFromFailing(NodeState toState);
 
-	virtual void printCommandHandle(std::ostream& stream, const unsigned int indent, bool always = false) const;
+    // Not useful if called from base class destructor!
+    virtual void cleanUpNodeBody();
 
-	// Not useful if called from base class destructor!
-	virtual void cleanUpNodeBody();
-
-	// Used in command handle processing - to be deleted.
-    double getAcknowledgementValue() const;
+    virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const;
 
   private:
 
     void createCommand(const PlexilCommandBody* body);
-	// Unit test support
+    // Unit test support
     void createDummyCommand(); // unit test variant
 
     CommandId m_command; /*<! The command to be performed. */
-    VariableId m_ack; /*<! The destination for acknowledgement of the command.  DON'T FORGET TO RESET THIS VALUE IN REPEAT-UNTILs! */
-	VariableId m_commandHandleVariable;
   };
 
 }

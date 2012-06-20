@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,34 +29,42 @@
 
 #include "ExecDefs.hh"
 
+
 namespace PLEXIL
 {
+  // Forward declarations in PLEXIL namespace
+  class PlexilUpdate;
+  typedef Id<PlexilUpdate> PlexilUpdateId;
 
   class Update 
   {
   public:
-    Update(const NodeId& node, 
-		   const ExpressionMap& pairs, 
-		   const VariableId ack,
-		   const std::list<ExpressionId>& garbage);
+    Update(const NodeId& node, const PlexilUpdateId& updateProto = PlexilUpdateId::noId());
     ~Update();
+
     const UpdateId& getId() const {return m_id;}
     const VariableId& getAck() const {return m_ack;}
     const std::map<double, double>& getPairs() const {return m_valuePairs;}
     const NodeId& getSource() const {return m_source;}
     void activate();
     void deactivate();
+    void reset();
 
   protected:
     friend class UpdateNode;
     void fixValues();
 
   private:
+    // Deliberately unimplemented
+    Update();
+    Update(const Update&);
+    Update& operator=(const Update&);
+
     UpdateId m_id;
     NodeId m_source;
     ExpressionMap m_pairs;
     VariableId m_ack;
-    std::list<ExpressionId> m_garbage;
+    std::vector<ExpressionId> m_garbage;
     std::map<double, double> m_valuePairs;
   };
 

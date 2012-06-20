@@ -370,7 +370,7 @@ RootNode:
                             EndCondition res != -999;
                             res = MoveRight(RobotName);
 	      	        }
-	      	        goalgodown:
+	      	        GoalGoDown:
 	      	        {
                             StartCondition holder == 2;
                             SkipCondition goal[2] == 0 || holder != 2 || gSenD < lastGoalD;

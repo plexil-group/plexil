@@ -46,13 +46,13 @@ namespace PLEXIL {
   }
 
   void ExpressionListener::activate() {
-    m_activeCount++;
+    ++m_activeCount;
   }
 
   void ExpressionListener::deactivate() {
     checkError(m_activeCount > 0,
 	       "Attempted to deactivate an expression listener too many times.");
-    m_activeCount--;
+    --m_activeCount;
   }
 
   SubexpressionListener::SubexpressionListener(Expression& parent)
@@ -89,7 +89,7 @@ namespace PLEXIL {
 
   void Expression::activate() {
     bool changed = (m_activeCount == 0);
-    m_activeCount++;
+    ++m_activeCount;
     // debugMsg("Expression:activate", "Activating " << getId());
     handleActivate(changed);
 #ifdef EXPRESSION_PRINT_STATISTICS
@@ -105,8 +105,8 @@ namespace PLEXIL {
   void Expression::deactivate() {
     checkError(m_activeCount > 0,
 	       "Attempted to deactivate expression " << getId() << " too many times.");
-    bool changed = (m_activeCount == 1);
-    m_activeCount--;
+    --m_activeCount;
+    bool changed = (m_activeCount == 0);
     // debugMsg("Expression:deactivate", "Deactivating " << getId());
     handleDeactivate(changed);
   }

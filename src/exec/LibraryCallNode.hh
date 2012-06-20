@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,37 +47,34 @@ namespace PLEXIL
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    LibraryCallNode(const LabelStr& type, const LabelStr& name, const NodeState state,
-					const bool skip, const bool start, const bool pre,
-					const bool invariant, const bool post, const bool end, const bool repeat,
-					const bool ancestorInvariant, const bool ancestorEnd, const bool parentExecuting,
-					const bool childrenFinished, const bool commandAbort, const bool parentWaiting,
-					const bool parentFinished, const bool cmdHdlRcvdCondition,
-					const ExecConnectorId& exec = ExecConnectorId::noId(),
-					const NodeId& parent = NodeId::noId());
+    LibraryCallNode(const LabelStr& type,
+                    const LabelStr& name,
+                    const NodeState state,
+                    const ExecConnectorId& exec = ExecConnectorId::noId(),
+                    const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
      */
     virtual ~LibraryCallNode();
 
-	virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false);
+    virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false);
 
   protected:
 
-	// Specific behaviors for derived classes
-	virtual void specializedPostInit(const PlexilNodeId& node);
+    // Specific behaviors for derived classes
+    virtual void specializedPostInitLate(const PlexilNodeId& node);
 
   private:
 
     void createLibraryNode(const PlexilLibNodeCallBody* body);
 
     void createAliases(const PlexilNodeId& libNode, 
-					   const std::vector<PlexilVarRef*>& interfaceVars,
-					   PlexilAliasMap& aliases,
-					   bool isIn);
+                       const std::vector<PlexilVarRef*>& interfaceVars,
+                       PlexilAliasMap& aliases,
+                       bool isIn);
 
-	VariableMap m_aliasVariables;
+    VariableMap m_aliasVariables;
   };
 
 }

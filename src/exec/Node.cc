@@ -60,40 +60,40 @@ namespace PLEXIL {
 
   const std::vector<double>& Node::ALL_CONDITIONS() {
     static std::vector<double>* sl_allConds = NULL;
-    if (sl_allConds == NULL)
-      {
-        // *** N.B.: Order MUST agree with enum ConditionIndex!
-        sl_allConds = new std::vector<double>();
-        // Conditions on parent
-        sl_allConds->push_back(ANCESTOR_END_CONDITION());
-        sl_allConds->push_back(ANCESTOR_INVARIANT_CONDITION());
-        sl_allConds->push_back(PARENT_EXECUTING_CONDITION());
-        sl_allConds->push_back(PARENT_FINISHED_CONDITION());
-        sl_allConds->push_back(PARENT_WAITING_CONDITION());
-        // Only for list or library call nodes
-        sl_allConds->push_back(CHILDREN_WAITING_OR_FINISHED());
-        // User specified conditions
-        sl_allConds->push_back(SKIP_CONDITION());
-        sl_allConds->push_back(START_CONDITION());
-        sl_allConds->push_back(END_CONDITION());
-        sl_allConds->push_back(INVARIANT_CONDITION());
-        sl_allConds->push_back(PRE_CONDITION());
-        sl_allConds->push_back(POST_CONDITION());
-        sl_allConds->push_back(REPEAT_CONDITION());
-        // Only for command nodes
-        sl_allConds->push_back(ABORT_COMPLETE());
-        sl_allConds->push_back(COMMAND_HANDLE_RECEIVED_CONDITION());
-        // inexpensive sanity check
-        assertTrue(sl_allConds->size() == conditionIndexMax,
-                   "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
-      }
+    if (sl_allConds == NULL) {
+      // *** N.B.: Order MUST agree with enum ConditionIndex!
+      sl_allConds = new std::vector<double>();
+      // Conditions on parent
+      sl_allConds->push_back(ANCESTOR_END_CONDITION());
+      sl_allConds->push_back(ANCESTOR_EXIT_CONDITION());
+      sl_allConds->push_back(ANCESTOR_INVARIANT_CONDITION());
+      sl_allConds->push_back(PARENT_EXECUTING_CONDITION());
+      sl_allConds->push_back(PARENT_FINISHED_CONDITION());
+      sl_allConds->push_back(PARENT_WAITING_CONDITION());
+      // User specified conditions
+      sl_allConds->push_back(SKIP_CONDITION());
+      sl_allConds->push_back(START_CONDITION());
+      sl_allConds->push_back(END_CONDITION());
+      sl_allConds->push_back(EXIT_CONDITION());
+      sl_allConds->push_back(INVARIANT_CONDITION());
+      sl_allConds->push_back(PRE_CONDITION());
+      sl_allConds->push_back(POST_CONDITION());
+      sl_allConds->push_back(REPEAT_CONDITION());
+      // For all but Empty nodes
+      sl_allConds->push_back(ACTION_COMPLETE());
+      // For all but Empty and Update nodes
+      sl_allConds->push_back(ABORT_COMPLETE());
+      // inexpensive sanity check
+      assertTrue(sl_allConds->size() == conditionIndexMax,
+                 "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
+    }
     return *sl_allConds;
   }
 
   size_t Node::getConditionIndex(const LabelStr& cName) {
     double nameKey = cName.getKey();
     const std::vector<double>& allConds = ALL_CONDITIONS();
-    for (size_t i = 0; i < conditionIndexMax; i++) {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
       if (allConds[i] == nameKey)
         return i;
     }
@@ -168,11 +168,7 @@ namespace PLEXIL {
 
   // Used only by module test
   Node::Node(const LabelStr& type, const LabelStr& name, const NodeState state,
-             const bool skip, const bool start, const bool pre, const bool invariant, const bool post,
-             const bool end, const bool repeat, const bool ancestorInvariant,
-             const bool ancestorEnd, const bool parentExecuting, const bool childrenFinished,
-             const bool commandAbort, const bool parentWaiting, 
-             const bool parentFinished, const bool cmdHdlRcvdCondition, const ExecConnectorId& exec,
+             const ExecConnectorId& exec,
              const NodeId& parent)
     : NodeConnector(),
       m_id(this, NodeConnector::getId()),
@@ -192,20 +188,69 @@ namespace PLEXIL {
     commonInit();
     activateInternalVariables();
 
-    // N.B.: Must be same order as ALL_CONDITIONS() and conditionIndex enum!
-    bool values[conditionIndexMax] =
-      {ancestorEnd, ancestorInvariant, parentExecuting, parentFinished, parentWaiting, 
-       childrenFinished,
-       skip, start, end, invariant, pre, post, repeat,
-       commandAbort, cmdHdlRcvdCondition};
-    for (size_t i = 0; i < conditionIndexMax; i++) {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
+      ExpressionId expr = (new BooleanVariable(BooleanVariable::FALSE_VALUE(), false))->getId();
       debugMsg("Node:node",
-               "Creating internal variable " << LabelStr(ALL_CONDITIONS()[i]).toString() <<
-               " with value " << values[i] << " for node " << m_nodeId.toString());
-      ExpressionId expr = (new BooleanVariable((double) values[i]))->getId();
+               " Created internal variable "
+               << LabelStr(ALL_CONDITIONS()[i]).toString() <<
+               " with value FALSE for node " << m_nodeId.toString());
       m_conditions[i] = expr;
       m_garbageConditions[i] = true;
       getCondition(i)->addListener(makeConditionListener(i)); // may not be same as expr for parent-state conditions
+    }
+
+    // Activate the conditions required by the provided state
+    switch (m_state) {
+
+    case INACTIVE_STATE:
+      activateParentExecutingCondition();
+      activateParentFinishedCondition();
+      break;
+
+    case WAITING_STATE:
+      activateAncestorEndCondition();
+      activateAncestorExitCondition();
+      activateAncestorInvariantCondition();
+      activateExitCondition();
+      activatePreCondition();
+      activateSkipCondition();
+      activateStartCondition();
+      break;
+
+    case EXECUTING_STATE:
+      activateAncestorExitCondition();
+      activateAncestorInvariantCondition();
+      activateEndCondition();
+      activateExitCondition();
+      activateInvariantCondition();
+      activatePostCondition();
+      break;
+
+    case FAILING_STATE:
+      assertTrueMsg(m_nodeType != EMPTY(),
+                    "Node module test constructor: FAILING state invalid for " << m_nodeType.toString() << " nodes");
+      // Defer to subclass
+      break;
+
+    case FINISHING_STATE:
+      assertTrueMsg(m_nodeType != EMPTY(),
+                    "Node module test constructor: FINISHING state invalid for " << m_nodeType.toString() << " nodes");
+      // Defer to subclass
+      break;
+
+    case ITERATION_ENDED_STATE:
+      activateAncestorEndCondition();
+      activateAncestorExitCondition();
+      activateAncestorInvariantCondition();
+      activateRepeatCondition();
+      break;
+
+    case FINISHED_STATE:
+      activateParentWaitingCondition();
+      break;
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL, "Node module test constructor: Invalid state " << state);
     }
   }
 
@@ -225,7 +270,7 @@ namespace PLEXIL {
 
     //instantiate timepoint variables
     debugMsg("Node:node", "Instantiating timepoint variables.");
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
       ExpressionId stp = (new RealVariable())->getId();
       double stpName = START_TIMEPOINT_NAMES()[s];
       m_startTimepoints[s] = m_variablesByName[stpName] = stp;
@@ -236,7 +281,7 @@ namespace PLEXIL {
     }
 
     // initialize m_garbageConditions
-    for (size_t i = 0; i < conditionIndexMax; i++) {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
       m_garbageConditions[i] = false;
     }
   }
@@ -249,6 +294,7 @@ namespace PLEXIL {
     m_conditions[skipIdx] = BooleanVariable::FALSE_EXP();
     m_conditions[startIdx] = BooleanVariable::TRUE_EXP();
     m_conditions[endIdx] = BooleanVariable::TRUE_EXP();
+    m_conditions[exitIdx] = BooleanVariable::FALSE_EXP();
     m_conditions[invariantIdx] = BooleanVariable::TRUE_EXP();
     m_conditions[preIdx] = BooleanVariable::TRUE_EXP();
     m_conditions[postIdx] = BooleanVariable::TRUE_EXP();
@@ -461,6 +507,22 @@ namespace PLEXIL {
     return expr;
   }
 
+  void Node::postInit(const PlexilNodeId& node) 
+  {
+    checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
+    m_postInitCalled = true;
+
+    // create assignment/command/update
+    specializedPostInit(node);
+
+    // create conditions and listeners
+    debugMsg("Node:postInit", "Creating conditions for node '" << m_nodeId.toString() << "'");
+    createConditions(node->conditions());
+
+    // late post init (for NodeList)
+    specializedPostInitLate(node);
+  }
+
   void Node::createConditions(const std::map<std::string, PlexilExprId>& conds) 
   {
     // Attach listeners to ancestor invariant and ancestor end conditions
@@ -471,13 +533,18 @@ namespace PLEXIL {
                     "Internal error: ancestor end condition is null!");
       ancestorEnd->addListener(makeConditionListener(ancestorEndIdx));
 
+      ExpressionId ancestorExit = getAncestorExitCondition();
+      assertTrueMsg(ancestorExit.isId(),
+                    "Internal error: ancestor exit condition is null!");
+      ancestorExit->addListener(makeConditionListener(ancestorExitIdx));
+
       ExpressionId ancestorInvariant = getAncestorInvariantCondition();
       assertTrueMsg(ancestorInvariant.isId(),
                     "Internal error: ancestor invariant condition is null!");
       ancestorInvariant->addListener(makeConditionListener(ancestorInvariantIdx));
     }
 
-    // Let the derived class do its thing
+    // Let the derived class do its thing (currently only ListNode)
     createSpecializedConditions();
 
     // Add user-specified conditions
@@ -520,6 +587,16 @@ namespace PLEXIL {
   {
   }
 
+  // Default method
+  void Node::specializedPostInit(const PlexilNodeId& node)
+  {
+  }
+
+  // Default method
+  void Node::specializedPostInitLate(const PlexilNodeId& node)
+  {
+  }
+
   Node::~Node() 
   {
     debugMsg("Node:~Node", " base class destructor for " << m_nodeId.toString());
@@ -542,7 +619,7 @@ namespace PLEXIL {
     debugMsg("Node:cleanUpConditions", " for " << m_nodeId.toString());
 
     // Clean up condition listeners
-    for (size_t i = 0; i < conditionIndexMax; i++) {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
       if (m_listeners[i].isId()) {
         debugMsg("Node:cleanUpConditions",
                  "<" << m_nodeId.toString() << "> Removing condition listener for " <<
@@ -558,7 +635,7 @@ namespace PLEXIL {
     // Clean up conditions
     // N.B.: Ancestor-end and ancestor-invariant MUST be cleaned up before
     // end and invariant, respectively. 
-    for (size_t i = 0; i < conditionIndexMax; i++) {
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
       if (m_garbageConditions[i]) {
         debugMsg("Node:cleanUpConds",
                  "<" << m_nodeId.toString() << "> Removing condition " << getConditionName(i).toString());
@@ -597,7 +674,7 @@ namespace PLEXIL {
     m_localVariables.clear();
 
     // Delete timepoint variables
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
       delete (Variable*) m_startTimepoints[s];
       delete (Variable*) m_endTimepoints[s];
       m_startTimepoints[s] = m_endTimepoints[s] = VariableId::noId();
@@ -614,41 +691,17 @@ namespace PLEXIL {
     m_cleanedVars = true;
   }
 
-  void Node::postInit(const PlexilNodeId& node) 
-  {
-    checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
-    m_postInitCalled = true;
-
-    debugMsg("Node:postInit", "Creating conditions for node '" << m_nodeId.toString() << "'");
-    //create conditions and listeners
-    createConditions(node->conditions());
-
-    //create assignment/command
-    specializedPostInit(node);
-  }
-
-  // Default method
-  void Node::specializedPostInit(const PlexilNodeId& node)
-  {
-  }
-
   // Make the node (and its children, if any) active.
   void Node::activate()
   {
     // Activate internal variables
     activateInternalVariables();
 
-    // These are the only conditions we care about in the INACTIVE state.
-    // See getDestStateFromInactive().
-    activateParentExecutingCondition();
-    activateParentFinishedCondition();
-    
-    specializedActivate();
-  }
+    // Activate conditions needed for INACTIVE state
+    transitionToInactive();
 
-  // Default method
-  void Node::specializedActivate()
-  {
+    // Other initializations as required by node type
+    specializedActivate();
   }
 
   void Node::activateInternalVariables()
@@ -661,7 +714,7 @@ namespace PLEXIL {
 
     // Activate timepoints
     // TODO: figure out if they should be inactive until entering the corresponding state
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
       m_startTimepoints[s]->activate();
       m_endTimepoints[s]->activate();
     }
@@ -674,11 +727,17 @@ namespace PLEXIL {
   {
   }
 
+  // Default method
+  void Node::specializedActivate()
+  {
+  }
+
   const ExpressionId& Node::getCondition(size_t idx) const
   {
     switch (idx) {
 
     case ancestorEndIdx:
+    case ancestorExitIdx:
     case parentFinishedIdx:
     case parentWaitingIdx:
 
@@ -792,181 +851,10 @@ namespace PLEXIL {
   }
 
   //
-  // Next-state logic
-  //
-
-  // Default method
-  NodeState Node::getDestStateFromInactive()
-  {
-    checkError(isParentExecutingConditionActive(), 
-               "Parent executing for " << m_nodeId.toString() << " is inactive.");
-    if (getParentFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: FINISHED.  PARENT_FINISHED_CONDITION true.");
-      return FINISHED_STATE;
-    }
-
-    checkError(isParentFinishedConditionActive(), 
-               "Parent finished for " << m_nodeId.toString() << " is inactive.");
-    if (getParentExecutingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: WAITING.  PARENT_EXECUTING_CONDITION true");
-      return WAITING_STATE;
-    }
-    debugMsg("Node:getDestState", 
-             " '" << m_nodeId.toString() << "' destination: no state.");
-    return NO_NODE_STATE;
-  }
-
-  // Default method
-  NodeState Node::getDestStateFromWaiting()
-  {
-    checkError(isAncestorInvariantConditionActive(), "Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
-    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_INVARIANT_CONDITION false.");
-      return FINISHED_STATE;
-    }
-
-    checkError(isAncestorEndConditionActive(), "Ancestor end for " << m_nodeId.toString() << " is inactive.");
-    if (getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_END_CONDITION true.");
-      return FINISHED_STATE;
-    }
-
-    checkError(isSkipConditionActive(), "Skip for " << m_nodeId.toString() << " is inactive.");
-    if (getSkipCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: FINISHED.  SKIP_CONDITION true.");
-      return FINISHED_STATE;
-    }
-
-    checkError(isStartConditionActive(), "Start for " << m_nodeId.toString() << " is inactive.");
-    if (getStartCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      if (getPreCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << "' destination: EXECUTING.  START_CONDITION and PRE_CONDITION are both true.");
-        return EXECUTING_STATE;
-      }
-      else {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED. START_CONDITION true and PRE_CONDITION false or unknown.");
-        return ITERATION_ENDED_STATE;
-      }
-    }
-    debugMsg("Node:getDestState",
-             " '" << m_nodeId.toString() << "' destination: no state.  START_CONDITION false or unknown");
-    return NO_NODE_STATE;
-  }
-
-  // Default method
-  NodeState Node::getDestStateFromExecuting()
-  {
-    checkError(isAncestorInvariantConditionActive(),
-               "Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
-    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: FINISHED.  Ancestor invariant false.");
-      return FINISHED_STATE;
-    }
-
-    checkError(isInvariantConditionActive(),
-               "Invariant for " << m_nodeId.toString() << " is inactive.");
-    if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED.  Invariant false.");
-      return ITERATION_ENDED_STATE;
-    }
-
-    checkError(isEndConditionActive(),
-               "End for " << m_nodeId.toString() << " is inactive.");
-    if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED.  End condition true.");
-      return ITERATION_ENDED_STATE;
-    }
-    return NO_NODE_STATE;
-  }
-
-  // Default method
-  NodeState Node::getDestStateFromFinishing()
-  {
-    checkError(ALWAYS_FAIL,
-               "Attempted to compute destination state for node " << m_nodeId.toString()
-               << " of type " << getType());
-    return NO_NODE_STATE;
-  }
-
-  // Default method
-  NodeState Node::getDestStateFromFinished()
-  {
-    checkError(isParentWaitingConditionActive(),
-               "Parent waiting for " << m_nodeId.toString() << " is inactive.");
-
-    if (getParentWaitingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: INACTIVE.  PARENT_WAITING true.");
-      return INACTIVE_STATE;
-    }
-    debugMsg("Node:getDestState",
-             " '" << m_nodeId.toString() << "' destination: no state.  PARENT_WAITING false or unknown.");
-    return NO_NODE_STATE;
-  }
-
-  // Default method
-  NodeState Node::getDestStateFromFailing()
-  {
-    checkError(ALWAYS_FAIL,
-               "Attempted to compute destination state for node " << m_nodeId.toString()
-               << " of type " << getType());
-    return NO_NODE_STATE;
-  }
-
-  // Default method
-  NodeState Node::getDestStateFromIterationEnded()
-  {
-    checkError(isAncestorInvariantConditionActive(),
-               "Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
-
-    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_INVARIANT false.");
-      return FINISHED_STATE;
-    }
-
-    checkError(isAncestorEndConditionActive(),
-               "Ancestor end for " << m_nodeId.toString() << " is inactive.");
-    if (getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: FINISHED.  ANCESTOR_END true.");
-      return FINISHED_STATE;
-    }
-
-    checkError(isRepeatConditionActive(),
-               "Repeat for " << m_nodeId.toString() << " is inactive.");
-    double repeat = getRepeatCondition()->getValue();
-    if (repeat == BooleanVariable::FALSE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: FINISHED.  REPEAT_CONDITION false.");
-      return FINISHED_STATE;
-    }
-    if (repeat == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: WAITING.  REPEAT_UNTIL true.");
-      return WAITING_STATE;
-    }
-
-    debugMsg("Node:getDestState",
-             " '" << m_nodeId.toString() << "' destination: no state.  ANCESTOR_END false or unknown and REPEAT unknown.");
-    return NO_NODE_STATE;
-  }
-
-  //
   // State transition logic
   //
 
-  // This method is currently used only by exec-test-module.
+  // This method is used only by exec-test-module.
   // Its logic has been absorbed into transition() below to avoid redundant calls to getDestState().
   bool Node::canTransition()
   {
@@ -1019,7 +907,7 @@ namespace PLEXIL {
     conditionChanged(); // was checkConditions();
   }
 
-  // Empty node method 
+  // Common method 
   void Node::transitionFrom(NodeState destState)
   {
     switch (m_state) {
@@ -1057,7 +945,7 @@ namespace PLEXIL {
     }
   }
 
-  // Empty node method 
+  // Common method 
   void Node::transitionTo(NodeState destState)
   {
     switch (destState) {
@@ -1095,128 +983,19 @@ namespace PLEXIL {
     }
 
     setState(destState);
+    if (destState == EXECUTING_STATE)
+      execute();
   }
 
-  // Default method
-  void Node::transitionFromInactive(NodeState destState)
-  {
-    checkError(destState == WAITING_STATE ||
-               destState == FINISHED_STATE,
-               "Attempting to transition to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
-    deactivateParentExecutingCondition();
-    deactivateParentFinishedCondition();
-    if (destState == FINISHED_STATE)
-      getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
-  }
-
-  // Default method
-  void Node::transitionFromWaiting(NodeState destState)
-  {
-    checkError(destState == FINISHED_STATE ||
-               destState == EXECUTING_STATE ||
-               destState == ITERATION_ENDED_STATE,
-               "Attempting to transition to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
-    deactivateStartCondition();
-    deactivateSkipCondition();
-    deactivateAncestorEndCondition();
-    deactivateAncestorInvariantCondition();
-    deactivatePreCondition();
-
-    if (destState == FINISHED_STATE)
-      getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
-    else if (destState == ITERATION_ENDED_STATE) {
-      getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-      getFailureTypeVariable()->setValue(FailureVariable::PRE_CONDITION_FAILED());
-    }
-  }
-
-  // Empty node method
-  void Node::transitionFromExecuting(NodeState destState)
-  {
-    checkError(m_nodeType == Node::EMPTY(),
-               "Expected empty node, got " <<
-               m_nodeType.toString());
-    checkError(destState == FINISHED_STATE ||
-               destState == ITERATION_ENDED_STATE,
-               "Attempting to transition to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
-
-    if (getAncestorInvariantCondition()->getValue() ==
-        BooleanVariable::FALSE_VALUE()) {
-        getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-        getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
-      }
-    else if (getInvariantCondition()->getValue() ==
-             BooleanVariable::FALSE_VALUE()) {
-        getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-        getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
-      }
-    else if(getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      if(getPostCondition()->getValue() == BooleanVariable::TRUE_VALUE())
-        getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
-      else {
-        getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-        getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
-      }
-    }
-    else {
-      checkError(ALWAYS_FAIL, "Shouldn't get here.");
-    }
-
-    deactivateAncestorInvariantCondition();
-    deactivateInvariantCondition();
-    deactivateEndCondition();
-    deactivatePostCondition();
-  }
-
-  // Default method
-  void Node::transitionFromFinishing(NodeState destState)
-  {
-    checkError(ALWAYS_FAIL,
-               "No transition from FINISHING state defined for this node");
-  }
-
-  // Default method
-  void Node::transitionFromFinished(NodeState destState)
-  {
-    checkError(destState == INACTIVE_STATE,
-               "Attempting to transition to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
-    deactivateParentWaitingCondition();
-    reset();
-  }
-
-  // Default method
-  void Node::transitionFromFailing(NodeState destState)
-  {
-    checkError(ALWAYS_FAIL,
-               "No transition from FAILING state defined for this node");
-  }
-
-  // Default method
-  void Node::transitionFromIterationEnded(NodeState destState)
-  {
-    checkError(destState == FINISHED_STATE ||
-               destState == WAITING_STATE,
-               "Attempting to transition to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
-
-    if (getAncestorInvariantCondition()->getValue() ==
-        BooleanVariable::FALSE_VALUE()) {
-      getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
-      getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
-    }
-
-    deactivateRepeatCondition();
-    deactivateAncestorEndCondition();
-    deactivateAncestorInvariantCondition();
-
-    if (destState == WAITING_STATE)
-      reset();
-  }
-
+  //
+  // INACTIVE
+  //
+  // Description and methods here apply to ALL nodes
+  //
+  // Start state
+  // Legal predecessor states: FINISHED
+  // Conditions active: ParentExecuting, ParentFinished
+  // Legal successor states: WAITING, FINISHED
 
   // Default method
   void Node::transitionToInactive()
@@ -1226,26 +1005,414 @@ namespace PLEXIL {
   }
 
   // Default method
-  void Node::transitionToWaiting()
+  NodeState Node::getDestStateFromInactive()
   {
-    activateStartCondition();
-    activatePreCondition();
-    activateSkipCondition();
-    activateAncestorEndCondition();
-    activateAncestorInvariantCondition();
+    checkError(isParentFinishedConditionActive(), 
+               "Node::getDestStateFromInactive: Parent finished for " << m_nodeId.toString() << " is inactive.");
+    if (getParentFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. PARENT_FINISHED_CONDITION true.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isParentExecutingConditionActive(), 
+               "Node::getDestStateFromInactive: Parent executing for " << m_nodeId.toString() << " is inactive.");
+    if (getParentExecutingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: WAITING. PARENT_EXECUTING_CONDITION true");
+      return WAITING_STATE;
+    }
+
+    debugMsg("Node:getDestState", 
+             " '" << m_nodeId.toString() << "' destination: no state.");
+    return NO_NODE_STATE;
   }
 
-  // Empty node method
+  // Default method
+  void Node::transitionFromInactive(NodeState destState)
+  {
+    checkError(destState == WAITING_STATE || destState == FINISHED_STATE,
+               "Attempting to transition from INACTIVE to invalid state '"
+               << StateVariable::nodeStateName(destState).toString() << "'");
+    deactivateParentExecutingCondition();
+    deactivateParentFinishedCondition();
+    if (destState == FINISHED_STATE) {
+      getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
+    }
+    else { // WAITING
+      activateAncestorEndCondition();
+      activateAncestorExitCondition();
+      activateAncestorInvariantCondition();
+    }
+  }
+
+  //
+  // WAITING
+  //
+  // Description and methods here apply to ALL nodes.
+  //
+  // Legal predecessor states: INACTIVE, ITERATION_ENDED
+  // Conditions active: AncestorEnd, AncestorExit, AncestorInvariant, Exit, Pre, Skip, Start
+  // Legal successor states: EXECUTING, FINISHED, ITERATION_ENDED
+
+  // ** N.B. Preceding state must ensure that AncestorEnd, AncestorExit, and AncestorInvariant are active.
+
+  // Default method
+  void Node::transitionToWaiting()
+  {
+    activateExitCondition();
+    activatePreCondition();
+    activateSkipCondition();
+    activateStartCondition();
+  }
+
+  // Default method
+  NodeState Node::getDestStateFromWaiting()
+  {
+    checkError(isAncestorExitConditionActive(),
+               "Node::getDestStateFromWaiting: Ancestor exit for " << m_nodeId.toString() << " is inactive.");
+    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isExitConditionActive(),
+               "Node::getDestStateFromWaiting: Exit condition for " << m_nodeId.toString() << " is inactive.");
+    if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. EXIT_CONDITION true.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isAncestorInvariantConditionActive(),
+               "Node::getDestStateFromWaiting: Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
+    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. ANCESTOR_INVARIANT_CONDITION false.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isAncestorEndConditionActive(),
+               "Node::getDestStateFromWaiting: Ancestor end for " << m_nodeId.toString() << " is inactive.");
+    if (getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. ANCESTOR_END_CONDITION true.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isSkipConditionActive(), 
+               "Node::getDestStateFromWaiting: Skip for " << m_nodeId.toString() << " is inactive.");
+    if (getSkipCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. SKIP_CONDITION true.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isStartConditionActive(), 
+               "Node::getDestStateFromWaiting: Start for " << m_nodeId.toString() << " is inactive.");
+    if (getStartCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      checkError(isPreConditionActive(), 
+                 "Node::getDestStateFromWaiting: Pre for " << m_nodeId.toString() << " is inactive.");
+      if (getPreCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << "' destination: EXECUTING. START_CONDITION and PRE_CONDITION are both true.");
+        return EXECUTING_STATE;
+      }
+      else {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED. START_CONDITION true and PRE_CONDITION false or unknown.");
+        return ITERATION_ENDED_STATE;
+      }
+    }
+
+    debugMsg("Node:getDestState",
+             " '" << m_nodeId.toString() << "' destination: no state. START_CONDITION false or unknown");
+    return NO_NODE_STATE;
+  }
+
+  // Default method
+  void Node::transitionFromWaiting(NodeState destState)
+  {
+    checkError(destState == FINISHED_STATE ||
+               destState == EXECUTING_STATE ||
+               destState == ITERATION_ENDED_STATE,
+               "Attempting to transition from WAITING to invalid state '"
+               << StateVariable::nodeStateName(destState).toString() << "'");
+
+    deactivatePreCondition();
+    deactivateSkipCondition();
+    deactivateStartCondition();
+
+    if (destState == FINISHED_STATE) {
+      deactivateAncestorEndCondition();
+      deactivateAncestorExitCondition();
+      deactivateAncestorInvariantCondition();
+      deactivateExitCondition();
+      getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
+    }
+    else if (destState == ITERATION_ENDED_STATE) {
+      deactivateExitCondition();
+      getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+      getFailureTypeVariable()->setValue(FailureVariable::PRE_CONDITION_FAILED());
+    }
+    else { // EXECUTING
+      deactivateAncestorEndCondition();
+    }
+  }
+
+  //
+  // EXECUTING 
+  // 
+  // Description and methods here are for Empty node only
+  //
+  // Legal predecessor states: WAITING
+  // Conditions active: AncestorExit, AncestorInvariant, End, Exit, Invariant, Post
+  // Legal successor states: FINISHED, ITERATION_ENDED
+
+  // Default method
   void Node::transitionToExecuting()
   {
-    checkError(getType() == Node::EMPTY(),
-               "Expected empty node, got " << getType().toString());
-
-    activateAncestorInvariantCondition();
     activateInvariantCondition();
     activateEndCondition();
     activatePostCondition();
   }
+
+  // Default method
+  NodeState Node::getDestStateFromExecuting()
+  {
+    checkError(isAncestorExitConditionActive(),
+               "Node::getDestStateFromExecuting: Ancestor exit for " << m_nodeId.toString() << " is inactive.");
+    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isExitConditionActive(),
+               "Node::getDestStateFromExecuting: Exit condition for " << m_nodeId.toString() << " is inactive.");
+    if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED. EXIT_CONDITION true.");
+      return ITERATION_ENDED_STATE;
+    }
+
+    checkError(isAncestorInvariantConditionActive(),
+               "Node::getDestStateFromExecuting: Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
+    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. Ancestor invariant false.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isInvariantConditionActive(),
+               "Node::getDestStateFromExecuting: Invariant for " << m_nodeId.toString() << " is inactive.");
+    if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED. Invariant false.");
+      return ITERATION_ENDED_STATE;
+    }
+
+    checkError(isEndConditionActive(),
+               "Node::getDestStateFromExecuting: End for " << m_nodeId.toString() << " is inactive.");
+    if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED. End condition true.");
+      return ITERATION_ENDED_STATE;
+    }
+
+    return NO_NODE_STATE;
+  }
+
+  // Empty node method
+  void Node::transitionFromExecuting(NodeState destState)
+  {
+    checkError(m_nodeType == Node::EMPTY(),
+               "Expected empty node, got " << m_nodeType.toString());
+    checkError(destState == FINISHED_STATE || destState == ITERATION_ENDED_STATE,
+               "Attempting to transition from EXECUTING to invalid state '"
+               << StateVariable::nodeStateName(destState).toString() << "'");
+
+    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
+      getFailureTypeVariable()->setValue(FailureVariable::PARENT_EXITED());
+    }
+    else if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
+      getFailureTypeVariable()->setValue(FailureVariable::EXITED());
+    }
+    else if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+      getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+    }
+    else if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+      getFailureTypeVariable()->setValue(FailureVariable::INVARIANT_CONDITION_FAILED());
+    }
+    // Below here, we know EndCondition is true
+    else if (getPostCondition()->getValue() == BooleanVariable::TRUE_VALUE())
+      getOutcomeVariable()->setValue(OutcomeVariable::SUCCESS());
+    else {
+      getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+      getFailureTypeVariable()->setValue(FailureVariable::POST_CONDITION_FAILED());
+    }
+
+    deactivateEndCondition();
+    deactivateExitCondition();
+    deactivateInvariantCondition();
+    deactivatePostCondition();
+    if (destState == FINISHED_STATE) {
+      deactivateAncestorExitCondition();
+      deactivateAncestorInvariantCondition();
+    }
+    else { // ITERATION_ENDED
+      activateAncestorEndCondition();
+    }
+
+    deactivateExecutable(); // ??
+  }
+
+  //
+  // ITERATION_ENDED
+  //
+  // Description and methods here apply to ALL nodes
+  //
+  // Legal predecessor states: EXECUTING, FAILING, FINISHING, WAITING
+  // Conditions active: AncestorEnd, AncestorExit, AncestorInvariant, Repeat
+  // Legal successor states: FINISHED, WAITING
+
+  // *** N.B.: Preceding state must ensure that AncestorEnd, AncestorExit, and AncestorInvariant are active!
+
+  // Default method
+  void Node::transitionToIterationEnded() 
+  {
+    activateRepeatCondition();
+  }
+
+  // Default method
+  NodeState Node::getDestStateFromIterationEnded()
+  {
+    checkError(isAncestorExitConditionActive(),
+               "Node::getDestStateFromIterationEnded: Ancestor exit for " << m_nodeId.toString() << " is inactive.");
+    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isAncestorInvariantConditionActive(),
+               "Node::getDestStateFromIterationEnded: Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
+
+    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. ANCESTOR_INVARIANT false.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isAncestorEndConditionActive(),
+               "Node::getDestStateFromIterationEnded: Ancestor end for " << m_nodeId.toString() << " is inactive.");
+    if (getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. ANCESTOR_END true.");
+      return FINISHED_STATE;
+    }
+
+    checkError(isRepeatConditionActive(),
+               "Node::getDestStateFromIterationEnded: Repeat for " << m_nodeId.toString() << " is inactive.");
+    double repeat = getRepeatCondition()->getValue();
+    if (repeat == BooleanVariable::FALSE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: FINISHED. REPEAT_CONDITION false.");
+      return FINISHED_STATE;
+    }
+    else if (repeat == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: WAITING. REPEAT_UNTIL true.");
+      return WAITING_STATE;
+    }
+
+    debugMsg("Node:getDestState",
+             " '" << m_nodeId.toString() << "' destination: no state. ANCESTOR_END false or unknown and REPEAT unknown.");
+    return NO_NODE_STATE;
+  }
+
+  // Default method
+  void Node::transitionFromIterationEnded(NodeState destState)
+  {
+    checkError(destState == FINISHED_STATE || destState == WAITING_STATE,
+               "Attempting to transition from ITERATION_ENDED to invalid state '"
+               << StateVariable::nodeStateName(destState).toString() << "'");
+
+    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
+      getFailureTypeVariable()->setValue(FailureVariable::PARENT_EXITED());
+    }
+    else if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+      getOutcomeVariable()->setValue(OutcomeVariable::FAILURE());
+      getFailureTypeVariable()->setValue(FailureVariable::PARENT_FAILED());
+    }
+
+    deactivateRepeatCondition();
+
+    if (destState == FINISHED_STATE) {
+      deactivateAncestorEndCondition();
+      deactivateAncestorExitCondition();
+      deactivateAncestorInvariantCondition();
+    }
+    else { // WAITING
+      reset();
+    }
+  }
+
+  //
+  // FINISHED
+  //
+  // Description and methods here apply to ALL nodes
+  //
+  // Legal predecessor states: EXECUTING, FAILING, FINISHING, INACTIVE, ITERATION_ENDED, WAITING
+  // Conditions active: ParentWaiting
+  // Legal successor states: INACTIVE
+
+  // Default method
+  void Node::transitionToFinished()
+  {
+    activateParentWaitingCondition();
+  }
+
+  // Default method
+  NodeState Node::getDestStateFromFinished()
+  {
+    checkError(isParentWaitingConditionActive(),
+               "Node::getDestStateFromFinished: Parent waiting for " << m_nodeId.toString() << " is inactive.");
+    if (getParentWaitingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: INACTIVE.  PARENT_WAITING true.");
+      return INACTIVE_STATE;
+    }
+
+    debugMsg("Node:getDestState",
+             " '" << m_nodeId.toString() << "' destination: no state.  PARENT_WAITING false or unknown.");
+    return NO_NODE_STATE;
+  }
+
+  // Default method
+  void Node::transitionFromFinished(NodeState destState)
+  {
+    checkError(destState == INACTIVE_STATE,
+               "Attempting to transition from FINISHED to invalid state '"
+               << StateVariable::nodeStateName(destState).toString() << "'");
+    deactivateParentWaitingCondition();
+    reset();
+  }
+
+  //
+  // FINISHING (legal for ListNode and LibraryCallNode only)
+  //
+  // Description and methods here apply to all other node types.
+  //
+  // Legal predecessor states: n/a
+  // Conditions active: n/a
+  // Legal successor states: n/a
 
   // Default method
   void Node::transitionToFinishing()
@@ -1255,10 +1422,29 @@ namespace PLEXIL {
   }
 
   // Default method
-  void Node::transitionToFinished()
+  NodeState Node::getDestStateFromFinishing()
   {
-    activateParentWaitingCondition();
+    checkError(ALWAYS_FAIL,
+               "Attempted to compute destination state from FINISHING for node " << m_nodeId.toString()
+               << " of type " << getType());
+    return NO_NODE_STATE;
   }
+
+  // Default method
+  void Node::transitionFromFinishing(NodeState destState)
+  {
+    checkError(ALWAYS_FAIL,
+               "No transition from FINISHING state defined for this node");
+  }
+
+  //
+  // FAILING (legal for Command, Update, ListNode, and LibraryCallNode only)
+  //
+  // Description and methods here apply to Empty and Assignment nodes.
+  //
+  // Legal predecessor states: n/a
+  // Conditions active: n/a
+  // Legal successor states: n/a
 
   // Default method
   void Node::transitionToFailing()
@@ -1268,12 +1454,24 @@ namespace PLEXIL {
   }
 
   // Default method
-  void Node::transitionToIterationEnded() 
+  NodeState Node::getDestStateFromFailing()
   {
-    activateRepeatCondition();
-    activateAncestorEndCondition();
-    activateAncestorInvariantCondition();
+    checkError(ALWAYS_FAIL,
+               "Attempted to compute destination state from FAILING for node " << m_nodeId.toString()
+               << " of type " << getType());
+    return NO_NODE_STATE;
   }
+
+  // Default method
+  void Node::transitionFromFailing(NodeState destState)
+  {
+    checkError(ALWAYS_FAIL,
+               "No transition from FAILING state defined for this node");
+  }
+
+  // ***
+  // *** END NODE STATE LOGIC ***
+  // ***
 
   const VariableId& Node::getInternalVariable(const LabelStr& name) const{
     checkError(m_variablesByName.find(name) != m_variablesByName.end(),
@@ -1503,22 +1701,20 @@ namespace PLEXIL {
   bool Node::pairActive(size_t idx) 
   {
     // checkError(idx < conditionIndexMax, "Invalid condition index " << idx);
-    checkError(getCondition(idx).isId(),
-               "Node " << m_nodeId.toString() << " has no condition for " << getConditionName(idx).toString());
-    bool condActive = getCondition(idx)->isActive();
 
+    ExpressionId condition = getCondition(idx);
+    checkError(condition.isId(),
+               "Node::pairActive: Node " << m_nodeId.toString()
+               << " has no condition for " << getConditionName(idx).toString());
+    if (!condition->isActive())
+      return false;
+
+    // N.B. Root nodes will not have listeners on parent conditions,
+    // which are constants and thus cannot change.
     if (m_listeners[idx].isNoId())
-      return condActive;
-    bool listenActive = m_listeners[idx]->isActive();
-    // condDebugMsg(!listenActive, 
-    //           "Node:pairActive",
-    //           "Listener for " << getConditionName(idx).toString() << " in " << m_nodeId.toString() <<
-    //           " is inactive.");
-    // condDebugMsg(!condActive, 
-    //           "Node:pairActive",
-    //           "Condition " << getConditionName(idx).toString() << " in " << m_nodeId.toString() <<
-    //           " is inactive.");
-    return condActive && listenActive;
+      return true;
+
+    return m_listeners[idx]->isActive();
   }
 
   void Node::execute() 
@@ -1527,7 +1723,7 @@ namespace PLEXIL {
     // activate local variables
     for (std::vector<VariableId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
-         vit++) {
+         ++vit) {
       (*vit)->activate();
     }
     handleExecution();
@@ -1565,7 +1761,7 @@ namespace PLEXIL {
     m_failureTypeVariable->reset();
 
     //reset timepoints
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++) {
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
       m_startTimepoints[s]->reset();
       m_endTimepoints[s]->reset();
     }
@@ -1643,7 +1839,7 @@ namespace PLEXIL {
   {
     for (std::vector<VariableId>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
-         vit++)
+         ++vit)
       (*vit)->deactivate();
   }
 
@@ -1673,7 +1869,7 @@ namespace PLEXIL {
         stream << indentStr << " Failure type: " <<
           m_failureTypeVariable->toString() << '\n';
       // Print variables, starting with command handle
-      printCommandHandle(stream, indent, false);
+      printCommandHandle(stream, indent);
       printVariables(stream, indent);
     }
     else if (m_state != INACTIVE_STATE) {
@@ -1684,8 +1880,8 @@ namespace PLEXIL {
             getCondition(i)->toString() << '\n';
         }
       }
-      // Print variables, starting with command handle (if appropriate)
-      printCommandHandle(stream, indent, true);
+      // Print variables, starting with command handle
+      printCommandHandle(stream, indent);
       printVariables(stream, indent);
     }
     // print children
@@ -1695,6 +1891,11 @@ namespace PLEXIL {
     stream << indentStr << "}" << std::endl;
   }
 
+  // Default method does nothing
+  void Node::printCommandHandle(std::ostream& stream, const unsigned int indent) const
+  {
+  }
+
   // Print variables
   void Node::printVariables(std::ostream& stream, const unsigned int indent) const
   {
@@ -1702,15 +1903,10 @@ namespace PLEXIL {
     ensureSortedVariableNames(); // for effect
     for (std::vector<double>::const_iterator it = m_sortedVariableNames->begin();
          it != m_sortedVariableNames->end();
-         it++) {
+         ++it) {
       stream << indentStr << " " << LabelStr(*it).toString() << ": " <<
         *(getInternalVariable(LabelStr(*it))) << '\n';
     }
-  }
-
-  // Default method does nothing
-  void Node::printCommandHandle(std::ostream& stream, const unsigned int indent, bool always) const
-  {
   }
 
   const ExecListenerHubId& Node::getExecListenerHub() const
@@ -1737,7 +1933,7 @@ namespace PLEXIL {
       // Collect the variable names
       for (VariableMap::const_iterator it = m_variablesByName.begin();
            it != m_variablesByName.end();
-           it++) {
+           ++it) {
         double nameKey = it->first;
         if (nameKey == STATE().getKey()
             || nameKey == OUTCOME().getKey()

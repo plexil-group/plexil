@@ -51,6 +51,8 @@ EMPTY_SCRIPT_TESTS	:= AncestorReferenceTest array2 array5 array6 array9 \
  uninitialized-assignment \
  array-in-loop
 
+EMPTY_SCRIPT_VALID_TESTS := assign-to-parent-invariant assign-to-parent-exit non-local-exit
+
 LIBRARY_TESTS	:=  Increment-test Increment-test2 library-call-with-array
 
 # Tests which run to success and require a script of the same name
@@ -96,7 +98,7 @@ end-report: run-all-tests
 
 run-tests-with-setup: setup run-all-tests
 
-run-all-tests: assign-parent-invariant-test empty-script-tests same-name-script-tests
+run-all-tests: empty-script-tests empty-script-valid-tests same-name-script-tests
 run-all-tests: simple-drive-tests command-handles-tests resource-arbitration-tests
 run-all-tests: library-call-with-array
 
@@ -106,20 +108,20 @@ run-regression-suite: run-tests-with-setup end-report
 # success of the root node implies success.  No 'valid'
 # comparison file is checked.
 
-
-assign-parent-invariant-test: setup
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
-	tst=assign-to-parent-invariant ; \
-	echo $${tst} >> tempRegressionResults ; \
-	$(EXEC_PROG) -p plans/$${tst}.plx -s $(EMPTY_SCRIPT) > output/$${tst}.out ; \
-	perl $(REGRESSION_PL) output/$${tst}.out valid/RUN_$${tst}_empty-script.valid
-
 empty-script-tests: setup
 	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
 	for tst in $(EMPTY_SCRIPT_TESTS) ; do \
 		echo $${tst} >> tempRegressionResults ; \
 		$(EXEC_PROG) -p plans/$${tst}.plx -s $(EMPTY_SCRIPT) > output/$${tst}.out 2>> tempRegressionResults ; \
 		perl $(REGRESSION_PL) output/$${tst}.out ; \
+	done
+
+empty-script-valid-tests: setup
+	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	for tst in $(EMPTY_SCRIPT_VALID_TESTS) ; do \
+		echo $${tst} >> tempRegressionResults ; \
+		$(EXEC_PROG) -p plans/$${tst}.plx -s $(EMPTY_SCRIPT) > output/$${tst}.out ; \
+		perl $(REGRESSION_PL) output/$${tst}.out valid/RUN_$${tst}_empty-script.valid ; \
 	done
 
 same-name-script-tests: setup
@@ -185,7 +187,7 @@ localclean::
 # Targets that should be made every time they are invoked
 .PHONY: setup header summary
 
-.PHONY: assign-parent-invariant-test empty-script-tests same-name-script-tests
+.PHONY: empty-script-tests empty-script-valid-tests same-name-script-tests
 
 .PHONY: simple-drive-tests command-handles-tests resource-arbitration-tests
 

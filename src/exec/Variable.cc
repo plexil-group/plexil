@@ -65,10 +65,8 @@ namespace PLEXIL
 	  m_name("anonymous") 
   {
     if(this->isConst())
-      m_activeCount++;
+      ++m_activeCount;
   }
-
-  // Used only in Lookup::Lookup(const StateCacheId&, const LabelStr&, std::list<double>&)
 
   VariableImpl::VariableImpl(const double value, const bool isConst)
     : Variable(),
@@ -79,7 +77,7 @@ namespace PLEXIL
   {
     m_value = m_initialValue;
     if(this->isConst())
-      m_activeCount++;
+      ++m_activeCount;
   }
 
   //
@@ -141,7 +139,7 @@ namespace PLEXIL
    */
   void VariableImpl::handleDeactivate(const bool changed) {
     if(this->isConst() && changed)
-      m_activeCount++;
+      ++m_activeCount;
   }
 
   void VariableImpl::setValue(const double value) {

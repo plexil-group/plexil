@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 
 #include "AdapterExecInterface.hh"
 #include "BooleanVariable.hh"
+#include "Command.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Node.hh"
@@ -108,64 +109,58 @@ namespace PLEXIL
   double DummyAdapter::lookupNow(const State& state)
   {
     debugMsg("ExternalInterface:dummy", 
-			 " LookupNow of " << StateCache::toString(state) << " returning UNKNOWN");
-	return Expression::UNKNOWN();
+             " LookupNow of " << StateCache::toString(state) << " returning UNKNOWN");
+    return Expression::UNKNOWN();
   }
 
   void DummyAdapter::subscribe(const State& state)
   {
     debugMsg("ExternalInterface:dummy",
-			 " subscribe of " << StateCache::toString(state) << " called, ignoring");
+             " subscribe of " << StateCache::toString(state) << " called, ignoring");
   }
 
   void DummyAdapter::unsubscribe(const State& state)
   {
     debugMsg("ExternalInterface:dummy",
-			 " unsubscribe of " << StateCache::toString(state) << " called, ignoring");
+             " unsubscribe of " << StateCache::toString(state) << " called, ignoring");
   }
 
   void DummyAdapter::setThresholds(const State& state, double /* hi */, double /* lo */)
   {
     debugMsg("ExternalInterface:dummy",
-			 " setThresholds of " << StateCache::toString(state) << " called, ignoring");
+             " setThresholds of " << StateCache::toString(state) << " called, ignoring");
   }
 
   void DummyAdapter::sendPlannerUpdate(const NodeId& node,
-				       const std::map<double, double>& /* valuePairs */,
-				       ExpressionId ack)
+                                       const std::map<double, double>& /* valuePairs */,
+                                       ExpressionId ack)
   {
     debugMsg("ExternalInterface:dummy", " sendPlannerUpdate called");
 
     // acknowledge updates
     debugMsg("ExternalInterface:dummy",
-	     " faking acknowledgment of update node '"
-	     << node->getNodeId().toString()
-	     << "'");
+             " faking acknowledgment of update node '"
+             << node->getNodeId().toString()
+             << "'");
     m_execInterface.handleValueChange(ack,
-				      BooleanVariable::TRUE_VALUE());
+                                      BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 
-  void DummyAdapter::executeCommand(const LabelStr& /* name */,
-				    const std::list<double>& /* args */,
-				    ExpressionId /* dest */,
-				    ExpressionId ack)
+  void DummyAdapter::executeCommand(const CommandId& cmd)
   {
-    debugMsg("ExternalInterface:dummy", " executeCommand called");
-    m_execInterface.handleValueChange(ack,
-				      CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+    debugMsg("ExternalInterface:dummy", " executeCommand for " << cmd->getName().toString());
+    m_execInterface.handleValueChange(cmd->getAck(),
+                                      CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     m_execInterface.notifyOfExternalEvent();
   }
 
-  //abort the given command with the given arguments.  store the abort-complete into dest
-  void DummyAdapter::invokeAbort(const LabelStr& /* name */, 
-				 const std::list<double>& /* args */, 
-				 ExpressionId /* dest */,
-				 ExpressionId ack)
+  //abort the given command
+  void DummyAdapter::invokeAbort(const CommandId& cmd)
   {
-    debugMsg("ExternalInterface:dummy", " invokeAbort called");
-    m_execInterface.handleValueChange(ack,
-				      BooleanVariable::TRUE_VALUE());
+    debugMsg("ExternalInterface:dummy", " invokeAbort for " << cmd->getName().toString());
+    m_execInterface.handleValueChange(cmd->getAbortComplete(),
+                                      BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 

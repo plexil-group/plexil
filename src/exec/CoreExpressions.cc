@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 #include "Calculables.hh"
 #include "Debug.hh"
 #include "Node.hh"
-//#include "Variables.hh"
 
 #include <cmath> // for fabs()
 #include <list>
@@ -47,9 +46,9 @@ namespace PLEXIL
 
   // Called from Node::commonInit().
   StateVariable::StateVariable(const std::string& name)
-	: VariableImpl(INACTIVE(), false)
+    : VariableImpl(INACTIVE(), false)
   {
-	setName(name);
+    setName(name);
   }
 
   // Used only to construct class constants. See ALL_STATES() below.
@@ -57,47 +56,47 @@ namespace PLEXIL
     : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
-	       "Attempted to initialize a state variable with invalid value "
-	       << Expression::valueToString(value));
+           "Attempted to initialize a state variable with invalid value "
+           << Expression::valueToString(value));
   }
 
   // ExpressionFactory entry point. Should only be used to construct literals.
   StateVariable::StateVariable(const PlexilExprId& expr, 
-							   const NodeConnectorId& node,
-							   const bool isConst)
-	: VariableImpl(expr, node, isConst) 
+                               const NodeConnectorId& node,
+                               const bool isConst)
+    : VariableImpl(expr, node, isConst) 
   {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     checkError(isConst, "Cannot construct a freestanding NodeStateVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_STATE,
-	       "Expected NodeState value.  Found '" << PlexilParser::valueTypeString(val->type()) << "'");
+           "Expected NodeState value.  Found '" << PlexilParser::valueTypeString(val->type()) << "'");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
-	       "Attempted to initialize a state variable with invalid value "
-	       << Expression::valueToString(value));
+           "Attempted to initialize a state variable with invalid value "
+           << Expression::valueToString(value));
   }
 
   // N.B. Depends on ALL_STATES() matching order of NodeState enumeration.
   bool StateVariable::checkValue(const double val) {
-    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; s++) {
+    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
       if (val == ALL_STATES()[s])
-	return true;
+        return true;
     }
     return false;
   }
 
   void StateVariable::print(std::ostream& s) const 
   {
-	VariableImpl::print(s);
+    VariableImpl::print(s);
     s << "state)";
   }
 
   void StateVariable::setNodeState(NodeState newValue)
   {
     checkError(newValue < NO_NODE_STATE,
-	       "Attempted to set an invalid NodeState value");
+           "Attempted to set an invalid NodeState value");
     this->setValue(ALL_STATES()[newValue].getKey());
   }
 
@@ -190,112 +189,120 @@ namespace PLEXIL
 
   NodeState StateVariable::nodeStateFromName(double nameAsLabelStrKey)
   {
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; s++)
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s)
       if (ALL_STATES()[s].getKey() == nameAsLabelStrKey)
-	return (NodeState) s;
+    return (NodeState) s;
     return NO_NODE_STATE;
   }
 
 
   // Called only by Node::commonInit().
   OutcomeVariable::OutcomeVariable(const std::string& name)
-	: VariableImpl(false)
+    : VariableImpl(false)
   {
-	setName(name);
+    setName(name);
   }
 
   // ExpressionFactory entry point. Should only be used to construct literals.
   OutcomeVariable::OutcomeVariable(const PlexilExprId& expr, 
-								   const NodeConnectorId& node,
-								   const bool isConst)
-	: VariableImpl(expr, node, isConst)
+                                   const NodeConnectorId& node,
+                                   const bool isConst)
+    : VariableImpl(expr, node, isConst)
   {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     checkError(isConst, "Cannot construct a freestanding NodeOutcomeVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_OUTCOME,
-	       "Expected NodeOutcome value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
+           "Expected NodeOutcome value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
+           "Attempted to initialize a variable with an invalid value.");
   }
 
   bool OutcomeVariable::checkValue(const double val) {
-    return (val == UNKNOWN() || val == SUCCESS() || val == FAILURE() || val == SKIPPED());
+    return (val == UNKNOWN() || val == SUCCESS() || val == FAILURE() || val == SKIPPED() || val == INTERRUPTED());
   }
 
   void OutcomeVariable::print(std::ostream& s) const
   {
-	VariableImpl::print(s);
-	s << "outcome)";
+    VariableImpl::print(s);
+    s << "outcome)";
   }
 
 
   // Called only from Node::commonInit().
   FailureVariable::FailureVariable(const std::string& name)
-	: VariableImpl(false)
+    : VariableImpl(false)
   {
-	setName(name);
+    setName(name);
   }
 
   // ExpressionFactory entry point. Should only be used to construct literals.
   FailureVariable::FailureVariable(const PlexilExprId& expr, 
-								   const NodeConnectorId& node,
-								   const bool isConst)
-	: VariableImpl(expr, node, isConst)
+                                   const NodeConnectorId& node,
+                                   const bool isConst)
+    : VariableImpl(expr, node, isConst)
   {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     checkError(isConst, "Cannot construct a freestanding NodeFailureTypeVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::FAILURE_TYPE,
-	       "Expected NodeFailure value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
+           "Expected NodeFailure value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
+           "Attempted to initialize a variable with an invalid value.");
   }
 
   void FailureVariable::print(std::ostream& s) const
   {
-	VariableImpl::print(s);
+    VariableImpl::print(s);
     s << "failure)";
   }
 
   bool FailureVariable::checkValue(const double val) {
     return val == UNKNOWN()
-	  || val == PRE_CONDITION_FAILED()
-	  || val == POST_CONDITION_FAILED()
-	  || val == INVARIANT_CONDITION_FAILED()
-	  || val == PARENT_FAILED();
+      || val == PRE_CONDITION_FAILED()
+      || val == POST_CONDITION_FAILED()
+      || val == INVARIANT_CONDITION_FAILED()
+      || val == PARENT_FAILED()
+      || val == PARENT_EXITED()
+      || val == EXITED();
   }
 
-  // Called only from CommandNode constructors.
+  // Called only from Command constructors.
   CommandHandleVariable::CommandHandleVariable(const std::string& name)
-	: VariableImpl()
+    : VariableImpl()
   {
-	setName(name);
+    setName(name);
   }
 
   // ExpressionFactory entry point. Should only be used to construct literals.
   CommandHandleVariable::CommandHandleVariable(const PlexilExprId& expr, 
-											   const NodeConnectorId& node,
+                                               const NodeConnectorId& node,
                                                const bool isConst)
-	: VariableImpl(expr, node, isConst)
+    : VariableImpl(expr, node, isConst)
   {
     checkError(Id<PlexilValue>::convertable(expr), "Expected a value.");
     checkError(isConst, "Cannot construct a freestanding NodeCommandHandleVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::COMMAND_HANDLE,
-	       "Expected NodeCommandHandle value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
+           "Expected NodeCommandHandle value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
-	       "Attempted to initialize a variable with an invalid value.");
+           "Attempted to initialize a variable with an invalid value.");
   }
 
   bool CommandHandleVariable::checkValue(const double val) {
-    return (val == UNKNOWN() || val == COMMAND_SENT_TO_SYSTEM() || val == COMMAND_ACCEPTED() || val == COMMAND_RCVD_BY_SYSTEM() || val == COMMAND_SUCCESS() || val == COMMAND_DENIED() || val == COMMAND_FAILED());
+    return (val == UNKNOWN()
+            || val == COMMAND_SENT_TO_SYSTEM()
+            || val == COMMAND_ACCEPTED()
+            || val == COMMAND_RCVD_BY_SYSTEM()
+            || val == COMMAND_SUCCESS()
+            || val == COMMAND_DENIED()
+            || val == COMMAND_FAILED());
   }
 
   void CommandHandleVariable::print(std::ostream& s) const 
@@ -306,92 +313,92 @@ namespace PLEXIL
 
   AllChildrenFinishedCondition::AllChildrenFinishedCondition(const std::vector<NodeId>& children)
     : Calculable(), 
-	  m_total(children.size()),
-	  m_count(0),
-	  m_stateVariables(children.size(), VariableId::noId()),
-	  m_childListeners(children.size(), FinishedListener(*this))
+      m_total(children.size()),
+      m_count(0),
+      m_stateVariables(children.size(), VariableId::noId()),
+      m_childListeners(children.size(), FinishedListener(*this))
   {
-    for (size_t i = 0; i < m_total; i++) {
+    for (size_t i = 0; i < m_total; ++i) {
       const NodeId& child = children[i];
       check_error(child.isValid());
-	  VariableId sv = m_stateVariables[i] = child->getStateVariable();
-	  check_error(sv.isValid());
-	  sv->addListener(m_childListeners[i].getId());
+      VariableId sv = m_stateVariables[i] = child->getStateVariable();
+      check_error(sv.isValid());
+      sv->addListener(m_childListeners[i].getId());
     }
     internalSetValue(recalculate());
   }
 
   AllChildrenFinishedCondition::~AllChildrenFinishedCondition() 
   {
-	for (size_t i = 0; i < m_total; i++) {
+    for (size_t i = 0; i < m_total; ++i) {
       m_stateVariables[i]->removeListener(m_childListeners[i].getId());
     }
   }
 
   void AllChildrenFinishedCondition::incrementCount() 
   {
-	m_count++;
-	checkError(m_count <= m_total,
-			   "Internal error: somehow counted more nodes in finished than were actually there.");
-	if (m_count == m_total) {
-	  debugMsg("AllChildrenFinished:increment",
-			   "Counted " << m_count << " children finished of " << m_total <<
-			   ".  Setting TRUE.");
-	  internalSetValue(BooleanVariable::TRUE_VALUE());
-	}
+    ++m_count;
+    checkError(m_count <= m_total,
+               "Internal error: somehow counted more nodes in finished than were actually there.");
+    if (m_count == m_total) {
+      debugMsg("AllChildrenFinished:increment",
+               "Counted " << m_count << " children finished of " << m_total <<
+               ".  Setting TRUE.");
+      internalSetValue(BooleanVariable::TRUE_VALUE());
+    }
   }
 
   void AllChildrenFinishedCondition::decrementCount()
   {
-	checkError(m_count > 0,
-			   "Internal error: somehow counted more nodes unfinished than were actually there.");
-	m_count--;
-	if (getValue() == BooleanVariable::TRUE_VALUE()) {
-	  debugMsg("AllChildrenFinished:decrement",
-			   m_count << " children of " << m_total << " are FINISHED.  Setting FALSE.");
-	  internalSetValue(BooleanVariable::FALSE_VALUE());
-	}
+    checkError(m_count > 0,
+               "Internal error: somehow counted more nodes unfinished than were actually there.");
+    --m_count;
+    if (getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("AllChildrenFinished:decrement",
+               m_count << " children of " << m_total << " are FINISHED.  Setting FALSE.");
+      internalSetValue(BooleanVariable::FALSE_VALUE());
+    }
   }
 
   void AllChildrenFinishedCondition::handleActivate(const bool changed)
   {
     if (changed) {
-	  for (size_t i = 0 ; i < m_total; i++)
-		m_childListeners[i].activate();
-	}
+      for (size_t i = 0 ; i < m_total; ++i)
+        m_childListeners[i].activate();
+    }
     Calculable::handleActivate(changed);
   }
 
   void AllChildrenFinishedCondition::handleDeactivate(const bool changed)
   {
     if (changed) {
-	  for (size_t i = 0 ; i < m_total; i++)
-		m_childListeners[i].deactivate();
-	}
+      for (size_t i = 0 ; i < m_total; ++i)
+        m_childListeners[i].deactivate();
+    }
     Calculable::handleDeactivate(changed);
   }
 
   double AllChildrenFinishedCondition::recalculate()
   {
     m_count = 0;
-    for (size_t i = 0; i < m_total; i++) {
-	  VariableId sv = m_stateVariables[i];
+    for (size_t i = 0; i < m_total; ++i) {
+      VariableId sv = m_stateVariables[i];
       check_error(sv.isValid());
-	  double value = sv->getValue();
-	  m_childListeners[i].setLastValue(value);
+      double value = sv->getValue();
+      m_childListeners[i].setLastValue(value);
       if (value == StateVariable::FINISHED())
-		++m_count;
+        ++m_count;
     }
     if (m_count == m_total) {
       debugMsg("AllChildrenFinished:recalculate",
-	       "Counted " << m_count << " of " << m_total <<
-	       " children FINISHED.  Setting TRUE.");
+           "Counted " << m_count << " of " << m_total <<
+           " children FINISHED.  Setting TRUE.");
       return BooleanVariable::TRUE_VALUE();
     }
     else {
       debugMsg("AllChildrenFinished:recalculate",
-	       "Counted " << m_count << " of " << m_total <<
-	       " children FINISHED.  Setting FALSE.");
+           "Counted " << m_count << " of " << m_total <<
+           " children FINISHED.  Setting FALSE.");
       return BooleanVariable::FALSE_VALUE();
     }
   }
@@ -414,23 +421,23 @@ namespace PLEXIL
   void
   AllChildrenFinishedCondition::FinishedListener::notifyValueChanged(const ExpressionId& expression) 
   {
-	double newValue = expression->getValue();
+    double newValue = expression->getValue();
     if (newValue == StateVariable::FINISHED() && m_lastValue != newValue) {
       debugMsg("AllChildrenFinished:increment",
-			   "State var " << *expression << " is now FINISHED.  Incrementing count.");
+               "State var " << *expression << " is now FINISHED.  Incrementing count.");
       m_cond.incrementCount();
-	}
+    }
     else if (m_lastValue == StateVariable::FINISHED() && m_lastValue != newValue) {
-	  debugMsg("AllChildrenFinished:decrement",
-			   "State var " << *expression << " is no longer FINISHED.  Decrementing count.");
+      debugMsg("AllChildrenFinished:decrement",
+               "State var " << *expression << " is no longer FINISHED.  Decrementing count.");
       m_cond.decrementCount();
-	}
-	m_lastValue = newValue;
+    }
+    m_lastValue = newValue;
   }
 
   void AllChildrenFinishedCondition::print(std::ostream& s) const 
   {
-	Expression::print(s);
+    Expression::print(s);
     s << "childrenFinished(" << m_count << ":" << m_total << "))";
   }
 
@@ -438,92 +445,92 @@ namespace PLEXIL
 
   AllChildrenWaitingOrFinishedCondition::AllChildrenWaitingOrFinishedCondition(const std::vector<NodeId>& children)
     : Calculable(),
-	  m_total(children.size()),
-	  m_count(0),
-	  m_stateVariables(children.size(), VariableId::noId()),
-	  m_childListeners(children.size(), WaitingOrFinishedListener(*this))
+      m_total(children.size()),
+      m_count(0),
+      m_stateVariables(children.size(), VariableId::noId()),
+      m_childListeners(children.size(), WaitingOrFinishedListener(*this))
   {
-    for (size_t i = 0; i < m_total; i++) {
+    for (size_t i = 0; i < m_total; ++i) {
       const NodeId& child = children[i];
       check_error(child.isValid());
-	  VariableId sv = m_stateVariables[i] = child->getStateVariable();
-	  check_error(sv.isValid());
-	  sv->addListener(m_childListeners[i].getId());
+      VariableId sv = m_stateVariables[i] = child->getStateVariable();
+      check_error(sv.isValid());
+      sv->addListener(m_childListeners[i].getId());
     }
     internalSetValue(recalculate());
   }
 
   AllChildrenWaitingOrFinishedCondition::~AllChildrenWaitingOrFinishedCondition()
   {
-	for (size_t i = 0; i < m_total; i++) {
+    for (size_t i = 0; i < m_total; ++i) {
       m_stateVariables[i]->removeListener(m_childListeners[i].getId());
     }
   }
 
   void AllChildrenWaitingOrFinishedCondition::incrementCount()
   {
-	m_count++;
-	checkError(m_count <= m_total,
-			   "Internal error: somehow counted more nodes in finished than were actually there.");
-	if (m_count == m_total) {
-	  debugMsg("AllChildrenWaitingOrFinished:increment",
-			   "Counted " << m_count << " children waiting or finished of " << m_total <<
-			   ".  Setting TRUE.");
-	  internalSetValue(BooleanVariable::TRUE_VALUE());
-	}
+    ++m_count;
+    checkError(m_count <= m_total,
+               "Internal error: somehow counted more nodes in finished than were actually there.");
+    if (m_count == m_total) {
+      debugMsg("AllChildrenWaitingOrFinished:increment",
+               "Counted " << m_count << " children waiting or finished of " << m_total <<
+               ".  Setting TRUE.");
+      internalSetValue(BooleanVariable::TRUE_VALUE());
+    }
   }
 
   void AllChildrenWaitingOrFinishedCondition::decrementCount()
   {
-	checkError(m_count > 0,
-			   "Internal error: somehow counted more nodes unfinished than were actually there.");
-	m_count--;
-	if (getValue() == BooleanVariable::TRUE_VALUE()) {
-	  debugMsg("AllChildrenWaitingOrFinished:decrement",
-			   m_count << " children of " << m_total << " are WAITING or FINISHED.  Setting FALSE.");
-	  internalSetValue(BooleanVariable::FALSE_VALUE());
-	}
+    checkError(m_count > 0,
+               "Internal error: somehow counted more nodes unfinished than were actually there.");
+    --m_count;
+    if (getValue() == BooleanVariable::TRUE_VALUE()) {
+      debugMsg("AllChildrenWaitingOrFinished:decrement",
+               m_count << " children of " << m_total << " are WAITING or FINISHED.  Setting FALSE.");
+      internalSetValue(BooleanVariable::FALSE_VALUE());
+    }
   }
 
   void AllChildrenWaitingOrFinishedCondition::handleActivate(const bool changed)
   {
     if (changed) {
-	  for (size_t i = 0 ; i < m_total; i++)
-		m_childListeners[i].activate();
-	}
+      for (size_t i = 0 ; i < m_total; ++i)
+        m_childListeners[i].activate();
+    }
     Calculable::handleActivate(changed);
   }
 
   void AllChildrenWaitingOrFinishedCondition::handleDeactivate(const bool changed)
   {
     if (changed) {
-	  for (size_t i = 0 ; i < m_total; i++)
-		m_childListeners[i].deactivate();
-	}
+      for (size_t i = 0 ; i < m_total; ++i)
+        m_childListeners[i].deactivate();
+    }
     Calculable::handleDeactivate(changed);
   }
 
   double AllChildrenWaitingOrFinishedCondition::recalculate()
   {
     m_count = 0;
-    for (size_t i = 0; i < m_total; i++) {
-	  VariableId sv = m_stateVariables[i];
+    for (size_t i = 0; i < m_total; ++i) {
+      VariableId sv = m_stateVariables[i];
       check_error(sv.isValid());
-	  double value = sv->getValue();
-	  m_childListeners[i].setLastValue(value);
+      double value = sv->getValue();
+      m_childListeners[i].setLastValue(value);
       if (value == StateVariable::FINISHED() || value == StateVariable::WAITING())
-		++m_count;
+        ++m_count;
     }
     if (m_count == m_total) {
       debugMsg("AllChildrenWaitingOrFinished:recalculate",
-	       "Counted " << m_count << " of " << m_total <<
-	       " children WAITING or FINISHED.  Setting TRUE.");
+           "Counted " << m_count << " of " << m_total <<
+           " children WAITING or FINISHED.  Setting TRUE.");
       return BooleanVariable::TRUE_VALUE();
     }
     else {
       debugMsg("AllChildrenWaitingOrFinished:recalculate",
-	       "Counted " << m_count << " of " << m_total <<
-	       " children WAITING or FINISHED.  Setting FALSE.");
+           "Counted " << m_count << " of " << m_total <<
+           " children WAITING or FINISHED.  Setting FALSE.");
       return BooleanVariable::FALSE_VALUE();
     }
   }
@@ -546,25 +553,25 @@ namespace PLEXIL
   void 
   AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::notifyValueChanged(const ExpressionId& expression)
   {
-	bool was = m_lastValue == StateVariable::WAITING() || m_lastValue == StateVariable::FINISHED();
-	double newValue = expression->getValue();
-	bool is = newValue == StateVariable::WAITING() || newValue == StateVariable::FINISHED();
+    bool was = m_lastValue == StateVariable::WAITING() || m_lastValue == StateVariable::FINISHED();
+    double newValue = expression->getValue();
+    bool is = newValue == StateVariable::WAITING() || newValue == StateVariable::FINISHED();
     if (is && !was) {
       debugMsg("AllChildrenWaitingOrFinished:increment",
-			   "State var " << *expression << " is now WAITING or FINISHED.  Incrementing count.");
+               "State var " << *expression << " is now WAITING or FINISHED.  Incrementing count.");
       m_cond.incrementCount();
-	}
+    }
     else if (was && !is) {
-	  debugMsg("AllChildrenWaitingOrFinished:decrement",
-			   "State var " << *expression << " is no longer WAITING orFINISHED.  Decrementing count.");
+      debugMsg("AllChildrenWaitingOrFinished:decrement",
+               "State var " << *expression << " is no longer WAITING orFINISHED.  Decrementing count.");
       m_cond.decrementCount();
-	}
-	m_lastValue = newValue;
+    }
+    m_lastValue = newValue;
   }
 
   void AllChildrenWaitingOrFinishedCondition::print(std::ostream& s) const
   {
-	Expression::print(s);
+    Expression::print(s);
     s << "childrenWaitingOrFinished(" << m_count << ":" << m_total << "))";
   }
 
@@ -588,29 +595,29 @@ namespace PLEXIL
     checkError(Id<PlexilOp>::convertable(expr), "Expected an op.");
     PlexilOp* op = (PlexilOp*) expr;
     checkError(op->getOp() == "EQInternal" || op->getOp() == "NEInternal",
-			   "Expected EQInternal or NEInternal");
+               "Expected EQInternal or NEInternal");
 
     bool isFirst = true;
-	ExpressionId firstExpr, secondExpr;
+    ExpressionId firstExpr, secondExpr;
     for (std::vector<PlexilExprId>::const_iterator it = op->subExprs().begin();
-		 it != op->subExprs().end();
-		 ++it) {
+         it != op->subExprs().end();
+         ++it) {
       bool garbage = false;
       ExpressionId subExpr = getSubexpression(*it, node, garbage);
       debugMsg("InternalCondition:InternalCondition",
-			   "Adding " << *subExpr << " as " << (garbage ? "" : "non-") << " garbage.");
+               "Adding " << *subExpr << " as " << (garbage ? "" : "non-") << " garbage.");
       if (garbage)
-		m_garbage.insert(subExpr);
+        m_garbage.insert(subExpr);
       if (isFirst) {
-		firstExpr = subExpr;
-		isFirst = false;
+        firstExpr = subExpr;
+        isFirst = false;
       }
       else
-		secondExpr = subExpr;
+        secondExpr = subExpr;
     }
 
     checkError(firstExpr.isValid() && secondExpr.isValid(),
-			   "Expected two subexpressions in " << expr->name());
+               "Expected two subexpressions in " << expr->name());
 
     //m_subexpressions.clear();
 
@@ -635,71 +642,41 @@ namespace PLEXIL
 
   void InternalCondition::print(std::ostream& s) const 
   {
-	Expression::print(s);
-	s << *m_expr << ")";
+    Expression::print(s);
+    s << *m_expr << ")";
   }
 
   InterruptibleCommandHandleValues::InterruptibleCommandHandleValues(const PlexilExprId& expr, 
-																	 const NodeConnectorId& node)
-	: UnaryExpression(expr, node)
+                                                                     const NodeConnectorId& node)
+    : UnaryExpression(expr, node)
   {
   }
 
   InterruptibleCommandHandleValues::InterruptibleCommandHandleValues(ExpressionId e)
-	: UnaryExpression(e)
+    : UnaryExpression(e)
   {
   }
 
   void InterruptibleCommandHandleValues::print(std::ostream& s) const 
   {
-	Expression::print(s);
-	s << "interruptibleCommandHandleValues(" << *m_e << "))";
+    Expression::print(s);
+    s << "interruptibleCommandHandleValues(" << *m_e << "))";
   }
 
   double InterruptibleCommandHandleValues::recalculate()
   {
-	double v = m_e->getValue();
-	if(v == Expression::UNKNOWN())
-	  return false;
-	else if ((v == CommandHandleVariable::COMMAND_DENIED()) || 
-			 (v == CommandHandleVariable::COMMAND_FAILED()))
-	  return true;
-	return false;
+    double v = m_e->getValue();
+    if(v == Expression::UNKNOWN())
+      return false;
+    else if ((v == CommandHandleVariable::COMMAND_DENIED()) || 
+             (v == CommandHandleVariable::COMMAND_FAILED()))
+      return true;
+    return false;
   }
 
   bool InterruptibleCommandHandleValues::checkValue(const double val)
   {
-	return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE();
-  }
-
-  AllCommandHandleValues::AllCommandHandleValues(const PlexilExprId& expr, const NodeConnectorId& node)
-	: UnaryExpression(expr, node) {}
-  AllCommandHandleValues::AllCommandHandleValues(ExpressionId e) : UnaryExpression(e) {}
-
-  void AllCommandHandleValues::print(std::ostream& s) const 
-  {
-	Expression::print(s);
-	s << "allCommandHandleValues(" << *m_e << "))";
-  }
-
-  double AllCommandHandleValues::recalculate()
-  {
-	double v = m_e->getValue();
-	if(v == Expression::UNKNOWN())
-	  return false;
-	else if((v == CommandHandleVariable::COMMAND_DENIED()) || 
-			(v == CommandHandleVariable::COMMAND_FAILED()) ||
-			(v == CommandHandleVariable::COMMAND_SENT_TO_SYSTEM()) ||
-			(v == CommandHandleVariable::COMMAND_ACCEPTED()) ||
-			(v == CommandHandleVariable::COMMAND_RCVD_BY_SYSTEM()) ||
-			(v == CommandHandleVariable::COMMAND_SUCCESS()))
-	  return true;
-	return false;
-  }
-
-  bool AllCommandHandleValues::checkValue(const double val)
-  {
-	return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE();
+    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE();
   }
 
 }

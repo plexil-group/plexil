@@ -7,7 +7,7 @@ SimpleTask{
    State: PickupObject (id_107[au](INACTIVE): state) (inf)
   }
   ProcessImage{
-   State: ProcessImage (id_157[au](INACTIVE): state) (inf)
+   State: ProcessImage (id_153[au](INACTIVE): state) (inf)
   }
 }
 
@@ -64,16 +64,24 @@ SimpleTask{
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
 [PlexilExec:handleNeedsExecution]Storing action for node 'PickupObject' of type 'Command' to be executed.
 [PlexilExec:step][1:3:1] Transitioning node ProcessImage
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
+[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:unlock]Unlocking node PickupObject
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'PickupObject' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 7
+[PlexilExec:step][1:4] State change queue: ProcessImage 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:step][1:4:0] Transitioning node ProcessImage
+[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
-[PlexilExec:performAssignments] performing 0 assignments
-[Test:testOutput]Executing pickup_object(20) into returnValue (id_148[au](-1): int) with ack PickupObject ack (id_152[au](UNKNOWN): string)
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
+[Test:testOutput]Executing pickup_object(20) into returnValue (id_148[au](-1): int) with ack PickupObject command_handle (id_221[au](UNKNOWN): command_handle)
 [Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:cycle]==>End cycle 1
@@ -81,69 +89,72 @@ SimpleTask{
 SimpleTask{
  State: SimpleTask (id_52[au](EXECUTING): state) (0)
  AncestorEndCondition: Boolean constant false (id_90[au](0): boolean)
+ AncestorExitCondition: Boolean constant false (id_90[au](0): boolean)
  AncestorInvariantCondition: Boolean constant true (id_92[au](1): boolean)
  ParentExecutingCondition: Boolean constant true (id_92[au](1): boolean)
  ParentFinishedCondition: Boolean constant false (id_90[au](0): boolean)
  ParentWaitingCondition: Boolean constant false (id_90[au](0): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_204[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
  SkipCondition: Boolean constant false (id_90[au](0): boolean)
  StartCondition: Boolean constant true (id_92[au](1): boolean)
- EndCondition: (id_210[au](0): childrenFinished(0:2))
+ EndCondition: (id_202[au](0): childrenFinished(0:2))
+ ExitCondition: Boolean constant false (id_90[au](0): boolean)
  InvariantCondition: Boolean constant true (id_92[au](1): boolean)
  PreCondition: Boolean constant true (id_92[au](1): boolean)
  PostCondition: Boolean constant true (id_92[au](1): boolean)
  RepeatCondition: Boolean constant false (id_90[au](0): boolean)
+ ActionCompleteCondition: (id_196[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
   PickupObject{
    State: PickupObject (id_107[au](EXECUTING): state) (0)
-   AncestorEndCondition: (id_210[au](0): childrenFinished(0:2))
+   AncestorEndCondition: (id_202[au](0): childrenFinished(0:2))
+   AncestorExitCondition: Boolean constant false (id_90[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_92[au](1): boolean)
    ParentExecutingCondition: (id_96[au](1): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_94[au](EXECUTING): state)))
    ParentFinishedCondition: (id_100[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_98[au](FINISHED): state)))
    ParentWaitingCondition: (id_104[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_102[au](WAITING): state)))
    SkipCondition: Boolean constant false (id_90[au](0): boolean)
    StartCondition: Boolean constant true (id_92[au](1): boolean)
-   EndCondition: (id_242[au](0): ((id_236[au](0): interruptibleCommandHandleValues(PickupObject ack (id_152[au](UNKNOWN): string))) || (id_240[au](0): ((id_238[au](0): isknown(PickupObject ack (id_152[au](UNKNOWN): string))) && (id_225[au](0): (IntegerValue (id_227[au](10): int) == returnValue (id_148[au](-1): int)))))))
+   EndCondition: (id_246[au](0): ((id_244[au](0): interruptibleCommandHandleValues(PickupObject command_handle (id_221[au](UNKNOWN): command_handle))) || (id_233[au](0): (IntegerValue (id_235[au](10): int) == returnValue (id_148[au](-1): int)))))
+   ExitCondition: Boolean constant false (id_90[au](0): boolean)
    InvariantCondition: Boolean constant true (id_92[au](1): boolean)
    PreCondition: Boolean constant true (id_92[au](1): boolean)
-   PostCondition: (id_230[au](UNKNOWN): (id_234[au](UNKNOWN): (PickupObject (id_154[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_232[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   PostCondition: (id_238[iu](UNKNOWN): (id_242[iu](UNKNOWN): (PickupObject command_handle (id_221[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_240[iu](COMMAND_SENT_TO_SYSTEM): command_handle))))
    RepeatCondition: Boolean constant false (id_90[au](0): boolean)
-   AbortCompleteCondition: anonymous (id_218[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_221[au](0): allCommandHandleValues(PickupObject ack (id_152[au](UNKNOWN): string)))
-   Command handle: PickupObject (id_154[au](UNKNOWN): command_handle)
+   ActionCompleteCondition: (id_225[iu](UNKNOWN): isknown(PickupObject command_handle (id_221[au](UNKNOWN): command_handle)))
+   AbortCompleteCondition: PickupObject abortComplete (id_223[au](UNKNOWN): boolean)
+   Command handle: PickupObject command_handle (id_221[au](UNKNOWN): command_handle)
    priority20: priority20 (id_150[au](20): int)
    returnValue: returnValue (id_148[au](-1): int)
   }
   ProcessImage{
-   State: ProcessImage (id_157[au](EXECUTING): state) (0)
-   AncestorEndCondition: (id_210[au](0): childrenFinished(0:2))
+   State: ProcessImage (id_153[au](FINISHING): state) (0)
+   AncestorEndCondition: (id_202[au](0): childrenFinished(0:2))
+   AncestorExitCondition: Boolean constant false (id_90[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_92[au](1): boolean)
    ParentExecutingCondition: (id_96[au](1): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_94[au](EXECUTING): state)))
    ParentFinishedCondition: (id_100[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_98[au](FINISHED): state)))
    ParentWaitingCondition: (id_104[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_102[au](WAITING): state)))
    SkipCondition: Boolean constant false (id_90[au](0): boolean)
    StartCondition: Boolean constant true (id_92[au](1): boolean)
-   EndCondition: (id_279[au](1): ((id_273[au](1): interruptibleCommandHandleValues(ProcessImage ack (id_200[au](COMMAND_DENIED): string))) || (id_277[au](1): ((id_275[au](1): isknown(ProcessImage ack (id_200[au](COMMAND_DENIED): string))) && Boolean constant true (id_92[au](1): boolean)))))
+   EndCondition: Boolean constant true (id_92[au](1): boolean)
+   ExitCondition: Boolean constant false (id_90[au](0): boolean)
    InvariantCondition: Boolean constant true (id_92[au](1): boolean)
    PreCondition: Boolean constant true (id_92[au](1): boolean)
-   PostCondition: (id_266[au](UNKNOWN): (id_270[au](UNKNOWN): (ProcessImage (id_202[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_268[au](COMMAND_DENIED): command_handle))))
+   PostCondition: (id_269[au](1): (id_273[au](1): (ProcessImage command_handle (id_257[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_271[au](COMMAND_DENIED): command_handle))))
    RepeatCondition: Boolean constant false (id_90[au](0): boolean)
-   AbortCompleteCondition: anonymous (id_259[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_262[au](1): allCommandHandleValues(ProcessImage ack (id_200[au](COMMAND_DENIED): string)))
-   Command handle: ProcessImage (id_202[au](UNKNOWN): command_handle)
-   mem_priority2: mem_priority2 (id_198[au](20): int)
+   ActionCompleteCondition: (id_261[au](1): isknown(ProcessImage command_handle (id_257[au](COMMAND_DENIED): command_handle)))
+   AbortCompleteCondition: ProcessImage abortComplete (id_259[au](UNKNOWN): boolean)
+   Command handle: ProcessImage command_handle (id_257[au](COMMAND_DENIED): command_handle)
+   mem_priority2: mem_priority2 (id_194[au](20): int)
   }
 }
 
 [Test:testOutput]Sending command ACK pickup_object(20) = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:notifyNodeConditionChanged] for node PickupObject
 [Test:testOutput]Looking up immediately time()
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 2
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 7
-[PlexilExec:notifyNodeConditionChanged] for node PickupObject
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 8
 [PlexilExec:step][2:0] State change queue: ProcessImage 
 [PlexilExec:lock]Locking node ProcessImage
 [PlexilExec:step][2:0:0] Transitioning node ProcessImage
@@ -151,7 +162,7 @@ SimpleTask{
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 8
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 9
 [PlexilExec:step][2:1] State change queue: ProcessImage 
 [PlexilExec:lock]Locking node ProcessImage
 [PlexilExec:step][2:1:0] Transitioning node ProcessImage
@@ -159,49 +170,53 @@ SimpleTask{
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
-[PlexilExec:performAssignments] performing 0 assignments
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 SimpleTask{
  State: SimpleTask (id_52[au](EXECUTING): state) (0)
  AncestorEndCondition: Boolean constant false (id_90[au](0): boolean)
+ AncestorExitCondition: Boolean constant false (id_90[au](0): boolean)
  AncestorInvariantCondition: Boolean constant true (id_92[au](1): boolean)
  ParentExecutingCondition: Boolean constant true (id_92[au](1): boolean)
  ParentFinishedCondition: Boolean constant false (id_90[au](0): boolean)
  ParentWaitingCondition: Boolean constant false (id_90[au](0): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_204[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
  SkipCondition: Boolean constant false (id_90[au](0): boolean)
  StartCondition: Boolean constant true (id_92[au](1): boolean)
- EndCondition: (id_210[au](0): childrenFinished(1:2))
+ EndCondition: (id_202[au](0): childrenFinished(1:2))
+ ExitCondition: Boolean constant false (id_90[au](0): boolean)
  InvariantCondition: Boolean constant true (id_92[au](1): boolean)
  PreCondition: Boolean constant true (id_92[au](1): boolean)
  PostCondition: Boolean constant true (id_92[au](1): boolean)
  RepeatCondition: Boolean constant false (id_90[au](0): boolean)
+ ActionCompleteCondition: (id_196[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
   PickupObject{
    State: PickupObject (id_107[au](EXECUTING): state) (0)
-   AncestorEndCondition: (id_210[au](0): childrenFinished(1:2))
+   AncestorEndCondition: (id_202[au](0): childrenFinished(1:2))
+   AncestorExitCondition: Boolean constant false (id_90[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_92[au](1): boolean)
    ParentExecutingCondition: (id_96[au](1): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_94[au](EXECUTING): state)))
    ParentFinishedCondition: (id_100[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_98[au](FINISHED): state)))
    ParentWaitingCondition: (id_104[au](0): (SimpleTask (id_52[au](EXECUTING): state) == anonymous (id_102[au](WAITING): state)))
    SkipCondition: Boolean constant false (id_90[au](0): boolean)
    StartCondition: Boolean constant true (id_92[au](1): boolean)
-   EndCondition: (id_242[au](0): ((id_236[au](0): interruptibleCommandHandleValues(PickupObject ack (id_152[au](COMMAND_SENT_TO_SYSTEM): string))) || (id_240[au](0): ((id_238[au](1): isknown(PickupObject ack (id_152[au](COMMAND_SENT_TO_SYSTEM): string))) && (id_225[au](0): (IntegerValue (id_227[au](10): int) == returnValue (id_148[au](-1): int)))))))
+   EndCondition: (id_246[au](0): ((id_244[au](0): interruptibleCommandHandleValues(PickupObject command_handle (id_221[au](COMMAND_SENT_TO_SYSTEM): command_handle))) || (id_233[au](0): (IntegerValue (id_235[au](10): int) == returnValue (id_148[au](-1): int)))))
+   ExitCondition: Boolean constant false (id_90[au](0): boolean)
    InvariantCondition: Boolean constant true (id_92[au](1): boolean)
    PreCondition: Boolean constant true (id_92[au](1): boolean)
-   PostCondition: (id_230[au](1): (id_234[au](1): (PickupObject (id_154[au](COMMAND_SENT_TO_SYSTEM): command_handle) == NodeCommandHandleValue (id_232[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   PostCondition: (id_238[iu](UNKNOWN): (id_242[iu](UNKNOWN): (PickupObject command_handle (id_221[au](COMMAND_SENT_TO_SYSTEM): command_handle) == NodeCommandHandleValue (id_240[iu](COMMAND_SENT_TO_SYSTEM): command_handle))))
    RepeatCondition: Boolean constant false (id_90[au](0): boolean)
-   AbortCompleteCondition: anonymous (id_218[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_221[au](1): allCommandHandleValues(PickupObject ack (id_152[au](COMMAND_SENT_TO_SYSTEM): string)))
-   Command handle: PickupObject (id_154[au](COMMAND_SENT_TO_SYSTEM): command_handle)
+   ActionCompleteCondition: (id_225[iu](UNKNOWN): isknown(PickupObject command_handle (id_221[au](COMMAND_SENT_TO_SYSTEM): command_handle)))
+   AbortCompleteCondition: PickupObject abortComplete (id_223[au](UNKNOWN): boolean)
+   Command handle: PickupObject command_handle (id_221[au](COMMAND_SENT_TO_SYSTEM): command_handle)
    priority20: priority20 (id_150[au](20): int)
    returnValue: returnValue (id_148[au](-1): int)
   }
   ProcessImage{
-   State: ProcessImage (id_157[au](FINISHED): state) (0)
-   Outcome: ProcessImage (id_159[au](SUCCESS): outcome)
-   Command handle: ProcessImage (id_202[au](COMMAND_DENIED): command_handle)
-   mem_priority2: mem_priority2 (id_198[au](20): int)
+   State: ProcessImage (id_153[au](FINISHED): state) (0)
+   Outcome: ProcessImage (id_155[au](SUCCESS): outcome)
+   Command handle: ProcessImage command_handle (id_257[iu](COMMAND_DENIED): command_handle)
+   mem_priority2: mem_priority2 (id_194[au](20): int)
   }
 }
 
@@ -212,7 +227,7 @@ SimpleTask{
 [PlexilExec:cycle]==>Start cycle 3
 [PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 9
+[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 10
 [PlexilExec:step][3:0] State change queue: PickupObject 
 [PlexilExec:lock]Locking node PickupObject
 [PlexilExec:step][3:0:0] Transitioning node PickupObject
@@ -220,10 +235,18 @@ SimpleTask{
 [PlexilExec:unlock]Unlocking node PickupObject
 [PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 10
+[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 11
 [PlexilExec:step][3:1] State change queue: PickupObject 
 [PlexilExec:lock]Locking node PickupObject
 [PlexilExec:step][3:1:0] Transitioning node PickupObject
+[PlexilExec:notifyNodeConditionChanged] for node PickupObject
+[PlexilExec:unlock]Unlocking node PickupObject
+[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 12
+[PlexilExec:step][3:2] State change queue: PickupObject 
+[PlexilExec:lock]Locking node PickupObject
+[PlexilExec:step][3:2:0] Transitioning node PickupObject
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
 [PlexilExec:unlock]Unlocking node PickupObject
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
@@ -231,15 +254,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Node 'PickupObject' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 11
-[PlexilExec:step][3:2] State change queue: SimpleTask 
-[PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][3:2:0] Transitioning node SimpleTask
-[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
-[PlexilExec:unlock]Unlocking node SimpleTask
-[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 12
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 13
 [PlexilExec:step][3:3] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
 [PlexilExec:step][3:3:0] Transitioning node SimpleTask
@@ -247,15 +262,23 @@ SimpleTask{
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 13
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 14
 [PlexilExec:step][3:4] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
 [PlexilExec:step][3:4:0] Transitioning node SimpleTask
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 15
+[PlexilExec:step][3:5] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][3:5:0] Transitioning node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'SimpleTask' was previously eligible to transition but isn't now.
-[PlexilExec:performAssignments] performing 0 assignments
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 SimpleTask{
@@ -264,15 +287,15 @@ SimpleTask{
   PickupObject{
    State: PickupObject (id_107[au](FINISHED): state) (0)
    Outcome: PickupObject (id_109[au](SUCCESS): outcome)
-   Command handle: PickupObject (id_154[au](COMMAND_SENT_TO_SYSTEM): command_handle)
+   Command handle: PickupObject command_handle (id_221[iu](COMMAND_SENT_TO_SYSTEM): command_handle)
    priority20: priority20 (id_150[au](20): int)
    returnValue: returnValue (id_148[iu](10): int)
   }
   ProcessImage{
-   State: ProcessImage (id_157[au](FINISHED): state) (0)
-   Outcome: ProcessImage (id_159[au](SUCCESS): outcome)
-   Command handle: ProcessImage (id_202[au](COMMAND_DENIED): command_handle)
-   mem_priority2: mem_priority2 (id_198[au](20): int)
+   State: ProcessImage (id_153[au](FINISHED): state) (0)
+   Outcome: ProcessImage (id_155[au](SUCCESS): outcome)
+   Command handle: ProcessImage command_handle (id_257[iu](COMMAND_DENIED): command_handle)
+   mem_priority2: mem_priority2 (id_194[au](20): int)
   }
 }
 

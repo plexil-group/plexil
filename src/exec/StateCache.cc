@@ -190,7 +190,7 @@ namespace PLEXIL
 	{
 	  for (std::set<LookupDescId>::const_iterator it = lookups.begin();
 		   it != lookups.end();
-		   it++) {
+		   ++it) {
 		if ((*it)->isChangeLookup())
 		  return true;
 	  }
@@ -210,7 +210,7 @@ namespace PLEXIL
 
 	  for (std::set<LookupDescId>::const_iterator lit = lookups.begin();
 		   lit != lookups.end();
-		   lit++) {
+		   ++lit) {
 		// check_error(lit->isValid()); // *** only if paranoid
         (*lit)->update(value);
 	  }
@@ -227,7 +227,7 @@ namespace PLEXIL
 
 	  for (std::set<LookupDescId>::const_iterator lit = lookups.begin();
 		   lit != lookups.end();
-		   lit++) {
+		   ++lit) {
 		LookupDescId lookup = *lit;
 		// check_error(lookup.isValid()); // *** only if paranoid
 		condDebugMsg(!lookup->isChangeLookup(),
@@ -308,7 +308,7 @@ namespace PLEXIL
 	m_timeEntry = CacheEntryId::noId();
 	for (StateCacheMap::const_iterator it = m_states.begin();
 		 it != m_states.end();
-		 it++) {
+		 ++it) {
 	  delete (CacheEntry*) it->second;
 	}
 	m_states.clear();
@@ -495,7 +495,7 @@ namespace PLEXIL
   void StateCache::handleQuiescenceEnded()
   {
 	check_error(m_inQuiescence);
-	m_quiescenceCount++;
+	++m_quiescenceCount;
 	checkError(m_quiescenceCount > 0, "Quiescence counter wrapped around!");
 	m_inQuiescence = false;
   }
@@ -525,7 +525,7 @@ namespace PLEXIL
   {
 	std::ostringstream str;
 	str << LabelStr(state.first).toString() << "(";
-	for (size_t i = 0; i < state.second.size(); i++) {
+	for (size_t i = 0; i < state.second.size(); ++i) {
 	  if (i != 0)
 		str << ", ";
 	  str << Expression::valueToString(state.second[i]);

@@ -55,7 +55,7 @@ Parent{
 [PlexilExec:handleConditionsChanged]Node Child had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Child' was previously eligible to transition but isn't now.
 [PlexilExec:resolveResourceConflicts]Node for id_71 already executing.  Nothing to resolve.
-[PlexilExec:performAssignments] performing 1 assignments
+[PlexilExec:performAssignments] performing 1 assignments and 0 retractions
 [Test:testOutput]Assigning 'step_failed' (step_failed (id_70[au](0): boolean)) to 1
 [PlexilExec:notifyNodeConditionChanged] for node Parent
 [PlexilExec:notifyNodeConditionChanged] for node Child
@@ -64,33 +64,38 @@ Parent{
 Parent{
  State: Parent (id_28[au](EXECUTING): state) (0)
  AncestorEndCondition: Boolean constant false (id_66[au](0): boolean)
+ AncestorExitCondition: Boolean constant false (id_66[au](0): boolean)
  AncestorInvariantCondition: Boolean constant true (id_68[au](1): boolean)
  ParentExecutingCondition: Boolean constant true (id_68[au](1): boolean)
  ParentFinishedCondition: Boolean constant false (id_66[au](0): boolean)
  ParentWaitingCondition: Boolean constant false (id_66[au](0): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_128[iu](UNKNOWN): childrenWaitingOrFinished(0:1))
  SkipCondition: Boolean constant false (id_66[au](0): boolean)
  StartCondition: Boolean constant true (id_68[au](1): boolean)
- EndCondition: (id_138[au](0): (id_142[au](0): (Child (id_85[au](EXECUTING): state) == NodeStateValue (id_140[au](FINISHED): state))))
- InvariantCondition: (id_145[au](0): (step_failed (id_70[au](1): boolean) == BooleanValue (id_147[au](0): boolean)))
+ EndCondition: (id_136[au](0): (id_140[au](0): (Child (id_85[au](EXECUTING): state) == NodeStateValue (id_138[au](FINISHED): state))))
+ ExitCondition: Boolean constant false (id_66[au](0): boolean)
+ InvariantCondition: (id_143[au](0): (step_failed (id_70[au](1): boolean) == BooleanValue (id_145[au](0): boolean)))
  PreCondition: Boolean constant true (id_68[au](1): boolean)
  PostCondition: Boolean constant true (id_68[au](1): boolean)
  RepeatCondition: Boolean constant false (id_66[au](0): boolean)
+ ActionCompleteCondition: (id_126[iu](UNKNOWN): childrenWaitingOrFinished(0:1))
  step_failed: step_failed (id_70[au](1): boolean)
   Child{
    State: Child (id_85[au](EXECUTING): state) (0)
-   AncestorEndCondition: (id_138[au](0): (id_142[au](0): (Child (id_85[au](EXECUTING): state) == NodeStateValue (id_140[au](FINISHED): state))))
-   AncestorInvariantCondition: (id_145[au](0): (step_failed (id_70[au](1): boolean) == BooleanValue (id_147[au](0): boolean)))
+   AncestorEndCondition: (id_136[au](0): (id_140[au](0): (Child (id_85[au](EXECUTING): state) == NodeStateValue (id_138[au](FINISHED): state))))
+   AncestorExitCondition: Boolean constant false (id_66[au](0): boolean)
+   AncestorInvariantCondition: (id_143[au](0): (step_failed (id_70[au](1): boolean) == BooleanValue (id_145[au](0): boolean)))
    ParentExecutingCondition: (id_74[au](1): (Parent (id_28[au](EXECUTING): state) == anonymous (id_72[au](EXECUTING): state)))
    ParentFinishedCondition: (id_78[au](0): (Parent (id_28[au](EXECUTING): state) == anonymous (id_76[au](FINISHED): state)))
    ParentWaitingCondition: (id_82[au](0): (Parent (id_28[au](EXECUTING): state) == anonymous (id_80[au](WAITING): state)))
    SkipCondition: Boolean constant false (id_66[au](0): boolean)
    StartCondition: Boolean constant true (id_68[au](1): boolean)
-   EndCondition: (id_151[au](1): (Child ack (id_126[au](1): boolean) && Boolean constant true (id_68[au](1): boolean)))
+   EndCondition: Child ack (id_150[au](1): boolean)
+   ExitCondition: Boolean constant false (id_66[au](0): boolean)
    InvariantCondition: Boolean constant true (id_68[au](1): boolean)
    PreCondition: Boolean constant true (id_68[au](1): boolean)
    PostCondition: Boolean constant true (id_68[au](1): boolean)
    RepeatCondition: Boolean constant false (id_66[au](0): boolean)
+   AbortCompleteCondition: Child abortComplete (id_152[iu](UNKNOWN): boolean)
    step_failed: step_failed (id_70[au](1): boolean)
   }
 }
@@ -115,39 +120,101 @@ Parent{
 [PlexilExec:unlock]Unlocking node Parent
 [PlexilExec:unlock]Unlocking node Child
 [PlexilExec:handleConditionsChanged]Node Parent had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'Parent' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'Parent' on the state change queue in position 7
+[PlexilExec:handleConditionsChanged]Node 'Parent' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Node Child had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Child' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Removing node from resource contention.
-[PlexilExec:step][2:1] State change queue: Parent 
+[PlexilExec:performAssignments] performing 0 assignments and 1 retractions
+[Test:testOutput]Restoring 'step_failed' (step_failed (id_70[au](1): boolean)) to 0
+[PlexilExec:notifyNodeConditionChanged] for node Child
+[PlexilExec:cycle]==>End cycle 2
+[PlexilExec:printPlan]
+Parent{
+ State: Parent (id_28[au](FAILING): state) (0)
+ AncestorEndCondition: Boolean constant false (id_66[au](0): boolean)
+ AncestorExitCondition: Boolean constant false (id_66[au](0): boolean)
+ AncestorInvariantCondition: Boolean constant true (id_68[au](1): boolean)
+ ParentExecutingCondition: Boolean constant true (id_68[au](1): boolean)
+ ParentFinishedCondition: Boolean constant false (id_66[au](0): boolean)
+ ParentWaitingCondition: Boolean constant false (id_66[au](0): boolean)
+ SkipCondition: Boolean constant false (id_66[au](0): boolean)
+ StartCondition: Boolean constant true (id_68[au](1): boolean)
+ EndCondition: (id_136[au](0): (id_140[au](0): (Child (id_85[au](FAILING): state) == NodeStateValue (id_138[au](FINISHED): state))))
+ ExitCondition: Boolean constant false (id_66[au](0): boolean)
+ InvariantCondition: (id_143[au](1): (step_failed (id_70[au](0): boolean) == BooleanValue (id_145[au](0): boolean)))
+ PreCondition: Boolean constant true (id_68[au](1): boolean)
+ PostCondition: Boolean constant true (id_68[au](1): boolean)
+ RepeatCondition: Boolean constant false (id_66[au](0): boolean)
+ ActionCompleteCondition: (id_126[au](0): childrenWaitingOrFinished(0:1))
+ step_failed: step_failed (id_70[au](0): boolean)
+  Child{
+   State: Child (id_85[au](FAILING): state) (0)
+   AncestorEndCondition: (id_136[au](0): (id_140[au](0): (Child (id_85[au](FAILING): state) == NodeStateValue (id_138[au](FINISHED): state))))
+   AncestorExitCondition: Boolean constant false (id_66[au](0): boolean)
+   AncestorInvariantCondition: (id_143[au](1): (step_failed (id_70[au](0): boolean) == BooleanValue (id_145[au](0): boolean)))
+   ParentExecutingCondition: (id_74[au](0): (Parent (id_28[au](FAILING): state) == anonymous (id_72[au](EXECUTING): state)))
+   ParentFinishedCondition: (id_78[au](0): (Parent (id_28[au](FAILING): state) == anonymous (id_76[au](FINISHED): state)))
+   ParentWaitingCondition: (id_82[au](0): (Parent (id_28[au](FAILING): state) == anonymous (id_80[au](WAITING): state)))
+   SkipCondition: Boolean constant false (id_66[au](0): boolean)
+   StartCondition: Boolean constant true (id_68[au](1): boolean)
+   EndCondition: Child ack (id_150[iu](1): boolean)
+   ExitCondition: Boolean constant false (id_66[au](0): boolean)
+   InvariantCondition: Boolean constant true (id_68[au](1): boolean)
+   PreCondition: Boolean constant true (id_68[au](1): boolean)
+   PostCondition: Boolean constant true (id_68[au](1): boolean)
+   RepeatCondition: Boolean constant false (id_66[au](0): boolean)
+   AbortCompleteCondition: Child abortComplete (id_152[au](1): boolean)
+   step_failed: step_failed (id_70[au](0): boolean)
+  }
+}
+
+[Test:testOutput]Looking up immediately time()
+[Test:testOutput]Returning value 0
+[PlexilExec:cycle]==>Start cycle 3
+[PlexilExec:handleConditionsChanged]Node Child had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'Child' for state transition.
+[PlexilExec:handleConditionsChanged]Node 'Child' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
+[PlexilExec:handleConditionsChanged]Placing node 'Child' on the state change queue in position 7
+[PlexilExec:step][3:0] State change queue: Child 
+[PlexilExec:lock]Locking node Child
+[PlexilExec:step][3:0:0] Transitioning node Child
+[PlexilExec:notifyNodeConditionChanged] for node Parent
+[PlexilExec:notifyNodeConditionChanged] for node Child
+[PlexilExec:unlock]Unlocking node Child
+[PlexilExec:handleConditionsChanged]Node Parent had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'Parent' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'Parent' on the state change queue in position 8
+[PlexilExec:handleConditionsChanged]Node Child had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'Child' was previously eligible to transition but isn't now.
+[PlexilExec:handleConditionsChanged]Removing node from resource contention.
+[PlexilExec:step][3:1] State change queue: Parent 
 [PlexilExec:lock]Locking node Parent
-[PlexilExec:step][2:1:0] Transitioning node Parent
+[PlexilExec:step][3:1:0] Transitioning node Parent
 [PlexilExec:notifyNodeConditionChanged] for node Parent
 [PlexilExec:unlock]Unlocking node Parent
 [PlexilExec:handleConditionsChanged]Node Parent had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Parent' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'Parent' on the state change queue in position 8
-[PlexilExec:step][2:2] State change queue: Parent 
+[PlexilExec:handleConditionsChanged]Placing node 'Parent' on the state change queue in position 9
+[PlexilExec:step][3:2] State change queue: Parent 
 [PlexilExec:lock]Locking node Parent
-[PlexilExec:step][2:2:0] Transitioning node Parent
+[PlexilExec:step][3:2:0] Transitioning node Parent
 [PlexilExec:notifyNodeConditionChanged] for node Parent
 [PlexilExec:unlock]Unlocking node Parent
 [PlexilExec:handleConditionsChanged]Node Parent had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Parent' was previously eligible to transition but isn't now.
-[PlexilExec:performAssignments] performing 0 assignments
-[PlexilExec:cycle]==>End cycle 2
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
+[PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 Parent{
  State: Parent (id_28[au](FINISHED): state) (0)
  Outcome: Parent (id_30[au](FAILURE): outcome)
  Failure type: Parent (id_32[au](INVARIANT_CONDITION_FAILED): failure)
- step_failed: step_failed (id_70[iu](UNKNOWN): boolean)
+ step_failed: step_failed (id_70[iu](0): boolean)
   Child{
    State: Child (id_85[au](FINISHED): state) (0)
    Outcome: Child (id_87[au](FAILURE): outcome)
    Failure type: Child (id_89[au](PARENT_FAILED): failure)
-   step_failed: step_failed (id_70[iu](UNKNOWN): boolean)
+   step_failed: step_failed (id_70[iu](0): boolean)
   }
 }
 

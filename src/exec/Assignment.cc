@@ -33,22 +33,29 @@ namespace PLEXIL
 
   Assignment::Assignment(const VariableId lhs, 
 						 const ExpressionId rhs,
-						 const VariableId ack, 
-						 const LabelStr& lhsName, 
                          const bool deleteLhs, 
-						 const bool deleteRhs)
+						 const bool deleteRhs,
+						 const LabelStr& lhsName, 
+                         const LabelStr& nodeId)
     : m_id(this),
+      m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
+      m_abortComplete((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
 	  m_dest(lhs),
-	  m_ack(ack), 
 	  m_rhs(rhs),
       m_destName(lhsName),
       m_value(Expression::UNKNOWN()),
+      m_previousValue(Expression::UNKNOWN()),
       m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
   {
+    // Make ack variable pretty
+    ((VariableImpl*) m_ack)->setName(nodeId.toString() + " ack");
+    ((VariableImpl*) m_abortComplete)->setName(nodeId.toString() + " abortComplete");
   }
 
   Assignment::~Assignment() 
   {
+    delete (Variable*) m_ack;
+    delete (Variable*) m_abortComplete;
     if (m_deleteLhs)
       delete (Variable*) m_dest;
     if (m_deleteRhs)
@@ -58,6 +65,7 @@ namespace PLEXIL
 
   void Assignment::fixValue() 
   {
+    m_previousValue = m_dest->getValue();
     m_value = m_rhs->getValue();
   }
 
@@ -80,6 +88,21 @@ namespace PLEXIL
 			 "' (" << m_dest->toString() << ") to " << Expression::valueToString(m_value));
 	m_dest->setValue(m_value);
 	m_ack->setValue(BooleanVariable::TRUE_VALUE());
+  }
+
+  void Assignment::retract()
+  {
+	check_error(m_dest.isValid());
+	debugMsg("Test:testOutput", "Restoring '" << m_destName.toString() <<
+			 "' (" << m_dest->toString() << ") to " << Expression::valueToString(m_previousValue));
+	m_dest->setValue(m_previousValue);
+	m_abortComplete->setValue(BooleanVariable::TRUE_VALUE());
+  }
+
+  void Assignment::reset()
+  {
+    m_ack->reset();
+    m_abortComplete->reset();
   }
 
   const std::string& Assignment::getDestName() const 

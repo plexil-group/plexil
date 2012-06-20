@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -88,7 +88,7 @@ namespace PLEXIL
       m_raInterface(),
       m_execController(),
       m_currentTime(std::numeric_limits<double>::min()),
-	  m_lastMark(0)
+      m_lastMark(0)
   {
     // Every application has access to the dummy and utility adapters
     REGISTER_ADAPTER(DummyAdapter, "Dummy");
@@ -112,8 +112,8 @@ namespace PLEXIL
   InterfaceManager::~InterfaceManager()
   {
     // unregister and delete listeners
-	m_exec->setExecListenerHub(ExecListenerHubId::noId());
-	delete (ExecListenerHub*) m_listenerHub; // deletes listeners too
+    m_exec->setExecListenerHub(ExecListenerHubId::noId());
+    delete (ExecListenerHub*) m_listenerHub; // deletes listeners too
 
     // unregister and delete adapters
     // *** kludge for buggy std::set template ***
@@ -138,8 +138,8 @@ namespace PLEXIL
 
   void InterfaceManager::setExec(const PlexilExecId& exec)
   {
-	ExternalInterface::setExec(exec);
-	exec->setExecListenerHub(m_listenerHub);
+    ExternalInterface::setExec(exec);
+    exec->setExecListenerHub(m_listenerHub);
   }
 
   //
@@ -181,7 +181,7 @@ namespace PLEXIL
     if (*configType == '\0') {
       m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
     } 
-	else {
+    else {
       m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
     }
     m_adapterConfig->getId();
@@ -190,84 +190,84 @@ namespace PLEXIL
     // and register the adapter according to the data found there
     pugi::xml_node element = configXml.first_child();
     while (!element.empty()) {
-	  debugMsg("InterfaceManager:verboseConstructInterfaces", " found element " << element.name());
-	  const char* elementType = element.name();
-	  if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0) {
-		// Construct the adapter
-		debugMsg("InterfaceManager:constructInterfaces",
-				 " constructing adapter type \""
-				   << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
-				   << "\"");
-		InterfaceAdapterId adapter = 
-		  AdapterFactory::createInstance(element,
-										 *((AdapterExecInterface*)this));
-		if (!adapter.isId()) {
-		  debugMsg("InterfaceManager:constructInterfaces",
-				   " failed to construct adapter type \""
-				   << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
-				   << "\"");
-		  return false;
-		}
-		m_adapters.insert(adapter);
-	  }
-	  else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
-		// Construct an ExecListener instance and attach it to the Exec
-		debugMsg("InterfaceManager:constructInterfaces",
-				 " constructing listener type \""
-				 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value()
-				 << "\"");
-		ExecListenerId listener = 
-		  ExecListenerFactory::createInstance(element);
-		if (!listener.isId()) {
-		  debugMsg("InterfaceManager:constructInterfaces",
-				   " failed to construct listener from XML");
-		  return false;
-		}
-		m_listenerHub->addListener(listener);
-	  }
-	  else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0) {
-		// Construct an ExecController instance and attach it to the application
-		ExecControllerId controller = 
-		  ControllerFactory::createInstance(element, m_application);
-		if (!controller.isId()) {
-		  debugMsg("InterfaceManager:constructInterfaces", 
-				   " failed to construct controller from XML");
-		  return false;
-		}
-		m_execController = controller;
-	  }
-	  else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG()) == 0) {
-		// Add to library path
-		const char* pathstring = element.child_value();
-		if (*pathstring != '\0') {
-		  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
-		  for (std::vector<std::string>::const_iterator it = path->begin();
-			   it != path->end();
-			   it++)
-			m_libraryPath.push_back(*it);
-		  delete path;
-		}
-	  }
-	  else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG()) == 0) {
-		// Add to plan path
-		const char* pathstring = element.child_value();
-		if (pathstring != '\0') {
-		  std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
-		  for (std::vector<std::string>::const_iterator it = path->begin();
-			   it != path->end();
-			   it++)
-			m_planPath.push_back(*it);
-		  delete path;
-		}
-	  }
-	  else {
-		debugMsg("InterfaceManager:constructInterfaces",
-				 " ignoring unrecognized XML element \""
-				 << elementType << "\"");
-	  }
+      debugMsg("InterfaceManager:verboseConstructInterfaces", " found element " << element.name());
+      const char* elementType = element.name();
+      if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0) {
+        // Construct the adapter
+        debugMsg("InterfaceManager:constructInterfaces",
+                 " constructing adapter type \""
+                 << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+                 << "\"");
+        InterfaceAdapterId adapter = 
+          AdapterFactory::createInstance(element,
+                                         *((AdapterExecInterface*)this));
+        if (!adapter.isId()) {
+          debugMsg("InterfaceManager:constructInterfaces",
+                   " failed to construct adapter type \""
+                   << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+                   << "\"");
+          return false;
+        }
+        m_adapters.insert(adapter);
+      }
+      else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
+        // Construct an ExecListener instance and attach it to the Exec
+        debugMsg("InterfaceManager:constructInterfaces",
+                 " constructing listener type \""
+                 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value()
+                 << "\"");
+        ExecListenerId listener = 
+          ExecListenerFactory::createInstance(element);
+        if (!listener.isId()) {
+          debugMsg("InterfaceManager:constructInterfaces",
+                   " failed to construct listener from XML");
+          return false;
+        }
+        m_listenerHub->addListener(listener);
+      }
+      else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0) {
+        // Construct an ExecController instance and attach it to the application
+        ExecControllerId controller = 
+          ControllerFactory::createInstance(element, m_application);
+        if (!controller.isId()) {
+          debugMsg("InterfaceManager:constructInterfaces", 
+                   " failed to construct controller from XML");
+          return false;
+        }
+        m_execController = controller;
+      }
+      else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG()) == 0) {
+        // Add to library path
+        const char* pathstring = element.child_value();
+        if (*pathstring != '\0') {
+          std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
+          for (std::vector<std::string>::const_iterator it = path->begin();
+               it != path->end();
+               it++)
+            m_libraryPath.push_back(*it);
+          delete path;
+        }
+      }
+      else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG()) == 0) {
+        // Add to plan path
+        const char* pathstring = element.child_value();
+        if (pathstring != '\0') {
+          std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
+          for (std::vector<std::string>::const_iterator it = path->begin();
+               it != path->end();
+               it++)
+            m_planPath.push_back(*it);
+          delete path;
+        }
+      }
+      else {
+        debugMsg("InterfaceManager:constructInterfaces",
+                 " ignoring unrecognized XML element \""
+                 << elementType << "\"");
+      }
 
-	  element = element.next_sibling();
-	}
+      element = element.next_sibling();
+    }
 
     debugMsg("InterfaceManager:verboseConstructInterfaces", " done.");
     return true;
@@ -298,7 +298,7 @@ namespace PLEXIL
    */
   const std::vector<std::string>& InterfaceManager::getLibraryPath() const
   {
-	return m_libraryPath;
+    return m_libraryPath;
   }
 
   /**
@@ -307,7 +307,7 @@ namespace PLEXIL
    */
   const std::vector<std::string>& InterfaceManager::getPlanPath() const
   {
-	return m_planPath;
+    return m_planPath;
   }
 
   /**
@@ -316,7 +316,7 @@ namespace PLEXIL
    */
   void InterfaceManager::addLibraryPath(const std::string& libdir)
   {
-	m_libraryPath.push_back(libdir);
+    m_libraryPath.push_back(libdir);
   }
 
   /**
@@ -325,11 +325,11 @@ namespace PLEXIL
    */
   void InterfaceManager::addLibraryPath(const std::vector<std::string>& libdirs)
   {
-	for (std::vector<std::string>::const_iterator it = libdirs.begin();
-		 it != libdirs.end();
-		 it++) {
-	  m_libraryPath.push_back(*it);
-	}
+    for (std::vector<std::string>::const_iterator it = libdirs.begin();
+         it != libdirs.end();
+         it++) {
+      m_libraryPath.push_back(*it);
+    }
   }
 
   /**
@@ -338,7 +338,7 @@ namespace PLEXIL
    */
   void InterfaceManager::addPlanPath(const std::string& libdir)
   {
-	m_planPath.push_back(libdir);
+    m_planPath.push_back(libdir);
   }
 
   /**
@@ -347,11 +347,11 @@ namespace PLEXIL
    */
   void InterfaceManager::addPlanPath(const std::vector<std::string>& libdirs)
   {
-	for (std::vector<std::string>::const_iterator it = libdirs.begin();
-		 it != libdirs.end();
-		 it++) {
-	  m_planPath.push_back(*it);
-	}
+    for (std::vector<std::string>::const_iterator it = libdirs.begin();
+         it != libdirs.end();
+         it++) {
+      m_planPath.push_back(*it);
+    }
   }
 
   /**
@@ -365,7 +365,7 @@ namespace PLEXIL
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
          success && it != m_adapters.end();
          it++) {
-	  InterfaceAdapterId a = *it;
+      InterfaceAdapterId a = *it;
       success = a->initialize();
       if (!success) {
         const pugi::xml_node& adapterXml = a->getXml();
@@ -375,20 +375,20 @@ namespace PLEXIL
         m_adapters.erase(it);
         delete (InterfaceAdapter*) a;
         return false;
-	  }
+      }
     }
-	success = m_listenerHub->initialize();
-	if (!success) {
-	  debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
-		return false;
+    success = m_listenerHub->initialize();
+    if (!success) {
+      debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
+      return false;
     }
 
     if (m_execController.isId()) {
       success = m_execController->initialize();
       if (!success) {
-		debugMsg("InterfaceManager:initialize", " failed to initialize exec controller, returning false");
-		return false;
-	  }
+        debugMsg("InterfaceManager:initialize", " failed to initialize exec controller, returning false");
+        return false;
+      }
     }
 
     return success;
@@ -415,7 +415,7 @@ namespace PLEXIL
       }
     }
 
-	success = m_listenerHub->start();
+    success = m_listenerHub->start();
     condDebugMsg(!success, 
                  "InterfaceManager:start", " failed to start all Exec listeners, returning false");
     return success;
@@ -427,7 +427,7 @@ namespace PLEXIL
    */
   bool InterfaceManager::stop()
   {
-	debugMsg("InterfaceManager:stop", " entered");
+    debugMsg("InterfaceManager:stop", " entered");
 
     // halt adapters
     bool success = true;
@@ -436,9 +436,9 @@ namespace PLEXIL
          it++)
       success = (*it)->stop() && success;
 
-	success = m_listenerHub->stop() && success;
+    success = m_listenerHub->stop() && success;
 
-	debugMsg("InterfaceManager:stop", " completed");
+    debugMsg("InterfaceManager:stop", " completed");
     return success;
   }
 
@@ -448,7 +448,7 @@ namespace PLEXIL
    */
   bool InterfaceManager::reset()
   {
-	debugMsg("InterfaceManager:reset", " entered");
+    debugMsg("InterfaceManager:reset", " entered");
 
     // reset queue etc. to freshly initialized state
     // *** NYI ***
@@ -462,8 +462,8 @@ namespace PLEXIL
          it++)
       success = (*it)->reset() && success;
 
-	success = m_listenerHub->reset() && success;
-	debugMsg("InterfaceManager:reset", " completed");
+    success = m_listenerHub->reset() && success;
+    debugMsg("InterfaceManager:reset", " completed");
     return success;
   }
 
@@ -480,7 +480,7 @@ namespace PLEXIL
    */
   bool InterfaceManager::shutdown()
   {
-	debugMsg("InterfaceManager:shutdown", " entered");
+    debugMsg("InterfaceManager:shutdown", " entered");
     // clear adapter registry
     clearAdapterRegistry();
 
@@ -489,12 +489,12 @@ namespace PLEXIL
          it != m_adapters.end();
          it++)
       success = (*it)->shutdown() && success;
-	success = m_listenerHub->shutdown() && success;
+    success = m_listenerHub->shutdown() && success;
 
     // Clean up
     // *** NYI ***
 
-	debugMsg("InterfaceManager:shutdown", " completed");
+    debugMsg("InterfaceManager:shutdown", " completed");
     return success;
   }
 
@@ -509,7 +509,7 @@ namespace PLEXIL
   {
     debugMsg("InterfaceManager:resetQueue", " entered");
     while (!m_valueQueue.isEmpty())
-	  m_valueQueue.pop();
+      m_valueQueue.pop();
   }
     
     
@@ -531,116 +531,116 @@ namespace PLEXIL
     double newExpValue;
     PlexilNodeId plan;
     LabelStr parent;
-	unsigned int sequence;
+    unsigned int sequence;
     QueueEntryType typ;
 
-	bool needsStep = false;
+    bool needsStep = false;
 
     while (true) {
-	  // get next entry
-	  debugMsg("InterfaceManager:processQueue",
-			   " (" << pthread_self() << ") Fetch next queue entry");
-	  typ = m_valueQueue.dequeue(newValue, 
-								 state,
-								 exp,
-								 plan,
-								 parent,
-								 sequence);
-	  switch (typ) {
-	  case queueEntry_EMPTY:
-		debugMsg("InterfaceManager:processQueue",
-				 " (" << pthread_self() << ") Queue empty, returning " << (needsStep ? "true" : "false"));
-		return needsStep;
-		break;
+      // get next entry
+      debugMsg("InterfaceManager:processQueue",
+               " (" << pthread_self() << ") Fetch next queue entry");
+      typ = m_valueQueue.dequeue(newValue, 
+                                 state,
+                                 exp,
+                                 plan,
+                                 parent,
+                                 sequence);
+      switch (typ) {
+      case queueEntry_EMPTY:
+        debugMsg("InterfaceManager:processQueue",
+                 " (" << pthread_self() << ") Queue empty, returning " << (needsStep ? "true" : "false"));
+        return needsStep;
+        break;
 
-	  case queueEntry_MARK:
-		// Store sequence number and notify application
-		m_lastMark = sequence;
-		m_application.markProcessed();
-		debugMsg("InterfaceManager:processQueue",
-				 " (" << pthread_self() << ") Received mark, returning " << (needsStep ? "true" : "false"));
-		return needsStep;
-		break;
+      case queueEntry_MARK:
+        // Store sequence number and notify application
+        m_lastMark = sequence;
+        m_application.markProcessed();
+        debugMsg("InterfaceManager:processQueue",
+                 " (" << pthread_self() << ") Received mark, returning " << (needsStep ? "true" : "false"));
+        return needsStep;
+        break;
 
-	  case queueEntry_LOOKUP_VALUES:
-		// State -- update all listeners
-		{
-		  debugMsg("InterfaceManager:processQueue",
-				   " (" << pthread_self()
-				   << ") Handling state change for "
-				   << StateCache::toString(state));
+      case queueEntry_LOOKUP_VALUES:
+        // State -- update all listeners
+        {
+          debugMsg("InterfaceManager:processQueue",
+                   " (" << pthread_self()
+                   << ") Handling state change for "
+                   << StateCache::toString(state));
 
-		  // If this is a time state update message, check if it's stale
-		  if (state == m_exec->getStateCache()->getTimeState()) {
-			if (newValue <= m_currentTime) {
-			  debugMsg("InterfaceManager:processQueue",
-					   " (" << pthread_self()
-					   << ") Ignoring stale time update - new value "
-					   << Expression::valueToString(newValue) << " is not greater than cached value "
-					   << Expression::valueToString(m_currentTime));
-			}
-			else {
-			  debugMsg("InterfaceManager:processQueue",
-					   " (" << pthread_self()
-					   << ") setting current time to "
-					   << Expression::valueToString(newValue));
-			  m_currentTime = newValue;
-			  m_exec->getStateCache()->updateState(state, newValue);
-			}
-		  }
-		  else {
-			// General case, update state cache
-			m_exec->getStateCache()->updateState(state, newValue);
-		  }
-		  needsStep = true;
-		  break;
-		}
+          // If this is a time state update message, check if it's stale
+          if (state == m_exec->getStateCache()->getTimeState()) {
+            if (newValue <= m_currentTime) {
+              debugMsg("InterfaceManager:processQueue",
+                       " (" << pthread_self()
+                       << ") Ignoring stale time update - new value "
+                       << Expression::valueToString(newValue) << " is not greater than cached value "
+                       << Expression::valueToString(m_currentTime));
+            }
+            else {
+              debugMsg("InterfaceManager:processQueue",
+                       " (" << pthread_self()
+                       << ") setting current time to "
+                       << Expression::valueToString(newValue));
+              m_currentTime = newValue;
+              m_exec->getStateCache()->updateState(state, newValue);
+            }
+          }
+          else {
+            // General case, update state cache
+            m_exec->getStateCache()->updateState(state, newValue);
+          }
+          needsStep = true;
+          break;
+        }
 
-	  case queueEntry_RETURN_VALUE:
-		// Expression -- update the expression only.  Note that this could
-		// be either an assignment OR command return value.
-		debugMsg("InterfaceManager:processQueue",
-				 " (" << pthread_self()
-				 << ") Updating expression " << exp
-				 << ", new value is '" << Expression::valueToString(newValue) << "'");
+      case queueEntry_RETURN_VALUE:
+        // Expression -- update the expression only.  Note that this could
+        // be either an assignment OR command return value.
+        debugMsg("InterfaceManager:processQueue",
+                 " (" << pthread_self()
+                 << ") Updating expression " << exp
+                 << ", new value is '" << Expression::valueToString(newValue) << "'");
 
-		// Handle potential command return value.
-		this->releaseResourcesAtCommandTermination(exp);
+        // Handle potential command return value.
+        this->releaseResourcesAtCommandTermination(exp);
 
-		exp->setValue(newValue);
-		needsStep = true;
-		break;
+        exp->setValue(newValue);
+        needsStep = true;
+        break;
 
-	  case queueEntry_PLAN:
-		// Plan -- add the plan
-		debugMsg("InterfaceManager:processQueue",
-				 " (" << pthread_self() << ") Received plan");
-		if (!getExec()->addPlan(plan, parent)) {
-		  debugMsg("InterfaceManager:processQueue",
-				   " (" << pthread_self() << ") addPlan failed!");
-		  // TODO: report back to whoever enqueued it
-		}
-		needsStep = true;
-		break;
+      case queueEntry_PLAN:
+        // Plan -- add the plan
+        debugMsg("InterfaceManager:processQueue",
+                 " (" << pthread_self() << ") Received plan");
+        if (!getExec()->addPlan(plan, parent)) {
+          debugMsg("InterfaceManager:processQueue",
+                   " (" << pthread_self() << ") addPlan failed!");
+          // TODO: report back to whoever enqueued it
+        }
+        needsStep = true;
+        break;
 
-	  case queueEntry_LIBRARY:
-		// Library -- add the library
+      case queueEntry_LIBRARY:
+        // Library -- add the library
 
-		debugMsg("InterfaceManager:processQueue",
-				 " (" << pthread_self() << ") Received library");
-		// *** TODO: check here for duplicates ***
-		getExec()->addLibraryNode(plan);
-		// no need to step here
-		break;
+        debugMsg("InterfaceManager:processQueue",
+                 " (" << pthread_self() << ") Received library");
+        // *** TODO: check here for duplicates ***
+        getExec()->addLibraryNode(plan);
+        // no need to step here
+        break;
 
-	  default:
-		// error
-		checkError(ALWAYS_FAIL,
-				   "InterfaceManager:processQueue: Invalid entry type "
-				   << typ);
-		break;
-	  }
-	}
+      default:
+        // error
+        checkError(ALWAYS_FAIL,
+                   "InterfaceManager:processQueue: Invalid entry type "
+                   << typ);
+        break;
+      }
+    }
   }
 
   /**
@@ -661,22 +661,22 @@ namespace PLEXIL
     double result = adapter->lookupNow(state);
     // update internal idea of time if required
     if (state == m_exec->getStateCache()->getTimeState()) {
-        if (result <= m_currentTime) {
-		  debugMsg("InterfaceManager:verboseLookupNow",
-				   " Ignoring stale time update - new value "
-				   << Expression::valueToString(result) << " is not greater than cached value "
-				   << Expression::valueToString(m_currentTime));
-		}
-        else {
-		  debugMsg("InterfaceManager:verboseLookupNow",
-				   " setting current time to "
-				   << Expression::valueToString(result));
-		  m_currentTime = result;
-		}
+      if (result <= m_currentTime) {
+        debugMsg("InterfaceManager:verboseLookupNow",
+                 " Ignoring stale time update - new value "
+                 << Expression::valueToString(result) << " is not greater than cached value "
+                 << Expression::valueToString(m_currentTime));
       }
+      else {
+        debugMsg("InterfaceManager:verboseLookupNow",
+                 " setting current time to "
+                 << Expression::valueToString(result));
+        m_currentTime = result;
+      }
+    }
 
     debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "' returning " << Expression::valueToString(result));
-	return result;
+    return result;
   }
 
   /**
@@ -691,7 +691,7 @@ namespace PLEXIL
     assertTrueMsg(!adapter.isNoId(),
                   "subscribe: No interface adapter found for lookup '"
                   << stateName.toString() << "'");
-	adapter->subscribe(state);
+    adapter->subscribe(state);
   }
 
   /**
@@ -705,7 +705,7 @@ namespace PLEXIL
     assertTrueMsg(!adapter.isNoId(),
                   "unsubscribe: No interface adapter found for lookup '"
                   << stateName.toString() << "'");
-	adapter->unsubscribe(state);
+    adapter->unsubscribe(state);
   }
 
   /**
@@ -722,7 +722,7 @@ namespace PLEXIL
     assertTrueMsg(!adapter.isNoId(),
                   "setThresholds: No interface adapter found for lookup '"
                   << stateName.toString() << "'");
-	adapter->setThresholds(state, hi, lo);
+    adapter->setThresholds(state, hi, lo);
   }
 
   // this batches the set of commands from quiescence completion.
@@ -745,32 +745,32 @@ namespace PLEXIL
     for (std::list<CommandId>::const_iterator it = commands.begin();
          it != commands.end();
          it++) {
-	  CommandId cmd = *it;
+      CommandId cmd = *it;
 
-	  if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end())) {
-		condDebugMsg(resourceArbiterExists,
-					 "InterfaceManager:batchActions", 
-					 " Permission to execute " << cmd->getName().toString()
-					 << " has been granted by the resource arbiter.");
-		// Maintain a <acks, cmdId> map of commands
-		m_ackToCmdMap[cmd->getAck()] = cmd;
-		// Maintain a <dest, cmdId> map
-		m_destToCmdMap[cmd->getDest()] = cmd;
+      if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end())) {
+        condDebugMsg(resourceArbiterExists,
+                     "InterfaceManager:batchActions", 
+                     " Permission to execute " << cmd->getName().toString()
+                     << " has been granted by the resource arbiter.");
+        // Maintain a <acks, cmdId> map of commands
+        m_ackToCmdMap[cmd->getAck()] = cmd;
+        // Maintain a <dest, cmdId> map
+        m_destToCmdMap[cmd->getDest()] = cmd;
             
-		executeCommand(cmd);
-	  }
-	  else {
-		commandRejected = true;
-		debugMsg("InterfaceManager:batchActions ", 
-				 "Permission to execute " << cmd->getName().toString()
-				 << " has been denied by the resource arbiter.");
+        executeCommand(cmd);
+      }
+      else {
+        commandRejected = true;
+        debugMsg("InterfaceManager:batchActions ", 
+                 "Permission to execute " << cmd->getName().toString()
+                 << " has been denied by the resource arbiter.");
             
-		this->rejectCommand(cmd->getName(),
-							cmd->getArgValues(),
-							cmd->getDest(),
-							cmd->getAck());
-	  }
-	}
+        this->rejectCommand(cmd->getName(),
+                            cmd->getArgValues(),
+                            cmd->getDest(),
+                            cmd->getAck());
+      }
+    }
 
     if (commandRejected)
       this->notifyOfExternalEvent();
@@ -827,7 +827,7 @@ namespace PLEXIL
   void
   InterfaceManager::executeCommand(CommandId cmd)
   {
-	LabelStr name(cmd->getName());
+    LabelStr name(cmd->getName());
     InterfaceAdapterId intf = getCommandInterface(cmd->getName());
     assertTrueMsg(!intf.isNoId(),
                   "executeCommand: null interface adapter for command " << name.toString());
@@ -846,19 +846,15 @@ namespace PLEXIL
 
   /**
    * @brief Abort the pending command with the supplied name and arguments.
-   * @param cmdName The LabelString representing the command name.
-   * @param cmdArgs The command arguments expressed as doubles.
-   * @param cmdAck The acknowledgment of the pending command
-   * @param abrtAck The expression in which to store an acknowledgment of command abort.
-   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+   * @param cmd The command.
    */
 
-  void InterfaceManager::invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck)
+  void InterfaceManager::invokeAbort(const CommandId& cmd)
   {
-    InterfaceAdapterId intf = getCommandInterface(cmdName);
+    InterfaceAdapterId intf = getCommandInterface(cmd->getName());
     assertTrueMsg(!intf.isNoId(),
-                  "invokeAbort: null interface adapter for command " << cmdName.toString());
-    intf->invokeAbort(cmdName, cmdArgs, abrtAck, cmdAck);
+                  "invokeAbort: null interface adapter for command " << cmd->getName().toString());
+    intf->invokeAbort(cmd);
   }
 
   double 
@@ -1116,9 +1112,9 @@ namespace PLEXIL
   void
   InterfaceManager::handleValueChange(const State& state, double value)
   {
-	debugMsg("InterfaceManager:handleValueChange",
-			 " for state " << LabelStr(state.first).toString()
-			 << ", new value = " << Expression::valueToString(value));
+    debugMsg("InterfaceManager:handleValueChange",
+             " for state " << LabelStr(state.first).toString()
+             << ", new value = " << Expression::valueToString(value));
     m_valueQueue.enqueue(state, value);
   }
 
@@ -1175,7 +1171,7 @@ namespace PLEXIL
     debugMsg("InterfaceManager:handleAddPlan", " (XML) entered");
 
     // check that the plan actually *has* a Node element!
-	// Assumes we are starting from the PlexilPlan element.
+    // Assumes we are starting from the PlexilPlan element.
     checkParserException(!planXml.first_child().empty()
                          && *(planXml.first_child().name()) != '\0'
                          && planXml.child("Node") != NULL,
@@ -1193,60 +1189,60 @@ namespace PLEXIL
    * @param planStruct The PlexilNode representation of the new plan.
    * @param parent The node which is the parent of the new node.
    * @return False if the plan references unloaded libraries, true otherwise.
-  */
+   */
   bool
   InterfaceManager::handleAddPlan(PlexilNodeId planStruct,
                                   const LabelStr& parent)
   {
-	checkError(planStruct.isId(),
-			   "InterfaceManager::handleAddPlan: Invalid PlexilNodeId");
+    checkError(planStruct.isId(),
+               "InterfaceManager::handleAddPlan: Invalid PlexilNodeId");
 
     debugMsg("InterfaceManager:handleAddPlan", " entered");
 
-	// Check for null
-	if (planStruct.isNoId()) {
-	  debugMsg("InterfaceManager:handleAddPlan", 
-			   " failed; PlexilNodeId is null");
-	  return false;
-	}
+    // Check for null
+    if (planStruct.isNoId()) {
+      debugMsg("InterfaceManager:handleAddPlan", 
+               " failed; PlexilNodeId is null");
+      return false;
+    }
 
-	// Check whether plan is a library w/o a caller
-	PlexilInterfaceId interface = planStruct->interface();
-	if (interface.isId()) {
-	  debugMsg("InterfaceManager:handleAddPlan", 
-			   " for " << planStruct->nodeId() << " failed; root node may not have interface variables");
-	  return false;
-	}
+    // Check whether plan is a library w/o a caller
+    PlexilInterfaceId interface = planStruct->interface();
+    if (interface.isId()) {
+      debugMsg("InterfaceManager:handleAddPlan", 
+               " for " << planStruct->nodeId() << " failed; root node may not have interface variables");
+      return false;
+    }
 
     // Determine if there are any unloaded libraries
     bool result = true;
 
-	// Check whether all libraries for this plan are loaded
-	// and try to load those that aren't
-	std::vector<std::string> libs = planStruct->getLibraryReferences();
-	// N.B. libs is likely growing during this operation, 
-	// so we can't use a traditional iterator.
-	for (unsigned int i = 0; i < libs.size(); i++) {
-	  // COPY the string because its location may change out from under us!
-	  const std::string libname(libs[i]);
-	  PlexilNodeId libroot = m_exec->getLibrary(libname);
-	  if (libroot.isNoId()) {
-		// Try to load the library
-		libroot = PlexilXmlParser::findLibraryNode(libname, m_libraryPath);
-		if (libroot.isNoId()) {
-		  debugMsg("InterfaceManager:handleAddPlan", 
-				   " Plan references unloaded library node \"" << libname << "\"");
-		  return false;
-		}
-		
-		// add the library node
-		handleAddLibrary(libroot);
-	  }
+    // Check whether all libraries for this plan are loaded
+    // and try to load those that aren't
+    std::vector<std::string> libs = planStruct->getLibraryReferences();
+    // N.B. libs is likely growing during this operation, 
+    // so we can't use a traditional iterator.
+    for (unsigned int i = 0; i < libs.size(); i++) {
+      // COPY the string because its location may change out from under us!
+      const std::string libname(libs[i]);
+      PlexilNodeId libroot = m_exec->getLibrary(libname);
+      if (libroot.isNoId()) {
+        // Try to load the library
+        libroot = PlexilXmlParser::findLibraryNode(libname, m_libraryPath);
+        if (libroot.isNoId()) {
+          debugMsg("InterfaceManager:handleAddPlan", 
+                   " Plan references unloaded library node \"" << libname << "\"");
+          return false;
+        }
+        
+        // add the library node
+        handleAddLibrary(libroot);
+      }
 
-	  // Make note of any dependencies in the library itself
-	  if (libroot.isId())
-		libroot->getLibraryReferences(libs);
-	}
+      // Make note of any dependencies in the library itself
+      if (libroot.isId())
+        libroot->getLibraryReferences(libs);
+    }
 
     if (result) {
       m_valueQueue.enqueue(planStruct, parent);
@@ -1262,8 +1258,8 @@ namespace PLEXIL
   void
   InterfaceManager::handleAddLibrary(PlexilNodeId planStruct)
   {
-	checkError(planStruct.isId(),
-			   "InterfaceManager::handleAddLibrary: Invalid PlexilNodeId");
+    checkError(planStruct.isId(),
+               "InterfaceManager::handleAddLibrary: Invalid PlexilNodeId");
     debugMsg("InterfaceManager:handleAddLibrary", " entered");
     m_valueQueue.enqueue(planStruct);
   }
@@ -1279,7 +1275,7 @@ namespace PLEXIL
 
   /**
    * @brief Notify the executive that it should run one cycle.  
-  */
+   */
   void
   InterfaceManager::notifyOfExternalEvent()
   {
@@ -1290,7 +1286,7 @@ namespace PLEXIL
 
   /**
    * @brief Notify the executive that it should run one cycle.  
-  */
+   */
   void
   InterfaceManager::notifyAndWaitForCompletion()
   {

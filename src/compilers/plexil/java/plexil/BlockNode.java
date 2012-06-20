@@ -176,6 +176,7 @@ public class BlockNode extends PlexilTreeNode
                     break;
 
                 case PlexilLexer.END_CONDITION_KYWD:
+                case PlexilLexer.EXIT_CONDITION_KYWD:
                 case PlexilLexer.INVARIANT_CONDITION_KYWD:
                 case PlexilLexer.POST_CONDITION_KYWD:
                 case PlexilLexer.PRE_CONDITION_KYWD:

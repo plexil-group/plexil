@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@ namespace PLEXIL
   }
 
   InterfaceAdapter::InterfaceAdapter(AdapterExecInterface& execInterface, 
-									 const pugi::xml_node& xml)
+                                     const pugi::xml_node& xml)
     : m_execInterface(execInterface),
       m_xml(xml),
       m_id(this)
@@ -73,62 +73,66 @@ namespace PLEXIL
   double InterfaceAdapter::lookupNow(const State& /* state */)
   {
     assertTrue(ALWAYS_FAIL,
-			   "InterfaceAdapter::lookupNow: default method called!");
-	return Expression::UNKNOWN();
+               "InterfaceAdapter::lookupNow: default method called!");
+    return Expression::UNKNOWN();
   }
 
   void InterfaceAdapter::subscribe(const State& /* state */)
   {
     assertTrue(ALWAYS_FAIL,
-			   "InterfaceAdapter::subscribe: default method called!");
+               "InterfaceAdapter::subscribe: default method called!");
   }
 
   void InterfaceAdapter::unsubscribe(const State& /* state */)
   {
     assertTrue(ALWAYS_FAIL,
-			   "InterfaceAdapter::unsubscribe: default method called!");
+               "InterfaceAdapter::unsubscribe: default method called!");
   }
 
   void InterfaceAdapter::setThresholds(const State& /* state */, double /* hi */, double /* lo */)
   {
-    assertTrue(ALWAYS_FAIL,
-			   "InterfaceAdapter::setThresholds: default method called!");
+    debugMsg("InterfaceAdapter:setThresholds", " default method called");
   }
 
   void InterfaceAdapter::sendPlannerUpdate(const NodeId& /* node */,
-					   const std::map<double, double>& /* valuePairs */,
-					   const ExpressionId /* ack */)
+                                           const std::map<double, double>& /* valuePairs */,
+                                           const ExpressionId /* ack */)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdapter::updatePlanner: default method called!");
+               "InterfaceAdapter::updatePlanner: default method called!");
   }
 
 
   // This default method is a wrapper for backward compatibility.
   void InterfaceAdapter::executeCommand(CommandId cmd)
   {
-	this->executeCommand(cmd->getName(), cmd->getArgValues(), cmd->getDest(), cmd->getAck());
+    this->executeCommand(cmd->getName(), cmd->getArgValues(), cmd->getDest(), cmd->getAck());
   }
 
   // executes a command with the given arguments
   void InterfaceAdapter::executeCommand(const LabelStr& /* name */,
-					const std::list<double>& /* args */,
-					ExpressionId /* dest */,
-					ExpressionId /* ack */)
+                                        const std::list<double>& /* args */,
+                                        ExpressionId /* dest */,
+                                        ExpressionId /* ack */)
   {
     assertTrue(ALWAYS_FAIL,
-			   "InterfaceAdapter::executeCommand: default method called!");
+               "InterfaceAdapter::executeCommand: default method called!");
   }
 
+  // Abort the given command. Call method below for compatibility.
+  void InterfaceAdapter::invokeAbort(const CommandId& cmd)
+  {
+    this->invokeAbort(cmd->getName(), cmd->getArgValues(), cmd->getAbortComplete(), cmd->getAck());
+  }
 
-  //abort the given command with the given arguments that had acknowledgment old_ack.  store the abort-complete into ack
+  //abort the given command with the given arguments.
   void InterfaceAdapter::invokeAbort(const LabelStr& /* name */, 
-				     const std::list<double>& /* args */, 
-				     ExpressionId /* cmd_ack */,
-				     ExpressionId /* ack */)
+                                     const std::list<double>& /* args */, 
+                                     ExpressionId /* abort_ack */,
+                                     ExpressionId /* cmd_ack */)
   {
     assertTrue(ALWAYS_FAIL,
-	       "InterfaceAdapter::invokeAbort: default method called!");
+               "InterfaceAdapter::invokeAbort: default method called!");
   }
 
   /**

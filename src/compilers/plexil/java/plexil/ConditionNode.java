@@ -72,6 +72,9 @@ public class ConditionNode extends PlexilTreeNode
         case PlexilLexer.END_CONDITION_KYWD:
             return "EndCondition";
 
+        case PlexilLexer.EXIT_CONDITION_KYWD:
+            return "ExitCondition";
+
         case PlexilLexer.INVARIANT_CONDITION_KYWD:
             return "InvariantCondition";
 

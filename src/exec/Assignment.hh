@@ -38,18 +38,21 @@ namespace PLEXIL
   public:
     Assignment(const VariableId lhs,
 			   const ExpressionId rhs, 
-			   const VariableId ack,
-			   const LabelStr& lhsName,
 			   const bool deleteLhs, 
-			   const bool deleteRhs);
+			   const bool deleteRhs,
+			   const LabelStr& lhsName,
+               const LabelStr& nodeId);
     ~Assignment();
     const AssignmentId& getId() const {return m_id;}
     const VariableId& getDest() const {return m_dest;}
     const VariableId& getAck() const {return m_ack;}
-    double getValue() const {return m_value;}
+    const VariableId& getAbortComplete() const {return m_abortComplete;}
+    // double getValue() const {return m_value;} // doesn't seem to be used anywhere
     void activate();
     void deactivate();
 	void execute();
+    void retract();
+    void reset();
     const std::string& getDestName() const;
 
   protected:
@@ -57,12 +60,19 @@ namespace PLEXIL
     void fixValue();
 
   private:
+    // Explicitly not implemented
+    Assignment();
+    Assignment(const Assignment&);
+    Assignment& operator=(const Assignment&);
+
     AssignmentId m_id;
-	VariableId m_dest;
 	VariableId m_ack;
+    VariableId m_abortComplete;
+	VariableId m_dest;
     ExpressionId m_rhs;
     LabelStr m_destName;
     double m_value;
+    double m_previousValue;
     bool m_deleteLhs, m_deleteRhs;
   };
 

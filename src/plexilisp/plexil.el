@@ -723,6 +723,10 @@
   ""
   (xml "EndCondition" (plexil-infer-type exp)))
 
+(pdefine pl (ExitCondition exit-condition) (exp) 0 nil
+  ""
+  (xml "ExitCondition" (plexil-infer-type exp)))
+
 (pdefine pl (SkipCondition skip-condition) (exp) 0 nil
   ""
   (xml "SkipCondition" (plexil-infer-type exp)))
@@ -963,7 +967,7 @@
 (pdefine pl (LookupNow lookup-now) (state &rest args) 1 nil
   ;; (string + xml) * list(xml) -> xml
   ("Queries for the value of the given state with given arguments. "
-   "Valid only in node bodies and check conditions (Pre, Post, Invariant).")
+   "Valid only in node bodies and check conditions (Pre, Post, Invariant, Exit).")
   (let ((state-name (plexil-normalize-string-expression state)))
     (plexil-lookup "LookupNow" state-name args)))
 

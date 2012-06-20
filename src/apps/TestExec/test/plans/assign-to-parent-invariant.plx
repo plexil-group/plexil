@@ -31,8 +31,6 @@
           <NodeId>Child</NodeId>
           <Interface>
             <InOut>
-<!-- deprecated variable declaration format -->
-<!-- <BooleanVariable>step_failed</BooleanVariable> -->
               <DeclareVariable>
                 <Name>step_failed</Name>
                 <Type>Boolean</Type>

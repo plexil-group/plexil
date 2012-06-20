@@ -7,10 +7,10 @@ SimpleTask{
    State: C1 (id_117[au](INACTIVE): state) (inf)
   }
   C2{
-   State: C2 (id_167[au](INACTIVE): state) (inf)
+   State: C2 (id_163[au](INACTIVE): state) (inf)
   }
   C3{
-   State: C3 (id_215[au](INACTIVE): state) (inf)
+   State: C3 (id_207[au](INACTIVE): state) (inf)
   }
 }
 
@@ -79,24 +79,39 @@ SimpleTask{
 [PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:handleNeedsExecution]Storing action for node 'C1' of type 'Command' to be executed.
 [PlexilExec:step][1:3:1] Transitioning node C2
-[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:handleNeedsExecution]Storing action for node 'C2' of type 'Command' to be executed.
+[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:step][1:3:2] Transitioning node C3
-[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleNeedsExecution]Storing action for node 'C3' of type 'Command' to be executed.
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:unlock]Unlocking node C1
 [PlexilExec:unlock]Unlocking node C2
 [PlexilExec:unlock]Unlocking node C3
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 9
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 10
+[PlexilExec:step][1:4] State change queue: C2 C3 
+[PlexilExec:lock]Locking node C2
+[PlexilExec:lock]Locking node C3
+[PlexilExec:step][1:4:0] Transitioning node C2
+[PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:step][1:4:1] Transitioning node C3
+[PlexilExec:notifyNodeConditionChanged] for node C3
+[PlexilExec:unlock]Unlocking node C2
+[PlexilExec:unlock]Unlocking node C3
+[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C2' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C3' was previously eligible to transition but isn't now.
-[PlexilExec:performAssignments] performing 0 assignments
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [Test:testOutput]Permission to execute c1 has been denied by the resource arbiter.
 [PlexilExec:notifyNodeConditionChanged] for node C1
-[Test:testOutput]Executing c2() into noId with ack C2 ack (id_210[au](UNKNOWN): string)
+[Test:testOutput]Executing c2() into noId with ack C2 command_handle (id_309[au](UNKNOWN): command_handle)
 [Test:testOutput]Permission to execute c3 has been denied by the resource arbiter.
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:cycle]==>End cycle 1
@@ -104,74 +119,82 @@ SimpleTask{
 SimpleTask{
  State: SimpleTask (id_62[au](EXECUTING): state) (0)
  AncestorEndCondition: Boolean constant false (id_100[au](0): boolean)
+ AncestorExitCondition: Boolean constant false (id_100[au](0): boolean)
  AncestorInvariantCondition: Boolean constant true (id_102[au](1): boolean)
  ParentExecutingCondition: Boolean constant true (id_102[au](1): boolean)
  ParentFinishedCondition: Boolean constant false (id_100[au](0): boolean)
  ParentWaitingCondition: Boolean constant false (id_100[au](0): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_260[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
  SkipCondition: Boolean constant false (id_100[au](0): boolean)
  StartCondition: Boolean constant true (id_102[au](1): boolean)
- EndCondition: (id_267[au](0): childrenFinished(0:3))
+ EndCondition: (id_255[au](0): childrenFinished(0:3))
+ ExitCondition: Boolean constant false (id_100[au](0): boolean)
  InvariantCondition: Boolean constant true (id_102[au](1): boolean)
  PreCondition: Boolean constant true (id_102[au](1): boolean)
  PostCondition: Boolean constant true (id_102[au](1): boolean)
  RepeatCondition: Boolean constant false (id_100[au](0): boolean)
+ ActionCompleteCondition: (id_248[iu](UNKNOWN): childrenWaitingOrFinished(0:3))
   C1{
    State: C1 (id_117[au](EXECUTING): state) (0)
-   AncestorEndCondition: (id_267[au](0): childrenFinished(0:3))
+   AncestorEndCondition: (id_255[au](0): childrenFinished(0:3))
+   AncestorExitCondition: Boolean constant false (id_100[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_102[au](1): boolean)
    ParentExecutingCondition: (id_106[au](1): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_104[au](EXECUTING): state)))
    ParentFinishedCondition: (id_110[au](0): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_108[au](FINISHED): state)))
    ParentWaitingCondition: (id_114[au](0): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_112[au](WAITING): state)))
    SkipCondition: Boolean constant false (id_100[au](0): boolean)
    StartCondition: Boolean constant true (id_102[au](1): boolean)
-   EndCondition: (id_300[au](1): ((id_294[au](1): interruptibleCommandHandleValues(C1 ack (id_162[au](COMMAND_DENIED): string))) || (id_298[au](0): ((id_296[au](1): isknown(C1 ack (id_162[au](COMMAND_DENIED): string))) && (id_283[au](0): (IntegerValue (id_285[au](10): int) == returnValue (id_158[au](-1): int)))))))
+   EndCondition: (id_298[au](1): ((id_296[au](1): interruptibleCommandHandleValues(C1 command_handle (id_273[au](COMMAND_DENIED): command_handle))) || (id_285[au](0): (IntegerValue (id_287[au](10): int) == returnValue (id_158[au](-1): int)))))
+   ExitCondition: Boolean constant false (id_100[au](0): boolean)
    InvariantCondition: Boolean constant true (id_102[au](1): boolean)
    PreCondition: Boolean constant true (id_102[au](1): boolean)
-   PostCondition: (id_288[au](UNKNOWN): (id_292[au](UNKNOWN): (C1 (id_164[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_290[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   PostCondition: (id_290[iu](UNKNOWN): (id_294[iu](UNKNOWN): (C1 command_handle (id_273[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_292[iu](COMMAND_SENT_TO_SYSTEM): command_handle))))
    RepeatCondition: Boolean constant false (id_100[au](0): boolean)
-   AbortCompleteCondition: anonymous (id_276[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_279[au](1): allCommandHandleValues(C1 ack (id_162[au](COMMAND_DENIED): string)))
-   Command handle: C1 (id_164[au](UNKNOWN): command_handle)
+   ActionCompleteCondition: (id_277[iu](UNKNOWN): isknown(C1 command_handle (id_273[au](COMMAND_DENIED): command_handle)))
+   AbortCompleteCondition: C1 abortComplete (id_275[au](UNKNOWN): boolean)
+   Command handle: C1 command_handle (id_273[au](COMMAND_DENIED): command_handle)
    mem_priority: mem_priority (id_160[au](10): int)
    returnValue: returnValue (id_158[au](-1): int)
   }
   C2{
-   State: C2 (id_167[au](EXECUTING): state) (0)
-   AncestorEndCondition: (id_267[au](0): childrenFinished(0:3))
+   State: C2 (id_163[au](FINISHING): state) (0)
+   AncestorEndCondition: (id_255[au](0): childrenFinished(0:3))
+   AncestorExitCondition: Boolean constant false (id_100[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_102[au](1): boolean)
    ParentExecutingCondition: (id_106[au](1): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_104[au](EXECUTING): state)))
    ParentFinishedCondition: (id_110[au](0): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_108[au](FINISHED): state)))
    ParentWaitingCondition: (id_114[au](0): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_112[au](WAITING): state)))
    SkipCondition: Boolean constant false (id_100[au](0): boolean)
    StartCondition: Boolean constant true (id_102[au](1): boolean)
-   EndCondition: (id_335[au](0): ((id_329[au](0): interruptibleCommandHandleValues(C2 ack (id_210[au](UNKNOWN): string))) || (id_333[au](0): ((id_331[au](0): isknown(C2 ack (id_210[au](UNKNOWN): string))) && Boolean constant true (id_102[au](1): boolean)))))
+   EndCondition: Boolean constant true (id_102[au](1): boolean)
+   ExitCondition: Boolean constant false (id_100[au](0): boolean)
    InvariantCondition: Boolean constant true (id_102[au](1): boolean)
    PreCondition: Boolean constant true (id_102[au](1): boolean)
-   PostCondition: (id_322[au](UNKNOWN): (id_326[au](UNKNOWN): (C2 (id_212[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_324[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   PostCondition: (id_321[au](UNKNOWN): (id_325[au](UNKNOWN): (C2 command_handle (id_309[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_323[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
    RepeatCondition: Boolean constant false (id_100[au](0): boolean)
-   AbortCompleteCondition: anonymous (id_315[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_318[au](0): allCommandHandleValues(C2 ack (id_210[au](UNKNOWN): string)))
-   Command handle: C2 (id_212[au](UNKNOWN): command_handle)
-   mem_priority2: mem_priority2 (id_208[au](20): int)
+   ActionCompleteCondition: (id_313[au](0): isknown(C2 command_handle (id_309[au](UNKNOWN): command_handle)))
+   AbortCompleteCondition: C2 abortComplete (id_311[au](UNKNOWN): boolean)
+   Command handle: C2 command_handle (id_309[au](UNKNOWN): command_handle)
+   mem_priority2: mem_priority2 (id_204[au](20): int)
   }
   C3{
-   State: C3 (id_215[au](EXECUTING): state) (0)
-   AncestorEndCondition: (id_267[au](0): childrenFinished(0:3))
+   State: C3 (id_207[au](FINISHING): state) (0)
+   AncestorEndCondition: (id_255[au](0): childrenFinished(0:3))
+   AncestorExitCondition: Boolean constant false (id_100[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_102[au](1): boolean)
    ParentExecutingCondition: (id_106[au](1): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_104[au](EXECUTING): state)))
    ParentFinishedCondition: (id_110[au](0): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_108[au](FINISHED): state)))
    ParentWaitingCondition: (id_114[au](0): (SimpleTask (id_62[au](EXECUTING): state) == anonymous (id_112[au](WAITING): state)))
    SkipCondition: Boolean constant false (id_100[au](0): boolean)
    StartCondition: Boolean constant true (id_102[au](1): boolean)
-   EndCondition: (id_368[au](1): ((id_362[au](1): interruptibleCommandHandleValues(C3 ack (id_256[au](COMMAND_DENIED): string))) || (id_366[au](1): ((id_364[au](1): isknown(C3 ack (id_256[au](COMMAND_DENIED): string))) && Boolean constant true (id_102[au](1): boolean)))))
+   EndCondition: Boolean constant true (id_102[au](1): boolean)
+   ExitCondition: Boolean constant false (id_100[au](0): boolean)
    InvariantCondition: Boolean constant true (id_102[au](1): boolean)
    PreCondition: Boolean constant true (id_102[au](1): boolean)
-   PostCondition: (id_355[au](UNKNOWN): (id_359[au](UNKNOWN): (C3 (id_258[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_357[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   PostCondition: (id_350[au](0): (id_354[au](0): (C3 command_handle (id_338[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_352[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
    RepeatCondition: Boolean constant false (id_100[au](0): boolean)
-   AbortCompleteCondition: anonymous (id_348[iu](UNKNOWN): boolean)
-   CommandHandleReceivedCondition: (id_351[au](1): allCommandHandleValues(C3 ack (id_256[au](COMMAND_DENIED): string)))
-   Command handle: C3 (id_258[au](UNKNOWN): command_handle)
+   ActionCompleteCondition: (id_342[au](1): isknown(C3 command_handle (id_338[au](COMMAND_DENIED): command_handle)))
+   AbortCompleteCondition: C3 abortComplete (id_340[au](UNKNOWN): boolean)
+   Command handle: C3 command_handle (id_338[au](COMMAND_DENIED): command_handle)
   }
 }
 
@@ -180,18 +203,15 @@ SimpleTask{
 [Test:testOutput]Looking up immediately time()
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 2
-[PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 9
-[PlexilExec:notifyNodeConditionChanged] for node C3
+[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 11
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 10
-[PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 12
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 11
+[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 13
 [PlexilExec:step][2:0] State change queue: C1 C3 C2 
 [PlexilExec:lock]Locking node C1
 [PlexilExec:lock]Locking node C3
@@ -207,13 +227,13 @@ SimpleTask{
 [PlexilExec:unlock]Unlocking node C2
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 12
+[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 14
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 13
+[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 15
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 14
+[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 16
 [PlexilExec:step][2:1] State change queue: C1 C3 C2 
 [PlexilExec:lock]Locking node C1
 [PlexilExec:lock]Locking node C3
@@ -225,26 +245,26 @@ SimpleTask{
 [PlexilExec:step][2:1:2] Transitioning node C2
 [PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:unlock]Unlocking node C1
-[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node C3
 [PlexilExec:unlock]Unlocking node C2
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
+[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 17
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C3' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C2' was previously eligible to transition but isn't now.
-[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 15
-[PlexilExec:step][2:2] State change queue: SimpleTask 
-[PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][2:2:0] Transitioning node SimpleTask
+[PlexilExec:step][2:2] State change queue: C1 
+[PlexilExec:lock]Locking node C1
+[PlexilExec:step][2:2:0] Transitioning node C1
+[PlexilExec:notifyNodeConditionChanged] for node C1
+[PlexilExec:unlock]Unlocking node C1
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
-[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 16
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 18
 [PlexilExec:step][2:3] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
 [PlexilExec:step][2:3:0] Transitioning node SimpleTask
@@ -252,15 +272,23 @@ SimpleTask{
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 17
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 19
 [PlexilExec:step][2:4] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
 [PlexilExec:step][2:4:0] Transitioning node SimpleTask
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 20
+[PlexilExec:step][2:5] State change queue: SimpleTask 
+[PlexilExec:lock]Locking node SimpleTask
+[PlexilExec:step][2:5:0] Transitioning node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
+[PlexilExec:unlock]Unlocking node SimpleTask
+[PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'SimpleTask' was previously eligible to transition but isn't now.
-[PlexilExec:performAssignments] performing 0 assignments
+[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 SimpleTask{
@@ -270,21 +298,21 @@ SimpleTask{
    State: C1 (id_117[au](FINISHED): state) (0)
    Outcome: C1 (id_119[au](FAILURE): outcome)
    Failure type: C1 (id_121[au](POST_CONDITION_FAILED): failure)
-   Command handle: C1 (id_164[au](COMMAND_DENIED): command_handle)
+   Command handle: C1 command_handle (id_273[iu](COMMAND_DENIED): command_handle)
    mem_priority: mem_priority (id_160[au](10): int)
    returnValue: returnValue (id_158[iu](-1): int)
   }
   C2{
-   State: C2 (id_167[au](FINISHED): state) (0)
-   Outcome: C2 (id_169[au](SUCCESS): outcome)
-   Command handle: C2 (id_212[au](COMMAND_SENT_TO_SYSTEM): command_handle)
-   mem_priority2: mem_priority2 (id_208[au](20): int)
+   State: C2 (id_163[au](FINISHED): state) (0)
+   Outcome: C2 (id_165[au](SUCCESS): outcome)
+   Command handle: C2 command_handle (id_309[iu](COMMAND_SENT_TO_SYSTEM): command_handle)
+   mem_priority2: mem_priority2 (id_204[au](20): int)
   }
   C3{
-   State: C3 (id_215[au](FINISHED): state) (0)
-   Outcome: C3 (id_217[au](FAILURE): outcome)
-   Failure type: C3 (id_219[au](POST_CONDITION_FAILED): failure)
-   Command handle: C3 (id_258[au](COMMAND_DENIED): command_handle)
+   State: C3 (id_207[au](FINISHED): state) (0)
+   Outcome: C3 (id_209[au](FAILURE): outcome)
+   Failure type: C3 (id_211[au](POST_CONDITION_FAILED): failure)
+   Command handle: C3 command_handle (id_338[iu](COMMAND_DENIED): command_handle)
   }
 }
 

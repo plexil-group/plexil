@@ -248,8 +248,8 @@ namespace PLEXIL
     if (m_initialVector.empty()) {
       // Clear the array
       StoredArray myArray(m_value);
-      for (size_t i = 0; i < myArray.size(); i++)
-	myArray[i] = Expression::UNKNOWN();
+      for (size_t i = 0; i < myArray.size(); ++i)
+        myArray[i] = Expression::UNKNOWN();
       publishChange();
     }
     else {
@@ -290,10 +290,8 @@ namespace PLEXIL
         checkError(newArray.size() >= sourceArray.size(),
                    "Source array size " << sourceArray.size() <<
                    ", exceeds target size " << newArray.size() << ".");
-        for (unsigned long i = 0; i < sourceArray.size(); i++)
-          {
-            newArray[i] = sourceArray[i];
-          }
+        for (size_t i = 0; i < sourceArray.size(); ++i)
+          newArray[i] = sourceArray[i];
 
         VariableImpl::setValue(newArray.getKey());
       }
