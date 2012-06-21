@@ -472,18 +472,19 @@ namespace PLEXIL
     : Variable(),
 	  m_node(node.isId() ? node->getNode() : NodeId::noId()),
       m_deleteIndex(false),
-      m_listener(getId())
+      m_listener(getId()),
+      m_name()
   {
     // confirm that we have an array element
     checkError(Id<PlexilArrayElement>::convertable(expr),
                "Expected an array element.");
     PlexilArrayElement* arrayElement = (PlexilArrayElement*) expr;
-    debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName());
+    m_name = arrayElement->getArrayName();
+    debugMsg("ArrayElement:ArrayElement", " name = " << m_name);
 
     // initialize array variable
-    const std::string & name = arrayElement->getArrayName();
     PlexilVarRef arrayRef;
-    arrayRef.setName(name);
+    arrayRef.setName(m_name);
     VariableId arrayVar = node->findVariable(&arrayRef);
     checkError(ArrayVariableId::convertable(arrayVar),
                "Expected Array Variable but found: " << 
