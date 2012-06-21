@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 #include "PlexilPlan.hh"
 
 #include <list>
+#include <queue>
 #include <set>
 
 namespace PLEXIL 
@@ -219,14 +220,21 @@ namespace PLEXIL
 
   private:
 
+    // Private types
+	typedef std::vector<NodeTransition> StateChangeQueue;
+	typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
+	typedef std::map<VariableId, VariableConflictSet> VariableConflictMap;
+
     /**
-     * @brief Resolve conflicts among potentially executing assignment variables (in the future, this will also handle
-     * command conflicts). 
-     * @note The current implementation is wrong.  Assignment nodes that are eligible for execution should
-     * not be added to the state change queue, and when a macro step begins, the system should take the first non-executing
-     * node from each conflict list (the lists are ordered by priority) and add it to the end of the queue.
+     * @brief Resolve conflicts among potentially executing assignment variables.
      */
     void resolveResourceConflicts();
+
+    /**
+     * @brief Resolve conflicts for this variable.
+     */
+    void resolveVariableConflicts(const VariableId& var,
+                                  const VariableConflictSet& conflictSet);
 
     /**
      * @brief Adds a node to consideration for resource contention.  The node must be an assignment node and it must be eligible to transition to EXECUTING.
@@ -244,7 +252,6 @@ namespace PLEXIL
     /**
      * @brief Gets a stringified version of the current state change queue.
      */
-
     std::string stateChangeQueueStr();
 
     /**
@@ -252,32 +259,25 @@ namespace PLEXIL
      */
     void performAssignments();
 
-    /**
-     * @brief True if the node is in the state change queue.
-     */
-    int inQueue(const NodeId node) const;
-
-	typedef std::map<unsigned int, NodeTransition> StateChangeQueue;
-	typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
-	typedef std::map<VariableId, VariableConflictSet> VariableConflictMap;
     PlexilExecId m_id; /*<! The Id for this executive.*/
-    unsigned int m_cycleNum, m_queuePos;
     StateCacheId m_cache;
     ExternalInterfaceId m_interface;
+    ExecListenerHubId m_listener;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
-    std::vector<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
-    StateChangeQueue m_stateChangeQueue; /*<! A list of nodes that are eligible for state transition.*/
+    std::queue<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
+    StateChangeQueue m_stateChangeQueue; /*<! Nodes that are eligible for state transition.*/
     std::vector<AssignmentId> m_assignmentsToExecute;
     std::vector<AssignmentId> m_assignmentsToRetract;
+    std::vector<VariableId> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
     std::list<CommandId> m_commandsToExecute;
     std::list<UpdateId> m_updatesToExecute;
     VariableConflictMap m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
 											   The nodes in the sets are assignment nodes which can assign values to the variable.
-											   The sets are ordered by priority, but the order is dominated by EXECUTING nodes.
+											   The sets are ordered by priority, but the order is dominated by FAILING nodes.
 											   Essentially, at each quiescence cycle, the first node in each set that isn't already
-											   in state EXECUTING gets added to the end of the queue. */
-    ExecListenerHubId m_listener;
+											   in state FAILING gets added to the end of the queue. */
     std::map<std::string, PlexilNodeId> m_libraries;
+    unsigned int m_cycleNum, m_queuePos;
   };
 }
 
