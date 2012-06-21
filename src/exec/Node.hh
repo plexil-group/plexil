@@ -539,7 +539,7 @@ namespace PLEXIL {
     NodeState m_state; /*!< The actual state of the node. */
     NodeState m_lastQuery; /*!< The state of the node the last time checkConditions() was called. */
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */
-    bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_transitioning, m_checkConditionsPending;
+    bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_checkConditionsPending;
 
   private:
 

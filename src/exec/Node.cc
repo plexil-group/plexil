@@ -150,7 +150,6 @@ namespace PLEXIL {
       m_postInitCalled(false),
       m_cleanedConditions(false),
       m_cleanedVars(false),
-      m_transitioning(false),
       m_checkConditionsPending(false)
   {
     debugMsg("Node:node", "Creating node \"" << node->nodeId() << "\"");
@@ -182,7 +181,6 @@ namespace PLEXIL {
       m_postInitCalled(false), 
       m_cleanedConditions(false), 
       m_cleanedVars(false),
-      m_transitioning(false), 
       m_checkConditionsPending(false)
   {
     commonInit();
@@ -800,10 +798,6 @@ namespace PLEXIL {
                << "; node state = " << m_state
                << ", node state name = \"" << Expression::valueToString(m_stateVariable->getValue()) << "\"");
 
-    // Should never happen
-    checkError(!m_transitioning,
-               "Node::checkConditions called while node '" << m_nodeId.toString() << "' is transitioning!");
-
     debugMsg("Node:checkConditions",
              "Checking condition change for node " << m_nodeId.toString());
     NodeState toState(getDestState());
@@ -820,7 +814,7 @@ namespace PLEXIL {
     debugMsg("Node:getDestState",
              "Getting destination state for " << m_nodeId.toString() << " from state " <<
              getStateName().toString());
-    // return m_stateManager->getDestState(m_id);
+
     switch (m_state) {
     case INACTIVE_STATE:
       return getDestStateFromInactive();
@@ -872,10 +866,7 @@ namespace PLEXIL {
                "Node state not synchronized for node " << m_nodeId.toString()
                << "; node state = " << m_state
                << ", node state name = \"" << Expression::valueToString(m_stateVariable->getValue()) << "\"");
-    checkError(!m_transitioning,
-               "Node " << m_nodeId.toString() << " is already transitioning.");
 
-    m_transitioning = true;
     NodeState prevState = m_state;
     
     transitionFrom(destState);
@@ -903,7 +894,6 @@ namespace PLEXIL {
              << " = " << std::setprecision(15) << time);
     m_endTimepoints[prevState]->setValue(time);
     m_startTimepoints[destState]->setValue(time);
-    m_transitioning = false;
     conditionChanged(); // was checkConditions();
   }
 
