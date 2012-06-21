@@ -23,7 +23,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 1
 [PlexilExec:step][1:0] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][1:0:0] Transitioning node SimpleTask
+[PlexilExec:step][1:0:0] Transitioning node SimpleTask from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
@@ -31,7 +31,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 2
 [PlexilExec:step][1:1] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][1:1:0] Transitioning node SimpleTask
+[PlexilExec:step][1:1:0] Transitioning node SimpleTask from WAITING to EXECUTING
 [PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:notifyNodeConditionChanged] for node C3
@@ -53,11 +53,11 @@ SimpleTask{
 [PlexilExec:lock]Locking node C1
 [PlexilExec:lock]Locking node C2
 [PlexilExec:lock]Locking node C3
-[PlexilExec:step][1:2:0] Transitioning node C1
+[PlexilExec:step][1:2:0] Transitioning node C1 from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node C1
-[PlexilExec:step][1:2:1] Transitioning node C2
+[PlexilExec:step][1:2:1] Transitioning node C2 from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node C2
-[PlexilExec:step][1:2:2] Transitioning node C3
+[PlexilExec:step][1:2:2] Transitioning node C3 from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:unlock]Unlocking node C1
 [PlexilExec:unlock]Unlocking node C2
@@ -75,24 +75,18 @@ SimpleTask{
 [PlexilExec:lock]Locking node C1
 [PlexilExec:lock]Locking node C2
 [PlexilExec:lock]Locking node C3
-[PlexilExec:step][1:3:0] Transitioning node C1
+[PlexilExec:step][1:3:0] Transitioning node C1 from WAITING to EXECUTING
 [PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:handleNeedsExecution]Storing action for node 'C1' of type 'Command' to be executed.
-[PlexilExec:step][1:3:1] Transitioning node C2
+[PlexilExec:step][1:3:1] Transitioning node C2 from WAITING to EXECUTING
 [PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:handleNeedsExecution]Storing action for node 'C2' of type 'Command' to be executed.
-[PlexilExec:step][1:3:2] Transitioning node C3
+[PlexilExec:step][1:3:2] Transitioning node C3 from WAITING to EXECUTING
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleNeedsExecution]Storing action for node 'C3' of type 'Command' to be executed.
 [PlexilExec:unlock]Unlocking node C1
 [PlexilExec:unlock]Unlocking node C2
 [PlexilExec:unlock]Unlocking node C3
-[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
-[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'C2' was previously eligible to transition but isn't now.
-[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'C3' was previously eligible to transition but isn't now.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [Test:testOutput]Executing c1() into returnValue (id_174[au](-1): int) with ack C1 command_handle (id_297[au](UNKNOWN): command_handle)
 [Test:testOutput]Executing c2() into returnValue (id_220[au](-1): int) with ack C2 command_handle (id_333[au](UNKNOWN): command_handle)
@@ -187,6 +181,12 @@ SimpleTask{
 [Test:testOutput]Looking up immediately time()
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 2
+[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
+[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'C2' was previously eligible to transition but isn't now.
+[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'C3' was previously eligible to transition but isn't now.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
@@ -557,7 +557,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 9
 [PlexilExec:step][6:0] State change queue: C3 
 [PlexilExec:lock]Locking node C3
-[PlexilExec:step][6:0:0] Transitioning node C3
+[PlexilExec:step][6:0:0] Transitioning node C3 from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:unlock]Unlocking node C3
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
@@ -565,7 +565,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 10
 [PlexilExec:step][6:1] State change queue: C3 
 [PlexilExec:lock]Locking node C3
-[PlexilExec:step][6:1:0] Transitioning node C3
+[PlexilExec:step][6:1:0] Transitioning node C3 from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:unlock]Unlocking node C3
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
@@ -573,7 +573,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 11
 [PlexilExec:step][6:2] State change queue: C3 
 [PlexilExec:lock]Locking node C3
-[PlexilExec:step][6:2:0] Transitioning node C3
+[PlexilExec:step][6:2:0] Transitioning node C3 from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:unlock]Unlocking node C3
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
@@ -660,7 +660,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 12
 [PlexilExec:step][7:0] State change queue: C1 
 [PlexilExec:lock]Locking node C1
-[PlexilExec:step][7:0:0] Transitioning node C1
+[PlexilExec:step][7:0:0] Transitioning node C1 from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:unlock]Unlocking node C1
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
@@ -668,7 +668,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 13
 [PlexilExec:step][7:1] State change queue: C1 
 [PlexilExec:lock]Locking node C1
-[PlexilExec:step][7:1:0] Transitioning node C1
+[PlexilExec:step][7:1:0] Transitioning node C1 from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:unlock]Unlocking node C1
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
@@ -676,7 +676,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 14
 [PlexilExec:step][7:2] State change queue: C1 
 [PlexilExec:lock]Locking node C1
-[PlexilExec:step][7:2:0] Transitioning node C1
+[PlexilExec:step][7:2:0] Transitioning node C1 from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:unlock]Unlocking node C1
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
@@ -870,7 +870,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 15
 [PlexilExec:step][10:0] State change queue: C2 
 [PlexilExec:lock]Locking node C2
-[PlexilExec:step][10:0:0] Transitioning node C2
+[PlexilExec:step][10:0:0] Transitioning node C2 from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:unlock]Unlocking node C2
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
@@ -878,7 +878,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 16
 [PlexilExec:step][10:1] State change queue: C2 
 [PlexilExec:lock]Locking node C2
-[PlexilExec:step][10:1:0] Transitioning node C2
+[PlexilExec:step][10:1:0] Transitioning node C2 from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:unlock]Unlocking node C2
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
@@ -886,7 +886,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 17
 [PlexilExec:step][10:2] State change queue: C2 
 [PlexilExec:lock]Locking node C2
-[PlexilExec:step][10:2:0] Transitioning node C2
+[PlexilExec:step][10:2:0] Transitioning node C2 from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:unlock]Unlocking node C2
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
@@ -897,7 +897,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 18
 [PlexilExec:step][10:3] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][10:3:0] Transitioning node SimpleTask
+[PlexilExec:step][10:3:0] Transitioning node SimpleTask from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
@@ -905,7 +905,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 19
 [PlexilExec:step][10:4] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][10:4:0] Transitioning node SimpleTask
+[PlexilExec:step][10:4:0] Transitioning node SimpleTask from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
@@ -913,7 +913,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 20
 [PlexilExec:step][10:5] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][10:5:0] Transitioning node SimpleTask
+[PlexilExec:step][10:5:0] Transitioning node SimpleTask from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
