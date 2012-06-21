@@ -48,8 +48,8 @@ $n = 0;
 $m = 0;
 foreach $temp (@lines2){
   $line1 = @lines1[$n];
-  $line1 =~ s/(id_)[0-9]{2,4}/\1/g;
-  $temp =~ s/(id_)[0-9]{2,4}/\1/g;
+  $line1 =~ s/(id_[0-9]{2,4}|ptr_0x[0-9a-fA-F]{2,16})//g;
+  $temp =~ s/(id_[0-9]{2,4}|ptr_0x[0-9a-fA-F]{2,16})//g;
  if ($line1 ne $temp){   
       if ($m == 0){
           print DIF "\n";
@@ -95,8 +95,8 @@ close(F2);
                     if(@lines1[$i] =~ m/PlexilExec:printPlan/){
                          $k = 1;
                         if (@lines1[$i+1] =~ m/^$rootNode\{$/){
-                            if (@lines1[$i+3] =~ m/^ Outcome: $rootNode \(id_[0-9]{2,4}\[au\]\((.*)\): outcome/){
-							  $outcome = $1;
+                            if (@lines1[$i+3] =~ m/^ Outcome: $rootNode \((id_[0-9]{2,4}|ptr_0x[0-9a-fA-F]{2,16})\[au\]\((.*)\): outcome/){
+							  $outcome = $2;
                                 if ($outcome eq "SUCCESS"){
                                     print DIF "\nTEST PASSED: ", $testName, "\n";
                                     $i = 0;
