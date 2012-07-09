@@ -98,7 +98,7 @@ INCLUDES	= $(addprefix -isystem,$(SYSTEM_INC_DIRS)) $(addprefix -I,$(INC_DIRS))
 POSITION_INDEPENDENT_CODE_FLAG	:= -fPIC
 
 # Compiler flags for debug builds
-DEBUG_FLAGS	:= -g3
+DEBUG_FLAGS	:= -ggdb
 WARNING_FLAGS	:= -Wall
 
 # Compiler flags for profiling
@@ -112,7 +112,7 @@ COVERAGE_FLAGS	:= -fprofile-arcs -ftest-coverage
 
 VARIANT_CFLAGS	=
 ifneq ($(PLEXIL_DEBUG),)
-VARIANT_CFLAGS	+= $(DEBUG_FLAGS)
+VARIANT_CFLAGS	+= $(DEBUG_FLAGS) $(WARNING_FLAGS)
 endif
 ifneq ($(PLEXIL_OPTIMIZED),)
 VARIANT_CFLAGS	+= $(OPTIMIZE_FLAGS)
