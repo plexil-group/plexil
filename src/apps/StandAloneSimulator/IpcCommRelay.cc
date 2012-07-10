@@ -41,8 +41,8 @@
  */
 IpcCommRelay::IpcCommRelay(const std::string& id, const std::string& centralhost) :
   CommRelayBase(id),
-  m_stateUIDMap(),
   m_ipcFacade(),
+  m_stateUIDMap(),
   m_listener(*this)
 {
   assertTrueMsg(m_ipcFacade.initialize(id.c_str(), centralhost.c_str()) == IPC_OK,
