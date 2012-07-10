@@ -99,6 +99,7 @@ namespace PLEXIL {
     }
     assertTrueMsg(ALWAYS_FAIL,
                   cName.toString() << " is not a valid condition name");
+    return conditionIndexMax; // make compiler happy
   }
 
   LabelStr Node::getConditionName(size_t idx)
