@@ -136,8 +136,8 @@ namespace PLEXIL
       // *** beef this up later ***
       PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
       debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
-      int e_index = dest->toString().find(": ", dest->toString().length()-15);
-      int b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
+      size_t e_index = dest->toString().find(": ", dest->toString().length()-15);
+      size_t b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
       int diff_index = e_index - b_index;
       std::string m_index = " ";
       if(e_index != std::string::npos)
