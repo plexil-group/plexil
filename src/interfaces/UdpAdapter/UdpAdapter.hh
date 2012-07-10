@@ -53,7 +53,7 @@ namespace PLEXIL
     unsigned int peer_port;                   // port to which to send
     int sock;                        // socket to use -- only meaningful in call to waitForUdpMessage
     void* self;                      // reference to the UdpAdapter for use in message decoding
-    UdpMessage() : name(), len(0), parameters(), peer(""), local_port(0), peer_port(0), sock(0), self(NULL) {}
+    UdpMessage() : name(), len(0), parameters(), local_port(0), peer(""), peer_port(0), sock(0), self(NULL) {}
   };
 
   typedef std::map<std::string, UdpMessage> MessageMap;
@@ -100,7 +100,6 @@ namespace PLEXIL
     void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
 
     ThreadMutex m_cmdMutex;
-    bool m_debug; // Show debugging output
 
     // Somewhere to hang the messages, default ports and peers, threads and sockets
     unsigned int m_default_local_port;
@@ -110,6 +109,7 @@ namespace PLEXIL
     MessageQueueMap m_messageQueues;
     ThreadMap m_activeThreads;
     SocketMap m_activeSockets;
+    bool m_debug; // Show debugging output
 
   private:
     // Deliberately unimplemented
