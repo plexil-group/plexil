@@ -635,7 +635,7 @@ namespace PLEXIL
 
       case APP_RUNNING:
         if (m_state != APP_READY) {
-		  debugMsg("ExecApplication::setApplicationState", 
+		  debugMsg("ExecApplication:setApplicationState", 
 				   " Illegal application state transition to APP_RUNNING");
 		  return false;
 		}
@@ -644,7 +644,7 @@ namespace PLEXIL
 
       case APP_STOPPED:
         if (m_state != APP_RUNNING && m_state != APP_READY) {
-		  debugMsg("ExecApplication::setApplicationState", 
+		  debugMsg("ExecApplication:setApplicationState", 
 				   " Illegal application state transition to APP_STOPPED");
 		  return false;
 		}
@@ -653,11 +653,16 @@ namespace PLEXIL
 
 	  case APP_SHUTDOWN:
 		if (m_state != APP_STOPPED) {
-		  debugMsg("ExecApplication::setApplicationState", 
+		  debugMsg("ExecApplication:setApplicationState", 
 				   " Illegal application state transition to APP_SHUTDOWN");
 		  return false;
 		}
         m_state = newState;
+        break;
+
+      default:
+        debugMsg("ExecApplication:setApplicationState",
+                 " Attempt to set state to illegal value " << newState);
         break;
 
       }
