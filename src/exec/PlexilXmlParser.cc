@@ -1391,7 +1391,6 @@ namespace PLEXIL
                                        "XML parsing error: Invalid value for " << DIR_ATTR << " attibute \""
                                        << dirValue << "\"");
     }
-    const char* name = NULL;
     if (dir == PlexilNodeRef::PARENT
         && dir == PlexilNodeRef::SELF)
       return (new PlexilNodeRef(dir))->getId();
