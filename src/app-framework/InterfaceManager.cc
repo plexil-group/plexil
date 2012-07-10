@@ -528,7 +528,6 @@ namespace PLEXIL
     double newValue;
     State state;
     ExpressionId exp;
-    double newExpValue;
     PlexilNodeId plan;
     LabelStr parent;
     unsigned int sequence;
