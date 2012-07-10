@@ -36,7 +36,7 @@
 namespace PLEXIL {
 
 UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
-							   const pugi::xml_node& configXml) :
+                               const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
   debugMsg("UtilityAdapter", " created.");
@@ -74,26 +74,28 @@ bool UtilityAdapter::shutdown()
   return true;
 }
 
-void UtilityAdapter::executeCommand (const LabelStr& command_name,
-                                     const std::list<double>& args,
-                                     ExpressionId dest,
-                                     ExpressionId ack) 
+void UtilityAdapter::executeCommand(const LabelStr& command_name,
+                                    const std::list<double>& args,
+                                    ExpressionId dest,
+                                    ExpressionId ack) 
 {
   const std::string& name = command_name.toString();
   debugMsg("UtilityAdapter", "Received executeCommand for " << name);  
 
-  if (name == "print") print (args);
-  else if (name == "pprint") pprint (args);
-  else std::cerr <<
-         "Error in Utility Adapter: invalid command (should never happen!): "
-                 << name << std::endl;
+  if (name == "print") 
+    print(args);
+  else if (name == "pprint") 
+    pprint(args);
+  else
+    std::cerr <<
+      "Error in Utility Adapter: invalid command (should never happen!): "
+              << name << std::endl;
 
-  m_execInterface.handleValueChange
-    (ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+  m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS());
 
   // Technically, this may be unnecessary, but is the closest equivalent of a
   // "void" return value.
-  if (dest != ExpressionId::noId()) {
+  if (dest.isId()) {
     m_execInterface.handleValueChange (dest, UNKNOWN());
   }
 
