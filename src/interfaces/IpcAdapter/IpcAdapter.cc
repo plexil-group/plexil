@@ -238,7 +238,7 @@ namespace PLEXIL
       // Clean up
       m_pendingLookupSerial = 0;
       m_pendingLookupResult = NULL;
-	  return m_pendingLookupResult;
+	  return result;
     }
   }
 
@@ -251,7 +251,6 @@ namespace PLEXIL
   {
     LabelStr nameLabel(state.first);
     const std::vector<double>& params = state.second;
-    size_t nParams = params.size();
     debugMsg("IpcAdapter:subscribe",
              " for state " << AdapterExecInterface::getText(state));
 
