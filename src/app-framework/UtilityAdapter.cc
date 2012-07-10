@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include <iostream>
 #include "AdapterFactory.hh"
 #include "AdapterExecInterface.hh"
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "UtilityAdapter.hh"
@@ -78,7 +79,7 @@ void UtilityAdapter::executeCommand (const LabelStr& command_name,
                                      ExpressionId dest,
                                      ExpressionId ack) 
 {
-  std::string name = command_name.toString();
+  const std::string& name = command_name.toString();
   debugMsg("UtilityAdapter", "Received executeCommand for " << name);  
 
   if (name == "print") print (args);
@@ -96,6 +97,20 @@ void UtilityAdapter::executeCommand (const LabelStr& command_name,
     m_execInterface.handleValueChange (dest, UNKNOWN());
   }
 
+  m_execInterface.notifyOfExternalEvent();
+}
+
+void UtilityAdapter::invokeAbort(const LabelStr& command_name, 
+                                 const std::list<double>& args, 
+                                 ExpressionId abort_ack,
+                                 ExpressionId cmd_ack)
+{
+  const std::string& name = command_name.toString();
+  if (name != "print" && name != "pprint") {
+    std::cerr << "Error in Utility Adapter: aborting invalid command \"" 
+              << name << "\" (should never happen!)" << std::endl;
+  }
+  m_execInterface.handleValueChange(abort_ack, BooleanVariable::TRUE_VALUE());
   m_execInterface.notifyOfExternalEvent();
 }
 
