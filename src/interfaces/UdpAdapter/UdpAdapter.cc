@@ -602,7 +602,7 @@ namespace PLEXIL
         int len = param->len;   // number of bytes to read
         int size = param->elements; // size of the array, or 1 for scalars
         std::string type = param->type; // type to decode
-        if (debug)
+        if (debug) {
           if (size==1)
             {
               std::cout << "  handleUdpMessage: decoding " << len << " byte " << type
@@ -615,6 +615,7 @@ namespace PLEXIL
                         << " byte " << type.substr(0, pos) << "s starting at buffer[" << offset
                         << "]: ";
             }
+        }
         if (type.compare("int") == 0)
           {
             assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
@@ -806,7 +807,7 @@ namespace PLEXIL
             for (unsigned int i = 0 ; i < size ; i++)
               {
                 float temp = array[i];
-                assertTrueMsg(FLT_MIN <= temp <= FLT_MAX,
+                assertTrueMsg(FLT_MIN <= temp && temp <= FLT_MAX,
                               "buildUdpBuffer: Reals (floats) must be between " << FLT_MIN << " and " << FLT_MAX <<
                               ", " << temp << " is not");
                 encode_float(temp, buffer, start_index);
@@ -818,7 +819,7 @@ namespace PLEXIL
             float temp = plexil_val;
             assertTrueMsg(len==4, "buildUdpBuffer: Reals must be 4 bytes, not " << len);
             // Catch really big floats
-            assertTrueMsg(FLT_MIN <= plexil_val <= FLT_MAX,
+            assertTrueMsg(FLT_MIN <= plexil_val && plexil_val <= FLT_MAX,
                           //(FLT_MIN <= plexil_val) && (FLT_MAX >= plexil_val),
                           "buildUdpBuffer: Reals (floats) must be between " << FLT_MIN << " and " << FLT_MAX <<
                           ", not " << plexil_val);
