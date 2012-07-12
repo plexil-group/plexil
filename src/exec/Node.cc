@@ -1784,7 +1784,6 @@ namespace PLEXIL {
   void Node::lockConditions() 
   {
     for (size_t i = 0; i < conditionIndexMax; ++i) {
-      ExpressionListenerId listener = m_listeners[i];
       if (m_listeners[i].isId()
           && m_listeners[i]->isActive()) {
         ExpressionId expr = getCondition(i);
