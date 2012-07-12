@@ -1875,35 +1875,42 @@ namespace PLEXIL
   void PlexilXmlParser::toXml(const PlexilNodeRefId& ref, xml_node& parent)
     throw(ParserException) 
   {
-    const char* dir = NULL;
     xml_node retval;
     switch (ref->dir()) {
     case PlexilNodeRef::SELF:
-      dir = "self";
       retval = appendElement(NODEREF_TAG, parent);
+      retval.append_attribute(DIR_ATTR).set_value("self");
       break;
+
     case PlexilNodeRef::PARENT:
-      dir = "parent";
       retval = appendElement(NODEREF_TAG, parent);
+      retval.append_attribute(DIR_ATTR).set_value("parent");
       break;
+
     case PlexilNodeRef::CHILD:
-      dir = "child";
       retval = appendNamedTextElement(NODEREF_TAG, ref->name().c_str(), parent);
+      retval.append_attribute(DIR_ATTR).set_value("child");
       break;
+
     case PlexilNodeRef::SIBLING:
-      dir = "sibling";
       retval = appendNamedTextElement(NODEREF_TAG, ref->name().c_str(), parent);
+      retval.append_attribute(DIR_ATTR).set_value("sibling");
       break;
+
+      // Directions that don't have a corresponding NodeRef variant
+    case PlexilNodeRef::GRANDPARENT:
+    case PlexilNodeRef::UNCLE:
+      retval = appendNamedTextElement(NODEID_TAG, ref->name().c_str(), parent);
+      break;
+
     default:
       checkParserException(ALWAYS_FAIL, "Unknown direction " << ref->dir());
       break;
     }
 
     // Shouldn't happen, but...
-    checkParserException(dir != NULL, "Internal error: dir == NULL");
     checkParserException(retval, "Internal error: retval is empty");
 
-    retval.append_attribute(DIR_ATTR).set_value(dir);
     addSourceLocators(retval, ref);
   }
 }
