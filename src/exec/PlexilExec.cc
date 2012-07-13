@@ -26,6 +26,7 @@
 
 #include "PlexilExec.hh"
 #include "Assignment.hh"
+#include "CoreExpressions.hh" // for StateVariable::nodeStateName
 #include "Debug.hh"
 #include "ExecConnector.hh"
 #include "ExecListenerHub.hh"
@@ -54,8 +55,9 @@ namespace PLEXIL
   PlexilExec::PlexilExec(PlexilNodeId& plan)
     : ExecConnector(),
       m_id(this, ExecConnector::getId()),
-      m_cycleNum(0), m_queuePos(1),
-      m_cache((new StateCache())->getId()) {
+      m_cache((new StateCache())->getId()),
+      m_cycleNum(0), m_queuePos(0)
+  {
     addPlan(plan, EMPTY_LABEL());
     //is it really this simple?
   }
@@ -63,8 +65,8 @@ namespace PLEXIL
   PlexilExec::PlexilExec()
     : ExecConnector(),
       m_id(this, ExecConnector::getId()),
-      m_cycleNum(0), m_queuePos(1),
-      m_cache((new StateCache())->getId())
+      m_cache((new StateCache())->getId()),
+      m_cycleNum(0), m_queuePos(0)
   {}
 
   PlexilExec::~PlexilExec() 
@@ -115,19 +117,31 @@ namespace PLEXIL
 
   // Add a new library node
 
-  // *** To do:
-  //  - check node name for duplicates, replace old?
-
-  void PlexilExec::addLibraryNode(const PlexilNodeId& libNode) {
-    checkError(libNode.isId(), 
+  void PlexilExec::addLibraryNode(const PlexilNodeId& libNode) 
+  {
+    checkError(libNode.isValid(), 
                "PlexilExec::addLibraryNode: Invalid library node pointer");
-    checkError(!libNode->nodeId().empty(), 
+    const std::string& nodeName = libNode->nodeId();
+    checkError(!nodeName.empty(), 
                "PlexilExec::addLibraryNode: Library node ID value is empty");
-    m_libraries[libNode->nodeId()] = libNode;
+
+    // Check for previous
+    PlexilNodeId oldNode;
+    if (m_libraries.find(nodeName) != m_libraries.end()) {
+      oldNode = m_libraries[nodeName];
+    }
+
+    m_libraries[nodeName] = libNode;
     debugMsg("PlexilExec:addLibrary",
-             "Added library node \"" << libNode->nodeId() << "\"");
-    if (m_listener.isValid())
+             "Added library node \"" << nodeName
+             << (oldNode.isId() ? "\", deleting previous" : "\""));
+    if (m_listener.isId())
       m_listener->notifyOfAddLibrary(libNode);
+
+    // Delete previous
+    if (oldNode.isId()) {
+      delete (PlexilNode*) oldNode;
+    }
   }
 
   // Add a plan
@@ -168,7 +182,7 @@ namespace PLEXIL
     root->activate();
     debugMsg("PlexilExec:addPlan",
              "Added plan: " << std::endl << root->toString());
-    if (m_listener.isValid())
+    if (m_listener.isId())
       m_listener->notifyOfAddPlan(plan, parent);
     root->conditionChanged();
     m_cache->handleQuiescenceEnded();
@@ -204,7 +218,7 @@ namespace PLEXIL
   void PlexilExec::notifyNodeConditionChanged(NodeId node)
   {
     debugMsg("PlexilExec:notifyNodeConditionChanged", " for node " << node->getNodeId().toString());
-    m_nodesToConsider.push_back(node);
+    m_nodesToConsider.push(node);
   }
 
   bool PlexilExec::needsStep() const
@@ -216,67 +230,67 @@ namespace PLEXIL
   //it should be faster to search the list backwards.
   void PlexilExec::handleConditionsChanged(const NodeId& node, NodeState destState) 
   {
-    check_error(node.isValid());
     debugMsg("PlexilExec:handleConditionsChanged",
              "Node " << node->getNodeId().toString() << " had a relevant condition change.");
 
     if (destState == NO_NODE_STATE) {
+      // Node not eligible to transition
       debugMsg("PlexilExec:handleConditionsChanged",
                "Node '" << node->getNodeId().toString() <<
                "' was previously eligible to transition but isn't now.");
-      int idx = inQueue(node);
-      if (idx != -1) {
-        debugMsg("PlexilExec:handleConditionsChanged",
-                 "Removing " << node->getNodeId().toString() <<
-                 " from the state change queue.");
-        m_stateChangeQueue.erase(idx);
-      }
-      else {
-        if ((node->getType() == Node::ASSIGNMENT()) &&
-            node->getState() != EXECUTING_STATE) {
-          debugMsg("PlexilExec:handleConditionsChanged",
-                   "Removing node from resource contention.");
-          removeFromResourceContention(node);
-        }
-      }
       return;
     }
     debugMsg("PlexilExec:handleConditionsChanged",
              "Considering node '" << node->getNodeId().toString() << "' for state transition.");
     if (node->getType() == Node::ASSIGNMENT()) {
-      if (destState == EXECUTING_STATE) {
-        //if it's an assignment node and it's eligible to execute
-        //add it to contention consideration
+      // Node can be in contention in either EXECUTING or FAILING 
+      NodeState current = node->getState();
+      switch (destState) {
+
+      case EXECUTING_STATE: {
+        // add it to contention consideration
         debugMsg("PlexilExec:handleConditionsChanged",
                  "Node '" << node->getNodeId().toString() <<
                  "' is an assignment node that could be executing.  Adding it to the " <<
                  "resource contention list ");
         addToResourceContention(node);
-        //remove it from the state change queue
-        int it = inQueue(node);
-        if (it != -1) {
-          debugMsg("PlexilExec:handleConditionsChanged",
-                   "Node '" << node->getNodeId().toString() <<
-                   "' is in the state change queue.  Removing it.");
-          m_stateChangeQueue.erase(it);
-        }
         return;
       }
-      else {
+
+      case FAILING_STATE: // Is already in conflict set, and must be enqueued now
         debugMsg("PlexilExec:handleConditionsChanged",
                  "Node '" << node->getNodeId().toString() <<
-                 "' is an assignment node that is no longer possibly executing.  " <<
-                 "Removing it from resource contention.");
-        removeFromResourceContention(node);
-      }
+                 "' is an assignment node that is failing, and is already in the " <<
+                 "resource contention list");
+        m_variablesToRetract.push_back(node->getAssignmentVariable());
+        break;
+
+        // In addition to the obvious paths from EXECUTING,
+        // the node could have been in WAITING and eligible for execution
+        // but deferred to a higher priority node, then failed/exited/skipped
+        // before it could execute.
+      case ITERATION_ENDED_STATE:
+      case FINISHED_STATE:
+        if (current == EXECUTING_STATE
+            || current == FAILING_STATE
+            || current == WAITING_STATE) {
+          debugMsg("PlexilExec:handleConditionsChanged",
+                   "Node '" << node->getNodeId().toString() <<
+                   "' is an assignment node that is no longer possibly executing.  " <<
+                   "Removing it from resource contention.");
+          removeFromResourceContention(node);
+        }
+        break;
+
+      default: // Is not in contention now, and not entering it either
+        break;
+      } // end switch (destState)
     }
 
-    if (inQueue(node) == -1) {
-      debugMsg("PlexilExec:handleConditionsChanged",
-               "Placing node '" << node->getNodeId().toString() <<
-               "' on the state change queue in position " << m_queuePos);
-      m_stateChangeQueue[m_queuePos++] = NodeTransition(node, destState);
-    }
+    m_stateChangeQueue.push_back(NodeTransition(node, destState));
+    debugMsg("PlexilExec:handleConditionsChanged",
+             "Placing node '" << node->getNodeId().toString() <<
+             "' on the state change queue in position " << ++m_queuePos);
   }
 
   /**
@@ -314,10 +328,6 @@ namespace PLEXIL
   // Assumes node is a valid ID and points to an Assignment node
   void PlexilExec::removeFromResourceContention(const NodeId& node) 
   {
-    //this check may be too restrictive, since we'll probably use this method
-    //to remove nodes when they get batch-executed.
-    //check_error(node->getDestState() != EXECUTING_STATE);
-
     VariableId exp = node->getAssignmentVariable()->getBaseVariable();
     check_error(exp.isValid());
 
@@ -361,150 +371,138 @@ namespace PLEXIL
              "Adding node '" << node->getNodeId().toString() << "' to resource contention.");
     VariableConflictMap::iterator resourceIt = m_resourceConflicts.find(exp);
     if (resourceIt == m_resourceConflicts.end()) {
-      m_resourceConflicts.insert(std::make_pair(exp, VariableConflictSet()));
-      resourceIt = m_resourceConflicts.find(exp);
+      // No conflict set for this variable, so create one with this node
+      std::pair<VariableConflictMap::iterator, bool> insertResult =
+        m_resourceConflicts.insert(std::make_pair(exp, VariableConflictSet()));
+      insertResult.first->second.insert(node);
+      return;
     }
 
     VariableConflictSet& conflictSet = resourceIt->second;
-    VariableConflictSet::iterator conflictSetIter;
-    //HACK.  maybe.  maybe not.
-    if ((conflictSetIter = conflictSet.find(node)) != conflictSet.end()) {
 
-      // There could be multiple nodes with the same priority,
+    // Check to prevent redundant insertion
+    VariableConflictSet::iterator conflictSetIter;
+    if ((conflictSetIter = conflictSet.find(node)) != conflictSet.end()) {
+      // Check only nodes with the same priority
       size_t count = conflictSet.count(node);
-      // Removing this invalidates the regression tests. Bugger.
-      debugMsg("PlexilExec:addToResourceContention", "There are " << count << " similar items in the"
-               << " set.");
-      bool found = false;
-      for (size_t i = 0; !found && (i < count); ++i, ++conflictSetIter) {
+      debugMsg("PlexilExec:addToResourceContention",
+               "There are " << count << " similar items in the set.");
+      for (size_t i = 0; i < count; ++i, ++conflictSetIter) {
         if (node == *conflictSetIter) {
-          found = true;
-          break;
+          debugMsg("PlexilExec:addToResourceContention",
+                   "Skipping node '" << node->getNodeId().toString() <<
+                   "' because it's already in the set.");
+          return;
         }
       }
-      if (found) {
-        debugMsg("PlexilExec:addToResourceContention",
-                 "Skipping node '" << node->getNodeId().toString() <<
-                 "' because it's already in the set.");
-        return;
-      }
     }
+
+    // OK to insert
     conflictSet.insert(node);
   }
 
-  // Used in step() below.
-  // Replaces the STL template of the same name; code is copied from the GNU STL implementation.
-
-  template <class _Pair>
-  struct select2nd : public std::unary_function<_Pair,
-                                                typename _Pair::second_type>
+  void PlexilExec::step() 
   {
-    typename _Pair::second_type&
-    operator()(_Pair& __x) const
-    { return __x.second; }
-
-    const typename _Pair::second_type&
-    operator()(const _Pair& __x) const
-    { return __x.second; }
-  };
-
-  //interesting test case:  one node assigns to a variable.  another node only executes when the first is executing and also assigns to that variable
-  void PlexilExec::step() {
     //
     // *** BEGIN CRITICAL SECTION ***
     //
     m_cache->handleQuiescenceStarted();
-    ++m_cycleNum;
 
-    double quiescenceTime = m_cache->currentTime();
-    debugMsg("PlexilExec:cycle", "==>Start cycle " << m_cycleNum);
+    // Queue had better be empty when we get here!
+    checkError(m_stateChangeQueue.empty(), "State change queue not empty at entry");
 
     unsigned int stepCount = 0;
+    ++m_cycleNum;
+    debugMsg("PlexilExec:cycle", "==>Start cycle " << m_cycleNum);
+
+    double quiescenceTime = m_cache->currentTime();
 
     // BEGIN QUIESCENCE LOOP
-    while(true) {
-      do {
-        // Evaluate conditions of nodes reporting a change
-        std::vector<NodeId> changedNodes(m_nodesToConsider);
-        m_nodesToConsider.clear();
-        for (std::vector<NodeId>::iterator nodeIt = changedNodes.begin();
-             nodeIt != changedNodes.end();
-             ++nodeIt)
-          (*nodeIt)->checkConditions(); // modifies m_stateChangeQueue, m_resourceConflicts
-      }
-      while (!m_nodesToConsider.empty());
+    do {
+      // Size of m_nodesToConsider is upper bound on queue size
+      m_stateChangeQueue.reserve(m_nodesToConsider.size());
 
-      // Sort out (literally) Assignment nodes by priority
+      // Evaluate conditions of nodes reporting a change
+      while (!m_nodesToConsider.empty()) {
+        NodeId candidate = m_nodesToConsider.front();
+        m_nodesToConsider.pop();
+        // If we have to check node validity, do it here, instead of redundantly below.
+        check_error(candidate.isValid());
+        candidate->checkConditions(); // modifies m_stateChangeQueue, m_resourceConflicts
+      }
+
+      // Sort Assignment nodes by priority
       resolveResourceConflicts();
 
       if (m_stateChangeQueue.empty())
-        break; // exit quiescence loop
-      std::list<NodeTransition> transitioningNodes;
-      std::transform(m_stateChangeQueue.begin(), m_stateChangeQueue.end(),
-                     std::back_insert_iterator<std::list<NodeTransition> >(transitioningNodes),
-                     select2nd<StateChangeQueue::value_type>());
-      m_stateChangeQueue.clear();
+        break; // nothing to do, exit quiescence loop
 
-      std::ostringstream out;
-      for (std::list<NodeTransition>::const_iterator it = transitioningNodes.begin();
-           it != transitioningNodes.end(); ++it) {
-        out << it->node->getNodeId().toString() << " ";
-      }
       debugMsg("PlexilExec:step",
-               "[" << m_cycleNum << ":" << stepCount << "] State change queue: " << out.str());
+               "[" << m_cycleNum << ":" << stepCount << "] State change queue: "
+               << stateChangeQueueStr());
 
       unsigned int microStepCount = 0;
-      std::set<NodeId> transitionedNodes;
 
-      //lock the nodes into their current transitioning states
-      for (std::list<NodeTransition>::iterator it = transitioningNodes.begin();
-           it != transitioningNodes.end(); ++it) {
+      // Lock the nodes into their current transitioning states
+      for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
+           it != m_stateChangeQueue.end();
+           ++it) {
         const NodeId& node = it->node;
-        check_error(node.isValid());
         debugMsg("PlexilExec:lock",
                  "Locking node " << node->getNodeId().toString());
         node->lockConditions();
       }
 
-      // Initialize transition report list
+      // Transition the nodes
+      std::set<NodeId> transitionedNodes;
       std::vector<NodeTransition> transitionsToPublish;
-      transitionsToPublish.reserve(transitioningNodes.size());
-
-      //transition them
-      for (std::list<NodeTransition>::iterator it = transitioningNodes.begin();
-           it != transitioningNodes.end();
+      transitionsToPublish.reserve(m_stateChangeQueue.size());
+      for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
+           it != m_stateChangeQueue.end();
            ++it) {
         const NodeId& node = it->node;
-        check_error(node.isValid());
         checkError(transitionedNodes.find(node) == transitionedNodes.end(),
                    "Node " << node->getNodeId().toString() <<
                    " already transitioned in this step.");
         debugMsg("PlexilExec:step",
                  "[" << m_cycleNum << ":" << stepCount << ":" << microStepCount <<
-                 "] Transitioning node " << node->getNodeId().toString());
+                 "] Transitioning node " << node->getNodeId().toString()
+                 << " from " << node->getStateName().toString()
+                 << " to " << StateVariable::nodeStateName(it->state).toString());
         NodeState oldState = node->getState();
         node->transition(it->state, quiescenceTime);
         transitionsToPublish.push_back(NodeTransition(node, oldState));
         transitionedNodes.insert(node);
         ++microStepCount;
       }
-      // publish the transitions
-      if (m_listener.isValid())
+
+      // Publish the transitions
+      if (m_listener.isId())
         m_listener->notifyOfTransitions(transitionsToPublish);
 
-      //unlock the nodes
-      for (std::list<NodeTransition>::iterator it = transitioningNodes.begin();
-           it != transitioningNodes.end(); ++it) {
+      // Unlock the nodes
+      for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
+           it != m_stateChangeQueue.end();
+           ++it) {
         const NodeId& node = it->node;
-        check_error(node.isValid());
         debugMsg("PlexilExec:unlock",
                  "Unlocking node " << node->getNodeId().toString());
         node->unlockConditions();
       }
 
+      // done with this batch
+      m_stateChangeQueue.clear();
+
       ++stepCount;
     }
+    while (m_assignmentsToExecute.empty()
+           && m_assignmentsToRetract.empty()
+           && m_commandsToExecute.empty()
+           && m_updatesToExecute.empty()
+           && !m_nodesToConsider.empty());
     // END QUIESCENCE LOOP
+
+    // Perform side effects
 
     performAssignments();
 
@@ -547,101 +545,105 @@ namespace PLEXIL
       assn->retract();
     }
     m_assignmentsToRetract.clear();
+    m_variablesToRetract.clear();
   }
 
-  //essential algorithm (given Nodes a and b) :
-  //if conflicts(a, b)
-  // if a.state == EXECUTING
-  //  put b on pending list
-  //  return a
-  // else if b.state == EXECUTING
-  //  put a on pending list
-  //  return b
-  // else if a.priority < b.priority
-  //  put b on pending list
-  //  return a
-  // else if a.priority > b.priority
-  //  put a on pending list
-  //  return b
-  // else
-  //  error
-  void PlexilExec::resolveResourceConflicts() {
-    for (VariableConflictMap::iterator it = m_resourceConflicts.begin(); it != m_resourceConflicts.end(); ++it) {
-      VariableConflictSet& conflictSet = it->second;
-      checkError(!conflictSet.empty(),
-                 "Resource conflict set for " << it->first->toString() << " is empty.");
+  void PlexilExec::resolveResourceConflicts()
+  {
+    for (VariableConflictMap::iterator it = m_resourceConflicts.begin(); it != m_resourceConflicts.end(); ++it)
+      resolveVariableConflicts(it->first, it->second);
+  }
 
-      //we only have to look at all the nodes with the highest priority
-      VariableConflictSet::iterator conflictIt = conflictSet.begin(); 
-      size_t count = conflictSet.count(*conflictIt);
-
-      NodeId nodeToExecute;
-
-      // Look at the destination states of all the nodes with equal priority
-      for (size_t i = 0, conflictCounter=0; i < count; ++i, ++conflictIt)
-        {
-          NodeId node = *conflictIt;
-      
-          check_error(node.isValid());
-
-          // Found one that is scheduled to for execution
-          if (node->getDestState() == EXECUTING_STATE)
-            ++conflictCounter;
-          else 
-            checkError(node->getState() == EXECUTING_STATE,
-                       "Error: node '" << node->getNodeId().toString() <<
-                       " is neither executing nor is it eligible to do so, yet it is in the " <<
-                       "conflict map.");
-
-          // If more than one node is scheduled for execution, we have a resource contention.
-          checkError(conflictCounter < 2,
-                     "Error: nodes '" << node->getNodeId().toString() << "' and '"
-                     << nodeToExecute->getNodeId().toString() << "' are in contention over variable "
-                     << node->getAssignmentVariable()->getBaseVariable()->toString() << " and have equal priority.");
-          nodeToExecute = node;
-        }
-
-      if (nodeToExecute->getDestState() == EXECUTING_STATE && inQueue(nodeToExecute) == -1) {
+  /**
+   * @brief Resolve conflicts for this variable.
+   * @note Subroutine of resolveResourceConflicts() above.
+   */
+  void PlexilExec::resolveVariableConflicts(const VariableId& var,
+                                            const VariableConflictSet& conflictSet)
+  {
+    // Ignore any variables pending retraction
+    // Grumble... Why doesnt std:;vector<T> have a find() member fn?
+    for (std::vector<VariableId>::const_iterator vit = m_variablesToRetract.begin();
+         vit != m_variablesToRetract.end();
+         ++vit) {
+      if (*vit == var){
         debugMsg("PlexilExec:resolveResourceConflicts",
-                 "Node '" << nodeToExecute->getNodeId().toString() <<
-                 "' has best priority.  Adding it to be executed in position " << m_queuePos);
-        m_stateChangeQueue[m_queuePos++] = NodeTransition(nodeToExecute, EXECUTING_STATE);
-      }
-      else {
-        condDebugMsg(nodeToExecute->getState() == EXECUTING_STATE,
-                     "PlexilExec:resolveResourceConflicts",
-                     "Node for " << it->first << " already executing.  Nothing to resolve.");
-        condDebugMsg(inQueue(nodeToExecute) != -1,
-                     "PlexilExec:resolveResourceConflicts",
-                     "Node for " << it->first << " already in state change queue.  Nothing " <<
-                     "to resolve.");
-        continue;
+                 " Ignoring Assignments for variable '" << var->getName()
+                 << "', which has a retraction pending");
+        return;
       }
     }
+
+    checkError(!conflictSet.empty(),
+               "Resource conflict set for " << var->toString() << " is empty.");
+
+    //we only have to look at all the nodes with the highest priority
+    VariableConflictSet::iterator conflictIt = conflictSet.begin(); 
+    size_t count = conflictSet.count(*conflictIt); // # of nodes with same priority as top
+
+    NodeId nodeToExecute;
+    NodeState destState = NO_NODE_STATE;
+
+    // Look at the destination states of all the nodes with equal priority
+    for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
+      NodeId node = *conflictIt;
+      NodeState dest = node->getDestState();
+
+      check_error(node.isValid());
+
+      // Found one that is scheduled for execution
+      if (dest == EXECUTING_STATE || dest == FAILING_STATE)
+        ++conflictCounter;
+      else 
+        // Internal error
+        checkError(node->getState() == EXECUTING_STATE
+                   || node->getState() == FAILING_STATE,
+                   "Error: node '" << node->getNodeId().toString()
+                   << " is neither executing nor failing nor eligible for either, yet is in conflict map.");
+
+      // If more than one node is scheduled for execution, we have a resource contention.
+      // *** FIXME: This is a plan error. Find a non-fatal way to report this conflict!! ***
+      checkError(conflictCounter < 2,
+                 "Error: nodes '" << node->getNodeId().toString() << "' and '"
+                 << nodeToExecute->getNodeId().toString() << "' are in contention over variable "
+                 << var->toString() << " and have equal priority.");
+
+      nodeToExecute = node;
+      destState = dest;
+    }
+
+    if (destState == EXECUTING_STATE || destState == FAILING_STATE) {
+      m_stateChangeQueue.push_back(NodeTransition(nodeToExecute, destState));
+      debugMsg("PlexilExec:resolveResourceConflicts",
+               "Node '" << nodeToExecute->getNodeId().toString()
+               << "' has best priority.  Adding it to be executed in position "
+               << ++m_queuePos);
+    }
+    else {
+      condDebugMsg(nodeToExecute->getState() == EXECUTING_STATE
+                   || nodeToExecute->getState() == FAILING_STATE,
+                   "PlexilExec:resolveResourceConflicts",
+                   "Node for " << var->getName() << " already executing.  Nothing to resolve.");
+    }
   }
+
 
   std::string PlexilExec::stateChangeQueueStr() {
     std::ostringstream retval;
     for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
-         it != m_stateChangeQueue.end(); ++it) {
-      check_error(it->second.node.isValid());
-      retval << "(" << it->first << ")'" << it->second.node->getNodeId().toString() << "' ";
+         it != m_stateChangeQueue.end();
+         ++it) {
+      check_error(it->node.isValid());
+      retval << it->node->getNodeId().toString() << " ";
     }
     return retval.str();
-  }
-
-  int PlexilExec::inQueue(const NodeId node) const {
-    for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
-         it != m_stateChangeQueue.end(); ++it)
-      if (it->second.node == node)
-        return it->first;
-    return -1;
   }
 
   // Convenience method for backward compatibility
   void PlexilExec::addListener(const ExecListenerBaseId& listener) 
   {
     check_error(m_listener.isValid());
+    check_error(listener.isValid());
     m_listener->addListener(listener);
   }
 
@@ -649,6 +651,7 @@ namespace PLEXIL
   void PlexilExec::removeListener(const ExecListenerBaseId& listener) 
   {
     check_error(m_listener.isValid());
+    check_error(listener.isValid());
     m_listener->removeListener(listener);
   }
 }

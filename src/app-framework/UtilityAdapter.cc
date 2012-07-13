@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include <iostream>
 #include "AdapterFactory.hh"
 #include "AdapterExecInterface.hh"
+#include "BooleanVariable.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "UtilityAdapter.hh"
@@ -35,7 +36,7 @@
 namespace PLEXIL {
 
 UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
-							   const pugi::xml_node& configXml) :
+                               const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
   debugMsg("UtilityAdapter", " created.");
@@ -73,29 +74,45 @@ bool UtilityAdapter::shutdown()
   return true;
 }
 
-void UtilityAdapter::executeCommand (const LabelStr& command_name,
-                                     const std::list<double>& args,
-                                     ExpressionId dest,
-                                     ExpressionId ack) 
+void UtilityAdapter::executeCommand(const LabelStr& command_name,
+                                    const std::list<double>& args,
+                                    ExpressionId dest,
+                                    ExpressionId ack) 
 {
-  std::string name = command_name.toString();
+  const std::string& name = command_name.toString();
   debugMsg("UtilityAdapter", "Received executeCommand for " << name);  
 
-  if (name == "print") print (args);
-  else if (name == "pprint") pprint (args);
-  else std::cerr <<
-         "Error in Utility Adapter: invalid command (should never happen!): "
-                 << name << std::endl;
+  if (name == "print") 
+    print(args);
+  else if (name == "pprint") 
+    pprint(args);
+  else
+    std::cerr <<
+      "Error in Utility Adapter: invalid command (should never happen!): "
+              << name << std::endl;
 
-  m_execInterface.handleValueChange
-    (ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+  m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS());
 
   // Technically, this may be unnecessary, but is the closest equivalent of a
   // "void" return value.
-  if (dest != ExpressionId::noId()) {
+  if (dest.isId()) {
     m_execInterface.handleValueChange (dest, UNKNOWN());
   }
 
+  m_execInterface.notifyOfExternalEvent();
+}
+
+void UtilityAdapter::invokeAbort(const LabelStr& command_name, 
+                                 const std::list<double>& args, 
+                                 ExpressionId abort_ack,
+                                 ExpressionId cmd_ack)
+{
+  const std::string& name = command_name.toString();
+  if (name != "print" && name != "pprint") {
+    std::cerr << "Error in Utility Adapter: aborting invalid command \"" 
+              << name << "\" (should never happen!)" << std::endl;
+  }
+  m_execInterface.handleValueChange(abort_ack, BooleanVariable::TRUE_VALUE());
   m_execInterface.notifyOfExternalEvent();
 }
 

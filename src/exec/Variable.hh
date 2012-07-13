@@ -72,6 +72,11 @@ namespace PLEXIL
     virtual void setValue(const double value) = 0;
 
     /**
+     * @brief Get the name of this variable, as declared in the node that owns it.
+     */
+    virtual const std::string& getName() const = 0;
+
+    /**
      * @brief Gets the const-ness of this variable.
      * @return True if this variable is const, false otherwise.
      */
@@ -147,8 +152,7 @@ namespace PLEXIL
    * An abstract base class representing a variable with a single value.
    * Derived classes are specialized by value type.
    */
-  class VariableImpl : 
-	public virtual Variable
+  class VariableImpl : public virtual Variable
   {
   public:
 
@@ -298,7 +302,7 @@ namespace PLEXIL
     std::string m_name; /*<! The name under which this variable was declared */
   };
 
-  class AliasVariable : virtual public Variable
+  class AliasVariable : public virtual Variable
   {
   public:
 	/**

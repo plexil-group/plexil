@@ -34,7 +34,7 @@ REGRESSION_PL	:= regression.pl
 # Tests which run to success and require no script
 EMPTY_SCRIPT		:= scripts/empty.psx
 
-EMPTY_SCRIPT_TESTS	:= AncestorReferenceTest array2 array5 array6 array9 \
+EMPTY_SCRIPT_TESTS	:= AncestorReferenceTest array2 array5 array6 array9 assign-failure-with-conflict \
  concat1 contention1 contention3 \
  double-invariant-assignment \
  empty1 empty2 empty3 empty4 empty-string1 \
@@ -46,7 +46,7 @@ EMPTY_SCRIPT_TESTS	:= AncestorReferenceTest array2 array5 array6 array9 \
  simple-assignment skip1 skip2 \
  test-abs-sqrt-plan test-node-name-scope-hack \
  test-node-name-scope test-repeat-condition \
- variables1 \
+ variables1 var-priority-with-exit var-priority-with-skip \
  whitespace1 \
  uninitialized-assignment \
  array-in-loop

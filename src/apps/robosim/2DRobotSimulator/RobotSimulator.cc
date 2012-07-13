@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -222,7 +222,7 @@ void readRobotLocations(const std::string& fName)
 				       x, y,
 				       r, g, b);
           robotList.push_back(robot);
-          if ((name != "RobotYellow") && (name != "RobotBlue3"))
+          if ((name != "RobotYellow") && (name != "RobotBlue3")) {
             if (pthread_create (&thread, &attr, threadLoop, robot) !=  0) 
               {
                 std::cerr << "pthread_create failed for " << name << std::endl;
@@ -232,6 +232,7 @@ void readRobotLocations(const std::string& fName)
               {
                 threadList.push_back(thread);
               }
+          }
         }
     }
   myFile.close();

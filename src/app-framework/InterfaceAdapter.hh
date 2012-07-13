@@ -191,14 +191,14 @@ namespace PLEXIL
      * @brief Abort the pending command with the supplied name and arguments.
      * @param name The LabelString representing the command name.
      * @param args The command arguments expressed as doubles.
+     * @param abort_ack The expression in which to store an acknowledgement of command abort.
      * @param cmd_ack The original acknowledgment for this command (for identification purposes)
-     * @param ack The expression in which to store an acknowledgement of command abort.
      * @note Derived classes may implement this method.  The default method causes an assertion to fail.
      */
     virtual void invokeAbort(const LabelStr& name, 
                              const std::list<double>& args, 
-                             ExpressionId cmd_ack,
-                             ExpressionId ack);
+                             ExpressionId abort_ack,
+                             ExpressionId cmd_ack);
 
     /**
      * @brief Register this adapter based on its XML configuration data.

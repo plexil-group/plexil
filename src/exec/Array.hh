@@ -37,8 +37,7 @@ namespace PLEXIL
    * An abstract base class representing a variable-like object
    * which stores an array.
    */
-  class ArrayVariableBase :
-	public virtual Variable
+  class ArrayVariableBase : public virtual Variable
   {
   public:
 	ArrayVariableBase();
@@ -252,6 +251,14 @@ namespace PLEXIL
     void setValue(const double value);
 
     /**
+     * @brief Get the name of this variable.
+     */
+    const std::string& getName() const
+    {
+      return m_name;  // FIXME: add index
+    }
+
+    /**
      * @brief Gets the const-ness of this variable.
      * @return True if this variable is const, false otherwise.
      */
@@ -314,6 +321,7 @@ namespace PLEXIL
 	const NodeId m_node;
     bool m_deleteIndex;
     DerivedVariableListener m_listener;
+    std::string m_name;
   };
 
 }

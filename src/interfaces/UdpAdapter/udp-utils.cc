@@ -51,9 +51,8 @@ namespace PLEXIL
   int network_bytes_to_number(const unsigned char* buffer, int start_index, int total_bits, bool is_signed=true, bool debug)
   {
     int value = 0;
-    int i = total_bits - 8;
     int cursor = start_index;
-    for (i ; i >= 0 ; i -= 8)
+    for (int i = total_bits - 8 ; i >= 0 ; i -= 8)
       {
         if (debug) printf("buffer[%d]==%d; shift>> %d bits; ", cursor, buffer[cursor], i);
         value += (buffer[cursor++] & 0xff) << i;
@@ -68,9 +67,9 @@ namespace PLEXIL
 
   void number_to_network_bytes(int number, unsigned char* buffer, int start_index, int total_bits, bool debug)
   {
-    int i = total_bits - 8;
+    
     int cursor = start_index;
-    for (i ; i >= 0 ; i -= 8)
+    for (int i = total_bits - 8 ; i >= 0 ; i -= 8)
       {
         if (debug) std::cout << "number=" << number << ": shift>> " << i << " bits; ";
         buffer[cursor++] = (int)((number >> i) & 0xff);

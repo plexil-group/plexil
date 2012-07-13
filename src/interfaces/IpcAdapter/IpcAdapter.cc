@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -100,7 +100,7 @@ namespace PLEXIL
     // Get taskName, serverName from XML, if supplied
     const char* taskName = "";
     const char* serverName = "";
-	pugi::xml_attribute acceptDuplicates;
+    pugi::xml_attribute acceptDuplicates;
 
     const pugi::xml_node& xml = this->getXml();
     if (!xml.empty()) {
@@ -118,7 +118,7 @@ namespace PLEXIL
       taskName = m_ipcFacade.getUID().c_str();
     }
     if (!acceptDuplicates.empty()) {
-	  m_messageQueues.setAllowDuplicateMessages(acceptDuplicates.as_bool());
+      m_messageQueues.setAllowDuplicateMessages(acceptDuplicates.as_bool());
     } 
     else {
       //debugging only. set to true for release
@@ -198,7 +198,7 @@ namespace PLEXIL
       debugMsg("IpcAdapter:lookupNow",
                " returning external lookup " << nameLabel.toString()
                << " with internal value " << it->second);
-	  return it->second;
+      return it->second;
     }
     else {
       const std::vector<double>& params = state.second;
@@ -227,18 +227,18 @@ namespace PLEXIL
       m_cmdMutex.unlock();
 
       // Wait for results
-	  // N.B. shouldn't have to worry about signals causing wait to be interrupted -
-	  // ExecApplication blocks most of the common ones
+      // N.B. shouldn't have to worry about signals causing wait to be interrupted -
+      // ExecApplication blocks most of the common ones
       int errnum = m_lookupSem.wait();
-	  assertTrueMsg(errnum == 0,
-					"IpcAdapter::lookupNow: semaphore wait failed, result = " << errnum);
+      assertTrueMsg(errnum == 0,
+                    "IpcAdapter::lookupNow: semaphore wait failed, result = " << errnum);
 
-	  double result = m_pendingLookupResult;
+      double result = m_pendingLookupResult;
 
       // Clean up
       m_pendingLookupSerial = 0;
-      m_pendingLookupResult = NULL;
-	  return m_pendingLookupResult;
+      m_pendingLookupResult = 0;
+      return result;
     }
   }
 
@@ -250,8 +250,6 @@ namespace PLEXIL
   void IpcAdapter::subscribe(const State& state)
   {
     LabelStr nameLabel(state.first);
-    const std::vector<double>& params = state.second;
-    size_t nParams = params.size();
     debugMsg("IpcAdapter:subscribe",
              " for state " << AdapterExecInterface::getText(state));
 
@@ -269,7 +267,8 @@ namespace PLEXIL
   {
     LabelStr nameLabel(state.first);
     const std::string& name = nameLabel.toString();
-    debugMsg("IpcAdapter:unsubscribe", " for " << name);
+    debugMsg("IpcAdapter:unsubscribe",
+             " for state " << AdapterExecInterface::getText(state));
 
     // Stop looking for this lookup
     ActiveListenerMap::iterator it = m_activeChangeLookupListeners.find(name);
@@ -769,7 +768,7 @@ namespace PLEXIL
         debugMsg("IpcAdapter:handleCommandSequence",
                  " Sending numeric array parameter " << array.toString() << " to the command queue");
         m_messageQueues.addMessage(paramLbl, array.getKey());
-	break;
+        break;
       }
       default: { //assume string
         const PlexilStringValueMsg* param = reinterpret_cast<const PlexilStringValueMsg*> (*it);
@@ -794,13 +793,13 @@ namespace PLEXIL
     debugMsg("IpcAdapter:handleTelemetryValuesSequence",
              " state \"" << tv->stringValue << "\" found, processing");
     size_t nValues = msgs[0]->count;
-	checkError(nValues == 1,
-			   "Telemetry values message only supports 1 value, but received " << nValues);
+    checkError(nValues == 1,
+               "Telemetry values message only supports 1 value, but received " << nValues);
     double value;
-	if (msgs[1]->msgType == PlexilMsgType_NumericValue)
-	  value = ((const PlexilNumericValueMsg*) msgs[1])->doubleValue;
-	else
-	  value = LabelStr(((const PlexilStringValueMsg*) msgs[1])->stringValue).getKey();
+    if (msgs[1]->msgType == PlexilMsgType_NumericValue)
+      value = ((const PlexilNumericValueMsg*) msgs[1])->doubleValue;
+    else
+      value = LabelStr(((const PlexilStringValueMsg*) msgs[1])->stringValue).getKey();
     m_execInterface.handleValueChange(state, value);
     m_execInterface.notifyOfExternalEvent();
   }
@@ -823,7 +822,7 @@ namespace PLEXIL
       return;
     }
 
-	// FIXME: no one ever inserts to m_changeLookups!
+    // FIXME: no one ever inserts to m_changeLookups!
     IpcChangeLookupMap::const_iterator it = m_changeLookups.find(rv->requestSerial);
     if (it != m_changeLookups.end()) {
       // Active LookupOnChange

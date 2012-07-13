@@ -39,8 +39,8 @@ namespace PLEXIL
    */
   ExecListener::ExecListener()
     : ExecListenerBase(),
-	  m_id(this, ExecListenerBase::getId()), 
-      m_filter()
+      m_filter(),
+	  m_id(this, ExecListenerBase::getId())
   {
   }
 
@@ -49,8 +49,8 @@ namespace PLEXIL
    */
   ExecListener::ExecListener(const pugi::xml_node& xml)
     : ExecListenerBase(xml),
-	  m_id(this, ExecListenerBase::getId()), 
-      m_filter()
+      m_filter(),
+	  m_id(this, ExecListenerBase::getId())
   {
     if (!xml.empty()) {
 	  pugi::xml_node filterSpec = xml.child(InterfaceSchema::FILTER_TAG());

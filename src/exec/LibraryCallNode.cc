@@ -262,8 +262,6 @@ namespace PLEXIL
     // Get node body
     const PlexilLibNodeCallBody* body = (PlexilLibNodeCallBody*) node->body();
     check_error(body != NULL);
-    // get the lib node 
-    const PlexilNodeId& libNode = body->libNode();
     //call postInit on the child
     m_children.front()->postInit(body->libNode());
   }

@@ -105,11 +105,8 @@ namespace PLEXIL
 
   //these values get reassigned for each node
   static string myId;
-  static int myStartValint;
   static double myStartValdbl;
-  static int myEndValint;
   static double myEndValdbl;
-  static int myDurationValint;
   static double myDurationValdbl;
   static string myType;
   static string myVal;
@@ -125,7 +122,6 @@ namespace PLEXIL
   static double startTime = -1;
 
   static int index;
-  static int executingIndex;
 
   static string myDirectory;
   static string uniqueFileName;
@@ -248,7 +244,6 @@ namespace PLEXIL
     getCurrentWorkingDirectory();
 	// FIXME: Get time from someplace!
     startTime = 0;
-    int startTimeint = startTime;
     startTime = (int) startTime;
     std::ostringstream uFileName;
     uFileName.precision(10);
@@ -299,7 +294,6 @@ namespace PLEXIL
       actualId = nodeCounter; //actualId ensures that looping nodes have the same ID for each token
 
       //determine if a node looping; assign prior ID for loops and a new one for non loops
-      //executingIndex is currently unused
       stateMap[nodeId] += 1;
       if(stateMap[nodeId] > 1) {
 	actualId = counterMap[nodeId];
@@ -339,7 +333,6 @@ namespace PLEXIL
           string tempString = ((NodeId) *i)->getNodeId().toString();
           myChildNodes.push_back(tempString);
           myChildren += tempString + ", ";
-          int tempSize = tempChildList.size();
         }
 
       //convert actualId to string
@@ -369,7 +362,7 @@ namespace PLEXIL
       string tempType = nodeId->getType().toString();
       string tempParent = "invalid_parent_id";
       if(nodeId->getParent().isId()) tempParent = nodeId->getParent()->getNodeId().toString();
-      for(int i=0; i<nodes.size(); i++) {
+      for(size_t i=0; i<nodes.size(); i++) {
 	if(tempParent != "invalid_parent_id") {
 	  if(tempId==nodes[i].name 
 	     && tempType==nodes[i].type
@@ -452,7 +445,7 @@ namespace PLEXIL
 	      }
 	    }
 	    myLocalVarsAfter = " ";
-	    for(int i = 0; i < fullStrings.size(); i++) {
+	    for(size_t i = 0; i < fullStrings.size(); i++) {
 	      myLocalVarsAfter += "<br>" + fullStrings[i] + ", ";
 	    }
 	}

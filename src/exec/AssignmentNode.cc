@@ -64,6 +64,7 @@ namespace PLEXIL
     switch (state) {
     case EXECUTING_STATE:
       m_assignment->activate();
+      activateActionCompleteCondition();
       break;
 
     case FAILING_STATE:
@@ -95,7 +96,13 @@ namespace PLEXIL
                "Node is an assignment node but doesn't have an assignment body.");
     createAssignment((PlexilAssignmentBody*) node->body());
 
-    // Construct abort-complete condition
+    // Set action-complete condition
+    ExpressionId ack = (ExpressionId) m_assignment->getAck();
+    ack->addListener(makeConditionListener(actionCompleteIdx));
+    m_conditions[actionCompleteIdx] = ack;
+    m_garbageConditions[actionCompleteIdx] = false;
+
+    // Set abort-complete condition
     ExpressionId abortComplete = (ExpressionId) m_assignment->getAbortComplete();
     abortComplete->addListener(makeConditionListener(abortCompleteIdx));
     m_conditions[abortCompleteIdx] = abortComplete;
@@ -129,8 +136,8 @@ namespace PLEXIL
       // *** beef this up later ***
       PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
       debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
-      int e_index = dest->toString().find(": ", dest->toString().length()-15);
-      int b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
+      size_t e_index = dest->toString().find(": ", dest->toString().length()-15);
+      size_t b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
       int diff_index = e_index - b_index;
       std::string m_index = " ";
       if(e_index != std::string::npos)
@@ -167,31 +174,6 @@ namespace PLEXIL
       (new Assignment(dest, BooleanVariable::TRUE_EXP(), true, false, destName, m_nodeId))->getId();
   }
 
-  void AssignmentNode::createConditionWrappers()
-  {
-    ExpressionId ack = (ExpressionId) m_assignment->getAck();
-    if (m_conditions[endIdx] == BooleanVariable::TRUE_EXP()) {
-      // Default - don't wrap, replace - (True && anything) == anything
-      m_conditions[endIdx] = ack;
-      ack->addListener(makeConditionListener(endIdx));
-      m_garbageConditions[endIdx] = false;
-    }
-    else {
-      // Wrap user-provided condition
-      if (m_listeners[endIdx].isId())
-        m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
-      else
-        makeConditionListener(endIdx); // for effect
-      ExpressionId realEnd = (new Conjunction(ack,
-                                              false,
-                                              m_conditions[endIdx],
-                                              m_garbageConditions[endIdx]))->getId();
-      realEnd->addListener(m_listeners[endIdx]);
-      m_conditions[endIdx] = realEnd;
-      m_garbageConditions[endIdx] = true;
-    }
-  }
-
   const VariableId& AssignmentNode::getAssignmentVariable() const
   {
     return m_assignment->getDest();
@@ -207,11 +189,26 @@ namespace PLEXIL
   // Description and methods here are for Assignment node only
   //
   // Legal predecessor states: WAITING
-  // Conditions active: AncestorExit, AncestorInvariant, End, Exit, Invariant, Post
+  // Conditions active: ActionComplete, AncestorExit, AncestorInvariant, End, Exit, Invariant, Post
   // Legal successor states: FAILING, ITERATION_ENDED
+
+  void AssignmentNode::transitionToExecuting()
+  {
+    Node::transitionToExecuting();
+    activateActionCompleteCondition();
+  }
 
   NodeState AssignmentNode::getDestStateFromExecuting()
   {
+    // Not eligible to transition from EXECUTING until the assignment has been executed.
+    checkError(isActionCompleteConditionActive(),
+               "Node::getDestStateFromExecuting: Assignment-complete for " << m_nodeId.toString() << " is inactive.");
+    if (getActionCompleteCondition()->getValue() != BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << "' destination: no state. Assignment node and assignment-complete false or unknown.");
+      return NO_NODE_STATE;
+    }
+
     checkError(isAncestorExitConditionActive(),
                "Node::getDestStateFromExecuting: Ancestor exit for " << m_nodeId.toString() << " is inactive.");
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
@@ -300,6 +297,7 @@ namespace PLEXIL
       }
     }
 
+    deactivateActionCompleteCondition();
     deactivateEndCondition();
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -335,33 +333,32 @@ namespace PLEXIL
   {
     checkError(isAbortCompleteConditionActive(),
                "Abort complete for " << getNodeId().toString() << " is inactive.");
-
-    if (getAbortCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      if (m_failureTypeVariable->getValue() == FailureVariable::PARENT_FAILED()) {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << 
-                 "' destination: FINISHED.  Assignment node abort complete, " <<
-                 "and parent failed.");
-        return FINISHED_STATE;
-      }
-      else if (m_failureTypeVariable->getValue() == FailureVariable::PARENT_EXITED()) {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << 
-                 "' destination: FINISHED.  Assignment node abort complete, " <<
-                 "and parent exited.");
-        return FINISHED_STATE;
-      }
-      else {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << 
-                 "' destination: ITERATION_ENDED.  Assignment node node abort complete.");
-        return ITERATION_ENDED_STATE;
-      }
+    if (getAbortCompleteCondition()->getValue() != BooleanVariable::TRUE_VALUE()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString()
+               << "' destination: no state. Assignment node and abort complete false or unknown.");
+      return NO_NODE_STATE;
     }
 
-    debugMsg("Node:getDestState",
-                 " '" << m_nodeId.toString() << "' destination: no state.");
-    return NO_NODE_STATE;
+    double failureValue = m_failureTypeVariable->getValue();
+    if (failureValue == FailureVariable::PARENT_FAILED()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << 
+               "' destination: FINISHED.  Assignment node, abort complete, and parent failed.");
+      return FINISHED_STATE;
+    }
+    else if (failureValue == FailureVariable::PARENT_EXITED()) {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << 
+               "' destination: FINISHED.  Assignment node, abort complete, and parent exited.");
+      return FINISHED_STATE;
+    }
+    else {
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId.toString() << 
+               "' destination: ITERATION_ENDED.  Assignment node and abort complete.");
+      return ITERATION_ENDED_STATE;
+    }
   }
 
   void AssignmentNode::transitionFromFailing(NodeState destState)

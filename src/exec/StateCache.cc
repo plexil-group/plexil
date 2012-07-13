@@ -64,23 +64,23 @@ namespace PLEXIL
   public:
 	LookupDesc(const CacheEntryId& _entry,
 			   const ExpressionId& _expr)
-	  : tolerance(0.0),
-		previousValue(Expression::UNKNOWN()),
-		entry(_entry),
+	  : entry(_entry),
 		dest(_expr),
-		changeLookup(false),
-		m_id(this)
+		m_id(this),
+		previousValue(Expression::UNKNOWN()),
+        tolerance(0.0),
+        changeLookup(false)
 	{
 	}
 	LookupDesc(const CacheEntryId& _entry,
 			   const ExpressionId& _expr, 
 			   double _tolerance)
-	  : tolerance(_tolerance),
-		previousValue(Expression::UNKNOWN()),
-		entry(_entry),
+	  : entry(_entry),
 		dest(_expr),
-		changeLookup(true),
-		m_id(this)
+        m_id(this),
+		previousValue(Expression::UNKNOWN()),
+		tolerance(_tolerance),
+		changeLookup(true)
 	{
 	}
 	

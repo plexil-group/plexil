@@ -23,7 +23,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 1
 [PlexilExec:step][1:0] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][1:0:0] Transitioning node SimpleTask
+[PlexilExec:step][1:0:0] Transitioning node SimpleTask from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
@@ -31,7 +31,7 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 2
 [PlexilExec:step][1:1] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][1:1:0] Transitioning node SimpleTask
+[PlexilExec:step][1:1:0] Transitioning node SimpleTask from WAITING to EXECUTING
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:notifyNodeConditionChanged] for node TakePicture
@@ -53,11 +53,11 @@ SimpleTask{
 [PlexilExec:lock]Locking node PickupObject
 [PlexilExec:lock]Locking node ProcessImage
 [PlexilExec:lock]Locking node TakePicture
-[PlexilExec:step][1:2:0] Transitioning node PickupObject
+[PlexilExec:step][1:2:0] Transitioning node PickupObject from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
-[PlexilExec:step][1:2:1] Transitioning node ProcessImage
+[PlexilExec:step][1:2:1] Transitioning node ProcessImage from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][1:2:2] Transitioning node TakePicture
+[PlexilExec:step][1:2:2] Transitioning node TakePicture from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node TakePicture
 [PlexilExec:unlock]Unlocking node PickupObject
 [PlexilExec:unlock]Unlocking node ProcessImage
@@ -75,43 +75,21 @@ SimpleTask{
 [PlexilExec:lock]Locking node PickupObject
 [PlexilExec:lock]Locking node ProcessImage
 [PlexilExec:lock]Locking node TakePicture
-[PlexilExec:step][1:3:0] Transitioning node PickupObject
+[PlexilExec:step][1:3:0] Transitioning node PickupObject from WAITING to EXECUTING
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
 [PlexilExec:handleNeedsExecution]Storing action for node 'PickupObject' of type 'Command' to be executed.
-[PlexilExec:step][1:3:1] Transitioning node ProcessImage
+[PlexilExec:step][1:3:1] Transitioning node ProcessImage from WAITING to EXECUTING
 [PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][1:3:2] Transitioning node TakePicture
+[PlexilExec:step][1:3:2] Transitioning node TakePicture from WAITING to EXECUTING
 [PlexilExec:handleNeedsExecution]Storing action for node 'TakePicture' of type 'Command' to be executed.
 [PlexilExec:notifyNodeConditionChanged] for node TakePicture
 [PlexilExec:unlock]Unlocking node PickupObject
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:unlock]Unlocking node TakePicture
-[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'PickupObject' was previously eligible to transition but isn't now.
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 9
-[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 10
-[PlexilExec:step][1:4] State change queue: ProcessImage TakePicture 
-[PlexilExec:lock]Locking node ProcessImage
-[PlexilExec:lock]Locking node TakePicture
-[PlexilExec:step][1:4:0] Transitioning node ProcessImage
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][1:4:1] Transitioning node TakePicture
-[PlexilExec:notifyNodeConditionChanged] for node TakePicture
-[PlexilExec:unlock]Unlocking node ProcessImage
-[PlexilExec:unlock]Unlocking node TakePicture
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
-[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'TakePicture' was previously eligible to transition but isn't now.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [Test:testOutput]Executing pickup_object(20) into returnValue (id_165[au](-1): int) with ack PickupObject command_handle (id_284[au](UNKNOWN): command_handle)
 [Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [Test:testOutput]Executing take_picture() into noId with ack TakePicture command_handle (id_350[au](UNKNOWN): command_handle)
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
@@ -155,7 +133,7 @@ SimpleTask{
    returnValue: returnValue (id_165[au](-1): int)
   }
   ProcessImage{
-   State: ProcessImage (id_170[au](FINISHING): state) (0)
+   State: ProcessImage (id_170[au](EXECUTING): state) (0)
    AncestorEndCondition: (id_264[au](0): childrenFinished(0:3))
    AncestorExitCondition: Boolean constant false (id_107[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_109[au](1): boolean)
@@ -168,15 +146,15 @@ SimpleTask{
    ExitCondition: Boolean constant false (id_107[au](0): boolean)
    InvariantCondition: Boolean constant true (id_109[au](1): boolean)
    PreCondition: Boolean constant true (id_109[au](1): boolean)
-   PostCondition: (id_332[au](0): (id_336[au](0): (ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_334[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   PostCondition: (id_332[iu](UNKNOWN): (id_336[iu](UNKNOWN): (ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_334[iu](COMMAND_SENT_TO_SYSTEM): command_handle))))
    RepeatCondition: (id_339[iu](UNKNOWN): (id_343[iu](UNKNOWN): (ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_341[iu](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_324[au](1): isknown(ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle)))
+   ActionCompleteCondition: (id_324[iu](UNKNOWN): isknown(ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle)))
    AbortCompleteCondition: ProcessImage abortComplete (id_322[au](UNKNOWN): boolean)
    Command handle: ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle)
    priority30: priority30 (id_211[au](30): int)
   }
   TakePicture{
-   State: TakePicture (id_214[au](FINISHING): state) (0)
+   State: TakePicture (id_214[au](EXECUTING): state) (0)
    AncestorEndCondition: (id_264[au](0): childrenFinished(0:3))
    AncestorExitCondition: Boolean constant false (id_107[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_109[au](1): boolean)
@@ -189,9 +167,9 @@ SimpleTask{
    ExitCondition: Boolean constant false (id_107[au](0): boolean)
    InvariantCondition: Boolean constant true (id_109[au](1): boolean)
    PreCondition: Boolean constant true (id_109[au](1): boolean)
-   PostCondition: (id_362[au](UNKNOWN): (id_366[au](UNKNOWN): (TakePicture command_handle (id_350[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_364[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   PostCondition: (id_362[iu](UNKNOWN): (id_366[iu](UNKNOWN): (TakePicture command_handle (id_350[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_364[iu](COMMAND_SENT_TO_SYSTEM): command_handle))))
    RepeatCondition: Boolean constant false (id_107[au](0): boolean)
-   ActionCompleteCondition: (id_354[au](0): isknown(TakePicture command_handle (id_350[au](UNKNOWN): command_handle)))
+   ActionCompleteCondition: (id_354[iu](UNKNOWN): isknown(TakePicture command_handle (id_350[au](UNKNOWN): command_handle)))
    AbortCompleteCondition: TakePicture abortComplete (id_352[au](UNKNOWN): boolean)
    Command handle: TakePicture command_handle (id_350[au](UNKNOWN): command_handle)
    v_priority: v_priority (id_255[au](10): int)
@@ -202,44 +180,52 @@ SimpleTask{
 [Test:testOutput]Looking up immediately time()
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 2
+[PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'PickupObject' was previously eligible to transition but isn't now.
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 9
+[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 10
+[PlexilExec:step][2:0] State change queue: ProcessImage TakePicture 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:lock]Locking node TakePicture
+[PlexilExec:step][2:0:0] Transitioning node ProcessImage from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
+[PlexilExec:step][2:0:1] Transitioning node TakePicture from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node TakePicture
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:unlock]Unlocking node TakePicture
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 11
-[PlexilExec:step][2:0] State change queue: ProcessImage 
+[PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Node 'TakePicture' was previously eligible to transition but isn't now.
+[PlexilExec:step][2:1] State change queue: ProcessImage 
 [PlexilExec:lock]Locking node ProcessImage
-[PlexilExec:step][2:0:0] Transitioning node ProcessImage
+[PlexilExec:step][2:1:0] Transitioning node ProcessImage from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 12
-[PlexilExec:step][2:1] State change queue: ProcessImage 
+[PlexilExec:step][2:2] State change queue: ProcessImage 
 [PlexilExec:lock]Locking node ProcessImage
-[PlexilExec:step][2:1:0] Transitioning node ProcessImage
+[PlexilExec:step][2:2:0] Transitioning node ProcessImage from ITERATION_ENDED to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 13
-[PlexilExec:step][2:2] State change queue: ProcessImage 
+[PlexilExec:step][2:3] State change queue: ProcessImage 
 [PlexilExec:lock]Locking node ProcessImage
-[PlexilExec:step][2:2:0] Transitioning node ProcessImage
+[PlexilExec:step][2:3:0] Transitioning node ProcessImage from WAITING to EXECUTING
 [PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:unlock]Unlocking node ProcessImage
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 14
-[PlexilExec:step][2:3] State change queue: ProcessImage 
-[PlexilExec:lock]Locking node ProcessImage
-[PlexilExec:step][2:3:0] Transitioning node ProcessImage
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:unlock]Unlocking node ProcessImage
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 SimpleTask{
@@ -282,7 +268,7 @@ SimpleTask{
    returnValue: returnValue (id_165[au](-1): int)
   }
   ProcessImage{
-   State: ProcessImage (id_170[au](FINISHING): state) (0)
+   State: ProcessImage (id_170[au](EXECUTING): state) (0)
    AncestorEndCondition: (id_264[au](0): childrenFinished(0:3))
    AncestorExitCondition: Boolean constant false (id_107[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_109[au](1): boolean)
@@ -295,9 +281,9 @@ SimpleTask{
    ExitCondition: Boolean constant false (id_107[au](0): boolean)
    InvariantCondition: Boolean constant true (id_109[au](1): boolean)
    PreCondition: Boolean constant true (id_109[au](1): boolean)
-   PostCondition: (id_332[au](0): (id_336[au](0): (ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_334[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   PostCondition: (id_332[iu](UNKNOWN): (id_336[iu](UNKNOWN): (ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_334[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
    RepeatCondition: (id_339[iu](UNKNOWN): (id_343[iu](UNKNOWN): (ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_341[au](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_324[au](1): isknown(ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle)))
+   ActionCompleteCondition: (id_324[iu](UNKNOWN): isknown(ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle)))
    AbortCompleteCondition: ProcessImage abortComplete (id_322[au](UNKNOWN): boolean)
    Command handle: ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle)
    priority30: priority30 (id_211[au](30): int)
@@ -332,58 +318,55 @@ SimpleTask{
 [PlexilExec:cycle]==>Start cycle 3
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 15
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 14
 [PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 16
+[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 15
 [PlexilExec:step][3:0] State change queue: ProcessImage TakePicture 
 [PlexilExec:lock]Locking node ProcessImage
 [PlexilExec:lock]Locking node TakePicture
-[PlexilExec:step][3:0:0] Transitioning node ProcessImage
+[PlexilExec:step][3:0:0] Transitioning node ProcessImage from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][3:0:1] Transitioning node TakePicture
+[PlexilExec:step][3:0:1] Transitioning node TakePicture from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node TakePicture
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:unlock]Unlocking node TakePicture
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 17
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 16
 [PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'TakePicture' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 18
+[PlexilExec:handleConditionsChanged]Placing node 'TakePicture' on the state change queue in position 17
 [PlexilExec:step][3:1] State change queue: ProcessImage TakePicture 
 [PlexilExec:lock]Locking node ProcessImage
 [PlexilExec:lock]Locking node TakePicture
-[PlexilExec:step][3:1:0] Transitioning node ProcessImage
+[PlexilExec:step][3:1:0] Transitioning node ProcessImage from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][3:1:1] Transitioning node TakePicture
+[PlexilExec:step][3:1:1] Transitioning node TakePicture from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node TakePicture
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:unlock]Unlocking node TakePicture
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 19
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 18
 [PlexilExec:handleConditionsChanged]Node TakePicture had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'TakePicture' was previously eligible to transition but isn't now.
 [PlexilExec:step][3:2] State change queue: ProcessImage 
 [PlexilExec:lock]Locking node ProcessImage
-[PlexilExec:step][3:2:0] Transitioning node ProcessImage
-[PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
+[PlexilExec:step][3:2:0] Transitioning node ProcessImage from ITERATION_ENDED to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 20
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 19
 [PlexilExec:step][3:3] State change queue: ProcessImage 
 [PlexilExec:lock]Locking node ProcessImage
-[PlexilExec:step][3:3:0] Transitioning node ProcessImage
+[PlexilExec:step][3:3:0] Transitioning node ProcessImage from WAITING to EXECUTING
+[PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:unlock]Unlocking node ProcessImage
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [Test:testOutput]Permission to execute process_image has been denied by the resource arbiter.
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 SimpleTask{
@@ -426,7 +409,7 @@ SimpleTask{
    returnValue: returnValue (id_165[au](-1): int)
   }
   ProcessImage{
-   State: ProcessImage (id_170[au](FINISHING): state) (0)
+   State: ProcessImage (id_170[au](EXECUTING): state) (0)
    AncestorEndCondition: (id_264[au](0): childrenFinished(1:3))
    AncestorExitCondition: Boolean constant false (id_107[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_109[au](1): boolean)
@@ -439,9 +422,9 @@ SimpleTask{
    ExitCondition: Boolean constant false (id_107[au](0): boolean)
    InvariantCondition: Boolean constant true (id_109[au](1): boolean)
    PreCondition: Boolean constant true (id_109[au](1): boolean)
-   PostCondition: (id_332[au](0): (id_336[au](0): (ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_334[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   PostCondition: (id_332[iu](UNKNOWN): (id_336[iu](UNKNOWN): (ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_334[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
    RepeatCondition: (id_339[iu](UNKNOWN): (id_343[iu](UNKNOWN): (ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle) == NodeCommandHandleValue (id_341[au](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_324[au](1): isknown(ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle)))
+   ActionCompleteCondition: (id_324[iu](UNKNOWN): isknown(ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle)))
    AbortCompleteCondition: ProcessImage abortComplete (id_322[au](UNKNOWN): boolean)
    Command handle: ProcessImage command_handle (id_320[au](COMMAND_DENIED): command_handle)
    priority30: priority30 (id_211[au](30): int)
@@ -461,62 +444,60 @@ SimpleTask{
 [PlexilExec:cycle]==>Start cycle 4
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 21
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 20
 [PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 22
+[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 21
 [PlexilExec:step][4:0] State change queue: ProcessImage PickupObject 
 [PlexilExec:lock]Locking node ProcessImage
 [PlexilExec:lock]Locking node PickupObject
-[PlexilExec:step][4:0:0] Transitioning node ProcessImage
+[PlexilExec:step][4:0:0] Transitioning node ProcessImage from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][4:0:1] Transitioning node PickupObject
+[PlexilExec:step][4:0:1] Transitioning node PickupObject from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:unlock]Unlocking node PickupObject
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 23
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 22
 [PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 24
+[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 23
 [PlexilExec:step][4:1] State change queue: ProcessImage PickupObject 
 [PlexilExec:lock]Locking node ProcessImage
 [PlexilExec:lock]Locking node PickupObject
-[PlexilExec:step][4:1:0] Transitioning node ProcessImage
+[PlexilExec:step][4:1:0] Transitioning node ProcessImage from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][4:1:1] Transitioning node PickupObject
+[PlexilExec:step][4:1:1] Transitioning node PickupObject from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:unlock]Unlocking node PickupObject
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 25
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 24
 [PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'PickupObject' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 26
+[PlexilExec:handleConditionsChanged]Placing node 'PickupObject' on the state change queue in position 25
 [PlexilExec:step][4:2] State change queue: ProcessImage PickupObject 
 [PlexilExec:lock]Locking node ProcessImage
 [PlexilExec:lock]Locking node PickupObject
-[PlexilExec:step][4:2:0] Transitioning node ProcessImage
-[PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
+[PlexilExec:step][4:2:0] Transitioning node ProcessImage from ITERATION_ENDED to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
-[PlexilExec:step][4:2:1] Transitioning node PickupObject
+[PlexilExec:step][4:2:1] Transitioning node PickupObject from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node PickupObject
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:unlock]Unlocking node PickupObject
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 27
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 26
 [PlexilExec:handleConditionsChanged]Node PickupObject had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'PickupObject' was previously eligible to transition but isn't now.
 [PlexilExec:step][4:3] State change queue: ProcessImage 
 [PlexilExec:lock]Locking node ProcessImage
-[PlexilExec:step][4:3:0] Transitioning node ProcessImage
+[PlexilExec:step][4:3:0] Transitioning node ProcessImage from WAITING to EXECUTING
+[PlexilExec:handleNeedsExecution]Storing action for node 'ProcessImage' of type 'Command' to be executed.
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:unlock]Unlocking node ProcessImage
-[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'ProcessImage' was previously eligible to transition but isn't now.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [Test:testOutput]Executing process_image() into noId with ack ProcessImage command_handle (id_320[au](UNKNOWN): command_handle)
 [PlexilExec:cycle]==>End cycle 4
@@ -546,7 +527,7 @@ SimpleTask{
    returnValue: returnValue (id_165[iu](10): int)
   }
   ProcessImage{
-   State: ProcessImage (id_170[au](FINISHING): state) (0)
+   State: ProcessImage (id_170[au](EXECUTING): state) (0)
    AncestorEndCondition: (id_264[au](0): childrenFinished(2:3))
    AncestorExitCondition: Boolean constant false (id_107[au](0): boolean)
    AncestorInvariantCondition: Boolean constant true (id_109[au](1): boolean)
@@ -559,9 +540,9 @@ SimpleTask{
    ExitCondition: Boolean constant false (id_107[au](0): boolean)
    InvariantCondition: Boolean constant true (id_109[au](1): boolean)
    PreCondition: Boolean constant true (id_109[au](1): boolean)
-   PostCondition: (id_332[au](UNKNOWN): (id_336[au](UNKNOWN): (ProcessImage command_handle (id_320[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_334[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
+   PostCondition: (id_332[iu](UNKNOWN): (id_336[iu](UNKNOWN): (ProcessImage command_handle (id_320[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_334[au](COMMAND_SENT_TO_SYSTEM): command_handle))))
    RepeatCondition: (id_339[iu](UNKNOWN): (id_343[iu](UNKNOWN): (ProcessImage command_handle (id_320[au](UNKNOWN): command_handle) == NodeCommandHandleValue (id_341[au](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_324[au](0): isknown(ProcessImage command_handle (id_320[au](UNKNOWN): command_handle)))
+   ActionCompleteCondition: (id_324[iu](UNKNOWN): isknown(ProcessImage command_handle (id_320[au](UNKNOWN): command_handle)))
    AbortCompleteCondition: ProcessImage abortComplete (id_322[au](UNKNOWN): boolean)
    Command handle: ProcessImage command_handle (id_320[au](UNKNOWN): command_handle)
    priority30: priority30 (id_211[au](30): int)
@@ -575,24 +556,31 @@ SimpleTask{
 }
 
 [Test:testOutput]Sending command ACK process_image() = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [Test:testOutput]Looking up immediately time()
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 5
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 28
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 27
 [PlexilExec:step][5:0] State change queue: ProcessImage 
 [PlexilExec:lock]Locking node ProcessImage
-[PlexilExec:step][5:0:0] Transitioning node ProcessImage
+[PlexilExec:step][5:0:0] Transitioning node ProcessImage from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node ProcessImage
+[PlexilExec:unlock]Unlocking node ProcessImage
+[PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
+[PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
+[PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 28
+[PlexilExec:step][5:1] State change queue: ProcessImage 
+[PlexilExec:lock]Locking node ProcessImage
+[PlexilExec:step][5:1:0] Transitioning node ProcessImage from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:handleConditionsChanged]Node ProcessImage had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'ProcessImage' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'ProcessImage' on the state change queue in position 29
-[PlexilExec:step][5:1] State change queue: ProcessImage 
+[PlexilExec:step][5:2] State change queue: ProcessImage 
 [PlexilExec:lock]Locking node ProcessImage
-[PlexilExec:step][5:1:0] Transitioning node ProcessImage
+[PlexilExec:step][5:2:0] Transitioning node ProcessImage from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node ProcessImage
 [PlexilExec:unlock]Unlocking node ProcessImage
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
@@ -601,25 +589,25 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 30
-[PlexilExec:step][5:2] State change queue: SimpleTask 
+[PlexilExec:step][5:3] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][5:2:0] Transitioning node SimpleTask
+[PlexilExec:step][5:3:0] Transitioning node SimpleTask from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 31
-[PlexilExec:step][5:3] State change queue: SimpleTask 
+[PlexilExec:step][5:4] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][5:3:0] Transitioning node SimpleTask
+[PlexilExec:step][5:4:0] Transitioning node SimpleTask from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 32
-[PlexilExec:step][5:4] State change queue: SimpleTask 
+[PlexilExec:step][5:5] State change queue: SimpleTask 
 [PlexilExec:lock]Locking node SimpleTask
-[PlexilExec:step][5:4:0] Transitioning node SimpleTask
+[PlexilExec:step][5:5:0] Transitioning node SimpleTask from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:unlock]Unlocking node SimpleTask
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.

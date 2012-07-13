@@ -176,7 +176,6 @@ bool DebugMessage::readConfigFile(std::istream& is)
     getline(is, input);
     if (input.empty())
       continue;
-    string::size_type len = input.length();
 
 	// Find leftmost non-blank character
     string::size_type left = input.find_first_not_of(sl_whitespace);
