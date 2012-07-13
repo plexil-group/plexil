@@ -1,5 +1,17 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
+2.5 (To be released)
+
+ - Added Exit Condition to PLEXIL nodes.  This provides a clean way to
+   deliberately terminate a plan.
+
+ - Major performance enhancements to the executive.
+
+ - Completely revised node state transition diagrams.  The diagrams now
+   accurately reflect the exact behavior of the executive, which is also
+   its specified semantics.
+
+
 2.0 (May 4, 2012; SVN revision 2762)
 
 IMPORTANT NOTE: This release has several features that are not
