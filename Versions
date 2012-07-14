@@ -2,15 +2,32 @@ This file is a compendium of past release notes for PLEXIL distributions.
 
 2.5 (To be released)
 
- - Added Exit Condition to PLEXIL nodes.  This provides a clean way to
-   deliberately terminate a plan.
+ - Added ExitCondition to PLEXIL nodes.  This provides a clean way to
+   deliberately terminate a plan.  New outcome and failure type
+   variables were added to support ExitCondition.  The new user syntax
+   and Plexilisp have been updated to match.
 
- - Major performance enhancements to the executive.
+ - Additional performance enhancements to the executive.
 
  - Completely revised node state transition diagrams.  The diagrams now
    accurately reflect the exact behavior of the executive, which is also
    its specified semantics.
 
+ - Assignment node execution and failure are better behaved.  Failure
+   of an Assignment node causes the variable's previous value to be
+   restored (the old behavior was to assign UNKNOWN). Failing
+   Assignment nodes always take priority over any eligible Assignment
+   nodes on the same variable.
+
+ - Minor improvements to the InterfaceAdapter API.
+
+ - The PLEXIL_OPTIMIZED build flag is confirmed working.  This flag
+   can be used to improve runtime performance for time-critical
+   applications.  PLEXIL_DEBUG and PLEXIL_OPTIMIZED can be used
+   together for debugging purposes.  See:
+   makeinclude/standard-defs.make
+
+ - Cleaned up a number of compiler warnings in the C++ source code.
 
 2.0 (May 4, 2012; SVN revision 2762)
 
