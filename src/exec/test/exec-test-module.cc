@@ -932,10 +932,8 @@ public:
     else if (state.first == LabelStr("test2")) {
       check_error(state.second.size() == 1);
       LabelStr param(state.second[0]);
-      if (param == LabelStr("high"))
-        return 1.0;
-      else if (param == LabelStr("low"))
-        return -1.0;
+      if (param == LabelStr("high")) return 1.0;
+      else if (param == LabelStr("low")) return -1.0;
     }
     else if (state.first == LabelStr("time")) {
       return 0.0;
@@ -943,7 +941,11 @@ public:
     else {
       return m_changingExprs[state.first]->getValue();
     }
+    std::cerr << "ERROR (shouldn't happen): reached end of lookupNow()"
+              << std::endl;
+    return 0.0;
   }
+
 
   void subscribe(const State& /* state */)
   {
@@ -2314,7 +2316,6 @@ private:
     NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
-    LabelStr types[2] = {Node::COMMAND(), Node::UPDATE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
       for (int exit = 0; exit < 3; ++exit) {
@@ -2661,7 +2662,6 @@ private:
     TransitionExecConnector con;
     NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
-    LabelStr types[2] = {Node::COMMAND(), Node::UPDATE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
       for (int exit = 0; exit < 3; ++exit) {
