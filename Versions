@@ -1,6 +1,6 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
-2.5 (To be released)
+2.5 (July 16, 2012; SVN revision 2851)
 
  - Added ExitCondition to PLEXIL nodes.  This provides a clean way to
    deliberately terminate a plan.  New outcome and failure type
