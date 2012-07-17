@@ -407,18 +407,19 @@ namespace PLEXIL {
   {
     // Get the variable from the parent
     // findVariable(..., true) tells LibraryCallNode to only search alias vars
-    VariableId expr = m_parent->findVariable(LabelStr(varRef->name()), true);
+    LabelStr varLabel(varRef->name()); // intern variable name
+    VariableId expr = m_parent->findVariable(varLabel, true);
     if (expr.isId()) {
       // Try to avoid constructing alias var
       if (!parentIsLibCall && !expr->isConst()) {
         // Construct const wrapper
         if (expr->isArray()) {
           expr =
-            (new ArrayAliasVariable(varRef->name(), NodeConnector::getId(), expr, false, true))->getId();
+            (new ArrayAliasVariable(varLabel.toString(), NodeConnector::getId(), expr, false, true))->getId();
         }
         else {
           expr =
-            (new AliasVariable(varRef->name(), NodeConnector::getId(), expr, false, true))->getId();
+            (new AliasVariable(varLabel.toString(), NodeConnector::getId(), expr, false, true))->getId();
         }
         debugMsg("Node::getInVariable",
                  " Node \"" << m_nodeId.toString()

@@ -149,6 +149,7 @@ namespace PLEXIL
       // get var label and matching value in alias list
       LabelStr varLabel((*var)->name());
       PlexilExprId& aliasValue = aliases[varLabel];
+      const std::string& varName(varLabel.toString());
 
       // check that the expression is consistent with the interface variable
       if (aliasValue.isId()) {
@@ -158,13 +159,13 @@ namespace PLEXIL
           assertTrueMsg(actualVar.isId(),
                         "Can't find variable named \"" << aliasValue->name()
                         << "\" for " << (isIn ? "In" : "InOut" )
-                        << "alias variable \"" << (*var)->name());
+                        << "alias variable \"" << varName);
 
           if (isIn) {
             // Construct const wrapper
             if (actualVar->isArray()) {
               actualVar = 
-                (new ArrayAliasVariable((*var)->name(),
+                (new ArrayAliasVariable(varName,
                                         NodeConnector::getId(),
                                         (ExpressionId) actualVar,
                                         false,
@@ -172,7 +173,7 @@ namespace PLEXIL
             }
             else {
               actualVar = 
-                (new AliasVariable((*var)->name(),
+                (new AliasVariable(varName,
                                    NodeConnector::getId(),
                                    (ExpressionId) actualVar,
                                    false,
@@ -180,14 +181,14 @@ namespace PLEXIL
             }
             debugMsg("LibraryCallNode:createAliases",
                      " Node \"" << m_nodeId.toString()
-                     << "\": Constructed const alias wrapper for \"" << (*var)->name()
+                     << "\": Constructed const alias wrapper for \"" << varName
                      << "\" to variable " << *actualVar);
             m_localVariables.push_back(actualVar);
           }
           else {
             debugMsg("LibraryCallNode:createAliases",
                      " Node \"" << m_nodeId.toString()
-                     << "\": Aliasing \"" << (*var)->name()
+                     << "\": Aliasing \"" << varName
                      << "\" to variable " << *actualVar);
           }
         }
@@ -199,14 +200,14 @@ namespace PLEXIL
             ExpressionFactory::createInstance(aliasValue->name(), aliasValue, NodeConnector::getId(), wasCreated);
 
           // Construct a wrapper for it
-          actualVar = (new AliasVariable((*var)->name(),
+          actualVar = (new AliasVariable(varName,
                                          NodeConnector::getId(),
                                          expr,
                                          wasCreated,
                                          isIn))->getId();
           debugMsg("LibraryCallNode:createAliases",
                    " Node \"" << m_nodeId.toString()
-                   << "\": Constructed alias wrapper for \"" << (*var)->name()
+                   << "\": Constructed alias wrapper for \"" << varName
                      << "\" to array element " << *expr);
           m_localVariables.push_back(actualVar);
         }
@@ -215,7 +216,7 @@ namespace PLEXIL
           // Can't do this for InOut
           assertTrueMsg(isIn,
                         "Alias value for InOut interface variable \""
-                        << (*var)->name()
+                        << varName
                         << "\" is not a variable or array reference");
 
           // Construct the expression
@@ -225,10 +226,10 @@ namespace PLEXIL
 
           // Construct a const wrapper for it
           actualVar = 
-            (new AliasVariable((*var)->name(), NodeConnector::getId(), expr, wasCreated, isIn))->getId();
+            (new AliasVariable(varName, NodeConnector::getId(), expr, wasCreated, isIn))->getId();
           debugMsg("LibraryCallNode:createAliases",
                    " Node \"" << m_nodeId.toString()
-                   << "\": Constructed alias wrapper for \"" << (*var)->name()
+                   << "\": Constructed alias wrapper for \"" << varName
                    << "\" to expression " << *expr);
           m_localVariables.push_back(actualVar);
         }
