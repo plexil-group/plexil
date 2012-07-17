@@ -41,7 +41,7 @@ import java.util.Vector;
 
 public class Constants
 {     
-	  public static final String PLEXIL_VERSION = "Version 2.0\n";
+	  public static final String PLEXIL_VERSION = "Version 2.5\n";
 	  public static final String PLEXIL_COPYRIGHT = "Copyright 2006-2012 Universities Space Research Association\n";
 	  public static final String PLEXIL_WEBSITE = "plexil.sourceforge.net";
       /** Represents the location of the Luv application properties file. */      
