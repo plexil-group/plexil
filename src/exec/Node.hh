@@ -74,11 +74,6 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(LabelStr, ANCESTOR_EXIT_CONDITION, "AncestorExitCondition"); /*!< The name for the ancestor-exit condition
                                                                                             (parent.exit || parent.ancestor-exit). */
 
-    DECLARE_STATIC_CLASS_CONST(LabelStr, PARENT_EXECUTING_CONDITION, "ParentExecutingCondition"); /*!< The name for the ancestor-executing condition
-                                                                                                    (checked in state INACTIVE, transitions to state WAITING). */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, PARENT_FINISHED_CONDITION, "ParentFinishedCondition"); /*!< The name for the ancestor-executing condition
-                                                                                                  (checked in state INACTIVE, transitions to state WAITING). */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, PARENT_WAITING_CONDITION, "ParentWaitingCondition");
     DECLARE_STATIC_CLASS_CONST(LabelStr, ACTION_COMPLETE, "ActionCompleteCondition"); /*!< The name for the action-complete condition. */
     DECLARE_STATIC_CLASS_CONST(LabelStr, ABORT_COMPLETE, "AbortCompleteCondition"); /*!< The name for the abort-complete condition. */
 
@@ -213,8 +208,10 @@ namespace PLEXIL {
 
     /**
      * @brief Sets the state variable to the new state.
+     * @param newValue The new node state.
+     * @note Virtual so it can be overridden by ListNode wrapper method.
      */
-    void setState(NodeState newValue);
+    virtual void setState(NodeState newValue);
 
     /**
      * @brief Gets the time at which this node entered its current state.
@@ -280,9 +277,6 @@ namespace PLEXIL {
     const ExpressionId& getAncestorEndCondition() const               { return getCondition(ancestorEndIdx); }
     const ExpressionId& getAncestorExitCondition() const              { return getCondition(ancestorExitIdx); }
     const ExpressionId& getAncestorInvariantCondition() const         { return getCondition(ancestorInvariantIdx); }
-    const ExpressionId& getParentExecutingCondition() const           { return getCondition(parentExecutingIdx); }
-    const ExpressionId& getParentFinishedCondition() const            { return getCondition(parentFinishedIdx); }
-    const ExpressionId& getParentWaitingCondition() const             { return getCondition(parentWaitingIdx); }
 
     // User conditions
     const ExpressionId& getSkipCondition() const                      { return m_conditions[skipIdx]; }
@@ -316,21 +310,6 @@ namespace PLEXIL {
       if (m_listeners[ancestorEndIdx].isId())
         m_listeners[ancestorInvariantIdx]->activate(); 
     }
-    void activateParentExecutingCondition()           
-    {
-      if (m_listeners[ancestorEndIdx].isId())
-        m_listeners[parentExecutingIdx]->activate(); 
-    }
-    void activateParentWaitingCondition()
-    {
-      if (m_listeners[ancestorEndIdx].isId())
-        m_listeners[parentWaitingIdx]->activate(); 
-    }
-    void activateParentFinishedCondition()
-    {
-      if (m_listeners[ancestorEndIdx].isId())
-        m_listeners[parentFinishedIdx]->activate(); 
-    }
 
     // User conditions
     void activateSkipCondition()                      { activatePair(skipIdx); }
@@ -352,9 +331,6 @@ namespace PLEXIL {
     bool isAncestorEndConditionActive()               { return pairActive(ancestorEndIdx); }
     bool isAncestorExitConditionActive()              { return pairActive(ancestorExitIdx); }
     bool isAncestorInvariantConditionActive()         { return pairActive(ancestorInvariantIdx); }
-    bool isParentExecutingConditionActive()           { return pairActive(parentExecutingIdx); }
-    bool isParentFinishedConditionActive()            { return pairActive(parentFinishedIdx); }
-    bool isParentWaitingConditionActive()             { return pairActive(parentWaitingIdx); }
 
     // User conditions
     bool isSkipConditionActive()                      { return pairActive(skipIdx); }
@@ -388,9 +364,6 @@ namespace PLEXIL {
       ancestorEndIdx = 0,
       ancestorExitIdx,
       ancestorInvariantIdx,
-      parentExecutingIdx,
-      parentFinishedIdx,
-      parentWaitingIdx,
       // User specified conditions
       skipIdx,
       startIdx,
@@ -443,21 +416,6 @@ namespace PLEXIL {
     {
       if (m_listeners[ancestorEndIdx].isId())
         m_listeners[ancestorInvariantIdx]->deactivate(); 
-    }
-    void deactivateParentExecutingCondition()           
-    {
-      if (m_listeners[ancestorEndIdx].isId())
-        m_listeners[parentExecutingIdx]->deactivate(); 
-    }
-    void deactivateParentFinishedCondition()            
-    {
-      if (m_listeners[ancestorEndIdx].isId())
-        m_listeners[parentFinishedIdx]->deactivate(); 
-    }
-    void deactivateParentWaitingCondition()             
-    {
-      if (m_listeners[ancestorEndIdx].isId())
-        m_listeners[parentWaitingIdx]->deactivate(); 
     }
 
     // User conditions
@@ -531,13 +489,13 @@ namespace PLEXIL {
     std::vector<VariableId> m_localVariables; /*!< Variables created in this node. */
     ExpressionId m_conditions[conditionIndexMax]; /*!< The condition expressions. */
     ExpressionListenerId m_listeners[conditionIndexMax]; /*!< Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate. */
-    VariableId m_startTimepoints[NODE_STATE_MAX]; /*!< Timepoint start variables indexed by state. */
-    VariableId m_endTimepoints[NODE_STATE_MAX]; /*!< Timepoint end variables indexed by state. */
+    VariableId m_startTimepoints[NO_NODE_STATE]; /*!< Timepoint start variables indexed by state. */
+    VariableId m_endTimepoints[NO_NODE_STATE]; /*!< Timepoint end variables indexed by state. */
     VariableId m_stateVariable;
     VariableId m_outcomeVariable;
     VariableId m_failureTypeVariable;
     NodeState m_state; /*!< The actual state of the node. */
-    NodeState m_lastQuery; /*!< The state of the node the last time checkConditions() was called. */
+    NodeState m_lastQuery; /*!< The state returned by getDestState() the last time checkConditions() was called. */
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */
     bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_checkConditionsPending;
 

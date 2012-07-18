@@ -53,17 +53,6 @@ namespace PLEXIL
                "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
                << "\" for a ListNode");
 
-    // Initialize parent-state conditions for childrens' use
-    m_conditions[parentExecutingIdx] = 
-      (new Equality(m_stateVariable, StateVariable::EXECUTING_EXP()))->getId();
-    m_conditions[parentFinishedIdx] =
-      (new Equality(m_stateVariable, StateVariable::FINISHED_EXP()))->getId();
-    m_conditions[parentWaitingIdx] = 
-      (new Equality(m_stateVariable, StateVariable::WAITING_EXP()))->getId();
-    m_garbageConditions[parentExecutingIdx] = true;
-    m_garbageConditions[parentFinishedIdx] = true;
-    m_garbageConditions[parentWaitingIdx] = true;
-
     // Instantiate child nodes, if any
     if (node->nodeType() == NodeType_NodeList) {
       debugMsg("Node:node", "Creating child nodes.");
@@ -87,11 +76,6 @@ namespace PLEXIL
   {
     checkError(type == LIST() || type == LIBRARYNODECALL(),
                "Invalid node type \"" << type.toString() << "\" for a ListNode");
-
-    // Activate parent-state conditions as required
-    m_conditions[parentExecutingIdx]->activate();
-    m_conditions[parentFinishedIdx]->activate();
-    m_conditions[parentWaitingIdx]->activate();
 
     switch (m_state) {
     case EXECUTING_STATE:
@@ -261,6 +245,30 @@ namespace PLEXIL
     if (it == m_children.end())
       return NodeId::noId();
     return *it;
+  }
+
+  /**
+   * @brief Sets the state variable to the new state.
+   * @param newValue The new node state.
+   * @note This method notifies the children of a change in the parent node's state.
+   */
+  void ListNode::setState(NodeState newValue)
+  {
+    Node::setState(newValue);
+    // Notify the children if the new state is one that they care about.
+    switch (newValue) {
+    case WAITING_STATE:
+    case EXECUTING_STATE:
+    case FINISHED_STATE:
+      for (std::vector<NodeId>::iterator it = m_children.begin();
+           it != m_children.end();
+           ++it) 
+        (*it)->conditionChanged();
+      break;
+
+    default:
+      break;
+    }
   }
 
   //////////////////////////////////////
@@ -568,11 +576,6 @@ namespace PLEXIL
 
   void ListNode::specializedActivate()
   {
-    // Activate parent-state conditions
-    m_conditions[parentExecutingIdx]->activate();
-    m_conditions[parentFinishedIdx]->activate();
-    m_conditions[parentWaitingIdx]->activate();
-
     // Activate all children
     for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->activate();

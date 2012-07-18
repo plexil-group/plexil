@@ -60,6 +60,13 @@ namespace PLEXIL
 
     virtual const std::vector<NodeId>& getChildren() const { return m_children; }
 
+    /**
+     * @brief Sets the state variable to the new state.
+     * @param newValue The new node state.
+     * @note This method notifies the children of a change in the parent node's state.
+     */
+    virtual void setState(NodeState newValue);
+
   protected:
 
     virtual NodeId findChild(const LabelStr& childName) const;

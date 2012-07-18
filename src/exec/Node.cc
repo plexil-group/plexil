@@ -67,9 +67,6 @@ namespace PLEXIL {
       sl_allConds->push_back(ANCESTOR_END_CONDITION());
       sl_allConds->push_back(ANCESTOR_EXIT_CONDITION());
       sl_allConds->push_back(ANCESTOR_INVARIANT_CONDITION());
-      sl_allConds->push_back(PARENT_EXECUTING_CONDITION());
-      sl_allConds->push_back(PARENT_FINISHED_CONDITION());
-      sl_allConds->push_back(PARENT_WAITING_CONDITION());
       // User specified conditions
       sl_allConds->push_back(SKIP_CONDITION());
       sl_allConds->push_back(START_CONDITION());
@@ -202,8 +199,6 @@ namespace PLEXIL {
     switch (m_state) {
 
     case INACTIVE_STATE:
-      activateParentExecutingCondition();
-      activateParentFinishedCondition();
       break;
 
     case WAITING_STATE:
@@ -245,7 +240,6 @@ namespace PLEXIL {
       break;
 
     case FINISHED_STATE:
-      activateParentWaitingCondition();
       break;
 
     default:
@@ -268,8 +262,9 @@ namespace PLEXIL {
       (new FailureVariable(m_nodeId.toString()))->getId();
 
     //instantiate timepoint variables
+    // FIXME: Don't instantiate variables for node states that node type doesn't implement
     debugMsg("Node:node", "Instantiating timepoint variables.");
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
+    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
       ExpressionId stp = (new RealVariable())->getId();
       double stpName = START_TIMEPOINT_NAMES()[s];
       m_startTimepoints[s] = m_variablesByName[stpName] = stp;
@@ -298,25 +293,6 @@ namespace PLEXIL {
     m_conditions[preIdx] = BooleanVariable::TRUE_EXP();
     m_conditions[postIdx] = BooleanVariable::TRUE_EXP();
     m_conditions[repeatIdx] = BooleanVariable::FALSE_EXP();
-
-    // Install listeners for conditions from the parent
-    // Root node doesn't need them as the defaults are constant
-    if (m_parent.isId()) {
-      ExpressionId parentExecuting = getCondition(parentExecutingIdx);
-      assertTrueMsg(parentExecuting.isId(),
-                    "Internal error: Parent-executing condition is null!");
-      parentExecuting->addListener(makeConditionListener(parentExecutingIdx));
-
-      ExpressionId parentFinished = getCondition(parentFinishedIdx);
-      assertTrueMsg(parentFinished.isId(),
-                    "Internal error: Parent-finished condition is null!");
-      parentFinished->addListener(makeConditionListener(parentFinishedIdx));
-
-      ExpressionId parentWaiting = getCondition(parentWaitingIdx);
-      assertTrueMsg(parentWaiting.isId(),
-                    "Internal error: Parent-waiting condition is null!");
-      parentWaiting->addListener(makeConditionListener(parentWaitingIdx));
-    }
   }
 
   void Node::createDeclaredVars(const std::vector<PlexilVarId>& vars) {
@@ -674,7 +650,7 @@ namespace PLEXIL {
     m_localVariables.clear();
 
     // Delete timepoint variables
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
+    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
       delete (Variable*) m_startTimepoints[s];
       delete (Variable*) m_endTimepoints[s];
       m_startTimepoints[s] = m_endTimepoints[s] = VariableId::noId();
@@ -714,7 +690,7 @@ namespace PLEXIL {
 
     // Activate timepoints
     // TODO: figure out if they should be inactive until entering the corresponding state
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
+    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
       m_startTimepoints[s]->activate();
       m_endTimepoints[s]->activate();
     }
@@ -738,8 +714,6 @@ namespace PLEXIL {
 
     case ancestorEndIdx:
     case ancestorExitIdx:
-    case parentFinishedIdx:
-    case parentWaitingIdx:
 
       if (m_parent.isId())
         return m_parent->m_conditions[idx];
@@ -747,7 +721,6 @@ namespace PLEXIL {
         return BooleanVariable::FALSE_EXP();
 
     case ancestorInvariantIdx:
-    case parentExecutingIdx:
 
       if (m_parent.isId())
         return m_parent->m_conditions[idx];
@@ -986,38 +959,41 @@ namespace PLEXIL {
   //
   // Start state
   // Legal predecessor states: FINISHED
-  // Conditions active: ParentExecuting, ParentFinished
+  // Conditions active:
   // Legal successor states: WAITING, FINISHED
 
   // Default method
   void Node::transitionToInactive()
   {
-    activateParentExecutingCondition();
-    activateParentFinishedCondition();
   }
 
   // Default method
   NodeState Node::getDestStateFromInactive()
   {
-    checkError(isParentFinishedConditionActive(), 
-               "Node::getDestStateFromInactive: Parent finished for " << m_nodeId.toString() << " is inactive.");
-    if (getParentFinishedCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: FINISHED. PARENT_FINISHED_CONDITION true.");
-      return FINISHED_STATE;
-    }
+    if (m_parent.isId()) {
+      switch (m_parent->getState()) {
 
-    checkError(isParentExecutingConditionActive(), 
-               "Node::getDestStateFromInactive: Parent executing for " << m_nodeId.toString() << " is inactive.");
-    if (getParentExecutingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+      case FINISHED_STATE:
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << "' destination: FINISHED. Parent state == FINISHED.");
+        return FINISHED_STATE;
+
+      case EXECUTING_STATE:
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId.toString() << "' destination: WAITING. Parent state == EXECUTING.");
+        return WAITING_STATE;
+
+      default:
+        debugMsg("Node:getDestState", 
+                 " '" << m_nodeId.toString() << "' destination: no state.");
+        return NO_NODE_STATE;
+      }
+    }
+    else {
       debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: WAITING. PARENT_EXECUTING_CONDITION true");
+               " '" << m_nodeId.toString() << "' destination: WAITING. Root node.");
       return WAITING_STATE;
     }
-
-    debugMsg("Node:getDestState", 
-             " '" << m_nodeId.toString() << "' destination: no state.");
-    return NO_NODE_STATE;
   }
 
   // Default method
@@ -1026,8 +1002,6 @@ namespace PLEXIL {
     checkError(destState == WAITING_STATE || destState == FINISHED_STATE,
                "Attempting to transition from INACTIVE to invalid state '"
                << StateVariable::nodeStateName(destState).toString() << "'");
-    deactivateParentExecutingCondition();
-    deactivateParentFinishedCondition();
     if (destState == FINISHED_STATE) {
       getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
     }
@@ -1362,28 +1336,25 @@ namespace PLEXIL {
   // Description and methods here apply to ALL nodes
   //
   // Legal predecessor states: EXECUTING, FAILING, FINISHING, INACTIVE, ITERATION_ENDED, WAITING
-  // Conditions active: ParentWaiting
+  // Conditions active:
   // Legal successor states: INACTIVE
 
   // Default method
   void Node::transitionToFinished()
   {
-    activateParentWaitingCondition();
   }
 
   // Default method
   NodeState Node::getDestStateFromFinished()
   {
-    checkError(isParentWaitingConditionActive(),
-               "Node::getDestStateFromFinished: Parent waiting for " << m_nodeId.toString() << " is inactive.");
-    if (getParentWaitingCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+    if (m_parent.isId() && m_parent->getState() == WAITING_STATE) {
       debugMsg("Node:getDestState",
-               " '" << m_nodeId.toString() << "' destination: INACTIVE.  PARENT_WAITING true.");
+               " '" << m_nodeId.toString() << "' destination: INACTIVE.  Parent state == WAITING.");
       return INACTIVE_STATE;
     }
 
     debugMsg("Node:getDestState",
-             " '" << m_nodeId.toString() << "' destination: no state.  PARENT_WAITING false or unknown.");
+             " '" << m_nodeId.toString() << "' destination: no state.");
     return NO_NODE_STATE;
   }
 
@@ -1393,7 +1364,6 @@ namespace PLEXIL {
     checkError(destState == INACTIVE_STATE,
                "Attempting to transition from FINISHED to invalid state '"
                << StateVariable::nodeStateName(destState).toString() << "'");
-    deactivateParentWaitingCondition();
     reset();
   }
 
@@ -1753,7 +1723,7 @@ namespace PLEXIL {
     m_failureTypeVariable->reset();
 
     //reset timepoints
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
+    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
       m_startTimepoints[s]->reset();
       m_endTimepoints[s]->reset();
     }
@@ -1946,7 +1916,7 @@ namespace PLEXIL {
     static std::vector<double>* startNames = NULL;
     if (startNames == NULL) {
       startNames = new std::vector<double>();
-      startNames->reserve(NODE_STATE_MAX);
+      startNames->reserve(NO_NODE_STATE);
       for (std::vector<LabelStr>::const_iterator it = StateVariable::ALL_STATES().begin();
            it != StateVariable::ALL_STATES().end(); 
            ++it) {
@@ -1962,7 +1932,7 @@ namespace PLEXIL {
     static std::vector<double>* endNames = NULL;
     if (endNames == NULL) {
       endNames = new std::vector<double>();
-      endNames->reserve(NODE_STATE_MAX);
+      endNames->reserve(NO_NODE_STATE);
       for (std::vector<LabelStr>::const_iterator it = StateVariable::ALL_STATES().begin();
            it != StateVariable::ALL_STATES().end(); 
            ++it) {
