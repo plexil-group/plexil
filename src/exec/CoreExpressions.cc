@@ -56,8 +56,8 @@ namespace PLEXIL
     : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
-           "Attempted to initialize a state variable with invalid value "
-           << Expression::valueToString(value));
+               "Attempted to initialize a state variable with invalid value "
+               << Expression::valueToString(value));
   }
 
   // ExpressionFactory entry point. Should only be used to construct literals.
@@ -70,12 +70,12 @@ namespace PLEXIL
     checkError(isConst, "Cannot construct a freestanding NodeStateVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_STATE,
-           "Expected NodeState value.  Found '" << PlexilParser::valueTypeString(val->type()) << "'");
+               "Expected NodeState value.  Found '" << PlexilParser::valueTypeString(val->type()) << "'");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
-           "Attempted to initialize a state variable with invalid value "
-           << Expression::valueToString(value));
+               "Attempted to initialize a state variable with invalid value "
+               << Expression::valueToString(value));
   }
 
   // N.B. Depends on ALL_STATES() matching order of NodeState enumeration.
@@ -96,7 +96,7 @@ namespace PLEXIL
   void StateVariable::setNodeState(NodeState newValue)
   {
     checkError(newValue < NO_NODE_STATE,
-           "Attempted to set an invalid NodeState value");
+               "Attempted to set an invalid NodeState value");
     this->setValue(ALL_STATES()[newValue].getKey());
   }
 
@@ -121,64 +121,48 @@ namespace PLEXIL
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
       sl_exp = (new StateVariable(INACTIVE(), true))->getId();
-    if(!sl_exp->isActive())
-      sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::WAITING_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
       sl_exp = (new StateVariable(WAITING(), true))->getId();
-    if(!sl_exp->isActive())
-      sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::EXECUTING_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
       sl_exp = (new StateVariable(EXECUTING(), true))->getId();
-    if(!sl_exp->isActive())
-      sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::FINISHING_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
       sl_exp = (new StateVariable(FINISHING(), true))->getId();
-    if(!sl_exp->isActive())
-      sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::FINISHED_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
       sl_exp = (new StateVariable(FINISHED(), true))->getId();
-    if(!sl_exp->isActive())
-      sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::FAILING_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
       sl_exp = (new StateVariable(FAILING(), true))->getId();
-    if(!sl_exp->isActive())
-      sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::ITERATION_ENDED_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
       sl_exp = (new StateVariable(ITERATION_ENDED(), true))->getId();
-    if(!sl_exp->isActive())
-      sl_exp->activate();
     return sl_exp;
   }
   ExpressionId& StateVariable::NO_STATE_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
       sl_exp = (new StateVariable(NO_STATE(), true))->getId();
-    if(!sl_exp->isActive())
-      sl_exp->activate();
     return sl_exp;
   }
 
@@ -191,7 +175,7 @@ namespace PLEXIL
   {
     for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s)
       if (ALL_STATES()[s].getKey() == nameAsLabelStrKey)
-    return (NodeState) s;
+        return (NodeState) s;
     return NO_NODE_STATE;
   }
 
@@ -213,11 +197,11 @@ namespace PLEXIL
     checkError(isConst, "Cannot construct a freestanding NodeOutcomeVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_OUTCOME,
-           "Expected NodeOutcome value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
+               "Expected NodeOutcome value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
-           "Attempted to initialize a variable with an invalid value.");
+               "Attempted to initialize a variable with an invalid value.");
   }
 
   bool OutcomeVariable::checkValue(const double val) {
@@ -248,11 +232,11 @@ namespace PLEXIL
     checkError(isConst, "Cannot construct a freestanding NodeFailureTypeVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::FAILURE_TYPE,
-           "Expected NodeFailure value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
+               "Expected NodeFailure value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
-           "Attempted to initialize a variable with an invalid value.");
+               "Attempted to initialize a variable with an invalid value.");
   }
 
   void FailureVariable::print(std::ostream& s) const
@@ -288,11 +272,11 @@ namespace PLEXIL
     checkError(isConst, "Cannot construct a freestanding NodeCommandHandleVariable.");
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::COMMAND_HANDLE,
-           "Expected NodeCommandHandle value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
+               "Expected NodeCommandHandle value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
     m_value = m_initialValue = value;
     checkError(checkValue(value),
-           "Attempted to initialize a variable with an invalid value.");
+               "Attempted to initialize a variable with an invalid value.");
   }
 
   bool CommandHandleVariable::checkValue(const double val) {
@@ -382,23 +366,21 @@ namespace PLEXIL
   {
     m_count = 0;
     for (size_t i = 0; i < m_total; ++i) {
-      VariableId sv = m_stateVariables[i];
-      check_error(sv.isValid());
-      double value = sv->getValue();
+      double value = m_stateVariables[i]->getValue();
       m_childListeners[i].setLastValue(value);
       if (value == StateVariable::FINISHED())
         ++m_count;
     }
     if (m_count == m_total) {
       debugMsg("AllChildrenFinished:recalculate",
-           "Counted " << m_count << " of " << m_total <<
-           " children FINISHED.  Setting TRUE.");
+               "Counted " << m_count << " of " << m_total <<
+               " children FINISHED.  Setting TRUE.");
       return BooleanVariable::TRUE_VALUE();
     }
     else {
       debugMsg("AllChildrenFinished:recalculate",
-           "Counted " << m_count << " of " << m_total <<
-           " children FINISHED.  Setting FALSE.");
+               "Counted " << m_count << " of " << m_total <<
+               " children FINISHED.  Setting FALSE.");
       return BooleanVariable::FALSE_VALUE();
     }
   }
@@ -514,23 +496,21 @@ namespace PLEXIL
   {
     m_count = 0;
     for (size_t i = 0; i < m_total; ++i) {
-      VariableId sv = m_stateVariables[i];
-      check_error(sv.isValid());
-      double value = sv->getValue();
+      double value = m_stateVariables[i]->getValue();
       m_childListeners[i].setLastValue(value);
       if (value == StateVariable::FINISHED() || value == StateVariable::WAITING())
         ++m_count;
     }
     if (m_count == m_total) {
       debugMsg("AllChildrenWaitingOrFinished:recalculate",
-           "Counted " << m_count << " of " << m_total <<
-           " children WAITING or FINISHED.  Setting TRUE.");
+               "Counted " << m_count << " of " << m_total <<
+               " children WAITING or FINISHED.  Setting TRUE.");
       return BooleanVariable::TRUE_VALUE();
     }
     else {
       debugMsg("AllChildrenWaitingOrFinished:recalculate",
-           "Counted " << m_count << " of " << m_total <<
-           " children WAITING or FINISHED.  Setting FALSE.");
+               "Counted " << m_count << " of " << m_total <<
+               " children WAITING or FINISHED.  Setting FALSE.");
       return BooleanVariable::FALSE_VALUE();
     }
   }
