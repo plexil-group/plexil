@@ -59,10 +59,10 @@ namespace PLEXIL
 
   VariableImpl::VariableImpl(const bool isConst)
     : Variable(),
-	  m_isConst(isConst),
-	  m_initialValue(UNKNOWN()),
 	  m_node(NodeId::noId()),
-	  m_name("anonymous") 
+	  m_initialValue(UNKNOWN()),
+	  m_name("anonymous"),
+	  m_isConst(isConst)
   {
     if(this->isConst())
       ++m_activeCount;
@@ -70,13 +70,13 @@ namespace PLEXIL
 
   VariableImpl::VariableImpl(const double value, const bool isConst)
     : Variable(),
-	  m_isConst(isConst),
-	  m_initialValue(value),
 	  m_node(NodeId::noId()),
-	  m_name("anonymous")
+	  m_initialValue(value),
+	  m_name("anonymous"),
+	  m_isConst(isConst)
   {
     m_value = m_initialValue;
-    if(this->isConst())
+    if (isConst)
       ++m_activeCount;
   }
 
@@ -87,11 +87,14 @@ namespace PLEXIL
 
   VariableImpl::VariableImpl(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst)
     : Variable(),
-	  m_isConst(isConst),
 	  m_node(node.isId() ? node->getNode() : NodeId::noId()),
-	  m_name(expr->name())
+      m_initialValue(UNKNOWN()),
+	  m_name(expr->name()),
+	  m_isConst(isConst)
   {
     check_error(Id<PlexilVar>::convertable(expr) || Id<PlexilValue>::convertable(expr));
+    if (isConst)
+      ++m_activeCount;
   }
 
   VariableImpl::~VariableImpl()
@@ -138,7 +141,7 @@ namespace PLEXIL
    * @brief Ensure that, if a variable is constant, it is never really deactivated
    */
   void VariableImpl::handleDeactivate(const bool changed) {
-    if(this->isConst() && changed)
+    if (m_isConst && changed)
       ++m_activeCount;
   }
 
