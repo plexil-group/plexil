@@ -296,10 +296,10 @@ namespace PLEXIL
     // Shared member variables
     //
 
-    bool m_isConst; /*<! Flag indicating the const-ness of this variable */
-    double m_initialValue; /*<! The initial value of the expression */
     const NodeId m_node; /*<! The node that owns this variable */
+    double m_initialValue; /*<! The initial value of the expression */
     std::string m_name; /*<! The name under which this variable was declared */
+    bool m_isConst; /*<! Flag indicating the const-ness of this variable */
   };
 
   class AliasVariable : public virtual Variable
