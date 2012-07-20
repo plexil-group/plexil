@@ -454,16 +454,12 @@ namespace PLEXIL
       }
 
       // Transition the nodes
-      std::set<NodeId> transitionedNodes;
       std::vector<NodeTransition> transitionsToPublish;
       transitionsToPublish.reserve(m_stateChangeQueue.size());
       for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
            it != m_stateChangeQueue.end();
            ++it) {
         const NodeId& node = it->node;
-        checkError(transitionedNodes.find(node) == transitionedNodes.end(),
-                   "Node " << node->getNodeId().toString() <<
-                   " already transitioned in this step.");
         debugMsg("PlexilExec:step",
                  "[" << m_cycleNum << ":" << stepCount << ":" << microStepCount <<
                  "] Transitioning node " << node->getNodeId().toString()
@@ -472,9 +468,10 @@ namespace PLEXIL
         NodeState oldState = node->getState();
         node->transition(it->state, quiescenceTime);
         transitionsToPublish.push_back(NodeTransition(node, oldState));
-        transitionedNodes.insert(node);
         ++microStepCount;
       }
+
+      // TODO: instrument high-water-mark of max nodes transitioned in this step
 
       // Publish the transitions
       if (m_listener.isId())
