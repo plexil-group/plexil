@@ -258,12 +258,20 @@ namespace PLEXIL
     // Notify the children if the new state is one that they care about.
     switch (newValue) {
     case WAITING_STATE:
+      for (std::vector<NodeId>::iterator it = m_children.begin();
+           it != m_children.end();
+           ++it)
+        if ((*it)->getState() == FINISHED_STATE)
+          (*it)->conditionChanged();
+      break;
+
     case EXECUTING_STATE:
     case FINISHED_STATE:
       for (std::vector<NodeId>::iterator it = m_children.begin();
            it != m_children.end();
-           ++it) 
-        (*it)->conditionChanged();
+           ++it)
+        if ((*it)->getState() == INACTIVE_STATE)
+          (*it)->conditionChanged();
       break;
 
     default:
