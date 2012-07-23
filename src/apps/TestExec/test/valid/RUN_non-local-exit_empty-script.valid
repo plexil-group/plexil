@@ -21,8 +21,6 @@ NonLocalExit{
 [PlexilExec:step][1:0] State change queue: NonLocalExit 
 [PlexilExec:lock]Locking node NonLocalExit
 [PlexilExec:step][1:0:0] Transitioning node NonLocalExit from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node theLoop
-[PlexilExec:notifyNodeConditionChanged] for node theSpoiler
 [PlexilExec:notifyNodeConditionChanged] for node NonLocalExit
 [PlexilExec:unlock]Unlocking node NonLocalExit
 [PlexilExec:handleConditionsChanged]Node NonLocalExit had a relevant condition change.
@@ -356,8 +354,6 @@ NonLocalExit{
 [PlexilExec:step][4:4] State change queue: NonLocalExit 
 [PlexilExec:lock]Locking node NonLocalExit
 [PlexilExec:step][4:4:0] Transitioning node NonLocalExit from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node theLoop
-[PlexilExec:notifyNodeConditionChanged] for node theSpoiler
 [PlexilExec:notifyNodeConditionChanged] for node NonLocalExit
 [PlexilExec:unlock]Unlocking node NonLocalExit
 [PlexilExec:handleConditionsChanged]Node NonLocalExit had a relevant condition change.
