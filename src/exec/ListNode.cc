@@ -86,8 +86,7 @@ namespace PLEXIL
       break;
 
     case FINISHING_STATE:
-      activateAncestorExitCondition();
-      activateAncestorInvariantCondition();
+      activateAncestorExitInvariantConditions();
       activateActionCompleteCondition();
       activateExitCondition();
       activateInvariantCondition();
@@ -133,12 +132,12 @@ namespace PLEXIL
   void ListNode::createSpecializedConditions()
   {
     ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-    cond->addListener(makeConditionListener(actionCompleteIdx));
+    cond->addListener(ensureConditionListener(actionCompleteIdx));
     m_conditions[actionCompleteIdx] = cond;
     m_garbageConditions[actionCompleteIdx] = true;
 
     ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
-    endCond->addListener(makeConditionListener(endIdx));
+    endCond->addListener(ensureConditionListener(endIdx));
     m_conditions[endIdx] = endCond;
     m_garbageConditions[endIdx] = true;
   }
@@ -381,8 +380,7 @@ namespace PLEXIL
     activateActionCompleteCondition();
 
     if (destState == FAILING_STATE) {
-      deactivateAncestorExitCondition();
-      deactivateAncestorInvariantCondition(); 
+      deactivateAncestorExitInvariantConditions(); 
       deactivateExitCondition();
       deactivateInvariantCondition();
     }
@@ -502,8 +500,7 @@ namespace PLEXIL
       deactivateExecutable();
     }
     else { // FAILING
-      deactivateAncestorExitCondition();
-      deactivateAncestorInvariantCondition();
+      deactivateAncestorExitInvariantConditions();
     }
   }
 
@@ -570,8 +567,7 @@ namespace PLEXIL
 
     if (destState == ITERATION_ENDED_STATE) {
       activateAncestorEndCondition();
-      activateAncestorExitCondition();
-      activateAncestorInvariantCondition();
+      activateAncestorExitInvariantConditions();
     }
 
     deactivateExecutable();

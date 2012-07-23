@@ -202,7 +202,7 @@ namespace PLEXIL {
 
     /**
      * @brief Gets the current state of this node.
-     * @return the current node state as a double (LabelStr key).
+     * @return the current node state as a NodeState (enum) value.
      */
     NodeState getState() const;
 
@@ -291,39 +291,6 @@ namespace PLEXIL {
     const ExpressionId& getActionCompleteCondition() const            { return m_conditions[actionCompleteIdx]; }
     const ExpressionId& getAbortCompleteCondition() const             { return m_conditions[abortCompleteIdx]; }
 
-    // Activate a condition
-    // These are public only to appease the module test
-
-    // These are special because parent owns the condition expression
-    void activateAncestorEndCondition()
-    {
-      if (m_listeners[ancestorEndIdx].isId())
-        m_listeners[ancestorEndIdx]->activate(); 
-    }
-    void activateAncestorExitCondition()
-    {
-      if (m_listeners[ancestorExitIdx].isId())
-        m_listeners[ancestorExitIdx]->activate(); 
-    }
-    void activateAncestorInvariantCondition()         
-    {
-      if (m_listeners[ancestorEndIdx].isId())
-        m_listeners[ancestorInvariantIdx]->activate(); 
-    }
-
-    // User conditions
-    void activateSkipCondition()                      { activatePair(skipIdx); }
-    void activateStartCondition()                     { activatePair(startIdx); }
-    void activateEndCondition()                       { activatePair(endIdx); }
-    void activateExitCondition()                      { activatePair(exitIdx); }
-    void activateInvariantCondition()                 { activatePair(invariantIdx); }
-    void activatePreCondition()                       { activatePair(preIdx); }
-    void activatePostCondition()                      { activatePair(postIdx); }
-    void activateRepeatCondition()                    { activatePair(repeatIdx); }
-    // These are for specialized node types
-    void activateActionCompleteCondition()            { activatePair(actionCompleteIdx); }
-    void activateAbortCompleteCondition()             { activatePair(abortCompleteIdx); }
-
     // Test whether a condition is active
     // These are public only to appease the module test
 
@@ -358,8 +325,8 @@ namespace PLEXIL {
     // N.B.: These need to match the order of ALL_CONDITIONS()
     enum ConditionIndex {
       // Conditions on parent
-      // N.B. Ancestor end and ancestor invariant MUST come before
-      // end and invariant, respectively, because the former depend
+      // N.B. Ancestor end/exit/invariant MUST come before
+      // end/exit/invariant, respectively, because the former depend
       // on the latter and must be cleaned up first.
       ancestorEndIdx = 0,
       ancestorExitIdx,
@@ -384,7 +351,9 @@ namespace PLEXIL {
     // Abstracts out the issue of where the condition comes from.
     const ExpressionId& getCondition(size_t idx) const;
 
-    ExpressionListenerId makeConditionListener(size_t idx);
+    ExpressionListenerId& getConditionListener(size_t idx);
+    ExpressionListenerId& ensureConditionListener(size_t idx);
+    void removeConditionListener(size_t idx);
 
     static size_t getConditionIndex(const LabelStr& cName);
     static LabelStr getConditionName(size_t idx);
@@ -399,37 +368,39 @@ namespace PLEXIL {
     virtual void abort();
     virtual void deactivateExecutable();
 
+    // Activate conditions
+
+    // These are special because parent owns the condition expression
+    void activateAncestorEndCondition();
+    void activateAncestorExitInvariantConditions();
+
+    // User conditions
+    void activatePreSkipStartConditions();
+    void activateEndCondition();
+    void activateExitCondition();
+    void activateInvariantCondition();
+    void activatePostCondition();
+    void activateRepeatCondition();
+    // These are for specialized node types
+    void activateActionCompleteCondition();
+    void activateAbortCompleteCondition();
+
     // Deactivate a condition
 
     // These are special because parent owns the condition expression
-    void deactivateAncestorEndCondition()               
-    {
-      if (m_listeners[ancestorEndIdx].isId())
-        m_listeners[ancestorEndIdx]->deactivate(); 
-    }
-    void deactivateAncestorExitCondition()               
-    {
-      if (m_listeners[ancestorExitIdx].isId())
-        m_listeners[ancestorExitIdx]->deactivate(); 
-    }
-    void deactivateAncestorInvariantCondition()         
-    {
-      if (m_listeners[ancestorEndIdx].isId())
-        m_listeners[ancestorInvariantIdx]->deactivate(); 
-    }
+    void deactivateAncestorEndCondition();
+    void deactivateAncestorExitInvariantConditions();
 
     // User conditions
-    void deactivateSkipCondition()                      { deactivatePair(skipIdx); }
-    void deactivateStartCondition()                     { deactivatePair(startIdx); }
-    void deactivateEndCondition()                       { deactivatePair(endIdx); }
-    void deactivateExitCondition()                      { deactivatePair(exitIdx); }
-    void deactivateInvariantCondition()                 { deactivatePair(invariantIdx); }
-    void deactivatePreCondition()                       { deactivatePair(preIdx); }
-    void deactivatePostCondition()                      { deactivatePair(postIdx); }
-    void deactivateRepeatCondition()                    { deactivatePair(repeatIdx); }
+    void deactivatePreSkipStartConditions();
+    void deactivateEndCondition();
+    void deactivateExitCondition();
+    void deactivateInvariantCondition();
+    void deactivatePostCondition();
+    void deactivateRepeatCondition();
     // These are for specialized node types
-    void deactivateActionCompleteCondition()            { deactivatePair(actionCompleteIdx); }
-    void deactivateAbortCompleteCondition()             { deactivatePair(abortCompleteIdx); }
+    void deactivateActionCompleteCondition();
+    void deactivateAbortCompleteCondition();
 
     // Specific behaviors for derived classes
     virtual void specializedPostInit(const PlexilNodeId& node);
@@ -488,7 +459,18 @@ namespace PLEXIL {
     std::vector<double>* m_sortedVariableNames; /*!< Convenience for printing. */
     std::vector<VariableId> m_localVariables; /*!< Variables created in this node. */
     ExpressionId m_conditions[conditionIndexMax]; /*!< The condition expressions. */
-    ExpressionListenerId m_listeners[conditionIndexMax]; /*!< Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate. */
+    // Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate.
+    // Some listeners are shared between conditions that are always activated and deactivated together.
+    ExpressionListenerId m_abortCompleteListener;
+    ExpressionListenerId m_actionCompleteListener;
+    ExpressionListenerId m_ancestorEndListener;
+    ExpressionListenerId m_ancestorExitInvariantListener; 
+    ExpressionListenerId m_endListener;
+    ExpressionListenerId m_exitListener;
+    ExpressionListenerId m_invariantListener;
+    ExpressionListenerId m_postListener;
+    ExpressionListenerId m_preSkipStartListener;
+    ExpressionListenerId m_repeatListener;
     VariableId m_startTimepoints[NO_NODE_STATE]; /*!< Timepoint start variables indexed by state. */
     VariableId m_endTimepoints[NO_NODE_STATE]; /*!< Timepoint end variables indexed by state. */
     VariableId m_stateVariable;
@@ -532,10 +514,6 @@ namespace PLEXIL {
 
     bool pairActive(size_t idx);
 
-    void activatePair(size_t idx);
-
-    void deactivatePair(size_t idx);
-
     /**
      * @brief Sets the default variables for the conditions and establishes the internal conditions that are dependent on parent conditions
      *
@@ -555,7 +533,7 @@ namespace PLEXIL {
   class ConditionChangeListener : public ExpressionListener 
   {
   public:
-    ConditionChangeListener(Node& node, size_t condIdx);
+    ConditionChangeListener(Node& node);
     void notifyValueChanged(const ExpressionId& /* expression */);
 
   private:
@@ -565,7 +543,6 @@ namespace PLEXIL {
     ConditionChangeListener& operator=(const ConditionChangeListener&);
 
     Node& m_node;
-    LabelStr m_cond;
   };
 
 }

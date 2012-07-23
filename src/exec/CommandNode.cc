@@ -77,8 +77,7 @@ namespace PLEXIL
 
     case FINISHING_STATE:
       activateActionCompleteCondition();
-      activateAncestorExitCondition();
-      activateAncestorInvariantCondition();
+      activateAncestorExitInvariantConditions();
       activateExitCondition();
       activateInvariantCondition();
       activatePostCondition();
@@ -128,13 +127,13 @@ namespace PLEXIL
 
     // Construct action-complete condition
     ExpressionId actionComplete = (new IsKnown(m_command->getAck()))->getId();
-    actionComplete->addListener(makeConditionListener(actionCompleteIdx));
+    actionComplete->addListener(ensureConditionListener(actionCompleteIdx));
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = true;
 
     // Construct command-aborted condition
     ExpressionId commandAbort = (ExpressionId) m_command->getAbortComplete();
-    commandAbort->addListener(makeConditionListener(abortCompleteIdx));
+    commandAbort->addListener(ensureConditionListener(abortCompleteIdx));
     m_conditions[abortCompleteIdx] = commandAbort;
     m_garbageConditions[abortCompleteIdx] = false;
   }
@@ -144,16 +143,13 @@ namespace PLEXIL
     // No need to wrap if end condition is default - (True || anything) == True
     if (m_conditions[endIdx] != BooleanVariable::TRUE_EXP()) {
       // Construct real end condition by wrapping existing
-      if (m_listeners[endIdx].isId())
-        m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
-      else
-        makeConditionListener(endIdx); // for effect
+      removeConditionListener(endIdx);
       ExpressionId realEndCondition =
         (new Disjunction((new InterruptibleCommandHandleValues(m_command->getAck()))->getId(),
                          true,
                          m_conditions[endIdx],
                          m_garbageConditions[endIdx]))->getId();
-      realEndCondition->addListener(m_listeners[endIdx]);
+      realEndCondition->addListener(ensureConditionListener(endIdx));
       m_conditions[endIdx] = realEndCondition;
       m_garbageConditions[endIdx] = true;
     }
@@ -262,8 +258,7 @@ namespace PLEXIL
     if (destState == FAILING_STATE) {
       deactivateExitCondition();
       deactivateInvariantCondition();
-      deactivateAncestorExitCondition();
-      deactivateAncestorInvariantCondition();
+      deactivateAncestorExitInvariantConditions();
     }
   }
 
@@ -370,8 +365,7 @@ namespace PLEXIL
     deactivateInvariantCondition();
     deactivatePostCondition();
     if (destState == FAILING_STATE) {
-      deactivateAncestorExitCondition();
-      deactivateAncestorInvariantCondition();
+      deactivateAncestorExitInvariantConditions();
     }
     else { // ITERATION_ENDED
       activateAncestorEndCondition();
@@ -436,8 +430,7 @@ namespace PLEXIL
     deactivateAbortCompleteCondition();
     if (destState == ITERATION_ENDED_STATE) {
       activateAncestorEndCondition();
-      activateAncestorExitCondition();
-      activateAncestorInvariantCondition();
+      activateAncestorExitInvariantConditions();
     }
 
     deactivateExecutable();

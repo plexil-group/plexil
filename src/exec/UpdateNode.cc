@@ -117,7 +117,7 @@ namespace PLEXIL
 
     // Create action-complete condition
     ExpressionId actionComplete = (ExpressionId) m_update->getAck();
-    actionComplete->addListener(makeConditionListener(actionCompleteIdx));
+    actionComplete->addListener(ensureConditionListener(actionCompleteIdx));
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = false;
   }
@@ -133,20 +133,17 @@ namespace PLEXIL
     if (m_conditions[endIdx] == BooleanVariable::TRUE_EXP()) {
       // Default - don't wrap, replace - (True && anything) == anything
       m_conditions[endIdx] = ack;
-      ack->addListener(makeConditionListener(endIdx));
+      ack->addListener(ensureConditionListener(endIdx));
       m_garbageConditions[endIdx] = false;
     }
     else {
       // Wrap user-provided condition
-      if (m_listeners[endIdx].isId())
-        m_conditions[endIdx]->removeListener(m_listeners[endIdx]);
-      else
-        makeConditionListener(endIdx); // for effect
+      removeConditionListener(endIdx);
       ExpressionId realEnd = (new Conjunction(ack,
                                               false,
                                               m_conditions[endIdx],
                                               m_garbageConditions[endIdx]))->getId();
-      realEnd->addListener(m_listeners[endIdx]);
+      realEnd->addListener(ensureConditionListener(endIdx));
       m_conditions[endIdx] = realEnd;
       m_garbageConditions[endIdx] = true;
     }
@@ -275,8 +272,7 @@ namespace PLEXIL
     deactivatePostCondition();
 
     if (destState == FAILING_STATE) {
-      deactivateAncestorExitCondition();
-      deactivateAncestorInvariantCondition();
+      deactivateAncestorExitInvariantConditions();
       // N.B. FAILING waits on ActionComplete, *not* AbortComplete!
       activateActionCompleteCondition();
     }
@@ -344,8 +340,7 @@ namespace PLEXIL
     deactivateActionCompleteCondition();
     if (destState == ITERATION_ENDED_STATE) {
       activateAncestorEndCondition();
-      activateAncestorExitCondition();
-      activateAncestorInvariantCondition();
+      activateAncestorExitInvariantConditions();
     }
 
     deactivateExecutable();

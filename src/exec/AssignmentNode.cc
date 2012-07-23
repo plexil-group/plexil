@@ -98,13 +98,13 @@ namespace PLEXIL
 
     // Set action-complete condition
     ExpressionId ack = (ExpressionId) m_assignment->getAck();
-    ack->addListener(makeConditionListener(actionCompleteIdx));
+    ack->addListener(ensureConditionListener(actionCompleteIdx));
     m_conditions[actionCompleteIdx] = ack;
     m_garbageConditions[actionCompleteIdx] = false;
 
     // Set abort-complete condition
     ExpressionId abortComplete = (ExpressionId) m_assignment->getAbortComplete();
-    abortComplete->addListener(makeConditionListener(abortCompleteIdx));
+    abortComplete->addListener(ensureConditionListener(abortCompleteIdx));
     m_conditions[abortCompleteIdx] = abortComplete;
     m_garbageConditions[abortCompleteIdx] = false;
   }
@@ -304,8 +304,7 @@ namespace PLEXIL
     deactivatePostCondition();
 
     if (destState == FAILING_STATE) {
-      deactivateAncestorExitCondition();
-      deactivateAncestorInvariantCondition();
+      deactivateAncestorExitInvariantConditions();
     }
     else { // ITERATION_ENDED
       activateAncestorEndCondition();
@@ -371,8 +370,7 @@ namespace PLEXIL
     deactivateAbortCompleteCondition();
     if (destState == ITERATION_ENDED_STATE) {
       activateAncestorEndCondition();
-      activateAncestorExitCondition();
-      activateAncestorInvariantCondition();
+      activateAncestorExitInvariantConditions();
     }
 
     deactivateExecutable();
