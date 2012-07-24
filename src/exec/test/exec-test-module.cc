@@ -1055,6 +1055,7 @@ public:
   void enqueueCommand(const CommandId& /* cmd */) {}
   void enqueueUpdate(const UpdateId& /* update */) {}
   void notifyExecuted(const NodeId& /* node */) {}
+  void markRootNodeFinished(const NodeId& /* node */) {}
   const StateCacheId& getStateCache() {return m_cache.getId();}
   const ExternalInterfaceId& getExternalInterface() 
   {
@@ -1251,6 +1252,7 @@ public:
   void enqueueUpdate(const UpdateId& /* update */) {}
   // Replacement for handleNeedsExecution()
   void notifyExecuted(const NodeId& node) {assertTrue(node->getState() == EXECUTING_STATE); m_executed = true;}
+  void markRootNodeFinished(const NodeId& /* node */) {}
   const StateCacheId& getStateCache() {return StateCacheId::noId();}
   const ExternalInterfaceId& getExternalInterface() {return ExternalInterfaceId::noId();}
   const ExecListenerHubId& getExecListenerHub() const { return ExecListenerHubId::noId(); }
