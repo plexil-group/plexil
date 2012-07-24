@@ -254,81 +254,89 @@ int ExecTestRunner::run(int argc, char** argv)
   }
 
   // Load the plan
-  pugi::xml_document plan;
-  pugi::xml_parse_result parseResult = plan.load_file(planName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
-  if (parseResult.status != pugi::status_ok) {
-    warn("XML error parsing plan file '" << planName
-         << "' (offset " << parseResult.offset
-         << "):\n" << parseResult.description());
-    return -1;
-  }
-
-  PlexilNodeId root;
-  try {
-    root =
-      PlexilXmlParser::parse(plan.document_element().child("Node"));
-  }
-  catch (ParserException& e) {
-    warn("XML error parsing plan '" << planName << "':\n" << e.what());
-    return -1;
-  }
-
   {
-    // Check whether all libraries for this plan are loaded
-    // and try to load those that aren't
-    vector<string> libs = root->getLibraryReferences();
-    // N.B. libs is likely growing during this operation, 
-    // so we can't use a traditional iterator.
-    for (unsigned int i = 0; i < libs.size(); i++) {
-      // COPY the string because its location may change out from under us!
-      const std::string libname(libs[i]);
+    pugi::xml_document plan;
+    pugi::xml_parse_result parseResult = plan.load_file(planName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+    if (parseResult.status != pugi::status_ok) {
+      warn("XML error parsing plan file '" << planName
+           << "' (offset " << parseResult.offset
+           << "):\n" << parseResult.description());
+      return -1;
+    }
 
-      PlexilNodeId libroot = exec->getLibrary(libname);
-      if (libroot.isNoId()) {
-        // Try to load the library
-        libroot = PlexilXmlParser::findLibraryNode(libname, libraryPaths);
+    PlexilNodeId root;
+    try {
+      root =
+        PlexilXmlParser::parse(plan.document_element().child("Node"));
+    }
+    catch (ParserException& e) {
+      warn("XML error parsing plan '" << planName << "':\n" << e.what());
+      return -1;
+    }
+
+    {
+      // Check whether all libraries for this plan are loaded
+      // and try to load those that aren't
+      vector<string> libs = root->getLibraryReferences();
+      // N.B. libs is likely growing during this operation, 
+      // so we can't use a traditional iterator.
+      for (unsigned int i = 0; i < libs.size(); i++) {
+        // COPY the string because its location may change out from under us!
+        const std::string libname(libs[i]);
+
+        PlexilNodeId libroot = exec->getLibrary(libname);
         if (libroot.isNoId()) {
-          warn("Adding plan " << planName
-               << " failed because library " << libname
-               << " could not be loaded");
-          return -1;
+          // Try to load the library
+          libroot = PlexilXmlParser::findLibraryNode(libname, libraryPaths);
+          if (libroot.isNoId()) {
+            warn("Adding plan " << planName
+                 << " failed because library " << libname
+                 << " could not be loaded");
+            return -1;
+          }
+
+          // add the library node
+          exec->addLibraryNode(libroot);
         }
 
-        // add the library node
-        exec->addLibraryNode(libroot);
+        // Make note of any dependencies in the library itself
+        libroot->getLibraryReferences(libs);
       }
-
-      // Make note of any dependencies in the library itself
-      libroot->getLibraryReferences(libs);
     }
-  }
 
-  if (!exec->addPlan(root)) {
-    warn("Adding plan " << planName << " failed");
-    return -1;
+    if (!exec->addPlan(root)) {
+      warn("Adding plan " << planName << " failed");
+      return -1;
+    }
+    delete (PlexilNode*) root;
+    // TODO: delete library nodes
   }
 
   // load script
 
-  pugi::xml_document script;
-  parseResult = script.load_file(scriptName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
-  if (parseResult.status != pugi::status_ok) {
-    checkParserException(false,
-                         "(offset " << parseResult.offset
-                         << ") XML error parsing script '" << scriptName << "': "
-                         << parseResult.description());
-    return -1;
-  }
-  // execute plan
+  {
+    pugi::xml_document script;
+    {
+      pugi::xml_parse_result parseResult = script.load_file(scriptName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+      if (parseResult.status != pugi::status_ok) {
+        checkParserException(false,
+                             "(offset " << parseResult.offset
+                             << ") XML error parsing script '" << scriptName << "': "
+                             << parseResult.description());
+        return -1;
+      }
+    }
+    // execute plan
 
-  clock_t time = clock();
-  pugi::xml_node scriptElement = script.child("PLEXILScript");
-  if (scriptElement.empty()) {
-    warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
-    return -1;
+    clock_t time = clock();
+    pugi::xml_node scriptElement = script.child("PLEXILScript");
+    if (scriptElement.empty()) {
+      warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
+      return -1;
+    }
+    intf.run(scriptElement);
+    debugMsg("Time", "Time spent in execution: " << clock() - time);
   }
-  intf.run(scriptElement);
-  debugMsg("Time", "Time spent in execution: " << clock() - time);
 
   // clean up
 
