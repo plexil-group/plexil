@@ -39,8 +39,12 @@ TOP_DIR ?= $(PLEXIL_HOME)
 PLEXIL_DEBUG		?= 1
 PLEXIL_OPTIMIZED	?=
 PLEXIL_PROFILE		?=
-PLEXIL_SHARED		?= 1
 PLEXIL_STATIC		?=
+ifeq ($(PLEXIL_STATIC),)
+PLEXIL_SHARED		?= 1
+else
+PLEXIL_SHARED		?=
+endif
 
 ##### Basic utilities and Unix commands
 
@@ -151,7 +155,7 @@ EXECUTABLE	=
 # Linker program
 
 # KMD: Command for building archive libraries, if applicable.
-AR		= $(CXX) -ar 
+AR		= ar
 
 # Command for building shared libraries, if applicable.
 LD		= $(CXX)
@@ -169,10 +173,6 @@ RUNTIME_SHARED_LIBRARY_PATH_FLAG	:= -rpath
 SHARED_FLAGS				:= -shared
 # Extension for shared library
 SUFSHARE				:= .so
-# Name of system library with pthreads API
-PTHREADS_LIBRARY			:= pthread
-# Name of system library with dynamic loading API
-DLOPEN_LIBRARY				:= dl
 
 ##### Conveniences
 
