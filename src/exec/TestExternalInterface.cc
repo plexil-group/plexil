@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -60,7 +60,7 @@ namespace PLEXIL
 
   TestExternalInterface::TestExternalInterface() : ExternalInterface()
   {
-	// Ensure there's a "time" state
+    // Ensure there's a "time" state
     m_states.insert(std::make_pair(timeState(), 0));
   }
 
@@ -69,154 +69,154 @@ namespace PLEXIL
   {
     checkError(m_exec.isValid(), "Attempted to run a script without an executive.");
     handleInitialState(input);
-	pugi::xml_node script = input.child("Script");
+    pugi::xml_node script = input.child("Script");
     checkError(!script.empty(), "No Script element in Plexilscript.");
-	pugi::xml_node scriptElement = script.first_child();
+    pugi::xml_node scriptElement = script.first_child();
     while (!scriptElement.empty()) {
-	  LabelStr name;
-	  double value;
-	  std::vector<double> args;
+      LabelStr name;
+      double value;
+      std::vector<double> args;
 
-	  // ignore text element (e.g. from <Script> </Script>)
-	  if (scriptElement.type() == pugi::node_pcdata) {
-	  }
+      // ignore text element (e.g. from <Script> </Script>)
+      if (scriptElement.type() == pugi::node_pcdata) {
+      }
 
-	  // parse state
+      // parse state
 
-	  else if (strcmp(scriptElement.name(), "State") == 0) {
-		  parseState(scriptElement, name, args, value);
-		  State st(name, args);
-		  m_states[st] = value;
-		  debugMsg("Test:testOutput", "Processing event: " <<
-				   StateCache::toString(st)
-				   << " = " << Expression::valueToString(value));
-		  m_exec->getStateCache()->updateState(st, value);
-		}
+      else if (strcmp(scriptElement.name(), "State") == 0) {
+          parseState(scriptElement, name, args, value);
+          State st(name, args);
+          m_states[st] = value;
+          debugMsg("Test:testOutput", "Processing event: " <<
+                   StateCache::toString(st)
+                   << " = " << Expression::valueToString(value));
+          m_exec->getStateCache()->updateState(st, value);
+        }
 
-	  // parse command
+      // parse command
 
-	  else if (strcmp(scriptElement.name(), "Command") == 0) {
-		parseCommand(scriptElement, name, args, value);
-		UniqueThing command(name, args);
-		debugMsg("Test:testOutput", "Sending command result " << 
-				 getText(command, value));
-		ExpressionUtMap::iterator it = 
-		  m_executingCommands.find(command);
-		checkError(it != m_executingCommands.end(),
-				   "No currently executing command " << getText(command));
+      else if (strcmp(scriptElement.name(), "Command") == 0) {
+        parseCommand(scriptElement, name, args, value);
+        UniqueThing command(name, args);
+        debugMsg("Test:testOutput", "Sending command result " << 
+                 getText(command, value));
+        ExpressionUtMap::iterator it = 
+          m_executingCommands.find(command);
+        checkError(it != m_executingCommands.end(),
+                   "No currently executing command " << getText(command));
 
-		setVariableValue(getText(command), it->second, value);
-		m_executingCommands.erase(it);
-		raInterface.releaseResourcesForCommand(name);
-	  }
+        setVariableValue(getText(command), it->second, value);
+        m_executingCommands.erase(it);
+        raInterface.releaseResourcesForCommand(name);
+      }
 
-	  // parse command ack
+      // parse command ack
 
-	  else if (strcmp(scriptElement.name(), "CommandAck") == 0) {
-		parseCommand(scriptElement, name, args, value);
-		UniqueThing command(name, args);
-		debugMsg("Test:testOutput", "Sending command ACK " << 
-				 getText(command, value));
+      else if (strcmp(scriptElement.name(), "CommandAck") == 0) {
+        parseCommand(scriptElement, name, args, value);
+        UniqueThing command(name, args);
+        debugMsg("Test:testOutput", "Sending command ACK " << 
+                 getText(command, value));
 
-		ExpressionUtMap::iterator it = 
-		  m_commandAcks.find(command);
+        ExpressionUtMap::iterator it = 
+          m_commandAcks.find(command);
 
-		checkError(it != m_commandAcks.end(), 
-				   "No command waiting for acknowledgement " <<
-				   getText(command));
-		it->second->setValue(value);
+        checkError(it != m_commandAcks.end(), 
+                   "No command waiting for acknowledgement " <<
+                   getText(command));
+        it->second->setValue(value);
             
-		// Release resources if the command does not have a return value
-		if (m_executingCommands.find(command) == m_executingCommands.end())
-		  raInterface.releaseResourcesForCommand(name);
-	  }
+        // Release resources if the command does not have a return value
+        if (m_executingCommands.find(command) == m_executingCommands.end())
+          raInterface.releaseResourcesForCommand(name);
+      }
          
-	  // parse command abort
+      // parse command abort
 
-	  else if (strcmp(scriptElement.name(), "CommandAbort") == 0) {
-		parseCommand(scriptElement, name, args, value);
-		UniqueThing command(name, args);
-		debugMsg("Test:testOutput", "Sending abort ACK " << 
-				 getText(command, value));
-		ExpressionUtMap::iterator it = 
-		  m_abortingCommands.find(command);
-		checkError(it != m_abortingCommands.end(), 
-				   "No abort waiting for acknowledgement " << 
-				   getText(command));
-		debugMsg("Test:testOutput", "Acknowledging abort into " << 
-				 it->second->toString());
-		it->second->setValue(BooleanVariable::TRUE_VALUE());
-		m_abortingCommands.erase(it);
-	  }
+      else if (strcmp(scriptElement.name(), "CommandAbort") == 0) {
+        parseCommand(scriptElement, name, args, value);
+        UniqueThing command(name, args);
+        debugMsg("Test:testOutput", "Sending abort ACK " << 
+                 getText(command, value));
+        ExpressionUtMap::iterator it = 
+          m_abortingCommands.find(command);
+        checkError(it != m_abortingCommands.end(), 
+                   "No abort waiting for acknowledgement " << 
+                   getText(command));
+        debugMsg("Test:testOutput", "Acknowledging abort into " << 
+                 it->second->toString());
+        it->second->setValue(BooleanVariable::TRUE_VALUE());
+        m_abortingCommands.erase(it);
+      }
 
-	  // parse update ack
+      // parse update ack
 
-	  else if (strcmp(scriptElement.name(), "UpdateAck") == 0) {
-		LabelStr name(scriptElement.attribute("name").value());
-		debugMsg("Test:testOutput", "Sending update ACK " << name.toString());
-		std::map<double, UpdateId>::iterator it = m_waitingUpdates.find(name);
-		checkError(it != m_waitingUpdates.end(),
-				   "No update from node " << name.toString() << 
-				   " waiting for acknowledgement.");
-		it->second->getAck()->setValue(BooleanVariable::TRUE_VALUE());
-		m_waitingUpdates.erase(it);
-	  }
+      else if (strcmp(scriptElement.name(), "UpdateAck") == 0) {
+        LabelStr name(scriptElement.attribute("name").value());
+        debugMsg("Test:testOutput", "Sending update ACK " << name.toString());
+        std::map<double, UpdateId>::iterator it = m_waitingUpdates.find(name);
+        checkError(it != m_waitingUpdates.end(),
+                   "No update from node " << name.toString() << 
+                   " waiting for acknowledgement.");
+        it->second->getAck()->setValue(BooleanVariable::TRUE_VALUE());
+        m_waitingUpdates.erase(it);
+      }
 
-	  // parse send plan
+      // parse send plan
 
-	  else if (strcmp(scriptElement.name(), "SendPlan") == 0) {
-		pugi::xml_document* doc = new pugi::xml_document();
-		pugi::xml_parse_result parseResult = 
-		  doc->load_file(scriptElement.attribute("file").value());
+      else if (strcmp(scriptElement.name(), "SendPlan") == 0) {
+        pugi::xml_document* doc = new pugi::xml_document();
+        pugi::xml_parse_result parseResult = 
+          doc->load_file(scriptElement.attribute("file").value());
 
-		LabelStr parent;
-		if (!scriptElement.attribute("parent").empty())
-		  parent = LabelStr(scriptElement.attribute("parent").value());
-		debugMsg("Test:testOutput", "Sending plan from file " << 
-				 scriptElement.attribute("file").value());
-		condDebugMsg(parent != EMPTY_LABEL(), "Test:testOutput", 
-					 "To be child of parent " << parent.toString());
-		PlexilNodeId root =
-		  PlexilXmlParser::parse(doc->document_element().child("PlexilPlan").child("Node"));
-		checkError(m_exec->addPlan(root, parent),
-				   "Adding plan " << scriptElement.attribute("file").value() << " failed");
-	  }
+        LabelStr parent;
+        if (!scriptElement.attribute("parent").empty())
+          parent = LabelStr(scriptElement.attribute("parent").value());
+        debugMsg("Test:testOutput", "Sending plan from file " << 
+                 scriptElement.attribute("file").value());
+        condDebugMsg(parent != EMPTY_LABEL(), "Test:testOutput", 
+                     "To be child of parent " << parent.toString());
+        PlexilNodeId root =
+          PlexilXmlParser::parse(doc->document_element().child("PlexilPlan").child("Node"));
+        checkError(m_exec->addPlan(root, parent),
+                   "Adding plan " << scriptElement.attribute("file").value() << " failed");
+      }
 
-	  // parse simultaneous
+      // parse simultaneous
 
-	  else if (strcmp(scriptElement.name(), "Simultaneous") == 0) {
-		pugi::xml_node stateUpdates = scriptElement.child("State");
-		while (!stateUpdates.empty()) {
-		  parseState(stateUpdates, name, args, value);
-		  State st(name, args);
-		  m_states[st] = value;
-		  debugMsg("Test:testOutput", "Processing simultaneous event: " <<
-				   StateCache::toString(st) << " = " << value);
-		  m_exec->getStateCache()->updateState(st, value);
-		  args.clear();
-		  stateUpdates = stateUpdates.next_sibling("State");
-		}
-	  }
-	  else if (strcmp(scriptElement.name(), "Delay") == 0) {
-		; // No-op
-	  }
+      else if (strcmp(scriptElement.name(), "Simultaneous") == 0) {
+        pugi::xml_node stateUpdates = scriptElement.child("State");
+        while (!stateUpdates.empty()) {
+          parseState(stateUpdates, name, args, value);
+          State st(name, args);
+          m_states[st] = value;
+          debugMsg("Test:testOutput", "Processing simultaneous event: " <<
+                   StateCache::toString(st) << " = " << value);
+          m_exec->getStateCache()->updateState(st, value);
+          args.clear();
+          stateUpdates = stateUpdates.next_sibling("State");
+        }
+      }
+      else if (strcmp(scriptElement.name(), "Delay") == 0) {
+        ; // No-op
+      }
 
-	  // report unknown script element
+      // report unknown script element
 
-	  else {
-		checkError(ALWAYS_FAIL, "Unknown script element '" << scriptElement.name() << "'");
-		return;
-	  }
+      else {
+        checkError(ALWAYS_FAIL, "Unknown script element '" << scriptElement.name() << "'");
+        return;
+      }
          
-	  // step the exec forward
-	  m_exec->step();
+      // step the exec forward
+      m_exec->step();
 
-	  scriptElement = scriptElement.next_sibling();
-	}
-	// Continue stepping the Exec til quiescent
-	while (m_exec->needsStep()) {
-	  m_exec->step();
-	}
+      scriptElement = scriptElement.next_sibling();
+    }
+    // Continue stepping the Exec til quiescent
+    while (m_exec->needsStep()) {
+      m_exec->step();
+    }
   }
 
   // map values from script into a variable expression
@@ -245,23 +245,23 @@ namespace PLEXIL
 
   void TestExternalInterface::handleInitialState(const pugi::xml_node& input)
   {
-	pugi::xml_node initialState = input.child("InitialState");
+    pugi::xml_node initialState = input.child("InitialState");
     if (!initialState.empty()) {
-	  LabelStr name;
-	  double value;
-	  std::vector<double> args;
-	  pugi::xml_node state = initialState.child("State");
-	  while (!state.empty()) {
-		args.clear();
-		parseState(state, name, args, value);
-		UniqueThing st(name, args);
-		debugMsg("Test:testOutput", "Creating initial state " 
-				 << getText(st, value));
-		m_states.insert(std::pair<UniqueThing, double>(st, value));
-		state = state.next_sibling("State");
-	  }
-	}
-	m_exec->step();
+      LabelStr name;
+      double value;
+      std::vector<double> args;
+      pugi::xml_node state = initialState.child("State");
+      while (!state.empty()) {
+        args.clear();
+        parseState(state, name, args, value);
+        UniqueThing st(name, args);
+        debugMsg("Test:testOutput", "Creating initial state " 
+                 << getText(st, value));
+        m_states.insert(std::pair<UniqueThing, double>(st, value));
+        state = state.next_sibling("State");
+      }
+    }
+    m_exec->step();
   }
 
   void TestExternalInterface::parseState(const pugi::xml_node& state,
@@ -279,7 +279,7 @@ namespace PLEXIL
     checkError(!state.attribute("type").empty(),
                "No type attribute in <State> element.");
     std::string type(state.attribute("type").value());
-	pugi::xml_node valXml = state.child("Value");
+    pugi::xml_node valXml = state.child("Value");
     checkError(!valXml.empty(), "No Value child in State element.");
     checkError(!valXml.first_child().empty(),
                "Empty Value child in State element.");
@@ -304,7 +304,7 @@ namespace PLEXIL
     checkError(!cmd.attribute("type").empty(), "No type attribute in <Command> element.");
     std::string type(cmd.attribute("type").value());
 
-	pugi::xml_node resXml = cmd.child("Result");
+    pugi::xml_node resXml = cmd.child("Result");
     checkError(!resXml.empty(), "No Result child in Command element.");
     checkError(!resXml.first_child().empty(), "Empty Result child in Command element.");
 
@@ -317,34 +317,34 @@ namespace PLEXIL
   void TestExternalInterface::parseParams(const pugi::xml_node& root, 
                                           std::vector<double>& dest)
   {
-	pugi::xml_node param = root.child("Param");
+    pugi::xml_node param = root.child("Param");
 
     while (!param.empty()) {
-	  checkError(!param.first_child().empty()
-				 || strcmp(param.attribute("type").value(), "string") == 0,
-				 "Empty Param child in " << root.name() << " element.");
-	  double value;
-	  if (!param.attribute("type").empty() &&
-		  (strcmp(param.attribute("type").value(), "int") == 0 ||
-		   strcmp(param.attribute("type").value(), "real") == 0 ||
-		   strcmp(param.attribute("type").value(), "bool") == 0)) {
-		std::istringstream str(param.first_child().value());
-		str >> value;
-	  }
-	  // string case
-	  else if (param.first_child().empty()) {
-		value = LabelStr();
-	  }
-	  else if (0 == strcmp(param.first_child().value(), "UNKNOWN")) {
-		value = Expression::UNKNOWN();
-	  }
-	  else {
-		value = LabelStr(param.first_child().value());
-	  }
+      checkError(!param.first_child().empty()
+                 || strcmp(param.attribute("type").value(), "string") == 0,
+                 "Empty Param child in " << root.name() << " element.");
+      double value;
+      if (!param.attribute("type").empty() &&
+          (strcmp(param.attribute("type").value(), "int") == 0 ||
+           strcmp(param.attribute("type").value(), "real") == 0 ||
+           strcmp(param.attribute("type").value(), "bool") == 0)) {
+        std::istringstream str(param.first_child().value());
+        str >> value;
+      }
+      // string case
+      else if (param.first_child().empty()) {
+        value = LabelStr();
+      }
+      else if (0 == strcmp(param.first_child().value(), "UNKNOWN")) {
+        value = Expression::UNKNOWN();
+      }
+      else {
+        value = LabelStr(param.first_child().value());
+      }
 
-	  dest.push_back(value);
-	  param = param.next_sibling("Param");
-	}
+      dest.push_back(value);
+      param = param.next_sibling("Param");
+    }
   }
 
   double TestExternalInterface::parseValues(const std::string& type, 
@@ -353,9 +353,9 @@ namespace PLEXIL
     // read in values
     std::vector<double> values;
     while (!valXml.empty()) {
-	  values.push_back(parseValue(type, valXml.first_child().value()));
-	  valXml = valXml.next_sibling();
-	}
+      values.push_back(parseValue(type, valXml.first_child().value()));
+      valXml = valXml.next_sibling();
+    }
 
     // if atomic use 1st value, else its an array, create array
     double value = (type.find("array", 0) == std::string::npos)
@@ -372,28 +372,28 @@ namespace PLEXIL
     double value;
 
     if (type == "string" || type == "string-array") {
-	  value = (double) LabelStr(valStr);
-	}
+      value = (double) LabelStr(valStr);
+    }
     else if (type == "int" || type == "real" ||
              type == "int-array" || type == "real-array") {
-	  std::istringstream ss(valStr);
-	  ss >> value;
-	}
+      std::istringstream ss(valStr);
+      ss >> value;
+    }
     else if (type == "bool" || type == "bool-array") {
-	  if (0 == stricmp(valStr.c_str(), "true"))
-		value = 1;
-	  else if (0 == stricmp(valStr.c_str(), "false"))
-		value = 0;
-	  else {
-		std::istringstream ss(valStr);
-		ss >> value;
-	  }
-	}
+      if (0 == stricmp(valStr.c_str(), "true"))
+        value = 1;
+      else if (0 == stricmp(valStr.c_str(), "false"))
+        value = 0;
+      else {
+        std::istringstream ss(valStr);
+        ss >> value;
+      }
+    }
     else {
-	  checkError(ALWAYS_FAIL,
-				 "Unknown type '" << type << "' in State element.");
-	  return 0;
-	}
+      checkError(ALWAYS_FAIL,
+                 "Unknown type '" << type << "' in State element.");
+      return 0;
+    }
     return value;
   }
 
@@ -403,35 +403,35 @@ namespace PLEXIL
              << StateCache::toString(state));
     StateMap::const_iterator it = m_states.find(state);
     if (it == m_states.end()) {
-	  debugMsg("Test:testOutput", "No state found.  Setting UNKNOWN.");
-	  it = m_states.insert(std::make_pair(state, Expression::UNKNOWN())).first;
-	}
+      debugMsg("Test:testOutput", "No state found.  Setting UNKNOWN.");
+      it = m_states.insert(std::make_pair(state, Expression::UNKNOWN())).first;
+    }
     double value = it->second;
     debugMsg("Test:testOutput", "Returning value "
-			 << Expression::valueToString(value));
-	return value;
+             << Expression::valueToString(value));
+    return value;
   }
 
   void TestExternalInterface::subscribe(const State& state)
   {
     debugMsg("Test:testOutput",
-			 "Registering change lookup for " << StateCache::toString(state));
+             "Registering change lookup for " << StateCache::toString(state));
 
     //ignore source, because we don't care about bandwidth here
     StateMap::iterator it = m_states.find(state);
     if (it == m_states.end()) {
-	  std::pair<UniqueThing, double> p = 
-		std::make_pair(state, Expression::UNKNOWN());
-	  it = m_states.insert(p).first;
-	}
+      std::pair<UniqueThing, double> p = 
+        std::make_pair(state, Expression::UNKNOWN());
+      it = m_states.insert(p).first;
+    }
   }
 
   void TestExternalInterface::unsubscribe(const State& /* state */)
   {}
 
   void TestExternalInterface::setThresholds(const State& /* state */,
-											double /* highThreshold */,
-											double /* lowThreshold */)
+                                            double /* highThreshold */,
+                                            double /* lowThreshold */)
   {}
 
   void TestExternalInterface::batchActions(std::list<CommandId>& commands)
@@ -471,24 +471,24 @@ namespace PLEXIL
              (dest.isNoId() ? std::string("noId") : dest->toString()) <<
              " with ack " << ack->toString());
     if (dest.isId())
-	  m_executingCommands[cmd] = dest;
+      m_executingCommands[cmd] = dest;
 
     // Special handling of the utility commands (a bit of a hack!):
     const std::string& cname = name.toString();
     if (cname == "print") {
       print (args);
-	  ack->setValue(CommandHandleVariable::COMMAND_SUCCESS()); // LabelStr ("COMMAND_SUCCESS"));
+      ack->setValue(CommandHandleVariable::COMMAND_SUCCESS()); // LabelStr ("COMMAND_SUCCESS"));
       raInterface.releaseResourcesForCommand(name);
     }
     else if (cname == "pprint") {
-	  pprint (args);
-	  ack->setValue(CommandHandleVariable::COMMAND_SUCCESS()); // LabelStr ("COMMAND_SUCCESS"));
+      pprint (args);
+      ack->setValue(CommandHandleVariable::COMMAND_SUCCESS()); // LabelStr ("COMMAND_SUCCESS"));
       raInterface.releaseResourcesForCommand(name);
     }
-	else {
-	  // Usual case - set up for scripted ack value
-	  m_commandAcks[cmd] = ack;
-	}
+    else {
+      // Usual case - set up for scripted ack value
+      m_commandAcks[cmd] = ack;
+    }
   }
 
 
