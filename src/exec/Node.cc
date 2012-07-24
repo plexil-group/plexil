@@ -1711,6 +1711,11 @@ namespace PLEXIL {
       return;
     m_state = newValue;
     ((StateVariable*) m_stateVariable)->setNodeState(newValue);
+    if (newValue == FINISHED_STATE && m_parent.isNoId()) {
+      // Mark this node as ready to be deleted -
+      // with no parent, it cannot be reset.
+      m_exec->markRootNodeFinished(m_id);
+    }
   }
 
   double Node::getCurrentStateStartTime() const

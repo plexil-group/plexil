@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,34 +43,39 @@ namespace PLEXIL
     virtual void notifyNodeConditionChanged(NodeId node) = 0;
     virtual void handleConditionsChanged(const NodeId& node, NodeState newState) = 0;
 
-	/**
-	 * @brief Schedule this assignment for execution.
-	 */
-	virtual void enqueueAssignment(const AssignmentId& assign) = 0;
+    /**
+     * @brief Schedule this assignment for execution.
+     */
+    virtual void enqueueAssignment(const AssignmentId& assign) = 0;
 
-	/**
-	 * @brief Schedule this assignment for execution.
-	 */
-	virtual void enqueueAssignmentForRetraction(const AssignmentId& assign) = 0;
+    /**
+     * @brief Schedule this assignment for execution.
+     */
+    virtual void enqueueAssignmentForRetraction(const AssignmentId& assign) = 0;
 
-	/**
-	 * @brief Schedule this command for execution.
-	 */
-	virtual void enqueueCommand(const CommandId& cmd) = 0;
+    /**
+     * @brief Schedule this command for execution.
+     */
+    virtual void enqueueCommand(const CommandId& cmd) = 0;
 
-	/**
-	 * @brief Schedule this update for execution.
-	 */
-	virtual void enqueueUpdate(const UpdateId& update) = 0;
+    /**
+     * @brief Schedule this update for execution.
+     */
+    virtual void enqueueUpdate(const UpdateId& update) = 0;
 
-	/**
-	 * @brief Needed for stupid unit test
-	 */
-	virtual void notifyExecuted(const NodeId& node) = 0;
+    /**
+     * @brief Needed for stupid unit test
+     */
+    virtual void notifyExecuted(const NodeId& node) = 0;
+
+    /**
+     * @brief Mark node as finished and no longer eligible for execution.
+     */
+    virtual void markRootNodeFinished(const NodeId& node) = 0;
 
     virtual const StateCacheId& getStateCache() = 0;
     virtual const ExternalInterfaceId& getExternalInterface() = 0;
-	virtual const ExecListenerHubId& getExecListenerHub() const = 0;
+    virtual const ExecListenerHubId& getExecListenerHub() const = 0;
 
   private:
     ExecConnectorId m_id;

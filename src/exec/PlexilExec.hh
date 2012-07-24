@@ -171,6 +171,11 @@ namespace PLEXIL
      */
     bool allPlansFinished() const;
 
+    /**
+     * @brief Deletes any finished root nodes.
+     */
+    void deleteFinishedPlans();
+
 	//
 	// API to Node classes
 	//
@@ -201,6 +206,11 @@ namespace PLEXIL
 	virtual void notifyExecuted(const NodeId& node) 
 	{
 	}
+
+    /**
+     * @brief Mark node as finished and no longer eligible for execution.
+     */
+    void markRootNodeFinished(const NodeId& node);
 
   protected:
     friend class RealExecConnector;
@@ -264,6 +274,7 @@ namespace PLEXIL
     ExternalInterfaceId m_interface;
     ExecListenerHubId m_listener;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
+    std::vector<NodeId> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
     std::queue<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
     StateChangeQueue m_stateChangeQueue; /*<! Nodes that are eligible for state transition.*/
     std::vector<AssignmentId> m_assignmentsToExecute;
@@ -278,6 +289,7 @@ namespace PLEXIL
 											   in state FAILING gets added to the end of the queue. */
     std::map<std::string, PlexilNodeId> m_libraries;
     unsigned int m_cycleNum, m_queuePos;
+    bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };
 }
 

@@ -66,11 +66,14 @@ namespace PLEXIL
     : ExecConnector(),
       m_id(this, ExecConnector::getId()),
       m_cache((new StateCache())->getId()),
-      m_cycleNum(0), m_queuePos(0)
+      m_cycleNum(0), m_queuePos(0),
+      m_finishedRootNodesDeleted(false)
   {}
 
   PlexilExec::~PlexilExec() 
   {
+    // Every node on this list is also in m_plan
+    m_finishedRootNodes.clear();
     for (std::list<NodeId>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
       delete (Node*) (*it);
     delete (StateCache*) m_cache;
@@ -194,13 +197,15 @@ namespace PLEXIL
    * @brief Queries whether all plans are finished.
    * @return true if all finished, false otherwise.
    */
+
+  // FIXME: this will return false if a finished plan has been deleted
   bool PlexilExec::allPlansFinished() const
   {
     // If we're in a quiescence cycle, presume some plan is active.
     if (m_cache->inQuiescence())
       return false;
 
-    bool result = false; // return value in the event no plan has been received
+    bool result = m_finishedRootNodesDeleted; // return value in the event no plan is active
 
     for (std::list<NodeId>::const_iterator planit = m_plan.begin();
          planit != m_plan.end();
@@ -213,6 +218,52 @@ namespace PLEXIL
           return false; // some node is not finished
       }
     return result;
+  }
+
+  void PlexilExec::markRootNodeFinished(const NodeId& node)
+  {
+    checkError(node.isValid(),
+               "PlexilExec::markRootNodeFinished: node pointer is invalid");
+    checkError(node->getParent().isNoId(),
+               "PlexilExec::markRootNodeFinished: Node \"" << node->getNodeId().toString()
+               << "\" is not a root node");
+    checkError(node->getState() == FINISHED_STATE,
+               "PlexilExec::markRootNodeFinished: node not in FINISHED state");
+    // TODO: ensure all descendants in FINISHED state
+    m_finishedRootNodes.push_back(node);
+  }
+
+  void PlexilExec::deleteFinishedPlans()
+  {
+    if (!m_finishedRootNodes.empty()) {
+      for (std::vector<NodeId>::iterator it = m_finishedRootNodes.begin();
+           it != m_finishedRootNodes.end();
+           ++it) {
+        checkError(it->isValid(),
+                   "PlexilExec::deleteFinishedPlans: attempt to delete node at invalid pointer");
+        NodeId node = *it;
+        debugMsg("PlexilExec:deleteFinishedPlans",
+                 " deleting node \"" << node->getNodeId().toString() << "\"");
+        // Remove from active plan
+        bool found = false;
+        for (std::list<NodeId>::iterator pit = m_plan.begin();
+             pit != m_plan.end();
+             ++pit) {
+          if (*pit == node) {
+            found = true;
+            m_plan.erase(pit);
+            break;
+          }
+        }
+        assertTrueMsg(found,
+                      "PlexilExec::deleteFinishedPlan: Node \"" << node->getNodeId().toString()
+                      << "\" not found on active root node list");
+        // Now safe to delete
+        delete (Node*) node;
+      }
+      m_finishedRootNodes.clear();
+      m_finishedRootNodesDeleted = true;
+    }
   }
 
   void PlexilExec::notifyNodeConditionChanged(NodeId node)
