@@ -236,7 +236,16 @@ namespace PLEXIL
   class PlexilExpr {
   public:
     PlexilExpr() : m_lineNo(0), m_colNo(0), m_id(this) {}
-    virtual ~PlexilExpr() {m_id.remove();}
+
+    virtual ~PlexilExpr() 
+    {
+      for (std::vector<PlexilExprId>::iterator it = m_subExprs.begin();
+           it != m_subExprs.end();
+           ++it)
+        delete (PlexilExpr*) *it;
+      m_subExprs.clear();
+      m_id.remove();
+    }
     const PlexilExprId& getId() const {return m_id;}
     const std::string& name() const {return m_name;}
     const std::vector<PlexilExprId>& subExprs() const {return m_subExprs;}
@@ -265,6 +274,8 @@ namespace PLEXIL
       m_type(PLEXIL::UNKNOWN_TYPE),
       m_defaultValue(PlexilExprId::noId())
     {}
+
+    ~PlexilVarRef();
 
     bool typed() const {return m_typed;}
     const PlexilType& type() const {return m_type;}
@@ -318,7 +329,18 @@ namespace PLEXIL
   class PlexilState {
   public:
     PlexilState() : m_lineNo(0), m_colNo(0), m_id(this) {}
-    ~PlexilState() {m_id.remove(); m_nameExpr.remove();}
+
+    ~PlexilState()
+    {
+      for (std::vector<PlexilExprId>::iterator it = m_args.begin();
+           it != m_args.end();
+           ++it)
+        delete (PlexilExpr*) *it;
+      m_args.clear();
+      if (m_nameExpr.isId())
+        delete (PlexilExpr*) m_nameExpr;
+      m_id.remove();
+    }
     const PlexilStateId& getId() const {return m_id;}
     const std::vector<PlexilExprId>& args() const {return m_args;}
     const std::string& name() const;
@@ -344,6 +366,12 @@ namespace PLEXIL
   public:
     PlexilLookup() : PlexilExpr() {}
 
+    virtual ~PlexilLookup()
+    {
+      if (m_state.isId())
+        delete (PlexilState*) m_state;
+    }
+
     const PlexilStateId& state() const {return m_state;}
     void setState(const PlexilStateId& state) {m_state = state;}
   private:
@@ -359,6 +387,16 @@ namespace PLEXIL
   class PlexilChangeLookup : public PlexilLookup {
   public:
     PlexilChangeLookup() : PlexilLookup() {setName("LookupOnChange");}
+
+    ~PlexilChangeLookup()
+    {
+      for (std::vector<PlexilExprId>::iterator it = m_tolerances.begin();
+           it != m_tolerances.end();
+           ++it)
+        delete (PlexilExpr*) *it;
+      m_tolerances.clear();
+    }
+
     const std::vector<PlexilExprId>& tolerances() const {return m_tolerances;}
     void addTolerance(const PlexilExprId& tolerance) {m_tolerances.push_back(tolerance);}
   private:
@@ -380,6 +418,7 @@ namespace PLEXIL
   public:
     PlexilArrayValue(const PlexilType& type, unsigned maxSize,
                      const std::vector<std::string>& values);
+    ~PlexilArrayValue() {} 
     const std::vector<std::string>& values() const {return m_values;}
     unsigned maxSize() const {return m_maxSize;}
   private:
@@ -453,6 +492,14 @@ namespace PLEXIL
   class PlexilActionBody : public PlexilNodeBody {
   public:
     PlexilActionBody() : PlexilNodeBody() {}
+    virtual ~PlexilActionBody()
+    {
+      for (std::vector<PlexilExpr*>::iterator it = m_dest.begin();
+           it != m_dest.end();
+           ++it)
+        delete *it;
+      m_dest.clear();
+    }
     const std::vector<PlexilExpr*>& dest() const {return m_dest;}
 
     void addDestVar(PlexilExpr* ref) {m_dest.push_back(ref);}
@@ -468,6 +515,12 @@ namespace PLEXIL
         m_type(PLEXIL::UNKNOWN_TYPE)
     {}
 
+    ~PlexilAssignmentBody()
+    {
+      if (m_rhs.isId())
+        delete (PlexilExpr*) m_rhs;
+    }
+
     const PlexilExprId& RHS() const {return m_rhs;}
     const PlexilType& type() const {return m_type;}
 
@@ -481,6 +534,18 @@ namespace PLEXIL
   class PlexilCommandBody : public PlexilActionBody {
   public:
     PlexilCommandBody() : PlexilActionBody() {}
+
+    ~PlexilCommandBody()
+    {
+      for (std::vector<PlexilResourceId>::iterator it = m_resource.begin();
+           it != m_resource.end();
+           ++it)
+        delete (PlexilResource*) *it;
+      m_resource.clear();
+      if (m_state.isId())
+        delete (PlexilState*) m_state;
+    }
+
     const PlexilStateId& state() const {return m_state;}
     const std::vector<PlexilResourceId>& getResource() const {return m_resource;}
 
@@ -553,6 +618,13 @@ namespace PLEXIL
   class PlexilInternalVar : public PlexilVarRef {
   public:
     PlexilInternalVar() : PlexilVarRef() {}
+ 
+    virtual ~PlexilInternalVar()
+    {
+      if (m_ref.isId())
+        delete (PlexilNodeRef*) m_ref;
+    }
+
     const PlexilNodeRefId& ref() const {return m_ref;}
 
     void setRef(const PlexilNodeRefId& ref) {m_ref = ref;}
@@ -597,7 +669,17 @@ namespace PLEXIL
   class PlexilUpdate {
   public:
     PlexilUpdate() : m_lineNo(0), m_colNo(0), m_id(this) {}
-    ~PlexilUpdate() {m_id.remove();}
+
+    ~PlexilUpdate()
+    {
+      for (std::vector<std::pair<std::string, PlexilExprId> >::iterator it = m_map.begin();
+           it != m_map.end();
+           ++it)
+        delete (PlexilExpr*) it->second;
+      m_map.clear();
+      m_id.remove();
+    }
+
     const PlexilUpdateId& getId() const {return m_id;}
     const std::vector<std::pair<std::string, PlexilExprId> >& pairs() const {return m_map;}
 
@@ -618,6 +700,13 @@ namespace PLEXIL
   class PlexilUpdateBody : public PlexilNodeBody {
   public:
     PlexilUpdateBody() : PlexilNodeBody() {}
+
+    ~PlexilUpdateBody()
+    {
+      if (m_update.isId())
+        delete (PlexilUpdate*) m_update;
+    }
+
     const PlexilUpdateId& update() const {return m_update;}
 
     void setUpdate(const PlexilUpdateId& update) {m_update = update;}
@@ -629,21 +718,17 @@ namespace PLEXIL
   {
   public:
     PlexilListBody() : PlexilNodeBody() {}
-    void addChild(const PlexilNodeId& child) {m_children.push_back(child);}
-    bool replaceChild(const PlexilNodeId& oldChild,
-                      const PlexilNodeId& newChild)
+
+    ~PlexilListBody()
     {
-      for(std::vector<PlexilNodeId>::iterator child = m_children.begin();
-          child != m_children.end(); ++child)
-        {
-          if (*child == oldChild)
-            {
-              *child = newChild;
-              return true;
-            }
-        }
-      return false;
+      for (std::vector<PlexilNodeId>::iterator it = m_children.begin();
+           it != m_children.end();
+           ++it)
+        delete (PlexilNode*) *it;
+      m_children.clear();
     }
+
+    void addChild(const PlexilNodeId& child) {m_children.push_back(child);}
     const std::vector<PlexilNodeId>& children() const {return m_children;}
   private:
     std::vector<PlexilNodeId> m_children;
@@ -661,6 +746,19 @@ namespace PLEXIL
     {
       setLibNodeName(libNodeName);
     }
+
+    ~PlexilLibNodeCallBody()
+    {
+      for (PlexilAliasMap::iterator it = m_aliases.begin();
+           it != m_aliases.end();
+           it = m_aliases.begin()) {
+        delete (PlexilExpr*) it->second;
+        m_aliases.erase(it);
+      }
+      if (m_libNode.isId())
+        delete (PlexilNode*) m_libNode;
+    }
+
     // getter for library node name
 
     const std::string& libNodeName() const {return m_libNodeName;}

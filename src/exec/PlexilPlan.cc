@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@ namespace PLEXIL {
       return NodeType_Empty;
     else if (typeName == LIBRARYNODECALL())
       return NodeType_LibraryNodeCall;
-	else
-	  return NodeType_error;
+        else
+          return NodeType_error;
   }
 
   const std::string& PlexilParser::nodeTypeString(PlexilNodeType nodeType)
@@ -89,63 +89,63 @@ namespace PLEXIL {
 
   PlexilType
   PlexilParser::parseValueTypePrefix(const std::string & str, 
-									 std::string::size_type prefixLen)
+                                                                         std::string::size_type prefixLen)
   {
-	switch (prefixLen) {
-	case 4: 
-	  if (0 == str.compare(0, prefixLen, REAL_STR()))
-		return PLEXIL::REAL;
-	  else if (0 == str.compare(0, prefixLen, TIME_STR()))
-		return PLEXIL::TIME;
-	  else if (0 == str.compare(0, prefixLen, BLOB_STR()))
-		return PLEXIL::BLOB;
-	  else 
-		return PLEXIL::UNKNOWN_TYPE;
+        switch (prefixLen) {
+        case 4: 
+          if (0 == str.compare(0, prefixLen, REAL_STR()))
+                return PLEXIL::REAL;
+          else if (0 == str.compare(0, prefixLen, TIME_STR()))
+                return PLEXIL::TIME;
+          else if (0 == str.compare(0, prefixLen, BLOB_STR()))
+                return PLEXIL::BLOB;
+          else 
+                return PLEXIL::UNKNOWN_TYPE;
 
-	case 5:
-	  if (0 == str.compare(0, prefixLen, ARRAY_STR()))
-		return PLEXIL::ARRAY;
-	  else
-		return PLEXIL::UNKNOWN_TYPE;
+        case 5:
+          if (0 == str.compare(0, prefixLen, ARRAY_STR()))
+                return PLEXIL::ARRAY;
+          else
+                return PLEXIL::UNKNOWN_TYPE;
 
-	case 6:
-	  if (0 == str.compare(0, prefixLen, STRING_STR()))
-		return PLEXIL::STRING;
-	  else
-		return PLEXIL::UNKNOWN_TYPE;
+        case 6:
+          if (0 == str.compare(0, prefixLen, STRING_STR()))
+                return PLEXIL::STRING;
+          else
+                return PLEXIL::UNKNOWN_TYPE;
 
-	case 7:
-	  if (0 == str.compare(0, prefixLen, INTEGER_STR()))
-		return PLEXIL::INTEGER;
-	  else if (0 == str.compare(0, prefixLen, BOOL_STR()))
-		return PLEXIL::BOOLEAN;
-	  else
-		return PLEXIL::UNKNOWN_TYPE;
+        case 7:
+          if (0 == str.compare(0, prefixLen, INTEGER_STR()))
+                return PLEXIL::INTEGER;
+          else if (0 == str.compare(0, prefixLen, BOOL_STR()))
+                return PLEXIL::BOOLEAN;
+          else
+                return PLEXIL::UNKNOWN_TYPE;
 
-	case 9:
-	  if (0 == str.compare(0, prefixLen, NODE_STATE_STR()))
-		return PLEXIL::NODE_STATE;
-	  else
-		return PLEXIL::UNKNOWN_TYPE;
+        case 9:
+          if (0 == str.compare(0, prefixLen, NODE_STATE_STR()))
+                return PLEXIL::NODE_STATE;
+          else
+                return PLEXIL::UNKNOWN_TYPE;
 
-	case 11:
-	  if (0 == str.compare(0, prefixLen, NODE_OUTCOME_STR()))
-		return PLEXIL::NODE_OUTCOME;
-	  else if (0 == str.compare(0, prefixLen, NODE_FAILURE_STR()))
-		return PLEXIL::FAILURE_TYPE;
-	  else
-		return PLEXIL::UNKNOWN_TYPE;
+        case 11:
+          if (0 == str.compare(0, prefixLen, NODE_OUTCOME_STR()))
+                return PLEXIL::NODE_OUTCOME;
+          else if (0 == str.compare(0, prefixLen, NODE_FAILURE_STR()))
+                return PLEXIL::FAILURE_TYPE;
+          else
+                return PLEXIL::UNKNOWN_TYPE;
 
-	case 17:
-	  if (0 == str.compare(0, prefixLen, NODE_COMMAND_HANDLE_STR()))
-		return PLEXIL::COMMAND_HANDLE;
-	  else
-		return PLEXIL::UNKNOWN_TYPE;
+        case 17:
+          if (0 == str.compare(0, prefixLen, NODE_COMMAND_HANDLE_STR()))
+                return PLEXIL::COMMAND_HANDLE;
+          else
+                return PLEXIL::UNKNOWN_TYPE;
       
-	  // default case
-	default:
-	  return PLEXIL::UNKNOWN_TYPE;
-	}
+          // default case
+        default:
+          return PLEXIL::UNKNOWN_TYPE;
+        }
   }
 
   const std::string& PlexilParser::valueTypeString(const PlexilType& typ)
@@ -153,30 +153,30 @@ namespace PLEXIL {
     switch (typ)
       {
       case PLEXIL::INTEGER:
-	return INTEGER_STR();
+        return INTEGER_STR();
       case PLEXIL::REAL:
-	return REAL_STR();
+        return REAL_STR();
       case PLEXIL::BOOLEAN:
-	return BOOL_STR();
+        return BOOL_STR();
       case PLEXIL::BLOB:
-	return BLOB_STR();
+        return BLOB_STR();
       case PLEXIL::STRING:
-	return STRING_STR();
+        return STRING_STR();
       case PLEXIL::TIME:
-	return TIME_STR();
+        return TIME_STR();
       case PLEXIL::ARRAY:
-	return ARRAY_STR();
+        return ARRAY_STR();
       case PLEXIL::NODE_STATE:
-	return NODE_STATE_STR();
+        return NODE_STATE_STR();
       case PLEXIL::NODE_OUTCOME:
-	return NODE_OUTCOME_STR();
+        return NODE_OUTCOME_STR();
       case PLEXIL::FAILURE_TYPE:
-	return NODE_FAILURE_STR();
+        return NODE_FAILURE_STR();
       case PLEXIL::COMMAND_HANDLE:
-	return NODE_COMMAND_HANDLE_STR();
+        return NODE_COMMAND_HANDLE_STR();
 
       default:
-	return UNKNOWN_STR();
+        return UNKNOWN_STR();
       }
   }
 
@@ -215,14 +215,26 @@ namespace PLEXIL {
   {}
 
   PlexilNode::~PlexilNode() {
-    m_id.remove();
     //delete everything here
     //     cleanup(m_declarations);
     //     cleanup(m_conditions);
-    //     if(m_nodeBody.isValid())
-    //       delete m_nodeBody;
-    //     if(m_intf.isValid())
-    //       delete m_intf;
+    if (m_intf.isId())
+      delete (PlexilInterface*) m_intf;
+    if (m_nodeBody.isId())
+      delete (PlexilNodeBody*) m_nodeBody;
+    for (std::map<std::string, PlexilExprId>::iterator it = m_conditions.begin();
+         it != m_conditions.end();
+         it = m_conditions.begin()) {
+      delete (PlexilExpr*) it->second;
+      m_conditions.erase(it);
+    }
+    for (std::vector<PlexilVarId>::iterator it = m_declarations.begin();
+         it != m_declarations.end();
+         ++it) {
+      delete (PlexilVar*) *it;
+    }
+    m_declarations.clear();
+    m_id.remove();
   }
 
   /**
@@ -240,11 +252,11 @@ namespace PLEXIL {
   template <typename T>
   void insertUnique(std::vector<T>& vec, const T& thing)
   {
-	for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-	  if (*it == thing)
-		return;
-	}
-	vec.push_back(thing);
+        for (typename std::vector<T>::const_iterator it = vec.begin(); it != vec.end(); ++it) {
+          if (*it == thing)
+                return;
+        }
+        vec.push_back(thing);
   }
 
   /**
@@ -256,23 +268,23 @@ namespace PLEXIL {
 
     case NodeType_LibraryNodeCall: {
       const Id<PlexilLibNodeCallBody> callBody = (const Id<PlexilLibNodeCallBody>) m_nodeBody;
-	  // FIXME: move check up into XML parser
+          // FIXME: move check up into XML parser
       checkError(callBody.isId(),
-		 "PlexilNode::getLibraryReferences: node is not a library call node");
+                 "PlexilNode::getLibraryReferences: node is not a library call node");
       insertUnique(refs, callBody->libNodeName());
       break;
     }
 
     case NodeType_NodeList: {
       const Id<PlexilListBody> listBody = (const Id<PlexilListBody>) m_nodeBody;
-	  // FIXME: move check up into XML parser
+          // FIXME: move check up into XML parser
       checkError(listBody.isId(),
-		 "PlexilNode::getLibraryReferences: node is not a list node");
+                 "PlexilNode::getLibraryReferences: node is not a list node");
       const std::vector<PlexilNodeId>& kids = listBody->children();
       for (std::vector<PlexilNodeId>::const_iterator it = kids.begin();
-	   it != kids.end();
-	   ++it) {
-	(*it)->getLibraryReferences(refs);
+           it != kids.end();
+           ++it) {
+        (*it)->getLibraryReferences(refs);
       }
       break;
     }
@@ -284,8 +296,16 @@ namespace PLEXIL {
 
   PlexilInterface::~PlexilInterface() {
     m_id.remove();
-    //     cleanup(m_in);
-    //     cleanup(m_inOut);
+    for (std::vector<PlexilVarRef*>::iterator it = m_in.begin();
+         it != m_in.end();
+         it++)
+      delete *it;
+    m_in.clear();
+    for (std::vector<PlexilVarRef*>::iterator it = m_inOut.begin();
+         it != m_inOut.end();
+         it++)
+      delete *it;
+    m_inOut.clear();
   }
 
   // find a variable in the set of In variables
@@ -311,10 +331,10 @@ namespace PLEXIL {
   const PlexilVarRef* PlexilInterface::findInVar(const std::string& target)
   {
     for (std::vector<PlexilVarRef*>::const_iterator var = m_in.begin();
-	 var != m_in.end(); ++var)
+         var != m_in.end(); ++var)
       {
-	if (target == (*var)->name())
-	  return *var;
+        if (target == (*var)->name())
+          return *var;
       }
     return NULL;
   }
@@ -323,10 +343,10 @@ namespace PLEXIL {
   const PlexilVarRef* PlexilInterface::findInOutVar(const std::string& target)
   {
     for (std::vector<PlexilVarRef*>::const_iterator var = m_inOut.begin();
-	 var != m_inOut.end(); ++var)
+         var != m_inOut.end(); ++var)
       {
-	if (target == (*var)->name())
-	  return *var;
+        if (target == (*var)->name())
+          return *var;
       }
     return NULL;
   }
@@ -342,14 +362,14 @@ namespace PLEXIL {
   PlexilValue::PlexilValue(const PlexilType& type, const std::string& value)
     : PlexilExpr(), m_type(type), m_value(value)
   {
-	// FIXME: this allocates a string that could be a constant
+        // FIXME: this allocates a string that could be a constant
     setName(PlexilParser::valueTypeString(m_type) + "Value");
   }
 
   PlexilArrayValue::PlexilArrayValue(
-				     const PlexilType& type,
-				     unsigned maxSize,
-				     const std::vector<std::string>& values)
+                                     const PlexilType& type,
+                                     unsigned maxSize,
+                                     const std::vector<std::string>& values)
     : PlexilValue(type), m_maxSize(maxSize), m_values(values)
   {
     setName("ArrayValue");
@@ -357,61 +377,63 @@ namespace PLEXIL {
 
   void PlexilVarRef::setVariable(const PlexilVarId& var)
   {
-	m_variable = var;
-	this->setName(var->name());
-	setType(var->type());
-	if (var->value() != NULL) {
-	  setDefaultValue(var->value()->getId());
-	}
+        m_variable = var;
+        this->setName(var->name());
+        setType(var->type());
+        if (var->value() != NULL) {
+          setDefaultValue(var->value()->getId());
+        }
   }
    
   PlexilVar::PlexilVar(const std::string& name, const PlexilType& type)
     : PlexilExpr(),
-	  m_type(type),
+          m_type(type),
       m_varId(this, PlexilExpr::getId()), 
       m_value(NULL)
   {
-	setName(name);
+        setName(name);
   }
    
   PlexilVar::PlexilVar(const std::string& name, const PlexilType& type, 
-					   const std::string& value)
+                                           const std::string& value)
     : PlexilExpr(),
-	  m_type(type),
+          m_type(type),
       m_varId(this, PlexilExpr::getId()), 
       m_value(new PlexilValue(type, value))
   {
-	setName(name);
+        setName(name);
   }
    
   PlexilVar::PlexilVar(const std::string& name, const PlexilType& type, 
-		       PlexilValue* value)
+                       PlexilValue* value)
     : PlexilExpr(),
-	  m_type(type),
+          m_type(type),
       m_varId(this, PlexilExpr::getId()),
       m_value(value)
   {
-	setName(name);
+        setName(name);
   }
    
   PlexilVar::~PlexilVar()
   {
+    if (m_value)
+      delete m_value;
     m_varId.removeDerived(PlexilExpr::getId());
   }
    
 
   PlexilArrayVar::PlexilArrayVar(const std::string& name, 
-				 const PlexilType& type, 
-				 const unsigned maxSize)
+                                 const PlexilType& type, 
+                                 const unsigned maxSize)
     : PlexilVar(name, type, NULL),
       m_maxSize(maxSize)
   {
   }
 
   PlexilArrayVar::PlexilArrayVar(const std::string& name, 
-				 const PlexilType& type, 
-				 const unsigned maxSize, 
-				 std::vector<std::string>& values)
+                                 const PlexilType& type, 
+                                 const unsigned maxSize, 
+                                 std::vector<std::string>& values)
     : PlexilVar(name, type, new PlexilArrayValue(type, maxSize, values)),
       m_maxSize(maxSize)
   {
@@ -419,7 +441,6 @@ namespace PLEXIL {
    
   PlexilArrayVar::~PlexilArrayVar() 
   {
-    //m_id.remove();
   }
 
 
@@ -434,6 +455,11 @@ namespace PLEXIL {
     m_arrayName = name;
   }
 
+  PlexilVarRef::~PlexilVarRef()
+  {
+    if (m_defaultValue.isId())
+      delete (PlexilExpr*) m_defaultValue;
+  }
 
   // wrapper call for link which creates the seen library nodes
   // data structure before calling the recursive linker
@@ -457,27 +483,27 @@ namespace PLEXIL {
 
       // find the referenced library
       std::map<std::string, PlexilNodeId>::const_iterator libraryIt = 
-	libraries.find(body->libNodeName());
+        libraries.find(body->libNodeName());
       if (libraryIt == libraries.end()) {
-	// Report unresolved library call error
-	debugMsg("PlexilPlan:link", "Unresolved library call: " << body->libNodeName());
-	return false;
+        // Report unresolved library call error
+        debugMsg("PlexilPlan:link", "Unresolved library call: " << body->libNodeName());
+        return false;
       }
 
       // found it -- test for a circular library reference
       PlexilNodeId library = libraryIt->second;
       for (PlexilNodeSet::iterator seenLib = seen.begin(); 
-	   seenLib != seen.end();
-	   ++seenLib)
-	{
-	  if (*seenLib == library.operator->()) {
-	    // TODO: show entire chain of references
-	    debugMsg("PlexilPlan:link",
-		     " Circular library reference: "
-		     << body->libNodeName());
-	    return false;
-	  }
-	}
+           seenLib != seen.end();
+           ++seenLib)
+        {
+          if (*seenLib == library.operator->()) {
+            // TODO: show entire chain of references
+            debugMsg("PlexilPlan:link",
+                     " Circular library reference: "
+                     << body->libNodeName());
+            return false;
+          }
+        }
 
       // link the the two nodes
       body->setLibNode(library);
@@ -487,7 +513,7 @@ namespace PLEXIL {
 
       // resolve any library calls in the library,
       if (!library->link(libraries, seen)) 
-	return false;
+        return false;
 
       // now remove said item from the seen set (pop the stack)
       seen.pop_back();
@@ -502,10 +528,10 @@ namespace PLEXIL {
       Id<PlexilListBody> & body = (Id<PlexilListBody> &)m_nodeBody;
       const std::vector<PlexilNodeId>& children = body->children();
       for(std::vector<PlexilNodeId>::const_iterator child = children.begin();
-	  child != children.end();
-	  ++child) {
-	if (!(*child)->link(libraries, seen))
-	  return false;
+          child != children.end();
+          ++child) {
+        if (!(*child)->link(libraries, seen))
+          return false;
       }
       return true;
     }
