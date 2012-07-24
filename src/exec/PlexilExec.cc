@@ -77,6 +77,13 @@ namespace PLEXIL
     for (std::list<NodeId>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
       delete (Node*) (*it);
     delete (StateCache*) m_cache;
+    // Delete libraries
+    for (std::map<std::string, PlexilNodeId>::iterator it = m_libraries.begin();
+         it != m_libraries.end();
+         it = m_libraries.begin()) {
+      delete (PlexilNode*) it->second;
+      m_libraries.erase(it);
+    }
     m_id.removeDerived(ExecConnector::getId());
   }
 
