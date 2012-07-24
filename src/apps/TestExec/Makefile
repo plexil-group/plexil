@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src \
  ../../utils \
  ../../exec
 LIB_PATH	+=
-LIBS		+= pugixml PlexilSockets LuvListener PlanDebugListener PlexilUtils PlexilExec $(PTHREAD_LIB)
+LIBS		+= pugixml LuvListener PlexilSockets PlanDebugListener PlexilExec PlexilUtils $(PTHREAD_LIB) $(DLOPEN_LIB)
 
 SRC		:= ExecTestRunner.cc exec-test-runner.cc
 INC		:= ExecTestRunner.hh
