@@ -482,6 +482,9 @@ namespace PLEXIL
 	  debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec because stepFirst is set");
 	  m_exec.step();
 	}
+    else {
+      m_exec.deleteFinishedPlans();
+    }
     while (!m_suspended && 
 		   (m_exec.needsStep() || m_interface.processQueue())) {
 	  debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
