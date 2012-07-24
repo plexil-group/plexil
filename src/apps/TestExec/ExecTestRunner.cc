@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ int ExecTestRunner::run(int argc, char** argv)
   bool luvBlock = false;
   string
     usage(
-		  "Usage: exec-test-runner -s <script> -p <plan>\n\
+          "Usage: exec-test-runner -s <script> -p <plan>\n\
                         [-l <library>]*\n\
                         [-L <library-dir>]*\n\
                         [-d <debug_config_file>]\n\
@@ -72,89 +72,89 @@ int ExecTestRunner::run(int argc, char** argv)
   // if not enough parameters, print usage
 
   if (argc < 5) {
-	if (argc >= 2 && strcmp(argv[1], "-h") == 0) {
-	  // print usage and exit
-	  std::cout << usage << std::endl;
-	  return 0;
-	}
-	warn("Not enough arguments.\n At least the -p and -s arguments must be provided.\n" << usage);
+    if (argc >= 2 && strcmp(argv[1], "-h") == 0) {
+      // print usage and exit
+      std::cout << usage << std::endl;
+      return 0;
+    }
+    warn("Not enough arguments.\n At least the -p and -s arguments must be provided.\n" << usage);
     return -1;
   }
   // parse out parameters
 
   for (int i = 1; i < argc; ++i) {
     if (strcmp(argv[i], "-p") == 0) {
-	  if (argc == (++i)) {
-		warn("Missing argument to the " << argv[i-1] << " option.\n"
-			 << usage);
-		return -1;
-	  }
+      if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return -1;
+      }
       planName = argv[i];
-	}
+    }
     else if (strcmp(argv[i], "-s") == 0) {
-	  if (argc == (++i)) {
-		warn("Missing argument to the " << argv[i-1] << " option.\n"
-			 << usage);
-		return -1;
-	  }
+      if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return -1;
+      }
       scriptName = argv[i];
-	}
+    }
     else if (strcmp(argv[i], "-l") == 0) {
-	  if (argc == (++i)) {
-		warn("Missing argument to the " << argv[i-1] << " option.\n"
-			 << usage);
-		return -1;
-	  }
+      if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return -1;
+      }
       libraryNames.push_back(argv[i]);
-	}
+    }
     else if (strcmp(argv[i], "-L") == 0) {
-	  if (argc == (++i)) {
-		warn("Missing argument to the " << argv[i-1] << " option.\n"
-			 << usage);
-		return -1;
-	  }
+      if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return -1;
+      }
       libraryPaths.push_back(argv[i]);
-	}
+    }
     else if (strcmp(argv[i], "-d") == 0) {
-	  if (argc == (++i)) {
-		warn("Missing argument to the " << argv[i-1] << " option.\n"
-			 << usage);
-		return -1;
-	  }
+      if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return -1;
+      }
       debugConfig = string(argv[i]);
-	}
+    }
     else if (strcmp(argv[i], "-v") == 0)
       luvRequest = true;
     else if (strcmp(argv[i], "-b") == 0)
       luvBlock = true;
     else if (strcmp(argv[i], "-h") == 0) {
-	  if (argc == (++i)) {
-		warn("Missing argument to the " << argv[i-1] << " option.\n"
-			 << usage);
-		return -1;
-	  }
+      if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return -1;
+      }
       luvHost = argv[i];
-	}
+    }
     else if (strcmp(argv[i], "-n") == 0) {
-	  if (argc == (++i)) {
-		warn("Missing argument to the " << argv[i-1] << " option.\n"
-			 << usage);
-		return -1;
-	  }
+      if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return -1;
+      }
       std::istringstream buffer(argv[i]);
       buffer >> luvPort;
       SHOW(luvPort);
     } 
-	else if (strcmp(argv[i], "-log") == 0) {
-	  if (argc == (++i)) {
-		warn("Missing argument to the " << argv[i-1] << " option.\n"
-			 << usage);
-		return -1;
-	  }
+    else if (strcmp(argv[i], "-log") == 0) {
+      if (argc == (++i)) {
+        warn("Missing argument to the " << argv[i-1] << " option.\n"
+             << usage);
+        return -1;
+      }
       Logging::ENABLE_LOGGING = 1;
       Logging::set_log_file_name(argv[i]);
     }
-	else if (strcmp(argv[i], "-eprompt") == 0)
+    else if (strcmp(argv[i], "-eprompt") == 0)
       Logging::ENABLE_E_PROMPT = 1;
     else if (strcmp(argv[i], "-wprompt") == 0)
       Logging::ENABLE_W_PROMPT = 1;
@@ -222,31 +222,31 @@ int ExecTestRunner::run(int argc, char** argv)
       warn("WARNING: Unable to connect to Plexil Viewer: " << endl
            << "  address: " << luvHost << ":" << luvPort << endl
            << "Execution will continue without the viewer.");
-	  delete ll;
+      delete ll;
     }
   }
 
   // if specified on command line, load libraries
 
   for (vector<string>::const_iterator libraryName = libraryNames.begin(); 
-	   libraryName != libraryNames.end();
-	   ++libraryName) {
-	pugi::xml_document libraryXml;
-	pugi::xml_parse_result parseResult = libraryXml.load_file(libraryName->c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
-	if (parseResult.status != pugi::status_ok) {
-	  warn("XML error parsing library file '" << *libraryName
-		   << "' (offset " << parseResult.offset
-		   << "):\n" << parseResult.description());
-	  return -1;
-	}
+       libraryName != libraryNames.end();
+       ++libraryName) {
+    pugi::xml_document libraryXml;
+    pugi::xml_parse_result parseResult = libraryXml.load_file(libraryName->c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+    if (parseResult.status != pugi::status_ok) {
+      warn("XML error parsing library file '" << *libraryName
+           << "' (offset " << parseResult.offset
+           << "):\n" << parseResult.description());
+      return -1;
+    }
 
     PlexilNodeId libnode;
     try {
       libnode =
         PlexilXmlParser::parse(libraryXml.document_element().child("PlexilPlan").child("Node"));
     } 
-	catch (ParserException& e) {
-	  warn("XML error parsing library '" << *libraryName << "':\n" << e.what());
+    catch (ParserException& e) {
+      warn("XML error parsing library '" << *libraryName << "':\n" << e.what());
       return -1;
     }
 
@@ -257,55 +257,55 @@ int ExecTestRunner::run(int argc, char** argv)
   pugi::xml_document plan;
   pugi::xml_parse_result parseResult = plan.load_file(planName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
   if (parseResult.status != pugi::status_ok) {
-	warn("XML error parsing plan file '" << planName
-		 << "' (offset " << parseResult.offset
-		 << "):\n" << parseResult.description());
-	return -1;
+    warn("XML error parsing plan file '" << planName
+         << "' (offset " << parseResult.offset
+         << "):\n" << parseResult.description());
+    return -1;
   }
 
   PlexilNodeId root;
   try {
-	root =
-	  PlexilXmlParser::parse(plan.document_element().child("Node"));
+    root =
+      PlexilXmlParser::parse(plan.document_element().child("Node"));
   }
   catch (ParserException& e) {
-	warn("XML error parsing plan '" << planName << "':\n" << e.what());
-	return -1;
+    warn("XML error parsing plan '" << planName << "':\n" << e.what());
+    return -1;
   }
 
   {
-	// Check whether all libraries for this plan are loaded
-	// and try to load those that aren't
-	vector<string> libs = root->getLibraryReferences();
-	// N.B. libs is likely growing during this operation, 
-	// so we can't use a traditional iterator.
-	for (unsigned int i = 0; i < libs.size(); i++) {
-	  // COPY the string because its location may change out from under us!
-	  const std::string libname(libs[i]);
+    // Check whether all libraries for this plan are loaded
+    // and try to load those that aren't
+    vector<string> libs = root->getLibraryReferences();
+    // N.B. libs is likely growing during this operation, 
+    // so we can't use a traditional iterator.
+    for (unsigned int i = 0; i < libs.size(); i++) {
+      // COPY the string because its location may change out from under us!
+      const std::string libname(libs[i]);
 
-	  PlexilNodeId libroot = exec->getLibrary(libname);
-	  if (libroot.isNoId()) {
-		// Try to load the library
-		libroot = PlexilXmlParser::findLibraryNode(libname, libraryPaths);
-		if (libroot.isNoId()) {
-		  warn("Adding plan " << planName
-			   << " failed because library " << libname
-			   << " could not be loaded");
-		  return -1;
-		}
+      PlexilNodeId libroot = exec->getLibrary(libname);
+      if (libroot.isNoId()) {
+        // Try to load the library
+        libroot = PlexilXmlParser::findLibraryNode(libname, libraryPaths);
+        if (libroot.isNoId()) {
+          warn("Adding plan " << planName
+               << " failed because library " << libname
+               << " could not be loaded");
+          return -1;
+        }
 
-		// add the library node
-		exec->addLibraryNode(libroot);
-	  }
+        // add the library node
+        exec->addLibraryNode(libroot);
+      }
 
-	  // Make note of any dependencies in the library itself
-	  libroot->getLibraryReferences(libs);
-	}
+      // Make note of any dependencies in the library itself
+      libroot->getLibraryReferences(libs);
+    }
   }
 
   if (!exec->addPlan(root)) {
-	warn("Adding plan " << planName << " failed");
-	return -1;
+    warn("Adding plan " << planName << " failed");
+    return -1;
   }
 
   // load script
@@ -316,7 +316,7 @@ int ExecTestRunner::run(int argc, char** argv)
     checkParserException(false,
                          "(offset " << parseResult.offset
                          << ") XML error parsing script '" << scriptName << "': "
-						 << parseResult.description());
+                         << parseResult.description());
     return -1;
   }
   // execute plan
