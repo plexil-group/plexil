@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@ EXECUTABLE	:= PlexilSimulator
 SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
 
-LIBS		+= ipc pugixml PlexilUtils IpcUtils standalonesimulator
+LIBS		+= pugixml standalonesimulator IpcUtils ipc PlexilUtils $(PTHREAD_LIB)
 
 INC_DIRS 	+= .. $(PLEXIL_HOME)/src/utils \
                    $(PLEXIL_HOME)/third-party/ipc/src \

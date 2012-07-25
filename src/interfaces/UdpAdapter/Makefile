@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -50,7 +50,7 @@ OBJECTS := udp-utils.o
 all: $(TARGETS)
 
 $(TARGETS): $(OBJECTS)
-	$(CC) -Wall $@.cc -o $@ $^ -lstdc++ -lPlexilUtils -lpugixml -I../../utils -L../../utils -L../../../lib
+	$(CC) -Wall $@.cc -o $@ $^ -lstdc++ -lPlexilUtils -l$(PTHREAD_LIB) -lpugixml -I../../utils -L../../utils -L../../../lib
 
 cleaner: clean
 	$(RM) $(TARGETS) *.o

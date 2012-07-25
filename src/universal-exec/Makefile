@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ INC =
 
 INC_DIRS += $(PLEXIL_HOME)/third-party/pugixml/src \
 	    ../utils ../exec ../app-framework ../interfaces/LuvListener
-LIBS     += pugixml PlexilUtils PlexilExec PlexilSockets LuvListener PlanDebugListener dl PlexilAppFramework
+LIBS     += pugixml LuvListener PlexilSockets PlexilAppFramework PlanDebugListener PlexilExec PlexilUtils $(DLOPEN_LIB) $(PTHREAD_LIB) $(RT_LIB)
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 UNIVERSALEXEC_TARGET = universalExec
