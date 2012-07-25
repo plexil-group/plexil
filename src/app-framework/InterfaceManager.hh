@@ -512,6 +512,7 @@ namespace PLEXIL
      * @param planStruct The PlexilNode representation of the new plan.
      * @param parent The node which is the parent of the new node.
      * @return False if the plan references unloaded libraries, true otherwise.
+     * @note Deletes planStruct upon completion!
      */
     bool handleAddPlan(PlexilNodeId planStruct,
                        const LabelStr& parent);

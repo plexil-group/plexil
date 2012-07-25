@@ -1231,6 +1231,7 @@ namespace PLEXIL
         if (libroot.isNoId()) {
           debugMsg("InterfaceManager:handleAddPlan", 
                    " Plan references unloaded library node \"" << libname << "\"");
+          delete (PlexilNode*) planStruct;
           return false;
         }
         
