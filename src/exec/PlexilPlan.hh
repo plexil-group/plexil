@@ -755,8 +755,6 @@ namespace PLEXIL
         delete (PlexilExpr*) it->second;
         m_aliases.erase(it);
       }
-      if (m_libNode.isId())
-        delete (PlexilNode*) m_libNode;
     }
 
     // getter for library node name

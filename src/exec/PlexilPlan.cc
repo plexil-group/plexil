@@ -220,8 +220,10 @@ namespace PLEXIL {
     //     cleanup(m_conditions);
     if (m_intf.isId())
       delete (PlexilInterface*) m_intf;
+    m_intf = PlexilInterfaceId::noId();
     if (m_nodeBody.isId())
       delete (PlexilNodeBody*) m_nodeBody;
+    m_nodeBody = PlexilNodeBodyId::noId();
     for (std::map<std::string, PlexilExprId>::iterator it = m_conditions.begin();
          it != m_conditions.end();
          it = m_conditions.begin()) {
@@ -295,7 +297,6 @@ namespace PLEXIL {
   }
 
   PlexilInterface::~PlexilInterface() {
-    m_id.remove();
     for (std::vector<PlexilVarRef*>::iterator it = m_in.begin();
          it != m_in.end();
          it++)
@@ -306,6 +307,7 @@ namespace PLEXIL {
          it++)
       delete *it;
     m_inOut.clear();
+    m_id.remove();
   }
 
   // find a variable in the set of In variables
