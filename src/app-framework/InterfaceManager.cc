@@ -619,6 +619,7 @@ namespace PLEXIL
                    " (" << pthread_self() << ") addPlan failed!");
           // TODO: report back to whoever enqueued it
         }
+        delete (PlexilNode*) plan;
         needsStep = true;
         break;
 
@@ -627,7 +628,6 @@ namespace PLEXIL
 
         debugMsg("InterfaceManager:processQueue",
                  " (" << pthread_self() << ") Received library");
-        // *** TODO: check here for duplicates ***
         getExec()->addLibraryNode(plan);
         // no need to step here
         break;
