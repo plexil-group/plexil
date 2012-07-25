@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -396,20 +396,21 @@ namespace PLEXIL
 	}
 
     // parse XML into node structure
-    PlexilNodeId root;
-    try {
-      root = PlexilXmlParser::parse(plexilXml.child("Node"));
-    }
-    catch (const ParserException& e) {
-	  std::cerr << "Error parsing plan from XML: \n" << e.what() << std::endl;
-	  return false;
-	}
+    {
+      PlexilNodeId root;
+      try {
+        root = PlexilXmlParser::parse(plexilXml.child("Node"));
+      }
+      catch (const ParserException& e) {
+        std::cerr << "Error parsing plan from XML: \n" << e.what() << std::endl;
+        return false;
+      }
 
-    if (!m_interface.handleAddPlan(root, EMPTY_LABEL())) {
-	  std::cerr << "Plan loading failed due to missing library node(s)" << std::endl;
-      return false;
+      if (!m_interface.handleAddPlan(root, EMPTY_LABEL())) {
+        std::cerr << "Plan loading failed due to missing library node(s)" << std::endl;
+        return false;
+      }
     }
-
     debugMsg("ExecApplication:addPlan", " Plan added, stepping exec\n");
     m_interface.notifyOfExternalEvent();
     return true;
