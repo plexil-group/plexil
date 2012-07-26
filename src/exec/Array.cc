@@ -493,7 +493,7 @@ namespace PLEXIL
     m_arrayVariable->addListener(m_listener.getId());
 
     // initialize index expression
-    const std::vector<PlexilExprId>& subExprs = expr->subExprs();
+    const std::vector<PlexilExprId>& subExprs = arrayElement->subExprs();
     // *** update this if we ever support n-dimensional arrays ***
     checkError(subExprs.size() == 1, 
                subExprs.size()

@@ -36,7 +36,11 @@ namespace PLEXIL
   Calculable::Calculable(const PlexilExprId& expr, const NodeConnectorId& node)
     : Expression(), m_listener((Expression&) *this)
   {
-    const std::vector<PlexilExprId>& subExprs = expr->subExprs();
+    // confirm that we have an array element
+    checkError(Id<PlexilOp>::convertable(expr),
+               "Expected a PlexilOp.");
+    PlexilOp* op = (PlexilOp*) expr;
+    const std::vector<PlexilExprId>& subExprs = op->subExprs();
     for (std::vector<PlexilExprId>::const_iterator it = subExprs.begin(); 
 		 it != subExprs.end();
 		 ++it) {
