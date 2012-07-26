@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -80,8 +80,11 @@ DebugMessage::DebugMessage(const string& file,
                            const int& line,
                            const string& marker,
                            const bool& enabled)
-  : m_file(file), m_line(line), m_marker(marker),
-    m_enabled(enabled) {
+  : m_file(file), 
+    m_marker(marker),
+    m_line(line),
+    m_enabled(enabled)
+{
 }
 
 DebugMessage *DebugMessage::addMsg(const string &file, const int& line,
@@ -152,15 +155,15 @@ void DebugMessage::enableMatchingMsgs(const string& file,
 }
 
 void DebugMessage::disableMatchingMsgs(const string& file,
-				       const string& pattern) {
+                       const string& pattern) {
   if(file.length() < 1 && pattern.length() < 1)
     return;
 
   DebugPattern dp(file, pattern);
   enabledPatterns().erase(std::find(enabledPatterns().begin(), enabledPatterns().end(), dp));
   std::for_each(allMsgs().begin(),
-		allMsgs().end(),
-		DisableMatches(dp));
+        allMsgs().end(),
+        DisableMatches(dp));
 }
 
 bool DebugMessage::readConfigFile(std::istream& is)
@@ -177,30 +180,30 @@ bool DebugMessage::readConfigFile(std::istream& is)
     if (input.empty())
       continue;
 
-	// Find leftmost non-blank character
+    // Find leftmost non-blank character
     string::size_type left = input.find_first_not_of(sl_whitespace);
-	if (left == string::npos)
-	  continue; // line is all whitespace
+    if (left == string::npos)
+      continue; // line is all whitespace
 
-	// Find trailing comment, if any
-	string::size_type comment = input.find_first_of(sl_comment, left);
-	if (comment == left)
-	  continue; // line is a comment
+    // Find trailing comment, if any
+    string::size_type comment = input.find_first_of(sl_comment, left);
+    if (comment == left)
+      continue; // line is a comment
 
-	// Trim whitespace before comment
-	if (comment != string::npos)
-	  comment--; // start search just before comment
-	string::size_type right = input.find_last_not_of(sl_whitespace, comment);
-	right++; // point just past last non-blank char
+    // Trim whitespace before comment
+    if (comment != string::npos)
+      comment--; // start search just before comment
+    string::size_type right = input.find_last_not_of(sl_whitespace, comment);
+    right++; // point just past last non-blank char
 
-	string::size_type colon = input.find(":", left);
-	string content;
+    string::size_type colon = input.find(":", left);
+    string content;
     string pattern;
-	if (colon == string::npos || colon > right) {
-	  content = input.substr(left, right - left);
-	}
-	else {
-	  content = input.substr(left, colon - left);
+    if (colon == string::npos || colon > right) {
+      content = input.substr(left, right - left);
+    }
+    else {
+      content = input.substr(left, colon - left);
       pattern = input.substr(colon + 1, right - colon - 1);
     }
     enableMatchingMsgs(content, pattern);

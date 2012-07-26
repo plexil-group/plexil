@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -359,14 +359,14 @@ public:
    */
   inline void enable() {
     checkError(streamPtr()->good(), 
-	       "cannot enable debug message(s) without a good debug stream: " << 
-	       (streamPtr()->rdstate() & std::ostream::badbit ? " bad " : "") <<
-	       (streamPtr()->rdstate() & std::ostream::eofbit ? " eof " : "") <<
-	       (streamPtr()->rdstate() & std::ostream::failbit ? " fail " : "") <<
-	       (streamPtr()->rdstate() & std::ostream::goodbit ? " good???" : ""));
+           "cannot enable debug message(s) without a good debug stream: " << 
+           (streamPtr()->rdstate() & std::ostream::badbit ? " bad " : "") <<
+           (streamPtr()->rdstate() & std::ostream::eofbit ? " eof " : "") <<
+           (streamPtr()->rdstate() & std::ostream::failbit ? " fail " : "") <<
+           (streamPtr()->rdstate() & std::ostream::goodbit ? " good???" : ""));
     /*
     check_error(streamPtr()->good(), 
-	       "cannot enable debug message(s) without a good debug stream:",DebugErr::DebugStreamError());
+           "cannot enable debug message(s) without a good debug stream:",DebugErr::DebugStreamError());
     */
     m_enabled = true;
   }
@@ -464,14 +464,14 @@ private:
   std::string m_file;
 
   /**
-    @brief Line given when this instance was created.
-  */
-  int m_line;
-
-  /**
     @brief Marker given when this instance was created.
   */
   std::string m_marker;
+
+  /**
+    @brief Line given when this instance was created.
+  */
+  int m_line;
 
   /**
     @brief Whether this instance is 'enabled' or not.
@@ -589,7 +589,7 @@ private:
     explicit DisableMatches(const DebugPattern& p) : pattern(p) {}
     void operator() (DebugMessage* dm) {
       if(dm->matches(pattern))
-	dm->disable();
+    dm->disable();
     }
   };
 
