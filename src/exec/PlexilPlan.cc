@@ -208,16 +208,14 @@ namespace PLEXIL {
   }
    
   PlexilNode::PlexilNode()
-    : m_lineNo(0),
-      m_colNo(0),
+    : m_id(this),
       m_priority(WORST_PRIORITY),
-      m_id(this)
+      m_lineNo(0),
+      m_colNo(0)
   {}
 
   PlexilNode::~PlexilNode() {
     //delete everything here
-    //     cleanup(m_declarations);
-    //     cleanup(m_conditions);
     if (m_intf.isId())
       delete (PlexilInterface*) m_intf;
     m_intf = PlexilInterfaceId::noId();
@@ -362,9 +360,9 @@ namespace PLEXIL {
          
 
   PlexilValue::PlexilValue(const PlexilType& type, const std::string& value)
-    : PlexilExpr(), m_type(type), m_value(value)
+    : PlexilExpr(), m_value(value), m_type(type)
   {
-        // FIXME: this allocates a string that could be a constant
+    // FIXME: this allocates a string that could be a constant
     setName(PlexilParser::valueTypeString(m_type) + "Value");
   }
 

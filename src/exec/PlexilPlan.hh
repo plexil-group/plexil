@@ -194,19 +194,24 @@ namespace PLEXIL
     // Internal methods
     bool link(const std::map<std::string, PlexilNodeId>& libraries, PlexilNodeSet& seen);
 
-    PlexilNodeType m_nodeType;
-    int m_lineNo;
-    int m_colNo;
-    double m_priority;
-
+    // 8 byte alignment on 32 bit, 16 on 64
     PlexilNodeId m_id;
     PlexilInterfaceId m_intf;
     PlexilNodeBodyId m_nodeBody;
 
+    // 8 byte alignment
+    double m_priority;
+
+    // 4 byte alignment on 32 bit, 8 on 64
     std::string m_fileName;
     std::string m_nodeId;
     std::vector<PlexilVarId> m_declarations;
     std::map<std::string, PlexilExprId> m_conditions;
+
+    // 4 byte alignment on 32 and 64 (?)
+    int m_lineNo;
+    int m_colNo;
+    PlexilNodeType m_nodeType;
   };
   
   class PlexilInterface
@@ -235,34 +240,26 @@ namespace PLEXIL
 
   class PlexilExpr {
   public:
-    PlexilExpr() : m_lineNo(0), m_colNo(0), m_id(this) {}
+    PlexilExpr() : m_id(this), m_lineNo(0), m_colNo(0) {}
 
     virtual ~PlexilExpr() 
     {
-      for (std::vector<PlexilExprId>::iterator it = m_subExprs.begin();
-           it != m_subExprs.end();
-           ++it)
-        delete (PlexilExpr*) *it;
-      m_subExprs.clear();
       m_id.remove();
     }
     const PlexilExprId& getId() const {return m_id;}
     const std::string& name() const {return m_name;}
-    const std::vector<PlexilExprId>& subExprs() const {return m_subExprs;}
     int lineNo() const {return m_lineNo;}
     int colNo() const {return m_colNo;}
 
     void setName(const std::string& name);
-    void addSubExpr(PlexilExprId expr) {m_subExprs.push_back(expr);}
     void setLineNo(int n) {m_lineNo = n;}
     void setColNo(int n) {m_colNo = n;}
 
   private:
-    int m_lineNo;
-    int m_colNo;
     PlexilExprId m_id;
     std::string m_name;
-    std::vector<PlexilExprId> m_subExprs;
+    int m_lineNo;
+    int m_colNo;
   };
 
   class PlexilVarRef : public PlexilExpr
@@ -270,9 +267,9 @@ namespace PLEXIL
   public:
     PlexilVarRef() :
       PlexilExpr(),
-      m_typed(false),
+      m_defaultValue(PlexilExprId::noId()),
       m_type(PLEXIL::UNKNOWN_TYPE),
-      m_defaultValue(PlexilExprId::noId())
+      m_typed(false)
     {}
 
     ~PlexilVarRef();
@@ -295,40 +292,64 @@ namespace PLEXIL
     void setVariable(const PlexilVarId& var);
 
   private:
-    bool m_typed;
-    PlexilType m_type;
     PlexilExprId m_defaultValue;
     PlexilVarId m_variable;
+    PlexilType m_type;
+    bool m_typed;
   };
 
   class PlexilOp : public PlexilExpr {
   public:
     PlexilOp() : PlexilExpr() {}
-    const std::string& getOp() const {return m_op;}
+    virtual ~PlexilOp()
+    {
+      for (std::vector<PlexilExprId>::iterator it = m_subExprs.begin();
+           it != m_subExprs.end();
+           ++it)
+        delete (PlexilExpr*) *it;
+      m_subExprs.clear();
+    }
 
+    const std::string& getOp() const {return m_op;}
     void setOp(const std::string& op) {m_op = op; setName(op);}
+
+    const std::vector<PlexilExprId>& subExprs() const {return m_subExprs;}
+    void addSubExpr(PlexilExprId expr) {m_subExprs.push_back(expr);}
+
   private:
     std::string m_op;
+    std::vector<PlexilExprId> m_subExprs;
   };
 
   class PlexilArrayElement : public PlexilExpr {
   public:
     PlexilArrayElement();
+    virtual ~PlexilArrayElement()
+    {
+      for (std::vector<PlexilExprId>::iterator it = m_subExprs.begin();
+           it != m_subExprs.end();
+           ++it)
+        delete (PlexilExpr*) *it;
+      m_subExprs.clear();
+    }
 
     const std::string& getArrayName() const
     {
       return m_arrayName;
     }
-
     void setArrayName(const std::string& name);
+
+    const std::vector<PlexilExprId>& subExprs() const {return m_subExprs;}
+    void addSubExpr(PlexilExprId expr) {m_subExprs.push_back(expr);}
 
   private:
     std::string m_arrayName;
+    std::vector<PlexilExprId> m_subExprs;
   };
 
   class PlexilState {
   public:
-    PlexilState() : m_lineNo(0), m_colNo(0), m_id(this) {}
+    PlexilState() : m_id(this), m_lineNo(0), m_colNo(0) {}
 
     ~PlexilState()
     {
@@ -355,11 +376,11 @@ namespace PLEXIL
     void setColNo(int n) {m_colNo = n;}
 
   private:
-    int m_lineNo;
-    int m_colNo;
     PlexilStateId m_id;
     PlexilExprId m_nameExpr;
     std::vector<PlexilExprId> m_args;
+    int m_lineNo;
+    int m_colNo;
   };
 
   class PlexilLookup : public PlexilExpr {
@@ -409,8 +430,8 @@ namespace PLEXIL
     const PlexilType& type() const {return m_type;}
     const std::string& value() const {return m_value;}
   private:
-    PlexilType m_type;
     std::string m_value;
+    PlexilType m_type;
   };
 
   class PlexilArrayValue : public PlexilValue
@@ -475,7 +496,7 @@ namespace PLEXIL
   
   class PlexilNodeBody {
   public:
-    PlexilNodeBody() : m_lineNo(0), m_colNo(0), m_id(this) {}
+    PlexilNodeBody() : m_id(this), m_lineNo(0), m_colNo(0) {}
     virtual ~PlexilNodeBody() {m_id.remove();}
     const PlexilNodeBodyId& getId() const {return m_id;}
     int lineNo() const {return m_lineNo;}
@@ -484,9 +505,9 @@ namespace PLEXIL
     void setColNo(int n) {m_colNo = n;}
 
   private:
+    PlexilNodeBodyId m_id;
     int m_lineNo;
     int m_colNo;
-    PlexilNodeBodyId m_id;
   };
 
   class PlexilActionBody : public PlexilNodeBody {
@@ -668,7 +689,7 @@ namespace PLEXIL
 
   class PlexilUpdate {
   public:
-    PlexilUpdate() : m_lineNo(0), m_colNo(0), m_id(this) {}
+    PlexilUpdate() : m_id(this), m_lineNo(0), m_colNo(0) {}
 
     ~PlexilUpdate()
     {
@@ -690,10 +711,10 @@ namespace PLEXIL
     void setLineNo(int n) {m_lineNo = n;}
     void setColNo(int n) {m_colNo = n;}
   private:
-    int m_lineNo;
-    int m_colNo;
     PlexilUpdateId m_id;
     std::vector<std::pair<std::string, PlexilExprId> > m_map;
+    int m_lineNo;
+    int m_colNo;
   };
 
 
