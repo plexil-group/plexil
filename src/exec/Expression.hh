@@ -267,11 +267,6 @@ namespace PLEXIL {
     virtual bool checkValue(const double /* val */) {return false;}
 
     /**
-     * @brief Disregard to the expression value that has been cached. 
-     */
-    void ignoreCachedValue() {m_ignoreCachedValue = true;}
-
-    /**
      * @brief Notify this expression that a subexpression's value has changed.
      * @param exp The changed subexpression.
      * @note The default method does nothing.
@@ -317,14 +312,13 @@ namespace PLEXIL {
      */
     virtual void handleDeactivate(const bool /* changed */) {}
 
-    std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
     ExpressionId m_id; /*<! The Id for this Expression */
+    std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
     double m_value; /*<! The value of this expression*/
     double m_savedValue; /*<! The latest value computed for this expression while it was locked. */
     unsigned int m_activeCount;
     bool m_dirty; /*<! Marks whether or not this expression needs re-calculation.*/
     bool m_lock; /*<! The lock for this expression */
-    bool m_ignoreCachedValue; /*<! Disregard the m_value that has been cached when deciding to publissh a change*/
   };
 
   std::ostream& operator<<(std::ostream& s, const Expression& e);

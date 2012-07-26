@@ -68,8 +68,7 @@ namespace PLEXIL {
       m_savedValue(UNKNOWN()),
       m_activeCount(0), 
       m_dirty(false), 
-      m_lock(false), 
-      m_ignoreCachedValue(false)
+      m_lock(false)
   {
   }
 
@@ -239,7 +238,7 @@ namespace PLEXIL {
       bool changed = (m_value != value);
       m_value = value;
       m_dirty = false;
-      if(m_ignoreCachedValue || changed)
+      if (changed)
 		publishChange();
     }
   }
