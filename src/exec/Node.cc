@@ -1310,7 +1310,7 @@ namespace PLEXIL {
       return FINISHED_STATE;
     }
 
-    checkError(isAncestorInvariantConditionActive(),
+    checkError(getAncestorInvariantCondition()->isActive(), // isAncestorInvariantConditionActive(),
                "Node::getDestStateFromWaiting: Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
     if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
       debugMsg("Node:getDestState",
@@ -1334,10 +1334,10 @@ namespace PLEXIL {
       return FINISHED_STATE;
     }
 
-    checkError(isStartConditionActive(), 
+    checkError(getStartCondition()->isActive(), // isStartConditionActive(), 
                "Node::getDestStateFromWaiting: Start for " << m_nodeId.toString() << " is inactive.");
     if (getStartCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      checkError(isPreConditionActive(), 
+      checkError(getPreCondition()->isActive(), // isPreConditionActive(), 
                  "Node::getDestStateFromWaiting: Pre for " << m_nodeId.toString() << " is inactive.");
       if (getPreCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
         debugMsg("Node:getDestState",
