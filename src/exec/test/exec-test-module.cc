@@ -1094,27 +1094,25 @@ private:
   static bool lookupNow() {
     LookupTestNodeConnector node;
     TestInterface::instance()->setCache(node.getExec()->getStateCache());
-    PlexilState state1;
-    state1.setName("test1");
+    PlexilStateId state1 = (new PlexilState())->getId();
+    state1->setName("test1");
 
-    PlexilState state2;
-    state2.setName("test2");
-    PlexilValue high(PLEXIL::STRING, "high");
-    state2.addArg(high.getId());
+    PlexilStateId state2 = (new PlexilState())->getId();
+    state2->setName("test2");
+    state2->addArg((new PlexilValue(PLEXIL::STRING, "high"))->getId());
 
-    PlexilState state3;
-    state3.setName("test2");
-    PlexilValue low(PLEXIL::STRING, "low");
-    state3.addArg(low.getId());
+    PlexilStateId state3 = (new PlexilState())->getId();
+    state3->setName("test2");
+    state3->addArg((new PlexilValue(PLEXIL::STRING, "low"))->getId());
 
     PlexilLookupNow test1;
-    test1.setState(state1.getId());
+    test1.setState(state1);
 
     PlexilLookupNow test2;
-    test2.setState(state2.getId());
+    test2.setState(state2);
 
     PlexilLookupNow test3;
-    test3.setState(state3.getId());
+    test3.setState(state3);
 
     //need a fake NodeConnector that has a fake ExecConnector that will return a StateCache implementation
     LookupNow l1(test1.getId(), node.getId());
@@ -1134,17 +1132,16 @@ private:
   }
 
   static bool lookupOnChange() {
-    PlexilState state1;
-    state1.setName("changeTest");
+    PlexilStateId state1 = (new PlexilState())->getId();
+    state1->setName("changeTest");
     PlexilChangeLookup test1;
-    test1.setState(state1.getId());
+    test1.setState(state1);
 
-    PlexilState state2;
-    state2.setName("changeWithToleranceTest");
-    PlexilValue tolerance(PLEXIL::REAL, "0.5");
+    PlexilStateId state2 = (new PlexilState())->getId();
+    state2->setName("changeWithToleranceTest");
     PlexilChangeLookup test2;
-    test2.setState(state2.getId());
-    test2.addTolerance(tolerance.getId());
+    test2.setState(state2);
+    test2.addTolerance((new PlexilValue(PLEXIL::REAL, "0.5"))->getId());
 
 
     RealVariable watchVar(0.0);
