@@ -1585,11 +1585,11 @@ namespace PLEXIL
         toXml(*it, declarations);
     }
 
-    for (std::map<string, PlexilExprId>::const_iterator it = node->conditions().begin(); 
+    for (std::vector<std::pair<PlexilExprId, std::string> >::const_iterator it = node->conditions().begin(); 
          it != node->conditions().end();
          ++it) {
-      xml_node cond = appendElement(it->first.c_str(), retval);
-      toXml(it->second, cond);
+      xml_node cond = appendElement(it->second.c_str(), retval);
+      toXml(it->first, cond);
     }
 
     if (node->body().isValid())

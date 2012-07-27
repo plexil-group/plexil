@@ -490,7 +490,7 @@ namespace PLEXIL {
 
   private:
 
-    void createConditions(const std::map<std::string, PlexilExprId>& conds);
+    void createConditions(const std::vector<std::pair<PlexilExprId, std::string> >& conds);
 
     void createDeclaredVars(const std::vector<PlexilVarId>& vars);
 

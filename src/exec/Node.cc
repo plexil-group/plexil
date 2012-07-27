@@ -500,7 +500,7 @@ namespace PLEXIL {
     specializedPostInitLate(node);
   }
 
-  void Node::createConditions(const std::map<std::string, PlexilExprId>& conds) 
+  void Node::createConditions(const std::vector<std::pair<PlexilExprId, std::string> >& conds) 
   {
     // Attach listeners to ancestor invariant and ancestor end conditions
     // Root node doesn't need them because the default conditions are constants
@@ -525,10 +525,10 @@ namespace PLEXIL {
     createSpecializedConditions();
 
     // Add user-specified conditions
-    for (std::map<std::string, PlexilExprId>::const_iterator it = conds.begin(); 
+    for (std::vector<std::pair <PlexilExprId, std::string> >::const_iterator it = conds.begin(); 
          it != conds.end(); 
          ++it) {
-      const LabelStr condName(it->first);
+      const LabelStr condName(it->second);
       size_t condIdx = getConditionIndex(condName);
 
       // Delete existing condition if required
@@ -543,8 +543,8 @@ namespace PLEXIL {
       }
 
       m_conditions[condIdx] = 
-        ExpressionFactory::createInstance(it->second->name(), 
-                                          it->second,
+        ExpressionFactory::createInstance(it->first->name(), 
+                                          it->first,
                                           NodeConnector::getId(), 
                                           m_garbageConditions[condIdx]);
 

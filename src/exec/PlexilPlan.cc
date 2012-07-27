@@ -222,12 +222,12 @@ namespace PLEXIL {
     if (m_nodeBody.isId())
       delete (PlexilNodeBody*) m_nodeBody;
     m_nodeBody = PlexilNodeBodyId::noId();
-    for (std::map<std::string, PlexilExprId>::iterator it = m_conditions.begin();
+    for (std::vector<std::pair<PlexilExprId, std::string> >::iterator it = m_conditions.begin();
          it != m_conditions.end();
-         it = m_conditions.begin()) {
-      delete (PlexilExpr*) it->second;
-      m_conditions.erase(it);
+         ++it) {
+      delete (PlexilExpr*) it->first;
     }
+    m_conditions.clear();
     for (std::vector<PlexilVarId>::iterator it = m_declarations.begin();
          it != m_declarations.end();
          ++it) {

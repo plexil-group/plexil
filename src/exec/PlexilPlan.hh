@@ -160,7 +160,7 @@ namespace PLEXIL
     double priority() const {return m_priority;}
     const PlexilInterfaceId& interface() const {return m_intf;}
     const std::vector<PlexilVarId>& declarations() const {return m_declarations;}
-    const std::map<std::string, PlexilExprId>& conditions() const {return m_conditions;}
+    const std::vector<std::pair <PlexilExprId, std::string> >& conditions() const {return m_conditions;}
     const PlexilNodeBodyId& body() const {return m_nodeBody;}
 
     /**
@@ -180,7 +180,7 @@ namespace PLEXIL
     void setPriority(double priority) {m_priority = priority;}
     void addVariable(const PlexilVarId& var) {m_declarations.push_back(var);}
     void addCondition(const std::string& name, const PlexilExprId& expr)
-    {m_conditions.insert(std::make_pair(name, expr));}
+    {m_conditions.push_back(std::make_pair(expr, name));}
     void setBody(const PlexilNodeBodyId& body) {m_nodeBody = body;}
     void setInterface(const PlexilInterfaceId& intf) { m_intf = intf;}
 
@@ -206,7 +206,7 @@ namespace PLEXIL
     std::string m_fileName;
     std::string m_nodeId;
     std::vector<PlexilVarId> m_declarations;
-    std::map<std::string, PlexilExprId> m_conditions;
+    std::vector<std::pair<PlexilExprId, std::string> > m_conditions;
 
     // 4 byte alignment on 32 and 64 (?)
     int m_lineNo;
