@@ -78,7 +78,6 @@ namespace PLEXIL
   const char *INT_TAG = "Integer";
   const char *REAL_TAG = "Real";
   const char *BOOL_TAG = "Boolean";
-  const char *BLOB_TAG = "BLOB";
   const char *STRING_TAG = "String";
   const char *TIME_TAG = "Time";
   const char *ARRAY_TAG = "Array";
@@ -682,7 +681,6 @@ namespace PLEXIL
       s_exprParsers->insert(std::make_pair(string(STRING_TAG) + VAR_TAG, varRef));
       s_exprParsers->insert(std::make_pair(string(BOOL_TAG) + VAR_TAG, varRef));
       s_exprParsers->insert(std::make_pair(string(TIME_TAG) + VAR_TAG, varRef));
-      s_exprParsers->insert(std::make_pair(string(BLOB_TAG) + VAR_TAG, varRef));
 
       s_exprParsers->insert(std::make_pair(string(NODE_OUTCOME_TAG) + VAR_TAG,
                                            new PlexilOutcomeVarParser()));
@@ -701,7 +699,6 @@ namespace PLEXIL
       s_exprParsers->insert(std::make_pair(string(STRING_TAG) + VAL_TAG, val));
       s_exprParsers->insert(std::make_pair(string(BOOL_TAG) + VAL_TAG, val));
       s_exprParsers->insert(std::make_pair(string(TIME_TAG) + VAL_TAG, val));
-      s_exprParsers->insert(std::make_pair(string(BLOB_TAG) + VAL_TAG, val));
       s_exprParsers->insert(std::make_pair(string(NODE_OUTCOME_TAG) + VAL_TAG, val));
       s_exprParsers->insert(std::make_pair(string(NODE_FAILURE_TAG) + VAL_TAG, val));
       s_exprParsers->insert(std::make_pair(string(NODE_STATE_TAG) + VAL_TAG, val));

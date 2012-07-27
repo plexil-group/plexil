@@ -450,8 +450,6 @@ namespace PLEXIL
         return val == UNKNOWN() || val == 0.0 || val == 1.0;
       case STRING:
         return val == UNKNOWN() || LabelStr::isString(val);
-      case BLOB:
-        checkError(ALWAYS_FAIL, "Blobs not supported in arrays.");
       case ARRAY:
         checkError(ALWAYS_FAIL, "Arrarys of arrays not supported.");
       case TIME:

@@ -96,7 +96,6 @@ namespace PLEXIL
     DECLARE_STATIC_CLASS_CONST(std::string, INTEGER_STR, "Integer");
     DECLARE_STATIC_CLASS_CONST(std::string, REAL_STR, "Real");
     DECLARE_STATIC_CLASS_CONST(std::string, BOOL_STR, "Boolean");
-    DECLARE_STATIC_CLASS_CONST(std::string, BLOB_STR, "BLOB");
     DECLARE_STATIC_CLASS_CONST(std::string, ARRAY_STR, "Array");
     DECLARE_STATIC_CLASS_CONST(std::string, STRING_STR, "String");
     DECLARE_STATIC_CLASS_CONST(std::string, TIME_STR, "Time");

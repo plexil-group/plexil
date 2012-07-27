@@ -97,8 +97,6 @@ namespace PLEXIL {
                 return PLEXIL::REAL;
           else if (0 == str.compare(0, prefixLen, TIME_STR()))
                 return PLEXIL::TIME;
-          else if (0 == str.compare(0, prefixLen, BLOB_STR()))
-                return PLEXIL::BLOB;
           else 
                 return PLEXIL::UNKNOWN_TYPE;
 
@@ -158,8 +156,6 @@ namespace PLEXIL {
         return REAL_STR();
       case PLEXIL::BOOLEAN:
         return BOOL_STR();
-      case PLEXIL::BLOB:
-        return BLOB_STR();
       case PLEXIL::STRING:
         return STRING_STR();
       case PLEXIL::TIME:
