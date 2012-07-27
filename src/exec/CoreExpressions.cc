@@ -100,6 +100,7 @@ namespace PLEXIL
     this->setValue(ALL_STATES()[newValue].getKey());
   }
 
+  // Must be in same order as enum NodeState. See ExecDefs.hh.
   const std::vector<LabelStr>& StateVariable::ALL_STATES() {
     static std::vector<LabelStr>* allStates = NULL;
     if (allStates == NULL) {
@@ -108,10 +109,10 @@ namespace PLEXIL
       allStates->push_back(INACTIVE());
       allStates->push_back(WAITING());
       allStates->push_back(EXECUTING());
-      allStates->push_back(FINISHING());
+      allStates->push_back(ITERATION_ENDED());
       allStates->push_back(FINISHED());
       allStates->push_back(FAILING());
-      allStates->push_back(ITERATION_ENDED());
+      allStates->push_back(FINISHING());
       allStates->push_back(NO_STATE());
     }
     return *allStates;

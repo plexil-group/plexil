@@ -96,7 +96,9 @@ namespace PLEXIL
     checkError(factory != NULL, 
                "No NodeFactory registered for node type " << type.toString());
     NodeId result = factory->create(type, name, state, exec, parent);
-    // common post process here?
+    // common post process here
+    result->constructTimepointVariables();
+    result->activateInternalVariables();
     return result;
   }
 

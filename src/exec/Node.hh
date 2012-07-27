@@ -315,6 +315,10 @@ namespace PLEXIL {
     // Should only be used by LuvListener.
     const ExpressionId& getCondition(const LabelStr& name) const;
 
+    // NodeFactory::createNode for the module test needs these to be public.
+    void constructTimepointVariables();
+    virtual void activateInternalVariables();
+
   protected:
     friend class LibraryCallNode;
     friend class ListNode;
@@ -447,6 +451,9 @@ namespace PLEXIL {
     // Printing utility
     virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const;
 
+    // Node state limit
+    virtual NodeState nodeStateMax() const { return FINISHED_STATE; } // empty node method
+
     //
     // Common state
     //
@@ -494,9 +501,6 @@ namespace PLEXIL {
     void lockConditions();
 
     void unlockConditions();
-
-    // Make the node's internal variables active.
-    virtual void activateInternalVariables();
 
     // Deactivate the local variables
     void deactivateLocalVariables();

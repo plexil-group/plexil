@@ -110,10 +110,10 @@ namespace PLEXIL {
     INACTIVE_STATE = 0,
     WAITING_STATE,
     EXECUTING_STATE,
-    FINISHING_STATE,
-    FINISHED_STATE,
-    FAILING_STATE,
     ITERATION_ENDED_STATE,
+    FINISHED_STATE,
+    FAILING_STATE,           // All but empty nodes
+    FINISHING_STATE,         // Command, List/LibraryCall only
     NO_NODE_STATE,
     NODE_STATE_MAX
   };

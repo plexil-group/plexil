@@ -182,7 +182,6 @@ namespace PLEXIL {
       m_checkConditionsPending(false)
   {
     commonInit();
-    activateInternalVariables();
 
     for (size_t i = 0; i < conditionIndexMax; ++i) {
       ExpressionId expr = (new BooleanVariable(BooleanVariable::FALSE_VALUE(), false))->getId();
@@ -243,6 +242,7 @@ namespace PLEXIL {
     }
   }
 
+  // N.B.: called from base class constructor
   void Node::commonInit() {
     debugMsg("Node:node", "Instantiating internal variables...");
     // Instantiate state/outcome/failure variables
@@ -257,10 +257,18 @@ namespace PLEXIL {
     m_variablesByName[FAILURE_TYPE().getKey()] = m_failureTypeVariable =
       (new FailureVariable(m_nodeId.toString()))->getId();
 
-    //instantiate timepoint variables
-    // FIXME: Don't instantiate variables for node states that node type doesn't implement
+    // initialize m_garbageConditions
+    for (size_t i = 0; i < conditionIndexMax; ++i) {
+      m_garbageConditions[i] = false;
+    }
+  }
+
+  // instantiate timepoint variables, but only for states node can actually reach
+  // N.B.: can't call this from base class constructor.
+  void Node::constructTimepointVariables()
+  {
     debugMsg("Node:node", "Instantiating timepoint variables.");
-    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
+    for (int s = INACTIVE_STATE; s <= nodeStateMax(); ++s) {
       ExpressionId stp = (new RealVariable())->getId();
       double stpName = START_TIMEPOINT_NAMES()[s];
       m_startTimepoints[s] = m_variablesByName[stpName] = stp;
@@ -268,11 +276,6 @@ namespace PLEXIL {
       ExpressionId etp = (new RealVariable())->getId();
       const LabelStr& etpName = END_TIMEPOINT_NAMES()[s];
       m_endTimepoints[s] = m_variablesByName[etpName] = etp;
-    }
-
-    // initialize m_garbageConditions
-    for (size_t i = 0; i < conditionIndexMax; ++i) {
-      m_garbageConditions[i] = false;
     }
   }
 
@@ -484,6 +487,8 @@ namespace PLEXIL {
     checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
     m_postInitCalled = true;
 
+    constructTimepointVariables();
+    
     // create assignment/command/update
     specializedPostInit(node);
 
@@ -900,6 +905,7 @@ namespace PLEXIL {
   {
   }
 
+  // Called from base class destructor and possibly derived as well.
   void Node::cleanUpVars() 
   {
     if (m_cleanedVars)
@@ -921,10 +927,12 @@ namespace PLEXIL {
     m_localVariables.clear();
 
     // Delete timepoint variables
-    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
-      delete (Variable*) m_startTimepoints[s];
-      delete (Variable*) m_endTimepoints[s];
-      m_startTimepoints[s] = m_endTimepoints[s] = VariableId::noId();
+    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
+      if (m_startTimepoints[s].isId()) {
+        delete (Variable*) m_startTimepoints[s];
+        delete (Variable*) m_endTimepoints[s];
+        m_startTimepoints[s] = m_endTimepoints[s] = VariableId::noId();
+      }
     }
 
     // Delete internal variables
@@ -955,13 +963,11 @@ namespace PLEXIL {
   {
     // Activate internal variables
     m_stateVariable->activate();
-    // TODO: figure out if these should be activated on entering EXECUTING state
     m_outcomeVariable->activate();
     m_failureTypeVariable->activate();
 
     // Activate timepoints
-    // TODO: figure out if they should be inactive until entering the corresponding state
-    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
+    for (int s = INACTIVE_STATE; s <= nodeStateMax(); ++s) {
       m_startTimepoints[s]->activate();
       m_endTimepoints[s]->activate();
     }
@@ -1705,7 +1711,7 @@ namespace PLEXIL {
 
   // Some transition handlers call this twice.
   void Node::setState(NodeState newValue) {
-    checkError(newValue < NO_NODE_STATE,
+    checkError(newValue <= nodeStateMax(),
                "Attempted to set an invalid NodeState value");
     if (newValue == m_state)
       return;
@@ -2178,7 +2184,7 @@ namespace PLEXIL {
     m_failureTypeVariable->reset();
 
     //reset timepoints
-    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
+    for (int s = INACTIVE_STATE; s <= nodeStateMax(); ++s) {
       m_startTimepoints[s]->reset();
       m_endTimepoints[s]->reset();
     }

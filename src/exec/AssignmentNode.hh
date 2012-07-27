@@ -88,6 +88,9 @@ namespace PLEXIL
     virtual void transitionToExecuting();
     virtual void transitionToFailing();
 
+    // Node state limit
+    virtual NodeState nodeStateMax() const { return FAILING_STATE; }
+
   private:
 
     void createAssignment(const PlexilAssignmentBody* body);

@@ -96,6 +96,9 @@ namespace PLEXIL
     // Shared with derived class LibraryCallNode
     std::vector<NodeId> m_children; /*<! Vector of child nodes. */
 
+    // Node state limit, shared with LibraryCallNode
+    virtual NodeState nodeStateMax() const { return FINISHING_STATE; }
+
   private:
 
     void createChildNodes(const PlexilListBody* body);

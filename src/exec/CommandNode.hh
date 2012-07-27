@@ -94,6 +94,9 @@ namespace PLEXIL
 
     virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const;
 
+    // Node state limit
+    virtual NodeState nodeStateMax() const { return FINISHING_STATE; }
+
   private:
 
     void createCommand(const PlexilCommandBody* body);
