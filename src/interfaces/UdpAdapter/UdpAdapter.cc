@@ -807,8 +807,8 @@ namespace PLEXIL
             for (unsigned int i = 0 ; i < size ; i++)
               {
                 float temp = array[i];
-                assertTrueMsg(FLT_MIN <= temp && temp <= FLT_MAX,
-                              "buildUdpBuffer: Reals (floats) must be between " << FLT_MIN << " and " << FLT_MAX <<
+                assertTrueMsg((-FLT_MAX) <= temp && temp <= FLT_MAX,
+                              "buildUdpBuffer: Reals (floats) must be between " << (-FLT_MAX) << " and " << FLT_MAX <<
                               ", " << temp << " is not");
                 encode_float(temp, buffer, start_index);
                 start_index += len;
@@ -819,9 +819,8 @@ namespace PLEXIL
             float temp = plexil_val;
             assertTrueMsg(len==4, "buildUdpBuffer: Reals must be 4 bytes, not " << len);
             // Catch really big floats
-            assertTrueMsg(FLT_MIN <= plexil_val && plexil_val <= FLT_MAX,
-                          //(FLT_MIN <= plexil_val) && (FLT_MAX >= plexil_val),
-                          "buildUdpBuffer: Reals (floats) must be between " << FLT_MIN << " and " << FLT_MAX <<
+            assertTrueMsg((-FLT_MAX) <= plexil_val && plexil_val <= FLT_MAX,
+                          "buildUdpBuffer: Reals (floats) must be between " << (-FLT_MAX) << " and " << FLT_MAX <<
                           ", not " << plexil_val);
             if (debug) std::cout << len << " byte float starting at buffer[" << start_index << "]: " << temp;
             encode_float(temp, buffer, start_index);
