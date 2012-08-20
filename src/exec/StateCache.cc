@@ -367,6 +367,10 @@ namespace PLEXIL
 			 expr->toString() << " for state " << toString(state) <<
 			 " with tolerance (" << Expression::valueToString(tolerance) << ")");
 
+    if (state == m_timeState) {
+      assertTrueMsg(tolerance > 0, "LookupOnChange(time) requires a positive tolerance");
+    }
+
 	CacheEntryId entry = ensureCacheEntry(state);
 	bool wasSubscribed = entry->activeChangeLookups();
 	LookupDescId lookup = (new LookupDesc(entry, expr, tolerance))->getId();
@@ -396,7 +400,7 @@ namespace PLEXIL
 	  thresholdUpdate = entry->calculateThresholds();
 	}
 	// Update thresholds if required
-	if (!wasSubscribed || thresholdUpdate) {
+	if (thresholdUpdate) {
 	  m_interface->setThresholds(state, entry->highThreshold, entry->lowThreshold);
 	}
 	else {
