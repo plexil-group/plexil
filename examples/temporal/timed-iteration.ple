@@ -4,7 +4,7 @@ Command pprint (...);
 TimedIteration:
 {
     Date run_start_time;
-    Date earliest_start = Date ("2012-07-10T12:04:00.000");
+    Date earliest_start = Date ("2012-08-20T11:55:00.000");
     Date latest_start;
     Duration period = Duration ("PT0.5S");
     Duration elapsed_time = Duration ("PT0.0S");
@@ -16,7 +16,7 @@ TimedIteration:
     CheckStartTime:
     {
         PostCondition continue;
-        if (earliest_start < Lookup(time)) {
+        if (earliest_start < LookupNow(time)) {
             pprint ("The earliest start time is already passed!");
             pprint ("Terminating plan.");
             continue = false;
