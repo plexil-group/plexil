@@ -158,7 +158,7 @@ EXECUTABLE	=
 AR		= ar
 
 # Command for building shared libraries, if applicable.
-LD		= $(CXX)
+LD		= $(CXX) $(foreach flag,$(EXE_FLAGS),$(LINKER_PASSTHROUGH_FLAG)$(flag))
 
 # Compiler flag to pass an argument to the linker
 LINKER_PASSTHROUGH_FLAG			:= -Wl,
@@ -173,6 +173,13 @@ RUNTIME_SHARED_LIBRARY_PATH_FLAG	:= -rpath
 SHARED_FLAGS				:= -shared
 # Extension for shared library
 SUFSHARE				:= .so
+# Linker flag to construct statically linked executable
+STATIC_EXE_FLAG				:= -Bstatic
+
+EXE_FLAGS				=
+ifneq ($(PLEXIL_STATIC),)
+EXE_FLAGS				+= $(STATIC_EXE_FLAG)
+endif
 
 ##### Conveniences
 
