@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,11 @@ $(error The environment variable PLEXIL_HOME is not set. Exiting.)
 endif
 
 # The location we're building into - may be overridden
-TOP_DIR ?= $(PLEXIL_HOME)
+TOP_DIR			?= $(PLEXIL_HOME)
+
+# Where to install product files. 
+# May be overridden, e.g. for cross-compilation.
+PREFIX			?= $(PLEXIL_HOME)
 
 # Which variant(s) to build by default
 # These can be overridden at the command line or in the shell environment
@@ -64,10 +68,6 @@ MV              = /bin/mv
 MKDIR           = /bin/mkdir
 # Copy a file
 CP              = /bin/cp -p
-
-# Define when purify is available.  When it is desired, edit the file
-# src/main/targets.make, as instructed there.
-PURIFY		= purify
 
 # Which compilers to use by default.
 CC	        := gcc
@@ -134,11 +134,13 @@ CXXFLAGS	+= $(DEFINES) $(STANDARD_CXXFLAGS) $(VARIANT_CFLAGS) $(INCLUDES)
 # User must set this to be useful.
 LIBRARY		=
 
-LIB_PATH	:= $(PLEXIL_HOME)/lib
-ifneq ($(PLEXIL_HOME),$(TOP_DIR))
-LIB_PATH	+= $(TOP_DIR)/lib
-endif
+# Where to put the new libraries
+LIB_DIR		?= $(PREFIX)/lib
+
+# Where to find previously built libraries
+LIB_PATH	:= $(PREFIX)/lib
 LIB_PATH_FLAGS	= $(foreach libdir,$(LIB_PATH),$(LIBRARY_PATH_SEARCH_FLAG)$(libdir))
+
 LIBS		=
 LIB_FLAGS	= $(foreach lib,$(LIBS),-l$(lib))
 
@@ -147,6 +149,9 @@ LIB_FLAGS	= $(foreach lib,$(LIBS),-l$(lib))
 # Names the executable that will be the product of this make.
 # User must set this to be useful.
 EXECUTABLE	=
+
+# Where to store the resulting executable
+BIN_DIR		?= $(PREFIX)/bin
 
 #
 # Linker
@@ -185,11 +190,6 @@ endif
 
 # Default for CVS targets in svn.make; should be shadowed to be more useful.
 SVN_FILES       = *
-
-##### Suffix rules
-
-# KMD: determine if useful
-# .SUFFIXES : .cc .hh .o .c .h
 
 ##### A pre-emptive strike against some 3rd party platform include files
 

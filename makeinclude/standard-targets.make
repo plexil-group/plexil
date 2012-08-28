@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 # this file's inclusion.  Some are the programmer's responsibility, and some
 # are found in "standard-defs.make"
 #
-#       PRELINKER - command to invoke C++ prelinker
 #       INC - .H files
 #       SRC - .C files
 #       TAG - the command to create an Emacs tags table
@@ -47,11 +46,12 @@
 OBJ     = $(addsuffix .o,$(basename $(SRC)))
 DIRT    = $(OBJ) $(addsuffix .d,$(basename $(SRC)))
 
-##### Internal Targets  -- not typically invoked explicitly.
+##### Internal Targets -- not typically invoked explicitly.
 
 ifneq ($(LIBRARY),)
 
-LIB_DIR ?= $(TOP_DIR)/lib
+$(LIB_DIR):
+	-$(MKDIR) -p $(LIB_DIR)
 
 ifneq ($(PLEXIL_SHARED),)
 ## Build a shared library (SHLIB)
@@ -60,10 +60,9 @@ SHLIB	= lib$(LIBRARY)$(SUFSHARE)
 
 plexil-default: shlib
 
-shlib $(LIB_DIR)/$(SHLIB): $(SHLIB)
-	-$(MKDIR) -p $(LIB_DIR)
+shlib $(LIB_DIR)/$(SHLIB): $(SHLIB) $(LIB_DIR)
 	-$(RM) $(LIB_DIR)/$(SHLIB)
-	$(LN) $(subst $(TOP_DIR),..,$(shell pwd))/$(SHLIB) $(LIB_DIR)/$(SHLIB)
+	$(CP) $(SHLIB) $(LIB_DIR)/$(SHLIB)
 
 $(SHLIB): depend $(OBJ)
 	$(LD) $(SHARED_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS)
@@ -79,10 +78,9 @@ ARCHIVE = lib$(LIBRARY).a
 
 plexil-default: archive
 
-archive $(LIB_DIR)/$(ARCHIVE): $(ARCHIVE)
-	-$(MKDIR) -p $(LIB_DIR)
+archive $(LIB_DIR)/$(ARCHIVE): $(ARCHIVE) $(LIB_DIR)
 	-$(RM) $(LIB_DIR)/$(ARCHIVE)
-	$(LN) $(subst $(TOP_DIR),..,$(shell pwd))/$(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
+	$(CP) $(ARCHIVE) $(LIB_DIR)/$(ARCHIVE)
 
 # This will update an existing archive library with any object files newer
 # than it, or create the library from existing objects if it does not exist.
@@ -97,8 +95,6 @@ endif
 endif # $(LIBRARY)
 
 ifneq ($(EXECUTABLE),)
-
-BIN_DIR ?= $(TOP_DIR)/bin
 
 plexil-default: executable
 
@@ -177,9 +173,3 @@ dust: localdust
 	then \
 		$(MAKE) -C test $@; \
 	fi
-
-
-##### SVN conveniences
-
-# KMD: later
-#include ../make/svn.make
