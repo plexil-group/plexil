@@ -400,6 +400,17 @@ namespace PLEXIL
         return (new PlexilValue(typ, string()))->getId();
       }
 
+      const char* initval = xml.first_child().value();
+      // FIXME: Add format checking for Integer, Real
+      if (typ == BOOLEAN) {
+        checkParserExceptionWithLocation(strcmp(initval, "0") == 0
+                                         || strcmp(initval, "1") == 0
+                                         || strcmp(initval, "true") == 0
+                                         || strcmp(initval, "false") == 0,
+                                         xml.first_child(),
+                                         "Invalid value \"" << initval << "\" for \"" << tag << "\"");
+      }
+
       // return new (non-empty) value
       return (new PlexilValue(typ, xml.first_child().value()))->getId();
     }
