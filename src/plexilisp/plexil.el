@@ -221,7 +221,7 @@
 (defconst *assemble-doc*
   ;; To generate the Wiki reference manual, set this to t, evaluate the
   ;; buffer, and call M-x generate-plexil-doc
-  t)
+  nil)
 
 (defvar *plexilisp-reference* nil)
 (setq *plexilisp-reference* nil)
@@ -1008,14 +1008,15 @@
  "== Literals =="
  "Most of these are not needed, because Plexilisp automatically infers "
  "types of literals.  For example, 5.5 would be a real, 5 would be an integer, "
- "\"foo\" a string, <tt>true</tt> and <tt>false</tt> a boolean.")
+ "\"foo\" a string, <tt>true</tt> and <tt>false</tt> a boolean.  Date and Duration "
+ "literals are a strong exception.")
 
 (pdefine pl (IntegerValue intval) (val) 1 nil                ; string -> xml
-  ""
+  "Integer value"
   (xml "IntegerValue" val nil 'integer))
 
 (pdefine pl (RealValue realval) (val) 1 nil               ; string -> xml
-  ""
+  "Real value"
   (xml "RealValue" val nil 'real))
 
 (pdefine pl (BooleanValue boolval)  (val) 1 nil
@@ -1034,11 +1035,11 @@
   (xml "StringValue" (concat str (apply #'concat strs)) nil 'string))
 
 (pdefine pl (DateValue dateval) (val) 1 nil                ; string  * ISO 8601 Date -> xml
-  ""
+  "ISO-8601 date value"
   (xml "DateValue" val nil 'real))
 
 (pdefine pl (DurationValue durationval durval) (val) 1 nil ; string * ISO 8601 Duration -> xml
-  ""
+  "ISO-8601 duration value"
   (xml "DurationValue" val nil 'real))
 
 ;;; Syntactic Sugar
