@@ -52,7 +52,7 @@ namespace PLEXIL
 	  const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
 	  // If the ExpressionFactory is correctly set up, should NEVER EVER happen
 	  assertTrueMsg(var->type() == BOOLEAN,
-					"Attempt to create a BooleanVariable from a non-BOOLEAN PlexilVar");
+					"Internal error: Attempt to create a BooleanVariable from a non-BOOLEAN PlexilVar");
 	  value = var->value();
 	}
 	else if (Id<PlexilValue>::convertable(expr)) {
@@ -65,7 +65,21 @@ namespace PLEXIL
 
 	assertTrueMsg(value == NULL || value->type() == BOOLEAN,
 				  "Attempt to create a BooleanVariable from a non-BOOLEAN PlexilVar");
-	commonNumericInit(value);
+    if (value == NULL)
+      m_initialValue = m_value = UNKNOWN();
+    else {
+      // Parse initial value
+      const std::string& initval = value->value();
+      if (initval == "true" || initval == "1")
+        m_initialValue = m_value = true;
+      else if (initval == "false" || initval == "0")
+        m_initialValue = m_value = false;
+      else {
+        // XML parser should have caught this
+        assertTrueMsg(ALWAYS_FAIL,
+                      "Internal error: Invalid Boolean value string \"" << initval << "\" for BooleanVariable");
+      }
+    }
   }
 
   void BooleanVariable::print(std::ostream& s) const
