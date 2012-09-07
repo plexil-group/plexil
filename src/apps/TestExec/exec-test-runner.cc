@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,5 +30,5 @@ using namespace PLEXIL;
 
 int main (int argc, char** argv)
 {
-  ExecTestRunner::run(argc, argv);
+  return ExecTestRunner::run(argc, argv);
 }
