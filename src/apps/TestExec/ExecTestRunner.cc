@@ -78,7 +78,7 @@ int ExecTestRunner::run(int argc, char** argv)
       return 0;
     }
     warn("Not enough arguments.\n At least the -p and -s arguments must be provided.\n" << usage);
-    return -1;
+    return 2;
   }
   // parse out parameters
 
@@ -87,7 +87,7 @@ int ExecTestRunner::run(int argc, char** argv)
       if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
              << usage);
-        return -1;
+        return 2;
       }
       planName = argv[i];
     }
@@ -95,7 +95,7 @@ int ExecTestRunner::run(int argc, char** argv)
       if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
              << usage);
-        return -1;
+        return 2;
       }
       scriptName = argv[i];
     }
@@ -103,7 +103,7 @@ int ExecTestRunner::run(int argc, char** argv)
       if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
              << usage);
-        return -1;
+        return 2;
       }
       libraryNames.push_back(argv[i]);
     }
@@ -111,7 +111,7 @@ int ExecTestRunner::run(int argc, char** argv)
       if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
              << usage);
-        return -1;
+        return 2;
       }
       libraryPaths.push_back(argv[i]);
     }
@@ -119,7 +119,7 @@ int ExecTestRunner::run(int argc, char** argv)
       if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
              << usage);
-        return -1;
+        return 2;
       }
       debugConfig = string(argv[i]);
     }
@@ -131,7 +131,7 @@ int ExecTestRunner::run(int argc, char** argv)
       if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
              << usage);
-        return -1;
+        return 2;
       }
       luvHost = argv[i];
     }
@@ -139,7 +139,7 @@ int ExecTestRunner::run(int argc, char** argv)
       if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
              << usage);
-        return -1;
+        return 2;
       }
       std::istringstream buffer(argv[i]);
       buffer >> luvPort;
@@ -149,7 +149,7 @@ int ExecTestRunner::run(int argc, char** argv)
       if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
              << usage);
-        return -1;
+        return 2;
       }
       Logging::ENABLE_LOGGING = 1;
       Logging::set_log_file_name(argv[i]);
@@ -160,18 +160,18 @@ int ExecTestRunner::run(int argc, char** argv)
       Logging::ENABLE_W_PROMPT = 1;
     else {
       warn("Unknown option '" << argv[i] << "'.  " << usage);
-      return -1;
+      return 2;
     }
   }
 
   // if no plan or script supplied, error out
   if (scriptName == "error") {
     warn("No -s option found.\n" << usage);
-    return -1;
+    return 2;
   }
   if (planName == "error") {
     warn("No -p option found.\n" << usage);
-    return -1;
+    return 2;
   }
 
   if (Logging::ENABLE_LOGGING) {
@@ -237,7 +237,7 @@ int ExecTestRunner::run(int argc, char** argv)
       warn("XML error parsing library file '" << *libraryName
            << "' (offset " << parseResult.offset
            << "):\n" << parseResult.description());
-      return -1;
+      return 1;
     }
 
     PlexilNodeId libnode;
@@ -247,7 +247,7 @@ int ExecTestRunner::run(int argc, char** argv)
     } 
     catch (ParserException& e) {
       warn("XML error parsing library '" << *libraryName << "':\n" << e.what());
-      return -1;
+      return 1;
     }
 
     exec->addLibraryNode(libnode);
@@ -261,7 +261,7 @@ int ExecTestRunner::run(int argc, char** argv)
       warn("XML error parsing plan file '" << planName
            << "' (offset " << parseResult.offset
            << "):\n" << parseResult.description());
-      return -1;
+      return 1;
     }
 
     PlexilNodeId root;
@@ -271,7 +271,7 @@ int ExecTestRunner::run(int argc, char** argv)
     }
     catch (ParserException& e) {
       warn("XML error parsing plan '" << planName << "':\n" << e.what());
-      return -1;
+      return 1;
     }
 
     {
@@ -292,7 +292,7 @@ int ExecTestRunner::run(int argc, char** argv)
             warn("Adding plan " << planName
                  << " failed because library " << libname
                  << " could not be loaded");
-            return -1;
+            return 1;
           }
 
           // add the library node
@@ -306,7 +306,7 @@ int ExecTestRunner::run(int argc, char** argv)
 
     if (!exec->addPlan(root)) {
       warn("Adding plan " << planName << " failed");
-      return -1;
+      return 1;
     }
     delete (PlexilNode*) root;
     // TODO: delete library nodes
@@ -323,7 +323,7 @@ int ExecTestRunner::run(int argc, char** argv)
                              "(offset " << parseResult.offset
                              << ") XML error parsing script '" << scriptName << "': "
                              << parseResult.description());
-        return -1;
+        return 1;
       }
     }
     // execute plan
@@ -332,7 +332,7 @@ int ExecTestRunner::run(int argc, char** argv)
     pugi::xml_node scriptElement = script.child("PLEXILScript");
     if (scriptElement.empty()) {
       warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
-      return -1;
+      return 1;
     }
     intf.run(scriptElement);
     debugMsg("Time", "Time spent in execution: " << clock() - time);
