@@ -5,6 +5,9 @@ DEBUG_CFG	:= .TestDebug.cfg
 EXEC_PROG	:= ../TestExec -d $(DEBUG_CFG)
 REGRESSION_PL	:= regression.pl
 
+# Parser error detection tests
+PARSER_ERROR_TESTS	:= $(wildcard plans/parser-tests/*.plx)
+
 # Tests which run to success and require no script
 EMPTY_SCRIPT		:= scripts/empty.psx
 
@@ -72,11 +75,24 @@ end-report: run-all-tests
 
 run-tests-with-setup: setup run-all-tests
 
+run-all-tests: parser-tests
 run-all-tests: empty-script-tests empty-script-valid-tests same-name-script-tests
 run-all-tests: simple-drive-tests command-handles-tests resource-arbitration-tests
 run-all-tests: library-call-with-array
 
 run-regression-suite: run-tests-with-setup end-report
+
+# These are tests of parser error detection.
+
+parser-tests: setup
+	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	for tst in $(PARSER_ERROR_TESTS) ; do \
+		tstname=`basename $${tst%.plx}`; \
+		echo $${tstname} >> tempRegressionResults ; \
+		if $(EXEC_PROG) -p $${tst} -s $(EMPTY_SCRIPT) > output/$${tstname}.out 2>&1 ; then \
+			echo $${tstname}: Failed to detect expected parser error ; \
+		fi ; \
+	done
 
 # NOTE: Some of the following sets are self-checking tests:
 # success of the root node implies success.  No 'valid'
