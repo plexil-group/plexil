@@ -155,38 +155,6 @@ namespace PLEXIL
 	  hub->notifyOfAssignment(Expression::getId(), m_name, value);
   }
 
-  void VariableImpl::commonNumericInit(const PlexilValue* val) 
-  {
-    if (val == NULL)
-      m_initialValue = m_value = UNKNOWN();
-    else if(val->value() == "INF" || val->value() == "Inf" ||
-	    val->value() == "inf") {
-      if(val->type() == INTEGER)
-	m_initialValue = m_value = PLUS_INFINITY;
-      else
-	m_initialValue = m_value = REAL_PLUS_INFINITY;
-    }
-    else if(val->value() == "-INF" || val->value() == "-Inf" ||
-	    val->value() == "-inf") {
-      if(val->type() == INTEGER)
-	m_initialValue = m_value == MINUS_INFINITY;
-      else
-	m_initialValue = m_value = REAL_MINUS_INFINITY;
-    }
-    else if(val->type() == BOOLEAN && val->value() == "true")
-	m_initialValue = m_value = true;
-    else if(val->type() == BOOLEAN && val->value() == "false")
-      m_initialValue = m_value = false;
-    else {
-      std::istringstream str(val->value());
-      double value;
-      str >> value;
-      m_initialValue = m_value = value;
-      checkError(checkValue(m_value), 
-				 "Invalid " << PlexilParser::valueTypeString(val->type()) << " '" << Expression::valueToString(m_value) << "'");
-    }
-  }
-
   /**
    * @brief Add a listener for changes to this Expression's value.
    * @param id The Id of the listener to notify.

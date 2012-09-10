@@ -283,13 +283,6 @@ namespace PLEXIL
      */
     virtual void handleDeactivate(const bool changed);
 
-    /**
-     * @brief Performs common initialization tasks (number parsing, translation from the
-     *        various forms of infinity, etc.) for numeric expressions.
-     * @param val The XML representing the value of this variable.
-     */
-    void commonNumericInit(const PlexilValue* val);
-
     const ExecListenerHubId& getExecListenerHub(); /*<! Listener for publishing assignment notifications. */
 
     //
