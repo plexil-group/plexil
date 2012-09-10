@@ -180,6 +180,109 @@ namespace PLEXIL
                                      "XML parsing error: Expected a child element of <" << e.name() << ">");
   }
 
+  bool isBoolean(const char* initval)
+  {
+    if (initval == NULL)
+      return false;
+
+    switch (*initval) {
+    case '0':
+    case '1':
+      if (*++initval)
+        return false;
+      else
+        return true;
+
+    case 'f':
+      return (0 == strcmp(++initval, "alse"));
+
+    case 't':
+      return (0 == strcmp(++initval, "rue"));
+
+    default:
+      return false;
+    }
+  }
+
+  bool isInteger(const char* initval)
+  {
+    if (initval == NULL || !*initval)
+      return false;
+
+    // Check against XML 'integer'
+    // [\-+]?[0-9]+
+    if ('+' == *initval || '-' == *initval) {
+      if (!*++initval)
+        return false; // sign w/ nothing after it
+    }
+    if (isdigit(*initval)) {
+      while (*++initval && isdigit(*initval)) {
+      }
+    }
+    if (*initval)
+      return false; // junk after number
+
+    // TODO: add range check
+    return true;
+  }
+
+  bool isDouble(const char* initval)
+  {
+    if (initval == NULL || !*initval)
+      return false;
+      
+    // Check against XML 'double'
+    // (\+|-)?([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?|(\+|-)?INF|NaN
+
+    if (strcmp(initval, "NaN") == 0) 
+      return true;
+
+    if ('+' == *initval || '-' == *initval) {
+      if (!*++initval)
+        return false; // sign w/ nothing after it
+    }
+
+    if (*initval && strcmp(initval, "INF") == 0)
+      return true;
+
+    // ([0-9]+(\.[0-9]*)?|\.[0-9]+)([Ee](\+|-)?[0-9]+)?
+    bool digitsSeen = false;
+    if (*initval && isdigit(*initval)) {
+      digitsSeen = true;
+      while (*++initval && isdigit(*initval)) {
+      }
+    }
+    if (*initval && '.' == *initval) {
+      if (*++initval && isdigit(*initval)) {
+        digitsSeen = true;        
+        while (*++initval && isdigit(*initval)) {
+        }
+      }
+    }
+    if (!digitsSeen)
+      return false;
+
+    // Optional exponent
+    if (*initval && ('E' == *initval || 'e' == *initval)) {
+      if (!*++initval)
+        return false; 
+      if ('+' == *initval || '-' == *initval) {
+        if (!*++initval)
+          return false; 
+      }
+      if (isdigit(*initval)) {
+        while (*++initval && isdigit(*initval)) {
+        }
+      }
+    }
+
+    if (*initval)
+      return false; // junk after number
+
+    // FIXME: add range check?
+    return true;
+  }
+
   //
   // Implementation of parser class methods
   //
@@ -380,9 +483,9 @@ namespace PLEXIL
     PlexilValueParser() : PlexilExprParser() {}
     ~PlexilValueParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) {
+    PlexilExprId parse(const xml_node& xml) throw(ParserException) 
+    {
       // confirm that we have a value
-
       checkTagSuffix(VAL_TAG, xml);
 
       // establish value type
@@ -400,15 +503,22 @@ namespace PLEXIL
         return (new PlexilValue(typ, string()))->getId();
       }
 
+      // Check value format
       const char* initval = xml.first_child().value();
-      // FIXME: Add format checking for Integer, Real
       if (typ == BOOLEAN) {
-        checkParserExceptionWithLocation(strcmp(initval, "0") == 0
-                                         || strcmp(initval, "1") == 0
-                                         || strcmp(initval, "true") == 0
-                                         || strcmp(initval, "false") == 0,
+        checkParserExceptionWithLocation(isBoolean(initval),
                                          xml.first_child(),
-                                         "Invalid value \"" << initval << "\" for \"" << tag << "\"");
+                                         "Invalid Boolean value \"" << initval << "\"");
+      }
+      else if (typ == INTEGER) {
+        checkParserExceptionWithLocation(isInteger(initval),
+                                         xml.first_child(),
+                                         "Invalid Integer value \"" << initval << "\"");
+      }
+      else if (typ == REAL) {
+        checkParserExceptionWithLocation(isDouble(initval),
+                                         xml.first_child(),
+                                         "Invalid Real value \"" << initval << "\"");
       }
 
       // return new (non-empty) value
@@ -1280,14 +1390,34 @@ namespace PLEXIL
       checkTag(INITIALVAL_TAG, child);
       child = child.first_child();
       checkTagSuffix(VAL_TAG, child);
+      // FIXME: check for junk between checked prefix and suffix of tag
       checkParserExceptionWithLocation(testTagPrefix(typnam, child),
                                        child,
-                                       "XML parsing error: Initial value of " << typnam << " variable \'" <<
+                                       "Initial value of " << typnam << " variable \'" <<
                                        name << "\' of incorrect type \'" << child.name() << "\'");
+
+      // Check value
       checkParserExceptionWithLocation(typ == STRING || *(child.first_child().value()),
                                        child.first_child(),
-                                       "XML parsing error: Initial value of " << typnam << " variable \'" <<
-                                       name << "\' may not be empty");
+                                       "Empty initial value is not valid for " << typnam << " variable \'" <<
+                                       name << "\'");
+      const char* initval = child.first_child().value();
+      if (typ == BOOLEAN) {
+        checkParserExceptionWithLocation(isBoolean(initval),
+                                         child.first_child(),
+                                         "Invalid Boolean initial value \"" << initval << "\" for variable \'" << name << "\'");
+      }
+      else if (typ == INTEGER) {
+        checkParserExceptionWithLocation(isInteger(initval),
+                                         child.first_child(),
+                                         "Invalid Integer initial value \"" << initval << "\" for variable \'" << name << "\'");
+      }
+      else if (typ == REAL) {
+        checkParserExceptionWithLocation(isDouble(initval),
+                                         child.first_child(),
+                                         "Invalid Real initial value \"" << initval << "\" for variable \"" << name << "\"");
+      }
+
       return new PlexilVar(name, typ, child.first_child().value());
     }
 
