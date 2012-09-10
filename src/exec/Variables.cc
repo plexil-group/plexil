@@ -127,9 +127,23 @@ namespace PLEXIL
 	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
 	}
 
-	assertTrueMsg(value == NULL || value->type() == REAL,
-				  "Attempt to create a RealVariable from a non-REAL PlexilVar");
-	commonNumericInit(value);
+    if (value == NULL)
+      m_initialValue = m_value = UNKNOWN();
+    else {
+      assertTrueMsg(value->type() == REAL,
+                    "Attempt to create a RealVariable from a non-REAL PlexilVar");
+
+      // Parse initial value
+      const char* valstr = value->value().c_str();
+      // FIXME: handle 'NaN' ???
+      // FIXME: check for [\-+]INF
+
+      char* endptr = NULL;
+      double value = strtod(valstr, &endptr);
+      assertTrueMsg(endptr != valstr && !*endptr,
+                    "Initial value \"" << valstr << "\" not a valid Real for RealVariable");
+      m_initialValue = m_value = value;
+    }
   }
 
   void RealVariable::print(std::ostream& s) const 
@@ -210,9 +224,20 @@ namespace PLEXIL
 	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
 	}
 
-	assertTrueMsg(value == NULL || value->type() == INTEGER,
-				  "Attempt to create an IntegerVariable from a non-INTEGER PlexilVar");
-	commonNumericInit(value);
+    if (value == NULL)
+      m_initialValue = m_value = UNKNOWN();
+    else {
+      assertTrueMsg(value->type() == INTEGER,
+                    "Attempt to create an IntegerVariable from a non-INTEGER PlexilVar");
+
+      // Parse initial value
+      const char* valstr = value->value().c_str();
+      char* endptr = NULL;
+      int64_t intval = strtoll(valstr, &endptr, 10);
+      assertTrueMsg(endptr != valstr && !*endptr,
+                    "Initial value \"" << valstr << "\" not a valid Integer for IntegerVariable");
+      m_initialValue = m_value = (double) intval;
+    }
   }
 
   void IntegerVariable::print(std::ostream& s) const
