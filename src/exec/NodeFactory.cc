@@ -74,7 +74,8 @@ namespace PLEXIL
     checkError(factory != NULL, 
                "No NodeFactory registered for node type " << PlexilParser::nodeTypeString(nodeType));
     NodeId result = factory->create(nodeProto, exec, parent);
-    // common post process here?
+    // common post process here
+    result->constructTimepointVariables();
     return result;
   }
 

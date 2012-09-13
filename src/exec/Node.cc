@@ -486,8 +486,6 @@ namespace PLEXIL {
   {
     checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId.toString() << "' twice.");
     m_postInitCalled = true;
-
-    constructTimepointVariables();
     
     // create assignment/command/update
     specializedPostInit(node);
