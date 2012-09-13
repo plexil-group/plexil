@@ -22,7 +22,7 @@ EMPTY_SCRIPT_TESTS	:= AncestorReferenceTest array2 array5 array6 array9 assign-f
  repeat1 repeat3 repeat4 \
  simple-assignment skip1 skip2 \
  test-abs-sqrt-plan test-node-name-scope-hack \
- test-node-name-scope test-repeat-condition \
+ test-node-name-scope test-repeat-condition timepoint-variable-construction-order \
  variables1 var-priority-with-exit var-priority-with-skip \
  whitespace1 \
  uninitialized-assignment \
