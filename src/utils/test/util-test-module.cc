@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,20 +49,21 @@
 
 #include "util-test-module.hh"
 #include "ConstantMacros.hh"
-#include "Error.hh"
 #include "Debug.hh"
-#include "LabelStr.hh"
-#include "TestData.hh"
+#include "Error.hh"
 #include "Id.hh"
-#include "XMLUtils.hh"
+#include "LabelStr.hh"
 #include "StoredArray.hh"
+#include "TestData.hh"
+#include "timespec-utils.hh"
+#include "timeval-utils.hh"
+#include "XMLUtils.hh"
 
 #include <list>
 #include <sstream>
 #include <iostream>
 #include <fstream>
 #include <typeinfo>
-//#include <cmath>
 #include <cfloat>
 
 #if S950
@@ -286,10 +287,10 @@ public:
     catch (Error& e) {
       std::cout << "Caught expected exception" << std::endl;
       if (m.trylock())
-	result = result && true;
+    result = result && true;
       else {
-	std::cout << "Throwing failed to run guard destructor" << std::endl;
-	result = false;
+    std::cout << "Throwing failed to run guard destructor" << std::endl;
+    result = false;
       }
       m.unlock();
     }
@@ -415,7 +416,6 @@ private:
 };
 
 bool IdTests::test() {
-  //LockManager::instance().lock();
   runTest(testBasicAllocation);
   runTest(testCollectionSupport);
   runTest(testDoubleConversion);
@@ -426,7 +426,6 @@ bool IdTests::test() {
   runTest(testBadIdUsage);
   runTest(testIdConversion);
   runTest(testConstId);
-  //LockManager::instance().unlock();
   return(true);
 }
 
@@ -624,10 +623,10 @@ bool IdTests::testVirtualInheritance()
   // Invalid base Id
   try {
     Error::doNotDisplayErrors();
-	Id<PootDoot> bogusBase(pootdoot, Id<Root>::noId());
-	assertTrue(false, "Id<PootDoot> bogusBase(pootdoot, Id<Root>::noId()); failed to throw an error.");
-	success = false;
-	Error::doDisplayErrors();
+    Id<PootDoot> bogusBase(pootdoot, Id<Root>::noId());
+    assertTrue(false, "Id<PootDoot> bogusBase(pootdoot, Id<Root>::noId()); failed to throw an error.");
+    success = false;
+    Error::doDisplayErrors();
   }
   catch (Error& e) {
     Error::doDisplayErrors();
@@ -648,10 +647,10 @@ bool IdTests::testVirtualInheritance()
   // This can fail if the superclass pointer is equal to the derived pointer.
   try {
     Error::doNotDisplayErrors();
-	Id<PootDoot> duplicateId(pootdoot, pootdootDoot);
-	assertTrue(false, "Id<PootDoot> duplicateId(pootdoot, pootdootDoot); failed to throw an error.");
-	success = false;
-	Error::doDisplayErrors();
+    Id<PootDoot> duplicateId(pootdoot, pootdootDoot);
+    assertTrue(false, "Id<PootDoot> duplicateId(pootdoot, pootdootDoot); failed to throw an error.");
+    success = false;
+    Error::doDisplayErrors();
   }
   catch (Error& e) {
     Error::doDisplayErrors();
@@ -860,7 +859,7 @@ class StoredArrayTests
 
       static bool testBasics()
       {
-	StoredArray sa0;
+    StoredArray sa0;
 
          StoredArray sa1(10, UNKNOWN);
          sa1[0] = 3.3;
@@ -875,45 +874,45 @@ class StoredArrayTests
 
       static bool testKeyspace()
       {
-#define KEYSPACE_KEY_T uint8_t	
-	size_t keySpace = KeySource<KEYSPACE_KEY_T>::totalKeys();
-	std::cout << "key space: " << keySpace << std::endl;
-	try
-	  {
+#define KEYSPACE_KEY_T uint8_t  
+    size_t keySpace = KeySource<KEYSPACE_KEY_T>::totalKeys();
+    std::cout << "key space: " << keySpace << std::endl;
+    try
+      {
             std::cout << std::endl;
             Error::doThrowExceptions();
             for (size_t i = 0; i < keySpace + 1; ++i)
-	      {
-		double j = 7;
-		StoredItem<KEYSPACE_KEY_T, double> x(j);
-		// cut down on output a bit
-		if ((i & 0xFF) == 0)
-		  {
-		    std::cout << "created key: " << (i + 1)
-			      << " available: " << KeySource<KEYSPACE_KEY_T>::availableKeys()
-			      << "\r" << std::flush;
-		  }
-	      }
-	  }
-	catch (Error &e)
-	  {
+          {
+        double j = 7;
+        StoredItem<KEYSPACE_KEY_T, double> x(j);
+        // cut down on output a bit
+        if ((i & 0xFF) == 0)
+          {
+            std::cout << "created key: " << (i + 1)
+                  << " available: " << KeySource<KEYSPACE_KEY_T>::availableKeys()
+                  << "\r" << std::flush;
+          }
+          }
+      }
+    catch (Error &e)
+      {
             std::cout << "Caught expected exception: ";
             e.print(std::cout);
-	    // cleanup
-	    std::cout << "\nCleaning up...";
-	    for (size_t i = KeySource<KEYSPACE_KEY_T>::keyMin(); i < KeySource<KEYSPACE_KEY_T>::keyMax(); ++i)
-	      {
-		if (!StoredItem<KEYSPACE_KEY_T, double>::isKey(i))
-		  break;
-		StoredItem<KEYSPACE_KEY_T, double>x(i);
-		x.unregister();
-	      }
+        // cleanup
+        std::cout << "\nCleaning up...";
+        for (size_t i = KeySource<KEYSPACE_KEY_T>::keyMin(); i < KeySource<KEYSPACE_KEY_T>::keyMax(); ++i)
+          {
+        if (!StoredItem<KEYSPACE_KEY_T, double>::isKey(i))
+          break;
+        StoredItem<KEYSPACE_KEY_T, double>x(i);
+        x.unregister();
+          }
             std::cout << " done." << std::endl;
             return true;
-	  }
+      }
 
-	// should never get here
-	return false;
+    // should never get here
+    return false;
 #undef KEYSPACE_KEY_T
       }
 
@@ -925,9 +924,9 @@ class StoredArrayTests
          unsigned width = 1000;
          unsigned testSize = 100000; // was 1000000
          unsigned updateSize = 10000;
-	 // preallocate the vector to the appropriate size
+     // preallocate the vector to the appropriate size
          std::vector<double> keys;
-	 keys.reserve(testSize);
+     keys.reserve(testSize);
 
 #ifdef STORED_ITEM_REUSE_KEYS
          size_t availableKeys = KeySource<double>::availableKeys();
@@ -983,9 +982,9 @@ class StoredArrayTests
          unsigned width = 10;
          unsigned testSize = 100000; // was 2000000
          unsigned updateSize = 10000; // was 100000
-	 // preallocate the vector to the appropriate size
+     // preallocate the vector to the appropriate size
          std::vector<double> keys;
-	 keys.reserve(testSize);
+     keys.reserve(testSize);
          
          // create a whole bunch of StoredArray
          
@@ -1030,7 +1029,7 @@ class StoredArrayTests
             
             StoredArray sa(keys[i]);
             assertTrueMsg((StoredItem<double, ArrayStorage>::isKey(keys[i])),
-			  "item key mismatch for index " << i);
+              "item key mismatch for index " << i);
             
             for (unsigned j = 0; j < sa.size(); ++j)
                assertTrueMsg(sa[j] == i + j, "value " << sa[j] << " != " << (i + j));
@@ -1038,18 +1037,18 @@ class StoredArrayTests
          std::cout << std::endl;
          stopTime(start);
 
-	 // delete everything
-	 
+     // delete everything
+     
          start = startTime();
          for (unsigned i = 0; i < keys.size(); ++i)
          {
-	   if ((i + 1) % updateSize == 0)
-	     std::cout << "deleting StoredArray: " << 
-	       (i + 1) << "\r" << std::flush;
+       if ((i + 1) % updateSize == 0)
+         std::cout << "deleting StoredArray: " << 
+           (i + 1) << "\r" << std::flush;
             
-	   StoredArray sa(keys[i]);
-	   sa.unregister();
-	   keys[i] = 0.0;
+       StoredArray sa(keys[i]);
+       sa.unregister();
+       keys[i] = 0.0;
          }
          std::cout << std::endl;
          stopTime(start);
@@ -1073,6 +1072,169 @@ class StoredArrayTests
       }
 };
 
+class TimespecTests
+{
+public:
+  static bool test()
+  {
+    runTest(testTimespecComparisons);
+    runTest(testTimespecArithmetic);
+    runTest(testTimespecConversions);
+    return true;
+  }
+
+private:
+  static bool testTimespecComparisons()
+  {
+    struct timespec a = {1, 0};
+    struct timespec a1 = {1, 0};
+    struct timespec b = {2, 0};
+    struct timespec c = {1, 1};
+
+    assertTrue(a < b, "Timespec operator< failed");
+    assertTrue(a < c, "Timespec operator< failed");
+    assertTrue(c < b, "Timespec operator< failed");
+    assertTrue(!(b < a), "Timespec operator< failed");
+    assertTrue(!(c < a), "Timespec operator< failed");
+    assertTrue(!(b < c), "Timespec operator< failed");
+    assertTrue(!(a1 < a), "Timespec operator< failed");
+    assertTrue(!(a < a1), "Timespec operator< failed");
+
+    assertTrue(b > a, "Timespec operator> failed");
+    assertTrue(b > c, "Timespec operator> failed");
+    assertTrue(c > a, "Timespec operator> failed");
+    assertTrue(!(a > b), "Timespec operator> failed");
+    assertTrue(!(a > c), "Timespec operator> failed");
+    assertTrue(!(c > b), "Timespec operator> failed");
+    assertTrue(!(a1 > a), "Timespec operator> failed");
+    assertTrue(!(a > a1), "Timespec operator> failed");
+
+    assertTrue(a == a, "Timespec operator== failed - identity");
+    assertTrue(a == a1, "Timespec operator== failed - equality");
+    assertTrue(!(a == b), "Timespec operator== failed - tv_sec");
+    assertTrue(!(a == c), "Timespec operator== failed - tv_nsec");
+
+    return true;
+  }
+
+  static bool testTimespecArithmetic()
+  {
+    struct timespec tsminus1 = {-1, 0};
+    struct timespec ts0 = {0, 0};
+    struct timespec ts1 = {1, 0};
+    struct timespec ts1pt1 = {1, 1};
+    struct timespec ts0pt9 = {0, 999999999};
+    struct timespec ts2 = {2, 0};
+
+    assertTrue(ts0 == ts0 + ts0, "Timespec operator+ failed - 0 + 0");
+    assertTrue(ts1 == ts0 + ts1, "Timespec operator+ failed - 0 + 1");
+    assertTrue(ts0 == ts1 + tsminus1, "Timespec operator+ failed - 1 + -1");
+    assertTrue(ts0 == tsminus1 + ts1, "Timespec operator+ failed - -1 + 1");
+    assertTrue(ts1pt1 == ts0 + ts1pt1, "Timespec operator+ failed - 0 + 1.000000001");
+    assertTrue(ts1 == ts1 + ts0, "Timespec operator+ failed - 1 + 0");
+    assertTrue(ts2 == ts1 + ts1, "Timespec operator+ failed - 1 + 1");
+    assertTrue(ts2 == ts1pt1 + ts0pt9, "Timespec operator+ failed - 1.00000001 + 0.999999999");
+
+    assertTrue(ts0 == ts0 - ts0, "Timespec operator- failed - 0 - 0");
+    assertTrue(ts0 == ts1 - ts1, "Timespec operator- failed - 1 - 1");
+    assertTrue(ts0 == tsminus1 - tsminus1, "Timespec operator- failed - -1 - -1");
+    assertTrue(ts1 == ts1 - ts0, "Timespec operator- failed - 1 - 0");
+    assertTrue(tsminus1 == ts0 - ts1, "Timespec operator- failed - 0 - 1");
+    assertTrue(ts1 == ts0 - tsminus1, "Timespec operator- failed - 0 - -1");
+    assertTrue(ts1pt1 == ts2 - ts0pt9, "Timespec operator- failed - 2 - 0.999999999");
+    assertTrue(ts0pt9 == ts2 - ts1pt1, "Timespec operator- failed - 2 - 1.000000001");
+
+    return true;
+  }
+
+  static bool testTimespecConversions()
+  {
+    return true;
+  }
+
+};
+
+class TimevalTests
+{
+public:
+  static bool test()
+  {
+    runTest(testTimevalComparisons);
+    runTest(testTimevalArithmetic);
+    runTest(testTimevalConversions);
+    return true;
+  }
+
+private:
+  static bool testTimevalComparisons()
+  {
+    struct timeval a = {1, 0};
+    struct timeval a1 = {1, 0};
+    struct timeval b = {2, 0};
+    struct timeval c = {1, 1};
+
+    assertTrue(a < b, "Timeval operator< failed");
+    assertTrue(a < c, "Timeval operator< failed");
+    assertTrue(c < b, "Timeval operator< failed");
+    assertTrue(!(b < a), "Timeval operator< failed");
+    assertTrue(!(c < a), "Timeval operator< failed");
+    assertTrue(!(b < c), "Timeval operator< failed");
+    assertTrue(!(a1 < a), "Timeval operator< failed");
+    assertTrue(!(a < a1), "Timeval operator< failed");
+
+    assertTrue(b > a, "Timeval operator> failed");
+    assertTrue(b > c, "Timeval operator> failed");
+    assertTrue(c > a, "Timeval operator> failed");
+    assertTrue(!(a > b), "Timeval operator> failed");
+    assertTrue(!(a > c), "Timeval operator> failed");
+    assertTrue(!(c > b), "Timeval operator> failed");
+    assertTrue(!(a1 > a), "Timeval operator> failed");
+    assertTrue(!(a > a1), "Timeval operator> failed");
+
+    assertTrue(a == a, "Timeval operator== failed - identity");
+    assertTrue(a == a1, "Timeval operator== failed - equality");
+    assertTrue(!(a == b), "Timeval operator== failed - tv_sec");
+    assertTrue(!(a == c), "Timeval operator== failed - tv_nsec");
+
+    return true;
+  }
+
+  static bool testTimevalArithmetic()
+  {
+    struct timeval tsminus1 = {-1, 0};
+    struct timeval ts0 = {0, 0};
+    struct timeval ts1 = {1, 0};
+    struct timeval ts1pt1 = {1, 1};
+    struct timeval ts0pt9 = {0, 999999};
+    struct timeval ts2 = {2, 0};
+
+    assertTrue(ts0 == ts0 + ts0, "Timeval operator+ failed - 0 + 0");
+    assertTrue(ts1 == ts0 + ts1, "Timeval operator+ failed - 0 + 1");
+    assertTrue(ts0 == ts1 + tsminus1, "Timeval operator+ failed - 1 + -1");
+    assertTrue(ts0 == tsminus1 + ts1, "Timeval operator+ failed - -1 + 1");
+    assertTrue(ts1pt1 == ts0 + ts1pt1, "Timeval operator+ failed - 0 + 1.000001");
+    assertTrue(ts1 == ts1 + ts0, "Timeval operator+ failed - 1 + 0");
+    assertTrue(ts2 == ts1 + ts1, "Timeval operator+ failed - 1 + 1");
+    assertTrue(ts2 == ts1pt1 + ts0pt9, "Timeval operator+ failed - 1.000001 + 0.999999");
+
+    assertTrue(ts0 == ts0 - ts0, "Timeval operator- failed - 0 - 0");
+    assertTrue(ts0 == ts1 - ts1, "Timeval operator- failed - 1 - 1");
+    assertTrue(ts0 == tsminus1 - tsminus1, "Timeval operator- failed - -1 - -1");
+    assertTrue(ts1 == ts1 - ts0, "Timeval operator- failed - 1 - 0");
+    assertTrue(tsminus1 == ts0 - ts1, "Timeval operator- failed - 0 - 1");
+    assertTrue(ts1 == ts0 - tsminus1, "Timeval operator- failed - 0 - -1");
+    assertTrue(ts1pt1 == ts2 - ts0pt9, "Timeval operator- failed - 2 - 0.999999");
+    assertTrue(ts0pt9 == ts2 - ts1pt1, "Timeval operator- failed - 2 - 1.000001");
+
+    return true;
+  }
+
+  static bool testTimevalConversions()
+  {
+    return true;
+  }
+
+};
 
 void UtilModuleTests::runTests(std::string /* path */) 
 {
@@ -1082,6 +1244,8 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(IdTests::test);
   runTestSuite(StoredArrayTests::test);
   runTestSuite(LabelTests::test);
+  runTestSuite(TimespecTests::test);
+  runTestSuite(TimevalTests::test);
 
   std::cout << "Finished" << std::endl;
 }
