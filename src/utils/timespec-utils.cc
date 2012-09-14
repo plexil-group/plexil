@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,13 @@
 #include <sys/time.h>
 #include <cmath>
 
-const int ONE_BILLION = 1000000000;
+const long ONE_BILLION = 1000000000;
 const double ONE_BILLION_DOUBLE = 1000000000.0;
 
 //
 // General utility for normalizing timespecs after arithmetic
 // Assumes |tv_nsec| < 1,999,999,999
+// Also assumes time_t is an integer type - which POSIX does not guarantee!
 //
 
 //
@@ -50,11 +51,11 @@ const double ONE_BILLION_DOUBLE = 1000000000.0;
 void timespecNormalize(struct timespec& tv)
 {
   // check for nsec over/underflow
-  if (tv.tv_nsec > ONE_BILLION) {
+  if (tv.tv_nsec >= ONE_BILLION) {
     tv.tv_sec += 1;
     tv.tv_nsec -= ONE_BILLION;
   }
-  else if (tv.tv_nsec + ONE_BILLION < 0) {
+  else if (tv.tv_nsec + ONE_BILLION <= 0) {
     tv.tv_sec -= 1;
     tv.tv_nsec += ONE_BILLION;
   }
@@ -76,18 +77,29 @@ bool operator<(const struct timespec& t1, const struct timespec& t2)
           ((t1.tv_sec == t2.tv_sec) && (t1.tv_nsec < t2.tv_nsec)));
 }
 
+bool operator>(const struct timespec& t1, const struct timespec& t2)
+{
+  return ((t1.tv_sec > t2.tv_sec) || 
+          ((t1.tv_sec == t2.tv_sec) && (t1.tv_nsec > t2.tv_nsec)));
+}
+
+bool operator==(const struct timespec& t1, const struct timespec& t2)
+{
+  return (t1.tv_sec == t2.tv_sec) && (t1.tv_nsec == t2.tv_nsec);
+}
+
 struct timespec operator+(const struct timespec& t1, const struct timespec& t2)
 {
   struct timespec time = {t1.tv_sec + t2.tv_sec,
-			  t1.tv_nsec + t2.tv_nsec};
+                          t1.tv_nsec + t2.tv_nsec};
   timespecNormalize(time);
   return time;
 }
 
-struct timespec operator- (const struct timespec& t1, const struct timespec& t2)
+struct timespec operator-(const struct timespec& t1, const struct timespec& t2)
 {
   struct timespec time = {t1.tv_sec - t2.tv_sec,
-			  t1.tv_nsec - t2.tv_nsec};
+                          t1.tv_nsec - t2.tv_nsec};
   timespecNormalize(time);
   return time;
 }

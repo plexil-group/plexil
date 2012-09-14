@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,12 @@
 
 //* @brief Returns true if the first argument is less than the second, false otherwise.
 bool operator<(const struct timespec& t1, const struct timespec& t2);
+
+//* @brief Returns true if the first argument is greater than the second, false otherwise.
+bool operator>(const struct timespec& t1, const struct timespec& t2);
+
+//* @brief Returns true if the first argument is identical to the second, false otherwise.
+bool operator==(const struct timespec& t1, const struct timespec& t2);
 
 //* @brief Returns the arithmetic sum of its two arguments.
 struct timespec operator+ (const struct timespec& t1, const struct timespec& t2);
