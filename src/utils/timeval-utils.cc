@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,13 @@
 #include <sys/time.h>
 #include <cmath>
 
-const int ONE_MILLION = 1000000;
+const long ONE_MILLION = 1000000;
 const double ONE_MILLION_DOUBLE = 1000000.0;
 
 //
 // General utility for normalizing timevals after arithmetic
 // Assumes |tv_usec| < 1,999,999
+// Also assumes time_t is an integer type - which POSIX does not guarantee!
 //
 
 //
@@ -50,28 +51,24 @@ const double ONE_MILLION_DOUBLE = 1000000.0;
 void timevalNormalize(struct timeval& tv)
 {
   // check for usec over/underflow
-  if (tv.tv_usec > ONE_MILLION)
-    {
-      tv.tv_sec += 1;
-      tv.tv_usec -= ONE_MILLION;
-    }
-  else if (tv.tv_usec + ONE_MILLION < 0)
-    {
-      tv.tv_sec -= 1;
-      tv.tv_usec += ONE_MILLION;
-    }
+  if (tv.tv_usec >= ONE_MILLION) {
+    tv.tv_sec += 1;
+    tv.tv_usec -= ONE_MILLION;
+  }
+  else if (tv.tv_usec + ONE_MILLION <= 0) {
+    tv.tv_sec -= 1;
+    tv.tv_usec += ONE_MILLION;
+  }
 
   // now check that signs are consistent
-  if (tv.tv_sec > 0 && tv.tv_usec < 0)
-    {
-      tv.tv_sec -= 1;
-      tv.tv_usec += ONE_MILLION;
-    }
-  else if (tv.tv_sec < 0 && tv.tv_usec > 0)
-    {
-      tv.tv_sec += 1;
-      tv.tv_usec -= ONE_MILLION;
-    }
+  if (tv.tv_sec > 0 && tv.tv_usec < 0) {
+    tv.tv_sec -= 1;
+    tv.tv_usec += ONE_MILLION;
+  }
+  else if (tv.tv_sec < 0 && tv.tv_usec > 0) {
+    tv.tv_sec += 1;
+    tv.tv_usec -= ONE_MILLION;
+  }
 }
 
 bool operator<(const struct timeval& t1, const struct timeval& t2)
@@ -94,7 +91,7 @@ bool operator==(const struct timeval& t1, const struct timeval& t2)
 struct timeval operator+(const struct timeval& t1, const struct timeval& t2)
 {
   struct timeval time = {t1.tv_sec + t2.tv_sec,
-			 t1.tv_usec + t2.tv_usec};
+                         t1.tv_usec + t2.tv_usec};
   timevalNormalize(time);
   return time;
 }
@@ -102,7 +99,7 @@ struct timeval operator+(const struct timeval& t1, const struct timeval& t2)
 struct timeval operator- (const struct timeval& t1, const struct timeval& t2)
 {
   struct timeval time = {t1.tv_sec - t2.tv_sec,
-			 t1.tv_usec - t2.tv_usec};
+                         t1.tv_usec - t2.tv_usec};
   timevalNormalize(time);
   return time;
 }
@@ -113,7 +110,7 @@ void doubleToTimeval(double d, timeval& result)
   double fraction = modf(d, &seconds);
 
   result.tv_sec = (time_t) seconds;
-  result.tv_usec = (long) (fraction * ONE_MILLION_DOUBLE);
+  result.tv_usec = (suseconds_t) (fraction * ONE_MILLION_DOUBLE);
 }
 
 struct timeval doubleToTimeval(double d)
