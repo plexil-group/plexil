@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src
 LIB_PATH	+=
 LIBS		+= pugixml $(PTHREAD_LIB) dl
 
-SRC		:= Debug.cc DynamicLoader.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
+SRC		:= Debug.cc DynamicLoader.cc Error.cc IdTable.cc iso-8601.cc LabelStr.cc Logging.cc \
  ParserException.cc RecursiveThreadMutex.cc StoredArray.cc TestData.cc \
  ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc timespec-utils.cc timeval-utils.cc \
  Utils.cc XMLUtils.cc stricmp.c

@@ -52,6 +52,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "Id.hh"
+#include "iso-8601.hh"
 #include "LabelStr.hh"
 #include "StoredArray.hh"
 #include "TestData.hh"
@@ -59,12 +60,13 @@
 #include "timeval-utils.hh"
 #include "XMLUtils.hh"
 
-#include <list>
-#include <sstream>
+#include <cfloat>
+#include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <list>
+#include <sstream>
 #include <typeinfo>
-#include <cfloat>
 
 #if S950
 // apparently needed for sys950lib
@@ -1236,16 +1238,357 @@ private:
 
 };
 
+class ISO8601Tests
+{
+public:
+  static bool test()
+  {
+    runTest(testPrinting);
+    runTest(testGMTPrinting);
+    runTest(testLocalParsing);
+    runTest(testGMTParsing);
+    runTest(testOffsetParsing);
+    runTest(testCompleteDurationParsing);
+    runTest(testAlternativeBasicDurationParsing);
+    runTest(testAlternativeExtendedDurationParsing);
+    runTest(testDurationPrinting);
+    return true;
+  }
+
+  static bool testLocalParsing()
+  {
+    const char* localDate1 = "2012-09-17T16:00:00";
+    double localTime1 = 0;
+    assertTrue(parseISO8601Date(localDate1, localTime1)
+               || localTime1 != 0,
+               "Basic date parsing failed");
+
+    std::ostringstream str1;
+    printISO8601Date(localTime1, str1);
+    assertTrueMsg(0 == strcmp(localDate1, str1.str().c_str()),
+                  "Date " << localDate1 << " printed as " << str1.str());
+
+    return true;
+  }
+
+  static bool testGMTParsing()
+  {
+    const char* zuluDate0 = "1970-01-01T00:00:00Z";
+    double zuluTime0 = 0;
+    // Not working on Mac OS X!
+    // assertTrueMsg(parseISO8601Date(zuluDate0, zuluTime0)
+    //               && zuluTime0 == 0,
+    //               "GMT date parsing failed at epoch, returned " << zuluTime0);
+
+    const char* zuluDate1 = "2012-09-17T16:00:00Z";
+    double zuluTime1 = 0;
+    assertTrue(parseISO8601Date(zuluDate1, zuluTime1)
+               && zuluTime1 != 0,
+               "GMT date parsing failed");
+
+    std::ostringstream str2;
+    printISO8601DateUTC(zuluTime1, str2);
+    assertTrueMsg(0 == strcmp(zuluDate1, str2.str().c_str()),
+                  "Date " << zuluDate1 << " printed as " << str2.str());
+
+    return true;
+  }
+
+  static bool testOffsetParsing()
+  {
+    const char* relDate1 = "2012-09-17T16:00:00+04:00";
+    double relTime1 = 0;
+    assertTrue(parseISO8601Date(relDate1, relTime1)
+               || relTime1 != 0,
+               "Offset date parsing failed");
+
+    std::ostringstream str3;
+    printISO8601DateUTC(relTime1, str3);
+    assertTrueMsg(0 == strcmp("2012-09-17T20:00:00Z", str3.str().c_str()),
+                  "Date " << relDate1 << " printed as " << str3.str());
+
+    return true;
+  }
+
+  // convenience function
+  static void tm_init(struct tm& the_tm,
+                      int year,
+                      int month,
+                      int dayOfMonth,
+                      int hour,
+                      int min, 
+                      int sec,
+                      int dstFlag)
+  {
+    the_tm.tm_year = year - 1900;
+    the_tm.tm_mon = month;
+    the_tm.tm_mday = dayOfMonth;
+    the_tm.tm_hour = hour;
+    the_tm.tm_min = min;
+    the_tm.tm_sec = sec;
+    the_tm.tm_isdst = dstFlag;
+  }
+
+  static bool testPrinting()
+  {
+    // take a date, convert it to time_t, then to double, print it
+    struct tm tm1;
+    tm_init(tm1, 2012, 6, 16, 5, 30, 0, 1);
+    time_t date1 = mktime(&tm1);
+    std::ostringstream sstr1;
+    printISO8601Date((double) date1, sstr1);
+    assertTrue(sstr1.str() == "2012-06-16T05:30:00", 
+               "Date printing error");
+
+    std::ostringstream sstr2;
+    printISO8601Date(0.5 + (double) date1, sstr2);
+    assertTrue(sstr2.str() == "2012-06-16T05:30:00.500", 
+               "Date printing error - fractional seconds");
+
+    return true;
+  }
+
+  static bool testGMTPrinting()
+  {
+    // Broken on Mac OS X
+    // std::ostringstream sstr0;
+    // printISO8601DateUTC(0.0, sstr0);
+    // assertTrueMsg(sstr0.str() == "1970-01-01T00:00:00Z",
+    //               "GMT date printing error at epoch, prints as \"" << sstr0.str() << "\"");
+
+    struct tm gmt1;
+    tm_init(gmt1, 2012, 6, 16, 5, 30, 0, 0);
+    time_t gmtime1 = timegm(&gmt1);
+    std::ostringstream sstr3;
+    printISO8601DateUTC((double) gmtime1, sstr3);
+    assertTrue(sstr3.str() == "2012-06-16T05:30:00Z", 
+               "GMT date printing error");
+
+    return true;
+  }
+
+  static bool testCompleteDurationParsing()
+  {
+    double result = 0;
+    
+    // Basics
+    assertTrue(NULL != parseISO8601Duration("PT20S", result),
+               "Complete duration parsing (seconds) failed");
+    assertTrueMsg(result == 20.0,
+                  "Complete duration parsing (seconds) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT20M", result),
+               "Complete duration parsing (minutes) failed");
+    assertTrueMsg(result == 1200.0,
+                  "Complete duration parsing (minutes) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT20H", result),
+               "Complete duration parsing (hours) failed");
+    assertTrueMsg(result == 72000.0,
+                  "Complete duration parsing (hours) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20D", result),
+               "Complete duration parsing (days) failed");
+    assertTrueMsg(result == 1728000.0,
+                  "Complete duration parsing (days) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20W", result),
+               "Complete duration parsing (weeks) failed");
+    assertTrueMsg(result == 12096000.0,
+                  "Complete duration parsing (weeks) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20M", result),
+               "Complete duration parsing (months) failed");
+    assertTrueMsg(result == 51840000.0,
+                  "Complete duration parsing (months) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20Y", result),
+               "Complete duration parsing (years) failed");
+    assertTrueMsg(result == 630720000.0,
+                  "Complete duration parsing (years) returned wrong result " << result);
+
+    // Combinations
+    assertTrue(NULL != parseISO8601Duration("P20DT20S", result),
+               "Complete duration parsing (days, seconds) failed");
+    assertTrueMsg(result == 1728020.0,
+                  "Complete duration parsing (days, seconds) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20DT20M", result),
+               "Complete duration parsing (days, minutes) failed");
+    assertTrueMsg(result == 1729200.0,
+                  "Complete duration parsing (days, minutes) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20DT20M20S", result),
+               "Complete duration parsing (days, minutes, seconds) failed");
+    assertTrueMsg(result == 1729220.0,
+                  "Complete duration parsing (days, minutes, seconds) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20DT20H", result),
+               "Complete duration parsing (days, hours) failed");
+    assertTrueMsg(result == 1800000.0,
+                  "Complete duration parsing (days, hours) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20DT20H20S", result),
+               "Complete duration parsing (days, hours, seconds) failed");
+    assertTrueMsg(result == 1800020.0,
+                  "Complete duration parsing (days, hours, seconds) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20DT20H20M20S", result),
+               "Complete duration parsing (days, hours, minutes, seconds) failed");
+    assertTrueMsg(result == 1801220.0,
+                  "Complete duration parsing (days, hours, minutes, seconds) returned wrong result " << result);
+
+    assertTrue(NULL != parseISO8601Duration("P20M20D", result),
+               "Complete duration parsing (months, days) failed");
+    assertTrueMsg(result == 53568000.0,
+                  "Complete duration parsing (months, days) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20MT20S", result),
+               "Complete duration parsing (months, seconds) failed");
+    assertTrueMsg(result == 51840020.0,
+                  "Complete duration parsing (months, seconds) returned wrong result " << result);
+
+    assertTrue(NULL != parseISO8601Duration("P20Y20D", result),
+               "Complete duration parsing (years, days) failed");
+    assertTrueMsg(result == 632448000.0,
+                  "Complete duration parsing (years) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P20YT20S", result),
+               "Complete duration parsing (years, seconds) failed");
+    assertTrueMsg(result == 630720020.0,
+                  "Complete duration parsing (years, seconds) returned wrong result " << std::setprecision(15) << result);
+
+    // Error checking
+    assertTrue(NULL == parseISO8601Duration("P20Y20S", result),
+               "Complete duration parsing (years, seconds) failed to detect missing T separator");
+
+    return true;
+  }
+
+  static bool testAlternativeBasicDurationParsing()
+  {
+    double result = 0;
+    assertTrue(NULL != parseISO8601Duration("PT000020", result),
+               "Alternative basic duration parsing (seconds) failed");
+    assertTrueMsg(result == 20.0,
+                  "Alternative basic duration parsing (seconds) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT002000", result),
+               "Alternative basic duration parsing (minutes) failed");
+    assertTrueMsg(result == 1200.0,
+                  "Alternative basic duration parsing (minutes) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT0020", result),
+               "Alternative basic duration parsing (minutes) failed");
+    assertTrueMsg(result == 1200.0,
+                  "Alternative basic duration parsing (minutes) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT200000", result),
+               "Alternative basic duration parsing (hours) failed");
+    assertTrueMsg(result == 72000.0,
+                  "Alternative basic duration parsing (hours) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT2000", result),
+               "Alternative basic duration parsing (hours) failed");
+    assertTrueMsg(result == 72000.0,
+                  "Alternative basic duration parsing (hours) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT20", result),
+               "Alternative basic duration parsing (hours) failed");
+    assertTrueMsg(result == 72000.0,
+                  "Alternative basic duration parsing (hours) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P00000020", result),
+               "Alternative basic duration parsing (days) failed");
+    assertTrueMsg(result == 1728000.0,
+                  "Alternative basic duration parsing (days) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P00002000", result),
+               "Alternative basic duration parsing (months) failed");
+    assertTrueMsg(result == 51840000.0,
+                  "Alternative basic duration parsing (months) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P00200000", result),
+               "Alternative basic duration parsing (years) failed");
+    assertTrueMsg(result == 630720000.0,
+                  "Alternative basic duration parsing (years) returned wrong result " << result);
+    return true;
+  }
+
+  static bool testAlternativeExtendedDurationParsing()
+  {
+    double result = 0;
+    assertTrue(NULL != parseISO8601Duration("PT00:00:20", result),
+               "Alternative extended duration parsing (seconds) failed");
+    assertTrueMsg(result == 20.0,
+                  "Alternative extended duration parsing (seconds) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT00:20:00", result),
+               "Alternative extended duration parsing (minutes) failed");
+    assertTrueMsg(result == 1200.0,
+                  "Alternative extended duration parsing (minutes) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT00:20", result),
+               "Alternative extended duration parsing (minutes) failed");
+    assertTrueMsg(result == 1200.0,
+                  "Alternative extended duration parsing (minutes) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT20:00:00", result),
+               "Alternative extended duration parsing (hours) failed");
+    assertTrueMsg(result == 72000.0,
+                  "Alternative extended duration parsing (hours) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT20:00", result),
+               "Alternative extended duration parsing (hours) failed");
+    assertTrueMsg(result == 72000.0,
+                  "Alternative extended duration parsing (hours) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("PT20", result),
+               "Alternative extended duration parsing (hours) failed");
+    assertTrueMsg(result == 72000.0,
+                  "Alternative extended duration parsing (hours) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P0000-00-20", result),
+               "Alternative extended duration parsing (days) failed");
+    assertTrueMsg(result == 1728000.0,
+                  "Alternative extended duration parsing (days) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P0000-20-00", result),
+               "Alternative extended duration parsing (months) failed");
+    assertTrueMsg(result == 51840000.0,
+                  "Alternative extended duration parsing (months) returned wrong result " << result);
+    assertTrue(NULL != parseISO8601Duration("P0020-00-00", result),
+               "Alternative extended duration parsing (years) failed");
+    assertTrueMsg(result == 630720000.0,
+                  "Alternative extended duration parsing (years) returned wrong result " << result);
+    return true;
+  }
+
+  static bool testDurationPrinting()
+  {
+    std::ostringstream str0;
+    printISO8601Duration(0.0, str0);
+    assertTrueMsg(str0.str() == "PT0S",
+                  "Wrong result printing zero duration \"" << str0.str() << "\"");
+
+    std::ostringstream str1;
+    printISO8601Duration(20.0, str1);
+    assertTrueMsg(str1.str() == "PT20S",
+                  "Wrong result printing seconds \"" << str1.str() << "\"");
+
+    std::ostringstream str2;
+    printISO8601Duration(1200.0, str2);
+    assertTrueMsg(str2.str() == "PT20M",
+                  "Wrong result printing minutes \"" << str2.str() << "\"");
+
+    std::ostringstream str3;
+    printISO8601Duration(72000.0, str3);
+    assertTrueMsg(str3.str() == "PT20H",
+                  "Wrong result printing hours \"" << str3.str() << "\"");
+
+    std::ostringstream str4;
+    printISO8601Duration(1728000.0, str4);
+    assertTrueMsg(str4.str() == "P20D",
+                  "Wrong result printing days \"" << str4.str() << "\"");
+
+    std::ostringstream str5;
+    printISO8601Duration(1728020.0, str5);
+    assertTrueMsg(str5.str() == "P20DT20S",
+                  "Wrong result printing days and seconds \"" << str5.str() << "\"");
+
+    std::ostringstream str6;
+    printISO8601Duration(.0, str6);
+    assertTrueMsg(str6.str() == "P1Y7M25D",
+                  "Wrong result printing years, months, days \"" << str6.str() << "\"");
+
+    return true;
+  }
+
+};
+
 void UtilModuleTests::runTests(std::string /* path */) 
 {
   runTestSuite(ErrorTest::test);
   runTestSuite(DebugTest::test);
+  runTestSuite(TimespecTests::test);
+  runTestSuite(TimevalTests::test);
+  runTestSuite(ISO8601Tests::test);
   runTestSuite(MutexTest::test);
   runTestSuite(IdTests::test);
   runTestSuite(StoredArrayTests::test);
   runTestSuite(LabelTests::test);
-  runTestSuite(TimespecTests::test);
-  runTestSuite(TimevalTests::test);
 
   std::cout << "Finished" << std::endl;
 }
