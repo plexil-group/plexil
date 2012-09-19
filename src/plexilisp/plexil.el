@@ -1491,7 +1491,7 @@
 
 (pdefine pl (current-time CurrentTime) () 0 nil ; -> xml
   "Lookup the time."
-  (pl-lookup "time"))
+  (pl-lookup-with-tolerance "time" 0.1))
 
 
 
