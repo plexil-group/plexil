@@ -61,6 +61,7 @@
 #include "XMLUtils.hh"
 
 #include <cfloat>
+#include <cstring> // for strcmp
 #include <iomanip>
 #include <iostream>
 #include <fstream>
