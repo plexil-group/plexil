@@ -28,6 +28,7 @@
 #include "timespec-utils.hh"
 
 #include <cmath>
+#include <cstring>
 #include <ctime>
 
 // Parse the first len characters of in as an integer and store result in dest.
@@ -239,7 +240,7 @@ extern const char* parseISO8601Duration(const char* durStr, double& result)
   int seconds = 0;
   
   int tmp = 0;
-  char* designator = NULL;
+  const char* designator = NULL;
 
   bool complete = false;
   bool extended = false;
@@ -361,7 +362,10 @@ extern const char* parseISO8601Duration(const char* durStr, double& result)
         return NULL;
       }
 
-      designator = strpbrk(next, "HMS");
+      if (!(designator = strpbrk(next, "HMS"))) {
+        std::cout << "parseISO8601Duration: invalid complete format for \"" << durStr << "\"" << std::endl;
+        return NULL;
+      }
       next = substrtoi(next, designator - next, tmp);
       if (next != designator) {
         // junk in string
@@ -579,7 +583,7 @@ extern void printISO8601Duration(double dur, std::ostream& stream)
   }
 
   // print 'em
-  bool printSecs = sec != 0.0 || !yrs && !mos && !days && !hrs && !min;
+  bool printSecs = sec != 0.0 || (!yrs && !mos && !days && !hrs && !min);
 
   stream.put('P');
   if (yrs)
