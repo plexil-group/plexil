@@ -100,14 +100,20 @@ namespace PLEXIL
    */
   CommandNode::~CommandNode()
   {
-    // Redundant with base class destructor
+    debugMsg("CommandNode:~CommandNode", " destructor for " << m_nodeId.toString());
+
+    // MUST be called first, here. Yes, it's redundant with base class.
     cleanUpConditions();
+
     cleanUpNodeBody();
   }
 
   // Not useful if called from base class destructor!
+  // Can be called redundantly, e.g. from ListNode::cleanUpChildConditions().
   void CommandNode::cleanUpNodeBody()
   {
+    debugMsg("CommandNode:cleanUpNodeBody", " for " << m_nodeId.toString());
+
     if (m_command.isId()) {
       debugMsg("CommandNode:cleanUpNodeBody", "<" << m_nodeId.toString() << "> Removing command.");
       delete (Command*) m_command;

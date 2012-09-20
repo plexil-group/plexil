@@ -89,7 +89,7 @@ namespace PLEXIL
     virtual void transitionFromFinishing(NodeState toState);
     virtual void transitionFromFailing(NodeState toState);
 
-    // Not useful if called from base class destructor!
+    // These are not useful if called from base class destructor!
     virtual void cleanUpNodeBody();
 
     virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const;

@@ -753,8 +753,11 @@ namespace PLEXIL {
   {
     debugMsg("Node:~Node", " base class destructor for " << m_nodeId.toString());
 
-    // Remove anything that refers to variables, either ours or another node's
+    // Remove conditions as they may refer to variables, either ours or another node's
+    // Derived classes should also call this
     cleanUpConditions();
+
+    // cleanUpNodeBody(); // NOT USEFUL here - derived classes MUST call this!
 
     // Now safe to delete variables
     cleanUpVars();

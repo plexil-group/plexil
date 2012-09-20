@@ -195,11 +195,11 @@ namespace PLEXIL
     debugMsg("ListNode:~ListNode", " destructor for " << m_nodeId.toString());
 
     cleanUpConditions();
+
     cleanUpNodeBody();
-    // cleanUpVars(); // base destructor can handle this
   }
 
-  void ListNode::cleanUpConditions() 
+  void ListNode::cleanUpConditions()
   {
     if (m_cleanedConditions)
       return;
@@ -208,7 +208,6 @@ namespace PLEXIL
 
     cleanUpChildConditions();
 
-    // Defer to base class
     Node::cleanUpConditions();
   }
 
@@ -227,6 +226,8 @@ namespace PLEXIL
     debugMsg("ListNode:cleanUpChildConditions", " for " << m_nodeId.toString());
     for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       (*it)->cleanUpConditions();
+    for (std::vector<NodeId>::iterator it = m_children.begin(); it != m_children.end(); ++it)
+      (*it)->cleanUpNodeBody();
   }
 
   class NodeIdEq {

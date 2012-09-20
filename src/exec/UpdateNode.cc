@@ -92,15 +92,24 @@ namespace PLEXIL
    */
   UpdateNode::~UpdateNode()
   {
-    // Redundant with base class destructor
+    debugMsg("UpdateNode:~UpdateNode", " destructor for " << m_nodeId.toString());
+
+    // MUST be called first, here. Yes, it's redundant with base class.
     cleanUpConditions();
+
     cleanUpNodeBody();
   }
 
+  // Not useful if called from base class destructor!
+  // Can be called redundantly, e.g. from ListNode::cleanUpChildConditions().
   void UpdateNode::cleanUpNodeBody()
   {
+    debugMsg("UpdateNode:cleanUpConditions", " for " << m_nodeId.toString());
+    // Delegate to base
+    Node::cleanUpConditions();
+
     if (m_update.isId()) {
-      debugMsg("Node:cleanUpConds", "<" << m_nodeId.toString() << "> Removing update.");
+      debugMsg("UpdateNode:cleanUpConditions", "<" << m_nodeId.toString() << "> Removing update.");
       delete (Update*) m_update;
       m_update = UpdateId::noId();
     }
