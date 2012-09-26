@@ -117,14 +117,7 @@
 #define condDebugMsg(cond, marker, data) { \
   static DebugMessage *dmPtr = DebugMessage::addMsg(__FILE__, __LINE__, marker); \
   if (dmPtr->isEnabled() && (cond)) { \
-    try { \
-      DebugMessage::getStream().exceptions(std::ios_base::badbit); \
-      DebugMessage::getStream() << /*dmPtr[0] << */ "[" << marker << "]" << data << std::endl; \
-    } \
-    catch(std::ios_base::failure& exc) { \
-      checkError(ALWAYS_FAIL, exc.what()); \
-      throw; \
-    } \
+    DebugMessage::getStream() << "[" << marker << "]" << data << std::endl; \
   } \
 }
 
