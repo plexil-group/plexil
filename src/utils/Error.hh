@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -260,14 +260,14 @@ public:
      @see Error::setCause()
   */
   inline Error(const std::string& msg)
-    : m_msg(msg), m_type("Error") {
+    : m_msg(msg), m_type("Error"), m_line(0) {
   }
 
   /**
      @brief Copy constructor.
   */
   inline Error(const Error& err)
-    : m_condition(err.m_condition), m_msg(err.m_msg), m_file(err.m_file), m_line(err.m_line) {
+  : m_condition(err.m_condition), m_msg(err.m_msg), m_file(err.m_file), m_line(err.m_line) {
   }
 
   /**
@@ -421,14 +421,14 @@ public:
 
   /**
    * Indicate that warnings should be printed when detected.
-  */
+   */
   inline static void doDisplayWarnings() {
     s_printWarnings = true;
   }
 
   /**
    * Indicate that warnings should not be printed.
-  */
+   */
   inline static void doNotDisplayWarnings() {
     s_printWarnings = false;
   }
