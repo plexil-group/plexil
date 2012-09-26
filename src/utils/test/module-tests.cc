@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,15 +25,6 @@
 */
 
 #include "util-test-module.hh"
-#include "limits"
-#include "Debug.hh"
-#include "StoredItem.hh"
-#include "StoredArray.hh"
-#include "LabelStr.hh"
-#include <iostream>
-
-using namespace std;
-using namespace PLEXIL;
 
 int main(int /* argc */, const char** /* argv */) 
 {
