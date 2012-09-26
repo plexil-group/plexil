@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,148 +32,148 @@
 namespace PLEXIL
 {
 
-   // define the empty label
+  // define the empty label
 
-   DEFINE_GLOBAL_CONST(LabelStr, EMPTY_LABEL, "");
+  DEFINE_GLOBAL_CONST(LabelStr, EMPTY_LABEL, "");
 
-   LabelStr::LabelStr()
-   {
+  LabelStr::LabelStr()
+  {
 #ifndef PLEXIL_FAST
-      m_chars = empty().c_str();
+    m_chars = empty().c_str();
 #endif
-   }
+  }
 
-   /**
-    * Construction must obtain a key that is efficient to use for later
-    * calculations in the domain and must maintain the ordering defined
-    * by the strings.
-    */
-   LabelStr::LabelStr(const std::string& label) : 
-      StoredString(&label, true)
-   {
+  /**
+   * Construction must obtain a key that is efficient to use for later
+   * calculations in the domain and must maintain the ordering defined
+   * by the strings.
+   */
+  LabelStr::LabelStr(const std::string& label) : 
+    StoredString(&label, true)
+  {
 #ifndef PLEXIL_FAST
-	 m_chars = StoredString::getItem().c_str();
+    m_chars = StoredString::getItem().c_str();
 #endif
-   }
+  }
 
-   LabelStr::LabelStr(const char* label):
-      StoredString(new std::string(label), false)
-   {
+  LabelStr::LabelStr(const char* label):
+    StoredString(new std::string(label), false)
+  {
 #ifndef PLEXIL_FAST
-	 m_chars = StoredString::getItem().c_str();
+    m_chars = StoredString::getItem().c_str();
 #endif
-   }
+  }
 
-   LabelStr::LabelStr(double key):
-      StoredString(key)
-   {
-      check_error(isKey(key), "Invalid key provided.");
-
-#ifndef PLEXIL_FAST
-      m_chars = StoredString::getItem().c_str();
-#endif
-   }
-
-   const std::string& LabelStr::toString() const
-   {
-	 return StoredString::getItem();
-   }
-
-   const char* LabelStr::c_str() const
-   {
-	 return StoredString::getItem().c_str();
-   }
+  LabelStr::LabelStr(double key):
+    StoredString(key)
+  {
+    check_error(isKey(key), "Invalid key provided.");
 
 #ifndef PLEXIL_FAST
+    m_chars = StoredString::getItem().c_str();
+#endif
+  }
 
-   LabelStr::LabelStr(const LabelStr& org):
-      StoredString(org.getKey())
-   {
-      m_chars = org.m_chars;
-   }
+  const std::string& LabelStr::toString() const
+  {
+    return StoredString::getItem();
+  }
 
-   LabelStr::operator double () const
-   {
-      return getKey();
-   }
+  const char* LabelStr::c_str() const
+  {
+    return StoredString::getItem().c_str();
+  }
+
+#ifndef PLEXIL_FAST
+
+  LabelStr::LabelStr(const LabelStr& org):
+    StoredString(org.getKey())
+  {
+    m_chars = org.m_chars;
+  }
+
+  LabelStr::operator double () const
+  {
+    return getKey();
+  }
 
 #endif
 
-   bool LabelStr::operator<(const LabelStr& lbl) const
-   {
-      return toString() < lbl.toString();
-   }
+  bool LabelStr::operator<(const LabelStr& lbl) const
+  {
+    return toString() < lbl.toString();
+  }
 
-   bool LabelStr::operator>(const LabelStr& lbl) const
-   {
-      return toString() > lbl.toString();
-   }
+  bool LabelStr::operator>(const LabelStr& lbl) const
+  {
+    return toString() > lbl.toString();
+  }
 
-//    bool LabelStr::operator==(const LabelStr& lbl) const
-//    {
-//       return getKey() == lbl.getKey();
-//    }
+  //    bool LabelStr::operator==(const LabelStr& lbl) const
+  //    {
+  //       return getKey() == lbl.getKey();
+  //    }
 
-   unsigned int LabelStr::getSize()
-   {
-      return StoredString::getSize();
-   }
+  unsigned int LabelStr::getSize()
+  {
+    return StoredString::getSize();
+  }
 
-   bool LabelStr::isString(double key)
-   {
-      return StoredString::isKey(key);
-   }
+  bool LabelStr::isString(double key)
+  {
+    return StoredString::isKey(key);
+  }
 
-   bool LabelStr::isString(const std::string& candidate)
-   {
-      return StoredString::isItem(&candidate);
-   }
+  bool LabelStr::isString(const std::string& candidate)
+  {
+    return StoredString::isItem(&candidate);
+  }
 
-   bool LabelStr::contains(const LabelStr& lblStr) const
-   {
-      const std::string& thisStr = toString();
-      int index = thisStr.find(lblStr.c_str());
-      return (index >= 0);
-   }
+  bool LabelStr::contains(const LabelStr& lblStr) const
+  {
+    const std::string& thisStr = toString();
+    int index = thisStr.find(lblStr.c_str());
+    return (index >= 0);
+  }
 
 
-   unsigned int LabelStr::countElements(const char* delimiter) const
-   {
-      check_error(delimiter != NULL && delimiter != 0 && delimiter[0] != '\0', "'NULL' and '\\0' are not valid delimiters");
+  unsigned int LabelStr::countElements(const char* delimiter) const
+  {
+    check_error(delimiter != NULL && delimiter[0] != '\0', "'NULL' and '\\0' are not valid delimiters");
 
-      //allocate a results vector
-      std::vector<std::string> tokens;
+    //allocate a results vector
+    std::vector<std::string> tokens;
 
-      // Get a std string from the LabelStr
-      const std::string& srcStr = toString();
+    // Get a std string from the LabelStr
+    const std::string& srcStr = toString();
 
-      //create a std string of the delimiter
-      std::string delim(delimiter);
+    //create a std string of the delimiter
+    std::string delim(delimiter);
 
-      tokenize(srcStr, tokens, delim);
+    tokenize(srcStr, tokens, delim);
 
-      return tokens.size();
-   }
+    return tokens.size();
+  }
 
-   LabelStr LabelStr::getElement(unsigned int index, const char* delimiter) const
-   {
-      check_error(delimiter != NULL && delimiter != 0 && delimiter[0] != '\0', "'NULL' and '\\0' are not valid delimiters");
+  LabelStr LabelStr::getElement(unsigned int index, const char* delimiter) const
+  {
+    check_error(delimiter != NULL && delimiter[0] != '\0', "'NULL' and '\\0' are not valid delimiters");
 
-      //allocate a results vector
-      std::vector<std::string> tokens;
+    //allocate a results vector
+    std::vector<std::string> tokens;
 
-      // Get a std string from the LabelStr
-      const std::string& srcStr = toString();
+    // Get a std string from the LabelStr
+    const std::string& srcStr = toString();
 
-      //create a std string of the delimiter
-      std::string delim(delimiter);
+    //create a std string of the delimiter
+    std::string delim(delimiter);
 
-      tokenize(srcStr, tokens, delim);
+    tokenize(srcStr, tokens, delim);
 
-      LabelStr result(tokens[index]);
+    LabelStr result(tokens[index]);
 
-      return result;
-   }
+    return result;
+  }
 
 
   /**
@@ -181,8 +181,8 @@ namespace PLEXIL
    */
 
   void LabelStr::tokenize(const std::string& str, 
-						  std::vector<std::string>& tokens,  
-						  const std::string& delimiters)  {
+                          std::vector<std::string>& tokens,  
+                          const std::string& delimiters)  {
     // Skip delimiters at beginning.
     std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
     // Find first "non-delimiter".
