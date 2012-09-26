@@ -486,7 +486,7 @@ bool IdTests::testCollectionSupport()
 {
   // Test inclusion in a collection class - forces compilation test
   std::list< Id<Foo> > fooList;
-  assertTrue(fooList.size() == 0);
+  assertTrue(fooList.empty());
   return true;
 }
 
@@ -702,8 +702,6 @@ bool IdTests::testVirtualInheritance()
   assertTrue(pootdootPoot.isNoId());
 
   // Release
-  pootdoot = 0; // zero pointer here to be safe
-
   pootdootRoot.release();
   assertTrue(pootdootRoot.isNoId());
 
@@ -1274,9 +1272,9 @@ public:
 
   static bool testGMTParsing()
   {
-    const char* zuluDate0 = "1970-01-01T00:00:00Z";
-    double zuluTime0 = 0;
     // Not working on Mac OS X!
+    // const char* zuluDate0 = "1970-01-01T00:00:00Z";
+    // double zuluTime0 = 0;
     // assertTrueMsg(parseISO8601Date(zuluDate0, zuluTime0)
     //               && zuluTime0 == 0,
     //               "GMT date parsing failed at epoch, returned " << zuluTime0);
