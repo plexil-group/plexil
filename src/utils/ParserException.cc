@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,8 @@ namespace PLEXIL
   ParserException::ParserException()
     throw ()
     : std::exception(), 
-    m_what("Unspecified parser exception")
+      m_what("Unspecified parser exception"),
+      m_offset(0)
   {
   }
 
@@ -62,12 +63,12 @@ namespace PLEXIL
   {
     this->std::exception::operator=(other);
     m_what = other.m_what;
-	m_offset = other.m_offset;
+    m_offset = other.m_offset;
     return *this;
   }
 
   ParserException::~ParserException()
-    throw()
+  throw()
   {
   }
 
