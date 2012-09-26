@@ -277,6 +277,7 @@ public:
     m_condition = err.m_condition;
     m_msg = err.m_msg;
     m_file = err.m_file;
+    m_type = err.m_type;
     m_line = err.m_line;
     return(*this);
   }
@@ -472,8 +473,8 @@ private:
   std::string m_condition; /**<The condition that, being false, implies the error has occurred. */
   std::string m_msg; /**<Additional info about the error. */
   std::string m_file; /**<The source file in which the error was detected (__FILE__). */
-  int m_line; /**<The source line on which the error detected (__LINE__). */
   std::string m_type; /**<The type of the error as. */
+  int m_line; /**<The source line on which the error detected (__LINE__). */
   static bool s_throw; /**<Set to throw exception. */
   static bool s_printErrors; /**<Set to print errors when detetected */
   static bool s_printWarnings; /**<Set to print warnings */

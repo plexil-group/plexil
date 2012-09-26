@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,28 +56,28 @@ bool Error::s_printErrors = true;
 bool Error::s_printWarnings = true;
 
 Error::Error(const std::string& condition, const std::string& file, const int& line)
-  : m_condition(condition), m_file(file), m_line(line), m_type("Error") {
+  : m_condition(condition), m_file(file), m_type("Error"), m_line(line) {
   if (s_os == 0)
     s_os = &(std::cerr);
 }
 
 Error::Error(const std::string& condition, const std::string& msg,
              const std::string& file, const int& line)
-  : m_condition(condition), m_msg(msg), m_file(file), m_line(line), m_type("Error") {
+  : m_condition(condition), m_msg(msg), m_file(file), m_type("Error"), m_line(line) {
   if (s_os == 0)
     s_os = &(std::cerr);
 }
 
 Error::Error(const std::string& condition, const Error& exception,
              const std::string& file, const int& line)
-  : m_condition(condition), m_msg(exception.getMsg()), m_file(file), m_line(line), m_type("Error") {
+  : m_condition(condition), m_msg(exception.getMsg()), m_file(file), m_type("Error"), m_line(line) {
   if (s_os == 0)
     s_os = &(std::cerr);
 }
 
 Error::Error(const std::string& condition, const std::string& msg, const std::string& type,
              const std::string& file, const int& line)
-  : m_condition(condition), m_msg(msg), m_file(file), m_line(line), m_type(type) {
+  : m_condition(condition), m_msg(msg), m_file(file), m_type(type), m_line(line) {
   if (s_os == 0)
     s_os = &(std::cerr);
 }
