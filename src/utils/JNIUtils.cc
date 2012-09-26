@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,35 +33,37 @@
 // Utilities for accessing Java data
 //
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
   JNIUtils::JNIUtils(JNIEnv* env)
-	: m_env(env),
-	  m_stringClass(NULL)
+    : m_env(env),
+      m_stringClass(NULL)
   {
-	assertTrueMsg(m_env != NULL,
-				  "JNIUtils constructor: JNI environment is NULL");
+    assertTrueMsg(m_env != NULL,
+                  "JNIUtils constructor: JNI environment is NULL");
   }
 
   JNIUtils::JNIUtils(const JNIUtils& other)
-	: m_env(other.m_env)
+    : m_env(other.m_env)
   {
-	assertTrueMsg(m_env != NULL,
-				  "JNIUtils constructor: JNI environment is NULL");
+    assertTrueMsg(m_env != NULL,
+                  "JNIUtils constructor: JNI environment is NULL");
   }
 
   JNIUtils::~JNIUtils()
   {
-	// Clean up JNI ref
-	if (m_stringClass != NULL)
-	  m_env->DeleteLocalRef(m_stringClass);
+    // Clean up JNI ref
+    if (m_stringClass != NULL)
+      m_env->DeleteLocalRef(m_stringClass);
   }
 
   JNIUtils& JNIUtils::operator=(const JNIUtils& orig)
   {
-	m_env = orig.m_env;
-	assertTrueMsg(m_env != NULL,
-				  "JNIUtils::operator=: JNI environment is NULL");
+    m_env = orig.m_env;
+    assertTrueMsg(m_env != NULL,
+                  "JNIUtils::operator=: JNI environment is NULL");
+    return *this;
   }
 
 
@@ -72,14 +74,14 @@ namespace PLEXIL {
    */
   char* JNIUtils::getJavaStringCopy(jstring javaString)
   {
-	if (javaString == NULL)
-	  return NULL;
+    if (javaString == NULL)
+      return NULL;
 
-	jsize utflen = m_env->GetStringUTFLength(javaString);
-	char* ourString = new char[utflen + 1];
-	m_env->GetStringUTFRegion(javaString, 0, m_env->GetStringLength(javaString), ourString);
-	ourString[utflen] = '\0'; // to be safe
-	return ourString;
+    jsize utflen = m_env->GetStringUTFLength(javaString);
+    char* ourString = new char[utflen + 1];
+    m_env->GetStringUTFRegion(javaString, 0, m_env->GetStringLength(javaString), ourString);
+    ourString[utflen] = '\0'; // to be safe
+    return ourString;
   }
 
   /**
@@ -92,28 +94,28 @@ namespace PLEXIL {
    */
   bool JNIUtils::getArgcArgv(jobjectArray javaArgv, int &argcReturn, char** &argvReturn)
   {
-	// Get argv length
-	int argc = m_env->GetArrayLength(javaArgv);
+    // Get argv length
+    int argc = m_env->GetArrayLength(javaArgv);
 
-	// Allocate and initialize argv
-	char** argv = new char*[argc + 1];
-	for (unsigned int i = 0; i <= argc; i++)
-	  argv[i] = NULL;
-	   
-	// Copy the strings
-	for (unsigned int i = 0; i < argc; i++) {
-	  jstring java_string = (jstring) m_env->GetObjectArrayElement(javaArgv, i);
-	  if (java_string == NULL) {
-		debugMsg("JNIUtils:getArgcArgv", "GetObjectArrayElement returned NULL");
-		// FIXME: clean up all allocated structures here
-		return false;
-	  }
-	  argv[i] = getJavaStringCopy(java_string);
-	}
+    // Allocate and initialize argv
+    char** argv = new char*[argc + 1];
+    for (unsigned int i = 0; i <= argc; i++)
+      argv[i] = NULL;
+       
+    // Copy the strings
+    for (unsigned int i = 0; i < argc; i++) {
+      jstring java_string = (jstring) m_env->GetObjectArrayElement(javaArgv, i);
+      if (java_string == NULL) {
+        debugMsg("JNIUtils:getArgcArgv", "GetObjectArrayElement returned NULL");
+        // FIXME: clean up all allocated structures here
+        return false;
+      }
+      argv[i] = getJavaStringCopy(java_string);
+    }
 
-	argcReturn = argc;
-	argvReturn = argv;
-	return true;
+    argcReturn = argc;
+    argvReturn = argv;
+    return true;
   }
 
 
@@ -124,7 +126,7 @@ namespace PLEXIL {
    */
   jstring JNIUtils::makeJavaString(const char* cstr)
   {
-	return m_env->NewStringUTF(cstr);
+    return m_env->NewStringUTF(cstr);
   }
 
 
@@ -135,12 +137,12 @@ namespace PLEXIL {
    */
   jobjectArray JNIUtils::makeJavaStringArray(jsize size)
   {
-	if (m_stringClass == NULL)
-	  m_stringClass = m_env->FindClass("java/lang/String");
-	assertTrueMsg(m_stringClass != NULL,
-				  "FindClass failed to find Java string class");
+    if (m_stringClass == NULL)
+      m_stringClass = m_env->FindClass("java/lang/String");
+    assertTrueMsg(m_stringClass != NULL,
+                  "FindClass failed to find Java string class");
 
-	return m_env->NewObjectArray(size, m_stringClass, NULL);
+    return m_env->NewObjectArray(size, m_stringClass, NULL);
   }
 
   /**
@@ -150,20 +152,20 @@ namespace PLEXIL {
    */
   std::vector<std::string>* JNIUtils::getJavaStringArray(jobjectArray ary)
   {
-	assertTrue(ary != NULL);
+    assertTrue(ary != NULL);
 
-	jsize n = m_env->GetArrayLength(ary);
-	std::vector<std::string>* result = new std::vector<std::string>(n);
-	for (jsize i = 0; i < n; i++) {
-	  jstring javastr = (jstring) m_env->GetObjectArrayElement(ary, i);
-	  if (javastr != NULL) {
-		const char* utf = m_env->GetStringUTFChars(javastr, NULL);
-		(*result)[i] = utf;
-		m_env->ReleaseStringUTFChars(javastr, utf);
-	  }
-	  m_env->DeleteLocalRef(javastr);
-	}
-	return result;
+    jsize n = m_env->GetArrayLength(ary);
+    std::vector<std::string>* result = new std::vector<std::string>(n);
+    for (jsize i = 0; i < n; i++) {
+      jstring javastr = (jstring) m_env->GetObjectArrayElement(ary, i);
+      if (javastr != NULL) {
+        const char* utf = m_env->GetStringUTFChars(javastr, NULL);
+        (*result)[i] = utf;
+        m_env->ReleaseStringUTFChars(javastr, utf);
+      }
+      m_env->DeleteLocalRef(javastr);
+    }
+    return result;
   }
 
 }
