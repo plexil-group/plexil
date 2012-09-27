@@ -243,7 +243,7 @@ namespace PLEXIL
           std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
           for (std::vector<std::string>::const_iterator it = path->begin();
                it != path->end();
-               it++)
+               ++it)
             m_libraryPath.push_back(*it);
           delete path;
         }
@@ -255,7 +255,7 @@ namespace PLEXIL
           std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
           for (std::vector<std::string>::const_iterator it = path->begin();
                it != path->end();
-               it++)
+               ++it)
             m_planPath.push_back(*it);
           delete path;
         }
@@ -327,7 +327,7 @@ namespace PLEXIL
   {
     for (std::vector<std::string>::const_iterator it = libdirs.begin();
          it != libdirs.end();
-         it++) {
+         ++it) {
       m_libraryPath.push_back(*it);
     }
   }
@@ -349,7 +349,7 @@ namespace PLEXIL
   {
     for (std::vector<std::string>::const_iterator it = libdirs.begin();
          it != libdirs.end();
-         it++) {
+         ++it) {
       m_planPath.push_back(*it);
     }
   }
@@ -364,7 +364,7 @@ namespace PLEXIL
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
          success && it != m_adapters.end();
-         it++) {
+         ++it) {
       InterfaceAdapterId a = *it;
       success = a->initialize();
       if (!success) {
@@ -404,7 +404,7 @@ namespace PLEXIL
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
          success && it != m_adapters.end();
-         it++) {
+         ++it) {
       success = (*it)->start();
       if (!success) {
         const pugi::xml_node& adapterXml = (*it)->getXml();
@@ -433,7 +433,7 @@ namespace PLEXIL
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
          it != m_adapters.end();
-         it++)
+         ++it)
       success = (*it)->stop() && success;
 
     success = m_listenerHub->stop() && success;
@@ -459,7 +459,7 @@ namespace PLEXIL
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
          it != m_adapters.end();
-         it++)
+         ++it)
       success = (*it)->reset() && success;
 
     success = m_listenerHub->reset() && success;
@@ -487,7 +487,7 @@ namespace PLEXIL
     bool success = true;
     for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
          it != m_adapters.end();
-         it++)
+         ++it)
       success = (*it)->shutdown() && success;
     success = m_listenerHub->shutdown() && success;
 
@@ -743,7 +743,7 @@ namespace PLEXIL
 
     for (std::list<CommandId>::const_iterator it = commands.begin();
          it != commands.end();
-         it++) {
+         ++it) {
       CommandId cmd = *it;
 
       if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end())) {
@@ -796,7 +796,7 @@ namespace PLEXIL
                  " no planner update interface defined, acknowledging updates");
         for (std::list<UpdateId>::const_iterator it = updates.begin();
              it != updates.end();
-             it++)
+             ++it)
           handleValueChange((ExpressionId) (*it)->getAck(),
                             BooleanVariable::TRUE_VALUE());
         notifyOfExternalEvent();
@@ -805,7 +805,7 @@ namespace PLEXIL
       {
         for (std::list<UpdateId>::const_iterator it = updates.begin();
              it != updates.end();
-             it++)
+             ++it)
           {
             UpdateId upd = *it;
             debugMsg("InterfaceManager:updatePlanner",

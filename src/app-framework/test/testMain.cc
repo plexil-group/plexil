@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -140,7 +140,7 @@ int main(int argc, char** argv)
       std::cout << "Reading interface configuration from "
                 << configFilename
                 << std::endl;
-	  pugi::xml_parse_result result = configDoc.load_file(configFilename);
+      pugi::xml_parse_result result = configDoc.load_file(configFilename);
       if (result.status != pugi::status_ok)
         {
           std::cout << "ERROR: unable to load configuration file "
@@ -195,8 +195,8 @@ int main(int argc, char** argv)
       std::cout << "Reading library node from file "
                 << libFilename
                 << std::endl;
-	  pugi::xml_document libDoc;
-	  pugi::xml_parse_result result = libDoc.load_file(libFilename);
+      pugi::xml_document libDoc;
+      pugi::xml_parse_result result = libDoc.load_file(libFilename);
       if (result.status != pugi::status_ok)
         {
           std::cout << "ERROR: unable to load library XML from file "
@@ -213,7 +213,7 @@ int main(int argc, char** argv)
                     << std::endl;
           return -1;
         }
-      libiter++;
+      ++libiter;
     }
   
 

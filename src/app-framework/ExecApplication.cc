@@ -51,14 +51,17 @@ namespace PLEXIL
       m_execThread(),
       m_execMutex(),
       m_sem(),
-	  m_markSem(),
-	  m_shutdownSem(),
+      m_markSem(),
+      m_shutdownSem(),
       m_state(APP_UNINITED),
       m_runExecInBkgndOnly(true),
-	  m_stop(false),
+      m_stop(false),
       m_suspended(false),
-	  m_nBlockedSignals(0)
+      m_nBlockedSignals(0)
   {
+    for (size_t i = 0; i <= EXEC_APPLICATION_MAX_N_SIGNALS; i++)
+      m_blockedSignals[i] = 0;
+
     // connect exec and interface manager
     m_exec.setExternalInterface(m_interface.getId());
     m_interface.setExec(m_exec.getId());
@@ -74,7 +77,7 @@ namespace PLEXIL
    */
   void ExecApplication::addLibraryPath(const std::string& libdir)
   {
-	m_interface.addLibraryPath(libdir);
+    m_interface.addLibraryPath(libdir);
   }
 
   /**
@@ -83,7 +86,7 @@ namespace PLEXIL
    */
   void ExecApplication::addLibraryPath(const std::vector<std::string>& libdirs)
   {
-	m_interface.addLibraryPath(libdirs);
+    m_interface.addLibraryPath(libdirs);
   }
 
   /**
@@ -111,14 +114,14 @@ namespace PLEXIL
 
     // Construct interfaces
     if (!m_interface.constructInterfaces(configXml))
-	  return false;
+      return false;
 
     // Initialize them
     if (!m_interface.initialize())
-	  return false;
+      return false;
 
-	// Set the application state and return
-	return setApplicationState(APP_INITED);
+    // Set the application state and return
+    return setApplicationState(APP_INITED);
   }
 
   /**
@@ -152,23 +155,23 @@ namespace PLEXIL
     if (m_state != APP_READY)
       return false;
 
-	{
-	  RTMutexGuard guard(m_execMutex);
-	  debugMsg("ExecApplication:step", " (" << pthread_self() << ") Checking interface queue");
-	  if (m_interface.processQueue()) {
-		do {
-		  debugMsg("ExecApplication:step", " (" << pthread_self() << ") Stepping exec");
-		  m_exec.step();
-		}
-		while (m_exec.needsStep());
-		debugMsg("ExecApplication:step", " (" << pthread_self() << ") Step complete and all nodes quiescent");
-	  }
-	  else {
-		debugMsg("ExecApplication:step", " (" << pthread_self() << ") Queue processed, no step required.");
-	  }
-	}
+    {
+      RTMutexGuard guard(m_execMutex);
+      debugMsg("ExecApplication:step", " (" << pthread_self() << ") Checking interface queue");
+      if (m_interface.processQueue()) {
+        do {
+          debugMsg("ExecApplication:step", " (" << pthread_self() << ") Stepping exec");
+          m_exec.step();
+        }
+        while (m_exec.needsStep());
+        debugMsg("ExecApplication:step", " (" << pthread_self() << ") Step complete and all nodes quiescent");
+      }
+      else {
+        debugMsg("ExecApplication:step", " (" << pthread_self() << ") Queue processed, no step required.");
+      }
+    }
 
-	return true;
+    return true;
   }
 
   /**
@@ -184,8 +187,8 @@ namespace PLEXIL
       RTMutexGuard guard(m_execMutex);
       debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") Checking interface queue");
       while (m_interface.processQueue() || m_exec.needsStep()) {
-		debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") Stepping exec");
-		m_exec.step();
+        debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") Stepping exec");
+        m_exec.step();
       }
     }
     debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") completed, queue empty and Exec quiescent.");
@@ -208,9 +211,9 @@ namespace PLEXIL
     m_suspended = false;
 
 #ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
-	// Set up signal handling in main thread
-	assertTrueMsg(initializeMainSignalHandling(),
-				  "ExecApplication::run: failed to initialize main thread signal handling");
+    // Set up signal handling in main thread
+    assertTrueMsg(initializeMainSignalHandling(),
+                  "ExecApplication::run: failed to initialize main thread signal handling");
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
     // Start the event listener thread
@@ -223,8 +226,8 @@ namespace PLEXIL
    */
   bool ExecApplication::suspend()
   {
-	if (m_state == APP_READY)
-	  return true; // already paused
+    if (m_state == APP_READY)
+      return true; // already paused
 
     if (m_state != APP_RUNNING)
       return false;
@@ -242,7 +245,7 @@ namespace PLEXIL
    */
   bool ExecApplication::resume()
   {
-	// Can only resume if ready and suspended
+    // Can only resume if ready and suspended
     if (m_state != APP_READY || !m_suspended)
       return false;
 
@@ -268,21 +271,21 @@ namespace PLEXIL
 
     // Stop the Exec
     debugMsg("ExecApplication:stop", " Halting top level thread");
-	m_stop = true;
-	int status = m_sem.post();
-	assertTrueMsg(status == 0,
-				  "ExecApplication::stop: semaphore post failed, status = "
-				  << status);
+    m_stop = true;
+    int status = m_sem.post();
+    assertTrueMsg(status == 0,
+                  "ExecApplication::stop: semaphore post failed, status = "
+                  << status);
     sleep(1);
 
-	if (m_stop) {
-	  // Exec thread failed to acknowledge stop - resort to stronger measures
-	  status = pthread_kill(m_execThread, SIGUSR2);
-	  assertTrueMsg(status == 0,
-				  "ExecApplication::stop: pthread_kill failed, status = "
-				  << status);
-	  sleep(1);
-	}
+    if (m_stop) {
+      // Exec thread failed to acknowledge stop - resort to stronger measures
+      status = pthread_kill(m_execThread, SIGUSR2);
+      assertTrueMsg(status == 0,
+                  "ExecApplication::stop: pthread_kill failed, status = "
+                  << status);
+      sleep(1);
+    }
 
     status = pthread_join(m_execThread, NULL);
     if (status != 0) {
@@ -293,9 +296,9 @@ namespace PLEXIL
     debugMsg("ExecApplication:stop", " Top level thread halted");
 
 #ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
-	// Restore signal handling
-	assertTrueMsg(restoreMainSignalHandling(),
-				  "ExecApplication::stop: failed to restore signal handling for main thread");
+    // Restore signal handling
+    assertTrueMsg(restoreMainSignalHandling(),
+                  "ExecApplication::stop: failed to restore signal handling for main thread");
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
     
     return setApplicationState(APP_STOPPED);
@@ -308,7 +311,7 @@ namespace PLEXIL
    */
   bool ExecApplication::reset()
   {
-	debugMsg("ExecApplication:reset", " entered");
+    debugMsg("ExecApplication:reset", " entered");
     if (m_state != APP_STOPPED)
       return false;
 
@@ -321,7 +324,7 @@ namespace PLEXIL
     // Reset the Exec
     // *** NYI ***
     
-	debugMsg("ExecApplication:reset", " completed");
+    debugMsg("ExecApplication:reset", " completed");
     return setApplicationState(APP_INITED);
   }
 
@@ -332,7 +335,7 @@ namespace PLEXIL
    */
   bool ExecApplication::shutdown()
   {
-	debugMsg("ExecApplication:shutdown", " entered");
+    debugMsg("ExecApplication:shutdown", " entered");
     if (m_state != APP_STOPPED)
       return false;
 
@@ -342,7 +345,7 @@ namespace PLEXIL
     // Shut down interfaces
     m_interface.shutdown();
     
-	debugMsg("ExecApplication:shutdown", " completed");
+    debugMsg("ExecApplication:shutdown", " completed");
     return setApplicationState(APP_SHUTDOWN);
   }
 
@@ -356,11 +359,11 @@ namespace PLEXIL
       return false;
 
     // grab the library itself from the document
-	pugi::xml_node plexilXml = libraryXml->document_element();
+    pugi::xml_node plexilXml = libraryXml->document_element();
     if (plexilXml.empty() || 0 != strcmp(plexilXml.name(), "PlexilPlan")) {
-	  std::cerr << "Error parsing library from XML: No \"PlexilPlan\" tag found" << std::endl;
-	  return false;
-	}
+      std::cerr << "Error parsing library from XML: No \"PlexilPlan\" tag found" << std::endl;
+      return false;
+    }
 
     // parse XML into node structure
     PlexilNodeId root;
@@ -389,11 +392,11 @@ namespace PLEXIL
       return false;
 
     // grab the plan itself from the document
-	pugi::xml_node plexilXml = planXml->document_element();
+    pugi::xml_node plexilXml = planXml->document_element();
     if (plexilXml.empty() || 0 != strcmp(plexilXml.name(), "PlexilPlan")) {
-	  std::cerr << "Error parsing plan from XML: No \"PlexilPlan\" tag found" << std::endl;
-	  return false;
-	}
+      std::cerr << "Error parsing plan from XML: No \"PlexilPlan\" tag found" << std::endl;
+      return false;
+    }
 
     // parse XML into node structure
     {
@@ -428,16 +431,17 @@ namespace PLEXIL
                                  execTopLevel,
                                  this);
     if (success != 0) {
-	  std::cerr << "Error: unable to spawn exec thread" << std::endl;
-	  return false;
-	}
+      std::cerr << "Error: unable to spawn exec thread" << std::endl;
+      return false;
+    }
     debugMsg("ExecApplication:run", " Top level thread running");
     return setApplicationState(APP_RUNNING);
   }
 
   void * ExecApplication::execTopLevel(void * this_as_void_ptr)
   {
-    ( (ExecApplication*) this_as_void_ptr)->runInternal();
+    assertTrue(this_as_void_ptr != NULL); 
+    (reinterpret_cast<ExecApplication*>(this_as_void_ptr))->runInternal();
     return 0;
   }
 
@@ -445,26 +449,26 @@ namespace PLEXIL
   {
     debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Thread started");
 
-	// set up signal handling environment for this thread
-	assertTrueMsg(initializeWorkerSignalHandling(),
-				  "ExecApplication::runInternal: Fatal error: signal handling initialization failed."); 
+    // set up signal handling environment for this thread
+    assertTrueMsg(initializeWorkerSignalHandling(),
+                  "ExecApplication::runInternal: Fatal error: signal handling initialization failed."); 
 
     // must step exec once to initialize time
     runExec(true);
     debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Initial step complete");
 
     while (waitForExternalEvent()) {
-	  if (m_stop) {
-		debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Received stop request");
-		m_stop = false; // acknowledge stop request
-		break;
-	  }
-	  runExec(false);
-	}
+      if (m_stop) {
+        debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Received stop request");
+        m_stop = false; // acknowledge stop request
+        break;
+      }
+      runExec(false);
+    }
 
-	// restore old signal handlers for this thread
-	// don't bother to check for errors
-	restoreWorkerSignalHandling();
+    // restore old signal handlers for this thread
+    // don't bother to check for errors
+    restoreWorkerSignalHandling();
 
     debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Ending the thread loop.");
   }
@@ -480,17 +484,17 @@ namespace PLEXIL
   {
     RTMutexGuard guard(m_execMutex);
     if (stepFirst) {
-	  debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec because stepFirst is set");
-	  m_exec.step();
-	}
+      debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec because stepFirst is set");
+      m_exec.step();
+    }
     else {
       m_exec.deleteFinishedPlans();
     }
     while (!m_suspended && 
-		   (m_exec.needsStep() || m_interface.processQueue())) {
-	  debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
-	  m_exec.step();
-	}
+           (m_exec.needsStep() || m_interface.processQueue())) {
+      debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
+      m_exec.step();
+    }
     condDebugMsg(!m_suspended, "ExecApplication:runExec", " (" << pthread_self() << ") No events are pending");
     condDebugMsg(m_suspended, "ExecApplication:runExec", " (" << pthread_self() << ") Suspended");
   }
@@ -505,24 +509,24 @@ namespace PLEXIL
   bool ExecApplication::waitForExternalEvent()
   {
 #ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
-	assertTrueMsg(m_nBlockedSignals != 0,
-				  "ExecApplication::waitForExternalEvent: fatal error: signal handling not initialized.:");
+    assertTrueMsg(m_nBlockedSignals != 0,
+                  "ExecApplication::waitForExternalEvent: fatal error: signal handling not initialized.:");
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
     debugMsg("ExecApplication:wait", " (" << pthread_self() << ") waiting for external event");
-	int status;
+    int status;
     do {
       status = m_sem.wait();
       if (status == 0) {
-		condDebugMsg(!m_suspended, 
-					 "ExecApplication:wait",
-					 " (" << pthread_self() << ") acquired semaphore, processing external event");
-		condDebugMsg(m_suspended, 
-					 "ExecApplication:wait",
-					 " Application is suspended, ignoring external event");
-	  }
+        condDebugMsg(!m_suspended, 
+                     "ExecApplication:wait",
+                     " (" << pthread_self() << ") acquired semaphore, processing external event");
+        condDebugMsg(m_suspended, 
+                     "ExecApplication:wait",
+                     " Application is suspended, ignoring external event");
+      }
     } 
-	while (m_suspended);
+    while (m_suspended);
     return (status == 0);
   }
 
@@ -554,43 +558,43 @@ namespace PLEXIL
    */
   void
   ExecApplication::waitForShutdown() {
-	int waitStatus = PLEXIL_SEMAPHORE_STATUS_INTERRUPTED;
+    int waitStatus = PLEXIL_SEMAPHORE_STATUS_INTERRUPTED;
     while ((waitStatus = m_shutdownSem.wait()) == PLEXIL_SEMAPHORE_STATUS_INTERRUPTED)
-	  continue;
-	if (waitStatus == 0)
-	  m_shutdownSem.post(); // pass it on to the next, if any
+      continue;
+    if (waitStatus == 0)
+      m_shutdownSem.post(); // pass it on to the next, if any
   }
 
   /**
    * @brief Whatever state the application may be in, bring it down in a controlled fashion.
    */
   void ExecApplication::terminate() {
-	std::cout << "Terminating PLEXIL Exec application" << std::endl;
+    std::cout << "Terminating PLEXIL Exec application" << std::endl;
 
-	ApplicationState initState = getApplicationState();
-	debugMsg("ExecApplication:terminate", " from state " << getApplicationStateName(initState));
+    ApplicationState initState = getApplicationState();
+    debugMsg("ExecApplication:terminate", " from state " << getApplicationStateName(initState));
 
-	switch (initState) {
-	case APP_UNINITED:
-	case APP_SHUTDOWN:
-	  // nothing to do
-	  break;
+    switch (initState) {
+    case APP_UNINITED:
+    case APP_SHUTDOWN:
+      // nothing to do
+      break;
 
-	case APP_INITED:
-	case APP_READY:
-	  // Shut down interfaces
-	  m_interface.shutdown();
-	  break;
+    case APP_INITED:
+    case APP_READY:
+      // Shut down interfaces
+      m_interface.shutdown();
+      break;
 
-	case APP_RUNNING:
-	  stop();
-	  // fall through to shutdown
+    case APP_RUNNING:
+      stop();
+      // fall through to shutdown
 
-	case APP_STOPPED:
-	  shutdown();
-	  break;
-	}
-	std::cout << "PLEXIL Exec terminated" << std::endl;
+    case APP_STOPPED:
+      shutdown();
+      break;
+    }
+    std::cout << "PLEXIL Exec terminated" << std::endl;
   }
 
   /**
@@ -608,9 +612,9 @@ namespace PLEXIL
    */ 
   bool 
   ExecApplication::setApplicationState(const ExecApplication::ApplicationState& newState) {
-	debugMsg("ExecApplication:setApplicationState",
-			 "(" << getApplicationStateName(newState)
-			 << ") from " << getApplicationStateName(m_state));
+    debugMsg("ExecApplication:setApplicationState",
+             "(" << getApplicationStateName(newState)
+             << ") from " << getApplicationStateName(m_state));
 
     assertTrueMsg(newState != APP_UNINITED,
                   "APP_UNINITED is an invalid state for setApplicationState");
@@ -621,46 +625,46 @@ namespace PLEXIL
       switch (newState) {
       case APP_INITED:
         if (m_state != APP_UNINITED && m_state != APP_STOPPED) {
-		  debugMsg("ExecApplication:setApplicationState",
-				   " Illegal application state transition to APP_INITED");
-		  return false;
-		}
+          debugMsg("ExecApplication:setApplicationState",
+                   " Illegal application state transition to APP_INITED");
+          return false;
+        }
         m_state = newState;
         break;
 
       case APP_READY:
         if (m_state != APP_INITED && m_state != APP_RUNNING) {
-		  debugMsg("ExecApplication:setApplicationState",
-				   " Illegal application state transition to APP_READY");
-		  return false;
-		}
+          debugMsg("ExecApplication:setApplicationState",
+                   " Illegal application state transition to APP_READY");
+          return false;
+        }
         m_state = newState;
         break;
 
       case APP_RUNNING:
         if (m_state != APP_READY) {
-		  debugMsg("ExecApplication:setApplicationState", 
-				   " Illegal application state transition to APP_RUNNING");
-		  return false;
-		}
+          debugMsg("ExecApplication:setApplicationState", 
+                   " Illegal application state transition to APP_RUNNING");
+          return false;
+        }
         m_state = newState;
         break;
 
       case APP_STOPPED:
         if (m_state != APP_RUNNING && m_state != APP_READY) {
-		  debugMsg("ExecApplication:setApplicationState", 
-				   " Illegal application state transition to APP_STOPPED");
-		  return false;
-		}
+          debugMsg("ExecApplication:setApplicationState", 
+                   " Illegal application state transition to APP_STOPPED");
+          return false;
+        }
         m_state = newState;
         break;
 
-	  case APP_SHUTDOWN:
-		if (m_state != APP_STOPPED) {
-		  debugMsg("ExecApplication:setApplicationState", 
-				   " Illegal application state transition to APP_SHUTDOWN");
-		  return false;
-		}
+      case APP_SHUTDOWN:
+        if (m_state != APP_STOPPED) {
+          debugMsg("ExecApplication:setApplicationState", 
+                   " Illegal application state transition to APP_SHUTDOWN");
+          return false;
+        }
         m_state = newState;
         break;
 
@@ -678,9 +682,9 @@ namespace PLEXIL
       m_shutdownSem.post();
     }
 
-	debugMsg("ExecApplication:setApplicationState",
-			 " to " << getApplicationStateName(newState) << " successful");
-	return true;
+    debugMsg("ExecApplication:setApplicationState",
+             " to " << getApplicationStateName(newState) << " successful");
+    return true;
   }
 
   //
@@ -699,8 +703,8 @@ namespace PLEXIL
    */
   void emergencyStop(int signo) 
   {
-	debugMsg("ExecApplication:stop", "Received signal " << signo);
-	pthread_exit((void *) 0);
+    debugMsg("ExecApplication:stop", "Received signal " << signo);
+    pthread_exit((void *) 0);
   }
 
   // Prevent the Exec run thread from seeing the signals listed below.
@@ -708,134 +712,134 @@ namespace PLEXIL
 
   bool ExecApplication::initializeWorkerSignalHandling()
   {
-	static int signumsToIgnore[EXEC_APPLICATION_MAX_N_SIGNALS] =
-	  {
-		SIGINT,   // user interrupt (i.e. control-C)
-		SIGHUP,   // hangup
-		SIGQUIT,  // quit
-		SIGTERM,  // kill
-		SIGALRM,  // timer interrupt, used by (e.g.) Darwin time adapter
-		SIGUSR1,  // user defined
-		0,
-		0
-	  };
-	int errnum = 0;
+    static int signumsToIgnore[EXEC_APPLICATION_MAX_N_SIGNALS] =
+      {
+        SIGINT,   // user interrupt (i.e. control-C)
+        SIGHUP,   // hangup
+        SIGQUIT,  // quit
+        SIGTERM,  // kill
+        SIGALRM,  // timer interrupt, used by (e.g.) Darwin time adapter
+        SIGUSR1,  // user defined
+        0,
+        0
+      };
+    int errnum = 0;
 
 #ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
-	//
-	// Generate the mask
-	//
-	errnum = sigemptyset(&m_workerSigset);
-	if (errnum != 0) {
-	  debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigemptyset returned " << errnum);
-	  return false;
-	}
-	for (m_nBlockedSignals = 0;
-		 m_nBlockedSignals < EXEC_APPLICATION_MAX_N_SIGNALS && signumsToIgnore[m_nBlockedSignals] != 0;
-		 m_nBlockedSignals++) {
-	  int sig = signumsToIgnore[m_nBlockedSignals];
-	  m_blockedSignals[m_nBlockedSignals] = sig; // save to restore it later
-	  errnum = sigaddset(&m_workerSigset, sig);
-	  if (errnum != 0) {
-		debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigaddset returned " << errnum);
-		return false;
-	  }
-	}
-	// Set the mask for this thread
-	errnum = pthread_sigmask(SIG_BLOCK, &m_workerSigset, &m_restoreWorkerSigset);
-	if (errnum != 0) {
-	  debugMsg("ExecApplication:initializeWorkerSignalHandling", " pthread_sigmask returned " << errnum);
-	  return false;
-	}
+    //
+    // Generate the mask
+    //
+    errnum = sigemptyset(&m_workerSigset);
+    if (errnum != 0) {
+      debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigemptyset returned " << errnum);
+      return false;
+    }
+    for (m_nBlockedSignals = 0;
+         m_nBlockedSignals < EXEC_APPLICATION_MAX_N_SIGNALS && signumsToIgnore[m_nBlockedSignals] != 0;
+         m_nBlockedSignals++) {
+      int sig = signumsToIgnore[m_nBlockedSignals];
+      m_blockedSignals[m_nBlockedSignals] = sig; // save to restore it later
+      errnum = sigaddset(&m_workerSigset, sig);
+      if (errnum != 0) {
+        debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigaddset returned " << errnum);
+        return false;
+      }
+    }
+    // Set the mask for this thread
+    errnum = pthread_sigmask(SIG_BLOCK, &m_workerSigset, &m_restoreWorkerSigset);
+    if (errnum != 0) {
+      debugMsg("ExecApplication:initializeWorkerSignalHandling", " pthread_sigmask returned " << errnum);
+      return false;
+    }
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
-	// Add a handler for SIGUSR2 for killing the thread
-	struct sigaction sa;
-	sigemptyset(&sa.sa_mask); // *** is this enough?? ***
-	sa.sa_flags = 0;
-	sa.sa_handler = emergencyStop;
+    // Add a handler for SIGUSR2 for killing the thread
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask); // *** is this enough?? ***
+    sa.sa_flags = 0;
+    sa.sa_handler = emergencyStop;
 
-	errnum = sigaction(SIGUSR2, &sa, &m_restoreUSR2Handler);
-	if (errnum != 0) {
-	  debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigaction returned " << errnum);
-	  return errnum;
-	}
+    errnum = sigaction(SIGUSR2, &sa, &m_restoreUSR2Handler);
+    if (errnum != 0) {
+      debugMsg("ExecApplication:initializeWorkerSignalHandling", " sigaction returned " << errnum);
+      return errnum;
+    }
 
-	debugMsg("ExecApplication:initializeWorkerSignalHandling", " complete");
-	return true;
+    debugMsg("ExecApplication:initializeWorkerSignalHandling", " complete");
+    return true;
   }
 
   bool ExecApplication::restoreWorkerSignalHandling()
   {
-	//
-	// Restore old SIGUSR2 handler
-	// 
-	int errnum = sigaction(SIGUSR2, &m_restoreUSR2Handler, NULL);
-	if (errnum != 0) {
-	  debugMsg("ExecApplication:restoreWorkerSignalHandling", " sigaction returned " << errnum);
-	  return errnum;
-	}
+    //
+    // Restore old SIGUSR2 handler
+    // 
+    int errnum = sigaction(SIGUSR2, &m_restoreUSR2Handler, NULL);
+    if (errnum != 0) {
+      debugMsg("ExecApplication:restoreWorkerSignalHandling", " sigaction returned " << errnum);
+      return errnum;
+    }
 
 #ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
-	//
-	// Restore old mask
-	//
-	errnum = pthread_sigmask(SIG_SETMASK, &m_restoreWorkerSigset, NULL);
-	if (errnum != 0) { 
-	  debugMsg("ExecApplication:restoreWorkerSignalHandling", " failed; sigprocmask returned " << errnum);
-	  return false;
-	}
+    //
+    // Restore old mask
+    //
+    errnum = pthread_sigmask(SIG_SETMASK, &m_restoreWorkerSigset, NULL);
+    if (errnum != 0) { 
+      debugMsg("ExecApplication:restoreWorkerSignalHandling", " failed; sigprocmask returned " << errnum);
+      return false;
+    }
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
-	// flag as complete
-	m_nBlockedSignals = 0;
+    // flag as complete
+    m_nBlockedSignals = 0;
 
-	debugMsg("ExecApplication:restoreWorkerSignalHandling", " complete");
-	return true;
+    debugMsg("ExecApplication:restoreWorkerSignalHandling", " complete");
+    return true;
   }
 
   // Prevent the main thread from seeing the worker loop kill signal.
 
   bool ExecApplication::initializeMainSignalHandling()
   {
-	//
-	// Generate the mask
-	//
-	int errnum = sigemptyset(&m_mainSigset);
-	if (errnum != 0) {
-	  debugMsg("ExecApplication:initializeMainSignalHandling", " sigemptyset returned " << errnum);
-	  return false;
-	}
-	errnum = sigaddset(&m_mainSigset, SIGUSR2);
-	if (errnum != 0) {
-	  debugMsg("ExecApplication:initializeMainSignalHandling", " sigaddset returned " << errnum);
-	  return false;
-	}
+    //
+    // Generate the mask
+    //
+    int errnum = sigemptyset(&m_mainSigset);
+    if (errnum != 0) {
+      debugMsg("ExecApplication:initializeMainSignalHandling", " sigemptyset returned " << errnum);
+      return false;
+    }
+    errnum = sigaddset(&m_mainSigset, SIGUSR2);
+    if (errnum != 0) {
+      debugMsg("ExecApplication:initializeMainSignalHandling", " sigaddset returned " << errnum);
+      return false;
+    }
 
-	// Set the mask for this thread
-	errnum = pthread_sigmask(SIG_BLOCK, &m_mainSigset, &m_restoreMainSigset);
-	if (errnum != 0) {
-	  debugMsg("ExecApplication:initializeMainSignalHandling", " pthread_sigmask returned " << errnum);
-	  return false;
-	}
+    // Set the mask for this thread
+    errnum = pthread_sigmask(SIG_BLOCK, &m_mainSigset, &m_restoreMainSigset);
+    if (errnum != 0) {
+      debugMsg("ExecApplication:initializeMainSignalHandling", " pthread_sigmask returned " << errnum);
+      return false;
+    }
 
-	debugMsg("ExecApplication:initializeMainSignalHandling", " complete");
-	return true;
+    debugMsg("ExecApplication:initializeMainSignalHandling", " complete");
+    return true;
   }
 
   bool ExecApplication::restoreMainSignalHandling()
   {
-	//
-	// Restore old mask
-	//
-	int errnum = pthread_sigmask(SIG_SETMASK, &m_restoreMainSigset, NULL);
-	if (errnum != 0) { 
-	  debugMsg("ExecApplication:restoreMainSignalHandling", " failed; pthread_sigmask returned " << errnum);
-	  return false;
-	}
+    //
+    // Restore old mask
+    //
+    int errnum = pthread_sigmask(SIG_SETMASK, &m_restoreMainSigset, NULL);
+    if (errnum != 0) { 
+      debugMsg("ExecApplication:restoreMainSignalHandling", " failed; pthread_sigmask returned " << errnum);
+      return false;
+    }
 
-	debugMsg("ExecApplication:restoreMainSignalHandling", " complete");
-	return true;
+    debugMsg("ExecApplication:restoreMainSignalHandling", " complete");
+    return true;
   }
 
   //
@@ -850,65 +854,65 @@ namespace PLEXIL
 
   const char* 
   ExecApplication::getApplicationStateName(ApplicationState state) {
-	switch (state) {
-	case APP_UNINITED:
-	  return "APP_UNINITED";
-	  break;
+    switch (state) {
+    case APP_UNINITED:
+      return "APP_UNINITED";
+      break;
 
-	case APP_INITED:
-	  return "APP_INITED";
-	  break;
+    case APP_INITED:
+      return "APP_INITED";
+      break;
 
-	case APP_READY:
-	  return "APP_READY";
-	  break;
+    case APP_READY:
+      return "APP_READY";
+      break;
 
-	case APP_RUNNING:
-	  return "APP_RUNNING";
-	  break;
+    case APP_RUNNING:
+      return "APP_RUNNING";
+      break;
 
-	case APP_STOPPED:
-	  return "APP_STOPPED";
-	  break;
+    case APP_STOPPED:
+      return "APP_STOPPED";
+      break;
 
-	case APP_SHUTDOWN:
-	  return "APP_SHUTDOWN";
-	  break;
+    case APP_SHUTDOWN:
+      return "APP_SHUTDOWN";
+      break;
 
-	default:
-	  return "*** ILLEGAL APPLICATION STATE ***";
-	  break;
-	}
-	// just in case
-	return "*** ILLEGAL APPLICATION STATE ***";
+    default:
+      return "*** ILLEGAL APPLICATION STATE ***";
+      break;
+    }
+    // just in case
+    return "*** ILLEGAL APPLICATION STATE ***";
   }
 
   /**
    * @brief Notify the executive that it should run one cycle.  
    *        This should be sent after each batch of lookup, command
-   * 		return, and function return data.
+   *        return, and function return data.
    */
   void
   ExecApplication::notifyExec()
   {
     if (m_runExecInBkgndOnly || m_execMutex.isLocked()) {
-	  // Some thread currently owns the exec. Could be this thread.
-	  // runExec() could notice, or not.
-	  // Post to semaphore to ensure event is not lost.
-	  int status = m_sem.post();
-	  assertTrueMsg(status == 0,
-					"notifyExec: semaphore post failed, status = "
-					<< status);
-	  debugMsg("ExecApplication:notify",
-			   " (" << pthread_self() << ") released semaphore");
-	}
+      // Some thread currently owns the exec. Could be this thread.
+      // runExec() could notice, or not.
+      // Post to semaphore to ensure event is not lost.
+      int status = m_sem.post();
+      assertTrueMsg(status == 0,
+                    "notifyExec: semaphore post failed, status = "
+                    << status);
+      debugMsg("ExecApplication:notify",
+               " (" << pthread_self() << ") released semaphore");
+    }
     else {
-	  // Exec is idle, so run it
-	  // If another thread grabs it first, no worries.
-	  debugMsg("ExecApplication:notify",
-			   " (" << pthread_self() << ") exec was idle, stepping it");
-	  this->runExec();
-	}
+      // Exec is idle, so run it
+      // If another thread grabs it first, no worries.
+      debugMsg("ExecApplication:notify",
+               " (" << pthread_self() << ") exec was idle, stepping it");
+      this->runExec();
+    }
   }
 
   /**
@@ -919,12 +923,12 @@ namespace PLEXIL
   {
     debugMsg("ExecApplication:notifyAndWait",
              " (" << pthread_self() << ") received external event");
-	unsigned int sequence = m_interface.markQueue();
-	notifyExec();
-	while (m_interface.getLastMark() < sequence) {
-	  m_markSem.wait();
-	  m_markSem.post(); // in case it's not our mark and we got there first
-	}
+    unsigned int sequence = m_interface.markQueue();
+    notifyExec();
+    while (m_interface.getLastMark() < sequence) {
+      m_markSem.wait();
+      m_markSem.post(); // in case it's not our mark and we got there first
+    }
   }
 
 
@@ -934,7 +938,7 @@ namespace PLEXIL
   void
   ExecApplication::markProcessed()
   {
-	m_markSem.post();
+    m_markSem.post();
   }
 
 }

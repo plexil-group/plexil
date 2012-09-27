@@ -269,7 +269,9 @@ namespace PLEXIL
     // block SIGALRM for the process as a whole
     sigset_t processSigset, originalSigset;
     int errnum = sigemptyset(&processSigset);
-    errnum = errnum | sigaddset(&processSigset, SIGALRM);
+    assertTrueMsg(errnum == 0,
+                  "Fatal Error: signal mask initialization failed!");
+    errnum = sigaddset(&processSigset, SIGALRM);
     assertTrueMsg(errnum == 0,
                   "Fatal Error: signal mask initialization failed!");
     errnum = sigprocmask(SIG_BLOCK, &processSigset, &originalSigset);
