@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,19 +32,19 @@
 namespace PLEXIL
 {
   ExecListenerHub::ExecListenerHub()
-	: m_id(this)
+    : m_id(this)
   {
   }
 
   ExecListenerHub::~ExecListenerHub()
   {
-	for (std::vector<ExecListenerBaseId>::iterator it = m_listeners.begin();
-		 it != m_listeners.end();
-		 it++) {
-	  delete ((ExecListenerBase*) *it);
-	}
-	m_listeners.clear();
-	m_id.remove();
+    for (std::vector<ExecListenerBaseId>::iterator it = m_listeners.begin();
+         it != m_listeners.end();
+         ++it) {
+      delete ((ExecListenerBase*) *it);
+    }
+    m_listeners.clear();
+    m_id.remove();
   }
 
   /**
@@ -52,10 +52,10 @@ namespace PLEXIL
    */
   void ExecListenerHub::addListener(const ExecListenerBaseId& listener)
   {
-	check_error(listener.isValid());
-	if (std::find(m_listeners.begin(), m_listeners.end(), listener) != m_listeners.end())
-	  return;
-	m_listeners.push_back(listener);
+    check_error(listener.isValid());
+    if (std::find(m_listeners.begin(), m_listeners.end(), listener) != m_listeners.end())
+      return;
+    m_listeners.push_back(listener);
   }
 
   /**
@@ -63,10 +63,10 @@ namespace PLEXIL
    */
   void ExecListenerHub::removeListener(const ExecListenerBaseId& listener)
   {
-	std::vector<ExecListenerBaseId>::iterator it = 
-	  std::find(m_listeners.begin(), m_listeners.end(), listener);
-	if (it != m_listeners.end())
-	  m_listeners.erase(it);
+    std::vector<ExecListenerBaseId>::iterator it = 
+      std::find(m_listeners.begin(), m_listeners.end(), listener);
+    if (it != m_listeners.end())
+      m_listeners.erase(it);
   }
 
   //
@@ -80,10 +80,10 @@ namespace PLEXIL
    */
   void ExecListenerHub::notifyOfTransitions(const std::vector<NodeTransition>& transitions) const
   {
-	for (std::vector<ExecListenerBaseId>::const_iterator it = m_listeners.begin();
-		 it != m_listeners.end();
-		 it++)
-	  (*it)->notifyOfTransitions(transitions);
+    for (std::vector<ExecListenerBaseId>::const_iterator it = m_listeners.begin();
+         it != m_listeners.end();
+         ++it)
+      (*it)->notifyOfTransitions(transitions);
   }
 
   /**
@@ -92,12 +92,12 @@ namespace PLEXIL
    * @param parent The name of the parent node under which this plan will be inserted.
    */
   void ExecListenerHub::notifyOfAddPlan(const PlexilNodeId& plan, 
-										const LabelStr& parent) const
+                                        const LabelStr& parent) const
   {
-	for (std::vector<ExecListenerBaseId>::const_iterator it = m_listeners.begin();
-		 it != m_listeners.end();
-		 it++)
-	  (*it)->notifyOfAddPlan(plan, parent);
+    for (std::vector<ExecListenerBaseId>::const_iterator it = m_listeners.begin();
+         it != m_listeners.end();
+         ++it)
+      (*it)->notifyOfAddPlan(plan, parent);
   }
 
   /**
@@ -106,10 +106,10 @@ namespace PLEXIL
    */
   void ExecListenerHub::notifyOfAddLibrary(const PlexilNodeId& libNode) const
   {
-	for (std::vector<ExecListenerBaseId>::const_iterator it = m_listeners.begin();
-		 it != m_listeners.end();
-		 it++)
-	  (*it)->notifyOfAddLibrary(libNode);
+    for (std::vector<ExecListenerBaseId>::const_iterator it = m_listeners.begin();
+         it != m_listeners.end();
+         ++it)
+      (*it)->notifyOfAddLibrary(libNode);
   }
 
   /**
@@ -119,13 +119,13 @@ namespace PLEXIL
    * @param value The value (in internal Exec representation) being assigned.
    */
   void ExecListenerHub::notifyOfAssignment(const ExpressionId & dest,
-										   const std::string& destName,
-										   const double& value) const
+                                           const std::string& destName,
+                                           const double& value) const
   {
-	for (std::vector<ExecListenerBaseId>::const_iterator it = m_listeners.begin();
-		 it != m_listeners.end();
-		 it++)
-	  (*it)->notifyOfAssignment(dest, destName, value);
+    for (std::vector<ExecListenerBaseId>::const_iterator it = m_listeners.begin();
+         it != m_listeners.end();
+         ++it)
+      (*it)->notifyOfAssignment(dest, destName, value);
   }
 
   //
@@ -139,18 +139,18 @@ namespace PLEXIL
    */
   bool ExecListenerHub::initialize()
   {
-	bool success = true;
+    bool success = true;
     for (std::vector<ExecListenerBaseId>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
-         it++) {
-	  ExecListenerBaseId l = *it;
+         ++it) {
+      ExecListenerBaseId l = *it;
       success = l->initialize();
       if (!success) {
-		debugMsg("ExecListenerHub:initialize", " failed to initialize all Exec listeners, returning false");
-		return false;
-	  }
+        debugMsg("ExecListenerHub:initialize", " failed to initialize all Exec listeners, returning false");
+        return false;
+      }
     }
-	return success;
+    return success;
   }
 
   /**
@@ -160,12 +160,12 @@ namespace PLEXIL
    */
   bool ExecListenerHub::start()
   {
-	bool success = true;
+    bool success = true;
     for (std::vector<ExecListenerBaseId>::iterator it = m_listeners.begin();
          success && it != m_listeners.end(); // stop at first failure
-         it++)
-	  success = (*it)->start();
-	return success;
+         ++it)
+      success = (*it)->start();
+    return success;
   }
 
   /**
@@ -175,12 +175,12 @@ namespace PLEXIL
    */
   bool ExecListenerHub::stop()
   {
-	bool success = true;
+    bool success = true;
     for (std::vector<ExecListenerBaseId>::iterator it = m_listeners.begin();
          it != m_listeners.end();
-         it++)
+         ++it)
       success = (*it)->stop() && success;
-	return success;
+    return success;
   }
 
   /**
@@ -190,12 +190,12 @@ namespace PLEXIL
    */
   bool ExecListenerHub::reset()
   {
-	bool success = true;
+    bool success = true;
     for (std::vector<ExecListenerBaseId>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
-         it++)
+         ++it)
       success = (*it)->reset();
-	return success;
+    return success;
   }
 
   /**
@@ -205,12 +205,12 @@ namespace PLEXIL
    */
   bool ExecListenerHub::shutdown()
   {
-	bool success = true;
+    bool success = true;
     for (std::vector<ExecListenerBaseId>::iterator it = m_listeners.begin();
          it != m_listeners.end();
-         it++)
+         ++it)
       success = (*it)->shutdown() && success;
-	return success;
+    return success;
   }
 
 }

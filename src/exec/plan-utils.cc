@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,25 +35,25 @@ using std::flush;
 
 namespace PLEXIL {
 
-static void print_aux (const list<double>& args, bool pretty)
-{
-  for (list<double>::const_iterator iter = args.begin();
-       iter != args.end();
-       iter++) {
-	Expression::formatValue(cout, *iter);
-    cout << (pretty ? " " : "") << flush;
+  static void print_aux (const list<double>& args, bool pretty)
+  {
+    for (list<double>::const_iterator iter = args.begin();
+         iter != args.end();
+         ++iter) {
+      Expression::formatValue(cout, *iter);
+      cout << (pretty ? " " : "") << flush;
+    }
+    if (pretty) cout << endl << flush;
   }
-  if (pretty) cout << endl << flush;
-}
 
-void print (const list<double>& args)
-{
-  print_aux (args, false);
-}
+  void print (const list<double>& args)
+  {
+    print_aux (args, false);
+  }
 
-void pprint (const list<double>& args)
-{
-  print_aux (args, true);
-}
+  void pprint (const list<double>& args)
+  {
+    print_aux (args, true);
+  }
 
 }

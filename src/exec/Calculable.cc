@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,8 @@ namespace PLEXIL
     PlexilOp* op = (PlexilOp*) expr;
     const std::vector<PlexilExprId>& subExprs = op->subExprs();
     for (std::vector<PlexilExprId>::const_iterator it = subExprs.begin(); 
-		 it != subExprs.end();
-		 ++it) {
+         it != subExprs.end();
+         ++it) {
       bool garbage = false;
       ExpressionId subExpr = getSubexpression(*it, node, garbage);
       addSubexpression(subExpr, garbage);
@@ -52,7 +52,7 @@ namespace PLEXIL
 
   Calculable::~Calculable() {
     for(ExpressionVectorIter it = m_subexpressions.begin();
-	it != m_subexpressions.end(); ++it) {
+        it != m_subexpressions.end(); ++it) {
       ExpressionId& expr = *it;
       check_error(expr.isValid());
       expr->removeListener(m_listener.getId());
@@ -60,48 +60,48 @@ namespace PLEXIL
     cleanup(m_garbage);
   }
 
-   bool Calculable::containsSubexpression(const ExpressionId& expr)
-   {
-      for(ExpressionVectorIter it = m_subexpressions.begin();
-          it != m_subexpressions.end(); ++it)
+  bool Calculable::containsSubexpression(const ExpressionId& expr)
+  {
+    for(ExpressionVectorIter it = m_subexpressions.begin();
+        it != m_subexpressions.end(); ++it)
       {
-         if (expr.equals(*it))
-            return true;
+        if (expr.equals(*it))
+          return true;
       }
-      return false;
-   }
-   void Calculable::addSubexpression(const ExpressionId& expr,
-                                     const bool garbage)
-   {
-      expr->addListener(m_listener.getId());
-      m_subexpressions.push_back(expr);
-      if(garbage)
-         m_garbage.insert(expr);
-   }
+    return false;
+  }
+  void Calculable::addSubexpression(const ExpressionId& expr,
+                                    const bool garbage)
+  {
+    expr->addListener(m_listener.getId());
+    m_subexpressions.push_back(expr);
+    if(garbage)
+      m_garbage.insert(expr);
+  }
 
   void Calculable::removeSubexpression(const ExpressionId& expr) {
     // this is necessary because std::vector doesn't have a find() method!
     for (ExpressionVectorIter it = m_subexpressions.begin();
-	 it != m_subexpressions.end();
-	 it++) {
+         it != m_subexpressions.end();
+         ++it) {
       if (*it == expr) {
-	m_subexpressions.erase(it);
-	break;
+        m_subexpressions.erase(it);
+        break;
       }
     }
     m_garbage.erase(expr);
     expr->removeListener(m_listener.getId());
   }
 
-   ExpressionId Calculable::getSubexpression(const PlexilExprId& expr,
-                                             const NodeConnectorId& node,
-                                             bool& del)
-   {
-      return ExpressionFactory::createInstance(LabelStr(expr->name()), 
-                                               expr, 
-                                               node, 
-                                               del);
-   }
+  ExpressionId Calculable::getSubexpression(const PlexilExprId& expr,
+                                            const NodeConnectorId& node,
+                                            bool& del)
+  {
+    return ExpressionFactory::createInstance(LabelStr(expr->name()), 
+                                             expr, 
+                                             node, 
+                                             del);
+  }
 
   void Calculable::setValue(const double /* value */) {
     checkError(ALWAYS_FAIL, "Shouldn't set the value of a calculable expression.");
@@ -119,7 +119,7 @@ namespace PLEXIL
       return;
     m_listener.activate();
     for(ExpressionVectorIter it = m_subexpressions.begin();
-	it != m_subexpressions.end(); ++it) {
+        it != m_subexpressions.end(); ++it) {
       ExpressionId& expr = *it;
       check_error(expr.isValid());
       expr->activate();
@@ -132,7 +132,7 @@ namespace PLEXIL
       return;
     m_listener.deactivate();
     for(ExpressionVectorIter it = m_subexpressions.begin();
-	it != m_subexpressions.end(); ++it) {
+        it != m_subexpressions.end(); ++it) {
       ExpressionId& expr = *it;
       check_error(expr.isValid());
       expr->deactivate();
@@ -141,31 +141,31 @@ namespace PLEXIL
 
   void Calculable::printAsFnCall(std::ostream& s) const
   {
-	Expression::print(s);
-	s << operatorString() << '(';
-	ExpressionVector::const_iterator it = m_subexpressions.begin();
-	while (it != m_subexpressions.end()) {
-	  s << **it;
-	  ++it;
-	  if (it != m_subexpressions.end())
-		s << ", ";
-	}
-	s << "))";
+    Expression::print(s);
+    s << operatorString() << '(';
+    ExpressionVector::const_iterator it = m_subexpressions.begin();
+    while (it != m_subexpressions.end()) {
+      s << **it;
+      ++it;
+      if (it != m_subexpressions.end())
+        s << ", ";
+    }
+    s << "))";
   }
 
   void Calculable::printAsInfix(std::ostream& s) const
   {
-	Expression::print(s);
-	s << '(';
-	ExpressionVector::const_iterator it = m_subexpressions.begin();
-	while (it != m_subexpressions.end()) {
-	  s << **it;
-	  ++it;
-	  if (it != m_subexpressions.end())
-		s << ' ' << operatorString() << ' ';
-	  else
-		s << "))";
-	}
+    Expression::print(s);
+    s << '(';
+    ExpressionVector::const_iterator it = m_subexpressions.begin();
+    while (it != m_subexpressions.end()) {
+      s << **it;
+      ++it;
+      if (it != m_subexpressions.end())
+        s << ' ' << operatorString() << ' ';
+      else
+        s << "))";
+    }
   }
 
   //
@@ -175,8 +175,8 @@ namespace PLEXIL
   UnaryExpression::UnaryExpression(const PlexilExprId& expr, const NodeConnectorId& node)
     : Calculable(expr, node) {
     checkError(m_subexpressions.size() == 1,
-	       "Expected exactly one subexpression in unary " << expr->name() <<
-	       ", but have " << m_subexpressions.size());
+               "Expected exactly one subexpression in unary " << expr->name() <<
+               ", but have " << m_subexpressions.size());
     m_e = m_subexpressions.front();
   }
 
@@ -194,8 +194,8 @@ namespace PLEXIL
   BinaryExpression::BinaryExpression(const PlexilExprId& expr, const NodeConnectorId& node)
     : Calculable(expr, node) {
     checkError(m_subexpressions.size() == 2,
-	       "Expected exactly two subexpressions in binary " << expr->name() <<
-	       ", but have " << m_subexpressions.size());
+               "Expected exactly two subexpressions in binary " << expr->name() <<
+               ", but have " << m_subexpressions.size());
     m_a = m_subexpressions.front();
     m_b = m_subexpressions.back();
   }
@@ -207,7 +207,7 @@ namespace PLEXIL
   }
 
   BinaryExpression::BinaryExpression(const ExpressionId& a, bool aGarbage,
-				     const ExpressionId& b, bool bGarbage)
+                                     const ExpressionId& b, bool bGarbage)
     : Calculable(), m_a(a), m_b(b) {
     addSubexpression(a, aGarbage);
     addSubexpression(b, bGarbage);
@@ -215,7 +215,7 @@ namespace PLEXIL
 
   void BinaryExpression::print(std::ostream& s) const
   {
-	printAsInfix(s);
+    printAsInfix(s);
   }
 
   //
@@ -245,7 +245,7 @@ namespace PLEXIL
 
   void NaryExpression::print(std::ostream& s) const
   {
-	printAsInfix(s);
+    printAsInfix(s);
   }
 
 }

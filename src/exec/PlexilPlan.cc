@@ -207,7 +207,8 @@ namespace PLEXIL {
     : m_id(this),
       m_priority(WORST_PRIORITY),
       m_lineNo(0),
-      m_colNo(0)
+      m_colNo(0),
+      m_nodeType(NodeType_uninitialized)
   {}
 
   PlexilNode::~PlexilNode() {
@@ -293,12 +294,12 @@ namespace PLEXIL {
   PlexilInterface::~PlexilInterface() {
     for (std::vector<PlexilVarRef*>::iterator it = m_in.begin();
          it != m_in.end();
-         it++)
+         ++it)
       delete *it;
     m_in.clear();
     for (std::vector<PlexilVarRef*>::iterator it = m_inOut.begin();
          it != m_inOut.end();
-         it++)
+         ++it)
       delete *it;
     m_inOut.clear();
     m_id.remove();

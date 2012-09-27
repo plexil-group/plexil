@@ -234,7 +234,6 @@ namespace PLEXIL
         std::map<ExpressionId, CommandId>::iterator iter;
         if ((iter = m_destToCmdMap.find (expr)) != m_destToCmdMap.end()) {
           CommandId cmdId = iter->second;
-          std::string destName = cmdId->getDestName();
           m_destToCmdMap.erase(iter);
         }
         else std::cerr << "Error in TestExternalInterface: "
@@ -422,7 +421,7 @@ namespace PLEXIL
     if (it == m_states.end()) {
       std::pair<UniqueThing, double> p = 
         std::make_pair(state, Expression::UNKNOWN());
-      it = m_states.insert(p).first;
+      m_states.insert(p);
     }
   }
 

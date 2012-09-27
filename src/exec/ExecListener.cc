@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ namespace PLEXIL
   ExecListener::ExecListener()
     : ExecListenerBase(),
       m_filter(),
-	  m_id(this, ExecListenerBase::getId())
+      m_id(this, ExecListenerBase::getId())
   {
   }
 
@@ -50,35 +50,35 @@ namespace PLEXIL
   ExecListener::ExecListener(const pugi::xml_node& xml)
     : ExecListenerBase(xml),
       m_filter(),
-	  m_id(this, ExecListenerBase::getId())
+      m_id(this, ExecListenerBase::getId())
   {
     if (!xml.empty()) {
-	  pugi::xml_node filterSpec = xml.child(InterfaceSchema::FILTER_TAG());
-	  if (!filterSpec.empty()) {
-		// Construct specified event filter
+      pugi::xml_node filterSpec = xml.child(InterfaceSchema::FILTER_TAG());
+      if (!filterSpec.empty()) {
+        // Construct specified event filter
               
-		pugi::xml_attribute filterTypeAttr = filterSpec.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
-		assertTrueMsg(!filterTypeAttr.empty(),
-					  "ExecListener constructor: invalid XML: <"
-					  << InterfaceSchema::FILTER_TAG()
-					  << "> element missing a "
-					  << InterfaceSchema::FILTER_TYPE_ATTR()
-					  << " attribute");
-		const char* filterType = filterTypeAttr.value();
-		assertTrueMsg(*filterType != '\0',
-					  "ExecListener constructor: invalid XML: <"
-					  << InterfaceSchema::FILTER_TAG()
-					  << "> element's "
-					  << InterfaceSchema::FILTER_TYPE_ATTR()
-					  << " attribute is empty");
-		ExecListenerFilterId f = 
-		  ExecListenerFilterFactory::createInstance(LabelStr(filterType),
-													filterSpec);
-		assertTrue(f.isId(),
-				   "ExecListener constructor: failed to construct filter");
-		m_filter = f;
-	  }
-	}
+        pugi::xml_attribute filterTypeAttr = filterSpec.attribute(InterfaceSchema::FILTER_TYPE_ATTR());
+        assertTrueMsg(!filterTypeAttr.empty(),
+                      "ExecListener constructor: invalid XML: <"
+                      << InterfaceSchema::FILTER_TAG()
+                      << "> element missing a "
+                      << InterfaceSchema::FILTER_TYPE_ATTR()
+                      << " attribute");
+        const char* filterType = filterTypeAttr.value();
+        assertTrueMsg(*filterType != '\0',
+                      "ExecListener constructor: invalid XML: <"
+                      << InterfaceSchema::FILTER_TAG()
+                      << "> element's "
+                      << InterfaceSchema::FILTER_TYPE_ATTR()
+                      << " attribute is empty");
+        ExecListenerFilterId f = 
+          ExecListenerFilterFactory::createInstance(LabelStr(filterType),
+                                                    filterSpec);
+        assertTrue(f.isId(),
+                   "ExecListener constructor: failed to construct filter");
+        m_filter = f;
+      }
+    }
   }
 
   /**
@@ -95,8 +95,8 @@ namespace PLEXIL
    */
   void ExecListener::notifyOfTransitions(const std::vector<NodeTransition>& transitions) const
   {
-	debugMsg("ExecListener:notifyOfTransitions", " reporting " << transitions.size() << " transitions");
-	this->implementNotifyNodeTransitions(transitions);
+    debugMsg("ExecListener:notifyOfTransitions", " reporting " << transitions.size() << " transitions");
+    this->implementNotifyNodeTransitions(transitions);
   }
 
   /**
@@ -215,18 +215,18 @@ namespace PLEXIL
   {
     debugMsg("ExecListener:implementNotifyNodeTransitions", " default method called");
     if (m_filter.isNoId()) {
-	  for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
-		   it != transitions.end();
-		   it++) 
-		this->implementNotifyNodeTransition(it->state, it->node);
-	}
-	else {
-	  for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
-		   it != transitions.end();
-		   it++)
-		if (m_filter->reportNodeTransition(it->state, it->node))
-		  this->implementNotifyNodeTransition(it->state, it->node);
-	}
+      for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
+           it != transitions.end();
+           ++it) 
+        this->implementNotifyNodeTransition(it->state, it->node);
+    }
+    else {
+      for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
+           it != transitions.end();
+           ++it)
+        if (m_filter->reportNodeTransition(it->state, it->node))
+          this->implementNotifyNodeTransition(it->state, it->node);
+    }
   }
 
   /**
@@ -237,7 +237,7 @@ namespace PLEXIL
    * @note The default method does nothing.
    */
   void ExecListener::implementNotifyNodeTransition(NodeState /* prevState */,
-						   const NodeId& /* node */) const
+                                                   const NodeId& /* node */) const
   {
     debugMsg("ExecListener:implementNotifyNodeTransition", " default method called");
   }
@@ -249,7 +249,7 @@ namespace PLEXIL
    * @note The default method does nothing.
    */
   void ExecListener::implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
-					    const LabelStr& /* parent */) const
+                                            const LabelStr& /* parent */) const
   {
     debugMsg("ExecListener:implementNotifyAddPlan", " default method called");
   }
@@ -271,8 +271,8 @@ namespace PLEXIL
    * @param value The value (in internal Exec representation) being assigned.
    */
   void ExecListener::implementNotifyAssignment(const ExpressionId & /* dest */,
-					       const std::string& /* destName */,
-					       const double& /* value */) const
+                                               const std::string& /* destName */,
+                                               const double& /* value */) const
   {
     debugMsg("ExecListener:implementNotifyAssignment", " default method called");
   }

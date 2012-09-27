@@ -119,7 +119,7 @@ namespace PLEXIL
       createAliases(libNode, libInterface->inOut(), aliasesCopy, false);
 
       // Barf if formal parameter is not known
-      assertTrueMsg(aliasesCopy.size() == 0,
+      assertTrueMsg(aliasesCopy.empty(),
                     "Interface variable \"" << LabelStr(aliasesCopy.begin()->first).toString() 
                     << "\" not found in library node \"" << libNode->nodeId()
                     << "\", called from node '" << getNodeId().toString() << "'");
@@ -261,7 +261,7 @@ namespace PLEXIL
   void LibraryCallNode::specializedPostInitLate(const PlexilNodeId& node)
   {
     // Get node body
-    const PlexilLibNodeCallBody* body = (PlexilLibNodeCallBody*) node->body();
+    const PlexilLibNodeCallBody* body = (const PlexilLibNodeCallBody*) node->body();
     check_error(body != NULL);
     //call postInit on the child
     m_children.front()->postInit(body->libNode());

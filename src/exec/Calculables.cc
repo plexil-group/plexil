@@ -273,7 +273,7 @@ namespace PLEXIL
       }
     // confirm we've got enough values
 
-    checkError(values.size()  > 0, "Exclusive OR expression " <<
+    checkError(!values.empty(), "Exclusive OR expression " <<
                this->toString() << "requires one or more subexpressions.");
       
     // inspect values of all subexpressions

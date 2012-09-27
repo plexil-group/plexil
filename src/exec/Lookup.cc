@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,23 +46,23 @@ namespace PLEXIL
                                   Expression::UNKNOWN())),
       m_listener((Expression&) *this)
   {
-     checkError(Id<PlexilLookup>::convertable(expr), "Expected a lookup.");
-     PlexilLookup* lookup = (PlexilLookup*) expr;
-     PlexilState* state = lookup->state();
+    checkError(Id<PlexilLookup>::convertable(expr), "Expected a lookup.");
+    PlexilLookup* lookup = (PlexilLookup*) expr;
+    PlexilState* state = lookup->state();
      
-     // create the correct form of the expression for this name
-	 bool nameExprIsNew = false;
-     m_stateNameExpr = 
-       ExpressionFactory::createInstance(state->nameExpr()->name(), 
-                                         state->nameExpr(),
-										 node,
-										 nameExprIsNew);
-     m_stateNameExpr->addListener(m_listener.getId());
-	 if (nameExprIsNew)
-	   m_garbage.push_back(m_stateNameExpr);
+    // create the correct form of the expression for this name
+    bool nameExprIsNew = false;
+    m_stateNameExpr = 
+      ExpressionFactory::createInstance(state->nameExpr()->name(), 
+                                        state->nameExpr(),
+                                        node,
+                                        nameExprIsNew);
+    m_stateNameExpr->addListener(m_listener.getId());
+    if (nameExprIsNew)
+      m_garbage.push_back(m_stateNameExpr);
 
-     // handle argument lookup
-     getArguments(state->args(), node);
+    // handle argument lookup
+    getArguments(state->args(), node);
   }
 
   Lookup::~Lookup() 
@@ -75,29 +75,29 @@ namespace PLEXIL
       (*it)->removeListener(m_listener.getId());
 
     // safe to delete anything in the garbage
-	// possibly including state name expr
+    // possibly including state name expr
     for (std::vector<ExpressionId>::iterator it = m_garbage.begin(); 
          it != m_garbage.end();
          ++it) {
       delete (*it).operator->();
-	}
+    }
   }
 
   void Lookup::getArguments(const std::vector<PlexilExprId>& args,
-			    const NodeConnectorId& node) 
+                            const NodeConnectorId& node) 
   {
     for (std::vector<PlexilExprId>::const_iterator it = args.begin(); it != args.end(); ++it) {
-	  bool wasConstructed = false; 
-	  ExpressionId param =
-		ExpressionFactory::createInstance((*it)->name(), *it, node, wasConstructed);
-	  check_error(param.isValid());
-	  if (wasConstructed)
-		m_garbage.push_back(param);
-	  m_params.push_back(param);
-	  param->addListener(m_listener.getId());
-	  debugMsg("Lookup:getArguments",
-			   " " << toString() << " added listener for " << param->toString());
-	}
+      bool wasConstructed = false; 
+      ExpressionId param =
+        ExpressionFactory::createInstance((*it)->name(), *it, node, wasConstructed);
+      check_error(param.isValid());
+      if (wasConstructed)
+        m_garbage.push_back(param);
+      m_params.push_back(param);
+      param->addListener(m_listener.getId());
+      debugMsg("Lookup:getArguments",
+               " " << toString() << " added listener for " << param->toString());
+    }
   }
 
   void Lookup::handleActivate(const bool changed) 
@@ -109,10 +109,10 @@ namespace PLEXIL
 
     for (std::vector<ExpressionId>::iterator it = m_params.begin(); it != m_params.end(); ++it)
       {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
-      expr->activate();
-    }
+        ExpressionId expr = *it;
+        check_error(expr.isValid());
+        expr->activate();
+      }
     check_error(m_stateNameExpr.isValid());
     m_stateNameExpr->activate();
     updateState();
@@ -151,8 +151,8 @@ namespace PLEXIL
         checkError(expr->isActive(),
                    "Can't update state for lookup with an inactive parameter: " << toString());
         (*sit) = ((*it)->getValue());
-        it++;
-        sit++;
+        ++it;
+        ++sit;
       }
   }
 
@@ -172,8 +172,8 @@ namespace PLEXIL
                    "Can't compare state to lookup with an inactive parameter: " << toString());
         if ((*it)->getValue() != *sit)
           return false;
-        it++;
-        sit++;
+        ++it;
+        ++sit;
       }
     return true;
   }
@@ -187,10 +187,10 @@ namespace PLEXIL
       size_t i = 0;
       size_t len = state.second.size();
       while (i < len) {
-	os << Expression::valueToString(state.second[i]);
-	i++;
-	if (i < len)
-	  os << ", ";
+        os << Expression::valueToString(state.second[i]);
+        ++i;
+        if (i < len)
+          os << ", ";
       }
       os << ")";
     }
@@ -229,8 +229,8 @@ namespace PLEXIL
     // need to notify state cache if cached lookup is no longer valid
     if (!isStateCurrent())
       {
-	debugMsg("LookupNow:handleChange",
-		 " state changed  updating state cache");
+        debugMsg("LookupNow:handleChange",
+                 " state changed  updating state cache");
         const State oldState(m_state);
         updateState();
         handleRegistrationChange(oldState);
@@ -240,7 +240,7 @@ namespace PLEXIL
   void LookupNow::handleRegistration() 
   {
     debugMsg("LookupNow:handleRegistration", 
-	     " for state " << stateToString(m_state));
+             " for state " << stateToString(m_state));
     m_cache->registerLookupNow(m_id, m_state);
   }
 
@@ -250,8 +250,8 @@ namespace PLEXIL
   void LookupNow::handleRegistrationChange(const State& oldState)
   {
     debugMsg("LookupNow:handleRegistrationChange", 
-	     " old state was " << stateToString(oldState)
-	     << ",\n new state is " << stateToString(m_state));
+             " old state was " << stateToString(oldState)
+             << ",\n new state is " << stateToString(m_state));
     m_cache->unregisterLookupNow(m_id);
     m_cache->registerLookupNow(m_id, m_state);
   }
@@ -259,17 +259,17 @@ namespace PLEXIL
   void LookupNow::handleUnregistration() 
   {
     debugMsg("LookupNow:handleUnregistration", 
-	     " for state " << stateToString(m_state));
+             " for state " << stateToString(m_state));
     m_cache->unregisterLookupNow(m_id);
   }
 
   void LookupNow::print(std::ostream& s) const
   {
-	Expression::print(s);
-	s << "LookupNow(" << m_stateNameExpr->valueString() << '(';
+    Expression::print(s);
+    s << "LookupNow(" << m_stateNameExpr->valueString() << '(';
     for (std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end(); ++it)
       s << ", " << **it;
-	s << ")))";
+    s << ")))";
 
   }
 
@@ -282,15 +282,15 @@ namespace PLEXIL
     if(lookup->tolerances().empty())
       m_tolerance = RealVariable::ZERO_EXP();
     else {
-	  bool wasCreated = false;
-	  m_tolerance = ExpressionFactory::createInstance(lookup->tolerances()[0]->name(),
-													  lookup->tolerances()[0],
-													  node,
-													  wasCreated);
-	  if (wasCreated)
-		m_garbage.push_back(m_tolerance);
-	  m_tolerance->addListener(m_listener.getId());
-	}
+      bool wasCreated = false;
+      m_tolerance = ExpressionFactory::createInstance(lookup->tolerances()[0]->name(),
+                                                      lookup->tolerances()[0],
+                                                      node,
+                                                      wasCreated);
+      if (wasCreated)
+        m_garbage.push_back(m_tolerance);
+      m_tolerance->addListener(m_listener.getId());
+    }
   }
 
   LookupOnChange::~LookupOnChange()
@@ -300,8 +300,8 @@ namespace PLEXIL
 
   void LookupOnChange::print(std::ostream& s) const 
   {
-	Expression::print(s);
-	s << "LookupOnChange(" << m_stateNameExpr->valueString() << "(";
+    Expression::print(s);
+    s << "LookupOnChange(" << m_stateNameExpr->valueString() << "(";
     for (std::vector<ExpressionId>::const_iterator it = m_params.begin(); it != m_params.end(); ++it)
       s << ", " << **it;
     s << "), " << *m_tolerance << "))";
@@ -309,14 +309,14 @@ namespace PLEXIL
 
   void LookupOnChange::handleRegistration() {
     debugMsg("LookupOnChange:handleRegistration", 
-			 " for state " << stateToString(m_state));
+             " for state " << stateToString(m_state));
     m_tolerance->activate();
     m_cache->registerChangeLookup(m_id, m_state, m_tolerance->getValue());
   }
 
   void LookupOnChange::handleUnregistration() {
     debugMsg("LookupOnChange:handleUnregistration",
-	     " for state " << stateToString(m_state));
+             " for state " << stateToString(m_state));
     m_tolerance->deactivate();
     m_cache->unregisterChangeLookup(m_id);
   }
@@ -327,7 +327,7 @@ namespace PLEXIL
     if (isStateCurrent() && exp != m_tolerance)
       return;
     debugMsg("LookupOnChange:handleChange",
-	     " state changed, updating state cache");
+             " state changed, updating state cache");
     const State oldState(m_state);
     updateState();
     handleRegistrationChange(oldState);
@@ -339,8 +339,8 @@ namespace PLEXIL
   void LookupOnChange::handleRegistrationChange(const State& oldState)
   {
     debugMsg("LookupOnChange:handleRegistrationChange", 
-	     " old state was " << stateToString(oldState)
-	     << ",\n new state is " << stateToString(m_state));
+             " old state was " << stateToString(oldState)
+             << ",\n new state is " << stateToString(m_state));
     m_cache->unregisterChangeLookup(m_id);
     m_cache->registerChangeLookup(m_id, m_state, m_tolerance->getValue());
   }
