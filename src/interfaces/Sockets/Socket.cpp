@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
 // Implementation of the Socket class.
 
 #include "Socket.h"
-#include "string.h"
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -47,8 +46,8 @@ Socket::Socket() :
 {
    
    memset (&m_addr,
-	   0,
-	   sizeof (m_addr));
+       0,
+       sizeof (m_addr));
    
 }
 
@@ -64,8 +63,8 @@ Socket::~Socket()
 bool Socket::create()
 {
    m_sock = socket (AF_INET,
-		    SOCK_STREAM,
-		    0);
+            SOCK_STREAM,
+            0);
    
    if (! is_valid())
       return false;
@@ -130,8 +129,8 @@ bool Socket::bind (const uint16_t port)
    m_addr.sin_port = htons (port);
    
    int bind_return = ::bind (m_sock,
-			     (struct sockaddr *) &m_addr,
-			     sizeof (m_addr));
+                 (struct sockaddr *) &m_addr,
+                 sizeof (m_addr));
    
    
    if (bind_return == -1)
@@ -266,7 +265,7 @@ void Socket::set_non_blocking (const bool b)
    int opts;
    
    opts = fcntl (m_sock,
-		 F_GETFL);
+         F_GETFL);
    
    if (opts < 0)
    {
@@ -279,6 +278,6 @@ void Socket::set_non_blocking (const bool b)
       opts = (opts & ~O_NONBLOCK);
    
    fcntl (m_sock,
-	  F_SETFL,opts);
+      F_SETFL,opts);
    
 }
