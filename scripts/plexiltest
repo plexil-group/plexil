@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -106,7 +106,7 @@ help="Options:\n\
 \t	shows this message of options"
 # -a used only for viewer acquire PID
 
-. $PLEXIL_HOME/bin/plexil-setup.sh
+. $PLEXIL_HOME/scripts/plexil-setup.sh
 
 #separate command-line from plexexec output
 echo
@@ -123,7 +123,7 @@ else
     checkWarn "Test Executive executable not found, aborting"
 fi
 
-$PLEXIL_HOME/bin/plexil-check-prog $prog
+$PLEXIL_HOME/scripts/plexil-check-prog $prog
 
 platform=`uname`
 quiet=0
@@ -267,18 +267,18 @@ if [ "$debug_file" = "" ] && [ $quiet = 0 ]
 fi
 
 # Check plan for errors
-if [ "$check" = "true" ] && [ -f $PLEXIL_HOME/bin/checkDecls ]
+if [ "$check" = "true" ] && [ -f $PLEXIL_HOME/scripts/checkDecls ]
   then 
        echo "Checking Plan..."
-       $PLEXIL_HOME/bin/checkDecls $plan_name
+       $PLEXIL_HOME/scripts/checkDecls $plan_name
        if [ ! -e "$plan_name" ] && [ $? -gt 0 ]
          then
 	   echo Error: $plan_name, contains runtime error
            exit 1
 	fi
-    elif [ ! -f $PLEXIL_HOME/bin/checkDecls ]
+    elif [ ! -f $PLEXIL_HOME/scripts/checkDecls ]
       then
-	echo Error: $PLEXIL_HOME/bin/checkDecls not found.	
+	echo Error: $PLEXIL_HOME/scripts/checkDecls not found.	
 	exit 1
 fi  
 
