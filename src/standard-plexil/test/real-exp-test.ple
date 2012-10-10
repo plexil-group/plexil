@@ -1,7 +1,0 @@
-{
-  Real foo, bar = 3.14, baz = 2, bletch[1], blorf[3] = 2.71828, blurp[5] = #(5.1 4.2 3.3 2 1);
-  NodeList:
-  { Assignment: foo = 2.0 ; }
-  { Assignment: bar = blorf[foo]; }
-  { Assignment: foo = 4.1 * bar + 3; }
-}

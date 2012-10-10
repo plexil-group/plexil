@@ -1,4 +1,0 @@
-MessageReceivedTest:
-{
-  StartCondition: MessageReceived("kickme");
-}

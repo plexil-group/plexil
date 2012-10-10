@@ -1,9 +1,0 @@
-test_translator:
-{
-  NodeList:
-  testNode:
-  {
-   Time currentTime ;
-   Assignment: currentTime = [12,30] ;
-  }
-}

@@ -1,7 +1,0 @@
-LibraryNode LibTest(In Integer i, InOut Integer j);
-
-LibraryCallTest:
-{
-  Integer k = 1;
-  LibraryCall: LibTest(i=0, j=k);
-}

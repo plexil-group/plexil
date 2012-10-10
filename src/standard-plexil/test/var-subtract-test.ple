@@ -1,6 +1,0 @@
-SimpleAssignment:
-{
- Integer foo = 1;
- Integer x = 9;
- Assignment: foo = x - foo;
-}

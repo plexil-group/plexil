@@ -1,8 +1,0 @@
-{
-  Integer foo = 0, bar, baz[4], bletch[10] = 0, blorf[5] = #(5 4 3 2 1);
-  NodeList:
-  { Assignment: foo = 2; }
-  { Assignment: bar = baz[foo]; }
-  { Assignment: baz[foo] = blorf[bar]; }
-  { Assignment: foo = bar + 3; }
-}
