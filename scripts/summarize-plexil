@@ -2,7 +2,7 @@
 
 # Generates a consise textual summary of a Core PLEXIL XML file.  
 
-# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,11 +43,11 @@ fi
 
 # Defaults
 
-transform_file="$PLEXIL_HOME/src/utils/summarize-plexil.xsl"
+transform_file="$PLEXIL_HOME/schema/summarize-plexil.xsl"
 result_file="summary.txt"
 
 # Location of the Saxon XSLT processor
-saxon_exec="$PLEXIL_HOME/bin/saxon-xslt"
+saxon_exec="$PLEXIL_HOME/scripts/saxon-xslt"
  
 # Determine argument values, overriding defaults when specified.
 
