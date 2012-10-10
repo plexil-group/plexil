@@ -1,6 +1,6 @@
 #!/bin/csh
 
-# Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@ if (! $?PLEXIL_HOME) then
     echo Exiting.
 
 else
-    setenv PATH ${PATH}:${PLEXIL_HOME}/bin
+    setenv PATH ${PATH}:${PLEXIL_HOME}/bin:${PLEXIL_HOME}/scripts
 
     set _plexil_libpath=$PLEXIL_HOME/lib
 
