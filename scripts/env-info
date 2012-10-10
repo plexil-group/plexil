@@ -9,9 +9,9 @@
 #
 # so the Plexil group can be better equiped to help resolve your issue.
  
-/bin/rm -f $PLEXIL_HOME/bin/userinfo*
+/bin/rm -f $PLEXIL_HOME/docs/userinfo*
 
-output=$PLEXIL_HOME/bin/userinfo-$(date +%m-%d-%Y).txt
+output=$PLEXIL_HOME/docs/userinfo-$(date +%m-%d-%Y).txt
 
 echo "Creating file containing info about your system here: $output"
 
@@ -73,16 +73,10 @@ echo "GCC VERSION" >> $output
 echo "--------------------------------" >> $output
 gcc --version >> $output | tee >> $output 
 
-# collect Jam version
+# collect Ant version
 echo "ANT VERSION" >> $output
 echo "--------------------------------" >> $output
 ant -version 2>&1 1 >> $output | tee >> $output 
-
-# collect Jam version
-echo "" >> $output
-echo "JAM VERSION" >> $output
-echo "--------------------------------" >> $output
-jam -v >> $output | tee >> $output 
 
 # try running UE with test plan
 echo "" >> $output
