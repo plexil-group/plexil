@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -98,7 +98,7 @@ usage="Usage: run-te [-s] [-v [-h <hostname>] [-n <portnumber>] -b] [-d <debug f
 # none of these script files exist, the empty script is used:
 #        $PLEXIL_HOME/src/apps/TestExec/test/scripts/empty-script.plx
 
-. $PLEXIL_HOME/bin/plexil-setup.sh
+. $PLEXIL_HOME/scripts/plexil-setup.sh
 
 # Determine executable - the mode is determined by what you indicate the the VariantRules files located in 
 #1) apps/TestExec, 
@@ -118,7 +118,7 @@ else
     checkWarn "UE executable not found, aborting"
 fi
 
-$PLEXIL_HOME/bin/plexil-check-prog $prog
+$PLEXIL_HOME/scripts/plexil-check-prog $prog
 
 if [ $# = 1 ] && [ $* = "-v" ] ; then
   plexil
@@ -248,15 +248,15 @@ fi
 
 
 # Check plan for errors
-if [ $check = "true" ] && [ -f $PLEXIL_HOME/bin/checkDecls ]
-  then $PLEXIL_HOME/bin/checkDecls $plan
+if [ $check = "true" ] && [ -f $PLEXIL_HOME/scripts/checkDecls ]
+  then $PLEXIL_HOME/scripts/checkDecls $plan
        if [ $? -gt 0 ]
          then
            exit 1
 	fi
-    elif [ ! -f $PLEXIL_HOME/bin/checkDecls ]
+    elif [ ! -f $PLEXIL_HOME/scripts/checkDecls ]
       then
-	echo Error: $PLEXIL_HOME/bin/checkDecls not found.	
+	echo Error: $PLEXIL_HOME/scripts/checkDecls not found.	
 fi
 
 # Default simulation script
