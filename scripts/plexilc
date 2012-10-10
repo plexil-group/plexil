@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ then
     exit 1
 fi
 
-. ${PLEXIL_HOME}/bin/plexil-setup.sh
+. ${PLEXIL_HOME}/scripts/plexil-setup.sh
 
 JARS_DIR=${PLEXIL_HOME}/third-party/jars
 LIB_DIR=${PLEXIL_HOME}/lib
@@ -188,7 +188,7 @@ then
 	# Extended Plexil XML plan
 
 	output=${1//\.epx/.plx}
-	$PLEXIL_HOME/bin/eplexil $1 $output
+	$PLEXIL_HOME/scripts/eplexil $1 $output
 
 	if [ -n "$check" ]
 	then
