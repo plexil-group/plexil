@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ fi
 
 # Set up environment
 
-. $PLEXIL_HOME/bin/plexil-setup.sh
+. $PLEXIL_HOME/scripts/plexil-setup.sh
 
 # Do it!
 if [ "$tlm_script" ]
