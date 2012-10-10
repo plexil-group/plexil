@@ -33,7 +33,7 @@ if [ ! $PLEXIL_HOME ]
     exit 1
 fi
 
-. $PLEXIL_HOME/bin/plexil-setup.sh
+. $PLEXIL_HOME/scripts/plexil-setup.sh
 
 
 
@@ -50,5 +50,5 @@ if [ $# = 2 ]
     exit 1
 fi
 
-$PLEXIL_HOME/bin/saxon-xslt -o $output_file $input_file  $PLEXIL_HOME/schema/translate-plexil.xsl
+$PLEXIL_HOME/scripts/saxon-xslt -o $output_file $input_file  $PLEXIL_HOME/schema/translate-plexil.xsl
 
