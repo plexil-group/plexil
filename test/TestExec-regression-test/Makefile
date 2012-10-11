@@ -2,7 +2,7 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 DEBUG_CFG	:= .TestDebug.cfg
 
-EXEC_PROG	:= ../TestExec -d $(DEBUG_CFG)
+EXEC_PROG	:= $(PLEXIL_HOME)/bin/TestExec -d $(DEBUG_CFG)
 REGRESSION_PL	:= regression.pl
 
 # Parser error detection tests
@@ -85,7 +85,7 @@ run-regression-suite: run-tests-with-setup end-report
 # These are tests of parser error detection.
 
 parser-tests: setup
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	@. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
 	for tst in $(PARSER_ERROR_TESTS) ; do \
 		tstname=`basename $${tst%.plx}`; \
 		echo $${tstname} >> tempRegressionResults ; \
@@ -99,7 +99,7 @@ parser-tests: setup
 # comparison file is checked.
 
 empty-script-tests: setup
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	@. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
 	for tst in $(EMPTY_SCRIPT_TESTS) ; do \
 		echo $${tst} >> tempRegressionResults ; \
 		$(EXEC_PROG) -p plans/$${tst}.plx -s $(EMPTY_SCRIPT) > output/$${tst}.out 2>> tempRegressionResults ; \
@@ -107,7 +107,7 @@ empty-script-tests: setup
 	done
 
 empty-script-valid-tests: setup
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	@. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
 	for tst in $(EMPTY_SCRIPT_VALID_TESTS) ; do \
 		echo $${tst} >> tempRegressionResults ; \
 		$(EXEC_PROG) -p plans/$${tst}.plx -s $(EMPTY_SCRIPT) > output/$${tst}.out ; \
@@ -115,7 +115,7 @@ empty-script-valid-tests: setup
 	done
 
 same-name-script-tests: setup
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	@. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
 	for tst in $(SAME_NAME_SCRIPT_TESTS) ; do \
 		echo $${tst} >> tempRegressionResults ; \
 		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}.psx > output/$${tst}.out 2>> tempRegressionResults ; \
@@ -123,7 +123,7 @@ same-name-script-tests: setup
 	done
 
 simple-drive-tests: setup
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	@. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
 	for scrpt in $(SIMPLE_DRIVE_SCRIPTS) ; do \
 		echo $${scrpt} >> tempRegressionResults ; \
 		$(EXEC_PROG) -p plans/$(SIMPLE_DRIVE_PLAN).plx -s scripts/$${scrpt}.psx > output/$${scrpt}.out 2>> tempRegressionResults ; \
@@ -131,7 +131,7 @@ simple-drive-tests: setup
 	done
 
 command-handles-tests: setup
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	@. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
 	for openclosed in open closed ; do \
 		for plan in a1 a3 ; do \
 			planname=simple-$${openclosed}loop-command-$${plan} ; \
@@ -144,13 +144,13 @@ command-handles-tests: setup
 			done ; \
 		done ; \
 	done
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	@. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
 	planname=simple-openloop-command-nopost ; \
 	scriptname=simple-openloop-command-a3 ; \
 	echo $${planname} >> tempRegressionResults ; \
 	$(EXEC_PROG) -p plans/$${planname}.plx -s scripts/$${scriptname}.psx > output/$${planname}.out 2>> tempRegressionResults ; \
 	perl $(REGRESSION_PL) output/$${planname}.out valid/RUN_$${planname}_$${scriptname}-script.valid
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	@. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
 	planname=simple-closedloop-command-multipleAck ; \
 	scriptname=$${planname} ; \
 	echo $${planname} >> tempRegressionResults ; \
@@ -158,7 +158,7 @@ command-handles-tests: setup
 	perl $(REGRESSION_PL) output/$${planname}.out valid/RUN_$${planname}_$${scriptname}-script.valid
 
 resource-arbitration-tests: setup
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	@. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
 	for tst in $(RESOURCE_ARBITRATION_TESTS) ; do \
 		echo $${tst} >> tempRegressionResults ; \
 		$(EXEC_PROG) -p plans/$${tst}.plx -s scripts/$${tst}.psx > output/$${tst}.out 2>> tempRegressionResults ; \
@@ -166,7 +166,7 @@ resource-arbitration-tests: setup
 	done
 
 library-call-with-array: setup
-	@. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	@. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
 	echo $@ >> tempRegressionResults ; \
 	$(EXEC_PROG) -p plans/$@.plx -L plans -s $(EMPTY_SCRIPT) > output/$@.out 2>> tempRegressionResults ; \
 	perl $(REGRESSION_PL) output/$@.out

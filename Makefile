@@ -1,5 +1,30 @@
 # Top level Makefile for Plexil
 
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Universities Space Research Association nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 MY_PLEXIL_HOME := $(shell pwd)
 ifneq ($(PLEXIL_HOME),)
 ifneq ($(PLEXIL_HOME),$(MY_PLEXIL_HOME))
@@ -11,7 +36,7 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler standard-plexil checker plexilsim robosim sample
+all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler checker plexilsim robosim sample
 
 # convenience target for AMO project
 amo AMO: exec-core app-framework luv plexil-compiler
@@ -32,19 +57,16 @@ universal-exec UniversalExec: exec-core app-framework
 	$(MAKE) -C src/universal-exec
 
 checker:
-	(cd src/checker && ant jar)
+	(cd checker && ant jar)
 
 luv:
-	(cd src/luv && ant jar)
-
-standard-plexil:
-	(cd src/standard-plexil && ant install)
+	(cd luv && ant jar)
 
 plexil-compiler:
-	$(MAKE) -C src/compilers/plexil
+	$(MAKE) -C compilers/plexil
 
 pugixml:
-	$(MAKE) -C third-party/pugixml/src
+	$(MAKE) -C src/third-party/pugixml/src
 
 utils: pugixml
 	$(MAKE) -C src/utils
@@ -77,18 +99,18 @@ sockets:
 	$(MAKE) -C src/interfaces/Sockets
 
 ipc:
-	$(MAKE) -C third-party/ipc \
+	$(MAKE) -C src/third-party/ipc \
  PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include \
  THREADED=1 MAKE_SHARED_LIBS=1 SUBDIRS='etc src doc'
 
 clean-ipc:
-	-$(MAKE) -C third-party/ipc \
+	-$(MAKE) -C src/third-party/ipc \
  PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include \
  clean
 	-$(RM) lib/libipc.*
 
 clean: clean-ipc
-	-$(MAKE) -C third-party/pugixml/src $@
+	-$(MAKE) -C src/third-party/pugixml/src $@
 	-$(MAKE) -C src/utils $@
 	-$(MAKE) -C src/exec $@
 	-$(MAKE) -C src/interfaces/GanttListener $@
@@ -105,9 +127,9 @@ clean: clean-ipc
 	-$(MAKE) -C src/apps/StandAloneSimulator $@
 	-$(MAKE) -C src/apps/TestExec $@
 	-$(MAKE) -C src/apps/sample $@
-	(cd src/standard-plexil && ant $@)
-	(cd src/luv && ant $@)
-	(cd src/checker && ant $@)
+	(cd luv && ant $@)
+	(cd checker && ant $@)
+	(cd compilers/plexil && ant $@)
 	-$(RM) lib/lib*
 	@ echo Done.
 

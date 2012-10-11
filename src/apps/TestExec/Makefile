@@ -23,13 +23,12 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 EXECUTABLE	:= TestExec
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src \
+INC_DIRS	+= ../../third-party/pugixml/src \
  ../../interfaces/Sockets \
  ../../interfaces/LuvListener \
  ../../interfaces/PlanDebugListener \

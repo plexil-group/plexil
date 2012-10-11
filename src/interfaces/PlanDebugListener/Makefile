@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,13 +23,12 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY		:= PlanDebugListener
 
 # External dependencies
-INC_DIRS	+= ../../utils ../../exec $(PLEXIL_HOME)/third-party/pugixml/src
+INC_DIRS	+= ../../utils ../../exec ../../third-party/pugixml/src
 LIB_PATH	+=
 LIBS		+= pugixml PlexilUtils PlexilExec
 
