@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -167,9 +167,8 @@ namespace PLEXIL
     plexilDirectory = pPath;
 
     /** get Viewer directory under PLEXIL_HOME **/
-    string pgPath = pPath + "/src/viewer";
-    plexilGanttDirectory = pgPath + "/";
-    debugMsg("GanttViewer:printProgress", "Current working directory set");
+    plexilGanttDirectory = pPath + "/GanttViewer/";
+    debugMsg("GanttViewer:printProgress", "Current working directory set to " << plexilGanttDirectory);
   }
 
   /** generate the HTML file at the end of a plan's execution that connects to necessary Javascript and produced JSON **/
