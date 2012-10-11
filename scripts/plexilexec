@@ -103,9 +103,9 @@ echo
 if [ $PLEXIL_EXECUTABLE ]
 then
     prog=$PLEXIL_EXECUTABLE
-elif [ -f $PLEXIL_HOME/scripts/universalExec ]
+elif [ -f $PLEXIL_HOME/bin/universalExec ]
 then
-    prog=$PLEXIL_HOME/scripts/universalExec
+    prog=$PLEXIL_HOME/bin/universalExec
 else
     echo "Error: Plexil executable not found, aborting"
     exit 1
