@@ -23,7 +23,6 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 OSTYPE   ?= $(shell uname -s)
@@ -34,7 +33,7 @@ EXECUTABLE = universalExec
 SRC = UniversalExec.cc
 INC = 
 
-INC_DIRS += $(PLEXIL_HOME)/third-party/pugixml/src \
+INC_DIRS += ../third-party/pugixml/src \
 	    ../utils ../exec ../app-framework ../interfaces/LuvListener
 LIBS     += pugixml LuvListener PlexilSockets PlexilAppFramework PlanDebugListener PlexilExec PlexilUtils $(DLOPEN_LIB) $(PTHREAD_LIB) $(RT_LIB)
 
@@ -42,4 +41,6 @@ LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 UNIVERSALEXEC_TARGET = universalExec
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif
