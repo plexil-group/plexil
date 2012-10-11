@@ -48,7 +48,7 @@ plexilsim: utils ipc IpcUtils
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
 robosim: UniversalExec IpcAdapter
-	$(MAKE) -C src/apps/robosim
+	$(MAKE) -C examples/robosim
 
 sample: UniversalExec utils app-framework
 	$(MAKE) -C src/apps/sample
@@ -120,35 +120,19 @@ clean: clean-ipc
 	-$(MAKE) -C src/interfaces/PlanDebugListener $@
 	-$(MAKE) -C src/interfaces/Sockets $@
 	-$(MAKE) -C src/interfaces/UdpAdapter $@
-	-$(MAKE) -C src/CORBA $@
 	-$(MAKE) -C src/app-framework $@
 	-$(MAKE) -C src/universal-exec $@
-	-$(MAKE) -C src/apps/robosim $@
 	-$(MAKE) -C src/apps/StandAloneSimulator $@
 	-$(MAKE) -C src/apps/TestExec $@
-	-$(MAKE) -C src/apps/sample $@
+	-$(MAKE) -C compilers/plexil $@
+	-$(MAKE) -C examples/robosim $@
+	-$(MAKE) -C examples/sample-app $@
 	(cd luv && ant $@)
 	(cd checker && ant $@)
-	(cd compilers/plexil && ant $@)
 	-$(RM) lib/lib*
 	@ echo Done.
 
 # Convenience targets
-
-#TestMultiExec: luv
-#	(cd universal-exec; jam)
-#	$(MAKE) -C interfaces all
-#	(cd app-framework; jam)
-#	(cd apps/TestMultiExec; jam)
-
-# The following targets apply only when the UE is being used with an
-# ACE/TAO Corba installation.
-
-corba: utils exec-core app-framework
-	$(MAKE) -C src/CORBA all
-
-corba-utils: utils
-	$(MAKE) -C src/CORBA $@
 
 # Create an Emacs tags file capturing most relevant file types
 #   Note: The indirection forces recreation of TAGS file in
@@ -157,10 +141,10 @@ corba-utils: utils
 tags: alltags
 
 ctags: 
-	@ find . \( -name "*.cc" -or -name "*.hh" -or -name Makefile \) | etags -
+	@ find . \( -name "*.cc" -or -name "*.cpp" -or -name "*.hh" -or -name "*.hpp" -or -name Makefile \) | etags -
 
 jtags:
 	@ find . \( -name "*.java" \) | etags -
 
 alltags:
-	@ find . \( -name "*.cc" -or -name "*.hh" -or -name "*.java" -or -name "*.xml" -or -name Makefile \) | etags -
+	@ find . \( -name "*.cc" -or -name "*.cpp" -or -name "*.hh" -or -name "*.hpp" -or -name "*.java" -or -name "*.xml" -or -name Makefile \) | etags -
