@@ -36,12 +36,12 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler checker plexilsim robosim sample
+all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler plexilscript checker plexilsim robosim sample pv
 
 # convenience target for AMO project
-amo AMO: exec-core app-framework luv plexil-compiler
+amo AMO: exec-core app-framework pv plexil-compiler
 
-TestExec: exec-core PlanDebugListener LuvListener luv
+TestExec: exec-core PlanDebugListener LuvListener pv
 	$(MAKE) -C src/apps/TestExec
 
 plexilsim: utils ipc IpcUtils
@@ -59,11 +59,14 @@ universal-exec UniversalExec: exec-core app-framework
 checker:
 	(cd checker && ant jar)
 
-luv:
-	(cd luv && ant jar)
+pv:
+	(cd viewers/pv && ant jar)
 
 plexil-compiler:
 	$(MAKE) -C compilers/plexil
+
+plexilscript:
+	(cd compilers/plexilscript && ant jar)
 
 pugixml:
 	$(MAKE) -C src/third-party/pugixml/src
@@ -110,6 +113,9 @@ clean-ipc:
 	-$(RM) lib/libipc.*
 
 clean: clean-ipc
+	-$(MAKE) -C compilers/plexil $@
+	-$(MAKE) -C examples/robosim $@
+	-$(MAKE) -C examples/sample-app $@
 	-$(MAKE) -C src/third-party/pugixml/src $@
 	-$(MAKE) -C src/utils $@
 	-$(MAKE) -C src/exec $@
@@ -124,11 +130,9 @@ clean: clean-ipc
 	-$(MAKE) -C src/universal-exec $@
 	-$(MAKE) -C src/apps/StandAloneSimulator $@
 	-$(MAKE) -C src/apps/TestExec $@
-	-$(MAKE) -C compilers/plexil $@
-	-$(MAKE) -C examples/robosim $@
-	-$(MAKE) -C examples/sample-app $@
-	(cd luv && ant $@)
 	(cd checker && ant $@)
+	(cd compilers/plexilscript && ant $@)
+	(cd viewers/pv && ant $@)
 	-$(RM) lib/lib*
 	@ echo Done.
 
