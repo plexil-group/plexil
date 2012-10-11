@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -96,11 +96,11 @@ clean: dust
 
 # The rule creates a RELAX-NG schema from a XML Schema.
 %.rng: %.xsd plexil-base.xsd
-	java -jar $(PLEXIL_HOME)/third-party/jars/rngconv.jar $< > $@
+	java -jar $(PLEXIL_HOME)/jars/rngconv.jar $< > $@
 
 # The rule creates a RELAX-NG compact schema from a RELAX-NG schema.
 %.rnc.in: %.rng
-	java -jar $(PLEXIL_HOME)/third-party/jars/trang.jar $< $@.rnc
+	java -jar $(PLEXIL_HOME)/jars/trang.jar $< $@.rnc
 	mv $@.rnc $@
 
 # The rule makes some fixes to the generated RELAX-NG compact schema.
