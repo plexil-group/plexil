@@ -167,7 +167,7 @@ namespace PLEXIL
     plexilDirectory = pPath;
 
     /** get Viewer directory under PLEXIL_HOME **/
-    plexilGanttDirectory = pPath + "/GanttViewer/";
+    plexilGanttDirectory = pPath + "/viewers/gantt/";
     debugMsg("GanttViewer:printProgress", "Current working directory set to " << plexilGanttDirectory);
   }
 
