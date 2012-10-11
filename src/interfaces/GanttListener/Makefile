@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,13 +33,13 @@ LIBRARY = GanttListener
 SRC = GanttListener.cc
 INC = GanttListener.hh
 
-INC_DIRS += $(PLEXIL_HOME)/third-party/pugixml/src $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec \
-	    $(PLEXIL_HOME)/src/app-framework ../
+INC_DIRS += ../../third-party/pugixml/src ../../utils ../../exec ../../app-framework
 
 LIBS		+= dl pugixml PlexilAppFramework PlexilUtils PlexilExec
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-
+ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
+endif
