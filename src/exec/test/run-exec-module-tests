@@ -7,7 +7,7 @@ if [ ! $PLEXIL_HOME ]
     exit 1
 fi
 
-. $PLEXIL_HOME/bin/plexil-setup.sh
+. $PLEXIL_HOME/scripts/plexil-setup.sh
 prog=$PLEXIL_HOME/src/exec/test/exec-module-tests
 
 if [ ! -e $prog ]

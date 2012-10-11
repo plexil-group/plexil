@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 EXECUTABLE	:= AppFrameworkTest
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src ../../utils ../../exec .. ../../interfaces/Sockets
+INC_DIRS	+= ../../third-party/pugixml/src ../../utils ../../exec .. ../../interfaces/Sockets
 LIB_PATH	+=
 LIBS		+= pugixml PlexilUtils PlexilExec PlexilSockets PlexilAppFramework dl
 
@@ -39,7 +39,7 @@ INC		:=
 SVN_FILES       := Makefile $(SRC) $(INC) time-lookup-test.ple
 
 test-app-framework: $(EXECUTABLE)
-	. $(PLEXIL_HOME)/bin/plexil-setup.sh && \
+	. $(PLEXIL_HOME)/scripts/plexil-setup.sh && \
  ./$(EXECUTABLE) -p time-lookup-test.plx -c config.xml -d Debug.cfg
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
