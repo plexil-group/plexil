@@ -11,9 +11,6 @@ DEFINES		+= -DPLATFORM_HAS_TR1_UNORDERED_MAP
 endif
 endif
 
-OPENGL_LIB_PATH := /usr/X11R6/lib
-OPENGL_LIBS	:= GL GLU glut Xi Xmu
-
 #
 # Compiler/linker option overrides
 #
