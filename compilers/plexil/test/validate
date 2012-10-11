@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,6 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# TODO: redirect output files to 'output' directory
-
 # Check environment variables
 if [ ! $PLEXIL_HOME ]
 then
@@ -35,10 +33,10 @@ then
     exit 1
 fi
 
-. ${PLEXIL_HOME}/bin/plexil-setup.sh
+. ${PLEXIL_HOME}/scripts/plexil-setup.sh
 
 SCHEMA_DIR=${PLEXIL_HOME}/schema
-PLEXIL_COMPILER_DIR=${PLEXIL_HOME}/src/compilers/plexil
+PLEXIL_COMPILER_DIR=${PLEXIL_HOME}/compilers/plexil
 
 OUTEPX=${1/%.ple/.epx}
 OUTFILE=${OUTEPX/input/output}
@@ -59,4 +57,4 @@ then
 	exit 1
 fi
 
-
+exit 0

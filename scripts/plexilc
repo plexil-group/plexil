@@ -73,7 +73,7 @@ fi
 
 . ${PLEXIL_HOME}/scripts/plexil-setup.sh
 
-JARS_DIR=${PLEXIL_HOME}/third-party/jars
+JARS_DIR=${PLEXIL_HOME}/jars
 LIB_DIR=${PLEXIL_HOME}/lib
 ANTLR_RUNTIME_JAR=antlr-3.4-complete-no-antlrv2.jar
 

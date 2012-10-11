@@ -1,5 +1,30 @@
 # Makefile for Plexil compiler test suite
 
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Universities Space Research Association nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 \
               command0 command1 command2 command3 command4 ComputedCommandName \
               sequence0 sequence1 sequence2 sequence3 \
@@ -41,7 +66,7 @@ default: test
 all: setup valid-tests syntax-error-tests semantic-error-tests xml-validate
 
 setup:
-	-$(RM) tempRegressionResults
+	@-$(RM) tempRegressionResults
 
 valid-tests: $(VALID_TEST_FILES) output | setup
 	@ failure=0 ; \
@@ -112,7 +137,7 @@ xml-validate: output
 		input=input/$$f.ple ; output=output/$$f.epx ; \
 		../PlexilCompiler --epx-only -o $${output} $${input} > /dev/null 2>&1 ; \
 		if [ -r $${output} ] ; then \
-			xmllint --noout --schema ../../../../schema/extended-plexil.xsd $${output} > /dev/null 2>&1 ; \
+			xmllint --noout --schema ../../../schema/extended-plexil.xsd $${output} > /dev/null 2>&1 ; \
 			if [ $$? -ne 0 ] ; then validation_failure=1 ; echo $${output}: validation failed ; fi ; \
 		else \
 			echo $${input}: compilation failed ; \

@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PLEXIL_HOME			?= ../../..
+PLEXIL_HOME			?= ../..
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 # Program defaults
@@ -39,7 +39,7 @@ PARSER_JAVA_SRC_DIR	:= $(PARSER_JAVA_DIR)/plexil
 JAVA_SRCPATH		:= java
 JAVA_SRC_DIR		:= $(JAVA_SRCPATH)/plexil
 CLASSES_DIR			:= classes
-THIRD_PARTY_JAR_DIR	:= $(PLEXIL_HOME)/third-party/jars
+THIRD_PARTY_JAR_DIR	:= $(PLEXIL_HOME)/jars
 
 # Files
 PARSER_SRCS		:= $(PARSER_SRC_DIR)/Plexil.g $(PARSER_SRC_DIR)/PlexilTree.g
@@ -55,13 +55,11 @@ PLEXILC_JAR		:= $(PLEXIL_HOME)/lib/PlexilCompiler.jar
 DIRT			+= $(PARSER_JAVA) $(PARSER_CLASSES) $(JAVA_CLASSES)
 
 # Invoking ANTLR 3
-#ANTLR3_TOOL_JAR	:= $(THIRD_PARTY_JAR_DIR)/antlr-3.2.jar
 ANTLR3_TOOL_JAR	:= $(THIRD_PARTY_JAR_DIR)/antlr-3.4-complete-no-antlrv2.jar
 ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR)
 ANTLR			:= $(JAVA) -jar $(ANTLR3_TOOL_JAR)
 
 # Other necessities
-#ANTLR3_RUNTIME_JAR	:= antlr-runtime-3.2.jar
 ANTLR3_RUNTIME_JAR	:= $(ANTLR3_TOOL_JAR)
 NANOXML_JAR			:= $(THIRD_PARTY_JAR_DIR)/nanoxml.jar
 SAXON_JAR			:= $(THIRD_PARTY_JAR_DIR)/saxon.jar
