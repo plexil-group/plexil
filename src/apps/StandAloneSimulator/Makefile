@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,6 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY		:= standalonesimulator
@@ -31,10 +30,7 @@ LIBRARY		:= standalonesimulator
 SRC		:= $(wildcard *.cc)
 INC		:= $(wildcard *.hh)
 
-INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
-                   $(PLEXIL_HOME)/third-party/ipc/src \
-		   $(PLEXIL_HOME)/src/exec \
-                   $(PLEXIL_HOME)/src/interfaces/IpcUtils
+INC_DIRS	+= ../../utils ../../third-party/ipc/src ../../exec ../../interfaces/IpcUtils
 
 LIBS		+= ipc PlexilUtils IpcUtils
 

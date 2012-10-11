@@ -23,7 +23,6 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 EXECUTABLE	:= PlexilSimulator
@@ -33,11 +32,11 @@ INC		:= $(wildcard *.hh)
 
 LIBS		+= pugixml standalonesimulator IpcUtils ipc PlexilUtils $(PTHREAD_LIB)
 
-INC_DIRS 	+= .. $(PLEXIL_HOME)/src/utils \
-                   $(PLEXIL_HOME)/third-party/ipc/src \
-                   $(PLEXIL_HOME)/third-party/ooid/kashmir \
-                   $(PLEXIL_HOME)/src/interfaces/IpcAdapter \
-		   $(PLEXIL_HOME)/src/interfaces/IpcUtils
+INC_DIRS 	+= .. ../../../utils \
+  ../../../third-party/ipc/src \
+  ../../../third-party/ooid/kashmir \
+  ../../../interfaces/IpcAdapter \
+  ../../../interfaces/IpcUtils
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)

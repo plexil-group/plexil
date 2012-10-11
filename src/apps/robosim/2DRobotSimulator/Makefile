@@ -28,10 +28,10 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 EXECUTABLE := robotSimulator
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
-                   $(PLEXIL_HOME)/src/interfaces/IpcUtils \
-                   $(PLEXIL_HOME)/third-party/ipc/src \
-                   $(PLEXIL_HOME)/third-party/ooid/kashmir
+INC_DIRS	+= ../../../utils \
+  ../../../interfaces/IpcUtils \
+  ../../../third-party/ipc/src \
+  ../../../third-party/ooid/kashmir
 LIB_PATH	+= $(OPENGL_LIB_PATH)
 LIBS		+= pugixml IpcUtils ipc PlexilUtils $(PTHREAD_LIB) $(OPENGL_LIBS)
 EXTRA_FLAGS	+= $(OPENGL_EXTRA_FLAGS)
@@ -45,7 +45,6 @@ SVN_FILES       := Makefile $(SRC) $(INC)
 DEFINES += -DUNIX
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-
 ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
 endif

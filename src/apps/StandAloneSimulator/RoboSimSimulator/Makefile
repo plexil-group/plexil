@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,6 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 EXECUTABLE	:= RoboSimSimulator
@@ -33,10 +32,10 @@ INC		:= $(wildcard *.hh)
 
 LIBS		+= PlexilUtils standalonesimulator ipc
 
-INC_DIRS 	+= .. $(PLEXIL_HOME)/src/utils \
-                   $(PLEXIL_HOME)/third-party/ipc/src \
-                   $(PLEXIL_HOME)/third-party/ooid/kashmir \
-                   $(PLEXIL_HOME)/src/interfaces/IpcAdapter
+INC_DIRS 	+= .. ../../../utils \
+                   ../../../third-party/ipc/src \
+                   ../../../third-party/ooid/kashmir \
+                   ../../../interfaces/IpcAdapter
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)
