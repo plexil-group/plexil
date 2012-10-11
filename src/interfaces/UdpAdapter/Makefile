@@ -28,9 +28,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 LIBRARY		:= UdpAdapter
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src \
-                   $(PLEXIL_HOME)/third-party/ipc/src \
-                    ../../utils ../../exec ../../app-framework
+INC_DIRS	+= ../../third-party/pugixml/src \
+  ../../third-party/ipc/src \
+  ../../utils ../../exec ../../app-framework
 LIB_PATH	+=
 LIBS		+= pugixml PlexilUtils PlexilExec PlexilAppFramework
 

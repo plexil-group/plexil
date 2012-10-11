@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,16 +23,15 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY		:= IpcAdapter
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/pugixml/src \
-                   $(PLEXIL_HOME)/third-party/ipc/src \
-                    ../../utils ../../exec ../../app-framework \
-                    ../IpcUtils
+INC_DIRS	+= ../../third-party/pugixml/src \
+  ../../third-party/ipc/src \
+  ../../utils ../../exec ../../app-framework \
+  ../IpcUtils
 LIB_PATH	+=
 LIBS		+= pugixml IpcUtils PlexilUtils PlexilExec PlexilAppFramework
 

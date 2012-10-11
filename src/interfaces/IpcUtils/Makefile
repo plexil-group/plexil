@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,15 +23,14 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY		:= IpcUtils
 
 # External dependencies
-INC_DIRS	+= $(PLEXIL_HOME)/third-party/ipc/src \
-                   $(PLEXIL_HOME)/third-party/ooid/kashmir \
-                    ../../utils
+INC_DIRS	+= ../../third-party/ipc/src \
+  ../../third-party/ooid/kashmir \
+  ../../utils
 LIB_PATH	+=
 LIBS		+= ipc PlexilUtils
 
