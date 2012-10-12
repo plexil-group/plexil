@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,11 +24,11 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef STORED_ITEM__GNU_HH
-#define STORED_ITEM__GNU_HH
+#ifndef STORED_ITEM__DINKUM_HH
+#define STORED_ITEM__DINKUM_HH
 
 /**
- * @file StoredItem_GNU.hh
+ * @file StoredItem_Dinkum.hh
  * @brief Implements the StoredItem class for platforms with Dinkum STL extensions.
  * @author Chuck Fry, based on code by Conor McGann and Robert Harris
  * @date 12 February 2010
@@ -494,4 +494,4 @@ namespace PLEXIL
 
   };
 }
-#endif
+#endif // STORED_ITEM__DINKUM_HH
