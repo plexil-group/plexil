@@ -1568,7 +1568,7 @@ public:
                   "Wrong result printing days and seconds \"" << str5.str() << "\"");
 
     std::ostringstream str6;
-    printISO8601Duration(.0, str6);
+    printISO8601Duration(51840000.0, str6);
     assertTrueMsg(str6.str() == "P1Y7M25D",
                   "Wrong result printing years, months, days \"" << str6.str() << "\"");
 
