@@ -722,14 +722,17 @@ bool IdTests::testBadIdUsage() {
   }
   catch (Error &e) {
     Error::doDisplayErrors();
-    if (e.getType() == "Error")
-      assertTrue(false);
-  }
-  catch (IdErr &idErr) {
-    Error::doDisplayErrors();
-    std::cerr << "Caught expected IdErr::IdMgrInvalidItemPtrError" << std::endl;
-    // No operator==() implemented ...
-    // __z__(idErr, IdErr::IdMgrInvalidItemPtrError(), success);
+    // Path of Id.hh may vary depending on where test is run from.
+    // Match only the filename and not the full path
+    std::string pathMsg = e.getFile();
+    int end = pathMsg.length();
+    std::string name = "Id.hh";
+    int start = pathMsg.find(name);
+    if (start >= 0) {
+      std::string fileMsg = pathMsg.substr(start, end);
+      e.setFile(fileMsg);
+    }
+    __z__(e, Error("m_ptr != 0", "Invalid cast from Id<4Root> to Id<4Bing>.", "Id.hh", 0), success);
   }
 #endif
   Error::doNotThrowExceptions();
