@@ -51,7 +51,7 @@ robosim: UniversalExec IpcAdapter
 	$(MAKE) -C examples/robosim
 
 sample: UniversalExec utils app-framework
-	$(MAKE) -C src/apps/sample
+	$(MAKE) -C examples/sample-app
 
 universal-exec UniversalExec: exec-core app-framework
 	$(MAKE) -C src/universal-exec
@@ -66,7 +66,7 @@ plexil-compiler:
 	$(MAKE) -C compilers/plexil
 
 plexilscript:
-	(cd compilers/plexilscript && ant jar)
+	(cd compilers/plexilscript && ant install)
 
 pugixml:
 	$(MAKE) -C src/third-party/pugixml/src
