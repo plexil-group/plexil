@@ -30,13 +30,12 @@ LIBRARY		:= PlexilUtils
 # External dependencies
 INC_DIRS	+= ../third-party/pugixml/src
 LIB_PATH	+=
-LIBS		+= pugixml $(PTHREAD_LIB) dl
+LIBS		+= pugixml $(PTHREAD_LIB) $(DLOPEN_LIB)
 
 SRC		:= Debug.cc DynamicLoader.cc Error.cc IdTable.cc iso-8601.cc LabelStr.cc Logging.cc \
- ParserException.cc RecursiveThreadMutex.cc StoredArray.cc TestData.cc \
+ ParserException.cc RecursiveThreadMutex.cc StoredArray.cc \
  ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc timespec-utils.cc timeval-utils.cc \
  Utils.cc XMLUtils.cc stricmp.c
-#SRC		:= $(wildcard *.cc)
 INC		:= $(SRC:.cc=.hh) \
  generic_hash_map.hh ConstantMacros.hh Id.hh \
  StoredItem.hh StoredItem_Dinkum.hh StoredItem_GNU.hh \

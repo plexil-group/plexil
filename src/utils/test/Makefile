@@ -32,8 +32,8 @@ INC_DIRS	+= ../../third-party/pugixml/src ..
 LIB_PATH	+=
 LIBS		+= pugixml PlexilUtils
 
-SRC = util-test-module.cc module-tests.cc
-INC = util-test-module.hh
+SRC = util-test-module.cc module-tests.cc TestData.cc
+INC = util-test-module.hh TestData.hh
 
 SVN_FILES       = Makefile $(SRC) $(INC)
 
