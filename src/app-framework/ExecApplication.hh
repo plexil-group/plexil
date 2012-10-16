@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -106,17 +106,17 @@ namespace PLEXIL
       return m_interface;
     }
 
-	/**
-	 * @brief Add the specified directory name to the end of the library node loading path.
-	 * @param libdir The directory name.
-	 */
-	void addLibraryPath(const std::string& libdir);
+    /**
+     * @brief Add the specified directory name to the end of the library node loading path.
+     * @param libdir The directory name.
+     */
+    void addLibraryPath(const std::string& libdir);
 
-	/**
-	 * @brief Add the specified directory names to the end of the library node loading path.
-	 * @param libdirs The vector of directory names.
-	 */
-	void addLibraryPath(const std::vector<std::string>& libdirs);
+    /**
+     * @brief Add the specified directory names to the end of the library node loading path.
+     * @param libdirs The vector of directory names.
+     */
+    void addLibraryPath(const std::vector<std::string>& libdirs);
 
     /**
      * @brief Initialize all internal data structures and interfaces.
@@ -138,6 +138,7 @@ namespace PLEXIL
      * @return true if successful, false otherwise.
      * @note Can only be called in APP_READY state.
      * @note Can be called when application is suspended.
+     * @note Acquires m_execMutex and holds until done.  
      */
     virtual bool step();
 
@@ -146,6 +147,7 @@ namespace PLEXIL
      * @return true if successful, false otherwise.
      * @note Can only be called in APP_READY state.
      * @note Can be called when application is suspended.
+     * @note Acquires m_execMutex and holds until done.  
      */
     virtual bool stepUntilQuiescent();
 
@@ -158,15 +160,15 @@ namespace PLEXIL
     /**
      * @brief Suspends the running Exec.
      * @return true if successful, false otherwise.
-	 * @note Can only be suspended from APP_RUNNING state.
+     * @note Can only be suspended from APP_RUNNING state.
      */
     virtual bool suspend();
 
     /**
      * @brief Resumes a suspended Exec.
      * @return true if successful, false otherwise.
-	 * @note Can only resume from suspended state, i.e. 
-	 *   application state is APP_READY and isSuspended() is true.
+     * @note Can only resume from suspended state, i.e. 
+     *   application state is APP_READY and isSuspended() is true.
      */
     virtual bool resume();
 
@@ -196,13 +198,13 @@ namespace PLEXIL
 
     /**
      * @brief Notify the executive and wait for all queue entries to be processed.
-	 */
+     */
     virtual void notifyAndWaitForCompletion();
 
-	/**
-	 * @brief Notify the application that a queue mark was processed.
-	 */
-	virtual void markProcessed();
+    /**
+     * @brief Notify the application that a queue mark was processed.
+     */
+    virtual void markProcessed();
 
     /**
      * @brief Add a library as an XML document.
@@ -218,20 +220,21 @@ namespace PLEXIL
 
     /**
      * @brief Suspend the current thread until the plan finishes executing.
+     * @note Acquires m_execMutex while checking exec status.
      */
     virtual void waitForPlanFinished();
 
     /**
      * @brief Suspend the current thread until the application reaches APP_SHUTDOWN state.
-	 * @note May be called by multiple threads
-	 * @note Wait can be interrupted by signal handling; calling threads should block (e.g.) SIGALRM.
+     * @note May be called by multiple threads
+     * @note Wait can be interrupted by signal handling; calling threads should block (e.g.) SIGALRM.
      */
     virtual void waitForShutdown();
 
-	/**
-	 * @brief Whatever state the application may be in, bring it down in a controlled fashion.
-	 */
-	virtual void terminate();
+    /**
+     * @brief Whatever state the application may be in, bring it down in a controlled fashion.
+     */
+    virtual void terminate();
 
     /**
      * @brief Select whether the exec runs opportunistically or only in background thread.
@@ -243,27 +246,27 @@ namespace PLEXIL
       m_runExecInBkgndOnly = bkgndOnly; 
     }
 
-	/**
-	 * @brief Get the application's current state.
-	 */
+    /**
+     * @brief Get the application's current state.
+     */
     ApplicationState getApplicationState();
 
-	/**
-	 * @brief Return a human-readable name for the ApplicationState.
-	 * @param state An ApplicationState.
-	 * @return The name of the state as a const char*.
-	 */
-	static const char* getApplicationStateName(ApplicationState state);
+    /**
+     * @brief Return a human-readable name for the ApplicationState.
+     * @param state An ApplicationState.
+     * @return The name of the state as a const char*.
+     */
+    static const char* getApplicationStateName(ApplicationState state);
 
-	/**
-	 * @brief Query whether the Exec has been suspended. 
-	 * @return True if suspended, false otherwise.
-	 * @note Can only be suspended from APP_RUNNING.
-	 */
-	bool isSuspended() const
-	{
-	  return m_suspended;
-	}
+    /**
+     * @brief Query whether the Exec has been suspended. 
+     * @return True if suspended, false otherwise.
+     * @note Can only be suspended from APP_RUNNING.
+     */
+    bool isSuspended() const
+    {
+      return m_suspended;
+    }
 
   protected:
 
@@ -291,7 +294,6 @@ namespace PLEXIL
      * @brief Run the exec until the queue is empty.
      * @param stepFirst True if the exec should be stepped before checking the queue.
      * @note Acquires m_execMutex and holds until done.  
-     * @note This should be the only method that acquires m_execMutex.
      */
     void runExec(bool stepFirst = false);
 
@@ -300,7 +302,7 @@ namespace PLEXIL
      *         placed a call to notifyOfExternalEvent().  Can return
      *         immediately if the calling thread is canceled.
      * @return true if resumed normally, false if thread was canceled.
-	 * @note Can wait here indefinitely while the application is suspended.
+     * @note Can wait here indefinitely while the application is suspended.
      */
     bool waitForExternalEvent();
 
@@ -315,29 +317,29 @@ namespace PLEXIL
      */ 
     bool setApplicationState(const ApplicationState& newState);
 
-	/**
-	 * @brief Establish signal handling environment for exec worker thread.
-	 * @return True if successful, false otherwise.
-	 */
-	bool initializeWorkerSignalHandling();
+    /**
+     * @brief Establish signal handling environment for exec worker thread.
+     * @return True if successful, false otherwise.
+     */
+    bool initializeWorkerSignalHandling();
 
-	/**
-	 * @brief Restore previous signal handling environment for exec worker thread.
-	 * @return True if successful, false otherwise.
-	 */
-	bool restoreWorkerSignalHandling();
+    /**
+     * @brief Restore previous signal handling environment for exec worker thread.
+     * @return True if successful, false otherwise.
+     */
+    bool restoreWorkerSignalHandling();
 
-	/**
-	 * @brief Establish signal handling environment for main thread.
-	 * @return True if successful, false otherwise.
-	 */
-	bool initializeMainSignalHandling();
+    /**
+     * @brief Establish signal handling environment for main thread.
+     * @return True if successful, false otherwise.
+     */
+    bool initializeMainSignalHandling();
 
-	/**
-	 * @brief Restore previous signal handling environment for main thread.
-	 * @return True if successful, false otherwise.
-	 */
-	bool restoreMainSignalHandling();
+    /**
+     * @brief Restore previous signal handling environment for main thread.
+     * @return True if successful, false otherwise.
+     */
+    bool restoreMainSignalHandling();
 
   private:
 
@@ -365,40 +367,40 @@ namespace PLEXIL
     // Serialize execution in exec to guarantee in-order processing of events
     RecursiveThreadMutex m_execMutex;
 
-	// Mutex for application state
-	ThreadMutex m_stateMutex;
+    // Mutex for application state
+    ThreadMutex m_stateMutex;
 
     // Semaphore for notifying the Exec of external events
     ThreadSemaphore m_sem;
 
-	// Semaphore for notifyAndWaitForCompletion()
-	ThreadSemaphore m_markSem;
+    // Semaphore for notifyAndWaitForCompletion()
+    ThreadSemaphore m_markSem;
 
-	// Semaphore for notifying external threads that the application is shut down
-	ThreadSemaphore m_shutdownSem;
+    // Semaphore for notifying external threads that the application is shut down
+    ThreadSemaphore m_shutdownSem;
 
     // Current state of the application
     ApplicationState m_state;
 
-	// Flag to determine whether exec should run conservatively
+    // Flag to determine whether exec should run conservatively
     bool m_runExecInBkgndOnly;
 
-	// Flag for halting the Exec thread
-	bool m_stop;
+    // Flag for halting the Exec thread
+    bool m_stop;
 
-	// Flag for suspend/resume
-	bool m_suspended;
+    // Flag for suspend/resume
+    bool m_suspended;
 
-	//
-	// Signal handling
-	//
-	size_t m_nBlockedSignals;
-	int m_blockedSignals[EXEC_APPLICATION_MAX_N_SIGNALS + 1];
-	sigset_t m_workerSigset;
-	sigset_t m_restoreWorkerSigset;
-	sigset_t m_mainSigset;
-	sigset_t m_restoreMainSigset;
-	struct sigaction m_restoreUSR2Handler;
+    //
+    // Signal handling
+    //
+    size_t m_nBlockedSignals;
+    int m_blockedSignals[EXEC_APPLICATION_MAX_N_SIGNALS + 1];
+    sigset_t m_workerSigset;
+    sigset_t m_restoreWorkerSigset;
+    sigset_t m_mainSigset;
+    sigset_t m_restoreMainSigset;
+    struct sigaction m_restoreUSR2Handler;
 
   };
 
