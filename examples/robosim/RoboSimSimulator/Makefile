@@ -32,10 +32,12 @@ INC		:= $(wildcard *.hh)
 
 LIBS		+= PlexilUtils standalonesimulator ipc
 
-INC_DIRS 	+= .. ../../../utils \
-                   ../../../third-party/ipc/src \
-                   ../../../third-party/ooid/kashmir \
-                   ../../../interfaces/IpcAdapter
+INC_DIRS 	+= $(PLEXIL_HOME)/src/utils \
+  $(PLEXIL_HOME)/src/third-party/ipc/src \
+  $(PLEXIL_HOME)/src/third-party/ooid/kashmir \
+  $(PLEXIL_HOME)/src/interfaces/IpcAdapter \
+  $(PLEXIL_HOME)/src/interfaces/IpcUtils \
+  $(PLEXIL_HOME)/src/apps/StandAloneSimulator
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)

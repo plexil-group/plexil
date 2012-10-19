@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -23,14 +23,16 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include "Simulator.hh"
-#include "RoboSimResponseFactory.hh"
+#include <csignal>
+#include <fstream>
 
 #include "Debug.hh"
 #include "IpcCommRelay.hh"
+#include "ThreadSemaphore.hh"
 
-#include <csignal>
-#include <fstream>
+#include "RoboSimResponseFactory.hh"
 
 PLEXIL::ThreadSemaphore doneSemaphore;
 Simulator* _the_simulator_ = NULL;
@@ -69,14 +71,14 @@ int main(int argc, char** argv)
           return 0;
         }
       else
-	{
-	  std::cout << "Unknown option '" 
-		    << argv[i] 
-		    << "'.  " 
-		    << usage 
-		    << std::endl;
-	  return -1;
-	}
+    {
+      std::cout << "Unknown option '" 
+            << argv[i] 
+            << "'.  " 
+            << usage 
+            << std::endl;
+      return -1;
+    }
     }
 
   if (commandScriptName.empty() && telemetryScriptName.empty())
@@ -89,22 +91,22 @@ int main(int argc, char** argv)
     {
       std::ifstream dc(debugConfig.c_str());
       if (dc.fail())
-	{
-	  std::cerr << "Error: unable to open debug configuration file "
-		    << debugConfig << std::endl;
-	  return -1;
-	}
+    {
+      std::cerr << "Error: unable to open debug configuration file "
+            << debugConfig << std::endl;
+      return -1;
+    }
       DebugMessage::setStream(std::cerr);
       if (!DebugMessage::readConfigFile(dc))
-	{
-	  std::cerr << "Error in debug configuration file " << debugConfig << std::endl;
-	  return -1;
-	}
+    {
+      std::cerr << "Error in debug configuration file " << debugConfig << std::endl;
+      return -1;
+    }
     }
 
   debugMsg("RoboSimSimulator",  
-	   " Running with command script: " << commandScriptName
-	   << " and telemetry script: " << telemetryScriptName);
+       " Running with command script: " << commandScriptName
+       << " and telemetry script: " << telemetryScriptName);
 
   ResponseManagerMap mgrMap;
   {

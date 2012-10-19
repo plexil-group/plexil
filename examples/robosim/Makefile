@@ -28,5 +28,9 @@ plexil-default: 2DRoboSim
 2DRoboSim:
 	$(MAKE) -C 2DRobotSimulator
 
+robosim :
+	$(MAKE) -C RoboSimSimulator
+
 clean:
 	@ $(MAKE) -C 2DRobotSimulator $@
+	@ $(MAKE) -C RoboSimSimulator $@
