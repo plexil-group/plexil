@@ -43,15 +43,3 @@ include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 ifneq ($(MAKECMDGOALS),clean)
 -include Makedepend
 endif
-
-TARGETS := udp-tests
-OBJECTS := udp-utils.o
-
-all: $(TARGETS)
-
-$(TARGETS): $(OBJECTS)
-	$(CC) -Wall $@.cc -o $@ $^ -lstdc++ -lPlexilUtils -l$(PTHREAD_LIB) -lpugixml -I../../utils -L../../utils -L../../../lib
-
-cleaner: clean
-	$(RM) $(TARGETS) *.o
-	$(MAKE) -C demo clean
