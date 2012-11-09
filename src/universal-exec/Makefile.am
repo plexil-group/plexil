@@ -23,24 +23,22 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+bin_PROGRAMS = universalExec
+universalExec_SOURCES = UniversalExec.cc
 
-OSTYPE   ?= $(shell uname -s)
-MACHTYPE ?= $(shell uname -p)
-OS_ARCH = $(OSTYPE)-$(MACHTYPE)
+universalExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
+ -I@top_srcdir@/exec -I@top_srcdir@/app-framework
 
-EXECUTABLE = universalExec
-SRC = UniversalExec.cc
-INC = 
+universalExec_LDADD = @top_srcdir@/third-party/pugixml/src/libpugixml.la \
+ @top_srcdir@/utils/libPlexilUtils.la @top_srcdir@/exec/libPlexilExec.la \
+ @top_srcdir@/app-framework/libPlexilAppFramework.la
 
-INC_DIRS += ../third-party/pugixml/src \
-	    ../utils ../exec ../app-framework ../interfaces/LuvListener
-LIBS     += pugixml LuvListener PlexilSockets PlexilAppFramework PlanDebugListener PlexilExec PlexilUtils $(DLOPEN_LIB) $(PTHREAD_LIB) $(RT_LIB)
+if DEBUG_LISTENER_OPT
+  universalExec_LDADD += @top_srcdir@/interfaces/PlanDebugListener/libPlanDebugListener.la
+endif
 
-LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
-UNIVERSALEXEC_TARGET = universalExec
-
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
+if VIEWER_OPT
+  universalExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
+  universalExec_LDADD += @top_srcdir@/interfaces/Sockets/libPlexilSockets.la \
+ @top_srcdir@/interfaces/LuvListener/libLuvListener.la
 endif

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,10 @@
 #include "Debug.hh"
 #include "Node.hh"
 #include "PlexilPlan.hh"
+
+#if HAVE_LUV_LISTENER
 #include "LuvListener.hh"
+#endif
 
 #include <cstring>
 #include <fstream>
@@ -46,18 +49,21 @@ int main (int argc, char** argv)
   std::string interfaceConfig("interface-config.xml");
   std::vector<std::string> libraryNames;
   std::vector<std::string> libraryPath;
-  bool luvRequest = false;
-  std::string luvHost = PLEXIL::LuvListener::LUV_DEFAULT_HOSTNAME();
-  int luvPort = PLEXIL::LuvListener::LUV_DEFAULT_PORT();
-  bool luvBlock = false;
   std::string
       usage(
           "Usage: universalExec -p <plan>\n\
                    [-l <library>]*\n\
                    [-L <library_directory>]*\n\
                    [-c <interface_config_file>]\n\
-                   [-d <debug_config_file>]\n\
-                   [-v [-h <luv_hostname>] [-n <luv_portnumber>] [-b] ]");
+                   [-d <debug_config_file>]\n");
+  bool luvRequest = false;
+
+#if HAVE_LUV_LISTENER
+  std::string luvHost = PLEXIL::LuvListener::LUV_DEFAULT_HOSTNAME();
+  int luvPort = PLEXIL::LuvListener::LUV_DEFAULT_PORT();
+  bool luvBlock = false;
+  usage += "[-v [-h <luv_hostname>] [-n <luv_portnumber>] [-b] ]\n";
+#endif
 
   // if not enough parameters, print usage
   if (argc < 2) {
@@ -67,9 +73,7 @@ int main (int argc, char** argv)
 
   // parse out parameters
   for (int i = 1; i < argc; ++i) {
-    if (strcmp(argv[i], "-b") == 0)
-      luvBlock = true;
-    else if (strcmp(argv[i], "-c") == 0) {
+    if (strcmp(argv[i], "-c") == 0) {
 	  if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
 				  << usage << std::endl;
@@ -107,13 +111,26 @@ int main (int argc, char** argv)
 		std::cout << usage << std::endl;
 		return 0;
 	  }
+#if HAVE_LUV_LISTENER
 	  else if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
 				  << usage << std::endl;
 		return -1;
 	  }
       luvHost = argv[i];
+#endif
 	}
+	else if (strcmp(argv[i], "-p") == 0) {
+	  if (argc == (++i)) {
+		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
+				  << usage << std::endl;
+		return -1;
+	  }
+      planName = argv[i];
+	}
+#if HAVE_LUV_LISTENER
+    else if (strcmp(argv[i], "-v") == 0)
+      luvRequest = true;
     else if (strcmp(argv[i], "-n") == 0) {
 	  if (argc == (++i)) {
 		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
@@ -124,16 +141,9 @@ int main (int argc, char** argv)
       buffer >> luvPort;
       SHOW(luvPort);
     } 
-	else if (strcmp(argv[i], "-p") == 0) {
-	  if (argc == (++i)) {
-		std::cerr << "Error: Missing argument to the " << argv[i - 1] << " option.\n"
-				  << usage << std::endl;
-		return -1;
-	  }
-      planName = argv[i];
-	}
-    else if (strcmp(argv[i], "-v") == 0)
-      luvRequest = true;
+    else if (strcmp(argv[i], "-b") == 0)
+      luvBlock = true;
+#endif
     else {
       std::cerr << "Error: Unknown option '" << argv[i] << "'.\n" << usage << std::endl;
       return -1;
@@ -143,7 +153,7 @@ int main (int argc, char** argv)
 
   std::ifstream dbgConfig(debugConfig.c_str());
   if (dbgConfig.good()) 
-    DebugMessage::readConfigFile(dbgConfig);
+    readDebugConfigStream(dbgConfig);
 
   // get interface configuration file, if provided
   pugi::xml_document configDoc;
@@ -179,6 +189,7 @@ int main (int argc, char** argv)
 	}
   }
 
+#if HAVE_LUV_LISTENER
   // if a luv view is to be attached,
   // add dummy element for LuvListener
   if (luvRequest) {
@@ -190,6 +201,7 @@ int main (int argc, char** argv)
 	configElt.append_copy(luvConfig->document_element());
 	delete luvConfig;
   }
+#endif
 
   // construct the application
   PLEXIL::ExecApplication _app;
@@ -273,5 +285,7 @@ int main (int argc, char** argv)
 	return -1;
   }
 
+  std::cout << "Plan complete, Exec exited with"
+            << (error ? " " : "out ") << "errors" << std::endl;
   return (error ? -1 : 0);
 }
