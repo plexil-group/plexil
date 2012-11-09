@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,39 @@ namespace PLEXIL
   class LabelStr;
   DECLARE_GLOBAL_CONST(LabelStr, EMPTY_LABEL);
 
-#if defined(PLATFORM_HAS_TR1_UNORDERED_MAP)
+#if defined(HAVE_UNORDERED_MAP)
+  // specialized hash function for pointers to string
+
+  class StringHashFunction
+  {
+  public:
+    size_t operator()(const std::string* str) const
+    {
+      return std::hash<std::string>()(*str);
+    }
+  };
+
+  // specialized equal operator for pointers to strings
+
+  struct StringEqualOoperator : public std::binary_function<
+    const std::string*,
+    const std::string*,
+    bool>
+  {
+    bool operator()(const std::string* s1, const std::string* s2) const
+    { 
+      return *s1 == *s2;
+    }
+  };
+   
+  // 
+
+  typedef StoredItem<
+    double, 
+    const std::string, 
+    StringHashFunction, 
+    StringEqualOoperator> StoredString;
+#elif defined(HAVE_TR1_UNORDERED_MAP)
   // specialized hash function for pointers to string
 
   class StringHashFunction
@@ -78,7 +110,7 @@ namespace PLEXIL
     const std::string, 
     StringHashFunction, 
     StringEqualOoperator> StoredString;
-#elif defined(PLATFORM_HAS_GNU_HASH_MAP)
+#elif defined(HAVE_BACKWARD_HASH_MAP) || defined(HAVE_EXT_HASH_MAP)
   // specialized hash function for pointers to string
 
   class StringHashFunction
@@ -111,7 +143,8 @@ namespace PLEXIL
     StringHashFunction, 
     StringEqualOoperator> StoredString;
 
-#elif defined(PLATFORM_HAS_DINKUM_HASH_MAP)
+#elif defined(HAVE_HASH_MAP)
+  // Dinkumware C++
   // specialized hash_compare class for pointers to string
   class StringPointerCompare
     : public std::hash_compare<std::string const *>
@@ -140,7 +173,7 @@ namespace PLEXIL
     std::string const, 
     StoredItemKeyCompare<double>,
     StringPointerCompare > StoredString;
-#endif // PLATFORM_HAS_DINKUM_HASH_MAP
+#endif //
 
 /**
  * @class LabelStr

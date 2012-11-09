@@ -218,7 +218,7 @@ private:
   static bool testDebugError() {
     bool success = true;
     // check_error will not throw the errors for PLEXIL_FAST
-#if !defined(PLEXIL_FAST) && defined(DEBUG_MESSAGE_SUPPORT)
+#if !defined(PLEXIL_FAST) && !defined(NO_DEBUG_MESSAGE_SUPPORT)
     Error::doThrowExceptions();
     assertTrue(Error::throwEnabled());
     //!!Add a test of DebugMessage that should throw an error here.
@@ -236,7 +236,7 @@ private:
   }
 
   static void runDebugTest(int cfgNum) {
-#if !defined(PLEXIL_FAST) && defined(DEBUG_MESSAGE_SUPPORT)
+#if !defined(PLEXIL_FAST) && !defined(NO_DEBUG_MESSAGE_SUPPORT)
     std::stringstream cfgName;
     cfgName << "debug" << cfgNum << ".cfg";
     std::string cfgFile(cfgName.str());
@@ -247,12 +247,12 @@ private:
     Error::doNotDisplayErrors();
     std::ofstream debugOutput(cfgOut.c_str());
     assertTrue(debugOutput.good(), "could not open debug output file");
-    DebugMessage::setStream(debugOutput);
+    setDebugOutputStream(debugOutput);
     std::ifstream debugStream(cfgFile.c_str());
     assertTrue(debugStream.good(), "could not open debug config file",
                 DebugErr::DebugConfigError());
-    if (!DebugMessage::readConfigFile(debugStream))
-      handle_error(!DebugMessage::readConfigFile(debugStream),
+    if (!readDebugConfigstream(debugStream))
+      handle_error(!readDebugConfigStream(debugStream),
                    "problems reading debug config file",
                    DebugErr::DebugConfigError());
     
@@ -262,7 +262,7 @@ private:
     debugMsg("main2", "primary testing done");
     Error::doThrowExceptions();
     Error::doDisplayErrors();
-    DebugMessage::setStream(std::cerr);
+    setDebugOutputStream(std::cerr);
 #endif
   }
 };

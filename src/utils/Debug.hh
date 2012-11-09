@@ -47,6 +47,8 @@
 #ifndef _H_Debug
 #define _H_Debug
 
+#include <plexil-config.h>
+
 #ifdef NO_DEBUG_MESSAGE_SUPPORT
 
 #define debugMsg(marker, data)
@@ -56,7 +58,8 @@
 #define initDebug()
 #define SHOW(thing)
 #define MARK
-
+#define readDebugConfigStream(instream) (true)
+#define setDebugOutputStream(outstream)
 
 #else
 
@@ -78,9 +81,9 @@
 #define MARK std::cout << __FILE__ << "(" << __LINE__ << ") MARK" << std::endl << std::flush
 
 
-# include <iostream>
-# include <string>
-# include <list>
+#include <iostream>
+#include <string>
+#include <list>
 
 #include "Error.hh"
 
@@ -151,6 +154,19 @@
     stmt ; \
   } \
 }
+
+/**
+ * @brief Load the debug configuration from the given stream
+ * @param instream The input stream.
+ * @return True if successful, false if error.
+ */
+#define readDebugConfigStream(instream) { DebugMessage::readConfigFile(instream); }
+
+/**
+ * @brief Direct debug output to the given stream.
+ * @param outstream The output stream.
+ */
+#define setDebugOutputStream(outstream) { DebugMessage::setStream(outstream); }
 
 class DebugErr {
 public:
@@ -613,6 +629,6 @@ inline std::ostream& operator<<(std::ostream& os, const DebugMessage& dm) {
   return(os);
 }
 
-#endif /* DEBUG_MESSAGE_SUPPORT */
+#endif /* NO_DEBUG_MESSAGE_SUPPORT */
 
 #endif /* _H_Debug */

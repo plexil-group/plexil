@@ -31,16 +31,22 @@
 #ifndef PLEXIL_GENERIC_HASH_MAP_HH
 #define PLEXIL_GENERIC_HASH_MAP_HH
 
-#if defined(PLATFORM_HAS_TR1_UNORDERED_MAP)
+#include <plexil-config.h>
+
+#if defined(HAVE_UNORDERED_MAP)
+// C++11 unordered_map
+#include <unordered_map>
+#define PLEXIL_HASH_MAP(key_t,item_t) std::unordered_map<key_t, item_t >
+#elif defined(HAVE_TR1_UNORDERED_MAP) 
 // C++0x TR1 unordered_map
 #include <tr1/unordered_map>
 #define PLEXIL_HASH_MAP(key_t,item_t) std::tr1::unordered_map<key_t, item_t >
-#elif defined(PLATFORM_HAS_GNU_HASH_MAP)
+#elif defined(HAVE_EXT_HASH_MAP) || defined(HAVE_BACKWARD_HASH_MAP)
 // GNU libstdc++ hash_map
 #include "GNU_hash_map.hh"
 #define PLEXIL_HASH_MAP(key_t,item_t) __gnu_cxx::hash_map<key_t, item_t >
-#elif defined(PLATFORM_HAS_DINKUM_HASH_MAP)
-// Dinkumware hash_map
+#elif defined(HAVE_HASH_MAP)
+// Dinkumware or original SGI hash_map
 #include <hash_map>
 #define PLEXIL_HASH_MAP(key_t,item_t) std::hash_map<key_t, item_t >
 #else

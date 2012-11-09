@@ -214,4 +214,4 @@ bool DebugMessage::readConfigFile(std::istream& is)
   return(is.eof());
 }
 
-#endif /* DEBUG_MESSAGE_SUPPORT */
+#endif /* NO_DEBUG_MESSAGE_SUPPORT */

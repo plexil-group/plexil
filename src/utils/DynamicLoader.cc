@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,13 @@
 #include <string>
 
 #include "Debug.hh"
+
+// *** KLUDGE ALERT ***
+// This macro used to be provided by the Makefile system.
+// It *should* be conditional based on the target OS.
+// I have not yet found a way to properly pass it in using automake. So punt for now.
+
+#define LIB_EXT ".so"
 
 namespace PLEXIL
 {

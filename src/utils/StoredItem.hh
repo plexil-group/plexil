@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,17 @@
 
 //#define STORED_ITEM_REUSE_KEYS
 
-#if defined(PLATFORM_HAS_TR1_UNORDERED_MAP)
+#include <plexil-config.h>
+
+#if defined(HAVE_UNORDERED_MAP)
+// C++11 unordered_map
+#include "StoredItem_C++11.hh"
+#elif defined(HAVE_TR1_UNORDERED_MAP)
 // C++0x TR1 unordered_map
 #include "StoredItem_TR1.hh"
-#elif defined(PLATFORM_HAS_GNU_HASH_MAP)
+#elif defined(HAVE_EXT_HASH_MAP) || defined(HAVE_BACKWARD_HASH_MAP)
 #include "StoredItem_GNU.hh"
-#elif defined(PLATFORM_HAS_DINKUM_HASH_MAP)
+#elif defined(HAVE_HASH_MAP)
 #include "StoredItem_Dinkum.hh"
 #else
 # error "Unable to find hash_map or equivalent class for this platform."
