@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include "exec-test-module.hh"
 #include <fstream>
 #include <cstring>
+#include <iostream>
 #include <string>
 #include "Debug.hh"
 
@@ -42,7 +43,7 @@ int main(int argc, char** argv) {
   std::ifstream config(debugConfig.c_str());
   
   if (config.good()) {
-     DebugMessage::readConfigFile(config);
+     readDebugConfigStream(config);
      std::cout << "Reading configuration file: " << debugConfig.c_str() << "\n";
   }
   else
