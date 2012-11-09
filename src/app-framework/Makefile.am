@@ -23,29 +23,36 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+lib_LTLIBRARIES = libPlexilAppFramework.la
 
-LIBRARY		:= PlexilAppFramework
+libPlexilAppFramework_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
+ -I@top_srcdir@/exec
 
-# External dependencies
-INC_DIRS	+= ../third-party/pugixml/src \
- ../utils ../exec \
- ../interfaces/Sockets \
- ../interfaces/LuvListener \
- ../interfaces/PlanDebugListener
-LIB_PATH	+=
-LIBS		+= pugixml PlexilUtils PlexilExec dl PlexilSockets LuvListener PlanDebugListener $(PTHREAD_LIB)
-
-ifneq ($(OSNAME),Darwin)
-LIBS		+= rt
+if DEBUG_LISTENER_OPT
+  libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
 endif
 
-SRC		:= $(wildcard *.cc)
-INC		:= $(SRC:.cc=.hh) TimeAdapter.hh ExecController.hh
-
-SVN_FILES       := Makefile $(SRC) $(INC)
-
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
+if VIEWER_OPT
+  libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
 endif
+
+include_HEADERS = AdapterConfiguration.hh AdapterConfigurationFactory.hh AdapterExecInterface.hh \
+ AdapterFactory.hh ControllerFactory.hh DefaultAdapterConfiguration.hh \
+ DummyAdapter.hh ExecApplication.hh ExecController.hh ExecListenerFactory.hh \
+ InterfaceAdapter.hh InterfaceManager.hh TimeAdapter.hh UtilityAdapter.hh \
+ ValueQueue.hh
+
+libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc AdapterConfigurationFactory.cc \
+ AdapterExecInterface.cc AdapterFactory.cc ControllerFactory.cc \
+ DefaultAdapterConfiguration.cc DummyAdapter.cc ExecApplication.cc ExecListenerFactory.cc \
+ InterfaceAdapter.cc InterfaceManager.cc UtilityAdapter.cc ValueQueue.cc
+
+if PLEXIL_POSIX_TIME_FUNCS
+  include_HEADERS += PosixTimeAdapter.hh
+  libPlexilAppFramework_la_SOURCES += PosixTimeAdapter.cc
+else
+  include_HEADERS += DarwinTimeAdapter.hh
+  libPlexilAppFramework_la_SOURCES += DarwinTimeAdapter.cc
+endif
+
+# TODO: libraries to link against (?)

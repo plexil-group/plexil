@@ -33,6 +33,8 @@
 
 #include "InterfaceManager.hh"
 
+#include <plexil-config.h>
+
 #include "AdapterConfiguration.hh"
 #include "AdapterConfigurationFactory.hh"
 #include "AdapterFactory.hh"
@@ -47,13 +49,12 @@
 #include "Error.hh"
 #include "ExecApplication.hh"
 #include "ExecController.hh"
+#include "ExecListener.hh"
 #include "ExecListenerFactory.hh"
 #include "ExecListenerHub.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
-#include "LuvListener.hh"
 #include "Node.hh"
-#include "PlanDebugListener.hh"
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
 #include "ResourceArbiterInterface.hh"
@@ -61,6 +62,14 @@
 #include "TimeAdapter.hh"
 #include "Update.hh"
 #include "UtilityAdapter.hh"
+
+#if HAVE_LUV_LISTENER
+#include "LuvListener.hh"
+#endif
+
+#if HAVE_DEBUG_LISTENER
+#include "PlanDebugListener.hh"
+#endif
 
 #include <cstring>
 #include <limits>
@@ -97,10 +106,15 @@ namespace PLEXIL
     // Every application has access to the OS-native time adapter
     REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
 
-    // Every application should have access to the Plexil Viewer (formerly LUV)
-    // and Plan Debug Listeners
-    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
+#if HAVE_DEBUG_LISTENER
+    // Every application should have access to the Plan Debug Listener
     REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
+#endif
+
+#if HAVE_LUV_LISTENER
+    // Every application should have access to the Plexil Viewer (formerly LUV) Listener
+    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
+#endif
 
     // Every application has access to the default adapter configuration
     REGISTER_ADAPTER_CONFIGURATION(DefaultAdapterConfiguration, "default");
