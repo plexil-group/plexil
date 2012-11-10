@@ -14,32 +14,32 @@ AM_INIT_AUTOMAKE
 
 # Configuration options
 AC_ARG_WITH([jni],
-        AS_HELP_STRING([--with-jni], [Include utilties for Java Native Interface; default = no]))
+        AS_HELP_STRING([--with-jni], [Include utilties for Java Native Interface (default=no)]))
 AC_ARG_ENABLE([debug-listener],
-        AS_HELP_STRING([--enable-debug-listener], [Build PlanDebugListener interface; default = yes]))
+        AS_HELP_STRING([--enable-debug-listener], [Build PlanDebugListener interface (default=yes)]))
 AC_ARG_ENABLE([debug-logging],
-        AS_HELP_STRING([--enable-debug-logging], [Allow debug output; default = yes]))
+        AS_HELP_STRING([--enable-debug-logging], [Allow debug output (default=yes)]))
 AC_ARG_ENABLE([gantt],
-        AS_HELP_STRING([--enable-gantt], [Build GanttListener interface; default = no]))
+        AS_HELP_STRING([--enable-gantt], [Build GanttListener interface (default=no)]))
 AC_ARG_ENABLE([ipc],
-        AS_HELP_STRING([--enable-ipc], [Build IPC and IpcAdapter library; default = no]))
+        AS_HELP_STRING([--enable-ipc], [Build IPC and IpcAdapter library (default=no)]))
 AC_ARG_ENABLE([module-tests],
-        AS_HELP_STRING([--enable-module-tests], [Build module tests; default = no]))
+        AS_HELP_STRING([--enable-module-tests], [Build module tests (default=no)]))
 AC_ARG_ENABLE([viewer],
-        AS_HELP_STRING([--enable-viewer], [Build Plexil Viewer interface; default = yes]))
+        AS_HELP_STRING([--enable-viewer], [Build Plexil Viewer interface (default=yes)]))
 AC_ARG_ENABLE([sas],
-        AS_HELP_STRING([--enable-sas], [Build StandAloneSimulator; default = no]))
+        AS_HELP_STRING([--enable-sas], [Build StandAloneSimulator (default=no)]))
 # SAS requires IPC
 AS_IF([test "x$enable_sas" = "xyes"], [
   AS_IF([test "x$enable_ipc" = "xno"], [enable_ipc=yes])
 ])
 
 AC_ARG_ENABLE([test-exec],
-        AS_HELP_STRING([--enable-test-exec], [Build TestExec executable; default = no]))
+        AS_HELP_STRING([--enable-test-exec], [Build TestExec executable (default=no)]))
 AC_ARG_ENABLE([udp],
-        AS_HELP_STRING([--enable-udp], [Build UdpAdapter interface; default = no]))
+        AS_HELP_STRING([--enable-udp], [Build UdpAdapter interface (default=no)]))
 AC_ARG_ENABLE([universal-exec],
-        AS_HELP_STRING([--enable-universal-exec], [Build universalExec executable; default = yes]))
+        AS_HELP_STRING([--enable-universal-exec], [Build universalExec executable (default=yes)]))
 
 # Conditionals for makefiles
 # These default to on
