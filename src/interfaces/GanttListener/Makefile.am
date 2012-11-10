@@ -23,23 +23,9 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+lib_LTLIBRARIES = libGanttListener.la
+include_HEADERS = GanttListener.hh
+libGanttListener_la_SOURCES = GanttListener.cc
 
-OSTYPE   ?= $(shell uname -s)
-MACHTYPE ?= $(shell uname -p)
-OS_ARCH = $(OSTYPE)-$(MACHTYPE)
+# TODO: libraries to link against (?)
 
-LIBRARY = GanttListener
-SRC = GanttListener.cc
-INC = GanttListener.hh
-
-INC_DIRS += ../../third-party/pugixml/src ../../utils ../../exec ../../app-framework
-
-LIBS		+= dl pugixml PlexilAppFramework PlexilUtils PlexilExec
-
-LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
-
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
-endif
