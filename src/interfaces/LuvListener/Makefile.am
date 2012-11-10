@@ -23,21 +23,13 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+lib_LTLIBRARIES = libLuvListener.la
 
-LIBRARY		:= LuvListener
+libLuvListener_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
+ -I@top_srcdir@/exec -I@top_srcdir@/app-framework -I@top_srcdir@/interfaces/Sockets
 
-# External dependencies
-INC_DIRS	+= ../Sockets ../../third-party/pugixml/src ../../utils ../../exec 
-LIB_PATH	+=
-LIBS		+= PlexilSockets pugixml PlexilUtils PlexilExec
+include_HEADERS = LuvFormat.hh LuvListener.hh
 
-SRC		:= LuvFormat.cc LuvListener.cc
-INC		:= $(SRC:.cc=.hh)
+libLuvListener_la_SOURCES = LuvFormat.cc LuvListener.cc
 
-SVN_FILES       := Makefile $(SRC) $(INC)
-
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
-endif
+# TODO: libraries to link against (?)
