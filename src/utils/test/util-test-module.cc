@@ -251,7 +251,7 @@ private:
     std::ifstream debugStream(cfgFile.c_str());
     assertTrue(debugStream.good(), "could not open debug config file",
                 DebugErr::DebugConfigError());
-    if (!readDebugConfigstream(debugStream))
+    if (!readDebugConfigStream(debugStream))
       handle_error(!readDebugConfigStream(debugStream),
                    "problems reading debug config file",
                    DebugErr::DebugConfigError());
