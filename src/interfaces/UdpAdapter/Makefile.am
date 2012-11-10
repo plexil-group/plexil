@@ -23,23 +23,21 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+lib_LTLIBRARIES = libUdpUtils.la libUdpAdapter.la
+include_HEADERS = MessageQueueMap.hh UdpAdapter.hh udp-utils.hh
+libUdpUtils_la_SOURCES = udp-utils.cc
+libUdpUtils_la_CPPFLAGS = -I@top_srcdir@/utils
 
-LIBRARY		:= UdpAdapter
+libUdpAdapter_la_SOURCES = MessageQueueMap.cc UdpAdapter.cc
+libUdpAdapter_la_LIBADD = libUdpUtils.la
+libUdpAdapter_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
+ -I@top_srcdir@/exec -I@top_srcdir@/app-framework -I@top_srcdir@/interfaces/UpdUtils
 
-# External dependencies
-INC_DIRS	+= ../../third-party/pugixml/src \
-  ../../third-party/ipc/src \
-  ../../utils ../../exec ../../app-framework
-LIB_PATH	+=
-LIBS		+= pugixml PlexilUtils PlexilExec PlexilAppFramework
+# TODO: libraries to link against (?)
 
-SRC		:= UdpAdapter.cc udp-utils.cc MessageQueueMap.cc
-INC		:= UdpAdapter.hh udp-utils.hh MessageQueueMap.hh
-
-SVN_FILES       := Makefile $(SRC) $(INC)
-
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
+if MODULE_TESTS_OPT
+  noinst_PROGRAMS = test/udp-tests
+  test_udp_tests_SOURCES = test/udp-tests.cc
+  test_udp_tests_CPPFLAGS = -I@top_srcdir@/utils
+  test_udp_tests_LDADD = @top_srcdir@/utils/libPlexilUtils.la libUdpUtils.la
 endif
