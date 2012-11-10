@@ -94,8 +94,8 @@ at the top of the script."
 				<< debugConfig << std::endl;
 	  return -1;
 	}
-	DebugMessage::setStream(std::cerr);
-	if (!DebugMessage::readConfigFile(dc)) {
+	setDebugOutputStream(std::cerr);
+	if (!readDebugConfigStream(dc)) {
 	  std::cerr << "Error in debug configuration file " << debugConfig << std::endl;
 	  return -1;
 	}
