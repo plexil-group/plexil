@@ -23,21 +23,13 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+lib_LTLIBRARIES = libPlanDebugListener.la
 
-LIBRARY		:= PlanDebugListener
+libPlanDebugListener_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
+ -I@top_srcdir@/exec -I@top_srcdir@/app-framework
 
-# External dependencies
-INC_DIRS	+= ../../utils ../../exec ../../third-party/pugixml/src
-LIB_PATH	+=
-LIBS		+= pugixml PlexilUtils PlexilExec
+include_HEADERS = PlanDebugListener.hh
 
-INC		:= PlanDebugListener.hh
-SRC		:= $(INC:.hh=.cc)
+libPlanDebugListener_la_SOURCES = PlanDebugListener.cc
 
-SVN_FILES       := Makefile $(SRC) $(INC)
-
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
-endif
+# TODO: libraries to link against (?)
