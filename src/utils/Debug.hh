@@ -160,7 +160,7 @@
  * @param instream The input stream.
  * @return True if successful, false if error.
  */
-#define readDebugConfigStream(instream) { DebugMessage::readConfigFile(instream); }
+#define readDebugConfigStream(instream) (DebugMessage::readConfigFile(instream))
 
 /**
  * @brief Direct debug output to the given stream.
