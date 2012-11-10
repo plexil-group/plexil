@@ -23,26 +23,30 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+bin_PROGRAMS = TestExec
+noinst_HEADERS = ExecTestRunner.hh
+TestExec_SOURCES = ExecTestRunner.cc exec-test-runner.cc
 
-EXECUTABLE	:= TestExec
+TestExec_LDADD = @top_srcdir@/third-party/pugixml/src/libpugixml.la \
+ @top_srcdir@/utils/libPlexilUtils.la @top_srcdir@/exec/libPlexilExec.la
 
-# External dependencies
-INC_DIRS	+= ../../third-party/pugixml/src \
- ../../interfaces/Sockets \
- ../../interfaces/LuvListener \
- ../../interfaces/PlanDebugListener \
- ../../utils \
- ../../exec
-LIB_PATH	+=
-LIBS		+= pugixml LuvListener PlexilSockets PlanDebugListener PlexilExec PlexilUtils $(PTHREAD_LIB) $(DLOPEN_LIB)
+TestExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
+ -I@top_srcdir@/exec
 
-SRC		:= ExecTestRunner.cc exec-test-runner.cc
-INC		:= ExecTestRunner.hh
-
-SVN_FILES       := Makefile $(SRC) $(INC)
-
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
+if JNI_OPT
+  noinst_HEADERS += jni-interface.hh
+  TestExec_SOURCES += jni-interface.cc 
 endif
+
+if DEBUG_LISTENER_OPT
+  TestExec_LDADD += @top_srcdir@/interfaces/Sockets/libPlexilSockets.la \
+   @top_srcdir@/interfaces/LuvListener/libLuvListener.la
+  TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener \
+   -I@top_srcdir@/interfaces/Sockets
+endif
+
+if VIEWER_OPT
+  TestExec_LDADD += @top_srcdir@/interfaces/PlanDebugListener/libPlanDebugListener.la
+  TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
+endif
+

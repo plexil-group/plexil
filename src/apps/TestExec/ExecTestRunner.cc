@@ -24,20 +24,28 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ExecTestRunner.hh"
+
+#include <plexil-config.h>
+
 #include "Logging.hh"
 #include "PlexilExec.hh"
 #include "ExecListenerHub.hh"
-#include "PlanDebugListener.hh"
 #include "TestExternalInterface.hh"
-#include "SocketException.h"
 #include "CoreExpressions.hh"
 #include "Expressions.hh"
 #include "Debug.hh"
 #include "PlexilXmlParser.hh"
 #include "Node.hh"
 #include "PlexilPlan.hh"
-#include "ExecTestRunner.hh"
+
+#if HAVE_DEBUG_LISTENER
+#include "PlanDebugListener.hh"
+#endif
+
+#if HAVE_LUV_LISTENER
 #include "LuvListener.hh"
+#endif
 
 #include <cstring>
 #include <fstream>
@@ -57,17 +65,20 @@ int ExecTestRunner::run(int argc, char** argv)
   string debugConfig("Debug.cfg");
   vector<string> libraryNames;
   vector<string> libraryPaths;
-  bool luvRequest = false;
-  string luvHost = LuvListener::LUV_DEFAULT_HOSTNAME();
-  int luvPort = LuvListener::LUV_DEFAULT_PORT();
-  bool luvBlock = false;
   string
     usage(
           "Usage: exec-test-runner -s <script> -p <plan>\n\
                         [-l <library>]*\n\
                         [-L <library-dir>]*\n\
-                        [-d <debug_config_file>]\n\
-                        [-v [-h <hostname>] [-n <portnumber>] [-b] ]");
+                        [-d <debug_config_file>]\n");
+  bool luvRequest = false;
+
+#if HAVE_LUV_LISTENER
+  string luvHost = LuvListener::LUV_DEFAULT_HOSTNAME();
+  int luvPort = LuvListener::LUV_DEFAULT_PORT();
+  bool luvBlock = false;
+  usage += "[-v [-h <hostname>] [-n <portnumber>] [-b] ]";
+#endif
 
   // if not enough parameters, print usage
 
@@ -123,6 +134,7 @@ int ExecTestRunner::run(int argc, char** argv)
       }
       debugConfig = string(argv[i]);
     }
+#if HAVE_LUV_LISTENER
     else if (strcmp(argv[i], "-v") == 0)
       luvRequest = true;
     else if (strcmp(argv[i], "-b") == 0)
@@ -145,6 +157,7 @@ int ExecTestRunner::run(int argc, char** argv)
       buffer >> luvPort;
       SHOW(luvPort);
     } 
+#endif
     else if (strcmp(argv[i], "-log") == 0) {
       if (argc == (++i)) {
         warn("Missing argument to the " << argv[i-1] << " option.\n"
@@ -192,7 +205,7 @@ int ExecTestRunner::run(int argc, char** argv)
 
   std::ifstream config(debugConfig.c_str());
   if (config.good())
-    DebugMessage::readConfigFile(config);
+    readDebugConfigStream(config);
 
   initializeExpressions();
 
@@ -204,13 +217,15 @@ int ExecTestRunner::run(int argc, char** argv)
   ExecListenerHub hub;
   exec->setExecListenerHub(hub.getId());
 
-  // add the debug listener
 
+#if HAVE_DEBUG_LISTENER
+  // add the debug listener
   PlanDebugListener debug_listener;
   hub.addListener((new PlanDebugListener())->getId());
+#endif
 
+#if HAVE_LUV_LISTENER
   // if a Plexil Viwer is to be attached
-
   if (luvRequest) {
     // create and add luv listener
     LuvListener* ll = 
@@ -225,6 +240,7 @@ int ExecTestRunner::run(int argc, char** argv)
       delete ll;
     }
   }
+#endif
 
   // if specified on command line, load libraries
 
