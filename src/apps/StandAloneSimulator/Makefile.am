@@ -23,32 +23,27 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+lib_LTLIBRARIES = libstandalonesimulator.la
 
-LIBRARY		:= standalonesimulator
+# FIXME: replace MutexGuard with ThreadMutexGuard
+include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh MutexGuard.hh \
+ ResponseBase.hh ResponseFactory.hh ResponseMessage.hh ResponseMessageManager.hh Simulator.hh \
+ SimulatorScriptReader.hh TelemetryResponseManager.hh TimingService.hh simdefs.hh
 
-SRC		:= $(wildcard *.cc)
-INC		:= $(wildcard *.hh)
+libstandalonesimulator_la_SOURCES = IpcCommRelay.cc ResponseFactory.cc ResponseMessageManager.cc \
+ Simulator.cc SimulatorScriptReader.cc TelemetryResponseManager.cc TimingService.cc
+libstandalinesimulator_la_CPPFLAGS = @top_srcdir@/utils @top_srcdir@/third-party/ipc/src \
+ @top_srcdir@/interfaces/IpcUtils
 
-INC_DIRS	+= ../../utils ../../third-party/ipc/src ../../exec ../../interfaces/IpcUtils
+bin_PROGRAMS = PlexilSimulator
 
-LIBS		+= ipc PlexilUtils IpcUtils
+noinst_HEADERS = PlexilSimulator/PlexilSimResponse.hh PlexilSimulator/PlexilSimResponseFactory.hh
 
-############################
-# Rules to build the targets
+PlexilSimulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
+ PlexilSimulator/PlexilSimulator.cc
+PlexilSimulator_CPPFLAGS = @top_srcdir@/utils @top_srcdir@/third-party/ipc/src \
+ @top_srcdir@/interfaces/IpcUtils
 
-all : plexil-default plexilsim
-
-plexilsim : plexil-default
-	$(MAKE) -C PlexilSimulator
-
-###################
-# Rules to clean up
-
-localclean::
-	$(MAKE) -C PlexilSimulator clean
-
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
-ifneq ($(MAKECMDGOALS),clean)
--include Makedepend
-endif
+PlexilSimulator_LDADD = libstandalonesimulator.la \
+ @top_srcdir@/interfaces/libIpcUtils.la @top_srcdir@/third-party/ipc/src/libipc.la \
+ @top_srcdir@/utils/libPlexilUtils.la
