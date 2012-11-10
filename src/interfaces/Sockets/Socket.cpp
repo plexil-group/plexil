@@ -27,10 +27,14 @@
 // Implementation of the Socket class.
 
 #include "Socket.h"
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
+
+#include "Debug.hh"
+
+#include <cerrno>
+#include <cstring>
 #include <iostream>
+
+#include <fcntl.h>
 #include <arpa/inet.h>
 
 #ifdef PLEXIL_VXWORKS

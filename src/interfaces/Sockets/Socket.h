@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,10 +36,6 @@
 #include <iostream>
 
 #include "SocketException.h"
-
-
-#define SHOW(thing) (std::cout << __FILE__ << "(" << __LINE__ << ") " << #thing << ": " << (thing) << std::endl << std::flush)
-#define MARK std::cout << __FILE__ << "(" << __LINE__ << ") MARK" << std::endl << std::flush
 
 const int MAXHOSTNAME = 200;
 const int MAXCONNECTIONS = 5;
