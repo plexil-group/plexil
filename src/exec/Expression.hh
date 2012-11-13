@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,17 +40,19 @@
 #include "PlexilPlan.hh"
 #include "Utils.hh"
 
+#include <limits>
 #include <list>
 #include <map>
 #include <set>
+#include <stdint.h> // KLUDGE - should be <cstdint>, but isn't part of std before C++11
 
 // Common constants used only in expressions
 
 // The most positive legal "integer" value.
-#define PLUS_INFINITY (INT32_MAX)
+#define PLUS_INFINITY (std::numeric_limits<int32_t>::max())
 
 // The most negative legal "integer" value.
-#define MINUS_INFINITY (INT32_MIN)
+#define MINUS_INFINITY (std::numeric_limits<int32_t>::min())
 
 #define REAL_PLUS_INFINITY (PLEXIL::g_maxReal())
 
