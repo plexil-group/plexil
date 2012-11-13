@@ -1,8 +1,7 @@
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 DEBUG_CFG	:= .TestDebug.cfg
 
-EXEC_PROG	:= $(PLEXIL_HOME)/bin/TestExec -d $(DEBUG_CFG)
+EXEC_PROG	:= $(PLEXIL_HOME)/src/apps/TestExec/TestExec -d $(DEBUG_CFG)
 REGRESSION_PL	:= regression.pl
 
 # Parser error detection tests
@@ -54,7 +53,7 @@ RESOURCE_ARBITRATION_TESTS	:= resource1 resource1-repeatCond \
 SIMPLE_DRIVE_PLAN	:= simple-drive
 SIMPLE_DRIVE_SCRIPTS	:= single-drive double-drive
 
-plexil-default: exec-regression-tests
+all: exec-regression-tests
 
 exec-regression-tests: run-regression-suite
 
@@ -171,8 +170,9 @@ library-call-with-array: setup
 	$(EXEC_PROG) -p plans/$@.plx -L plans -s $(EMPTY_SCRIPT) > output/$@.out 2>> tempRegressionResults ; \
 	perl $(REGRESSION_PL) output/$@.out
 
-localclean::
-	-$(RM) RegressionResults tempRegressionResults output
+clean:
+	-$(RM) RegressionResults tempRegressionResults
+	-$(RM) -r output
 
 # Targets that should be made every time they are invoked
 .PHONY: setup header summary
@@ -180,5 +180,3 @@ localclean::
 .PHONY: empty-script-tests empty-script-valid-tests same-name-script-tests
 
 .PHONY: simple-drive-tests command-handles-tests resource-arbitration-tests
-
-include $(PLEXIL_HOME)/makeinclude/standard-targets.make
