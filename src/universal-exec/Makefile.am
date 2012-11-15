@@ -29,9 +29,9 @@ universalExec_SOURCES = UniversalExec.cc
 universalExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
  -I@top_srcdir@/exec -I@top_srcdir@/app-framework
 
-universalExec_LDADD = @top_srcdir@/third-party/pugixml/src/libpugixml.la \
- @top_srcdir@/utils/libPlexilUtils.la @top_srcdir@/exec/libPlexilExec.la \
- @top_srcdir@/app-framework/libPlexilAppFramework.la
+universalExec_LDADD = @top_srcdir@/app-framework/libPlexilAppFramework.la \
+ @top_srcdir@/exec/libPlexilExec.la @top_srcdir@/utils/libPlexilUtils.la \
+ @top_srcdir@/third-party/pugixml/src/libpugixml.la
 
 if DEBUG_LISTENER_OPT
   universalExec_LDADD += @top_srcdir@/interfaces/PlanDebugListener/libPlanDebugListener.la
@@ -39,6 +39,6 @@ endif
 
 if VIEWER_OPT
   universalExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
-  universalExec_LDADD += @top_srcdir@/interfaces/Sockets/libPlexilSockets.la \
- @top_srcdir@/interfaces/LuvListener/libLuvListener.la
+  universalExec_LDADD += @top_srcdir@/interfaces/LuvListener/libLuvListener.la \
+ @top_srcdir@/interfaces/Sockets/libPlexilSockets.la
 endif
