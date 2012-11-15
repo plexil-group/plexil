@@ -36,22 +36,22 @@ include_HEADERS = Array.hh Assignment.hh AssignmentNode.hh BooleanVariable.hh Ca
  ResourceArbiterInterface.hh StateCache.hh TestExternalInterface.hh Update.hh UpdateNode.hh \
  Variable.hh Variables.hh plan-utils.hh resource-tags.hh
 
-libPlexilExec_la_SOURCES = Array.cc Assignment.cc AssignmentNode.cc BooleanVariable.cc Calculable.cc \
- Calculables.cc Command.cc CommandNode.cc CoreExpressions.cc ExecListener.cc ExecListenerFilter.cc \
- ExecListenerFilterFactory.cc ExecListenerHub.cc Expression.cc ExpressionFactory.cc Expressions.cc \
- InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Lookup.cc Node.cc NodeFactory.cc PlexilExec.cc \
- PlexilPlan.cc PlexilXmlParser.cc ResourceArbiterInterface.cc StateCache.cc TestExternalInterface.cc \
- Update.cc UpdateNode.cc Variable.cc Variables.cc plan-utils.cc resource-tags.cc
-
-# TODO: libraries to link against (?)
+libPlexilExec_la_SOURCES = Array.cc Assignment.cc AssignmentNode.cc BooleanVariable.cc \
+ Calculable.cc Calculables.cc Command.cc CommandNode.cc CoreExpressions.cc ExecListener.cc \
+ ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc Expression.cc \
+ ExpressionFactory.cc Expressions.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Lookup.cc \
+ Node.cc NodeFactory.cc PlexilExec.cc PlexilPlan.cc PlexilXmlParser.cc ResourceArbiterInterface.cc \
+ StateCache.cc TestExternalInterface.cc Update.cc UpdateNode.cc Variable.cc Variables.cc \
+ plan-utils.cc resource-tags.cc
 
 if MODULE_TESTS_OPT
   noinst_PROGRAMS = test/exec-module-tests
   noinst_HEADERS = test/TestSupport.hh test/exec-test-module.hh
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
-  test_exec_module_tests_LDADD = @top_srcdir@/third-party/pugixml/src/libpugixml.la \
-   @top_srcdir@/utils/libPlexilUtils.la libPlexilExec.la
-  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils -Itest
+  test_exec_module_tests_LDADD = libPlexilExec.la @top_srcdir@/utils/libPlexilUtils.la \
+   @top_srcdir@/third-party/pugixml/src/libpugixml.la
+  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
+   -Itest
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
 	test_exec_module_tests_SOURCES += test/jni-adapter.cc
