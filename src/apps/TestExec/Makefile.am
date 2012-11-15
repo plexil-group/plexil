@@ -39,8 +39,8 @@ if JNI_OPT
 endif
 
 if DEBUG_LISTENER_OPT
-  TestExec_LDADD += @top_srcdir@/interfaces/Sockets/libPlexilSockets.la \
-   @top_srcdir@/interfaces/LuvListener/libLuvListener.la
+  TestExec_LDADD += @top_srcdir@/interfaces/LuvListener/libLuvListener.la \
+   @top_srcdir@/interfaces/Sockets/libPlexilSockets.la
   TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener \
    -I@top_srcdir@/interfaces/Sockets
 endif
