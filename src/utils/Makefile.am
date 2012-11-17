@@ -46,9 +46,8 @@ if MODULE_TESTS_OPT
   noinst_PROGRAMS = test/utils-module-tests
   noinst_HEADERS = test/TestData.hh test/util-test-module.hh
   test_utils_module_tests_SOURCES = test/TestData.cc test/util-test-module.cc test/module-tests.cc
-  test_utils_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src
-  test_utils_module_tests_LDADD = libPlexilUtils.la \
-   @top_srcdir@/third-party/pugixml/src/libpugixml.la
+  test_utils_module_tests_CPPFLAGS = -I../third-party/pugixml/src
+  test_utils_module_tests_LDADD = libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
     test_utils_module_tests_SOURCES += test/jni-adapter.cc

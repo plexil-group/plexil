@@ -27,8 +27,8 @@ bin_PROGRAMS = TestExec
 noinst_HEADERS = ExecTestRunner.hh
 TestExec_SOURCES = ExecTestRunner.cc exec-test-runner.cc
 
-TestExec_LDADD = @top_srcdir@/third-party/pugixml/src/libpugixml.la \
- @top_srcdir@/utils/libPlexilUtils.la @top_srcdir@/exec/libPlexilExec.la
+TestExec_LDADD = ../../third-party/pugixml/src/libpugixml.la \
+ ../../utils/libPlexilUtils.la ../../exec/libPlexilExec.la
 
 TestExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
  -I@top_srcdir@/exec
@@ -39,14 +39,14 @@ if JNI_OPT
 endif
 
 if DEBUG_LISTENER_OPT
-  TestExec_LDADD += @top_srcdir@/interfaces/LuvListener/libLuvListener.la \
-   @top_srcdir@/interfaces/Sockets/libPlexilSockets.la
+  TestExec_LDADD += ../../interfaces/LuvListener/libLuvListener.la \
+   ../../interfaces/Sockets/libPlexilSockets.la
   TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener \
    -I@top_srcdir@/interfaces/Sockets
 endif
 
 if VIEWER_OPT
-  TestExec_LDADD += @top_srcdir@/interfaces/PlanDebugListener/libPlanDebugListener.la
+  TestExec_LDADD += ../../interfaces/PlanDebugListener/libPlanDebugListener.la
   TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
 endif
 

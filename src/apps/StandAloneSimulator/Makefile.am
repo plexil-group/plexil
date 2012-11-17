@@ -45,5 +45,5 @@ PlexilSimulator_CPPFLAGS = @top_srcdir@/utils @top_srcdir@/third-party/ipc/src \
  @top_srcdir@/interfaces/IpcUtils
 
 PlexilSimulator_LDADD = libstandalonesimulator.la \
- @top_srcdir@/interfaces/libIpcUtils.la @top_srcdir@/third-party/ipc/src/libipc.la \
- @top_srcdir@/utils/libPlexilUtils.la
+ ../../interfaces/libIpcUtils.la ../../third-party/ipc/src/libipc.la \
+ ../../utils/libPlexilUtils.la

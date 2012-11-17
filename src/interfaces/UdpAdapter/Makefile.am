@@ -39,5 +39,5 @@ if MODULE_TESTS_OPT
   noinst_PROGRAMS = test/udp-tests
   test_udp_tests_SOURCES = test/udp-tests.cc
   test_udp_tests_CPPFLAGS = -I@top_srcdir@/utils
-  test_udp_tests_LDADD = @top_srcdir@/utils/libPlexilUtils.la libUdpUtils.la
+  test_udp_tests_LDADD = libUdpUtils.la ../../utils/libPlexilUtils.la
 endif
