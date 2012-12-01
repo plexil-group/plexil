@@ -45,7 +45,7 @@ libPlexilExec_la_SOURCES = Array.cc Assignment.cc AssignmentNode.cc BooleanVaria
  plan-utils.cc resource-tags.cc
 
 if MODULE_TESTS_OPT
-  noinst_PROGRAMS = test/exec-module-tests
+  bin_PROGRAMS = test/exec-module-tests
   noinst_HEADERS = test/TestSupport.hh test/exec-test-module.hh
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
   test_exec_module_tests_LDADD = libPlexilExec.la ../utils/libPlexilUtils.la \

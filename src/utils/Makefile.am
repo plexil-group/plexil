@@ -43,7 +43,7 @@ if JNI_OPT
 endif
 
 if MODULE_TESTS_OPT
-  noinst_PROGRAMS = test/utils-module-tests
+  bin_PROGRAMS = test/utils-module-tests
   noinst_HEADERS = test/TestData.hh test/util-test-module.hh
   test_utils_module_tests_SOURCES = test/TestData.cc test/util-test-module.cc test/module-tests.cc
   test_utils_module_tests_CPPFLAGS = -I../third-party/pugixml/src
