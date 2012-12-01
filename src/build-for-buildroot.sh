@@ -46,11 +46,11 @@ export PATH=${PLEXIL_HOME}/src:${TOOLCHAIN_ROOT}/usr/bin:${TOOLCHAIN_ROOT}/usr/s
 
 mkdir -p $BUILD_ROOT
 cd $BUILD_ROOT
-${PLEXIL_HOME}/src/configure --target $TARGET --host=$TARGET \
+${PLEXIL_HOME}/src/configure --target=$TARGET --host=$TARGET \
  CC=$TARGET_GCC \
  CXX=$TARGET_GXX \
  NM=$TARGET_NM \
- --prefix=${TARGET_ROOT}/usr
+ --prefix=${TARGET_ROOT}/usr \
  --enable-module-tests --enable-test-exec
 make
 make install
