@@ -49,7 +49,7 @@ PARSER_JAVA		:= $(PARSER_JAVA_SRC_DIR)/PlexilLexer.java \
 PARSER_CLASSES	:= $(PARSER_JAVA:$(PARSER_JAVA_SRC_DIR)/%.java=$(CLASSES_DIR)/plexil/%.class)
 JAVA_SRCS		:= $(wildcard $(JAVA_SRC_DIR)/*.java)
 JAVA_CLASSES	:= $(JAVA_SRCS:$(JAVA_SRC_DIR)/%.java=$(CLASSES_DIR)/plexil/%.class)
-PLEXILC_JAR		:= $(PLEXIL_HOME)/lib/PlexilCompiler.jar
+PLEXILC_JAR		:= $(PLEXIL_HOME)/jars/PlexilCompiler.jar
 
 # Intermediate files that can be deleted after the primary target is built.
 DIRT			+= $(PARSER_JAVA) $(PARSER_CLASSES) $(JAVA_CLASSES)
