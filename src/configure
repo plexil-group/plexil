@@ -7876,10 +7876,6 @@ _lt_linker_boilerplate=`cat conftest.err`
 $RM -r conftest*
 
 
-## CAVEAT EMPTOR:
-## There is no encapsulation within the following macros, do not change
-## the running order or otherwise move them around unless you know exactly
-## what you are doing...
 if test -n "$compiler"; then
 
 lt_prog_compiler_no_builtin_flag=
@@ -17468,8 +17464,6 @@ $as_echo "$ac_cv_prog_gcc_traditional" >&6; }
   fi
 fi
 
-# *** TEMPORARY ***
-#AC_FUNC_MALLOC
 
 
 
@@ -17733,8 +17727,6 @@ esac
 
 fi
 
-# *** TEMPORARY ***
-#AC_FUNC_REALLOC
 for ac_header in sys/select.h sys/socket.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
