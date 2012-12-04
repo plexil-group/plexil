@@ -41,6 +41,7 @@ TARGET_NM=${TOOLCHAIN_ROOT}/usr/bin/${TARGET}-nm
 BUILD_ROOT=${TOOLCHAIN_ROOT}/output/build/plexil-3.0.0a1
 TARGET_ROOT=${BUILDROOT_HOME}/output/target
 TARGET_INCLUDES=${TARGET_ROOT}/usr/include
+TARGET_SHARE=${TARGET_ROOT}/usr/share
 
 export PATH=${PLEXIL_HOME}/src:${TOOLCHAIN_ROOT}/usr/bin:${TOOLCHAIN_ROOT}/usr/sbin:${PATH}
 
@@ -53,5 +54,14 @@ ${PLEXIL_HOME}/src/configure --target=$TARGET --host=$TARGET \
  --prefix=${TARGET_ROOT}/usr \
  --enable-module-tests --enable-test-exec
 make
-make install
 
+# Copy files to target filesystem
+make install
+mkdir -p ${TARGET_SHARE}/plexil
+cd ${TARGET_SHARE}/plexil
+svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-3/examples
+svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-3/scripts
+svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-3/test
+mkdir -p test/utils-module-tests test/exec-module-tests
+cp ${PLEXIL_HOME}/src/utils/test/debug*.cfg test/utils-module-tests/
+cp ${PLEXIL_HOME}/src/exec/test/Debug.cfg test/exec-module-tests/
