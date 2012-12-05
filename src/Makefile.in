@@ -64,7 +64,10 @@ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
 	config.guess config.sub depcomp install-sh ltmain.sh missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
+	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
+	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -93,7 +96,7 @@ DIST_SUBDIRS = third-party/pugixml/src utils exec app-framework \
 	interfaces/PlanDebugListener third-party/ipc \
 	interfaces/IpcUtils interfaces/IpcAdapter interfaces/Sockets \
 	interfaces/LuvListener apps/StandAloneSimulator apps/TestExec \
-	interfaces/UdpAdapter universal-exec
+	interfaces/UdpAdapter universal-exec interfaces/GanttListener
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -260,15 +263,17 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
+@GANTT_OPT_TRUE@MAYBE_GANTT_SUBDIRS = interfaces/GanttListener
 @IPC_OPT_TRUE@MAYBE_IPC_SUBDIRS = third-party/ipc interfaces/IpcUtils interfaces/IpcAdapter
-@VIEWER_OPT_TRUE@MAYBE_VIEWER_SUBDIRS = interfaces/Sockets interfaces/LuvListener
 @SAS_OPT_TRUE@MAYBE_SAS_SUBDIRS = apps/StandAloneSimulator
 @TEST_EXEC_OPT_TRUE@MAYBE_TEST_EXEC_SUBDIRS = apps/TestExec
 @UDP_OPT_TRUE@MAYBE_UDP_SUBDIRS = interfaces/UdpAdapter
 @UNIVERSAL_EXEC_OPT_TRUE@MAYBE_UNIVERSAL_EXEC_SUBDIRS = universal-exec
+@VIEWER_OPT_TRUE@MAYBE_VIEWER_SUBDIRS = interfaces/Sockets interfaces/LuvListener
 SUBDIRS = third-party/pugixml/src utils exec app-framework interfaces/PlanDebugListener \
  $(MAYBE_IPC_SUBDIRS) $(MAYBE_VIEWER_SUBDIRS) $(MAYBE_SAS_SUBDIRS) \
- $(MAYBE_TEST_EXEC_SUBDIRS) $(MAYBE_UDP_SUBDIRS) $(MAYBE_UNIVERSAL_EXEC_SUBDIRS)
+ $(MAYBE_TEST_EXEC_SUBDIRS) $(MAYBE_UDP_SUBDIRS) $(MAYBE_UNIVERSAL_EXEC_SUBDIRS) \
+ $(MAYBE_GANTT_SUBDIRS)
 
 all: plexil-config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
