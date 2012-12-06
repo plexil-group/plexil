@@ -65,15 +65,13 @@ namespace PLEXIL
 	  libName = libPath;
 	}
 
-    // append file extension
-    libName += LIB_EXT;
+    std::string funcName = (std::string("init") + moduleName);
+    void (*func)();
 
     // attempt to load the library
     // (technically, attempt to find the named symbol in the spec'd library)
-    std::string funcName = (std::string("init") + moduleName);
-    void (*func)();
     *(void **)(&func) = DynamicLoader::getDynamicSymbol(libName.c_str(), funcName.c_str());
-    if (func == 0) {
+    if (!func) {
 	  debugMsg("DynamicLoader:loadModule", 
 			   " Failed to load library " << libPath);
 	  return false;
@@ -87,18 +85,46 @@ namespace PLEXIL
     return true;
   }
 
-  void *DynamicLoader::getDynamicSymbol(const char* libPath, const char* symbol) {
-    void *handle = dlopen(libPath, RTLD_NOW | RTLD_GLOBAL);
-    if (!handle) { //an error occured in loading the library
-	  debugMsg("DynamicLoader:loadModule",
-			   " dlopen failed on file " << libPath << ": " << dlerror());
-      return 0;
+  static const char* LIBRARY_EXTENSIONS[] = {".so", ".dylib", NULL};
+
+  void *DynamicLoader::getDynamicSymbol(const char* libName, const char* symbol) 
+  {
+    void *handle = NULL;
+    // Try path verbatim
+    handle = dlopen(libName, RTLD_NOW | RTLD_GLOBAL);
+    if (handle) {
+	  debugMsg("DynamicLoader:verboseLoadModule",
+			   " dlopen succeeded for " << libName);
+    }
+    else {
+	  debugMsg("DynamicLoader:verboseLoadModule",
+			   " dlopen failed on file " << libName << ": " << dlerror());
+      // Try adding the appropriate extension
+      size_t i = 0;
+      while (!handle && LIBRARY_EXTENSIONS[i]) {
+        std::string libPath = libName;
+        libPath += LIBRARY_EXTENSIONS[i++];
+        handle = dlopen(libPath.c_str(), RTLD_NOW | RTLD_GLOBAL);
+        if (handle) {
+          debugMsg("DynamicLoader:verboseLoadModule",
+                   " dlopen succeeded for " << libPath);
+        }
+        else {
+          debugMsg("DynamicLoader:verboseLoadModule",
+                   " dlopen failed on file " << libPath << ": " << dlerror());
+        }
+      }
+      if (!handle) {
+        debugMsg("DynamicLoader:loadModule",
+                 " unable to open library \"" << libName << "\"");
+        return NULL;
+      }
 	}
     void *func = dlsym(handle, symbol);
-    if (!func) { //an error occured in loading the function
+    if (!func) { // an error occured in loading the function
 	  debugMsg("DynamicLoader:loadModule",
 			   " dlsym failed to find symbol \"" << symbol << "\": " << dlerror());
-      return 0;
+      return NULL;
 	}
     return func;
   }
