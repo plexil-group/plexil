@@ -45,6 +45,9 @@ TARGET_SHARE=${TARGET_ROOT}/usr/share
 
 export PATH=${PLEXIL_HOME}/src:${TOOLCHAIN_ROOT}/usr/bin:${TOOLCHAIN_ROOT}/usr/sbin:${PATH}
 
+# Exit on error
+set -e
+
 mkdir -p $BUILD_ROOT
 cd $BUILD_ROOT
 ${PLEXIL_HOME}/src/configure --target=$TARGET --host=$TARGET \
