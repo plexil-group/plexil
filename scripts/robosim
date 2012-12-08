@@ -25,14 +25,23 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+if [ -z "$PLEXIL_HOME" ]
+then
+    echo Error: Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your 'plexil' or 'trunk' directory.
+    echo Exiting.
+    exit 1
+fi
+
 . $PLEXIL_HOME/scripts/plexil-setup.sh
 
+# FIXME! Get current location
 prog=$PLEXIL_HOME/bin/robotSimulator
 
 plexil-check-prog $prog
 
 # Data files live in this directory
-dir=$PLEXIL_HOME/src/apps/robosim/2DRobotSimulator
+dir=$PLEXIL_HOME/examples/robosim/2DRobotSimulator
 cd $dir
 
 exec $prog $*

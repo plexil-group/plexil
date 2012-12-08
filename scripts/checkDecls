@@ -34,15 +34,24 @@
 #   1 Checking Error(s) Found
 #   2 Unhandled Exception
 
+if [ -z "$PLEXIL_HOME" ]
+then
+    echo Error: Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your 'plexil' or 'trunk' directory.
+    echo Exiting.
+    exit 2
+fi
+
 prog=${PLEXIL_HOME}/checker/global-decl-checker.jar
 args=$*
 
 # Make sure jar file exists
 if [ ! -f "${prog}" ]
 then
-  echo "Cannot find file ${prog}. Please run:"
+  echo "Cannot find file ${prog}. To build it:"
+  echo "  cd ${PLEXIL_HOME}/checker"
   echo "  ant jar"
-  echo "If JAR is located elsewhere, please update the location in the script"
+  echo "If JAR is located elsewhere, please update the location in the script."
   exit 2
 fi
 

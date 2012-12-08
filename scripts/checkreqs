@@ -1,19 +1,41 @@
 #!/bin/sh
-#
 # Checks for the build requirements (java, gcc) and runs them to check that the
 # correct versions are in the path.
+
+# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# All rights reserved.
 #
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Universities Space Research Association nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 BADOSTYPE=1
 GCCVERSTR="Minimum gcc version required is 3.3.3"
 MINGCC_I=3
 MINGCC_J=3
 MINGCC_K=3
-GCCPATH="/usr/local/beta/gcc-3.3.3/bin"
 BADGCC=0
 JAVAVERSTR="Minimum Java version required is 1.5"
 MINJAVA_I=1
 MINJAVA_J=5
-JAVAPATH="/usr/local/jdk1.5.0/bin"
 BADJAVA=0
 BADENV=0
 MYOSTYPE=""
@@ -47,10 +69,10 @@ fi
 
 if [ $BADOSTYPE -eq 1 ]
 then
- echo " [PROBLEM!] Unknown OSTYPE " $MYOSTYPE
- echo "            Known values are darwin, solaris, and linux." 
+ echo " [PROBLEM!] Unknown OSTYPE $MYOSTYPE"
+ echo "            Known values are darwin and linux." 
 else 
- echo "  OSTYPE is set to " $MYOSTYPE
+ echo "  OSTYPE is set to $MYOSTYPE"
 fi
 
 echo "Checking for required software versions:"
@@ -131,15 +153,10 @@ fi
 if [ $BADGCC -eq 1 ]
 then
   echo "Your path to gcc may be set wrong."
-  if [ $MYOSTYPE = solaris ]
+  if [ $MYOSTYPE = linux ]
   then
-    echo "Be sure to include $GCCPATH in your path."
-  else  
-    if [ $MYOSTYPE = linux ]
-    then
       echo "Use: find /usr -name gcc-3.3.3"
       echo "to help locate the required gcc executable."
-    fi
   fi
 fi
 
@@ -147,15 +164,10 @@ fi
 if [ $BADJAVA -eq 1 ]
 then
   echo "Your path to Java may be set wrong."
-  if [ $MYOSTYPE = solaris ]
+  if [ $MYOSTYPE = linux ]
   then
-    echo "Be sure to include $JAVAPATH in your path."
-  else  
-    if [ $MYOSTYPE = linux ]
-    then
       echo "Use: find /usr -name 'jdk1.*'"
       echo "to help locate the required gcc executable."
-    fi
   fi
 fi
 
@@ -168,11 +180,11 @@ fi
 
 echo "Checking for PLEXIL_HOME environment variable:"
 
-if [ ! $PLEXIL_HOME ]
-  then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' directory.
-    BADENV=1
+if [ -z "$PLEXIL_HOME" ]
+then
+  echo Error: Please set environment variable PLEXIL_HOME
+  echo to the full pathname of your 'plexil' or 'trunk' directory.
+  BADENV=1
 fi
 
 if [ $BADENV -eq 1 ]
@@ -184,4 +196,3 @@ else
   echo "SUCCESS.  Environment is satisfactory.  Type 'make' to build PLEXIL."
   exit 0
 fi
-

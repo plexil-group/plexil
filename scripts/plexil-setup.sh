@@ -26,28 +26,21 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Check environment variables and UE executable
-if [ ! $PLEXIL_HOME ]
+if [ -z "$PLEXIL_HOME" ]
   then
     echo Error: Please set environment variable PLEXIL_HOME
     echo to the full pathname of your 'plexil' or 'trunk' directory.
     echo Exiting.
-
+    return 1
 else
-
     export PATH=${PATH}:${PLEXIL_HOME}/bin:${PLEXIL_HOME}/scripts
-
     _plexil_libpath=$PLEXIL_HOME/lib
-
-    # Defining variables (redundantly) for both Mac and Linux.
 
     # Linux
     export LD_LIBRARY_PATH=$_plexil_libpath
 
     # Mac
     export DYLD_LIBRARY_PATH=$_plexil_libpath
-	# Seems to clobber SG's svn binary
-    #export DYLD_BIND_AT_LAUNCH=YES
 
     unset _plexil_libpath
-
 fi

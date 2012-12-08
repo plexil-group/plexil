@@ -1,4 +1,10 @@
 #! /bin/sh 
 
-java -jar $PLEXIL_HOME/third-party/jars/saxon.jar $*
+if [ -z "$PLEXIL_HOME" ]
+  then
+    echo Please set environment variable PLEXIL_HOME
+    echo to the absolute pathname of your 'plexil' directory.
+    exit 1
+fi
 
+exec java -jar $PLEXIL_HOME/jars/saxon.jar $*

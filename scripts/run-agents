@@ -57,7 +57,7 @@ exit
 if [ $# -lt 2 ] ; then usage ; fi
 
 # Check for PLEXIL_HOME being set (correctly, one hopes)
-if [ -z $PLEXIL_HOME ] ; then echo "PLEXIL_HOME is not set" ; exit ; fi
+if [ -z "$PLEXIL_HOME" ] ; then echo "PLEXIL_HOME is not set" ; exit ; fi
 if [ ! -e $PLEXIL_HOME/makeinclude/generic-plexil.make ] ; then
     echo "PLEXIL_HOME is set to $PLEXIL_HOME, but I can't find some required files."
 fi

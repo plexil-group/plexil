@@ -29,25 +29,16 @@
 # Usage:
 #    plexilc [options] <source-file>
 #
-# where options are:
-#
-#    -d, -debug <filename>     Print debug information to filename
-#    -h, -help                 Print this help and exit
-#    -o, -output <filename>    Write translator output to filename
-#    -q, -quiet                Parse files quietly
-#    -c, -check                Run static checker, if source file is a plan
-#    -v, -version              Print the translator version and exit
-#
 #  The type of source file given is partly identified by its extension:
 #
-#    Plexil plans and scripts     : .ple
+#    Plexil plans                 : .ple, .epx
 #    Plexilisp plans and scripts  : .pli
+#    Plexil simulator scripts     : .pst
 #
-#  Note that a .ple file must have its content inspected to see if it's a plan or
-#  script.  The default (and required) output file extensions will be:
+#  The default (and required) output file extensions are:
 #
-#    Plexil plans (XML)                    : .plx
-#    Plexil scripts (XML)                  : .pls
+#    Plexil plans (XML)           : .plx
+#    Plexil scripts (XML)         : .psx
 #
 
 function usage ()
@@ -64,7 +55,7 @@ function usage ()
 }
 
 # Check environment variables
-if [ ! $PLEXIL_HOME ]
+if [ -z "$PLEXIL_HOME" ]
 then
     echo Error: Please set environment variable PLEXIL_HOME
     echo to the full pathname of your 'plexil' or 'trunk' directory.

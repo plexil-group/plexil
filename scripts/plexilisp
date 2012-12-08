@@ -29,4 +29,12 @@
 # Very simple and unrobust for now!
 # Usage: plexilisp <filename>
 
+if [ -z "$PLEXIL_HOME" ]
+then
+    echo Error: Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your 'plexil' or 'trunk' directory.
+    echo Exiting.
+    exit 1
+fi
+
 emacs --batch --no-site-file --load $PLEXIL_HOME/compilers/plexilisp/plexil.el $1 --eval '(plexil)'

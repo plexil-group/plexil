@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Generates a consise textual summary of a Core PLEXIL XML file.  
+# Generates a concise textual summary of a Core PLEXIL XML file.  
 
 # Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 # All rights reserved.
@@ -34,7 +34,7 @@ usage="summarize-plexil input-file [ result-file ] [ transform-file ]"
 
 # Check environment variables
 
-if [ ! $PLEXIL_HOME ]
+if [ -z "$PLEXIL_HOME" ]
   then
     echo Please set environment variable PLEXIL_HOME
     echo to the absolute pathname of your 'plexil' directory.
@@ -47,7 +47,7 @@ transform_file="$PLEXIL_HOME/schema/summarize-plexil.xsl"
 result_file="summary.txt"
 
 # Location of the Saxon XSLT processor
-saxon_exec="$PLEXIL_HOME/scripts/saxon-xslt"
+saxon_jar="$PLEXIL_HOME/jars/saxon9he.jar"
  
 # Determine argument values, overriding defaults when specified.
 
@@ -69,6 +69,5 @@ if [ $# = 3 ]
 fi
 
 echo "Summarizing $input_file ..."
-$saxon_exec -o $result_file $input_file $transform_file 
+java -jar $saxon_jar -o $result_file $input_file $transform_file 
 echo Summary written to $result_file
-

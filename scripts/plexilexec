@@ -95,6 +95,14 @@ help=" Other options:\n\
 \t	shows this message of options"
 # -a used only for viewer acquire PID
 
+if [ -z "$PLEXIL_HOME" ]
+then
+    echo Error: Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your 'plexil' or 'trunk' directory.
+    echo Exiting.
+    exit 1
+fi
+
 . $PLEXIL_HOME/scripts/plexil-setup.sh
 
 #separate command-line from plexexec output
