@@ -1,6 +1,25 @@
 This directory contains shell scripts useful in building and/or
-running the PLEXIL/UE software system.
+running the PLEXIL/UE software system:
+
+ - checkDecls runs the type declaration checker on a Plexil XML plan, e.g.:
+  checkDecls plan.plx
+
+ - checkreqs tests whether your system has the prerequisites needed to run Plexil.
+
+ - debugFlagCollector.py lists all the debug flags defined in the Plexil C++ code.
+
+ - env-info writes a summary of your environment to the $PLEXIL_HOME directory,
+   under the name 'userinfo-<date>.txt'. This can be useful for reporting problems.
+
+ - ipc runs the IPC 'central' program. 'ipc -x' runs it as a background process.
+
+ - plexil launches the Plexil Viewer, a plan execution visualization tool.
+   Plans can be run from the Viewer, or it can be used to monitor ongoing execution
+   in an existing Plexil executive process.
+
+
+
 
 Saxon is an XSLT processor obtained from http://saxon.sourceforge.net/.
 A version that works with Plexil (saxon9he.jar) is included here for
-convenience, and is executed via the script saxon8.
+convenience, and is executed via the script saxon-xslt.
