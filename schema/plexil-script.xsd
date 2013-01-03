@@ -57,7 +57,15 @@
           <xsd:element ref="CommandAck"/>
           <xsd:element ref="CommandAbort"/>
           <xsd:element ref="Simultaneous"/>
+          <xsd:element ref="SendPlan"/>
+          <xsd:element name="Delay"/>
         </xsd:choice>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="SendPlan">
+    <xsd:complexType>
+      <xsd:attribute name="file" type="xsd:string"/>
     </xsd:complexType>
   </xsd:element>
 
@@ -90,7 +98,7 @@
 
   <xsd:element name="CommandAbort" type="command-type"/>
 
-  <xsd:element name="Param" >
+  <xsd:element name="Param">
     <xsd:complexType>
       <xsd:simpleContent>
         <xsd:extension base="xsd:string">

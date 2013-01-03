@@ -2,7 +2,8 @@ namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 default namespace = ""
 
 start =
-  Command
+  SendPlan
+  | Command
   | Simultaneous
   | Script
   | Param
@@ -13,22 +14,21 @@ start =
   | CommandAck
   | (notAllowed
      | element PLEXILScript { InitialState?, Script })
-State =
+SendPlan =
   notAllowed
-  | element State {
-      type?,
-      attribute name { xsd:string }?,
-      Param*,
-      element Value { \string }+
+  | element SendPlan {
+      attribute file { xsd:string }?
     }
-UpdateAck =
+Param =
   notAllowed
-  | element UpdateAck {
-      attribute name { xsd:string }?
+  | element Param { type?, xsd:string }
+element0 =
+  element * {
+    mixed {
+      (attribute * { text }
+       | element0)*
     }
-CommandAck =
-  notAllowed
-  | element CommandAck { command-type }
+  }
 type =
   attribute type {
     xsd:NMTOKEN "real"
@@ -40,31 +40,25 @@ type =
     | xsd:NMTOKEN "bool-array"
     | xsd:NMTOKEN "real-array"
   }
-Simultaneous =
-  notAllowed
-  | element Simultaneous {
-      (State | UpdateAck | Command | CommandAck | CommandAbort)*
-    }
-\string = xsd:string
-Param =
-  notAllowed
-  | element Param { type?, xsd:string }
 InitialState =
   notAllowed
   | element InitialState { State* }
+UpdateAck =
+  notAllowed
+  | element UpdateAck {
+      attribute name { xsd:string }?
+    }
 Command =
   notAllowed
   | element Command { command-type }
-CommandAbort =
+State =
   notAllowed
-  | element CommandAbort { command-type }
-command-type =
-  (type?,
-   attribute name { xsd:string }?,
-   Param*,
-   (notAllowed
-    | element Result { \string })+),
-  empty
+  | element State {
+      type?,
+      attribute name { xsd:string }?,
+      Param*,
+      element Value { \string }+
+    }
 Script =
   notAllowed
   | element Script {
@@ -73,7 +67,33 @@ Script =
        | Command
        | CommandAck
        | CommandAbort
-       | Simultaneous)*
+       | Simultaneous
+       | SendPlan
+       | element Delay {
+           mixed {
+             (attribute * { text }
+              | element0)*
+           }
+         })*
+    }
+CommandAbort =
+  notAllowed
+  | element CommandAbort { command-type }
+\string = xsd:string
+command-type =
+  (type?,
+   attribute name { xsd:string }?,
+   Param*,
+   (notAllowed
+    | element Result { \string })+),
+  empty
+CommandAck =
+  notAllowed
+  | element CommandAck { command-type }
+Simultaneous =
+  notAllowed
+  | element Simultaneous {
+      (State | UpdateAck | Command | CommandAck | CommandAbort)*
     }
 PlexilPlanAttributes = 
   notAllowed
