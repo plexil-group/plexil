@@ -70,7 +70,7 @@ ANTLR_RUNTIME_JAR=antlr-3.4-complete-no-antlrv2.jar
 # Commands to execute
 plexil_compiler="java -classpath $JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler"
 plexilscript_compiler="java -cp ${JARS_DIR}/plexilscript.jar:${JARS_DIR}/antlr.jar plexilscript.PlexilScriptParse"
-plexil_checker="$PLEXIL_HOME/src/checker/checkDecls"
+plexil_checker="$PLEXIL_HOME/scripts/checkDecls"
 
 # Parse options
 while [ "${1:0:1}" = '-' ]
@@ -161,9 +161,9 @@ then
 
 	if [ -n "$quiet" ]
 	then
-		emacs --batch --no-site-file --load $PLEXIL_HOME/src/plexilisp/plexil.el $1 --eval '(plexil)' > /dev/null 2>&1
+		emacs --batch --no-site-file --load $PLEXIL_HOME/compilers/plexilisp/plexil.el $1 --eval '(plexil)' > /dev/null 2>&1
 	else
-		emacs --batch --no-site-file --load $PLEXIL_HOME/src/plexilisp/plexil.el $1 --eval '(plexil)'
+		emacs --batch --no-site-file --load $PLEXIL_HOME/compilers/plexilisp/plexil.el $1 --eval '(plexil)'
 	fi
 
 	# If plexilisp generates a plan, we can check it.
