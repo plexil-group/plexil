@@ -13,7 +13,7 @@
   <property name = "domain-scope"       value = "main"/>
   <property name = "domain-scope-dir"   value = ""/>
   <property name = "main-class"         value = "DeclMain"/>
-  <property name = "lib-dir"            location = "${env.PLEXIL_HOME}/third-party/jars"/>
+  <property name = "lib-dir"            location = "${env.PLEXIL_HOME}/jars"/>
   <property name = "resources"          location = "."/>
   <property name = "compile-includes"   location = "reader/**,main/**,model/**"/>
   <property name = "compile-excludes"   location = ""/>
@@ -125,7 +125,8 @@
            destdir = "${build-dir}"
            includes = "${compile-includes}"
            excludes = "${compile-excludes}"
-           debug = "true">
+           debug = "true"
+           includeantruntime = "false">
       <compilerarg value = "-Xlint:deprecation"/>
       <compilerarg value = "-Xlint:unchecked"/>
       <classpath>
