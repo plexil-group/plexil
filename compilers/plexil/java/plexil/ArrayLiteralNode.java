@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,15 +43,15 @@ public class ArrayLiteralNode extends LiteralNode
         super(t);
     }
 
-	public ArrayLiteralNode(ArrayLiteralNode n)
-	{
-		super(n);
-	}
+    public ArrayLiteralNode(ArrayLiteralNode n)
+    {
+        super(n);
+    }
 
-	public Tree dupNode()
-	{
-		return new ArrayLiteralNode(this);
-	}
+    public Tree dupNode()
+    {
+        return new ArrayLiteralNode(this);
+    }
 
     public void earlyCheck(NodeContext context, CompilerState state)
     {
@@ -178,13 +178,13 @@ public class ArrayLiteralNode extends LiteralNode
         // PlexilTreeNode base method
         constructXMLBase();
 
-        m_xml.setAttribute("Type", m_dataType.typeName());
+        m_xml.setAttribute("Type", m_dataType.arrayElementType().typeName());
         for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
             LiteralNode child = (LiteralNode) this.getChild(childIdx);
             m_xml.addChild(child.getXML());
         }
     }
-		
+        
     public String getXMLElementName() { return "ArrayValue"; }
 
 }
