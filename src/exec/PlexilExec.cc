@@ -621,7 +621,7 @@ namespace PLEXIL
     for (std::vector<VariableId>::const_iterator vit = m_variablesToRetract.begin();
          vit != m_variablesToRetract.end();
          ++vit) {
-      if (*vit == var){
+      if ((*vit)->getBaseVariable() == var) { // compare base variables for (e.g.) aliases, array refs
         debugMsg("PlexilExec:resolveResourceConflicts",
                  " Ignoring Assignments for variable '" << var->getName()
                  << "', which has a retraction pending");
