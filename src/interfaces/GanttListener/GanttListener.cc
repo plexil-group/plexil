@@ -306,20 +306,18 @@ namespace PLEXIL
       myLocalVars = " ";
       vector<string> myLocalVariableMap;
       VariableMap tempLocalVariablesMap = nodeId->getLocalVariablesByName();
-      VariableMap::iterator it;
-      int tempSize = tempLocalVariablesMap.size();
-      if(tempSize == 0) myLocalVars = "none";
-      for(it=tempLocalVariablesMap.begin(); it!=tempLocalVariablesMap.end(); it++) {
-	double tempKey = (*it).first;
-        ExpressionId temp = (*it).second;
-	string tempValueString = temp->getId()->valueString();
-	string tempKeyString = LabelStr(tempKey).toString();
-	string tempString = "<br><i>" + tempKeyString + "</i>" + " = " + tempValueString;
-	myLocalVariableMapValues.push_back(tempValueString);
-	myLocalVariableMap.push_back(tempString);
-	//filter out local variables that are 'state' key  or 'UNKNOWN' value
-	if(tempKeyString != "state" && tempValueString != "UNKNOWN")
-	  myLocalVars = myLocalVars + tempString + ", ";
+      if (tempLocalVariablesMap.empty())
+        myLocalVars = "none";
+      for (VariableMap::iterator it = tempLocalVariablesMap.begin(); it != tempLocalVariablesMap.end(); ++it) {
+        const std::string& tempNameString = it->first.toString();
+        ExpressionId temp = it->second;
+        string tempValueString = temp->valueString();
+        string tempString = "<br><i>" + tempNameString + "</i>" + " = " + tempValueString;
+        myLocalVariableMapValues.push_back(tempValueString);
+        myLocalVariableMap.push_back(tempString);
+        //filter out local variables that are 'state' key  or 'UNKNOWN' value
+        if (tempNameString != "state" && tempValueString != "UNKNOWN")
+          myLocalVars = myLocalVars + tempString + ", ";
       }
      
       //get child nodes
@@ -394,15 +392,12 @@ namespace PLEXIL
 	vector<string> thisLocalVarsVectorValues;
 
 	VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
-	VariableMap::iterator it;
-	int tempSize = tempLocalVariableMapAfter.size();
-	if(tempSize == 0) myLocalVarsAfter = "none";
-	for(it = tempLocalVariableMapAfter.begin(); it != tempLocalVariableMapAfter.end(); it++) {
-	  double tempKey = (*it).first;
-	  ExpressionId temp = (*it).second;
-	  string tempValueString = temp->getId()->valueString();
-	  string tempKeyString = LabelStr(tempKey).toString();
-	  thisLocalVarsVectorKeys.push_back(tempKeyString);
+	if (tempLocalVariableMapAfter.empty())
+      myLocalVarsAfter = "none";
+	for (VariableMap::iterator it = tempLocalVariableMapAfter.begin(); it != tempLocalVariableMapAfter.end(); it++) {
+	  ExpressionId temp = it->second;
+	  string tempValueString = temp->valueString();
+	  thisLocalVarsVectorKeys.push_back(it->first.toString());
 	  thisLocalVarsVectorValues.push_back(tempValueString);
 	}
 	vector<string> fullStrings;

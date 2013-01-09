@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,27 +42,27 @@ namespace PLEXIL {
   //
 
   inline void simpleStartTag(std::ostream& s, const char* val) {
-	s << '<' << val << ">";
+    s << '<' << val << ">";
   }
 
   inline void openStartTag(std::ostream& s, const char* val) {
-	s << '<' << val << ' ';
+    s << '<' << val << ' ';
   }
 
   inline void closeTag(std::ostream& s) {
-	s << ">";
+    s << ">";
   }
 
   inline void attribute(std::ostream& s, const char* name, const char* val) {
-	s << name << "=\"" << val << "\" ";
+    s << name << "=\"" << val << "\" ";
   }
 
   inline void endTag(std::ostream& s, const char* val) {
-	s << "</" << val << "> ";
+    s << "</" << val << "> ";
   }
 
   inline void emptyElement(std::ostream& s, const char* val) {
-	s << '<' << val << " /> ";
+    s << '<' << val << " /> ";
   }
 
   /**
@@ -72,21 +72,21 @@ namespace PLEXIL {
    * @param text The text for the element.
    */
   void simpleTextElement(std::ostream& s,
-						 const char* tag,
-						 const char* text) {
-	simpleStartTag(s, tag);
-	s << text;
-	endTag(s, tag);
+                         const char* tag,
+                         const char* text) {
+    simpleStartTag(s, tag);
+    s << text;
+    endTag(s, tag);
   }
 
   //* Internal function for formatNodePath
   void formatNodePathInternal(std::ostream& s, 
-							  const NodeId& node) {
-	// Fill in parents recursively
+                              const NodeId& node) {
+    // Fill in parents recursively
     if (node->getParent().isId())
       formatNodePathInternal(s, node->getParent());
-	// Put ours at the end
-	simpleTextElement(s, LuvFormat::NODE_ID_TAG(), node->getNodeId().c_str());
+    // Put ours at the end
+    simpleTextElement(s, LuvFormat::NODE_ID_TAG(), node->getNodeId().c_str());
   }
 
   /**
@@ -95,10 +95,10 @@ namespace PLEXIL {
    * @param node The plan node whose path is being constructed.
    */
   void formatNodePath(std::ostream& s, 
-					  const NodeId& node) {
-	simpleStartTag(s, LuvFormat::NODE_PATH_TAG());
-	formatNodePathInternal(s, node);
-	endTag(s, LuvFormat::NODE_PATH_TAG());
+                      const NodeId& node) {
+    simpleStartTag(s, LuvFormat::NODE_PATH_TAG());
+    formatNodePathInternal(s, node);
+    endTag(s, LuvFormat::NODE_PATH_TAG());
   }
 
   /**
@@ -107,23 +107,23 @@ namespace PLEXIL {
    * @param node The node whose conditions are being extracted.
    */
   void formatConditions(std::ostream& s, 
-						const NodeId& node) {
-	simpleStartTag(s, LuvFormat::CONDITIONS_TAG());
+                        const NodeId& node) 
+  {
+    simpleStartTag(s, LuvFormat::CONDITIONS_TAG());
 
-    const std::vector<double>& allConditions = node->ALL_CONDITIONS();
-    for (std::vector<double>::const_iterator conditionName = allConditions.begin();
+    const std::vector<LabelStr>& allConditions = node->ALL_CONDITIONS();
+    for (std::vector<LabelStr>::const_iterator conditionName = allConditions.begin();
          conditionName != allConditions.end();
-		 ++conditionName) {
-	  LabelStr cname(*conditionName);
-	  ExpressionId cond = node->getCondition(cname);
-	  if (cond.isId()) {
-		simpleTextElement(s, 
-						  cname.c_str(), 
-						  cond->valueString().c_str());
-	  }
-	}
+         ++conditionName) {
+      ExpressionId cond = node->getCondition(*conditionName);
+      if (cond.isId()) {
+        simpleTextElement(s, 
+                          conditionName->c_str(), 
+                          cond->valueString().c_str());
+      }
+    }
 
-	endTag(s, LuvFormat::CONDITIONS_TAG());
+    endTag(s, LuvFormat::CONDITIONS_TAG());
   }
 
   /**
@@ -132,12 +132,12 @@ namespace PLEXIL {
    * @param block Whether the viewer should block.
    */
   void LuvFormat::formatPlanInfo(std::ostream& s, 
-								 bool block) {
-	simpleStartTag(s, PLAN_INFO_TAG());
-	simpleTextElement(s, 
-					  VIEWER_BLOCKS_TAG(),
-					  (block ? TRUE_STR() : FALSE_STR()));
-	endTag(s, PLAN_INFO_TAG());
+                                 bool block) {
+    simpleStartTag(s, PLAN_INFO_TAG());
+    simpleTextElement(s, 
+                      VIEWER_BLOCKS_TAG(),
+                      (block ? TRUE_STR() : FALSE_STR()));
+    endTag(s, PLAN_INFO_TAG());
   }
 
 
@@ -149,27 +149,27 @@ namespace PLEXIL {
    * @param node The node.
    */
   void LuvFormat::formatTransition(std::ostream& s, 
-								   NodeState prevState,
-								   const NodeId& node) {
+                                   NodeState prevState,
+                                   const NodeId& node) {
 
-	simpleStartTag(s, NODE_STATE_UPDATE_TAG());
+    simpleStartTag(s, NODE_STATE_UPDATE_TAG());
 
-	// add state
-	simpleTextElement(s, NODE_STATE_TAG(), node->getStateName().c_str());
+    // add state
+    simpleTextElement(s, NODE_STATE_TAG(), node->getStateName().c_str());
 
-	// add outcome
-	simpleTextElement(s, NODE_OUTCOME_TAG(), node->getOutcome().c_str());
+    // add outcome
+    simpleTextElement(s, NODE_OUTCOME_TAG(), node->getOutcome().c_str());
 
-	// add failure type
-	simpleTextElement(s, NODE_FAILURE_TYPE_TAG(),node->getFailureType().c_str());
+    // add failure type
+    simpleTextElement(s, NODE_FAILURE_TYPE_TAG(),node->getFailureType().c_str());
       
-	// add the condition states
-	formatConditions(s, node);
+    // add the condition states
+    formatConditions(s, node);
 
-	// add the path
-	formatNodePath(s, node);
+    // add the path
+    formatNodePath(s, node);
 
-	endTag(s, NODE_STATE_UPDATE_TAG());
+    endTag(s, NODE_STATE_UPDATE_TAG());
   }
 
   /**
@@ -180,29 +180,29 @@ namespace PLEXIL {
    * @param value The internal representation of the new value.
    */
   void LuvFormat::formatAssignment(std::ostream& s, 
-								   const ExpressionId& dest,
-								   const std::string& destName,
-								   const double& value) {
-	simpleStartTag(s, ASSIGNMENT_TAG());
+                                   const ExpressionId& dest,
+                                   const std::string& destName,
+                                   const double& value) {
+    simpleStartTag(s, ASSIGNMENT_TAG());
 
-	// format variable name
-	simpleStartTag(s, VARIABLE_TAG());
-	// get path to node, if any
-	const NodeId node = ((VariableId) dest)->getNode();
-	if (node.isId()) 
-	  formatNodePath(s, node);
+    // format variable name
+    simpleStartTag(s, VARIABLE_TAG());
+    // get path to node, if any
+    const NodeId node = ((VariableId) dest)->getNode();
+    if (node.isId()) 
+      formatNodePath(s, node);
 
-	// get variable name
-	// *** TODO: enhance for array reference ***
-	simpleTextElement(s, VARIABLE_NAME_TAG(), destName.c_str());
-	endTag(s, VARIABLE_TAG());
+    // get variable name
+    // *** TODO: enhance for array reference ***
+    simpleTextElement(s, VARIABLE_NAME_TAG(), destName.c_str());
+    endTag(s, VARIABLE_TAG());
 
-	// format variable value
-	simpleTextElement(s, 
-					  VARIABLE_VALUE_TAG(), 
-					  Expression::valueToString(value).c_str());
-	
-	endTag(s, ASSIGNMENT_TAG());
+    // format variable value
+    simpleTextElement(s, 
+                      VARIABLE_VALUE_TAG(), 
+                      Expression::valueToString(value).c_str());
+    
+    endTag(s, ASSIGNMENT_TAG());
   }
 
   /**
@@ -212,14 +212,14 @@ namespace PLEXIL {
    * @param parent The node ID of the parent (currently ignored).
    */
   void LuvFormat::formatPlan(std::ostream& s, 
-							 const PlexilNodeId& plan, 
-							 const LabelStr& /* parent */) {
-	// create a PLEXIL Plan wrapper and stick the plan in it
-	simpleStartTag(s, PLEXIL_PLAN_TAG());
-	pugi::xml_document* planXml = PlexilXmlParser::toXml(plan);
-	planXml->save(s, " ", PUGI_FORMAT_OPTIONS());
-	delete planXml;
-	endTag(s, PLEXIL_PLAN_TAG());
+                             const PlexilNodeId& plan, 
+                             const LabelStr& /* parent */) {
+    // create a PLEXIL Plan wrapper and stick the plan in it
+    simpleStartTag(s, PLEXIL_PLAN_TAG());
+    pugi::xml_document* planXml = PlexilXmlParser::toXml(plan);
+    planXml->save(s, " ", PUGI_FORMAT_OPTIONS());
+    delete planXml;
+    endTag(s, PLEXIL_PLAN_TAG());
   }
 
   /**
@@ -228,13 +228,13 @@ namespace PLEXIL {
    * @param plan The intermediate representation of the library node.
    */
   void LuvFormat::formatLibrary(std::ostream& s, 
-								const PlexilNodeId& libNode) {
-	// create a PLEXIL Library wrapper and stick the library node in it
-	simpleStartTag(s, PLEXIL_LIBRARY_TAG());
-	pugi::xml_document* libXml = PlexilXmlParser::toXml(libNode);
-	libXml->save(s, " ", PUGI_FORMAT_OPTIONS());
-	delete libXml;
-	endTag(s, PLEXIL_LIBRARY_TAG());
+                                const PlexilNodeId& libNode) {
+    // create a PLEXIL Library wrapper and stick the library node in it
+    simpleStartTag(s, PLEXIL_LIBRARY_TAG());
+    pugi::xml_document* libXml = PlexilXmlParser::toXml(libNode);
+    libXml->save(s, " ", PUGI_FORMAT_OPTIONS());
+    delete libXml;
+    endTag(s, PLEXIL_LIBRARY_TAG());
   }
 
 }

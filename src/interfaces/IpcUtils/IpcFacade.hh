@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,7 +122,7 @@ public:
    * @brief publishes the given message via IPC
    * @param command The command string to send
    */
-  uint32_t publishMessage(LabelStr command);
+  uint32_t publishMessage(const LabelStr& command);
 
   /**
    * @brief publishes the given command via IPC. This is equivalent to calling
@@ -131,7 +131,7 @@ public:
    * this method returns.
    * @param command The command string to send
    */
-  uint32_t publishCommand(LabelStr command, const std::list<double>& argsToDeliver);
+  uint32_t publishCommand(const LabelStr& command, const std::list<double>& argsToDeliver);
 
   /**
    * @brief Sends the given command to the given client ID via IPC. If the client ID is
@@ -141,13 +141,13 @@ public:
    * @param command The command string to send
    * @param dest The destination ID for this command
    */
-  uint32_t sendCommand(LabelStr command, LabelStr dest, const std::list<double>& argsToDeliver);
+  uint32_t sendCommand(const LabelStr& command, const LabelStr& dest, const std::list<double>& argsToDeliver);
 
   /**
    * @brief publishes the given LookupNow via IPC
    * @param command The command string to send
    */
-  uint32_t publishLookupNow(LabelStr lookup, const std::list<double>& argsToDeliver);
+  uint32_t publishLookupNow(const LabelStr& lookup, const std::list<double>& argsToDeliver);
 
 
   /**
@@ -156,13 +156,13 @@ public:
    * @param lookup The lookup string to send
    * @param dest The destination ID for this LookupNow
    */
-  uint32_t sendLookupNow(LabelStr lookup, LabelStr dest, const std::list<double>& argsToDeliver);
+  uint32_t sendLookupNow(const LabelStr& lookup, const LabelStr& dest, const std::list<double>& argsToDeliver);
 
   /**
    * @brief publishes the given return values via IPC
    * @param command The command string to send
    */
-  uint32_t publishReturnValues(uint32_t request_serial, LabelStr command, double arg);
+  uint32_t publishReturnValues(uint32_t request_serial, const LabelStr& command, double arg);
 
   /**
    * @brief publishes the given telemetry value via IPC
@@ -264,7 +264,7 @@ private:
    * the UID as a prefix for directed communication. Has no effect for any previously defined message types.
    * @return true if successful, false otherwise
    * @note Caller should ensure IPC_initialize() has been called first
-  */
+   */
   bool definePlexilIPCMessageTypes();
 
   /**
@@ -327,7 +327,7 @@ private:
    * @param handler The handler to unsubscribe.
    */
   IPC_RETURN_TYPE subscribeDataCentral(const char *msgName,
-				       HANDLER_DATA_TYPE handler);
+                                       HANDLER_DATA_TYPE handler);
 
   //* @brief Is the facade initialized?
   bool m_isInitialized;
@@ -425,7 +425,7 @@ inline const char* msgFormatForType(const PlexilMsgType typ)
 
       return STRING_PAIR_MSG;
       break;
-			  
+              
     case PlexilMsgType_NumericArray:
       return NUMERIC_ARRAY_MSG;
       break;

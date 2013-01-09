@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -151,7 +151,7 @@ public:
    * @param ack The expression in which to store an acknowledgement of completion.
    */
 
-  virtual void sendPlannerUpdate(const NodeId& node, const std::map<double, double>& valuePairs, ExpressionId ack);
+  virtual void sendPlannerUpdate(const NodeId& node, const std::map<LabelStr, double>& valuePairs, ExpressionId ack);
 
   /**
    * @brief Execute a command with the requested arguments.
@@ -188,43 +188,43 @@ private:
    * @brief handles SEND_MESSAGE_COMMAND commands from the exec
    */
   void executeSendMessageCommand(const std::list<double>& args,
-								 ExpressionId dest, ExpressionId ack);
+                                 ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
   void executeSendReturnValueCommand(const std::list<double>& args,
-									 ExpressionId dest, ExpressionId ack);
+                                     ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
   void executeReceiveMessageCommand(const std::list<double>& args,
-									ExpressionId dest, ExpressionId ack);
+                                    ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
   void executeReceiveCommandCommand(const std::list<double>& args,
-									ExpressionId dest, ExpressionId ack);
+                                    ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles GET_PARAMETER_COMMAND commands from the exec
    */
   void executeGetParameterCommand(const std::list<double>& args,
-								  ExpressionId dest, ExpressionId ack);
+                                  ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles UPDATE_LOOKUP_COMMAND commands from the exec
    */
   void executeUpdateLookupCommand(const std::list<double>& args,
-								  ExpressionId dest, ExpressionId ack);
+                                  ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles all other commands from the exec
    */
   void executeDefaultCommand(const LabelStr& name, const std::list<double>& args,
-							 ExpressionId dest, ExpressionId ack);
+                             ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief Parses external lookups from xml and puts them in the lookup map.
@@ -313,7 +313,7 @@ private:
   //* brief Cache of command serials and their corresponding ack and return value variables
   typedef std::map<uint32_t, std::pair<ExpressionId, ExpressionId> > PendingCommandsMap;
 
-  typedef std::map<double, double> ExternalLookupMap;
+  typedef std::map<LabelStr, double> ExternalLookupMap;
 
   //* brief Class to receive messages from Ipc
   class MessageListener : public IpcMessageListener {

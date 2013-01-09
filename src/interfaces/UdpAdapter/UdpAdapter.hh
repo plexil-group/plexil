@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -93,7 +93,7 @@ namespace PLEXIL
     double lookupNow(const State& stateKey);
     void subscribe(const State& state);
     void unsubscribe(const State& state);
-    void sendPlannerUpdate(const NodeId& node, const std::map<double, double>& valuePairs, ExpressionId ack);
+    void sendPlannerUpdate(const NodeId& node, const std::map<LabelStr, double>& valuePairs, ExpressionId ack);
     // Executes a command with the given arguments
     void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
     // Abort the given command with the given arguments.  Store the abort-complete into ack
@@ -143,9 +143,9 @@ namespace PLEXIL
     int startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack);
     static void* waitForUdpMessage(UdpMessage* msg);
     int handleUdpMessage(const UdpMessage* msg, const unsigned char* buffer, bool debug=false);
-    double formatMessageName(const LabelStr& name, const LabelStr& command, int id);
-    double formatMessageName(const LabelStr& name, const LabelStr& command);
-    double formatMessageName(const char* name, const LabelStr& command);
+    LabelStr formatMessageName(const LabelStr& name, const LabelStr& command, int id);
+    LabelStr formatMessageName(const LabelStr& name, const LabelStr& command);
+    LabelStr formatMessageName(const char* name, const LabelStr& command, int id);
   };
 }
 
