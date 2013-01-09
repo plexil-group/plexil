@@ -25,79 +25,145 @@
 */
 
 #include "LabelStr.hh"
-#include "Error.hh"
-#include <string.h>
-#include <limits>
+#include <cstring> // for strcmp()
 
 namespace PLEXIL
 {
 
   // define the empty label
-
   DEFINE_GLOBAL_CONST(LabelStr, EMPTY_LABEL, "");
 
+  /**
+   * Zero argument constructor.
+   * @note Should only be used indirectly, e.g., via std::list.
+   */
   LabelStr::LabelStr()
-  {
+    : LabelStr_item_t()
 #ifndef PLEXIL_FAST
-    m_chars = empty().c_str();
+    , m_string(getItem().c_str())
 #endif
+  {
   }
 
   /**
-   * Construction must obtain a key that is efficient to use for later
-   * calculations in the domain and must maintain the ordering defined
-   * by the strings.
+   * @brief Constructor
+   * @param label The symbolic value as a string
    */
-  LabelStr::LabelStr(const std::string& label) : 
-    StoredString(&label, true)
-  {
+  LabelStr::LabelStr(const std::string& label)
+    : LabelStr_item_t(label)
 #ifndef PLEXIL_FAST
-    m_chars = StoredString::getItem().c_str();
+    , m_string(getItem().c_str())
 #endif
+  {
   }
 
-  LabelStr::LabelStr(const char* label):
-    StoredString(new std::string(label), false)
-  {
+  /**
+   * @brief Constructor
+   * @param str A null terminated string
+   */
+  LabelStr::LabelStr(const char* label)
+    : LabelStr_item_t(std::string(label))
 #ifndef PLEXIL_FAST
-    m_chars = StoredString::getItem().c_str();
+    , m_string(getItem().c_str())
 #endif
+  {
   }
 
-  LabelStr::LabelStr(double key):
-    StoredString(key)
-  {
-    check_error(isKey(key), "Invalid key provided.");
-
+  /**
+   * @brief Constructor from encoded key
+   * @param key the key value for a previously created LabelStr instance.
+   */
+  LabelStr::LabelStr(double key)
+    : LabelStr_item_t(key)
 #ifndef PLEXIL_FAST
-    m_chars = StoredString::getItem().c_str();
+    , m_string(getItem().c_str())
 #endif
-  }
-
-  const std::string& LabelStr::toString() const
   {
-    return StoredString::getItem();
   }
 
-  const char* LabelStr::c_str() const
-  {
-    return StoredString::getItem().c_str();
-  }
-
+  /**
+   * @brief Copy constructor.
+   * @param org The source LabelStr.
+   */
+  LabelStr::LabelStr(const LabelStr& org)
+    : LabelStr_item_t(org)
 #ifndef PLEXIL_FAST
-
-  LabelStr::LabelStr(const LabelStr& org):
-    StoredString(org.getKey())
-  {
-    m_chars = org.m_chars;
-  }
-
-  LabelStr::operator double () const
-  {
-    return getKey();
-  }
-
+    , m_string(org.m_string)
 #endif
+  {
+  }
+
+  /**
+   * @brief Assignment operator
+   * @param org LabelStr.
+   * @return Reference to this LabelStr.
+   */
+  LabelStr& LabelStr::operator=(const LabelStr& org)
+  {
+    LabelStr_item_t::operator=(org);
+#ifndef PLEXIL_FAST
+    m_string = org.m_string;
+#endif
+    return *this;
+  }
+
+  /**
+   * @brief Assignment operator
+   * @param string The new value as a std::string.
+   * @return Reference to this LabelStr.
+   */
+  LabelStr& LabelStr::operator=(const std::string& string)
+  {
+    LabelStr_item_t::operator=(string);
+#ifndef PLEXIL_FAST
+    m_string = getItem().c_str();
+#endif
+    return *this;
+  }
+
+  /**
+   * @brief Assignment operator from char*
+   * @param chars The new value as a const reference to const char*.
+   * @return Reference to this LabelStr.
+   */
+  LabelStr& LabelStr::operator=(const char* chars)
+  {
+    return this->operator=(std::string(chars));
+  }
+
+  /**
+   * @brief Assignment operator from key type
+   * @param key The key from another existing LabelStr.
+   * @return Reference to this LabelStr.
+   */
+  LabelStr& LabelStr::operator=(LabelStr_key_t key)
+  {
+    LabelStr_item_t::operator=(key);
+#ifndef PLEXIL_FAST
+    m_string = getItem().c_str();
+#endif
+    return *this;
+  }
+
+  /**
+   * @brief Equality operator for std::string.
+   * @param other A string for comparison.
+   * @return true if equal, false otherwise.
+   */
+  bool LabelStr::operator==(const std::string& other) const
+  {
+    return getItem() == other;
+  }
+
+  /**
+   * @brief Equality operator for const char*.
+   * @param other A char* constant for comparison.
+   * @return true if equal, false otherwise.
+   */
+  bool LabelStr::operator==(const char* other) const
+  {
+    return 0 == strcmp(c_str(), other);
+  }
 
   bool LabelStr::operator<(const LabelStr& lbl) const
   {
@@ -109,94 +175,58 @@ namespace PLEXIL
     return toString() > lbl.toString();
   }
 
-  //    bool LabelStr::operator==(const LabelStr& lbl) const
-  //    {
-  //       return getKey() == lbl.getKey();
-  //    }
-
-  unsigned int LabelStr::getSize()
-  {
-    return StoredString::getSize();
-  }
-
-  bool LabelStr::isString(double key)
-  {
-    return StoredString::isKey(key);
-  }
-
-  bool LabelStr::isString(const std::string& candidate)
-  {
-    return StoredString::isItem(&candidate);
-  }
-
+  /**
+   * @brief Tests if a given string is contained within this string.
+   * @param lblStr The string to test for.
+   * @return true if present, otherwise false.
+   */
   bool LabelStr::contains(const LabelStr& lblStr) const
   {
-    const std::string& thisStr = toString();
-    int index = thisStr.find(lblStr.c_str());
-    return (index >= 0);
+    return std::string::npos != toString().find(lblStr.toString());
   }
-
-
-  unsigned int LabelStr::countElements(const char* delimiter) const
-  {
-    check_error(delimiter != NULL && delimiter[0] != '\0', "'NULL' and '\\0' are not valid delimiters");
-
-    //allocate a results vector
-    std::vector<std::string> tokens;
-
-    // Get a std string from the LabelStr
-    const std::string& srcStr = toString();
-
-    //create a std string of the delimiter
-    std::string delim(delimiter);
-
-    tokenize(srcStr, tokens, delim);
-
-    return tokens.size();
-  }
-
-  LabelStr LabelStr::getElement(unsigned int index, const char* delimiter) const
-  {
-    check_error(delimiter != NULL && delimiter[0] != '\0', "'NULL' and '\\0' are not valid delimiters");
-
-    //allocate a results vector
-    std::vector<std::string> tokens;
-
-    // Get a std string from the LabelStr
-    const std::string& srcStr = toString();
-
-    //create a std string of the delimiter
-    std::string delim(delimiter);
-
-    tokenize(srcStr, tokens, delim);
-
-    LabelStr result(tokens[index]);
-
-    return result;
-  }
-
 
   /**
-   * @brief Utility function to tokenzie a std string 
+   * @brief Tests if a given string is contained within this string.
+   * @param str The string to test for.
+   * @return true if present, otherwise false.
    */
+  bool LabelStr::contains(const std::string& str) const
+  {
+    return std::string::npos != toString().find(str);
+  }
 
-  void LabelStr::tokenize(const std::string& str, 
-                          std::vector<std::string>& tokens,  
-                          const std::string& delimiters)  {
-    // Skip delimiters at beginning.
+  /**
+   * @brief Tests if a given string is contained within this string.
+   * @param str The const char* to test for.
+   * @return true if present, otherwise false.
+   */
+  bool LabelStr::contains(const char* str) const
+  {
+    return std::string::npos != toString().find(str);
+  }
+
+  size_t LabelStr::countElements(const char* delimiters) const
+  {
+    assertTrueMsg(delimiters != NULL && delimiters[0] != '\0',
+                  "'NULL' and empty string are not valid delimiters");
+
+    const std::string& str = toString();
+    size_t result = 0;
+
+    // Skip delimiters at beginning. Note the "not_of".
     std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
     // Find first "non-delimiter".
     std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
 
-    while (std::string::npos != pos || std::string::npos != lastPos)
-      {
-        // Found a token, add it to the vector.
-        tokens.push_back(str.substr(lastPos, pos - lastPos));
-        // Skip delimiters.  Note the "not_of"
-        lastPos = str.find_first_not_of(delimiters, pos);
-        // Find next "non-delimiter"
-        pos = str.find_first_of(delimiters, lastPos);
-      }
+    while (std::string::npos != pos || std::string::npos != lastPos) {
+      // Found a token
+      ++result;
+      // Skip next delimiter.
+      lastPos = str.find_first_not_of(delimiters, pos);
+      // Find next non-delimiter.
+      pos = str.find_first_of(delimiters, lastPos);
+    }
+    return result;
   }
 
 }

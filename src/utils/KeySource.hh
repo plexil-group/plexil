@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,108 +24,215 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
- * @file KeySource.hh
- * @brief Declares the KeySource class, a prerequisite of StoredItem
- * @author Robert Harris based on code by Conor McGann
- * @date 4 October 2007
- * @ingroup Utils
- */
-
 #ifndef KEY_SOURCE_HH
 #define KEY_SOURCE_HH
 
 #include <limits>
-#include <stack>
+#ifdef STORED_ITEM_REUSE_KEYS
+# include <stack>
+#endif
 #include "Error.hh"
-
-// defined in vxWorksCommon.h,
-// and they interfere with numeric_limits methods of the same name
-#undef min
-#undef max
 
 namespace PLEXIL
 {
 
   /**
-   * @class KeySource
-   * @brief Provides an abstract key source for StoredItem.
+   * @class KeyTraits
+   * @brief Provides key traits for KeySource templatized class.
    *
-   * Floating point keys use the the denormalized range of values for
-   * keys.  Integer types use the full range of values for that type.
+   * By default:
+   * - Floating point keys use the (positive) denormalized range of values. 
+   * - Integer types use the full range of values for that type.
+   *
+   * Derived classes may be specialized for subranges of num_t.
+   * At a minimum, specializations should provide new methods for:
+   * * static num_t unassignedKey()
+   *   The result may not be a valid key value for the base class or
+   *   any specialization for num_t.
+   * * static num_t keyMin()
+   * * static num_t keyMax()
+   *   keyMin() and keyMax() should bound an inclusive range that is disjoint with
+   *   the base class, and with other specializations for num_t.
+   *
+   * Specializations may provide new methods for:
+   * * static bool isValid()
+   *   Only required if the specialization imposes stricter requirements on num_t.
+   * * static num_t keyIncrement()
+   *
+   * @tparam num_t A numeric type name.
    */
 
-  template <class key_t>
+  template <typename num_t>
+  class KeyTraits
+  {
+  protected:
+    typedef typename std::numeric_limits<num_t> limits_t;
+
+  public:
+    
+    /**
+     * @brief Check the basic assumptions of the key traits.
+     * @return True if the class is valid for use as a key, false otherwise.
+     */
+    static bool isValid()
+    {
+      return limits_t::is_specialized
+        && (limits_t::is_integer || limits_t::has_denorm == std::denorm_present);
+    }
+
+    /**
+     * @brief Calculate the increment between keys.
+     * @return The increment.
+     */
+    static num_t keyIncrement()
+    {
+      if (limits_t::is_integer)
+        return 1;
+      else
+        return limits_t::denorm_min();
+    }
+
+    /**
+     * @brief Calculate the unassigned-key value.
+     * @return The unassigned key value.
+     */
+    static num_t unassignedKey()
+    {
+      if (limits_t::is_integer)
+        return limits_t::min();
+      else
+        return limits_t::denorm_min();
+    }
+
+    /**
+     * @brief Calculate the inclusive minimum valid key value.
+     * @return The minimum key value.
+     */
+    static num_t keyMin()
+    {
+      return unassignedKey() + keyIncrement();
+    }
+
+    /**
+     * @brief Calculate the inclusive maximum valid key value.
+     * @return The maximum key value.
+     */
+    static num_t keyMax()
+    {
+      if (limits_t::is_integer)
+        return limits_t::max();
+      else
+        return limits_t::min() - keyIncrement();
+    }
+  };
+
+  /**
+   * @class NegativeDenormKeyTraits
+   * @brief A specialization of KeyTraits using the negative denormalized range of
+   *        floating point types.
+   * @tparam num_t A fundamental floating point numeric type.
+   */
+  template <typename num_t>
+  class NegativeDenormKeyTraits :
+    public KeyTraits<num_t>
+  {
+  private:
+    // Work arouud apparent lack of inheritance from base class
+    typedef typename std::numeric_limits<num_t> limits_t;
+
+  public:
+    static bool isValid()
+    {
+      return limits_t::is_specialized && limits_t::is_signed
+        && (limits_t::has_denorm == std::denorm_present);
+    }
+    /**
+     * @brief Calculate the unassigned-key value.
+     * @return The unassigned key value.
+     */
+    static num_t unassignedKey()
+    {
+      return limits_t::denorm_min() - limits_t::min();
+    }
+
+    /**
+     * @brief Calculate the inclusive minimum valid key value.
+     * @return The minimum key value.
+     */
+    static num_t keyMin()
+    {
+      return unassignedKey() + KeyTraits<num_t>::keyIncrement();
+    }
+
+    /**
+     * @brief Calculate the inclusive maximum valid key value.
+     * @return The maximum key value.
+     */
+    static num_t keyMax()
+    {
+      return -limits_t::denorm_min();
+    }
+  };
+
+
+  /**
+   * @class KeySource
+   * @brief Provides an abstract key source for ItemStore.
+   * @tparam key_t A numeric type for which std::numeric_limits<key_t> is specialized.
+   * @tparam key_traits_t
+   *
+   */
+
+  template <typename key_t,
+            typename key_traits_t = KeyTraits<key_t> >
   class KeySource
   {
-    // numeric limits of key type
-
-    typedef typename std::numeric_limits<key_t>       keyLimits_t;
+  protected:
 
 #ifdef STORED_ITEM_REUSE_KEYS
     // key pool type
-
-    typedef typename std::stack<key_t>                keyPool_t;
+    typedef typename std::stack<key_t> keyPool_t;
 #endif
 
   public:
 
+    KeySource()
+      : m_counter(unassigned())
+    {
+      // Check potential gotchas
+      assertTrue(key_traits_t::isValid());
+    }
+
+    ~KeySource()
+    {
+    }
+
+    /**
+     * @brief Checks whether an arbitrary key is within the valid range. 
+     * @return True if in range, false otherwise.
+     */
+    inline static bool rangeCheck(const key_t & key)
+    {
+      return key >= keyMin() && key <= keyMax();
+    }
+
     /**
      * @brief Returns the next available key.
      */
-
-    static const key_t next()
+    const key_t next()
     {
-      key_t sl_key;
-
 #ifdef STORED_ITEM_REUSE_KEYS
-
-      // if the key pool is not empty, use a key from there
-
-      if (!keyPool().empty())
-	{
-	  sl_key = keyPool().top();
-	  keyPool().pop();
-	}
-
-      // otherwise increment the counter
-            
-      else
+      // if the key pool is not empty, reuse a key from there
+      if (!m_keyPool.empty()) {
+        key_t result = m_keyPool.top();
+        m_keyPool.pop();
+        return result;
+      }
 #endif
-	{
-	  assertTrue(availableKeys() > 0, "Key space exhausted.");
-	  sl_key = counter();
-	  counter() += increment();
-	}
-
-      // get next key value 
-
-      return sl_key;
-    }
-
-    /**
-     * @brief Returns the total number of keys which may be
-     * generated.
-     */
-
-    static const size_t totalKeys()
-    {
-      return ((size_t)((keyMax() - keyMin()) / increment())) - 1;
-    }
-
-    /**
-     * @brief Returns the remaing number of keys which are
-     * available.
-     */
-
-    static const size_t availableKeys()
-    {
-      return (totalKeys() 
-	      - (size_t)((counter() - keyMin()) / increment()))
-#ifdef STORED_ITEM_REUSE_KEYS
-	+ keyPool().size()
-#endif
-	;
+      // increment the counter
+      assertTrue(keyMax() > m_counter, "KeySource::next: Key space exhausted.");
+      m_counter += increment();
+      return m_counter;
     }
 
     /**
@@ -139,132 +246,98 @@ namespace PLEXIL
      */
 
 #ifdef STORED_ITEM_REUSE_KEYS
-    inline static void unregister(key_t& key)
+    inline void unregister(const key_t& key)
     {
-      keyPool().push(key);
+      m_keyPool.push(key);
     }
 #else
-    inline static void unregister(key_t& /*key*/)
+    inline void unregister(const key_t& /*key*/)
     {
       // do nothing
     }
 #endif // STORED_ITEM_REUSE_KEYS
 
     /**
+     * @brief Returns the total number of keys which may be generated.
+     * @note Currently used only in the module tests.
+     */
+
+    static const size_t& totalKeys()
+    {
+      static const size_t sl_totalKeys = 
+        ((size_t) ((keyMax() - keyMin()) / increment())) + 1;
+      return sl_totalKeys;
+    }
+
+    /**
+     * @brief Returns the number of available keys remaining.
+     * @note Currently used only in the module tests.
+     */
+
+    const size_t availableKeys()
+    {
+      return ((size_t) ((keyMax() - m_counter) / increment()))
+#ifdef STORED_ITEM_REUSE_KEYS
+        + m_keyPool.size()
+#endif
+        ;
+    }
+
+    /**
      * @brief Return the unassigned key value.
-     *
      * @return The unassigned key value.
      */
          
     static const key_t& unassigned()
     {
-      static const key_t* sl_unassigned = NULL;
-      if (sl_unassigned == NULL)
-	{
-	  sl_unassigned = new key_t(keyLimits_t::has_denorm == std::denorm_present
-				    ? keyLimits_t::denorm_min()
-				    : keyLimits_t::min());
-	}
-      return *sl_unassigned;
+      static const key_t sl_unassigned = key_traits_t::unassignedKey();
+      return sl_unassigned;
     }
 
     /**
-     * @brief Return the key increment value.
-     *
-     * @return The smallest allowable increment for a given key_t.
-     */
-
-    static const key_t& increment()
-    {
-      static const key_t* sl_increment = NULL;
-      if (sl_increment == NULL)
-	{
-	  sl_increment =
-	    new key_t(keyLimits_t::has_denorm == std::denorm_present
-		      ? keyLimits_t::denorm_min()
-		      : 1);
-	}
-      return *sl_increment;
-    }
-
-    /**
-     * @brief Return the minimum key value.
-     *
+     * @brief Return the minimum valid key value.
      * @return The smallest value of a key.
      */
 
     static const key_t& keyMin()
     {
-      static const key_t* sl_min = NULL;
-      if (sl_min == NULL)
-	sl_min = new key_t(unassigned() + increment());
-      return *sl_min;
+      static const key_t sl_min = key_traits_t::keyMin();
+      return sl_min;
     }
 
     /**
      * @brief Return the maximum key value.
-     *
      * @return The largest value of a key.
      */
 
     static const key_t& keyMax()
     {
-      static const key_t* sl_max = NULL;
-      if (sl_max == NULL)
-	sl_max = new key_t(keyLimits_t::has_denorm == std::denorm_present
-			   ? keyLimits_t::min()
-			   : keyLimits_t::max());
-      return *sl_max;
-    }
-
-
-    /**
-     * @brief Return the key infinity value.
-     *
-     * @return The largest value of a key.
-     */
-
-    static const key_t& infinity()
-    {
-      static const key_t* sl_infinity = NULL;
-      if (sl_infinity == NULL)
-	{
-	  sl_infinity = new key_t(keyLimits_t::has_infinity
-				  ? keyLimits_t::infinity()
-				  : keyLimits_t::max());
-	}
-      return *sl_infinity;
+      static const key_t sl_max = key_traits_t::keyMax();
+      return sl_max;
     }
 
   protected:
 
+    //
+    // Below this point should be considered implementation details.
+    //
+
     /**
-     * @brief Returns the value of the next key to be released.
+     * @brief Return the key increment value.
+     * @return The smallest allowable increment for a given key_t.
      */
 
-    static key_t & counter()
+    static const key_t& increment()
     {
-      static key_t* sl_nextKey = NULL;
-      if (sl_nextKey == NULL)
-	sl_nextKey = new key_t(keyMin());
-      return *sl_nextKey;
+      static const key_t sl_increment = key_traits_t::keyIncrement();
+      return sl_increment;
     }
 
+    key_t m_counter;     //!< The next key value.
 #ifdef STORED_ITEM_REUSE_KEYS
-    /**
-     * @brief Stores unused keys for reuse.
-     */
-
-    static keyPool_t& keyPool()
-    {
-      static keyPool_t& sl_keyPool = NULL;
-      if (sl_keyPool == NULL)
-	{
-	  sl_keyPool = new keyPool_t();
-	}
-      return *sl_keyPool;
-    }
+    keyPool_t m_keyPool; //!< Storage for reused keys.
 #endif         
+
   };
 
 }

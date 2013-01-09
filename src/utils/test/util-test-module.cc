@@ -52,12 +52,20 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "Id.hh"
+#include "InternedItem.hh"
 #include "iso-8601.hh"
+#include "ItemStore.hh"
+#include "ItemTable.hh"
+#include "KeySource.hh"
 #include "LabelStr.hh"
 #include "StoredArray.hh"
+#include "StoredItem.hh"
 #include "TestData.hh"
 #include "timespec-utils.hh"
 #include "timeval-utils.hh"
+#include "TwoWayStore.hh"
+#include "TwoWayTable.hh"
+#include "Utils.hh" // for UNKNOWN()
 #include "XMLUtils.hh"
 
 #include <cfloat>
@@ -88,7 +96,7 @@
     if (result) \
       std::cout << " PASSED." << std::endl; \
     else { \
-      std::cout << " FAILED TO PASS UNIT TEST." << std::endl; \
+      std::cout << " UNIT TEST FAILED." << std::endl; \
       throw Error::GeneralUnknownError(); \
     } \
   } \
@@ -764,41 +772,921 @@ bool IdTests::testConstId()
   return true;
 }
 
-class LabelTests {
+class KeySourceTests
+{
+private:
+  template<typename key_t, typename key_source_t>
+  static bool testKeyAllocation()
+  {
+    key_source_t keygen;
+    size_t keySpace = KeySource<key_t>::totalKeys();
+    std::cout << "key space: " << keySpace << std::endl;
+    key_t lastKey = key_source_t::unassigned();
+    size_t n = 0;
+    try {
+      std::cout << std::endl;
+      Error::doThrowExceptions();
+      for (size_t i = 0; i < keySpace + 1; ++i) {
+        key_t next = keygen.next();
+        if (next == lastKey) {
+          std::cout << "Error: non-unique key " << next << std::endl;
+          return false;
+        }
+        lastKey = next;
+        ++n;
+      }
+    }
+    catch (Error &e) {
+      std::cout << "\nCaught expected exception: ";
+      e.print(std::cout);
+      std::cout << std::endl;
+      if (n != keySpace) {
+        std::cout << "Error: # of keys generated, " << n
+                  << ", does not equal totalKeys(), " << keySpace 
+                  << std::endl;
+        return false;
+      }
+      std::cout << " done." << std::endl;
+      return true;
+    }
+
+    // should never get here
+    std::cout << "Error: failed to exhaust keyspace" << std::endl;
+    return false;
+  }
+
 public:
-  static bool test(){
-    runTest(testBasicAllocation);
+  static bool test()
+  {
+    return testKeyAllocation<unsigned char, KeySource<unsigned char> >()
+      && testKeyAllocation<signed char, KeySource<signed char> >()
+      && testKeyAllocation<unsigned short, KeySource <unsigned short> >()
+      && testKeyAllocation<float, KeySource<float> >()
+      && testKeyAllocation<float, KeySource<float, NegativeDenormKeyTraits<float> > >();
+    // && testKeyAllocation<double, KeySource<double> >(); // too many keys to exhaust in reasonable time!
+  }
+};
+
+class ItemTableTests
+{
+private:
+  template <typename key_t, typename key_source_t>
+  static bool testItemTableKeys()
+  {
+    ItemTable<key_t, std::string> tbl;
+    const size_t n = 10000;
+    // Populate table
+    std::cout << "Testing linear insertion... " << std::flush;
+    {
+      key_source_t keygen1;
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen1.next();
+        std::ostringstream ostream;
+        ostream << i;
+        ItemStoreEntry<std::string>* entry = new ItemStoreEntry<std::string>;
+        entry->refcount = 1;
+        entry->item = ostream.str();
+        tbl.insertEntry(key, entry);
+      }
+      assertTrueMsg(tbl.size() == n,
+                    "Error populating table; size should be " << n << ", is " << tbl.size());
+      std::cout << " done." << std::endl;
+    }
+    // Check contents
+    std::cout << "Checking contents... " << std::flush;
+    {
+      key_source_t keygen2;
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen2.next();
+        ItemStoreEntry<std::string>* entry = tbl.get(key);
+        assertTrueMsg(entry != NULL, "Error: No table entry found for key " << key);
+        assertTrueMsg(entry->refcount == 1, "get error: entry refcount != 1");
+        std::istringstream str(entry->item);
+        size_t j;
+        str >> j;
+        assertTrueMsg(i == j, "Item at key " << key << " should be " << i << ", is " << j);
+      }
+      std::cout << " done." << std::endl;
+    }
+
+    // Clear table by key
+    std::cout << "Testing linear deletion... " << std::flush;
+    {
+      key_source_t keygen3;
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen3.next();
+        ItemStoreEntry<std::string>* entry = tbl.get(key);
+        assertTrueMsg(entry != NULL, "Error: No table entry found for key " << key);
+        tbl.removeEntry(key);
+        entry = tbl.get(key);
+        assertTrueMsg(entry == NULL, "Error: removeEntry failed");
+      }
+    }
+    assertTrueMsg(tbl.empty(), "Error: Table not empty after clearing");
+    assertTrueMsg(tbl.size() == 0, "Error: Table size not zero after clearing");
+    std::cout << " done." << std::endl;
+
+    return true;
+  }
+
+public:
+  static bool test()
+  {
+    return testItemTableKeys<unsigned int, KeySource<unsigned int> >()
+      && testItemTableKeys<double, KeySource<double> >()
+      && testItemTableKeys<double, KeySource<double, NegativeDenormKeyTraits<double> > >();
+  }
+};
+
+class ItemStoreTests
+{
+private:
+  template <typename key_t, typename key_source_t>
+  static bool testItemStoreFunctions()
+  {
+    ItemStore<key_t, std::string, key_source_t, ItemTable<key_t, std::string> > store;
+    assertTrueMsg(store.size() == 1,
+                  "Error: At construction, ItemStore size is " << store.size() << " should be 1");
+    const size_t n = 10000;
+
+    // Populate store
+    std::cout << "Testing linear insertion... " << std::flush;
+    for (size_t i = 1; i <= n; ++i) {
+      std::ostringstream ostream;
+      ostream << i;
+      store.storeItem(ostream.str());
+    }
+    assertTrueMsg(store.size() == n + 1,
+                  "Error populating store; size is " << store.size()
+                  << ", should be " << n + 1);
+    std::cout << " done." << std::endl;
+
+    // Check contents
+    std::cout << "Checking contents... " << std::flush;
+    {
+      key_source_t keygen1;
+      keygen1.next(); // for effect, to account for empty item
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen1.next();
+        std::string* item = store.getItem(key);
+        assertTrueMsg(item != NULL, "Error: No item found for key " << key);
+        std::istringstream str(*item);
+        size_t j;
+        str >> j;
+        assertTrueMsg(i == j, "Item at key " << key << " should be " << i << ", is " << j);
+      }
+      std::cout << " done." << std::endl;
+    }
+
+    // Mark as re-referenced
+    std::cout << "Incrementing reference count... " << std::flush;
+    {
+      key_source_t keygen2;
+      keygen2.next(); // for effect, to account for empty item
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen2.next();
+        assertTrueMsg(store.newReference(key),
+                      "Error: newReference failed for key " << key);
+      }
+      assertTrueMsg(store.size() == n + 1,
+                    "Error: size is " << store.size()
+                    << ", should be " << n + 1);
+      std::cout << " done." << std::endl;
+    }
+
+    // Remove one reference
+    std::cout << "Decrementing reference count... " << std::flush;
+    {
+      key_source_t keygen3;
+      keygen3.next(); // for effect, to account for empty item
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen3.next();
+        store.deleteReference(key);
+        assertTrueMsg(NULL != store.getItem(key),
+                      "Error: item deleted prematurely for key " << key);
+      }
+      assertTrueMsg(store.size() == n + 1,
+                    "Error: size is " << store.size()
+                    << ", should be " << n + 1);
+      std::cout << " done." << std::endl;
+    }
+
+    // Remove 2nd reference
+    std::cout << "Removing last reference... " << std::flush;
+    {
+      key_source_t keygen4;
+      keygen4.next(); // for effect, to account for empty item
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen4.next();
+        store.deleteReference(key);
+        assertTrueMsg(NULL == store.getItem(key), "Error: item not deleted for key " << key);
+      }
+    }
+    assertTrueMsg(store.size() == 1,
+                  "Error: After clearing, ItemStore size is " << store.size() << " should be 1");
+    std::cout << " done." << std::endl;
+
+    return true;
+  }
+
+public:
+  static bool test()
+  {
+    return testItemStoreFunctions<unsigned int, KeySource<unsigned int> >()
+      && testItemStoreFunctions<double, KeySource<double> >()
+      && testItemStoreFunctions<double, KeySource<double, NegativeDenormKeyTraits<double> > >();
+  }
+};
+
+class StoredItemTests
+{
+private:
+  template <typename key_t, typename item_store_t>
+  static bool testStoredItemFunctions()
+  {
+    std::cout << "Testing basics ... " << std::flush;
+    typedef StoredItem<key_t, std::string, item_store_t>
+      stored_item_t;
+
+    assertTrueMsg(stored_item_t::getSize() == 1,
+                  "Error: At construction, StoredItem::getSize() is "
+                  << stored_item_t::getSize() << ", should be 1");
+
+    // Test basic functionality
+    {
+      stored_item_t mt1, mt2;                       // default constructor
+      // constructor from item_t (const char* promoted to std::string)
+      stored_item_t foo("foo");
+      stored_item_t bar(foo.getKey());              // constructor from key_t
+      stored_item_t baz = bar;                      // copy constructor
+      stored_item_t bletch = std::string("bletch"); // constructor from item_t (?)
+
+      assertTrueMsg(stored_item_t::getSize() == 3,
+                    "Error: StoredItem::getSize() is "
+                    << stored_item_t::getSize() << ", should be 3");
+
+      assertTrue(mt1 == mt2);
+      assertTrue(mt1 != foo);
+      assertTrue(foo == bar);
+      assertTrue(foo == baz);
+      assertTrue(bar == baz);
+      assertTrue(baz != bletch);
+
+      baz = bletch;              // assignment from stored_item_t
+      assertTrue(baz == bletch);
+      assertTrue(bar != baz);
+
+      bar = bletch.getKey();     // assignment from key_t
+      assertTrue(bar == bletch);
+      assertTrue(foo != bar);
+
+      mt1 = foo.getKey();        // assignment to empty item from key_t
+      assertTrue(mt1 == foo);
+      assertTrue(mt1 != mt2);
+
+      mt1 = std::string("arf");  // assignment from value type
+      assertTrue(mt1 != foo);
+      assertTrue(mt1 != mt2);
+
+      assertTrueMsg(stored_item_t::getSize() == 4,
+                    "Error: StoredItem::getSize() is "
+                    << stored_item_t::getSize() << ", should be 4");
+
+      mt1 = std::string();       // assignment from empty value type
+      // "arf" should be deleted
+      assertTrue(mt1 == mt2);
+
+      assertTrueMsg(stored_item_t::getSize() == 3,
+                    "Error: StoredItem::getSize() is "
+                    << stored_item_t::getSize() << ", should be 3");
+
+      foo = bletch;           // assignment from stored_item_t
+      // "foo" should be deleted
+
+      assertTrueMsg(stored_item_t::getSize() == 2,
+                    "Error: StoredItem::getSize() is "
+                    << stored_item_t::getSize() << ", should be 2");
+
+    } // above instances should all be deleted here
+    assertTrueMsg(stored_item_t::getSize() == 1,
+                  "Error: StoredItem::getSize() is "
+                  << stored_item_t::getSize() << ", should be 1");
+    std::cout << " done." << std::endl;
+
+    {
+      size_t n = 10000;
+      std::vector<stored_item_t> vec(n);
+      assertTrueMsg(stored_item_t::getSize() == 1,
+                    "Error: StoredItem::getSize() is "
+                    << stored_item_t::getSize() << ", should be 1");
+
+      // Populate items in vector
+      std::cout << "Populating vector of StoredItem ..." << std::flush;
+      for (size_t i = 0; i < n; ++i) {
+        std::ostringstream ostream;
+        ostream << i;
+        vec[i] = stored_item_t(ostream.str());
+      }
+      assertTrueMsg(stored_item_t::getSize() == n + 1,
+                    "Error: StoredItem::getSize() is "
+                    << stored_item_t::getSize()
+                    << ", should be " << n + 1);
+      std::cout << " done." << std::endl;
+
+      std::cout << "Checking vector of StoredItem ..." << std::flush;
+      for (size_t i = 0; i < n; ++i) {
+        std::istringstream str(vec[i].getItem());
+        size_t j;
+        str >> j;
+        assertTrueMsg(i == j, "Item should be " << i << ", is " << j);
+      }
+      std::cout << " done." << std::endl;
+
+      std::cout << "Checking assignment in vector ..." << std::flush;
+      for (size_t i = 1; i < n; ++i) {
+        vec[i] = vec[0];
+      }
+      assertTrueMsg(stored_item_t::getSize() == 2,
+                    "Error: StoredItem::getSize() is "
+                    << stored_item_t::getSize() << ", should be 2");
+      std::cout << " done." << std::endl;
+    } // vector is deleted here
+
+    assertTrueMsg(stored_item_t::getSize() == 1,
+                  "Error: StoredItem::getSize() is "
+                  << stored_item_t::getSize() << ", should be 1");
+
+    return true;
+  }
+
+public:
+  static bool test()
+  {
+    return testStoredItemFunctions<unsigned int, 
+                                   ItemStore<unsigned int,
+                                             std::string,
+                                             KeySource<unsigned int>, 
+                                             ItemTable<unsigned int, std::string> > >()
+       && testStoredItemFunctions<double, 
+                                  ItemStore<double,
+                                            std::string,
+                                            KeySource<double, NegativeDenormKeyTraits<double> >, 
+                                            ItemTable<double, std::string> > >();
+  }
+};
+
+class StoredArrayTests
+{
+private:
+  static bool testStoredArrayBasics()
+  {
+    assertTrueMsg(StoredArray::getSize() == 1,
+                  "Error: At construction, StoredArray::getSize() is " << StoredArray::getSize()
+                  << ", should be 1");
+
+    std::cout << "Testing basics ... " << std::flush;
+    {
+      StoredArray sa0;
+      assertTrue(sa0.size() == 0);
+
+      StoredArray sa1(10, UNKNOWN());
+      assertTrue(sa1.size() == 10);
+      sa1[0] = 3.3;
+      sa1[1] = 9.9;
+      assertTrue(sa1[2] == UNKNOWN());
+      assertTrueMsg(StoredArray::getSize() == 2,
+                    "Error: StoredArray::getSize() is " << StoredArray::getSize()
+                    << ", should be 2");
+
+      StoredArray sa2(sa1.getKey());
+      assertTrue(sa2.size() == 10);
+      assertTrue(sa2[0] == 3.3);
+      assertTrue(sa2[1] == 9.9);
+      assertTrue(sa2[2] == UNKNOWN());
+      assertTrueMsg(StoredArray::getSize() == 2,
+                    "Error: StoredArray::getSize() is " << StoredArray::getSize()
+                    << ", should be 2");
+
+      sa2 = sa0;
+      assertTrue(sa2.size() == 0);
+      assertTrueMsg(StoredArray::getSize() == 2,
+                    "Error: StoredArray::getSize() is " << StoredArray::getSize()
+                    << ", should be 2");
+    }
+    assertTrueMsg(StoredArray::getSize() == 1,
+                  "Error: After cleanup, StoredArray::getSize() is " << StoredArray::getSize()
+                  << ", should be 1");
+
+
+    std::cout << " done." << std::endl;
+    return true;
+  }
+
+  static bool testMemory()
+  {
+    std::cout << std::endl;
+
+    size_t width = 1000;
+    size_t testSize = 100000; // was 1000000
+    size_t updateSize = 10000;
+
+    // preallocate the vector to the appropriate size
+    std::vector<double> keys;
+    keys.reserve(testSize);
+
+    // create AND delete a whole bunch of StoredArray
+    time_t startTotal = startTime();
+    time_t start = startTime();
+    for (size_t i = 0; i < testSize; ++i) {
+      StoredArray sa(width, i);
+      if ((i + 1) % updateSize == 0)
+        std::cout << "creating StoredArray: " << (i + 1)
+                  << " key: " << sa.getKey() << "\r" << std::flush;
+      keys.push_back(sa.getKey());
+    }
+    std::cout << std::endl;
+    stopTime(start);
+         
+    // check that all these keys are invalid
+    start = startTime();
+    for (size_t i = 0; i < keys.size(); ++i) {
+      if ((i + 1) % updateSize == 0)
+        std::cout << "testing StoredArray: " 
+                  << (i + 1) << "\r" << std::flush;
+      assert(!StoredArray::isKey(keys[i]));
+    }
+    std::cout << std::endl;
+    stopTime(start);
+    stopTime(startTotal);
+    return true;
+  }
+
+  static bool testSpeed()
+  {
+    std::cout << std::endl;
+
+    size_t width = 10;
+    size_t testSize = 100000; // was 2000000
+    size_t updateSize = 10000; // was 100000
+    // preallocate vectors to the appropriate size
+    std::vector<double> keys;
+    keys.reserve(testSize);
+    std::vector<StoredArray*> arrays;
+    arrays.reserve(testSize);
+
+    // create a whole bunch of StoredArray
+    time_t startTotal = startTime();
+    time_t start = startTime();
+    for (size_t i = 0; i < testSize; ++i) {
+      if ((i + 1) % updateSize == 0)
+        std::cout << "creating StoredArray: " << (i + 1) <<
+          "\r" << std::flush;
+            
+      StoredArray* sa = new StoredArray(width, i);
+      arrays.push_back(sa);
+      keys.push_back(sa->getKey());
+    }
+    std::cout << std::endl;
+    stopTime(start);
+         
+    // change the values of each of the vectors
+    start = startTime();
+    for (size_t i = 0; i < keys.size(); ++i) {
+      if ((i + 1) % updateSize == 0)
+        std::cout << "changing elements in StoredArray: " 
+                  << (i + 1) << "\r" << std::flush;
+            
+      StoredArray sa(keys[i]);
+      for (size_t j = 0; j < sa.size(); ++j)
+        sa[j] += j;
+    }
+    std::cout << std::endl;
+    stopTime(start);
+         
+    // test the values of each of the vectors
+    start = startTime();
+    for (size_t i = 0; i < keys.size(); ++i) {
+      if ((i + 1) % updateSize == 0)
+        std::cout << "testing elements of StoredArray: " << 
+          (i + 1) << "\r" << std::flush;
+            
+      StoredArray sa(keys[i]);
+      assertTrueMsg((StoredArray::isKey(keys[i])),
+                    "item key mismatch for index " << i);
+            
+      for (size_t j = 0; j < sa.size(); ++j)
+        assertTrueMsg(sa[j] == i + j, "value " << sa[j] << " != " << (i + j));
+    }
+    std::cout << std::endl;
+    stopTime(start);
+
+    // delete everything
+    start = startTime();
+    for (size_t i = 0; i < arrays.size(); ++i) {
+      if ((i + 1) % updateSize == 0)
+        std::cout << "deleting StoredArray: " << 
+          (i + 1) << "\r" << std::flush;
+            
+      StoredArray* sa = arrays[i];
+      arrays[i] = NULL;
+      delete sa;
+    }
+
+    std::cout << std::endl;
+    stopTime(start);
+    stopTime(startTotal);
+    return true;
+  }
+
+  static time_t startTime()
+  {
+    std::cout << "timer started" << std::endl;
+    return clock();
+  }
+      
+  static double stopTime(time_t start)
+  {
+    time_t end = clock();
+    double diff = (end - start) / (double)CLOCKS_PER_SEC;
+    std::cout << "duration: " << diff << " seconds" << std::endl;
+    return diff;
+  }
+
+public:
+  static bool test()
+  {
+    return testStoredArrayBasics()
+      && testMemory()
+      && testSpeed();
+  }
+};
+
+class TwoWayTableTests
+{
+private:
+  template <typename key_t, typename key_source_t>
+  static bool testTwoWayTableKeys()
+  {
+    TwoWayTable<key_t, std::string> tbl;
+    const size_t n = 10000;
+    // Populate table
+    std::cout << "Testing linear insertion... " << std::flush;
+    {
+      key_source_t keygen1;
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen1.next();
+        std::ostringstream ostream;
+        ostream << i;
+        ItemStoreEntry<std::string>* entry = new ItemStoreEntry<std::string>;
+        entry->refcount = 1;
+        entry->item = ostream.str();
+        tbl.insertEntry(key, entry);
+      }
+      assertTrueMsg(tbl.size() == n,
+                    "Error populating table; size should be " << n << ", is " << tbl.size());
+      std::cout << " done." << std::endl;
+    }
+    // Check contents
+    std::cout << "Checking contents... " << std::flush;
+    {
+      key_source_t keygen2;
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen2.next();
+        ItemStoreEntry<std::string>* entryByKey = tbl.getByKey(key);
+        assertTrueMsg(entryByKey != NULL, "No table entry found for key " << key);
+        assertTrueMsg(entryByKey->refcount == 1, "getByKey error: entry refcount != 1");
+        std::istringstream str(entryByKey->item);
+        size_t j;
+        str >> j;
+        assertTrueMsg(i == j, "Item at key " << key << " should be " << i << ", is " << j);
+
+        key_t itemKey;
+        assertTrueMsg(tbl.getItemKey(entryByKey->item, itemKey),
+                      "getItemKey error: no key found for item " << entryByKey->item);
+        assertTrueMsg(itemKey == key,
+                      "getItemKey error: returned wrong key");
+
+        ItemStoreEntry<std::string>* entryByItem = tbl.getByItem(entryByKey->item);
+        assertTrueMsg(entryByKey != NULL, "No table entry found for item " << key);
+        assertTrueMsg(entryByKey == entryByItem,
+                      "getByItem error: Entries differ for key " << key << " and item " << entryByKey->item);
+      }
+      std::cout << " done." << std::endl;
+    }
+
+    // Clear table by key
+    std::cout << "Testing linear deletion... " << std::flush;
+    {
+      key_source_t keygen3;
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen3.next();
+        ItemStoreEntry<std::string>* entryByKey = tbl.getByKey(key);
+        assertTrueMsg(entryByKey != NULL, "Error: No table entry found for key " << key);
+        tbl.removeEntry(key);
+        entryByKey = tbl.getByKey(key);
+        assertTrueMsg(entryByKey == NULL, "Error: removeEntry failed");
+      }
+    }
+    assertTrueMsg(tbl.empty(), "Error: Table not empty after clearing");
+    assertTrueMsg(tbl.size() == 0, "Error: Table size not zero after clearing");
+    std::cout << " done." << std::endl;
+
+    return true;
+  }
+
+public:
+  static bool test()
+  {
+    return testTwoWayTableKeys<unsigned int, KeySource<unsigned int> >()
+      && testTwoWayTableKeys<double, KeySource<double> >()
+      && testTwoWayTableKeys<double, KeySource<double, NegativeDenormKeyTraits<double> > >();
+  }
+};
+
+class TwoWayStoreTests
+{
+private:
+  template <typename key_t, typename key_source_t>
+  static bool testTwoWayStoreFunctions()
+  {
+    TwoWayStore<key_t, std::string, key_source_t, TwoWayTable<key_t, std::string> > store;
+    assertTrueMsg(store.size() == 1,
+                  "Error: At construction, store size is " << store.size() << " should be 1");
+    const size_t n = 10000;
+
+    // Populate store
+    std::cout << "Testing linear insertion... " << std::flush;
+    for (size_t i = 1; i <= n; ++i) {
+      std::ostringstream ostream;
+      ostream << i;
+      store.storeItem(ostream.str());
+    }
+    assertTrueMsg(store.size() == n + 1 ,
+                  "Error populating store: size is " << store.size() << ", should be " << n + 1);
+    std::cout << " done." << std::endl;
+
+    // Check contents
+    std::cout << "Checking contents by key... " << std::flush;
+    {
+      key_source_t keygen1;
+      keygen1.next(); // account for empty item
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen1.next();
+        std::string* item = store.getItem(key);
+        assertTrueMsg(item != NULL, "Error: No item found for key " << key);
+        std::istringstream str(*item);
+        size_t j;
+        str >> j;
+        assertTrueMsg(i == j, "Item at key " << key << " should be " << i << ", is " << j);
+      }
+      std::cout << " done." << std::endl;
+    }
+
+    // Mark as re-referenced by key
+    std::cout << "Incrementing reference count... " << std::flush;
+    {
+      key_source_t keygen2;
+      keygen2.next(); // account for empty item
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen2.next();
+        assertTrueMsg(store.newReference(key),
+                      "Error: newReference failed for key " << key);
+      }
+      assertTrueMsg(store.size() == n + 1 ,
+                    "Error: store size is " << store.size() << ", should be " << n + 1);
+      std::cout << " done." << std::endl;
+    }
+
+    // Mark as re-referenced by item
+    std::cout << "Incrementing reference count by item... " << std::flush;
+    {
+      for (size_t i = 1; i <= n; ++i) {
+        std::ostringstream ostream;
+        ostream << i;
+        store.storeItem(ostream.str());
+      }
+      assertTrueMsg(store.size() == n + 1 ,
+                    "Error: store size is " << store.size() << ", should be " << n + 1);
+      std::cout << " done." << std::endl;
+    }
+
+    // Remove one reference
+    std::cout << "Decrementing reference count... " << std::flush;
+    {
+      key_source_t keygen3;
+      keygen3.next(); // account for empty item
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen3.next();
+        store.deleteReference(key);
+        assertTrueMsg(NULL != store.getItem(key),
+                      "Error: item deleted prematurely for key " << key);
+      }
+      assertTrueMsg(store.size() == n + 1 ,
+                    "Error: store size is " << store.size() << ", should be " << n + 1);
+      std::cout << " done." << std::endl;
+    }
+
+    // Remove one reference
+    std::cout << "Decrementing reference count again... " << std::flush;
+    {
+      key_source_t keygen4;
+      keygen4.next(); // account for empty item
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen4.next();
+        store.deleteReference(key);
+        assertTrueMsg(NULL != store.getItem(key),
+                      "Error: item deleted prematurely for key " << key);
+      }
+      assertTrueMsg(store.size() == n + 1 ,
+                    "Error: store size is " << store.size() << ", should be " << n + 1);
+      std::cout << " done." << std::endl;
+    }
+
+    // Remove 2nd reference
+    std::cout << "Removing last reference... " << std::flush;
+    {
+      key_source_t keygen5;
+      keygen5.next(); // account for empty item
+      for (size_t i = 1; i <= n; ++i) {
+        key_t key = keygen5.next();
+        store.deleteReference(key);
+        assertTrueMsg(NULL == store.getItem(key), "Error: item not deleted for key " << key);
+      }
+    }
+    assertTrueMsg(store.size() == 1,
+                  "Error: After clearing, store size is " << store.size() << " should be 1");
+    std::cout << " done." << std::endl;
+
+    return true;
+  }
+
+public:
+  static bool test()
+  {
+    return testTwoWayStoreFunctions<unsigned int, KeySource<unsigned int> >()
+      && testTwoWayStoreFunctions<double, KeySource<double> >()
+      && testTwoWayStoreFunctions<double, KeySource<double, NegativeDenormKeyTraits<double> > >();
+  }
+};
+
+class InternedItemTests
+{
+private:
+  template <typename key_t, typename two_way_store_t>
+  static bool testInternedItemFunctions()
+  {
+    std::cout << "Testing basics ... " << std::flush;
+    typedef InternedItem<key_t, std::string, two_way_store_t>
+      interned_item_t;
+
+    assertTrueMsg(interned_item_t::getSize() == 1,
+                  "Error: InternedItem::getSize() not 1 at construction");
+
+    // Test basic functionality
+    {
+      interned_item_t mt;                // default constructor
+      interned_item_t foo("foo");        // constructor from item_t
+      interned_item_t bar(foo.getKey()); // constructor from key_t
+      interned_item_t baz = bar;         // copy constructor
+
+      assertTrueMsg(interned_item_t::getSize() == 2,
+                    "Error: InternedItem::getSize() is "
+                    << interned_item_t::getSize() << ", should be 2");
+
+      assertTrue(mt != foo);
+      assertTrue(foo == bar);
+      assertTrue(foo == baz);
+      assertTrue(bar == baz);
+
+      mt = baz;           // assignment from interned_item_t
+      assertTrue(mt == baz);
+
+      mt = "bletch";      // assignment from item_t
+      assertTrue(mt != baz);
+
+      assertTrueMsg(interned_item_t::getSize() == 3,
+                    "Error: InternedItem::getSize() is "
+                    << interned_item_t::getSize() << ", should be 3");
+
+      mt = foo.getKey();  // assignment from key_t
+      assertTrue(mt == foo);
+
+      // bletch should have been deleted
+      assertTrueMsg(interned_item_t::getSize() == 2,
+                    "Error: InternedItem::getSize() is "
+                    << interned_item_t::getSize() << ", should be 2");
+
+    } // above instances should all be deleted here
+    assertTrueMsg(interned_item_t::getSize() == 1,
+                  "Error: InternedItem::getSize() is "
+                  << interned_item_t::getSize() << ", should be 1");
+    std::cout << " done." << std::endl;
+
+    {
+      size_t n = 10000;
+      std::vector<interned_item_t> vec(n);
+      assertTrueMsg(interned_item_t::getSize() == 1,
+                    "Error: InternedItem::getSize() is "
+                    << interned_item_t::getSize() << ", should be 1");
+
+      // Populate items in vector
+      std::cout << "Populating vector of InternedItem ..." << std::flush;
+      for (size_t i = 0; i < n; ++i) {
+        std::ostringstream ostream;
+        ostream << i;
+        vec[i] = ostream.str();
+      }
+      assertTrueMsg(interned_item_t::getSize() == n + 1,
+                    "Error: InternedItem::getSize() is "
+                    << interned_item_t::getSize()
+                    << ", should be " << n + 1);
+      std::cout << " done." << std::endl;
+
+      std::cout << "Checking vector of InternedItem ..." << std::flush;
+      for (size_t i = 0; i < n; ++i) {
+        std::istringstream str(vec[i].getItem());
+        size_t j;
+        str >> j;
+        assertTrueMsg(i == j, "Item should be " << i << ", is " << j);
+      }
+      std::cout << " done." << std::endl;
+
+      std::cout << "Checking assignment in vector ..." << std::flush;
+      for (size_t i = 1; i < n; ++i) {
+        vec[i] = vec[0];
+      }
+      assertTrueMsg(interned_item_t::getSize() == 2,
+                    "Error: InternedItem::getSize() is "
+                    << interned_item_t::getSize() << ", should be 2");
+      std::cout << " done." << std::endl;
+    } // vector is deleted here
+
+    assertTrueMsg(interned_item_t::getSize() == 1,
+                  "Error: InternedItem::getSize() is "
+                  << interned_item_t::getSize() << ", should be 1");
+
+    return true;
+  }
+
+public:
+  static bool test()
+  {
+    return testInternedItemFunctions<unsigned int, 
+                                     TwoWayStore<unsigned int,
+                                                 std::string,
+                                                 KeySource<unsigned int>, 
+                                                 TwoWayTable<unsigned int, std::string> > >()
+      && testInternedItemFunctions<double, 
+                                   TwoWayStore<double,
+                                               std::string,
+                                               KeySource<double>, 
+                                               TwoWayTable<double, std::string> > >();;
+  }
+};
+
+class LabelStrTests {
+public:
+  static bool test()
+  {
+    runTest(testLabelStrBasics);
     runTest(testElementCounting);
-    runTest(testElementAccess);
     runTest(testComparisons);
     return true;
   }
 
 private:
-  static bool compare(const LabelStr& str1, const LabelStr& str2){
-    return str1 == str2;
-  }
+  static bool testLabelStrBasics()
+  {
+    // Test basic allocation/deallocation
+    assertTrueMsg(LabelStr::getSize() == 1,
+                  "Error: LabelStr::getSize() is " << LabelStr::getSize() << ", should be 1");
+    {
+      // Test constructors
+      LabelStr label0;                        // default constructor
+      assertTrueMsg(LabelStr::getSize() == 1,
+                    "Error: LabelStr::getSize() is " << LabelStr::getSize() << ", should be 1");
 
-  static bool testBasicAllocation(){
-    LabelStr lbl1("");
-    LabelStr lbl2("This is a char*");
-    LabelStr lbl3(lbl2.toString());
-    assertTrue(lbl3 == lbl2);
-    std::string labelStr2("This is another char*");
-    assertFalse(LabelStr::isString(labelStr2));
-    LabelStr lbl4(labelStr2);
-    assertTrue(LabelStr::isString(labelStr2));
-    assertTrue(lbl4 != lbl2, lbl4.toString() + " != " + lbl2.toString());
+      LabelStr label1("label1");              // char* constructor
+      LabelStr label2(std::string("label2")); // std::string constructor
+      LabelStr label3 = label2;               // copy constructor
+      LabelStr label4(label2.getKey());       // double constructor
+      assertTrueMsg(LabelStr::getSize() == 3,
+                    "Error: LabelStr::getSize() is " << LabelStr::getSize() << ", should be 3");
 
-    double key = lbl2.getKey();
-    LabelStr lbl5(key);
-    assertTrue(lbl5 == lbl2);
-    assertTrue(LabelStr::isString(key));
-    assertFalse(LabelStr::isString(1));
+      // Equality, inequality
+      assertTrue(label2 == label3);           // equality test
+      assertTrue(label2 == label4);
+      assertTrue(!(label0 == label1));
+      assertTrue(label1 != label2);           // inequality test
+      assertTrue(!(label2 != label3));
 
-    assertTrue(compare(lbl3, lbl2));
-    assertTrue(compare("This is another char*", "This is another char*"));
-    return true;
+      label0 = label1;                        // assignment operator from LabelStr
+      assertTrue(label0 == label1);
+
+      return true;
+    }
+    assertTrueMsg(LabelStr::getSize() == 1,
+                  "Error: LabelStr::getSize() is " << LabelStr::getSize() << ", should be 1");
   }
 
   static bool testElementCounting(){
@@ -810,16 +1698,6 @@ private:
 
     LabelStr lbl2("A:B:C:D:");
     assertTrue(lbl2.countElements(":") == 4);
-    return true;
-  }
-
-  static bool testElementAccess(){
-    LabelStr lbl1("A 1B 1C 1D EFGH");
-    LabelStr first(lbl1.getElement(0, " "));
-    assertTrue(first == LabelStr("A"));
-
-    LabelStr last(lbl1.getElement(3, "1"));
-    assertTrue(last == LabelStr("D EFGH"));
     return true;
   }
 
@@ -842,238 +1720,6 @@ private:
     assertFalse(lbl5.contains("I"));
     return true;
   }
-};
-
-#define UNKNOWN DBL_MAX
-
-class StoredArrayTests
-{
-   public:
-      static bool test()
-      {
-         // this test is commented out as it raises and error when the
-         // keyspace is exhausted and therefore does run cleanly
-
-         runTest(testKeyspace);
-         runTest(testBasics);
-         runTest(testSpeed);
-         runTest(testMemory);
-         return true;
-      }
-
-      static bool testBasics()
-      {
-    StoredArray sa0;
-
-         StoredArray sa1(10, UNKNOWN);
-         sa1[0] = 3.3;
-         sa1[1] = 9.9;
-
-         StoredArray sa2(sa1.getKey());
-         assert(sa2[0] == 3.3);
-         assert(sa2[1] == 9.9);
-         assert(sa2[2] == UNKNOWN);
-         return true;
-      }
-
-      static bool testKeyspace()
-      {
-#define KEYSPACE_KEY_T uint8_t  
-    size_t keySpace = KeySource<KEYSPACE_KEY_T>::totalKeys();
-    std::cout << "key space: " << keySpace << std::endl;
-    try
-      {
-            std::cout << std::endl;
-            Error::doThrowExceptions();
-            for (size_t i = 0; i < keySpace + 1; ++i)
-          {
-        double j = 7;
-        StoredItem<KEYSPACE_KEY_T, double> x(j);
-        // cut down on output a bit
-        if ((i & 0xFF) == 0)
-          {
-            std::cout << "created key: " << (i + 1)
-                  << " available: " << KeySource<KEYSPACE_KEY_T>::availableKeys()
-                  << "\r" << std::flush;
-          }
-          }
-      }
-    catch (Error &e)
-      {
-            std::cout << "Caught expected exception: ";
-            e.print(std::cout);
-        // cleanup
-        std::cout << "\nCleaning up...";
-        for (size_t i = KeySource<KEYSPACE_KEY_T>::keyMin(); i < KeySource<KEYSPACE_KEY_T>::keyMax(); ++i)
-          {
-        if (!StoredItem<KEYSPACE_KEY_T, double>::isKey(i))
-          break;
-        StoredItem<KEYSPACE_KEY_T, double>x(i);
-        x.unregister();
-          }
-            std::cout << " done." << std::endl;
-            return true;
-      }
-
-    // should never get here
-    return false;
-#undef KEYSPACE_KEY_T
-      }
-
-      
-      static bool testMemory()
-      {
-         std::cout << std::endl;
-
-         unsigned width = 1000;
-         unsigned testSize = 100000; // was 1000000
-         unsigned updateSize = 10000;
-     // preallocate the vector to the appropriate size
-         std::vector<double> keys;
-     keys.reserve(testSize);
-
-#ifdef STORED_ITEM_REUSE_KEYS
-         size_t availableKeys = KeySource<double>::availableKeys();
-#endif         
-         // create AND unregister a whole bunch of StoredArray
-         
-         time_t startTotal = startTime();
-         time_t start = startTime();
-         for (unsigned i = 0; i < testSize; ++i)
-         {
-            StoredArray sa(width, i);
-
-#ifdef STORED_ITEM_REUSE_KEYS
-            assertTrue(KeySource<double>::availableKeys() == availableKeys - 1,
-                   "availableKeys count mismatch");
-#endif           
-            if ((i + 1) % updateSize == 0)
-               std::cout << "creating StoredArray: " << (i + 1)
-                         << " key: " << sa.getKey() << "\r" << std::flush;
-            
-            keys.push_back(sa.getKey());
-            sa.unregister();
-
-#ifdef STORED_ITEM_REUSE_KEYS
-            assertTrue(KeySource<double>::availableKeys() == availableKeys,
-                   "availableKeys count mismatch");
-#endif
-         }
-         std::cout << std::endl;
-         stopTime(start);
-         
-         // check that all these keys are invalid
-         
-         start = startTime();
-         for (unsigned i = 0; i < keys.size(); ++i)
-         {
-            if ((i + 1) % updateSize == 0)
-               std::cout << "testing StoredArray: " 
-                    << (i + 1) << "\r" << std::flush;
-            assert(!StoredArray::isKey(keys[i]));
-         }
-         std::cout << std::endl;
-         stopTime(start);
-         stopTime(startTotal);
-         return true;
-      }
-
-      
-      static bool testSpeed()
-      {
-         std::cout << std::endl;
-
-         unsigned width = 10;
-         unsigned testSize = 100000; // was 2000000
-         unsigned updateSize = 10000; // was 100000
-     // preallocate the vector to the appropriate size
-         std::vector<double> keys;
-     keys.reserve(testSize);
-         
-         // create a whole bunch of StoredArray
-         
-         time_t startTotal = startTime();
-         time_t start = startTime();
-         for (unsigned i = 0; i < testSize; ++i)
-         {
-            if ((i + 1) % updateSize == 0)
-               std::cout << "creating StoredArray: " << (i + 1) <<
-                  "\r" << std::flush;
-            
-            StoredArray sa(width, i);
-            keys.push_back(sa.getKey());
-         }
-         std::cout << std::endl;
-         stopTime(start);
-         
-         // change the values of each of the vectors
-         
-         start = startTime();
-         for (unsigned i = 0; i < keys.size(); ++i)
-         {
-            if ((i + 1) % updateSize == 0)
-               std::cout << "changing elements in StoredArray: " 
-                    << (i + 1) << "\r" << std::flush;
-            
-            StoredArray sa(keys[i]);
-            for (unsigned j = 0; j < sa.size(); ++j)
-               sa[j] += j;
-         }
-         std::cout << std::endl;
-         stopTime(start);
-         
-         // test the values of each of the vectors
-         
-         start = startTime();
-         for (unsigned i = 0; i < keys.size(); ++i)
-         {
-            if ((i + 1) % updateSize == 0)
-               std::cout << "testing elements of StoredArray: " << 
-                  (i + 1) << "\r" << std::flush;
-            
-            StoredArray sa(keys[i]);
-            assertTrueMsg((StoredItem<double, ArrayStorage>::isKey(keys[i])),
-              "item key mismatch for index " << i);
-            
-            for (unsigned j = 0; j < sa.size(); ++j)
-               assertTrueMsg(sa[j] == i + j, "value " << sa[j] << " != " << (i + j));
-         }
-         std::cout << std::endl;
-         stopTime(start);
-
-     // delete everything
-     
-         start = startTime();
-         for (unsigned i = 0; i < keys.size(); ++i)
-         {
-       if ((i + 1) % updateSize == 0)
-         std::cout << "deleting StoredArray: " << 
-           (i + 1) << "\r" << std::flush;
-            
-       StoredArray sa(keys[i]);
-       sa.unregister();
-       keys[i] = 0.0;
-         }
-         std::cout << std::endl;
-         stopTime(start);
-
-         stopTime(startTotal);
-         return true;
-      }
-
-      static time_t startTime()
-      {
-         std::cout << "timer started" << std::endl;
-         return clock();
-      }
-      
-      static double stopTime(time_t start)
-      {
-         time_t end = clock();
-         double diff = (end - start) / (double)CLOCKS_PER_SEC;
-         std::cout << "duration: " << diff << " seconds" << std::endl;
-         return diff;
-      }
 };
 
 class TimespecTests
@@ -1589,8 +2235,15 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(ISO8601Tests::test);
   runTestSuite(MutexTest::test);
   runTestSuite(IdTests::test);
+  runTestSuite(KeySourceTests::test);
+  runTestSuite(ItemTableTests::test);
+  runTestSuite(ItemStoreTests::test);
+  runTestSuite(StoredItemTests::test);
   runTestSuite(StoredArrayTests::test);
-  runTestSuite(LabelTests::test);
+  runTestSuite(TwoWayTableTests::test);
+  runTestSuite(TwoWayStoreTests::test);
+  runTestSuite(InternedItemTests::test);
+  runTestSuite(LabelStrTests::test);
 
   std::cout << "Finished" << std::endl;
 }

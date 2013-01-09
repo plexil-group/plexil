@@ -28,10 +28,11 @@ lib_LTLIBRARIES = libPlexilUtils.la
 libPlexilUtils_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src
 
 include_HEADERS = ConstantMacros.hh Debug.hh DynamicLoader.hh Error.hh GNU_hash_map.hh \
- Id.hh IdTable.hh KeySource.hh Logging.hh ParserException.hh RecursiveThreadMutex.hh \
- StoredArray.hh StoredItem.hh StoredItem_Dinkum.hh StoredItem_GNU.hh StoredItem_TR1.hh \
- ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh Utils.hh XMLUtils.hh generic_hash_map.hh \
- iso-8601.hh stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
+ Id.hh IdTable.hh InternedItem.hh ItemStoreEntry.hh ItemTable.hh Itemtable_Dinkum.hh \
+ ItemTable_unordered_map.hh KeySource.hh Logging.hh ParserException.hh RecursiveThreadMutex.hh \
+ StoredArray.hh StoredItem.hh ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh TwoWayStore.hh \
+ TwoWayTable.hh TwoWayTable_Dinkum.hh TwoWayTable_unordered_map.hh Utils.hh XMLUtils.hh \
+ generic_hash_map.hh iso-8601.hh stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
 libPlexilUtils_la_SOURCES = Debug.cc DynamicLoader.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
  ParserException.cc RecursiveThreadMutex.cc StoredArray.cc ThreadMutex.cc ThreadSemaphore.cc \

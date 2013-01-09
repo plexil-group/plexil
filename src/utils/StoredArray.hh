@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,82 +30,56 @@
 /**
  * @file StoredArray.hh
  * @brief Declares the StoredArray class
- * @author Robert Harris based on code by Conor McGann
- * @date 9 October 2007
+ * @author Chuck Fry, rewrite of earlier version by Robert Harris based on code by Conor McGann
+ * @date 21 Dec 2012
  */
 
+#include "ItemStore.hh"
+#include "ItemTable.hh"
+#include "KeySource.hh"
 #include "StoredItem.hh"
 #include <vector>
 
 namespace PLEXIL
 {
-  /**
-   * @class ArrayStorage
-   * @brief Internal class used within StoredArray below.
-   */
-  class ArrayStorage
-  {
-    friend class StoredArray;
+  typedef double StoredArray_key_t;
 
-  public:
-    //
-    // These methods are public for the benefit of StoredItem::~StoredItem().
-    //
+  typedef std::vector<double> StoredArray_value_t;
 
-    // default constructor
-    ArrayStorage() 
-      : array(), size(0) 
-    {
-    }
+  typedef ItemTable<StoredArray_key_t, StoredArray_value_t>
+  StoredArray_table_t;
 
-    // destructor
-    ~ArrayStorage()
-    {
-    }
+  typedef ItemStore<StoredArray_key_t,
+                    StoredArray_value_t,
+                    KeySource<double, NegativeDenormKeyTraits<double> >,
+                    StoredArray_table_t>
+  StoredArray_store_t;
 
-
-  private:
-
-    ArrayStorage(const std::vector<double>& ary)
-      : array(ary), size(ary.size())
-    {
-    }
-
-    ArrayStorage(size_t sz, const std::vector<double>& ary)
-      : array(ary), size(sz)
-    {
-    }
-
-    ArrayStorage(size_t sz, const double& initValue)
-      : array(sz, initValue), size(sz)
-    {
-    }
-
-    // Instance variables
-    std::vector<double> array;
-    size_t size;
-  };
+  typedef StoredItem<StoredArray_key_t,
+                     StoredArray_value_t,
+                     StoredArray_store_t> 
+  StoredArray_item_t;
 
   /**
    * @class StoredArray
-   * @brief A StoredItem based implemention of a Plexil array.
+   * @brief A StoredItem based implemention of a one-dimensional Plexil array.
    *
    * The StoredArray privides a minimal interface for accessing an array
    * for which a key can be obtained for later access to this array.
    */
-   
-  class StoredArray: private StoredItem<double, ArrayStorage>
+
+  class StoredArray :
+    protected StoredArray_item_t
   {
   public:
 
     /**
-     * @brief Construct an empty array.
+     * @brief Default constructor. Constructs an empty array.
      */
     StoredArray();
 
     /** 
      * @brief Copy constructor.
-     *
      * @param other The existing array.
      */
     StoredArray(const StoredArray& other);
@@ -127,7 +101,7 @@ namespace PLEXIL
      * @param initValues The values the elements in the array will be
      * initialized to.
      */
-    StoredArray(size_t size, const std::vector<double>& initValues);
+    StoredArray(size_t size, const StoredArray_value_t& initValues);
 
     /** 
      * @brief Construct a new array directly from a vector of initial values.
@@ -135,28 +109,132 @@ namespace PLEXIL
      * initialized to.
      * @note The size is set from initValues.size().
      */
-    StoredArray(const std::vector<double>& initValues);
+    StoredArray(const StoredArray_value_t& initValues);
          
     /** 
      * @brief Construct an array given a key from an existing array.
-     *
      * @param key The key of the already existing array.
      */
-    StoredArray(const double key);
+    StoredArray(StoredArray_key_t key);
+
+    /**
+     * @brief Destructor.
+     */
+    virtual ~StoredArray()
+    {
+    }
+
+    /*
+     * @brief Assignment operator from StoredArray.
+     * @param other The other StoredArray.
+     * @return Reference to this.
+     */
+    inline StoredArray& operator=(const StoredArray& other)
+    {
+      StoredArray_item_t::operator=(other);
+      return *this;
+    }
+
+    /*
+     * @brief Assignment operator from key to another StoredArray.
+     * @param key The key.
+     * @return Reference to this.
+     * @note Can assert if key is invalid.
+     */
+    inline StoredArray& operator=(const StoredArray_key_t& key)
+    {
+      StoredArray_item_t::operator=(key);
+      return *this;
+    }
+
+    /*
+     * @brief Equality operator.
+     * @param other The other StoredArray.
+     * @return True if equal, false otherwise.
+     */
+    inline bool operator==(const StoredArray& other) const
+    {
+      return StoredArray_item_t::operator==(other);
+    }
+
+    /*
+     * @brief Equality operator from value type.
+     * @param value The value to compare.
+     * @return True if equal, false otherwise.
+     */
+    inline bool operator==(const StoredArray_value_t& value) const
+    {
+      return getItem() == value;
+    }
+
+    /*
+     * @brief Equality operator from key type.
+     * @param key The key to compare.
+     * @return True if equal, false otherwise.
+     */
+    inline bool operator==(const StoredArray_key_t& key) const
+    {
+      return getKey() == key;
+    }
+
+    /*
+     * @brief Inequality operator.
+     * @param other The other StoredArray.
+     * @return False if equal, true otherwise.
+     */
+    inline bool operator!=(const StoredArray& other) const
+    {
+      return !operator==(other);
+    }
+
+    /*
+     * @brief Inequality operator from value type.
+     * @param value The value to compare.
+     * @return False if equal, true otherwise.
+     */
+    inline bool operator!=(const StoredArray_value_t& value) const
+    {
+      return !operator==(value);
+    }
+
+    /*
+     * @brief Inequality operator from key type.
+     * @param key The key to compare.
+     * @return False if equal, true otherwise.
+     */
+    inline bool operator!=(const StoredArray_key_t& key) const
+    {
+      return !operator==(key);
+    }
+
+    /** 
+     * @brief Get the actual array.
+     * @return A reference to the array.
+     */
+    inline StoredArray_value_t& getArray()
+    {
+      return getItem();
+    }
+
+    /** 
+     * @brief Get the array given an existing key, without allocating a new StoredItem.
+     * @param key The existing key.
+     * @return A reference to the array.
+     */
+    inline static StoredArray_value_t& getArray(StoredArray_key_t key)
+    {
+      return getItem(key);
+    }
 
     /** 
      * @brief Get the actual array.
      *
      * @return A reference to the array.
      */
-    std::vector<double>& getArray();
-
-    /** 
-     * @brief Get the actual array.
-     *
-     * @return A reference to the array.
-     */
-    const std::vector<double>& getConstArray() const;
+    inline const StoredArray_value_t& getConstArray() const
+    {
+      return getItem();
+    }
          
     /**
      * @brief Return the size of this array.
@@ -171,7 +249,10 @@ namespace PLEXIL
      *
      * @brief Access key of this array.
      */
-    const double getKey() const;
+    inline StoredArray_key_t getKey() const
+    {
+      return StoredArray_item_t::getKey();
+    }
 
     /**
      * @brief Return true if key value is valid.
@@ -179,7 +260,10 @@ namespace PLEXIL
      * @param key candidate key
      * @return true if valid key
      */
-    static bool isKey(double key);
+    inline static bool isKey(StoredArray_key_t key)
+    {
+      return StoredArray_item_t::isKey(key);
+    }
          
     /**
      * @brief Return const value of array elment.
@@ -196,21 +280,19 @@ namespace PLEXIL
     double& operator[] (const size_t index);
 
     /**
-     * @brief Free memory for for this stored array.
-     *
-     * Once freed the key value is set to an unassignedKey value.
-     * If STORED_ITEM_REUSE_KEYS is defined at compile time the key
-     * will be stored and potentially reissued in the future.  If
-     * STORED_ITEM_REUSE_KEYS is NOT defined the key is retired,
-     * any attempt to reuse the key will result in an error being
-     * thrown.
-     */
-    void unregister();
-
-    /**
      * @brief Generate a printed representation for this stored array.
      */
     std::string toString() const;
+
+    /**
+     * @brief Get the number of stored instances.
+     * @return The number of stored instances.
+     */
+    inline static size_t getSize()
+    {
+      return StoredArray_item_t::getSize();
+    }
+
   };
 }
 #endif

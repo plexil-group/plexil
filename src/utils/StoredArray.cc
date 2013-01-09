@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ namespace PLEXIL
    */
          
   StoredArray::StoredArray()
-    : StoredItem<double, ArrayStorage>()
+    : StoredArray_item_t()
   {
   }
          
@@ -47,106 +47,71 @@ namespace PLEXIL
    */
   
   StoredArray::StoredArray(const StoredArray& other)
-    : StoredItem<double, ArrayStorage>(other)
+    : StoredArray_item_t(other)
   {
   }
 
   /** 
    * @brief Construct a new array of a given size and with all
    * elements initialized to the provided value.
-   *
-   * @param size The number of elements that this array will
-   * contain.
-   *
-   * @param initValue The value the elements in the array will be
-   * initialized to.
+   * @param size The number of elements that this array will contain.
+   * @param initValue Initial value for the elements in the array.
    */
    
   StoredArray::StoredArray(size_t size, const double& initValue) :
-    StoredItem<double, ArrayStorage>(new ArrayStorage(size, initValue),
-				     false)
+    StoredArray_item_t(StoredArray_value_t(size, initValue))
   {
   }
 
   /** 
    * @brief Construct a new array of a given size and initial values.
-   *
-   * @param size The maximum number of elements that this array
-   * will contain.
-   *
-   * @param initValues The values the elements in the array will be
-   * initialized to.
+   * @param size The maximum number of elements that this array will contain.
+   * @param initValues Initial values for the elements in the array.
    */
    
   StoredArray::StoredArray(size_t size, const std::vector<double>& initValues) 
-    : StoredItem<double, ArrayStorage>(new ArrayStorage(size, 0), false)
+    : StoredArray_item_t(StoredArray_value_t(size, UNKNOWN()))
   {
     assertTrueMsg(initValues.size() <= size,
 		  "StoredArray constructor: initial vector is larger than specified size");
-    for (unsigned i = 0; i < initValues.size(); ++i)
-      getArray()[i] = initValues[i];
+    StoredArray_value_t& array = getArray();
+    for (size_t i = 0; i < initValues.size(); ++i)
+      array[i] = initValues[i];
   }
 
   /** 
    * @brief Construct a new array directly from a vector of initial values.
-   *
-   * @param initValues The values the elements in the array will be
-   * initialized to.
+   * @param initValues The initial vector.
    */
          
   StoredArray::StoredArray(const std::vector<double>& initValues)
-    : StoredItem<double, ArrayStorage>(new ArrayStorage(initValues.size(), initValues), false)
+    : StoredArray_item_t(initValues)
   {
   }
 
   /** 
    * @brief Construct an array given a key from an existing array.
-   *
    * @param key The key of the already existing array.
    */
    
   StoredArray::StoredArray(const double key)
-    : StoredItem<double, ArrayStorage>(key)
+    : StoredArray_item_t(key)
   {
   }
 
-  /** 
-   * @brief Get the actual array.
-   *
-   * @return A reference to the array.
-   */
-  std::vector<double>& StoredArray::getArray()
-  {
-    return this->getItem().array;
-  }
-
-  /** 
-   * @brief Get the actual array.
-   *
-   * @return A reference to the array.
-   */
-  const std::vector<double>& StoredArray::getConstArray() const
-  {
-    return this->getItem().array;
-  }
-         
   /**
    * @brief Return the size of this array.
-   *
    * @return The size of this array.
    */
-         
   size_t StoredArray::size() const
   {
-    return this->getItem().size;
+    return getItem().size();
   }
 
   /**
    * @brief Operator for accessing elements in this array.
-   *
    * @return A reference to the specifed array element.
    */
-   
   double& StoredArray::operator[] (size_t index)
   {
     assertTrueMsg(index < size(), 
@@ -154,37 +119,11 @@ namespace PLEXIL
 		  " is equal to or larger than size " << size());
     return getArray()[index];
   }
-         
-  /**
-   * @brief Return key which can be used to access this array at a
-   * later time.
-   *
-   * @brief Access key of this array.
-   */
-         
-  const double StoredArray::getKey() const
-  {
-    return StoredItem<double, ArrayStorage>::getKey();
-  }
-
-  /**
-   * @brief Return true if key value is valid.
-   *
-   * @param key candidate key
-   * @return true if valid key
-   */
-
-  bool StoredArray::isKey(double key)
-  {
-    return StoredItem<double, ArrayStorage>::isKey(key);
-  }
 
   /**
    * @brief Return const value of array elment.
-   *
    * @param index Index of array element.
    */
-   
   const double& StoredArray::at(const size_t index) const
   {
     assertTrueMsg(index < size(), 
@@ -193,45 +132,26 @@ namespace PLEXIL
     return getConstArray().at(index);
   }
 
-
-  /**
-   * @brief Free memory for this stored array.
-   *
-   * Once freed the key value is set to an unassignedKey value.
-   * If STORED_ITEM_REUSE_KEYS is defined at compile time the key
-   * will be stored and potentially reissued in the future.  If
-   * STORED_ITEM_REUSE_KEYS is NOT defined the key is retired,
-   * any attempt to reuse the key will result in an error being
-   * thrown.
-   */
-
-  void StoredArray::unregister()
-  {
-    StoredItem<double, ArrayStorage>::unregister();
-  }
-
   /**
    * @brief Generate a printed representation for this stored array.
    */
-  
   std::string StoredArray::toString() const
   {
     std::ostringstream retval;
 
     retval << "Array: [";
-    const std::vector<double>& theVector = getConstArray();
-    for (unsigned i = 0; i < theVector.size(); ++i)
-      {
-        const double value = theVector[i];
-        if (i != 0)
-          retval << ", ";
-        if (value == UNKNOWN())
-          retval << "<unknown>";
-        else if (LabelStr::isString(value))
-          retval << '\"' << LabelStr(value).toString() << '\"';
-        else
-          retval << value;
-      }
+    const StoredArray_value_t& theVector = getConstArray();
+    for (size_t i = 0; i < theVector.size(); ++i) {
+      const double value = theVector[i];
+      if (i != 0)
+        retval << ", ";
+      if (value == UNKNOWN())
+        retval << "<unknown>";
+      else if (LabelStr::isString(value))
+        retval << '\"' << LabelStr::toString(value) << '\"';
+      else
+        retval << value;
+    }
     retval << ']';
     return retval.str();
   }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -70,26 +70,29 @@
 namespace __gnu_cxx
 {
 
-// Define a hash function for double
-// Borrowed from StoredItem
+// Define hash functions for double and std::string
+
+template <>
+struct hash<std::string>
+{
+  size_t operator()(const std::string& __val) const
+  {
+    return hash<const char*>()(__val.c_str());
+  }
+};
 
 template<>
 struct hash<double>
 {
-      size_t
-      operator()(double __x) const
+  size_t
+  operator()(double __x) const
   {
-    // stolen from __stl_hash_string
-    // but doesn't produce regression test output in right order
-    /*
+    // stolen from __stl_hash_string - see ext/hash_fun.h
     unsigned long __h = 0;
     const char* __s = reinterpret_cast<const char*>(&__x);
-    for (size_t i = 0; i < sizeof(__x); i++)
-      __h = 5 * __h + *(__s++);
+    for (size_t i = 0; i < sizeof(__x); ++i, ++__s)
+      __h = 5 * __h + *__s;
     return size_t(__h);
-    */
-
-    return (size_t) (__x / PLEXIL::KeySource<double>::increment()); // StoredItem version
   }
 };
 
