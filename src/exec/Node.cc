@@ -1022,7 +1022,8 @@ namespace PLEXIL {
   void Node::conditionChanged()
   {
     if (m_checkConditionsPending)
-      return;
+      return; // already in the queue
+    debugMsg("Node:conditionChanged", " for node " << m_nodeId.toString());
     m_exec->notifyNodeConditionChanged(m_id);
     m_checkConditionsPending = true;
   }
@@ -1031,7 +1032,6 @@ namespace PLEXIL {
    * @brief Evaluates the conditions to see if the node is eligible to transition.
    */
   void Node::checkConditions() {
-    m_checkConditionsPending = false;
     checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state).getKey(),
                "Node state not synchronized for node " << m_nodeId.toString()
                << "; node state = " << m_state
@@ -1046,6 +1046,7 @@ namespace PLEXIL {
       m_exec->handleConditionsChanged(m_id, toState);
       m_lastQuery = toState;
     }
+    m_checkConditionsPending = false;
   }
 
   NodeState Node::getDestState() 
