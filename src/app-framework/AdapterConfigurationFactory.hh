@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -103,7 +103,7 @@ namespace PLEXIL
     virtual AdapterConfigurationId create(InterfaceManager* manager, bool& wasCreated) const = 0;
 
     AdapterConfigurationFactory(const LabelStr& name)
-      : m_name(name)
+    : m_name(name)
     {
       registerFactory(m_name, this);
     }
@@ -119,7 +119,7 @@ namespace PLEXIL
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<double, AdapterConfigurationFactory*>& factoryMap();
+    static std::map<LabelStr, AdapterConfigurationFactory*>& factoryMap();
 
     const LabelStr m_name; /*!< Name used for lookup */
   };
@@ -132,7 +132,7 @@ namespace PLEXIL
   {
   public:
     ConcreteAdapterConfigurationFactory(const LabelStr& name)
-      : AdapterConfigurationFactory(name)
+    : AdapterConfigurationFactory(name)
     {}
 
   private:

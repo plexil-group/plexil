@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -148,11 +148,11 @@ namespace PLEXIL
     ControllerFactory& operator=(const ControllerFactory&);
 
     /**
-     * @brief The map from names (LabelStr/double) to concrete ControllerFactory instances.
+     * @brief The map from names (LabelStr) to concrete ControllerFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<double, ControllerFactory*>& factoryMap();
+    static std::map<LabelStr, ControllerFactory*>& factoryMap();
 
     const LabelStr m_name; /*!< Name used for lookup */
   };

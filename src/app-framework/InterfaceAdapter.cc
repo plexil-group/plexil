@@ -95,8 +95,8 @@ namespace PLEXIL
   }
 
   void InterfaceAdapter::sendPlannerUpdate(const NodeId& /* node */,
-                                           const std::map<double, double>& /* valuePairs */,
-                                           const ExpressionId /* ack */)
+                                           const std::map<LabelStr, double>& /* valuePairs */,
+                                           ExpressionId /* ack */)
   {
     assertTrue(ALWAYS_FAIL,
                "InterfaceAdapter::updatePlanner: default method called!");

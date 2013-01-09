@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,16 +49,16 @@ namespace PLEXIL
   {
     // Can't do anything without the spec
     assertTrueMsg(xml != NULL,
-		  "AdapterFactory::createInstance: null configuration XML");
+                  "AdapterFactory::createInstance: null configuration XML");
 
     // Get the kind of adapter to make
     const char* adapterType = 
       xml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();
     checkError(*adapterType != '\0',
-	       "AdapterFactory::createInstance: no "
-	       << InterfaceSchema::ADAPTER_TYPE_ATTR()
-	       << " attribute for adapter XML:\n"
-	       << *xml);
+               "AdapterFactory::createInstance: no "
+               << InterfaceSchema::ADAPTER_TYPE_ATTR()
+               << " attribute for adapter XML:\n"
+               << *xml);
 
     // Make it
     bool dummy;
@@ -100,33 +100,33 @@ namespace PLEXIL
                                  AdapterExecInterface& execInterface,
                                  bool& wasCreated)
   {
-    std::map<double, AdapterFactory*>::const_iterator it = factoryMap().find(name.getKey());
+    std::map<LabelStr, AdapterFactory*>::const_iterator it = factoryMap().find(name);
     if (it == factoryMap().end())
       {
-		debugMsg("AdapterFactory:createInstance", 
-				 "Attempting to dynamically load adapter type \""
-				 << name.c_str() << "\"");
-		// Attempt to dynamically load library
-		const char* libCPath =
-		  xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
-		if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-		  debugMsg("AdapterFactory::createInstance",
-				   " unable to load module for adapter type \""
-				   << name.c_str() << "\"");
-		  wasCreated = false;
-		  return InterfaceAdapterId::noId();
-		}
+        debugMsg("AdapterFactory:createInstance", 
+                 "Attempting to dynamically load adapter type \""
+                 << name.c_str() << "\"");
+        // Attempt to dynamically load library
+        const char* libCPath =
+          xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+        if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+          debugMsg("AdapterFactory::createInstance",
+                   " unable to load module for adapter type \""
+                   << name.c_str() << "\"");
+          wasCreated = false;
+          return InterfaceAdapterId::noId();
+        }
 
-		// See if it's registered now
-		it = factoryMap().find(name.getKey());
+        // See if it's registered now
+        it = factoryMap().find(name);
       }
 
     if (it == factoryMap().end()) {
-	  debugMsg("AdapterFactory:createInstance", 
-			   " No adapter factory registered for name \"" << name.c_str() << "\".");
-	  wasCreated = false;
-	  return InterfaceAdapterId::noId();
-	}
+      debugMsg("AdapterFactory:createInstance", 
+               " No adapter factory registered for name \"" << name.c_str() << "\".");
+      wasCreated = false;
+      return InterfaceAdapterId::noId();
+    }
     InterfaceAdapterId retval = it->second->create(xml, execInterface, wasCreated);
     debugMsg("AdapterFactory:createInstance", " Created adapter " << name.c_str());
     return retval;
@@ -136,9 +136,9 @@ namespace PLEXIL
     return factoryMap().find(name) != factoryMap().end();
   }
 
-  std::map<double, AdapterFactory*>& AdapterFactory::factoryMap() 
+  std::map<LabelStr, AdapterFactory*>& AdapterFactory::factoryMap() 
   {
-    static std::map<double, AdapterFactory*> sl_map;
+    static std::map<LabelStr, AdapterFactory*> sl_map;
     return sl_map;
   }
 
@@ -147,7 +147,7 @@ namespace PLEXIL
    */
   void AdapterFactory::purge()
   {
-    for (std::map<double, AdapterFactory*>::iterator it = factoryMap().begin();
+    for (std::map<LabelStr, AdapterFactory*>::iterator it = factoryMap().begin();
          it != factoryMap().end();
          ++it)
       delete it->second;
@@ -162,15 +162,14 @@ namespace PLEXIL
   void AdapterFactory::registerFactory(const LabelStr& name, AdapterFactory* factory)
   {
     assertTrue(factory != NULL);
-    if (factoryMap().find(name.getKey()) != factoryMap().end())
-      {
-	warn("Attempted to register an adapter factory for name \""
-             << name.c_str()
-             << "\" twice, ignoring.");
-        delete factory;
-        return;
-      }
-    factoryMap()[name.getKey()] = factory;
+    if (factoryMap().find(name) != factoryMap().end()) {
+      warn("Attempted to register an adapter factory for name \""
+           << name.c_str()
+           << "\" twice, ignoring.");
+      delete factory;
+      return;
+    }
+    factoryMap()[name] = factory;
     debugMsg("AdapterFactory:registerFactory",
              " Registered adapter factory for name \"" << name.c_str() << "\"");
   }

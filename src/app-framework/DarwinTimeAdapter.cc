@@ -137,7 +137,7 @@ namespace PLEXIL
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
                   "DarwinTimeAdapter does not implement lookups for state "
-                  << LabelStr(state.first).toString());
+                  << state.first.toString());
     return getCurrentTime();
   }
 
@@ -149,7 +149,7 @@ namespace PLEXIL
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
                   "DarwinTimeAdapter does not implement lookups for state "
-                  << LabelStr(state.first).toString());
+                  << state.first.toString());
     debugMsg("DarwinTimeAdapter:subscribe", " complete");
   }
 
@@ -161,7 +161,7 @@ namespace PLEXIL
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
                   "DarwinTimeAdapter does not implement lookups for state "
-                  << LabelStr(state.first).toString());
+                  << state.first.toString());
     stopTimer();
     debugMsg("DarwinTimeAdapter:unsubscribe", " complete");
   }
@@ -176,7 +176,7 @@ namespace PLEXIL
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
                   "DarwinTimeAdapter does not implement lookups for state "
-                  << LabelStr(state.first).toString());
+                  << state.first.toString());
 
     bool wasSet = setTimer(hi);
     debugMsg("DarwinTimeAdapter:setThresholds",

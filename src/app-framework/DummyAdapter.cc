@@ -132,7 +132,7 @@ namespace PLEXIL
   }
 
   void DummyAdapter::sendPlannerUpdate(const NodeId& node,
-                                       const std::map<double, double>& /* valuePairs */,
+                                       const std::map<LabelStr, double>& /* valuePairs */,
                                        ExpressionId ack)
   {
     debugMsg("ExternalInterface:dummy", " sendPlannerUpdate called");

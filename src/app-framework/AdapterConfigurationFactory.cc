@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,11 +54,11 @@ namespace PLEXIL
 
   AdapterConfigurationId
   AdapterConfigurationFactory::createInstance(const LabelStr& name, InterfaceManager* manager,
-                                 bool& wasCreated)
+                                              bool& wasCreated)
   {
-    std::map<double, AdapterConfigurationFactory*>::const_iterator it = factoryMap().find(name.getKey());
+    std::map<LabelStr, AdapterConfigurationFactory*>::const_iterator it = factoryMap().find(name);
     assertTrueMsg(it != factoryMap().end(),
-		  "Error: No AdapterConfiguration factory registered for name \"" << name.c_str() << "\".");
+                  "Error: No AdapterConfiguration factory registered for name \"" << name.c_str() << "\".");
     AdapterConfigurationId retval = it->second->create(manager, wasCreated);
     debugMsg("AdapterConfigurationFactory:createInstance", " Created adapter " << name.c_str());
     return retval;
@@ -68,9 +68,9 @@ namespace PLEXIL
     return factoryMap().find(name) != factoryMap().end();
   }
 
-  std::map<double, AdapterConfigurationFactory*>& AdapterConfigurationFactory::factoryMap()
+  std::map<LabelStr, AdapterConfigurationFactory*>& AdapterConfigurationFactory::factoryMap()
   {
-    static std::map<double, AdapterConfigurationFactory*> sl_map;
+    static std::map<LabelStr, AdapterConfigurationFactory*> sl_map;
     return sl_map;
   }
 
@@ -79,7 +79,7 @@ namespace PLEXIL
    */
   void AdapterConfigurationFactory::purge()
   {
-    for (std::map<double, AdapterConfigurationFactory*>::iterator it = factoryMap().begin();
+    for (std::map<LabelStr, AdapterConfigurationFactory*>::iterator it = factoryMap().begin();
          it != factoryMap().end();
          ++it)
       delete it->second;
@@ -94,15 +94,14 @@ namespace PLEXIL
   void AdapterConfigurationFactory::registerFactory(const LabelStr& name, AdapterConfigurationFactory* factory)
   {
     assertTrue(factory != NULL);
-    if (factoryMap().find(name.getKey()) != factoryMap().end())
-      {
-	warn("Attempted to register an adapter factory for name \""
-             << name.c_str()
-             << "\" twice, ignoring.");
-        delete factory;
-        return;
-      }
-    factoryMap()[name.getKey()] = factory;
+    if (factoryMap().find(name) != factoryMap().end()) {
+      warn("Attempted to register an adapter factory for name \""
+           << name.c_str()
+           << "\" twice, ignoring.");
+      delete factory;
+      return;
+    }
+    factoryMap()[name] = factory;
     debugMsg("AdapterConfigurationFactory:registerFactory",
              " Registered adapter factory for name \"" << name.c_str() << "\"");
   }

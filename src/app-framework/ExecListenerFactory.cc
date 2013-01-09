@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -50,16 +50,16 @@ namespace PLEXIL
   {
     // Can't do anything without the spec
     assertTrueMsg(!xml.empty(),
-				  "ExecListenerFactory::createInstance: null configuration XML");
+                  "ExecListenerFactory::createInstance: null configuration XML");
 
     // Get the kind of listener to make
     const char* listenerType = 
       xml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value();
     checkError(*listenerType != '\0',
-			   "ExecListenerFactory::createInstance: no "
-			   << InterfaceSchema::LISTENER_TYPE_ATTR()
-			   << " attribute for listener XML:\n"
-			   << *xml);
+               "ExecListenerFactory::createInstance: no "
+               << InterfaceSchema::LISTENER_TYPE_ATTR()
+               << " attribute for listener XML:\n"
+               << *xml);
 
     // Make it
     return createInstance(LabelStr(listenerType), xml);
@@ -77,23 +77,23 @@ namespace PLEXIL
   ExecListenerFactory::createInstance(const LabelStr& name,
                                       const pugi::xml_node& xml)
   {
-    std::map<double, ExecListenerFactory*>::const_iterator it = factoryMap().find(name.getKey());
+    std::map<LabelStr, ExecListenerFactory*>::const_iterator it = factoryMap().find(name);
     if (it == factoryMap().end()) {
-	  debugMsg("ExecListenerFactory:createInstance", 
-			   "Attempting to dynamically load listener type \""
-			   << name.c_str() << "\"");
-	  // Attempt to dynamically load library
-	  const char* libCPath =
-		xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
-	  if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-		debugMsg("ExecListenerFactory:createInstance", 
-				 " unable to load module for listener type \""
-				 << name.c_str() << "\"");
-		return ExecListenerId::noId();
-	  }
-	  // See if it's registered now
-	  it = factoryMap().find(name.getKey());
-	}
+      debugMsg("ExecListenerFactory:createInstance", 
+               "Attempting to dynamically load listener type \""
+               << name.c_str() << "\"");
+      // Attempt to dynamically load library
+      const char* libCPath =
+        xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+      if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+        debugMsg("ExecListenerFactory:createInstance", 
+                 " unable to load module for listener type \""
+                 << name.c_str() << "\"");
+        return ExecListenerId::noId();
+      }
+      // See if it's registered now
+      it = factoryMap().find(name);
+    }
 
     if (it == factoryMap().end()) {
       debugMsg("ExecListenerFactory:createInstance", 
@@ -105,9 +105,9 @@ namespace PLEXIL
     return retval;
   }
 
-  std::map<double, ExecListenerFactory*>& ExecListenerFactory::factoryMap() 
+  std::map<LabelStr, ExecListenerFactory*>& ExecListenerFactory::factoryMap() 
   {
-    static std::map<double, ExecListenerFactory*> sl_map;
+    static std::map<LabelStr, ExecListenerFactory*> sl_map;
     return sl_map;
   }
 
@@ -116,7 +116,7 @@ namespace PLEXIL
    */
   void ExecListenerFactory::purge()
   {
-    for (std::map<double, ExecListenerFactory*>::iterator it = factoryMap().begin();
+    for (std::map<LabelStr, ExecListenerFactory*>::iterator it = factoryMap().begin();
          it != factoryMap().end();
          ++it)
       delete it->second;
@@ -131,7 +131,7 @@ namespace PLEXIL
   void ExecListenerFactory::registerFactory(const LabelStr& name, ExecListenerFactory* factory)
   {
     assertTrue(factory != NULL);
-    if (factoryMap().find(name.getKey()) != factoryMap().end())
+    if (factoryMap().find(name) != factoryMap().end())
       {
         warn("Attempted to register an exec listener factory for name \""
              << name.c_str()

@@ -120,13 +120,12 @@ namespace PLEXIL
    * @param intf The interface adapter to handle this command.
    */
   bool DefaultAdapterConfiguration::registerCommandInterface(const LabelStr & commandName, InterfaceAdapterId intf) {
-    double commandNameKey = commandName.getKey();
-    InterfaceMap::iterator it = m_commandMap.find(commandNameKey);
+    InterfaceMap::iterator it = m_commandMap.find(commandName);
     if (it == m_commandMap.end()) {
       // Not found, OK to add
       debugMsg("DefaultAdapterConfiguration:registerCommandInterface",
                " registering interface for command '" << commandName.toString() << "'");
-      m_commandMap.insert(std::pair<double, InterfaceAdapterId>(commandNameKey, intf));
+      m_commandMap.insert(std::pair<LabelStr, InterfaceAdapterId>(commandName, intf));
       getAdaptersFromManager().insert(intf);
       return true;
     } else {
@@ -145,13 +144,12 @@ namespace PLEXIL
    * @param intf The interface adapter to handle this lookup.
    */
   bool DefaultAdapterConfiguration::registerLookupInterface(const LabelStr & stateName, InterfaceAdapterId intf) {
-    double stateNameKey = stateName.getKey();
-    InterfaceMap::iterator it = m_lookupMap.find(stateNameKey);
+    InterfaceMap::iterator it = m_lookupMap.find(stateName);
     if (it == m_lookupMap.end()) {
       // Not found, OK to add
       debugMsg("DefaultAdapterConfiguration:registerLookupInterface",
                " registering interface for lookup '" << stateName.toString() << "'");
-      m_lookupMap.insert(std::pair<double, InterfaceAdapterId>(stateNameKey, intf));
+      m_lookupMap.insert(std::pair<LabelStr, InterfaceAdapterId>(stateName, intf));
       getAdaptersFromManager().insert(intf);
       return true;
     } else {
@@ -252,8 +250,7 @@ namespace PLEXIL
    * @param commandName The command.
    */
   void DefaultAdapterConfiguration::unregisterCommandInterface(const LabelStr & commandName) {
-    double commandNameKey = commandName.getKey();
-    InterfaceMap::iterator it = m_commandMap.find(commandNameKey);
+    InterfaceMap::iterator it = m_commandMap.find(commandName);
     if (it != m_commandMap.end()) {
       debugMsg("DefaultAdapterConfiguration:unregisterCommandInterface",
                " removing interface for command '" << commandName.toString() << "'");
@@ -269,8 +266,7 @@ namespace PLEXIL
    * @param stateName The state name.
    */
   void DefaultAdapterConfiguration::unregisterLookupInterface(const LabelStr & stateName) {
-    double stateNameKey = stateName.getKey();
-    InterfaceMap::iterator it = m_lookupMap.find(stateNameKey);
+    InterfaceMap::iterator it = m_lookupMap.find(stateName);
     if (it != m_lookupMap.end()) {
       debugMsg("DefaultAdapterConfiguration:unregisterLookupInterface",
                " removing interface for lookup '" << stateName.toString() << "'");
@@ -334,8 +330,7 @@ namespace PLEXIL
    * @param commandName The command.
    */
   InterfaceAdapterId DefaultAdapterConfiguration::getCommandInterface(const LabelStr & commandName) {
-    double commandNameKey = commandName.getKey();
-    InterfaceMap::iterator it = m_commandMap.find(commandNameKey);
+    InterfaceMap::iterator it = m_commandMap.find(commandName);
     if (it != m_commandMap.end()) {
       debugMsg("DefaultAdapterConfiguration:getCommandInterface",
                " found specific interface " << (*it).second
@@ -370,8 +365,7 @@ namespace PLEXIL
    * @param stateName The state.
    */
   InterfaceAdapterId DefaultAdapterConfiguration::getLookupInterface(const LabelStr & stateName) {
-    double stateNameKey = stateName.getKey();
-    InterfaceMap::iterator it = m_lookupMap.find(stateNameKey);
+    InterfaceMap::iterator it = m_lookupMap.find(stateName);
     if (it != m_lookupMap.end()) {
       debugMsg("DefaultAdapterConfiguration:getLookupInterface",
                " found specific interface " << (*it).second

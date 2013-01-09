@@ -157,7 +157,7 @@ namespace PLEXIL
      */
 
     virtual void sendPlannerUpdate(const NodeId& node,
-                                   const std::map<double, double>& valuePairs,
+                                   const std::map<LabelStr, double>& valuePairs,
                                    ExpressionId ack);
 
     /**

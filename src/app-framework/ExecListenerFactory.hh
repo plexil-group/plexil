@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -121,11 +121,11 @@ namespace PLEXIL
     ExecListenerFactory& operator=(const ExecListenerFactory&);
 
     /**
-     * @brief The map from names (LabelStr/double) to concrete ExecListenerFactory instances.
+     * @brief The map from names (LabelStr) to concrete ExecListenerFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<double, ExecListenerFactory*>& factoryMap();
+    static std::map<LabelStr, ExecListenerFactory*>& factoryMap();
 
     const LabelStr m_name; /*!< Name used for lookup */
   };

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,8 @@
 
 #include "AdapterConfiguration.hh"
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
   class DefaultAdapterConfiguration : public AdapterConfiguration {
   public:
@@ -60,31 +61,31 @@ namespace PLEXIL {
 
     /**
      * @brief Register the given interface adapter for this command.
-     Returns true if successful.  Fails and returns false
-     iff the command name already has an adapter registered
-              or setting a command interface is not implemented.
+     * Returns true if successful.  Fails and returns false
+     * iff the command name already has an adapter registered
+     * or setting a command interface is not implemented.
      * @param commandName The command to map to this adapter.
      * @param intf The interface adapter to handle this command.
      */
     virtual bool registerCommandInterface(const LabelStr & commandName,
-                  InterfaceAdapterId intf);
+                                          InterfaceAdapterId intf);
 
     /**
      * @brief Register the given interface adapter for lookups to this state.
      Returns true if successful.  Fails and returns false
      if the state name already has an adapter registered
-              or registering a lookup interface is not implemented.
+     or registering a lookup interface is not implemented.
      * @param stateName The name of the state to map to this adapter.
      * @param intf The interface adapter to handle this lookup.
      */
     virtual bool registerLookupInterface(const LabelStr & stateName,
-                 InterfaceAdapterId intf);
+                                         InterfaceAdapterId intf);
 
     /**
      * @brief Register the given interface adapter for planner updates.
-              Returns true if successful.  Fails and returns false
-              iff an adapter is already registered
-              or setting the default planner update interface is not implemented.
+     Returns true if successful.  Fails and returns false
+     iff an adapter is already registered
+     or setting the default planner update interface is not implemented.
      * @param intf The interface adapter to handle planner updates.
      */
     virtual bool registerPlannerUpdateInterface(InterfaceAdapterId intf);
@@ -93,18 +94,18 @@ namespace PLEXIL {
      * @brief Register the given interface adapter as the default for all lookups and commands
      which do not have a specific adapter.  Returns true if successful.
      Fails and returns false if there is already a default adapter registered
-              or setting the default interface is not implemented.
+     or setting the default interface is not implemented.
      * @param intf The interface adapter to use as the default.
      */
     virtual bool setDefaultInterface(InterfaceAdapterId intf);
 
     /**
      * @brief Register the given interface adapter as the default for lookups.
-              This interface will be used for all lookups which do not have
-          a specific adapter.
-              Returns true if successful.
-          Fails and returns false if there is already a default lookup adapter registered
-              or setting the default lookup interface is not implemented.
+     This interface will be used for all lookups which do not have
+     a specific adapter.
+     Returns true if successful.
+     Fails and returns false if there is already a default lookup adapter registered
+     or setting the default lookup interface is not implemented.
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
@@ -112,10 +113,10 @@ namespace PLEXIL {
 
     /**
      * @brief Register the given interface adapter as the default for commands.
-              This interface will be used for all commands which do not have
-          a specific adapter.
-              Returns true if successful.
-          Fails and returns false if there is already a default command adapter registered.
+     This interface will be used for all commands which do not have
+     a specific adapter.
+     Returns true if successful.
+     Fails and returns false if there is already a default command adapter registered.
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
@@ -162,8 +163,8 @@ namespace PLEXIL {
 
     /**
      * @brief Return the current default interface adapter for commands.
-              May return NoId().
-     */
+     May return NoId().
+    */
     virtual InterfaceAdapterId getDefaultCommandInterface();
 
     /**
@@ -175,14 +176,14 @@ namespace PLEXIL {
 
     /**
      * @brief Return the current default interface adapter for lookups.
-              May return NoId().
-     */
+     May return NoId().
+    */
     virtual InterfaceAdapterId getDefaultLookupInterface();
 
     /**
      * @brief Return the interface adapter in effect for planner updates,
-              whether specifically registered or default. May return NoId().
-     */
+     whether specifically registered or default. May return NoId().
+    */
     virtual InterfaceAdapterId getPlannerUpdateInterface();
 
     /**
@@ -217,7 +218,7 @@ namespace PLEXIL {
     // Maps by command/lookup
 
     // Interface adapter maps
-    typedef std::map<double, InterfaceAdapterId> InterfaceMap;
+    typedef std::map<LabelStr, InterfaceAdapterId> InterfaceMap;
     InterfaceMap m_lookupMap;
     InterfaceMap m_commandMap;
   };

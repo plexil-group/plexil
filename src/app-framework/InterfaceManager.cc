@@ -664,7 +664,7 @@ namespace PLEXIL
   double
   InterfaceManager::lookupNow(const State& state)
   {
-    const LabelStr& stateName(state.first);
+    const LabelStr stateName(state.first);
     debugMsg("InterfaceManager:lookupNow", " of " << StateCache::toString(state));
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
@@ -698,7 +698,7 @@ namespace PLEXIL
    */
   void InterfaceManager::subscribe(const State& state)
   {
-    const LabelStr& stateName(state.first);
+    const LabelStr stateName(state.first);
     debugMsg("InterfaceManager:subscribe", " to state " << StateCache::toString(state));
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
@@ -712,7 +712,7 @@ namespace PLEXIL
    */
   void InterfaceManager::unsubscribe(const State& state)
   {
-    const LabelStr& stateName(state.first);
+    const LabelStr stateName(state.first);
     debugMsg("InterfaceManager:unsubscribe", " to state " << StateCache::toString(state));
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
@@ -729,7 +729,7 @@ namespace PLEXIL
    */
   void InterfaceManager::setThresholds(const State& state, double hi, double lo)
   {
-    const LabelStr& stateName(state.first);
+    const LabelStr stateName(state.first);
     debugMsg("InterfaceManager:setThresholds", " for state " << StateCache::toString(state));
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
@@ -1126,7 +1126,7 @@ namespace PLEXIL
   InterfaceManager::handleValueChange(const State& state, double value)
   {
     debugMsg("InterfaceManager:handleValueChange",
-             " for state " << LabelStr(state.first).toString()
+             " for state " << state.first.toString()
              << ", new value = " << Expression::valueToString(value));
     m_valueQueue.enqueue(state, value);
   }
@@ -1332,14 +1332,14 @@ namespace PLEXIL
         CommandId cmdId = iter->second;
         debugMsg("InterfaceManager:releaseResourcesAtCommandTermination",
                  " The expression that was received is a valid acknowledgement"
-                 << " for the command: " << cmdId->getName().toString());
+                 << " for the command: " << cmdId->getNameString());
         
         // Check if the command has a return value. If not, release resources
         // otherwise ignore
         if (cmdId->getDest().isNoId())
           {
             if (getResourceArbiterInterface().isId())
-              getResourceArbiterInterface()->releaseResourcesForCommand(cmdId->getName().toString());
+              getResourceArbiterInterface()->releaseResourcesForCommand(cmdId->getName());
             // remove the ack expression from the map
             m_ackToCmdMap.erase(iter);
           }
@@ -1349,11 +1349,11 @@ namespace PLEXIL
         CommandId cmdId = iter->second;
         debugMsg("InterfaceManager:releaseResourcesForCommand",
                  " The expression that was received is a valid return value"
-                 << " for the command: " << cmdId->getName().toString());
+                 << " for the command: " << cmdId->getNameString());
 
         //Release resources
         if (getResourceArbiterInterface().isId())
-          getResourceArbiterInterface()->releaseResourcesForCommand(cmdId->getName().toString());
+          getResourceArbiterInterface()->releaseResourcesForCommand(cmdId->getName());
         //remove the ack from the map        
         m_ackToCmdMap.erase(m_ackToCmdMap.find(cmdId->getAck()));
 

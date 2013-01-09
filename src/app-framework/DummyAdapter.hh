@@ -113,7 +113,7 @@ namespace PLEXIL
     void setThresholds(const State& state, double hi, double lo);
 
     void sendPlannerUpdate(const NodeId& node,
-                           const std::map<double, double>& valuePairs,
+                           const std::map<LabelStr, double>& valuePairs,
                            ExpressionId ack);
 
     // execute a command

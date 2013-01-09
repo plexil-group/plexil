@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -101,29 +101,29 @@ namespace PLEXIL
                                     ExecApplication& execInterface,
                                     bool& wasCreated)
   {
-    std::map<double, ControllerFactory*>::const_iterator it = factoryMap().find(name.getKey());
+    std::map<LabelStr, ControllerFactory*>::const_iterator it = factoryMap().find(name);
     if (it == factoryMap().end()) {
-	  debugMsg("ControllerFactory:createInstance", 
-			   "Attempting to dynamically load controller type \""
-			   << name.c_str() << "\"");
-	  // Attempt to dynamically load library
-	  const char* libCPath =
-		xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
-	  if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-		debugMsg("ControllerFactory:createInstance", 
-				 " unable to load module for controller type \""
-				 << name.c_str() << "\"");
-		return ExecControllerId::noId();
-	  }
-	  // See if it's registered now
-	  it = factoryMap().find(name.getKey());
-	}
+      debugMsg("ControllerFactory:createInstance", 
+               "Attempting to dynamically load controller type \""
+               << name.c_str() << "\"");
+      // Attempt to dynamically load library
+      const char* libCPath =
+        xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+      if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+        debugMsg("ControllerFactory:createInstance", 
+                 " unable to load module for controller type \""
+                 << name.c_str() << "\"");
+        return ExecControllerId::noId();
+      }
+      // See if it's registered now
+      it = factoryMap().find(name);
+    }
 
-	if (it == factoryMap().end()) {
-	  debugMsg("ControllerFactory:createInstance",
-			   " No controller factory registered for name \"" << name.c_str() << "\".");
-	  return ExecControllerId::noId();
-	}
+    if (it == factoryMap().end()) {
+      debugMsg("ControllerFactory:createInstance",
+               " No controller factory registered for name \"" << name.c_str() << "\".");
+      return ExecControllerId::noId();
+    }
     ExecControllerId retval = it->second->create(xml, execInterface, wasCreated);
     debugMsg("ControllerFactory:createInstance", " Created controller " << name.c_str());
     return retval;
@@ -133,9 +133,9 @@ namespace PLEXIL
     return factoryMap().find(name) != factoryMap().end();
   }
 
-  std::map<double, ControllerFactory*>& ControllerFactory::factoryMap() 
+  std::map<LabelStr, ControllerFactory*>& ControllerFactory::factoryMap() 
   {
-    static std::map<double, ControllerFactory*> sl_map;
+    static std::map<LabelStr, ControllerFactory*> sl_map;
     return sl_map;
   }
 
@@ -144,7 +144,7 @@ namespace PLEXIL
    */
   void ControllerFactory::purge()
   {
-    for (std::map<double, ControllerFactory*>::iterator it = factoryMap().begin();
+    for (std::map<LabelStr, ControllerFactory*>::iterator it = factoryMap().begin();
          it != factoryMap().end();
          ++it)
       delete it->second;
@@ -159,7 +159,7 @@ namespace PLEXIL
   void ControllerFactory::registerFactory(const LabelStr& name, ControllerFactory* factory)
   {
     assertTrue(factory != NULL);
-    if (factoryMap().find(name.getKey()) != factoryMap().end())
+    if (factoryMap().find(name) != factoryMap().end())
       {
         warn("Attempted to register an controller factory for name \""
              << name.c_str()
@@ -167,7 +167,7 @@ namespace PLEXIL
         delete factory;
         return;
       }
-    factoryMap()[name.getKey()] = factory;
+    factoryMap()[name] = factory;
     debugMsg("ControllerFactory:registerFactory",
              " Registered controller factory for name \"" << name.c_str() << "\"");
   }
