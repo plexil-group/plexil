@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -151,7 +151,7 @@ static void receive (const string& state_name, bool val, int arg1, int arg2)
 
 
 SampleAdapter::SampleAdapter(PLEXIL::AdapterExecInterface& execInterface,
-							 const pugi::xml_node& configXml) :
+                             const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
   debugMsg("SampleAdapter", " created.");
@@ -239,7 +239,7 @@ void SampleAdapter::executeCommand (const LabelStr& command_name,
 double SampleAdapter::lookupNow (const State& state)
 {
   // This is the name of the state as given in the plan's LookupNow
-  LabelStr name (state.first);
+  const LabelStr& name = state.first;
   const vector<Any>& args = state.second;
   return fetch(name.toString(), args);
 }
@@ -247,7 +247,7 @@ double SampleAdapter::lookupNow (const State& state)
 
 void SampleAdapter::subscribe(const State& state)
 {
-  LabelStr nameLabel = LabelStr (state.first);
+  const LabelStr& nameLabel = state.first;
   debugMsg("SampleAdapter:subscribe", " processing state "
            << nameLabel.toString());
   m_subscribedStates.insert(state);
@@ -256,7 +256,7 @@ void SampleAdapter::subscribe(const State& state)
 
 void SampleAdapter::unsubscribe (const State& state)
 {
-  LabelStr nameLabel = LabelStr (state.first);
+  const LabelStr& nameLabel = state.first;
   debugMsg("SampleAdapter:subscribe", " from state "
            << nameLabel.toString());
   m_subscribedStates.erase(state);
@@ -272,7 +272,7 @@ void SampleAdapter::propagateValueChange (const State& state,
                                           const vector<Any>& vals) const
 {
   if (!isStateSubscribed(state))
-	return; 
+    return; 
   m_execInterface.handleValueChange (state, vals.front());
   m_execInterface.notifyOfExternalEvent();
 }
