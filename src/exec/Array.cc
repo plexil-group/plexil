@@ -332,7 +332,7 @@ namespace PLEXIL
   }
 
   // set an element value in an array variable
-  // FIXME: implement copy-on-write semantics!
+
   void ArrayVariable::setElementValue(unsigned index, const double value)
   {
     // lotsa potential errors to check
