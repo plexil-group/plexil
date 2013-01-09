@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 #include "ConstantMacros.hh"
 #include "ExecDefs.hh"
 #include "Expression.hh"
-//#include "generic_hash_map.hh"
 
 #include <map>
 #include <set>
@@ -107,7 +106,7 @@ namespace PLEXIL
      * @param expr The Id of the LookupOnChange expression.
      * @param state The state being watched.
      * @param tolerance A tolerance beyond which the expression
-	 *                  should be informed of the change.
+     *                  should be informed of the change.
      */
     void registerChangeLookup(const ExpressionId& expr, 
                               const State& state, 
@@ -128,9 +127,9 @@ namespace PLEXIL
      * @brief Update a state in the cache with a value from the
      *        external world.  Will cause updates of lookups on the
      *        state.  
-	 * @param state The state being updated 
-	 * @param value The new value for the state.
-	 * @note Apparently only used by the Exec regression tester and TestExec.
+     * @param state The state being updated 
+     * @param value The new value for the state.
+     * @note Apparently only used by the Exec regression tester and TestExec.
      */
     void updateState(const State& state, double value);
          
@@ -166,20 +165,20 @@ namespace PLEXIL
     const State& getTimeState() const;
          
   private:
-	  
-	/**
-	 * @brief Generate or find the cache entry for this state.
-	 * @param state The state being looked up.
-	 * @param entry Pointer to the CacheEntry for the state.
-	 */
+      
+    /**
+     * @brief Generate or find the cache entry for this state.
+     * @param state The state being looked up.
+     * @param entry Pointer to the CacheEntry for the state.
+     */
 
-	CacheEntryId ensureCacheEntry(const State& state);
+    CacheEntryId ensureCacheEntry(const State& state);
          
     /**
      * @brief Update lookups on a given state with the given value.
      * @param entry Pointer to the CacheEntry for this state. 
      * @param value The new value.
-	 * @return True if the update moved the thresholds, false otherwise.
+     * @return True if the update moved the thresholds, false otherwise.
      */
 
     bool internalStateUpdate(const CacheEntryId& entry, double value);
@@ -187,14 +186,14 @@ namespace PLEXIL
     /**
      * @brief Remove a lookup from internal data structures.
      * @param source The un-registered lookup.
-	 * @return the CacheEntryId corresponding to the removed lookup
+     * @return the CacheEntryId corresponding to the removed lookup
      */
-	CacheEntryId internalUnregisterLookup(const ExpressionId& source);
+    CacheEntryId internalUnregisterLookup(const ExpressionId& source);
 
-	/**
-	 * @brief Get the current time and update all subscribers.
-	 */
-	void updateTimeState();
+    /**
+     * @brief Get the current time and update all subscribers.
+     */
+    void updateTimeState();
          
     /**
      * @brief Compute the magnitude of the difference between x and y.
@@ -207,14 +206,14 @@ namespace PLEXIL
      */
     static double differenceMagnitude(const double x, const double y);
 
-	typedef std::map<State, CacheEntryId> StateCacheMap;
-	typedef std::map<ExpressionId, LookupDescId> ExpressionToLookupMap;
+    typedef std::map<State, CacheEntryId> StateCacheMap;
+    typedef std::map<ExpressionId, LookupDescId> ExpressionToLookupMap;
 
-	StateCacheMap m_states; /*<! All data relevant to the cached states */
+    StateCacheMap m_states; /*<! All data relevant to the cached states */
     ExpressionToLookupMap m_lookupsByExpression; /*<! A map from the lookup expressions to the interal lookup data structures*/
     StateCacheId m_id; /*<! The Id for this cache. */
     ExternalInterfaceId m_interface;  /*<! The Id of the external interface. */
-	CacheEntryId m_timeEntry; /*<! Pointer to the time entry in the cache. */
+    CacheEntryId m_timeEntry; /*<! Pointer to the time entry in the cache. */
     State m_timeState; /*<! The universal time state. */
     bool m_inQuiescence; /*<! Flag indicating whether or not the exec is quiescing. */
     int m_quiescenceCount; /*<! A count of the number of times handleQuiescenceStarted has been called.  Used for synchronization and looking up out-of-date values.*/
