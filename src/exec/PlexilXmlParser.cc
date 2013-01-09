@@ -1306,7 +1306,6 @@ namespace PLEXIL
 
   // parse an array declaration
 
-  // FIXME: Add support for StringArrayVariable as distinct type
   PlexilVar* PlexilXmlParser::parseArrayDeclaration(const xml_node& decl)
     throw(ParserException) {
     checkTag(DECL_ARRAY_TAG, decl);
