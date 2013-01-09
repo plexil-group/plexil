@@ -401,41 +401,41 @@ private:
    LabelStr ls8("string ");
    LabelStr ls9("too");
 
-   StringVariable s1 = std::string("string ");
-   StringVariable s2 = std::string("one");
-   StringVariable s3 = std::string("too");
-   StringVariable s4 = std::string("");
-   StringVariable s5 = std::string("23.45");
+   StringVariable s1(std::string("string "));
+   StringVariable s2(std::string("one"));
+   StringVariable s3(std::string("too"));
+   StringVariable s4(std::string(""));
+   StringVariable s5(std::string("23.45"));
    
    ExpressionId expr1 = s1.getId();
-    ExpressionId expr2 = s2.getId();
-    ExpressionId expr3 = s3.getId();
-    ExpressionId expr4 = s4.getId();
-    ExpressionId expr5 = s5.getId();
+   ExpressionId expr2 = s2.getId();
+   ExpressionId expr3 = s3.getId();
+   ExpressionId expr4 = s4.getId();
+   ExpressionId expr5 = s5.getId();
 
-    expr1->activate();
-    expr2->activate();
-    expr3->activate();
-    expr4->activate();
-    expr5->activate();
+   expr1->activate();
+   expr2->activate();
+   expr3->activate();
+   expr4->activate();
+   expr5->activate();
 
-   Concatenation c1 (expr1, expr2);
+   Concatenation c1(expr1, expr2);
    c1.activate();
-   Concatenation c2 (expr1, expr3);
+   Concatenation c2(expr1, expr3);
    c2.activate();
-   Concatenation c3 (c1.getId(), expr3);
+   Concatenation c3(c1.getId(), expr3);
    c3.activate();
-   Concatenation c4 (expr3, c1.getId());
+   Concatenation c4(expr3, c1.getId());
    c4.activate();
-   Concatenation c5 (expr4, expr4);
+   Concatenation c5(expr4, expr4);
    c5.activate();
-   Concatenation c6 (expr4, c1.getId());
+   Concatenation c6(expr4, c1.getId());
    c6.activate();
-   Concatenation c7 (c1.getId(), expr4);
+   Concatenation c7(c1.getId(), expr4);
    c7.activate();
-   Concatenation c8 (expr1, expr5);
+   Concatenation c8(expr1, expr5);
    c8.activate();
-   Concatenation c9 (expr5, expr5);
+   Concatenation c9(expr5, expr5);
    c9.activate();
 
     assertTrue(c1.getValue() == ls1.getKey());  
@@ -926,16 +926,16 @@ public:
   }
 
   double lookupNow(const State& state) {
-    if (state.first == LabelStr("test1")) {
+    if (state.first == "test1") {
       return 0.0;
     }
-    else if (state.first == LabelStr("test2")) {
+    else if (state.first == "test2") {
       check_error(state.second.size() == 1);
       LabelStr param(state.second[0]);
-      if (param == LabelStr("high")) return 1.0;
-      else if (param == LabelStr("low")) return -1.0;
+      if (param == "high") return 1.0;
+      else if (param == "low") return -1.0;
     }
-    else if (state.first == LabelStr("time")) {
+    else if (state.first == "time") {
       return 0.0;
     }
     else {
@@ -976,21 +976,25 @@ public:
     return 0.0;
   }
 
-  void watch(const LabelStr& name, ExpressionId expr) {
+  void watch(const char* name, ExpressionId expr)
+  {
     if (m_exprs.find(expr) == m_exprs.end()) {
       expr->addListener(m_listener.getId());
       m_exprs.insert(expr);
     }
-    m_changingExprs.insert(std::pair<double, ExpressionId>(name, expr));
-    m_exprsToStateName.insert(std::make_pair(expr, name));
+    LabelStr nameStr(name);
+    m_changingExprs.insert(std::pair<LabelStr, ExpressionId>(nameStr, expr));
+    m_exprsToStateName.insert(std::make_pair(expr, nameStr.getKey()));
   }
 
-  void unwatch(const LabelStr& name, ExpressionId expr) {
+  void unwatch(const char* name, ExpressionId expr)
+  {
     if (m_exprs.find(expr) != m_exprs.end()) {
       m_exprs.erase(expr);
       expr->removeListener(m_listener.getId());
     }
-    m_changingExprs.erase(name);
+    LabelStr nameStr(name);
+    m_changingExprs.erase(nameStr);
     m_exprsToStateName.erase(expr);
   }
 
@@ -1011,7 +1015,7 @@ protected:
   {
     std::multimap<ExpressionId, double>::const_iterator it = m_exprsToStateName.find(expression);
     while(it != m_exprsToStateName.end() && it->first == expression) {
-      State st(it->second, std::vector<double>());
+      State st(LabelStr(it->second), std::vector<double>());
       m_cache->updateState(st, expression->getValue());
       ++it;
     }
@@ -1030,7 +1034,7 @@ private:
   static Id<TestInterface> s_instanceTestInterface;
 
   std::set<ExpressionId> m_exprs;
-  std::map<double, ExpressionId> m_changingExprs; //map of names to expressions being watched
+  std::map<LabelStr, ExpressionId> m_changingExprs; //map of names to expressions being watched
   std::multimap<ExpressionId, double> m_exprsToStateName; //make of watched expressions to their state names
   std::multimap<ExpressionId, ExpressionId> m_listeningExprs; //map of changing expressions to listening expressions
   std::map<ExpressionId, double> m_tolerances; //map of dest expressions to tolerances
@@ -1146,8 +1150,8 @@ private:
 
     RealVariable watchVar(0.0);
     watchVar.activate();
-    TestInterface::instance()->watch(LabelStr("changeTest"), watchVar.getId());
-    TestInterface::instance()->watch(LabelStr("changeWithToleranceTest"), watchVar.getId());
+    TestInterface::instance()->watch("changeTest", watchVar.getId());
+    TestInterface::instance()->watch("changeWithToleranceTest", watchVar.getId());
 
     LookupTestNodeConnector node;
     TestInterface::instance()->setCache(node.getExec()->getStateCache());
@@ -1184,8 +1188,8 @@ private:
     assertTrue(l1.getValue() == Expression::UNKNOWN());
     assertTrue(l2.getValue() == 1.1);
 
-    TestInterface::instance()->unwatch(LabelStr("changeTest"), watchVar.getId());
-    TestInterface::instance()->unwatch(LabelStr("changeWithToleranceTest"), watchVar.getId());
+    TestInterface::instance()->unwatch("changeTest", watchVar.getId());
+    TestInterface::instance()->unwatch("changeWithToleranceTest", watchVar.getId());
 
     return true;
   }
@@ -1300,12 +1304,32 @@ private:
   {
     TransitionExecConnector con;
     NodeId parent =
-      NodeFactory::createNode(Node::LIST(), "testParent", INACTIVE_STATE, con.getId(), NodeId::noId());
+      NodeFactory::createNode(Node::LIST(),
+                              LabelStr("testParent"),
+                              INACTIVE_STATE,
+                              con.getId(),
+                              NodeId::noId());
     NodeId nodes[4] =
-      {NodeFactory::createNode(Node::ASSIGNMENT(), "testAssignment", INACTIVE_STATE, con.getId(), parent),
-       NodeFactory::createNode(Node::COMMAND(), "testCommand", INACTIVE_STATE, con.getId(), parent),
-       NodeFactory::createNode(Node::LIST(), "testList", INACTIVE_STATE, con.getId(), parent),
-       NodeFactory::createNode(Node::UPDATE(), "testUpdate", INACTIVE_STATE, con.getId(), parent)
+      {NodeFactory::createNode(Node::ASSIGNMENT(),
+                               LabelStr("testAssignment"),
+                               INACTIVE_STATE,
+                               con.getId(), 
+                               parent),
+       NodeFactory::createNode(Node::COMMAND(),
+                               LabelStr("testCommand"),
+                               INACTIVE_STATE,
+                               con.getId(),
+                               parent),
+       NodeFactory::createNode(Node::LIST(), 
+                               LabelStr("testList"), 
+                               INACTIVE_STATE, 
+                               con.getId(),
+                               parent),
+       NodeFactory::createNode(Node::UPDATE(),
+                               LabelStr("testUpdate"), 
+                               INACTIVE_STATE, 
+                               con.getId(), 
+                               parent)
       };
 
     NodeState states[7] = {INACTIVE_STATE,
@@ -1349,9 +1373,17 @@ private:
   {
     TransitionExecConnector con;
     NodeId parent =
-      NodeFactory::createNode(Node::LIST(), "testParent", INACTIVE_STATE, con.getId(), NodeId::noId());
+      NodeFactory::createNode(Node::LIST(), 
+                              LabelStr("testParent"), 
+                              INACTIVE_STATE, 
+                              con.getId(), 
+                              NodeId::noId());
 
-    LabelStr types[5] = {Node::ASSIGNMENT(), Node::COMMAND(), Node::LIBRARYNODECALL(), Node::LIST(), Node::UPDATE()};
+    LabelStr types[5] = {Node::ASSIGNMENT(),
+                         Node::COMMAND(),
+                         Node::LIBRARYNODECALL(),
+                         Node::LIST(),
+                         Node::UPDATE()};
     NodeState states[7] = {INACTIVE_STATE,
                            WAITING_STATE,
                            EXECUTING_STATE,
@@ -1362,7 +1394,11 @@ private:
     
     for (size_t s = 0; s < 7; ++s) {
       for (int i = 0; i < 5; i++) {
-        NodeId node = NodeFactory::createNode(types[i], "test", INACTIVE_STATE, con.getId(), parent);
+        NodeId node = NodeFactory::createNode(types[i],
+                                              LabelStr("test"), 
+                                              INACTIVE_STATE, 
+                                              con.getId(), 
+                                              parent);
         parent->setState(states[s]);
       
         if (node->canTransition()) {
@@ -1402,8 +1438,8 @@ private:
   {
     TransitionExecConnector con;
     NodeId parent =
-      NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", WAITING_STATE, con.getId(), parent);
+      NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), LabelStr("test"), WAITING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -1458,7 +1494,7 @@ private:
   {
     TransitionExecConnector con;
     NodeId parent =
-      NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+      NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[4] = {Node::ASSIGNMENT(), Node::COMMAND(), Node::LIST(), Node::UPDATE()};
 
@@ -1470,7 +1506,7 @@ private:
               for (int start = 0; start < 3; ++start) {
                 for (int pre = 0; pre < 3; ++pre) {
                   for (int i = 0; i < 4; i++) {
-                    NodeId node = NodeFactory::createNode(types[i], "test", WAITING_STATE, con.getId(), parent);
+                    NodeId node = NodeFactory::createNode(types[i], LabelStr("test"), WAITING_STATE, con.getId(), parent);
                     node->getAncestorExitCondition()->setValue(values[ancestorExit]);
                     node->getExitCondition()->setValue(values[exit]);
                     node->getSkipCondition()->setValue(values[skip]);
@@ -1542,8 +1578,8 @@ private:
   static bool iterationEndedDestTest() {
     TransitionExecConnector con;
     NodeId parent =
-      NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", ITERATION_ENDED_STATE, con.getId(), parent);
+      NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), LabelStr("test"), ITERATION_ENDED_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -1582,7 +1618,7 @@ private:
   {
     TransitionExecConnector con;
     NodeId parent =
-      NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+      NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr types[4] = {Node::ASSIGNMENT(), Node::COMMAND(), Node::LIST(), Node::UPDATE()};
@@ -1592,7 +1628,7 @@ private:
         for (int ancestorEnd = 0; ancestorEnd < 3; ++ancestorEnd) {
           for (int repeat = 0; repeat < 3; ++repeat) {
             for (int i = 0; i < 4; i++) {
-              NodeId node = NodeFactory::createNode(types[i], "test", ITERATION_ENDED_STATE, con.getId(), parent);
+              NodeId node = NodeFactory::createNode(types[i], LabelStr("test"), ITERATION_ENDED_STATE, con.getId(), parent);
               node->getAncestorExitCondition()->setValue(values[ancestorExit]);
               node->getAncestorInvariantCondition()->setValue(values[ancestorInvariant]);
               node->getAncestorEndCondition()->setValue(values[ancestorEnd]);
@@ -1644,8 +1680,8 @@ private:
   static bool finishedDestTest() {
     TransitionExecConnector con;
     NodeId parent =
-      NodeFactory::createNode(Node::LIST(), "testParent", INACTIVE_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", FINISHED_STATE, con.getId(), parent);
+      NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), INACTIVE_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), LabelStr("test"), FINISHED_STATE, con.getId(), parent);
     NodeState states[7] = {INACTIVE_STATE,
                            WAITING_STATE,
                            EXECUTING_STATE,
@@ -1672,7 +1708,7 @@ private:
   static bool finishedTransTest() {
     TransitionExecConnector con;
     NodeId parent =
-      NodeFactory::createNode(Node::LIST(), "testParent", INACTIVE_STATE, con.getId(), NodeId::noId());
+      NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), INACTIVE_STATE, con.getId(), NodeId::noId());
 
     NodeState states[7] = {INACTIVE_STATE,
                            WAITING_STATE,
@@ -1685,7 +1721,7 @@ private:
 
     for (size_t s = 0; s < 7; ++s) {
       for (int i = 0; i < 4; ++i) {
-        NodeId node = NodeFactory::createNode(types[i], "test", FINISHED_STATE, con.getId(), parent);
+        NodeId node = NodeFactory::createNode(types[i], LabelStr("test"), FINISHED_STATE, con.getId(), parent);
         parent->setState(states[s]);
 
         debugMsg("UnitTest:finishedTransition",
@@ -1713,8 +1749,8 @@ private:
   static bool listExecutingDestTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::LIST(), "test", EXECUTING_STATE, con.getId(), parent);
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::LIST(), LabelStr("test"), EXECUTING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -1755,7 +1791,7 @@ private:
 
   static bool listExecutingTransTest() {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -1763,7 +1799,7 @@ private:
         for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
           for (int invariant = 0; invariant < 3; ++invariant) {
             for (int end = 0; end < 3; ++end) {
-              NodeId node = NodeFactory::createNode(Node::LIST(), "test", EXECUTING_STATE, con.getId(), parent);
+              NodeId node = NodeFactory::createNode(Node::LIST(), LabelStr("test"), EXECUTING_STATE, con.getId(), parent);
               node->getAncestorExitCondition()->setValue(values[ancestorExit]);
               node->getExitCondition()->setValue(values[exit]);
               node->getAncestorInvariantCondition()->setValue(values[ancestorInvariant]);
@@ -1824,8 +1860,8 @@ private:
   static bool listFailingDestTest() {
     TransitionExecConnector con;
     NodeId parent =
-      NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::LIST(), "test", FAILING_STATE, con.getId(), parent);
+      NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::LIST(), LabelStr("test"), FAILING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     double failureTypes[2] = {FailureVariable::PRE_CONDITION_FAILED(), FailureVariable::PARENT_FAILED()};
@@ -1858,14 +1894,14 @@ private:
   static bool listFailingTransTest() {
     TransitionExecConnector con;
     NodeId parent =
-      NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+      NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr failureType[2] = {FailureVariable::INVARIANT_CONDITION_FAILED(), FailureVariable::PARENT_FAILED()};
 
     for (int children = 0; children < 3; ++children) {
       for (int i = 0; i < 2; ++i) {
-        NodeId node = NodeFactory::createNode(Node::LIST(), "test", FAILING_STATE, con.getId(), parent);
+        NodeId node = NodeFactory::createNode(Node::LIST(), LabelStr("test"), FAILING_STATE, con.getId(), parent);
         node->getActionCompleteCondition()->setValue(values[children]);
         node->getFailureTypeVariable()->setValue(failureType[i]);
 
@@ -1904,8 +1940,8 @@ private:
   static bool listFinishingDestTest()
  {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::LIST(), "test", FINISHING_STATE, con.getId(), parent);
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::LIST(), LabelStr("test"), FINISHING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -1958,7 +1994,7 @@ private:
   static bool listFinishingTransTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
@@ -1968,7 +2004,7 @@ private:
           for (int invariant = 0; invariant < 3; ++invariant) {
             for (int children = 0; children < 3; ++children) {
               for (int post = 0; post < 3; ++post) {
-                NodeId node = NodeFactory::createNode(Node::LIST(), "test", FINISHING_STATE, con.getId(), parent);
+                NodeId node = NodeFactory::createNode(Node::LIST(), LabelStr("test"), FINISHING_STATE, con.getId(), parent);
                 node->getAncestorExitCondition()->setValue(values[ancestorExit]);
                 node->getExitCondition()->setValue(values[exit]);
                 node->getAncestorInvariantCondition()->setValue(values[ancestorInvariant]);
@@ -2043,8 +2079,8 @@ private:
   static bool bindingExecutingDestTest() 
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", EXECUTING_STATE, con.getId(), parent);
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), LabelStr("test"), EXECUTING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int actionComplete = 0; actionComplete < 3; ++actionComplete) {
@@ -2099,7 +2135,7 @@ private:
   static bool bindingExecutingTransTest() 
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr type = Node::ASSIGNMENT();
@@ -2111,7 +2147,7 @@ private:
             for (int invariant = 0; invariant < 3; ++invariant) {
               for (int end = 0; end < 3; ++end) {
                 for (int post = 0; end < 3; ++end) {
-                  NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", EXECUTING_STATE, con.getId(), parent);
+                  NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), LabelStr("test"), EXECUTING_STATE, con.getId(), parent);
                   node->getActionCompleteCondition()->setValue(values[actionComplete]);
                   node->getAncestorExitCondition()->setValue(values[ancestorExit]);
                   node->getExitCondition()->setValue(values[exit]);
@@ -2194,8 +2230,8 @@ private:
   static bool bindingFailingDestTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", FAILING_STATE, con.getId(), parent);
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), LabelStr("test"), FAILING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr failureType[4] = {FailureVariable::INVARIANT_CONDITION_FAILED(),
                                FailureVariable::PARENT_FAILED(),
@@ -2230,7 +2266,7 @@ private:
   static bool bindingFailingTransTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr failureType[4] = {FailureVariable::INVARIANT_CONDITION_FAILED(),
                                FailureVariable::PARENT_FAILED(),
@@ -2239,7 +2275,7 @@ private:
 
     for (int children = 0; children < 3; ++children) {
       for (int failure = 0; failure < 2; ++failure) {
-        NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), "test", FAILING_STATE, con.getId(), parent);
+        NodeId node = NodeFactory::createNode(Node::ASSIGNMENT(), LabelStr("test"), FAILING_STATE, con.getId(), parent);
         node->getActionCompleteCondition()->setValue(values[children]);
         node->getFailureTypeVariable()->setValue(failureType[failure]);
 
@@ -2280,8 +2316,8 @@ private:
   static bool commandExecutingDestTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::COMMAND(), "test", EXECUTING_STATE, con.getId(), parent);
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::COMMAND(), LabelStr("test"), EXECUTING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -2327,7 +2363,7 @@ private:
   static bool commandExecutingTransTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
 
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
@@ -2336,7 +2372,7 @@ private:
         for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
           for (int invariant = 0; invariant < 3; ++invariant) {
             for (int end = 0; end < 3; ++end) {
-              NodeId node = NodeFactory::createNode(Node::COMMAND(), "test", EXECUTING_STATE, con.getId(), parent);
+              NodeId node = NodeFactory::createNode(Node::COMMAND(), LabelStr("test"), EXECUTING_STATE, con.getId(), parent);
               node->getAncestorExitCondition()->setValue(values[ancestorExit]);
               node->getExitCondition()->setValue(values[exit]);
               node->getAncestorInvariantCondition()->setValue(values[ancestorInvariant]);
@@ -2404,8 +2440,8 @@ private:
   static bool commandFailingDestTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::COMMAND(), "test", FAILING_STATE, con.getId(), parent);
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::COMMAND(), LabelStr("test"), FAILING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     double failureTypes[4] = {FailureVariable::INVARIANT_CONDITION_FAILED(),
                               FailureVariable::PARENT_FAILED(),
@@ -2438,7 +2474,7 @@ private:
   static bool commandFailingTransTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr failureTypes[4] = {FailureVariable::INVARIANT_CONDITION_FAILED(),
                                 FailureVariable::PARENT_FAILED(),
@@ -2447,7 +2483,7 @@ private:
 
     for (int abort = 0; abort < 3; ++abort) {
       for (int failure = 0; failure < 4; ++failure) {
-        NodeId node = NodeFactory::createNode(Node::COMMAND(), "test", FAILING_STATE, con.getId(), parent);
+        NodeId node = NodeFactory::createNode(Node::COMMAND(), LabelStr("test"), FAILING_STATE, con.getId(), parent);
         node->getAbortCompleteCondition()->setValue(values[abort]);
         node->getFailureTypeVariable()->setValue(failureTypes[failure]);
 
@@ -2487,8 +2523,8 @@ private:
   static bool commandFinishingDestTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::COMMAND(), "test", FINISHING_STATE, con.getId(), parent);
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::COMMAND(), LabelStr("test"), FINISHING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -2534,7 +2570,7 @@ private:
   static bool commandFinishingTransTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -2543,7 +2579,7 @@ private:
           for (int invariant = 0; invariant < 3; ++invariant) {
             for (int actionComplete = 0; actionComplete < 3; ++actionComplete) {
               for (int post = 0; post < 3; ++post) {
-                NodeId node = NodeFactory::createNode(Node::COMMAND(), "test", FINISHING_STATE, con.getId(), parent);
+                NodeId node = NodeFactory::createNode(Node::COMMAND(), LabelStr("test"), FINISHING_STATE, con.getId(), parent);
                 node->getAncestorExitCondition()->setValue(values[ancestorExit]);
                 node->getExitCondition()->setValue(values[exit]);
                 node->getAncestorInvariantCondition()->setValue(values[ancestorInvariant]);
@@ -2623,8 +2659,8 @@ private:
   static bool updateExecutingDestTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::UPDATE(), "test", EXECUTING_STATE, con.getId(), parent);
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::UPDATE(), LabelStr("test"), EXECUTING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -2673,7 +2709,7 @@ private:
   static bool updateExecutingTransTest()
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
 
     for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
@@ -2682,7 +2718,7 @@ private:
           for (int invariant = 0; invariant < 3; ++invariant) {
             for (int end = 0; end < 3; ++end) {
               for (int post = 0; post < 3; ++post) {
-                NodeId node = NodeFactory::createNode(Node::UPDATE(), "test", EXECUTING_STATE, con.getId(), parent);
+                NodeId node = NodeFactory::createNode(Node::UPDATE(), LabelStr("test"), EXECUTING_STATE, con.getId(), parent);
                 node->getAncestorExitCondition()->setValue(values[ancestorExit]);
                 node->getExitCondition()->setValue(values[exit]);
                 node->getAncestorInvariantCondition()->setValue(values[ancestorInvariant]);
@@ -2757,8 +2793,8 @@ private:
   static bool updateFailingDestTest() 
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
-    NodeId node = NodeFactory::createNode(Node::UPDATE(), "test", FAILING_STATE, con.getId(), parent);
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId node = NodeFactory::createNode(Node::UPDATE(), LabelStr("test"), FAILING_STATE, con.getId(), parent);
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     double failureTypes[4] = {FailureVariable::INVARIANT_CONDITION_FAILED(),
                               FailureVariable::PARENT_FAILED(),
@@ -2791,7 +2827,7 @@ private:
   static bool updateFailingTransTest() 
   {
     TransitionExecConnector con;
-    NodeId parent = NodeFactory::createNode(Node::LIST(), "testParent", EXECUTING_STATE, con.getId(), NodeId::noId());
+    NodeId parent = NodeFactory::createNode(Node::LIST(), LabelStr("testParent"), EXECUTING_STATE, con.getId(), NodeId::noId());
     double values[3] = {Expression::UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
     LabelStr failureTypes[4] = {FailureVariable::INVARIANT_CONDITION_FAILED(),
                                 FailureVariable::PARENT_FAILED(),
@@ -2800,7 +2836,7 @@ private:
 
     for (int actionComplete = 0; actionComplete < 3; ++actionComplete) {
       for (int failure = 0; failure < 4; ++failure) {
-        NodeId node = NodeFactory::createNode(Node::UPDATE(), "test", FAILING_STATE, con.getId(), parent);
+        NodeId node = NodeFactory::createNode(Node::UPDATE(), LabelStr("test"), FAILING_STATE, con.getId(), parent);
         node->getActionCompleteCondition()->setValue(values[actionComplete]);
         node->getFailureTypeVariable()->setValue(failureTypes[failure]);
 

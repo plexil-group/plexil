@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ namespace PLEXIL
    */
 
   class Variable :
-	public virtual Expression
+    public virtual Expression
   {
   public:
     /**
@@ -77,6 +77,11 @@ namespace PLEXIL
     virtual const std::string& getName() const = 0;
 
     /**
+     * @brief Get the LabelStr key of this variable's name, as declared in the node that owns it.
+     */
+    virtual double getNameKey() const = 0;
+
+    /**
      * @brief Gets the const-ness of this variable.
      * @return True if this variable is const, false otherwise.
      */
@@ -85,27 +90,27 @@ namespace PLEXIL
     /**
      * @brief Get the node that owns this expression.
      * @return The NodeId of the parent node; may be noId.
-	 * @note Used by LuvFormat::formatAssignment().  
-	 * @note Default method.
+     * @note Used by LuvFormat::formatAssignment().  
+     * @note Default method.
      */
     virtual const NodeId& getNode() const
-	{
-	  return NodeId::noId(); 
-	}
+    {
+      return NodeId::noId(); 
+    }
 
     const VariableId& getId() const {return m_evid;}
 
-	/**
-	 * @brief Get the real variable for which this may be a proxy.
-	 * @return The VariableId of the base variable
-	 * @note Used by the assignment node conflict resolution logic.
-	 */
-	virtual const VariableId& getBaseVariable() const = 0;
+    /**
+     * @brief Get the real variable for which this may be a proxy.
+     * @return The VariableId of the base variable
+     * @note Used by the assignment node conflict resolution logic.
+     */
+    virtual const VariableId& getBaseVariable() const = 0;
 
   protected:
 
   private:
-	VariableId m_evid;
+    VariableId m_evid;
   };
 
   /**
@@ -113,7 +118,7 @@ namespace PLEXIL
    *   variable aliases, etc.) of changes in sub-expressions.
    */
   class DerivedVariableListener :
-	public ExpressionListener 
+    public ExpressionListener 
   {
   public:
 
@@ -122,21 +127,21 @@ namespace PLEXIL
      * @param exp The expression to be notified of any changes.
      */
     DerivedVariableListener(const ExpressionId& exp)
-	  : ExpressionListener(),
-		m_exp(exp)
-	{}
+      : ExpressionListener(),
+        m_exp(exp)
+    {}
 
     /**
      * @brief Notifies the destination expression of a value change.
      * @param exp The expression which has changed.
      */
     void notifyValueChanged(const ExpressionId& exp)
-	{
-	  // prevent infinite loop
-	  // FIXME: how is infinite loop possible? any other way to break it?
-	  if (exp != m_exp)
+    {
+      // prevent infinite loop
+      // FIXME: how is infinite loop possible? any other way to break it?
+      if (exp != m_exp)
         m_exp->handleChange(exp);
-	}
+    }
 
   private:
 
@@ -176,7 +181,7 @@ namespace PLEXIL
      * @param isConst True if this variable should have a constant value, false otherwise.
      */
     VariableImpl(const PlexilExprId& expr, const NodeConnectorId& node,
-				 const bool isConst = false);
+                 const bool isConst = false);
 
     virtual ~VariableImpl();
 
@@ -186,17 +191,17 @@ namespace PLEXIL
      */
     void print(std::ostream& s) const;
 
-	/**
-	 * @brief Print the variable's value to the given stream.
-	 * @param s The output stream.
-	 */
-	virtual void printValue(std::ostream& s) const;
+    /**
+     * @brief Print the variable's value to the given stream.
+     * @param s The output stream.
+     */
+    virtual void printValue(std::ostream& s) const;
 
     /**
      * @brief Get a string representation of the value of this Variable.
      * @return The string representation.
-	 * @note This method always uses the stored value whether or not the variable is active,
-	 *       unlike the base class method.
+     * @note This method always uses the stored value whether or not the variable is active,
+     *       unlike the base class method.
      */
     virtual std::string valueString() const;
 
@@ -220,9 +225,15 @@ namespace PLEXIL
     bool isConst() const {return m_isConst;}
 
     /**
+     * @brief Make this variable const.
+     * @note Required by various derived constructors.
+     */
+    void makeConst();
+
+    /**
      * @brief Get the node that owns this expression.
      * @return The NodeId of the parent node; may be noId.
-	 * @note Used by LuvFormat::formatAssignment().  
+     * @note Used by LuvFormat::formatAssignment().  
      */
     const NodeId& getNode() const { return m_node; }
 
@@ -232,45 +243,53 @@ namespace PLEXIL
      */
     double initialValue() const {return m_initialValue;}
 
-	/**
-	 * @brief Set the name of this variable.
-	 */
-	void setName(const std::string& name)
-	{
-	  m_name = name;
-	}
+    /**
+     * @brief Set the name of this variable.
+     */
+    void setName(const std::string& name)
+    {
+      m_name = name;
+    }
 
     /**
      * @brief Get the name of this variable, as declared in the node that owns it.
      */
     const std::string& getName() const
     {
-      return m_name;
+      return m_name.toString();
+    }
+
+    /**
+     * @brief Get the LabelStr key of this variable's name, as declared in the node that owns it.
+     */
+    double getNameKey() const
+    {
+      return m_name.getKey(); 
     }
 
     /**
      * @brief Add a listener for changes to this Expression's value.
      * @param id The Id of the listener to notify.
-	 * @note Overrides method on Expression base class.
+     * @note Overrides method on Expression base class.
      */
     virtual void addListener(ExpressionListenerId id);
 
     /**
      * @brief Remove a listener from this Expression.
      * @param id The Id of the listener to remove.
-	 * @note Overrides method on Expression base class.
+     * @note Overrides method on Expression base class.
      */
     virtual void removeListener(ExpressionListenerId id);
 
-	/**
-	 * @brief Get the real variable for which this may be a proxy.
-	 * @return The VariableId of the base variable
-	 * @note Used by the assignment node conflict resolution logic.
-	 */
-	virtual const VariableId& getBaseVariable() const
-	{
-	  return Variable::getId(); 
-	}
+    /**
+     * @brief Get the real variable for which this may be a proxy.
+     * @return The VariableId of the base variable
+     * @note Used by the assignment node conflict resolution logic.
+     */
+    virtual const VariableId& getBaseVariable() const
+    {
+      return Variable::getId(); 
+    }
 
   protected:
     /**
@@ -291,27 +310,27 @@ namespace PLEXIL
 
     const NodeId m_node; /*<! The node that owns this variable */
     double m_initialValue; /*<! The initial value of the expression */
-    std::string m_name; /*<! The name under which this variable was declared */
+    LabelStr m_name; /*<! The name under which this variable was declared */
     bool m_isConst; /*<! Flag indicating the const-ness of this variable */
   };
 
   class AliasVariable : public virtual Variable
   {
   public:
-	/**
-	 * @brief Constructor. Creates a variable-like object that wraps another expression.
-	 * @param name The name of this variable in the node that constructed the alias.
-	 * @param node The node which owns this alias.
-	 * @param original The original expression for this alias.
-	 * @param isConst True if assignments to the alias are forbidden.
-	 */
-	AliasVariable(const std::string& name, 
-				  const NodeConnectorId& nodeConnector,
-				  const ExpressionId& exp,
-				  bool expIsGarbage,
-				  bool isConst);
+    /**
+     * @brief Constructor. Creates a variable-like object that wraps another expression.
+     * @param name The name of this variable in the node that constructed the alias.
+     * @param node The node which owns this alias.
+     * @param original The original expression for this alias.
+     * @param isConst True if assignments to the alias are forbidden.
+     */
+    AliasVariable(const std::string& name, 
+                  const NodeConnectorId& nodeConnector,
+                  const ExpressionId& exp,
+                  bool expIsGarbage,
+                  bool isConst);
 
-	virtual ~AliasVariable();
+    virtual ~AliasVariable();
 
     /**
      * @brief Get a string representation of this Expression.
@@ -358,21 +377,32 @@ namespace PLEXIL
     /**
      * @brief Get the node that owns this expression.
      * @return The NodeId of the parent node; may be noId.
-	 * @note Used by LuvFormat::formatAssignment().  
+     * @note Used by LuvFormat::formatAssignment().  
      */
     const NodeId& getNode() const { return m_node; }
 
     /**
      * @brief Get the name of this alias, as declared in the node that owns it.
      */
-    const std::string& getName() const { return m_name; }
+    const std::string& getName() const
+    {
+      return m_name.toString(); 
+    }
 
-	/**
-	 * @brief Get the real variable for which this may be a proxy.
-	 * @return The VariableId of the base variable
-	 * @note Used by the assignment node conflict resolution logic.
-	 */
-	virtual const VariableId& getBaseVariable() const;
+    /**
+     * @brief Get the LabelStr key of this alias's name, as declared in the node that owns it.
+     */
+    double getNameKey() const
+    {
+      return m_name.getKey(); 
+    }
+
+    /**
+     * @brief Get the real variable for which this may be a proxy.
+     * @return The VariableId of the base variable
+     * @note Used by the assignment node conflict resolution logic.
+     */
+    virtual const VariableId& getBaseVariable() const;
 
   protected:
 
@@ -397,18 +427,18 @@ namespace PLEXIL
 
 
   private:
-	
-	// Deliberately unimplemented
-	AliasVariable();
-	AliasVariable(const AliasVariable&);
-	AliasVariable& operator=(const AliasVariable&);
+    
+    // Deliberately unimplemented
+    AliasVariable();
+    AliasVariable(const AliasVariable&);
+    AliasVariable& operator=(const AliasVariable&);
 
-	// Private member variables
-	ExpressionId m_originalExpression;
-	DerivedVariableListener m_listener;
-	const NodeId m_node;
-	const std::string& m_name;
-	bool m_isGarbage, m_isConst;
+    // Private member variables
+    ExpressionId m_originalExpression;
+    DerivedVariableListener m_listener;
+    const NodeId m_node;
+    const LabelStr m_name;
+    bool m_isGarbage, m_isConst;
   };
 
 }

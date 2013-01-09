@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -163,7 +163,7 @@ namespace PLEXIL {
 	if (val == UNKNOWN())
 	  s << "UNKNOWN";
     else if (LabelStr::isString(val))
-      s << LabelStr(val).toString();
+      s << LabelStr::toString(val);
     else if (StoredArray::isKey(val))
 	  s << StoredArray(val).toString();
 	// below this point must be a number
@@ -184,7 +184,7 @@ namespace PLEXIL {
 	if (val == UNKNOWN())
 	  return std::string("UNKNOWN");
     else if (LabelStr::isString(val))
-	  return std::string(LabelStr(val).toString());
+	  return std::string(LabelStr::toString(val));
     else if (StoredArray::isKey(val))
 	  return StoredArray(val).toString();
 	// below this point must be a number

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,64 +33,64 @@
 namespace PLEXIL
 {
 
-
-  void ExpressionFactory::registerFactory(const LabelStr& name, ExpressionFactory* factory) {
+  void ExpressionFactory::registerFactory(const LabelStr& name, ExpressionFactory* factory) 
+  {
     check_error(factory != NULL);
     checkError(factoryMap().find(name) == factoryMap().end(),
-	       "Error:  Attempted to register a factory for name '" << name.toString() <<
-	       "' twice.");
+               "Error:  Attempted to register a factory for name '" << name.toString() <<
+               "' twice.");
     factoryMap()[name] = factory;
     debugMsg("ExpressionFactory:registerFactory",
-	     "Registered factory for name '" << name.toString() << "'");
+             "Registered factory for name '" << name.toString() << "'");
   }
 
 
-   ExpressionId ExpressionFactory::createInstance(const LabelStr& name,
-                                                  const PlexilExprId& expr,
-                                                  const NodeConnectorId& node)
-   {
-     bool dummy;
-     return createInstance(name, expr, node, dummy);
-   }
+  ExpressionId ExpressionFactory::createInstance(const LabelStr& name,
+                                                 const PlexilExprId& expr,
+                                                 const NodeConnectorId& node)
+  {
+    bool dummy;
+    return createInstance(name, expr, node, dummy);
+  }
 
-   ExpressionId ExpressionFactory::createInstance(const LabelStr& name,
-                                                  const PlexilExprId& expr,
-                                                  const NodeConnectorId& node,
-                                                  bool& wasCreated)
-   {
-      // if this is a variable ref, look it up
-      
-      if (Id<PlexilVarRef>::convertable(expr)) 
-      {
-         checkError(node.isValid(), "Need a valid Node argument to find a Variable");
-         ExpressionId retval = node->findVariable(expr);         
-	 checkError(retval.isValid(), "Unable to find variable '" << expr->name() << "'");
-         wasCreated = false;
-         return retval;
-      }
-
-      // otherwise look up factory
-      
-      std::map<double, ExpressionFactory*>::const_iterator it = factoryMap().find(name);
-      checkError(it != factoryMap().end(),
-                 "Error: No factory registered for name '" << name.toString() << "'.");
-      ExpressionId retval = it->second->create(expr, node);
-      debugMsg("ExpressionFactory:createInstance", "Created " << retval->toString());
-      wasCreated = true;
+  ExpressionId ExpressionFactory::createInstance(const LabelStr& name,
+                                                 const PlexilExprId& expr,
+                                                 const NodeConnectorId& node,
+                                                 bool& wasCreated)
+  {
+    // if this is a variable ref, look it up
+    if (Id<PlexilVarRef>::convertable(expr)) {
+      checkError(node.isValid(), "Need a valid Node argument to find a Variable");
+      ExpressionId retval = node->findVariable(expr);         
+      checkError(retval.isValid(), "Unable to find variable '" << expr->name() << "'");
+      wasCreated = false;
       return retval;
-   }
+    }
 
-  std::map<double, ExpressionFactory*>& ExpressionFactory::factoryMap() {
-    static std::map<double, ExpressionFactory*>* sl_map = NULL;
+    // otherwise look up factory
+    std::map<LabelStr, ExpressionFactory*>::const_iterator it = factoryMap().find(name);
+    checkError(it != factoryMap().end(),
+               "Error: No factory registered for name '" << name.toString() << "'.");
+    ExpressionId retval = it->second->create(expr, node);
+    debugMsg("ExpressionFactory:createInstance", "Created " << retval->toString());
+    wasCreated = true;
+    return retval;
+  }
+
+  std::map<LabelStr, ExpressionFactory*>& ExpressionFactory::factoryMap()
+  {
+    static std::map<LabelStr, ExpressionFactory*>* sl_map = NULL;
     if (sl_map == NULL)
-      sl_map = new std::map<double, ExpressionFactory*>();
+      sl_map = new std::map<LabelStr, ExpressionFactory*>();
 
     return *sl_map;
   }
 
-  void ExpressionFactory::purge() {
-    for(std::map<double, ExpressionFactory*>::iterator it = factoryMap().begin();
-	it != factoryMap().end(); ++it)
+  void ExpressionFactory::purge()
+  {
+    for (std::map<LabelStr, ExpressionFactory*>::iterator it = factoryMap().begin();
+         it != factoryMap().end();
+         ++it)
       delete it->second;
     factoryMap().clear();
   }

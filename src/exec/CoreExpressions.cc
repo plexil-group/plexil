@@ -72,16 +72,16 @@ namespace PLEXIL
     checkError(val->type() == PLEXIL::NODE_STATE,
                "Expected NodeState value.  Found '" << PlexilParser::valueTypeString(val->type()) << "'");
     LabelStr value(val->value());
-    m_value = m_initialValue = value;
     checkError(checkValue(value),
                "Attempted to initialize a state variable with invalid value "
                << Expression::valueToString(value));
+    m_value = m_initialValue = value.getKey();
   }
 
   // N.B. Depends on ALL_STATES() matching order of NodeState enumeration.
   bool StateVariable::checkValue(const double val) {
     for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
-      if (val == ALL_STATES()[s])
+      if (val == ALL_STATES()[s].getKey())
         return true;
     }
     return false;
@@ -102,20 +102,19 @@ namespace PLEXIL
 
   // Must be in same order as enum NodeState. See ExecDefs.hh.
   const std::vector<LabelStr>& StateVariable::ALL_STATES() {
-    static std::vector<LabelStr>* allStates = NULL;
-    if (allStates == NULL) {
-      allStates = new std::vector<LabelStr>();
-      allStates->reserve(NODE_STATE_MAX);
-      allStates->push_back(INACTIVE());
-      allStates->push_back(WAITING());
-      allStates->push_back(EXECUTING());
-      allStates->push_back(ITERATION_ENDED());
-      allStates->push_back(FINISHED());
-      allStates->push_back(FAILING());
-      allStates->push_back(FINISHING());
-      allStates->push_back(NO_STATE());
+    static std::vector<LabelStr> allStates;
+    if (allStates.empty()) {
+      allStates.reserve(NODE_STATE_MAX);
+      allStates.push_back(INACTIVE());
+      allStates.push_back(WAITING());
+      allStates.push_back(EXECUTING());
+      allStates.push_back(ITERATION_ENDED());
+      allStates.push_back(FINISHED());
+      allStates.push_back(FAILING());
+      allStates.push_back(FINISHING());
+      allStates.push_back(NO_STATE());
     }
-    return *allStates;
+    return allStates;
   }
 
   ExpressionId& StateVariable::INACTIVE_EXP() {
@@ -200,13 +199,18 @@ namespace PLEXIL
     checkError(val->type() == PLEXIL::NODE_OUTCOME,
                "Expected NodeOutcome value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
-    m_value = m_initialValue = value;
     checkError(checkValue(value),
                "Attempted to initialize a variable with an invalid value.");
+    m_value = m_initialValue = value;
   }
 
-  bool OutcomeVariable::checkValue(const double val) {
-    return (val == UNKNOWN() || val == SUCCESS() || val == FAILURE() || val == SKIPPED() || val == INTERRUPTED());
+  bool OutcomeVariable::checkValue(const double val) 
+  {
+    return val == UNKNOWN()
+      || val == SUCCESS().getKey()
+      || val == FAILURE().getKey()
+      || val == SKIPPED().getKey()
+      || val == INTERRUPTED().getKey();
   }
 
   void OutcomeVariable::print(std::ostream& s) const
@@ -235,9 +239,9 @@ namespace PLEXIL
     checkError(val->type() == PLEXIL::FAILURE_TYPE,
                "Expected NodeFailure value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
-    m_value = m_initialValue = value;
     checkError(checkValue(value),
                "Attempted to initialize a variable with an invalid value.");
+    m_value = m_initialValue = value;
   }
 
   void FailureVariable::print(std::ostream& s) const
@@ -248,12 +252,12 @@ namespace PLEXIL
 
   bool FailureVariable::checkValue(const double val) {
     return val == UNKNOWN()
-      || val == PRE_CONDITION_FAILED()
-      || val == POST_CONDITION_FAILED()
-      || val == INVARIANT_CONDITION_FAILED()
-      || val == PARENT_FAILED()
-      || val == PARENT_EXITED()
-      || val == EXITED();
+      || val == PRE_CONDITION_FAILED().getKey()
+      || val == POST_CONDITION_FAILED().getKey()
+      || val == INVARIANT_CONDITION_FAILED().getKey()
+      || val == PARENT_FAILED().getKey()
+      || val == PARENT_EXITED().getKey()
+      || val == EXITED().getKey();
   }
 
   // Called only from Command constructors.
@@ -275,19 +279,19 @@ namespace PLEXIL
     checkError(val->type() == PLEXIL::COMMAND_HANDLE,
                "Expected NodeCommandHandle value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
     LabelStr value(val->value());
-    m_value = m_initialValue = value;
     checkError(checkValue(value),
                "Attempted to initialize a variable with an invalid value.");
+    m_value = m_initialValue = value;
   }
 
   bool CommandHandleVariable::checkValue(const double val) {
-    return (val == UNKNOWN()
-            || val == COMMAND_SENT_TO_SYSTEM()
-            || val == COMMAND_ACCEPTED()
-            || val == COMMAND_RCVD_BY_SYSTEM()
-            || val == COMMAND_SUCCESS()
-            || val == COMMAND_DENIED()
-            || val == COMMAND_FAILED());
+    return val == UNKNOWN()
+      || val == COMMAND_SENT_TO_SYSTEM().getKey()
+      || val == COMMAND_ACCEPTED().getKey()
+      || val == COMMAND_RCVD_BY_SYSTEM().getKey()
+      || val == COMMAND_SUCCESS().getKey()
+      || val == COMMAND_DENIED().getKey()
+      || val == COMMAND_FAILED().getKey();
   }
 
   void CommandHandleVariable::print(std::ostream& s) const 

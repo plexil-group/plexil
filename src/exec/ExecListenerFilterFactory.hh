@@ -115,11 +115,11 @@ namespace PLEXIL
     ExecListenerFilterFactory& operator=(const ExecListenerFilterFactory&);
 
     /**
-     * @brief The map from names (LabelStr/double) to concrete ExecListenerFilterFactory instances.
+     * @brief The map from names (LabelStr) to concrete ExecListenerFilterFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<double, ExecListenerFilterFactory*>& factoryMap();
+    static std::map<LabelStr, ExecListenerFilterFactory*>& factoryMap();
 
     const LabelStr m_name; /*!< Name used for lookup */
   };

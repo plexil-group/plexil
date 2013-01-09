@@ -359,7 +359,7 @@ namespace PLEXIL {
   PlexilValue::PlexilValue(const PlexilType& type, const std::string& value)
     : PlexilExpr(), m_value(value), m_type(type)
   {
-    // FIXME: this allocates a string that could be a constant
+    // FIXME: this computes a string that could be a constant
     setName(PlexilParser::valueTypeString(m_type) + "Value");
   }
 
@@ -369,7 +369,8 @@ namespace PLEXIL {
                                      const std::vector<std::string>& values)
     : PlexilValue(type), m_maxSize(maxSize), m_values(values)
   {
-    setName("ArrayValue");
+    // Handle special case of string array
+    setName(type == STRING ? "StringArrayValue" : "ArrayValue");
   }
 
   void PlexilVarRef::setVariable(const PlexilVarId& var)

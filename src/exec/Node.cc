@@ -58,40 +58,39 @@ namespace PLEXIL {
     m_node.conditionChanged();
   }
 
-  const std::vector<double>& Node::ALL_CONDITIONS() {
-    static std::vector<double>* sl_allConds = NULL;
-    if (sl_allConds == NULL) {
+  const std::vector<LabelStr>& Node::ALL_CONDITIONS() {
+    static std::vector<LabelStr> sl_allConds;
+    if (sl_allConds.empty()) {
+      sl_allConds.reserve(conditionIndexMax);
       // *** N.B.: Order MUST agree with enum ConditionIndex!
-      sl_allConds = new std::vector<double>();
       // Conditions on parent
-      sl_allConds->push_back(ANCESTOR_END_CONDITION());
-      sl_allConds->push_back(ANCESTOR_EXIT_CONDITION());
-      sl_allConds->push_back(ANCESTOR_INVARIANT_CONDITION());
+      sl_allConds.push_back(ANCESTOR_END_CONDITION());
+      sl_allConds.push_back(ANCESTOR_EXIT_CONDITION());
+      sl_allConds.push_back(ANCESTOR_INVARIANT_CONDITION());
       // User specified conditions
-      sl_allConds->push_back(SKIP_CONDITION());
-      sl_allConds->push_back(START_CONDITION());
-      sl_allConds->push_back(END_CONDITION());
-      sl_allConds->push_back(EXIT_CONDITION());
-      sl_allConds->push_back(INVARIANT_CONDITION());
-      sl_allConds->push_back(PRE_CONDITION());
-      sl_allConds->push_back(POST_CONDITION());
-      sl_allConds->push_back(REPEAT_CONDITION());
+      sl_allConds.push_back(SKIP_CONDITION());
+      sl_allConds.push_back(START_CONDITION());
+      sl_allConds.push_back(END_CONDITION());
+      sl_allConds.push_back(EXIT_CONDITION());
+      sl_allConds.push_back(INVARIANT_CONDITION());
+      sl_allConds.push_back(PRE_CONDITION());
+      sl_allConds.push_back(POST_CONDITION());
+      sl_allConds.push_back(REPEAT_CONDITION());
       // For all but Empty nodes
-      sl_allConds->push_back(ACTION_COMPLETE());
+      sl_allConds.push_back(ACTION_COMPLETE());
       // For all but Empty and Update nodes
-      sl_allConds->push_back(ABORT_COMPLETE());
+      sl_allConds.push_back(ABORT_COMPLETE());
       // inexpensive sanity check
-      assertTrue(sl_allConds->size() == conditionIndexMax,
+      assertTrue(sl_allConds.size() == conditionIndexMax,
                  "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
     }
-    return *sl_allConds;
+    return sl_allConds;
   }
 
   size_t Node::getConditionIndex(const LabelStr& cName) {
-    double nameKey = cName.getKey();
-    const std::vector<double>& allConds = ALL_CONDITIONS();
+    const std::vector<LabelStr>& allConds = ALL_CONDITIONS();
     for (size_t i = 0; i < conditionIndexMax; ++i) {
-      if (allConds[i] == nameKey)
+      if (allConds[i] == cName)
         return i;
     }
     assertTrueMsg(ALWAYS_FAIL,
@@ -99,9 +98,9 @@ namespace PLEXIL {
     return conditionIndexMax; // make compiler happy
   }
 
-  LabelStr Node::getConditionName(size_t idx)
+  const LabelStr& Node::getConditionName(size_t idx)
   {
-    return LabelStr(ALL_CONDITIONS()[idx]);
+    return ALL_CONDITIONS()[idx];
   }
 
   const LabelStr& 
@@ -142,7 +141,7 @@ namespace PLEXIL {
       m_exec(exec),
       m_nodeId(node->nodeId()),
       m_nodeType(nodeTypeToLabelStr(node->nodeType())), // Can throw exception
-      m_sortedVariableNames(new std::vector<double>()),
+      m_sortedVariableNames(new std::vector<LabelStr>()),
       m_state(INACTIVE_STATE),
       m_lastQuery(NO_NODE_STATE),
       m_postInitCalled(false),
@@ -173,7 +172,7 @@ namespace PLEXIL {
       m_exec(exec),
       m_nodeId(name),
       m_nodeType(type),
-      m_sortedVariableNames(new std::vector<double>()),
+      m_sortedVariableNames(new std::vector<LabelStr>()),
       m_state(state),
       m_lastQuery(NO_NODE_STATE),
       m_postInitCalled(false), 
@@ -187,7 +186,7 @@ namespace PLEXIL {
       ExpressionId expr = (new BooleanVariable(BooleanVariable::FALSE_VALUE(), false))->getId();
       debugMsg("Node:node",
                " Created internal variable "
-               << LabelStr(ALL_CONDITIONS()[i]).toString() <<
+               << ALL_CONDITIONS()[i].toString() <<
                " with value FALSE for node " << m_nodeId.toString());
       m_conditions[i] = expr;
       m_garbageConditions[i] = true;
@@ -246,15 +245,14 @@ namespace PLEXIL {
   void Node::commonInit() {
     debugMsg("Node:node", "Instantiating internal variables...");
     // Instantiate state/outcome/failure variables
-    // The contortions with getKey() are an attempt to minimize LabelStr copying
-    m_variablesByName[STATE().getKey()] = m_stateVariable =
+    m_variablesByName[STATE()] = m_stateVariable =
       (new StateVariable(m_nodeId.toString()))->getId();
     ((StateVariable*) m_stateVariable)->setNodeState(m_state);
 
-    m_variablesByName[OUTCOME().getKey()] = m_outcomeVariable =
+    m_variablesByName[OUTCOME()] = m_outcomeVariable =
       (new OutcomeVariable(m_nodeId.toString()))->getId();
 
-    m_variablesByName[FAILURE_TYPE().getKey()] = m_failureTypeVariable =
+    m_variablesByName[FAILURE_TYPE()] = m_failureTypeVariable =
       (new FailureVariable(m_nodeId.toString()))->getId();
 
     // initialize m_garbageConditions
@@ -270,12 +268,10 @@ namespace PLEXIL {
     debugMsg("Node:node", "Instantiating timepoint variables.");
     for (int s = INACTIVE_STATE; s <= nodeStateMax(); ++s) {
       ExpressionId stp = (new RealVariable())->getId();
-      double stpName = START_TIMEPOINT_NAMES()[s];
-      m_startTimepoints[s] = m_variablesByName[stpName] = stp;
+      m_startTimepoints[s] = m_variablesByName[START_TIMEPOINT_NAMES()[s]] = stp;
 
       ExpressionId etp = (new RealVariable())->getId();
-      const LabelStr& etpName = END_TIMEPOINT_NAMES()[s];
-      m_endTimepoints[s] = m_variablesByName[etpName] = etp;
+      m_endTimepoints[s] = m_variablesByName[END_TIMEPOINT_NAMES()[s]] = etp;
     }
   }
 
@@ -300,16 +296,16 @@ namespace PLEXIL {
       // get the variable name
       const std::string& name = (*it)->name();
       LabelStr nameLabel(name);
-      VariableId varId =
-        (VariableId)
-        ExpressionFactory::createInstance(PlexilParser::valueTypeString(var->type()), 
-                                          var,
-                                          NodeConnector::getId());
       // Check for duplicate names
       // FIXME: push up into XML parser
-      assertTrueMsg(m_variablesByName.find(nameLabel.getKey()) == m_variablesByName.end(),
+      assertTrueMsg(m_variablesByName.find(nameLabel) == m_variablesByName.end(),
                     "Node \"" << m_nodeId.toString() << "\" already has a variable named \"" << name << "\"");
-      m_variablesByName[nameLabel.getKey()] = varId;
+      VariableId varId =
+        (VariableId)
+        ExpressionFactory::createInstance(var->factoryTypeString(), 
+                                          var,
+                                          NodeConnector::getId());
+      m_variablesByName[varId->getName()] = varId;
       m_localVariables.push_back(varId);
       debugMsg("Node:createDeclaredVars",
                " for node '" << m_nodeId.toString()
@@ -339,8 +335,8 @@ namespace PLEXIL {
       PlexilVarRef* varRef = *it;
 
       // Check for duplicate name
-      double nameKey = LabelStr(varRef->name()).getKey();
-      assertTrueMsg(m_variablesByName.find(nameKey) == m_variablesByName.end(),
+      LabelStr name(varRef->name());
+      assertTrueMsg(m_variablesByName.find(name) == m_variablesByName.end(),
                     "Node \"" << m_nodeId.toString()
                     << ": 'In' variable name \"" << varRef->name() << "\" is already in use");
 
@@ -352,7 +348,7 @@ namespace PLEXIL {
                " for node \"" << m_nodeId.c_str()
                << "\": Adding In variable " << expr->toString()
                << " as \"" << varRef->name() << "\""); 
-      m_variablesByName[nameKey] = expr;
+      m_variablesByName[name] = expr;
     }
       
     for (std::vector<PlexilVarRef*>::const_iterator it = intf->inOut().begin();
@@ -361,8 +357,8 @@ namespace PLEXIL {
       PlexilVarRef* varRef = *it;
 
       // Check for duplicate name
-      double nameKey = LabelStr(varRef->name()).getKey();
-      assertTrueMsg(m_variablesByName.find(nameKey) == m_variablesByName.end(),
+      LabelStr name(varRef->name());
+      assertTrueMsg(m_variablesByName.find(name) == m_variablesByName.end(),
                     "Node \"" << m_nodeId.toString()
                     << ": 'InOut' variable name \"" << varRef->name() << "\" is already in use");
 
@@ -374,7 +370,7 @@ namespace PLEXIL {
                " for node \"" << m_nodeId.c_str()
                << "\": Adding InOut variable " << expr->toString()
                << " as \"" << varRef->name() << "\""); 
-      m_variablesByName[nameKey] = expr;
+      m_variablesByName[name] = expr;
     }
   }
 
@@ -526,8 +522,7 @@ namespace PLEXIL {
     for (std::vector<std::pair <PlexilExprId, std::string> >::const_iterator it = conds.begin(); 
          it != conds.end(); 
          ++it) {
-      const LabelStr condName(it->second);
-      size_t condIdx = getConditionIndex(condName);
+      size_t condIdx = getConditionIndex(LabelStr(it->second));
 
       // Delete existing condition if required
       // (e.g. explicit override of default end condition for list or library call node)
@@ -541,7 +536,7 @@ namespace PLEXIL {
       }
 
       m_conditions[condIdx] = 
-        ExpressionFactory::createInstance(it->first->name(), 
+        ExpressionFactory::createInstance(LabelStr(it->first->name()),
                                           it->first,
                                           NodeConnector::getId(), 
                                           m_garbageConditions[condIdx]);
@@ -1133,8 +1128,8 @@ namespace PLEXIL {
                  "' is " << getOutcome().toString());
     debugMsg("Node:times",
              "Setting '" << m_nodeId.toString()
-             << "' end time " << LabelStr(END_TIMEPOINT_NAMES()[prevState]).toString()
-             << " = start time " << LabelStr(START_TIMEPOINT_NAMES()[destState]).toString()
+             << "' end time " << END_TIMEPOINT_NAMES()[prevState].toString()
+             << " = start time " << START_TIMEPOINT_NAMES()[destState].toString()
              << " = " << std::setprecision(15) << time);
     m_endTimepoints[prevState]->setValue(time);
     m_startTimepoints[destState]->setValue(time);
@@ -1696,10 +1691,12 @@ namespace PLEXIL {
   // *** END NODE STATE LOGIC ***
   // ***
 
-  const VariableId& Node::getInternalVariable(const LabelStr& name) const{
-    checkError(m_variablesByName.find(name) != m_variablesByName.end(),
+  const VariableId& Node::getInternalVariable(const LabelStr& name) const
+  {
+    VariableMap::const_iterator it = m_variablesByName.find(name);
+    checkError(it != m_variablesByName.end(),
                "No variable named " << name.toString() << " in " << m_nodeId.toString());
-    return m_variablesByName.find(name)->second;
+    return it->second;
   }
 
   const LabelStr& Node::getStateName() const {
@@ -1760,7 +1757,7 @@ namespace PLEXIL {
     debugMsg("Node:findVariable",
              " for node '" << m_nodeId.toString()
              << "', searching by name for \"" << name.toString() << "\"");
-    VariableMap::const_iterator it = m_variablesByName.find(name.getKey());
+    VariableMap::const_iterator it = m_variablesByName.find(name);
     if (it != m_variablesByName.end()) {
       debugMsg("Node:findVariable",
                " Returning " << it->second->toString());
@@ -1774,7 +1771,7 @@ namespace PLEXIL {
       const VariableId& result = m_parent->findVariable(name, true);
       if (result.isId()) {
         // Found it - cache for later reuse
-        m_variablesByName[name.getKey()] = result;
+        m_variablesByName[name] = result;
         return result;
       }
       // Not found 
@@ -2309,9 +2306,8 @@ namespace PLEXIL {
       printVariables(stream, indent);
     }
     // print children
-    for (std::vector<NodeId>::const_iterator it = getChildren().begin(); it != getChildren().end(); ++it) {
-      stream << (*it)->toString(indent + 2);
-    }
+    for (std::vector<NodeId>::const_iterator it = getChildren().begin(); it != getChildren().end(); ++it)
+      (*it)->print(stream, indent + 2);
     stream << indentStr << "}" << std::endl;
   }
 
@@ -2325,11 +2321,11 @@ namespace PLEXIL {
   {
     std::string indentStr(indent, ' ');
     ensureSortedVariableNames(); // for effect
-    for (std::vector<double>::const_iterator it = m_sortedVariableNames->begin();
+    for (std::vector<LabelStr>::const_iterator it = m_sortedVariableNames->begin();
          it != m_sortedVariableNames->end();
          ++it) {
-      stream << indentStr << " " << LabelStr(*it).toString() << ": " <<
-        *(getInternalVariable(LabelStr(*it))) << '\n';
+      stream << indentStr << " " << it->toString() << ": " <<
+        *(getInternalVariable(*it)) << '\n';
     }
   }
 
@@ -2343,12 +2339,6 @@ namespace PLEXIL {
       return m_exec->getExecListenerHub();
   }
 
-  // Helper used below
-  bool labelStrLessThan(double a, double b)
-  {
-    return LabelStr(a).toString() < LabelStr(b).toString();
-  }
-
   void Node::ensureSortedVariableNames() const
   {
     checkError(m_sortedVariableNames != NULL,
@@ -2358,53 +2348,48 @@ namespace PLEXIL {
       for (VariableMap::const_iterator it = m_variablesByName.begin();
            it != m_variablesByName.end();
            ++it) {
-        double nameKey = it->first;
-        if (nameKey == STATE().getKey()
-            || nameKey == OUTCOME().getKey()
-            || nameKey == FAILURE_TYPE().getKey()
-            || nameKey == COMMAND_HANDLE().getKey()
-            || LabelStr(nameKey).countElements(".") > 1)
+        const LabelStr& name = it->first;
+        if (name == STATE()
+            || name == OUTCOME()
+            || name == FAILURE_TYPE()
+            || name == COMMAND_HANDLE()
+            || name.countElements(".") > 1)
           continue;
         m_sortedVariableNames->push_back(it->first);
       }
       // Sort the names
       std::sort(m_sortedVariableNames->begin(),
-                m_sortedVariableNames->end(),
-                labelStrLessThan);
+                m_sortedVariableNames->end());
     }
   }
 
   // Static "constants"
-  const std::vector<double>& Node::START_TIMEPOINT_NAMES() {
-    static std::vector<double>* startNames = NULL;
-    if (startNames == NULL) {
-      startNames = new std::vector<double>();
-      startNames->reserve(NO_NODE_STATE);
+  const std::vector<LabelStr>& Node::START_TIMEPOINT_NAMES() {
+    static std::vector<LabelStr> startNames;
+    if (startNames.empty()) {
+      startNames.reserve(NO_NODE_STATE);
       for (std::vector<LabelStr>::const_iterator it = StateVariable::ALL_STATES().begin();
            it != StateVariable::ALL_STATES().end(); 
            ++it) {
         const std::string& state = it->toString();
-        LabelStr startName(state + ".START");
-        startNames->push_back(startName.getKey());
+        startNames.push_back(LabelStr(state + ".START"));
       }
     }
-    return *startNames;
+    return startNames;
   }
 
-  const std::vector<double>& Node::END_TIMEPOINT_NAMES() {
-    static std::vector<double>* endNames = NULL;
-    if (endNames == NULL) {
-      endNames = new std::vector<double>();
-      endNames->reserve(NO_NODE_STATE);
+  const std::vector<LabelStr>& Node::END_TIMEPOINT_NAMES() {
+    static std::vector<LabelStr> endNames;
+    if (endNames.empty()) {
+      endNames.reserve(NO_NODE_STATE);
       for (std::vector<LabelStr>::const_iterator it = StateVariable::ALL_STATES().begin();
            it != StateVariable::ALL_STATES().end(); 
            ++it) {
         const std::string& state = it->toString();
-        LabelStr endName(state + ".END");
-        endNames->push_back(endName.getKey());
+        endNames.push_back(LabelStr(state + ".END"));
       }
     }
-    return *endNames;
+    return endNames;
   }
 
 }

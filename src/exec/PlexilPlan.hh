@@ -31,8 +31,6 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "Id.hh"
-#include "LabelStr.hh"
 #include "ExecDefs.hh"
 #include "PlexilResource.hh"
 
@@ -67,7 +65,7 @@ namespace PLEXIL
   DECLARE_ID(PlexilInternalVar);
 
   typedef std::vector<const PlexilNode*> PlexilNodeSet;
-  typedef std::map<double, PlexilExprId>  PlexilAliasMap;
+  typedef std::map<LabelStr, PlexilExprId>  PlexilAliasMap;
 
   enum PlexilNodeType
     {
@@ -98,6 +96,7 @@ namespace PLEXIL
     DECLARE_STATIC_CLASS_CONST(std::string, BOOL_STR, "Boolean");
     DECLARE_STATIC_CLASS_CONST(std::string, ARRAY_STR, "Array");
     DECLARE_STATIC_CLASS_CONST(std::string, STRING_STR, "String");
+    DECLARE_STATIC_CLASS_CONST(std::string, STRING_ARRAY_STR, "StringArray");
     DECLARE_STATIC_CLASS_CONST(std::string, TIME_STR, "Time");
     DECLARE_STATIC_CLASS_CONST(std::string, NODE_STATE_STR, "NodeState");
     DECLARE_STATIC_CLASS_CONST(std::string, NODE_OUTCOME_STR, "NodeOutcome");
@@ -441,6 +440,7 @@ namespace PLEXIL
     ~PlexilArrayValue() {} 
     const std::vector<std::string>& values() const {return m_values;}
     unsigned maxSize() const {return m_maxSize;}
+
   private:
     unsigned m_maxSize;
     std::vector<std::string> m_values;
@@ -457,6 +457,10 @@ namespace PLEXIL
 
     const PlexilVarId& getId() const {return m_varId;}
     virtual const PlexilType& type() const {return m_type;}
+    virtual const std::string& factoryTypeString() const
+    {
+      return PlexilParser::valueTypeString(m_type);
+    }
     const PlexilValue* value() const {return m_value;}
 
   protected:
@@ -484,6 +488,13 @@ namespace PLEXIL
     { 
       static PlexilType s_arrayType = ARRAY;
       return s_arrayType;
+    }
+    virtual const std::string& factoryTypeString() const 
+    {
+      if (m_type == STRING) 
+        return PlexilParser::STRING_ARRAY_STR();
+      else 
+        return PlexilParser::ARRAY_STR();
     }
     virtual bool isArray() const {return true;}
     const PlexilType& elementType() const {return m_type;}

@@ -35,29 +35,34 @@
 namespace PLEXIL
 {
 
-  StringVariable::StringVariable(const bool isConst) : VariableImpl(isConst) {}
-
-  StringVariable::StringVariable(const std::string& value, const bool isConst)
-    : VariableImpl(LabelStr(value), isConst) {}
-
-  StringVariable::StringVariable(const char* value, const bool isConst)
-    : VariableImpl(LabelStr(value), isConst) {}
+  StringVariable::StringVariable(const bool isConst)
+    : VariableImpl(isConst),
+      m_label(),
+      m_initialLabel()
+  {}
 
   StringVariable::StringVariable(const double value, const bool isConst)
-    : VariableImpl(value, isConst) {
-    checkError(checkValue(value),
-			   "Attempted to initialize string variable to an invalid value \"" << valueToString(value) << "\"");
+    : VariableImpl(value, isConst),
+      m_label(value), // can assert if value is not a LabelStr key
+      m_initialLabel(value)
+  {
   }
 
   StringVariable::StringVariable(const LabelStr& value, const bool isConst)
-    : VariableImpl(value, isConst) {
+    : VariableImpl(value.getKey(), isConst),
+      m_label(value),
+      m_initialLabel(value)
+  {
     checkError(checkValue(value),
 			   "Attempted to initialize string variable to an invalid value \"" << value.toString() << "\"");
   }
 
-  StringVariable::StringVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-				 const bool isConst)
-    : VariableImpl(expr, node, isConst) 
+  StringVariable::StringVariable(const PlexilExprId& expr,
+                                 const NodeConnectorId& node,
+                                 const bool isConst)
+    : VariableImpl(expr, node, isConst),
+      m_label(),
+      m_initialLabel()
   {
 	assertTrueMsg(expr.isValid(), "Attempt to create a StringVariable from an invalid Id");
 	const PlexilValue* value = NULL;
@@ -82,7 +87,8 @@ namespace PLEXIL
 	else {
 	  assertTrueMsg(value->type() == STRING,
 					"Attempt to create a StringVariable from a non-STRING PlexilValue");
-	  m_initialValue = m_value = (double) LabelStr(value->value());
+      m_label = m_initialLabel = value->value();
+	  m_initialValue = m_value = m_label.getKey();
 	}
   }
 
@@ -93,8 +99,21 @@ namespace PLEXIL
 	s << "string)";
   }
 
-  bool StringVariable::checkValue(const double val) {
+  bool StringVariable::checkValue(const double val) 
+  {
     return val == UNKNOWN() || LabelStr::isString(val);
+  }
+
+  // Create a working copy of the label for memory management's sake
+  void StringVariable::setValue(const double value)
+  {
+    VariableImpl::setValue(value);
+    if (value == UNKNOWN()) {
+      m_label = EMPTY_LABEL();
+    }
+    else {
+      m_label = value;
+    }
   }
 
   RealVariable::RealVariable(const bool isConst) : VariableImpl(isConst) {}
@@ -200,7 +219,6 @@ namespace PLEXIL
   {
     checkError(checkValue(value),
 			   "Attempted to initialize an Integer variable to invalid value \"" << valueToString(value) << "\"");
-
   }
 
   IntegerVariable::IntegerVariable(const PlexilExprId& expr, const NodeConnectorId& node,

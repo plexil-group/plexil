@@ -69,6 +69,11 @@ namespace PLEXIL
     return LabelStr(m_nameExpr->getValue()); 
   }
 
+  const std::string& Command::getNameString() const
+  {
+    return LabelStr::toString(m_nameExpr->getValue());
+  }
+
   void Command::fixValues() {
     m_argValues.clear();
     for (std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {

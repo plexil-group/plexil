@@ -218,11 +218,10 @@ namespace PLEXIL
 
   class Concatenation : public NaryExpression {
   public:
-    Concatenation(const PlexilExprId& expr, const NodeConnectorId& node)
-      : NaryExpression(expr, node) {}
-    Concatenation(const ExpressionId& a, const ExpressionId& b) : NaryExpression(a, b) {}
-    Concatenation(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
-      : NaryExpression(a, aGarbage, b, bGarbage) {}
+    Concatenation(const PlexilExprId& expr, const NodeConnectorId& node);
+    Concatenation(const ExpressionId& a, const ExpressionId& b);
+    Concatenation(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage);
+
     double recalculate();
 
     /**
@@ -235,6 +234,8 @@ namespace PLEXIL
     const char* operatorString() const { return "+"; }
 
   private:
+    LabelStr m_label;
+
     bool checkValue(const double value);
   };
 

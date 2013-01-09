@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 #ifndef PLEXIL_ARRAY_HH
 #define PLEXIL_ARRAY_HH
 
-#include "ExecDefs.hh"
+#include "StoredArray.hh"
 #include "Variable.hh"
 
 namespace PLEXIL
@@ -40,19 +40,19 @@ namespace PLEXIL
   class ArrayVariableBase : public virtual Variable
   {
   public:
-	ArrayVariableBase();
+    ArrayVariableBase();
 
-	virtual ~ArrayVariableBase();
+    virtual ~ArrayVariableBase();
 
-	/**
-	 * @brief Get the maximum size of this array.
-	 */
-    virtual unsigned long maxSize() const = 0;
+    /**
+     * @brief Get the maximum size of this array.
+     */
+    virtual size_t maxSize() const = 0;
 
-	/**
-	 * @brief Get the element at the given index.
-	 */
-    virtual double lookupValue(unsigned long index) const = 0;
+    /**
+     * @brief Get the element at the given index.
+     */
+    virtual double lookupValue(size_t index) const = 0;
 
     /**
      * @brief Set one element of this array from the given value.
@@ -78,34 +78,34 @@ namespace PLEXIL
      */
     virtual PlexilType getValueType() const { return ARRAY; }
 
-	/**
-	 * @brief Report whether the expression is an array.
-	 * @return True if an array, false otherwise.
-	 */
-	virtual bool isArray() const { return true; }
+    /**
+     * @brief Report whether the expression is an array.
+     * @return True if an array, false otherwise.
+     */
+    virtual bool isArray() const { return true; }
 
-	const ArrayVariableId& getArrayId() const { return m_avid; }
+    const ArrayVariableId& getArrayId() const { return m_avid; }
 
   protected:
 
   private:
-	// deliberately unimplemented
-	ArrayVariableBase(const ArrayVariableBase&);
-	ArrayVariableBase& operator=(const ArrayVariableBase&);
+    // deliberately unimplemented
+    ArrayVariableBase(const ArrayVariableBase&);
+    ArrayVariableBase& operator=(const ArrayVariableBase&);
 
-	ArrayVariableId m_avid;
+    ArrayVariableId m_avid;
   };
 
   class ArrayAliasVariable :
-	public ArrayVariableBase,
-	public AliasVariable
+    public ArrayVariableBase,
+    public AliasVariable
   {
   public:
-	ArrayAliasVariable(const std::string& name, 
-					   const NodeConnectorId& nodeConnector,
-					   const ExpressionId& exp,
-					   bool expIsGarbage,
-					   bool isConst);
+    ArrayAliasVariable(const std::string& name, 
+                       const NodeConnectorId& nodeConnector,
+                       const ExpressionId& exp,
+                       bool expIsGarbage,
+                       bool isConst);
     virtual ~ArrayAliasVariable();
 
     /**
@@ -114,12 +114,12 @@ namespace PLEXIL
      */
     void print(std::ostream& s) const;
 
-	// Defined in multiple superclasses
-	PlexilType getValueType() const;
+    // Defined in multiple superclasses
+    PlexilType getValueType() const;
 
-	// ArrayVariable API
-	virtual unsigned long maxSize() const;
-	virtual double lookupValue(unsigned long index) const;
+    // ArrayVariable API
+    virtual size_t maxSize() const;
+    virtual double lookupValue(size_t index) const;
     virtual void setElementValue(unsigned index, const double value);
     virtual PlexilType getElementType() const;
     virtual bool checkElementValue(const double val);
@@ -127,25 +127,25 @@ namespace PLEXIL
   protected:
 
   private:
-	// deliberately unimplemented
-	ArrayAliasVariable();
-	ArrayAliasVariable(const ArrayAliasVariable&);
-	ArrayAliasVariable& operator=(const ArrayAliasVariable&);
+    // deliberately unimplemented
+    ArrayAliasVariable();
+    ArrayAliasVariable(const ArrayAliasVariable&);
+    ArrayAliasVariable& operator=(const ArrayAliasVariable&);
 
-	ArrayVariableId m_originalArray;
+    ArrayVariableId m_originalArray;
   };
 
   class ArrayVariable :
-	public ArrayVariableBase,
-	public VariableImpl // ???
+    public ArrayVariableBase,
+    public VariableImpl // ???
   {
   public:
-    ArrayVariable(unsigned long maxSize, 
-				  PlexilType type, 
+    ArrayVariable(size_t maxSize, 
+                  PlexilType type, 
                   const bool isConst = false);
-    ArrayVariable(unsigned long maxSize, 
-				  PlexilType type, 
-                  std::vector<double>& values,
+    ArrayVariable(size_t maxSize, 
+                  PlexilType type, 
+                  const std::vector<double>& values,
                   const bool isConst = false);
     ArrayVariable(const PlexilExprId& expr, 
                   const NodeConnectorId& node,
@@ -153,38 +153,28 @@ namespace PLEXIL
 
     virtual ~ArrayVariable();
 
-    void print(std::ostream& s) const;
-    double lookupValue(unsigned long index) const;
-    unsigned long maxSize() const {return m_maxSize;}
-
-    /**
-     * @brief Set the contents of this array from the given values.
-     */
-    void setValues(std::vector<double>& values);
-
-    /**
-     * @brief Set the contents of this array from the given array value.
-     */
-    void setValues(const double key);
+    virtual void print(std::ostream& s) const;
+    virtual double lookupValue(size_t index) const;
+    size_t maxSize() const {return m_maxSize;}
 
     /**
      * @brief Set the contents of this array from the given value.
      * @note Value must be an array or UNKNOWN.
      */
-    void setValue(const double value);
+    virtual void setValue(const double value);
 
     /**
      * @brief Set the value of this expression back to the initial value with which it was
      *        created.
      */
-    void reset();
+    virtual void reset();
 
     /**
      * @brief Set one element of this array from the given value.
      * @note Value must be an array or UNKNOWN.
      * @note Index must be less than maximum length
      */
-    void setElementValue(unsigned index, const double value);
+    virtual void setElementValue(unsigned index, const double value);
 
     /**
      * @brief Retrieve the element type of this array.
@@ -195,26 +185,72 @@ namespace PLEXIL
     /**
      * @brief Check to make sure an element value is appropriate for this array.
      */
-    bool checkElementValue(const double val);
+    virtual bool checkElementValue(const double val);
 
   protected:
-
-  private:
-
-    unsigned long       m_maxSize;
-    PlexilType          m_type;
-    std::vector<double>	m_initialVector;
 
     /**
      * @brief Check to make sure a value is appropriate for this variable.
      */
-    bool checkValue(const double val);
+    virtual bool checkValue(const double val);
 
     /**
      * @brief Check to make sure the index is appropriate for this array.
      */
     bool checkIndex(const unsigned index) const 
     { return index < m_maxSize; }
+
+    StoredArray         m_array;
+    StoredArray         m_initialArray;
+    size_t              m_maxSize;
+    PlexilType          m_type;
+  };
+
+  class StringArrayVariable :
+    public ArrayVariable
+  {
+  public:
+    StringArrayVariable(size_t maxSize, 
+                        PlexilType type, 
+                        const bool isConst = false);
+    StringArrayVariable(size_t maxSize, 
+                        PlexilType type, 
+                        const std::vector<double>& values,
+                        const bool isConst = false);
+    StringArrayVariable(const PlexilExprId& expr, 
+                        const NodeConnectorId& node,
+                        const bool isConst = false);
+
+    virtual ~StringArrayVariable();
+
+    /**
+     * @brief Set the value of this expression back to the initial value with which it was
+     *        created.
+     */
+    virtual void reset();
+
+    /**
+     * @brief Set one element of this array from the given value.
+     * @note Value must be a string or UNKNOWN.
+     * @note Index must be less than maximum length
+     */
+    virtual void setElementValue(unsigned index, const double value);
+
+    /**
+     * @brief Check to make sure an element value is appropriate for this array.
+     */
+    virtual bool checkElementValue(const double val);
+
+    /**
+     * @brief Set the contents of this array from the given value.
+     * @note Value must be an array or UNKNOWN.
+     */
+    virtual void setValue(const double value);
+
+  private:
+
+    std::vector<LabelStr> m_labels;
+    std::vector<LabelStr> m_initialLabels;
 
   };
 
@@ -255,7 +291,15 @@ namespace PLEXIL
      */
     const std::string& getName() const
     {
-      return m_name;  // FIXME: add index
+      return m_name.toString();
+    }
+
+    /**
+     * @brief Get the LabelStr key of this variable's name, as declared in the node that owns it.
+     */
+    double getNameKey() const
+    {
+      return m_name.getKey();
     }
 
     /**
@@ -270,7 +314,7 @@ namespace PLEXIL
     /**
      * @brief Get the node that owns this expression.
      * @return The NodeId of the parent node; may be noId.
-	 * @note Used by LuvFormat::formatAssignment().  
+     * @note Used by LuvFormat::formatAssignment().  
      */
     const NodeId& getNode() const { return m_node; }
 
@@ -292,15 +336,15 @@ namespace PLEXIL
 
     double recalculate();
 
-	/**
-	 * @brief Get the real variable for which this may be a proxy.
-	 * @return The VariableId of the base variable
-	 * @note Used by the assignment node conflict resolution logic.
-	 */
-	virtual const VariableId& getBaseVariable() const
-	{
-	  return m_arrayVariable->getBaseVariable();
-	}
+    /**
+     * @brief Get the real variable for which this may be a proxy.
+     * @return The VariableId of the base variable
+     * @note Used by the assignment node conflict resolution logic.
+     */
+    virtual const VariableId& getBaseVariable() const
+    {
+      return m_arrayVariable->getBaseVariable();
+    }
 
   protected:
 
@@ -318,10 +362,10 @@ namespace PLEXIL
 
     ArrayVariableId m_arrayVariable;
     ExpressionId m_index;
-	const NodeId m_node;
+    const NodeId m_node;
     bool m_deleteIndex;
     DerivedVariableListener m_listener;
-    std::string m_name;
+    LabelStr m_name;
   };
 
 }

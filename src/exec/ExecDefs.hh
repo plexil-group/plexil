@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,16 @@
 #ifndef _H_ExecDefs
 #define _H_ExecDefs
 
-#include "Id.hh"
 #include "generic_hash_map.hh"
+#include "Id.hh"
+#include "LabelStr.hh"
 
 #include <vector>
 #include <list>
 #include <utility>
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
   // NOTE: this used to be 100000000, which somehow gets printed as
   // scientific notation in XML and doesn't parse correctly.  
@@ -85,18 +87,18 @@ namespace PLEXIL {
   class Update;
   typedef Id<Update> UpdateId;
 
-  typedef std::pair<double, std::vector<double> > State;
+  typedef std::pair<LabelStr, std::vector<double> > State;
   typedef std::vector<ExpressionId> ExpressionVector;
   typedef std::vector<ExpressionId>::iterator ExpressionVectorIter;
   typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;
   typedef std::vector<ExpressionId> Expressions;
-  typedef PLEXIL_HASH_MAP(double, ExpressionId) ExpressionMap;
+  typedef PLEXIL_HASH_MAP(LabelStr, VariableId) VariableMap;
 
-    /**
-     * @brief Variable type enumerator.  An enumeration of plexil variable types.
-     */
+  /**
+   * @brief Variable type enumerator.  An enumeration of plexil variable types.
+   */
 
-    enum PlexilType
+  enum PlexilType
     {
       UNKNOWN_TYPE, INTEGER, REAL, BOOLEAN, ARRAY, STRING, TIME, 
       NODE_STATE, NODE_OUTCOME, FAILURE_TYPE, COMMAND_HANDLE,
@@ -123,12 +125,12 @@ namespace PLEXIL {
    * @brief A data structure for reporting node state transitions.
    */
   struct NodeTransition {
-	NodeId node;
-	NodeState state;
-	// default constructor
-	NodeTransition() : node(), state(INACTIVE_STATE) {}
-	// trivial constructor
-	NodeTransition(const NodeId& nod, NodeState stat) : node(nod), state(stat) {}
+    NodeId node;
+    NodeState state;
+    // default constructor
+    NodeTransition() : node(), state(INACTIVE_STATE) {}
+    // trivial constructor
+    NodeTransition(const NodeId& nod, NodeState stat) : node(nod), state(stat) {}
   };
 
 }

@@ -120,7 +120,7 @@ namespace PLEXIL
 
       // Barf if formal parameter is not known
       assertTrueMsg(aliasesCopy.empty(),
-                    "Interface variable \"" << LabelStr(aliasesCopy.begin()->first).toString() 
+                    "Interface variable \"" << aliasesCopy.begin()->first.toString() 
                     << "\" not found in library node \"" << libNode->nodeId()
                     << "\", called from node '" << getNodeId().toString() << "'");
     }
@@ -197,7 +197,9 @@ namespace PLEXIL
           // Construct the expression
           bool wasCreated = false;
           ExpressionId expr =
-            ExpressionFactory::createInstance(aliasValue->name(), aliasValue, NodeConnector::getId(), wasCreated);
+            ExpressionFactory::createInstance(LabelStr(aliasValue->name()), aliasValue,
+                                              NodeConnector::getId(),
+                                              wasCreated);
 
           // Construct a wrapper for it
           actualVar = (new AliasVariable(varName,
@@ -222,7 +224,10 @@ namespace PLEXIL
           // Construct the expression
           bool wasCreated = false;
           ExpressionId expr =
-            ExpressionFactory::createInstance(aliasValue->name(), aliasValue, NodeConnector::getId(), wasCreated);
+            ExpressionFactory::createInstance(LabelStr(aliasValue->name()),
+                                              aliasValue,
+                                              NodeConnector::getId(),
+                                              wasCreated);
 
           // Construct a const wrapper for it
           actualVar = 
@@ -235,7 +240,7 @@ namespace PLEXIL
         }
 
         // Add to alias map
-        m_aliasVariables[varLabel.getKey()] = actualVar;
+        m_aliasVariables[varLabel] = actualVar;
         
         // remove value for alias copy for later checking
         aliases.erase(varLabel);
@@ -247,8 +252,8 @@ namespace PLEXIL
   {
     if (recursive) {
       // Check alias map only
-      if (m_aliasVariables.find(name.getKey()) != m_aliasVariables.end())
-        return m_aliasVariables[name.getKey()];
+      if (m_aliasVariables.find(name) != m_aliasVariables.end())
+        return m_aliasVariables[name];
       else
         return VariableId::noId();
     }

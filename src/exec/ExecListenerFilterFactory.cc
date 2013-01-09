@@ -75,7 +75,7 @@ namespace PLEXIL
   ExecListenerFilterFactory::createInstance(const LabelStr& name,
                                             const pugi::xml_node& xml)
   {
-    std::map<double, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name.getKey());
+    std::map<LabelStr, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name);
     if (it == factoryMap().end()) {
 	  debugMsg("ExecListenerFilterFactory:createInstance", 
 			   "Attempting to dynamically load filter type \""
@@ -91,7 +91,7 @@ namespace PLEXIL
 	  }
 
 	  // See if it's registered now
-	  it = factoryMap().find(name.getKey());
+	  it = factoryMap().find(name);
 	}
 
     if (it == factoryMap().end()) {
@@ -106,9 +106,9 @@ namespace PLEXIL
     return retval;
   }
 
-  std::map<double, ExecListenerFilterFactory*>& ExecListenerFilterFactory::factoryMap() 
+  std::map<LabelStr, ExecListenerFilterFactory*>& ExecListenerFilterFactory::factoryMap() 
   {
-    static std::map<double, ExecListenerFilterFactory*> sl_map;
+    static std::map<LabelStr, ExecListenerFilterFactory*> sl_map;
     return sl_map;
   }
 
@@ -117,7 +117,7 @@ namespace PLEXIL
    */
   void ExecListenerFilterFactory::purge()
   {
-    for (std::map<double, ExecListenerFilterFactory*>::iterator it = factoryMap().begin();
+    for (std::map<LabelStr, ExecListenerFilterFactory*>::iterator it = factoryMap().begin();
          it != factoryMap().end();
          ++it)
       delete it->second;
@@ -132,7 +132,7 @@ namespace PLEXIL
   void ExecListenerFilterFactory::registerFactory(const LabelStr& name, ExecListenerFilterFactory* factory)
   {
     assertTrue(factory != NULL);
-    if (factoryMap().find(name.getKey()) != factoryMap().end())
+    if (factoryMap().find(name) != factoryMap().end())
       {
         warn("Attempted to register an exec listener filter factory for name \""
              << name.c_str()
@@ -140,7 +140,7 @@ namespace PLEXIL
         delete factory;
         return;
       }
-    factoryMap()[name.getKey()] = factory;
+    factoryMap()[name] = factory;
     debugMsg("ExecListenerFilterFactory:registerFactory",
              " Registered exec listener filter factory for name \"" << name.c_str() << "\"");
   }

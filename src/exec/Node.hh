@@ -45,8 +45,6 @@
 
 namespace PLEXIL {
 
-  typedef PLEXIL_HASH_MAP(double, VariableId) VariableMap;
-
   /**
    * @brief The class representing a Node in the plan--either a list of sub-Nodes, an assignment, or a command execution.
    * There is a possible refactoring here, breaking the three node types into subclasses.  Unfortunately, the XML format doesn't
@@ -77,7 +75,7 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(LabelStr, ACTION_COMPLETE, "ActionCompleteCondition"); /*!< The name for the action-complete condition. */
     DECLARE_STATIC_CLASS_CONST(LabelStr, ABORT_COMPLETE, "AbortCompleteCondition"); /*!< The name for the abort-complete condition. */
 
-    static const std::vector<double>& ALL_CONDITIONS();
+    static const std::vector<LabelStr>& ALL_CONDITIONS();
 
     //in-built variable names
     DECLARE_STATIC_CLASS_CONST(LabelStr, STATE, "state");
@@ -222,7 +220,7 @@ namespace PLEXIL {
     //Isaac
     double getCurrentStateEndTime() const;
 
-    //Isaac - get local variables ExpressionMap
+    //Isaac - get local variables
     const VariableMap& getLocalVariablesByName() { return m_variablesByName; }
     
     //Isaac - get local variables
@@ -360,7 +358,7 @@ namespace PLEXIL {
     void removeConditionListener(size_t idx);
 
     static size_t getConditionIndex(const LabelStr& cName);
-    static LabelStr getConditionName(size_t idx);
+    static const LabelStr& getConditionName(size_t idx);
 
     virtual NodeId findChild(const LabelStr& childName) const;
 
@@ -463,7 +461,7 @@ namespace PLEXIL {
     LabelStr m_nodeId;  /*!< the NodeId from the xml.*/
     LabelStr m_nodeType; /*!< The node type (either directly from the Node element or determined by the sub-elements. */
     VariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
-    std::vector<double>* m_sortedVariableNames; /*!< Convenience for printing. */
+    std::vector<LabelStr>* m_sortedVariableNames; /*!< Convenience for printing. */
     std::vector<VariableId> m_localVariables; /*!< Variables created in this node. */
     ExpressionId m_conditions[conditionIndexMax]; /*!< The condition expressions. */
     // Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate.
@@ -524,8 +522,8 @@ namespace PLEXIL {
      */
     void setConditionDefaults();
 
-    static const std::vector<double>& START_TIMEPOINT_NAMES();
-    static const std::vector<double>& END_TIMEPOINT_NAMES();
+    static const std::vector<LabelStr>& START_TIMEPOINT_NAMES();
+    static const std::vector<LabelStr>& END_TIMEPOINT_NAMES();
 
     void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
     void ensureSortedVariableNames() const;

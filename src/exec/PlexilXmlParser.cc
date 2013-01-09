@@ -546,7 +546,7 @@ namespace PLEXIL
       // gather elements
       std::vector<string> values;
 
-      const xml_node& thisElement = xml.first_child();
+      xml_node thisElement = xml.first_child();
       while (thisElement) {
         checkTagSuffix(VAL_TAG, thisElement);
         // Check type
@@ -570,6 +570,7 @@ namespace PLEXIL
                                            thisElement,
                                            "XML parsing error: Empty element value in array value of type '" << valueType << "'");
         }
+        thisElement = thisElement.next_sibling();
       }
 
       // return new value
@@ -760,7 +761,7 @@ namespace PLEXIL
         checkParserExceptionWithLocation(value,
                                          pair,
                                          "XML parsing error: No update value in pair for variable '" << name << "'");
-        debugMsg("PlexilXml:parsePairs", "Parsed pair {" << name << ", " << *value << "}");
+        debugMsg("PlexilXmlParser:parsePairs", "Parsed pair {" << name << ", " << *value << "}");
         retval->addPair(name, PlexilXmlParser::parseExpr(value));
       }
       return retval->getId();
@@ -824,6 +825,10 @@ namespace PLEXIL
       s_exprParsers->insert(std::make_pair(string(NODE_FAILURE_TAG) + VAL_TAG, val));
       s_exprParsers->insert(std::make_pair(string(NODE_STATE_TAG) + VAL_TAG, val));
       s_exprParsers->insert(std::make_pair(string(NODE_COMMAND_HANDLE_TAG) + VAL_TAG, val));
+
+      s_exprParsers->insert(std::make_pair(string(ARRAY_VAL_TAG),
+                                           new PlexilArrayValueParser()));
+
       s_exprParsers->insert(std::make_pair(LOOKUPNOW_TAG,
                                            new PlexilLookupNowParser()));
       s_exprParsers->insert(std::make_pair(LOOKUPCHANGE_TAG,
@@ -1301,6 +1306,7 @@ namespace PLEXIL
 
   // parse an array declaration
 
+  // FIXME: Add support for StringArrayVariable as distinct type
   PlexilVar* PlexilXmlParser::parseArrayDeclaration(const xml_node& decl)
     throw(ParserException) {
     checkTag(DECL_ARRAY_TAG, decl);
@@ -1953,9 +1959,9 @@ namespace PLEXIL
          ++it) {
       // double is key to LabelStr of formal param name
       // expr is actual param
-      const std::pair<double, PlexilExprId>& entry = *it;
+      const std::pair<LabelStr, PlexilExprId>& entry = *it;
       xml_node aliasXml = appendElement(ALIAS_TAG, retval);
-      appendNamedTextElement(NODE_PARAMETER_TAG, LabelStr(entry.first).c_str(), aliasXml);
+      appendNamedTextElement(NODE_PARAMETER_TAG, entry.first.c_str(), aliasXml);
       toXml(entry.second, aliasXml);
     }
 

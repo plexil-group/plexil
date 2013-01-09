@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,9 @@
 namespace PLEXIL
 {
 
-
   /**
-   * @brief Factory class for Expressions.  This allows you to write, for instance \<AND\>
-	    in XML and have the correct Expression instantiated.
+   * @brief Factory class for Expressions.
+   * This allows you to write, e.g., \<AND\> in XML and have the correct Expression instantiated.
    */
   class ExpressionFactory {
   public:
@@ -52,7 +51,7 @@ namespace PLEXIL
      */
 
     static ExpressionId createInstance(const LabelStr& name, const PlexilExprId& expr,
-				       const NodeConnectorId& node = NodeConnectorId::noId());
+                                       const NodeConnectorId& node = NodeConnectorId::noId());
 
     /**
      * @brief Creates a new Expression instance with the type associated with the name and
@@ -67,7 +66,7 @@ namespace PLEXIL
 
     static ExpressionId createInstance(const LabelStr& name,
                                        const PlexilExprId& expr,
-				       const NodeConnectorId& node,
+                                       const NodeConnectorId& node,
                                        bool& wasCreated);
 
     /**
@@ -94,9 +93,9 @@ namespace PLEXIL
     static void registerFinder(const LabelStr& name, ExpressionFactory* factory);
 
     virtual ExpressionId create(const PlexilExprId& expr,
-								const NodeConnectorId& node = NodeConnectorId::noId()) const = 0;
+                                const NodeConnectorId& node = NodeConnectorId::noId()) const = 0;
     ExpressionFactory(const LabelStr& name)
-      : m_name(name) {registerFactory(m_name, this);}
+    : m_name(name) {registerFactory(m_name, this);}
 
   private:
     /**
@@ -104,7 +103,7 @@ namespace PLEXIL
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<double, ExpressionFactory*>& factoryMap();
+    static std::map<LabelStr, ExpressionFactory*>& factoryMap();
 
     const LabelStr m_name; /*!< Name used for lookup */
   };
@@ -125,7 +124,7 @@ namespace PLEXIL
      */
 
     virtual ExpressionId create(const PlexilExprId& expr,
-								const NodeConnectorId& node = NodeConnectorId::noId()) const
+                                const NodeConnectorId& node = NodeConnectorId::noId()) const
     {return (new FactoryType(expr, node))->getId();}
   };
 
@@ -146,7 +145,7 @@ namespace PLEXIL
      */
 
     virtual ExpressionId create(const PlexilExprId& expr,
-								const NodeConnectorId& node = NodeConnectorId::noId()) const
+                                const NodeConnectorId& node = NodeConnectorId::noId()) const
     {return (new FactoryType(expr, node, true))->getId();}
   };
 

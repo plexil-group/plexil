@@ -97,7 +97,7 @@ namespace PLEXIL {
              ++resListIter) {
           ResourceValues::const_iterator nameit = resListIter->find(RESOURCE_NAME_STR);
           assertTrueMsg(nameit != resListIter->end(), "ResourceName not found");
-          std::string resName = LabelStr(nameit->second).toString();
+          std::string resName = LabelStr::toString(nameit->second);
           // Flatten out the hierarchy into a vector ChildResourceNode with scaled weights
 
           std::vector<ChildResourceNode> flattenedRes;
@@ -311,7 +311,7 @@ namespace PLEXIL {
   {
     ResourceValues::const_iterator nameit = res.find(RESOURCE_NAME_STR);
     assertTrueMsg(nameit != res.end(), "ResourceName not found");
-    std::string resName = LabelStr(nameit->second).toString();
+    std::string resName = LabelStr::toString(nameit->second);
 
     double scale = (res.find(RESOURCE_UPPER_BOUND_STR) != res.end()) ? 
       (double) (res.find(RESOURCE_UPPER_BOUND_STR)->second) : 1.0;
@@ -481,7 +481,7 @@ namespace PLEXIL {
                  ++resListIter) {
               ResourceValues::const_iterator nameit = resListIter->find(RESOURCE_NAME_STR);
               assertTrueMsg(nameit != resListIter->end(), "ResourceName not found");
-              std::string resName = LabelStr(nameit->second).toString();
+              std::string resName = LabelStr::toString(nameit->second);
               double ubound = (resListIter->find(RESOURCE_UPPER_BOUND_STR) != resListIter->end()) ? 
                 (double) (resListIter->find(RESOURCE_UPPER_BOUND_STR)->second) : 1.0;
               double lbound = (resListIter->find(RESOURCE_LOWER_BOUND_STR) != resListIter->end()) ? 

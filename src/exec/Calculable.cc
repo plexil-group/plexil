@@ -145,7 +145,7 @@ namespace PLEXIL
     s << operatorString() << '(';
     ExpressionVector::const_iterator it = m_subexpressions.begin();
     while (it != m_subexpressions.end()) {
-      s << **it;
+      (*it)->print(s);
       ++it;
       if (it != m_subexpressions.end())
         s << ", ";
@@ -159,7 +159,7 @@ namespace PLEXIL
     s << '(';
     ExpressionVector::const_iterator it = m_subexpressions.begin();
     while (it != m_subexpressions.end()) {
-      s << **it;
+      (*it)->print(s);
       ++it;
       if (it != m_subexpressions.end())
         s << ' ' << operatorString() << ' ';

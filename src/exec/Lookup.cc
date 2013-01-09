@@ -41,7 +41,7 @@ namespace PLEXIL
   Lookup::Lookup(const PlexilExprId& expr, const NodeConnectorId& node)
     : Expression(),
       m_cache(node->getExec()->getStateCache()),
-      m_state(Expression::UNKNOWN(),
+      m_state(LabelStr(),
               std::vector<double>(((PlexilLookup*)expr)->state()->args().size(),
                                   Expression::UNKNOWN())),
       m_listener((Expression&) *this)
@@ -53,7 +53,7 @@ namespace PLEXIL
     // create the correct form of the expression for this name
     bool nameExprIsNew = false;
     m_stateNameExpr = 
-      ExpressionFactory::createInstance(state->nameExpr()->name(), 
+      ExpressionFactory::createInstance(LabelStr(state->nameExpr()->name()),
                                         state->nameExpr(),
                                         node,
                                         nameExprIsNew);
@@ -89,7 +89,7 @@ namespace PLEXIL
     for (std::vector<PlexilExprId>::const_iterator it = args.begin(); it != args.end(); ++it) {
       bool wasConstructed = false; 
       ExpressionId param =
-        ExpressionFactory::createInstance((*it)->name(), *it, node, wasConstructed);
+        ExpressionFactory::createInstance(LabelStr((*it)->name()), *it, node, wasConstructed);
       check_error(param.isValid());
       if (wasConstructed)
         m_garbage.push_back(param);
@@ -144,8 +144,7 @@ namespace PLEXIL
     m_state.first = m_stateNameExpr->getValue();
     std::vector<ExpressionId>::const_iterator it = m_params.begin();
     std::vector<double>::iterator sit = m_state.second.begin();
-    while (it != m_params.end() && sit != m_state.second.end())
-      {
+    while (it != m_params.end() && sit != m_state.second.end()) {
         ExpressionId expr = *it;
         check_error(expr.isValid());
         checkError(expr->isActive(),
@@ -160,7 +159,7 @@ namespace PLEXIL
   {
     checkError(m_stateNameExpr->isActive(),
                "Can't compare state to lookup with an inactive name state expression: " << toString());
-    if (m_state.first != m_stateNameExpr->getValue())
+    if (m_state.first.getKey() != m_stateNameExpr->getValue())
       return false;
     std::vector<ExpressionId>::const_iterator it = m_params.begin();
     std::vector<double>::const_iterator sit = m_state.second.begin();
@@ -181,7 +180,7 @@ namespace PLEXIL
   std::string Lookup::stateToString(const State& state)
   {
     std::ostringstream os;
-    os << LabelStr(state.first).toString();
+    os << state.first.toString();
     if (!state.second.empty()) {
       os << "(";
       size_t i = 0;
@@ -283,7 +282,7 @@ namespace PLEXIL
       m_tolerance = RealVariable::ZERO_EXP();
     else {
       bool wasCreated = false;
-      m_tolerance = ExpressionFactory::createInstance(lookup->tolerances()[0]->name(),
+      m_tolerance = ExpressionFactory::createInstance(LabelStr(lookup->tolerances()[0]->name()),
                                                       lookup->tolerances()[0],
                                                       node,
                                                       wasCreated);

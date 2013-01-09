@@ -129,7 +129,7 @@ namespace PLEXIL
     checkError(Id<PlexilCommandBody>::convertable(node->body()),
                "Node is a command node but doesn't have a command body.");
     createCommand((PlexilCommandBody*)node->body());
-    m_variablesByName[COMMAND_HANDLE().getKey()] = m_command->getAck();
+    m_variablesByName[COMMAND_HANDLE()] = m_command->getAck();
 
     // Construct action-complete condition
     ExpressionId actionComplete = (new IsKnown(m_command->getAck()))->getId();
@@ -486,7 +486,7 @@ namespace PLEXIL
     std::vector<ExpressionId> garbage;
     bool wasCreated = false;
     ExpressionId nameExpr = 
-      ExpressionFactory::createInstance(state->nameExpr()->name(), 
+      ExpressionFactory::createInstance(LabelStr(state->nameExpr()->name()), 
                                         state->nameExpr(), 
                                         NodeConnector::getId(),
                                         wasCreated);
@@ -498,7 +498,7 @@ namespace PLEXIL
          it != state->args().end(); 
          ++it) {
       ExpressionId argExpr =
-        ExpressionFactory::createInstance((*it)->name(), *it, NodeConnector::getId(), wasCreated);
+        ExpressionFactory::createInstance(LabelStr((*it)->name()), *it, NodeConnector::getId(), wasCreated);
       check_error(argExpr.isValid());
       args.push_back(argExpr);
       if (wasCreated)
@@ -506,7 +506,7 @@ namespace PLEXIL
     }
     
     VariableId destVar;
-    LabelStr dest_name = "";
+    LabelStr dest_name;
     if (!command->dest().empty()) {
       const PlexilExprId& destExpr = command->dest()[0]->getId();
       dest_name = destExpr->name();
@@ -519,7 +519,7 @@ namespace PLEXIL
                    m_nodeId.toString() << "'");
       }
       else if (Id<PlexilArrayElement>::convertable(destExpr)) {
-        destVar = ExpressionFactory::createInstance(destExpr->name(),
+        destVar = ExpressionFactory::createInstance(LabelStr(destExpr->name()),
                                                     destExpr,
                                                     NodeConnector::getId());
         garbage.push_back(destVar);
@@ -542,7 +542,7 @@ namespace PLEXIL
            ++resItr) {
         bool wasCreated = false;
         ExpressionId resExpr
-          = ExpressionFactory::createInstance(resItr->second->name(), 
+          = ExpressionFactory::createInstance(LabelStr(resItr->second->name()),
                                               resItr->second, 
                                               NodeConnector::getId(),
                                               wasCreated);
@@ -556,7 +556,7 @@ namespace PLEXIL
 
     debugMsg("Node:createCommand",
              "Creating command"
-             << (nameExpr->getValue() == UNKNOWN() ? "" : " '" + LabelStr(nameExpr->getValue()).toString() + "'")
+             << (nameExpr->getValue() == UNKNOWN() ? "" : " '" + LabelStr::toString(nameExpr->getValue()) + "'")
              << " for node '" << m_nodeId.toString() << "'");
     m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getId()))->getId();
   }

@@ -308,6 +308,25 @@ namespace PLEXIL
     return result;
   }
 
+  //
+  // String Concatenation
+  //
+
+  Concatenation::Concatenation(const PlexilExprId& expr, const NodeConnectorId& node)
+      : NaryExpression(expr, node), m_label()
+  {
+  }
+
+  Concatenation::Concatenation(const ExpressionId& a, const ExpressionId& b)
+    : NaryExpression(a, b), m_label()
+  {
+  }
+
+  Concatenation::Concatenation(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
+    : NaryExpression(a, aGarbage, b, bGarbage), m_label()
+  {
+  }
+
   bool Concatenation::checkValue(const double val)
   {
     return val == UNKNOWN() || LabelStr::isString(val);
@@ -317,8 +336,8 @@ namespace PLEXIL
   {   
     std::ostringstream retval; 
     for (ExpressionVectorConstIter child = m_subexpressions.begin();
-         child != m_subexpressions.end(); ++child)
-      {
+         child != m_subexpressions.end(); 
+         ++child) {
         double value = (*child)->getValue();
         // values.push_back(value);
         
@@ -334,8 +353,8 @@ namespace PLEXIL
         LabelStr ls1 (value);
         retval << ls1.toString();
       }
-    LabelStr retvalLabel(retval.str());
-    return retvalLabel.getKey();
+    m_label = retval.str();
+    return m_label.getKey();
   }
 
   //

@@ -59,6 +59,7 @@ namespace PLEXIL
     const ResourceValuesList& getResourceValues() const {return m_resourceValuesList;}
     const NodeId& getNode() const { return m_node; }
     LabelStr getName() const;
+    const std::string& getNameString() const;
     const std::string& getDestName() const;
 
     void activate();

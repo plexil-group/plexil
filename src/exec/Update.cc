@@ -37,37 +37,41 @@ namespace PLEXIL
                  const PlexilUpdateId& updateProto)
     : m_id(this),
       m_source(node),
-      m_pairs(),
       m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
+      m_pairs(),
       m_garbage() 
   {
     // Make ack variable pretty
     ((VariableImpl*) m_ack)->setName(node->getNodeId().toString() + " ack");
 
-    if (updateProto.isValid()) {
+    if (updateProto.isId()) {
       for (std::vector<std::pair<std::string, PlexilExprId> >::const_iterator it =
              updateProto->pairs().begin();
            it != updateProto->pairs().end();
            ++it) {
         LabelStr nameStr(it->first);
         debugMsg("Node:createUpdate", "Adding pair '" << nameStr.toString());
+        // FIXME: move error check to parser if not already there
+        assertTrueMsg(m_pairs.find(nameStr) == m_pairs.end(),
+                      "Update constructor: Duplicate pairs with name \"" << nameStr.toString() << "\"");
         PlexilExprId foo = it->second;
         bool wasCreated = false;
         ExpressionId valueExpr = 
-          ExpressionFactory::createInstance(foo->name(),
+          ExpressionFactory::createInstance(LabelStr(foo->name()),
                                             foo,
                                             (NodeConnectorId) node,
                                             wasCreated);
         check_error(valueExpr.isValid());
         if (wasCreated)
           m_garbage.push_back(valueExpr);
-        m_pairs.insert(std::make_pair((double) nameStr, valueExpr));
+        m_pairs[nameStr] = valueExpr;
       }
     }
   }
 
   Update::~Update() 
   {
+    m_valuePairs.clear();
     m_pairs.clear();
     for (std::vector<ExpressionId>::const_iterator it = m_garbage.begin(); 
          it != m_garbage.end();
@@ -80,40 +84,30 @@ namespace PLEXIL
 
   void Update::fixValues() 
   {
-    for (ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
+    for (PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
       check_error(it->second.isValid());
-      std::map<double, double>::iterator valuePairIt =
-        m_valuePairs.find(it->first);
-      if (valuePairIt == m_valuePairs.end()) {
-        // new pair, safe to insert
-        m_valuePairs.insert(std::make_pair(it->first, it->second->getValue()));
-      }
-      else {
-        // recycle old pair
-        valuePairIt->second = it->second->getValue();
-      }
+      m_valuePairs[it->first] = it->second->getValue();
       debugMsg("Update:fixValues",
-               " fixing pair '" << LabelStr(it->first).toString() << "', "
+               " fixing pair '" << it->first.toString() << "', "
                << it->second->getValue());
     }
   }
 
   void Update::activate() 
   {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
+    for(PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it)
       it->second->activate();
-    }
     m_ack->activate();
   }
 
   void Update::deactivate() {
-    for(ExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
+    for(PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it)
       it->second->deactivate();
-    }
     m_ack->deactivate();
   }
 
-  void Update::reset() {
+  void Update::reset() 
+  {
     m_ack->reset();
   }
 

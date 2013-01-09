@@ -221,7 +221,7 @@ namespace PLEXIL
 	bool calculateThresholds()
 	{
 	  debugMsg("CacheEntry:calculateThresholds",
-			   " for " << LabelStr(state.first).toString() << ", " << lookups.size() << " active lookups");
+			   " for " << state.first.toString() << ", " << lookups.size() << " active lookups");
 	  double newHi = Expression::UNKNOWN();
 	  double newLo = Expression::UNKNOWN();
 
@@ -296,7 +296,7 @@ namespace PLEXIL
 	  m_quiescenceCount(0)
   {
 	// Initialize the time state
-	m_timeState.first = LabelStr("time").getKey();
+	m_timeState.first = "time";
 	m_timeEntry = ensureCacheEntry(m_timeState);
 	m_timeEntry->value = 0.0;
   }
@@ -528,7 +528,7 @@ namespace PLEXIL
   std::string StateCache::toString(const State& state)
   {
 	std::ostringstream str;
-	str << LabelStr(state.first).toString() << "(";
+	str << state.first.toString() << "(";
 	for (size_t i = 0; i < state.second.size(); ++i) {
 	  if (i != 0)
 		str << ", ";

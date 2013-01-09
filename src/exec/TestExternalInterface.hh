@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,8 @@
 #include "ExecDefs.hh"
 #include "ExternalInterface.hh"
 #include "ResourceArbiterInterface.hh"
+#include "StoredArray.hh"
+
 #include <iostream>
 #include <map>
 #include <set>
@@ -40,29 +42,26 @@ namespace pugi
   class xml_node;
 }
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
-   
-  //typedef std::pair<double, std::list<double> > UniqueState;
-  //typedef std::pair<double, std::list<double> > UniqueCommand;
-  //bite me, g++
-
-   typedef std::pair<double, std::vector<double> >     UniqueThing;
-   typedef std::map<UniqueThing, ExpressionId>         ExpressionUtMap;
-   typedef std::map<UniqueThing, double >              StateMap;
-
-  class TestExternalInterface : public ExternalInterface {
+  class TestExternalInterface : public ExternalInterface 
+  {
   public:
     TestExternalInterface();
+    ~TestExternalInterface();
+
+    virtual void setExec(const PlexilExecId& exec);
+
     void run(const pugi::xml_node& input)
-      throw(ParserException);
+    throw(ParserException);
 
     double lookupNow(const State& state);
 
-	// LookupOnChange
-	void subscribe(const State& state);
-	void unsubscribe(const State& state);
-	void setThresholds(const State& state, double hi, double lo);
+    // LookupOnChange
+    void subscribe(const State& state);
+    void unsubscribe(const State& state);
+    void setThresholds(const State& state, double hi, double lo);
 
     void batchActions(std::list<CommandId>& commands);
     void updatePlanner(std::list<UpdateId>& updates);
@@ -76,40 +75,69 @@ namespace PLEXIL {
     void invokeAbort(const CommandId& cmd);
 
     double currentTime();
-  protected:
+
   private:
+    typedef std::pair<LabelStr, std::vector<double> > UniqueThing;
+    typedef std::map<UniqueThing, ExpressionId>       ExpressionUtMap;
+    typedef std::map<UniqueThing, double >            StateMap;
+
     std::string getText(const UniqueThing& c);
     std::string getText(const UniqueThing& c, double v);
     std::string getText(const UniqueThing& c,
                         const std::vector<double>& vals);
     void handleInitialState(const pugi::xml_node& input);
 
-	void setVariableValue(const std::string& source,
-						  ExpressionId expr,
-						  double& value);
+    void setVariableValue(const std::string& source,
+                          ExpressionId expr,
+                          double& value);
+
+    void handleState(const pugi::xml_node& elt);
+    void handleCommand(const pugi::xml_node& elt);
+    void handleCommandAck(const pugi::xml_node& elt);
+    void handleCommandAbort(const pugi::xml_node& elt);
+    void handleUpdateAck(const pugi::xml_node& elt);
+    void handleSendPlan(const pugi::xml_node& elt);
+    void handleSimultaneous(const pugi::xml_node& elt);
         
-	void parseState(const pugi::xml_node& state, 
-					LabelStr& name, 
-					std::vector<double>& args, 
-					double& value);
+    void parseState(const pugi::xml_node& state, 
+                    State& result,
+                    std::vector<LabelStr>& strings,
+                    std::vector<StoredArray>& arrays);
+    double parseStateValue(const pugi::xml_node& stateXml,
+                           std::vector<LabelStr>& strings,
+                           std::vector<StoredArray>& arrays);
 
-	void parseCommand(const pugi::xml_node& cmd, 
-					  LabelStr& name, 
-					  std::vector<double>& args, 
-					  double& value);
+    // Parses all command-like elements: Command, CommandAck, CommandAbort.
+    void parseCommand(const pugi::xml_node& cmdXml, 
+                      UniqueThing& cmd,
+                      std::vector<LabelStr>& strings,
+                      std::vector<StoredArray>& arrays);
 
-    void parseParams(const pugi::xml_node& root, std::vector<double>& dest);
-    double parseValues(const std::string& type, pugi::xml_node valXml);
-    double parseValue(const std::string& type, const std::string& valStr);
+    double parseResult(const pugi::xml_node& valXml,
+                       std::vector<LabelStr>& strings,
+                       std::vector<StoredArray>& arrays);
 
-    std::map<double, UpdateId> m_waitingUpdates;
+    void parseParams(const pugi::xml_node& root,
+                     std::vector<double>& dest,
+                     std::vector<LabelStr>& strings,
+                     std::vector<StoredArray>& arrays);
+    double parseParam(const pugi::xml_node& param,
+                      std::vector<LabelStr>& strings,
+                      std::vector<StoredArray>& arrays);
+
+    double parseOneValue(const std::string& type,
+                         const std::string& valStr,
+                         std::vector<LabelStr>& strings);
+
+    std::map<LabelStr, UpdateId> m_waitingUpdates;
     ExpressionUtMap m_executingCommands; //map from commands to the destination variables
     ExpressionUtMap m_commandAcks; //map from command to the acknowledgement variables
     ExpressionUtMap m_abortingCommands;
     StateMap m_states; //uniquely identified states and their values
-    static UniqueThing& timeState();
-    ResourceArbiterInterface raInterface;
     std::map<ExpressionId, CommandId> m_destToCmdMap;
+    std::vector<LabelStr> m_initialStateStrings;
+    std::vector<StoredArray> m_initialStateArrays;
+    ResourceArbiterInterface m_raInterface;
   };
 }
 

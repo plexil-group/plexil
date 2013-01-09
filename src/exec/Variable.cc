@@ -64,7 +64,7 @@ namespace PLEXIL
 	  m_name("anonymous"),
 	  m_isConst(isConst)
   {
-    if(this->isConst())
+    if (isConst)
       ++m_activeCount;
   }
 
@@ -101,9 +101,15 @@ namespace PLEXIL
   {
   }
 
+  void VariableImpl::makeConst()
+  {
+    m_isConst = true;
+    ++m_activeCount;
+  }
+
   void VariableImpl::print(std::ostream& s) const 
   {
-	s << m_name << " ";
+	s << m_name.toString() << " ";
 	Expression::print(s);
   }
 
@@ -133,7 +139,7 @@ namespace PLEXIL
       handleReset();
 	  ExecListenerHubId hub = getExecListenerHub();
 	  if (hub.isId())
-		hub->notifyOfAssignment(Expression::getId(), m_name, m_initialValue);
+		hub->notifyOfAssignment(Expression::getId(), m_name.toString(), m_initialValue);
     }
   }
 
@@ -152,7 +158,7 @@ namespace PLEXIL
     internalSetValue(value);
 	ExecListenerHubId hub = getExecListenerHub();
 	if (hub.isId()) 
-	  hub->notifyOfAssignment(Expression::getId(), m_name, value);
+	  hub->notifyOfAssignment(Expression::getId(), m_name.toString(), value);
   }
 
   /**
@@ -240,7 +246,7 @@ namespace PLEXIL
    */
   void AliasVariable::print(std::ostream& s) const
   {
-	s << m_name << " ";
+	s << m_name.toString() << " ";
 	Expression::print(s);
 	s << (isConst() ? "const " : "") 
 	  << "AliasVariable for "

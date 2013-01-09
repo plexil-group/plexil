@@ -75,7 +75,9 @@ namespace PLEXIL {
 	  REGISTER_CONSTANT_EXPRESSION(StringVariable, StringValue);
 	  REGISTER_EXPRESSION(StringVariable, String);
 	  REGISTER_CONSTANT_EXPRESSION(ArrayVariable, ArrayValue);
+	  REGISTER_CONSTANT_EXPRESSION(StringArrayVariable, StringArrayValue);
 	  REGISTER_EXPRESSION(ArrayVariable, Array);
+	  REGISTER_EXPRESSION(StringArrayVariable, StringArray);
 	  REGISTER_EXPRESSION(Concatenation, Concat);
 	  REGISTER_EXPRESSION(StringVariable, StringVariable);
 	  REGISTER_CONSTANT_EXPRESSION(StateVariable, NodeStateValue);

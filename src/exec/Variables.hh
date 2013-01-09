@@ -53,8 +53,6 @@ namespace PLEXIL
   class StringVariable : public VariableImpl {
   public:
     StringVariable(const bool isConst = false);
-    StringVariable(const std::string& value, const bool isConst = false);
-    StringVariable(const char* value, const bool isConst);
     StringVariable(const double value, const bool isConst = false);
     StringVariable(const LabelStr& value, const bool isConst = false);
     StringVariable(const PlexilExprId& expr, const NodeConnectorId& node,
@@ -67,8 +65,18 @@ namespace PLEXIL
      */
     virtual PlexilType getValueType() const { return STRING; }
 
+    /**
+     * @brief Sets the value of this variable.  Will throw an error if the variable was
+     *        constructed with isConst == true.
+     * @param value The new value for this variable.
+     */
+    virtual void setValue(const double value);
+
   protected:
   private:
+    LabelStr m_label;        // the current value as a LabelStr
+    LabelStr m_initialLabel; // the initial value as a LabelStr
+
     bool checkValue(const double val);
   };
 

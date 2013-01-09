@@ -130,7 +130,7 @@ namespace PLEXIL
     else if (Id<PlexilArrayElement>::convertable(destExpr)) {
       dest =
         (VariableId)
-        ExpressionFactory::createInstance(destExpr->name(),
+        ExpressionFactory::createInstance(LabelStr(destExpr->name()),
                                           destExpr,
                                           NodeConnector::getId());
       // *** beef this up later ***
@@ -147,7 +147,7 @@ namespace PLEXIL
         }
       debugMsg("ArrayElement:ArrayElement", " b_index = " << b_index << ". e_index = " << e_index << ". diff_index" << diff_index);
       const std::string m_str = std::string("").append(arrayElement->getArrayName()).append(m_index);
-      destName = LabelStr(m_str);
+      destName = m_str;
       deleteLhs = true;
     }
     else {
@@ -157,7 +157,7 @@ namespace PLEXIL
 
     bool deleteRhs = false;
     ExpressionId rhs =
-      ExpressionFactory::createInstance(body->RHS()->name(), 
+      ExpressionFactory::createInstance(LabelStr(body->RHS()->name()), 
                                         body->RHS(),
                                         NodeConnector::getId(),
                                         deleteRhs);
