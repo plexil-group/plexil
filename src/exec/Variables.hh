@@ -72,10 +72,28 @@ namespace PLEXIL
      */
     virtual void setValue(const double value);
 
-  protected:
+    /**
+     * @brief Temporarily stores the previous value of this variable.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void saveCurrentValue();
+
+    /**
+     * @brief Restore the value set aside by saveCurrentValue().
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void restoreSavedValue();
+     
+    /**
+     * @brief Commit the assignment by erasing the saved previous value.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void commitAssignment();
+
   private:
     LabelStr m_label;        // the current value as a LabelStr
     LabelStr m_initialLabel; // the initial value as a LabelStr
+    LabelStr m_savedLabel;   // the saved value as a LabelStr
 
     bool checkValue(const double val);
   };

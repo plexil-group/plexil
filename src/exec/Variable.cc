@@ -89,6 +89,7 @@ namespace PLEXIL
     : Variable(),
 	  m_node(node.isId() ? node->getNode() : NodeId::noId()),
       m_initialValue(UNKNOWN()),
+      m_savedValue(UNKNOWN()),
 	  m_name(expr->name()),
 	  m_isConst(isConst)
   {
@@ -162,6 +163,33 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Temporarily stores the previous value of this variable.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void VariableImpl::saveCurrentValue()
+  {
+    m_savedValue = m_value;
+  }
+
+  /**
+   * @brief Restore the value set aside by saveCurrentValue().
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void VariableImpl::restoreSavedValue()
+  {
+    setValue(m_savedValue);
+  }
+     
+  /**
+   * @brief Commit the assignment by erasing the saved previous value.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void VariableImpl::commitAssignment()
+  {
+    m_savedValue = UNKNOWN();
+  }
+
+  /**
    * @brief Add a listener for changes to this Expression's value.
    * @param id The Id of the listener to notify.
    * @note Overrides method on Expression base class.
@@ -215,7 +243,7 @@ namespace PLEXIL
 							   bool expIsGarbage,
 							   bool isConst)
 	: Variable(),
-	  m_originalExpression(original),
+	  m_originalExpression(),
 	  m_listener(getId()),
 	  m_node(nodeConnector.isId() ? nodeConnector->getNode() : NodeId::noId()),
 	  m_name(name),
@@ -223,10 +251,13 @@ namespace PLEXIL
 	  m_isConst(isConst)
   {
 	// Check original, node for validity
-	assertTrue(original.isValid(),
-			   "Invalid expression ID passed to AliasVariable constructor");
 	assertTrue(nodeConnector.isValid(),
 			   "Invalid node connector ID passed to AliasVariable constructor");
+	assertTrue(original.isValid(),
+			   "Invalid expression ID passed to AliasVariable constructor");
+    m_originalExpression = (VariableId) original;
+	assertTrue(m_originalExpression.isId(),
+			   "Original expression to AliasVariable constructor is not a variable");
 	m_originalExpression->addListener(m_listener.getId());
 	m_value = m_originalExpression->getValue();
   }
@@ -289,6 +320,38 @@ namespace PLEXIL
 	assertTrueMsg(!m_isConst,
 				  "setValue() called on read-only alias " << *this);
 	m_originalExpression->setValue(value);
+  }
+
+  /**
+   * @brief Temporarily stores the previous value of this variable.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void AliasVariable::saveCurrentValue()
+  {
+    m_originalExpression->saveCurrentValue();
+  }
+
+  /**
+   * @brief Restore the value set aside by saveCurrentValue().
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void AliasVariable::restoreSavedValue()
+  {
+    m_originalExpression->restoreSavedValue();
+  }
+
+  double AliasVariable::getSavedValue() const
+  {
+    return m_originalExpression->getSavedValue();
+  }
+     
+  /**
+   * @brief Commit the assignment by erasing the saved previous value.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void AliasVariable::commitAssignment()
+  {
+    m_originalExpression->commitAssignment();
   }
 
   void AliasVariable::handleChange(const ExpressionId& exp)

@@ -69,7 +69,6 @@ namespace PLEXIL
     ExpressionId m_rhs;
     LabelStr m_destName;
     double m_value;
-    double m_previousValue;
     bool m_deleteLhs, m_deleteRhs;
   };
 

@@ -164,6 +164,24 @@ namespace PLEXIL
     virtual void setValue(const double value);
 
     /**
+     * @brief Temporarily stores the previous value of this variable.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void saveCurrentValue();
+
+    /**
+     * @brief Restore the value set aside by saveCurrentValue().
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void restoreSavedValue();
+     
+    /**
+     * @brief Commit the assignment by erasing the saved previous value.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void commitAssignment();
+
+    /**
      * @brief Set the value of this expression back to the initial value with which it was
      *        created.
      */
@@ -202,6 +220,7 @@ namespace PLEXIL
 
     StoredArray         m_array;
     StoredArray         m_initialArray;
+    std::vector<double> m_savedArray;
     size_t              m_maxSize;
     PlexilType          m_type;
   };
@@ -247,10 +266,29 @@ namespace PLEXIL
      */
     virtual void setValue(const double value);
 
+    /**
+     * @brief Temporarily stores the previous value of this variable.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void saveCurrentValue();
+
+    /**
+     * @brief Restore the value set aside by saveCurrentValue().
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void restoreSavedValue();
+     
+    /**
+     * @brief Commit the assignment by erasing the saved previous value.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void commitAssignment();
+
   private:
 
     std::vector<LabelStr> m_labels;
     std::vector<LabelStr> m_initialLabels;
+    std::vector<LabelStr> m_savedLabels;
 
   };
 
@@ -285,6 +323,34 @@ namespace PLEXIL
      * @param value The new value for this array element.
      */
     void setValue(const double value);
+
+    /**
+     * @brief Temporarily stores the previous value of this variable.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void saveCurrentValue();
+
+    /**
+     * @brief Restore the value set aside by saveCurrentValue().
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void restoreSavedValue();
+     
+    /**
+     * @brief Commit the assignment by erasing the saved previous value.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void commitAssignment();
+
+    /**
+     * @brief Get the saved value.
+     * @return The saved value.
+     * @note Intended for debug display only.
+     */
+    double getSavedValue() const
+    {
+      return m_savedValue;
+    }
 
     /**
      * @brief Get the name of this variable.
@@ -363,9 +429,11 @@ namespace PLEXIL
     ArrayVariableId m_arrayVariable;
     ExpressionId m_index;
     const NodeId m_node;
-    bool m_deleteIndex;
     DerivedVariableListener m_listener;
     LabelStr m_name;
+    double m_savedValue;
+    LabelStr m_savedString;
+    bool m_deleteIndex;
   };
 
 }

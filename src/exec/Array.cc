@@ -331,6 +331,40 @@ namespace PLEXIL
     publishChange();
   }
 
+  /**
+   * @brief Temporarily stores the previous value of this variable.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void ArrayVariable::saveCurrentValue()
+  {
+    VariableImpl::saveCurrentValue();
+    m_savedArray = m_array.getArray();
+  }
+
+  /**
+   * @brief Restore the value set aside by saveCurrentValue().
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void ArrayVariable::restoreSavedValue()
+  {
+    // Copy the array contents back from the saved array
+    std::vector<double>& ary = m_array.getArray();
+    for (size_t i = 0; i < m_maxSize; ++i) {
+      ary[i] = m_savedArray[i];
+    }
+    VariableImpl::restoreSavedValue();
+  }
+     
+  /**
+   * @brief Commit the assignment by erasing the saved previous value.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void ArrayVariable::commitAssignment()
+  {
+    m_savedArray.clear();
+    VariableImpl::commitAssignment();
+  }
+
   // set an element value in an array variable
 
   void ArrayVariable::setElementValue(unsigned index, const double value)
@@ -547,6 +581,36 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Temporarily stores the previous value of this variable.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void StringArrayVariable::saveCurrentValue()
+  {
+    ArrayVariable::saveCurrentValue();
+    m_savedLabels = m_labels;
+  }
+
+  /**
+   * @brief Restore the value set aside by saveCurrentValue().
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void StringArrayVariable::restoreSavedValue()
+  {
+    m_labels = m_savedLabels;
+    ArrayVariable::restoreSavedValue();
+  }
+     
+  /**
+   * @brief Commit the assignment by erasing the saved previous value.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void StringArrayVariable::commitAssignment()
+  {
+    m_savedLabels.clear();
+    ArrayVariable::commitAssignment();
+  }
+    
+  /**
    * @brief Set the value of this expression back to the initial value with which it was
    *        created.
    */
@@ -662,6 +726,36 @@ namespace PLEXIL
     m_arrayVariable->setElementValue((unsigned) m_index->getValue(),
                                      value);
     internalSetValue(value);
+  }
+
+  /**
+   * @brief Temporarily stores the previous value of this variable.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void ArrayElement::saveCurrentValue()
+  {
+    m_savedValue = recalculate();
+    if (LabelStr::isString(m_savedValue))
+      m_savedString = m_savedValue;
+  }
+
+  /**
+   * @brief Restore the value set aside by saveCurrentValue().
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void ArrayElement::restoreSavedValue()
+  {
+    setValue(m_savedValue);
+  }
+     
+  /**
+   * @brief Commit the assignment by erasing the saved previous value.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void ArrayElement::commitAssignment()
+  {
+    m_savedValue = UNKNOWN();
+    m_savedString = EMPTY_LABEL();
   }
 
   PlexilType ArrayElement::getValueType() const

@@ -72,6 +72,31 @@ namespace PLEXIL
     virtual void setValue(const double value) = 0;
 
     /**
+     * @brief Temporarily stores the previous value of this variable.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void saveCurrentValue() = 0;
+
+    /**
+     * @brief Restore the value set aside by saveCurrentValue().
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void restoreSavedValue() = 0;
+     
+    /**
+     * @brief Commit the assignment by erasing the saved previous value.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void commitAssignment() = 0;
+
+    /**
+     * @brief Get the saved value.
+     * @return The saved value.
+     * @note Intended for debug display only.
+     */
+    virtual double getSavedValue() const = 0;
+
+    /**
      * @brief Get the name of this variable, as declared in the node that owns it.
      */
     virtual const std::string& getName() const = 0;
@@ -219,6 +244,34 @@ namespace PLEXIL
     virtual void setValue(const double value);
 
     /**
+     * @brief Temporarily stores the previous value of this variable.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void saveCurrentValue();
+
+    /**
+     * @brief Restore the value set aside by saveCurrentValue().
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void restoreSavedValue();
+     
+    /**
+     * @brief Commit the assignment by erasing the saved previous value.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void commitAssignment();
+
+    /**
+     * @brief Get the saved value.
+     * @return The saved value.
+     * @note Intended for debug display only.
+     */
+    double getSavedValue() const
+    {
+      return m_savedValue;
+    }
+
+    /**
      * @brief Gets the const-ness of this variable.
      * @return True if this variable is const, false otherwise.
      */
@@ -310,6 +363,7 @@ namespace PLEXIL
 
     const NodeId m_node; /*<! The node that owns this variable */
     double m_initialValue; /*<! The initial value of the expression */
+    double m_savedValue;   /*<! The value saved during an Assignment node. */
     LabelStr m_name; /*<! The name under which this variable was declared */
     bool m_isConst; /*<! Flag indicating the const-ness of this variable */
   };
@@ -361,6 +415,31 @@ namespace PLEXIL
      * @param value The new value for this variable.
      */
     virtual void setValue(const double value);
+
+    /**
+     * @brief Temporarily stores the previous value of this variable.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void saveCurrentValue();
+
+    /**
+     * @brief Restore the value set aside by saveCurrentValue().
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void restoreSavedValue();
+     
+    /**
+     * @brief Commit the assignment by erasing the saved previous value.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void commitAssignment();
+
+    /**
+     * @brief Get the saved value.
+     * @return The saved value.
+     * @note Intended for debug display only.
+     */
+    virtual double getSavedValue() const;
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
@@ -434,7 +513,7 @@ namespace PLEXIL
     AliasVariable& operator=(const AliasVariable&);
 
     // Private member variables
-    ExpressionId m_originalExpression;
+    VariableId m_originalExpression;
     DerivedVariableListener m_listener;
     const NodeId m_node;
     const LabelStr m_name;

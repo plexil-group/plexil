@@ -44,7 +44,6 @@ namespace PLEXIL
 	  m_rhs(rhs),
       m_destName(lhsName),
       m_value(Expression::UNKNOWN()),
-      m_previousValue(Expression::UNKNOWN()),
       m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
   {
     // Make ack variable pretty
@@ -65,7 +64,7 @@ namespace PLEXIL
 
   void Assignment::fixValue() 
   {
-    m_previousValue = m_dest->getValue();
+    m_dest->saveCurrentValue();
     m_value = m_rhs->getValue();
   }
 
@@ -78,6 +77,7 @@ namespace PLEXIL
   void Assignment::deactivate() 
   {
     m_rhs->deactivate();
+    m_dest->commitAssignment();
     m_dest->deactivate();
   }
 
@@ -93,9 +93,10 @@ namespace PLEXIL
   void Assignment::retract()
   {
 	check_error(m_dest.isValid());
-	debugMsg("Test:testOutput", "Restoring '" << m_destName.toString() <<
-			 "' (" << m_dest->toString() << ") to " << Expression::valueToString(m_previousValue));
-	m_dest->setValue(m_previousValue);
+	debugMsg("Test:testOutput",
+             "Restoring '" << m_destName.toString() << "' (" << m_dest->toString()
+             << ") to " << Expression::valueToString(m_dest->getSavedValue()));
+	m_dest->restoreSavedValue();
 	m_abortComplete->setValue(BooleanVariable::TRUE_VALUE());
   }
 

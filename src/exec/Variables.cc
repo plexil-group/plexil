@@ -116,6 +116,36 @@ namespace PLEXIL
     }
   }
 
+  /**
+   * @brief Temporarily stores the previous value of this variable.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void StringVariable::saveCurrentValue()
+  {
+    VariableImpl::saveCurrentValue();
+    m_savedLabel = m_label;
+  }
+
+  /**
+   * @brief Restore the value set aside by saveCurrentValue().
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void StringVariable::restoreSavedValue()
+  {
+    m_label = m_savedLabel;
+    VariableImpl::restoreSavedValue();
+  }
+     
+  /**
+   * @brief Commit the assignment by erasing the saved previous value.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void StringVariable::commitAssignment()
+  {
+    m_savedLabel = EMPTY_LABEL();
+    VariableImpl::commitAssignment();
+  }
+
   RealVariable::RealVariable(const bool isConst) : VariableImpl(isConst) {}
 
   RealVariable::RealVariable(const double value, const bool isConst)
