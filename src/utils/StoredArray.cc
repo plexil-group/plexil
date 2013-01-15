@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,9 +25,9 @@
 */
 
 #include "StoredArray.hh"
-#include "LabelStr.hh"
+
 #include "Error.hh"
-#include "Utils.hh" // for UNKNOWN()
+#include "LabelStr.hh"
 
 namespace PLEXIL
 {
@@ -58,7 +58,7 @@ namespace PLEXIL
    * @param initValue Initial value for the elements in the array.
    */
    
-  StoredArray::StoredArray(size_t size, const double& initValue) :
+  StoredArray::StoredArray(size_t size, const Value& initValue) :
     StoredArray_item_t(StoredArray_value_t(size, initValue))
   {
   }
@@ -69,11 +69,11 @@ namespace PLEXIL
    * @param initValues Initial values for the elements in the array.
    */
    
-  StoredArray::StoredArray(size_t size, const std::vector<double>& initValues) 
+  StoredArray::StoredArray(size_t size, const StoredArray_value_t& initValues) 
     : StoredArray_item_t(StoredArray_value_t(size, UNKNOWN()))
   {
     assertTrueMsg(initValues.size() <= size,
-		  "StoredArray constructor: initial vector is larger than specified size");
+                  "StoredArray constructor: initial vector is larger than specified size");
     StoredArray_value_t& array = getArray();
     for (size_t i = 0; i < initValues.size(); ++i)
       array[i] = initValues[i];
@@ -84,7 +84,7 @@ namespace PLEXIL
    * @param initValues The initial vector.
    */
          
-  StoredArray::StoredArray(const std::vector<double>& initValues)
+  StoredArray::StoredArray(const StoredArray_value_t& initValues)
     : StoredArray_item_t(initValues)
   {
   }
@@ -99,6 +99,51 @@ namespace PLEXIL
   {
   }
 
+  /** 
+   * @brief Constructor from a Value instance.
+   * @param value The value.
+   * @note CALLER MUST ENSURE THAT THE VALUE IS AN ARRAY!
+   */
+  StoredArray::StoredArray(const Value& value)
+    : StoredArray_item_t(value.getRawValue())
+  {
+  }
+
+  /*
+   * @brief Assignment operator from StoredArray.
+   * @param other The other StoredArray.
+   * @return Reference to this.
+   */
+  StoredArray& StoredArray::operator=(const StoredArray& other)
+  {
+    StoredArray_item_t::operator=(other);
+    return *this;
+  }
+
+  /*
+   * @brief Assignment operator from key to another StoredArray.
+   * @param key The key.
+   * @return Reference to this.
+   * @note Can assert if key is invalid.
+   */
+  StoredArray& StoredArray::operator=(const StoredArray_key_t& key)
+  {
+    StoredArray_item_t::operator=(key);
+    return *this;
+  }
+
+  /*
+   * @brief Assignment operator from Value.
+   * @param value The value.
+   * @return Reference to this.
+   * @note CALLER MUST ENSURE THAT THE VALUE IS AN ARRAY!
+   */
+  StoredArray& StoredArray::operator=(const Value& value)
+  {
+    StoredArray_item_t::operator=(value.getRawValue());
+    return *this;
+  }
+
   /**
    * @brief Return the size of this array.
    * @return The size of this array.
@@ -109,27 +154,27 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Operator for accessing elements in this array.
-   * @return A reference to the specifed array element.
-   */
-  double& StoredArray::operator[] (size_t index)
-  {
-    assertTrueMsg(index < size(), 
-		  "Array index value " << index << 
-		  " is equal to or larger than size " << size());
-    return getArray()[index];
-  }
-
-  /**
    * @brief Return const value of array elment.
    * @param index Index of array element.
    */
-  const double& StoredArray::at(const size_t index) const
+  const Value& StoredArray::at(const size_t index) const
   {
     assertTrueMsg(index < size(), 
-		  "Array index value " << index << 
-		  " is equal to or larger than size " << size());
+                  "Array index value " << index << 
+                  " is equal to or larger than size " << size());
     return getConstArray().at(index);
+  }
+
+  /**
+   * @brief Operator for accessing elements in this array.
+   * @return A reference to the specifed array element.
+   */
+  Value& StoredArray::operator[] (size_t index)
+  {
+    assertTrueMsg(index < size(), 
+                  "Array index value " << index << 
+                  " is equal to or larger than size " << size());
+    return getArray()[index];
   }
 
   /**
@@ -142,15 +187,15 @@ namespace PLEXIL
     retval << "Array: [";
     const StoredArray_value_t& theVector = getConstArray();
     for (size_t i = 0; i < theVector.size(); ++i) {
-      const double value = theVector[i];
+      const Value& value = theVector[i];
       if (i != 0)
         retval << ", ";
-      if (value == UNKNOWN())
+      if (value.isUnknown())
         retval << "<unknown>";
-      else if (LabelStr::isString(value))
-        retval << '\"' << LabelStr::toString(value) << '\"';
+      else if (value.isString())
+        retval << '\"' << value.getStringValue() << '\"';
       else
-        retval << value;
+        retval << value.getDoubleValue();
     }
     retval << ']';
     return retval.str();

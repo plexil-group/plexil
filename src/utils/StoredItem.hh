@@ -297,7 +297,7 @@ namespace PLEXIL
       return *result;
     }
 
-  private:
+  protected:
 
     /**
      * @brief Access to the item store.
@@ -307,6 +307,8 @@ namespace PLEXIL
       static item_store_t sl_itemStore;
       return sl_itemStore;
     }
+
+  private:
 
     /**
      * @brief The key value used as a proxy for the original item.

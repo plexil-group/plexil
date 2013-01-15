@@ -104,7 +104,7 @@ namespace PLEXIL
     TwoWayStore()
       : m_emptyKey(key_source_t::unassigned()),
 #ifndef STORED_ITEM_NO_MUTEX
-        m_mutex(),
+        m_mutex(new ThreadMutex()),
 #endif
         m_table()
     {
@@ -116,6 +116,10 @@ namespace PLEXIL
      */
     ~TwoWayStore()
     {
+#ifndef STORED_ITEM_NO_MUTEX
+      delete m_mutex;
+      m_mutex = NULL;
+#endif
     }
     
 
@@ -134,12 +138,12 @@ namespace PLEXIL
      * @param key The key value.
      * @return true if the key is in the store, false otherwise.
      */
-    bool isKey(key_t key)
+    bool isKey(key_t key) const
     {
       if (!key_source_t::rangeCheck(key))
         return false;
 #ifndef STORED_ITEM_NO_MUTEX
-      ThreadMutexGuard guard(m_mutex);
+      ThreadMutexGuard guard(*m_mutex);
 #endif
       return NULL != m_table.getByKey(key);
     }
@@ -149,10 +153,10 @@ namespace PLEXIL
      * @param key The key value.
      * @return true if the key is in the store, false otherwise.
      */
-    bool isItem(const item_t& item)
+    bool isItem(const item_t& item) const
     {
 #ifndef STORED_ITEM_NO_MUTEX
-      ThreadMutexGuard guard(m_mutex);
+      ThreadMutexGuard guard(*m_mutex);
 #endif
       return NULL != m_table.getByItem(item);
     }
@@ -162,9 +166,8 @@ namespace PLEXIL
      * @brief Get the value stored at this key.
      * @param key The key value.
      * @return Pointer to the value; NULL if not found.
-     * @note Method can't be const because of mutex, sigh.
      */
-    item_t* getItem(key_t key)
+    item_t* getItem(key_t key) const
     {
       // Quick cheap sanity check
 #ifdef PLEXIL_FAST
@@ -176,7 +179,7 @@ namespace PLEXIL
 #endif
 
 #ifndef STORED_ITEM_NO_MUTEX
-      ThreadMutexGuard guard(m_mutex);
+      ThreadMutexGuard guard(*m_mutex);
 #endif
       entry_t* entry = m_table.getByKey(key);
       if (entry == NULL)
@@ -195,7 +198,7 @@ namespace PLEXIL
     key_t storeItem(const item_t& item)
     {
 #ifndef STORED_ITEM_NO_MUTEX
-      ThreadMutexGuard guard(m_mutex);
+      ThreadMutexGuard guard(*m_mutex);
 #endif
       key_t key = m_keySource.unassigned();
       if (m_table.getItemKey(item, key)) {
@@ -243,7 +246,7 @@ namespace PLEXIL
         return true;
 
 #ifndef STORED_ITEM_NO_MUTEX
-      ThreadMutexGuard guard(m_mutex);
+      ThreadMutexGuard guard(*m_mutex);
 #endif
       entry_t* entry = m_table.getByKey(key);
       if (entry == NULL)
@@ -278,7 +281,7 @@ namespace PLEXIL
         return;
 
 #ifndef STORED_ITEM_NO_MUTEX
-      ThreadMutexGuard guard(m_mutex);
+      ThreadMutexGuard guard(*m_mutex);
 #endif
       entry_t* entry = m_table.getByKey(key);
       assertTrue(entry != NULL,
@@ -313,7 +316,7 @@ namespace PLEXIL
 
     key_t m_emptyKey;
 #ifndef STORED_ITEM_NO_MUTEX
-    ThreadMutex m_mutex; //!< Mutex to serialize access to the item store.
+    ThreadMutex* m_mutex; //!< Mutex to serialize access to the item store. A pointer so reads of the store can be const.
 #endif
     key_source_t m_keySource; //!< Implements key generation.
     table_t m_table; //!< Implements item storage.

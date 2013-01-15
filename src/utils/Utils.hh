@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,45 +35,20 @@
  * @ingroup Utils
  */
 
-#include <vector>
-#include <set>
 #include <list>
+#include <set>
 #include <string>
-#include <stdint.h> // for int32_t
-#include <cfloat> // for DBL_MAX
-#include <cstdlib>
+#include <vector>
 
-#include "ConstantMacros.hh"
 #include "Id.hh"
 
 namespace PLEXIL {
-
-  DECLARE_GLOBAL_CONST(double, g_epsilon);
-  DECLARE_GLOBAL_CONST(double, g_maxReal);
-  DECLARE_GLOBAL_CONST(double, UNKNOWN);
-
-  /**
-   * @brief Utility to produce a string from a double
-   */
-  std::string toString(double value);
 
   /**
    * @brief Case insensitive string compare.
    */
   bool compareIgnoreCase(const std::string & s1,
                          const std::string & s2);
-
-
-  template<class TYPE>
-  bool allValid(const std::set<Id<TYPE> >& objects){
-    typedef typename std::set<Id<TYPE> >::const_iterator object_iterator;
-    for(object_iterator it = objects.begin(); it != objects.end(); ++it){
-      Id<TYPE> id = *it;
-      if(id.isNoId() || id.isInvalid())
-        return false;
-    }
-    return true;
-  }
 
   template<class TYPE>
   void cleanup(std::set<Id<TYPE> >& objects){
@@ -105,11 +80,11 @@ namespace PLEXIL {
     while(it != objects.end()){
       Id<TYPE> object = *it;
       if(!object.isNoId()){
-	check_error(object.isValid());
-	delete (TYPE*) (*it++);
+    check_error(object.isValid());
+    delete (TYPE*) (*it++);
       }
       else
-	++it;
+    ++it;
     }
     objects.clear();
   }

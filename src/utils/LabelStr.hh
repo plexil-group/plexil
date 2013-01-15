@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,12 +24,19 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/**
+ * @file LabelStr.hh
+ * @brief Declares the LabelStr class
+ * @author Chuck Fry, from an earlier version by Robert Harris, based on code by Conor McGann
+ * @date Decemeber 2012
+ * @ingroup Utils
+ */
+
 #ifndef _H__LabelStr
 #define _H__LabelStr
 
 #include "ConstantMacros.hh"
 #include "Error.hh"
-#include "InternedItem.hh"
 #include "KeySource.hh"
 #include "TwoWayStore.hh"
 #include "TwoWayTable.hh"
@@ -39,14 +46,9 @@
 
 namespace PLEXIL
 {
-
-  /**
-   * @file LabelStr.hh
-   * @brief Declares the LabelStr class
-   * @author Chuck Fry, from an earlier version by Robert Harris, based on code by Conor McGann
-   * @date Decemeber 2012
-   * @ingroup Utils
-   */
+  
+  // Forward reference
+  class Value;
 
   /**
    * @class LabelStr
@@ -66,19 +68,15 @@ namespace PLEXIL
   typedef TwoWayTable<LabelStr_key_t, LabelStr_value_t>
   LabelStr_table_t;
 
+  typedef KeySource<LabelStr_key_t> LabelStr_keysource_t;
+
   typedef TwoWayStore<LabelStr_key_t, 
                       LabelStr_value_t,
-                      KeySource<LabelStr_key_t>,
+                      LabelStr_keysource_t,
                       LabelStr_table_t>
   LabelStr_store_t;
-
-  typedef InternedItem<LabelStr_key_t,
-                       LabelStr_value_t,
-                       LabelStr_store_t>
-  LabelStr_item_t;
                              
-  class LabelStr :
-    protected LabelStr_item_t
+  class LabelStr
   {
          
   public:
@@ -101,17 +99,11 @@ namespace PLEXIL
     LabelStr(const char* str);
 
     /**
-     * @brief Constructor from encoded key
-     *
-     * Each LabelStr gets encoded as a key such that any 2
-     * instances of a LabelStr constructed from the same string
-     * will have the same key and that the key preserves
-     * lexicographic ordering.
-     *
-     * @param key the key value for a previously created LabelStr
-     * instance.  @see m_key, getString()
+     * @brief Constructor from Value instance
+     * @param The Value.
+     * @note CALLER MUST CHECK THAT VALUE IS A STRING!
      */
-    explicit LabelStr(double key);
+    LabelStr(const Value& value);
 
     /**
      * @brief Copy constructor.
@@ -122,6 +114,11 @@ namespace PLEXIL
      * @param org The source LabelStr.
      */
     LabelStr(const LabelStr& org);
+
+    /**
+     * @brief Destructor.
+     */
+    ~LabelStr();
 
     /**
      * @brief Assignment operator
@@ -152,13 +149,12 @@ namespace PLEXIL
     LabelStr& operator=(LabelStr_key_t key);
 
     /**
-     * @brief Conversion operator to double
-     * @return The key value.
+     * @brief Assignment operator from Value
+     * @param key The value
+     * @return Reference to this LabelStr.
+     * @note CALLER MUST CHECK THAT VALUE IS A STRING!
      */
-    inline operator double() const
-    {
-      return getKey();
-    }
+    LabelStr& operator=(const Value& value);
 
     /**
      * @brief Equality operator.
@@ -167,7 +163,7 @@ namespace PLEXIL
      */
     inline bool operator==(const LabelStr& other) const
     {
-      return LabelStr_item_t::operator==(other);
+      return m_key == other.m_key;
     }
 
     /**
@@ -183,6 +179,13 @@ namespace PLEXIL
      * @return true if equal, false otherwise.
      */
     bool operator==(const char* other) const;
+
+    /**
+     * @brief Equality operator for Value.
+     * @param value The Value.
+     * @return true if equal, false otherwise.
+     */
+    bool operator==(const Value& value) const;
 
     /**
      * @brief Inequality operator.
@@ -205,6 +208,13 @@ namespace PLEXIL
     }
 
     /**
+     * @brief Inequality operator for Value.
+     * @param value The Value.
+     * @return false if equal, true otherwise.
+     */
+    bool operator!=(const Value& value) const;
+
+    /**
      * @brief Inequality operator for const char*.
      * @param other A char* constant for comparison.
      * @return false if equal, true otherwise.
@@ -216,29 +226,16 @@ namespace PLEXIL
 
     /**
      * @brief Return the represented string.
-     */
-    inline const std::string& toString() const
-    {
-      return LabelStr_item_t::getItem();
-    }
-
-    /**
-     * @brief Get the string represented by this key.
-     * @param key The key.
      * @return Const reference to the string.
-     * @note Throws an exception if not found.
      */
-    inline static const std::string& toString(LabelStr_key_t key)
-    {
-      return LabelStr_item_t::getItem(key);
-    }
+    const std::string& toString() const;
 
     /**
      * @brief Return the represent char*
      */
     inline const char* c_str() const
     {
-      return LabelStr_item_t::getItem().c_str();
+      return toString().c_str();
     }
 
     /**
@@ -249,16 +246,7 @@ namespace PLEXIL
      */
     inline static const char* c_str(LabelStr_key_t key)
     {
-      return LabelStr_item_t::getItem(key).c_str();
-    }
-
-    /**
-     * @brief Obtain the encoded key value for the string.
-     * @return The key for accessing the store of strings.
-     */
-    inline double getKey() const
-    {
-      return LabelStr_item_t::getKey();
+      return toString(key).c_str();
     }
 
     /**
@@ -312,7 +300,7 @@ namespace PLEXIL
      */
     inline static size_t getSize()
     {
-      return LabelStr_item_t::getSize();
+      return itemStore().size();
     }
 
     /**
@@ -321,7 +309,17 @@ namespace PLEXIL
      */
     inline static bool isString(double key)
     {
-      return LabelStr_item_t::isKey(key);
+      return itemStore().isKey(key);
+    }
+
+    /**
+     * @brief Check whether a double value is in the LabelStr key range.
+     * @param val The double to check.
+     * @return True if in range, false otherwise.
+     */
+    inline static bool rangeCheck(double val)
+    {
+      return LabelStr_keysource_t::rangeCheck(val);
     }
 
     /**
@@ -330,26 +328,59 @@ namespace PLEXIL
      */
     inline static bool isString(const std::string& candidate)
     {
-      return LabelStr_item_t::isItem(candidate);
+      return itemStore().isItem(candidate);
+    }
+
+    /**
+     * @brief Obtain the encoded key value for the string.
+     * @return The key for accessing the store of strings.
+     * @note Intended for use by Value class and hash functions below only.
+     */
+    inline double getKey() const
+    {
+      return m_key;
     }
 
   private:
 
-#ifndef PLEXIL_FAST
+    friend class Value;
+
+    /**
+     * @brief Get the string represented by this key.
+     * @param key The key.
+     * @return Const reference to the string.
+     * @note Throws an exception if not found.
+     * @note Only caller should be Value class.
+     */
+    static const std::string& toString(LabelStr_key_t key);
+
+    /**
+     * @brief Return the item store.
+     * @note Only external caller should be Value class.
+     */
+    static LabelStr_store_t& itemStore();
+
+    /**
+     * @brief The key value used as a proxy for the original item.
+     * @note The only instance data.
+     */
+    LabelStr_key_t m_key;
+
+#if defined(LABEL_STR_DEBUG)
     // Pointer to stored string, for debugging use only
     const char* m_string;
 #endif
 
   };
 
+  DECLARE_GLOBAL_CONST(LabelStr, EMPTY_LABEL);
+
+}
+
 //
 // Define a hash function for LabelStr
 // Unfortunately implementation dependent
 //
-
-  DECLARE_GLOBAL_CONST(LabelStr, EMPTY_LABEL);
-
-}
 
 #if defined(HAVE_UNORDERED_MAP)
 

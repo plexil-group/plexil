@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,22 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// N.B.: This #include *must* come before any other #include statements!
 #include "Utils.hh"
 
-#include "LabelStr.hh"
-#include "StoredArray.hh"
-
-#include <limits>
-#include <sstream>
-
 namespace PLEXIL {
-
-  std::string toString(double value) {
-    std::ostringstream s;
-    s << value;
-    return(s.str());
-  }
 
    bool compareIgnoreCase(const std::string & s1,
                           const std::string & s2)
@@ -56,10 +43,4 @@ namespace PLEXIL {
      return true;
    }
 
-  DEFINE_GLOBAL_CONST(double, g_epsilon, 0.00001);
-  DEFINE_GLOBAL_CONST(double, g_maxReal, ((double) DBL_MAX));
-  DEFINE_GLOBAL_CONST(double, UNKNOWN,
-		      std::numeric_limits<double>::has_infinity ?
-		      std::numeric_limits<double>::infinity() :
-		      std::numeric_limits<double>::max());
 }

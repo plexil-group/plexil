@@ -52,7 +52,6 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "Id.hh"
-#include "InternedItem.hh"
 #include "iso-8601.hh"
 #include "ItemStore.hh"
 #include "ItemTable.hh"
@@ -65,7 +64,7 @@
 #include "timeval-utils.hh"
 #include "TwoWayStore.hh"
 #include "TwoWayTable.hh"
-#include "Utils.hh" // for UNKNOWN()
+#include "Value.hh"
 #include "XMLUtils.hh"
 
 #include <cfloat>
@@ -1153,7 +1152,7 @@ private:
       assertTrue(sa1.size() == 10);
       sa1[0] = 3.3;
       sa1[1] = 9.9;
-      assertTrue(sa1[2] == UNKNOWN());
+      assertTrue(sa1[2].isUnknown());
       assertTrueMsg(StoredArray::getSize() == 2,
                     "Error: StoredArray::getSize() is " << StoredArray::getSize()
                     << ", should be 2");
@@ -1162,7 +1161,7 @@ private:
       assertTrue(sa2.size() == 10);
       assertTrue(sa2[0] == 3.3);
       assertTrue(sa2[1] == 9.9);
-      assertTrue(sa2[2] == UNKNOWN());
+      assertTrue(sa2[2].isUnknown());
       assertTrueMsg(StoredArray::getSize() == 2,
                     "Error: StoredArray::getSize() is " << StoredArray::getSize()
                     << ", should be 2");
@@ -1187,8 +1186,8 @@ private:
     std::cout << std::endl;
 
     size_t width = 1000;
-    size_t testSize = 100000; // was 1000000
-    size_t updateSize = 10000;
+    size_t testSize = 1000;
+    size_t updateSize = 100;
 
     // preallocate the vector to the appropriate size
     std::vector<double> keys;
@@ -1197,7 +1196,7 @@ private:
     // create AND delete a whole bunch of StoredArray
     time_t startTotal = startTime();
     time_t start = startTime();
-    for (size_t i = 0; i < testSize; ++i) {
+    for (int32_t i = 0; i < testSize; ++i) {
       StoredArray sa(width, i);
       if ((i + 1) % updateSize == 0)
         std::cout << "creating StoredArray: " << (i + 1)
@@ -1237,11 +1236,10 @@ private:
     // create a whole bunch of StoredArray
     time_t startTotal = startTime();
     time_t start = startTime();
-    for (size_t i = 0; i < testSize; ++i) {
+    for (int32_t i = 0; i < testSize; ++i) {
       if ((i + 1) % updateSize == 0)
         std::cout << "creating StoredArray: " << (i + 1) <<
           "\r" << std::flush;
-            
       StoredArray* sa = new StoredArray(width, i);
       arrays.push_back(sa);
       keys.push_back(sa->getKey());
@@ -1257,15 +1255,15 @@ private:
                   << (i + 1) << "\r" << std::flush;
             
       StoredArray sa(keys[i]);
-      for (size_t j = 0; j < sa.size(); ++j)
-        sa[j] += j;
+      for (int32_t j = 0; j < sa.size(); ++j)
+        sa[j] = sa[j].getIntValue() + j;
     }
     std::cout << std::endl;
     stopTime(start);
          
     // test the values of each of the vectors
     start = startTime();
-    for (size_t i = 0; i < keys.size(); ++i) {
+    for (int32_t i = 0; i < keys.size(); ++i) {
       if ((i + 1) % updateSize == 0)
         std::cout << "testing elements of StoredArray: " << 
           (i + 1) << "\r" << std::flush;
@@ -1274,8 +1272,9 @@ private:
       assertTrueMsg((StoredArray::isKey(keys[i])),
                     "item key mismatch for index " << i);
             
-      for (size_t j = 0; j < sa.size(); ++j)
-        assertTrueMsg(sa[j] == i + j, "value " << sa[j] << " != " << (i + j));
+      for (int32_t j = 0; j < sa.size(); ++j)
+        assertTrueMsg(sa[j].getIntValue() == i + j,
+                      "value " << sa[j].getIntValue() << " != " << (i + j));
     }
     std::cout << std::endl;
     stopTime(start);
@@ -1529,121 +1528,6 @@ public:
   }
 };
 
-class InternedItemTests
-{
-private:
-  template <typename key_t, typename two_way_store_t>
-  static bool testInternedItemFunctions()
-  {
-    std::cout << "Testing basics ... " << std::flush;
-    typedef InternedItem<key_t, std::string, two_way_store_t>
-      interned_item_t;
-
-    assertTrueMsg(interned_item_t::getSize() == 1,
-                  "Error: InternedItem::getSize() not 1 at construction");
-
-    // Test basic functionality
-    {
-      interned_item_t mt;                // default constructor
-      interned_item_t foo("foo");        // constructor from item_t
-      interned_item_t bar(foo.getKey()); // constructor from key_t
-      interned_item_t baz = bar;         // copy constructor
-
-      assertTrueMsg(interned_item_t::getSize() == 2,
-                    "Error: InternedItem::getSize() is "
-                    << interned_item_t::getSize() << ", should be 2");
-
-      assertTrue(mt != foo);
-      assertTrue(foo == bar);
-      assertTrue(foo == baz);
-      assertTrue(bar == baz);
-
-      mt = baz;           // assignment from interned_item_t
-      assertTrue(mt == baz);
-
-      mt = "bletch";      // assignment from item_t
-      assertTrue(mt != baz);
-
-      assertTrueMsg(interned_item_t::getSize() == 3,
-                    "Error: InternedItem::getSize() is "
-                    << interned_item_t::getSize() << ", should be 3");
-
-      mt = foo.getKey();  // assignment from key_t
-      assertTrue(mt == foo);
-
-      // bletch should have been deleted
-      assertTrueMsg(interned_item_t::getSize() == 2,
-                    "Error: InternedItem::getSize() is "
-                    << interned_item_t::getSize() << ", should be 2");
-
-    } // above instances should all be deleted here
-    assertTrueMsg(interned_item_t::getSize() == 1,
-                  "Error: InternedItem::getSize() is "
-                  << interned_item_t::getSize() << ", should be 1");
-    std::cout << " done." << std::endl;
-
-    {
-      size_t n = 10000;
-      std::vector<interned_item_t> vec(n);
-      assertTrueMsg(interned_item_t::getSize() == 1,
-                    "Error: InternedItem::getSize() is "
-                    << interned_item_t::getSize() << ", should be 1");
-
-      // Populate items in vector
-      std::cout << "Populating vector of InternedItem ..." << std::flush;
-      for (size_t i = 0; i < n; ++i) {
-        std::ostringstream ostream;
-        ostream << i;
-        vec[i] = ostream.str();
-      }
-      assertTrueMsg(interned_item_t::getSize() == n + 1,
-                    "Error: InternedItem::getSize() is "
-                    << interned_item_t::getSize()
-                    << ", should be " << n + 1);
-      std::cout << " done." << std::endl;
-
-      std::cout << "Checking vector of InternedItem ..." << std::flush;
-      for (size_t i = 0; i < n; ++i) {
-        std::istringstream str(vec[i].getItem());
-        size_t j;
-        str >> j;
-        assertTrueMsg(i == j, "Item should be " << i << ", is " << j);
-      }
-      std::cout << " done." << std::endl;
-
-      std::cout << "Checking assignment in vector ..." << std::flush;
-      for (size_t i = 1; i < n; ++i) {
-        vec[i] = vec[0];
-      }
-      assertTrueMsg(interned_item_t::getSize() == 2,
-                    "Error: InternedItem::getSize() is "
-                    << interned_item_t::getSize() << ", should be 2");
-      std::cout << " done." << std::endl;
-    } // vector is deleted here
-
-    assertTrueMsg(interned_item_t::getSize() == 1,
-                  "Error: InternedItem::getSize() is "
-                  << interned_item_t::getSize() << ", should be 1");
-
-    return true;
-  }
-
-public:
-  static bool test()
-  {
-    return testInternedItemFunctions<unsigned int, 
-                                     TwoWayStore<unsigned int,
-                                                 std::string,
-                                                 KeySource<unsigned int>, 
-                                                 TwoWayTable<unsigned int, std::string> > >()
-      && testInternedItemFunctions<double, 
-                                   TwoWayStore<double,
-                                               std::string,
-                                               KeySource<double>, 
-                                               TwoWayTable<double, std::string> > >();;
-  }
-};
-
 class LabelStrTests {
 public:
   static bool test()
@@ -1669,13 +1553,11 @@ private:
       LabelStr label1("label1");              // char* constructor
       LabelStr label2(std::string("label2")); // std::string constructor
       LabelStr label3 = label2;               // copy constructor
-      LabelStr label4(label2.getKey());       // double constructor
       assertTrueMsg(LabelStr::getSize() == 3,
                     "Error: LabelStr::getSize() is " << LabelStr::getSize() << ", should be 3");
 
       // Equality, inequality
       assertTrue(label2 == label3);           // equality test
-      assertTrue(label2 == label4);
       assertTrue(!(label0 == label1));
       assertTrue(label1 != label2);           // inequality test
       assertTrue(!(label2 != label3));
@@ -1685,6 +1567,46 @@ private:
 
       return true;
     }
+
+    {
+      size_t n = 10000;
+      std::vector<LabelStr> vec(n);
+      assertTrueMsg(LabelStr::getSize() == 1,
+                    "Error: LabelStr::getSize() is "
+                    << LabelStr::getSize() << ", should be 1");
+
+      // Populate items in vector
+      std::cout << "Populating vector of LabelStr ..." << std::flush;
+      for (size_t i = 0; i < n; ++i) {
+        std::ostringstream ostream;
+        ostream << i;
+        vec[i] = ostream.str();
+      }
+      assertTrueMsg(LabelStr::getSize() == n + 1,
+                    "Error: LabelStr::getSize() is "
+                    << LabelStr::getSize()
+                    << ", should be " << n + 1);
+      std::cout << " done." << std::endl;
+
+      std::cout << "Checking vector of LabelStr ..." << std::flush;
+      for (size_t i = 0; i < n; ++i) {
+        std::istringstream str(vec[i].toString());
+        size_t j;
+        str >> j;
+        assertTrueMsg(i == j, "Item should be " << i << ", is " << j);
+      }
+      std::cout << " done." << std::endl;
+
+      std::cout << "Checking assignment in vector ..." << std::flush;
+      for (size_t i = 1; i < n; ++i) {
+        vec[i] = vec[0];
+      }
+      assertTrueMsg(LabelStr::getSize() == 2,
+                    "Error: LabelStr::getSize() is "
+                    << LabelStr::getSize() << ", should be 2");
+      std::cout << " done." << std::endl;
+    } // vector is deleted here
+
     assertTrueMsg(LabelStr::getSize() == 1,
                   "Error: LabelStr::getSize() is " << LabelStr::getSize() << ", should be 1");
   }
@@ -1720,6 +1642,205 @@ private:
     assertFalse(lbl5.contains("I"));
     return true;
   }
+};
+
+class ValueTests
+{
+public:
+  static bool test()
+  {
+    runTest(testValueBasics);
+    runTest(testValueRefcount);
+    return true;
+  }
+
+private:
+  static bool testValueBasics()
+  {
+    // Default constructor
+    Value u;
+    assertTrue(u.isUnknown());
+    assertFalse(u.isString());
+    assertFalse(u.isArray());
+
+    // Bool constructor
+    const bool b = true;
+    Value bv(b);
+    assertFalse(bv.isUnknown());
+    assertFalse(bv.isString());
+    assertFalse(bv.isArray());
+    assertTrue(b == bv.getBoolValue());
+
+    // Int constructor
+    const int32_t i = 42;
+    Value iv(i);
+    assertFalse(iv.isUnknown());
+    assertFalse(iv.isString());
+    assertFalse(iv.isArray());
+    assertTrue(i == iv.getIntValue());
+
+    // Double constructor
+    const double d = 3.1415;
+    Value dv(d);
+    assertFalse(dv.isUnknown());
+    assertFalse(dv.isString());
+    assertFalse(dv.isArray());
+    assertTrue(d == dv.getDoubleValue());
+
+    // LabelStr constructor
+    const LabelStr l("Ellesse");
+    Value lv(l);
+    assertFalse(lv.isUnknown());
+    assertTrue(lv.isString());
+    assertFalse(lv.isArray());
+    assertTrue(l == lv);
+
+    // String constructor
+    const std::string s = "Ess";
+    Value sv(s);
+    assertFalse(sv.isUnknown());
+    assertTrue(sv.isString());
+    assertFalse(sv.isArray());
+    assertTrue(s == sv.getStringValue());
+
+    // char* constructor
+    const char* c = "See";
+    Value cv(c);
+    assertFalse(cv.isUnknown());
+    assertTrue(cv.isString());
+    assertFalse(cv.isArray());
+    assertTrue(0 == strcmp(c, cv.c_str()));
+
+    // StoredArray constructor
+    const StoredArray sa(2, UNKNOWN());
+    Value sav(sa);
+    assertFalse(sav.isUnknown());
+    assertFalse(sav.isString());
+    assertTrue(sav.isArray());
+    assertTrue(sa == sav.getStoredArrayValue());
+
+    // Array constructor
+    const StoredArray_value_t a(3);
+    Value av(a);
+    assertFalse(av.isUnknown());
+    assertFalse(av.isString());
+    assertTrue(av.isArray());
+    assertTrue(a == av.getArrayValue()); 
+
+    return true;
+  }
+
+  static bool testAssignment()
+  {
+    Value v;
+    v = true;
+    assertFalse(v.isUnknown());
+    assertFalse(v.isString());
+    assertFalse(v.isArray());
+    assertTrue(v.getBoolValue());
+    v = false;
+    assertFalse(v.getBoolValue());
+    v.setUnknown();
+    assertTrue(v.isUnknown());
+
+    int32_t i = 42;
+    v = i;
+    assertFalse(v.isUnknown());
+    assertFalse(v.isString());
+    assertFalse(v.isArray());
+    assertTrue(v.getIntValue() == i);
+    v.setUnknown();
+
+    double d = 3.1415;
+    v = d;
+    assertFalse(v.isUnknown());
+    assertFalse(v.isString());
+    assertFalse(v.isArray());
+    assertTrue(v.getDoubleValue() == d);
+    v.setUnknown();
+    
+    LabelStr l("elle");
+    v = l;
+    assertFalse(v.isUnknown());
+    assertTrue(v.isString());
+    assertFalse(v.isArray());
+    assertTrue(v == l);
+    v.setUnknown();
+
+    std::string s("esse");
+    v = s;
+    assertFalse(v.isUnknown());
+    assertTrue(v.isString());
+    assertFalse(v.isArray());
+    assertTrue(v.getStringValue() == s);
+    v.setUnknown();
+
+    const char* c = "sea";
+    v = c;
+    assertFalse(v.isUnknown());
+    assertTrue(v.isString());
+    assertFalse(v.isArray());
+    assertTrue(0 == strcmp(v.c_str(), c));
+    v.setUnknown();
+
+    StoredArray sa(3, 69.0);
+    v = sa; // assign reference
+    assertFalse(v.isUnknown());
+    assertFalse(v.isString());
+    assertTrue(v.isArray());
+    assertTrue(v.getArrayValue() == sa.getConstArray());
+    assertTrue(v.getStoredArrayValue() == sa);
+    v.setUnknown();
+    
+    v.copyArray(sa); // assign copy
+    assertFalse(v.isUnknown());
+    assertFalse(v.isString());
+    assertTrue(v.isArray());
+    assertTrue(v.getArrayValue() == sa.getConstArray());
+    assertFalse(v.getStoredArrayValue() == sa);
+    v.setUnknown();
+
+    StoredArray_value_t a(1, 0.0);
+    v = a;
+    assertFalse(v.isUnknown());
+    assertFalse(v.isString());
+    assertTrue(v.isArray());
+    assertTrue(v.getArrayValue() == a);
+
+    return true;
+  }
+
+  static bool testValueRefcount()
+  {
+    Value lv;
+    double lvv;
+    {
+      LabelStr l("ell");
+      lv = l;
+      assertTrue(lv.isString());
+      assertTrue(lv.getStringValue() == l.toString());
+      assertTrue(lv.getRawValue() == l.getKey());
+      lvv = lv.getRawValue();
+    } // l deleted
+    assertTrue(LabelStr::isString(lvv));
+    lv.setUnknown();
+    assertFalse(LabelStr::isString(lvv));
+
+    {
+      StoredArray s(3, 1.415);
+      lv = s;
+      assertTrue(lv.isArray());
+      assertTrue(lv.getArrayValue() == s.getConstArray());
+      assertTrue(lv.getRawValue() == s.getKey());
+      lvv = lv.getRawValue();
+    } // s deleted
+    assertTrue(StoredArray::isKey(lvv));
+    lv.setUnknown();
+    assertFalse(StoredArray::isKey(lvv));
+
+    return true;
+  }
+
 };
 
 class TimespecTests
@@ -2242,8 +2363,8 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(StoredArrayTests::test);
   runTestSuite(TwoWayTableTests::test);
   runTestSuite(TwoWayStoreTests::test);
-  runTestSuite(InternedItemTests::test);
   runTestSuite(LabelStrTests::test);
+  runTestSuite(ValueTests::test);
 
   std::cout << "Finished" << std::endl;
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,7 @@
 */
 
 #include "LabelStr.hh"
+#include "Value.hh"
 #include <cstring> // for strcmp()
 
 namespace PLEXIL
@@ -38,8 +39,8 @@ namespace PLEXIL
    * @note Should only be used indirectly, e.g., via std::list.
    */
   LabelStr::LabelStr()
-    : LabelStr_item_t()
-#ifndef PLEXIL_FAST
+    : m_key(itemStore().getEmptyKey())
+#if defined(LABEL_STR_DEBUG)
     , m_string(getItem().c_str())
 #endif
   {
@@ -50,8 +51,8 @@ namespace PLEXIL
    * @param label The symbolic value as a string
    */
   LabelStr::LabelStr(const std::string& label)
-    : LabelStr_item_t(label)
-#ifndef PLEXIL_FAST
+    : m_key(itemStore().storeItem(label))
+#if defined(LABEL_STR_DEBUG)
     , m_string(getItem().c_str())
 #endif
   {
@@ -62,23 +63,27 @@ namespace PLEXIL
    * @param str A null terminated string
    */
   LabelStr::LabelStr(const char* label)
-    : LabelStr_item_t(std::string(label))
-#ifndef PLEXIL_FAST
+    : m_key(itemStore().storeItem(std::string(label)))
+#if defined(LABEL_STR_DEBUG)
     , m_string(getItem().c_str())
 #endif
   {
   }
 
   /**
-   * @brief Constructor from encoded key
-   * @param key the key value for a previously created LabelStr instance.
+   * @brief Constructor from Value instance
+   * @param The Value.
+   * @note Value's strings share the LabelStr representation.
    */
-  LabelStr::LabelStr(double key)
-    : LabelStr_item_t(key)
-#ifndef PLEXIL_FAST
-    , m_string(getItem().c_str())
-#endif
+  LabelStr::LabelStr(const Value& value)
+    : m_key(value.getRawValue())
   {
+    if (!itemStore().newReference(m_key)) {
+      assertTrue(ALWAYS_FAIL, "LabelStr constructor from Value: Invalid key");
+    }
+#if defined(LABEL_STR_DEBUG)
+    m_string = getItem().c_str();
+#endif
   }
 
   /**
@@ -86,11 +91,22 @@ namespace PLEXIL
    * @param org The source LabelStr.
    */
   LabelStr::LabelStr(const LabelStr& org)
-    : LabelStr_item_t(org)
-#ifndef PLEXIL_FAST
+    : m_key(org.m_key)
+#if defined(LABEL_STR_DEBUG)
     , m_string(org.m_string)
 #endif
   {
+    if (!itemStore().newReference(m_key)) {
+      assertTrue(ALWAYS_FAIL, "LabelStr copy constructor: Invalid key");
+    }
+  }
+
+  /**
+   * @brief Destructor.
+   */
+  LabelStr::~LabelStr()
+  {
+    itemStore().deleteReference(m_key);
   }
 
   /**
@@ -100,10 +116,16 @@ namespace PLEXIL
    */
   LabelStr& LabelStr::operator=(const LabelStr& org)
   {
-    LabelStr_item_t::operator=(org);
-#ifndef PLEXIL_FAST
-    m_string = org.m_string;
+    if (m_key != org.m_key) {
+      assertTrueMsg(itemStore().newReference(org.m_key),
+                    "InternedItem::operator=: Invalid key");
+      LabelStr_key_t oldKey = m_key;
+      itemStore().deleteReference(oldKey);
+      m_key = org.m_key;
+#if defined(LABEL_STR_DEBUG)
+      m_string = org.m_string;
 #endif
+    }
     return *this;
   }
 
@@ -112,12 +134,18 @@ namespace PLEXIL
    * @param string The new value as a std::string.
    * @return Reference to this LabelStr.
    */
+  // TODO: optimize by only hitting the table twice, instead of 3x?
   LabelStr& LabelStr::operator=(const std::string& string)
   {
-    LabelStr_item_t::operator=(string);
-#ifndef PLEXIL_FAST
-    m_string = getItem().c_str();
+    const std::string& current = toString();
+    if (current != string) {
+      LabelStr_key_t oldKey = m_key;
+      m_key = itemStore().storeItem(string);
+      itemStore().deleteReference(oldKey);
+#if defined(LABEL_STR_DEBUG)
+      m_string = getItem().c_str();
 #endif
+    }
     return *this;
   }
 
@@ -128,7 +156,7 @@ namespace PLEXIL
    */
   LabelStr& LabelStr::operator=(const char* chars)
   {
-    return this->operator=(std::string(chars));
+    return operator=(std::string(chars));
   }
 
   /**
@@ -136,13 +164,29 @@ namespace PLEXIL
    * @param key The key from another existing LabelStr.
    * @return Reference to this LabelStr.
    */
-  LabelStr& LabelStr::operator=(LabelStr_key_t key)
+  LabelStr& LabelStr::operator=(LabelStr_key_t newKey)
   {
-    LabelStr_item_t::operator=(key);
-#ifndef PLEXIL_FAST
-    m_string = getItem().c_str();
+    if (m_key != newKey) {
+      assertTrueMsg(itemStore().newReference(newKey),
+                    "InternedItem::operator=: key " << newKey << " is not valid");
+      LabelStr_key_t oldKey = m_key;
+      m_key = newKey;
+      itemStore().deleteReference(oldKey);
+#if defined(LABEL_STR_DEBUG)
+      m_string = getItem().c_str();
 #endif
+    }
     return *this;
+  }
+
+  /**
+   * @brief Assignment operator from Value
+   * @param key The value
+   * @return Reference to this LabelStr.
+   */
+  LabelStr& LabelStr::operator=(const Value& value)
+  {
+    return operator=(value.getRawValue());
   }
 
   /**
@@ -152,7 +196,7 @@ namespace PLEXIL
    */
   bool LabelStr::operator==(const std::string& other) const
   {
-    return getItem() == other;
+    return toString() == other;
   }
 
   /**
@@ -165,6 +209,26 @@ namespace PLEXIL
     return 0 == strcmp(c_str(), other);
   }
 
+  /**
+   * @brief Equality operator for Value.
+   * @param value The Value. 
+   * @return true if equal, false otherwise.
+   */
+  bool LabelStr::operator==(const Value& value) const
+  {
+    return getKey() == value.getRawValue();
+  }
+
+  /**
+   * @brief Inequality operator for Value.
+   * @param value The Value. 
+   * @return false if equal, true otherwise.
+   */
+  bool LabelStr::operator!=(const Value& value) const
+  {
+    return !operator==(value);
+  }
+
   bool LabelStr::operator<(const LabelStr& lbl) const
   {
     return toString() < lbl.toString();
@@ -173,6 +237,32 @@ namespace PLEXIL
   bool LabelStr::operator>(const LabelStr& lbl) const
   {
     return toString() > lbl.toString();
+  }
+
+  /**
+   * @brief Return the represented string.
+   * @return Const reference to the string.
+   */
+  const std::string& LabelStr::toString() const
+  {
+    LabelStr_value_t* result = itemStore().getItem(m_key);
+    assertTrue(result != NULL,
+               "LabelStr::toString: key not found");
+    return *result;
+  }
+
+  /**
+   * @brief Get the string represented by this key.
+   * @param key The key.
+   * @return Const reference to the string.
+   * @note Throws an exception if not found.
+   */
+  const std::string& LabelStr::toString(LabelStr_key_t key)
+  {
+    LabelStr_value_t* result = itemStore().getItem(key);
+    assertTrue(result != NULL,
+               "LabelStr::toString: key not found");
+    return *result;
   }
 
   /**
@@ -227,6 +317,16 @@ namespace PLEXIL
       pos = str.find_first_of(delimiters, lastPos);
     }
     return result;
+  }
+
+  /**
+   * @brief Return the item store.
+   * @note Only external user should be Value class.
+   */
+  LabelStr_store_t& LabelStr::itemStore()
+  {
+    static LabelStr_store_t sl_itemStore;
+    return sl_itemStore;
   }
 
 }

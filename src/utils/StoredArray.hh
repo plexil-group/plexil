@@ -38,20 +38,24 @@
 #include "ItemTable.hh"
 #include "KeySource.hh"
 #include "StoredItem.hh"
+#include "Value.hh"
 #include <vector>
 
 namespace PLEXIL
 {
   typedef double StoredArray_key_t;
 
-  typedef std::vector<double> StoredArray_value_t;
+  typedef std::vector<Value> StoredArray_value_t;
+
+  typedef KeySource<double, NegativeDenormKeyTraits<double> >
+  StoredArray_keysource_t;
 
   typedef ItemTable<StoredArray_key_t, StoredArray_value_t>
   StoredArray_table_t;
 
   typedef ItemStore<StoredArray_key_t,
                     StoredArray_value_t,
-                    KeySource<double, NegativeDenormKeyTraits<double> >,
+                    StoredArray_keysource_t,
                     StoredArray_table_t>
   StoredArray_store_t;
 
@@ -92,7 +96,7 @@ namespace PLEXIL
      * @param initValue The value the elements in the array will be
      * initialized to.
      */
-    StoredArray(size_t size, const double& initValue);
+    StoredArray(size_t size, const Value& initValue);
 
     /** 
      * @brief Construct a new array of a given size and initial values.
@@ -110,12 +114,13 @@ namespace PLEXIL
      * @note The size is set from initValues.size().
      */
     StoredArray(const StoredArray_value_t& initValues);
-         
+
     /** 
-     * @brief Construct an array given a key from an existing array.
-     * @param key The key of the already existing array.
+     * @brief Constructor from a Value instance.
+     * @param value The value.
+     * @note CALLER MUST ENSURE THAT THE VALUE IS AN ARRAY!
      */
-    StoredArray(StoredArray_key_t key);
+    StoredArray(const Value& value);
 
     /**
      * @brief Destructor.
@@ -129,11 +134,7 @@ namespace PLEXIL
      * @param other The other StoredArray.
      * @return Reference to this.
      */
-    inline StoredArray& operator=(const StoredArray& other)
-    {
-      StoredArray_item_t::operator=(other);
-      return *this;
-    }
+    StoredArray& operator=(const StoredArray& other);
 
     /*
      * @brief Assignment operator from key to another StoredArray.
@@ -141,11 +142,15 @@ namespace PLEXIL
      * @return Reference to this.
      * @note Can assert if key is invalid.
      */
-    inline StoredArray& operator=(const StoredArray_key_t& key)
-    {
-      StoredArray_item_t::operator=(key);
-      return *this;
-    }
+    StoredArray& operator=(const StoredArray_key_t& key);
+
+    /*
+     * @brief Assignment operator from Value.
+     * @param value The value.
+     * @return Reference to this.
+     * @note CALLER MUST ENSURE THAT THE VALUE IS AN ARRAY!
+     */
+    StoredArray& operator=(const Value& value);
 
     /*
      * @brief Equality operator.
@@ -227,13 +232,22 @@ namespace PLEXIL
     }
 
     /** 
-     * @brief Get the actual array.
-     *
+     * @brief Get a const reference to the actual array.
      * @return A reference to the array.
      */
     inline const StoredArray_value_t& getConstArray() const
     {
       return getItem();
+    }
+
+    /** 
+     * @brief Get a const reference to an array at an existing key, without allocating a new StoredItem.
+     * @param key The existing key.
+     * @return A reference to the array.
+     */
+    inline static const StoredArray_value_t& getConstArray(StoredArray_key_t key)
+    {
+      return getItem(key);
     }
          
     /**
@@ -242,21 +256,9 @@ namespace PLEXIL
      * @return The size of this array.
      */
     size_t size() const;
-         
-    /**
-     * @brief Return key which can be used to access this array at a
-     * later time.
-     *
-     * @brief Access key of this array.
-     */
-    inline StoredArray_key_t getKey() const
-    {
-      return StoredArray_item_t::getKey();
-    }
 
     /**
      * @brief Return true if key value is valid.
-     *
      * @param key candidate key
      * @return true if valid key
      */
@@ -264,20 +266,28 @@ namespace PLEXIL
     {
       return StoredArray_item_t::isKey(key);
     }
+
+    /**
+     * @brief Check whether a double value is in the StoredArray key range.
+     * @param val The double to check.
+     * @return True if in range, false otherwise.
+     */
+    inline static bool rangeCheck(double key)
+    {
+      return StoredArray_keysource_t::rangeCheck(key);
+    }
          
     /**
      * @brief Return const value of array elment.
-     *
      * @param index Index of array element.
      */
-    const double& at(const size_t index) const;
+    const Value& at(const size_t index) const;
          
     /**
      * @brief Operator for accessing elements in this array.
-     *
      * @return A reference to the specifed array element.
      */
-    double& operator[] (const size_t index);
+    Value& operator[] (const size_t index);
 
     /**
      * @brief Generate a printed representation for this stored array.
@@ -291,6 +301,37 @@ namespace PLEXIL
     inline static size_t getSize()
     {
       return StoredArray_item_t::getSize();
+    }
+
+    /** 
+     * @brief Construct an array given a key from an existing array.
+     * @param key The key of the already existing array.
+     * @note Intended for use by Value class only.
+     */
+    StoredArray(StoredArray_key_t key);
+         
+    /**
+     * @brief Return key which can be used to access this array at a
+     * later time.
+     * @brief Access key of this array.
+     * @note Intended for use by Value class only.
+     */
+    inline StoredArray_key_t getKey() const
+    {
+      return StoredArray_item_t::getKey();
+    }
+
+  private:
+         
+    friend class Value;
+
+    /**
+     * @brief Return the item store.
+     * @note Intended for use by Value class only.
+     */
+    inline static StoredArray_store_t& itemStore()
+    {
+      return StoredArray_item_t::itemStore();
     }
 
   };
