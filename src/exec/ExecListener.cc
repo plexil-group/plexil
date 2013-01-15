@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -134,7 +134,7 @@ namespace PLEXIL
   void
   ExecListener::notifyOfAssignment(const ExpressionId & dest,
                                    const std::string& destName,
-                                   const double& value) const
+                                   const Value& value) const
   {
     if (m_filter.isNoId()
         || m_filter->reportAssignment(dest, destName, value))
@@ -272,7 +272,7 @@ namespace PLEXIL
    */
   void ExecListener::implementNotifyAssignment(const ExpressionId & /* dest */,
                                                const std::string& /* destName */,
-                                               const double& /* value */) const
+                                               const Value& /* value */) const
   {
     debugMsg("ExecListener:implementNotifyAssignment", " default method called");
   }

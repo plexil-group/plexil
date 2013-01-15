@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -131,7 +131,7 @@ namespace PLEXIL
      * @param value The new value for the state.
      * @note Apparently only used by the Exec regression tester and TestExec.
      */
-    void updateState(const State& state, double value);
+    void updateState(const State& state, const Value& value);
          
     /**
      * @brief Put the cache in a state that is ready for lookup registration
@@ -181,7 +181,7 @@ namespace PLEXIL
      * @return True if the update moved the thresholds, false otherwise.
      */
 
-    bool internalStateUpdate(const CacheEntryId& entry, double value);
+    bool internalStateUpdate(const CacheEntryId& entry, const Value& value);
          
     /**
      * @brief Remove a lookup from internal data structures.
@@ -194,17 +194,6 @@ namespace PLEXIL
      * @brief Get the current time and update all subscribers.
      */
     void updateTimeState();
-         
-    /**
-     * @brief Compute the magnitude of the difference between x and y.
-     * @param x First value.
-     * @param y Second value.
-     * @return The magnitude of the difference.  If both x and y
-     *         are UNKNOWN, the magnitude is 0.  If exactly one of
-     *         them is UNKNOWN, the magnitude is inf.  Otherwise,
-     *         it's abs(x - y).
-     */
-    static double differenceMagnitude(const double x, const double y);
 
     typedef std::map<State, CacheEntryId> StateCacheMap;
     typedef std::map<ExpressionId, LookupDescId> ExpressionToLookupMap;

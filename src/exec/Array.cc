@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,7 @@
 #include "ExecListenerHub.hh"
 #include "ExpressionFactory.hh"
 #include "NodeConnector.hh"
+#include "Utils.hh" // for compareIgnoreCase()
 
 #include <cstring> // for strcmp()
 
@@ -101,12 +102,12 @@ namespace PLEXIL
     return m_originalArray->maxSize();
   }
 
-  double ArrayAliasVariable::lookupValue(size_t index) const
+  const Value& ArrayAliasVariable::lookupValue(size_t index) const
   {
     return m_originalArray->lookupValue(index);
   }
 
-  void ArrayAliasVariable::setElementValue(unsigned /* index */, const double /* value */)
+  void ArrayAliasVariable::setElementValue(size_t /* index */, const Value& /* value */)
   {
     assertTrueMsg(!isConst(),
                   "Attempt to call setElementValue() on const array alias " << *this);
@@ -117,7 +118,7 @@ namespace PLEXIL
     return m_originalArray->getElementType();
   }
 
-  bool ArrayAliasVariable::checkElementValue(const double val)
+  bool ArrayAliasVariable::checkElementValue(const Value& val) const
   {
     return m_originalArray->checkElementValue(val);
   }
@@ -127,26 +128,21 @@ namespace PLEXIL
                                const bool isConst)
     : ArrayVariableBase(), 
       VariableImpl(false), // set m_isConst below
-      m_array(maxSize, UNKNOWN()),
-      m_initialArray(m_array),
       m_maxSize(maxSize), 
       m_type(type)
   {
     debugMsg("ArrayVariable", " constructor, no initial elements");
-    m_initialValue = m_array.getKey();
-    setValue(m_array.getKey());
+    setValue(StoredArray(maxSize));
     if (isConst)
       makeConst();
   }
 
   ArrayVariable::ArrayVariable(size_t maxSize, 
                                PlexilType type, 
-                               const std::vector<double>& values, 
+                               const std::vector<Value>& values, 
                                const bool isConst)
     : ArrayVariableBase(),
       VariableImpl(false),
-      m_array(m_maxSize, UNKNOWN()),
-      m_initialArray(m_array),
       m_maxSize(maxSize),
       m_type(type)
   {
@@ -154,17 +150,18 @@ namespace PLEXIL
                   "ArrayVariable constructor: Initial array size " << values.size()
                   << " exceeds target size " << maxSize);
     debugMsg("ArrayVariable", " constructor, " << values.size() << " initial elements");
-    m_initialValue = m_array.getKey();
+    StoredArray array(maxSize);
     // Let StringArrayVariable do its own initialization
     if (m_type != STRING) {
       // Set array values
       for (size_t i = 0; i < values.size(); ++i) {
         checkError(checkElementValue(values[i]),
                    "Attempted to initialize element of " << PlexilParser::valueTypeString(getElementType())
-                   << " array to invalid value \"" << valueToString(values[i]) << "\"");
-        m_array[i] = values[i];
+                   << " array to invalid value \"" << values[i] << "\"");
+        array[i] = values[i];
       }
-      setValue(m_array.getKey());
+      m_initialValue = array;
+      setValue(m_initialValue);
       if (isConst)
         makeConst();
     }
@@ -174,9 +171,7 @@ namespace PLEXIL
                                const NodeConnectorId& node,
                                const bool isConst)
     : ArrayVariableBase(),
-      VariableImpl(expr, node),
-      m_array(),
-      m_initialArray()
+      VariableImpl(expr, node)
   {
     debugMsg("ArrayVariable", " constructor from intermediate representation");
 
@@ -203,8 +198,8 @@ namespace PLEXIL
     }
 
     // init the local type and array
-    m_initialArray = m_array = StoredArray(m_maxSize, UNKNOWN());
-    m_initialValue = m_array.getKey();
+    StoredArray array(m_maxSize, UNKNOWN());
+    m_initialValue = array; // for use by StringArrayVariable constructor
 
     // Defer to StringArrayVariable constructor
     if (m_type != STRING) {
@@ -218,10 +213,10 @@ namespace PLEXIL
           if (m_type == BOOLEAN) {
             if (compareIgnoreCase(values[i], "true") || 
                 (strcmp(values[i].c_str(), "1") == 0))
-              convertedValue = 1;
+              convertedValue = 1.0;
             else if (compareIgnoreCase(values[i], "false") || 
                      (strcmp(values[i].c_str(), "0") == 0))
-              convertedValue = 0;
+              convertedValue = 0.0;
             else
               assertTrueMsg(ALWAYS_FAIL, 
                             "Attempt to initialize Boolean array variable with invalid value \""
@@ -234,10 +229,10 @@ namespace PLEXIL
                        "Attempted to initialize element of " << PlexilParser::valueTypeString(getElementType())
                        << " array to invalid value \"" << values[i] << "\"");
           }
-          m_array[i] = convertedValue;
+          array[i] = convertedValue;
         }
       }
-      VariableImpl::setValue(m_array.getKey());
+      VariableImpl::setValue(m_initialValue);
       if (isConst)
         makeConst();
     }
@@ -251,169 +246,117 @@ namespace PLEXIL
   {
   }
 
-
-  /**
-   * @brief Set the value of this expression back to the initial value with which it was
-   *        created.
-   */
-  void ArrayVariable::reset()
-  {
-    m_array = m_initialArray;
-    VariableImpl::setValue(m_initialValue);
-  }
-
   // set the value of this array
-  void ArrayVariable::setValue(const double value)
+  void ArrayVariable::setValue(const Value& value)
   {
-    // Check if new array value == current
-    if (m_value == value
-        || StoredArray::isKey(value) && m_array.getArray() == StoredArray::getArray(value)) {
+    // Check if new value == current
+    if (m_value == value) {
       debugMsg("ArrayVariable:setValue", " to existing value");
-      return;
+      return; // nothing to do
     }
 
     // Check if new == initial (e.g. Variable::reset() or retracting an assignment)
     if (value == m_initialValue
-        || StoredArray::isKey(value) && m_initialArray == StoredArray::getArray(value)) {
+        || value.isArray() && m_initialValue.getConstArrayValue() == value.getConstArrayValue()) {
       debugMsg("ArrayVariable:setValue", " to initial value");
-      m_array = m_initialArray;
-      VariableImpl::setValue(value);
+      VariableImpl::setValue(m_initialValue);
       return;
     }
 
     // Check new value
-    if (value != UNKNOWN()) {
-      assertTrueMsg(StoredArray::isKey(value),
-                    "ArrayVariable::setValue: new value " << Expression::valueToString(value)
-                    << " is not an array value or UNKNOWN");
-      assertTrueMsg(StoredArray::getArray(value).size() <= m_maxSize,
-                    "ArrayVariable::setValue: new value size, "
-                    << StoredArray::getArray(value).size()
-                    << ", is larger than the maximum size, " << m_maxSize);
-    }
-
-    // Below this line, we will be replacing contents of the current array
-    if (m_value == m_initialValue) {
-      debugMsg("ArrayVariable:setValue", " allocating new array");
-      // Allocate a new array so as not to disturb the initial value
-      m_array = StoredArray(m_maxSize, UNKNOWN());
-      if (value == UNKNOWN()) {
-        debugMsg("ArrayVariable:setValue", " to UNKNOWN()");
-        VariableImpl::setValue(value);
-        return;
-      }
-    }
-
-    // if the new value is unknown, then clear the array contents
-    if (value == UNKNOWN()) {
-      debugMsg("ArrayVariable:setValue", " to UNKNOWN()");
-      // clear array contents
-      m_array.getArray().assign(m_array.size(), UNKNOWN());
+    if (value.isUnknown()) {
+      debugMsg("ArrayVariable:setValue", " to UNKNOWN");
       VariableImpl::setValue(value);
       return;
     }
+    assertTrueMsg(value.isArray(),
+                  "ArrayVariable::setValue: new value " << value
+                  << " is not an array value or UNKNOWN");
+    assertTrueMsg(value.getConstArrayValue().size() <= m_maxSize,
+                  "ArrayVariable::setValue: new value size, "
+                  << value.getConstArrayValue().size()
+                  << ", is larger than the maximum size, " << m_maxSize);
 
+    // Below this line, we will be replacing contents of the current array
     debugMsg("ArrayVariable:setValue", " general case");
+
+    if (m_value.isUnknown() || m_value == m_initialValue) {
+      debugMsg("ArrayVariable:setValue", " allocating new array");
+      // Allocate a new array so as not to disturb the initial value
+      m_value = StoredArray(m_maxSize, UNKNOWN());
+    }
+
     // copy the array
-    const std::vector<double>& sourceArray = StoredArray::getArray(value);
+    const std::vector<Value>& sourceArray = value.getConstArrayValue();
+    std::vector<Value>& array = m_value.getArrayValue();
     size_t i = 0;
     for (; i < sourceArray.size(); ++i)
-      m_array[i] = sourceArray[i];
+      array[i] = sourceArray[i];
     while (i < m_maxSize)
-      m_array[i++] = UNKNOWN();
+      array[i++].setUnknown();
 
-    // VariableImpl::setValue(m_array.getKey());
     // FIXME: This is a kludge to ensure listeners are notified.
-    // As we have copied in place, the array key may not have changed,
+    // As we have copied in place, the "value" may not have changed,
     // so Expression::internalSetValue() may not notify listeners.
     // This kludge doesn't respect the Expression class lock.
-    m_value = m_array.getKey();
     publishChange();
-  }
-
-  /**
-   * @brief Temporarily stores the previous value of this variable.
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void ArrayVariable::saveCurrentValue()
-  {
-    VariableImpl::saveCurrentValue();
-    m_savedArray = m_array.getArray();
-  }
-
-  /**
-   * @brief Restore the value set aside by saveCurrentValue().
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void ArrayVariable::restoreSavedValue()
-  {
-    // Copy the array contents back from the saved array
-    std::vector<double>& ary = m_array.getArray();
-    for (size_t i = 0; i < m_maxSize; ++i) {
-      ary[i] = m_savedArray[i];
-    }
-    VariableImpl::restoreSavedValue();
-  }
-     
-  /**
-   * @brief Commit the assignment by erasing the saved previous value.
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void ArrayVariable::commitAssignment()
-  {
-    m_savedArray.clear();
-    VariableImpl::commitAssignment();
   }
 
   // set an element value in an array variable
 
-  void ArrayVariable::setElementValue(unsigned index, const double value)
+  void ArrayVariable::setElementValue(size_t index, const Value& value)
   {
     // lotsa potential errors to check
     assertTrueMsg(!VariableImpl::isConst(),
-               "Attempted to set element value " << value << " of const array " << *this);
-    assertTrueMsg(m_value != UNKNOWN(),
-               "Attempted to assign an array element in an UNKNOWN array");
+                  "Attempted to set element value of const array " << *this);
+    assertTrueMsg(!m_value.isUnknown(),
+                  "Attempted to assign an array element in an UNKNOWN array");
     assertTrueMsg(checkElementValue(value),
-               "Attempted to set element of " << PlexilParser::valueTypeString(getElementType())
-               << " array variable to invalid value \"" << valueToString(value) << "\"");
+                  "Attempted to set element of " << PlexilParser::valueTypeString(getElementType())
+                  << " array variable to invalid value \"" << value << "\"");
     assertTrueMsg(checkIndex(index),
-               "Array index " << index << " exceeds bound of " 
-               << m_maxSize);
+                  "Array index " << index << " exceeds bound of " 
+                  << m_maxSize);
 
+    debugMsg("ArrayVariable:setElementValue",
+             " for " << *this << " @ index " << index << ", new value is " << value);
     // set the element
-    if (value != m_array[index]) {
+    if (value != m_value.getConstArrayValue()[index]) {
       bool newArray = false;
       // Implement copy-on-write semantics to avoid clobbering initial value
-      if (m_array.getKey() == m_initialArray.getKey()) {
+      if (m_value == m_initialValue) {
         // Clone the initial array
-        m_array = StoredArray(m_initialArray.getArray());
+        debugMsg("ArrayVariable:setElementValue", " copying initial array");
+        m_value.copyArray(m_initialValue.getStoredArrayValue());
         newArray = true;
       }
 
-      m_array[index] = value;
-      if (newArray)
-        VariableImpl::setValue(m_array.getKey());
-      else
-        publishChange();
+      m_value.getArrayValue()[index] = value;
+      // FIXME: This is a kludge to ensure listeners are notified.
+      // This kludge doesn't respect the Expression class lock.
+      // See Expression::internalSetValue.
+      publishChange();
     }
     ExecListenerHubId hub = getExecListenerHub();
     if (hub.isId()) {
       std::ostringstream s;
-      s << m_name << '[' << index << ']'; // FIXME: this is unlikely to be right
+      s << m_name.toString() << '[' << index << ']'; // FIXME: this is unlikely to be right
       hub->notifyOfAssignment(Expression::getId(), s.str(), value);
     }
   }
 
   // lookup a value in an array variable
-  double ArrayVariable::lookupValue(size_t index) const
+  const Value& ArrayVariable::lookupValue(size_t index) const
   {
-    checkError(checkIndex(index),
-               "Array index " << index << " exceeds bound of " 
-               << m_maxSize);
-    return m_value == UNKNOWN()
+    assertTrueMsg(checkIndex(index),
+                  "Array index " << index << " exceeds bound of " 
+                  << m_maxSize);
+    const Value& result = 
+      m_value.isUnknown()
       ? UNKNOWN()
-      : StoredArray(m_value)[index];
+      : m_value.getConstArrayValue()[index];
+    debugMsg("ArrayVariable:lookupValue", " for array " << m_value << "\n returning " << result);
+    return result;
   }
 
   void ArrayVariable::print(std::ostream& s) const 
@@ -424,12 +367,12 @@ namespace PLEXIL
 
   // confirm that new value to assign is valid
 
-  bool ArrayVariable::checkValue(const double val)
+  bool ArrayVariable::checkValue(const Value& val) const
   {
-    if (val == UNKNOWN())
+    if (val.isUnknown())
       return true;
-    if (StoredArray::isKey(val)) {
-      StoredArray valArray(val);
+    if (val.isArray()) {
+      const std::vector<Value>& valArray = val.getConstArrayValue();
       if (valArray.size() > m_maxSize)
         return false;
       for (size_t i = 0; i < valArray.size(); i++) {
@@ -443,31 +386,36 @@ namespace PLEXIL
 
   // confirm that array element is valid
 
-  bool ArrayVariable::checkElementValue(const double val)
+  bool ArrayVariable::checkElementValue(const Value& val) const
   {
     // check value based on array type
     switch (m_type) {
     case INTEGER:
-      return val == UNKNOWN() ||
-        ((val >= MINUS_INFINITY && val <= PLUS_INFINITY) &&
-         val == (double) (int32_t) val);
+      return val.isInteger() || val.isUnknown();
     case REAL:
-      return (val >= REAL_MINUS_INFINITY && val <= REAL_PLUS_INFINITY) ||
-        val == UNKNOWN();
+      return val.isReal() || val.isUnknown();
     case BOOLEAN:
-      return val == UNKNOWN() || val == 0.0 || val == 1.0;
+      return val.isBoolean() || val.isUnknown();
     case STRING:
-      return LabelStr::isString(val) || val == UNKNOWN();
+      return val.isString() || val.isUnknown();
     case ARRAY:
-      checkError(ALWAYS_FAIL, "Arrays of arrays not supported.");
+      assertTrue(ALWAYS_FAIL, "Arrays of arrays not yet supported.");
     case TIME:
-      checkError(ALWAYS_FAIL, "TimePoints not supported in arrays.");
+      assertTrue(ALWAYS_FAIL, "TimePoints not supported in arrays.");
     default:
-      checkError(ALWAYS_FAIL, "Unknown variable type: " << m_type);
+      assertTrueMsg(ALWAYS_FAIL, "Unknown variable type: " << m_type);
     }
     // should never get here
-
     return false;
+  }
+
+  /**
+   * @brief Temporarily stores the previous value of this variable.
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void ArrayVariable::saveCurrentValue()
+  {
+    m_savedValue.copyArray(m_value.getStoredArrayValue());
   }
    
   //
@@ -477,9 +425,7 @@ namespace PLEXIL
   StringArrayVariable::StringArrayVariable(size_t maxSize,
                                            PlexilType type,
                                            const bool isConst)
-    : ArrayVariable(maxSize, type),
-      m_labels(maxSize),
-      m_initialLabels()
+    : ArrayVariable(maxSize, type)
   {
     debugMsg("StringArrayVariable", " constructor, no initial elements");
     checkError(type == STRING,
@@ -490,24 +436,20 @@ namespace PLEXIL
 
   StringArrayVariable::StringArrayVariable(size_t maxSize, 
                                            PlexilType type, 
-                                           const std::vector<double>& values,
+                                           const std::vector<Value>& values,
                                            const bool isConst)
-    : ArrayVariable(maxSize, type, values, false),
-      m_labels(maxSize),
-      m_initialLabels(values.size())
+    : ArrayVariable(maxSize, type, values, false)
   {
     debugMsg("StringArrayVariable", " constructor, " << values.size() << " initial elements");
-    checkError(type == STRING,
+    assertTrue(type == STRING,
                "StringArrayVariable constructor: type is not STRING");
     for (size_t i = 0; i < values.size(); ++i) {
       checkError(checkElementValue(values[i]),
                  "Attempted to initialize element of " << PlexilParser::valueTypeString(getElementType())
-                 << " array to invalid value \"" << valueToString(values[i]) << "\"");
-      if (values[i] != UNKNOWN()) {
-        m_initialLabels[i] = m_labels[i] = m_array[i] = values[i];
-      }
+                 << " array to invalid value \"" << values[i] << "\"");
+      m_initialValue.getArrayValue()[i] = values[i];
     }
-    setValue(m_array.getKey());
+    setValue(m_initialValue);
     if (isConst)
       makeConst();
   }
@@ -515,12 +457,10 @@ namespace PLEXIL
   StringArrayVariable::StringArrayVariable(const PlexilExprId& expr, 
                                            const NodeConnectorId& node,
                                            const bool isConst)
-    : ArrayVariable(expr, node, false),
-      m_labels(m_maxSize), // set in ArrayVariable constructor
-      m_initialLabels()
+    : ArrayVariable(expr, node, false)
   {
     debugMsg("StringArrayVariable", " constructor from intermediate representation");
-    checkError(m_type == STRING,
+    assertTrue(m_type == STRING,
                "StringArrayVariable constructor: type is not STRING");
     const PlexilArrayValue* arrayValue = NULL;
     if (Id<PlexilArrayVar>::convertable(expr)) {
@@ -544,14 +484,13 @@ namespace PLEXIL
     if (arrayValue != NULL) {
       // Cache initial values
       const std::vector<std::string>& values = arrayValue->values();
-      assertTrueMsg(values.size() <= maxSize(),
+      assertTrueMsg(values.size() <= m_maxSize,
                     "StringArrayVariable constructor: Number of initial values, "
-                    << values.size() << ", exceeds max size, " << maxSize());
-      m_initialLabels.resize(values.size());
+                    << values.size() << ", exceeds max size, " << m_maxSize);
       for (size_t i = 0; i < values.size(); ++i)
-        m_labels[i] = m_initialLabels[i] = m_array[i] = LabelStr(values[i]).getKey();
+        m_initialValue.getArrayValue()[i] = values[i];
     }
-    VariableImpl::setValue(m_array.getKey());
+    VariableImpl::setValue(m_initialValue);
     if (isConst)
       makeConst();
   }
@@ -561,89 +500,11 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Set the contents of this array from the given value.
-   * @note Value must be an array or UNKNOWN.
-   */
-  void StringArrayVariable::setValue(const double value)
-  {
-    ArrayVariable::setValue(value);
-    if (value == UNKNOWN()) {
-      // Clear labels
-      for (size_t i = 0; i < m_maxSize; ++i)
-        m_labels[i] = EMPTY_LABEL();
-    }
-    else {
-      // Copy labels
-      for (size_t i = 0; i < m_maxSize; ++i)
-        m_labels[i] =
-          (LabelStr::isString(m_array[i]) ? m_array[i] : EMPTY_LABEL().getKey());
-    }
-  }
-
-  /**
-   * @brief Temporarily stores the previous value of this variable.
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void StringArrayVariable::saveCurrentValue()
-  {
-    ArrayVariable::saveCurrentValue();
-    m_savedLabels = m_labels;
-  }
-
-  /**
-   * @brief Restore the value set aside by saveCurrentValue().
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void StringArrayVariable::restoreSavedValue()
-  {
-    m_labels = m_savedLabels;
-    ArrayVariable::restoreSavedValue();
-  }
-     
-  /**
-   * @brief Commit the assignment by erasing the saved previous value.
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void StringArrayVariable::commitAssignment()
-  {
-    m_savedLabels.clear();
-    ArrayVariable::commitAssignment();
-  }
-    
-  /**
-   * @brief Set the value of this expression back to the initial value with which it was
-   *        created.
-   */
-  void StringArrayVariable::reset()
-  {
-    ArrayVariable::reset();
-    size_t i = 0;
-    for (; i < m_initialLabels.size(); ++i)
-      m_labels[i] = m_initialLabels[i];
-    for (; i < m_maxSize; ++i)
-      m_labels[i] = EMPTY_LABEL();
-  }
-
-  /**
-   * @brief Set one element of this array from the given value.
-   * @note Value must be an array or UNKNOWN.
-   * @note Index must be less than maximum length
-   */
-  void StringArrayVariable::setElementValue(unsigned index, const double value)
-  {
-    ArrayVariable::setElementValue(index, value);
-    m_labels[index] = 
-      (value == UNKNOWN() 
-       ? EMPTY_LABEL() 
-       : LabelStr(value)); // can assert if value not a LabelStr key
-  }
-
-  /**
    * @brief Check to make sure an element value is appropriate for this array.
    */
-  bool StringArrayVariable::checkElementValue(const double val)
+  bool StringArrayVariable::checkElementValue(const Value& val) const
   {
-    return LabelStr::isString(val) || val == UNKNOWN();
+    return val.isString() || val.isUnknown();
   }
 
   //
@@ -665,7 +526,7 @@ namespace PLEXIL
                "Expected an array element.");
     PlexilArrayElement* arrayElement = (PlexilArrayElement*) expr;
     m_name = arrayElement->getArrayName();
-    debugMsg("ArrayElement:ArrayElement", " name = " << m_name);
+    debugMsg("ArrayElement:ArrayElement", " name = " << m_name.toString());
 
     // initialize array variable
     PlexilVarRef arrayRef;
@@ -689,7 +550,6 @@ namespace PLEXIL
                                                 node,
                                                 m_deleteIndex);
     m_index->addListener(m_listener.getId());
-
   }
 
   ArrayElement::~ArrayElement()
@@ -704,7 +564,7 @@ namespace PLEXIL
 
   // confirm that new value to assign is valid
 
-  bool ArrayElement::checkValue(const double val)
+  bool ArrayElement::checkValue(const Value& val) const
   {
     return m_arrayVariable->checkElementValue(val);
   }
@@ -720,11 +580,14 @@ namespace PLEXIL
   void ArrayElement::reset()
   {}
 
-  void ArrayElement::setValue(const double value)
+  void ArrayElement::setValue(const Value& value)
   {
+    int32_t index = m_index->getValue().getIntValue();
+    assertTrueMsg(index >= 0,
+                  "ArrayElement::setValue: negative array index " << index);
+    debugMsg("ArrayElement:setValue", " for " << *this << ", new value is " << value);
     // delegate to the array
-    m_arrayVariable->setElementValue((unsigned) m_index->getValue(),
-                                     value);
+    m_arrayVariable->setElementValue((size_t) index, value);
     internalSetValue(value);
   }
 
@@ -735,17 +598,6 @@ namespace PLEXIL
   void ArrayElement::saveCurrentValue()
   {
     m_savedValue = recalculate();
-    if (LabelStr::isString(m_savedValue))
-      m_savedString = m_savedValue;
-  }
-
-  /**
-   * @brief Restore the value set aside by saveCurrentValue().
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void ArrayElement::restoreSavedValue()
-  {
-    setValue(m_savedValue);
   }
      
   /**
@@ -754,8 +606,7 @@ namespace PLEXIL
    */
   void ArrayElement::commitAssignment()
   {
-    m_savedValue = UNKNOWN();
-    m_savedString = EMPTY_LABEL();
+    m_savedValue.setUnknown();
   }
 
   PlexilType ArrayElement::getValueType() const
@@ -771,6 +622,7 @@ namespace PLEXIL
   // FIXME: should index range check happen here?
   void ArrayElement::handleChange(const ExpressionId& /* ignored */)
   {
+    debugMsg("ArrayElement:handleChange", " for " << *this);
     internalSetValue(recalculate());
   }
 
@@ -781,7 +633,6 @@ namespace PLEXIL
     if (!changed)
       return;
     m_listener.activate();
-    check_error(m_index.isValid());
     m_index->activate();
     m_arrayVariable->activate();
     internalSetValue(recalculate());
@@ -791,18 +642,19 @@ namespace PLEXIL
     if (!changed)
       return;
     m_listener.deactivate();
-    check_error(m_index.isValid());
     m_arrayVariable->deactivate();
     m_index->deactivate();
   }
 
   // FIXME: should index range check happen here?
-  double ArrayElement::recalculate()
+  Value ArrayElement::recalculate()
   {
-    double index = m_index->getValue();
-    if (index == UNKNOWN())
+    const Value& indexval = m_index->getValue();
+    if (indexval.isUnknown())
       return UNKNOWN();
-
+    int32_t index = indexval.getIntValue();
+    assertTrueMsg(index >= 0, 
+                  "ArrayElement::recalculate: negative array index " << index);
     return m_arrayVariable->lookupValue((size_t) index);
   }
 

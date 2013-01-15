@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -91,7 +91,7 @@ namespace PLEXIL
      * @note The default method simply returns true.
      */
     virtual bool reportAddPlan(const PlexilNodeId& plan,
-			       const LabelStr& parent);
+                   const LabelStr& parent);
 
     /**
      * @brief Determine whether this AddLibraryNode event should be reported.
@@ -109,7 +109,7 @@ namespace PLEXIL
      */
     virtual bool reportAssignment(const ExpressionId & dest,
                                   const std::string& destName,
-                                  const double& value) const;
+                                  const Value& value) const;
 
     inline const ExecListenerFilterId getId() const
     {

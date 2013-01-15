@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 #include "PlexilPlan.hh"
 #include "Variable.hh"
 #include <limits>
-#include <list>
 #include <set>
 
 namespace PLEXIL 
@@ -45,41 +44,41 @@ namespace PLEXIL
   {
   public:
     //state names
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                INACTIVE,
                                "INACTIVE"); /*!< The inactive state. The initial state for a node. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                WAITING,
                                "WAITING"); /*!< The waiting state. Occupied when a node's
                                              parent is executing and the node's start
                                              condition is not true.*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                EXECUTING,
                                "EXECUTING"); /*!< The executing state.*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                FINISHING,
                                "FINISHING");/*!< The finishing state. Only occupied by list
                                               nodes whose end condition is true but whose
                                               children haven't finished or failed.*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                FINISHED,
                                "FINISHED"); /*!< The finished state. The node has completed executing.*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                FAILING,
                                "FAILING"); /*!< The failing node state. Only occupied by list
                                              nodes whose invariant or ancestor-invariant
                                              condition is false. Essentially a waiting state
                                              for children or command/update abort to finish.*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                ITERATION_ENDED,
                                "ITERATION_ENDED");
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                NO_STATE,
                                "NO_STATE"); /*!< The non-state. Nothing should *ever* be in
                                               this state. Used internally to signify no
                                               state transition is possible. */
 
-    static const std::vector<LabelStr>& ALL_STATES();
+    static const std::vector<Value>& ALL_STATES();
     static ExpressionId& INACTIVE_EXP();
     static ExpressionId& WAITING_EXP();
     static ExpressionId& EXECUTING_EXP();
@@ -89,13 +88,15 @@ namespace PLEXIL
     static ExpressionId& ITERATION_ENDED_EXP();
     static ExpressionId& NO_STATE_EXP();
 
-    static const LabelStr& nodeStateName(NodeState state);
-    static NodeState nodeStateFromName(double nameAsLabelStrKey);
+    static const Value& nodeStateName(NodeState state);
 
     // Constructors
     StateVariable(const std::string& name);
-    StateVariable(const double value, const bool isConst = false);
-    StateVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
+    StateVariable(const Value& value, 
+                  const bool isConst = false);
+    StateVariable(const PlexilExprId& expr,
+                  const NodeConnectorId& node, 
+                  const bool isConst = false);
     void print(std::ostream& s) const;
 
     void setNodeState(NodeState newValue);
@@ -106,29 +107,30 @@ namespace PLEXIL
      */
     virtual PlexilType getValueType() const { return NODE_STATE; }
 
-  protected:
   private:
-    bool checkValue(const double val);
+    bool checkValue(const Value& val) const;
   };
 
   class OutcomeVariable : public VariableImpl
   {
   public:
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                SUCCESS,
                                "SUCCESS"); /*!< A successful node execution (post-condition is true after finishing).*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr, 
+    DECLARE_STATIC_CLASS_CONST(Value, 
                                FAILURE,
                                "FAILURE"); /*!< Failure (with some failure type).*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                SKIPPED,
                                "SKIPPED"); /*!< The node was skipped without executing (the ancestor-invariant was false or the parent's end was true before*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                INTERRUPTED,
                                "INTERRUPTED"); /*!< Exit condition or ancestor exit condition true while executing */
 
     OutcomeVariable(const std::string& name);
-    OutcomeVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
+    OutcomeVariable(const PlexilExprId& expr,
+                    const NodeConnectorId& node, 
+                    const bool isConst = false);
     void print(std::ostream& s) const;
 
     /**
@@ -139,40 +141,41 @@ namespace PLEXIL
 
   protected:
   private:
-    bool checkValue(const double val);
+    bool checkValue(const Value& val) const;
   };
 
   class FailureVariable : public VariableImpl 
   {
   public:
     //failure types (one for each condition, command failure)
-    DECLARE_STATIC_CLASS_CONST(LabelStr, 
+    DECLARE_STATIC_CLASS_CONST(Value, 
                                PRE_CONDITION_FAILED,
                                "PRE_CONDITION_FAILED"); /*!< The pre-condition was false
                                                           (checked after the start condition
                                                           is true).*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                POST_CONDITION_FAILED,
                                "POST_CONDITION_FAILED"); /*!< The post-condition was false
                                                            (checked after the end condition is
                                                            true*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                INVARIANT_CONDITION_FAILED,
                                "INVARIANT_CONDITION_FAILED"); /*!< The invariant condition was
                                                                 false (checked when
                                                                 executing).*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr, 
+    DECLARE_STATIC_CLASS_CONST(Value, 
                                PARENT_FAILED,
                                "PARENT_FAILED"); /*!< Ancestor invariant false */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, 
+    DECLARE_STATIC_CLASS_CONST(Value, 
                                EXITED,
                                "EXITED"); /*!< Exit condition true */
-    DECLARE_STATIC_CLASS_CONST(LabelStr,
+    DECLARE_STATIC_CLASS_CONST(Value,
                                PARENT_EXITED,
                                "PARENT_EXITED"); /*!< Ancestor exit condition true */
 
     FailureVariable(const std::string& name);
-    FailureVariable(const PlexilExprId& expr, const NodeConnectorId& node,
+    FailureVariable(const PlexilExprId& expr,
+                    const NodeConnectorId& node,
                     const bool isConst = false);
     void print(std::ostream& s) const;
 
@@ -184,21 +187,23 @@ namespace PLEXIL
 
   protected:
   private:
-    bool checkValue(const double val);
+    bool checkValue(const Value& val) const;
   };
 
   class CommandHandleVariable : public VariableImpl 
   {
   public:
-    DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_SENT_TO_SYSTEM, "COMMAND_SENT_TO_SYSTEM"); 
-    DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_ACCEPTED, "COMMAND_ACCEPTED");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_RCVD_BY_SYSTEM, "COMMAND_RCVD_BY_SYSTEM");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_FAILED, "COMMAND_FAILED");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_DENIED, "COMMAND_DENIED");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_SUCCESS, "COMMAND_SUCCESS");
+    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_SENT_TO_SYSTEM, "COMMAND_SENT_TO_SYSTEM"); 
+    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_ACCEPTED, "COMMAND_ACCEPTED");
+    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_RCVD_BY_SYSTEM, "COMMAND_RCVD_BY_SYSTEM");
+    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_FAILED, "COMMAND_FAILED");
+    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_DENIED, "COMMAND_DENIED");
+    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_SUCCESS, "COMMAND_SUCCESS");
 
     CommandHandleVariable(const std::string& name);
-    CommandHandleVariable(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst = false);
+    CommandHandleVariable(const PlexilExprId& expr,
+                          const NodeConnectorId& node, 
+                          const bool isConst = false);
     void print(std::ostream& s) const;
 
     /**
@@ -209,7 +214,7 @@ namespace PLEXIL
 
   protected:
   private:
-    bool checkValue(const double val);
+    bool checkValue(const Value& val) const;
   };
 
   class AllChildrenFinishedCondition : public Calculable 
@@ -218,7 +223,7 @@ namespace PLEXIL
     AllChildrenFinishedCondition(const std::vector<NodeId>& children);
     virtual ~AllChildrenFinishedCondition();
     void print(std::ostream& s) const;
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -240,18 +245,18 @@ namespace PLEXIL
       FinishedListener(AllChildrenFinishedCondition& cond);
       FinishedListener(const FinishedListener& orig);
       void notifyValueChanged(const ExpressionId& expression);
-      void setLastValue(double value) { m_lastValue = value; }
+      void setLastValue(const Value& value) { m_lastValue = value; }
     private:
       AllChildrenFinishedCondition& m_cond;
-      double m_lastValue;
+      Value m_lastValue;
     };
 
-    bool checkValue(const double val);
+    bool checkValue(const Value& val) const;
     void handleActivate(const bool changed);
     void handleDeactivate(const bool changed);
 
-    const unsigned int m_total;
-    unsigned int m_count;
+    const size_t m_total;
+    size_t m_count;
     std::vector<VariableId> m_stateVariables;
     std::vector<FinishedListener> m_childListeners;
   };
@@ -262,7 +267,7 @@ namespace PLEXIL
     AllChildrenWaitingOrFinishedCondition(const std::vector<NodeId>& children);
     virtual ~AllChildrenWaitingOrFinishedCondition();
     void print(std::ostream& s) const;
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -284,18 +289,18 @@ namespace PLEXIL
       WaitingOrFinishedListener(AllChildrenWaitingOrFinishedCondition& cond);
       WaitingOrFinishedListener(const WaitingOrFinishedListener& orig);
       void notifyValueChanged(const ExpressionId& expression);
-      void setLastValue(double value) { m_lastValue = value; }
+      void setLastValue(const Value& value) { m_lastValue = value; }
     private:
       AllChildrenWaitingOrFinishedCondition& m_cond;
-      double m_lastValue;
+      Value m_lastValue;
     };
 
-    bool checkValue(const double val);
+    bool checkValue(const Value& val) const;
     void handleActivate(const bool changed);
     void handleDeactivate(const bool changed);
 
-    const unsigned int m_total;
-    unsigned int m_count;
+    const size_t m_total;
+    size_t m_count;
     std::vector<VariableId> m_stateVariables;
     std::vector<WaitingOrFinishedListener> m_childListeners;
   };
@@ -307,7 +312,7 @@ namespace PLEXIL
     InternalCondition(const PlexilExprId& expr);
     InternalCondition(const PlexilExprId& expr, const NodeConnectorId& node);
     virtual ~InternalCondition();
-    double recalculate();
+    Value recalculate();
     void print(std::ostream& s) const;
 
     /**
@@ -319,7 +324,7 @@ namespace PLEXIL
     const char* operatorString() const { return "InternalCondition"; }
 
   private:
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
     ExpressionId m_expr;
   };
 
@@ -330,8 +335,8 @@ namespace PLEXIL
     InterruptibleCommandHandleValues(ExpressionId e);
 
     void print(std::ostream& s) const;
-    double recalculate();
-    bool checkValue(const double val);
+    Value recalculate();
+    bool checkValue(const Value& val) const;
     
     /**
      * @brief Retrieve the value type of this Expression.

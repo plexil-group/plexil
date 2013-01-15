@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,40 +31,41 @@ namespace PLEXIL
 {
 
   BooleanVariable::BooleanVariable(const bool isConst)
-	: VariableImpl(isConst)
+    : VariableImpl(isConst)
   {
   }
 
-  BooleanVariable::BooleanVariable(const double value, const bool isConst)
+  BooleanVariable::BooleanVariable(const Value& value, const bool isConst)
     : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
-			   "Attempted to initialize a Boolean variable to an invalid value \"" << valueToString(value) << "\"");
+               "Attempted to initialize a Boolean variable to an invalid value \""
+               << value.valueToString() << "\"");
   }
 
   BooleanVariable::BooleanVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-				   const bool isConst)
+                   const bool isConst)
     : VariableImpl(expr, node)
   {
-	assertTrueMsg(expr.isValid(), "Attempt to create a BooleanVariable from an invalid Id");
-	const PlexilValue* value = NULL;
-	if (Id<PlexilVar>::convertable(expr)) {
-	  const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
-	  // If the ExpressionFactory is correctly set up, should NEVER EVER happen
-	  assertTrueMsg(var->type() == BOOLEAN,
-					"Internal error: Attempt to create a BooleanVariable from a non-BOOLEAN PlexilVar");
-	  value = var->value();
-	}
-	else if (Id<PlexilValue>::convertable(expr)) {
-	  value = (const PlexilValue*) expr;
-	  assertTrueMsg(isConst, "Attempt to create a BooleanValue that is not const");
-	}
-	else {
-	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
-	}
+    assertTrueMsg(expr.isValid(), "Attempt to create a BooleanVariable from an invalid Id");
+    const PlexilValue* value = NULL;
+    if (Id<PlexilVar>::convertable(expr)) {
+      const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
+      // If the ExpressionFactory is correctly set up, should NEVER EVER happen
+      assertTrueMsg(var->type() == BOOLEAN,
+                    "Internal error: Attempt to create a BooleanVariable from a non-BOOLEAN PlexilVar");
+      value = var->value();
+    }
+    else if (Id<PlexilValue>::convertable(expr)) {
+      value = (const PlexilValue*) expr;
+      assertTrueMsg(isConst, "Attempt to create a BooleanValue that is not const");
+    }
+    else {
+      assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
+    }
 
-	assertTrueMsg(value == NULL || value->type() == BOOLEAN,
-				  "Attempt to create a BooleanVariable from a non-BOOLEAN PlexilVar");
+    assertTrueMsg(value == NULL || value->type() == BOOLEAN,
+                  "Attempt to create a BooleanVariable from a non-BOOLEAN PlexilVar");
     if (value == NULL)
       m_initialValue = m_value = UNKNOWN();
     else {
@@ -84,23 +85,23 @@ namespace PLEXIL
 
   void BooleanVariable::print(std::ostream& s) const
   {
-	VariableImpl::print(s);
+    VariableImpl::print(s);
     s << "boolean)";
   }
 
-  bool BooleanVariable::checkValue(const double val)
+  bool BooleanVariable::checkValue(const Value& val) const
   {
-    return val == UNKNOWN() || val == FALSE_VALUE() || val == TRUE_VALUE();
+    return val.isUnknown() || val.isBoolean();
   }
 
   ExpressionId& BooleanVariable::TRUE_EXP()
   {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId()) {
-	  VariableImpl* var = new BooleanVariable(TRUE_VALUE(), true);
-	  var->setName("Boolean constant true");
+      VariableImpl* var = new BooleanVariable(TRUE_VALUE(), true);
+      var->setName("Boolean constant true");
       sl_exp = var->getId();
-	}
+    }
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
@@ -110,10 +111,10 @@ namespace PLEXIL
   {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId()) {
-	  VariableImpl* var = new BooleanVariable(FALSE_VALUE(), true);
-	  var->setName("Boolean constant false");
+      VariableImpl* var = new BooleanVariable(FALSE_VALUE(), true);
+      var->setName("Boolean constant false");
       sl_exp = var->getId();
-	}
+    }
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;
@@ -123,10 +124,10 @@ namespace PLEXIL
   {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId()) {
-	  VariableImpl* var = new BooleanVariable(UNKNOWN(), true);
-	  var->setName("Boolean constant unknown");
+      VariableImpl* var = new BooleanVariable(UNKNOWN(), true);
+      var->setName("Boolean constant unknown");
       sl_exp = var->getId();
-	}
+    }
     if(!sl_exp->isActive())
       sl_exp->activate();
     return sl_exp;

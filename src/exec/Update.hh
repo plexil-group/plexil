@@ -28,7 +28,7 @@
 #define PLEXIL_UPDATE_HH
 
 #include "ExecDefs.hh"
-
+#include "Value.hh"
 
 namespace PLEXIL
 {
@@ -44,7 +44,7 @@ namespace PLEXIL
 
     const UpdateId& getId() const {return m_id;}
     const VariableId& getAck() const {return m_ack;}
-    const std::map<LabelStr, double>& getPairs() const {return m_valuePairs;}
+    const std::map<LabelStr, Value>& getPairs() const {return m_valuePairs;}
     const NodeId& getSource() const {return m_source;}
     void activate();
     void deactivate();
@@ -66,7 +66,7 @@ namespace PLEXIL
     std::vector<ExpressionId> m_garbage;
     typedef std::map<LabelStr, ExpressionId> PairExpressionMap;
     PairExpressionMap m_pairs;
-    typedef std::map<LabelStr, double> PairValueMap;
+    typedef std::map<LabelStr, Value> PairValueMap;
     PairValueMap m_valuePairs;
   };
 

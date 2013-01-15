@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -73,15 +73,15 @@ namespace PLEXIL
 
     //
     // API to Exec
-	// See ExecListenerBase.hh
+    // See ExecListenerBase.hh
     //
 
-	/**
-	 * @brief Notify that nodes have changed state.
-	 * @param Vector of node state transition info.
-	 * @note Current states are accessible via the node.
-	 */
-	void notifyOfTransitions(const std::vector<NodeTransition>& transitions) const;
+    /**
+     * @brief Notify that nodes have changed state.
+     * @param Vector of node state transition info.
+     * @note Current states are accessible via the node.
+     */
+    void notifyOfTransitions(const std::vector<NodeTransition>& transitions) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.
@@ -89,13 +89,13 @@ namespace PLEXIL
      * @param parent The name of the parent node under which this plan will be inserted.
      */
     void notifyOfAddPlan(const PlexilNodeId& plan, 
-						 const LabelStr& parent) const;
+                         const LabelStr& parent) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      */
-	void notifyOfAddLibrary(const PlexilNodeId& libNode) const;
+    void notifyOfAddLibrary(const PlexilNodeId& libNode) const;
 
     //not sure if anybody wants this
     // void notifyOfConditionChange(const NodeId& node,
@@ -108,9 +108,9 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (in internal Exec representation) being assigned.
      */
-	void notifyOfAssignment(const ExpressionId & dest,
-							const std::string& destName,
-							const double& value) const;
+    void notifyOfAssignment(const ExpressionId & dest,
+                            const std::string& destName,
+                            const Value& value) const;
 
     //
     // API to be implemented by derived classes
@@ -163,14 +163,14 @@ namespace PLEXIL
     // API to be implemented by subclasses
     //
 
-	/**
-	 * @brief Notify that nodes have changed state.
-	 * @param Vector of node state transition info.
-	 * @note Current states are accessible via the node.
-	 * @note ExecListener provides a default method for backward commpatibility.
-	 *       Derived classes may implement their own method.
-	 */
-	virtual void implementNotifyNodeTransitions(const std::vector<NodeTransition>& /* transitions */) const;
+    /**
+     * @brief Notify that nodes have changed state.
+     * @param Vector of node state transition info.
+     * @note Current states are accessible via the node.
+     * @note ExecListener provides a default method for backward commpatibility.
+     *       Derived classes may implement their own method.
+     */
+    virtual void implementNotifyNodeTransitions(const std::vector<NodeTransition>& /* transitions */) const;
 
     /**
      * @brief Notify that a node has changed state.
@@ -178,7 +178,7 @@ namespace PLEXIL
      * @param node The node that has transitioned.
      * @note The current state is accessible via the node.
      * @note The default method does nothing.
-	 * @note Derived classes may implement methods for this, or for implementNotifyNodeTransitions() for batching purposes.
+     * @note Derived classes may implement methods for this, or for implementNotifyNodeTransitions() for batching purposes.
      */
     virtual void implementNotifyNodeTransition(NodeState /* prevState */,
                                                const NodeId& /* node */) const;
@@ -207,11 +207,11 @@ namespace PLEXIL
      */
     virtual void implementNotifyAssignment(const ExpressionId & /* dest */,
                                            const std::string& /* destName */,
-                                           const double& /* value */) const;
+                                           const Value& /* value */) const;
 
-	//
-	// Member variables for derived classes to use
-	//
+    //
+    // Member variables for derived classes to use
+    //
 
     /**
      * @brief The ID of this instance's filter.

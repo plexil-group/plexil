@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,20 +35,23 @@ namespace PLEXIL
 
   //this class represents boolean values
   //from the <BooleanValue> XML
-  class BooleanVariable : public VariableImpl {
+  class BooleanVariable : public VariableImpl 
+  {
   public:
     static ExpressionId& TRUE_EXP();
     static ExpressionId& FALSE_EXP();
     static ExpressionId& UNKNOWN_EXP(); // used in Node condition defaults
-    DECLARE_STATIC_CLASS_CONST(double, TRUE_VALUE, 1.0);
-    DECLARE_STATIC_CLASS_CONST(double, FALSE_VALUE, 0.0);
+    DECLARE_STATIC_CLASS_CONST(Value, TRUE_VALUE, 1.0);
+    DECLARE_STATIC_CLASS_CONST(Value, FALSE_VALUE, 0.0);
 
     BooleanVariable(const bool isConst = false);
-    BooleanVariable(const double value, const bool isConst = false);
-    BooleanVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-		    const bool isConst = false);
+    BooleanVariable(const Value& value,
+                    const bool isConst = false);
+    BooleanVariable(const PlexilExprId& expr,
+                    const NodeConnectorId& node,
+                    const bool isConst = false);
     void print(std::ostream& s) const;
-    static bool falseOrUnknown(double value) {return value != TRUE_VALUE();}
+    static bool falseOrUnknown(const Value& value) {return value != TRUE_VALUE();}
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -56,9 +59,8 @@ namespace PLEXIL
      */
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
-  protected:
   private:
-    bool checkValue(const double val);
+    bool checkValue(const Value& val) const;
   };
 
 }

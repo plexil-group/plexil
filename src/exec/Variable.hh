@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ namespace PLEXIL
      * @brief Check to make sure a value is appropriate for this expression.
      * @param value The new value for this variable.
      */
-    virtual bool checkValue(const double value) = 0;
+    virtual bool checkValue(const Value& value) const = 0;
 
     /**
      * @brief Set the value of this expression back to the initial value with which it was
@@ -69,7 +69,7 @@ namespace PLEXIL
      *        constructed with isConst == true.
      * @param value The new value for this variable.
      */
-    virtual void setValue(const double value) = 0;
+    virtual void setValue(const Value& value) = 0;
 
     /**
      * @brief Temporarily stores the previous value of this variable.
@@ -80,8 +80,9 @@ namespace PLEXIL
     /**
      * @brief Restore the value set aside by saveCurrentValue().
      * @note Used to implement recovery from failed Assignment nodes.
+     * @note The default method should be appropriate for most derived classes.
      */
-    virtual void restoreSavedValue() = 0;
+    virtual void restoreSavedValue();
      
     /**
      * @brief Commit the assignment by erasing the saved previous value.
@@ -92,9 +93,8 @@ namespace PLEXIL
     /**
      * @brief Get the saved value.
      * @return The saved value.
-     * @note Intended for debug display only.
      */
-    virtual double getSavedValue() const = 0;
+    virtual const Value& getSavedValue() const = 0;
 
     /**
      * @brief Get the name of this variable, as declared in the node that owns it.
@@ -197,7 +197,7 @@ namespace PLEXIL
      * @param value The initial value of the variable.
      * @param isConst True if this variable should have a constant value, false otherwise.
      */
-    VariableImpl(const double value, const bool isConst = false);
+    VariableImpl(const Value& value, const bool isConst = false);
 
     /**
      * @brief Constructor.  Creates a variable from XML.
@@ -241,19 +241,13 @@ namespace PLEXIL
      *        constructed with isConst == true.
      * @param value The new value for this variable.
      */
-    virtual void setValue(const double value);
+    virtual void setValue(const Value& value);
 
     /**
      * @brief Temporarily stores the previous value of this variable.
      * @note Used to implement recovery from failed Assignment nodes.
      */
     virtual void saveCurrentValue();
-
-    /**
-     * @brief Restore the value set aside by saveCurrentValue().
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void restoreSavedValue();
      
     /**
      * @brief Commit the assignment by erasing the saved previous value.
@@ -266,7 +260,7 @@ namespace PLEXIL
      * @return The saved value.
      * @note Intended for debug display only.
      */
-    double getSavedValue() const
+    const Value& getSavedValue() const
     {
       return m_savedValue;
     }
@@ -294,7 +288,7 @@ namespace PLEXIL
      * @brief Gets the initial value of this variable.
      * @return The initial value of this variable.
      */
-    double initialValue() const {return m_initialValue;}
+    const Value& initialValue() const {return m_initialValue;}
 
     /**
      * @brief Set the name of this variable.
@@ -362,8 +356,8 @@ namespace PLEXIL
     //
 
     const NodeId m_node; /*<! The node that owns this variable */
-    double m_initialValue; /*<! The initial value of the expression */
-    double m_savedValue;   /*<! The value saved during an Assignment node. */
+    Value m_initialValue; /*<! The initial value of the expression */
+    Value m_savedValue;   /*<! The value saved during an Assignment node. */
     LabelStr m_name; /*<! The name under which this variable was declared */
     bool m_isConst; /*<! Flag indicating the const-ness of this variable */
   };
@@ -407,14 +401,14 @@ namespace PLEXIL
     /**
      * @brief Check to make sure a value is appropriate for this expression.
      */
-    virtual bool checkValue(const double val);
+    virtual bool checkValue(const Value& val) const;
 
     /**
      * @brief Sets the value of this variable.  Will throw an error if the variable was
      *        constructed with isConst == true.
      * @param value The new value for this variable.
      */
-    virtual void setValue(const double value);
+    virtual void setValue(const Value& value);
 
     /**
      * @brief Temporarily stores the previous value of this variable.
@@ -439,7 +433,7 @@ namespace PLEXIL
      * @return The saved value.
      * @note Intended for debug display only.
      */
-    virtual double getSavedValue() const;
+    virtual const Value& getSavedValue() const;
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.

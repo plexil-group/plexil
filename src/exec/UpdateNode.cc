@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -245,7 +245,7 @@ namespace PLEXIL
     checkError(destState == FAILING_STATE ||
                destState == ITERATION_ENDED_STATE,
                "Attempting to transition Update node from EXECUTING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
@@ -344,7 +344,7 @@ namespace PLEXIL
   {
     checkError(destState == FINISHED_STATE || destState == ITERATION_ENDED_STATE,
                "Attempting to transition Update node from FAILING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     deactivateActionCompleteCondition();
     if (destState == ITERATION_ENDED_STATE) {

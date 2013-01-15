@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,12 +34,12 @@ namespace PLEXIL
 
   /**
    * variables MUST implement:
-   * bool checkValue(const double val)
+   * bool checkValue(const Value& val) const
    *
    * variables MAY implement:
    * destructor
    * PlexilType getValueType() const
-   * void setValue(const double val)
+   * void setValue(const Value& val)
    * void print(std::ostream& s) const
    * std::string valueString() const (BUT SHOULD RESPECT m_active!!)
    * void handleLock()
@@ -52,50 +52,20 @@ namespace PLEXIL
 
   class StringVariable : public VariableImpl {
   public:
-    StringVariable(const bool isConst = false);
-    StringVariable(const double value, const bool isConst = false);
-    StringVariable(const LabelStr& value, const bool isConst = false);
-    StringVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-		   const bool isConst = false);
+    StringVariable();
+    StringVariable(const Value& value, const bool isConst = false);
+    StringVariable(const LabelStr& value, const bool isConst = false); // TODO: see if still in use
+    StringVariable(const PlexilExprId& expr,
+                   const NodeConnectorId& node,
+                   const bool isConst = false);
     void print(std::ostream& s) const;
+    bool checkValue(const Value& val) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
      * @return The value type of this Expression.
      */
     virtual PlexilType getValueType() const { return STRING; }
-
-    /**
-     * @brief Sets the value of this variable.  Will throw an error if the variable was
-     *        constructed with isConst == true.
-     * @param value The new value for this variable.
-     */
-    virtual void setValue(const double value);
-
-    /**
-     * @brief Temporarily stores the previous value of this variable.
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void saveCurrentValue();
-
-    /**
-     * @brief Restore the value set aside by saveCurrentValue().
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void restoreSavedValue();
-     
-    /**
-     * @brief Commit the assignment by erasing the saved previous value.
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void commitAssignment();
-
-  private:
-    LabelStr m_label;        // the current value as a LabelStr
-    LabelStr m_initialLabel; // the initial value as a LabelStr
-    LabelStr m_savedLabel;   // the saved value as a LabelStr
-
-    bool checkValue(const double val);
   };
 
   class RealVariable : public VariableImpl {
@@ -104,20 +74,19 @@ namespace PLEXIL
     static ExpressionId& ONE_EXP();
     static ExpressionId& MINUS_ONE_EXP();
 
-    RealVariable(const bool isConst = false);
-    RealVariable(const double value, const bool isConst = false);
-    RealVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-		 const bool isConst = false);
+    RealVariable();
+    RealVariable(const Value& value, const bool isConst = false);
+    RealVariable(const PlexilExprId& expr, 
+                 const NodeConnectorId& node,
+                 const bool isConst = false);
     void print(std::ostream& s) const;
+    bool checkValue(const Value& val) const;
+
     /**
      * @brief Retrieve the value type of this Expression.
      * @return The value type of this Expression.
      */
     virtual PlexilType getValueType() const { return REAL; }
-
-  protected:
-  private:
-    bool checkValue(const double val);
   };
 
   class IntegerVariable : public VariableImpl {
@@ -126,21 +95,18 @@ namespace PLEXIL
     static ExpressionId& ONE_EXP();
     static ExpressionId& MINUS_ONE_EXP();
 
-    IntegerVariable(const bool isConst = false);
-    IntegerVariable(const double value, const bool isConst = false);
+    IntegerVariable();
+    IntegerVariable(const Value& value, const bool isConst = false);
     IntegerVariable(const PlexilExprId& expr, const NodeConnectorId& node,
 		    const bool isConst = false);
     void print(std::ostream& s) const;
+    bool checkValue(const Value& val) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
      * @return The value type of this Expression.
      */
     virtual PlexilType getValueType() const { return INTEGER; }
-
-  protected:
-  private:
-    bool checkValue(const double val);
   };
 
   class TimepointVariable : public AliasVariable

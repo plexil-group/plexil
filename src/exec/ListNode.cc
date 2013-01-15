@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -232,10 +232,10 @@ namespace PLEXIL
 
   class NodeIdEq {
   public:
-    NodeIdEq(const double name) : m_name(name) {}
+    NodeIdEq(const LabelStr& name) : m_name(name) {}
     bool operator()(const NodeId& node) {return node->getNodeId() == m_name;}
   private:
-    double m_name;
+    LabelStr m_name;
   };
 
   NodeId ListNode::findChild(const LabelStr& childName) const
@@ -357,7 +357,7 @@ namespace PLEXIL
   {
     checkError(destState == FINISHING_STATE || destState == FAILING_STATE,
                "Attempting to transition NodeList/LibraryNodeCall from EXECUTING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
@@ -459,7 +459,7 @@ namespace PLEXIL
     checkError(destState == ITERATION_ENDED_STATE ||
                destState == FAILING_STATE,
                "Attempting to transition List node from FINISHING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
         getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
@@ -557,7 +557,7 @@ namespace PLEXIL
     checkError(destState == ITERATION_ENDED_STATE ||
                destState == FINISHED_STATE,
                "Attempting to transition NodeList/LibraryNodeCall node from FAILING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     deactivateActionCompleteCondition();
 

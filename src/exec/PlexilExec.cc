@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -175,15 +175,15 @@ namespace PLEXIL
       root = NodeFactory::createNode(plan, ExecConnector::getId());
       check_error(root.isValid());
       root->postInit(plan);
-    }
-    catch (const Error& e) {
-      if (!wasThrowEnabled)
-        Error::doNotThrowExceptions();
-      debugMsg("PlexilExec:addPlan", " failed: " << e);
-      return false;
-    }
-    if (!wasThrowEnabled)
-      Error::doNotThrowExceptions();
+     }
+     catch (const Error& e) {
+       if (!wasThrowEnabled)
+         Error::doNotThrowExceptions();
+       debugMsg("PlexilExec:addPlan", " failed: " << e);
+       return false;
+     }
+     if (!wasThrowEnabled)
+       Error::doNotThrowExceptions();
 
     // after this point any failures are likely to be fatal!
     //not actually quiesceing, but causing the new nodes to look at the current known world state
@@ -521,8 +521,8 @@ namespace PLEXIL
         debugMsg("PlexilExec:step",
                  "[" << m_cycleNum << ":" << stepCount << ":" << microStepCount <<
                  "] Transitioning node " << node->getNodeId().toString()
-                 << " from " << node->getStateName().toString()
-                 << " to " << StateVariable::nodeStateName(it->state).toString());
+                 << " from " << node->getStateName()
+                 << " to " << StateVariable::nodeStateName(it->state));
         NodeState oldState = node->getState();
         node->transition(it->state, quiescenceTime);
         transitionsToPublish.push_back(NodeTransition(node, oldState));

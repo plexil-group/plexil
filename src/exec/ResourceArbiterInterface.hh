@@ -29,7 +29,10 @@
 
 #include "Id.hh"
 #include "ExecDefs.hh"
-#include "Node.hh" // for Command
+#include "Command.hh" // for Command
+
+#include <list>
+#include <set>
 
 namespace PLEXIL {
 
@@ -99,8 +102,8 @@ namespace PLEXIL {
                                          const std::string& cmdName);
     void optimalResourceArbitration (std::set<CommandId>& acceptCmds);
 
-    void determineAllChildResources
-    (const std::map<std::string, double>& res, std::vector<ChildResourceNode>& flattenedRes);
+    void determineAllChildResources(const ResourceValues& res, 
+                                    std::vector<ChildResourceNode>& flattenedRes);
     bool readResourceHeirarchy(const std::string& fName);
     double maxConsumableResourceValue(const std::string& resName) const;
     double maxRenewableResourceValue(const std::string& resName) const;

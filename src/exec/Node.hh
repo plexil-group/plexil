@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,6 @@
 #include "PlexilPlan.hh"
 #include "generic_hash_map.hh"
 
-#include <list>
 #include <map>
 #include <set>
 #include <vector>
@@ -194,9 +193,9 @@ namespace PLEXIL {
 
     /**
      * @brief Gets the name of the current state of this node.
-     * @return the current node state name as a LabelStr const reference.
+     * @return the current node state name as a Value const reference.
      */
-    const LabelStr& getStateName() const;
+    const Value& getStateName() const;
 
     /**
      * @brief Gets the current state of this node.
@@ -235,10 +234,10 @@ namespace PLEXIL {
      */
     const VariableId& getStateVariable() const { return m_stateVariable; }
 
-    const LabelStr getOutcome();
+    const Value& getOutcome() const;
     const VariableId& getOutcomeVariable() const { return m_outcomeVariable; }
 
-    const LabelStr getFailureType();
+    const Value& getFailureType() const;
     const VariableId& getFailureTypeVariable() const { return m_failureTypeVariable; }
 
     /**

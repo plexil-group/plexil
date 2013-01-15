@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ namespace PLEXIL
     void run(const pugi::xml_node& input)
     throw(ParserException);
 
-    double lookupNow(const State& state);
+    Value lookupNow(const State& state);
 
     // LookupOnChange
     void subscribe(const State& state);
@@ -66,7 +66,7 @@ namespace PLEXIL
     void batchActions(std::list<CommandId>& commands);
     void updatePlanner(std::list<UpdateId>& updates);
 
-    void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    void executeCommand(const LabelStr& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
 
     /**
      * @brief Abort the pending command with the supplied name and arguments.
@@ -77,19 +77,19 @@ namespace PLEXIL
     double currentTime();
 
   private:
-    typedef std::pair<LabelStr, std::vector<double> > UniqueThing;
+    typedef std::pair<LabelStr, std::vector<Value> > UniqueThing;
     typedef std::map<UniqueThing, ExpressionId>       ExpressionUtMap;
-    typedef std::map<UniqueThing, double >            StateMap;
+    typedef std::map<UniqueThing, Value>            StateMap;
 
     std::string getText(const UniqueThing& c);
-    std::string getText(const UniqueThing& c, double v);
+    std::string getText(const UniqueThing& c, const Value& v);
     std::string getText(const UniqueThing& c,
-                        const std::vector<double>& vals);
+                        const std::vector<Value>& vals);
     void handleInitialState(const pugi::xml_node& input);
 
     void setVariableValue(const std::string& source,
                           ExpressionId expr,
-                          double& value);
+                          const Value& value);
 
     void handleState(const pugi::xml_node& elt);
     void handleCommand(const pugi::xml_node& elt);
@@ -99,35 +99,20 @@ namespace PLEXIL
     void handleSendPlan(const pugi::xml_node& elt);
     void handleSimultaneous(const pugi::xml_node& elt);
         
-    void parseState(const pugi::xml_node& state, 
-                    State& result,
-                    std::vector<LabelStr>& strings,
-                    std::vector<StoredArray>& arrays);
-    double parseStateValue(const pugi::xml_node& stateXml,
-                           std::vector<LabelStr>& strings,
-                           std::vector<StoredArray>& arrays);
+    void parseState(const pugi::xml_node& state, State& result);
+    Value parseStateValue(const pugi::xml_node& stateXml);
 
     // Parses all command-like elements: Command, CommandAck, CommandAbort.
-    void parseCommand(const pugi::xml_node& cmdXml, 
-                      UniqueThing& cmd,
-                      std::vector<LabelStr>& strings,
-                      std::vector<StoredArray>& arrays);
+    void parseCommand(const pugi::xml_node& cmdXml, UniqueThing& cmd);
 
-    double parseResult(const pugi::xml_node& valXml,
-                       std::vector<LabelStr>& strings,
-                       std::vector<StoredArray>& arrays);
+    Value parseResult(const pugi::xml_node& valXml);
 
     void parseParams(const pugi::xml_node& root,
-                     std::vector<double>& dest,
-                     std::vector<LabelStr>& strings,
-                     std::vector<StoredArray>& arrays);
-    double parseParam(const pugi::xml_node& param,
-                      std::vector<LabelStr>& strings,
-                      std::vector<StoredArray>& arrays);
+                     std::vector<Value>& dest);
+    Value parseParam(const pugi::xml_node& param);
 
-    double parseOneValue(const std::string& type,
-                         const std::string& valStr,
-                         std::vector<LabelStr>& strings);
+    Value parseOneValue(const std::string& type,
+                        const std::string& valStr);
 
     std::map<LabelStr, UpdateId> m_waitingUpdates;
     ExpressionUtMap m_executingCommands; //map from commands to the destination variables
@@ -135,8 +120,6 @@ namespace PLEXIL
     ExpressionUtMap m_abortingCommands;
     StateMap m_states; //uniquely identified states and their values
     std::map<ExpressionId, CommandId> m_destToCmdMap;
-    std::vector<LabelStr> m_initialStateStrings;
-    std::vector<StoredArray> m_initialStateArrays;
     ResourceArbiterInterface m_raInterface;
   };
 }

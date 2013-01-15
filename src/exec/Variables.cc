@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,146 +35,101 @@
 namespace PLEXIL
 {
 
-  StringVariable::StringVariable(const bool isConst)
-    : VariableImpl(isConst),
-      m_label(),
-      m_initialLabel()
+  StringVariable::StringVariable()
+    : VariableImpl(false)
   {}
 
-  StringVariable::StringVariable(const double value, const bool isConst)
-    : VariableImpl(value, isConst),
-      m_label(value), // can assert if value is not a LabelStr key
-      m_initialLabel(value)
+  StringVariable::StringVariable(const Value& value, const bool isConst)
+    : VariableImpl(value, isConst)
   {
+    assertTrueMsg(checkValue(value),
+                  "Attempted to initialize string variable to an invalid value \""
+                  << value << "\"");
   }
 
   StringVariable::StringVariable(const LabelStr& value, const bool isConst)
-    : VariableImpl(value.getKey(), isConst),
-      m_label(value),
-      m_initialLabel(value)
+    : VariableImpl(Value(value), isConst)
   {
-    checkError(checkValue(value),
-			   "Attempted to initialize string variable to an invalid value \"" << value.toString() << "\"");
+    assertTrueMsg(checkValue(value),
+                  "Attempted to initialize string variable to an invalid value \"" << value.toString() << "\"");
   }
 
   StringVariable::StringVariable(const PlexilExprId& expr,
                                  const NodeConnectorId& node,
                                  const bool isConst)
-    : VariableImpl(expr, node, isConst),
-      m_label(),
-      m_initialLabel()
+    : VariableImpl(expr, node, isConst)
   {
-	assertTrueMsg(expr.isValid(), "Attempt to create a StringVariable from an invalid Id");
-	const PlexilValue* value = NULL;
-	if (Id<PlexilVar>::convertable(expr)) {
-	  const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
-	  // If the ExpressionFactory is correctly set up, should NEVER EVER happen
-	  assertTrueMsg(var->type() == STRING,
-					"Attempt to create a StringVariable from a non-STRING PlexilVar");
-	  value = var->value();
-	}
-	else if (Id<PlexilValue>::convertable(expr)) {
-	  value = (const PlexilValue*) expr;
-	  assertTrueMsg(isConst, "Attempt to create a StringValue that is not const");
-	}
-	else {
-	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
-	}
+    assertTrueMsg(expr.isValid(), "Attempt to create a StringVariable from an invalid Id");
+    const PlexilValue* value = NULL;
+    if (Id<PlexilVar>::convertable(expr)) {
+      const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
+      // If the ExpressionFactory is correctly set up, should NEVER EVER happen
+      assertTrueMsg(var->type() == STRING,
+                    "Attempt to create a StringVariable from a non-STRING PlexilVar");
+      value = var->value();
+    }
+    else if (Id<PlexilValue>::convertable(expr)) {
+      value = (const PlexilValue*) expr;
+      assertTrueMsg(isConst, "Attempt to create a StringValue that is not const");
+    }
+    else {
+      assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
+    }
 
-	if (value == NULL) {
-	  m_initialValue = m_value = UNKNOWN();
-	}
-	else {
-	  assertTrueMsg(value->type() == STRING,
-					"Attempt to create a StringVariable from a non-STRING PlexilValue");
-      m_label = m_initialLabel = value->value();
-	  m_initialValue = m_value = m_label.getKey();
-	}
+    if (value == NULL) {
+      m_initialValue = m_value = UNKNOWN();
+    }
+    else {
+      assertTrueMsg(value->type() == STRING,
+                    "Attempt to create a StringVariable from a non-STRING PlexilValue");
+      m_initialValue = m_value = value->value();
+    }
   }
-
 
   void StringVariable::print(std::ostream& s) const 
   {
-	VariableImpl::print(s);
-	s << "string)";
+    VariableImpl::print(s);
+    s << "string)";
   }
 
-  bool StringVariable::checkValue(const double val) 
+  bool StringVariable::checkValue(const Value& val) const
   {
-    return val == UNKNOWN() || LabelStr::isString(val);
+    return val.isUnknown() || val.isString();
   }
 
-  // Create a working copy of the label for memory management's sake
-  void StringVariable::setValue(const double value)
+  RealVariable::RealVariable()
+    : VariableImpl(false)
   {
-    VariableImpl::setValue(value);
-    if (value == UNKNOWN()) {
-      m_label = EMPTY_LABEL();
-    }
-    else {
-      m_label = value;
-    }
   }
 
-  /**
-   * @brief Temporarily stores the previous value of this variable.
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void StringVariable::saveCurrentValue()
-  {
-    VariableImpl::saveCurrentValue();
-    m_savedLabel = m_label;
-  }
-
-  /**
-   * @brief Restore the value set aside by saveCurrentValue().
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void StringVariable::restoreSavedValue()
-  {
-    m_label = m_savedLabel;
-    VariableImpl::restoreSavedValue();
-  }
-     
-  /**
-   * @brief Commit the assignment by erasing the saved previous value.
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void StringVariable::commitAssignment()
-  {
-    m_savedLabel = EMPTY_LABEL();
-    VariableImpl::commitAssignment();
-  }
-
-  RealVariable::RealVariable(const bool isConst) : VariableImpl(isConst) {}
-
-  RealVariable::RealVariable(const double value, const bool isConst)
+  RealVariable::RealVariable(const Value& value, const bool isConst)
     : VariableImpl(value, isConst) 
   {
-    checkError(checkValue(value),
-               "Attempted to initialize a Real variable with invalid value \"" << valueToString(value) << "\"");
+    assertTrueMsg(checkValue(value),
+                  "Attempted to initialize a Real variable with invalid value \"" << value << "\"");
   }
 
-  RealVariable::RealVariable(const PlexilExprId& expr, const NodeConnectorId& node,
+  RealVariable::RealVariable(const PlexilExprId& expr,
+                             const NodeConnectorId& node,
                              const bool isConst)
-	: VariableImpl(expr, node, isConst) 
+    : VariableImpl(expr, node, isConst) 
   {
-	assertTrueMsg(expr.isValid(), "Attempt to create a RealVariable from an invalid Id");
-	const PlexilValue* value = NULL;
-	if (Id<PlexilVar>::convertable(expr)) {
-	  const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
-	  // If the ExpressionFactory is correctly set up, should NEVER EVER happen
-	  assertTrueMsg(var->type() == REAL,
-					"Attempt to create a RealVariable from a non-REAL PlexilVar");
-	  value = var->value();
-	}
-	else if (Id<PlexilValue>::convertable(expr)) {
-	  value = (const PlexilValue*) expr;
-	  assertTrueMsg(isConst, "Attempt to create a RealValue that is not const");
-	}
-	else {
-	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
-	}
+    assertTrueMsg(expr.isValid(), "Attempt to create a RealVariable from an invalid Id");
+    const PlexilValue* value = NULL;
+    if (Id<PlexilVar>::convertable(expr)) {
+      const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
+      // If the ExpressionFactory is correctly set up, should NEVER EVER happen
+      assertTrueMsg(var->type() == REAL,
+                    "Attempt to create a RealVariable from a non-REAL PlexilVar");
+      value = var->value();
+    }
+    else if (Id<PlexilValue>::convertable(expr)) {
+      value = (const PlexilValue*) expr;
+      assertTrueMsg(isConst, "Attempt to create a RealValue that is not const");
+    }
+    else {
+      assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
+    }
 
     if (value == NULL)
       m_initialValue = m_value = UNKNOWN();
@@ -197,22 +152,24 @@ namespace PLEXIL
 
   void RealVariable::print(std::ostream& s) const 
   {
-	VariableImpl::print(s);
+    VariableImpl::print(s);
     s << "real)";
   }
    
-  bool RealVariable::checkValue(const double val) {
-    return (val >= REAL_MINUS_INFINITY && val <= REAL_PLUS_INFINITY) ||
-      val == UNKNOWN();
+  bool RealVariable::checkValue(const Value& val) const
+  {
+    return val.isUnknown()
+      || (val.getDoubleValue() >= REAL_MINUS_INFINITY
+          && val.getDoubleValue() <= REAL_PLUS_INFINITY);
   }
 
   ExpressionId& RealVariable::ZERO_EXP() {
     static ExpressionId sl_zero_exp;
     if (sl_zero_exp.isNoId()) {
-	  VariableImpl* var = new RealVariable(0.0, true);
-	  var->setName("Real constant 0");
+      VariableImpl* var = new RealVariable(0.0, true);
+      var->setName("Real constant 0");
       sl_zero_exp = var->getId();
-	}
+    }
     if(!sl_zero_exp->isActive())
       sl_zero_exp->activate();
     return sl_zero_exp;
@@ -221,10 +178,10 @@ namespace PLEXIL
   ExpressionId& RealVariable::ONE_EXP() {
     static ExpressionId sl_one_exp;
     if (sl_one_exp.isNoId()) {
-	  VariableImpl* var = new RealVariable(1.0, true);
-	  var->setName("Real constant 1");
+      VariableImpl* var = new RealVariable(1.0, true);
+      var->setName("Real constant 1");
       sl_one_exp = var->getId();
-	}
+    }
     if(!sl_one_exp->isActive())
       sl_one_exp->activate();
     return sl_one_exp;
@@ -233,44 +190,48 @@ namespace PLEXIL
   ExpressionId& RealVariable::MINUS_ONE_EXP() {
     static ExpressionId sl_minus_one_exp;
     if (sl_minus_one_exp.isNoId()) {
-	  VariableImpl* var = new RealVariable(-1.0, true);
-	  var->setName("Real constant -1");
+      VariableImpl* var = new RealVariable(-1.0, true);
+      var->setName("Real constant -1");
       sl_minus_one_exp = var->getId();
-	}
+    }
     if(!sl_minus_one_exp->isActive())
       sl_minus_one_exp->activate();
     return sl_minus_one_exp;
   }
 
-  IntegerVariable::IntegerVariable(const bool isConst) : VariableImpl(isConst) {}
-
-  IntegerVariable::IntegerVariable(const double value, const bool isConst)
-    : VariableImpl(value, isConst) 
+  IntegerVariable::IntegerVariable()
+    : VariableImpl(false)
   {
-    checkError(checkValue(value),
-			   "Attempted to initialize an Integer variable to invalid value \"" << valueToString(value) << "\"");
   }
 
-  IntegerVariable::IntegerVariable(const PlexilExprId& expr, const NodeConnectorId& node,
-				   const bool isConst)
-	: VariableImpl(expr, node, isConst) 
+  IntegerVariable::IntegerVariable(const Value& value, const bool isConst)
+    : VariableImpl(value, isConst) 
   {
-	assertTrueMsg(expr.isValid(), "Attempt to create an IntegerVariable from an invalid Id");
-	const PlexilValue* value = NULL;
-	if (Id<PlexilVar>::convertable(expr)) {
-	  const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
-	  // If the ExpressionFactory is correctly set up, should NEVER EVER happen
-	  assertTrueMsg(var->type() == INTEGER,
-					"Attempt to create an IntegerVariable from a non-INTEGER PlexilVar");
-	  value = var->value();
-	}
-	else if (Id<PlexilValue>::convertable(expr)) {
-	  value = (const PlexilValue*) expr;
-	  assertTrueMsg(isConst, "Attempt to create an IntegerValue that is not const");
-	}
-	else {
-	  assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
-	}
+    assertTrueMsg(checkValue(value),
+                  "Attempted to initialize an Integer variable to invalid value \"" << value << "\"");
+  }
+
+  IntegerVariable::IntegerVariable(const PlexilExprId& expr, 
+                                   const NodeConnectorId& node,
+                                   const bool isConst)
+    : VariableImpl(expr, node, isConst) 
+  {
+    assertTrueMsg(expr.isValid(), "Attempt to create an IntegerVariable from an invalid Id");
+    const PlexilValue* value = NULL;
+    if (Id<PlexilVar>::convertable(expr)) {
+      const Id<PlexilVar> var = (const Id<PlexilVar>) expr;
+      // If the ExpressionFactory is correctly set up, should NEVER EVER happen
+      assertTrueMsg(var->type() == INTEGER,
+                    "Attempt to create an IntegerVariable from a non-INTEGER PlexilVar");
+      value = var->value();
+    }
+    else if (Id<PlexilValue>::convertable(expr)) {
+      value = (const PlexilValue*) expr;
+      assertTrueMsg(isConst, "Attempt to create an IntegerValue that is not const");
+    }
+    else {
+      assertTrueMsg(ALWAYS_FAIL, "Expected a PlexilVar or PlexilValue");
+    }
 
     if (value == NULL)
       m_initialValue = m_value = UNKNOWN();
@@ -290,16 +251,18 @@ namespace PLEXIL
 
   void IntegerVariable::print(std::ostream& s) const
   {
-	VariableImpl::print(s);
-	s << "int)";
+    VariableImpl::print(s);
+    s << "int)";
   }
 
-  bool IntegerVariable::checkValue(const double val) {
-    if (val == UNKNOWN())
+  bool IntegerVariable::checkValue(const Value& val) const
+  {
+    if (val.isUnknown())
       return true;
-    if (val < MINUS_INFINITY || val > PLUS_INFINITY)
+    double d = val.getDoubleValue();
+    if (d < (double) MINUS_INFINITY || d > (double) PLUS_INFINITY)
       return false;
-    if (fabs(val - ((double) (int32_t) val)) < EPSILON)
+    if (fabs(d - ((double) (int32_t) d)) < EPSILON)
       return true;
     return false;
   }
@@ -308,10 +271,10 @@ namespace PLEXIL
   {
     static ExpressionId sl_zero_exp;
     if (sl_zero_exp.isNoId()) {
-	  VariableImpl* var = new IntegerVariable(0.0, true);
-	  var->setName("Integer constant 0");
+      VariableImpl* var = new IntegerVariable(0.0, true);
+      var->setName("Integer constant 0");
       sl_zero_exp = var->getId();
-	}
+    }
     if(!sl_zero_exp->isActive())
       sl_zero_exp->activate();
     return sl_zero_exp;
@@ -321,10 +284,10 @@ namespace PLEXIL
   {
     static ExpressionId sl_one_exp;
     if (sl_one_exp.isNoId()) {
-	  VariableImpl* var = new IntegerVariable(1.0, true);
-	  var->setName("Integer constant 1");
+      VariableImpl* var = new IntegerVariable(1.0, true);
+      var->setName("Integer constant 1");
       sl_one_exp = var->getId();
-	}
+    }
     if(!sl_one_exp->isActive())
       sl_one_exp->activate();
     return sl_one_exp;
@@ -334,10 +297,10 @@ namespace PLEXIL
   {
     static ExpressionId sl_minus_one_exp;
     if (sl_minus_one_exp.isNoId()) {
-	  VariableImpl* var = new IntegerVariable(-1.0, true);
-	  var->setName("Integer constant -1");
+      VariableImpl* var = new IntegerVariable(-1.0, true);
+      var->setName("Integer constant -1");
       sl_minus_one_exp = var->getId();
-	}
+    }
     if(!sl_minus_one_exp->isActive())
       sl_minus_one_exp->activate();
     return sl_minus_one_exp;
@@ -345,13 +308,13 @@ namespace PLEXIL
 
   TimepointVariable::TimepointVariable(const PlexilExprId& expr, const NodeConnectorId& node)
     : AliasVariable(expr->name(),
-					node,
-					node->findVariable((PlexilVarRef*)expr),
-					false,
-					true)
+                    node,
+                    node->findVariable((PlexilVarRef*)expr),
+                    false,
+                    true)
   {
     checkError(Id<PlexilTimepointVar>::convertable(expr),
-	       "Expected NodeTimepoint element, got " << expr->name());
+           "Expected NodeTimepoint element, got " << expr->name());
   }
 
 }

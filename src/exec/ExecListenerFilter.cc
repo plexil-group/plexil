@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ namespace PLEXIL
    */
   ExecListenerFilter::ExecListenerFilter()
     : m_id(this),
-	  m_xml()
+      m_xml()
   {
   }
 
@@ -44,7 +44,7 @@ namespace PLEXIL
    */
   ExecListenerFilter::ExecListenerFilter(const pugi::xml_node& xml)
     : m_id(this),
-	  m_xml(xml)
+      m_xml(xml)
   {
   }
 
@@ -105,7 +105,7 @@ namespace PLEXIL
   bool 
   ExecListenerFilter::reportAssignment(const ExpressionId & /* dest */,
                                        const std::string& /* destName */,
-                                       const double& /* value */) const
+                                       const Value& /* value */) const
   {
     return true;
   }

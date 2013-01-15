@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ namespace PLEXIL {
      * @param state The state.
      * @return The current value for the state.
      */
-    virtual double lookupNow(const State& state) = 0;
+    virtual Value lookupNow(const State& state) = 0;
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.

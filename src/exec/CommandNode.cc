@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -241,7 +241,7 @@ namespace PLEXIL
     checkError(destState == FINISHING_STATE ||
                destState == FAILING_STATE,
                "Attempting to transition Command node from EXECUTING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
@@ -431,7 +431,7 @@ namespace PLEXIL
     checkError(destState == FINISHED_STATE ||
                destState == ITERATION_ENDED_STATE,
                "Attempting to transition Command node from FAILING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     deactivateAbortCompleteCondition();
     if (destState == ITERATION_ENDED_STATE) {
@@ -493,7 +493,7 @@ namespace PLEXIL
     if (wasCreated)
       garbage.push_back(nameExpr);
 
-    std::list<ExpressionId> args;
+    std::vector<ExpressionId> args;
     for (std::vector<PlexilExprId>::const_iterator it = state->args().begin();
          it != state->args().end(); 
          ++it) {
@@ -514,7 +514,7 @@ namespace PLEXIL
         destVar = findVariable((Id<PlexilVarRef>) destExpr);
         // FIXME: push this check up into XML parser
         checkError(destVar.isValid(),
-                   "Unknown destination variable '" << dest_name <<
+                   "Unknown destination variable '" << dest_name.toString() <<
                    "' in command in node '" <<
                    m_nodeId.toString() << "'");
       }
@@ -556,7 +556,7 @@ namespace PLEXIL
 
     debugMsg("Node:createCommand",
              "Creating command"
-             << (nameExpr->getValue() == UNKNOWN() ? "" : " '" + LabelStr::toString(nameExpr->getValue()) + "'")
+             << (nameExpr->getValue().isUnknown() ? "" : " '" + nameExpr->getValue().getStringValue() + "'")
              << " for node '" << m_nodeId.toString() << "'");
     m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getId()))->getId();
   }
@@ -564,12 +564,11 @@ namespace PLEXIL
   // Unit test variant of above
   void CommandNode::createDummyCommand() 
   {
-    ExpressionId nameExpr = (new StringVariable("dummy", true))->getId();
+    ExpressionId nameExpr = (new StringVariable(Value("dummy"), true))->getId();
     std::vector<ExpressionId> garbage;
     garbage.push_back(nameExpr);
-    LabelStr name(nameExpr->getValue());
     // Empty arglist
-    std::list<ExpressionId> args;
+    std::vector<ExpressionId> args;
     
     // No destination variable
     VariableId destVar;

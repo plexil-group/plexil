@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -86,7 +86,7 @@ namespace PLEXIL {
             
         ResourceValues::const_iterator prioIt = resList.begin()->find(RESOURCE_PRIORITY_STR);
         assertTrueMsg(prioIt != resList.begin()->end(), "ResourcePriority not found");
-        int priority = (int) prioIt->second;
+        int priority = (int) prioIt->second.getIntValue();
         m_prioritySortedCommands.insert(std::make_pair(priority, cmd));
 
         std::set<ChildResourceNode, ResourceComparator> resourcesNeeded;
@@ -97,7 +97,7 @@ namespace PLEXIL {
              ++resListIter) {
           ResourceValues::const_iterator nameit = resListIter->find(RESOURCE_NAME_STR);
           assertTrueMsg(nameit != resListIter->end(), "ResourceName not found");
-          std::string resName = LabelStr::toString(nameit->second);
+          std::string resName = nameit->second.getStringValue();
           // Flatten out the hierarchy into a vector ChildResourceNode with scaled weights
 
           std::vector<ChildResourceNode> flattenedRes;
@@ -224,7 +224,7 @@ namespace PLEXIL {
     for (std::vector<CommandId>::const_iterator cmdIter1 = sortedCmdVector.begin();
          cmdIter1 != sortedCmdVector.end(); ++cmdIter1)
       {
-        std::string cmd1Name = (*cmdIter1)->getName().toString();
+        std::string cmd1Name = (*cmdIter1)->getName().getStringValue();
 
         std::map<std::string, double> localConsResMap = totalConsResMap;
         std::map<std::string, double> localRenewResMap = totalRenewResMap;
@@ -260,8 +260,8 @@ namespace PLEXIL {
 
             // Update the total resource levels to include the chosen command
             for (std::set<ChildResourceNode, ResourceComparator>::const_iterator resIter = 
-                   m_cmdResMap[(*cmdIter1)->getName().toString()].begin();
-                 resIter != m_cmdResMap[(*cmdIter1)->getName().toString()].end(); ++resIter)
+                   m_cmdResMap[(*cmdIter1)->getName().getStringValue()].begin();
+                 resIter != m_cmdResMap[(*cmdIter1)->getName().getStringValue()].end(); ++resIter)
               //            for (std::map<std::string, std::set<CommandId> >::const_iterator iter = 
               //                   m_resCmdMap.begin(); iter != m_resCmdMap.end(); ++iter)
               {
@@ -280,8 +280,8 @@ namespace PLEXIL {
         acceptCmds.insert(*cIter);
         
         for (std::set<ChildResourceNode, ResourceComparator>::const_iterator resIter = 
-               m_cmdResMap[(*cIter)->getName().toString()].begin();
-             resIter != m_cmdResMap[(*cIter)->getName().toString()].end(); ++resIter)
+               m_cmdResMap[(*cIter)->getName().getStringValue()].begin();
+             resIter != m_cmdResMap[(*cIter)->getName().getStringValue()].end(); ++resIter)
           {
             // Check if the resource is already in the locked structure
             // If yes, just add to the existing usage contribution.
@@ -311,13 +311,13 @@ namespace PLEXIL {
   {
     ResourceValues::const_iterator nameit = res.find(RESOURCE_NAME_STR);
     assertTrueMsg(nameit != res.end(), "ResourceName not found");
-    std::string resName = LabelStr::toString(nameit->second);
+    std::string resName = nameit->second.getStringValue();
 
     double scale = (res.find(RESOURCE_UPPER_BOUND_STR) != res.end()) ? 
-      (double) (res.find(RESOURCE_UPPER_BOUND_STR)->second) : 1.0;
+      (double) (res.find(RESOURCE_UPPER_BOUND_STR)->second.getDoubleValue()) : 1.0;
 
     bool release = (res.find(RESOURCE_RELEASE_AT_TERMINATION_STR) != res.end()) 
-      ? (bool) res.find(RESOURCE_RELEASE_AT_TERMINATION_STR)->second : true;
+      ? (bool) res.find(RESOURCE_RELEASE_AT_TERMINATION_STR)->second.getBoolValue() : true;
     // Push the root in to the flattened vector
     flattenedRes.push_back(ChildResourceNode(scale, resName, release));
     // Push all the children into a queue (uses a std::vector).
@@ -455,7 +455,7 @@ namespace PLEXIL {
       {
         CommandId cmdId = iter->second;
         debugMsg("ResourceArbiterInterface:printSortedCommands", 
-                 "CommandName: " << cmdId->getName().toString() 
+                 "CommandName: " << cmdId->getName().getStringValue() 
                  << " Priority: " << iter->first);
       }
   }
@@ -473,7 +473,7 @@ namespace PLEXIL {
           {
             CommandId cmdId = *iter2;
             debugMsg("ResourceArbiterInterface:printResourceCommandMap", 
-                     "cmds: " << cmdId->getName().toString() << " uses the following resources");
+                     "cmds: " << cmdId->getName().getStringValue() << " uses the following resources");
 
             const ResourceValuesList& resList = cmdId->getResourceValues();
             for (ResourceValuesList::const_iterator resListIter = resList.begin();
@@ -481,14 +481,14 @@ namespace PLEXIL {
                  ++resListIter) {
               ResourceValues::const_iterator nameit = resListIter->find(RESOURCE_NAME_STR);
               assertTrueMsg(nameit != resListIter->end(), "ResourceName not found");
-              std::string resName = LabelStr::toString(nameit->second);
+              std::string resName = nameit->second.getStringValue();
               double ubound = (resListIter->find(RESOURCE_UPPER_BOUND_STR) != resListIter->end()) ? 
-                (double) (resListIter->find(RESOURCE_UPPER_BOUND_STR)->second) : 1.0;
+                (double) (resListIter->find(RESOURCE_UPPER_BOUND_STR)->second.getDoubleValue()) : 1.0;
               double lbound = (resListIter->find(RESOURCE_LOWER_BOUND_STR) != resListIter->end()) ? 
-                (double) (resListIter->find(RESOURCE_LOWER_BOUND_STR)->second) : 1.0;
+                (double) (resListIter->find(RESOURCE_LOWER_BOUND_STR)->second.getDoubleValue()) : 1.0;
               ResourceValues::const_iterator prioIt = resListIter->find(RESOURCE_PRIORITY_STR);
               assertTrueMsg(prioIt != resListIter->end(), "ResourcePriority not found");
-              int priority = static_cast<int>(prioIt->second);
+              int priority = static_cast<int>(prioIt->second.getIntValue());
               debugMsg("ResourceArbiterInterface:printResourceCommandMap", 
                        "<" << resName << "," << priority << "," << lbound
                        << "," << ubound << ">");
@@ -515,7 +515,7 @@ namespace PLEXIL {
          it != acceptCmds.end(); ++it)
       {
         CommandId cmd = *it;
-        const std::string& name = cmd->getName().toString();
+        const std::string& name = cmd->getName().getStringValue();
         debugMsg("ResourceArbiterInterface:printAcceptedCommands", 
                  "Accepted command: " << name
                  << " uses resources:");

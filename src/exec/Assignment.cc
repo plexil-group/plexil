@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,18 +32,18 @@ namespace PLEXIL
 {
 
   Assignment::Assignment(const VariableId lhs, 
-						 const ExpressionId rhs,
+                         const ExpressionId rhs,
                          const bool deleteLhs, 
-						 const bool deleteRhs,
-						 const LabelStr& lhsName, 
+                         const bool deleteRhs,
+                         const LabelStr& lhsName, 
                          const LabelStr& nodeId)
     : m_id(this),
       m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
       m_abortComplete((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
-	  m_dest(lhs),
-	  m_rhs(rhs),
+      m_dest(lhs),
+      m_rhs(rhs),
       m_destName(lhsName),
-      m_value(Expression::UNKNOWN()),
+      m_value(),
       m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
   {
     // Make ack variable pretty
@@ -79,25 +79,26 @@ namespace PLEXIL
     m_rhs->deactivate();
     m_dest->commitAssignment();
     m_dest->deactivate();
+    m_value.setUnknown();
   }
 
   void Assignment::execute()
   {
-	check_error(m_dest.isValid());
-	debugMsg("Test:testOutput", "Assigning '" << m_destName.toString() <<
-			 "' (" << m_dest->toString() << ") to " << Expression::valueToString(m_value));
-	m_dest->setValue(m_value);
-	m_ack->setValue(BooleanVariable::TRUE_VALUE());
+    check_error(m_dest.isValid());
+    debugMsg("Test:testOutput", "Assigning '" << m_destName.toString() <<
+             "' (" << m_dest->toString() << ") to " << m_value);
+    m_dest->setValue(m_value);
+    m_ack->setValue(BooleanVariable::TRUE_VALUE());
   }
 
   void Assignment::retract()
   {
-	check_error(m_dest.isValid());
-	debugMsg("Test:testOutput",
+    check_error(m_dest.isValid());
+    debugMsg("Test:testOutput",
              "Restoring '" << m_destName.toString() << "' (" << m_dest->toString()
-             << ") to " << Expression::valueToString(m_dest->getSavedValue()));
-	m_dest->restoreSavedValue();
-	m_abortComplete->setValue(BooleanVariable::TRUE_VALUE());
+             << ") to " << m_dest->getSavedValue());
+    m_dest->restoreSavedValue();
+    m_abortComplete->setValue(BooleanVariable::TRUE_VALUE());
   }
 
   void Assignment::reset()

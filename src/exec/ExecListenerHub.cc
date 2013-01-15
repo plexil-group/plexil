@@ -120,7 +120,7 @@ namespace PLEXIL
    */
   void ExecListenerHub::notifyOfAssignment(const ExpressionId & dest,
                                            const std::string& destName,
-                                           const double& value) const
+                                           const Value& value) const
   {
     for (std::vector<ExecListenerBaseId>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();

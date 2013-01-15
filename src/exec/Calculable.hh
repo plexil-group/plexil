@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,12 +56,12 @@ namespace PLEXIL
      * @brief By default, Calculables can't have their value set this way.  However,
      *        it should be possible for subclasses to override this behavior.
      */
-    virtual void setValue(const double value);
+    virtual void setValue(const Value& value);
 
     /**
      * @brief Re-calculate the value of this expression.
      */
-    virtual double recalculate() {return m_value;}
+    virtual Value recalculate() {return m_value;}
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
@@ -79,8 +79,8 @@ namespace PLEXIL
      *            expression (i.e. if a new variable had to be allocated.).
      */
     virtual ExpressionId getSubexpression(const PlexilExprId& expr, 
-										  const NodeConnectorId& node,
-										  bool& del);
+                                          const NodeConnectorId& node,
+                                          bool& del);
 
     /**
      * @brief Handles the activation of this expression, including activation of
@@ -111,10 +111,10 @@ namespace PLEXIL
 
     void removeSubexpression(const ExpressionId& exp);
 
-	// Printer utilities for use by subclasses
-	virtual void printAsFnCall(std::ostream& s) const;
-	virtual void printAsInfix(std::ostream& s) const;
-	virtual const char* operatorString() const = 0;
+    // Printer utilities for use by subclasses
+    virtual void printAsFnCall(std::ostream& s) const;
+    virtual void printAsInfix(std::ostream& s) const;
+    virtual const char* operatorString() const = 0;
 
     SubexpressionListener m_listener; /*<! For incoming message notifications (other expressions' values have changed) */
     ExpressionVector m_subexpressions; /*<! The subexpressions.*/
@@ -172,8 +172,6 @@ namespace PLEXIL
     NaryExpression(const ExpressionId& a, bool aGarbage,
                    const ExpressionId& b, bool bGarbage);
 	void print(std::ostream& s) const;
-
-  private:
   };
 
 }

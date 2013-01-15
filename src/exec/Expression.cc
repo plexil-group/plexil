@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -78,11 +78,11 @@ namespace PLEXIL {
 	m_id.remove();
   }
 
-  double Expression::getValue() const {
+  const Value& Expression::getValue() const {
     return (isActive() ? m_value : UNKNOWN());
   }
 
-  void Expression::setValue(const double val) {
+  void Expression::setValue(const Value& val) {
     internalSetValue(val);
   }
 
@@ -156,57 +156,13 @@ namespace PLEXIL {
 	return s;
   }
 
-  // Much-needed static member function to print the One True Printed Representation of a value.
-
-  void Expression::formatValue(std::ostream& s, const double val) 
-  {
-	if (val == UNKNOWN())
-	  s << "UNKNOWN";
-    else if (LabelStr::isString(val))
-      s << LabelStr::toString(val);
-    else if (StoredArray::isKey(val))
-	  s << StoredArray(val).toString();
-	// below this point must be a number
-    else if (val == REAL_PLUS_INFINITY)
-      s << "inf";
-    else if (val == REAL_MINUS_INFINITY)
-      s << "-inf";
-	else {
-	  // Print floats with max precision - they may be times.
-      s << std::setprecision(15) << val;
-	}
-  }
-
-  // Much-needed static member function to construct the One True Printed Representation of a value.
-
-  std::string Expression::valueToString(const double val)
-  {
-	if (val == UNKNOWN())
-	  return std::string("UNKNOWN");
-    else if (LabelStr::isString(val))
-	  return std::string(LabelStr::toString(val));
-    else if (StoredArray::isKey(val))
-	  return StoredArray(val).toString();
-	// below this point must be a number
-    else if (val == REAL_PLUS_INFINITY)
-      return std::string("inf");
-    else if (val == REAL_MINUS_INFINITY)
-      return std::string("-inf");
-	else {
-	  std::ostringstream s;
-	  // Print floats with max precision - they may be times.
-      s << std::setprecision(15) << val;
-	  return s.str();
-	}
-  }
-
   void Expression::printValue(std::ostream& s) const
   {
-	formatValue(s, getValue());
+	s << getValue();
   }
 
   std::string Expression::valueString() const {
-    return valueToString(getValue());
+    return getValue().valueToString();
   }
 
   void Expression::lock() {
@@ -225,9 +181,9 @@ namespace PLEXIL {
     handleUnlock();
   }
 
-  void Expression::internalSetValue(const double value) {
+  void Expression::internalSetValue(const Value& value) {
     checkError(checkValue(value), 
-			   "Value " << valueToString(value) << " invalid for " << toString());
+			   "Value " << value << " invalid for " << toString());
     if (isLocked()) {
       if (m_savedValue != value || m_value != value) {
 		m_dirty = true;
@@ -262,7 +218,7 @@ namespace PLEXIL {
 	~UnknownVariable() {}
 
 	// Don't assign to this variable!
-	bool checkValue(const double /* value */) { return false; }
+	bool checkValue(const Value& /* value */) const { return false; }
 	
   private:
 	// Deliberately unimplemented

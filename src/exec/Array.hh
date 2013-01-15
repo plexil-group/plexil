@@ -52,14 +52,14 @@ namespace PLEXIL
     /**
      * @brief Get the element at the given index.
      */
-    virtual double lookupValue(size_t index) const = 0;
+    virtual const Value& lookupValue(size_t index) const = 0;
 
     /**
      * @brief Set one element of this array from the given value.
      * @note Value must be an array or UNKNOWN.
      * @note Index must be less than maximum length
      */
-    virtual void setElementValue(unsigned index, const double value) = 0;
+    virtual void setElementValue(size_t index, const Value& value) = 0;
 
     /**
      * @brief Retrieve the element type of this array.
@@ -70,7 +70,7 @@ namespace PLEXIL
     /**
      * @brief Check to make sure an element value is appropriate for this array.
      */
-    virtual bool checkElementValue(const double val) = 0;
+    virtual bool checkElementValue(const Value& val) const = 0;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -119,10 +119,10 @@ namespace PLEXIL
 
     // ArrayVariable API
     virtual size_t maxSize() const;
-    virtual double lookupValue(size_t index) const;
-    virtual void setElementValue(unsigned index, const double value);
+    virtual const Value& lookupValue(size_t index) const;
+    virtual void setElementValue(size_t index, const Value& value);
     virtual PlexilType getElementType() const;
-    virtual bool checkElementValue(const double val);
+    virtual bool checkElementValue(const Value& value) const;
 
   protected:
 
@@ -145,7 +145,7 @@ namespace PLEXIL
                   const bool isConst = false);
     ArrayVariable(size_t maxSize, 
                   PlexilType type, 
-                  const std::vector<double>& values,
+                  const std::vector<Value>& values,
                   const bool isConst = false);
     ArrayVariable(const PlexilExprId& expr, 
                   const NodeConnectorId& node,
@@ -154,45 +154,21 @@ namespace PLEXIL
     virtual ~ArrayVariable();
 
     virtual void print(std::ostream& s) const;
-    virtual double lookupValue(size_t index) const;
+    virtual const Value& lookupValue(size_t index) const;
     size_t maxSize() const {return m_maxSize;}
 
     /**
      * @brief Set the contents of this array from the given value.
      * @note Value must be an array or UNKNOWN.
      */
-    virtual void setValue(const double value);
-
-    /**
-     * @brief Temporarily stores the previous value of this variable.
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void saveCurrentValue();
-
-    /**
-     * @brief Restore the value set aside by saveCurrentValue().
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void restoreSavedValue();
-     
-    /**
-     * @brief Commit the assignment by erasing the saved previous value.
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void commitAssignment();
-
-    /**
-     * @brief Set the value of this expression back to the initial value with which it was
-     *        created.
-     */
-    virtual void reset();
+    virtual void setValue(const Value& value);
 
     /**
      * @brief Set one element of this array from the given value.
      * @note Value must be an array or UNKNOWN.
      * @note Index must be less than maximum length
      */
-    virtual void setElementValue(unsigned index, const double value);
+    virtual void setElementValue(size_t index, const Value& value);
 
     /**
      * @brief Retrieve the element type of this array.
@@ -203,24 +179,27 @@ namespace PLEXIL
     /**
      * @brief Check to make sure an element value is appropriate for this array.
      */
-    virtual bool checkElementValue(const double val);
+    virtual bool checkElementValue(const Value& val) const;
+
+    /**
+     * @brief Temporarily stores the previous value of this variable.
+     * @note Used to implement recovery from failed Assignment nodes.
+     */
+    virtual void saveCurrentValue();
 
   protected:
 
     /**
      * @brief Check to make sure a value is appropriate for this variable.
      */
-    virtual bool checkValue(const double val);
+    virtual bool checkValue(const Value& val) const;
 
     /**
      * @brief Check to make sure the index is appropriate for this array.
      */
-    bool checkIndex(const unsigned index) const 
+    bool checkIndex(const size_t index) const 
     { return index < m_maxSize; }
 
-    StoredArray         m_array;
-    StoredArray         m_initialArray;
-    std::vector<double> m_savedArray;
     size_t              m_maxSize;
     PlexilType          m_type;
   };
@@ -234,7 +213,7 @@ namespace PLEXIL
                         const bool isConst = false);
     StringArrayVariable(size_t maxSize, 
                         PlexilType type, 
-                        const std::vector<double>& values,
+                        const std::vector<Value>& values,
                         const bool isConst = false);
     StringArrayVariable(const PlexilExprId& expr, 
                         const NodeConnectorId& node,
@@ -243,52 +222,9 @@ namespace PLEXIL
     virtual ~StringArrayVariable();
 
     /**
-     * @brief Set the value of this expression back to the initial value with which it was
-     *        created.
-     */
-    virtual void reset();
-
-    /**
-     * @brief Set one element of this array from the given value.
-     * @note Value must be a string or UNKNOWN.
-     * @note Index must be less than maximum length
-     */
-    virtual void setElementValue(unsigned index, const double value);
-
-    /**
      * @brief Check to make sure an element value is appropriate for this array.
      */
-    virtual bool checkElementValue(const double val);
-
-    /**
-     * @brief Set the contents of this array from the given value.
-     * @note Value must be an array or UNKNOWN.
-     */
-    virtual void setValue(const double value);
-
-    /**
-     * @brief Temporarily stores the previous value of this variable.
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void saveCurrentValue();
-
-    /**
-     * @brief Restore the value set aside by saveCurrentValue().
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void restoreSavedValue();
-     
-    /**
-     * @brief Commit the assignment by erasing the saved previous value.
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void commitAssignment();
-
-  private:
-
-    std::vector<LabelStr> m_labels;
-    std::vector<LabelStr> m_initialLabels;
-    std::vector<LabelStr> m_savedLabels;
+    virtual bool checkElementValue(const Value& val) const;
 
   };
 
@@ -316,38 +252,36 @@ namespace PLEXIL
      *        created.
      */
     virtual void reset();
+    
+    /**
+     * @brief Check to make sure a value is appropriate for this expression.
+     */
+    bool checkValue(const Value& value) const;
 
     /**
      * @brief Sets the value of the array element.  
      *        Will throw an error if the variable was constructed with isConst == true.
      * @param value The new value for this array element.
      */
-    void setValue(const double value);
+    void setValue(const Value& value);
 
     /**
      * @brief Temporarily stores the previous value of this variable.
      * @note Used to implement recovery from failed Assignment nodes.
      */
-    virtual void saveCurrentValue();
+    void saveCurrentValue();
 
-    /**
-     * @brief Restore the value set aside by saveCurrentValue().
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
-    virtual void restoreSavedValue();
-     
     /**
      * @brief Commit the assignment by erasing the saved previous value.
      * @note Used to implement recovery from failed Assignment nodes.
      */
-    virtual void commitAssignment();
+    void commitAssignment();
 
     /**
      * @brief Get the saved value.
      * @return The saved value.
-     * @note Intended for debug display only.
      */
-    double getSavedValue() const
+    const Value& getSavedValue() const
     {
       return m_savedValue;
     }
@@ -400,7 +334,7 @@ namespace PLEXIL
 
     void handleDeactivate(const bool changed);
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Get the real variable for which this may be a proxy.
@@ -420,19 +354,13 @@ namespace PLEXIL
     ArrayElement();
     ArrayElement(const ArrayElement&);
     ArrayElement& operator=(const ArrayElement&);
-    
-    /**
-     * @brief Check to make sure a value is appropriate for this expression.
-     */
-    bool checkValue(const double value);
 
     ArrayVariableId m_arrayVariable;
     ExpressionId m_index;
     const NodeId m_node;
     DerivedVariableListener m_listener;
     LabelStr m_name;
-    double m_savedValue;
-    LabelStr m_savedString;
+    Value m_savedValue;
     bool m_deleteIndex;
   };
 

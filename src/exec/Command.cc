@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,7 @@ namespace PLEXIL
 {
 
   Command::Command(const ExpressionId nameExpr, 
-                   const std::list<ExpressionId>& args,
+                   const std::vector<ExpressionId>& args,
                    const VariableId dest,
                    const LabelStr& dest_name,
                    const std::vector<ExpressionId>& garbage,
@@ -64,19 +64,15 @@ namespace PLEXIL
     m_id.remove();
   }
 
-  LabelStr Command::getName() const
+  const Value& Command::getName() const
   {
-    return LabelStr(m_nameExpr->getValue()); 
+    return m_nameExpr->getValue();
   }
 
-  const std::string& Command::getNameString() const
+  void Command::fixValues() 
   {
-    return LabelStr::toString(m_nameExpr->getValue());
-  }
-
-  void Command::fixValues() {
     m_argValues.clear();
-    for (std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
+    for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
       ExpressionId expr = *it;
       check_error(expr.isValid());
       m_argValues.push_back(expr->getValue());
@@ -103,13 +99,14 @@ namespace PLEXIL
   }
 
   //more error checking here
-  void Command::activate() {
+  void Command::activate()
+  {
     m_nameExpr->activate();
     m_ack->activate();
     m_abortComplete->activate(); // redundant?
     if (m_dest != ExpressionId::noId())
       m_dest->activate();
-    for (std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
+    for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
       ExpressionId expr = *it;
       check_error(expr.isValid());
       expr->activate();
@@ -133,11 +130,12 @@ namespace PLEXIL
     m_abortComplete->deactivate(); // redundant?
     if (m_dest != ExpressionId::noId())
       m_dest->deactivate();
-    for (std::list<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
+    for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
       ExpressionId expr = *it;
       check_error(expr.isValid());
       expr->deactivate();
     }
+    m_argValues.clear(); // ??
   }
 
   void Command::reset()

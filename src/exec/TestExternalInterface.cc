@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ namespace PLEXIL
     ExternalInterface::setExec(exec);
     // Ensure there's a "time" state
     m_states.insert(std::make_pair(m_exec->getStateCache()->getTimeState(),
-                                   0));
+                                   Value(0.0)));
   }
 
   void TestExternalInterface::run(const pugi::xml_node& input)
@@ -140,7 +140,7 @@ namespace PLEXIL
 
   void TestExternalInterface::setVariableValue(const std::string& source,
                                                ExpressionId expr,
-                                               double& value)
+                                               const Value& value)
   {
     if (expr != ExpressionId::noId()) {
       checkError(Id<VariableImpl>::convertable(expr),
@@ -167,11 +167,11 @@ namespace PLEXIL
       if (state.type() != pugi::node_pcdata) {
         while (state) {
           UniqueThing st;
-          parseState(state, st, m_initialStateStrings, m_initialStateArrays);
-          double value = parseStateValue(state, m_initialStateStrings, m_initialStateArrays);
+          parseState(state, st);
+          Value value = parseStateValue(state);
           debugMsg("Test:testOutput",
                    "Creating initial state " << getText(st, value));
-          m_states.insert(std::pair<UniqueThing, double>(st, value));
+          m_states.insert(std::pair<UniqueThing, Value>(st, value));
           state = state.next_sibling();
         }
       }
@@ -181,25 +181,21 @@ namespace PLEXIL
 
   void TestExternalInterface::handleState(const pugi::xml_node& elt)
   {
-    std::vector<LabelStr> strings;
-    std::vector<StoredArray> arrays;
     State st;
-    parseState(elt, st, strings, arrays);
-    double value = parseStateValue(elt, strings, arrays);
+    parseState(elt, st);
+    Value value = parseStateValue(elt);
     m_states[st] = value;
     debugMsg("Test:testOutput",
              "Processing event: " << StateCache::toString(st)
-             << " = " << Expression::valueToString(value));
+             << " = " << value);
     m_exec->getStateCache()->updateState(st, value);
   }
 
   void TestExternalInterface::handleCommand(const pugi::xml_node& elt)
   {
-    std::vector<LabelStr> strings;
-    std::vector<StoredArray> arrays;
     UniqueThing command;
-    parseCommand(elt, command, strings, arrays);
-    double value = parseResult(elt, strings, arrays);
+    parseCommand(elt, command);
+    Value value = parseResult(elt);
     debugMsg("Test:testOutput",
              "Sending command result " << getText(command, value));
     ExpressionUtMap::iterator it = 
@@ -213,11 +209,9 @@ namespace PLEXIL
 
   void TestExternalInterface::handleCommandAck(const pugi::xml_node& elt)
   {
-    std::vector<LabelStr> strings;
-    std::vector<StoredArray> arrays;
     UniqueThing command;
-    parseCommand(elt, command, strings, arrays);
-    double value = parseResult(elt, strings, arrays);
+    parseCommand(elt, command);
+    Value value = parseResult(elt);
     debugMsg("Test:testOutput",
              "Sending command ACK " << getText(command, value));
     ExpressionUtMap::iterator it = m_commandAcks.find(command);
@@ -231,11 +225,9 @@ namespace PLEXIL
 
   void TestExternalInterface::handleCommandAbort(const pugi::xml_node& elt)
   {
-    std::vector<LabelStr> strings;
-    std::vector<StoredArray> arrays;
     UniqueThing command;
-    parseCommand(elt, command, strings, arrays);
-    double value = parseResult(elt, strings, arrays);
+    parseCommand(elt, command);
+    Value value = parseResult(elt);
     debugMsg("Test:testOutput",
              "Sending abort ACK " << getText(command, value));
     ExpressionUtMap::iterator it = 
@@ -325,10 +317,7 @@ namespace PLEXIL
     debugMsg("Test:testOutput", "End simultaneous event(s)");
   }
 
-  void TestExternalInterface::parseState(const pugi::xml_node& elt,
-                                         State& state,
-                                         std::vector<LabelStr>& strings,
-                                         std::vector<StoredArray>& arrays)
+  void TestExternalInterface::parseState(const pugi::xml_node& elt, State& state)
   {
     checkError(strcmp(elt.name(), "State") == 0,
                "Expected <State> element. Found '" << elt.name() << "'");
@@ -336,13 +325,10 @@ namespace PLEXIL
                "No name attribute in <State> element.");
     LabelStr name(elt.attribute("name").value());
     state.first = name;
-    parseParams(elt, state.second, strings, arrays);
+    parseParams(elt, state.second);
   }
 
-  void TestExternalInterface::parseCommand(const pugi::xml_node& cmd,
-                                           UniqueThing& command,
-                                           std::vector<LabelStr>& strings,
-                                           std::vector<StoredArray>& arrays)
+  void TestExternalInterface::parseCommand(const pugi::xml_node& cmd, UniqueThing& command)
   {
     checkError(strcmp(cmd.name(), "Command") == 0 ||
                strcmp(cmd.name(), "CommandAck") == 0 ||
@@ -352,12 +338,10 @@ namespace PLEXIL
     checkError(!cmd.attribute("name").empty(),
                "No name attribute in <" << cmd.name() << "> element.");
     command.first = cmd.attribute("name").value();
-    parseParams(cmd, command.second, strings, arrays);
+    parseParams(cmd, command.second);
   }
 
-  double TestExternalInterface::parseResult(const pugi::xml_node& cmd,
-                                            std::vector<LabelStr>& strings,
-                                            std::vector<StoredArray>& arrays)
+  Value TestExternalInterface::parseResult(const pugi::xml_node& cmd)
   {
     pugi::xml_node resXml = cmd.child("Result");
     checkError(!resXml.empty(), "No Result child in <" << cmd.name() << "> element.");
@@ -369,39 +353,30 @@ namespace PLEXIL
     // read in the initiial values and parameters
     if (type.rfind("array") == std::string::npos) {
       // Not an array
-      return parseOneValue(type, 
-                           resXml.first_child().value(),
-                           strings);
+      return parseOneValue(type, resXml.first_child().value());
     }
     else {
-      std::vector<double> values;
+      std::vector<Value> values;
       while (!resXml.empty()) {
-        values.push_back(parseOneValue(type, 
-                                       resXml.first_child().value(),
-                                       strings));
+        values.push_back(parseOneValue(type, resXml.first_child().value()));
         resXml = resXml.next_sibling();
       }
       StoredArray result(values.size(), values);
-      arrays.push_back(result);
-      return result.getKey();
+      return Value(result);
     }
   }
 
   void TestExternalInterface::parseParams(const pugi::xml_node& root, 
-                                          std::vector<double>& dest,
-                                          std::vector<LabelStr>& strings,
-                                          std::vector<StoredArray>& arrays)
+                                          std::vector<Value>& dest)
   {
     pugi::xml_node param = root.child("Param");
     while (!param.empty()) {
-      dest.push_back(parseParam(param, strings, arrays));
+      dest.push_back(parseParam(param));
       param = param.next_sibling("Param");
     }
   }
 
-  double TestExternalInterface::parseParam(const pugi::xml_node& param,
-                                           std::vector<LabelStr>& strings,
-                                           std::vector<StoredArray>& arrays)
+  Value TestExternalInterface::parseParam(const pugi::xml_node& param)
   {
     checkError(!param.first_child().empty()
                || strcmp(param.attribute("type").value(), "string") == 0,
@@ -412,25 +387,21 @@ namespace PLEXIL
       double value;
       std::istringstream str(param.first_child().value());
       str >> value;
-      return value;
+      return Value(value);
     }
     // string case
     else if (param.first_child().empty()) {
-      return EMPTY_LABEL().getKey();
+      return Value(EMPTY_LABEL());
     }
     else if (0 == strcmp(param.first_child().value(), "UNKNOWN")) {
-      return Expression::UNKNOWN();
+      return UNKNOWN();
     }
     else {
-      LabelStr result(param.first_child().value());
-      strings.push_back(result);
-      return result.getKey();
+      return Value(param.first_child().value());
     }
   }
 
-  double TestExternalInterface::parseStateValue(const pugi::xml_node& stateXml,
-                                                std::vector<LabelStr>& strings,
-                                                std::vector<StoredArray>& arrays)
+  Value TestExternalInterface::parseStateValue(const pugi::xml_node& stateXml)
   {
     // read in values
     std::string type(stateXml.attribute("type").value());
@@ -442,34 +413,26 @@ namespace PLEXIL
                "No <Value> element in <"  << stateXml.name() << "> element");
     if (type.rfind("array") == std::string::npos) {
       // Not an array
-      return parseOneValue(type, 
-                           valXml.first_child().value(),
-                           strings);
+      return parseOneValue(type, valXml.first_child().value());
     }
     else {
-      std::vector<double> values;
+      std::vector<Value> values;
       while (!valXml.empty()) {
-        values.push_back(parseOneValue(type, 
-                                       valXml.first_child().value(),
-                                       strings));
+        values.push_back(parseOneValue(type, valXml.first_child().value()));
         valXml = valXml.next_sibling();
       }
       StoredArray result(values.size(), values);
-      arrays.push_back(result);
-      return result.getKey();
+      return Value(result);
     }
   }
 
   // parse in value
-  double TestExternalInterface::parseOneValue(const std::string& type, 
-                                              const std::string& valStr,
-                                              std::vector<LabelStr>& strings)
+  Value TestExternalInterface::parseOneValue(const std::string& type, 
+                                             const std::string& valStr)
   {
     // string or string-array
     if (type.find("string") == 0) {
-      LabelStr result(valStr);
-      strings.push_back(result);
-      return result.getKey();
+      return Value(valStr);
     }
     // int, int-array, real, real-array
     else if (type.find("int") == 0
@@ -477,39 +440,38 @@ namespace PLEXIL
       double value;
       std::istringstream ss(valStr);
       ss >> value;
-      return value;
+      return Value(value);
     }
     // bool or bool-array
     else if (type.find("bool") == 0) {
       if (0 == stricmp(valStr.c_str(), "true"))
-        return 1;
+        return Value(true);
       else if (0 == stricmp(valStr.c_str(), "false"))
-        return 0;
+        return Value(false);
       else {
         double value;
         std::istringstream ss(valStr);
         ss >> value;
-        return value;
+        return Value(value);
       }
     }
     else {
       checkError(ALWAYS_FAIL, "Unknown type attribute \"" << type << "\"");
-      return Expression::UNKNOWN();
+      return UNKNOWN();
     }
   }
 
-  double TestExternalInterface::lookupNow(const State& state)
+  Value TestExternalInterface::lookupNow(const State& state)
   {
     debugMsg("Test:testOutput", "Looking up immediately "
              << StateCache::toString(state));
     StateMap::const_iterator it = m_states.find(state);
     if (it == m_states.end()) {
       debugMsg("Test:testOutput", "No state found.  Setting UNKNOWN.");
-      it = m_states.insert(std::make_pair(state, Expression::UNKNOWN())).first;
+      it = m_states.insert(std::make_pair(state, UNKNOWN())).first;
     }
-    double value = it->second;
-    debugMsg("Test:testOutput", "Returning value "
-             << Expression::valueToString(value));
+    const Value& value = it->second;
+    debugMsg("Test:testOutput", "Returning value " << value);
     return value;
   }
 
@@ -521,8 +483,8 @@ namespace PLEXIL
     //ignore source, because we don't care about bandwidth here
     StateMap::iterator it = m_states.find(state);
     if (it == m_states.end()) {
-      std::pair<UniqueThing, double> p = 
-        std::make_pair(state, Expression::UNKNOWN());
+      std::pair<UniqueThing, Value> p = 
+        std::make_pair(state, UNKNOWN());
       m_states.insert(p);
     }
   }
@@ -552,7 +514,7 @@ namespace PLEXIL
       }
       else {
         debugMsg("Test:testOutput", 
-                 "Permission to execute " << cmd->getName().toString()
+                 "Permission to execute " << cmd->getName()
                  << " has been denied by the resource arbiter.");
         cmd->getAck()->setValue(CommandHandleVariable::COMMAND_DENIED());
       }
@@ -560,10 +522,11 @@ namespace PLEXIL
   }
 
   void TestExternalInterface::executeCommand(const LabelStr& name,
-                                             const std::list<double>& args,
-                                             ExpressionId dest, ExpressionId ack)
+                                             const std::vector<Value>& args,
+                                             ExpressionId dest,
+                                             ExpressionId ack)
   {
-    std::vector<double> realArgs(args.begin(), args.end());
+    std::vector<Value> realArgs(args.begin(), args.end());
     UniqueThing cmd(name, realArgs);
     debugMsg("Test:testOutput", "Executing " << getText(cmd) <<
              " into " <<
@@ -575,13 +538,13 @@ namespace PLEXIL
     // Special handling of the utility commands (a bit of a hack!):
     const std::string& cname = name.toString();
     if (cname == "print") {
-      print (args);
-      ack->setValue(CommandHandleVariable::COMMAND_SUCCESS()); // LabelStr ("COMMAND_SUCCESS"));
+      print(args);
+      ack->setValue(CommandHandleVariable::COMMAND_SUCCESS());
       m_raInterface.releaseResourcesForCommand(name);
     }
     else if (cname == "pprint") {
-      pprint (args);
-      ack->setValue(CommandHandleVariable::COMMAND_SUCCESS()); // LabelStr ("COMMAND_SUCCESS"));
+      pprint(args);
+      ack->setValue(CommandHandleVariable::COMMAND_SUCCESS());
       m_raInterface.releaseResourcesForCommand(name);
     }
     else {
@@ -598,8 +561,8 @@ namespace PLEXIL
 
   void TestExternalInterface::invokeAbort(const CommandId& command)
   {
-    const std::list<double>& cmdArgs = command->getArgValues();
-    std::vector<double> realArgs(cmdArgs.begin(), cmdArgs.end());
+    const std::vector<Value>& cmdArgs = command->getArgValues();
+    std::vector<Value> realArgs(cmdArgs.begin(), cmdArgs.end());
     UniqueThing cmd(command->getName(), realArgs);
     debugMsg("Test:testOutput", "Aborting " << getText(cmd));
     m_abortingCommands[cmd] = command->getAbortComplete();
@@ -609,9 +572,10 @@ namespace PLEXIL
   {
     for (std::list<UpdateId>::const_iterator it = updates.begin(); it != updates.end(); ++it) {
       debugMsg("Test:testOutput", "Received update: ");
-      const std::map<LabelStr, double>& pairs = (*it)->getPairs();
-      for (std::map<LabelStr, double>::const_iterator pairIt = pairs.begin(); pairIt != pairs.end(); ++pairIt)
-        debugMsg("Test:testOutput", " " << pairIt->first.toString() << " => " << pairIt->second);
+      const std::map<LabelStr, Value>& pairs = (*it)->getPairs();
+      for (std::map<LabelStr, Value>::const_iterator pairIt = pairs.begin(); pairIt != pairs.end(); ++pairIt)
+        debugMsg("Test:testOutput", " " << pairIt->first.toString()
+                 << " => " << pairIt->second);
       m_waitingUpdates.insert(std::make_pair((*it)->getSource()->getNodeId(), *it));
     }
   }
@@ -620,18 +584,18 @@ namespace PLEXIL
   {
     std::ostringstream retval;
     retval << c.first.toString() << "(";
-    std::vector<double>::const_iterator it = c.second.begin();
+    std::vector<Value>::const_iterator it = c.second.begin();
     if (it != c.second.end()) {
-      if (!LabelStr::isString(*it))
-        retval << *it;
+      if (it->isString())
+        retval << it->getStringValue();
       else
-        retval << LabelStr::toString(*it);
+        retval << it->getDoubleValue();
       for (++it; it != c.second.end(); ++it) {
         retval << ", ";
-        if (!LabelStr::isString(*it))
-          retval << *it;
+        if (it->isString())
+          retval << it->getStringValue();
         else
-          retval << LabelStr::toString(*it);
+          retval << it->getDoubleValue();
       }
     }
     retval << ")";
@@ -639,37 +603,36 @@ namespace PLEXIL
   }
 
   std::string TestExternalInterface::getText(const UniqueThing& c, 
-                                             const double val)
+                                             const Value& val)
   {
     std::ostringstream retval;
     retval << getText(c);
     retval << " = ";
-    if (LabelStr::isString(val))
-      retval << "(string)" << LabelStr::toString(val);
+    if (val.isString())
+      retval << "(string)" << val;
     else
-      retval << Expression::valueToString(val);
+      retval << val;
     return retval.str();
   }
 
   std::string TestExternalInterface::getText(const UniqueThing& c, 
-                                             const std::vector<double>& vals)
+                                             const std::vector<Value>& vals)
   {
     std::ostringstream retval;
     retval << getText(c);
     retval << " = ";
-    for (std::vector<double>::const_iterator it = vals.begin();
+    for (std::vector<Value>::const_iterator it = vals.begin();
          it != vals.end(); ++it) {
-      double val = *it;
-      if (LabelStr::isString(val))
-        retval << "(string)" << LabelStr::toString(val);
+      if (it->isString())
+        retval << "(string)" << *it;
       else
-        retval << val;
+        retval << *it;
     }
     return retval.str();
   }
 
   double TestExternalInterface::currentTime()
   {
-    return m_states[m_exec->getStateCache()->getTimeState()];
+    return m_states[m_exec->getStateCache()->getTimeState()].getDoubleValue();
   }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,16 +26,18 @@
 
 // Utilities for Plexil plans.
 
-#include <list>
+#include "Value.hh"
+#include <vector>
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
 // Printing Commands
 
 // Print arguments to standard output verbatim.
-void print (const std::list<double>& args);
+void print (const std::vector<Value>& args);
 
 // Print arguments to standard output in a "pretty" way.
-void pprint (const std::list<double>& args);
+void pprint (const std::vector<Value>& args);
 
 }

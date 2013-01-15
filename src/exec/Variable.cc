@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,8 @@ namespace PLEXIL
    * @brief Constructor.
    */
   Variable::Variable()
-	: Expression(),
-	  m_evid(this, Expression::getId())
+    : Expression(),
+      m_evid(this, Expression::getId())
   {
   }
 
@@ -48,7 +48,16 @@ namespace PLEXIL
    */
   Variable::~Variable() 
   {
-	m_evid.removeDerived(Expression::getId());
+    m_evid.removeDerived(Expression::getId());
+  }
+
+  /**
+   * @brief Restore the value set aside by saveCurrentValue().
+   * @note Used to implement recovery from failed Assignment nodes.
+   */
+  void Variable::restoreSavedValue()
+  {
+    setValue(getSavedValue());
   }
 
   //
@@ -59,21 +68,21 @@ namespace PLEXIL
 
   VariableImpl::VariableImpl(const bool isConst)
     : Variable(),
-	  m_node(NodeId::noId()),
-	  m_initialValue(UNKNOWN()),
-	  m_name("anonymous"),
-	  m_isConst(isConst)
+      m_node(NodeId::noId()),
+      m_initialValue(UNKNOWN()),
+      m_name("anonymous"),
+      m_isConst(isConst)
   {
     if (isConst)
       ++m_activeCount;
   }
 
-  VariableImpl::VariableImpl(const double value, const bool isConst)
+  VariableImpl::VariableImpl(const Value& value, const bool isConst)
     : Variable(),
-	  m_node(NodeId::noId()),
-	  m_initialValue(value),
-	  m_name("anonymous"),
-	  m_isConst(isConst)
+      m_node(NodeId::noId()),
+      m_initialValue(value),
+      m_name("anonymous"),
+      m_isConst(isConst)
   {
     m_value = m_initialValue;
     if (isConst)
@@ -87,11 +96,11 @@ namespace PLEXIL
 
   VariableImpl::VariableImpl(const PlexilExprId& expr, const NodeConnectorId& node, const bool isConst)
     : Variable(),
-	  m_node(node.isId() ? node->getNode() : NodeId::noId()),
+      m_node(node.isId() ? node->getNode() : NodeId::noId()),
       m_initialValue(UNKNOWN()),
       m_savedValue(UNKNOWN()),
-	  m_name(expr->name()),
-	  m_isConst(isConst)
+      m_name(expr->name()),
+      m_isConst(isConst)
   {
     check_error(Id<PlexilVar>::convertable(expr) || Id<PlexilValue>::convertable(expr));
     if (isConst)
@@ -110,8 +119,8 @@ namespace PLEXIL
 
   void VariableImpl::print(std::ostream& s) const 
   {
-	s << m_name.toString() << " ";
-	Expression::print(s);
+    s << m_name.toString() << " ";
+    Expression::print(s);
   }
 
   /**
@@ -120,7 +129,7 @@ namespace PLEXIL
    */
   void VariableImpl::printValue(std::ostream& s) const
   {
-	Expression::formatValue(s, m_value);
+    s << m_value;
   }
 
   /**
@@ -131,16 +140,16 @@ namespace PLEXIL
    */
   std::string VariableImpl::valueString() const
   {
-	return valueToString(m_value);
+    return m_value.valueToString();
   }
 
   void VariableImpl::reset() {
     if(!isConst()) {
       internalSetValue(m_initialValue);
       handleReset();
-	  ExecListenerHubId hub = getExecListenerHub();
-	  if (hub.isId())
-		hub->notifyOfAssignment(Expression::getId(), m_name.toString(), m_initialValue);
+      ExecListenerHubId hub = getExecListenerHub();
+      if (hub.isId())
+        hub->notifyOfAssignment(Expression::getId(), m_name.toString(), m_initialValue);
     }
   }
 
@@ -152,14 +161,14 @@ namespace PLEXIL
       ++m_activeCount;
   }
 
-  void VariableImpl::setValue(const double value) {
+  void VariableImpl::setValue(const Value& value) {
     checkError(!isConst(),
-			   "Attempted to assign value " << Expression::valueToString(value)
-			   << " to read-only variable " << toString());
+               "Attempted to assign value " << value
+               << " to read-only variable " << toString());
     internalSetValue(value);
-	ExecListenerHubId hub = getExecListenerHub();
-	if (hub.isId()) 
-	  hub->notifyOfAssignment(Expression::getId(), m_name.toString(), value);
+    ExecListenerHubId hub = getExecListenerHub();
+    if (hub.isId()) 
+      hub->notifyOfAssignment(Expression::getId(), m_name.toString(), value);
   }
 
   /**
@@ -169,15 +178,6 @@ namespace PLEXIL
   void VariableImpl::saveCurrentValue()
   {
     m_savedValue = m_value;
-  }
-
-  /**
-   * @brief Restore the value set aside by saveCurrentValue().
-   * @note Used to implement recovery from failed Assignment nodes.
-   */
-  void VariableImpl::restoreSavedValue()
-  {
-    setValue(m_savedValue);
   }
      
   /**
@@ -198,8 +198,8 @@ namespace PLEXIL
    */
   void VariableImpl::addListener(ExpressionListenerId id)
   {
-	if (!m_isConst)
-	  Expression::addListener(id);
+    if (!m_isConst)
+      Expression::addListener(id);
   }
 
   /**
@@ -211,18 +211,18 @@ namespace PLEXIL
    */
   void VariableImpl::removeListener(ExpressionListenerId id)
   {
-	if (!m_isConst)
-	  Expression::removeListener(id);
+    if (!m_isConst)
+      Expression::removeListener(id);
   }
 
   const ExecListenerHubId& VariableImpl::getExecListenerHub()
   {
-	if (m_node.isId())
-	  return m_node->getExecListenerHub();
-	else {
-	  static const ExecListenerHubId sl_noId;
-	  return sl_noId;
-	}
+    if (m_node.isId())
+      return m_node->getExecListenerHub();
+    else {
+      static const ExecListenerHubId sl_noId;
+      return sl_noId;
+    }
   }
 
 
@@ -238,37 +238,37 @@ namespace PLEXIL
    * @param isConst True if assignments to the alias are forbidden.
    */
   AliasVariable::AliasVariable(const std::string& name,
-							   const NodeConnectorId& nodeConnector,
-							   const ExpressionId& original,
-							   bool expIsGarbage,
-							   bool isConst)
-	: Variable(),
-	  m_originalExpression(),
-	  m_listener(getId()),
-	  m_node(nodeConnector.isId() ? nodeConnector->getNode() : NodeId::noId()),
-	  m_name(name),
-	  m_isGarbage(expIsGarbage),
-	  m_isConst(isConst)
+                               const NodeConnectorId& nodeConnector,
+                               const ExpressionId& original,
+                               bool expIsGarbage,
+                               bool isConst)
+    : Variable(),
+      m_originalExpression(),
+      m_listener(getId()),
+      m_node(nodeConnector.isId() ? nodeConnector->getNode() : NodeId::noId()),
+      m_name(name),
+      m_isGarbage(expIsGarbage),
+      m_isConst(isConst)
   {
-	// Check original, node for validity
-	assertTrue(nodeConnector.isValid(),
-			   "Invalid node connector ID passed to AliasVariable constructor");
-	assertTrue(original.isValid(),
-			   "Invalid expression ID passed to AliasVariable constructor");
+    // Check original, node for validity
+    assertTrue(nodeConnector.isValid(),
+               "Invalid node connector ID passed to AliasVariable constructor");
+    assertTrue(original.isValid(),
+               "Invalid expression ID passed to AliasVariable constructor");
     m_originalExpression = (VariableId) original;
-	assertTrue(m_originalExpression.isId(),
-			   "Original expression to AliasVariable constructor is not a variable");
-	m_originalExpression->addListener(m_listener.getId());
-	m_value = m_originalExpression->getValue();
+    assertTrue(m_originalExpression.isId(),
+               "Original expression to AliasVariable constructor is not a variable");
+    m_originalExpression->addListener(m_listener.getId());
+    m_value = m_originalExpression->getValue();
   }
 
   AliasVariable::~AliasVariable()
   {
-	assertTrue(m_originalExpression.isValid(),
-			   "Original expression ID invalid in AliasVariable destructor");
-	m_originalExpression->removeListener(m_listener.getId());
-	if (m_isGarbage)
-	  delete (Expression*) m_originalExpression;
+    assertTrue(m_originalExpression.isValid(),
+               "Original expression ID invalid in AliasVariable destructor");
+    m_originalExpression->removeListener(m_listener.getId());
+    if (m_isGarbage)
+      delete (Expression*) m_originalExpression;
   }
 
   /**
@@ -277,12 +277,12 @@ namespace PLEXIL
    */
   void AliasVariable::print(std::ostream& s) const
   {
-	s << m_name.toString() << " ";
-	Expression::print(s);
-	s << (isConst() ? "const " : "") 
-	  << "AliasVariable for "
-	  << *m_originalExpression
-	  << ")";
+    s << m_name.toString() << " ";
+    Expression::print(s);
+    s << (isConst() ? "const " : "") 
+      << "AliasVariable for "
+      << *m_originalExpression
+      << ")";
   }
 
   /**
@@ -291,8 +291,8 @@ namespace PLEXIL
    */
   void AliasVariable::reset()
   { 
-	// *** FIXME: should this do anything at all??
-	// m_originalExpression->reset(); 
+    // *** FIXME: should this do anything at all??
+    // m_originalExpression->reset(); 
   }
 
   /**
@@ -302,24 +302,24 @@ namespace PLEXIL
    */
   PlexilType AliasVariable::getValueType() const
   {
-	return m_originalExpression->getValueType();
+    return m_originalExpression->getValueType();
   }
 
-  bool AliasVariable::checkValue(const double val)
+  bool AliasVariable::checkValue(const Value& val) const
   {
-	return m_originalExpression->checkValue(val);
-  }	
+    return m_originalExpression->checkValue(val);
+  } 
 
   /**
    * @brief Sets the value of this variable.  Will throw an error if the variable was
    *        constructed with isConst == true.
    * @param value The new value for this variable.
    */
-  void AliasVariable::setValue(const double value)
+  void AliasVariable::setValue(const Value& value)
   {
-	assertTrueMsg(!m_isConst,
-				  "setValue() called on read-only alias " << *this);
-	m_originalExpression->setValue(value);
+    assertTrueMsg(!m_isConst,
+                  "setValue() called on read-only alias " << *this);
+    m_originalExpression->setValue(value);
   }
 
   /**
@@ -340,7 +340,7 @@ namespace PLEXIL
     m_originalExpression->restoreSavedValue();
   }
 
-  double AliasVariable::getSavedValue() const
+  const Value& AliasVariable::getSavedValue() const
   {
     return m_originalExpression->getSavedValue();
   }
@@ -356,39 +356,39 @@ namespace PLEXIL
 
   void AliasVariable::handleChange(const ExpressionId& exp)
   {
-	if (exp == m_originalExpression) {
-	  // propagate value from original
-	  internalSetValue(m_originalExpression->getValue());
-	}
+    if (exp == m_originalExpression) {
+      // propagate value from original
+      internalSetValue(m_originalExpression->getValue());
+    }
   }
 
   const VariableId& AliasVariable::getBaseVariable() const
   {
-	if (VariableId::convertable(m_originalExpression))
-	  return ((VariableId) m_originalExpression)->getBaseVariable();
-	else
-	  return Variable::getId();
+    if (VariableId::convertable(m_originalExpression))
+      return ((VariableId) m_originalExpression)->getBaseVariable();
+    else
+      return Variable::getId();
   }
 
   void AliasVariable::handleActivate(const bool changed)
   {
-	if (changed) {
-	  m_originalExpression->activate();
-	  // refresh value from original
-	  internalSetValue(m_originalExpression->getValue());
-	}
+    if (changed) {
+      m_originalExpression->activate();
+      // refresh value from original
+      internalSetValue(m_originalExpression->getValue());
+    }
   }
 
   void AliasVariable::handleDeactivate(const bool changed)
   {
-	if (changed) {
-	  m_originalExpression->deactivate();
-	}
+    if (changed) {
+      m_originalExpression->deactivate();
+    }
   }
 
   void AliasVariable::handleReset()
   {
-	// FIXME: do something
+    // FIXME: do something
   }
 
 }

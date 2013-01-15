@@ -25,33 +25,32 @@
 */
 
 #include <iostream>
-#include "CoreExpressions.hh"
 #include "plan-utils.hh"
 
-using std::list;
+using std::vector;
 using std::cout;
 using std::endl;
 using std::flush;
 
 namespace PLEXIL {
 
-  static void print_aux (const list<double>& args, bool pretty)
+  static void print_aux (const vector<Value>& args, bool pretty)
   {
-    for (list<double>::const_iterator iter = args.begin();
+    for (vector<Value>::const_iterator iter = args.begin();
          iter != args.end();
          ++iter) {
-      Expression::formatValue(cout, *iter);
+      cout << *iter;
       cout << (pretty ? " " : "") << flush;
     }
     if (pretty) cout << endl << flush;
   }
 
-  void print (const list<double>& args)
+  void print (const vector<Value>& args)
   {
     print_aux (args, false);
   }
 
-  void pprint (const list<double>& args)
+  void pprint (const vector<Value>& args)
   {
     print_aux (args, true);
   }

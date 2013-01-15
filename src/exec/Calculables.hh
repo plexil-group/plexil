@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -73,13 +73,13 @@ namespace PLEXIL
      */
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
-    double recalculate();
+    Value recalculate();
 
   protected:
-	const char* operatorString() const { return "!"; }
+    const char* operatorString() const { return "!"; }
 
   private:
-    bool checkValue(const double val);
+    bool checkValue(const Value& val) const;
   };
 
   class AbsoluteValue : public UnaryExpression {
@@ -87,8 +87,8 @@ namespace PLEXIL
     AbsoluteValue(const PlexilExprId& expr, const NodeConnectorId& node);
     AbsoluteValue(ExpressionId e);
     void print(std::ostream& s) const;
-    double recalculate();
-    bool checkValue(const double val);
+    Value recalculate();
+    bool checkValue(const Value& val) const;
     /**
      * @brief Retrieve the value type of this Expression.
      * @return The value type of this Expression.
@@ -96,7 +96,7 @@ namespace PLEXIL
     virtual PlexilType getValueType() const;
 
   protected:
-	const char* operatorString() const { return "abs"; }
+    const char* operatorString() const { return "abs"; }
 
   private:
   };
@@ -106,8 +106,8 @@ namespace PLEXIL
     SquareRoot(const PlexilExprId& expr, const NodeConnectorId& node);
     SquareRoot(ExpressionId e);
     void print(std::ostream& s) const;
-    double recalculate();
-    bool checkValue(const double val);
+    Value recalculate();
+    bool checkValue(const Value& val) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -116,7 +116,7 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return REAL; }
 
   protected:
-	const char* operatorString() const { return "sqrt"; }
+    const char* operatorString() const { return "sqrt"; }
   };
 
   class IsKnown : public UnaryExpression {
@@ -124,8 +124,8 @@ namespace PLEXIL
     IsKnown(const PlexilExprId& expr, const NodeConnectorId& node);
     IsKnown(ExpressionId e);
     void print(std::ostream& s) const;
-    double recalculate();
-    bool checkValue(const double val);
+    Value recalculate();
+    bool checkValue(const Value& val) const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -134,7 +134,7 @@ namespace PLEXIL
     virtual PlexilType getValueType() const { return BOOLEAN; }
 
   protected:
-	const char* operatorString() const { return "isknown"; }
+    const char* operatorString() const { return "isknown"; }
 
   };
 
@@ -145,7 +145,7 @@ namespace PLEXIL
     Conjunction(const ExpressionId& a, const ExpressionId& b) : NaryExpression(a, b) {}
     Conjunction(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : NaryExpression(a, aGarbage, b, bGarbage) {}
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -157,7 +157,7 @@ namespace PLEXIL
     const char* operatorString() const { return "&&"; }
 
   private:
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
   };
 
   class Disjunction : public NaryExpression
@@ -175,7 +175,7 @@ namespace PLEXIL
     Disjunction(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : NaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -187,7 +187,7 @@ namespace PLEXIL
     const char* operatorString() const { return "||"; }
 
   private:
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
   };
 
   class ExclusiveDisjunction : public NaryExpression
@@ -201,7 +201,7 @@ namespace PLEXIL
     ExclusiveDisjunction(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : NaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -213,7 +213,7 @@ namespace PLEXIL
     const char* operatorString() const { return "^^"; }
 
   private:
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
   };
 
   class Concatenation : public NaryExpression {
@@ -222,7 +222,7 @@ namespace PLEXIL
     Concatenation(const ExpressionId& a, const ExpressionId& b);
     Concatenation(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage);
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -236,7 +236,7 @@ namespace PLEXIL
   private:
     LabelStr m_label;
 
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
   };
 
   //
@@ -250,7 +250,7 @@ namespace PLEXIL
     Equality(const ExpressionId& a, const ExpressionId& b) : BinaryExpression(a, b) {}
     Equality(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -262,7 +262,7 @@ namespace PLEXIL
     const char* operatorString() const { return "=="; }
 
   private:
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
   };
 
   class Inequality : public BinaryExpression
@@ -278,7 +278,7 @@ namespace PLEXIL
     Inequality(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -290,7 +290,7 @@ namespace PLEXIL
     const char* operatorString() const { return "!="; }
 
   private:
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
   };
 
   class LessThan : public BinaryExpression
@@ -306,7 +306,7 @@ namespace PLEXIL
     LessThan(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -318,7 +318,7 @@ namespace PLEXIL
     const char* operatorString() const { return "<"; }
 
   private:
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
   };
 
   class LessEqual : public BinaryExpression
@@ -334,7 +334,7 @@ namespace PLEXIL
     LessEqual(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -346,7 +346,7 @@ namespace PLEXIL
     const char* operatorString() const { return "<="; }
 
   private:
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
   };
 
   class GreaterThan : public BinaryExpression
@@ -362,7 +362,7 @@ namespace PLEXIL
     GreaterThan(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -374,7 +374,7 @@ namespace PLEXIL
     const char* operatorString() const { return ">"; }
 
   private:
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
   };
 
   class GreaterEqual : public BinaryExpression
@@ -390,7 +390,7 @@ namespace PLEXIL
     GreaterEqual(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -402,7 +402,7 @@ namespace PLEXIL
     const char* operatorString() const { return ">="; }
 
   private:
-    bool checkValue(const double value);
+    bool checkValue(const Value& value) const;
   };
 
 
@@ -423,7 +423,7 @@ namespace PLEXIL
     Addition(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -435,7 +435,7 @@ namespace PLEXIL
     const char* operatorString() const { return "+"; }
 
   private:
-    bool checkValue(const double /* value */) {return true;}
+    bool checkValue(const Value& /* value */) const {return true;}
   };
 
   class Subtraction : public BinaryExpression
@@ -451,7 +451,7 @@ namespace PLEXIL
     Subtraction(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -463,7 +463,7 @@ namespace PLEXIL
     const char* operatorString() const { return "-"; }
 
   private:
-    bool checkValue(const double /* value */) {return true;}
+    bool checkValue(const Value& /* value */) const {return true;}
   };
 
   class Multiplication : public BinaryExpression
@@ -479,7 +479,7 @@ namespace PLEXIL
     Multiplication(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -491,7 +491,7 @@ namespace PLEXIL
     const char* operatorString() const { return "*"; }
 
   private:
-    bool checkValue(const double /* value */) {return true;}
+    bool checkValue(const Value& /* value */) const {return true;}
   };
 
   class Division : public BinaryExpression
@@ -507,7 +507,7 @@ namespace PLEXIL
     Division(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -519,7 +519,7 @@ namespace PLEXIL
     const char* operatorString() const { return "/"; }
 
   private:
-    bool checkValue(const double /* value */) {return true;}
+    bool checkValue(const Value& /* value */) const {return true;}
   };
 
 
@@ -536,7 +536,7 @@ namespace PLEXIL
     Modulo(const ExpressionId& a, bool aGarbage, const ExpressionId& b, bool bGarbage)
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -548,7 +548,7 @@ namespace PLEXIL
     const char* operatorString() const { return "%"; }
 
   private:
-    bool checkValue(const double /* value */) {return true;}
+    bool checkValue(const Value& /* value */) const {return true;}
   };
 
   class Minimum : public BinaryExpression
@@ -565,7 +565,7 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     void print(std::ostream& s) const;
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -577,7 +577,7 @@ namespace PLEXIL
     const char* operatorString() const { return "min"; }
 
   private:
-    bool checkValue(const double /* value */) {return true;}
+    bool checkValue(const Value& /* value */) const {return true;}
   };
 
   class Maximum : public BinaryExpression
@@ -594,7 +594,7 @@ namespace PLEXIL
       : BinaryExpression(a, aGarbage, b, bGarbage) {}
 
     void print(std::ostream& s) const;
-    double recalculate();
+    Value recalculate();
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -606,7 +606,7 @@ namespace PLEXIL
     const char* operatorString() const { return "max"; }
 
   private:
-    bool checkValue(const double /* value */) {return true;}
+    bool checkValue(const Value& /* value */) const {return true;}
   };
 
 }

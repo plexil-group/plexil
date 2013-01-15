@@ -38,10 +38,9 @@
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
 #include "PlexilPlan.hh"
-#include "Utils.hh"
+#include "Value.hh"
 
 #include <limits>
-#include <list>
 #include <map>
 #include <set>
 #include <stdint.h> // KLUDGE - should be <cstdint>, but isn't part of std before C++11
@@ -123,7 +122,7 @@ namespace PLEXIL {
   public:
 
     //redirects for old usage.
-    DECLARE_STATIC_CLASS_CONST(double, UNKNOWN, PLEXIL::UNKNOWN());
+    DECLARE_STATIC_CLASS_CONST(Value, UNKNOWN, PLEXIL::UNKNOWN());
 
     static ExpressionId& UNKNOWN_EXP();
 
@@ -142,12 +141,10 @@ namespace PLEXIL {
 
     /**
      * @brief Retrieve the value of this Expression.  This may cause recalculation, lookup of
-     *        a value, or something similar.  This is a double because it is easy to
-     *        represent other values this way (integers cast freely, reals are doubles, and
-     *        the LabelStr facility gives us strings as doubles).
+     *        a value, or something similar.
      * @return The value of this Expression.
      */
-    virtual double getValue() const;
+    virtual const Value& getValue() const;
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -168,7 +165,7 @@ namespace PLEXIL {
      *        may in turn cause other Expressions to change value.
      * @param val The new value for this expression.
      */
-    virtual void setValue(const double val);
+    virtual void setValue(const Value& val);
 
     /**
      * @brief Parts of the notification graph may be inactive, which mans that value change
@@ -230,23 +227,12 @@ namespace PLEXIL {
     virtual std::string valueString() const;
 
 	/**
-	 * @brief Print the value to the given stream.
-	 * @param s The output stream.
-	 * @param value The value.
-	 */
-	static void formatValue(std::ostream& s, const double value);
-
-	/**
 	 * @brief Print the expression's value to the given stream.
 	 * @param s The output stream.
 	 */
-	virtual void printValue(std::ostream& s) const;
 
-    /**
-     * @brief Get a string representation of the double value.
-     * @return The string representation.
-     */
-	static std::string valueToString(const double value);
+    // TODO?: move to Value class
+	virtual void printValue(std::ostream& s) const;
 
     /**
      * @brief Lock this expression so its value doesn't change.  Changes are stored until the
@@ -265,8 +251,12 @@ namespace PLEXIL {
     
     /**
      * @brief Check to make sure a value is appropriate for this expression.
+     * @note Default method returns false.
      */
-    virtual bool checkValue(const double /* val */) {return false;}
+    virtual bool checkValue(const Value& /* val */) const
+    {
+      return false;
+    }
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
@@ -283,7 +273,7 @@ namespace PLEXIL {
      *        is a change is this expression isn't locked.
      * @param value The value being set.
      */
-    void internalSetValue(const double value);
+    void internalSetValue(const Value& value);
 
     /**
      * @brief Notify listeners that the value of this expression has changed.
@@ -316,8 +306,8 @@ namespace PLEXIL {
 
     ExpressionId m_id; /*<! The Id for this Expression */
     std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
-    double m_value; /*<! The value of this expression*/
-    double m_savedValue; /*<! The latest value computed for this expression while it was locked. */
+    Value m_value; /*<! The value of this expression*/
+    Value m_savedValue; /*<! The latest value computed for this expression while it was locked. */
     unsigned int m_activeCount;
     bool m_dirty; /*<! Marks whether or not this expression needs re-calculation.*/
     bool m_lock; /*<! The lock for this expression */

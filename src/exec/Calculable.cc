@@ -26,6 +26,7 @@
 
 #include "Calculable.hh"
 #include "ExpressionFactory.hh"
+#include "Utils.hh" // for cleanup template
 #include "Variable.hh"
 
 namespace PLEXIL
@@ -103,7 +104,7 @@ namespace PLEXIL
                                              del);
   }
 
-  void Calculable::setValue(const double /* value */) {
+  void Calculable::setValue(const Value& /* value */) {
     checkError(ALWAYS_FAIL, "Shouldn't set the value of a calculable expression.");
   }
 

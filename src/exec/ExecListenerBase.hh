@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,15 +28,18 @@
 #define EXEC_LISTENER_BASE_HH
 
 #include "ExecDefs.hh"
-#include "LabelStr.hh"
 #include "pugixml.hpp"
 
 namespace PLEXIL
 {
 
   // Forward references
+  class LabelStr;
+  class Value;
+
   class PlexilNode;
   typedef Id<PlexilNode> PlexilNodeId;
+
   class ExecListenerBase;
   typedef Id<ExecListenerBase> ExecListenerBaseId;
 
@@ -119,7 +122,7 @@ namespace PLEXIL
      */
     virtual void notifyOfAssignment(const ExpressionId & dest,
                                     const std::string& destName,
-                                    const double& value) const = 0;
+                                    const Value& value) const = 0;
 
 	//
 	// Interface management API

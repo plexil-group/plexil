@@ -30,9 +30,9 @@
 #include "generic_hash_map.hh"
 #include "Id.hh"
 #include "LabelStr.hh"
+#include "Value.hh"
 
 #include <vector>
-#include <list>
 #include <utility>
 
 namespace PLEXIL 
@@ -87,7 +87,7 @@ namespace PLEXIL
   class Update;
   typedef Id<Update> UpdateId;
 
-  typedef std::pair<LabelStr, std::vector<double> > State;
+  typedef std::pair<LabelStr, std::vector<Value> > State;
   typedef std::vector<ExpressionId> ExpressionVector;
   typedef std::vector<ExpressionId>::iterator ExpressionVectorIter;
   typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;

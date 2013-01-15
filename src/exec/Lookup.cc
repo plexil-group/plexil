@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,8 +42,8 @@ namespace PLEXIL
     : Expression(),
       m_cache(node->getExec()->getStateCache()),
       m_state(LabelStr(),
-              std::vector<double>(((PlexilLookup*)expr)->state()->args().size(),
-                                  Expression::UNKNOWN())),
+              std::vector<Value>(((PlexilLookup*)expr)->state()->args().size(),
+                                 UNKNOWN())),
       m_listener((Expression&) *this)
   {
     checkError(Id<PlexilLookup>::convertable(expr), "Expected a lookup.");
@@ -143,7 +143,7 @@ namespace PLEXIL
                "Can't update state for lookup with an inactive name state expression: " << toString());
     m_state.first = m_stateNameExpr->getValue();
     std::vector<ExpressionId>::const_iterator it = m_params.begin();
-    std::vector<double>::iterator sit = m_state.second.begin();
+    std::vector<Value>::iterator sit = m_state.second.begin();
     while (it != m_params.end() && sit != m_state.second.end()) {
         ExpressionId expr = *it;
         check_error(expr.isValid());
@@ -159,10 +159,10 @@ namespace PLEXIL
   {
     checkError(m_stateNameExpr->isActive(),
                "Can't compare state to lookup with an inactive name state expression: " << toString());
-    if (m_state.first.getKey() != m_stateNameExpr->getValue())
+    if (m_state.first != m_stateNameExpr->getValue())
       return false;
     std::vector<ExpressionId>::const_iterator it = m_params.begin();
-    std::vector<double>::const_iterator sit = m_state.second.begin();
+    std::vector<Value>::const_iterator sit = m_state.second.begin();
     while (it != m_params.end() && sit != m_state.second.end())
       {
         ExpressionId expr = *it;
@@ -186,7 +186,7 @@ namespace PLEXIL
       size_t i = 0;
       size_t len = state.second.size();
       while (i < len) {
-        os << Expression::valueToString(state.second[i]);
+        os << state.second[i];
         ++i;
         if (i < len)
           os << ", ";
@@ -310,7 +310,7 @@ namespace PLEXIL
     debugMsg("LookupOnChange:handleRegistration", 
              " for state " << stateToString(m_state));
     m_tolerance->activate();
-    m_cache->registerChangeLookup(m_id, m_state, m_tolerance->getValue());
+    m_cache->registerChangeLookup(m_id, m_state, m_tolerance->getValue().getDoubleValue());
   }
 
   void LookupOnChange::handleUnregistration() {
@@ -341,7 +341,7 @@ namespace PLEXIL
              " old state was " << stateToString(oldState)
              << ",\n new state is " << stateToString(m_state));
     m_cache->unregisterChangeLookup(m_id);
-    m_cache->registerChangeLookup(m_id, m_state, m_tolerance->getValue());
+    m_cache->registerChangeLookup(m_id, m_state, m_tolerance->getValue().getDoubleValue());
   }
 
 }

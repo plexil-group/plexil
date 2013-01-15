@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@
 
 #include "ExecDefs.hh"
 #include "LabelStr.hh"
+#include "Value.hh"
 
 namespace PLEXIL
 {
@@ -36,14 +37,14 @@ namespace PLEXIL
   // *** TODO: replace ResourceMap and ResourceValues with structs or classes
   typedef std::map<std::string, ExpressionId> ResourceMap;
   typedef std::vector<ResourceMap> ResourceList;
-  typedef std::map<std::string, double> ResourceValues;
+  typedef std::map<std::string, Value> ResourceValues;
   typedef std::vector<ResourceValues> ResourceValuesList;
 
   class Command 
   {
   public:
     Command(const ExpressionId nameExpr, 
-            const std::list<ExpressionId>& args, 
+            const std::vector<ExpressionId>& args, 
             const VariableId dest,
             const LabelStr& dest_name,
             const std::vector<ExpressionId>& garbage,
@@ -55,11 +56,10 @@ namespace PLEXIL
     VariableId& getDest() {return m_dest;}
     VariableId& getAck() {return m_ack;}
     VariableId& getAbortComplete() {return m_abortComplete;}
-    const std::list<double>& getArgValues() const {return m_argValues;}
+    const std::vector<Value>& getArgValues() const {return m_argValues;}
     const ResourceValuesList& getResourceValues() const {return m_resourceValuesList;}
     const NodeId& getNode() const { return m_node; }
-    LabelStr getName() const;
-    const std::string& getNameString() const;
+    const Value& getName() const;
     const std::string& getDestName() const;
 
     void activate();
@@ -86,8 +86,8 @@ namespace PLEXIL
     VariableId m_ack;
     VariableId m_abortComplete;
     std::vector<ExpressionId> m_garbage;
-    std::list<ExpressionId> m_args;
-    std::list<double> m_argValues;
+    std::vector<ExpressionId> m_args;
+    std::vector<Value> m_argValues;
     ResourceList m_resourceList;
     ResourceValuesList m_resourceValuesList;
   };

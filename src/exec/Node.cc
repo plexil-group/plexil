@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -323,7 +323,7 @@ namespace PLEXIL {
     debugMsg("Node:getVarsFromInterface",
              "Getting interface vars for node '" << m_nodeId.toString() << "'");
     assertTrueMsg(m_parent.isId(),
-                  "Node \"" << m_nodeId
+                  "Node \"" << m_nodeId.toString()
                   << "\" has an Interface but no parent; may be a library node without a caller.");
 
     bool parentIsLibCall = m_parent->getType() == LIBRARYNODECALL();
@@ -1032,16 +1032,16 @@ namespace PLEXIL {
    * @brief Evaluates the conditions to see if the node is eligible to transition.
    */
   void Node::checkConditions() {
-    checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state).getKey(),
+    checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state),
                "Node state not synchronized for node " << m_nodeId.toString()
                << "; node state = " << m_state
-               << ", node state name = \"" << Expression::valueToString(m_stateVariable->getValue()) << "\"");
+               << ", node state name = \"" << m_stateVariable->getValue() << "\"");
 
     debugMsg("Node:checkConditions",
              "Checking condition change for node " << m_nodeId.toString());
     NodeState toState(getDestState());
     debugMsg("Node:checkConditions",
-             "Can (possibly) transition to " << StateVariable::nodeStateName(toState).toString());
+             "Can (possibly) transition to " << StateVariable::nodeStateName(toState));
     if (toState != m_lastQuery) {
       m_exec->handleConditionsChanged(m_id, toState);
       m_lastQuery = toState;
@@ -1053,7 +1053,7 @@ namespace PLEXIL {
   {
     debugMsg("Node:getDestState",
              "Getting destination state for " << m_nodeId.toString() << " from state " <<
-             getStateName().toString());
+             getStateName());
 
     switch (m_state) {
     case INACTIVE_STATE:
@@ -1102,10 +1102,10 @@ namespace PLEXIL {
                && destState != m_state,
                "Attempted to transition node " << m_nodeId.toString() <<
                " when it is ineligible.");
-    checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state).getKey(),
+    checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state),
                "Node state not synchronized for node " << m_nodeId.toString()
                << "; node state = " << m_state
-               << ", node state name = \"" << Expression::valueToString(m_stateVariable->getValue()) << "\"");
+               << ", node state name = \"" << m_stateVariable->getValue() << "\"");
 
     NodeState prevState = m_state;
     
@@ -1113,20 +1113,20 @@ namespace PLEXIL {
     transitionTo(destState);
 
     debugMsg("Node:transition", "Transitioning '" << m_nodeId.toString() <<
-             "' from " << StateVariable::nodeStateName(prevState).toString() <<
-             " to " << StateVariable::nodeStateName(destState).toString());
+             "' from " << StateVariable::nodeStateName(prevState) <<
+             " to " << StateVariable::nodeStateName(destState));
     condDebugMsg((destState == FINISHED_STATE),
                  "Node:outcome",
                  "Outcome of '" << m_nodeId.toString() <<
-                 "' is " << getOutcome().toString());
-    condDebugMsg((destState == FINISHED_STATE && getOutcome() == OutcomeVariable::FAILURE()),
+                 "' is " << getOutcome());
+    condDebugMsg((destState == FINISHED_STATE && getOutcomeVariable()->getValue() == OutcomeVariable::FAILURE()),
                  "Node:failure",
                  "Failure type of '" << m_nodeId.toString() <<
-                 "' is " << getFailureType().toString());
+                 "' is " << getFailureType());
     condDebugMsg((destState == ITERATION_ENDED_STATE),
                  "Node:iterationOutcome",
                  "Outcome of '" << m_nodeId.toString() <<
-                 "' is " << getOutcome().toString());
+                 "' is " << getOutcome());
     debugMsg("Node:times",
              "Setting '" << m_nodeId.toString()
              << "' end time " << END_TIMEPOINT_NAMES()[prevState].toString()
@@ -1266,7 +1266,7 @@ namespace PLEXIL {
   {
     checkError(destState == WAITING_STATE || destState == FINISHED_STATE,
                "Attempting to transition from INACTIVE to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
     if (destState == FINISHED_STATE) {
       getOutcomeVariable()->setValue(OutcomeVariable::SKIPPED());
     }
@@ -1366,7 +1366,7 @@ namespace PLEXIL {
                destState == EXECUTING_STATE ||
                destState == ITERATION_ENDED_STATE,
                "Attempting to transition from WAITING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     deactivatePreSkipStartConditions();
 
@@ -1456,7 +1456,7 @@ namespace PLEXIL {
                "Expected empty node, got " << m_nodeType.toString());
     checkError(destState == FINISHED_STATE || destState == ITERATION_ENDED_STATE,
                "Attempting to transition from EXECUTING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
@@ -1543,7 +1543,7 @@ namespace PLEXIL {
 
     checkError(isRepeatConditionActive(),
                "Node::getDestStateFromIterationEnded: Repeat for " << m_nodeId.toString() << " is inactive.");
-    double repeat = getRepeatCondition()->getValue();
+    const Value& repeat = getRepeatCondition()->getValue();
     if (repeat == BooleanVariable::FALSE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: FINISHED. REPEAT_CONDITION false.");
@@ -1565,7 +1565,7 @@ namespace PLEXIL {
   {
     checkError(destState == FINISHED_STATE || destState == WAITING_STATE,
                "Attempting to transition from ITERATION_ENDED to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
@@ -1620,7 +1620,7 @@ namespace PLEXIL {
   {
     checkError(destState == INACTIVE_STATE,
                "Attempting to transition from FINISHED to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
     reset();
   }
 
@@ -1645,7 +1645,7 @@ namespace PLEXIL {
   {
     checkError(ALWAYS_FAIL,
                "Attempted to compute destination state from FINISHING for node " << m_nodeId.toString()
-               << " of type " << getType());
+               << " of type " << getType().toString());
     return NO_NODE_STATE;
   }
 
@@ -1677,7 +1677,7 @@ namespace PLEXIL {
   {
     checkError(ALWAYS_FAIL,
                "Attempted to compute destination state from FAILING for node " << m_nodeId.toString()
-               << " of type " << getType());
+               << " of type " << getType().toString());
     return NO_NODE_STATE;
   }
 
@@ -1700,7 +1700,7 @@ namespace PLEXIL {
     return it->second;
   }
 
-  const LabelStr& Node::getStateName() const {
+  const Value& Node::getStateName() const {
     return StateVariable::nodeStateName(m_state);
   }
 
@@ -1725,31 +1725,22 @@ namespace PLEXIL {
 
   double Node::getCurrentStateStartTime() const
   {
-    return m_startTimepoints[m_state]->getValue();
+    return m_startTimepoints[m_state]->getValue().getDoubleValue();
   }
 
   double Node::getCurrentStateEndTime() const
   {
-    return m_endTimepoints[m_state]->getValue();
+    return m_endTimepoints[m_state]->getValue().getDoubleValue();
   }
 
-  const LabelStr Node::getOutcome() 
+  const Value& Node::getOutcome() const
   {
-    double key = m_outcomeVariable->getValue();
-    if (key != Expression::UNKNOWN())
-      return LabelStr(key);
-    else {
-      return LabelStr("UNKNOWN");
-    }
+    return m_outcomeVariable->getValue();
   }
 
-  const LabelStr Node::getFailureType() {
-    double key = m_failureTypeVariable->getValue();
-    if (key != Expression::UNKNOWN())
-      return LabelStr(key);
-    else {
-      return LabelStr("UNKNOWN");
-    }
+  const Value& Node::getFailureType() const
+  {
+    return m_failureTypeVariable->getValue();
   }
 
   // Searches ancestors when required
@@ -2156,7 +2147,7 @@ namespace PLEXIL {
     checkError(m_state == EXECUTING_STATE,
                "Node \"" << m_nodeId.toString()
                << "\" told to handle execution, but it's in state '" <<
-               getStateName().toString() << "'");
+               getStateName() << "'");
     // legacy message for unit test
     debugMsg("PlexilExec:handleNeedsExecution",
              "Storing action for node '" << m_nodeId.toString() <<
@@ -2284,10 +2275,10 @@ namespace PLEXIL {
 
     stream << indentStr << m_nodeId.toString() << "{\n";
     stream << indentStr << " State: " << m_stateVariable->toString() <<
-      " (" << m_startTimepoints[m_state]->getValue() << ")\n";
+      " (" << m_startTimepoints[m_state]->getValue().getDoubleValue() << ")\n";
     if (m_state == FINISHED_STATE) {
       stream << indentStr << " Outcome: " << m_outcomeVariable->toString() << '\n';
-      if (m_failureTypeVariable->getValue() != Expression::UNKNOWN())
+      if (!m_failureTypeVariable->getValue().isUnknown())
         stream << indentStr << " Failure type: " <<
           m_failureTypeVariable->toString() << '\n';
       // Print variables, starting with command handle
@@ -2369,10 +2360,10 @@ namespace PLEXIL {
     static std::vector<LabelStr> startNames;
     if (startNames.empty()) {
       startNames.reserve(NO_NODE_STATE);
-      for (std::vector<LabelStr>::const_iterator it = StateVariable::ALL_STATES().begin();
+      for (std::vector<Value>::const_iterator it = StateVariable::ALL_STATES().begin();
            it != StateVariable::ALL_STATES().end(); 
            ++it) {
-        const std::string& state = it->toString();
+        const std::string& state = it->getStringValue();
         startNames.push_back(LabelStr(state + ".START"));
       }
     }
@@ -2383,10 +2374,10 @@ namespace PLEXIL {
     static std::vector<LabelStr> endNames;
     if (endNames.empty()) {
       endNames.reserve(NO_NODE_STATE);
-      for (std::vector<LabelStr>::const_iterator it = StateVariable::ALL_STATES().begin();
+      for (std::vector<Value>::const_iterator it = StateVariable::ALL_STATES().begin();
            it != StateVariable::ALL_STATES().end(); 
            ++it) {
-        const std::string& state = it->toString();
+        const std::string& state = it->getStringValue();
         endNames.push_back(LabelStr(state + ".END"));
       }
     }

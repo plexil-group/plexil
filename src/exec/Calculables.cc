@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,29 +39,25 @@ namespace PLEXIL
   // Unary expressions
   //
 
-  bool LogicalNegation::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
+  bool LogicalNegation::checkValue(const Value& val) const
+  {
+    return val.isBoolean() || val.isUnknown();
   }
 
-  double LogicalNegation::recalculate() {
-    double v = m_e->getValue();
-    checkError(v == 1.0 || v == 0.0 || v == UNKNOWN(),
-			   "Invalid value in logical negation: " << Expression::valueToString(v));
-    if (v == 1.0)
-      return 0.0;
-    else if (v == 0.0)
-      return 1.0;
-    else if (v == UNKNOWN())
+  Value LogicalNegation::recalculate()
+  {
+    const Value& v = m_e->getValue();
+    checkError(v.isBoolean() || v.isUnknown(),
+               "Invalid value in logical negation: " << v);
+    if (v.isUnknown())
       return UNKNOWN();
-    check_error(ALWAYS_FAIL);
-    return -1.0;
+    return Value(!v.getBoolValue());
   }
 
   void LogicalNegation::print(std::ostream& s) const
   {
     Expression::print(s);
-	s << '!' << *m_e << ')';
+    s << '!' << *m_e << ')';
   }
 
   AbsoluteValue::AbsoluteValue(const PlexilExprId& expr, const NodeConnectorId& node)
@@ -70,21 +66,23 @@ namespace PLEXIL
   AbsoluteValue::AbsoluteValue(ExpressionId e)
     : UnaryExpression(e) {}
 
-  bool AbsoluteValue::checkValue(const double val) {
-    return val >= 0;
+  bool AbsoluteValue::checkValue(const Value& val) const
+  {
+    return val.isUnknown() || val.getDoubleValue() >= 0;
   }
 
-  double AbsoluteValue::recalculate() {
-    double v = m_e->getValue();
+  Value AbsoluteValue::recalculate()
+  {
+    const Value& v = m_e->getValue();
 
-    if(v == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
-    return fabs(v);
+    if (v.isUnknown())
+      return UNKNOWN();
+    return Value(fabs(v.getDoubleValue()));
   }
 
   void AbsoluteValue::print(std::ostream& s) const 
   {
-	printAsFnCall(s);
+    printAsFnCall(s);
   }
 
   PlexilType AbsoluteValue::getValueType() const
@@ -98,21 +96,23 @@ namespace PLEXIL
   SquareRoot::SquareRoot(ExpressionId e)
     : UnaryExpression(e) {}
 
-  double SquareRoot::recalculate() {
-    double v = m_e->getValue();
-    checkError(v >= 0, "Tried to take square root of a negative number. Complex values are not yet implemented.");
-    if(v == Expression::UNKNOWN())
-      return Expression::UNKNOWN();
-    return sqrt(v);
+  Value SquareRoot::recalculate() {
+    const Value& v = m_e->getValue();
+    if (v.isUnknown())
+      return UNKNOWN();
+    checkError(v.getDoubleValue() >= 0,
+               "SquareRoot:recalculate: Tried to take square root of a negative value.");
+    return Value(sqrt(v.getDoubleValue()));
   }
 
-  bool SquareRoot::checkValue(const double val) {
-    return val >= 0;
+  bool SquareRoot::checkValue(const Value& val) const
+  {
+    return val.isUnknown() || val.getDoubleValue() >= 0;
   }
 
   void SquareRoot::print(std::ostream& s) const 
   {
-	printAsFnCall(s);
+    printAsFnCall(s);
   }
 
 
@@ -122,20 +122,19 @@ namespace PLEXIL
  IsKnown::IsKnown(ExpressionId e)
     : UnaryExpression(e) {}
 
-  double IsKnown::recalculate() {
-    double v = m_e->getValue();
-    if(v == Expression::UNKNOWN())
-      return false;
-    return true;
+  Value IsKnown::recalculate()
+  {
+    return Value(!m_e->getValue().isUnknown());
   }
 
-  bool IsKnown::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE();
+  bool IsKnown::checkValue(const Value& val) const
+  {
+    return val.isBoolean();
   }
 
   void IsKnown::print(std::ostream& s) const
   {
-	printAsFnCall(s);
+    printAsFnCall(s);
   }
 
   //
@@ -146,165 +145,115 @@ namespace PLEXIL
   // N-Ary expressions
   //
    
-  bool Conjunction::checkValue(const double val)
+  bool Conjunction::checkValue(const Value& val) const
   {
-    return 
-      val == BooleanVariable::TRUE_VALUE() || 
-      val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
+    return val.isBoolean() || val.isUnknown();
   }
 
-  double Conjunction::recalculate()
+  Value Conjunction::recalculate()
   {
     // result is assumed to be true. from this point
     // the result may only be demoted to UNKNOWN or false
-     
-    double result = BooleanVariable::TRUE_VALUE();
-    double value = 0;
-     
+    Value result(true);
+
     // compute and store values for all subexpressions
-     
     for (ExpressionVectorConstIter child = m_subexpressions.begin();
-         child != m_subexpressions.end(); ++child)
-      {
-        value = (*child)->getValue();
-        
-        // validate values 
-       
-       checkError(checkValue(value), "Invalid (non-boolean) conjunction value '"
-        		<< (*child)->valueString() << "' was returned to condition expression. "
-        		<< "More details condition expression: " << (*child)->toString());
-	
-        // if the value is false, the expression is false, we're done
-        
-        if (value == BooleanVariable::FALSE_VALUE())
-          {	    
-            result = BooleanVariable::FALSE_VALUE();
-            break;
-          }
-	  
-        // if the value is unknown, the expression might be
-        // unknown, but we need to keep looking
-        
-        if (value == BooleanVariable::UNKNOWN())
-          result = BooleanVariable::UNKNOWN();
-      }
+         child != m_subexpressions.end();
+         ++child) {
+      const Value& value = (*child)->getValue();
+      checkError(checkValue(value), "Invalid (non-boolean) conjunction value '"
+                 << (*child)->valueString() << "' was returned to condition expression. "
+                 << "More details condition expression: " << (*child)->toString());
     
-    // return the result
-     
+      // if the value is false, the expression is false, we're done
+      if (value == BooleanVariable::FALSE_VALUE()) {
+        return value;
+      }
+      
+      // if the value is unknown, the expression might be unknown,
+      // but we need to keep looking
+      if (value.isUnknown())
+        result.setUnknown();
+    }
+
     return result;
   }
 
-  bool Disjunction::checkValue(const double val)
+  bool Disjunction::checkValue(const Value& val) const
   {
-    return 
-      val == BooleanVariable::TRUE_VALUE() || 
-      val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
+    return val.isBoolean() || val.isUnknown();
   }
   
-  double Disjunction::recalculate()
+  Value Disjunction::recalculate()
   {
     // result is assumed to be false. from this point
     // the result may only be demoted to UNKNOWN or true
-      
-    double result = BooleanVariable::FALSE_VALUE();
-    double value = 0;
+    Value result(false);
       
     // compute and store values for all subexpressions
-      
     for (ExpressionVectorConstIter child = m_subexpressions.begin();
-         child != m_subexpressions.end(); ++child)
-      {
-        value = (*child)->getValue();
-         
-        // validate values 
-         
-        checkError(checkValue(value), "Invalid (non-boolean) disjunction value '"
-        		<< (*child)->valueString() << "' was returned to condition expression. "
-        		<< "More details condition expression: " << (*child)->toString());
-	
-        // if the value is true, the expression is true, we're done
-         
-        if (value == BooleanVariable::TRUE_VALUE())
-          {
-            result = BooleanVariable::TRUE_VALUE();
-            break;
-          }
-	  
-        // if the value is unknown, the expression might be
-        // unknown, but we need to keep looking
-         
-        if (value == BooleanVariable::UNKNOWN())
-          result = BooleanVariable::UNKNOWN();
-      }
+         child != m_subexpressions.end();
+         ++child) {
+      const Value& value = (*child)->getValue();
+      checkError(checkValue(value), "Invalid (non-boolean) disjunction value '"
+                 << (*child)->valueString() << "' was returned to condition expression. "
+                 << "More details condition expression: " << (*child)->toString());
     
-    // return the result
+      // if the value is true, the expression is true, we're done
+      if (value == BooleanVariable::TRUE_VALUE()) {
+        return value;
+      }
       
+      // if the value is unknown, the expression might be
+      // unknown, but we need to keep looking
+      if (value.isUnknown())
+        result.setUnknown();
+    }
+    
     return result;
   }
 
-  bool ExclusiveDisjunction::checkValue(const double val)
+  bool ExclusiveDisjunction::checkValue(const Value& val) const
   {
-    return 
-      val == BooleanVariable::TRUE_VALUE() || 
-      val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
+    return val.isBoolean() || val.isUnknown();
   }
   
-  double ExclusiveDisjunction::recalculate()
+  Value ExclusiveDisjunction::recalculate()
   {
-    // make a new list for values
-      
-    std::list<double> values;
+    assertTrueMsg(!m_subexpressions.empty(),
+                  "Exclusive OR expression " << this->toString()
+                  << "requires one or more subexpressions.");
+
+    std::vector<Value> values;
       
     // compute and store values for all subexpressions
-      
     for (ExpressionVectorConstIter child = m_subexpressions.begin();
-         child != m_subexpressions.end(); ++child)
-      {
-        double value = (*child)->getValue();
-        values.push_back(value);
-         
-        // validate values (your and important part of things!)
-         
-        checkError(checkValue(value),
-				   "Invalid exclusive or value: " << Expression::valueToString(value));
-      }
-    // confirm we've got enough values
+         child != m_subexpressions.end();
+         ++child) {
+      const Value& value = (*child)->getValue();
+      checkError(checkValue(value),
+                 "Invalid exclusive or value: " << value);
+      values.push_back(value);
+    }
 
-    checkError(!values.empty(), "Exclusive OR expression " <<
-               this->toString() << "requires one or more subexpressions.");
-      
     // inspect values of all subexpressions
+    Value result;
+    for (std::vector<Value>::iterator value = values.begin();
+         value != values.end();
+         ++value) {
+      // if the value is unknown, the entire expression is unknown
+      if (value->isUnknown())
+        return UNKNOWN();
 
-    double result = 0;
-    for (std::list<double>::iterator value = values.begin();
-         value != values.end(); ++value)
-      {
-        // if the value is unknow, the entire expression is unknown
+      // if this is the first value init result to its value
+      if (value == values.begin())
+        result = *value;
 
-        if (*value == BooleanVariable::UNKNOWN())
-          {
-            result = BooleanVariable::UNKNOWN();
-            break;
-          }
-        // if this is the first value init result to it's value
-
-        if (value == values.begin())
-          result = *value;
-
-        // otherwise the value is the XOR of the result and the new value
-
-        else
-          result = 
-            (result == BooleanVariable::TRUE_VALUE() && 
-             *value == BooleanVariable::FALSE_VALUE()) ||
-            (result == BooleanVariable::FALSE_VALUE() && 
-             *value == BooleanVariable::TRUE_VALUE());
-      }
-    // return the result
-      
+      // otherwise the value is the XOR of the result and the new value
+      else
+        result = 
+          (result.getBoolValue() ? !value->getBoolValue() : value->getBoolValue());
+    }
     return result;
   }
 
@@ -327,131 +276,114 @@ namespace PLEXIL
   {
   }
 
-  bool Concatenation::checkValue(const double val)
+  bool Concatenation::checkValue(const Value& val) const
   {
-    return val == UNKNOWN() || LabelStr::isString(val);
+    return val.isUnknown() || val.isString();
   }
 
-  double Concatenation::recalculate()
+  Value Concatenation::recalculate()
   {   
     std::ostringstream retval; 
     for (ExpressionVectorConstIter child = m_subexpressions.begin();
          child != m_subexpressions.end(); 
          ++child) {
-        double value = (*child)->getValue();
-        // values.push_back(value);
-        
-        // validate values (you look ma'valouse!)
-        checkError(checkValue(value),
-				   "Invalid concatenation value: " << Expression::valueToString(value));
-
-        // if a sub expression is UNKNOWN return UNKNOWN
-        if (value == UNKNOWN()){
-          // LabelStr ls2 (value);
-          return UNKNOWN();
-        }
-        LabelStr ls1 (value);
-        retval << ls1.toString();
-      }
-    m_label = retval.str();
-    return m_label.getKey();
+      const Value& value = (*child)->getValue();
+      if (value.isUnknown())
+        return UNKNOWN();
+      checkError(value.isString(),
+                 "Invalid concatenation value: " << value);
+      retval << value.getStringValue();
+    }
+    return Value(retval.str());
   }
 
   //
   // Comparisons
   //
 
-  bool Equality::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
-  }
-
-  double Equality::recalculate() {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-
-    double value;
-    if(v1 == UNKNOWN() || v2 == UNKNOWN())
-      value = UNKNOWN();
-    else
-      value = (double) (v1 == v2);
-    return value;
-  }
-
-  bool Inequality::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
-  }
-
-  double Inequality::recalculate()
+  bool Equality::checkValue(const Value& val) const
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    double value;
-    if(v1 == UNKNOWN() || v2 == UNKNOWN())
-      value = UNKNOWN();
-    else
-      value = (double) (v1 != v2);
-    return value;
+    return val.isBoolean() || val.isUnknown();
   }
 
-  bool LessThan::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
-  }
-
-  double LessThan::recalculate()
+  Value Equality::recalculate() 
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    double value;
-    if(v1 == UNKNOWN() || v2 == UNKNOWN())
-      value = UNKNOWN();
-    else
-      value = (double) (v1 < v2);
-    return value;
-  }
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
 
-  bool LessEqual::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
-  }
-
-  double LessEqual::recalculate()
-  {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+    if (v1.isUnknown() || v2.isUnknown())
       return UNKNOWN();
-    return (double) (v1 <= v2);
+    return Value(v1 == v2);
   }
 
-  bool GreaterThan::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
-  }
-
-  double GreaterThan::recalculate()
+  bool Inequality::checkValue(const Value& val) const
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    if(v1 == UNKNOWN() || v2 == UNKNOWN())
-      return UNKNOWN();
-    return (double) (v1 > v2);
+    return val.isBoolean() || val.isUnknown();
   }
 
-  bool GreaterEqual::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
-  }
-
-  double GreaterEqual::recalculate()
+  Value Inequality::recalculate()
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
       return UNKNOWN();
-    return (double) (v1 >= v2);
+    return Value(v1 != v2);
+  }
+
+  bool LessThan::checkValue(const Value& val) const
+  {
+    return val.isBoolean() || val.isUnknown();
+  }
+
+  Value LessThan::recalculate()
+  {
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
+      return UNKNOWN();
+    return Value(v1.getDoubleValue() < v2.getDoubleValue());
+  }
+
+  bool LessEqual::checkValue(const Value& val) const
+  {
+    return val.isBoolean() || val.isUnknown();
+  }
+
+  Value LessEqual::recalculate()
+  {
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
+      return UNKNOWN();
+    return Value(v1.getDoubleValue() <= v2.getDoubleValue());
+  }
+
+  bool GreaterThan::checkValue(const Value& val) const
+  {
+    return val.isBoolean() || val.isUnknown();
+  }
+
+  Value GreaterThan::recalculate()
+  {
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
+      return UNKNOWN();
+    return Value(v1.getDoubleValue() > v2.getDoubleValue());
+  }
+
+  bool GreaterEqual::checkValue(const Value& val) const
+  {
+    return val.isBoolean() || val.isUnknown();
+  }
+
+  Value GreaterEqual::recalculate()
+  {
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
+      return UNKNOWN();
+    return Value(v1.getDoubleValue() >= v2.getDoubleValue());
   }
 
 
@@ -459,13 +391,13 @@ namespace PLEXIL
   // Arithmetic expressions
   //
 
-  double Addition::recalculate()
+  Value Addition::recalculate()
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    if (v1 == UNKNOWN() || v2 == UNKNOWN())
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
       return UNKNOWN();
-    return (double) (v1 + v2);
+    return Value(v1.getDoubleValue() + v2.getDoubleValue());
   }
 
   PlexilType Addition::getValueType() const
@@ -480,14 +412,13 @@ namespace PLEXIL
     return REAL;
   }
 
-
-  double Subtraction::recalculate()
+  Value Subtraction::recalculate()
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
       return UNKNOWN();
-    return (double) (v1 - v2);
+    return Value(v1.getDoubleValue() - v2.getDoubleValue());
   }
 
   PlexilType Subtraction::getValueType() const
@@ -503,13 +434,13 @@ namespace PLEXIL
   }
 
 
-  double Multiplication::recalculate()
+  Value Multiplication::recalculate()
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
       return UNKNOWN();
-    return (double) (v1 * v2);
+    return Value(v1.getDoubleValue() * v2.getDoubleValue());
   }
 
   PlexilType Multiplication::getValueType() const
@@ -525,16 +456,14 @@ namespace PLEXIL
   }
 
 
-  double Division::recalculate()
+  Value Division::recalculate()
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
       return UNKNOWN();
-
-    check_error(v2 != 0.0, "Attempt to divide by zero");
-
-    return (double) (v1 / v2);
+    assertTrue(v2.getDoubleValue() != 0.0, "Attempt to divide by zero");
+    return Value(v1.getDoubleValue() / v2.getDoubleValue());
   }
 
   PlexilType Division::getValueType() const
@@ -543,16 +472,14 @@ namespace PLEXIL
   }
 
 
-  double Modulo::recalculate()
+  Value Modulo::recalculate()
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    if(v1 == UNKNOWN() || v2 == UNKNOWN())
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
       return UNKNOWN();
-
-    check_error(v2 != 0.0, "Attempt to divide by zero");
-
-    return (double) fmod (v1, v2);
+    assertTrue(v2.getDoubleValue() != 0.0, "Attempt to divide by zero");
+    return Value(fmod(v1.getDoubleValue(), v2.getDoubleValue()));
   }
 
   PlexilType Modulo::getValueType() const
@@ -561,45 +488,43 @@ namespace PLEXIL
   }
 
 
-  double Maximum::recalculate()
+  Value Maximum::recalculate()
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    if (v1 == UNKNOWN() || v2 == UNKNOWN())
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
       return UNKNOWN();
-
-	return std::max(v1, v2);
+    return Value(std::max(v1.getDoubleValue(), v2.getDoubleValue()));
   }
 
   void Maximum::print(std::ostream& s) const
   {
-	printAsFnCall(s);
+    printAsFnCall(s);
   }
 
   PlexilType Maximum::getValueType() const
   {
-	return REAL;
+    return REAL;
   }
 
 
-  double Minimum::recalculate()
+  Value Minimum::recalculate()
   {
-    double v1 = m_a->getValue();
-    double v2 = m_b->getValue();
-    if (v1 == UNKNOWN() || v2 == UNKNOWN())
+    const Value& v1 = m_a->getValue();
+    const Value& v2 = m_b->getValue();
+    if (v1.isUnknown() || v2.isUnknown())
       return UNKNOWN();
-
-	return std::min(v1, v2);
+    return Value(std::min(v1.getDoubleValue(), v2.getDoubleValue()));
   }
 
   void Minimum::print(std::ostream& s) const
   {
-	printAsFnCall(s);
+    printAsFnCall(s);
   }
 
   PlexilType Minimum::getValueType() const
   {
-	return REAL;
+    return REAL;
   }
 
 }

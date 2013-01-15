@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -124,7 +124,7 @@ namespace PLEXIL
       dest = findVariable((Id<PlexilVarRef>) destExpr);
       // FIXME: push this check up into XML parser
       checkError(dest.isValid(),
-                 "Dest variable '" << destName <<
+                 "Dest variable '" << destName.toString() <<
                  "' not found in assignment node '" << m_nodeId.toString() << "'");
     }
     else if (Id<PlexilArrayElement>::convertable(destExpr)) {
@@ -267,7 +267,7 @@ namespace PLEXIL
     checkError(destState == FAILING_STATE
                || destState == ITERATION_ENDED_STATE,
                "Attempting to transition AssignmentNode from EXECUTING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
       getOutcomeVariable()->setValue(OutcomeVariable::INTERRUPTED());
@@ -339,7 +339,7 @@ namespace PLEXIL
       return NO_NODE_STATE;
     }
 
-    double failureValue = m_failureTypeVariable->getValue();
+    const Value& failureValue = m_failureTypeVariable->getValue();
     if (failureValue == FailureVariable::PARENT_FAILED()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << 
@@ -365,7 +365,7 @@ namespace PLEXIL
     checkError(destState == FINISHED_STATE ||
                destState == ITERATION_ENDED_STATE,
                "Attempting to transition Assignment node from FAILING to invalid state '"
-               << StateVariable::nodeStateName(destState).toString() << "'");
+               << StateVariable::nodeStateName(destState) << "'");
 
     deactivateAbortCompleteCondition();
     if (destState == ITERATION_ENDED_STATE) {

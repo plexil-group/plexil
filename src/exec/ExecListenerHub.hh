@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,17 +42,17 @@ namespace PLEXIL
   class ExecListenerHub
   {
   public:
-	ExecListenerHub();
-	virtual ~ExecListenerHub();
+    ExecListenerHub();
+    virtual ~ExecListenerHub();
 
-	const ExecListenerHubId& getId() const
-	{
-	  return m_id;
-	}
+    const ExecListenerHubId& getId() const
+    {
+      return m_id;
+    }
 
-	//
-	// Interface management API
-	// 
+    //
+    // Interface management API
+    // 
 
     /**
      * @brief Adds an Exec listener for publication of plan events.
@@ -68,12 +68,12 @@ namespace PLEXIL
     // API to Exec
     //
 
-	/**
-	 * @brief Notify that nodes have changed state.
-	 * @param Vector of node state transition info.
-	 * @note Current states are accessible via the node.
-	 */
-	void notifyOfTransitions(const std::vector<NodeTransition>& transitions) const;
+    /**
+     * @brief Notify that nodes have changed state.
+     * @param Vector of node state transition info.
+     * @note Current states are accessible via the node.
+     */
+    void notifyOfTransitions(const std::vector<NodeTransition>& transitions) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.
@@ -81,13 +81,13 @@ namespace PLEXIL
      * @param parent The name of the parent node under which this plan will be inserted.
      */
      void notifyOfAddPlan(const PlexilNodeId& plan, 
-						  const LabelStr& parent) const;
+                          const LabelStr& parent) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      */
-	void notifyOfAddLibrary(const PlexilNodeId& libNode) const;
+    void notifyOfAddLibrary(const PlexilNodeId& libNode) const;
 
     //not sure if anybody wants this
     //void notifyOfConditionChange(const NodeId& node,
@@ -100,13 +100,13 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (in internal Exec representation) being assigned.
      */
-	void notifyOfAssignment(const ExpressionId & dest,
-							const std::string& destName,
-							const double& value) const;
+    void notifyOfAssignment(const ExpressionId & dest,
+                            const std::string& destName,
+                            const Value& value) const;
 
-	//
-	// API to InterfaceManager
-	//
+    //
+    // API to InterfaceManager
+    //
 
     /**
      * @brief Perform listener-specific initialization.
@@ -144,12 +144,12 @@ namespace PLEXIL
     bool shutdown();
 
   private:
-	// Deliberately unimplemented
-	ExecListenerHub(const ExecListenerHub&);
-	ExecListenerHub& operator=(const ExecListenerHub&);
+    // Deliberately unimplemented
+    ExecListenerHub(const ExecListenerHub&);
+    ExecListenerHub& operator=(const ExecListenerHub&);
 
-	std::vector<ExecListenerBaseId> m_listeners;
-	ExecListenerHubId m_id;
+    std::vector<ExecListenerBaseId> m_listeners;
+    ExecListenerHubId m_id;
   };
 
 }

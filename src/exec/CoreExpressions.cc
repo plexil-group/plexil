@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,12 +52,11 @@ namespace PLEXIL
   }
 
   // Used only to construct class constants. See ALL_STATES() below.
-  StateVariable::StateVariable(const double value, const bool isConst)
+  StateVariable::StateVariable(const Value& value, const bool isConst)
     : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
-               "Attempted to initialize a state variable with invalid value "
-               << Expression::valueToString(value));
+               "Attempted to initialize a state variable with invalid value " << value);
   }
 
   // ExpressionFactory entry point. Should only be used to construct literals.
@@ -71,17 +70,17 @@ namespace PLEXIL
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_STATE,
                "Expected NodeState value.  Found '" << PlexilParser::valueTypeString(val->type()) << "'");
-    LabelStr value(val->value());
+    Value value(val->value());
     checkError(checkValue(value),
-               "Attempted to initialize a state variable with invalid value "
-               << Expression::valueToString(value));
-    m_value = m_initialValue = value.getKey();
+               "Attempted to initialize a state variable with invalid value " << value);
+    m_value = m_initialValue = value;
   }
 
   // N.B. Depends on ALL_STATES() matching order of NodeState enumeration.
-  bool StateVariable::checkValue(const double val) {
+  bool StateVariable::checkValue(const Value& val) const
+  {
     for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
-      if (val == ALL_STATES()[s].getKey())
+      if (val == ALL_STATES()[s])
         return true;
     }
     return false;
@@ -97,12 +96,12 @@ namespace PLEXIL
   {
     checkError(newValue < NO_NODE_STATE,
                "Attempted to set an invalid NodeState value");
-    this->setValue(ALL_STATES()[newValue].getKey());
+    this->setValue(ALL_STATES()[newValue]);
   }
 
   // Must be in same order as enum NodeState. See ExecDefs.hh.
-  const std::vector<LabelStr>& StateVariable::ALL_STATES() {
-    static std::vector<LabelStr> allStates;
+  const std::vector<Value>& StateVariable::ALL_STATES() {
+    static std::vector<Value> allStates;
     if (allStates.empty()) {
       allStates.reserve(NODE_STATE_MAX);
       allStates.push_back(INACTIVE());
@@ -166,19 +165,10 @@ namespace PLEXIL
     return sl_exp;
   }
 
-  const LabelStr& StateVariable::nodeStateName(NodeState state)
+  const Value& StateVariable::nodeStateName(NodeState state)
   {
     return ALL_STATES()[state];
   }
-
-  NodeState StateVariable::nodeStateFromName(double nameAsLabelStrKey)
-  {
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s)
-      if (ALL_STATES()[s].getKey() == nameAsLabelStrKey)
-        return (NodeState) s;
-    return NO_NODE_STATE;
-  }
-
 
   // Called only by Node::commonInit().
   OutcomeVariable::OutcomeVariable(const std::string& name)
@@ -198,19 +188,19 @@ namespace PLEXIL
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_OUTCOME,
                "Expected NodeOutcome value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
-    LabelStr value(val->value());
+    Value value(val->value());
     checkError(checkValue(value),
                "Attempted to initialize a variable with an invalid value.");
     m_value = m_initialValue = value;
   }
 
-  bool OutcomeVariable::checkValue(const double val) 
+  bool OutcomeVariable::checkValue(const Value& val) const
   {
     return val == UNKNOWN()
-      || val == SUCCESS().getKey()
-      || val == FAILURE().getKey()
-      || val == SKIPPED().getKey()
-      || val == INTERRUPTED().getKey();
+      || val == SUCCESS()
+      || val == FAILURE()
+      || val == SKIPPED()
+      || val == INTERRUPTED();
   }
 
   void OutcomeVariable::print(std::ostream& s) const
@@ -238,7 +228,7 @@ namespace PLEXIL
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::FAILURE_TYPE,
                "Expected NodeFailure value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
-    LabelStr value(val->value());
+    Value value(val->value());
     checkError(checkValue(value),
                "Attempted to initialize a variable with an invalid value.");
     m_value = m_initialValue = value;
@@ -250,14 +240,15 @@ namespace PLEXIL
     s << "failure)";
   }
 
-  bool FailureVariable::checkValue(const double val) {
+  bool FailureVariable::checkValue(const Value& val) const
+  {
     return val == UNKNOWN()
-      || val == PRE_CONDITION_FAILED().getKey()
-      || val == POST_CONDITION_FAILED().getKey()
-      || val == INVARIANT_CONDITION_FAILED().getKey()
-      || val == PARENT_FAILED().getKey()
-      || val == PARENT_EXITED().getKey()
-      || val == EXITED().getKey();
+      || val == PRE_CONDITION_FAILED()
+      || val == POST_CONDITION_FAILED()
+      || val == INVARIANT_CONDITION_FAILED()
+      || val == PARENT_FAILED()
+      || val == PARENT_EXITED()
+      || val == EXITED();
   }
 
   // Called only from Command constructors.
@@ -278,20 +269,21 @@ namespace PLEXIL
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::COMMAND_HANDLE,
                "Expected NodeCommandHandle value.  Found " << PlexilParser::valueTypeString(val->type()) << ".");
-    LabelStr value(val->value());
+    Value value(val->value());
     checkError(checkValue(value),
                "Attempted to initialize a variable with an invalid value.");
     m_value = m_initialValue = value;
   }
 
-  bool CommandHandleVariable::checkValue(const double val) {
+  bool CommandHandleVariable::checkValue(const Value& val) const
+  {
     return val == UNKNOWN()
-      || val == COMMAND_SENT_TO_SYSTEM().getKey()
-      || val == COMMAND_ACCEPTED().getKey()
-      || val == COMMAND_RCVD_BY_SYSTEM().getKey()
-      || val == COMMAND_SUCCESS().getKey()
-      || val == COMMAND_DENIED().getKey()
-      || val == COMMAND_FAILED().getKey();
+      || val == COMMAND_SENT_TO_SYSTEM()
+      || val == COMMAND_ACCEPTED()
+      || val == COMMAND_RCVD_BY_SYSTEM()
+      || val == COMMAND_SUCCESS()
+      || val == COMMAND_DENIED()
+      || val == COMMAND_FAILED();
   }
 
   void CommandHandleVariable::print(std::ostream& s) const 
@@ -367,11 +359,11 @@ namespace PLEXIL
     Calculable::handleDeactivate(changed);
   }
 
-  double AllChildrenFinishedCondition::recalculate()
+  Value AllChildrenFinishedCondition::recalculate()
   {
     m_count = 0;
     for (size_t i = 0; i < m_total; ++i) {
-      double value = m_stateVariables[i]->getValue();
+      Value value = m_stateVariables[i]->getValue();
       m_childListeners[i].setLastValue(value);
       if (value == StateVariable::FINISHED())
         ++m_count;
@@ -390,9 +382,11 @@ namespace PLEXIL
     }
   }
 
-  bool AllChildrenFinishedCondition::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
+  bool AllChildrenFinishedCondition::checkValue(const Value& val) const
+  {
+    return val.isUnknown()
+      || val == BooleanVariable::FALSE_VALUE()
+      || val == BooleanVariable::TRUE_VALUE();
   }
 
   AllChildrenFinishedCondition::FinishedListener::FinishedListener(AllChildrenFinishedCondition& cond)
@@ -408,7 +402,7 @@ namespace PLEXIL
   void
   AllChildrenFinishedCondition::FinishedListener::notifyValueChanged(const ExpressionId& expression) 
   {
-    double newValue = expression->getValue();
+    const Value& newValue = expression->getValue();
     if (newValue == StateVariable::FINISHED() && m_lastValue != newValue) {
       debugMsg("AllChildrenFinished:increment",
                "State var " << *expression << " is now FINISHED.  Incrementing count.");
@@ -497,11 +491,11 @@ namespace PLEXIL
     Calculable::handleDeactivate(changed);
   }
 
-  double AllChildrenWaitingOrFinishedCondition::recalculate()
+  Value AllChildrenWaitingOrFinishedCondition::recalculate()
   {
     m_count = 0;
     for (size_t i = 0; i < m_total; ++i) {
-      double value = m_stateVariables[i]->getValue();
+      Value value = m_stateVariables[i]->getValue();
       m_childListeners[i].setLastValue(value);
       if (value == StateVariable::FINISHED() || value == StateVariable::WAITING())
         ++m_count;
@@ -520,9 +514,11 @@ namespace PLEXIL
     }
   }
 
-  bool AllChildrenWaitingOrFinishedCondition::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
+  bool AllChildrenWaitingOrFinishedCondition::checkValue(const Value& val) const
+  {
+    return val.isUnknown()
+      || val == BooleanVariable::FALSE_VALUE()
+      || val == BooleanVariable::TRUE_VALUE();
   }
 
   AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::WaitingOrFinishedListener(AllChildrenWaitingOrFinishedCondition& cond)
@@ -539,7 +535,7 @@ namespace PLEXIL
   AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::notifyValueChanged(const ExpressionId& expression)
   {
     bool was = m_lastValue == StateVariable::WAITING() || m_lastValue == StateVariable::FINISHED();
-    double newValue = expression->getValue();
+    const Value& newValue = expression->getValue();
     bool is = newValue == StateVariable::WAITING() || newValue == StateVariable::FINISHED();
     if (is && !was) {
       debugMsg("AllChildrenWaitingOrFinished:increment",
@@ -618,11 +614,16 @@ namespace PLEXIL
     delete (Expression*) m_expr;
   }
 
-  double InternalCondition::recalculate() {return m_expr->getValue();}
+  Value InternalCondition::recalculate()
+  {
+    return m_expr->getValue();
+  }
 
-  bool InternalCondition::checkValue(const double val) {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE() ||
-      val == BooleanVariable::UNKNOWN();
+  bool InternalCondition::checkValue(const Value& val) const
+  {
+    return val.isUnknown()
+      || val == BooleanVariable::FALSE_VALUE()
+      || val == BooleanVariable::TRUE_VALUE();
   }
 
   void InternalCondition::print(std::ostream& s) const 
@@ -648,20 +649,21 @@ namespace PLEXIL
     s << "interruptibleCommandHandleValues(" << *m_e << "))";
   }
 
-  double InterruptibleCommandHandleValues::recalculate()
+  Value InterruptibleCommandHandleValues::recalculate()
   {
-    double v = m_e->getValue();
-    if(v == Expression::UNKNOWN())
-      return false;
+    const Value& v = m_e->getValue();
+    if (v.isUnknown())
+      return BooleanVariable::FALSE_VALUE();
     else if ((v == CommandHandleVariable::COMMAND_DENIED()) || 
              (v == CommandHandleVariable::COMMAND_FAILED()))
-      return true;
-    return false;
+      return BooleanVariable::TRUE_VALUE();
+    return BooleanVariable::FALSE_VALUE();
   }
 
-  bool InterruptibleCommandHandleValues::checkValue(const double val)
+  bool InterruptibleCommandHandleValues::checkValue(const Value& val) const
   {
-    return val == BooleanVariable::TRUE_VALUE() || val == BooleanVariable::FALSE_VALUE();
+    return val == BooleanVariable::TRUE_VALUE()
+      || val == BooleanVariable::FALSE_VALUE();
   }
 
 }
