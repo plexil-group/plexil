@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -102,7 +102,7 @@ namespace PLEXIL
      * @return The current value for this lookup.
      */
 
-    double lookupNow(const State& state);
+    Value lookupNow(const State& state);
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -106,11 +106,11 @@ namespace PLEXIL
   }
 
 
-  double DummyAdapter::lookupNow(const State& state)
+  Value DummyAdapter::lookupNow(const State& state)
   {
     debugMsg("ExternalInterface:dummy", 
              " LookupNow of " << StateCache::toString(state) << " returning UNKNOWN");
-    return Expression::UNKNOWN();
+    return UNKNOWN();
   }
 
   void DummyAdapter::subscribe(const State& state)
@@ -132,7 +132,7 @@ namespace PLEXIL
   }
 
   void DummyAdapter::sendPlannerUpdate(const NodeId& node,
-                                       const std::map<LabelStr, double>& /* valuePairs */,
+                                       const std::map<LabelStr, Value>& /* valuePairs */,
                                        ExpressionId ack)
   {
     debugMsg("ExternalInterface:dummy", " sendPlannerUpdate called");
@@ -142,14 +142,13 @@ namespace PLEXIL
              " faking acknowledgment of update node '"
              << node->getNodeId().toString()
              << "'");
-    m_execInterface.handleValueChange(ack,
-                                      BooleanVariable::TRUE_VALUE());
+    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 
   void DummyAdapter::executeCommand(const CommandId& cmd)
   {
-    debugMsg("ExternalInterface:dummy", " executeCommand for " << cmd->getName().toString());
+    debugMsg("ExternalInterface:dummy", " executeCommand for " << cmd->getName());
     m_execInterface.handleValueChange(cmd->getAck(),
                                       CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     m_execInterface.notifyOfExternalEvent();
@@ -158,7 +157,7 @@ namespace PLEXIL
   //abort the given command
   void DummyAdapter::invokeAbort(const CommandId& cmd)
   {
-    debugMsg("ExternalInterface:dummy", " invokeAbort for " << cmd->getName().toString());
+    debugMsg("ExternalInterface:dummy", " invokeAbort for " << cmd->getName());
     m_execInterface.handleValueChange(cmd->getAbortComplete(),
                                       BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -133,12 +133,12 @@ namespace PLEXIL
    * @param state The state for this lookup.
    * @return The current value of the lookup.
    */
-  double DarwinTimeAdapter::lookupNow(const State& state)
+  Value DarwinTimeAdapter::lookupNow(const State& state)
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
                   "DarwinTimeAdapter does not implement lookups for state "
                   << state.first.toString());
-    return getCurrentTime();
+    return Value(getCurrentTime());
   }
 
   /**
@@ -181,7 +181,7 @@ namespace PLEXIL
     bool wasSet = setTimer(hi);
     debugMsg("DarwinTimeAdapter:setThresholds",
              (wasSet ? " timer set for " : " wakeup sent for missed timer at ")
-             << Expression::valueToString(hi));
+             << Value::valueToString(hi));
   }
 
   //
@@ -199,7 +199,7 @@ namespace PLEXIL
     assertTrueMsg(status == 0,
                   "DarwinTimeAdapter::getCurrentTime: gettimeofday() failed, errno = " << errno);
     double tym = timevalToDouble(tv);
-    debugMsg("DarwinTimeAdapter:getCurrentTime", " returning " << Expression::valueToString(tym));
+    debugMsg("DarwinTimeAdapter:getCurrentTime", " returning " << Value::valueToString(tym));
     return tym;
   }
 
@@ -230,7 +230,7 @@ namespace PLEXIL
     if (myItimerval.it_value.tv_usec < 0 || myItimerval.it_value.tv_sec < 0) {
       // Already past the scheduled time, submit wakeup
       debugMsg("DarwinTimeAdapter:setTimer",
-               " new value " << Expression::valueToString(date) << " is in past, waking up Exec");
+               " new value " << Value::valueToString(date) << " is in past, waking up Exec");
       timerTimeout();
       return false;
     }
@@ -239,7 +239,7 @@ namespace PLEXIL
     assertTrueMsg(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
                   "DarwinTimeAdapter::setTimer: setitimer failed, errno = " << errno);
     debugMsg("DarwinTimeAdapter:setTimer",
-             " timer set for " << Expression::valueToString(date));
+             " timer set for " << Value::valueToString(date));
     return true;
   }
 
@@ -338,7 +338,7 @@ namespace PLEXIL
   {
     // report the current time and kick-start the Exec
     double time = getCurrentTime();
-    debugMsg("DarwinTimeAdapter:timerTimeout", " at " << Expression::valueToString(time));
+    debugMsg("DarwinTimeAdapter:timerTimeout", " at " << Value::valueToString(time));
     m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeState(), time);
     m_execInterface.notifyOfExternalEvent();
   }

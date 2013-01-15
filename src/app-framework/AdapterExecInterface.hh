@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -224,7 +224,7 @@ namespace PLEXIL
      * @param state The state for the new value.
      * @param value The new value.
      */
-    virtual void handleValueChange(const State& state, double value) = 0;
+    virtual void handleValueChange(const State& state, const Value& value) = 0;
 
     /**
      * @brief Notify of the availability of (e.g.) a command return or acknowledgement.
@@ -232,25 +232,7 @@ namespace PLEXIL
      * @param value The new value of the expression.
      */
     virtual void handleValueChange(const ExpressionId & exp,
-                                   double value) = 0;
-
-    /**
-     * @brief Tells the external interface to expect a return value from this command.
-     Use handleValueChange() to actually return the value.
-     * @param dest The expression whose value will be returned.
-     * @param commandName The command whose value will be returned.
-     * @param params The parameters associated with this command.
-     */
-    virtual void registerCommandReturnValue(ExpressionId dest,
-                                            const LabelStr & commandName,
-                                            const std::list<double> & params) = 0;
-
-    /**
-     * @brief Notify the external interface that this previously registered expression
-     should not wait for a return value.
-     * @param dest The expression whose value was to be returned.
-     */
-    virtual void unregisterCommandReturnValue(ExpressionId dest) = 0;
+                                   const Value& value) = 0;
 
     /**
      * @brief Notify the executive of a new plan.
@@ -369,8 +351,7 @@ namespace PLEXIL
 
     // Next two formerly provided by InterfaceManagerBase
 
-    static std::string valueToString(const double val);
-    static double stringToValue(const char * rawValue);
+    static Value stringToValue(const char * rawValue);
 
   protected:
 

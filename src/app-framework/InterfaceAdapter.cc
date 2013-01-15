@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -70,11 +70,11 @@ namespace PLEXIL
   // Default methods for InterfaceManager API
   //
 
-  double InterfaceAdapter::lookupNow(const State& /* state */)
+  Value InterfaceAdapter::lookupNow(const State& /* state */)
   {
     assertTrue(ALWAYS_FAIL,
                "InterfaceAdapter::lookupNow: default method called!");
-    return Expression::UNKNOWN();
+    return UNKNOWN();
   }
 
   void InterfaceAdapter::subscribe(const State& /* state */)
@@ -95,7 +95,7 @@ namespace PLEXIL
   }
 
   void InterfaceAdapter::sendPlannerUpdate(const NodeId& /* node */,
-                                           const std::map<LabelStr, double>& /* valuePairs */,
+                                           const std::map<LabelStr, Value>& /* valuePairs */,
                                            ExpressionId /* ack */)
   {
     assertTrue(ALWAYS_FAIL,
@@ -111,7 +111,7 @@ namespace PLEXIL
 
   // executes a command with the given arguments
   void InterfaceAdapter::executeCommand(const LabelStr& /* name */,
-                                        const std::list<double>& /* args */,
+                                        const std::vector<Value>& /* args */,
                                         ExpressionId /* dest */,
                                         ExpressionId /* ack */)
   {
@@ -127,7 +127,7 @@ namespace PLEXIL
 
   //abort the given command with the given arguments.
   void InterfaceAdapter::invokeAbort(const LabelStr& /* name */, 
-                                     const std::list<double>& /* args */, 
+                                     const std::vector<Value>& /* args */, 
                                      ExpressionId /* abort_ack */,
                                      ExpressionId /* cmd_ack */)
   {

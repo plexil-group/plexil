@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,13 +40,13 @@ namespace PLEXIL
    * @brief Represents the type of a ValueQueue::QueueEntry instance.
    */
   enum QueueEntryType {
-	queueEntry_EMPTY,
-	queueEntry_MARK,
-	queueEntry_LOOKUP_VALUES,
-	queueEntry_RETURN_VALUE,
-	queueEntry_PLAN,
-	queueEntry_LIBRARY,
-	queueEntry_ERROR
+    queueEntry_EMPTY,
+    queueEntry_MARK,
+    queueEntry_LOOKUP_VALUES,
+    queueEntry_RETURN_VALUE,
+    queueEntry_PLAN,
+    queueEntry_LIBRARY,
+    queueEntry_ERROR
   };
 
   /**
@@ -57,167 +57,167 @@ namespace PLEXIL
   class ValueQueue
   {
   public:
-	ValueQueue();
-	~ValueQueue();
+    ValueQueue();
+    ~ValueQueue();
 
-	// Inserts the new expression/value pair into the queue
-	void enqueue(const ExpressionId & exp, double newValue);
-	void enqueue(const State & state, double newValue);
-	void enqueue(PlexilNodeId newPlan, const LabelStr & parent);
-	void enqueue(PlexilNodeId newlibraryNode);
+    // Inserts the new expression/value pair into the queue
+    void enqueue(const ExpressionId & exp, const Value& newValue);
+    void enqueue(const State & state, const Value& newValue);
+    void enqueue(PlexilNodeId newPlan, const LabelStr & parent);
+    void enqueue(PlexilNodeId newlibraryNode);
 
-	/**
-	 * @brief Atomically check head of queue and dequeue if appropriate
-	 * @return Type of entry dequeued; queueEntry_EMPTY and queueEntry_MARK
-	 * indicate nothing of interest was dequeued
-	 */
-	QueueEntryType dequeue(double& newValue, 
-						   State& state,
-						   ExpressionId& exp,
-						   PlexilNodeId& plan,
-						   LabelStr& planParent,
-						   unsigned int& sequence);
+    /**
+     * @brief Atomically check head of queue and dequeue if appropriate
+     * @return Type of entry dequeued; queueEntry_EMPTY and queueEntry_MARK
+     * indicate nothing of interest was dequeued
+     */
+    QueueEntryType dequeue(Value& newValue, 
+                           State& state,
+                           ExpressionId& exp,
+                           PlexilNodeId& plan,
+                           LabelStr& planParent,
+                           unsigned int& sequence);
 
-	// returns true iff the queue is empty
-	bool isEmpty() const;
+    // returns true iff the queue is empty
+    bool isEmpty() const;
 
-	//* Inserts a marker expression into the queue and returns its sequence number
-	unsigned int mark();
+    //* Inserts a marker expression into the queue and returns its sequence number
+    unsigned int mark();
 
-	// Remove queue head and ignore (presumably a mark)
-	void pop();
+    // Remove queue head and ignore (presumably a mark)
+    void pop();
 
   private:
-	// deliberately unimplemented
-	ValueQueue(const ValueQueue &);
-	ValueQueue & operator=(const ValueQueue &);
+    // deliberately unimplemented
+    ValueQueue(const ValueQueue &);
+    ValueQueue & operator=(const ValueQueue &);
 
-	//
-	// Internal methods
-	//
-	class QueueEntry;
-	typedef Id<QueueEntry> QueueEntryId;
+    //
+    // Internal methods
+    //
+    class QueueEntry;
+    typedef Id<QueueEntry> QueueEntryId;
 
-	//* Insert the given entry into the queue.
-	void insert(QueueEntryId entry);
+    //* Insert the given entry into the queue.
+    void insert(QueueEntryId entry);
 
-	//* Remove the current head and return it.
-	QueueEntryId behead();
+    //* Remove the current head and return it.
+    QueueEntryId behead();
 
-	//* Add the entry to the free list.
-	void free(QueueEntryId entry);
+    //* Add the entry to the free list.
+    void free(QueueEntryId entry);
 
-	//* Allocate from the free list if possible, else construct a new entry.
-	QueueEntryId allocate();
+    //* Allocate from the free list if possible, else construct a new entry.
+    QueueEntryId allocate();
 
-	//
-	// Member variables
-	//
+    //
+    // Member variables
+    //
 
-	DECLARE_STATIC_CLASS_CONST(State, 
-							   NULL_STATE_KEY,
-							   State(EMPTY_LABEL(), std::vector<double>()));
+    DECLARE_STATIC_CLASS_CONST(State, 
+                               NULL_STATE_KEY,
+                               State(EMPTY_LABEL(), std::vector<Value>()));
 
-	/**
-	 * @brief Represents one entry in a ValueQueue.  
-	 *        A private class internal to ValueQueue.
-	 */
-	class QueueEntry
-	{
-	public:
-	  /*
-	   * @brief Constructor for an empty QueueEntry of an arbitrary QueueEntryType.
-	   */
-	  QueueEntry()
-		: id(this),
-		  next(),
-		  type(queueEntry_EMPTY),
-		  value(),
-		  expression(),
-		  state(),
-		  plan(),
-		  parent(EMPTY_LABEL()),
-		  sequence(0)
-	  {
-	  }
+    /**
+     * @brief Represents one entry in a ValueQueue.  
+     *        A private class internal to ValueQueue.
+     */
+    class QueueEntry
+    {
+    public:
+      /*
+       * @brief Constructor for an empty QueueEntry of an arbitrary QueueEntryType.
+       */
+      QueueEntry()
+        : id(this),
+          next(),
+          type(queueEntry_EMPTY),
+          value(),
+          expression(),
+          state(),
+          plan(),
+          parent(EMPTY_LABEL()),
+          sequence(0)
+      {
+      }
 
-	  /**
-	   * @brief Destructor.
-	   */
-	  ~QueueEntry()
-	  {
-	  }
+      /**
+       * @brief Destructor.
+       */
+      ~QueueEntry()
+      {
+      }
 
-	  /**
-	   * @brief Reset to initialized state for reuse.
-	   */
-	  void clear()
-	  {
-		// Only clear the fields that were active
-		switch (type) {
-		case queueEntry_RETURN_VALUE:
-		  value = Expression::UNKNOWN();
-		  expression = ExpressionId::noId();
-		  break;
-			
-		case queueEntry_LOOKUP_VALUES:
-		  value = Expression::UNKNOWN();
-		  state.first = EMPTY_LABEL();
-		  state.second.clear();
-		  break;
+      /**
+       * @brief Reset to initialized state for reuse.
+       */
+      void clear()
+      {
+        // Only clear the fields that were active
+        switch (type) {
+        case queueEntry_RETURN_VALUE:
+          value.setUnknown();
+          expression = ExpressionId::noId();
+          break;
+            
+        case queueEntry_LOOKUP_VALUES:
+          value.setUnknown();
+          state.first = EMPTY_LABEL();
+          state.second.clear();
+          break;
 
-		case queueEntry_PLAN:
-		  parent = EMPTY_LABEL();
-		  // fall through to...
-		case queueEntry_LIBRARY:
-		  plan = PlexilNodeId::noId();
-		  break;
+        case queueEntry_PLAN:
+          parent = EMPTY_LABEL();
+          // fall through to...
+        case queueEntry_LIBRARY:
+          plan = PlexilNodeId::noId();
+          break;
 
-		case queueEntry_MARK:
-		  sequence = 0;
-		  break;
+        case queueEntry_MARK:
+          sequence = 0;
+          break;
 
-		default:
-		  break;
-		}
-		// Now can clear type
-		type = queueEntry_EMPTY;
-	  }
+        default:
+          break;
+        }
+        // Now can clear type
+        type = queueEntry_EMPTY;
+      }
 
-	  const QueueEntryId& getId() const
-	  {
-		return id;
-	  }
-	
-	  QueueEntryId id; //* ID of this entry.
-	  QueueEntryId next; //* Link to the next queue (or free list) entry.
-	  QueueEntryType type; //* What kind of queue entry this is.
-	  // Data for value queue
-	  double value; //* The value being returned.
-	  ExpressionId expression; //* The expression to which this value belongs for command returns.
-	  State state; //* The state to which this value belongs for lookup returns.
-	  // Data for plan queue
-	  PlexilNodeId plan; //* The intermediate representation of this plan or library node.
-	  LabelStr parent; //* The parent node ID under which to store the plan (NYI).
-	  // Data for mark
-	  unsigned int sequence; //* The count of marks issued to date.
-	};
+      const QueueEntryId& getId() const
+      {
+        return id;
+      }
+    
+      QueueEntryId id; //* ID of this entry.
+      QueueEntryId next; //* Link to the next queue (or free list) entry.
+      QueueEntryType type; //* What kind of queue entry this is.
+      // Data for value queue
+      Value value; //* The value being returned.
+      ExpressionId expression; //* The expression to which this value belongs for command returns.
+      State state; //* The state to which this value belongs for lookup returns.
+      // Data for plan queue
+      PlexilNodeId plan; //* The intermediate representation of this plan or library node.
+      LabelStr parent; //* The parent node ID under which to store the plan (NYI).
+      // Data for mark
+      unsigned int sequence; //* The count of marks issued to date.
+    };
 
-	//
-	// Queue data
-	//
-	QueueEntryId m_head; //* The next entry to be dequeued.
-	QueueEntryId m_tail; //* The current end of the queue.
-	QueueEntryId m_freeList; //* Stack of recycled entries for later reuse.
+    //
+    // Queue data
+    //
+    QueueEntryId m_head; //* The next entry to be dequeued.
+    QueueEntryId m_tail; //* The current end of the queue.
+    QueueEntryId m_freeList; //* Stack of recycled entries for later reuse.
 
-	/** 
-	 * @brief Pointer to a mutex to prevent collisions between threads.
-	 * @note Implemented as a pointer so isEmpty() can be const.
-	 */
-	ThreadMutex * m_mutex;
+    /** 
+     * @brief Pointer to a mutex to prevent collisions between threads.
+     * @note Implemented as a pointer so isEmpty() can be const.
+     */
+    ThreadMutex * m_mutex;
 
-	//* Serial number for marks
-	unsigned int m_markCount;
+    //* Serial number for marks
+    unsigned int m_markCount;
   };
 
 }

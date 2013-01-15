@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -117,10 +117,10 @@ namespace PLEXIL
     {
       return m_adapterConfig;
     }
-	
-	/**
-	 * @brief Set the Exec.
-	 */
+    
+    /**
+     * @brief Set the Exec.
+     */
     virtual void setExec(const PlexilExecId& exec);
 
     //
@@ -146,46 +146,46 @@ namespace PLEXIL
     // API for ExecApplication
     //
 
-	/**
-	 * @brief Get the search path for library nodes.
-	 * @return A reference to the library search path.
-	 */
-	const std::vector<std::string>& getLibraryPath() const;
+    /**
+     * @brief Get the search path for library nodes.
+     * @return A reference to the library search path.
+     */
+    const std::vector<std::string>& getLibraryPath() const;
 
-	/**
-	 * @brief Get the search path for plan files.
-	 * @return A reference to the plan search path.
-	 */
-	const std::vector<std::string>& getPlanPath() const;
+    /**
+     * @brief Get the search path for plan files.
+     * @return A reference to the plan search path.
+     */
+    const std::vector<std::string>& getPlanPath() const;
 
-	/**
-	 * @brief Add the specified directory name to the end of the library node loading path.
-	 * @param libdir The directory name.
-	 */
-	void addLibraryPath(const std::string& libdir);
+    /**
+     * @brief Add the specified directory name to the end of the library node loading path.
+     * @param libdir The directory name.
+     */
+    void addLibraryPath(const std::string& libdir);
 
-	/**
-	 * @brief Add the specified directory names to the end of the library node loading path.
-	 * @param libdirs The vector of directory names.
-	 */
-	void addLibraryPath(const std::vector<std::string>& libdirs);
+    /**
+     * @brief Add the specified directory names to the end of the library node loading path.
+     * @param libdirs The vector of directory names.
+     */
+    void addLibraryPath(const std::vector<std::string>& libdirs);
 
-	/**
-	 * @brief Add the specified directory name to the end of the plan loading path.
-	 * @param libdir The directory name.
-	 */
-	void addPlanPath(const std::string& libdir);
+    /**
+     * @brief Add the specified directory name to the end of the plan loading path.
+     * @param libdir The directory name.
+     */
+    void addPlanPath(const std::string& libdir);
 
-	/**
-	 * @brief Add the specified directory names to the end of the plan loading path.
-	 * @param libdirs The vector of directory names.
-	 */
-	void addPlanPath(const std::vector<std::string>& libdirs);
+    /**
+     * @brief Add the specified directory names to the end of the plan loading path.
+     * @param libdirs The vector of directory names.
+     */
+    void addPlanPath(const std::vector<std::string>& libdirs);
 
     /**
      * @brief Constructs interface adapters from the provided XML.
      * @param configXml The XML element used for interface configuration.
-	 * @return true if successful, false otherwise.
+     * @return true if successful, false otherwise.
      */
     bool constructInterfaces(const pugi::xml_node& configXml);
 
@@ -238,23 +238,23 @@ namespace PLEXIL
      */
     bool processQueue();
 
-	/**
-	 * @brief Insert a mark in the value queue.
-	 * @return The sequence number of the mark.
-	 */
-	unsigned int markQueue()
-	{
-	  return m_valueQueue.mark();
-	}
+    /**
+     * @brief Insert a mark in the value queue.
+     * @return The sequence number of the mark.
+     */
+    unsigned int markQueue()
+    {
+      return m_valueQueue.mark();
+    }
 
-	/**
-	 * @brief Get the sequence number of the most recently processed mark.
-	 * @return The sequence number, 0 if no marks have yet been processed.
-	 */
-	unsigned int getLastMark() const
-	{
-	  return m_lastMark;
-	}
+    /**
+     * @brief Get the sequence number of the most recently processed mark.
+     * @return The sequence number, 0 if no marks have yet been processed.
+     */
+    unsigned int getLastMark() const
+    {
+      return m_lastMark;
+    }
 
     //
     // API for exec
@@ -268,28 +268,28 @@ namespace PLEXIL
     /**
      * @brief Perform an immediate lookup on an existing state.
      * @param state The state.
-	 * @return The current value of the state or UNKNOWN().
+     * @return The current value of the state or UNKNOWN().
      */
-    double lookupNow(const State& state);
+    Value lookupNow(const State& state);
 
-	/**
-	 * @brief Inform the interface that it should report changes in value of this state.
-	 * @param state The state.
-	 */
-	void subscribe(const State& state);
+    /**
+     * @brief Inform the interface that it should report changes in value of this state.
+     * @param state The state.
+     */
+    void subscribe(const State& state);
 
     /**
      * @brief Inform the interface that a lookup should no longer receive updates.
      */
-	void unsubscribe(const State& state);
+    void unsubscribe(const State& state);
 
-	/**
-	 * @brief Advise the interface of the current thresholds to use when reporting this state.
-	 * @param state The state.
-	 * @param hi The upper threshold, at or above which to report changes.
-	 * @param lo The lower threshold, at or below which to report changes.
-	 */
-	void setThresholds(const State& state, double hi, double lo);
+    /**
+     * @brief Advise the interface of the current thresholds to use when reporting this state.
+     * @param state The state.
+     * @param hi The upper threshold, at or above which to report changes.
+     * @param lo The lower threshold, at or below which to report changes.
+     */
+    void setThresholds(const State& state, double hi, double lo);
 
     //this batches the set of actions from quiescence completion.  calls PlexilExecutive::step() at the end
     //assignments must be performed first.
@@ -327,7 +327,7 @@ namespace PLEXIL
      * @param intf The interface adapter to handle this command.
      */
     bool registerCommandInterface(const LabelStr & commandName,
-				  InterfaceAdapterId intf);
+                  InterfaceAdapterId intf);
 
     /**
      * @brief Register the given interface adapter for lookups to this state.
@@ -358,9 +358,9 @@ namespace PLEXIL
     /**
      * @brief Register the given interface adapter as the default for lookups.
               This interface will be used for all lookups which do not have
-	      a specific adapter.  
+          a specific adapter.  
               Returns true if successful.
-	      Fails and returns false if there is already a default lookup adapter registered.
+          Fails and returns false if there is already a default lookup adapter registered.
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
@@ -369,9 +369,9 @@ namespace PLEXIL
     /**
      * @brief Register the given interface adapter as the default for commands.
               This interface will be used for all commands which do not have
-	      a specific adapter.  
+          a specific adapter.  
               Returns true if successful.
-	      Fails and returns false if there is already a default command adapter registered.
+          Fails and returns false if there is already a default command adapter registered.
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
@@ -469,32 +469,14 @@ namespace PLEXIL
      * @param state The state for the new value.
      * @param value The new value.
      */
-    void handleValueChange(const State& state, double value);
+    void handleValueChange(const State& state, const Value& value);
 
     /**
      * @brief Notify of the availability of (e.g.) a command return or acknowledgement.
      * @param exp The expression whose value is being returned.
      * @param value The new value of the expression.
      */
-    void handleValueChange(const ExpressionId & exp, double value);
-
-    /**
-     * @brief Tells the external interface to expect a return value from this command.
-     Use handleValueChange() to actually return the value.
-     * @param dest The expression whose value will be returned.
-     * @param name The command whose value will be returned.
-     * @param params The parameters associated with this command.
-     */
-    void registerCommandReturnValue(ExpressionId dest,
-				    const LabelStr & name,
-				    const std::list<double> & params);
-
-    /**
-     * @brief Notify the external interface that this previously registered expression
-     should not wait for a return value.
-     * @param dest The expression whose value was to be returned.
-     */
-    void unregisterCommandReturnValue(ExpressionId dest);
+    void handleValueChange(const ExpressionId & exp, const Value& value);
 
     /**
      * @brief Notify the executive of a new plan.
@@ -504,7 +486,7 @@ namespace PLEXIL
      * @note This is deprecated, use the PlexilNodeId variant instead.
      */
     bool handleAddPlan(const pugi::xml_node& planXml,
-					   const LabelStr& parent)
+                       const LabelStr& parent)
       throw(ParserException);
 
     /**
@@ -536,8 +518,8 @@ namespace PLEXIL
 
     /**
      * @brief Run the exec and wait until all events in the queue have been processed.
-	 */
-	void notifyAndWaitForCompletion();
+     */
+    void notifyAndWaitForCompletion();
 
     StateCacheId getStateCache() const;
 
@@ -563,14 +545,15 @@ namespace PLEXIL
     // Internal functionality
     //
 
-	// Executes a command.
-	void executeCommand(CommandId cmd);
+    // Executes a command.
+    void executeCommand(CommandId cmd);
 
     // rejects a command due to non-availability of resources
+    // FIXME: need CommandId variant
     void rejectCommand(const LabelStr& name,
-			const std::list<double>& args,
-			ExpressionId dest,
-			ExpressionId ack);
+                       const std::vector<Value>& args,
+                       ExpressionId dest,
+                       ExpressionId ack);
 
     /**
      * @brief Removes the adapter and deletes it iff nothing refers to it.
@@ -612,7 +595,7 @@ namespace PLEXIL
     //
 
     bool expressionToState(const ExpressionId & exp, State & key) const;
-    bool updateStateListener(const ExpressionId & dest, double value);
+    bool updateStateListener(const ExpressionId & dest, const Value& value);
 
     //
     // Private member variables
@@ -646,18 +629,18 @@ namespace PLEXIL
     //* The resource arbiter
     ResourceArbiterInterfaceId m_raInterface;
 
-	//* The exec controller
-	ExecControllerId m_execController;
+    //* The exec controller
+    ExecControllerId m_execController;
 
-	//* List of directory names for plan file search paths
-	std::vector<std::string> m_libraryPath;
-	std::vector<std::string> m_planPath;
+    //* List of directory names for plan file search paths
+    std::vector<std::string> m_libraryPath;
+    std::vector<std::string> m_planPath;
 
     //* Holds the most recent idea of the current time
     double m_currentTime;
 
-	//* Most recent mark processed.
-	unsigned int m_lastMark;
+    //* Most recent mark processed.
+    unsigned int m_lastMark;
   };
 
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -50,12 +50,12 @@ public:
   bool shutdown();
 
   void executeCommand (const LabelStr& name,
-                       const std::list<double>& args,
+                       const std::vector<Value>& args,
                        ExpressionId dest,
                        ExpressionId ack);
 
   void invokeAbort(const LabelStr& name, 
-                   const std::list<double>& args, 
+                   const std::vector<Value>& args, 
                    ExpressionId abort_ack,
                    ExpressionId cmd_ack);
 

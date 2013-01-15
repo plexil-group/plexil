@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -95,8 +95,8 @@ namespace PLEXIL
                               &m_sigevent,
                               &m_timer);
     condDebugMsg(0 != status,
-		 "PosixTimeAdapter:start",
-		 " timer_create failed, errno = " << errno);
+         "PosixTimeAdapter:start",
+         " timer_create failed, errno = " << errno);
     return (status == 0);
   }
 
@@ -111,8 +111,8 @@ namespace PLEXIL
     // Now delete it
     int status = timer_delete(m_timer);
     condDebugMsg(status != 0,
-		 "PosixTimeAdapter:stop",
-		 " timer_delete failed, errno = " << errno);
+         "PosixTimeAdapter:stop",
+         " timer_delete failed, errno = " << errno);
     return (status == 0);
   }
 
@@ -139,11 +139,11 @@ namespace PLEXIL
    * @param state The state for this lookup.
    * @return The current value for this lookup.
    */
-  double PosixTimeAdapter::lookupNow(const State& state)
+  Value PosixTimeAdapter::lookupNow(const State& state)
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
                   "PosixTimeAdapter only implements lookups for \"time\"");
-    return getCurrentTime();
+    return Value(getCurrentTime());
   }
 
   /**
@@ -184,7 +184,7 @@ namespace PLEXIL
     // Get the current time
     timespec now;
     assertTrueMsg(0 == clock_gettime(CLOCK_REALTIME, &now),
-		  "PosixTimeAdapter::setThresholds: clock_gettime() failed, errno = " << errno);
+          "PosixTimeAdapter::setThresholds: clock_gettime() failed, errno = " << errno);
 
     // Set up a timer to go off at the high time
     itimerspec tymrSpec = {{0, 0}, {0, 0}};
@@ -192,20 +192,20 @@ namespace PLEXIL
     if (tymrSpec.it_value.tv_nsec < 0 || tymrSpec.it_value.tv_sec < 0) {
       // Already past the scheduled time, submit wakeup
       debugMsg("PosixTimeAdapter:setThresholds",
-	       " new value " << Expression::valueToString(hi) << " is in past, waking up Exec");
+           " new value " << Value::valueToString(hi) << " is in past, waking up Exec");
       timerTimeout();
       return;
     }
 
     tymrSpec.it_interval.tv_sec = tymrSpec.it_interval.tv_nsec = 0; // no repeats
     assertTrueMsg(0 == timer_settime(m_timer,
-				     0, // flags: ~TIMER_ABSTIME
-				     &tymrSpec,
-				     NULL),
+                     0, // flags: ~TIMER_ABSTIME
+                     &tymrSpec,
+                     NULL),
                   "PosixTimeAdapter::setThresholds: timer_settime failed, errno = " << errno);
     debugMsg("PosixTimeAdapter:setThresholds",
-	     " timer set for " << Expression::valueToString(hi)
-	     << ", tv_nsec = " << tymrSpec.it_value.tv_nsec);
+         " timer set for " << Value::valueToString(hi)
+         << ", tv_nsec = " << tymrSpec.it_value.tv_nsec);
   }
 
   //
@@ -221,11 +221,11 @@ namespace PLEXIL
     timespec ts;
     if (0 != clock_gettime(CLOCK_REALTIME, &ts)) {
       debugMsg("PosixTimeAdapter:getCurrentTime",
-	       " clock_gettime() failed, errno = " << errno << "; returning UNKNOWN");
-      return Expression::UNKNOWN();
+           " clock_gettime() failed, errno = " << errno << "; returning UNKNOWN");
+      return Value::UNKNOWN_VALUE();
     }
     double tym = timespecToDouble(ts);
-    debugMsg("PosixTimeAdapter:getCurrentTime", " returning " << Expression::valueToString(tym));
+    debugMsg("PosixTimeAdapter:getCurrentTime", " returning " << Value::valueToString(tym));
     return tym;
   }
 
@@ -264,7 +264,7 @@ namespace PLEXIL
   {
     double time = getCurrentTime();
     debugMsg("PosixTimeAdapter:lookupOnChange",
-	     " timer timeout at " << Expression::valueToString(time));
+         " timer timeout at " << Value::valueToString(time));
     m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeState(),
                                       time);
     m_execInterface.notifyOfExternalEvent();
@@ -279,11 +279,11 @@ namespace PLEXIL
     // tymrSpec.it_interval.tv_sec = tymrSpec.it_interval.tv_nsec = 
     //   tymrSpec.it_value.tv_sec = tymrSpec.it_value.tv_nsec = 0;
     condDebugMsg(0 != timer_settime(m_timer,
-				    0, // flags: ~TIMER_ABSTIME
-				    &sl_tymrDisable,
-				    NULL),
-		 "PosixTimeAdapter:stopTimer",
-		 " timer_settime failed, errno = " << errno);
+                    0, // flags: ~TIMER_ABSTIME
+                    &sl_tymrDisable,
+                    NULL),
+         "PosixTimeAdapter:stopTimer",
+         " timer_settime failed, errno = " << errno);
   }
 
 }

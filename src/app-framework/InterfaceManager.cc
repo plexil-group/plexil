@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 */
 
 //
-// *** TO DO ***
+// TODO:
 //  - implement tracking of active commands (?)
 //  - implement un/registerCommandReturnValue()
 //  - utilities for adapters?
@@ -539,7 +539,7 @@ namespace PLEXIL
 
     // Potential optimization (?): these could be member variables
     // Can't use static as that would cause collisions between multiple instances
-    double newValue;
+    Value newValue;
     State state;
     ExpressionId exp;
     PlexilNodeId plan;
@@ -585,19 +585,18 @@ namespace PLEXIL
 
           // If this is a time state update message, check if it's stale
           if (state == m_exec->getStateCache()->getTimeState()) {
-            if (newValue <= m_currentTime) {
+            if (newValue.getDoubleValue() <= m_currentTime) {
               debugMsg("InterfaceManager:processQueue",
                        " (" << pthread_self()
                        << ") Ignoring stale time update - new value "
-                       << Expression::valueToString(newValue) << " is not greater than cached value "
-                       << Expression::valueToString(m_currentTime));
+                       << newValue << " is not greater than cached value "
+                       << Value::valueToString(m_currentTime));
             }
             else {
               debugMsg("InterfaceManager:processQueue",
                        " (" << pthread_self()
-                       << ") setting current time to "
-                       << Expression::valueToString(newValue));
-              m_currentTime = newValue;
+                       << ") setting current time to " << newValue);
+              m_currentTime = newValue.getDoubleValue();
               m_exec->getStateCache()->updateState(state, newValue);
             }
           }
@@ -615,7 +614,7 @@ namespace PLEXIL
         debugMsg("InterfaceManager:processQueue",
                  " (" << pthread_self()
                  << ") Updating expression " << exp
-                 << ", new value is '" << Expression::valueToString(newValue) << "'");
+                 << ", new value is '" << newValue << "'");
 
         // Handle potential command return value.
         this->releaseResourcesAtCommandTermination(exp);
@@ -661,34 +660,33 @@ namespace PLEXIL
    * @param key The key for the state to be used in future communications about the state.
    */
 
-  double
+  Value
   InterfaceManager::lookupNow(const State& state)
   {
-    const LabelStr stateName(state.first);
+    const LabelStr& stateName(state.first);
     debugMsg("InterfaceManager:lookupNow", " of " << StateCache::toString(state));
     InterfaceAdapterId adapter = getLookupInterface(stateName);
     assertTrueMsg(!adapter.isNoId(),
                   "lookupNow: No interface adapter found for lookup '"
                   << stateName.toString() << "'");
 
-    double result = adapter->lookupNow(state);
+    Value result = adapter->lookupNow(state);
     // update internal idea of time if required
     if (state == m_exec->getStateCache()->getTimeState()) {
-      if (result <= m_currentTime) {
+      if (result.getDoubleValue() <= m_currentTime) {
         debugMsg("InterfaceManager:verboseLookupNow",
                  " Ignoring stale time update - new value "
-                 << Expression::valueToString(result) << " is not greater than cached value "
-                 << Expression::valueToString(m_currentTime));
+                 << result << " is not greater than cached value "
+                 << Value::valueToString(m_currentTime));
       }
       else {
         debugMsg("InterfaceManager:verboseLookupNow",
-                 " setting current time to "
-                 << Expression::valueToString(result));
-        m_currentTime = result;
+                 " setting current time to " << result);
+        m_currentTime = result.getDoubleValue();
       }
     }
 
-    debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "' returning " << Expression::valueToString(result));
+    debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "' returning " << result);
     return result;
   }
 
@@ -763,7 +761,7 @@ namespace PLEXIL
       if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end())) {
         condDebugMsg(resourceArbiterExists,
                      "InterfaceManager:batchActions", 
-                     " Permission to execute " << cmd->getName().toString()
+                     " Permission to execute " << cmd->getName()
                      << " has been granted by the resource arbiter.");
         // Maintain a <acks, cmdId> map of commands
         m_ackToCmdMap[cmd->getAck()] = cmd;
@@ -775,7 +773,7 @@ namespace PLEXIL
       else {
         commandRejected = true;
         debugMsg("InterfaceManager:batchActions ", 
-                 "Permission to execute " << cmd->getName().toString()
+                 "Permission to execute " << cmd->getName()
                  << " has been denied by the resource arbiter.");
             
         this->rejectCommand(cmd->getName(),
@@ -850,7 +848,7 @@ namespace PLEXIL
   // rejects a command due to non-availability of resources
   void 
   InterfaceManager::rejectCommand(const LabelStr& /* name */,
-                                  const std::list<double>& /* args */,
+                                  const std::vector<Value>& /* args */,
                                   ExpressionId /* dest */,
                                   ExpressionId ack)
   {
@@ -866,7 +864,7 @@ namespace PLEXIL
   {
     InterfaceAdapterId intf = getCommandInterface(cmd->getName());
     assertTrueMsg(!intf.isNoId(),
-                  "invokeAbort: null interface adapter for command " << cmd->getName().toString());
+                  "invokeAbort: null interface adapter for command " << cmd->getName());
     intf->invokeAbort(cmd);
   }
 
@@ -1123,11 +1121,11 @@ namespace PLEXIL
    * @param value The new value.
    */
   void
-  InterfaceManager::handleValueChange(const State& state, double value)
+  InterfaceManager::handleValueChange(const State& state, const Value& value)
   {
     debugMsg("InterfaceManager:handleValueChange",
              " for state " << state.first.toString()
-             << ", new value = " << Expression::valueToString(value));
+             << ", new value = " << value);
     m_valueQueue.enqueue(state, value);
   }
 
@@ -1138,36 +1136,10 @@ namespace PLEXIL
    */
   void 
   InterfaceManager::handleValueChange(const ExpressionId & exp,
-                                      double value)
+                                      const Value& value)
   {
     debugMsg("InterfaceManager:handleValueChange", " for return value entered");
     m_valueQueue.enqueue(exp, value);
-  }
-
-  /**
-   * @brief Tells the external interface to expect a return value from this command.
-   Use handleValueChange() to actually return the value.
-   * @param dest The expression whose value will be returned.
-   * @param name The command whose value will be returned.
-   * @param params The parameters associated with this command.
-   */
-  void
-  InterfaceManager::registerCommandReturnValue(ExpressionId /* dest */,
-                                               const LabelStr & /* name */,
-                                               const std::list<double> & /* params */)
-  {
-    assertTrue(ALWAYS_FAIL, "registerCommandReturnValue not yet implemented!");
-  }
-
-  /**
-   * @brief Notify the external interface that this previously registered expression
-   should not wait for a return value.
-   * @param dest The expression whose value was to be returned.
-   */
-  void
-  InterfaceManager::unregisterCommandReturnValue(ExpressionId /* dest */)
-  {
-    assertTrue(ALWAYS_FAIL, "unregisterCommandReturnValue not yet implemented!");
   }
 
   /**
@@ -1332,7 +1304,7 @@ namespace PLEXIL
         CommandId cmdId = iter->second;
         debugMsg("InterfaceManager:releaseResourcesAtCommandTermination",
                  " The expression that was received is a valid acknowledgement"
-                 << " for the command: " << cmdId->getNameString());
+                 << " for the command: " << cmdId->getName());
         
         // Check if the command has a return value. If not, release resources
         // otherwise ignore
@@ -1349,7 +1321,7 @@ namespace PLEXIL
         CommandId cmdId = iter->second;
         debugMsg("InterfaceManager:releaseResourcesForCommand",
                  " The expression that was received is a valid return value"
-                 << " for the command: " << cmdId->getNameString());
+                 << " for the command: " << cmdId->getName());
 
         //Release resources
         if (getResourceArbiterInterface().isId())

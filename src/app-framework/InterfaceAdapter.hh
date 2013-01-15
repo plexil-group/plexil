@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 #include "ExecDefs.hh"
 #include "pugixml.hpp"
 
-#include <list>
 #include <map>
 #include <set>
 #include <vector>
@@ -124,7 +123,7 @@ namespace PLEXIL
      * @return The current value for the state.
      * @note Adapters should provide their own methods.  The default method raises an assertion.
      */
-    virtual double lookupNow(const State& state);
+    virtual Value lookupNow(const State& state);
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
@@ -157,7 +156,7 @@ namespace PLEXIL
      */
 
     virtual void sendPlannerUpdate(const NodeId& node,
-                                   const std::map<LabelStr, double>& valuePairs,
+                                   const std::map<LabelStr, Value>& valuePairs,
                                    ExpressionId ack);
 
     /**
@@ -170,14 +169,14 @@ namespace PLEXIL
     /**
      * @brief Execute a command with the requested arguments.
      * @param name The LabelString representing the command name.
-     * @param args The command arguments expressed as doubles.
+     * @param args The command arguments.
      * @param dest The expression in which to store any value returned from the command.
      * @param ack The expression in which to store an acknowledgement of command transmission.
      * @note Derived classes may implement this method.  The default method causes an assertion to fail.
      */
 
     virtual void executeCommand(const LabelStr& name,
-                                const std::list<double>& args,
+                                const std::vector<Value>& args,
                                 ExpressionId dest,
                                 ExpressionId ack);
 
@@ -190,13 +189,13 @@ namespace PLEXIL
     /**
      * @brief Abort the pending command with the supplied name and arguments.
      * @param name The LabelString representing the command name.
-     * @param args The command arguments expressed as doubles.
+     * @param args The command arguments.
      * @param abort_ack The expression in which to store an acknowledgement of command abort.
      * @param cmd_ack The original acknowledgment for this command (for identification purposes)
      * @note Derived classes may implement this method.  The default method causes an assertion to fail.
      */
     virtual void invokeAbort(const LabelStr& name, 
-                             const std::list<double>& args, 
+                             const std::vector<Value>& args, 
                              ExpressionId abort_ack,
                              ExpressionId cmd_ack);
 

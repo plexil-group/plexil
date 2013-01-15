@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -90,7 +90,7 @@ namespace PLEXIL
      * @param state The state.
      * @return The current value for the state.
      */
-    double lookupNow(const State& state);
+    Value lookupNow(const State& state);
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
@@ -113,7 +113,7 @@ namespace PLEXIL
     void setThresholds(const State& state, double hi, double lo);
 
     void sendPlannerUpdate(const NodeId& node,
-                           const std::map<LabelStr, double>& valuePairs,
+                           const std::map<LabelStr, Value>& valuePairs,
                            ExpressionId ack);
 
     // execute a command

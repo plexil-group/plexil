@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -58,33 +58,28 @@ namespace PLEXIL
   {
     std::ostringstream retval;
     retval << c.first.toString() << "(";
-    std::vector<double>::const_iterator it = c.second.begin();
+    std::vector<Value>::const_iterator it = c.second.begin();
     if(it != c.second.end()) {
-      retval << Expression::valueToString(*it);
+      retval << *it;
       for (++it; it != c.second.end(); ++it)
-        retval << ", " << Expression::valueToString(*it);
+        retval << ", " << *it;
     }
     retval << ")";
     return retval.str();
   }
 
-  std::string AdapterExecInterface::valueToString(const double val) 
-  {
-    return Expression::valueToString(val);
-  }
-
-  double AdapterExecInterface::stringToValue(const char * rawValue)
+  Value AdapterExecInterface::stringToValue(const char * rawValue)
   {
     // null / empty check first
     if (rawValue == 0) {
       debugMsg("ExternalInterface:stringToValue",
                " raw value is null pointer");
-      return Expression::UNKNOWN();
+      return Value();
     }
     else if (strlen(rawValue) == 0) {
       debugMsg("ExternalInterface:stringToValue",
                " raw value is empty string");
-      return Expression::UNKNOWN();
+      return Value();
     }
 
     debugMsg("ExternalInterface:stringToValue", " input string = \"" << rawValue << "\"");
@@ -96,7 +91,7 @@ namespace PLEXIL
       if (*endptr == '\0') {
         // string is valid integer
         debugMsg("ExternalInterface:stringToValue", " result is integer " << longResult);
-        return (double) longResult;
+        return Value((double) longResult);
       }
 
       debugMsg("ExternalInterface:stringToValue", " result is not valid integer");
@@ -107,15 +102,14 @@ namespace PLEXIL
       if (*endptr == '\0') {
         // string is valid double
         debugMsg("ExternalInterface:stringToValue", " result is double " << doubleResult);
-        return doubleResult;
+        return Value(doubleResult);
       }
 
       debugMsg("ExternalInterface:stringToValue", " result is not valid double");
     }
 
-    // if all else fails, turn it into a LabelStr
-    LabelStr labelResult(rawValue);
-    return (double) labelResult;
+    // if all else fails, must be a string
+    return Value(rawValue);
   }
 
 }
