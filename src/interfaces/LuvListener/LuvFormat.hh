@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,8 +56,8 @@ namespace PLEXIL {
     // Class constants
     //
 
-	// XML formatting options
-	DECLARE_STATIC_CLASS_CONST(unsigned int, PUGI_FORMAT_OPTIONS, pugi::format_raw | pugi::format_no_declaration);
+    // XML formatting options
+    DECLARE_STATIC_CLASS_CONST(unsigned int, PUGI_FORMAT_OPTIONS, pugi::format_raw | pugi::format_no_declaration);
 
     // Literal strings
     DECLARE_STATIC_CLASS_CONST(char*, TRUE_STR, "true");
@@ -86,68 +86,68 @@ namespace PLEXIL {
     // End-of-message marker
     DECLARE_STATIC_CLASS_CONST(char, LUV_END_OF_MESSAGE, (char)4);
 
-	/**
-	 * @brief Construct the PlanInfo header XML.
-	 * @param s The stream to write the XML to.
-	 * @param block Whether the viewer should block.
-	 */
-	static void formatPlanInfo(std::ostream& s, bool block);
+    /**
+     * @brief Construct the PlanInfo header XML.
+     * @param s The stream to write the XML to.
+     * @param block Whether the viewer should block.
+     */
+    static void formatPlanInfo(std::ostream& s, bool block);
 
-	/**
-	 * @brief Construct the node state transition XML.
-	 * @param s The stream to write the XML to.
-	 * @param prevState The state from which the node is transitioning.
-	 * @param node The node.
-	 */
-	static void formatTransition(std::ostream& s, 
-								 NodeState prevState,
-								 const NodeId& node);
+    /**
+     * @brief Construct the node state transition XML.
+     * @param s The stream to write the XML to.
+     * @param prevState The state from which the node is transitioning.
+     * @param node The node.
+     */
+    static void formatTransition(std::ostream& s, 
+                                 NodeState prevState,
+                                 const NodeId& node);
 
-	/**
-	 * @brief Construct the assignment XML.
-	 * @param s The stream to write the XML to.
-	 * @param dest The expression being assigned to.
-	 * @param destName The variable name of the expression.
-	 * @param value The internal representation of the new value.
-	 */
-	static void formatAssignment(std::ostream& s,
-								 const ExpressionId& dest,
-								 const std::string& destName,
-								 const double& value);
+    /**
+     * @brief Construct the assignment XML.
+     * @param s The stream to write the XML to.
+     * @param dest The expression being assigned to.
+     * @param destName The variable name of the expression.
+     * @param value The internal representation of the new value.
+     */
+    static void formatAssignment(std::ostream& s,
+                                 const ExpressionId& dest,
+                                 const std::string& destName,
+                                 const Value& value);
 
-	/**
-	 * @brief Construct the message representing a new plan.
-	 * @param s The stream to write the XML to.
-	 * @param plan The intermediate representation of the new plan.
-	 * @param parent The node ID of the parent (currently ignored).
-	 */
-	static void formatPlan(std::ostream& s,
-						   const PlexilNodeId& plan, 
-						   const LabelStr& parent);
+    /**
+     * @brief Construct the message representing a new plan.
+     * @param s The stream to write the XML to.
+     * @param plan The intermediate representation of the new plan.
+     * @param parent The node ID of the parent (currently ignored).
+     */
+    static void formatPlan(std::ostream& s,
+                           const PlexilNodeId& plan, 
+                           const LabelStr& parent);
 
-	/**
-	 * @brief Construct the message representing a new library node.
-	 * @param s The stream to write the XML to.
-	 * @param plan The intermediate representation of the library node.
-	 */
-	static void formatLibrary(std::ostream& s,
-							  const PlexilNodeId& libNode);
+    /**
+     * @brief Construct the message representing a new library node.
+     * @param s The stream to write the XML to.
+     * @param plan The intermediate representation of the library node.
+     */
+    static void formatLibrary(std::ostream& s,
+                              const PlexilNodeId& libNode);
 
   private:
 
-	//
-	// Deliberately unimplemented
-	//
+    //
+    // Deliberately unimplemented
+    //
 
-	// Constructors
-	LuvFormat();
-	LuvFormat(const LuvFormat&);
+    // Constructors
+    LuvFormat();
+    LuvFormat(const LuvFormat&);
 
-	// Destructor
-	~LuvFormat();
+    // Destructor
+    ~LuvFormat();
 
-	// Assignment
-	LuvFormat& operator=(const LuvFormat&);
+    // Assignment
+    LuvFormat& operator=(const LuvFormat&);
   };
 
 }

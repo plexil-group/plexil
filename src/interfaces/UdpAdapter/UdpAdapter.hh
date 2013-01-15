@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ namespace PLEXIL
   public:
     std::string name;                // the Plexil Command name
     unsigned int len;                         // the length of the message in bytes
-    std::list<Parameter> parameters; // message value parameters
+    std::vector<Parameter> parameters; // message value parameters
     unsigned int local_port;                  // local port on which to receive
     std::string peer;                // peer to which to send
     unsigned int peer_port;                   // port to which to send
@@ -90,14 +90,14 @@ namespace PLEXIL
     bool stop();
     bool reset();
     bool shutdown();
-    double lookupNow(const State& stateKey);
+    Value lookupNow(const State& stateKey);
     void subscribe(const State& state);
     void unsubscribe(const State& state);
-    void sendPlannerUpdate(const NodeId& node, const std::map<LabelStr, double>& valuePairs, ExpressionId ack);
+    void sendPlannerUpdate(const NodeId& node, const std::map<LabelStr, Value>& valuePairs, ExpressionId ack);
     // Executes a command with the given arguments
-    void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    void executeCommand(const LabelStr& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
     // Abort the given command with the given arguments.  Store the abort-complete into ack
-    void invokeAbort(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    void invokeAbort(const LabelStr& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
 
     ThreadMutex m_cmdMutex;
 
@@ -120,13 +120,13 @@ namespace PLEXIL
     //
     // Implementation methods
     //
-    void executeSendUdpMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-    void executeReceiveUdpCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-    void executeSendMessageCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-    void executeReceiveCommandCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-    void executeGetParameterCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-    void executeSendReturnValueCommand(const std::list<double>& args, ExpressionId dest, ExpressionId ack);
-    void executeDefaultCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+    void executeSendUdpMessageCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
+    void executeReceiveUdpCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
+    void executeSendMessageCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
+    void executeReceiveCommandCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
+    void executeGetParameterCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
+    void executeSendReturnValueCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
+    void executeDefaultCommand(const LabelStr& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
 
     //
     // XML Support
@@ -135,10 +135,10 @@ namespace PLEXIL
     void printMessageDefinitions();
     int buildUdpBuffer(unsigned char* buffer,
                        const UdpMessage& msg,
-                       const std::list<double>& args,
+                       const std::vector<Value>& args,
                        bool skip_arg=false,
                        bool debug=false);
-    void printMessageContent(const LabelStr& name, const std::list<double>& args);
+    void printMessageContent(const LabelStr& name, const std::vector<Value>& args);
     int sendUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug=false);
     int startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack);
     static void* waitForUdpMessage(UdpMessage* msg);

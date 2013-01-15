@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -236,12 +236,12 @@ namespace PLEXIL
    *  sets the header of the template,
    *  sets the start time of the plan's execution
    *  for use in file name
-  **/
+   **/
   void GanttListener::implementNotifyAddPlan(const PlexilNodeId& plan, 
-                                            const LabelStr& parent) const 
+                                             const LabelStr& parent) const 
   {
     getCurrentWorkingDirectory();
-	// FIXME: Get time from someplace!
+    // FIXME: Get time from someplace!
     startTime = 0;
     startTime = (int) startTime;
     std::ostringstream uFileName;
@@ -279,13 +279,13 @@ namespace PLEXIL
       myId = nodeId->getNodeId().toString();
       myStartValdbl= ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
       myType = nodeId->getType().toString();
-      myVal = nodeId->getStateName().toString();
+      myVal = nodeId->getStateName().getStringValue();
       myParent = "none";
       if (nodeId->getParent().isId()) {
-	myParent = nodeId->getParent()->getNodeId().toString();
+        myParent = nodeId->getParent()->getNodeId().toString();
       }
       if (myParent == " ") {
-	myParent = nodeId->getNodeId().toString();
+        myParent = nodeId->getNodeId().toString();
       }
 
       //increase nodeCounter for ID value
@@ -295,10 +295,10 @@ namespace PLEXIL
       //determine if a node looping; assign prior ID for loops and a new one for non loops
       stateMap[nodeId] += 1;
       if(stateMap[nodeId] > 1) {
-	actualId = counterMap[nodeId];
+        actualId = counterMap[nodeId];
       }
       else {
-	counterMap[nodeId] = actualId;
+        counterMap[nodeId] = actualId;
       }
 
       //get local variables from map in state 'EXECUTING'
@@ -326,7 +326,7 @@ namespace PLEXIL
       const vector<NodeId>& tempChildList = nodeId->getChildren();
       if (tempChildList.size() == 0) myChildren = "none";
       else for (vector<NodeId>::const_iterator i =  
-		tempChildList.begin(); i != tempChildList.end(); i++) {
+                  tempChildList.begin(); i != tempChildList.end(); i++) {
           string tempString = ((NodeId) *i)->getNodeId().toString();
           myChildNodes.push_back(tempString);
           myChildren += tempString + ", ";
@@ -360,95 +360,95 @@ namespace PLEXIL
       string tempParent = "invalid_parent_id";
       if(nodeId->getParent().isId()) tempParent = nodeId->getParent()->getNodeId().toString();
       for(size_t i=0; i<nodes.size(); i++) {
-	if(tempParent != "invalid_parent_id") {
-	  if(tempId==nodes[i].name 
-	     && tempType==nodes[i].type
-	     && tempParent==nodes[i].parent) {
-	    index = i;
-	  }
-	}
-	else {
-	  if(tempId==nodes[i].name
-	     && tempType==nodes[i].type) {
-	    index = i;
-	  }
-	}
+        if(tempParent != "invalid_parent_id") {
+          if(tempId==nodes[i].name 
+             && tempType==nodes[i].type
+             && tempParent==nodes[i].parent) {
+            index = i;
+          }
+        }
+        else {
+          if(tempId==nodes[i].name
+             && tempType==nodes[i].type) {
+            index = i;
+          }
+        }
       }
       myEndValdbl = ((nodeId->getCurrentStateStartTime()) - startTime)*100;
       myDurationValdbl = myEndValdbl - nodes[index].start;
       //doesn't exist until node is finished     
-      string myOutcome = nodeId->getOutcome().toString();
+      string myOutcome = nodeId->getOutcome().getStringValue();
       if (nodeId->getParent().isId())
-	myParent = nodeId->getParent()->getNodeId().toString();
+        myParent = nodeId->getParent()->getNodeId().toString();
       if(myParent == " ")
-	myParent = nodes[index].name;
+        myParent = nodes[index].name;
      
       string myTypeID;
 
       //get final values for local variables
       if(nodes[index].localvariables != "none" && nodes[index].localvarsvector.size() > 0) {
-	vector<string> prevLocalVarsVector = nodes[index].localvarsvector;
-	vector<string> thisLocalVarsVectorKeys;
-	vector<string> thisLocalVarsVectorValues;
+        vector<string> prevLocalVarsVector = nodes[index].localvarsvector;
+        vector<string> thisLocalVarsVectorKeys;
+        vector<string> thisLocalVarsVectorValues;
 
-	VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
-	if (tempLocalVariableMapAfter.empty())
-      myLocalVarsAfter = "none";
-	for (VariableMap::iterator it = tempLocalVariableMapAfter.begin(); it != tempLocalVariableMapAfter.end(); it++) {
-	  ExpressionId temp = it->second;
-	  string tempValueString = temp->valueString();
-	  thisLocalVarsVectorKeys.push_back(it->first.toString());
-	  thisLocalVarsVectorValues.push_back(tempValueString);
-	}
-	vector<string> fullStrings;
+        VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
+        if (tempLocalVariableMapAfter.empty())
+          myLocalVarsAfter = "none";
+        for (VariableMap::iterator it = tempLocalVariableMapAfter.begin(); it != tempLocalVariableMapAfter.end(); it++) {
+          ExpressionId temp = it->second;
+          string tempValueString = temp->valueString();
+          thisLocalVarsVectorKeys.push_back(it->first.toString());
+          thisLocalVarsVectorValues.push_back(tempValueString);
+        }
+        vector<string> fullStrings;
 
-	//first local variable key should always be state; this makes sure it is
-	int myCount = 0;
-	while(thisLocalVarsVectorKeys.size() > prevLocalVarsVector.size() 
-	      && thisLocalVarsVectorKeys[myCount] != "state") {
-	  prevLocalVarsVector.insert(prevLocalVarsVector.begin(), "UNKNOWN");
-	  myCount++;
-	}
+        //first local variable key should always be state; this makes sure it is
+        int myCount = 0;
+        while(thisLocalVarsVectorKeys.size() > prevLocalVarsVector.size() 
+              && thisLocalVarsVectorKeys[myCount] != "state") {
+          prevLocalVarsVector.insert(prevLocalVarsVector.begin(), "UNKNOWN");
+          myCount++;
+        }
 
-	//first local VALUE should always be 'EXECUTING' (or maybe 'FINISHED'); this makes sure it is
-	myCount = 0;
-	while(prevLocalVarsVector.size() > thisLocalVarsVectorKeys.size() 
-	      && prevLocalVarsVector[myCount] != "EXECUTING" 
-	      && prevLocalVarsVector[myCount] != "FINISHED") {
-	  prevLocalVarsVector.erase(prevLocalVarsVector.begin());
-	  myCount++;
-	}
+        //first local VALUE should always be 'EXECUTING' (or maybe 'FINISHED'); this makes sure it is
+        myCount = 0;
+        while(prevLocalVarsVector.size() > thisLocalVarsVectorKeys.size() 
+              && prevLocalVarsVector[myCount] != "EXECUTING" 
+              && prevLocalVarsVector[myCount] != "FINISHED") {
+          prevLocalVarsVector.erase(prevLocalVarsVector.begin());
+          myCount++;
+        }
 
-	//make sure all local variable vectors are filled
-	if(prevLocalVarsVector.size() > 1 && thisLocalVarsVectorKeys.size() > 1 && thisLocalVarsVectorValues.size() > 1) {
-	  int smallerSize;
-	  if(prevLocalVarsVector.size() < thisLocalVarsVectorKeys.size())  smallerSize = prevLocalVarsVector.size();
-	  else smallerSize = thisLocalVarsVectorKeys.size();
-	  for(int i = 0; i < smallerSize; i++) {
-	      //filter out local variables that are UNKNOWN at beginning of execution and at end of execution
-	      if(prevLocalVarsVector[i] != "UNKNOWN" || thisLocalVarsVectorValues[i] != "UNKNOWN") {
-		string tempFullString;
-		//bolden final local variable values that changed during execution of node
-		if(prevLocalVarsVector[i] != thisLocalVarsVectorValues[i]) {
-		  tempFullString = "<i>" +  thisLocalVarsVectorKeys[i] + "</i>" + " = " + prevLocalVarsVector[i] + " --><strong><font color=\"blue\"> " + thisLocalVarsVectorValues[i] + "</strong></font>";
-		}
-		else {
-		  tempFullString = "<i>" +  thisLocalVarsVectorKeys[i] + "</i>" + " = " + prevLocalVarsVector[i] + " --> " + thisLocalVarsVectorValues[i];
-		} 
-		fullStrings.push_back(tempFullString);
-	      }
-	    }
-	    myLocalVarsAfter = " ";
-	    for(size_t i = 0; i < fullStrings.size(); i++) {
-	      myLocalVarsAfter += "<br>" + fullStrings[i] + ", ";
-	    }
-	}
-	else {
-	  myLocalVarsAfter = "none";
-	}
+        //make sure all local variable vectors are filled
+        if(prevLocalVarsVector.size() > 1 && thisLocalVarsVectorKeys.size() > 1 && thisLocalVarsVectorValues.size() > 1) {
+          int smallerSize;
+          if(prevLocalVarsVector.size() < thisLocalVarsVectorKeys.size())  smallerSize = prevLocalVarsVector.size();
+          else smallerSize = thisLocalVarsVectorKeys.size();
+          for(int i = 0; i < smallerSize; i++) {
+            //filter out local variables that are UNKNOWN at beginning of execution and at end of execution
+            if(prevLocalVarsVector[i] != "UNKNOWN" || thisLocalVarsVectorValues[i] != "UNKNOWN") {
+              string tempFullString;
+              //bolden final local variable values that changed during execution of node
+              if(prevLocalVarsVector[i] != thisLocalVarsVectorValues[i]) {
+                tempFullString = "<i>" +  thisLocalVarsVectorKeys[i] + "</i>" + " = " + prevLocalVarsVector[i] + " --><strong><font color=\"blue\"> " + thisLocalVarsVectorValues[i] + "</strong></font>";
+              }
+              else {
+                tempFullString = "<i>" +  thisLocalVarsVectorKeys[i] + "</i>" + " = " + prevLocalVarsVector[i] + " --> " + thisLocalVarsVectorValues[i];
+              } 
+              fullStrings.push_back(tempFullString);
+            }
+          }
+          myLocalVarsAfter = " ";
+          for(size_t i = 0; i < fullStrings.size(); i++) {
+            myLocalVarsAfter += "<br>" + fullStrings[i] + ", ";
+          }
+        }
+        else {
+          myLocalVarsAfter = "none";
+        }
       }
       else {
-	myLocalVarsAfter = "none";
+        myLocalVarsAfter = "none";
       }
 
       //add temp values to node
@@ -468,10 +468,10 @@ namespace PLEXIL
       
       //get rid of extra comma and space at end
       if(myChildrenVal != "none") {
-	myChildrenVal.erase(myChildrenVal.end()-2);
+        myChildrenVal.erase(myChildrenVal.end()-2);
       }
       if(myLocalVarsVal != "none") {
-	myLocalVarsVal.erase(myLocalVarsVal.end()-2);
+        myLocalVarsVal.erase(myLocalVarsVal.end()-2);
       }
 
       //convert node id number, start time, end time, and duration to strings
@@ -500,42 +500,42 @@ namespace PLEXIL
       //add '[' and ']' before and after duration and start to add uncertainty to those values
       //setup JSON object to be added to array
       string newTemplate = "{\n'id': "
-    +myNumber+
-    ",\n'type':'"
-    +myPredicate+
-    "',\n'parameters': [\n{\n'name': 'entityName',\n'type': 'STRING',\n'value':'"
-    +myEntity+
-    "'\n},\n{\n'name': 'full type',\n'type': 'STRING',\n'value': '"
-    +myNodeNameLower+
-    "."
-    +myPredicate+
-    "'\n},\n{\n'name': 'state',\n'type': 'STRING',\n'value': 'ACTIVE'\n},\n{\n'name': 'object',\n'value': 'OBJECT:"
-    +myNodeNameReg+
-    "(6)'\n},\n{\n'name': 'duration',\n'type': 'INT',\n'value': '"
-    +myDurationVal+
-    "'\n},\n{\n'name': 'start',\n'type': 'INT',\n'value': '"
-    +myStartVal+
-    "'\n},\n{\n'name': 'end',\n'type': 'INT',\n'value': '"
-    +myEndVal+
-    "'\n},\n{\n'name': 'value',\n'type': 'INT',\n'value': '"
-    +myNewVal+
-    "'\n},\n{\n'name': 'children',\n'type': 'INT',\n'value': '"
-    +myChildrenVal+
-    "'\n},\n{\n'name': 'localvariables',\n'type': 'INT',\n'value': '"
-    +myLocalVarsVal+
-    "'\n}\n]\n},\n";
+        +myNumber+
+        ",\n'type':'"
+        +myPredicate+
+        "',\n'parameters': [\n{\n'name': 'entityName',\n'type': 'STRING',\n'value':'"
+        +myEntity+
+        "'\n},\n{\n'name': 'full type',\n'type': 'STRING',\n'value': '"
+        +myNodeNameLower+
+        "."
+        +myPredicate+
+        "'\n},\n{\n'name': 'state',\n'type': 'STRING',\n'value': 'ACTIVE'\n},\n{\n'name': 'object',\n'value': 'OBJECT:"
+        +myNodeNameReg+
+        "(6)'\n},\n{\n'name': 'duration',\n'type': 'INT',\n'value': '"
+        +myDurationVal+
+        "'\n},\n{\n'name': 'start',\n'type': 'INT',\n'value': '"
+        +myStartVal+
+        "'\n},\n{\n'name': 'end',\n'type': 'INT',\n'value': '"
+        +myEndVal+
+        "'\n},\n{\n'name': 'value',\n'type': 'INT',\n'value': '"
+        +myNewVal+
+        "'\n},\n{\n'name': 'children',\n'type': 'INT',\n'value': '"
+        +myChildrenVal+
+        "'\n},\n{\n'name': 'localvariables',\n'type': 'INT',\n'value': '"
+        +myLocalVarsVal+
+        "'\n}\n]\n},\n";
 
-  //add JSON object to existing array
-  fullTemplate = fullTemplate + newTemplate;
-  debugMsg("GanttViewer:printProgress", "Token added for node "+myEntity+"."+myPredicate);
+      //add JSON object to existing array
+      fullTemplate = fullTemplate + newTemplate;
+      debugMsg("GanttViewer:printProgress", "Token added for node "+myEntity+"."+myPredicate);
   
-  // if it is the last token, create HTML and add the tokens to the js file
-  if(myNumber == "1") { 
-    createHTMLFile(myNodeNameLower);
-    deliverAsFile(fullTemplate, myCloser, myNodeNameLower); 
-    debugMsg("GanttViewer:printProgress","finished gathering data; JSON and HTML stored");
-  }
-  }
+      // if it is the last token, create HTML and add the tokens to the js file
+      if(myNumber == "1") { 
+        createHTMLFile(myNodeNameLower);
+        deliverAsFile(fullTemplate, myCloser, myNodeNameLower); 
+        debugMsg("GanttViewer:printProgress","finished gathering data; JSON and HTML stored");
+      }
+    }
   }
 
 

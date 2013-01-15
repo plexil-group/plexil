@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ namespace PLEXIL
   short int decode_short_int(const unsigned char* buffer, int start_index);
   void encode_float(float num, unsigned char* buffer, int start_index);
   float decode_float(const unsigned char* buffer, int start_index);
-  void encode_string(const std::string str, unsigned char* buffer, int start_index);
+  void encode_string(const std::string& str, unsigned char* buffer, int start_index);
   std::string decode_string(const unsigned char* buffer, int start_index, int length);
   int udp_tests(void);
   void print_buffer(const unsigned char* buffer, int bytes, bool fancy=false);

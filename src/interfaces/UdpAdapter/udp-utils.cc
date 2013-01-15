@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,7 +120,7 @@ namespace PLEXIL
     return long_int_to_float(temp);
   }
 
-  void encode_string(const std::string str, unsigned char* buffer, int start_index)
+  void encode_string(const std::string& str, unsigned char* buffer, int start_index)
   {
     // Note that this DOES NOT encode a c string.  You can do that on your own.
     str.copy((char*)&buffer[start_index], str.length(), 0);

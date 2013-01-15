@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,7 +74,7 @@ public:
    * @param message The message string to be added
    * @param params The parameters that are to be sent with the message
    */
-  void addMessage(const LabelStr& message, double param);
+  void addMessage(const LabelStr& message, const Value& param);
   /**
    * @brief Sets the flag that determines whether or not incoming messages
    * with duplicate strings are queued. If true, all incoming messages are
@@ -96,7 +96,7 @@ public:
   bool getAllowDuplicateMessages();
 private:
   //forward declarations
-  typedef std::vector<double> MessageQueue;
+  typedef std::vector<Value> MessageQueue;
   struct Recipient;
   typedef std::vector<Recipient> RecipientQueue;
   struct PairingQueue;

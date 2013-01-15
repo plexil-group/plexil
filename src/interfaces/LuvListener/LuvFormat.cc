@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -182,7 +182,7 @@ namespace PLEXIL {
   void LuvFormat::formatAssignment(std::ostream& s, 
                                    const ExpressionId& dest,
                                    const std::string& destName,
-                                   const double& value) {
+                                   const Value& value) {
     simpleStartTag(s, ASSIGNMENT_TAG());
 
     // format variable name
@@ -200,7 +200,7 @@ namespace PLEXIL {
     // format variable value
     simpleTextElement(s, 
                       VARIABLE_VALUE_TAG(), 
-                      Expression::valueToString(value).c_str());
+                      value.valueToString().c_str());
     
     endTag(s, ASSIGNMENT_TAG());
   }
