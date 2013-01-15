@@ -1535,7 +1535,7 @@ namespace PLEXIL
                                        << dirValue << "\"");
     }
     if (dir == PlexilNodeRef::PARENT
-        && dir == PlexilNodeRef::SELF)
+        || dir == PlexilNodeRef::SELF)
       return (new PlexilNodeRef(dir))->getId();
 
     checkNotEmpty(ref);
