@@ -30,6 +30,7 @@
 #include "Expression.hh"
 
 #include <cstring>
+#include <cstdlib> // for strtod(), strtoll()
 #include <iomanip>
 #include <sstream>
 

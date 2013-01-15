@@ -31,6 +31,7 @@
 #include "NodeConnector.hh"
 
 #include <cmath> // for fabs()
+#include <cstdlib> // for strtod(), strtoll()
 
 namespace PLEXIL
 {
