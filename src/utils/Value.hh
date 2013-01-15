@@ -29,7 +29,8 @@
 
 #include "ConstantMacros.hh"
 
-#include <stdint.h> // for int32_t
+#include <stdint.h> // for int32_t - NOTE: not cstdint!
+#include <string>
 #include <vector>
 
 // *** THIS IS A KLUDGE *** but I don't see a better way at the moment
