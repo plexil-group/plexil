@@ -4,7 +4,7 @@
 #       and validates *.pl{i,e} and lib/*.pl{i,e}.
 
 # For use in running agents from a makefile which includes this one
-RUN_AGENTS = $(PLEXIL_HOME)/bin/run-agents
+RUN_AGENTS = $(PLEXIL_HOME)/scripts/run-agents
 
 # Find the .pli and .ple plans in ./ and lib/
 PLANS = $(wildcard *.pli *.ple lib/*.pli lib/*.ple)
