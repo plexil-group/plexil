@@ -630,7 +630,7 @@ namespace PLEXIL
         else if (type.compare("int-array") == 0)
           {
             assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
-            StoredArray array(size, Value(0.0));
+            StoredArray array(size, Value(0));
             for (int i = 0 ; i < size ; i++)
               {
                 array[i] = Value((int32_t) ((len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset)));
@@ -681,7 +681,7 @@ namespace PLEXIL
         else if (type.compare("bool-array") == 0)
           {
             assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
-            StoredArray array(size, Value(0.0));
+            StoredArray array(size, Value(false));
             for (int i = 0 ; i < size ; i++)
               {
                 switch (len)
@@ -699,7 +699,7 @@ namespace PLEXIL
         else if (type.compare("string-array") == 0)
           {
             // XXXX For unknown reasons, OnCommand(... String arg); is unable to receive this (inlike int and float arrays)
-            StoredArray array(size);
+            StoredArray array(size, LabelStr());
             for (int i = 0 ; i < size ; i++)
               {
                 std::string str = decode_string(buffer, offset, len);
