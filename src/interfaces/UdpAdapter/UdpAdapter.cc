@@ -29,6 +29,7 @@
 #include "AdapterFactory.hh"    // initUdpAdapter
 #include "BooleanVariable.hh"
 #include "CoreExpressions.hh"   // BooleanVariable, etc.
+#include "Command.hh"
 #include "Debug.hh"             // debugMsg
 #include "Node.hh"              // struct PLEXIL::Node
 #include "pugixml.hpp"
@@ -144,9 +145,14 @@ namespace PLEXIL
   }
 
   // Execute a Plexil Command
-  void UdpAdapter::executeCommand(const LabelStr& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack)
+  // void UdpAdapter::executeCommand(const LabelStr& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack)
+  void UdpAdapter::executeCommand(const CommandId& cmd)
   {
-    debugMsg("UdpAdapter::executeCommand", " " << name.toString() << " (dest==" << dest << ", ack==" << ack << ")");
+    Value name = cmd->getName();
+    VariableId dest = cmd->getDest();
+    VariableId ack = cmd->getAck();
+    const std::vector<Value>& args = cmd->getArgValues();
+    debugMsg("UdpAdapter::executeCommand", " " << name << " (dest==" << dest << ", ack==" << ack << ")");
     if (name == SEND_MESSAGE_COMMAND())
       executeSendMessageCommand(args, dest, ack);
     //else if (name == SEND_UDP_MESSAGE_COMMAND())
@@ -167,16 +173,25 @@ namespace PLEXIL
   }
 
   // Abort the given command with the given arguments.  Store the abort-complete into dest
-  void UdpAdapter::invokeAbort(const LabelStr& cmdName, const std::vector<Value>& cmdArgs, ExpressionId dest, ExpressionId cmdAck)
+  void UdpAdapter::invokeAbort(const CommandId& cmd) 
   {
+    Value cmdName = cmd->getName();
+    if (cmdName != RECEIVE_COMMAND_COMMAND()) {
+      m_execInterface.handleValueChange(cmd->getAbortComplete(), BooleanVariable::TRUE_VALUE());
+      m_execInterface.notifyOfExternalEvent();
+      return;
+    }
+
+    const std::vector<Value>& cmdArgs = cmd->getArgValues();
+    assertTrueMsg(cmdArgs.size() == 1, "UdpAdapter: Aborting ReceiveCommand requires exactly one argument");
     assertTrueMsg(cmdArgs.front().isString(),
                   "UdpAdapter: The argument to the ReceiveMessage abort, "
                   << cmdArgs.front() << ", is not a string");
     const char* msgName = cmdArgs.front().c_str(); // The defined message name, needed for looking up the thread and socket
+    VariableId dest = cmd->getDest();
+    VariableId cmdAck = cmd->getAck();
     debugMsg("UdpAdapter::invokeAbort", " called for " << cmdName.c_str() << " (" << msgName <<
              "), " << dest << ", " << cmdAck);
-    assertTrueMsg(cmdName == RECEIVE_COMMAND_COMMAND(), "UdpAdapter: Only ReceiveCommand commands can be aborted");
-    assertTrueMsg(cmdArgs.size() == 1, "UdpAdapter: Aborting ReceiveCommand requires exactly one argument");
     int status;                        // The return status of the calls to pthread_cancel() and close()
     // First, find the active thread for this message, cancel and erase it
     ThreadMap::iterator thread;
@@ -196,7 +211,7 @@ namespace PLEXIL
     m_activeSockets.erase(socket); // erase the closed socket
     // Let the exec know that we believe things are cleaned up
     m_messageQueues.removeRecipient(formatMessageName(msgName, RECEIVE_COMMAND_COMMAND()), cmdAck);
-    m_execInterface.handleValueChange(dest, BooleanVariable::TRUE_VALUE());
+    m_execInterface.handleValueChange(cmd->getAbortComplete(), BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 
