@@ -104,7 +104,7 @@ namespace PLEXIL
 
 
   // This default method is a wrapper for backward compatibility.
-  void InterfaceAdapter::executeCommand(CommandId cmd)
+  void InterfaceAdapter::executeCommand(const CommandId& cmd)
   {
     this->executeCommand(cmd->getName(), cmd->getArgValues(), cmd->getDest(), cmd->getAck());
   }

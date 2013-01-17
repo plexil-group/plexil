@@ -836,7 +836,7 @@ namespace PLEXIL
   // *** To do:
   //  - bookkeeping (i.e. tracking active commands), mostly for invokeAbort() below
   void
-  InterfaceManager::executeCommand(CommandId cmd)
+  InterfaceManager::executeCommand(const CommandId& cmd)
   {
     LabelStr name(cmd->getName());
     InterfaceAdapterId intf = getCommandInterface(cmd->getName());

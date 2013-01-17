@@ -546,7 +546,7 @@ namespace PLEXIL
     //
 
     // Executes a command.
-    void executeCommand(CommandId cmd);
+    void executeCommand(const CommandId& cmd);
 
     // rejects a command due to non-availability of resources
     // FIXME: need CommandId variant

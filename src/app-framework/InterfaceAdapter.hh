@@ -164,7 +164,7 @@ namespace PLEXIL
      * @param cmd The Command instance.
      * @note The default method calls the method below.
      */
-    virtual void executeCommand(CommandId cmd);
+    virtual void executeCommand(const CommandId& cmd);
 
     /**
      * @brief Execute a command with the requested arguments.
@@ -182,9 +182,10 @@ namespace PLEXIL
 
     /**
      * @brief Abort the pending command.
+     * @param cmd Id of the descriptor of the command being aborted.
      * @note Derived classes may implement this method. The default method calls the compatibility method below.
      */
-    virtual void invokeAbort(const CommandId& name);
+    virtual void invokeAbort(const CommandId& cmd);
 
     /**
      * @brief Abort the pending command with the supplied name and arguments.
