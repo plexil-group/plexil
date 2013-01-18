@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@ MACHTYPE ?= $(shell uname -p)
 OS_ARCH = $(OSTYPE)-$(MACHTYPE)
 
 LIBRARY = SampleAdapter
-SRC = types.cc subscriber.cc sample_system.cc SampleAdapter.cc
-INC = types.hh subscriber.hh sample_system.hh SampleAdapter.hh
+SRC = subscriber.cc sample_system.cc SampleAdapter.cc
+INC = subscriber.hh sample_system.hh SampleAdapter.hh
 
 INC_DIRS += $(PLEXIL_HOME)/src/third-party/pugixml/src $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework
 

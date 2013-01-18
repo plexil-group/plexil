@@ -63,7 +63,6 @@ defAccessors(Size, float)
 defAccessors(Speed, int)
 defAccessors(Color, string)
 
-
 // The overloaded state 'At' accessors are handled individually.  Note that 'At'
 // is fundamentally different from the states above; without parameters it is a
 // data accessor, and otherwise it is a predicate.

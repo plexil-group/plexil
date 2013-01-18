@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,9 +37,6 @@
 #include "sample_system.hh"
 #include "SampleAdapter.hh"
 
-using PLEXIL::LabelStr;
-using PLEXIL::State;
-
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -56,36 +53,38 @@ using std::copy;
 static string error = "Error in SampleAdaptor: ";
 
 // A prettier name for the "unknown" value.
-static Any Unknown = PLEXIL::UNKNOWN();
+static Value Unknown = UNKNOWN();
 
 // A localized handle on the adapter, which allows a
 // decoupling between the sample system and adapter.
 static SampleAdapter * Adapter;
 
 // An empty argument vector.
-static vector<Any> EmptyArgs;
+static vector<Value> EmptyArgs;
 
 
 ///////////////////////////// State support //////////////////////////////////
 
 // Queries the system for the value of a state and its arguments.
 //
-static Any fetch (const string& state_name, const vector<Any>& args)
+static Value fetch (const string& state_name, const vector<Value>& args)
 {
   debugMsg("SampleAdapter:fetch",
            "Fetch called on " << state_name << " with " << args.size() << " args");
-  Any retval;
+  Value retval;
 
-  // Crufty, will try to generalize later...
-  if (state_name == "Size") retval = encodeReal (getSize());
-  else if (state_name == "Speed") retval = encodeInt (getSpeed());
-  else if (state_name == "Color") retval = encodeString (getColor());
+  // NOTE: A more streamlined approach to dispatching on state name
+  // would be nice.
+
+  if (state_name == "Size") retval = getSize();
+  else if (state_name == "Speed") retval = getSpeed();
+  else if (state_name == "Color") retval = getColor();
   else if (state_name == "at") {
     switch (args.size()) {
-    case 0: retval = encodeString (at ()); break;
-    case 1: retval = encodeBool (at (decodeString (args[0]))); break;
+    case 0: retval = at (); break;
+    case 1: retval = at (args[0].getStringValue()); break;
     case 2: {
-      retval = encodeBool (at (decodeInt (args[0]), decodeInt (args[1])));
+      retval = at (args[0].getIntValue(), args[1].getIntValue());
       break;
     }
     default: {
@@ -98,8 +97,8 @@ static Any fetch (const string& state_name, const vector<Any>& args)
     cerr << error << "invalid state: " << state_name << endl;
     retval = Unknown;
   }
-  debugMsg("SampleAdapter:fetch",
-           "Fetch returning " << PLEXIL::Expression::valueToString (retval));
+
+  debugMsg("SampleAdapter:fetch", "Fetch returning " << retval);
   return retval;
 }
 
@@ -108,7 +107,7 @@ static Any fetch (const string& state_name, const vector<Any>& args)
 // receive the name of the state whose value has changed in the system.  Then
 // they propagate the state's new value to the executive.
 
-static void propagate (const State& state, const vector<Any>& value)
+static void propagate (const State& state, const vector<Value>& value)
 {
   Adapter->propagateValueChange (state, value);
 }
@@ -116,41 +115,41 @@ static void propagate (const State& state, const vector<Any>& value)
 static void receive (const string& state_name, int val)
 {
   propagate (State (LabelStr (state_name), EmptyArgs),
-             vector<Int> (1, encodeInt (val)));
+             vector<Value> (1, val));
 }
 
 static void receive (const string& state_name, float val)
 {
   propagate (State (LabelStr (state_name), EmptyArgs),
-             vector<Real> (1, encodeReal (val)));
+             vector<Value> (1, val));
 }
 
 static void receive (const string& state_name, const string& val)
 {
   propagate (State (LabelStr (state_name), EmptyArgs),
-             vector<String> (1, encodeString (val)));
+             vector<Value> (1, val));
 }
 
 static void receive (const string& state_name, bool val, const string& arg)
 {
-  State state (LabelStr (state_name), vector<String> (encodeString (arg)));
-  propagate (state, vector<Bool> (1, encodeBool (val)));
+  State state (state_name, vector<Value> (1, arg));
+  propagate (state, vector<Value> (1, val));
 }
 
 static void receive (const string& state_name, bool val, int arg1, int arg2)
 {
-  vector<Int> vec;
-  vec.push_back (encodeInt (arg1));
-  vec.push_back (encodeInt (arg2));
-  State state (LabelStr (state_name), vec);
-  propagate (state, vector<Bool> (1, encodeBool (val)));
+  vector<Value> vec;
+  vec.push_back (arg1);
+  vec.push_back (arg2);
+  State state (state_name, vec);
+  propagate (state, vector<Value> (1, val));
 }
 
 
 ///////////////////////////// Member functions //////////////////////////////////
 
 
-SampleAdapter::SampleAdapter(PLEXIL::AdapterExecInterface& execInterface,
+SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
                              const pugi::xml_node& configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
@@ -199,36 +198,36 @@ bool SampleAdapter::shutdown()
 // the status, and return value if applicable, back to the executive.
 //
 void SampleAdapter::executeCommand (const LabelStr& command_name,
-                                    const list<Any>& args,
-                                    PLEXIL::ExpressionId dest,
-                                    PLEXIL::ExpressionId ack) 
+                                    const vector<Value>& args,
+                                    ExpressionId dest,
+                                    ExpressionId ack) 
 {
   string name = command_name.toString();
   debugMsg("SampleAdapter", "Received executeCommand for " << name);  
 
-  // Warning!  This is a crufty function, handling each known
-  // command signature individually.
-
-  Any retval = Unknown;
-  vector<Any> argv(10);
+  Value retval = Unknown;
+  vector<Value> argv(10);
   copy (args.begin(), args.end(), argv.begin());
 
-  if (name == "SetSize") setSize (decodeReal (*args.begin()));
-  else if (name == "SetSpeed") setSpeed (decodeInt (*args.begin()));
-  else if (name == "SetColor") setColor (decodeString (*args.begin()));
-  else if (name == "Move") move (decodeString (argv[0]),
-                                 decodeInt (argv[1]),
-                                 decodeInt (argv[2]));
+  // NOTE: A more streamlined approach to dispatching on command type
+  // would be nice.
+
+  if (name == "SetSize") setSize (args[0].getDoubleValue());
+  else if (name == "SetSpeed") setSpeed (args[0].getIntValue());
+  else if (name == "SetColor") setColor (args[0].getStringValue());
+  else if (name == "Move") move (args[0].getStringValue(),
+                                 args[1].getIntValue(),
+                                 args[2].getIntValue());
   else if (name == "Hello") hello ();
-  else if (name == "Square") retval = square (decodeInt (*args.begin()));
+  else if (name == "Square") retval = square (args[0].getIntValue());
   else cerr << error << "invalid command: " << name << endl;
 
   // This sends a command handle back to the executive.
   m_execInterface.handleValueChange
-    (ack, PLEXIL::CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+    (ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
 
   // This sends the command's return value (if expected) to the executive.
-  if (dest != PLEXIL::ExpressionId::noId()) {
+  if (dest != ExpressionId::noId()) {
     m_execInterface.handleValueChange (dest, retval);
   }
 
@@ -236,11 +235,11 @@ void SampleAdapter::executeCommand (const LabelStr& command_name,
 }
 
 
-double SampleAdapter::lookupNow (const State& state)
+Value SampleAdapter::lookupNow (const State& state)
 {
   // This is the name of the state as given in the plan's LookupNow
   const LabelStr& name = state.first;
-  const vector<Any>& args = state.second;
+  const vector<Value>& args = state.second;
   return fetch(name.toString(), args);
 }
 
@@ -269,7 +268,7 @@ void SampleAdapter::setThresholds (const State& state, double hi, double lo)
 
 
 void SampleAdapter::propagateValueChange (const State& state,
-                                          const vector<Any>& vals) const
+                                          const vector<Value>& vals) const
 {
   if (!isStateSubscribed(state))
     return; 
