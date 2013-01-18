@@ -158,10 +158,10 @@ namespace PLEXIL {
     simpleTextElement(s, NODE_STATE_TAG(), node->getStateName().c_str());
 
     // add outcome
-    simpleTextElement(s, NODE_OUTCOME_TAG(), node->getOutcome().c_str());
+    simpleTextElement(s, NODE_OUTCOME_TAG(), node->getOutcome().valueToString().c_str());
 
     // add failure type
-    simpleTextElement(s, NODE_FAILURE_TYPE_TAG(),node->getFailureType().c_str());
+    simpleTextElement(s, NODE_FAILURE_TYPE_TAG(), node->getFailureType().valueToString().c_str());
       
     // add the condition states
     formatConditions(s, node);
