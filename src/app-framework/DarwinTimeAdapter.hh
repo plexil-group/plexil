@@ -27,11 +27,7 @@
 #ifndef DARWIN_TIME_ADAPTER_H
 #define DARWIN_TIME_ADAPTER_H
 
-#include "InterfaceAdapter.hh"
-#include <csignal>
-// This platform DOES NOT support the POSIX Advanced Realtime Option
-#include <sys/time.h>
-#include <map>
+#include "TimeAdapter.hh"
 
 namespace PLEXIL
 {
@@ -40,7 +36,7 @@ namespace PLEXIL
    * @brief An interface adapter using Darwin native time facilities
    *        to implement LookupNow and LookupOnChange.
    */
-  class DarwinTimeAdapter : public InterfaceAdapter
+  class DarwinTimeAdapter : public TimeAdapter
   {
   public:
     /**
@@ -63,88 +59,13 @@ namespace PLEXIL
      */
     virtual ~DarwinTimeAdapter();
 
-    //
-    // API to ExecApplication
-    //
-
-    /**
-     * @brief Initializes the adapter, possibly using its configuration data.
-     * @return true if successful, false otherwise.
-     */
-    bool initialize();
-
-    /**
-     * @brief Starts the adapter, possibly using its configuration data.  
-     * @return true if successful, false otherwise.
-     */
-    bool start();
-
-    /**
-     * @brief Stops the adapter.  
-     * @return true if successful, false otherwise.
-     */
-    bool stop();
-
-    /**
-     * @brief Resets the adapter.  
-     * @return true if successful, false otherwise.
-     */
-    bool reset();
-
-    /**
-     * @brief Shuts down the adapter, releasing any of its resources.
-     * @return true if successful, false otherwise.
-     */
-    bool shutdown();
-
-    /**
-     * @brief Perform an immediate lookup of the requested state.
-     * @param state The state for this lookup.
-     * @return The current value of the lookup.
-     */
-
-    Value lookupNow(const State& state);
-
-    /**
-     * @brief Inform the interface that it should report changes in value of this state.
-     * @param state The state.
-     */
-    void subscribe(const State& state);
-
-    /**
-     * @brief Inform the interface that a lookup should no longer receive updates.
-     * @param state The state.
-     */
-    void unsubscribe(const State& state);
-
-    /**
-     * @brief Advise the interface of the current thresholds to use when reporting this state.
-     * @param state The state.
-     * @param hi The upper threshold, at or above which to report changes.
-     * @param lo The lower threshold, at or below which to report changes.
-     */
-    void setThresholds(const State& state, double hi, double lo);
-
-    //
-    // Static member functions
-    //
-
     /**
      * @brief Get the current time from the operating system.
      * @return A double representing the current time.
      */
-    static double getCurrentTime();
+    double getCurrentTime();
 
-  private:
-
-    // Deliberately unimplemented
-    DarwinTimeAdapter();
-    DarwinTimeAdapter(const DarwinTimeAdapter &);
-    DarwinTimeAdapter & operator=(const DarwinTimeAdapter &);
-
-    //
-    // Internal member functions
-    //
+  protected:
 
     /**
      * @brief Set the timer.
@@ -158,23 +79,12 @@ namespace PLEXIL
      */
     void stopTimer();
 
-    /**
-     * @brief Static member function which waits for timer wakeups.
-     * @param this_as_void_ptr Pointer to the DarwinTimeAdapter instance, as a void *.
-     */
-    static void* timerWaitThread(void* this_as_void_ptr);
+  private:
 
-    /**
-     * @brief Report the current time to the Exec as an asynchronous lookup value.
-     */
-    void timerTimeout();
-
-    //
-    // Member variables
-    //
-
-    // Wait thread
-    pthread_t m_waitThread;
+    // Deliberately unimplemented
+    DarwinTimeAdapter();
+    DarwinTimeAdapter(const DarwinTimeAdapter &);
+    DarwinTimeAdapter & operator=(const DarwinTimeAdapter &);
   };
 
 }

@@ -27,10 +27,9 @@
 #ifndef POSIX_TIME_ADAPTER_H
 #define POSIX_TIME_ADAPTER_H
 
-#include "InterfaceAdapter.hh"
-#include <csignal>
+#include "TimeAdapter.hh"
+
 #include <time.h> // *** better be POSIX time.h! ***
-#include <map>
 
 namespace PLEXIL
 {
@@ -62,71 +61,17 @@ namespace PLEXIL
      */
     virtual ~PosixTimeAdapter();
 
-    //
-    // API to ExecApplication
-    //
-
-    /**
-     * @brief Initializes the adapter, possibly using its configuration data.
-     * @return true if successful, false otherwise.
-     */
-    bool initialize();
-
     /**
      * @brief Starts the adapter, possibly using its configuration data.  
      * @return true if successful, false otherwise.
      */
-    bool start();
+    virtual bool start();
 
     /**
      * @brief Stops the adapter.  
      * @return true if successful, false otherwise.
      */
-    bool stop();
-
-    /**
-     * @brief Resets the adapter.  
-     * @return true if successful, false otherwise.
-     */
-    bool reset();
-
-    /**
-     * @brief Shuts down the adapter, releasing any of its resources.
-     * @return true if successful, false otherwise.
-     */
-    bool shutdown();
-
-    /**
-     * @brief Perform an immediate lookup of the requested state.
-     * @param state The state for this lookup.
-     * @return The current value for this lookup.
-     */
-
-    Value lookupNow(const State& state);
-
-    /**
-     * @brief Inform the interface that it should report changes in value of this state.
-     * @param state The state.
-     */
-    void subscribe(const State& state);
-
-    /**
-     * @brief Inform the interface that a lookup should no longer receive updates.
-     * @param state The state.
-     */
-    void unsubscribe(const State& state);
-
-    /**
-     * @brief Advise the interface of the current thresholds to use when reporting this state.
-     * @param state The state.
-     * @param hi The upper threshold, at or above which to report changes.
-     * @param lo The lower threshold, at or below which to report changes.
-     */
-    void setThresholds(const State& state, double hi, double lo);
-
-    //
-    // Static member functions
-    //
+    virtual bool stop();
 
     /**
      * @brief Get the current time from the operating system.
@@ -134,37 +79,26 @@ namespace PLEXIL
      */
     static double getCurrentTime();
 
+  protected:
+
+    /**
+     * @brief Set the timer.
+     * @param date The Unix-epoch wakeup time, as a double.
+     * @return True if the timer was set, false if clock time had already passed the wakeup time.
+     */
+    virtual bool setTimer(double date);
+
+    /**
+     * @brief Stop the timer.
+     */
+    virtual void stopTimer();
+
   private:
 
     // Deliberately unimplemented
     PosixTimeAdapter();
     PosixTimeAdapter(const PosixTimeAdapter &);
     PosixTimeAdapter & operator=(const PosixTimeAdapter &);
-
-    //
-    // Internal member functions
-    //
-
-    /**
-     * @brief Helper for constructor methods.
-     */
-    void initSigevent();
-
-    /**
-     * @brief Static member function invoked upon receiving a timer signal
-     * @param this_as_sigval Pointer to the parent PosixTimeAdapter instance as a sigval.
-     */
-    static void timerNotifyFunction(sigval this_as_sigval);
-
-    /**
-     * @brief Report the current time to the Exec as an asynchronous lookup value.
-     */
-    void timerTimeout();
-
-    /**
-     * @brief Stop the timer.
-     */
-    void stopTimer();
 
     //
     // Member variables

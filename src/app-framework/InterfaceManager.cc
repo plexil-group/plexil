@@ -71,6 +71,14 @@
 #include "PlanDebugListener.hh"
 #endif
 
+#if defined(HAVE_CLOCK_GETTIME)
+#include "PosixTimeAdapter.hh"
+#elif defined(HAVE_GETTIMEOFDAY)
+#include "DarwinTimeAdapter.hh"
+#else
+#error "No time adapter implementation class for this environment"
+#endif
+
 #include <cstring>
 #include <limits>
 #include <sstream>

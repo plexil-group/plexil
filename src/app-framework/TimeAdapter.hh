@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,17 +27,166 @@
 #ifndef TIME_ADAPTER_H
 #define TIME_ADAPTER_H
 
-#include <unistd.h>
-// sigh, Android only defines _POSIX_TIMERS as 1
-#if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))
+#include "InterfaceAdapter.hh"
+
+#include <plexil-config.h>
+
+#include <pthread.h>
+
+#if defined(HAVE_CLOCK_GETTIME)
 // POSIX timers are supported
 #define TIME_ADAPTER_CLASS PosixTimeAdapter
-#include "PosixTimeAdapter.hh"
-#else
+#elif defined(HAVE_GETTIMEOFDAY)
 // POSIX timers are *not* supported
 // Currently only Mac OS X
 #define TIME_ADAPTER_CLASS DarwinTimeAdapter
-#include "DarwinTimeAdapter.hh"
+#else
+#error "No time adapter implementation class for this environment"
 #endif
+
+namespace PLEXIL
+{
+
+  /**
+   * @brief An interface adapter for Unix-like systems, using native time facilities
+   *        to implement LookupNow and LookupOnChange.
+   */
+  class TimeAdapter : public InterfaceAdapter
+  {
+  public:
+    /**
+     * @brief Constructor.
+     * @param execInterface Reference to the parent AdapterExecInterface object.
+     */
+    TimeAdapter(AdapterExecInterface& execInterface);
+
+    /**
+     * @brief Constructor from configuration XML.
+     * @param execInterface Reference to the parent AdapterExecInterface object.
+     * @param xml An XML element describing this adapter
+     * @note The instance maintains a shared pointer to the XML element.
+     */
+    TimeAdapter(AdapterExecInterface& execInterface, 
+                const pugi::xml_node& xml);
+
+    /**
+     * @brief Destructor.
+     */
+    virtual ~TimeAdapter();
+
+    //
+    // API to ExecApplication
+    //
+
+    /**
+     * @brief Initializes the adapter, possibly using its configuration data.
+     * @return true if successful, false otherwise.
+     */
+    virtual bool initialize();
+
+    /**
+     * @brief Starts the adapter, possibly using its configuration data.  
+     * @return true if successful, false otherwise.
+     */
+    virtual bool start();
+
+    /**
+     * @brief Stops the adapter.  
+     * @return true if successful, false otherwise.
+     */
+    virtual bool stop();
+
+    /**
+     * @brief Resets the adapter.  
+     * @return true if successful, false otherwise.
+     */
+    virtual bool reset();
+
+    /**
+     * @brief Shuts down the adapter, releasing any of its resources.
+     * @return true if successful, false otherwise.
+     */
+    virtual bool shutdown();
+
+    /**
+     * @brief Perform an immediate lookup of the requested state.
+     * @param state The state for this lookup.
+     * @return The current value of the lookup.
+     */
+
+    Value lookupNow(const State& state);
+
+    /**
+     * @brief Inform the interface that it should report changes in value of this state.
+     * @param state The state.
+     */
+    void subscribe(const State& state);
+
+    /**
+     * @brief Inform the interface that a lookup should no longer receive updates.
+     * @param state The state.
+     */
+    void unsubscribe(const State& state);
+
+    /**
+     * @brief Advise the interface of the current thresholds to use when reporting this state.
+     * @param state The state.
+     * @param hi The upper threshold, at or above which to report changes.
+     * @param lo The lower threshold, at or below which to report changes.
+     */
+    void setThresholds(const State& state, double hi, double lo);
+
+    /**
+     * @brief Get the current time from the operating system.
+     * @return A double representing the current time.
+     */
+    virtual double getCurrentTime() = 0;
+
+  protected:
+
+    //
+    // Internal functions to be implemented by derived classes
+    //
+
+    /**
+     * @brief Set the timer.
+     * @param date The Unix-epoch wakeup time, as a double.
+     * @return True if the timer was set, false if clock time had already passed the wakeup time.
+     */
+    virtual bool setTimer(double date) = 0;
+
+    /**
+     * @brief Stop the timer.
+     */
+    virtual void stopTimer() = 0;
+
+  private:
+
+    // Deliberately unimplemented
+    TimeAdapter();
+    TimeAdapter(const TimeAdapter &);
+    TimeAdapter & operator=(const TimeAdapter &);
+    
+    /**
+     * @brief Report the current time to the Exec as an asynchronous lookup value.
+     */
+    void timerTimeout();
+
+    /**
+     * @brief Static member function which waits for timer wakeups.
+     * @param this_as_void_ptr Pointer to the TimeAdapter instance, as a void *.
+     */
+    static void* timerWaitThread(void* this_as_void_ptr);
+
+    //
+    // Member variables
+    //
+
+    // Wait thread
+    pthread_t m_waitThread;
+
+  };
+
+} // namespace PLEXIL
 
 #endif // TIME_ADAPTER_H
