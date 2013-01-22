@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 
 #include "ThreadSpawn.hh"
 #include <iostream>
-#include <errno.h>
+#include <cerrno>
 
 bool threadSpawn(void* (*threadFunc)(void*), void *arg, pthread_t& thread_id) 
 {
@@ -52,7 +52,8 @@ bool threadSpawn(void* (*threadFunc)(void*), void *arg, pthread_t& thread_id)
   }
 
   // Set the stack size in the pthread_attr_t struct
-  switch ((nRet = pthread_attr_setstacksize(&pthread_attr, stacksize))) {
+  nRet = pthread_attr_setstacksize(&pthread_attr, stacksize);
+  switch (nRet) {
   case 0: 
     break;
   case EINVAL: 
@@ -61,15 +62,14 @@ bool threadSpawn(void* (*threadFunc)(void*), void *arg, pthread_t& thread_id)
   default: 
     std::cerr << "unknown error " << nRet << std::endl; 
     return false;
-  }	
+  } 
   
   //  pthread_t thread_id;
-  nRet = pthread_create(
-			&thread_id,                  // Thread id
-			&pthread_attr,               // Use default attributes
-			(THREAD_FUNC_PTR)threadFunc, // Thread function
-			arg                          // Argument to thread function
-			);
+  nRet = pthread_create(&thread_id,                  // Thread id
+                        &pthread_attr,               // Use default attributes
+                        (THREAD_FUNC_PTR)threadFunc, // Thread function
+                        arg                          // Argument to thread function
+                        );
   if (nRet !=0)
     std::cerr << "Error " << nRet << " occurred while spawning thread" << std::endl;
   //  else
