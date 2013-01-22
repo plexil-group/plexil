@@ -74,6 +74,16 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Stops the adapter.  
+   * @return true if successful, false otherwise.
+   */
+  bool DarwinTimeAdapter::stop()
+  {
+    stopTimer();
+    return TimeAdapter::stop();
+  }
+
+  /**
    * @brief Get the current time from the operating system.
    * @return A double representing the current time.
    */
@@ -129,8 +139,9 @@ namespace PLEXIL
   {
     static itimerval const sl_disableItimerval = {{0, 0}, {0, 0}};
     int status = setitimer(ITIMER_REAL, & sl_disableItimerval, NULL);
-    assertTrueMsg(status == 0,
-                  "TimeAdapter:stopTimer: setitimer() failed, errno = " << errno);
+    condDebugMsg(status != 0,
+                 "TimeAdapter:stopTimer",
+                 " setitimer() failed, errno = " << errno);
   }
 
 }

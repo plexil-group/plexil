@@ -60,6 +60,12 @@ namespace PLEXIL
     virtual ~DarwinTimeAdapter();
 
     /**
+     * @brief Stops the adapter.  
+     * @return true if successful, false otherwise.
+     */
+    virtual bool stop();
+
+    /**
      * @brief Get the current time from the operating system.
      * @return A double representing the current time.
      */
