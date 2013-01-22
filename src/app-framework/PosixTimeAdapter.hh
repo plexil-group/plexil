@@ -29,6 +29,7 @@
 
 #include "TimeAdapter.hh"
 
+#include <csignal>
 #include <time.h> // *** better be POSIX time.h! ***
 
 namespace PLEXIL
@@ -38,7 +39,7 @@ namespace PLEXIL
    * @brief An interface adapter using standard POSIX time facilities
    *        to implement LookupNow and LookupOnChange.
    */
-  class PosixTimeAdapter : public InterfaceAdapter
+  class PosixTimeAdapter : public TimeAdapter
   {
   public:
     /**
@@ -65,19 +66,19 @@ namespace PLEXIL
      * @brief Starts the adapter, possibly using its configuration data.  
      * @return true if successful, false otherwise.
      */
-    virtual bool start();
+    bool start();
 
     /**
      * @brief Stops the adapter.  
      * @return true if successful, false otherwise.
      */
-    virtual bool stop();
+    bool stop();
 
     /**
      * @brief Get the current time from the operating system.
      * @return A double representing the current time.
      */
-    static double getCurrentTime();
+    double getCurrentTime();
 
   protected:
 

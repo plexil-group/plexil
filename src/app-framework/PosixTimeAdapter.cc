@@ -48,9 +48,8 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface)
-    : InterfaceAdapter(execInterface)
+    : TimeAdapter(execInterface)
   {
-    initSigevent();
   }
 
   /**
@@ -61,9 +60,8 @@ namespace PLEXIL
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface, 
                                      const pugi::xml_node& xml)
-    : InterfaceAdapter(execInterface, xml)
+    : TimeAdapter(execInterface, xml)
   {
-    initSigevent();
   }
 
   /**
@@ -91,9 +89,7 @@ namespace PLEXIL
                               &m_sigevent,
                               &m_timer);
     if (status) {
-      debugMsg(0 != status,
-               "PosixTimeAdapter:start",
-               " timer_create failed, errno = " << errno);
+      debugMsg("PosixTimeAdapter:start", " timer_create failed, errno = " << errno);
       return false;
     }
     // start the timer wait thread

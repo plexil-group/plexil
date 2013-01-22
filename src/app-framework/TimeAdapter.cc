@@ -91,7 +91,6 @@ namespace PLEXIL
 
   bool TimeAdapter::stop()
   {
-    stopTimer();
     pthread_kill(m_waitThread, STOP_WAIT_THREAD_SIGNAL);
     pthread_join(m_waitThread, NULL);
 
@@ -204,7 +203,7 @@ namespace PLEXIL
     errnum = errnum | sigaddset(&threadSigset, SIGHUP);
     errnum = errnum | sigaddset(&threadSigset, SIGQUIT);
     errnum = errnum | sigaddset(&threadSigset, SIGTERM);
-    // errnum = errnum | sigaddset(&threadSigset, SIGUSR1); // use this to terminate thread
+    errnum = errnum | sigaddset(&threadSigset, SIGUSR1);
     errnum = errnum | sigaddset(&threadSigset, SIGUSR2);
     // FIXME: maybe more??
     assertTrueMsg(errnum == 0,
