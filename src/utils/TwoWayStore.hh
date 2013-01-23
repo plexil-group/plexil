@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -52,10 +52,6 @@ namespace PLEXIL
    * key_t next();
    * Returns the next available key value and marks it as used.
    *
-   * void unregister(const key_t& key);
-   * Marks this key value as unused, and free to be reassigned. 
-   * This method can be a no-op if the key source does not permit reuse.
-   *
    * static bool rangeCheck(const key_t& key);
    * Returns true if the key is in the valid range, false otherwise.
    *
@@ -108,7 +104,7 @@ namespace PLEXIL
 #endif
         m_table()
     {
-      m_emptyKey = storeItem(item_t());
+      m_emptyKey = storeItem(item_t(), true);
     }
 
     /** 
@@ -191,17 +187,26 @@ namespace PLEXIL
     /**
      * @brief Store the item, and return the associated key.
      * @param item The item to copy and store.
+     * @param permanent Set to true if the value should be considered permanent
+     * (i.e. not reference counted).
      * @return The key value for the stored item.
      * @note If an equivalent item is already stored, its key is returned, and 
      *       the item is not copied.
      */
-    key_t storeItem(const item_t& item)
+    key_t storeItem(const item_t& item, bool permanent = false)
     {
 #ifndef STORED_ITEM_NO_MUTEX
       ThreadMutexGuard guard(*m_mutex);
 #endif
-      key_t key = m_keySource.unassigned();
+      key_t key;
       if (m_table.getItemKey(item, key)) {
+        // Bypass refcounting for permanent keys
+        if (key_source_t::isSpecial(key)) {
+#if defined(TWO_WAY_STORE_DEBUG)
+          debugMsg("TwoWayStore:storeItem", " for existing permanent item " << item);
+#endif
+          return key; 
+        }
         entry_t* entry = m_table.getByKey(key);
         assertTrueMsg(entry != NULL,
                       "TwoWayStore::storeItem: Consistency failure: item has key, but key has no entry");
@@ -220,7 +225,7 @@ namespace PLEXIL
       entry_t* entry = new entry_t;
       entry->refcount = 1;
       entry->item = item;
-      key = m_keySource.next();
+      key = m_keySource.next(permanent);
       m_table.insertEntry(key, entry);
       return key;
     }
@@ -231,10 +236,14 @@ namespace PLEXIL
      * @param key The key value for the StoredItem.
      * @return True if the key is valid, false if not.
      * @note Caller MUST check return value!
-     * @note The empty item is not reference counted for efficiency's sake.
+     * @note Special items are not reference counted for efficiency's sake.
      */
     bool newReference(key_t key)
     {
+      // Don't reference count "permanent" items
+      if (key_source_t::isSpecial(key))
+        return true;
+
 #ifdef PLEXIL_FAST
       if (!key_source_t::rangeCheck(key))
         return false;
@@ -242,8 +251,6 @@ namespace PLEXIL
       checkError(key_source_t::rangeCheck(key),
                  "TwoWayStore::newReference: key not in valid range");
 #endif
-      if (key == m_emptyKey)
-        return true;
 
 #ifndef STORED_ITEM_NO_MUTEX
       ThreadMutexGuard guard(*m_mutex);
@@ -266,10 +273,14 @@ namespace PLEXIL
      * @brief Record the deletion of a StoredItem with the given key.
      * If no references remain, the key-item pair will be deleted from the store.
      * @param key The key value for the deleted StoredItem.
-     * @note The empty item is not reference counted for efficiency's sake.
+     * @note Special items are not reference counted for efficiency's sake.
      */
     void deleteReference(key_t key)
     {
+      // Don't reference count "permanent" items
+      if (key_source_t::isSpecial(key))
+        return;
+
 #ifdef PLEXIL_FAST
       if (!key_source_t::rangeCheck(key))
         return; // fail fast on invalid keys
@@ -277,8 +288,6 @@ namespace PLEXIL
       checkError(key_source_t::rangeCheck(key),
                  "TwoWayStore::deleteReference: key not in valid range");
 #endif
-      if (key == m_emptyKey)
-        return;
 
 #ifndef STORED_ITEM_NO_MUTEX
       ThreadMutexGuard guard(*m_mutex);
@@ -299,7 +308,6 @@ namespace PLEXIL
         debugMsg("TwoWayStore:deleteReference", " deleting item " << entry->item);
 #endif
         m_table.removeEntry(key);
-        m_keySource.unregister(key);
       }
     }
 
