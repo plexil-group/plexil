@@ -56,39 +56,39 @@ namespace PLEXIL {
   {
   public:
     //condition names
-    DECLARE_STATIC_CLASS_CONST(LabelStr, SKIP_CONDITION, "SkipCondition"); /*!< The name for the node's skip condition. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, START_CONDITION, "StartCondition"); /*!< The name for the node's start condition. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, END_CONDITION, "EndCondition"); /*!< The name for the node's end condition. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, EXIT_CONDITION, "ExitCondition"); /*!< The name for the node's exit condition. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, INVARIANT_CONDITION, "InvariantCondition"); /*!< The name for the node's invariant condition. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, PRE_CONDITION, "PreCondition"); /*!< The name for the node's pre-condition. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, POST_CONDITION, "PostCondition"); /*!< The name for the node's post-condition. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, REPEAT_CONDITION, "RepeatCondition"); /*!< The name for the node's repeat condition. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, ANCESTOR_INVARIANT_CONDITION, "AncestorInvariantCondition"); /*!< The name for the node's ancestor-invariant
+    DECLARE_STATIC_CLASS_CONST_LABEL(SKIP_CONDITION, "SkipCondition"); /*!< The name for the node's skip condition. */
+    DECLARE_STATIC_CLASS_CONST_LABEL(START_CONDITION, "StartCondition"); /*!< The name for the node's start condition. */
+    DECLARE_STATIC_CLASS_CONST_LABEL(END_CONDITION, "EndCondition"); /*!< The name for the node's end condition. */
+    DECLARE_STATIC_CLASS_CONST_LABEL(EXIT_CONDITION, "ExitCondition"); /*!< The name for the node's exit condition. */
+    DECLARE_STATIC_CLASS_CONST_LABEL(INVARIANT_CONDITION, "InvariantCondition"); /*!< The name for the node's invariant condition. */
+    DECLARE_STATIC_CLASS_CONST_LABEL(PRE_CONDITION, "PreCondition"); /*!< The name for the node's pre-condition. */
+    DECLARE_STATIC_CLASS_CONST_LABEL(POST_CONDITION, "PostCondition"); /*!< The name for the node's post-condition. */
+    DECLARE_STATIC_CLASS_CONST_LABEL(REPEAT_CONDITION, "RepeatCondition"); /*!< The name for the node's repeat condition. */
+    DECLARE_STATIC_CLASS_CONST_LABEL(ANCESTOR_INVARIANT_CONDITION, "AncestorInvariantCondition"); /*!< The name for the node's ancestor-invariant
                                                                                                         condition (parent.invariant && parent.ancestor-invariant).*/
-    DECLARE_STATIC_CLASS_CONST(LabelStr, ANCESTOR_END_CONDITION, "AncestorEndCondition"); /*!< The name for the ancestor-end condition
+    DECLARE_STATIC_CLASS_CONST_LABEL(ANCESTOR_END_CONDITION, "AncestorEndCondition"); /*!< The name for the ancestor-end condition
                                                                                             (parent.end || parent.ancestor-end). */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, ANCESTOR_EXIT_CONDITION, "AncestorExitCondition"); /*!< The name for the ancestor-exit condition
+    DECLARE_STATIC_CLASS_CONST_LABEL(ANCESTOR_EXIT_CONDITION, "AncestorExitCondition"); /*!< The name for the ancestor-exit condition
                                                                                             (parent.exit || parent.ancestor-exit). */
 
-    DECLARE_STATIC_CLASS_CONST(LabelStr, ACTION_COMPLETE, "ActionCompleteCondition"); /*!< The name for the action-complete condition. */
-    DECLARE_STATIC_CLASS_CONST(LabelStr, ABORT_COMPLETE, "AbortCompleteCondition"); /*!< The name for the abort-complete condition. */
+    DECLARE_STATIC_CLASS_CONST_LABEL(ACTION_COMPLETE, "ActionCompleteCondition"); /*!< The name for the action-complete condition. */
+    DECLARE_STATIC_CLASS_CONST_LABEL(ABORT_COMPLETE, "AbortCompleteCondition"); /*!< The name for the abort-complete condition. */
 
     static const std::vector<LabelStr>& ALL_CONDITIONS();
 
     //in-built variable names
-    DECLARE_STATIC_CLASS_CONST(LabelStr, STATE, "state");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, OUTCOME, "outcome");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, FAILURE_TYPE, "failure_type");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND_HANDLE, "command_handle");
+    DECLARE_STATIC_CLASS_CONST_LABEL(STATE, "state");
+    DECLARE_STATIC_CLASS_CONST_LABEL(OUTCOME, "outcome");
+    DECLARE_STATIC_CLASS_CONST_LABEL(FAILURE_TYPE, "failure_type");
+    DECLARE_STATIC_CLASS_CONST_LABEL(COMMAND_HANDLE, "command_handle");
 
     //node types
-    DECLARE_STATIC_CLASS_CONST(LabelStr, ASSIGNMENT, "Assignment");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, COMMAND, "Command");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, LIST, "NodeList");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, LIBRARYNODECALL, "LibraryNodeCall");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, UPDATE, "Update");
-    DECLARE_STATIC_CLASS_CONST(LabelStr, EMPTY, "Empty");
+    DECLARE_STATIC_CLASS_CONST_LABEL(ASSIGNMENT, "Assignment");
+    DECLARE_STATIC_CLASS_CONST_LABEL(COMMAND, "Command");
+    DECLARE_STATIC_CLASS_CONST_LABEL(LIST, "NodeList");
+    DECLARE_STATIC_CLASS_CONST_LABEL(LIBRARYNODECALL, "LibraryNodeCall");
+    DECLARE_STATIC_CLASS_CONST_LABEL(UPDATE, "Update");
+    DECLARE_STATIC_CLASS_CONST_LABEL(EMPTY, "Empty");
 
     static const LabelStr& nodeTypeToLabelStr(PlexilNodeType nodeType);
 

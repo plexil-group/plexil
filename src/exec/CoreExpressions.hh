@@ -44,39 +44,31 @@ namespace PLEXIL
   {
   public:
     //state names
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               INACTIVE,
-                               "INACTIVE"); /*!< The inactive state. The initial state for a node. */
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               WAITING,
-                               "WAITING"); /*!< The waiting state. Occupied when a node's
-                                             parent is executing and the node's start
-                                             condition is not true.*/
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               EXECUTING,
-                               "EXECUTING"); /*!< The executing state.*/
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               FINISHING,
-                               "FINISHING");/*!< The finishing state. Only occupied by list
-                                              nodes whose end condition is true but whose
-                                              children haven't finished or failed.*/
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               FINISHED,
-                               "FINISHED"); /*!< The finished state. The node has completed executing.*/
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               FAILING,
-                               "FAILING"); /*!< The failing node state. Only occupied by list
-                                             nodes whose invariant or ancestor-invariant
-                                             condition is false. Essentially a waiting state
-                                             for children or command/update abort to finish.*/
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               ITERATION_ENDED,
-                               "ITERATION_ENDED");
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               NO_STATE,
-                               "NO_STATE"); /*!< The non-state. Nothing should *ever* be in
-                                              this state. Used internally to signify no
-                                              state transition is possible. */
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(INACTIVE,
+                                            "INACTIVE"); /*!< The inactive state. The initial state for a node. */
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(WAITING,
+                                            "WAITING"); /*!< The waiting state. Occupied when a node's
+                                                          parent is executing and the node's start
+                                                          condition is not true.*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(EXECUTING,
+                                            "EXECUTING"); /*!< The executing state.*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(FINISHING,
+                                            "FINISHING");/*!< The finishing state. Only occupied by list
+                                                           nodes whose end condition is true but whose
+                                                           children haven't finished or failed.*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(FINISHED,
+                                            "FINISHED"); /*!< The finished state. The node has completed executing.*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(FAILING,
+                                            "FAILING"); /*!< The failing node state. Only occupied by list
+                                                          nodes whose invariant or ancestor-invariant
+                                                          condition is false. Essentially a waiting state
+                                                          for children or command/update abort to finish.*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(ITERATION_ENDED,
+                                            "ITERATION_ENDED");
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(NO_STATE,
+                                            "NO_STATE"); /*!< The non-state. Nothing should *ever* be in
+                                                           this state. Used internally to signify no
+                                                           state transition is possible. */
 
     static const std::vector<Value>& ALL_STATES();
     static ExpressionId& INACTIVE_EXP();
@@ -114,18 +106,14 @@ namespace PLEXIL
   class OutcomeVariable : public VariableImpl
   {
   public:
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               SUCCESS,
-                               "SUCCESS"); /*!< A successful node execution (post-condition is true after finishing).*/
-    DECLARE_STATIC_CLASS_CONST(Value, 
-                               FAILURE,
-                               "FAILURE"); /*!< Failure (with some failure type).*/
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               SKIPPED,
-                               "SKIPPED"); /*!< The node was skipped without executing (the ancestor-invariant was false or the parent's end was true before*/
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               INTERRUPTED,
-                               "INTERRUPTED"); /*!< Exit condition or ancestor exit condition true while executing */
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(SUCCESS,
+                                            "SUCCESS"); /*!< A successful node execution (post-condition is true after finishing).*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(FAILURE,
+                                            "FAILURE"); /*!< Failure (with some failure type).*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(SKIPPED,
+                                            "SKIPPED"); /*!< The node was skipped without executing (the ancestor-invariant was false or the parent's end was true before*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(INTERRUPTED,
+                                            "INTERRUPTED"); /*!< Exit condition or ancestor exit condition true while executing */
 
     OutcomeVariable(const std::string& name);
     OutcomeVariable(const PlexilExprId& expr,
@@ -148,30 +136,24 @@ namespace PLEXIL
   {
   public:
     //failure types (one for each condition, command failure)
-    DECLARE_STATIC_CLASS_CONST(Value, 
-                               PRE_CONDITION_FAILED,
-                               "PRE_CONDITION_FAILED"); /*!< The pre-condition was false
-                                                          (checked after the start condition
-                                                          is true).*/
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               POST_CONDITION_FAILED,
-                               "POST_CONDITION_FAILED"); /*!< The post-condition was false
-                                                           (checked after the end condition is
-                                                           true*/
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               INVARIANT_CONDITION_FAILED,
-                               "INVARIANT_CONDITION_FAILED"); /*!< The invariant condition was
-                                                                false (checked when
-                                                                executing).*/
-    DECLARE_STATIC_CLASS_CONST(Value, 
-                               PARENT_FAILED,
-                               "PARENT_FAILED"); /*!< Ancestor invariant false */
-    DECLARE_STATIC_CLASS_CONST(Value, 
-                               EXITED,
-                               "EXITED"); /*!< Exit condition true */
-    DECLARE_STATIC_CLASS_CONST(Value,
-                               PARENT_EXITED,
-                               "PARENT_EXITED"); /*!< Ancestor exit condition true */
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(PRE_CONDITION_FAILED,
+                                            "PRE_CONDITION_FAILED"); /*!< The pre-condition was false
+                                                                       (checked after the start condition
+                                                                       is true).*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(POST_CONDITION_FAILED,
+                                            "POST_CONDITION_FAILED"); /*!< The post-condition was false
+                                                                        (checked after the end condition is
+                                                                        true*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(INVARIANT_CONDITION_FAILED,
+                                            "INVARIANT_CONDITION_FAILED"); /*!< The invariant condition was
+                                                                             false (checked when
+                                                                             executing).*/
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(PARENT_FAILED,
+                                            "PARENT_FAILED"); /*!< Ancestor invariant false */
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(EXITED,
+                                            "EXITED"); /*!< Exit condition true */
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(PARENT_EXITED,
+                                            "PARENT_EXITED"); /*!< Ancestor exit condition true */
 
     FailureVariable(const std::string& name);
     FailureVariable(const PlexilExprId& expr,
@@ -193,12 +175,12 @@ namespace PLEXIL
   class CommandHandleVariable : public VariableImpl 
   {
   public:
-    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_SENT_TO_SYSTEM, "COMMAND_SENT_TO_SYSTEM"); 
-    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_ACCEPTED, "COMMAND_ACCEPTED");
-    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_RCVD_BY_SYSTEM, "COMMAND_RCVD_BY_SYSTEM");
-    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_FAILED, "COMMAND_FAILED");
-    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_DENIED, "COMMAND_DENIED");
-    DECLARE_STATIC_CLASS_CONST(Value, COMMAND_SUCCESS, "COMMAND_SUCCESS");
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(COMMAND_SENT_TO_SYSTEM, "COMMAND_SENT_TO_SYSTEM"); 
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(COMMAND_ACCEPTED, "COMMAND_ACCEPTED");
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(COMMAND_RCVD_BY_SYSTEM, "COMMAND_RCVD_BY_SYSTEM");
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(COMMAND_FAILED, "COMMAND_FAILED");
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(COMMAND_DENIED, "COMMAND_DENIED");
+    DECLARE_STATIC_CLASS_CONST_STRING_VALUE(COMMAND_SUCCESS, "COMMAND_SUCCESS");
 
     CommandHandleVariable(const std::string& name);
     CommandHandleVariable(const PlexilExprId& expr,
