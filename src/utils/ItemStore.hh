@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,10 +48,6 @@ namespace PLEXIL
    *
    * key_t next();
    * Returns the next available key value and marks it as used.
-   *
-   * void unregister(const key_t& key);
-   * Marks this key value as unused, and free to be reassigned. 
-   * This method can be a no-op if the key source does not permit reuse.
    *
    * static bool rangeCheck(const key_t& key);
    * Returns true if the key is in the valid range, false otherwise.
@@ -251,7 +247,6 @@ namespace PLEXIL
       // Delete entry when all references have been deleted
       if (0 == --(entry->refcount)) {
         m_table.removeEntry(key);
-        m_keySource.unregister(key);
       }
     }
 
