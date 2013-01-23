@@ -61,9 +61,11 @@ namespace PLEXIL
   /**
    * @brief Constructor
    * @param str A null terminated string
+   * @param permanent A value of true means the LabelStr value should be considered
+   * a permanent constant (i.e. not reference counted).
    */
-  LabelStr::LabelStr(const char* label)
-    : m_key(itemStore().storeItem(std::string(label)))
+  LabelStr::LabelStr(const char* label, bool permanent)
+    : m_key(itemStore().storeItem(std::string(label), permanent))
 #if defined(LABEL_STR_DEBUG)
     , m_string(getItem().c_str())
 #endif

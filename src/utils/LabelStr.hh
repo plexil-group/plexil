@@ -68,7 +68,7 @@ namespace PLEXIL
   typedef TwoWayTable<LabelStr_key_t, LabelStr_value_t>
   LabelStr_table_t;
 
-  typedef KeySource<LabelStr_key_t> LabelStr_keysource_t;
+  typedef PartitionedKeySource<LabelStr_key_t> LabelStr_keysource_t;
 
   typedef TwoWayStore<LabelStr_key_t, 
                       LabelStr_value_t,
@@ -95,8 +95,10 @@ namespace PLEXIL
     /**
      * @brief Constructor
      * @param str A null terminated string
+     * @param permanent A value of true means the LabelStr value should be considered
+     * a permanent constant (i.e. not reference counted).
      */
-    LabelStr(const char* str);
+    LabelStr(const char* str, bool permanent = false);
 
     /**
      * @brief Constructor from Value instance
