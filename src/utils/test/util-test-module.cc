@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -794,6 +794,13 @@ private:
         lastKey = next;
         ++n;
       }
+      // If we fall through from the loop,
+      // we have failed to detect exhaustion
+      std::cout << "Error: failed to detect keyspace exhaustion;\n keyMax = "
+                << std::setprecision(15) << key_source_t::keyMax()
+                << ", last key = " << std::setprecision(15) << lastKey
+                << std::endl;
+      return false;
     }
     catch (Error &e) {
       std::cout << "\nCaught expected exception: ";
@@ -809,8 +816,80 @@ private:
       return true;
     }
 
-    // should never get here
-    std::cout << "Error: failed to exhaust keyspace" << std::endl;
+    std::cout << "Error: should never get here" << std::endl;
+    return false;
+  }
+
+  template<typename key_t>
+  static bool testSpecialAllocation()
+  {
+    PartitionedKeySource<key_t> keygen;
+    size_t keySpace = PartitionedKeySource<key_t>::totalKeys();
+    size_t specialKeySpace = PartitionedKeySource<key_t>::totalSpecialKeys();
+    std::cout << "key space: " << keySpace
+              << " special key space: " << specialKeySpace
+              << " unassigned: " << std::setprecision(8) << PartitionedKeySource<key_t>::unassigned()
+              << " special max: " << std::setprecision(8) << PartitionedKeySource<key_t>::specialMax()
+              << std::endl;
+    key_t lastKey = PartitionedKeySource<key_t>::unassigned();
+    size_t n = 0;
+    try {
+      std::cout << std::endl;
+      Error::doThrowExceptions();
+      size_t i = 0;
+      for (; i < specialKeySpace; ++i) {
+        key_t next = keygen.next(true);
+        if (next == lastKey) {
+          std::cout << "Error: non-unique key " << next << std::endl;
+          return false;
+        }
+        if (!PartitionedKeySource<key_t>::isSpecial(next)) {
+          std::cout << "Error: non-special key " << std::setprecision(15) << next
+                    << " before total special keys exhausted, n = " << n << std::endl;
+          return false;
+        }
+        lastKey = next;
+        ++n;
+      }
+
+      for (; i <= keySpace; ++i) {
+        key_t next = keygen.next(true); // push past special limit
+        if (next == lastKey) {
+          std::cout << "Error: non-unique key " << next << std::endl;
+          return false;
+        }
+        if (PartitionedKeySource<key_t>::isSpecial(next)) {
+          std::cout << "Error: special key " << std::setprecision(15) << next
+                    << " after total special keys exhausted" << std::endl;
+          return false;
+        }
+        lastKey = next;
+        ++n;
+      }
+      
+      // If we fall through from the loop,
+      // we have failed to detect overall exhaustion
+      std::cout << "Error: failed to detect keyspace exhaustion;\n keyMax = "
+                << std::setprecision(15) << PartitionedKeySource<key_t>::keyMax()
+                << ", last key = " << std::setprecision(15) << lastKey
+                << std::endl;
+      return false;
+    }
+    catch (Error &e) {
+      std::cout << "\nCaught expected exception: ";
+      e.print(std::cout);
+      std::cout << std::endl;
+      if (n != keySpace) {
+        std::cout << "Error: # of keys generated, " << n
+                  << ", does not equal totalKeys(), " << keySpace 
+                  << std::endl;
+        return false;
+      }
+      std::cout << " done." << std::endl;
+      return true;
+    }
+
+    std::cout << "Error: should never get here" << std::endl;
     return false;
   }
 
@@ -821,8 +900,12 @@ public:
       && testKeyAllocation<signed char, KeySource<signed char> >()
       && testKeyAllocation<unsigned short, KeySource <unsigned short> >()
       && testKeyAllocation<float, KeySource<float> >()
-      && testKeyAllocation<float, KeySource<float, NegativeDenormKeyTraits<float> > >();
-    // && testKeyAllocation<double, KeySource<double> >(); // too many keys to exhaust in reasonable time!
+      && testKeyAllocation<float, KeySource<float, NegativeDenormKeyTraits<float> > >()
+      // && testKeyAllocation<double, KeySource<double> >() // too many keys to exhaust in reasonable time!
+      && testSpecialAllocation<unsigned short>()
+      && testSpecialAllocation<float>()
+      // && testSpecialAllocation<double>() // too many keys to exhaust in reasonable time!
+      ;
   }
 };
 
@@ -1428,7 +1511,7 @@ private:
     std::cout << "Checking contents by key... " << std::flush;
     {
       key_source_t keygen1;
-      keygen1.next(); // account for empty item
+      keygen1.next(true); // account for empty item
       for (size_t i = 1; i <= n; ++i) {
         key_t key = keygen1.next();
         std::string* item = store.getItem(key);
@@ -1445,7 +1528,7 @@ private:
     std::cout << "Incrementing reference count... " << std::flush;
     {
       key_source_t keygen2;
-      keygen2.next(); // account for empty item
+      keygen2.next(true); // account for empty item
       for (size_t i = 1; i <= n; ++i) {
         key_t key = keygen2.next();
         assertTrueMsg(store.newReference(key),
@@ -1473,7 +1556,7 @@ private:
     std::cout << "Decrementing reference count... " << std::flush;
     {
       key_source_t keygen3;
-      keygen3.next(); // account for empty item
+      keygen3.next(true); // account for empty item
       for (size_t i = 1; i <= n; ++i) {
         key_t key = keygen3.next();
         store.deleteReference(key);
@@ -1489,7 +1572,7 @@ private:
     std::cout << "Decrementing reference count again... " << std::flush;
     {
       key_source_t keygen4;
-      keygen4.next(); // account for empty item
+      keygen4.next(true); // account for empty item
       for (size_t i = 1; i <= n; ++i) {
         key_t key = keygen4.next();
         store.deleteReference(key);
@@ -1505,7 +1588,7 @@ private:
     std::cout << "Removing last reference... " << std::flush;
     {
       key_source_t keygen5;
-      keygen5.next(); // account for empty item
+      keygen5.next(true); // account for empty item
       for (size_t i = 1; i <= n; ++i) {
         key_t key = keygen5.next();
         store.deleteReference(key);
@@ -1522,9 +1605,8 @@ private:
 public:
   static bool test()
   {
-    return testTwoWayStoreFunctions<unsigned int, KeySource<unsigned int> >()
-      && testTwoWayStoreFunctions<double, KeySource<double> >()
-      && testTwoWayStoreFunctions<double, KeySource<double, NegativeDenormKeyTraits<double> > >();
+    return testTwoWayStoreFunctions<unsigned int, PartitionedKeySource<unsigned int> >()
+      && testTwoWayStoreFunctions<double, PartitionedKeySource<double> >();
   }
 };
 
