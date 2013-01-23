@@ -111,9 +111,12 @@ namespace PLEXIL
 
     /**
      * @brief Constructor from character string constant.
+     * @param str A null terminated string
+     * @param permanent A value of true means the LabelStr value should be considered
+     * a permanent constant (i.e. not reference counted).
      * Effectively creates or reuses a LabelStr for the value.
      */
-    Value(const char* val);
+    Value(const char* val, bool permanent = false);
 
     /**
      * @brief Constructor from LabelStr. Increments reference count.
@@ -384,9 +387,15 @@ namespace PLEXIL
     /**
      * @brief Get value as a floating point number.
      * @return The floating point value.
-     * @note Will cause failed assertion if the value is a string or array.
      */
     double getDoubleValue() const;
+
+    /**
+     * @brief Get value as a floating point number.
+     * @return The floating point value.
+     * @note Will cause failed assertion if the value is a string or array.
+     */
+    operator double() const;
 
     /**
      * @brief Get value as a string.

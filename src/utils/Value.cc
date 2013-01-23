@@ -77,10 +77,13 @@ namespace PLEXIL
 
   /**
    * @brief Constructor from character string constant.
+   * @param str A null terminated string
+   * @param permanent A value of true means the LabelStr value should be considered
+   * a permanent constant (i.e. not reference counted).
    * Effectively creates or reuses a LabelStr for the value.
    */
-  Value::Value(const char* val)
-    : m_value(LabelStr::itemStore().storeItem(std::string(val)))
+  Value::Value(const char* val, bool permanent)
+    : m_value(LabelStr::itemStore().storeItem(std::string(val), permanent))
   {
   }
 
@@ -449,6 +452,21 @@ namespace PLEXIL
   {
     return m_value;
   }
+
+
+  /**
+   * @brief Get value as a floating point number.
+   * @return The floating point value.
+   * @note Will cause failed assertion if the value is a string or array.
+   */
+  Value::operator double() const
+  {
+    assertTrue(!LabelStr::rangeCheck(m_value)
+               && !StoredArray::rangeCheck(m_value),
+               "Valus is not a valid double");
+    return m_value;
+  }
+
 
   /**
    * @brief Get value as a string.
