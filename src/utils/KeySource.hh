@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,9 +28,6 @@
 #define KEY_SOURCE_HH
 
 #include <limits>
-#ifdef STORED_ITEM_REUSE_KEYS
-# include <stack>
-#endif
 #include "Error.hh"
 
 namespace PLEXIL
@@ -174,7 +171,6 @@ namespace PLEXIL
     }
   };
 
-
   /**
    * @class KeySource
    * @brief Provides an abstract key source for ItemStore.
@@ -187,13 +183,6 @@ namespace PLEXIL
             typename key_traits_t = KeyTraits<key_t> >
   class KeySource
   {
-  protected:
-
-#ifdef STORED_ITEM_REUSE_KEYS
-    // key pool type
-    typedef typename std::stack<key_t> keyPool_t;
-#endif
-
   public:
 
     KeySource()
@@ -221,41 +210,11 @@ namespace PLEXIL
      */
     const key_t next()
     {
-#ifdef STORED_ITEM_REUSE_KEYS
-      // if the key pool is not empty, reuse a key from there
-      if (!m_keyPool.empty()) {
-        key_t result = m_keyPool.top();
-        m_keyPool.pop();
-        return result;
-      }
-#endif
       // increment the counter
       assertTrue(keyMax() > m_counter, "KeySource::next: Key space exhausted.");
       m_counter += increment();
       return m_counter;
     }
-
-    /**
-     * @brief Free key for possible reassignment.
-     *
-     * If STORED_ITEM_REUSE_KEYS is defined at compile time the key
-     * will be stored and potentially reissued in the future.  If
-     * STORED_ITEM_REUSE_KEYS is NOT defined the key is retired.
-     *
-     * @param key Key which will be unregistered.
-     */
-
-#ifdef STORED_ITEM_REUSE_KEYS
-    inline void unregister(const key_t& key)
-    {
-      m_keyPool.push(key);
-    }
-#else
-    inline void unregister(const key_t& /*key*/)
-    {
-      // do nothing
-    }
-#endif // STORED_ITEM_REUSE_KEYS
 
     /**
      * @brief Returns the total number of keys which may be generated.
@@ -276,11 +235,7 @@ namespace PLEXIL
 
     const size_t availableKeys()
     {
-      return ((size_t) ((keyMax() - m_counter) / increment()))
-#ifdef STORED_ITEM_REUSE_KEYS
-        + m_keyPool.size()
-#endif
-        ;
+      return ((size_t) ((keyMax() - m_counter) / increment()));
     }
 
     /**
@@ -333,11 +288,78 @@ namespace PLEXIL
       return sl_increment;
     }
 
-    key_t m_counter;     //!< The next key value.
-#ifdef STORED_ITEM_REUSE_KEYS
-    keyPool_t m_keyPool; //!< Storage for reused keys.
-#endif         
+    void setCounter(key_t x)
+    {
+      m_counter = x;
+    }
 
+    key_t m_counter;     //!< The next key value.
+  };
+
+  /**
+   * @class PartitionedKeySource
+   * @brief A specialization of KeySource with a special subrange.
+   *
+   * The special key range is from keyMin() to specialMax() inclusive.
+   * Regular keys use the range from specialMax() + increment() to keyMax() inclusive.
+   * If the special range is exhausted, new keys are allocated from the regular range
+   * until it too is exhausted.
+   */
+
+  template <typename key_t>
+  class PartitionedKeySource :
+    public KeySource<key_t, KeyTraits<key_t> >
+  {
+  public:
+    PartitionedKeySource()
+      : KeySource<key_t, KeyTraits<key_t> >(),
+        m_specialCounter(KeySource<key_t, KeyTraits<key_t> >::unassigned())
+    {
+      // Bump regular counter past special range
+      setCounter(specialMax() + KeySource<key_t, KeyTraits<key_t> >::increment());
+    }
+
+    static const key_t specialMax()
+    {
+      key_t sl_specialMax = 
+        KeySource<key_t, KeyTraits<key_t> >::unassigned() + 1024 * KeySource<key_t, KeyTraits<key_t> >::increment();
+      return sl_specialMax;
+    }
+
+    static size_t totalSpecialKeys()
+    {
+      return (size_t)
+        ((specialMax() - KeySource<key_t, KeyTraits<key_t> >::unassigned())/KeySource<key_t, KeyTraits<key_t> >::increment());
+    }
+
+    size_t availableSpecialKeys() const
+    {
+      return (size_t) (specialMax() - m_specialCounter)/KeySource<key_t, KeyTraits<key_t> >::increment();
+
+    }
+
+    static bool isSpecial(key_t key)
+    {
+      return key > KeySource<key_t, KeyTraits<key_t> >::unassigned() && key <= specialMax();
+    }
+
+    /**
+     * @brief Returns the next available key.
+     * @param special True if the key should be allocated in the special range.
+     * @note If special keys are exhausted, will return a normal key.
+     */
+    const key_t next(bool special = false)
+    {
+      if (special && m_specialCounter <= specialMax()) {
+        m_specialCounter += KeySource<key_t, KeyTraits<key_t> >::increment();
+        return m_specialCounter;
+      }
+      return KeySource<key_t, KeyTraits<key_t> >::next();
+    }
+
+  protected:
+
+    key_t m_specialCounter;
   };
 
 }
