@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 // Formerly part of CommonDefs.hh
 
 /**
- * @def DECLARE_STATIC_CLASS_CONST(TYPE,NAME)
+ * @def DECLARE_STATIC_CLASS_CONST(TYPE, NAME, VALUE)
  * @brief Declare and define class scoped constant to ensure initialization
  * occurs before use with all linkers.
  */
@@ -39,6 +39,33 @@
       sl_data = new const TYPE(VALUE); \
     return *sl_data; \
   }
+
+/**
+ * @def DECLARE_STATIC_CLASS_CONST(TYPE,NAME)
+ * @brief Declare and define class scoped constant to ensure initialization
+ * occurs before use with all linkers.
+ */
+#define DECLARE_STATIC_CLASS_CONST_LABEL(NAME, VALUE) \
+  static const LabelStr& NAME() { \
+    static const LabelStr *sl_data = NULL; \
+    if (sl_data == NULL) \
+      sl_data = new const LabelStr(VALUE, true); \
+    return *sl_data; \
+  }
+
+/**
+ * @def DECLARE_STATIC_CLASS_CONST(TYPE,NAME)
+ * @brief Declare and define class scoped constant to ensure initialization
+ * occurs before use with all linkers.
+ */
+#define DECLARE_STATIC_CLASS_CONST_STRING_VALUE(NAME, VALUE) \
+  static const Value& NAME() { \
+    static const Value *sl_data = NULL; \
+    if (sl_data == NULL) \
+      sl_data = new const Value(VALUE, true); \
+    return *sl_data; \
+  }
+
 
 /**
  * @def DECLARE_GLOBAL_CONST(TYPE,NAME)
