@@ -29,7 +29,6 @@
 
 #include "TimeAdapter.hh"
 
-#include <csignal>
 #include <time.h> // *** better be POSIX time.h! ***
 
 namespace PLEXIL
@@ -63,12 +62,6 @@ namespace PLEXIL
     virtual ~PosixTimeAdapter();
 
     /**
-     * @brief Starts the adapter, possibly using its configuration data.  
-     * @return true if successful, false otherwise.
-     */
-    bool start();
-
-    /**
      * @brief Stops the adapter.  
      * @return true if successful, false otherwise.
      */
@@ -83,6 +76,24 @@ namespace PLEXIL
   protected:
 
     /**
+     * @brief Initialize signal handling for the process.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool configureSignalHandling();
+
+    /**
+     * @brief Construct and initialize the timer as required.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool initializeTimer();
+
+    /**
+     * @brief Shut down and delete the timer as required.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool deleteTimer();
+
+    /**
      * @brief Set the timer.
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
@@ -90,9 +101,23 @@ namespace PLEXIL
     virtual bool setTimer(double date);
 
     /**
-     * @brief Stop the timer.
+     * @brief Stop the timer. 
+     * @return True if successful, false otherwise.
      */
-    virtual void stopTimer();
+    virtual bool stopTimer();
+
+    /**
+     * @brief Initialize the wait thread signal mask.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool configureWaitThreadSigmask(sigset_t* mask);
+
+    /**
+     * @brief Initialize the sigwait mask.
+     * @param Pointer to the mask.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool initializeSigwaitMask(sigset_t* mask);
 
   private:
 

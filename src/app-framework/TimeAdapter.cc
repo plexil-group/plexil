@@ -32,9 +32,6 @@
 #include "ThreadSpawn.hh"
 #include <cerrno>
 #include <cmath> // for modf
-#include <csignal>
-
-#define STOP_WAIT_THREAD_SIGNAL SIGUSR1
 
 namespace PLEXIL
 {
@@ -44,7 +41,8 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    */
   TimeAdapter::TimeAdapter(AdapterExecInterface& execInterface)
-    : InterfaceAdapter(execInterface)
+    : InterfaceAdapter(execInterface),
+      m_stopping(false)
   {
   }
 
@@ -56,7 +54,8 @@ namespace PLEXIL
    */
   TimeAdapter::TimeAdapter(AdapterExecInterface& execInterface, 
                                        const pugi::xml_node& xml)
-    : InterfaceAdapter(execInterface, xml)
+    : InterfaceAdapter(execInterface, xml),
+      m_stopping(false)
   {
   }
 
@@ -84,16 +83,36 @@ namespace PLEXIL
    */
   bool TimeAdapter::start()
   {
-    // Spawn the timer thread
+    if (!configureSignalHandling()) {
+      debugMsg("TimeAdapter:start", " signal handling initialization failed");
+      return false;
+    }
+
+    if (!initializeTimer()) {
+      debugMsg("TimeAdapter:start", " timer initialization failed");
+      return false;
+    }
+
     threadSpawn(timerWaitThread, (void*) this, m_waitThread);
     return true;
   }
 
   bool TimeAdapter::stop()
   {
-    pthread_kill(m_waitThread, STOP_WAIT_THREAD_SIGNAL);
-    pthread_join(m_waitThread, NULL);
+    if (!stopTimer()) {
+      debugMsg("TimeAdapter:stop", " stopTimer() failed");
+    }
 
+    if (!deleteTimer()) {
+      debugMsg("TimeAdapter:stop", " deleteTimer() failed");
+    }
+
+    // N.B. on Linux SIGUSR1 does double duty as both terminate and timer wakeup,
+    // so we need the stopping flag to figure out which is which.
+    m_stopping = true;
+    pthread_kill(m_waitThread, SIGUSR1);
+    pthread_join(m_waitThread, NULL);
+    m_stopping = false;
     debugMsg("TimeAdapter:stop", " complete");
     return true;
   }
@@ -177,74 +196,44 @@ namespace PLEXIL
    */
   void* TimeAdapter::timerWaitThread(void* this_as_void_ptr)
   {
+    assertTrue(this_as_void_ptr != NULL,
+               "TimeAdapter::timerWaitThread: argument is null!");
     TimeAdapter* myInstance = reinterpret_cast<TimeAdapter*>(this_as_void_ptr);
-    
-    //
-    // Set up signal handling environment.
-    //
+    return myInstance->timerWaitThreadImpl();
+  }
 
-    // block SIGALRM for the process as a whole
-    sigset_t processSigset, originalSigset;
-    int errnum = sigemptyset(&processSigset);
-    assertTrueMsg(errnum == 0,
-                  "Fatal Error: signal mask initialization failed!");
-    errnum = sigaddset(&processSigset, SIGALRM);
-    assertTrueMsg(errnum == 0,
-                  "Fatal Error: signal mask initialization failed!");
-    errnum = sigprocmask(SIG_BLOCK, &processSigset, &originalSigset);
-    assertTrueMsg(errnum == 0,
-                  "Fatal Error: sigprocmask failed, result = " << errnum);
-
+  /**
+   * @brief Internal function for the above.
+   */
+  void* TimeAdapter::timerWaitThreadImpl()
+  {
     // block most common signals for this thread
     sigset_t threadSigset;
-    errnum = sigemptyset(&threadSigset);
-    errnum = sigaddset(&threadSigset, SIGALRM);
-    errnum = errnum | sigaddset(&threadSigset, SIGINT);
-    errnum = errnum | sigaddset(&threadSigset, SIGHUP);
-    errnum = errnum | sigaddset(&threadSigset, SIGQUIT);
-    errnum = errnum | sigaddset(&threadSigset, SIGTERM);
-    errnum = errnum | sigaddset(&threadSigset, SIGUSR1);
-    errnum = errnum | sigaddset(&threadSigset, SIGUSR2);
-    // FIXME: maybe more??
-    assertTrueMsg(errnum == 0,
-                  "Fatal Error: signal mask initialization failed!");
-    errnum = pthread_sigmask(SIG_BLOCK, &threadSigset, NULL);
-    assertTrueMsg(errnum == 0,
-                  "Fatal Error: pthread_sigmask failed, result = " << errnum);
+    assertTrue(configureWaitThreadSigmask(&threadSigset),
+               "TimeAdapter::timerWaitThreadImpl: signal mask initialization failed");
+    int errnum = pthread_sigmask(SIG_BLOCK, &threadSigset, NULL);
+    assertTrueMsg(0 == errnum,
+                  "TimeAdapter::timerWaitThreadImpl: pthread_sigmask failed, result = " << errnum);
 
-    //
-    // Wait loop
-    //
-
-    // listen only for SIGALRM and STOP_WAIT_THREAD_SIGNAL
     sigset_t waitSigset;
-    errnum = sigemptyset(&waitSigset);
-    errnum = errnum | sigaddset(&waitSigset, SIGALRM);
-    errnum = errnum | sigaddset(&waitSigset, STOP_WAIT_THREAD_SIGNAL);
-    assertTrueMsg(errnum == 0,
-                  "Fatal Error: signal mask initialization failed!");
+    assertTrue(initializeSigwaitMask(&waitSigset),
+               "TimeAdapter::timerWaitThreadImpl: signal mask initialization failed");
 
+    //
+    // The wait loop
+    //
     while (true) {
       int signalReceived = 0;
       int errnum = sigwait(&waitSigset, &signalReceived);
       assertTrueMsg(errnum == 0, 
                     "Fatal Error: sigwait failed, result = " << errnum);
-      if (signalReceived == STOP_WAIT_THREAD_SIGNAL) {
+      if (m_stopping) {
         debugMsg("TimeAdapter:timerWaitThread", " exiting on signal " << signalReceived);
         break;
       }
       // wake up the Exec
-      myInstance->timerTimeout();
+      timerTimeout();
     }
-
-    //
-    // Clean up - 
-    //  restore previous process signal mask
-    //
-    errnum = sigprocmask(SIG_SETMASK, &originalSigset, NULL);
-    assertTrueMsg(errnum == 0,
-                  "Fatal Error: sigprocmask failed, result = " << errnum);
-
     return (void*) 0;
   }
 

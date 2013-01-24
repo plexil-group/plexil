@@ -72,40 +72,11 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Starts the adapter, possibly using its configuration data.  
-   * @return true if successful, false otherwise.
-   */
-  bool PosixTimeAdapter::start()
-  {
-    // Initialize sigevent
-    m_sigevent.sigev_notify = SIGEV_SIGNAL;
-    m_sigevent.sigev_signo = SIGALRM;
-    m_sigevent.sigev_value.sival_ptr = (void*) this; // parent PosixTimeAdapter instance
-    m_sigevent.sigev_notify_function = NULL;
-    m_sigevent.sigev_notify_attributes = NULL;
-
-    // Create a timer
-    int status = timer_create(CLOCK_REALTIME,
-                              &m_sigevent,
-                              &m_timer);
-    if (status) {
-      debugMsg("PosixTimeAdapter:start", " timer_create failed, errno = " << errno);
-      return false;
-    }
-    // start the timer wait thread
-    return TimeAdapter::start();
-  }
-
-  /**
    * @brief Stops the adapter.  
    * @return true if successful, false otherwise.
    */
   bool PosixTimeAdapter::stop()
   {
-    int status = timer_delete(m_timer);
-    if (status)
-      debugMsg("TimeAdapter:stop",
-               " timer_delete returned nonzero status " << status);
     return TimeAdapter::stop();
   }
 
@@ -124,6 +95,47 @@ namespace PLEXIL
     double tym = timespecToDouble(ts);
     debugMsg("TimeAdapter:getCurrentTime", " returning " << Value::valueToString(tym));
     return tym;
+  }
+
+  /**
+   * @brief Initialize signal handling for the process.
+   * @return True if successful, false otherwise.
+   */
+  bool PosixTimeAdapter::configureSignalHandling()
+  {
+    // Mask SIGUSR1 at the process level
+    sigset_t mask;
+    assertTrue(0 == sigemptyset(&mask),
+               "PosixTimeAdapter::configureSignalHandling: sigemptyset failed!");
+    assertTrue(0 == sigaddset(&mask, SIGUSR1),
+               "PosixTimeAdapter::configureSignalHandling: sigaddset failed!");
+    assertTrueMsg(0 == sigprocmask(SIG_BLOCK, &mask, NULL),
+                  "PosixTimeAdapter::configureSignalHandling: sigprocmask failed, errno = "
+                  << errno);
+    return true;
+  }
+
+  /**
+   * @brief Construct and initialize the timer as required.
+   * @return True if successful, false otherwise.
+   */
+  bool PosixTimeAdapter::initializeTimer()
+  {
+    // Initialize sigevent
+    m_sigevent.sigev_notify = SIGEV_SIGNAL;
+    m_sigevent.sigev_signo = SIGUSR1; // was SIGALRM
+    m_sigevent.sigev_value.sival_int = 0;
+    m_sigevent.sigev_notify_function = NULL;
+    m_sigevent.sigev_notify_attributes = NULL;
+
+    // Create a timer
+    if (timer_create(CLOCK_REALTIME,
+                     &m_sigevent,
+                     &m_timer)) {
+      debugMsg("TimeAdapter:start", " timer_create failed, errno = " << errno);
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -151,28 +163,78 @@ namespace PLEXIL
     }
 
     tymrSpec.it_interval.tv_sec = tymrSpec.it_interval.tv_nsec = 0; // no repeats
-    assertTrue(0 == timer_settime(m_timer,
-                                  0, // flags: ~TIMER_ABSTIME
-                                  &tymrSpec,
-                                  NULL),
-               "TimeAdapter::setTimer: timer_settime failed");
+    assertTrueMsg(0 == timer_settime(m_timer,
+                                     0, // flags: ~TIMER_ABSTIME
+                                     &tymrSpec,
+                                     NULL),
+                  "TimeAdapter::setTimer: timer_settime failed, errno = " << errno);
     debugMsg("TimeAdapter:setTimer",
              " timer set for " << Value::valueToString(date)
              << ", tv_nsec = " << tymrSpec.it_value.tv_nsec);
+    return true;
   }
 
   /**
    * @brief Stop the timer.
    */
-  void PosixTimeAdapter::stopTimer()
+  bool PosixTimeAdapter::stopTimer()
   {
     static itimerspec sl_tymrDisable = {{0, 0}, {0, 0}};
-    condDebugMsg(0 != timer_settime(m_timer,
-                                    0, // flags: ~TIMER_ABSTIME
-                                    &sl_tymrDisable,
-                                    NULL),
+    int status = timer_settime(m_timer,
+                               0,
+                               &sl_tymrDisable,
+                               NULL);
+    condDebugMsg(0 != status,
                  "TimeAdapter:stopTimer",
                  " timer_settime failed, errno = " << errno);
+    return status == 0;
+  }
+
+  /**
+   * @brief Shut down and delete the timer as required.
+   * @return True if successful, false otherwise.
+   */
+  bool PosixTimeAdapter::deleteTimer()
+  {
+    int status = timer_delete(m_timer);
+    condDebugMsg(status != 0,
+                 "TimeAdapter:deleteTimer",
+                 " timer_delete failed, errno = " << errno);
+    return status == 0;
+  }
+
+  /**
+   * @brief Initialize the wait thread signal mask.
+   * @return True if successful, false otherwise.
+   */
+  bool PosixTimeAdapter::configureWaitThreadSigmask(sigset_t* mask)
+  {
+    assertTrue(0 == sigemptyset(mask),
+               "PosixTimeAdapter::configureWaitThreadSigmask: sigemptyset failed!");
+    int errnum = sigaddset(mask, SIGALRM);
+    errnum = errnum | sigaddset(mask, SIGINT);
+    errnum = errnum | sigaddset(mask, SIGHUP);
+    errnum = errnum | sigaddset(mask, SIGQUIT);
+    errnum = errnum | sigaddset(mask, SIGTERM);
+    errnum = errnum | sigaddset(mask, SIGUSR2);
+    assertTrue(errnum == 0,
+               "PosixTimeAdapter::configureWaitThreadSigmask: sigaddset failed!");
+    return errnum == 0;
+  }
+
+  /**
+   * @brief Initialize the sigwait mask.
+   * @param Pointer to the mask.
+   * @return True if successful, false otherwise.
+   */
+  bool PosixTimeAdapter::initializeSigwaitMask(sigset_t* mask)
+  {
+    // listen only for SIGUSR1
+    assertTrue(0 == sigemptyset(mask),
+               "PosixTimeAdapter::initializeSigwaitMask: sigemptyset failed!");
+    assertTrue(0 == sigaddset(mask, SIGUSR1),
+               "PosixTimeAdapter::initializeSigwaitMask: sigaddset failed!");
+    return true;
   }
 
 }

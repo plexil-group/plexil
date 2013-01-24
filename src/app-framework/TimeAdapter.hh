@@ -31,6 +31,7 @@
 
 #include <plexil-config.h>
 
+#include <csignal>
 #include <pthread.h>
 
 #if defined(HAVE_CLOCK_GETTIME)
@@ -149,6 +150,18 @@ namespace PLEXIL
     //
 
     /**
+     * @brief Initialize signal handling for the process.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool configureSignalHandling() = 0;
+
+    /**
+     * @brief Construct and initialize the timer as required.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool initializeTimer() = 0;
+
+    /**
      * @brief Set the timer.
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
@@ -157,8 +170,28 @@ namespace PLEXIL
 
     /**
      * @brief Stop the timer.
+     * @return True if successful, false otherwise.
      */
-    virtual void stopTimer() = 0;
+    virtual bool stopTimer() = 0;
+
+    /**
+     * @brief Shut down and delete the timer as required.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool deleteTimer() = 0;
+
+    /**
+     * @brief Initialize the wait thread signal mask.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool configureWaitThreadSigmask(sigset_t* mask) = 0;
+
+    /**
+     * @brief Initialize the sigwait mask.
+     * @param Pointer to the mask.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool initializeSigwaitMask(sigset_t* mask) = 0;
 
   private:
 
@@ -178,13 +211,19 @@ namespace PLEXIL
      */
     static void* timerWaitThread(void* this_as_void_ptr);
 
+    /**
+     * @brief Internal function for the above.
+     */
+    virtual void* timerWaitThreadImpl();
+
     //
     // Member variables
     //
 
     // Wait thread
     pthread_t m_waitThread;
-
+    // Flag to wait thread
+    bool m_stopping;
   };
 
 } // namespace PLEXIL
