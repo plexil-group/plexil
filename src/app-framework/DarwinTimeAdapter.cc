@@ -74,16 +74,6 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Stops the adapter.  
-   * @return true if successful, false otherwise.
-   */
-  bool DarwinTimeAdapter::stop()
-  {
-    stopTimer();
-    return TimeAdapter::stop();
-  }
-
-  /**
    * @brief Get the current time from the operating system.
    * @return A double representing the current time.
    */
@@ -96,6 +86,34 @@ namespace PLEXIL
     double tym = timevalToDouble(tv);
     debugMsg("TimeAdapter:getCurrentTime", " returning " << Value::valueToString(tym));
     return tym;
+  }
+
+  /**
+   * @brief Initialize signal handling for the process.
+   * @return True if successful, false otherwise.
+   */
+  bool DarwinTimeAdapter::configureSignalHandling()
+  {
+    // block SIGALRM and SIGUSR1 for the process as a whole
+    sigset_t processSigset, originalSigset;
+    assertTrueMsg(0 == sigemptyset(&processSigset),
+                  "DarwinTimeAdapter::configureSignalHandling: sigemptyset failed!");
+    int errnum = sigaddset(&processSigset, SIGALRM);
+    errnum = errnum | sigaddset(&processSigset, SIGUSR1);
+    assertTrueMsg(errnum == 0,
+                  "DarwinTimeAdapter::configureSignalHandling: sigaddset failed!");
+    assertTrueMsg(0 == sigprocmask(SIG_BLOCK, &processSigset, &originalSigset),
+                  "DarwinTimeAdapter::configureSignalHandling: sigprocmask failed, errno = " << errno);
+    return true;
+  }
+
+  /**
+   * @brief Construct and initialize the timer as required.
+   * @return True if successful, false otherwise.
+   */
+  bool DarwinTimeAdapter::initializeTimer()
+  {
+    return true; // nothing to do
   }
 
   /**
@@ -134,15 +152,62 @@ namespace PLEXIL
 
   /**
    * @brief Stop the timer.
+   * @return True if successful, false otherwise.
    */
-  void DarwinTimeAdapter::stopTimer()
+  bool DarwinTimeAdapter::stopTimer()
   {
     static itimerval const sl_disableItimerval = {{0, 0}, {0, 0}};
     int status = setitimer(ITIMER_REAL, & sl_disableItimerval, NULL);
     condDebugMsg(status != 0,
                  "TimeAdapter:stopTimer",
                  " setitimer() failed, errno = " << errno);
+    return status == 0;
   }
+
+  /**
+   * @brief Shut down and delete the timer as required.
+   * @return True if successful, false otherwise.
+   */
+  bool DarwinTimeAdapter::deleteTimer()
+  {
+    return true; // nothing to do
+  }
+
+  /**
+   * @brief Initialize the wait thread signal mask.
+   * @return True if successful, false otherwise.
+   */
+  bool DarwinTimeAdapter::configureWaitThreadSigmask(sigset_t* mask)
+  {
+    assertTrue(0 == sigemptyset(mask),
+               "DarwinTimeAdapter::configureWaitThreadSigmask: sigemptyset failed!");
+    int errnum = sigaddset(mask, SIGINT);
+    errnum = errnum | sigaddset(mask, SIGHUP);
+    errnum = errnum | sigaddset(mask, SIGQUIT);
+    errnum = errnum | sigaddset(mask, SIGTERM);
+    errnum = errnum | sigaddset(mask, SIGUSR2);
+    assertTrue(errnum == 0,
+               "DarwinTimeAdapter::configureWaitThreadSigmask: sigaddset failed!");
+    return errnum == 0;
+  }
+
+  /**
+   * @brief Initialize the sigwait mask.
+   * @param Pointer to the mask.
+   * @return True if successful, false otherwise.
+   */
+  bool DarwinTimeAdapter::initializeSigwaitMask(sigset_t* mask)
+  {
+    // listen for SIGALRM and SIGUSR1
+    assertTrue(0 == sigemptyset(mask),
+               "DarwinTimeAdapter::initializeSigwaitMask: sigemptyset failed!");
+    int status = sigaddset(mask, SIGUSR1);
+    status = status | sigaddset(mask, SIGALRM);
+    assertTrue(0 == status,
+               "DarwinTimeAdapter::initializeSigwaitMask: sigaddset failed!");
+    return true;
+  }
+
 
 }
 

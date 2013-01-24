@@ -60,12 +60,6 @@ namespace PLEXIL
     virtual ~DarwinTimeAdapter();
 
     /**
-     * @brief Stops the adapter.  
-     * @return true if successful, false otherwise.
-     */
-    virtual bool stop();
-
-    /**
      * @brief Get the current time from the operating system.
      * @return A double representing the current time.
      */
@@ -74,16 +68,48 @@ namespace PLEXIL
   protected:
 
     /**
+     * @brief Initialize signal handling for the process.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool configureSignalHandling();
+
+    /**
+     * @brief Construct and initialize the timer as required.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool initializeTimer();
+
+    /**
      * @brief Set the timer.
      * @param date The Unix-epoch wakeup time, as a double.
      * @return True if the timer was set, false if clock time had already passed the wakeup time.
      */
-    bool setTimer(double date);
+    virtual bool setTimer(double date);
 
     /**
      * @brief Stop the timer.
+     * @return True if successful, false otherwise.
      */
-    void stopTimer();
+    virtual bool stopTimer();
+
+    /**
+     * @brief Shut down and delete the timer as required.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool deleteTimer();
+
+    /**
+     * @brief Initialize the wait thread signal mask.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool configureWaitThreadSigmask(sigset_t* mask);
+
+    /**
+     * @brief Initialize the sigwait mask.
+     * @param Pointer to the mask.
+     * @return True if successful, false otherwise.
+     */
+    virtual bool initializeSigwaitMask(sigset_t* mask);
 
   private:
 
