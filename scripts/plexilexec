@@ -338,6 +338,6 @@ if [ "$automate" = "true" ]
     $prog $plan_cmd $config_cmd $debug_file $viewer $host $port $block $library_dirs $libraries &    
     echo "RUN_UE_PID$!"
     trap "{ kill $!; }" SIGINT
-  else     
-    $prog $plan_cmd $config_cmd $debug_file $viewer $host $port $block $library_dirs $libraries
+  else 
+    exec $prog $plan_cmd $config_cmd $debug_file $viewer $host $port $block $library_dirs $libraries
 fi
