@@ -75,7 +75,7 @@ namespace PLEXIL
 
     /**
      * @brief Determine whether this node transition event should be reported.
-     * @param prevState The LabelStr naming the node's previous state.
+     * @param prevState The node's previous state.
      * @param node Smart pointer to the node that changed state.
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
@@ -91,7 +91,7 @@ namespace PLEXIL
      * @note The default method simply returns true.
      */
     virtual bool reportAddPlan(const PlexilNodeId& plan,
-                   const LabelStr& parent);
+                               const LabelStr& parent);
 
     /**
      * @brief Determine whether this AddLibraryNode event should be reported.
