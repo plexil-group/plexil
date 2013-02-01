@@ -39,13 +39,14 @@ endif
 include_HEADERS = AdapterConfiguration.hh AdapterConfigurationFactory.hh AdapterExecInterface.hh \
  AdapterFactory.hh ControllerFactory.hh DefaultAdapterConfiguration.hh \
  DummyAdapter.hh ExecApplication.hh ExecController.hh ExecListenerFactory.hh \
- InterfaceAdapter.hh InterfaceManager.hh TimeAdapter.hh UtilityAdapter.hh \
+ InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh TimeAdapter.hh UtilityAdapter.hh \
  ValueQueue.hh
 
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc AdapterConfigurationFactory.cc \
  AdapterExecInterface.cc AdapterFactory.cc ControllerFactory.cc \
  DefaultAdapterConfiguration.cc DummyAdapter.cc ExecApplication.cc ExecListenerFactory.cc \
- InterfaceAdapter.cc InterfaceManager.cc TimeAdapter.cc UtilityAdapter.cc ValueQueue.cc
+ InterfaceAdapter.cc InterfaceManager.cc ListenerFilters.cc TimeAdapter.cc UtilityAdapter.cc \
+ ValueQueue.cc
 
 if PLEXIL_POSIX_TIME_FUNCS
   include_HEADERS += PosixTimeAdapter.hh
