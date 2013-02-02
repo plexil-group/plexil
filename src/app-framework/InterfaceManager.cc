@@ -51,9 +51,11 @@
 #include "ExecController.hh"
 #include "ExecListener.hh"
 #include "ExecListenerFactory.hh"
+#include "ExecListenerFilterFactory.hh"
 #include "ExecListenerHub.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
+#include "ListenerFilters.hh"
 #include "Node.hh"
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
@@ -113,6 +115,9 @@ namespace PLEXIL
 
     // Every application has access to the OS-native time adapter
     REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
+
+    // Every application has access to the NodeState filter
+    REGISTER_EXEC_LISTENER_FILTER(NodeStateFilter, "NodeState")
 
 #if HAVE_DEBUG_LISTENER
     // Every application should have access to the Plan Debug Listener
