@@ -38,7 +38,7 @@ DriveToSchool:
           {
             // Ends when car starts or 60 seconds (assumed unit) has passed.
             EndCondition Lookup(car_started) ||
-                         Lookup(time) >= TurnKey.EXECUTING.START + 60.0;
+                         Lookup(time, 1) >= TurnKey.EXECUTING.START + 60.0;
             turn_key();
           }	      	    
         }
