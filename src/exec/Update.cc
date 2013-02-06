@@ -38,8 +38,8 @@ namespace PLEXIL
     : m_id(this),
       m_source(node),
       m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
-      m_pairs(),
-      m_garbage() 
+      m_garbage(),
+      m_pairs()
   {
     // Make ack variable pretty
     ((VariableImpl*) m_ack)->setName(node->getNodeId().toString() + " ack");

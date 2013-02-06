@@ -257,7 +257,7 @@ namespace PLEXIL
 
     // Check if new == initial (e.g. Variable::reset() or retracting an assignment)
     if (value == m_initialValue
-        || value.isArray() && m_initialValue.getConstArrayValue() == value.getConstArrayValue()) {
+        || (value.isArray() && m_initialValue.getConstArrayValue() == value.getConstArrayValue())) {
       debugMsg("ArrayVariable:setValue", " to initial value");
       VariableImpl::setValue(m_initialValue);
       return;
@@ -517,9 +517,9 @@ namespace PLEXIL
                              const NodeConnectorId& node)
     : Variable(),
       m_node(node.isId() ? node->getNode() : NodeId::noId()),
-      m_deleteIndex(false),
       m_listener(getId()),
-      m_name()
+      m_name(),
+      m_deleteIndex(false)
   {
     // confirm that we have an array element
     checkError(Id<PlexilArrayElement>::convertable(expr),
