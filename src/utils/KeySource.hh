@@ -316,7 +316,7 @@ namespace PLEXIL
         m_specialCounter(KeySource<key_t, KeyTraits<key_t> >::unassigned())
     {
       // Bump regular counter past special range
-      setCounter(specialMax() + KeySource<key_t, KeyTraits<key_t> >::increment());
+      KeySource<key_t, KeyTraits<key_t> >::setCounter(specialMax() + KeySource<key_t, KeyTraits<key_t> >::increment());
     }
 
     static const key_t specialMax()
