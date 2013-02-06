@@ -1442,7 +1442,7 @@ private:
         str >> j;
         assertTrueMsg(i == j, "Item at key " << key << " should be " << i << ", is " << j);
 
-        key_t itemKey;
+        key_t itemKey = key_source_t::unassigned();
         assertTrueMsg(tbl.getItemKey(entryByKey->item, itemKey),
                       "getItemKey error: no key found for item " << entryByKey->item);
         assertTrueMsg(itemKey == key,
