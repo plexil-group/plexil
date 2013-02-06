@@ -116,7 +116,7 @@ namespace PLEXIL
      */
     void implementNotifyAssignment(const ExpressionId & dest,
 								   const std::string& destName,
-								   const double& value) const;
+								   const Value& value) const;
 
     /**
      * @brief Perform listener-specific initialization.
