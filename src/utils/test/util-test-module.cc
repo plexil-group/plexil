@@ -724,7 +724,8 @@ bool IdTests::testBadIdUsage() {
   try {
     Error::doNotDisplayErrors();
     Id<Bing> bingId = barId;
-    assertTrue(false, "Id<Bing> bingId = barId; failed to error out.");
+    // Work around 'unused variable' warning
+    assertTrue(bingId != bingId , "Id<Bing> bingId = barId; failed to error out.");
     success = false;
   }
   catch (Error &e) {
