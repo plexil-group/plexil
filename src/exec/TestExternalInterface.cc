@@ -149,12 +149,12 @@ namespace PLEXIL
       expr->setValue(value);
       std::map<ExpressionId, CommandId>::iterator iter;
       if ((iter = m_destToCmdMap.find(expr)) != m_destToCmdMap.end()) {
-        CommandId cmdId = iter->second;
         m_destToCmdMap.erase(iter);
       }
-      else std::cerr << "Error in TestExternalInterface: "
-                     << "Could not find destination for command " << source
-                     << ".  Should never happen!" << std::endl;
+      else
+        std::cerr << "Error in TestExternalInterface: "
+                  << "Could not find destination for command " << source
+                  << ".  Should never happen!" << std::endl;
     }
   }
 

@@ -322,13 +322,11 @@ namespace PLEXIL
              " for " << *this << " @ index " << index << ", new value is " << value);
     // set the element
     if (value != m_value.getConstArrayValue()[index]) {
-      bool newArray = false;
       // Implement copy-on-write semantics to avoid clobbering initial value
       if (m_value == m_initialValue) {
         // Clone the initial array
         debugMsg("ArrayVariable:setElementValue", " copying initial array");
         m_value.copyArray(m_initialValue.getStoredArrayValue());
-        newArray = true;
       }
 
       m_value.getArrayValue()[index] = value;
