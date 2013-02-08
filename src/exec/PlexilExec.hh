@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -116,7 +116,7 @@ namespace PLEXIL
      * @brief Add the plan under the node named by the parent.
      * @param plan The intermediate representation of the plan.
      * @param parent The name of the node under which to insert this plan.
-	 * @return true if successful, false otherwise.
+     * @return true if successful, false otherwise.
      * @note If the plan references any library nodes, they are linked in.
      * @note Currently parent is ignored.
      */
@@ -127,36 +127,36 @@ namespace PLEXIL
      */
     void step();
 
-	/**
-	 * @brief Returns true if the Exec needs to be stepped.
-	 */
-	bool needsStep() const;
+    /**
+     * @brief Returns true if the Exec needs to be stepped.
+     */
+    bool needsStep() const;
 
-	/**
-	 * @brief Set the ExecListenerHub instance.
-	 */
-	void setExecListenerHub(const ExecListenerHubId& hub)
-	{
-	  m_listener = hub;
-	}
+    /**
+     * @brief Set the ExecListenerHub instance.
+     */
+    void setExecListenerHub(const ExecListenerHubId& hub)
+    {
+      m_listener = hub;
+    }
 
-	/**
-	 * @brief Get the ExecListenerHub instance.
-	 */
-	const ExecListenerHubId& getExecListenerHub() const
-	{
-	  return m_listener;
-	}
+    /**
+     * @brief Get the ExecListenerHub instance.
+     */
+    const ExecListenerHubId& getExecListenerHub() const
+    {
+      return m_listener;
+    }
 
     /**
      * @brief Adds an ExecListener for publication of node transition events.
-	 * @note Convenience method for backward compatibility.
+     * @note Convenience method for backward compatibility.
      */
     void addListener(const ExecListenerBaseId& listener);
 
     /**
      * @brief Removes an ExecListener.
-	 * @note Convenience method for backward compatibility.
+     * @note Convenience method for backward compatibility.
      */
     void removeListener(const ExecListenerBaseId& listener);
 
@@ -176,36 +176,36 @@ namespace PLEXIL
      */
     void deleteFinishedPlans();
 
-	//
-	// API to Node classes
-	//
+    //
+    // API to Node classes
+    //
 
-	/**
-	 * @brief Schedule this assignment for execution.
-	 */
-	void enqueueAssignment(const AssignmentId& assign);
+    /**
+     * @brief Schedule this assignment for execution.
+     */
+    void enqueueAssignment(const AssignmentId& assign);
 
-	/**
-	 * @brief Schedule this assignment for retraction.
-	 */
-	void enqueueAssignmentForRetraction(const AssignmentId& assign);
+    /**
+     * @brief Schedule this assignment for retraction.
+     */
+    void enqueueAssignmentForRetraction(const AssignmentId& assign);
 
-	/**
-	 * @brief Schedule this command for execution.
-	 */
-	void enqueueCommand(const CommandId& cmd);
+    /**
+     * @brief Schedule this command for execution.
+     */
+    void enqueueCommand(const CommandId& cmd);
 
-	/**
-	 * @brief Schedule this update for execution.
-	 */
-	void enqueueUpdate(const UpdateId& update);
+    /**
+     * @brief Schedule this update for execution.
+     */
+    void enqueueUpdate(const UpdateId& update);
 
-	/**
-	 * @brief Needed for stupid unit test
-	 */
-	virtual void notifyExecuted(const NodeId& node) 
-	{
-	}
+    /**
+     * @brief Needed for stupid unit test
+     */
+    virtual void notifyExecuted(const NodeId& /* node */) 
+    {
+    }
 
     /**
      * @brief Mark node as finished and no longer eligible for execution.
@@ -231,9 +231,9 @@ namespace PLEXIL
   private:
 
     // Private types
-	typedef std::vector<NodeTransition> StateChangeQueue;
-	typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
-	typedef std::map<VariableId, VariableConflictSet> VariableConflictMap;
+    typedef std::vector<NodeTransition> StateChangeQueue;
+    typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
+    typedef std::map<VariableId, VariableConflictSet> VariableConflictMap;
 
     /**
      * @brief Resolve conflicts among potentially executing assignment variables.
@@ -283,10 +283,10 @@ namespace PLEXIL
     std::list<CommandId> m_commandsToExecute;
     std::list<UpdateId> m_updatesToExecute;
     VariableConflictMap m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
-											   The nodes in the sets are assignment nodes which can assign values to the variable.
-											   The sets are ordered by priority, but the order is dominated by FAILING nodes.
-											   Essentially, at each quiescence cycle, the first node in each set that isn't already
-											   in state FAILING gets added to the end of the queue. */
+                                               The nodes in the sets are assignment nodes which can assign values to the variable.
+                                               The sets are ordered by priority, but the order is dominated by FAILING nodes.
+                                               Essentially, at each quiescence cycle, the first node in each set that isn't already
+                                               in state FAILING gets added to the end of the queue. */
     std::map<std::string, PlexilNodeId> m_libraries;
     unsigned int m_cycleNum, m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */

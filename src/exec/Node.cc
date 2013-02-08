@@ -627,12 +627,12 @@ namespace PLEXIL {
   }
 
   // Default method
-  void Node::specializedPostInit(const PlexilNodeId& node)
+  void Node::specializedPostInit(const PlexilNodeId& /* node */)
   {
   }
 
   // Default method
-  void Node::specializedPostInitLate(const PlexilNodeId& node)
+  void Node::specializedPostInitLate(const PlexilNodeId& /* node */)
   {
   }
 
@@ -1650,7 +1650,7 @@ namespace PLEXIL {
   }
 
   // Default method
-  void Node::transitionFromFinishing(NodeState destState)
+  void Node::transitionFromFinishing(NodeState /* destState */)
   {
     checkError(ALWAYS_FAIL,
                "No transition from FINISHING state defined for this node");
@@ -1682,7 +1682,7 @@ namespace PLEXIL {
   }
 
   // Default method
-  void Node::transitionFromFailing(NodeState destState)
+  void Node::transitionFromFailing(NodeState /* destState */)
   {
     checkError(ALWAYS_FAIL,
                "No transition from FAILING state defined for this node");
@@ -1886,7 +1886,7 @@ namespace PLEXIL {
   }
 
   // Default method
-  NodeId Node::findChild(const LabelStr& childName) const
+  NodeId Node::findChild(const LabelStr& /* childName */) const
   {
     return NodeId::noId();
   }
@@ -2304,7 +2304,7 @@ namespace PLEXIL {
   }
 
   // Default method does nothing
-  void Node::printCommandHandle(std::ostream& stream, const unsigned int indent) const
+  void Node::printCommandHandle(std::ostream& /* stream */, const unsigned int /* indent */) const
   {
   }
 

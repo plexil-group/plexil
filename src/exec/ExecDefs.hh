@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -101,7 +101,7 @@ namespace PLEXIL
   enum PlexilType
     {
       UNKNOWN_TYPE, INTEGER, REAL, BOOLEAN, ARRAY, STRING, TIME, 
-      NODE_STATE, NODE_OUTCOME, FAILURE_TYPE, COMMAND_HANDLE,
+      NODE_STATE, NODE_OUTCOME, FAILURE_TYPE, COMMAND_HANDLE
     };
 
   /**

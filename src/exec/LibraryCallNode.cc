@@ -113,10 +113,10 @@ namespace PLEXIL
       PlexilAliasMap aliasesCopy(body->aliases());
 
       // Assign aliases for the In interface variables
-      createAliases(libNode, libInterface->in(), aliasesCopy, true);
+      createAliases(libInterface->in(), aliasesCopy, true);
 
       // Assign aliases for the InOut interface variables
-      createAliases(libNode, libInterface->inOut(), aliasesCopy, false);
+      createAliases(libInterface->inOut(), aliasesCopy, false);
 
       // Barf if formal parameter is not known
       assertTrueMsg(aliasesCopy.empty(),
@@ -134,10 +134,8 @@ namespace PLEXIL
   // If a variable exists in interfaceVars but not aliases:
   //  - and it has a default value, generate the variable with the default value;
   //  - and it doesn't have a default value, signal an error.
-  // libNode is only used for error message generation.
 
-  void LibraryCallNode::createAliases(const PlexilNodeId& libNode, 
-                                      const std::vector<PlexilVarRef*>& interfaceVars,
+  void LibraryCallNode::createAliases(const std::vector<PlexilVarRef*>& interfaceVars,
                                       PlexilAliasMap& aliases,
                                       bool isIn)
   {
@@ -157,7 +155,8 @@ namespace PLEXIL
         if (Id<PlexilVarRef>::convertable(aliasValue)) {
           actualVar = Node::findVariable((const PlexilVarRef*) aliasValue);
           assertTrueMsg(actualVar.isId(),
-                        "Can't find variable named \"" << aliasValue->name()
+                        "Node " << m_nodeId.toString()
+                        << ": Can't find variable named \"" << aliasValue->name()
                         << "\" for " << (isIn ? "In" : "InOut" )
                         << "alias variable \"" << varName);
 
@@ -217,7 +216,8 @@ namespace PLEXIL
           // Expression is not a variable or array reference
           // Can't do this for InOut
           assertTrueMsg(isIn,
-                        "Alias value for InOut interface variable \""
+                        "Node " << m_nodeId.toString()
+                        << ": Alias value for InOut interface variable \""
                         << varName
                         << "\" is not a variable or array reference");
 
