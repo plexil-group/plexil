@@ -59,6 +59,7 @@
 #include "LabelStr.hh"
 #include "StoredArray.hh"
 #include "StoredItem.hh"
+#include "stricmp.h"
 #include "TestData.hh"
 #include "timespec-utils.hh"
 #include "timeval-utils.hh"
@@ -2460,6 +2461,72 @@ public:
 
 };
 
+class StricmpTests
+{
+public:
+  static bool test()
+  {
+    runTest(testNullArgs);
+    runTest(testSameCase);
+    runTest(testDifferentCases);
+    return true;
+  }
+
+private:
+  static bool testNullArgs()
+  {
+    assertTrue_1(0 == stricmp(NULL, NULL));
+    assertTrue_1(0 == stricmp(NULL, ""));
+    assertTrue_1(-1 == stricmp(NULL, " "));
+    assertTrue_1(0 == stricmp("", NULL));
+    assertTrue_1(1 == stricmp(" ", NULL));
+    assertTrue_1(0 == stricmp("", ""));
+    return true;
+  }
+
+  static bool testSameCase()
+  {
+    assertTrue_1(0 == stricmp(" ", " "));
+    assertTrue_1(1 == stricmp("  ", " "));
+    assertTrue_1(-1 == stricmp(" ", "  "));
+
+    assertTrue_1(0 == stricmp("123", "123"));
+    assertTrue_1(1 == stricmp("234", "123"));
+    assertTrue_1(1 == stricmp("1234", "123"));
+    assertTrue_1(-1 == stricmp("123", "1234"));
+    assertTrue_1(-1 == stricmp("123", "234"));
+
+    assertTrue_1(0 == stricmp("foo", "foo"));
+    assertTrue_1(0 == stricmp("FOO", "FOO"));
+    assertTrue_1(-1 == stricmp("foo", "fool"));
+    assertTrue_1(1 == stricmp("fool", "foo"));
+    assertTrue_1(1 == stricmp("fou", "foo"));
+    assertTrue_1(-1 == stricmp("foo", "fou"));
+
+    return true;
+  }
+
+  static bool testDifferentCases()
+  {
+    assertTrue_1(0 == stricmp("foo", "FOO"));
+    assertTrue_1(0 == stricmp("FOO", "foo"));
+
+    assertTrue_1(-1 == stricmp("FOO", "fool"));
+    assertTrue_1(-1 == stricmp("foo", "FOOL"));
+
+    assertTrue_1(1 == stricmp("fool", "FOO"));
+    assertTrue_1(1 == stricmp("FOOL", "foo"));
+
+    assertTrue_1(1 == stricmp("fou", "FOO"));
+    assertTrue_1(1 == stricmp("FOU", "foo"));
+
+    assertTrue_1(-1 == stricmp("foo", "FOU"));
+    assertTrue_1(-1 == stricmp("FOO", "fou"));
+
+    return true;
+  }
+};
+
 void UtilModuleTests::runTests(std::string /* path */) 
 {
   runTestSuite(ErrorTest::test);
@@ -2478,6 +2545,7 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(TwoWayStoreTests::test);
   runTestSuite(LabelStrTests::test);
   runTestSuite(ValueTests::test);
+  runTestSuite(StricmpTests::test);
 
   std::cout << "Finished" << std::endl;
 }
