@@ -88,6 +88,28 @@
 #define non_fast_only_assert(T) //NO-OP
 #endif
 
+/**
+ * @def assertFalse
+ * @brief Test a condition and create an error if true.
+ * @param cond Expression that yields a true/false result.
+ */
+#define assertFalse(cond) { \
+  if (cond) { \
+    Error(#cond, __FILE__, __LINE__).handleAssert(); \
+  } \
+}
+
+/**
+ * @def handle_error
+ * Create an error instance for throwing, printing, etc., per class Error.
+ * @param cond Condition that failed (was false), implying an error has occurred.
+ * @param msg String describing the error.
+ * @param err A specific Error instance.
+ */
+#define handle_error(cond, msg, err) {         \
+  Error(#cond, #msg, err, __FILE__, __LINE__);        \
+}
+
 #define runTest(test) { \
   try { \
     std::cout << "      " << #test; \
@@ -141,17 +163,25 @@ private:
     assertTrue(Error::printingErrors());
     assertTrue(Error::displayWarnings());
     assertTrue(Error::throwEnabled());
+    assertTrue_1(var == 1);
+    assertTrue_1(Error::printingErrors());
+    assertTrue_1(Error::displayWarnings());
+    assertTrue_1(Error::throwEnabled());
     try {
       // These are tests of check_error() and should therefore not be changed
       //   to assertTrue() despite the usual rule for test programs.
       // --wedgingt@email.arc.nasa.gov 2005 Feb 9
       check_error(Error::printingErrors(), "not printing errors by default!");
       check_error(Error::displayWarnings(), "display warnings off by default!");
+      check_error_2(Error::printingErrors(), "not printing errors by default!");
+      check_error_2(Error::displayWarnings(), "display warnings off by default!");
       check_error(var == 1);
+      check_error_1(var == 1);
       check_error(var == 1, "check_error(var == 1)");
       check_error(var == 1, Error("check_error(var == 1)"));
+      check_error_2(var == 1, "check_error(var == 1)");
+      check_error_2(var == 1, Error("check_error(var == 1)"));
       checkError(var ==1, "Can add " << 1.09 << " and " << 2.81 << " to get " << 1.09 +2.81);
-      condWarning(var == 1, "var is not 1");
       std::cout << std::endl;
       Error::setStream(std::cout);
       warn("Warning messages working");
@@ -943,7 +973,7 @@ private:
         key_t key = keygen2.next();
         ItemStoreEntry<std::string>* entry = tbl.get(key);
         assertTrueMsg(entry != NULL, "Error: No table entry found for key " << key);
-        assertTrueMsg(entry->refcount == 1, "get error: entry refcount != 1");
+        assertTrue(entry->refcount == 1, "get error: entry refcount != 1");
         std::istringstream str(entry->item);
         size_t j;
         str >> j;
@@ -962,11 +992,11 @@ private:
         assertTrueMsg(entry != NULL, "Error: No table entry found for key " << key);
         tbl.removeEntry(key);
         entry = tbl.get(key);
-        assertTrueMsg(entry == NULL, "Error: removeEntry failed");
+        assertTrue(entry == NULL, "Error: removeEntry failed");
       }
     }
-    assertTrueMsg(tbl.empty(), "Error: Table not empty after clearing");
-    assertTrueMsg(tbl.size() == 0, "Error: Table size not zero after clearing");
+    assertTrue(tbl.empty(), "Error: Table not empty after clearing");
+    assertTrue(tbl.size() == 0, "Error: Table size not zero after clearing");
     std::cout << " done." << std::endl;
 
     return true;
@@ -1467,11 +1497,11 @@ private:
         assertTrueMsg(entryByKey != NULL, "Error: No table entry found for key " << key);
         tbl.removeEntry(key);
         entryByKey = tbl.getByKey(key);
-        assertTrueMsg(entryByKey == NULL, "Error: removeEntry failed");
+        assertTrue(entryByKey == NULL, "Error: removeEntry failed");
       }
     }
-    assertTrueMsg(tbl.empty(), "Error: Table not empty after clearing");
-    assertTrueMsg(tbl.size() == 0, "Error: Table size not zero after clearing");
+    assertTrue(tbl.empty(), "Error: Table not empty after clearing");
+    assertTrue(tbl.size() == 0, "Error: Table size not zero after clearing");
     std::cout << " done." << std::endl;
 
     return true;
@@ -2134,9 +2164,9 @@ public:
 
     const char* zuluDate1 = "2012-09-17T16:00:00Z";
     double zuluTime1 = 0;
-    assertTrue(parseISO8601Date(zuluDate1, zuluTime1)
-               && zuluTime1 != 0,
-               "GMT date parsing failed");
+    assertTrueMsg(parseISO8601Date(zuluDate1, zuluTime1)
+                  && zuluTime1 != 0,
+                  "GMT date parsing failed");
 
     std::ostringstream str2;
     printISO8601DateUTC(zuluTime1, str2);

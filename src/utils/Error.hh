@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -77,17 +77,6 @@
 #define ALWAYS_FAIL (false)
 
 /**
- * @def handle_error
- * Create an error instance for throwing, printing, etc., per class Error.
- * @param cond Condition that failed (was false), implying an error has occurred.
- * @param optarg Optional arguments passed on to the appropriate
- * class Error constructor.
- */
-#define handle_error(cond, optarg...) { \
-  Error(#cond, ##optarg, __FILE__, __LINE__); \
-}
-
-/**
  * @def DECLARE_ERROR
  * Declare an error as a function that returns a string naming itself.
  * @param error The error to declare.
@@ -98,17 +87,58 @@
     return(sl_lblStr); \
   }
 
+//
+// assertTrue & friends
+//
+
+/**
+ * @def assertTrue_1
+ * @brief Test a condition and create an error if false.
+ * @param cond Expression that yields a true/false result.
+ */
+#define assertTrue_1(cond) { \
+  if (!(cond)) { \
+    Error(#cond, __FILE__, __LINE__).handleAssert(); \
+  } \
+}
+
+/**
+ * @def assertTrue_2
+ * @brief Test a condition and create an error if false.
+ * @param cond Expression that yields a true/false result.
+ * @param msg A string or Error instance.
+ */
+#define assertTrue_2(cond, msg) { \
+  if (!(cond)) { \
+    Error(#cond, msg, __FILE__, __LINE__).handleAssert(); \
+  } \
+}
+
+/**
+ * @def assertTrue_3
+ * @brief Test a condition and create an error if false.
+ * @param cond Expression that yields a true/false result.
+ * @param msg1 A string.
+ * @param msg2 A string.
+ */
+#define assertTrue_3(cond, msg1, msg2) {                \
+  if (!(cond)) { \
+    Error(#cond, msg1, msg2, __FILE__, __LINE__).handleAssert();     \
+  } \
+}
+
+#define FOURTH_ARG(arg1, arg2, arg3, arg4, ...) arg4
+
 /**
  * @def assertTrue
  * @brief Test a condition and create an error if false.
- * @param cond Expression that yields a true/false result.
- * @param optarg Optional arguments to Error.
+ * @deprecated Not fully portable C++; use assertTrue_1, _2, _3 instead.
  */
-#define assertTrue(cond, optarg...) { \
-  if (!(cond)) { \
-    Error(#cond, ##optarg, __FILE__, __LINE__).handleAssert(); \
-  } \
-}
+#define assertTrue(...) \
+ FOURTH_ARG(__VA_ARGS__, \
+            assertTrue_3(__VA_ARGS__), \
+            assertTrue_2(__VA_ARGS__), \
+            assertTrue_1(__VA_ARGS__))
 
 /**
  * @def assertTrueMsg
@@ -124,18 +154,6 @@
   } \
 }
 
-/**
- * @def assertFalse
- * @brief Test a condition and create an error if true.
- * @param cond Expression that yields a true/false result.
- * @param optarg Optional arguments to Error.
- */
-#define assertFalse(cond, optarg...) { \
-  if (cond) { \
-    Error(#cond, ##optarg, __FILE__, __LINE__).handleAssert(); \
-  } \
-}
-
 #ifdef PLEXIL_FAST
 
 /**
@@ -145,7 +163,7 @@
  * @param optarg Other values to pass to the class Error constructor when creating the error instance.
  * @note When PLEXIL_FAST is defined, these are ignored.
  */
-#define check_error(cond, optarg...)
+#define check_error(...)
 #define checkError(cond, msg)
 
 /**
@@ -156,46 +174,62 @@
  */
 #define warn(msg)
 
-/**
- * @def condWarning
- * Print a warning if the condition is false.
- * @param cond The condition to test; if false, print the warning.
- * @param msg The information to print in the warning.
- * @note When PLEXIL_FAST is defined, these are ignored
- */
-#define condWarning(cond, msg)
-
 #else
+
+//
+// check_error implementation
+//
+
+/**
+ * @def check_error_1
+ * @brief If the condition is false, throw an exception.
+ * @param cond The condition to test.
+ */
+#define check_error_1(cond) { \
+  if (!(cond)) { \
+    Error(#cond, __FILE__, __LINE__).handleAssert(); \
+  } \
+}
+
+/**
+ * @def check_error_2
+ * @brief If the condition is false, throw an exception.
+ * @param cond The condition to test.
+ * @param msg A string or Error instance.
+ */
+#define check_error_2(cond, msg) { \
+  if (!(cond)) { \
+    Error(#cond, msg, __FILE__, __LINE__).handleAssert(); \
+  } \
+}
+
+/**
+ * @def check_error_3
+ * @brief If the condition is false, throw an exception.
+ * @param cond The condition to test.
+ * @param msg1 A string.
+ * @param msg2 A string.
+ */
+#define check_error_3(cond, msg1, msg2) { \
+  if (!(cond)) { \
+    Error(#cond, msg1, msg2, __FILE__, __LINE__).handleAssert(); \
+  } \
+}
+
 
 /**
  * @def check_error
- * @brief If the condition is false, generate an error.
+ * @brief If the condition is false, throw an exceptino.
  * @param cond The condition to test.
- * @note The new error handling support is in use, this will instead
- *   throw an exception when the condition is false.
- * @note Should only be used in 'core' code and in test programs when the
- *   condition cannot be tested when the 'core' code has been compiled 'fast'.
- *   Otherwise - in test programs where the condition can always be checked,
- *   no matter how the code was compiled - use assertTrue(), assertFalse(), etc.
- * @note This macro has three flavors:
- * @li check_error(condition) - If the condition is true, do nothing.
- *  If false and all errors are being printed, print it with the message.
- *  If false, throw an exception with location information and the message.
- * @li check_error(condition, string) - If the condition is true, do nothing.
- *  If false and all errors are being printed, print it just before throwing it.
- *  If false, throw an exception with location information and the message.
- * @li check_error(condition, exception) - If the condition is true, do nothing.
- *  If false and all errors are being printed, print it just before throwing it.
- *  If false, throw the given exception after adding location information.
- *
- * @see assertTrue, assertFalse, ALWAYS_FAIL
+ * @deprecated Not fully portable C++; use check_error_1, _2, _3 instead.
+ * @see assertTrue, ALWAYS_FAIL
 */
 
-#define check_error(cond, optarg...) { \
-  if (!(cond)) { \
-    Error(#cond, ##optarg, __FILE__, __LINE__).handleAssert(); \
-  } \
-}
+#define check_error(...) \
+ FOURTH_ARG(__VA_ARGS__, \
+            check_error_3(__VA_ARGS__), \
+            check_error_2(__VA_ARGS__), \
+            check_error_1(__VA_ARGS__))
 
 #define checkError(cond, msg) { \
   if (!(cond)) { \
@@ -209,14 +243,6 @@
       std::ostringstream sstr;                                   \
       sstr << msg;                                              \
       Error::printWarning(sstr.str(), __FILE__, __LINE__);      \
-}
-
-#define condWarning(cond, msg) { \
-  if (!(cond)) { \
-    std::ostringstream sstr; \
-    sstr << msg; \
-    Error::printWarning(sstr.str(), __FILE__, __LINE__); \
-  } \
 }
 
 #endif /* PLEXIL_FAST */
