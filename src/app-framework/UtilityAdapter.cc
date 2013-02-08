@@ -103,9 +103,9 @@ void UtilityAdapter::executeCommand(const LabelStr& command_name,
 }
 
 void UtilityAdapter::invokeAbort(const LabelStr& command_name, 
-                                 const std::vector<Value>& args, 
+                                 const std::vector<Value>& /* args */, 
                                  ExpressionId abort_ack,
-                                 ExpressionId cmd_ack)
+                                 ExpressionId /* cmd_ack */)
 {
   const std::string& name = command_name.toString();
   if (name != "print" && name != "pprint") {
