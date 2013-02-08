@@ -149,7 +149,7 @@ namespace PLEXIL {
    * @param node The node.
    */
   void LuvFormat::formatTransition(std::ostream& s, 
-                                   NodeState prevState,
+                                   NodeState /* prevState */,
                                    const NodeId& node) {
 
     simpleStartTag(s, NODE_STATE_UPDATE_TAG());

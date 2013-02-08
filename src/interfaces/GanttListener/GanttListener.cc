@@ -237,8 +237,8 @@ namespace PLEXIL
    *  sets the start time of the plan's execution
    *  for use in file name
    **/
-  void GanttListener::implementNotifyAddPlan(const PlexilNodeId& plan, 
-                                             const LabelStr& parent) const 
+  void GanttListener::implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
+                                             const LabelStr& /* parent */) const 
   {
     getCurrentWorkingDirectory();
     // FIXME: Get time from someplace!
@@ -261,7 +261,7 @@ namespace PLEXIL
    *  nodes info is stored in each node's nodeObj struct
    **/
   void GanttListener::
-  implementNotifyNodeTransition (NodeState prevState, const NodeId& nodeId) const
+  implementNotifyNodeTransition (NodeState /* prevState */, const NodeId& nodeId) const
   {
     //startTime is when first node executes
     if(startTime == -1) startTime = nodeId->getCurrentStateStartTime();

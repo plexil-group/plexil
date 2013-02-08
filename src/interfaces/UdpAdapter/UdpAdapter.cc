@@ -134,7 +134,9 @@ namespace PLEXIL
     return Value();
   }
 
-  void UdpAdapter::sendPlannerUpdate(const NodeId& node, const std::map<LabelStr, Value>& valuePairs, ExpressionId ack)
+  void UdpAdapter::sendPlannerUpdate(const NodeId& node,
+                                     const std::map<LabelStr, Value>& /* valuePairs */,
+                                     ExpressionId ack)
   {
     debugMsg("UdpAdapter::sendPlannerUpdate", " called");
     debugMsg("ExternalInterface:udp", " sendPlannerUpdate called");
@@ -222,7 +224,7 @@ namespace PLEXIL
   // Default UDP command handler
   void UdpAdapter::executeDefaultCommand(const LabelStr& msgName,
                                          const std::vector<Value>& args,
-                                         ExpressionId dest,
+                                         ExpressionId /* dest */,
                                          ExpressionId ack)
   {
     debugMsg("UdpAdapter::executeDefaultCommand", " called for \"" << msgName.c_str() << "\" with " << args.size() << " args");
@@ -365,7 +367,9 @@ namespace PLEXIL
   }
 
   // SEND_RETURN_VALUE_COMMAND
-  void UdpAdapter::executeSendReturnValueCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack)
+  void UdpAdapter::executeSendReturnValueCommand(const std::vector<Value>& /* args */,
+                                                 ExpressionId /* dest */,
+                                                 ExpressionId /* ack */)
   {
     // Open loop communications only.  Perhaps this is being called by the expanded nodes?
     //debugMsg("UdpAdapter::executeSendReturnValueCommand", " called for " << LabelStr::c_str(args.front()));
@@ -937,7 +941,7 @@ namespace PLEXIL
     std::cout << std::endl;
   }
 
-  LabelStr UdpAdapter::formatMessageName(const LabelStr& name, const LabelStr& command, int id)
+  LabelStr UdpAdapter::formatMessageName(const LabelStr& name, const LabelStr& command, int /* id */)
   {
     return formatMessageName(name.c_str(), command, 0);
   }
