@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,30 +26,42 @@
 
 int stricmp(const char * s1, const char * s2)
 {
-  while ((*s1 != 0) && (*s2 != 0)) {
-	if (*s1 != *s2) {
-	  // coerce alpha to upper case
-	  char c1 = *s1;
-	  if (c1 >= 'a' && c1 <= 'z')
-		c1 = c1 - 0x20;
-	  char c2 = *s2;
-	  if (c2 >= 'a' && c2 <= 'z')
-		c2 = c2 - 0x20;
+  if (!s1) {
+    if (!s2 || !*s2)
+      return 0; /* null equals null or empty string */
+    else
+      return -1;
+  }
+  if (!s2) {
+    if (!*s1)
+      return 0; /* null equals empty string */
+    else
+      return 1;
+  }
+  while (*s1 && *s2) {
+    if (*s1 != *s2) {
+      /* coerce alpha to upper case */
+      char c1 = *s1;
+      char c2 = *s2;
+      if (c1 >= 'a' && c1 <= 'z')
+        c1 = c1 - 0x20;
+      if (c2 >= 'a' && c2 <= 'z')
+        c2 = c2 - 0x20;
 
-	  if (c1 > c2)
-		return 1;
-	  if (c1 < c2)
-		return -1;
-	}
+      if (c1 > c2)
+        return 1;
+      if (c1 < c2)
+        return -1;
+    }
 
-	s1++;
-	s2++;
+    s1++;
+    s2++;
   }
 
-  // if we got here, either s1 or s2 is pointing at a terminating null
+  /* if we got here, either s1 or s2 is pointing at a terminating null */
   if (*s1 == *s2)
-	return 0; // strings are equal
-  if (*s2 == 0)
-	return 1; // s1 is longer, therefore greater
+    return 0; /* strings are equal */
+  if (*s1)
+    return 1; /* s1 is longer, therefore greater */
   return -1;
 }
