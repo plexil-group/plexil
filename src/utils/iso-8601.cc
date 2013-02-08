@@ -198,8 +198,8 @@ extern const char* parseISO8601Date(const char* dateStr, double& result)
 extern const char* parseISO8601Time(const char* timeStr, double& result)
 {
   // Sanity check input
-  assertTrue(timeStr != NULL);
-  assertTrue(*timeStr != '\0');
+  assertTrue_1(timeStr != NULL);
+  assertTrue_1(*timeStr != '\0');
 
   // Get current date and time to default local timezone
   time_t now;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,12 @@ namespace PLEXIL {
   IdTable::~IdTable() {
   }
 
-  ID_KEY_TYPE IdTable::insert(ID_POINTER_TYPE id, const char* baseType) {
+  ID_KEY_TYPE IdTable::insert(ID_POINTER_TYPE id, const char*
+#ifdef ID_TABLE_DEBUG
+                              baseType
+#endif
+                              )
+  {
     static ID_KEY_TYPE* sl_nextId = NULL;
     
     IdTable& instance(getInstance());

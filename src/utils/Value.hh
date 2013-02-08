@@ -43,15 +43,18 @@ namespace PLEXIL
   /**
    * @brief Constant to signify the largest real value
    */
-  DECLARE_GLOBAL_CONST(double, g_maxReal);
+  DECLARE_GLOBAL_CONST(double, g_maxReal)
 
-  DECLARE_GLOBAL_CONST(double, g_epsilon);
+  /**
+   * @brief Constant to use as a comparison tolerance factor
+   */
+  DECLARE_GLOBAL_CONST(double, g_epsilon)
 
   /**
    * @brief Constant to signify an uninitialized value
    */
   class Value;
-  DECLARE_GLOBAL_CONST(Value, UNKNOWN);
+  DECLARE_GLOBAL_CONST(Value, UNKNOWN)
 
   // Forward references
   class LabelStr;

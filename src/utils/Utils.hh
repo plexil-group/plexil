@@ -55,7 +55,7 @@ namespace PLEXIL {
     typedef typename std::set<Id<TYPE> >::const_iterator object_iterator;
     object_iterator it = objects.begin();
     while(it != objects.end()){
-      check_error((*it).isValid());
+      check_error_1((*it).isValid());
       delete (TYPE*) (*it++);
     }
     objects.clear();
@@ -80,8 +80,8 @@ namespace PLEXIL {
     while(it != objects.end()){
       Id<TYPE> object = *it;
       if(!object.isNoId()){
-    check_error(object.isValid());
-    delete (TYPE*) (*it++);
+        check_error_1(object.isValid());
+        delete (TYPE*) (*it++);
       }
       else
     ++it;
@@ -95,7 +95,7 @@ namespace PLEXIL {
     object_iterator it = objects.begin();
     while(it != objects.end()){
       Id<TYPE2> item = (it++)->second;
-      check_error(item.isValid());
+      check_error_1(item.isValid());
       delete (TYPE2*) item;
     }
     objects.clear();
@@ -107,7 +107,7 @@ namespace PLEXIL {
     object_iterator it = objects.begin();
     while(it != objects.end()){
       Id<TYPE2> item = (it++)->second;
-      check_error(item.isValid());
+      check_error_1(item.isValid());
       delete (TYPE2*) item;
     }
     objects.clear();
@@ -139,7 +139,7 @@ namespace PLEXIL {
     object_iterator it = objects.begin();
     while(it != objects.end()){
       TYPE2* item = (it++)->second;
-      check_error(item != NULL);
+      check_error_1(item != NULL);
       delete item;
     }
     objects.clear();

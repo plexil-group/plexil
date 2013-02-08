@@ -134,7 +134,7 @@ namespace PLEXIL
      */
     void insertEntry(key_t key, entry_t* entry)
     {
-      assertTrue(entry != NULL);
+      assertTrue_1(entry != NULL);
       m_keyTable[key] = entry;
     }
 

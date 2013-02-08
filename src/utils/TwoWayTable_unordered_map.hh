@@ -190,7 +190,7 @@ namespace PLEXIL
      */
     void insertEntry(const key_t key, entry_t* entry)
     {
-      assertTrue(entry != NULL);
+      assertTrue_1(entry != NULL);
       m_keyTable[key] = entry;
       m_itemTable[entry->item] = key;
 #if defined(TWO_WAY_TABLE_DEBUG)

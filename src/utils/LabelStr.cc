@@ -32,7 +32,7 @@ namespace PLEXIL
 {
 
   // define the empty label
-  DEFINE_GLOBAL_CONST(LabelStr, EMPTY_LABEL, "");
+  DEFINE_GLOBAL_CONST(LabelStr, EMPTY_LABEL, "")
 
   /**
    * Zero argument constructor.

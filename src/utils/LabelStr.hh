@@ -375,7 +375,7 @@ namespace PLEXIL
 
   };
 
-  DECLARE_GLOBAL_CONST(LabelStr, EMPTY_LABEL);
+  DECLARE_GLOBAL_CONST(LabelStr, EMPTY_LABEL)
 
 }
 

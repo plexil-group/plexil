@@ -32,7 +32,7 @@ class Logging {
 		enum LogType {
 			ERROR             = 0,  
 			WARNING           = 1,  
-                        INFO              = 2,
+                        INFO              = 2
 		};
 
 		static int ENABLE_LOGGING;

@@ -189,7 +189,8 @@ namespace PLEXIL
       : m_counter(unassigned())
     {
       // Check potential gotchas
-      assertTrue(key_traits_t::isValid());
+      assertTrue(key_traits_t::isValid(),
+                 "KeySource constructor: Invalid key_traits_t");
     }
 
     ~KeySource()
@@ -233,7 +234,7 @@ namespace PLEXIL
      * @note Currently used only in the module tests.
      */
 
-    const size_t availableKeys()
+    size_t availableKeys()
     {
       return ((size_t) ((keyMax() - m_counter) / increment()));
     }
