@@ -180,6 +180,7 @@ namespace PLEXIL
    */
   void InterfaceManager::defaultRegisterAdapter(InterfaceAdapterId adapter)
   {
+    assertTrue(m_adapterConfig.isId());
     debugMsg("InterfaceManager:defaultRegisterAdapter", " for adapter " << adapter);
     m_adapterConfig->defaultRegisterAdapter(adapter);
   }
@@ -213,7 +214,6 @@ namespace PLEXIL
     else {
       m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
     }
-    m_adapterConfig->getId();
 
     // Walk the children of the configuration XML element
     // and register the adapter according to the data found there
@@ -500,6 +500,7 @@ namespace PLEXIL
    * @brief Clears the interface adapter registry.
    */
   void InterfaceManager::clearAdapterRegistry() {
+    assertTrue(m_adapterConfig.isId());
     m_adapterConfig->clearAdapterRegistry();
   }
 
@@ -906,6 +907,7 @@ namespace PLEXIL
   InterfaceManager::registerCommandInterface(const LabelStr & commandName,
                                              InterfaceAdapterId intf)
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->registerCommandInterface(commandName, intf);
   }
 
@@ -920,6 +922,7 @@ namespace PLEXIL
   InterfaceManager::registerLookupInterface(const LabelStr & stateName,
                                             const InterfaceAdapterId& intf)
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->registerLookupInterface(stateName, intf);
   }
 
@@ -932,6 +935,7 @@ namespace PLEXIL
   bool
   InterfaceManager::registerPlannerUpdateInterface(InterfaceAdapterId intf)
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->registerPlannerUpdateInterface(intf);
   }
 
@@ -944,6 +948,7 @@ namespace PLEXIL
   bool 
   InterfaceManager::setDefaultInterface(InterfaceAdapterId intf)
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->setDefaultInterface(intf);
   }
 
@@ -956,6 +961,7 @@ namespace PLEXIL
   bool 
   InterfaceManager::setDefaultCommandInterface(InterfaceAdapterId intf)
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->setDefaultCommandInterface(intf);
   }
 
@@ -968,6 +974,7 @@ namespace PLEXIL
   bool 
   InterfaceManager::setDefaultLookupInterface(InterfaceAdapterId intf)
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->setDefaultLookupInterface(intf);
   }
 
@@ -977,10 +984,9 @@ namespace PLEXIL
    */
   void InterfaceManager::deleteIfUnknown(InterfaceAdapterId intf)
   {
-    if (m_adapterConfig->isKnown(intf))
-      {
-        deleteAdapter(intf);
-      }
+    assertTrue(m_adapterConfig.isId());
+    if (!m_adapterConfig->isKnown(intf))
+      deleteAdapter(intf);
   }
 
   /**
@@ -990,6 +996,7 @@ namespace PLEXIL
   void
   InterfaceManager::unregisterCommandInterface(const LabelStr & commandName)
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->unregisterCommandInterface(commandName);
   }
 
@@ -1000,6 +1007,7 @@ namespace PLEXIL
   void
   InterfaceManager::unregisterLookupInterface(const LabelStr & stateName)
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->unregisterLookupInterface(stateName);
   }
 
@@ -1009,6 +1017,7 @@ namespace PLEXIL
   void
   InterfaceManager::unregisterPlannerUpdateInterface()
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->unregisterPlannerUpdateInterface();
   }
 
@@ -1018,6 +1027,7 @@ namespace PLEXIL
   void
   InterfaceManager::unsetDefaultInterface()
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->unsetDefaultInterface();
   }
 
@@ -1027,6 +1037,7 @@ namespace PLEXIL
   void
   InterfaceManager::unsetDefaultCommandInterface()
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->unsetDefaultCommandInterface();
   }
 
@@ -1036,6 +1047,7 @@ namespace PLEXIL
   void
   InterfaceManager::unsetDefaultLookupInterface()
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->unsetDefaultLookupInterface();
   }
 
@@ -1047,6 +1059,7 @@ namespace PLEXIL
   InterfaceAdapterId
   InterfaceManager::getCommandInterface(const LabelStr & commandName)
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->getCommandInterface(commandName);
   }
 
@@ -1058,6 +1071,7 @@ namespace PLEXIL
   InterfaceAdapterId
   InterfaceManager::getLookupInterface(const LabelStr & stateName)
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->getLookupInterface(stateName);
   }
 
@@ -1067,6 +1081,7 @@ namespace PLEXIL
   InterfaceAdapterId 
   InterfaceManager::getDefaultInterface()
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->getDefaultInterface();
   }
 
@@ -1076,6 +1091,7 @@ namespace PLEXIL
   InterfaceAdapterId 
   InterfaceManager::getDefaultCommandInterface()
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->getDefaultCommandInterface();
   }
 
@@ -1085,6 +1101,7 @@ namespace PLEXIL
   InterfaceAdapterId 
   InterfaceManager::getDefaultLookupInterface()
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->getDefaultLookupInterface();
   }
 
@@ -1095,6 +1112,7 @@ namespace PLEXIL
   InterfaceAdapterId
   InterfaceManager::getPlannerUpdateInterface()
   {
+    assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->getPlannerUpdateInterface();
   }
 
