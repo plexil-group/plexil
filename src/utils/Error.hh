@@ -326,9 +326,7 @@ public:
   /**
      @brief Get the Error's message.
   */
-  inline std::string getMsg() const {
-    return(m_msg);
-  }
+  inline const std::string& getMsg() const { return m_msg; }
 
   /**
      @brief Set the Error's type.
@@ -357,6 +355,12 @@ public:
   inline const std::string& getFile() const {
     return(m_file);
   }
+
+
+  /**
+     @brief Get the Error's line.
+  */
+  inline const int& getLine() const { return m_line; }
 
   /**
      @brief Return whether all error information should be printed when detected.
