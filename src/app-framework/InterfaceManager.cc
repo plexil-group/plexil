@@ -192,7 +192,9 @@ namespace PLEXIL
   bool InterfaceManager::constructInterfaces(const pugi::xml_node& configXml)
   {
     if (configXml.empty()) {
-      debugMsg("InterfaceManager:constructInterfaces", " configuration is NULL, nothing to construct");
+      debugMsg("InterfaceManager:constructInterfaces",
+	       " empty configuration, nothing to construct");
+      m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
       return true;
     }
 
