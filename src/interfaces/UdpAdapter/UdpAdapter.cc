@@ -38,6 +38,7 @@
 #include <cfloat>
 #include <climits>
 #include <cstring>
+#include <unistd.h> // for close()
 
 namespace PLEXIL
 {

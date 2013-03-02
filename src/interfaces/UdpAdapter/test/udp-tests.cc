@@ -27,6 +27,8 @@
 #include "udp-utils.hh"
 #include "ThreadSpawn.hh"
 
+#include <unistd.h> // for usleep()
+
 using namespace PLEXIL;
 
 int main()

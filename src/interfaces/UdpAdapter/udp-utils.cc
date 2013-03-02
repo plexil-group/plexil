@@ -24,8 +24,10 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string.h>
 #include "udp-utils.hh"
+
+#include <string.h>
+#include <unistd.h> // for close()
 
 namespace PLEXIL
 {
