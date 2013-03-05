@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -175,8 +175,13 @@ namespace PLEXIL
 
     static PlexilNodeRefId getNodeRefInternal(const char* name, 
                                               const pugi::xml_node& node,
-                                              const pugi::xml_node& originalNode,
+                                              const pugi::xml_node& referringNode,
                                               const pugi::xml_node& ref)
+      throw(ParserException);
+    static PlexilNodeRefId getLocalNodeRef(const char* name,
+                                           const pugi::xml_node& node,
+                                           const pugi::xml_node& referringNode,
+                                           const pugi::xml_node& ref)
       throw(ParserException);
 
     static void toXml(const PlexilNodeId& node, pugi::xml_node& parent)

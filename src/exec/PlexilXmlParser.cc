@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1124,72 +1124,74 @@ namespace PLEXIL
                                        "\" lacks a <NodeBody> element.");
     }
     else {
+      checkParserExceptionWithLocation(retval->nodeType() != NodeType_Empty,
+                                       bodyXml,
+                                       "XML parsing error: Empty node \"" << retval->nodeId()
+                                       << "\" may not contain a <" << BODY_TAG << "> element.");
+
+      // Get real body
       xml_node realBodyXml = bodyXml.first_child();
-      if (realBodyXml) {
-        PlexilNodeBodyId bodyStruct = parseBody(realBodyXml);
+      checkParserExceptionWithLocation(realBodyXml && realBodyXml.type() == node_element,
+                                       bodyXml,
+                                       "XML parsing error: Node \"" << retval->nodeId()
+                                       << "\": <NodeBody> element improperly formatted");
 
-        // Check that body is of correct type
-        switch (retval->nodeType()) {
-        case NodeType_NodeList:
-          // check for PlexilListBody
-          checkParserExceptionWithLocation(NULL != (PlexilListBody*) bodyStruct,
-                                           realBodyXml,
-                                           "XML parsing error: Body of " << retval->nodeTypeString()
-                                           << " node \"" << retval->nodeId()
-                                           << "\" contains a " << realBodyXml.name() << " element.")
-            break;
+      PlexilNodeBodyId bodyStruct = parseBody(realBodyXml);
 
-        case NodeType_Command:
-          // check for PlexilCommandBody
-          checkParserExceptionWithLocation(NULL != (PlexilCommandBody*) bodyStruct,
-                                           realBodyXml,
-                                           "XML parsing error: Body of " << retval->nodeTypeString()
-                                           << " node \"" << retval->nodeId()
-                                           << "\" contains a " << realBodyXml.name() << " element.")
-            break;
-
-        case NodeType_Assignment:
-          // check for PlexilAssignmentBody
-          checkParserExceptionWithLocation(NULL != (PlexilAssignmentBody*) bodyStruct,
-                                           realBodyXml,
-                                           "XML parsing error: Body of " << retval->nodeTypeString()
-                                           << " node \"" << retval->nodeId()
-                                           << "\" contains a " << realBodyXml.name() << " element.")
-            break;
-
-        case NodeType_Update:
-          // check for PlexilUpdateBody
-          checkParserExceptionWithLocation(NULL != (PlexilUpdateBody*) bodyStruct,
-                                           realBodyXml,
-                                           "XML parsing error: Body of " << retval->nodeTypeString()
-                                           << " node \"" << retval->nodeId()
-                                           << "\" contains a " << realBodyXml.name() << " element.")
-            break;
-
-        case NodeType_LibraryNodeCall:
-          // check for PlexilLibNodeCallBody
-          checkParserExceptionWithLocation(NULL != (PlexilLibNodeCallBody*) bodyStruct,
-                                           realBodyXml,
-                                           "XML parsing error: Body of " << retval->nodeTypeString()
-                                           << " node \"" << retval->nodeId()
-                                           << "\" contains a " << realBodyXml.name() << " element.")
-            break;
-
-        case NodeType_Empty:
-          checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                           bodyXml,
-                                           "XML parsing error: Empty node \"" << retval->nodeId()
-                                           << "\" may not contain a " << bodyXml.name() << " element.")
-            break;
-
-        default:
-          checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                           xml,
-                                           "XML parser internal error: Invalid node type while parsing node body");
+      // Check that body is of correct type
+      switch (retval->nodeType()) {
+      case NodeType_NodeList:
+        // check for PlexilListBody
+        checkParserExceptionWithLocation(NULL != (PlexilListBody*) bodyStruct,
+                                         realBodyXml,
+                                         "XML parsing error: Body of " << retval->nodeTypeString()
+                                         << " node \"" << retval->nodeId()
+                                         << "\" contains a " << realBodyXml.name() << " element.")
           break;
-        }
-        retval->setBody(bodyStruct);
+
+      case NodeType_Command:
+        // check for PlexilCommandBody
+        checkParserExceptionWithLocation(NULL != (PlexilCommandBody*) bodyStruct,
+                                         realBodyXml,
+                                         "XML parsing error: Body of " << retval->nodeTypeString()
+                                         << " node \"" << retval->nodeId()
+                                         << "\" contains a " << realBodyXml.name() << " element.")
+          break;
+
+      case NodeType_Assignment:
+        // check for PlexilAssignmentBody
+        checkParserExceptionWithLocation(NULL != (PlexilAssignmentBody*) bodyStruct,
+                                         realBodyXml,
+                                         "XML parsing error: Body of " << retval->nodeTypeString()
+                                         << " node \"" << retval->nodeId()
+                                         << "\" contains a " << realBodyXml.name() << " element.")
+          break;
+
+      case NodeType_Update:
+        // check for PlexilUpdateBody
+        checkParserExceptionWithLocation(NULL != (PlexilUpdateBody*) bodyStruct,
+                                         realBodyXml,
+                                         "XML parsing error: Body of " << retval->nodeTypeString()
+                                         << " node \"" << retval->nodeId()
+                                         << "\" contains a " << realBodyXml.name() << " element.")
+          break;
+
+      case NodeType_LibraryNodeCall:
+        // check for PlexilLibNodeCallBody
+        checkParserExceptionWithLocation(NULL != (PlexilLibNodeCallBody*) bodyStruct,
+                                         realBodyXml,
+                                         "XML parsing error: Body of " << retval->nodeTypeString()
+                                         << " node \"" << retval->nodeId()
+                                         << "\" contains a " << realBodyXml.name() << " element.")
+          break;
+
+      default:
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         xml,
+                                         "XML parser internal error: Invalid node type while parsing node body");
+        break;
       }
+      retval->setBody(bodyStruct);
     }
 
     return retval;
@@ -1590,64 +1592,76 @@ namespace PLEXIL
   PlexilNodeRefId PlexilXmlParser::getNodeRefInternal(const char* name,
                                                       const xml_node& node,
                                                       const xml_node& referringNode,
-                                                      const pugi::xml_node& ref)
+                                                      const xml_node& ref)
     throw(ParserException) 
+  {
+    PlexilNodeRefId result = getLocalNodeRef(name, node, referringNode, ref);
+    if (result.isId())
+      return result;
+
+    // Check ancestors
+    xml_node parent = getNodeParent(node);
+    int generation = 1;
+    while (parent) {
+      debugMsg("PlexilXmlParser:getNodeRef", " checking parent node");
+      result = getLocalNodeRef(name, parent, referringNode, ref);
+      if (result.isId()) {
+        result->setGeneration(generation);
+        return result;
+      }
+      parent = getNodeParent(parent);
+      generation++;
+    }
+
+    return PlexilNodeRefId::noId();
+  }
+
+  PlexilNodeRefId PlexilXmlParser::getLocalNodeRef(const char* name,
+                                                   const xml_node& node,
+                                                   const xml_node& referringNode,
+                                                   const xml_node& ref)
+    throw(ParserException)
   {
     checkTag(NODE_TAG, node);
 
-    xml_node foundSelf, foundChild;
-    xml_node selfId = node.child(NODEID_TAG);
-    if (selfId
-        && selfId.first_child()
-        && 0 == strcmp(name, selfId.first_child().value())) {
+    bool foundSelf = false;
+    xml_node nodeId = node.child(NODEID_TAG);
+    if (nodeId && (nodeId = nodeId.first_child())
+        && 0 == strcmp(name, nodeId.value())) {
       debugMsg("PlexilXmlParser:getNodeRef", " name matches self");
-      foundSelf = node;
+      foundSelf = true;
     }
 
     // Check this node's children, if any
     xml_node checkChild = node.child(BODY_TAG);
     if (checkChild && (checkChild = checkChild.child(NODELIST_TAG))) {
+      bool foundChild = false;
       for (checkChild = checkChild.child(NODE_TAG);
            checkChild;
            checkChild = checkChild.next_sibling(NODE_TAG)) {
         if (checkChild != referringNode) {
-          xml_node childId = checkChild.child(NODEID_TAG);
-          if (childId
-              && childId.first_child()
-              && 0 == strcmp(name, childId.first_child().value())) {
+          nodeId = checkChild.child(NODEID_TAG);
+          if (nodeId && (nodeId = nodeId.first_child())
+              && 0 == strcmp(name, nodeId.value())) {
             // FIXME: has the duplicate naming error been discovered by now?
-            checkParserExceptionWithLocation(!foundChild,
+            checkParserExceptionWithLocation(!(foundSelf || foundChild),
                                              checkChild,
-                                             "Sibling nodes have same node id '" << name << "'");
+                                             "Node and its "
+                                             << (foundSelf ? "child" : "sibling")
+                                             << " have same node id \"" << name << "\"");
             debugMsg("PlexilXmlParser:getNodeRef", " name matches child");
-            foundChild = checkChild;
+            foundChild = true;
           }
         }
       }
+      if (foundChild)
+        return (new PlexilNodeRef(PlexilNodeRef::CHILD, name))->getId();
     }
-
-    // FIXME: has the duplicate naming error been discovered by now?
-    checkParserExceptionWithLocation(!(foundSelf && foundChild),
-                                     ref,
-                                     "Ambiguous node reference: Node and its parent have the same node ID '"
-                                     << name << "'");
 
     if (foundSelf)
       return (new PlexilNodeRef(PlexilNodeRef::SELF, name))->getId();
-    else if (foundChild)
-      return (new PlexilNodeRef(PlexilNodeRef::CHILD, name))->getId();
-
-    // Recurse
-    xml_node parent = getNodeParent(node);
-    if (parent) {
-      debugMsg("PlexilXmlParser:getNodeRef", " checking parent node");
-      PlexilNodeRefId result = getNodeRefInternal(name, parent, referringNode, ref);
-      if (result.isId())
-        result->incrementGeneration();
-      return result;
-    }
-
-    return PlexilNodeRefId::noId();
+    else
+      return PlexilNodeRefId::noId();
   }
 
   //

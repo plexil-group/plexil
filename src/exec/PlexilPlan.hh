@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -614,23 +614,38 @@ namespace PLEXIL
     const std::string& name() const {return m_name;}
 
     int generation() const { return m_generation; }
-    void incrementGeneration() 
+
+    // N.B. Only caller is PlexilXmlParser::getNodeRefInternal.
+    void setGeneration(int gen)
     {
-      ++m_generation;
+      m_generation = gen;
+      if (gen == 0)
+        return;
+
       switch (m_dir) {
-        case SELF: m_dir = PARENT; break;
+        case SELF:
+          if (gen == 1)
+            m_dir = PARENT;
+          else
+            m_dir = GRANDPARENT;
+          break;
+
         case PARENT: m_dir = GRANDPARENT; break;
-        case CHILD: m_dir = SIBLING; break;
+
+        case CHILD:
+          if (gen == 1)
+            m_dir = SIBLING;
+          else 
+            m_dir = UNCLE;
+          break;
+
         case SIBLING: m_dir = UNCLE; break;
 
-        case GRANDPARENT:
-        case UNCLE:
-          break; // no change
-
-        default: // includes NO_DIR
-          assertTrueMsg(ALWAYS_FAIL, "PlexilNodeRef::incrementGeneration(): invalid direction");
-        }
+        default: // includes NO_DIR, GRANDPARENT, UNCLE
+          assertTrueMsg(ALWAYS_FAIL, "PlexilNodeRef::setGeneration(): invalid direction");
+      }
     }
+
 
     int lineNo() const {return m_lineNo;}
     int colNo() const {return m_colNo;}
