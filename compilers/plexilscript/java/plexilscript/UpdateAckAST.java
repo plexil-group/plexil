@@ -13,8 +13,7 @@ public class UpdateAckAST implements ElementAST {
     }
 
     public void print () {
-	System.out.printf ("    <UpdateAck name=\"%s\">\n", name);
-	System.out.printf ("    </UpdateAck>\n");
+        System.out.printf ("    <UpdateAck name=\"%s\"/>\n", name);
     }
 }
 
