@@ -1303,82 +1303,6 @@ private:
   static bool inactiveDestTest() 
   {
     TransitionExecConnector con;
-    NodeId parent =
-      NodeFactory::createNode(Node::LIST(),
-                              LabelStr("testParent"),
-                              INACTIVE_STATE,
-                              con.getId(),
-                              NodeId::noId());
-    NodeId nodes[4] =
-      {NodeFactory::createNode(Node::ASSIGNMENT(),
-                               LabelStr("testAssignment"),
-                               INACTIVE_STATE,
-                               con.getId(), 
-                               parent),
-       NodeFactory::createNode(Node::COMMAND(),
-                               LabelStr("testCommand"),
-                               INACTIVE_STATE,
-                               con.getId(),
-                               parent),
-       NodeFactory::createNode(Node::LIST(), 
-                               LabelStr("testList"), 
-                               INACTIVE_STATE, 
-                               con.getId(),
-                               parent),
-       NodeFactory::createNode(Node::UPDATE(),
-                               LabelStr("testUpdate"), 
-                               INACTIVE_STATE, 
-                               con.getId(), 
-                               parent)
-      };
-
-    NodeState states[7] = {INACTIVE_STATE,
-                           WAITING_STATE,
-                           EXECUTING_STATE,
-                           FINISHING_STATE,
-                           FINISHED_STATE,
-                           FAILING_STATE,
-                           ITERATION_ENDED_STATE};
-
-    for (int i = 0; i < 4; ++i) {
-      NodeId node = nodes[i];
-      for (size_t s = 0; s < 7; ++s) {
-        parent->setState(states[s]);
-        NodeState destState = node->getDestState();
-        if (destState != node->getState()) {
-          debugMsg("UnitTest:inactiveDestTest",
-                   " Node " << node->getNodeId().toString()
-                   << " Parent state: " << StateVariable::nodeStateName(states[s])
-                   << " Dest: " << StateVariable::nodeStateName(destState));
-          if (states[s] == FINISHED_STATE) {
-            assertTrue(destState == FINISHED_STATE);
-          }
-          else if (states[s] == EXECUTING_STATE) {
-            assertTrue(destState == WAITING_STATE);
-          }
-        }
-        else {
-          assertTrue(destState == NO_NODE_STATE);
-        }
-      }
-    }
-    for (int i = 0; i < 4; i++) {
-      delete (Node*) nodes[i];
-    }
-    delete (Node*) parent;
-    return true;
-  }
-
-  static bool inactiveTransTest() 
-  {
-    TransitionExecConnector con;
-    NodeId parent =
-      NodeFactory::createNode(Node::LIST(), 
-                              LabelStr("testParent"), 
-                              INACTIVE_STATE, 
-                              con.getId(), 
-                              NodeId::noId());
-
     LabelStr types[5] = {Node::ASSIGNMENT(),
                          Node::COMMAND(),
                          Node::LIBRARYNODECALL(),
@@ -1391,46 +1315,139 @@ private:
                            FINISHED_STATE,
                            FAILING_STATE,
                            ITERATION_ENDED_STATE};
-    
+    Value values[3] = {UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
+
     for (size_t s = 0; s < 7; ++s) {
-      for (int i = 0; i < 5; i++) {
+      NodeId parent =
+        NodeFactory::createNode(Node::LIST(),
+                                LabelStr("testParent"),
+                                states[s],
+                                con.getId(),
+                                NodeId::noId());
+      for (int i = 0; i < 4; ++i) {
         NodeId node = NodeFactory::createNode(types[i],
-                                              LabelStr("test"), 
-                                              INACTIVE_STATE, 
+                                              LabelStr("inactiveDestTest"),
+                                              INACTIVE_STATE,
                                               con.getId(), 
                                               parent);
-        parent->setState(states[s]);
-      
-        if (node->canTransition()) {
-          node->transition(node->getDestState());
-          NodeState state = node->getState();
-          debugMsg("UnitTest:inactiveTransTest",
-                   " Node type " << types[i].toString()
-                   << " Parent state " << StateVariable::nodeStateName(states[s])
-                   << " Node state " << StateVariable::nodeStateName(state));
-          if (states[s] == FINISHED_STATE) {
-            assertTrue(state == FINISHED_STATE);
-            assertTrue(node->getOutcomeVariable()->getValue() == OutcomeVariable::SKIPPED());
-          }
-          else if (states[s] == EXECUTING_STATE) {
-            assertTrue(state == WAITING_STATE);
-            // These are activated by the parent node on transition to EXECUTING.
-            //assertTrue(node->isAncestorEndConditionActive());
-            //assertTrue(node->isAncestorExitConditionActive());
-            //assertTrue(node->isAncestorInvariantConditionActive());
-            assertTrue(node->isExitConditionActive());
-            assertTrue(node->isPreConditionActive());
-            assertTrue(node->isSkipConditionActive());
-            assertTrue(node->isStartConditionActive());
-          }
-          else {
-            assertTrue(false);
+
+        for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
+          node->getAncestorExitCondition()->setValue(values[ancestorExit]);
+          for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
+            node->getAncestorInvariantCondition()->setValue(values[ancestorInvariant]);
+            for (int ancestorEnd = 0; ancestorEnd < 3; ++ancestorEnd) {
+              node->getAncestorEndCondition()->setValue(values[ancestorEnd]);
+              NodeState destState = node->getDestState();
+              if (destState != node->getState()) {
+                debugMsg("UnitTest:inactiveDestTest",
+                         " Node " << node->getNodeId().toString()
+                         << " Parent state: " << StateVariable::nodeStateName(states[s])
+                         << " Dest: " << StateVariable::nodeStateName(destState));
+                if (states[s] == FINISHED_STATE) {
+                  assertTrue(destState == FINISHED_STATE);
+                }
+                else if (states[s] == EXECUTING_STATE) {
+                  if (ancestorExit == IDX_TRUE
+                      || ancestorInvariant == IDX_FALSE
+                      || ancestorEnd == IDX_TRUE) {
+                    assertTrue(destState == FINISHED_STATE);
+                  }
+                  else {
+                    assertTrue(destState == WAITING_STATE);
+                  }
+                }
+              }
+              else {
+                assertTrue(destState == NO_NODE_STATE);
+              }
+            }
           }
         }
         delete (Node*) node;
       }
+      delete (Node*) parent;
     }
-    delete (Node*) parent;
+    return true;
+  }
+
+  static bool inactiveTransTest() 
+  {
+    TransitionExecConnector con;
+    LabelStr types[5] = {Node::ASSIGNMENT(),
+                         Node::COMMAND(),
+                         Node::LIBRARYNODECALL(),
+                         Node::LIST(),
+                         Node::UPDATE()};
+    NodeState states[7] = {INACTIVE_STATE,
+                           WAITING_STATE,
+                           EXECUTING_STATE,
+                           FINISHING_STATE,
+                           FINISHED_STATE,
+                           FAILING_STATE,
+                           ITERATION_ENDED_STATE};
+    Value values[3] = {UNKNOWN(), BooleanVariable::FALSE_VALUE(), BooleanVariable::TRUE_VALUE()};
+    
+    for (size_t s = 0; s < 7; ++s) {
+      NodeId parent =
+        NodeFactory::createNode(Node::LIST(), 
+                                LabelStr("testParent"), 
+                                states[s],
+                                con.getId(), 
+                                NodeId::noId());
+      for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
+        for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
+          for (int ancestorEnd = 0; ancestorEnd < 3; ++ancestorEnd) {
+            for (int i = 0; i < 5; i++) {
+              NodeId node = NodeFactory::createNode(types[i],
+                                                    LabelStr("test"), 
+                                                    INACTIVE_STATE, 
+                                                    con.getId(), 
+                                                    parent);
+              node->getAncestorExitCondition()->setValue(values[ancestorExit]);
+              node->getAncestorInvariantCondition()->setValue(values[ancestorInvariant]);
+              node->getAncestorEndCondition()->setValue(values[ancestorEnd]);
+      
+              if (node->canTransition()) {
+                node->transition(node->getDestState());
+                NodeState state = node->getState();
+                debugMsg("UnitTest:inactiveTransTest",
+                         " Node type " << types[i].toString()
+                         << " Parent state " << StateVariable::nodeStateName(states[s])
+                         << " Node state " << StateVariable::nodeStateName(state));
+                if (states[s] == FINISHED_STATE) {
+                  assertTrue(state == FINISHED_STATE);
+                  assertTrue(node->getOutcomeVariable()->getValue() == OutcomeVariable::SKIPPED());
+                }
+                else if (states[s] == EXECUTING_STATE) {
+                  if (ancestorExit == IDX_TRUE
+                      || ancestorInvariant == IDX_FALSE
+                      || ancestorEnd == IDX_TRUE) {
+                    assertTrue(state == FINISHED_STATE);
+                    assertTrue(node->getOutcomeVariable()->getValue() == OutcomeVariable::SKIPPED());
+                  }
+                  else {
+                    assertTrue(state == WAITING_STATE);
+                    // These are activated by the parent node on transition to EXECUTING.
+                    //assertTrue(node->isAncestorEndConditionActive());
+                    //assertTrue(node->isAncestorExitConditionActive());
+                    //assertTrue(node->isAncestorInvariantConditionActive());
+                    assertTrue(node->isExitConditionActive());
+                    assertTrue(node->isPreConditionActive());
+                    assertTrue(node->isSkipConditionActive());
+                    assertTrue(node->isStartConditionActive());
+                  }
+                }
+                else {
+                  assertTrue(false);
+                }
+              }
+              delete (Node*) node;
+            }
+          }
+        }
+      }
+      delete (Node*) parent;
+    }
     return true;
   }
 
