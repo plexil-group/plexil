@@ -1224,7 +1224,8 @@ namespace PLEXIL {
   //
   // Start state
   // Legal predecessor states: FINISHED
-  // Conditions active:
+  // Conditions active: If parent in EXECUTING - AncestorExit, AncestorEnd, AncestorInvariant,
+  //                    else none
   // Legal successor states: WAITING, FINISHED
 
   // Default method
@@ -1244,6 +1245,32 @@ namespace PLEXIL {
         return FINISHED_STATE;
 
       case EXECUTING_STATE:
+        // N.B. Ancestor-exit, ancestor-invariant, ancestor-end should have been activated by parent
+        // Do not activate their condition listeners here - they cannot directly provoke a state transition themselves.
+        checkError(getAncestorExitCondition()->isActive(),
+                   "Node::getDestStateFromInactive: Ancestor exit for " << m_nodeId.toString() << " is inactive.");
+        if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+          debugMsg("Node:getDestState",
+                   " '" << m_nodeId.toString() << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_EXIT_CONDITION true.");
+          return FINISHED_STATE;
+        }
+
+        checkError(getAncestorInvariantCondition()->isActive(), // isAncestorInvariantConditionActive(),
+                   "Node::getDestStateFromInactive: Ancestor invariant for " << m_nodeId.toString() << " is inactive.");
+        if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+          debugMsg("Node:getDestState",
+                   " '" << m_nodeId.toString() << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_INVARIANT_CONDITION false.");
+          return FINISHED_STATE;
+        }
+
+        checkError(getAncestorEndCondition()->isActive(),
+                   "Node::getDestStateFromInactive: Ancestor end for " << m_nodeId.toString() << " is inactive.");
+        if (getAncestorEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+          debugMsg("Node:getDestState",
+                   " '" << m_nodeId.toString() << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_END_CONDITION true.");
+          return FINISHED_STATE;
+        }
+
         debugMsg("Node:getDestState",
                  " '" << m_nodeId.toString() << "' destination: WAITING. Parent state == EXECUTING.");
         return WAITING_STATE;
