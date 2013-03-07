@@ -32,7 +32,7 @@
 
   <target name="install" depends="plexilscript-jar">
     <copy file="${dir.jars}/plexilscript.jar"
-	  todir="${env.PLEXIL_HOME}/lib"
+	  todir="${env.PLEXIL_HOME}/jars"
 	  preservelastmodified="true"/>
   </target>
 
