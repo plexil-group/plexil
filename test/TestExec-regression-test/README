@@ -1,2 +1,2 @@
 This directory contains a regression test suite and script for the
-Plexil executive.  Type 'make' to run the regression tests.
+Plexil executive.  Type './run-tests' to run the regression tests.
