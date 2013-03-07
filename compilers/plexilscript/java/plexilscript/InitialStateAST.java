@@ -15,10 +15,15 @@ public class InitialStateAST implements ElementAST {
     }
 
     public void print () {
-	System.out.printf ("  <InitialState>\n");
-	for (ElementAST e : es)
-	    e.print ();
-	System.out.printf ("  </InitialState>\n");
+        if (es.isEmpty()) {
+            System.out.printf ("  <InitialState/>\n");
+        }
+        else {
+            System.out.printf ("  <InitialState>\n");
+            for (ElementAST e : es)
+                e.print ();
+            System.out.printf ("  </InitialState>\n");
+        }
     }
 }
 
