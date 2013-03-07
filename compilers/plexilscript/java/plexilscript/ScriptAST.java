@@ -15,10 +15,15 @@ public class ScriptAST implements ElementAST {
     }
 
     public void print () {
-	System.out.printf ("  <Script>\n");
-	for (ElementAST e : es)
-	    e.print ();
-	System.out.printf ("  </Script>\n");
+        if (es.isEmpty()) {
+            System.out.printf ("  <Script/>\n");
+        }
+        else {
+            System.out.printf ("  <Script>\n");
+            for (ElementAST e : es)
+                e.print ();
+            System.out.printf ("  </Script>\n");
+        }
     }
 }
 
