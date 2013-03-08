@@ -6,5 +6,4 @@
  <Adapter AdapterType="OSNativeTime"/>
  <Listener ListenerType="LuvListener"/>
  <Listener ListenerType="PlanDebugListener"/>
- <Listener ListenerType="GanttListener"/>
 </Interfaces>
