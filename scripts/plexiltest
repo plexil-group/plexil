@@ -128,7 +128,8 @@ elif [ -f $PLEXIL_HOME/src/apps/TestExec/TestExec ]
 then
     prog=$PLEXIL_HOME/src/apps/TestExec/TestExec
 else
-    checkWarn "Test Executive executable not found, aborting"
+    echo "Test Executive executable not found, aborting"
+    exit 1
 fi
 
 $PLEXIL_HOME/scripts/plexil-check-prog $prog
