@@ -276,18 +276,18 @@ if [ "$debug_file" = "" ] && [ $quiet = 0 ]
 fi
 
 # Check plan for errors
-if [ "$check" = "true" ] && [ -f $PLEXIL_HOME/scripts/checkDecls ]
+if [ "$check" = "true" ] && [ -f $PLEXIL_HOME/scripts/checkPlexil ]
   then 
        echo "Checking Plan..."
-       $PLEXIL_HOME/scripts/checkDecls $plan_name
+       $PLEXIL_HOME/scripts/checkPlexil $plan_name
        if [ ! -e "$plan_name" ] && [ $? -gt 0 ]
          then
 	   echo Error: $plan_name, contains runtime error
            exit 1
 	fi
-    elif [ ! -f $PLEXIL_HOME/scripts/checkDecls ]
+    elif [ ! -f $PLEXIL_HOME/scripts/checkPlexil ]
       then
-	echo Error: $PLEXIL_HOME/scripts/checkDecls not found.	
+	echo Error: $PLEXIL_HOME/scripts/checkPlexil not found.	
 	exit 1
 fi  
 
