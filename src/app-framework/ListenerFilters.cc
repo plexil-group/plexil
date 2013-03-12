@@ -70,6 +70,7 @@ namespace PLEXIL
     if (*states) {
       assertTrue(!hasStates,
                  "NodeStateFilter constructor: configuration error: both <States> and <IgnoredStates> provided");
+      hasIgnoredStates = true;
       // Default is report
       for (size_t i = 0; i < NODE_STATE_MAX; ++i)
         m_stateEnabled[i] = true;
