@@ -455,13 +455,16 @@ namespace PLEXIL
   void StateCache::updateState(const State& state, const Value& value)
   {
     check_error(!m_inQuiescence);
+    CacheEntryId entry;
     StateCacheMap::const_iterator it = m_states.find(state);
     if (it == m_states.end()) {
       debugMsg("StateCache:updateState",
-               "Received update for unknown state " << toString(state));
-      return;
+               " for previously unknown state " << toString(state) << ", creating entry");
+      entry = ensureCacheEntry(state);
     }
-    CacheEntryId entry = it->second;
+    else {
+      entry = it->second;
+    }
     if (internalStateUpdate(entry, value))
       m_interface->setThresholds(state, entry->highThreshold, entry->lowThreshold);
   }
@@ -475,6 +478,21 @@ namespace PLEXIL
     return entry->update(value, m_quiescenceCount);
   }
 
+
+  /**
+   * @brief Get the last known value of the state.
+   * @param state The state.
+   * @return The value.
+   */
+  const Value& StateCache::getLastValue(const State& state)
+  {
+    check_error(!m_inQuiescence);
+    StateCacheMap::const_iterator it = m_states.find(state);
+    if (it == m_states.end())
+      return UNKNOWN();
+    else
+      return it->second->value;
+  }
 
   /**
    * @brief Find or create the cache entry for this state.

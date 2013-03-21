@@ -132,6 +132,15 @@ namespace PLEXIL
      * @note Apparently only used by the Exec regression tester and TestExec.
      */
     void updateState(const State& state, const Value& value);
+
+    /**
+     * @brief Get the last known value of the state.
+     * @param state The state.
+     * @return The value.
+     * @note Returns UNKNOWN() if the state is not currently in the cache.
+     * @note May only be called during quiescence.
+     */
+    const Value& getLastValue(const State& state);
          
     /**
      * @brief Put the cache in a state that is ready for lookup registration
