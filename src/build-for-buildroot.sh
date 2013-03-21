@@ -1,7 +1,7 @@
 #! /bin/bash
 # How to cross-compile Plexil with buildroot
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,20 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Substitute the appropriate triplet.
+# ARM on newer buildroot versions
 TARGET=arm-unknown-linux-uclibcgnueabi
+# ARM on older buildroot versions
+#TARGET=arm-linux-uclibcgnueabi
 
 # Substitute the appropriate paths.
 PLEXIL_HOME=/home/cfry/src/plexil-3
 BUILDROOT_HOME=/home/cfry/buildroot/buildroot-2012.08
+# Newer buildroot versions
+TOOLCHAIN_ROOT=${BUILDROOT_HOME}/output/host
+# Older buildroot versions
+#TOOLCHAIN_ROOT=${BUILDROOT_HOME}/output/staging
 
 # These should not need to be changed.
-TOOLCHAIN_ROOT=${BUILDROOT_HOME}/output/host
 TARGET_GCC=${TOOLCHAIN_ROOT}/usr/bin/${TARGET}-gcc
 TARGET_GXX=${TOOLCHAIN_ROOT}/usr/bin/${TARGET}-g++
 TARGET_NM=${TOOLCHAIN_ROOT}/usr/bin/${TARGET}-nm
