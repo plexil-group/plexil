@@ -27,17 +27,10 @@
 #ifndef _H_Node
 #define _H_Node
 
-#include "ConstantMacros.hh"
 #include "ExecDefs.hh"
 #include "Expression.hh"
-#include "LabelStr.hh"
 #include "NodeConnector.hh"
 #include "PlexilPlan.hh"
-#include "generic_hash_map.hh"
-
-//#include <map>
-//#include <set>
-#include <vector>
 
 // Take care of annoying VxWorks macro
 #undef UPDATE
@@ -302,8 +295,8 @@ namespace PLEXIL {
     bool isEndConditionActive()                       { return pairActive(endIdx); }
     bool isExitConditionActive()                      { return pairActive(exitIdx); }
     bool isInvariantConditionActive()                 { return pairActive(invariantIdx); }
-    bool isPreConditionActive()                       { return pairActive(preIdx); }
-    bool isPostConditionActive()                      { return pairActive(postIdx); }
+    bool isPreConditionActive()                       { return getPreCondition()->isActive(); }  // has no listener
+    bool isPostConditionActive()                      { return getPostCondition()->isActive(); } // has no listener
     bool isRepeatConditionActive()                    { return pairActive(repeatIdx); }
     // These are for specialized node types
     bool isActionCompleteConditionActive()            { return pairActive(actionCompleteIdx); }
@@ -472,8 +465,7 @@ namespace PLEXIL {
     ExpressionListenerId m_endListener;
     ExpressionListenerId m_exitListener;
     ExpressionListenerId m_invariantListener;
-    ExpressionListenerId m_postListener;
-    ExpressionListenerId m_preSkipStartListener;
+    ExpressionListenerId m_skipStartListener;
     ExpressionListenerId m_repeatListener;
     VariableId m_startTimepoints[NO_NODE_STATE]; /*!< Timepoint start variables indexed by state. */
     VariableId m_endTimepoints[NO_NODE_STATE]; /*!< Timepoint end variables indexed by state. */

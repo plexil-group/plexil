@@ -40,9 +40,8 @@
 #include "XMLUtils.hh"
 
 #include <algorithm> // for sort
-#include <vector>
-#include <sstream>
 #include <iomanip> // for setprecision
+#include <sstream>
 
 namespace PLEXIL {
 
@@ -201,7 +200,10 @@ namespace PLEXIL {
                " with value FALSE for node " << m_nodeId.toString());
       m_conditions[i] = expr;
       m_garbageConditions[i] = true;
-      getCondition(i)->addListener(ensureConditionListener(i)); // may not be same as expr for parent-state conditions
+      // Some conditions don't have listeners
+      ExpressionListenerId listener = ensureConditionListener(i);
+      if (listener.isId())
+        getCondition(i)->addListener(listener);
     }
 
     // Activate the conditions required by the provided state
@@ -586,17 +588,14 @@ namespace PLEXIL {
         break;
 
       case postIdx:
-        if (m_postListener.isNoId())
-          m_postListener = (new ConditionChangeListener(*this))->getId();
-        m_conditions[condIdx]->addListener(m_postListener);
-        break;
-
       case preIdx:
+        break; // these conditions don't need listeners
+
       case skipIdx:
       case startIdx:
-        if (m_preSkipStartListener.isNoId())
-          m_preSkipStartListener = (new ConditionChangeListener(*this))->getId();
-        m_conditions[condIdx]->addListener(m_preSkipStartListener);
+        if (m_skipStartListener.isNoId())
+          m_skipStartListener = (new ConditionChangeListener(*this))->getId();
+        m_conditions[condIdx]->addListener(m_skipStartListener);
         break;
 
       case repeatIdx:
@@ -669,12 +668,12 @@ namespace PLEXIL {
       return m_invariantListener;
 
     case postIdx:
-      return m_postListener;
-
     case preIdx:
+      return failureReturn; // these conditions don't need listeners
+
     case skipIdx:
     case startIdx:
-      return m_preSkipStartListener;
+      return m_skipStartListener;
 
     case repeatIdx:
       return m_repeatListener;
@@ -723,16 +722,14 @@ namespace PLEXIL {
       return m_invariantListener;
 
     case postIdx:
-      if (m_postListener.isNoId())
-        m_postListener = (new ConditionChangeListener(*this))->getId();
-      return m_postListener;
-
     case preIdx:
+      return failureReturn; // these conditions don't need listeners
+
     case skipIdx:
     case startIdx:
-      if (m_preSkipStartListener.isNoId())
-        m_preSkipStartListener = (new ConditionChangeListener(*this))->getId();
-      return m_preSkipStartListener;
+      if (m_skipStartListener.isNoId())
+        m_skipStartListener = (new ConditionChangeListener(*this))->getId();
+      return m_skipStartListener;
 
     case repeatIdx:
       if (m_repeatListener.isNoId())
@@ -821,17 +818,11 @@ namespace PLEXIL {
       delete (ExpressionListener*) m_invariantListener;
       m_invariantListener = ExpressionListenerId::noId();
     }
-    if (m_postListener.isId()) {
-      m_conditions[postIdx]->removeListener(m_postListener);
-      delete (ExpressionListener*) m_postListener;
-      m_postListener = ExpressionListenerId::noId();
-    }
-    if (m_preSkipStartListener.isId()) {
-      m_conditions[preIdx]->removeListener(m_preSkipStartListener);
-      m_conditions[skipIdx]->removeListener(m_preSkipStartListener);
-      m_conditions[startIdx]->removeListener(m_preSkipStartListener);
-      delete (ExpressionListener*) m_preSkipStartListener;
-      m_preSkipStartListener = ExpressionListenerId::noId();
+    if (m_skipStartListener.isId()) {
+      m_conditions[skipIdx]->removeListener(m_skipStartListener);
+      m_conditions[startIdx]->removeListener(m_skipStartListener);
+      delete (ExpressionListener*) m_skipStartListener;
+      m_skipStartListener = ExpressionListenerId::noId();
     }
     if (m_repeatListener.isId()) {
       m_conditions[repeatIdx]->removeListener(m_repeatListener);
@@ -880,13 +871,12 @@ namespace PLEXIL {
       break;
 
     case postIdx:
-      m_conditions[condIdx]->removeListener(m_postListener);
-      break;
-
     case preIdx:
+      break; // these conditions don't have listeners
+
     case skipIdx:
     case startIdx:
-      m_conditions[condIdx]->removeListener(m_preSkipStartListener);
+      m_conditions[condIdx]->removeListener(m_skipStartListener);
       break;
 
     case repeatIdx:
@@ -1378,7 +1368,7 @@ namespace PLEXIL {
     checkError(getStartCondition()->isActive(), // isStartConditionActive(), 
                "Node::getDestStateFromWaiting: Start for " << m_nodeId.toString() << " is inactive.");
     if (getStartCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
-      checkError(getPreCondition()->isActive(), // isPreConditionActive(), 
+      checkError(isPreConditionActive(),
                  "Node::getDestStateFromWaiting: Pre for " << m_nodeId.toString() << " is inactive.");
       if (getPreCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
         debugMsg("Node:getDestState",
@@ -1956,8 +1946,8 @@ namespace PLEXIL {
                "No StartCondition exists in node \"" << m_nodeId.toString() << "\"");
     debugMsg("Node:activatePreSkipStartConditions",
              "Activating PreCondition, SkipCondition, and StartCondition in node \"" << m_nodeId.toString() << "\"");
-    if (m_preSkipStartListener.isId())
-      m_preSkipStartListener->activate();
+    if (m_skipStartListener.isId())
+      m_skipStartListener->activate();
     m_conditions[preIdx]->activate();
     m_conditions[skipIdx]->activate();
     m_conditions[startIdx]->activate();
@@ -2002,8 +1992,6 @@ namespace PLEXIL {
                "No PostCondition exists in node \"" << m_nodeId.toString() << "\"");
     debugMsg("Node:activatePostCondition",
              "Activating PostCondition in node \"" << m_nodeId.toString() << "\"");
-    if (m_postListener.isId())
-      m_postListener->activate();
     m_conditions[postIdx]->activate();
   }
 
@@ -2067,8 +2055,8 @@ namespace PLEXIL {
     m_conditions[preIdx]->deactivate();
     m_conditions[skipIdx]->deactivate();
     m_conditions[startIdx]->deactivate();
-    if (m_preSkipStartListener.isId())
-      m_preSkipStartListener->deactivate();
+    if (m_skipStartListener.isId())
+      m_skipStartListener->deactivate();
   }
 
   void Node::deactivateEndCondition()
@@ -2111,8 +2099,6 @@ namespace PLEXIL {
     debugMsg("Node:deactivatePostCondition",
              "Deactivating PostCondition in node \"" << m_nodeId.toString() << "\"");
     m_conditions[postIdx]->deactivate();
-    if (m_postListener.isId())
-      m_postListener->deactivate();
   }
 
   void Node::deactivateRepeatCondition()
@@ -2162,6 +2148,8 @@ namespace PLEXIL {
 
     // N.B. Root nodes will not have listeners on parent conditions,
     // which are constants and thus cannot change.
+    // Also, pre- and post-conditions cannot trigger transitions,
+    // so they do not have listeners either.
     if (getConditionListener(idx).isNoId())
       return true;
 
