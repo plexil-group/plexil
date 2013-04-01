@@ -35,8 +35,8 @@
 #include "PlexilPlan.hh"
 #include "generic_hash_map.hh"
 
-#include <map>
-#include <set>
+//#include <map>
+//#include <set>
 #include <vector>
 
 // Take care of annoying VxWorks macro
@@ -530,21 +530,6 @@ namespace PLEXIL {
   };
 
   std::ostream& operator<<(std::ostream& strm, const Node& node);
-
-  class ConditionChangeListener : public ExpressionListener 
-  {
-  public:
-    ConditionChangeListener(Node& node);
-    void notifyValueChanged(const ExpressionId& /* expression */);
-
-  private:
-    // Deliberately unimplemented
-    ConditionChangeListener();
-    ConditionChangeListener(const ConditionChangeListener&);
-    ConditionChangeListener& operator=(const ConditionChangeListener&);
-
-    Node& m_node;
-  };
 
 }
 

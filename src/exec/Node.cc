@@ -46,17 +46,28 @@
 
 namespace PLEXIL {
 
-  ConditionChangeListener::ConditionChangeListener(Node& node)
-    : ExpressionListener(), m_node(node)
-  {
-  }
 
-  void ConditionChangeListener::notifyValueChanged(const ExpressionId& /* expression */) 
+  class ConditionChangeListener : public ExpressionListener 
   {
-    debugMsg("Node:conditionChange",
-             " an active condition may have changed value in " << m_node.getNodeId().toString());
-    m_node.conditionChanged();
-  }
+  public:
+    ConditionChangeListener(Node& node)
+    : ExpressionListener(), m_node(node)
+    {
+    }
+
+    void notifyValueChanged(const ExpressionId& /* expression */)
+    {
+      m_node.conditionChanged();
+    }
+
+  private:
+    // Deliberately unimplemented
+    ConditionChangeListener();
+    ConditionChangeListener(const ConditionChangeListener&);
+    ConditionChangeListener& operator=(const ConditionChangeListener&);
+
+    Node& m_node;
+  };
 
   const std::vector<LabelStr>& Node::ALL_CONDITIONS() {
     static std::vector<LabelStr> sl_allConds;
