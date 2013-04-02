@@ -161,19 +161,22 @@ namespace PLEXIL
          child != m_subexpressions.end();
          ++child) {
       const Value& value = (*child)->getValue();
-      checkError(checkValue(value), "Invalid (non-boolean) conjunction value '"
-                 << (*child)->valueString() << "' was returned to condition expression. "
-                 << "More details condition expression: " << (*child)->toString());
-    
       // if the value is false, the expression is false, we're done
       if (value == BooleanVariable::FALSE_VALUE()) {
         return value;
       }
-      
       // if the value is unknown, the expression might be unknown,
       // but we need to keep looking
-      if (value.isUnknown())
-        result.setUnknown();
+      else if (value.isUnknown()) {
+        if (!result.isUnknown())
+          result.setUnknown();
+      }
+      else {
+        checkError(value == BooleanVariable::TRUE_VALUE(),
+                   "Invalid (non-boolean) conjunction value "
+                   << (*child)->getValue()
+                   << " from expression " << (*child)->toString());
+      }
     }
 
     return result;
@@ -195,19 +198,21 @@ namespace PLEXIL
          child != m_subexpressions.end();
          ++child) {
       const Value& value = (*child)->getValue();
-      checkError(checkValue(value), "Invalid (non-boolean) disjunction value '"
-                 << (*child)->valueString() << "' was returned to condition expression. "
-                 << "More details condition expression: " << (*child)->toString());
-    
       // if the value is true, the expression is true, we're done
-      if (value == BooleanVariable::TRUE_VALUE()) {
+      if (value == BooleanVariable::TRUE_VALUE())
         return value;
-      }
-      
       // if the value is unknown, the expression might be
       // unknown, but we need to keep looking
-      if (value.isUnknown())
-        result.setUnknown();
+      else if (value.isUnknown()) {
+        if (!result.isUnknown())
+          result.setUnknown();
+      }
+      else {
+        checkError(value == BooleanVariable::FALSE_VALUE(),
+                   "Invalid (non-boolean) disjunction value "
+                   << (*child)->getValue()
+                   << " from expression " << (*child)->toString());
+      }
     }
     
     return result;

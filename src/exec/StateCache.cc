@@ -531,11 +531,11 @@ namespace PLEXIL
     m_inQuiescence = false;
   }
 
-  double StateCache::currentTime()
+  const Value& StateCache::currentTime()
   {
     if (!m_inQuiescence) 
       updateTimeState();
-    return m_timeEntry->value.getDoubleValue();
+    return m_timeEntry->value;
   }
 
   void StateCache::updateTimeState()

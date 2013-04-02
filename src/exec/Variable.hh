@@ -28,6 +28,7 @@
 #define VARIABLE_HH
 
 #include "Expression.hh"
+#include "PlexilPlan.hh"
 
 namespace PLEXIL
 {
@@ -339,10 +340,6 @@ namespace PLEXIL
     }
 
   protected:
-    /**
-     * @brief Handle additional behaviors for the reset() call.
-     */
-    virtual void handleReset() {}
 
     /**
      * @brief Ensure that, if a variable is constant, it is never really deactivated
@@ -492,12 +489,6 @@ namespace PLEXIL
      *                inactive.
      */
     virtual void handleDeactivate(const bool changed);
-
-    /**
-     * @brief Handle additional behaviors for the reset() call.
-     */
-    virtual void handleReset();
-
 
   private:
     

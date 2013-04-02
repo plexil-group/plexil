@@ -165,7 +165,7 @@ namespace PLEXIL
      * @brief Get the cache's current notion of the time.
      * @return The time.
      */
-    double currentTime();
+    const Value& currentTime();
          
     /**
      * @brief Get the state used to identify time.

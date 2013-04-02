@@ -146,7 +146,6 @@ namespace PLEXIL
   void VariableImpl::reset() {
     if(!isConst()) {
       internalSetValue(m_initialValue);
-      handleReset();
       ExecListenerHubId hub = getExecListenerHub();
       if (hub.isId())
         hub->notifyOfAssignment(Expression::getId(), m_name.toString(), m_initialValue);
@@ -292,7 +291,6 @@ namespace PLEXIL
   void AliasVariable::reset()
   { 
     // *** FIXME: should this do anything at all??
-    // m_originalExpression->reset(); 
   }
 
   /**
@@ -384,11 +382,6 @@ namespace PLEXIL
     if (changed) {
       m_originalExpression->deactivate();
     }
-  }
-
-  void AliasVariable::handleReset()
-  {
-    // FIXME: do something
   }
 
 }

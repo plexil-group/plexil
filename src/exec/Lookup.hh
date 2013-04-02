@@ -27,9 +27,8 @@
 #ifndef LOOKUP_HH
 #define LOOKUP_HH
 
-#include "LabelStr.hh"
 #include "PlexilPlan.hh"
-#include "Variable.hh"
+#include "SubexpressionListener.hh"
 
 namespace PLEXIL
 {

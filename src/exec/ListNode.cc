@@ -132,12 +132,12 @@ namespace PLEXIL
   void ListNode::createSpecializedConditions()
   {
     ExpressionId cond = (new AllChildrenWaitingOrFinishedCondition(m_children))->getId();
-    cond->addListener(ensureConditionListener(actionCompleteIdx));
+    cond->addListener(m_listener.getId());
     m_conditions[actionCompleteIdx] = cond;
     m_garbageConditions[actionCompleteIdx] = true;
 
     ExpressionId endCond = (new AllChildrenFinishedCondition(m_children))->getId();
-    endCond->addListener(ensureConditionListener(endIdx));
+    endCond->addListener(m_listener.getId());
     m_conditions[endIdx] = endCond;
     m_garbageConditions[endIdx] = true;
   }
@@ -308,41 +308,46 @@ namespace PLEXIL
 
   NodeState ListNode::getDestStateFromExecuting()
   {
-    checkError(isAncestorExitConditionActive(),
+    ExpressionId cond = getAncestorExitCondition();
+    checkError(cond->isActive(),
                "Ancestor exit for " << m_nodeId.toString() << " is inactive.");
-    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::TRUE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: FAILING. List node and ANCESTOR_EXIT_CONDITION true.");
       return FAILING_STATE;
     }
 
-    checkError(isExitConditionActive(),
+    cond = getExitCondition();
+    checkError(cond->isActive(),
                "Exit condition for " << m_nodeId.toString() << " is inactive.");
-    if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::TRUE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: FAILING. List node and EXIT_CONDITION true.");
       return FAILING_STATE;
     }
 
-    checkError(isAncestorInvariantConditionActive(),
+    cond = getAncestorInvariantCondition();
+    checkError(cond->isActive(),
                "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
-    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::FALSE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: FAILING. List node and ANCESTOR_INVARIANT_CONDITION false.");
       return FAILING_STATE;
     }
 
-    checkError(isInvariantConditionActive(),
+    cond = getInvariantCondition();
+    checkError(cond->isActive(),
                "Invariant for " << getNodeId().toString() << " is inactive.");
-    if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::FALSE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: FAILING. List node and INVARIANT_CONDITION false.");
       return FAILING_STATE;
     }
 
-    checkError(isEndConditionActive(),
+    cond = getEndCondition();
+    checkError(cond->isActive(),
                "End for " << getNodeId().toString() << " is inactive.");
-    if (getEndCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::TRUE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: FINISHING. List node and END_CONDITION true.");
       return FINISHING_STATE;
@@ -401,48 +406,52 @@ namespace PLEXIL
 
   void ListNode::transitionToFinishing()
   {
-    // activateActionCompleteCondition(); // see transitionFromExecuting() above
     activatePostCondition();
   }
 
   NodeState ListNode::getDestStateFromFinishing()
   {
-    checkError(isAncestorExitConditionActive(),
+    ExpressionId cond = getAncestorExitCondition();
+    checkError(cond->isActive(),
                "Ancestor exit for " << m_nodeId.toString() << " is inactive.");
-    if (getAncestorExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::TRUE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: FAILING. List node and ANCESTOR_EXIT_CONDITION true.");
       return FAILING_STATE;
     }
 
-    checkError(isExitConditionActive(),
+    cond = getExitCondition();
+    checkError(cond->isActive(),
                "Exit condition for " << m_nodeId.toString() << " is inactive.");
-    if (getExitCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::TRUE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: FAILING. List node and EXIT_CONDITION true.");
       return FAILING_STATE;
     }
 
-    checkError(isAncestorInvariantConditionActive(),
+    cond = getAncestorInvariantCondition();
+    checkError(cond->isActive(),
                "Ancestor invariant for " << getNodeId().toString() << " is inactive.");
-    if (getAncestorInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::FALSE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: FAILING. List node and ANCESTOR_INVARIANT_CONDITION false.");
       return FAILING_STATE;
     }
 
-    checkError(isInvariantConditionActive(),
+    cond = getInvariantCondition();
+    checkError(cond->isActive(),
                "Invariant for " << getNodeId().toString() << " is inactive.");
-    if (getInvariantCondition()->getValue() == BooleanVariable::FALSE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::FALSE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: FAILING. List node and INVARIANT_CONDITION false.");
       return FAILING_STATE;
     }
 
-    checkError(isActionCompleteConditionActive(),
+    cond = getActionCompleteCondition();
+    checkError(cond->isActive(),
                "Children waiting or finished for " << getNodeId().toString() <<
                " is inactive.");
-    if (getActionCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::TRUE_VALUE()) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId.toString() << "' destination: ITERATION_ENDED. List node " <<
                "and ALL_CHILDREN_WAITING_OR_FINISHED true.");
@@ -522,11 +531,12 @@ namespace PLEXIL
 
   NodeState ListNode::getDestStateFromFailing()
   {
-    checkError(isActionCompleteConditionActive(),
+    ExpressionId cond = getActionCompleteCondition();
+    checkError(cond->isActive(),
                "Children waiting or finished for " << getNodeId().toString() <<
                " is inactive.");
 
-    if (getActionCompleteCondition()->getValue() == BooleanVariable::TRUE_VALUE()) {
+    if (cond->getValue() == BooleanVariable::TRUE_VALUE()) {
       if (m_failureTypeVariable->getValue() == FailureVariable::PARENT_EXITED()) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId.toString() << "' destination: FINISHED. "

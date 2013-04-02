@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -83,6 +83,8 @@ namespace PLEXIL
 
     virtual void transitionFromExecuting(NodeState toState);
     virtual void transitionFromFailing(NodeState toState);
+
+    virtual void abort();
 
     // Node state limit
     virtual NodeState nodeStateMax() const { return FAILING_STATE; }

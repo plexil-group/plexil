@@ -473,7 +473,7 @@ namespace PLEXIL
     ++m_cycleNum;
     debugMsg("PlexilExec:cycle", "==>Start cycle " << m_cycleNum);
 
-    double quiescenceTime = m_cache->currentTime();
+    const Value& quiescenceTime = m_cache->currentTime();
 
     // BEGIN QUIESCENCE LOOP
     do {

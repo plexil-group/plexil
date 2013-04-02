@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,8 @@
 #ifndef CALCULABLE_HH
 #define CALCULABLE_HH
 
-#include "Expression.hh"
+#include "PlexilPlan.hh"
+#include "SubexpressionListener.hh"
 
 namespace PLEXIL
 {
@@ -97,14 +98,6 @@ namespace PLEXIL
      */
     virtual void handleDeactivate(const bool changed);
 
-    /**
-     * @brief A method for subclasses to handle the change of a subexpression's value.
-     * @param exp The subexpression whose value has changed.
-     * @note The default method is a no-op.
-     * @note As of 25 Nov 2008, there appear to be no other implementations of this method.
-     */
-    virtual void handleSubexpressionChange(const ExpressionId& /* exp */) {}
-
     void addSubexpression(const ExpressionId& exp, const bool garbage);
 
     bool containsSubexpression(const ExpressionId& expr);
@@ -132,13 +125,10 @@ namespace PLEXIL
    * Calculables MAY override
    * valueString
    * setValue
-   * handleLock
-   * handleUnlock
    * handleActivate
    * handleDeactivate
    * handleChange
    * getVariable
-   * handleSubexpressionChange
    */
 
   class UnaryExpression : public Calculable {

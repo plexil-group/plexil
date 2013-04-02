@@ -42,11 +42,8 @@ namespace PLEXIL
    * void setValue(const Value& val)
    * void print(std::ostream& s) const
    * std::string valueString() const (BUT SHOULD RESPECT m_active!!)
-   * void handleLock()
-   * void handleUnlock()
    * void handleActivate(const bool changed)
    * void handleDeactivate(const bool changed)
-   * handleReset()
    *
    */
 

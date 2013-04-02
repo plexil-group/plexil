@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -43,13 +43,10 @@ namespace PLEXIL
    * Calculables MAY override
    * valueString
    * setValue
-   * handleLock
-   * handleUnlock
    * handleActivate
    * handleDeactivate
    * handleChange
    * getVariable
-   * handleSubexpressionChange
    */
 
   class LogicalNegation : public UnaryExpression

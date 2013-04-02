@@ -55,13 +55,6 @@ namespace PLEXIL {
     --m_activeCount;
   }
 
-  SubexpressionListener::SubexpressionListener(Expression& parent)
-    : ExpressionListener(), m_exp(parent) {}
-
-  void SubexpressionListener::notifyValueChanged(const ExpressionId& exp) {
-    m_exp.handleChange(exp);
-  }
-
   Expression::Expression()
     : m_id(this),
       m_value(UNKNOWN()), 
@@ -170,32 +163,38 @@ namespace PLEXIL {
     checkError(isActive(), "Attempt to lock inactive expression " << toString());
     m_lock = true;
     m_savedValue = m_value;
-    handleLock();
   }
 
   void Expression::unlock() {
     checkError(isLocked(), toString() << " not locked.");
+    if (m_dirty) {
+      essentialSetValue(m_savedValue);
+      m_dirty = false;
+    }
     m_lock = false;
-    if(m_dirty)
-      internalSetValue(m_savedValue);
-    handleUnlock();
   }
 
-  void Expression::internalSetValue(const Value& value) {
+  void Expression::internalSetValue(const Value& value)
+  {
     checkError(checkValue(value), 
 			   "Value " << value << " invalid for " << toString());
     if (isLocked()) {
-      if (m_savedValue != value || m_value != value) {
-		m_dirty = true;
+      if (m_savedValue != value) {
+        debugMsg("Expression:internalSetValue", 
+                 " setting locked expression " << toString() << " to " << value);
 		m_savedValue = value;
+		m_dirty = true;
       }
     }
-    else {
-      bool changed = (m_value != value);
+    else
+      essentialSetValue(value);
+  }
+
+  void Expression::essentialSetValue(const Value& value)
+  {
+    if (m_value != value) {
       m_value = value;
-      m_dirty = false;
-      if (changed)
-		publishChange();
+      publishChange();
     }
   }
 

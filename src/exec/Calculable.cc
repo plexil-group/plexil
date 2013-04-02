@@ -110,7 +110,6 @@ namespace PLEXIL
 
   void Calculable::handleChange(const ExpressionId& exp) {
     internalSetValue(recalculate());
-    handleSubexpressionChange(exp);
   }
 
   //this could be optimized slightly more to check for dirtiness on subexpressions

@@ -157,9 +157,17 @@ namespace PLEXIL {
 
     /**
      * @brief Commit a state transition based on the statuses of various conditions.
-     * @note See the various state graphs.
+     * @param destState The new node state.
+     * @param time The time of the transition.
      */
-    void transition(NodeState destState, const double time = 0.0);
+    void transition(NodeState destState, const Value& time);
+
+    /**
+     * @brief Commit a state transition based on the statuses of various conditions.
+     * @param destState The new node state.
+     * @note For use in the unit test only.
+     */
+    void transition(NodeState destState);
 
     /**
      * @brief Handle the node exiting its current state.
@@ -285,22 +293,22 @@ namespace PLEXIL {
     // These are public only to appease the module test
 
     // These are special because parent owns the condition expression
-    bool isAncestorEndConditionActive()               { return pairActive(ancestorEndIdx); }
-    bool isAncestorExitConditionActive()              { return pairActive(ancestorExitIdx); }
-    bool isAncestorInvariantConditionActive()         { return pairActive(ancestorInvariantIdx); }
+    bool isAncestorEndConditionActive()               { return getAncestorEndCondition()->isActive(); }
+    bool isAncestorExitConditionActive()              { return getAncestorExitCondition()->isActive(); }
+    bool isAncestorInvariantConditionActive()         { return getAncestorInvariantCondition()->isActive(); }
 
     // User conditions
-    bool isSkipConditionActive()                      { return pairActive(skipIdx); }
-    bool isStartConditionActive()                     { return pairActive(startIdx); }
-    bool isEndConditionActive()                       { return pairActive(endIdx); }
-    bool isExitConditionActive()                      { return pairActive(exitIdx); }
-    bool isInvariantConditionActive()                 { return pairActive(invariantIdx); }
-    bool isPreConditionActive()                       { return getPreCondition()->isActive(); }  // has no listener
-    bool isPostConditionActive()                      { return getPostCondition()->isActive(); } // has no listener
-    bool isRepeatConditionActive()                    { return pairActive(repeatIdx); }
+    bool isSkipConditionActive()                      { return m_conditions[skipIdx]->isActive(); }
+    bool isStartConditionActive()                     { return m_conditions[startIdx]->isActive(); }
+    bool isEndConditionActive()                       { return m_conditions[endIdx]->isActive(); }
+    bool isExitConditionActive()                      { return m_conditions[exitIdx]->isActive(); }
+    bool isInvariantConditionActive()                 { return m_conditions[invariantIdx]->isActive(); }
+    bool isPreConditionActive()                       { return m_conditions[preIdx]->isActive(); }
+    bool isPostConditionActive()                      { return m_conditions[postIdx]->isActive(); }
+    bool isRepeatConditionActive()                    { return m_conditions[repeatIdx]->isActive(); }
     // These are for specialized node types
-    bool isActionCompleteConditionActive()            { return pairActive(actionCompleteIdx); }
-    bool isAbortCompleteConditionActive()             { return pairActive(abortCompleteIdx); }
+    bool isActionCompleteConditionActive()            { return m_conditions[actionCompleteIdx]->isActive(); }
+    bool isAbortCompleteConditionActive()             { return m_conditions[abortCompleteIdx]->isActive(); }
 
     // Should only be used by LuvListener.
     const ExpressionId& getCondition(const LabelStr& name) const;
@@ -345,8 +353,6 @@ namespace PLEXIL {
     // Abstracts out the issue of where the condition comes from.
     const ExpressionId& getCondition(size_t idx) const;
 
-    ExpressionListenerId& getConditionListener(size_t idx);
-    ExpressionListenerId& ensureConditionListener(size_t idx);
     void removeConditionListener(size_t idx);
 
     static size_t getConditionIndex(const LabelStr& cName);
@@ -445,28 +451,46 @@ namespace PLEXIL {
     virtual NodeState nodeStateMax() const { return FINISHED_STATE; } // empty node method
 
     //
+    // Listener class
+    //
+
+    class ConditionChangeListener : public ExpressionListener 
+    {
+    public:
+      ConditionChangeListener(Node& node)
+      : ExpressionListener(), m_node(node)
+      {
+      }
+
+      void notifyValueChanged(const ExpressionId& /* expression */)
+      {
+        m_node.conditionChanged();
+      }
+
+    private:
+
+      // Deliberately unimplemented
+      ConditionChangeListener();
+      ConditionChangeListener(const ConditionChangeListener&);
+      ConditionChangeListener& operator=(const ConditionChangeListener&);
+
+      Node& m_node;
+    };
+
+    //
     // Common state
     //
     NodeId m_id; /*!< The Id for this node*/
     NodeId m_parent; /*!< The parent of this node.*/
     ExecConnectorId m_exec; /*!< The executive (to notify it about condition changes and whether it needs to be executed) */
+    // Listener for the various condition expressions.
+    ConditionChangeListener m_listener;
     LabelStr m_nodeId;  /*!< the NodeId from the xml.*/
     LabelStr m_nodeType; /*!< The node type (either directly from the Node element or determined by the sub-elements. */
     VariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
     std::vector<LabelStr>* m_sortedVariableNames; /*!< Convenience for printing. */
     std::vector<VariableId> m_localVariables; /*!< Variables created in this node. */
     ExpressionId m_conditions[conditionIndexMax]; /*!< The condition expressions. */
-    // Listeners on the various condition expressions.  This allows us to turn them on/off when appropriate.
-    // Some listeners are shared between conditions that are always activated and deactivated together.
-    ExpressionListenerId m_abortCompleteListener;
-    ExpressionListenerId m_actionCompleteListener;
-    ExpressionListenerId m_ancestorEndListener;
-    ExpressionListenerId m_ancestorExitInvariantListener; 
-    ExpressionListenerId m_endListener;
-    ExpressionListenerId m_exitListener;
-    ExpressionListenerId m_invariantListener;
-    ExpressionListenerId m_skipStartListener;
-    ExpressionListenerId m_repeatListener;
     VariableId m_startTimepoints[NO_NODE_STATE]; /*!< Timepoint start variables indexed by state. */
     VariableId m_endTimepoints[NO_NODE_STATE]; /*!< Timepoint end variables indexed by state. */
     VariableId m_stateVariable;
@@ -488,24 +512,16 @@ namespace PLEXIL {
     VariableId getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
 
     void lockConditions();
-
     void unlockConditions();
 
-    // Deactivate the local variables
+    void activateLocalVariables();
     void deactivateLocalVariables();
-
-    /**
-     * @brief Perform whatever action is necessary for execution.
-     */
-    virtual void handleExecution();
 
     const VariableId& getInternalVariable(const LabelStr& name) const;
 
     //
     // Internal versions
     //
-
-    bool pairActive(size_t idx);
 
     /**
      * @brief Sets the default variables for the conditions and establishes the internal conditions that are dependent on parent conditions

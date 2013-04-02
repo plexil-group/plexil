@@ -33,16 +33,16 @@ include_HEADERS = Array.hh Assignment.hh AssignmentNode.hh BooleanVariable.hh Ca
  ExecListenerHub.hh Expression.hh ExpressionFactory.hh Expressions.hh ExternalInterface.hh \
  InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Lookup.hh Node.hh NodeConnector.hh \
  NodeFactory.hh PlexilExec.hh PlexilPlan.hh PlexilResource.hh PlexilXmlParser.hh \
- ResourceArbiterInterface.hh StateCache.hh TestExternalInterface.hh Update.hh UpdateNode.hh \
- Variable.hh Variables.hh plan-utils.hh resource-tags.hh
+ ResourceArbiterInterface.hh StateCache.hh SubexpressionListener.hh TestExternalInterface.hh \
+ Update.hh UpdateNode.hh Variable.hh Variables.hh plan-utils.hh resource-tags.hh
 
 libPlexilExec_la_SOURCES = Array.cc Assignment.cc AssignmentNode.cc BooleanVariable.cc \
  Calculable.cc Calculables.cc Command.cc CommandNode.cc CoreExpressions.cc ExecListener.cc \
  ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc Expression.cc \
  ExpressionFactory.cc Expressions.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Lookup.cc \
  Node.cc NodeFactory.cc PlexilExec.cc PlexilPlan.cc PlexilXmlParser.cc ResourceArbiterInterface.cc \
- StateCache.cc TestExternalInterface.cc Update.cc UpdateNode.cc Variable.cc Variables.cc \
- plan-utils.cc resource-tags.cc
+ StateCache.cc SubexpressionListener.cc TestExternalInterface.cc Update.cc UpdateNode.cc \
+ Variable.cc Variables.cc plan-utils.cc resource-tags.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests

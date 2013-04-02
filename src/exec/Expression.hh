@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,9 +36,7 @@
  */
 
 #include "ExecDefs.hh"
-#include "LabelStr.hh"
-#include "PlexilPlan.hh"
-#include "Value.hh"
+//#include "PlexilPlan.hh"
 
 #include <limits>
 #include <map>
@@ -106,7 +104,7 @@ namespace PLEXIL {
      * @brief Make this listener inactive, preventing notifications through it.
      */
     void deactivate();
-  protected:
+
   private:
     ExpressionListenerId m_id; /*!< The Id for this listener */
     unsigned int m_activeCount;
@@ -251,6 +249,7 @@ namespace PLEXIL {
     
     /**
      * @brief Check to make sure a value is appropriate for this expression.
+     * @param val The value.
      * @note Default method returns false.
      */
     virtual bool checkValue(const Value& /* val */) const
@@ -276,19 +275,16 @@ namespace PLEXIL {
     void internalSetValue(const Value& value);
 
     /**
+     * @brief If new value differs from old, set and propagate change.
+     * @param value The value being set.
+     * @note Core of internalSetValue. Called by unlock() and internalSetValue.
+     */
+    void essentialSetValue(const Value& value);
+
+    /**
      * @brief Notify listeners that the value of this expression has changed.
      */
     virtual void publishChange();
-
-    /**
-     * @brief Handle the locking of the expression.
-     */
-    virtual void handleLock() {}
-
-    /**
-     * @brief Handle the unlocking of the expression.
-     */
-    virtual void handleUnlock() {}
 
     /**
      * @brief Handle the activation of the expression.
@@ -315,34 +311,6 @@ namespace PLEXIL {
 
   std::ostream& operator<<(std::ostream& s, const Expression& e);
 
-  /**
-   *  A class for notifying expressions of changes in sub-expressions.
-   */
-  class SubexpressionListener : public ExpressionListener {
-  public:
-
-    /**
-     * @brief Constructor.
-     * @param exp The expression to be notified of any changes.
-     */
-    SubexpressionListener(Expression& parent);
-
-    /**
-     * @brief Notifies the destination expression of a value change.
-     * @param exp The expression which has changed.
-     */
-    void notifyValueChanged(const ExpressionId& exp);
-
-  private:
-	// Deliberately unimplemented
-	SubexpressionListener();
-	SubexpressionListener(const SubexpressionListener&);
-	SubexpressionListener& operator=(const SubexpressionListener&);
-
-    Expression& m_exp; /*<! The destination expression for notifications. */
-  };
-
-
 }
 
-#endif
+#endif // _H_Expression
