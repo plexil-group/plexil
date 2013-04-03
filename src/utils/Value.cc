@@ -414,8 +414,8 @@ namespace PLEXIL
    */
   bool Value::isInteger() const
   {
-    return !isUnknown()
-      && !LabelStr::rangeCheck(m_value)
+    // N.B. Unknown check falls out of int32_t range check
+    return !LabelStr::rangeCheck(m_value)
       && !StoredArray::rangeCheck(m_value)
       && m_value >= std::numeric_limits<int32_t>::min()
       && m_value <= std::numeric_limits<int32_t>::max()
