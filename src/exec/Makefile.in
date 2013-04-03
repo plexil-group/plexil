@@ -130,6 +130,7 @@ am_libPlexilExec_la_OBJECTS = libPlexilExec_la-Array.lo \
 	libPlexilExec_la-PlexilXmlParser.lo \
 	libPlexilExec_la-ResourceArbiterInterface.lo \
 	libPlexilExec_la-StateCache.lo \
+	libPlexilExec_la-SubexpressionListener.lo \
 	libPlexilExec_la-TestExternalInterface.lo \
 	libPlexilExec_la-Update.lo libPlexilExec_la-UpdateNode.lo \
 	libPlexilExec_la-Variable.lo libPlexilExec_la-Variables.lo \
@@ -303,16 +304,16 @@ include_HEADERS = Array.hh Assignment.hh AssignmentNode.hh BooleanVariable.hh Ca
  ExecListenerHub.hh Expression.hh ExpressionFactory.hh Expressions.hh ExternalInterface.hh \
  InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Lookup.hh Node.hh NodeConnector.hh \
  NodeFactory.hh PlexilExec.hh PlexilPlan.hh PlexilResource.hh PlexilXmlParser.hh \
- ResourceArbiterInterface.hh StateCache.hh TestExternalInterface.hh Update.hh UpdateNode.hh \
- Variable.hh Variables.hh plan-utils.hh resource-tags.hh
+ ResourceArbiterInterface.hh StateCache.hh SubexpressionListener.hh TestExternalInterface.hh \
+ Update.hh UpdateNode.hh Variable.hh Variables.hh plan-utils.hh resource-tags.hh
 
 libPlexilExec_la_SOURCES = Array.cc Assignment.cc AssignmentNode.cc BooleanVariable.cc \
  Calculable.cc Calculables.cc Command.cc CommandNode.cc CoreExpressions.cc ExecListener.cc \
  ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc Expression.cc \
  ExpressionFactory.cc Expressions.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Lookup.cc \
  Node.cc NodeFactory.cc PlexilExec.cc PlexilPlan.cc PlexilXmlParser.cc ResourceArbiterInterface.cc \
- StateCache.cc TestExternalInterface.cc Update.cc UpdateNode.cc Variable.cc Variables.cc \
- plan-utils.cc resource-tags.cc
+ StateCache.cc SubexpressionListener.cc TestExternalInterface.cc Update.cc UpdateNode.cc \
+ Variable.cc Variables.cc plan-utils.cc resource-tags.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/TestSupport.hh \
 @MODULE_TESTS_OPT_TRUE@	test/exec-test-module.hh \
@@ -474,6 +475,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-PlexilXmlParser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-ResourceArbiterInterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-StateCache.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-SubexpressionListener.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-TestExternalInterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-Update.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-UpdateNode.Plo@am__quote@
@@ -693,6 +695,13 @@ libPlexilExec_la-StateCache.lo: StateCache.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='StateCache.cc' object='libPlexilExec_la-StateCache.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-StateCache.lo `test -f 'StateCache.cc' || echo '$(srcdir)/'`StateCache.cc
+
+libPlexilExec_la-SubexpressionListener.lo: SubexpressionListener.cc
+@am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-SubexpressionListener.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-SubexpressionListener.Tpo -c -o libPlexilExec_la-SubexpressionListener.lo `test -f 'SubexpressionListener.cc' || echo '$(srcdir)/'`SubexpressionListener.cc
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/libPlexilExec_la-SubexpressionListener.Tpo $(DEPDIR)/libPlexilExec_la-SubexpressionListener.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SubexpressionListener.cc' object='libPlexilExec_la-SubexpressionListener.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-SubexpressionListener.lo `test -f 'SubexpressionListener.cc' || echo '$(srcdir)/'`SubexpressionListener.cc
 
 libPlexilExec_la-TestExternalInterface.lo: TestExternalInterface.cc
 @am__fastdepCXX_TRUE@	$(LIBTOOL)  --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-TestExternalInterface.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-TestExternalInterface.Tpo -c -o libPlexilExec_la-TestExternalInterface.lo `test -f 'TestExternalInterface.cc' || echo '$(srcdir)/'`TestExternalInterface.cc
