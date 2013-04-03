@@ -777,10 +777,10 @@ namespace PLEXIL {
    * @brief Evaluates the conditions to see if the node is eligible to transition.
    */
   void Node::checkConditions() {
-    checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state),
+    checkError(m_state == (NodeState) m_stateVariable->getValue().getIntValue(),
                "Node state not synchronized for node " << m_nodeId.toString()
                << "; node state = " << m_state
-               << ", node state name = \"" << m_stateVariable->getValue() << "\"");
+               << ", node state variable = " << m_stateVariable->getValue());
 
     debugMsg("Node:checkConditions",
              "Checking condition change for node " << m_nodeId.toString());
@@ -854,7 +854,7 @@ namespace PLEXIL {
                && destState != m_state,
                "Attempted to transition node " << m_nodeId.toString() <<
                " when it is ineligible.");
-    checkError(m_stateVariable->getValue() == StateVariable::nodeStateName(m_state),
+    checkError(m_state == (NodeState) m_stateVariable->getValue().getIntValue(),
                "Node state not synchronized for node " << m_nodeId.toString()
                << "; node state = " << m_state
                << ", node state name = \"" << m_stateVariable->getValue() << "\"");
@@ -2094,8 +2094,8 @@ namespace PLEXIL {
     static std::vector<LabelStr> startNames;
     if (startNames.empty()) {
       startNames.reserve(NO_NODE_STATE);
-      for (std::vector<Value>::const_iterator it = StateVariable::ALL_STATES().begin();
-           it != StateVariable::ALL_STATES().end(); 
+      for (std::vector<Value>::const_iterator it = StateVariable::ALL_STATE_NAMES().begin();
+           it != StateVariable::ALL_STATE_NAMES().end(); 
            ++it) {
         const std::string& state = it->getStringValue();
         startNames.push_back(LabelStr(state + ".START"));
@@ -2108,8 +2108,8 @@ namespace PLEXIL {
     static std::vector<LabelStr> endNames;
     if (endNames.empty()) {
       endNames.reserve(NO_NODE_STATE);
-      for (std::vector<Value>::const_iterator it = StateVariable::ALL_STATES().begin();
-           it != StateVariable::ALL_STATES().end(); 
+      for (std::vector<Value>::const_iterator it = StateVariable::ALL_STATE_NAMES().begin();
+           it != StateVariable::ALL_STATE_NAMES().end(); 
            ++it) {
         const std::string& state = it->getStringValue();
         endNames.push_back(LabelStr(state + ".END"));
