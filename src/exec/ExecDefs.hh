@@ -106,7 +106,7 @@ namespace PLEXIL
 
   /**
    * @brief Node state enumeration.
-   * @note Must be in same order as StateVariable::ALL_STATES(). See CoreExpressions.cc.
+   * @note Must be in same order as StateVariable::ALL_STATE_NAMES(). See CoreExpressions.cc.
    */
   enum NodeState {
     INACTIVE_STATE = 0,

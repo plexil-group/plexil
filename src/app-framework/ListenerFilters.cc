@@ -36,7 +36,7 @@ namespace PLEXIL
 {
   static NodeState parseStateName(const std::string& name)
   {
-    const std::vector<Value>& allStates = StateVariable::ALL_STATES();
+    const std::vector<Value>& allStates = StateVariable::ALL_STATE_NAMES();
     for (size_t i = 0; i < NODE_STATE_MAX; ++i) {
       if (allStates[i].getStringValue() == name)
         return (NodeState) i;

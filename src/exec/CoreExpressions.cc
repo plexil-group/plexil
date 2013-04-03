@@ -46,12 +46,12 @@ namespace PLEXIL
 
   // Called from Node::commonInit().
   StateVariable::StateVariable(const std::string& name)
-    : VariableImpl(INACTIVE(), false)
+    : VariableImpl(INACTIVE_STATE, false)
   {
     setName(name);
   }
 
-  // Used only to construct class constants. See ALL_STATES() below.
+  // Used only to construct class constants INACTIVE_EXP(), et al.
   StateVariable::StateVariable(const Value& value, const bool isConst)
     : VariableImpl(value, isConst) 
   {
@@ -70,20 +70,18 @@ namespace PLEXIL
     PlexilValue* val = (PlexilValue*) expr;
     checkError(val->type() == PLEXIL::NODE_STATE,
                "Expected NodeState value.  Found '" << PlexilParser::valueTypeString(val->type()) << "'");
-    Value value(val->value());
+    Value value(nameToNodeState(LabelStr(val->value())));
     checkError(checkValue(value),
-               "Attempted to initialize a state variable with invalid value " << value);
+               "Attempted to initialize a state variable with invalid value " << val->value());
     m_value = m_initialValue = value;
   }
 
-  // N.B. Depends on ALL_STATES() matching order of NodeState enumeration.
   bool StateVariable::checkValue(const Value& val) const
   {
-    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
-      if (val == ALL_STATES()[s])
-        return true;
-    }
-    return false;
+    if (!val.isInteger())
+      return false;
+    int32_t valAsInt = val.getIntValue();
+    return valAsInt >= INACTIVE_STATE && valAsInt < NO_NODE_STATE;
   }
 
   void StateVariable::print(std::ostream& s) const 
@@ -92,15 +90,20 @@ namespace PLEXIL
     s << "state)";
   }
 
+  void StateVariable::printValue(std::ostream& s) const
+  {
+    s << nodeStateName((NodeState) getValue().getIntValue());
+  }
+
   void StateVariable::setNodeState(NodeState newValue)
   {
     checkError(newValue < NO_NODE_STATE,
                "Attempted to set an invalid NodeState value");
-    this->setValue(ALL_STATES()[newValue]);
+    this->setValue(newValue);
   }
 
   // Must be in same order as enum NodeState. See ExecDefs.hh.
-  const std::vector<Value>& StateVariable::ALL_STATES() {
+  const std::vector<Value>& StateVariable::ALL_STATE_NAMES() {
     static std::vector<Value> allStates;
     if (allStates.empty()) {
       allStates.reserve(NODE_STATE_MAX);
@@ -119,55 +122,65 @@ namespace PLEXIL
   ExpressionId& StateVariable::INACTIVE_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(INACTIVE(), true))->getId();
+      sl_exp = (new StateVariable(INACTIVE_STATE, true))->getId();
     return sl_exp;
   }
   ExpressionId& StateVariable::WAITING_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(WAITING(), true))->getId();
+      sl_exp = (new StateVariable(WAITING_STATE, true))->getId();
     return sl_exp;
   }
   ExpressionId& StateVariable::EXECUTING_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(EXECUTING(), true))->getId();
+      sl_exp = (new StateVariable(EXECUTING_STATE, true))->getId();
     return sl_exp;
   }
   ExpressionId& StateVariable::FINISHING_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(FINISHING(), true))->getId();
+      sl_exp = (new StateVariable(FINISHING_STATE, true))->getId();
     return sl_exp;
   }
   ExpressionId& StateVariable::FINISHED_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(FINISHED(), true))->getId();
+      sl_exp = (new StateVariable(FINISHED_STATE, true))->getId();
     return sl_exp;
   }
   ExpressionId& StateVariable::FAILING_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(FAILING(), true))->getId();
+      sl_exp = (new StateVariable(FAILING_STATE, true))->getId();
     return sl_exp;
   }
   ExpressionId& StateVariable::ITERATION_ENDED_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(ITERATION_ENDED(), true))->getId();
+      sl_exp = (new StateVariable(ITERATION_ENDED_STATE, true))->getId();
     return sl_exp;
   }
   ExpressionId& StateVariable::NO_STATE_EXP() {
     static ExpressionId sl_exp;
     if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(NO_STATE(), true))->getId();
+      sl_exp = (new StateVariable(NO_NODE_STATE, true))->getId();
     return sl_exp;
   }
 
   const Value& StateVariable::nodeStateName(NodeState state)
   {
-    return ALL_STATES()[state];
+    return ALL_STATE_NAMES()[state];
+  }
+
+  // N.B. Depends on ALL_STATE_NAMES() matching order of NodeState enumeration.
+  NodeState StateVariable::nameToNodeState(const LabelStr& stateName)
+  {
+    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
+      if (stateName == ALL_STATE_NAMES()[s])
+        return (NodeState) s;
+    }
+    return NO_NODE_STATE;
   }
 
   // Called only by Node::commonInit().
@@ -363,9 +376,9 @@ namespace PLEXIL
   {
     m_count = 0;
     for (size_t i = 0; i < m_total; ++i) {
-      Value value = m_stateVariables[i]->getValue();
-      m_childListeners[i].setLastValue(value);
-      if (value == StateVariable::FINISHED())
+      NodeState state = (NodeState) m_stateVariables[i]->getValue().getIntValue();
+      m_childListeners[i].setLastState(state);
+      if (state == FINISHED_STATE)
         ++m_count;
     }
     if (m_count == m_total) {
@@ -384,36 +397,34 @@ namespace PLEXIL
 
   bool AllChildrenFinishedCondition::checkValue(const Value& val) const
   {
-    return val.isUnknown()
-      || val == BooleanVariable::FALSE_VALUE()
-      || val == BooleanVariable::TRUE_VALUE();
+    return val.isBoolean() || val.isUnknown();
   }
 
   AllChildrenFinishedCondition::FinishedListener::FinishedListener(AllChildrenFinishedCondition& cond)
-    : ExpressionListener(), m_cond(cond), m_lastValue(UNKNOWN())
+    : ExpressionListener(), m_cond(cond), m_lastState(NO_NODE_STATE)
   {
   }
 
   AllChildrenFinishedCondition::FinishedListener::FinishedListener(const FinishedListener& orig)
-    : ExpressionListener(), m_cond(orig.m_cond), m_lastValue(UNKNOWN())
+    : ExpressionListener(), m_cond(orig.m_cond), m_lastState(orig.m_lastState)
   {
   }
 
   void
   AllChildrenFinishedCondition::FinishedListener::notifyValueChanged(const ExpressionId& expression) 
   {
-    const Value& newValue = expression->getValue();
-    if (newValue == StateVariable::FINISHED() && m_lastValue != newValue) {
+    NodeState newState = (NodeState) expression->getValue().getIntValue();
+    if (newState == FINISHED_STATE && m_lastState != newState) {
       debugMsg("AllChildrenFinished:increment",
                "State var " << *expression << " is now FINISHED.  Incrementing count.");
       m_cond.incrementCount();
     }
-    else if (m_lastValue == StateVariable::FINISHED() && m_lastValue != newValue) {
+    else if (m_lastState == FINISHED_STATE && m_lastState != newState) {
       debugMsg("AllChildrenFinished:decrement",
                "State var " << *expression << " is no longer FINISHED.  Decrementing count.");
       m_cond.decrementCount();
     }
-    m_lastValue = newValue;
+    m_lastState = newState;
   }
 
   void AllChildrenFinishedCondition::print(std::ostream& s) const 
@@ -495,9 +506,9 @@ namespace PLEXIL
   {
     m_count = 0;
     for (size_t i = 0; i < m_total; ++i) {
-      Value value = m_stateVariables[i]->getValue();
-      m_childListeners[i].setLastValue(value);
-      if (value == StateVariable::FINISHED() || value == StateVariable::WAITING())
+      NodeState state = (NodeState) m_stateVariables[i]->getValue().getIntValue();
+      m_childListeners[i].setLastState(state);
+      if (state == FINISHED_STATE || state == WAITING_STATE)
         ++m_count;
     }
     if (m_count == m_total) {
@@ -516,27 +527,25 @@ namespace PLEXIL
 
   bool AllChildrenWaitingOrFinishedCondition::checkValue(const Value& val) const
   {
-    return val.isUnknown()
-      || val == BooleanVariable::FALSE_VALUE()
-      || val == BooleanVariable::TRUE_VALUE();
+    return val.isBoolean() || val.isUnknown();
   }
 
   AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::WaitingOrFinishedListener(AllChildrenWaitingOrFinishedCondition& cond)
-    : ExpressionListener(), m_cond(cond), m_lastValue(UNKNOWN())
+    : ExpressionListener(), m_cond(cond), m_lastState(NO_NODE_STATE)
   {
   }
 
   AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::WaitingOrFinishedListener(const WaitingOrFinishedListener& orig)
-    : ExpressionListener(), m_cond(orig.m_cond), m_lastValue(UNKNOWN())
+    : ExpressionListener(), m_cond(orig.m_cond), m_lastState(orig.m_lastState)
   {
   }
 
   void 
   AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::notifyValueChanged(const ExpressionId& expression)
   {
-    bool was = m_lastValue == StateVariable::WAITING() || m_lastValue == StateVariable::FINISHED();
-    const Value& newValue = expression->getValue();
-    bool is = newValue == StateVariable::WAITING() || newValue == StateVariable::FINISHED();
+    bool was = m_lastState == WAITING_STATE || m_lastState == FINISHED_STATE;
+    NodeState newState = (NodeState) expression->getValue().getIntValue();
+    bool is = newState == WAITING_STATE || newState == FINISHED_STATE;
     if (is && !was) {
       debugMsg("AllChildrenWaitingOrFinished:increment",
                "State var " << *expression << " is now WAITING or FINISHED.  Incrementing count.");
@@ -547,7 +556,7 @@ namespace PLEXIL
                "State var " << *expression << " is no longer WAITING orFINISHED.  Decrementing count.");
       m_cond.decrementCount();
     }
-    m_lastValue = newValue;
+    m_lastState = newState;
   }
 
   void AllChildrenWaitingOrFinishedCondition::print(std::ostream& s) const

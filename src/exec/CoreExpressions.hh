@@ -70,7 +70,7 @@ namespace PLEXIL
                                                            this state. Used internally to signify no
                                                            state transition is possible. */
 
-    static const std::vector<Value>& ALL_STATES();
+    static const std::vector<Value>& ALL_STATE_NAMES();
     static ExpressionId& INACTIVE_EXP();
     static ExpressionId& WAITING_EXP();
     static ExpressionId& EXECUTING_EXP();
@@ -81,6 +81,7 @@ namespace PLEXIL
     static ExpressionId& NO_STATE_EXP();
 
     static const Value& nodeStateName(NodeState state);
+    static NodeState nameToNodeState(const LabelStr& stateName);
 
     // Constructors
     StateVariable(const std::string& name);
@@ -89,7 +90,10 @@ namespace PLEXIL
     StateVariable(const PlexilExprId& expr,
                   const NodeConnectorId& node, 
                   const bool isConst = false);
-    void print(std::ostream& s) const;
+
+    // Printing
+    virtual void print(std::ostream& s) const;
+    virtual void printValue(std::ostream& s) const;
 
     void setNodeState(NodeState newValue);
 
@@ -227,10 +231,10 @@ namespace PLEXIL
       FinishedListener(AllChildrenFinishedCondition& cond);
       FinishedListener(const FinishedListener& orig);
       void notifyValueChanged(const ExpressionId& expression);
-      void setLastValue(const Value& value) { m_lastValue = value; }
+      void setLastState(const NodeState& state) { m_lastState = state; }
     private:
       AllChildrenFinishedCondition& m_cond;
-      Value m_lastValue;
+      NodeState m_lastState;
     };
 
     bool checkValue(const Value& val) const;
@@ -271,10 +275,10 @@ namespace PLEXIL
       WaitingOrFinishedListener(AllChildrenWaitingOrFinishedCondition& cond);
       WaitingOrFinishedListener(const WaitingOrFinishedListener& orig);
       void notifyValueChanged(const ExpressionId& expression);
-      void setLastValue(const Value& value) { m_lastValue = value; }
+      void setLastState(NodeState state) { m_lastState = state; }
     private:
       AllChildrenWaitingOrFinishedCondition& m_cond;
-      Value m_lastValue;
+      NodeState m_lastState;
     };
 
     bool checkValue(const Value& val) const;
