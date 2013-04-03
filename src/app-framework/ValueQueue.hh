@@ -28,6 +28,7 @@
 #define VALUE_QUEUE_HH
 
 #include "Expression.hh"
+#include "PlexilPlan.hh"
 
 namespace PLEXIL
 {
