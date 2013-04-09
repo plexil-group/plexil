@@ -121,7 +121,6 @@ namespace PLEXIL
     for(ExpressionVectorIter it = m_subexpressions.begin();
         it != m_subexpressions.end(); ++it) {
       ExpressionId& expr = *it;
-      check_error(expr.isValid());
       expr->activate();
     }
     internalSetValue(recalculate());
@@ -134,7 +133,6 @@ namespace PLEXIL
     for(ExpressionVectorIter it = m_subexpressions.begin();
         it != m_subexpressions.end(); ++it) {
       ExpressionId& expr = *it;
-      check_error(expr.isValid());
       expr->deactivate();
     }
   }

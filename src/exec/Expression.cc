@@ -203,9 +203,8 @@ namespace PLEXIL {
       return;
     for(std::vector<ExpressionListenerId>::iterator it = m_outgoingListeners.begin();
 	it != m_outgoingListeners.end(); ++it) {
-      check_error((*it).isValid());
       if((*it)->isActive())
-	(*it)->notifyValueChanged(m_id);
+        (*it)->notifyValueChanged(m_id);
     }
   }
 
