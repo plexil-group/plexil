@@ -61,6 +61,7 @@
 #ifdef ID_TABLE_DEBUG
 #include "Debug.hh"
 #endif
+#include <iostream>
 
 namespace PLEXIL {
 

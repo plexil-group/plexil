@@ -58,12 +58,7 @@
 #define PLEXIL_ID_FAST 1
 #endif
 
-#ifdef PLEXIL_ID_FAST
-// This needs to be kept consistent with the definition in IdTable.hh
-#define ID_POINTER_TYPE uintptr_t
-#else
 #include "IdTable.hh"
-#endif
 
 namespace PLEXIL {
 
