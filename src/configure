@@ -779,6 +779,7 @@ enable_debug_logging
 enable_gantt
 enable_ipc
 enable_module_tests
+enable_pointer_checks
 enable_viewer
 enable_sas
 enable_test_exec
@@ -1432,6 +1433,7 @@ Optional Features:
   --enable-gantt          Build GanttListener interface (default=no)
   --enable-ipc            Build IPC and IpcAdapter library (default=no)
   --enable-module-tests   Build module tests (default=no)
+  --enable-pointer-checks Check smart pointers for validity (default=yes)
   --enable-viewer         Build Plexil Viewer interface (default=yes)
   --enable-sas            Build StandAloneSimulator (default=no)
   --enable-test-exec      Build TestExec executable (default=no)
@@ -15427,6 +15429,11 @@ if test "${enable_module_tests+set}" = set; then :
   enableval=$enable_module_tests;
 fi
 
+# Check whether --enable-pointer-checks was given.
+if test "${enable_pointer_checks+set}" = set; then :
+  enableval=$enable_pointer_checks;
+fi
+
 # Check whether --enable-viewer was given.
 if test "${enable_viewer+set}" = set; then :
   enableval=$enable_viewer;
@@ -15552,6 +15559,13 @@ if test "x$enable_debug_logging" = "xno"; then :
 
 
 $as_echo "#define NO_DEBUG_MESSAGE_SUPPORT 1" >>confdefs.h
+
+
+fi
+if test "x$enable_pointer_checks" = "xno"; then :
+
+
+$as_echo "#define PLEXIL_ID_FAST 1" >>confdefs.h
 
 
 fi
