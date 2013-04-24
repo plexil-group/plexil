@@ -37,15 +37,12 @@
 //  ownership of the software is hereby transferred.  This notice shall
 //  remain on all copies of the software.
 
-#include "IdTable.hh"
-#include "Debug.hh"
-
 /**
  * @file IdTable.cc
  * @author Conor McGann
  * @brief Implements IdTable
  * @par Implementation notes
- * @li If system is compiled with PLEXIL_FAST then this class is not used.
+ * @li If system is compiled with PLEXIL_ID_FAST then this class is not used.
  * @li Use the size method as a check to ensure memory is deallocated correctly. On destruction, size should be 0.
  * @li Use the output function to display pointer address and key pairs that have not been deallocated.
  * @li Use debug messages this information in conjunction with the output.
@@ -53,6 +50,17 @@
  * @date  July, 2003
  * @see Id<T>
  */
+
+//
+// The rest of this file may be ignored if PLEXIL_ID_FAST is defined.
+//
+
+#include "IdTable.hh"
+#if !defined(PLEXIL_ID_FAST)
+
+#ifdef ID_TABLE_DEBUG
+#include "Debug.hh"
+#endif
 
 namespace PLEXIL {
 
@@ -151,3 +159,5 @@ namespace PLEXIL {
     return *sl_instance;
   }
 }
+
+#endif // !defined(PLEXIL_ID_FAST)

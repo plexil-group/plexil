@@ -83,7 +83,8 @@
 #include <sys950Lib.h>
 #endif
 
-#ifndef PLEXIL_FAST
+// Utility used only in IdTests
+#ifndef PLEXIL_ID_FAST
 #define non_fast_only_assert(T) assertTrue(T)
 #else
 #define non_fast_only_assert(T) //NO-OP
@@ -471,7 +472,7 @@ bool IdTests::test() {
 }
 
 bool IdTests::testBasicAllocation() {
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
   unsigned int initialSize = IdTable::size();
 #endif
   Foo *fooPtr = new Foo();
@@ -633,10 +634,10 @@ bool IdTests::testVirtualInheritance()
   Id<PootDoot> pootdootPootDoot(pootdoot, pootdootRoot);
   assertTrue(pootdootPootDoot.isValid());
 
-#ifndef PLEXIL_FAST
   // Check the checks
   std::cout << std::endl;
 
+#ifndef PLEXIL_FAST
   // Basic allocation
   Error::doThrowExceptions();
   try {
@@ -660,7 +661,9 @@ bool IdTests::testVirtualInheritance()
     }
     __z__(e, Error("ptr != 0", "Cannot generate an Id<8PootDoot> for 0 pointer.", "Id.hh", 0), success);
   }
+#endif // PLEXIL_FAST
 
+#ifndef PLEXIL_ID_FAST
   // Invalid base Id
   try {
     Error::doNotDisplayErrors();
@@ -773,7 +776,7 @@ bool IdTests::testBadIdUsage() {
     }
     __z__(e, Error("m_ptr != 0", "Invalid cast from Id<4Root> to Id<4Bing>.", "Id.hh", 0), success);
   }
-#endif
+#endif // !defined(__CYGWIN__)
   Error::doNotThrowExceptions();
   barId.release();
   return(success);

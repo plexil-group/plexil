@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,10 +40,6 @@
 #ifndef _H_ID
 #define _H_ID
 
-#include "IdTable.hh"
-#include "Error.hh"
-#include <typeinfo>
-
 /**
  * @file Id.hh
  * @author Conor McGann
@@ -51,6 +47,23 @@
  * @date  July, 2003
  * @see IdTable
 */
+
+#include "plexil-config.h"
+#include "Error.hh"
+#include <typeinfo>
+
+// If we are bypassing all safety checks, 
+// there is no point in pointer validity checks.
+#ifdef PLEXIL_FAST
+#define PLEXIL_ID_FAST 1
+#endif
+
+#ifdef PLEXIL_ID_FAST
+// This needs to be kept consistent with the definition in IdTable.hh
+#define ID_POINTER_TYPE uintptr_t
+#else
+#include "IdTable.hh"
+#endif
 
 namespace PLEXIL {
 
@@ -81,55 +94,55 @@ namespace PLEXIL {
    * wrapping mechanism used by all subsequent copies, as well as copying and assignment. The principal methods for
    * initialization are shown below:
    * @verbatim
-Id<Foo> id1(new Foo()); // Original allocation
-Id<Foo> id2(id1); // Allocation by copy.
-assert(id1 == id2); // Will now be true.
+   Id<Foo> id1(new Foo()); // Original allocation
+   Id<Foo> id2(id1); // Allocation by copy.
+   assert(id1 == id2); // Will now be true.
 
-Id<Foo> id3; // Default initialization
-assert(id3 == Id<Foo>::noId()); // Will now be true.
+   Id<Foo> id3; // Default initialization
+   assert(id3 == Id<Foo>::noId()); // Will now be true.
 
-id3 = id2; // Assignment
-assert(id1 == id3); // Will now be true.@endverbatim
+   id3 = id2; // Assignment
+   assert(id1 == id3); // Will now be true.@endverbatim
    *
    * @par Protection against duplicate wrapping of original instance
    * Original initialization takes a pointer to the object to be referenced. We must prevent more than one such wrapper
    * object from being created, so we build in protection as shown below:
    * @verbatim
-Foo* foo = new Foo();
-Id<Foo> id1(foo);
-assert(id1 != Id<Foo>::noId()); // Will be true since it is the first one.
-Id<Foo> id2(foo); // Try to do another initialization to wrap the same instance. Not Allowed in non fast version.! Will cause an error.@endverbatim
+   Foo* foo = new Foo();
+   Id<Foo> id1(foo);
+   assert(id1 != Id<Foo>::noId()); // Will be true since it is the first one.
+   Id<Foo> id2(foo); // Try to do another initialization to wrap the same instance. Not Allowed in non fast version.! Will cause an error.@endverbatim
    * @par Explicit memory management & dangling pointer protection
    * For a number of reasons, one may wish to directly release the instance being accessed. A mthod is provided on an id to do this.
    * It will invalidate other ids to the same instance in a detectable manner (non fast version only).
    * @verbatim
-Id<Foo> id1(new Foo());
-Id<Foo> id2(id1);
-assert(id1.isValid()); // True since memeory has not been released. Ref count is 2.
-id2.release(); // Release the object, any Id can do this. Ref count is still 2.
-assert(id1.isInvalid()); // True since we now have a dangling pointer, but at least we can check for it cheaply!@endverbatim
+   Id<Foo> id1(new Foo());
+   Id<Foo> id2(id1);
+   assert(id1.isValid()); // True since memeory has not been released. Ref count is 2.
+   id2.release(); // Release the object, any Id can do this. Ref count is still 2.
+   assert(id1.isInvalid()); // True since we now have a dangling pointer, but at least we can check for it cheaply!@endverbatim
    * @par Casting
    * It is possible to cast an Id to its pointer, or to another pointer that represents a valid cast. For example:
    * @verbatim
-// Assume class Foo exists and is base class for a class Bar.
-Foo* f = new Foo();
-Id<Foo> fooId(f);
-Foo* fooFromCast = (Foo*) fooId; // This is fine.
-assert(fooFromCast == f);
-Bar* badCast = (Bar*) fooId(); // Not correct since it is not an instance of Bar.
-assert(badCast == 0); // Results in a null pointer
+   // Assume class Foo exists and is base class for a class Bar.
+   Foo* f = new Foo();
+   Id<Foo> fooId(f);
+   Foo* fooFromCast = (Foo*) fooId; // This is fine.
+   assert(fooFromCast == f);
+   Bar* badCast = (Bar*) fooId(); // Not correct since it is not an instance of Bar.
+   assert(badCast == 0); // Results in a null pointer
 
-// Now try an instance of Bar.
-Bar* b = new Bar();
-Id<Foo> fooId2((Foo*) b);
-Bar* goodCastAsBar = (Bar*) fooId2;
-Foo* goodCastAsFoo = (Foo*) fooId2;
-assert(goodCastAsBar && goodCastAsFoo);
+   // Now try an instance of Bar.
+   Bar* b = new Bar();
+   Id<Foo> fooId2((Foo*) b);
+   Bar* goodCastAsBar = (Bar*) fooId2;
+   Foo* goodCastAsFoo = (Foo*) fooId2;
+   assert(goodCastAsBar && goodCastAsFoo);
 
-// Now show a compiler error - assume class Baz is not related to Foo
-Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
+   // Now show a compiler error - assume class Baz is not related to Foo
+   Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
    * @par Helful hints
-   * @li Never use isValid for flow control. It will always return true when compiled under PLEXIL_FAST. If you wish
+   * @li Never use isValid for flow control. If you wish
    * to test id's, ensure there is valid data for isNoId(). For example, explicitly clear Id's if the object they are
    * referrring to is deleted. This cannot be done automatically without incurring high overhead, so it is up to the user to manage.
    * @par Implementation notes
@@ -138,8 +151,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
    * used to check for memory leaks (indicated by remaining entries in the table) and track occurence of dangling pointers (track
    * cause of removal of id prematurely).
    * @li The API is fully backward compatible with previous Id template class.
-   * @li The IdManager is no longer required, but can be used for backward compatibility without any problems.
-   * @li Compilation as PLEXIL_FAST gets rid of all access to IdTable and thus isValid and isNotValid are not effective.
+   * @li Compilation as PLEXIL_ID_FAST gets rid of all access to IdTable and thus isValid and isNotValid are not effective.
    * @see IdManager, IdTable
    */
   template<class T>
@@ -152,12 +164,12 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * @see Id::noId()
      */
     inline Id(T* ptr) {
-#ifndef PLEXIL_FAST
-      check_error(ptr != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for 0 pointer.",
-                  IdErr::IdMgrInvalidItemPtrError());
+      check_error_3(ptr != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for 0 pointer.",
+                    IdErr::IdMgrInvalidItemPtrError());
+#ifndef PLEXIL_ID_FAST
       m_key = IdTable::insert((ID_POINTER_TYPE)(ptr), typeid(T).name());
-      check_error(m_key != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for a pointer that has not been cleaned up.",
-                  IdErr::IdMgrInvalidItemPtrError());
+      check_error_3(m_key != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for a pointer that has not been cleaned up.",
+                    IdErr::IdMgrInvalidItemPtrError());
 #endif
       m_ptr = ptr;
     }
@@ -165,28 +177,28 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
     /**
      * @brief Initial construction to wrap ptr for derived classes.
      * @param ptr The pointer to create a new Id for.
-	 * @param baseId Existing Id of base class object.
+     * @param baseId Existing Id of base class object.
      * @see Id::noId()
      */
     template <class X>
     inline Id(T* ptr, const Id<X>& baseId) {
-#ifndef PLEXIL_FAST
-      check_error(ptr != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for 0 pointer.",
-                  IdErr::IdMgrInvalidItemPtrError());
-      check_error(baseId.isValid(),
-		  std::string("Cannot generate an Id<") + typeid(T).name() + "> when Id of base class object is invalid.",
-		  IdErr::IdMgrInvalidItemPtrError());
+      check_error_3(ptr != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for 0 pointer.",
+                    IdErr::IdMgrInvalidItemPtrError());
+#ifndef PLEXIL_ID_FAST
+      check_error_3(baseId.isValid(),
+                    std::string("Cannot generate an Id<") + typeid(T).name() + "> when Id of base class object is invalid.",
+                    IdErr::IdMgrInvalidItemPtrError());
       const ID_POINTER_TYPE basePtr = (ID_POINTER_TYPE) baseId.operator->();
       if (basePtr == (ID_POINTER_TYPE) ptr) {
-	// Pointers are equal, reuse key
-	// No need to check it because we tested base for validity above
-	m_key = baseId.getKey();
+        // Pointers are equal, reuse key
+        // No need to check it because we tested base for validity above
+        m_key = baseId.getKey();
       }
       else {
-	// Generate new key for derived class pointer
-	m_key = IdTable::insert((ID_POINTER_TYPE)(ptr), typeid(T).name());
-	check_error(m_key != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for a pointer that has not been cleaned up.",
-		    IdErr::IdMgrInvalidItemPtrError());
+        // Generate new key for derived class pointer
+        m_key = IdTable::insert((ID_POINTER_TYPE)(ptr), typeid(T).name());
+        check_error_3(m_key != 0, std::string("Cannot generate an Id<") + typeid(T).name() + "> for a pointer that has not been cleaned up.",
+                      IdErr::IdMgrInvalidItemPtrError());
       }
 #endif
       m_ptr = ptr;
@@ -198,7 +210,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      */
     inline Id(const Id& org) {
       m_ptr = org.m_ptr;
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
       m_key = org.m_key;
 #endif
     }
@@ -209,7 +221,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      */
     inline Id() {
       m_ptr = 0;
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
       m_key = 0;
 #endif
     }
@@ -220,14 +232,14 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * Must be 0, or an address for which an Id has already been allocated.
      */
     inline Id(double val) {
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
       if (val == 0)
         m_key = 0;
       else {
         m_key = IdTable::getKey((ID_POINTER_TYPE) val);
-        check_error(m_key != 0,
-                    std::string("Cannot instantiate an Id<") + typeid(T).name() + "> for this address. No instance present.",
-                    IdErr::IdMgrInvalidItemPtrError());
+        check_error_3(m_key != 0,
+                      std::string("Cannot instantiate an Id<") + typeid(T).name() + "> for this address. No instance present.",
+                      IdErr::IdMgrInvalidItemPtrError());
       }
 #endif
       m_ptr = (T*) (ID_POINTER_TYPE) val;
@@ -247,7 +259,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * @brief Cast the pointer to a double.
      */
     inline operator double() const {
-        return((double) (ID_POINTER_TYPE) m_ptr);
+      return((double) (ID_POINTER_TYPE) m_ptr);
     }
 
     /**
@@ -257,7 +269,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      */
     inline Id& operator=(const Id& org) {
       m_ptr = org.m_ptr;
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
       m_key = org.m_key;
 #endif
       return(*this);
@@ -285,7 +297,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
       return(*this);
     }
 
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
     /**
      * @brief Get the key of this instance.
      * @return The key value of the instance
@@ -312,16 +324,12 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      */
     template <class X>
     inline operator X* () const {
-#ifndef PLEXIL_FAST
-	  if (isNoId())
-		return 0;
-#endif
-	  X* result = dynamic_cast<X*>(m_ptr);
-#ifndef PLEXIL_FAST	  
-	  assertTrueMsg(result != 0,
-					"Id<" << typeid(T).name() << ">::operator" << typeid(X).name() << "*: Invalid pointer cast");
-#endif
-	  return result;
+      if (isNoId())
+        return 0;
+      X* result = dynamic_cast<X*>(m_ptr);
+      assertTrueMsg(result != 0,
+                    "Id<" << typeid(T).name() << ">::operator" << typeid(X).name() << "*: Invalid pointer cast");
+      return result;
     }
 
     /**
@@ -355,7 +363,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * @brief Handy method to directly test for noId without requiring comparison with another object.
      */
     inline bool isNoId() const {
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
       return(m_ptr == 0 && m_key == 0);
 #else
       return(m_ptr == 0);
@@ -367,7 +375,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * @see isNoId()
      */
     inline bool isId() const {
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
       return(m_ptr != 0 && m_key != 0);
 #else
       return(m_ptr != 0);
@@ -382,7 +390,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * @see Id::isInvalid(), Id::isNoId()
      */
     inline bool isValid() const {
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
       return(m_ptr != 0 && m_key != 0 && IdTable::getKey((ID_POINTER_TYPE)m_ptr) == m_key);
 #else
       return(m_ptr != 0);
@@ -394,7 +402,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * @see Id::isValid()
      */
     inline bool isInvalid() const {
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
       return(!isValid());
 #else
       return(m_ptr == 0);
@@ -408,7 +416,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * @see Id::isValid()
      */
     inline bool operator==(const Id& comp) const {
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
       return(m_ptr == comp.m_ptr && m_key == comp.m_key);
 #else
       return(m_ptr == comp.m_ptr);
@@ -421,7 +429,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * @return false if ==, true otherwise.
      */
     inline bool operator!=(const Id& comp) const {
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
       return (!(operator==(comp)));
 #else
       return(m_ptr != comp.m_ptr);
@@ -454,7 +462,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
       if (isNoId())
         os << "noId";
       else
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
         os << "id_" << m_key;
 #else
       os << "ptr_" << m_ptr;
@@ -469,9 +477,9 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
       // Take local copy of pointer to delete since we will want to null m_ptr prior to deletion
       // as a safety measure for objects which embed id's and deallocate them on destruction.
       T* ptr = m_ptr;
-#ifndef PLEXIL_FAST
-      check_error(isValid(), std::string("Cannot release an invalid Id<") + typeid(T).name() + ">.",
-                  IdErr::IdMgrInvalidItemPtrError());
+#ifndef PLEXIL_ID_FAST
+      check_error_3(isValid(), std::string("Cannot release an invalid Id<") + typeid(T).name() + ">.",
+                    IdErr::IdMgrInvalidItemPtrError());
       m_key = 0;
       IdTable::remove((ID_POINTER_TYPE) ptr);
 #endif
@@ -485,9 +493,9 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      * @see IdTable::release()
      */
     inline void remove() {
-#ifndef PLEXIL_FAST
-      check_error(isValid(), std::string("Cannot remove an invalid Id<") + typeid(T).name() + ">.",
-                  IdErr::IdMgrInvalidItemPtrError());
+#ifndef PLEXIL_ID_FAST
+      check_error_3(isValid(), std::string("Cannot remove an invalid Id<") + typeid(T).name() + ">.",
+                    IdErr::IdMgrInvalidItemPtrError());
       IdTable::remove((ID_POINTER_TYPE) m_ptr);
       m_key = 0;
 #endif
@@ -496,22 +504,22 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
 
     /**
      * @brief Clear the IdTable entry for a pointer to instance of a derived class.
-	 * @param Id of the base class object.
+     * @param Id of the base class object.
      * @note Will cause an error if either Id is not valid.
      * @see IdTable::release()
      */
-	template <class X>
+    template <class X>
     inline void removeDerived(const Id<X>& baseId) {
-#ifndef PLEXIL_FAST
-      check_error(isValid(), std::string("Cannot remove an invalid Id<") + typeid(T).name() + ">.",
-                  IdErr::IdMgrInvalidItemPtrError());
-	  check_error(baseId.isValid(),
-				   std::string("Cannot remove Id<") + typeid(T).name()
-				  + "> when base Id<" + typeid(X).name() + "> is invalid.",
-                  IdErr::IdMgrInvalidItemPtrError());
-	  if (((ID_POINTER_TYPE) m_ptr) != (ID_POINTER_TYPE) baseId.operator->())
-		// Base differs from derived, remove derived
-		IdTable::remove((ID_POINTER_TYPE) m_ptr);
+#ifndef PLEXIL_ID_FAST
+      check_error_3(isValid(), std::string("Cannot remove an invalid Id<") + typeid(T).name() + ">.",
+                    IdErr::IdMgrInvalidItemPtrError());
+      check_error_3(baseId.isValid(),
+                    std::string("Cannot remove Id<") + typeid(T).name()
+                    + "> when base Id<" + typeid(X).name() + "> is invalid.",
+                    IdErr::IdMgrInvalidItemPtrError());
+      if (((ID_POINTER_TYPE) m_ptr) != (ID_POINTER_TYPE) baseId.operator->())
+        // Base differs from derived, remove derived
+        IdTable::remove((ID_POINTER_TYPE) m_ptr);
       m_key = 0;
 #endif
       m_ptr = 0;
@@ -521,17 +529,20 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
 
     template <class X>
     inline void copyAndCastFromId(const Id<X>& org) {
-      m_ptr = dynamic_cast<T*>(org.operator->());
-#ifndef PLEXIL_FAST
       if (org.isNoId()) {
+        m_ptr = 0;
+#ifndef PLEXIL_ID_FAST
         m_key = 0;
+#endif
         return;
       }
-      check_error(m_ptr != 0, std::string("Invalid cast from Id<") + typeid(X).name() + "> to Id<" + typeid(T).name() + ">.",
-                  IdErr::IdMgrInvalidItemPtrError());
+      m_ptr = dynamic_cast<T*>(org.operator->());
+      check_error_3(m_ptr != 0, std::string("Invalid cast from Id<") + typeid(X).name() + "> to Id<" + typeid(T).name() + ">.",
+                    IdErr::IdMgrInvalidItemPtrError()); 
+#ifndef PLEXIL_ID_FAST
       m_key = IdTable::getKey((ID_POINTER_TYPE) m_ptr);
-      check_error(m_key != 0, std::string("Cannot create an Id<") + typeid(X).name() + "> for this address since no instance is present.",
-                  IdErr::IdMgrInvalidItemPtrError());
+      check_error_3(m_key != 0, std::string("Cannot create an Id<") + typeid(X).name() + "> for this address since no instance is present.",
+                    IdErr::IdMgrInvalidItemPtrError());
 #endif
     }
 
@@ -540,7 +551,7 @@ Baz* baz = (Baz*) fooId; // Will not compile.@endverbatim
      */
     T* m_ptr;
 
-#ifndef PLEXIL_FAST
+#ifndef PLEXIL_ID_FAST
     /**
      * Key within the IdTable.
      */

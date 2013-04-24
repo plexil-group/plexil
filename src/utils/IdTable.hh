@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,20 +48,28 @@
 #ifndef _H_IdTable
 #define _H_IdTable
 
-#include <iosfwd>
+#include "plexil-config.h"
 #include <stdint.h> // for uintptr_t
+
+// Use these macros instead of explicit type names to help with portability
+#define ID_POINTER_TYPE uintptr_t
+
+//
+// The rest of this file may be ignored if PLEXIL_ID_FAST is defined.
+//
+
+#if !defined(PLEXIL_ID_FAST)
+
+#define ID_KEY_TYPE uintptr_t
+#define ID_SIZE_TYPE uintptr_t
 
 #include "generic_hash_map.hh"
 #include "ThreadMutex.hh"
 
+#include <iosfwd>
 #ifdef ID_TABLE_DEBUG
 #include <string>
 #endif
-
-// Use these macros instead of explicit type names to help with portability
-#define ID_POINTER_TYPE uintptr_t
-#define ID_KEY_TYPE uintptr_t
-#define ID_SIZE_TYPE uintptr_t
 
 namespace PLEXIL {
 
@@ -115,3 +123,5 @@ namespace PLEXIL {
 }
 
 #endif
+
+#endif // !defined(PLEXIL_ID_FAST)

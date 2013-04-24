@@ -31,20 +31,27 @@
 #include "Error.hh"
 #include "Utils.hh"
 
+#ifdef PLEXIL_ID_FAST
+#define ID_TABLE_SIZE (0)
+#define ID_TABLE_OUTPUT(dummy)
+#else
+#define ID_TABLE_SIZE IdTable::size()
+#define ID_TABLE_OUTPUT(str) IdTable::output(str)
+#endif
 
 
 #define runTest(test, args...) {			\
   try { \
   std::cout << "   " << #test << " "; \
-  unsigned int id_count = IdTable::size(); \
   bool result = test(args); \
-  if (result && IdTable::size() <= id_count) \
+  unsigned int id_count = ID_TABLE_SIZE; \
+  if (result && ID_TABLE_SIZE <= id_count) \
     std::cout << " PASSED." << std::endl; \
   else \
     if (result) { \
       std::cout << " FAILED = DID NOT CLEAN UP ALLOCATED IDs:\n"; \
-      IdTable::output(std::cout); \
-      std::cout << "\tWere " << id_count << " IDs before; " << IdTable::size() << " now"; \
+      ID_TABLE_OUTPUT(std::cout); \
+      std::cout << "\tWere " << id_count << " IDs before; " << ID_TABLE_SIZE << " now"; \
       std::cout << std::endl; \
       throw Error::GeneralMemoryError(); \
     } else { \
