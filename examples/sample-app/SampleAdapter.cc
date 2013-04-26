@@ -197,16 +197,15 @@ bool SampleAdapter::shutdown()
 // Sends a command (as invoked in a Plexil command node) to the system and sends
 // the status, and return value if applicable, back to the executive.
 //
-void SampleAdapter::executeCommand (const LabelStr& command_name,
-                                    const vector<Value>& args,
-                                    ExpressionId dest,
-                                    ExpressionId ack) 
+void SampleAdapter::executeCommand(const CommandId& cmd)
 {
+  const LabelStr& command_name = cmd->getName();
   string name = command_name.toString();
   debugMsg("SampleAdapter", "Received executeCommand for " << name);  
 
   Value retval = Unknown;
   vector<Value> argv(10);
+  const vector<Value>& args = cmd->getArgValues();
   copy (args.begin(), args.end(), argv.begin());
 
   // NOTE: A more streamlined approach to dispatching on command type
@@ -223,12 +222,11 @@ void SampleAdapter::executeCommand (const LabelStr& command_name,
   else cerr << error << "invalid command: " << name << endl;
 
   // This sends a command handle back to the executive.
-  m_execInterface.handleValueChange
-    (ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
-
+    m_execInterface.handleValueChange
+    (cmd->getAck(), CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
   // This sends the command's return value (if expected) to the executive.
-  if (dest != ExpressionId::noId()) {
-    m_execInterface.handleValueChange (dest, retval);
+  if (cmd->getDest() != ExpressionId::noId()) {
+    m_execInterface.handleValueChange (cmd->getDest(), retval);
   }
 
   m_execInterface.notifyOfExternalEvent();

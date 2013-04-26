@@ -34,6 +34,7 @@
 
 #include "InterfaceAdapter.hh"
 #include "Value.hh"
+#include "Command.hh"
 
 using namespace PLEXIL;
 
@@ -48,11 +49,7 @@ public:
   bool reset();
   bool shutdown();
 
-  virtual void executeCommand (const LabelStr& name,
-                               const std::vector<Value>& args,
-                               ExpressionId dest,
-                               ExpressionId ack);
-
+  virtual void executeCommand(const CommandId& cmd);
   virtual Value lookupNow (const State& state);
   virtual void subscribe(const State& state);
   virtual void unsubscribe(const State& state);
