@@ -1,6 +1,6 @@
 // Simple plan for testing the Plexil temporal (Gantt) viewer.  It adds
 // durations to (otherwise almost instantaneous) assignment nodes, thus
-// producing a reasonable display.
+// producing an interesting display.
 
 Real Lookup time;
 
