@@ -486,7 +486,7 @@ namespace PLEXIL
    */
   const Value& StateCache::getLastValue(const State& state)
   {
-    check_error(!m_inQuiescence);
+    check_error(m_inQuiescence);
     StateCacheMap::const_iterator it = m_states.find(state);
     if (it == m_states.end())
       return UNKNOWN();
