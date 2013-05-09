@@ -352,10 +352,9 @@ namespace PLEXIL
     //
     // Member variables
     //
-    ExecApplicationId m_id;
-
     PlexilExec m_exec;
     InterfaceManager m_interface;
+    ExecApplicationId m_id;
 
     //
     // Synchronization and mutual exclusion
@@ -379,8 +378,22 @@ namespace PLEXIL
     // Semaphore for notifying external threads that the application is shut down
     ThreadSemaphore m_shutdownSem;
 
+    //
+    // Signal handling
+    //
+    sigset_t m_workerSigset;
+    sigset_t m_restoreWorkerSigset;
+    sigset_t m_mainSigset;
+    sigset_t m_restoreMainSigset;
+    struct sigaction m_restoreUSR2Handler;
+    size_t m_nBlockedSignals;
+    int m_blockedSignals[EXEC_APPLICATION_MAX_N_SIGNALS + 1];
+
     // Current state of the application
     ApplicationState m_state;
+
+    // True if exec is running in a separate thread
+    bool m_threadLaunched;
 
     // Flag to determine whether exec should run conservatively
     bool m_runExecInBkgndOnly;
@@ -390,17 +403,6 @@ namespace PLEXIL
 
     // Flag for suspend/resume
     bool m_suspended;
-
-    //
-    // Signal handling
-    //
-    size_t m_nBlockedSignals;
-    int m_blockedSignals[EXEC_APPLICATION_MAX_N_SIGNALS + 1];
-    sigset_t m_workerSigset;
-    sigset_t m_restoreWorkerSigset;
-    sigset_t m_mainSigset;
-    sigset_t m_restoreMainSigset;
-    struct sigaction m_restoreUSR2Handler;
 
   };
 

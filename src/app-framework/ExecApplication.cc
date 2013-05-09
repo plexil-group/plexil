@@ -45,19 +45,20 @@
 namespace PLEXIL
 {
   ExecApplication::ExecApplication()
-    : m_id(this),
-      m_exec(),
+    : m_exec(),
       m_interface(*this),
+      m_id(this),
       m_execThread(),
       m_execMutex(),
       m_sem(),
       m_markSem(),
       m_shutdownSem(),
+      m_nBlockedSignals(0),
       m_state(APP_UNINITED),
+      m_threadLaunched(false),
       m_runExecInBkgndOnly(true),
       m_stop(false),
-      m_suspended(false),
-      m_nBlockedSignals(0)
+      m_suspended(false)
   {
     for (size_t i = 0; i <= EXEC_APPLICATION_MAX_N_SIGNALS; i++)
       m_blockedSignals[i] = 0;
@@ -270,36 +271,38 @@ namespace PLEXIL
     m_interface.stop();
 
     // Stop the Exec
-    debugMsg("ExecApplication:stop", " Halting top level thread");
-    m_stop = true;
-    int status = m_sem.post();
-    assertTrueMsg(status == 0,
-                  "ExecApplication::stop: semaphore post failed, status = "
-                  << status);
-    sleep(1);
-
-    if (m_stop) {
-      // Exec thread failed to acknowledge stop - resort to stronger measures
-      status = pthread_kill(m_execThread, SIGUSR2);
+    if (m_threadLaunched) {
+      debugMsg("ExecApplication:stop", " Halting top level thread");
+      m_stop = true;
+      int status = m_sem.post();
       assertTrueMsg(status == 0,
-                  "ExecApplication::stop: pthread_kill failed, status = "
-                  << status);
+                    "ExecApplication::stop: semaphore post failed, status = "
+                    << status);
       sleep(1);
-    }
 
-    status = pthread_join(m_execThread, NULL);
-    if (status != 0) {
+      if (m_stop) {
+        // Exec thread failed to acknowledge stop - resort to stronger measures
+        status = pthread_kill(m_execThread, SIGUSR2);
+        assertTrueMsg(status == 0,
+                      "ExecApplication::stop: pthread_kill failed, status = "
+                      << status);
+        sleep(1);
+      }
+
+      status = pthread_join(m_execThread, NULL);
+      if (status != 0) {
         debugMsg("ExecApplication:stop", 
                  " pthread_join() failed, error = " << status);
         return false;
       }
-    debugMsg("ExecApplication:stop", " Top level thread halted");
+      debugMsg("ExecApplication:stop", " Top level thread halted");
 
 #ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
-    // Restore signal handling
-    assertTrueMsg(restoreMainSignalHandling(),
-                  "ExecApplication::stop: failed to restore signal handling for main thread");
+      // Restore signal handling
+      assertTrueMsg(restoreMainSignalHandling(),
+                    "ExecApplication::stop: failed to restore signal handling for main thread");
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
+    }
     
     return setApplicationState(APP_STOPPED);
   }
@@ -434,6 +437,7 @@ namespace PLEXIL
       std::cerr << "Error: unable to spawn exec thread" << std::endl;
       return false;
     }
+    m_threadLaunched = true;
     debugMsg("ExecApplication:run", " Top level thread running");
     return setApplicationState(APP_RUNNING);
   }
