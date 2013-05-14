@@ -2,11 +2,9 @@
     <GlobalDeclarations LineNo="1" ColNo="0">
         <LibraryNodeDeclaration LineNo="1" ColNo="0">
             <Name>Phase1</Name>
-            <Interface LineNo="0" ColNo="0"/>
         </LibraryNodeDeclaration>
         <LibraryNodeDeclaration LineNo="2" ColNo="0">
             <Name>Phase2</Name>
-            <Interface LineNo="0" ColNo="0"/>
         </LibraryNodeDeclaration>
         <LibraryNodeDeclaration LineNo="3" ColNo="0">
             <Name>Phase3</Name>
@@ -23,7 +21,7 @@
     <Sequence LineNo="7" ColNo="4">
         <NodeId>Root</NodeId>
         <Node NodeType="LibraryNodeCall">
-            <NodeId>Callphase1</NodeId>
+            <NodeId>CallPhase1</NodeId>
             <NodeBody>
                 <LibraryNodeCall>
                     <NodeId>Phase1</NodeId>
