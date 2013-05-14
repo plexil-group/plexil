@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -46,10 +46,10 @@ public class LibraryCallNode extends PlexilTreeNode
         super(n);
     }
 
-	public Tree dupNode()
-	{
-		return new LibraryCallNode(this);
-	}
+    public Tree dupNode()
+    {
+        return new LibraryCallNode(this);
+    }
 
     //
     // format is:
@@ -75,78 +75,77 @@ public class LibraryCallNode extends PlexilTreeNode
             Vector<VariableName> paramSpecs = libDecl.getParameterVariables();
 
             PlexilTreeNode aliases = this.getChild(1);
-            int argument_count = aliases.getChildCount();
+            int argument_count = 
+                aliases == null ? 0 : aliases.getChildCount();
             if (paramSpecs == null) {
-                    if (argument_count > 0) {
-                        state.addDiagnostic(aliases,
-                                            "Library action \"" + libName
-                                            + "\" expects 0 arguments, but "
-                                            + Integer.toString(argument_count)
-                                            + " were supplied",
-                                            Severity.ERROR);
-                    }
+                if (argument_count > 0) {
+                    state.addDiagnostic(aliases,
+                                        "Library action \"" + libName
+                                        + "\" expects 0 arguments, but "
+                                        + Integer.toString(argument_count)
+                                        + " were supplied",
+                                        Severity.ERROR);
+                }
+            }
+            else if (argument_count == 0) {
+                // Count parameters w/o default values
+                int minArgs = 0;
+                for (VariableName v : paramSpecs)
+                    if (v.getInitialValue() == null)
+                        minArgs++;
+                if (minArgs > 0) {
+                    state.addDiagnostic(this,
+                                        "Library action \"" + libName
+                                        + "\" expects at least "
+                                        + Integer.toString(minArgs) 
+                                        + " arguments, but 0 were supplied",
+                                        Severity.ERROR);
+                }
             }
             else {
-                if (argument_count == 0) {
-                    // Count parameters w/o default values
-                    int minArgs = 0;
-                    for (VariableName v : paramSpecs)
-                        if (v.getInitialValue() == null)
-                            minArgs++;
-                    if (minArgs > 0) {
-                        state.addDiagnostic(this,
-                                            "Library action \"" + libName
-                                            + "\" expects at least "
-                                            + Integer.toString(minArgs) 
-                                            + " arguments, but 0 were supplied",
-                                            Severity.ERROR);
-                    }
-                }
-                else {
-                    // Match up aliases with parameters
-                    // Do type and writable variable checking in check() below
-                    Set<String> used = new TreeSet<String>();
-                    for (int i = 0; i < aliases.getChildCount(); i++) {
-                        PlexilTreeNode alias = aliases.getChild(i);
-                        String paramName = alias.getChild(0).getText();
-                        VariableName param = libDecl.getParameterByName(paramName);
-                        ExpressionNode valueExp = (ExpressionNode) alias.getChild(1);
+                // Match up aliases with parameters
+                // Do type and writable variable checking in check() below
+                Set<String> used = new TreeSet<String>();
+                for (int i = 0; i < aliases.getChildCount(); i++) {
+                    PlexilTreeNode alias = aliases.getChild(i);
+                    String paramName = alias.getChild(0).getText();
+                    VariableName param = libDecl.getParameterByName(paramName);
+                    ExpressionNode valueExp = (ExpressionNode) alias.getChild(1);
 
-                        used.add(paramName);
-                        if (param.isAssignable()) {
-                            if (alias.getType() == PlexilLexer.CONST_ALIAS) {
-                                state.addDiagnostic(alias,
-                                                    "Library action parameter \"" + paramName
-                                                    + "\" is declared InOut, so must be aliased to a variable",
-                                                    Severity.ERROR);
-                            }
-                            else if (!valueExp.isAssignable()) {
-                                state.addDiagnostic(alias,
-                                                    "Library action parameter \"" + paramName
-                                                    + "\" is declared InOut, but is aliased to In variable \""
-                                                    + valueExp.getText() + "\"",
-                                                    Severity.ERROR);
-                            }
+                    used.add(paramName);
+                    if (param.isAssignable()) {
+                        if (alias.getType() == PlexilLexer.CONST_ALIAS) {
+                            state.addDiagnostic(alias,
+                                                "Library action parameter \"" + paramName
+                                                + "\" is declared InOut, so must be aliased to a variable",
+                                                Severity.ERROR);
+                        }
+                        else if (!valueExp.isAssignable()) {
+                            state.addDiagnostic(alias,
+                                                "Library action parameter \"" + paramName
+                                                + "\" is declared InOut, but is aliased to In variable \""
+                                                + valueExp.getText() + "\"",
+                                                Severity.ERROR);
                         }
                     }
-                    // See if any required params went unused
-                    Set<String> required = new TreeSet<String>();
-                    for (VariableName v : paramSpecs) 
-                        if (!used.contains(v.getName()) && v.getInitialValue() != null)
-                            required.add(v.getName());
-                    if (required.size() != 0) {
-                        String missingNames = null;
-                        for (String s : required)
-                            if (missingNames == null)
-                                missingNames = s;
-                            else
-                                missingNames = missingNames + ", " + s;
-                        state.addDiagnostic(this,
-                                            "Library action \"" + libName
-                                            + "\" required paramater(s) "
-                                            + missingNames + " were not supplied",
-                                            Severity.ERROR);
-                    }
+                }
+                // See if any required params went unused
+                Set<String> required = new TreeSet<String>();
+                for (VariableName v : paramSpecs) 
+                    if (!used.contains(v.getName()) && v.getInitialValue() != null)
+                        required.add(v.getName());
+                if (required.size() != 0) {
+                    String missingNames = null;
+                    for (String s : required)
+                        if (missingNames == null)
+                            missingNames = s;
+                        else
+                            missingNames = missingNames + ", " + s;
+                    state.addDiagnostic(this,
+                                        "Library action \"" + libName
+                                        + "\" required paramater(s) "
+                                        + missingNames + " were not supplied",
+                                        Severity.ERROR);
                 }
             }
         }
