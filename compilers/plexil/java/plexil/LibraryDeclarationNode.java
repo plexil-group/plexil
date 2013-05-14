@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -90,7 +90,7 @@ public class LibraryDeclarationNode extends PlexilTreeNode
         IXMLElement nameXML = new XMLElement("Name");
         nameXML.setContent(this.getChild(0).getText());
         m_xml.addChild(nameXML);
-        if (this.getChildCount() > 1)
+        if (this.getChildCount() > 1 && this.getChild(1).getChildCount() > 0)
             m_xml.addChild(this.getChild(1).getXML());
     }
 
