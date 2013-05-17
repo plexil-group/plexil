@@ -25,7 +25,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 \
+SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
               command0 command1 command2 command3 command4 ComputedCommandName \
               sequence0 sequence1 sequence2 sequence3 \
               assignment0 assignment1 assignment2 \
