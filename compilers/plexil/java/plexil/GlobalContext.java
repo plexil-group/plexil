@@ -125,12 +125,6 @@ public class GlobalContext
     public PlexilDataType getTimeType()
     {
         GlobalDeclaration timeDecl = getLookupDeclaration(s_timeLookupName);
-        // *** KLUDGE ALERT ***
-        // Default time type if not declared
-        if (timeDecl == null) {
-            timeDecl = makeDefaultTimeDeclaration();
-            lookups.put(s_timeLookupName, timeDecl);
-        }
         return timeDecl.getReturnType();
     }
 
@@ -151,8 +145,8 @@ public class GlobalContext
         return new GlobalDeclaration(fakeDeclNode,
                                      s_timeLookupName,
                                      NameType.STATE_NAME,
-                                     returns,
-                                     null);
+                                     null,
+                                     returns);
     }
     // **** END UGLY KLUDGE ****
 
