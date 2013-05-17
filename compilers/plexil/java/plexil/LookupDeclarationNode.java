@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -52,17 +52,16 @@ public class LookupDeclarationNode extends PlexilTreeNode
     // structure is:
     // ^(LOOKUP_KYWD NCNAME returnsSpec paramsSpec?)
 
-    public void earlyCheck (NodeContext context, CompilerState state)
+    public void earlyCheck(NodeContext context, CompilerState state)
     {
         // check that name is not already defined
         String lookupName = this.getChild(0).getText();
-        if (GlobalContext.getGlobalContext().isCommandName(lookupName)) {
+        if (GlobalContext.getGlobalContext().isLookupName(lookupName)) {
             // Report duplicate definition
             state.addDiagnostic(this.getChild(0),
                                 "Lookup \"" + lookupName + "\" is already defined",
                                 Severity.ERROR);
         }
-        else if (lookupName.equals (state.timeKeyword)) handleTime (context, state);
 
         // Parse return spec
         ReturnSpecNode returnAST = (ReturnSpecNode) this.getChild(1);
@@ -91,25 +90,6 @@ public class LookupDeclarationNode extends PlexilTreeNode
         // Define in global environment
         GlobalContext.getGlobalContext().addLookupName(this, lookupName, parmSpecs, returnSpecs);
     }
-
-    private void handleTime (NodeContext context, CompilerState state)
-    {
-        ReturnSpecNode returnAST = (ReturnSpecNode) this.getChild(1);
-        if (returnAST.getChildCount() == 1) {
-            String typeName = returnAST.getChild(0).getText();
-            if (typeName.equals (state.realKeyword)) state.timeIsReal = true;
-            else if (typeName.equals (state.dateKeyword)) state.timeIsReal = false;
-            else state.addDiagnostic (this.getChild(0),
-                                      "Illegal redefinition of reserved variable '" +
-                                      state.timeKeyword + "' as " + typeName,
-                                      Severity.ERROR);
-        }
-        else state.addDiagnostic (this.getChild(0),
-                                  "Illegal redefinition of reserved variable " +
-                                  state.timeKeyword,
-                                  Severity.ERROR);
-    }
-
 
     public void constructXML()
     {

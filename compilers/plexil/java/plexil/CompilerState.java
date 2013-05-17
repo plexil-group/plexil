@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,14 +50,6 @@ public class CompilerState
     public boolean prettyPrintEpx = false;
     public boolean semanticsOnly = false;
     public boolean syntaxOnly = false;
-
-    // Type checking
-    public String timeKeyword = "time";
-    static public boolean timeIsReal = true;
-    // The following are redundant.  Wish I could access the lexer
-    // strings, but don't see how.
-    public String dateKeyword = "Date";
-    public String realKeyword = "Real";
 
     protected CharStream m_instream; //* the stream to use initially
 
@@ -115,7 +107,7 @@ public class CompilerState
             }
             else if (m_args[i].equals("-v") || m_args[i].equals("--version")) {
                 // Print version and exit
-                System.out.println("PlexilCompiler version 1.0.0d1");
+                System.out.println("PlexilCompiler version 2.0.0d1");
                 System.exit(0);
             }
             else if (m_args[i].equals("-d") || m_args[i].equals("--debug")) {

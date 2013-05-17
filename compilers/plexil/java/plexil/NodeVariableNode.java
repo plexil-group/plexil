@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -81,12 +81,9 @@ public class NodeVariableNode extends ExpressionNode
 
     public void check (NodeContext context, CompilerState state)
     {
-        super.check (context, state);
-        if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE) {
-            m_dataType = (CompilerState.timeIsReal ?
-                          PlexilDataType.REAL_TYPE :
-                          PlexilDataType.DATE_TYPE);
-        }
+        super.check(context, state);
+        if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE)
+            m_dataType = GlobalContext.getGlobalContext().getTimeType();
     }
 
     public void constructXML()

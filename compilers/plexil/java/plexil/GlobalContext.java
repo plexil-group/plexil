@@ -26,6 +26,7 @@
 
 package plexil;
 
+import org.antlr.runtime.CommonToken;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
@@ -43,6 +44,8 @@ public class GlobalContext
     protected Map<String, GlobalDeclaration> libraryNodes;
 
     static GlobalContext s_instance = null;
+    static String s_timeLookupName = "time";
+    static PlexilDataType s_defaultTimeType = PlexilDataType.REAL_TYPE;
 
     static GlobalContext getGlobalContext()
     {
@@ -91,12 +94,18 @@ public class GlobalContext
 
     public GlobalDeclaration getLookupDeclaration(String name)
     {
-        return lookups.get(name);
+        GlobalDeclaration result = lookups.get(name);
+        // A more principled kludge than before, but still a kludge.
+        if (result == null && name.equals(s_timeLookupName)) {
+            result = makeDefaultTimeDeclaration();
+            lookups.put(s_timeLookupName, result);
+        }
+        return result;
     }
 
     public boolean isLookupName(String name)
     {
-        GlobalDeclaration ln = getLookupDeclaration(name);
+        GlobalDeclaration ln = lookups.get(name);
         return (ln != null);
     }
 
@@ -112,6 +121,40 @@ public class GlobalContext
                                           parm_spec,
                                           return_spec));
     }
+
+    public PlexilDataType getTimeType()
+    {
+        GlobalDeclaration timeDecl = getLookupDeclaration(s_timeLookupName);
+        // *** KLUDGE ALERT ***
+        // Default time type if not declared
+        if (timeDecl == null) {
+            timeDecl = makeDefaultTimeDeclaration();
+            lookups.put(s_timeLookupName, timeDecl);
+        }
+        return timeDecl.getReturnType();
+    }
+
+    // *** BEGIN UGLY KLUDGE ***
+    protected GlobalDeclaration makeDefaultTimeDeclaration()
+    {
+        PlexilTreeNode fakeReturnsNode =
+            new ReturnSpecNode(new CommonToken(PlexilLexer.RETURNS_KYWD, "Returns"));
+        // FIXME: make this dependent on s_defaultTimeType
+        PlexilTreeNode fakeReturnTypeNode = new PlexilTreeNode(new CommonToken(PlexilLexer.REAL_KYWD, "Real"));
+        fakeReturnsNode.addChild(fakeReturnTypeNode);
+        PlexilTreeNode fakeDeclNode = 
+            new LookupDeclarationNode(new CommonToken(PlexilLexer.LOOKUP_KYWD, "Lookup"));
+        fakeDeclNode.addChild(new PlexilTreeNode(new CommonToken(PlexilLexer.NCNAME, s_timeLookupName)));
+        fakeDeclNode.addChild(fakeReturnsNode);
+        Vector<VariableName> returns = new Vector<VariableName>();
+        returns.add(new VariableName(fakeReturnTypeNode, "_return_0", s_defaultTimeType));
+        return new GlobalDeclaration(fakeDeclNode,
+                                     s_timeLookupName,
+                                     NameType.STATE_NAME,
+                                     returns,
+                                     null);
+    }
+    // **** END UGLY KLUDGE ****
 
     public GlobalDeclaration getLibraryNodeDeclaration(String name)
     {

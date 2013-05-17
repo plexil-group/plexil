@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -103,19 +103,12 @@ public class LookupNode extends ExpressionNode
             String stateName = invocation.getChild(0).getText();
             m_state = GlobalContext.getGlobalContext().getLookupDeclaration(stateName);
             if (m_state == null) {
-                // Time is "implicitly declared"
-                if (stateName.equals (state.timeKeyword)) {
-                    m_dataType = (state.timeIsReal ? PlexilDataType.REAL_TYPE :
-                                  PlexilDataType.DATE_TYPE);
-                }
-                else {
-                    // FIXME: should this be an error instead?
-                    state.addDiagnostic(invocation.getChild(0),
-                                        "State name \"" + stateName + "\" has not been declared",
-                                        Severity.WARNING);
-                    // FIXME: add implicit declaration?
-                    m_dataType = PlexilDataType.ANY_TYPE;
-                }
+                // FIXME: should this be an error instead?
+                state.addDiagnostic(invocation.getChild(0),
+                                    "State name \"" + stateName + "\" has not been declared",
+                                    Severity.WARNING);
+                // FIXME: add implicit declaration?
+                m_dataType = PlexilDataType.ANY_TYPE;
             }
             else {
                 // Set return value type
