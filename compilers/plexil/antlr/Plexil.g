@@ -1078,7 +1078,7 @@ lookupOnChange
        LOOKUP_ON_CHANGE_KYWD^ LPAREN! lookupInvocation (COMMA! tolerance)? RPAREN!
 ;
 
-tolerance : realValue | variable ;
+tolerance : realValue | durationLiteral | variable ;
 
 // should produce an AST of the form
 // #(LOOKUP_NOW_KYWD stateNameExp (argumentList)? )
