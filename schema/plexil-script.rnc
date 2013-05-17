@@ -19,38 +19,15 @@ SendPlan =
   | element SendPlan {
       attribute file { xsd:string }?
     }
-Param =
+CommandAck =
   notAllowed
-  | element Param { type?, xsd:string }
-element0 =
-  element * {
-    mixed {
-      (attribute * { text }
-       | element0)*
-    }
-  }
-type =
-  attribute type {
-    xsd:NMTOKEN "real"
-    | xsd:NMTOKEN "int-array"
-    | xsd:NMTOKEN "string-array"
-    | xsd:NMTOKEN "int"
-    | xsd:NMTOKEN "string"
-    | xsd:NMTOKEN "bool"
-    | xsd:NMTOKEN "bool-array"
-    | xsd:NMTOKEN "real-array"
-  }
+  | element CommandAck { command-type }
 InitialState =
   notAllowed
   | element InitialState { State* }
-UpdateAck =
+CommandAbort =
   notAllowed
-  | element UpdateAck {
-      attribute name { xsd:string }?
-    }
-Command =
-  notAllowed
-  | element Command { command-type }
+  | element CommandAbort { command-type }
 State =
   notAllowed
   | element State {
@@ -59,6 +36,21 @@ State =
       Param*,
       element Value { \string }+
     }
+command-type =
+  (type?,
+   attribute name { xsd:string }?,
+   Param*,
+   (notAllowed
+    | element Result { \string })+),
+  empty
+element0 =
+  element * {
+    mixed {
+      (attribute * { text }
+       | element0)*
+    }
+  }
+\string = xsd:string
 Script =
   notAllowed
   | element Script {
@@ -76,20 +68,28 @@ Script =
            }
          })*
     }
-CommandAbort =
+type =
+  attribute type {
+    xsd:NMTOKEN "real"
+    | xsd:NMTOKEN "int-array"
+    | xsd:NMTOKEN "string-array"
+    | xsd:NMTOKEN "int"
+    | xsd:NMTOKEN "string"
+    | xsd:NMTOKEN "bool"
+    | xsd:NMTOKEN "bool-array"
+    | xsd:NMTOKEN "real-array"
+  }
+Param =
   notAllowed
-  | element CommandAbort { command-type }
-\string = xsd:string
-command-type =
-  (type?,
-   attribute name { xsd:string }?,
-   Param*,
-   (notAllowed
-    | element Result { \string })+),
-  empty
-CommandAck =
+  | element Param { type?, xsd:string }
+UpdateAck =
   notAllowed
-  | element CommandAck { command-type }
+  | element UpdateAck {
+      attribute name { xsd:string }?
+    }
+Command =
+  notAllowed
+  | element Command { command-type }
 Simultaneous =
   notAllowed
   | element Simultaneous {
