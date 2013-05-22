@@ -362,6 +362,12 @@ namespace PLEXIL
     bool isInteger() const;
 
     /**
+     * @brief Tests whether value is a valid unsigned integer.
+     * @return True if an unsigned integer, false otherwise.
+     */
+    bool isUnsignedInteger() const;
+
+    /**
      * @brief Tests whether value is a valid Real.
      * @return True if a Real, false otherwise.
      */
@@ -391,9 +397,18 @@ namespace PLEXIL
     /**
      * @brief Get value as an integer.
      * @return The integer value.
-     * @note Will cause failed assertion if the value is unknown, a string, or an array.
+     * @note Does NOT check whether value is a valid integer.
+     *       Caller should use the isInteger() method.
      */
     int32_t getIntValue() const;
+
+    /**
+     * @brief Get value as an unsigned integer.
+     * @return The unsigned integer value.
+     * @note Does NOT check whether value is a valid integer.
+     *       Caller should use the isUnsignedInteger() method.
+     */
+    uint32_t getUIntValue() const;
 
     /**
      * @brief Get value as a floating point number.

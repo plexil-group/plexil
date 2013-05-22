@@ -1779,6 +1779,9 @@ private:
     assertTrue(u.isUnknown());
     assertFalse(u.isString());
     assertFalse(u.isArray());
+    assertFalse(u.isInteger());
+    assertFalse(u.isUnsignedInteger());
+    assertFalse(u.isReal());
 
     // Bool constructor
     const bool b = true;
@@ -1789,12 +1792,26 @@ private:
     assertTrue(b == bv.getBoolValue());
 
     // Int constructor
-    const int32_t i = 42;
+    const int32_t i = -42;
     Value iv(i);
     assertFalse(iv.isUnknown());
     assertFalse(iv.isString());
     assertFalse(iv.isArray());
+    assertFalse(iv.isUnsignedInteger());
+    assertTrue(iv.isInteger());
+    assertTrue(iv.isReal());
     assertTrue(i == iv.getIntValue());
+
+    // Unsigned constructor
+    const uint32_t us = 2147483649;
+    Value uv(us);
+    assertFalse(uv.isUnknown());
+    assertFalse(uv.isString());
+    assertFalse(uv.isArray());
+    assertFalse(uv.isInteger());
+    assertTrue(uv.isUnsignedInteger());
+    assertTrue(uv.isReal());
+    assertTrue(us == uv.getUIntValue());
 
     // Double constructor
     const double d = 3.1415;
@@ -1802,6 +1819,9 @@ private:
     assertFalse(dv.isUnknown());
     assertFalse(dv.isString());
     assertFalse(dv.isArray());
+    assertFalse(dv.isInteger());
+    assertFalse(dv.isUnsignedInteger());
+    assertTrue(dv.isReal());
     assertTrue(d == dv.getDoubleValue());
 
     // LabelStr constructor
@@ -1810,6 +1830,9 @@ private:
     assertFalse(lv.isUnknown());
     assertTrue(lv.isString());
     assertFalse(lv.isArray());
+    assertFalse(lv.isInteger());
+    assertFalse(lv.isUnsignedInteger());
+    assertFalse(lv.isReal());
     assertTrue(l == lv);
 
     // String constructor
@@ -1818,6 +1841,9 @@ private:
     assertFalse(sv.isUnknown());
     assertTrue(sv.isString());
     assertFalse(sv.isArray());
+    assertFalse(sv.isInteger());
+    assertFalse(sv.isUnsignedInteger());
+    assertFalse(sv.isReal());
     assertTrue(s == sv.getStringValue());
 
     // char* constructor
@@ -1826,6 +1852,9 @@ private:
     assertFalse(cv.isUnknown());
     assertTrue(cv.isString());
     assertFalse(cv.isArray());
+    assertFalse(cv.isInteger());
+    assertFalse(cv.isUnsignedInteger());
+    assertFalse(cv.isReal());
     assertTrue(0 == strcmp(c, cv.c_str()));
 
     // StoredArray constructor
@@ -1834,6 +1863,9 @@ private:
     assertFalse(sav.isUnknown());
     assertFalse(sav.isString());
     assertTrue(sav.isArray());
+    assertFalse(sav.isInteger());
+    assertFalse(sav.isUnsignedInteger());
+    assertFalse(sav.isReal());
     assertTrue(sa == sav.getStoredArrayValue());
 
     // Array constructor
@@ -1842,6 +1874,9 @@ private:
     assertFalse(av.isUnknown());
     assertFalse(av.isString());
     assertTrue(av.isArray());
+    assertFalse(av.isInteger());
+    assertFalse(av.isUnsignedInteger());
+    assertFalse(av.isReal());
     assertTrue(a == av.getArrayValue()); 
 
     return true;

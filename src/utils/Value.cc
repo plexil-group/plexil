@@ -423,6 +423,20 @@ namespace PLEXIL
   }
 
   /**
+   * @brief Tests whether value is an integer.
+   * @return True if an integer, false otherwise.
+   */
+  bool Value::isUnsignedInteger() const
+  {
+    // N.B. Unknown check falls out of int32_t range check
+    return !LabelStr::rangeCheck(m_value)
+      && !StoredArray::rangeCheck(m_value)
+      && m_value >= 0
+      && m_value <= std::numeric_limits<uint32_t>::max()
+      && fabs(m_value - ((double) (uint32_t) m_value)) < g_epsilon();
+  }
+
+  /**
    * @brief Tests whether value is a valid Real.
    * @return True if a Real, false otherwise.
    */
@@ -442,6 +456,15 @@ namespace PLEXIL
   int32_t Value::getIntValue() const
   {
     return (int32_t) m_value;
+  }
+
+  /**
+   * @brief Get value as an unsigned integer.
+   * @return The unsigned integer value.
+   */
+  uint32_t Value::getUIntValue() const
+  {
+    return (uint32_t) m_value;
   }
 
   /**
