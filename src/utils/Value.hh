@@ -100,6 +100,14 @@ namespace PLEXIL
     }
 
     /**
+     * @brief Constructor from 32-bit unsigned value.
+     */
+    inline Value(uint32_t val)
+      : m_value((double) val)
+    {
+    }
+
+    /**
      * @brief Constructor from floating point value.
      */
     inline Value(double val)
