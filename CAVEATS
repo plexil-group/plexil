@@ -1,4 +1,66 @@
-This file, plexil/CAVEATS, lists known bugs and issues in the PLEXIL system.
+This file, plexil/CAVEATS, lists known bugs and issues in this version of PLEXIL.
+
+Build: 
+
+  * Note that the build process of this plexil-3 branch is very different from
+    that of the main distribution, and is more complex, to better support
+    cross-platform builds.  Here's a basic comparison:
+
+    Main PLEXIL distribution:
+      - uses basic Makefiles
+      - entire system built by typing 'make' in the top level 'plexil' directory
+
+    This plexil-3 branch:
+      - based on Gnu's automake/autoconf systems, which auto-generate Makefiles
+      - build requires three commands, which must be done in plexil-3/src
+          configure (with options)
+          make 
+	  make install
+
+  * Note that the default installation location for PLEXIL libraries and
+    executables is under /usr/local.  This location might not be writable on
+    your system without root or sudo privelege, and it is not convenient if you
+    use multiple PLEXIL installations.  You can retarget the installation
+    location with the 'prefix' option to 'configure'.  E.g. to have PLEXIL
+    installed in its own installation directory (a useful choice), your
+    'configure' comand may begin like the following.
+
+    ./configure --prefix=/home/smith/plexil-3 ...
+
+  * The following subsystems are NOT built by default (many are built by default
+    in the main distribution): Gantt viewer support, support for module tests,
+    the Plexil Simulator, the Test Executive, the UDP adapter, Robosim, IPC
+    adapter, Plexil compiler, Plexilscript compiler
+
+  * The easiest (and perhaps only) way to properly build and install most of the
+    subsystems listed above is to include them as options in the 'configure'
+    step, which takes place before 'make'.  Type 'configure --help' to see these
+    options, and please read the next below, which is related.
+
+  * The IPC adapter, and thus the applications that use it (Robosim, Plexil
+    Simulator), are NOT supported in this branch.  The IPC adapter needs porting
+    to this build system.  Here's an invocation of 'configure' that includes
+    just the supported PLEXIL systems that are not built by default:
+
+    ./configure --enable-gantt --enable-module-tests --enable-test-exec --enable-udp
+
+  * The Plexil and Plexilscript compilers must be built manually, by changing to
+    their directories (plexil-3/compilers/plexil and
+    plexil-3/compilers/plexilscript, respectively) and typing 'ant'
+
+  * The Plexil example plans and applications (found in plexil-3/examples) are
+    NOT compiled by default.  Plans (.ple files) must be compiled manually (with
+    plexilc) to produce .plx files.  The application directories
+    (examples/sample-app and examples/robosim) must be built by typing 'make' --
+    though note that 'robosim' will not currently build due to the lack of IPC
+    support mentioned above.
+
+  * For the manually-built PLEXIL subystems and applications mentioned above,
+    the dynamic libraries produced (e.g. .dylib files in Mac OS, .so files in
+    Linux) might not be automatically copied to, or linked to from, the
+    directory in which they are expected to be found, which is plexil-3/lib.
+    You may have to make these copies or symbolic links manually.
+
 
 Plexil Viewer: 
 
