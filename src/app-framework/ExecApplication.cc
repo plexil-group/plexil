@@ -102,8 +102,11 @@ namespace PLEXIL
     condDebugMsg(configXml.empty(), "ExecApplication:initialize", " configuration is NULL");
     condDebugMsg(!configXml.empty(), "ExecApplication:initialize", " configuration = " << configXml);
 
-    if (m_state != APP_UNINITED)
+    if (m_state != APP_UNINITED) {
+      debugMsg("ExecApplication:initialize",
+	       " application already initialized");
       return false;
+    }
 
     // Perform one-time initializations
 
@@ -114,12 +117,19 @@ namespace PLEXIL
     initializeExpressions();
 
     // Construct interfaces
-    if (!m_interface.constructInterfaces(configXml))
+    if (! m_interface.constructInterfaces(configXml)) {
+      debugMsg("ExecApplication:initialize",
+	       " construction of interfaces failed");
       return false;
+    }
+    
 
     // Initialize them
-    if (!m_interface.initialize())
+    if (! m_interface.initialize()) {
+      debugMsg("ExecApplication:initialize",
+	       " initialization of interfaces failed");
       return false;
+    }
 
     // Set the application state and return
     return setApplicationState(APP_INITED);
