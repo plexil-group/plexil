@@ -34,40 +34,38 @@
 
 namespace PLEXIL
 {
-  // Provides output from execution useful for debugging a Plexil plan.
+   // Provides output from execution useful for debugging a Plexil plan.
+   class GanttListener : public ExecListener
+   {
+   public:
+      GanttListener() { };
+      GanttListener (const pugi::xml_node& xml) : ExecListener(xml) { };
+      virtual ~GanttListener() { };
 
-  class GanttListener : public ExecListener
-  {
-  public:
+      // These methods have no special function.
+      virtual bool initialize() { return true; }
+      virtual bool start() { return true; }
+      virtual bool stop() { return true; }
+      virtual bool reset() { return true; }
+      virtual bool shutdown() { return true; }
 
-    GanttListener();
-    GanttListener (const pugi::xml_node& xml);
-    virtual ~GanttListener();
+      // Capture and report about useful node state transitions.
+      void implementNotifyNodeTransition (NodeState prevState,
+         const NodeId& node) const;
 
-    // These methods have no special function.
-    virtual bool initialize() { return true; }
-    virtual bool start() { return true; }
-    virtual bool stop() { return true; }
-    virtual bool reset() { return true; }
-    virtual bool shutdown() { return true; }
+      void implementNotifyAddPlan(const PlexilNodeId& plan, 
+         const LabelStr& parent) const;
 
-    // Capture and report about useful node state transitions.
-    void implementNotifyNodeTransition (NodeState prevState,
-                                        const NodeId& node) const;
-
-    void implementNotifyAddPlan(const PlexilNodeId& plan, 
-			     	const LabelStr& parent) const;
-
-
-  private:
-    // Disallow copy, and assignment
-    GanttListener(const GanttListener&);
-    GanttListener& operator= (const GanttListener&);
-  };
+   private:
+      // Disallow copy, and assignment
+      GanttListener(const GanttListener&);
+      GanttListener& operator=(const GanttListener&);
+   };
 }
 
-extern "C" {
-  void initGanttListener();
+extern "C" 
+{
+   void initGanttListener();
 }
 
 
