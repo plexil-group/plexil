@@ -74,6 +74,7 @@ namespace PLEXIL
    // structured approach including listener filters and a different user
    // interface may be in order.
 
+   static string uniqueFileName;
    //nodes
    struct nodeObj {
       string name;
@@ -89,7 +90,25 @@ namespace PLEXIL
       vector<string> localvarsvector;
    };
 
-   static string uniqueFileName;
+   nodeObj createNodeObj(string myId, double myStartValdbl, string myType,
+                         string myVal, string myParent, int actualId,
+                         string myChildren, string myLocalVars,
+                         vector<string> myLocalVariableMapValues)
+   {
+      nodeObj temp;
+      temp.name = myId;
+      temp.start = myStartValdbl;
+      temp.end = -1; //not yet known
+      temp.duration = -1; //not yet known
+      temp.type = myType;
+      temp.val = myVal;
+      temp.parent = myParent;
+      temp.id = actualId;
+      temp.children = myChildren;
+      temp.localvariables = myLocalVars;
+      temp.localvarsvector = myLocalVariableMapValues;
+      return temp;
+   }
 
    /** get the current time for the file name
    * example formatting Aug22_2011_01.28.42PM 
@@ -236,28 +255,15 @@ namespace PLEXIL
    void GanttListener::implementNotifyNodeTransition (NodeState /* prevState */, 
                                                       const NodeId& nodeId) const
    {
-      string myDirectory, plexilGanttDirectory;
+      string myDirectory, plexilGanttDirectory, myHTMLFile;
       string fullTemplate = "var rawPlanTokensFromFile=\n[\n";
-      string myHTMLFile;
-      int index;
       vector<nodeObj> nodes;
       map<NodeId, int> stateMap;
       map<NodeId, int> counterMap;
-      int nodeCounter = 0;
-      int actualId = -1;
-
-      string myId;
-      double myStartValdbl;
-      double myEndValdbl;
-      double myDurationValdbl;
-      string myType;
-      string myVal;
-      string myParent;
-      string myLocalVars;
-      string myChildren;
-
-      string myLocalVarsAfter;
-      int startTime = -1;
+      int index, nodeCounter = 0, actualId = -1, startTime = -1;
+      string myId, myType, myVal, myParent, myLocalVars, myChildren, myLocalVarsAfter;
+      double myStartValdbl, myEndValdbl, myDurationValdbl;
+      
 
       getCurrentWorkingDirectory(myDirectory, plexilGanttDirectory);
       //startTime is when first node executes
@@ -334,19 +340,8 @@ namespace PLEXIL
          string myNumber = ndcntr.str();
 
          //setup nodeObj and add to vector
-         nodeObj temp;
-         temp.name = myId;
-         temp.start = myStartValdbl;
-         temp.end = -1; //not yet known
-         temp.duration = -1; //not yet known
-         temp.type = myType;
-         temp.val = myVal;
-         temp.parent = myParent;
-         temp.id = actualId;
-         temp.children = myChildren;
-         temp.localvariables = myLocalVars;
-         temp.localvarsvector = myLocalVariableMapValues;
-         nodes.push_back(temp);
+         nodes.push_back(createNodeObj(myId, myStartValdbl, myType, myVal, 
+            myParent, actualId, myChildren, myLocalVars, myLocalVariableMapValues));
       }
 
       if(newState == FINISHED_STATE) 
