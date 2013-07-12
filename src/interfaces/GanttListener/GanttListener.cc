@@ -265,7 +265,6 @@ namespace PLEXIL
          startTime = nodeId->getCurrentStateStartTime();
 
       myStartValdbl = -1;
-      myParent = " ";
 
       //get state
       const NodeState& newState = nodeId->getState();
@@ -279,7 +278,7 @@ namespace PLEXIL
 
          if (nodeId->getParent().isId())
            myParent = nodeId->getParent()->getNodeId().toString();
-         if (myParent == " ")
+         else
            myParent = nodeId->getNodeId().toString();
 
          //increase nodeCounter for ID value
@@ -377,7 +376,7 @@ namespace PLEXIL
       string myOutcome = nodeId->getOutcome().getStringValue();
       if (nodeId->getParent().isId())
          myParent = nodeId->getParent()->getNodeId().toString();
-      if(myParent == " ")
+      else
          myParent = nodes[index].name;
 
       string myTypeID;
@@ -522,7 +521,7 @@ namespace PLEXIL
       + myNodeNameLower +
       "."
       + myPredicate +
-      "'\n},\n{\n'name': 'state',\n'type': 'STRING',\n'value': 'ACTIVE'\n},\n{\n'name': 'object',\n'value': 'OBJECT:"
+      "'\n},\n{\n'name': 'state',\n'type': 'STRING',\n'value': 'AgggggggggffffCTIVE'\n},\n{\n'name': 'object',\n'value': 'OBJECT:"
       + myNodeNameReg +
       "(6)'\n},\n{\n'name': 'duration',\n'type': 'INT',\n'value': '"
       + myDurationVal +
