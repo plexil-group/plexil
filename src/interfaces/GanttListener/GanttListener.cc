@@ -75,7 +75,6 @@ namespace PLEXIL
    // interface may be in order.
 
    static string fullTemplate = "empty";
-   static string myCloser = "];";
 
    //nodes
    struct nodeObj {
@@ -109,16 +108,13 @@ namespace PLEXIL
    static string myLocalVarsAfter;
 
    //these values are modified throughout plan execution
-   static double nodeCounter = 0;
-   static double actualId = -1;
+   static int nodeCounter = 0;
+   static int actualId = -1;
    static double startTime = -1;
 
    static int index;
 
-   static string myDirectory;
    static string uniqueFileName;
-   static string plexilDirectory;
-   static string plexilGanttDirectory;
    static string myHTMLFile;
 
    static map<NodeId, int> stateMap;
@@ -143,11 +139,16 @@ namespace PLEXIL
    }
 
    /** get working directory and environment variables **/
-   void getCurrentWorkingDirectory() 
+   void getCurrentWorkingDirectory(string& myDirectory, string& plexilGanttDirectory) 
    {
-      char cCurrentPath[FILENAME_MAX];
-      getcwd(cCurrentPath, FILENAME_MAX);
-      myDirectory = cCurrentPath;
+      char * buffer;
+      if (!(buffer = getcwd(NULL, FILENAME_MAX)))
+         cout << "getcwd error!" << endl;
+      else
+      {
+         myDirectory = buffer;
+         free(buffer);
+      }
 
       /** get PLEXIL_HOME **/
       string pPath;
@@ -159,7 +160,6 @@ namespace PLEXIL
       {
          debugMsg("GanttViewer:printErrors", "PLEXIL_HOME is not defined");
       }
-      plexilDirectory = pPath;
 
       /** get Viewer directory under PLEXIL_HOME **/
       plexilGanttDirectory = pPath + "/viewers/gantt/";
@@ -168,7 +168,7 @@ namespace PLEXIL
    }
 
    /** generate the HTML file at the end of a plan's execution that connects to necessary Javascript and produced JSON **/
-   void createHTMLFile(const string& nodeName) 
+   void createHTMLFile(const string& nodeName, string myDirectory, string plexilGanttDirectory) 
    {
       string tempName = uniqueFileName;
       //uncomment the following line to set filename to the format gantt_MMDD_YYYY_hour.min.sec_nodeName.html
@@ -221,8 +221,9 @@ namespace PLEXIL
    /** generate the JSON tokens file at the end of a plan's execution so 
    that it can be parsed by Javascript in the Viewer **/
    void deliverAsFile(const string& fullTemplate, 
-      const string& myCloser, const string& nodeName) 
+      const string& nodeName, string plexilGanttDirectory) 
    {
+      const string myCloser = "];";
       ofstream myfile;
       uniqueFileName = plexilGanttDirectory + "/json/" +
          uniqueFileName + "_" + nodeName + ".js";
@@ -230,7 +231,7 @@ namespace PLEXIL
       myfile << fullTemplate << myCloser << myHTMLFile;
       myfile.close();
       debugMsg("GanttViewer:printProgress", 
-         "JSON tokens file written to "+uniqueFileName);
+         "JSON tokens file written to " + uniqueFileName);
    }
 
    /** executed when the plan is added 
@@ -242,7 +243,6 @@ namespace PLEXIL
    void GanttListener::implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
                                              const LabelStr& /* parent */) const 
    {
-      getCurrentWorkingDirectory();
       // FIXME: Get time from someplace!
       startTime = 0;
       startTime = (int) startTime;
@@ -266,6 +266,8 @@ namespace PLEXIL
    void GanttListener::implementNotifyNodeTransition (NodeState /* prevState */, 
       const NodeId& nodeId) const
    {
+      string myDirectory, plexilGanttDirectory;
+      getCurrentWorkingDirectory(myDirectory, plexilGanttDirectory);
       //startTime is when first node executes
       if(startTime == -1) 
          startTime = nodeId->getCurrentStateStartTime();
@@ -559,8 +561,8 @@ namespace PLEXIL
       // if it is the last token, create HTML and add the tokens to the js file
       if(myNumber == "1") 
       { 
-         createHTMLFile(myNodeNameLower);
-         deliverAsFile(fullTemplate, myCloser, myNodeNameLower); 
+         createHTMLFile(myNodeNameLower, myDirectory, plexilGanttDirectory);
+         deliverAsFile(fullTemplate, myNodeNameLower, plexilGanttDirectory); 
          debugMsg("GanttViewer:printProgress", 
             "finished gathering data; JSON and HTML stored");
       }
