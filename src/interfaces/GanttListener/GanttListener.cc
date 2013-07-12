@@ -74,8 +74,6 @@ namespace PLEXIL
    // structured approach including listener filters and a different user
    // interface may be in order.
 
-   static string fullTemplate = "empty";
-
    //nodes
    struct nodeObj {
       string name;
@@ -91,34 +89,7 @@ namespace PLEXIL
       vector<string> localvarsvector;
    };
 
-   //all the nodes
-   static vector<nodeObj> nodes;
-
-   //these values get reassigned for each node
-   static string myId;
-   static double myStartValdbl;
-   static double myEndValdbl;
-   static double myDurationValdbl;
-   static string myType;
-   static string myVal;
-   static string myParent;
-   static string myLocalVars;
-   static string myChildren;
-
-   static string myLocalVarsAfter;
-
-   //these values are modified throughout plan execution
-   static int nodeCounter = 0;
-   static int actualId = -1;
-   static double startTime = -1;
-
-   static int index;
-
    static string uniqueFileName;
-   static string myHTMLFile;
-
-   static map<NodeId, int> stateMap;
-   static map<NodeId, int> counterMap;
 
    /** get the current time for the file name
    * example formatting Aug22_2011_01.28.42PM 
@@ -168,8 +139,10 @@ namespace PLEXIL
    }
 
    /** generate the HTML file at the end of a plan's execution that connects to necessary Javascript and produced JSON **/
-   void createHTMLFile(const string& nodeName, string myDirectory, string plexilGanttDirectory) 
+   string createHTMLFile(const string& nodeName, string myDirectory, 
+                         string plexilGanttDirectory) 
    {
+      string myHTMLFile;
       string tempName = uniqueFileName;
       //uncomment the following line to set filename to the format gantt_MMDD_YYYY_hour.min.sec_nodeName.html
       //uniqueFileName = getTime();
@@ -214,14 +187,15 @@ namespace PLEXIL
       myfile.close();
 
       myHTMLFile = "\n \n var myHTMLFilePathString =\"" + htmlFileName + "\";";
-      debugMsg("GanttViewer:printProgress", "HTML file written to "+htmlFileName);
+      debugMsg("GanttViewer:printProgress", "HTML file written to " + htmlFileName);
+      return myHTMLFile;
    }
 
 
    /** generate the JSON tokens file at the end of a plan's execution so 
    that it can be parsed by Javascript in the Viewer **/
-   void deliverAsFile(const string& fullTemplate, 
-      const string& nodeName, string plexilGanttDirectory) 
+   void deliverAsFile(const string& fullTemplate, const string& nodeName, 
+                      string plexilGanttDirectory, string myHTMLFile) 
    {
       const string myCloser = "];";
       ofstream myfile;
@@ -241,18 +215,14 @@ namespace PLEXIL
    *  for use in file name
    **/
    void GanttListener::implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
-                                             const LabelStr& /* parent */) const 
+                                              const LabelStr& /* parent */) const 
    {
       // FIXME: Get time from someplace!
-      startTime = 0;
-      startTime = (int) startTime;
+      int start = 0;
       std::ostringstream uFileName;
       uFileName.precision(10);
-      uFileName << startTime;
+      uFileName << start;
       uniqueFileName = uFileName.str();
-      fullTemplate = "var rawPlanTokensFromFile=\n[\n";
-      //reset startTime; it will be set when first node executes
-      startTime = -1;
       debugMsg("GanttViewer:printProgress", 
          "GanttListener notified of plan; start time for filename set");
    }
@@ -264,19 +234,37 @@ namespace PLEXIL
    *  nodes info is stored in each node's nodeObj struct
    **/
    void GanttListener::implementNotifyNodeTransition (NodeState /* prevState */, 
-      const NodeId& nodeId) const
+                                                      const NodeId& nodeId) const
    {
       string myDirectory, plexilGanttDirectory;
+      string fullTemplate = "var rawPlanTokensFromFile=\n[\n";
+      string myHTMLFile;
+      int index;
+      vector<nodeObj> nodes;
+      map<NodeId, int> stateMap;
+      map<NodeId, int> counterMap;
+      int nodeCounter = 0;
+      int actualId = -1;
+
+      string myId;
+      double myStartValdbl;
+      double myEndValdbl;
+      double myDurationValdbl;
+      string myType;
+      string myVal;
+      string myParent;
+      string myLocalVars;
+      string myChildren;
+
+      string myLocalVarsAfter;
+      int startTime = -1;
+
       getCurrentWorkingDirectory(myDirectory, plexilGanttDirectory);
       //startTime is when first node executes
       if(startTime == -1) 
          startTime = nodeId->getCurrentStateStartTime();
 
-      //make sure the temporary variables are cleaned out
-      myId = " ";
       myStartValdbl = -1;
-      myType = " ";
-      myVal = " ";
       myParent = " ";
 
       //get state
@@ -307,11 +295,10 @@ namespace PLEXIL
 
          //get local variables from map in state 'EXECUTING'
          vector<string> myLocalVariableMapValues;
-         myLocalVars = " ";
          vector<string> myLocalVariableMap;
          VariableMap tempLocalVariablesMap = nodeId->getLocalVariablesByName();
          if (tempLocalVariablesMap.empty())
-           myLocalVars = "none";
+            myLocalVars = "none";
          for (VariableMap::iterator it = tempLocalVariablesMap.begin(); 
             it != tempLocalVariablesMap.end(); ++it) 
          {
@@ -327,7 +314,6 @@ namespace PLEXIL
          }
 
          //get child nodes
-         myChildren = " ";
          vector<string> myChildNodes;
          const vector<NodeId>& tempChildList = nodeId->getChildren();
          if (tempChildList.size() == 0) 
@@ -469,7 +455,6 @@ namespace PLEXIL
                fullStrings.push_back(tempFullString);
                }
             }
-            myLocalVarsAfter = " ";
             for(size_t i = 0; i < fullStrings.size(); i++) 
             {
                myLocalVarsAfter += "<br>" + fullStrings[i] + ", ";
@@ -554,15 +539,15 @@ namespace PLEXIL
       "'\n}\n]\n},\n";
 
       //add JSON object to existing array
-      fullTemplate = fullTemplate + newTemplate;
+      fullTemplate += newTemplate;
       debugMsg("GanttViewer:printProgress", 
          "Token added for node "+ myEntity + "." + myPredicate);
 
       // if it is the last token, create HTML and add the tokens to the js file
       if(myNumber == "1") 
       { 
-         createHTMLFile(myNodeNameLower, myDirectory, plexilGanttDirectory);
-         deliverAsFile(fullTemplate, myNodeNameLower, plexilGanttDirectory); 
+         myHTMLFile = createHTMLFile(myNodeNameLower, myDirectory, plexilGanttDirectory);
+         deliverAsFile(fullTemplate, myNodeNameLower, plexilGanttDirectory, myHTMLFile); 
          debugMsg("GanttViewer:printProgress", 
             "finished gathering data; JSON and HTML stored");
       }
