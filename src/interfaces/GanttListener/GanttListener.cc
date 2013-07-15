@@ -90,10 +90,7 @@ namespace PLEXIL
    };
 
    // function prototypes
-   nodeObj createNodeObj(string myId, double myStartValdbl, string myType,
-                         string myVal, string myParent, int actualId,
-                         string myChildren, string myLocalVars,
-                         vector<string> myLocalVariableMapValues);
+   nodeObj createNodeObj(const NodeId& nodeId, int startTime);
    int findNode(const NodeId& nodeId, vector<nodeObj> nodes);
    string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
                                         vector<string>& myLocalVariableMapValues);
@@ -262,54 +259,17 @@ namespace PLEXIL
       string myNodeNameLower, myNumber, newTemplate;
       string fullTemplate = "var rawPlanTokensFromFile=\n[\n";
       vector<nodeObj> nodes;
-      map<NodeId, int> stateMap, counterMap;
-      vector<string> myLocalVariableMapValues;
-      int index, nodeCounter = 0, actualId = -1, startTime = -1;
-      string myId, myType, myVal, myParent, myLocalVars, myChildren;
-      double myStartValdbl;
-      
+      int index, startTime = -1;
 
       getCurrentWorkingDirectory(myDirectory, plexilGanttDirectory);
       //startTime is when first node executes
       if(startTime == -1) 
          startTime = nodeId->getCurrentStateStartTime();
 
-      myStartValdbl = -1;
-
       //get state
       const NodeState& newState = nodeId->getState();
       if(newState == EXECUTING_STATE) 
-      {  
-         myId = nodeId->getNodeId().toString();
-         myStartValdbl= ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
-         myType = nodeId->getType().toString();
-         myVal = nodeId->getStateName().getStringValue();
-         myParent = "none";
-
-         if (nodeId->getParent().isId())
-           myParent = nodeId->getParent()->getNodeId().toString();
-         else
-           myParent = nodeId->getNodeId().toString();
-
-         //increase nodeCounter for ID value
-         nodeCounter += 1;
-         actualId = nodeCounter; //actualId ensures that looping nodes have the same ID for each token
-
-         //determine if a node looping; assign prior ID for loops and a new one for non loops
-         stateMap[nodeId] += 1;
-         if(stateMap[nodeId] > 1) 
-            actualId = counterMap[nodeId];
-         else
-            counterMap[nodeId] = actualId;
-
-         //get local variables from map in state 'EXECUTING'
-         myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
-         myChildren = getChildNode(nodeId); //get child nodes
-
-         //setup nodeObj and add to vector
-         nodes.push_back(createNodeObj(myId, myStartValdbl, myType, myVal, 
-            myParent, actualId, myChildren, myLocalVars, myLocalVariableMapValues));
-      }
+         nodes.push_back(createNodeObj(nodeId, startTime)); //setup nodeObj and add to vector
       if(newState == FINISHED_STATE) 
          index = findNode(nodeId, nodes);
 
@@ -328,12 +288,40 @@ namespace PLEXIL
          myNumber, myDirectory, plexilGanttDirectory);
    }
 
-   nodeObj createNodeObj(string myId, double myStartValdbl, string myType,
-                         string myVal, string myParent, int actualId,
-                         string myChildren, string myLocalVars,
-                         vector<string> myLocalVariableMapValues)
+   nodeObj createNodeObj(const NodeId& nodeId, int startTime)
    {
       nodeObj temp;
+      double myStartValdbl;
+      int nodeCounter = 0, actualId = -1;
+      map<NodeId, int> stateMap, counterMap;
+      string myId, myType, myVal, myParent, myLocalVars, myChildren;
+      vector<string> myLocalVariableMapValues;
+
+      myId = nodeId->getNodeId().toString();
+      myStartValdbl = ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
+      myType = nodeId->getType().toString();
+      myVal = nodeId->getStateName().getStringValue();
+
+      if (nodeId->getParent().isId())
+        myParent = nodeId->getParent()->getNodeId().toString();
+      else
+        myParent = nodeId->getNodeId().toString();
+
+      //increase nodeCounter for ID value
+      nodeCounter += 1;
+      actualId = nodeCounter; //actualId ensures that looping nodes have the same ID for each token
+
+      //determine if a node looping; assign prior ID for loops and a new one for non loops
+      stateMap[nodeId] += 1;
+      if(stateMap[nodeId] > 1) 
+         actualId = counterMap[nodeId];
+      else
+         counterMap[nodeId] = actualId;
+
+      //get local variables from map in state 'EXECUTING'
+      myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
+      myChildren = getChildNode(nodeId); //get child nodes
+
       temp.name = myId;
       temp.start = myStartValdbl;
       temp.end = -1; //not yet known
