@@ -181,40 +181,59 @@ namespace PLEXIL
       string tempName = uniqueFileName;
       //uncomment the following line to set filename to the format gantt_MMDD_YYYY_hour.min.sec_nodeName.html
       //uniqueFileName = getTime();
-      string htmlFileName = myDirectory + "/" + "gantt_" + uniqueFileName + "_" + nodeName + ".html";
+      string htmlFileName = myDirectory + "/" + "gantt_" + uniqueFileName + 
+         "_" + nodeName + ".html";
       string myTokenFileName = "json/" + uniqueFileName + "_" + nodeName + ".js";
       string lineBreak = "\n ";
       string htmlFile = 
-      "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">"+lineBreak+
-      "<html lang=\"en\"> "+lineBreak+
-      "<head> "+lineBreak+
-      "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"> "+lineBreak+
-      "<title>Gantt Temporal Plan Viewer</title> "+lineBreak+
-      "<meta name=\"author\" content=\"By Madan, Isaac A. (ARC-TI); originally authored by Swanson, Keith J. (ARC-TI)\"> "+lineBreak+lineBreak+
-      "<!-- jQuery is required --> "+lineBreak+
-      "<script src=\""+plexilGanttDirectory+"jq/jquery-1.6.2.js\" type=\"text/javascript\"></script> "+lineBreak+
-      "<link type=\"text/css\" href=\""+plexilGanttDirectory+"jq/jquery-ui-1.8.15.custom.css\" rel=\"Stylesheet\" /> "+lineBreak+
-      "<script type=\"text/javascript\" src=\""+plexilGanttDirectory+"jq/jquery-ui-1.8.15.custom.min.js\"></script> "+lineBreak+lineBreak+
-      "<!-- Load data locally --> "+lineBreak+
-      "<script src=\""+plexilGanttDirectory+myTokenFileName+"\" type=\"text/javascript\"></script> "+lineBreak+lineBreak+
-      "<!-- Application code --> "+lineBreak+      
-      "<script src=\""+plexilGanttDirectory+"addons.js\" type=\"text/javascript\"></script> "+lineBreak+
-      "<script src=\""+plexilGanttDirectory+"getAndConvertTokens.js\" type=\"text/javascript\"></script> "+lineBreak+
-      "<script src=\""+plexilGanttDirectory+"showTokens.js\" type=\"text/javascript\"></script> "+lineBreak+
-      "<script src=\""+plexilGanttDirectory+"detailsBox.js\" type=\"text/javascript\"></script> "+lineBreak+
-      "<script src=\""+plexilGanttDirectory+"grid.js\" type=\"text/javascript\"></script> "+lineBreak+
-      "<script src=\""+plexilGanttDirectory+"sizing.js\" type=\"text/javascript\"></script> "+lineBreak+
-      "<script src=\""+plexilGanttDirectory+"main.js\" type=\"text/javascript\"></script> "+lineBreak+
-      "<script src=\""+plexilGanttDirectory+"shortcuts.js\" type=\"text/javascript\"></script> "+lineBreak+lineBreak+
-      "<!-- My styles --> "+lineBreak+
-      "<link rel=\"stylesheet\" href=\""+plexilGanttDirectory+"styles.css\" type=\"text/css\"> "+lineBreak+
-      "</head> \n <body> "+lineBreak+lineBreak+
-      "<!-- Layout --> "+lineBreak+
-      "<div id=\"footer\"></div> "+lineBreak+
-      "<div id=\"mod\"></div> "+lineBreak+
-      "<div id=\"gantt\"></div> "+lineBreak+
-      "</body> "+lineBreak+
-      "</html>";
+         "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 "
+         "Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">"+ lineBreak +
+         "<html lang=\"en\"> " + lineBreak +
+         "<head> " + lineBreak +
+         "<meta http-equiv=\"Content-Type\" "
+         "content=\"text/html; charset=utf-8\"> " + lineBreak +
+         "<title>Gantt Temporal Plan Viewer</title> " + lineBreak +
+         "<meta name=\"author\" content=\"By Madan, Isaac "
+         "A. (ARC-TI); originally authored by "
+         "Swanson, Keith J. (ARC-TI)\"> " + lineBreak + lineBreak +
+         "<!-- jQuery is required --> "+ lineBreak +
+         "<script src=\"" + plexilGanttDirectory + "jq/jquery-1.6.2.js\" "
+         "type=\"text/javascript\"></script> " + lineBreak +
+         "<link type=\"text/css\" href=\"" + plexilGanttDirectory + 
+         "jq/jquery-ui-1.8.15.custom.css\" "
+         "rel=\"Stylesheet\" /> " + lineBreak +
+         "<script type=\"text/javascript\" src=\"" + plexilGanttDirectory +
+         "jq/jquery-ui-1.8.15.custom.min.js\"></script> " + lineBreak+lineBreak +
+         "<!-- Load data locally --> " + lineBreak +
+         "<script src=\"" + plexilGanttDirectory+myTokenFileName + 
+         "\" type=\"text/javascript\"></script> " + lineBreak + lineBreak +
+         "<!-- Application code --> " + lineBreak +      
+         "<script src=\"" + plexilGanttDirectory + 
+         "addons.js\" type=\"text/javascript\"></script> " + lineBreak +
+         "<script src=\"" + plexilGanttDirectory + 
+         "getAndConvertTokens.js\" type=\"text/javascript\"></script> " + lineBreak +
+         "<script src=\"" + plexilGanttDirectory +
+         "showTokens.js\" type=\"text/javascript\"></script> " + lineBreak +
+         "<script src=\"" + plexilGanttDirectory +
+         "detailsBox.js\" type=\"text/javascript\"></script> " + lineBreak +
+         "<script src=\"" + plexilGanttDirectory +
+         "grid.js\" type=\"text/javascript\"></script> " + lineBreak +
+         "<script src=\""+plexilGanttDirectory+
+         "sizing.js\" type=\"text/javascript\"></script> " + lineBreak +
+         "<script src=\"" + plexilGanttDirectory +
+         "main.js\" type=\"text/javascript\"></script> " + lineBreak +
+         "<script src=\"" + plexilGanttDirectory +
+         "shortcuts.js\" type=\"text/javascript\"></script> " + lineBreak + lineBreak +
+         "<!-- My styles --> "+lineBreak+
+         "<link rel=\"stylesheet\" href=\"" + plexilGanttDirectory + 
+         "styles.css\" type=\"text/css\"> " + lineBreak +
+         "</head> \n <body> " + lineBreak + lineBreak +
+         "<!-- Layout --> " + lineBreak +
+         "<div id=\"footer\"></div> " + lineBreak +
+         "<div id=\"mod\"></div> " + lineBreak +
+         "<div id=\"gantt\"></div> " + lineBreak +
+         "</body> " + lineBreak +
+         "</html>";
 
       ofstream myfile;
       myfile.open(htmlFileName.c_str());
@@ -565,7 +584,8 @@ namespace PLEXIL
       "',\n'parameters': [\n{\n'name': 'entityName',\n'type': 'STRING',\n'value':'"
       + myEntity + "'\n},\n{\n'name': 'full type',\n'type': 'STRING',\n'value': '"
       + myNodeNameLower + "." + myPredicate +
-      "'\n},\n{\n'name': 'state',\n'type': 'STRING',\n'value': 'AgggggggggffffCTIVE'\n},\n{\n'name': 'object',\n'value': 'OBJECT:"
+      "'\n},\n{\n'name': 'state',\n'type': 'STRING',\n'value':" 
+      " 'AgggggggggffffCTIVE'\n},\n{\n'name': 'object',\n'value': 'OBJECT:"
       + myNodeNameReg + "(6)'\n},\n{\n'name': 'duration',\n'type': 'INT',\n'value': '"
       + myDurationVal + "'\n},\n{\n'name': 'start',\n'type': 'INT',\n'value': '"
       + myStartVal + "'\n},\n{\n'name': 'end',\n'type': 'INT',\n'value': '"
