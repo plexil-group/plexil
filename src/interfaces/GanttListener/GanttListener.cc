@@ -111,6 +111,7 @@ namespace PLEXIL
                           vector<string> thisLocalVarsVectorValues,
                           vector<string> thisLocalVarsVectorKeys);
    string getFinalLocalVar(vector<nodeObj> nodes, const NodeId& nodeId, int index);
+   void getNodes(vector<nodeObj> & nodes, const NodeId& nodeId, int index, int startTime);
 
    /** get the current time for the file name
    * example formatting Aug22_2011_01.28.42PM 
@@ -258,15 +259,14 @@ namespace PLEXIL
                                                       const NodeId& nodeId) const
    {
       string myDirectory, plexilGanttDirectory, myPredicate, myEntity;
-      string myNodeNameLower, myNumber;
+      string myNodeNameLower, myNumber, newTemplate;
       string fullTemplate = "var rawPlanTokensFromFile=\n[\n";
       vector<nodeObj> nodes;
-      map<NodeId, int> stateMap;
-      map<NodeId, int> counterMap;
+      map<NodeId, int> stateMap, counterMap;
       vector<string> myLocalVariableMapValues;
       int index, nodeCounter = 0, actualId = -1, startTime = -1;
-      string myId, myType, myVal, myParent, myLocalVars, myChildren, myLocalVarsAfter;
-      double myStartValdbl, myEndValdbl, myDurationValdbl;
+      string myId, myType, myVal, myParent, myLocalVars, myChildren;
+      double myStartValdbl;
       
 
       getCurrentWorkingDirectory(myDirectory, plexilGanttDirectory);
@@ -313,24 +313,11 @@ namespace PLEXIL
       if(newState == FINISHED_STATE) 
          index = findNode(nodeId, nodes);
 
-      myEndValdbl = ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
-      myDurationValdbl = myEndValdbl - nodes[index].start;
-      if (nodeId->getParent().isId())
-         myParent = nodeId->getParent()->getNodeId().toString();
-      else
-         myParent = nodes[index].name;
-
-      //get final values for local variables
-      myLocalVarsAfter = getFinalLocalVar(nodes, nodeId, index);
-
-      //add temp values to node
-      nodes[index].end = myEndValdbl;
-      nodes[index].duration = myDurationValdbl;
-      nodes[index].parent = myParent;
-      nodes[index].localvariables = myLocalVarsAfter;
+      // get final info into nodes
+      getNodes(nodes, nodeId, index, startTime);
 
       //add node info into variables for JSON string
-      string newTemplate = createJSONObj(nodes, index, myEntity, 
+      newTemplate = createJSONObj(nodes, index, myEntity, 
          myPredicate, myNodeNameLower, myNumber);
       //add JSON object to existing array
       fullTemplate += newTemplate;
@@ -512,6 +499,28 @@ namespace PLEXIL
             thisLocalVarsVectorValues[i];
       }
       return tempFullString; 
+   }
+
+   void getNodes(vector<nodeObj> & nodes, const NodeId& nodeId, int index, int startTime)
+   {
+      double myEndValdbl, myDurationValdbl;
+      string myParent, myLocalVarsAfter;
+
+      myEndValdbl = ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
+      myDurationValdbl = myEndValdbl - nodes[index].start;
+      if (nodeId->getParent().isId())
+         myParent = nodeId->getParent()->getNodeId().toString();
+      else
+         myParent = nodes[index].name;
+
+      //get final values for local variables
+      myLocalVarsAfter = getFinalLocalVar(nodes, nodeId, index);
+
+      //add temp values to node
+      nodes[index].end = myEndValdbl;
+      nodes[index].duration = myDurationValdbl;
+      nodes[index].parent = myParent;
+      nodes[index].localvariables = myLocalVarsAfter;
    }
 
    string createJSONObj(vector<nodeObj> nodes, int index, string & myEntity, 
