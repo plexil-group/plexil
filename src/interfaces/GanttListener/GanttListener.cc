@@ -107,24 +107,25 @@ namespace PLEXIL
 
    // function prototypes
    NodeObj createNodeObj(const NodeId& nodeId, int startTime);
-   int findNode(const NodeId& nodeId, vector<NodeObj> nodes);
-   string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
-                                        vector<string>& myLocalVariableMapValues);
-   string getChildNode(const NodeId& nodeId);
-   void generateOutputFiles(string myNodeNameLower, string fullTemplate, string nodeIDNum,
-                            string myDirectory, string plexilGanttDirectory);
-   string createJSONObj(vector<NodeObj> nodes, int index, string & myEntity, 
-         string & myPredicate, string & myNodeNameLower, string & myNumber);
-   string boldenFinalString(vector<string> prevLocalVarsVector, 
-                            vector<string> thisLocalVarsVectorValues,
-                            vector<string> thisLocalVarsVectorKeys,
-                            int i);
-   string processLocalVar(string myLocalVarsAfter, 
-                          vector<string> prevLocalVarsVector, 
-                          vector<string> thisLocalVarsVectorValues,
-                          vector<string> thisLocalVarsVectorKeys);
-   string getFinalLocalVar(vector<NodeObj> nodes, const NodeId& nodeId, int index);
-   void getNodes(vector<NodeObj> & nodes, const NodeId& nodeId, int index, int startTime);
+   int findNode(const NodeId& nodeId, vector<NodeObj>& nodes);
+   const string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
+                                              vector<string>& myLocalVariableMapValues);
+   const string getChildNode(const NodeId& nodeId);
+   void generateOutputFiles(const string& myNodeNameLower, const string& fullTemplate, 
+                            const string& nodeIDNum, const string& myDirectory, 
+                            const string& plexilGanttDirectory);
+   const string createJSONObj(vector<NodeObj>& nodes, int index, string& myEntity, 
+                              string& myPredicate, string& myNodeNameLower, 
+                              string& myNumber);
+   const string boldenFinalString(vector<string>& prevLocalVarsVector, 
+                                  vector<string>& thisLocalVarsVectorValues,
+                                  vector<string>& thisLocalVarsVectorKeys,
+                                  int i);
+   const string processLocalVar(vector<string>& prevLocalVarsVector, 
+                                vector<string>& thisLocalVarsVectorValues,
+                                vector<string>& thisLocalVarsVectorKeys);
+   const string getFinalLocalVar(vector<NodeObj>& nodes, const NodeId& nodeId, int index);
+   void getNodes(vector<NodeObj>& nodes, const NodeId& nodeId, int index, int startTime);
 
    /** get the current time for the file name
    * example formatting Aug22_2011_01.28.42PM 
@@ -173,13 +174,15 @@ namespace PLEXIL
          "Current working directory set to " << plexilGanttDirectory);
    }
 
-   /** generate the HTML file at the end of a plan's execution that connects to necessary Javascript and produced JSON **/
+   /** generate the HTML file at the end of a plan's execution 
+   that connects to necessary Javascript and produced JSON **/
    string createHTMLFile(const string& nodeName, string myDirectory, 
                          string plexilGanttDirectory) 
    {
       string myHTMLFile;
       string tempName = uniqueFileName;
-      //uncomment the following line to set filename to the format gantt_MMDD_YYYY_hour.min.sec_nodeName.html
+      //uncomment the following line to set filename to the format 
+      // gantt_MMDD_YYYY_hour.min.sec_nodeName.html
       //uniqueFileName = getTime();
       string htmlFileName = myDirectory + "/" + "gantt_" + uniqueFileName + 
          "_" + nodeName + ".html";
@@ -343,9 +346,11 @@ namespace PLEXIL
 
       //increase nodeCounter for ID value
       nodeCounter += 1;
-      actualId = nodeCounter; //actualId ensures that looping nodes have the same ID for each token
+      actualId = nodeCounter; //actualId ensures that looping nodes 
+                              //have the same ID for each token
 
-      //determine if a node looping; assign prior ID for loops and a new one for non loops
+      //determine if a node looping; assign prior 
+      // ID for loops and a new one for non loops
       stateMap[nodeId] += 1;
       if(stateMap[nodeId] > 1) 
          actualId = counterMap[nodeId];
@@ -363,7 +368,7 @@ namespace PLEXIL
    }
 
    //find the node it corresponds to in nodes vector
-   int findNode(const NodeId& nodeId, vector<NodeObj> nodes)
+   int findNode(const NodeId& nodeId, vector<NodeObj>& nodes)
    {
       string tempId = nodeId->getNodeId().toString();
       string tempType = nodeId->getType().toString();
@@ -386,8 +391,8 @@ namespace PLEXIL
       return index;
    }
 
-   string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
-                                        vector<string>& myLocalVariableMapValues)
+   const string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
+                                              vector<string>& myLocalVariableMapValues)
    {
       string myLocalVars;
       vector<string> myLocalVariableMap;
@@ -400,7 +405,8 @@ namespace PLEXIL
          const std::string& tempNameString = it->first.toString();
          ExpressionId temp = it->second;
          string tempValueString = temp->valueString();
-         string tempString = "<br><i>" + tempNameString + "</i>" + " = " + tempValueString;
+         string tempString = "<br><i>" + tempNameString + "</i>" 
+            + " = " + tempValueString;
          myLocalVariableMapValues.push_back(tempValueString);
          myLocalVariableMap.push_back(tempString);
          //filter out local variables that are 'state' key  or 'UNKNOWN' value
@@ -410,7 +416,7 @@ namespace PLEXIL
       return myLocalVars;
    }
 
-   string getChildNode(const NodeId& nodeId)
+   const string getChildNode(const NodeId& nodeId)
    {
       string myChildren;
       //get child nodes
@@ -431,7 +437,8 @@ namespace PLEXIL
       return myChildren;
    }
 
-   string getFinalLocalVar(vector<NodeObj> nodes, const NodeId& nodeId, int index)
+   const string getFinalLocalVar(vector<NodeObj>& nodes, 
+                                 const NodeId& nodeId, int index)
    {
       string myLocalVarsAfter;
       VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
@@ -451,7 +458,7 @@ namespace PLEXIL
             thisLocalVarsVectorKeys.push_back(it->first.toString());
             thisLocalVarsVectorValues.push_back(temp->valueString());
          }
-         myLocalVarsAfter = processLocalVar(myLocalVarsAfter, prevLocalVarsVector, 
+         myLocalVarsAfter = processLocalVar(prevLocalVarsVector, 
             thisLocalVarsVectorValues, thisLocalVarsVectorKeys);
       }
       else 
@@ -459,14 +466,14 @@ namespace PLEXIL
       return myLocalVarsAfter;
    }
 
-   string processLocalVar(string myLocalVarsAfter, 
-                          vector<string> prevLocalVarsVector, 
-                          vector<string> thisLocalVarsVectorValues, 
-                          vector<string> thisLocalVarsVectorKeys)
+   const string processLocalVar(vector<string>& prevLocalVarsVector, 
+                                vector<string>& thisLocalVarsVectorValues, 
+                                vector<string>& thisLocalVarsVectorKeys)
    {
       //make sure all local variable vectors are filled
       int smallerSize;
       vector<string> fullStrings;
+      string myLocalVarsAfter;
 
       if(prevLocalVarsVector.size() > 1 && 
          thisLocalVarsVectorKeys.size() > 1 && 
@@ -478,7 +485,8 @@ namespace PLEXIL
             smallerSize = thisLocalVarsVectorKeys.size();
          for(int i = 0; i < smallerSize; i++) 
          {
-            //filter out local variables that are UNKNOWN at beginning of execution and at end of execution
+            //filter out local variables that are UNKNOWN at 
+            // beginning of execution and at end of execution
             if(prevLocalVarsVector[i] != "UNKNOWN" || 
                thisLocalVarsVectorValues[i] != "UNKNOWN") 
                fullStrings.push_back(boldenFinalString(prevLocalVarsVector, 
@@ -492,10 +500,10 @@ namespace PLEXIL
       return myLocalVarsAfter;
    }
 
-   string boldenFinalString(vector<string> prevLocalVarsVector, 
-                            vector<string> thisLocalVarsVectorValues, 
-                            vector<string> thisLocalVarsVectorKeys,
-                            int i)
+   const string boldenFinalString(vector<string>& prevLocalVarsVector, 
+                                  vector<string>& thisLocalVarsVectorValues,
+                                  vector<string>& thisLocalVarsVectorKeys,
+                                  int i)
    {
       string tempFullString;
       //bolden final local variable values that changed during execution of node
@@ -515,7 +523,8 @@ namespace PLEXIL
       return tempFullString; 
    }
 
-   void getNodes(vector<NodeObj> & nodes, const NodeId& nodeId, int index, int startTime)
+   void getNodes(vector<NodeObj>& nodes, const NodeId& nodeId, 
+                 int index, int startTime)
    {
       double myEndValdbl, myDurationValdbl;
       string myParent, myLocalVarsAfter;
@@ -537,8 +546,9 @@ namespace PLEXIL
       nodes[index].localvariables = myLocalVarsAfter;
    }
 
-   string createJSONObj(vector<NodeObj> nodes, int index, string & myEntity, 
-                        string & myPredicate, string & myNodeNameLower, string & myNumber)
+   const string createJSONObj(vector<NodeObj>& nodes, int index, string& myEntity, 
+                              string& myPredicate, string& myNodeNameLower, 
+                              string& myNumber)
    {
       /** Some notes
        * myPredicate is this node name (myId)
@@ -546,7 +556,8 @@ namespace PLEXIL
        * myNodeNameLower and myNodeNameReg are parent node name (myParent)
        **/
 
-      //add '[' and ']' before and after duration and start to add uncertainty to those values
+      //add '[' and ']' before and after duration 
+      //and start to add uncertainty to those values
       //setup JSON object to be added to array
       //add node info into variables for JSON string
       myPredicate = nodes[index].name;
@@ -596,14 +607,17 @@ namespace PLEXIL
       return newTemplate;
    }
 
-   void generateOutputFiles(string myNodeNameLower, string fullTemplate, string nodeIDNum, 
-                            string myDirectory, string plexilGanttDirectory)
+   void generateOutputFiles(const string& myNodeNameLower, const string& fullTemplate, 
+                            const string& nodeIDNum, const string& myDirectory, 
+                            const string& plexilGanttDirectory)
    {
       string myHTMLFile;
       if(nodeIDNum == "1") 
       { 
-         myHTMLFile = createHTMLFile(myNodeNameLower, myDirectory, plexilGanttDirectory);
-         deliverAsFile(fullTemplate, myNodeNameLower, plexilGanttDirectory, myHTMLFile); 
+         myHTMLFile = createHTMLFile(myNodeNameLower, myDirectory, 
+            plexilGanttDirectory);
+         deliverAsFile(fullTemplate, myNodeNameLower, 
+            plexilGanttDirectory, myHTMLFile); 
          debugMsg("GanttViewer:printProgress", 
             "finished gathering data; JSON and HTML stored");
       }
