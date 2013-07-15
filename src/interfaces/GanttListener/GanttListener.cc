@@ -75,7 +75,7 @@ namespace PLEXIL
    // interface may be in order.
    static string uniqueFileName;
    //nodes
-   struct nodeObj {
+   struct NodeObj {
       string name;
       double start;
       double end;
@@ -87,17 +87,33 @@ namespace PLEXIL
       string localvariables;
       string children;
       vector<string> localvarsvector;
+      NodeObj (const string& id, double start_val, double end_val,
+               double duration_val, const string& type_id, const string& val_str,
+               const string& parent_str, int id_val, const string& loc_var,
+               const string& child_str, vector<string>& loc_var_vec)
+               : name(id),
+               start(start_val),
+               end(end_val),
+               duration(duration_val),
+               type(type_id),
+               val(val_str),
+               parent(parent_str),
+               id(id_val),
+               localvariables(loc_var),
+               children(child_str),
+               localvarsvector(loc_var_vec)
+            { }
    };
 
    // function prototypes
-   nodeObj createNodeObj(const NodeId& nodeId, int startTime);
-   int findNode(const NodeId& nodeId, vector<nodeObj> nodes);
+   NodeObj createNodeObj(const NodeId& nodeId, int startTime);
+   int findNode(const NodeId& nodeId, vector<NodeObj> nodes);
    string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
                                         vector<string>& myLocalVariableMapValues);
    string getChildNode(const NodeId& nodeId);
    void generateOutputFiles(string myNodeNameLower, string fullTemplate, string nodeIDNum,
                             string myDirectory, string plexilGanttDirectory);
-   string createJSONObj(vector<nodeObj> nodes, int index, string & myEntity, 
+   string createJSONObj(vector<NodeObj> nodes, int index, string & myEntity, 
          string & myPredicate, string & myNodeNameLower, string & myNumber);
    string boldenFinalString(vector<string> prevLocalVarsVector, 
                             vector<string> thisLocalVarsVectorValues,
@@ -107,8 +123,8 @@ namespace PLEXIL
                           vector<string> prevLocalVarsVector, 
                           vector<string> thisLocalVarsVectorValues,
                           vector<string> thisLocalVarsVectorKeys);
-   string getFinalLocalVar(vector<nodeObj> nodes, const NodeId& nodeId, int index);
-   void getNodes(vector<nodeObj> & nodes, const NodeId& nodeId, int index, int startTime);
+   string getFinalLocalVar(vector<NodeObj> nodes, const NodeId& nodeId, int index);
+   void getNodes(vector<NodeObj> & nodes, const NodeId& nodeId, int index, int startTime);
 
    /** get the current time for the file name
    * example formatting Aug22_2011_01.28.42PM 
@@ -250,7 +266,7 @@ namespace PLEXIL
    *  resets the start time so it can be used in temporal calculations,
    *  grabs info from nodes in executing state,
    *  grabs info from nodes in finished state,
-   *  nodes info is stored in each node's nodeObj struct
+   *  nodes info is stored in each node's NodeObj struct
    **/
    void GanttListener::implementNotifyNodeTransition (NodeState /* prevState */, 
                                                       const NodeId& nodeId) const
@@ -258,7 +274,7 @@ namespace PLEXIL
       string myDirectory, plexilGanttDirectory, myPredicate, myEntity;
       string myNodeNameLower, myNumber, newTemplate;
       string fullTemplate = "var rawPlanTokensFromFile=\n[\n";
-      vector<nodeObj> nodes;
+      vector<NodeObj> nodes;
       int index, startTime = -1;
 
       getCurrentWorkingDirectory(myDirectory, plexilGanttDirectory);
@@ -269,7 +285,7 @@ namespace PLEXIL
       //get state
       const NodeState& newState = nodeId->getState();
       if(newState == EXECUTING_STATE) 
-         nodes.push_back(createNodeObj(nodeId, startTime)); //setup nodeObj and add to vector
+         nodes.push_back(createNodeObj(nodeId, startTime)); //setup NodeObj and add to vector
       if(newState == FINISHED_STATE) 
          index = findNode(nodeId, nodes);
 
@@ -288,9 +304,8 @@ namespace PLEXIL
          myNumber, myDirectory, plexilGanttDirectory);
    }
 
-   nodeObj createNodeObj(const NodeId& nodeId, int startTime)
+   NodeObj createNodeObj(const NodeId& nodeId, int startTime)
    {
-      nodeObj temp;
       double myStartValdbl;
       int nodeCounter = 0, actualId = -1;
       map<NodeId, int> stateMap, counterMap;
@@ -322,22 +337,14 @@ namespace PLEXIL
       myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
       myChildren = getChildNode(nodeId); //get child nodes
 
-      temp.name = myId;
-      temp.start = myStartValdbl;
-      temp.end = -1; //not yet known
-      temp.duration = -1; //not yet known
-      temp.type = myType;
-      temp.val = myVal;
-      temp.parent = myParent;
-      temp.id = actualId;
-      temp.children = myChildren;
-      temp.localvariables = myLocalVars;
-      temp.localvarsvector = myLocalVariableMapValues;
+      NodeObj temp(myId, myStartValdbl, -1, -1, myType, myVal, 
+         myParent, actualId, myChildren, myLocalVars, myLocalVariableMapValues);
+
       return temp;
    }
 
    //find the node it corresponds to in nodes vector
-   int findNode(const NodeId& nodeId, vector<nodeObj> nodes)
+   int findNode(const NodeId& nodeId, vector<NodeObj> nodes)
    {
       string tempId = nodeId->getNodeId().toString();
       string tempType = nodeId->getType().toString();
@@ -405,7 +412,7 @@ namespace PLEXIL
       return myChildren;
    }
 
-   string getFinalLocalVar(vector<nodeObj> nodes, const NodeId& nodeId, int index)
+   string getFinalLocalVar(vector<NodeObj> nodes, const NodeId& nodeId, int index)
    {
       string myLocalVarsAfter;
       VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
@@ -489,7 +496,7 @@ namespace PLEXIL
       return tempFullString; 
    }
 
-   void getNodes(vector<nodeObj> & nodes, const NodeId& nodeId, int index, int startTime)
+   void getNodes(vector<NodeObj> & nodes, const NodeId& nodeId, int index, int startTime)
    {
       double myEndValdbl, myDurationValdbl;
       string myParent, myLocalVarsAfter;
@@ -511,7 +518,7 @@ namespace PLEXIL
       nodes[index].localvariables = myLocalVarsAfter;
    }
 
-   string createJSONObj(vector<nodeObj> nodes, int index, string & myEntity, 
+   string createJSONObj(vector<NodeObj> nodes, int index, string & myEntity, 
                         string & myPredicate, string & myNodeNameLower, string & myNumber)
    {
       /** Some notes
