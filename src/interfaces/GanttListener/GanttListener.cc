@@ -103,7 +103,14 @@ namespace PLEXIL
    string createJSONObj(vector<nodeObj> nodes, int index, string & myEntity, 
          string & myPredicate, string & myNodeNameLower, string & myNumber);
    string boldenFinalString(vector<string> prevLocalVarsVector, 
-                            vector<string> thisLocalVarsVectorValues);
+                            vector<string> thisLocalVarsVectorValues,
+                            vector<string> thisLocalVarsVectorKeys,
+                            int i);
+   string processLocalVar(string myLocalVarsAfter, 
+                          vector<string> prevLocalVarsVector, 
+                          vector<string> thisLocalVarsVectorValues,
+                          vector<string> thisLocalVarsVectorKeys);
+   string getFinalLocalVar(vector<nodeObj> nodes, const NodeId& nodeId, int index);
 
    /** get the current time for the file name
    * example formatting Aug22_2011_01.28.42PM 
@@ -308,80 +315,13 @@ namespace PLEXIL
 
       myEndValdbl = ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
       myDurationValdbl = myEndValdbl - nodes[index].start;
-      //doesn't exist until node is finished     
-      string myOutcome = nodeId->getOutcome().getStringValue();
       if (nodeId->getParent().isId())
          myParent = nodeId->getParent()->getNodeId().toString();
       else
          myParent = nodes[index].name;
 
-      string myTypeID;
-
       //get final values for local variables
-      if(nodes[index].localvariables != "none" && nodes[index].localvarsvector.size() > 0) 
-      {
-         vector<string> prevLocalVarsVector = nodes[index].localvarsvector;
-         vector<string> thisLocalVarsVectorKeys;
-         vector<string> thisLocalVarsVectorValues;
-         vector<string> fullStrings;
-
-         VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
-         if (tempLocalVariableMapAfter.empty())
-            myLocalVarsAfter = "none";
-         for (VariableMap::iterator it = tempLocalVariableMapAfter.begin(); 
-            it != tempLocalVariableMapAfter.end(); it++) 
-         {
-            ExpressionId temp = it->second;
-            string tempValueString = temp->valueString();
-            thisLocalVarsVectorKeys.push_back(it->first.toString());
-            thisLocalVarsVectorValues.push_back(tempValueString);
-         }
-
-         //first local variable key should always be state; this makes sure it is
-         int myCount = 0;
-         while(thisLocalVarsVectorKeys.size() > prevLocalVarsVector.size() && 
-            thisLocalVarsVectorKeys[myCount] != "state") 
-         {
-            prevLocalVarsVector.insert(prevLocalVarsVector.begin(), "UNKNOWN");
-            myCount++;
-         }
-
-         //first local VALUE should always be 'EXECUTING' (or maybe 'FINISHED'); this makes sure it is
-         myCount = 0;
-         while(prevLocalVarsVector.size() > thisLocalVarsVectorKeys.size() && 
-            prevLocalVarsVector[myCount] != "EXECUTING" && 
-            prevLocalVarsVector[myCount] != "FINISHED") 
-         {
-            prevLocalVarsVector.erase(prevLocalVarsVector.begin());
-            myCount++;
-         }
-
-         //make sure all local variable vectors are filled
-         if(prevLocalVarsVector.size() > 1 && 
-            thisLocalVarsVectorKeys.size() > 1 && 
-            thisLocalVarsVectorValues.size() > 1) 
-         {
-            int smallerSize;
-            if(prevLocalVarsVector.size() < thisLocalVarsVectorKeys.size())  
-               smallerSize = prevLocalVarsVector.size();
-            else 
-               smallerSize = thisLocalVarsVectorKeys.size();
-            for(int i = 0; i < smallerSize; i++) 
-            {
-               //filter out local variables that are UNKNOWN at beginning of execution and at end of execution
-               if(prevLocalVarsVector[i] != "UNKNOWN" || 
-                  thisLocalVarsVectorValues[i] != "UNKNOWN") 
-                  fullStrings.push_back(boldenFinalString(prevLocalVarsVector, 
-                     thisLocalVarsVectorValues, thisLocalVarsVectorKeys, i));
-            }
-            for(size_t i = 0; i < fullStrings.size(); i++)
-               myLocalVarsAfter += "<br>" + fullStrings[i] + ", ";
-         }
-         else 
-            myLocalVarsAfter = "none";
-      }
-      else 
-         myLocalVarsAfter = "none";
+      myLocalVarsAfter = getFinalLocalVar(nodes, nodeId, index);
 
       //add temp values to node
       nodes[index].end = myEndValdbl;
@@ -490,6 +430,67 @@ namespace PLEXIL
       return myChildren;
    }
 
+   string getFinalLocalVar(vector<nodeObj> nodes, const NodeId& nodeId, int index)
+   {
+      string myLocalVarsAfter;
+      VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
+      vector<string> prevLocalVarsVector = nodes[index].localvarsvector;
+      vector<string> thisLocalVarsVectorKeys;
+      vector<string> thisLocalVarsVectorValues;
+
+      if(nodes[index].localvariables != "none" && 
+         nodes[index].localvarsvector.size() > 0) 
+      {
+         if (tempLocalVariableMapAfter.empty())
+            myLocalVarsAfter = "none";
+         for (VariableMap::iterator it = tempLocalVariableMapAfter.begin(); 
+            it != tempLocalVariableMapAfter.end(); it++) 
+         {
+            ExpressionId temp = it->second;
+            thisLocalVarsVectorKeys.push_back(it->first.toString());
+            thisLocalVarsVectorValues.push_back(temp->valueString());
+         }
+         myLocalVarsAfter = processLocalVar(myLocalVarsAfter, prevLocalVarsVector, 
+            thisLocalVarsVectorValues, thisLocalVarsVectorKeys);
+      }
+      else 
+         myLocalVarsAfter = "none";
+      return myLocalVarsAfter;
+   }
+
+   string processLocalVar(string myLocalVarsAfter, 
+                          vector<string> prevLocalVarsVector, 
+                          vector<string> thisLocalVarsVectorValues, 
+                          vector<string> thisLocalVarsVectorKeys)
+   {
+      //make sure all local variable vectors are filled
+      int smallerSize;
+      vector<string> fullStrings;
+
+      if(prevLocalVarsVector.size() > 1 && 
+         thisLocalVarsVectorKeys.size() > 1 && 
+         thisLocalVarsVectorValues.size() > 1) 
+      {
+         if(prevLocalVarsVector.size() < thisLocalVarsVectorKeys.size())  
+            smallerSize = prevLocalVarsVector.size();
+         else 
+            smallerSize = thisLocalVarsVectorKeys.size();
+         for(int i = 0; i < smallerSize; i++) 
+         {
+            //filter out local variables that are UNKNOWN at beginning of execution and at end of execution
+            if(prevLocalVarsVector[i] != "UNKNOWN" || 
+               thisLocalVarsVectorValues[i] != "UNKNOWN") 
+               fullStrings.push_back(boldenFinalString(prevLocalVarsVector, 
+                  thisLocalVarsVectorValues, thisLocalVarsVectorKeys, i));
+         }
+         for(size_t i = 0; i < fullStrings.size(); i++)
+            myLocalVarsAfter += "<br>" + fullStrings[i] + ", ";
+      }
+      else 
+         myLocalVarsAfter = "none";
+      return myLocalVarsAfter;
+   }
+
    string boldenFinalString(vector<string> prevLocalVarsVector, 
                             vector<string> thisLocalVarsVectorValues, 
                             vector<string> thisLocalVarsVectorKeys,
@@ -512,7 +513,7 @@ namespace PLEXIL
       }
       return tempFullString; 
    }
-   
+
    string createJSONObj(vector<nodeObj> nodes, int index, string & myEntity, 
                         string & myPredicate, string & myNodeNameLower, string & myNumber)
    {
