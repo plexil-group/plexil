@@ -84,9 +84,10 @@ function drawGridSection(parentDiv) {
  */
 function drawGridLines(gridSection) {
 	// configuration
-	var numGridLines	= GRID_SETTINGS.maxTimeIncrements + 1; // +1 since we start drawing at zero
+	var numGridLines = GRID_SETTINGS.maxTimeIncrements + 1; // +1 since we start drawing at zero
+	//console.log(numGridLines);
 	//8/2/11 Isaac
-	numGridLines = GRID_SETTINGS.maxTimeIncrements + 1;
+	//numGridLines = GRID_SETTINGS.maxTimeIncrements + 1;
 	//numGridLines = plexilscaling * GRID_SETTINGS.maxTimeIncrements + 1;
 	var width = getPixelsPerTimeIncrement();
 	//var width			= GRID_SETTINGS.pixelsPerTimeIncrement;
@@ -99,17 +100,28 @@ function drawGridLines(gridSection) {
 
 	gridLines = $("<div class='gridLines'></div>").appendTo(gridSection);
 
-	// also create individual vertical grid line divs
-	for (var i=0; i<numGridLines; i++) {
+    // also create major vertical grid line divs
+	for (var i = 0; i < numGridLines; i += 10) {
 		line = $("<div class='gridLine'></div>");
 		line.css("left", width * i);
 		$(gridLines).append(line);	
-		if ((i > 0) && ((i % 10) === 0)) {
-			line.addClass("majorGridLine");
-		} else {
-			line.addClass("minorGridLine");
-		} 
+		if (i > 0) {
+		 	line.addClass("majorGridLine");
+		}
 	}
+
+	// old slower implementation below
+	// // also create individual vertical grid line divs
+	// for (var i = 0; i < numGridLines; i++) {
+	// 	line = $("<div class='gridLine'></div>");
+	// 	line.css("left", width * i);
+	// 	$(gridLines).append(line);	
+	// 	if ((i > 0) && ((i % 10) === 0)) {
+	// 		line.addClass("majorGridLine");
+	// 	} else {
+	// 		line.addClass("minorGridLine");
+	// 	} 
+	// }
 }
 
 function drawGridHeader() {
