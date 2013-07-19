@@ -26,22 +26,26 @@
 * By Madan, Isaac A.
 */
 
+extern "C" 
+{
+   #include <stdio.h>  // extern "C"
+   #include <stdlib.h>
+   #include <time.h>
+}
+
 #include <iomanip> // for setprecision
-#include "GanttListener.hh"
-#include "Node.hh"
-#include "Debug.hh"
-#include "ExecListenerFactory.hh"
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <cmath>
-#include <stdio.h>
-#include <stdlib.h>
-#include "ExecDefs.hh"
-#include <time.h>
 #include <ctime>
 #include <map>
 
+#include "GanttListener.hh"
+#include "Node.hh"
+#include "Debug.hh"
+#include "ExecDefs.hh"
+#include "ExecListenerFactory.hh"
 #include "AdapterFactory.hh"
 #include "CoreExpressions.hh"
 #include "AdapterExecInterface.hh"
@@ -104,28 +108,6 @@ namespace PLEXIL
                localvarsvector(loc_var_vec)
             { }
    };
-
-   // function prototypes
-   NodeObj createNodeObj(const NodeId& nodeId, int startTime);
-   int findNode(const NodeId& nodeId, vector<NodeObj>& nodes);
-   const string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
-                                              vector<string>& myLocalVariableMapValues);
-   const string getChildNode(const NodeId& nodeId);
-   void generateOutputFiles(const string& myNodeNameLower, const string& fullTemplate, 
-                            const string& nodeIDNum, const string& myDirectory, 
-                            const string& plexilGanttDirectory);
-   const string createJSONObj(vector<NodeObj>& nodes, int index, string& myEntity, 
-                              string& myPredicate, string& myNodeNameLower, 
-                              string& myNumber);
-   const string boldenFinalString(vector<string>& prevLocalVarsVector, 
-                                  vector<string>& thisLocalVarsVectorValues,
-                                  vector<string>& thisLocalVarsVectorKeys,
-                                  int i);
-   const string processLocalVar(vector<string>& prevLocalVarsVector, 
-                                vector<string>& thisLocalVarsVectorValues,
-                                vector<string>& thisLocalVarsVectorKeys);
-   const string getFinalLocalVar(vector<NodeObj>& nodes, const NodeId& nodeId, int index);
-   void getNodes(vector<NodeObj>& nodes, const NodeId& nodeId, int index, int startTime);
 
    /** get the current time for the file name
    * example formatting Aug22_2011_01.28.42PM 
@@ -265,65 +247,50 @@ namespace PLEXIL
          "JSON tokens file written to " + uniqueFileName);
    }
 
-   /** executed when the plan is added 
-   *  gets the current directory and environment variables, 
-   *  sets the header of the template,
-   *  sets the start time of the plan's execution
-   *  for use in file name
-   **/
-   void GanttListener::implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
-                                              const LabelStr& /* parent */) const 
+   string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
+                                        vector<string>& myLocalVariableMapValues)
    {
-      // FIXME: Get time from someplace!
-      int start = 0;
-      std::ostringstream uFileName;
-      uFileName.precision(10);
-      uFileName << start;
-      uniqueFileName = uFileName.str();
-      debugMsg("GanttViewer:printProgress", 
-         "GanttListener notified of plan; start time for filename set");
+      string myLocalVars;
+      vector<string> myLocalVariableMap;
+      VariableMap tempLocalVariablesMap = nodeId->getLocalVariablesByName();
+      if (tempLocalVariablesMap.empty())
+         myLocalVars = "none";
+      for (VariableMap::iterator it = tempLocalVariablesMap.begin(); 
+         it != tempLocalVariablesMap.end(); ++it) 
+      {
+         const std::string& tempNameString = it->first.toString();
+         ExpressionId temp = it->second;
+         string tempValueString = temp->valueString();
+         string tempString = "<br><i>" + tempNameString + "</i>" 
+            + " = " + tempValueString;
+         myLocalVariableMapValues.push_back(tempValueString);
+         myLocalVariableMap.push_back(tempString);
+         //filter out local variables that are 'state' key  or 'UNKNOWN' value
+         if (tempNameString != "state" && tempValueString != "UNKNOWN")
+            myLocalVars = myLocalVars + tempString + ", ";
+      }
+      return myLocalVars;
    }
 
-   /** executed when nodes transition state
-   *  resets the start time so it can be used in temporal calculations,
-   *  grabs info from nodes in executing state,
-   *  grabs info from nodes in finished state,
-   *  nodes info is stored in each node's NodeObj struct
-   **/
-   void GanttListener::implementNotifyNodeTransition (NodeState /* prevState */, 
-                                                      const NodeId& nodeId) const
+   string getChildNode(const NodeId& nodeId)
    {
-      string myDirectory, plexilGanttDirectory, myPredicate, myEntity;
-      string myNodeNameLower, myNumber, newTemplate;
-      string fullTemplate = "var rawPlanTokensFromFile=\n[\n";
-      vector<NodeObj> nodes;
-      int index, startTime = -1;
-
-      getCurrentWorkingDirectory(myDirectory, plexilGanttDirectory);
-      //startTime is when first node executes
-      if(startTime == -1) 
-         startTime = nodeId->getCurrentStateStartTime();
-
-      //get state
-      const NodeState& newState = nodeId->getState();
-      if(newState == EXECUTING_STATE) 
-         nodes.push_back(createNodeObj(nodeId, startTime)); //setup NodeObj and add to vector
-      if(newState == FINISHED_STATE) 
-         index = findNode(nodeId, nodes);
-
-      // get final info into nodes
-      getNodes(nodes, nodeId, index, startTime);
-
-      //add node info into variables for JSON string
-      newTemplate = createJSONObj(nodes, index, myEntity, 
-         myPredicate, myNodeNameLower, myNumber);
-      //add JSON object to existing array
-      fullTemplate += newTemplate;
-      debugMsg("GanttViewer:printProgress", 
-         "Token added for node "+ myEntity + "." + myPredicate);
-
-      generateOutputFiles(myNodeNameLower, fullTemplate, 
-         myNumber, myDirectory, plexilGanttDirectory);
+      string myChildren;
+      //get child nodes
+      //   vector<string> myChildNodes; // really needed?
+      const vector<NodeId>& tempChildList = nodeId->getChildren();
+      if (tempChildList.size() == 0) 
+         myChildren = "none";
+      else
+      {
+         for (vector<NodeId>::const_iterator i = tempChildList.begin(); 
+            i != tempChildList.end(); i++) 
+         {
+            string tempString = ((NodeId) *i)->getNodeId().toString();
+            //myChildNodes.push_back(tempString);
+            myChildren += tempString + ", ";
+         }
+      }
+      return myChildren;
    }
 
    NodeObj createNodeObj(const NodeId& nodeId, int startTime)
@@ -391,164 +358,25 @@ namespace PLEXIL
       return index;
    }
 
-   const string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
-                                              vector<string>& myLocalVariableMapValues)
+   void generateOutputFiles(const string& myNodeNameLower, const string& fullTemplate, 
+                            const string& nodeIDNum, const string& myDirectory, 
+                            const string& plexilGanttDirectory)
    {
-      string myLocalVars;
-      vector<string> myLocalVariableMap;
-      VariableMap tempLocalVariablesMap = nodeId->getLocalVariablesByName();
-      if (tempLocalVariablesMap.empty())
-         myLocalVars = "none";
-      for (VariableMap::iterator it = tempLocalVariablesMap.begin(); 
-         it != tempLocalVariablesMap.end(); ++it) 
-      {
-         const std::string& tempNameString = it->first.toString();
-         ExpressionId temp = it->second;
-         string tempValueString = temp->valueString();
-         string tempString = "<br><i>" + tempNameString + "</i>" 
-            + " = " + tempValueString;
-         myLocalVariableMapValues.push_back(tempValueString);
-         myLocalVariableMap.push_back(tempString);
-         //filter out local variables that are 'state' key  or 'UNKNOWN' value
-         if (tempNameString != "state" && tempValueString != "UNKNOWN")
-            myLocalVars = myLocalVars + tempString + ", ";
+      string myHTMLFile;
+      if(nodeIDNum == "1") 
+      { 
+         myHTMLFile = createHTMLFile(myNodeNameLower, myDirectory, 
+            plexilGanttDirectory);
+         deliverAsFile(fullTemplate, myNodeNameLower, 
+            plexilGanttDirectory, myHTMLFile); 
+         debugMsg("GanttViewer:printProgress", 
+            "finished gathering data; JSON and HTML stored");
       }
-      return myLocalVars;
    }
 
-   const string getChildNode(const NodeId& nodeId)
-   {
-      string myChildren;
-      //get child nodes
-   //   vector<string> myChildNodes; // really needed?
-      const vector<NodeId>& tempChildList = nodeId->getChildren();
-      if (tempChildList.size() == 0) 
-         myChildren = "none";
-      else
-      {
-         for (vector<NodeId>::const_iterator i = tempChildList.begin(); 
-            i != tempChildList.end(); i++) 
-         {
-            string tempString = ((NodeId) *i)->getNodeId().toString();
-            //myChildNodes.push_back(tempString);
-            myChildren += tempString + ", ";
-         }
-      }
-      return myChildren;
-   }
-
-   const string getFinalLocalVar(vector<NodeObj>& nodes, 
-                                 const NodeId& nodeId, int index)
-   {
-      string myLocalVarsAfter;
-      VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
-      vector<string> prevLocalVarsVector = nodes[index].localvarsvector;
-      vector<string> thisLocalVarsVectorKeys;
-      vector<string> thisLocalVarsVectorValues;
-
-      if(nodes[index].localvariables != "none" && 
-         nodes[index].localvarsvector.size() > 0) 
-      {
-         if (tempLocalVariableMapAfter.empty())
-            myLocalVarsAfter = "none";
-         for (VariableMap::iterator it = tempLocalVariableMapAfter.begin(); 
-            it != tempLocalVariableMapAfter.end(); it++) 
-         {
-            ExpressionId temp = it->second;
-            thisLocalVarsVectorKeys.push_back(it->first.toString());
-            thisLocalVarsVectorValues.push_back(temp->valueString());
-         }
-         myLocalVarsAfter = processLocalVar(prevLocalVarsVector, 
-            thisLocalVarsVectorValues, thisLocalVarsVectorKeys);
-      }
-      else 
-         myLocalVarsAfter = "none";
-      return myLocalVarsAfter;
-   }
-
-   const string processLocalVar(vector<string>& prevLocalVarsVector, 
-                                vector<string>& thisLocalVarsVectorValues, 
-                                vector<string>& thisLocalVarsVectorKeys)
-   {
-      //make sure all local variable vectors are filled
-      int smallerSize;
-      vector<string> fullStrings;
-      string myLocalVarsAfter;
-
-      if(prevLocalVarsVector.size() > 1 && 
-         thisLocalVarsVectorKeys.size() > 1 && 
-         thisLocalVarsVectorValues.size() > 1) 
-      {
-         if(prevLocalVarsVector.size() < thisLocalVarsVectorKeys.size())  
-            smallerSize = prevLocalVarsVector.size();
-         else 
-            smallerSize = thisLocalVarsVectorKeys.size();
-         for(int i = 0; i < smallerSize; i++) 
-         {
-            //filter out local variables that are UNKNOWN at 
-            // beginning of execution and at end of execution
-            if(prevLocalVarsVector[i] != "UNKNOWN" || 
-               thisLocalVarsVectorValues[i] != "UNKNOWN") 
-               fullStrings.push_back(boldenFinalString(prevLocalVarsVector, 
-                  thisLocalVarsVectorValues, thisLocalVarsVectorKeys, i));
-         }
-         for(size_t i = 0; i < fullStrings.size(); i++)
-            myLocalVarsAfter += "<br>" + fullStrings[i] + ", ";
-      }
-      else 
-         myLocalVarsAfter = "none";
-      return myLocalVarsAfter;
-   }
-
-   const string boldenFinalString(vector<string>& prevLocalVarsVector, 
-                                  vector<string>& thisLocalVarsVectorValues,
-                                  vector<string>& thisLocalVarsVectorKeys,
-                                  int i)
-   {
-      string tempFullString;
-      //bolden final local variable values that changed during execution of node
-      if(prevLocalVarsVector[i] != thisLocalVarsVectorValues[i]) 
-      {
-         tempFullString = "<i>" +  
-            thisLocalVarsVectorKeys[i] + "</i>" + " = " + 
-            prevLocalVarsVector[i] + " --><strong><font color=\"blue\"> " + 
-            thisLocalVarsVectorValues[i] + "</strong></font>";
-      }
-      else 
-      {
-         tempFullString = "<i>" +  thisLocalVarsVectorKeys[i] + 
-            "</i>" + " = " + prevLocalVarsVector[i] + " --> " + 
-            thisLocalVarsVectorValues[i];
-      }
-      return tempFullString; 
-   }
-
-   void getNodes(vector<NodeObj>& nodes, const NodeId& nodeId, 
-                 int index, int startTime)
-   {
-      double myEndValdbl, myDurationValdbl;
-      string myParent, myLocalVarsAfter;
-
-      myEndValdbl = ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
-      myDurationValdbl = myEndValdbl - nodes[index].start;
-      if (nodeId->getParent().isId())
-         myParent = nodeId->getParent()->getNodeId().toString();
-      else
-         myParent = nodes[index].name;
-
-      //get final values for local variables
-      myLocalVarsAfter = getFinalLocalVar(nodes, nodeId, index);
-
-      //add temp values to node
-      nodes[index].end = myEndValdbl;
-      nodes[index].duration = myDurationValdbl;
-      nodes[index].parent = myParent;
-      nodes[index].localvariables = myLocalVarsAfter;
-   }
-
-   const string createJSONObj(vector<NodeObj>& nodes, int index, string& myEntity, 
-                              string& myPredicate, string& myNodeNameLower, 
-                              string& myNumber)
+   string createJSONObj(vector<NodeObj>& nodes, int index, string& myEntity, 
+                        string& myPredicate, string& myNodeNameLower, 
+                        string& myNumber)
    {
       /** Some notes
        * myPredicate is this node name (myId)
@@ -607,20 +435,173 @@ namespace PLEXIL
       return newTemplate;
    }
 
-   void generateOutputFiles(const string& myNodeNameLower, const string& fullTemplate, 
-                            const string& nodeIDNum, const string& myDirectory, 
-                            const string& plexilGanttDirectory)
+   string boldenFinalString(vector<string>& prevLocalVarsVector, 
+                            vector<string>& thisLocalVarsVectorValues,
+                            vector<string>& thisLocalVarsVectorKeys,
+                            int i)
    {
-      string myHTMLFile;
-      if(nodeIDNum == "1") 
-      { 
-         myHTMLFile = createHTMLFile(myNodeNameLower, myDirectory, 
-            plexilGanttDirectory);
-         deliverAsFile(fullTemplate, myNodeNameLower, 
-            plexilGanttDirectory, myHTMLFile); 
-         debugMsg("GanttViewer:printProgress", 
-            "finished gathering data; JSON and HTML stored");
+      string tempFullString;
+      //bolden final local variable values that changed during execution of node
+      if(prevLocalVarsVector[i] != thisLocalVarsVectorValues[i]) 
+      {
+         tempFullString = "<i>" +  
+            thisLocalVarsVectorKeys[i] + "</i>" + " = " + 
+            prevLocalVarsVector[i] + " --><strong><font color=\"blue\"> " + 
+            thisLocalVarsVectorValues[i] + "</strong></font>";
       }
+      else 
+      {
+         tempFullString = "<i>" +  thisLocalVarsVectorKeys[i] + 
+            "</i>" + " = " + prevLocalVarsVector[i] + " --> " + 
+            thisLocalVarsVectorValues[i];
+      }
+      return tempFullString; 
+   }
+
+   string processLocalVar(vector<string>& prevLocalVarsVector, 
+                          vector<string>& thisLocalVarsVectorValues, 
+                          vector<string>& thisLocalVarsVectorKeys)
+   {
+      //make sure all local variable vectors are filled
+      int smallerSize;
+      vector<string> fullStrings;
+      string myLocalVarsAfter;
+
+      if(prevLocalVarsVector.size() > 1 && 
+         thisLocalVarsVectorKeys.size() > 1 && 
+         thisLocalVarsVectorValues.size() > 1) 
+      {
+         if(prevLocalVarsVector.size() < thisLocalVarsVectorKeys.size())  
+            smallerSize = prevLocalVarsVector.size();
+         else 
+            smallerSize = thisLocalVarsVectorKeys.size();
+         for(int i = 0; i < smallerSize; i++) 
+         {
+            //filter out local variables that are UNKNOWN at 
+            // beginning of execution and at end of execution
+            if(prevLocalVarsVector[i] != "UNKNOWN" || 
+               thisLocalVarsVectorValues[i] != "UNKNOWN") 
+               fullStrings.push_back(boldenFinalString(prevLocalVarsVector, 
+                  thisLocalVarsVectorValues, thisLocalVarsVectorKeys, i));
+         }
+         for(size_t i = 0; i < fullStrings.size(); i++)
+            myLocalVarsAfter += "<br>" + fullStrings[i] + ", ";
+      }
+      else 
+         myLocalVarsAfter = "none";
+      return myLocalVarsAfter;
+   }
+
+   string getFinalLocalVar(vector<NodeObj>& nodes, const NodeId& nodeId, int index)
+   {
+      string myLocalVarsAfter;
+      VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
+      vector<string> prevLocalVarsVector = nodes[index].localvarsvector;
+      vector<string> thisLocalVarsVectorKeys;
+      vector<string> thisLocalVarsVectorValues;
+
+      if(nodes[index].localvariables != "none" && 
+         nodes[index].localvarsvector.size() > 0) 
+      {
+         if (tempLocalVariableMapAfter.empty())
+            myLocalVarsAfter = "none";
+         for (VariableMap::iterator it = tempLocalVariableMapAfter.begin(); 
+            it != tempLocalVariableMapAfter.end(); it++) 
+         {
+            ExpressionId temp = it->second;
+            thisLocalVarsVectorKeys.push_back(it->first.toString());
+            thisLocalVarsVectorValues.push_back(temp->valueString());
+         }
+         myLocalVarsAfter = processLocalVar(prevLocalVarsVector, 
+            thisLocalVarsVectorValues, thisLocalVarsVectorKeys);
+      }
+      else 
+         myLocalVarsAfter = "none";
+      return myLocalVarsAfter;
+   }
+
+   void getNodes(vector<NodeObj>& nodes, const NodeId& nodeId, 
+                 int index, int startTime)
+   {
+      double myEndValdbl, myDurationValdbl;
+      string myParent, myLocalVarsAfter;
+
+      myEndValdbl = ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
+      myDurationValdbl = myEndValdbl - nodes[index].start;
+      if (nodeId->getParent().isId())
+         myParent = nodeId->getParent()->getNodeId().toString();
+      else
+         myParent = nodes[index].name;
+
+      //get final values for local variables
+      myLocalVarsAfter = getFinalLocalVar(nodes, nodeId, index);
+
+      //add temp values to node
+      nodes[index].end = myEndValdbl;
+      nodes[index].duration = myDurationValdbl;
+      nodes[index].parent = myParent;
+      nodes[index].localvariables = myLocalVarsAfter;
+   }
+
+   /** executed when the plan is added 
+   *  gets the current directory and environment variables, 
+   *  sets the header of the template,
+   *  sets the start time of the plan's execution
+   *  for use in file name
+   **/
+   void GanttListener::implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
+                                              const LabelStr& /* parent */) const 
+   {
+      // FIXME: Get time from someplace!
+      int start = 0;
+      std::ostringstream uFileName;
+      uFileName.precision(10);
+      uFileName << start;
+      uniqueFileName = uFileName.str();
+      debugMsg("GanttViewer:printProgress", 
+         "GanttListener notified of plan; start time for filename set");
+   }
+
+   /** executed when nodes transition state
+   *  resets the start time so it can be used in temporal calculations,
+   *  grabs info from nodes in executing state,
+   *  grabs info from nodes in finished state,
+   *  nodes info is stored in each node's NodeObj struct
+   **/
+   void GanttListener::implementNotifyNodeTransition (NodeState /* prevState */, 
+                                                      const NodeId& nodeId) const
+   {
+      string myDirectory, plexilGanttDirectory, myPredicate, myEntity;
+      string myNodeNameLower, myNumber, newTemplate;
+      string fullTemplate = "var rawPlanTokensFromFile=\n[\n";
+      vector<NodeObj> nodes;
+      int index, startTime = -1;
+
+      getCurrentWorkingDirectory(myDirectory, plexilGanttDirectory);
+      //startTime is when first node executes
+      if(startTime == -1) 
+         startTime = nodeId->getCurrentStateStartTime();
+
+      //get state
+      const NodeState& newState = nodeId->getState();
+      if(newState == EXECUTING_STATE) 
+         nodes.push_back(createNodeObj(nodeId, startTime)); //setup NodeObj and add to vector
+      if(newState == FINISHED_STATE) 
+         index = findNode(nodeId, nodes);
+
+      // get final info into nodes
+      getNodes(nodes, nodeId, index, startTime);
+
+      //add node info into variables for JSON string
+      newTemplate = createJSONObj(nodes, index, myEntity, 
+         myPredicate, myNodeNameLower, myNumber);
+      //add JSON object to existing array
+      fullTemplate += newTemplate;
+      debugMsg("GanttViewer:printProgress", 
+         "Token added for node "+ myEntity + "." + myPredicate);
+
+      generateOutputFiles(myNodeNameLower, fullTemplate, 
+         myNumber, myDirectory, plexilGanttDirectory);
    }
 
    extern "C" 

@@ -42,13 +42,6 @@ namespace PLEXIL
       GanttListener (const pugi::xml_node& xml) : ExecListener(xml) { };
       virtual ~GanttListener() { };
 
-      // These methods have no special function.
-      virtual bool initialize() { return true; }
-      virtual bool start() { return true; }
-      virtual bool stop() { return true; }
-      virtual bool reset() { return true; }
-      virtual bool shutdown() { return true; }
-
       // Capture and report about useful node state transitions.
       void implementNotifyNodeTransition (NodeState prevState,
          const NodeId& node) const;
