@@ -77,7 +77,7 @@ namespace PLEXIL
    // *executive* and not plans) to display messages of interest.  Later, a more
    // structured approach including listener filters and a different user
    // interface may be in order.
-   static string uniqueFileName;
+
    //nodes
    struct NodeObj {
       string name;
@@ -95,7 +95,7 @@ namespace PLEXIL
                double duration_val, const string& type_id, const string& val_str,
                const string& parent_str, int id_val, const string& loc_var,
                const string& child_str, vector<string>& loc_var_vec)
-               : name(id),
+              : name(id),
                start(start_val),
                end(end_val),
                duration(duration_val),
@@ -106,8 +106,10 @@ namespace PLEXIL
                localvariables(loc_var),
                children(child_str),
                localvarsvector(loc_var_vec)
-            { }
+               { }
    };
+
+   static string uniqueFileName;
 
    /** get the current time for the file name
    * example formatting Aug22_2011_01.28.42PM 
@@ -141,34 +143,33 @@ namespace PLEXIL
 
       /** get PLEXIL_HOME **/
       string pPath;
-      try 
-      {
+      try {
          pPath = getenv ("PLEXIL_HOME");
       }
-      catch (int e)
-      {
+      catch(int e) {
          debugMsg("GanttViewer:printErrors", "PLEXIL_HOME is not defined");
       }
 
       /** get Viewer directory under PLEXIL_HOME **/
       plexilGanttDirectory = pPath + "/viewers/gantt/";
-      debugMsg("GanttViewer:printProgress", 
-         "Current working directory set to " << plexilGanttDirectory);
+      debugMsg("GanttViewer:printProgress", "Current working directory set to " 
+      << plexilGanttDirectory);
    }
 
    /** generate the HTML file at the end of a plan's execution 
    that connects to necessary Javascript and produced JSON **/
-   string createHTMLFile(const string& nodeName, string myDirectory, 
-                         string plexilGanttDirectory) 
+   string createHTMLFile(const string& nodeName, const string& myDirectory, 
+                         const string& plexilGanttDirectory) 
    {
-      string myHTMLFile;
+      string myHTMLFilePath;
       string tempName = uniqueFileName;
-      //uncomment the following line to set filename to the format 
-      // gantt_MMDD_YYYY_hour.min.sec_nodeName.html
+      //uncomment the following line to set filename to the 
+      // format gantt_MMDD_YYYY_hour.min.sec_nodeName.html
       //uniqueFileName = getTime();
-      string htmlFileName = myDirectory + "/" + "gantt_" + uniqueFileName + 
-         "_" + nodeName + ".html";
-      string myTokenFileName = "json/" + uniqueFileName + "_" + nodeName + ".js";
+      string htmlFileName = myDirectory + "/" + 
+         "gantt_" + uniqueFileName + "_" + nodeName + ".html";
+      string myTokenFileName = "json/" + 
+         uniqueFileName + "_" + nodeName + ".js";
       string lineBreak = "\n ";
       string htmlFile = 
          "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 "
@@ -225,26 +226,25 @@ namespace PLEXIL
       myfile << htmlFile;
       myfile.close();
 
-      myHTMLFile = "\n \n var myHTMLFilePathString =\"" + htmlFileName + "\";";
-      debugMsg("GanttViewer:printProgress", "HTML file written to " + htmlFileName);
-      return myHTMLFile;
+      myHTMLFilePath = "\n \n var myHTMLFilePathString =\"" + htmlFileName + "\";";
+      debugMsg("GanttViewer:printProgress", "HTML file written to "+htmlFileName);
+      return myHTMLFilePath;
    }
-
-
-   /** generate the JSON tokens file at the end of a plan's execution so 
-   that it can be parsed by Javascript in the Viewer **/
-   void deliverAsFile(const string& fullTemplate, const string& nodeName, 
-                      string plexilGanttDirectory, string myHTMLFile) 
+     
+   /** generate the JSON tokens file at the end of a plan's 
+   execution so that it can be parsed by Javascript in the Viewer **/
+   void deliverJSONAsFile(const string& fullTemplate, const string& nodeName, 
+                          const string& myHTMLFilePath, const string& plexilGanttDirectory) 
    {
       const string myCloser = "];";
       ofstream myfile;
-      uniqueFileName = plexilGanttDirectory + "/json/" +
-         uniqueFileName + "_" + nodeName + ".js";
+      uniqueFileName = plexilGanttDirectory + 
+         "/json/" + uniqueFileName + "_" + nodeName + ".js";
       myfile.open(uniqueFileName.c_str());
-      myfile << fullTemplate << myCloser << myHTMLFile;
+      myfile << fullTemplate << myCloser << myHTMLFilePath;
       myfile.close();
       debugMsg("GanttViewer:printProgress", 
-         "JSON tokens file written to " + uniqueFileName);
+         "JSON tokens file written to "+uniqueFileName);
    }
 
    string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
@@ -267,7 +267,7 @@ namespace PLEXIL
          myLocalVariableMap.push_back(tempString);
          //filter out local variables that are 'state' key  or 'UNKNOWN' value
          if (tempNameString != "state" && tempValueString != "UNKNOWN")
-            myLocalVars = myLocalVars + tempString + ", ";
+            myLocalVars += tempString + ", ";
       }
       return myLocalVars;
    }
@@ -293,13 +293,21 @@ namespace PLEXIL
       return myChildren;
    }
 
-   NodeObj createNodeObj(const NodeId& nodeId, int startTime)
+   NodeObj createNodeObj(const NodeId& nodeId, double& startTime, 
+                         int& nodeCounter, int& actualId, 
+                         map<NodeId, int>& stateMap, 
+                         map<NodeId, int>& counterMap, 
+                         string& myParent)
    {
-      double myStartValdbl;
-      int nodeCounter = 0, actualId = -1;
-      map<NodeId, int> stateMap, counterMap;
-      string myId, myType, myVal, myParent, myLocalVars, myChildren;
       vector<string> myLocalVariableMapValues;
+
+      //make sure the temporary variables are cleaned out
+      string myId;
+      double myStartValdbl = -1;
+      string myType;
+      string myVal = " ";
+      string myLocalVars = " ";
+      string myChildren = " ";
 
       myId = nodeId->getNodeId().toString();
       myStartValdbl = ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
@@ -308,8 +316,9 @@ namespace PLEXIL
 
       if (nodeId->getParent().isId())
         myParent = nodeId->getParent()->getNodeId().toString();
-      else
-        myParent = nodeId->getNodeId().toString();
+      if (myParent == " ") {
+         myParent = nodeId->getNodeId().toString();
+      }
 
       //increase nodeCounter for ID value
       nodeCounter += 1;
@@ -327,6 +336,11 @@ namespace PLEXIL
       //get local variables from map in state 'EXECUTING'
       myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
       myChildren = getChildNode(nodeId); //get child nodes
+
+      //convert actualId to string
+      std::ostringstream ndcntr;
+      ndcntr << actualId;
+      string myNumber = ndcntr.str();
 
       NodeObj temp(myId, myStartValdbl, -1, -1, myType, myVal, 
          myParent, actualId, myChildren, myLocalVars, myLocalVariableMapValues);
@@ -358,83 +372,6 @@ namespace PLEXIL
       return index;
    }
 
-   void generateOutputFiles(const string& myNodeNameLower, const string& fullTemplate, 
-                            const string& nodeIDNum, const string& myDirectory, 
-                            const string& plexilGanttDirectory)
-   {
-      string myHTMLFile;
-      if(nodeIDNum == "1") 
-      { 
-         myHTMLFile = createHTMLFile(myNodeNameLower, myDirectory, 
-            plexilGanttDirectory);
-         deliverAsFile(fullTemplate, myNodeNameLower, 
-            plexilGanttDirectory, myHTMLFile); 
-         debugMsg("GanttViewer:printProgress", 
-            "finished gathering data; JSON and HTML stored");
-      }
-   }
-
-   string createJSONObj(vector<NodeObj>& nodes, int index, string& myEntity, 
-                        string& myPredicate, string& myNodeNameLower, 
-                        string& myNumber)
-   {
-      /** Some notes
-       * myPredicate is this node name (myId)
-       * myEntity is this node type (myType)
-       * myNodeNameLower and myNodeNameReg are parent node name (myParent)
-       **/
-
-      //add '[' and ']' before and after duration 
-      //and start to add uncertainty to those values
-      //setup JSON object to be added to array
-      //add node info into variables for JSON string
-      myPredicate = nodes[index].name;
-      myEntity = nodes[index].type;
-      myNodeNameLower = nodes[index].parent;
-      string myNodeNameReg = nodes[index].parent;
-      string myNewVal = nodes[index].val;
-      string myChildrenVal = nodes[index].children;
-      string myLocalVarsVal = nodes[index].localvariables;
-
-      //get rid of extra comma and space at end
-      if(myChildrenVal != "none")
-         myChildrenVal.erase(myChildrenVal.end() - 2);
-      if(myLocalVarsVal != "none")
-         myLocalVarsVal.erase(myLocalVarsVal.end() - 2);
-
-      //convert node id number, start time, end time, and duration to strings
-      std::ostringstream ndcntr;
-      ndcntr << nodes[index].id;
-      myNumber = ndcntr.str();
-
-      std::ostringstream strs;
-      strs << nodes[index].start;
-      string myStartVal = strs.str();
-
-      std::ostringstream strs2;
-      strs2 << nodes[index].end;
-      string myEndVal = strs2.str();
-
-      std::ostringstream strs3;
-      strs3 << nodes[index].duration;
-      string myDurationVal = strs3.str();
-      string newTemplate = "{\n'id': "
-      + myNumber + ",\n'type':'" + myPredicate +
-      "',\n'parameters': [\n{\n'name': 'entityName',\n'type': 'STRING',\n'value':'"
-      + myEntity + "'\n},\n{\n'name': 'full type',\n'type': 'STRING',\n'value': '"
-      + myNodeNameLower + "." + myPredicate +
-      "'\n},\n{\n'name': 'state',\n'type': 'STRING',\n'value':" 
-      " 'AgggggggggffffCTIVE'\n},\n{\n'name': 'object',\n'value': 'OBJECT:"
-      + myNodeNameReg + "(6)'\n},\n{\n'name': 'duration',\n'type': 'INT',\n'value': '"
-      + myDurationVal + "'\n},\n{\n'name': 'start',\n'type': 'INT',\n'value': '"
-      + myStartVal + "'\n},\n{\n'name': 'end',\n'type': 'INT',\n'value': '"
-      + myEndVal + "'\n},\n{\n'name': 'value',\n'type': 'INT',\n'value': '"
-      + myNewVal + "'\n},\n{\n'name': 'children',\n'type': 'INT',\n'value': '"
-      + myChildrenVal + "'\n},\n{\n'name': 'localvariables',\n'type': 'INT',\n'value': '"
-      + myLocalVarsVal + "'\n}\n]\n},\n";
-      return newTemplate;
-   }
-
    string boldenFinalString(vector<string>& prevLocalVarsVector, 
                             vector<string>& thisLocalVarsVectorValues,
                             vector<string>& thisLocalVarsVectorKeys,
@@ -458,14 +395,14 @@ namespace PLEXIL
       return tempFullString; 
    }
 
-   string processLocalVar(vector<string>& prevLocalVarsVector, 
-                          vector<string>& thisLocalVarsVectorValues, 
-                          vector<string>& thisLocalVarsVectorKeys)
+   void processLocalVar(vector<string>& prevLocalVarsVector, 
+                        vector<string>& thisLocalVarsVectorValues, 
+                        vector<string>& thisLocalVarsVectorKeys,
+                        string& myLocalVarsAfter)
    {
       //make sure all local variable vectors are filled
       int smallerSize;
       vector<string> fullStrings;
-      string myLocalVarsAfter;
 
       if(prevLocalVarsVector.size() > 1 && 
          thisLocalVarsVectorKeys.size() > 1 && 
@@ -489,12 +426,11 @@ namespace PLEXIL
       }
       else 
          myLocalVarsAfter = "none";
-      return myLocalVarsAfter;
    }
 
-   string getFinalLocalVar(vector<NodeObj>& nodes, const NodeId& nodeId, int index)
+   void getFinalLocalVar(vector<NodeObj>& nodes, const NodeId& nodeId, 
+                         int index, string& myLocalVarsAfter)
    {
-      string myLocalVarsAfter;
       VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
       vector<string> prevLocalVarsVector = nodes[index].localvarsvector;
       vector<string> thisLocalVarsVectorKeys;
@@ -512,37 +448,141 @@ namespace PLEXIL
             thisLocalVarsVectorKeys.push_back(it->first.toString());
             thisLocalVarsVectorValues.push_back(temp->valueString());
          }
-         myLocalVarsAfter = processLocalVar(prevLocalVarsVector, 
-            thisLocalVarsVectorValues, thisLocalVarsVectorKeys);
+         processLocalVar(prevLocalVarsVector, thisLocalVarsVectorValues, 
+            thisLocalVarsVectorKeys, myLocalVarsAfter);
       }
       else 
          myLocalVarsAfter = "none";
-      return myLocalVarsAfter;
    }
 
-   void getNodes(vector<NodeObj>& nodes, const NodeId& nodeId, 
-                 int index, int startTime)
+   void processTempValsForNode(vector<NodeObj>& nodes, const NodeId& nodeId, 
+                               int index, double startTime, double& myEndValdbl,
+                               double& myDurationValdbl, string& myParent, 
+                               string& myLocalVarsAfter)
    {
-      double myEndValdbl, myDurationValdbl;
-      string myParent, myLocalVarsAfter;
-
-      myEndValdbl = ((nodeId->getCurrentStateStartTime()) - startTime) * 100;
+      myEndValdbl = ((nodeId->getCurrentStateStartTime()) - startTime)*100;
       myDurationValdbl = myEndValdbl - nodes[index].start;
-      if (nodeId->getParent().isId())
+      //doesn't exist until node is finished     
+      string myOutcome = nodeId->getOutcome().getStringValue();
+      if (nodeId->getParent().isId()) {
          myParent = nodeId->getParent()->getNodeId().toString();
-      else
+      }
+      if(myParent == " ") {
          myParent = nodes[index].name;
-
+      }
       //get final values for local variables
-      myLocalVarsAfter = getFinalLocalVar(nodes, nodeId, index);
+      getFinalLocalVar(nodes, nodeId, index, myLocalVarsAfter);
+   }
 
+   void prepareDataForJSONObj(vector<NodeObj>& nodes, int index, double& myEndValdbl,
+                              double& myDurationValdbl, const string& myParent,
+                              const string& myLocalVarsAfter, string& myPredicate,
+                              string& myEntity, string& myNodeNameLower,
+                              string& myNodeNameReg, string& myNewVal, 
+                              string& myChildrenVal, string& myLocalVarsVal, 
+                              string& myNumber, string& myStartVal, string& myEndVal,
+                              string& myDurationVal)
+   {
       //add temp values to node
       nodes[index].end = myEndValdbl;
       nodes[index].duration = myDurationValdbl;
       nodes[index].parent = myParent;
       nodes[index].localvariables = myLocalVarsAfter;
+
+      //add node info into variables for JSON string
+      myPredicate = nodes[index].name;
+      myEntity = nodes[index].type;
+      myNodeNameLower = nodes[index].parent;
+      myNodeNameReg = nodes[index].parent;
+      myNewVal = nodes[index].val;
+      myChildrenVal = nodes[index].children;
+      myLocalVarsVal = nodes[index].localvariables;
+   
+      //get rid of extra comma and space at end
+      if(myChildrenVal != "none") {
+         myChildrenVal.erase(myChildrenVal.end()-2);
+      }
+      if(myLocalVarsVal != "none") {
+         myLocalVarsVal.erase(myLocalVarsVal.end()-2);
+      }
+
+      //convert node id number, start time, end time, and duration to strings
+      std::ostringstream ndcntr;
+      ndcntr << nodes[index].id;
+      myNumber = ndcntr.str();
+
+      std::ostringstream strs;
+      strs << nodes[index].start;
+      myStartVal = strs.str();
+
+      std::ostringstream strs2;
+      strs2 << nodes[index].end;
+      myEndVal = strs2.str();
+
+      std::ostringstream strs3;
+      strs3 << nodes[index].duration;
+      myDurationVal = strs3.str();
    }
 
+   string produceSingleJSONObj(const string& myPredicate, const string& myEntity, 
+                               const string& myNodeNameLower, const string& myNodeNameReg, 
+                               const string& myNewVal, const string& myChildrenVal, 
+                               const string& myLocalVarsVal, const string& myNumber, 
+                               const string& myStartVal, const string& myEndVal,
+                               const string& myDurationVal)
+   {
+      /** Some notes
+      * myPredicate is this node name (myId)
+      * myEntity is this node type (myType)
+      * myNodeNameLower and myNodeNameReg are parent node name (myParent)
+      **/
+
+      //add '[' and ']' before and after duration and start to add uncertainty to those values
+      //setup JSON object to be added to array
+      string newTemplate = "{\n'id': "
+         +myNumber+
+         ",\n'type':'"
+         +myPredicate+
+         "',\n'parameters': [\n{\n'name': 'entityName',\n'type': 'STRING',\n'value':'"
+         +myEntity+
+         "'\n},\n{\n'name': 'full type',\n'type': 'STRING',\n'value': '"
+         +myNodeNameLower+
+         "."
+         +myPredicate+
+         "'\n},\n{\n'name': 'state',\n'type': 'STRING',\n'value':"
+         " 'ACTIVE'\n},\n{\n'name': 'object',\n'value': 'OBJECT:"
+         +myNodeNameReg+
+         "(6)'\n},\n{\n'name': 'duration',\n'type': 'INT',\n'value': '"
+         +myDurationVal+
+         "'\n},\n{\n'name': 'start',\n'type': 'INT',\n'value': '"
+         +myStartVal+
+         "'\n},\n{\n'name': 'end',\n'type': 'INT',\n'value': '"
+         +myEndVal+
+         "'\n},\n{\n'name': 'value',\n'type': 'INT',\n'value': '"
+         +myNewVal+
+         "'\n},\n{\n'name': 'children',\n'type': 'INT',\n'value': '"
+         +myChildrenVal+
+         "'\n},\n{\n'name': 'localvariables',\n'type': 'INT',\n'value': '"
+         +myLocalVarsVal+
+         "'\n}\n]\n},\n";
+      return newTemplate;
+   }
+
+   void generateFinalOutputFiles(const string& myNodeNameLower, const string& fullTemplate, 
+                                 const string& nodeIDNum, const string& myDirectory, 
+                                 const string& plexilGanttDirectory)
+   {
+      string myHTMLFilePath;
+      if(nodeIDNum == "1") 
+      { 
+         myHTMLFilePath = createHTMLFile(myNodeNameLower, myDirectory, 
+            plexilGanttDirectory);
+         deliverJSONAsFile(fullTemplate, myNodeNameLower, 
+            myHTMLFilePath, plexilGanttDirectory); 
+         debugMsg("GanttViewer:printProgress", 
+            "finished gathering data; JSON and HTML stored");
+      }
+   }   
    /** executed when the plan is added 
    *  gets the current directory and environment variables, 
    *  sets the header of the template,
@@ -558,6 +598,7 @@ namespace PLEXIL
       uFileName.precision(10);
       uFileName << start;
       uniqueFileName = uFileName.str();
+      //reset startTime; it will be set when first node executes
       debugMsg("GanttViewer:printProgress", 
          "GanttListener notified of plan; start time for filename set");
    }
@@ -568,46 +609,67 @@ namespace PLEXIL
    *  grabs info from nodes in finished state,
    *  nodes info is stored in each node's NodeObj struct
    **/
-   void GanttListener::implementNotifyNodeTransition (NodeState /* prevState */, 
-                                                      const NodeId& nodeId) const
+   void GanttListener::implementNotifyNodeTransition(NodeState /* prevState */, 
+                                                     const NodeId& nodeId) const
    {
-      string myDirectory, plexilGanttDirectory, myPredicate, myEntity;
-      string myNodeNameLower, myNumber, newTemplate;
-      string fullTemplate = "var rawPlanTokensFromFile=\n[\n";
-      vector<NodeObj> nodes;
-      int index, startTime = -1;
+      string myDirectory, plexilGanttDirectory;
+      string myPredicate, myEntity, myNodeNameLower, myNodeNameReg, myNewVal;
+      string myChildrenVal, myLocalVarsVal, myNumber, myStartVal, myEndVal;
+      string myDurationVal;
+      int index;
+      static double startTime = -1;
+      static vector<NodeObj> nodes;
+      static string fullTemplate = "var rawPlanTokensFromFile=\n[\n";        
+      static map<NodeId, int> stateMap;
+      static map<NodeId, int> counterMap;
+      static int nodeCounter = 0;
+
+      //make sure the temporary variables are cleaned out
+      double myEndValdbl, myDurationValdbl;
+      string myParent = " ";
+      string myLocalVarsAfter;
+      int actualId = -1;
 
       getCurrentWorkingDirectory(myDirectory, plexilGanttDirectory);
+      
       //startTime is when first node executes
-      if(startTime == -1) 
+      if(startTime == -1) {
          startTime = nodeId->getCurrentStateStartTime();
+      }
 
       //get state
       const NodeState& newState = nodeId->getState();
-      if(newState == EXECUTING_STATE) 
-         nodes.push_back(createNodeObj(nodeId, startTime)); //setup NodeObj and add to vector
-      if(newState == FINISHED_STATE) 
+      if(newState == EXECUTING_STATE) {  
+         //setup NodeObj and add to vector
+         nodes.push_back(createNodeObj(nodeId, startTime, 
+            nodeCounter, actualId, stateMap, counterMap, myParent));
+      }
+
+      if(newState == FINISHED_STATE) {
+         //find the node it corresponds to in nodes vector
          index = findNode(nodeId, nodes);
+         processTempValsForNode(nodes, nodeId, index, startTime, myEndValdbl,
+            myDurationValdbl, myParent, myLocalVarsAfter); 
+         //add temp values to node
+         prepareDataForJSONObj(nodes, index, myEndValdbl, myDurationValdbl, myParent,
+            myLocalVarsAfter, myPredicate, myEntity, myNodeNameLower, myNodeNameReg, myNewVal,
+            myChildrenVal, myLocalVarsVal, myNumber, myStartVal, myEndVal, myDurationVal);
 
-      // get final info into nodes
-      getNodes(nodes, nodeId, index, startTime);
-
-      //add node info into variables for JSON string
-      newTemplate = createJSONObj(nodes, index, myEntity, 
-         myPredicate, myNodeNameLower, myNumber);
-      //add JSON object to existing array
-      fullTemplate += newTemplate;
-      debugMsg("GanttViewer:printProgress", 
-         "Token added for node "+ myEntity + "." + myPredicate);
-
-      generateOutputFiles(myNodeNameLower, fullTemplate, 
-         myNumber, myDirectory, plexilGanttDirectory);
+         //add JSON object to existing array
+         fullTemplate += produceSingleJSONObj(myPredicate, myEntity, myNodeNameLower,
+            myNodeNameReg, myNewVal, myChildrenVal, myLocalVarsVal, myNumber, myStartVal, 
+            myEndVal, myDurationVal);
+         debugMsg("GanttViewer:printProgress", 
+            "Token added for node "+myEntity+"."+myPredicate);
+  
+         // if it is the last token, create HTML and add the tokens to the js file
+         generateFinalOutputFiles(myNodeNameLower, fullTemplate, 
+            myNumber, myDirectory, plexilGanttDirectory);
+      }
    }
 
-   extern "C" 
-   {
-      void initGanttListener() 
-      {
+   extern "C" {
+      void initGanttListener() {
          REGISTER_EXEC_LISTENER(GanttListener, "GanttListener");
       }
    }
