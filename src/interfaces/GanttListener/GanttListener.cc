@@ -162,11 +162,10 @@ namespace PLEXIL
                          const string& plexilGanttDirectory) 
    {
       string myHTMLFilePath;
-      string tempName = uniqueFileName;
       //uncomment the following line to set filename to the 
       // format gantt_MMDD_YYYY_hour.min.sec_nodeName.html
       //uniqueFileName = getTime();
-      string htmlFileName = myDirectory + "/" + 
+      static const string htmlFileName = myDirectory + "/" + 
          "gantt_" + uniqueFileName + "_" + nodeName + ".html";
       string myTokenFileName = "json/" + 
          uniqueFileName + "_" + nodeName + ".js";
@@ -225,9 +224,10 @@ namespace PLEXIL
       myfile.open(htmlFileName.c_str());
       myfile << htmlFile;
       myfile.close();
-
+      
       myHTMLFilePath = "\n \n var myHTMLFilePathString =\"" + htmlFileName + "\";";
       debugMsg("GanttViewer:printProgress", "HTML file written to "+htmlFileName);
+      
       return myHTMLFilePath;
    }
      
@@ -238,13 +238,13 @@ namespace PLEXIL
    {
       const string myCloser = "];";
       ofstream myfile;
-      uniqueFileName = plexilGanttDirectory + 
-         "/json/" + uniqueFileName + "_" + nodeName + ".js";
-      myfile.open(uniqueFileName.c_str());
+      static const string outputFileName = plexilGanttDirectory + 
+         "json/" + uniqueFileName + "_" + nodeName + ".js";
+      myfile.open(outputFileName.c_str());
       myfile << fullTemplate << myCloser << myHTMLFilePath;
       myfile.close();
       debugMsg("GanttViewer:printProgress", 
-         "JSON tokens file written to "+uniqueFileName);
+         "JSON tokens file written to "+ outputFileName);
    }
 
    string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
@@ -568,11 +568,24 @@ namespace PLEXIL
       return newTemplate;
    }
 
+   void generateTempOutputFiles(const string& myNodeNameLower, const string& fullTemplate, 
+                                const string& myDirectory, const string& plexilGanttDirectory)
+   {
+      string myHTMLFilePath;
+      myHTMLFilePath = createHTMLFile(myNodeNameLower, myDirectory, 
+         plexilGanttDirectory);
+      deliverJSONAsFile(fullTemplate, myNodeNameLower, 
+         myHTMLFilePath, plexilGanttDirectory); 
+      debugMsg("GanttViewer:printProgress", 
+         "finished gathering data; JSON and HTML stored");
+   }
+
    void generateFinalOutputFiles(const string& myNodeNameLower, const string& fullTemplate, 
                                  const string& nodeIDNum, const string& myDirectory, 
                                  const string& plexilGanttDirectory)
    {
       string myHTMLFilePath;
+   
       if(nodeIDNum == "1") 
       { 
          myHTMLFilePath = createHTMLFile(myNodeNameLower, myDirectory, 
@@ -659,12 +672,14 @@ namespace PLEXIL
          fullTemplate += produceSingleJSONObj(myPredicate, myEntity, myNodeNameLower,
             myNodeNameReg, myNewVal, myChildrenVal, myLocalVarsVal, myNumber, myStartVal, 
             myEndVal, myDurationVal);
-         debugMsg("GanttViewer:printProgress", 
-            "Token added for node "+myEntity+"."+myPredicate);
-  
-         // if it is the last token, create HTML and add the tokens to the js file
+         // generate temporary HTML and JSON files if the plan is loop or stuck
+         generateTempOutputFiles(nodes[0].name, fullTemplate, myDirectory,
+            plexilGanttDirectory);
+         // if it is the last token, create final HTML and add the tokens to the js file
          generateFinalOutputFiles(myNodeNameLower, fullTemplate, 
             myNumber, myDirectory, plexilGanttDirectory);
+         debugMsg("GanttViewer:printProgress", 
+            "Token added for node "+myEntity+"."+myPredicate);
       }
    }
 
