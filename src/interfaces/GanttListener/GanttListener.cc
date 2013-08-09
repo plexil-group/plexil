@@ -636,6 +636,7 @@ namespace PLEXIL
       static map<NodeId, int> stateMap;
       static map<NodeId, int> counterMap;
       static int nodeCounter = 0;
+      static string rootName;
 
       //make sure the temporary variables are cleaned out
       double myEndValdbl, myDurationValdbl;
@@ -674,7 +675,8 @@ namespace PLEXIL
             myEndVal, myDurationVal);   
          // generate temporary HTML and JSON files if the plan is loop or stuck
       //   cout << nodes[0].name << endl;
-         generateTempOutputFiles(nodes[0].name, fullTemplate, myDirectory,
+         rootName = nodes[0].name;
+         generateTempOutputFiles(rootName, fullTemplate, myDirectory,
             plexilGanttDirectory);
          // if it is the last token, create final HTML and add the tokens to the js file
          generateFinalOutputFiles(myNodeNameLower, fullTemplate, 
