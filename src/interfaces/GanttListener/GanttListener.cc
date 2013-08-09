@@ -167,7 +167,7 @@ namespace PLEXIL
       //uniqueFileName = getTime();
       static const string htmlFileName = myDirectory + "/" + 
          "gantt_" + uniqueFileName + "_" + nodeName + ".html";
-      string myTokenFileName = "json/" + 
+      static const string myTokenFileName = "json/" + 
          uniqueFileName + "_" + nodeName + ".js";
       string lineBreak = "\n ";
       string htmlFile = 
@@ -629,7 +629,7 @@ namespace PLEXIL
       string myPredicate, myEntity, myNodeNameLower, myNodeNameReg, myNewVal;
       string myChildrenVal, myLocalVarsVal, myNumber, myStartVal, myEndVal;
       string myDurationVal;
-      int index;
+      static int index;
       static double startTime = -1;
       static vector<NodeObj> nodes;
       static string fullTemplate = "var rawPlanTokensFromFile=\n[\n";        
@@ -659,20 +659,21 @@ namespace PLEXIL
       }
 
       if(newState == FINISHED_STATE) {
-         //find the node it corresponds to in nodes vector
+         // find the node it corresponds to in nodes vector
          index = findNode(nodeId, nodes);
          processTempValsForNode(nodes, nodeId, index, startTime, myEndValdbl,
             myDurationValdbl, myParent, myLocalVarsAfter); 
-         //add temp values to node
+         // add temp values to node
          prepareDataForJSONObj(nodes, index, myEndValdbl, myDurationValdbl, myParent,
             myLocalVarsAfter, myPredicate, myEntity, myNodeNameLower, myNodeNameReg, myNewVal,
             myChildrenVal, myLocalVarsVal, myNumber, myStartVal, myEndVal, myDurationVal);
 
-         //add JSON object to existing array
+         // add JSON object to existing array
          fullTemplate += produceSingleJSONObj(myPredicate, myEntity, myNodeNameLower,
             myNodeNameReg, myNewVal, myChildrenVal, myLocalVarsVal, myNumber, myStartVal, 
-            myEndVal, myDurationVal);
+            myEndVal, myDurationVal);   
          // generate temporary HTML and JSON files if the plan is loop or stuck
+      //   cout << nodes[0].name << endl;
          generateTempOutputFiles(nodes[0].name, fullTemplate, myDirectory,
             plexilGanttDirectory);
          // if it is the last token, create final HTML and add the tokens to the js file
