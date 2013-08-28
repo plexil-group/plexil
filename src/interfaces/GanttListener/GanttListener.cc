@@ -677,7 +677,50 @@ namespace PLEXIL
       {
        //  cout << "Failed here!!!" << endl;
          detected_failing = true;
+         cout << nodeId->getNodeId() << endl;
+         string tempId = nodeId->getNodeId().toString();
+         string tempType = nodeId->getType().toString();
+         string tempParent = "invalid_parent_id";
+         if(nodeId->getParent().isId()) tempParent = nodeId->getParent()->getNodeId().toString();
+         //cout << nodes.size() << endl;
+         for(size_t i=0; i<nodes.size(); i++) 
+         {   
+            if(tempParent != "invalid_parent_id") 
+            {
+               if(tempId==nodes[i].name && tempType==nodes[i].type && 
+                  tempParent==nodes[i].parent) 
+               {
+               //   cout << i << " " << nodes[i].name << " " << nodes[i].type << " " << nodes[i].parent << endl;
+                  index = i;
+               }
+            }
+            else 
+            {
+               if(tempId==nodes[i].name && tempType==nodes[i].type) 
+               {
+               //   cout << "case 2 " << i << " " << nodes[i].name << " " << nodes[i].type << " " << nodes[i].parent << endl;
+                  index = i;
+               }
+            }
+         }
+         cout << index << endl;
+         processTempValsForNode(nodes, nodeId, index, startTime, myEndValdbl,
+            myDurationValdbl, myParent, myLocalVarsAfter); 
+         // add temp values to node
+         prepareDataForJSONObj(nodes, index, myEndValdbl, myDurationValdbl, myParent,
+            myLocalVarsAfter, myPredicate, myEntity, myNodeNameLower, myNodeNameReg, 
+            myNewVal,myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, 
+            myEndVal, myDurationVal);
+
+         // add JSON object to existing array
+         fullTemplate += produceSingleJSONObj(myPredicate, myEntity, myNodeNameLower,
+            myNodeNameReg, myNewVal, myChildrenVal, myLocalVarsVal, myNodeIDString, 
+            myStartVal, myEndVal, myDurationVal);
+
+         generateFinalOutputFiles(nodes, myNodeNameLower, fullTemplate, 
+            myNodeIDString, workingDir, ganttDir);
       }
+
 
       if (!detected_failing) 
       {
