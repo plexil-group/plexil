@@ -439,6 +439,9 @@ namespace PLEXIL
       if (nodeId->getParent().isId()) {
          myParent = nodeId->getParent()->getNodeId().toString();
       }
+      if(myParent == " ") {
+         myParent = nodes[index].name;
+      }
       // if(myParent == " ") {
       //    myParent = nodes[index].name;
       // } // quick way to get rid of duplicated top node
