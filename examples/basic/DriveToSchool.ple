@@ -36,9 +36,9 @@ DriveToSchool:
           DepressClutch: { depress_clutch(); }	      
           TurnKey:  
           {
-            // Ends when car starts or 60 seconds (assumed unit) has passed.
+            // Ends when car starts or 10 seconds (assumed unit) has passed.
             EndCondition Lookup(car_started) ||
-                         Lookup(time, 0.001) >= TurnKey.EXECUTING.START + 60.0;
+                         Lookup(time, 0.001) >= TurnKey.EXECUTING.START + 10.0;
             turn_key();
           }	      	    
         }
