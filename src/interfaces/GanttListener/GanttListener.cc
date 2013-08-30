@@ -465,11 +465,8 @@ namespace PLEXIL
       nodes[index].parent = myParent;
       nodes[index].localvariables = myLocalVarsAfter;
 
-    //  cout << "printing nodes[index].parent: " << index << " " << nodes[index].parent << endl;
-
       //add node info into variables for JSON string
       predicate = nodes[index].name;
-    //  cout << "printing predicate: " << predicate << endl;
       entity = nodes[index].type;
       nodeNameLower = nodes[index].parent;
       nodeNameReg = nodes[index].parent;
@@ -605,6 +602,71 @@ namespace PLEXIL
       }
    }
 
+   void processOutputData(vector<NodeObj>& nodes, const NodeId& nodeId, 
+                          const string& curr_dir, const string& curr_plexil_dir,
+                          double start_time, string& parent)
+   {
+      static string fullTemplate = "var rawPlanTokensFromFile=\n[\n";
+      static string myId, myType, myVal, myLocalVars, myChildren;
+      static double myStartValdbl, myEndValdbl, myDurationValdbl;
+      static string myLocalVarsAfter;
+      static int index;
+
+      string myPredicate, myEntity, myNodeNameLower, myNodeNameReg, myNewVal;
+      string myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, myEndVal;
+      string myDurationVal;
+
+      //make sure the temporary variables are cleaned out
+      myId = " ";
+      myStartValdbl = -1;
+      myType = " ";
+      myVal = " ";
+        // find the node it corresponds to in nodes vector
+      string tempId = nodeId->getNodeId().toString();
+      string tempType = nodeId->getType().toString();
+      string tempParent = "invalid_parent_id";
+      if(nodeId->getParent().isId()) {
+         tempParent = nodeId->getParent()->getNodeId().toString();
+      }
+      //cout << nodes.size() << endl;
+      for(size_t i=0; i<nodes.size(); i++) 
+      {   
+         if(tempParent != "invalid_parent_id") 
+         {
+            if(tempId==nodes[i].name && tempType==nodes[i].type && 
+               tempParent==nodes[i].parent) 
+            {
+               index = i;
+            }
+         }
+         else 
+         {
+            if(tempId==nodes[i].name && tempType==nodes[i].type) 
+            {
+               index = i;
+            }
+         }
+      }
+
+      processTempValsForNode(nodes, nodeId, index, start_time, myEndValdbl,
+         myDurationValdbl, parent, myLocalVarsAfter); 
+      // add temp values to node
+      prepareDataForJSONObj(nodes, index, myEndValdbl, myDurationValdbl, parent,
+         myLocalVarsAfter, myPredicate, myEntity, myNodeNameLower, myNodeNameReg, 
+         myNewVal,myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, 
+         myEndVal, myDurationVal);
+
+      // add JSON object to existing array
+      fullTemplate += produceSingleJSONObj(myPredicate, myEntity, myNodeNameLower,
+         myNodeNameReg, myNewVal, myChildrenVal, myLocalVarsVal, myNodeIDString, 
+         myStartVal, myEndVal, myDurationVal);
+
+      generateFinalOutputFiles(nodes, myNodeNameLower, fullTemplate, 
+         myNodeIDString, curr_dir, curr_plexil_dir);
+
+      debugMsg("GanttViewer:printProgress", "Token added for node " +
+         myEntity + "." + myPredicate);
+   }
 
    /** executed when the plan is added 
    *  gets the current directory and environment variables, 
@@ -635,25 +697,14 @@ namespace PLEXIL
    void GanttListener::implementNotifyNodeTransition(NodeState /* prevState */, 
                                                      const NodeId& nodeId) const
    {
-      static string fullTemplate = "var rawPlanTokensFromFile=\n[\n";
-      static string workingDir, ganttDir;
+      static string workingDir, ganttDir, myParent;
       //all the nodes
       static vector<NodeObj> nodes;
-      //these values get reassigned for each node
-      static string myId, myType, myVal, myParent, myLocalVars, myChildren;
-      static double myStartValdbl, myEndValdbl, myDurationValdbl;
-      static string myLocalVarsAfter;
       //these values are modified throughout plan execution
       static int nodeCounter = 0;
       static int actualId = -1;
       static double startTime = -1;
-      static int index;
       static map<NodeId, int> stateMap, counterMap;
-      static bool detected_failing = false;
-
-      string myPredicate, myEntity, myNodeNameLower, myNodeNameReg, myNewVal;
-      string myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, myEndVal;
-      string myDurationVal;
 
       getCurrentWorkingDirectory(workingDir, ganttDir);
       //startTime is when first node executes
@@ -662,10 +713,6 @@ namespace PLEXIL
       }
 
       //make sure the temporary variables are cleaned out
-      myId = " ";
-      myStartValdbl = -1;
-      myType = " ";
-      myVal = " ";
       myParent = " ";
     
       //get state
@@ -676,110 +723,13 @@ namespace PLEXIL
             nodeCounter, actualId, stateMap, counterMap, myParent));
       }
 
-      if (newState == FAILING_STATE)
+      if (newState == FAILING_STATE || newState == FINISHED_STATE)
       {
-       //  cout << "Failed here!!!" << endl;
-         detected_failing = true;
-         cout << nodeId->getNodeId() << endl;
-         string tempId = nodeId->getNodeId().toString();
-         string tempType = nodeId->getType().toString();
-         string tempParent = "invalid_parent_id";
-         if(nodeId->getParent().isId()) tempParent = nodeId->getParent()->getNodeId().toString();
-         //cout << nodes.size() << endl;
-         for(size_t i=0; i<nodes.size(); i++) 
-         {   
-            if(tempParent != "invalid_parent_id") 
-            {
-               if(tempId==nodes[i].name && tempType==nodes[i].type && 
-                  tempParent==nodes[i].parent) 
-               {
-               //   cout << i << " " << nodes[i].name << " " << nodes[i].type << " " << nodes[i].parent << endl;
-                  index = i;
-               }
-            }
-            else 
-            {
-               if(tempId==nodes[i].name && tempType==nodes[i].type) 
-               {
-               //   cout << "case 2 " << i << " " << nodes[i].name << " " << nodes[i].type << " " << nodes[i].parent << endl;
-                  index = i;
-               }
-            }
-         }
-         cout << index << endl;
-         processTempValsForNode(nodes, nodeId, index, startTime, myEndValdbl,
-            myDurationValdbl, myParent, myLocalVarsAfter); 
-         // add temp values to node
-         prepareDataForJSONObj(nodes, index, myEndValdbl, myDurationValdbl, myParent,
-            myLocalVarsAfter, myPredicate, myEntity, myNodeNameLower, myNodeNameReg, 
-            myNewVal,myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, 
-            myEndVal, myDurationVal);
-
-         // add JSON object to existing array
-         fullTemplate += produceSingleJSONObj(myPredicate, myEntity, myNodeNameLower,
-            myNodeNameReg, myNewVal, myChildrenVal, myLocalVarsVal, myNodeIDString, 
-            myStartVal, myEndVal, myDurationVal);
-
-         generateFinalOutputFiles(nodes, myNodeNameLower, fullTemplate, 
-            myNodeIDString, workingDir, ganttDir);
-      }
-
-
-      if (!detected_failing) 
-      {
-         if(newState == FINISHED_STATE) 
-         {
-            // find the node it corresponds to in nodes vector
-            string tempId = nodeId->getNodeId().toString();
-            string tempType = nodeId->getType().toString();
-            string tempParent = "invalid_parent_id";
-            if(nodeId->getParent().isId()) tempParent = nodeId->getParent()->getNodeId().toString();
-            //cout << nodes.size() << endl;
-            for(size_t i=0; i<nodes.size(); i++) 
-            {   
-               if(tempParent != "invalid_parent_id") 
-               {
-                  if(tempId==nodes[i].name && tempType==nodes[i].type && 
-                     tempParent==nodes[i].parent) 
-                  {
-                  //   cout << i << " " << nodes[i].name << " " << nodes[i].type << " " << nodes[i].parent << endl;
-                     index = i;
-                  }
-               }
-               else 
-               {
-                  if(tempId==nodes[i].name && tempType==nodes[i].type) 
-                  {
-                  //   cout << "case 2 " << i << " " << nodes[i].name << " " << nodes[i].type << " " << nodes[i].parent << endl;
-                     index = i;
-                  }
-               }
-            }
-
-            //cout << tempId <<  " " << tempType << " " <<tempParent << " " << index << endl;
-            //cout << index << endl;
-
-            processTempValsForNode(nodes, nodeId, index, startTime, myEndValdbl,
-               myDurationValdbl, myParent, myLocalVarsAfter); 
-            // add temp values to node
-            prepareDataForJSONObj(nodes, index, myEndValdbl, myDurationValdbl, myParent,
-               myLocalVarsAfter, myPredicate, myEntity, myNodeNameLower, myNodeNameReg, 
-               myNewVal,myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, 
-               myEndVal, myDurationVal);
-
-            // add JSON object to existing array
-            fullTemplate += produceSingleJSONObj(myPredicate, myEntity, myNodeNameLower,
-               myNodeNameReg, myNewVal, myChildrenVal, myLocalVarsVal, myNodeIDString, 
-               myStartVal, myEndVal, myDurationVal);
-
-            generateFinalOutputFiles(nodes, myNodeNameLower, fullTemplate, 
-               myNodeIDString, workingDir, ganttDir);
-
-            debugMsg("GanttViewer:printProgress", "Token added for node " +
-               myEntity + "." + myPredicate);
-         }
+         processOutputData(nodes, nodeId, workingDir, 
+            ganttDir, startTime, myParent);
       }
    }
+
    extern "C" {
       void initGanttListener() {
          REGISTER_EXEC_LISTENER(GanttListener, "GanttListener");
