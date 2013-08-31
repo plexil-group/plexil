@@ -347,7 +347,7 @@
                                                                   <NodeStateValue>EXECUTING</NodeStateValue>
                                                                   <Timepoint>START</Timepoint>
                                                                </NodeTimepointValue>
-                                                               <RealValue>60.0</RealValue>
+                                                               <RealValue>10.0</RealValue>
                                                             </ADD>
                                                          </GE>
                                                       </OR>
