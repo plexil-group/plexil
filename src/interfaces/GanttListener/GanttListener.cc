@@ -40,6 +40,8 @@ extern "C"
 #include <cmath>
 #include <ctime>
 #include <map>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "GanttListener.hh"
 #include "Node.hh"
@@ -177,8 +179,8 @@ namespace PLEXIL
          "<head> " + lineBreak +
          "<meta http-equiv=\"Content-Type\" "
          "content=\"text/html; charset=utf-8\"> " + lineBreak +
-         "<title>Gantt Temporal Plan Viewer</title> " + lineBreak +
-         "<meta name=\"author\" content=\"By Madan, Isaac "
+         "<title>" + nodeName + " - " + "Gantt Temporal Plan Viewer</title> " + 
+         lineBreak + "<meta name=\"author\" content=\"By Madan, Isaac "
          "A. (ARC-TI); originally authored by "
          "Swanson, Keith J. (ARC-TI)\"> " + lineBreak + lineBreak +
          "<!-- jQuery is required --> "+ lineBreak +
@@ -190,7 +192,7 @@ namespace PLEXIL
          "<script type=\"text/javascript\" src=\"" + plexilGanttDirectory +
          "jq/jquery-ui-1.8.15.custom.min.js\"></script> " + lineBreak+lineBreak +
          "<!-- Load data locally --> " + lineBreak +
-         "<script src=\"" + plexilGanttDirectory+myTokenFileName + 
+         "<script src=\"" + currentWorkingDir + "/" + myTokenFileName + 
          "\" type=\"text/javascript\"></script> " + lineBreak + lineBreak +
          "<!-- Application code --> " + lineBreak +      
          "<script src=\"" + plexilGanttDirectory + 
@@ -231,16 +233,22 @@ namespace PLEXIL
       return myHTMLFilePath;
    }
      
-
    /** generate the JSON tokens file at the end of a plan's execution
    so that it can be parsed by Javascript in the Viewer **/
    void deliverJSONAsFile(const string& JSONStream, const string& nodeName, 
-                          const string& myHTMLFilePath, const string& plexilGanttDirectory) 
+                          const string& myHTMLFilePath, const string& plexilGanttDirectory,
+                          const string& curr_dir) 
    {
       const string myCloser = "];";
-      
+      const string json_folder_path = curr_dir + "/" + "json";
       ofstream myfile;
-      uniqueFileName = plexilGanttDirectory + 
+      if (access(json_folder_path.c_str(), 0) != 0)
+      {
+         mkdir(json_folder_path.c_str(), S_IRWXG | S_IRGRP | 
+            S_IROTH | S_IRUSR | S_IRWXU);
+      }
+
+      uniqueFileName = curr_dir + "/" +
          "json/" + uniqueFileName + "_" + nodeName + ".js";
       myfile.open(uniqueFileName.c_str());
       myfile << JSONStream << myCloser << myHTMLFilePath;
@@ -547,12 +555,20 @@ namespace PLEXIL
    /** generate the JSON tokens file at the end of a plan's execution
    so that it can be parsed by Javascript in the Viewer **/
    void deliverPartialJSON(const string& JSONStream, const string& nodeName, 
-                           const string& myHTMLFilePath, const string& plexilGanttDirectory) 
+                           const string& myHTMLFilePath, const string& plexilGanttDirectory,
+                           const string& curr_dir) 
    {
       const string myCloser = "];";
+      const string json_folder_path = curr_dir + "/" + "json";
       
       ofstream myfile;
-      string outputFileName = plexilGanttDirectory + 
+      if (access(json_folder_path.c_str(), 0) != 0)
+      {
+         mkdir(json_folder_path.c_str(), S_IRWXG | S_IRGRP | 
+            S_IROTH | S_IRUSR | S_IRWXU);
+      }
+
+      string outputFileName = curr_dir + "/" +
          "json/" + uniqueFileName + "_" + nodeName + ".js";
       myfile.open(outputFileName.c_str());
       myfile << JSONStream << myCloser << myHTMLFilePath;
@@ -574,7 +590,7 @@ namespace PLEXIL
          first_time = false;
       }
       deliverPartialJSON(JSONStream, nodeNameLower, 
-         myHTMLFilePath, plexilGanttDirectory); 
+         myHTMLFilePath, plexilGanttDirectory, currentWorkingDir); 
       debugMsg("GanttViewer:printProgress", 
          "finished gathering data; JSON and HTML stored");
    }
@@ -591,7 +607,7 @@ namespace PLEXIL
          myHTMLFilePath = createHTMLFile(nodeNameLower, currentWorkingDir, 
             plexilGanttDirectory);
          deliverJSONAsFile(JSONStream, nodeNameLower, 
-            myHTMLFilePath, plexilGanttDirectory); 
+            myHTMLFilePath, plexilGanttDirectory, currentWorkingDir); 
          debugMsg("GanttViewer:printProgress", 
             "finished gathering data; JSON and HTML stored");
       }
