@@ -31,6 +31,16 @@ extern "C"
    #include <stdio.h>  // extern "C"
    #include <stdlib.h>
    #include <time.h>
+   #include <sys/stat.h>
+   // //necessary for getting working directories and environment variables
+   // #include <stdio.h>  /* defines FILENAME_MAX */
+   #ifdef WINDOWS
+      #include <direct.h>
+      #define GetCurrentDir _getcwd
+   #else
+      #include <unistd.h>
+      #define GetCurrentDir getcwd
+   #endif
 }
 
 #include <iomanip> // for setprecision
@@ -40,8 +50,6 @@ extern "C"
 #include <cmath>
 #include <ctime>
 #include <map>
-#include <sys/stat.h>
-#include <unistd.h>
 
 #include "GanttListener.hh"
 #include "Node.hh"
@@ -53,16 +61,6 @@ extern "C"
 #include "AdapterExecInterface.hh"
 #include "Expression.hh"
 #include "Debug.hh"
-
-//necessary for getting working directories and environment variables
-#include <stdio.h>  /* defines FILENAME_MAX */
-#ifdef WINDOWS
-   #include <direct.h>
-   #define GetCurrentDir _getcwd
-#else
-   #include <unistd.h>
-   #define GetCurrentDir getcwd
-#endif
 
 using std::cout;
 using std::cin;
@@ -713,7 +711,7 @@ namespace PLEXIL
    void GanttListener::implementNotifyNodeTransition(NodeState /* prevState */, 
                                                      const NodeId& nodeId) const
    {
-      static string workingDir, ganttDir, myParent;
+      static string workingDir, ganttDir, myParent = " ";
       //all the nodes
       static vector<NodeObj> nodes;
       //these values are modified throughout plan execution
@@ -729,7 +727,7 @@ namespace PLEXIL
       }
 
       //make sure the temporary variables are cleaned out
-      myParent = " ";
+      //myParent = " ";
     
       //get state
       const NodeState& newState = nodeId->getState();
