@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 * By Madan, Isaac A.
+* Updated by Cao, Yichuan
 */
 
 extern "C" 
@@ -725,9 +726,6 @@ namespace PLEXIL
       if(startTime == -1) {
          startTime = nodeId->getCurrentStateStartTime();
       }
-
-      //make sure the temporary variables are cleaned out
-      //myParent = " ";
     
       //get state
       const NodeState& newState = nodeId->getState();
