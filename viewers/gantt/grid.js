@@ -35,7 +35,7 @@ var GRID_SETTINGS = {
 	"maxTimeIncrements": 30,	// default, see computeMaxTimeIncrements
 	
 	// TODO This should now really be called GANTT_SETTINGS and moved to main.js
-	"objectColumnWidth": 200,	// hardcoded for now until dynamically computed based on names widths 
+	"objectColumnWidth": 150,	// hardcoded for now until dynamically computed based on names widths 
 	"columnBuffer": 6, 			// 8 gives some space between columns
 	"gridLabelHeight": 15
 }
@@ -85,7 +85,7 @@ function drawGridSection(parentDiv) {
 function drawGridLines(gridSection) {
 	// configuration
 	var numGridLines = GRID_SETTINGS.maxTimeIncrements + 1; // +1 since we start drawing at zero
-	//console.log(numGridLines);
+	console.log(numGridLines);
 	//8/2/11 Isaac
 	//numGridLines = GRID_SETTINGS.maxTimeIncrements + 1;
 	//numGridLines = plexilscaling * GRID_SETTINGS.maxTimeIncrements + 1;
@@ -109,6 +109,13 @@ function drawGridLines(gridSection) {
 		 	line.addClass("majorGridLine");
 		}
 	}
+
+	// line = $("<div class='gridLine'></div>");
+	// 	line.css("left", width *= 10);
+	// 	$(gridLines).append(line);	
+	// 	//if (i > 0) {
+	// 	 	line.addClass("majorGridLine");
+	// //	}
 
 	// old slower implementation below
 	// // also create individual vertical grid line divs

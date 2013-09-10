@@ -38,7 +38,9 @@ function sizeTokenColumn () {
 	var leftOffset = GRID_SETTINGS.objectColumnWidth + GRID_SETTINGS.columnBuffer;
 	
 	// set token column width and left offset
-	width = $(document).width() - 228; //228 takes into account the size required for the left object column
+	//width = $(document).width() - 228; //228 takes into account the size required for the left object column
+	width = $(window).width() - 150 - 28;
+	console.log(leftOffset);
 	tokenColumn.css("width", width);
 	tokenColumn.css("left", leftOffset); 
 	

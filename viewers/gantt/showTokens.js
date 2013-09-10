@@ -91,7 +91,7 @@ function groupAndShowTokens(tokens) {
 	    if (firstPredicateToken) {
 		if (futureOPsim(tokensOfObject.slice(j))) {
 		    //Isaac -- match line 75
-		    $(objectColumnRow).append("<div class='objectInfo'>" + tokensOfObject[j].id + "</div>");
+		    //$(objectColumnRow).append("<div class='objectInfo'>" + tokensOfObject[j].id + "</div>");
 		    
 		    // plan and sim tokens for this predicate
 		    $(objectColumnRow).append("<div class='predicateTitle predicateTitleDoubleHeight'>" +
@@ -99,7 +99,7 @@ function groupAndShowTokens(tokens) {
 		    tokenRowsCount = tokenRowsCount + 2;
 		} else {
 		    //Isaac -- match line 66
-		    $(objectColumnRow).append("<div class='objectInfo'>" + tokensOfObject[j].id + "</div>");
+		    //$(objectColumnRow).append("<div class='objectInfo'>" + tokensOfObject[j].id + "</div>");
 		    
 		    // only plan or sim tokens for this predicate
 		    //Isaac 7/21/11
