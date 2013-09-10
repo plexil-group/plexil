@@ -158,17 +158,18 @@ namespace PLEXIL
 
    /** generate the HTML file at the end of a plan's execution 
    that connects to necessary Javascript and produced JSON **/
-   string createHTMLFile(const string& nodeName, const string& currentWorkingDir, 
+   string createHTMLFile(vector<NodeObj>& nodes,  const string& currentWorkingDir, 
                          const string& plexilGanttDirectory) 
    {
       string myHTMLFilePath;
       //uncomment the following line to set filename to the 
       // format gantt_MMDD_YYYY_hour.min.sec_nodeName.html
       //uniqueFileName = getTime();
+
       static const string htmlFileName = currentWorkingDir + "/" + 
-         "gantt_" + uniqueFileName + "_" + nodeName + ".html";
+         "gantt_" + uniqueFileName + "_" + nodes[0].name + ".html";
       static const string myTokenFileName = "json/" + 
-         uniqueFileName + "_" + nodeName + ".js";
+         uniqueFileName + "_" + nodes[0].name + ".js";
 
       string lineBreak = "\n ";
       string htmlFile = 
@@ -178,7 +179,7 @@ namespace PLEXIL
          "<head> " + lineBreak +
          "<meta http-equiv=\"Content-Type\" "
          "content=\"text/html; charset=utf-8\"> " + lineBreak +
-         "<title>" + nodeName + " - " + "Gantt Temporal Plan Viewer</title> " + 
+         "<title>" + nodes[0].name + " - " + "Gantt Temporal Plan Viewer</title> " + 
          lineBreak + "<meta name=\"author\" content=\"By Madan, Isaac "
          "A. (ARC-TI); originally authored by "
          "Swanson, Keith J. (ARC-TI)\"> " + lineBreak + lineBreak +
@@ -232,23 +233,24 @@ namespace PLEXIL
       return myHTMLFilePath;
    }
      
+
    /** generate the JSON tokens file at the end of a plan's execution
    so that it can be parsed by Javascript in the Viewer **/
-   void deliverJSONAsFile(const string& JSONStream, const string& nodeName, 
-                          const string& myHTMLFilePath, const string& plexilGanttDirectory,
-                          const string& curr_dir) 
+   void deliverJSONAsFile(vector<NodeObj>& nodes, const string& JSONStream, 
+                          const string& myHTMLFilePath, const string& curr_dir) 
    {
       const string myCloser = "];";
       const string json_folder_path = curr_dir + "/" + "json";
-      ofstream myfile;
+      
       if (access(json_folder_path.c_str(), 0) != 0)
       {
          mkdir(json_folder_path.c_str(), S_IRWXG | S_IRGRP | 
             S_IROTH | S_IRUSR | S_IRWXU);
       }
 
+      ofstream myfile;
       uniqueFileName = curr_dir + "/" +
-         "json/" + uniqueFileName + "_" + nodeName + ".js";
+         "json/" + uniqueFileName + "_" + nodes[0].name + ".js";
       myfile.open(uniqueFileName.c_str());
       myfile << JSONStream << myCloser << myHTMLFilePath;
       myfile.close();
@@ -449,10 +451,6 @@ namespace PLEXIL
       if(myParent == " ") {
          myParent = nodes[index].name;
       }
-      // if(myParent == " ") {
-      //    myParent = nodes[index].name;
-      // } // quick way to get rid of duplicated top node
-           // somehow, later, we should find a way to show it
       //get final values for local variables
       getFinalLocalVar(nodes, nodeId, index, myLocalVarsAfter);
    }
@@ -553,22 +551,20 @@ namespace PLEXIL
 
    /** generate the JSON tokens file at the end of a plan's execution
    so that it can be parsed by Javascript in the Viewer **/
-   void deliverPartialJSON(const string& JSONStream, const string& nodeName, 
-                           const string& myHTMLFilePath, const string& plexilGanttDirectory,
-                           const string& curr_dir) 
+   void deliverPartialJSON(vector<NodeObj>& nodes, const string& JSONStream, 
+                           const string& myHTMLFilePath, const string& curr_dir) 
    {
       const string myCloser = "];";
       const string json_folder_path = curr_dir + "/" + "json";
       
-      ofstream myfile;
       if (access(json_folder_path.c_str(), 0) != 0)
       {
          mkdir(json_folder_path.c_str(), S_IRWXG | S_IRGRP | 
             S_IROTH | S_IRUSR | S_IRWXU);
       }
-
+      ofstream myfile;
       string outputFileName = curr_dir + "/" +
-         "json/" + uniqueFileName + "_" + nodeName + ".js";
+         "json/" + uniqueFileName + "_" + nodes[0].name + ".js";
       myfile.open(outputFileName.c_str());
       myfile << JSONStream << myCloser << myHTMLFilePath;
       myfile.close();
@@ -576,7 +572,7 @@ namespace PLEXIL
          "JSON tokens file written to "+ outputFileName);
    }
 
-   void generateTempOutputFiles(const string& nodeNameLower, const string& JSONStream, 
+   void generateTempOutputFiles(vector<NodeObj>& nodes, const string& JSONStream, 
                                 const string& currentWorkingDir, 
                                 const string& plexilGanttDirectory)
    {
@@ -584,36 +580,30 @@ namespace PLEXIL
       static string myHTMLFilePath;
       if (first_time == true)
       {
-         myHTMLFilePath = createHTMLFile(nodeNameLower, currentWorkingDir, 
-         plexilGanttDirectory);
+         myHTMLFilePath = createHTMLFile(nodes, currentWorkingDir, plexilGanttDirectory);
          first_time = false;
       }
-      deliverPartialJSON(JSONStream, nodeNameLower, 
-         myHTMLFilePath, plexilGanttDirectory, currentWorkingDir); 
+      deliverPartialJSON(nodes, JSONStream, myHTMLFilePath, currentWorkingDir); 
       debugMsg("GanttViewer:printProgress", 
          "finished gathering data; JSON and HTML stored");
    }
 
-   void generateFinalOutputFiles(vector<NodeObj>& nodes, const string& nodeNameLower, 
-                                 const string& JSONStream, const string& nodeIDNum, 
-                                 const string& currentWorkingDir, 
+   void generateFinalOutputFiles(vector<NodeObj>& nodes, const string& JSONStream, 
+                                 const string& nodeIDNum, const string& currentWorkingDir, 
                                  const string& plexilGanttDirectory)
    {
       string myHTMLFilePath;
    
       if(nodeIDNum == "1") 
       { 
-         myHTMLFilePath = createHTMLFile(nodeNameLower, currentWorkingDir, 
-            plexilGanttDirectory);
-         deliverJSONAsFile(JSONStream, nodeNameLower, 
-            myHTMLFilePath, plexilGanttDirectory, currentWorkingDir); 
+         myHTMLFilePath = createHTMLFile(nodes, currentWorkingDir, plexilGanttDirectory);
+         deliverJSONAsFile(nodes, JSONStream, myHTMLFilePath, currentWorkingDir); 
          debugMsg("GanttViewer:printProgress", 
             "finished gathering data; JSON and HTML stored");
       }
       else
       {
-         generateTempOutputFiles(nodes[0].name, JSONStream, currentWorkingDir,
-            plexilGanttDirectory);
+         generateTempOutputFiles(nodes, JSONStream, currentWorkingDir, plexilGanttDirectory);
       }
    }
 
@@ -676,8 +666,7 @@ namespace PLEXIL
          myNodeNameReg, myNewVal, myChildrenVal, myLocalVarsVal, myNodeIDString, 
          myStartVal, myEndVal, myDurationVal);
 
-      generateFinalOutputFiles(nodes, myNodeNameLower, fullTemplate, 
-         myNodeIDString, curr_dir, curr_plexil_dir);
+      generateFinalOutputFiles(nodes, fullTemplate, myNodeIDString, curr_dir, curr_plexil_dir);
 
       debugMsg("GanttViewer:printProgress", "Token added for node " +
          myEntity + "." + myPredicate);
@@ -712,7 +701,7 @@ namespace PLEXIL
    void GanttListener::implementNotifyNodeTransition(NodeState /* prevState */, 
                                                      const NodeId& nodeId) const
    {
-      static string workingDir, ganttDir, myParent = " ";
+      static string workingDir, ganttDir, myParent;
       //all the nodes
       static vector<NodeObj> nodes;
       //these values are modified throughout plan execution
@@ -726,6 +715,9 @@ namespace PLEXIL
       if(startTime == -1) {
          startTime = nodeId->getCurrentStateStartTime();
       }
+
+      //make sure the temporary variables are cleaned out
+      myParent = " ";
     
       //get state
       const NodeState& newState = nodeId->getState();
