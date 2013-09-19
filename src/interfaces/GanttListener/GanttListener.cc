@@ -195,15 +195,15 @@ namespace PLEXIL
                                         vector<string>& myLocalVariableMapValues)
    {
       string myLocalVars;
-      VariableMap tempLocalVariablesMap = nodeId->getLocalVariablesByName(); //const
+      const VariableMap tempLocalVariablesMap = nodeId->getLocalVariablesByName();
       if (tempLocalVariablesMap.empty())
       {
          return "none";
       }
-      for (VariableMap::iterator it = tempLocalVariablesMap.begin(); // const iterator
+      for (VariableMap::const_iterator it = tempLocalVariablesMap.begin();
          it != tempLocalVariablesMap.end(); ++it) 
       {
-         const string& tempNameString = it->first.toString(); // std no need
+         const string& tempNameString = it->first.toString();
          ExpressionId temp = it->second;
          string tempValueString = temp->valueString();
          string tempString = "<br><i>" + tempNameString + "</i>" 
@@ -238,10 +238,10 @@ namespace PLEXIL
    }
 
    GanttListener::NodeObj createNodeObj(const NodeId& nodeId, double& time, 
-                         int& nodeCounter, int& actualId, 
-                         map<NodeId, int>& stateMap, 
-                         map<NodeId, int>& counterMap, 
-                         string& myParent)
+                                        int& nodeCounter, int& actualId, 
+                                        map<NodeId, int>& stateMap, 
+                                        map<NodeId, int>& counterMap, 
+                                        string& myParent)
    {
       vector<string> myLocalVariableMapValues;
 
@@ -341,11 +341,11 @@ namespace PLEXIL
          myLocalVarsAfter = "none";
    }
 
-   void getFinalLocalVar(vector<GanttListener::NodeObj>& nodes, 
+   void getFinalLocalVar(const vector<GanttListener::NodeObj>& nodes, 
                          const NodeId& nodeId, 
                          int index, string& myLocalVarsAfter)
    {
-      VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
+      const VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
       vector<string> prevLocalVarsVector = nodes[index].localvarsvector;
       vector<string> thisLocalVarsVectorKeys;
       vector<string> thisLocalVarsVectorValues;
@@ -355,7 +355,7 @@ namespace PLEXIL
       {
          if (tempLocalVariableMapAfter.empty())
             myLocalVarsAfter = "none";
-         for (VariableMap::iterator it = tempLocalVariableMapAfter.begin(); 
+         for (VariableMap::const_iterator it = tempLocalVariableMapAfter.begin(); 
             it != tempLocalVariableMapAfter.end(); it++) 
          {
             ExpressionId temp = it->second;
@@ -369,10 +369,10 @@ namespace PLEXIL
          myLocalVarsAfter = "none";
    }
 
-   void processTempValsForNode(vector<GanttListener::NodeObj>& nodes, const NodeId& nodeId, 
-                               int index, double time, double& myEndValdbl,
-                               double& myDurationValdbl, string& myParent, 
-                               string& myLocalVarsAfter)
+   void processTempValsForNode(const vector<GanttListener::NodeObj>& nodes, 
+                               const NodeId& nodeId, int index, double time, 
+                               double& myEndValdbl,double& myDurationValdbl, 
+                               string& myParent, string& myLocalVarsAfter)
    {
       myEndValdbl = ((nodeId->getCurrentStateStartTime()) - time)*100;
       myDurationValdbl = myEndValdbl - nodes[index].start;
