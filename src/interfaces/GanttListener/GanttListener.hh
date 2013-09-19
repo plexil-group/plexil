@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,22 +32,84 @@
 #include "ExecDefs.hh"
 #include "ExecListener.hh"
 
+using std::string;
+using std::map;
+using std::vector;
+
 namespace PLEXIL
 {
    // Provides output from execution useful for debugging a Plexil plan.
    class GanttListener : public ExecListener
    {
    public:
-      GanttListener() { };
-      GanttListener (const pugi::xml_node& xml) : ExecListener(xml) { };
-      virtual ~GanttListener() { };
-
+      GanttListener();
+      GanttListener(const pugi::xml_node& xml);
+      virtual ~GanttListener();
       // Capture and report about useful node state transitions.
       void implementNotifyNodeTransition (NodeState prevState,
          const NodeId& node) const;
 
-      void implementNotifyAddPlan(const PlexilNodeId& plan, 
-         const LabelStr& parent) const;
+      // void implementNotifyAddPlan(const PlexilNodeId& plan, 
+      //    const LabelStr& parent) const;
+      //nodes
+      struct NodeObj {
+         double start;
+         double end;
+         double duration;
+         string name;
+         string type;
+         string val;
+         string parent;
+         int id;
+         string localvariables;
+         string children;
+         vector<string> localvarsvector;
+         NodeObj (double start_val, 
+                  double end_val,
+                  double duration_val,
+                  const string& id,  
+                  const string& type_id, 
+                  const string& val_str,
+                  const string& parent_str, 
+                  int id_val, 
+                  const string& loc_var,
+                  const string& child_str, 
+                  vector<string>& loc_var_vec
+                  )
+                  :start(start_val),
+                  end(end_val),
+                  duration(duration_val), 
+                  name(id),
+                  type(type_id),
+                  val(val_str),
+                  parent(parent_str),
+                  id(id_val),
+                  localvariables(loc_var),
+                  children(child_str),
+                  localvarsvector(loc_var_vec)
+                  { }
+      };
+      double myStartValdbl, myEndValdbl, myDurationValdbl;
+      double startTime;
+      vector<NodeObj> nodes;
+      map<NodeId, int> stateMap, counterMap;
+      string plexilGanttDirectory;
+      string currentWorkingDir;
+      string uniqueFileName;
+      string myHTMLFilePath;
+      bool outputFinalJSON;
+      bool outputHTML;
+      bool planFailureState;
+      string fullTemplate;
+      string myId, myType, myVal, myLocalVars, myChildren;
+      string myLocalVarsAfter, myParent;
+      int index;
+      int nodeCounter;
+      int actualId;
+
+      void getGanttDir();
+      void getCurrDir();
+      void setUniqueFileName();
 
    private:
       // Disallow copy, and assignment
