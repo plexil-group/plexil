@@ -71,13 +71,13 @@ namespace PLEXIL
       getCurrDir();
       getGanttDir();
       setUniqueFileName();
-      outputFinalJSON = true;
-      outputHTML = true;
-      planFailureState = false;
-      startTime = -1;
-      nodeCounter = 0;
-      actualId = -1;
-      fullTemplate = "var rawPlanTokensFromFile=\n[\n";
+      m_outputFinalJSON = true;
+      m_outputHTML = true;
+      m_planFailureState = false;
+      m_startTime = -1;
+      m_nodeCounter = 0;
+      m_actualId = -1;
+      m_fullTemplate = "var rawPlanTokensFromFile=\n[\n";
    }
    GanttListener::GanttListener(const pugi::xml_node& xml) : ExecListener(xml)
    { }
@@ -94,7 +94,7 @@ namespace PLEXIL
          debugMsg("GanttViewer:printErrors", "PLEXIL_HOME is not defined");
       }
       /** get Viewer directory under PLEXIL_HOME **/
-      plexilGanttDirectory = pPath + "/viewers/gantt/";
+      m_plexilGanttDirectory = pPath + "/viewers/gantt/";
    }
 
    void GanttListener::getCurrDir()
@@ -106,28 +106,26 @@ namespace PLEXIL
       }
       else
       {
-         currentWorkingDir = buffer;
+         m_currentWorkingDir = buffer;
          free(buffer);
       }
    }
    
    void GanttListener::setUniqueFileName()
    {
-      uniqueFileName = "0";
+      m_uniqueFileName = "0";
    }
 
-   GanttListener myListener;
-
-   /** generate the HTML file at the end of a plan's execution 
+   /** generate the HTML file once a plan's execution started and 
    that connects to necessary Javascript and produced JSON **/
-   void createHTMLFile(const string& rootName,  
-                       const string& currDir, 
-                       const string& ganttDir)
+   void GanttListener::createHTMLFile(const string& rootName,  
+                                      const string& currDir, 
+                                      const string& ganttDir)
    {
       const string htmlFileName = currDir + "/" + 
-         "gantt_" + myListener.uniqueFileName + "_" + rootName + ".html";
+         "gantt_" + m_uniqueFileName + "_" + rootName + ".html";
       const string myTokenFileName = "json/" + 
-         myListener.uniqueFileName + "_" + rootName + ".js";
+         m_uniqueFileName + "_" + rootName + ".js";
 
       string lineBreak = "\n "; // br, no need for the space after \n
       string htmlFile = 
@@ -187,11 +185,62 @@ namespace PLEXIL
       // std::flush
       // check for failure
       
-      myListener.myHTMLFilePath = "\n \n var myHTMLFilePathString =\"" + htmlFileName + "\";";
+      m_HTMLFilePath = "\n \n var myHTMLFilePathString =\"" + htmlFileName + "\";";
       debugMsg("GanttViewer:printProgress", "HTML file written to "+htmlFileName);
    }
 
-   string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
+   /** generate the JSON tokens file at the end of a plan's execution
+   so that it can be parsed by Javascript in the Viewer **/
+   void GanttListener::deliverJSONAsFile(const string& rootName, const string& JSONStream, 
+                                         const string& curr_dir)
+   {
+      const string myCloser = "];";
+      const string json_folder_path = curr_dir + "/" + "json";
+      string outputFileName;
+      if (m_outputFinalJSON)
+      {
+         if (access(json_folder_path.c_str(), 0) != 0)
+         {
+            mkdir(json_folder_path.c_str(), S_IRWXG | S_IRGRP | 
+               S_IROTH | S_IRUSR | S_IRWXU);
+         }
+         ofstream myfile;
+         outputFileName = curr_dir + "/" +
+            "json/" + m_uniqueFileName + "_" + rootName + ".js";
+         myfile.open(outputFileName.c_str());
+         myfile << JSONStream << myCloser << m_HTMLFilePath;
+         myfile.close();
+         m_outputFinalJSON = false;
+      }
+
+      debugMsg("GanttViewer:printProgress", 
+         "JSON tokens file written to "+ outputFileName);
+   }
+
+   /** generate the JSON tokens file during a plan's execution
+   so that it can be parsed by Javascript in the Viewer **/
+   void GanttListener::deliverPartialJSON(const string& rootName, const string& JSONStream, 
+                                          const string& curr_dir) 
+   {
+      const string myCloser = "];";
+      const string json_folder_path = curr_dir + "/" + "json";
+      
+      if (access(json_folder_path.c_str(), 0) != 0)
+      {
+         mkdir(json_folder_path.c_str(), S_IRWXG | S_IRGRP | 
+            S_IROTH | S_IRUSR | S_IRWXU);
+      }
+      ofstream myfile;
+      string outputFileName = curr_dir + "/" +
+         "json/" + m_uniqueFileName + "_" + rootName + ".js";
+      myfile.open(outputFileName.c_str());
+      myfile << JSONStream << myCloser << m_HTMLFilePath;
+      myfile.close();
+      debugMsg("GanttViewer:printProgress", 
+         "JSON tokens file written to "+ outputFileName);
+   }
+
+   static string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
                                         vector<string>& myLocalVariableMapValues)
    {
       string myLocalVars;
@@ -216,7 +265,7 @@ namespace PLEXIL
       return myLocalVars;
    }
 
-   string getChildNode(const NodeId& nodeId)
+   static string getChildNode(const NodeId& nodeId)
    {
       string myChildren;
       //get child nodes
@@ -237,11 +286,11 @@ namespace PLEXIL
       return myChildren; // naming consistency
    }
 
-   GanttListener::NodeObj createNodeObj(const NodeId& nodeId, double& time, 
-                                        int& nodeCounter, int& actualId, 
-                                        map<NodeId, int>& stateMap, 
-                                        map<NodeId, int>& counterMap, 
-                                        string& myParent)
+   GanttListener::NodeObj GanttListener::createNodeObj(const NodeId& nodeId, double& time, 
+                                                       int& nodeCounter, int& actualId, 
+                                                       map<NodeId, int>& stateMap, 
+                                                       map<NodeId, int>& counterMap, 
+                                                       string& myParent)
    {
       vector<string> myLocalVariableMapValues;
 
@@ -281,11 +330,11 @@ namespace PLEXIL
       myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
       myChildren = getChildNode(nodeId); //get child nodes
 
-      return GanttListener::NodeObj(myStartValdbl, -1, -1, myId, myType, myVal, 
+      return NodeObj(myStartValdbl, -1, -1, myId, myType, myVal, 
          myParent, actualId, myChildren, myLocalVars, myLocalVariableMapValues);
    }
 
-   string boldenFinalString(vector<string>& prevLocalVarsVector, 
+   static string boldenFinalString(vector<string>& prevLocalVarsVector, 
                             vector<string>& thisLocalVarsVectorValues,
                             vector<string>& thisLocalVarsVectorKeys,
                             int i)
@@ -308,7 +357,7 @@ namespace PLEXIL
       return tempFullString; 
    }
 
-   void processLocalVar(vector<string>& prevLocalVarsVector, 
+   static void processLocalVar(vector<string>& prevLocalVarsVector, 
                         vector<string>& thisLocalVarsVectorValues, 
                         vector<string>& thisLocalVarsVectorKeys,
                         string& myLocalVarsAfter)
@@ -341,7 +390,7 @@ namespace PLEXIL
          myLocalVarsAfter = "none";
    }
 
-   void getFinalLocalVar(const vector<GanttListener::NodeObj>& nodes, 
+   void GanttListener::getFinalLocalVar(const vector<GanttListener::NodeObj>& nodes, 
                          const NodeId& nodeId, 
                          int index, string& myLocalVarsAfter)
    {
@@ -369,7 +418,7 @@ namespace PLEXIL
          myLocalVarsAfter = "none";
    }
 
-   void processTempValsForNode(const vector<GanttListener::NodeObj>& nodes, 
+   void GanttListener::processTempValsForNode(const vector<GanttListener::NodeObj>& nodes, 
                                const NodeId& nodeId, int index, double time, 
                                double& myEndValdbl,double& myDurationValdbl, 
                                string& myParent, string& myLocalVarsAfter)
@@ -388,7 +437,7 @@ namespace PLEXIL
       getFinalLocalVar(nodes, nodeId, index, myLocalVarsAfter);
    }
 
-   void prepareDataForJSONObj(vector<GanttListener::NodeObj>& nodes, int index, 
+   void GanttListener::prepareDataForJSONObj(vector<GanttListener::NodeObj>& nodes, int index, 
                               double& myEndValdbl, double& myDurationValdbl, 
                               const string& myParent, const string& myLocalVarsAfter, 
                               string& predicate, string& entity, string& nodeNameLower,
@@ -438,7 +487,7 @@ namespace PLEXIL
       durationVal = strs3.str();
    }
 
-   string produceSingleJSONObj(const string& predicate, const string& entity, 
+   static string produceSingleJSONObj(const string& predicate, const string& entity, 
                                const string& nodeNameLower, const string& nodeNameReg, 
                                const string& newVal, const string& childrenVal, 
                                const string& localVarsVal, const string& nodeIDString, 
@@ -482,81 +531,30 @@ namespace PLEXIL
       return newTemplate;
    }
 
-   /** generate the JSON tokens file at the end of a plan's execution
-   so that it can be parsed by Javascript in the Viewer **/
-   void deliverJSONAsFile(const string& rootName, const string& JSONStream, 
-                          const string& curr_dir) // pass the name in, const
-   {
-      const string myCloser = "];";
-      const string json_folder_path = curr_dir + "/" + "json";
-      string outputFileName;
-      if (myListener.outputFinalJSON)
-      {
-         if (access(json_folder_path.c_str(), 0) != 0)
-         {
-            mkdir(json_folder_path.c_str(), S_IRWXG | S_IRGRP | 
-               S_IROTH | S_IRUSR | S_IRWXU);
-         }
-         ofstream myfile;
-         outputFileName = curr_dir + "/" +
-            "json/" + myListener.uniqueFileName + "_" + rootName + ".js";
-         myfile.open(outputFileName.c_str());
-         myfile << JSONStream << myCloser << myListener.myHTMLFilePath;
-         myfile.close();
-         myListener.outputFinalJSON = false;
-      }
-
-      debugMsg("GanttViewer:printProgress", 
-         "JSON tokens file written to "+ outputFileName);
-   }
-
-   /** generate the JSON tokens file at the end of a plan's execution
-   so that it can be parsed by Javascript in the Viewer **/
-   void deliverPartialJSON(const string& rootName, const string& JSONStream, 
-                           const string& curr_dir) 
-   {
-      const string myCloser = "];";
-      const string json_folder_path = curr_dir + "/" + "json";
-      
-      if (access(json_folder_path.c_str(), 0) != 0)
-      {
-         mkdir(json_folder_path.c_str(), S_IRWXG | S_IRGRP | 
-            S_IROTH | S_IRUSR | S_IRWXU);
-      }
-      ofstream myfile;
-      string outputFileName = curr_dir + "/" +
-         "json/" + myListener.uniqueFileName + "_" + rootName + ".js";
-      myfile.open(outputFileName.c_str());
-      myfile << JSONStream << myCloser << myListener.myHTMLFilePath;
-      myfile.close();
-      debugMsg("GanttViewer:printProgress", 
-         "JSON tokens file written to "+ outputFileName);
-   }
-
-   void generateTempOutputFiles(const string& rootName, const string& JSONStream, 
+   void GanttListener::generateTempOutputFiles(const string& rootName, const string& JSONStream, 
                                 const string& currDir, 
                                 const string& ganttDir)
    {
-      if (myListener.outputHTML == true)
+      if (m_outputHTML == true)
       {
          createHTMLFile(rootName, currDir, ganttDir);
-         myListener.outputHTML = false;
+         m_outputHTML = false;
       }
       deliverPartialJSON(rootName, JSONStream, currDir); 
       debugMsg("GanttViewer:printProgress", 
          "finished gathering data; JSON and HTML stored");
    }
 
-   void generateFinalOutputFiles(const string& rootName, const string& JSONStream, 
+   void GanttListener::generateFinalOutputFiles(const string& rootName, const string& JSONStream, 
                                  const string& nodeIDNum, const string& currDir, 
                                  const string& ganttDir, bool state)
    {
       if(nodeIDNum == "1")
       { 
-         if (myListener.outputHTML == true)
+         if (m_outputHTML == true)
          {
             createHTMLFile(rootName, currDir, ganttDir);
-            myListener.outputHTML = false;
+            m_outputHTML = false;
          }
          deliverJSONAsFile(rootName, JSONStream, currDir);
          debugMsg("GanttViewer:printProgress", 
@@ -571,7 +569,8 @@ namespace PLEXIL
       }
    }
 
-   void processOutputData(vector<GanttListener::NodeObj>& nodes, const NodeId& nodeId, 
+   void GanttListener::processOutputData(vector<GanttListener::NodeObj>& nodes, 
+                          const NodeId& nodeId, 
                           const string& curr_dir, const string& curr_plexil_dir,
                           double start_time, string& parent, bool state)
    {
@@ -580,10 +579,10 @@ namespace PLEXIL
       string myDurationVal;
 
       //make sure the temporary variables are cleaned out
-      myListener.myId = " ";
-      myListener.myStartValdbl = -1;
-      myListener.myType = " ";
-      myListener.myVal = " ";
+      m_Id = " ";
+      m_StartValdbl = -1;
+      m_Type = " ";
+      m_Val = " ";
       // find the node it corresponds to in nodes vector
       string tempId = nodeId->getNodeId().toString();
       string tempType = nodeId->getType().toString();
@@ -599,38 +598,40 @@ namespace PLEXIL
             if(tempId==nodes[i].name && tempType==nodes[i].type && 
                tempParent==nodes[i].parent) 
             {
-               myListener.index = i;
+               m_index = i;
             }
          }
          else 
          {
             if(tempId==nodes[i].name && tempType==nodes[i].type) 
             {
-               myListener.index = i;
+               m_index = i;
             }
          }
       }
 
-      processTempValsForNode(nodes, nodeId, myListener.index, start_time, 
-         myListener.myEndValdbl, myListener.myDurationValdbl, 
-         parent, myListener.myLocalVarsAfter); 
+      processTempValsForNode(nodes, nodeId, m_index, start_time, 
+         m_EndValdbl, m_DurationValdbl, 
+         parent, m_LocalVarsAfter); 
       // add temp values to node
-      prepareDataForJSONObj(nodes, myListener.index, myListener.myEndValdbl, 
-         myListener.myDurationValdbl, parent, myListener.myLocalVarsAfter, 
+      prepareDataForJSONObj(nodes, m_index, m_EndValdbl, 
+         m_DurationValdbl, parent, m_LocalVarsAfter, 
          myPredicate, myEntity, myNodeNameLower, myNodeNameReg, 
          myNewVal, myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, 
          myEndVal, myDurationVal);
 
       // add JSON object to existing array
-      myListener.fullTemplate += produceSingleJSONObj(myPredicate, myEntity, 
+      m_fullTemplate += produceSingleJSONObj(myPredicate, myEntity, 
          myNodeNameLower, myNodeNameReg, myNewVal, myChildrenVal, myLocalVarsVal, 
          myNodeIDString, myStartVal, myEndVal, myDurationVal);
-      generateFinalOutputFiles(myRootNodeStr, myListener.fullTemplate, 
+      generateFinalOutputFiles(myRootNodeStr, m_fullTemplate, 
          myNodeIDString, curr_dir, curr_plexil_dir, state);
 
       debugMsg("GanttViewer:printProgress", "Token added for node " +
          myEntity + "." + myPredicate);
    }
+
+   GanttListener myListener;
 
    /** executed when the plan is added 
    *  gets the current directory and environment variables, 
@@ -662,32 +663,32 @@ namespace PLEXIL
    {
       string workingDir, ganttDirectory;
 
-      workingDir = myListener.currentWorkingDir;
-      ganttDirectory = myListener.plexilGanttDirectory;
+      workingDir = myListener.m_currentWorkingDir;
+      ganttDirectory = myListener.m_plexilGanttDirectory;
 
       //startTime is when first node executes
-      if(myListener.startTime == -1) {
-         myListener.startTime = nodeId->getCurrentStateStartTime();
+      if(myListener.m_startTime == -1) {
+         myListener.m_startTime = nodeId->getCurrentStateStartTime();
       }
-      myListener.myParent = " ";
+      myListener.m_parent = " ";
       //get state
       const NodeState& newState = nodeId->getState();
       if(newState == EXECUTING_STATE) {  
          //setup NodeObj and add to vector
-         myListener.nodes.push_back(createNodeObj(nodeId, myListener.startTime, 
-            myListener.nodeCounter, myListener.actualId, myListener.stateMap, 
-            myListener.counterMap, myListener.myParent));
+         myListener.m_nodes.push_back(myListener.createNodeObj(nodeId, myListener.m_startTime, 
+            myListener.m_nodeCounter, myListener.m_actualId, myListener.m_stateMap, 
+            myListener.m_counterMap, myListener.m_parent));
       }
 
       if (newState == FAILING_STATE || newState == FINISHED_STATE)
       {
          if (newState == FAILING_STATE)
          {
-            myListener.planFailureState = true;
+            myListener.m_planFailureState = true;
          }
-         processOutputData(myListener.nodes, nodeId, workingDir, 
-            ganttDirectory, myListener.startTime, myListener.myParent, 
-            myListener.planFailureState);
+         myListener.processOutputData(myListener.m_nodes, nodeId, workingDir, 
+            ganttDirectory, myListener.m_startTime, myListener.m_parent, 
+            myListener.m_planFailureState);
       }
    }
 

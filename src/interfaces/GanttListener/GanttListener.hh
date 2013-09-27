@@ -48,10 +48,9 @@ namespace PLEXIL
       // Capture and report about useful node state transitions.
       void implementNotifyNodeTransition (NodeState prevState,
          const NodeId& node) const;
-
       // void implementNotifyAddPlan(const PlexilNodeId& plan, 
       //    const LabelStr& parent) const;
-      //nodes
+   private:
       struct NodeObj {
          double start;
          double end;
@@ -89,32 +88,64 @@ namespace PLEXIL
                   localvarsvector(loc_var_vec)
                   { }
       };
-      double myStartValdbl, myEndValdbl, myDurationValdbl;
-      double startTime;
-      vector<NodeObj> nodes;
-      map<NodeId, int> stateMap, counterMap;
-      string plexilGanttDirectory;
-      string currentWorkingDir;
-      string uniqueFileName;
-      string myHTMLFilePath;
-      bool outputFinalJSON;
-      bool outputHTML;
-      bool planFailureState;
-      string fullTemplate;
-      string myId, myType, myVal, myLocalVars, myChildren;
-      string myLocalVarsAfter, myParent;
-      int index;
-      int nodeCounter;
-      int actualId;
-
-      void getGanttDir();
-      void getCurrDir();
-      void setUniqueFileName();
-
-   private:
       // Disallow copy, and assignment
       GanttListener(const GanttListener&);
       GanttListener& operator=(const GanttListener&);
+      string m_uniqueFileName;
+      string m_HTMLFilePath;
+      bool m_outputFinalJSON;
+      vector<NodeObj> m_nodes;
+      double m_StartValdbl, m_EndValdbl, m_DurationValdbl;
+      string m_fullTemplate;
+      string m_Id, m_Type, m_Val;
+      string m_LocalVarsAfter;
+      int m_index;
+      bool m_outputHTML;
+      string m_plexilGanttDirectory;
+      string m_currentWorkingDir;
+      double m_startTime;
+      map<NodeId, int> m_stateMap, m_counterMap;
+      string m_parent;
+      bool m_planFailureState;
+      int m_nodeCounter;
+      int m_actualId;
+      void getGanttDir();
+      void getCurrDir();
+      void setUniqueFileName();
+      void createHTMLFile(const string& r_name, const string& cur_dir, const string& gantt_dir);
+      void deliverJSONAsFile(const string& r_name, const string& jstream, 
+                             const string& cur_dir);
+      void deliverPartialJSON(const string& r_name, const string& jstream, 
+                              const string& cur_dir);
+      NodeObj createNodeObj(const NodeId& nodeId, double& time, 
+         int& nodeCounter, int& actualId, 
+         map<NodeId, int>& stateMap, 
+         map<NodeId, int>& counterMap, 
+         string& myParent);
+      void getFinalLocalVar(const vector<GanttListener::NodeObj>& nodes, 
+                         const NodeId& nodeId, 
+                         int index, string& myLocalVarsAfter);
+      void processTempValsForNode(const vector<GanttListener::NodeObj>& nodes, 
+         const NodeId& nodeId, int index, double time, 
+         double& myEndValdbl,double& myDurationValdbl, 
+         string& myParent, string& myLocalVarsAfter);
+      void prepareDataForJSONObj(vector<GanttListener::NodeObj>& nodes, int index, 
+         double& myEndValdbl, double& myDurationValdbl, 
+         const string& myParent, const string& myLocalVarsAfter, 
+         string& predicate, string& entity, string& nodeNameLower,
+         string& nodeNameReg, string& newVal, 
+         string& childrenVal, string& localVarsVal, 
+         string& nodeIDString, string& startVal, string& endVal,
+         string& durationVal);
+      void generateTempOutputFiles(const string& rootName, const string& JSONStream, 
+                                const string& currDir, 
+                                const string& ganttDir);
+      void generateFinalOutputFiles(const string& rootName, const string& JSONStream, 
+                                 const string& nodeIDNum, const string& currDir, 
+                                 const string& ganttDir, bool state);
+      void processOutputData(vector<GanttListener::NodeObj>& nodes, const NodeId& nodeId, 
+                    const string& curr_dir, const string& curr_plexil_dir,
+                    double start_time, string& parent, bool state);
    };
 }
 
