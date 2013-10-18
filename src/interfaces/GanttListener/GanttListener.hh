@@ -88,11 +88,11 @@ namespace PLEXIL
                   localvarsvector(loc_var_vec)
                   { }
       };
-      // Disallow copy, and assignment
-      GanttListener(const GanttListener&);
-      GanttListener& operator=(const GanttListener&);
       string m_uniqueFileName;
       string m_HTMLFilePath;
+      string m_HTMLFilePathForJSON;
+      string m_first_node_ID;
+      bool m_first_time;
       bool m_outputFinalJSON;
       vector<NodeObj> m_nodes;
       double m_StartValdbl, m_EndValdbl, m_DurationValdbl;
@@ -112,40 +112,49 @@ namespace PLEXIL
       void getGanttDir();
       void getCurrDir();
       void setUniqueFileName();
-      void createHTMLFile(const string& r_name, const string& cur_dir, const string& gantt_dir);
-      void deliverJSONAsFile(const string& r_name, const string& jstream, 
+      void createHTMLFile(const string& r_name, 
+                          const string& cur_dir, 
+                          const string& gantt_dir);
+      void deliverJSONAsFile(const string& r_name, 
+                             const string& jstream, 
                              const string& cur_dir);
-      void deliverPartialJSON(const string& r_name, const string& jstream, 
+      void deliverPartialJSON(const string& r_name, 
+                              const string& jstream, 
                               const string& cur_dir);
       NodeObj createNodeObj(const NodeId& nodeId, double& time, 
-         int& nodeCounter, int& actualId, 
-         map<NodeId, int>& stateMap, 
-         map<NodeId, int>& counterMap, 
-         string& myParent);
+                            int& nodeCounter, int& actualId, 
+                            map<NodeId, int>& stateMap, 
+                            map<NodeId, int>& counterMap, 
+                            string& myParent);
       void getFinalLocalVar(const vector<GanttListener::NodeObj>& nodes, 
-                         const NodeId& nodeId, 
-                         int index, string& myLocalVarsAfter);
+                            const NodeId& nodeId, 
+                            int index, string& myLocalVarsAfter);
       void processTempValsForNode(const vector<GanttListener::NodeObj>& nodes, 
-         const NodeId& nodeId, int index, double time, 
-         double& myEndValdbl,double& myDurationValdbl, 
-         string& myParent, string& myLocalVarsAfter);
+                                  const NodeId& nodeId, int index, double time, 
+                                  double& myEndValdbl,double& myDurationValdbl, 
+                                  string& myParent, string& myLocalVarsAfter);
       void prepareDataForJSONObj(vector<GanttListener::NodeObj>& nodes, int index, 
-         double& myEndValdbl, double& myDurationValdbl, 
-         const string& myParent, const string& myLocalVarsAfter, 
-         string& predicate, string& entity, string& nodeNameLower,
-         string& nodeNameReg, string& newVal, 
-         string& childrenVal, string& localVarsVal, 
-         string& nodeIDString, string& startVal, string& endVal,
-         string& durationVal);
-      void generateTempOutputFiles(const string& rootName, const string& JSONStream, 
-                                const string& currDir, 
-                                const string& ganttDir);
+                                 double& myEndValdbl, double& myDurationValdbl, 
+                                 const string& myParent, const string& myLocalVarsAfter, 
+                                 string& predicate, string& entity, string& nodeNameLower,
+                                 string& nodeNameReg, string& newVal, 
+                                 string& childrenVal, string& localVarsVal, 
+                                 string& nodeIDString, string& startVal, string& endVal,
+                                 string& durationVal);
+      void generateTempOutputFiles(const string& rootName, 
+                                   const string& JSONStream, 
+                                   const string& currDir, 
+                                   const string& ganttDir);
       void generateFinalOutputFiles(const string& rootName, const string& JSONStream, 
-                                 const string& nodeIDNum, const string& currDir, 
-                                 const string& ganttDir, bool state);
-      void processOutputData(vector<GanttListener::NodeObj>& nodes, const NodeId& nodeId, 
-                    const string& curr_dir, const string& curr_plexil_dir,
-                    double start_time, string& parent, bool state);
+                                    const string& nodeIDNum, const string& currDir, 
+                                    const string& ganttDir, bool state);
+      void processOutputData(vector<GanttListener::NodeObj>& nodes, 
+                             const NodeId& nodeId, const string& curr_dir, 
+                             const string& curr_plexil_dir, double start_time, 
+                             string& parent, bool state);
+      // Disallow copy, and assignment
+      GanttListener(const GanttListener&);
+      GanttListener& operator=(const GanttListener&);
    };
 }
 
