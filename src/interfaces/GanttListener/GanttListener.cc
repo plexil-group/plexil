@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 * By Madan, Isaac A.
-* Updated by Cao, Yichuan // file ID (concurrency)
+* Updated by Cao, Yichuan
 */
 
 #include "GanttListener.hh"
@@ -69,7 +69,7 @@ namespace PLEXIL
    { 
       getCurrDir();
       getGanttDir();
-      //setUniqueFileName();
+      setUniqueFileName();
       m_outputFinalJSON = true;
       m_outputHTML = true;
       m_planFailureState = false;
@@ -110,11 +110,16 @@ namespace PLEXIL
          free(buffer);
       }
    }
+
+   pid_t GanttListener::setPID()
+   {
+      return m_pid = getpid();
+   }
    
-   // void GanttListener::setUniqueFileName()
-   // {
-   //    m_uniqueFileName += 1;
-   // }
+   void GanttListener::setUniqueFileName()
+   {
+      m_uniqueFileName = setPID();
+   }
 
    /*
     * used to auto-launch brower
@@ -646,7 +651,6 @@ namespace PLEXIL
       string myPredicate, myEntity, myNodeNameLower, myNodeNameReg, myNewVal;
       string myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, myEndVal;
       string myDurationVal;
-
       //make sure the temporary variables are cleaned out
       m_Id = " ";
       m_StartValdbl = -1;
@@ -771,7 +775,6 @@ namespace PLEXIL
                                      myListener.m_parent)
          );
       }
-
       if (newState == FAILING_STATE || newState == FINISHED_STATE)
       {
          if (newState == FAILING_STATE)
@@ -787,7 +790,6 @@ namespace PLEXIL
          if (ss.str() == myListener.m_first_node_ID 
             && newState == FINISHED_STATE)
          {
-            myListener.m_uniqueFileName += 1;
             launch(myListener.m_HTMLFilePath);
          }
       }

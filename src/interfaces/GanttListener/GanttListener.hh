@@ -86,7 +86,8 @@ namespace PLEXIL
                   localvarsvector(loc_var_vec)
                   { }
       };
-      int m_uniqueFileName = 0;
+      int m_uniqueFileName;
+      int m_pid;
       string m_HTMLFilePath;
       string m_HTMLFilePathForJSON;
       string m_first_node_ID;
@@ -109,7 +110,8 @@ namespace PLEXIL
       int m_actualId;
       void getGanttDir();
       void getCurrDir();
-      //void setUniqueFileName();
+      pid_t setPID();
+      void setUniqueFileName();
       void createHTMLFile(const string& r_name, 
                           const string& cur_dir, 
                           const string& gantt_dir);
