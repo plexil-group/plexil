@@ -121,26 +121,6 @@ namespace PLEXIL
       m_uniqueFileName = setPID();
    }
 
-   /*
-    * used to auto-launch brower
-    */
-   static void launch(const string &url)
-   {
-      string browser;
-      browser = getenv("BROWSER"); // note: not portable, BROWSER not defined??
-      //string browser = "/usr/bin/firefox";
-      if (browser == "")
-         return;
-      char *args[3];
-      args[0] = (char*)browser.c_str();
-      args[1] = (char*)url.c_str();
-      args[2] = 0;
-
-      pid_t pid = fork();
-      if (!pid)
-         execvp(browser.c_str(), args);
-   }
-
    /** generate the HTML file once a plan's execution started and 
    that connects to necessary Javascript and produced JSON **/
    void GanttListener::createHTMLFile(const string& rootName,  
@@ -748,13 +728,6 @@ namespace PLEXIL
       workingDir = myListener.m_currentWorkingDir;
       ganttDirectory = myListener.m_plexilGanttDirectory;
       
-      std::stringstream ss; 
-      ss << nodeId;
-      if (myListener.m_first_time)
-      {
-         myListener.m_first_node_ID = ss.str();
-         myListener.m_first_time = false;
-      }
       //startTime is when first node executes
       if (myListener.m_startTime == -1) {
          myListener.m_startTime = nodeId->getCurrentStateStartTime();
@@ -787,11 +760,6 @@ namespace PLEXIL
                                       myListener.m_startTime, 
                                       myListener.m_parent, 
                                       myListener.m_planFailureState);
-         if (ss.str() == myListener.m_first_node_ID 
-            && newState == FINISHED_STATE)
-         {
-            launch(myListener.m_HTMLFilePath);
-         }
       }
    }
 

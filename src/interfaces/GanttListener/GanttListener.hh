@@ -90,7 +90,6 @@ namespace PLEXIL
       int m_pid;
       string m_HTMLFilePath;
       string m_HTMLFilePathForJSON;
-      string m_first_node_ID;
       bool m_first_time;
       bool m_outputFinalJSON;
       vector<NodeObj> m_nodes;
