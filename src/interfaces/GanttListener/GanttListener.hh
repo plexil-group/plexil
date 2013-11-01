@@ -32,10 +32,6 @@
 #include "ExecDefs.hh"
 #include "ExecListener.hh"
 
-using std::string;
-using std::map;
-using std::vector;
-
 namespace PLEXIL
 {
    // Provides output from execution useful for debugging a Plexil plan.
@@ -48,30 +44,30 @@ namespace PLEXIL
       // Capture and report about useful node state transitions.
       void implementNotifyNodeTransition (NodeState prevState,
          const NodeId& node) const;
-   private:
+   private: // some convention issue: sequence, blank line, comments
       struct NodeObj {
          double start;
          double end;
          double duration;
-         string name;
-         string type;
-         string val;
-         string parent;
+         std::string name;
+         std::string type;
+         std::string val;
+         std::string parent;
          int id;
-         string localvariables;
-         string children;
-         vector<string> localvarsvector;
+         std::string localvariables;
+         std::string children;
+         std::vector<std::string> localvarsvector;
          NodeObj (double start_val, 
                   double end_val,
                   double duration_val,
-                  const string& id,  
-                  const string& type_id, 
-                  const string& val_str,
-                  const string& parent_str, 
+                  const std::string& id,  
+                  const std::string& type_id, 
+                  const std::string& val_str,
+                  const std::string& parent_str, 
                   int id_val, 
-                  const string& loc_var,
-                  const string& child_str, 
-                  vector<string>& loc_var_vec
+                  const std::string& loc_var,
+                  const std::string& child_str, 
+                  std::vector<std::string>& loc_var_vec
                   )
                   :start(start_val),
                   end(end_val),
@@ -86,96 +82,111 @@ namespace PLEXIL
                   localvarsvector(loc_var_vec)
                   { }
       };
-      int m_uniqueFileName;
-      int m_pid;
-      string m_HTMLFilePath;
-      string m_HTMLFilePathForJSON;
-      bool m_first_time;
-      bool m_outputFinalJSON;
-      vector<NodeObj> m_nodes;
-      double m_StartValdbl, m_EndValdbl, m_DurationValdbl;
-      string m_fullTemplate;
-      string m_Id, m_Type, m_Val;
-      string m_LocalVarsAfter;
-      int m_index;
-      bool m_outputHTML;
-      string m_plexilGanttDirectory;
-      string m_currentWorkingDir;
-      double m_startTime;
-      map<NodeId, int> m_stateMap, m_counterMap;
-      string m_parent;
-      bool m_planFailureState;
-      int m_nodeCounter;
-      int m_actualId;
-      void getGanttDir();
-      void getCurrDir();
+
+      // Disallow copy, and assignment
+      GanttListener(const GanttListener&);
+      GanttListener& operator=(const GanttListener&);
+
+      void initialzeMembers();
+      void setGanttDir();
+      void setCurrDir();
       pid_t setPID();
       void setUniqueFileName();
-      void createHTMLFile(const string& r_name, 
-                          const string& cur_dir, 
-                          const string& gantt_dir);
-      void deliverJSONAsFile(const string& r_name, 
-                             const string& jstream, 
-                             const string& cur_dir);
-      void deliverPartialJSON(const string& r_name, 
-                              const string& jstream, 
-                              const string& cur_dir);
+
+      void createHTMLFile(const std::string& r_name, 
+                          const std::string& cur_dir, 
+                          const std::string& gantt_dir);
+
+      void deliverJSONAsFile(const std::string& r_name, 
+                             const std::string& jstream, 
+                             const std::string& cur_dir);
+
+      void deliverPartialJSON(const std::string& r_name, 
+                              const std::string& jstream, 
+                              const std::string& cur_dir);
+
       NodeObj createNodeObj(const NodeId& nodeId, 
                             double& time, 
                             int& nodeCounter, 
                             int& actualId, 
-                            map<NodeId, int>& stateMap, 
-                            map<NodeId, int>& counterMap, 
-                            string& myParent);
-      void getFinalLocalVar(const vector<GanttListener::NodeObj>& nodes, 
+                            std::map<NodeId, int>& stateMap, 
+                            std::map<NodeId, int>& counterMap, 
+                            std::string& myParent);
+
+      void getFinalLocalVar(const std::vector<GanttListener::NodeObj>& nodes, 
                             const NodeId& nodeId, 
                             int index, 
-                            string& myLocalVarsAfter);
-      void processTempValsForNode(const vector<GanttListener::NodeObj>& nodes, 
+                            std::string& myLocalVarsAfter);
+
+      void processTempValsForNode(const std::vector<GanttListener::NodeObj>& nodes, 
                                   const NodeId& nodeId, 
                                   int index, 
                                   double time, 
                                   double& myEndValdbl,
                                   double& myDurationValdbl, 
-                                  string& myParent, 
-                                  string& myLocalVarsAfter);
-      void prepareDataForJSONObj(vector<GanttListener::NodeObj>& nodes, 
+                                  std::string& myParent, 
+                                  std::string& myLocalVarsAfter);
+
+      void prepareDataForJSONObj(std::vector<GanttListener::NodeObj>& nodes, 
                                  int index, 
                                  double& myEndValdbl, 
                                  double& myDurationValdbl, 
-                                 const string& myParent, 
-                                 const string& myLocalVarsAfter, 
-                                 string& predicate, 
-                                 string& entity, 
-                                 string& nodeNameLower,
-                                 string& nodeNameReg, 
-                                 string& newVal, 
-                                 string& childrenVal, 
-                                 string& localVarsVal, 
-                                 string& nodeIDString, 
-                                 string& startVal, 
-                                 string& endVal,
-                                 string& durationVal);
-      void generateTempOutputFiles(const string& rootName, 
-                                   const string& JSONStream, 
-                                   const string& currDir, 
-                                   const string& ganttDir);
-      void generateFinalOutputFiles(const string& rootName, 
-                                    const string& JSONStream, 
-                                    const string& nodeIDNum, 
-                                    const string& currDir, 
-                                    const string& ganttDir, 
+                                 const std::string& myParent, 
+                                 const std::string& myLocalVarsAfter, 
+                                 std::string& predicate, 
+                                 std::string& entity, 
+                                 std::string& nodeNameLower,
+                                 std::string& nodeNameReg, 
+                                 std::string& newVal, 
+                                 std::string& childrenVal, 
+                                 std::string& localVarsVal, 
+                                 std::string& nodeIDString, 
+                                 std::string& startVal, 
+                                 std::string& endVal,
+                                 std::string& durationVal);
+
+      void generateTempOutputFiles(const std::string& rootName, 
+                                   const std::string& JSONStream, 
+                                   const std::string& currDir, 
+                                   const std::string& ganttDir);
+
+      void generateFinalOutputFiles(const std::string& rootName, 
+                                    const std::string& JSONStream, 
+                                    const std::string& nodeIDNum, 
+                                    const std::string& currDir, 
+                                    const std::string& ganttDir, 
                                     bool state);
-      void processOutputData(vector<GanttListener::NodeObj>& nodes, 
+
+      void processOutputData(std::vector<GanttListener::NodeObj>& nodes, 
                              const NodeId& nodeId, 
-                             const string& curr_dir, 
-                             const string& curr_plexil_dir, 
+                             const std::string& curr_dir, 
+                             const std::string& curr_plexil_dir, 
                              double start_time, 
-                             string& parent, 
+                             std::string& parent, 
                              bool state);
-      // Disallow copy, and assignment
-      GanttListener(const GanttListener&);
-      GanttListener& operator=(const GanttListener&);
+
+      int m_uniqueFileName;
+      int m_pid;
+      std::string m_HTMLFilePath;
+      std::string m_HTMLFilePathForJSON;
+      bool m_first_time; // comment
+      bool m_outputFinalJSON;
+      std::vector<NodeObj> m_nodes;
+      double m_StartValdbl, m_EndValdbl, m_DurationValdbl;
+      std::string m_fullTemplate;
+      std::string m_Id, m_Type, m_Val;
+      std::string m_LocalVarsAfter;
+      int m_index; // comment
+      bool m_outputHTML;
+      std::string m_plexilGanttDirectory;
+      std::string m_currentWorkingDir;
+      double m_startTime;
+      std::map<NodeId, int> m_stateMap, m_counterMap;
+      std::string m_parent;
+      bool m_planFailureState;
+      bool m_continueOutputingData;
+      int m_nodeCounter;
+      int m_actualId;
    };
 }
 

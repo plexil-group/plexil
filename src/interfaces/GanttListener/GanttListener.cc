@@ -58,6 +58,9 @@ using std::cin;
 using std::ofstream;
 using std::endl;
 using std::list;
+using std::string;
+using std::vector;
+using std::map;
 
 namespace PLEXIL
 {
@@ -65,10 +68,10 @@ namespace PLEXIL
    // *executive* and not plans) to display messages of interest.  Later, a more
    // structured approach including listener filters and a different user
    // interface may be in order.
-   GanttListener::GanttListener() 
-   { 
-      getCurrDir();
-      getGanttDir();
+   void GanttListener::initialzeMembers()
+   {
+      setCurrDir(); // sequence of fcn calls, naming
+      setGanttDir();
       setUniqueFileName();
       m_outputFinalJSON = true;
       m_outputHTML = true;
@@ -77,32 +80,45 @@ namespace PLEXIL
       m_nodeCounter = 0;
       m_actualId = -1;
       m_first_time = true;
+      m_continueOutputingData = true;
       m_fullTemplate = "var rawPlanTokensFromFile=\n[\n";
    }
+
+   GanttListener::GanttListener() 
+   { 
+      initialzeMembers();
+   }
+
    GanttListener::GanttListener(const pugi::xml_node& xml) : ExecListener(xml)
-   { }
+   {  
+      initialzeMembers(); 
+   }
+
    GanttListener::~GanttListener() { }
 
-   void GanttListener::getGanttDir()
+   void GanttListener::setGanttDir()
    {
       /** get PLEXIL_HOME **/
       string pPath;
-      try {
-         pPath = getenv ("PLEXIL_HOME");
-      }
-      catch(int e) {
+      const string ganttLocation = "/viewers/gantt/";
+      
+      pPath = getenv ("PLEXIL_HOME");
+      if (pPath == "")
+      {
+         m_continueOutputingData = false;
          debugMsg("GanttViewer:printErrors", "PLEXIL_HOME is not defined");
       }
       /** get Viewer directory under PLEXIL_HOME **/
-      m_plexilGanttDirectory = pPath + "/viewers/gantt/";
+      m_plexilGanttDirectory = pPath + ganttLocation;
    }
 
-   void GanttListener::getCurrDir()
+   void GanttListener::setCurrDir()
    {
       char * buffer;
       if (!(buffer = getcwd(NULL, FILENAME_MAX)))
       {
-         cout << "getcwd error!" << endl;
+         m_continueOutputingData = false;
+         debugMsg("GanttViewer:printErrors", "Output path is not defined");
       }
       else
       {
@@ -111,7 +127,7 @@ namespace PLEXIL
       }
    }
 
-   pid_t GanttListener::setPID()
+   pid_t GanttListener::setPID() // one liner, integrate with constructor
    {
       return m_pid = getpid();
    }
@@ -127,74 +143,73 @@ namespace PLEXIL
                                       const string& currDir, 
                                       const string& ganttDir)
    {
-      std::stringstream htmlFile, htmlFilePath, tokenFileName;
+      std::ostringstream htmlFile, htmlFilePath, tokenFileName;
       htmlFilePath << currDir << "/" << 
          "gantt_" << m_uniqueFileName << "_" << rootName << ".html";
       m_HTMLFilePath = htmlFilePath.str(); 
-      tokenFileName << "json/" << 
-         m_uniqueFileName << "_" << rootName << ".js";
+      tokenFileName << "json/" << m_uniqueFileName << "_" << rootName << ".js";
       const string myTokenFileName = tokenFileName.str(); 
+      const string br = "\n ";
 
-      string br = "\n "; // br, no need for the space after \n
-      htmlFile << 
-         "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 " <<
-         "Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">" << br <<
-         "<html lang=\"en\"> " << br <<
-         "<head> " << br <<
-         "<meta http-equiv=\"Content-Type\" " <<
-         "content=\"text/html; charset=utf-8\"> " << br <<
-         "<title>" << rootName << " - " << "Gantt Temporal Plan Viewer</title> " << 
-         br << "<meta name=\"author\" content=\"By Madan, Isaac " <<
-         "A. (ARC-TI); originally authored by " <<
-         "Swanson, Keith J. (ARC-TI)\"> " << br << br <<
-         "<!-- jQuery is required --> " << br <<
-         "<script src=\"" << ganttDir << "jq/jquery-1.6.2.js\" " <<
-         "type=\"text/javascript\"></script> " << br <<
-         "<link type=\"text/css\" href=\"" << ganttDir << 
-         "jq/jquery-ui-1.8.15.custom.css\" " <<
-         "rel=\"Stylesheet\" /> " << br <<
-         "<script type=\"text/javascript\" src=\"" << ganttDir <<
-         "jq/jquery-ui-1.8.15.custom.min.js\"></script> " << br << br <<
-         "<!-- Load data locally --> " << br <<
-         "<script src=\"" << currDir << "/" << myTokenFileName << 
-         "\" type=\"text/javascript\"></script> " << br << br <<
-         "<!-- Application code --> " << br <<      
-         "<script src=\"" << ganttDir <<
-         "addons.js\" type=\"text/javascript\"></script> " << br <<
-         "<script src=\"" << ganttDir <<
-         "getAndConvertTokens.js\" type=\"text/javascript\"></script> " << br <<
-         "<script src=\"" << ganttDir <<
-         "showTokens.js\" type=\"text/javascript\"></script> " << br <<
-         "<script src=\"" << ganttDir <<
-         "detailsBox.js\" type=\"text/javascript\"></script> " << br <<
-         "<script src=\"" << ganttDir <<
-         "grid.js\" type=\"text/javascript\"></script> " << br <<
-         "<script src=\"" << ganttDir <<
-         "sizing.js\" type=\"text/javascript\"></script> " << br <<
-         "<script src=\"" << ganttDir <<
-         "main.js\" type=\"text/javascript\"></script> " << br <<
-         "<script src=\"" << ganttDir <<
-         "shortcuts.js\" type=\"text/javascript\"></script> " << br << br <<
-         "<!-- My styles --> " << br <<
-         "<link rel=\"stylesheet\" href=\"" << ganttDir << 
-         "styles.css\" type=\"text/css\"> " << br <<
-         "</head> \n <body> " << br << br <<
-         "<!-- Layout --> " << br <<
-         "<div id=\"footer\"></div> " << br <<
-         "<div id=\"mod\"></div> " << br <<
-         "<div id=\"gantt\"></div> " << br <<
-         "</body> " << br <<
-         "</html>"; 
       ofstream myfile;
       myfile.open(m_HTMLFilePath.c_str());
       if (myfile.fail())
       {
-         cout << "Failed to create HTML file!" << endl;
-         exit(1);
+         m_continueOutputingData = false;
+         debugMsg("GanttViewer:printErrors", "Failed to create HTML file!");
       }
       else
       {
-         myfile << htmlFile.rdbuf() << std::flush;
+         myfile << 
+            "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 " <<
+            "Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">" << br <<
+            "<html lang=\"en\"> " << br <<
+            "<head> " << br <<
+            "<meta http-equiv=\"Content-Type\" " <<
+            "content=\"text/html; charset=utf-8\"> " << br <<
+            "<title>" << rootName << " - " << "Gantt Temporal Plan Viewer</title> " << 
+            br << "<meta name=\"author\" content=\"By Madan, Isaac " <<
+            "A. (ARC-TI); originally authored by " <<
+            "Swanson, Keith J. (ARC-TI)\"> " << br << br <<
+            "<!-- jQuery is required --> " << br <<
+            "<script src=\"" << ganttDir << "jq/jquery-1.6.2.js\" " <<
+            "type=\"text/javascript\"></script> " << br <<
+            "<link type=\"text/css\" href=\"" << ganttDir << 
+            "jq/jquery-ui-1.8.15.custom.css\" " <<
+            "rel=\"Stylesheet\" /> " << br <<
+            "<script type=\"text/javascript\" src=\"" << ganttDir <<
+            "jq/jquery-ui-1.8.15.custom.min.js\"></script> " << br << br <<
+            "<!-- Load data locally --> " << br <<
+            "<script src=\"" << currDir << "/" << myTokenFileName << 
+            "\" type=\"text/javascript\"></script> " << br << br <<
+            "<!-- Application code --> " << br <<      
+            "<script src=\"" << ganttDir <<
+            "addons.js\" type=\"text/javascript\"></script> " << br <<
+            "<script src=\"" << ganttDir <<
+            "getAndConvertTokens.js\" type=\"text/javascript\"></script> " << br <<
+            "<script src=\"" << ganttDir <<
+            "showTokens.js\" type=\"text/javascript\"></script> " << br <<
+            "<script src=\"" << ganttDir <<
+            "detailsBox.js\" type=\"text/javascript\"></script> " << br <<
+            "<script src=\"" << ganttDir <<
+            "grid.js\" type=\"text/javascript\"></script> " << br <<
+            "<script src=\"" << ganttDir <<
+            "sizing.js\" type=\"text/javascript\"></script> " << br <<
+            "<script src=\"" << ganttDir <<
+            "main.js\" type=\"text/javascript\"></script> " << br <<
+            "<script src=\"" << ganttDir <<
+            "shortcuts.js\" type=\"text/javascript\"></script> " << br << br <<
+            "<!-- My styles --> " << br <<
+            "<link rel=\"stylesheet\" href=\"" << ganttDir << 
+            "styles.css\" type=\"text/css\"> " << br <<
+            "</head> \n <body> " << br << br <<
+            "<!-- Layout --> " << br <<
+            "<div id=\"footer\"></div> " << br <<
+            "<div id=\"mod\"></div> " << br <<
+            "<div id=\"gantt\"></div> " << br <<
+            "</body> " << br <<
+            "</html>"
+            << std::flush;
          myfile.close();
       }
       
@@ -209,7 +224,7 @@ namespace PLEXIL
    {
       const string myCloser = "];";
       const string json_folder_path = curr_dir + "/" + "json";
-      std::stringstream ss;
+      std::ostringstream ss;
       string outputFileName;
       if (m_outputFinalJSON)
       {
@@ -225,8 +240,8 @@ namespace PLEXIL
          myfile.open(outputFileName.c_str());
          if (myfile.fail())
          {
-            cout << "Failed to create JSON file!" << endl;
-            exit(2);
+            m_continueOutputingData = false;
+            debugMsg("GanttViewer:printErrors", "Failed to create JSON file!");
          }
          else
          {
@@ -246,7 +261,7 @@ namespace PLEXIL
    {
       const string myCloser = "];";
       const string json_folder_path = curr_dir + "/" + "json";
-      std::stringstream ss;
+      std::ostringstream ss;
       string outputFileName;
       if (access(json_folder_path.c_str(), 0) != 0)
       {
@@ -260,8 +275,8 @@ namespace PLEXIL
       myfile.open(outputFileName.c_str());
       if (myfile.fail())
       {
-         cout << "Failed to create partial JSON file!" << endl;
-         exit(1);
+         m_continueOutputingData = false;
+         debugMsg("GanttViewer:printErrors", "Failed to create JSON file!");
       }
       else
       {
@@ -275,19 +290,18 @@ namespace PLEXIL
    static string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
                                                vector<string>& myLocalVariableMapValues)
    {
-      std::stringstream myLocalVars;
+      std::ostringstream myLocalVars;
       const VariableMap tempLocalVariablesMap = nodeId->getLocalVariablesByName();
       if (tempLocalVariablesMap.empty())
       {
-         return "none";
+         return "none"; // check for empty string not "none"
       }
       for (VariableMap::const_iterator it = tempLocalVariablesMap.begin();
          it != tempLocalVariablesMap.end(); ++it) 
       {
          const string& tempNameString = it->first.toString();
-         ExpressionId temp = it->second;
-         string tempValueString = temp->valueString();
-         std::stringstream tempString;
+         string tempValueString = it->second->valueString();
+         std::ostringstream tempString;
          tempString << "<br><i>" << tempNameString << "</i>" 
             << " = " << tempValueString;
          myLocalVariableMapValues.push_back(tempValueString);
@@ -300,12 +314,12 @@ namespace PLEXIL
 
    static string getChildNode(const NodeId& nodeId)
    {
-      std::stringstream myChildNode;
+      std::ostringstream myChildNode;
       //get child nodes
       const vector<NodeId>& tempChildList = nodeId->getChildren();
       if (tempChildList.size() == 0) 
       {
-         return "none";
+         return "none"; // for correctness, if the child node is "none"???!!!
       }
       else
       {
@@ -327,27 +341,19 @@ namespace PLEXIL
    {
       vector<string> myLocalVariableMapValues;
 
-      //make sure the temporary variables are cleaned out
-      string myId;
-      double myStartValdbl = -1;
-      string myType;
-      string myVal = " ";
-      string myLocalVars = " ";
-      string myChildren = " ";
-
-      myId = nodeId->getNodeId().toString();
-      myStartValdbl = ((nodeId->getCurrentStateStartTime()) - time) * 100;
-      myType = nodeId->getType().toString();
-      myVal = nodeId->getStateName().getStringValue();
+      string myId = nodeId->getNodeId().toString();
+      double myStartValdbl = ((nodeId->getCurrentStateStartTime()) - time) * 100;
+      string myType = nodeId->getType().toString();
+      string myVal = nodeId->getStateName().getStringValue();
 
       if (nodeId->getParent().isId())
-        myParent = nodeId->getParent()->getNodeId().toString();
+         myParent = nodeId->getParent()->getNodeId().toString();
       if (myParent == " ") {
          myParent = nodeId->getNodeId().toString();
       }
 
       //increase nodeCounter for ID value
-      nodeCounter += 1;
+      nodeCounter++; // ++ serial number, a local static member of the fcn exclusively
       actualId = nodeCounter; //actualId ensures that looping nodes 
                               //have the same ID for each token
 
@@ -360,8 +366,8 @@ namespace PLEXIL
          counterMap[nodeId] = actualId;
 
       //get local variables from map in state 'EXECUTING'
-      myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
-      myChildren = getChildNode(nodeId); //get child nodes
+      string myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
+      string myChildren = getChildNode(nodeId); //get child nodes
 
       return NodeObj(myStartValdbl, -1, -1, myId, myType, myVal, 
          myParent, actualId, myChildren, myLocalVars, myLocalVariableMapValues);
@@ -372,7 +378,7 @@ namespace PLEXIL
                                    vector<string>& thisLocalVarsVectorKeys,
                                    int i)
    {
-      std::stringstream tempFullString;
+      std::ostringstream tempFullString;
       //bolden final local variable values that changed during execution of node
       if(prevLocalVarsVector[i] != thisLocalVarsVectorValues[i]) 
       {
@@ -398,7 +404,7 @@ namespace PLEXIL
       //make sure all local variable vectors are filled
       int smallerSize;
       vector<string> fullStrings;
-      std::stringstream ss;
+      std::ostringstream ss;
 
       if(prevLocalVarsVector.size() > 1 && 
          thisLocalVarsVectorKeys.size() > 1 && 
@@ -450,9 +456,8 @@ namespace PLEXIL
          for (VariableMap::const_iterator it = tempLocalVariableMapAfter.begin(); 
             it != tempLocalVariableMapAfter.end(); it++) 
          {
-            ExpressionId temp = it->second;
             thisLocalVarsVectorKeys.push_back(it->first.toString());
-            thisLocalVarsVectorValues.push_back(temp->valueString());
+            thisLocalVarsVectorValues.push_back(it->second->valueString());
          }
          processLocalVar(prevLocalVarsVector, thisLocalVarsVectorValues, 
             thisLocalVarsVectorKeys, myLocalVarsAfter);
@@ -523,7 +528,7 @@ namespace PLEXIL
 
       //convert node id number, start time, end time, and duration to strings
       std::ostringstream ndcntr;
-      ndcntr << nodes[index].id;
+      ndcntr << nodes[index].id; // id is an int
       nodeIDString = ndcntr.str();
 
       std::ostringstream strs;
@@ -554,7 +559,7 @@ namespace PLEXIL
 
       //add '[' and ']' before and after duration and start to add uncertainty to those values
       //setup JSON object to be added to array
-      std::stringstream newTemplate;
+      std::ostringstream newTemplate;
       newTemplate << "{\n'id': " << nodeIDString << ",\n'type':'" 
          << predicate 
          << "',\n'parameters': [\n{\n'name': 'entityName',\n'type': 'STRING',\n'value':'"
@@ -590,7 +595,8 @@ namespace PLEXIL
          createHTMLFile(rootName, currDir, ganttDir);
          m_outputHTML = false;
       }
-      deliverPartialJSON(rootName, JSONStream, currDir); 
+      deliverPartialJSON(rootName, JSONStream, currDir);
+      
       debugMsg("GanttViewer:printProgress", 
          "finished gathering data; JSON and HTML stored");
    }
@@ -701,18 +707,21 @@ namespace PLEXIL
                                              myStartVal, 
                                              myEndVal, 
                                              myDurationVal);
-      generateFinalOutputFiles(myRootNodeStr, 
-                               m_fullTemplate, 
-                               myNodeIDString, 
-                               curr_dir, 
-                               curr_plexil_dir, 
-                               state);
+      if (m_continueOutputingData == true)
+      {
+         generateFinalOutputFiles(myRootNodeStr, 
+                                  m_fullTemplate, 
+                                  myNodeIDString, 
+                                  curr_dir, 
+                                  curr_plexil_dir, 
+                                  state);
+      }
 
       debugMsg("GanttViewer:printProgress", "Token added for node " +
          myEntity + "." + myPredicate);
    }
    
-   GanttListener myListener;
+   GanttListener myListener; // no need to create an
 
    /** executed when nodes transition state
    *  resets the start time so it can be used in temporal calculations,
@@ -725,8 +734,8 @@ namespace PLEXIL
    {
       string workingDir, ganttDirectory;
 
-      workingDir = myListener.m_currentWorkingDir;
-      ganttDirectory = myListener.m_plexilGanttDirectory;
+      workingDir = m_currentWorkingDir;
+      ganttDirectory = m_plexilGanttDirectory;
       
       //startTime is when first node executes
       if (myListener.m_startTime == -1) {
