@@ -106,8 +106,7 @@ namespace PLEXIL
                               const std::string& cur_dir);
 
       NodeObj createNodeObj(const NodeId& nodeId, 
-                            double& time, 
-                            int& nodeCounter, 
+                            double& time,  
                             int& actualId, 
                             std::map<NodeId, int>& stateMap, 
                             std::map<NodeId, int>& counterMap, 
@@ -172,9 +171,8 @@ namespace PLEXIL
       bool m_first_time; // comment
       bool m_outputFinalJSON;
       std::vector<NodeObj> m_nodes;
-      double m_StartValdbl, m_EndValdbl, m_DurationValdbl;
+      double m_EndValdbl, m_DurationValdbl;
       std::string m_fullTemplate;
-      std::string m_Id, m_Type, m_Val;
       std::string m_LocalVarsAfter;
       int m_index; // comment
       bool m_outputHTML;
@@ -185,7 +183,6 @@ namespace PLEXIL
       std::string m_parent;
       bool m_planFailureState;
       bool m_continueOutputingData;
-      int m_nodeCounter;
       int m_actualId;
    };
 }

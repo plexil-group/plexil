@@ -70,18 +70,18 @@ namespace PLEXIL
    // interface may be in order.
    void GanttListener::initialzeMembers()
    {
-      setCurrDir(); // sequence of fcn calls, naming
-      setGanttDir();
-      setUniqueFileName();
       m_outputFinalJSON = true;
       m_outputHTML = true;
       m_planFailureState = false;
       m_startTime = -1;
-      m_nodeCounter = 0;
-      m_actualId = -1;
+      m_actualId = 0;
       m_first_time = true;
       m_continueOutputingData = true;
       m_fullTemplate = "var rawPlanTokensFromFile=\n[\n";
+
+      setCurrDir();
+      setGanttDir();
+      setUniqueFileName();
    }
 
    GanttListener::GanttListener() 
@@ -127,7 +127,7 @@ namespace PLEXIL
       }
    }
 
-   pid_t GanttListener::setPID() // one liner, integrate with constructor
+   pid_t GanttListener::setPID()
    {
       return m_pid = getpid();
    }
@@ -294,7 +294,7 @@ namespace PLEXIL
       const VariableMap tempLocalVariablesMap = nodeId->getLocalVariablesByName();
       if (tempLocalVariablesMap.empty())
       {
-         return "none"; // check for empty string not "none"
+         return std::string();
       }
       for (VariableMap::const_iterator it = tempLocalVariablesMap.begin();
          it != tempLocalVariablesMap.end(); ++it) 
@@ -319,7 +319,7 @@ namespace PLEXIL
       const vector<NodeId>& tempChildList = nodeId->getChildren();
       if (tempChildList.size() == 0) 
       {
-         return "none"; // for correctness, if the child node is "none"???!!!
+         return std::string();
       }
       else
       {
@@ -333,8 +333,9 @@ namespace PLEXIL
       return myChildNode.str();
    }
 
-   GanttListener::NodeObj GanttListener::createNodeObj(const NodeId& nodeId, double& time, 
-                                                       int& nodeCounter, int& actualId, 
+   GanttListener::NodeObj GanttListener::createNodeObj(const NodeId& nodeId, 
+                                                       double& time, 
+                                                       int& actualId, 
                                                        map<NodeId, int>& stateMap, 
                                                        map<NodeId, int>& counterMap, 
                                                        string& myParent)
@@ -348,14 +349,11 @@ namespace PLEXIL
 
       if (nodeId->getParent().isId())
          myParent = nodeId->getParent()->getNodeId().toString();
-      if (myParent == " ") {
+      if (myParent.empty()) {
          myParent = nodeId->getNodeId().toString();
       }
 
-      //increase nodeCounter for ID value
-      nodeCounter++; // ++ serial number, a local static member of the fcn exclusively
-      actualId = nodeCounter; //actualId ensures that looping nodes 
-                              //have the same ID for each token
+      actualId++; //actualId ensures that looping nodes have the same ID for each token
 
       //determine if a node looping; assign prior 
       // ID for loops and a new one for non loops
@@ -436,7 +434,9 @@ namespace PLEXIL
          }
       }
       else 
-         myLocalVarsAfter = "none";
+      {
+         myLocalVarsAfter = "";
+      }
    }
 
    void GanttListener::getFinalLocalVar(const vector<GanttListener::NodeObj>& nodes, 
@@ -448,11 +448,13 @@ namespace PLEXIL
       vector<string> thisLocalVarsVectorKeys;
       vector<string> thisLocalVarsVectorValues;
 
-      if(nodes[index].localvariables != "none" && 
+      if(!nodes[index].localvariables.empty() &&
          nodes[index].localvarsvector.size() > 0) 
       {
          if (tempLocalVariableMapAfter.empty())
-            myLocalVarsAfter = "none";
+         {
+            myLocalVarsAfter = "";
+         }
          for (VariableMap::const_iterator it = tempLocalVariableMapAfter.begin(); 
             it != tempLocalVariableMapAfter.end(); it++) 
          {
@@ -463,7 +465,9 @@ namespace PLEXIL
             thisLocalVarsVectorKeys, myLocalVarsAfter);
       }
       else 
-         myLocalVarsAfter = "none";
+      {
+         myLocalVarsAfter = "";
+      }
    }
 
    void GanttListener::processTempValsForNode(const vector<GanttListener::NodeObj>& nodes, 
@@ -474,11 +478,10 @@ namespace PLEXIL
       myEndValdbl = ((nodeId->getCurrentStateStartTime()) - time)*100;
       myDurationValdbl = myEndValdbl - nodes[index].start;
       //doesn't exist until node is finished     
-      string myOutcome = nodeId->getOutcome().getStringValue();
       if (nodeId->getParent().isId()) {
          myParent = nodeId->getParent()->getNodeId().toString();
       }
-      if(myParent == " ") {
+      if(myParent.empty()) {
          myParent = nodes[index].name;
       }
       //get final values for local variables
@@ -519,16 +522,16 @@ namespace PLEXIL
       localVarsVal = nodes[index].localvariables;
    
       //get rid of extra comma and space at end
-      if(childrenVal != "none") {
+      if (!childrenVal.empty()) {
          childrenVal.erase(childrenVal.end()-2);
       }
-      if(localVarsVal != "none") {
+      if(!localVarsVal.empty()) {
          localVarsVal.erase(localVarsVal.end()-2);
       }
 
       //convert node id number, start time, end time, and duration to strings
       std::ostringstream ndcntr;
-      ndcntr << nodes[index].id; // id is an int
+      ndcntr << nodes[index].id; // id is an int, so this is necessary
       nodeIDString = ndcntr.str();
 
       std::ostringstream strs;
@@ -637,11 +640,7 @@ namespace PLEXIL
       string myPredicate, myEntity, myNodeNameLower, myNodeNameReg, myNewVal;
       string myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, myEndVal;
       string myDurationVal;
-      //make sure the temporary variables are cleaned out
-      m_Id = " ";
-      m_StartValdbl = -1;
-      m_Type = " ";
-      m_Val = " ";
+
       // find the node it corresponds to in nodes vector
       string tempId = nodeId->getNodeId().toString();
       string tempType = nodeId->getType().toString();
@@ -721,7 +720,7 @@ namespace PLEXIL
          myEntity + "." + myPredicate);
    }
    
-   GanttListener myListener; // no need to create an
+   GanttListener myListener;
 
    /** executed when nodes transition state
    *  resets the start time so it can be used in temporal calculations,
@@ -741,7 +740,7 @@ namespace PLEXIL
       if (myListener.m_startTime == -1) {
          myListener.m_startTime = nodeId->getCurrentStateStartTime();
       }
-      myListener.m_parent = " ";
+      myListener.m_parent.clear();
 
       //get state
       const NodeState& newState = nodeId->getState();
@@ -750,7 +749,6 @@ namespace PLEXIL
          myListener.m_nodes.push_back(
             myListener.createNodeObj(nodeId, 
                                      myListener.m_startTime, 
-                                     myListener.m_nodeCounter, 
                                      myListener.m_actualId, 
                                      myListener.m_stateMap, 
                                      myListener.m_counterMap, 
