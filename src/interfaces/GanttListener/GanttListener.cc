@@ -75,7 +75,6 @@ namespace PLEXIL
       m_planFailureState = false;
       m_startTime = -1;
       m_actualId = 0;
-      m_first_time = true;
       m_continueOutputingData = true;
       m_fullTemplate = "var rawPlanTokensFromFile=\n[\n";
 

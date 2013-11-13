@@ -168,13 +168,12 @@ namespace PLEXIL
       int m_pid;
       std::string m_HTMLFilePath;
       std::string m_HTMLFilePathForJSON;
-      bool m_first_time; // comment
       bool m_outputFinalJSON;
       std::vector<NodeObj> m_nodes;
       double m_EndValdbl, m_DurationValdbl;
       std::string m_fullTemplate;
       std::string m_LocalVarsAfter;
-      int m_index; // comment
+      int m_index; // index of node vector
       bool m_outputHTML;
       std::string m_plexilGanttDirectory;
       std::string m_currentWorkingDir;
