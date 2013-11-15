@@ -700,21 +700,14 @@ namespace PLEXIL
 
       switch (newState) {
          case EXECUTING_STATE:
-         {
             myListener.m_nodes.push_back(myListener.createNodeObj(nodeId));
             break;
-         }
-         case FINISHED_STATE:
-         {
-            myListener.processOutputData(myListener.m_nodes, nodeId);
-            break;
-         }
          case FAILING_STATE:
-         {
             myListener.m_planFailureState = true;
+            // fall through to FINISH_STATE
+         case FINISHED_STATE:
             myListener.processOutputData(myListener.m_nodes, nodeId);
             break;
-         }
       }
    }
 
