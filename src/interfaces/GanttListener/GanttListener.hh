@@ -43,7 +43,7 @@ namespace PLEXIL
       virtual ~GanttListener();
       // Capture and report about useful node state transitions.
       void implementNotifyNodeTransition (NodeState prevState,
-         const NodeId& node) const;
+         const NodeId& node) const; // virtual fcn
    private: // some convention issue: sequence, blank line, comments
       struct NodeObj {
          double start;
@@ -87,51 +87,31 @@ namespace PLEXIL
       GanttListener(const GanttListener&);
       GanttListener& operator=(const GanttListener&);
 
-      void initialzeMembers();
+      void initializeMembers();
       void setGanttDir();
       void setCurrDir();
       pid_t setPID();
       void setUniqueFileName();
 
-      void createHTMLFile(const std::string& r_name, 
-                          const std::string& cur_dir, 
-                          const std::string& gantt_dir);
+      void createHTMLFile(const std::string& r_name);
 
-      void deliverJSONAsFile(const std::string& r_name, 
-                             const std::string& jstream, 
-                             const std::string& cur_dir);
+      void deliverJSONAsFile(const std::string& r_name);
 
-      void deliverPartialJSON(const std::string& r_name, 
-                              const std::string& jstream, 
-                              const std::string& cur_dir);
+      void deliverPartialJSON(const std::string& r_name);
 
-      NodeObj createNodeObj(const NodeId& nodeId, 
-                            double& time,  
-                            int& actualId, 
-                            std::map<NodeId, int>& stateMap, 
-                            std::map<NodeId, int>& counterMap, 
-                            std::string& myParent);
+      NodeObj createNodeObj(const NodeId& nodeId);
 
       void getFinalLocalVar(const std::vector<GanttListener::NodeObj>& nodes, 
-                            const NodeId& nodeId, 
-                            int index, 
-                            std::string& myLocalVarsAfter);
+                            const NodeId& nodeId);
+
+      void processLocalVar(const std::vector<std::string>& prevLocalVarsVector, 
+                           const std::vector<std::string>& thisLocalVarsVectorValues, 
+                           const std::vector<std::string>& thisLocalVarsVectorKeys);
 
       void processTempValsForNode(const std::vector<GanttListener::NodeObj>& nodes, 
-                                  const NodeId& nodeId, 
-                                  int index, 
-                                  double time, 
-                                  double& myEndValdbl,
-                                  double& myDurationValdbl, 
-                                  std::string& myParent, 
-                                  std::string& myLocalVarsAfter);
+                                  const NodeId& nodeId);
 
-      void prepareDataForJSONObj(std::vector<GanttListener::NodeObj>& nodes, 
-                                 int index, 
-                                 double& myEndValdbl, 
-                                 double& myDurationValdbl, 
-                                 const std::string& myParent, 
-                                 const std::string& myLocalVarsAfter, 
+      void prepareDataForJSONObj(std::vector<GanttListener::NodeObj>& nodes,
                                  std::string& predicate, 
                                  std::string& entity, 
                                  std::string& nodeNameLower,
@@ -144,25 +124,13 @@ namespace PLEXIL
                                  std::string& endVal,
                                  std::string& durationVal);
 
-      void generateTempOutputFiles(const std::string& rootName, 
-                                   const std::string& JSONStream, 
-                                   const std::string& currDir, 
-                                   const std::string& ganttDir);
+      void generateTempOutputFiles(const std::string& rootName);
 
       void generateFinalOutputFiles(const std::string& rootName, 
-                                    const std::string& JSONStream, 
-                                    const std::string& nodeIDNum, 
-                                    const std::string& currDir, 
-                                    const std::string& ganttDir, 
-                                    bool state);
+                                    const std::string& nodeIDNum);
 
       void processOutputData(std::vector<GanttListener::NodeObj>& nodes, 
-                             const NodeId& nodeId, 
-                             const std::string& curr_dir, 
-                             const std::string& curr_plexil_dir, 
-                             double start_time, 
-                             std::string& parent, 
-                             bool state);
+                             const NodeId& nodeId);
 
       int m_uniqueFileName;
       int m_pid;
