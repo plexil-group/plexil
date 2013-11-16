@@ -61,6 +61,7 @@ using std::list;
 using std::string;
 using std::vector;
 using std::map;
+using std::ostream;
 
 namespace PLEXIL
 {
@@ -76,8 +77,7 @@ namespace PLEXIL
       m_startTime = -1;
       m_actualId = 0;
       m_continueOutputingData = true;
-      m_fullTemplate = "var rawPlanTokensFromFile=\n[\n";
-
+      m_fullTemplate << "var rawPlanTokensFromFile=\n[\n";
       setCurrDir();
       setGanttDir();
       setUniqueFileName();
@@ -243,7 +243,7 @@ namespace PLEXIL
          }
          else
          {
-            myfile << m_fullTemplate << myCloser << m_HTMLFilePathForJSON;
+            myfile << m_fullTemplate.str() << myCloser << m_HTMLFilePathForJSON;
             myfile.close();
             m_outputFinalJSON = false;
          }
@@ -278,7 +278,7 @@ namespace PLEXIL
       }
       else
       {
-         myfile << m_fullTemplate << myCloser << m_HTMLFilePathForJSON;
+         myfile << m_fullTemplate.str() << myCloser << m_HTMLFilePathForJSON;
          myfile.close();
       }
       debugMsg("GanttViewer:printProgress", 
@@ -531,23 +531,28 @@ namespace PLEXIL
       durationVal = strs3.str();
    }
 
-   static string produceSingleJSONObj(const string& predicate, const string& entity, 
-                                      const string& nodeNameLower, const string& nodeNameReg, 
-                                      const string& newVal, const string& childrenVal, 
-                                      const string& localVarsVal, const string& nodeIDString, 
-                                      const string& startVal, const string& endVal,
-                                      const string& durationVal) // pass ref to file stream (ostream), and return void
+   static void produceSingleJSONObj(ostream &strm, 
+                                    const string& predicate, 
+                                    const string& entity, 
+                                    const string& nodeNameLower, 
+                                    const string& nodeNameReg, 
+                                    const string& newVal, 
+                                    const string& childrenVal, 
+                                    const string& localVarsVal, 
+                                    const string& nodeIDString, 
+                                    const string& startVal, 
+                                    const string& endVal,
+                                    const string& durationVal)
    {
       /** Some notes
       * predicate is this node name (myId)
       * entity is this node type (myType)
-      * nodeNameLower and nodeNameReg are parent node name (myParent)
+      * nodeNameLower and nodeNameReg are parent node name (m_parent)
       **/
 
       //add '[' and ']' before and after duration and start to add uncertainty to those values
       //setup JSON object to be added to array
-      std::ostringstream newTemplate;
-      newTemplate << "{\n'id': " << nodeIDString << ",\n'type':'" 
+         strm << "{\n'id': " << nodeIDString << ",\n'type':'" 
          << predicate 
          << "',\n'parameters': [\n{\n'name': 'entityName',\n'type': 'STRING',\n'value':'"
          << entity <<
@@ -569,7 +574,6 @@ namespace PLEXIL
          << childrenVal
          << "'\n},\n{\n'name': 'localvariables',\n'type': 'INT',\n'value': '"
          << localVarsVal <<"'\n}\n]\n},\n";
-      return newTemplate.str();
    }
 
    void GanttListener::generateTempOutputFiles(const string& rootName)
@@ -642,8 +646,7 @@ namespace PLEXIL
          }
       } // separate fcn, return the index
 
-      processTempValsForNode(nodes, 
-                             nodeId); 
+      processTempValsForNode(nodes, nodeId); 
       // add temp values to node
       prepareDataForJSONObj(nodes,
                             myPredicate, 
@@ -657,18 +660,19 @@ namespace PLEXIL
                             myStartVal, 
                             myEndVal, 
                             myDurationVal);
-      // add JSON object to existing array
-      m_fullTemplate += produceSingleJSONObj(myPredicate, 
-                                             myEntity, 
-                                             myNodeNameLower, 
-                                             myNodeNameReg, 
-                                             myNewVal, 
-                                             myChildrenVal, 
-                                             myLocalVarsVal, 
-                                             myNodeIDString, 
-                                             myStartVal, 
-                                             myEndVal, 
-                                             myDurationVal);
+
+      produceSingleJSONObj(m_fullTemplate, 
+                           myPredicate, 
+                           myEntity, 
+                           myNodeNameLower, 
+                           myNodeNameReg, 
+                           myNewVal, 
+                           myChildrenVal, 
+                           myLocalVarsVal, 
+                           myNodeIDString, 
+                           myStartVal, 
+                           myEndVal, 
+                           myDurationVal);
       if (m_continueOutputingData == true)
       {
          generateFinalOutputFiles(myRootNodeStr, myNodeIDString);
