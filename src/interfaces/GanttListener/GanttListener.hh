@@ -111,12 +111,23 @@ namespace PLEXIL
       void processTempValsForNode(const std::vector<GanttListener::NodeObj>& nodes, 
                                   const NodeId& nodeId);
 
-      void prepareDataForJSONObj(std::vector<GanttListener::NodeObj>& nodes);
+      void prepareDataForJSONObj(std::vector<GanttListener::NodeObj>& nodes,
+                                 std::string& predicate, 
+                                 std::string& entity, 
+                                 std::string& nodeNameLower,
+                                 std::string& nodeNameReg, 
+                                 std::string& newVal, 
+                                 std::string& childrenVal, 
+                                 std::string& localVarsVal, 
+                                 std::string& nodeIDString, 
+                                 std::string& startVal, 
+                                 std::string& endVal,
+                                 std::string& durationVal);
 
       void generateTempOutputFiles(const std::string& rootName);
 
       void generateFinalOutputFiles(const std::string& rootName, 
-                                    const NodeId& nodeId);
+                                    const std::string& nodeIDNum);
 
       void processOutputData(std::vector<GanttListener::NodeObj>& nodes, 
                              const NodeId& nodeId);
