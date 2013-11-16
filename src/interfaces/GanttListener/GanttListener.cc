@@ -477,60 +477,6 @@ namespace PLEXIL
       getFinalLocalVar(nodes, nodeId);
    }
 
-   void GanttListener::prepareDataForJSONObj(vector<GanttListener::NodeObj>& nodes,
-                                             string& predicate, 
-                                             string& entity, 
-                                             string& nodeNameLower,
-                                             string& nodeNameReg, 
-                                             string& newVal, 
-                                             string& childrenVal, 
-                                             string& localVarsVal, 
-                                             string& nodeIDString, 
-                                             string& startVal, 
-                                             string& endVal,
-                                             string& durationVal)  
-   {
-      //add temp values to node
-      nodes[m_index].end = m_EndValdbl;
-      nodes[m_index].duration = m_DurationValdbl;
-      nodes[m_index].parent = m_parent;
-      nodes[m_index].localvariables = m_LocalVarsAfter;
-
-      //add node info into variables for JSON string
-      predicate = nodes[m_index].name;
-      entity = nodes[m_index].type;
-      nodeNameLower = nodes[m_index].parent;
-      nodeNameReg = nodes[m_index].parent;
-      newVal = nodes[m_index].val;
-      childrenVal = nodes[m_index].children;
-      localVarsVal = nodes[m_index].localvariables;   // a method of the NodeObj
-   
-      //get rid of extra comma and space at end
-      if (!childrenVal.empty()) {
-         childrenVal.erase(childrenVal.end() - 2);
-      }
-      if(!localVarsVal.empty()) {
-         localVarsVal.erase(localVarsVal.end() - 2);
-      }
-
-      //convert node id number, start time, end time, and duration to strings
-      std::ostringstream ndcntr;
-      ndcntr << nodes[m_index].id;
-      nodeIDString = ndcntr.str();
-
-      std::ostringstream strs;
-      strs << nodes[m_index].start;
-      startVal = strs.str();
-
-      std::ostringstream strs2;
-      strs2 << nodes[m_index].end;
-      endVal = strs2.str();
-
-      std::ostringstream strs3;
-      strs3 << nodes[m_index].duration;
-      durationVal = strs3.str();
-   }
-
    static void produceSingleJSONObj(ostream &strm, 
                                     const string& predicate, 
                                     const string& entity, 
@@ -576,6 +522,62 @@ namespace PLEXIL
          << localVarsVal <<"'\n}\n]\n},\n";
    }
 
+   void GanttListener::prepareDataForJSONObj(vector<GanttListener::NodeObj>& nodes)
+   {
+      //add temp values to node
+      nodes[m_index].end = m_EndValdbl;
+      nodes[m_index].duration = m_DurationValdbl;
+      nodes[m_index].parent = m_parent;
+      nodes[m_index].localvariables = m_LocalVarsAfter;
+
+      //add node info into variables for JSON string
+      string myPredicate = nodes[m_index].name;
+      string myEntity = nodes[m_index].type;
+      string myNodeNameLower = nodes[m_index].parent;
+      string myNodeNameReg = nodes[m_index].parent;
+      string myNewVal = nodes[m_index].val;
+      string myChildrenVal = nodes[m_index].children;
+      string myLocalVarsVal = nodes[m_index].localvariables;   // a method of the NodeObj
+   
+      //get rid of extra comma and space at end
+      if (!myChildrenVal.empty()) {
+         myChildrenVal.erase(myChildrenVal.end() - 2);
+      }
+      if(!myLocalVarsVal.empty()) {
+         myLocalVarsVal.erase(myLocalVarsVal.end() - 2);
+      }
+
+      //convert node id number, start time, end time, and duration to strings
+      std::ostringstream ndcntr;
+      ndcntr << nodes[m_index].id;
+      string myNodeIDString = ndcntr.str();
+
+      std::ostringstream strs;
+      strs << nodes[m_index].start;
+      string myStartVal = strs.str();
+
+      std::ostringstream strs2;
+      strs2 << nodes[m_index].end;
+      string myEndVal = strs2.str();
+
+      std::ostringstream strs3;
+      strs3 << nodes[m_index].duration;
+      string myDurationVal = strs3.str();
+
+      produceSingleJSONObj(m_fullTemplate, 
+                           myPredicate, 
+                           myEntity, 
+                           myNodeNameLower, 
+                           myNodeNameReg, 
+                           myNewVal, 
+                           myChildrenVal, 
+                           myLocalVarsVal, 
+                           myNodeIDString, 
+                           myStartVal, 
+                           myEndVal, 
+                           myDurationVal);
+   }
+
    void GanttListener::generateTempOutputFiles(const string& rootName)
    {
       if (m_outputHTML == true)
@@ -590,9 +592,9 @@ namespace PLEXIL
    }
 
    void GanttListener::generateFinalOutputFiles(const string& rootName, 
-                                                const string& nodeIDNum)
+                                                const NodeId& nodeId)
    {
-      if(nodeIDNum == "1")
+      if(nodeId->getNodeId() == 1)
       { 
          if (m_outputHTML == true)
          {
@@ -615,10 +617,6 @@ namespace PLEXIL
    void GanttListener::processOutputData(vector<GanttListener::NodeObj>& nodes, 
                                          const NodeId& nodeId)
    {
-      string myPredicate, myEntity, myNodeNameLower, myNodeNameReg, myNewVal;
-      string myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, myEndVal;
-      string myDurationVal;
-
       // find the node it corresponds to in nodes vector
       string tempId = nodeId->getNodeId().toString();
       string tempType = nodeId->getType().toString();
@@ -648,38 +646,15 @@ namespace PLEXIL
 
       processTempValsForNode(nodes, nodeId); 
       // add temp values to node
-      prepareDataForJSONObj(nodes,
-                            myPredicate, 
-                            myEntity, 
-                            myNodeNameLower, 
-                            myNodeNameReg, 
-                            myNewVal, 
-                            myChildrenVal, 
-                            myLocalVarsVal, 
-                            myNodeIDString, 
-                            myStartVal, 
-                            myEndVal, 
-                            myDurationVal);
+      prepareDataForJSONObj(nodes);
 
-      produceSingleJSONObj(m_fullTemplate, 
-                           myPredicate, 
-                           myEntity, 
-                           myNodeNameLower, 
-                           myNodeNameReg, 
-                           myNewVal, 
-                           myChildrenVal, 
-                           myLocalVarsVal, 
-                           myNodeIDString, 
-                           myStartVal, 
-                           myEndVal, 
-                           myDurationVal);
       if (m_continueOutputingData == true)
       {
-         generateFinalOutputFiles(myRootNodeStr, myNodeIDString);
+         generateFinalOutputFiles(myRootNodeStr, nodeId);
       }
 
       debugMsg("GanttViewer:printProgress", "Token added for node " +
-         myEntity + "." + myPredicate);
+         nodeId->getType().toString() + "." + nodeId->getNodeId().toString());
    }
    
    GanttListener myListener; // still needs to go
