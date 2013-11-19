@@ -102,26 +102,21 @@ namespace PLEXIL
 
       NodeObj createNodeObj(const NodeId& nodeId);
 
-      void getFinalLocalVar(const std::vector<GanttListener::NodeObj>& nodes, 
-                            const NodeId& nodeId);
+      void getFinalLocalVar(const NodeId& nodeId);
 
       void processLocalVar(const std::vector<std::string>& prevLocalVarsVector, 
                            const std::vector<std::string>& thisLocalVarsVectorValues, 
                            const std::vector<std::string>& thisLocalVarsVectorKeys);
 
-      void processTempValsForNode(const std::vector<GanttListener::NodeObj>& nodes, 
-                                  const NodeId& nodeId);
+      void processTempValsForNode(const NodeId& nodeId);
 
-      void prepareDataForJSONObj(std::vector<GanttListener::NodeObj>& nodes,
-                                 std::string& nodeIDString);
+      void prepareDataForJSONObj();
 
       void generateTempOutputFiles(const std::string& rootName);
 
-      void generateFinalOutputFiles(const std::string& rootName, 
-                                    const std::string& nodeIDNum);
+      void generateFinalOutputFiles(const std::string& rootName);
 
-      void processOutputData(std::vector<GanttListener::NodeObj>& nodes, 
-                             const NodeId& nodeId);
+      void processOutputData(const NodeId& nodeId);
 
       int m_uniqueFileName;
       int m_pid;

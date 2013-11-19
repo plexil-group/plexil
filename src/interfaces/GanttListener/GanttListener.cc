@@ -431,16 +431,15 @@ namespace PLEXIL
       }
    }
 
-   void GanttListener::getFinalLocalVar(const vector<GanttListener::NodeObj>& nodes, 
-                                        const NodeId& nodeId)
+   void GanttListener::getFinalLocalVar(const NodeId& nodeId)
    {
       const VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
-      vector<string> prevLocalVarsVector = nodes[m_index].localvarsvector;
+      vector<string> prevLocalVarsVector = m_nodes[m_index].localvarsvector;
       vector<string> thisLocalVarsVectorKeys;
       vector<string> thisLocalVarsVectorValues;
 
-      if(!nodes[m_index].localvariables.empty() &&
-         nodes[m_index].localvarsvector.size() > 0) 
+      if(!m_nodes[m_index].localvariables.empty() &&
+         m_nodes[m_index].localvarsvector.size() > 0) 
       {
          if (tempLocalVariableMapAfter.empty())
          {
@@ -461,20 +460,19 @@ namespace PLEXIL
       }
    }
 
-   void GanttListener::processTempValsForNode(const vector<GanttListener::NodeObj>& nodes, 
-                                              const NodeId& nodeId)
+   void GanttListener::processTempValsForNode(const NodeId& nodeId)
    {
       m_EndValdbl = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
-      m_DurationValdbl = m_EndValdbl - nodes[m_index].start;
+      m_DurationValdbl = m_EndValdbl - m_nodes[m_index].start;
       //doesn't exist until node is finished     
       if (nodeId->getParent().isId()) {
          m_parent = nodeId->getParent()->getNodeId().toString();
       }
       if(m_parent.empty()) {
-         m_parent = nodes[m_index].name;
+         m_parent = m_nodes[m_index].name;
       }
       //get final values for local variables
-      getFinalLocalVar(nodes, nodeId);
+      getFinalLocalVar(nodeId);
    }
 
    static void produceSingleJSONObj(ostream &strm, 
@@ -522,26 +520,25 @@ namespace PLEXIL
          << localVarsVal <<"'\n}\n]\n},\n";
    }
 
-   void GanttListener::prepareDataForJSONObj(vector<GanttListener::NodeObj>& nodes,
-                                             string& nodeIDString)  
+   void GanttListener::prepareDataForJSONObj()  
    {
       string myPredicate, myEntity, myNodeNameLower, myNodeNameReg, myNewVal;
-      string myChildrenVal, myLocalVarsVal,  myStartVal, myEndVal;
+      string myChildrenVal, myLocalVarsVal, myNodeIDString, myStartVal, myEndVal;
       string myDurationVal;
       //add temp values to node
-      nodes[m_index].end = m_EndValdbl;
-      nodes[m_index].duration = m_DurationValdbl;
-      nodes[m_index].parent = m_parent;
-      nodes[m_index].localvariables = m_LocalVarsAfter;
+      m_nodes[m_index].end = m_EndValdbl;
+      m_nodes[m_index].duration = m_DurationValdbl;
+      m_nodes[m_index].parent = m_parent;
+      m_nodes[m_index].localvariables = m_LocalVarsAfter;
 
       //add node info into variables for JSON string
-      myPredicate = nodes[m_index].name;
-      myEntity = nodes[m_index].type;
-      myNodeNameLower = nodes[m_index].parent;
-      myNodeNameReg = nodes[m_index].parent;
-      myNewVal = nodes[m_index].val;
-      myChildrenVal = nodes[m_index].children;
-      myLocalVarsVal = nodes[m_index].localvariables;   // a method of the NodeObj
+      myPredicate = m_nodes[m_index].name;
+      myEntity = m_nodes[m_index].type;
+      myNodeNameLower = m_nodes[m_index].parent;
+      myNodeNameReg = m_nodes[m_index].parent;
+      myNewVal = m_nodes[m_index].val;
+      myChildrenVal = m_nodes[m_index].children;
+      myLocalVarsVal = m_nodes[m_index].localvariables;   // a method of the NodeObj
    
       //get rid of extra comma and space at end
       if (!myChildrenVal.empty()) {
@@ -553,19 +550,19 @@ namespace PLEXIL
 
       //convert node id number, start time, end time, and duration to strings
       std::ostringstream ndcntr;
-      ndcntr << nodes[m_index].id;
-      nodeIDString = ndcntr.str();
+      ndcntr << m_nodes[m_index].id;
+      myNodeIDString = ndcntr.str();
 
       std::ostringstream strs;
-      strs << nodes[m_index].start;
+      strs << m_nodes[m_index].start;
       myStartVal = strs.str();
 
       std::ostringstream strs2;
-      strs2 << nodes[m_index].end;
+      strs2 << m_nodes[m_index].end;
       myEndVal = strs2.str();
 
       std::ostringstream strs3;
-      strs3 << nodes[m_index].duration;
+      strs3 << m_nodes[m_index].duration;
       myDurationVal = strs3.str();
 
       produceSingleJSONObj(m_fullTemplate, 
@@ -576,7 +573,7 @@ namespace PLEXIL
                            myNewVal, 
                            myChildrenVal, 
                            myLocalVarsVal, 
-                           nodeIDString, 
+                           myNodeIDString, 
                            myStartVal, 
                            myEndVal, 
                            myDurationVal);
@@ -595,10 +592,9 @@ namespace PLEXIL
          "finished gathering data; JSON and HTML stored");
    }
 
-   void GanttListener::generateFinalOutputFiles(const string& rootName, 
-                                                const string& nodeIDNum)
+   void GanttListener::generateFinalOutputFiles(const string& rootName)
    {
-      if(nodeIDNum == "1")
+      if (m_nodes[m_index].id == 1)
       { 
          if (m_outputHTML == true)
          {
@@ -618,44 +614,42 @@ namespace PLEXIL
       }
    }
 
-   void GanttListener::processOutputData(vector<GanttListener::NodeObj>& nodes, 
-                                         const NodeId& nodeId)
+   void GanttListener::processOutputData(const NodeId& nodeId)
    {
-      string myNodeIDString;
       // find the node it corresponds to in nodes vector
       string tempId = nodeId->getNodeId().toString();
       string tempType = nodeId->getType().toString();
       string tempParent = "invalid_parent_id";
-      string myRootNodeStr = nodes[0].name;
+      string myRootNodeStr = m_nodes[0].name;
       if(nodeId->getParent().isId()) {
          tempParent = nodeId->getParent()->getNodeId().toString();
       }
-      for(size_t i=0; i<nodes.size(); i++) // tree search
+      for(size_t i=0; i<m_nodes.size(); i++) // tree search
       {   
          if(tempParent != "invalid_parent_id") 
          {
-            if(tempId==nodes[i].name && tempType==nodes[i].type && 
-               tempParent==nodes[i].parent) 
+            if(tempId==m_nodes[i].name && tempType==m_nodes[i].type && 
+               tempParent==m_nodes[i].parent) 
             {
                m_index = i;
             }
          }
          else 
          {
-            if(tempId==nodes[i].name && tempType==nodes[i].type) 
+            if(tempId==m_nodes[i].name && tempType==m_nodes[i].type) 
             {
                m_index = i;
             }
          }
       } // separate fcn, return the index
 
-      processTempValsForNode(nodes, nodeId); 
+      processTempValsForNode(nodeId); 
       // add temp values to node
-      prepareDataForJSONObj(nodes, myNodeIDString);
+      prepareDataForJSONObj();
 
       if (m_continueOutputingData == true)
       {
-         generateFinalOutputFiles(myRootNodeStr, myNodeIDString);
+         generateFinalOutputFiles(myRootNodeStr);
       }
 
       debugMsg("GanttViewer:printProgress", "Token added for node " +
@@ -690,7 +684,7 @@ namespace PLEXIL
             myListener.m_planFailureState = true;
             // fall through to FINISH_STATE
          case FINISHED_STATE:
-            myListener.processOutputData(myListener.m_nodes, nodeId);
+            myListener.processOutputData(nodeId);
             break;
          default:
             break;
