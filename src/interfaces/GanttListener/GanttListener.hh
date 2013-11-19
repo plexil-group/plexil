@@ -110,7 +110,9 @@ namespace PLEXIL
 
       void processTempValsForNode(const NodeId& nodeId);
 
-      void prepareDataForJSONObj();
+      void produceSingleJSONObj();
+
+      void createJSONStream();
 
       void generateTempOutputFiles(const std::string& rootName);
 
@@ -124,9 +126,7 @@ namespace PLEXIL
       std::string m_HTMLFilePathForJSON;
       bool m_outputFinalJSON;
       std::vector<NodeObj> m_nodes;
-      double m_EndValdbl, m_DurationValdbl;
       std::ostringstream m_fullTemplate; // JSON object stream
-      std::string m_LocalVarsAfter;
       int m_index; // index of node vector
       bool m_outputHTML;
       std::string m_plexilGanttDirectory;
