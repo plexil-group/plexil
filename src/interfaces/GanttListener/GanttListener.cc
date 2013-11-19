@@ -712,6 +712,8 @@ namespace PLEXIL
          case FINISHED_STATE:
             myListener.processOutputData(myListener.m_nodes, nodeId);
             break;
+         default:
+            break;
       }
    }
 

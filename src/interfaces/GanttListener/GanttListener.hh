@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 * By Madan, Isaac A.
+* Updated by Cao, Yichuan
 */
 
 #ifndef _H_GanttListener
