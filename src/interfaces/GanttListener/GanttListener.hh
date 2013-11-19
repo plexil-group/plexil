@@ -113,17 +113,7 @@ namespace PLEXIL
                                   const NodeId& nodeId);
 
       void prepareDataForJSONObj(std::vector<GanttListener::NodeObj>& nodes,
-                                 std::string& predicate, 
-                                 std::string& entity, 
-                                 std::string& nodeNameLower,
-                                 std::string& nodeNameReg, 
-                                 std::string& newVal, 
-                                 std::string& childrenVal, 
-                                 std::string& localVarsVal, 
-                                 std::string& nodeIDString, 
-                                 std::string& startVal, 
-                                 std::string& endVal,
-                                 std::string& durationVal);
+                                 std::string& nodeIDString);
 
       void generateTempOutputFiles(const std::string& rootName);
 
