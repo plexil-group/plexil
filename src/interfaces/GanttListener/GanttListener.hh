@@ -94,14 +94,11 @@ namespace PLEXIL
       pid_t setPID();
       void setUniqueFileName();
 
-      void createHTMLFile(const std::string& r_name);
-
-      void deliverJSONAsFile(const std::string& r_name);
-
-      void deliverPartialJSON(const std::string& r_name);
+      void createHTMLFile();
+      void deliverJSONAsFile();
+      void deliverPartialJSON();
 
       NodeObj createNodeObj(const NodeId& nodeId);
-
       void getFinalLocalVar(const NodeId& nodeId);
 
       void processLocalVar(const std::vector<std::string>& prevLocalVarsVector, 
@@ -109,15 +106,11 @@ namespace PLEXIL
                            const std::vector<std::string>& thisLocalVarsVectorKeys);
 
       void processTempValsForNode(const NodeId& nodeId);
-
       void produceSingleJSONObj();
-
       void createJSONStream();
-
-      void generateTempOutputFiles(const std::string& rootName);
-
-      void generateFinalOutputFiles(const std::string& rootName);
-
+      void generateTempOutputFiles();
+      void generateFinalOutputFiles();
+      void findNode(const NodeId& nodeId);
       void processOutputData(const NodeId& nodeId);
 
       int m_uniqueFileName;

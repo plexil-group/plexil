@@ -138,13 +138,13 @@ namespace PLEXIL
 
    /** generate the HTML file once a plan's execution started and 
    that connects to necessary Javascript and produced JSON **/
-   void GanttListener::createHTMLFile(const string& rootName)
+   void GanttListener::createHTMLFile()
    {
       std::ostringstream htmlFilePath, tokenFileName;
       htmlFilePath << m_currentWorkingDir << "/" << 
-         "gantt_" << m_uniqueFileName << "_" << rootName << ".html";
+         "gantt_" << m_uniqueFileName << "_" << m_nodes[0].name << ".html";
       m_HTMLFilePath = htmlFilePath.str(); 
-      tokenFileName << "json/" << m_uniqueFileName << "_" << rootName << ".js";
+      tokenFileName << "json/" << m_uniqueFileName << "_" << m_nodes[0].name << ".js";
       const string myTokenFileName = tokenFileName.str(); 
       const string br = "\n ";
 
@@ -165,7 +165,7 @@ namespace PLEXIL
             "<head> " << br <<
             "<meta http-equiv=\"Content-Type\" " <<
             "content=\"text/html; charset=utf-8\"> " << br <<
-            "<title>" << rootName << " - " << "Gantt Temporal Plan Viewer</title> " << 
+            "<title>" << m_nodes[0].name << " - " << "Gantt Temporal Plan Viewer</title> " << 
             br << "<meta name=\"author\" content=\"By Madan, Isaac " <<
             "A. (ARC-TI); originally authored by " <<
             "Swanson, Keith J. (ARC-TI)\"> " << br << br <<
@@ -217,7 +217,7 @@ namespace PLEXIL
 
    /** generate the JSON tokens file at the end of a plan's execution
    so that it can be parsed by Javascript in the Viewer **/
-   void GanttListener::deliverJSONAsFile(const string& rootName)
+   void GanttListener::deliverJSONAsFile()
    {
       const string myCloser = "];";
       const string json_folder_path = m_currentWorkingDir + "/" + "json";
@@ -231,7 +231,7 @@ namespace PLEXIL
                S_IROTH | S_IRUSR | S_IRWXU);
          }
          ss << m_currentWorkingDir << "/" <<
-            "json/" << m_uniqueFileName << "_" << rootName << ".js";
+            "json/" << m_uniqueFileName << "_" << m_nodes[0].name << ".js";
          ofstream myfile;
          outputFileName = ss.str(); 
          myfile.open(outputFileName.c_str());
@@ -254,7 +254,7 @@ namespace PLEXIL
 
    /** generate the JSON tokens file during a plan's execution
    so that it can be parsed by Javascript in the Viewer **/
-   void GanttListener::deliverPartialJSON(const string& rootName) 
+   void GanttListener::deliverPartialJSON() 
    {
       const string myCloser = "];";
       const string json_folder_path = m_currentWorkingDir + "/" + "json";
@@ -266,7 +266,7 @@ namespace PLEXIL
             S_IROTH | S_IRUSR | S_IRWXU);
       }
       ss << m_currentWorkingDir << "/" <<
-            "json/" << m_uniqueFileName << "_" << rootName << ".js";
+            "json/" << m_uniqueFileName << "_" << m_nodes[0].name << ".js";
       ofstream myfile;
       outputFileName = ss.str(); 
       myfile.open(outputFileName.c_str());
@@ -505,82 +505,84 @@ namespace PLEXIL
 
    void GanttListener::createJSONStream()  
    {
-      //add temp values to node
+      //add temp value to node
       m_nodes[m_index].parent = m_parent;
       produceSingleJSONObj();
    }
 
-   void GanttListener::generateTempOutputFiles(const string& rootName)
+   void GanttListener::generateTempOutputFiles()
    {
       if (m_outputHTML == true)
       {
-         createHTMLFile(rootName);
+         createHTMLFile();
          m_outputHTML = false;
       }
-      deliverPartialJSON(rootName);
+      deliverPartialJSON();
       
       debugMsg("GanttViewer:printProgress", 
-         "finished gathering data; JSON and HTML stored");
+         "finished gathering partial data; JSON and HTML stored");
    }
 
-   void GanttListener::generateFinalOutputFiles(const string& rootName)
+   void GanttListener::generateFinalOutputFiles()
    {
       if (m_nodes[m_index].id == 1)
       { 
          if (m_outputHTML == true)
          {
-            createHTMLFile(rootName);
+            createHTMLFile();
             m_outputHTML = false;
          }
-         deliverJSONAsFile(rootName);
-         debugMsg("GanttViewer:printProgress", 
-            "finished gathering data; JSON and HTML stored");
+         deliverJSONAsFile();
       }
       else
       {  
          if (m_planFailureState == false)
          {
-            generateTempOutputFiles(rootName);
+            generateTempOutputFiles();
          }
       }
+      debugMsg("GanttViewer:printProgress", 
+            "finished gathering data; JSON and HTML stored");
    }
 
-   void GanttListener::processOutputData(const NodeId& nodeId)
+   void GanttListener::findNode(const NodeId& nodeId)
    {
       // find the node it corresponds to in nodes vector
+      int i, size;
       string tempId = nodeId->getNodeId().toString();
       string tempType = nodeId->getType().toString();
       string tempParent = "invalid_parent_id";
-      string myRootNodeStr = m_nodes[0].name;
       if(nodeId->getParent().isId()) {
          tempParent = nodeId->getParent()->getNodeId().toString();
       }
-      for(size_t i=0; i<m_nodes.size(); i++) // tree search
-      {   
+      size = m_nodes.size();
+      for(i = 0; i < size; i++) // tree search
+      {  
          if(tempParent != "invalid_parent_id") 
          {
-            if(tempId==m_nodes[i].name && tempType==m_nodes[i].type && 
-               tempParent==m_nodes[i].parent) 
+            if(tempId == m_nodes[i].name && tempType == m_nodes[i].type && 
+               tempParent == m_nodes[i].parent) 
             {
                m_index = i;
             }
          }
          else 
          {
-            if(tempId==m_nodes[i].name && tempType==m_nodes[i].type) 
-            {
-               m_index = i;
-            }
+            m_index = 0;
+            break;
          }
-      } // separate fcn, return the index
+      }
+   }
 
+   void GanttListener::processOutputData(const NodeId& nodeId)
+   {
+      findNode(nodeId);
       processTempValsForNode(nodeId); 
-      // add temp values to node
       createJSONStream();
 
       if (m_continueOutputingData == true)
       {
-         generateFinalOutputFiles(myRootNodeStr);
+         generateFinalOutputFiles();
       }
 
       debugMsg("GanttViewer:printProgress", "Token added for node " +
