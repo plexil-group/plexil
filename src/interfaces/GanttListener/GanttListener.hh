@@ -117,18 +117,18 @@ namespace PLEXIL
       int m_pid;
       std::string m_HTMLFilePath;
       std::string m_HTMLFilePathForJSON;
-      bool m_outputFinalJSON;
+      bool m_outputFinalJSON; // ??? I forgot what this does, will investigate
       std::vector<NodeObj> m_nodes;
       std::ostringstream m_fullTemplate; // JSON object stream
       int m_index; // index of node vector
-      bool m_outputHTML;
+      bool m_outputHTML; // control if output HTML, keep cost down
       std::string m_plexilGanttDirectory;
       std::string m_currentWorkingDir;
       double m_startTime;
       std::map<NodeId, int> m_stateMap, m_counterMap;
       std::string m_parent;
-      bool m_planFailureState;
-      bool m_continueOutputingData;
+      bool m_planFailureState; // when node fail, parial JSON generation should be suppressed
+      bool m_continueOutputingData; // when I/O error occurs, write no file
       int m_actualId;
    };
 }

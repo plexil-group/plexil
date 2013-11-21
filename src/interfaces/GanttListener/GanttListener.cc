@@ -57,11 +57,9 @@ using std::cout;
 using std::cin;
 using std::ofstream;
 using std::endl;
-using std::list;
 using std::string;
 using std::vector;
 using std::map;
-using std::ostream;
 
 namespace PLEXIL
 {
@@ -615,7 +613,7 @@ namespace PLEXIL
             break;
          case FAILING_STATE:
             myListener.m_planFailureState = true;
-            // fall through to FINISH_STATE
+            // fall through to FINISHED_STATE
          case FINISHED_STATE:
             myListener.processOutputData(nodeId);
             break;
