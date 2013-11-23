@@ -357,9 +357,8 @@ namespace PLEXIL
       //get local variables from map in state 'EXECUTING'
       string myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
       string myChildren = getChildNode(nodeId); //get child nodes
-
       return NodeObj(myStartValdbl, -1, -1, myId, myType, myVal, 
-         m_parent, m_actualId, myChildren, myLocalVars, myLocalVariableMapValues);
+         m_parent, m_actualId, myLocalVars, myChildren, myLocalVariableMapValues);
    }
 
    static string boldenFinalString(const vector<string>& prevLocalVarsVector, 
