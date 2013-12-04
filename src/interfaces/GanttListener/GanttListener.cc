@@ -333,8 +333,18 @@ namespace PLEXIL
    {
       vector<string> myLocalVariableMapValues;
 
+      //startTime is when first node executes
+      if (m_startTime == -1) {
+         m_startTime = nodeId->getCurrentStateStartTime();
+      }
+
+      if (!m_parent.empty()) {
+         m_parent.clear();
+      }
+
       string myId = nodeId->getNodeId().toString();
       double myStartValdbl = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
+
       string myType = nodeId->getType().toString();
       string myVal = nodeId->getStateName().getStringValue();
 
@@ -459,6 +469,9 @@ namespace PLEXIL
 
    void GanttListener::processTempValsForNode(const NodeId& nodeId)
    {
+      if (!m_parent.empty()) {
+         m_parent.clear();
+      }
       m_nodes[m_index].end = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
       m_nodes[m_index].duration = m_nodes[m_index].end - m_nodes[m_index].start;
       //doesn't exist until node is finished     
@@ -584,9 +597,7 @@ namespace PLEXIL
 
       debugMsg("GanttViewer:printProgress", "Token added for node " +
          nodeId->getType().toString() + "." + nodeId->getNodeId().toString());
-   }
-   
-   GanttListener myListener; // still needs to go
+   }   
 
    /** executed when nodes transition state
    *  resets the start time so it can be used in temporal calculations,
@@ -597,12 +608,7 @@ namespace PLEXIL
    void GanttListener::implementNotifyNodeTransition(NodeState /* prevState */, 
                                                      const NodeId& nodeId) const
    {  
-      //startTime is when first node executes
-      if (myListener.m_startTime == -1) {
-         myListener.m_startTime = nodeId->getCurrentStateStartTime();
-      }
-      myListener.m_parent.clear();
-
+      static GanttListener myListener;
       //get state
       const NodeState& newState = nodeId->getState();
 
