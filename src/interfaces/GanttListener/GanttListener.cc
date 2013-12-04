@@ -338,9 +338,7 @@ namespace PLEXIL
          m_startTime = nodeId->getCurrentStateStartTime();
       }
 
-      if (!m_parent.empty()) {
-         m_parent.clear();
-      }
+      m_parent.clear();
 
       string myId = nodeId->getNodeId().toString();
       double myStartValdbl = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
@@ -469,9 +467,7 @@ namespace PLEXIL
 
    void GanttListener::processTempValsForNode(const NodeId& nodeId)
    {
-      if (!m_parent.empty()) {
-         m_parent.clear();
-      }
+      m_parent.clear();
       m_nodes[m_index].end = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
       m_nodes[m_index].duration = m_nodes[m_index].end - m_nodes[m_index].start;
       //doesn't exist until node is finished     
