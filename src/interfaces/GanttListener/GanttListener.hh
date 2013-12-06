@@ -117,7 +117,7 @@ namespace PLEXIL
       int m_pid;
       std::string m_HTMLFilePath;
       std::string m_HTMLFilePathForJSON;
-      bool m_outputFinalJSON; // ??? I forgot what this does, will investigate
+      bool m_outputFinalJSON; // this prevent writing to the JSON file unnecessarily
       std::vector<NodeObj> m_nodes;
       std::ostringstream m_fullTemplate; // JSON object stream
       int m_index; // index of node vector
