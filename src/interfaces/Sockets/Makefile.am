@@ -23,6 +23,8 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 lib_LTLIBRARIES = libPlexilSockets.la
 include_HEADERS = ClientSocket.h ServerSocket.h Socket.h SocketException.h
 libPlexilSockets_la_SOURCES = ClientSocket.cpp ServerSocket.cpp Socket.cpp

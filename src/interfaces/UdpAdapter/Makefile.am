@@ -23,6 +23,8 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 lib_LTLIBRARIES = libUdpUtils.la libUdpAdapter.la
 include_HEADERS = MessageQueueMap.hh UdpAdapter.hh udp-utils.hh
 libUdpUtils_la_SOURCES = udp-utils.cc
