@@ -71,9 +71,9 @@ int ExecTestRunner::run(int argc, char** argv)
                         [-l <library>]*\n\
                         [-L <library-dir>]*\n\
                         [-d <debug_config_file>]\n");
-  bool luvRequest = false;
 
 #if HAVE_LUV_LISTENER
+  bool luvRequest = false;
   string luvHost = LuvListener::LUV_DEFAULT_HOSTNAME();
   int luvPort = LuvListener::LUV_DEFAULT_PORT();
   bool luvBlock = false;
