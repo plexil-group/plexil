@@ -39,14 +39,14 @@ if JNI_OPT
 endif
 
 if DEBUG_LISTENER_OPT
+  TestExec_LDADD += ../../interfaces/PlanDebugListener/libPlanDebugListener.la
+  TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
+endif
+
+if VIEWER_OPT
   TestExec_LDADD += ../../interfaces/LuvListener/libLuvListener.la \
    ../../interfaces/Sockets/libPlexilSockets.la
   TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener \
    -I@top_srcdir@/interfaces/Sockets
-endif
-
-if VIEWER_OPT
-  TestExec_LDADD += ../../interfaces/PlanDebugListener/libPlanDebugListener.la
-  TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
 endif
 
