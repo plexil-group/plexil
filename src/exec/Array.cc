@@ -209,7 +209,7 @@ namespace PLEXIL
                       "ArrayVariable constructor: Number of initial values, "
                       << values.size() << ", exceeds max size, " << m_maxSize);
         for (size_t i = 0; i < values.size(); ++i) {
-          double convertedValue;
+          double convertedValue = UNKNOWN();
           if (m_type == BOOLEAN) {
             if (compareIgnoreCase(values[i], "true") || 
                 (strcmp(values[i].c_str(), "1") == 0))
