@@ -45,7 +45,7 @@ namespace PLEXIL
       // Capture and report about useful node state transitions.
       virtual void implementNotifyNodeTransition (NodeState prevState,
          const NodeId& node) const;
-   private: // some convention issue: sequence, blank line, comments
+   private:
       struct NodeObj {
          double start;
          double end;

@@ -328,7 +328,14 @@ namespace PLEXIL
       }
       return myChildNode.str();
    }
-
+   
+   /*
+    * The job of createNodeObj() is to get the current time from the operating system 
+    * so that GanttListener will then have the information regarding when this node begins 
+    * executing. createNodeObj() will then determine this node's parent-child relations. 
+    * Once these steps are completed, such information are stored in a NodeObj structure, 
+    * which is defined inside GanttListener class.
+    */
    GanttListener::NodeObj GanttListener::createNodeObj(const NodeId& nodeId)
    {
       vector<string> myLocalVariableMapValues;
@@ -342,7 +349,6 @@ namespace PLEXIL
 
       string myId = nodeId->getNodeId().toString();
       double myStartValdbl = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
-
       string myType = nodeId->getType().toString();
       string myVal = nodeId->getStateName().getStringValue();
 
@@ -580,6 +586,18 @@ namespace PLEXIL
       }
    }
 
+   /*
+    * It will use this information to first locate the node from the vector of NodeObj with 
+    * findNode(). Then, processOutputData() will call processTempValsForNode() to update the 
+    * time this node stopped execution, and calculate the duration of execution. 
+    * Once these are done, processOutputData() will call createJSONStream(), which will produce 
+    * a single JSON object by calling produceSingleJSONObj().
+    * Finally, when the JSON object is ready, it will be send to output via a call to 
+    * generateFinalOutputFiles() from processOutputData(). Note, however, that 
+    * generateFinalOutputFiles() has internal logics that prevent writing unnecessary file 
+    * repeatedly, and it supports writing data to JSON output even with partially executed plans 
+    * and failed plans. 
+    */
    void GanttListener::processOutputData(const NodeId& nodeId)
    {
       findNode(nodeId);
@@ -607,7 +625,6 @@ namespace PLEXIL
       static GanttListener myListener;
       //get state
       const NodeState& newState = nodeId->getState();
-
       switch (newState) {
          case EXECUTING_STATE:
             myListener.m_nodes.push_back(myListener.createNodeObj(nodeId));
