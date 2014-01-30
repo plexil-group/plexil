@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,9 +44,11 @@ namespace PLEXIL
     assertTrue(rv != ENOMEM, "No memory for mutex attribute init.");
     assertTrue(rv == 0, "Error initializing mutex attribute structure.");
 
+#if !defined(__VXWORKS__) /* platform lacks function */
     rv = pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_ERRORCHECK);
     assertTrue(rv != EINVAL, "PTHREAD_MUTEX_ERRORCHECK is an invalid value");
     assertTrue(0 == rv, "Could not set the mutex attribute.");
+#endif
 
     rv = pthread_mutex_init(&m_mutex, &mta);
     assertTrue(0 == rv, "Could not initialize the mutex.");

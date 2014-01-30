@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -447,19 +447,16 @@ _GLIBCXX_END_NAMESPACE
 namespace std
 {
   template <>
-  class hash_compare<PLEXIL::LabelStr>
+  struct less<PLEXIL::LabelStr>
   {
-    size_t operator()(const PLEXIL::LabelStr& __key) const
+    bool operator()(const PLEXIL::LabelStr& _Left, const PLEXIL::LabelStr& _Right) const
     {
-      return hash_compare<PLEXIL::LabelStr_key_t>::operator()(__key.getKey());
-    }
-
-    bool operator()(const PLEXIL::LabelStr& __keyval1, const PLEXIL::LabelStr& __keyval2) const
-    {
-      return hash_compare<PLEXIL::LabelStr_key_t>::operator()(__keyval1.getKey(), __keyval2.getKey());
+      return (_Left.getKey() < _Right.getKey());
     }
   };
 
+  template <>
+  size_t hash_value(const PLEXIL::LabelStr& _Keyval);
 }
 
 #else

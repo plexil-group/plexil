@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,38 +36,40 @@ namespace PLEXIL
     int rv = pthread_mutexattr_init(&m_mta);
     if (rv != 0)
       {
-	assertTrue(rv != ENOMEM, "No memory for mutex attribute init.");
-	assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_init failed, errno = " << rv);
+        assertTrue(rv != ENOMEM, "No memory for mutex attribute init.");
+        assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_init failed, errno = " << rv);
       }
 
+#if !defined(__VXWORKS__) /* platform lacks function */
     rv = pthread_mutexattr_settype(&m_mta, PTHREAD_MUTEX_NORMAL);
     if (rv != 0)
       {
-	assertTrue(rv != EINVAL, "PTHREAD_MUTEX_NORMAL is an invalid value");
-	assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_settype failed, errno = " << rv);
+        assertTrue(rv != EINVAL, "PTHREAD_MUTEX_NORMAL is an invalid value");
+        assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_settype failed, errno = " << rv);
       }
+#endif
 
     // this may not be implemented, skip it if not
-	// Android claims it is, but lies
+    // Android claims it is, but lies
 #if defined(_POSIX_THREAD_PRIO_INHERIT) && _POSIX_THREAD_PRIO_INHERIT >= 0 && !defined(PLEXIL_ANDROID)
     rv = pthread_mutexattr_setprotocol(&m_mta, PTHREAD_PRIO_INHERIT);
     if (rv != 0)
       {
-	assertTrue(rv != ENOTSUP, "PTHREAD_PRIO_INHERIT is not supported");
-	assertTrue(rv != EINVAL, "Invalid value to pthread_mutexattr_setprotocol");
-	assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_setprotocol failed, errno = " << rv);
+        assertTrue(rv != ENOTSUP, "PTHREAD_PRIO_INHERIT is not supported");
+        assertTrue(rv != EINVAL, "Invalid value to pthread_mutexattr_setprotocol");
+        assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_setprotocol failed, errno = " << rv);
       }
 #endif
 
     rv = pthread_mutex_init(&m_mutex, &m_mta);
     if (rv != 0)
       {
-	assertTrue(rv != EINVAL, "Mutex pointer or attribute pointer invalid.");
-	assertTrue(rv != EPERM, "Insufficient permissions for mutex initialization.");
-	assertTrue(rv != EBUSY, "Attempt to initialize mutex which was already initialized.");
-	assertTrue(rv != ENOMEM, "No memory for mutex initialization.");
-	assertTrue(rv != EAGAIN, "Insufficient system resources for mutex initialization.");
-	assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_init failed, errno = " << rv);
+        assertTrue(rv != EINVAL, "Mutex pointer or attribute pointer invalid.");
+        assertTrue(rv != EPERM, "Insufficient permissions for mutex initialization.");
+        assertTrue(rv != EBUSY, "Attempt to initialize mutex which was already initialized.");
+        assertTrue(rv != ENOMEM, "No memory for mutex initialization.");
+        assertTrue(rv != EAGAIN, "Insufficient system resources for mutex initialization.");
+        assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_init failed, errno = " << rv);
       }
     
     // Clean up

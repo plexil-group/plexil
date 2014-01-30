@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,14 +48,14 @@ namespace PLEXIL
     : std::exception(), m_what(new char[strlen(msg) + 1]), m_file(file), m_offset(offset)
   {
     strcpy(const_cast<char*>(m_what), msg);
-    Logging::handle_message(Logging::ERROR, file, offset, m_what);
+    Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what);
   }
 
   ParserException::ParserException(const ParserException& other, const char * file, const int& offset)
     throw()
     : std::exception(other), m_what(other.m_what), m_file(file), m_offset(offset)
   {
-    Logging::handle_message(Logging::ERROR, file, offset, m_what);
+    Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what);
   }
   
   ParserException& ParserException::operator=(const ParserException& other)

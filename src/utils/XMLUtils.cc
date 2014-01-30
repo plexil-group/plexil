@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -100,6 +100,7 @@ namespace PLEXIL
 	else return true;
   }
 
+#if !defined(__VXWORKS__) /* platform lacks strtoll */
   /**
    * @brief Helper method to test if a char* is a valid integer value.
    */
@@ -147,5 +148,6 @@ namespace PLEXIL
 	  return false;
 	else return true;
   }
+#endif
 
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,12 @@
 #include <unistd.h>
 
 #if !defined(_POSIX_SEMAPHORES) || _POSIX_SEMAPHORES == -1
-// OS doesn't provide POSIX semaphores or they're broken somehow
+// OS doesn't advertise it provides POSIX semaphores, or they're broken somehow
 #ifdef __MACH__
 #define PLEXIL_USE_MACH_SEMAPHORES // e.g. Mac OS X
-#endif // __MACH __
+#elif defined(__VXWORKS__)
+#define PLEXIL_USE_POSIX_SEMAPHORES
+#endif // __VXWORKS __
 
 #else 
 // OS provides POSIX semaphores

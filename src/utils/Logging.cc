@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ int Logging::handle_message(int msg_type, const char * file, int offset, const c
   snprintf(fullmsg, 1024, "%s: %s:%i: %s", get_msg_type(msg_type), file, offset, msg);
 
   switch (msg_type) {
-  case ERROR:
+  case LOG_ERROR:
 	print_error(fullmsg);
 	break;
   case WARNING:
@@ -84,7 +84,7 @@ int Logging::handle_message(int msg_type, const char * file, int line, int col, 
   snprintf(fullmsg, 1024, "%s: %s:%i:%i: %s", get_msg_type(msg_type), file, line, col, msg);
 
   switch (msg_type) {
-  case ERROR:
+  case LOG_ERROR:
 	print_error(fullmsg);
 	break;
   case WARNING:
@@ -199,7 +199,7 @@ void Logging::set_log_file_name(const char * file)
 
 const char* Logging::get_msg_type(int msg) {
 	switch (msg) {
-	case ERROR:
+	case LOG_ERROR:
 		return "ERROR";
 	case WARNING:
 		return "WARNING";

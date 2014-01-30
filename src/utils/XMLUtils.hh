@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,15 @@
  * @author Conor McGann
  */
 
+#include "plexil-config.h"
 #include "LabelStr.hh"
-#include <stdint.h> // for uint64_t - NOT <cstdint>
+
+// Define uint64_t
+#ifdef HAVE_STDINT_H
+#include <stdint.h> // NOT <cstdint>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
 
 namespace PLEXIL {
 
@@ -68,6 +75,7 @@ namespace PLEXIL {
    */
   bool isInt32(const char* data, int32_t& value);
 
+#if !defined(__VXWORKS__) /* platform lacks strtoll */
   /**
    * @brief Helper method to test if a char* is a valid 64-bit integer value.
    */
@@ -87,6 +95,7 @@ namespace PLEXIL {
    * @brief Helper method to test if a char* is a valid hexBinary value. If it is, will write it to value.
    */
   bool isHexBinary(const char* data, uint64_t& value);
+#endif
 
 }
 

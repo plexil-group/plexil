@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,14 @@
 #define _H_IdTable
 
 #include "plexil-config.h"
-#include <stdint.h> // for uintptr_t
+
+// Define uintptr_t
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+typedef size_t uintptr_t; // kludge
+#endif
 
 // Use these macros instead of explicit type names to help with portability
 #define ID_POINTER_TYPE uintptr_t

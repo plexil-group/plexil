@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -76,6 +76,14 @@
 #include <list>
 #include <sstream>
 #include <typeinfo>
+
+#ifdef HAVE_SYS_TIME_H 
+#include <sys/time.h>
+#elif defined(__VXWORKS__)
+#include <time.h>
+#include <sys/times.h>
+#include <sysLib.h> /* for sysClkRateGet() */
+#endif
 
 #if S950
 // apparently needed for sys950lib
@@ -1803,7 +1811,7 @@ private:
     assertTrue(i == iv.getIntValue());
 
     // Unsigned constructor
-    const uint32_t us = 2147483649;
+    const uint32_t us = (uint32_t) 2147483649;
     Value uv(us);
     assertFalse(uv.isUnknown());
     assertFalse(uv.isString());
@@ -2165,7 +2173,9 @@ public:
   static bool test()
   {
     runTest(testPrinting);
+#if !defined(__VXWORKS__)
     runTest(testGMTPrinting);
+#endif
     runTest(testLocalParsing);
     runTest(testGMTParsing);
     runTest(testOffsetParsing);
@@ -2269,6 +2279,7 @@ public:
     return true;
   }
 
+#if !defined(__VXWORKS__) /* timegm() not available */
   static bool testGMTPrinting()
   {
     // Broken on Mac OS X
@@ -2287,6 +2298,7 @@ public:
 
     return true;
   }
+#endif
 
   static bool testCompleteDurationParsing()
   {

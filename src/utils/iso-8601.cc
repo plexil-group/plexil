@@ -101,8 +101,10 @@ static const char* parseTimeInternal(const char* dateStr, bool extended, struct 
   // Timezone
   if (*next == 'Z') {
     ++next;
+#if !defined(__VXWORKS__) /* tm lacks tm_gmtoff */
     // Offset by local time
     fracSecs += date.tm_gmtoff;
+#endif
   }
   else if (*next == '+' || *next == '-') {
     bool isPlus = (*next == '+');
@@ -117,9 +119,11 @@ static const char* parseTimeInternal(const char* dateStr, bool extended, struct 
     if (isdigit(*next))
       next = substrtoi(next, 2, offsetMins);
     long totalOffset = 60 * (offsetMins + 60 * offsetHrs);
+#if !defined(__VXWORKS__) /* tm lacks tm_gmtoff */
     // Figure out how much to adjust
     // Must add local timezone delta, then add the spec'd offset
     fracSecs = fracSecs + (isPlus ? totalOffset : -totalOffset) + date.tm_gmtoff;
+#endif
   }
   // else it's local time
 

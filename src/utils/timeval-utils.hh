@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,11 +24,11 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <sys/time.h>
-
 //
 // Utilities for timeval arithmetic
 //
+
+struct timeval;
 
 //* @brief Returns true if the first argument is less than the second, false otherwise.
 bool operator<(const struct timeval& t1, const struct timeval& t2);

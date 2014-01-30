@@ -28,7 +28,13 @@
 // Utilities for timeval arithmetic
 //
 
+#ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>
+#elif defined(__VXWORKS__)
+#include <time.h>
+#include <sys/times.h>
+#endif
+
 #include <cmath>
 
 const long ONE_MILLION = 1000000;
@@ -110,7 +116,13 @@ void doubleToTimeval(double d, timeval& result)
   double fraction = modf(d, &seconds);
 
   result.tv_sec = (time_t) seconds;
-  result.tv_usec = (suseconds_t) (fraction * ONE_MILLION_DOUBLE);
+  result.tv_usec =
+#ifdef HAVE_SUSECONDS_T
+    (suseconds_t)
+#else /* e.g. VxWorks */
+    (long)
+#endif
+    (fraction * ONE_MILLION_DOUBLE);
 }
 
 struct timeval doubleToTimeval(double d)

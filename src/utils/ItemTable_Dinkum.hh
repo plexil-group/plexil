@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,7 +54,7 @@ namespace PLEXIL
   private:
     typedef ItemStoreEntry<item_t> entry_t;
 
-    typedef typename UNORDERED_MAP<const key_t,
+    typedef typename std::hash_map<const key_t,
                                    entry_t*,
                                    key_comp_t>
     table_t;

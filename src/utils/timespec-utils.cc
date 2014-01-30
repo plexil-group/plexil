@@ -28,7 +28,11 @@
 // Utilities for timespec arithmetic
 //
 
+#ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>
+#else
+#include <time.h>
+#endif
 #include <cmath>
 
 const long ONE_BILLION = 1000000000;

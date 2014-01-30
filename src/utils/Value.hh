@@ -27,9 +27,16 @@
 #ifndef PLEXIL_VALUE_HH
 #define PLEXIL_VALUE_HH
 
+#include "plexil-config.h"
 #include "ConstantMacros.hh"
 
-#include <stdint.h> // for int32_t - NOTE: not cstdint!
+// Define int32_t
+#ifdef HAVE_STDINT_H
+#include <stdint.h> // NOTE: not cstdint!
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
+
 #include <string>
 #include <vector>
 

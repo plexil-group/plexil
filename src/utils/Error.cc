@@ -83,7 +83,7 @@ Error::Error(const std::string& condition, const std::string& msg, const std::st
 }
 
 void Error::handleAssert() {
-  Logging::handle_message(Logging::ERROR, m_file.c_str(), m_line, m_msg.c_str());
+  Logging::handle_message(Logging::LOG_ERROR, m_file.c_str(), m_line, m_msg.c_str());
   if (throwEnabled())
     throw *this;
   assert(false); // Need the stack to work backwards and look at state in the debugger

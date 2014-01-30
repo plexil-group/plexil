@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,17 @@
 #include "LabelStr.hh"
 #include "Value.hh"
 #include <cstring> // for strcmp()
+
+#if defined(HAVE_HASH_MAP)
+namespace std
+{
+  template <>
+  size_t hash_value(const PLEXIL::LabelStr& _Keyval)
+  {
+    return ((size_t)hash_value(_Keyval.getKey()));
+  }
+}
+#endif
 
 namespace PLEXIL
 {

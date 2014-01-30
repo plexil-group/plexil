@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,11 +24,11 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <time.h>
-
 //
 // Utilities for timespec arithmetic
 //
+
+struct timespec;
 
 //* @brief Returns true if the first argument is less than the second, false otherwise.
 bool operator<(const struct timespec& t1, const struct timespec& t2);

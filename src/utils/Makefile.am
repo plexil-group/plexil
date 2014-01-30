@@ -29,21 +29,26 @@ lib_LTLIBRARIES = libPlexilUtils.la
 
 libPlexilUtils_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src
 
-include_HEADERS = ConstantMacros.hh Debug.hh DynamicLoader.hh Error.hh GNU_hash_map.hh \
+include_HEADERS = ConstantMacros.hh Debug.hh Error.hh GNU_hash_map.hh \
  Id.hh IdTable.hh ItemStoreEntry.hh ItemTable.hh ItemTable_Dinkum.hh \
  ItemTable_unordered_map.hh KeySource.hh Logging.hh ParserException.hh RecursiveThreadMutex.hh \
  StoredArray.hh StoredItem.hh ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh TwoWayStore.hh \
  TwoWayTable.hh TwoWayTable_Dinkum.hh TwoWayTable_unordered_map.hh Utils.hh Value.hh XMLUtils.hh \
  generic_hash_map.hh iso-8601.hh stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
-libPlexilUtils_la_SOURCES = Debug.cc DynamicLoader.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
+libPlexilUtils_la_SOURCES = Debug.cc Error.cc IdTable.cc LabelStr.cc Logging.cc \
  ParserException.cc RecursiveThreadMutex.cc StoredArray.cc ThreadMutex.cc ThreadSemaphore.cc \
  ThreadSpawn.cc Utils.cc Value.cc XMLUtils.cc iso-8601.cc stricmp.c timespec-utils.cc \
  timeval-utils.cc
 
 if JNI_OPT
   include_HEADERS += JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh
-  libPlexilUtils_la_SOURCES += JNIHelper.hh JNIUtils.hh
+  libPlexilUtils_la_SOURCES += JNIHelper.cc JNIUtils.cc
+endif
+
+if PLEXIL_DLFCN_H
+  include_HEADERS += DynamicLoader.hh
+  libPlexilUtils_la_SOURCES += DynamicLoader.cc
 endif
 
 if MODULE_TESTS_OPT
