@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -243,7 +243,13 @@ namespace PLEXIL
       // Parse initial value
       const char* valstr = value->value().c_str();
       char* endptr = NULL;
-      int64_t intval = strtoll(valstr, &endptr, 10);
+      int64_t intval =
+#if defined(__VXWORKS__)
+	strtol
+#else
+	strtoll
+#endif
+	(valstr, &endptr, 10);
       assertTrueMsg(endptr != valstr && !*endptr,
                     "Initial value \"" << valstr << "\" not a valid Integer for IntegerVariable");
       m_initialValue = m_value = (double) intval;

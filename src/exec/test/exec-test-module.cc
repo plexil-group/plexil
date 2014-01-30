@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ using namespace PLEXIL;
 class AllocationExpression : public Expression {
 public:
   AllocationExpression(PlexilExpr* /* expr */, const NodeId /* node */) : Expression() {
-    setValue(10);
+    setValue((int32_t) 10);
   }
   void print(std::ostream& s) const { s << "AllocationExpression"; }
 private:
@@ -111,12 +111,12 @@ private:
     foo->activate();
     assertTrue(foo->isActive());
     //assertTrue(!foo->isActive());
-    exp->setValue(10);
+    exp->setValue((int32_t) 10);
     assertTrue(!changed);
     exp->activate();
     assertTrue(exp->isActive());
     assertTrue(foo->isActive());
-    exp->setValue(20);
+    exp->setValue((int32_t) 20);
     assertTrue(changed);
 
     exp->removeListener(foo);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,10 +32,8 @@
 #include "Node.hh"
 
 #include <cmath> // for fabs()
-#include <list>
 #include <string>
 #include <sstream>
-#include <stdint.h> // for int32_t
 
 namespace PLEXIL 
 {
@@ -46,13 +44,13 @@ namespace PLEXIL
 
   // Called from Node::commonInit().
   StateVariable::StateVariable(const std::string& name)
-    : VariableImpl(INACTIVE_STATE, false)
+    : VariableImpl((uint32_t) INACTIVE_STATE, false)
   {
     setName(name);
   }
 
   // Used only to construct class constants INACTIVE_EXP(), et al.
-  StateVariable::StateVariable(const Value& value, const bool isConst)
+  StateVariable::StateVariable(const uint32_t value, const bool isConst)
     : VariableImpl(value, isConst) 
   {
     checkError(checkValue(value),
@@ -80,7 +78,7 @@ namespace PLEXIL
   {
     if (!val.isInteger())
       return false;
-    int32_t valAsInt = val.getIntValue();
+    uint32_t valAsInt = val.getUIntValue();
     return valAsInt >= INACTIVE_STATE && valAsInt < NO_NODE_STATE;
   }
 
@@ -92,10 +90,10 @@ namespace PLEXIL
 
   void StateVariable::printValue(std::ostream& s) const
   {
-    s << nodeStateName((NodeState) getValue().getIntValue());
+    s << nodeStateName(getValue().getUIntValue());
   }
 
-  void StateVariable::setNodeState(NodeState newValue)
+  void StateVariable::setNodeState(uint32_t newValue)
   {
     checkError(newValue < NO_NODE_STATE,
                "Attempted to set an invalid NodeState value");
@@ -168,17 +166,17 @@ namespace PLEXIL
     return sl_exp;
   }
 
-  const Value& StateVariable::nodeStateName(NodeState state)
+  const Value& StateVariable::nodeStateName(uint32_t state)
   {
     return ALL_STATE_NAMES()[state];
   }
 
   // N.B. Depends on ALL_STATE_NAMES() matching order of NodeState enumeration.
-  NodeState StateVariable::nameToNodeState(const LabelStr& stateName)
+  uint32_t StateVariable::nameToNodeState(const LabelStr& stateName)
   {
-    for (size_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
+    for (uint32_t s = INACTIVE_STATE; s < NO_NODE_STATE; ++s) {
       if (stateName == ALL_STATE_NAMES()[s])
-        return (NodeState) s;
+        return s;
     }
     return NO_NODE_STATE;
   }
@@ -376,7 +374,7 @@ namespace PLEXIL
   {
     m_count = 0;
     for (size_t i = 0; i < m_total; ++i) {
-      NodeState state = (NodeState) m_stateVariables[i]->getValue().getIntValue();
+      uint32_t state = m_stateVariables[i]->getValue().getUIntValue();
       m_childListeners[i].setLastState(state);
       if (state == FINISHED_STATE)
         ++m_count;
@@ -413,7 +411,7 @@ namespace PLEXIL
   void
   AllChildrenFinishedCondition::FinishedListener::notifyValueChanged(const ExpressionId& expression) 
   {
-    NodeState newState = (NodeState) expression->getValue().getIntValue();
+    uint32_t newState = expression->getValue().getUIntValue();
     if (newState == FINISHED_STATE && m_lastState != newState) {
       debugMsg("AllChildrenFinished:increment",
                "State var " << *expression << " is now FINISHED.  Incrementing count.");
@@ -506,7 +504,7 @@ namespace PLEXIL
   {
     m_count = 0;
     for (size_t i = 0; i < m_total; ++i) {
-      NodeState state = (NodeState) m_stateVariables[i]->getValue().getIntValue();
+      uint32_t state = m_stateVariables[i]->getValue().getUIntValue();
       m_childListeners[i].setLastState(state);
       if (state == FINISHED_STATE || state == WAITING_STATE)
         ++m_count;
@@ -544,7 +542,7 @@ namespace PLEXIL
   AllChildrenWaitingOrFinishedCondition::WaitingOrFinishedListener::notifyValueChanged(const ExpressionId& expression)
   {
     bool was = m_lastState == WAITING_STATE || m_lastState == FINISHED_STATE;
-    NodeState newState = (NodeState) expression->getValue().getIntValue();
+    uint32_t newState = expression->getValue().getUIntValue();
     bool is = newState == WAITING_STATE || newState == FINISHED_STATE;
     if (is && !was) {
       debugMsg("AllChildrenWaitingOrFinished:increment",

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -633,7 +633,7 @@ namespace PLEXIL
                "Resource conflict set for " << var->toString() << " is empty.");
 
     //we only have to look at all the nodes with the highest priority
-    VariableConflictSet::iterator conflictIt = conflictSet.begin(); 
+    VariableConflictSet::const_iterator conflictIt = conflictSet.begin(); 
     size_t count = conflictSet.count(*conflictIt); // # of nodes with same priority as top
 
     NodeId nodeToExecute;

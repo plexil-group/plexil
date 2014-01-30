@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -80,12 +80,12 @@ namespace PLEXIL
     static ExpressionId& ITERATION_ENDED_EXP();
     static ExpressionId& NO_STATE_EXP();
 
-    static const Value& nodeStateName(NodeState state);
-    static NodeState nameToNodeState(const LabelStr& stateName);
+    static const Value& nodeStateName(uint32_t state);
+    static uint32_t nameToNodeState(const LabelStr& stateName);
 
     // Constructors
     StateVariable(const std::string& name);
-    StateVariable(const Value& value, 
+    StateVariable(const uint32_t value, 
                   const bool isConst = false);
     StateVariable(const PlexilExprId& expr,
                   const NodeConnectorId& node, 
@@ -95,7 +95,7 @@ namespace PLEXIL
     virtual void print(std::ostream& s) const;
     virtual void printValue(std::ostream& s) const;
 
-    void setNodeState(NodeState newValue);
+    void setNodeState(uint32_t newValue);
 
     /**
      * @brief Retrieve the value type of this Expression.
@@ -231,10 +231,10 @@ namespace PLEXIL
       FinishedListener(AllChildrenFinishedCondition& cond);
       FinishedListener(const FinishedListener& orig);
       void notifyValueChanged(const ExpressionId& expression);
-      void setLastState(const NodeState& state) { m_lastState = state; }
+      void setLastState(const uint32_t& state) { m_lastState = state; }
     private:
       AllChildrenFinishedCondition& m_cond;
-      NodeState m_lastState;
+      uint32_t m_lastState;
     };
 
     bool checkValue(const Value& val) const;
@@ -275,10 +275,10 @@ namespace PLEXIL
       WaitingOrFinishedListener(AllChildrenWaitingOrFinishedCondition& cond);
       WaitingOrFinishedListener(const WaitingOrFinishedListener& orig);
       void notifyValueChanged(const ExpressionId& expression);
-      void setLastState(NodeState state) { m_lastState = state; }
+      void setLastState(uint32_t state) { m_lastState = state; }
     private:
       AllChildrenWaitingOrFinishedCondition& m_cond;
-      NodeState m_lastState;
+      uint32_t m_lastState;
     };
 
     bool checkValue(const Value& val) const;

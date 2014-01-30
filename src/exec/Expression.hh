@@ -41,7 +41,6 @@
 #include <limits>
 #include <map>
 #include <set>
-#include <stdint.h> // KLUDGE - should be <cstdint>, but isn't part of std before C++11
 
 // Common constants used only in expressions
 
