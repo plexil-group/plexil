@@ -122,10 +122,8 @@ using std::memmove;
 #	define PUGI__FN_NO_INLINE PUGI__NO_INLINE
 #endif
 
-// uintptr_t
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
-#	include <stdint.h>
-#else
+// uintptr_t and related
+#if defined(_MSC_VER) && _MSC_VER < 1600
 #	ifndef _UINTPTR_T_DEFINED
 // No native uintptr_t in MSVC6 and in some WinCE versions
 typedef size_t uintptr_t;
@@ -136,6 +134,11 @@ PUGI__NS_BEGIN
 	typedef unsigned __int16 uint16_t;
 	typedef unsigned __int32 uint32_t;
 PUGI__NS_END
+#elif defined(__VXWORKS__)
+#       include <vxWorks.h>
+typedef size_t uintptr_t;
+#else
+#	include <stdint.h>
 #endif
 
 // Memory allocation
