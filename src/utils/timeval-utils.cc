@@ -28,6 +28,9 @@
 // Utilities for timeval arithmetic
 //
 
+#include "plexil-config.h"
+#include "timeval-utils.hh"
+
 #ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>
 #elif defined(__VXWORKS__)

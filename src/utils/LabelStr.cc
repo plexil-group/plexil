@@ -28,7 +28,8 @@
 #include "Value.hh"
 #include <cstring> // for strcmp()
 
-#if defined(HAVE_HASH_MAP)
+// For Dinkumware or original SGI STL implementations only
+#if defined(HAVE_HASH_MAP) && !(defined(HAVE_BACKWARD_HASH_MAP) || defined(HAVE_EXT_HASH_MAP) || defined(HAVE_TR1_UNORDERED_MAP) || defined(HAVE_UNORDERED_MAP))
 namespace std
 {
   template <>
