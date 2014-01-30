@@ -21,7 +21,9 @@
 #define PUGIXML_NO_XPATH
 
 // Uncomment this to disable STL
+#if defined(__VXWORKS__)
 #define PUGIXML_NO_STL
+#endif
 
 // Uncomment this to disable exceptions
 // #define PUGIXML_NO_EXCEPTIONS
