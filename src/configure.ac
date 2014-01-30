@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.61)
+AC_PREREQ(2.59)
 AC_INIT(Plexil, 3.0.0a1, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
@@ -94,6 +94,7 @@ AC_DEFINE_UNQUOTED([HAVE_LUV_LISTENER],
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_PROG_LIBTOOL
 # Required by IPC
 AS_IF([test "x$enable_ipc" = "xyes"], [
@@ -112,9 +113,20 @@ AC_CHECK_LIB([m], [sqrt])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h float.h limits.h netdb.h netinet/in.h stddef.h stdint.h sys/socket.h sys/time.h unistd.h wchar.h])
+AC_CHECK_HEADERS([arpa/inet.h dlfcn.h float.h limits.h netdb.h netinet/in.h stddef.h stdint.h sys/socket.h sys/time.h unistd.h wchar.h])
 # Hash table implementations
 AC_CHECK_HEADERS([unordered_map tr1/unordered_map ext/hash_map backward/hash_map hash_map])
+
+AM_CONDITIONAL([PLEXIL_DLFCN_H], [test "x$ac_cv_header_dlfcn_h" = "xyes"])
+
+# Allow use of AC_TYPE_..._T with older 'autoconf' versions.
+m4_pattern_allow([^AC_TYPE_INT32_T$])
+m4_pattern_allow([^AC_TYPE_INT64_T$])
+m4_pattern_allow([^AC_TYPE_UINT8_T$])
+m4_pattern_allow([^AC_TYPE_UINT16_T$])
+m4_pattern_allow([^AC_TYPE_UINT32_T$])
+m4_pattern_allow([^AC_TYPE_UINT64_T$])
+m4_pattern_allow([^AC_TYPE_SSIZE_T$])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -132,7 +144,7 @@ AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 AC_TYPE_UINT8_T
 AC_C_VOLATILE
-AC_CHECK_TYPES([ptrdiff_t])
+AC_CHECK_TYPES([ptrdiff_t suseconds_t])
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
@@ -142,7 +154,7 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
-AC_CHECK_FUNCS([clock_gettime floor getcwd gethostbyname gettimeofday inet_ntoa localtime_r memmove memset modf pow select socket sqrt strcasecmp strchr strcspn strdup strerror strpbrk strspn strstr strtol strtoul])
+AC_CHECK_FUNCS([clock_gettime floor getcwd gethostbyname gettimeofday inet_ntoa localtime_r memmove memset modf pow pthread_mutexattr_settype select socket sqrt strcasecmp strchr strcspn strdup strerror strpbrk strspn strstr strtol strtoll strtoul])
 
 AM_CONDITIONAL([PLEXIL_POSIX_TIME_FUNCS], [test "$ac_cv_func_clock_gettime" = "yes"])
 
