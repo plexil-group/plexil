@@ -93,19 +93,20 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libPlexilUtils_la_LIBADD =
-am__libPlexilUtils_la_SOURCES_DIST = Debug.cc Error.cc IdTable.cc \
-	LabelStr.cc Logging.cc ParserException.cc \
-	RecursiveThreadMutex.cc StoredArray.cc ThreadMutex.cc \
-	ThreadSemaphore.cc ThreadSpawn.cc Utils.cc Value.cc \
-	XMLUtils.cc iso-8601.cc stricmp.c timespec-utils.cc \
+am__libPlexilUtils_la_SOURCES_DIST = Debug.cc Error.cc \
+	hash-functions.c IdTable.cc LabelStr.cc Logging.cc \
+	ParserException.cc RecursiveThreadMutex.cc StoredArray.cc \
+	ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc Utils.cc \
+	Value.cc XMLUtils.cc iso-8601.cc stricmp.c timespec-utils.cc \
 	timeval-utils.cc JNIHelper.cc JNIUtils.cc DynamicLoader.cc
 @JNI_OPT_TRUE@am__objects_1 = libPlexilUtils_la-JNIHelper.lo \
 @JNI_OPT_TRUE@	libPlexilUtils_la-JNIUtils.lo
 @PLEXIL_DLFCN_H_TRUE@am__objects_2 =  \
 @PLEXIL_DLFCN_H_TRUE@	libPlexilUtils_la-DynamicLoader.lo
 am_libPlexilUtils_la_OBJECTS = libPlexilUtils_la-Debug.lo \
-	libPlexilUtils_la-Error.lo libPlexilUtils_la-IdTable.lo \
-	libPlexilUtils_la-LabelStr.lo libPlexilUtils_la-Logging.lo \
+	libPlexilUtils_la-Error.lo libPlexilUtils_la-hash-functions.lo \
+	libPlexilUtils_la-IdTable.lo libPlexilUtils_la-LabelStr.lo \
+	libPlexilUtils_la-Logging.lo \
 	libPlexilUtils_la-ParserException.lo \
 	libPlexilUtils_la-RecursiveThreadMutex.lo \
 	libPlexilUtils_la-StoredArray.lo \
@@ -157,17 +158,18 @@ SOURCES = $(libPlexilUtils_la_SOURCES) \
 	$(test_utils_module_tests_SOURCES)
 DIST_SOURCES = $(am__libPlexilUtils_la_SOURCES_DIST) \
 	$(am__test_utils_module_tests_SOURCES_DIST)
-am__include_HEADERS_DIST = ConstantMacros.hh Debug.hh Error.hh \
-	GNU_hash_map.hh Id.hh IdTable.hh ItemStoreEntry.hh \
-	ItemTable.hh ItemTable_Dinkum.hh ItemTable_unordered_map.hh \
-	KeySource.hh Logging.hh ParserException.hh \
-	RecursiveThreadMutex.hh StoredArray.hh StoredItem.hh \
-	ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh \
-	TwoWayStore.hh TwoWayTable.hh TwoWayTable_Dinkum.hh \
-	TwoWayTable_unordered_map.hh Utils.hh Value.hh XMLUtils.hh \
-	generic_hash_map.hh iso-8601.hh stricmp.h timespec-utils.hh \
-	timeval-utils.hh utils_main_page.hh JNIHelper.hh JNIUtils.hh \
-	ScopedOstreamRedirect.hh DynamicLoader.hh
+am__include_HEADERS_DIST = ConstantMacros.hh Debug.hh \
+	Dinkum_hash_map.hh Error.hh GNU_hash_map.hh hash-functions.h \
+	Id.hh IdTable.hh ItemStoreEntry.hh ItemTable.hh \
+	ItemTable_Dinkum.hh ItemTable_unordered_map.hh KeySource.hh \
+	Logging.hh ParserException.hh RecursiveThreadMutex.hh \
+	StoredArray.hh StoredItem.hh ThreadMutex.hh ThreadSemaphore.hh \
+	ThreadSpawn.hh TwoWayStore.hh TwoWayTable.hh \
+	TwoWayTable_Dinkum.hh TwoWayTable_unordered_map.hh Utils.hh \
+	Value.hh XMLUtils.hh generic_hash_map.hh iso-8601.hh stricmp.h \
+	timespec-utils.hh timeval-utils.hh utils_main_page.hh \
+	JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh \
+	DynamicLoader.hh
 includeHEADERS_INSTALL = $(INSTALL_HEADER)
 am__noinst_HEADERS_DIST = test/TestData.hh test/util-test-module.hh \
 	test/jni-adapter.hh
@@ -305,22 +307,23 @@ target_alias = @target_alias@
 AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilUtils.la
 libPlexilUtils_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src
-include_HEADERS = ConstantMacros.hh Debug.hh Error.hh GNU_hash_map.hh \
-	Id.hh IdTable.hh ItemStoreEntry.hh ItemTable.hh \
-	ItemTable_Dinkum.hh ItemTable_unordered_map.hh KeySource.hh \
-	Logging.hh ParserException.hh RecursiveThreadMutex.hh \
-	StoredArray.hh StoredItem.hh ThreadMutex.hh ThreadSemaphore.hh \
-	ThreadSpawn.hh TwoWayStore.hh TwoWayTable.hh \
-	TwoWayTable_Dinkum.hh TwoWayTable_unordered_map.hh Utils.hh \
-	Value.hh XMLUtils.hh generic_hash_map.hh iso-8601.hh stricmp.h \
-	timespec-utils.hh timeval-utils.hh utils_main_page.hh \
-	$(am__append_1) $(am__append_3)
-libPlexilUtils_la_SOURCES = Debug.cc Error.cc IdTable.cc LabelStr.cc \
-	Logging.cc ParserException.cc RecursiveThreadMutex.cc \
-	StoredArray.cc ThreadMutex.cc ThreadSemaphore.cc \
-	ThreadSpawn.cc Utils.cc Value.cc XMLUtils.cc iso-8601.cc \
-	stricmp.c timespec-utils.cc timeval-utils.cc $(am__append_2) \
-	$(am__append_4)
+include_HEADERS = ConstantMacros.hh Debug.hh Dinkum_hash_map.hh \
+	Error.hh GNU_hash_map.hh hash-functions.h Id.hh IdTable.hh \
+	ItemStoreEntry.hh ItemTable.hh ItemTable_Dinkum.hh \
+	ItemTable_unordered_map.hh KeySource.hh Logging.hh \
+	ParserException.hh RecursiveThreadMutex.hh StoredArray.hh \
+	StoredItem.hh ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh \
+	TwoWayStore.hh TwoWayTable.hh TwoWayTable_Dinkum.hh \
+	TwoWayTable_unordered_map.hh Utils.hh Value.hh XMLUtils.hh \
+	generic_hash_map.hh iso-8601.hh stricmp.h timespec-utils.hh \
+	timeval-utils.hh utils_main_page.hh $(am__append_1) \
+	$(am__append_3)
+libPlexilUtils_la_SOURCES = Debug.cc Error.cc hash-functions.c \
+	IdTable.cc LabelStr.cc Logging.cc ParserException.cc \
+	RecursiveThreadMutex.cc StoredArray.cc ThreadMutex.cc \
+	ThreadSemaphore.cc ThreadSpawn.cc Utils.cc Value.cc \
+	XMLUtils.cc iso-8601.cc stricmp.c timespec-utils.cc \
+	timeval-utils.cc $(am__append_2) $(am__append_4)
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/TestData.hh \
 @MODULE_TESTS_OPT_TRUE@	test/util-test-module.hh \
 @MODULE_TESTS_OPT_TRUE@	$(am__append_5)
@@ -465,6 +468,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-Utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-Value.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-XMLUtils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-hash-functions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-iso-8601.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-stricmp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-timespec-utils.Plo@am__quote@
@@ -497,6 +501,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+
+libPlexilUtils_la-hash-functions.lo: hash-functions.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libPlexilUtils_la-hash-functions.lo -MD -MP -MF "$(DEPDIR)/libPlexilUtils_la-hash-functions.Tpo" -c -o libPlexilUtils_la-hash-functions.lo `test -f 'hash-functions.c' || echo '$(srcdir)/'`hash-functions.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/libPlexilUtils_la-hash-functions.Tpo" "$(DEPDIR)/libPlexilUtils_la-hash-functions.Plo"; else rm -f "$(DEPDIR)/libPlexilUtils_la-hash-functions.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='hash-functions.c' object='libPlexilUtils_la-hash-functions.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libPlexilUtils_la-hash-functions.lo `test -f 'hash-functions.c' || echo '$(srcdir)/'`hash-functions.c
 
 libPlexilUtils_la-stricmp.lo: stricmp.c
 @am__fastdepCC_TRUE@	if $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libPlexilUtils_la-stricmp.lo -MD -MP -MF "$(DEPDIR)/libPlexilUtils_la-stricmp.Tpo" -c -o libPlexilUtils_la-stricmp.lo `test -f 'stricmp.c' || echo '$(srcdir)/'`stricmp.c; \

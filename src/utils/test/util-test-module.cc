@@ -972,9 +972,11 @@ private:
         entry->refcount = 1;
         entry->item = ostream.str();
         tbl.insertEntry(key, entry);
+	if (i % 1000 == 0)
+	  std::cout << i << ' ' << std::flush;
       }
       assertTrueMsg(tbl.size() == n,
-                    "Error populating table; size should be " << n << ", is " << tbl.size());
+		    "Error populating table; size should be " << n << ", is " << tbl.size());
       std::cout << " done." << std::endl;
     }
     // Check contents
@@ -990,6 +992,8 @@ private:
         size_t j;
         str >> j;
         assertTrueMsg(i == j, "Item at key " << key << " should be " << i << ", is " << j);
+	if (i % 1000 == 0)
+	  std::cout << i << ' ' << std::flush;
       }
       std::cout << " done." << std::endl;
     }
@@ -1005,6 +1009,9 @@ private:
         tbl.removeEntry(key);
         entry = tbl.get(key);
         assertTrue(entry == NULL, "Error: removeEntry failed");
+	// *** DEBUG ONLY ***
+	if (i % 1000 == 0)
+	  std::cout << i << ' ' << std::flush;
       }
     }
     assertTrue(tbl.empty(), "Error: Table not empty after clearing");
@@ -1040,6 +1047,8 @@ private:
       std::ostringstream ostream;
       ostream << i;
       store.storeItem(ostream.str());
+      if (i % 1000 == 0)
+	std::cout << i << ' ' << std::flush;
     }
     assertTrueMsg(store.size() == n + 1,
                   "Error populating store; size is " << store.size()
@@ -1059,6 +1068,8 @@ private:
         size_t j;
         str >> j;
         assertTrueMsg(i == j, "Item at key " << key << " should be " << i << ", is " << j);
+	if (i % 1000 == 0)
+	  std::cout << i << ' ' << std::flush;
       }
       std::cout << " done." << std::endl;
     }
@@ -1072,6 +1083,8 @@ private:
         key_t key = keygen2.next();
         assertTrueMsg(store.newReference(key),
                       "Error: newReference failed for key " << key);
+	if (i % 1000 == 0)
+	  std::cout << i << ' ' << std::flush;
       }
       assertTrueMsg(store.size() == n + 1,
                     "Error: size is " << store.size()
@@ -1089,6 +1102,8 @@ private:
         store.deleteReference(key);
         assertTrueMsg(NULL != store.getItem(key),
                       "Error: item deleted prematurely for key " << key);
+	if (i % 1000 == 0)
+	  std::cout << i << ' ' << std::flush;
       }
       assertTrueMsg(store.size() == n + 1,
                     "Error: size is " << store.size()
@@ -1105,6 +1120,8 @@ private:
         key_t key = keygen4.next();
         store.deleteReference(key);
         assertTrueMsg(NULL == store.getItem(key), "Error: item not deleted for key " << key);
+	if (i % 1000 == 0)
+	  std::cout << i << ' ' << std::flush;
       }
     }
     assertTrueMsg(store.size() == 1,
@@ -1211,6 +1228,8 @@ private:
         std::ostringstream ostream;
         ostream << i;
         vec[i] = stored_item_t(ostream.str());
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
       assertTrueMsg(stored_item_t::getSize() == n + 1,
                     "Error: StoredItem::getSize() is "
@@ -1224,12 +1243,16 @@ private:
         size_t j;
         str >> j;
         assertTrueMsg(i == j, "Item should be " << i << ", is " << j);
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
       std::cout << " done." << std::endl;
 
       std::cout << "Checking assignment in vector ..." << std::flush;
       for (size_t i = 1; i < n; ++i) {
         vec[i] = vec[0];
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
       assertTrueMsg(stored_item_t::getSize() == 2,
                     "Error: StoredItem::getSize() is "
@@ -1351,8 +1374,8 @@ private:
     std::cout << std::endl;
 
     size_t width = 10;
-    size_t testSize = 100000; // was 2000000
-    size_t updateSize = 10000; // was 100000
+    size_t testSize = 10000;
+    size_t updateSize = 1000;
     // preallocate vectors to the appropriate size
     std::vector<double> keys;
     keys.reserve(testSize);
@@ -1466,6 +1489,8 @@ private:
         entry->refcount = 1;
         entry->item = ostream.str();
         tbl.insertEntry(key, entry);
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
       assertTrueMsg(tbl.size() == n,
                     "Error populating table; size should be " << n << ", is " << tbl.size());
@@ -1495,6 +1520,8 @@ private:
         assertTrueMsg(entryByKey != NULL, "No table entry found for item " << key);
         assertTrueMsg(entryByKey == entryByItem,
                       "getByItem error: Entries differ for key " << key << " and item " << entryByKey->item);
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
       std::cout << " done." << std::endl;
     }
@@ -1510,6 +1537,8 @@ private:
         tbl.removeEntry(key);
         entryByKey = tbl.getByKey(key);
         assertTrue(entryByKey == NULL, "Error: removeEntry failed");
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
     }
     assertTrue(tbl.empty(), "Error: Table not empty after clearing");
@@ -1545,6 +1574,8 @@ private:
       std::ostringstream ostream;
       ostream << i;
       store.storeItem(ostream.str());
+      if ((i + 1) % 1000 == 0)
+	std::cout << i + 1 << ' ' << std::flush;
     }
     assertTrueMsg(store.size() == n + 1 ,
                   "Error populating store: size is " << store.size() << ", should be " << n + 1);
@@ -1563,6 +1594,8 @@ private:
         size_t j;
         str >> j;
         assertTrueMsg(i == j, "Item at key " << key << " should be " << i << ", is " << j);
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
       std::cout << " done." << std::endl;
     }
@@ -1576,6 +1609,8 @@ private:
         key_t key = keygen2.next();
         assertTrueMsg(store.newReference(key),
                       "Error: newReference failed for key " << key);
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
       assertTrueMsg(store.size() == n + 1 ,
                     "Error: store size is " << store.size() << ", should be " << n + 1);
@@ -1589,6 +1624,8 @@ private:
         std::ostringstream ostream;
         ostream << i;
         store.storeItem(ostream.str());
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
       assertTrueMsg(store.size() == n + 1 ,
                     "Error: store size is " << store.size() << ", should be " << n + 1);
@@ -1605,6 +1642,8 @@ private:
         store.deleteReference(key);
         assertTrueMsg(NULL != store.getItem(key),
                       "Error: item deleted prematurely for key " << key);
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
       assertTrueMsg(store.size() == n + 1 ,
                     "Error: store size is " << store.size() << ", should be " << n + 1);
@@ -1621,6 +1660,8 @@ private:
         store.deleteReference(key);
         assertTrueMsg(NULL != store.getItem(key),
                       "Error: item deleted prematurely for key " << key);
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
       assertTrueMsg(store.size() == n + 1 ,
                     "Error: store size is " << store.size() << ", should be " << n + 1);
@@ -1636,6 +1677,8 @@ private:
         key_t key = keygen5.next();
         store.deleteReference(key);
         assertTrueMsg(NULL == store.getItem(key), "Error: item not deleted for key " << key);
+	if ((i + 1) % 1000 == 0)
+	  std::cout << i + 1 << ' ' << std::flush;
       }
     }
     assertTrueMsg(store.size() == 1,

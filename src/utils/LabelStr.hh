@@ -442,7 +442,7 @@ _GLIBCXX_END_NAMESPACE
 
 #elif defined(HAVE_HASH_MAP)
 // Dinkumware or original SGI hash_map
-#include <hash_map>
+#include "Dinkum_hash_map.hh"
 
 namespace std
 {
