@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 #define TWO_WAY_TABLE_DINKUM_HH
 
 #include "ItemStoreEntry.hh"
-#include <hash_map>
+#include "Dinkum_hash_map.hh"
 
 namespace PLEXIL
 {
@@ -46,8 +46,8 @@ namespace PLEXIL
 
   template <typename key_t,
             typename item_t,
-            typename key_comp_t = std::hash_compare<key_t>,
-            typename item_comp_t = std::hash_compare<item_t>
+            typename key_comp_t = PLEXIL::hash_compare<key_t>,
+            typename item_comp_t = PLEXIL::hash_compare<item_t>
             >
   class TwoWayTable
   {

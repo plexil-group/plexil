@@ -31,7 +31,7 @@
 #include "Error.hh"
 #include "ItemStoreEntry.hh"
 
-#include <hash_map>
+#include "Dinkum_hash_map.hh"
 
 namespace PLEXIL
 {
@@ -47,7 +47,7 @@ namespace PLEXIL
 
   template <typename key_t,
             typename item_t,
-            typename key_comp_t = std::hash_compare<key_t>
+            typename key_comp_t = PLEXIL::hash_compare<key_t>
             >
   class ItemTable
   {
