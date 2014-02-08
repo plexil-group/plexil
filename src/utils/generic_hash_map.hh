@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,8 @@
 #define PLEXIL_HASH_MAP(key_t,item_t) __gnu_cxx::hash_map<key_t, item_t >
 #elif defined(HAVE_HASH_MAP)
 // Dinkumware or original SGI hash_map
-#include <hash_map>
-#define PLEXIL_HASH_MAP(key_t,item_t) std::hash_map<key_t, item_t >
+#include "Dinkum_hash_map.hh"
+#define PLEXIL_HASH_MAP(key_t,item_t) std::hash_map<key_t, item_t, PLEXIL::hash_compare<key_t> >
 #else
 # error "Unable to find hash_map or equivalent class for this platform."
 #endif
