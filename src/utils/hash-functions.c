@@ -79,7 +79,7 @@ uint32_t PaulHsiehHash (const char * data, int len) {
   uint32_t hash = len, tmp;
   int rem;
 
-  if (len <= 0 || data == NULL) return 0;
+  if (len <= 0 || data == 0) return 0;
 
   rem = len & 3;
   len >>= 2;
