@@ -338,7 +338,7 @@ namespace PLEXIL
      * @return The key for accessing the store of strings.
      * @note Intended for use by Value class and hash functions below only.
      */
-    inline double getKey() const
+    inline const double& getKey() const
     {
       return m_key;
     }
@@ -454,9 +454,15 @@ namespace std
       return (_Left.getKey() < _Right.getKey());
     }
   };
+}
 
+namespace PLEXIL
+{
   template <>
-  size_t hash_value(const PLEXIL::LabelStr& _Keyval);
+  inline size_t plexil_hash_value(const PLEXIL::LabelStr& _Keyval)
+  {
+    return (size_t) HashDouble(&_Keyval.getKey());
+  }
 }
 
 #else
