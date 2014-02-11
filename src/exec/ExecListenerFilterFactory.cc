@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,9 @@
 
 #include "ExecListenerFilterFactory.hh"
 #include "Debug.hh"
+#ifdef HAVE_DLFCN_H
 #include "DynamicLoader.hh"
+#endif
 #include "InterfaceSchema.hh"
 #include "pugixml.hpp"
 
@@ -76,6 +78,8 @@ namespace PLEXIL
                                             const pugi::xml_node& xml)
   {
     std::map<LabelStr, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name);
+#ifdef HAVE_DLFCN_H
+    // Only do this if we have dynamic loading enabled
     if (it == factoryMap().end()) {
 	  debugMsg("ExecListenerFilterFactory:createInstance", 
 			   "Attempting to dynamically load filter type \""
@@ -89,11 +93,10 @@ namespace PLEXIL
 				 << name.c_str() << "\"");
 		return ExecListenerFilterId::noId();
 	  }
-
 	  // See if it's registered now
 	  it = factoryMap().find(name);
 	}
-
+#endif
     if (it == factoryMap().end()) {
       debugMsg("ExecListenerFilterFactory:createInstance", 
           " No exec listener filter factory registered for name \""
