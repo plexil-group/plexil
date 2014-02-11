@@ -15,6 +15,8 @@ AM_INIT_AUTOMAKE
 # Configuration options
 AC_ARG_WITH([jni],
         AS_HELP_STRING([--with-jni], [Include utilties for Java Native Interface (default=no)]))
+AC_ARG_WITH([threads],
+        AS_HELP_STRING([--with-threads], [Build for multithreaded use (default=yes)]))
 AC_ARG_ENABLE([debug-listener],
         AS_HELP_STRING([--enable-debug-listener], [Build PlanDebugListener interface (default=yes)]))
 AC_ARG_ENABLE([debug-logging],
@@ -46,6 +48,7 @@ AC_ARG_ENABLE([universal-exec],
 # Conditionals for makefiles
 # These default to on
 AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" != "xno"])
+AM_CONDITIONAL([THREADS_OPT], [test "x$with_threads" != "xno"])
 AM_CONDITIONAL([VIEWER_OPT], [test "x$enable_viewer" != "xno"])
 AM_CONDITIONAL([UNIVERSAL_EXEC_OPT], [test "x$enable_universal_exec" != "xno"])
 
@@ -64,6 +67,9 @@ AS_IF([test "x$enable_debug_logging" = "xno"],[
 ])
 AS_IF([test "x$enable_pointer_checks" = "xno"],[
   AC_DEFINE([PLEXIL_ID_FAST],[1],[Define to 1 if Id validity checking is disabled.])
+])
+AS_IF([test "x$with_threads" != "xno"],[
+  AC_DEFINE([PLEXIL_WITH_THREADS],[1],[Define to 1 if multithreading is enabled.])
 ])
 
 AC_DEFINE_UNQUOTED([HAVE_DEBUG_LISTENER],
