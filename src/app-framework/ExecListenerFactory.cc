@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,9 @@
 
 #include "ExecListenerFactory.hh"
 #include "Debug.hh"
+#ifdef HAVE_DLFCN_H
 #include "DynamicLoader.hh"
+#endif
 #include "ExecListener.hh"
 #include "InterfaceSchema.hh"
 
@@ -78,6 +80,7 @@ namespace PLEXIL
                                       const pugi::xml_node& xml)
   {
     std::map<LabelStr, ExecListenerFactory*>::const_iterator it = factoryMap().find(name);
+#ifdef HAVE_DLFCN_H
     if (it == factoryMap().end()) {
       debugMsg("ExecListenerFactory:createInstance", 
                "Attempting to dynamically load listener type \""
@@ -94,6 +97,7 @@ namespace PLEXIL
       // See if it's registered now
       it = factoryMap().find(name);
     }
+#endif
 
     if (it == factoryMap().end()) {
       debugMsg("ExecListenerFactory:createInstance", 

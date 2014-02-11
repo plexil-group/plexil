@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,9 @@
 
 #include "ControllerFactory.hh"
 #include "Debug.hh"
+#ifdef HAVE_DLFCN_H
 #include "DynamicLoader.hh"
+#endif
 #include "ExecController.hh"
 #include "ExecApplication.hh"
 #include "InterfaceSchema.hh"
@@ -102,6 +104,7 @@ namespace PLEXIL
                                     bool& wasCreated)
   {
     std::map<LabelStr, ControllerFactory*>::const_iterator it = factoryMap().find(name);
+#ifdef HAVE_DLFCN_H
     if (it == factoryMap().end()) {
       debugMsg("ControllerFactory:createInstance", 
                "Attempting to dynamically load controller type \""
@@ -118,6 +121,7 @@ namespace PLEXIL
       // See if it's registered now
       it = factoryMap().find(name);
     }
+#endif
 
     if (it == factoryMap().end()) {
       debugMsg("ControllerFactory:createInstance",

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,9 @@
 #include "InterfaceAdapter.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
+#ifdef HAVE_DLFCN_H
 #include "DynamicLoader.hh"
+#endif
 #include "InterfaceSchema.hh"
 #include "pugixml.hpp"
 
@@ -101,25 +103,26 @@ namespace PLEXIL
                                  bool& wasCreated)
   {
     std::map<LabelStr, AdapterFactory*>::const_iterator it = factoryMap().find(name);
-    if (it == factoryMap().end())
-      {
-        debugMsg("AdapterFactory:createInstance", 
-                 "Attempting to dynamically load adapter type \""
-                 << name.c_str() << "\"");
-        // Attempt to dynamically load library
-        const char* libCPath =
-          xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
-        if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-          debugMsg("AdapterFactory::createInstance",
-                   " unable to load module for adapter type \""
-                   << name.c_str() << "\"");
-          wasCreated = false;
-          return InterfaceAdapterId::noId();
-        }
-
-        // See if it's registered now
-        it = factoryMap().find(name);
+#ifdef HAVE_DLFCN_H
+    if (it == factoryMap().end()) {
+      debugMsg("AdapterFactory:createInstance", 
+	       "Attempting to dynamically load adapter type \""
+	       << name.c_str() << "\"");
+      // Attempt to dynamically load library
+      const char* libCPath =
+	xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+      if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
+	debugMsg("AdapterFactory::createInstance",
+		 " unable to load module for adapter type \""
+		 << name.c_str() << "\"");
+	wasCreated = false;
+	return InterfaceAdapterId::noId();
       }
+
+      // See if it's registered now
+      it = factoryMap().find(name);
+    }
+#endif
 
     if (it == factoryMap().end()) {
       debugMsg("AdapterFactory:createInstance", 
