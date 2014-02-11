@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,10 +25,10 @@
 
 bin_PROGRAMS = TestExec
 noinst_HEADERS = ExecTestRunner.hh
-TestExec_SOURCES = ExecTestRunner.cc exec-test-runner.cc
+TestExec_SOURCES = exec-test-runner.cc ExecTestRunner.cc
 
-TestExec_LDADD = ../../third-party/pugixml/src/libpugixml.la \
- ../../utils/libPlexilUtils.la ../../exec/libPlexilExec.la
+# Try to get right library ordering
+TestExec_LDADD =
 
 TestExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
  -I@top_srcdir@/exec
@@ -49,4 +49,7 @@ if VIEWER_OPT
   TestExec_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener \
    -I@top_srcdir@/interfaces/Sockets
 endif
+
+TestExec_LDADD += ../../exec/libPlexilExec.la ../../utils/libPlexilUtils.la \
+ ../../third-party/pugixml/src/libpugixml.la
 
