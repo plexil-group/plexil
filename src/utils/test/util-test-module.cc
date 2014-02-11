@@ -314,6 +314,7 @@ private:
   }
 };
 
+#ifdef PLEXIL_WITH_THREADS
 class MutexTest
 {
 public:
@@ -348,6 +349,7 @@ public:
   }
 
 };
+#endif /* PLEXIL_WITH_THREADS */
 
 /**
  * Support classes to enable testing
@@ -2627,7 +2629,9 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(TimespecTests::test);
   runTestSuite(TimevalTests::test);
   runTestSuite(ISO8601Tests::test);
+#ifdef PLEXIL_WITH_THREADS
   runTestSuite(MutexTest::test);
+#endif
   runTestSuite(IdTests::test);
   runTestSuite(KeySourceTests::test);
   runTestSuite(ItemTableTests::test);
