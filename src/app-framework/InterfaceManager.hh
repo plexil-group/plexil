@@ -516,10 +516,12 @@ namespace PLEXIL
     */
     void notifyOfExternalEvent();
 
+#ifdef PLEXIL_WITH_THREADS
     /**
      * @brief Run the exec and wait until all events in the queue have been processed.
      */
     void notifyAndWaitForCompletion();
+#endif
 
     StateCacheId getStateCache() const;
 

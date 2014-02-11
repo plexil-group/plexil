@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -211,11 +211,13 @@ namespace PLEXIL
     QueueEntryId m_tail; //* The current end of the queue.
     QueueEntryId m_freeList; //* Stack of recycled entries for later reuse.
 
+#ifdef PLEXIL_WITH_THREADS
     /** 
      * @brief Pointer to a mutex to prevent collisions between threads.
      * @note Implemented as a pointer so isEmpty() can be const.
      */
     ThreadMutex * m_mutex;
+#endif
 
     //* Serial number for marks
     unsigned int m_markCount;

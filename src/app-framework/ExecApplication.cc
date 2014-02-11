@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,11 +48,14 @@ namespace PLEXIL
     : m_exec(),
       m_interface(*this),
       m_id(this),
+#ifdef PLEXIL_WITH_THREADS
       m_execThread(),
       m_execMutex(),
+      m_stateMutex(),
       m_sem(),
       m_markSem(),
       m_shutdownSem(),
+#endif
       m_nBlockedSignals(0),
       m_state(APP_UNINITED),
       m_threadLaunched(false),
@@ -167,18 +170,20 @@ namespace PLEXIL
       return false;
 
     {
+#ifdef PLEXIL_WITH_THREADS
       RTMutexGuard guard(m_execMutex);
-      debugMsg("ExecApplication:step", " (" << pthread_self() << ") Checking interface queue");
+#endif
+      debugMsg("ExecApplication:step", " Checking interface queue");
       if (m_interface.processQueue()) {
         do {
-          debugMsg("ExecApplication:step", " (" << pthread_self() << ") Stepping exec");
+          debugMsg("ExecApplication:step", " Stepping exec");
           m_exec.step();
         }
         while (m_exec.needsStep());
-        debugMsg("ExecApplication:step", " (" << pthread_self() << ") Step complete and all nodes quiescent");
+        debugMsg("ExecApplication:step", " Step complete and all nodes quiescent");
       }
       else {
-        debugMsg("ExecApplication:step", " (" << pthread_self() << ") Queue processed, no step required.");
+        debugMsg("ExecApplication:step", " Queue processed, no step required.");
       }
     }
 
@@ -195,14 +200,16 @@ namespace PLEXIL
       return false;
 
     {
+#ifdef PLEXIL_WITH_THREADS
       RTMutexGuard guard(m_execMutex);
-      debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") Checking interface queue");
+#endif
+      debugMsg("ExecApplication:stepUntilQuiescent", " Checking interface queue");
       while (m_interface.processQueue() || m_exec.needsStep()) {
-        debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") Stepping exec");
+        debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
         m_exec.step();
       }
     }
-    debugMsg("ExecApplication:stepUntilQuiescent", " (" << pthread_self() << ") completed, queue empty and Exec quiescent.");
+    debugMsg("ExecApplication:stepUntilQuiescent", " completed, queue empty and Exec quiescent.");
 
     return true;
   }
@@ -213,6 +220,7 @@ namespace PLEXIL
    * @return true if successful, false otherwise.
    */
 
+#ifdef PLEXIL_WITH_THREADS
   bool ExecApplication::run()
   {
     if (m_state != APP_READY)
@@ -229,7 +237,9 @@ namespace PLEXIL
 
     // Start the event listener thread
     return spawnExecThread();
+
   }
+#endif // PLEXIL_WITH_THREADS
 
   /**
    * @brief Suspends the running Exec.
@@ -280,6 +290,7 @@ namespace PLEXIL
     // Stop interfaces
     m_interface.stop();
 
+#ifdef PLEXIL_WITH_THREADS
     // Stop the Exec
     if (m_threadLaunched) {
       debugMsg("ExecApplication:stop", " Halting top level thread");
@@ -313,6 +324,7 @@ namespace PLEXIL
                     "ExecApplication::stop: failed to restore signal handling for main thread");
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
     }
+#endif // PLEXIL_WITH_THREADS
     
     return setApplicationState(APP_STOPPED);
   }
@@ -390,8 +402,10 @@ namespace PLEXIL
       }
 
     m_interface.handleAddLibrary(root);
-    debugMsg("ExecApplication:addLibrary", " Library added, stepping exec");
+    debugMsg("ExecApplication:addLibrary", " Library added");
+#ifdef PLEXIL_WITH_THREADS
     notifyAndWaitForCompletion();
+#endif
     return true;
   }
 
@@ -432,6 +446,7 @@ namespace PLEXIL
     return true;
   }
 
+#ifdef PLEXIL_WITH_THREADS
   /**
    * @brief Spawns a thread which runs the exec's top level loop.
    * @return true if successful, false otherwise.
@@ -461,7 +476,7 @@ namespace PLEXIL
 
   void ExecApplication::runInternal()
   {
-    debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Thread started");
+    debugMsg("ExecApplication:runInternal", " Thread started");
 
     // set up signal handling environment for this thread
     assertTrueMsg(initializeWorkerSignalHandling(),
@@ -469,11 +484,11 @@ namespace PLEXIL
 
     // must step exec once to initialize time
     runExec(true);
-    debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Initial step complete");
+    debugMsg("ExecApplication:runInternal", " Initial step complete");
 
     while (waitForExternalEvent()) {
       if (m_stop) {
-        debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Received stop request");
+        debugMsg("ExecApplication:runInternal", " Received stop request");
         m_stop = false; // acknowledge stop request
         break;
       }
@@ -484,8 +499,9 @@ namespace PLEXIL
     // don't bother to check for errors
     restoreWorkerSignalHandling();
 
-    debugMsg("ExecApplication:runInternal", " (" << pthread_self() << ") Ending the thread loop.");
+    debugMsg("ExecApplication:runInternal", " Ending the thread loop.");
   }
+#endif // PLEXIL_WITH_THREADS
 
   /**
    * @brief Run the exec until the queue is empty.
@@ -496,9 +512,11 @@ namespace PLEXIL
   void
   ExecApplication::runExec(bool stepFirst)
   {
+#ifdef PLEXIL_WITH_THREADS
     RTMutexGuard guard(m_execMutex);
+#endif
     if (stepFirst) {
-      debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec because stepFirst is set");
+      debugMsg("ExecApplication:runExec", " Stepping exec because stepFirst is set");
       m_exec.step();
     }
     else {
@@ -506,13 +524,14 @@ namespace PLEXIL
     }
     while (!m_suspended && 
            (m_exec.needsStep() || m_interface.processQueue())) {
-      debugMsg("ExecApplication:runExec", " (" << pthread_self() << ") Stepping exec");
+      debugMsg("ExecApplication:runExec", " Stepping exec");
       m_exec.step();
     }
-    condDebugMsg(!m_suspended, "ExecApplication:runExec", " (" << pthread_self() << ") No events are pending");
-    condDebugMsg(m_suspended, "ExecApplication:runExec", " (" << pthread_self() << ") Suspended");
+    condDebugMsg(!m_suspended, "ExecApplication:runExec", " No events are pending");
+    condDebugMsg(m_suspended, "ExecApplication:runExec", " Suspended");
   }
 
+#ifdef PLEXIL_WITH_THREADS
   /**
    * @brief Suspends the calling thread until another thread has
    *         placed a call to notifyExec().  Can return
@@ -527,14 +546,14 @@ namespace PLEXIL
                   "ExecApplication::waitForExternalEvent: fatal error: signal handling not initialized.:");
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
-    debugMsg("ExecApplication:wait", " (" << pthread_self() << ") waiting for external event");
+    debugMsg("ExecApplication:wait", " waiting for external event");
     int status;
     do {
       status = m_sem.wait();
       if (status == 0) {
         condDebugMsg(!m_suspended, 
                      "ExecApplication:wait",
-                     " (" << pthread_self() << ") acquired semaphore, processing external event");
+                     "acquired semaphore, processing external event");
         condDebugMsg(m_suspended, 
                      "ExecApplication:wait",
                      " Application is suspended, ignoring external event");
@@ -578,6 +597,7 @@ namespace PLEXIL
     if (waitStatus == 0)
       m_shutdownSem.post(); // pass it on to the next, if any
   }
+#endif
 
   /**
    * @brief Whatever state the application may be in, bring it down in a controlled fashion.
@@ -616,7 +636,9 @@ namespace PLEXIL
    */
   ExecApplication::ApplicationState 
   ExecApplication::getApplicationState() {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(m_stateMutex);
+#endif
     return m_state;
   }
 
@@ -635,7 +657,9 @@ namespace PLEXIL
 
     // variable binding context for guard -- DO NOT DELETE THESE BRACES!
     {
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(m_stateMutex);
+#endif
       switch (newState) {
       case APP_INITED:
         if (m_state != APP_UNINITED && m_state != APP_STOPPED) {
@@ -692,8 +716,10 @@ namespace PLEXIL
     }
 
     if (newState == APP_SHUTDOWN) {
+#ifdef PLEXIL_WITH_THREADS
       // Notify any threads waiting for this state
       m_shutdownSem.post();
+#endif
     }
 
     debugMsg("ExecApplication:setApplicationState",
@@ -711,13 +737,14 @@ namespace PLEXIL
    */
   void dummySignalHandler(int /* signo */) {}
 
+#ifdef PLEXIL_WITH_THREADS
   /**
    * @brief Handler for asynchronous kill of Exec thread
    * @param signo The signal.
    */
   void emergencyStop(int signo) 
   {
-    debugMsg("ExecApplication:stop", "Received signal " << signo);
+    debugMsg("ExecApplication:stop", " Received signal " << signo);
     pthread_exit((void *) 0);
   }
 
@@ -855,6 +882,7 @@ namespace PLEXIL
     debugMsg("ExecApplication:restoreMainSignalHandling", " complete");
     return true;
   }
+#endif // PLEXIL_WITH_THREADS
 
   //
   // Static helper methods
@@ -909,6 +937,7 @@ namespace PLEXIL
   void
   ExecApplication::notifyExec()
   {
+#ifdef PLEXIL_WITH_THREADS
     if (m_runExecInBkgndOnly || m_execMutex.isLocked()) {
       // Some thread currently owns the exec. Could be this thread.
       // runExec() could notice, or not.
@@ -918,25 +947,31 @@ namespace PLEXIL
                     "notifyExec: semaphore post failed, status = "
                     << status);
       debugMsg("ExecApplication:notify",
-               " (" << pthread_self() << ") released semaphore");
+               "released semaphore");
+      return;
     }
-    else {
-      // Exec is idle, so run it
-      // If another thread grabs it first, no worries.
-      debugMsg("ExecApplication:notify",
-               " (" << pthread_self() << ") exec was idle, stepping it");
-      this->runExec();
-    }
+#endif
+    // Exec is idle, so run it
+    // If another thread grabs it first, no worries.
+    debugMsg("ExecApplication:notify",
+	     " (" <<
+#ifdef PLEXIL_WITH_THREADS
+	     pthread_self()
+#else
+	     0
+#endif
+	     << ") exec was idle, stepping it");
+    this->runExec();
   }
 
+#ifdef PLEXIL_WITH_THREADS
   /**
    * @brief Run the exec and wait until all events in the queue have been processed. 
   */
   void
   ExecApplication::notifyAndWaitForCompletion()
   {
-    debugMsg("ExecApplication:notifyAndWait",
-             " (" << pthread_self() << ") received external event");
+    debugMsg("ExecApplication:notifyAndWait", " received external event");
     unsigned int sequence = m_interface.markQueue();
     notifyExec();
     while (m_interface.getLastMark() < sequence) {
@@ -944,7 +979,7 @@ namespace PLEXIL
       m_markSem.post(); // in case it's not our mark and we got there first
     }
   }
-
+#endif
 
   /**
    * @brief Notify the application that a queue mark was processed.
@@ -952,7 +987,9 @@ namespace PLEXIL
   void
   ExecApplication::markProcessed()
   {
+#ifdef PLEXIL_WITH_THREADS
     m_markSem.post();
+#endif
   }
 
 }

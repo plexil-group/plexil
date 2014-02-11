@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,16 +30,19 @@
 #include "Id.hh"
 #include "InterfaceManager.hh"
 #include "PlexilExec.hh"
+
+#ifdef PLEXIL_WITH_THREADS
 #include "ThreadMutex.hh"
 #include "RecursiveThreadMutex.hh"
 #include "ThreadSemaphore.hh"
+#include <pthread.h>
+#endif
 
 // STL
 #include <set>
 #include <vector>
 
 #include <csignal>
-#include <pthread.h>
 
 #define EXEC_APPLICATION_MAX_N_SIGNALS 8
 
@@ -151,11 +154,13 @@ namespace PLEXIL
      */
     virtual bool stepUntilQuiescent();
 
+#ifdef PLEXIL_WITH_THREADS
     /**
      * @brief Runs the initialized Exec.
      * @return true if successful, false otherwise.
      */
     virtual bool run();
+#endif
 
     /**
      * @brief Suspends the running Exec.
@@ -197,11 +202,6 @@ namespace PLEXIL
     virtual void notifyExec();
 
     /**
-     * @brief Notify the executive and wait for all queue entries to be processed.
-     */
-    virtual void notifyAndWaitForCompletion();
-
-    /**
      * @brief Notify the application that a queue mark was processed.
      */
     virtual void markProcessed();
@@ -218,6 +218,12 @@ namespace PLEXIL
      */
     virtual bool addPlan(const pugi::xml_document* planXml);
 
+#ifdef PLEXIL_WITH_THREADS
+    /**
+     * @brief Notify the executive and wait for all queue entries to be processed.
+     */
+    virtual void notifyAndWaitForCompletion();
+
     /**
      * @brief Suspend the current thread until the plan finishes executing.
      * @note Acquires m_execMutex while checking exec status.
@@ -230,6 +236,7 @@ namespace PLEXIL
      * @note Wait can be interrupted by signal handling; calling threads should block (e.g.) SIGALRM.
      */
     virtual void waitForShutdown();
+#endif
 
     /**
      * @brief Whatever state the application may be in, bring it down in a controlled fashion.
@@ -275,6 +282,14 @@ namespace PLEXIL
     //
 
     /**
+     * @brief Run the exec until the queue is empty.
+     * @param stepFirst True if the exec should be stepped before checking the queue.
+     * @note Acquires m_execMutex and holds until done.  
+     */
+    void runExec(bool stepFirst = false);
+
+#ifdef PLEXIL_WITH_THREADS
+    /**
      * @brief Start the exec thread
      */
     bool spawnExecThread();
@@ -291,13 +306,6 @@ namespace PLEXIL
     void runInternal();
 
     /**
-     * @brief Run the exec until the queue is empty.
-     * @param stepFirst True if the exec should be stepped before checking the queue.
-     * @note Acquires m_execMutex and holds until done.  
-     */
-    void runExec(bool stepFirst = false);
-
-    /**
      * @brief Suspends the calling thread until another thread has
      *         placed a call to notifyOfExternalEvent().  Can return
      *         immediately if the calling thread is canceled.
@@ -305,6 +313,7 @@ namespace PLEXIL
      * @note Can wait here indefinitely while the application is suspended.
      */
     bool waitForExternalEvent();
+#endif
 
 
     //
@@ -317,6 +326,7 @@ namespace PLEXIL
      */ 
     bool setApplicationState(const ApplicationState& newState);
 
+#ifdef PLEXIL_WITH_THREADS
     /**
      * @brief Establish signal handling environment for exec worker thread.
      * @return True if successful, false otherwise.
@@ -340,6 +350,7 @@ namespace PLEXIL
      * @return True if successful, false otherwise.
      */
     bool restoreMainSignalHandling();
+#endif
 
   private:
 
@@ -356,6 +367,7 @@ namespace PLEXIL
     InterfaceManager m_interface;
     ExecApplicationId m_id;
 
+#ifdef PLEXIL_WITH_THREADS
     //
     // Synchronization and mutual exclusion
     //
@@ -377,6 +389,7 @@ namespace PLEXIL
 
     // Semaphore for notifying external threads that the application is shut down
     ThreadSemaphore m_shutdownSem;
+#endif 
 
     //
     // Signal handling

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -309,10 +309,12 @@ namespace PLEXIL
     */
     virtual void notifyOfExternalEvent() = 0;
 
+#ifdef PLEXIL_WITH_THREADS
     /**
      * @brief Run the exec and wait until all events in the queue have been processed.
      */
     virtual void notifyAndWaitForCompletion() = 0;
+#endif
 
     /**
      * @brief Get the Exec's idea of the current time.

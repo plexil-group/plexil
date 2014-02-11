@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,6 @@
 #include "Debug.hh"
 #include "DefaultAdapterConfiguration.hh"
 #include "DummyAdapter.hh"
-#include "DynamicLoader.hh"
 #include "Error.hh"
 #include "ExecApplication.hh"
 #include "ExecController.hh"
@@ -1303,6 +1302,7 @@ namespace PLEXIL
     m_application.notifyExec();
   }
 
+#ifdef PLEXIL_WITH_THREADS
   /**
    * @brief Notify the executive that it should run one cycle.  
    */
@@ -1311,6 +1311,7 @@ namespace PLEXIL
   {
     m_application.notifyAndWaitForCompletion();
   }
+#endif
 
   //
   // Utility accessors

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,9 @@ namespace PLEXIL
     : m_head(),
       m_tail(),
       m_freeList(),
+#ifdef PLEXIL_WITH_THREADS
       m_mutex(new ThreadMutex()),
+#endif
       m_markCount(0)
   {
   }
@@ -55,14 +57,18 @@ namespace PLEXIL
       delete (QueueEntry*) entry;
     }
 
+#ifdef PLEXIL_WITH_THREADS
     // Free the mutex
     delete m_mutex;
+#endif
   }
 
   void ValueQueue::enqueue(const ExpressionId & exp,
                            const Value& newValue)
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     QueueEntryId e = allocate();
     e->type = queueEntry_RETURN_VALUE;
     e->expression = exp;
@@ -73,7 +79,9 @@ namespace PLEXIL
   void ValueQueue::enqueue(const State& state, 
                            const Value& newValue)
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     QueueEntryId e = allocate();
     e->type = queueEntry_LOOKUP_VALUES;
     e->state = state;
@@ -84,7 +92,9 @@ namespace PLEXIL
   void ValueQueue::enqueue(PlexilNodeId newPlan,
                            const LabelStr & parent)
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     QueueEntryId e = allocate();
     e->type = queueEntry_PLAN;
     e->plan = newPlan;
@@ -94,7 +104,9 @@ namespace PLEXIL
 
   void ValueQueue::enqueue(PlexilNodeId newLibraryNode)
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     QueueEntryId e = allocate();
     e->type = queueEntry_LIBRARY;
     e->plan = newLibraryNode;
@@ -109,7 +121,9 @@ namespace PLEXIL
                       LabelStr& planParent,
                       unsigned int& sequence)
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     QueueEntryId e = behead();
     if (e.isNoId())
       return queueEntry_EMPTY;
@@ -153,7 +167,9 @@ namespace PLEXIL
 
   void ValueQueue::pop()
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     QueueEntryId head = behead();
     if (head.isId())
       free(head);
@@ -161,13 +177,17 @@ namespace PLEXIL
 
   bool ValueQueue::isEmpty() const
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     return m_head.isNoId();
   }
     
   unsigned int ValueQueue::mark()
   {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(*m_mutex);
+#endif
     QueueEntryId theMark = allocate();
     theMark->type = queueEntry_MARK;
     theMark->sequence = ++m_markCount;
