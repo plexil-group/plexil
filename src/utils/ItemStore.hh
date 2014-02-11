@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 
 #include "Error.hh"
 #include "ItemStoreEntry.hh"
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
 #include "ThreadMutex.hh"
 #endif
 
@@ -92,7 +92,7 @@ namespace PLEXIL
     ItemStore()
       : m_emptyKey(key_source_t::unassigned()),
         m_emptyItem(),
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
         m_mutex(),
 #endif
         m_table()
@@ -136,7 +136,7 @@ namespace PLEXIL
     {
       if (!key_source_t::rangeCheck(key))
         return false;
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(m_mutex);
 #endif
       return NULL != m_table.get(key);
@@ -157,7 +157,7 @@ namespace PLEXIL
       checkError(key_source_t::rangeCheck(key),
                  "ItemStore::getItem: key not in valid range");
 #endif
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(m_mutex);
 #endif
       entry_t* entry = m_table.get(key);
@@ -178,7 +178,7 @@ namespace PLEXIL
       entry_t* entry = new entry_t;
       entry->item = item;
       entry->refcount = 1;
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(m_mutex);
 #endif
       key_t key = m_keySource.next();
@@ -206,7 +206,7 @@ namespace PLEXIL
       if (key == m_emptyKey)
         return true;
 
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(m_mutex);
 #endif
       entry_t* entry = m_table.get(key);
@@ -235,7 +235,7 @@ namespace PLEXIL
       if (key == m_emptyKey)
         return;
 
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(m_mutex);
 #endif
       entry_t* entry = m_table.get(key);
@@ -263,7 +263,7 @@ namespace PLEXIL
 
     key_t m_emptyKey;
     item_t m_emptyItem;
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutex m_mutex; //!< Mutex to serialize access to the item store.
 #endif
     key_source_t m_keySource; //!< Implements key generation.

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 #endif
 #include "Error.hh"
 #include "ItemStoreEntry.hh"
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
 #include "ThreadMutex.hh"
 #endif
 
@@ -99,7 +99,7 @@ namespace PLEXIL
      */
     TwoWayStore()
       : m_emptyKey(key_source_t::unassigned()),
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
         m_mutex(new ThreadMutex()),
 #endif
         m_table()
@@ -112,7 +112,7 @@ namespace PLEXIL
      */
     ~TwoWayStore()
     {
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       delete m_mutex;
       m_mutex = NULL;
 #endif
@@ -138,7 +138,7 @@ namespace PLEXIL
     {
       if (!key_source_t::rangeCheck(key))
         return false;
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(*m_mutex);
 #endif
       return NULL != m_table.getByKey(key);
@@ -151,7 +151,7 @@ namespace PLEXIL
      */
     bool isItem(const item_t& item) const
     {
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(*m_mutex);
 #endif
       return NULL != m_table.getByItem(item);
@@ -174,7 +174,7 @@ namespace PLEXIL
                  "TwoWayStore::getItem: key not in valid range");
 #endif
 
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(*m_mutex);
 #endif
       entry_t* entry = m_table.getByKey(key);
@@ -195,7 +195,7 @@ namespace PLEXIL
      */
     key_t storeItem(const item_t& item, bool permanent = false)
     {
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(*m_mutex);
 #endif
       key_t key;
@@ -252,7 +252,7 @@ namespace PLEXIL
                  "TwoWayStore::newReference: key not in valid range");
 #endif
 
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(*m_mutex);
 #endif
       entry_t* entry = m_table.getByKey(key);
@@ -289,7 +289,7 @@ namespace PLEXIL
                  "TwoWayStore::deleteReference: key not in valid range");
 #endif
 
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
       ThreadMutexGuard guard(*m_mutex);
 #endif
       entry_t* entry = m_table.getByKey(key);
@@ -323,7 +323,7 @@ namespace PLEXIL
     TwoWayStore& operator=(const TwoWayStore&);
 
     key_t m_emptyKey;
-#ifndef STORED_ITEM_NO_MUTEX
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutex* m_mutex; //!< Mutex to serialize access to the item store. A pointer so reads of the store can be const.
 #endif
     key_source_t m_keySource; //!< Implements key generation.

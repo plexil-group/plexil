@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -80,7 +80,9 @@ namespace PLEXIL {
     static ID_KEY_TYPE* sl_nextId = NULL;
     
     IdTable& instance(getInstance());
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(instance.m_mutex);
+#endif
 
     if (sl_nextId == NULL)
       sl_nextId = new ID_KEY_TYPE(1);
@@ -104,7 +106,9 @@ namespace PLEXIL {
 
   ID_KEY_TYPE IdTable::getKey(ID_POINTER_TYPE id) {
     IdTable& instance(getInstance());
+#ifdef PLEXIL_WITH_THREADS    
     ThreadMutexGuard guard(instance.m_mutex);
+#endif
 
     IdTableMap::iterator it = instance.m_collection.find(id);
     if (it != instance.m_collection.end())
@@ -115,7 +119,9 @@ namespace PLEXIL {
 
   void IdTable::remove(ID_POINTER_TYPE id) {
     IdTable& instance(getInstance());
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(instance.m_mutex);
+#endif
 
     // N.B. sl_key is only used in debug message output;
     // the risk of harm from thread collision here is very low.
@@ -127,7 +133,9 @@ namespace PLEXIL {
   }
 
   size_t IdTable::size() {
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(getInstance().m_mutex);
+#endif
     return(getInstance().m_collection.size());
   }
 
@@ -144,7 +152,9 @@ namespace PLEXIL {
 
   void IdTable::output(std::ostream& os) {
     IdTable& instance(getInstance());
+#ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(instance.m_mutex);
+#endif
     os << "Id Contents:";
     for (IdTableMap::iterator it = instance.m_collection.begin();
          it != instance.m_collection.end();

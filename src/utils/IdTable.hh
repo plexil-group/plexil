@@ -71,7 +71,9 @@ typedef size_t uintptr_t; // kludge
 #define ID_SIZE_TYPE uintptr_t
 
 #include "generic_hash_map.hh"
+#ifdef PLEXIL_WITH_THREADS
 #include "ThreadMutex.hh"
+#endif
 
 #include <iosfwd>
 #ifdef ID_TABLE_DEBUG
@@ -118,8 +120,10 @@ namespace PLEXIL {
     typedef PLEXIL_HASH_MAP(ID_POINTER_TYPE, ID_KEY_TYPE) IdTableMap;
     typedef std::pair<ID_POINTER_TYPE, ID_KEY_TYPE> IdTablePair;
 
-    //* The main map from pointers to their keys.
+#ifdef PLEXIL_WITH_THREADS    
     ThreadMutex m_mutex;
+#endif
+    //* The main map from pointers to their keys.
     IdTableMap m_collection;
 
 #ifdef ID_TABLE_DEBUG
