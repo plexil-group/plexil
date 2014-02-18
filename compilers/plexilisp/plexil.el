@@ -1301,13 +1301,13 @@
   "An action that does nothing.  This becomes an anonymous empty node."
   (pl-empty-node))
 
-(pdefine-syntax pl (When when) (condition form &rest forms) 1 node
+(pdefine-syntax pl (When when) (condition action &rest actions) 1 node
   ;; xml * xml * list(xml) -> xml
   ("Executes actions (concurrently) when condition becomes true.  "
    "This is essentially a ''monitor''.")
   `(pl-list-node
     (pl-start-condition ,condition)
-    (apply #'pl-list (mapcar #'plexil-nodify (cons ',form ',forms)))))
+    (apply #'pl-list (mapcar #'plexil-nodify (cons ',action ',actions)))))
 
 (pdefine pl (Wait wait) (units &optional name) 2 node
   ;; (real + xml) * opt(string) -> xml
