@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,3 +32,26 @@ int main (int argc, char** argv)
 {
   return ExecTestRunner::run(argc, argv);
 }
+
+#if defined(__VXWORKS__)
+extern "C"
+int test_exec_for_vxworks(char* plan, char* script, char* debug_cfg)
+{
+  char *argv[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  int argc = 0;
+  argv[argc++] = "TestExec";
+  if (plan) {
+    argv[argc++] = "-p";
+    argv[argc++] = plan;
+  }
+  if (script) {
+    argv[argc++] = "-s";
+    argv[argc++] = script;
+  }
+  if (debug_cfg) {
+    argv[argc++] = "-d";
+    argv[argc++] = debug_cfg;
+  }
+  return main(argc, argv);
+}
+#endif // __VXWORKS__
