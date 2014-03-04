@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -220,12 +220,11 @@ int ExecTestRunner::run(int argc, char** argv)
 
 #if HAVE_DEBUG_LISTENER
   // add the debug listener
-  PlanDebugListener debug_listener;
   hub.addListener((new PlanDebugListener())->getId());
 #endif
 
 #if HAVE_LUV_LISTENER
-  // if a Plexil Viwer is to be attached
+  // if a Plexil Viewer is to be attached
   if (luvRequest) {
     // create and add luv listener
     LuvListener* ll = 
@@ -248,11 +247,13 @@ int ExecTestRunner::run(int argc, char** argv)
        libraryName != libraryNames.end();
        ++libraryName) {
     pugi::xml_document libraryXml;
-    pugi::xml_parse_result parseResult = libraryXml.load_file(libraryName->c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+    pugi::xml_parse_result parseResult =
+      libraryXml.load_file(libraryName->c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
     if (parseResult.status != pugi::status_ok) {
       warn("XML error parsing library file '" << *libraryName
            << "' (offset " << parseResult.offset
            << "):\n" << parseResult.description());
+      delete (PlexilExec*) exec;
       return 1;
     }
 
@@ -263,6 +264,7 @@ int ExecTestRunner::run(int argc, char** argv)
     } 
     catch (ParserException& e) {
       warn("XML error parsing library '" << *libraryName << "':\n" << e.what());
+      delete (PlexilExec*) exec;
       return 1;
     }
 
@@ -272,11 +274,13 @@ int ExecTestRunner::run(int argc, char** argv)
   // Load the plan
   {
     pugi::xml_document plan;
-    pugi::xml_parse_result parseResult = plan.load_file(planName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
+    pugi::xml_parse_result parseResult =
+      plan.load_file(planName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
     if (parseResult.status != pugi::status_ok) {
       warn("XML error parsing plan file '" << planName
            << "' (offset " << parseResult.offset
            << "):\n" << parseResult.description());
+      delete (PlexilExec*) exec;
       return 1;
     }
 
@@ -287,6 +291,7 @@ int ExecTestRunner::run(int argc, char** argv)
     }
     catch (ParserException& e) {
       warn("XML error parsing plan '" << planName << "':\n" << e.what());
+      delete (PlexilExec*) exec;
       return 1;
     }
 
@@ -308,6 +313,8 @@ int ExecTestRunner::run(int argc, char** argv)
             warn("Adding plan " << planName
                  << " failed because library " << libname
                  << " could not be loaded");
+            delete (PlexilNode*) root;
+            delete (PlexilExec*) exec;
             return 1;
           }
 
@@ -322,10 +329,11 @@ int ExecTestRunner::run(int argc, char** argv)
 
     if (!exec->addPlan(root)) {
       warn("Adding plan " << planName << " failed");
+      delete (PlexilNode*) root;
+      delete (PlexilExec*) exec;
       return 1;
     }
     delete (PlexilNode*) root;
-    // TODO: delete library nodes
   }
 
   // load script
@@ -339,6 +347,7 @@ int ExecTestRunner::run(int argc, char** argv)
                              "(offset " << parseResult.offset
                              << ") XML error parsing script '" << scriptName << "': "
                              << parseResult.description());
+        delete (PlexilExec*) exec;
         return 1;
       }
     }
@@ -348,6 +357,7 @@ int ExecTestRunner::run(int argc, char** argv)
     pugi::xml_node scriptElement = script.child("PLEXILScript");
     if (scriptElement.empty()) {
       warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
+      delete (PlexilExec*) exec;
       return 1;
     }
     intf.run(scriptElement);
