@@ -38,20 +38,20 @@
 #if defined(HAVE_UNORDERED_MAP)
 // C++11
 #include <unordered_map>
-#define UNORDERED_MAP std::unordered_map
-#define HASH std::hash
+#define TWO_WAY_TABLE_UNORDERED_MAP std::unordered_map
+#define TWO_WAY_TABLE_HASH std::hash
 
 #elif defined(HAVE_TR1_UNORDERED_MAP)
 // C++0X TR1
 #include <tr1/unordered_map>
-#define UNORDERED_MAP std::tr1::unordered_map
-#define HASH std::tr1::hash
+#define TWO_WAY_TABLE_UNORDERED_MAP std::tr1::unordered_map
+#define TWO_WAY_TABLE_HASH std::tr1::hash
 
 #elif defined(HAVE_EXT_HASH_MAP) || defined(HAVE_BACKWARD_HASH_MAP)
 // GNU SGI-based hash_map
 #include "GNU_hash_map.hh"
-#define UNORDERED_MAP __gnu_cxx::hash_map
-#define HASH __gnu_cxx::hash
+#define TWO_WAY_TABLE_UNORDERED_MAP __gnu_cxx::hash_map
+#define TWO_WAY_TABLE_HASH __gnu_cxx::hash
 
 #else
 # error "std::unordered_map or compatible hash table not found."
@@ -79,24 +79,24 @@ namespace PLEXIL
             typename item_t,
             typename key_equal_fn_t = std::equal_to<key_t>,
             typename item_equal_fn_t = std::equal_to<item_t>,
-            typename key_hash_fn_t = HASH<key_t>,
-            typename item_hash_fn_t = HASH<item_t>
+            typename key_hash_fn_t = TWO_WAY_TABLE_HASH<key_t>,
+            typename item_hash_fn_t = TWO_WAY_TABLE_HASH<item_t>
             >
   class TwoWayTable
   {
   private:
     typedef ItemStoreEntry<item_t> entry_t;
 
-    typedef typename UNORDERED_MAP<const key_t,
-                                   entry_t*,
-                                   key_hash_fn_t,
-                                   key_equal_fn_t>
+    typedef typename TWO_WAY_TABLE_UNORDERED_MAP<const key_t,
+                                                 entry_t*,
+                                                 key_hash_fn_t,
+                                                 key_equal_fn_t>
     key_table_t;
 
-    typedef typename UNORDERED_MAP<const item_t,
-                                   key_t,
-                                   item_hash_fn_t,
-                                   item_equal_fn_t >
+    typedef typename TWO_WAY_TABLE_UNORDERED_MAP<const item_t,
+                                                 key_t,
+                                                 item_hash_fn_t,
+                                                 item_equal_fn_t >
     item_table_t;
 
   public:
