@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -104,12 +104,8 @@ namespace PLEXIL
   // Can be called redundantly, e.g. from ListNode::cleanUpChildConditions().
   void UpdateNode::cleanUpNodeBody()
   {
-    debugMsg("UpdateNode:cleanUpConditions", " for " << m_nodeId.toString());
-    // Delegate to base
-    Node::cleanUpConditions();
-
     if (m_update.isId()) {
-      debugMsg("UpdateNode:cleanUpConditions", "<" << m_nodeId.toString() << "> Removing update.");
+      debugMsg("UpdateNode:cleanUpNodeBody", " removing update for " << m_nodeId.toString());
       delete (Update*) m_update;
       m_update = UpdateId::noId();
     }
