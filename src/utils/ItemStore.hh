@@ -27,6 +27,8 @@
 #ifndef ITEM_STORE_HH
 #define ITEM_STORE_HH
 
+#include "plexil-config.h"
+
 #include "Error.hh"
 #include "ItemStoreEntry.hh"
 #ifdef PLEXIL_WITH_THREADS

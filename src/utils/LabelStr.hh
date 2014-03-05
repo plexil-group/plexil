@@ -35,6 +35,8 @@
 #ifndef _H__LabelStr
 #define _H__LabelStr
 
+#include "plexil-config.h"
+
 #include "ConstantMacros.hh"
 #include "Error.hh"
 #include "KeySource.hh"

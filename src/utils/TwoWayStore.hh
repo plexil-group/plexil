@@ -27,9 +27,12 @@
 #ifndef TWO_WAY_STORE_HH
 #define TWO_WAY_STORE_HH
 
+#include "plexil-config.h"
+
 #if defined(TWO_WAY_STORE_DEBUG)
 #include "Debug.hh"
 #endif
+
 #include "Error.hh"
 #include "ItemStoreEntry.hh"
 #ifdef PLEXIL_WITH_THREADS

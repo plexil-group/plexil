@@ -31,7 +31,7 @@
 #ifndef PLEXIL_GENERIC_HASH_MAP_HH
 #define PLEXIL_GENERIC_HASH_MAP_HH
 
-#include <plexil-config.h>
+#include "plexil-config.h"
 
 #if defined(HAVE_UNORDERED_MAP)
 // C++11 unordered_map

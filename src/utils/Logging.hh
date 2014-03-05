@@ -27,6 +27,8 @@
 #ifndef LOGGING_HH
 #define LOGGING_HH
 
+#include "plexil-config.h"
+
 class Logging {
 public:
   enum LogType {
