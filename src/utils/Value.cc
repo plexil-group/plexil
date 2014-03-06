@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ namespace PLEXIL
 {
   DEFINE_GLOBAL_CONST(double, g_maxReal,
                       std::numeric_limits<double>::max())
-  DEFINE_GLOBAL_CONST(Value, UNKNOWN, Value())
+  DEFINE_GLOBAL_EMPTY_CONST(Value, UNKNOWN)
   DEFINE_GLOBAL_CONST(double, g_epsilon, 0.00001)
 
   /**

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,8 @@
  */
 #define DECLARE_STATIC_CLASS_CONST(TYPE, NAME, VALUE) \
   static const TYPE& NAME() { \
-    static const TYPE *sl_data = NULL; \
-    if (sl_data == NULL) \
-      sl_data = new const TYPE(VALUE); \
-    return *sl_data; \
+    static const TYPE sl_data(VALUE); \
+    return sl_data; \
   }
 
 /**
@@ -47,10 +45,8 @@
  */
 #define DECLARE_STATIC_CLASS_CONST_LABEL(NAME, VALUE) \
   static const LabelStr& NAME() { \
-    static const LabelStr *sl_data = NULL; \
-    if (sl_data == NULL) \
-      sl_data = new const LabelStr(VALUE, true); \
-    return *sl_data; \
+    static const LabelStr sl_data(VALUE, true); \
+    return sl_data; \
   }
 
 /**
@@ -60,10 +56,8 @@
  */
 #define DECLARE_STATIC_CLASS_CONST_STRING_VALUE(NAME, VALUE) \
   static const Value& NAME() { \
-    static const Value *sl_data = NULL; \
-    if (sl_data == NULL) \
-      sl_data = new const Value(VALUE, true); \
-    return *sl_data; \
+    static const Value sl_data(VALUE, true); \
+    return sl_data; \
   }
 
 
@@ -83,10 +77,8 @@
  */
 #define DEFINE_GLOBAL_CONST(TYPE, NAME, VALUE) \
   const TYPE& NAME() { \
-    static const TYPE *sl_data = NULL; \
-    if (sl_data == NULL) \
-      sl_data = new TYPE(VALUE); \
-    return *sl_data; \
+    static const TYPE sl_data(VALUE); \
+    return sl_data; \
   }
 
 /**
@@ -96,8 +88,6 @@
  */
 #define DEFINE_GLOBAL_EMPTY_CONST(TYPE, NAME) \
   const TYPE& NAME() { \
-    static const TYPE *sl_data = NULL; \
-    if (sl_data == NULL) \
-      sl_data = new const TYPE(); \
-    return *sl_data; \
+    static const TYPE sl_data; \
+    return sl_data; \
   }
