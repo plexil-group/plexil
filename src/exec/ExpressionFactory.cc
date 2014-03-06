@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@
 #include "Expression.hh"
 #include "Node.hh"
 #include "Variable.hh"
+
+#include <cstdlib> // for atexit()
 
 namespace PLEXIL
 {
@@ -77,21 +79,31 @@ namespace PLEXIL
     return retval;
   }
 
+  static void cleanupExpressionFactories()
+  {
+    ExpressionFactory::purge();
+  }
+
   std::map<LabelStr, ExpressionFactory*>& ExpressionFactory::factoryMap()
   {
-    static std::map<LabelStr, ExpressionFactory*>* sl_map = NULL;
-    if (sl_map == NULL)
-      sl_map = new std::map<LabelStr, ExpressionFactory*>();
-
-    return *sl_map;
+    static std::map<LabelStr, ExpressionFactory*> sl_map;
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      atexit(cleanupExpressionFactories);
+      sl_inited = true;
+    }
+    return sl_map;
   }
 
   void ExpressionFactory::purge()
   {
     for (std::map<LabelStr, ExpressionFactory*>::iterator it = factoryMap().begin();
          it != factoryMap().end();
-         ++it)
-      delete it->second;
+         ++it) {
+      ExpressionFactory* tmp = it->second;
+      it->second = NULL;
+      delete tmp;
+    }
     factoryMap().clear();
   }
 

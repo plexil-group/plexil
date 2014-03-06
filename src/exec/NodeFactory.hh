@@ -60,6 +60,8 @@ namespace PLEXIL
 
     static void ensureNodeFactoriesRegistered();
 
+    static void cleanup();
+
   protected:
     NodeFactory(PlexilNodeType nodeType);
     virtual ~NodeFactory();

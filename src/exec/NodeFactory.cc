@@ -31,6 +31,8 @@
 #include "ListNode.hh"
 #include "UpdateNode.hh"
 
+#include <cstdlib> // for atexit()
+
 namespace PLEXIL
 {
   NodeFactory::NodeFactory(PlexilNodeType nodeType)
@@ -46,15 +48,32 @@ namespace PLEXIL
     factoryMap()[m_nodeType] = NULL;
   }
 
+  static void cleanupNodeFactories()
+  {
+    NodeFactory::cleanup();
+  }
+
   NodeFactory** NodeFactory::factoryMap()
   {
-    static NodeFactory* *sl_factories = NULL;
-    if (sl_factories == NULL) {
-      sl_factories = new NodeFactory*[NodeType_error];
+    static NodeFactory* sl_factories[NodeType_error];
+    static bool sl_inited = false;
+    if (!sl_inited) {
       for (size_t i = 0; i < NodeType_error; ++i)
         sl_factories[i] = NULL;
+      atexit(cleanupNodeFactories);
+      sl_inited = true;
     }
     return sl_factories;
+  }
+
+  void NodeFactory::cleanup()
+  {
+    NodeFactory* tmp;
+    for (size_t i = 0; i < NodeType_error; ++i)
+      if ((tmp = factoryMap()[i])) {
+        factoryMap()[i] = NULL;
+        delete tmp;
+      }
   }
 
   /**
