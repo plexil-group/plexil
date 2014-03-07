@@ -27,7 +27,6 @@
 #ifndef DINKUM_HASH_MAP_HH
 #define DINKUM_HASH_MAP_HH
 
-// #include <cstring> /* ? */
 #include <hash_map>
 #include "hash-functions.h"
 

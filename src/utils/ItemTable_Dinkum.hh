@@ -28,10 +28,10 @@
 #define ITEM_TABLE_DINKUM_HH
 
 #include "plexil-config.h"
-#include "Error.hh"
-#include "ItemStoreEntry.hh"
 
 #include "Dinkum_hash_map.hh"
+#include "Error.hh"
+#include "ItemStoreEntry.hh"
 
 namespace PLEXIL
 {

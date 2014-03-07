@@ -27,8 +27,11 @@
 #ifndef TWO_WAY_TABLE_DINKUM_HH
 #define TWO_WAY_TABLE_DINKUM_HH
 
-#include "ItemStoreEntry.hh"
+#include "plexil-config.h"
+
 #include "Dinkum_hash_map.hh"
+#include "Error.hh"
+#include "ItemStoreEntry.hh"
 
 namespace PLEXIL
 {
