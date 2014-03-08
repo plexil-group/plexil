@@ -75,7 +75,7 @@ namespace PLEXIL
     }
 
     //* Destructor.
-    ~TwoWayTable()
+    virtual ~TwoWayTable()
     {
       // Clean up tables
       m_itemTable.clear();

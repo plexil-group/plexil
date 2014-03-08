@@ -67,7 +67,7 @@ namespace PLEXIL
     }
 
     //* Destructor.
-    ~ItemTable()
+    virtual ~ItemTable()
     {
       // Clean up tables
       while (!m_keyTable.empty()) {
