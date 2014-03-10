@@ -29,7 +29,7 @@
 
 #include "plexil-config.h"
 
-// Define uint32_t
+/* Define uint32_t */
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #elif defined(__VXWORKS__)
