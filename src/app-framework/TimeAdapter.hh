@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,17 +32,22 @@
 #include <plexil-config.h>
 
 #include <csignal>
-#include <pthread.h>
 
-#if defined(HAVE_CLOCK_GETTIME)
+#ifdef PLEXIL_WITH_THREADS
+#include <pthread.h>
+#endif
+
+#include <unistd.h>
+#if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))
 // POSIX timers are supported
 #define TIME_ADAPTER_CLASS PosixTimeAdapter
-#elif defined(HAVE_GETTIMEOFDAY)
-// POSIX timers are *not* supported
+#elif defined(HAVE_SETITIMER)
+// BSD timers are supported
 // Currently only Mac OS X
 #define TIME_ADAPTER_CLASS DarwinTimeAdapter
 #else
-#error "No time adapter implementation class for this environment"
+// Custom implementation needed
+#error No time adapter class implemented for this platform.
 #endif
 
 namespace PLEXIL
@@ -205,6 +210,7 @@ namespace PLEXIL
      */
     void timerTimeout();
 
+#ifdef PLEXIL_WITH_THREADS
     /**
      * @brief Static member function which waits for timer wakeups.
      * @param this_as_void_ptr Pointer to the TimeAdapter instance, as a void *.
@@ -222,8 +228,10 @@ namespace PLEXIL
 
     // Wait thread
     pthread_t m_waitThread;
+#endif
     // Flag to wait thread
     bool m_stopping;
+
   };
 
 } // namespace PLEXIL

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -239,5 +239,4 @@ namespace PLEXIL
 
 }
 
-#endif // defined(_POSIX_TIMERS) && (_POSIX_TIMERS - 200112L) >= 0L
-
+#endif // defined(_POSIX_TIMERS) && (_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))

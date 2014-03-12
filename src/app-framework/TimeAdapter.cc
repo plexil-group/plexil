@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,9 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "StateCache.hh"
+#ifdef PLEXIL_WITH_THREADS
 #include "ThreadSpawn.hh"
+#endif
 #include <cerrno>
 #include <cmath> // for modf
 
@@ -53,7 +55,7 @@ namespace PLEXIL
    * @note The instance maintains a shared pointer to the XML.
    */
   TimeAdapter::TimeAdapter(AdapterExecInterface& execInterface, 
-                                       const pugi::xml_node& xml)
+                           const pugi::xml_node& xml)
     : InterfaceAdapter(execInterface, xml),
       m_stopping(false)
   {
@@ -93,7 +95,10 @@ namespace PLEXIL
       return false;
     }
 
+#ifdef PLEXIL_WITH_THREADS
     threadSpawn(timerWaitThread, (void*) this, m_waitThread);
+#endif
+
     return true;
   }
 
@@ -109,9 +114,11 @@ namespace PLEXIL
 
     // N.B. on Linux SIGUSR1 does double duty as both terminate and timer wakeup,
     // so we need the stopping flag to figure out which is which.
+#ifdef PLEXIL_WITH_THREADS
     m_stopping = true;
     pthread_kill(m_waitThread, SIGUSR1);
     pthread_join(m_waitThread, NULL);
+#endif
     m_stopping = false;
     debugMsg("TimeAdapter:stop", " complete");
     return true;
@@ -190,6 +197,7 @@ namespace PLEXIL
     }
   }
 
+#ifdef PLEXIL_WITH_THREADS
   /**
    * @brief Static member function which waits for timer wakeups.
    * @param this_as_void_ptr Pointer to the TimeAdapter instance, as a void *.
@@ -236,6 +244,7 @@ namespace PLEXIL
     }
     return (void*) 0;
   }
+#endif // PLEXIL_WITH_THREADS
 
   /**
    * @brief Report the current time to the Exec as an asynchronous lookup value.

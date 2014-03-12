@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,15 +28,16 @@
 // *** Ignore this file on systems that implement POSIX timers
 //
 
+#include "plexil-config.h"
 #include <unistd.h>
-#if !defined(_POSIX_TIMERS) || ((_POSIX_TIMERS - 200112L) < 0L) && !defined(PLEXIL_ANDROID)
+
+#if defined(HAVE_SETITIMER) && (!defined(_POSIX_TIMERS) || (((_POSIX_TIMERS - 200112L) < 0L) && !defined(PLEXIL_ANDROID)))
 
 #include "DarwinTimeAdapter.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "StateCache.hh"
-#include "ThreadSpawn.hh"
 #include "TimeAdapter.hh"
 #include "timeval-utils.hh"
 #include <cerrno>
@@ -212,4 +213,4 @@ namespace PLEXIL
 
 }
 
-#endif // !defined(_POSIX_TIMERS) || (_POSIX_TIMERS - 200112L) < 0L
+#endif // defined(HAVE_SETITIMER) && (!defined(_POSIX_TIMERS) || (((_POSIX_TIMERS - 200112L) < 0L) && !defined(PLEXIL_ANDROID)))

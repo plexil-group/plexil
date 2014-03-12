@@ -72,12 +72,12 @@
 #include "PlanDebugListener.hh"
 #endif
 
-#if defined(HAVE_CLOCK_GETTIME)
+#if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))
 #include "PosixTimeAdapter.hh"
-#elif defined(HAVE_GETTIMEOFDAY)
+#elif defined(HAVE_SETITIMER)
 #include "DarwinTimeAdapter.hh"
-#else
-#error "No time adapter implementation class for this environment"
+//#else
+//#error "No time adapter implementation class for this environment"
 #endif
 
 #include <cstring>
@@ -112,15 +112,16 @@ namespace PLEXIL
     REGISTER_ADAPTER(DummyAdapter, "Dummy");
     REGISTER_ADAPTER(UtilityAdapter, "Utility");
 
+#ifdef TIME_ADAPTER_CLASS
     // Every application has access to the OS-native time adapter
     REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
-
+#endif
     // Every application has access to the NodeState filter
     REGISTER_EXEC_LISTENER_FILTER(NodeStateFilter, "NodeState")
 
 #if HAVE_DEBUG_LISTENER
-    // Every application should have access to the Plan Debug Listener
-    REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
+      // Every application should have access to the Plan Debug Listener
+      REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
 #endif
 
 #if HAVE_LUV_LISTENER
@@ -193,7 +194,7 @@ namespace PLEXIL
   {
     if (configXml.empty()) {
       debugMsg("InterfaceManager:constructInterfaces",
-	       " empty configuration, nothing to construct");
+               " empty configuration, nothing to construct");
       m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
       return true;
     }
@@ -549,8 +550,7 @@ namespace PLEXIL
    */
   bool InterfaceManager::processQueue()
   {
-    debugMsg("InterfaceManager:processQueue",
-             " (" << pthread_self() << ") entered");
+    debugMsg("InterfaceManager:processQueue", " entered");
 
     // Potential optimization (?): these could be member variables
     // Can't use static as that would cause collisions between multiple instances
@@ -566,8 +566,7 @@ namespace PLEXIL
 
     while (true) {
       // get next entry
-      debugMsg("InterfaceManager:processQueue",
-               " (" << pthread_self() << ") Fetch next queue entry");
+      debugMsg("InterfaceManager:processQueue", " Fetch next queue entry");
       typ = m_valueQueue.dequeue(newValue, 
                                  state,
                                  exp,
@@ -577,7 +576,7 @@ namespace PLEXIL
       switch (typ) {
       case queueEntry_EMPTY:
         debugMsg("InterfaceManager:processQueue",
-                 " (" << pthread_self() << ") Queue empty, returning " << (needsStep ? "true" : "false"));
+                 " Queue empty, returning " << (needsStep ? "true" : "false"));
         return needsStep;
         break;
 
@@ -586,7 +585,7 @@ namespace PLEXIL
         m_lastMark = sequence;
         m_application.markProcessed();
         debugMsg("InterfaceManager:processQueue",
-                 " (" << pthread_self() << ") Received mark, returning " << (needsStep ? "true" : "false"));
+                 " Received mark, returning " << (needsStep ? "true" : "false"));
         return needsStep;
         break;
 
@@ -594,23 +593,18 @@ namespace PLEXIL
         // State -- update all listeners
         {
           debugMsg("InterfaceManager:processQueue",
-                   " (" << pthread_self()
-                   << ") Handling state change for "
-                   << StateCache::toString(state));
+                   " Handling state change for " << StateCache::toString(state));
 
           // If this is a time state update message, check if it's stale
           if (state == m_exec->getStateCache()->getTimeState()) {
             if (newValue.getDoubleValue() <= m_currentTime) {
               debugMsg("InterfaceManager:processQueue",
-                       " (" << pthread_self()
-                       << ") Ignoring stale time update - new value "
+                       " Ignoring stale time update - new value "
                        << newValue << " is not greater than cached value "
                        << Value::valueToString(m_currentTime));
             }
             else {
-              debugMsg("InterfaceManager:processQueue",
-                       " (" << pthread_self()
-                       << ") setting current time to " << newValue);
+              debugMsg("InterfaceManager:processQueue", " setting current time to " << newValue);
               m_currentTime = newValue.getDoubleValue();
               m_exec->getStateCache()->updateState(state, newValue);
             }
@@ -627,8 +621,7 @@ namespace PLEXIL
         // Expression -- update the expression only.  Note that this could
         // be either an assignment OR command return value.
         debugMsg("InterfaceManager:processQueue",
-                 " (" << pthread_self()
-                 << ") Updating expression " << exp
+                 " Updating expression " << exp
                  << ", new value is '" << newValue << "'");
 
         // Handle potential command return value.
@@ -640,11 +633,9 @@ namespace PLEXIL
 
       case queueEntry_PLAN:
         // Plan -- add the plan
-        debugMsg("InterfaceManager:processQueue",
-                 " (" << pthread_self() << ") Received plan");
+        debugMsg("InterfaceManager:processQueue", " Received plan");
         if (!getExec()->addPlan(plan, parent)) {
-          debugMsg("InterfaceManager:processQueue",
-                   " (" << pthread_self() << ") addPlan failed!");
+          debugMsg("InterfaceManager:processQueue", " addPlan failed!");
           // TODO: report back to whoever enqueued it
         }
         delete (PlexilNode*) plan;
@@ -655,7 +646,7 @@ namespace PLEXIL
         // Library -- add the library
 
         debugMsg("InterfaceManager:processQueue",
-                 " (" << pthread_self() << ") Received library");
+                 " Received library");
         getExec()->addLibraryNode(plan);
         // no need to step here
         break;
@@ -1297,8 +1288,7 @@ namespace PLEXIL
   void
   InterfaceManager::notifyOfExternalEvent()
   {
-    debugMsg("InterfaceManager:notify",
-             " (" << pthread_self() << ") received external event");
+    debugMsg("InterfaceManager:notify", " received external event");
     m_application.notifyExec();
   }
 

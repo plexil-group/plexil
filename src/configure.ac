@@ -8,13 +8,16 @@ AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
 AC_CONFIG_HEADER([plexil-config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-LT_INIT
+#LT_INIT
+AC_PROG_LIBTOOL
 AC_SUBST([LIBTOOL_DEPS])
 AM_INIT_AUTOMAKE
 
 # Configuration options
 AC_ARG_WITH([jni],
         AS_HELP_STRING([--with-jni], [Include utilties for Java Native Interface (default=no)]))
+AC_ARG_WITH([unix-time],
+        AS_HELP_STRING([--with-unix-time], [Use Unix time facilities (default=yes)]))
 AC_ARG_WITH([threads],
         AS_HELP_STRING([--with-threads], [Build for multithreaded use (default=yes)]))
 AC_ARG_ENABLE([debug-listener],
@@ -46,13 +49,14 @@ AC_ARG_ENABLE([universal-exec],
         AS_HELP_STRING([--enable-universal-exec], [Build universalExec executable (default=yes)]))
 
 # Conditionals for makefiles
-# These default to on
+# These default to enabled (with)
 AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" != "xno"])
 AM_CONDITIONAL([THREADS_OPT], [test "x$with_threads" != "xno"])
+AM_CONDITIONAL([UNIX_TIME_OPT], [test "x$with_unix_time" != "xno"])
 AM_CONDITIONAL([VIEWER_OPT], [test "x$enable_viewer" != "xno"])
 AM_CONDITIONAL([UNIVERSAL_EXEC_OPT], [test "x$enable_universal_exec" != "xno"])
 
-# These default to off
+# These default to disabled (without)
 AM_CONDITIONAL([GANTT_OPT], [test "x$enable_gantt" = "xyes"])
 AM_CONDITIONAL([IPC_OPT], [test "x$enable_ipc" = "xyes"])
 AM_CONDITIONAL([JNI_OPT], [test "x$with_jni" = "xyes"])
@@ -70,6 +74,9 @@ AS_IF([test "x$enable_pointer_checks" = "xno"],[
 ])
 AS_IF([test "x$with_threads" != "xno"],[
   AC_DEFINE([PLEXIL_WITH_THREADS],[1],[Define to 1 if multithreading is enabled.])
+])
+AS_IF([test "x$with_unix_time" != "xno"],[
+  AC_DEFINE([PLEXIL_WITH_UNIX_TIME],[1],[Define to 1 if Unix native time facilities are enabled.])
 ])
 
 AC_DEFINE_UNQUOTED([HAVE_DEBUG_LISTENER],
@@ -125,32 +132,27 @@ AC_CHECK_HEADERS([unordered_map tr1/unordered_map ext/hash_map backward/hash_map
 
 AM_CONDITIONAL([PLEXIL_DLFCN_H], [test "x$ac_cv_header_dlfcn_h" = "xyes"])
 
-# Allow use of AC_TYPE_..._T with older 'autoconf' versions.
-m4_pattern_allow([^AC_TYPE_INT32_T$])
-m4_pattern_allow([^AC_TYPE_INT64_T$])
-m4_pattern_allow([^AC_TYPE_UINT8_T$])
-m4_pattern_allow([^AC_TYPE_UINT16_T$])
-m4_pattern_allow([^AC_TYPE_UINT32_T$])
-m4_pattern_allow([^AC_TYPE_UINT64_T$])
-m4_pattern_allow([^AC_TYPE_SSIZE_T$])
-
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
 AC_C_CONST
 AC_C_INLINE
-AC_TYPE_INT32_T
-AC_TYPE_INT64_T
-AC_TYPE_PID_T
-AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
+# Not present in older autoconf versions
+#AC_TYPE_INT32_T
+#AC_TYPE_INT64_T
+#AC_TYPE_UINT16_T
+#AC_TYPE_UINT32_T
+#AC_TYPE_UINT64_T
+#AC_TYPE_UINT8_T
+AC_CHECK_TYPES([int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t])
+# Not present in older autoconf versions
+#AC_TYPE_PID_T
+#AC_TYPE_SIZE_T
+#AC_TYPE_SSIZE_T
+AC_CHECK_TYPES([pid_t, size_t, ssize_t])
 AC_HEADER_TIME
 AC_STRUCT_TM
-AC_TYPE_UINT16_T
-AC_TYPE_UINT32_T
-AC_TYPE_UINT64_T
-AC_TYPE_UINT8_T
 AC_C_VOLATILE
-AC_CHECK_TYPES([ptrdiff_t suseconds_t])
+AC_CHECK_TYPES([ptrdiff_t, suseconds_t])
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
@@ -160,9 +162,9 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
-AC_CHECK_FUNCS([clock_gettime floor getcwd gethostbyname gettimeofday inet_ntoa localtime_r memmove memset modf pow pthread_mutexattr_settype select socket sqrt strcasecmp strchr strcspn strdup strerror strpbrk strspn strstr strtol strtoll strtoul])
+AC_CHECK_FUNCS([floor getcwd gethostbyname inet_ntoa localtime_r memmove memset modf pow pthread_mutexattr_settype select setitimer socket sqrt strcasecmp strchr strcspn strdup strerror strpbrk strspn strstr strtol strtoll strtoul])
 
-AM_CONDITIONAL([PLEXIL_POSIX_TIME_FUNCS], [test "$ac_cv_func_clock_gettime" = "yes"])
+# FIXME: define PLEXIL_POSIX_TIME_FUNCS macro if unistd.h contains a suitable value of _POSIX_TIMERS
 
 # Used only in IPC
 AS_IF([test "x$enable_ipc" = "xyes"], [
