@@ -953,14 +953,7 @@ namespace PLEXIL
 #endif
     // Exec is idle, so run it
     // If another thread grabs it first, no worries.
-    debugMsg("ExecApplication:notify",
-	     " (" <<
-#ifdef PLEXIL_WITH_THREADS
-	     pthread_self()
-#else
-	     0
-#endif
-	     << ") exec was idle, stepping it");
+    debugMsg("ExecApplication:notify", " exec was idle, stepping it");
     this->runExec();
   }
 
