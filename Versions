@@ -1,5 +1,18 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
+3.0 (March 14, 2014; SVN revision 3334 of the plexil-3 branch)
+
+ - NOTE:
+     - Please see the README file for up-to-date build instructions.
+     - Please see the CAVEATS file, as this release has a bunch!
+ - Significant improvement of PLEXIL executive's performance (memory usage and speed).
+ - Revamped build system, now based GNU's autoconf/automake, to better support
+   cross-platform builds.
+ - Revamped directory structure of distribution
+ - Significant improvements to the Gantt Temporal Viewer
+ - Numerous miscellaneous bug fixes and enhancements.
+
+
 2.5 (July 16, 2012; SVN revision 2851)
 
  - Added ExitCondition to PLEXIL nodes.  This provides a clean way to

@@ -2,15 +2,17 @@ This file, plexil/CAVEATS, lists known bugs and issues in this version of PLEXIL
 
 Build: 
 
-  * Note that the build process of this plexil-3 branch is very different from
-    that of the main distribution, and is more complex, to better support
-    cross-platform builds.  Here's a basic comparison:
+  * The build process of the plexil-3 branch is *very* different from that of
+    the trunk-based distribution.  This build system was introduced to better
+    support cross-platform builds.  Unfortunately it is more complex, and
+    requires Gnu tools that might not be installed on your system.  Here's a
+    brief comparison of the change:
 
     Main PLEXIL distribution:
       - uses basic Makefiles
       - entire system built by typing 'make' in the top level 'plexil' directory
 
-    This plexil-3 branch:
+    plexil-3 branch:
       - based on Gnu's automake/autoconf systems, which auto-generate Makefiles
       - build requires three commands, which must be done in plexil-3/src
           configure (with options)
