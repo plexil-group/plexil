@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -88,11 +88,10 @@
       <xsl:copy-of select="@LineNo" />
       <xsl:copy-of select="@ColNo" />
       <xsl:copy-of select="NodeId" />
-      <!-- <xsl:copy-of select="VariableDeclarations" /> -->
       <xsl:apply-templates select="VariableDeclarations"/>
       <xsl:copy-of select="Priority" />
       <xsl:copy-of select="Permissions" />
-      <xsl:copy-of select="Interface" />
+      <xsl:apply-templates select="Interface"/>
       <!-- Handle start condition -->
       <xsl:choose>
         <xsl:when test="$ordered">
@@ -604,7 +603,6 @@
   <xsl:template match="Wait">
     <Node NodeType="Empty" epx="Wait">
       <xsl:call-template name="basic-clauses"/>
-      <!-- ;<xsl:copy-of select="VariableDeclarations"/> -->
       <xsl:apply-templates select="VariableDeclarations"/>
       <xsl:apply-templates select="StartCondition"/>
       <xsl:apply-templates select="RepeatCondition"/>
@@ -620,7 +618,6 @@
   <xsl:template match="Wait" mode= "ordered">
     <Node NodeType="Empty" epx="Wait">
       <xsl:call-template name="basic-clauses"/>
-      <!-- <xsl:copy-of select="VariableDeclarations"/> -->
       <xsl:apply-templates select="VariableDeclarations"/>
       <xsl:call-template name="ordered-start-condition"/>
       <xsl:apply-templates select="RepeatCondition"/>
@@ -969,7 +966,6 @@
     <xsl:apply-templates select="ExitCondition"/>
     <xsl:apply-templates select="EndCondition"/>
     <xsl:apply-templates select="SkipCondition"/>
-    <!-- <xsl:copy-of select="VariableDeclarations"/> -->
     <xsl:apply-templates select="VariableDeclarations"/>
   </xsl:template>
 
@@ -983,7 +979,6 @@
     <xsl:apply-templates select="ExitCondition"/>
     <xsl:call-template name= "wait-end-condition"/>
     <xsl:call-template name="ordered-skip-condition"/>
-    <!-- <xsl:copy-of select="VariableDeclarations"/> -->
     <xsl:apply-templates select="VariableDeclarations"/>
   </xsl:template>
 
@@ -1013,7 +1008,6 @@
         <xsl:when test="$declare-test">
           <!-- declare a "test" variable in addition to existing -->
           <VariableDeclarations>
-            <!-- <xsl:copy-of select="VariableDeclarations/*" /> -->
             <xsl:apply-templates select="VariableDeclarations/*"/>
             <xsl:call-template name="declare-variable">
               <xsl:with-param name="name" select="tr:prefix('test')" />
@@ -1024,13 +1018,11 @@
         <xsl:when test="$declare-for">
           <!-- declare the for loop's variable -->
           <VariableDeclarations>
-            <!-- <xsl:copy-of select="VariableDeclarations/*" /> -->
             <xsl:apply-templates select="VariableDeclarations/*"/>
             <xsl:copy-of select="LoopVariable/*" />
           </VariableDeclarations>
         </xsl:when>
         <xsl:otherwise>
-          <!-- <xsl:copy-of select="VariableDeclarations" /> -->
           <xsl:apply-templates select="VariableDeclarations"/>
         </xsl:otherwise>
       </xsl:choose>
@@ -1133,10 +1125,28 @@
     <xsl:copy-of select="Comment" />
     <xsl:copy-of select="Priority" />
     <xsl:copy-of select="Permissions" />
-    <xsl:copy-of select="Interface" />
+    <xsl:apply-templates select="Interface"/>
   </xsl:template>
 
+  <xsl:template match="Interface">
+	<Interface>
+      <xsl:apply-templates select="In"/>	
+      <xsl:apply-templates select="InOut"/>
+	</Interface>
+  </xsl:template>
 
+  <xsl:template match="In">
+	<In>
+      <xsl:apply-templates select="*"/>
+	</In>
+  </xsl:template>
+
+  <xsl:template match="InOut">
+	<InOut>
+    <xsl:apply-templates select="*"/>
+	</InOut>
+  </xsl:template>
+  
   <xsl:template
     match="StartCondition|RepeatCondition|PreCondition|
                       PostCondition|InvariantCondition|EndCondition|
@@ -1458,10 +1468,8 @@
       <xsl:copy-of select="@LineNo" />
       <xsl:copy-of select="@ColNo" />
       <VariableDeclarations>
-        <!-- <xsl:copy-of select="VariableDeclarations/DeclareVariable" /> -->
         <xsl:apply-templates select="VariableDeclarations/DeclareVariable"/>
         <!-- Arrays are variables too -->
-        <!-- <xsl:copy-of select="VariableDeclarations/DeclareArray"/> -->
         <xsl:apply-templates select="VariableDeclarations/DeclareArray"/>
         <DeclareVariable>
           <Name>
