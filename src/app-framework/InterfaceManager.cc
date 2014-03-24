@@ -60,7 +60,6 @@
 #include "PlexilXmlParser.hh"
 #include "ResourceArbiterInterface.hh"
 #include "StateCache.hh"
-#include "TimeAdapter.hh"
 #include "Update.hh"
 #include "UtilityAdapter.hh"
 
@@ -72,12 +71,15 @@
 #include "PlanDebugListener.hh"
 #endif
 
+#ifdef PLEXIL_WITH_UNIX_TIME 
+#include "TimeAdapter.hh"
 #if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))
 #include "PosixTimeAdapter.hh"
 #elif defined(HAVE_SETITIMER)
 #include "DarwinTimeAdapter.hh"
 //#else
 //#error "No time adapter implementation class for this environment"
+#endif
 #endif
 
 #include <cstring>
@@ -112,7 +114,7 @@ namespace PLEXIL
     REGISTER_ADAPTER(DummyAdapter, "Dummy");
     REGISTER_ADAPTER(UtilityAdapter, "Utility");
 
-#ifdef TIME_ADAPTER_CLASS
+#ifdef PLEXIL_WITH_UNIX_TIME
     // Every application has access to the OS-native time adapter
     REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
 #endif
