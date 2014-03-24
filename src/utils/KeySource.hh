@@ -74,7 +74,9 @@ namespace PLEXIL
     static bool isValid()
     {
       return limits_t::is_specialized
-        && (limits_t::is_integer || limits_t::has_denorm == std::denorm_present);
+        && (limits_t::is_integer || limits_t::has_denorm == std::denorm_present)
+	&& keyIncrement() != 0
+	&& unassignedKey() != keyMax();
     }
 
     /**
