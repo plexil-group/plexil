@@ -374,6 +374,7 @@ namespace PLEXIL
       m_originalExpression->activate();
       // refresh value from original
       internalSetValue(m_originalExpression->getValue());
+      m_listener.activate();
     }
   }
 
@@ -381,6 +382,7 @@ namespace PLEXIL
   {
     if (changed) {
       m_originalExpression->deactivate();
+      m_listener.deactivate();
     }
   }
 
