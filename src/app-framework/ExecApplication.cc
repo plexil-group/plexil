@@ -208,6 +208,7 @@ namespace PLEXIL
         debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
         m_exec.step();
       }
+      m_exec.deleteFinishedPlans();
     }
     debugMsg("ExecApplication:stepUntilQuiescent", " completed, queue empty and Exec quiescent.");
 
