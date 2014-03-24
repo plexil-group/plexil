@@ -71,7 +71,8 @@ SAME_NAME_SCRIPT_TESTS='array1 array3 array4 array8 atomic-assignment
  repeat2 repeat5 repeat7 repeat8
  site-survey
  test-end-condition test-timepoint
- update-lookup-test update-test'
+ update-lookup-test update-test
+ AssignmentMain'
 
 # Resource arbitration tests, which require comparing the output with a known standard
 RESOURCE_ARBITRATION_TESTS='resource1 resource1-repeatCond

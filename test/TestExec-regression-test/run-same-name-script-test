@@ -57,5 +57,5 @@ fi
 OUT_FILE=output/$1.out
 
 echo $1 >> tempRegressionResults
-$EXEC_PROG -d $TEST_DEBUG_CFG -p $PLAN_FILE -s $SCRIPT_FILE > $OUT_FILE 2>> tempRegressionResults
+$EXEC_PROG -d $TEST_DEBUG_CFG -p $PLAN_FILE -L plans -s $SCRIPT_FILE > $OUT_FILE 2>> tempRegressionResults
 perl $REGRESSION_PL $OUT_FILE
