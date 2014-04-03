@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -178,7 +178,7 @@ public class ArrayLiteralNode extends LiteralNode
         // PlexilTreeNode base method
         constructXMLBase();
 
-        m_xml.setAttribute("Type", m_dataType.typeName());
+        m_xml.setAttribute("Type", m_dataType.arrayElementType().typeName());
         for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
             LiteralNode child = (LiteralNode) this.getChild(childIdx);
             m_xml.addChild(child.getXML());
