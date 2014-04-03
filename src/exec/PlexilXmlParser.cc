@@ -824,6 +824,10 @@ namespace PLEXIL
       s_exprParsers->insert(std::make_pair(string(NODE_FAILURE_TAG) + VAL_TAG, val));
       s_exprParsers->insert(std::make_pair(string(NODE_STATE_TAG) + VAL_TAG, val));
       s_exprParsers->insert(std::make_pair(string(NODE_COMMAND_HANDLE_TAG) + VAL_TAG, val));
+
+      s_exprParsers->insert(std::make_pair(string(ARRAY_VAL_TAG),
+                                           new PlexilArrayValueParser()));
+
       s_exprParsers->insert(std::make_pair(LOOKUPNOW_TAG,
                                            new PlexilLookupNowParser()));
       s_exprParsers->insert(std::make_pair(LOOKUPCHANGE_TAG,
