@@ -40,6 +40,7 @@
 #include "timeval-utils.hh"
 #include <cerrno>
 #include <cmath> // for modf
+#include <sys/time.h> // for gettimeofday(), itimerval
 #include <mach/kern_return.h> // for KERN_ABORTED
 
 namespace PLEXIL
