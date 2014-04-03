@@ -1,0 +1,33 @@
+<PlexilPlan LineNo="1" ColNo="0">
+    <GlobalDeclarations LineNo="1" ColNo="0">
+        <CommandDeclaration LineNo="1" ColNo="0">
+            <Name>pprint</Name>
+        </CommandDeclaration>
+    </GlobalDeclarations>
+    <Node LineNo="6" ColNo="2" NodeType="Command">
+        <NodeId>StringArrayLiteral</NodeId>
+        <VariableDeclarations>
+            <DeclareArray LineNo="5" ColNo="2">
+                <Name>foo</Name>
+                <Type>String</Type>
+                <MaxSize>4</MaxSize>
+                <InitialValue>
+                    <StringValue>a</StringValue>
+                    <StringValue>b</StringValue>
+                    <StringValue>c</StringValue>
+                    <StringValue>d</StringValue>
+                </InitialValue>
+            </DeclareArray>
+        </VariableDeclarations>
+        <NodeBody>
+            <Command>
+                <Name>
+                    <StringValue>pprint</StringValue>
+                </Name>
+                <Arguments LineNo="6" ColNo="9">
+                    <ArrayVariable>foo</ArrayVariable>
+                </Arguments>
+            </Command>
+        </NodeBody>
+    </Node>
+</PlexilPlan>

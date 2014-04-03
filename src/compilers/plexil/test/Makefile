@@ -19,7 +19,8 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 \
               lookup2 LookupWithComputedStateName \
               maxTest minTest mod1 expr1 expr3 expr4 \
               try1 update1 update2 update3 \
-              resource0 Resource1 Resource2 Resource3 Resource4 tolerance1 \
+              resource0 Resource1 Resource2 Resource3 Resource4 \
+			  StringArrayLiteral tolerance1 \
               invariantFail1 succeeded1 waiting1 executing1 finished1 failed1 skipped1 \
               iterationSucceeded1 iterationEnded1 iterationFailed1 preconditionFailed1 \
 	      inactive1 wait1 date1 time-lookup-test time-lookup-test1 timed-iteration

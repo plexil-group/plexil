@@ -1,0 +1,7 @@
+Command pprint(...);
+
+StringArrayLiteral:
+{
+  String foo[4] = #("a" "b" "c" "d");
+  pprint(foo);
+}
