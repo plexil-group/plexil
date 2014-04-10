@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,12 +34,13 @@ include_HEADERS = ConstantMacros.hh Debug.hh Dinkum_hash_map.hh Error.hh \
  ItemTable_unordered_map.hh KeySource.hh Logging.hh ParserException.hh StoredArray.hh \
  StoredItem.hh TwoWayStore.hh TwoWayTable.hh TwoWayTable_Dinkum.hh \
  TwoWayTable_unordered_map.hh Utils.hh Value.hh XMLUtils.hh \
- generic_hash_map.hh hash-functions.h iso-8601.hh stricmp.h timespec-utils.hh \
- timeval-utils.hh utils_main_page.hh
+ generic_hash_map.hh hash-functions.h iso-8601.hh lifecycle-utils.h stricmp.h \
+ timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
 libPlexilUtils_la_SOURCES = Debug.cc Error.cc hash-functions.c IdTable.cc \
  LabelStr.cc Logging.cc ParserException.cc StoredArray.cc Utils.cc Value.cc \
- XMLUtils.cc iso-8601.cc stricmp.c timespec-utils.cc timeval-utils.cc
+ XMLUtils.cc iso-8601.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
+ timeval-utils.cc
 
 if JNI_OPT
   include_HEADERS += JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh
