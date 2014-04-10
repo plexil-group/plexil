@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,8 @@
 
 #ifndef NO_DEBUG_MESSAGE_SUPPORT
 
+#include "lifecycle-utils.h"
+
 #include <fstream>
 #include <algorithm>
 #include <functional>
@@ -61,20 +63,29 @@ class DebugConfig {
 public:
   static void init() 
   {
-    static DebugConfig* s_instance = NULL;
-    if (s_instance == NULL)
+    static bool sl_inited = false; 
+    if (!sl_inited) {
+      addFinalizer(&purge);
       s_instance = new DebugConfig();
+      sl_inited = true;
+    }
   }
 
 private:
   DebugConfig() {
     DebugMessage::setStream(std::cout);
-    //    std::ifstream config("Debug.cfg");
-    //    if (config.good()) {
-    //    DebugMessage::readConfigFile(config);
-    //  }
   }
+
+  static void purge() {
+    DebugConfig* inst = s_instance;
+    s_instance = NULL;
+    delete inst;
+  }
+
+  static DebugConfig* s_instance;
 };
+
+DebugConfig* DebugConfig::s_instance = NULL;
 
 DebugMessage::DebugMessage(const string& file,
                            const int& line,
@@ -101,8 +112,8 @@ DebugMessage *DebugMessage::addMsg(const string &file, const int& line,
                 DebugErr::DebugMemoryError());
     allMsgs().push_back(msg);
     if (!msg->isEnabled()) {
-      typedef std::list<DebugPattern>::iterator LDPI;
-      LDPI iter = std::find_if(enabledPatterns().begin(),
+      typedef std::vector<DebugPattern>::iterator VDPI;
+      VDPI iter = std::find_if(enabledPatterns().begin(),
                                enabledPatterns().end(),
                                PatternMatches<DebugPattern>(*msg));
       if (iter != enabledPatterns().end())
@@ -114,8 +125,8 @@ DebugMessage *DebugMessage::addMsg(const string &file, const int& line,
 
 DebugMessage *DebugMessage::findMsg(const string &file,
                                     const string &pattern) {
-  typedef std::list<DebugMessage*>::const_iterator LDMPCI;
-  LDMPCI iter = std::find_if(allMsgs().begin(),
+  typedef std::vector<DebugMessage*>::const_iterator VDMPCI;
+  VDMPCI iter = std::find_if(allMsgs().begin(),
                              allMsgs().end(),
                              MatchesPattern<DebugMessage*>(file, pattern));
   if (iter == allMsgs().end())
@@ -125,12 +136,25 @@ DebugMessage *DebugMessage::findMsg(const string &file,
 
 void DebugMessage::findMatchingMsgs(const string &file,
                                     const string &pattern,
-                                    std::list<DebugMessage*> &matches) {
+                                    std::vector<DebugMessage*> &matches) {
   std::for_each(allMsgs().begin(), allMsgs().end(), GetMatches(file, pattern, matches));
 }
 
-const std::list<DebugMessage*>& DebugMessage::getAllMsgs() {
+const std::vector<DebugMessage*>& DebugMessage::getAllMsgs() {
   return(allMsgs());
+}
+
+/**
+ *  @brief List of pointers to all debug messages.
+ */
+std::vector<DebugMessage*>& DebugMessage::allMsgs() {
+  static std::vector<DebugMessage*> sl_msgs;
+  static bool sl_inited = false;
+  if (!sl_inited) {
+    addFinalizer(&purge);
+    sl_inited = true;
+  }
+  return sl_msgs;
 }
 
 void DebugMessage::enableAll() {
@@ -212,6 +236,16 @@ bool DebugMessage::readConfigFile(std::istream& is)
   check_error(is.eof(), "error while reading debug config file",
               DebugErr::DebugConfigError());
   return(is.eof());
+}
+
+void DebugMessage::purge()
+{
+  enabledPatterns().clear();
+  for (std::vector<DebugMessage*>::const_iterator it = allMsgs().begin();
+       it != allMsgs().end();
+       ++it)
+    delete *it;
+  allMsgs().clear();
 }
 
 #endif /* NO_DEBUG_MESSAGE_SUPPORT */

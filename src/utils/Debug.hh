@@ -83,7 +83,7 @@
 
 #include <iostream>
 #include <string>
-#include <list>
+#include <vector>
 
 #include "Error.hh"
 
@@ -218,7 +218,7 @@ private:
   public:
     /**
      * @brief Zero argument constructor.
-     * @note Should not be used except implicitly (e.g., by std::list<DebugPattern>).
+     * @note Should not be used except implicitly (e.g., by std::vector<DebugPattern>).
      */
     inline DebugPattern();
 
@@ -239,21 +239,21 @@ private:
     /**
      * @brief The source file(s) that match the pattern.
      */
-    const std::string m_file;
+    std::string m_file;
 
     /**
      * @brief The markers that match the pattern.
      * @note Markers refer to those of class DebugMessage.
      * @see class DebugMessage
      */
-    const std::string m_pattern;
+    std::string m_pattern;
 
     bool operator== (const DebugPattern& other) const {return m_file == other.m_file && m_pattern == other.m_pattern;}
   };
 
   /**
    * @brief Destroy a DebugMessage.
-   * @note Should only be called implicitly (e.g., by std::list<DebugMessage>).
+   * @note Should only be called implicitly (e.g., by std::vector<DebugMessage>).
    */
   inline virtual ~DebugMessage() {
   }
@@ -292,12 +292,17 @@ public:
   */
   static void findMatchingMsgs(const std::string& file,
                                const std::string& pattern,
-                               std::list<DebugMessage*>& matches);
+                               std::vector<DebugMessage*>& matches);
 
   /**
-    @brief Get list of all debug known messages.
+    @brief Get list of all known debug messages.
    */
-  static const std::list<DebugMessage*>& getAllMsgs();
+  static const std::vector<DebugMessage*>& getAllMsgs();
+
+  /**
+   * @brief Delete all allocated objects, e.g. at program exit.
+   */
+  static void purge();
 
   /**
     @brief Enable all debug messages, including ones not yet created.
@@ -454,16 +459,13 @@ private:
   /**
     @brief List of pointers to all debug messages.
   */
-  static std::list<DebugMessage*>& allMsgs() {
-    static std::list<DebugMessage*> s_msgs;
-    return(s_msgs);
-  }
+  static std::vector<DebugMessage*>& allMsgs();
 
   /**
     @brief List of all enabled debug patterns.
   */
-  static std::list<DebugPattern>& enabledPatterns() {
-    static std::list<DebugPattern> s_patterns;
+  static std::vector<DebugPattern>& enabledPatterns() {
+    static std::vector<DebugPattern> s_patterns;
     return(s_patterns);
   }
 
@@ -551,15 +553,15 @@ private:
 
     const DebugPattern pattern;
 
-    std::list<DebugMessage*>& matches;
+    std::vector<DebugMessage*>& matches;
 
   public:
     explicit GetMatches(const std::string& f, const std::string& p,
-                        std::list<DebugMessage*>& m)
+                        std::vector<DebugMessage*>& m)
       : pattern(f, p), matches(m) {
     }
 
-    explicit GetMatches(const DebugPattern& p, std::list<DebugMessage*>& m)
+    explicit GetMatches(const DebugPattern& p, std::vector<DebugMessage*>& m)
       : pattern(p), matches(m) {
     }
 
