@@ -61,9 +61,15 @@
 #ifdef ID_TABLE_DEBUG
 #include "Debug.hh"
 #endif
+
+#include "lifecycle-utils.h"
+
 #include <iostream>
 
 namespace PLEXIL {
+
+  // Static member initialization
+  IdTable *IdTable::s_instance = NULL;
 
   IdTable::IdTable() {
   }
@@ -77,23 +83,19 @@ namespace PLEXIL {
 #endif
                               )
   {
-    static ID_KEY_TYPE* sl_nextId = NULL;
-    
+    static ID_KEY_TYPE sl_nextId = 1;
     IdTable& instance(getInstance());
 #ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(instance.m_mutex);
 #endif
 
-    if (sl_nextId == NULL)
-      sl_nextId = new ID_KEY_TYPE(1);
-
 #ifdef ID_TABLE_DEBUG
-    debugMsg("IdTable:insert", "id,key:" << id << ", " << *sl_nextId << ")");
+    debugMsg("IdTable:insert", "id,key:" << id << ", " << sl_nextId << ")");
 #endif
     IdTableMap::iterator it = instance.m_collection.find(id);
     if (it != instance.m_collection.end())
       return(0); /* Already in table. */
-    instance.m_collection.insert(IdTablePair(id, *sl_nextId));
+    instance.m_collection.insert(IdTablePair(id, sl_nextId));
 #ifdef ID_TABLE_DEBUG
     PLEXIL_HASH_MAP(std::string, ID_SIZE_TYPE)::iterator tCit = instance.m_typeCnts.find(baseType);
     if (tCit == instance.m_typeCnts.end())
@@ -101,7 +103,7 @@ namespace PLEXIL {
     else
       tCit->second++;
 #endif
-    return((*sl_nextId)++);
+    return sl_nextId++;
   }
 
   ID_KEY_TYPE IdTable::getKey(ID_POINTER_TYPE id) {
@@ -118,6 +120,10 @@ namespace PLEXIL {
   }
 
   void IdTable::remove(ID_POINTER_TYPE id) {
+    // Shortcut if we are cleaning up a table that no longer exists.
+    if (!s_instance)
+      return;
+
     IdTable& instance(getInstance());
 #ifdef PLEXIL_WITH_THREADS
     ThreadMutexGuard guard(instance.m_mutex);
@@ -164,11 +170,21 @@ namespace PLEXIL {
   }
 
   IdTable& IdTable::getInstance() {
-    static IdTable* sl_instance = NULL;
-    if (sl_instance == NULL)
-      sl_instance = new IdTable();
-    return *sl_instance;
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      s_instance = new IdTable();
+      addFinalizer(&purge);
+      sl_inited = true;
+    }
+    return *s_instance;
   }
+
+  void IdTable::purge()
+  {
+    delete s_instance;
+    s_instance = NULL;
+  }
+
 }
 
 #endif // !defined(PLEXIL_ID_FAST)
