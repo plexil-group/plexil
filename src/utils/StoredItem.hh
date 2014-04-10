@@ -28,6 +28,7 @@
 #define STORED_ITEM_HH
 
 #include "Error.hh"
+#include "lifecycle-utils.h"
 
 namespace PLEXIL
 {
@@ -304,11 +305,37 @@ namespace PLEXIL
      */
     static item_store_t& itemStore()
     {
-      static item_store_t sl_itemStore;
-      return sl_itemStore;
+      static bool sl_inited = false;
+      if (!sl_inited) {
+        *itemStorePointer() = new item_store_t();
+        addFinalizer(&purge);
+        sl_inited = true;
+      }
+      return **itemStorePointer();
+    }
+
+    // Ugly but necessary hack to make this templatized class
+    // self-contained in a header file.
+    // Has to be made public besides.
+    // C++ sucks at abstraction.
+    static item_store_t** itemStorePointer()
+    {
+      static item_store_t* sl_itemStore;
+      return &sl_itemStore;
     }
 
   private:
+
+    /**
+     * @brief Delete all allocated storage.
+     * @note Should only be used at exit, after all instances are deleted.
+     */
+    static void purge()
+    {
+      item_store_t* store = *itemStorePointer();
+      *itemStorePointer() = NULL;
+      delete store;
+    }
 
     /**
      * @brief The key value used as a proxy for the original item.

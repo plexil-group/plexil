@@ -359,10 +359,16 @@ namespace PLEXIL
     static const std::string& toString(LabelStr_key_t key);
 
     /**
-     * @brief Return the item store.
+     * @brief Return pointer to the item store.
      * @note Only external caller should be Value class.
      */
     static LabelStr_store_t& itemStore();
+
+    /**
+     * @brief Delete all allocated storage.
+     * @note Should only be used at exit, after all instances are deleted.
+     */
+    static void purge();
 
     /**
      * @brief The key value used as a proxy for the original item.
@@ -374,6 +380,13 @@ namespace PLEXIL
     // Pointer to stored string, for debugging use only
     const char* m_string;
 #endif
+
+    /**
+     * @brief Pointer to item store.
+     * @note Should only be accessed by itemStore(), purge(),
+     * and LabelStr and Value destructors.
+     */
+    static LabelStr_store_t* s_itemStore;
 
   };
 

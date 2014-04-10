@@ -41,19 +41,26 @@
 #include "Value.hh"
 #include <vector>
 
+// Because typedefs didn't work in the .cc file for initialization...
+// gotta spell out ALL this crap.
+
 namespace PLEXIL
 {
+
+
   typedef double StoredArray_key_t;
 
   typedef std::vector<Value> StoredArray_value_t;
 
-  typedef KeySource<double, NegativeDenormKeyTraits<double> >
+  typedef KeySource<StoredArray_key_t,
+                    NegativeDenormKeyTraits<StoredArray_key_t> >
   StoredArray_keysource_t;
 
-  typedef ItemTable<StoredArray_key_t, StoredArray_value_t>
+  typedef ItemTable<StoredArray_key_t,
+                    StoredArray_value_t>
   StoredArray_table_t;
 
-  typedef ItemStore<StoredArray_key_t,
+  typedef ItemStore<StoredArray_key_t, 
                     StoredArray_value_t,
                     StoredArray_keysource_t,
                     StoredArray_table_t>
@@ -61,7 +68,7 @@ namespace PLEXIL
 
   typedef StoredItem<StoredArray_key_t,
                      StoredArray_value_t,
-                     StoredArray_store_t> 
+                     StoredArray_store_t>
   StoredArray_item_t;
 
   /**
@@ -332,6 +339,15 @@ namespace PLEXIL
     inline static StoredArray_store_t& itemStore()
     {
       return StoredArray_item_t::itemStore();
+    }
+
+    /**
+     * @brief Return the item store pointer.
+     * @note Intended for use by Value class only.
+     */
+    inline static StoredArray_store_t* itemStorePointer()
+    {
+      return *(StoredArray_item_t::itemStorePointer());
     }
 
   };

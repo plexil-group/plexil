@@ -117,6 +117,8 @@ namespace PLEXIL {
 
     IdTable();
 
+    static void purge(); // post-run cleanup
+
     typedef PLEXIL_HASH_MAP(ID_POINTER_TYPE, ID_KEY_TYPE) IdTableMap;
     typedef std::pair<ID_POINTER_TYPE, ID_KEY_TYPE> IdTablePair;
 
@@ -125,6 +127,9 @@ namespace PLEXIL {
 #endif
     //* The main map from pointers to their keys.
     IdTableMap m_collection;
+
+    // Static storage
+    static IdTable *s_instance;
 
 #ifdef ID_TABLE_DEBUG
     PLEXIL_HASH_MAP(std::string, ID_SIZE_TYPE) m_typeCnts;

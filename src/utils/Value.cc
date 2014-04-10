@@ -123,7 +123,15 @@ namespace PLEXIL
    */
   Value::~Value()
   {
-    unassign();
+    // Check that the store hasn't already been deleted
+    if (LabelStr::rangeCheck(m_value)) {
+      if (LabelStr::s_itemStore)
+        LabelStr::s_itemStore->deleteReference(m_value);
+    }
+    else if (StoredArray::rangeCheck(m_value)) {
+      if (StoredArray::itemStorePointer())
+        StoredArray::itemStore().deleteReference(m_value);
+    }
   }
 
   /**

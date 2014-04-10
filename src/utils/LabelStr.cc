@@ -30,6 +30,7 @@
 
 namespace PLEXIL
 {
+  LabelStr_store_t* LabelStr::s_itemStore = NULL;
 
   // define the empty label
   DEFINE_GLOBAL_CONST(LabelStr, EMPTY_LABEL, "")
@@ -108,7 +109,10 @@ namespace PLEXIL
    */
   LabelStr::~LabelStr()
   {
-    itemStore().deleteReference(m_key);
+    // Guard against out-of-order deletion -
+    // no store, no need to delete reference!
+    if (s_itemStore)
+      s_itemStore->deleteReference(m_key);
   }
 
   /**
@@ -322,13 +326,29 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Return the item store.
+   * @brief Return pointer to the item store.
    * @note Only external user should be Value class.
    */
   LabelStr_store_t& LabelStr::itemStore()
   {
-    static LabelStr_store_t sl_itemStore;
-    return sl_itemStore;
+    static bool sl_inited;
+    if (!sl_inited) {
+      s_itemStore = new LabelStr_store_t();
+      addFinalizer(&purge);
+      sl_inited = true;
+    }
+    return *s_itemStore;
+  }
+
+  /**
+   * @brief Delete all allocated storage.
+   * @note Should only be used at exit, after all instances are deleted.
+   */
+  void LabelStr::purge()
+  {
+    LabelStr_store_t *store = s_itemStore;
+    s_itemStore = NULL;
+    delete store;
   }
 
 }
