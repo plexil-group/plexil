@@ -57,6 +57,7 @@
 #include "ItemTable.hh"
 #include "KeySource.hh"
 #include "LabelStr.hh"
+#include "lifecycle-utils.h"
 #include "StoredArray.hh"
 #include "StoredItem.hh"
 #include "stricmp.h"
@@ -2643,6 +2644,9 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(LabelStrTests::test);
   runTestSuite(ValueTests::test);
   runTestSuite(StricmpTests::test);
+
+  // Do cleanup
+  runFinalizers();
 
   std::cout << "Finished" << std::endl;
 }
