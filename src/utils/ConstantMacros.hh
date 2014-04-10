@@ -25,7 +25,7 @@
 */
 
 // Macros for defining global and class constants
-// Formerly part of CommonDefs.hh
+#include "lifecycle-utils.h"
 
 /**
  * @def DECLARE_STATIC_CLASS_CONST(TYPE, NAME, VALUE)
@@ -39,27 +39,41 @@
   }
 
 /**
- * @def DECLARE_STATIC_CLASS_CONST(TYPE,NAME)
+ * @def DECLARE_STATIC_CLASS_CONST_WITH_CLEANUP(TYPE, NAME, VALUE)
  * @brief Declare and define class scoped constant to ensure initialization
- * occurs before use with all linkers.
+ * occurs before use with all linkers, and cleanup happens later.
  */
-#define DECLARE_STATIC_CLASS_CONST_LABEL(NAME, VALUE) \
-  static const LabelStr& NAME() { \
-    static const LabelStr sl_data(VALUE, true); \
-    return sl_data; \
+#define DECLARE_STATIC_CLASS_CONST_WITH_CLEANUP(TYPE, NAME, VALUE) \
+  static TYPE* ensure__ ## NAME() { \
+    static TYPE *sl_ptr; \
+    static bool sl_inited; \
+    if (!sl_inited) { \
+      sl_ptr = new TYPE(VALUE); \
+      sl_inited = true; \
+      addFinalizer(&NAME ## __destroy); \
+    } \
+    return sl_ptr; \
+  } \
+  static void NAME ## __destroy() { \
+    delete ensure__ ## NAME(); \
+  } \
+  static const TYPE& NAME() { \
+    return *ensure__ ## NAME(); \
   }
 
 /**
- * @def DECLARE_STATIC_CLASS_CONST(TYPE,NAME)
- * @brief Declare and define class scoped constant to ensure initialization
+ * @def DECLARE_STATIC_CLASS_CONST_LABEL(TYPE,NAME)
+ * @brief Declare and define class scoped constant string to ensure initialization
  * occurs before use with all linkers.
  */
-#define DECLARE_STATIC_CLASS_CONST_STRING_VALUE(NAME, VALUE) \
-  static const Value& NAME() { \
-    static const Value sl_data(VALUE, true); \
-    return sl_data; \
-  }
+#define DECLARE_STATIC_CLASS_CONST_LABEL(NAME, VALUE) DECLARE_STATIC_CLASS_CONST_WITH_CLEANUP(PLEXIL::LabelStr, NAME, VALUE)
 
+/**
+ * @def DECLARE_STATIC_CLASS_CONST_STRING_VALUE(TYPE,NAME)
+ * @brief Declare and define class scoped constant string value to ensure initialization
+ * occurs before use with all linkers.
+ */
+#define DECLARE_STATIC_CLASS_CONST_STRING_VALUE(NAME, VALUE) DECLARE_STATIC_CLASS_CONST_WITH_CLEANUP(PLEXIL::Value, NAME, VALUE)
 
 /**
  * @def DECLARE_GLOBAL_CONST(TYPE,NAME)
