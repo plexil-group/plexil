@@ -63,7 +63,7 @@ namespace PLEXIL
   AbsoluteValue::AbsoluteValue(const PlexilExprId& expr, const NodeConnectorId& node)
     : UnaryExpression(expr, node) {}
 
-  AbsoluteValue::AbsoluteValue(ExpressionId e)
+  AbsoluteValue::AbsoluteValue(const ExpressionId e)
     : UnaryExpression(e) {}
 
   bool AbsoluteValue::checkValue(const Value& val) const
@@ -93,7 +93,7 @@ namespace PLEXIL
   SquareRoot::SquareRoot(const PlexilExprId& expr, const NodeConnectorId& node)
     : UnaryExpression(expr, node) {}
 
-  SquareRoot::SquareRoot(ExpressionId e)
+  SquareRoot::SquareRoot(const ExpressionId e)
     : UnaryExpression(e) {}
 
   Value SquareRoot::recalculate() {
@@ -119,7 +119,7 @@ namespace PLEXIL
  IsKnown::IsKnown(const PlexilExprId& expr, const NodeConnectorId& node)
     : UnaryExpression(expr, node) {}
 
- IsKnown::IsKnown(ExpressionId e)
+ IsKnown::IsKnown(const ExpressionId e)
     : UnaryExpression(e) {}
 
   Value IsKnown::recalculate()
