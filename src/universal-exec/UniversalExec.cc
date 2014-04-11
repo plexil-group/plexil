@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,7 @@
 #include "Debug.hh"
 #include "Node.hh"
 #include "PlexilPlan.hh"
+#include "lifecycle-utils.h"
 
 #if HAVE_LUV_LISTENER
 #include "LuvListener.hh"
@@ -42,7 +43,7 @@
 
 using namespace PLEXIL;
 
-int main (int argc, char** argv)
+int main_internal(int argc, char** argv)
 {
   std::string planName("error");
   std::string debugConfig("Debug.cfg");
@@ -288,4 +289,11 @@ int main (int argc, char** argv)
   std::cout << "Plan complete, Exec exited with"
             << (error ? " " : "out ") << "errors" << std::endl;
   return (error ? -1 : 0);
+}
+
+int main(int argc, char** argv)
+{
+  int result = main_internal(argc, argv);
+  runFinalizers();
+  return result;
 }
