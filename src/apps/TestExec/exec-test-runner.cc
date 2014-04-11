@@ -25,12 +25,15 @@
 */
 
 #include "ExecTestRunner.hh"
+#include "lifecycle-utils.h"
 
 using namespace PLEXIL;
 
 int main (int argc, char** argv)
 {
-  return ExecTestRunner::run(argc, argv);
+  int result = ExecTestRunner::run(argc, argv);
+  runFinalizers();
+  return result;
 }
 
 #if defined(__VXWORKS__)
