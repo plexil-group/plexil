@@ -57,7 +57,7 @@ namespace PLEXIL
     {
     }
 
-    LogicalNegation(ExpressionId& e)
+    LogicalNegation(const ExpressionId& e)
       : UnaryExpression(e)
     {
     }
@@ -82,7 +82,7 @@ namespace PLEXIL
   class AbsoluteValue : public UnaryExpression {
   public:
     AbsoluteValue(const PlexilExprId& expr, const NodeConnectorId& node);
-    AbsoluteValue(ExpressionId e);
+    AbsoluteValue(const ExpressionId e);
     void print(std::ostream& s) const;
     Value recalculate();
     bool checkValue(const Value& val) const;
@@ -101,7 +101,7 @@ namespace PLEXIL
   class SquareRoot : public UnaryExpression {
   public:
     SquareRoot(const PlexilExprId& expr, const NodeConnectorId& node);
-    SquareRoot(ExpressionId e);
+    SquareRoot(const ExpressionId e);
     void print(std::ostream& s) const;
     Value recalculate();
     bool checkValue(const Value& val) const;
@@ -119,7 +119,7 @@ namespace PLEXIL
   class IsKnown : public UnaryExpression {
   public:
     IsKnown(const PlexilExprId& expr, const NodeConnectorId& node);
-    IsKnown(ExpressionId e);
+    IsKnown(const ExpressionId e);
     void print(std::ostream& s) const;
     Value recalculate();
     bool checkValue(const Value& val) const;
