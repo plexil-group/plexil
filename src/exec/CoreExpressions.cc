@@ -30,6 +30,7 @@
 #include "Calculables.hh"
 #include "Debug.hh"
 #include "Node.hh"
+#include "lifecycle-utils.h"
 
 #include <cmath> // for fabs()
 #include <string>
@@ -41,6 +42,9 @@ namespace PLEXIL
   //
   // StateVariable
   //
+
+  // Init class static variable
+  std::vector<Value> *StateVariable::s_allStateNames = NULL;
 
   // Called from Node::commonInit().
   StateVariable::StateVariable(const std::string& name)
@@ -101,69 +105,30 @@ namespace PLEXIL
   }
 
   // Must be in same order as enum NodeState. See ExecDefs.hh.
-  const std::vector<Value>& StateVariable::ALL_STATE_NAMES() {
-    static std::vector<Value> allStates;
-    if (allStates.empty()) {
-      allStates.reserve(NODE_STATE_MAX);
-      allStates.push_back(INACTIVE());
-      allStates.push_back(WAITING());
-      allStates.push_back(EXECUTING());
-      allStates.push_back(ITERATION_ENDED());
-      allStates.push_back(FINISHED());
-      allStates.push_back(FAILING());
-      allStates.push_back(FINISHING());
-      allStates.push_back(NO_STATE());
+  const std::vector<Value>& StateVariable::ALL_STATE_NAMES()
+  {
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      s_allStateNames = new std::vector<Value>();
+      addFinalizer(&purgeAllStateNames);
+      s_allStateNames->reserve(NODE_STATE_MAX);
+      s_allStateNames->push_back(INACTIVE());
+      s_allStateNames->push_back(WAITING());
+      s_allStateNames->push_back(EXECUTING());
+      s_allStateNames->push_back(ITERATION_ENDED());
+      s_allStateNames->push_back(FINISHED());
+      s_allStateNames->push_back(FAILING());
+      s_allStateNames->push_back(FINISHING());
+      s_allStateNames->push_back(NO_STATE());
+      sl_inited = true;
     }
-    return allStates;
+    return *s_allStateNames;
   }
 
-  ExpressionId& StateVariable::INACTIVE_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(INACTIVE_STATE, true))->getId();
-    return sl_exp;
-  }
-  ExpressionId& StateVariable::WAITING_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(WAITING_STATE, true))->getId();
-    return sl_exp;
-  }
-  ExpressionId& StateVariable::EXECUTING_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(EXECUTING_STATE, true))->getId();
-    return sl_exp;
-  }
-  ExpressionId& StateVariable::FINISHING_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(FINISHING_STATE, true))->getId();
-    return sl_exp;
-  }
-  ExpressionId& StateVariable::FINISHED_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(FINISHED_STATE, true))->getId();
-    return sl_exp;
-  }
-  ExpressionId& StateVariable::FAILING_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(FAILING_STATE, true))->getId();
-    return sl_exp;
-  }
-  ExpressionId& StateVariable::ITERATION_ENDED_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(ITERATION_ENDED_STATE, true))->getId();
-    return sl_exp;
-  }
-  ExpressionId& StateVariable::NO_STATE_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new StateVariable(NO_NODE_STATE, true))->getId();
-    return sl_exp;
+  void StateVariable::purgeAllStateNames()
+  {
+    delete s_allStateNames;
+    s_allStateNames = NULL;
   }
 
   const Value& StateVariable::nodeStateName(uint32_t state)

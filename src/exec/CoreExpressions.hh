@@ -71,14 +71,15 @@ namespace PLEXIL
                                                            state transition is possible. */
 
     static const std::vector<Value>& ALL_STATE_NAMES();
-    static ExpressionId& INACTIVE_EXP();
-    static ExpressionId& WAITING_EXP();
-    static ExpressionId& EXECUTING_EXP();
-    static ExpressionId& FINISHING_EXP();
-    static ExpressionId& FINISHED_EXP();
-    static ExpressionId& FAILING_EXP();
-    static ExpressionId& ITERATION_ENDED_EXP();
-    static ExpressionId& NO_STATE_EXP();
+
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(StateVariable, INACTIVE_EXP, INACTIVE_STATE, "State constant INACTIVE");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(StateVariable, WAITING_EXP, WAITING_STATE, "State constant WAITING");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(StateVariable, EXECUTING_EXP, EXECUTING_STATE, "State constant EXECUTING");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(StateVariable, FINISHING_EXP, FINISHING_STATE, "State constant FINISHING");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(StateVariable, FINISHED_EXP, FINISHED_STATE, "State constant FINISHED");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(StateVariable, FAILING_EXP, FAILING_STATE, "State constant FAILING");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(StateVariable, ITERATION_ENDED_EXP, ITERATION_ENDED_STATE, "State constant ITERATION_ENDED");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(StateVariable, NO_STATE_EXP, NO_NODE_STATE, "State constant NO_STATE");
 
     static const Value& nodeStateName(uint32_t state);
     static uint32_t nameToNodeState(const LabelStr& stateName);
@@ -105,6 +106,9 @@ namespace PLEXIL
 
   private:
     bool checkValue(const Value& val) const;
+    static void purgeAllStateNames();
+
+    static std::vector<Value> *s_allStateNames;
   };
 
   class OutcomeVariable : public VariableImpl
