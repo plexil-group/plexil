@@ -29,8 +29,7 @@
 #include "Expression.hh"
 #include "Node.hh"
 #include "Variable.hh"
-
-#include <cstdlib> // for atexit()
+#include "lifecycle-utils.h"
 
 namespace PLEXIL
 {
@@ -79,19 +78,9 @@ namespace PLEXIL
     return retval;
   }
 
-  static void cleanupExpressionFactories()
-  {
-    ExpressionFactory::purge();
-  }
-
   std::map<LabelStr, ExpressionFactory*>& ExpressionFactory::factoryMap()
   {
     static std::map<LabelStr, ExpressionFactory*> sl_map;
-    static bool sl_inited = false;
-    if (!sl_inited) {
-      atexit(cleanupExpressionFactories);
-      sl_inited = true;
-    }
     return sl_map;
   }
 

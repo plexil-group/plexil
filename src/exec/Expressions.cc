@@ -33,13 +33,15 @@
 #include "ExpressionFactory.hh"
 #include "Lookup.hh"
 #include "Variables.hh"
+#include "lifecycle-utils.h"
 
 namespace PLEXIL {
 
   void initializeExpressions()
   {
-    static bool initializeExpressions_called = false;
-    if (!initializeExpressions_called) {
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      addFinalizer(&ExpressionFactory::purge);
 	  REGISTER_EXPRESSION(ArrayElement, ArrayElement);
 	  REGISTER_EXPRESSION(Conjunction, AND);
 	  REGISTER_EXPRESSION(Disjunction, OR);
@@ -92,7 +94,7 @@ namespace PLEXIL {
 	  //REGISTER_EXPRESSION(TimepointVariable, NodeTimepointValue);
 	  REGISTER_EXPRESSION(AbsoluteValue, ABS);
 	  REGISTER_EXPRESSION(SquareRoot, SQRT);
-	  initializeExpressions_called = true;
+	  sl_inited = true;
 	}
   }
 
