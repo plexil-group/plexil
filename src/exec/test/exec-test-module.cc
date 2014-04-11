@@ -46,6 +46,7 @@
 #include "TestSupport.hh"
 #include "Variables.hh"
 #include "XMLUtils.hh"
+#include "lifecycle-utils.h"
 
 #include <iostream>
 #include <map>
@@ -3113,5 +3114,9 @@ void ExecModuleTests::runTests() {
   runTestSuite(LookupsTest::test);
   runTestSuite(StateTransitionsTest::test);
   runTestSuite(StateCacheTest::test);
+
+  // Clean up
+  runFinalizers();
+
   std::cout << "Finished" << std::endl;
 }
