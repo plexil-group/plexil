@@ -30,6 +30,7 @@
 #include "DynamicLoader.hh"
 #endif
 #include "InterfaceSchema.hh"
+#include "lifecycle-utils.h"
 #include "pugixml.hpp"
 
 namespace PLEXIL
@@ -109,9 +110,20 @@ namespace PLEXIL
     return retval;
   }
 
+  extern "C"
+  void cleanupListenerFilterFactories()
+  {
+    ExecListenerFilterFactory::purge();
+  }
+
   std::map<LabelStr, ExecListenerFilterFactory*>& ExecListenerFilterFactory::factoryMap() 
   {
     static std::map<LabelStr, ExecListenerFilterFactory*> sl_map;
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      addFinalizer(&cleanupListenerFilterFactories);
+      sl_inited = true;
+    }
     return sl_map;
   }
 
