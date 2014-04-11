@@ -32,6 +32,7 @@
 #include "DynamicLoader.hh"
 #endif
 #include "InterfaceSchema.hh"
+#include "lifecycle-utils.h"
 #include "pugixml.hpp"
 
 namespace PLEXIL
@@ -142,6 +143,11 @@ namespace PLEXIL
   std::map<LabelStr, AdapterFactory*>& AdapterFactory::factoryMap() 
   {
     static std::map<LabelStr, AdapterFactory*> sl_map;
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      addFinalizer(&purge);
+      sl_inited = true;
+    }
     return sl_map;
   }
 
