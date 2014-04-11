@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,10 +26,10 @@
 
 #include "BooleanVariable.hh"
 #include "Debug.hh"
+#include "lifecycle-utils.h"
 
 namespace PLEXIL
 {
-
   BooleanVariable::BooleanVariable(const bool isConst)
     : VariableImpl(isConst)
   {
@@ -92,45 +92,6 @@ namespace PLEXIL
   bool BooleanVariable::checkValue(const Value& val) const
   {
     return val.isUnknown() || val.isBoolean();
-  }
-
-  ExpressionId& BooleanVariable::TRUE_EXP()
-  {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId()) {
-      VariableImpl* var = new BooleanVariable(TRUE_VALUE(), true);
-      var->setName("Boolean constant true");
-      sl_exp = var->getId();
-    }
-    if(!sl_exp->isActive())
-      sl_exp->activate();
-    return sl_exp;
-  }
-
-  ExpressionId& BooleanVariable::FALSE_EXP()
-  {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId()) {
-      VariableImpl* var = new BooleanVariable(FALSE_VALUE(), true);
-      var->setName("Boolean constant false");
-      sl_exp = var->getId();
-    }
-    if(!sl_exp->isActive())
-      sl_exp->activate();
-    return sl_exp;
-  }
-
-  ExpressionId& BooleanVariable::UNKNOWN_EXP()
-  {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId()) {
-      VariableImpl* var = new BooleanVariable(UNKNOWN(), true);
-      var->setName("Boolean constant unknown");
-      sl_exp = var->getId();
-    }
-    if(!sl_exp->isActive())
-      sl_exp->activate();
-    return sl_exp;
   }
 
 }

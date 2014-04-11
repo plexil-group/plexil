@@ -38,11 +38,12 @@ namespace PLEXIL
   class BooleanVariable : public VariableImpl 
   {
   public:
-    static ExpressionId& TRUE_EXP();
-    static ExpressionId& FALSE_EXP();
-    static ExpressionId& UNKNOWN_EXP(); // used in Node condition defaults
-    DECLARE_STATIC_CLASS_CONST(Value, TRUE_VALUE, 1.0);
-    DECLARE_STATIC_CLASS_CONST(Value, FALSE_VALUE, 0.0);
+    DECLARE_STATIC_CLASS_CONST(Value, TRUE_VALUE, 1.0)
+    DECLARE_STATIC_CLASS_CONST(Value, FALSE_VALUE, 0.0)
+
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(BooleanVariable, TRUE_EXP, TRUE_VALUE(), "Boolean constant true")
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(BooleanVariable, FALSE_EXP, FALSE_VALUE(), "Boolean constant false")
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(BooleanVariable, UNKNOWN_EXP, UNKNOWN(), "Boolean constant unknown") // used in Node condition defaults
 
     BooleanVariable(const bool isConst = false);
     BooleanVariable(const Value& value,
