@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,32 @@
 
 #include "Expression.hh"
 #include "PlexilPlan.hh"
+#include "lifecycle-utils.h"
+
+// Macro for creating named static "constant" variables
+#define DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(TYPE, FN_NAME, VALUE, PRINT_NAME) \
+private: \
+  static TYPE* ensure__ ## FN_NAME() { \
+    static TYPE *sl_ptr; \
+    static bool sl_inited; \
+    if (!sl_inited) { \
+      sl_ptr = new TYPE(VALUE, true); \
+      sl_ptr->setName(PRINT_NAME); \
+      addFinalizer(&FN_NAME ## __destroy); \
+      sl_inited = true; \
+    } \
+    return sl_ptr; \
+  } \
+  static void FN_NAME ## __destroy() { \
+    delete ensure__ ## FN_NAME(); \
+  } \
+public: \
+  static const ExpressionId& FN_NAME() { \
+    static ExpressionId sl_id = (ensure__ ## FN_NAME())->getId(); \
+    if (!sl_id->isActive()) \
+      sl_id->activate(); \
+    return sl_id; \
+  }
 
 namespace PLEXIL
 {
