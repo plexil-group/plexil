@@ -160,7 +160,7 @@ namespace PLEXIL
     }
   };
 
-#define REGISTER_EXEC_LISTENER(CLASS,NAME) {new PLEXIL::ConcreteExecListenerFactory<CLASS>(PLEXIL::LabelStr(NAME));}
+#define REGISTER_EXEC_LISTENER(CLASS,NAME) {new PLEXIL::ConcreteExecListenerFactory<CLASS>(NAME);}
 
 } // namespace PLEXIL
 

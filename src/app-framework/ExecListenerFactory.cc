@@ -31,7 +31,7 @@
 #endif
 #include "ExecListener.hh"
 #include "InterfaceSchema.hh"
-
+#include "lifecycle-utils.h"
 #include "pugixml.hpp"
 
 namespace PLEXIL
@@ -112,6 +112,11 @@ namespace PLEXIL
   std::map<LabelStr, ExecListenerFactory*>& ExecListenerFactory::factoryMap() 
   {
     static std::map<LabelStr, ExecListenerFactory*> sl_map;
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      addFinalizer(&purge);
+      sl_inited = true;
+    }
     return sl_map;
   }
 
