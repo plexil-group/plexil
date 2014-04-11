@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -224,11 +224,23 @@ namespace PLEXIL {
 	UnknownVariable& operator=(const UnknownVariable&);
   };
 
+  static ExpressionId s_unknownExp;
+
+  static void purgeUnknownExp()
+  {
+    UnknownVariable *exp = (UnknownVariable *) s_unknownExp;
+    s_unknownExp = ExpressionId::noId();
+    delete exp;
+  }
+
   ExpressionId& Expression::UNKNOWN_EXP() {
-    static ExpressionId sl_exp;
-    if (sl_exp.isNoId())
-      sl_exp = (new UnknownVariable())->getId();
-    return sl_exp;
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      s_unknownExp = (new UnknownVariable())->getId();
+      addFinalizer(&purgeUnknownExp);
+      sl_inited = true;
+    }
+    return s_unknownExp;
   }
 
 }
