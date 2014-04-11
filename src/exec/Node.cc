@@ -38,6 +38,7 @@
 #include "PlexilExec.hh"
 #include "Variables.hh"
 #include "XMLUtils.hh"
+#include "lifecycle-utils.h"
 
 #include <algorithm> // for sort
 #include <iomanip> // for setprecision
@@ -45,33 +46,93 @@
 
 namespace PLEXIL {
 
+  // Initialize class static variables
+  std::vector<LabelStr>* Node::s_allConditions = NULL;
+  std::vector<LabelStr>* Node::s_startTimepointNames = NULL;
+  std::vector<LabelStr>* Node::s_endTimepointNames = NULL;
+
   const std::vector<LabelStr>& Node::ALL_CONDITIONS() {
-    static std::vector<LabelStr> sl_allConds;
-    if (sl_allConds.empty()) {
-      sl_allConds.reserve(conditionIndexMax);
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      s_allConditions = new std::vector<LabelStr>();
+      addFinalizer(&purgeAllConditions);
+      s_allConditions->reserve(conditionIndexMax);
+
       // *** N.B.: Order MUST agree with enum ConditionIndex!
       // Conditions on parent
-      sl_allConds.push_back(ANCESTOR_END_CONDITION());
-      sl_allConds.push_back(ANCESTOR_EXIT_CONDITION());
-      sl_allConds.push_back(ANCESTOR_INVARIANT_CONDITION());
+      s_allConditions->push_back(ANCESTOR_END_CONDITION());
+      s_allConditions->push_back(ANCESTOR_EXIT_CONDITION());
+      s_allConditions->push_back(ANCESTOR_INVARIANT_CONDITION());
       // User specified conditions
-      sl_allConds.push_back(SKIP_CONDITION());
-      sl_allConds.push_back(START_CONDITION());
-      sl_allConds.push_back(END_CONDITION());
-      sl_allConds.push_back(EXIT_CONDITION());
-      sl_allConds.push_back(INVARIANT_CONDITION());
-      sl_allConds.push_back(PRE_CONDITION());
-      sl_allConds.push_back(POST_CONDITION());
-      sl_allConds.push_back(REPEAT_CONDITION());
+      s_allConditions->push_back(SKIP_CONDITION());
+      s_allConditions->push_back(START_CONDITION());
+      s_allConditions->push_back(END_CONDITION());
+      s_allConditions->push_back(EXIT_CONDITION());
+      s_allConditions->push_back(INVARIANT_CONDITION());
+      s_allConditions->push_back(PRE_CONDITION());
+      s_allConditions->push_back(POST_CONDITION());
+      s_allConditions->push_back(REPEAT_CONDITION());
       // For all but Empty nodes
-      sl_allConds.push_back(ACTION_COMPLETE());
+      s_allConditions->push_back(ACTION_COMPLETE());
       // For all but Empty and Update nodes
-      sl_allConds.push_back(ABORT_COMPLETE());
+      s_allConditions->push_back(ABORT_COMPLETE());
+      sl_inited = true;
+
       // inexpensive sanity check
-      assertTrue(sl_allConds.size() == conditionIndexMax,
+      assertTrue(s_allConditions->size() == conditionIndexMax,
                  "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
     }
-    return sl_allConds;
+    return *s_allConditions;
+  }
+
+  void Node::purgeAllConditions()
+  {
+    delete s_allConditions;
+    s_allConditions = NULL;
+  }
+
+  const std::vector<LabelStr>& Node::START_TIMEPOINT_NAMES() 
+  {
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      s_startTimepointNames = new std::vector<LabelStr>();
+      addFinalizer(&purgeStartTimepointNames);
+      s_startTimepointNames->reserve(NO_NODE_STATE);
+      for (size_t i = 0; i < NO_NODE_STATE; ++i) {
+        const std::string& state = StateVariable::ALL_STATE_NAMES()[i].getStringValue();
+        s_startTimepointNames->push_back(LabelStr(state + ".START"));
+      }
+      sl_inited = true;
+    }
+    return *s_startTimepointNames;
+  }
+
+  void Node::purgeStartTimepointNames()
+  {
+    delete s_startTimepointNames;
+    s_startTimepointNames = NULL;
+  }
+
+  const std::vector<LabelStr>& Node::END_TIMEPOINT_NAMES() 
+  {
+    static bool sl_inited = false;
+    if (!sl_inited) {
+      s_endTimepointNames = new std::vector<LabelStr>();
+      addFinalizer(&purgeEndTimepointNames);
+      s_endTimepointNames->reserve(NO_NODE_STATE);
+      for (size_t i = 0; i < NO_NODE_STATE; ++i) {
+        const std::string& state = StateVariable::ALL_STATE_NAMES()[i].getStringValue();
+        s_endTimepointNames->push_back(LabelStr(state + ".END"));
+      }
+      sl_inited = true;
+    }
+    return *s_endTimepointNames;
+  }
+
+  void Node::purgeEndTimepointNames()
+  {
+    delete s_endTimepointNames;
+    s_endTimepointNames = NULL;
   }
 
   size_t Node::getConditionIndex(const LabelStr& cName) {
@@ -2087,35 +2148,6 @@ namespace PLEXIL {
       std::sort(m_sortedVariableNames->begin(),
                 m_sortedVariableNames->end());
     }
-  }
-
-  // Static "constants"
-  const std::vector<LabelStr>& Node::START_TIMEPOINT_NAMES() {
-    static std::vector<LabelStr> startNames;
-    if (startNames.empty()) {
-      startNames.reserve(NO_NODE_STATE);
-      for (std::vector<Value>::const_iterator it = StateVariable::ALL_STATE_NAMES().begin();
-           it != StateVariable::ALL_STATE_NAMES().end(); 
-           ++it) {
-        const std::string& state = it->getStringValue();
-        startNames.push_back(LabelStr(state + ".START"));
-      }
-    }
-    return startNames;
-  }
-
-  const std::vector<LabelStr>& Node::END_TIMEPOINT_NAMES() {
-    static std::vector<LabelStr> endNames;
-    if (endNames.empty()) {
-      endNames.reserve(NO_NODE_STATE);
-      for (std::vector<Value>::const_iterator it = StateVariable::ALL_STATE_NAMES().begin();
-           it != StateVariable::ALL_STATE_NAMES().end(); 
-           ++it) {
-        const std::string& state = it->getStringValue();
-        endNames.push_back(LabelStr(state + ".END"));
-      }
-    }
-    return endNames;
   }
 
 }

@@ -535,6 +535,16 @@ namespace PLEXIL {
     void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
     void ensureSortedVariableNames() const;
 
+    // Cleanup
+    static void purgeAllConditions();
+    static void purgeStartTimepointNames();
+    static void purgeEndTimepointNames();
+
+    // Storage for static "constants"
+    static std::vector<LabelStr>* s_allConditions;
+    static std::vector<LabelStr>* s_startTimepointNames;
+    static std::vector<LabelStr>* s_endTimepointNames;
+
   };
 
   std::ostream& operator<<(std::ostream& strm, const Node& node);
