@@ -25,8 +25,9 @@
  */
 
 #include "PlexilXmlParser.hh"
-#include "XMLUtils.hh"
 #include "Debug.hh"
+#include "XMLUtils.hh"
+#include "lifecycle-utils.h"
 #include "resource-tags.hh"
 
 #include <cstring>
@@ -782,9 +783,16 @@ namespace PLEXIL
     }
   };
 
+  extern "C"
+  void cleanupParserTables()
+  {
+    PlexilXmlParser::deleteParsers();
+  }
+
   void PlexilXmlParser::registerParsers() 
   {
     if (s_init) {
+      addFinalizer(&cleanupParserTables);
       s_bodyParsers = new std::map<string, PlexilBodyParser*>();
       s_bodyParsers->insert(std::make_pair(ASSN_TAG, new PlexilAssignmentParser()));
       s_bodyParsers->insert(std::make_pair(NODELIST_TAG,
@@ -868,6 +876,31 @@ namespace PLEXIL
       s_exprParsers->insert(std::make_pair("ABS", op));
 
       s_init = false;
+    }
+  }
+
+  void PlexilXmlParser::deleteParsers()
+  {
+    if (!s_init) {
+      for (std::map<string, PlexilBodyParser*>::iterator it = s_bodyParsers->begin();
+           it != s_bodyParsers->end();
+           ++it)
+        delete it->second;
+      delete s_bodyParsers;
+
+      // Have to check for duplicates in expression parsers
+      std::set<PlexilExprParser*> parsersToDelete;
+      for (std::map<string, PlexilExprParser*>::const_iterator it = s_exprParsers->begin();
+           it != s_exprParsers->end();
+           ++it)
+        parsersToDelete.insert(it->second);
+      delete s_exprParsers;
+
+      for (std::set<PlexilExprParser*>::const_iterator it = parsersToDelete.begin();
+           it != parsersToDelete.end();
+           ++it)
+        delete *it;
+      parsersToDelete.clear(); // redundant with destructor?
     }
   }
 

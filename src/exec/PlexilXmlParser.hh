@@ -142,6 +142,8 @@ namespace PLEXIL
     static std::vector<PlexilResourceId> parseResource(const pugi::xml_node& xml)
       throw(ParserException);
 
+    static void deleteParsers();
+
   private:
 
     // Explicitly not implemented
