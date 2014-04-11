@@ -36,7 +36,6 @@
  */
 
 #include "ExecDefs.hh"
-//#include "PlexilPlan.hh"
 
 #include <limits>
 #include <map>
