@@ -30,8 +30,7 @@
 #include "LibraryCallNode.hh"
 #include "ListNode.hh"
 #include "UpdateNode.hh"
-
-#include <cstdlib> // for atexit()
+#include "lifecycle-utils.h"
 
 namespace PLEXIL
 {
@@ -48,25 +47,18 @@ namespace PLEXIL
     factoryMap()[m_nodeType] = NULL;
   }
 
-  static void cleanupNodeFactories()
-  {
-    NodeFactory::cleanup();
-  }
-
   NodeFactory** NodeFactory::factoryMap()
   {
     static NodeFactory* sl_factories[NodeType_error];
     static bool sl_inited = false;
     if (!sl_inited) {
-      for (size_t i = 0; i < NodeType_error; ++i)
-        sl_factories[i] = NULL;
-      atexit(cleanupNodeFactories);
+      addFinalizer(&purge);
       sl_inited = true;
     }
     return sl_factories;
   }
 
-  void NodeFactory::cleanup()
+  void NodeFactory::purge()
   {
     NodeFactory* tmp;
     for (size_t i = 0; i < NodeType_error; ++i)
