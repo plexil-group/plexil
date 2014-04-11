@@ -24,20 +24,19 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "ExecTestRunner.hh"
-
 #include <plexil-config.h>
 
-#include "Logging.hh"
-#include "PlexilExec.hh"
-#include "ExecListenerHub.hh"
-#include "TestExternalInterface.hh"
+#include "ExecTestRunner.hh"
+
 #include "CoreExpressions.hh"
-#include "Expressions.hh"
 #include "Debug.hh"
-#include "PlexilXmlParser.hh"
+#include "ExecListenerHub.hh"
+#include "Expressions.hh"
+#include "Logging.hh"
 #include "Node.hh"
-#include "PlexilPlan.hh"
+#include "PlexilExec.hh"
+#include "PlexilXmlParser.hh"
+#include "TestExternalInterface.hh"
 
 #if HAVE_DEBUG_LISTENER
 #include "PlanDebugListener.hh"
