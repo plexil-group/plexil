@@ -30,7 +30,7 @@
 #include <stdlib.h> /* malloc(), free() */
 #include <string.h> /* memset() */
 
-#define LIFECYCLE_DEBUG 1
+/* #define LIFECYCLE_DEBUG 1 */
 
 #ifdef LIFECYCLE_DEBUG
 #include <stdio.h> /* puts(), printf() */
