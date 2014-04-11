@@ -67,9 +67,9 @@ namespace PLEXIL
 
   class RealVariable : public VariableImpl {
   public:
-    static ExpressionId& ZERO_EXP();
-    static ExpressionId& ONE_EXP();
-    static ExpressionId& MINUS_ONE_EXP();
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(RealVariable, ZERO_EXP, Value((double) 0), "Real constant 0");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(RealVariable, ONE_EXP, Value((double) 1), "Real constant 1");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(RealVariable, MINUS_ONE_EXP, Value((double) -1), "Real constant -1");
 
     RealVariable();
     RealVariable(const Value& value, const bool isConst = false);
@@ -88,9 +88,9 @@ namespace PLEXIL
 
   class IntegerVariable : public VariableImpl {
   public:
-    static ExpressionId& ZERO_EXP();
-    static ExpressionId& ONE_EXP();
-    static ExpressionId& MINUS_ONE_EXP();
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(IntegerVariable, ZERO_EXP, Value((int32_t) 0), "Integer constant 0");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(IntegerVariable, ONE_EXP, Value((int32_t) 1), "Integer constant 1");
+    DECLARE_STATIC_CLASS_EXPRESSION_ID_CONSTANT(IntegerVariable, MINUS_ONE_EXP, Value((int32_t) -1), "Integer constant -1");
 
     IntegerVariable();
     IntegerVariable(const Value& value, const bool isConst = false);

@@ -164,42 +164,6 @@ namespace PLEXIL
           && val.getDoubleValue() <= REAL_PLUS_INFINITY);
   }
 
-  ExpressionId& RealVariable::ZERO_EXP() {
-    static ExpressionId sl_zero_exp;
-    if (sl_zero_exp.isNoId()) {
-      VariableImpl* var = new RealVariable(0.0, true);
-      var->setName("Real constant 0");
-      sl_zero_exp = var->getId();
-    }
-    if(!sl_zero_exp->isActive())
-      sl_zero_exp->activate();
-    return sl_zero_exp;
-  }
-
-  ExpressionId& RealVariable::ONE_EXP() {
-    static ExpressionId sl_one_exp;
-    if (sl_one_exp.isNoId()) {
-      VariableImpl* var = new RealVariable(1.0, true);
-      var->setName("Real constant 1");
-      sl_one_exp = var->getId();
-    }
-    if(!sl_one_exp->isActive())
-      sl_one_exp->activate();
-    return sl_one_exp;
-  }
-
-  ExpressionId& RealVariable::MINUS_ONE_EXP() {
-    static ExpressionId sl_minus_one_exp;
-    if (sl_minus_one_exp.isNoId()) {
-      VariableImpl* var = new RealVariable(-1.0, true);
-      var->setName("Real constant -1");
-      sl_minus_one_exp = var->getId();
-    }
-    if(!sl_minus_one_exp->isActive())
-      sl_minus_one_exp->activate();
-    return sl_minus_one_exp;
-  }
-
   IntegerVariable::IntegerVariable()
     : VariableImpl(false)
   {
@@ -272,45 +236,6 @@ namespace PLEXIL
     if (fabs(d - ((double) (int32_t) d)) < EPSILON)
       return true;
     return false;
-  }
-
-  ExpressionId& IntegerVariable::ZERO_EXP()
-  {
-    static ExpressionId sl_zero_exp;
-    if (sl_zero_exp.isNoId()) {
-      VariableImpl* var = new IntegerVariable(0.0, true);
-      var->setName("Integer constant 0");
-      sl_zero_exp = var->getId();
-    }
-    if(!sl_zero_exp->isActive())
-      sl_zero_exp->activate();
-    return sl_zero_exp;
-  }
-
-  ExpressionId& IntegerVariable::ONE_EXP()
-  {
-    static ExpressionId sl_one_exp;
-    if (sl_one_exp.isNoId()) {
-      VariableImpl* var = new IntegerVariable(1.0, true);
-      var->setName("Integer constant 1");
-      sl_one_exp = var->getId();
-    }
-    if(!sl_one_exp->isActive())
-      sl_one_exp->activate();
-    return sl_one_exp;
-  }
-
-  ExpressionId& IntegerVariable::MINUS_ONE_EXP()
-  {
-    static ExpressionId sl_minus_one_exp;
-    if (sl_minus_one_exp.isNoId()) {
-      VariableImpl* var = new IntegerVariable(-1.0, true);
-      var->setName("Integer constant -1");
-      sl_minus_one_exp = var->getId();
-    }
-    if(!sl_minus_one_exp->isActive())
-      sl_minus_one_exp->activate();
-    return sl_minus_one_exp;
   }
 
   TimepointVariable::TimepointVariable(const PlexilExprId& expr, const NodeConnectorId& node)
