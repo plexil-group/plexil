@@ -36,17 +36,15 @@ if VIEWER_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
 endif
 
-include_HEADERS = AdapterConfiguration.hh AdapterConfigurationFactory.hh AdapterExecInterface.hh \
- AdapterFactory.hh ControllerFactory.hh DefaultAdapterConfiguration.hh \
- DummyAdapter.hh ExecApplication.hh ExecController.hh ExecListenerFactory.hh \
+include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
+ AdapterFactory.hh DummyAdapter.hh ExecApplication.hh ExecListenerFactory.hh \
  InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh UtilityAdapter.hh \
  ValueQueue.hh
 
-libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc AdapterConfigurationFactory.cc \
- AdapterExecInterface.cc AdapterFactory.cc ControllerFactory.cc \
- DefaultAdapterConfiguration.cc DummyAdapter.cc ExecApplication.cc ExecListenerFactory.cc \
- InterfaceAdapter.cc InterfaceManager.cc ListenerFilters.cc UtilityAdapter.cc \
- ValueQueue.cc
+libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
+ AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc ExecApplication.cc \
+ ExecListenerFactory.cc InterfaceAdapter.cc InterfaceManager.cc \
+ ListenerFilters.cc UtilityAdapter.cc ValueQueue.cc
 
 # FIXME: if we can figure out whether unistd.h contains a suitable value of _POSIX_TIMERS,
 # include only the appropriate sources for the platform.

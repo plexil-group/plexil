@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,9 @@
 #ifndef ADAPTERCONFIGURATION_HH_
 #define ADAPTERCONFIGURATION_HH_
 
-#include "LabelStr.hh"
-#include "InterfaceAdapter.hh"
 #include "Id.hh"
+#include "InterfaceAdapter.hh"
+#include "LabelStr.hh"
 
 #include <set>
 
@@ -54,14 +54,14 @@ namespace PLEXIL {
   public:
 
     /**
-     * @brief Default constructor.
+     * @brief Constructor.
      */
     AdapterConfiguration(InterfaceManager* manager);
 
     /**
-     * @brief Virtual destructor.
+     * @brief Destructor.
      */
-    virtual ~AdapterConfiguration();
+    ~AdapterConfiguration();
 
     /**
      * @brief Returns the InterfaceManager set in initialization
@@ -85,7 +85,7 @@ namespace PLEXIL {
      * @param adapter The interface adapter to be registered.
      */
 
-    virtual void defaultRegisterAdapter(InterfaceAdapterId adapter);
+    void defaultRegisterAdapter(InterfaceAdapterId adapter);
 
     /**
      * @brief Register the given interface adapter for this command.
@@ -95,7 +95,7 @@ namespace PLEXIL {
      * @param commandName The command to map to this adapter.
      * @param intf The interface adapter to handle this command.
      */
-    virtual bool registerCommandInterface(const LabelStr & commandName,
+    bool registerCommandInterface(const LabelStr & commandName,
                   InterfaceAdapterId intf);
 
     /**
@@ -106,7 +106,7 @@ namespace PLEXIL {
      * @param stateName The name of the state to map to this adapter.
      * @param intf The interface adapter to handle this lookup.
      */
-    virtual bool registerLookupInterface(const LabelStr & stateName,
+    bool registerLookupInterface(const LabelStr & stateName,
                  InterfaceAdapterId intf);
 
     /**
@@ -116,7 +116,7 @@ namespace PLEXIL {
               or setting the default planner update interface is not implemented.
      * @param intf The interface adapter to handle planner updates.
      */
-    virtual bool registerPlannerUpdateInterface(InterfaceAdapterId intf);
+    bool registerPlannerUpdateInterface(InterfaceAdapterId intf);
 
     /**
      * @brief Register the given interface adapter as the default for all lookups and commands
@@ -125,7 +125,7 @@ namespace PLEXIL {
               or setting the default interface is not implemented.
      * @param intf The interface adapter to use as the default.
      */
-    virtual bool setDefaultInterface(InterfaceAdapterId intf);
+    bool setDefaultInterface(InterfaceAdapterId intf);
 
     /**
      * @brief Register the given interface adapter as the default for lookups.
@@ -137,7 +137,7 @@ namespace PLEXIL {
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
-    virtual bool setDefaultLookupInterface(InterfaceAdapterId intf);
+    bool setDefaultLookupInterface(InterfaceAdapterId intf);
 
     /**
      * @brief Register the given interface adapter as the default for commands.
@@ -148,99 +148,118 @@ namespace PLEXIL {
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
-    virtual bool setDefaultCommandInterface(InterfaceAdapterId intf);
+    bool setDefaultCommandInterface(InterfaceAdapterId intf);
 
     /**
      * @brief Retract registration of the previous interface adapter for this command.
      * @param commandName The command.
      */
-    virtual void unregisterCommandInterface(const LabelStr & commandName);
+    void unregisterCommandInterface(const LabelStr & commandName);
 
     /**
      * @brief Retract registration of the previous interface adapter for this state.
      * @param stateName The state name.
      */
-    virtual void unregisterLookupInterface(const LabelStr & stateName);
+    void unregisterLookupInterface(const LabelStr & stateName);
 
     /**
      * @brief Retract registration of the previous interface adapter for planner updates.
      */
-    virtual void unregisterPlannerUpdateInterface();
+    void unregisterPlannerUpdateInterface();
 
     /**
      * @brief Retract registration of the previous default interface adapter.
      */
-    virtual void unsetDefaultInterface();
+    void unsetDefaultInterface();
 
     /**
      * @brief Retract registration of the previous default interface adapter for commands.
      */
-    virtual void unsetDefaultCommandInterface();
+    void unsetDefaultCommandInterface();
 
     /**
      * @brief Retract registration of the previous default interface adapter for lookups.
      */
-    virtual void unsetDefaultLookupInterface();
+    void unsetDefaultLookupInterface();
 
     /**
      * @brief Return the interface adapter in effect for this command, whether
      specifically registered or default. May return NoId().
      * @param commandName The command.
      */
-    virtual InterfaceAdapterId getCommandInterface(const LabelStr & commandName);
+    InterfaceAdapterId getCommandInterface(const LabelStr & commandName);
 
     /**
      * @brief Return the current default interface adapter for commands.
               May return NoId().
      */
-    virtual InterfaceAdapterId getDefaultCommandInterface();
+    InterfaceAdapterId getDefaultCommandInterface();
 
     /**
      * @brief Return the interface adapter in effect for lookups with this state name,
      whether specifically registered or default. May return NoId().
      * @param stateName The state.
      */
-    virtual InterfaceAdapterId getLookupInterface(const LabelStr & stateName);
+    InterfaceAdapterId getLookupInterface(const LabelStr & stateName);
 
     /**
      * @brief Return the current default interface adapter for lookups.
               May return NoId().
      */
-    virtual InterfaceAdapterId getDefaultLookupInterface();
+    InterfaceAdapterId getDefaultLookupInterface();
 
     /**
      * @brief Return the interface adapter in effect for planner updates,
               whether specifically registered or default. May return NoId().
      */
-    virtual InterfaceAdapterId getPlannerUpdateInterface();
+    InterfaceAdapterId getPlannerUpdateInterface();
 
     /**
      * @brief Return the current default interface adapter. May return NoId().
      */
-    virtual InterfaceAdapterId getDefaultInterface();
+    InterfaceAdapterId getDefaultInterface();
 
     /**
      * @brief Returns true if the given adapter is a known interface in the system. False otherwise
      */
-    virtual bool isKnown(InterfaceAdapterId intf);
+    bool isKnown(InterfaceAdapterId intf);
 
     /**
      * @brief Clears the interface adapter registry.
      */
-    virtual void clearAdapterRegistry();
-  protected:
-    /**
-     * For implementors, returns the vector of interface adapters from the manager
-     */
-    std::set<InterfaceAdapterId>& getAdaptersFromManager();
+    void clearAdapterRegistry();
+
+  private:
+
     /**
      * @brief Deletes the given adapter from the interface manager
      * @return true if the given adapter existed and was deleted. False if not found
      */
     bool deleteAdapter(InterfaceAdapterId intf);
-  private:
+
+    /**
+     * @brief Removes the adapter and deletes it from the manager iff nothing refers to it.
+     */
+    void deleteIfUnknown(InterfaceAdapterId intf);
+
     InterfaceManager* m_manager;
     AdapterConfigurationId m_id;
+
+    //* Default InterfaceAdapters
+    InterfaceAdapterId m_defaultInterface;
+    InterfaceAdapterId m_defaultCommandInterface;
+    InterfaceAdapterId m_defaultLookupInterface;
+
+    //* InterfaceAdapter to use for PlannerUpdate nodes
+    InterfaceAdapterId m_plannerUpdateInterface;
+
+    // Maps by command/lookup
+
+    // Interface adapter maps
+    typedef std::map<LabelStr, InterfaceAdapterId> InterfaceMap;
+    InterfaceMap m_lookupMap;
+    InterfaceMap m_commandMap;
+
   };
 }
 

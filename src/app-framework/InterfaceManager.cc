@@ -36,18 +36,14 @@
 #include <plexil-config.h>
 
 #include "AdapterConfiguration.hh"
-#include "AdapterConfigurationFactory.hh"
 #include "AdapterFactory.hh"
 #include "BooleanVariable.hh"
-#include "ControllerFactory.hh"
 #include "Command.hh"
 #include "CoreExpressions.hh"
 #include "Debug.hh"
-#include "DefaultAdapterConfiguration.hh"
 #include "DummyAdapter.hh"
 #include "Error.hh"
 #include "ExecApplication.hh"
-#include "ExecController.hh"
 #include "ExecListener.hh"
 #include "ExecListenerFactory.hh"
 #include "ExecListenerFilterFactory.hh"
@@ -106,7 +102,6 @@ namespace PLEXIL
       m_ackToCmdMap(),
       m_destToCmdMap(),
       m_raInterface(),
-      m_execController(),
       m_currentTime(std::numeric_limits<double>::min()),
       m_lastMark(0)
   {
@@ -130,9 +125,6 @@ namespace PLEXIL
     // Every application should have access to the Plexil Viewer (formerly LUV) Listener
     REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
 #endif
-
-    // Every application has access to the default adapter configuration
-    REGISTER_ADAPTER_CONFIGURATION(DefaultAdapterConfiguration, "default");
   }
 
   /**
@@ -157,12 +149,6 @@ namespace PLEXIL
     // we may not have initialized these!
     if (m_adapterConfig.isId())
       delete m_adapterConfig.operator->();
-
-    if (m_execController.isId()) {
-      // shut it down
-      m_execController->controllerShutdown();
-      delete m_execController.operator->();
-    }
   }
 
   void InterfaceManager::setExec(const PlexilExecId& exec)
@@ -194,10 +180,12 @@ namespace PLEXIL
    */
   bool InterfaceManager::constructInterfaces(const pugi::xml_node& configXml)
   {
+    // Construct configuration helper
+    m_adapterConfig = (new AdapterConfiguration(this))->getId();
+
     if (configXml.empty()) {
       debugMsg("InterfaceManager:constructInterfaces",
                " empty configuration, nothing to construct");
-      m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
       return true;
     }
 
@@ -207,14 +195,6 @@ namespace PLEXIL
       debugMsg("InterfaceManager:constructInterfaces",
                " invalid configuration XML: no " << InterfaceSchema::INTERFACES_TAG() << " element");
       return false;
-    }
-    const char* configType =
-      configXml.attribute(InterfaceSchema::CONFIGURATION_TYPE_ATTR()).value();
-    if (*configType == '\0') {
-      m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr("default"), this);
-    } 
-    else {
-      m_adapterConfig = AdapterConfigurationFactory::createInstance(LabelStr(configType), this);
     }
 
     // Walk the children of the configuration XML element
@@ -255,17 +235,6 @@ namespace PLEXIL
           return false;
         }
         m_listenerHub->addListener(listener);
-      }
-      else if (strcmp(elementType, InterfaceSchema::CONTROLLER_TAG()) == 0) {
-        // Construct an ExecController instance and attach it to the application
-        ExecControllerId controller = 
-          ControllerFactory::createInstance(element, m_application);
-        if (!controller.isId()) {
-          debugMsg("InterfaceManager:constructInterfaces", 
-                   " failed to construct controller from XML");
-          return false;
-        }
-        m_execController = controller;
       }
       else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG()) == 0) {
         // Add to library path
@@ -412,14 +381,6 @@ namespace PLEXIL
     if (!success) {
       debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
       return false;
-    }
-
-    if (m_execController.isId()) {
-      success = m_execController->initialize();
-      if (!success) {
-        debugMsg("InterfaceManager:initialize", " failed to initialize exec controller, returning false");
-        return false;
-      }
     }
 
     return success;

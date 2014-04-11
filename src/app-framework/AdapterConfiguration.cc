@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,20 +31,29 @@
  */
 
 #include "AdapterConfiguration.hh"
-#include "Id.hh"
-#include "InterfaceManager.hh"
-#include "Error.hh"
 
-#include <set>
+#include "Debug.hh"
+#include "Error.hh"
+#include "InterfaceManager.hh"
+#include "InterfaceSchema.hh"
+#include "PlexilXmlParser.hh"
+
+#include <cstring>
 
 namespace PLEXIL {
 
   AdapterConfiguration::AdapterConfiguration(InterfaceManager* manager) :
     m_manager(manager),
-    m_id(this)
+    m_id(this),
+    m_defaultInterface(),
+    m_defaultCommandInterface(),
+    m_defaultLookupInterface()
   {}
 
-  AdapterConfiguration::~AdapterConfiguration() {}
+  AdapterConfiguration::~AdapterConfiguration()
+  {
+    clearAdapterRegistry();
+  }
 
   /**
    * @brief Returns the InterfaceManager set in initialization
@@ -55,11 +64,64 @@ namespace PLEXIL {
   }
 
   /**
-   * @brief Register the given interface adapter. By default, this method does nothing
-   * @param adapter The interface adapter to handle this command.
+   * @brief Register the given interface adapter as the default.
+   * @param adapter The interface adapter.
    */
 
-  void AdapterConfiguration::defaultRegisterAdapter(InterfaceAdapterId /* adapter */) {}
+  void AdapterConfiguration::defaultRegisterAdapter(InterfaceAdapterId adapter) 
+  {
+    debugMsg("AdapterConfiguration:defaultRegisterAdapter", " for adapter " << adapter);
+    // Walk the children of the configuration XML element
+    // and register the adapter according to the data found there
+    pugi::xml_node element = adapter->getXml().first_child();
+    while (!element.empty()) {
+      const char* elementType = element.name();
+      // look for text as the only child of this element
+      // to use below
+      const pugi::xml_node firstChild = element.first_child();
+      const char* text = NULL;
+      if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
+        text = firstChild.value();
+
+      if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTER_TAG()) == 0) {
+        setDefaultInterface(adapter);
+      } 
+      else if (strcmp(elementType, InterfaceSchema::DEFAULT_COMMAND_ADAPTER_TAG()) == 0) {
+        setDefaultCommandInterface(adapter);
+      }
+      else if (strcmp(elementType, InterfaceSchema::DEFAULT_LOOKUP_ADAPTER_TAG()) == 0) {
+        setDefaultLookupInterface(adapter);
+      }
+      else if (strcmp(elementType, InterfaceSchema::PLANNER_UPDATE_TAG()) == 0) {
+        registerPlannerUpdateInterface(adapter);
+      }
+      else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG()) == 0) {
+        checkError(*text != '\0',
+                   "registerAdapter: Invalid configuration XML: "
+                   << InterfaceSchema::COMMAND_NAMES_TAG()
+                   << " requires one or more comma-separated command names");
+        std::vector<std::string> * cmdNames = InterfaceSchema::parseCommaSeparatedArgs(text);
+        for (std::vector<std::string>::const_iterator it = cmdNames->begin(); it != cmdNames->end(); ++it) {
+          registerCommandInterface(LabelStr(*it), adapter);
+        }
+        delete cmdNames;
+      } 
+      else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0) {
+        checkError(*text != '\0',
+                   "registerAdapter: Invalid configuration XML: "
+                   << InterfaceSchema::LOOKUP_NAMES_TAG()
+                   << " requires one or more comma-separated lookup names");
+        std::vector<std::string> * lookupNames = InterfaceSchema::parseCommaSeparatedArgs(text);
+        for (std::vector<std::string>::const_iterator it = lookupNames->begin(); it != lookupNames->end(); ++it) {
+          registerLookupInterface(LabelStr(*it), adapter);
+        }
+        delete lookupNames;
+      }
+      // ignore other tags, they're for adapter's use
+
+      element = element.next_sibling();
+    }
+  }
 
   /**
    * @brief Register the given interface adapter for this command.
@@ -69,9 +131,21 @@ namespace PLEXIL {
    * @param commandName The command to map to this adapter.
    * @param intf The interface adapter to handle this command.
    */
-  bool AdapterConfiguration::registerCommandInterface(const LabelStr & /* commandName */,
-						      InterfaceAdapterId /* intf */) {
-    return false;
+  bool AdapterConfiguration::registerCommandInterface(const LabelStr & commandName,
+                                                      InterfaceAdapterId intf) {
+    InterfaceMap::iterator it = m_commandMap.find(commandName);
+    if (it == m_commandMap.end()) {
+      // Not found, OK to add
+      debugMsg("AdapterConfiguration:registerCommandInterface",
+               " registering interface for command '" << commandName.toString() << "'");
+      m_commandMap.insert(std::pair<LabelStr, InterfaceAdapterId>(commandName, intf));
+      m_manager->m_adapters.insert(intf); // FIXME - does behavior belong in manager or config helper?
+      return true;
+    } else {
+      debugMsg("AdapterConfiguration:registerCommandInterface",
+               " interface already registered for command '" << commandName.toString() << "'");
+      return false;
+    }
   }
 
   /**
@@ -82,9 +156,21 @@ namespace PLEXIL {
    * @param stateName The name of the state to map to this adapter.
    * @param intf The interface adapter to handle this lookup.
    */
-  bool AdapterConfiguration::registerLookupInterface(const LabelStr & /* stateName */,
-						     InterfaceAdapterId /* intf */) {
-    return false;
+  bool AdapterConfiguration::registerLookupInterface(const LabelStr & stateName,
+                                                     InterfaceAdapterId intf) {
+    InterfaceMap::iterator it = m_lookupMap.find(stateName);
+    if (it == m_lookupMap.end()) {
+      // Not found, OK to add
+      debugMsg("AdapterConfiguration:registerLookupInterface",
+               " registering interface for lookup '" << stateName.toString() << "'");
+      m_lookupMap.insert(std::pair<LabelStr, InterfaceAdapterId>(stateName, intf));
+      m_manager->m_adapters.insert(intf); // FIXME - does behavior belong in manager or config helper?
+      return true;
+    } else {
+      debugMsg("AdapterConfiguration:registerLookupInterface",
+               " interface already registered for lookup '" << stateName.toString() << "'");
+      return false;
+    }
   }
 
   /**
@@ -94,8 +180,17 @@ namespace PLEXIL {
             or setting the default planner update interface is not implemented.
    * @param intf The interface adapter to handle planner updates.
    */
-  bool AdapterConfiguration::registerPlannerUpdateInterface(InterfaceAdapterId /* intf */) {
-    return false;
+  bool AdapterConfiguration::registerPlannerUpdateInterface(InterfaceAdapterId intf) {
+    if (!m_plannerUpdateInterface.isNoId()) {
+      debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
+               " planner update interface already registered");
+      return false;
+    }
+    debugMsg("AdapterConfiguration:registerPlannerUpdateInterface",
+             " registering planner update interface");
+    m_plannerUpdateInterface = intf;
+    m_manager->m_adapters.insert(intf); // FIXME - does behavior belong in manager or config helper?
+    return true;
   }
 
   /**
@@ -105,8 +200,17 @@ namespace PLEXIL {
             or setting the default interface is not implemented.
    * @param intf The interface adapter to use as the default.
    */
-  bool AdapterConfiguration::setDefaultInterface(InterfaceAdapterId /* intf */) {
-    return false;
+  bool AdapterConfiguration::setDefaultInterface(InterfaceAdapterId intf) {
+    if (!m_defaultInterface.isNoId()) {
+      debugMsg("AdapterConfiguration:setDefaultInterface",
+               " attempt to overwrite default interface adapter " << m_defaultInterface);
+      return false;
+    }
+    m_defaultInterface = intf;
+    m_manager->m_adapters.insert(intf); // FIXME - does behavior belong in manager or config helper?
+    debugMsg("AdapterConfiguration:setDefaultInterface",
+             " setting default interface " << intf);
+    return true;
   }
 
   /**
@@ -119,8 +223,17 @@ namespace PLEXIL {
    * @param intf The interface adapter to use as the default.
    * @return True if successful, false if there is already a default adapter registered.
    */
-  bool AdapterConfiguration::setDefaultLookupInterface(InterfaceAdapterId /* intf */) {
-    return false;
+  bool AdapterConfiguration::setDefaultLookupInterface(InterfaceAdapterId intf) {
+    if (!m_defaultLookupInterface.isNoId()) {
+      debugMsg("AdapterConfiguration:setDefaultLookupInterface",
+               " attempt to overwrite default lookup interface adapter " << m_defaultLookupInterface);
+      return false;
+    }
+    m_defaultLookupInterface = intf;
+    m_manager->m_adapters.insert(intf); // FIXME - does behavior belong in manager or config helper?
+    debugMsg("AdapterConfiguration:setDefaultLookupInterface",
+             " setting default lookup interface " << intf);
+    return true;
   }
 
   /**
@@ -132,55 +245,128 @@ namespace PLEXIL {
    * @param intf The interface adapter to use as the default.
    * @return True if successful, false if there is already a default adapter registered.
    */
-  bool AdapterConfiguration::setDefaultCommandInterface(InterfaceAdapterId /* intf */) {
-    return false;
+  bool AdapterConfiguration::setDefaultCommandInterface(InterfaceAdapterId intf) {
+    if (!m_defaultCommandInterface.isNoId()) {
+      debugMsg("AdapterConfiguration:setDefaultCommandInterface",
+               " attempt to overwrite default command interface adapter " << m_defaultCommandInterface);
+      return false;
+    }
+    m_defaultCommandInterface = intf;
+    m_manager->m_adapters.insert(intf); // FIXME - does behavior belong in manager or config helper?
+    debugMsg("AdapterConfiguration:setDefaultCommandInterface",
+             " setting default command interface " << intf);
+    return true;
   }
 
   /**
    * @brief Retract registration of the previous interface adapter for this command.
-   * Does nothing by default.
    * @param commandName The command.
    */
-  void AdapterConfiguration:: unregisterCommandInterface(const LabelStr & /* commandName */) {}
+  void AdapterConfiguration:: unregisterCommandInterface(const LabelStr & commandName) 
+  {
+    InterfaceMap::iterator it = m_commandMap.find(commandName);
+    if (it != m_commandMap.end()) {
+      debugMsg("AdapterConfiguration:unregisterCommandInterface",
+               " removing interface for command '" << commandName.toString() << "'");
+      InterfaceAdapterId intf = it->second;
+      m_commandMap.erase(it);
+      deleteIfUnknown(intf);
+    }
+  }
 
   /**
    * @brief Retract registration of the previous interface adapter for this state.
-   * Does nothing by default.
    * @param stateName The state name.
    */
-  void AdapterConfiguration:: unregisterLookupInterface(const LabelStr & /* stateName */) {}
+  void AdapterConfiguration:: unregisterLookupInterface(const LabelStr & stateName) 
+  {
+    InterfaceMap::iterator it = m_lookupMap.find(stateName);
+    if (it != m_lookupMap.end()) {
+      debugMsg("AdapterConfiguration:unregisterLookupInterface",
+               " removing interface for lookup '" << stateName.toString() << "'");
+      InterfaceAdapterId intf = it->second;
+      m_lookupMap.erase(it);
+      deleteIfUnknown(intf);
+    }
+  }
 
   /**
    * @brief Retract registration of the previous interface adapter for planner updates.
    * Does nothing by default.
    */
-  void AdapterConfiguration:: unregisterPlannerUpdateInterface() {}
+  void AdapterConfiguration:: unregisterPlannerUpdateInterface() 
+  {
+    debugMsg("AdapterConfiguration:unregisterPlannerUpdateInterface",
+             " removing planner update interface");
+    InterfaceAdapterId intf = m_plannerUpdateInterface;
+    m_plannerUpdateInterface = InterfaceAdapterId::noId();
+    deleteIfUnknown(intf);
+  }
 
   /**
    * @brief Retract registration of the previous default interface adapter.
    * If default interfaces are implemented, this must retract registration. Otherwise, does nothing.
    */
-  void AdapterConfiguration:: unsetDefaultInterface() {}
+  void AdapterConfiguration:: unsetDefaultInterface() 
+  {
+    debugMsg("AdapterConfiguration:unsetDefaultInterface",
+             " removing default interface");
+    InterfaceAdapterId intf = m_defaultInterface;
+    m_defaultInterface = InterfaceAdapterId::noId();
+    deleteIfUnknown(intf);
+  }
 
   /**
    * @brief Retract registration of the previous default interface adapter for commands.
    * If default interfaces are implemented, this must retract registration. Otherwise, does nothing.
    */
-  void AdapterConfiguration:: unsetDefaultCommandInterface() {}
+  void AdapterConfiguration:: unsetDefaultCommandInterface() 
+  {
+    debugMsg("AdapterConfiguration:unsetDefaultCommandInterface",
+             " removing default command interface");
+    InterfaceAdapterId intf = m_defaultCommandInterface;
+    m_defaultCommandInterface = InterfaceAdapterId::noId();
+    deleteIfUnknown(intf);
+  }
 
   /**
    * @brief Retract registration of the previous default interface adapter for lookups.
    * If default interfaces are implemented, this must retract registration. Otherwise, does nothing.
    */
-  void AdapterConfiguration:: unsetDefaultLookupInterface() {}
+  void AdapterConfiguration:: unsetDefaultLookupInterface()
+  {
+    debugMsg("AdapterConfiguration:unsetDefaultLookupInterface",
+             " removing default lookup interface");
+    InterfaceAdapterId intf = m_defaultLookupInterface;
+    m_defaultLookupInterface = InterfaceAdapterId::noId();
+    deleteIfUnknown(intf);
+  }
 
   /**
    * @brief Return the interface adapter in effect for this command, whether
    specifically registered or default. May return noId().
    * @param commandName The command.
    */
-  InterfaceAdapterId AdapterConfiguration:: getCommandInterface(const LabelStr & /* commandName */) {
-    return InterfaceAdapterId::noId();
+  InterfaceAdapterId AdapterConfiguration:: getCommandInterface(const LabelStr & commandName) {
+    InterfaceMap::iterator it = m_commandMap.find(commandName);
+    if (it != m_commandMap.end()) {
+      debugMsg("AdapterConfiguration:getCommandInterface",
+               " found specific interface " << (*it).second
+               << " for command '" << commandName.toString() << "'");
+      return (*it).second;
+    }
+    // check default command i/f
+    if (m_defaultCommandInterface.isId()) {
+      debugMsg("AdapterConfiguration:getCommandInterface",
+               " returning default command interface " << m_defaultCommandInterface
+               << " for command '" << commandName.toString() << "'");
+      return m_defaultCommandInterface;
+    }
+    // fall back on default default
+    debugMsg("AdapterConfiguration:getCommandInterface",
+             " returning default interface " << m_defaultInterface
+             << " for command '" << commandName.toString() << "'");
+    return m_defaultInterface;
   }
 
   /**
@@ -188,7 +374,7 @@ namespace PLEXIL {
             May return noId(). Returns noId() if default interfaces are not implemented.
    */
   InterfaceAdapterId AdapterConfiguration:: getDefaultCommandInterface() {
-    return InterfaceAdapterId::noId();
+    return m_defaultCommandInterface;
   }
 
   /**
@@ -196,16 +382,34 @@ namespace PLEXIL {
    whether specifically registered or default. May return noId(). Returns noId() if default interfaces are not implemented.
    * @param stateName The state.
    */
-  InterfaceAdapterId AdapterConfiguration:: getLookupInterface(const LabelStr & /* stateName */) {
-    return InterfaceAdapterId::noId();
+  InterfaceAdapterId AdapterConfiguration:: getLookupInterface(const LabelStr & stateName) {
+    InterfaceMap::iterator it = m_lookupMap.find(stateName);
+    if (it != m_lookupMap.end()) {
+      debugMsg("AdapterConfiguration:getLookupInterface",
+               " found specific interface " << (*it).second
+               << " for lookup '" << stateName.toString() << "'");
+      return (*it).second;
+    }
+    // try defaults
+    if (m_defaultLookupInterface.isId()) {
+      debugMsg("AdapterConfiguration:getLookupInterface",
+               " returning default lookup interface " << m_defaultLookupInterface
+               << " for lookup '" << stateName.toString() << "'");
+      return m_defaultLookupInterface;
+    }
+    // try default defaults
+    debugMsg("AdapterConfiguration:getLookupInterface",
+             " returning default interface " << m_defaultInterface
+             << " for lookup '" << stateName.toString() << "'");
+    return m_defaultInterface;
   }
 
   /**
    * @brief Return the current default interface adapter for lookups.
-            May return noId(). Returns noId() if default interfaces are not implemented.
+            May return noId().
    */
   InterfaceAdapterId AdapterConfiguration:: getDefaultLookupInterface() {
-    return InterfaceAdapterId::noId();
+    return m_defaultLookupInterface;
   }
 
   /**
@@ -214,41 +418,72 @@ namespace PLEXIL {
             Returns noId() if default interfaces are not implemented.
    */
   InterfaceAdapterId AdapterConfiguration:: getPlannerUpdateInterface() {
-    return InterfaceAdapterId::noId();
+    if (m_plannerUpdateInterface.isNoId()) {
+      debugMsg("AdapterConfiguration:getPlannerUpdateInterface",
+               " returning default interface " << m_defaultInterface);
+      return m_defaultInterface;
+    }
+    debugMsg("AdapterConfiguration:getPlannerUpdateInterface",
+             " found specific interface " << m_plannerUpdateInterface);
+    return m_plannerUpdateInterface;
   }
 
   /**
    * @brief Return the current default interface adapter. May return noId().
-   *  Returns noId() if default interfaces are not implemented.
    */
   InterfaceAdapterId AdapterConfiguration:: getDefaultInterface() {
-    return InterfaceAdapterId::noId();
+    return m_defaultInterface;
   }
 
   /**
    * @brief Returns true if the given adapter is a known interface in the system. False otherwise
    */
-  bool AdapterConfiguration::isKnown(InterfaceAdapterId /* intf */) {
+  bool AdapterConfiguration::isKnown(InterfaceAdapterId intf) {
+    // Check the easy places first
+    if (intf == m_defaultInterface
+        || intf == m_defaultCommandInterface
+        || intf == m_defaultLookupInterface
+        || intf == m_plannerUpdateInterface)
+      return true;
+
+    // See if the adapter is in any of the tables
+    for (InterfaceMap::iterator it = m_lookupMap.begin(); it != m_lookupMap.end(); ++it)
+      if (it->second == intf)
+        return true;
+    for (InterfaceMap::iterator it = m_commandMap.begin(); it != m_commandMap.end(); ++it)
+      if (it->second == intf)
+        return true;
     return false;
   }
 
   /**
    * @brief Clears the interface adapter registry.
    */
-  void AdapterConfiguration:: clearAdapterRegistry() {}
-
-  /**
-   * For implementors, returns the vector of interface adapters from the manager
-   */
-  std::set<InterfaceAdapterId>& AdapterConfiguration::getAdaptersFromManager() {
-    return m_manager->m_adapters;
+  void AdapterConfiguration:: clearAdapterRegistry() 
+  {
+    m_lookupMap.clear();
+    m_commandMap.clear();
+    m_plannerUpdateInterface = InterfaceAdapterId::noId();
+    m_defaultInterface = InterfaceAdapterId::noId();
+    m_defaultCommandInterface = InterfaceAdapterId::noId();
+    m_defaultLookupInterface = InterfaceAdapterId::noId();
   }
+
   /**
    * @brief Deletes the given adapter from the interface manager
    * @return true if the given adapter existed and was deleted. False if not found
    */
   bool AdapterConfiguration::deleteAdapter(InterfaceAdapterId intf) {
     return m_manager->deleteAdapter(intf);
+  }
+
+  /**
+   * @brief Removes the adapter and deletes it from the manager iff nothing refers to it.
+   */
+  void AdapterConfiguration::deleteIfUnknown(InterfaceAdapterId intf) {
+    if (!isKnown(intf)) {
+      deleteAdapter(intf);
+    }
   }
 
 }

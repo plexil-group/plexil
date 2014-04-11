@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -61,9 +61,6 @@ namespace PLEXIL
   class ResourceArbiterInterface;
   typedef Id<ResourceArbiterInterface> ResourceArbiterInterfaceId;
 
-  class ExecController;
-  typedef Id<ExecController> ExecControllerId;
-
   class ExecListenerHub;
   typedef Id<ExecListenerHub> ExecListenerHubId;
 
@@ -84,7 +81,7 @@ namespace PLEXIL
   public:
 
     /**
-     * @brief Constructor. A new DefaultAdapterConfiguration is used as the AdapterConfiguration.
+     * @brief Constructor.
      * @param app The ExecApplication instance to which this object belongs.
      */
     InterfaceManager(ExecApplication & app);
@@ -630,9 +627,6 @@ namespace PLEXIL
 
     //* The resource arbiter
     ResourceArbiterInterfaceId m_raInterface;
-
-    //* The exec controller
-    ExecControllerId m_execController;
 
     //* List of directory names for plan file search paths
     std::vector<std::string> m_libraryPath;
