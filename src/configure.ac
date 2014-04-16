@@ -162,7 +162,7 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
-AC_CHECK_FUNCS([floor getcwd gethostbyname inet_ntoa localtime_r memmove memset modf pow pthread_mutexattr_settype select setitimer socket sqrt strcasecmp strchr strcspn strdup strerror strpbrk strspn strstr strtol strtoll strtoul])
+AC_CHECK_FUNCS([ctime_r floor getcwd gethostbyname inet_ntoa localtime_r memmove memset modf pow pthread_mutexattr_settype select setitimer socket sqrt strcasecmp strchr strcspn strdup strerror strpbrk strspn strstr strtol strtoll strtoul])
 
 # FIXME: define PLEXIL_POSIX_TIME_FUNCS macro if unistd.h contains a suitable value of _POSIX_TIMERS
 
@@ -171,7 +171,7 @@ AS_IF([test "x$enable_ipc" = "xyes"], [
 AC_CHECK_LIB([nsl], [inet_ntoa])
 AC_CHECK_LIB([wrap], [hosts_ctl])
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS([fcntl.h malloc.h memory.h strings.h sys/file.h sys/ioctl.h sys/param.h sys/timeb.h termios.h])
+AC_CHECK_HEADERS([execinfo.h fcntl.h malloc.h memory.h strings.h sys/file.h sys/ioctl.h sys/param.h sys/timeb.h termios.h])
 AC_FUNC_FORK
 AC_FUNC_SETPGRP
 AC_FUNC_SETVBUF_REVERSED
