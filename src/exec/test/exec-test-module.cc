@@ -84,8 +84,8 @@ private:
   static bool testBasicAllocation() {
     PlexilValue data(PLEXIL::INTEGER);
     data.setName("foo");
-    ExpressionId exp = ExpressionFactory::createInstance(LabelStr("AllocationExpression"),
-                             data.getId());
+    ExpressionId exp =
+      ExpressionFactory::createInstance("AllocationExpression", data.getId());
     assertTrue(exp.isValid());
     assertTrue(!exp->isActive());
     exp->activate();
@@ -100,7 +100,7 @@ private:
     PlexilValue data(PLEXIL::INTEGER);
     data.setName("foo");
     ExpressionId exp =
-      ExpressionFactory::createInstance(LabelStr("AllocationExpression"), data.getId());
+      ExpressionFactory::createInstance("AllocationExpression", data.getId());
     assertTrue(exp.isValid());
     if (exp->isActive())
       exp->deactivate();

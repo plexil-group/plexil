@@ -28,7 +28,6 @@
 #define EXPRESSION_FACTORY_HH
 
 #include "ExecDefs.hh"
-#include "LabelStr.hh"
 #include "PlexilPlan.hh"
 
 namespace PLEXIL
@@ -42,16 +41,42 @@ namespace PLEXIL
   public:
 
     /**
+     * @brief Creates a new Expression instance with the type associated with the
+     *        given expression prototype.
+     * @param expr The PlexilExprId to be passed to the Expression constructor.
+     * @param node Node for name lookup.
+     * @return The Id for the new Expression. May not be unique.
+     * @note Convenience wrapper.
+     */
+    static ExpressionId createInstance(const PlexilExprId& expr,
+                                       const NodeConnectorId& node = NodeConnectorId::noId());
+
+    /**
      * @brief Creates a new Expression instance with the type associated with the name and
-     *        the given configuration XML.
+     *        the given expression prototype.
      * @param name The registered name for the factory.
      * @param expr The PlexilExprId to be passed to the Expression constructor.
      * @param node Node for name lookup.
      * @return The Id for the new Expression.  May not be unique.
+     * @note Convenience wrapper.
      */
-
-    static ExpressionId createInstance(const LabelStr& name, const PlexilExprId& expr,
+    static ExpressionId createInstance(const std::string& name,
+                                       const PlexilExprId& expr,
                                        const NodeConnectorId& node = NodeConnectorId::noId());
+
+    /**
+     * @brief Creates a new Expression instance with the type associated with the
+     *        given expression prototype.
+     * @param expr The PlexilExprId to be passed to the Expression constructor.
+     * @param node Node for name lookup.
+     * @return The Id for the new Expression. May not be unique.
+     * @param wasCreated Reference to a boolean variable;
+     *                   variable will be set to true if new object created, false otherwise.
+     * @note Convenience wrapper for most common use case.
+     */
+    static ExpressionId createInstance(const PlexilExprId& expr,
+                                       const NodeConnectorId& node,
+                                       bool& wasCreated);
 
     /**
      * @brief Creates a new Expression instance with the type associated with the name and
@@ -63,45 +88,52 @@ namespace PLEXIL
      *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new Expression.  If wasCreated is set to false, is not unique.
      */
-
-    static ExpressionId createInstance(const LabelStr& name,
+    static ExpressionId createInstance(const std::string& name,
                                        const PlexilExprId& expr,
                                        const NodeConnectorId& node,
                                        bool& wasCreated);
+
+    const std::string& getName() const
+    {
+      return m_name;
+    }
 
     /**
      * @brief Deallocate all factories
      */
     static void purge();
 
-    const LabelStr& getName() const {return m_name;}
-
   protected:
-    virtual ~ExpressionFactory(){}
+
+    virtual ~ExpressionFactory()
+    {}
 
     /**
      * @brief Registers an ExpressionFactory with the specific name.
      * @param name The name by which the Expression shall be known.
      * @param factory The ExpressionFactory instance.
      */
-    static void registerFactory(const LabelStr& name, ExpressionFactory* factory);
-
-    static void registerFinder(const LabelStr& name, ExpressionFactory* factory);
+    static void registerFactory(const std::string& name, ExpressionFactory* factory);
 
     virtual ExpressionId create(const PlexilExprId& expr,
                                 const NodeConnectorId& node = NodeConnectorId::noId()) const = 0;
-    ExpressionFactory(const LabelStr& name)
-    : m_name(name) {registerFactory(m_name, this);}
+
+    ExpressionFactory(const std::string& name)
+    : m_name(name)
+    {
+      registerFactory(m_name, this);
+    }
 
   private:
+
     /**
      * @brief The map from names (LabelStr/double) to ConcreteExpressionFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<LabelStr, ExpressionFactory*>& factoryMap();
+    static std::map<std::string, ExpressionFactory*>& factoryMap();
 
-    const LabelStr m_name; /*!< Name used for lookup */
+    const std::string m_name; /*!< Name used for lookup */
   };
 
   /**
@@ -110,7 +142,8 @@ namespace PLEXIL
   template<class FactoryType>
   class ConcreteExpressionFactory : public ExpressionFactory {
   public:
-    ConcreteExpressionFactory(const LabelStr& name) : ExpressionFactory(name) {}
+    ConcreteExpressionFactory(const std::string& name) : ExpressionFactory(name) {}
+
   private:
     /**
      * @brief Instantiates a new Expression of the appropriate type.
@@ -131,7 +164,7 @@ namespace PLEXIL
   template<class FactoryType>
   class ConstantExpressionFactory : public ExpressionFactory {
   public:
-    ConstantExpressionFactory(const LabelStr& name) : ExpressionFactory(name) {}
+    ConstantExpressionFactory(const std::string& name) : ExpressionFactory(name) {}
   private:
     /**
      * @brief Instantiates a new Expression of the appropriate type.
