@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ namespace PLEXIL
         PlexilExprId foo = it->second;
         bool wasCreated = false;
         ExpressionId valueExpr = 
-          ExpressionFactory::createInstance(LabelStr(foo->name()),
+          ExpressionFactory::createInstance(foo->name(),
                                             foo,
                                             (NodeConnectorId) node,
                                             wasCreated);

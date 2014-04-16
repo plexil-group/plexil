@@ -34,19 +34,26 @@
 namespace PLEXIL
 {
 
-  void ExpressionFactory::registerFactory(const LabelStr& name, ExpressionFactory* factory) 
+  void ExpressionFactory::registerFactory(const std::string& name, ExpressionFactory* factory) 
   {
     check_error(factory != NULL);
     checkError(factoryMap().find(name) == factoryMap().end(),
-               "Error:  Attempted to register a factory for name '" << name.toString() <<
-               "' twice.");
+               "Error:  Attempted to register a factory for name \"" << name <<
+               "\" twice.");
     factoryMap()[name] = factory;
     debugMsg("ExpressionFactory:registerFactory",
-             "Registered factory for name '" << name.toString() << "'");
+             "Registered factory for name \"" << name << "\"");
   }
 
+  ExpressionId ExpressionFactory::createInstance(const PlexilExprId& expr,
+                                                 const NodeConnectorId& node)
+  {
+    const std::string& name = expr->name();
+    bool dummy;
+    return createInstance(name, expr, node, dummy);
+  }
 
-  ExpressionId ExpressionFactory::createInstance(const LabelStr& name,
+  ExpressionId ExpressionFactory::createInstance(const std::string& name,
                                                  const PlexilExprId& expr,
                                                  const NodeConnectorId& node)
   {
@@ -54,39 +61,49 @@ namespace PLEXIL
     return createInstance(name, expr, node, dummy);
   }
 
-  ExpressionId ExpressionFactory::createInstance(const LabelStr& name,
+  ExpressionId ExpressionFactory::createInstance(const PlexilExprId& expr,
+                                                 const NodeConnectorId& node,
+                                                 bool& wasCreated)
+  {
+    const std::string& name = expr->name();
+    return createInstance(name, expr, node, wasCreated);
+  }
+
+  ExpressionId ExpressionFactory::createInstance(const std::string& name,
                                                  const PlexilExprId& expr,
                                                  const NodeConnectorId& node,
                                                  bool& wasCreated)
   {
     // if this is a variable ref, look it up
     if (Id<PlexilVarRef>::convertable(expr)) {
-      checkError(node.isValid(), "Need a valid Node argument to find a Variable");
+      assertTrueMsg(node.isValid(),
+                    "Need a valid Node argument to find a Variable");
       ExpressionId retval = node->findVariable(expr);         
-      checkError(retval.isValid(), "Unable to find variable '" << expr->name() << "'");
+      assertTrueMsg(retval.isValid(),
+                    "Unable to find variable \"" << expr->name() << "\"");
       wasCreated = false;
       return retval;
     }
 
     // otherwise look up factory
-    std::map<LabelStr, ExpressionFactory*>::const_iterator it = factoryMap().find(name);
-    checkError(it != factoryMap().end(),
-               "Error: No factory registered for name '" << name.toString() << "'.");
+    std::map<std::string, ExpressionFactory*>::const_iterator it = factoryMap().find(name);
+    assertTrueMsg(it != factoryMap().end(),
+                  "Error: No factory registered for name \"" << name << "\".");
     ExpressionId retval = it->second->create(expr, node);
     debugMsg("ExpressionFactory:createInstance", "Created " << retval->toString());
     wasCreated = true;
     return retval;
   }
 
-  std::map<LabelStr, ExpressionFactory*>& ExpressionFactory::factoryMap()
+  std::map<std::string, ExpressionFactory*>& ExpressionFactory::factoryMap()
   {
-    static std::map<LabelStr, ExpressionFactory*> sl_map;
+    static std::map<std::string, ExpressionFactory*> sl_map;
     return sl_map;
   }
 
   void ExpressionFactory::purge()
   {
-    for (std::map<LabelStr, ExpressionFactory*>::iterator it = factoryMap().begin();
+    for (std::map<std::string, ExpressionFactory*>::iterator it = factoryMap().begin();
          it != factoryMap().end();
          ++it) {
       ExpressionFactory* tmp = it->second;

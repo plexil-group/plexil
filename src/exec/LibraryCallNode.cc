@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -196,7 +196,7 @@ namespace PLEXIL
           // Construct the expression
           bool wasCreated = false;
           ExpressionId expr =
-            ExpressionFactory::createInstance(LabelStr(aliasValue->name()), aliasValue,
+            ExpressionFactory::createInstance(aliasValue,
                                               NodeConnector::getId(),
                                               wasCreated);
 
@@ -224,8 +224,7 @@ namespace PLEXIL
           // Construct the expression
           bool wasCreated = false;
           ExpressionId expr =
-            ExpressionFactory::createInstance(LabelStr(aliasValue->name()),
-                                              aliasValue,
+            ExpressionFactory::createInstance(aliasValue,
                                               NodeConnector::getId(),
                                               wasCreated);
 

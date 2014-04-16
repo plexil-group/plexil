@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -98,8 +98,7 @@ namespace PLEXIL
                                             const NodeConnectorId& node,
                                             bool& del)
   {
-    return ExpressionFactory::createInstance(LabelStr(expr->name()), 
-                                             expr, 
+    return ExpressionFactory::createInstance(expr, 
                                              node, 
                                              del);
   }

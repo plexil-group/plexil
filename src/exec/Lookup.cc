@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,7 @@ namespace PLEXIL
     // create the correct form of the expression for this name
     bool nameExprIsNew = false;
     m_stateNameExpr = 
-      ExpressionFactory::createInstance(LabelStr(state->nameExpr()->name()),
+      ExpressionFactory::createInstance(state->nameExpr()->name(),
                                         state->nameExpr(),
                                         node,
                                         nameExprIsNew);
@@ -89,7 +89,7 @@ namespace PLEXIL
     for (std::vector<PlexilExprId>::const_iterator it = args.begin(); it != args.end(); ++it) {
       bool wasConstructed = false; 
       ExpressionId param =
-        ExpressionFactory::createInstance(LabelStr((*it)->name()), *it, node, wasConstructed);
+        ExpressionFactory::createInstance((*it)->name(), *it, node, wasConstructed);
       check_error(param.isValid());
       if (wasConstructed)
         m_garbage.push_back(param);
@@ -282,7 +282,7 @@ namespace PLEXIL
       m_tolerance = RealVariable::ZERO_EXP();
     else {
       bool wasCreated = false;
-      m_tolerance = ExpressionFactory::createInstance(LabelStr(lookup->tolerances()[0]->name()),
+      m_tolerance = ExpressionFactory::createInstance(lookup->tolerances()[0]->name(),
                                                       lookup->tolerances()[0],
                                                       node,
                                                       wasCreated);

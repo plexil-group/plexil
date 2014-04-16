@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -498,8 +498,7 @@ namespace PLEXIL
     std::vector<ExpressionId> garbage;
     bool wasCreated = false;
     ExpressionId nameExpr = 
-      ExpressionFactory::createInstance(LabelStr(state->nameExpr()->name()), 
-                                        state->nameExpr(), 
+      ExpressionFactory::createInstance(state->nameExpr(), 
                                         NodeConnector::getId(),
                                         wasCreated);
     if (wasCreated)
@@ -510,7 +509,7 @@ namespace PLEXIL
          it != state->args().end(); 
          ++it) {
       ExpressionId argExpr =
-        ExpressionFactory::createInstance(LabelStr((*it)->name()), *it, NodeConnector::getId(), wasCreated);
+        ExpressionFactory::createInstance(*it, NodeConnector::getId(), wasCreated);
       check_error(argExpr.isValid());
       args.push_back(argExpr);
       if (wasCreated)
@@ -531,8 +530,7 @@ namespace PLEXIL
                    m_nodeId.toString() << "'");
       }
       else if (Id<PlexilArrayElement>::convertable(destExpr)) {
-        destVar = ExpressionFactory::createInstance(LabelStr(destExpr->name()),
-                                                    destExpr,
+        destVar = ExpressionFactory::createInstance(destExpr,
                                                     NodeConnector::getId());
         garbage.push_back(destVar);
       }
@@ -554,8 +552,7 @@ namespace PLEXIL
            ++resItr) {
         bool wasCreated = false;
         ExpressionId resExpr
-          = ExpressionFactory::createInstance(LabelStr(resItr->second->name()),
-                                              resItr->second, 
+          = ExpressionFactory::createInstance(resItr->second, 
                                               NodeConnector::getId(),
                                               wasCreated);
         check_error(resExpr.isValid());

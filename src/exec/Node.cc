@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -466,7 +466,8 @@ namespace PLEXIL {
           else {
             // construct constant local "variable" with default value
             bool wasConstructed = false;
-            expr = ExpressionFactory::createInstance(LabelStr(PlexilParser::valueTypeString(varRef->type()) + "Value"),
+            // FIXME: generates temporary string when table lookup could be used
+            expr = ExpressionFactory::createInstance(PlexilParser::valueTypeString(varRef->type()) + "Value",
                                                      defaultVal,
                                                      NodeConnector::getId(),
                                                      wasConstructed);
@@ -512,7 +513,8 @@ namespace PLEXIL {
           else {
             // construct local "variable" with default value
             bool wasConstructed = false;
-            expr = ExpressionFactory::createInstance(LabelStr(PlexilParser::valueTypeString(varRef->type()) + "Variable"),
+            // FIXME: generates temporary string when table lookup could be used
+            expr = ExpressionFactory::createInstance(PlexilParser::valueTypeString(varRef->type()) + "Variable",
                                                      defaultVal,
                                                      NodeConnector::getId(),
                                                      wasConstructed);
@@ -590,8 +592,7 @@ namespace PLEXIL {
       }
 
       m_conditions[condIdx] = 
-        ExpressionFactory::createInstance(LabelStr(it->first->name()),
-                                          it->first,
+        ExpressionFactory::createInstance(it->first,
                                           NodeConnector::getId(), 
                                           m_garbageConditions[condIdx]);
 

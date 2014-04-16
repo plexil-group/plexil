@@ -586,17 +586,9 @@ namespace PLEXIL
     retval << c.first.toString() << "(";
     std::vector<Value>::const_iterator it = c.second.begin();
     if (it != c.second.end()) {
-      if (it->isString())
-        retval << it->getStringValue();
-      else
-        retval << it->getDoubleValue();
-      for (++it; it != c.second.end(); ++it) {
-        retval << ", ";
-        if (it->isString())
-          retval << it->getStringValue();
-        else
-          retval << it->getDoubleValue();
-      }
+      retval << *it;
+      for (++it; it != c.second.end(); ++it)
+        retval << ", " << *it;
     }
     retval << ")";
     return retval.str();

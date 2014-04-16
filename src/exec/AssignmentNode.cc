@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -130,8 +130,7 @@ namespace PLEXIL
     else if (Id<PlexilArrayElement>::convertable(destExpr)) {
       dest =
         (VariableId)
-        ExpressionFactory::createInstance(LabelStr(destExpr->name()),
-                                          destExpr,
+        ExpressionFactory::createInstance(destExpr,
                                           NodeConnector::getId());
       // *** beef this up later ***
       PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
@@ -157,8 +156,7 @@ namespace PLEXIL
 
     bool deleteRhs = false;
     ExpressionId rhs =
-      ExpressionFactory::createInstance(LabelStr(body->RHS()->name()), 
-                                        body->RHS(),
+      ExpressionFactory::createInstance(body->RHS(),
                                         NodeConnector::getId(),
                                         deleteRhs);
     m_assignment =

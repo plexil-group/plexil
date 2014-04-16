@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -543,8 +543,7 @@ namespace PLEXIL
                subExprs.size()
                << " is an invalid number of index subexpressions to array element");
     PlexilExprId indexExpr = subExprs.front();
-    m_index = ExpressionFactory::createInstance(LabelStr(indexExpr->name()),
-                                                indexExpr,
+    m_index = ExpressionFactory::createInstance(indexExpr,
                                                 node,
                                                 m_deleteIndex);
     m_index->addListener(m_listener.getId());
