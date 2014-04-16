@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -324,21 +324,21 @@ namespace PLEXIL
 
     static const key_t specialMax()
     {
-      key_t sl_specialMax = 
+      static key_t sl_specialMax = 
         KeySource<key_t, KeyTraits<key_t> >::unassigned() + 1024 * KeySource<key_t, KeyTraits<key_t> >::increment();
       return sl_specialMax;
     }
 
     static size_t totalSpecialKeys()
     {
-      return (size_t)
-        ((specialMax() - KeySource<key_t, KeyTraits<key_t> >::unassigned())/KeySource<key_t, KeyTraits<key_t> >::increment());
+      static size_t sl_result =
+        (size_t) ((specialMax() - KeySource<key_t, KeyTraits<key_t> >::unassigned())/KeySource<key_t, KeyTraits<key_t> >::increment());
+      return sl_result;
     }
 
     size_t availableSpecialKeys() const
     {
       return (size_t) (specialMax() - m_specialCounter)/KeySource<key_t, KeyTraits<key_t> >::increment();
-
     }
 
     static bool isSpecial(key_t key)
