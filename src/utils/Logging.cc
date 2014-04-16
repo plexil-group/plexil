@@ -24,219 +24,219 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "plexil-config.h"
+
 #include "Logging.hh"
 #include "Error.hh"
+#include "lifecycle-utils.h"
 #include <iostream>
 #include <fstream>
-#include <cstdarg>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include <string>
+#include <sstream>
 #include <unistd.h> // for getpid(), isatty()
 
-#ifdef PLATFORM_HAS_EXECINFO_H
+#ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
 #endif
 
-int Logging::ENABLE_LOGGING = 0; // enable messages to log file
-int Logging::ENABLE_E_PROMPT = 0; // enable error prompt messages
-int Logging::ENABLE_W_PROMPT = 0; // enable warning prompt messages
+#define LOG_TIME_STRING_LEN 26
 
-int Logging::NEW_LOG_SESSION = 1;
+int Logging::ENABLE_LOGGING  = 0; // if != 0, enable messages to log file
+int Logging::ENABLE_E_PROMPT = 0; // if != 0, enable error prompt messages
+int Logging::ENABLE_W_PROMPT = 0; // if != 0, enable warning prompt messages
 
-//* Allocate and return a copy of the given string.
-char* allocateCopy(const char* str)
+const char *Logging::DEFAULT_LOG_FILE_NAME = "universalexec.log";
+
+// Don't allocate until needed; if used, cleanup at exit
+char *Logging::FILE_NAME = NULL;   // global buffer
+unsigned int Logging::FILE_NAME_LEN = 0; // allocated size of above
+
+void Logging::handle_message(int msg_type, const char * file, int offset, const char * msg) 
 {
-  size_t len = strlen(str);
-  char* result = (char*) new char[len+1];
-  strcpy(result, str);
-  return result;
+  std::ostringstream msgbuf;
+  msgbuf << msg_type_name(msg_type) << ": " << file << ":" << offset << ": " << msg;
+  print_message(msg_type, msgbuf.str().c_str());
 }
 
-char Logging::LOG_TIME[26] = "";
-char * Logging::FILE_NAME = allocateCopy("universalexec.log");
-
-int Logging::handle_message(int msg_type, const char * file, int offset, const char * msg) 
+void Logging::handle_message(int msg_type, const char * file, int line, int col, const char * msg) 
 {
-  char fullmsg[1024];
-  snprintf(fullmsg, 1024, "%s: %s:%i: %s", get_msg_type(msg_type), file, offset, msg);
+  std::ostringstream msgbuf;
+  msgbuf << msg_type_name(msg_type) << ": " << file << ":" << line << ":" << col << ": " << msg;
+  print_message(msg_type, msgbuf.str().c_str());
+}
+
+void Logging::print_message(int msg_type, const char *fullmsg)
+{
+  // write message to console
+  Error::getStream() << fullmsg << std::endl;
+
+  // write message to logfile if enabled
+  if (Logging::ENABLE_LOGGING)
+    print_to_log(fullmsg);
 
   switch (msg_type) {
   case LOG_ERROR:
-	print_error(fullmsg);
-	break;
+    // prompt user
+    if (Logging::ENABLE_E_PROMPT)
+      prompt_user();
+    break;
+
   case WARNING:
-	print_warning(fullmsg);
-	break;
+    // prompt user
+    if (Logging::ENABLE_W_PROMPT)
+      prompt_user();
+    break;
+
+  case INFO:
   default:
-	print_unknown(fullmsg);
-	break;
+    // do nothing
+    break;
   }
-
-  return 0;
-}
-
-int Logging::handle_message(int msg_type, const char * file, int line, int col, const char * msg) 
-{
-  char fullmsg[1024];
-  snprintf(fullmsg, 1024, "%s: %s:%i:%i: %s", get_msg_type(msg_type), file, line, col, msg);
-
-  switch (msg_type) {
-  case LOG_ERROR:
-	print_error(fullmsg);
-	break;
-  case WARNING:
-	print_warning(fullmsg);
-	break;
-  default:
-	print_unknown(fullmsg);
-	break;
-  }
-
-  return 0;
-}
-
-int Logging::print_error(const char * fullmsg) {
-	// write message to console
-        Error::getStream() << fullmsg << '\n';
-
-	// write message to logfile if enabled
-	if (Logging::ENABLE_LOGGING)
-		print_to_log(fullmsg);
-
-	// prompt user
-	if (Logging::ENABLE_E_PROMPT)
-                prompt_user();
-
-	return 0;
-}
-
-int Logging::print_warning(const char * fullmsg) {
-	// write message to console
-        Error::getStream() << fullmsg << '\n';
-
-	// write message to logfile if enabled
-	if (Logging::ENABLE_LOGGING)
-		print_to_log(fullmsg);
-
-	if (Logging::ENABLE_W_PROMPT)
-		prompt_user();
-
-	return 0;
-}
-
-void Logging::print_unknown(const char * fullmsg) {
-	// write message to console
-        Error::getStream() << fullmsg << '\n';
-
-	if (Logging::ENABLE_LOGGING)
-		print_to_log(fullmsg);
 }
 
 void Logging::print_to_log(char** run_command, int num) {
-        std::string str  = "user command: ";
-        for (int i = 0; i < num; ++i)
-              str = str + run_command[i] + " ";
-        Logging::print_to_log(str.c_str());
+  std::ostringstream str;
+  str << "user command: ";
+  for (int i = 0; i < num; ++i)
+    str << run_command[i] << " ";
+  Logging::print_to_log(str.str().c_str());
 }
 
-void Logging::print_to_log(const char * fullmsg) {
-        Logging::set_date_time();
-	std::streambuf *psbuf, *backup;
-	std::ofstream filestr(Logging::FILE_NAME, std::ios::app);
-	backup = std::cout.rdbuf();
-	psbuf = filestr.rdbuf();
-	std::cout.rdbuf(psbuf);
+void Logging::print_to_log(const char * fullmsg) 
+{
+  static bool sl_newSession = true;
+  ensure_log_file_name();
+  std::ofstream filestr(Logging::FILE_NAME, std::ios::app);
+  std::streambuf *backup = std::cout.rdbuf();
+  std::streambuf *psbuf = filestr.rdbuf();
+  std::cout.rdbuf(psbuf);
 
-	if (NEW_LOG_SESSION) {
-		NEW_LOG_SESSION = 0;
-		std::cout << "================================================================================\n";
-		std::cout << "Logging Session ID (PID): " << getpid() << "\n";
-		std::cout << "================================================================================\n";
-	}
+  if (sl_newSession) {
+    sl_newSession = false;
+    std::cout << "================================================================================\n";
+    std::cout << "Logging Session ID (PID): " << getpid() << "\n";
+    std::cout << "================================================================================\n";
+  }
 
-	std::cout << Logging::LOG_TIME << ": " << fullmsg << "\n";
+  std::cout << get_date_time() << ": " << fullmsg << "\n";
 
-	std::cout.rdbuf(backup);
-	filestr.close();
+  std::cout.rdbuf(backup);
+  filestr.close();
 }
 
 void Logging::prompt_user() {
-	do	{
-		char buf[16];
-		Error::getStream() << " (pid:" << getpid()
-		<< ") [E]xit, show [S]tack trace or [P]roceed: ";
+  do {
+    char buf[16];
+    Error::getStream() << " (pid:" << getpid()
+                       << ") [E]xit, show [S]tack trace or [P]roceed: ";
 
-		if (isatty(0) && isatty(1))
-			fgets(buf, 8, stdin);
-		else
-			strcpy(buf, "E\n");
+    if (isatty(0) && isatty(1))
+      fgets(buf, 8, stdin);
+    else
+      strcpy(buf, "E\n");
 
-		if ((buf[0] == 'E' || buf[0] == 'e') && buf[1] == '\n') {
-			Error::getStream() << "aborting...\n";
-			exit(0);
-		} else if ((buf[0] == 'P' || buf[0] == 'p') && buf[1] == '\n')
-			return;
-#ifdef PLATFORM_HAS_EXECINFO_H
-		else if ((buf[0] == 'S' || buf[0] == 's') && buf[1] == '\n') {
-			print_stack();
-		}
+    if ((buf[0] == 'E' || buf[0] == 'e') && buf[1] == '\n') {
+      Error::getStream() << "aborting...\n";
+      exit(0);
+    }
+    else if ((buf[0] == 'P' || buf[0] == 'p') && buf[1] == '\n')
+      return;
+    else if ((buf[0] == 'S' || buf[0] == 's') && buf[1] == '\n') {
+      print_stack();
+    }
+
+  } while (1);
+}
+
+void Logging::ensure_log_file_name()
+{
+  if (FILE_NAME == NULL)
+    set_log_file_name(DEFAULT_LOG_FILE_NAME);
+}
+
+void Logging::set_log_file_name(const char * fname) 
+{
+  static bool sl_allocated = false;
+
+  if (fname == NULL) {
+    ensure_log_file_name();
+    return;
+  }
+
+  // Ensure buffer is large enough
+  size_t len = strlen(fname) + 1;
+  if (FILE_NAME_LEN < len) {
+    char *oldFileName = FILE_NAME;
+    FILE_NAME_LEN = len;
+    FILE_NAME = (char *) new char[len];
+    delete oldFileName;
+    // If this is a first-time allocation, make sure it gets cleaned up.
+    if (!sl_allocated) {
+      addFinalizer(&purge);
+      sl_allocated = true;
+    }
+  }
+  strncpy(FILE_NAME, fname, FILE_NAME_LEN);
+}
+
+const char* Logging::msg_type_name(int msg) {
+  switch (msg) {
+  case LOG_ERROR:
+    return "ERROR";
+  case WARNING:
+    return "WARNING";
+  case INFO:
+    return "INFO";
+  default:
+    return "UNKNOWN";
+  }
+}
+
+const char *Logging::get_date_time() 
+{
+  static char sl_log_time[LOG_TIME_STRING_LEN] = "";
+  time_t sl_rawtime;
+  time(&sl_rawtime);
+#ifdef HAVE_CTIME_R
+  ctime_r(&sl_rawtime, sl_log_time);
+#else
+  // *** TODO: do something sane if ctime_r() not available ***
 #endif
-
-	} while (1);
-}
-
-void Logging::set_log_file_name(const char * file) 
-{
-  if (file == NULL)
-	file = "universalexec.log";
-  char* oldFileName = FILE_NAME;
-  FILE_NAME = allocateCopy(file);
-  delete oldFileName;
-}
-
-const char* Logging::get_msg_type(int msg) {
-	switch (msg) {
-	case LOG_ERROR:
-		return "ERROR";
-	case WARNING:
-		return "WARNING";
-        default:
-		return "UNKNOWN";
-	}
-}
-
-void Logging::set_date_time() 
-{
-  time_t rawtime;
-  struct tm * timeinfo;
-  time(&rawtime);
-  timeinfo = localtime(&rawtime);
-  strcpy(LOG_TIME, asctime(timeinfo));
-  char* retn = strchr(LOG_TIME, '\n');
+  // Replace newline in result with null char
+  char* retn = strchr(sl_log_time, '\n');
   if (retn != 0)
-	*retn = '\0';
+    *retn = '\0';
+  return sl_log_time;
 }
 
-#ifdef PLATFORM_HAS_EXECINFO_H
+// Does nothing if runtime fails to support stack traces.
 void Logging::print_stack() {
-	void *trace[16];
-	char **messages = (char **) NULL;
-	int i, trace_size = 0;
+#ifdef HAVE_EXECINFO_H
+  void *trace[16];
+  char **messages = (char **) NULL;
+  int i, trace_size = 0;
 
-	trace_size = backtrace(trace, 16);
-	messages = backtrace_symbols(trace, trace_size);
-	Error::getStream() << "Execution path:\n";
-        if (Logging::ENABLE_LOGGING) print_to_log("Execution path:");
-	for (i = 0; i < trace_size; ++i) {
-		Error::getStream() << messages[i] << "\n";
-                if (Logging::ENABLE_LOGGING) print_to_log(messages[i]);
-	}
-
-	free(messages);
-}
+  trace_size = backtrace(trace, 16);
+  messages = backtrace_symbols(trace, trace_size);
+  Error::getStream() << "Execution path:\n";
+  if (ENABLE_LOGGING)
+    print_to_log("Execution path:");
+  for (i = 0; i < trace_size; ++i) {
+    Error::getStream() << messages[i] << "\n";
+    if (ENABLE_LOGGING)
+      print_to_log(messages[i]);
+  }
+  free(messages);
 #endif
+}
 
-
+// Clean up any allocations
+void Logging::purge()
+{
+  char *filename = FILE_NAME;
+  FILE_NAME = NULL;
+  delete filename;
+}

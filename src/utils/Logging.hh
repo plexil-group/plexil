@@ -27,8 +27,6 @@
 #ifndef LOGGING_HH
 #define LOGGING_HH
 
-#include "plexil-config.h"
-
 class Logging {
 public:
   enum LogType {
@@ -40,25 +38,32 @@ public:
   static int ENABLE_LOGGING;
   static int ENABLE_E_PROMPT;
   static int ENABLE_W_PROMPT;
-  static int NEW_LOG_SESSION;
-  static char LOG_TIME[26];
-  static char * FILE_NAME;
 
   static void set_log_file_name(const char * file);
   static void print_to_log(const char * fullmsg); 
   static void print_to_log(char** run_command, int num);                
-  static int handle_message(int msg_type, const char * file, int offset, const char * msg);
-  static int handle_message(int msg_type, const char * file, int line, int col, const char * msg);
+  static void handle_message(int msg_type, const char * file, int offset, const char * msg);
+  static void handle_message(int msg_type, const char * file, int line, int col, const char * msg);
+
 private:
-  static int print_error(const char * fullmsg);
-  static int print_warning(const char * fullmsg);
-  static void print_unknown(const char * fullmsg);        
+
+  // Deliberately not implemented -- all members are static
+  Logging();
+  Logging(const Logging&);
+  Logging& operator=(const Logging&);
+  ~Logging();
+
+  static void print_message(int msg_type, const char *fullmsg);
   static void prompt_user();
-#ifdef PLATFORM_HAS_EXECINFO_H
   static void print_stack();
-#endif
-  static const char* get_msg_type(int msg);
-  static void set_date_time();
+  static const char* msg_type_name(int msg);
+  static const char *get_date_time();
+  static void ensure_log_file_name();
+  static void purge(); /* clean up any allocations */
+  
+  static const char *DEFAULT_LOG_FILE_NAME;
+  static char * FILE_NAME;
+  static unsigned int FILE_NAME_LEN;
 };
 
 #endif /* _LOGGING_HH */
