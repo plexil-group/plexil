@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ namespace PLEXIL
   std::string AdapterExecInterface::getText(const State& c) 
   {
     std::ostringstream retval;
-    retval << c.first.toString() << "(";
+    retval << c.first << "(";
     std::vector<Value>::const_iterator it = c.second.begin();
     if(it != c.second.end()) {
       retval << *it;

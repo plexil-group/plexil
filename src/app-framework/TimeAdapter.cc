@@ -150,8 +150,7 @@ namespace PLEXIL
   Value TimeAdapter::lookupNow(const State& state)
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
-                  "TimeAdapter does not implement lookups for state "
-                  << state.first.toString());
+                  "TimeAdapter does not implement lookups for state " << state.first);
     return Value(getCurrentTime());
   }
 
@@ -183,8 +182,7 @@ namespace PLEXIL
   void TimeAdapter::setThresholds(const State& state, double hi, double /* lo */)
   {
     assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
-                  "TimeAdapter does not implement lookups for state "
-                  << state.first.toString());
+                  "TimeAdapter does not implement lookups for state " << state.first);
 
     if (setTimer(hi)) {
       debugMsg("TimeAdapter:setThresholds",

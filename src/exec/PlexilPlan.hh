@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -65,7 +65,7 @@ namespace PLEXIL
   DECLARE_ID(PlexilInternalVar);
 
   typedef std::vector<const PlexilNode*> PlexilNodeSet;
-  typedef std::map<LabelStr, PlexilExprId>  PlexilAliasMap;
+  typedef std::map<std::string, PlexilExprId>  PlexilAliasMap;
 
   enum PlexilNodeType
     {
@@ -821,7 +821,7 @@ namespace PLEXIL
 
     void addAlias(const std::string& param, PlexilExprId value)
     {
-      PlexilExprId &alias = m_aliases[LabelStr(param)];
+      PlexilExprId &alias = m_aliases[param];
       checkError(!alias.isId(), "Alias '" << param
                  << "' apears more then once in call to "
                  << m_libNodeName);

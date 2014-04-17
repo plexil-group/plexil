@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -511,9 +511,6 @@ namespace PLEXIL {
     VariableId getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
     VariableId getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
 
-    void lockConditions();
-    void unlockConditions();
-
     void activateLocalVariables();
     void deactivateLocalVariables();
 
@@ -529,8 +526,8 @@ namespace PLEXIL {
      */
     void setConditionDefaults();
 
-    static const std::vector<LabelStr>& START_TIMEPOINT_NAMES();
-    static const std::vector<LabelStr>& END_TIMEPOINT_NAMES();
+    static LabelStr (&START_TIMEPOINT_NAMES())[NO_NODE_STATE];
+    static LabelStr (&END_TIMEPOINT_NAMES())[NO_NODE_STATE];
 
     void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
     void ensureSortedVariableNames() const;
@@ -542,9 +539,6 @@ namespace PLEXIL {
 
     // Storage for static "constants"
     static std::vector<LabelStr>* s_allConditions;
-    static std::vector<LabelStr>* s_startTimepointNames;
-    static std::vector<LabelStr>* s_endTimepointNames;
-
   };
 
   std::ostream& operator<<(std::ostream& strm, const Node& node);

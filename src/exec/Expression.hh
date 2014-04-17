@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -171,15 +171,6 @@ namespace PLEXIL {
     bool isActive() const {return m_activeCount > 0;}
 
     /**
-     * @brief Returns true if this expression is "locked": its value will not change until
-     *        unlocked.
-     * @return true if this expression is locked, false otherwise
-     * @see lock(), unlock()
-     */
-
-    bool isLocked() const {return m_lock;}
-
-    /**
      * @brief Make this expression active.  It will publish value changes and it will accept
      *        incoming change notifications.
      */
@@ -226,24 +217,7 @@ namespace PLEXIL {
 	 * @brief Print the expression's value to the given stream.
 	 * @param s The output stream.
 	 */
-
-    // TODO?: move to Value class
 	virtual void printValue(std::ostream& s) const;
-
-    /**
-     * @brief Lock this expression so its value doesn't change.  Changes are stored until the
-     *        unlock call, at which point the expression gets updated and notifications happen
-     *        normally.
-     */
-    void lock();
-
-    /**
-     * @brief Unlock this expression so its value can change.  If it had a change during the
-     *        time in which it was locked, it gets updated to that value and the change is
-     *        propagated.
-     */
-    void unlock();
-
     
     /**
      * @brief Check to make sure a value is appropriate for this expression.
@@ -266,18 +240,10 @@ namespace PLEXIL {
 
     /**
      * @brief Internal method for handling the setting of a value.  Used to allow overriding
-     *        of setValue to do different things.  Will cause notification of change if there
-     *        is a change is this expression isn't locked.
+     *        of setValue to do different things.  Will cause notification of change.
      * @param value The value being set.
      */
     void internalSetValue(const Value& value);
-
-    /**
-     * @brief If new value differs from old, set and propagate change.
-     * @param value The value being set.
-     * @note Core of internalSetValue. Called by unlock() and internalSetValue.
-     */
-    void essentialSetValue(const Value& value);
 
     /**
      * @brief Notify listeners that the value of this expression has changed.
@@ -298,13 +264,16 @@ namespace PLEXIL {
      */
     virtual void handleDeactivate(const bool /* changed */) {}
 
-    ExpressionId m_id; /*<! The Id for this Expression */
-    std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
+    // Order by alignment
+    // 8 bytes
     Value m_value; /*<! The value of this expression*/
-    Value m_savedValue; /*<! The latest value computed for this expression while it was locked. */
+    // If fast: 4 bytes on 32 bit, 8 on 64
+    // Not fast: 8 on 32, 16 on 64
+    ExpressionId m_id; /*<! The Id for this Expression */
+    // 4 bytes on 32 bit, 8 on 64
+    std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
+    // 4 bytes (on all?)
     unsigned int m_activeCount;
-    bool m_dirty; /*<! Marks whether or not this expression needs re-calculation.*/
-    bool m_lock; /*<! The lock for this expression */
   };
 
   std::ostream& operator<<(std::ostream& s, const Expression& e);

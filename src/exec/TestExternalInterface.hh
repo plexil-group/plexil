@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -77,9 +77,10 @@ namespace PLEXIL
     double currentTime();
 
   private:
-    typedef std::pair<LabelStr, std::vector<Value> > UniqueThing;
-    typedef std::map<UniqueThing, ExpressionId>       ExpressionUtMap;
-    typedef std::map<UniqueThing, Value>            StateMap;
+    
+    typedef State UniqueThing;
+    typedef std::map<UniqueThing, ExpressionId>         ExpressionUtMap;
+    typedef std::map<UniqueThing, Value>                StateMap;
 
     std::string getText(const UniqueThing& c);
     std::string getText(const UniqueThing& c, const Value& v);
@@ -99,7 +100,7 @@ namespace PLEXIL
     void handleSendPlan(const pugi::xml_node& elt);
     void handleSimultaneous(const pugi::xml_node& elt);
         
-    void parseState(const pugi::xml_node& state, State& result);
+    void parseState(const pugi::xml_node& state, UniqueThing& result);
     Value parseStateValue(const pugi::xml_node& stateXml);
 
     // Parses all command-like elements: Command, CommandAck, CommandAbort.

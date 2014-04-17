@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ namespace PLEXIL
   class Update;
   typedef Id<Update> UpdateId;
 
-  typedef std::pair<LabelStr, std::vector<Value> > State;
+  typedef std::pair<std::string, std::vector<Value> > State;
   typedef std::vector<ExpressionId> ExpressionVector;
   typedef std::vector<ExpressionId>::iterator ExpressionVectorIter;
   typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;

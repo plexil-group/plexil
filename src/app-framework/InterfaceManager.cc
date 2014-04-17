@@ -1110,8 +1110,7 @@ namespace PLEXIL
   InterfaceManager::handleValueChange(const State& state, const Value& value)
   {
     debugMsg("InterfaceManager:handleValueChange",
-             " for state " << state.first.toString()
-             << ", new value = " << value);
+             " for state " << state.first << ", new value = " << value);
     m_valueQueue.enqueue(state, value);
   }
 

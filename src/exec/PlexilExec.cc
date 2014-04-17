@@ -501,16 +501,6 @@ namespace PLEXIL
 
       unsigned int microStepCount = 0;
 
-      // Lock the nodes into their current transitioning states
-      for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
-           it != m_stateChangeQueue.end();
-           ++it) {
-        const NodeId& node = it->node;
-        debugMsg("PlexilExec:lock",
-                 "Locking node " << node->getNodeId().toString());
-        node->lockConditions();
-      }
-
       // Transition the nodes
       std::vector<NodeTransition> transitionsToPublish;
       transitionsToPublish.reserve(m_stateChangeQueue.size());
@@ -531,19 +521,16 @@ namespace PLEXIL
 
       // TODO: instrument high-water-mark of max nodes transitioned in this step
 
-      // Publish the transitions
-      if (m_listener.isId())
-        m_listener->notifyOfTransitions(transitionsToPublish);
-
-      // Unlock the nodes
+      // Synchronously notify transitioned nodes they may be eligible again (redundant?)
       for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
            it != m_stateChangeQueue.end();
-           ++it) {
-        const NodeId& node = it->node;
-        debugMsg("PlexilExec:unlock",
-                 "Unlocking node " << node->getNodeId().toString());
-        node->unlockConditions();
-      }
+           ++it)
+        it->node->conditionChanged();
+
+      // Publish the transitions
+      // FIXME: Move call to listener outside of quiescence loop
+      if (m_listener.isId())
+        m_listener->notifyOfTransitions(transitionsToPublish);
 
       // done with this batch
       m_stateChangeQueue.clear();

@@ -41,7 +41,7 @@ namespace PLEXIL
   Lookup::Lookup(const PlexilExprId& expr, const NodeConnectorId& node)
     : Expression(),
       m_cache(node->getExec()->getStateCache()),
-      m_state(LabelStr(),
+      m_state("",
               std::vector<Value>(((PlexilLookup*)expr)->state()->args().size(),
                                  UNKNOWN())),
       m_listener((Expression&) *this)
@@ -141,7 +141,7 @@ namespace PLEXIL
   {
     checkError(m_stateNameExpr->isActive(),
                "Can't update state for lookup with an inactive name state expression: " << toString());
-    m_state.first = m_stateNameExpr->getValue();
+    m_state.first = m_stateNameExpr->getValue().getStringValue();
     std::vector<ExpressionId>::const_iterator it = m_params.begin();
     std::vector<Value>::iterator sit = m_state.second.begin();
     while (it != m_params.end() && sit != m_state.second.end()) {
@@ -159,7 +159,7 @@ namespace PLEXIL
   {
     checkError(m_stateNameExpr->isActive(),
                "Can't compare state to lookup with an inactive name state expression: " << toString());
-    if (m_state.first != m_stateNameExpr->getValue())
+    if (m_state.first != m_stateNameExpr->getValue().getStringValue())
       return false;
     std::vector<ExpressionId>::const_iterator it = m_params.begin();
     std::vector<Value>::const_iterator sit = m_state.second.begin();
@@ -180,7 +180,7 @@ namespace PLEXIL
   std::string Lookup::stateToString(const State& state)
   {
     std::ostringstream os;
-    os << state.first.toString();
+    os << state.first;
     if (!state.second.empty()) {
       os << "(";
       size_t i = 0;

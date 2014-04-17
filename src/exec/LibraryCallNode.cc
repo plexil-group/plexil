@@ -120,7 +120,7 @@ namespace PLEXIL
 
       // Barf if formal parameter is not known
       assertTrueMsg(aliasesCopy.empty(),
-                    "Interface variable \"" << aliasesCopy.begin()->first.toString() 
+                    "Interface variable \"" << aliasesCopy.begin()->first 
                     << "\" not found in library node \"" << libNode->nodeId()
                     << "\", called from node '" << getNodeId().toString() << "'");
     }
@@ -144,10 +144,9 @@ namespace PLEXIL
     for (std::vector<PlexilVarRef*>::const_iterator var = interfaceVars.begin();
          var != interfaceVars.end();
          ++var) {
-      // get var label and matching value in alias list
-      LabelStr varLabel((*var)->name());
-      PlexilExprId& aliasValue = aliases[varLabel];
-      const std::string& varName(varLabel.toString());
+      // get var name and matching value in alias list
+      const std::string& varName((*var)->name());
+      PlexilExprId& aliasValue = aliases[varName];
 
       // check that the expression is consistent with the interface variable
       if (aliasValue.isId()) {
@@ -239,10 +238,10 @@ namespace PLEXIL
         }
 
         // Add to alias map
-        m_aliasVariables[varLabel] = actualVar;
+        m_aliasVariables[LabelStr(varName)] = actualVar;
         
         // remove value for alias copy for later checking
-        aliases.erase(varLabel);
+        aliases.erase(varName);
       }
     }
   }

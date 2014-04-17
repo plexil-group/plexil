@@ -317,14 +317,13 @@ namespace PLEXIL
     debugMsg("Test:testOutput", "End simultaneous event(s)");
   }
 
-  void TestExternalInterface::parseState(const pugi::xml_node& elt, State& state)
+  void TestExternalInterface::parseState(const pugi::xml_node& elt, UniqueThing& state)
   {
     checkError(strcmp(elt.name(), "State") == 0,
                "Expected <State> element. Found '" << elt.name() << "'");
     checkError(!elt.attribute("name").empty(),
                "No name attribute in <State> element.");
-    LabelStr name(elt.attribute("name").value());
-    state.first = name;
+    state.first = elt.attribute("name").value();
     parseParams(elt, state.second);
   }
 
@@ -527,7 +526,7 @@ namespace PLEXIL
                                              ExpressionId ack)
   {
     std::vector<Value> realArgs(args.begin(), args.end());
-    UniqueThing cmd(name, realArgs);
+    UniqueThing cmd(name.toString(), realArgs);
     debugMsg("Test:testOutput", "Executing " << getText(cmd) <<
              " into " <<
              (dest.isNoId() ? std::string("noId") : dest->toString()) <<
@@ -563,7 +562,7 @@ namespace PLEXIL
   {
     const std::vector<Value>& cmdArgs = command->getArgValues();
     std::vector<Value> realArgs(cmdArgs.begin(), cmdArgs.end());
-    UniqueThing cmd(command->getName(), realArgs);
+    UniqueThing cmd(command->getName().getStringValue(), realArgs);
     debugMsg("Test:testOutput", "Aborting " << getText(cmd));
     m_abortingCommands[cmd] = command->getAbortComplete();
   }
@@ -583,7 +582,7 @@ namespace PLEXIL
   std::string TestExternalInterface::getText(const UniqueThing& c)
   {
     std::ostringstream retval;
-    retval << c.first.toString() << "(";
+    retval << c.first << "(";
     std::vector<Value>::const_iterator it = c.second.begin();
     if (it != c.second.end()) {
       retval << *it;

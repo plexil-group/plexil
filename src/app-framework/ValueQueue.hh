@@ -117,7 +117,7 @@ namespace PLEXIL
 
     DECLARE_STATIC_CLASS_CONST(State, 
                                NULL_STATE_KEY,
-                               State(EMPTY_LABEL(), std::vector<Value>()));
+                               State("", std::vector<Value>()));
 
     /**
      * @brief Represents one entry in a ValueQueue.  
@@ -163,7 +163,7 @@ namespace PLEXIL
             
         case queueEntry_LOOKUP_VALUES:
           value.setUnknown();
-          state.first = EMPTY_LABEL();
+          state.first.clear();
           state.second.clear();
           break;
 

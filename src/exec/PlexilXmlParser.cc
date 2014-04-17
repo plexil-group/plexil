@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -2005,7 +2005,7 @@ namespace PLEXIL
          ++it) {
       // double is key to LabelStr of formal param name
       // expr is actual param
-      const std::pair<LabelStr, PlexilExprId>& entry = *it;
+      const std::pair<std::string, PlexilExprId>& entry = *it;
       xml_node aliasXml = appendElement(ALIAS_TAG, retval);
       appendNamedTextElement(NODE_PARAMETER_TAG, entry.first.c_str(), aliasXml);
       toXml(entry.second, aliasXml);

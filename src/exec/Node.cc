@@ -48,8 +48,6 @@ namespace PLEXIL {
 
   // Initialize class static variables
   std::vector<LabelStr>* Node::s_allConditions = NULL;
-  std::vector<LabelStr>* Node::s_startTimepointNames = NULL;
-  std::vector<LabelStr>* Node::s_endTimepointNames = NULL;
 
   const std::vector<LabelStr>& Node::ALL_CONDITIONS() {
     static bool sl_inited = false;
@@ -91,48 +89,46 @@ namespace PLEXIL {
     s_allConditions = NULL;
   }
 
-  const std::vector<LabelStr>& Node::START_TIMEPOINT_NAMES() 
+  LabelStr (&Node::START_TIMEPOINT_NAMES())[NO_NODE_STATE] 
   {
+    static LabelStr sl_startTimepointNames[NO_NODE_STATE];
     static bool sl_inited = false;
     if (!sl_inited) {
-      s_startTimepointNames = new std::vector<LabelStr>();
       addFinalizer(&purgeStartTimepointNames);
-      s_startTimepointNames->reserve(NO_NODE_STATE);
       for (size_t i = 0; i < NO_NODE_STATE; ++i) {
         const std::string& state = StateVariable::ALL_STATE_NAMES()[i].getStringValue();
-        s_startTimepointNames->push_back(LabelStr(state + ".START"));
+        sl_startTimepointNames[i] = LabelStr(state + ".START");
       }
       sl_inited = true;
     }
-    return *s_startTimepointNames;
+    return sl_startTimepointNames;
   }
 
   void Node::purgeStartTimepointNames()
   {
-    delete s_startTimepointNames;
-    s_startTimepointNames = NULL;
+    for (size_t i = 0; i < NO_NODE_STATE; ++i)
+      START_TIMEPOINT_NAMES()[i] = "";
   }
 
-  const std::vector<LabelStr>& Node::END_TIMEPOINT_NAMES() 
+  LabelStr (&Node::END_TIMEPOINT_NAMES())[NO_NODE_STATE]
   {
+    static LabelStr sl_endTimepointNames[NO_NODE_STATE];
     static bool sl_inited = false;
     if (!sl_inited) {
-      s_endTimepointNames = new std::vector<LabelStr>();
       addFinalizer(&purgeEndTimepointNames);
-      s_endTimepointNames->reserve(NO_NODE_STATE);
       for (size_t i = 0; i < NO_NODE_STATE; ++i) {
         const std::string& state = StateVariable::ALL_STATE_NAMES()[i].getStringValue();
-        s_endTimepointNames->push_back(LabelStr(state + ".END"));
+        sl_endTimepointNames[i] = LabelStr(state + ".END");
       }
       sl_inited = true;
     }
-    return *s_endTimepointNames;
+    return sl_endTimepointNames;
   }
 
   void Node::purgeEndTimepointNames()
   {
-    delete s_endTimepointNames;
-    s_endTimepointNames = NULL;
+    for (size_t i = 0; i < NO_NODE_STATE; ++i)
+      END_TIMEPOINT_NAMES()[i] = "";
   }
 
   size_t Node::getConditionIndex(const LabelStr& cName) {
@@ -948,7 +944,6 @@ namespace PLEXIL {
              << " = " << time);
     m_endTimepoints[prevState]->setValue(time);
     m_startTimepoints[destState]->setValue(time);
-    conditionChanged(); // was checkConditions();
   }
 
   // Common method 
@@ -1997,32 +1992,6 @@ namespace PLEXIL {
   void Node::abort() 
   {
     checkError(ALWAYS_FAIL, "Abort illegal for node type " << getType().toString());
-  }
-
-  void Node::lockConditions() 
-  {
-    for (size_t i = 0; i < conditionIndexMax; ++i) {
-      ExpressionId expr = getCondition(i);
-      if (expr.isId() && expr->isActive() && !expr->isLocked()) {
-        debugMsg("Node:lockConditions",
-                 "In " << m_nodeId.toString() << ", locking " <<
-                 getConditionName(i).toString() << " " << expr->toString());
-        expr->lock();
-      }
-    }
-  }
-
-  void Node::unlockConditions() 
-  {
-    for (size_t i = 0; i < conditionIndexMax; ++i) {
-      ExpressionId expr = getCondition(i);
-      if (expr.isId() && expr->isLocked()) {
-        debugMsg("Node:unlockConditions",
-                 "In " << m_nodeId.toString() << ", unlocking " <<
-                 getConditionName(i).toString() << " " << expr->toString());
-        expr->unlock();
-      }
-    }
   }
 
   void Node::deactivateExecutable() 

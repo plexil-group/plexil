@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -231,7 +231,7 @@ namespace PLEXIL
     bool calculateThresholds()
     {
       debugMsg("CacheEntry:calculateThresholds",
-               " for " << state.first.toString() << ", " << lookups.size() << " active lookups");
+               " for " << state.first << ", " << lookups.size() << " active lookups");
       double newHi = Value::UNKNOWN_VALUE();
       double newLo = Value::UNKNOWN_VALUE();
 
@@ -556,7 +556,7 @@ namespace PLEXIL
   std::string StateCache::toString(const State& state)
   {
     std::ostringstream str;
-    str << state.first.toString() << "(";
+    str << state.first << "(";
     for (size_t i = 0; i < state.second.size(); ++i) {
       if (i != 0)
         str << ", ";

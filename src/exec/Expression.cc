@@ -56,12 +56,9 @@ namespace PLEXIL {
   }
 
   Expression::Expression()
-    : m_id(this),
-      m_value(UNKNOWN()), 
-      m_savedValue(UNKNOWN()),
-      m_activeCount(0), 
-      m_dirty(false), 
-      m_lock(false)
+    : m_value(UNKNOWN()), 
+      m_id(this),
+      m_activeCount(0)
   {
   }
 
@@ -131,7 +128,7 @@ namespace PLEXIL {
   void Expression::print(std::ostream& s) const
   {
     s << "(" << getId()
-	  << "[" << (isActive() ? "a" : "i") << (isLocked() ? "l" : "u")
+	  << "[" << (isActive() ? "a" : "i")
 	  << "](";
 	printValue(s);
 	s << "): ";
@@ -158,40 +155,10 @@ namespace PLEXIL {
     return getValue().valueToString();
   }
 
-  void Expression::lock() {
-    checkError(!isLocked(), toString() << " already locked.");
-    checkError(isActive(), "Attempt to lock inactive expression " << toString());
-    m_lock = true;
-    m_savedValue = m_value;
-  }
-
-  void Expression::unlock() {
-    checkError(isLocked(), toString() << " not locked.");
-    if (m_dirty) {
-      essentialSetValue(m_savedValue);
-      m_dirty = false;
-    }
-    m_lock = false;
-  }
-
   void Expression::internalSetValue(const Value& value)
   {
     checkError(checkValue(value), 
 			   "Value " << value << " invalid for " << toString());
-    if (isLocked()) {
-      if (m_savedValue != value) {
-        debugMsg("Expression:internalSetValue", 
-                 " setting locked expression " << toString() << " to " << value);
-		m_savedValue = value;
-		m_dirty = true;
-      }
-    }
-    else
-      essentialSetValue(value);
-  }
-
-  void Expression::essentialSetValue(const Value& value)
-  {
     if (m_value != value) {
       m_value = value;
       publishChange();

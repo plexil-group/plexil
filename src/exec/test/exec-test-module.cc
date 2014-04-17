@@ -77,7 +77,6 @@ public:
   static bool test() {
     runTest(testBasicAllocation);
     runTest(testPublication);
-    runTest(testLocking);
     return true;
   }
 private:
@@ -123,41 +122,6 @@ private:
     exp->removeListener(foo);
     delete (ExpressionListener*) foo;
     delete (Expression*) exp;
-    return true;
-  }
-  static bool testLocking() {
-    BooleanVariable var;
-    var.activate();
-    bool changed = false;
-    ExpressionListenerId listener = (new TestListener(changed))->getId();
-    listener->activate();
-    var.addListener(listener);
-
-    //active, unlocked
-    var.setValue(BooleanVariable::TRUE_VALUE());
-    assertTrue(changed);
-    assertTrue(var.getValue() == BooleanVariable::TRUE_VALUE());
-
-    //inactive, unlocked
-    changed = false;
-    var.deactivate();
-    var.setValue(BooleanVariable::FALSE_VALUE());
-    assertTrue(!changed);
-    assertTrue(var.getValue() == BooleanVariable::UNKNOWN());
-
-    //active, locked
-    var.activate();
-    assertTrue(!changed);
-    var.lock();
-    var.setValue(BooleanVariable::TRUE_VALUE());
-    assertTrue(!changed);
-    assertTrue(var.getValue() == BooleanVariable::FALSE_VALUE());
-    var.unlock();
-    assertTrue(changed);
-    assertTrue(var.getValue() == BooleanVariable::TRUE_VALUE());
-
-    var.removeListener(listener);
-    delete (ExpressionListener*) listener;
     return true;
   }
 };
@@ -1016,7 +980,7 @@ protected:
   {
     std::multimap<ExpressionId, LabelStr>::const_iterator it = m_exprsToStateName.find(expression);
     while(it != m_exprsToStateName.end() && it->first == expression) {
-      State st(it->second, std::vector<Value>());
+      State st(it->second.toString(), std::vector<Value>());
       m_cache->updateState(st, expression->getValue());
       ++it;
     }
@@ -2970,7 +2934,7 @@ private:
     IntegerVariable destVar;
     destVar.activate();
 
-    State st(LabelStr("foo"), std::vector<Value>());
+    State st("foo", std::vector<Value>());
 
     iface.setValue(st, 1, cache.getId(), false);
     cache.handleQuiescenceStarted();
@@ -3013,7 +2977,7 @@ private:
     destVar1.activate();
     destVar2.activate();
 
-    State st(LabelStr("foo"), std::vector<Value>());
+    State st("foo", std::vector<Value>());
 
     //lookup
     iface.setValue(st, 1, cache.getId(), false);
