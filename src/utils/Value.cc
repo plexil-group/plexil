@@ -494,7 +494,7 @@ namespace PLEXIL
   {
     assertTrue(!LabelStr::rangeCheck(m_value)
                && !StoredArray::rangeCheck(m_value),
-               "Valus is not a valid double");
+               "Value is not a valid double");
     return m_value;
   }
 
