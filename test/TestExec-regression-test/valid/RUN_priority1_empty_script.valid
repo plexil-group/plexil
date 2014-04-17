@@ -2,12 +2,12 @@
 [Test:testOutput]Returning value 0
 [PlexilExec:addPlan]Added plan: 
 Root{
- State: (id_233[au](INACTIVE): state(INACTIVE)) (inf)
+ State: (id_233[a](INACTIVE): state(INACTIVE)) (inf)
   A{
-   State: (id_281[au](INACTIVE): state(INACTIVE)) (inf)
+   State: (id_281[a](INACTIVE): state(INACTIVE)) (inf)
   }
   B{
-   State: (id_328[au](INACTIVE): state(INACTIVE)) (inf)
+   State: (id_328[a](INACTIVE): state(INACTIVE)) (inf)
   }
 }
 
@@ -18,14 +18,11 @@ Root{
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 1
 [PlexilExec:step][1:0] State change queue: Root 
-[PlexilExec:lock]Locking node Root
 [PlexilExec:step][1:0:0] Transitioning node Root
 [PlexilExec:handleConditionsChanged]Node Root had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Root' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Root' on the state change queue in position 2
-[PlexilExec:unlock]Unlocking node Root
 [PlexilExec:step][1:1] State change queue: Root 
-[PlexilExec:lock]Locking node Root
 [PlexilExec:step][1:1:0] Transitioning node Root
 [PlexilExec:handleConditionsChanged]Node A had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'A' for state transition.
@@ -38,10 +35,7 @@ Root{
 [PlexilExec:handleNeedsExecution]Storing action for node 'Root' of type 'NodeList' to be executed.
 [PlexilExec:handleConditionsChanged]Node Root had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Root' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node Root
 [PlexilExec:step][1:2] State change queue: A B 
-[PlexilExec:lock]Locking node A
-[PlexilExec:lock]Locking node B
 [PlexilExec:step][1:2:0] Transitioning node A
 [PlexilExec:handleConditionsChanged]Node A had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'A' for state transition.
@@ -52,25 +46,19 @@ Root{
 [PlexilExec:handleConditionsChanged]Considering node 'B' for state transition.
 [PlexilExec:handleConditionsChanged]Node 'B' is an assignment node that could be executing.  Adding it to the resource contention list 
 [PlexilExec:addToResourceContention]Adding node 'B' to resource contention.
-[PlexilExec:unlock]Unlocking node A
-[PlexilExec:unlock]Unlocking node B
 [PlexilExec:resolveResourceConflicts]Node 'A' has best priority.  Adding it to be executed in position 5
 [PlexilExec:step][1:3] State change queue: A 
-[PlexilExec:lock]Locking node A
 [PlexilExec:step][1:3:0] Transitioning node A
 [PlexilExec:handleNeedsExecution]Storing action for node 'A' of type 'Assignment' to be executed.
 [PlexilExec:handleConditionsChanged]Node A had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'A' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node A
-[Test:testOutput]Assigning 'foo' ((id_278[au](UNKNOWN): int)) to 1
+[Test:testOutput]Assigning 'foo' ((id_278[a](UNKNOWN): int)) to 1
 [PlexilExec:handleConditionsChanged]Node A had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'A' for state transition.
 [PlexilExec:handleConditionsChanged]Node 'A' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
 [PlexilExec:handleConditionsChanged]Placing node 'A' on the state change queue in position 6
 [PlexilExec:resolveResourceConflicts]Node 'B' has best priority.  Adding it to be executed in position 7
 [PlexilExec:step][1:4] State change queue: A B 
-[PlexilExec:lock]Locking node A
-[PlexilExec:lock]Locking node B
 [PlexilExec:step][1:4:0] Transitioning node A
 [PlexilExec:handleConditionsChanged]Node A had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'A' for state transition.
@@ -80,16 +68,12 @@ Root{
 [PlexilExec:handleNeedsExecution]Storing action for node 'B' of type 'Assignment' to be executed.
 [PlexilExec:handleConditionsChanged]Node B had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'B' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node A
-[PlexilExec:unlock]Unlocking node B
-[Test:testOutput]Assigning 'foo' ((id_278[au](1): int)) to 2
+[Test:testOutput]Assigning 'foo' ((id_278[a](1): int)) to 2
 [PlexilExec:handleConditionsChanged]Node B had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'B' for state transition.
 [PlexilExec:handleConditionsChanged]Node 'B' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
 [PlexilExec:handleConditionsChanged]Placing node 'B' on the state change queue in position 9
 [PlexilExec:step][1:5] State change queue: A B 
-[PlexilExec:lock]Locking node A
-[PlexilExec:lock]Locking node B
 [PlexilExec:step][1:5:0] Transitioning node A
 [PlexilExec:handleConditionsChanged]Node A had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'A' was previously eligible to transition but isn't now.
@@ -99,10 +83,7 @@ Root{
 [PlexilExec:handleConditionsChanged]Considering node 'B' for state transition.
 [PlexilExec:handleConditionsChanged]Node 'B' is an assignment node that is no longer possibly executing.  Removing it from resource contention.
 [PlexilExec:handleConditionsChanged]Placing node 'B' on the state change queue in position 10
-[PlexilExec:unlock]Unlocking node A
-[PlexilExec:unlock]Unlocking node B
 [PlexilExec:step][1:6] State change queue: B 
-[PlexilExec:lock]Locking node B
 [PlexilExec:step][1:6:0] Transitioning node B
 [PlexilExec:handleConditionsChanged]Node Root had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Root' for state transition.
@@ -110,42 +91,35 @@ Root{
 [PlexilExec:handleConditionsChanged]Node B had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'B' was previously eligible to transition but isn't now.
 [PlexilExec:handleConditionsChanged]Removing node from resource contention.
-[PlexilExec:unlock]Unlocking node B
 [PlexilExec:step][1:7] State change queue: Root 
-[PlexilExec:lock]Locking node Root
 [PlexilExec:step][1:7:0] Transitioning node Root
 [PlexilExec:handleConditionsChanged]Node Root had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Root' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Root' on the state change queue in position 12
-[PlexilExec:unlock]Unlocking node Root
 [PlexilExec:step][1:8] State change queue: Root 
-[PlexilExec:lock]Locking node Root
 [PlexilExec:step][1:8:0] Transitioning node Root
 [PlexilExec:handleConditionsChanged]Node Root had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Root' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Root' on the state change queue in position 13
-[PlexilExec:unlock]Unlocking node Root
 [PlexilExec:step][1:9] State change queue: Root 
-[PlexilExec:lock]Locking node Root
 [PlexilExec:step][1:9:0] Transitioning node Root
 [PlexilExec:handleConditionsChanged]Node Root had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Root' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node Root
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 Root{
- State: (id_233[au](FINISHED): state(FINISHED)) (0)
- Outcome: (id_234[au](SUCCESS):  outcome)
- foo: (id_278[iu](2): int)
+ State: (id_233[a](FINISHED): state(FINISHED)) (0)
+ Outcome: (id_234[a](SUCCESS):  outcome)
+ foo: (id_278[i](2): int)
   A{
-   State: (id_281[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_282[au](SUCCESS):  outcome)
-   foo: (id_278[iu](2): int)
+   State: (id_281[a](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_282[a](SUCCESS):  outcome)
+   foo: (id_278[i](2): int)
   }
   B{
-   State: (id_328[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_329[au](SUCCESS):  outcome)
-   foo: (id_278[iu](2): int)
+   State: (id_328[a](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_329[a](SUCCESS):  outcome)
+   foo: (id_278[i](2): int)
   }
 }
 

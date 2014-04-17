@@ -2,12 +2,12 @@
 [Test:testOutput]Returning value 0
 [PlexilExec:addPlan]Added plan: 
 SimpleDrive{
- State: (id_228[au](INACTIVE): state(INACTIVE)) (inf)
+ State: (id_228[a](INACTIVE): state(INACTIVE)) (inf)
   Drive{
-   State: (id_273[au](INACTIVE): state(INACTIVE)) (inf)
+   State: (id_273[a](INACTIVE): state(INACTIVE)) (inf)
   }
   TakeSample{
-   State: (id_318[au](INACTIVE): state(INACTIVE)) (inf)
+   State: (id_318[a](INACTIVE): state(INACTIVE)) (inf)
   }
 }
 
@@ -19,14 +19,11 @@ SimpleDrive{
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 1
 [PlexilExec:step][1:0] State change queue: SimpleDrive 
-[PlexilExec:lock]Locking node SimpleDrive
 [PlexilExec:step][1:0:0] Transitioning node SimpleDrive
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 2
-[PlexilExec:unlock]Unlocking node SimpleDrive
 [PlexilExec:step][1:1] State change queue: SimpleDrive 
-[PlexilExec:lock]Locking node SimpleDrive
 [PlexilExec:step][1:1:0] Transitioning node SimpleDrive
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
@@ -37,10 +34,7 @@ SimpleDrive{
 [PlexilExec:handleNeedsExecution]Storing action for node 'SimpleDrive' to be executed.
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'SimpleDrive' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node SimpleDrive
 [PlexilExec:step][1:2] State change queue: Drive TakeSample 
-[PlexilExec:lock]Locking node Drive
-[PlexilExec:lock]Locking node TakeSample
 [PlexilExec:step][1:2:0] Transitioning node Drive
 [Test:testOutput]Looking up immediately At(Rock)
 [Test:testOutput]Returning value 0
@@ -50,64 +44,60 @@ SimpleDrive{
 [PlexilExec:step][1:2:1] Transitioning node TakeSample
 [PlexilExec:handleConditionsChanged]Node TakeSample had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'TakeSample' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node Drive
-[PlexilExec:unlock]Unlocking node TakeSample
 [PlexilExec:step][1:3] State change queue: Drive 
-[PlexilExec:lock]Locking node Drive
 [PlexilExec:step][1:3:0] Transitioning node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' to be executed.
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Drive' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node Drive
-[Test:testOutput]Executing drive(1) into noId with ack (id_406[au](UNKNOWN): boolean)
+[Test:testOutput]Executing drive(1) into noId with ack (id_406[a](UNKNOWN): boolean)
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleDrive{
- State: (id_228[au](EXECUTING): state(EXECUTING)) (0)
- StartCondition: (id_245[au](1): boolean)
- EndCondition: (id_367[au](0): (id_370[au](0): ((id_318[au](WAITING): state(WAITING)) == (id_369[au](FINISHED): state(FINISHED)))))
- InvariantCondition: (id_249[au](1): boolean)
- PreCondition: (id_251[au](1): boolean)
- PostCondition: (id_372[iu](UNKNOWN): (id_375[iu](UNKNOWN): ((id_319[au](UNKNOWN):  outcome) == (id_374[iu](UNKNOWN):  outcome))))
- RepeatCondition: (id_255[au](0): boolean)
- AncestorInvariantCondition: (id_257[au](1): boolean)
- AncestorEndCondition: (id_259[au](0): boolean)
- ParentExecutingCondition: (id_261[au](1): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_361[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
- AbortCompleteCondition: (id_265[au](UNKNOWN): boolean)
- ParentWaitingCondition: (id_267[au](0): boolean)
- ParentFinishedCondition: (id_269[au](0): boolean)
+ State: (id_228[a](EXECUTING): state(EXECUTING)) (0)
+ StartCondition: (id_245[a](1): boolean)
+ EndCondition: (id_367[a](0): (id_370[a](0): ((id_318[a](WAITING): state(WAITING)) == (id_369[a](FINISHED): state(FINISHED)))))
+ InvariantCondition: (id_249[a](1): boolean)
+ PreCondition: (id_251[a](1): boolean)
+ PostCondition: (id_372[i](UNKNOWN): (id_375[i](UNKNOWN): ((id_319[a](UNKNOWN):  outcome) == (id_374[i](UNKNOWN):  outcome))))
+ RepeatCondition: (id_255[a](0): boolean)
+ AncestorInvariantCondition: (id_257[a](1): boolean)
+ AncestorEndCondition: (id_259[a](0): boolean)
+ ParentExecutingCondition: (id_261[a](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_361[i](UNKNOWN): childrenWaitingOrFinished(0:2))
+ AbortCompleteCondition: (id_265[a](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_267[a](0): boolean)
+ ParentFinishedCondition: (id_269[a](0): boolean)
   Drive{
-   State: (id_273[au](EXECUTING): state(EXECUTING)) (0)
-   StartCondition: (id_290[au](1): boolean)
-   EndCondition: (id_407[au](UNKNOWN): ((id_406[au](UNKNOWN): boolean) && (id_292[au](1): boolean))
-   InvariantCondition: (id_294[au](1): boolean)
-   PreCondition: (id_394[iu](UNKNOWN): ((id_396[iu](UNKNOWN): LookupNow(At(, (id_397[iu](UNKNOWN): string)))) == (id_398[iu](0): boolean)))
-   PostCondition: (id_298[au](1): boolean)
-   RepeatCondition: (id_399[iu](UNKNOWN): ((id_401[iu](UNKNOWN): LookupOnChange(At(, (id_402[iu](UNKNOWN): string)), (id_403[au](0): real))) != (id_404[iu](1): boolean)))
-   AncestorInvariantCondition: (id_381[au](1): ((id_377[auT]{1}((id_257[au](1): boolean)) && (id_379[auT]{1}((id_249[au](1): boolean)))
-   AncestorEndCondition: (id_383[iuT]{0}((id_367[au](0): (id_370[au](0): ((id_318[au](WAITING): state(WAITING)) == (id_369[au](FINISHED): state(FINISHED))))))
-   ParentExecutingCondition: (id_386[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_385[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_308[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_405[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_389[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_388[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_392[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_391[au](FINISHED): state(FINISHED))))
+   State: (id_273[a](EXECUTING): state(EXECUTING)) (0)
+   StartCondition: (id_290[a](1): boolean)
+   EndCondition: (id_407[a](UNKNOWN): ((id_406[a](UNKNOWN): boolean) && (id_292[a](1): boolean))
+   InvariantCondition: (id_294[a](1): boolean)
+   PreCondition: (id_394[i](UNKNOWN): ((id_396[i](UNKNOWN): LookupNow(At(, (id_397[i](UNKNOWN): string)))) == (id_398[i](0): boolean)))
+   PostCondition: (id_298[a](1): boolean)
+   RepeatCondition: (id_399[i](UNKNOWN): ((id_401[i](UNKNOWN): LookupOnChange(At(, (id_402[i](UNKNOWN): string)), (id_403[a](0): real))) != (id_404[i](1): boolean)))
+   AncestorInvariantCondition: (id_381[a](1): ((id_377[auT]{1}((id_257[a](1): boolean)) && (id_379[auT]{1}((id_249[a](1): boolean)))
+   AncestorEndCondition: (id_383[iuT]{0}((id_367[a](0): (id_370[a](0): ((id_318[a](WAITING): state(WAITING)) == (id_369[a](FINISHED): state(FINISHED))))))
+   ParentExecutingCondition: (id_386[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_385[a](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_308[a](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_405[i](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_389[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_388[a](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_392[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_391[a](FINISHED): state(FINISHED))))
   }
   TakeSample{
-   State: (id_318[au](WAITING): state(WAITING)) (0)
-   StartCondition: (id_430[au](0): (id_433[au](0): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_432[au](FINISHED): state(FINISHED)))))
-   EndCondition: (id_437[iu](UNKNOWN): ((id_436[iu](UNKNOWN): boolean) && (id_337[au](1): boolean))
-   InvariantCondition: (id_425[iu](UNKNOWN): ((id_427[iu](UNKNOWN): LookupOnChange(At(, (id_428[iu](UNKNOWN): string)), (id_403[au](0): real))) == (id_429[iu](1): boolean)))
-   PreCondition: (id_341[au](1): boolean)
-   PostCondition: (id_343[au](1): boolean)
-   RepeatCondition: (id_345[au](0): boolean)
-   AncestorInvariantCondition: (id_415[au](1): ((id_411[auT]{1}((id_257[au](1): boolean)) && (id_413[auT]{1}((id_249[au](1): boolean)))
-   AncestorEndCondition: (id_417[auT]{0}((id_367[au](0): (id_370[au](0): ((id_318[au](WAITING): state(WAITING)) == (id_369[au](FINISHED): state(FINISHED))))))
-   ParentExecutingCondition: (id_419[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_385[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_353[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_435[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_421[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_388[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_423[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_391[au](FINISHED): state(FINISHED))))
+   State: (id_318[a](WAITING): state(WAITING)) (0)
+   StartCondition: (id_430[a](0): (id_433[a](0): ((id_273[a](EXECUTING): state(EXECUTING)) == (id_432[a](FINISHED): state(FINISHED)))))
+   EndCondition: (id_437[i](UNKNOWN): ((id_436[i](UNKNOWN): boolean) && (id_337[a](1): boolean))
+   InvariantCondition: (id_425[i](UNKNOWN): ((id_427[i](UNKNOWN): LookupOnChange(At(, (id_428[i](UNKNOWN): string)), (id_403[a](0): real))) == (id_429[i](1): boolean)))
+   PreCondition: (id_341[a](1): boolean)
+   PostCondition: (id_343[a](1): boolean)
+   RepeatCondition: (id_345[a](0): boolean)
+   AncestorInvariantCondition: (id_415[a](1): ((id_411[auT]{1}((id_257[a](1): boolean)) && (id_413[auT]{1}((id_249[a](1): boolean)))
+   AncestorEndCondition: (id_417[auT]{0}((id_367[a](0): (id_370[a](0): ((id_318[a](WAITING): state(WAITING)) == (id_369[a](FINISHED): state(FINISHED))))))
+   ParentExecutingCondition: (id_419[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_385[a](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_353[a](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_435[i](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_421[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_388[a](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_423[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_391[a](FINISHED): state(FINISHED))))
   }
 }
 
@@ -118,51 +108,51 @@ SimpleDrive{
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 SimpleDrive{
- State: (id_228[au](EXECUTING): state(EXECUTING)) (0)
- StartCondition: (id_245[au](1): boolean)
- EndCondition: (id_367[au](0): (id_370[au](0): ((id_318[au](WAITING): state(WAITING)) == (id_369[au](FINISHED): state(FINISHED)))))
- InvariantCondition: (id_249[au](1): boolean)
- PreCondition: (id_251[au](1): boolean)
- PostCondition: (id_372[iu](UNKNOWN): (id_375[iu](UNKNOWN): ((id_319[au](UNKNOWN):  outcome) == (id_374[iu](UNKNOWN):  outcome))))
- RepeatCondition: (id_255[au](0): boolean)
- AncestorInvariantCondition: (id_257[au](1): boolean)
- AncestorEndCondition: (id_259[au](0): boolean)
- ParentExecutingCondition: (id_261[au](1): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_361[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
- AbortCompleteCondition: (id_265[au](UNKNOWN): boolean)
- ParentWaitingCondition: (id_267[au](0): boolean)
- ParentFinishedCondition: (id_269[au](0): boolean)
+ State: (id_228[a](EXECUTING): state(EXECUTING)) (0)
+ StartCondition: (id_245[a](1): boolean)
+ EndCondition: (id_367[a](0): (id_370[a](0): ((id_318[a](WAITING): state(WAITING)) == (id_369[a](FINISHED): state(FINISHED)))))
+ InvariantCondition: (id_249[a](1): boolean)
+ PreCondition: (id_251[a](1): boolean)
+ PostCondition: (id_372[i](UNKNOWN): (id_375[i](UNKNOWN): ((id_319[a](UNKNOWN):  outcome) == (id_374[i](UNKNOWN):  outcome))))
+ RepeatCondition: (id_255[a](0): boolean)
+ AncestorInvariantCondition: (id_257[a](1): boolean)
+ AncestorEndCondition: (id_259[a](0): boolean)
+ ParentExecutingCondition: (id_261[a](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_361[i](UNKNOWN): childrenWaitingOrFinished(0:2))
+ AbortCompleteCondition: (id_265[a](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_267[a](0): boolean)
+ ParentFinishedCondition: (id_269[a](0): boolean)
   Drive{
-   State: (id_273[au](EXECUTING): state(EXECUTING)) (0)
-   StartCondition: (id_290[au](1): boolean)
-   EndCondition: (id_407[au](UNKNOWN): ((id_406[au](UNKNOWN): boolean) && (id_292[au](1): boolean))
-   InvariantCondition: (id_294[au](1): boolean)
-   PreCondition: (id_394[iu](UNKNOWN): ((id_396[iu](UNKNOWN): LookupNow(At(, (id_397[iu](UNKNOWN): string)))) == (id_398[iu](0): boolean)))
-   PostCondition: (id_298[au](1): boolean)
-   RepeatCondition: (id_399[iu](UNKNOWN): ((id_401[iu](UNKNOWN): LookupOnChange(At(, (id_402[iu](UNKNOWN): string)), (id_403[au](0): real))) != (id_404[iu](1): boolean)))
-   AncestorInvariantCondition: (id_381[au](1): ((id_377[auT]{1}((id_257[au](1): boolean)) && (id_379[auT]{1}((id_249[au](1): boolean)))
-   AncestorEndCondition: (id_383[iuT]{0}((id_367[au](0): (id_370[au](0): ((id_318[au](WAITING): state(WAITING)) == (id_369[au](FINISHED): state(FINISHED))))))
-   ParentExecutingCondition: (id_386[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_385[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_308[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_405[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_389[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_388[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_392[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_391[au](FINISHED): state(FINISHED))))
+   State: (id_273[a](EXECUTING): state(EXECUTING)) (0)
+   StartCondition: (id_290[a](1): boolean)
+   EndCondition: (id_407[a](UNKNOWN): ((id_406[a](UNKNOWN): boolean) && (id_292[a](1): boolean))
+   InvariantCondition: (id_294[a](1): boolean)
+   PreCondition: (id_394[i](UNKNOWN): ((id_396[i](UNKNOWN): LookupNow(At(, (id_397[i](UNKNOWN): string)))) == (id_398[i](0): boolean)))
+   PostCondition: (id_298[a](1): boolean)
+   RepeatCondition: (id_399[i](UNKNOWN): ((id_401[i](UNKNOWN): LookupOnChange(At(, (id_402[i](UNKNOWN): string)), (id_403[a](0): real))) != (id_404[i](1): boolean)))
+   AncestorInvariantCondition: (id_381[a](1): ((id_377[auT]{1}((id_257[a](1): boolean)) && (id_379[auT]{1}((id_249[a](1): boolean)))
+   AncestorEndCondition: (id_383[iuT]{0}((id_367[a](0): (id_370[a](0): ((id_318[a](WAITING): state(WAITING)) == (id_369[a](FINISHED): state(FINISHED))))))
+   ParentExecutingCondition: (id_386[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_385[a](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_308[a](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_405[i](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_389[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_388[a](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_392[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_391[a](FINISHED): state(FINISHED))))
   }
   TakeSample{
-   State: (id_318[au](WAITING): state(WAITING)) (0)
-   StartCondition: (id_430[au](0): (id_433[au](0): ((id_273[au](EXECUTING): state(EXECUTING)) == (id_432[au](FINISHED): state(FINISHED)))))
-   EndCondition: (id_437[iu](UNKNOWN): ((id_436[iu](UNKNOWN): boolean) && (id_337[au](1): boolean))
-   InvariantCondition: (id_425[iu](UNKNOWN): ((id_427[iu](UNKNOWN): LookupOnChange(At(, (id_428[iu](UNKNOWN): string)), (id_403[au](0): real))) == (id_429[iu](1): boolean)))
-   PreCondition: (id_341[au](1): boolean)
-   PostCondition: (id_343[au](1): boolean)
-   RepeatCondition: (id_345[au](0): boolean)
-   AncestorInvariantCondition: (id_415[au](1): ((id_411[auT]{1}((id_257[au](1): boolean)) && (id_413[auT]{1}((id_249[au](1): boolean)))
-   AncestorEndCondition: (id_417[auT]{0}((id_367[au](0): (id_370[au](0): ((id_318[au](WAITING): state(WAITING)) == (id_369[au](FINISHED): state(FINISHED))))))
-   ParentExecutingCondition: (id_419[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_385[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_353[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_435[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_421[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_388[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_423[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_391[au](FINISHED): state(FINISHED))))
+   State: (id_318[a](WAITING): state(WAITING)) (0)
+   StartCondition: (id_430[a](0): (id_433[a](0): ((id_273[a](EXECUTING): state(EXECUTING)) == (id_432[a](FINISHED): state(FINISHED)))))
+   EndCondition: (id_437[i](UNKNOWN): ((id_436[i](UNKNOWN): boolean) && (id_337[a](1): boolean))
+   InvariantCondition: (id_425[i](UNKNOWN): ((id_427[i](UNKNOWN): LookupOnChange(At(, (id_428[i](UNKNOWN): string)), (id_403[a](0): real))) == (id_429[i](1): boolean)))
+   PreCondition: (id_341[a](1): boolean)
+   PostCondition: (id_343[a](1): boolean)
+   RepeatCondition: (id_345[a](0): boolean)
+   AncestorInvariantCondition: (id_415[a](1): ((id_411[auT]{1}((id_257[a](1): boolean)) && (id_413[auT]{1}((id_249[a](1): boolean)))
+   AncestorEndCondition: (id_417[auT]{0}((id_367[a](0): (id_370[a](0): ((id_318[a](WAITING): state(WAITING)) == (id_369[a](FINISHED): state(FINISHED))))))
+   ParentExecutingCondition: (id_419[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_385[a](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_353[a](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_435[i](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_421[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_388[a](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_423[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_391[a](FINISHED): state(FINISHED))))
   }
 }
 
@@ -174,67 +164,61 @@ SimpleDrive{
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 3
 [PlexilExec:step][3:0] State change queue: Drive 
-[PlexilExec:lock]Locking node Drive
 [PlexilExec:step][3:0:0] Transitioning node Drive
 [Test:testOutput]Registering change lookup At(Rock) with tolerances 0
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 7
-[PlexilExec:unlock]Unlocking node Drive
 [PlexilExec:step][3:1] State change queue: Drive 
-[PlexilExec:lock]Locking node Drive
 [PlexilExec:step][3:1:0] Transitioning node Drive
 [PlexilExec:handleConditionsChanged]Node TakeSample had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'TakeSample' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'TakeSample' on the state change queue in position 8
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'Drive' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node Drive
 [PlexilExec:step][3:2] State change queue: TakeSample 
-[PlexilExec:lock]Locking node TakeSample
 [PlexilExec:step][3:2:0] Transitioning node TakeSample
 [Test:testOutput]Registering change lookup At(Rock) with tolerances 0
 [PlexilExec:handleNeedsExecution]Storing action for node 'TakeSample' to be executed.
 [PlexilExec:handleConditionsChanged]Node TakeSample had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'TakeSample' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node TakeSample
-[Test:testOutput]Executing takeSample() into noId with ack (id_436[au](UNKNOWN): boolean)
+[Test:testOutput]Executing takeSample() into noId with ack (id_436[a](UNKNOWN): boolean)
 [PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 SimpleDrive{
- State: (id_228[au](EXECUTING): state(EXECUTING)) (0)
- StartCondition: (id_245[au](1): boolean)
- EndCondition: (id_367[au](0): (id_370[au](0): ((id_318[au](EXECUTING): state(EXECUTING)) == (id_369[au](FINISHED): state(FINISHED)))))
- InvariantCondition: (id_249[au](1): boolean)
- PreCondition: (id_251[au](1): boolean)
- PostCondition: (id_372[iu](UNKNOWN): (id_375[iu](UNKNOWN): ((id_319[au](UNKNOWN):  outcome) == (id_374[iu](UNKNOWN):  outcome))))
- RepeatCondition: (id_255[au](0): boolean)
- AncestorInvariantCondition: (id_257[au](1): boolean)
- AncestorEndCondition: (id_259[au](0): boolean)
- ParentExecutingCondition: (id_261[au](1): boolean)
- AllChildrenWaitingOrFinishedCondition: (id_361[iu](UNKNOWN): childrenWaitingOrFinished(0:2))
- AbortCompleteCondition: (id_265[au](UNKNOWN): boolean)
- ParentWaitingCondition: (id_267[au](0): boolean)
- ParentFinishedCondition: (id_269[au](0): boolean)
+ State: (id_228[a](EXECUTING): state(EXECUTING)) (0)
+ StartCondition: (id_245[a](1): boolean)
+ EndCondition: (id_367[a](0): (id_370[a](0): ((id_318[a](EXECUTING): state(EXECUTING)) == (id_369[a](FINISHED): state(FINISHED)))))
+ InvariantCondition: (id_249[a](1): boolean)
+ PreCondition: (id_251[a](1): boolean)
+ PostCondition: (id_372[i](UNKNOWN): (id_375[i](UNKNOWN): ((id_319[a](UNKNOWN):  outcome) == (id_374[i](UNKNOWN):  outcome))))
+ RepeatCondition: (id_255[a](0): boolean)
+ AncestorInvariantCondition: (id_257[a](1): boolean)
+ AncestorEndCondition: (id_259[a](0): boolean)
+ ParentExecutingCondition: (id_261[a](1): boolean)
+ AllChildrenWaitingOrFinishedCondition: (id_361[i](UNKNOWN): childrenWaitingOrFinished(0:2))
+ AbortCompleteCondition: (id_265[a](UNKNOWN): boolean)
+ ParentWaitingCondition: (id_267[a](0): boolean)
+ ParentFinishedCondition: (id_269[a](0): boolean)
   Drive{
-   State: (id_273[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_274[au](SUCCESS):  outcome)
+   State: (id_273[a](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_274[a](SUCCESS):  outcome)
   }
   TakeSample{
-   State: (id_318[au](EXECUTING): state(EXECUTING)) (0)
-   StartCondition: (id_430[iu](UNKNOWN): (id_433[iu](UNKNOWN): ((id_273[au](FINISHED): state(FINISHED)) == (id_432[iu](UNKNOWN): state(FINISHED)))))
-   EndCondition: (id_437[au](UNKNOWN): ((id_436[au](UNKNOWN): boolean) && (id_337[au](1): boolean))
-   InvariantCondition: (id_425[au](1): ((id_427[au](1): LookupOnChange(At(, (id_428[au](Rock): string)), (id_403[au](0): real))) == (id_429[au](1): boolean)))
-   PreCondition: (id_341[au](1): boolean)
-   PostCondition: (id_343[au](1): boolean)
-   RepeatCondition: (id_345[au](0): boolean)
-   AncestorInvariantCondition: (id_415[au](1): ((id_411[auT]{1}((id_257[au](1): boolean)) && (id_413[auT]{1}((id_249[au](1): boolean)))
-   AncestorEndCondition: (id_417[iuT]{0}((id_367[au](0): (id_370[au](0): ((id_318[au](EXECUTING): state(EXECUTING)) == (id_369[au](FINISHED): state(FINISHED))))))
-   ParentExecutingCondition: (id_419[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_385[au](EXECUTING): state(EXECUTING))))
-   AllChildrenWaitingOrFinishedCondition: (id_353[au](UNKNOWN): boolean)
-   AbortCompleteCondition: (id_435[iu](UNKNOWN): boolean)
-   ParentWaitingCondition: (id_421[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_388[au](WAITING): state(WAITING))))
-   ParentFinishedCondition: (id_423[iu](UNKNOWN): ((id_228[au](EXECUTING): state(EXECUTING)) == (id_391[au](FINISHED): state(FINISHED))))
+   State: (id_318[a](EXECUTING): state(EXECUTING)) (0)
+   StartCondition: (id_430[i](UNKNOWN): (id_433[i](UNKNOWN): ((id_273[a](FINISHED): state(FINISHED)) == (id_432[i](UNKNOWN): state(FINISHED)))))
+   EndCondition: (id_437[a](UNKNOWN): ((id_436[a](UNKNOWN): boolean) && (id_337[a](1): boolean))
+   InvariantCondition: (id_425[a](1): ((id_427[a](1): LookupOnChange(At(, (id_428[a](Rock): string)), (id_403[a](0): real))) == (id_429[a](1): boolean)))
+   PreCondition: (id_341[a](1): boolean)
+   PostCondition: (id_343[a](1): boolean)
+   RepeatCondition: (id_345[a](0): boolean)
+   AncestorInvariantCondition: (id_415[a](1): ((id_411[auT]{1}((id_257[a](1): boolean)) && (id_413[auT]{1}((id_249[a](1): boolean)))
+   AncestorEndCondition: (id_417[iuT]{0}((id_367[a](0): (id_370[a](0): ((id_318[a](EXECUTING): state(EXECUTING)) == (id_369[a](FINISHED): state(FINISHED))))))
+   ParentExecutingCondition: (id_419[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_385[a](EXECUTING): state(EXECUTING))))
+   AllChildrenWaitingOrFinishedCondition: (id_353[a](UNKNOWN): boolean)
+   AbortCompleteCondition: (id_435[i](UNKNOWN): boolean)
+   ParentWaitingCondition: (id_421[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_388[a](WAITING): state(WAITING))))
+   ParentFinishedCondition: (id_423[i](UNKNOWN): ((id_228[a](EXECUTING): state(EXECUTING)) == (id_391[a](FINISHED): state(FINISHED))))
   }
 }
 
@@ -246,53 +230,43 @@ SimpleDrive{
 [Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 4
 [PlexilExec:step][4:0] State change queue: TakeSample 
-[PlexilExec:lock]Locking node TakeSample
 [PlexilExec:step][4:0:0] Transitioning node TakeSample
 [PlexilExec:handleConditionsChanged]Node TakeSample had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'TakeSample' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'TakeSample' on the state change queue in position 10
-[PlexilExec:unlock]Unlocking node TakeSample
 [PlexilExec:step][4:1] State change queue: TakeSample 
-[PlexilExec:lock]Locking node TakeSample
 [PlexilExec:step][4:1:0] Transitioning node TakeSample
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 11
 [PlexilExec:handleConditionsChanged]Node TakeSample had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'TakeSample' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node TakeSample
 [PlexilExec:step][4:2] State change queue: SimpleDrive 
-[PlexilExec:lock]Locking node SimpleDrive
 [PlexilExec:step][4:2:0] Transitioning node SimpleDrive
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 12
-[PlexilExec:unlock]Unlocking node SimpleDrive
 [PlexilExec:step][4:3] State change queue: SimpleDrive 
-[PlexilExec:lock]Locking node SimpleDrive
 [PlexilExec:step][4:3:0] Transitioning node SimpleDrive
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 13
-[PlexilExec:unlock]Unlocking node SimpleDrive
 [PlexilExec:step][4:4] State change queue: SimpleDrive 
-[PlexilExec:lock]Locking node SimpleDrive
 [PlexilExec:step][4:4:0] Transitioning node SimpleDrive
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'SimpleDrive' was previously eligible to transition but isn't now.
-[PlexilExec:unlock]Unlocking node SimpleDrive
 [PlexilExec:cycle]==>End cycle 4
 [PlexilExec:printPlan]
 SimpleDrive{
- State: (id_228[au](FINISHED): state(FINISHED)) (0)
- Outcome: (id_229[au](SUCCESS):  outcome)
+ State: (id_228[a](FINISHED): state(FINISHED)) (0)
+ Outcome: (id_229[a](SUCCESS):  outcome)
   Drive{
-   State: (id_273[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_274[au](SUCCESS):  outcome)
+   State: (id_273[a](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_274[a](SUCCESS):  outcome)
   }
   TakeSample{
-   State: (id_318[au](FINISHED): state(FINISHED)) (0)
-   Outcome: (id_319[au](SUCCESS):  outcome)
+   State: (id_318[a](FINISHED): state(FINISHED)) (0)
+   Outcome: (id_319[a](SUCCESS):  outcome)
   }
 }
 

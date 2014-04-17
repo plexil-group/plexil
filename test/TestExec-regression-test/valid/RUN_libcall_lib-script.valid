@@ -2,29 +2,29 @@
 [Test:testOutput]Returning value 0
 [PlexilExec:addPlan]Added plan: 
 List{
- State: (id_288[au](INACTIVE): state(INACTIVE)) (inf)
+ State: (id_288[a](INACTIVE): state(INACTIVE)) (inf)
   CallLibTest1{
-   State: (id_339[au](INACTIVE): state(INACTIVE)) (inf)
+   State: (id_339[a](INACTIVE): state(INACTIVE)) (inf)
     LibTest1{
-     State: (id_386[au](INACTIVE): state(INACTIVE)) (inf)
+     State: (id_386[a](INACTIVE): state(INACTIVE)) (inf)
       FooCall1{
-       State: (id_433[au](INACTIVE): state(INACTIVE)) (inf)
+       State: (id_433[a](INACTIVE): state(INACTIVE)) (inf)
       }
     }
   }
   CallLibTest2{
-   State: (id_492[au](INACTIVE): state(INACTIVE)) (inf)
+   State: (id_492[a](INACTIVE): state(INACTIVE)) (inf)
     LibTest2{
-     State: (id_540[au](INACTIVE): state(INACTIVE)) (inf)
+     State: (id_540[a](INACTIVE): state(INACTIVE)) (inf)
       BarCall2{
-       State: (id_587[au](INACTIVE): state(INACTIVE)) (inf)
+       State: (id_587[a](INACTIVE): state(INACTIVE)) (inf)
       }
       Call2LibTest1{
-       State: (id_634[au](INACTIVE): state(INACTIVE)) (inf)
+       State: (id_634[a](INACTIVE): state(INACTIVE)) (inf)
         LibTest1{
-         State: (id_684[au](INACTIVE): state(INACTIVE)) (inf)
+         State: (id_684[a](INACTIVE): state(INACTIVE)) (inf)
           FooCall1{
-           State: (id_731[au](INACTIVE): state(INACTIVE)) (inf)
+           State: (id_731[a](INACTIVE): state(INACTIVE)) (inf)
           }
         }
       }
