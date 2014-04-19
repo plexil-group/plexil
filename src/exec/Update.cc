@@ -49,11 +49,10 @@ namespace PLEXIL
              updateProto->pairs().begin();
            it != updateProto->pairs().end();
            ++it) {
-        LabelStr nameStr(it->first);
-        debugMsg("Node:createUpdate", "Adding pair '" << nameStr.toString());
+        debugMsg("Node:createUpdate", "Adding pair '" << it->first);
         // FIXME: move error check to parser if not already there
-        assertTrueMsg(m_pairs.find(nameStr) == m_pairs.end(),
-                      "Update constructor: Duplicate pairs with name \"" << nameStr.toString() << "\"");
+        assertTrueMsg(m_pairs.find(it->first) == m_pairs.end(),
+                      "Update constructor: Duplicate pairs with name \"" << it->first << "\"");
         PlexilExprId foo = it->second;
         bool wasCreated = false;
         ExpressionId valueExpr = 
@@ -64,7 +63,7 @@ namespace PLEXIL
         check_error(valueExpr.isValid());
         if (wasCreated)
           m_garbage.push_back(valueExpr);
-        m_pairs[nameStr] = valueExpr;
+        m_pairs[it->first] = valueExpr;
       }
     }
   }
@@ -88,8 +87,7 @@ namespace PLEXIL
       check_error(it->second.isValid());
       m_valuePairs[it->first] = it->second->getValue();
       debugMsg("Update:fixValues",
-               " fixing pair '" << it->first.toString() << "', "
-               << it->second->getValue());
+               " fixing pair '" << it->first << "', " << it->second->getValue());
     }
   }
 

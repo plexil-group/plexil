@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -132,7 +132,7 @@ namespace PLEXIL
   }
 
   void DummyAdapter::sendPlannerUpdate(const NodeId& node,
-                                       const std::map<LabelStr, Value>& /* valuePairs */,
+                                       const std::map<std::string, Value>& /* valuePairs */,
                                        ExpressionId ack)
   {
     debugMsg("ExternalInterface:dummy", " sendPlannerUpdate called");

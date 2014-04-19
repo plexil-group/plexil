@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -150,13 +150,13 @@ namespace PLEXIL
     /**
      * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.
      * @param node The Node requesting the update.
-     * @param valuePairs A map of <LabelStr key, value> pairs.
+     * @param valuePairs A map of <string_key, value> pairs.
      * @param ack The expression in which to store an acknowledgement of completion.
      * @note Derived classes may implement this method.  The default method causes an assertion to fail.
      */
 
     virtual void sendPlannerUpdate(const NodeId& node,
-                                   const std::map<LabelStr, Value>& valuePairs,
+                                   const std::map<std::string, Value>& valuePairs,
                                    ExpressionId ack);
 
     /**

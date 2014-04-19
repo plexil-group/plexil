@@ -93,7 +93,9 @@ namespace PLEXIL
     Value lookupNow(const State& stateKey);
     void subscribe(const State& state);
     void unsubscribe(const State& state);
-    void sendPlannerUpdate(const NodeId& node, const std::map<LabelStr, Value>& valuePairs, ExpressionId ack);
+    void sendPlannerUpdate(const NodeId& node,
+                           const std::map<std::string, Value>& valuePairs,
+                           ExpressionId ack);
     // Executes a command with the given arguments
     void executeCommand(const CommandId& cmd);
     // Abort the given command with the given arguments.  Store the abort-complete into ack

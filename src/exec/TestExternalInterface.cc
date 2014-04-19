@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -571,10 +571,9 @@ namespace PLEXIL
   {
     for (std::list<UpdateId>::const_iterator it = updates.begin(); it != updates.end(); ++it) {
       debugMsg("Test:testOutput", "Received update: ");
-      const std::map<LabelStr, Value>& pairs = (*it)->getPairs();
-      for (std::map<LabelStr, Value>::const_iterator pairIt = pairs.begin(); pairIt != pairs.end(); ++pairIt)
-        debugMsg("Test:testOutput", " " << pairIt->first.toString()
-                 << " => " << pairIt->second);
+      const std::map<std::string, Value>& pairs = (*it)->getPairs();
+      for (std::map<std::string, Value>::const_iterator pairIt = pairs.begin(); pairIt != pairs.end(); ++pairIt)
+        debugMsg("Test:testOutput", " " << pairIt->first << " => " << pairIt->second);
       m_waitingUpdates.insert(std::make_pair((*it)->getSource()->getNodeId(), *it));
     }
   }

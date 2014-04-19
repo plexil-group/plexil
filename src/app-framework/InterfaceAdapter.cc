@@ -95,7 +95,7 @@ namespace PLEXIL
   }
 
   void InterfaceAdapter::sendPlannerUpdate(const NodeId& /* node */,
-                                           const std::map<LabelStr, Value>& /* valuePairs */,
+                                           const std::map<std::string, Value>& /* valuePairs */,
                                            ExpressionId /* ack */)
   {
     assertTrue(ALWAYS_FAIL,

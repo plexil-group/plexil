@@ -136,7 +136,7 @@ namespace PLEXIL
   }
 
   void UdpAdapter::sendPlannerUpdate(const NodeId& node,
-                                     const std::map<LabelStr, Value>& /* valuePairs */,
+                                     const std::map<std::string, Value>& /* valuePairs */,
                                      ExpressionId ack)
   {
     debugMsg("UdpAdapter::sendPlannerUpdate", " called");

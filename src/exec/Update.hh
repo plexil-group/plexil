@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,7 +44,7 @@ namespace PLEXIL
 
     const UpdateId& getId() const {return m_id;}
     const VariableId& getAck() const {return m_ack;}
-    const std::map<LabelStr, Value>& getPairs() const {return m_valuePairs;}
+    const std::map<std::string, Value>& getPairs() const {return m_valuePairs;}
     const NodeId& getSource() const {return m_source;}
     void activate();
     void deactivate();
@@ -64,9 +64,9 @@ namespace PLEXIL
     NodeId m_source;
     VariableId m_ack;
     std::vector<ExpressionId> m_garbage;
-    typedef std::map<LabelStr, ExpressionId> PairExpressionMap;
+    typedef std::map<std::string, ExpressionId> PairExpressionMap;
     PairExpressionMap m_pairs;
-    typedef std::map<LabelStr, Value> PairValueMap;
+    typedef std::map<std::string, Value> PairValueMap;
     PairValueMap m_valuePairs;
   };
 
