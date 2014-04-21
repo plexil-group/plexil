@@ -25,7 +25,7 @@
 
 (defun init-plexilisp (&optional compile)
   (interactive)
-  (let* ((plexildir (format "%s/src/plexilisp" (getenv "PLEXIL_HOME")))
+  (let* ((plexildir (format "%s/compilers/plexilisp" (getenv "PLEXIL_HOME")))
          (source-file (format "%s/plexil.el" plexildir))
          (compiled-file (format "%s/plexil.elc" plexildir))
          (max-specpdl-size 2700))
