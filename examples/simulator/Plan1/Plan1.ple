@@ -1,0 +1,7 @@
+Command Foo (Integer, String);
+
+Plan1:
+{
+  Foo (1, "blue");
+}
+
