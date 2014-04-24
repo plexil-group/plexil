@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,7 +131,7 @@ public:
    * this method returns.
    * @param command The command string to send
    */
-  uint32_t publishCommand(const LabelStr& command, const std::list<double>& argsToDeliver);
+  uint32_t publishCommand(const LabelStr& command, const std::vector<Value>& argsToDeliver);
 
   /**
    * @brief Sends the given command to the given client ID via IPC. If the client ID is
@@ -141,13 +141,13 @@ public:
    * @param command The command string to send
    * @param dest The destination ID for this command
    */
-  uint32_t sendCommand(const LabelStr& command, const LabelStr& dest, const std::list<double>& argsToDeliver);
+  uint32_t sendCommand(const LabelStr& command, const LabelStr& dest, const std::vector<Value>& argsToDeliver);
 
   /**
    * @brief publishes the given LookupNow via IPC
    * @param command The command string to send
    */
-  uint32_t publishLookupNow(const LabelStr& lookup, const std::list<double>& argsToDeliver);
+  uint32_t publishLookupNow(const LabelStr& lookup, const std::vector<Value>& argsToDeliver);
 
 
   /**
@@ -156,7 +156,7 @@ public:
    * @param lookup The lookup string to send
    * @param dest The destination ID for this LookupNow
    */
-  uint32_t sendLookupNow(const LabelStr& lookup, const LabelStr& dest, const std::list<double>& argsToDeliver);
+  uint32_t sendLookupNow(const LabelStr& lookup, const LabelStr& dest, const std::vector<Value>& argsToDeliver);
 
   /**
    * @brief publishes the given return values via IPC
@@ -168,7 +168,7 @@ public:
    * @brief publishes the given telemetry value via IPC
    * @param command The command string to send
    */
-  uint32_t publishTelemetry(const std::string& destName, const std::list<double>& values);
+  uint32_t publishTelemetry(const std::string& destName, const std::vector<Value>& values);
 
   /**
    * @brief Get next serial number
@@ -249,7 +249,7 @@ private:
    * @param args The arguments to convert into messages and send
    * @param serial The serial to send along with each parameter. This should be the same serial as the header
    */
-  IPC_RETURN_TYPE sendParameters(const std::list<double>& args, uint32_t serial);
+  IPC_RETURN_TYPE sendParameters(const std::vector<Value>& args, uint32_t serial);
 
   /**
    * @brief Helper function for sending a vector of parameters via IPC to a specific executive.
@@ -257,7 +257,7 @@ private:
    * @param serial The serial to send along with each parameter. This should be the same serial as the header
    * @param dest The destination executive name
    */
-  IPC_RETURN_TYPE sendParameters(const std::list<double>& args, uint32_t serial, const LabelStr& dest);
+  IPC_RETURN_TYPE sendParameters(const std::vector<Value>& args, uint32_t serial, const LabelStr& dest);
 
   /**
    * @brief Define all PLEXIL message types with Central. Also defines each PLEXIL message type with

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -277,10 +277,10 @@ namespace PLEXIL {
     return IPC_publishData(STRING_VALUE_MSG, (void *) &packet);
   }
 
-  uint32_t IpcFacade::publishCommand(const LabelStr& command, const std::list<double>& argsToDeliver) {
+  uint32_t IpcFacade::publishCommand(const LabelStr& command, const std::vector<Value>& argsToDeliver) {
     return sendCommand(command, LabelStr(), argsToDeliver);
   }
-  uint32_t IpcFacade::sendCommand(const LabelStr& command, const LabelStr& dest, const std::list<double>& argsToDeliver) {
+  uint32_t IpcFacade::sendCommand(const LabelStr& command, const LabelStr& dest, const std::vector<Value>& argsToDeliver) {
     assertTrue(m_isStarted, "publishCommand called before started");
     uint32_t serial = getSerialNumber();
     struct PlexilStringValueMsg cmdPacket = { { PlexilMsgType_Command, argsToDeliver.size(), serial, m_myUID.c_str() }, command.c_str() };
@@ -293,11 +293,11 @@ namespace PLEXIL {
     return result == IPC_OK ? serial : ERROR_SERIAL();
   }
 
-  uint32_t IpcFacade::publishLookupNow(const LabelStr& lookup, const std::list<double>& argsToDeliver) {
+  uint32_t IpcFacade::publishLookupNow(const LabelStr& lookup, const std::vector<Value>& argsToDeliver) {
     return sendLookupNow(lookup, EMPTY_LABEL(), argsToDeliver);
   }
 
-  uint32_t IpcFacade::sendLookupNow(const LabelStr& lookup, const LabelStr& dest, const std::list<double>& argsToDeliver) {
+  uint32_t IpcFacade::sendLookupNow(const LabelStr& lookup, const LabelStr& dest, const std::vector<Value>& argsToDeliver) {
     // Construct the messages
     // Leader
     uint32_t serial = getSerialNumber();
@@ -318,7 +318,7 @@ namespace PLEXIL {
     struct PlexilReturnValuesMsg packet = { { PlexilMsgType_ReturnValues, 1, serial, m_myUID.c_str() }, request_serial, request_uid.c_str() };
     IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(RETURN_VALUE_MSG, request_uid.toString()).c_str(), (void *) &packet);
     if (result == IPC_OK) {
-      result = sendParameters(std::list<double>(1, arg), serial, request_uid);
+      result = sendParameters(std::vector<Value>(1, arg), serial, request_uid);
     }
     setError(result);
     return result == IPC_OK ? serial : ERROR_SERIAL();
@@ -331,7 +331,7 @@ namespace PLEXIL {
     m_error = error;
   }
 
-  uint32_t IpcFacade::publishTelemetry(const std::string& destName, const std::list<double>& values) {
+  uint32_t IpcFacade::publishTelemetry(const std::string& destName, const std::vector<Value>& values) {
     // Telemetry values message
     debugMsg("IpcFacade:publishTelemetry",
              " sending telemetry message for \"" << destName << "\"");
@@ -356,7 +356,7 @@ namespace PLEXIL {
    * @param args The arguments to convert into messages and send
    * @param serial The serial to send along with each parameter. This should be the same serial as the header
    */
-  IPC_RETURN_TYPE IpcFacade::sendParameters(const std::list<double>& args, uint32_t serial) {
+  IPC_RETURN_TYPE IpcFacade::sendParameters(const std::vector<Value>& args, uint32_t serial) {
     return sendParameters(args, serial, "");
   }
 
@@ -367,15 +367,15 @@ namespace PLEXIL {
    * @param dest The destination executive name. If dest is an empty string, parameters are broadcast to
    * all executives
    */
-  IPC_RETURN_TYPE IpcFacade::sendParameters(const std::list<double>& args, uint32_t serial, const LabelStr& dest) {
+  IPC_RETURN_TYPE IpcFacade::sendParameters(const std::vector<Value>& args, uint32_t serial, const LabelStr& dest) {
     size_t nParams = args.size();
     // Construct parameter messages
     PlexilMsgBase* paramMsgs[nParams];
     unsigned int i = 0;
-    for (std::list<double>::const_iterator it = args.begin(); it != args.end(); it++, i++) {
-      double param = *it;
+    for (std::vector<Value>::const_iterator it = args.begin(); it != args.end(); it++, i++) {
+      Value param = *it;
       PlexilMsgBase* paramMsg;
-      if (PLEXIL::UNKNOWN() != param && StoredArray::isKey(param)) {
+      if (PLEXIL::UNKNOWN() != param && param.isArray()) {
         StoredArray array(param);
         int size = array.size();
         BasicType type = determineType(array.getKey());
@@ -397,11 +397,12 @@ namespace PLEXIL {
           struct PlexilNumericArrayMsg* numArrayMsg = new PlexilNumericArrayMsg();
           numArrayMsg->arraySize = size;
           numArrayMsg->doubleArray = nums;
-          debugMsg("IpcFacade:sendParameters", "First parameter of array is " << numArrayMsg->doubleArray[0]);
+          debugMsg("IpcFacade:sendParameters",
+				   "First parameter of array is " << numArrayMsg->doubleArray[0]);
           paramMsg = (PlexilMsgBase*) numArrayMsg;
           paramMsg->msgType = PlexilMsgType_NumericArray;
         }
-      } else if (PLEXIL::UNKNOWN() == param || !LabelStr::isString(param)) {
+      } else if (PLEXIL::UNKNOWN() == param || !param.isString()) {
         // number or Boolean
         struct PlexilNumericValueMsg* numMsg = new PlexilNumericValueMsg();
         numMsg->doubleValue = param;
