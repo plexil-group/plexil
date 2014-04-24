@@ -51,7 +51,7 @@ ResponseBase* PlexilSimResponseFactory::parseResponseValues(const std::string& c
 		    << cmdName << "\"" << std::endl;
 	  return NULL;
 	}
-      return new GenericResponse(std::vector<double>(1, (double) returnValue));
+      return new GenericResponse(std::vector<PLEXIL::Value>(1, (PLEXIL::Value) returnValue));
     }
   else if (cmdName == "foo")
     {
@@ -62,13 +62,13 @@ ResponseBase* PlexilSimResponseFactory::parseResponseValues(const std::string& c
 		    << cmdName << "\"" << std::endl;
 	  return NULL;
 	}
-      return new GenericResponse(std::vector<double>(1, (double) returnValue));
+      return new GenericResponse(std::vector<PLEXIL::Value>(1, (PLEXIL::Value) returnValue));
     }
   else
     {
       // No customization present. See if the default version can be used.
       
-      std::vector<double> returnValue;
+      std::vector<PLEXIL::Value> returnValue;
       while (!inStr.eof())
         {
           double retVal;
