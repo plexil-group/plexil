@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,7 +122,7 @@ public:
    * @param state The state.
    * @return The current value for the state.
    */
-  virtual double lookupNow(const State& state);
+  virtual Value lookupNow(const State& state);
 
   /**
    * @brief Inform the interface that it should report changes in value of this state.
@@ -151,34 +151,42 @@ public:
    * @param ack The expression in which to store an acknowledgement of completion.
    */
 
-  virtual void sendPlannerUpdate(const NodeId& node, const std::map<LabelStr, double>& valuePairs, ExpressionId ack);
+  virtual void sendPlannerUpdate(const NodeId& node,
+								 const std::map<std::string, Value>& valuePairs,
+								 ExpressionId ack);
 
   /**
    * @brief Execute a command with the requested arguments.
    * @param name The LabelString representing the command name.
-   * @param args The command arguments expressed as doubles.
+   * @param args The command arguments.
    * @param dest The expression in which to store any value returned from the command.
    * @param ack The expression in which to store an acknowledgement of command transmission.
    */
 
-  virtual void executeCommand(const LabelStr& name, const std::list<double>& args, ExpressionId dest, ExpressionId ack);
+  virtual void executeCommand(const LabelStr& name,
+							  const std::vector<Value>& args,
+							  ExpressionId dest,
+							  ExpressionId ack);
 
   /**
    * @brief Abort the pending command with the supplied name and arguments.
    * @param cmdName The LabelString representing the command name.
-   * @param cmdArgs The command arguments expressed as doubles.
+   * @param cmdArgs The command arguments.
    * @param cmdAck The acknowledgment of the pending command
    * @param abrtAck The expression in which to store an acknowledgment of command abort.
    */
 
-  virtual void invokeAbort(const LabelStr& cmdName, const std::list<double>& cmdArgs, ExpressionId abrtAck, ExpressionId cmdAck);
+  virtual void invokeAbort(const LabelStr& cmdName,
+						   const std::vector<Value>& cmdArgs,
+						   ExpressionId abrtAck,
+						   ExpressionId cmdAck);
 
 private:
 
   // Deliberately unimplemented
   IpcAdapter();
   IpcAdapter(const IpcAdapter &);
-  IpcAdapter & operator=(const IpcAdapter &);
+  IpcAdapter& operator=(const IpcAdapter&);
 
   //
   // Implementation methods
@@ -187,43 +195,43 @@ private:
   /**
    * @brief handles SEND_MESSAGE_COMMAND commands from the exec
    */
-  void executeSendMessageCommand(const std::list<double>& args,
+  void executeSendMessageCommand(const std::vector<Value>& args,
                                  ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
-  void executeSendReturnValueCommand(const std::list<double>& args,
+  void executeSendReturnValueCommand(const std::vector<Value>& args,
                                      ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
-  void executeReceiveMessageCommand(const std::list<double>& args,
+  void executeReceiveMessageCommand(const std::vector<Value>& args,
                                     ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles SEND_RETURN_VALUE_COMMAND commands from the exec
    */
-  void executeReceiveCommandCommand(const std::list<double>& args,
+  void executeReceiveCommandCommand(const std::vector<Value>& args,
                                     ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles GET_PARAMETER_COMMAND commands from the exec
    */
-  void executeGetParameterCommand(const std::list<double>& args,
+  void executeGetParameterCommand(const std::vector<Value>& args,
                                   ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles UPDATE_LOOKUP_COMMAND commands from the exec
    */
-  void executeUpdateLookupCommand(const std::list<double>& args,
+  void executeUpdateLookupCommand(const std::vector<Value>& args,
                                   ExpressionId dest, ExpressionId ack);
 
   /**
    * @brief handles all other commands from the exec
    */
-  void executeDefaultCommand(const LabelStr& name, const std::list<double>& args,
+  void executeDefaultCommand(const LabelStr& name, const std::vector<Value>& args,
                              ExpressionId dest, ExpressionId ack);
 
   /**
@@ -274,17 +282,17 @@ private:
   /**
    * @brief Helper function for converting message names into the proper format given the command type and a user-defined id.
    */
-  double formatMessageName(const LabelStr& name, const LabelStr& command, int id);
+  Value formatMessageName(const LabelStr& name, const LabelStr& command, int id);
 
   /**
    * @brief Helper function for converting message names into the propper format given the command type.
    */
-  double formatMessageName(const LabelStr& name, const LabelStr& command);
+  Value formatMessageName(const LabelStr& name, const LabelStr& command);
 
   /**
    * @brief Helper function for converting message names into the propper format given the command type.
    */
-  double formatMessageName(const char* name, const LabelStr& command);
+  Value formatMessageName(const char* name, const LabelStr& command);
 
   //
   // Static member functions
@@ -296,9 +304,9 @@ private:
   static bool hasPrefix(const std::string& s, const std::string& prefix);
 
   /**
-   * @brief Given a sequence of messages, turn the trailers into a double value for the Exec.
+   * @brief Given a sequence of messages, turn the trailers into a value for the Exec.
    */
-  static double parseReturnValue(const std::vector<const PlexilMsgBase*>& msgs);
+  static Value parseReturnValue(const std::vector<const PlexilMsgBase*>& msgs);
 
   //
   // Private data types
@@ -369,7 +377,7 @@ private:
   uint32_t m_pendingLookupSerial;
 
   //* @brief Place to store result of current pending LookupNow request
-  double m_pendingLookupResult;
+  Value m_pendingLookupResult;
 
   //* @brief Map of external lookup values.
   ExternalLookupMap m_externalLookups;

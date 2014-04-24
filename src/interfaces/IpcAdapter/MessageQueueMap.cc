@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -107,7 +107,7 @@ namespace PLEXIL
    * @param message The message string to be added
    * @param params The parameters that are to be sent with the message
    */
-  void MessageQueueMap::addMessage(const LabelStr& message, double param) {
+  void MessageQueueMap::addMessage(const LabelStr& message, const Value& param) {
     ThreadMutexGuard guard(m_mutex);
     PairingQueue* pq = getQueue(message);
     if (!pq->m_allowDuplicateMessages)
@@ -115,7 +115,7 @@ namespace PLEXIL
     pq->m_messageQueue.push_back(param);
     updateQueue( pq);
     debugMsg("MessageQueueMap:addMessage",
-             "Message \"" << pq->m_name.c_str() << "\" added, value = " << AdapterExecInterface::valueToString(param));
+             "Message \"" << pq->m_name.c_str() << "\" added, value = " << param.getStringValue());
   }
 
   /**
