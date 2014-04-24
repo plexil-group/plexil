@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@
 #include "GenericResponse.hh"
 #include "Simulator.hh"
 #include "Expression.hh"
+#include "Value.hh"
 
 #include "Debug.hh"
 #include "Error.hh"
@@ -75,8 +76,8 @@ void IpcCommRelay::sendResponse(const ResponseMessage* respMsg) {
   const GenericResponse* gr = dynamic_cast<const GenericResponse*> (respMsg->getResponseBase());
   assertTrueMsg(gr != NULL,
       "IpcCommRelay::sendResponse: invalid ResponseBase object");
-  const std::vector<double>& values = gr->getReturnValue();
-  std::list<double> ret_list(values.begin(), values.end());
+  const std::vector<PLEXIL::Value>& values = gr->getReturnValue();
+  std::vector<PLEXIL::Value> ret_list(values.begin(), values.end());
 
   // Format the leader
   switch (respMsg->getMessageType()) {
@@ -134,7 +135,7 @@ void IpcCommRelay::processLookupNow(const std::vector<const PlexilMsgBase*>& msg
   } else {
     // Create a bogus response that returns 0 values (i.e. unknown)
     debugMsg("IpcCommRelay:lookupNow", " " << stateName << " not found, returning UNKNOWN");
-    static GenericResponse gr(std::vector<double>(1, PLEXIL::Expression::UNKNOWN()));
+    static GenericResponse gr(std::vector<PLEXIL::Value>(1, PLEXIL::Expression::UNKNOWN()));
     response = new ResponseMessage(&gr, static_cast<void*> (transId), MSG_LOOKUP);
   }
   // Simply send the response

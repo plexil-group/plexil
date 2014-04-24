@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -23,6 +23,7 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #include "ResponseFactory.hh"
 #include "GenericResponse.hh"
 #include "Debug.hh"
@@ -43,7 +44,7 @@ ResponseBase* ResponseFactory::parseResponseValues(const std::string& cmdName,
 						   unsigned int lineCount)
 {
   std::istringstream inStr(line);
-  std::vector<double> returnVector;
+  std::vector<PLEXIL::Value> returnVector;
 
   while (!inStr.eof())
     {
