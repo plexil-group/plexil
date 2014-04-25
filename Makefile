@@ -36,7 +36,7 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler plexilscript checker plexilsim robosim sample pv
+all: UniversalExec TestExec IpcAdapter UdpAdapter GanttListener plexil-compiler plexilscript checker plexilsim sample pv
 
 # convenience target for AMO project
 amo AMO: exec-core app-framework pv plexil-compiler
@@ -47,6 +47,7 @@ TestExec: exec-core PlanDebugListener LuvListener pv
 plexilsim: utils ipc IpcUtils
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
+# Currently broken
 robosim: UniversalExec IpcAdapter
 	$(MAKE) -C examples/robosim
 
