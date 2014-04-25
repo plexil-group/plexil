@@ -4,11 +4,9 @@ https://sourceforge.net/apps/mediawiki/plexil/index.php?title=Executing_Plans
 
 for documentation of this simulator.
 
-Each directory contains a plan, simulation script, and interface configuration
-file that goes together.  Example of running one:
-
-  cd Plan1
-  plexilsim -p Plan1.plx -s Plan1-script.txt -c Plan1-config.xml 
+Each directory contains a plan with a complementary simulation script and
+interface configuration file.  See the README files in each directory for more
+information.
 
 
 
