@@ -114,19 +114,19 @@ static void propagate (const State& state, const vector<Value>& value)
 
 static void receive (const string& state_name, int val)
 {
-  propagate (State (LabelStr (state_name), EmptyArgs),
+  propagate (State (state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receive (const string& state_name, float val)
 {
-  propagate (State (LabelStr (state_name), EmptyArgs),
+  propagate (State (state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receive (const string& state_name, const string& val)
 {
-  propagate (State (LabelStr (state_name), EmptyArgs),
+  propagate (State (state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
