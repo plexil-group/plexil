@@ -1,6 +1,8 @@
 This file explains the build system for PLEXIL version 3.x, and how to build
 PLEXIL and its related applications provided in this distribution.
 
+See the CAVEATS file for addtional build-related information.
+
 Overview
 --------
 
@@ -74,7 +76,9 @@ or
    The --prefix argument shown will install the generated PLEXIL binaries in
    your PLEXIL installation directory.  By default, they are installed in
    /usr/local, which may require superuser privelege and not be as convenient a
-   location.  Addtional options to configure are described below under
+   location.  
+
+   Addtional options to configure of interest are described below under
    "Configure options".
 
 3. Build the system:
@@ -82,7 +86,7 @@ or
    make
 
    If you encounter error messages similar to the following (which,
-   unfortunately, is likely):
+   unfortunately, is not unlikely):
 
    libtool: ignoring unknown tag CXX
    libtool: Version mismatch error.  This is libtool 2.4.2 ..., but the
@@ -93,9 +97,8 @@ or
    Do the following:
 
    aclocal --force
-   libtoolize --copy --force
-   autoreconf
-   ./config.status
+   libtoolize --force --copy
+   autoreconf --force --install
 
    These steps may require you to install Gnu tools you don't have, in
    particular 'libtool'.  Follow the indications you see in what's printed at
@@ -106,69 +109,61 @@ or
    make install
 
 
-To be sorted out
-----------------
+Building PLEXIL applications
+----------------------------
 
- * If the GNU autotools installed on your system are a different
-   version from the ones used to build this release, you may encounter
-   errors running 'make'. The following commands can replace the bad
-   files with compatible ones from your local installation:
-     aclocal --force
-     libtoolize --force --copy
-     autoreconf --force --install
-   You should be able to re-run 'make' successfully at this point.
+All the PLEXIL-related applications provided in this distribution may be built
+in one step.  Change to your top level PLEXIL installation directory and type
+'make'.
 
- * The following subsystems in $PLEXIL_HOME/src are no longer built by
-   default: 
-     - the Test Executive
-     - module tests
-     - the UDP adapter
-     - Gantt viewer support
-     - IPC and modules which depend on it: Plexil Simulator, Robosim,
-     IPC adapter, et al
+See the Makefile in this directory if you wish to only build certain
+applications.
 
-   Most of these modules can be enabled via options to 'configure'.
-   Type: 
-      ./configure --help
-   to see these options.  
-   
-   To include all currently supported PLEXIL systems:
-      ./configure --enable-gantt --enable-module-tests --enable-test-exec --enable-udp
+Note that you must first build the PLEXIL executive, as described in the
+previous section.
 
 
+Configure options
+-----------------
 
- * The default installation location for PLEXIL libraries and
-   executables under the GNU autotools is /usr/local. The installation
-   location can be specified with the '--prefix=' option to
-   'configure'. We recommend installing these files in the PLEXIL
-   installation directory itself. E.g.:
-    ./configure --prefix=$PLEXIL_HOME [... more options ...]
+Some PLEXIL subsystems and related applications in $PLEXIL_HOME/src are no
+longer built by default.  Most of these can be built easily as described in the
+previous section.  
 
- * By default, the GNU autotools build both dynamic and static
-   libraries.  Static linking currently does not work on some
-   systems. To save build time and disk space, we recommend that you
-   build only the dynamic (shared) libraries on modern Linux and Mac
-   platforms. This is done by supplying the '--disable-static' option
-   to 'configure'.
+One subsystem, the executive module tests used for regression testing
+(of interest mainly to PLEXIL developers), must be enabled by 'configure' prior
+to building the PLEXIL executive:
 
- * The Plexil and Plexilscript compilers are not part of
-   $PLEXIL_HOME/src, and need to be built separately. To do this:
+  ./configure --enable-module-tests
+
+Some, but not all, the remaining PLEXIL subsystems and applications, can also be
+built by first configuring for them.  Type the following to see the options:
+
+    ./configure --help
+
+For example:
+
+  ./configure --enable-gantt --enable-module-tests --enable-test-exec
+
+
+By default, the GNU autotools build both dynamic and static ibraries.  Static
+linking currently does not work on some systems. To save build time and disk
+space, we recommend that you build only the dynamic (shared) libraries on modern
+Linux and Mac platforms. This is done by supplying the '--disable-static' option
+to 'configure'.
+
+
+Misc
+----
+
+Most, but not all, PLEXIL subsystems and applications can easily build
+individually.  It is easiest to follow the steps in the previous section,
+however you may wish to build various subdirectories manually.  For example, the
+Plexil and Plexilscript compilers can be built as follows.
+
     cd $PLEXIL_HOME/compilers/plexil
     make
     cd $PLEXIL_HOME/compilers/plexilscript
     ant
 
- * The Plexil example plans and applications (found in
-   plexil-3/examples) are NOT compiled by default. Plans (.ple files)
-   must be compiled manually (with plexilc) to produce .plx files. The
-   application directories (examples/sample-app and examples/robosim)
-   must be built by typing 'make' -- though note that 'robosim' cannot
-   be built at present due to the lack of IPC support mentioned above.
-
- * For the manually-built PLEXIL subystems and applications mentioned
-   above, the dynamic libraries produced (e.g. .dylib files in Mac OS,
-   .so files in Linux) might not be automatically copied to, or linked
-   to from, the directory in which they are expected to be found,
-   which is $PLEXIL_HOME/lib. You may have to make these copies or
-   symbolic links manually. 
-
+See the CAVEATS file for addtional build-related information.

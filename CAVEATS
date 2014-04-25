@@ -9,6 +9,18 @@ Build:
    more difficult, and has its own caveats.  See the file BUILD.  We hope to
    radicaly simplify the build process soon.
 
+ * The Plexil example plans and applications (found in plexil-3/examples) are
+   NOT compiled by default. Plans (.ple files) must be compiled manually (with
+   plexilc) to produce .plx files.
+
+ * For the manually-built PLEXIL subystems and applications mentioned
+   above, the dynamic libraries produced (e.g. .dylib files in Mac OS,
+   .so files in Linux) might not be automatically copied to, or linked
+   to from, the directory in which they are expected to be found,
+   which is $PLEXIL_HOME/lib. You may have to make these copies or
+   symbolic links manually. 
+
+
 Plexil Viewer: 
 
  * Multiple actions with the same name (Node ID) will not show correct
