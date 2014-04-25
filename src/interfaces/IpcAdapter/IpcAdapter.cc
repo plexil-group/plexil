@@ -39,6 +39,10 @@
 #include <sstream>
 #include "pugixml.hpp"
 
+extern "C" {
+#include <stdlib.h>
+}
+
 namespace PLEXIL 
 {
 
