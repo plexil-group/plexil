@@ -182,6 +182,7 @@ AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir])
 AC_CONFIG_FILES([Makefile
                  third-party/pugixml/src/Makefile
                  utils/Makefile
+                 expr/Makefile
                  exec/Makefile
                  app-framework/Makefile
                  apps/TestExec/Makefile
