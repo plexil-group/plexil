@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,31 +29,30 @@ lib_LTLIBRARIES = libPlexilExec.la
 
 libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils
 
-include_HEADERS = Array.hh Assignment.hh AssignmentNode.hh BooleanVariable.hh Calculable.hh \
+include_HEADERS = Array.hh Assignment.hh AssignmentNode.hh Calculable.hh \
  Calculables.hh Command.hh CommandNode.hh CoreExpressions.hh ExecConnector.hh ExecDefs.hh \
  ExecListener.hh ExecListenerBase.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
- ExecListenerHub.hh Expression.hh ExpressionFactory.hh Expressions.hh ExternalInterface.hh \
+ ExecListenerHub.hh ExpressionFactory.hh Expressions.hh ExternalInterface.hh \
  InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Lookup.hh Node.hh NodeConnector.hh \
  NodeFactory.hh PlexilExec.hh PlexilPlan.hh PlexilResource.hh PlexilXmlParser.hh \
- ResourceArbiterInterface.hh StateCache.hh SubexpressionListener.hh TestExternalInterface.hh \
- Update.hh UpdateNode.hh Variable.hh Variables.hh plan-utils.hh resource-tags.hh
+ ResourceArbiterInterface.hh StateCache.hh TestExternalInterface.hh \
+ Update.hh UpdateNode.hh plan-utils.hh resource-tags.hh
 
-libPlexilExec_la_SOURCES = Array.cc Assignment.cc AssignmentNode.cc BooleanVariable.cc \
+libPlexilExec_la_SOURCES = Array.cc Assignment.cc AssignmentNode.cc \
  Calculable.cc Calculables.cc Command.cc CommandNode.cc CoreExpressions.cc ExecListener.cc \
- ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc Expression.cc \
+ ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc \
  ExpressionFactory.cc Expressions.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Lookup.cc \
  Node.cc NodeFactory.cc PlexilExec.cc PlexilPlan.cc PlexilXmlParser.cc ResourceArbiterInterface.cc \
- StateCache.cc SubexpressionListener.cc TestExternalInterface.cc Update.cc UpdateNode.cc \
- Variable.cc Variables.cc plan-utils.cc resource-tags.cc
+ StateCache.cc TestExternalInterface.cc Update.cc UpdateNode.cc \
+ plan-utils.cc resource-tags.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests
-  noinst_HEADERS = test/TestSupport.hh test/exec-test-module.hh
+  noinst_HEADERS =test/exec-test-module.hh
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
-  test_exec_module_tests_LDADD = libPlexilExec.la ../utils/libPlexilUtils.la \
-   ../third-party/pugixml/src/libpugixml.la
-  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
-   -Itest
+  test_exec_module_tests_LDADD = libPlexilExec.la ../expr/libPlexilExpr.la \
+   ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
+  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
 	test_exec_module_tests_SOURCES += test/jni-adapter.cc
