@@ -32,7 +32,6 @@
  */
 
 #include "plexil-config.h"
-#include "LabelStr.hh"
 
 // Define uint64_t
 #ifdef HAVE_STDINT_H

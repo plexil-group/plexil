@@ -30,17 +30,14 @@ lib_LTLIBRARIES = libPlexilUtils.la
 libPlexilUtils_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src
 
 include_HEADERS = ConstantMacros.hh Debug.hh Dinkum_hash_map.hh Error.hh \
- GNU_hash_map.hh Id.hh IdTable.hh ItemStoreEntry.hh ItemTable.hh ItemTable_Dinkum.hh \
- ItemTable_unordered_map.hh KeySource.hh Logging.hh ParserException.hh StoredArray.hh \
- StoredItem.hh TwoWayStore.hh TwoWayTable.hh TwoWayTable_Dinkum.hh \
- TwoWayTable_unordered_map.hh Utils.hh Value.hh XMLUtils.hh \
- generic_hash_map.hh hash-functions.h iso-8601.hh lifecycle-utils.h stricmp.h \
- timespec-utils.hh timeval-utils.hh utils_main_page.hh
+ GNU_hash_map.hh Id.hh IdTable.hh Logging.hh ParserException.hh TestSupport.hh \
+ Utils.hh XMLUtils.hh generic_hash_map.hh hash-functions.h iso-8601.hh \
+ lifecycle-utils.h stricmp.h timespec-utils.hh timeval-utils.hh \
+ utils_main_page.hh
 
 libPlexilUtils_la_SOURCES = Debug.cc Error.cc hash-functions.c IdTable.cc \
- LabelStr.cc Logging.cc ParserException.cc StoredArray.cc Utils.cc Value.cc \
- XMLUtils.cc iso-8601.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
- timeval-utils.cc
+ Logging.cc ParserException.cc Utils.cc XMLUtils.cc iso-8601.cc \
+ lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc
 
 if JNI_OPT
   include_HEADERS += JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh
