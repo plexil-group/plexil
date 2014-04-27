@@ -104,6 +104,7 @@ public:
   void printValue(std::ostream& s) const {}
 
   bool isConstant() const { return true; }
+  bool isKnown() const { return false; }
   bool isUnknown() const { return true; }
 
 private:
@@ -118,12 +119,13 @@ class ListenerTest
 public:
   static bool test()
   {
-    runTest(testPropagation);
+    runTest(testListenerPropagation);
+    runTest(testDirectPropagation);
     return true;
   }
 
 private:
-  static bool testPropagation()
+  static bool testListenerPropagation()
   {
     // Test setup
     TrivialExpression source;
@@ -190,6 +192,65 @@ private:
 
     return true;
   }
+
+  static bool testDirectPropagation()
+  {
+    // Test setup
+    TrivialExpression source;
+    TrivialExpression dest;
+    source.addListener(dest.getId());
+
+    // Test that all are initialized to inactive,
+    // not assignable, and changed is false
+    assertTrue_1(!source.isActive());
+    assertTrue_1(!source.isAssignable());
+    assertTrue_1(!source.changed);
+    assertTrue_1(!dest.isActive());
+    assertTrue_1(!dest.isAssignable());
+    assertTrue_1(!dest.changed);
+
+    // Test that notifications do nothing when expressions inactive
+    source.notifyChanged();
+    assertTrue_1(!source.changed);
+    assertTrue_1(!dest.changed);
+    dest.notifyChanged();
+    assertTrue_1(!dest.changed);
+
+    // Activate dest, ensure it is active
+    dest.activate();
+    assertTrue_1(dest.isActive());
+    assertTrue_1(!dest.changed);
+
+    // Test that handleChange works locally
+    dest.notifyChanged();
+    assertTrue_1(dest.changed);
+
+    // Reset changed flag
+    dest.changed = false;
+
+    // Activate source
+    source.activate();
+    assertTrue_1(source.isActive());
+
+    // Test propagation
+    source.notifyChanged();
+    assertTrue_1(source.changed);
+    assertTrue_1(dest.changed);
+
+    // Reset changed flags
+    dest.changed = false;
+
+    // Test no propagation through dest when inactive
+    dest.deactivate();
+    source.notifyChanged();
+    assertTrue_1(!dest.changed);
+
+    // Clean up
+    source.removeListener(dest.getId());
+
+    return true;
+  }
+
 };
 
 //
@@ -217,16 +278,20 @@ private:
 
     // Direct access
     assertTrue_1(ub.isConstant());
-    assertTrue_1(!ub.isAssignable());
-    assertTrue_1(ub.isUnknown());
     assertTrue_1(ui.isConstant());
-    assertTrue_1(!ui.isAssignable());
-    assertTrue_1(ui.isUnknown());
     assertTrue_1(ud.isConstant());
-    assertTrue_1(!ud.isAssignable());
-    assertTrue_1(ud.isUnknown());
     assertTrue_1(us.isConstant());
+    assertTrue_1(!ub.isAssignable());
+    assertTrue_1(!ui.isAssignable());
+    assertTrue_1(!ud.isAssignable());
     assertTrue_1(!us.isAssignable());
+    assertTrue_1(!ub.isKnown());
+    assertTrue_1(!ui.isKnown());
+    assertTrue_1(!ud.isKnown());
+    assertTrue_1(!us.isKnown());
+    assertTrue_1(ub.isUnknown());
+    assertTrue_1(ui.isUnknown());
+    assertTrue_1(ud.isUnknown());
     assertTrue_1(us.isUnknown());
 
     // Access through ExpressionId
@@ -235,17 +300,35 @@ private:
     ExpressionId iud = ud.getId();
     ExpressionId ius = us.getId();
     assertTrue_1(iub->isConstant());
-    assertTrue_1(!iub->isAssignable());
-    assertTrue_1(iub->isUnknown());
     assertTrue_1(iui->isConstant());
-    assertTrue_1(!iui->isAssignable());
-    assertTrue_1(iui->isUnknown());
     assertTrue_1(iud->isConstant());
-    assertTrue_1(!iud->isAssignable());
-    assertTrue_1(iud->isUnknown());
     assertTrue_1(ius->isConstant());
+    assertTrue_1(!iub->isAssignable());
+    assertTrue_1(!iui->isAssignable());
+    assertTrue_1(!iud->isAssignable());
     assertTrue_1(!ius->isAssignable());
+    assertTrue_1(!iub->isKnown());
+    assertTrue_1(!iui->isKnown());
+    assertTrue_1(!iud->isKnown());
+    assertTrue_1(!ius->isKnown());
+    assertTrue_1(iub->isUnknown());
+    assertTrue_1(iui->isUnknown());
+    assertTrue_1(iud->isUnknown());
     assertTrue_1(ius->isUnknown());
+
+    // getValue on unknowns
+    double food;
+    std::string foos;
+    int32_t fooi;
+    bool foob;
+    assertTrue_1(!ub.getValue(foob));
+    assertTrue_1(!ui.getValue(fooi));
+    assertTrue_1(!ud.getValue(food));
+    assertTrue_1(!us.getValue(foos));
+    assertTrue_1(!iub->getValue(foob));
+    assertTrue_1(!iui->getValue(fooi));
+    assertTrue_1(!iud->getValue(food));
+    assertTrue_1(!ius->getValue(foos));
 
     // Constants with values
     Constant<bool> troo = true;
@@ -254,28 +337,30 @@ private:
     Constant<std::string> soo = std::string("Sue");
 
     assertTrue_1(troo.isConstant());
-    assertTrue_1(!troo.isUnknown());
     assertTrue_1(too.isConstant());
-    assertTrue_1(!too.isUnknown());
     assertTrue_1(doo.isConstant());
-    assertTrue_1(!doo.isUnknown());
     assertTrue_1(soo.isConstant());
+    assertTrue_1(troo.isKnown());
+    assertTrue_1(too.isKnown());
+    assertTrue_1(doo.isKnown());
+    assertTrue_1(soo.isKnown());
+    assertTrue_1(!troo.isUnknown());
+    assertTrue_1(!too.isUnknown());
+    assertTrue_1(!doo.isUnknown());
     assertTrue_1(!soo.isUnknown());
     
     // getValue() test
-    double food;
-    std::string foos;
-    int32_t fooi;
-    bool foob;
-
-    troo.getValue(foob);
+    assertTrue_1(troo.getValue(foob));
     assertTrue_1(foob == true);
-    too.getValue(fooi);
+    assertTrue_1(too.getValue(fooi));
     assertTrue_1(fooi == 2);
-    doo.getValue(food);
+    assertTrue_1(doo.getValue(food));
     assertTrue_1(food == 2.718);
-    soo.getValue(foos);
+    assertTrue_1(soo.getValue(foos));
     assertTrue_1(foos == std::string("Sue"));
+    // Numeric conversion
+    assertTrue_1(too.getValue(food));
+    assertTrue_1(food == 2);
 
     return true;
   }
@@ -290,7 +375,7 @@ class VariablesTest
 public:
   static bool test()
   {
-    runTest(testBasics);
+    runTest(testUninitialized);
     runTest(testInitialValue);
     runTest(testReset);
     runTest(testSavedValue);
@@ -300,7 +385,7 @@ public:
   }
 
 private:
-  static bool testBasics()
+  static bool testUninitialized()
   {
     // Default constructors
     UserVariable<bool> vub;
@@ -310,12 +395,12 @@ private:
 
     // Test that they are assignable and not constant
     assertTrue_1(vub.isAssignable());
-    assertTrue_1(!vub.isConstant());
     assertTrue_1(vui.isAssignable());
-    assertTrue_1(!vui.isConstant());
     assertTrue_1(vud.isAssignable());
-    assertTrue_1(!vud.isConstant());
     assertTrue_1(vus.isAssignable());
+    assertTrue_1(!vub.isConstant());
+    assertTrue_1(!vui.isConstant());
+    assertTrue_1(!vud.isConstant());
     assertTrue_1(!vus.isConstant());
 
     // Test that they are created inactive
@@ -325,44 +410,72 @@ private:
     assertTrue_1(!vus.isActive());
 
     // Test that they are unknown while inactive
+    assertTrue_1(!vub.isKnown());
+    assertTrue_1(!vui.isKnown());
+    assertTrue_1(!vud.isKnown());
+    assertTrue_1(!vus.isKnown());
     assertTrue_1(vub.isUnknown());
     assertTrue_1(vui.isUnknown());
     assertTrue_1(vud.isUnknown());
     assertTrue_1(vus.isUnknown());
+
+    double food;
+    std::string foos;
+    int32_t fooi;
+    bool foob;
+
+    assertTrue_1(!vub.getValue(foob));
+    assertTrue_1(!vui.getValue(fooi));
+    assertTrue_1(!vud.getValue(food));
+    assertTrue_1(!vus.getValue(foos));
+    // Numeric conversion
+    assertTrue_1(!vui.getValue(food));
 
     // Activate and confirm they are unknown
     vub.activate();
     vui.activate();
     vud.activate();
     vus.activate();
+    assertTrue_1(!vub.isKnown());
+    assertTrue_1(!vui.isKnown());
+    assertTrue_1(!vud.isKnown());
+    assertTrue_1(!vus.isKnown());
     assertTrue_1(vub.isUnknown());
     assertTrue_1(vui.isUnknown());
     assertTrue_1(vud.isUnknown());
     assertTrue_1(vus.isUnknown());
+    assertTrue_1(!vub.getValue(foob));
+    assertTrue_1(!vui.getValue(fooi));
+    assertTrue_1(!vud.getValue(food));
+    assertTrue_1(!vus.getValue(foos));
+    // Numeric conversion
+    assertTrue_1(!vui.getValue(food));
 
     // Assign and check result
     vub.setValue(true);
-    assertTrue_1(!vub.isUnknown());
     vui.setValue(42);
-    assertTrue_1(!vui.isUnknown());
     vud.setValue(3.14);
-    assertTrue_1(!vud.isUnknown());
     vus.setValue("yoohoo");
+    assertTrue_1(vub.isKnown());
+    assertTrue_1(vui.isKnown());
+    assertTrue_1(vud.isKnown());
+    assertTrue_1(vus.isKnown());
+    assertTrue_1(!vub.isUnknown());
+    assertTrue_1(!vui.isUnknown());
+    assertTrue_1(!vud.isUnknown());
     assertTrue_1(!vus.isUnknown());
-
-    double food;
-    std::string foos;
-    int32_t fooi;
-    bool foob;
     
-    vub.getValue(foob);
+    assertTrue_1(vub.getValue(foob));
     assertTrue_1(foob == true);
-    vui.getValue(fooi);
+    assertTrue_1(vui.getValue(fooi));
     assertTrue_1(fooi == 42);
-    vud.getValue(food);
+    assertTrue_1(vud.getValue(food));
     assertTrue_1(food == 3.14);
-    vus.getValue(foos);
+    assertTrue_1(vus.getValue(foos));
     assertTrue_1(foos == std::string("yoohoo"));
+    // Numeric conversion
+    assertTrue_1(vui.getValue(food));
+    assertTrue_1(food == 42);
 
     return true;
   }
@@ -373,16 +486,16 @@ private:
     UserVariable<bool> vb(false);
     UserVariable<int32_t> vi(69);
     UserVariable<double> vd(1.414);
-    UserVariable<std::string> vs("yo");
+    UserVariable<std::string> vs(std::string("yo"));
 
     // Test that they are assignable and not constant
     assertTrue_1(vb.isAssignable());
-    assertTrue_1(!vb.isConstant());
     assertTrue_1(vi.isAssignable());
-    assertTrue_1(!vi.isConstant());
     assertTrue_1(vd.isAssignable());
-    assertTrue_1(!vd.isConstant());
     assertTrue_1(vs.isAssignable());
+    assertTrue_1(!vb.isConstant());
+    assertTrue_1(!vi.isConstant());
+    assertTrue_1(!vd.isConstant());
     assertTrue_1(!vs.isConstant());
 
     // Test that they are created inactive
@@ -392,6 +505,10 @@ private:
     assertTrue_1(!vs.isActive());
 
     // Test that they are unknown while inactive
+    assertTrue_1(!vb.isKnown());
+    assertTrue_1(!vi.isKnown());
+    assertTrue_1(!vd.isKnown());
+    assertTrue_1(!vs.isKnown());
     assertTrue_1(vb.isUnknown());
     assertTrue_1(vi.isUnknown());
     assertTrue_1(vd.isUnknown());
@@ -402,6 +519,10 @@ private:
     vi.activate();
     vd.activate();
     vs.activate();
+    assertTrue_1(vb.isKnown());
+    assertTrue_1(vi.isKnown());
+    assertTrue_1(vd.isKnown());
+    assertTrue_1(vs.isKnown());
     assertTrue_1(!vb.isUnknown());
     assertTrue_1(!vi.isUnknown());
     assertTrue_1(!vd.isUnknown());
@@ -413,14 +534,17 @@ private:
     int32_t fooi;
     bool foob;
     
-    vb.getValue(foob);
+    assertTrue_1(vb.getValue(foob));
     assertTrue_1(foob == false);
-    vi.getValue(fooi);
+    assertTrue_1(vi.getValue(fooi));
     assertTrue_1(fooi == 69);
-    vd.getValue(food);
+    assertTrue_1(vd.getValue(food));
     assertTrue_1(food == 1.414);
-    vs.getValue(foos);
+    assertTrue_1(vs.getValue(foos));
     assertTrue_1(foos == std::string("yo"));
+    // Numeric conversion
+    assertTrue_1(vi.getValue(food));
+    assertTrue_1(food == 69);
 
     // Save current values
     vb.saveCurrentValue();
@@ -430,41 +554,61 @@ private:
 
     // Assign and check result
     vb.setValue(true);
-    assertTrue_1(!vb.isUnknown());
     vi.setValue(42);
-    assertTrue_1(!vi.isUnknown());
     vd.setValue(3.14);
-    assertTrue_1(!vd.isUnknown());
     vs.setValue("yoohoo");
+    assertTrue_1(vb.isKnown());
+    assertTrue_1(vi.isKnown());
+    assertTrue_1(vd.isKnown());
+    assertTrue_1(vs.isKnown());
+    assertTrue_1(!vb.isUnknown());
+    assertTrue_1(!vi.isUnknown());
+    assertTrue_1(!vd.isUnknown());
     assertTrue_1(!vs.isUnknown());
     
-    vb.getValue(foob);
+    assertTrue_1(vb.getValue(foob));
     assertTrue_1(foob == true);
-    vi.getValue(fooi);
+    assertTrue_1(vi.getValue(fooi));
     assertTrue_1(fooi == 42);
-    vd.getValue(food);
+    assertTrue_1(vd.getValue(food));
     assertTrue_1(food == 3.14);
-    vs.getValue(foos);
+    assertTrue_1(vs.getValue(foos));
     assertTrue_1(foos == std::string("yoohoo"));
+    // Numeric conversion
+    assertTrue_1(vi.getValue(food));
+    assertTrue_1(food == 42);
+
+    // Test setValue type conversion
+    int32_t fiftySeven = 57;
+    vd.setValue(fiftySeven);
+    assertTrue_1(vd.getValue(food));
+    assertTrue_1(food == 57);
 
     // Restore saved values and check result
     vb.restoreSavedValue();
     vi.restoreSavedValue();
     vd.restoreSavedValue();
     vs.restoreSavedValue();
+    assertTrue_1(vb.isKnown());
+    assertTrue_1(vi.isKnown());
+    assertTrue_1(vd.isKnown());
+    assertTrue_1(vs.isKnown());
     assertTrue_1(!vb.isUnknown());
     assertTrue_1(!vi.isUnknown());
     assertTrue_1(!vd.isUnknown());
     assertTrue_1(!vs.isUnknown());
 
-    vb.getValue(foob);
+    assertTrue_1(vb.getValue(foob));
     assertTrue_1(foob == false);
-    vi.getValue(fooi);
+    assertTrue_1(vi.getValue(fooi));
     assertTrue_1(fooi == 69);
-    vd.getValue(food);
+    assertTrue_1(vd.getValue(food));
     assertTrue_1(food == 1.414);
-    vs.getValue(foos);
+    assertTrue_1(vs.getValue(foos));
     assertTrue_1(foos == std::string("yo"));
+    // Numeric conversion
+    assertTrue_1(vi.getValue(food));
+    assertTrue_1(food == 69);
 
     return true;
   }
@@ -483,44 +627,72 @@ private:
     vus.setValue("yoohoo");
 
     // Test that they are unknown while inactive
+    assertTrue_1(!vub.isKnown());
+    assertTrue_1(!vui.isKnown());
+    assertTrue_1(!vud.isKnown());
+    assertTrue_1(!vus.isKnown());
     assertTrue_1(vub.isUnknown());
     assertTrue_1(vui.isUnknown());
     assertTrue_1(vud.isUnknown());
     assertTrue_1(vus.isUnknown());
+
+    double food;
+    std::string foos;
+    int32_t fooi;
+    bool foob;
+
+    assertTrue_1(!vub.getValue(foob));
+    assertTrue_1(!vui.getValue(fooi));
+    assertTrue_1(!vud.getValue(food));
+    assertTrue_1(!vus.getValue(foos));
+    // Numeric conversion
+    assertTrue_1(!vui.getValue(food));
 
     // Activate and check result
     vub.activate();
     vui.activate();
     vud.activate();
     vus.activate();
+    assertTrue_1(vub.isKnown());
+    assertTrue_1(vui.isKnown());
+    assertTrue_1(vud.isKnown());
+    assertTrue_1(vus.isKnown());
     assertTrue_1(!vub.isUnknown());
     assertTrue_1(!vui.isUnknown());
     assertTrue_1(!vud.isUnknown());
     assertTrue_1(!vus.isUnknown());
-
-    double food;
-    std::string foos;
-    int32_t fooi;
-    bool foob;
     
-    vub.getValue(foob);
+    assertTrue_1(vub.getValue(foob));
     assertTrue_1(foob == true);
-    vui.getValue(fooi);
+    assertTrue_1(vui.getValue(fooi));
     assertTrue_1(fooi == 42);
-    vud.getValue(food);
+    assertTrue_1(vud.getValue(food));
     assertTrue_1(food == 3.14);
-    vus.getValue(foos);
+    assertTrue_1(vus.getValue(foos));
     assertTrue_1(foos == std::string("yoohoo"));
+    // Numeric conversion
+    assertTrue_1(vui.getValue(food));
+    assertTrue_1(food == 42);
 
     // Reset and check result
     vub.reset();
     vui.reset();
     vud.reset();
     vus.reset();
+    assertTrue_1(!vub.isKnown());
+    assertTrue_1(!vui.isKnown());
+    assertTrue_1(!vud.isKnown());
+    assertTrue_1(!vus.isKnown());
     assertTrue_1(vub.isUnknown());
     assertTrue_1(vui.isUnknown());
     assertTrue_1(vud.isUnknown());
     assertTrue_1(vus.isUnknown());
+    assertTrue_1(!vub.getValue(foob));
+    assertTrue_1(!vui.getValue(fooi));
+    assertTrue_1(!vud.getValue(food));
+    assertTrue_1(!vus.getValue(foos));
+    // Numeric conversion
+    assertTrue_1(!vui.getValue(food));
 
     // Assign again
     vub.setValue(true);
@@ -532,14 +704,17 @@ private:
     vus.setValue("yoohoo");
     assertTrue_1(!vus.isUnknown());
 
-    vub.getValue(foob);
+    assertTrue_1(vub.getValue(foob));
     assertTrue_1(foob == true);
-    vui.getValue(fooi);
+    assertTrue_1(vui.getValue(fooi));
     assertTrue_1(fooi == 42);
-    vud.getValue(food);
+    assertTrue_1(vud.getValue(food));
     assertTrue_1(food == 3.14);
-    vus.getValue(foos);
+    assertTrue_1(vus.getValue(foos));
     assertTrue_1(foos == std::string("yoohoo"));
+    // Numeric conversion
+    assertTrue_1(vui.getValue(food));
+    assertTrue_1(food == 42);
 
     return true;
   }
@@ -558,33 +733,45 @@ private:
     vus.setValue("yoohoo");
     
     // Should be unknown while inactive
+    assertTrue_1(!vub.isKnown());
+    assertTrue_1(!vui.isKnown());
+    assertTrue_1(!vud.isKnown());
+    assertTrue_1(!vus.isKnown());
     assertTrue_1(vub.isUnknown());
     assertTrue_1(vui.isUnknown());
     assertTrue_1(vud.isUnknown());
     assertTrue_1(vus.isUnknown());
+
+    double food;
+    std::string foos;
+    int32_t fooi;
+    bool foob;
+
+    assertTrue_1(!vub.getValue(foob));
+    assertTrue_1(!vui.getValue(fooi));
+    assertTrue_1(!vud.getValue(food));
+    assertTrue_1(!vus.getValue(foos));
 
     // Activate and recheck
     vub.activate();
     vui.activate();
     vud.activate();
     vus.activate();
+    assertTrue_1(vub.isKnown());
+    assertTrue_1(vui.isKnown());
+    assertTrue_1(vud.isKnown());
+    assertTrue_1(vus.isKnown());
     assertTrue_1(!vub.isUnknown());
     assertTrue_1(!vui.isUnknown());
     assertTrue_1(!vud.isUnknown());
     assertTrue_1(!vus.isUnknown());
-
-    double food;
-    std::string foos;
-    int32_t fooi;
-    bool foob;
-    
-    vub.getValue(foob);
+    assertTrue_1(vub.getValue(foob));
+    assertTrue_1(vui.getValue(fooi));
+    assertTrue_1(vud.getValue(food));
+    assertTrue_1(vus.getValue(foos));
     assertTrue_1(foob == true);
-    vui.getValue(fooi);
     assertTrue_1(fooi == 42);
-    vud.getValue(food);
     assertTrue_1(food == 3.14);
-    vus.getValue(foos);
     assertTrue_1(foos == std::string("yoohoo"));
 
     // Restore saved value and check result
@@ -592,28 +779,39 @@ private:
     vui.restoreSavedValue();
     vud.restoreSavedValue();
     vus.restoreSavedValue();
+    assertTrue_1(!vub.isKnown());
+    assertTrue_1(!vui.isKnown());
+    assertTrue_1(!vud.isKnown());
+    assertTrue_1(!vus.isKnown());
     assertTrue_1(vub.isUnknown());
     assertTrue_1(vui.isUnknown());
     assertTrue_1(vud.isUnknown());
     assertTrue_1(vus.isUnknown());
+    assertTrue_1(!vub.getValue(foob));
+    assertTrue_1(!vui.getValue(fooi));
+    assertTrue_1(!vud.getValue(food));
+    assertTrue_1(!vus.getValue(foos));
 
     // Assign again
     vub.setValue(true);
-    assertTrue_1(!vub.isUnknown());
     vui.setValue(42);
-    assertTrue_1(!vui.isUnknown());
     vud.setValue(3.14);
-    assertTrue_1(!vud.isUnknown());
     vus.setValue("yoohoo");
+    assertTrue_1(vub.isKnown());
+    assertTrue_1(vui.isKnown());
+    assertTrue_1(vud.isKnown());
+    assertTrue_1(vus.isKnown());
+    assertTrue_1(!vub.isUnknown());
+    assertTrue_1(!vui.isUnknown());
+    assertTrue_1(!vud.isUnknown());
     assertTrue_1(!vus.isUnknown());
-
-    vub.getValue(foob);
+    assertTrue_1(vub.getValue(foob));
+    assertTrue_1(vui.getValue(fooi));
+    assertTrue_1(vud.getValue(food));
+    assertTrue_1(vus.getValue(foos));
     assertTrue_1(foob == true);
-    vui.getValue(fooi);
     assertTrue_1(fooi == 42);
-    vud.getValue(food);
     assertTrue_1(food == 3.14);
-    vus.getValue(foos);
     assertTrue_1(foos == std::string("yoohoo"));
 
     // Save current value
@@ -627,28 +825,39 @@ private:
     vui.setUnknown();
     vud.setUnknown();
     vus.setUnknown();
+    assertTrue_1(!vub.isKnown());
+    assertTrue_1(!vui.isKnown());
+    assertTrue_1(!vud.isKnown());
+    assertTrue_1(!vus.isKnown());
     assertTrue_1(vub.isUnknown());
     assertTrue_1(vui.isUnknown());
     assertTrue_1(vud.isUnknown());
     assertTrue_1(vus.isUnknown());
+    assertTrue_1(!vub.getValue(foob));
+    assertTrue_1(!vui.getValue(fooi));
+    assertTrue_1(!vud.getValue(food));
+    assertTrue_1(!vus.getValue(foos));
 
     // Restore saved and check that it has returned
     vub.restoreSavedValue();
     vui.restoreSavedValue();
     vud.restoreSavedValue();
     vus.restoreSavedValue();
+    assertTrue_1(vub.isKnown());
+    assertTrue_1(vui.isKnown());
+    assertTrue_1(vud.isKnown());
+    assertTrue_1(vus.isKnown());
     assertTrue_1(!vub.isUnknown());
     assertTrue_1(!vui.isUnknown());
     assertTrue_1(!vud.isUnknown());
     assertTrue_1(!vus.isUnknown());
-
-    vub.getValue(foob);
+    assertTrue_1(vub.getValue(foob));
+    assertTrue_1(vui.getValue(fooi));
+    assertTrue_1(vud.getValue(food));
+    assertTrue_1(vus.getValue(foos));
     assertTrue_1(foob == true);
-    vui.getValue(fooi);
     assertTrue_1(fooi == 42);
-    vud.getValue(food);
     assertTrue_1(food == 3.14);
-    vus.getValue(foos);
     assertTrue_1(foos == std::string("yoohoo"));
 
     // Reset
@@ -656,20 +865,36 @@ private:
     vui.reset();
     vud.reset();
     vus.reset();
+    assertTrue_1(!vub.isKnown());
+    assertTrue_1(!vui.isKnown());
+    assertTrue_1(!vud.isKnown());
+    assertTrue_1(!vus.isKnown());
     assertTrue_1(vub.isUnknown());
     assertTrue_1(vui.isUnknown());
     assertTrue_1(vud.isUnknown());
     assertTrue_1(vus.isUnknown());
+    assertTrue_1(!vub.getValue(foob));
+    assertTrue_1(!vui.getValue(fooi));
+    assertTrue_1(!vud.getValue(food));
+    assertTrue_1(!vus.getValue(foos));
 
     // Restore and confirm still unknown
     vub.restoreSavedValue();
     vui.restoreSavedValue();
     vud.restoreSavedValue();
     vus.restoreSavedValue();
+    assertTrue_1(!vub.isKnown());
+    assertTrue_1(!vui.isKnown());
+    assertTrue_1(!vud.isKnown());
+    assertTrue_1(!vus.isKnown());
     assertTrue_1(vub.isUnknown());
     assertTrue_1(vui.isUnknown());
     assertTrue_1(vud.isUnknown());
     assertTrue_1(vus.isUnknown());
+    assertTrue_1(!vub.getValue(foob));
+    assertTrue_1(!vui.getValue(fooi));
+    assertTrue_1(!vud.getValue(food));
+    assertTrue_1(!vus.getValue(foos));
 
     return true;
   }

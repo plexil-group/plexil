@@ -69,7 +69,9 @@ namespace PLEXIL
     ExpressionListener(const ExpressionListener &);
     ExpressionListener &operator=(const ExpressionListener &);
 
-    // Local storage
+  protected:
+
+    // Local storage, shared with derived classes
     ExpressionListenerId m_id; /*!< The Id for this listener */
   };
 

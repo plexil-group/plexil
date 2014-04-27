@@ -54,6 +54,10 @@ namespace PLEXIL {
     UserVariable(const T &value, 
                  const NodeId &node = NodeId::noId(),
                  const std::string &name = "");
+    // TODO:
+    // UserVariable(const char *value, 
+    //              const NodeId &node = NodeId::noId(),
+    //              const std::string &name = "");
     
     /**
      * @brief Destructor.
@@ -66,16 +70,38 @@ namespace PLEXIL {
     //
 
     const char *exprName() const;
-
     const char *typeName() const;
 
+    bool isKnown() const;
     bool isUnknown() const;
 
     void printValue(std::ostream& s) const;
 
-    void getValue(T &result) const;
+    /**
+     * @brief Get the expression's value.
+     * @param result The variable where the value will be stored.
+     * @return True if known, false if unknown.
+     * @note Limited type conversions supported.
+     * @note Unimplemented conversions will cause a link time error.
+     */
+    bool getValue(T &result) const;
 
+    // This allows for limited type conversions.
+    // Unsupported conversions will cause a link time error.
+    template <typename Y>
+    bool getValue(Y &result) const;
+
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     * @note Limited type conversions supported.
+     * @note Unimplemented conversions will cause a link time error.
+     */
     void setValue(const T &value);
+    void setValue(const char *value);
+
+    template <typename Y>
+    void setValue(const Y &value);
 
     void setUnknown();
 
@@ -102,9 +128,9 @@ namespace PLEXIL {
     T m_initialValue; // for reset()
     T m_savedValue;   // for undoing assignment 
 
-    bool m_unknown;
-    bool m_initialUnknown;
-    bool m_savedUnknown;
+    bool m_known;
+    bool m_initialKnown;
+    bool m_savedKnown;
 
   };
 

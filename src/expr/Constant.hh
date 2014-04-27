@@ -57,7 +57,19 @@ namespace PLEXIL {
      */
     Constant(const T &value);
 
-    // TODO: Templatized constructor to reject wrong type?
+    /**
+     * @brief Constructor from char *.
+     * @note Unimplemented conversions will cause a link time error.
+     * @note This is appropriate for plan loading.
+     */
+    Constant(const char * value);
+
+    /**
+     * @brief Constructor for limited type conversions.
+     * @note Unimplemented conversions will cause a link time error.
+     */
+    template <typename Y>
+    Constant(const Y &value);
 
     /**
      * @brief Destructor.
@@ -79,15 +91,27 @@ namespace PLEXIL {
 
     /**
      * @brief Retrieve the value of this Expression.
-     * @return The value of this Expression.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown.
      */
-    void getValue(T& result) const;
+    bool getValue(T& result) const;
+
+    // This allows for limited type conversions.
+    // Unsupported conversions will cause a link time error.
+    template <typename Y>
+    bool getValue(Y& result) const;
 
 	/**
 	 * @brief Print the expression's value to the given stream.
 	 * @param s The output stream.
 	 */
     void printValue(std::ostream& s) const;
+
+    /**
+     * @brief Query whether the expression's value is known.
+     * @return True if known, false otherwise.
+     */
+    bool isKnown() const;
 
     /**
      * @brief Query whether the expression's value is unknown.
@@ -142,7 +166,7 @@ namespace PLEXIL {
   protected:
 
     T m_value;
-    bool m_unknown;
+    bool m_known;
 
   private:
 

@@ -30,6 +30,8 @@
 // #include "plexil-config.h" // included in Id.hh
 
 #include "Id.hh"
+#include "ExpressionListener.hh"
+
 #include <iosfwd>
 #include <string>
 
@@ -46,7 +48,7 @@
 //
 // TODO:
 //  - Flush Ids!
-//  - Refactor more logically
+//
 
 namespace PLEXIL
 {
@@ -57,8 +59,6 @@ namespace PLEXIL
 
   class Expression;
   typedef Id<Expression> ExpressionId;
-  class ExpressionListener;
-  typedef Id<ExpressionListener> ExpressionListenerId;
   class Node;
   typedef Id<Node> NodeId;
 
@@ -66,12 +66,15 @@ namespace PLEXIL
    * @class Expression
    * @brief Abstract base class for expressions.
    */
-  class Expression
+  class Expression : public ExpressionListener
   {
   public:
     virtual ~Expression();
 
-    const ExpressionId& getId() const;
+    inline const ExpressionId &getId() const
+    {
+      return static_cast<const ExpressionId &>(m_id);
+    }
 
     //
     // Essential type-invariant Expression API
@@ -88,6 +91,12 @@ namespace PLEXIL
      * @return A constant character string.
      */
     virtual const char *typeName() const = 0;
+
+    /**
+     * @brief Query whether the expression's value is known.
+     * @return True if known, false otherwise.
+     */
+    virtual bool isKnown() const = 0;
 
     /**
      * @brief Query whether the expression's value is unknown.
@@ -176,6 +185,7 @@ namespace PLEXIL
     /**
      * @brief Notify this expression that a subexpression's value has changed.
      * @note The default method does nothing.
+     * @note Overrides method of same name on ExpressionListener.
      */
     virtual void notifyChanged();
 
@@ -198,19 +208,20 @@ namespace PLEXIL
 
     /**
      * @brief Retrieve the value of this Expression.
-     * @return The value of this Expression.
-     * @note Derived classes should implement only the appropriate method.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown.
+     * @note Derived classes should implement only the appropriate methods.
      * @note Default methods return an error in every case.
      */
 
     // Numeric types
-    virtual void getValue(double &) const;   // Real
-    virtual void getValue(int32_t &) const;  // Integer
-    virtual void getValue(uint16_t &) const; // enumerations: State, Outcome, Failure, etc.
-    virtual void getValue(bool &) const;     // Boolean
+    virtual bool getValue(double &) const;   // Real
+    virtual bool getValue(int32_t &) const;  // Integer
+    virtual bool getValue(uint16_t &) const; // enumerations: State, Outcome, Failure, etc.
+    virtual bool getValue(bool &) const;     // Boolean
 
     // Non-numeric types
-    virtual void getValue(std::string &) const; // String
+    virtual bool getValue(std::string &) const; // String
 
     // Array types (TBD)
 
@@ -225,8 +236,6 @@ namespace PLEXIL
     // Deliberately not implemented.
     Expression(const Expression &);
     Expression &operator=(const Expression &);
-    
-    ExpressionId m_id;
   };
 
   // Stream-style print operator

@@ -30,6 +30,10 @@
 #include "Mutable.hh"
 
 namespace PLEXIL {
+  
+  // Forward declarations
+  class Assignable;
+  typedef Id<Assignable> AssignableId;
 
   /**
    * @class Assignable
@@ -49,6 +53,11 @@ namespace PLEXIL {
      * @brief Destructor.
      */
     virtual ~Assignable();
+
+    inline const AssignableId &getId() const
+    {
+      return static_cast<const AssignableId &>(m_id);
+    }
 
     /**
      * @brief Query whether this expression is assignable.

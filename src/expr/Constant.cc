@@ -38,7 +38,7 @@ namespace PLEXIL {
   template <typename T>
   Constant<T>::Constant()
     : Expression(),
-      m_unknown(true)
+      m_known(false)
   {
   }
 
@@ -49,7 +49,7 @@ namespace PLEXIL {
   Constant<T>::Constant(const Constant &other)
   : Expression(),
     m_value(other.m_value),
-    m_unknown(false)
+    m_known(other.m_known)
   {
   }
 
@@ -60,11 +60,35 @@ namespace PLEXIL {
   Constant<T>::Constant(const T &value)
   : Expression(),
     m_value(value),
-    m_unknown(false)
+    m_known(true)
   {
   }
 
-  // TODO: Constructor from const char * representation?
+  /**
+   * @brief Constructors from char *.
+   */
+
+  // *** TODO: More types ***
+  template <>
+  Constant<std::string>::Constant(const char *value)
+  : Expression(),
+    m_value(value),
+    m_known(true)
+  {
+  }
+
+  /**
+   * @brief Conversion constructor
+   * @note Unimplemented conversions will cause a link time error.
+   */
+  template<>
+  template<>
+  Constant<double>::Constant(const int32_t &value)
+  : Expression(),
+    m_value(value),
+    m_known(true)
+  {
+  }
 
   /**
    * @brief Destructor.
@@ -123,11 +147,24 @@ namespace PLEXIL {
    * @brief Retrieve the value of this Expression.
    * @return The value of this Expression.
    */
+
+  // Correct type
   template <typename T>
-  void Constant<T>::getValue(T& result) const
+  bool Constant<T>::getValue(T& result) const
   {
-    // FIXME: error if unknown?
-    result = m_value;
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
+  // Compatible types
+  template <>
+  template <>
+  bool Constant<int32_t>::getValue(double& result) const
+  {
+    if (m_known)
+      result = (double) m_value;
+    return m_known;
   }
 
   /**
@@ -138,10 +175,20 @@ namespace PLEXIL {
   template <typename T>
   void Constant<T>::printValue(std::ostream& s) const
   {
-    if (m_unknown)
-      s << "UNKNOWN";
-    else
+    if (m_known)
       s << m_value;
+    else
+      s << "UNKNOWN";
+  }
+
+  /**
+   * @brief Query whether the expression's value is known.
+   * @return True if known, false otherwise.
+   */
+  template <typename T>
+  bool Constant<T>::isKnown() const
+  {
+    return m_known;
   }
 
   /**
@@ -151,7 +198,7 @@ namespace PLEXIL {
   template <typename T>
   bool Constant<T>::isUnknown() const
   {
-    return m_unknown;
+    return !m_known;
   }
 
   /**

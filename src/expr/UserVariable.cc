@@ -41,9 +41,9 @@ namespace PLEXIL {
   template <typename T>
   UserVariable<T>::UserVariable()
     : m_name("anonymous"),
-      m_unknown(true),
-      m_initialUnknown(true),
-      m_savedUnknown(true)
+      m_known(false),
+      m_initialKnown(false),
+      m_savedKnown(false)
   {
   }
 
@@ -56,9 +56,9 @@ namespace PLEXIL {
       m_value(value),
       m_initialValue(value),
       m_savedValue(value), // redundant?
-      m_unknown(false),
-      m_initialUnknown(false),
-      m_savedUnknown(false)
+      m_known(true),
+      m_initialKnown(true),
+      m_savedKnown(true)
   {
   }
     
@@ -113,36 +113,86 @@ namespace PLEXIL {
   }
 
   template <typename T>
+  bool UserVariable<T>::isKnown() const
+  {
+    return isActive() && m_known;
+  }
+
+  template <typename T>
   bool UserVariable<T>::isUnknown() const
   {
-    return m_unknown || !isActive();
+    return !isActive() || !m_known;
   }
 
   // TODO: specialize on type, e.g. for bool, array, quotes around string
   template <typename T>
   void UserVariable<T>::printValue(std::ostream& s) const
   {
-    if (m_unknown)
-      s << "(UNKNOWN)";
-    else
+    if (m_known)
       s << m_value;
+    else
+      s << "(UNKNOWN)";
   }
 
+  // Same type
   template <typename T>
-  void UserVariable<T>::getValue(T &result) const
+  bool UserVariable<T>::getValue(T &result) const
   {
-    check_error_2(!m_unknown, "Error: can't call getValue() on variable when value is unknown");
-    check_error_2(this->isActive(), "Error: can't call getValue() on variable when inactive");
-    result = m_value;
+    if (!isActive())
+      return false;
+    if (m_known)
+      result = m_value;
+    return m_known;
   }
 
+  // Compatible types
+  template <>
+  template <>
+  bool UserVariable<int32_t>::getValue(double& result) const
+  {
+    if (!isActive())
+      return false;
+    if (m_known)
+      result = (double) m_value;
+    return m_known;
+  }
+
+  // Same type
   template <typename T>
   void UserVariable<T>::setValue(const T &value)
   {
-    bool changed = m_unknown || value != m_value;
+    bool changed = !m_known || value != m_value;
     assertTrueMsg(checkValue(value), "Error: " << value << " is an invalid value for this variable");
     m_value = value;
-    m_unknown = false;
+    m_known = true;
+    if (changed)
+      this->publishChange();
+  }
+
+  // Compatible types
+
+  // std::string from char *
+  template <>
+  void UserVariable<std::string>::setValue(const char *value)
+  {
+    std::string svalue(value);
+    bool changed = !m_known || svalue != m_value;
+    assertTrueMsg(checkValue(svalue), "Error: " << value << " is an invalid value for this variable");
+    m_value = svalue;
+    m_known = true;
+    if (changed)
+      this->publishChange();
+  }
+
+  template <>
+  template <>
+  void UserVariable<double>::setValue(const int32_t &value)
+  {
+    double dvalue = (double) value;
+    bool changed = !m_known || dvalue != m_value;
+    assertTrueMsg(checkValue(dvalue), "Error: " << value << " is an invalid value for this variable");
+    m_value = dvalue;
+    m_known = true;
     if (changed)
       this->publishChange();
   }
@@ -150,8 +200,8 @@ namespace PLEXIL {
   template <typename T>
   void UserVariable<T>::setUnknown()
   {
-    bool changed = !m_unknown;
-    m_unknown = true;
+    bool changed = m_known;
+    m_known = false;
     if (changed)
       this->publishChange();
   }
@@ -159,9 +209,9 @@ namespace PLEXIL {
   template <typename T>
   void UserVariable<T>::reset()
   {
-    bool changed = (m_unknown != m_initialUnknown) || (m_value != m_initialValue);
+    bool changed = (m_known != m_initialKnown) || (m_value != m_initialValue);
     m_savedValue = m_value = m_initialValue;
-    m_savedUnknown = m_unknown = m_initialUnknown;
+    m_savedKnown = m_known = m_initialKnown;
     if (changed)
       this->publishChange();
   }
@@ -170,15 +220,15 @@ namespace PLEXIL {
   void UserVariable<T>::saveCurrentValue()
   {
     m_savedValue = m_value;
-    m_savedUnknown = m_unknown;
+    m_savedKnown = m_known;
   }
 
   template <typename T>
   void UserVariable<T>::restoreSavedValue()
   {
-    bool changed = (m_unknown != m_savedUnknown) || (m_value != m_savedValue);
+    bool changed = (m_known != m_savedKnown) || (m_value != m_savedValue);
     m_value = m_savedValue;
-    m_unknown = m_savedUnknown;
+    m_known = m_savedKnown;
     if (changed)
       this->publishChange();
   }
@@ -198,7 +248,7 @@ namespace PLEXIL {
   template <typename T>
   const ExpressionId& UserVariable<T>::getBaseVariable() const
   {
-    return this->getId();
+    return Expression::getId();
   }
 
   //

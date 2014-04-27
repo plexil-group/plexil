@@ -35,18 +35,11 @@
 namespace PLEXIL {
 
   Expression::Expression()
-    : m_id(this)
   {
   }
 
   Expression::~Expression()
   {
-    m_id.remove();
-  }
-
-  const ExpressionId& Expression::getId() const
-  {
-    return m_id;
   }
 
   bool Expression::isAssignable() const
@@ -94,29 +87,34 @@ namespace PLEXIL {
   {
   }
 
-  void Expression::getValue(double &) const
+  bool Expression::getValue(double &) const
   {
     assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Real for this expression");
+    return false;
   }
 
-  void Expression::getValue(int32_t &) const
+  bool Expression::getValue(int32_t &) const
   {
     assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Integer for this expression");
+    return false;
   }
 
-  void Expression::getValue(uint16_t &) const
+  bool Expression::getValue(uint16_t &) const
   {
     assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for internal types for this expression");
+    return false;
   }
 
-  void Expression::getValue(bool &) const
+  bool Expression::getValue(bool &) const
   {
     assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Boolean for this expression");
+    return false;
   }
 
-  void Expression::getValue(std::string &) const
+  bool Expression::getValue(std::string &) const
   {
     assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for String for this expression");
+    return false;
   }
 
 } // namespace PLEXIL
