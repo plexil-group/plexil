@@ -30,11 +30,11 @@ lib_LTLIBRARIES = libPlexilExpr.la
 libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils \
  -I@top_srcdir@/third-party/pugixml/src
 
-include_HEADERS = Assignable.hh Calculable.hh Constant.hh Expression.hh \
- ExpressionListener.hh Mutable.hh UserVariable.hh
+include_HEADERS = Assignable.hh Function.hh Constant.hh Expression.hh \
+ ExpressionListener.hh Mutable.hh UserVariable.hh ValueType.hh
 
-libPlexilExpr_la_SOURCES = Assignable.cc Calculable.cc Constant.cc \
- Expression.cc ExpressionListener.cc Mutable.cc UserVariable.cc
+libPlexilExpr_la_SOURCES = Assignable.cc Function.cc Constant.cc \
+ Expression.cc ExpressionListener.cc Mutable.cc UserVariable.cc ValueType.hh 
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
