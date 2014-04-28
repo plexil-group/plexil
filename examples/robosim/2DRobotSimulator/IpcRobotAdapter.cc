@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include "IpcRobotAdapter.hh"
 #include "RobotBase.hh"
 
+#include "Value.hh"
 #include "LabelStr.hh"
 #include "StoredArray.hh"
 #include "Debug.hh"
@@ -128,8 +129,13 @@ void IpcRobotAdapter::processCommand(const std::vector<const PlexilMsgBase*>& ms
 		   "Ignoring " << msgs[0]->count - 1 << " argument(s)");
     }
   const std::vector<double>& ret_values = robot->processCommand(cmdName, parameter);
-  if (ret_values.size() > 1)
-    m_ipcFacade.publishReturnValues(transId.second, PLEXIL::LabelStr(transId.first), PLEXIL::StoredArray(ret_values).getKey());
+  std::vector<PLEXIL::Value> rvs;
+  for (std::vector<double>::const_iterator i = ret_values.begin(); i != ret_values.end(); i++) {
+	rvs.push_back (*i);
+  }
+  if (rvs.size() > 1)
+    m_ipcFacade.publishReturnValues(transId.second, PLEXIL::LabelStr(transId.first),
+									PLEXIL::StoredArray(rvs).getKey());
   else
     m_ipcFacade.publishReturnValues(transId.second, PLEXIL::LabelStr(transId.first), ret_values.at(0));
 }

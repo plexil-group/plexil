@@ -391,7 +391,7 @@ const std::vector<double> Robot::moveRobotParameterized(int direction)
 }
 
 const std::vector<double> Robot::moveRobotInternal(int rowDirOffset,
-						   int colDirOffset)
+														  int colDirOffset)
 {
   int rowCurr, colCurr;
   m_RobotPositionServer->getRobotPosition(m_Name, rowCurr, colCurr);
