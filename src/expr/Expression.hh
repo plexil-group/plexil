@@ -31,6 +31,7 @@
 
 #include "Id.hh"
 #include "ExpressionListener.hh"
+#include "ValueType.hh"
 
 #include <iosfwd>
 #include <string>
@@ -42,7 +43,7 @@
 #endif
 
 //
-// Virtual base classes for the new expression system
+// Virtual base classes for the expression system
 //
 
 //
@@ -87,22 +88,16 @@ namespace PLEXIL
     virtual const char *exprName() const = 0;
 
     /**
-     * @brief Return a print name for the value type.
-     * @return A constant character string.
+     * @brief Return the value type.
+     * @return A constant enumeration.
      */
-    virtual const char *typeName() const = 0;
+    virtual const ValueType valueType() const = 0;
 
     /**
      * @brief Query whether the expression's value is known.
      * @return True if known, false otherwise.
      */
     virtual bool isKnown() const = 0;
-
-    /**
-     * @brief Query whether the expression's value is unknown.
-     * @return True if unknown, false otherwise.
-     */
-    virtual bool isUnknown() const = 0;
 
     /**
      * @brief Query whether this expression is assignable.

@@ -85,9 +85,9 @@ namespace PLEXIL {
     /**
      * @brief Return a print name for the value type.
      * @return A constant character string.
-     * @note Specialized by type name. See below.
+     * @note Specialized by type name.
      */
-    const char *typeName() const;
+    const ValueType valueType() const;
 
     /**
      * @brief Retrieve the value of this Expression.
@@ -112,12 +112,6 @@ namespace PLEXIL {
      * @return True if known, false otherwise.
      */
     bool isKnown() const;
-
-    /**
-     * @brief Query whether the expression's value is unknown.
-     * @return True if unknown, false otherwise.
-     */
-    bool isUnknown() const;
 
     /**
      * @brief Query whether this expression is constant, i.e. incapable of change.

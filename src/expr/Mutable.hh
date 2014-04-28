@@ -43,7 +43,6 @@ namespace PLEXIL {
   class Mutable : public Expression
   {
   public:
-    // *** FIXME: Should default constructor be public or protected? ***
 
     /**
      * @brief Destructor.
@@ -127,6 +126,9 @@ namespace PLEXIL {
     void publishChange();
 
   private:
+    // Not implemented
+    Mutable(const Mutable &);
+    Mutable &operator=(const Mutable &);
 
     // Essential member variables
     std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */

@@ -70,10 +70,9 @@ namespace PLEXIL {
     //
 
     const char *exprName() const;
-    const char *typeName() const;
+    const ValueType valueType() const;
 
     bool isKnown() const;
-    bool isUnknown() const;
 
     void printValue(std::ostream& s) const;
 

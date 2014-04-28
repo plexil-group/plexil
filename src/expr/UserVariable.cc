@@ -82,46 +82,42 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  const char *UserVariable<T>::typeName() const
+  const ValueType UserVariable<T>::valueType() const
   {
-    return "UNKNOWN_TYPE";
+    return UNKNOWN_TYPE;
   }
 
   // Specialize above for known types
   template <>
-  const char* UserVariable<double>::typeName() const
+  const ValueType UserVariable<double>::valueType() const
   {
-    return "Real";
+    return REAL_TYPE;
   }
 
   template <>
-  const char* UserVariable<int32_t>::typeName() const
+  const ValueType UserVariable<int32_t>::valueType() const
   {
-    return "Integer";
+    return INTEGER_TYPE;
   }
 
   template <>
-  const char* UserVariable<bool>::typeName() const
+  const ValueType UserVariable<bool>::valueType() const
   {
-    return "Boolean";
+    return BOOLEAN_TYPE;
   }
 
   template <>
-  const char* UserVariable<std::string>::typeName() const
+  const ValueType UserVariable<std::string>::valueType() const
   {
-    return "String";
+    return STRING_TYPE;
   }
+
+  // TODO: Array types
 
   template <typename T>
   bool UserVariable<T>::isKnown() const
   {
     return isActive() && m_known;
-  }
-
-  template <typename T>
-  bool UserVariable<T>::isUnknown() const
-  {
-    return !isActive() || !m_known;
   }
 
   // TODO: specialize on type, e.g. for bool, array, quotes around string

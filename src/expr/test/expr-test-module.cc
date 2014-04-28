@@ -24,12 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Constant.hh"
-#include "ExpressionListener.hh"
+#include "Constant.hh"       // includes ExpressionListener, Expression
 #include "lifecycle-utils.h"
 #include "TestSupport.hh"
-#include "UserVariable.hh"
-
+#include "UserVariable.hh"   // includes Mutable, Assignable
 
 using namespace PLEXIL;
 
@@ -98,14 +96,13 @@ public:
   }
 
   const char *exprName() const { return "trivial"; }
-  const char *typeName() const { return "notype"; }
+  const ValueType valueType() const { return UNKNOWN_TYPE; }
 
   void print(std::ostream& s) const {}
   void printValue(std::ostream& s) const {}
 
   bool isConstant() const { return true; }
   bool isKnown() const { return false; }
-  bool isUnknown() const { return true; }
 
 private:
   ExpressionListenerId m_listener;
@@ -289,10 +286,6 @@ private:
     assertTrue_1(!ui.isKnown());
     assertTrue_1(!ud.isKnown());
     assertTrue_1(!us.isKnown());
-    assertTrue_1(ub.isUnknown());
-    assertTrue_1(ui.isUnknown());
-    assertTrue_1(ud.isUnknown());
-    assertTrue_1(us.isUnknown());
 
     // Access through ExpressionId
     ExpressionId iub = ub.getId();
@@ -311,10 +304,6 @@ private:
     assertTrue_1(!iui->isKnown());
     assertTrue_1(!iud->isKnown());
     assertTrue_1(!ius->isKnown());
-    assertTrue_1(iub->isUnknown());
-    assertTrue_1(iui->isUnknown());
-    assertTrue_1(iud->isUnknown());
-    assertTrue_1(ius->isUnknown());
 
     // getValue on unknowns
     double food;
@@ -344,10 +333,6 @@ private:
     assertTrue_1(too.isKnown());
     assertTrue_1(doo.isKnown());
     assertTrue_1(soo.isKnown());
-    assertTrue_1(!troo.isUnknown());
-    assertTrue_1(!too.isUnknown());
-    assertTrue_1(!doo.isUnknown());
-    assertTrue_1(!soo.isUnknown());
     
     // getValue() test
     assertTrue_1(troo.getValue(foob));
@@ -414,10 +399,6 @@ private:
     assertTrue_1(!vui.isKnown());
     assertTrue_1(!vud.isKnown());
     assertTrue_1(!vus.isKnown());
-    assertTrue_1(vub.isUnknown());
-    assertTrue_1(vui.isUnknown());
-    assertTrue_1(vud.isUnknown());
-    assertTrue_1(vus.isUnknown());
 
     double food;
     std::string foos;
@@ -440,10 +421,6 @@ private:
     assertTrue_1(!vui.isKnown());
     assertTrue_1(!vud.isKnown());
     assertTrue_1(!vus.isKnown());
-    assertTrue_1(vub.isUnknown());
-    assertTrue_1(vui.isUnknown());
-    assertTrue_1(vud.isUnknown());
-    assertTrue_1(vus.isUnknown());
     assertTrue_1(!vub.getValue(foob));
     assertTrue_1(!vui.getValue(fooi));
     assertTrue_1(!vud.getValue(food));
@@ -460,10 +437,6 @@ private:
     assertTrue_1(vui.isKnown());
     assertTrue_1(vud.isKnown());
     assertTrue_1(vus.isKnown());
-    assertTrue_1(!vub.isUnknown());
-    assertTrue_1(!vui.isUnknown());
-    assertTrue_1(!vud.isUnknown());
-    assertTrue_1(!vus.isUnknown());
     
     assertTrue_1(vub.getValue(foob));
     assertTrue_1(foob == true);
@@ -509,10 +482,6 @@ private:
     assertTrue_1(!vi.isKnown());
     assertTrue_1(!vd.isKnown());
     assertTrue_1(!vs.isKnown());
-    assertTrue_1(vb.isUnknown());
-    assertTrue_1(vi.isUnknown());
-    assertTrue_1(vd.isUnknown());
-    assertTrue_1(vs.isUnknown());
 
     // Activate and confirm they are known
     vb.activate();
@@ -523,10 +492,6 @@ private:
     assertTrue_1(vi.isKnown());
     assertTrue_1(vd.isKnown());
     assertTrue_1(vs.isKnown());
-    assertTrue_1(!vb.isUnknown());
-    assertTrue_1(!vi.isUnknown());
-    assertTrue_1(!vd.isUnknown());
-    assertTrue_1(!vs.isUnknown());
 
     // Check values
     double food;
@@ -561,10 +526,6 @@ private:
     assertTrue_1(vi.isKnown());
     assertTrue_1(vd.isKnown());
     assertTrue_1(vs.isKnown());
-    assertTrue_1(!vb.isUnknown());
-    assertTrue_1(!vi.isUnknown());
-    assertTrue_1(!vd.isUnknown());
-    assertTrue_1(!vs.isUnknown());
     
     assertTrue_1(vb.getValue(foob));
     assertTrue_1(foob == true);
@@ -593,10 +554,6 @@ private:
     assertTrue_1(vi.isKnown());
     assertTrue_1(vd.isKnown());
     assertTrue_1(vs.isKnown());
-    assertTrue_1(!vb.isUnknown());
-    assertTrue_1(!vi.isUnknown());
-    assertTrue_1(!vd.isUnknown());
-    assertTrue_1(!vs.isUnknown());
 
     assertTrue_1(vb.getValue(foob));
     assertTrue_1(foob == false);
@@ -631,10 +588,6 @@ private:
     assertTrue_1(!vui.isKnown());
     assertTrue_1(!vud.isKnown());
     assertTrue_1(!vus.isKnown());
-    assertTrue_1(vub.isUnknown());
-    assertTrue_1(vui.isUnknown());
-    assertTrue_1(vud.isUnknown());
-    assertTrue_1(vus.isUnknown());
 
     double food;
     std::string foos;
@@ -657,10 +610,6 @@ private:
     assertTrue_1(vui.isKnown());
     assertTrue_1(vud.isKnown());
     assertTrue_1(vus.isKnown());
-    assertTrue_1(!vub.isUnknown());
-    assertTrue_1(!vui.isUnknown());
-    assertTrue_1(!vud.isUnknown());
-    assertTrue_1(!vus.isUnknown());
     
     assertTrue_1(vub.getValue(foob));
     assertTrue_1(foob == true);
@@ -683,10 +632,6 @@ private:
     assertTrue_1(!vui.isKnown());
     assertTrue_1(!vud.isKnown());
     assertTrue_1(!vus.isKnown());
-    assertTrue_1(vub.isUnknown());
-    assertTrue_1(vui.isUnknown());
-    assertTrue_1(vud.isUnknown());
-    assertTrue_1(vus.isUnknown());
     assertTrue_1(!vub.getValue(foob));
     assertTrue_1(!vui.getValue(fooi));
     assertTrue_1(!vud.getValue(food));
@@ -696,13 +641,13 @@ private:
 
     // Assign again
     vub.setValue(true);
-    assertTrue_1(!vub.isUnknown());
+    assertTrue_1(vub.isKnown());
     vui.setValue(42);
-    assertTrue_1(!vui.isUnknown());
+    assertTrue_1(vui.isKnown());
     vud.setValue(3.14);
-    assertTrue_1(!vud.isUnknown());
+    assertTrue_1(vud.isKnown());
     vus.setValue("yoohoo");
-    assertTrue_1(!vus.isUnknown());
+    assertTrue_1(vus.isKnown());
 
     assertTrue_1(vub.getValue(foob));
     assertTrue_1(foob == true);
@@ -737,10 +682,6 @@ private:
     assertTrue_1(!vui.isKnown());
     assertTrue_1(!vud.isKnown());
     assertTrue_1(!vus.isKnown());
-    assertTrue_1(vub.isUnknown());
-    assertTrue_1(vui.isUnknown());
-    assertTrue_1(vud.isUnknown());
-    assertTrue_1(vus.isUnknown());
 
     double food;
     std::string foos;
@@ -761,10 +702,6 @@ private:
     assertTrue_1(vui.isKnown());
     assertTrue_1(vud.isKnown());
     assertTrue_1(vus.isKnown());
-    assertTrue_1(!vub.isUnknown());
-    assertTrue_1(!vui.isUnknown());
-    assertTrue_1(!vud.isUnknown());
-    assertTrue_1(!vus.isUnknown());
     assertTrue_1(vub.getValue(foob));
     assertTrue_1(vui.getValue(fooi));
     assertTrue_1(vud.getValue(food));
@@ -783,10 +720,6 @@ private:
     assertTrue_1(!vui.isKnown());
     assertTrue_1(!vud.isKnown());
     assertTrue_1(!vus.isKnown());
-    assertTrue_1(vub.isUnknown());
-    assertTrue_1(vui.isUnknown());
-    assertTrue_1(vud.isUnknown());
-    assertTrue_1(vus.isUnknown());
     assertTrue_1(!vub.getValue(foob));
     assertTrue_1(!vui.getValue(fooi));
     assertTrue_1(!vud.getValue(food));
@@ -801,10 +734,6 @@ private:
     assertTrue_1(vui.isKnown());
     assertTrue_1(vud.isKnown());
     assertTrue_1(vus.isKnown());
-    assertTrue_1(!vub.isUnknown());
-    assertTrue_1(!vui.isUnknown());
-    assertTrue_1(!vud.isUnknown());
-    assertTrue_1(!vus.isUnknown());
     assertTrue_1(vub.getValue(foob));
     assertTrue_1(vui.getValue(fooi));
     assertTrue_1(vud.getValue(food));
@@ -829,10 +758,6 @@ private:
     assertTrue_1(!vui.isKnown());
     assertTrue_1(!vud.isKnown());
     assertTrue_1(!vus.isKnown());
-    assertTrue_1(vub.isUnknown());
-    assertTrue_1(vui.isUnknown());
-    assertTrue_1(vud.isUnknown());
-    assertTrue_1(vus.isUnknown());
     assertTrue_1(!vub.getValue(foob));
     assertTrue_1(!vui.getValue(fooi));
     assertTrue_1(!vud.getValue(food));
@@ -847,10 +772,6 @@ private:
     assertTrue_1(vui.isKnown());
     assertTrue_1(vud.isKnown());
     assertTrue_1(vus.isKnown());
-    assertTrue_1(!vub.isUnknown());
-    assertTrue_1(!vui.isUnknown());
-    assertTrue_1(!vud.isUnknown());
-    assertTrue_1(!vus.isUnknown());
     assertTrue_1(vub.getValue(foob));
     assertTrue_1(vui.getValue(fooi));
     assertTrue_1(vud.getValue(food));
@@ -869,10 +790,6 @@ private:
     assertTrue_1(!vui.isKnown());
     assertTrue_1(!vud.isKnown());
     assertTrue_1(!vus.isKnown());
-    assertTrue_1(vub.isUnknown());
-    assertTrue_1(vui.isUnknown());
-    assertTrue_1(vud.isUnknown());
-    assertTrue_1(vus.isUnknown());
     assertTrue_1(!vub.getValue(foob));
     assertTrue_1(!vui.getValue(fooi));
     assertTrue_1(!vud.getValue(food));
@@ -887,10 +804,6 @@ private:
     assertTrue_1(!vui.isKnown());
     assertTrue_1(!vud.isKnown());
     assertTrue_1(!vus.isKnown());
-    assertTrue_1(vub.isUnknown());
-    assertTrue_1(vui.isUnknown());
-    assertTrue_1(vud.isUnknown());
-    assertTrue_1(vus.isUnknown());
     assertTrue_1(!vub.getValue(foob));
     assertTrue_1(!vui.getValue(fooi));
     assertTrue_1(!vud.getValue(food));

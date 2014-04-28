@@ -44,8 +44,8 @@ namespace PLEXIL {
 
   Mutable::~Mutable()
   {
-    checkError(m_outgoingListeners.empty(),
-               "Error: Expression '" << getId() << "' still has outgoing listeners.");
+    assertTrueMsg(m_outgoingListeners.empty(),
+                  "Error: Expression '" << getId() << "' still has outgoing listeners.");
   }
 
   bool Mutable::isActive() const
@@ -53,13 +53,16 @@ namespace PLEXIL {
     return m_activeCount > 0;
   }
 
-  // TODO: add check for activeCount overflow?
   void Mutable::activate()
   {
-    bool changed = (m_activeCount == 0);
+    bool changed = (!m_activeCount);
     ++m_activeCount;
     if (changed)
       this->handleActivate();
+    else
+      // Check for counter wrap only if active at entry
+      assertTrueMsg(m_activeCount,
+                    "Mutable::activate: Active counter overflowed for " << getId());
   }
 
   // No-op default method.

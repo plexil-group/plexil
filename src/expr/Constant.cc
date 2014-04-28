@@ -113,35 +113,39 @@ namespace PLEXIL {
    * @return A constant character string.
    * @note Specialized by type name.
    */
+
+  // Default method
   template <typename T>
-  const char *Constant<T>::typeName() const
+  const ValueType Constant<T>::valueType() const
   {
-    return "UNKNOWN_TYPE";
+    return UNKNOWN_TYPE;
   }
 
   template <>
-  const char *Constant<double>::typeName() const
+  const ValueType Constant<double>::valueType() const
   {
-    return "Real";
+    return REAL_TYPE;
   }
 
   template <>
-  const char *Constant<int32_t>::typeName() const
+  const ValueType Constant<int32_t>::valueType() const
   {
-    return "Integer";
+    return INTEGER_TYPE;
   }
 
   template <>
-  const char *Constant<bool>::typeName() const
+  const ValueType Constant<bool>::valueType() const
   {
-    return "Boolean";
+    return BOOLEAN_TYPE;
   }
 
   template <>
-  const char *Constant<std::string>::typeName() const
+  const ValueType Constant<std::string>::valueType() const
   {
-    return "String";
+    return STRING_TYPE;
   }
+
+  // TODO: Array types 
 
   /**
    * @brief Retrieve the value of this Expression.
@@ -189,16 +193,6 @@ namespace PLEXIL {
   bool Constant<T>::isKnown() const
   {
     return m_known;
-  }
-
-  /**
-   * @brief Query whether the expression's value is unknown.
-   * @return True if unknown, false otherwise.
-   */
-  template <typename T>
-  bool Constant<T>::isUnknown() const
-  {
-    return !m_known;
   }
 
   /**
