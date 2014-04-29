@@ -25,105 +25,194 @@
 */
 
 #include "Function.hh"
+#include "Operator.hh"
 
 namespace PLEXIL
 {
-  Function::Function()
-    : Mutable()
+  template <typename R>
+  Function<R>::Function(const Operator<R> *op)
+    : Mutable(),
+      m_op(op)
   {
   }
 
-  Function::~Function()
+  template <typename R>
+  Function<R>::~Function()
   {
-    for (size_t i = 0; i < m_subexpressions.size(); ++i) {
-      m_subexpressions[i]->removeListener(ExpressionListener::getId());
-      if (m_garbage[i])
-        delete (Expression *) m_subexpressions[i];
-    }
-    m_subexpressions.clear();
   }
 
-  void Function::addSubexpression(const ExpressionId & exp, bool isGarbage)
+  template <typename R>
+  const ValueType Function<R>::getValueType() const
   {
-    // TODO: figure out when we can omit adding listener to subexps
-    // For now play it safe
-    exp->addListener(ExpressionListener::getId());
-    m_subexpressions.push_back(exp);
-    m_garbage.push_back(isGarbage);
+    if (!m_op)
+      return UNKNOWN_TYPE; // s/b error?
+    return m_op->getValueType();
   }
 
-  void Function::finalize()
+  template <typename R>
+  bool Function<R>::getValue(R &result) const
   {
-    // TODO
-  }
-
-  void Function::handleActivate()
-  {
-    for (size_t i = 0; i < m_subexpressions.size(); ++i)
-      m_subexpressions[i]->activate();
-  }
-
-  void Function::handleDeactivate()
-  {
-    for (size_t i = 0; i < m_subexpressions.size(); ++i)
-      m_subexpressions[i]->deactivate();
+    return this->calculate(result);
   }
 
   //
   // UnaryFunction
   //
 
-  UnaryFunction::UnaryFunction()
-    : Mutable()
+  template <typename R>
+  UnaryFunction<R>::UnaryFunction(const Operator<R> *op,
+                                  const ExpressionId & exp,
+                                  bool isGarbage)
+    : Function<R>(op),
+      m_a(exp),
+      m_aGarbage(isGarbage)
   {
   }
 
-  UnaryFunction::~UnaryFunction()
+  template <typename R>
+  UnaryFunction<R>::~UnaryFunction()
   {
-    m_e->removeListener(ExpressionListener::getId());
-    if (m_garbage)
-      delete (Expression *) m_e;
+    m_a->removeListener(ExpressionListener::getId());
+    if (m_aGarbage)
+      delete (Expression *) m_a;
   }
 
-  void UnaryFunction::handleActivate()
+  template <typename R>
+  void UnaryFunction<R>::handleActivate()
   {
-    m_e->activate();
+    m_a->activate();
   }
 
-  void UnaryFunction::handleDeactivate()
+  template <typename R>
+  void UnaryFunction<R>::handleDeactivate()
   {
-    m_e->deactivate();
+    m_a->deactivate();
+  }
+
+  template <typename R>
+  bool UnaryFunction<R>::calculate(R &result) const
+  {
+    return (*Function<R>::m_op)(result, m_a);
   }
 
   //
   // BinaryFunction
   //
 
-  BinaryFunction::BinaryFunction()
-    : Mutable()
+  template <typename R>
+  BinaryFunction<R>::BinaryFunction(const Operator<R> *op,
+                                    const ExpressionId & expA,
+                                    const ExpressionId & expB,
+                                    bool isGarbageA,
+                                    bool isGarbageB)
+    : Function<R>(op),
+      m_a(expA),
+      m_b(expB),
+      m_aGarbage(isGarbageA),
+      m_bGarbage(isGarbageB)
   {
   }
 
-  BinaryFunction::~BinaryFunction()
+  template <typename R>
+  BinaryFunction<R>::~BinaryFunction()
   {
     m_a->removeListener(ExpressionListener::getId());
-    m_b->removeListener(ExpressionListener::getId());
     if (m_aGarbage)
       delete (Expression *) m_a;
+    m_b->removeListener(ExpressionListener::getId());
     if (m_bGarbage)
       delete (Expression *) m_b;
   }
 
-  void BinaryFunction::handleActivate()
+  template <typename R>
+  void BinaryFunction<R>::handleActivate()
   {
     m_a->activate();
     m_b->activate();
   }
 
-  void BinaryFunction::handleDeactivate()
+  template <typename R>
+  void BinaryFunction<R>::handleDeactivate()
   {
     m_a->deactivate();
     m_b->deactivate();
   }
+
+  template <typename R>
+  bool BinaryFunction<R>::calculate(R &result) const
+  {
+    return (*Function<R>::m_op)(result, m_a, m_b);
+  }
+
+  //
+  // NaryFunction
+  //
+
+  template <typename R>
+  NaryFunction<R>::NaryFunction(const Operator<R> *op,
+                                const std::vector<ExpressionId> &exps,
+                                const std::vector<bool> &garbage)
+    : Function<R>(op),
+      m_subexpressions(exps),
+      m_garbage(garbage)
+  {
+    assertTrue_2(exps.size() != garbage.size(), "Subexpression size does not match garbage size");
+    for (std::vector<ExpressionId>::iterator it = m_subexpressions.begin();
+         it != m_subexpressions.end();
+         ++it)
+      (*it)->addListener(ExpressionListener::getId());
+  }
+
+  template <typename R>
+  NaryFunction<R>::~NaryFunction()
+  {
+    for (size_t i = 0; i < m_subexpressions.size(); ++i) {
+      m_subexpressions[i]->removeListener(ExpressionListener::getId());
+      if (m_garbage[i])
+        delete (Expression *) m_subexpressions[i];
+    }
+  }
+
+  template <typename R>
+  void NaryFunction<R>::handleActivate()
+  {
+    for (size_t i = 0; i < m_subexpressions.size(); ++i)
+      m_subexpressions[i]->activate();
+  }
+
+  template <typename R>
+  void NaryFunction<R>::handleDeactivate()
+  {
+    for (size_t i = 0; i < m_subexpressions.size(); ++i)
+      m_subexpressions[i]->deactivate();
+  }
+
+  template <typename R>
+  bool NaryFunction<R>::calculate(R &result) const
+  {
+    return (*Function<R>::m_op)(result, m_subexpressions);
+  }
+
+  //
+  // Explicit instantiations
+  //
+
+  template class UnaryFunction<double>;
+  template class UnaryFunction<int32_t>;
+  // template class UnaryFunction<uint16_t>;
+  template class UnaryFunction<bool>;
+  template class UnaryFunction<std::string>;
+
+  template class BinaryFunction<double>;
+  template class BinaryFunction<int32_t>;
+  // template class BinaryFunction<uint16_t>;
+  template class BinaryFunction<bool>;
+  template class BinaryFunction<std::string>;
+
+  template class NaryFunction<double>;
+  template class NaryFunction<int32_t>;
+  // template class NaryFunction<uint16_t>;
+  template class NaryFunction<bool>;
+  template class NaryFunction<std::string>;
 
 } // namespace PLEXIL

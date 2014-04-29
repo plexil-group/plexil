@@ -28,6 +28,7 @@
 #define PLEXIL_FUNCTION_HH
 
 #include "Mutable.hh"
+#include "Operator.hh"
 
 namespace PLEXIL
 {
@@ -44,58 +45,58 @@ namespace PLEXIL
    * Represents a function whose value depends on the value(s) of one or more subexpressions.
    */
 
+  template <typename R>
   class Function : public Mutable
   {
   public:
-    Function();
-    ~Function();
+    virtual ~Function();
 
     /**
-     * @brief Add a subexpression to this expression.
-     * @param exp The subexpression.
-     * @param isGarbage True if this expression should delete the subexpression at destructor time.
+     * @brief Get the value type of this Expression.
+     * @return ValueType of the expression.
      */
-    void addSubexpression(const ExpressionId &exp, bool isGarbage = true);
+    const ValueType getValueType() const;
 
     /**
-     * @brief Indicate that this Function is complete,
-     *        so that the implementation can perform any needed checks.
-     * @note The default method does nothing.
+     * @brief Retrieve the value of this Expression.
+     * @param The appropriately typed place to put the result.
+     * @return True if result known, false if unknown.
      */
-    virtual void finalize();
+    bool getValue(R &result) const;
 
   protected:
 
-    /**
-     * @brief Make this expression active.
-     * This implementation calls the activate() method on all subexpressions.
-     */
-    void handleActivate();
+    // Constructor should only be used by derived classes
+    Function(const Operator<R>* op);
 
     /**
-     * @brief Make this expression inactive.
-     * This implementation calls the deactivate() method on all subexpressions.
+     * @brief Calculate the function's value from the current values of the subexpressions.
+     * @param result The place to put the result.
+     * @return True if known, false if not.
      */
-    void handleDeactivate();
+    virtual bool calculate(R &result) const = 0;
+
+    const Operator<R>* m_op;
 
   private:
     // Not implemented
+    Function();
     Function(const Function &);
     Function& operator=(const Function &);
-
-    std::vector<ExpressionId> m_subexpressions;
-    std::vector<bool> m_garbage;
   };
 
   /**
    * @class UnaryFunction
-   * @brief An abstract base class. Optimization of Function for one-argument operators.
+   * @brief An abstract base class. A Function of one argument.
    */
 
-  class UnaryFunction : public Mutable
+  template <typename R>
+  class UnaryFunction : public Function<R>
   {
   public:
-    UnaryFunction();
+    UnaryFunction(const Operator<R>* op,
+                  const ExpressionId & exp,
+                  bool isGarbage);
     virtual ~UnaryFunction();
 
   protected:
@@ -112,13 +113,22 @@ namespace PLEXIL
      */
     void handleDeactivate();
 
+    /**
+     * @brief Calculate the function's value from the current values of the subexpressions.
+     * @param result The place to put the result.
+     * @return True if known, false if not.
+     */
+    bool calculate(R &result) const;
+
   private:
-    // Disallow copy
+
+    // Disallow default constructor, copy
+    UnaryFunction();
     UnaryFunction(const UnaryFunction &);
     UnaryFunction &operator=(const UnaryFunction &);
 
-    ExpressionId m_e;
-    bool m_garbage;
+    ExpressionId m_a;
+    bool m_aGarbage;
   };
 
   /**
@@ -126,10 +136,16 @@ namespace PLEXIL
    * @brief An abstract base class. Optimization of Function for two-argument operators.
    */
 
-  class BinaryFunction : public Mutable
+  template <typename R>
+  class BinaryFunction : public Function<R>
   {
   public:
-    BinaryFunction();
+    BinaryFunction(const Operator<R>* op,
+                   const ExpressionId & expA,
+                   const ExpressionId & expB,
+                   bool isGarbageA,
+                   bool isGarbageB);
+
     virtual ~BinaryFunction();
 
   protected:
@@ -146,8 +162,17 @@ namespace PLEXIL
      */
     void handleDeactivate();
 
+    /**
+     * @brief Calculate the function's value from the current values of the subexpressions.
+     * @param result The place to put the result.
+     * @return True if known, false if not.
+     */
+    bool calculate(R &result) const;
+
   private:
-    // Disallow copy
+
+    // Disallow default constructor, copy
+    BinaryFunction();
     BinaryFunction(const BinaryFunction &);
     BinaryFunction &operator=(const BinaryFunction &);
 
@@ -155,6 +180,47 @@ namespace PLEXIL
     ExpressionId m_b;
     bool m_aGarbage;
     bool m_bGarbage;
+  };
+
+  template <typename R>
+  class NaryFunction : public Function<R>
+  {
+  public:
+    NaryFunction(const Operator<R> *op,
+                 const std::vector<ExpressionId> &exps,
+                 const std::vector<bool> &garbage);
+    ~NaryFunction();
+
+  protected:
+
+    /**
+     * @brief Make this expression active.
+     * This implementation calls the activate() method on all subexpressions.
+     */
+    void handleActivate();
+
+    /**
+     * @brief Make this expression inactive.
+     * This implementation calls the deactivate() method on all subexpressions.
+     */
+    void handleDeactivate();
+
+    /**
+     * @brief Calculate the function's value from the current values of the subexpressions.
+     * @param result The place to put the result.
+     * @return True if known, false if not.
+     */
+    bool calculate(R &result) const;
+
+  private:
+
+    // Disallow default constructor, copy
+    NaryFunction();
+    NaryFunction(const NaryFunction &);
+    NaryFunction& operator=(const NaryFunction &);
+
+    std::vector<ExpressionId> m_subexpressions;
+    std::vector<bool> m_garbage;
   };
 
 } // namespace PLEXIL
