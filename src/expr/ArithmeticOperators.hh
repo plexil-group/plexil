@@ -98,8 +98,85 @@ namespace PLEXIL
     Division(const Division &);
     Division &operator=(const Division &);
   };
+
+  template <typename NUM>
+  class Modulo : public Operator<NUM>
+  {
+  public:
+    Modulo();
+    ~Modulo();
+
+    bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
+
+  private:
+    Modulo(const Modulo &);
+    Modulo &operator=(const Modulo &);
+  };
+
+  template <typename NUM>
+  class Minimum : public Operator<NUM>
+  {
+  public:
+    Minimum();
+    ~Minimum();
+
+    // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
+    bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
+    bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
+
+  private:
+    Minimum(const Minimum &);
+    Minimum &operator=(const Minimum &);
+  };
+
+  template <typename NUM>
+  class Maximum : public Operator<NUM>
+  {
+  public:
+    Maximum();
+    ~Maximum();
+
+    // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
+    bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
+    bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
+
+  private:
+    Maximum(const Maximum &);
+    Maximum &operator=(const Maximum &);
+  };
+
+  //
+  // Strictly unary operations
+  //
+
+  template <typename NUM>
+  class AbsoluteValue : public Operator<NUM>
+  {
+  public:
+    AbsoluteValue();
+    ~AbsoluteValue();
+
+    bool operator()(NUM &result, const ExpressionId &arg) const;
+
+  private:
+    AbsoluteValue(const AbsoluteValue &);
+    AbsoluteValue &operator=(const AbsoluteValue &);
+  };
   
-  
+
+  template <typename NUM>
+  class SquareRoot : public Operator<NUM>
+  {
+  public:
+    SquareRoot();
+    ~SquareRoot();
+
+    bool operator()(NUM &result, const ExpressionId &arg) const;
+
+  private:
+    SquareRoot(const SquareRoot &);
+    SquareRoot &operator=(const SquareRoot &);
+  };
 
 }
 
