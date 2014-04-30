@@ -121,5 +121,9 @@ ResponseBase* RoboSimResponseFactory::parseResponseValues(const std::string& cmd
     }
   debugMsg("RoboSimResponseFactory:parse", 
 	   " Returning new GenericResponse with " << values.size() << " values");
-  return new GenericResponse(values);
+  std::vector<PLEXIL::Value> vals;
+  for (std::vector<double>::const_iterator i = values.begin(); i != values.end(); i++) {
+	vals.push_back(*i);
+  }
+  return new GenericResponse(vals);
 }
