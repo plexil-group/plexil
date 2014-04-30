@@ -89,9 +89,10 @@ namespace PLEXIL {
       this->handleChange();
   }
 
-  // No-op default method.
+  // Default method.
   void Mutable::handleChange()
   {
+    this->publishChange();
   }
 
   // *** TODO: determine whether we really need to check for duplicates ***

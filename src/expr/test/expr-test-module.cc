@@ -1297,6 +1297,7 @@ public:
   static bool test()
   {
     runTest(testUnaryBasics);
+    runTest(testUnaryPropagation);
     runTest(testBinaryBasics);
     return true;
   }
@@ -1354,6 +1355,109 @@ private:
 
     return true;
   }
+  static bool testUnaryPropagation()
+  {
+    BooleanVariable treu(true);
+    IntegerVariable fortytwo(42);
+    RealVariable pie(3.14);
+    StringVariable fou("Foo");
+
+    Passthrough<bool> ptb;
+    Passthrough<int32_t> pti;
+    Passthrough<double> ptd;
+    Passthrough<std::string> pts;
+
+    UnaryFunction<bool> boule(&ptb, treu.getId());
+    UnaryFunction<int32_t> inty(&pti, fortytwo.getId());
+    UnaryFunction<double> dub(&ptd, pie.getId());
+    UnaryFunction<double> intd(&ptd, fortytwo.getId());
+    UnaryFunction<std::string> str(&pts, fou.getId());
+
+    bool bchanged = false;
+    bool ichanged = false;
+    bool rchanged = false;
+    bool r2changed = false;
+    bool schanged = false;
+
+    TrivialListener bl(bchanged);
+    TrivialListener il(ichanged);
+    TrivialListener rl(rchanged);
+    TrivialListener rl2(r2changed);
+    TrivialListener sl(schanged);
+
+    boule.addListener(bl.getId());
+    inty.addListener(il.getId());
+    dub.addListener(rl.getId());
+    intd.addListener(rl2.getId());
+    str.addListener(sl.getId());
+
+    // Check propagation doesn't happen when inactive
+    treu.setValue(false);
+    fortytwo.setValue(43);
+    pie.setValue(2.718);
+    fou.setValue(std::string("fu"));
+
+    assertTrue_1(!bchanged);
+    assertTrue_1(!ichanged);
+    assertTrue_1(!rchanged);
+    assertTrue_1(!r2changed);
+    assertTrue_1(!schanged);
+
+    // Check that variables get activated when functions do
+    boule.activate();
+    assertTrue_1(treu.isActive());
+    inty.activate();
+    assertTrue_1(fortytwo.isActive());
+    dub.activate();
+    assertTrue_1(pie.isActive());
+    // inty and intd share the same variable
+    inty.deactivate();
+    intd.activate();
+    assertTrue_1(fortytwo.isActive());
+    str.activate();
+    assertTrue_1(fou.isActive());
+    // reactivate inty
+    inty.activate();
+
+    bool boolv;
+    int32_t intv;
+    double dubv;
+    std::string strv;
+
+    // Check function values
+    assertTrue_1(boule.getValue(boolv));
+    assertTrue_1(!boolv);
+    assertTrue_1(inty.getValue(intv));
+    assertTrue_1(intv == 43);
+    assertTrue_1(intd.getValue(dubv));
+    assertTrue_1(dubv == 43);
+    assertTrue_1(dub.getValue(dubv));
+    assertTrue_1(dubv == 2.718);
+    assertTrue_1(str.getValue(strv));
+    assertTrue_1(strv == std::string("fu"));
+
+    // Check propagation does happen when active
+    treu.reset();
+    fortytwo.reset();
+    pie.reset();
+    fou.reset();
+
+    assertTrue_1(bchanged);
+    assertTrue_1(ichanged);
+    assertTrue_1(rchanged);
+    assertTrue_1(r2changed);
+    assertTrue_1(schanged);
+
+    // Clean up
+    boule.removeListener(bl.getId());
+    inty.removeListener(il.getId());
+    dub.removeListener(rl.getId());
+    intd.removeListener(rl2.getId());
+    str.removeListener(sl.getId());
+
+    return true;
+  }
+
 
   static bool testBinaryBasics()
   {
@@ -1435,8 +1539,8 @@ private:
     assertTrue_1(!realFn.getValue(rtemp));
 
     // Check that notifications have occurred, and clear them
-    assertTrue_1(!ichanged);
-    assertTrue_1(!rchanged);
+    assertTrue_1(ichanged);
+    assertTrue_1(rchanged);
     ichanged = rchanged = false;
 
     // Reset variables, check that values are known and reasonable
@@ -1456,8 +1560,8 @@ private:
     assertTrue_1(rtemp == 7);
 
     // Check that notifications have occurred
-    assertTrue_1(!ichanged);
-    assertTrue_1(!rchanged);
+    assertTrue_1(ichanged);
+    assertTrue_1(rchanged);
 
     // Clean up
     intFn.removeListener(il.getId());

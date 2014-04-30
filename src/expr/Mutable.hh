@@ -116,7 +116,7 @@ namespace PLEXIL {
 
     /**
      * @brief Called by notifyChanged() when the expression is active.
-     * @note Default method does nothing.
+     * @note Default method calls publishChange().
      */
     virtual void handleChange();
 

@@ -117,6 +117,7 @@ namespace PLEXIL
       m_a(exp),
       m_aGarbage(isGarbage)
   {
+    m_a->addListener(ExpressionListener::getId());
   }
 
   template <typename R>
@@ -161,6 +162,8 @@ namespace PLEXIL
       m_aGarbage(isGarbageA),
       m_bGarbage(isGarbageB)
   {
+    m_a->addListener(ExpressionListener::getId());
+    m_b->addListener(ExpressionListener::getId());
   }
 
   template <typename R>

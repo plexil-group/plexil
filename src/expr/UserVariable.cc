@@ -49,9 +49,10 @@ namespace PLEXIL {
     : m_name("anonymous"),
       m_value(initVal),
       m_initialValue(initVal),
+      m_savedValue(initVal),
       m_known(true),
       m_initialKnown(true),
-      m_savedKnown(false)
+      m_savedKnown(true)
   {
   }
 
@@ -181,7 +182,8 @@ namespace PLEXIL {
   template <typename T>
   void UserVariable<T>::reset()
   {
-    bool changed = (m_known != m_initialKnown) || (m_value != m_initialValue);
+    bool changed = ((m_known != m_initialKnown)
+                    || (m_known && m_initialKnown && (m_value != m_initialValue)));
     m_savedValue = m_value = m_initialValue;
     m_savedKnown = m_known = m_initialKnown;
     if (changed)
