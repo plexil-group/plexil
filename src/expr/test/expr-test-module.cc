@@ -1299,6 +1299,7 @@ public:
     runTest(testUnaryBasics);
     runTest(testUnaryPropagation);
     runTest(testBinaryBasics);
+    runTest(testNaryBasics);
     return true;
   }
 
@@ -1458,7 +1459,6 @@ private:
     return true;
   }
 
-
   static bool testBinaryBasics()
   {
     Addition<int32_t> intAdd;
@@ -1558,6 +1558,127 @@ private:
     assertTrue_1(realFn.getValue(rtemp));
     assertTrue_1(itemp == 3);
     assertTrue_1(rtemp == 7);
+
+    // Check that notifications have occurred
+    assertTrue_1(ichanged);
+    assertTrue_1(rchanged);
+
+    // Clean up
+    intFn.removeListener(il.getId());
+    realFn.removeListener(rl.getId());
+
+    return true;
+  }
+
+  static bool testNaryBasics()
+  {
+    Addition<int32_t> intAdd;
+    Addition<double> realAdd;
+
+    IntegerVariable won(1);
+    IntegerConstant too(2);
+    IntegerVariable tree(3);
+
+    RealConstant fore(4);
+    RealVariable fivefive(5.5);
+    RealVariable sixfive(6.5);
+
+    std::vector<ExpressionId> exprs;
+    const std::vector<bool> garbage(3, false);
+
+    exprs.push_back(won.getId());
+    exprs.push_back(too.getId());
+    exprs.push_back(tree.getId());
+
+    NaryFunction<int32_t> intFn(&intAdd, exprs, garbage);
+
+    exprs.clear();
+    exprs.push_back(fore.getId());
+    exprs.push_back(fivefive.getId());
+    exprs.push_back(sixfive.getId());
+
+    NaryFunction<double> realFn(&realAdd, exprs, garbage);
+
+    int32_t itemp;
+    double rtemp;
+
+    bool ichanged = false;
+    bool rchanged = false;
+
+    TrivialListener il(ichanged);
+    TrivialListener rl(rchanged);
+
+    intFn.addListener(il.getId());
+    realFn.addListener(rl.getId());
+
+    // Check that variables and functions are inactive when created
+    assertTrue_1(!intFn.isActive());
+    assertTrue_1(!realFn.isActive());
+    assertTrue_1(!won.isActive());
+    assertTrue_1(!tree.isActive());
+    assertTrue_1(!fivefive.isActive());
+    assertTrue_1(!sixfive.isActive());
+
+    // Check that values are unknown when inactive
+    assertTrue_1(!intFn.isKnown());
+    assertTrue_1(!intFn.getValue(itemp));
+    assertTrue_1(!realFn.isKnown());
+    assertTrue_1(!realFn.getValue(rtemp));
+
+    // Activate expressions, check that both they and their arguments are now active
+    intFn.activate();
+    realFn.activate();
+    assertTrue_1(intFn.isActive());
+    assertTrue_1(realFn.isActive());
+    assertTrue_1(won.isActive());
+    assertTrue_1(tree.isActive());
+    assertTrue_1(fivefive.isActive());
+    assertTrue_1(sixfive.isActive());
+
+    // Check that values are known and reasonable
+    assertTrue_1(intFn.isKnown());
+    assertTrue_1(realFn.isKnown());
+    assertTrue_1(intFn.getValue(itemp));
+    assertTrue_1(realFn.getValue(rtemp));
+    assertTrue_1(itemp == 6);
+    assertTrue_1(rtemp == 16);
+
+    // No notifications should have happened yet
+    assertTrue_1(!ichanged);
+    assertTrue_1(!rchanged);
+
+    // Set the variables unknown and check that they and epxressions are now unknown
+    tree.setUnknown();
+    fivefive.setUnknown();
+    assertTrue_1(!tree.isKnown());
+    assertTrue_1(!tree.getValue(itemp));
+    assertTrue_1(!fivefive.isKnown());
+    assertTrue_1(!fivefive.getValue(rtemp));
+    assertTrue_1(!intFn.isKnown());
+    assertTrue_1(!intFn.getValue(itemp));
+    assertTrue_1(!realFn.isKnown());
+    assertTrue_1(!realFn.getValue(rtemp));
+
+    // Check that notifications have occurred, and clear them
+    assertTrue_1(ichanged);
+    assertTrue_1(rchanged);
+    ichanged = rchanged = false;
+
+    // Reset variables, check that values are known and reasonable
+    tree.reset();
+    fivefive.reset();
+    assertTrue_1(tree.isKnown());
+    assertTrue_1(fivefive.isKnown());
+    assertTrue_1(intFn.isKnown());
+    assertTrue_1(realFn.isKnown());
+    assertTrue_1(tree.getValue(itemp));
+    assertTrue_1(fivefive.getValue(rtemp));
+    assertTrue_1(itemp == 3);
+    assertTrue_1(rtemp == 5.5);
+    assertTrue_1(intFn.getValue(itemp));
+    assertTrue_1(realFn.getValue(rtemp));
+    assertTrue_1(itemp == 6);
+    assertTrue_1(rtemp == 16);
 
     // Check that notifications have occurred
     assertTrue_1(ichanged);
