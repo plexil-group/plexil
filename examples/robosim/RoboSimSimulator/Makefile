@@ -30,7 +30,7 @@ EXECUTABLE	:= RoboSimSimulator
 SRC		:= RoboSimResponseFactory.cc RoboSimSimulator.cc
 INC		:= $(wildcard *.hh)
 
-LIBS		+= PlexilUtils standalonesimulator ipc
+LIBS		+= PlexilUtils standalonesimulator ipc pthread
 
 INC_DIRS 	+= $(PLEXIL_HOME)/src/utils \
   $(PLEXIL_HOME)/src/third-party/ipc/src \
