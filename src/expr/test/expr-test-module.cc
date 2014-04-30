@@ -24,10 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "ArithmeticOperators.hh" // includes Operator
 #include "Constant.hh"       // includes ExpressionListener, Expression
 #include "Function.hh"
 #include "lifecycle-utils.h"
-#include "Operator.hh"
 #include "TestSupport.hh"
 #include "UserVariable.hh"   // includes Mutable, Assignable
 
@@ -1151,6 +1151,16 @@ private:
     vud.addListener(ld.getId());
     vus.addListener(ls.getId());
 
+    // setInitialValue shouldn't notify while inactive
+    vub.setInitialValue(false);
+    vui.setInitialValue(69);
+    vud.setInitialValue(1.414);
+    vus.setInitialValue(std::string("jojo"));
+    assertTrue_1(!bchanged);
+    assertTrue_1(!ichanged);
+    assertTrue_1(!dchanged);
+    assertTrue_1(!schanged);
+
     // Assign and check whether the listeners were notified
     vub.setValue(true);
     vui.setValue(42);
@@ -1234,6 +1244,17 @@ private:
     assertTrue_1(dchanged);
     assertTrue_1(schanged);
 
+    // setInitialValue shouldn't notify
+    bchanged = ichanged = dchanged = schanged = false;
+    vub.setInitialValue(false);
+    vui.setInitialValue(69);
+    vud.setInitialValue(1.414);
+    vus.setInitialValue(std::string("jojo"));
+    assertTrue_1(!bchanged);
+    assertTrue_1(!ichanged);
+    assertTrue_1(!dchanged);
+    assertTrue_1(!schanged);
+
     // Clean up
     vub.removeListener(lb.getId());
     vui.removeListener(li.getId());
@@ -1276,6 +1297,7 @@ public:
   static bool test()
   {
     runTest(testUnaryBasics);
+    runTest(testBinaryBasics);
     return true;
   }
 
@@ -1327,6 +1349,119 @@ private:
     assertTrue_1(tempd == 3.14);
     assertTrue_1(tempdi == 42);
     assertTrue_1(temps == std::string("Foo"));
+
+    // TODO - test propagation of changes through variable and fn
+
+    return true;
+  }
+
+  static bool testBinaryBasics()
+  {
+    Addition<int32_t> intAdd;
+    Addition<double> realAdd;
+
+    IntegerVariable won(1);
+    IntegerConstant too(2);
+    RealVariable tree(3);
+    RealConstant fore(4);
+
+    BinaryFunction<int32_t> intFn(&intAdd, won.getId(), too.getId());
+    BinaryFunction<double> realFn(&realAdd, tree.getId(), fore.getId());
+
+    int32_t itemp;
+    double rtemp;
+
+    bool ichanged = false;
+    bool rchanged = false;
+
+    TrivialListener il(ichanged);
+    TrivialListener rl(rchanged);
+
+    intFn.addListener(il.getId());
+    realFn.addListener(rl.getId());
+
+    // Check that variables and functions are inactive when created
+    assertTrue_1(!intFn.isActive());
+    assertTrue_1(!realFn.isActive());
+    assertTrue_1(!won.isActive());
+    assertTrue_1(!tree.isActive());
+
+    // Check that values are unknown when inactive
+    assertTrue_1(!won.isKnown());
+    assertTrue_1(!won.getValue(itemp));
+    assertTrue_1(!tree.isKnown());
+    assertTrue_1(!tree.getValue(rtemp));
+    assertTrue_1(!intFn.isKnown());
+    assertTrue_1(!intFn.getValue(itemp));
+    assertTrue_1(!realFn.isKnown());
+    assertTrue_1(!realFn.getValue(rtemp));
+
+    // Activate expressions, check that both they and their arguments are now active
+    intFn.activate();
+    realFn.activate();
+    assertTrue_1(intFn.isActive());
+    assertTrue_1(realFn.isActive());
+    assertTrue_1(won.isActive());
+    assertTrue_1(tree.isActive());
+
+    // Check that values are known and reasonable
+    assertTrue_1(won.isKnown());
+    assertTrue_1(tree.isKnown());
+    assertTrue_1(intFn.isKnown());
+    assertTrue_1(realFn.isKnown());
+    assertTrue_1(won.getValue(itemp));
+    assertTrue_1(tree.getValue(rtemp));
+    assertTrue_1(itemp == 1);
+    assertTrue_1(rtemp == 3);
+    assertTrue_1(intFn.getValue(itemp));
+    assertTrue_1(realFn.getValue(rtemp));
+    assertTrue_1(itemp == 3);
+    assertTrue_1(rtemp == 7);
+
+    // No notifications should have happened yet
+    assertTrue_1(!ichanged);
+    assertTrue_1(!rchanged);
+
+    // Set the variables unknown and check that they and epxressions are now unknown
+    won.setUnknown();
+    tree.setUnknown();
+    assertTrue_1(!won.isKnown());
+    assertTrue_1(!won.getValue(itemp));
+    assertTrue_1(!tree.isKnown());
+    assertTrue_1(!tree.getValue(rtemp));
+    assertTrue_1(!intFn.isKnown());
+    assertTrue_1(!intFn.getValue(itemp));
+    assertTrue_1(!realFn.isKnown());
+    assertTrue_1(!realFn.getValue(rtemp));
+
+    // Check that notifications have occurred, and clear them
+    assertTrue_1(!ichanged);
+    assertTrue_1(!rchanged);
+    ichanged = rchanged = false;
+
+    // Reset variables, check that values are known and reasonable
+    won.reset();
+    tree.reset();
+    assertTrue_1(won.isKnown());
+    assertTrue_1(tree.isKnown());
+    assertTrue_1(intFn.isKnown());
+    assertTrue_1(realFn.isKnown());
+    assertTrue_1(won.getValue(itemp));
+    assertTrue_1(tree.getValue(rtemp));
+    assertTrue_1(itemp == 1);
+    assertTrue_1(rtemp == 3);
+    assertTrue_1(intFn.getValue(itemp));
+    assertTrue_1(realFn.getValue(rtemp));
+    assertTrue_1(itemp == 3);
+    assertTrue_1(rtemp == 7);
+
+    // Check that notifications have occurred
+    assertTrue_1(!ichanged);
+    assertTrue_1(!rchanged);
+
+    // Clean up
+    intFn.removeListener(il.getId());
+    realFn.removeListener(rl.getId());
 
     return true;
   }
