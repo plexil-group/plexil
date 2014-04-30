@@ -209,7 +209,7 @@ namespace PLEXIL
       m_subexpressions(exps),
       m_garbage(garbage)
   {
-    assertTrue_2(exps.size() != garbage.size(), "Subexpression size does not match garbage size");
+    assertTrue_2(exps.size() == garbage.size(), "Subexpression size does not match garbage size");
     for (std::vector<ExpressionId>::iterator it = m_subexpressions.begin();
          it != m_subexpressions.end();
          ++it)
