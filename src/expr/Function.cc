@@ -42,17 +42,67 @@ namespace PLEXIL
   }
 
   template <typename R>
-  const ValueType Function<R>::getValueType() const
+  const char *Function<R>::exprName() const
   {
-    if (!m_op)
-      return UNKNOWN_TYPE; // s/b error?
-    return m_op->getValueType();
+    return m_op->getName().c_str();
+  }
+
+  // Default method, can be overridden
+  template <typename R>
+  const ValueType Function<R>::valueType() const
+  {
+    return UNKNOWN_TYPE;
+  }
+
+  template <>
+  const ValueType Function<bool>::valueType() const
+  {
+    return BOOLEAN_TYPE;
+  }
+
+  template <>
+  const ValueType Function<int32_t>::valueType() const
+  {
+    return INTEGER_TYPE;
+  }
+
+  template <>
+  const ValueType Function<double>::valueType() const
+  {
+    return REAL_TYPE;
+  }
+
+  template <>
+  const ValueType Function<std::string>::valueType() const
+  {
+    return STRING_TYPE;
   }
 
   template <typename R>
   bool Function<R>::getValue(R &result) const
   {
+    if (!isActive())
+      return false;
     return this->calculate(result);
+  }
+
+  template <typename R>
+  bool Function<R>::isKnown() const
+  {
+    if (!isActive())
+      return false;
+    R dummy;
+    return this->getValue(dummy);
+  }
+
+  template <typename R>
+  void Function<R>::printValue(std::ostream &s) const
+  {
+    R temp;
+    if (!this->getValue(temp))
+      s << "UNKNOWN";
+    else
+      s << temp;
   }
 
   //

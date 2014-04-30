@@ -78,19 +78,6 @@ namespace PLEXIL {
   }
 
   /**
-   * @brief Conversion constructor
-   * @note Unimplemented conversions will cause a link time error.
-   */
-  template<>
-  template<>
-  Constant<double>::Constant(const int32_t &value)
-  : Expression(),
-    m_value(value),
-    m_known(true)
-  {
-  }
-
-  /**
    * @brief Destructor.
    */
   template <typename T>
@@ -152,22 +139,11 @@ namespace PLEXIL {
    * @return The value of this Expression.
    */
 
-  // Correct type
   template <typename T>
   bool Constant<T>::getValue(T& result) const
   {
     if (m_known)
       result = m_value;
-    return m_known;
-  }
-
-  // Compatible types
-  template <>
-  template <>
-  bool Constant<int32_t>::getValue(double& result) const
-  {
-    if (m_known)
-      result = (double) m_value;
     return m_known;
   }
 
@@ -270,5 +246,76 @@ namespace PLEXIL {
   // template class Constant<uint16_t>;
   template class Constant<bool>;
   template class Constant<std::string>;
+
+  //
+  // Specializations
+  //
+
+  //
+  // IntegerConstant
+  //
+
+  /**
+   * @brief Default constructor.
+   */
+  IntegerConstant::IntegerConstant()
+    : Constant<int32_t>()
+  {
+  }
+
+  /**
+   * @brief Copy constructor.
+   */
+  IntegerConstant::IntegerConstant(const IntegerConstant &other)
+    : Constant<int32_t>(other)
+  {
+  }
+
+  /**
+   * @brief Constructor from value type.
+   */
+  IntegerConstant::IntegerConstant(const int32_t &value)
+    : Constant<int32_t>(value)
+  {
+  }
+
+  /**
+   * @brief Destructor.
+   */
+  IntegerConstant::~IntegerConstant()
+  {
+  }
+
+  /**
+   * @brief Constructor from char *.
+   * @note Unimplemented conversions will cause a link time error.
+   * @note This is appropriate for plan loading.
+   */
+  // TODO
+  // IntegerConstant::IntegerConstant(const char * value);
+
+  /**
+   * @brief Retrieve the value of this Expression.
+   * @param The appropriately typed place to put the result.
+   * @return True if known, false if unknown.
+   */
+
+  //
+  // This wrapper method shouldn't be necessary.
+  // C++ sucks at inheritance.
+  //
+  bool IntegerConstant::getValue(int32_t &result) const
+  {
+    return Constant<int32_t>::getValue(result);
+  }
+
+  bool IntegerConstant::getValue(double &result) const
+  {
+    int32_t intResult;
+    bool known = Constant<int32_t>::getValue(intResult);
+    if (known)
+      result = (double) intResult;
+    return known;
+  }
 
 } // namespace PLEXIL

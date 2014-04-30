@@ -65,13 +65,6 @@ namespace PLEXIL {
     Constant(const char * value);
 
     /**
-     * @brief Constructor for limited type conversions.
-     * @note Unimplemented conversions will cause a link time error.
-     */
-    template <typename Y>
-    Constant(const Y &value);
-
-    /**
      * @brief Destructor.
      */
     virtual ~Constant();
@@ -95,11 +88,6 @@ namespace PLEXIL {
      * @return True if known, false if unknown.
      */
     bool getValue(T& result) const;
-
-    // This allows for limited type conversions.
-    // Unsupported conversions will cause a link time error.
-    template <typename Y>
-    bool getValue(Y& result) const;
 
 	/**
 	 * @brief Print the expression's value to the given stream.
@@ -168,6 +156,63 @@ namespace PLEXIL {
     Constant &operator=(const Constant &);
   };
 
+  //
+  // These wrappers are necessary to get type conversion methods to be noticed.
+  //
+
+  //
+  // IntegerConstant
+  //
+
+  class IntegerConstant : public Constant<int32_t>
+  {
+  public:
+
+    /**
+     * @brief Default constructor.
+     */
+    IntegerConstant();
+
+    /**
+     * @brief Copy constructor.
+     */
+    IntegerConstant(const IntegerConstant &other);
+
+    /**
+     * @brief Constructor from value type.
+     */
+    IntegerConstant(const int32_t &value);
+
+    /**
+     * @brief Destructor.
+     */
+    ~IntegerConstant();
+
+    /**
+     * @brief Constructor from char *.
+     * @note Unimplemented conversions will cause a link time error.
+     * @note This is appropriate for plan loading.
+     */
+    // TODO
+    // IntegerConstant(const char * value);
+
+    // The reason this class exists
+    bool getValue(double &result) const;
+
+    //
+    // This wrapper method shouldn't be necessary; 
+    // the public method this wraps should be inherited from Constant<int32_t>.
+    // But the code won't compile without it.
+    // C++ sucks at inheritance.
+    //
+    bool getValue(int32_t &result) const;
+  };
+
+  // Placeholders for anticipated extensions
+  typedef Constant<bool> BooleanConstant;
+  typedef Constant<double> RealConstant;
+  typedef Constant<std::string> StringConstant;
+  
 } // namespace PLEXIL
 
 #endif // PLEXIL_CONSTANT_HH

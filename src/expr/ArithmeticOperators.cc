@@ -57,9 +57,8 @@ namespace PLEXIL
                                  const ExpressionId &argB) const
   {
     NUM tempA, tempB;
-    if (!argA->getValue(tempA))
-      return false;
-    if (!argB->getValue(tempB))
+    if (!argA->getValue(tempA)
+        || !argB->getValue(tempB))
       return false;
     result = tempA + tempB;
     return true;
@@ -118,9 +117,8 @@ namespace PLEXIL
                                     const ExpressionId &argB) const
   {
     NUM tempA, tempB;
-    if (!argA->getValue(tempA))
-      return false;
-    if (!argB->getValue(tempB))
+    if (!argA->getValue(tempA)
+        || !argB->getValue(tempB))
       return false;
     result = tempA - tempB;
     return true;
@@ -167,9 +165,8 @@ namespace PLEXIL
                                        const ExpressionId &argB) const
   {
     NUM tempA, tempB;
-    if (!argA->getValue(tempA))
-      return false;
-    if (!argB->getValue(tempB))
+    if (!argA->getValue(tempA)
+        || !argB->getValue(tempB))
       return false;
     result = tempA * tempB;
     return true;
@@ -216,9 +213,9 @@ namespace PLEXIL
                                  const ExpressionId &argB) const
   {
     NUM tempA, tempB;
-    if (!argA->getValue(tempA))
-      return false;
-    if (!argB->getValue(tempB))
+    if (!argA->getValue(tempA)
+        || !argB->getValue(tempB)
+        || tempB == 0)
       return false;
     result = tempA / tempB;
     return true;
@@ -246,9 +243,9 @@ namespace PLEXIL
                                  const ExpressionId &argB) const
   {
     NUM tempA, tempB;
-    if (!argA->getValue(tempA))
-      return false;
-    if (!argB->getValue(tempB))
+    if (!argA->getValue(tempA)
+        || !argB->getValue(tempB)
+        || tempB == 0)
       return false;
     result = tempA % tempB;
     return true;
@@ -276,9 +273,8 @@ namespace PLEXIL
                                 const ExpressionId &argB) const
   {
     NUM tempA, tempB;
-    if (!argA->getValue(tempA))
-      return false;
-    if (!argB->getValue(tempB))
+    if (!argA->getValue(tempA)
+        || !argB->getValue(tempB))
       return false;
     result = (tempA <= tempB) ? tempA : tempB;
     return true;
@@ -406,10 +402,9 @@ namespace PLEXIL
                                       const ExpressionId &arg) const
   {
     double temp;
-    if (!arg->getValue(temp))
+    if (!arg->getValue(temp)
+        || temp < 0) // imaginary result
       return false;
-    if (temp < 0)
-      return false; // imaginary result
     result = sqrt(temp);
     return true;
   }

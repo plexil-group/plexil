@@ -49,19 +49,21 @@ namespace PLEXIL {
     UserVariable();
 
     /**
-     * @brief Constructor for plan loading.
+     * @brief Constructor with initial value (for regression testing).
+     * @param val The initial value.
      */
-    UserVariable(const T &value, 
-                 const NodeId &node = NodeId::noId(),
+    UserVariable(const T &initVal);
+
+    /**
+     * @brief Constructor for plan loading.
+     * @param node The node to which this variable belongs (default none).
+     * @param name The name of this variable in the parent node.
+     */
+    UserVariable(const NodeId &node,
                  const std::string &name = "");
-    // TODO:
-    // UserVariable(const char *value, 
-    //              const NodeId &node = NodeId::noId(),
-    //              const std::string &name = "");
     
     /**
      * @brief Destructor.
-     * @note Specializations may have more work to do.
      */
     virtual ~UserVariable();
 
@@ -85,22 +87,21 @@ namespace PLEXIL {
      */
     bool getValue(T &result) const;
 
-    // This allows for limited type conversions.
-    // Unsupported conversions will cause a link time error.
-    template <typename Y>
-    bool getValue(Y &result) const;
+    /**
+     * @brief Assign the initial value.
+     * @param value The value to assign.
+     * @note Type conversions must go on derived classes.
+     */
+    void setInitialValue(const T &value);
 
     /**
      * @brief Assign a new value.
      * @param value The value to assign.
-     * @note Limited type conversions supported.
-     * @note Unimplemented conversions will cause a link time error.
+     * @note Type conversions must go on derived classes.
      */
     void setValue(const T &value);
-    void setValue(const char *value);
 
-    template <typename Y>
-    void setValue(const Y &value);
+    void setInitialUnknown();
 
     void setUnknown();
 
@@ -132,6 +133,106 @@ namespace PLEXIL {
     bool m_savedKnown;
 
   };
+
+  //
+  // Specializations, made necessary by C++ limitations (or mine)
+  //
+
+  //
+  // IntegerVariable
+  //
+  class IntegerVariable : public UserVariable<int32_t>
+  {
+  public:
+
+    IntegerVariable();
+
+    IntegerVariable(const int32_t &value);
+
+    IntegerVariable(const NodeId &node,
+                    const std::string &name = "");
+
+    /**
+     * @brief Destructor.
+     */
+    virtual ~IntegerVariable();
+
+    // Conversion operator
+    bool getValue(double &result) const;
+
+    // Necessary because C++ sucks.
+    bool getValue(int32_t &result) const;
+  };
+
+
+  //
+  // RealVariable
+  //
+  class RealVariable : public UserVariable<double>
+  {
+  public:
+
+    RealVariable();
+
+    RealVariable(const double &initVal);
+    RealVariable(const int32_t &initVal);
+
+    RealVariable(const NodeId &node,
+                 const std::string &name = "");
+    
+    /**
+     * @brief Destructor.
+     */
+    virtual ~RealVariable();
+
+    // Conversion operator.
+    void setInitialValue(const int32_t &value);
+
+    // Necessary because C++ sucks.
+    void setInitialValue(const double &value);
+
+    // Conversion operator.
+    void setValue(const int32_t &value);
+
+    // Necessary because C++ sucks.
+    void setValue(const double &value);
+  };
+
+  //
+  // StringVariable
+  //
+  class StringVariable : public UserVariable<std::string>
+  {
+  public:
+
+    StringVariable();
+
+    StringVariable(const std::string &initVal);
+    StringVariable(const char *initVal); 
+
+    StringVariable(const NodeId &node,
+                   const std::string &name = "");
+    
+    /**
+     * @brief Destructor.
+     */
+    virtual ~StringVariable();
+
+    // The reason this class exists.
+    void setInitialValue(const char *value);
+
+    // Necessary because C++ sucks.
+    void setInitialValue(const std::string &value);
+
+    // The reason this class exists.
+    void setValue(const char *value);
+
+    // Necessary because C++ sucks.
+    void setValue(const std::string &value);
+  };
+
+  // Placeholders for anticipated derivatives
+  typedef UserVariable<bool> BooleanVariable;
 
 } // namespace PLEXIL
 

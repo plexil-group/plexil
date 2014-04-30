@@ -76,17 +76,49 @@ namespace PLEXIL {
      */
     virtual void reset() = 0;
 
+    //
+    // The setInitial... methods are necessary because the initial value of the variable
+    // may not be known at the time it is constructed, e.g. if it is dependent on another
+    // variable's value.
+    //
+
     /**
-     * @brief Set the value for this expression.  This may cause notifications to fire, which
-     *        may in turn cause other Expressions to change value.
-     * @param val The new value for this expression.
-     * @note Each default method returns a type error.
+     * @brief Set the initial and current values of this variable to "unknown".
+     * @note No change notification will occur.
      */
-    virtual void setValue(const double& val);
-    virtual void setValue(const int32_t& val);
-    virtual void setValue(const uint16_t& val);
-    virtual void setValue(const bool& val);
-    virtual void setValue(const std::string& val);
+    virtual void setInitialUnknown() = 0;
+
+    /**
+     * @brief Set the initial and current values of this expression.
+     * @param val The new value for this expression.
+     * @note No change notification will occur.
+     * @note Each default method reports a type error.
+     */
+    virtual void setInitialValue(const double &val);
+    virtual void setInitialValue(const int32_t &val);
+    virtual void setInitialValue(const uint16_t &val);
+    virtual void setInitialValue(const bool &val);
+    virtual void setInitialValue(const std::string &val);
+    virtual void setInitialValue(const char *val);
+
+    /**
+     * @brief Set the current value of this variable to "unknown".
+     * @note May cause change notifications to occur.
+     */
+    virtual void setUnknown() = 0;
+
+    /**
+     * @brief Set the value for this expression.
+     * @param val The new value for this expression.
+     * @note May cause change notifications to occur.
+     * @note Each default method reports a type error.
+     */
+    virtual void setValue(const double &val);
+    virtual void setValue(const int32_t &val);
+    virtual void setValue(const uint16_t &val);
+    virtual void setValue(const bool &val);
+    virtual void setValue(const std::string &val);
+    virtual void setValue(const char *val);
     // TODO: Array types
     
     // FIXME

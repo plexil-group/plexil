@@ -54,8 +54,11 @@ namespace PLEXIL
     /**
      * @brief Get the value type of this Expression.
      * @return ValueType of the expression.
+     * @note Default method should be adequate for most purposes.
      */
-    const ValueType getValueType() const;
+    const ValueType valueType() const;
+
+    const char *exprName() const;
 
     /**
      * @brief Retrieve the value of this Expression.
@@ -63,6 +66,11 @@ namespace PLEXIL
      * @return True if result known, false if unknown.
      */
     bool getValue(R &result) const;
+
+    // Default methods, may be overridden by derived classes.
+    // FIXME: is there any sane way to implement these further up the class hierarchy?
+    bool isKnown() const;
+    void printValue(std::ostream &) const;
 
   protected:
 
@@ -96,7 +104,7 @@ namespace PLEXIL
   public:
     UnaryFunction(const Operator<R>* op,
                   const ExpressionId & exp,
-                  bool isGarbage);
+                  bool isGarbage = false);
     virtual ~UnaryFunction();
 
   protected:
@@ -143,8 +151,8 @@ namespace PLEXIL
     BinaryFunction(const Operator<R>* op,
                    const ExpressionId & expA,
                    const ExpressionId & expB,
-                   bool isGarbageA,
-                   bool isGarbageB);
+                   bool isGarbageA = false,
+                   bool isGarbageB = false);
 
     virtual ~BinaryFunction();
 

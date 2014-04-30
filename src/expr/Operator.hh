@@ -46,7 +46,7 @@ namespace PLEXIL
   class Operator
   {
   public:
-    Operator();
+    Operator(); // make protected?
     virtual ~Operator();
 
     virtual bool operator()(R &result, const ExpressionId &arg) const;

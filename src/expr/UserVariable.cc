@@ -35,9 +35,6 @@
 
 namespace PLEXIL {
 
-  /**
-   * @brief Default constructor.
-   */
   template <typename T>
   UserVariable<T>::UserVariable()
     : m_name("anonymous"),
@@ -48,17 +45,24 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  UserVariable<T>::UserVariable(const T &value, 
-                                const NodeId &node,
+  UserVariable<T>::UserVariable(const T &initVal)
+    : m_name("anonymous"),
+      m_value(initVal),
+      m_initialValue(initVal),
+      m_known(true),
+      m_initialKnown(true),
+      m_savedKnown(false)
+  {
+  }
+
+  template <typename T>
+  UserVariable<T>::UserVariable(const NodeId &node,
                                 const std::string &name)
     : m_node(node),
       m_name(name),
-      m_value(value),
-      m_initialValue(value),
-      m_savedValue(value), // redundant?
-      m_known(true),
-      m_initialKnown(true),
-      m_savedKnown(true)
+      m_known(false),
+      m_initialKnown(false),
+      m_savedKnown(false)
   {
   }
     
@@ -130,7 +134,6 @@ namespace PLEXIL {
       s << "(UNKNOWN)";
   }
 
-  // Same type
   template <typename T>
   bool UserVariable<T>::getValue(T &result) const
   {
@@ -141,19 +144,14 @@ namespace PLEXIL {
     return m_known;
   }
 
-  // Compatible types
-  template <>
-  template <>
-  bool UserVariable<int32_t>::getValue(double& result) const
+  template <typename T>
+  void UserVariable<T>::setInitialValue(const T &value)
   {
-    if (!isActive())
-      return false;
-    if (m_known)
-      result = (double) m_value;
-    return m_known;
+    assertTrueMsg(checkValue(value), "Error: " << value << " is an invalid value for this variable");
+    m_initialValue = m_value = value;
+    m_initialKnown = m_known = true;
   }
 
-  // Same type
   template <typename T>
   void UserVariable<T>::setValue(const T &value)
   {
@@ -165,32 +163,10 @@ namespace PLEXIL {
       this->publishChange();
   }
 
-  // Compatible types
-
-  // std::string from char *
-  template <>
-  void UserVariable<std::string>::setValue(const char *value)
+  template <typename T>
+  void UserVariable<T>::setInitialUnknown()
   {
-    std::string svalue(value);
-    bool changed = !m_known || svalue != m_value;
-    assertTrueMsg(checkValue(svalue), "Error: " << value << " is an invalid value for this variable");
-    m_value = svalue;
-    m_known = true;
-    if (changed)
-      this->publishChange();
-  }
-
-  template <>
-  template <>
-  void UserVariable<double>::setValue(const int32_t &value)
-  {
-    double dvalue = (double) value;
-    bool changed = !m_known || dvalue != m_value;
-    assertTrueMsg(checkValue(dvalue), "Error: " << value << " is an invalid value for this variable");
-    m_value = dvalue;
-    m_known = true;
-    if (changed)
-      this->publishChange();
+    m_initialKnown = m_known = false;
   }
 
   template <typename T>
@@ -257,5 +233,150 @@ namespace PLEXIL {
   template class UserVariable<bool>;
   template class UserVariable<std::string>;
 
+  //
+  // Specializations
+  //
+
+  //
+  // IntegerVariable wrapper
+  //
+
+  IntegerVariable::IntegerVariable()
+    : UserVariable<int32_t>()
+  {
+  }
+
+  IntegerVariable::IntegerVariable(const int32_t &initVal)
+    : UserVariable<int32_t>(initVal)
+  {
+  }
+
+  IntegerVariable::IntegerVariable(const NodeId &node,
+                                   const std::string &name)
+    : UserVariable<int32_t>(node, name)
+  {
+  }
+
+  IntegerVariable::~IntegerVariable()
+  {
+  }
+
+  bool IntegerVariable::getValue(double &result) const
+  {
+    int32_t intResult;
+    if (!UserVariable<int32_t>::getValue(intResult))
+      return false;
+    result = (double) intResult;
+    return true;
+  }
+
+  // Because C++ sucks.
+  bool IntegerVariable::getValue(int32_t &result) const
+  {
+    return UserVariable<int32_t>::getValue(result);
+  }
+
+  //
+  // StringVariable wrapper
+  //
+
+  StringVariable::StringVariable()
+    : UserVariable<std::string>()
+  {
+  }
+
+  StringVariable::StringVariable(const std::string &initVal)
+    : UserVariable<std::string>(initVal)
+  {
+  }
+
+  StringVariable::StringVariable(const char *initVal)
+    : UserVariable<std::string>(std::string(initVal))
+  {
+  }
+
+  StringVariable::StringVariable(const NodeId &node,
+                                 const std::string &name)
+    : UserVariable<std::string>(node, name)
+  {
+  }
+
+  StringVariable::~StringVariable()
+  {
+  }
+
+  void StringVariable::setInitialValue(const char *val)
+  {
+    UserVariable<std::string>::setInitialValue(std::string(val));
+  }
+
+  // Because C++ sucks.
+  void StringVariable::setInitialValue(const std::string &val)
+  {
+    UserVariable<std::string>::setInitialValue(val);
+  }
+
+  void StringVariable::setValue(const char *val)
+  {
+    UserVariable<std::string>::setValue(std::string(val));
+  }
+
+  // Because C++ sucks.
+  void StringVariable::setValue(const std::string &val)
+  {
+    UserVariable<std::string>::setValue(val);
+  }
+
+
+  //
+  // RealVariable wrapper
+  //
+
+  RealVariable::RealVariable()
+    : UserVariable<double>()
+  {
+  }
+
+  RealVariable::RealVariable(const double &initVal)
+    : UserVariable<double>(initVal)
+  {
+  }
+
+  RealVariable::RealVariable(const int32_t &initVal)
+    : UserVariable<double>((double) initVal)
+  {
+  }
+                             
+  RealVariable::RealVariable(const NodeId &node,
+                             const std::string &name)
+    : UserVariable<double>(node, name)
+  {
+  }
+
+  RealVariable::~RealVariable()
+  {
+  }
+
+  void RealVariable::setInitialValue(const int32_t &value)
+  {
+    UserVariable<double>::setInitialValue((double) value);
+  }
+
+  // Because C++ sucks.
+  void RealVariable::setInitialValue(const double &value)
+  {
+    UserVariable<double>::setInitialValue(value);
+  }
+
+  void RealVariable::setValue(const int32_t &value)
+  {
+    UserVariable<double>::setValue((double) value);
+  }
+
+  // Because C++ sucks.
+  void RealVariable::setValue(const double &value)
+  {
+    UserVariable<double>::setValue(value);
+  }
 
 } // namespace PLEXIL
