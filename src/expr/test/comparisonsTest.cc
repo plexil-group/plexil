@@ -928,6 +928,176 @@ static bool testReal()
 static bool testMixedNumerics()
 {
   bool tempb;
+
+  RealConstant won(1);
+  RealConstant too(2);
+  IntegerConstant wontoo(1);
+  IntegerConstant tootoo(2);
+
+  Equal<double> eqr;
+  NotEqual<double> neqr;
+  GreaterThan<double> gtr;
+  GreaterEqual<double> ger;
+  LessThan<double> ltr;
+  LessEqual<double> ler;
+
+
+  BinaryFunction<bool> dblEq1(&eqr, won.getId(), wontoo.getId());
+  BinaryFunction<bool> dblEq2(&eqr, tootoo.getId(), too.getId());
+  BinaryFunction<bool> dblEq3(&eqr, wontoo.getId(), too.getId());
+  BinaryFunction<bool> dblEq4(&eqr, won.getId(), tootoo.getId());
+  BinaryFunction<bool> dblEq5(&eqr, wontoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblEq6(&eqr, wontoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblNeq1(&neqr, won.getId(), wontoo.getId());
+  BinaryFunction<bool> dblNeq2(&neqr, tootoo.getId(), too.getId());
+  BinaryFunction<bool> dblNeq3(&neqr, wontoo.getId(), too.getId());
+  BinaryFunction<bool> dblNeq4(&neqr, won.getId(), tootoo.getId());
+  BinaryFunction<bool> dblNeq5(&neqr, wontoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblNeq6(&neqr, wontoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblGt1(&gtr, won.getId(), wontoo.getId());
+  BinaryFunction<bool> dblGt2(&gtr, tootoo.getId(), too.getId());
+  BinaryFunction<bool> dblGt3(&gtr, wontoo.getId(), too.getId());
+  BinaryFunction<bool> dblGt4(&gtr, won.getId(), tootoo.getId());
+  BinaryFunction<bool> dblGt5(&gtr, wontoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblGt6(&gtr, wontoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblGe1(&ger, won.getId(), wontoo.getId());
+  BinaryFunction<bool> dblGe2(&ger, tootoo.getId(), too.getId());
+  BinaryFunction<bool> dblGe3(&ger, wontoo.getId(), too.getId());
+  BinaryFunction<bool> dblGe4(&ger, won.getId(), tootoo.getId());
+  BinaryFunction<bool> dblGe5(&ger, wontoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblGe6(&ger, wontoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblLt1(&ltr, won.getId(), wontoo.getId());
+  BinaryFunction<bool> dblLt2(&ltr, tootoo.getId(), too.getId());
+  BinaryFunction<bool> dblLt3(&ltr, wontoo.getId(), too.getId());
+  BinaryFunction<bool> dblLt4(&ltr, won.getId(), tootoo.getId());
+  BinaryFunction<bool> dblLt5(&ltr, wontoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblLt6(&ltr, wontoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblLe1(&ler, won.getId(), wontoo.getId());
+  BinaryFunction<bool> dblLe2(&ler, tootoo.getId(), too.getId());
+  BinaryFunction<bool> dblLe3(&ler, wontoo.getId(), too.getId());
+  BinaryFunction<bool> dblLe4(&ler, won.getId(), tootoo.getId());
+  BinaryFunction<bool> dblLe5(&ler, wontoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblLe6(&ler, wontoo.getId(), tootoo.getId());
+  dblLe1.activate();
+  dblLe2.activate();
+  dblLe3.activate();
+  dblLe4.activate();
+  dblLe5.activate();
+  dblLe6.activate();
+  dblNeq1.activate();
+  dblNeq2.activate();
+  dblNeq3.activate();
+  dblNeq4.activate();
+  dblNeq5.activate();
+  dblNeq6.activate();
+  dblGt1.activate();
+  dblGt2.activate();
+  dblGt3.activate();
+  dblGt4.activate();
+  dblGt5.activate();
+  dblGt6.activate();
+  dblGe1.activate();
+  dblGe2.activate();
+  dblGe3.activate();
+  dblGe4.activate();
+  dblGe5.activate();
+  dblGe6.activate();
+  dblLt1.activate();
+  dblLt2.activate();
+  dblLt3.activate();
+  dblLt4.activate();
+  dblLt5.activate();
+  dblLt6.activate();
+  dblLe1.activate();
+  dblLe2.activate();
+  dblLe3.activate();
+  dblLe4.activate();
+  dblLe5.activate();
+  dblLe6.activate();
+
+  // Real 1 ? Integer 1
+  assertTrue_1(dblEq1.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblNeq1.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGt1.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe1.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLt1.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLe1.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // Int 2 ? Real 2
+  assertTrue_1(dblEq2.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblNeq2.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGt2.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe2.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLt2.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLe2.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // Int 1 ? Real 2
+  assertTrue_1(dblEq3.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblNeq3.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblGt3.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe3.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLt3.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLe3.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // Real 1 ? Int 2
+  assertTrue_1(dblEq4.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblNeq4.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblGt4.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe4.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLt4.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLe4.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // Int 1 ? Int 1
+  assertTrue_1(dblEq5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblNeq5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGt5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLt5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLe5.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // Int 1 ? Int 2
+  assertTrue_1(dblEq6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblNeq6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblGt6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLt6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLe6.getValue(tempb));
+  assertTrue_1(tempb);
     
   return true;
 }
