@@ -117,6 +117,9 @@ namespace PLEXIL {
 
     const ExpressionId& getBaseVariable() const;
 
+    // Simple variables have no dependencies, therefore this method does nothing.
+    void notifyChanged();
+
   protected: // private?
     
     // Only used by LuvListener at present. Eliminate?

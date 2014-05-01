@@ -225,6 +225,12 @@ namespace PLEXIL {
     return Expression::getId();
   }
 
+  // Simple variables have no dependencies, therefore this method does nothing.
+  template <typename T>
+  void UserVariable<T>::notifyChanged()
+  {
+  }
+  
   //
   // Explicit instantiations
   //
