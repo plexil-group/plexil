@@ -35,8 +35,8 @@
 #define ID_TABLE_SIZE (0)
 #define ID_TABLE_OUTPUT(dummy)
 #else
-#define ID_TABLE_SIZE IdTable::size()
-#define ID_TABLE_OUTPUT(str) IdTable::output(str)
+#define ID_TABLE_SIZE PLEXIL::IdTable::size()
+#define ID_TABLE_OUTPUT(str) PLEXIL::IdTable::output(str)
 #endif
 
 
