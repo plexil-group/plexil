@@ -126,7 +126,7 @@ namespace PLEXIL
 
   template <typename NUM>
   bool Subtraction<NUM>::operator()(NUM &result,
-                                 const std::vector<ExpressionId> &args) const
+                                    const std::vector<ExpressionId> &args) const
   {
     std::vector<ExpressionId>::const_iterator it = args.begin();
     NUM workingResult;
@@ -175,7 +175,7 @@ namespace PLEXIL
   // TODO: overflow checks
   template <typename NUM>
   bool Multiplication<NUM>::operator()(NUM &result,
-                                 const std::vector<ExpressionId> &args) const
+                                       const std::vector<ExpressionId> &args) const
   {
     std::vector<ExpressionId>::const_iterator it = args.begin();
     NUM workingResult;
@@ -239,8 +239,8 @@ namespace PLEXIL
 
   template <typename NUM>
   bool Modulo<NUM>::operator()(NUM &result,
-                                 const ExpressionId &argA,
-                                 const ExpressionId &argB) const
+                               const ExpressionId &argA,
+                               const ExpressionId &argB) const
   {
     NUM tempA, tempB;
     if (!argA->getValue(tempA)
@@ -319,8 +319,8 @@ namespace PLEXIL
   // TODO: overflow checks
   template <typename NUM>
   bool Maximum<NUM>::operator()(NUM &result,
-                                       const ExpressionId &argA,
-                                       const ExpressionId &argB) const
+                                const ExpressionId &argA,
+                                const ExpressionId &argB) const
   {
     NUM tempA, tempB;
     if (!argA->getValue(tempA))
@@ -334,7 +334,7 @@ namespace PLEXIL
   // TODO: overflow checks
   template <typename NUM>
   bool Maximum<NUM>::operator()(NUM &result,
-                                 const std::vector<ExpressionId> &args) const
+                                const std::vector<ExpressionId> &args) const
   {
     std::vector<ExpressionId>::const_iterator it = args.begin();
     NUM workingResult;
