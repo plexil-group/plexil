@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "CoreExpressions.hh"
 #include "InterfaceAdapter.hh"
 #include "AdapterExecInterface.hh"
 #include "Command.hh"
@@ -72,21 +73,18 @@ namespace PLEXIL
 
   Value InterfaceAdapter::lookupNow(const State& /* state */)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::lookupNow: default method called!");
+	warn("lookupNow: default method called - returning UNKNOWN.");
     return UNKNOWN();
   }
 
   void InterfaceAdapter::subscribe(const State& /* state */)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::subscribe: default method called!");
+	warn("subscribe: default method called -- doing nothing.");
   }
 
   void InterfaceAdapter::unsubscribe(const State& /* state */)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::unsubscribe: default method called!");
+	warn("unsubscribe: default method called -- doing nothing.");
   }
 
   void InterfaceAdapter::setThresholds(const State& /* state */, double /* hi */, double /* lo */)
@@ -96,10 +94,10 @@ namespace PLEXIL
 
   void InterfaceAdapter::sendPlannerUpdate(const NodeId& /* node */,
                                            const std::map<std::string, Value>& /* valuePairs */,
-                                           ExpressionId /* ack */)
+                                           ExpressionId ack)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::updatePlanner: default method called!");
+	warn("sendPlannerUpdate: default method called -- just acknowledging request.");
+	ack->setValue(true);
   }
 
 
@@ -113,10 +111,10 @@ namespace PLEXIL
   void InterfaceAdapter::executeCommand(const LabelStr& /* name */,
                                         const std::vector<Value>& /* args */,
                                         ExpressionId /* dest */,
-                                        ExpressionId /* ack */)
+                                        ExpressionId ack)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::executeCommand: default method called!");
+	warn("executeCommand: default method called -- acknowledging command as failed.");
+ack->setValue(CommandHandleVariable::COMMAND_FAILED());
   }
 
   // Abort the given command. Call method below for compatibility.
@@ -126,13 +124,15 @@ namespace PLEXIL
   }
 
   //abort the given command with the given arguments.
-  void InterfaceAdapter::invokeAbort(const LabelStr& /* name */, 
+  void InterfaceAdapter::invokeAbort(const LabelStr& name, 
                                      const std::vector<Value>& /* args */, 
-                                     ExpressionId /* abort_ack */,
+                                     ExpressionId abort_ack,
                                      ExpressionId /* cmd_ack */)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::invokeAbort: default method called!");
+	warn("Default and deprecated method called. "
+		 "Please use invokeAbort(CommandId)");
+    debugMsg("InterfaceAdapter:invokeAbort", "Aborted command " << name);
+	abort_ack->setValue(true);
   }
 
   /**
