@@ -41,8 +41,11 @@ libPlexilExpr_la_SOURCES = Assignable.cc ArithmeticOperators.cc \
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
-#  noinst_HEADERS = test/expr-test-module.hh
-  test_expr_module_tests_SOURCES = test/expr-test-module.cc
+  noinst_HEADERS = test/TrivialListener.hh
+  test_expr_module_tests_SOURCES = test/comparisonsTest.cc \
+ test/constantsTest.cc test/functionsTest.cc test/listenerTest.cc \
+ test/TrivialListener.cc test/variablesTest.cc test/expr-test-module.cc
   test_expr_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils
-  test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
+  test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la \
+ ../third-party/pugixml/src/libpugixml.la
 endif

@@ -24,28 +24,22 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "lifecycle-utils.h"
-#include "TestSupport.hh"
+#ifndef TRIVIAL_LISTENER_HH
+#define TRIVIAL_LISTENER_HH
 
-extern bool comparisonsTest();
-extern bool constantsTest();
-extern bool functionsTest();
-extern bool listenerTest();
-extern bool variablesTest();
+#include "ExpressionListener.hh"
 
-using namespace PLEXIL;
-
-int main(int argc, char *argv[])
+class TrivialListener : public PLEXIL::ExpressionListener
 {
-  runTestSuite(listenerTest);
-  runTestSuite(constantsTest);
-  runTestSuite(variablesTest);
-  runTestSuite(functionsTest);
-  runTestSuite(comparisonsTest);
+public:
+  TrivialListener(bool& changed);
+  ~TrivialListener();
 
-  // clean up
-  runFinalizers();
+protected:
+  void notifyChanged();
 
-  std::cout << "Finished" << std::endl;
-  return 0;
-}
+private:
+  bool& m_changed;
+};
+
+#endif // TRIVIAL_LISTENER_HH
