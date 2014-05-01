@@ -178,6 +178,10 @@ static bool testString()
   StringVariable vars;
   Equal<std::string> eqs;
   NotEqual<std::string> neqs;
+  GreaterThan<std::string> gts;
+  GreaterEqual<std::string> ges;
+  LessThan<std::string> lts;
+  LessEqual<std::string> les;
 
   BinaryFunction<bool> strEq1(&eqs, yo.getId(), yo.getId());
   BinaryFunction<bool> strEq2(&eqs, mama.getId(), mama.getId());
@@ -191,6 +195,30 @@ static bool testString()
   BinaryFunction<bool> strNeq4(&neqs, mama.getId(), yo.getId());
   BinaryFunction<bool> strNeq5(&neqs, yo.getId(), vars.getId());
   BinaryFunction<bool> strNeq6(&neqs, vars.getId(), mama.getId());
+  BinaryFunction<bool> strGt1(&gts, yo.getId(), yo.getId());
+  BinaryFunction<bool> strGt2(&gts, mama.getId(), mama.getId());
+  BinaryFunction<bool> strGt3(&gts, yo.getId(), mama.getId());
+  BinaryFunction<bool> strGt4(&gts, mama.getId(), yo.getId());
+  BinaryFunction<bool> strGt5(&gts, yo.getId(), vars.getId());
+  BinaryFunction<bool> strGt6(&gts, vars.getId(), mama.getId());
+  BinaryFunction<bool> strGe1(&ges, yo.getId(), yo.getId());
+  BinaryFunction<bool> strGe2(&ges, mama.getId(), mama.getId());
+  BinaryFunction<bool> strGe3(&ges, yo.getId(), mama.getId());
+  BinaryFunction<bool> strGe4(&ges, mama.getId(), yo.getId());
+  BinaryFunction<bool> strGe5(&ges, yo.getId(), vars.getId());
+  BinaryFunction<bool> strGe6(&ges, vars.getId(), mama.getId());
+  BinaryFunction<bool> strLt1(&lts, yo.getId(), yo.getId());
+  BinaryFunction<bool> strLt2(&lts, mama.getId(), mama.getId());
+  BinaryFunction<bool> strLt3(&lts, yo.getId(), mama.getId());
+  BinaryFunction<bool> strLt4(&lts, mama.getId(), yo.getId());
+  BinaryFunction<bool> strLt5(&lts, yo.getId(), vars.getId());
+  BinaryFunction<bool> strLt6(&lts, vars.getId(), mama.getId());
+  BinaryFunction<bool> strLe1(&les, yo.getId(), yo.getId());
+  BinaryFunction<bool> strLe2(&les, mama.getId(), mama.getId());
+  BinaryFunction<bool> strLe3(&les, yo.getId(), mama.getId());
+  BinaryFunction<bool> strLe4(&les, mama.getId(), yo.getId());
+  BinaryFunction<bool> strLe5(&les, yo.getId(), vars.getId());
+  BinaryFunction<bool> strLe6(&les, vars.getId(), mama.getId());
   strEq1.activate();
   strEq2.activate();
   strEq3.activate();
@@ -203,60 +231,190 @@ static bool testString()
   strNeq4.activate();
   strNeq5.activate();
   strNeq6.activate();
+  strGt1.activate();
+  strGt2.activate();
+  strGt3.activate();
+  strGt4.activate();
+  strGt5.activate();
+  strGt6.activate();
+  strGe1.activate();
+  strGe2.activate();
+  strGe3.activate();
+  strGe4.activate();
+  strGe5.activate();
+  strGe6.activate();
+  strLt1.activate();
+  strLt2.activate();
+  strLt3.activate();
+  strLt4.activate();
+  strLt5.activate();
+  strLt6.activate();
+  strLe1.activate();
+  strLe2.activate();
+  strLe3.activate();
+  strLe4.activate();
+  strLe5.activate();
+  strLe6.activate();
 
+  // "Yo!" ? "Yo!"
   assertTrue_1(strEq1.getValue(tempb));
   assertTrue_1(tempb);
-  assertTrue_1(strEq2.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(strEq3.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(strEq4.getValue(tempb));
-  assertTrue_1(!tempb);
   assertTrue_1(strNeq1.getValue(tempb));
   assertTrue_1(!tempb);
+  assertTrue_1(strGt1.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strGe1.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strLt1.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strLe1.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // "Mama" ? "Mama"
+  assertTrue_1(strEq2.getValue(tempb));
+  assertTrue_1(tempb);
   assertTrue_1(strNeq2.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strGt2.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strGe2.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strLt2.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strLe2.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // "Yo!" ? "Mama"
+  assertTrue_1(strEq3.getValue(tempb));
   assertTrue_1(!tempb);
   assertTrue_1(strNeq3.getValue(tempb));
   assertTrue_1(tempb);
+  assertTrue_1(strGt3.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strGe3.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strLt3.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strLe3.getValue(tempb));
+  assertTrue_1(!tempb);
+
+  // "Mama" ? "Yo!"
+  assertTrue_1(strEq4.getValue(tempb));
+  assertTrue_1(!tempb);
   assertTrue_1(strNeq4.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strGt4.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strGe4.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strLt4.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strLe4.getValue(tempb));
   assertTrue_1(tempb);
 
   // These should be unknown because vars is uninitialized
   assertTrue_1(!strEq5.getValue(tempb));
-  assertTrue_1(!strEq6.getValue(tempb));
   assertTrue_1(!strNeq5.getValue(tempb));
+  assertTrue_1(!strGt5.getValue(tempb));
+  assertTrue_1(!strGe5.getValue(tempb));
+  assertTrue_1(!strLt5.getValue(tempb));
+  assertTrue_1(!strLe5.getValue(tempb));
+
+  assertTrue_1(!strEq6.getValue(tempb));
   assertTrue_1(!strNeq6.getValue(tempb));
+  assertTrue_1(!strGt6.getValue(tempb));
+  assertTrue_1(!strGe6.getValue(tempb));
+  assertTrue_1(!strLt6.getValue(tempb));
+  assertTrue_1(!strLe6.getValue(tempb));
 
   // Set vars and try again
   vars.setValue(std::string("Mama"));
+
+  // "Yo!" ? "Mama"
   assertTrue_1(strEq5.getValue(tempb));
   assertTrue_1(!tempb);
-  assertTrue_1(strEq6.getValue(tempb));
-  assertTrue_1(tempb);
   assertTrue_1(strNeq5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strGt5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strGe5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strLt5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strLe5.getValue(tempb));
+  assertTrue_1(!tempb);
+
+  // "Mama" ? "Mama"
+  assertTrue_1(strEq6.getValue(tempb));
   assertTrue_1(tempb);
   assertTrue_1(strNeq6.getValue(tempb));
   assertTrue_1(!tempb);
+  assertTrue_1(strGt6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strGe6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strLt6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strLe6.getValue(tempb));
+  assertTrue_1(tempb);
 
   vars.setValue(std::string("Yo!"));
+  // "Yo!" ? "Yo!"
   assertTrue_1(strEq5.getValue(tempb));
   assertTrue_1(tempb);
-  assertTrue_1(strEq6.getValue(tempb));
-  assertTrue_1(!tempb);
   assertTrue_1(strNeq5.getValue(tempb));
   assertTrue_1(!tempb);
-  assertTrue_1(strNeq6.getValue(tempb));
+  assertTrue_1(strGt5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strGe5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strLt5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strLe5.getValue(tempb));
   assertTrue_1(tempb);
 
-  vars.setValue(std::string("Yo Mama!"));
-  assertTrue_1(strEq5.getValue(tempb));
-  assertTrue_1(!tempb);
+  // "Yo!" ? "Mama"
   assertTrue_1(strEq6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strNeq6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strGt6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strGe6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strLt6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strLe6.getValue(tempb));
+  assertTrue_1(!tempb);
+
+  vars.setValue(std::string("Yo Mama!"));
+  // "Yo!" ? "Yo mama!"
+  assertTrue_1(strEq5.getValue(tempb));
   assertTrue_1(!tempb);
   assertTrue_1(strNeq5.getValue(tempb));
   assertTrue_1(tempb);
+  assertTrue_1(strGt5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strGe5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strLt5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strLe5.getValue(tempb));
+  assertTrue_1(!tempb);
+
+  // "Yo mama!" ? "Mama"
+  assertTrue_1(strEq6.getValue(tempb));
+  assertTrue_1(!tempb);
   assertTrue_1(strNeq6.getValue(tempb));
   assertTrue_1(tempb);
+  assertTrue_1(strGt6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strGe6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(strLt6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(strLe6.getValue(tempb));
+  assertTrue_1(!tempb);
 
   return true;
 }
@@ -526,6 +684,10 @@ static bool testReal()
   RealVariable varr;
   Equal<double> eqr;
   NotEqual<double> neqr;
+  GreaterThan<double> gtr;
+  GreaterEqual<double> ger;
+  LessThan<double> ltr;
+  LessEqual<double> ler;
 
   BinaryFunction<bool> dblEq1(&eqr, wontoo.getId(), wontoo.getId());
   BinaryFunction<bool> dblEq2(&eqr, tootoo.getId(), tootoo.getId());
@@ -539,6 +701,30 @@ static bool testReal()
   BinaryFunction<bool> dblNeq4(&neqr, tootoo.getId(), wontoo.getId());
   BinaryFunction<bool> dblNeq5(&neqr, wontoo.getId(), varr.getId());
   BinaryFunction<bool> dblNeq6(&neqr, varr.getId(), tootoo.getId());
+  BinaryFunction<bool> dblGt1(&gtr, wontoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblGt2(&gtr, tootoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblGt3(&gtr, wontoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblGt4(&gtr, tootoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblGt5(&gtr, wontoo.getId(), varr.getId());
+  BinaryFunction<bool> dblGt6(&gtr, varr.getId(), tootoo.getId());
+  BinaryFunction<bool> dblGe1(&ger, wontoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblGe2(&ger, tootoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblGe3(&ger, wontoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblGe4(&ger, tootoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblGe5(&ger, wontoo.getId(), varr.getId());
+  BinaryFunction<bool> dblGe6(&ger, varr.getId(), tootoo.getId());
+  BinaryFunction<bool> dblLt1(&ltr, wontoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblLt2(&ltr, tootoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblLt3(&ltr, wontoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblLt4(&ltr, tootoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblLt5(&ltr, wontoo.getId(), varr.getId());
+  BinaryFunction<bool> dblLt6(&ltr, varr.getId(), tootoo.getId());
+  BinaryFunction<bool> dblLe1(&ler, wontoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblLe2(&ler, tootoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblLe3(&ler, wontoo.getId(), tootoo.getId());
+  BinaryFunction<bool> dblLe4(&ler, tootoo.getId(), wontoo.getId());
+  BinaryFunction<bool> dblLe5(&ler, wontoo.getId(), varr.getId());
+  BinaryFunction<bool> dblLe6(&ler, varr.getId(), tootoo.getId());
   dblEq1.activate();
   dblEq2.activate();
   dblEq3.activate();
@@ -551,59 +737,189 @@ static bool testReal()
   dblNeq4.activate();
   dblNeq5.activate();
   dblNeq6.activate();
+  dblGt1.activate();
+  dblGt2.activate();
+  dblGt3.activate();
+  dblGt4.activate();
+  dblGt5.activate();
+  dblGt6.activate();
+  dblGe1.activate();
+  dblGe2.activate();
+  dblGe3.activate();
+  dblGe4.activate();
+  dblGe5.activate();
+  dblGe6.activate();
+  dblLt1.activate();
+  dblLt2.activate();
+  dblLt3.activate();
+  dblLt4.activate();
+  dblLt5.activate();
+  dblLt6.activate();
+  dblLe1.activate();
+  dblLe2.activate();
+  dblLe3.activate();
+  dblLe4.activate();
+  dblLe5.activate();
+  dblLe6.activate();
 
+  // 1 ? 1
   assertTrue_1(dblEq1.getValue(tempb));
   assertTrue_1(tempb);
-  assertTrue_1(dblEq2.getValue(tempb));
-  assertTrue_1(tempb);
-  assertTrue_1(dblEq3.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(dblEq4.getValue(tempb));
-  assertTrue_1(!tempb);
   assertTrue_1(dblNeq1.getValue(tempb));
   assertTrue_1(!tempb);
+  assertTrue_1(dblGt1.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe1.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLt1.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLe1.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // 2 ? 2
+  assertTrue_1(dblEq2.getValue(tempb));
+  assertTrue_1(tempb);
   assertTrue_1(dblNeq2.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGt2.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe2.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLt2.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLe2.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // 1 ? 2
+  assertTrue_1(dblEq3.getValue(tempb));
   assertTrue_1(!tempb);
   assertTrue_1(dblNeq3.getValue(tempb));
   assertTrue_1(tempb);
+  assertTrue_1(dblGt3.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe3.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLt3.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLe3.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // 2 ? 1
+  assertTrue_1(dblEq4.getValue(tempb));
+  assertTrue_1(!tempb);
   assertTrue_1(dblNeq4.getValue(tempb));
   assertTrue_1(tempb);
+  assertTrue_1(dblGt4.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblGe4.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLt4.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLe4.getValue(tempb));
+  assertTrue_1(!tempb);
 
   // These should be unknown because varr is uninitialized
   assertTrue_1(!dblEq5.getValue(tempb));
-  assertTrue_1(!dblEq6.getValue(tempb));
   assertTrue_1(!dblNeq5.getValue(tempb));
+  assertTrue_1(!dblGt5.getValue(tempb));
+  assertTrue_1(!dblGe5.getValue(tempb));
+  assertTrue_1(!dblLt5.getValue(tempb));
+  assertTrue_1(!dblLe5.getValue(tempb));
+
+  assertTrue_1(!dblEq6.getValue(tempb));
   assertTrue_1(!dblNeq6.getValue(tempb));
+  assertTrue_1(!dblGt6.getValue(tempb));
+  assertTrue_1(!dblGe6.getValue(tempb));
+  assertTrue_1(!dblLt6.getValue(tempb));
+  assertTrue_1(!dblLe6.getValue(tempb));
 
   // Set varr and try again
   varr.setValue(2);
+
+  // 1 ? 2
   assertTrue_1(dblEq5.getValue(tempb));
   assertTrue_1(!tempb);
-  assertTrue_1(dblEq6.getValue(tempb));
-  assertTrue_1(tempb);
   assertTrue_1(dblNeq5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblGt5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLt5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLe5.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // 2 ? 2
+  assertTrue_1(dblEq6.getValue(tempb));
   assertTrue_1(tempb);
   assertTrue_1(dblNeq6.getValue(tempb));
   assertTrue_1(!tempb);
+  assertTrue_1(dblGt6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLt6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLe6.getValue(tempb));
+  assertTrue_1(tempb);
 
   varr.setValue(1);
+  // 1 ? 1
   assertTrue_1(dblEq5.getValue(tempb));
   assertTrue_1(tempb);
-  assertTrue_1(dblEq6.getValue(tempb));
-  assertTrue_1(!tempb);
   assertTrue_1(dblNeq5.getValue(tempb));
   assertTrue_1(!tempb);
+  assertTrue_1(dblGt5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLt5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLe5.getValue(tempb));
+  assertTrue_1(tempb);
+
+  // 1 ? 2
+  assertTrue_1(dblEq6.getValue(tempb));
+  assertTrue_1(!tempb);
   assertTrue_1(dblNeq6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblGt6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLt6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLe6.getValue(tempb));
   assertTrue_1(tempb);
 
   varr.setValue(-1);
+  // 1 ? -1
   assertTrue_1(dblEq5.getValue(tempb));
-  assertTrue_1(!tempb);
-  assertTrue_1(dblEq6.getValue(tempb));
   assertTrue_1(!tempb);
   assertTrue_1(dblNeq5.getValue(tempb));
   assertTrue_1(tempb);
+  assertTrue_1(dblGt5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblGe5.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLt5.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLe5.getValue(tempb));
+  assertTrue_1(!tempb);
+
+  // -1 ? 2
+  assertTrue_1(dblEq6.getValue(tempb));
+  assertTrue_1(!tempb);
   assertTrue_1(dblNeq6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblGt6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblGe6.getValue(tempb));
+  assertTrue_1(!tempb);
+  assertTrue_1(dblLt6.getValue(tempb));
+  assertTrue_1(tempb);
+  assertTrue_1(dblLe6.getValue(tempb));
   assertTrue_1(tempb);
 
   return true;
