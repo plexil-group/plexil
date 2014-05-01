@@ -37,6 +37,12 @@ namespace PLEXIL
   }
 
   template <typename R>
+  Operator<R>::Operator(const Operator<R> &other)
+  {
+    m_name = other.m_name;
+  }
+
+  template <typename R>
   Operator<R>::~Operator()
   {
   }

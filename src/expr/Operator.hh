@@ -46,7 +46,6 @@ namespace PLEXIL
   class Operator
   {
   public:
-    Operator(); // make protected?
     virtual ~Operator();
 
     virtual bool operator()(R &result, const ExpressionId &arg) const;
@@ -62,14 +61,16 @@ namespace PLEXIL
     virtual const ValueType getValueType() const;
 
   protected:
+    // Base class shouldn't be instantiated by itself
+    Operator();
+    // but may be copied, since the only instance data is the name
+    Operator(const Operator &);
 
     // To be filled in by derived classes
     std::string m_name;
 
   private:
-
-    // Disallow copy - should only be one instance per result type, per function
-    Operator(const Operator &);
+    // Disallow assignment
     Operator &operator=(const Operator &);
   };
 

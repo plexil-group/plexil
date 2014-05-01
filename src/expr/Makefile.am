@@ -35,8 +35,9 @@ include_HEADERS = Assignable.hh Constant.hh Expression.hh \
  ValueType.hh
 
 libPlexilExpr_la_SOURCES = Assignable.cc ArithmeticOperators.cc \
- BooleanOperators.cc Constant.cc Expression.cc ExpressionListener.cc \
- Function.cc Mutable.cc Operator.cc UserVariable.cc ValueType.hh 
+ BooleanOperators.cc Comparisons.cc Constant.cc Expression.cc \
+ ExpressionListener.cc Function.cc Mutable.cc Operator.cc UserVariable.cc \
+ ValueType.hh 
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
