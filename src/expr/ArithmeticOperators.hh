@@ -32,9 +32,6 @@
 namespace PLEXIL
 {
 
-  // TODO:
-  // - Type conversions (e.g. int32_t to double, float to double)
-
   template <typename NUM>
   class Addition : public Operator<NUM>
   {
