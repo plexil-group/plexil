@@ -28,6 +28,7 @@
 #define PLEXIL_USER_VARIABLE_HH
 
 #include "Assignable.hh"
+#include "ExpressionImpl.hh"
 
 namespace PLEXIL {
 
@@ -39,7 +40,7 @@ namespace PLEXIL {
   // TODO: Support exec listener for assignments
 
   template <typename T>
-  class UserVariable : public Assignable
+  class UserVariable : public Assignable, public ExpressionImpl<T>
   {
   public:
 
@@ -85,7 +86,7 @@ namespace PLEXIL {
      * @note Limited type conversions supported.
      * @note Unimplemented conversions will cause a link time error.
      */
-    bool getValue(T &result) const;
+    bool getValueImpl(T &result) const;
 
     /**
      * @brief Assign the initial value.
@@ -138,68 +139,8 @@ namespace PLEXIL {
   };
 
   //
-  // Specializations, made necessary by C++ limitations (or mine)
+  // Specializations
   //
-
-  //
-  // IntegerVariable
-  //
-  class IntegerVariable : public UserVariable<int32_t>
-  {
-  public:
-
-    IntegerVariable();
-
-    IntegerVariable(const int32_t &value);
-
-    IntegerVariable(const NodeId &node,
-                    const std::string &name = "");
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~IntegerVariable();
-
-    // Conversion operator
-    bool getValue(double &result) const;
-
-    // Necessary because C++ sucks.
-    bool getValue(int32_t &result) const;
-  };
-
-
-  //
-  // RealVariable
-  //
-  class RealVariable : public UserVariable<double>
-  {
-  public:
-
-    RealVariable();
-
-    RealVariable(const double &initVal);
-    RealVariable(const int32_t &initVal);
-
-    RealVariable(const NodeId &node,
-                 const std::string &name = "");
-    
-    /**
-     * @brief Destructor.
-     */
-    virtual ~RealVariable();
-
-    // Conversion operator.
-    void setInitialValue(const int32_t &value);
-
-    // Necessary because C++ sucks.
-    void setInitialValue(const double &value);
-
-    // Conversion operator.
-    void setValue(const int32_t &value);
-
-    // Necessary because C++ sucks.
-    void setValue(const double &value);
-  };
 
   //
   // StringVariable
@@ -234,8 +175,13 @@ namespace PLEXIL {
     void setValue(const std::string &value);
   };
 
-  // Placeholders for anticipated derivatives
+  //
+  // Convenience typedefs 
+  //
+
   typedef UserVariable<bool> BooleanVariable;
+  typedef UserVariable<int32_t> IntegerVariable;
+  typedef UserVariable<double> RealVariable;
 
 } // namespace PLEXIL
 

@@ -40,7 +40,7 @@ namespace PLEXIL {
    *       aliases for other variables or expressions.
    */
 
-  class Mutable : public Expression
+  class Mutable : public virtual Expression
   {
   public:
 

@@ -557,10 +557,10 @@ static bool testAssignableId()
   RealVariable vd(1.414);
   StringVariable vs(std::string("yo"));
 
-  AssignableId eb(vb.getId());
-  AssignableId ei(vi.getId());
-  AssignableId ed(vd.getId());
-  AssignableId es(vs.getId());
+  AssignableId eb(vb.getAssignableId());
+  AssignableId ei(vi.getAssignableId());
+  AssignableId ed(vd.getAssignableId());
+  AssignableId es(vs.getAssignableId());
 
   // Test that they are assignable and not constant
   assertTrue_1(eb->isAssignable());
@@ -629,10 +629,6 @@ static bool testAssignableId()
   assertTrue_1(es->getValue(foos));
   assertTrue_1(foos == std::string("yoohoo"));
   // Test setValue type conversions
-  const int32_t fiftySeven = 57;
-  ed->setValue(fiftySeven);
-  assertTrue_1(ed->getValue(food));
-  assertTrue_1(food == 57);
   es->setValue("yoyo");
   assertTrue_1(es->getValue(foos));
   assertTrue_1(foos == std::string("yoyo"));
@@ -676,7 +672,7 @@ static bool testAssignableId()
   assertTrue_1(es->getValue(foos));
   assertTrue_1(foob == true);
   assertTrue_1(fooi == 42);
-  assertTrue_1(food == 57);
+  assertTrue_1(food == 3.14);
   assertTrue_1(foos == std::string("yoyo"));
 
   // Reset
@@ -750,31 +746,20 @@ static bool testAssignableId()
   assertTrue_1(foos == std::string("yoohoo"));
 
   // setInitialValue type conversions
-  ed->setInitialValue(fiftySeven);
   es->setInitialValue("yoyo");
-  assertTrue_1(ed->isKnown());
   assertTrue_1(es->isKnown());
-  assertTrue_1(ed->getValue(food));
   assertTrue_1(es->getValue(foos));
-  assertTrue_1(food == 57);
   assertTrue_1(foos == std::string("yoyo"));
 
   // Set unknown and check
-  ed->setUnknown();
   es->setUnknown();
-  assertTrue_1(!ed->isKnown());
   assertTrue_1(!es->isKnown());
-  assertTrue_1(!ed->getValue(food));
   assertTrue_1(!es->getValue(foos));
 
   // Reset and recheck
-  ed->reset();
   es->reset();
-  assertTrue_1(ed->isKnown());
   assertTrue_1(es->isKnown());
-  assertTrue_1(ed->getValue(food));
   assertTrue_1(es->getValue(foos));
-  assertTrue_1(food == 57);
   assertTrue_1(foos == std::string("yoyo"));
 
   return true;

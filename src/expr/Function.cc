@@ -79,7 +79,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool Function<R>::getValue(R &result) const
+  bool Function<R>::getValueImpl(R &result) const
   {
     if (!isActive())
       return false;
@@ -146,6 +146,12 @@ namespace PLEXIL
     return (*Function<R>::m_op)(result, m_a);
   }
 
+  // TODO
+  template <typename R>
+  void UnaryFunction<R>::print(std::ostream &s) const
+  {
+  }
+
   //
   // BinaryFunction
   //
@@ -197,6 +203,13 @@ namespace PLEXIL
     return (*Function<R>::m_op)(result, m_a, m_b);
   }
 
+  // TODO
+  template <typename R>
+  void BinaryFunction<R>::print(std::ostream &s) const
+  {
+  }
+
+
   //
   // NaryFunction
   //
@@ -245,6 +258,13 @@ namespace PLEXIL
   {
     return (*Function<R>::m_op)(result, m_subexpressions);
   }
+
+  // TODO
+  template <typename R>
+  void NaryFunction<R>::print(std::ostream &s) const
+  {
+  }
+
 
   //
   // Explicit instantiations

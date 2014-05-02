@@ -33,12 +33,14 @@ namespace PLEXIL {
   //
 
   Assignable::Assignable()
-    : Mutable()
+    : Mutable(),
+      m_aid(this, m_id)
   {
   }
 
   Assignable::~Assignable()
   {
+    m_aid.removeDerived(m_id);
   }
 
   bool Assignable::isAssignable() const

@@ -37,7 +37,9 @@ namespace PLEXIL {
 
   template <typename T>
   UserVariable<T>::UserVariable()
-    : m_name("anonymous"),
+    : Assignable(),
+      ExpressionImpl<T>(),
+      m_name("anonymous"),
       m_known(false),
       m_initialKnown(false),
       m_savedKnown(false)
@@ -46,7 +48,9 @@ namespace PLEXIL {
 
   template <typename T>
   UserVariable<T>::UserVariable(const T &initVal)
-    : m_name("anonymous"),
+    : Assignable(),
+      ExpressionImpl<T>(),
+      m_name("anonymous"),
       m_value(initVal),
       m_initialValue(initVal),
       m_savedValue(initVal),
@@ -59,7 +63,9 @@ namespace PLEXIL {
   template <typename T>
   UserVariable<T>::UserVariable(const NodeId &node,
                                 const std::string &name)
-    : m_node(node),
+    : Assignable(),
+      ExpressionImpl<T>(),
+      m_node(node),
       m_name(name),
       m_known(false),
       m_initialKnown(false),
@@ -136,7 +142,7 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  bool UserVariable<T>::getValue(T &result) const
+  bool UserVariable<T>::getValueImpl(T &result) const
   {
     if (!isActive())
       return false;
@@ -239,50 +245,11 @@ namespace PLEXIL {
   template class UserVariable<int32_t>;
   // template class UserVariable<uint16_t>;
   template class UserVariable<bool>;
-  template class UserVariable<std::string>;
+  //template class UserVariable<std::string>;
 
   //
   // Specializations
   //
-
-  //
-  // IntegerVariable wrapper
-  //
-
-  IntegerVariable::IntegerVariable()
-    : UserVariable<int32_t>()
-  {
-  }
-
-  IntegerVariable::IntegerVariable(const int32_t &initVal)
-    : UserVariable<int32_t>(initVal)
-  {
-  }
-
-  IntegerVariable::IntegerVariable(const NodeId &node,
-                                   const std::string &name)
-    : UserVariable<int32_t>(node, name)
-  {
-  }
-
-  IntegerVariable::~IntegerVariable()
-  {
-  }
-
-  bool IntegerVariable::getValue(double &result) const
-  {
-    int32_t intResult;
-    if (!UserVariable<int32_t>::getValue(intResult))
-      return false;
-    result = (double) intResult;
-    return true;
-  }
-
-  // Because C++ sucks.
-  bool IntegerVariable::getValue(int32_t &result) const
-  {
-    return UserVariable<int32_t>::getValue(result);
-  }
 
   //
   // StringVariable wrapper
@@ -333,58 +300,6 @@ namespace PLEXIL {
   void StringVariable::setValue(const std::string &val)
   {
     UserVariable<std::string>::setValue(val);
-  }
-
-
-  //
-  // RealVariable wrapper
-  //
-
-  RealVariable::RealVariable()
-    : UserVariable<double>()
-  {
-  }
-
-  RealVariable::RealVariable(const double &initVal)
-    : UserVariable<double>(initVal)
-  {
-  }
-
-  RealVariable::RealVariable(const int32_t &initVal)
-    : UserVariable<double>((double) initVal)
-  {
-  }
-                             
-  RealVariable::RealVariable(const NodeId &node,
-                             const std::string &name)
-    : UserVariable<double>(node, name)
-  {
-  }
-
-  RealVariable::~RealVariable()
-  {
-  }
-
-  void RealVariable::setInitialValue(const int32_t &value)
-  {
-    UserVariable<double>::setInitialValue((double) value);
-  }
-
-  // Because C++ sucks.
-  void RealVariable::setInitialValue(const double &value)
-  {
-    UserVariable<double>::setInitialValue(value);
-  }
-
-  void RealVariable::setValue(const int32_t &value)
-  {
-    UserVariable<double>::setValue((double) value);
-  }
-
-  // Because C++ sucks.
-  void RealVariable::setValue(const double &value)
-  {
-    UserVariable<double>::setValue(value);
   }
 
 } // namespace PLEXIL

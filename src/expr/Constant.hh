@@ -27,7 +27,7 @@
 #ifndef PLEXIL_CONSTANT_HH
 #define PLEXIL_CONSTANT_HH
 
-#include "Expression.hh"
+#include "ExpressionImpl.hh"
 
 namespace PLEXIL {
 
@@ -38,7 +38,7 @@ namespace PLEXIL {
    */
 
   template <typename T>
-  class Constant : public Expression
+  class Constant : public ExpressionImpl<T>
   {
   public:
 
@@ -87,7 +87,7 @@ namespace PLEXIL {
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    bool getValue(T& result) const;
+    bool getValueImpl(T &result) const;
 
 	/**
 	 * @brief Print the expression's value to the given stream.
@@ -156,59 +156,12 @@ namespace PLEXIL {
     Constant &operator=(const Constant &);
   };
 
-  //
-  // These wrappers are necessary to get type conversion methods to be noticed.
-  //
 
   //
-  // IntegerConstant
+  // Convenience typedefs
   //
 
-  class IntegerConstant : public Constant<int32_t>
-  {
-  public:
-
-    /**
-     * @brief Default constructor.
-     */
-    IntegerConstant();
-
-    /**
-     * @brief Copy constructor.
-     */
-    IntegerConstant(const IntegerConstant &other);
-
-    /**
-     * @brief Constructor from value type.
-     */
-    IntegerConstant(const int32_t &value);
-
-    /**
-     * @brief Destructor.
-     */
-    ~IntegerConstant();
-
-    /**
-     * @brief Constructor from char *.
-     * @note Unimplemented conversions will cause a link time error.
-     * @note This is appropriate for plan loading.
-     */
-    // TODO
-    // IntegerConstant(const char * value);
-
-    // The reason this class exists
-    bool getValue(double &result) const;
-
-    //
-    // This wrapper method shouldn't be necessary; 
-    // the public method this wraps should be inherited from Constant<int32_t>.
-    // But the code won't compile without it.
-    // C++ sucks at inheritance.
-    //
-    bool getValue(int32_t &result) const;
-  };
-
-  // Placeholders for anticipated extensions
+  typedef Constant<int32_t> IntegerConstant;
   typedef Constant<bool> BooleanConstant;
   typedef Constant<double> RealConstant;
   typedef Constant<std::string> StringConstant;

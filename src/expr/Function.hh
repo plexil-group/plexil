@@ -27,6 +27,7 @@
 #ifndef PLEXIL_FUNCTION_HH
 #define PLEXIL_FUNCTION_HH
 
+#include "ExpressionImpl.hh"
 #include "Mutable.hh"
 #include "Operator.hh"
 
@@ -46,7 +47,7 @@ namespace PLEXIL
    */
 
   template <typename R>
-  class Function : public Mutable
+  class Function : public Mutable, public ExpressionImpl<R>
   {
   public:
     virtual ~Function();
@@ -65,7 +66,7 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if result known, false if unknown.
      */
-    bool getValue(R &result) const;
+    bool getValueImpl(R &result) const;
 
     // Default methods, may be overridden by derived classes.
     // FIXME: is there any sane way to implement these further up the class hierarchy?
@@ -106,6 +107,12 @@ namespace PLEXIL
                   const ExpressionId & exp,
                   bool isGarbage = false);
     virtual ~UnaryFunction();
+
+	/**
+	 * @brief Print the object to the given stream.
+	 * @param s The output stream.
+	 */
+    void print(std::ostream& s) const;
 
   protected:
 
@@ -156,6 +163,12 @@ namespace PLEXIL
 
     virtual ~BinaryFunction();
 
+	/**
+	 * @brief Print the object to the given stream.
+	 * @param s The output stream.
+	 */
+    void print(std::ostream& s) const;
+
   protected:
 
     /**
@@ -198,6 +211,12 @@ namespace PLEXIL
                  const std::vector<ExpressionId> &exps,
                  const std::vector<bool> &garbage);
     ~NaryFunction();
+
+	/**
+	 * @brief Print the object to the given stream.
+	 * @param s The output stream.
+	 */
+    void print(std::ostream& s) const;
 
   protected:
 

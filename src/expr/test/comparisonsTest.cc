@@ -978,12 +978,12 @@ static bool testMixedNumerics()
   BinaryFunction<bool> dblLe4(&ler, won.getId(), tootoo.getId());
   BinaryFunction<bool> dblLe5(&ler, wontoo.getId(), wontoo.getId());
   BinaryFunction<bool> dblLe6(&ler, wontoo.getId(), tootoo.getId());
-  dblLe1.activate();
-  dblLe2.activate();
-  dblLe3.activate();
-  dblLe4.activate();
-  dblLe5.activate();
-  dblLe6.activate();
+  dblEq1.activate();
+  dblEq2.activate();
+  dblEq3.activate();
+  dblEq4.activate();
+  dblEq5.activate();
+  dblEq6.activate();
   dblNeq1.activate();
   dblNeq2.activate();
   dblNeq3.activate();

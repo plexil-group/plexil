@@ -37,7 +37,7 @@ namespace PLEXIL {
    */
   template <typename T>
   Constant<T>::Constant()
-    : Expression(),
+    : ExpressionImpl<T>(),
       m_known(false)
   {
   }
@@ -47,7 +47,7 @@ namespace PLEXIL {
    */
   template <typename T>
   Constant<T>::Constant(const Constant &other)
-  : Expression(),
+  : ExpressionImpl<T>(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -58,7 +58,7 @@ namespace PLEXIL {
    */
   template <typename T>
   Constant<T>::Constant(const T &value)
-  : Expression(),
+  : ExpressionImpl<T>(),
     m_value(value),
     m_known(true)
   {
@@ -71,7 +71,7 @@ namespace PLEXIL {
   // *** TODO: More types ***
   template <>
   Constant<std::string>::Constant(const char *value)
-  : Expression(),
+  : ExpressionImpl<std::string>(),
     m_value(value),
     m_known(true)
   {
@@ -140,7 +140,7 @@ namespace PLEXIL {
    */
 
   template <typename T>
-  bool Constant<T>::getValue(T& result) const
+  bool Constant<T>::getValueImpl(T& result) const
   {
     if (m_known)
       result = m_value;
@@ -246,76 +246,5 @@ namespace PLEXIL {
   // template class Constant<uint16_t>;
   template class Constant<bool>;
   template class Constant<std::string>;
-
-  //
-  // Specializations
-  //
-
-  //
-  // IntegerConstant
-  //
-
-  /**
-   * @brief Default constructor.
-   */
-  IntegerConstant::IntegerConstant()
-    : Constant<int32_t>()
-  {
-  }
-
-  /**
-   * @brief Copy constructor.
-   */
-  IntegerConstant::IntegerConstant(const IntegerConstant &other)
-    : Constant<int32_t>(other)
-  {
-  }
-
-  /**
-   * @brief Constructor from value type.
-   */
-  IntegerConstant::IntegerConstant(const int32_t &value)
-    : Constant<int32_t>(value)
-  {
-  }
-
-  /**
-   * @brief Destructor.
-   */
-  IntegerConstant::~IntegerConstant()
-  {
-  }
-
-  /**
-   * @brief Constructor from char *.
-   * @note Unimplemented conversions will cause a link time error.
-   * @note This is appropriate for plan loading.
-   */
-  // TODO
-  // IntegerConstant::IntegerConstant(const char * value);
-
-  /**
-   * @brief Retrieve the value of this Expression.
-   * @param The appropriately typed place to put the result.
-   * @return True if known, false if unknown.
-   */
-
-  //
-  // This wrapper method shouldn't be necessary.
-  // C++ sucks at inheritance.
-  //
-  bool IntegerConstant::getValue(int32_t &result) const
-  {
-    return Constant<int32_t>::getValue(result);
-  }
-
-  bool IntegerConstant::getValue(double &result) const
-  {
-    int32_t intResult;
-    bool known = Constant<int32_t>::getValue(intResult);
-    if (known)
-      result = (double) intResult;
-    return known;
-  }
 
 } // namespace PLEXIL

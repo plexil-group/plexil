@@ -31,13 +31,13 @@ libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils \
  -I@top_srcdir@/third-party/pugixml/src
 
 include_HEADERS = Assignable.hh Constant.hh Expression.hh \
- ExpressionListener.hh Function.hh Mutable.hh Operator.hh UserVariable.hh \
- ValueType.hh
+ ExpressionImpl.hh ExpressionListener.hh Function.hh Mutable.hh Operator.hh \
+ UserVariable.hh ValueType.hh
 
 libPlexilExpr_la_SOURCES = Assignable.cc ArithmeticOperators.cc \
  BooleanOperators.cc Comparisons.cc Constant.cc Expression.cc \
- ExpressionListener.cc Function.cc Mutable.cc Operator.cc UserVariable.cc \
- ValueType.hh 
+ ExpressionImpl.cc ExpressionListener.cc Function.cc Mutable.cc Operator.cc \
+ UserVariable.cc ValueType.hh 
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests

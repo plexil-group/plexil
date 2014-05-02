@@ -54,9 +54,9 @@ namespace PLEXIL {
      */
     virtual ~Assignable();
 
-    inline const AssignableId &getId() const
+    inline const AssignableId &getAssignableId() const
     {
-      return static_cast<const AssignableId &>(m_id);
+      return m_aid;
     }
 
     /**
@@ -168,6 +168,9 @@ namespace PLEXIL {
      */
     virtual const ExpressionId& getBaseVariable() const = 0;
 
+  private:
+
+    AssignableId m_aid;
   };
 
 } // namespace PLEXIL
