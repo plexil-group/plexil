@@ -62,7 +62,7 @@ namespace PLEXIL
     const char *exprName() const;
 
     /**
-     * @brief Retrieve the value of this Expression.
+     * @brief Retrieve the value of this Expression in its native form.
      * @param The appropriately typed place to put the result.
      * @return True if result known, false if unknown.
      */
@@ -71,7 +71,6 @@ namespace PLEXIL
     // Default methods, may be overridden by derived classes.
     // FIXME: is there any sane way to implement these further up the class hierarchy?
     bool isKnown() const;
-    void printValue(std::ostream &) const;
 
   protected:
 

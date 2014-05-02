@@ -148,20 +148,6 @@ namespace PLEXIL {
   }
 
   /**
-   * @brief Print the expression's value to the given stream.
-   * @param s The output stream.
-   * @note Default method, specializations should be implemented as appropriate.
-   */
-  template <typename T>
-  void Constant<T>::printValue(std::ostream& s) const
-  {
-    if (m_known)
-      s << m_value;
-    else
-      s << "UNKNOWN";
-  }
-
-  /**
    * @brief Query whether the expression's value is known.
    * @return True if known, false otherwise.
    */

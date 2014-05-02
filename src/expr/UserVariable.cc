@@ -131,16 +131,6 @@ namespace PLEXIL {
     return isActive() && m_known;
   }
 
-  // TODO: specialize on type, e.g. for bool, array, quotes around string
-  template <typename T>
-  void UserVariable<T>::printValue(std::ostream& s) const
-  {
-    if (m_known)
-      s << m_value;
-    else
-      s << "(UNKNOWN)";
-  }
-
   template <typename T>
   bool UserVariable<T>::getValueImpl(T &result) const
   {

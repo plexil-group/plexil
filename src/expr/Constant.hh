@@ -83,17 +83,11 @@ namespace PLEXIL {
     const ValueType valueType() const;
 
     /**
-     * @brief Retrieve the value of this Expression.
+     * @brief Retrieve the value of this Expression in its native type.
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
     bool getValueImpl(T &result) const;
-
-	/**
-	 * @brief Print the expression's value to the given stream.
-	 * @param s The output stream.
-	 */
-    void printValue(std::ostream& s) const;
 
     /**
      * @brief Query whether the expression's value is known.

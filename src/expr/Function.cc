@@ -95,16 +95,6 @@ namespace PLEXIL
     return this->getValue(dummy);
   }
 
-  template <typename R>
-  void Function<R>::printValue(std::ostream &s) const
-  {
-    R temp;
-    if (!this->getValue(temp))
-      s << "UNKNOWN";
-    else
-      s << temp;
-  }
-
   //
   // UnaryFunction
   //

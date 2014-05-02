@@ -77,8 +77,6 @@ namespace PLEXIL {
 
     bool isKnown() const;
 
-    void printValue(std::ostream& s) const;
-
     /**
      * @brief Get the expression's value.
      * @param result The variable where the value will be stored.
