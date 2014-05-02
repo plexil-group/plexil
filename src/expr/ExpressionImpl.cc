@@ -46,7 +46,7 @@ namespace PLEXIL
    * @note Default method, specializations should be implemented as appropriate.
    */
   template <typename T>
-  void ExpressionImpl<T>::printValue(std::ostream& s) const
+  void ExpressionImpl<T>::printValue(std::ostream &s) const
   {
     T temp;
     if (this->getValueImpl(temp))
@@ -74,4 +74,13 @@ namespace PLEXIL
     result = (double) temp;
     return true;
   }
+
+  //
+  // Explicit instantiations
+  //
+  template class ExpressionImpl<bool>;
+  template class ExpressionImpl<int32_t>;
+  template class ExpressionImpl<double>;
+  template class ExpressionImpl<std::string>;
+
 }
