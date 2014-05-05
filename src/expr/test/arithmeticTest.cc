@@ -1310,19 +1310,134 @@ bool maximumTest()
 bool absTest()
 {
   // Integer
+  IntegerConstant m1(-1);
+  IntegerConstant won(1);
+  IntegerVariable i;
+  AbsoluteValue<int32_t> absi;
+  int32_t tempi;
+
+  UnaryFunction<int32_t> iabs1(&absi, m1.getId());
+  UnaryFunction<int32_t> iabs2(&absi, won.getId());
+  UnaryFunction<int32_t> iabs3(&absi, i.getId());
+
+  iabs1.activate();
+  iabs2.activate();
+  iabs3.activate();
+
+  assertTrue_1(iabs1.getValue(tempi));
+  assertTrue_1(tempi == 1);
+  assertTrue_1(iabs2.getValue(tempi));
+  assertTrue_1(tempi == 1);
+  
+  assertTrue_1(!iabs3.getValue(tempi));
+
+  i.setValue(-22);
+  assertTrue_1(iabs3.getValue(tempi));
+  assertTrue_1(tempi == 22);
 
   // Real
+  RealConstant mtoo(-2);
+  RealConstant tree(3.5);
+  RealVariable x;
+  AbsoluteValue<double> absr;
+  double tempr;
+
+  UnaryFunction<double> rabs1(&absr, mtoo.getId());
+  UnaryFunction<double> rabs2(&absr, tree.getId());
+  UnaryFunction<double> rabs3(&absr, x.getId());
+
+  rabs1.activate();
+  rabs2.activate();
+  rabs3.activate();
+
+  assertTrue_1(rabs1.getValue(tempr));
+  assertTrue_1(tempr == 2);
+  assertTrue_1(rabs2.getValue(tempr));
+  assertTrue_1(tempr == 3.5);
+  
+  assertTrue_1(!rabs3.getValue(tempr));
+
+  x.setValue(-18.5);
+  assertTrue_1(rabs3.getValue(tempr));
+  assertTrue_1(tempr == 18.5);
 
   // Mixed
+  UnaryFunction<double> mabs1(&absr, m1.getId());
+  UnaryFunction<double> mabs2(&absr, won.getId());
+  UnaryFunction<double> mabs3(&absr, i.getId());
+
+  mabs1.activate();
+  mabs2.activate();
+  mabs3.activate();
+
+  i.setUnknown();
+
+  assertTrue_1(mabs1.getValue(tempr));
+  assertTrue_1(tempr == 1);
+  assertTrue_1(mabs2.getValue(tempr));
+  assertTrue_1(tempr == 1);
+  
+  assertTrue_1(!mabs3.getValue(tempr));
+
+  i.setValue(14);
+  assertTrue_1(mabs3.getValue(tempr));
+  assertTrue_1(tempr == 14);
 
   return true;
 }
 
 bool sqrtTest()
 {
+
   // Real
+  RealConstant too(2.25);
+  RealConstant nein(9);
+  RealVariable x;
+  SquareRoot<double> sqrt;
+  double tempr;
+
+  UnaryFunction<double> rsqrt1(&sqrt, too.getId());
+  UnaryFunction<double> rsqrt2(&sqrt, nein.getId());
+  UnaryFunction<double> rsqrt3(&sqrt, x.getId());
+
+  rsqrt1.activate();
+  rsqrt2.activate();
+  rsqrt3.activate();
+
+  assertTrue_1(rsqrt1.getValue(tempr));
+  assertTrue_1(tempr == 1.5);
+  assertTrue_1(rsqrt2.getValue(tempr));
+  assertTrue_1(tempr == 3);
+  
+  assertTrue_1(!rsqrt3.getValue(tempr));
+
+  x.setValue(0.25);
+  assertTrue_1(rsqrt3.getValue(tempr));
+  assertTrue_1(tempr == 0.5);
 
   // Mixed
+  IntegerConstant fore(4);
+  IntegerConstant sixteen(16);
+  IntegerVariable i;
+
+  UnaryFunction<double> msqrt1(&sqrt, fore.getId());
+  UnaryFunction<double> msqrt2(&sqrt, sixteen.getId());
+  UnaryFunction<double> msqrt3(&sqrt, i.getId());
+
+  msqrt1.activate();
+  msqrt2.activate();
+  msqrt3.activate();
+
+  assertTrue_1(msqrt1.getValue(tempr));
+  assertTrue_1(tempr == 2);
+  assertTrue_1(msqrt2.getValue(tempr));
+  assertTrue_1(tempr == 4);
+  
+  assertTrue_1(!msqrt3.getValue(tempr));
+
+  i.setValue(49);
+  assertTrue_1(msqrt3.getValue(tempr));
+  assertTrue_1(tempr == 7);
 
   return true;
 }
