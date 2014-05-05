@@ -538,36 +538,508 @@ bool subtractionTest()
 
 bool multiplicationTest()
 {
+  // Integer
+
+  // Real
+
+  // Mixed
+
   return true;
 }
 
 bool divisionTest()
 {
+  // Integer
+
+  // Real
+
+  // Mixed
+
   return true;
 }
 
 bool moduloTest()
 {
+  // Integer
+  IntegerConstant too(2);
+  IntegerConstant tree(3);
+  IntegerConstant nein(9);
+  IntegerVariable i;
+  Modulo<int32_t> modi;
+  int32_t tempi;
+
+  // Binary
+  BinaryFunction<int32_t> imod2_1(&modi, tree.getId(), too.getId());
+  BinaryFunction<int32_t> imod2_2(&modi, i.getId(), tree.getId());
+  BinaryFunction<int32_t> imod2_3(&modi, nein.getId(), i.getId());
+
+  imod2_1.activate();
+  imod2_2.activate();
+  imod2_3.activate();
+
+  assertTrue_1(imod2_1.getValue(tempi));
+  assertTrue_1(tempi == 1);
+
+  // Not yet known
+  assertTrue_1(!imod2_2.getValue(tempi));
+  assertTrue_1(!imod2_3.getValue(tempi));
+
+  i.setValue(5);
+  assertTrue_1(imod2_2.getValue(tempi));
+  assertTrue_1(tempi == 2);
+  assertTrue_1(imod2_3.getValue(tempi));
+  assertTrue_1(tempi == 4);
+
   return true;
 }
 
 bool minimumTest()
 {
+  // Integer
+  IntegerConstant m1(-1);
+  IntegerConstant won(1);
+  IntegerConstant tree(3);
+  IntegerVariable i;
+  Minimum<int32_t> mini;
+  int32_t tempi;
+
+  // Binary
+  BinaryFunction<int32_t> imin2_1(&mini, m1.getId(), tree.getId());
+  BinaryFunction<int32_t> imin2_2(&mini, i.getId(), won.getId());
+  BinaryFunction<int32_t> imin2_3(&mini, tree.getId(), i.getId());
+
+  imin2_1.activate();
+  imin2_2.activate();
+  imin2_3.activate();
+
+  assertTrue_1(imin2_1.getValue(tempi));
+  assertTrue_1(tempi == -1);
+
+  // Should be unknown because i not initialized yet
+  assertTrue_1(!imin2_2.getValue(tempi));
+  assertTrue_1(!imin2_3.getValue(tempi));
+
+  i.setValue(5);
+  // should be known now
+  assertTrue_1(imin2_2.getValue(tempi));
+  assertTrue_1(tempi == 1);
+  assertTrue_1(imin2_3.getValue(tempi));
+  assertTrue_1(tempi == 3);
+
+  // N-ary
+
+  // Set up arglists
+  std::vector<bool> garbage(3, false);
+  std::vector<ExpressionId> iexprs1, iexprs2, iexprs3;
+  iexprs1.push_back(m1.getId());
+  iexprs1.push_back(won.getId());
+  iexprs1.push_back(tree.getId());
+
+  iexprs2.push_back(won.getId());
+  iexprs2.push_back(tree.getId());
+  iexprs2.push_back(i.getId());
+
+  iexprs3.push_back(i.getId());
+  iexprs3.push_back(m1.getId());
+  iexprs3.push_back(won.getId());
+
+  NaryFunction<int32_t> imin3_1(&mini, iexprs1, garbage);
+  NaryFunction<int32_t> imin3_2(&mini, iexprs2, garbage);
+  NaryFunction<int32_t> imin3_3(&mini, iexprs3, garbage);
+
+  imin3_1.activate();
+  imin3_2.activate();
+  imin3_3.activate();
+  
+  i.setUnknown();
+
+  assertTrue_1(imin3_1.getValue(tempi));
+  assertTrue_1(tempi == -1);
+
+  // Should be unknown because i not initialized yet
+  assertTrue_1(!imin3_2.getValue(tempi));
+  assertTrue_1(!imin3_3.getValue(tempi));
+
+  i.setValue(27);
+  // should be known now
+  assertTrue_1(imin3_2.getValue(tempi));
+  assertTrue_1(tempi == 1);
+  assertTrue_1(imin3_3.getValue(tempi));
+  assertTrue_1(tempi == -1);
+
+  // Real
+  RealConstant too(2.5);
+  RealConstant fore(4.5);
+  RealVariable x;
+  Minimum<double> minr;
+  double tempr;
+
+  // Binary
+  BinaryFunction<double> rmin2_1(&minr, too.getId(), fore.getId());
+  BinaryFunction<double> rmin2_2(&minr, x.getId(), too.getId());
+  BinaryFunction<double> rmin2_3(&minr, fore.getId(), x.getId());
+
+  rmin2_1.activate();
+  rmin2_2.activate();
+  rmin2_3.activate();
+
+  assertTrue_1(rmin2_1.getValue(tempr));
+  assertTrue_1(tempr == 2.5);
+
+  // Should be unknown because x not initialized yet
+  assertTrue_1(!rmin2_2.getValue(tempr));
+  assertTrue_1(!rmin2_3.getValue(tempr));
+
+  x.setValue(-0.5);
+  // should be known now
+  assertTrue_1(rmin2_2.getValue(tempr));
+  assertTrue_1(tempr == -0.5);
+  assertTrue_1(rmin2_3.getValue(tempr));
+  assertTrue_1(tempr == -0.5);
+
+  // N-ary
+  std::vector<ExpressionId> rexprs1, rexprs2, rexprs3;
+  rexprs1.push_back(too.getId());
+  rexprs1.push_back(fore.getId());
+  rexprs1.push_back(too.getId());
+
+  rexprs2.push_back(x.getId());
+  rexprs2.push_back(too.getId());
+  rexprs2.push_back(fore.getId());
+
+  rexprs3.push_back(fore.getId());
+  rexprs3.push_back(fore.getId());
+  rexprs3.push_back(x.getId());
+
+  NaryFunction<double> rmin3_1(&minr, rexprs1, garbage);
+  NaryFunction<double> rmin3_2(&minr, rexprs2, garbage);
+  NaryFunction<double> rmin3_3(&minr, rexprs3, garbage);
+
+  rmin3_1.activate();
+  rmin3_2.activate();
+  rmin3_3.activate();
+  
+  x.setUnknown();
+
+  assertTrue_1(rmin3_1.getValue(tempr));
+  assertTrue_1(tempr == 2.5);
+
+  // Should be unknown because x not initialized yet
+  assertTrue_1(!rmin3_2.getValue(tempr));
+  assertTrue_1(!rmin3_3.getValue(tempr));
+
+  x.setValue(3.25);
+  // should be known now
+  assertTrue_1(rmin3_2.getValue(tempr));
+  assertTrue_1(tempr == 2.5);
+  assertTrue_1(rmin3_3.getValue(tempr));
+  assertTrue_1(tempr == 3.25);
+
+
+  // Mixed numeric
+  // Binary
+  BinaryFunction<double> mmin2_1(&minr, too.getId(), tree.getId());
+  BinaryFunction<double> mmin2_2(&minr, i.getId(), too.getId());
+  BinaryFunction<double> mmin2_3(&minr, tree.getId(), x.getId());
+
+  mmin2_1.activate();
+  mmin2_2.activate();
+  mmin2_3.activate();
+  i.setUnknown();
+  x.setUnknown();
+
+  assertTrue_1(mmin2_1.getValue(tempr));
+  assertTrue_1(tempr == 2.5);
+
+  // Should be unknown because i, x not initialized yet
+  assertTrue_1(!mmin2_2.getValue(tempr));
+  assertTrue_1(!mmin2_3.getValue(tempr));
+
+  i.setValue(42);
+  x.setValue(-0.5);
+  // should be known now
+  assertTrue_1(mmin2_2.getValue(tempr));
+  assertTrue_1(tempr == 2.5);
+  assertTrue_1(mmin2_3.getValue(tempr));
+  assertTrue_1(tempr == -0.5);
+
+  // N-ary
+  rexprs1.clear();
+  rexprs1.push_back(tree.getId());
+  rexprs1.push_back(fore.getId());
+  rexprs1.push_back(m1.getId());
+
+  rexprs2.clear();
+  rexprs2.push_back(x.getId());
+  rexprs2.push_back(won.getId());
+  rexprs2.push_back(fore.getId());
+
+  rexprs3.clear();
+  rexprs3.push_back(tree.getId());
+  rexprs3.push_back(too.getId());
+  rexprs3.push_back(i.getId());
+
+  NaryFunction<double> mmin3_1(&minr, rexprs1, garbage);
+  NaryFunction<double> mmin3_2(&minr, rexprs2, garbage);
+  NaryFunction<double> mmin3_3(&minr, rexprs3, garbage);
+
+  mmin3_1.activate();
+  mmin3_2.activate();
+  mmin3_3.activate();
+  
+  i.setUnknown();
+  x.setUnknown();
+
+  assertTrue_1(mmin3_1.getValue(tempr));
+  assertTrue_1(tempr == -1);
+
+  // Should be unknown because i, x not initialized yet
+  assertTrue_1(!mmin3_2.getValue(tempr));
+  assertTrue_1(!mmin3_3.getValue(tempr));
+
+  i.setValue(42);
+  x.setValue(-0.5);
+  // should be known now
+  assertTrue_1(mmin3_2.getValue(tempr));
+  assertTrue_1(tempr == -0.5);
+  assertTrue_1(mmin3_3.getValue(tempr));
+  assertTrue_1(tempr == 2.5);
+
   return true;
 }
 
 bool maximumTest()
 {
+  // Integer
+  IntegerConstant m1(-1);
+  IntegerConstant won(1);
+  IntegerConstant tree(3);
+  IntegerVariable i;
+  Maximum<int32_t> maxi;
+  int32_t tempi;
+
+  // Binary
+  BinaryFunction<int32_t> imax2_1(&maxi, m1.getId(), tree.getId());
+  BinaryFunction<int32_t> imax2_2(&maxi, i.getId(), won.getId());
+  BinaryFunction<int32_t> imax2_3(&maxi, tree.getId(), i.getId());
+
+  imax2_1.activate();
+  imax2_2.activate();
+  imax2_3.activate();
+
+  assertTrue_1(imax2_1.getValue(tempi));
+  assertTrue_1(tempi == 3);
+
+  // Should be unknown because i not initialized yet
+  assertTrue_1(!imax2_2.getValue(tempi));
+  assertTrue_1(!imax2_3.getValue(tempi));
+
+  i.setValue(5);
+  // should be known now
+  assertTrue_1(imax2_2.getValue(tempi));
+  assertTrue_1(tempi == 5);
+  assertTrue_1(imax2_3.getValue(tempi));
+  assertTrue_1(tempi == 5);
+
+  // N-ary
+
+  // Set up arglists
+  std::vector<bool> garbage(3, false);
+  std::vector<ExpressionId> iexprs1, iexprs2, iexprs3;
+  iexprs1.push_back(m1.getId());
+  iexprs1.push_back(won.getId());
+  iexprs1.push_back(tree.getId());
+
+  iexprs2.push_back(won.getId());
+  iexprs2.push_back(tree.getId());
+  iexprs2.push_back(i.getId());
+
+  iexprs3.push_back(i.getId());
+  iexprs3.push_back(m1.getId());
+  iexprs3.push_back(won.getId());
+
+  NaryFunction<int32_t> imax3_1(&maxi, iexprs1, garbage);
+  NaryFunction<int32_t> imax3_2(&maxi, iexprs2, garbage);
+  NaryFunction<int32_t> imax3_3(&maxi, iexprs3, garbage);
+
+  imax3_1.activate();
+  imax3_2.activate();
+  imax3_3.activate();
+  
+  i.setUnknown();
+
+  assertTrue_1(imax3_1.getValue(tempi));
+  assertTrue_1(tempi == 3);
+
+  // Should be unknown because i not initialized yet
+  assertTrue_1(!imax3_2.getValue(tempi));
+  assertTrue_1(!imax3_3.getValue(tempi));
+
+  i.setValue(27);
+  // should be known now
+  assertTrue_1(imax3_2.getValue(tempi));
+  assertTrue_1(tempi == 27);
+  assertTrue_1(imax3_3.getValue(tempi));
+  assertTrue_1(tempi == 27);
+
+  // Real
+  RealConstant too(2.5);
+  RealConstant fore(4.5);
+  RealVariable x;
+  Maximum<double> maxr;
+  double tempr;
+
+  // Binary
+  BinaryFunction<double> rmax2_1(&maxr, too.getId(), fore.getId());
+  BinaryFunction<double> rmax2_2(&maxr, x.getId(), too.getId());
+  BinaryFunction<double> rmax2_3(&maxr, fore.getId(), x.getId());
+
+  rmax2_1.activate();
+  rmax2_2.activate();
+  rmax2_3.activate();
+
+  assertTrue_1(rmax2_1.getValue(tempr));
+  assertTrue_1(tempr == 4.5);
+
+  // Should be unknown because x not initialized yet
+  assertTrue_1(!rmax2_2.getValue(tempr));
+  assertTrue_1(!rmax2_3.getValue(tempr));
+
+  x.setValue(-0.5);
+  // should be known now
+  assertTrue_1(rmax2_2.getValue(tempr));
+  assertTrue_1(tempr == 2.5);
+  assertTrue_1(rmax2_3.getValue(tempr));
+  assertTrue_1(tempr == 4.5);
+
+  // N-ary
+  std::vector<ExpressionId> rexprs1, rexprs2, rexprs3;
+  rexprs1.push_back(too.getId());
+  rexprs1.push_back(fore.getId());
+  rexprs1.push_back(too.getId());
+
+  rexprs2.push_back(x.getId());
+  rexprs2.push_back(too.getId());
+  rexprs2.push_back(fore.getId());
+
+  rexprs3.push_back(too.getId());
+  rexprs3.push_back(too.getId());
+  rexprs3.push_back(x.getId());
+
+  NaryFunction<double> rmax3_1(&maxr, rexprs1, garbage);
+  NaryFunction<double> rmax3_2(&maxr, rexprs2, garbage);
+  NaryFunction<double> rmax3_3(&maxr, rexprs3, garbage);
+
+  rmax3_1.activate();
+  rmax3_2.activate();
+  rmax3_3.activate();
+  
+  x.setUnknown();
+
+  assertTrue_1(rmax3_1.getValue(tempr));
+  assertTrue_1(tempr == 4.5);
+
+  // Should be unknown because x not initialized yet
+  assertTrue_1(!rmax3_2.getValue(tempr));
+  assertTrue_1(!rmax3_3.getValue(tempr));
+
+  x.setValue(3.25);
+  // should be known now
+  assertTrue_1(rmax3_2.getValue(tempr));
+  assertTrue_1(tempr == 4.5);
+  assertTrue_1(rmax3_3.getValue(tempr));
+  assertTrue_1(tempr == 3.25);
+
+
+  // Mixed numeric
+  // Binary
+  BinaryFunction<double> mmax2_1(&maxr, too.getId(), tree.getId());
+  BinaryFunction<double> mmax2_2(&maxr, i.getId(), too.getId());
+  BinaryFunction<double> mmax2_3(&maxr, tree.getId(), x.getId());
+
+  mmax2_1.activate();
+  mmax2_2.activate();
+  mmax2_3.activate();
+  i.setUnknown();
+  x.setUnknown();
+
+  assertTrue_1(mmax2_1.getValue(tempr));
+  assertTrue_1(tempr == 3);
+
+  // Should be unknown because i, x not initialized yet
+  assertTrue_1(!mmax2_2.getValue(tempr));
+  assertTrue_1(!mmax2_3.getValue(tempr));
+
+  i.setValue(42);
+  x.setValue(-0.5);
+  // should be known now
+  assertTrue_1(mmax2_2.getValue(tempr));
+  assertTrue_1(tempr == 42);
+  assertTrue_1(mmax2_3.getValue(tempr));
+  assertTrue_1(tempr == 3);
+
+  // N-ary
+  rexprs1.clear();
+  rexprs1.push_back(tree.getId());
+  rexprs1.push_back(fore.getId());
+  rexprs1.push_back(m1.getId());
+
+  rexprs2.clear();
+  rexprs2.push_back(x.getId());
+  rexprs2.push_back(won.getId());
+  rexprs2.push_back(fore.getId());
+
+  rexprs3.clear();
+  rexprs3.push_back(tree.getId());
+  rexprs3.push_back(too.getId());
+  rexprs3.push_back(i.getId());
+
+  NaryFunction<double> mmax3_1(&maxr, rexprs1, garbage);
+  NaryFunction<double> mmax3_2(&maxr, rexprs2, garbage);
+  NaryFunction<double> mmax3_3(&maxr, rexprs3, garbage);
+
+  mmax3_1.activate();
+  mmax3_2.activate();
+  mmax3_3.activate();
+  
+  i.setUnknown();
+  x.setUnknown();
+
+  assertTrue_1(mmax3_1.getValue(tempr));
+  assertTrue_1(tempr == 4.5);
+
+  // Should be unknown because i, x not initialized yet
+  assertTrue_1(!mmax3_2.getValue(tempr));
+  assertTrue_1(!mmax3_3.getValue(tempr));
+
+  i.setValue(42);
+  x.setValue(-0.5);
+  // should be known now
+  assertTrue_1(mmax3_2.getValue(tempr));
+  assertTrue_1(tempr == 4.5);
+  assertTrue_1(mmax3_3.getValue(tempr));
+  assertTrue_1(tempr == 42);
+
   return true;
 }
 
 bool absTest()
 {
+  // Integer
+
+  // Real
+
+  // Mixed
+
   return true;
 }
 
 bool sqrtTest()
 {
+  // Real
+
+  // Mixed
+
   return true;
 }
 
