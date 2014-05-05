@@ -96,7 +96,7 @@ bool additionTest()
   assertTrue_1(iadd3_1.getValue(tempi));
   assertTrue_1(tempi == 3);
 
-  // Should be unknown because i not initialized yet
+  // Should be unknown because i unknown
   assertTrue_1(!iadd3_2.getValue(tempi));
   assertTrue_1(!iadd3_3.getValue(tempi));
 
@@ -164,7 +164,7 @@ bool additionTest()
   assertTrue_1(radd3_1.getValue(tempr));
   assertTrue_1(tempr == 9.5);
 
-  // Should be unknown because x not initialized yet
+  // Should be unknown because x unknown
   assertTrue_1(!radd3_2.getValue(tempr));
   assertTrue_1(!radd3_3.getValue(tempr));
 
@@ -191,7 +191,7 @@ bool additionTest()
   assertTrue_1(madd2_1.getValue(tempr));
   assertTrue_1(tempr == 5.5);
 
-  // Should be unknown because i, x not initialized yet
+  // Should be unknown because i, x unknown
   assertTrue_1(!madd2_2.getValue(tempr));
   assertTrue_1(!madd2_3.getValue(tempr));
 
@@ -233,7 +233,7 @@ bool additionTest()
   assertTrue_1(madd3_1.getValue(tempr));
   assertTrue_1(tempr == 6.5);
 
-  // Should be unknown because i, x not initialized yet
+  // Should be unknown because i, x unknown
   assertTrue_1(!madd3_2.getValue(tempr));
   assertTrue_1(!madd3_3.getValue(tempr));
 
@@ -335,7 +335,7 @@ bool subtractionTest()
   assertTrue_1(isub3_1.getValue(tempi));
   assertTrue_1(tempi == -5);
 
-  // Should be unknown because i not initialized yet
+  // Should be unknown because i unknown
   assertTrue_1(!isub3_2.getValue(tempi));
   assertTrue_1(!isub3_3.getValue(tempi));
 
@@ -438,7 +438,6 @@ bool subtractionTest()
   assertTrue_1(rsub3_3.getValue(tempr));
   assertTrue_1(tempr == -3.25);
 
-
   // Mixed numeric
 
   // Unary
@@ -457,7 +456,7 @@ bool subtractionTest()
   assertTrue(msub1_2.getValue(tempr));
   assertTrue(tempr == -3);
 
-  // Should be unknown because i not initialized yet
+  // Should be unknown because i unknown
   assertTrue_1(!msub1_3.getValue(tempr));
 
   i.setValue(7);
@@ -479,7 +478,7 @@ bool subtractionTest()
   assertTrue_1(msub2_1.getValue(tempr));
   assertTrue_1(tempr == -0.5);
 
-  // Should be unknown because i, x not initialized yet
+  // Should be unknown because i, x unknown
   assertTrue_1(!msub2_2.getValue(tempr));
   assertTrue_1(!msub2_3.getValue(tempr));
 
@@ -521,7 +520,7 @@ bool subtractionTest()
   assertTrue_1(msub3_1.getValue(tempr));
   assertTrue_1(tempr == -0.5);
 
-  // Should be unknown because i, x not initialized yet
+  // Should be unknown because i, x unknown
   assertTrue_1(!msub3_2.getValue(tempr));
   assertTrue_1(!msub3_3.getValue(tempr));
 
@@ -539,10 +538,213 @@ bool subtractionTest()
 bool multiplicationTest()
 {
   // Integer
+  IntegerConstant m1(-1);
+  IntegerConstant six(6);
+  IntegerConstant tree(3);
+  IntegerVariable i;
+  Multiplication<int32_t> muli;
+  int32_t tempi;
+
+  // Binary
+  BinaryFunction<int32_t> imul2_1(&muli, m1.getId(), tree.getId());
+  BinaryFunction<int32_t> imul2_2(&muli, i.getId(), six.getId());
+  BinaryFunction<int32_t> imul2_3(&muli, tree.getId(), i.getId());
+
+  imul2_1.activate();
+  imul2_2.activate();
+  imul2_3.activate();
+
+  assertTrue_1(imul2_1.getValue(tempi));
+  assertTrue_1(tempi == -3);
+
+  // Should be unknown because i not initialized yet
+  assertTrue_1(!imul2_2.getValue(tempi));
+  assertTrue_1(!imul2_3.getValue(tempi));
+
+  i.setValue(5);
+  // should be known now
+  assertTrue_1(imul2_2.getValue(tempi));
+  assertTrue_1(tempi == 30);
+  assertTrue_1(imul2_3.getValue(tempi));
+  assertTrue_1(tempi == 15);
+
+  // N-ary
+
+  // Set up arglists
+  std::vector<bool> garbage(3, false);
+  std::vector<ExpressionId> iexprs1, iexprs2, iexprs3;
+  iexprs1.push_back(m1.getId());
+  iexprs1.push_back(six.getId());
+  iexprs1.push_back(tree.getId());
+
+  iexprs2.push_back(six.getId());
+  iexprs2.push_back(tree.getId());
+  iexprs2.push_back(i.getId());
+
+  iexprs3.push_back(i.getId());
+  iexprs3.push_back(m1.getId());
+  iexprs3.push_back(six.getId());
+
+  NaryFunction<int32_t> imul3_1(&muli, iexprs1, garbage);
+  NaryFunction<int32_t> imul3_2(&muli, iexprs2, garbage);
+  NaryFunction<int32_t> imul3_3(&muli, iexprs3, garbage);
+
+  imul3_1.activate();
+  imul3_2.activate();
+  imul3_3.activate();
+  
+  i.setUnknown();
+
+  assertTrue_1(imul3_1.getValue(tempi));
+  assertTrue_1(tempi == -18);
+
+  // Should be unknown because i unknown
+  assertTrue_1(!imul3_2.getValue(tempi));
+  assertTrue_1(!imul3_3.getValue(tempi));
+
+  i.setValue(2);
+  // should be known now
+  assertTrue_1(imul3_2.getValue(tempi));
+  assertTrue_1(tempi == 36);
+  assertTrue_1(imul3_3.getValue(tempi));
+  assertTrue_1(tempi == -12);
 
   // Real
+  RealConstant too(2.5);
+  RealConstant fore(4);
+  RealVariable x;
+  Multiplication<double> mulr;
+  double tempr;
 
-  // Mixed
+  // Binary
+  BinaryFunction<double> rmul2_1(&mulr, too.getId(), fore.getId());
+  BinaryFunction<double> rmul2_2(&mulr, x.getId(), too.getId());
+  BinaryFunction<double> rmul2_3(&mulr, fore.getId(), x.getId());
+
+  rmul2_1.activate();
+  rmul2_2.activate();
+  rmul2_3.activate();
+
+  assertTrue_1(rmul2_1.getValue(tempr));
+  assertTrue_1(tempr == 10);
+
+  // Should be unknown because x not initialized yet
+  assertTrue_1(!rmul2_2.getValue(tempr));
+  assertTrue_1(!rmul2_3.getValue(tempr));
+
+  x.setValue(-0.5);
+  // should be known now
+  assertTrue_1(rmul2_2.getValue(tempr));
+  assertTrue_1(tempr == -1.25);
+  assertTrue_1(rmul2_3.getValue(tempr));
+  assertTrue_1(tempr == -2.0);
+
+  // N-ary
+  std::vector<ExpressionId> rexprs1, rexprs2, rexprs3;
+  rexprs1.push_back(too.getId());
+  rexprs1.push_back(fore.getId());
+  rexprs1.push_back(too.getId());
+
+  rexprs2.push_back(x.getId());
+  rexprs2.push_back(too.getId());
+  rexprs2.push_back(fore.getId());
+
+  rexprs3.push_back(too.getId());
+  rexprs3.push_back(too.getId());
+  rexprs3.push_back(x.getId());
+
+  NaryFunction<double> rmul3_1(&mulr, rexprs1, garbage);
+  NaryFunction<double> rmul3_2(&mulr, rexprs2, garbage);
+  NaryFunction<double> rmul3_3(&mulr, rexprs3, garbage);
+
+  rmul3_1.activate();
+  rmul3_2.activate();
+  rmul3_3.activate();
+  
+  x.setUnknown();
+
+  assertTrue_1(rmul3_1.getValue(tempr));
+  assertTrue_1(tempr == 25);
+
+  // Should be unknown because x unknown
+  assertTrue_1(!rmul3_2.getValue(tempr));
+  assertTrue_1(!rmul3_3.getValue(tempr));
+
+  x.setValue(8);
+  // should be known now
+  assertTrue_1(rmul3_2.getValue(tempr));
+  assertTrue_1(tempr == 80);
+  assertTrue_1(rmul3_3.getValue(tempr));
+  assertTrue_1(tempr == 50);
+
+  // Mixed numeric
+  // Binary
+  BinaryFunction<double> mmul2_1(&mulr, too.getId(), tree.getId());
+  BinaryFunction<double> mmul2_2(&mulr, i.getId(), too.getId());
+  BinaryFunction<double> mmul2_3(&mulr, tree.getId(), x.getId());
+
+  mmul2_1.activate();
+  mmul2_2.activate();
+  mmul2_3.activate();
+  i.setUnknown();
+  x.setUnknown();
+
+  assertTrue_1(mmul2_1.getValue(tempr));
+  assertTrue_1(tempr == 7.5);
+
+  // Should be unknown because i, x unknown
+  assertTrue_1(!mmul2_2.getValue(tempr));
+  assertTrue_1(!mmul2_3.getValue(tempr));
+
+  i.setValue(2);
+  x.setValue(-0.5);
+  // should be known now
+  assertTrue_1(mmul2_2.getValue(tempr));
+  assertTrue_1(tempr == 5);
+  assertTrue_1(mmul2_3.getValue(tempr));
+  assertTrue_1(tempr == -1.5);
+
+  // N-ary
+  rexprs1.clear();
+  rexprs1.push_back(tree.getId());
+  rexprs1.push_back(fore.getId());
+  rexprs1.push_back(m1.getId());
+
+  rexprs2.clear();
+  rexprs2.push_back(x.getId());
+  rexprs2.push_back(six.getId());
+  rexprs2.push_back(fore.getId());
+
+  rexprs3.clear();
+  rexprs3.push_back(tree.getId());
+  rexprs3.push_back(too.getId());
+  rexprs3.push_back(i.getId());
+
+  NaryFunction<double> mmul3_1(&mulr, rexprs1, garbage);
+  NaryFunction<double> mmul3_2(&mulr, rexprs2, garbage);
+  NaryFunction<double> mmul3_3(&mulr, rexprs3, garbage);
+
+  mmul3_1.activate();
+  mmul3_2.activate();
+  mmul3_3.activate();
+  
+  i.setUnknown();
+  x.setUnknown();
+
+  assertTrue_1(mmul3_1.getValue(tempr));
+  assertTrue_1(tempr == -12);
+
+  // Should be unknown because i, x unknown
+  assertTrue_1(!mmul3_2.getValue(tempr));
+  assertTrue_1(!mmul3_3.getValue(tempr));
+
+  i.setValue(2);
+  x.setValue(-0.5);
+  // should be known now
+  assertTrue_1(mmul3_2.getValue(tempr));
+  assertTrue_1(tempr == -12);
+  assertTrue_1(mmul3_3.getValue(tempr));
+  assertTrue_1(tempr == 15);
 
   return true;
 }
@@ -550,10 +752,92 @@ bool multiplicationTest()
 bool divisionTest()
 {
   // Integer
+  IntegerConstant m1(-1);
+  IntegerConstant five(5);
+  IntegerConstant tree(3);
+  IntegerVariable i;
+  Division<int32_t> divi;
+  int32_t tempi;
+
+  // Binary
+  BinaryFunction<int32_t> idiv2_1(&divi, five.getId(), tree.getId());
+  BinaryFunction<int32_t> idiv2_2(&divi, i.getId(), five.getId());
+  BinaryFunction<int32_t> idiv2_3(&divi, tree.getId(), i.getId());
+
+  idiv2_1.activate();
+  idiv2_2.activate();
+  idiv2_3.activate();
+
+  assertTrue_1(idiv2_1.getValue(tempi));
+  assertTrue_1(tempi == 1);
+
+  // Should be unknown because i not initialized yet
+  assertTrue_1(!idiv2_2.getValue(tempi));
+  assertTrue_1(!idiv2_3.getValue(tempi));
+
+  i.setValue(2);
+  // should be known now
+  assertTrue_1(idiv2_2.getValue(tempi));
+  assertTrue_1(tempi == 0);
+  assertTrue_1(idiv2_3.getValue(tempi));
+  assertTrue_1(tempi == 1);
 
   // Real
+  RealConstant too(2.5);
+  RealConstant fore(4);
+  RealVariable x;
+  Division<double> divr;
+  double tempr;
+
+  // Binary
+  BinaryFunction<double> rdiv2_1(&divr, fore.getId(), too.getId());
+  BinaryFunction<double> rdiv2_2(&divr, x.getId(), fore.getId());
+  BinaryFunction<double> rdiv2_3(&divr, too.getId(), x.getId());
+
+  rdiv2_1.activate();
+  rdiv2_2.activate();
+  rdiv2_3.activate();
+
+  assertTrue_1(rdiv2_1.getValue(tempr));
+  assertTrue_1(tempr == 1.6);
+
+  // Should be unknown because x not initialized yet
+  assertTrue_1(!rdiv2_2.getValue(tempr));
+  assertTrue_1(!rdiv2_3.getValue(tempr));
+
+  x.setValue(-1.25);
+  // should be known now
+  assertTrue_1(rdiv2_2.getValue(tempr));
+  assertTrue_1(tempr == -0.3125);
+  assertTrue_1(rdiv2_3.getValue(tempr));
+  assertTrue_1(tempr == -2);
 
   // Mixed
+  // Binary
+  BinaryFunction<double> mdiv2_1(&divr, too.getId(), five.getId());
+  BinaryFunction<double> mdiv2_2(&divr, i.getId(), too.getId());
+  BinaryFunction<double> mdiv2_3(&divr, tree.getId(), x.getId());
+
+  mdiv2_1.activate();
+  mdiv2_2.activate();
+  mdiv2_3.activate();
+  i.setUnknown();
+  x.setUnknown();
+
+  assertTrue_1(mdiv2_1.getValue(tempr));
+  assertTrue_1(tempr == 0.5);
+
+  // Should be unknown because i, x unknown
+  assertTrue_1(!mdiv2_2.getValue(tempr));
+  assertTrue_1(!mdiv2_3.getValue(tempr));
+
+  i.setValue(5);
+  x.setValue(-0.5);
+  // should be known now
+  assertTrue_1(mdiv2_2.getValue(tempr));
+  assertTrue_1(tempr == 2);
+  assertTrue_1(mdiv2_3.getValue(tempr));
+  assertTrue_1(tempr == -6);
 
   return true;
 }
@@ -656,7 +940,7 @@ bool minimumTest()
   assertTrue_1(imin3_1.getValue(tempi));
   assertTrue_1(tempi == -1);
 
-  // Should be unknown because i not initialized yet
+  // Should be unknown because i unknown
   assertTrue_1(!imin3_2.getValue(tempi));
   assertTrue_1(!imin3_3.getValue(tempi));
 
@@ -724,7 +1008,7 @@ bool minimumTest()
   assertTrue_1(rmin3_1.getValue(tempr));
   assertTrue_1(tempr == 2.5);
 
-  // Should be unknown because x not initialized yet
+  // Should be unknown because x unknown
   assertTrue_1(!rmin3_2.getValue(tempr));
   assertTrue_1(!rmin3_3.getValue(tempr));
 
@@ -751,7 +1035,7 @@ bool minimumTest()
   assertTrue_1(mmin2_1.getValue(tempr));
   assertTrue_1(tempr == 2.5);
 
-  // Should be unknown because i, x not initialized yet
+  // Should be unknown because i, x unknown
   assertTrue_1(!mmin2_2.getValue(tempr));
   assertTrue_1(!mmin2_3.getValue(tempr));
 
@@ -793,7 +1077,7 @@ bool minimumTest()
   assertTrue_1(mmin3_1.getValue(tempr));
   assertTrue_1(tempr == -1);
 
-  // Should be unknown because i, x not initialized yet
+  // Should be unknown because i, x unknown
   assertTrue_1(!mmin3_2.getValue(tempr));
   assertTrue_1(!mmin3_3.getValue(tempr));
 
@@ -871,7 +1155,7 @@ bool maximumTest()
   assertTrue_1(imax3_1.getValue(tempi));
   assertTrue_1(tempi == 3);
 
-  // Should be unknown because i not initialized yet
+  // Should be unknown because i unknown
   assertTrue_1(!imax3_2.getValue(tempi));
   assertTrue_1(!imax3_3.getValue(tempi));
 
@@ -939,7 +1223,7 @@ bool maximumTest()
   assertTrue_1(rmax3_1.getValue(tempr));
   assertTrue_1(tempr == 4.5);
 
-  // Should be unknown because x not initialized yet
+  // Should be unknown because x unknown
   assertTrue_1(!rmax3_2.getValue(tempr));
   assertTrue_1(!rmax3_3.getValue(tempr));
 
@@ -966,7 +1250,7 @@ bool maximumTest()
   assertTrue_1(mmax2_1.getValue(tempr));
   assertTrue_1(tempr == 3);
 
-  // Should be unknown because i, x not initialized yet
+  // Should be unknown because i, x unknown
   assertTrue_1(!mmax2_2.getValue(tempr));
   assertTrue_1(!mmax2_3.getValue(tempr));
 
@@ -1008,7 +1292,7 @@ bool maximumTest()
   assertTrue_1(mmax3_1.getValue(tempr));
   assertTrue_1(tempr == 4.5);
 
-  // Should be unknown because i, x not initialized yet
+  // Should be unknown because i, x unknown
   assertTrue_1(!mmax3_2.getValue(tempr));
   assertTrue_1(!mmax3_3.getValue(tempr));
 
