@@ -96,4 +96,23 @@ namespace PLEXIL
     }
   }
 
+  template <typename T>
+  void printValue(const std::vector<T> &val, std::ostream &s)
+  {
+    s << "#(";
+    size_t len = val.size();
+    for (size_t i = 0; i < len; ) {
+      s << val[i];
+      if (++i < len)
+        s << ' ';
+    }
+    s << ')';
+  }
+
+  template <typename T>
+  void printValue(const T &val, std::ostream &s)
+  {
+    s << val;
+  }
+
 }

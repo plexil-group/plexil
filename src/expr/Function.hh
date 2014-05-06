@@ -52,13 +52,6 @@ namespace PLEXIL
   public:
     virtual ~Function();
 
-    /**
-     * @brief Get the value type of this Expression.
-     * @return ValueType of the expression.
-     * @note Default method should be adequate for most purposes.
-     */
-    const ValueType valueType() const;
-
     const char *exprName() const;
 
     /**

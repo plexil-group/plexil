@@ -67,6 +67,31 @@ namespace PLEXIL
     {
       return static_cast<const C *>(this)->getValueImpl(result);
     }
+
+    bool getValue(std::vector<bool> &result) const
+    {
+      return static_cast<const C *>(this)->getValueImpl(result);
+    }
+
+    // bool getValue(std::vector<uint16_t> &result) const
+    // {
+    //   return static_cast<const C *>(this)->getValueImpl(result);
+    // }
+
+    bool getValue(std::vector<int32_t> &result) const
+    {
+      return static_cast<const C *>(this)->getValueImpl(result);
+    }
+
+    bool getValue(std::vector<double> &result) const
+    {
+      return static_cast<const C *>(this)->getValueImpl(result);
+    }
+
+    bool getValue(std::vector<std::string> &result) const
+    {
+      return static_cast<const C *>(this)->getValueImpl(result);
+    }
   };
 
   //
@@ -83,6 +108,13 @@ namespace PLEXIL
      * @note Default method uses getValueImpl().
      */
     bool isKnown() const;
+
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
+     */
+    const ValueType valueType() const;
 
 	/**
 	 * @brief Print the expression's value to the given stream.

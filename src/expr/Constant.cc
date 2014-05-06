@@ -96,45 +96,6 @@ namespace PLEXIL {
   }
 
   /**
-   * @brief Return a print name for the value type.
-   * @return A constant character string.
-   * @note Specialized by type name.
-   */
-
-  // Default method
-  template <typename T>
-  const ValueType Constant<T>::valueType() const
-  {
-    return UNKNOWN_TYPE;
-  }
-
-  template <>
-  const ValueType Constant<double>::valueType() const
-  {
-    return REAL_TYPE;
-  }
-
-  template <>
-  const ValueType Constant<int32_t>::valueType() const
-  {
-    return INTEGER_TYPE;
-  }
-
-  template <>
-  const ValueType Constant<bool>::valueType() const
-  {
-    return BOOLEAN_TYPE;
-  }
-
-  template <>
-  const ValueType Constant<std::string>::valueType() const
-  {
-    return STRING_TYPE;
-  }
-
-  // TODO: Array types 
-
-  /**
    * @brief Retrieve the value of this Expression.
    * @return The value of this Expression.
    */
@@ -227,10 +188,15 @@ namespace PLEXIL {
   //
   // Explicit instantiations
   //
-  template class Constant<double>;
-  template class Constant<int32_t>;
-  // template class Constant<uint16_t>;
   template class Constant<bool>;
+  // template class Constant<uint16_t>;
+  template class Constant<int32_t>;
+  template class Constant<double>;
   template class Constant<std::string>;
+
+  template class Constant<std::vector<bool> >;
+  template class Constant<std::vector<int32_t> >;
+  template class Constant<std::vector<double> >;
+  template class Constant<std::vector<std::string> >;
 
 } // namespace PLEXIL

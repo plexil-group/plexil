@@ -27,7 +27,9 @@
 #ifndef PLEXIL_VALUE_TYPE_HH
 #define PLEXIL_VALUE_TYPE_HH
 
+#include <iosfwd>
 #include <string>
+#include <vector>
 
 namespace PLEXIL
 {
@@ -66,6 +68,12 @@ namespace PLEXIL
     };
 
   const std::string &plexilTypeName(ValueType ty);
+
+  template <typename T>
+  void printValue(const std::vector<T> &, std::ostream &s);
+
+  template <typename T>
+  void printValue(const T &, std::ostream &s);
 
 }
 

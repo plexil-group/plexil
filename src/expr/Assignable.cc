@@ -59,27 +59,52 @@ namespace PLEXIL {
   // and optionally others as appropriate to the type.
   //
 
-  bool Assignable::checkValue(const double& /* value */)
+  bool Assignable::checkValue(const bool & /* value */)
   {
     return true;
   }
 
-  bool Assignable::checkValue(const int32_t& /* value */)
+  bool Assignable::checkValue(const uint16_t & /* value */)
   {
     return true;
   }
 
-  bool Assignable::checkValue(const uint16_t& /* value */)
+  bool Assignable::checkValue(const int32_t & /* value */)
   {
     return true;
   }
 
-  bool Assignable::checkValue(const bool& /* value */)
+  bool Assignable::checkValue(const double & /* value */)
   {
     return true;
   }
 
-  bool Assignable::checkValue(const std::string& /* value */)
+  bool Assignable::checkValue(const std::string & /* value */)
+  {
+    return true;
+  }
+
+  bool Assignable::checkValue(const std::vector<bool> & /* value */)
+  {
+    return true;
+  }
+
+  bool Assignable::checkValue(const std::vector<uint16_t> & /* value */)
+  {
+    return true;
+  }
+
+  bool Assignable::checkValue(const std::vector<int32_t> & /* value */)
+  {
+    return true;
+  }
+
+  bool Assignable::checkValue(const std::vector<double> & /* value */)
+  {
+    return true;
+  }
+
+  bool Assignable::checkValue(const std::vector<std::string> & /* value */)
   {
     return true;
   }
@@ -88,68 +113,118 @@ namespace PLEXIL {
   // setInitialValue() default methods
   //
 
-  void Assignable::setInitialValue(const double &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Real is not a valid type for this expression");
-  }
-
-  void Assignable::setInitialValue(const int32_t &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Integer is not a valid type for this expression");
-  }
-
-  void Assignable::setInitialValue(const uint16_t &val)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Internal value is not a valid type for this expression");
-  }
-
-  void Assignable::setInitialValue(const bool &val)
+  void Assignable::setInitialValue(const bool & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setInitialValue: Boolean is not a valid type for this expression");
   }
 
-  void Assignable::setInitialValue(const std::string &val)
+  void Assignable::setInitialValue(const uint16_t & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Internal value is not a valid type for this expression");
+  }
+
+  void Assignable::setInitialValue(const int32_t & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Integer is not a valid type for this expression");
+  }
+
+  void Assignable::setInitialValue(const double & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Real is not a valid type for this expression");
+  }
+
+  void Assignable::setInitialValue(const std::string & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setInitialValue: String is not a valid type for this expression");
   }
 
-  void Assignable::setInitialValue(const char *val)
+  void Assignable::setInitialValue(const char * /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setInitialValue: Character string is not a valid type for this expression");
+  }
+
+  void Assignable::setInitialValue(const std::vector<bool>  & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setInitialValue: BooleanArray is not a valid type for this expression");
+  }
+
+  // void Assignable::setInitialValue(const std::vector<uint16_t> & /* val */)
+  // {
+  //   assertTrue_2(ALWAYS_FAIL, "setInitialValue: Not a valid type for this expression");
+  // }
+
+  void Assignable::setInitialValue(const std::vector<int32_t>  & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setInitialValue: IntegerArray is not a valid type for this expression");
+  }
+
+  void Assignable::setInitialValue(const std::vector<double> & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setInitialValue: RealArray is not a valid type for this expression");
+  }
+
+  void Assignable::setInitialValue(const std::vector<std::string> & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setInitialValue: String is not a valid type for this expression");
   }
 
   //
   // setValue() default methods
   //
 
-  void Assignable::setValue(const double &val)
+  void Assignable::setValue(const double & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: Real is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const int32_t &val)
+  void Assignable::setValue(const int32_t & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: Integer is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const uint16_t &val)
+  void Assignable::setValue(const uint16_t & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: Internal value is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const bool &val)
+  void Assignable::setValue(const bool & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: Boolean is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const std::string &val)
+  void Assignable::setValue(const std::string & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: String is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const char *val)
+  void Assignable::setValue(const char * /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: Character string is not a valid type for this expression");
+  }
+
+  void Assignable::setValue(const std::vector<bool>  & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setValue: BooleanArray is not a valid type for this expression");
+  }
+
+  // void Assignable::setValue(const std::vector<uint16_t> & /* val */)
+  // {
+  //   assertTrue_2(ALWAYS_FAIL, "setValue: Not a valid type for this expression");
+  // }
+
+  void Assignable::setValue(const std::vector<int32_t>  & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setValue: IntegerArray is not a valid type for this expression");
+  }
+
+  void Assignable::setValue(const std::vector<double> & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setValue: RealArray is not a valid type for this expression");
+  }
+
+  void Assignable::setValue(const std::vector<std::string> & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setValue: String is not a valid type for this expression");
   }
 
   /**

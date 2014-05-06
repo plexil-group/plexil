@@ -40,6 +40,61 @@ namespace PLEXIL
     return this->getValueImpl(dummy);
   }
 
+  // Default method.
+  template <typename T>
+  const ValueType ExpressionImpl<T>::valueType() const
+  {
+    return UNKNOWN_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<bool>::valueType() const
+  {
+    return BOOLEAN_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<int32_t>::valueType() const
+  {
+    return INTEGER_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<double>::valueType() const
+  {
+    return REAL_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<std::string>::valueType() const
+  {
+    return STRING_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<std::vector<bool> >::valueType() const
+  {
+    return BOOLEAN_ARRAY_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<std::vector<int32_t> >::valueType() const
+  {
+    return INTEGER_ARRAY_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<std::vector<double> >::valueType() const
+  {
+    return REAL_ARRAY_TYPE;
+  }
+
+  template <>
+  const ValueType ExpressionImpl<std::vector<std::string> >::valueType() const
+  {
+    return STRING_ARRAY_TYPE;
+  }
+
   /**
    * @brief Print the expression's value to the given stream.
    * @param s The output stream.
@@ -50,7 +105,7 @@ namespace PLEXIL
   {
     T temp;
     if (this->getValueImpl(temp))
-      s << temp;
+      PLEXIL::printValue(temp, s);
     else
       s << "UNKNOWN";
   }
@@ -79,8 +134,15 @@ namespace PLEXIL
   // Explicit instantiations
   //
   template class ExpressionImpl<bool>;
+  template class ExpressionImpl<uint16_t>;
   template class ExpressionImpl<int32_t>;
   template class ExpressionImpl<double>;
   template class ExpressionImpl<std::string>;
+
+  template class ExpressionImpl<std::vector<bool> >;
+  //template class ExpressionImpl<std::vector<uint16_t> >;
+  template class ExpressionImpl<std::vector<int32_t> >;
+  template class ExpressionImpl<std::vector<double> >;
+  template class ExpressionImpl<std::vector<std::string> >;
 
 }

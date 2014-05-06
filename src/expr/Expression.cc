@@ -87,15 +87,9 @@ namespace PLEXIL {
   {
   }
 
-  bool Expression::getValue(double &) const
+  bool Expression::getValue(bool &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Real for this expression");
-    return false;
-  }
-
-  bool Expression::getValue(int32_t &) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Integer for this expression");
+    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Boolean for this expression");
     return false;
   }
 
@@ -105,15 +99,51 @@ namespace PLEXIL {
     return false;
   }
 
-  bool Expression::getValue(bool &) const
+  bool Expression::getValue(int32_t &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Boolean for this expression");
+    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Integer for this expression");
+    return false;
+  }
+
+  bool Expression::getValue(double &) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Real for this expression");
     return false;
   }
 
   bool Expression::getValue(std::string &) const
   {
     assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for String for this expression");
+    return false;
+  }
+
+  bool Expression::getValue(std::vector<bool> &) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for BooleanArray for this expression");
+    return false;
+  }
+
+  // bool Expression::getValue(std::vector<uint16_t> &) const
+  // {
+  //   assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for internal types for this expression");
+  //   return false;
+  // }
+
+  bool Expression::getValue(std::vector<int32_t> &) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for IntegerArray for this expression");
+    return false;
+  }
+
+  bool Expression::getValue(std::vector<double> &) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for RealArray for this expression");
+    return false;
+  }
+
+  bool Expression::getValue(std::vector<std::string> &) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for StringArray for this expression");
     return false;
   }
 

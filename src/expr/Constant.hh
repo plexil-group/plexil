@@ -76,13 +76,6 @@ namespace PLEXIL {
     const char *exprName() const;
 
     /**
-     * @brief Return a print name for the value type.
-     * @return A constant character string.
-     * @note Specialized by type name.
-     */
-    const ValueType valueType() const;
-
-    /**
      * @brief Retrieve the value of this Expression in its native type.
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
@@ -155,10 +148,15 @@ namespace PLEXIL {
   // Convenience typedefs
   //
 
-  typedef Constant<int32_t> IntegerConstant;
-  typedef Constant<bool> BooleanConstant;
-  typedef Constant<double> RealConstant;
+  typedef Constant<bool>        BooleanConstant;
+  typedef Constant<int32_t>     IntegerConstant;
+  typedef Constant<double>      RealConstant;
   typedef Constant<std::string> StringConstant;
+
+  typedef Constant<std::vector<bool> >        BooleanArrayConstant;
+  typedef Constant<std::vector<int32_t> >     IntegerArrayConstant;
+  typedef Constant<std::vector<double> >      RealArrayConstant;
+  typedef Constant<std::vector<std::string> > StringArrayConstant;
   
 } // namespace PLEXIL
 

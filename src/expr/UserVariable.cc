@@ -144,7 +144,7 @@ namespace PLEXIL {
   template <typename T>
   void UserVariable<T>::setInitialValue(const T &value)
   {
-    assertTrueMsg(checkValue(value), "Error: " << value << " is an invalid value for this variable");
+    assertTrue_2(checkValue(value), "setInitialValue: Value is invalid for this variable");
     m_initialValue = m_value = value;
     m_initialKnown = m_known = true;
   }
@@ -153,7 +153,7 @@ namespace PLEXIL {
   void UserVariable<T>::setValue(const T &value)
   {
     bool changed = !m_known || value != m_value;
-    assertTrueMsg(checkValue(value), "Error: " << value << " is an invalid value for this variable");
+    assertTrueMsg(checkValue(value), "setValue: Value is invalid for this variable");
     m_value = value;
     m_known = true;
     if (changed)
@@ -221,21 +221,30 @@ namespace PLEXIL {
     return Expression::getId();
   }
 
-  // Simple variables have no dependencies, therefore this method does nothing.
+  //
+  // For access by array variables
+  //
   template <typename T>
-  void UserVariable<T>::notifyChanged()
+  T &UserVariable<T>::getValueReference()
   {
+    return m_value;
   }
   
   //
   // Explicit instantiations
   //
 
-  template class UserVariable<double>;
-  template class UserVariable<int32_t>;
-  // template class UserVariable<uint16_t>;
   template class UserVariable<bool>;
+  // template class UserVariable<uint16_t>;
+  template class UserVariable<int32_t>;
+  template class UserVariable<double>;
   //template class UserVariable<std::string>;
+
+  template class UserVariable<std::vector<bool> >;
+  // template class UserVariable<std::vector<uint16_t> >;
+  template class UserVariable<std::vector<int32_t> >;
+  template class UserVariable<std::vector<double> >;
+  template class UserVariable<std::vector<std::string> >;
 
   //
   // Specializations

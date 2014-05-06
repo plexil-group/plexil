@@ -51,6 +51,7 @@ namespace PLEXIL
   {
   }
 
+  // TODO: overflow checks
   template <typename NUM>
   bool Addition<NUM>::operator()(NUM &result,
                                  const ExpressionId &argA,
@@ -64,6 +65,7 @@ namespace PLEXIL
     return true;
   }
 
+  // TODO: overflow checks
   template <typename NUM>
   bool Addition<NUM>::operator()(NUM &result,
                                  const std::vector<ExpressionId> &args) const
@@ -111,6 +113,7 @@ namespace PLEXIL
     return true;
   }
 
+  // TODO: overflow checks
   template <typename NUM>
   bool Subtraction<NUM>::operator()(NUM &result,
                                     const ExpressionId &argA,
@@ -124,6 +127,7 @@ namespace PLEXIL
     return true;
   }
 
+  // TODO: overflow checks
   template <typename NUM>
   bool Subtraction<NUM>::operator()(NUM &result,
                                     const std::vector<ExpressionId> &args) const
@@ -207,6 +211,7 @@ namespace PLEXIL
   {
   }
 
+  // TODO: warn on zero divisor?
   template <typename NUM>
   bool Division<NUM>::operator()(NUM &result,
                                  const ExpressionId &argA,
@@ -280,7 +285,6 @@ namespace PLEXIL
     return true;
   }
 
-  // TODO: overflow checks
   template <typename NUM>
   bool Minimum<NUM>::operator()(NUM &result,
                                 const std::vector<ExpressionId> &args) const
@@ -316,7 +320,6 @@ namespace PLEXIL
   {
   }
 
-  // TODO: overflow checks
   template <typename NUM>
   bool Maximum<NUM>::operator()(NUM &result,
                                 const ExpressionId &argA,
@@ -331,7 +334,6 @@ namespace PLEXIL
     return true;
   }
 
-  // TODO: overflow checks
   template <typename NUM>
   bool Maximum<NUM>::operator()(NUM &result,
                                 const std::vector<ExpressionId> &args) const

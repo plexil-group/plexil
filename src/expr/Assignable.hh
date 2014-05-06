@@ -94,12 +94,18 @@ namespace PLEXIL {
      * @note No change notification will occur.
      * @note Each default method reports a type error.
      */
-    virtual void setInitialValue(const double &val);
-    virtual void setInitialValue(const int32_t &val);
-    virtual void setInitialValue(const uint16_t &val);
     virtual void setInitialValue(const bool &val);
+    virtual void setInitialValue(const uint16_t &val);
+    virtual void setInitialValue(const int32_t &val);
+    virtual void setInitialValue(const double &val);
     virtual void setInitialValue(const std::string &val);
     virtual void setInitialValue(const char *val);
+
+    virtual void setInitialValue(const std::vector<bool> &val);
+    //virtual void setInitialValue(const std::vector<uint16_t> &val);
+    virtual void setInitialValue(const std::vector<int32_t> &val);
+    virtual void setInitialValue(const std::vector<double> &val);
+    virtual void setInitialValue(const std::vector<std::string> &val);
 
     /**
      * @brief Set the current value of this variable to "unknown".
@@ -119,7 +125,12 @@ namespace PLEXIL {
     virtual void setValue(const bool &val);
     virtual void setValue(const std::string &val);
     virtual void setValue(const char *val);
-    // TODO: Array types
+
+    virtual void setValue(const std::vector<bool> &val);
+    //virtual void setValue(const std::vector<uint16_t> &val);
+    virtual void setValue(const std::vector<int32_t> &val);
+    virtual void setValue(const std::vector<double> &val);
+    virtual void setValue(const std::vector<std::string> &val);
     
     // FIXME
     /**
@@ -134,7 +145,12 @@ namespace PLEXIL {
     virtual bool checkValue(const uint16_t& value);
     virtual bool checkValue(const bool& value);
     virtual bool checkValue(const std::string& value);
-    // TODO: Array types
+
+    virtual bool checkValue(const std::vector<bool> &val);
+    virtual bool checkValue(const std::vector<uint16_t> &val);
+    virtual bool checkValue(const std::vector<int32_t> &val);
+    virtual bool checkValue(const std::vector<double> &val);
+    virtual bool checkValue(const std::vector<std::string> &val);
 
     /**
      * @brief Temporarily stores the previous value of this variable.

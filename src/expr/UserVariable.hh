@@ -116,8 +116,10 @@ namespace PLEXIL {
 
     const ExpressionId& getBaseVariable() const;
 
-    // Simple variables have no dependencies, therefore this method does nothing.
-    void notifyChanged();
+    //
+    // For access by array variables
+    //
+    T &getValueReference();
 
   protected: // private?
     
@@ -177,9 +179,14 @@ namespace PLEXIL {
   // Convenience typedefs 
   //
 
-  typedef UserVariable<bool> BooleanVariable;
+  typedef UserVariable<bool>    BooleanVariable;
   typedef UserVariable<int32_t> IntegerVariable;
-  typedef UserVariable<double> RealVariable;
+  typedef UserVariable<double>  RealVariable;
+
+  typedef UserVariable<std::vector<bool> >         BooleanArrayVariable;
+  typedef UserVariable<std::vector<int32_t> >      IntegerArrayVariable;
+  typedef UserVariable<std::vector<double> >       RealArrayVariable;
+  typedef UserVariable<std::vector<std::string> >  StringArrayVariable;
 
 } // namespace PLEXIL
 

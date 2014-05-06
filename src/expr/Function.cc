@@ -47,37 +47,6 @@ namespace PLEXIL
     return m_op->getName().c_str();
   }
 
-  // Default method, can be overridden
-  template <typename R>
-  const ValueType Function<R>::valueType() const
-  {
-    return UNKNOWN_TYPE;
-  }
-
-  template <>
-  const ValueType Function<bool>::valueType() const
-  {
-    return BOOLEAN_TYPE;
-  }
-
-  template <>
-  const ValueType Function<int32_t>::valueType() const
-  {
-    return INTEGER_TYPE;
-  }
-
-  template <>
-  const ValueType Function<double>::valueType() const
-  {
-    return REAL_TYPE;
-  }
-
-  template <>
-  const ValueType Function<std::string>::valueType() const
-  {
-    return STRING_TYPE;
-  }
-
   template <typename R>
   bool Function<R>::getValueImpl(R &result) const
   {

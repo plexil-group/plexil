@@ -33,9 +33,6 @@
 #include "ExpressionListener.hh"
 #include "ValueType.hh"
 
-#include <iosfwd>
-#include <string>
-
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
 #elif defined(__VXWORKS__)
@@ -209,16 +206,19 @@ namespace PLEXIL
      * @note Default methods return an error in every case.
      */
 
-    // Numeric types
-    virtual bool getValue(double &) const;   // Real
-    virtual bool getValue(int32_t &) const;  // Integer
-    virtual bool getValue(uint16_t &) const; // enumerations: State, Outcome, Failure, etc.
-    virtual bool getValue(bool &) const;     // Boolean
-
-    // Non-numeric types
+    // Scalar types
+    virtual bool getValue(bool &) const;        // Boolean
+    virtual bool getValue(double &) const;      // Real
+    virtual bool getValue(uint16_t &) const;    // enumerations: State, Outcome, Failure, etc.
+    virtual bool getValue(int32_t &) const;     // Integer
     virtual bool getValue(std::string &) const; // String
 
-    // Array types (TBD)
+    // Array types
+    virtual bool getValue(std::vector<bool> &) const;        // Boolean
+    //virtual bool getValue(std::vector<uint16_t> &) const;    // enumerations: State, Outcome, Failure, etc.
+    virtual bool getValue(std::vector<int32_t> &) const;     // Integer
+    virtual bool getValue(std::vector<double> &) const;      // Real
+    virtual bool getValue(std::vector<std::string> &) const; // String
 
   protected:
 
