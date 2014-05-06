@@ -93,39 +93,6 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  const ValueType UserVariable<T>::valueType() const
-  {
-    return UNKNOWN_TYPE;
-  }
-
-  // Specialize above for known types
-  template <>
-  const ValueType UserVariable<double>::valueType() const
-  {
-    return REAL_TYPE;
-  }
-
-  template <>
-  const ValueType UserVariable<int32_t>::valueType() const
-  {
-    return INTEGER_TYPE;
-  }
-
-  template <>
-  const ValueType UserVariable<bool>::valueType() const
-  {
-    return BOOLEAN_TYPE;
-  }
-
-  template <>
-  const ValueType UserVariable<std::string>::valueType() const
-  {
-    return STRING_TYPE;
-  }
-
-  // TODO: Array types
-
-  template <typename T>
   bool UserVariable<T>::isKnown() const
   {
     return isActive() && m_known;

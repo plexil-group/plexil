@@ -73,7 +73,6 @@ namespace PLEXIL {
     //
 
     const char *exprName() const;
-    const ValueType valueType() const;
 
     bool isKnown() const;
 
