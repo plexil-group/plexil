@@ -61,6 +61,13 @@ namespace PLEXIL
      */
     bool getValueImpl(R &result) const;
 
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    bool getValuePointerImpl(R const *&ptr) const;
+
     // Default methods, may be overridden by derived classes.
     // FIXME: is there any sane way to implement these further up the class hierarchy?
     bool isKnown() const;
@@ -74,6 +81,7 @@ namespace PLEXIL
      * @brief Calculate the function's value from the current values of the subexpressions.
      * @param result The place to put the result.
      * @return True if known, false if not.
+     * @note Implementors must copy result to m_valueCache.
      */
     virtual bool calculate(R &result) const = 0;
 
@@ -84,6 +92,10 @@ namespace PLEXIL
     Function();
     Function(const Function &);
     Function& operator=(const Function &);
+
+    // For implementing getValuePointerImpl().
+    // Must be a pointer to preserve const-ness.
+    R *m_valueCache;
   };
 
   /**

@@ -67,6 +67,8 @@ namespace PLEXIL
   class Expression : public ExpressionListener
   {
   public:
+    Expression();
+
     virtual ~Expression();
 
     inline const ExpressionId &getId() const
@@ -202,29 +204,30 @@ namespace PLEXIL
      * @brief Retrieve the value of this Expression.
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
+     * @note The expression value is not copied if the return value is false (unknown).
      * @note Derived classes should implement only the appropriate methods.
      * @note Default methods return an error in every case.
      */
 
-    // Scalar types
     virtual bool getValue(bool &) const;        // Boolean
     virtual bool getValue(double &) const;      // Real
     virtual bool getValue(uint16_t &) const;    // enumerations: State, Outcome, Failure, etc.
     virtual bool getValue(int32_t &) const;     // Integer
     virtual bool getValue(std::string &) const; // String
 
-    // Array types
-    virtual bool getValue(std::vector<bool> &) const;        // Boolean
-    //virtual bool getValue(std::vector<uint16_t> &) const;    // enumerations: State, Outcome, Failure, etc.
-    virtual bool getValue(std::vector<int32_t> &) const;     // Integer
-    virtual bool getValue(std::vector<double> &) const;      // Real
-    virtual bool getValue(std::vector<std::string> &) const; // String
-
-  protected:
-
-    // Default constructor is protected because it should only be called from 
-    // derived classes' constructor methods.
-    Expression();
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     * @note The pointer is not copied if the return value is false (unknown).
+     * @note Derived classes should implement only the appropriate method.
+     * @note Default methods return an error in every case.
+     */
+    virtual bool getValuePointer(std::string const *&ptr) const;              // String
+    virtual bool getValuePointer(std::vector<bool> const *&ptr) const;        // Boolean array
+    virtual bool getValuePointer(std::vector<int32_t> const *&ptr) const;     // Integer array
+    virtual bool getValuePointer(std::vector<double> const *&ptr) const;      // Real array
+    virtual bool getValuePointer(std::vector<std::string> const *&ptr) const; // String array
 
   private:
 

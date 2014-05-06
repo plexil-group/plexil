@@ -117,33 +117,33 @@ namespace PLEXIL {
     return false;
   }
 
-  bool Expression::getValue(std::vector<bool> &) const
+  bool Expression::getValuePointer(std::string const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for BooleanArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "Error: getValuePointer() not implemented for String for this expression");
     return false;
   }
 
-  // bool Expression::getValue(std::vector<uint16_t> &) const
-  // {
-  //   assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for internal types for this expression");
-  //   return false;
-  // }
-
-  bool Expression::getValue(std::vector<int32_t> &) const
+  bool Expression::getValuePointer(std::vector<bool> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for IntegerArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "Error: getValuePointer() not implemented for BooleanArray for this expression");
     return false;
   }
 
-  bool Expression::getValue(std::vector<double> &) const
+  bool Expression::getValuePointer(std::vector<int32_t> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for RealArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "Error: getValuePointer() not implemented for IntegerArray for this expression");
     return false;
   }
 
-  bool Expression::getValue(std::vector<std::string> &) const
+  bool Expression::getValuePointer(std::vector<double> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for StringArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "Error: getValuePointer() not implemented for RealArray for this expression");
+    return false;
+  }
+
+  bool Expression::getValuePointer(std::vector<std::string> const *& /* ptr */) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Error: getValuePointer() not implemented for StringArray for this expression");
     return false;
   }
 

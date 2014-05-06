@@ -80,10 +80,15 @@ namespace PLEXIL {
      * @brief Get the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
-     * @note Limited type conversions supported.
-     * @note Unimplemented conversions will cause a link time error.
      */
     bool getValueImpl(T &result) const;
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    bool getValuePointerImpl(T const *&ptr) const;
 
     /**
      * @brief Assign the initial value.

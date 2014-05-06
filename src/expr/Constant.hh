@@ -83,6 +83,13 @@ namespace PLEXIL {
     bool getValueImpl(T &result) const;
 
     /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    bool getValuePointerImpl(T const *& ptr) const;
+
+    /**
      * @brief Query whether the expression's value is known.
      * @return True if known, false otherwise.
      */

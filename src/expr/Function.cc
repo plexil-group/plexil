@@ -32,13 +32,15 @@ namespace PLEXIL
   template <typename R>
   Function<R>::Function(const Operator<R> *op)
     : Mutable(),
-      m_op(op)
+      m_op(op),
+      m_valueCache(new R())
   {
   }
 
   template <typename R>
   Function<R>::~Function()
   {
+    delete m_valueCache;
   }
 
   template <typename R>
@@ -53,6 +55,15 @@ namespace PLEXIL
     if (!isActive())
       return false;
     return this->calculate(result);
+  }
+
+  template <typename R>
+  bool Function<R>::getValuePointerImpl(R const *&ptr) const
+  {
+    bool result = this->calculate(*m_valueCache);
+    if (result)
+      ptr = m_valueCache;
+    return result;
   }
 
   template <typename R>
@@ -231,19 +242,19 @@ namespace PLEXIL
 
   template class UnaryFunction<double>;
   template class UnaryFunction<int32_t>;
-  // template class UnaryFunction<uint16_t>;
+  template class UnaryFunction<uint16_t>;
   template class UnaryFunction<bool>;
   template class UnaryFunction<std::string>;
 
   template class BinaryFunction<double>;
   template class BinaryFunction<int32_t>;
-  // template class BinaryFunction<uint16_t>;
+  template class BinaryFunction<uint16_t>;
   template class BinaryFunction<bool>;
   template class BinaryFunction<std::string>;
 
   template class NaryFunction<double>;
   template class NaryFunction<int32_t>;
-  // template class NaryFunction<uint16_t>;
+  template class NaryFunction<uint16_t>;
   template class NaryFunction<bool>;
   template class NaryFunction<std::string>;
 

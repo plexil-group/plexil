@@ -130,6 +130,15 @@ namespace PLEXIL
     return true;
   }
 
+  // Report error for type mismatch
+  template <typename T>
+  template <typename U>
+  bool ExpressionImpl<T>::getValuePointerImpl(U const *& /* ptr */) const
+  {
+    check_error_2(ALWAYS_FAIL, "getValueReference type error");
+    return false;
+  }
+
   //
   // Explicit instantiations
   //
@@ -140,7 +149,6 @@ namespace PLEXIL
   template class ExpressionImpl<std::string>;
 
   template class ExpressionImpl<std::vector<bool> >;
-  //template class ExpressionImpl<std::vector<uint16_t> >;
   template class ExpressionImpl<std::vector<int32_t> >;
   template class ExpressionImpl<std::vector<double> >;
   template class ExpressionImpl<std::vector<std::string> >;

@@ -42,7 +42,12 @@ namespace PLEXIL
   class ExpressionWrapper : public virtual Expression
   {
   public:
-    // The only boilerplate code in this approach.
+
+    /**
+     * @brief Retrieve the value of this Expression in its native type.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown.
+     */
     bool getValue(bool &result) const
     {
       return static_cast<const C *>(this)->getValueImpl(result);
@@ -68,30 +73,36 @@ namespace PLEXIL
       return static_cast<const C *>(this)->getValueImpl(result);
     }
 
-    bool getValue(std::vector<bool> &result) const
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    bool getValuePointer(std::string const *&ptr) const
     {
-      return static_cast<const C *>(this)->getValueImpl(result);
+      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }
 
-    // bool getValue(std::vector<uint16_t> &result) const
-    // {
-    //   return static_cast<const C *>(this)->getValueImpl(result);
-    // }
-
-    bool getValue(std::vector<int32_t> &result) const
+    bool getValuePointer(std::vector<bool> const *&ptr) const
     {
-      return static_cast<const C *>(this)->getValueImpl(result);
+      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }
 
-    bool getValue(std::vector<double> &result) const
+    bool getValuePointer(std::vector<int32_t> const *&ptr) const
     {
-      return static_cast<const C *>(this)->getValueImpl(result);
+      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }
 
-    bool getValue(std::vector<std::string> &result) const
+    bool getValuePointer(std::vector<double> const *&ptr) const
     {
-      return static_cast<const C *>(this)->getValueImpl(result);
+      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }
+
+    bool getValuePointer(std::vector<std::string> const *&ptr) const
+    {
+      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
+    }
+
   };
 
   //
@@ -127,11 +138,22 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown.
      */
-    virtual bool getValueImpl(T &result) const = 0; 
+    virtual bool getValueImpl(T &result) const = 0;
 
-    // Conversion wrapper
+    /**
+     * @brief Retrieve the value of this Expression as a pointer to const.
+     * @param ptr Reference to the pointer variable.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValuePointerImpl(T const *& ptr) const = 0;
+
+    // Conversion wrapper, error if particular conversion not supported
     template <typename U>
     bool getValueImpl(U &result) const;
+
+    // Error for wrong type call
+    template <typename U>
+    bool getValuePointerImpl(U const *&) const;
   };
   
 }

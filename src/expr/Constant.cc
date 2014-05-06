@@ -96,15 +96,28 @@ namespace PLEXIL {
   }
 
   /**
-   * @brief Retrieve the value of this Expression.
-   * @return The value of this Expression.
+   * @brief Retrieve the value of this Expression in its native type.
+   * @param The appropriately typed place to put the result.
+   * @return True if known, false if unknown.
    */
-
   template <typename T>
   bool Constant<T>::getValueImpl(T& result) const
   {
     if (m_known)
       result = m_value;
+    return m_known;
+  }
+
+  /**
+   * @brief Retrieve a pointer to the (const) value of this Expression.
+   * @param ptr Reference to the pointer variable to receive the result.
+   * @return True if known, false if unknown.
+   */
+  template <typename T>
+  bool Constant<T>::getValuePointerImpl(T const *&ptr) const
+  {
+    if (m_known)
+      ptr = &m_value;
     return m_known;
   }
 

@@ -109,6 +109,16 @@ namespace PLEXIL {
   }
 
   template <typename T>
+  bool UserVariable<T>::getValuePointerImpl(T const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    if (m_known)
+      ptr = &m_value;
+    return m_known;
+  }
+
+  template <typename T>
   void UserVariable<T>::setInitialValue(const T &value)
   {
     assertTrue_2(checkValue(value), "setInitialValue: Value is invalid for this variable");
