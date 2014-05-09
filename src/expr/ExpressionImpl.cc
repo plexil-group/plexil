@@ -135,7 +135,20 @@ namespace PLEXIL
   template <typename U>
   bool ExpressionImpl<T>::getValuePointerImpl(U const *& /* ptr */) const
   {
-    check_error_2(ALWAYS_FAIL, "getValueReference type error");
+    check_error_2(ALWAYS_FAIL, "getValuePointer type error");
+    return false;
+  }
+
+  /**
+   * @brief Get a const pointer to the vector of element-known flags.
+   * @param ptr Place to store the pointer.
+   * @return True if array value itself is known, false if unknown or invalid.
+   * @note Default method.
+   */
+  template <typename T>
+  bool ExpressionImpl<T>::getKnownVectorPointer(std::vector<bool> const *&ptr) const
+  {
+    check_error_2(ALWAYS_FAIL, "getKnownVectorPointer not implemented for this expression");
     return false;
   }
 

@@ -33,7 +33,7 @@ using namespace PLEXIL;
 // Constants
 //
 
-static bool testScalars()
+static bool testScalarConstants()
 {
   // Default constructor check
   BooleanConstant ub;
@@ -142,168 +142,10 @@ static bool testScalars()
   return true;
 }
 
-bool testArrays()
-{
-  // Default constructor check
-  BooleanArrayConstant ub;
-  IntegerArrayConstant ui;
-  RealArrayConstant ud;
-  StringArrayConstant us;
-
-  // Direct access
-  assertTrue_1(ub.isConstant());
-  assertTrue_1(ui.isConstant());
-  assertTrue_1(ud.isConstant());
-  assertTrue_1(us.isConstant());
-  assertTrue_1(!ub.isAssignable());
-  assertTrue_1(!ui.isAssignable());
-  assertTrue_1(!ud.isAssignable());
-  assertTrue_1(!us.isAssignable());
-  assertTrue_1(!ub.isKnown());
-  assertTrue_1(!ui.isKnown());
-  assertTrue_1(!ud.isKnown());
-  assertTrue_1(!us.isKnown());
-
-  // Access through ExpressionId
-  ExpressionId iub = ub.getId();
-  ExpressionId iui = ui.getId();
-  ExpressionId iud = ud.getId();
-  ExpressionId ius = us.getId();
-  assertTrue_1(iub->isConstant());
-  assertTrue_1(iui->isConstant());
-  assertTrue_1(iud->isConstant());
-  assertTrue_1(ius->isConstant());
-  assertTrue_1(!iub->isAssignable());
-  assertTrue_1(!iui->isAssignable());
-  assertTrue_1(!iud->isAssignable());
-  assertTrue_1(!ius->isAssignable());
-  assertTrue_1(!iub->isKnown());
-  assertTrue_1(!iui->isKnown());
-  assertTrue_1(!iud->isKnown());
-  assertTrue_1(!ius->isKnown());
-
-  // getValuePointer test
-  std::vector<bool> const *pbool = NULL;
-  std::vector<int32_t> const *pint = NULL;
-  std::vector<double> const *preal = NULL;
-  std::vector<std::string> const *pstr = NULL;
-
-  assertTrue_1(!ub.getValuePointer(pbool));
-  assertTrue_1(!ui.getValuePointer(pint));
-  assertTrue_1(!ud.getValuePointer(preal));
-  assertTrue_1(!us.getValuePointer(pstr));
-  assertTrue_1(pbool == NULL);
-  assertTrue_1(pint == NULL);
-  assertTrue_1(preal == NULL);
-  assertTrue_1(pstr == NULL);
-  assertTrue_1(!iub->getValuePointer(pbool));
-  assertTrue_1(!iui->getValuePointer(pint));
-  assertTrue_1(!iud->getValuePointer(preal));
-  assertTrue_1(!ius->getValuePointer(pstr));
-  assertTrue_1(pbool == NULL);
-  assertTrue_1(pint == NULL);
-  assertTrue_1(preal == NULL);
-  assertTrue_1(pstr == NULL);
-  
-  // Constants with values
-  std::vector<bool> oob;
-  oob.push_back(true);
-  oob.push_back(false);
-  BooleanArrayConstant troo = oob;
-
-  std::vector<int32_t> ooi;
-  ooi.push_back(42);
-  ooi.push_back(69);
-  ooi.push_back(14);
-  IntegerArrayConstant too = ooi;
-
-  std::vector<double> ood;
-  ood.push_back(1.414);
-  ood.push_back(2.718);
-  ood.push_back(3.1416);
-  ood.push_back(3.162);
-  RealArrayConstant doo = ood;
-
-  std::vector<std::string> oos;
-  oos.push_back(std::string("foo"));
-  oos.push_back(std::string("bar"));
-  oos.push_back(std::string("baz"));
-  oos.push_back(std::string("bletch"));
-  oos.push_back(std::string("blorf"));
-  StringArrayConstant soo = oos;
-
-  ExpressionId ptroo = troo.getId();
-  ExpressionId ptoo = too.getId();
-  ExpressionId pdoo = doo.getId();
-  ExpressionId psoo = soo.getId();
-
-  assertTrue_1(troo.isConstant());
-  assertTrue_1(too.isConstant());
-  assertTrue_1(doo.isConstant());
-  assertTrue_1(soo.isConstant());
-  assertTrue_1(ptroo->isConstant());
-  assertTrue_1(ptoo->isConstant());
-  assertTrue_1(pdoo->isConstant());
-  assertTrue_1(psoo->isConstant());
-
-  assertTrue_1(!troo.isAssignable());
-  assertTrue_1(!too.isAssignable());
-  assertTrue_1(!doo.isAssignable());
-  assertTrue_1(!soo.isAssignable());
-  assertTrue_1(!ptroo->isAssignable());
-  assertTrue_1(!ptoo->isAssignable());
-  assertTrue_1(!pdoo->isAssignable());
-  assertTrue_1(!psoo->isAssignable());
-
-  assertTrue_1(troo.isKnown());
-  assertTrue_1(too.isKnown());
-  assertTrue_1(doo.isKnown());
-  assertTrue_1(soo.isKnown());
-  assertTrue_1(ptroo->isKnown());
-  assertTrue_1(ptoo->isKnown());
-  assertTrue_1(pdoo->isKnown());
-  assertTrue_1(psoo->isKnown());
-
-  // Access via getValuePointer
-  assertTrue_1(troo.getValuePointer(pbool));
-  assertTrue_1(pbool != NULL);
-  assertTrue_1(oob == *pbool);
-  assertTrue_1(too.getValuePointer(pint));
-  assertTrue_1(pint != NULL);
-  assertTrue_1(ooi == *pint);
-  assertTrue_1(doo.getValuePointer(preal));
-  assertTrue_1(preal != NULL);
-  assertTrue_1(ood == *preal);
-  assertTrue_1(soo.getValuePointer(pstr));
-  assertTrue_1(pstr != NULL);
-  assertTrue_1(oos == *pstr);
-
-  pbool = NULL;
-  pint = NULL;
-  preal = NULL;
-  pstr = NULL;
-
-  assertTrue_1(ptroo->getValuePointer(pbool));
-  assertTrue_1(pbool != NULL);
-  assertTrue_1(oob == *pbool);
-  assertTrue_1(ptoo->getValuePointer(pint));
-  assertTrue_1(pint != NULL);
-  assertTrue_1(ooi == *pint);
-  assertTrue_1(pdoo->getValuePointer(preal));
-  assertTrue_1(preal != NULL);
-  assertTrue_1(ood == *preal);
-  assertTrue_1(psoo->getValuePointer(pstr));
-  assertTrue_1(pstr != NULL);
-  assertTrue_1(oos == *pstr);
-
-  return true;
-}
-
 
 bool constantsTest()
 {
-  runTest(testScalars);
-  runTest(testArrays)
+  runTest(testScalarConstants);
   return true;
 }
 

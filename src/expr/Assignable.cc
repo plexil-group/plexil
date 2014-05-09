@@ -33,7 +33,7 @@ namespace PLEXIL {
   //
 
   Assignable::Assignable()
-    : Mutable(),
+    : Expression(),
       m_aid(this, m_id)
   {
   }
@@ -110,62 +110,30 @@ namespace PLEXIL {
   }
 
   //
-  // setInitialValue() default methods
+  // getMutableValuePointer() default methods
   //
-
-  void Assignable::setInitialValue(const bool & /* val */)
+  bool Assignable::getMutableValuePointer(std::vector<bool> *& /* ptr */)
   {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Boolean is not a valid type for this expression");
+    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Variable is not a BooleanArray");
+    return false;
   }
 
-  void Assignable::setInitialValue(const uint16_t & /* val */)
+  bool Assignable::getMutableValuePointer(std::vector<int32_t> *& /* ptr */)
   {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Internal value is not a valid type for this expression");
+    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Variable is not a BooleanArray");
+    return false;
   }
 
-  void Assignable::setInitialValue(const int32_t & /* val */)
+  bool Assignable::getMutableValuePointer(std::vector<double> *& /* ptr */)
   {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Integer is not a valid type for this expression");
+    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Variable is not a BooleanArray");
+    return false;
   }
 
-  void Assignable::setInitialValue(const double & /* val */)
+  bool Assignable::getMutableValuePointer(std::vector<std::string> *& /* ptr */)
   {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Real is not a valid type for this expression");
-  }
-
-  void Assignable::setInitialValue(const std::string & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: String is not a valid type for this expression");
-  }
-
-  void Assignable::setInitialValue(const char * /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: Character string is not a valid type for this expression");
-  }
-
-  void Assignable::setInitialValue(const std::vector<bool>  & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: BooleanArray is not a valid type for this expression");
-  }
-
-  // void Assignable::setInitialValue(const std::vector<uint16_t> & /* val */)
-  // {
-  //   assertTrue_2(ALWAYS_FAIL, "setInitialValue: Not a valid type for this expression");
-  // }
-
-  void Assignable::setInitialValue(const std::vector<int32_t>  & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: IntegerArray is not a valid type for this expression");
-  }
-
-  void Assignable::setInitialValue(const std::vector<double> & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: RealArray is not a valid type for this expression");
-  }
-
-  void Assignable::setInitialValue(const std::vector<std::string> & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setInitialValue: String is not a valid type for this expression");
+    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Variable is not a BooleanArray");
+    return false;
   }
 
   //
@@ -225,6 +193,18 @@ namespace PLEXIL {
   void Assignable::setValue(const std::vector<std::string> & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: String is not a valid type for this expression");
+  }
+
+  /**
+   * @brief Get a pointer to the vector of element-known flags.
+   * @param ptr Place to store the pointer.
+   * @return True if array value itself is known, false if unknown or invalid.
+   * @note Default method.
+   */
+  bool Assignable::getMutableKnownVectorPointer(std::vector<bool> *&ptr)
+  {
+    check_error_2(ALWAYS_FAIL, "getMutableKnownVectorPointer not implemented for this expression");
+    return false;
   }
 
   /**

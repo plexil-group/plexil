@@ -42,11 +42,19 @@ namespace PLEXIL {
   {
   }
 
+  // Default method.
   bool Expression::isAssignable() const
   {
     return false;
   }
 
+  // Default method.
+  const AssignableId &Expression::getAssignableId() const
+  {
+    return AssignableId::noId();
+  }
+
+  // Default method.
   bool Expression::isConstant() const
   {
     return false;
@@ -89,62 +97,69 @@ namespace PLEXIL {
 
   bool Expression::getValue(bool &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Boolean for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for Boolean for this expression");
     return false;
   }
 
   bool Expression::getValue(uint16_t &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for internal types for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for internal types for this expression");
     return false;
   }
 
   bool Expression::getValue(int32_t &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Integer for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for Integer for this expression");
     return false;
   }
 
   bool Expression::getValue(double &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for Real for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for Real for this expression");
     return false;
   }
 
   bool Expression::getValue(std::string &) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValue() not implemented for String for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValue() not implemented for String for this expression");
     return false;
   }
 
   bool Expression::getValuePointer(std::string const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValuePointer() not implemented for String for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for String for this expression");
     return false;
   }
 
   bool Expression::getValuePointer(std::vector<bool> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValuePointer() not implemented for BooleanArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for BooleanArray for this expression");
     return false;
   }
 
   bool Expression::getValuePointer(std::vector<int32_t> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValuePointer() not implemented for IntegerArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for IntegerArray for this expression");
     return false;
   }
 
   bool Expression::getValuePointer(std::vector<double> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValuePointer() not implemented for RealArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for RealArray for this expression");
     return false;
   }
 
   bool Expression::getValuePointer(std::vector<std::string> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Error: getValuePointer() not implemented for StringArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for StringArray for this expression");
     return false;
   }
+
+  bool Expression::getKnownVectorPointer(std::vector<bool> const *&ptr) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "getKnownVectorPointer() not implemented for this expression");
+    return false;
+  }
+    
 
 } // namespace PLEXIL

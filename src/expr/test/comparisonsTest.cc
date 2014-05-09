@@ -27,7 +27,7 @@
 
 #include "Comparisons.hh"  // includes Operator.hh
 #include "Constant.hh"     // includes Expression.hh
-#include "Function.hh"     // includes Mutable.hh
+#include "Function.hh"     // includes NotifierImpl.hh
 #include "TestSupport.hh"  // includes Error.hh
 #include "UserVariable.hh"
 

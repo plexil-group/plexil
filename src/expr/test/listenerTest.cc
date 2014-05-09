@@ -30,7 +30,7 @@
 //
 
 #include "Error.hh"
-#include "Mutable.hh"
+#include "NotifierImpl.hh"
 #include "TestSupport.hh"
 #include "TrivialListener.hh"
 
@@ -54,11 +54,11 @@ private:
 };
 
 
-class TrivialExpression : public PLEXIL::Mutable
+class TrivialExpression : public PLEXIL::NotifierImpl
 {
 public:
   TrivialExpression()
-    : PLEXIL::Mutable(),
+    : PLEXIL::NotifierImpl(),
       changed(false)
   {
   }

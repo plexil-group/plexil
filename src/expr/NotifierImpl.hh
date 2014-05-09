@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_MUTABLE_HH
-#define PLEXIL_MUTABLE_HH
+#ifndef PLEXIL_NOTIFIER_IMPL_HH
+#define PLEXIL_NOTIFIER_IMPL_HH
 
 #include "Expression.hh"
 
@@ -34,23 +34,23 @@
 namespace PLEXIL {
 
   /**
-   * @class Mutable
-   * @brief Base class for expressions whose value may change. Implements expression listener notification.
+   * @class NotifierImpl
+   * @brief Mixin class for expressions whose value may change. Implements expression listener notification.
    * @note Values need not be stored in the instance; e.g. node state and timepoint variables,
    *       aliases for other variables or expressions.
    */
 
-  class Mutable : public virtual Expression
+  class NotifierImpl : public virtual Expression
   {
   public:
 
     /**
      * @brief Destructor.
      */
-    virtual ~Mutable();
+    virtual ~NotifierImpl();
 
     //
-    // Core Mutable behavior
+    // Core NotifierImpl behavior
     //
 
     /**
@@ -98,7 +98,7 @@ namespace PLEXIL {
      * @brief Default constructor.
      * @note Only available to derived classes.
      */
-    Mutable();
+    NotifierImpl();
 
     /**
      * @brief Make this expression active.  It will publish value changes and it will accept
@@ -127,8 +127,8 @@ namespace PLEXIL {
 
   private:
     // Not implemented
-    Mutable(const Mutable &);
-    Mutable &operator=(const Mutable &);
+    NotifierImpl(const NotifierImpl &);
+    NotifierImpl &operator=(const NotifierImpl &);
 
     // Essential member variables
     std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
@@ -137,4 +137,4 @@ namespace PLEXIL {
 
 } // namespace PLEXIL
 
-#endif // PLEXIL_MUTABLE_HH
+#endif // PLEXIL_NOTIFIER_IMPL_HH

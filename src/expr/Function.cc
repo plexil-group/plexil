@@ -31,7 +31,7 @@ namespace PLEXIL
 {
   template <typename R>
   Function<R>::Function(const Operator<R> *op)
-    : Mutable(),
+    : NotifierImpl(),
       m_op(op),
       m_valueCache(new R())
   {

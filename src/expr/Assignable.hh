@@ -27,7 +27,7 @@
 #ifndef PLEXIL_ASSIGNABLE_HH
 #define PLEXIL_ASSIGNABLE_HH
 
-#include "Mutable.hh"
+#include "NotifierImpl.hh"
 
 namespace PLEXIL {
   
@@ -37,10 +37,10 @@ namespace PLEXIL {
 
   /**
    * @class Assignable
-   * @brief Base class for all expressions which can be assigned to by a plan.
+   * @brief Mixin class for all expressions which can be assigned to by a plan.
    * @note Examples include variables, array references, aliases for InOut variables, etc.
    */
-  class Assignable : public Mutable
+  class Assignable : public virtual Expression
   {
   public:
 
@@ -59,10 +59,6 @@ namespace PLEXIL {
       return m_aid;
     }
 
-    /**
-     * @brief Query whether this expression is assignable.
-     * @return True if assignable, false otherwise.
-     */
     bool isAssignable() const;
 
     //
@@ -75,37 +71,6 @@ namespace PLEXIL {
      *        created.
      */
     virtual void reset() = 0;
-
-    //
-    // The setInitial... methods are necessary because the initial value of the variable
-    // may not be known at the time it is constructed, e.g. if it is dependent on another
-    // variable's value.
-    //
-
-    /**
-     * @brief Set the initial and current values of this variable to "unknown".
-     * @note No change notification will occur.
-     */
-    virtual void setInitialUnknown() = 0;
-
-    /**
-     * @brief Set the initial and current values of this expression.
-     * @param val The new value for this expression.
-     * @note No change notification will occur.
-     * @note Each default method reports a type error.
-     */
-    virtual void setInitialValue(const bool &val);
-    virtual void setInitialValue(const uint16_t &val);
-    virtual void setInitialValue(const int32_t &val);
-    virtual void setInitialValue(const double &val);
-    virtual void setInitialValue(const std::string &val);
-    virtual void setInitialValue(const char *val);
-
-    virtual void setInitialValue(const std::vector<bool> &val);
-    //virtual void setInitialValue(const std::vector<uint16_t> &val);
-    virtual void setInitialValue(const std::vector<int32_t> &val);
-    virtual void setInitialValue(const std::vector<double> &val);
-    virtual void setInitialValue(const std::vector<std::string> &val);
 
     /**
      * @brief Set the current value of this variable to "unknown".
@@ -127,10 +92,16 @@ namespace PLEXIL {
     virtual void setValue(const char *val);
 
     virtual void setValue(const std::vector<bool> &val);
-    //virtual void setValue(const std::vector<uint16_t> &val);
     virtual void setValue(const std::vector<int32_t> &val);
     virtual void setValue(const std::vector<double> &val);
     virtual void setValue(const std::vector<std::string> &val);
+
+    /**
+     * @brief Set the value for this expression from another expression.
+     * @param valex The expression from which to obtain the new value.
+     * @note May cause change notifications to occur.
+     */
+    virtual void setValue(ExpressionId const &valex) = 0;
     
     // FIXME
     /**
@@ -151,6 +122,27 @@ namespace PLEXIL {
     virtual bool checkValue(const std::vector<int32_t> &val);
     virtual bool checkValue(const std::vector<double> &val);
     virtual bool checkValue(const std::vector<std::string> &val);
+
+    /**
+     * @brief Get a (non-const) pointer to the value.
+     * @param ptr Variable into which to store the pointer.
+     * @return True if successful, false otherwise.
+     * @note Intended for use by array references.
+     * @note Each default method reports a type error.
+     */
+    virtual bool getMutableValuePointer(std::vector<bool> *& ptr);
+    virtual bool getMutableValuePointer(std::vector<int32_t> *& ptr);
+    virtual bool getMutableValuePointer(std::vector<double> *& ptr);
+    virtual bool getMutableValuePointer(std::vector<std::string> *& ptr);
+
+    /**
+     * @brief Get a pointer to the vector of element-known flags.
+     * @param ptr Place to store the pointer.
+     * @return True if array value itself is known, false if unknown or invalid.
+     * @note Return value of false means no pointer was assigned.
+     * @note This class provides default method.
+     */
+    bool getMutableKnownVectorPointer(std::vector<bool> *&ptr);
 
     /**
      * @brief Temporarily stores the previous value of this variable.
@@ -179,10 +171,10 @@ namespace PLEXIL {
 
     /**
      * @brief Get the real variable for which this may be a proxy.
-     * @return The ExpressionId of the base variable
+     * @return The AssignableId of the base variable
      * @note Used by the assignment node conflict resolution logic.
      */
-    virtual const ExpressionId& getBaseVariable() const = 0;
+    virtual const AssignableId& getBaseVariable() const = 0;
 
   private:
 

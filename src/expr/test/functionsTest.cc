@@ -177,6 +177,12 @@ static bool testUnaryPropagation()
   // reactivate inty
   inty.activate();
 
+  // Assign again (activation reinitialized variable values)
+  treu.setValue(false);
+  fortytwo.setValue(43);
+  pie.setValue(2.718);
+  fou.setValue(std::string("fu"));
+
   bool boolv;
   int32_t intv;
   double dubv;
@@ -195,10 +201,10 @@ static bool testUnaryPropagation()
   assertTrue_1(strv == std::string("fu"));
 
   // Check propagation does happen when active
-  treu.reset();
-  fortytwo.reset();
-  pie.reset();
-  fou.reset();
+  treu.setUnknown();
+  fortytwo.setUnknown();
+  pie.setUnknown();
+  fou.setUnknown();
 
   assertTrue_1(bchanged);
   assertTrue_1(ichanged);
@@ -279,11 +285,12 @@ static bool testBinaryBasics()
   assertTrue_1(itemp == 3);
   assertTrue_1(rtemp == 7);
 
-  // No notifications should have happened yet
-  assertTrue_1(!ichanged);
-  assertTrue_1(!rchanged);
+  // Notifications should have happened upon activation
+  assertTrue_1(ichanged);
+  assertTrue_1(rchanged);
 
   // Set the variables unknown and check that they and epxressions are now unknown
+  ichanged = rchanged = false;
   won.setUnknown();
   tree.setUnknown();
   assertTrue_1(!won.isKnown());
@@ -301,8 +308,12 @@ static bool testBinaryBasics()
   ichanged = rchanged = false;
 
   // Reset variables, check that values are known and reasonable
+  won.deactivate();
+  tree.deactivate();
   won.reset();
   tree.reset();
+  won.activate();
+  tree.activate();
   assertTrue_1(won.isKnown());
   assertTrue_1(tree.isKnown());
   assertTrue_1(intFn.isKnown());
@@ -400,11 +411,12 @@ static bool testNaryBasics()
   assertTrue_1(itemp == 6);
   assertTrue_1(rtemp == 16);
 
-  // No notifications should have happened yet
-  assertTrue_1(!ichanged);
-  assertTrue_1(!rchanged);
+  // notifications should have happened upon activation
+  assertTrue_1(ichanged);
+  assertTrue_1(rchanged);
 
   // Set the variables unknown and check that they and epxressions are now unknown
+  ichanged = rchanged = false;
   tree.setUnknown();
   fivefive.setUnknown();
   assertTrue_1(!tree.isKnown());
@@ -422,8 +434,12 @@ static bool testNaryBasics()
   ichanged = rchanged = false;
 
   // Reset variables, check that values are known and reasonable
+  tree.deactivate();
+  fivefive.deactivate();
   tree.reset();
   fivefive.reset();
+  tree.activate();
+  fivefive.activate();
   assertTrue_1(tree.isKnown());
   assertTrue_1(fivefive.isKnown());
   assertTrue_1(intFn.isKnown());

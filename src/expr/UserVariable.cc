@@ -30,6 +30,7 @@
 
 #include "UserVariable.hh"
 
+#include "Constant.hh"
 #include "Error.hh"
 //#include "Node.hh"
 
@@ -37,39 +38,42 @@ namespace PLEXIL {
 
   template <typename T>
   UserVariable<T>::UserVariable()
-    : Assignable(),
+    : NotifierImpl(),
       ExpressionImpl<T>(),
+      Assignable(),
       m_name("anonymous"),
       m_known(false),
-      m_initialKnown(false),
       m_savedKnown(false)
   {
   }
 
   template <typename T>
   UserVariable<T>::UserVariable(const T &initVal)
-    : Assignable(),
-      ExpressionImpl<T>(),
-      m_name("anonymous"),
-      m_value(initVal),
-      m_initialValue(initVal),
-      m_savedValue(initVal),
-      m_known(true),
-      m_initialKnown(true),
-      m_savedKnown(true)
+  : NotifierImpl(),
+    ExpressionImpl<T>(),
+    Assignable(),
+    m_initializer((new Constant<T>(initVal))->getId()),
+    m_name("anonymous"),
+    m_known(false),
+    m_savedKnown(false),
+    m_initializerIsGarbage(true)
   {
   }
 
   template <typename T>
   UserVariable<T>::UserVariable(const NodeId &node,
-                                const std::string &name)
-    : Assignable(),
+                                const std::string &name,
+                                const ExpressionId &initializer,
+                                bool initializerIsGarbage)
+    : NotifierImpl(),
       ExpressionImpl<T>(),
+      Assignable(),
+      m_initializer(initializer),
       m_node(node),
       m_name(name),
       m_known(false),
-      m_initialKnown(false),
-      m_savedKnown(false)
+      m_savedKnown(false),
+      m_initializerIsGarbage(initializerIsGarbage)
   {
   }
     
@@ -80,6 +84,8 @@ namespace PLEXIL {
   template <typename T>
   UserVariable<T>::~UserVariable()
   {
+    if (m_initializerIsGarbage)
+      delete (Expression *) m_initializer;
   }
 
   //
@@ -95,13 +101,13 @@ namespace PLEXIL {
   template <typename T>
   bool UserVariable<T>::isKnown() const
   {
-    return isActive() && m_known;
+    return this->isActive() && m_known;
   }
 
   template <typename T>
   bool UserVariable<T>::getValueImpl(T &result) const
   {
-    if (!isActive())
+    if (!this->isActive())
       return false;
     if (m_known)
       result = m_value;
@@ -111,7 +117,7 @@ namespace PLEXIL {
   template <typename T>
   bool UserVariable<T>::getValuePointerImpl(T const *&ptr) const
   {
-    if (!isActive())
+    if (!this->isActive())
       return false;
     if (m_known)
       ptr = &m_value;
@@ -119,11 +125,102 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  void UserVariable<T>::setInitialValue(const T &value)
+  bool UserVariable<T>::getMutableValuePointer(T *&ptr)
   {
-    assertTrue_2(checkValue(value), "setInitialValue: Value is invalid for this variable");
-    m_initialValue = m_value = value;
-    m_initialKnown = m_known = true;
+    if (!this->isActive())
+      return false;
+    if (m_known)
+      ptr = &m_value;
+    return m_known;
+  }
+
+  // A variable takes its initial value when first activated,
+  // or after being reset and reactivated.
+  template <typename T>
+  void UserVariable<T>::handleActivate()
+  {
+    if (m_initializer.isId())
+      m_known = m_initializer->getValue(m_value);
+    if (m_known)
+      this->publishChange();
+  }
+
+  // Let the derived class handle these.
+  // C++ sucks.
+  template <>
+  void UserVariable<std::vector<bool> >::handleActivate()
+  {
+    assertTrue_2(ALWAYS_FAIL, "Base class handleActivate method called on array variable");
+  }
+
+  template <>
+  void UserVariable<std::vector<int32_t> >::handleActivate()
+  {
+    assertTrue_2(ALWAYS_FAIL, "Base class handleActivate method called on array variable");
+  }
+
+  template <>
+  void UserVariable<std::vector<double> >::handleActivate()
+  {
+    assertTrue_2(ALWAYS_FAIL, "Base class handleActivate method called on array variable");
+  }
+
+  template <>
+  void UserVariable<std::vector<std::string> >::handleActivate()
+  {
+    assertTrue_2(ALWAYS_FAIL, "Base class handleActivate method called on array variable");
+  }
+
+  template <typename T>
+  void UserVariable<T>::setValue(ExpressionId const &valex)
+  {
+    assertTrue_2(this->isActive(), "setValue while inactive");
+    T newval;
+    if (valex->getValue(newval))
+      setValue(newval);
+    else 
+      setUnknown();
+  }
+
+  // C++ sucks.
+  template <>
+  void UserVariable<std::vector<bool> >::setValue(ExpressionId const &valex)
+  {
+    std::vector<bool> const *newvalptr;
+    if (valex->getValuePointer(newvalptr))
+      setValue(*newvalptr);
+    else 
+      setUnknown();
+  }
+
+  template <>
+  void UserVariable<std::vector<int32_t> >::setValue(ExpressionId const &valex)
+  {
+    std::vector<int32_t> const *newvalptr;
+    if (valex->getValuePointer(newvalptr))
+      setValue(*newvalptr);
+    else 
+      setUnknown();
+  }
+
+  template <>
+  void UserVariable<std::vector<double> >::setValue(ExpressionId const &valex)
+  {
+    std::vector<double> const *newvalptr;
+    if (valex->getValuePointer(newvalptr))
+      setValue(*newvalptr);
+    else 
+      setUnknown();
+  }
+
+  template <>
+  void UserVariable<std::vector<std::string> >::setValue(ExpressionId const &valex)
+  {
+    std::vector<std::string> const *newvalptr;
+    if (valex->getValuePointer(newvalptr))
+      setValue(*newvalptr);
+    else 
+      setUnknown();
   }
 
   template <typename T>
@@ -138,12 +235,6 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  void UserVariable<T>::setInitialUnknown()
-  {
-    m_initialKnown = m_known = false;
-  }
-
-  template <typename T>
   void UserVariable<T>::setUnknown()
   {
     bool changed = m_known;
@@ -152,15 +243,12 @@ namespace PLEXIL {
       this->publishChange();
   }
 
+  // This should only be called when inactive, therefore doesn't need to report changes.
   template <typename T>
   void UserVariable<T>::reset()
   {
-    bool changed = ((m_known != m_initialKnown)
-                    || (m_known && m_initialKnown && (m_value != m_initialValue)));
-    m_savedValue = m_value = m_initialValue;
-    m_savedKnown = m_known = m_initialKnown;
-    if (changed)
-      this->publishChange();
+    assertTrue_2(!this->isActive(), "UserVariable: reset while active");
+    m_savedKnown = m_known = false;
   }
 
   template <typename T>
@@ -170,6 +258,7 @@ namespace PLEXIL {
     m_savedKnown = m_known;
   }
 
+  // Should only be called when active.
   template <typename T>
   void UserVariable<T>::restoreSavedValue()
   {
@@ -193,35 +282,10 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  const ExpressionId& UserVariable<T>::getBaseVariable() const
+  const AssignableId& UserVariable<T>::getBaseVariable() const
   {
-    return Expression::getId();
+    return Assignable::getAssignableId();
   }
-
-  //
-  // For access by array variables
-  //
-  template <typename T>
-  T &UserVariable<T>::getValueReference()
-  {
-    return m_value;
-  }
-  
-  //
-  // Explicit instantiations
-  //
-
-  template class UserVariable<bool>;
-  // template class UserVariable<uint16_t>;
-  template class UserVariable<int32_t>;
-  template class UserVariable<double>;
-  //template class UserVariable<std::string>;
-
-  template class UserVariable<std::vector<bool> >;
-  // template class UserVariable<std::vector<uint16_t> >;
-  template class UserVariable<std::vector<int32_t> >;
-  template class UserVariable<std::vector<double> >;
-  template class UserVariable<std::vector<std::string> >;
 
   //
   // Specializations
@@ -242,29 +306,20 @@ namespace PLEXIL {
   }
 
   StringVariable::StringVariable(const char *initVal)
-    : UserVariable<std::string>(std::string(initVal))
+  : UserVariable<std::string>(std::string(initVal))
   {
   }
 
   StringVariable::StringVariable(const NodeId &node,
-                                 const std::string &name)
-    : UserVariable<std::string>(node, name)
+                                 const std::string &name,
+                                 const ExpressionId &init,
+                                 bool initIsGarbage)
+    : UserVariable<std::string>(node, name, init, initIsGarbage)
   {
   }
 
   StringVariable::~StringVariable()
   {
-  }
-
-  void StringVariable::setInitialValue(const char *val)
-  {
-    UserVariable<std::string>::setInitialValue(std::string(val));
-  }
-
-  // Because C++ sucks.
-  void StringVariable::setInitialValue(const std::string &val)
-  {
-    UserVariable<std::string>::setInitialValue(val);
   }
 
   void StringVariable::setValue(const char *val)
@@ -277,5 +332,21 @@ namespace PLEXIL {
   {
     UserVariable<std::string>::setValue(val);
   }
+  
+  //
+  // Explicit instantiations
+  //
+
+  template class UserVariable<bool>;
+  // template class UserVariable<uint16_t>;
+  template class UserVariable<int32_t>;
+  template class UserVariable<double>;
+  // see above for string variables
+
+  // Required by ArrayVariable
+  template class UserVariable<std::vector<bool> >;
+  template class UserVariable<std::vector<int32_t> >;
+  template class UserVariable<std::vector<double> >;
+  template class UserVariable<std::vector<std::string> >;
 
 } // namespace PLEXIL

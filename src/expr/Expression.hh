@@ -46,6 +46,9 @@
 //
 // TODO:
 //  - Flush Ids!
+//  - Move dependency on ExpressionListener somewhere else when Ids are flushed
+//    Some expressions (notably Constant and derivatives thereof, nullary functions)
+//    don't need it.
 //
 
 namespace PLEXIL
@@ -55,6 +58,8 @@ namespace PLEXIL
   // Forward references
   //
 
+  class Assignable;
+  typedef Id<Assignable> AssignableId;
   class Expression;
   typedef Id<Expression> ExpressionId;
   class Node;
@@ -75,6 +80,8 @@ namespace PLEXIL
     {
       return static_cast<const ExpressionId &>(m_id);
     }
+
+    virtual const AssignableId &getAssignableId() const;
 
     //
     // Essential type-invariant Expression API
@@ -142,7 +149,7 @@ namespace PLEXIL
     virtual std::string valueString() const;
 
     //
-    // Expression graph API
+    // Expression notification graph API
     //
 
     /**
@@ -203,8 +210,8 @@ namespace PLEXIL
     /**
      * @brief Retrieve the value of this Expression.
      * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown.
-     * @note The expression value is not copied if the return value is false (unknown).
+     * @return True if known, false if unknown or invalid.
+     * @note The expression value is not copied if the return value is false.
      * @note Derived classes should implement only the appropriate methods.
      * @note Default methods return an error in every case.
      */
@@ -218,16 +225,26 @@ namespace PLEXIL
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown.
-     * @note The pointer is not copied if the return value is false (unknown).
+     * @return True if known, false if unknown or invalid.
+     * @note The pointer is not copied if the return value is false.
      * @note Derived classes should implement only the appropriate method.
      * @note Default methods return an error in every case.
      */
     virtual bool getValuePointer(std::string const *&ptr) const;              // String
+    // Array expressions
     virtual bool getValuePointer(std::vector<bool> const *&ptr) const;        // Boolean array
     virtual bool getValuePointer(std::vector<int32_t> const *&ptr) const;     // Integer array
     virtual bool getValuePointer(std::vector<double> const *&ptr) const;      // Real array
     virtual bool getValuePointer(std::vector<std::string> const *&ptr) const; // String array
+
+    /**
+     * @brief Get a const pointer to the vector of element-known flags.
+     * @param ptr Place to store the pointer.
+     * @return True if array value itself is known, false if unknown or invalid.
+     * @note Return value of false means no pointer was assigned.
+     * @note Implemented only on array-valued expressions.
+     */
+    virtual bool getKnownVectorPointer(std::vector<bool> const *&ptr) const;
 
   private:
 

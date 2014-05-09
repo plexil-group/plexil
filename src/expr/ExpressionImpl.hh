@@ -32,14 +32,16 @@
 namespace PLEXIL
 {
 
-  //
-  // Wrapper providing type conversions for getValue for templatized Expression derivatives
-  //
-  // If you wonder what's going on here, search for "Curiously Recurring Template Pattern".
-  //
+  /**
+   * @class ExpressionAdapter
+   * @brief Adapter (Design Patterns pp. 139-150) around templatized Expression derivatives,
+   *        isolating the Expression API from the implementation.
+   * @note This class should NEVER be explicitly mentioned outside this file.
+   * @note If the template trickery confuses you, do a web search for "Curiously Recurring Template Pattern".
+   */
 
   template <class C>
-  class ExpressionWrapper : public virtual Expression
+  class ExpressionAdapter : public virtual Expression
   {
   public:
 
@@ -105,12 +107,14 @@ namespace PLEXIL
 
   };
 
-  //
-  // Templatized Expression implementations should derive from this template
-  //
+  /**
+   * @class ExpressionImpl
+   * @brief A pure virtual interface mixin class, specializing the expression based on value type.
+   * @note Templatized Expression implementations should derive from this template.
+  */
 
   template <typename T>
-  class ExpressionImpl : public ExpressionWrapper<ExpressionImpl<T> >
+  class ExpressionImpl : public ExpressionAdapter<ExpressionImpl<T> >
   {
   public:
     /**
@@ -154,6 +158,14 @@ namespace PLEXIL
     // Error for wrong type call
     template <typename U>
     bool getValuePointerImpl(U const *&) const;
+
+    /**
+     * @brief Get a const pointer to the vector of element-known flags.
+     * @param ptr Place to store the pointer.
+     * @return True if array value itself is known, false if unknown or invalid.
+     * @note Default method implemented on this class, derived classes can override.
+     */
+    bool getKnownVectorPointer(std::vector<bool> const *&ptr) const;
   };
   
 }

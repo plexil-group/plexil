@@ -24,67 +24,51 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_VALUE_TYPE_HH
-#define PLEXIL_VALUE_TYPE_HH
-
-#include <iosfwd>
-#include <string>
-#include <vector>
+#include "ArrayConstant.hh"
 
 namespace PLEXIL
 {
-
-  //
-  // PLEXIL expression data types
-  //
-
-  enum ValueType {
-      UNKNOWN_TYPE = 0,
-      // User scalar types
-      BOOLEAN_TYPE,
-      INTEGER_TYPE,
-      REAL_TYPE,
-      STRING_TYPE,
-      DATE_TYPE,     // TODO: what format?
-      DURATION_TYPE, //  ""    ""    ""
-      // more to come
-      SCALAR_TYPE_MAX,
-
-      // User array types
-      ARRAY_TYPE_OFFSET = 16, // Not a valid type, but an offset from user types
-      BOOLEAN_ARRAY_TYPE,
-      INTEGER_ARRAY_TYPE,
-      REAL_ARRAY_TYPE,
-      STRING_ARRAY_TYPE,
-      // more to come?
-
-      ARRAY_TYPE_MAX,
-
-      // Internal types
-      INTERNAL_TYPE_OFFSET = 48, // Not a valid type
-      NODE_STATE_TYPE,
-      OUTCOME_TYPE,
-      FAILURE_TYPE,
-      COMMAND_HANDLE_TYPE,
-      // more?
-      TYPE_MAX
-    };
-
-  const std::string &plexilTypeName(ValueType ty);
-
-  bool isUserType(ValueType ty);
-  bool isInternalType(ValueType ty);
-
-  bool isScalarType(ValueType ty);
-  bool isArrayType(ValueType ty);
-  ValueType arrayElementType(ValueType ty);
+  template <typename T>
+  ArrayConstant<T>::ArrayConstant()
+    : Constant<std::vector<T> >()
+  {
+  }
 
   template <typename T>
-  void printValue(const std::vector<T> &, std::ostream &s);
+  ArrayConstant<T>::ArrayConstant(const ArrayConstant &other)
+  : Constant<std::vector<T> >(other),
+    m_elementKnown(other.m_elementKnown)
+  {
+  }
 
   template <typename T>
-  void printValue(const T &, std::ostream &s);
+  ArrayConstant<T>::ArrayConstant(const std::vector<T> &value)
+    : Constant<std::vector<T> >(value),
+      m_elementKnown(value.size(), true)
+  {
+  }
 
-}
+  template <typename T>
+  ArrayConstant<T>::~ArrayConstant()
+  {
+  }
 
-#endif // PLEXIL_VALUE_TYPE_HH
+  template <typename T>
+  bool ArrayConstant<T>::getKnownVectorPointer(std::vector<bool> const *&ptr) const
+  {
+    if (!Constant<std::vector<T> >::m_known)
+      return false;
+    ptr = &m_elementKnown;
+    return true;
+  }
+
+  //
+  // Explicit implementations
+  //
+
+  template class ArrayConstant<bool>;
+  template class ArrayConstant<int32_t>;
+  template class ArrayConstant<double>;
+  template class ArrayConstant<std::string>;
+
+} // namespace PLEXIL

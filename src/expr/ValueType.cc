@@ -26,6 +26,8 @@
 
 #include "ValueType.hh"
 
+#include <iostream>
+
 namespace PLEXIL
 {
 
@@ -94,6 +96,33 @@ namespace PLEXIL
       static const std::string sl_unknown("UNKNOWN_TYPE");
       return sl_unknown;
     }
+  }
+  
+  bool isUserType(ValueType ty)
+  {
+    return (ty > UNKNOWN_TYPE && ty < ARRAY_TYPE_MAX);
+  }
+  
+  bool isInternalType(ValueType ty)
+  {
+    return (ty > INTERNAL_TYPE_OFFSET && ty < TYPE_MAX);
+  }
+
+  bool isScalarType(ValueType ty)
+  {
+    return (ty > UNKNOWN_TYPE && ty < SCALAR_TYPE_MAX);
+  }
+
+  bool isArrayType(ValueType ty)
+  {
+    return (ty > ARRAY_TYPE_OFFSET && ty < ARRAY_TYPE_MAX);
+  }
+
+  ValueType arrayElementType(ValueType ty)
+  {
+    if (ty <= ARRAY_TYPE_OFFSET || ty >= ARRAY_TYPE_MAX)
+      return UNKNOWN_TYPE;
+    return (ValueType) (ty - ARRAY_TYPE_OFFSET);
   }
 
   template <typename T>

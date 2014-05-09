@@ -28,6 +28,8 @@
 #include "TestSupport.hh"
 
 extern bool arithmeticTest();
+extern bool arrayConstantTest();
+extern bool arrayTest();
 extern bool comparisonsTest();
 extern bool constantsTest();
 extern bool functionsTest();
@@ -40,10 +42,12 @@ int main(int argc, char *argv[])
 {
   runTestSuite(listenerTest);
   runTestSuite(constantsTest);
+  runTestSuite(arrayConstantTest);
   runTestSuite(variablesTest);
   runTestSuite(functionsTest);
   runTestSuite(comparisonsTest);
   runTestSuite(arithmeticTest);
+  runTestSuite(arrayTest);
 
   // clean up
   runFinalizers();

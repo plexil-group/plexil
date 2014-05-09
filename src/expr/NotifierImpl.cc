@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Mutable.hh"
+#include "NotifierImpl.hh"
 #include "ExpressionListener.hh"
 
 #include <algorithm> // for std::find()
@@ -32,28 +32,28 @@
 namespace PLEXIL {
 
   //
-  // Mutable
+  // NotifierImpl
   //
 
-  Mutable::Mutable()
+  NotifierImpl::NotifierImpl()
     : Expression(),
       m_outgoingListeners(),
       m_activeCount(0)
   {
   }
 
-  Mutable::~Mutable()
+  NotifierImpl::~NotifierImpl()
   {
     assertTrueMsg(m_outgoingListeners.empty(),
                   "Error: Expression '" << getId() << "' still has outgoing listeners.");
   }
 
-  bool Mutable::isActive() const
+  bool NotifierImpl::isActive() const
   {
     return m_activeCount > 0;
   }
 
-  void Mutable::activate()
+  void NotifierImpl::activate()
   {
     bool changed = (!m_activeCount);
     ++m_activeCount;
@@ -62,15 +62,15 @@ namespace PLEXIL {
     else
       // Check for counter wrap only if active at entry
       assertTrueMsg(m_activeCount,
-                    "Mutable::activate: Active counter overflowed for " << getId());
+                    "NotifierImpl::activate: Active counter overflowed for " << getId());
   }
 
   // No-op default method.
-  void Mutable::handleActivate()
+  void NotifierImpl::handleActivate()
   {
   }
 
-  void Mutable::deactivate()
+  void NotifierImpl::deactivate()
   {
     assertTrueMsg(m_activeCount != 0,
                   "Attempted to deactivate expression " << getId() << " too many times.");
@@ -79,24 +79,24 @@ namespace PLEXIL {
   }
 
   // No-op default method.
-  void Mutable::handleDeactivate()
+  void NotifierImpl::handleDeactivate()
   {
   }
 
-  void Mutable::notifyChanged()
+  void NotifierImpl::notifyChanged()
   {
     if (isActive())
       this->handleChange();
   }
 
   // Default method.
-  void Mutable::handleChange()
+  void NotifierImpl::handleChange()
   {
     this->publishChange();
   }
 
   // *** TODO: determine whether we really need to check for duplicates ***
-  void Mutable::addListener(ExpressionListenerId l)
+  void NotifierImpl::addListener(ExpressionListenerId l)
   {
     // Don't add duplicates
     for (std::vector<ExpressionListenerId>::const_iterator it = m_outgoingListeners.begin();
@@ -104,27 +104,27 @@ namespace PLEXIL {
          ++it)
       if (*it == l) {
 #ifdef EXPRESSION_DEBUG
-        debugMsg("Mutable:addListener", " ignoring duplicate " << l);
+        debugMsg("NotifierImpl:addListener", " ignoring duplicate " << l);
 #endif
         return;
       }
     m_outgoingListeners.push_back(l);
   }
 
-  void Mutable::removeListener(ExpressionListenerId l)
+  void NotifierImpl::removeListener(ExpressionListenerId l)
   {
     std::vector<ExpressionListenerId>::iterator it =
       std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), l);
     if (it == m_outgoingListeners.end()) {
 #ifdef EXPRESSION_DEBUG
-        debugMsg("Mutable:removeListener", " listener " << l << " not found");
+        debugMsg("NotifierImpl:removeListener", " listener " << l << " not found");
 #endif
         return;
     }
     m_outgoingListeners.erase(it);
   }
 
-  void Mutable::publishChange()
+  void NotifierImpl::publishChange()
   {
     if (isActive())
       for (std::vector<ExpressionListenerId>::iterator it = m_outgoingListeners.begin();

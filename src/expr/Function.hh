@@ -28,7 +28,7 @@
 #define PLEXIL_FUNCTION_HH
 
 #include "ExpressionImpl.hh"
-#include "Mutable.hh"
+#include "NotifierImpl.hh"
 #include "Operator.hh"
 
 namespace PLEXIL
@@ -47,7 +47,7 @@ namespace PLEXIL
    */
 
   template <typename R>
-  class Function : public Mutable, public ExpressionImpl<R>
+  class Function : public NotifierImpl, public ExpressionImpl<R>
   {
   public:
     virtual ~Function();

@@ -24,67 +24,64 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_VALUE_TYPE_HH
-#define PLEXIL_VALUE_TYPE_HH
+#ifndef PLEXIL_ARRAY_CONSTANT_HH
+#define PLEXIL_ARRAY_CONSTANT_HH
 
-#include <iosfwd>
-#include <string>
-#include <vector>
+#include "Constant.hh"
 
-namespace PLEXIL
-{
+namespace PLEXIL {
 
-  //
-  // PLEXIL expression data types
-  //
-
-  enum ValueType {
-      UNKNOWN_TYPE = 0,
-      // User scalar types
-      BOOLEAN_TYPE,
-      INTEGER_TYPE,
-      REAL_TYPE,
-      STRING_TYPE,
-      DATE_TYPE,     // TODO: what format?
-      DURATION_TYPE, //  ""    ""    ""
-      // more to come
-      SCALAR_TYPE_MAX,
-
-      // User array types
-      ARRAY_TYPE_OFFSET = 16, // Not a valid type, but an offset from user types
-      BOOLEAN_ARRAY_TYPE,
-      INTEGER_ARRAY_TYPE,
-      REAL_ARRAY_TYPE,
-      STRING_ARRAY_TYPE,
-      // more to come?
-
-      ARRAY_TYPE_MAX,
-
-      // Internal types
-      INTERNAL_TYPE_OFFSET = 48, // Not a valid type
-      NODE_STATE_TYPE,
-      OUTCOME_TYPE,
-      FAILURE_TYPE,
-      COMMAND_HANDLE_TYPE,
-      // more?
-      TYPE_MAX
-    };
-
-  const std::string &plexilTypeName(ValueType ty);
-
-  bool isUserType(ValueType ty);
-  bool isInternalType(ValueType ty);
-
-  bool isScalarType(ValueType ty);
-  bool isArrayType(ValueType ty);
-  ValueType arrayElementType(ValueType ty);
+  /**
+   * @class ArrayConstant
+   * @brief A specialization of Constant for vector-valued constants.
+   */
 
   template <typename T>
-  void printValue(const std::vector<T> &, std::ostream &s);
+  class ArrayConstant : public Constant<std::vector<T> >
+  {
+  public:
+    /**
+     * @brief Default constructor.
+     */
+    ArrayConstant();
 
-  template <typename T>
-  void printValue(const T &, std::ostream &s);
+    /**
+     * @brief Copy constructor.
+     */
+    ArrayConstant(const ArrayConstant &other);
 
-}
+    /**
+     * @brief Constructor from value type.
+     */
+    ArrayConstant(const std::vector<T> &value);
 
-#endif // PLEXIL_VALUE_TYPE_HH
+    /**
+     * @brief Destructor.
+     */
+    virtual ~ArrayConstant();
+
+    /**
+     * @brief Get a const pointer to the vector of element-known flags.
+     * @param ptr Place to store the pointer.
+     * @return True if array value itself is known, false if unknown or invalid.
+     * @note Return value of false means no pointer was assigned.
+     * @note The reason this class exists.
+     */
+    bool getKnownVectorPointer(std::vector<bool> const *&ptr) const;
+
+  private:
+
+    std::vector<bool> m_elementKnown;
+  };
+
+  //
+  // Convenience typedefs
+  //
+  typedef ArrayConstant<bool>        BooleanArrayConstant;
+  typedef ArrayConstant<int32_t>     IntegerArrayConstant;
+  typedef ArrayConstant<double>      RealArrayConstant;
+  typedef ArrayConstant<std::string> StringArrayConstant;
+
+} // namespace PLEXIL
+
+#endif // PLEXIL_ARRAY_CONSTANT_HH

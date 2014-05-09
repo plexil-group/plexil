@@ -40,7 +40,7 @@ namespace PLEXIL {
   // TODO: Support exec listener for assignments
 
   template <typename T>
-  class UserVariable : public Assignable, public ExpressionImpl<T>
+  class UserVariable : public NotifierImpl, public ExpressionImpl<T>, public Assignable
   {
   public:
 
@@ -61,7 +61,9 @@ namespace PLEXIL {
      * @param name The name of this variable in the parent node.
      */
     UserVariable(const NodeId &node,
-                 const std::string &name = "");
+                 const std::string &name = "",
+                 const ExpressionId &initializer = ExpressionId::noId(),
+                 bool initializerIsGarbage = false);
     
     /**
      * @brief Destructor.
@@ -91,23 +93,33 @@ namespace PLEXIL {
     bool getValuePointerImpl(T const *&ptr) const;
 
     /**
-     * @brief Assign the initial value.
-     * @param value The value to assign.
-     * @note Type conversions must go on derived classes.
+     * @brief Retrieve a pointer to the (modifiable) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
      */
-    void setInitialValue(const T &value);
+    bool getMutableValuePointer(T *&ptr);
 
     /**
      * @brief Assign a new value.
      * @param value The value to assign.
      * @note Type conversions must go on derived classes.
      */
-    void setValue(const T &value);
+    void setValue(T const &value);
 
-    void setInitialUnknown();
+    /**
+     * @brief Assign a new value from another expression.
+     * @param valex The expression from which to obtain the new value.
+     */
+    void setValue(ExpressionId const &valex);
 
+    /**
+     * @brief Set the current value unknown.
+     */
     void setUnknown();
 
+    /**
+     * @brief Reset to initial status.
+     */
     void reset();
 
     void saveCurrentValue();
@@ -118,14 +130,19 @@ namespace PLEXIL {
 
     const NodeId &getNode() const;
 
-    const ExpressionId& getBaseVariable() const;
+    const AssignableId& getBaseVariable() const;
+
+    void handleActivate();
+
+    // void handleDeactivate(); // no-op
 
     //
     // For access by array variables
     //
-    T &getValueReference();
 
-  protected: // private?
+  protected:
+
+    ExpressionId m_initializer;
     
     // Only used by LuvListener at present. Eliminate?
     NodeId m_node;
@@ -133,12 +150,11 @@ namespace PLEXIL {
     std::string m_name;
 
     T m_value;
-    T m_initialValue; // for reset()
     T m_savedValue;   // for undoing assignment 
 
     bool m_known;
-    bool m_initialKnown;
     bool m_savedKnown;
+    bool m_initializerIsGarbage;
 
   };
 
@@ -159,18 +175,14 @@ namespace PLEXIL {
     StringVariable(const char *initVal); 
 
     StringVariable(const NodeId &node,
-                   const std::string &name = "");
-    
+                   const std::string &name = "",
+                   const ExpressionId & initializer = ExpressionId::noId(),
+                   bool initializerIsGarbage = false);
+
     /**
      * @brief Destructor.
      */
     virtual ~StringVariable();
-
-    // The reason this class exists.
-    void setInitialValue(const char *value);
-
-    // Necessary because C++ sucks.
-    void setInitialValue(const std::string &value);
 
     // The reason this class exists.
     void setValue(const char *value);
@@ -179,6 +191,12 @@ namespace PLEXIL {
     void setValue(const std::string &value);
   };
 
+  /**
+   * @class ArrayVariable
+   * @brief A class derived from UserVariable, which adds accessors required
+   *        by the ArrayReference and MutableArrayReference expression classes.
+   */
+
   //
   // Convenience typedefs 
   //
@@ -186,11 +204,6 @@ namespace PLEXIL {
   typedef UserVariable<bool>    BooleanVariable;
   typedef UserVariable<int32_t> IntegerVariable;
   typedef UserVariable<double>  RealVariable;
-
-  typedef UserVariable<std::vector<bool> >         BooleanArrayVariable;
-  typedef UserVariable<std::vector<int32_t> >      IntegerArrayVariable;
-  typedef UserVariable<std::vector<double> >       RealArrayVariable;
-  typedef UserVariable<std::vector<std::string> >  StringArrayVariable;
 
 } // namespace PLEXIL
 

@@ -60,7 +60,6 @@ namespace PLEXIL {
     /**
      * @brief Constructor from char *.
      * @note Unimplemented conversions will cause a link time error.
-     * @note This is appropriate for plan loading.
      */
     Constant(const char * value);
 
@@ -159,11 +158,6 @@ namespace PLEXIL {
   typedef Constant<int32_t>     IntegerConstant;
   typedef Constant<double>      RealConstant;
   typedef Constant<std::string> StringConstant;
-
-  typedef Constant<std::vector<bool> >        BooleanArrayConstant;
-  typedef Constant<std::vector<int32_t> >     IntegerArrayConstant;
-  typedef Constant<std::vector<double> >      RealArrayConstant;
-  typedef Constant<std::vector<std::string> > StringArrayConstant;
   
 } // namespace PLEXIL
 
