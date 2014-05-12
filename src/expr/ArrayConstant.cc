@@ -54,11 +54,12 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool ArrayConstant<T>::getKnownVectorPointer(std::vector<bool> const *&ptr) const
+  bool ArrayConstant<T>::getArrayContentsImpl(std::vector<T> const *&valuePtr,
+                                              std::vector<bool> const *&knownPtr) const
   {
-    if (!Constant<std::vector<T> >::m_known)
+    if (!Constant<std::vector<T> >::getValuePointerImpl(valuePtr))
       return false;
-    ptr = &m_elementKnown;
+    knownPtr = &m_elementKnown;
     return true;
   }
 

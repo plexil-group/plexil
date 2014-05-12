@@ -85,24 +85,28 @@ namespace PLEXIL
       return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }
 
-    bool getValuePointer(std::vector<bool> const *&ptr) const
+    bool getArrayContents(std::vector<bool> const *&valuePtr,
+                          std::vector<bool> const *&knownPtr) const
     {
-      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
+      return static_cast<const C *>(this)->getArrayContentsImpl(valuePtr, knownPtr);
     }
 
-    bool getValuePointer(std::vector<int32_t> const *&ptr) const
+    bool getArrayContents(std::vector<int32_t> const *&valuePtr,
+                          std::vector<bool> const *&knownPtr) const
     {
-      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
+      return static_cast<const C *>(this)->getArrayContentsImpl(valuePtr, knownPtr);
     }
 
-    bool getValuePointer(std::vector<double> const *&ptr) const
+    bool getArrayContents(std::vector<double> const *&valuePtr,
+                          std::vector<bool> const *&knownPtr) const
     {
-      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
+      return static_cast<const C *>(this)->getArrayContentsImpl(valuePtr, knownPtr);
     }
 
-    bool getValuePointer(std::vector<std::string> const *&ptr) const
+    bool getArrayContents(std::vector<std::string> const *&valuePtr,
+                          std::vector<bool> const *&knownPtr) const
     {
-      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
+      return static_cast<const C *>(this)->getArrayContentsImpl(valuePtr, knownPtr);
     }
 
   };
@@ -148,8 +152,20 @@ namespace PLEXIL
      * @brief Retrieve the value of this Expression as a pointer to const.
      * @param ptr Reference to the pointer variable.
      * @return True if known, false if unknown.
+     * @note Default method returns false and reports a "not implemented" error.
      */
     virtual bool getValuePointerImpl(T const *& ptr) const = 0;
+
+    /**
+     * @brief Retrieve the value vector and the known vector for array-valued expressions.
+     * @param valuePtr Reference to the pointer variable to receive the value vector.
+     * @param knownPtr Reference to the pointer variable to receive the known vector.
+     * @return True if the value is known, false if unknown or invalid.
+     * @note Default method returns false and reports a "not implemented" error.
+     */
+    virtual bool getArrayContentsImpl(T const *&valuePtr,
+                                      std::vector<bool> const *&knownPtr) const;
+
 
     // Conversion wrapper, error if particular conversion not supported
     template <typename U>
@@ -159,13 +175,10 @@ namespace PLEXIL
     template <typename U>
     bool getValuePointerImpl(U const *&) const;
 
-    /**
-     * @brief Get a const pointer to the vector of element-known flags.
-     * @param ptr Place to store the pointer.
-     * @return True if array value itself is known, false if unknown or invalid.
-     * @note Default method implemented on this class, derived classes can override.
-     */
-    bool getKnownVectorPointer(std::vector<bool> const *&ptr) const;
+    // Default method returns false and reports a type error.
+    template <typename U>
+    bool getArrayContentsImpl(U const *&valuePtr,
+                              std::vector<bool> const *&knownPtr) const;
   };
   
 }

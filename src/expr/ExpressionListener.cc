@@ -26,10 +26,6 @@
 
 #include "ExpressionListener.hh"
 
-#include "Debug.hh"
-#include "Error.hh"
-#include "Expression.hh"
-
 namespace PLEXIL
 {
 

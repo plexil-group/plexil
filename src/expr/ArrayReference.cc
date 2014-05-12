@@ -75,7 +75,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool ArrayReference<T>::selfCheck(std::vector<T> const *&ary,
+  bool ArrayReference<T>::selfCheck(std::vector<T> const *&valuePtr,
                                     size_t &idx) const
   {
     if (!(isActive() && m_array->isActive() && m_index->isActive()))
@@ -88,18 +88,18 @@ namespace PLEXIL
       return false;
     }
     idx = (size_t) idxTemp;
-    if (!m_array->getValuePointer(ary))
-      return false; // array unknown
-    if (idx >= ary->size()) {
+    std::vector<bool> const *knownPtr;
+    if (!m_array->getArrayContents(valuePtr, knownPtr))
+      return false; // array unknown or invalid
+    if (idx >= valuePtr->size()) {
       assertTrue_2(ALWAYS_FAIL, "ArrayReference: Array index exceeds array size");
       return false;
     }
-    std::vector<bool> const *knownAry;
-    if (!m_array->getKnownVectorPointer(knownAry)) {
-      assertTrue_2(ALWAYS_FAIL, "ArrayReference: internal error: known vector");
+    if (idx >= knownPtr->size()) {
+      assertTrue_2(ALWAYS_FAIL, "ArrayReference: Internal error: Known vector smaller than value vector");
       return false;
     }
-    return (*knownAry)[idx];
+    return (*knownPtr)[idx];
   }
 
   template <typename T>
@@ -164,8 +164,8 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool MutableArrayReference<T>::mutableSelfCheck(std::vector<T> *&ary,
-                                                  std::vector<bool> *&knownAry,
+  bool MutableArrayReference<T>::mutableSelfCheck(std::vector<T> *&valuePtr,
+                                                  std::vector<bool> *&knownPtr,
                                                   size_t &idx)
   {
     if (!(isActive()
@@ -180,13 +180,13 @@ namespace PLEXIL
       return false;
     }
     idx = (size_t) idxTemp;
-    if (!m_mutableArray->getMutableValuePointer(ary))
+    if (!m_mutableArray->getMutableArrayContents(valuePtr, knownPtr))
       return false; // array unknown
-    if (idx >= ary->size()) {
+    if (idx >= valuePtr->size()) {
       assertTrue_2(ALWAYS_FAIL, "ArrayReference: Array index exceeds array size");
       return false;
     }
-    if (!m_mutableArray->getMutableKnownVectorPointer(knownAry)) {
+    if (idx >= knownPtr->size()) {
       assertTrue_2(ALWAYS_FAIL, "ArrayReference: internal error: known vector");
       return false;
     }
@@ -205,8 +205,8 @@ namespace PLEXIL
     (*ary)[idx] = value;
     (*knownAry)[idx] = true;
     if (changed) {
-      NotifierImpl::publishChange();
-      m_mutableArray->notifyChanged();
+      NotifierImpl::publishChange(getId());
+      m_mutableArray->notifyChanged(getId());
     }
   }
 
@@ -230,8 +230,8 @@ namespace PLEXIL
       (*knownAry)[idx] = false;
     }
     if (changed) {
-      NotifierImpl::publishChange();
-      m_mutableArray->notifyChanged();
+      NotifierImpl::publishChange(getId());
+      m_mutableArray->notifyChanged(getId());
     }
   }
   template <typename T>
@@ -276,8 +276,8 @@ namespace PLEXIL
     (*knownAry)[idx] = m_savedKnown;
     (*ary)[idx] = m_savedValue;
     if (changed) {
-      NotifierImpl::publishChange();
-      m_mutableArray->notifyChanged();
+      NotifierImpl::publishChange(getId());
+      m_mutableArray->notifyChanged(getId());
     }
   }
 

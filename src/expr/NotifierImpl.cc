@@ -83,31 +83,25 @@ namespace PLEXIL {
   {
   }
 
-  void NotifierImpl::notifyChanged()
+  void NotifierImpl::notifyChanged(ExpressionId src)
   {
-    if (isActive())
-      this->handleChange();
+    if (isActive()) {
+      if (src == getId())
+        return; // prevent infinite looping
+      // Take this out later
+      check_error_2(src.isId(), "notifyChanged: null source");
+      this->handleChange(src);
+    }
   }
 
   // Default method.
-  void NotifierImpl::handleChange()
+  void NotifierImpl::handleChange(ExpressionId src)
   {
-    this->publishChange();
+    this->publishChange(src);
   }
 
-  // *** TODO: determine whether we really need to check for duplicates ***
   void NotifierImpl::addListener(ExpressionListenerId l)
   {
-    // Don't add duplicates
-    for (std::vector<ExpressionListenerId>::const_iterator it = m_outgoingListeners.begin();
-         it != m_outgoingListeners.end();
-         ++it)
-      if (*it == l) {
-#ifdef EXPRESSION_DEBUG
-        debugMsg("NotifierImpl:addListener", " ignoring duplicate " << l);
-#endif
-        return;
-      }
     m_outgoingListeners.push_back(l);
   }
 
@@ -124,13 +118,13 @@ namespace PLEXIL {
     m_outgoingListeners.erase(it);
   }
 
-  void NotifierImpl::publishChange()
+  void NotifierImpl::publishChange(ExpressionId src)
   {
     if (isActive())
       for (std::vector<ExpressionListenerId>::iterator it = m_outgoingListeners.begin();
            it != m_outgoingListeners.end();
            ++it)
-        (*it)->notifyChanged();
+        (*it)->notifyChanged(src);
   }
 
 } // namespace PLEXIL

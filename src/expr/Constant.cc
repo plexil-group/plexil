@@ -194,7 +194,7 @@ namespace PLEXIL {
    * @note No-op for constants.
    */
   template <typename T>
-  void Constant<T>::notifyChanged()
+  void Constant<T>::notifyChanged(ExpressionId /* src */)
   {
   }
 

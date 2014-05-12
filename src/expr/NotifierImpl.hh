@@ -62,16 +62,16 @@ namespace PLEXIL {
     /**
      * @brief Make this expression active.  It will publish value changes and it will accept
      *        incoming change notifications.
-     * @note Default method. Calls handleActivation() if previously inactive.
-     * @see handleActivation()
+     * @note Default method. Calls handleActivate() if previously inactive.
+     * @see handleActivate()
      */
     void activate();
 
     /**
      * @brief Make this Expression inactive.  It will not publish value changes, nor will it
      *        accept incoming change notifications.
-     * @note Default method. Calls handleDeactivation() if transitioning from active to inactive.
-     * @see handleDeactivation()
+     * @note Default method. Calls handleDeactivate() if transitioning from active to inactive.
+     * @see handleDeactivate()
      */
     void deactivate();
 
@@ -90,7 +90,7 @@ namespace PLEXIL {
     /**
      * @brief Notify this expression that a subexpression's value has changed.
      */
-    void notifyChanged();
+    void notifyChanged(ExpressionId src);
 
   protected:
 
@@ -118,12 +118,12 @@ namespace PLEXIL {
      * @brief Called by notifyChanged() when the expression is active.
      * @note Default method calls publishChange().
      */
-    virtual void handleChange();
+    virtual void handleChange(ExpressionId src);
 
     /**
      * @brief Notify all listeners that this expression's value has changed.
      */
-    void publishChange();
+    void publishChange(ExpressionId src);
 
   private:
     // Not implemented

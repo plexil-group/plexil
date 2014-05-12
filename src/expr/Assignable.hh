@@ -83,6 +83,7 @@ namespace PLEXIL {
      * @param val The new value for this expression.
      * @note May cause change notifications to occur.
      * @note Each default method reports a type error.
+     * @deprecated These are being replaced with the setValue(ExpressionId const &) method below.
      */
     virtual void setValue(const double &val);
     virtual void setValue(const int32_t &val);
@@ -124,25 +125,28 @@ namespace PLEXIL {
     virtual bool checkValue(const std::vector<std::string> &val);
 
     /**
-     * @brief Get a (non-const) pointer to the value.
-     * @param ptr Variable into which to store the pointer.
-     * @return True if successful, false otherwise.
-     * @note Intended for use by array references.
-     * @note Each default method reports a type error.
+     * @brief Retrieve a writable ponter to the value.
+     * @param valuePtr Reference to the pointer variable
+     * @return True if the value is known, false if unknown or invalid.
+     * @note Default method returns false and reports a type error.
      */
-    virtual bool getMutableValuePointer(std::vector<bool> *& ptr);
-    virtual bool getMutableValuePointer(std::vector<int32_t> *& ptr);
-    virtual bool getMutableValuePointer(std::vector<double> *& ptr);
-    virtual bool getMutableValuePointer(std::vector<std::string> *& ptr);
+    virtual bool getMutableValuePointer(std::string *& ptr);
 
     /**
-     * @brief Get a pointer to the vector of element-known flags.
-     * @param ptr Place to store the pointer.
-     * @return True if array value itself is known, false if unknown or invalid.
-     * @note Return value of false means no pointer was assigned.
-     * @note This class provides default method.
+     * @brief Retrieve the (writable) value vector and known vector for array-valued expressions.
+     * @param valuePtr Reference to the pointer variable to receive the value vector.
+     * @param knownPtr Reference to the pointer variable to receive the known vector.
+     * @return True if the value is known, false if unknown or invalid.
+     * @note Each default method returns false and reports a type error.
      */
-    bool getMutableKnownVectorPointer(std::vector<bool> *&ptr);
+    virtual bool getMutableArrayContents(std::vector<bool> *&valuePtr,
+                                         std::vector<bool> *&knownPtr);
+    virtual bool getMutableArrayContents(std::vector<int32_t> *&valuePtr,
+                                         std::vector<bool> *&knownPtr);
+    virtual bool getMutableArrayContents(std::vector<double> *&valuePtr,
+                                         std::vector<bool> *&knownPtr);
+    virtual bool getMutableArrayContents(std::vector<std::string> *&valuePtr,
+                                         std::vector<bool> *&knownPtr);
 
     /**
      * @brief Temporarily stores the previous value of this variable.

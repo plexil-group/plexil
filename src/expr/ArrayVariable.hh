@@ -44,7 +44,7 @@ namespace PLEXIL
   public:
     ArrayVariable();
 
-    // Regression testing only
+    // Regression testing only - to be removed
     ArrayVariable(std::vector<T> const & initVal);
 
     /**
@@ -66,14 +66,26 @@ namespace PLEXIL
     void handleActivate();
     void setValue(std::vector<T> const &val);
     void setValue(ExpressionId const &valex);
+    void saveCurrentValue();
+    void restoreSavedValue();
 
     /**
-     * @brief Get a const pointer to the vector of element-known flags.
-     * @param ptr Place to store the pointer.
-     * @return True if array value itself is known, false if unknown or invalid.
-     * @note Return value of false means no pointer was assigned.
+     * @brief Retrieve the value vector and the known vector for array-valued expressions.
+     * @param valuePtr Reference to the pointer variable to receive the value vector.
+     * @param knownPtr Reference to the pointer variable to receive the known vector.
+     * @return True if the value is known, false if unknown or invalid.
      */
-    bool getKnownVectorPointer(std::vector<bool> const *&ptr) const;
+    bool getArrayContentsImpl(std::vector<T> const *&valuePtr,
+                              std::vector<bool> const *&knownPtr) const;
+
+    /**
+     * @brief Retrieve the (writable) value vector and known vector for array-valued expressions.
+     * @param valuePtr Reference to the pointer variable to receive the value vector.
+     * @param knownPtr Reference to the pointer variable to receive the known vector.
+     * @return True if the value is known, false if unknown or invalid.
+     */
+    bool getMutableArrayContents(std::vector<T> *&valuePtr,
+                                 std::vector<bool> *&knownPtr);
 
     /**
      * @brief Get a pointer to the vector of element-known flags.
@@ -84,12 +96,17 @@ namespace PLEXIL
     bool getMutableKnownVectorPointer(std::vector<bool> *&ptr);
 
   private:
+    // Convenience typedefs
+    typedef UserVariable<std::vector<T> > Superclass;
+
     /**
      * @brief Pre-allocate storage based on the current value of the size expression.
      */
     void reserve();
 
     std::vector<bool> m_elementKnown;
+    std::vector<bool> m_savedElementKnown;
+
     ExpressionId m_size;
     bool m_sizeIsGarbage;
   };

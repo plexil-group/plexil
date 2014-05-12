@@ -36,7 +36,7 @@ public:
   ~TrivialListener();
 
 protected:
-  void notifyChanged();
+  void notifyChanged(PLEXIL::ExpressionId /* src */);
 
 private:
   bool& m_changed;

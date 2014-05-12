@@ -95,7 +95,7 @@ namespace PLEXIL {
     /**
      * @brief Retrieve a pointer to the (modifiable) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown.
+     * @return True if known, false if unknown or invalid.
      */
     bool getMutableValuePointer(T *&ptr);
 
@@ -134,11 +134,7 @@ namespace PLEXIL {
 
     void handleActivate();
 
-    // void handleDeactivate(); // no-op
-
-    //
-    // For access by array variables
-    //
+    void handleDeactivate();
 
   protected:
 

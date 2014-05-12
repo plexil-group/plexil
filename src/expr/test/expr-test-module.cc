@@ -29,6 +29,7 @@
 
 extern bool arithmeticTest();
 extern bool arrayConstantTest();
+extern bool arrayReferenceTest();
 extern bool arrayTest();
 extern bool comparisonsTest();
 extern bool constantsTest();
@@ -44,10 +45,11 @@ int main(int argc, char *argv[])
   runTestSuite(constantsTest);
   runTestSuite(arrayConstantTest);
   runTestSuite(variablesTest);
+  runTestSuite(arrayTest);
+  runTestSuite(arrayReferenceTest);
   runTestSuite(functionsTest);
   runTestSuite(comparisonsTest);
   runTestSuite(arithmeticTest);
-  runTestSuite(arrayTest);
 
   // clean up
   runFinalizers();

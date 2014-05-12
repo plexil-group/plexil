@@ -29,15 +29,45 @@
 
 namespace PLEXIL
 {
-  /**
-   * @brief Query whether the expression's value is known.
-   * @return True if known, false otherwise.
-   */
+  // Default method.
+  // FIXME: probably need individual methods for array types.
   template <typename T>
   bool ExpressionImpl<T>::isKnown() const
   {
     T dummy;
     return this->getValueImpl(dummy);
+  }
+
+  template <>
+  bool ExpressionImpl<std::vector<bool> >::isKnown() const
+  {
+    std::vector<bool> const *valueDummy;
+    std::vector<bool> const *knownDummy;
+    return this->getArrayContentsImpl(valueDummy, knownDummy);
+  }
+
+  template <>
+  bool ExpressionImpl<std::vector<int32_t> >::isKnown() const
+  {
+    std::vector<int32_t> const *valueDummy;
+    std::vector<bool> const *knownDummy;
+    return this->getArrayContentsImpl(valueDummy, knownDummy);
+  }
+
+  template <>
+  bool ExpressionImpl<std::vector<double> >::isKnown() const
+  {
+    std::vector<double> const *valueDummy;
+    std::vector<bool> const *knownDummy;
+    return this->getArrayContentsImpl(valueDummy, knownDummy);
+  }
+
+  template <>
+  bool ExpressionImpl<std::vector<std::string> >::isKnown() const
+  {
+    std::vector<std::string> const *valueDummy;
+    std::vector<bool> const *knownDummy;
+    return this->getArrayContentsImpl(valueDummy, knownDummy);
   }
 
   // Default method.
@@ -114,7 +144,7 @@ namespace PLEXIL
   template <typename U>
   bool ExpressionImpl<T>::getValueImpl(U &result) const
   {
-    check_error_2(ALWAYS_FAIL, "getValue type error");
+    check_error_2(ALWAYS_FAIL, "getValue: value type error");
     return false;
   }
 
@@ -135,20 +165,24 @@ namespace PLEXIL
   template <typename U>
   bool ExpressionImpl<T>::getValuePointerImpl(U const *& /* ptr */) const
   {
-    check_error_2(ALWAYS_FAIL, "getValuePointer type error");
+    check_error_2(ALWAYS_FAIL, "getValuePointer: value type error");
     return false;
   }
 
-  /**
-   * @brief Get a const pointer to the vector of element-known flags.
-   * @param ptr Place to store the pointer.
-   * @return True if array value itself is known, false if unknown or invalid.
-   * @note Default method.
-   */
   template <typename T>
-  bool ExpressionImpl<T>::getKnownVectorPointer(std::vector<bool> const *&ptr) const
+  bool ExpressionImpl<T>::getArrayContentsImpl(T const *& /* valuePtr */,
+                                               std::vector<bool> const *& /* knownPtr */) const
   {
-    check_error_2(ALWAYS_FAIL, "getKnownVectorPointer not implemented for this expression");
+    check_error_2(ALWAYS_FAIL, "getArrayContents not implemented for this expression");
+    return false;
+  }
+
+  template <typename T>
+  template <typename U>
+  bool ExpressionImpl<T>::getArrayContentsImpl(U const *& /* valuePtr */,
+                                               std::vector<bool> const *& /* knownPtr */) const
+  {
+    check_error_2(ALWAYS_FAIL, "getArrayContents: value type error");
     return false;
   }
 

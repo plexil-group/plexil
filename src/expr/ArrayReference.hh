@@ -85,7 +85,7 @@ namespace PLEXIL {
     ArrayReference &operator=(const ArrayReference &);
 
     // Internal function
-    bool selfCheck(std::vector<T> const *&ary,
+    bool selfCheck(std::vector<T> const *&valuePtr,
                    size_t &idx) const;
   };
 

@@ -139,14 +139,15 @@ namespace PLEXIL {
   template <typename T>
   void UserVariable<T>::handleActivate()
   {
-    if (m_initializer.isId())
+    if (m_initializer.isId()) {
+      m_initializer->activate();
       m_known = m_initializer->getValue(m_value);
+    }
     if (m_known)
-      this->publishChange();
+      this->publishChange(getId());
   }
 
   // Let the derived class handle these.
-  // C++ sucks.
   template <>
   void UserVariable<std::vector<bool> >::handleActivate()
   {
@@ -172,6 +173,14 @@ namespace PLEXIL {
   }
 
   template <typename T>
+  void UserVariable<T>::handleDeactivate()
+  {
+    if (m_initializer.isId())
+      m_initializer->deactivate();
+  }
+
+
+  template <typename T>
   void UserVariable<T>::setValue(ExpressionId const &valex)
   {
     assertTrue_2(this->isActive(), "setValue while inactive");
@@ -186,41 +195,25 @@ namespace PLEXIL {
   template <>
   void UserVariable<std::vector<bool> >::setValue(ExpressionId const &valex)
   {
-    std::vector<bool> const *newvalptr;
-    if (valex->getValuePointer(newvalptr))
-      setValue(*newvalptr);
-    else 
-      setUnknown();
+    assertTrue_2(ALWAYS_FAIL, "setValue implemented by derived class");
   }
 
   template <>
-  void UserVariable<std::vector<int32_t> >::setValue(ExpressionId const &valex)
+  void UserVariable<std::vector<int32_t> >::setValue(ExpressionId const & /* valex */)
   {
-    std::vector<int32_t> const *newvalptr;
-    if (valex->getValuePointer(newvalptr))
-      setValue(*newvalptr);
-    else 
-      setUnknown();
+    assertTrue_2(ALWAYS_FAIL, "setValue type error");
   }
 
   template <>
-  void UserVariable<std::vector<double> >::setValue(ExpressionId const &valex)
+  void UserVariable<std::vector<double> >::setValue(ExpressionId const & /* valex */)
   {
-    std::vector<double> const *newvalptr;
-    if (valex->getValuePointer(newvalptr))
-      setValue(*newvalptr);
-    else 
-      setUnknown();
+    assertTrue_2(ALWAYS_FAIL, "setValue type error");
   }
 
   template <>
-  void UserVariable<std::vector<std::string> >::setValue(ExpressionId const &valex)
+  void UserVariable<std::vector<std::string> >::setValue(ExpressionId const & /* valex */)
   {
-    std::vector<std::string> const *newvalptr;
-    if (valex->getValuePointer(newvalptr))
-      setValue(*newvalptr);
-    else 
-      setUnknown();
+    assertTrue_2(ALWAYS_FAIL, "setValue type error");
   }
 
   template <typename T>
@@ -231,7 +224,7 @@ namespace PLEXIL {
     m_value = value;
     m_known = true;
     if (changed)
-      this->publishChange();
+      this->publishChange(getId());
   }
 
   template <typename T>
@@ -240,7 +233,7 @@ namespace PLEXIL {
     bool changed = m_known;
     m_known = false;
     if (changed)
-      this->publishChange();
+      this->publishChange(getId());
   }
 
   // This should only be called when inactive, therefore doesn't need to report changes.
@@ -266,7 +259,7 @@ namespace PLEXIL {
     m_value = m_savedValue;
     m_known = m_savedKnown;
     if (changed)
-      this->publishChange();
+      this->publishChange(getId());
   }
 
   template <typename T>

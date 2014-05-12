@@ -136,7 +136,7 @@ namespace PLEXIL {
      * @brief Notify this expression that a subexpression's value has changed.
      * @note No-op for constants.
      */
-    void notifyChanged();
+    void notifyChanged(ExpressionId /* src */);
 
   protected:
 

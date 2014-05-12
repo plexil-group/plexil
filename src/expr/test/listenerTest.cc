@@ -44,9 +44,9 @@ public:
   }
 
 protected:
-  void notifyChanged()
+  void notifyChanged(PLEXIL::ExpressionId src)
   {
-    m_owner->notifyChanged();
+    m_owner->notifyChanged(src);
   }
 
 private:
@@ -68,12 +68,11 @@ public:
     m_listener = l;
   }
 
-  void handleChange()
+  // Only ever called when active
+  void handleChange(PLEXIL::ExpressionId src)
   {
-    if (isActive()) {
-      changed = true;
-      publishChange();
-    }
+    changed = true;
+    publishChange(src);
   }
 
   const char *exprName() const { return "trivial"; }
@@ -97,6 +96,7 @@ static bool testListenerPropagation()
   // Test setup
   TrivialExpression source;
   TrivialExpression dest;
+  TrivialExpression dummy;
   PropagatingListener p(dest.getId());
   source.addListener(p.getId());
   dest.setListener(p.getId());
@@ -114,10 +114,10 @@ static bool testListenerPropagation()
   assertTrue_1(!dest.changed);
 
   // Test that notifications do nothing when expressions inactive
-  source.notifyChanged();
+  source.notifyChanged(dummy.getId());
   assertTrue_1(!source.changed);
   assertTrue_1(!dest.changed);
-  dest.notifyChanged();
+  dest.notifyChanged(dummy.getId());
   assertTrue_1(!dest.changed);
   assertTrue_1(!transitiveChanged);
 
@@ -127,7 +127,7 @@ static bool testListenerPropagation()
   assertTrue_1(!dest.changed);
 
   // Test that handleChange works locally
-  dest.notifyChanged();
+  dest.notifyChanged(dummy.getId());
   assertTrue_1(dest.changed);
   assertTrue_1(transitiveChanged);
 
@@ -139,7 +139,7 @@ static bool testListenerPropagation()
   assertTrue_1(source.isActive());
 
   // Test propagation
-  source.notifyChanged();
+  source.notifyChanged(dummy.getId());
   assertTrue_1(source.changed);
   assertTrue_1(dest.changed);
   assertTrue_1(transitiveChanged);
@@ -149,7 +149,7 @@ static bool testListenerPropagation()
 
   // Test no propagation through dest when inactive
   dest.deactivate();
-  source.notifyChanged();
+  source.notifyChanged(dummy.getId());
   assertTrue_1(!dest.changed);
   assertTrue_1(!transitiveChanged);
 
@@ -165,6 +165,7 @@ static bool testDirectPropagation()
   // Test setup
   TrivialExpression source;
   TrivialExpression dest;
+  TrivialExpression dummy;
   source.addListener(dest.getId());
 
   // Test that all are initialized to inactive,
@@ -177,10 +178,10 @@ static bool testDirectPropagation()
   assertTrue_1(!dest.changed);
 
   // Test that notifications do nothing when expressions inactive
-  source.notifyChanged();
+  source.notifyChanged(dummy.getId());
   assertTrue_1(!source.changed);
   assertTrue_1(!dest.changed);
-  dest.notifyChanged();
+  dest.notifyChanged(dummy.getId());
   assertTrue_1(!dest.changed);
 
   // Activate dest, ensure it is active
@@ -189,7 +190,7 @@ static bool testDirectPropagation()
   assertTrue_1(!dest.changed);
 
   // Test that handleChange works locally
-  dest.notifyChanged();
+  dest.notifyChanged(dummy.getId());
   assertTrue_1(dest.changed);
 
   // Reset changed flag
@@ -200,7 +201,7 @@ static bool testDirectPropagation()
   assertTrue_1(source.isActive());
 
   // Test propagation
-  source.notifyChanged();
+  source.notifyChanged(dummy.getId());
   assertTrue_1(source.changed);
   assertTrue_1(dest.changed);
 
@@ -209,7 +210,7 @@ static bool testDirectPropagation()
 
   // Test no propagation through dest when inactive
   dest.deactivate();
-  source.notifyChanged();
+  source.notifyChanged(dummy.getId());
   assertTrue_1(!dest.changed);
 
   // Clean up

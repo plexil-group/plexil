@@ -61,16 +61,15 @@ namespace PLEXIL {
     virtual ~ArrayConstant();
 
     /**
-     * @brief Get a const pointer to the vector of element-known flags.
-     * @param ptr Place to store the pointer.
-     * @return True if array value itself is known, false if unknown or invalid.
-     * @note Return value of false means no pointer was assigned.
-     * @note The reason this class exists.
+     * @brief Retrieve the value vector and the known vector for array-valued expressions.
+     * @param valuePtr Reference to the pointer variable to receive the value vector.
+     * @param knownPtr Reference to the pointer variable to receive the known vector.
+     * @return True if the value is known, false if unknown or invalid.
      */
-    bool getKnownVectorPointer(std::vector<bool> const *&ptr) const;
+    bool getArrayContentsImpl(std::vector<T> const *&valuePtr,
+                              std::vector<bool> const *&knownPtr) const;
 
   private:
-
     std::vector<bool> m_elementKnown;
   };
 

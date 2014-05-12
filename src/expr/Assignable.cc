@@ -112,27 +112,9 @@ namespace PLEXIL {
   //
   // getMutableValuePointer() default methods
   //
-  bool Assignable::getMutableValuePointer(std::vector<bool> *& /* ptr */)
+  bool Assignable::getMutableValuePointer(std::string *& /* ptr */)
   {
-    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Variable is not a BooleanArray");
-    return false;
-  }
-
-  bool Assignable::getMutableValuePointer(std::vector<int32_t> *& /* ptr */)
-  {
-    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Variable is not a BooleanArray");
-    return false;
-  }
-
-  bool Assignable::getMutableValuePointer(std::vector<double> *& /* ptr */)
-  {
-    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Variable is not a BooleanArray");
-    return false;
-  }
-
-  bool Assignable::getMutableValuePointer(std::vector<std::string> *& /* ptr */)
-  {
-    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Variable is not a BooleanArray");
+    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
     return false;
   }
 
@@ -195,15 +177,31 @@ namespace PLEXIL {
     assertTrue_2(ALWAYS_FAIL, "setValue: String is not a valid type for this expression");
   }
 
-  /**
-   * @brief Get a pointer to the vector of element-known flags.
-   * @param ptr Place to store the pointer.
-   * @return True if array value itself is known, false if unknown or invalid.
-   * @note Default method.
-   */
-  bool Assignable::getMutableKnownVectorPointer(std::vector<bool> *&ptr)
+  bool Assignable::getMutableArrayContents(std::vector<bool> *& /* valuePtr */,
+                                           std::vector<bool> *& /* knownPtr */)
   {
-    check_error_2(ALWAYS_FAIL, "getMutableKnownVectorPointer not implemented for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getMutableArrayContents: value type error");
+    return false;
+  }
+
+  bool Assignable::getMutableArrayContents(std::vector<int32_t> *& /* valuePtr */,
+                                           std::vector<bool> *& /* knownPtr */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "getMutableArrayContents: value type error");
+    return false;
+  }
+
+  bool Assignable::getMutableArrayContents(std::vector<double> *& /* valuePtr */,
+                                           std::vector<bool> *& /* knownPtr */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "getMutableArrayContents: value type error");
+    return false;
+  }
+
+  bool Assignable::getMutableArrayContents(std::vector<std::string> *& /* valuePtr */,
+                                           std::vector<bool> *& /* knownPtr */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "getMutableArrayContents: value type error");
     return false;
   }
 
