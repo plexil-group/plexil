@@ -1,0 +1,69 @@
+Goals:
+
+* A cleaner, easier to follow, more conventional approach to supporting Lookups.
+
+* Obsolete types.hh
+
+
+Alternatives to subscriber.hh:
+
+a) Define the external system as a class. [DONE]
+
+b) Define a SystemVariable or SystemState class and instantiate one for each
+   state.  This class does the pubsub.
+   
+c) Define a system state collection that maps names (strings) to their
+   implementation.
+
+d) Template-based states (not sure this would be more readable).
+
+e) (a) plus one of the rest.
+
+
+
+Alternatives to types.hh
+
+* Value class
+* Chucks's new type system (when ready)
+
+
+Ideas
+
+A real system's state might change in any of the following ways:
+
+a) "immediate" (or known delay) response to a command (synchronous),
+
+b) non-deterministic (time, outcome) response to a command
+
+c) "on its own", i.e. without plan intervention (asynchonous).  
+
+In any case, LookupOnChange needs support.
+
+Case (a) is easy.  The adapter can manage it, since the state changes in
+response to a command.  The system does not need to "publish" anything -- it can
+be polled to insure the state change occurred.
+
+Cases (b) and (c) are similar, and harder.  In general the adapter cannot know
+if a system state changed.  The system can be instrumented to publish all its
+changes, but this might not be realistic or even possible.  Specific approaches:
+
+* Instrument the system to publish its state changes.  Note that only *changes*
+  should be published.  There are various possible abstractions for this:
+
+  * Insert "publish" calls into every state writer.
+    + easy
+    - messy, verbose
+    - the publish function either needs variation or overloading
+  * Create an abstraction for a state and have many of them.
+    + hides the publishing
+    + saves coding
+    + uniform treatment of all states
+    - avoid complexity in supporting different types?
+  * Create an abstraction for states and have one of them.
+
+
+
+* Poll the system periodically (how often?) to see if states of interest have
+  changed.  (Was this the intention of the old LookupWithFrequency?).
+
+What should the sample app do?  Note that the sample app uses case (a) only.
