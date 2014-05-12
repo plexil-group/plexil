@@ -33,37 +33,42 @@ system by default. Here's a summary of the differences.
 Building PLEXIL
 ---------------
 
-Building PLEXIL requires two distinct steps.  First, build the executive.  Then,
+Building PLEXIL requires two overall steps.  First, build the executive.  Then,
 build the supporting applications.
 
 
 Building the PLEXIL Executive
 -----------------------------
 
-1. Set up your Unix environment.  Assuming you've placed PLEXIL in ~/plexil-3,
-the following environment variables must be defined to build or use PLEXIL
-conveniently.  You may wish to put them in your shell's init file.
+1. Set up your Unix environment.  Assuming you've placed PLEXIL in ~/plexil-3
+(substitute your actual installation directory below if needed), the following
+environment variables must be defined to build or use PLEXIL conveniently.  You
+may wish to put them in your shell's init file.
 
-For bash shell users:
+  A) PLEXIL_HOME variable.  This specifies where PLEXIL is installed.
 
-  export PLEXIL_HOME=~/plexil-3
+     For bash shell users:
+
+       export PLEXIL_HOME=~/plexil-3
+
+     For csh shell users:
+
+       setenv PLEXIL_HOME ~/plexil-3
+
+  B) PATH variable.  For convenience in starting PLEXIL, its executable
+  directory should be added to your Unix search path.  Use one of the following
+  commands, depending on your shell.
+
+  setenv PATH $PLEXIL_HOME/scripts:$PATH
   export PATH=$PLEXIL_HOME/scripts:$PATH
 
-For csh shell users:
+  C) PATH variable (MacOS only).  In addition, for MacOS users only, the X11
+     directory should be added to your path if not already present, as some
+     PLEXIL applications launch xterm windows.  Substitute one of the following
+     commands for those in section B above.
 
-  setenv PLEXIL_HOME ~/plexil-3
-  setenv PATH $PLEXIL_HOME/scripts:$PATH
-
-In addition, for MAC OS users only, the following addition to PATH will simplify
-the use of some applications that use xterm, which is normally found in the Unix
-search path.
-
-  export PATH=/usr/X11/bin/$PLEXIL_HOME/bin:$PATH
-
-or 
-
-  setenv PATH /usr/X11/bin/$PLEXIL_HOME/bin:$PATH
-
+     export PATH=/usr/X11/bin:$PLEXIL_HOME/scripts:$PATH
+     setenv PATH /usr/X11/bin:$PLEXIL_HOME/scripts:$PATH
 
 2. Change to the source directory:
 
