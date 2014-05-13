@@ -24,40 +24,50 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "lifecycle-utils.h"
-#include "TestSupport.hh"
+#ifndef PLEXIL_STRING_OPERATORS_HH
+#define PLEXIL_STRING_OPERATORS_HH
 
-extern bool aliasTest();
-extern bool arithmeticTest();
-extern bool arrayConstantTest();
-extern bool arrayReferenceTest();
-extern bool arrayTest();
-extern bool comparisonsTest();
-extern bool constantsTest();
-extern bool functionsTest();
-extern bool listenerTest();
-extern bool stringTest();
-extern bool variablesTest();
+#include "Expression.hh"
+#include "Operator.hh"
 
-using namespace PLEXIL;
-
-int main(int argc, char *argv[])
+namespace PLEXIL
 {
-  runTestSuite(listenerTest);
-  runTestSuite(constantsTest);
-  runTestSuite(arrayConstantTest);
-  runTestSuite(variablesTest);
-  runTestSuite(arrayTest);
-  runTestSuite(arrayReferenceTest);
-  runTestSuite(functionsTest);
-  runTestSuite(comparisonsTest);
-  runTestSuite(arithmeticTest);
-  runTestSuite(stringTest);
-  runTestSuite(aliasTest);
+  class StringConcat : public Operator<std::string>
+  {
+  public:
+    StringConcat();
+    ~StringConcat();
 
-  // clean up
-  runFinalizers();
+    bool operator()(std::string &result, const ExpressionId &arg) const;
 
-  std::cout << "Finished" << std::endl;
-  return 0;
-}
+    bool operator()(std::string &result,
+                    const ExpressionId &argA,
+                    const ExpressionId &argB) const;
+
+    bool operator()(std::string &result, const std::vector<ExpressionId> &args) const;
+
+  private:
+    // Disallow copy, assignment
+    StringConcat(const StringConcat &other);
+    StringConcat &operator=(const StringConcat& other);
+  };
+
+  class StringLength : public Operator<int32_t>
+  {
+  public:
+    StringLength();
+    ~StringLength();
+
+    bool operator()(int32_t &result, const ExpressionId &arg) const;
+
+  private:
+    // Disallow copy, assignment
+    StringLength(const StringLength &other);
+    StringLength &operator=(const StringLength& other);
+  };
+
+  // more to come
+
+} // namespace PLEXIL
+
+#endif // PLEXIL_STRING_OPERATORS_HH
