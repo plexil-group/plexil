@@ -103,26 +103,6 @@ namespace PLEXIL {
      * @note May cause change notifications to occur.
      */
     virtual void setValue(ExpressionId const &valex) = 0;
-    
-    // FIXME
-    /**
-     * @brief Check to make sure a value is appropriate for this expression.
-     * @param value The new value for this variable.
-     * @note Should only be defined for the value type appropriate
-     * to the expression.
-     * @note Default method returns true.
-     */
-    virtual bool checkValue(const double& value);
-    virtual bool checkValue(const int32_t& value);
-    virtual bool checkValue(const uint16_t& value);
-    virtual bool checkValue(const bool& value);
-    virtual bool checkValue(const std::string& value);
-
-    virtual bool checkValue(const std::vector<bool> &val);
-    virtual bool checkValue(const std::vector<uint16_t> &val);
-    virtual bool checkValue(const std::vector<int32_t> &val);
-    virtual bool checkValue(const std::vector<double> &val);
-    virtual bool checkValue(const std::vector<std::string> &val);
 
     /**
      * @brief Retrieve a writable ponter to the value.

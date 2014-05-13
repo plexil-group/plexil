@@ -1,0 +1,338 @@
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include "Alias.hh"
+
+namespace PLEXIL
+{
+  //
+  // Alias
+  //
+
+  Alias::Alias(const NodeId &node,
+               const std::string &name,
+               const ExpressionId &original)
+    : NotifierImpl(),
+      m_exp(original),
+      m_node(node),
+      m_name(name)
+  {
+    assertTrue_2(original.isId(), "Alias constructor: Null original expression");
+    m_exp->addListener(getId());
+  }
+
+  Alias::~Alias()
+  {
+    m_exp->removeListener(getId());
+  }
+
+  const char *Alias::exprName() const
+  {
+    return "InAlias";
+  }
+   
+  const ValueType Alias::valueType() const
+  {
+    return m_exp->valueType();
+  }
+  
+  bool Alias::isKnown() const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->isKnown();
+  }
+  
+  bool Alias::isAssignable() const
+  {
+    return false;
+  }
+
+  bool Alias::isConstant() const
+  {
+    return m_exp->isConstant();
+  }
+
+  void Alias::printValue(std::ostream &s) const
+  {
+    m_exp->printValue(s);
+  }
+
+  bool Alias::getValue(bool &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
+
+  bool Alias::getValue(double &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
+
+  bool Alias::getValue(uint16_t &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
+
+  bool Alias::getValue(int32_t &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
+
+  bool Alias::getValue(std::string &var) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValue(var);
+  }
+
+  bool Alias::getValuePointer(std::string const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValuePointer(ptr);
+  }
+
+  bool Alias::getArrayContents(std::vector<bool> const *&valuePtr,
+                               std::vector<bool> const *&knownPtr) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getArrayContents(valuePtr, knownPtr);
+  }
+
+  bool Alias::getArrayContents(std::vector<int32_t> const *&valuePtr,
+                               std::vector<bool> const *&knownPtr) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getArrayContents(valuePtr, knownPtr);
+  }
+
+  bool Alias::getArrayContents(std::vector<double> const *&valuePtr,
+                               std::vector<bool> const *&knownPtr) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getArrayContents(valuePtr, knownPtr);
+  }
+
+  bool Alias::getArrayContents(std::vector<std::string> const *&valuePtr,
+                               std::vector<bool> const *&knownPtr) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getArrayContents(valuePtr, knownPtr);
+  }
+
+  // No-op because the variable should already be active.
+  void Alias::handleActivate()
+  {
+  }
+
+  void Alias::handleDeactivate()
+  {
+  }
+
+  //
+  // InOutAlias
+  //
+
+  InOutAlias::InOutAlias(const NodeId &node,
+                         const std::string &name,
+                         const ExpressionId &original)
+    : Alias(node, name, original),
+      Assignable()
+  {
+    assertTrue_2((m_target = original->getAssignableId()).isId(),
+                 "InOutAlias constructor: target expression is not assignable");
+  }
+
+  InOutAlias::~InOutAlias()
+  {
+  }
+
+  const char *InOutAlias::exprName() const
+  {
+    return "InOutAlias";
+  }
+  
+  bool InOutAlias::isAssignable() const
+  {
+    return m_target->isAssignable();
+  }
+
+  void InOutAlias::reset()
+  {
+    assertTrue_2(!isActive(), "InOutAlias: reset while active");
+  }
+
+  void InOutAlias::setUnknown()
+  {
+    assertTrue_2(isActive(), "InOutAlias: setUnknown while inactive");
+    m_target->setUnknown();
+  }
+
+  void InOutAlias::setValue(const double &val)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(val);
+  }
+
+  void InOutAlias::setValue(const int32_t &val)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(val);
+  }
+
+  void InOutAlias::setValue(const uint16_t &val)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(val);
+  }
+
+  void InOutAlias::setValue(const bool &val)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(val);
+  }
+
+  void InOutAlias::setValue(const std::string &val)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(val);
+  }
+
+  void InOutAlias::setValue(const char *val)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(val);
+  }
+
+  void InOutAlias::setValue(const std::vector<bool> &val)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(val);
+  }
+
+  void InOutAlias::setValue(const std::vector<int32_t> &val)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(val);
+  }
+
+  void InOutAlias::setValue(const std::vector<double> &val)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(val);
+  }
+
+  void InOutAlias::setValue(const std::vector<std::string> &val)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(val);
+  }
+
+  void InOutAlias::setValue(ExpressionId const &valex)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(valex);
+  }
+
+  bool InOutAlias::getMutableValuePointer(std::string *& ptr)
+  {
+    if (!isActive())
+      return false;
+    return m_target->getMutableValuePointer(ptr);
+  }
+
+  bool InOutAlias::getMutableArrayContents(std::vector<bool> *&valuePtr,
+                                           std::vector<bool> *&knownPtr)
+  {
+    if (!isActive())
+      return false;
+    return m_target->getMutableArrayContents(valuePtr, knownPtr);
+  }
+
+  bool InOutAlias::getMutableArrayContents(std::vector<int32_t> *&valuePtr,
+                                           std::vector<bool> *&knownPtr)
+  {
+    if (!isActive())
+      return false;
+    return m_target->getMutableArrayContents(valuePtr, knownPtr);
+  }
+
+  bool InOutAlias::getMutableArrayContents(std::vector<double> *&valuePtr,
+                                           std::vector<bool> *&knownPtr)
+  {
+    if (!isActive())
+      return false;
+    return m_target->getMutableArrayContents(valuePtr, knownPtr);
+  }
+
+  bool InOutAlias::getMutableArrayContents(std::vector<std::string> *&valuePtr,
+                                           std::vector<bool> *&knownPtr)
+  {
+    if (!isActive())
+      return false;
+    return m_target->getMutableArrayContents(valuePtr, knownPtr);
+  }
+
+  void InOutAlias::saveCurrentValue()
+  {
+    assertTrue_2(isActive(), "InOutAlias: saveCurrentValue while inactive");
+    m_target->saveCurrentValue();
+  }
+
+  void InOutAlias::restoreSavedValue()
+  {
+    assertTrue_2(isActive(), "InOutAlias: restoreSavedValue while inactive");
+    m_target->restoreSavedValue();
+  }
+
+  const std::string& InOutAlias::getName() const
+  {
+    return m_name;
+  }
+
+  const NodeId& InOutAlias::getNode() const
+  {
+    return m_node;
+  }
+
+  const AssignableId& InOutAlias::getBaseVariable() const
+  {
+    return m_target->getBaseVariable();
+  }
+
+} // namespace PLEXIL

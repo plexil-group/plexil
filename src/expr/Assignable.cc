@@ -49,67 +49,6 @@ namespace PLEXIL {
   }
 
   //
-  // checkValue() default methods
-  //
-  // These methods always return true. This should be appropriate for most
-  // user-defined variables.
-  //
-  // The intent is that user variables (and others) will be defined as templates,
-  // with only the specific variables' template type supported,
-  // and optionally others as appropriate to the type.
-  //
-
-  bool Assignable::checkValue(const bool & /* value */)
-  {
-    return true;
-  }
-
-  bool Assignable::checkValue(const uint16_t & /* value */)
-  {
-    return true;
-  }
-
-  bool Assignable::checkValue(const int32_t & /* value */)
-  {
-    return true;
-  }
-
-  bool Assignable::checkValue(const double & /* value */)
-  {
-    return true;
-  }
-
-  bool Assignable::checkValue(const std::string & /* value */)
-  {
-    return true;
-  }
-
-  bool Assignable::checkValue(const std::vector<bool> & /* value */)
-  {
-    return true;
-  }
-
-  bool Assignable::checkValue(const std::vector<uint16_t> & /* value */)
-  {
-    return true;
-  }
-
-  bool Assignable::checkValue(const std::vector<int32_t> & /* value */)
-  {
-    return true;
-  }
-
-  bool Assignable::checkValue(const std::vector<double> & /* value */)
-  {
-    return true;
-  }
-
-  bool Assignable::checkValue(const std::vector<std::string> & /* value */)
-  {
-    return true;
-  }
-
-  //
   // getMutableValuePointer() default methods
   //
   bool Assignable::getMutableValuePointer(std::string *& /* ptr */)

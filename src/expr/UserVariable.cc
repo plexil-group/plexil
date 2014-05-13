@@ -228,6 +228,12 @@ namespace PLEXIL {
   }
 
   template <typename T>
+  bool UserVariable<T>::checkValue(const T &value)
+  {
+    return true;
+  }
+
+  template <typename T>
   void UserVariable<T>::setUnknown()
   {
     bool changed = m_known;

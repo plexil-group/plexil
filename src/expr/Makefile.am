@@ -30,12 +30,12 @@ lib_LTLIBRARIES = libPlexilExpr.la
 libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils \
  -I@top_srcdir@/third-party/pugixml/src
 
-include_HEADERS = ArrayConstant.hh ArrayReference.hh ArrayVariable.hh \
+include_HEADERS = Alias.hh ArrayConstant.hh ArrayReference.hh ArrayVariable.hh \
  Assignable.hh Constant.hh Expression.hh ExpressionImpl.hh \
  ExpressionListener.hh Function.hh NotifierImpl.hh Operator.hh UserVariable.hh \
  ValueType.hh
 
-libPlexilExpr_la_SOURCES = ArithmeticOperators.cc ArrayConstant.cc \
+libPlexilExpr_la_SOURCES = Alias.cc ArithmeticOperators.cc ArrayConstant.cc \
  ArrayReference.cc ArrayVariable.cc Assignable.cc BooleanOperators.cc \
  Comparisons.cc Constant.cc Expression.cc ExpressionImpl.cc \
  ExpressionListener.cc Function.cc NotifierImpl.cc Operator.cc UserVariable.cc \
@@ -44,7 +44,7 @@ libPlexilExpr_la_SOURCES = ArithmeticOperators.cc ArrayConstant.cc \
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
   noinst_HEADERS = test/TrivialListener.hh
-  test_expr_module_tests_SOURCES = test/arithmeticTest.cc \
+  test_expr_module_tests_SOURCES = test/aliasTest.cc test/arithmeticTest.cc \
  test/arrayConstantTest.cc test/arrayReferenceTest.cc test/arrayTest.cc \
  test/comparisonsTest.cc test/constantsTest.cc test/functionsTest.cc \
  test/listenerTest.cc test/TrivialListener.cc test/variablesTest.cc \

@@ -27,6 +27,7 @@
 #include "lifecycle-utils.h"
 #include "TestSupport.hh"
 
+extern bool aliasTest();
 extern bool arithmeticTest();
 extern bool arrayConstantTest();
 extern bool arrayReferenceTest();
@@ -50,6 +51,7 @@ int main(int argc, char *argv[])
   runTestSuite(functionsTest);
   runTestSuite(comparisonsTest);
   runTestSuite(arithmeticTest);
+  runTestSuite(aliasTest);
 
   // clean up
   runFinalizers();
