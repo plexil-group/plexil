@@ -474,6 +474,174 @@ static bool testAliasToScalarVariable()
 
 static bool testAliasToArrayVariable()
 {
+  // Set up test data
+  std::vector<bool>        vb(2);
+  std::vector<int32_t>     vi(4);
+  std::vector<double>      vd(4);
+  std::vector<std::string> vs(4);
+
+  vb[0] = false;
+  vb[1] = true;
+
+  vi[0] = 0;
+  vi[1] = 1;
+  vi[2] = 2;
+  vi[3] = 3;
+
+  vd[0] = 0;
+  vd[1] = 1;
+  vd[2] = 2;
+  vd[3] = 3;
+
+  vs[0] = std::string("zero");
+  vs[1] = std::string("one");
+  vs[2] = std::string("two");
+  vs[3] = std::string("three");
+
+  BooleanArrayVariable bc(vb);
+  IntegerArrayVariable ic(vi);
+  RealArrayVariable    dc(vd);
+  StringArrayVariable  sc(vs);
+
+  Alias abc(NodeId::noId(), "abc", bc.getId());
+  Alias aic(NodeId::noId(), "aic", ic.getId());
+  Alias adc(NodeId::noId(), "adc", dc.getId());
+  Alias asc(NodeId::noId(), "asc", sc.getId());
+
+  InOutAlias wabc(NodeId::noId(), "wabc", bc.getId());
+  InOutAlias waic(NodeId::noId(), "waic", ic.getId());
+  InOutAlias wadc(NodeId::noId(), "wadc", dc.getId());
+  InOutAlias wasc(NodeId::noId(), "wasc", sc.getId());
+
+  std::vector<bool> const        *pknown = NULL, *paknown = NULL;
+  std::vector<bool> const        *pvb = NULL, *pavb = NULL;
+  std::vector<int32_t> const     *pvi = NULL, *pavi = NULL;
+  std::vector<double> const      *pvd = NULL, *pavd = NULL;
+  std::vector<std::string> const *pvs = NULL, *pavs = NULL;
+
+  // Check that Alias is not assignable
+  assertTrue_1(!abc.isAssignable());
+  assertTrue_1(!aic.isAssignable());
+  assertTrue_1(!adc.isAssignable());
+  assertTrue_1(!asc.isAssignable());
+
+  // Check that InOutAlias is
+  assertTrue_1(wabc.isAssignable());
+  assertTrue_1(waic.isAssignable());
+  assertTrue_1(wadc.isAssignable());
+  assertTrue_1(wasc.isAssignable());
+
+  // Check that isConstant is forwarded
+  assertTrue_1(abc.isConstant() == bc.isConstant());
+  assertTrue_1(aic.isConstant() == ic.isConstant());
+  assertTrue_1(adc.isConstant() == dc.isConstant());
+  assertTrue_1(asc.isConstant() == sc.isConstant());
+  assertTrue_1(wabc.isConstant() == bc.isConstant());
+  assertTrue_1(waic.isConstant() == ic.isConstant());
+  assertTrue_1(wadc.isConstant() == dc.isConstant());
+  assertTrue_1(wasc.isConstant() == sc.isConstant());
+
+  // Check that valueType is forwarded
+  assertTrue_1(abc.valueType() == bc.valueType());
+  assertTrue_1(aic.valueType() == ic.valueType());
+  assertTrue_1(adc.valueType() == dc.valueType());
+  assertTrue_1(asc.valueType() == sc.valueType());
+  assertTrue_1(wabc.valueType() == bc.valueType());
+  assertTrue_1(waic.valueType() == ic.valueType());
+  assertTrue_1(wadc.valueType() == dc.valueType());
+  assertTrue_1(wasc.valueType() == sc.valueType());
+
+  // Check unknown when inactive
+  assertTrue_1(!abc.isActive());
+  assertTrue_1(!aic.isActive());
+  assertTrue_1(!adc.isActive());
+  assertTrue_1(!asc.isActive());
+  assertTrue_1(!wabc.isActive());
+  assertTrue_1(!waic.isActive());
+  assertTrue_1(!wadc.isActive());
+  assertTrue_1(!wasc.isActive());
+
+  assertTrue_1(!abc.isKnown());
+  assertTrue_1(!aic.isKnown());
+  assertTrue_1(!adc.isKnown());
+  assertTrue_1(!asc.isKnown());
+  assertTrue_1(!wabc.isKnown());
+  assertTrue_1(!waic.isKnown());
+  assertTrue_1(!wadc.isKnown());
+  assertTrue_1(!wasc.isKnown());
+
+  // Activate
+  bc.activate();
+  ic.activate();
+  dc.activate();
+  sc.activate();
+  abc.activate();
+  aic.activate();
+  adc.activate();
+  asc.activate();
+  wabc.activate();
+  waic.activate();
+  wadc.activate();
+  wasc.activate();
+
+  // Check that all are active and known
+  assertTrue_1(abc.isActive());
+  assertTrue_1(aic.isActive());
+  assertTrue_1(adc.isActive());
+  assertTrue_1(asc.isActive());
+  assertTrue_1(wabc.isActive());
+  assertTrue_1(waic.isActive());
+  assertTrue_1(wadc.isActive());
+  assertTrue_1(wasc.isActive());
+
+  assertTrue_1(abc.isKnown());
+  assertTrue_1(aic.isKnown());
+  assertTrue_1(adc.isKnown());
+  assertTrue_1(asc.isKnown());
+  assertTrue_1(wabc.isKnown());
+  assertTrue_1(waic.isKnown());
+  assertTrue_1(wadc.isKnown());
+  assertTrue_1(wasc.isKnown());
+  
+  // Check that getArrayContents is forwarded
+  assertTrue(bc.getArrayContents(pvb, pknown));
+  assertTrue(abc.getArrayContents(pavb, paknown));
+  assertTrue(*pknown == *paknown);
+  assertTrue(*pvb == *pavb);
+  assertTrue(wabc.getArrayContents(pavb, paknown));
+  assertTrue(*pknown == *paknown);
+  assertTrue(*pvb == *pavb);
+
+  assertTrue(ic.getArrayContents(pvi, pknown));
+  assertTrue(aic.getArrayContents(pavi, paknown));
+  assertTrue(*pknown == *paknown);
+  assertTrue(*pvi == *pavi);
+  assertTrue(waic.getArrayContents(pavi, paknown));
+  assertTrue(*pknown == *paknown);
+  assertTrue(*pvi == *pavi);
+
+  assertTrue(dc.getArrayContents(pvd, pknown));
+  assertTrue(adc.getArrayContents(pavd, paknown));
+  assertTrue(*pknown == *paknown);
+  assertTrue(*pvd == *pavd);
+  assertTrue(wadc.getArrayContents(pavd, paknown));
+  assertTrue(*pknown == *paknown);
+  assertTrue(*pvd == *pavd);
+
+  assertTrue(sc.getArrayContents(pvs, pknown));
+  assertTrue(asc.getArrayContents(pavs, paknown));
+  assertTrue(*pknown == *paknown);
+  assertTrue(*pvs == *pavs);
+  assertTrue(wasc.getArrayContents(pavs, paknown));
+  assertTrue(*pknown == *paknown);
+  assertTrue(*pvs == *pavs);
+
+  // TODO: Test array reference through alias
+
+  // TODO: Test setting whole arrays
+
+  // TODO: Test writable array reference through alias
+
   return true;
 }
 
