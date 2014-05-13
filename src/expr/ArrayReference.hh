@@ -155,6 +155,19 @@ namespace PLEXIL {
     bool m_savedKnown;
   };
 
+  //
+  // Convenience typedefs
+  //
+  typedef ArrayReference<bool>        BooleanArrayReference;
+  typedef ArrayReference<int32_t>     IntegerArrayReference;
+  typedef ArrayReference<double>      RealArrayReference;
+  typedef ArrayReference<std::string> StringArrayReference;
+
+  typedef MutableArrayReference<bool>        BooleanMutableArrayReference;
+  typedef MutableArrayReference<int32_t>     IntegerMutableArrayReference;
+  typedef MutableArrayReference<double>      RealMutableArrayReference;
+  typedef MutableArrayReference<std::string> StringMutableArrayReference;
+
 } // namespace PLEXIL
 
 #endif // PLEXIL_ARRAY_REFERENCE_HH

@@ -206,7 +206,7 @@ namespace PLEXIL
     (*knownAry)[idx] = true;
     if (changed) {
       NotifierImpl::publishChange(getId());
-      m_mutableArray->notifyChanged(getId());
+      m_mutableArray->getBaseVariable()->notifyChanged(getId()); // array might be alias
     }
   }
 
@@ -231,9 +231,10 @@ namespace PLEXIL
     }
     if (changed) {
       NotifierImpl::publishChange(getId());
-      m_mutableArray->notifyChanged(getId());
+      m_mutableArray->getBaseVariable()->notifyChanged(getId()); // array might be alias
     }
   }
+
   template <typename T>
   void MutableArrayReference<T>::setUnknown()
   {
@@ -306,7 +307,7 @@ namespace PLEXIL
   template <typename T>
   const AssignableId &MutableArrayReference<T>::getBaseVariable() const
   {
-    return m_mutableArray->getBaseVariable(); // could be an Alias?
+    return m_mutableArray->getBaseVariable(); // could be an alias
   }
 
   //
