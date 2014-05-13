@@ -852,7 +852,6 @@ bool moduloTest()
   Modulo<int32_t> modi;
   int32_t tempi;
 
-  // Binary
   BinaryFunction<int32_t> imod2_1(&modi, tree.getId(), too.getId());
   BinaryFunction<int32_t> imod2_2(&modi, i.getId(), tree.getId());
   BinaryFunction<int32_t> imod2_3(&modi, nein.getId(), i.getId());
@@ -873,6 +872,35 @@ bool moduloTest()
   assertTrue_1(tempi == 2);
   assertTrue_1(imod2_3.getValue(tempi));
   assertTrue_1(tempi == 4);
+
+  // Real
+  RealConstant tue(2);
+  RealConstant three(3);
+  RealConstant nin(9);
+  RealVariable x;
+  Modulo<double> modd;
+  double tempd;
+  
+  BinaryFunction<double> dmod2_1(&modd, three.getId(), tue.getId());
+  BinaryFunction<double> dmod2_2(&modd, x.getId(), three.getId());
+  BinaryFunction<double> dmod2_3(&modd, nin.getId(), x.getId());
+
+  dmod2_1.activate();
+  dmod2_2.activate();
+  dmod2_3.activate();
+
+  assertTrue_1(dmod2_1.getValue(tempd));
+  assertTrue_1(tempd == 1);
+
+  // Not yet known
+  assertTrue_1(!dmod2_2.getValue(tempd));
+  assertTrue_1(!dmod2_3.getValue(tempd));
+
+  x.setValue(5);
+  assertTrue_1(dmod2_2.getValue(tempd));
+  assertTrue_1(tempd == 2);
+  assertTrue_1(dmod2_3.getValue(tempd));
+  assertTrue_1(tempd == 4);
 
   return true;
 }

@@ -26,7 +26,7 @@
 
 #include "ArithmeticOperators.hh"
 #include "Expression.hh"
-#include <cmath> // for sqrt()
+#include <cmath> // for sqrt(), fmod()
 
 namespace PLEXIL
 {
@@ -242,17 +242,33 @@ namespace PLEXIL
   {
   }
 
-  template <typename NUM>
-  bool Modulo<NUM>::operator()(NUM &result,
-                               const ExpressionId &argA,
-                               const ExpressionId &argB) const
+  // Integer implementation
+  template <>
+  bool Modulo<int32_t>::operator()(int32_t &result,
+                                   const ExpressionId &argA,
+                                   const ExpressionId &argB) const
   {
-    NUM tempA, tempB;
+    int32_t tempA, tempB;
     if (!argA->getValue(tempA)
         || !argB->getValue(tempB)
         || tempB == 0)
       return false;
     result = tempA % tempB;
+    return true;
+  }
+
+  // Real implementation
+  template <>
+  bool Modulo<double>::operator()(double &result,
+                                  const ExpressionId &argA,
+                                  const ExpressionId &argB) const
+  {
+    double tempA, tempB;
+    if (!argA->getValue(tempA)
+        || !argB->getValue(tempB)
+        || tempB == 0)
+      return false;
+    result = fmod(tempA, tempB);
     return true;
   }
 
@@ -436,8 +452,8 @@ namespace PLEXIL
   template class Multiplication<int32_t>;
   template class Division<double>;
   template class Division<int32_t>;
-  // Only implemented for integers
   template class Modulo<int32_t>;
+  template class Modulo<double>;
   template class Minimum<double>;
   template class Minimum<int32_t>;
   template class Maximum<double>;
