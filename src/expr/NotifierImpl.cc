@@ -88,8 +88,6 @@ namespace PLEXIL {
     if (isActive()) {
       if (src == getId())
         return; // prevent infinite looping
-      // Take this out later
-      check_error_2(src.isId(), "notifyChanged: null source");
       this->handleChange(src);
     }
   }
