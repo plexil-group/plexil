@@ -1,80 +1,78 @@
-This file explains the build system for PLEXIL version 3.x, and how to build
-PLEXIL and its related applications provided in this distribution.
+This file explains how to build and install PLEXIL version 3.x and its related
+applications included in this distribution.
 
-See the CAVEATS file for addtional build-related information.
+Also see the CAVEATS file, which lists known problems or difficulties in
+building and installing PLEXIL.
 
-Overview
---------
+See the Background section below for a description of how the build system
+changed between PLEXIL versions 2 and 3.
 
-The build process of this plexil-3 branch is *very* different from that of the
-SVN trunk version of PLEXIL (and all pre-3 versions of PLEXIL.  This build
-system was introduced to better support cross-platform builds. Unfortunately it
-is more complex, and requires GNU tools that might not be installed on your
-system by default. Here's a summary of the differences.
 
-   Previous PLEXIL distributions:
-     - use the generic 'make' facility
-     - all of PLEXIL is built by typing 'make' in the top level 'plexil'
-       directory
+Start Here
+----------
 
-   plexil-3 branch:
-     - uses a hybrid of GNU "autotools" (autoconf/automake/libtool/etc.),
-       which auto-generate Makefiles, and generic 'make'.
+Everyone must set up their Unix environment to build and run PLEXIL.  Complete
+the Setup section below before proceeding.
 
-     - supports cross-compilation via the --host option and various
-       environment variables (for details, see the GNU autoconf
-       documentation)  
+If this is a prebuilt distribution of PLEXIL, you are now ready to run PLEXIL.
+See the Running PLEXIL section below.
 
-     - building the PLEXIL executive is completely based on GNU autotools and
-       requires several commands.  Building the related applications requires
-       several more commands, and uses generic 'make'.
+If you have checked out PLEXIL as source code, you must first build it.  See the
+Building PLEXIL section below.  Then see the Running PLEXIL section.
+
+
+Setup
+-----
+
+Assuming you've placed PLEXIL in ~/plexil-3 (substitute your actual installation
+directory below if needed), the following environment variables must be defined
+to build or use PLEXIL.  You may wish to put them in your shell's init file.
+
+A) PLEXIL_HOME variable.  This specifies where PLEXIL is installed.
+
+   For bash shell users:
+
+   export PLEXIL_HOME=~/plexil-3
+
+   For csh shell users:
+
+   setenv PLEXIL_HOME ~/plexil-3
+
+B) PATH variable.  For convenience in starting PLEXIL, its executable directory
+   should be added to your Unix search path.  Use one of the following commands,
+   depending on your shell.
+
+   setenv PATH $PLEXIL_HOME/scripts:$PATH
+   export PATH=$PLEXIL_HOME/scripts:$PATH
+
+C) PATH variable (MacOS only).  In addition, for MacOS users only, the X11
+   directory should be added to your path if not already present, as some
+   PLEXIL applications launch xterm windows.  Substitute one of the following
+   commands for those in section B above.
+
+   export PATH=/usr/X11/bin:$PLEXIL_HOME/scripts:$PATH
+   setenv PATH /usr/X11/bin:$PLEXIL_HOME/scripts:$PATH
 
 
 Building PLEXIL
 ---------------
 
-Building PLEXIL requires two overall steps.  First, build the executive.  Then,
-build the supporting applications.
+You can skip this section if you have a pre-built distribution and simply want
+to run PLEXIL.  In this case see the Running PLEXIL section below.
+
+Building PLEXIL takes two distinct steps.  First, you must build the PLEXIL
+Executive.  Then build the PLEXIL-related applications.  The following sections
+explain how.
 
 
 Building the PLEXIL Executive
 -----------------------------
 
-1. Set up your Unix environment.  Assuming you've placed PLEXIL in ~/plexil-3
-(substitute your actual installation directory below if needed), the following
-environment variables must be defined to build or use PLEXIL conveniently.  You
-may wish to put them in your shell's init file.
-
-  A) PLEXIL_HOME variable.  This specifies where PLEXIL is installed.
-
-     For bash shell users:
-
-       export PLEXIL_HOME=~/plexil-3
-
-     For csh shell users:
-
-       setenv PLEXIL_HOME ~/plexil-3
-
-  B) PATH variable.  For convenience in starting PLEXIL, its executable
-  directory should be added to your Unix search path.  Use one of the following
-  commands, depending on your shell.
-
-  setenv PATH $PLEXIL_HOME/scripts:$PATH
-  export PATH=$PLEXIL_HOME/scripts:$PATH
-
-  C) PATH variable (MacOS only).  In addition, for MacOS users only, the X11
-     directory should be added to your path if not already present, as some
-     PLEXIL applications launch xterm windows.  Substitute one of the following
-     commands for those in section B above.
-
-     export PATH=/usr/X11/bin:$PLEXIL_HOME/scripts:$PATH
-     setenv PATH /usr/X11/bin:$PLEXIL_HOME/scripts:$PATH
-
-2. Change to the source directory:
+1. Change to the source directory:
 
    cd plexil-3/src
 
-3. Configure for build:
+2. Configure for build:
 
    ./configure --prefix=$PLEXIL_HOME
 
@@ -114,14 +112,12 @@ may wish to put them in your shell's init file.
    make install
 
 
-Building PLEXIL applications
-----------------------------
+Building PLEXIL-related applications
+------------------------------------
 
 All the PLEXIL-related applications provided in this distribution may be built
 in one step.  Change to your top level PLEXIL installation directory and type
-'make'.
-
-See the Makefile in this directory if you wish to only build certain
+'make'.  See the Makefile in this directory if you wish to only build certain
 applications.
 
 Note that you must first build the PLEXIL executive, as described in the
@@ -158,17 +154,55 @@ Linux and Mac platforms. This is done by supplying the '--disable-static' option
 to 'configure'.
 
 
-Misc
-----
+Running PLEXIL
+--------------
 
-Most, but not all, PLEXIL subsystems and applications can easily build
-individually.  It is easiest to follow the steps in the previous section,
-however you may wish to build various subdirectories manually.  For example, the
-Plexil and Plexilscript compilers can be built as follows.
+This section describes briefly, using specific examples, how to run the main
+PLEXIL applications.  See the PLEXIL reference manual on Sourceforge
+(plexil.sourceforge.net) for a complete description.
 
-    cd $PLEXIL_HOME/compilers/plexil
-    make
-    cd $PLEXIL_HOME/compilers/plexilscript
-    ant
+* Execute a plan using the Test Executive.  Change to <tt>plexil-3/examples/basic</tt>
+  and type:
 
-See the CAVEATS file for addtional build-related information.
+  plexiltest -p DriveToTarget.plx
+
+  You can try this with other <tt>.plx</tt> files in this directory.
+
+* Compile a plan into XML.  E.g. for the plan above:
+
+  plexilc DriveToTarget.ple
+
+* Execute a plan with the Plexil Viewer.  Using the same example:
+
+  plexiltest -v -p DriveToTarget.plx
+
+  The Plexil Viewer should open and display the running plan.
+
+
+Background
+----------
+
+The build process of this plexil-3 branch is *very* different from that of the
+SVN trunk version of PLEXIL (and all pre-3 versions of PLEXIL.  This build
+system was introduced to better support cross-platform builds. Unfortunately it
+is more complex, and requires GNU tools that might not be installed on your
+system by default. Here's a summary of the differences.
+
+   Previous PLEXIL distributions:
+     - use the generic 'make' facility
+     - all of PLEXIL is built by typing 'make' in the top level 'plexil'
+       directory
+
+   plexil-3 branch:
+     - uses a hybrid of GNU "autotools" (autoconf/automake/libtool/etc.),
+       which auto-generate Makefiles, and generic 'make'.
+
+     - supports cross-compilation via the --host option and various
+       environment variables (for details, see the GNU autoconf
+       documentation)  
+
+     - building the PLEXIL executive is completely based on GNU autotools and
+       requires several commands.  Building the related applications requires
+       several more commands, and uses generic 'make'.
+
+
