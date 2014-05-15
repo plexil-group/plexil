@@ -30,6 +30,7 @@
 
 #include "UserVariable.hh"
 
+#include "ArrayImpl.hh"
 #include "Constant.hh"
 #include "Error.hh"
 //#include "Node.hh"
@@ -362,9 +363,9 @@ namespace PLEXIL {
   // see above for string variables
 
   // Required by ArrayVariable
-  template class UserVariable<Array<bool> >;
-  template class UserVariable<Array<int32_t> >;
-  template class UserVariable<Array<double> >;
-  template class UserVariable<Array<std::string> >;
+  template class UserVariable<BooleanArray>;
+  template class UserVariable<IntegerArray>;
+  template class UserVariable<RealArray>;
+  template class UserVariable<StringArray>;
 
 } // namespace PLEXIL

@@ -27,40 +27,49 @@
 #ifndef PLEXIL_ARRAY_HH
 #define PLEXIL_ARRAY_HH
 
+#include <string>
 #include <vector>
 
 namespace PLEXIL
 {
   // Forward references
-  template <class T> class MutableArrayReference;
+  template <typename T> class MutableArrayReference;
 
   /**
    * @class Array
-   * @brief Templatized class implementing the PLEXIL notion of an Array.
+   * @brief Abstract base class representing the PLEXIL API of an Array.
    * @note This is an initial implementation, internals subject to change.
    */
-  template <typename T>
   class Array
   {
-    friend class MutableArrayReference<T>;
+    friend class MutableArrayReference<bool>;
+    friend class MutableArrayReference<int32_t>;
+    friend class MutableArrayReference<double>;
+    friend class MutableArrayReference<std::string>;
 
   public:
     Array();
     Array(Array const &);
-    Array(size_t size);
-    Array(std::vector<T> const &initval);
+    // For internal use
+    Array(size_t size, bool known);
 
-    ~Array();
+    virtual ~Array();
 
     Array &operator=(Array const &);
 
-    // Accessors
+    // Generic accessors
 
     size_t size() const;
     bool elementKnown(size_t index) const;
-    bool getElement(size_t index, T &result) const;
+    bool allElementsKnown() const;
+    bool anyElementsKnown() const;
+    inline std::vector<bool> const &getKnownVector() const
+    {
+      return m_known;
+    }
 
-    // Setters
+
+    // Generic setters
 
     /**
      * @brief Expand the array to the requested size. 
@@ -68,48 +77,48 @@ namespace PLEXIL
      *        If already that size or larger, does nothing.
      * @param size The requested size.
      */
-    void resize(size_t size);
-    void setElement(size_t index, T const &newVal);
+    virtual void resize(size_t size);
     void setElementUnknown(size_t index);
 
-    template <typename U>
-    friend bool operator==(Array<U> const &a, Array<U> const &b);
+    // Typed accessors
+    virtual bool getElement(size_t index, bool &result) const = 0;
+    virtual bool getElement(size_t index, int32_t &result) const = 0;
+    virtual bool getElement(size_t index, double &result) const = 0;
+    virtual bool getElement(size_t index, std::string &result) const = 0;
 
-    // Const accessors to data
-    inline std::vector<T> const &getContentsVector() const
-    {
-      return m_contents;
-    }
+    virtual bool getElementPointer(size_t index, std::string const *&result) const = 0;
 
-    inline std::vector<bool> const &getKnownVector() const
-    {
-      return m_known;
-    }
+    virtual void getContentsVector(std::vector<bool> const *&result) const = 0;
+    virtual void getContentsVector(std::vector<int32_t> const *&result) const = 0;
+    virtual void getContentsVector(std::vector<double> const *&result) const = 0;
+    virtual void getContentsVector(std::vector<std::string> const *&result) const = 0;
 
-  private:
+    // Typed setters
+    virtual void setElement(size_t index, bool const &newVal) = 0;
+    virtual void setElement(size_t index, int32_t const &newVal) = 0;
+    virtual void setElement(size_t index, double const &newVal) = 0;
+    virtual void setElement(size_t index, std::string const &newVal) = 0;
+
+  protected:
+    // For use by implementation classes
     inline bool checkIndex(size_t index) const
     {
-      return index < m_contents.size();
+      return index < m_known.size();
     }
 
-    std::vector<T> m_contents;
     std::vector<bool> m_known;
   };
 
-  template <typename T>
-  bool operator==(Array<T> const &a, Array<T> const &b);
-
-  template <typename T>
-  bool operator!=(Array<T> const &a, Array<T> const &b);
+  bool operator==(Array const &a, Array const &b);
 
   //
   // Convenience typedefs
   //
-  typedef Array<bool>        BooleanArray;
-  typedef Array<int32_t>     IntegerArray;
-  typedef Array<double>      RealArray;
-  typedef Array<std::string> StringArray;
-
+  template <typename T> class ArrayImpl;
+  typedef ArrayImpl<bool>        BooleanArray;
+  typedef ArrayImpl<int32_t>     IntegerArray;
+  typedef ArrayImpl<double>      RealArray;
+  typedef ArrayImpl<std::string> StringArray;
 
 } // namespace PLEXIL
 

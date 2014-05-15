@@ -39,13 +39,13 @@ namespace PLEXIL
    */
 
   template <typename T>
-  class ArrayVariable : public UserVariable<Array<T> >
+  class ArrayVariable : public UserVariable<ArrayImpl<T> >
   {
   public:
     ArrayVariable();
 
     // Regression testing only - to be removed
-    ArrayVariable(Array<T> const & initVal);
+    ArrayVariable(ArrayImpl<T> const & initVal);
 
     /**
      * @brief Constructor for plan loading.
@@ -68,7 +68,7 @@ namespace PLEXIL
 
   private:
     // Convenience typedefs
-    typedef UserVariable<Array<T> > Superclass;
+    typedef UserVariable<ArrayImpl<T> > Superclass;
 
     /**
      * @brief Pre-allocate storage based on the current value of the size expression.

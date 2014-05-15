@@ -27,9 +27,11 @@
 #ifndef PLEXIL_ARRAY_CONSTANT_HH
 #define PLEXIL_ARRAY_CONSTANT_HH
 
+#include "ArrayImpl.hh"
 #include "Constant.hh"
 
-namespace PLEXIL {
+namespace PLEXIL
+{
 
   /**
    * @class ArrayConstant
@@ -37,7 +39,7 @@ namespace PLEXIL {
    */
 
   template <typename T>
-  class ArrayConstant : public Constant<Array<T> >
+  class ArrayConstant : public Constant<ArrayImpl<T> >
   {
   public:
     /**
@@ -53,7 +55,7 @@ namespace PLEXIL {
     /**
      * @brief Constructor from value type.
      */
-    ArrayConstant(const Array<T> &value);
+    ArrayConstant(const ArrayImpl<T> &value);
 
     /**
      * @brief Constructor from vector.

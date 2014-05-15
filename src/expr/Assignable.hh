@@ -92,10 +92,10 @@ namespace PLEXIL {
     virtual void setValue(std::string const &val);
     virtual void setValue(char const *val);
 
-    virtual void setValue(Array<bool> const &val);
-    virtual void setValue(Array<int32_t> const &val);
-    virtual void setValue(Array<double> const &val);
-    virtual void setValue(Array<std::string> const &val);
+    virtual void setValue(BooleanArray const &val);
+    virtual void setValue(IntegerArray const &val);
+    virtual void setValue(RealArray const &val);
+    virtual void setValue(StringArray const &val);
 
     /**
      * @brief Set the value for this expression from another expression.
@@ -111,10 +111,10 @@ namespace PLEXIL {
      * @note Default method returns false and reports a type error.
      */
     virtual bool getMutableValuePointer(std::string *& ptr);
-    virtual bool getMutableValuePointer(Array<bool> *& ptr);
-    virtual bool getMutableValuePointer(Array<int32_t> *& ptr);
-    virtual bool getMutableValuePointer(Array<double> *& ptr);
-    virtual bool getMutableValuePointer(Array<std::string> *& ptr);
+    virtual bool getMutableValuePointer(BooleanArray *& ptr);
+    virtual bool getMutableValuePointer(IntegerArray *& ptr);
+    virtual bool getMutableValuePointer(RealArray *& ptr);
+    virtual bool getMutableValuePointer(StringArray *& ptr);
 
     /**
      * @brief Temporarily stores the previous value of this variable.

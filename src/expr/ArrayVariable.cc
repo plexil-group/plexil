@@ -32,13 +32,13 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable()
-    : UserVariable<Array<T> >()
+    : UserVariable<ArrayImpl<T> >()
   {
   }
 
   template <typename T>
-  ArrayVariable<T>::ArrayVariable(Array<T> const & initVal)
-    : UserVariable<Array<T> >(NodeId::noId(),
+  ArrayVariable<T>::ArrayVariable(ArrayImpl<T> const & initVal)
+    : UserVariable<ArrayImpl<T> >(NodeId::noId(),
                               std::string("anonymous"),
                               (new ArrayConstant<T >(initVal))->getId(),
                               true)
@@ -52,7 +52,7 @@ namespace PLEXIL
                                   const ExpressionId &initializer,
                                   bool sizeIsGarbage,
                                   bool initializerIsGarbage)
-    : UserVariable<Array<T> >(node, name, initializer, initializerIsGarbage),
+    : UserVariable<ArrayImpl<T> >(node, name, initializer, initializerIsGarbage),
       m_size(size),
       m_sizeIsGarbage(sizeIsGarbage)
   {
@@ -69,7 +69,7 @@ namespace PLEXIL
   void ArrayVariable<T>::handleActivate()
   {
     if (Superclass::m_initializer.isId()) {
-      Array<T> const *valuePtr;
+      ArrayImpl<T> const *valuePtr;
       if (Superclass::m_initializer->getValuePointer(valuePtr)) {
         // Choose the greater of the spec'd size or the length of the initializer
         size_t size = valuePtr->size();
@@ -97,7 +97,7 @@ namespace PLEXIL
   template <typename T>
   void ArrayVariable<T>::setValue(std::vector<T> const &newVal)
   {
-    UserVariable<Array<T> >::setValue(Array<T>(newVal));
+    UserVariable<ArrayImpl<T> >::setValue(ArrayImpl<T>(newVal));
   }
 
   template <typename T>

@@ -25,6 +25,8 @@
 */
 
 #include "Function.hh"
+
+#include "ArrayImpl.hh"
 #include "Operator.hh"
 
 namespace PLEXIL
@@ -238,29 +240,29 @@ namespace PLEXIL
   template class UnaryFunction<int32_t>;
   template class UnaryFunction<double>;
   template class UnaryFunction<std::string>;
-  template class UnaryFunction<Array<bool> >;
-  template class UnaryFunction<Array<int32_t> >;
-  template class UnaryFunction<Array<double> >;
-  template class UnaryFunction<Array<std::string> >;
+  template class UnaryFunction<BooleanArray>;
+  template class UnaryFunction<IntegerArray>;
+  template class UnaryFunction<RealArray>;
+  template class UnaryFunction<StringArray>;
 
   template class BinaryFunction<bool>;
   template class BinaryFunction<uint16_t>;
   template class BinaryFunction<int32_t>;
   template class BinaryFunction<double>;
   template class BinaryFunction<std::string>;
-  template class BinaryFunction<Array<bool> >;
-  template class BinaryFunction<Array<int32_t> >;
-  template class BinaryFunction<Array<double> >;
-  template class BinaryFunction<Array<std::string> >;
+  template class BinaryFunction<BooleanArray>;
+  template class BinaryFunction<IntegerArray>;
+  template class BinaryFunction<RealArray>;
+  template class BinaryFunction<StringArray>;
 
   template class NaryFunction<bool>;
   template class NaryFunction<uint16_t>;
   template class NaryFunction<int32_t>;
   template class NaryFunction<double>;
   template class NaryFunction<std::string>;
-  template class NaryFunction<Array<bool> >;
-  template class NaryFunction<Array<int32_t> >;
-  template class NaryFunction<Array<double> >;
-  template class NaryFunction<Array<std::string> >;
+  template class NaryFunction<BooleanArray>;
+  template class NaryFunction<IntegerArray>;
+  template class NaryFunction<RealArray>;
+  template class NaryFunction<StringArray>;
 
 } // namespace PLEXIL

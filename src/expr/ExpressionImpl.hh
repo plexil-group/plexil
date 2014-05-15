@@ -85,22 +85,22 @@ namespace PLEXIL
       return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }
 
-    bool getValuePointer(Array<bool> const *&ptr) const
+    bool getValuePointer(BooleanArray const *&ptr) const
     {
       return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }
 
-    bool getValuePointer(Array<int32_t> const *&ptr) const
+    bool getValuePointer(IntegerArray const *&ptr) const
     {
       return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }
 
-    bool getValuePointer(Array<double> const *&ptr) const
+    bool getValuePointer(RealArray const *&ptr) const
     {
       return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }
 
-    bool getValuePointer(Array<std::string> const *&ptr) const
+    bool getValuePointer(StringArray const *&ptr) const
     {
       return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }

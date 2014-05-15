@@ -24,18 +24,18 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Array.hh"
+#include "ArrayImpl.hh"
 #include "TestSupport.hh"
 
-using PLEXIL::Array;
+using namespace PLEXIL;
 
 static bool testConstructors()
 {
   // Default constructor
-  Array<bool>        emptyBool;
-  Array<int32_t>     emptyInt;
-  Array<double>      emptyReal;
-  Array<std::string> emptyString;
+  BooleanArray        emptyBool;
+  IntegerArray     emptyInt;
+  RealArray      emptyReal;
+  StringArray emptyString;
 
   assertTrue_1(emptyBool.size()   == 0);
   assertTrue_1(emptyInt.size()    == 0);
@@ -44,10 +44,10 @@ static bool testConstructors()
   // not much else we can do with them in this state!
 
   // Sized constructor
-  Array<bool>        sizedBool(2);
-  Array<int32_t>     sizedInt(2);
-  Array<double>      sizedReal(2);
-  Array<std::string> sizedString(2);
+  BooleanArray        sizedBool(2);
+  IntegerArray     sizedInt(2);
+  RealArray      sizedReal(2);
+  StringArray sizedString(2);
 
   assertTrue_1(sizedBool.size()   == 2);
   assertTrue_1(sizedInt.size()    == 2);
@@ -99,10 +99,10 @@ static bool testConstructors()
   sv[0] = std::string("yo ");
   sv[1] = std::string("mama");
 
-  Array<bool>        initedBool(bv);
-  Array<int32_t>     initedInt(iv);
-  Array<double>      initedReal(dv);
-  Array<std::string> initedString(sv);
+  BooleanArray        initedBool(bv);
+  IntegerArray     initedInt(iv);
+  RealArray      initedReal(dv);
+  StringArray initedString(sv);
 
   assertTrue_1(initedBool   != emptyBool);
   assertTrue_1(initedInt    != emptyInt);
@@ -145,10 +145,10 @@ static bool testConstructors()
   assertTrue_1(initedString.getElement(1, stemp));
   assertTrue_1(stemp == sv[1]);
 
-  Array<bool>        copyBool(initedBool);
-  Array<int32_t>     copyInt(initedInt);
-  Array<double>      copyReal(initedReal);
-  Array<std::string> copyString(initedString);
+  BooleanArray        copyBool(initedBool);
+  IntegerArray     copyInt(initedInt);
+  RealArray      copyReal(initedReal);
+  StringArray copyString(initedString);
 
   assertTrue_1(copyBool   != emptyBool);
   assertTrue_1(copyInt    != emptyInt);
@@ -254,10 +254,10 @@ static bool testConstructors()
 bool testResize()
 {
   // Empty
-  Array<bool>        emptyBool;
-  Array<int32_t>     emptyInt;
-  Array<double>      emptyReal;
-  Array<std::string> emptyString;
+  BooleanArray        emptyBool;
+  IntegerArray     emptyInt;
+  RealArray      emptyReal;
+  StringArray emptyString;
 
   assertTrue_1(emptyBool.size()   == 0);
   assertTrue_1(emptyInt.size()    == 0);
@@ -265,10 +265,10 @@ bool testResize()
   assertTrue_1(emptyString.size() == 0);
 
   // Sized but uninitialized
-  Array<bool>        sizedBool(2);
-  Array<int32_t>     sizedInt(2);
-  Array<double>      sizedReal(2);
-  Array<std::string> sizedString(2);
+  BooleanArray        sizedBool(2);
+  IntegerArray     sizedInt(2);
+  RealArray      sizedReal(2);
+  StringArray sizedString(2);
 
   assertTrue_1(sizedBool.size()   == 2);
   assertTrue_1(sizedInt.size()    == 2);
@@ -348,10 +348,10 @@ bool testResize()
   sv[0] = std::string("yo ");
   sv[1] = std::string("mama");
 
-  Array<bool>        initedBool(bv);
-  Array<int32_t>     initedInt(iv);
-  Array<double>      initedReal(dv);
-  Array<std::string> initedString(sv);
+  BooleanArray        initedBool(bv);
+  IntegerArray     initedInt(iv);
+  RealArray      initedReal(dv);
+  StringArray initedString(sv);
 
   // Verify initial contents
   assertTrue_1(initedBool.size()   == 2);
@@ -505,10 +505,10 @@ bool testResize()
 static bool testSetters()
 {
   // Sized but uninitialized
-  Array<bool>        sizedBool(2);
-  Array<int32_t>     sizedInt(2);
-  Array<double>      sizedReal(2);
-  Array<std::string> sizedString(2);
+  BooleanArray        sizedBool(2);
+  IntegerArray     sizedInt(2);
+  RealArray      sizedReal(2);
+  StringArray sizedString(2);
 
   assertTrue_1(sizedBool.size()   == 2);
   assertTrue_1(sizedInt.size()    == 2);

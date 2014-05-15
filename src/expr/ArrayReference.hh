@@ -85,7 +85,7 @@ namespace PLEXIL {
     ArrayReference &operator=(const ArrayReference &);
 
     // Internal function
-    bool selfCheck(Array<T> const *&valuePtr,
+    bool selfCheck(ArrayImpl<T> const *&valuePtr,
                    size_t &idx) const;
   };
 
@@ -146,7 +146,7 @@ namespace PLEXIL {
     MutableArrayReference &operator=(const MutableArrayReference &);
 
     // Internal function
-    bool mutableSelfCheck(Array<T> *&ary, size_t &idx);
+    bool mutableSelfCheck(ArrayImpl<T> *&ary, size_t &idx);
 
     AssignableId m_mutableArray;
     T m_savedValue;

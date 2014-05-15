@@ -132,25 +132,25 @@ namespace PLEXIL {
     return false;
   }
 
-  bool Expression::getValuePointer(Array<bool> const *& /* ptr */) const
+  bool Expression::getValuePointer(BooleanArray const *& /* ptr */) const
   {
     assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for BooleanArray for this expression");
     return false;
   }
 
-  bool Expression::getValuePointer(Array<int32_t> const *& /* ptr */) const
+  bool Expression::getValuePointer(IntegerArray const *& /* ptr */) const
   {
     assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for IntegerArray for this expression");
     return false;
   }
 
-  bool Expression::getValuePointer(Array<double> const *& /* ptr */) const
+  bool Expression::getValuePointer(RealArray const *& /* ptr */) const
   {
     assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for RealArray for this expression");
     return false;
   }
 
-  bool Expression::getValuePointer(Array<std::string> const *& /* ptr */) const
+  bool Expression::getValuePointer(StringArray const *& /* ptr */) const
   {
     assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for StringArray for this expression");
     return false;

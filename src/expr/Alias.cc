@@ -123,28 +123,28 @@ namespace PLEXIL
     return m_exp->getValuePointer(ptr);
   }
 
-  bool Alias::getValuePointer(Array<bool> const *&ptr) const
+  bool Alias::getValuePointer(BooleanArray const *&ptr) const
   {
     if (!isActive())
       return false;
     return m_exp->getValuePointer(ptr);
   }
 
-  bool Alias::getValuePointer(Array<int32_t> const *&ptr) const
+  bool Alias::getValuePointer(IntegerArray const *&ptr) const
   {
     if (!isActive())
       return false;
     return m_exp->getValuePointer(ptr);
   }
 
-  bool Alias::getValuePointer(Array<double> const *&ptr) const
+  bool Alias::getValuePointer(RealArray const *&ptr) const
   {
     if (!isActive())
       return false;
     return m_exp->getValuePointer(ptr);
   }
 
-  bool Alias::getValuePointer(Array<std::string> const *&ptr) const
+  bool Alias::getValuePointer(StringArray const *&ptr) const
   {
     if (!isActive())
       return false;
@@ -235,25 +235,25 @@ namespace PLEXIL
     m_target->setValue(val);
   }
 
-  void InOutAlias::setValue(const Array<bool> &val)
+  void InOutAlias::setValue(BooleanArray const &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
     m_target->setValue(val);
   }
 
-  void InOutAlias::setValue(const Array<int32_t> &val)
+  void InOutAlias::setValue(IntegerArray const &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
     m_target->setValue(val);
   }
 
-  void InOutAlias::setValue(const Array<double> &val)
+  void InOutAlias::setValue(RealArray const &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
     m_target->setValue(val);
   }
 
-  void InOutAlias::setValue(const Array<std::string> &val)
+  void InOutAlias::setValue(StringArray const &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
     m_target->setValue(val);
@@ -272,28 +272,28 @@ namespace PLEXIL
     return m_target->getMutableValuePointer(ptr);
   }
 
-  bool InOutAlias::getMutableValuePointer(Array<bool> *& ptr)
+  bool InOutAlias::getMutableValuePointer(BooleanArray *& ptr)
   {
     if (!isActive())
       return false;
     return m_target->getMutableValuePointer(ptr);
   }
 
-  bool InOutAlias::getMutableValuePointer(Array<int32_t> *& ptr)
+  bool InOutAlias::getMutableValuePointer(IntegerArray *& ptr)
   {
     if (!isActive())
       return false;
     return m_target->getMutableValuePointer(ptr);
   }
 
-  bool InOutAlias::getMutableValuePointer(Array<double> *& ptr)
+  bool InOutAlias::getMutableValuePointer(RealArray *& ptr)
   {
     if (!isActive())
       return false;
     return m_target->getMutableValuePointer(ptr);
   }
 
-  bool InOutAlias::getMutableValuePointer(Array<std::string> *& ptr)
+  bool InOutAlias::getMutableValuePointer(StringArray *& ptr)
   {
     if (!isActive())
       return false;

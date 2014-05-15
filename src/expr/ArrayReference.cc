@@ -25,6 +25,7 @@
 */
 
 #include "ArrayReference.hh"
+#include "ArrayImpl.hh"
 #include "UserVariable.hh"
 
 namespace PLEXIL
@@ -69,13 +70,13 @@ namespace PLEXIL
   template <typename T>
   bool ArrayReference<T>::isKnown() const
   {
-    Array<T> const *dummyAry;
+    ArrayImpl<T> const *dummyAry;
     size_t dummyIdx;
     return selfCheck(dummyAry, dummyIdx);
   }
 
   template <typename T>
-  bool ArrayReference<T>::selfCheck(Array<T> const *&valuePtr,
+  bool ArrayReference<T>::selfCheck(ArrayImpl<T> const *&valuePtr,
                                     size_t &idx) const
   {
     if (!(isActive() && m_array->isActive() && m_index->isActive()))
@@ -100,22 +101,26 @@ namespace PLEXIL
   template <typename T>
   bool ArrayReference<T>::getValueImpl(T &result) const
   {
-    Array<T> const *ary;
+    ArrayImpl<T> const *ary;
     size_t idx;
     if (!selfCheck(ary, idx))
       return false;
-    result = ary->getContentsVector()[idx];
+    std::vector<T> const *resultTemp;
+    ary->getContentsVector(resultTemp);
+    result = (*resultTemp)[idx];
     return true;
   }
 
   template <typename T>
   bool ArrayReference<T>::getValuePointerImpl(T const *&ptr) const
   {
-    Array<T> const *ary;
+    ArrayImpl<T> const *ary;
     size_t idx;
     if (!selfCheck(ary, idx))
       return false;
-    ptr = &(ary->getContentsVector()[idx]);
+    std::vector<T> const *resultTemp;
+    ary->getContentsVector(resultTemp);
+    ptr = &((*resultTemp)[idx]);
     return true;
   }
 
@@ -159,7 +164,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool MutableArrayReference<T>::mutableSelfCheck(Array<T> *&valuePtr,
+  bool MutableArrayReference<T>::mutableSelfCheck(ArrayImpl<T> *&valuePtr,
                                                   size_t &idx)
   {
     if (!(isActive()
@@ -186,7 +191,7 @@ namespace PLEXIL
   template <typename T>
   void MutableArrayReference<T>::setValue(const T &value)
   {
-    Array<T> *ary;
+    ArrayImpl<T> *ary;
     size_t idx;
     if (!mutableSelfCheck(ary, idx))
       return;
@@ -202,7 +207,7 @@ namespace PLEXIL
   template <typename T>
   void MutableArrayReference<T>::setValue(ExpressionId const &valex)
   {
-    Array<T> *ary;
+    ArrayImpl<T> *ary;
     size_t idx;
     if (!mutableSelfCheck(ary, idx))
       return;
@@ -226,7 +231,7 @@ namespace PLEXIL
   template <typename T>
   void MutableArrayReference<T>::setUnknown()
   {
-    Array<T> *ary;
+    ArrayImpl<T> *ary;
     size_t idx;
     if (!mutableSelfCheck(ary, idx))
       return;
@@ -247,7 +252,7 @@ namespace PLEXIL
   template <typename T>
   void MutableArrayReference<T>::saveCurrentValue()
   {
-    Array<T> *ary;
+    ArrayImpl<T> *ary;
     size_t idx;
     if (!mutableSelfCheck(ary, idx))
       return; // unknown or invalid
@@ -258,7 +263,7 @@ namespace PLEXIL
   template <typename T>
   void MutableArrayReference<T>::restoreSavedValue()
   {
-    Array<T> *ary;
+    ArrayImpl<T> *ary;
     size_t idx;
     if (!mutableSelfCheck(ary, idx))
       return;

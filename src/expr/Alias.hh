@@ -74,10 +74,10 @@ namespace PLEXIL
      * @return True if known, false if unknown or invalid.
      */
     bool getValuePointer(std::string const *&ptr) const;
-    bool getValuePointer(Array<bool> const *&ptr) const;
-    bool getValuePointer(Array<int32_t> const *&ptr) const;
-    bool getValuePointer(Array<double> const *&ptr) const;
-    bool getValuePointer(Array<std::string> const *&ptr) const;
+    bool getValuePointer(BooleanArray const *&ptr) const;
+    bool getValuePointer(IntegerArray const *&ptr) const;
+    bool getValuePointer(RealArray const *&ptr) const;
+    bool getValuePointer(StringArray const *&ptr) const;
     
   protected:
 
@@ -152,10 +152,10 @@ namespace PLEXIL
     void setValue(const std::string &val);
     void setValue(const char *val); // Convenience method
 
-    void setValue(const Array<bool> &val);
-    void setValue(const Array<int32_t> &val);
-    void setValue(const Array<double> &val);
-    void setValue(const Array<std::string> &val);
+    void setValue(BooleanArray const &val);
+    void setValue(IntegerArray const &val);
+    void setValue(RealArray const &val);
+    void setValue(StringArray const &val);
 
     /**
      * @brief Set the value for this expression from another expression.
@@ -171,10 +171,10 @@ namespace PLEXIL
      * @note Default method returns false and reports a type error.
      */
     bool getMutableValuePointer(std::string *& ptr);
-    bool getMutableValuePointer(Array<bool> *& ptr);
-    bool getMutableValuePointer(Array<int32_t> *& ptr);
-    bool getMutableValuePointer(Array<double> *& ptr);
-    bool getMutableValuePointer(Array<std::string> *& ptr);
+    bool getMutableValuePointer(BooleanArray *& ptr);
+    bool getMutableValuePointer(IntegerArray *& ptr);
+    bool getMutableValuePointer(RealArray *& ptr);
+    bool getMutableValuePointer(StringArray *& ptr);
 
     /**
      * @brief Temporarily stores the previous value of this variable.

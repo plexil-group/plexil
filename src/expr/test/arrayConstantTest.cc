@@ -70,10 +70,10 @@ static bool testArrayConstants()
   assertTrue_1(!ius->isKnown());
 
   // getValuePointer test
-  Array<bool> const *pbool = NULL;
-  Array<int32_t> const *pint = NULL;
-  Array<double> const *preal = NULL;
-  Array<std::string> const *pstr = NULL;
+  BooleanArray const *pbool = NULL;
+  IntegerArray const *pint = NULL;
+  RealArray const *preal = NULL;
+  StringArray const *pstr = NULL;
 
   assertTrue_1(!ub.getValuePointer(pbool));
   assertTrue_1(pbool == NULL);
@@ -125,6 +125,11 @@ static bool testArrayConstants()
   ExpressionId pdoo = doo.getId();
   ExpressionId psoo = soo.getId();
 
+  std::vector<bool> const *pvb;
+  std::vector<int32_t> const *pvi;
+  std::vector<double> const *pvd;
+  std::vector<std::string> const *pvs;
+
   assertTrue_1(troo.isConstant());
   assertTrue_1(too.isConstant());
   assertTrue_1(doo.isConstant());
@@ -155,23 +160,31 @@ static bool testArrayConstants()
   // Access via getValuePointer
   assertTrue_1(troo.getValuePointer(pbool));
   assertTrue_1(pbool != NULL);
-  // TODO: check all elements known
-  assertTrue_1(oob == pbool->getContentsVector());
+  assertTrue_1(pbool->allElementsKnown());
+  pbool->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(oob == *pvb);
 
   assertTrue_1(too.getValuePointer(pint));
   assertTrue_1(pint != NULL);
-  // TODO: check all elements known
-  assertTrue_1(ooi == pint->getContentsVector());
+  assertTrue_1(pint->allElementsKnown());
+  pint->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(ooi == *pvi);
 
   assertTrue_1(doo.getValuePointer(preal));
   assertTrue_1(preal != NULL);
-  // TODO: check all elements known
-  assertTrue_1(ood == preal->getContentsVector());
+  assertTrue_1(preal->allElementsKnown());
+  preal->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(ood == *pvd);
 
   assertTrue_1(soo.getValuePointer(pstr));
   assertTrue_1(pstr != NULL);
-  // TODO: check all elements known
-  assertTrue_1(oos == pstr->getContentsVector());
+  assertTrue_1(pstr->allElementsKnown());
+  pstr->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(oos == *pvs);
 
   pbool = NULL;
   pint = NULL;
@@ -181,23 +194,30 @@ static bool testArrayConstants()
   // Access through ExpressionId
   assertTrue_1(ptroo->getValuePointer(pbool));
   assertTrue_1(pbool != NULL);
-  // TODO: check all elements known
-  assertTrue_1(oob == pbool->getContentsVector());
+  assertTrue_1(pbool->allElementsKnown());
+  pbool->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(oob == *pvb);
 
   assertTrue_1(ptoo->getValuePointer(pint));
   assertTrue_1(pint != NULL);
-  // TODO: check all elements known
-  assertTrue_1(ooi == pint->getContentsVector());
+  assertTrue_1(pint->allElementsKnown());
+  pint->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(ooi == *pvi);
 
   assertTrue_1(pdoo->getValuePointer(preal));
   assertTrue_1(preal != NULL);
-  // TODO: check all elements known
-  assertTrue_1(ood == preal->getContentsVector());
+  preal->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(ood == *pvd);
 
   assertTrue_1(psoo->getValuePointer(pstr));
-  // TODO: check all elements known
   assertTrue_1(pstr != NULL);
-  assertTrue_1(oos == pstr->getContentsVector());
+  assertTrue_1(pstr->allElementsKnown());
+  pstr->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(oos == *pvs);
 
   return true;
 }

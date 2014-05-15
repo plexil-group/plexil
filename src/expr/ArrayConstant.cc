@@ -30,25 +30,25 @@ namespace PLEXIL
 {
   template <typename T>
   ArrayConstant<T>::ArrayConstant()
-    : Constant<Array<T> >()
+    : Constant<ArrayImpl<T> >()
   {
   }
 
   template <typename T>
   ArrayConstant<T>::ArrayConstant(const ArrayConstant &other)
-  : Constant<Array<T> >(other)
+  : Constant<ArrayImpl<T> >(other)
   {
   }
 
   template <typename T>
-  ArrayConstant<T>::ArrayConstant(const Array<T> &value)
-    : Constant<Array<T> >(value)
+  ArrayConstant<T>::ArrayConstant(const ArrayImpl<T> &value)
+    : Constant<ArrayImpl<T> >(value)
   {
   }
 
   template <typename T>
   ArrayConstant<T>::ArrayConstant(const std::vector<T> &value)
-    : Constant<Array<T> >(Array<T>(value))
+    : Constant<ArrayImpl<T> >(ArrayImpl<T>(value))
   {
   }
 

@@ -30,133 +30,84 @@
 
 namespace PLEXIL
 {
-  template <typename T>
-  Array<T>::Array()
+  Array::Array()
   {
   }
 
-  template <typename T>
-  Array<T>::Array(Array<T> const &orig)
-    : m_contents(orig.m_contents),
-      m_known(orig.m_known)
+  Array::Array(Array const &orig)
+    : m_known(orig.m_known)
   {
   }
 
-  template <typename T>
-  Array<T>::Array(size_t size)
-  : m_contents(size),
-    m_known(size, false)
+  Array::Array(size_t size, bool known)
+  : m_known(size, known)
   {
   }
 
-  template <typename T>
-  Array<T>::Array(std::vector<T> const &initval)
-  : m_contents(initval),
-    m_known(initval.size(), true)
+  Array::~Array()
   {
   }
 
-  template <typename T>
-  Array<T>::~Array()
+  Array &Array::operator=(Array const &other)
   {
-  }
-
-  template <typename T>
-  Array<T> &Array<T>::operator=(Array<T> const &other)
-  {
-    m_contents = other.m_contents;
     m_known = other.m_known;
     return *this;
   }
 
-  template <typename T>
-  size_t Array<T>::size() const
+  size_t Array::size() const
   {
-    return m_contents.size();
+    return m_known.size();
   }
 
-  template <typename T>
-  bool Array<T>::elementKnown(size_t index) const
+  bool Array::elementKnown(size_t index) const
   {
     if (!checkIndex(index)) {
-      check_error_2(ALWAYS_FAIL, "elementKnown: Index exceeds array size");
+      check_error_2(ALWAYS_FAIL, "Array::elementKnown: Index exceeds array size");
       return false;
     }
     return m_known[index];
   }
 
-  template <typename T>
-  bool Array<T>::getElement(size_t index, T &result) const
-  {
-    if (!checkIndex(index)) {
-      check_error_2(ALWAYS_FAIL, "getElement: Index exceeds array size");
-      return false;
-    }
-    if (m_known[index])
-      result = m_contents[index];
-    return m_known[index];
-  }
-
-  template <typename T>
-  void Array<T>::resize(size_t size)
+  void Array::resize(size_t size)
   {
     if (!checkIndex(size)) {
-      m_contents.resize(size);
       m_known.resize(size, false);
     }
   }
 
-  template <typename T>
-  void Array<T>::setElement(size_t index, T const &newVal)
+  void Array::setElementUnknown(size_t index)
   {
     if (!checkIndex(index)) {
-      check_error_2(ALWAYS_FAIL, "setElement: Index exceeds array size");
-      return;
-    }
-    m_contents[index] = newVal;
-    m_known[index] = true;
-  }
-
-  template <typename T>
-  void Array<T>::setElementUnknown(size_t index)
-  {
-    if (!checkIndex(index)) {
-      check_error_2(ALWAYS_FAIL, "setElementUnknown: Index exceeds array size");
+      check_error_2(ALWAYS_FAIL, "Array::setElementUnknown: Index exceeds array size");
       return;
     }
     m_known[index] = false;
   }
 
-  template <typename T>
-  bool operator==(Array<T> const &a, Array<T> const &b)
+  bool operator==(Array const &a, Array const &b)
   {
-    return a.m_contents == b.m_contents
-      && a.m_known == b.m_known;
-  }
-
-  template <typename T>
-  bool operator!=(Array<T> const &a, Array<T> const &b)
-  {
-    return !(a == b);
+    return a.getKnownVector() == b.getKnownVector();
   }
 
   //
-  // Explicit instantiations
+  // TODO:
+  // - Define boundary case size == 0 for any/allElementsKnown
   //
 
-  template class Array<bool>;
-  template class Array<int32_t>;
-  template class Array<double>;
-  template class Array<std::string>;
+  bool Array::allElementsKnown() const
+  {
+    for (size_t i = 0; i < m_known.size(); ++i)
+      if (!m_known[i])
+        return false;
+    return true;
+  }
 
-  template bool operator==<bool>(Array<bool> const &a, Array<bool> const &b);
-  template bool operator==<int32_t>(Array<int32_t> const &, Array<int32_t> const &);
-  template bool operator==<double>(Array<double> const &, Array<double> const &);
-  template bool operator==<std::string>(Array<std::string> const &, Array<std::string> const &);
-
-  template bool operator!=<bool>(Array<bool> const &a, Array<bool> const &b);
-  template bool operator!=<int32_t>(Array<int32_t> const &, Array<int32_t> const &);
-  template bool operator!=<double>(Array<double> const &, Array<double> const &);
-  template bool operator!=<std::string>(Array<std::string> const &, Array<std::string> const &);
+  bool Array::anyElementsKnown() const
+  {
+    for (size_t i = 0; i < m_known.size(); ++i)
+      if (m_known[i])
+        return true;
+    return false;
+  }
 
 } // namespace PLEXIL

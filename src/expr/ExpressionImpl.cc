@@ -25,6 +25,8 @@
 */
 
 #include "ExpressionImpl.hh"
+
+#include "ArrayImpl.hh"
 #include "Error.hh"
 
 namespace PLEXIL
@@ -98,25 +100,25 @@ namespace PLEXIL
   }
 
   template <>
-  const ValueType ExpressionImpl<Array<bool> >::valueType() const
+  const ValueType ExpressionImpl<BooleanArray>::valueType() const
   {
     return BOOLEAN_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<Array<int32_t> >::valueType() const
+  const ValueType ExpressionImpl<IntegerArray>::valueType() const
   {
     return INTEGER_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<Array<double> >::valueType() const
+  const ValueType ExpressionImpl<RealArray>::valueType() const
   {
     return REAL_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<Array<std::string> >::valueType() const
+  const ValueType ExpressionImpl<StringArray>::valueType() const
   {
     return STRING_ARRAY_TYPE;
   }
@@ -174,9 +176,9 @@ namespace PLEXIL
   template class ExpressionImpl<double>;
   template class ExpressionImpl<std::string>;
 
-  template class ExpressionImpl<Array<bool> >;
-  template class ExpressionImpl<Array<int32_t> >;
-  template class ExpressionImpl<Array<double> >;
-  template class ExpressionImpl<Array<std::string> >;
+  template class ExpressionImpl<BooleanArray>;
+  template class ExpressionImpl<IntegerArray>;
+  template class ExpressionImpl<RealArray>;
+  template class ExpressionImpl<StringArray>;
 
-}
+} // namespace PLEXIL

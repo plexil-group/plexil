@@ -30,6 +30,8 @@
 
 #include "Constant.hh"
 
+#include "ArrayImpl.hh"
+
 namespace PLEXIL {
 
   /**
@@ -207,9 +209,9 @@ namespace PLEXIL {
   template class Constant<double>;
   template class Constant<std::string>;
 
-  template class Constant<Array<bool> >;
-  template class Constant<Array<int32_t> >;
-  template class Constant<Array<double> >;
-  template class Constant<Array<std::string> >;
+  template class Constant<BooleanArray>;
+  template class Constant<IntegerArray>;
+  template class Constant<RealArray>;
+  template class Constant<StringArray>;
 
 } // namespace PLEXIL

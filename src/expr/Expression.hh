@@ -228,11 +228,11 @@ namespace PLEXIL
      * @note Derived classes should implement only the appropriate method.
      * @note Default methods return an error in every case.
      */
-    virtual bool getValuePointer(std::string const *&ptr) const;              // String
-    virtual bool getValuePointer(Array<bool> const *&ptr) const;              // Boolean array
-    virtual bool getValuePointer(Array<int32_t> const *&ptr) const;           // Integer array
-    virtual bool getValuePointer(Array<double> const *&ptr) const;            // Real array
-    virtual bool getValuePointer(Array<std::string> const *&ptr) const;       // String array
+    virtual bool getValuePointer(std::string const *&ptr) const;
+    virtual bool getValuePointer(BooleanArray const *&ptr) const;
+    virtual bool getValuePointer(IntegerArray const *&ptr) const;
+    virtual bool getValuePointer(RealArray const *&ptr) const;
+    virtual bool getValuePointer(StringArray const *&ptr) const;
 
   private:
 

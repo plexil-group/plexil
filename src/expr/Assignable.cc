@@ -57,25 +57,25 @@ namespace PLEXIL {
     return false;
   }
 
-  bool Assignable::getMutableValuePointer(Array<bool> *& /* ptr */)
+  bool Assignable::getMutableValuePointer(BooleanArray *& /* ptr */)
   {
     check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
     return false;
   }
 
-  bool Assignable::getMutableValuePointer(Array<int32_t> *& /* ptr */)
+  bool Assignable::getMutableValuePointer(IntegerArray *& /* ptr */)
   {
     check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
     return false;
   }
 
-  bool Assignable::getMutableValuePointer(Array<double> *& /* ptr */)
+  bool Assignable::getMutableValuePointer(RealArray *& /* ptr */)
   {
     check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
     return false;
   }
 
-  bool Assignable::getMutableValuePointer(Array<std::string> *& /* ptr */)
+  bool Assignable::getMutableValuePointer(StringArray *& /* ptr */)
   {
     check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
     return false;
@@ -115,27 +115,22 @@ namespace PLEXIL {
     assertTrue_2(ALWAYS_FAIL, "setValue: Character string is not a valid type for this expression");
   }
 
-  void Assignable::setValue(Array<bool> const & /* val */)
+  void Assignable::setValue(BooleanArray const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: BooleanArray is not a valid type for this expression");
   }
 
-  // void Assignable::setValue(Array<uint16_t> const & /* val */)
-  // {
-  //   assertTrue_2(ALWAYS_FAIL, "setValue: Not a valid type for this expression");
-  // }
-
-  void Assignable::setValue(Array<int32_t> const & /* val */)
+  void Assignable::setValue(IntegerArray const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: IntegerArray is not a valid type for this expression");
   }
 
-  void Assignable::setValue(Array<double> const & /* val */)
+  void Assignable::setValue(RealArray const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: RealArray is not a valid type for this expression");
   }
 
-  void Assignable::setValue(Array<std::string> const & /* val */)
+  void Assignable::setValue(StringArray const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: String is not a valid type for this expression");
   }

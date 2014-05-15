@@ -62,35 +62,48 @@ static bool arrayConstantReadTest()
   RealArrayConstant    dc(vd);
   StringArrayConstant  sc(vs);
 
-  Array<bool> const        *pab = NULL;
-  Array<int32_t> const     *pai = NULL;
-  Array<double> const      *pad = NULL;
-  Array<std::string> const *pas = NULL;
+  BooleanArray const        *pab = NULL;
+  IntegerArray const     *pai = NULL;
+  RealArray const      *pad = NULL;
+  StringArray const *pas = NULL;
+
+  std::vector<bool> const *pvb;
+  std::vector<int32_t> const *pvi;
+  std::vector<double> const *pvd;
+  std::vector<std::string> const *pvs;
 
   // Constants are always active
   assertTrue_1(bc.isKnown());
   assertTrue_1(bc.getValuePointer(pab));
   assertTrue_1(pab != NULL);
-  // TODO: check all known
-  assertTrue_1(vb == pab->getContentsVector());
+  assertTrue_1(pab->allElementsKnown());
+  pab->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(vb == *pvb);
 
   assertTrue_1(ic.isKnown());
   assertTrue_1(ic.getValuePointer(pai));
   assertTrue_1(pai != NULL);
-  // TODO: check all known
-  assertTrue_1(vi == pai->getContentsVector());
+  assertTrue_1(pai->allElementsKnown());
+  pai->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(vi == *pvi);
 
   assertTrue_1(dc.isKnown());
   assertTrue_1(dc.getValuePointer(pad));
   assertTrue_1(pad != NULL);
-  // TODO: check all known
-  assertTrue_1(vd == pad->getContentsVector());
+  assertTrue_1(pad->allElementsKnown());
+  pad->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(vd == *pvd);
 
   assertTrue_1(sc.isKnown());
   assertTrue_1(sc.getValuePointer(pas));
   assertTrue_1(pas != NULL);
-  // TODO: check all known
-  assertTrue_1(vs == pas->getContentsVector());
+  assertTrue_1(pas->allElementsKnown());
+  pas->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(vs == *pvs);
 
   return true;
 }
@@ -125,10 +138,10 @@ static bool uninitializedVariableTest()
   assertTrue_1(!vuda.isKnown());
   assertTrue_1(!vusa.isKnown());
 
-  Array<bool> const *pfooba = NULL;
-  Array<int32_t> const *pfooia = NULL;
-  Array<double> const *pfooda = NULL;
-  Array<std::string> const *pfoosa = NULL;
+  BooleanArray const *pfooba = NULL;
+  IntegerArray const *pfooia = NULL;
+  RealArray const *pfooda = NULL;
+  StringArray const *pfoosa = NULL;
 
   assertTrue_1(!vuba.getValuePointer(pfooba));
   assertTrue_1(pfooba == NULL);
@@ -180,25 +193,38 @@ static bool uninitializedVariableTest()
   assertTrue_1(vuda.isKnown());
   assertTrue_1(vusa.isKnown());
 
+  std::vector<bool> const *pvb;
+  std::vector<int32_t> const *pvi;
+  std::vector<double> const *pvd;
+  std::vector<std::string> const *pvs;
+
   assertTrue_1(vuba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vb == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(vb == *pvb);
 
   assertTrue_1(vuia.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vi == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(vi == *pvi);
 
   assertTrue_1(vuda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vd == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(vd == *pvd);
 
   assertTrue_1(vusa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vs == pfoosa->getContentsVector());
+  assertTrue_1(pfoosa->allElementsKnown());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(vs == *pvs);
 
   // Reset and check that value is now unknown
   // Can't reset while active
@@ -252,23 +278,31 @@ static bool uninitializedVariableTest()
 
   assertTrue_1(vuba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vb == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(vb == *pvb);
 
   assertTrue_1(vuia.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vi == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(vi == *pvi);
 
   assertTrue_1(vuda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vd == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(vd == *pvd);
 
   assertTrue_1(vusa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vs == pfoosa->getContentsVector());
+  assertTrue_1(pfoosa->allElementsKnown());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(vs == *pvs);
 
   // Set values and check that they changed
   std::vector<bool> vab(2, false);
@@ -293,23 +327,31 @@ static bool uninitializedVariableTest()
 
   assertTrue_1(vuba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vab == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(vab == *pvb);
 
   assertTrue_1(vuia.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vai == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(vai == *pvi);
 
   assertTrue_1(vuda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vad == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(vad == *pvd);
 
   assertTrue_1(vusa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(vas == pfoosa->getContentsVector());
+  assertTrue_1(pfoosa->allElementsKnown());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(vas == *pvs);
 
   return true;
 }
@@ -361,30 +403,43 @@ static bool testVariableInitialValue()
   assertTrue_1(vsa.isKnown());
 
   // Check values
-  Array<bool> const *pfooba = NULL;
-  Array<int32_t> const *pfooia = NULL;
-  Array<double> const *pfooda = NULL;
-  Array<std::string> const *pfoosa = NULL;
+  BooleanArray const *pfooba = NULL;
+  IntegerArray const *pfooia = NULL;
+  RealArray const *pfooda = NULL;
+  StringArray const *pfoosa = NULL;
+
+  std::vector<bool> const *pvb;
+  std::vector<int32_t> const *pvi;
+  std::vector<double> const *pvd;
+  std::vector<std::string> const *pvs;
 
   assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(bv == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv == *pvb);
 
   assertTrue_1(via.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(iv == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv == *pvi);
 
   assertTrue_1(vda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(dv == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(dv == *pvd);
 
   assertTrue_1(vsa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(sv == pfoosa->getContentsVector());
+  assertTrue_1(pfoosa->allElementsKnown());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv == *pvs);
 
   // Set unknown
   vba.setUnknown();
@@ -444,23 +499,31 @@ static bool testVariableInitialValue()
 
   assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(bv == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv == *pvb);
 
   assertTrue_1(via.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(iv == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv == *pvi);
 
   assertTrue_1(vda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(dv == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(dv == *pvd);
 
   assertTrue_1(vsa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(sv == pfoosa->getContentsVector());
+  assertTrue_1(pfoosa->allElementsKnown());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv == *pvs);
 
   // Set values and check
   std::vector<bool> bv2(1, true);
@@ -475,23 +538,31 @@ static bool testVariableInitialValue()
 
   assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(bv2 == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv2 == *pvb);
 
   assertTrue_1(via.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(iv2 == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv2 == *pvi);
 
   assertTrue_1(vda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(dv2 == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(dv2 == *pvd);
 
   assertTrue_1(vsa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(sv2 == pfoosa->getContentsVector());
+  assertTrue_1(pfoosa->allElementsKnown());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv2 == *pvs);
 
   return true;
 }
@@ -555,34 +626,47 @@ static bool testExpressionId()
   esa->activate();
 
   // Check values
-  Array<bool> const *pfooba = NULL;
-  Array<int32_t> const *pfooia = NULL;
-  Array<double> const *pfooda = NULL;
-  Array<std::string> const *pfoosa = NULL;
+  BooleanArray const *pfooba = NULL;
+  IntegerArray const *pfooia = NULL;
+  RealArray const *pfooda = NULL;
+  StringArray const *pfoosa = NULL;
+
+  std::vector<bool> const *pvb;
+  std::vector<int32_t> const *pvi;
+  std::vector<double> const *pvd;
+  std::vector<std::string> const *pvs;
 
   assertTrue_1(eba->isKnown());
   assertTrue_1(eba->getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check that all known flags are set
-  assertTrue_1(bv == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv == *pvb);
 
   assertTrue_1(eia->isKnown());
   assertTrue_1(eia->getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check that all known flags are set
-  assertTrue_1(iv == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv == *pvi);
 
   assertTrue_1(eda->isKnown());
   assertTrue_1(eda->getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check that all known flags are set
-  assertTrue_1(dv == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(dv == *pvd);
 
   assertTrue_1(esa->isKnown());
   assertTrue_1(esa->getValuePointer(pfoosa));
-  // TODO: check that all known flags are set
+  assertTrue_1(pfoosa->allElementsKnown());
   assertTrue_1(pfoosa != NULL);
-  assertTrue_1(sv == pfoosa->getContentsVector());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv == *pvs);
 
   return true;
 }
@@ -594,10 +678,10 @@ static bool testVariableSavedValue()
   RealArrayVariable vuda;
   StringArrayVariable vusa;
 
-  Array<bool> const *pfooba = NULL;
-  Array<int32_t> const *pfooia = NULL;
-  Array<double> const *pfooda = NULL;
-  Array<std::string> const *pfoosa = NULL;
+  BooleanArray const *pfooba = NULL;
+  IntegerArray const *pfooia = NULL;
+  RealArray const *pfooda = NULL;
+  StringArray const *pfoosa = NULL;
 
   // Activate
   vuba.activate();
@@ -645,21 +729,34 @@ static bool testVariableSavedValue()
   assertTrue_1(vuda.isKnown());
   assertTrue_1(vusa.isKnown());
 
+  std::vector<bool> const *pvb;
+  std::vector<int32_t> const *pvi;
+  std::vector<double> const *pvd;
+  std::vector<std::string> const *pvs;
+
   assertTrue_1(vuba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  assertTrue_1(bv == pfooba->getContentsVector());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv == *pvb);
 
   assertTrue_1(vuia.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  assertTrue_1(iv == pfooia->getContentsVector());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv == *pvi);
 
   assertTrue_1(vuda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  assertTrue_1(dv == pfooda->getContentsVector());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(dv == *pvd);
 
   assertTrue_1(vusa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  assertTrue_1(sv == pfoosa->getContentsVector());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv == *pvs);
 
   // Restore saved value and check result
   vuba.restoreSavedValue();
@@ -702,19 +799,27 @@ static bool testVariableSavedValue()
 
   assertTrue_1(vuba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  assertTrue_1(bv == pfooba->getContentsVector());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv == *pvb);
 
   assertTrue_1(vuia.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  assertTrue_1(iv == pfooia->getContentsVector());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv == *pvi);
 
   assertTrue_1(vuda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  assertTrue_1(dv == pfooda->getContentsVector());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(dv == *pvd);
 
   assertTrue_1(vusa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  assertTrue_1(sv == pfoosa->getContentsVector());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv == *pvs);
 
   // Save current value
   vuba.saveCurrentValue();
@@ -763,19 +868,27 @@ static bool testVariableSavedValue()
 
   assertTrue_1(vuba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  assertTrue_1(bv == pfooba->getContentsVector());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv == *pvb);
 
   assertTrue_1(vuia.getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  assertTrue_1(iv == pfooia->getContentsVector());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv == *pvi);
 
   assertTrue_1(vuda.getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  assertTrue_1(dv == pfooda->getContentsVector());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(dv == *pvd);
 
   assertTrue_1(vusa.getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  assertTrue_1(sv == pfoosa->getContentsVector());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv == *pvs);
 
   // Reset
   vuba.deactivate();
@@ -879,30 +992,43 @@ static bool testAssignableId()
   assertTrue_1(esa->isKnown());
 
   // Check values
-  Array<bool> const *pfooba = NULL;
-  Array<int32_t> const *pfooia = NULL;
-  Array<double> const *pfooda = NULL;
-  Array<std::string> const *pfoosa = NULL;
+  BooleanArray const *pfooba = NULL;
+  IntegerArray const *pfooia = NULL;
+  RealArray const *pfooda = NULL;
+  StringArray const *pfoosa = NULL;
+
+  std::vector<bool> const *pvb;
+  std::vector<int32_t> const *pvi;
+  std::vector<double> const *pvd;
+  std::vector<std::string> const *pvs;
 
   assertTrue_1(eba->getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(bv == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv == *pvb);
 
   assertTrue_1(eia->getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(iv == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv == *pvi);
 
   assertTrue_1(eda->getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(dv == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(dv == *pvd);
 
   assertTrue_1(esa->getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(sv == pfoosa->getContentsVector());
+  assertTrue_1(pfoosa->allElementsKnown());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv == *pvs);
 
   // Set values
 
@@ -918,23 +1044,31 @@ static bool testAssignableId()
 
   assertTrue_1(eba->getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(bv2 == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv2 == *pvb);
 
   assertTrue_1(eia->getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(iv2 == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv2 == *pvi);
 
   assertTrue_1(eda->getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(dv2 == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(dv2 == *pvd);
 
   assertTrue_1(esa->getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(sv2 == pfoosa->getContentsVector());
+  assertTrue_1(pfoosa->allElementsKnown());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv2 == *pvs);
 
   // Save
   eba->saveCurrentValue();
@@ -985,23 +1119,31 @@ static bool testAssignableId()
 
   assertTrue_1(eba->getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(bv2 == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv2 == *pvb);
 
   assertTrue_1(eia->getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(iv2 == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv2 == *pvi);
 
   assertTrue_1(eda->getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(dv2 == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(dv2 == *pvd);
 
   assertTrue_1(esa->getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(sv2 == pfoosa->getContentsVector());
+  assertTrue_1(pfoosa->allElementsKnown());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv2 == *pvs);
 
   // Reset
   eba->deactivate();
@@ -1032,23 +1174,31 @@ static bool testAssignableId()
 
   assertTrue_1(eba->getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(bv == pfooba->getContentsVector());
+  assertTrue_1(pfooba->allElementsKnown());
+  pfooba->getContentsVector(pvb);
+  assertTrue_1(pvb != NULL);
+  assertTrue_1(bv == *pvb);
 
   assertTrue_1(eia->getValuePointer(pfooia));
   assertTrue_1(pfooia != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(iv == pfooia->getContentsVector());
+  assertTrue_1(pfooia->allElementsKnown());
+  pfooia->getContentsVector(pvi);
+  assertTrue_1(pvi != NULL);
+  assertTrue_1(iv == *pvi);
 
   assertTrue_1(eda->getValuePointer(pfooda));
   assertTrue_1(pfooda != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(dv == pfooda->getContentsVector());
+  assertTrue_1(pfooda->allElementsKnown());
+  pfooda->getContentsVector(pvd);
+  assertTrue_1(pvd != NULL);
+  assertTrue_1(dv == *pvd);
 
   assertTrue_1(esa->getValuePointer(pfoosa));
   assertTrue_1(pfoosa != NULL);
-  // TODO: check all known flags are true
-  assertTrue_1(sv == pfoosa->getContentsVector());
+  assertTrue_1(pfoosa->allElementsKnown());
+  pfoosa->getContentsVector(pvs);
+  assertTrue_1(pvs != NULL);
+  assertTrue_1(sv == *pvs);
 
   return true;
 }

@@ -33,7 +33,6 @@ namespace PLEXIL
 {
 
   // TODO:
-  // - Type conversions
   // - Overflow/underflow checks
 
   //
