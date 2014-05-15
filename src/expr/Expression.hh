@@ -27,10 +27,8 @@
 #ifndef PLEXIL_EXPRESSION_HH
 #define PLEXIL_EXPRESSION_HH
 
-// #include "plexil-config.h" // included in Id.hh
-
-#include "Id.hh"
-#include "ExpressionListener.hh"
+#include "Array.hh"
+#include "ExpressionListener.hh" 
 #include "ValueType.hh"
 
 #ifdef HAVE_STDINT_H
@@ -231,21 +229,10 @@ namespace PLEXIL
      * @note Default methods return an error in every case.
      */
     virtual bool getValuePointer(std::string const *&ptr) const;              // String
-
-    /**
-     * @brief Retrieve the value vector and the known vector for array-valued expressions.
-     * @param valuePtr Reference to the pointer variable to receive the value vector.
-     * @param knownPtr Reference to the pointer variable to receive the known vector.
-     * @return True if the value is known, false if unknown or invalid.
-     */
-    virtual bool getArrayContents(std::vector<bool> const *&valuePtr,
-                                  std::vector<bool> const *&knownPtr) const;
-    virtual bool getArrayContents(std::vector<int32_t> const *&valuePtr,
-                                  std::vector<bool> const *&knownPtr) const;
-    virtual bool getArrayContents(std::vector<double> const *&valuePtr,
-                                  std::vector<bool> const *&knownPtr) const;
-    virtual bool getArrayContents(std::vector<std::string> const *&valuePtr,
-                                  std::vector<bool> const *&knownPtr) const;
+    virtual bool getValuePointer(Array<bool> const *&ptr) const;              // Boolean array
+    virtual bool getValuePointer(Array<int32_t> const *&ptr) const;           // Integer array
+    virtual bool getValuePointer(Array<double> const *&ptr) const;            // Real array
+    virtual bool getValuePointer(Array<std::string> const *&ptr) const;       // String array
 
   private:
 

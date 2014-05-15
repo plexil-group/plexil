@@ -57,91 +57,87 @@ namespace PLEXIL {
     return false;
   }
 
+  bool Assignable::getMutableValuePointer(Array<bool> *& /* ptr */)
+  {
+    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
+    return false;
+  }
+
+  bool Assignable::getMutableValuePointer(Array<int32_t> *& /* ptr */)
+  {
+    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
+    return false;
+  }
+
+  bool Assignable::getMutableValuePointer(Array<double> *& /* ptr */)
+  {
+    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
+    return false;
+  }
+
+  bool Assignable::getMutableValuePointer(Array<std::string> *& /* ptr */)
+  {
+    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
+    return false;
+  }
+
   //
   // setValue() default methods
   //
 
-  void Assignable::setValue(const double & /* val */)
+  void Assignable::setValue(double const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: Real is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const int32_t & /* val */)
+  void Assignable::setValue(int32_t const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: Integer is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const uint16_t & /* val */)
+  void Assignable::setValue(uint16_t const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: Internal value is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const bool & /* val */)
+  void Assignable::setValue(bool const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: Boolean is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const std::string & /* val */)
+  void Assignable::setValue(std::string const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: String is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const char * /* val */)
+  void Assignable::setValue(char const * /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: Character string is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const std::vector<bool>  & /* val */)
+  void Assignable::setValue(Array<bool> const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: BooleanArray is not a valid type for this expression");
   }
 
-  // void Assignable::setValue(const std::vector<uint16_t> & /* val */)
+  // void Assignable::setValue(Array<uint16_t> const & /* val */)
   // {
   //   assertTrue_2(ALWAYS_FAIL, "setValue: Not a valid type for this expression");
   // }
 
-  void Assignable::setValue(const std::vector<int32_t>  & /* val */)
+  void Assignable::setValue(Array<int32_t> const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: IntegerArray is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const std::vector<double> & /* val */)
+  void Assignable::setValue(Array<double> const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: RealArray is not a valid type for this expression");
   }
 
-  void Assignable::setValue(const std::vector<std::string> & /* val */)
+  void Assignable::setValue(Array<std::string> const & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "setValue: String is not a valid type for this expression");
-  }
-
-  bool Assignable::getMutableArrayContents(std::vector<bool> *& /* valuePtr */,
-                                           std::vector<bool> *& /* knownPtr */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "getMutableArrayContents: value type error");
-    return false;
-  }
-
-  bool Assignable::getMutableArrayContents(std::vector<int32_t> *& /* valuePtr */,
-                                           std::vector<bool> *& /* knownPtr */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "getMutableArrayContents: value type error");
-    return false;
-  }
-
-  bool Assignable::getMutableArrayContents(std::vector<double> *& /* valuePtr */,
-                                           std::vector<bool> *& /* knownPtr */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "getMutableArrayContents: value type error");
-    return false;
-  }
-
-  bool Assignable::getMutableArrayContents(std::vector<std::string> *& /* valuePtr */,
-                                           std::vector<bool> *& /* knownPtr */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "getMutableArrayContents: value type error");
-    return false;
   }
 
   /**

@@ -141,35 +141,45 @@ namespace PLEXIL {
   {
     if (m_initializer.isId()) {
       m_initializer->activate();
+      T const *valptr;
+      m_known = m_initializer->getValuePointer(valptr);
+      m_value = *valptr;
+    }
+    if (m_known)
+      this->publishChange(getId());
+  }
+
+  template <>
+  void UserVariable<bool>::handleActivate()
+  {
+    if (m_initializer.isId()) {
+      m_initializer->activate();
       m_known = m_initializer->getValue(m_value);
     }
     if (m_known)
       this->publishChange(getId());
   }
 
-  // Let the derived class handle these.
   template <>
-  void UserVariable<std::vector<bool> >::handleActivate()
+  void UserVariable<int32_t>::handleActivate()
   {
-    assertTrue_2(ALWAYS_FAIL, "Base class handleActivate method called on array variable");
+    if (m_initializer.isId()) {
+      m_initializer->activate();
+      m_known = m_initializer->getValue(m_value);
+    }
+    if (m_known)
+      this->publishChange(getId());
   }
 
   template <>
-  void UserVariable<std::vector<int32_t> >::handleActivate()
+  void UserVariable<double>::handleActivate()
   {
-    assertTrue_2(ALWAYS_FAIL, "Base class handleActivate method called on array variable");
-  }
-
-  template <>
-  void UserVariable<std::vector<double> >::handleActivate()
-  {
-    assertTrue_2(ALWAYS_FAIL, "Base class handleActivate method called on array variable");
-  }
-
-  template <>
-  void UserVariable<std::vector<std::string> >::handleActivate()
-  {
-    assertTrue_2(ALWAYS_FAIL, "Base class handleActivate method called on array variable");
+    if (m_initializer.isId()) {
+      m_initializer->activate();
+      m_known = m_initializer->getValue(m_value);
+    }
+    if (m_known)
+      this->publishChange(getId());
   }
 
   template <typename T>
@@ -184,36 +194,45 @@ namespace PLEXIL {
   void UserVariable<T>::setValue(ExpressionId const &valex)
   {
     assertTrue_2(this->isActive(), "setValue while inactive");
-    T newval;
+    T const *newval;
+    if (valex->getValuePointer(newval))
+      setValue(*newval);
+    else 
+      setUnknown();
+  }
+
+  // Scalar types
+  template <>
+  void UserVariable<bool>::setValue(ExpressionId const &valex)
+  {
+    assertTrue_2(this->isActive(), "setValue while inactive");
+    bool newval;
     if (valex->getValue(newval))
       setValue(newval);
     else 
       setUnknown();
   }
 
-  // C++ sucks.
   template <>
-  void UserVariable<std::vector<bool> >::setValue(ExpressionId const &valex)
+  void UserVariable<int32_t>::setValue(ExpressionId const &valex)
   {
-    assertTrue_2(ALWAYS_FAIL, "setValue implemented by derived class");
+    assertTrue_2(this->isActive(), "setValue while inactive");
+    int32_t newval;
+    if (valex->getValue(newval))
+      setValue(newval);
+    else 
+      setUnknown();
   }
 
   template <>
-  void UserVariable<std::vector<int32_t> >::setValue(ExpressionId const & /* valex */)
+  void UserVariable<double>::setValue(ExpressionId const &valex)
   {
-    assertTrue_2(ALWAYS_FAIL, "setValue type error");
-  }
-
-  template <>
-  void UserVariable<std::vector<double> >::setValue(ExpressionId const & /* valex */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue type error");
-  }
-
-  template <>
-  void UserVariable<std::vector<std::string> >::setValue(ExpressionId const & /* valex */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue type error");
+    assertTrue_2(this->isActive(), "setValue while inactive");
+    double newval;
+    if (valex->getValue(newval))
+      setValue(newval);
+    else 
+      setUnknown();
   }
 
   template <typename T>
@@ -343,9 +362,9 @@ namespace PLEXIL {
   // see above for string variables
 
   // Required by ArrayVariable
-  template class UserVariable<std::vector<bool> >;
-  template class UserVariable<std::vector<int32_t> >;
-  template class UserVariable<std::vector<double> >;
-  template class UserVariable<std::vector<std::string> >;
+  template class UserVariable<Array<bool> >;
+  template class UserVariable<Array<int32_t> >;
+  template class UserVariable<Array<double> >;
+  template class UserVariable<Array<std::string> >;
 
 } // namespace PLEXIL

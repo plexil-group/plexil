@@ -69,13 +69,13 @@ namespace PLEXIL
   template <typename T>
   bool ArrayReference<T>::isKnown() const
   {
-    std::vector<T> const *dummyAry;
+    Array<T> const *dummyAry;
     size_t dummyIdx;
     return selfCheck(dummyAry, dummyIdx);
   }
 
   template <typename T>
-  bool ArrayReference<T>::selfCheck(std::vector<T> const *&valuePtr,
+  bool ArrayReference<T>::selfCheck(Array<T> const *&valuePtr,
                                     size_t &idx) const
   {
     if (!(isActive() && m_array->isActive() && m_index->isActive()))
@@ -88,39 +88,34 @@ namespace PLEXIL
       return false;
     }
     idx = (size_t) idxTemp;
-    std::vector<bool> const *knownPtr;
-    if (!m_array->getArrayContents(valuePtr, knownPtr))
+    if (!m_array->getValuePointer(valuePtr))
       return false; // array unknown or invalid
     if (idx >= valuePtr->size()) {
       assertTrue_2(ALWAYS_FAIL, "ArrayReference: Array index exceeds array size");
       return false;
     }
-    if (idx >= knownPtr->size()) {
-      assertTrue_2(ALWAYS_FAIL, "ArrayReference: Internal error: Known vector smaller than value vector");
-      return false;
-    }
-    return (*knownPtr)[idx];
+    return valuePtr->getKnownVector()[idx];
   }
 
   template <typename T>
   bool ArrayReference<T>::getValueImpl(T &result) const
   {
-    std::vector<T> const *ary;
+    Array<T> const *ary;
     size_t idx;
     if (!selfCheck(ary, idx))
       return false;
-    result = ((*ary)[idx]);
+    result = ary->getContentsVector()[idx];
     return true;
   }
 
   template <typename T>
   bool ArrayReference<T>::getValuePointerImpl(T const *&ptr) const
   {
-    std::vector<T> const *ary;
+    Array<T> const *ary;
     size_t idx;
     if (!selfCheck(ary, idx))
       return false;
-    ptr = &((*ary)[idx]);
+    ptr = &(ary->getContentsVector()[idx]);
     return true;
   }
 
@@ -164,8 +159,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool MutableArrayReference<T>::mutableSelfCheck(std::vector<T> *&valuePtr,
-                                                  std::vector<bool> *&knownPtr,
+  bool MutableArrayReference<T>::mutableSelfCheck(Array<T> *&valuePtr,
                                                   size_t &idx)
   {
     if (!(isActive()
@@ -180,14 +174,10 @@ namespace PLEXIL
       return false;
     }
     idx = (size_t) idxTemp;
-    if (!m_mutableArray->getMutableArrayContents(valuePtr, knownPtr))
+    if (!m_mutableArray->getMutableValuePointer(valuePtr))
       return false; // array unknown
     if (idx >= valuePtr->size()) {
       assertTrue_2(ALWAYS_FAIL, "ArrayReference: Array index exceeds array size");
-      return false;
-    }
-    if (idx >= knownPtr->size()) {
-      assertTrue_2(ALWAYS_FAIL, "ArrayReference: internal error: known vector");
       return false;
     }
     return true;
@@ -196,14 +186,13 @@ namespace PLEXIL
   template <typename T>
   void MutableArrayReference<T>::setValue(const T &value)
   {
-    std::vector<T> *ary;
-    std::vector<bool> *knownAry;
+    Array<T> *ary;
     size_t idx;
-    if (!mutableSelfCheck(ary, knownAry, idx))
+    if (!mutableSelfCheck(ary, idx))
       return;
-    bool changed = (!(*knownAry)[idx] || (value != (*ary)[idx]));
-    (*ary)[idx] = value;
-    (*knownAry)[idx] = true;
+    bool changed = (!ary->m_known[idx] || (value != ary->m_contents[idx]));
+    ary->m_contents[idx] = value;
+    ary->m_known[idx] = true;
     if (changed) {
       NotifierImpl::publishChange(getId());
       m_mutableArray->getBaseVariable()->notifyChanged(getId()); // array might be alias
@@ -213,21 +202,20 @@ namespace PLEXIL
   template <typename T>
   void MutableArrayReference<T>::setValue(ExpressionId const &valex)
   {
-    std::vector<T> *ary;
-    std::vector<bool> *knownAry;
+    Array<T> *ary;
     size_t idx;
-    if (!mutableSelfCheck(ary, knownAry, idx))
+    if (!mutableSelfCheck(ary, idx))
       return;
     bool changed = false;
     T newVal;
     if (valex->getValue(newVal)) {
-      changed = !(*knownAry)[idx] || newVal != (*ary)[idx];
-      (*ary)[idx] = newVal;
-      (*knownAry)[idx] = true;
+      changed = !ary->m_known[idx] || newVal != ary->m_contents[idx];
+      ary->m_contents[idx] = newVal;
+      ary->m_known[idx] = true;
     }
-    else {
-      changed = (*knownAry)[idx];
-      (*knownAry)[idx] = false;
+    else { // value unknown
+      changed = ary->m_known[idx];
+      ary->m_known[idx] = false;
     }
     if (changed) {
       NotifierImpl::publishChange(getId());
@@ -238,12 +226,16 @@ namespace PLEXIL
   template <typename T>
   void MutableArrayReference<T>::setUnknown()
   {
-    std::vector<T> *dummyAry;
-    std::vector<bool> *knownAry;
+    Array<T> *ary;
     size_t idx;
-    if (!mutableSelfCheck(dummyAry, knownAry, idx))
+    if (!mutableSelfCheck(ary, idx))
       return;
-    (*knownAry)[idx] = false;
+    bool changed = ary->m_known[idx];
+    ary->m_known[idx] = false;
+    if (changed) {
+      NotifierImpl::publishChange(getId());
+      m_mutableArray->getBaseVariable()->notifyChanged(getId()); // array might be alias
+    }
   }
 
   template <typename T>
@@ -255,27 +247,26 @@ namespace PLEXIL
   template <typename T>
   void MutableArrayReference<T>::saveCurrentValue()
   {
-    std::vector<T> *ary;
-    std::vector<bool> *knownAry;
+    Array<T> *ary;
     size_t idx;
-    if (!mutableSelfCheck(ary, knownAry, idx))
-      return;
-    m_savedKnown = (*knownAry)[idx];
-    m_savedValue = (*ary)[idx];
+    if (!mutableSelfCheck(ary, idx))
+      return; // unknown or invalid
+    if ((m_savedKnown = ary->m_known[idx]))
+      m_savedValue = ary->m_contents[idx];
   }
 
   template <typename T>
   void MutableArrayReference<T>::restoreSavedValue()
   {
-    std::vector<T> *ary;
-    std::vector<bool> *knownAry;
+    Array<T> *ary;
     size_t idx;
-    if (!mutableSelfCheck(ary, knownAry, idx))
+    if (!mutableSelfCheck(ary, idx))
       return;
-    bool changed = (m_savedKnown != (*knownAry)[idx])
-      || (m_savedValue != (*ary)[idx]);
-    (*knownAry)[idx] = m_savedKnown;
-    (*ary)[idx] = m_savedValue;
+    bool changed = (m_savedKnown != ary->m_known[idx])
+      || (m_savedKnown && (m_savedValue != ary->m_contents[idx]));
+    ary->m_known[idx] = m_savedKnown;
+    if (m_savedKnown)
+      ary->m_contents[idx] = m_savedValue;
     if (changed) {
       NotifierImpl::publishChange(getId());
       m_mutableArray->notifyChanged(getId());

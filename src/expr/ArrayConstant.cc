@@ -30,37 +30,31 @@ namespace PLEXIL
 {
   template <typename T>
   ArrayConstant<T>::ArrayConstant()
-    : Constant<std::vector<T> >()
+    : Constant<Array<T> >()
   {
   }
 
   template <typename T>
   ArrayConstant<T>::ArrayConstant(const ArrayConstant &other)
-  : Constant<std::vector<T> >(other),
-    m_elementKnown(other.m_elementKnown)
+  : Constant<Array<T> >(other)
+  {
+  }
+
+  template <typename T>
+  ArrayConstant<T>::ArrayConstant(const Array<T> &value)
+    : Constant<Array<T> >(value)
   {
   }
 
   template <typename T>
   ArrayConstant<T>::ArrayConstant(const std::vector<T> &value)
-    : Constant<std::vector<T> >(value),
-      m_elementKnown(value.size(), true)
+    : Constant<Array<T> >(Array<T>(value))
   {
   }
 
   template <typename T>
   ArrayConstant<T>::~ArrayConstant()
   {
-  }
-
-  template <typename T>
-  bool ArrayConstant<T>::getArrayContentsImpl(std::vector<T> const *&valuePtr,
-                                              std::vector<bool> const *&knownPtr) const
-  {
-    if (!Constant<std::vector<T> >::getValuePointerImpl(valuePtr))
-      return false;
-    knownPtr = &m_elementKnown;
-    return true;
   }
 
   //

@@ -29,48 +29,44 @@
 
 namespace PLEXIL
 {
-  // Default method.
-  // FIXME: probably need individual methods for array types.
+  // Default methods.
   template <typename T>
   bool ExpressionImpl<T>::isKnown() const
   {
-    T dummy;
+    T const *dummy;
+    return this->getValuePointerImpl(dummy);
+  }
+
+  // For immediate types
+  template <>
+  bool ExpressionImpl<bool>::isKnown() const
+  {
+    bool dummy;
     return this->getValueImpl(dummy);
   }
 
   template <>
-  bool ExpressionImpl<std::vector<bool> >::isKnown() const
+  bool ExpressionImpl<uint16_t>::isKnown() const
   {
-    std::vector<bool> const *valueDummy;
-    std::vector<bool> const *knownDummy;
-    return this->getArrayContentsImpl(valueDummy, knownDummy);
+    uint16_t dummy;
+    return this->getValueImpl(dummy);
   }
 
   template <>
-  bool ExpressionImpl<std::vector<int32_t> >::isKnown() const
+  bool ExpressionImpl<int32_t>::isKnown() const
   {
-    std::vector<int32_t> const *valueDummy;
-    std::vector<bool> const *knownDummy;
-    return this->getArrayContentsImpl(valueDummy, knownDummy);
+    int32_t dummy;
+    return this->getValueImpl(dummy);
   }
 
   template <>
-  bool ExpressionImpl<std::vector<double> >::isKnown() const
+  bool ExpressionImpl<double>::isKnown() const
   {
-    std::vector<double> const *valueDummy;
-    std::vector<bool> const *knownDummy;
-    return this->getArrayContentsImpl(valueDummy, knownDummy);
+    double dummy;
+    return this->getValueImpl(dummy);
   }
 
-  template <>
-  bool ExpressionImpl<std::vector<std::string> >::isKnown() const
-  {
-    std::vector<std::string> const *valueDummy;
-    std::vector<bool> const *knownDummy;
-    return this->getArrayContentsImpl(valueDummy, knownDummy);
-  }
-
-  // Default method.
+  // Default methods.
   template <typename T>
   const ValueType ExpressionImpl<T>::valueType() const
   {
@@ -102,25 +98,25 @@ namespace PLEXIL
   }
 
   template <>
-  const ValueType ExpressionImpl<std::vector<bool> >::valueType() const
+  const ValueType ExpressionImpl<Array<bool> >::valueType() const
   {
     return BOOLEAN_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<std::vector<int32_t> >::valueType() const
+  const ValueType ExpressionImpl<Array<int32_t> >::valueType() const
   {
     return INTEGER_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<std::vector<double> >::valueType() const
+  const ValueType ExpressionImpl<Array<double> >::valueType() const
   {
     return REAL_ARRAY_TYPE;
   }
 
   template <>
-  const ValueType ExpressionImpl<std::vector<std::string> >::valueType() const
+  const ValueType ExpressionImpl<Array<std::string> >::valueType() const
   {
     return STRING_ARRAY_TYPE;
   }
@@ -169,23 +165,6 @@ namespace PLEXIL
     return false;
   }
 
-  template <typename T>
-  bool ExpressionImpl<T>::getArrayContentsImpl(T const *& /* valuePtr */,
-                                               std::vector<bool> const *& /* knownPtr */) const
-  {
-    check_error_2(ALWAYS_FAIL, "getArrayContents not implemented for this expression");
-    return false;
-  }
-
-  template <typename T>
-  template <typename U>
-  bool ExpressionImpl<T>::getArrayContentsImpl(U const *& /* valuePtr */,
-                                               std::vector<bool> const *& /* knownPtr */) const
-  {
-    check_error_2(ALWAYS_FAIL, "getArrayContents: value type error");
-    return false;
-  }
-
   //
   // Explicit instantiations
   //
@@ -195,9 +174,9 @@ namespace PLEXIL
   template class ExpressionImpl<double>;
   template class ExpressionImpl<std::string>;
 
-  template class ExpressionImpl<std::vector<bool> >;
-  template class ExpressionImpl<std::vector<int32_t> >;
-  template class ExpressionImpl<std::vector<double> >;
-  template class ExpressionImpl<std::vector<std::string> >;
+  template class ExpressionImpl<Array<bool> >;
+  template class ExpressionImpl<Array<int32_t> >;
+  template class ExpressionImpl<Array<double> >;
+  template class ExpressionImpl<Array<std::string> >;
 
 }

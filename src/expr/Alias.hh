@@ -62,7 +62,6 @@ namespace PLEXIL
      * @param The appropriately typed place to put the result.
      * @return True if known, false if unknown or invalid.
      */
-
     bool getValue(bool &var) const;
     bool getValue(double &var) const;
     bool getValue(uint16_t &var) const;
@@ -75,21 +74,10 @@ namespace PLEXIL
      * @return True if known, false if unknown or invalid.
      */
     bool getValuePointer(std::string const *&ptr) const;
-
-    /**
-     * @brief Retrieve the value vector and the known vector for array-valued expressions.
-     * @param valuePtr Reference to the pointer variable to receive the value vector.
-     * @param knownPtr Reference to the pointer variable to receive the known vector.
-     * @return True if the value is known, false if unknown or invalid.
-     */
-    bool getArrayContents(std::vector<bool> const *&valuePtr,
-                          std::vector<bool> const *&knownPtr) const;
-    bool getArrayContents(std::vector<int32_t> const *&valuePtr,
-                          std::vector<bool> const *&knownPtr) const;
-    bool getArrayContents(std::vector<double> const *&valuePtr,
-                          std::vector<bool> const *&knownPtr) const;
-    bool getArrayContents(std::vector<std::string> const *&valuePtr,
-                          std::vector<bool> const *&knownPtr) const;
+    bool getValuePointer(Array<bool> const *&ptr) const;
+    bool getValuePointer(Array<int32_t> const *&ptr) const;
+    bool getValuePointer(Array<double> const *&ptr) const;
+    bool getValuePointer(Array<std::string> const *&ptr) const;
     
   protected:
 
@@ -162,12 +150,12 @@ namespace PLEXIL
     void setValue(const uint16_t &val);
     void setValue(const bool &val);
     void setValue(const std::string &val);
-    void setValue(const char *val);
+    void setValue(const char *val); // Convenience method
 
-    void setValue(const std::vector<bool> &val);
-    void setValue(const std::vector<int32_t> &val);
-    void setValue(const std::vector<double> &val);
-    void setValue(const std::vector<std::string> &val);
+    void setValue(const Array<bool> &val);
+    void setValue(const Array<int32_t> &val);
+    void setValue(const Array<double> &val);
+    void setValue(const Array<std::string> &val);
 
     /**
      * @brief Set the value for this expression from another expression.
@@ -183,22 +171,10 @@ namespace PLEXIL
      * @note Default method returns false and reports a type error.
      */
     bool getMutableValuePointer(std::string *& ptr);
-
-    /**
-     * @brief Retrieve the (writable) value vector and known vector for array-valued expressions.
-     * @param valuePtr Reference to the pointer variable to receive the value vector.
-     * @param knownPtr Reference to the pointer variable to receive the known vector.
-     * @return True if the value is known, false if unknown or invalid.
-     * @note Each default method returns false and reports a type error.
-     */
-    bool getMutableArrayContents(std::vector<bool> *&valuePtr,
-                                 std::vector<bool> *&knownPtr);
-    bool getMutableArrayContents(std::vector<int32_t> *&valuePtr,
-                                 std::vector<bool> *&knownPtr);
-    bool getMutableArrayContents(std::vector<double> *&valuePtr,
-                                 std::vector<bool> *&knownPtr);
-    bool getMutableArrayContents(std::vector<std::string> *&valuePtr,
-                                 std::vector<bool> *&knownPtr);
+    bool getMutableValuePointer(Array<bool> *& ptr);
+    bool getMutableValuePointer(Array<int32_t> *& ptr);
+    bool getMutableValuePointer(Array<double> *& ptr);
+    bool getMutableValuePointer(Array<std::string> *& ptr);
 
     /**
      * @brief Temporarily stores the previous value of this variable.

@@ -39,13 +39,13 @@ namespace PLEXIL
    */
 
   template <typename T>
-  class ArrayVariable : public UserVariable<std::vector<T> >
+  class ArrayVariable : public UserVariable<Array<T> >
   {
   public:
     ArrayVariable();
 
     // Regression testing only - to be removed
-    ArrayVariable(std::vector<T> const & initVal);
+    ArrayVariable(Array<T> const & initVal);
 
     /**
      * @brief Constructor for plan loading.
@@ -62,50 +62,18 @@ namespace PLEXIL
     virtual ~ArrayVariable();
 
     // Specializations from UserVariable
-    void reset();
     void handleActivate();
-    void setValue(std::vector<T> const &val);
-    void setValue(ExpressionId const &valex);
-    void saveCurrentValue();
-    void restoreSavedValue();
-
-    /**
-     * @brief Retrieve the value vector and the known vector for array-valued expressions.
-     * @param valuePtr Reference to the pointer variable to receive the value vector.
-     * @param knownPtr Reference to the pointer variable to receive the known vector.
-     * @return True if the value is known, false if unknown or invalid.
-     */
-    bool getArrayContentsImpl(std::vector<T> const *&valuePtr,
-                              std::vector<bool> const *&knownPtr) const;
-
-    /**
-     * @brief Retrieve the (writable) value vector and known vector for array-valued expressions.
-     * @param valuePtr Reference to the pointer variable to receive the value vector.
-     * @param knownPtr Reference to the pointer variable to receive the known vector.
-     * @return True if the value is known, false if unknown or invalid.
-     */
-    bool getMutableArrayContents(std::vector<T> *&valuePtr,
-                                 std::vector<bool> *&knownPtr);
-
-    /**
-     * @brief Get a pointer to the vector of element-known flags.
-     * @param ptr Place to store the pointer.
-     * @return True if array value itself is known, false if unknown or invalid.
-     * @note Return value of false means no pointer was assigned.
-     */
-    bool getMutableKnownVectorPointer(std::vector<bool> *&ptr);
+    // Convenience method, for testing only
+    void setValue(std::vector<T> const &newVal);
 
   private:
     // Convenience typedefs
-    typedef UserVariable<std::vector<T> > Superclass;
+    typedef UserVariable<Array<T> > Superclass;
 
     /**
      * @brief Pre-allocate storage based on the current value of the size expression.
      */
     void reserve();
-
-    std::vector<bool> m_elementKnown;
-    std::vector<bool> m_savedElementKnown;
 
     ExpressionId m_size;
     bool m_sizeIsGarbage;

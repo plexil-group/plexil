@@ -158,11 +158,10 @@ static bool testAliasToArrayConstant()
   Alias adc(NodeId::noId(), "adc", dc.getId());
   Alias asc(NodeId::noId(), "asc", sc.getId());
 
-  std::vector<bool> const        *pknown = NULL, *paknown = NULL;
-  std::vector<bool> const        *pvb = NULL, *pavb = NULL;
-  std::vector<int32_t> const     *pvi = NULL, *pavi = NULL;
-  std::vector<double> const      *pvd = NULL, *pavd = NULL;
-  std::vector<std::string> const *pvs = NULL, *pavs = NULL;
+  Array<bool> const        *pab = NULL, *paab = NULL;
+  Array<int32_t> const     *pai = NULL, *paai = NULL;
+  Array<double> const      *pad = NULL, *paad = NULL;
+  Array<std::string> const *pas = NULL, *paas = NULL;
 
   // Check that alias is not assignable
   assertTrue_1(!abc.isAssignable());
@@ -210,26 +209,22 @@ static bool testAliasToArrayConstant()
   assertTrue_1(adc.isKnown());
   assertTrue_1(asc.isKnown());
   
-  // Check that getArrayContents is forwarded
-  assertTrue(bc.getArrayContents(pvb, pknown));
-  assertTrue(abc.getArrayContents(pavb, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvb == *pavb);
+  // Check that getValuePointer is forwarded
+  assertTrue(bc.getValuePointer(pab));
+  assertTrue(abc.getValuePointer(paab));
+  assertTrue(*pab == *paab);
 
-  assertTrue(ic.getArrayContents(pvi, pknown));
-  assertTrue(aic.getArrayContents(pavi, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvi == *pavi);
+  assertTrue(ic.getValuePointer(pai));
+  assertTrue(aic.getValuePointer(paai));
+  assertTrue(*pai == *paai);
 
-  assertTrue(dc.getArrayContents(pvd, pknown));
-  assertTrue(adc.getArrayContents(pavd, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvd == *pavd);
+  assertTrue(dc.getValuePointer(pad));
+  assertTrue(adc.getValuePointer(paad));
+  assertTrue(*pad == *paad);
 
-  assertTrue(sc.getArrayContents(pvs, pknown));
-  assertTrue(asc.getArrayContents(pavs, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvs == *pavs);
+  assertTrue(sc.getValuePointer(pas));
+  assertTrue(asc.getValuePointer(paas));
+  assertTrue(*pas == *paas);
 
   return true;
 }
@@ -514,11 +509,10 @@ static bool testAliasToArrayVariable()
   InOutAlias wadc(NodeId::noId(), "wadc", dc.getId());
   InOutAlias wasc(NodeId::noId(), "wasc", sc.getId());
 
-  std::vector<bool> const        *pknown = NULL, *paknown = NULL;
-  std::vector<bool> const        *pvb = NULL, *pavb = NULL;
-  std::vector<int32_t> const     *pvi = NULL, *pavi = NULL;
-  std::vector<double> const      *pvd = NULL, *pavd = NULL;
-  std::vector<std::string> const *pvs = NULL, *pavs = NULL;
+  Array<bool> const        *pab = NULL, *paab = NULL;
+  Array<int32_t> const     *pai = NULL, *paai = NULL;
+  Array<double> const      *pad = NULL, *paad = NULL;
+  Array<std::string> const *pas = NULL, *paas = NULL;
 
   // Check that Alias is not assignable
   assertTrue_1(!abc.isAssignable());
@@ -604,38 +598,30 @@ static bool testAliasToArrayVariable()
   assertTrue_1(wadc.isKnown());
   assertTrue_1(wasc.isKnown());
   
-  // Check that getArrayContents is forwarded
-  assertTrue(bc.getArrayContents(pvb, pknown));
-  assertTrue(abc.getArrayContents(pavb, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvb == *pavb);
-  assertTrue(wabc.getArrayContents(pavb, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvb == *pavb);
+  // Check that getValuePointer is forwarded
+  assertTrue(bc.getValuePointer(pab));
+  assertTrue(abc.getValuePointer(paab));
+  assertTrue(*pab == *paab);
+  assertTrue(wabc.getValuePointer(paab));
+  assertTrue(*pab == *paab);
 
-  assertTrue(ic.getArrayContents(pvi, pknown));
-  assertTrue(aic.getArrayContents(pavi, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvi == *pavi);
-  assertTrue(waic.getArrayContents(pavi, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvi == *pavi);
+  assertTrue(ic.getValuePointer(pai));
+  assertTrue(aic.getValuePointer(paai));
+  assertTrue(*pai == *paai);
+  assertTrue(waic.getValuePointer(paai));
+  assertTrue(*pai == *paai);
 
-  assertTrue(dc.getArrayContents(pvd, pknown));
-  assertTrue(adc.getArrayContents(pavd, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvd == *pavd);
-  assertTrue(wadc.getArrayContents(pavd, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvd == *pavd);
+  assertTrue(dc.getValuePointer(pad));
+  assertTrue(adc.getValuePointer(paad));
+  assertTrue(*pad == *paad);
+  assertTrue(wadc.getValuePointer(paad));
+  assertTrue(*pad == *paad);
 
-  assertTrue(sc.getArrayContents(pvs, pknown));
-  assertTrue(asc.getArrayContents(pavs, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvs == *pavs);
-  assertTrue(wasc.getArrayContents(pavs, paknown));
-  assertTrue(*pknown == *paknown);
-  assertTrue(*pvs == *pavs);
+  assertTrue(sc.getValuePointer(pas));
+  assertTrue(asc.getValuePointer(paas));
+  assertTrue(*pas == *paas);
+  assertTrue(wasc.getValuePointer(paas));
+  assertTrue(*pas == *paas);
 
   // Test array reference through alias
   IntegerVariable ix;
@@ -736,32 +722,28 @@ static bool testAliasToArrayVariable()
   vs2[2] = std::string("eight");
 
   wabc.setValue(vb2);
-  assertTrue_1(bc.getArrayContents(pvb, pknown));
-  assertTrue_1(*pvb == vb2);
-  assertTrue_1(abc.getArrayContents(pavb, paknown));
-  assertTrue_1(*pvb == *pavb);
-  assertTrue_1(*pknown == *paknown);
+  assertTrue_1(bc.getValuePointer(pab));
+  assertTrue_1(pab->getContentsVector() == vb2);
+  assertTrue_1(abc.getValuePointer(paab));
+  assertTrue_1(*pab == *paab);
 
   waic.setValue(vi2);
-  assertTrue_1(ic.getArrayContents(pvi, pknown));
-  assertTrue_1(*pvi == vi2);
-  assertTrue_1(aic.getArrayContents(pavi, paknown));
-  assertTrue_1(*pvi == *pavi);
-  assertTrue_1(*pknown == *paknown);
+  assertTrue_1(ic.getValuePointer(pai));
+  assertTrue_1(pai->getContentsVector() == vi2);
+  assertTrue_1(aic.getValuePointer(paai));
+  assertTrue_1(*pai == *paai);
 
   wadc.setValue(vd2);
-  assertTrue_1(dc.getArrayContents(pvd, pknown));
-  assertTrue_1(*pvd == vd2);
-  assertTrue_1(adc.getArrayContents(pavd, paknown));
-  assertTrue_1(*pvd == *pavd);
-  assertTrue_1(*pknown == *paknown);
+  assertTrue_1(dc.getValuePointer(pad));
+  assertTrue_1(pad->getContentsVector() == vd2);
+  assertTrue_1(adc.getValuePointer(paad));
+  assertTrue_1(*pad == *paad);
 
   wasc.setValue(vs2);
-  assertTrue_1(sc.getArrayContents(pvs, pknown));
-  assertTrue_1(*pvs == vs2);
-  assertTrue_1(asc.getArrayContents(pavs, paknown));
-  assertTrue_1(*pvs == *pavs);
-  assertTrue_1(*pknown == *paknown);
+  assertTrue_1(sc.getValuePointer(pas));
+  assertTrue_1(pas->getContentsVector() == vs2);
+  assertTrue_1(asc.getValuePointer(paas));
+  assertTrue_1(*pas == *paas);
 
   // Test writable array reference through alias
   wabar.setValue(false);
@@ -1363,14 +1345,13 @@ static bool testAliasPropagation()
   vi2[2] = 9;
   vi2[3] = 12;
   waary.setValue(vi2);
-  std::vector<int32_t> const *vtemp;
-  std::vector<bool> const *btemp;
-  assertTrue_1(ary.getArrayContents(vtemp, btemp));
-  assertTrue_1(vi2 == *vtemp);
-  assertTrue_1(aary.getArrayContents(vtemp, btemp));
-  assertTrue_1(vi2 == *vtemp);
-  assertTrue_1(waary.getArrayContents(vtemp, btemp));
-  assertTrue_1(vi2 == *vtemp);
+  Array<int32_t> const *atemp;
+  assertTrue_1(ary.getValuePointer(atemp));
+  assertTrue_1(vi2 == atemp->getContentsVector());
+  assertTrue_1(aary.getValuePointer(atemp));
+  assertTrue_1(vi2 == atemp->getContentsVector());
+  assertTrue_1(waary.getValuePointer(atemp));
+  assertTrue_1(vi2 == atemp->getContentsVector());
   assertTrue_1(!treeChanged);
   assertTrue_1(!atreeChanged);
   assertTrue_1(!watreeChanged);

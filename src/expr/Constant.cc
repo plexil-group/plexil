@@ -202,14 +202,14 @@ namespace PLEXIL {
   // Explicit instantiations
   //
   template class Constant<bool>;
-  // template class Constant<uint16_t>;
+  template class Constant<uint16_t>;
   template class Constant<int32_t>;
   template class Constant<double>;
   template class Constant<std::string>;
 
-  template class Constant<std::vector<bool> >;
-  template class Constant<std::vector<int32_t> >;
-  template class Constant<std::vector<double> >;
-  template class Constant<std::vector<std::string> >;
+  template class Constant<Array<bool> >;
+  template class Constant<Array<int32_t> >;
+  template class Constant<Array<double> >;
+  template class Constant<Array<std::string> >;
 
 } // namespace PLEXIL

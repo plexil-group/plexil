@@ -132,31 +132,27 @@ namespace PLEXIL {
     return false;
   }
 
-  bool Expression::getArrayContents(std::vector<bool> const *& /* valuePtr */,
-                                    std::vector<bool> const *& /* knownPtr */) const
+  bool Expression::getValuePointer(Array<bool> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getArrayContents() not implemented for BooleanArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for BooleanArray for this expression");
     return false;
   }
 
-  bool Expression::getArrayContents(std::vector<int32_t> const *& /* valuePtr */,
-                                    std::vector<bool> const *& /* knownPtr */) const
+  bool Expression::getValuePointer(Array<int32_t> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getArrayContents() not implemented for IntegerArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for IntegerArray for this expression");
     return false;
   }
 
-  bool Expression::getArrayContents(std::vector<double> const *& /* valuePtr */,
-                                    std::vector<bool> const *& /* knownPtr */) const
+  bool Expression::getValuePointer(Array<double> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getArrayContents() not implemented for RealArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for RealArray for this expression");
     return false;
   }
 
-  bool Expression::getArrayContents(std::vector<std::string> const *& /* valuePtr */,
-                                    std::vector<bool> const *& /* knownPtr */) const
+  bool Expression::getValuePointer(Array<std::string> const *& /* ptr */) const
   {
-    assertTrue_2(ALWAYS_FAIL, "getArrayContents() not implemented for StringArray for this expression");
+    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for StringArray for this expression");
     return false;
   }
     

@@ -37,7 +37,7 @@ namespace PLEXIL {
    */
 
   template <typename T>
-  class ArrayConstant : public Constant<std::vector<T> >
+  class ArrayConstant : public Constant<Array<T> >
   {
   public:
     /**
@@ -53,24 +53,17 @@ namespace PLEXIL {
     /**
      * @brief Constructor from value type.
      */
+    ArrayConstant(const Array<T> &value);
+
+    /**
+     * @brief Constructor from vector.
+     */
     ArrayConstant(const std::vector<T> &value);
 
     /**
      * @brief Destructor.
      */
     virtual ~ArrayConstant();
-
-    /**
-     * @brief Retrieve the value vector and the known vector for array-valued expressions.
-     * @param valuePtr Reference to the pointer variable to receive the value vector.
-     * @param knownPtr Reference to the pointer variable to receive the known vector.
-     * @return True if the value is known, false if unknown or invalid.
-     */
-    bool getArrayContentsImpl(std::vector<T> const *&valuePtr,
-                              std::vector<bool> const *&knownPtr) const;
-
-  private:
-    std::vector<bool> m_elementKnown;
   };
 
   //

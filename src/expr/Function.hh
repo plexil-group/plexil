@@ -37,7 +37,6 @@ namespace PLEXIL
   // TODO:
   // - Do we need cacheable derivative of this?
   // Maybe an expression wrapper?
-  // - Should these be templatized based on the expected return type?
   // - Check parameter types at plan load time
 
   /**
@@ -67,10 +66,6 @@ namespace PLEXIL
      * @return True if known, false if unknown.
      */
     bool getValuePointerImpl(R const *&ptr) const;
-
-    // Default methods, may be overridden by derived classes.
-    // FIXME: is there any sane way to implement these further up the class hierarchy?
-    bool isKnown() const;
 
   protected:
 

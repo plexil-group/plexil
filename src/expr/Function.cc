@@ -60,19 +60,12 @@ namespace PLEXIL
   template <typename R>
   bool Function<R>::getValuePointerImpl(R const *&ptr) const
   {
+    if (!isActive())
+      return false;
     bool result = this->calculate(*m_valueCache);
     if (result)
       ptr = m_valueCache;
     return result;
-  }
-
-  template <typename R>
-  bool Function<R>::isKnown() const
-  {
-    if (!isActive())
-      return false;
-    R dummy;
-    return this->getValue(dummy);
   }
 
   //
@@ -240,22 +233,34 @@ namespace PLEXIL
   // Explicit instantiations
   //
 
-  template class UnaryFunction<double>;
-  template class UnaryFunction<int32_t>;
-  template class UnaryFunction<uint16_t>;
   template class UnaryFunction<bool>;
+  template class UnaryFunction<uint16_t>;
+  template class UnaryFunction<int32_t>;
+  template class UnaryFunction<double>;
   template class UnaryFunction<std::string>;
+  template class UnaryFunction<Array<bool> >;
+  template class UnaryFunction<Array<int32_t> >;
+  template class UnaryFunction<Array<double> >;
+  template class UnaryFunction<Array<std::string> >;
 
-  template class BinaryFunction<double>;
-  template class BinaryFunction<int32_t>;
-  template class BinaryFunction<uint16_t>;
   template class BinaryFunction<bool>;
+  template class BinaryFunction<uint16_t>;
+  template class BinaryFunction<int32_t>;
+  template class BinaryFunction<double>;
   template class BinaryFunction<std::string>;
+  template class BinaryFunction<Array<bool> >;
+  template class BinaryFunction<Array<int32_t> >;
+  template class BinaryFunction<Array<double> >;
+  template class BinaryFunction<Array<std::string> >;
 
-  template class NaryFunction<double>;
-  template class NaryFunction<int32_t>;
-  template class NaryFunction<uint16_t>;
   template class NaryFunction<bool>;
+  template class NaryFunction<uint16_t>;
+  template class NaryFunction<int32_t>;
+  template class NaryFunction<double>;
   template class NaryFunction<std::string>;
+  template class NaryFunction<Array<bool> >;
+  template class NaryFunction<Array<int32_t> >;
+  template class NaryFunction<Array<double> >;
+  template class NaryFunction<Array<std::string> >;
 
 } // namespace PLEXIL

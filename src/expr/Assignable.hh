@@ -85,17 +85,17 @@ namespace PLEXIL {
      * @note Each default method reports a type error.
      * @deprecated These are being replaced with the setValue(ExpressionId const &) method below.
      */
-    virtual void setValue(const double &val);
-    virtual void setValue(const int32_t &val);
-    virtual void setValue(const uint16_t &val);
-    virtual void setValue(const bool &val);
-    virtual void setValue(const std::string &val);
-    virtual void setValue(const char *val);
+    virtual void setValue(double const &val);
+    virtual void setValue(int32_t const &val);
+    virtual void setValue(uint16_t const &val);
+    virtual void setValue(bool const &val);
+    virtual void setValue(std::string const &val);
+    virtual void setValue(char const *val);
 
-    virtual void setValue(const std::vector<bool> &val);
-    virtual void setValue(const std::vector<int32_t> &val);
-    virtual void setValue(const std::vector<double> &val);
-    virtual void setValue(const std::vector<std::string> &val);
+    virtual void setValue(Array<bool> const &val);
+    virtual void setValue(Array<int32_t> const &val);
+    virtual void setValue(Array<double> const &val);
+    virtual void setValue(Array<std::string> const &val);
 
     /**
      * @brief Set the value for this expression from another expression.
@@ -111,22 +111,10 @@ namespace PLEXIL {
      * @note Default method returns false and reports a type error.
      */
     virtual bool getMutableValuePointer(std::string *& ptr);
-
-    /**
-     * @brief Retrieve the (writable) value vector and known vector for array-valued expressions.
-     * @param valuePtr Reference to the pointer variable to receive the value vector.
-     * @param knownPtr Reference to the pointer variable to receive the known vector.
-     * @return True if the value is known, false if unknown or invalid.
-     * @note Each default method returns false and reports a type error.
-     */
-    virtual bool getMutableArrayContents(std::vector<bool> *&valuePtr,
-                                         std::vector<bool> *&knownPtr);
-    virtual bool getMutableArrayContents(std::vector<int32_t> *&valuePtr,
-                                         std::vector<bool> *&knownPtr);
-    virtual bool getMutableArrayContents(std::vector<double> *&valuePtr,
-                                         std::vector<bool> *&knownPtr);
-    virtual bool getMutableArrayContents(std::vector<std::string> *&valuePtr,
-                                         std::vector<bool> *&knownPtr);
+    virtual bool getMutableValuePointer(Array<bool> *& ptr);
+    virtual bool getMutableValuePointer(Array<int32_t> *& ptr);
+    virtual bool getMutableValuePointer(Array<double> *& ptr);
+    virtual bool getMutableValuePointer(Array<std::string> *& ptr);
 
     /**
      * @brief Temporarily stores the previous value of this variable.

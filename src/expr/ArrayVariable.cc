@@ -32,17 +32,16 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable()
-    : UserVariable<std::vector<T> >()
+    : UserVariable<Array<T> >()
   {
   }
 
-  // TEMPORARY, will go away soon
   template <typename T>
-  ArrayVariable<T>::ArrayVariable(std::vector<T> const & initVal)
-    : UserVariable<std::vector<T> >(NodeId::noId(),
-                                    std::string("anonymous"),
-                                    (new ArrayConstant<T>(initVal))->getId(),
-                                    true)
+  ArrayVariable<T>::ArrayVariable(Array<T> const & initVal)
+    : UserVariable<Array<T> >(NodeId::noId(),
+                              std::string("anonymous"),
+                              (new ArrayConstant<T >(initVal))->getId(),
+                              true)
   {
   }
 
@@ -53,7 +52,7 @@ namespace PLEXIL
                                   const ExpressionId &initializer,
                                   bool sizeIsGarbage,
                                   bool initializerIsGarbage)
-    : UserVariable<std::vector<T> >(node, name, initializer, initializerIsGarbage),
+    : UserVariable<Array<T> >(node, name, initializer, initializerIsGarbage),
       m_size(size),
       m_sizeIsGarbage(sizeIsGarbage)
   {
@@ -67,19 +66,11 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void ArrayVariable<T>::reset()
-  {
-    Superclass::reset();
-    m_elementKnown.clear();
-  }
-
-  template <typename T>
   void ArrayVariable<T>::handleActivate()
   {
     if (Superclass::m_initializer.isId()) {
-      std::vector<T> const *valuePtr;
-      std::vector<bool> const *knownPtr;
-      if (Superclass::m_initializer->getArrayContents(valuePtr, knownPtr)) {
+      Array<T> const *valuePtr;
+      if (Superclass::m_initializer->getValuePointer(valuePtr)) {
         // Choose the greater of the spec'd size or the length of the initializer
         size_t size = valuePtr->size();
         if (m_size.isId()) {
@@ -90,10 +81,8 @@ namespace PLEXIL
               size = (size_t) specSize;
           }
         }
-        Superclass::m_value.reserve(size);
+        Superclass::m_value.resize(size);
         Superclass::m_value = *valuePtr;
-        m_elementKnown.reserve(size);
-        m_elementKnown = *knownPtr;
         Superclass::m_known = true;
       }
     }
@@ -104,40 +93,11 @@ namespace PLEXIL
       this->publishChange(Expression::getId());
   }
 
+  // Convenience method, for testing only
   template <typename T>
-  void ArrayVariable<T>::setValue(ExpressionId const &valex)
+  void ArrayVariable<T>::setValue(std::vector<T> const &newVal)
   {
-    assertTrue_2(this->isActive(), "setValue while inactive");
-    bool changed = false;
-    std::vector<T> const *newValPtr;
-    std::vector<bool> const *newKnownPtr;
-    if (valex->getArrayContents(newValPtr, newKnownPtr)) {
-      // is new value different?
-      // TODO: evaluate cost of array comparisons
-      if (!Superclass::m_known
-          || m_elementKnown != *newKnownPtr
-          || Superclass::m_value != *newValPtr) {
-        Superclass::m_value = *newValPtr;
-        Superclass::m_known = true;
-        m_elementKnown = *newKnownPtr;
-        changed = true;
-      }
-    }
-    else if (Superclass::m_known) {
-      Superclass::m_known = false;
-      changed = true;
-    }
-    if (changed)
-      this->publishChange(Expression::getId());
-  }
-
-  template <typename T>
-  void ArrayVariable<T>::setValue(std::vector<T> const &val)
-  {
-    Superclass::setValue(val);
-    if (Superclass::m_known)
-      m_elementKnown = std::vector<bool>(Superclass::m_value.size(),
-                                         true);
+    UserVariable<Array<T> >::setValue(Array<T>(newVal));
   }
 
   template <typename T>
@@ -147,47 +107,10 @@ namespace PLEXIL
       int32_t size;
       if (m_size->getValue(size)) {
         assertTrue_2(size >= 0, "Array initialization: Negative array size illegal");
-        Superclass::m_value.reserve(size);
-        m_elementKnown.reserve(size);
+        Superclass::m_value.resize(size);
         Superclass::m_known = true; // array is known, not its contents
       }
     }
-  }
-
-  template <typename T>
-  void ArrayVariable<T>::saveCurrentValue()
-  {
-    Superclass::saveCurrentValue();
-    if (Superclass::m_known)
-      m_savedElementKnown = m_elementKnown;
-  }
-
-  template <typename T>
-  void ArrayVariable<T>::restoreSavedValue()
-  {
-    Superclass::restoreSavedValue();
-    if (Superclass::m_savedKnown)
-      m_elementKnown = m_savedElementKnown;
-  }
-
-  template <typename T>
-  bool ArrayVariable<T>::getArrayContentsImpl(std::vector<T> const *&valuePtr, 
-                                              std::vector<bool> const *&knownPtr) const
-  {
-    if (!Superclass::getValuePointerImpl(valuePtr))
-      return false;
-    knownPtr = &m_elementKnown;
-    return true;
-  }
-
-  template <typename T>
-  bool ArrayVariable<T>::getMutableArrayContents(std::vector<T> *&valuePtr, 
-                                                 std::vector<bool> *&knownPtr)
-  {
-    if (!Superclass::getMutableValuePointer(valuePtr))
-      return false;
-    knownPtr = &m_elementKnown;
-    return true;
   }
   
   //
