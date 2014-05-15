@@ -175,6 +175,80 @@ namespace PLEXIL
     SquareRoot &operator=(const SquareRoot &);
   };
 
+
+  //
+  // Real to Integer conversions
+  //
+
+  template <typename NUM>
+  class Ceiling : public Operator<NUM>
+  {
+  public:
+    Ceiling();
+    ~Ceiling();
+
+    bool operator()(NUM & result, const ExpressionId &arg) const;
+
+  private:
+    Ceiling(const Ceiling &);
+    Ceiling &operator=(const Ceiling &);
+  };
+
+  template <typename NUM>
+  class Floor : public Operator<NUM>
+  {
+  public:
+    Floor();
+    ~Floor();
+
+    bool operator()(NUM & result, const ExpressionId &arg) const;
+
+  private:
+    Floor(const Floor &);
+    Floor &operator=(const Floor &);
+  };
+
+  template <typename NUM>
+  class Round : public Operator<NUM>
+  {
+  public:
+    Round();
+    ~Round();
+
+    bool operator()(NUM & result, const ExpressionId &arg) const;
+
+  private:
+    Round(const Round &);
+    Round &operator=(const Round &);
+  };
+
+  template <typename NUM>
+  class Truncate : public Operator<NUM>
+  {
+  public:
+    Truncate();
+    ~Truncate();
+
+    bool operator()(NUM & result, const ExpressionId &arg) const;
+
+  private:
+    Truncate(const Truncate &);
+    Truncate &operator=(const Truncate &);
+  };
+
+  class RealToInteger : public Operator<int32_t>
+  {
+  public:
+    RealToInteger();
+    ~RealToInteger();
+
+    bool operator()(int32_t & result, const ExpressionId &arg) const;
+
+  private:
+    RealToInteger(const RealToInteger &);
+    RealToInteger &operator=(const RealToInteger &);
+  };
+
 }
 
 #endif // PLEXIL_ARITHMETIC_OPERATORS_HH

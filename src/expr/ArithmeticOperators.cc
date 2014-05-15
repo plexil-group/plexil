@@ -26,7 +26,8 @@
 
 #include "ArithmeticOperators.hh"
 #include "Expression.hh"
-#include <cmath> // for sqrt(), fmod()
+#include <cmath>
+#include <limits>
 
 namespace PLEXIL
 {
@@ -427,19 +428,170 @@ namespace PLEXIL
     return true;
   }
 
-  // Not currently used
-  // template <>
-  // bool SquareRoot<float>::operator()(float &result,
-  //                                    const ExpressionId &arg) const
-  // {
-  //   float temp;
-  //   if (!arg->getValue(temp))
-  //     return false;
-  //   if (temp < 0)
-  //     return false; // imaginary result
-  //   result = sqrtf(temp);
-  //   return true;
-  // }
+  //
+  // Helper function for double -> int conversions
+  // Returns true if conversion successful,
+  // false if x is out of range or not an integer.
+  //
+  static bool doubleToInt(double x, int32_t &result)
+  {
+    double tempInt;
+    x = modf(x, &tempInt);
+    // TODO: allow fraction to be +/- epsilon
+    if (x != 0)
+      return false; // not an integer
+    if (tempInt < std::numeric_limits<int32_t>::min()
+        || tempInt > std::numeric_limits<int32_t>::max())
+      return false; // out of range
+    result = (int32_t) tempInt;
+    return true;
+  }
+
+  //
+  // Ceiling, Floor, Round, Truncate
+  //
+
+  template <typename NUM>
+  Ceiling<NUM>::Ceiling()
+    : Operator<NUM>()
+  {
+  }
+
+  template <typename NUM>
+  Ceiling<NUM>::~Ceiling()
+  {
+  }
+
+  template <>
+  bool Ceiling<double>::operator()(double &result, const ExpressionId &arg) const
+  {
+    double temp;
+    if (!arg->getValue(temp))
+      return false;
+    result = ceil(temp);
+    return true;
+  }
+
+  template <>
+  bool Ceiling<int32_t>::operator()(int32_t &result, const ExpressionId &arg) const
+  {
+    double temp;
+    if (!arg->getValue(temp))
+      return false;
+    return doubleToInt(ceil(temp), result);
+  }
+
+  template <typename NUM>
+  Floor<NUM>::Floor()
+    : Operator<NUM>()
+  {
+  }
+
+  template <typename NUM>
+  Floor<NUM>::~Floor()
+  {
+  }
+
+  template <>
+  bool Floor<double>::operator()(double &result, const ExpressionId &arg) const
+  {
+    double temp;
+    if (!arg->getValue(temp))
+      return false;
+    result = floor(temp);
+    return true;
+  }
+
+  template <>
+  bool Floor<int32_t>::operator()(int32_t &result, const ExpressionId &arg) const
+  {
+    double temp;
+    if (!arg->getValue(temp))
+      return false;
+    return doubleToInt(floor(temp), result);
+  }
+
+  template <typename NUM>
+  Round<NUM>::Round()
+    : Operator<NUM>()
+  {
+  }
+
+  template <typename NUM>
+  Round<NUM>::~Round()
+  {
+  }
+
+  template <>
+  bool Round<double>::operator()(double &result, const ExpressionId &arg) const
+  {
+    double temp;
+    if (!arg->getValue(temp))
+      return false;
+    result = round(temp);
+    return true;
+  }
+
+  template <>
+  bool Round<int32_t>::operator()(int32_t &result, const ExpressionId &arg) const
+  {
+    double temp;
+    if (!arg->getValue(temp))
+      return false;
+    return doubleToInt(round(temp), result);
+  }
+
+  template <typename NUM>
+  Truncate<NUM>::Truncate()
+    : Operator<NUM>()
+  {
+  }
+
+  template <typename NUM>
+  Truncate<NUM>::~Truncate()
+  {
+  }
+
+  template <>
+  bool Truncate<double>::operator()(double &result, const ExpressionId &arg) const
+  {
+    double temp;
+    if (!arg->getValue(temp))
+      return false;
+    result = trunc(temp);
+    return true;
+  }
+
+  template <>
+  bool Truncate<int32_t>::operator()(int32_t &result, const ExpressionId &arg) const
+  {
+    double temp;
+    if (!arg->getValue(temp))
+      return false;
+    return doubleToInt(trunc(temp), result);
+  }
+
+  //
+  // RealToInteger
+  //
+
+  RealToInteger::RealToInteger()
+    : Operator<int32_t>()
+  {
+  }
+
+  RealToInteger::~RealToInteger()
+  {
+  }
+
+  bool RealToInteger::operator()(int32_t & result, const ExpressionId &arg) const
+  {
+    double temp, tempInt;
+    if (!arg->getValue(temp))
+      return false; // unknown/invalid
+    return doubleToInt(temp, result);
+  }
+
 
   //
   // Explicit instantiations
@@ -462,5 +614,13 @@ namespace PLEXIL
   template class AbsoluteValue<int32_t>;
   // Only implemented for floating point types
   template class SquareRoot<double>;
+  template class Ceiling<double>;
+  template class Ceiling<int32_t>;
+  template class Floor<double>;
+  template class Floor<int32_t>;
+  template class Round<double>;
+  template class Round<int32_t>;
+  template class Truncate<double>;
+  template class Truncate<int32_t>;
 
 } // namespace PLEXIL
