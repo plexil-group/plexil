@@ -1470,6 +1470,562 @@ bool sqrtTest()
   return true;
 }
 
+static bool testCeiling()
+{
+  RealConstant three(3);
+  RealConstant pi(3.14);
+  RealConstant e(2.718);
+  RealConstant minusthree(-3);
+  RealConstant minuspi(-3.14);
+  RealConstant minuse(-2.718);
+  RealConstant toobig(3000000000.5);
+  RealConstant toonegative(-3000000000.5);
+
+  RealVariable x;
+  Ceiling<double> rCeiling;
+  Ceiling<int32_t> iCeiling;
+  UnaryFunction<double> realCeiling(&rCeiling, x.getId()); 
+  UnaryFunction<int32_t> intCeiling(&iCeiling, x.getId()); 
+  double rtemp;
+  int32_t itemp;
+
+  x.activate();
+  realCeiling.activate();
+  intCeiling.activate();
+
+  assertTrue(!x.isKnown());
+  assertTrue(!realCeiling.isKnown());
+  assertTrue(!intCeiling.isKnown());
+  assertTrue(!x.getValue(rtemp));
+  assertTrue(!realCeiling.getValue(rtemp));
+  assertTrue(!intCeiling.getValue(itemp));
+
+  x.setValue(three.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realCeiling.isKnown());
+  assertTrue(intCeiling.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(realCeiling.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(intCeiling.getValue(itemp));
+  assertTrue(itemp == 3);
+
+  x.setValue(pi.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realCeiling.isKnown());
+  assertTrue(intCeiling.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3.14);
+  assertTrue(realCeiling.getValue(rtemp));
+  assertTrue(rtemp == 4);
+  assertTrue(intCeiling.getValue(itemp));
+  assertTrue(itemp == 4);
+
+  x.setValue(e.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realCeiling.isKnown());
+  assertTrue(intCeiling.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 2.718);
+  assertTrue(realCeiling.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(intCeiling.getValue(itemp));
+  assertTrue(itemp == 3);
+
+  x.setValue(minusthree.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realCeiling.isKnown());
+  assertTrue(intCeiling.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(realCeiling.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(intCeiling.getValue(itemp));
+  assertTrue(itemp == -3);
+
+  x.setValue(minuspi.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realCeiling.isKnown());
+  assertTrue(intCeiling.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3.14);
+  assertTrue(realCeiling.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(intCeiling.getValue(itemp));
+  assertTrue(itemp == -3);
+
+  x.setValue(minuse.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realCeiling.isKnown());
+  assertTrue(intCeiling.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -2.718);
+  assertTrue(realCeiling.getValue(rtemp));
+  assertTrue(rtemp == -2);
+  assertTrue(intCeiling.getValue(itemp));
+  assertTrue(itemp == -2);
+
+  x.setValue(toobig.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realCeiling.isKnown());
+  assertTrue(!intCeiling.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3000000000.5);
+  assertTrue(realCeiling.getValue(rtemp));
+  assertTrue(rtemp == 3000000001);
+  assertTrue(!intCeiling.getValue(itemp));
+
+  x.setValue(toonegative.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realCeiling.isKnown());
+  assertTrue(!intCeiling.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3000000000.5);
+  assertTrue(realCeiling.getValue(rtemp));
+  assertTrue(rtemp == -3000000000);
+  assertTrue(!intCeiling.getValue(itemp));
+  
+  return true;
+}
+
+static bool testFloor()
+{
+  RealConstant three(3);
+  RealConstant pi(3.14);
+  RealConstant e(2.718);
+  RealConstant minusthree(-3);
+  RealConstant minuspi(-3.14);
+  RealConstant minuse(-2.718);
+  RealConstant toobig(3000000000.5);
+  RealConstant toonegative(-3000000000.5);
+
+  RealVariable x;
+  Floor<double> rFloor;
+  Floor<int32_t> iFloor;
+  UnaryFunction<double> realFloor(&rFloor, x.getId()); 
+  UnaryFunction<int32_t> intFloor(&iFloor, x.getId()); 
+  double rtemp;
+  int32_t itemp;
+
+  x.activate();
+  realFloor.activate();
+  intFloor.activate();
+
+  assertTrue(!x.isKnown());
+  assertTrue(!realFloor.isKnown());
+  assertTrue(!intFloor.isKnown());
+  assertTrue(!x.getValue(rtemp));
+  assertTrue(!realFloor.getValue(rtemp));
+  assertTrue(!intFloor.getValue(itemp));
+
+  x.setValue(three.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realFloor.isKnown());
+  assertTrue(intFloor.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(realFloor.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(intFloor.getValue(itemp));
+  assertTrue(itemp == 3);
+
+  x.setValue(pi.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realFloor.isKnown());
+  assertTrue(intFloor.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3.14);
+  assertTrue(realFloor.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(intFloor.getValue(itemp));
+  assertTrue(itemp == 3);
+
+  x.setValue(e.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realFloor.isKnown());
+  assertTrue(intFloor.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 2.718);
+  assertTrue(realFloor.getValue(rtemp));
+  assertTrue(rtemp == 2);
+  assertTrue(intFloor.getValue(itemp));
+  assertTrue(itemp == 2);
+
+  x.setValue(minusthree.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realFloor.isKnown());
+  assertTrue(intFloor.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(realFloor.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(intFloor.getValue(itemp));
+  assertTrue(itemp == -3);
+
+  x.setValue(minuspi.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realFloor.isKnown());
+  assertTrue(intFloor.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3.14);
+  assertTrue(realFloor.getValue(rtemp));
+  assertTrue(rtemp == -4);
+  assertTrue(intFloor.getValue(itemp));
+  assertTrue(itemp == -4);
+
+  x.setValue(minuse.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realFloor.isKnown());
+  assertTrue(intFloor.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -2.718);
+  assertTrue(realFloor.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(intFloor.getValue(itemp));
+  assertTrue(itemp == -3);
+
+  x.setValue(toobig.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realFloor.isKnown());
+  assertTrue(!intFloor.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3000000000.5);
+  assertTrue(realFloor.getValue(rtemp));
+  assertTrue(rtemp == 3000000000);
+  assertTrue(!intFloor.getValue(itemp));
+
+  x.setValue(toonegative.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realFloor.isKnown());
+  assertTrue(!intFloor.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3000000000.5);
+  assertTrue(realFloor.getValue(rtemp));
+  assertTrue(rtemp == -3000000001);
+  assertTrue(!intFloor.getValue(itemp));
+
+  return true;
+}
+
+static bool testRound()
+{
+  RealConstant three(3);
+  RealConstant pi(3.14);
+  RealConstant e(2.718);
+  RealConstant minusthree(-3);
+  RealConstant minuspi(-3.14);
+  RealConstant minuse(-2.718);
+  RealConstant toobig(3000000000.5);
+  RealConstant toonegative(-3000000000.5);
+
+  RealVariable x;
+  Round<double> rRound;
+  Round<int32_t> iRound;
+  UnaryFunction<double> realRound(&rRound, x.getId()); 
+  UnaryFunction<int32_t> intRound(&iRound, x.getId()); 
+  double rtemp;
+  int32_t itemp;
+
+  x.activate();
+  realRound.activate();
+  intRound.activate();
+
+  assertTrue(!x.isKnown());
+  assertTrue(!realRound.isKnown());
+  assertTrue(!intRound.isKnown());
+  assertTrue(!x.getValue(rtemp));
+  assertTrue(!realRound.getValue(rtemp));
+  assertTrue(!intRound.getValue(itemp));
+
+  x.setValue(three.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realRound.isKnown());
+  assertTrue(intRound.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(realRound.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(intRound.getValue(itemp));
+  assertTrue(itemp == 3);
+
+  x.setValue(pi.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realRound.isKnown());
+  assertTrue(intRound.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3.14);
+  assertTrue(realRound.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(intRound.getValue(itemp));
+  assertTrue(itemp == 3);
+
+  x.setValue(e.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realRound.isKnown());
+  assertTrue(intRound.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 2.718);
+  assertTrue(realRound.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(intRound.getValue(itemp));
+  assertTrue(itemp == 3);
+
+  x.setValue(minusthree.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realRound.isKnown());
+  assertTrue(intRound.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(realRound.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(intRound.getValue(itemp));
+  assertTrue(itemp == -3);
+
+  x.setValue(minuspi.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realRound.isKnown());
+  assertTrue(intRound.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3.14);
+  assertTrue(realRound.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(intRound.getValue(itemp));
+  assertTrue(itemp == -3);
+
+  x.setValue(minuse.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realRound.isKnown());
+  assertTrue(intRound.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -2.718);
+  assertTrue(realRound.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(intRound.getValue(itemp));
+  assertTrue(itemp == -3);
+
+  x.setValue(toobig.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realRound.isKnown());
+  assertTrue(!intRound.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3000000000.5);
+  assertTrue(realRound.getValue(rtemp));
+  assertTrue(rtemp == 3000000001);
+  assertTrue(!intRound.getValue(itemp));
+
+  x.setValue(toonegative.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realRound.isKnown());
+  assertTrue(!intRound.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3000000000.5);
+  assertTrue(realRound.getValue(rtemp));
+  assertTrue(rtemp == -3000000001);
+  assertTrue(!intRound.getValue(itemp));
+
+  return true;
+}
+
+static bool testTruncate()
+{
+  RealConstant three(3);
+  RealConstant pi(3.14);
+  RealConstant e(2.718);
+  RealConstant minusthree(-3);
+  RealConstant minuspi(-3.14);
+  RealConstant minuse(-2.718);
+  RealConstant toobig(3000000000.5);
+  RealConstant toonegative(-3000000000.5);
+
+  RealVariable x;
+  Truncate<double> rTruncate;
+  Truncate<int32_t> iTruncate;
+  UnaryFunction<double> realTruncate(&rTruncate, x.getId()); 
+  UnaryFunction<int32_t> intTruncate(&iTruncate, x.getId()); 
+  double rtemp;
+  int32_t itemp;
+
+  x.activate();
+  realTruncate.activate();
+  intTruncate.activate();
+
+  assertTrue(!x.isKnown());
+  assertTrue(!realTruncate.isKnown());
+  assertTrue(!intTruncate.isKnown());
+  assertTrue(!x.getValue(rtemp));
+  assertTrue(!realTruncate.getValue(rtemp));
+  assertTrue(!intTruncate.getValue(itemp));
+
+  x.setValue(three.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realTruncate.isKnown());
+  assertTrue(intTruncate.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(realTruncate.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(intTruncate.getValue(itemp));
+  assertTrue(itemp == 3);
+
+  x.setValue(pi.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realTruncate.isKnown());
+  assertTrue(intTruncate.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3.14);
+  assertTrue(realTruncate.getValue(rtemp));
+  assertTrue(rtemp == 3);
+  assertTrue(intTruncate.getValue(itemp));
+  assertTrue(itemp == 3);
+
+  x.setValue(e.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realTruncate.isKnown());
+  assertTrue(intTruncate.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 2.718);
+  assertTrue(realTruncate.getValue(rtemp));
+  assertTrue(rtemp == 2);
+  assertTrue(intTruncate.getValue(itemp));
+  assertTrue(itemp == 2);
+
+  x.setValue(minusthree.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realTruncate.isKnown());
+  assertTrue(intTruncate.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(realTruncate.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(intTruncate.getValue(itemp));
+  assertTrue(itemp == -3);
+
+  x.setValue(minuspi.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realTruncate.isKnown());
+  assertTrue(intTruncate.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3.14);
+  assertTrue(realTruncate.getValue(rtemp));
+  assertTrue(rtemp == -3);
+  assertTrue(intTruncate.getValue(itemp));
+  assertTrue(itemp == -3);
+
+  x.setValue(minuse.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realTruncate.isKnown());
+  assertTrue(intTruncate.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -2.718);
+  assertTrue(realTruncate.getValue(rtemp));
+  assertTrue(rtemp == -2);
+  assertTrue(intTruncate.getValue(itemp));
+  assertTrue(itemp == -2);
+
+  x.setValue(toobig.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realTruncate.isKnown());
+  assertTrue(!intTruncate.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == 3000000000.5);
+  assertTrue(realTruncate.getValue(rtemp));
+  assertTrue(rtemp == 3000000000);
+  assertTrue(!intTruncate.getValue(itemp));
+
+  x.setValue(toonegative.getId());
+  assertTrue(x.isKnown());
+  assertTrue(realTruncate.isKnown());
+  assertTrue(!intTruncate.isKnown());
+  assertTrue(x.getValue(rtemp));
+  assertTrue(rtemp == -3000000000.5);
+  assertTrue(realTruncate.getValue(rtemp));
+  assertTrue(rtemp == -3000000000);
+  assertTrue(!intTruncate.getValue(itemp));
+
+  return true;
+}
+
+static bool testRealToInteger()
+{
+  RealConstant zero((double) 0);
+  RealConstant three(3);
+  RealConstant pi(3.14);
+  RealConstant minusthree(-3);
+  RealConstant minuspi(-3.14);
+  RealConstant toobig(3000000000);
+  RealConstant toonegative(-3000000000);
+
+  RealVariable x;
+  RealToInteger rtiOp;
+  UnaryFunction<int32_t> rti(&rtiOp, x.getId()); 
+  double rtemp;
+  int32_t itemp;
+
+  x.activate();
+  rti.activate();
+
+  // Uninitialized
+  assertTrue_1(!x.isKnown());
+  assertTrue_1(!rti.isKnown());
+  assertTrue_1(!x.getValue(rtemp));
+  assertTrue_1(!rti.getValue(itemp));
+
+  x.setValue(zero.getId());
+  assertTrue_1(x.isKnown());
+  assertTrue_1(rti.isKnown());
+  assertTrue_1(x.getValue(rtemp));
+  assertTrue_1(rtemp == 0);
+  assertTrue_1(rti.getValue(itemp));
+  assertTrue_1(itemp == 0);
+
+  x.setValue(three.getId());
+  assertTrue_1(x.isKnown());
+  assertTrue_1(rti.isKnown());
+  assertTrue_1(x.getValue(rtemp));
+  assertTrue_1(rtemp == 3);
+  assertTrue_1(rti.getValue(itemp));
+  assertTrue_1(itemp == 3);
+
+  x.setValue(pi.getId());
+  assertTrue_1(x.isKnown());
+  assertTrue_1(!rti.isKnown());
+  assertTrue_1(x.getValue(rtemp));
+  assertTrue_1(rtemp == 3.14);
+  assertTrue_1(!rti.getValue(itemp));
+
+  x.setValue(minusthree.getId());
+  assertTrue_1(x.isKnown());
+  assertTrue_1(rti.isKnown());
+  assertTrue_1(x.getValue(rtemp));
+  assertTrue_1(rtemp == -3);
+  assertTrue_1(rti.getValue(itemp));
+  assertTrue_1(itemp == -3);
+
+  x.setValue(minuspi.getId());
+  assertTrue_1(x.isKnown());
+  assertTrue_1(!rti.isKnown());
+  assertTrue_1(x.getValue(rtemp));
+  assertTrue_1(rtemp == -3.14);
+  assertTrue_1(!rti.getValue(itemp));
+
+  x.setValue(toobig.getId());
+  assertTrue_1(x.isKnown());
+  assertTrue_1(!rti.isKnown());
+  assertTrue_1(x.getValue(rtemp));
+  assertTrue_1(rtemp == 3000000000);
+  assertTrue_1(!rti.getValue(itemp));
+
+  x.setValue(toonegative.getId());
+  assertTrue_1(x.isKnown());
+  assertTrue_1(!rti.isKnown());
+  assertTrue_1(x.getValue(rtemp));
+  assertTrue_1(rtemp == -3000000000);
+  assertTrue_1(!rti.getValue(itemp));
+
+  return true;
+}
+
 bool arithmeticTest()
 {
   runTest(additionTest);
@@ -1481,5 +2037,10 @@ bool arithmeticTest()
   runTest(maximumTest);
   runTest(absTest);
   runTest(sqrtTest);
+  runTest(testCeiling);
+  runTest(testFloor);
+  runTest(testRound);
+  runTest(testTruncate);
+  runTest(testRealToInteger);
   return true;
 }
