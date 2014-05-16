@@ -57,6 +57,15 @@ namespace PLEXIL
   {
   }
 
+  template <typename T>
+  bool ArrayConstant<T>::getValuePointerImpl(Array const *&result) const
+  {
+    if (!this->m_known)
+      return false;
+    result = static_cast<Array const *>(&this->m_value);
+    return true;
+  }
+
   //
   // Explicit implementations
   //

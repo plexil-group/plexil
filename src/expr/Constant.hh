@@ -87,6 +87,8 @@ namespace PLEXIL {
      * @return True if known, false if unknown.
      */
     bool getValuePointerImpl(T const *& ptr) const;
+    // generic array version
+    bool getValuePointerImpl(Array const *& ptr) const;
 
     /**
      * @brief Query whether the expression's value is known.

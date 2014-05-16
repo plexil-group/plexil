@@ -70,6 +70,58 @@ namespace PLEXIL
     return result;
   }
 
+  // Non-array types
+  template <typename R>
+  bool Function<R>::getValuePointerImpl(Array const *&ptr) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Function::getValuePointer: type error");
+    return false;
+  }
+
+  template <>
+  bool Function<BooleanArray>::getValuePointerImpl(Array const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = this->calculate(*m_valueCache);
+    if (result)
+      ptr = static_cast<Array const *>(m_valueCache);
+    return result;
+  }
+
+  template <>
+  bool Function<IntegerArray>::getValuePointerImpl(Array const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = this->calculate(*m_valueCache);
+    if (result)
+      ptr = static_cast<Array const *>(m_valueCache);
+    return result;
+  }
+
+  template <>
+  bool Function<RealArray>::getValuePointerImpl(Array const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = this->calculate(*m_valueCache);
+    if (result)
+      ptr = static_cast<Array const *>(m_valueCache);
+    return result;
+  }
+
+  template <>
+  bool Function<StringArray>::getValuePointerImpl(Array const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = this->calculate(*m_valueCache);
+    if (result)
+      ptr = static_cast<Array const *>(m_valueCache);
+    return result;
+  }
+
   //
   // UnaryFunction
   //

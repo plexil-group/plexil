@@ -229,10 +229,11 @@ namespace PLEXIL
      * @note Default methods return an error in every case.
      */
     virtual bool getValuePointer(std::string const *&ptr) const;
-    virtual bool getValuePointer(BooleanArray const *&ptr) const;
-    virtual bool getValuePointer(IntegerArray const *&ptr) const;
-    virtual bool getValuePointer(RealArray const *&ptr) const;
-    virtual bool getValuePointer(StringArray const *&ptr) const;
+    virtual bool getValuePointer(Array const *&ptr) const; // generic
+    virtual bool getValuePointer(BooleanArray const *&ptr) const; // specific
+    virtual bool getValuePointer(IntegerArray const *&ptr) const; //
+    virtual bool getValuePointer(RealArray const *&ptr) const;    //
+    virtual bool getValuePointer(StringArray const *&ptr) const;  //
 
   private:
 

@@ -126,6 +126,13 @@ namespace PLEXIL {
   }
 
   template <typename T>
+  bool UserVariable<T>::getValuePointerImpl(Array const *&ptr) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Constant::getValuePointer type error");
+    return false;
+  }
+
+  template <typename T>
   bool UserVariable<T>::getMutableValuePointer(T *&ptr)
   {
     if (!this->isActive())

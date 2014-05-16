@@ -158,6 +158,14 @@ namespace PLEXIL
     return true;
   }
 
+  // Report error for scalar types
+  template <typename T>
+  bool ExpressionImpl<T>::getValuePointerImpl(Array const *& /* ptr */) const
+  {
+    check_error_2(ALWAYS_FAIL, "getValuePointer: value type error");
+    return false;
+  }
+
   // Report error for type mismatch
   template <typename T>
   template <typename U>

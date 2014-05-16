@@ -66,6 +66,7 @@ namespace PLEXIL
      * @return True if known, false if unknown.
      */
     bool getValuePointerImpl(R const *&ptr) const;
+    bool getValuePointerImpl(Array const *&ptr) const;
 
   protected:
 

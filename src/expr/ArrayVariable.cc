@@ -39,9 +39,9 @@ namespace PLEXIL
   template <typename T>
   ArrayVariable<T>::ArrayVariable(ArrayImpl<T> const & initVal)
     : UserVariable<ArrayImpl<T> >(NodeId::noId(),
-                              std::string("anonymous"),
-                              (new ArrayConstant<T >(initVal))->getId(),
-                              true)
+                                  std::string("anonymous"),
+                                  (new ArrayConstant<T >(initVal))->getId(),
+      true)
   {
   }
 
@@ -93,11 +93,13 @@ namespace PLEXIL
       this->publishChange(Expression::getId());
   }
 
-  // Convenience method, for testing only
   template <typename T>
-  void ArrayVariable<T>::setValue(std::vector<T> const &newVal)
+  bool ArrayVariable<T>::getValuePointerImpl(Array const *&result) const
   {
-    UserVariable<ArrayImpl<T> >::setValue(ArrayImpl<T>(newVal));
+    if (!this->isActive() || !Superclass::m_known)
+      return false;
+    result = static_cast<Array const *>(&(this->m_value));
+    return true;
   }
 
   template <typename T>

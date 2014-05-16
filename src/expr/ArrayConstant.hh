@@ -50,22 +50,25 @@ namespace PLEXIL
     /**
      * @brief Copy constructor.
      */
-    ArrayConstant(const ArrayConstant &other);
+    ArrayConstant(ArrayConstant const &other);
 
     /**
      * @brief Constructor from value type.
      */
-    ArrayConstant(const ArrayImpl<T> &value);
+    ArrayConstant(ArrayImpl<T> const &value);
 
     /**
      * @brief Constructor from vector.
      */
-    ArrayConstant(const std::vector<T> &value);
+    ArrayConstant(std::vector<T> const &value);
 
     /**
      * @brief Destructor.
      */
     virtual ~ArrayConstant();
+
+    bool getValuePointerImpl(Array const *&result) const;
+
   };
 
   //

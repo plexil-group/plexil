@@ -132,6 +132,12 @@ namespace PLEXIL {
     return false;
   }
 
+  bool Expression::getValuePointer(Array const *& /* ptr */) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for Array for this expression");
+    return false;
+  }
+
   bool Expression::getValuePointer(BooleanArray const *& /* ptr */) const
   {
     assertTrue_2(ALWAYS_FAIL, "getValuePointer() not implemented for BooleanArray for this expression");

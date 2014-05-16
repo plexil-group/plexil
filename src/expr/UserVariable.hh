@@ -91,6 +91,7 @@ namespace PLEXIL {
      * @return True if known, false if unknown.
      */
     bool getValuePointerImpl(T const *&ptr) const;
+    bool getValuePointerImpl(Array const *&ptr) const;
 
     /**
      * @brief Retrieve a pointer to the (modifiable) value of this Expression.

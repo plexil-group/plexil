@@ -24,44 +24,75 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "lifecycle-utils.h"
-#include "TestSupport.hh"
+#include "ArrayOperators.hh"
+#include "Expression.hh"
 
-extern bool aliasTest();
-extern bool arithmeticTest();
-extern bool arrayConstantTest();
-extern bool arrayOperatorsTest();
-extern bool arrayReferenceTest();
-extern bool arrayTest();
-extern bool arrayVariableTest();
-extern bool comparisonsTest();
-extern bool constantsTest();
-extern bool functionsTest();
-extern bool listenerTest();
-extern bool stringTest();
-extern bool variablesTest();
-
-using namespace PLEXIL;
-
-int main(int argc, char *argv[])
+namespace PLEXIL
 {
-  runTestSuite(listenerTest);
-  runTestSuite(constantsTest);
-  runTestSuite(variablesTest);
-  runTestSuite(arrayTest);
-  runTestSuite(arrayConstantTest);
-  runTestSuite(arrayVariableTest);
-  runTestSuite(arrayReferenceTest);
-  runTestSuite(aliasTest);
-  runTestSuite(functionsTest);
-  runTestSuite(comparisonsTest);
-  runTestSuite(arithmeticTest);
-  runTestSuite(stringTest);
-  runTestSuite(arrayOperatorsTest);
+  //
+  // ArrayLength
+  //
 
-  // clean up
-  runFinalizers();
+  ArrayLength::ArrayLength()
+    : Operator<int32_t>()
+  {
+  }
+  
+  ArrayLength::~ArrayLength()
+  {
+  }
 
-  std::cout << "Finished" << std::endl;
-  return 0;
-}
+  bool ArrayLength::operator()(int32_t &result, const ExpressionId &arg) const
+  {
+    Array const *ary;
+    if (!arg->getValuePointer(ary))
+      return false;
+    result = ary->size();
+    return true;
+  }
+
+  //
+  // AllElementsKnown
+  //
+
+  AllElementsKnown::AllElementsKnown()
+    : Operator<bool>()
+  {
+  }
+
+  AllElementsKnown::~AllElementsKnown()
+  {
+  }
+
+  bool AllElementsKnown::operator()(bool &result, const ExpressionId &arg) const
+  {
+    Array const *ary;
+    if (!arg->getValuePointer(ary))
+      return false;
+    result = ary->allElementsKnown();
+    return true;
+  }
+
+  //
+  // AnyElementsKnown
+  //
+
+  AnyElementsKnown::AnyElementsKnown()
+    : Operator<bool>()
+  {
+  }
+
+  AnyElementsKnown::~AnyElementsKnown()
+  {
+  }
+
+  bool AnyElementsKnown::operator()(bool &result, const ExpressionId &arg) const
+  {
+    Array const *ary;
+    if (!arg->getValuePointer(ary))
+      return false;
+    result = ary->anyElementsKnown();
+    return true;
+  }
+
+} // namespace PLEXIL

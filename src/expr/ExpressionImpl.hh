@@ -85,6 +85,11 @@ namespace PLEXIL
       return static_cast<const C *>(this)->getValuePointerImpl(ptr);
     }
 
+    bool getValuePointer(Array const *&ptr) const
+    {
+      return static_cast<const C *>(this)->getValuePointerImpl(ptr);
+    }
+
     bool getValuePointer(BooleanArray const *&ptr) const
     {
       return static_cast<const C *>(this)->getValuePointerImpl(ptr);
@@ -144,17 +149,17 @@ namespace PLEXIL
      */
     virtual bool getValueImpl(T &result) const = 0;
 
+    // Conversion wrapper, error if particular conversion not supported
+    template <typename U>
+    bool getValueImpl(U &result) const;
+
     /**
      * @brief Retrieve the value of this Expression as a pointer to const.
      * @param ptr Reference to the pointer variable.
      * @return True if known, false if unknown.
-     * @note Default method returns false and reports a "not implemented" error.
      */
     virtual bool getValuePointerImpl(T const *& ptr) const = 0;
-
-    // Conversion wrapper, error if particular conversion not supported
-    template <typename U>
-    bool getValueImpl(U &result) const;
+    virtual bool getValuePointerImpl(Array const *& ptr) const;
 
     // Error for wrong type call
     template <typename U>

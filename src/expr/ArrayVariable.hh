@@ -63,8 +63,7 @@ namespace PLEXIL
 
     // Specializations from UserVariable
     void handleActivate();
-    // Convenience method, for testing only
-    void setValue(std::vector<T> const &newVal);
+    bool getValuePointerImpl(Array const *&ptr) const;
 
   private:
     // Convenience typedefs

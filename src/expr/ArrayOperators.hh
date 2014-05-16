@@ -24,44 +24,56 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "lifecycle-utils.h"
-#include "TestSupport.hh"
+#ifndef PLEXIL_ARRAY_OPERATORS_HH
+#define PLEXIL_ARRAY_OPERATORS_HH
 
-extern bool aliasTest();
-extern bool arithmeticTest();
-extern bool arrayConstantTest();
-extern bool arrayOperatorsTest();
-extern bool arrayReferenceTest();
-extern bool arrayTest();
-extern bool arrayVariableTest();
-extern bool comparisonsTest();
-extern bool constantsTest();
-extern bool functionsTest();
-extern bool listenerTest();
-extern bool stringTest();
-extern bool variablesTest();
+#include "Operator.hh"
 
-using namespace PLEXIL;
-
-int main(int argc, char *argv[])
+namespace PLEXIL
 {
-  runTestSuite(listenerTest);
-  runTestSuite(constantsTest);
-  runTestSuite(variablesTest);
-  runTestSuite(arrayTest);
-  runTestSuite(arrayConstantTest);
-  runTestSuite(arrayVariableTest);
-  runTestSuite(arrayReferenceTest);
-  runTestSuite(aliasTest);
-  runTestSuite(functionsTest);
-  runTestSuite(comparisonsTest);
-  runTestSuite(arithmeticTest);
-  runTestSuite(stringTest);
-  runTestSuite(arrayOperatorsTest);
 
-  // clean up
-  runFinalizers();
+  class ArrayLength : public Operator<int32_t>
+  {
+  public:
+    ArrayLength();
+    ~ArrayLength();
 
-  std::cout << "Finished" << std::endl;
-  return 0;
-}
+    bool operator()(int32_t &result, const ExpressionId &arg) const;
+
+  private:
+    // Disallow copy, assign
+    ArrayLength(const ArrayLength &);
+    ArrayLength &operator=(const ArrayLength &);
+  };
+
+  class AllElementsKnown : public Operator<bool>
+  {
+  public:
+    AllElementsKnown();
+    ~AllElementsKnown();
+
+    bool operator()(bool &result, const ExpressionId &arg) const;
+
+  private:
+    // Disallow copy, assign
+    AllElementsKnown(const AllElementsKnown &);
+    AllElementsKnown &operator=(const AllElementsKnown &);
+  };
+
+  class AnyElementsKnown : public Operator<bool>
+  {
+  public:
+    AnyElementsKnown();
+    ~AnyElementsKnown();
+
+    bool operator()(bool &result, const ExpressionId &arg) const;
+
+  private:
+    // Disallow copy, assign
+    AnyElementsKnown(const AnyElementsKnown &);
+    AnyElementsKnown &operator=(const AnyElementsKnown &);
+  };
+
+} // namespace PLEXIL
+
+#endif // PLEXIL_ARRAY_OPERATORS_HH

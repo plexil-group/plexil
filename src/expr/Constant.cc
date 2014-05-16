@@ -123,6 +123,13 @@ namespace PLEXIL {
     return m_known;
   }
 
+  template <typename T>
+  bool Constant<T>::getValuePointerImpl(Array const *&ptr) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Constant::getValuePointer type error");
+    return false;
+  }
+
   /**
    * @brief Query whether the expression's value is known.
    * @return True if known, false otherwise.

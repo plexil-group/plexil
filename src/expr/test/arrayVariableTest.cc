@@ -183,10 +183,16 @@ static bool uninitializedVariableTest()
   std::vector<int32_t> vi(1, 42);
   std::vector<double> vd(1, 3.1416);
   std::vector<std::string> vs(1, std::string("Foo"));
-  vuba.setValue(vb);
-  vuia.setValue(vi);
-  vuda.setValue(vd);
-  vusa.setValue(vs);
+
+  BooleanArrayConstant acb(vb);
+  IntegerArrayConstant aci(vi);
+  RealArrayConstant acd(vd);
+  StringArrayConstant acs(vs);
+
+  vuba.setValue(acb.getId());
+  vuia.setValue(aci.getId());
+  vuda.setValue(acd.getId());
+  vusa.setValue(acs.getId());
 
   assertTrue_1(vuba.isKnown());
   assertTrue_1(vuia.isKnown());
@@ -266,10 +272,10 @@ static bool uninitializedVariableTest()
   assertTrue_1(pfoosa == NULL);
 
   // Set value and check result
-  vuba.setValue(vb);
-  vuia.setValue(vi);
-  vuda.setValue(vd);
-  vusa.setValue(vs);
+  vuba.setValue(acb.getId());
+  vuia.setValue(aci.getId());
+  vuda.setValue(acd.getId());
+  vusa.setValue(acs.getId());
 
   assertTrue_1(vuba.isKnown());
   assertTrue_1(vuia.isKnown());
@@ -310,10 +316,15 @@ static bool uninitializedVariableTest()
   std::vector<double> vad(2, 2.718);
   std::vector<std::string> vas(2, std::string("bar"));
 
-  vuba.setValue(vab);
-  vuia.setValue(vai);
-  vuda.setValue(vad);
-  vusa.setValue(vas);
+  BooleanArrayConstant acab(vab);
+  IntegerArrayConstant acai(vai);
+  RealArrayConstant acad(vad);
+  StringArrayConstant acas(vas);
+
+  vuba.setValue(acab.getId());
+  vuia.setValue(acai.getId());
+  vuda.setValue(acad.getId());
+  vusa.setValue(acas.getId());
 
   assertTrue_1(vuba.isKnown());
   assertTrue_1(vuia.isKnown());
@@ -531,10 +542,15 @@ static bool testVariableInitialValue()
   std::vector<double> dv2(1, 3.162);
   std::vector<std::string> sv2(1, std::string("yoohoo"));
 
-  vba.setValue(bv2);
-  via.setValue(iv2);
-  vda.setValue(dv2);
-  vsa.setValue(sv2);
+  BooleanArrayConstant bac(bv2);
+  IntegerArrayConstant iac(iv2);
+  RealArrayConstant dac(dv2);
+  StringArrayConstant sac(sv2);
+
+  vba.setValue(bac.getId());
+  via.setValue(iac.getId());
+  vda.setValue(dac.getId());
+  vsa.setValue(sac.getId());
 
   assertTrue_1(vba.getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
@@ -719,10 +735,15 @@ static bool testVariableSavedValue()
   std::vector<double> dv(2, 1.414);
   std::vector<std::string> sv(2, std::string("yahoo"));
 
-  vuba.setValue(bv);
-  vuia.setValue(iv);
-  vuda.setValue(dv);
-  vusa.setValue(sv);
+  BooleanArrayConstant bac(bv);
+  IntegerArrayConstant iac(iv);
+  RealArrayConstant dac(dv);
+  StringArrayConstant sac(sv);
+
+  vuba.setValue(bac.getId());
+  vuia.setValue(iac.getId());
+  vuda.setValue(dac.getId());
+  vusa.setValue(sac.getId());
 
   assertTrue_1(vuba.isKnown());
   assertTrue_1(vuia.isKnown());
@@ -787,10 +808,10 @@ static bool testVariableSavedValue()
   assertTrue_1(pfoosa == NULL);
 
   // Assign again
-  vuba.setValue(bv);
-  vuia.setValue(iv);
-  vuda.setValue(dv);
-  vusa.setValue(sv);
+  vuba.setValue(bac.getId());
+  vuia.setValue(iac.getId());
+  vuda.setValue(dac.getId());
+  vusa.setValue(sac.getId());
 
   assertTrue_1(vuba.isKnown());
   assertTrue_1(vuia.isKnown());
@@ -1037,10 +1058,15 @@ static bool testAssignableId()
   std::vector<double> dv2(1, 2.718);
   std::vector<std::string> sv2(1, std::string("yeehaw"));
 
-  eba->setValue(bv2);
-  eia->setValue(iv2);
-  eda->setValue(dv2);
-  esa->setValue(sv2);
+  BooleanArrayConstant bac(bv2);
+  IntegerArrayConstant iac(iv2);
+  RealArrayConstant dac(dv2);
+  StringArrayConstant sac(sv2);
+
+  eba->setValue(bac.getId());
+  eia->setValue(iac.getId());
+  eda->setValue(dac.getId());
+  esa->setValue(sac.getId());
 
   assertTrue_1(eba->getValuePointer(pfooba));
   assertTrue_1(pfooba != NULL);
@@ -1263,10 +1289,15 @@ static bool testVariableNotification()
   std::vector<double> dv(2, 1.414);
   std::vector<std::string> sv(2, std::string("yahoo"));
 
-  vuba.setValue(bv);
-  vuia.setValue(iv);
-  vuda.setValue(dv);
-  vusa.setValue(sv);
+  BooleanArrayConstant bac(bv);
+  IntegerArrayConstant iac(iv);
+  RealArrayConstant dac(dv);
+  StringArrayConstant sac(sv);
+
+  vuba.setValue(bac.getId());
+  vuia.setValue(iac.getId());
+  vuda.setValue(dac.getId());
+  vusa.setValue(sac.getId());
 
   assertTrue_1(bachanged);
   assertTrue_1(iachanged);
