@@ -139,9 +139,6 @@ namespace PLEXIL {
 
   protected:
 
-    // Used in setValue only.
-    virtual bool checkValue(const T &value);
-
     ExpressionId m_initializer;
     
     // Only used by LuvListener at present. Eliminate?

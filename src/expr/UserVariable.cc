@@ -247,17 +247,10 @@ namespace PLEXIL {
   void UserVariable<T>::setValue(const T &value)
   {
     bool changed = !m_known || value != m_value;
-    assertTrueMsg(checkValue(value), "setValue: Value is invalid for this variable");
     m_value = value;
     m_known = true;
     if (changed)
       this->publishChange(getId());
-  }
-
-  template <typename T>
-  bool UserVariable<T>::checkValue(const T &value)
-  {
-    return true;
   }
 
   template <typename T>
