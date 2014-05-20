@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="27" ColNo="8">
-      <CommandDeclaration LineNo="27" ColNo="8">
+   <GlobalDeclarations LineNo="28" ColNo="8">
+      <CommandDeclaration LineNo="28" ColNo="8">
          <Name>Move</Name>
          <Return>
             <Name>_return_0</Name>
@@ -17,7 +17,7 @@
             <Type>Integer</Type>
          </Parameter>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="28" ColNo="8">
+      <CommandDeclaration LineNo="29" ColNo="8">
          <Name>MoveRandom</Name>
          <Return>
             <Name>_return_0</Name>
@@ -28,7 +28,7 @@
             <Type>String</Type>
          </Parameter>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="29" ColNo="8">
+      <CommandDeclaration LineNo="30" ColNo="8">
          <Name>QueryEnergySensor</Name>
          <Return>
             <Name>_return_0</Name>
@@ -41,17 +41,17 @@
          </Parameter>
       </CommandDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" LineNo="33" ColNo="1">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="34" ColNo="4">
       <NodeId>RoboSimSimple</NodeId>
       <VariableDeclarations>
-         <DeclareVariable LineNo="33" ColNo="1">
+         <DeclareVariable LineNo="34" ColNo="4">
             <Name>RobotName</Name>
             <Type>String</Type>
             <InitialValue>
                <StringValue>RobotYellow</StringValue>
             </InitialValue>
          </DeclareVariable>
-         <DeclareVariable LineNo="34" ColNo="1">
+         <DeclareVariable LineNo="35" ColNo="4">
             <Name>randNumber</Name>
             <Type>Integer</Type>
             <InitialValue>
@@ -75,7 +75,7 @@
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="Sequence" LineNo="38" ColNo="2">
+            <Node NodeType="NodeList" epx="Sequence" LineNo="39" ColNo="8">
                <NodeId>MoveRobot</NodeId>
                <RepeatCondition>
                   <EQInternal>
@@ -101,7 +101,7 @@
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="NodeList" epx="Sequence" LineNo="41" ColNo="3">
+                     <Node NodeType="NodeList" epx="Sequence" LineNo="42" ColNo="12">
                         <NodeId>NodeWrapper</NodeId>
                         <PostCondition>
                            <AND>
@@ -121,7 +121,7 @@
                               </AND>
                               <EQInternal>
                                  <NodeOutcomeVariable>
-                                    <NodeId>MoveRandom</NodeId>
+                                    <NodeId>GetRandom</NodeId>
                                  </NodeOutcomeVariable>
                                  <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                               </EQInternal>
@@ -145,7 +145,7 @@
                                     </EQInternal>
                                     <EQInternal>
                                        <NodeOutcomeVariable>
-                                          <NodeId>MoveRandom</NodeId>
+                                          <NodeId>GetRandom</NodeId>
                                        </NodeOutcomeVariable>
                                        <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                                     </EQInternal>
@@ -155,10 +155,10 @@
                         </InvariantCondition>
                         <NodeBody>
                            <NodeList>
-                              <Node NodeType="Command" LineNo="50" ColNo="10">
+                              <Node NodeType="Command" LineNo="51" ColNo="22">
                                  <NodeId>Move</NodeId>
                                  <VariableDeclarations>
-                                    <DeclareVariable LineNo="47" ColNo="4">
+                                    <DeclareVariable LineNo="48" ColNo="16">
                                        <Name>res</Name>
                                        <Type>Real</Type>
                                     </DeclareVariable>
@@ -180,17 +180,17 @@
                                        <Name>
                                           <StringValue>Move</StringValue>
                                        </Name>
-                                       <Arguments LineNo="50" ColNo="15">
+                                       <Arguments LineNo="51" ColNo="27">
                                           <StringVariable>RobotName</StringVariable>
                                           <IntegerVariable>randNumber</IntegerVariable>
                                        </Arguments>
                                     </Command>
                                  </NodeBody>
                               </Node>
-                              <Node NodeType="Command" LineNo="56" ColNo="13">
+                              <Node NodeType="Command" LineNo="57" ColNo="25">
                                  <NodeId>QueryEnergySensor</NodeId>
                                  <VariableDeclarations>
-                                    <DeclareArray LineNo="55" ColNo="4">
+                                    <DeclareArray LineNo="56" ColNo="16">
                                        <Name>energy</Name>
                                        <Type>Real</Type>
                                        <MaxSize>5</MaxSize>
@@ -212,14 +212,14 @@
                                        <Name>
                                           <StringValue>QueryEnergySensor</StringValue>
                                        </Name>
-                                       <Arguments LineNo="56" ColNo="31">
+                                       <Arguments LineNo="57" ColNo="43">
                                           <StringVariable>RobotName</StringVariable>
                                        </Arguments>
                                     </Command>
                                  </NodeBody>
                               </Node>
-                              <Node NodeType="Command" LineNo="60" ColNo="16">
-                                 <NodeId>MoveRandom</NodeId>
+                              <Node NodeType="Command" LineNo="60" ColNo="36">
+                                 <NodeId>GetRandom</NodeId>
                                  <StartCondition>
                                     <AND>
                                        <EQInternal>
@@ -236,7 +236,7 @@
                                        <Name>
                                           <StringValue>MoveRandom</StringValue>
                                        </Name>
-                                       <Arguments LineNo="60" ColNo="27">
+                                       <Arguments LineNo="60" ColNo="47">
                                           <StringVariable>RobotName</StringVariable>
                                        </Arguments>
                                     </Command>

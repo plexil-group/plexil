@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="31" ColNo="8">
-      <CommandDeclaration LineNo="31" ColNo="8">
+   <GlobalDeclarations LineNo="32" ColNo="0">
+      <CommandDeclaration LineNo="32" ColNo="0">
+         <Name>pprint</Name>
+      </CommandDeclaration>
+      <CommandDeclaration LineNo="33" ColNo="8">
          <Name>QueryRobotState</Name>
          <Return>
             <Name>_return_0</Name>
@@ -14,7 +17,7 @@
             <Type>String</Type>
          </Parameter>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="32" ColNo="8">
+      <CommandDeclaration LineNo="34" ColNo="8">
          <Name>MoveLeft</Name>
          <Return>
             <Name>_return_0</Name>
@@ -25,7 +28,7 @@
             <Type>String</Type>
          </Parameter>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="33" ColNo="8">
+      <CommandDeclaration LineNo="35" ColNo="8">
          <Name>MoveRight</Name>
          <Return>
             <Name>_return_0</Name>
@@ -36,7 +39,7 @@
             <Type>String</Type>
          </Parameter>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="34" ColNo="8">
+      <CommandDeclaration LineNo="36" ColNo="8">
          <Name>MoveUp</Name>
          <Return>
             <Name>_return_0</Name>
@@ -47,7 +50,7 @@
             <Type>String</Type>
          </Parameter>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="35" ColNo="8">
+      <CommandDeclaration LineNo="37" ColNo="8">
          <Name>MoveDown</Name>
          <Return>
             <Name>_return_0</Name>
@@ -59,29 +62,29 @@
          </Parameter>
       </CommandDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" LineNo="39" ColNo="1">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="41" ColNo="4">
       <NodeId>FourSteps</NodeId>
       <VariableDeclarations>
-         <DeclareVariable LineNo="39" ColNo="1">
+         <DeclareVariable LineNo="41" ColNo="4">
             <Name>RobotName</Name>
             <Type>String</Type>
             <InitialValue>
                <StringValue>RobotYellow</StringValue>
             </InitialValue>
          </DeclareVariable>
-         <DeclareVariable LineNo="40" ColNo="1">
+         <DeclareVariable LineNo="42" ColNo="4">
             <Name>StartX</Name>
             <Type>Real</Type>
          </DeclareVariable>
-         <DeclareVariable LineNo="40" ColNo="1">
+         <DeclareVariable LineNo="42" ColNo="4">
             <Name>StartY</Name>
             <Type>Real</Type>
          </DeclareVariable>
-         <DeclareVariable LineNo="40" ColNo="1">
+         <DeclareVariable LineNo="42" ColNo="4">
             <Name>EndX</Name>
             <Type>Real</Type>
          </DeclareVariable>
-         <DeclareVariable LineNo="40" ColNo="1">
+         <DeclareVariable LineNo="42" ColNo="4">
             <Name>EndY</Name>
             <Type>Real</Type>
          </DeclareVariable>
@@ -144,10 +147,10 @@
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="Sequence" LineNo="46" ColNo="2">
+            <Node NodeType="NodeList" epx="Sequence" LineNo="48" ColNo="8">
                <NodeId>GetStartPosition</NodeId>
                <VariableDeclarations>
-                  <DeclareArray LineNo="46" ColNo="2">
+                  <DeclareArray LineNo="48" ColNo="8">
                      <Name>RobotState</Name>
                      <Type>Real</Type>
                      <MaxSize>3</MaxSize>
@@ -165,7 +168,7 @@
                            </EQInternal>
                            <EQInternal>
                               <NodeOutcomeVariable>
-                                 <NodeId>ASSIGNMENT__1</NodeId>
+                                 <NodeId>COMMAND__1</NodeId>
                               </NodeOutcomeVariable>
                               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                            </EQInternal>
@@ -175,13 +178,19 @@
                               </NodeOutcomeVariable>
                               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                            </EQInternal>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeId>ASSIGNMENT__3</NodeId>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                           </EQInternal>
                         </OR>
                      </NOT>
                   </AND>
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Command" LineNo="50" ColNo="16">
+                     <Node NodeType="Command" LineNo="52" ColNo="25">
                         <NodeId>GetRobotState</NodeId>
                         <EndCondition>
                            <IsKnown>
@@ -199,19 +208,60 @@
                               <Name>
                                  <StringValue>QueryRobotState</StringValue>
                               </Name>
-                              <Arguments LineNo="50" ColNo="32">
+                              <Arguments LineNo="52" ColNo="41">
                                  <StringVariable>RobotName</StringVariable>
                               </Arguments>
                            </Command>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="52" ColNo="2">
-                        <NodeId>ASSIGNMENT__1</NodeId>
+                     <Node NodeType="Command" LineNo="54" ColNo="8">
+                        <NodeId>COMMAND__1</NodeId>
                         <StartCondition>
                            <AND>
                               <EQInternal>
                                  <NodeStateVariable>
                                     <NodeId>GetRobotState</NodeId>
+                                 </NodeStateVariable>
+                                 <NodeStateValue>FINISHED</NodeStateValue>
+                              </EQInternal>
+                           </AND>
+                        </StartCondition>
+                        <NodeBody>
+                           <Command>
+                              <Name>
+                                 <StringValue>pprint</StringValue>
+                              </Name>
+                              <Arguments LineNo="54" ColNo="16">
+                                 <StringValue>Start State:</StringValue>
+                                 <ArrayElement>
+                                    <Name>RobotState</Name>
+                                    <Index>
+                                       <IntegerValue>0</IntegerValue>
+                                    </Index>
+                                 </ArrayElement>
+                                 <ArrayElement>
+                                    <Name>RobotState</Name>
+                                    <Index>
+                                       <IntegerValue>1</IntegerValue>
+                                    </Index>
+                                 </ArrayElement>
+                                 <ArrayElement>
+                                    <Name>RobotState</Name>
+                                    <Index>
+                                       <IntegerValue>2</IntegerValue>
+                                    </Index>
+                                 </ArrayElement>
+                              </Arguments>
+                           </Command>
+                        </NodeBody>
+                     </Node>
+                     <Node NodeType="Assignment" LineNo="55" ColNo="8">
+                        <NodeId>ASSIGNMENT__2</NodeId>
+                        <StartCondition>
+                           <AND>
+                              <EQInternal>
+                                 <NodeStateVariable>
+                                    <NodeId>COMMAND__1</NodeId>
                                  </NodeStateVariable>
                                  <NodeStateValue>FINISHED</NodeStateValue>
                               </EQInternal>
@@ -231,13 +281,13 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="53" ColNo="2">
-                        <NodeId>ASSIGNMENT__2</NodeId>
+                     <Node NodeType="Assignment" LineNo="56" ColNo="8">
+                        <NodeId>ASSIGNMENT__3</NodeId>
                         <StartCondition>
                            <AND>
                               <EQInternal>
                                  <NodeStateVariable>
-                                    <NodeId>ASSIGNMENT__1</NodeId>
+                                    <NodeId>ASSIGNMENT__2</NodeId>
                                  </NodeStateVariable>
                                  <NodeStateValue>FINISHED</NodeStateValue>
                               </EQInternal>
@@ -260,10 +310,10 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="Command" LineNo="60" ColNo="17">
+            <Node NodeType="Command" LineNo="63" ColNo="17">
                <NodeId>MoveLeft</NodeId>
                <VariableDeclarations>
-                  <DeclareVariable LineNo="57" ColNo="8">
+                  <DeclareVariable LineNo="60" ColNo="8">
                      <Name>result</Name>
                      <Type>Integer</Type>
                   </DeclareVariable>
@@ -295,16 +345,16 @@
                      <Name>
                         <StringValue>MoveLeft</StringValue>
                      </Name>
-                     <Arguments LineNo="60" ColNo="26">
+                     <Arguments LineNo="63" ColNo="26">
                         <StringVariable>RobotName</StringVariable>
                      </Arguments>
                   </Command>
                </NodeBody>
             </Node>
-            <Node NodeType="Command" LineNo="67" ColNo="17">
+            <Node NodeType="Command" LineNo="70" ColNo="17">
                <NodeId>MoveUp</NodeId>
                <VariableDeclarations>
-                  <DeclareVariable LineNo="64" ColNo="8">
+                  <DeclareVariable LineNo="67" ColNo="8">
                      <Name>result</Name>
                      <Type>Integer</Type>
                   </DeclareVariable>
@@ -336,16 +386,16 @@
                      <Name>
                         <StringValue>MoveUp</StringValue>
                      </Name>
-                     <Arguments LineNo="67" ColNo="24">
+                     <Arguments LineNo="70" ColNo="24">
                         <StringVariable>RobotName</StringVariable>
                      </Arguments>
                   </Command>
                </NodeBody>
             </Node>
-            <Node NodeType="Command" LineNo="74" ColNo="11">
+            <Node NodeType="Command" LineNo="77" ColNo="17">
                <NodeId>MoveRight</NodeId>
                <VariableDeclarations>
-                  <DeclareVariable LineNo="71" ColNo="8">
+                  <DeclareVariable LineNo="74" ColNo="8">
                      <Name>result</Name>
                      <Type>Integer</Type>
                   </DeclareVariable>
@@ -377,16 +427,16 @@
                      <Name>
                         <StringValue>MoveRight</StringValue>
                      </Name>
-                     <Arguments LineNo="74" ColNo="21">
+                     <Arguments LineNo="77" ColNo="27">
                         <StringVariable>RobotName</StringVariable>
                      </Arguments>
                   </Command>
                </NodeBody>
             </Node>
-            <Node NodeType="Command" LineNo="81" ColNo="17">
+            <Node NodeType="Command" LineNo="84" ColNo="17">
                <NodeId>MoveDown</NodeId>
                <VariableDeclarations>
-                  <DeclareVariable LineNo="78" ColNo="8">
+                  <DeclareVariable LineNo="81" ColNo="8">
                      <Name>result</Name>
                      <Type>Integer</Type>
                   </DeclareVariable>
@@ -418,16 +468,16 @@
                      <Name>
                         <StringValue>MoveDown</StringValue>
                      </Name>
-                     <Arguments LineNo="81" ColNo="26">
+                     <Arguments LineNo="84" ColNo="26">
                         <StringVariable>RobotName</StringVariable>
                      </Arguments>
                   </Command>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="Sequence" LineNo="85" ColNo="2">
+            <Node NodeType="NodeList" epx="Sequence" LineNo="88" ColNo="8">
                <NodeId>GetEndPosition</NodeId>
                <VariableDeclarations>
-                  <DeclareArray LineNo="85" ColNo="2">
+                  <DeclareArray LineNo="88" ColNo="8">
                      <Name>RobotState</Name>
                      <Type>Real</Type>
                      <MaxSize>3</MaxSize>
@@ -455,13 +505,13 @@
                            </EQInternal>
                            <EQInternal>
                               <NodeOutcomeVariable>
-                                 <NodeId>ASSIGNMENT__8</NodeId>
+                                 <NodeId>ASSIGNMENT__9</NodeId>
                               </NodeOutcomeVariable>
                               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                            </EQInternal>
                            <EQInternal>
                               <NodeOutcomeVariable>
-                                 <NodeId>ASSIGNMENT__9</NodeId>
+                                 <NodeId>ASSIGNMENT__10</NodeId>
                               </NodeOutcomeVariable>
                               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                            </EQInternal>
@@ -471,7 +521,7 @@
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Command" LineNo="89" ColNo="16">
+                     <Node NodeType="Command" LineNo="92" ColNo="25">
                         <NodeId>GetRobotState</NodeId>
                         <EndCondition>
                            <IsKnown>
@@ -489,14 +539,14 @@
                               <Name>
                                  <StringValue>QueryRobotState</StringValue>
                               </Name>
-                              <Arguments LineNo="89" ColNo="32">
+                              <Arguments LineNo="92" ColNo="41">
                                  <StringVariable>RobotName</StringVariable>
                               </Arguments>
                            </Command>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="91" ColNo="2">
-                        <NodeId>ASSIGNMENT__8</NodeId>
+                     <Node NodeType="Assignment" LineNo="94" ColNo="8">
+                        <NodeId>ASSIGNMENT__9</NodeId>
                         <StartCondition>
                            <AND>
                               <EQInternal>
@@ -521,13 +571,13 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="92" ColNo="2">
-                        <NodeId>ASSIGNMENT__9</NodeId>
+                     <Node NodeType="Assignment" LineNo="95" ColNo="8">
+                        <NodeId>ASSIGNMENT__10</NodeId>
                         <StartCondition>
                            <AND>
                               <EQInternal>
                                  <NodeStateVariable>
-                                    <NodeId>ASSIGNMENT__8</NodeId>
+                                    <NodeId>ASSIGNMENT__9</NodeId>
                                  </NodeStateVariable>
                                  <NodeStateValue>FINISHED</NodeStateValue>
                               </EQInternal>

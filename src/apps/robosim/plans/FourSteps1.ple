@@ -1,4 +1,5 @@
-// -*- Mode: Java -*-
+// -*- Mode: C -*-
+
 // This is a Plexil plan for the RoboSim application.  It has the robot
 // move one step in each direction.  The plan is successful if and only
 // if the start and end positions of the robot are the same.
@@ -7,7 +8,7 @@
 // parameterized Move() command.
 // Direction 0 is up, 1 is right, 2 is down, and 3 is left.
 
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,26 +38,26 @@ Integer Command Move(String name, Integer direction);
 
 FourSteps:
 {
-	String RobotName = "RobotYellow";
-	Real StartX, StartY, EndX, EndY;
-	Integer Index = 0; 
-	PostCondition (StartX == EndX) && (StartY == EndY);
+    String RobotName = "RobotYellow";
+    Real StartX, StartY, EndX, EndY;
+    Integer Index = 0; 
+    PostCondition (StartX == EndX) && (StartY == EndY);
 
     GetStartPosition:
     {
-		Real RobotState[3];
+        Real RobotState[3];
         GetRobotState:
         { 
-			EndCondition isKnown(RobotState[0]);
-			RobotState = QueryRobotState(RobotName);
+            EndCondition isKnown(RobotState[0]);
+            RobotState = QueryRobotState(RobotName);
         }
-		StartX = RobotState[0];
-		StartY = RobotState[1];
-	}
+        StartX = RobotState[0];
+        StartY = RobotState[1];
+    }
     MoveLoop:
     {
-		Integer Directions[4] = #(3 0 1 2);
-		RepeatCondition Index < 4;
+        Integer Directions[4] = #(3 0 1 2);
+        RepeatCondition Index < 4;
         Move:
         {
             Integer result;
@@ -64,17 +65,17 @@ FourSteps:
             PostCondition result == 1;
             result = Move(RobotName, Directions[Index]);
         }
-		Index = Index + 1;
+        Index = Index + 1;
     }
     GetEndPosition:
     {
-		Real RobotState[3];
+        Real RobotState[3];
         GetRobotState:
         { 
-			EndCondition isKnown(RobotState[0]);
-			RobotState = QueryRobotState(RobotName);
+            EndCondition isKnown(RobotState[0]);
+            RobotState = QueryRobotState(RobotName);
         }
-		EndX = RobotState[0];
-		EndY = RobotState[1];
+        EndX = RobotState[0];
+        EndY = RobotState[1];
     }
 }

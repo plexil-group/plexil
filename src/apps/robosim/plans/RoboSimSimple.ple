@@ -1,5 +1,6 @@
-// -*- Mode: Java -*-
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// -*- Mode: C -*-
+
+// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,34 +31,33 @@ Real[5] Command QueryEnergySensor(String name);
 
 RoboSimSimple:
 {
-	String RobotName = "RobotYellow";
-	Integer randNumber = 0;
+    String RobotName = "RobotYellow";
+    Integer randNumber = 0;
 
-	MoveRobot:
-	{
-		RepeatCondition NodeWrapper.outcome == SUCCESS;
-		NodeWrapper:
-		{
-			PostCondition Move.outcome == SUCCESS &&
-				QueryEnergySensor.outcome == SUCCESS &&
-				MoveRandom.outcome == SUCCESS;
+    MoveRobot:
+    {
+        RepeatCondition NodeWrapper.outcome == SUCCESS;
+        NodeWrapper:
+        {
+            PostCondition (Move.outcome == SUCCESS &&
+                           QueryEnergySensor.outcome == SUCCESS &&
+                           GetRandom.outcome == SUCCESS);
 
-			Move:
-			{
-				Real res;
-				EndCondition isKnown(res);
-				PostCondition res == 1.0;
-				res = Move(RobotName, randNumber);
-			}
+            Move:
+            {
+                Real res;
+                EndCondition isKnown(res);
+                PostCondition res == 1.0;
+                res = Move(RobotName, randNumber);
+            }
 
-			QueryEnergySensor:
-			{
-				Real energy[5];
-				energy = QueryEnergySensor(RobotName);
-			}
+            QueryEnergySensor:
+            {
+                Real energy[5];
+                energy = QueryEnergySensor(RobotName);
+            }
 
-			MoveRandom:
-			randNumber = MoveRandom(RobotName);
-		}
-	}
+            GetRandom: randNumber = MoveRandom(RobotName);
+        }
+    }
 }

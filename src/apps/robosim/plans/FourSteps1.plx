@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="35" ColNo="8">
-      <CommandDeclaration LineNo="35" ColNo="8">
+   <GlobalDeclarations LineNo="36" ColNo="8">
+      <CommandDeclaration LineNo="36" ColNo="8">
          <Name>QueryRobotState</Name>
          <Return>
             <Name>_return_0</Name>
@@ -14,7 +14,7 @@
             <Type>String</Type>
          </Parameter>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="36" ColNo="8">
+      <CommandDeclaration LineNo="37" ColNo="8">
          <Name>Move</Name>
          <Return>
             <Name>_return_0</Name>
@@ -30,33 +30,33 @@
          </Parameter>
       </CommandDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" LineNo="40" ColNo="1">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="41" ColNo="4">
       <NodeId>FourSteps</NodeId>
       <VariableDeclarations>
-         <DeclareVariable LineNo="40" ColNo="1">
+         <DeclareVariable LineNo="41" ColNo="4">
             <Name>RobotName</Name>
             <Type>String</Type>
             <InitialValue>
                <StringValue>RobotYellow</StringValue>
             </InitialValue>
          </DeclareVariable>
-         <DeclareVariable LineNo="41" ColNo="1">
+         <DeclareVariable LineNo="42" ColNo="4">
             <Name>StartX</Name>
             <Type>Real</Type>
          </DeclareVariable>
-         <DeclareVariable LineNo="41" ColNo="1">
+         <DeclareVariable LineNo="42" ColNo="4">
             <Name>StartY</Name>
             <Type>Real</Type>
          </DeclareVariable>
-         <DeclareVariable LineNo="41" ColNo="1">
+         <DeclareVariable LineNo="42" ColNo="4">
             <Name>EndX</Name>
             <Type>Real</Type>
          </DeclareVariable>
-         <DeclareVariable LineNo="41" ColNo="1">
+         <DeclareVariable LineNo="42" ColNo="4">
             <Name>EndY</Name>
             <Type>Real</Type>
          </DeclareVariable>
-         <DeclareVariable LineNo="42" ColNo="1">
+         <DeclareVariable LineNo="43" ColNo="4">
             <Name>Index</Name>
             <Type>Integer</Type>
             <InitialValue>
@@ -104,10 +104,10 @@
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="Sequence" LineNo="47" ColNo="2">
+            <Node NodeType="NodeList" epx="Sequence" LineNo="48" ColNo="8">
                <NodeId>GetStartPosition</NodeId>
                <VariableDeclarations>
-                  <DeclareArray LineNo="47" ColNo="2">
+                  <DeclareArray LineNo="48" ColNo="8">
                      <Name>RobotState</Name>
                      <Type>Real</Type>
                      <MaxSize>3</MaxSize>
@@ -141,7 +141,7 @@
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Command" LineNo="51" ColNo="16">
+                     <Node NodeType="Command" LineNo="52" ColNo="25">
                         <NodeId>GetRobotState</NodeId>
                         <EndCondition>
                            <IsKnown>
@@ -159,13 +159,13 @@
                               <Name>
                                  <StringValue>QueryRobotState</StringValue>
                               </Name>
-                              <Arguments LineNo="51" ColNo="32">
+                              <Arguments LineNo="52" ColNo="41">
                                  <StringVariable>RobotName</StringVariable>
                               </Arguments>
                            </Command>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="53" ColNo="2">
+                     <Node NodeType="Assignment" LineNo="54" ColNo="8">
                         <NodeId>ASSIGNMENT__1</NodeId>
                         <StartCondition>
                            <AND>
@@ -191,7 +191,7 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="54" ColNo="2">
+                     <Node NodeType="Assignment" LineNo="55" ColNo="8">
                         <NodeId>ASSIGNMENT__2</NodeId>
                         <StartCondition>
                            <AND>
@@ -220,10 +220,10 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="Sequence" LineNo="58" ColNo="2">
+            <Node NodeType="NodeList" epx="Sequence" LineNo="59" ColNo="8">
                <NodeId>MoveLoop</NodeId>
                <VariableDeclarations>
-                  <DeclareArray LineNo="58" ColNo="2">
+                  <DeclareArray LineNo="59" ColNo="8">
                      <Name>Directions</Name>
                      <Type>Integer</Type>
                      <MaxSize>4</MaxSize>
@@ -273,10 +273,10 @@
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Command" LineNo="65" ColNo="21">
+                     <Node NodeType="Command" LineNo="66" ColNo="21">
                         <NodeId>Move</NodeId>
                         <VariableDeclarations>
-                           <DeclareVariable LineNo="62" ColNo="12">
+                           <DeclareVariable LineNo="63" ColNo="12">
                               <Name>result</Name>
                               <Type>Integer</Type>
                            </DeclareVariable>
@@ -298,7 +298,7 @@
                               <Name>
                                  <StringValue>Move</StringValue>
                               </Name>
-                              <Arguments LineNo="65" ColNo="26">
+                              <Arguments LineNo="66" ColNo="26">
                                  <StringVariable>RobotName</StringVariable>
                                  <ArrayElement>
                                     <Name>Directions</Name>
@@ -310,7 +310,7 @@
                            </Command>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="67" ColNo="2">
+                     <Node NodeType="Assignment" LineNo="68" ColNo="8">
                         <NodeId>ASSIGNMENT__4</NodeId>
                         <StartCondition>
                            <AND>
@@ -326,7 +326,7 @@
                            <Assignment>
                               <IntegerVariable>Index</IntegerVariable>
                               <NumericRHS>
-                                 <ADD LineNo="67" ColNo="16">
+                                 <ADD LineNo="68" ColNo="22">
                                     <IntegerVariable>Index</IntegerVariable>
                                     <IntegerValue>1</IntegerValue>
                                  </ADD>
@@ -337,10 +337,10 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="Sequence" LineNo="71" ColNo="2">
+            <Node NodeType="NodeList" epx="Sequence" LineNo="72" ColNo="8">
                <NodeId>GetEndPosition</NodeId>
                <VariableDeclarations>
-                  <DeclareArray LineNo="71" ColNo="2">
+                  <DeclareArray LineNo="72" ColNo="8">
                      <Name>RobotState</Name>
                      <Type>Real</Type>
                      <MaxSize>3</MaxSize>
@@ -384,7 +384,7 @@
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Command" LineNo="75" ColNo="16">
+                     <Node NodeType="Command" LineNo="76" ColNo="25">
                         <NodeId>GetRobotState</NodeId>
                         <EndCondition>
                            <IsKnown>
@@ -402,13 +402,13 @@
                               <Name>
                                  <StringValue>QueryRobotState</StringValue>
                               </Name>
-                              <Arguments LineNo="75" ColNo="32">
+                              <Arguments LineNo="76" ColNo="41">
                                  <StringVariable>RobotName</StringVariable>
                               </Arguments>
                            </Command>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="77" ColNo="2">
+                     <Node NodeType="Assignment" LineNo="78" ColNo="8">
                         <NodeId>ASSIGNMENT__6</NodeId>
                         <StartCondition>
                            <AND>
@@ -434,7 +434,7 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="78" ColNo="2">
+                     <Node NodeType="Assignment" LineNo="79" ColNo="8">
                         <NodeId>ASSIGNMENT__7</NodeId>
                         <StartCondition>
                            <AND>
