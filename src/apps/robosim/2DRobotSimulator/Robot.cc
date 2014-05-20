@@ -76,11 +76,12 @@ Robot::Robot(const TerrainBase* _terrain,
     m_DirOffset[3][1] = -1;
     m_DirOffset[4][0] = 0;  // Current Position
     m_DirOffset[4][1] = 0;
+    debugMsg("Robot:Robot", "Constructed robot: " << m_Name);
   }
 
 Robot::~Robot()
 {
-  std::cout << "Deleting robot: " << m_Name << std::endl;
+  debugMsg("Robot:Robot", " Deleting robot:: " << m_Name);
 }
 
 void Robot::displayRobot(void)
@@ -195,7 +196,7 @@ double Robot::determineGoalLevel()
 
 const std::vector<double> Robot::processCommand(const std::string& cmd, double parameter)
 {
-  std::cout << "Received " << cmd << std::endl;
+  debugMsg("Robot:processCommand", " Received command: " << cmd);
   sleep(1);
 
   if (cmd == "Move")
@@ -391,7 +392,7 @@ const std::vector<double> Robot::moveRobotParameterized(int direction)
 }
 
 const std::vector<double> Robot::moveRobotInternal(int rowDirOffset,
-						   int colDirOffset)
+                                                   int colDirOffset)
 {
   int rowCurr, colCurr;
   m_RobotPositionServer->getRobotPosition(m_Name, rowCurr, colCurr);
