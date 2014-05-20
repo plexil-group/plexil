@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,8 +51,8 @@ private:
   std::map<std::string, std::vector<int> > m_NameToPositionMap;
   std::map<std::string, std::vector<int> >::iterator m_NameToPositionMapIter;
   PLEXIL::ThreadMutex m_RobotPositionMutex;
-  int m_Height;
-  int m_Width;
+  int m_Height;  // initialized but unused
+  int m_Width;   // initialized but unused
 
 };
 
