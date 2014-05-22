@@ -25,6 +25,7 @@
 */
 
 #include "Alias.hh"
+#include "Value.hh"
 
 namespace PLEXIL
 {
@@ -149,6 +150,14 @@ namespace PLEXIL
     if (!isActive())
       return false;
     return m_exp->getValuePointer(ptr);
+  }
+
+  Value Alias::toValue() const
+  {
+    if (!isActive())
+      return Value(0, m_exp->valueType());
+    else
+      return m_exp->toValue();
   }
 
   // No-op because the variable should already be active.

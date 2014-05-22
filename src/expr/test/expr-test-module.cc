@@ -39,6 +39,7 @@ extern bool constantsTest();
 extern bool functionsTest();
 extern bool listenerTest();
 extern bool stringTest();
+extern bool valueTest();
 extern bool variablesTest();
 
 using namespace PLEXIL;
@@ -49,6 +50,7 @@ int main(int argc, char *argv[])
   runTestSuite(constantsTest);
   runTestSuite(variablesTest);
   runTestSuite(arrayTest);
+  runTestSuite(valueTest);
   runTestSuite(arrayConstantTest);
   runTestSuite(arrayVariableTest);
   runTestSuite(arrayReferenceTest);

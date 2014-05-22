@@ -168,6 +168,8 @@ namespace PLEXIL
     template <typename U>
     void setElementImpl(size_t index, U const &newVal);
 
+    void print(std::ostream &s) const;
+
   private:
     std::vector<T> m_contents;
   };

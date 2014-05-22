@@ -33,6 +33,7 @@
 #include "NotifierImpl.hh"
 #include "TestSupport.hh"
 #include "TrivialListener.hh"
+#include "Value.hh"
 
 class PropagatingListener : public PLEXIL::ExpressionListener
 {
@@ -83,6 +84,8 @@ public:
 
   bool isConstant() const { return true; }
   bool isKnown() const { return false; }
+
+  PLEXIL::Value toValue() const { return PLEXIL::Value(); }
 
 private:
   PLEXIL::ExpressionListenerId m_listener;

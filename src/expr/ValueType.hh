@@ -33,6 +33,8 @@
 
 namespace PLEXIL
 {
+  // Forward reference
+  template <typename T> class ArrayImpl;
 
   //
   // PLEXIL expression data types
@@ -70,6 +72,7 @@ namespace PLEXIL
       TYPE_MAX
     };
 
+  // Utility functions
   const std::string &plexilTypeName(ValueType ty);
 
   bool isUserType(ValueType ty);
@@ -80,10 +83,10 @@ namespace PLEXIL
   ValueType arrayElementType(ValueType ty);
 
   template <typename T>
-  void printValue(const std::vector<T> &, std::ostream &s);
+  void printValue(ArrayImpl<T> &val, std::ostream &s);
 
   template <typename T>
-  void printValue(const T &, std::ostream &s);
+  void printValue(T const &val, std::ostream &s);
 
 }
 

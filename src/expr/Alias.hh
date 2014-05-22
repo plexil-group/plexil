@@ -32,6 +32,9 @@
 
 namespace PLEXIL
 {
+  // Forward declaration
+  class Value;
+
   /**
    * @class Alias
    * @brief A read-only proxy for another expression.
@@ -78,7 +81,13 @@ namespace PLEXIL
     bool getValuePointer(IntegerArray const *&ptr) const;
     bool getValuePointer(RealArray const *&ptr) const;
     bool getValuePointer(StringArray const *&ptr) const;
-    
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
+
   protected:
 
     //

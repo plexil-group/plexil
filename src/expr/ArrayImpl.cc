@@ -181,6 +181,15 @@ namespace PLEXIL
   }
 
   template <typename T>
+  void ArrayImpl<T>::print(std::ostream &s) const
+  {
+    // *** TODO
+    // Print head
+    // Print contents
+    // Print tail
+  }
+
+  template <typename T>
   bool operator==(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
   {
     if (!(a.getKnownVector() == b.getKnownVector()))

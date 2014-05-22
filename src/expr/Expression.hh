@@ -62,6 +62,7 @@ namespace PLEXIL
   typedef Id<Expression> ExpressionId;
   class Node;
   typedef Id<Node> NodeId;
+  class Value;
 
   /**
    * @class Expression
@@ -234,6 +235,12 @@ namespace PLEXIL
     virtual bool getValuePointer(IntegerArray const *&ptr) const; //
     virtual bool getValuePointer(RealArray const *&ptr) const;    //
     virtual bool getValuePointer(StringArray const *&ptr) const;  //
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    virtual Value toValue() const = 0;
 
   private:
 

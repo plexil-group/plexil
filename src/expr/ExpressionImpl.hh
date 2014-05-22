@@ -164,6 +164,13 @@ namespace PLEXIL
     // Error for wrong type call
     template <typename U>
     bool getValuePointerImpl(U const *&) const;
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
+
   };
   
 }

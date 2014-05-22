@@ -63,11 +63,6 @@ static bool testConstructors()
   assertTrue_1(!sizedString.elementKnown(0));
   assertTrue_1(!sizedString.elementKnown(1));
 
-  assertTrue_1(sizedBool   != emptyBool);
-  assertTrue_1(sizedInt    != emptyInt);
-  assertTrue_1(sizedReal   != emptyReal);
-  assertTrue_1(sizedString != emptyString);
-
   bool btemp;
   int32_t itemp;
   double dtemp;
@@ -103,16 +98,6 @@ static bool testConstructors()
   IntegerArray     initedInt(iv);
   RealArray      initedReal(dv);
   StringArray initedString(sv);
-
-  assertTrue_1(initedBool   != emptyBool);
-  assertTrue_1(initedInt    != emptyInt);
-  assertTrue_1(initedReal   != emptyReal);
-  assertTrue_1(initedString != emptyString);
-
-  assertTrue_1(initedBool   != sizedBool);
-  assertTrue_1(initedInt    != sizedInt);
-  assertTrue_1(initedReal   != sizedReal);
-  assertTrue_1(initedString != sizedString);
 
   assertTrue_1(initedBool.size()   == 2);
   assertTrue_1(initedInt.size()    == 2);
@@ -150,21 +135,6 @@ static bool testConstructors()
   RealArray      copyReal(initedReal);
   StringArray copyString(initedString);
 
-  assertTrue_1(copyBool   != emptyBool);
-  assertTrue_1(copyInt    != emptyInt);
-  assertTrue_1(copyReal   != emptyReal);
-  assertTrue_1(copyString != emptyString);
-
-  assertTrue_1(copyBool   != sizedBool);
-  assertTrue_1(copyInt    != sizedInt);
-  assertTrue_1(copyReal   != sizedReal);
-  assertTrue_1(copyString != sizedString);
-
-  assertTrue_1(copyBool   == initedBool);
-  assertTrue_1(copyInt    == initedInt);
-  assertTrue_1(copyReal   == initedReal);
-  assertTrue_1(copyString == initedString);
-
   assertTrue_1(copyBool.size()   == 2);
   assertTrue_1(copyInt.size()    == 2);
   assertTrue_1(copyReal.size()   == 2);
@@ -201,21 +171,6 @@ static bool testConstructors()
   emptyInt    = copyInt;
   emptyReal   = copyReal;
   emptyString = copyString;
-
-  assertTrue_1(emptyBool   != sizedBool);
-  assertTrue_1(emptyInt    != sizedInt);
-  assertTrue_1(emptyReal   != sizedReal);
-  assertTrue_1(emptyString != sizedString);
-
-  assertTrue_1(emptyBool   == initedBool);
-  assertTrue_1(emptyInt    == initedInt);
-  assertTrue_1(emptyReal   == initedReal);
-  assertTrue_1(emptyString == initedString);
-
-  assertTrue_1(emptyBool   == copyBool);
-  assertTrue_1(emptyInt    == copyInt);
-  assertTrue_1(emptyReal   == copyReal);
-  assertTrue_1(emptyString == copyString);
 
   assertTrue_1(emptyBool.size()   == 2);
   assertTrue_1(emptyInt.size()    == 2);
@@ -674,11 +629,158 @@ static bool testSetters()
   return true;
 }
 
+static bool testEquality()
+{
+  // Empty
+  BooleanArray emptyBool;
+  IntegerArray emptyInt;
+  RealArray emptyReal;
+  StringArray emptyString;
+
+  assertTrue_1(emptyBool == emptyBool);
+  assertTrue_1(emptyInt == emptyInt);
+  assertTrue_1(emptyReal == emptyReal);
+  assertTrue_1(emptyString == emptyString);
+
+  assertTrue_1(!(emptyBool != emptyBool));
+  assertTrue_1(!(emptyInt != emptyInt));
+  assertTrue_1(!(emptyReal != emptyReal));
+  assertTrue_1(!(emptyString != emptyString));
+
+  // Sized but unknown
+  BooleanArray sizedBool(2);
+  IntegerArray sizedInt(2);
+  RealArray sizedReal(2);
+  StringArray sizedString(2);
+
+  assertTrue_1(sizedBool == sizedBool);
+  assertTrue_1(sizedInt == sizedInt);
+  assertTrue_1(sizedReal == sizedReal);
+  assertTrue_1(sizedString == sizedString);
+
+  assertTrue_1(!(sizedBool != sizedBool));
+  assertTrue_1(!(sizedInt != sizedInt));
+  assertTrue_1(!(sizedReal != sizedReal));
+  assertTrue_1(!(sizedString != sizedString));
+
+  assertTrue_1(emptyBool != sizedBool);
+  assertTrue_1(emptyInt != sizedInt);
+  assertTrue_1(emptyReal != sizedReal);
+  assertTrue_1(emptyString != sizedString);
+
+  // Constructor from vector
+  std::vector<bool>        bv(2);
+  std::vector<int32_t>     iv(2);
+  std::vector<double>      dv(2);
+  std::vector<std::string> sv(2);
+
+  bv[0] = false;
+  bv[1] = true;
+
+  iv[0] = 42;
+  iv[1] = 6;
+
+  dv[0] = 3.14;
+  dv[1] = 4.5;
+
+  sv[0] = std::string("yo ");
+  sv[1] = std::string("mama");
+
+  BooleanArray initedBool(bv);
+  IntegerArray initedInt(iv);
+  RealArray initedReal(dv);
+  StringArray initedString(sv);
+
+  assertTrue_1(initedBool == initedBool);
+  assertTrue_1(initedInt == initedInt);
+  assertTrue_1(initedReal == initedReal);
+  assertTrue_1(initedString == initedString);
+
+  assertTrue_1(!(initedBool != initedBool));
+  assertTrue_1(!(initedInt != initedInt));
+  assertTrue_1(!(initedReal != initedReal));
+  assertTrue_1(!(initedString != initedString));
+
+  assertTrue_1(emptyBool != initedBool);
+  assertTrue_1(emptyInt != initedInt);
+  assertTrue_1(emptyReal != initedReal);
+  assertTrue_1(emptyString != initedString);
+
+  assertTrue_1(initedBool != sizedBool);
+  assertTrue_1(initedInt != sizedInt);
+  assertTrue_1(initedReal != sizedReal);
+  assertTrue_1(initedString != sizedString);
+
+  BooleanArray copyBool(initedBool);
+  IntegerArray copyInt(initedInt);
+  RealArray copyReal(initedReal);
+  StringArray copyString(initedString);
+
+  assertTrue_1(copyBool == copyBool);
+  assertTrue_1(copyInt == copyInt);
+  assertTrue_1(copyReal == copyReal);
+  assertTrue_1(copyString == copyString);
+
+  assertTrue_1(!(copyBool != copyBool));
+  assertTrue_1(!(copyInt != copyInt));
+  assertTrue_1(!(copyReal != copyReal));
+  assertTrue_1(!(copyString != copyString));
+
+  assertTrue_1(copyBool   == initedBool);
+  assertTrue_1(copyInt    == initedInt);
+  assertTrue_1(copyReal   == initedReal);
+  assertTrue_1(copyString == initedString);
+
+  assertTrue_1(copyBool   != emptyBool);
+  assertTrue_1(copyInt    != emptyInt);
+  assertTrue_1(copyReal   != emptyReal);
+  assertTrue_1(copyString != emptyString);
+
+  assertTrue_1(copyBool   != sizedBool);
+  assertTrue_1(copyInt    != sizedInt);
+  assertTrue_1(copyReal   != sizedReal);
+  assertTrue_1(copyString != sizedString);
+
+  // After assignment
+  emptyBool   = copyBool;
+  emptyInt    = copyInt;
+  emptyReal   = copyReal;
+  emptyString = copyString;
+
+  assertTrue_1(emptyBool == emptyBool);
+  assertTrue_1(emptyInt == emptyInt);
+  assertTrue_1(emptyReal == emptyReal);
+  assertTrue_1(emptyString == emptyString);
+
+  assertTrue_1(!(emptyBool != emptyBool));
+  assertTrue_1(!(emptyInt != emptyInt));
+  assertTrue_1(!(emptyReal != emptyReal));
+  assertTrue_1(!(emptyString != emptyString));
+
+  assertTrue_1(emptyBool   != sizedBool);
+  assertTrue_1(emptyInt    != sizedInt);
+  assertTrue_1(emptyReal   != sizedReal);
+  assertTrue_1(emptyString != sizedString);
+
+  assertTrue_1(emptyBool   == initedBool);
+  assertTrue_1(emptyInt    == initedInt);
+  assertTrue_1(emptyReal   == initedReal);
+  assertTrue_1(emptyString == initedString);
+
+  assertTrue_1(emptyBool   == copyBool);
+  assertTrue_1(emptyInt    == copyInt);
+  assertTrue_1(emptyReal   == copyReal);
+  assertTrue_1(emptyString == copyString);
+
+  return true;
+}
+
 bool arrayTest()
 {
   runTest(testConstructors);
   runTest(testResize);
   runTest(testSetters);
+  runTest(testEquality);
   return true;
 }
 

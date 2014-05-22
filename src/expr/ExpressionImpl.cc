@@ -28,6 +28,7 @@
 
 #include "ArrayImpl.hh"
 #include "Error.hh"
+#include "Value.hh"
 
 namespace PLEXIL
 {
@@ -173,6 +174,59 @@ namespace PLEXIL
   {
     check_error_2(ALWAYS_FAIL, "getValuePointer: value type error");
     return false;
+  }
+
+  template <typename T>
+  Value ExpressionImpl<T>::toValue() const
+  {
+    T const *ptr;
+    bool known = this->getValuePointerImpl(ptr);
+    if (known)
+      return Value(*ptr);
+    else
+      return Value(0, this->valueType());
+  }
+
+  // Specializations
+  template <>
+  Value ExpressionImpl<bool>::toValue() const
+  {
+    bool val;
+    bool known = this->getValueImpl(val);
+    if (known)
+      return Value(val);
+    else
+      return Value(0, this->valueType());
+  }
+
+  template <>
+  Value ExpressionImpl<uint16_t>::toValue() const
+  {
+    bool val;
+    this->getValueImpl(val);
+    return Value(val, this->valueType());
+  }
+
+  template <>
+  Value ExpressionImpl<int32_t>::toValue() const
+  {
+    int32_t val;
+    bool known = this->getValueImpl(val);
+    if (known)
+      return Value(val);
+    else
+      return Value(0, this->valueType());
+  }
+
+  template <>
+  Value ExpressionImpl<double>::toValue() const
+  {
+    double val;
+    bool known = this->getValueImpl(val);
+    if (known)
+      return Value(val);
+    else
+      return Value(0, this->valueType());
   }
 
   //

@@ -99,6 +99,9 @@ namespace PLEXIL
     virtual void setElement(size_t index, double const &newVal) = 0;
     virtual void setElement(size_t index, std::string const &newVal) = 0;
 
+    // Utility
+    virtual void print(std::ostream &s) const = 0;
+
   protected:
     // For use by implementation classes
     inline bool checkIndex(size_t index) const

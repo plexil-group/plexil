@@ -33,13 +33,14 @@ libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils \
 include_HEADERS = Alias.hh Array.hh ArrayImpl.hh ArrayConstant.hh \
  ArrayReference.hh ArrayVariable.hh Assignable.hh Constant.hh Expression.hh \
  ExpressionImpl.hh ExpressionListener.hh Function.hh NotifierImpl.hh \
- Operator.hh UserVariable.hh ValueType.hh
+ Operator.hh UserVariable.hh Value.hh ValueType.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
  ArithmeticOperators.cc ArrayConstant.cc ArrayOperators.cc ArrayReference.cc \
  ArrayVariable.cc Assignable.cc BooleanOperators.cc Comparisons.cc Constant.cc \
  Expression.cc ExpressionImpl.cc ExpressionListener.cc Function.cc \
- NotifierImpl.cc Operator.cc StringOperators.cc UserVariable.cc ValueType.cc
+ NotifierImpl.cc Operator.cc StringOperators.cc UserVariable.cc Value.cc \
+ ValueType.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
@@ -49,7 +50,7 @@ if MODULE_TESTS_OPT
  test/arrayReferenceTest.cc test/arrayTest.cc test/arrayVariableTest.cc \
  test/comparisonsTest.cc test/constantsTest.cc test/functionsTest.cc \
  test/listenerTest.cc test/stringTest.cc test/TrivialListener.cc \
- test/variablesTest.cc test/expr-test-module.cc
+ test/valueTest.cc test/variablesTest.cc test/expr-test-module.cc
   test_expr_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils
   test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la \
  ../third-party/pugixml/src/libpugixml.la
