@@ -175,10 +175,22 @@ namespace PLEXIL
   };
 
   template <typename T>
-  bool operator==(ArrayImpl<T> const &a, ArrayImpl<T> const &b);
+  bool operator==(ArrayImpl<T> const &, ArrayImpl<T> const &);
 
   template <typename T>
-  bool operator!=(ArrayImpl<T> const &a, ArrayImpl<T> const &b);
+  bool operator!=(ArrayImpl<T> const &, ArrayImpl<T> const &);
+
+  template <typename T>
+  bool operator<(ArrayImpl<T> const &, ArrayImpl<T> const &);
+
+  template <typename T>
+  bool operator<=(ArrayImpl<T> const &, ArrayImpl<T> const &);
+
+  template <typename T>
+  bool operator>(ArrayImpl<T> const &, ArrayImpl<T> const &);
+
+  template <typename T>
+  bool operator>=(ArrayImpl<T> const &, ArrayImpl<T> const &);
 
 } // namespace PLEXIL
 

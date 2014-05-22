@@ -30,7 +30,11 @@
 #include "Array.hh"
 #include "ValueType.hh"
 
-#include <stdint.h> // deliberately NOT <cstdint>
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
 
 namespace PLEXIL
 {
@@ -53,6 +57,7 @@ namespace PLEXIL
     Value(int32_t val);
     Value(double val);
     Value(std::string const &val);
+    Value(char const *val); // for convenience
     Value(BooleanArray const &val);
     Value(IntegerArray const &val);
     Value(RealArray const &val);
@@ -62,7 +67,7 @@ namespace PLEXIL
     
     Value &operator=(Value const &);
 
-    // TODO: operator= from raw values
+    // TODO: operator= from raw values?
 
     ValueType valueType() const;
     bool isKnown() const;
@@ -80,6 +85,7 @@ namespace PLEXIL
     bool getValuePointer(StringArray const *&ptr);
 
     bool equals(Value const &) const;
+    bool lessThan(Value const &) const; // for (e.g.) std::map
 
     void print(std::ostream &s) const;
 
@@ -102,14 +108,32 @@ namespace PLEXIL
     bool m_known;
   };
 
+  std::ostream &operator<<(std::ostream &, Value const &);
+
   inline bool operator==(Value const &a, Value const &b)
   {
     return a.equals(b);
   }
-
   inline bool operator!=(Value const &a, Value const &b)
   {
     return !a.equals(b);
+  }
+
+  inline bool operator<(Value const &a, Value const &b)
+  {
+    return a.lessThan(b);
+  }
+  inline bool operator<=(Value const &a, Value const &b)
+  {
+    return !b.lessThan(a);
+  }
+  inline bool operator>(Value const &a, Value const &b)
+  {
+    return b.lessThan(a);
+  }
+  inline bool operator>=(Value const &a, Value const &b)
+  {
+    return !a.lessThan(b);
   }
 
 } // namespace PLEXIL

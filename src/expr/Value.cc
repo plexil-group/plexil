@@ -131,6 +131,13 @@ namespace PLEXIL
     m_value.stringValue = new std::string(val);
   }
 
+  Value::Value(char const *val)
+    : m_type(STRING_TYPE),
+      m_known(true)
+  {
+    m_value.stringValue = new std::string(val);
+  }
+
   Value::Value(BooleanArray const &val)
     : m_type(BOOLEAN_ARRAY_TYPE),
       m_known(true)
@@ -456,6 +463,12 @@ namespace PLEXIL
     }
   }
 
+  std::ostream &operator<<(std::ostream &s, Value const &v)
+  {
+    v.print(s);
+    return s;
+  }
+
   // Issues:
   // - is unknown always equal to unknown?
   bool Value::equals(Value const &other) const
@@ -529,5 +542,88 @@ namespace PLEXIL
     }
   }
 
+  bool Value::lessThan(Value const &other) const
+  {
+    // unknown < known
+    if (!m_known && other.m_known)
+      return true;
+    if (m_known && !other.m_known)
+      return false;
+
+    switch (m_type) {
+    case INTEGER_TYPE:
+      if (m_type == other.m_type) {
+        if (m_known)
+          return m_value.integerValue < other.m_value.integerValue;
+        else 
+          return false; // unknown integer values are equal
+      }
+      else if (REAL_TYPE == other.m_type) {
+        if (m_known)
+          return ((double) m_value.integerValue) < other.m_value.realValue;
+        else 
+          return true; // real unknown > int unknown
+      }
+      else 
+        return m_type < other.m_type;
+
+    case REAL_TYPE:
+      if (m_type == other.m_type) {
+        if (m_known)
+          return m_value.realValue < other.m_value.realValue;
+        else
+          return false; // unknown real values are equal
+      }
+      else if (INTEGER_TYPE == other.m_type) {
+        if (m_known)
+          return m_value.realValue < (double) other.m_value.integerValue;
+        else
+          return false; // real unknown > int unknown
+      }
+      else 
+        return m_type < other.m_type;
+
+    default:
+      // Unequal types 
+      if (m_type < other.m_type)
+        return true;
+      else if (m_type > other.m_type)
+        return false;
+    }
+
+    // Types are equal
+    if (!m_known)
+      return false; // unknowns of same type are equal
+
+    switch (m_type) {
+      case BOOLEAN_TYPE:
+        return ((int) m_value.booleanValue) < ((int) other.m_value.booleanValue);
+
+      case NODE_STATE_TYPE:
+      case OUTCOME_TYPE:
+      case FAILURE_TYPE:
+      case COMMAND_HANDLE_TYPE:
+        return m_value.enumValue < other.m_value.enumValue;
+      
+      case STRING_TYPE:
+        return *m_value.stringValue < *other.m_value.stringValue;
+
+      case BOOLEAN_ARRAY_TYPE:
+        return *m_value.booleanArrayValue < *other.m_value.booleanArrayValue;
+
+      case INTEGER_ARRAY_TYPE:
+        return *m_value.integerArrayValue < *other.m_value.integerArrayValue;
+
+      case REAL_ARRAY_TYPE:
+        return *m_value.realArrayValue < *other.m_value.realArrayValue;
+
+      case STRING_ARRAY_TYPE:
+        return *m_value.stringArrayValue < *other.m_value.stringArrayValue;
+
+      default:
+        assertTrue_2(ALWAYS_FAIL, "Value::lessThan: unknown value type");
+        return false;
+      }
+  }
 
 } // namespace PLEXIL

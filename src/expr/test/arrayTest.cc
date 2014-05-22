@@ -775,12 +775,144 @@ static bool testEquality()
   return true;
 }
 
+static bool testLessThan()
+{
+  // Arrays
+  BooleanArray emptyBool;
+  assertTrue_1(!(emptyBool < emptyBool));
+
+  BooleanArray sizedBool(2);
+  assertTrue_1(!(sizedBool < sizedBool));
+  assertTrue_1(emptyBool < sizedBool);
+  assertTrue_1(!(sizedBool < emptyBool));
+
+  std::vector<bool> bv(2);
+  bv[0] = false;
+  bv[1] = true;
+  BooleanArray initedBool(bv);
+  assertTrue_1(!(initedBool < initedBool));
+  assertTrue_1(emptyBool < initedBool);
+  assertTrue_1(!(initedBool < emptyBool));
+  assertTrue_1(sizedBool < initedBool);
+  assertTrue_1(!(initedBool < sizedBool));
+
+  std::vector<bool> bv2(2);
+  bv2[0] = false;
+  bv2[1] = false;
+  BooleanArray initedBool2(bv2);
+  assertTrue_1(!(initedBool2 < initedBool2));
+  assertTrue_1(emptyBool < initedBool2);
+  assertTrue_1(!(initedBool2 < emptyBool));
+  assertTrue_1(sizedBool < initedBool2);
+  assertTrue_1(!(initedBool2 < sizedBool));
+  // Same size, contents determine the victor
+  assertTrue_1(!(initedBool < initedBool2));
+  assertTrue_1(initedBool2 < initedBool);
+
+  IntegerArray emptyInt;
+  assertTrue_1(!(emptyInt < emptyInt));
+
+  IntegerArray sizedInt(2);
+  assertTrue_1(!(sizedInt < sizedInt));
+  assertTrue_1(emptyInt < sizedInt);
+  assertTrue_1(!(sizedInt < emptyInt));
+
+  std::vector<int32_t> iv(2);
+  iv[0] = 42;
+  iv[1] = 6;
+  IntegerArray initedInt(iv);
+  assertTrue_1(!(initedInt < initedInt));
+  assertTrue_1(emptyInt < initedInt);
+  assertTrue_1(!(initedInt < emptyInt));
+  assertTrue_1(sizedInt < initedInt);
+  assertTrue_1(!(initedInt < sizedInt));
+
+  std::vector<int32_t> iv2(2);
+  iv2[0] = 42;
+  iv2[1] = 7;
+  IntegerArray initedInt2(iv2);
+  assertTrue_1(!(initedInt2 < initedInt2));
+  assertTrue_1(emptyInt < initedInt2);
+  assertTrue_1(!(initedInt2 < emptyInt));
+  assertTrue_1(sizedInt < initedInt2);
+  assertTrue_1(!(initedInt2 < sizedInt));
+  // Same size, contents determine the victor
+  assertTrue_1(initedInt < initedInt2);
+  assertTrue_1(!(initedInt2 < initedInt));
+
+  RealArray emptyReal;
+  assertTrue_1(!(emptyReal < emptyReal));
+
+  RealArray sizedReal(2);
+  assertTrue_1(!(sizedReal < sizedReal));
+  assertTrue_1(emptyReal < sizedReal);
+  assertTrue_1(!(sizedReal < emptyReal));
+
+  std::vector<double> dv(2);
+  dv[0] = 3.14;
+  dv[1] = 4.5;
+  RealArray initedReal(dv);
+  assertTrue_1(!(initedReal < initedReal));
+  assertTrue_1(emptyReal < initedReal);
+  assertTrue_1(!(initedReal < emptyReal));
+  assertTrue_1(sizedReal < initedReal);
+  assertTrue_1(!(initedReal < sizedReal));
+
+  std::vector<double> dv2(2);
+  dv2[0] = 3.14;
+  dv2[1] = 4.6;
+  RealArray initedReal2(dv2);
+  assertTrue_1(!(initedReal2 < initedReal2));
+  assertTrue_1(emptyReal < initedReal2);
+  assertTrue_1(!(initedReal2 < emptyReal));
+  assertTrue_1(sizedReal < initedReal2);
+  assertTrue_1(!(initedReal2 < sizedReal));
+  // Same size, contents determine the victor
+  assertTrue_1(initedReal < initedReal2);
+  assertTrue_1(!(initedReal2 < initedReal));
+
+  StringArray emptyString;
+  assertTrue_1(!(emptyString < emptyString));
+
+  StringArray sizedString(2);
+  assertTrue_1(!(sizedString < sizedString));
+  assertTrue_1(emptyString < sizedString);
+  assertTrue_1(!(sizedString < emptyString));
+
+  std::vector<std::string> sv(2);
+  sv[0] = std::string("yo ");
+  sv[1] = std::string("mama");
+  StringArray initedString(sv);
+  assertTrue_1(!(initedString < initedString));
+  assertTrue_1(emptyString < initedString);
+  assertTrue_1(!(initedString < emptyString));
+  assertTrue_1(sizedString < initedString);
+  assertTrue_1(!(initedString < sizedString));
+
+  std::vector<std::string> sv2(2);
+  sv2[0] = std::string("yo ");
+  sv2[1] = std::string("mamb");
+  StringArray initedString2(sv2);
+  assertTrue_1(!(initedString2 < initedString2));
+  assertTrue_1(emptyString < initedString2);
+  assertTrue_1(!(initedString2 < emptyString));
+  assertTrue_1(sizedString < initedString2);
+  assertTrue_1(!(initedString2 < sizedString));
+  // Same size, contents determine the victor
+  assertTrue_1(initedString < initedString2);
+  assertTrue_1(!(initedString2 < initedString));
+
+  return true;
+}
+
 bool arrayTest()
 {
   runTest(testConstructors);
   runTest(testResize);
   runTest(testSetters);
   runTest(testEquality);
+  runTest(testLessThan);
+
   return true;
 }
 

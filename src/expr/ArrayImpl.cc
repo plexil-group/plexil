@@ -206,6 +206,103 @@ namespace PLEXIL
     return !(a == b);
   }
 
+  template <typename T>
+  bool operator<(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
+  {
+    std::vector<bool> const &aKnownVec = a.getKnownVector();
+    std::vector<bool> const &bKnownVec = b.getKnownVector();
+    // Shorter is less
+    size_t aSize = aKnownVec.size();
+    size_t bSize = bKnownVec.size();
+    if (aSize < bSize)
+      return true;
+    if (aSize > bSize)
+      return false;
+
+    // Same size
+    std::vector<T> const *aVec, *bVec;
+    a.getContentsVectorImpl(aVec);
+    b.getContentsVectorImpl(bVec);
+
+    for (size_t i = 0; i < aSize; ++i) {
+      // Unknown is less than known
+      bool aKnown = aKnownVec[i];
+      bool bKnown = bKnownVec[i];
+      if (!aKnown && bKnown)
+        return true; // unknown < known
+      if (aKnown && !bKnown)
+        return false;
+      if (!aKnown)
+        continue; // neither known
+
+      // Compare values
+      if ((*aVec)[i] < (*bVec)[i])
+        return true;
+      if ((*aVec)[i] > (*bVec)[i])
+        return false;
+    }
+    return false; // equal
+  }
+
+  // Specialization for bool
+  template <>
+  bool operator< <bool>(ArrayImpl<bool> const &a, ArrayImpl<bool> const &b)
+  {
+    std::vector<bool> const &aKnownVec = a.getKnownVector();
+    std::vector<bool> const &bKnownVec = b.getKnownVector();
+    // Shorter is less
+    size_t aSize = aKnownVec.size();
+    size_t bSize = bKnownVec.size();
+    if (aSize < bSize)
+      return true;
+    if (aSize > bSize)
+      return false;
+
+    // Same size
+    std::vector<bool> const *aVec, *bVec;
+    a.getContentsVectorImpl(aVec);
+    b.getContentsVectorImpl(bVec);
+
+    for (size_t i = 0; i < aSize; ++i) {
+      // Unknown is less than known
+      bool aKnown = aKnownVec[i];
+      bool bKnown = bKnownVec[i];
+      if (!aKnown && bKnown)
+        return true; // unknown < known
+      if (aKnown && !bKnown)
+        return false;
+      if (!aKnown)
+        continue; // neither known
+
+      // False less than true
+      if (!(*aVec)[i] && (*bVec)[i])
+        return true;
+      if ((*aVec)[i] && !(*bVec)[i])
+        return false;
+    }
+    return false; // equal
+  }
+
+  template <typename T>
+  bool operator<=(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
+  {
+    return !(b < a);
+  }
+
+
+  template <typename T>
+  bool operator>(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
+  {
+    return b < a;
+  }
+
+  template <typename T>
+  bool operator>=(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
+  {
+    return !(a < b);
+  }
+
+
   //
   // Explicit instantiations
   //
@@ -223,5 +320,25 @@ namespace PLEXIL
   template bool operator!=(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
   template bool operator!=(ArrayImpl<double> const &,      ArrayImpl<double> const &);
   template bool operator!=(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
+
+  template bool operator<(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
+  template bool operator<(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
+  template bool operator<(ArrayImpl<double> const &,      ArrayImpl<double> const &);
+  template bool operator<(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
+
+  template bool operator<=(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
+  template bool operator<=(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
+  template bool operator<=(ArrayImpl<double> const &,      ArrayImpl<double> const &);
+  template bool operator<=(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
+
+  template bool operator>(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
+  template bool operator>(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
+  template bool operator>(ArrayImpl<double> const &,      ArrayImpl<double> const &);
+  template bool operator>(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
+
+  template bool operator>=(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
+  template bool operator>=(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
+  template bool operator>=(ArrayImpl<double> const &,      ArrayImpl<double> const &);
+  template bool operator>=(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
 
 } // namespace PLEXIL
