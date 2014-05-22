@@ -456,48 +456,76 @@ namespace PLEXIL
     }
   }
 
+  // Issues:
+  // - is unknown always equal to unknown?
   bool Value::equals(Value const &other) const
   {
     if (m_known != other.m_known)
-      return false;
-    if (m_type != other.m_type)
-      return false;
-    if (!m_known)
-      return true;
+      return false; // known != unknown, always
     switch (m_type) {
-    case BOOLEAN_TYPE:
-      return m_value.booleanValue == other.m_value.booleanValue;
       
     case INTEGER_TYPE:
-      return m_value.integerValue == other.m_value.integerValue;
+      if (other.m_type == m_type) {
+        if (!m_known)
+          return true;
+        return m_value.integerValue == other.m_value.integerValue;
+      }
+      else if (other.m_type == REAL_TYPE) {
+        if (!m_known)
+          return true;
+        return other.m_value.realValue == (double) m_value.integerValue;
+      }
+      else
+        return false; // type mismatch
       
     case REAL_TYPE:
-      return m_value.realValue == other.m_value.realValue;
+      if (other.m_type == m_type) {
+        if (!m_known)
+          return true;
+        return m_value.realValue == other.m_value.realValue;
+      }
+      else if (other.m_type == INTEGER_TYPE) {
+        if (!m_known)
+          return true;
+        return m_value.realValue == (double) other.m_value.integerValue;
+      }
+      else
+        return false; // type mismatch
 
-    case NODE_STATE_TYPE:
-    case OUTCOME_TYPE:
-    case FAILURE_TYPE:
-    case COMMAND_HANDLE_TYPE:
-      return m_value.enumValue == other.m_value.enumValue;
+    default: 
+      if (other.m_type != m_type)
+        return false;
+      if (!m_known)
+        return true;
+      switch (m_type) {
+      case BOOLEAN_TYPE:
+        return m_value.booleanValue == other.m_value.booleanValue;
+
+      case NODE_STATE_TYPE:
+      case OUTCOME_TYPE:
+      case FAILURE_TYPE:
+      case COMMAND_HANDLE_TYPE:
+        return m_value.enumValue == other.m_value.enumValue;
       
-    case STRING_TYPE:
-      return *m_value.stringValue == *other.m_value.stringValue;
+      case STRING_TYPE:
+        return *m_value.stringValue == *other.m_value.stringValue;
 
-    case BOOLEAN_ARRAY_TYPE:
-      return *m_value.booleanArrayValue == *other.m_value.booleanArrayValue;
+      case BOOLEAN_ARRAY_TYPE:
+        return *m_value.booleanArrayValue == *other.m_value.booleanArrayValue;
 
-    case INTEGER_ARRAY_TYPE:
-      return *m_value.integerArrayValue == *other.m_value.integerArrayValue;
+      case INTEGER_ARRAY_TYPE:
+        return *m_value.integerArrayValue == *other.m_value.integerArrayValue;
 
-    case REAL_ARRAY_TYPE:
-      return *m_value.realArrayValue == *other.m_value.realArrayValue;
+      case REAL_ARRAY_TYPE:
+        return *m_value.realArrayValue == *other.m_value.realArrayValue;
 
-    case STRING_ARRAY_TYPE:
-      return *m_value.stringArrayValue == *other.m_value.stringArrayValue;
+      case STRING_ARRAY_TYPE:
+        return *m_value.stringArrayValue == *other.m_value.stringArrayValue;
 
-    default:
-      assertTrue_2(ALWAYS_FAIL, "Value::equals: unknown value type");
-      return false;
+      default:
+        assertTrue_2(ALWAYS_FAIL, "Value::equals: unknown value type");
+        return false;
+      }
     }
   }
 
