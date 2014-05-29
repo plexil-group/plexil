@@ -24,71 +24,17 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_VALUE_TYPE_HH
-#define PLEXIL_VALUE_TYPE_HH
+#ifndef PLEXIL_EXPRESSION_CONSTANTS_HH
+#define PLEXIL_EXPRESSION_CONSTANTS_HH
 
-#include <iosfwd>
-#include <string>
-#include <vector>
+#include "Constant.hh"
 
 namespace PLEXIL
 {
-  // Forward reference
-  template <typename T> class ArrayImpl;
+  extern ExpressionId const &FALSE_EXP();
+  extern ExpressionId const &TRUE_EXP();
 
-  //
-  // PLEXIL expression data types
-  //
+  // more as required
+} // namespace PLEXIL
 
-  enum ValueType {
-      UNKNOWN_TYPE = 0,
-      // User scalar types
-      BOOLEAN_TYPE,
-      INTEGER_TYPE,
-      REAL_TYPE,
-      STRING_TYPE,
-      DATE_TYPE,     // TODO: what format?
-      DURATION_TYPE, //  ""    ""    ""
-      // more to come
-      SCALAR_TYPE_MAX,
-
-      // User array types
-      ARRAY_TYPE_OFFSET = 16, // Not a valid type, but an offset from user types
-      BOOLEAN_ARRAY_TYPE,
-      INTEGER_ARRAY_TYPE,
-      REAL_ARRAY_TYPE,
-      STRING_ARRAY_TYPE,
-      // more to come?
-
-      ARRAY_TYPE_MAX,
-
-      // Internal types
-      INTERNAL_TYPE_OFFSET = 48, // Not a valid type
-      NODE_STATE_TYPE,
-      OUTCOME_TYPE,
-      FAILURE_TYPE,
-      COMMAND_HANDLE_TYPE,
-      // more?
-      TYPE_MAX
-    };
-
-  // Utility functions
-  const std::string &plexilTypeName(ValueType ty);
-
-  bool isUserType(ValueType ty);
-  bool isInternalType(ValueType ty);
-
-  bool isScalarType(ValueType ty);
-  bool isArrayType(ValueType ty);
-  ValueType arrayElementType(ValueType ty);
-  ValueType arrayType(ValueType elTy);
-
-  template <typename T>
-  void printValue(ArrayImpl<T> &val, std::ostream &s);
-
-  template <typename T>
-  void printValue(T const &val, std::ostream &s);
-
-}
-
-#endif // PLEXIL_VALUE_TYPE_HH
+#endif // PLEXIL_EXPRESSION_CONSTANTS_HH

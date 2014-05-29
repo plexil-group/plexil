@@ -127,7 +127,7 @@ namespace PLEXIL
      * @return True if known, false otherwise.
      * @note Default method uses getValueImpl().
      */
-    bool isKnown() const;
+    virtual bool isKnown() const;
 
     /**
      * @brief Return the value type.

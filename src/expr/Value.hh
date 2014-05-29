@@ -77,12 +77,12 @@ namespace PLEXIL
     bool getValue(double &result) const;
     bool getValue(std::string &result) const;
 
-    bool getValuePointer(std::string const *&ptr);
-    bool getValuePointer(Array const *&ptr);
-    bool getValuePointer(BooleanArray const *&ptr);
-    bool getValuePointer(IntegerArray const *&ptr);
-    bool getValuePointer(RealArray const *&ptr);
-    bool getValuePointer(StringArray const *&ptr);
+    bool getValuePointer(std::string const *&ptr) const;
+    bool getValuePointer(Array const *&ptr) const;
+    bool getValuePointer(BooleanArray const *&ptr) const;
+    bool getValuePointer(IntegerArray const *&ptr) const;
+    bool getValuePointer(RealArray const *&ptr) const;
+    bool getValuePointer(StringArray const *&ptr) const;
 
     bool equals(Value const &) const;
     bool lessThan(Value const &) const; // for (e.g.) std::map

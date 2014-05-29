@@ -114,6 +114,12 @@ namespace PLEXIL {
     void setValue(ExpressionId const &valex);
 
     /**
+     * @brief Assign a new value from generic Value.
+     * @param value The Value.
+     */
+    void setValue(Value const &value);
+
+    /**
      * @brief Set the current value unknown.
      */
     void setUnknown();
@@ -128,6 +134,8 @@ namespace PLEXIL {
     void restoreSavedValue();
 
     const std::string& getName() const;
+
+    void setName(const std::string &);
 
     const NodeId &getNode() const;
 

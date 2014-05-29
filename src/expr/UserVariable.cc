@@ -34,6 +34,7 @@
 #include "Constant.hh"
 #include "Error.hh"
 //#include "Node.hh"
+#include "Value.hh"
 
 namespace PLEXIL {
 
@@ -193,6 +194,60 @@ namespace PLEXIL {
   template <typename T>
   void UserVariable<T>::handleDeactivate()
   {
+    // Clear saved value
+    m_savedKnown = false;
+    if (m_initializer.isId())
+      m_initializer->deactivate();
+  }
+
+  // Specializations for non-scalar types
+  template <>
+  void UserVariable<std::string>::handleDeactivate()
+  {
+    // Clear saved value
+    m_savedValue.clear();
+    m_savedKnown = false;
+    if (m_initializer.isId())
+      m_initializer->deactivate();
+  }
+
+  // C++ sucks. Should be able to specialize on Array<T>.
+  template <>
+  void UserVariable<BooleanArray>::handleDeactivate()
+  {
+    // Clear saved value
+    m_savedValue.resize(0);
+    m_savedKnown = false;
+    if (m_initializer.isId())
+      m_initializer->deactivate();
+  }
+
+  template <>
+  void UserVariable<IntegerArray>::handleDeactivate()
+  {
+    // Clear saved value
+    m_savedValue.resize(0);
+    m_savedKnown = false;
+    if (m_initializer.isId())
+      m_initializer->deactivate();
+  }
+
+  template <>
+  void UserVariable<RealArray>::handleDeactivate()
+  {
+    // Clear saved value
+    m_savedValue.resize(0);
+    m_savedKnown = false;
+    if (m_initializer.isId())
+      m_initializer->deactivate();
+  }
+
+  template <>
+  void UserVariable<StringArray>::handleDeactivate()
+  {
+    // Clear saved value
+    m_savedValue.resize(0);
+    m_savedKnown = false;
     if (m_initializer.isId())
       m_initializer->deactivate();
   }
@@ -243,6 +298,55 @@ namespace PLEXIL {
       setUnknown();
   }
 
+  //
+  // Set value from generic Value
+  //
+
+  template <typename T>
+  void UserVariable<T>::setValue(Value const &value)
+  {
+    assertTrue_2(this->isActive(), "setValue while inactive");
+    T const *newval;
+    if (value.getValuePointer(newval))
+      setValue(*newval);
+    else 
+      setUnknown();
+  }
+
+  // Scalar types
+  template <>
+  void UserVariable<bool>::setValue(Value const &value)
+  {
+    assertTrue_2(this->isActive(), "setValue while inactive");
+    bool newval;
+    if (value.getValue(newval))
+      setValue(newval);
+    else 
+      setUnknown();
+  }
+
+  template <>
+  void UserVariable<int32_t>::setValue(Value const &value)
+  {
+    assertTrue_2(this->isActive(), "setValue while inactive");
+    int32_t newval;
+    if (value.getValue(newval))
+      setValue(newval);
+    else 
+      setUnknown();
+  }
+
+  template <>
+  void UserVariable<double>::setValue(Value const &value)
+  {
+    assertTrue_2(this->isActive(), "setValue while inactive");
+    double newval;
+    if (value.getValue(newval))
+      setValue(newval);
+    else 
+      setUnknown();
+  }
+
   template <typename T>
   void UserVariable<T>::setValue(const T &value)
   {
@@ -278,6 +382,8 @@ namespace PLEXIL {
   }
 
   // Should only be called when active.
+  // TODO: 
+  // - Possible issue with array variables: Figure out if restoring previous value of an array is a problem.
   template <typename T>
   void UserVariable<T>::restoreSavedValue()
   {
@@ -289,9 +395,15 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  const std::string& UserVariable<T>::getName() const
+  const std::string &UserVariable<T>::getName() const
   {
     return m_name;
+  }
+
+  template <typename T>
+  void UserVariable<T>::setName(const std::string &name)
+  {
+    m_name = name;
   }
 
   template <typename T>
@@ -351,7 +463,7 @@ namespace PLEXIL {
   {
     UserVariable<std::string>::setValue(val);
   }
-  
+
   //
   // Explicit instantiations
   //

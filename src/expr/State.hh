@@ -59,6 +59,8 @@ namespace PLEXIL
 
     void print(std::ostream &s) const;
 
+    static State const &timeState();
+
   private:
     std::string m_name;
     std::vector<Value> m_parameters;

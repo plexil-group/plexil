@@ -24,71 +24,62 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_VALUE_TYPE_HH
-#define PLEXIL_VALUE_TYPE_HH
+#include "StateCacheMap.hh"
 
-#include <iosfwd>
-#include <string>
-#include <vector>
+#include "StateCacheEntry.hh"
 
 namespace PLEXIL
 {
-  // Forward reference
-  template <typename T> class ArrayImpl;
+  StateCacheMap::StateCacheMap()
+  {
+    // for effect
+    ensureStateCacheEntry(State::timeState(), DATE_TYPE);
+  }
 
-  //
-  // PLEXIL expression data types
-  //
+  StateCacheMap::~StateCacheMap()
+  {
+    // Delete all StateCacheEntry instances
+    EntryMap::iterator it = m_map.begin();
+    while (it != m_map.end()) {
+      delete it->second;
+      m_map.erase(it);
+      it = m_map.begin();
+    }
+  }
 
-  enum ValueType {
-      UNKNOWN_TYPE = 0,
-      // User scalar types
-      BOOLEAN_TYPE,
-      INTEGER_TYPE,
-      REAL_TYPE,
-      STRING_TYPE,
-      DATE_TYPE,     // TODO: what format?
-      DURATION_TYPE, //  ""    ""    ""
-      // more to come
-      SCALAR_TYPE_MAX,
+  StateCacheMap &StateCacheMap::instance()
+  {
+    static StateCacheMap sl_instance;
+    return sl_instance;
+  }
 
-      // User array types
-      ARRAY_TYPE_OFFSET = 16, // Not a valid type, but an offset from user types
-      BOOLEAN_ARRAY_TYPE,
-      INTEGER_ARRAY_TYPE,
-      REAL_ARRAY_TYPE,
-      STRING_ARRAY_TYPE,
-      // more to come?
+  StateCacheEntry *StateCacheMap::ensureStateCacheEntry(State const &state,
+                                                        ValueType vtype)
+  {
+    EntryMap::iterator it = m_map.find(state);
+    // FIXME: check value type
+    if (it == m_map.end())
+      it = m_map.insert(EntryPair(state, StateCacheEntry::factory(state, vtype))).first;
+    return it->second;
+  }
 
-      ARRAY_TYPE_MAX,
+  StateCacheEntry *StateCacheMap::findStateCacheEntry(State const &state)
+  {
+    EntryMap::iterator it = m_map.find(state);
+    if (it != m_map.end())
+      return it->second;
+    else
+      return NULL;
+  }
 
-      // Internal types
-      INTERNAL_TYPE_OFFSET = 48, // Not a valid type
-      NODE_STATE_TYPE,
-      OUTCOME_TYPE,
-      FAILURE_TYPE,
-      COMMAND_HANDLE_TYPE,
-      // more?
-      TYPE_MAX
-    };
+  void StateCacheMap::removeStateCacheEntry(State const &state)
+  {
+    EntryMap::iterator it = m_map.find(state);
+    if (it == m_map.end())
+      return;
+    StateCacheEntry *entry = it->second;
+    m_map.erase(it);
+    delete entry;
+  }
 
-  // Utility functions
-  const std::string &plexilTypeName(ValueType ty);
-
-  bool isUserType(ValueType ty);
-  bool isInternalType(ValueType ty);
-
-  bool isScalarType(ValueType ty);
-  bool isArrayType(ValueType ty);
-  ValueType arrayElementType(ValueType ty);
-  ValueType arrayType(ValueType elTy);
-
-  template <typename T>
-  void printValue(ArrayImpl<T> &val, std::ostream &s);
-
-  template <typename T>
-  void printValue(T const &val, std::ostream &s);
-
-}
-
-#endif // PLEXIL_VALUE_TYPE_HH
+} // namespace PLEXIL

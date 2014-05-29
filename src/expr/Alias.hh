@@ -174,6 +174,13 @@ namespace PLEXIL
     void setValue(ExpressionId const &valex);
 
     /**
+     * @brief Set the value for this expression from a generic Value.
+     * @param val The Value.
+     * @note May cause change notifications to occur.
+     */
+    void setValue(Value const &value);
+
+    /**
      * @brief Retrieve a writable ponter to the value.
      * @param valuePtr Reference to the pointer variable
      * @return True if the value is known, false if unknown or invalid.

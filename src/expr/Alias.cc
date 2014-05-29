@@ -274,6 +274,12 @@ namespace PLEXIL
     m_target->setValue(valex);
   }
 
+  void InOutAlias::setValue(Value const &value)
+  {
+    assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    m_target->setValue(value);
+  }
+
   bool InOutAlias::getMutableValuePointer(std::string *& ptr)
   {
     if (!isActive())

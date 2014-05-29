@@ -153,4 +153,12 @@ namespace PLEXIL
     return false; // states are equal
   }
 
+  // Global "constant"
+  State const &State::timeState()
+  {
+    static State const sl_timeState("time");
+    return sl_timeState;
+  }
+
+
 } // namespace PLEXIL

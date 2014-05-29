@@ -26,6 +26,8 @@
 
 #include "ValueType.hh"
 
+#include "Array.hh"
+
 #include <iostream>
 
 namespace PLEXIL
@@ -125,23 +127,24 @@ namespace PLEXIL
     return (ValueType) (ty - ARRAY_TYPE_OFFSET);
   }
 
-  template <typename T>
-  void printValue(const std::vector<T> &val, std::ostream &s)
+  ValueType arrayType(ValueType elTy)
   {
-    s << "#(";
-    size_t len = val.size();
-    for (size_t i = 0; i < len; ) {
-      s << val[i];
-      if (++i < len)
-        s << ' ';
-    }
-    s << ')';
+    if (elTy <= UNKNOWN_TYPE || elTy > STRING_TYPE)
+      return UNKNOWN_TYPE;
+    return (ValueType) (elTy + ARRAY_TYPE_OFFSET);
   }
+
 
   template <typename T>
   void printValue(const T &val, std::ostream &s)
   {
     s << val;
+  }
+
+  template <typename T>
+  void printValue(const ArrayImpl<T> &val, std::ostream &s)
+  {
+    // TODO - should delegate to array itself
   }
 
 }

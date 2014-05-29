@@ -27,6 +27,7 @@
 #include "ArrayReference.hh"
 #include "ArrayImpl.hh"
 #include "UserVariable.hh"
+#include "Value.hh"
 
 namespace PLEXIL
 {
@@ -204,28 +205,47 @@ namespace PLEXIL
     }
   }
 
+  // Scalar types
   template <typename T>
   void MutableArrayReference<T>::setValue(ExpressionId const &valex)
   {
-    ArrayImpl<T> *ary;
-    size_t idx;
-    if (!mutableSelfCheck(ary, idx))
-      return;
-    bool changed = false;
     T newVal;
-    if (valex->getValue(newVal)) {
-      changed = !ary->m_known[idx] || newVal != ary->m_contents[idx];
-      ary->m_contents[idx] = newVal;
-      ary->m_known[idx] = true;
-    }
-    else { // value unknown
-      changed = ary->m_known[idx];
-      ary->m_known[idx] = false;
-    }
-    if (changed) {
-      NotifierImpl::publishChange(getId());
-      m_mutableArray->getBaseVariable()->notifyChanged(getId()); // array might be alias
-    }
+    if (valex->getValue(newVal))
+      setValue(newVal);
+    else
+      setUnknown();
+  }
+
+  // Prevent unnecessary copying for strings
+  template <>
+  void MutableArrayReference<std::string>::setValue(ExpressionId const &valex)
+  {
+    std::string const *newVal;
+    if (valex->getValuePointer(newVal))
+      setValue(*newVal);
+    else
+      setUnknown();
+  }
+
+  template <typename T>
+  void MutableArrayReference<T>::setValue(Value const &value)
+  {
+    T newVal;
+    if (value.getValue(newVal))
+      setValue(newVal);
+    else
+      setUnknown();
+  }
+
+  // Prevent unnecessary copying for strings
+  template <>
+  void MutableArrayReference<std::string>::setValue(Value const &value)
+  {
+    std::string const *newValPtr;
+    if (value.getValuePointer(newValPtr))
+      setValue(*newValPtr);
+    else
+      setUnknown();
   }
 
   template <typename T>

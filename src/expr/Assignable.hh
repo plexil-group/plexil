@@ -35,6 +35,8 @@ namespace PLEXIL {
   class Assignable;
   typedef Id<Assignable> AssignableId;
 
+  class Value;
+
   /**
    * @class Assignable
    * @brief Mixin class for all expressions which can be assigned to by a plan.
@@ -103,6 +105,13 @@ namespace PLEXIL {
      * @note May cause change notifications to occur.
      */
     virtual void setValue(ExpressionId const &valex) = 0;
+
+    /**
+     * @brief Set the value for this expression from a generic Value.
+     * @param val The Value.
+     * @note May cause change notifications to occur.
+     */
+    virtual void setValue(Value const &value) = 0;
 
     /**
      * @brief Retrieve a writable ponter to the value.

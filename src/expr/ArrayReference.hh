@@ -32,6 +32,9 @@
 
 namespace PLEXIL {
 
+  // Forward reference
+  class Value;
+
   template <typename T>
   class ArrayReference : public NotifierImpl, public ExpressionImpl<T>
   {
@@ -118,6 +121,12 @@ namespace PLEXIL {
      * @param valex The expression from which to obtain the new value.
      */
     void setValue(ExpressionId const &valex);
+
+    /**
+     * @brief Set the value for this expression from a generic Value.
+     * @param value The Value.
+     */
+    void setValue(Value const &value);
 
     /**
      * @brief Assign the current value to UNKNOWN.

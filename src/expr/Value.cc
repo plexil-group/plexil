@@ -324,7 +324,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool Value::getValuePointer(std::string const *&ptr)
+  bool Value::getValuePointer(std::string const *&ptr) const
   {
     if (m_type != STRING_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
@@ -336,7 +336,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool Value::getValuePointer(Array const *&ptr)
+  bool Value::getValuePointer(Array const *&ptr) const
   {
     if (!m_known)
       return false;
@@ -363,7 +363,7 @@ namespace PLEXIL
     }
   }
 
-  bool Value::getValuePointer(BooleanArray const *&ptr)
+  bool Value::getValuePointer(BooleanArray const *&ptr) const
   {
     if (m_type != BOOLEAN_ARRAY_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
@@ -375,7 +375,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool Value::getValuePointer(IntegerArray const *&ptr)
+  bool Value::getValuePointer(IntegerArray const *&ptr) const
   {
     if (m_type != INTEGER_ARRAY_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
@@ -387,7 +387,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool Value::getValuePointer(RealArray const *&ptr)
+  bool Value::getValuePointer(RealArray const *&ptr) const
   {
     if (m_type != REAL_ARRAY_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
@@ -399,7 +399,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool Value::getValuePointer(StringArray const *&ptr)
+  bool Value::getValuePointer(StringArray const *&ptr) const
   {
     if (m_type != STRING_ARRAY_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
