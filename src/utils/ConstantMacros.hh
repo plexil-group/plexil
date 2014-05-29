@@ -61,13 +61,7 @@
     return *ensure__ ## NAME(); \
   }
 
-/**
- * @def DECLARE_STATIC_CLASS_CONST_LABEL(TYPE,NAME)
- * @brief Declare and define class scoped constant string to ensure initialization
- * occurs before use with all linkers.
- */
-#define DECLARE_STATIC_CLASS_CONST_LABEL(NAME, VALUE) DECLARE_STATIC_CLASS_CONST_WITH_CLEANUP(PLEXIL::LabelStr, NAME, VALUE)
-
+// *** FIXME ***
 /**
  * @def DECLARE_STATIC_CLASS_CONST_STRING_VALUE(TYPE,NAME)
  * @brief Declare and define class scoped constant string value to ensure initialization
