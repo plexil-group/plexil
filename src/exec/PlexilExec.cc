@@ -34,7 +34,6 @@
 #include "ExternalInterface.hh"
 #include "Node.hh"
 #include "NodeFactory.hh"
-#include "StateCache.hh"
 #include "Variable.hh"
 
 #include <algorithm> // for find(), transform
@@ -55,8 +54,9 @@ namespace PLEXIL
   PlexilExec::PlexilExec(PlexilNodeId& plan)
     : ExecConnector(),
       m_id(this, ExecConnector::getId()),
-      m_cache((new StateCache())->getId()),
-      m_cycleNum(0), m_queuePos(0)
+      m_cycleNum(0),
+      m_queuePos(0),
+      m_finishedRootNodesDeleted(false)
   {
     addPlan(plan, EMPTY_LABEL());
     //is it really this simple?
@@ -65,8 +65,8 @@ namespace PLEXIL
   PlexilExec::PlexilExec()
     : ExecConnector(),
       m_id(this, ExecConnector::getId()),
-      m_cache((new StateCache())->getId()),
-      m_cycleNum(0), m_queuePos(0),
+      m_cycleNum(0),
+      m_queuePos(0),
       m_finishedRootNodesDeleted(false)
   {}
 
@@ -76,7 +76,6 @@ namespace PLEXIL
     m_finishedRootNodes.clear();
     for (std::list<NodeId>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
       delete (Node*) (*it);
-    delete (StateCache*) m_cache;
     // Delete libraries
     for (std::map<std::string, PlexilNodeId>::iterator it = m_libraries.begin();
          it != m_libraries.end();
@@ -94,7 +93,16 @@ namespace PLEXIL
   void PlexilExec::setExternalInterface(ExternalInterfaceId& id)
   {
     m_interface = id;
-    m_cache->setExternalInterface(id);
+  }
+
+
+  /**
+   * @brief Return the number of "macro steps" since this instance was constructed.
+   * @return The macro step count.
+   */
+  unsigned int PlexilExec::getCycleCount() const
+  {
+    return m_cycleNum;
   }
 
   /**
@@ -157,7 +165,7 @@ namespace PLEXIL
   // Add a plan
   // Currently parent is ignored
 
-  bool PlexilExec::addPlan(PlexilNodeId& plan, const LabelStr& parent) 
+  bool PlexilExec::addPlan(PlexilNodeId& plan) 
   {
     // Try to link any library calls
     if (!plan->link(m_libraries)) {
@@ -175,28 +183,24 @@ namespace PLEXIL
       root = NodeFactory::createNode(plan, ExecConnector::getId());
       check_error(root.isValid());
       root->postInit(plan);
-     }
-     catch (const Error& e) {
-       if (!wasThrowEnabled)
-         Error::doNotThrowExceptions();
-       debugMsg("PlexilExec:addPlan", " failed: " << e);
-       return false;
-     }
-     if (!wasThrowEnabled)
-       Error::doNotThrowExceptions();
+    }
+    catch (const Error& e) {
+      if (!wasThrowEnabled)
+        Error::doNotThrowExceptions();
+      debugMsg("PlexilExec:addPlan", " failed: " << e);
+      return false;
+    }
+    if (!wasThrowEnabled)
+      Error::doNotThrowExceptions();
 
     // after this point any failures are likely to be fatal!
-    //not actually quiesceing, but causing the new nodes to look at the current known world state
-    m_cache->handleQuiescenceStarted();
     m_plan.push_back(root);
     root->activate();
     debugMsg("PlexilExec:addPlan",
              "Added plan: " << std::endl << root->toString());
     if (m_listener.isId())
-      m_listener->notifyOfAddPlan(plan, parent);
+      m_listener->notifyOfAddPlan(plan);
     root->conditionChanged();
-    m_cache->handleQuiescenceEnded();
-
     return true;
   }
 
@@ -205,13 +209,8 @@ namespace PLEXIL
    * @return true if all finished, false otherwise.
    */
 
-  // FIXME: this will return false if a finished plan has been deleted
   bool PlexilExec::allPlansFinished() const
   {
-    // If we're in a quiescence cycle, presume some plan is active.
-    if (m_cache->inQuiescence())
-      return false;
-
     bool result = m_finishedRootNodesDeleted; // return value in the event no plan is active
 
     for (std::list<NodeId>::const_iterator planit = m_plan.begin();
@@ -464,7 +463,6 @@ namespace PLEXIL
     //
     // *** BEGIN CRITICAL SECTION ***
     //
-    m_cache->handleQuiescenceStarted();
 
     // Queue had better be empty when we get here!
     checkError(m_stateChangeQueue.empty(), "State change queue not empty at entry");
@@ -473,7 +471,7 @@ namespace PLEXIL
     ++m_cycleNum;
     debugMsg("PlexilExec:cycle", "==>Start cycle " << m_cycleNum);
 
-    const Value& quiescenceTime = m_cache->currentTime();
+    const Value& quiescenceTime = m_cache->currentTime(); // FIXME
 
     // BEGIN QUIESCENCE LOOP
     do {
@@ -560,7 +558,6 @@ namespace PLEXIL
     for (std::list<NodeId>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {
       debugMsg("PlexilExec:printPlan", std::endl << **it);
     }
-    m_cache->handleQuiescenceEnded();
     //
     // *** END CRITICAL SECTION ***
     //

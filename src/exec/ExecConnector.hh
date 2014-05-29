@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,36 @@
 #ifndef EXEC_CONNECTOR_HH
 #define EXEC_CONNECTOR_HH
 
-#include "ExecDefs.hh"
+// #include "ExecDefs.hh"
+#include "Id.hh"
+#include "NodeConstants.hh"
 
 namespace PLEXIL
 {
+  // Forward references
+  class Assignment;
+  DECLARE_ID(Assignment);
+
+  class Command;
+  DECLARE_ID(Command);
+
+  class ExecConnector; // defined below
+  DECLARE_ID(ExecConnector);
+
+  class ExecListenerHub;
+  DECLARE_ID(ExecListenerHub);
+
+  class ExternalInterface;
+  DECLARE_ID(ExternalInterface);
+
+  class Node;
+  DECLARE_ID(Node);
+
+  class Update;
+  DECLARE_ID(Update);
 
   /**
-   * @brief Class for managing the messages from nodes to the executive.  Primarily to facilitate testing.
+   * @brief Abstract class representing the key API of the PlexilExec. Facilitates testing.
    */
   class ExecConnector {
   public:
@@ -73,13 +96,22 @@ namespace PLEXIL
      */
     virtual void markRootNodeFinished(const NodeId& node) = 0;
 
-    virtual const StateCacheId& getStateCache() = 0;
+    /**
+     * @brief Return the number of "macro steps" since this instance was constructed.
+     * @return The macro step count.
+     * @note Required for Lookup unit test.
+     */
+    virtual unsigned int getCycleCount() const = 0;
+
     virtual const ExternalInterfaceId& getExternalInterface() = 0;
     virtual const ExecListenerHubId& getExecListenerHub() const = 0;
 
   private:
     ExecConnectorId m_id;
   };
+
+  // Global pointer to the exec instance
+  extern ExecConnectorId g_exec;
 
 }
 

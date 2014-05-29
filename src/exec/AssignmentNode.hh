@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,13 +42,15 @@ namespace PLEXIL
      * @param exec The executive (used for notifying the executive that a node is eligible for state transition or execution).
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    AssignmentNode(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent = NodeId::noId());
+    AssignmentNode(const PlexilNodeId& node,
+                   const ExecConnectorId& exec,
+                   const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    AssignmentNode(const LabelStr& type,
-                   const LabelStr& name,
+    AssignmentNode(const std::string &type,
+                   const std::string &name,
                    const NodeState state,
                    const ExecConnectorId& exec = ExecConnectorId::noId(),
                    const NodeId& parent = NodeId::noId());
@@ -61,7 +63,7 @@ namespace PLEXIL
     /**
      * @brief Accessor for the assigned variable.
      */
-    const VariableId& getAssignmentVariable() const;
+    ExpressionId getAssignmentVariable() const;
 
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.

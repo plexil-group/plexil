@@ -27,23 +27,25 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilExec.la
 
-libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils
+libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/utils -I@top_srcdir@/expr
 
-include_HEADERS = Array.hh Assignment.hh AssignmentNode.hh Calculable.hh \
- Calculables.hh Command.hh CommandNode.hh CoreExpressions.hh ExecConnector.hh ExecDefs.hh \
+include_HEADERS = Assignment.hh AssignmentNode.hh Command.hh \
+ CommandNode.hh CoreExpressions.hh ExecConnector.hh ExecDefs.hh \
  ExecListener.hh ExecListenerBase.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
  ExecListenerHub.hh ExpressionFactory.hh Expressions.hh ExternalInterface.hh \
- InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Lookup.hh Node.hh NodeConnector.hh \
- NodeFactory.hh PlexilExec.hh PlexilPlan.hh PlexilResource.hh PlexilXmlParser.hh \
- ResourceArbiterInterface.hh StateCache.hh TestExternalInterface.hh \
- Update.hh UpdateNode.hh plan-utils.hh resource-tags.hh
+ InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Node.hh NodeConnector.hh \
+ NodeConstants.hh NodeFactory.hh NodeVariables.hh PlexilExec.hh PlexilPlan.hh \
+ PlexilResource.hh PlexilXmlParser.hh ResourceArbiterInterface.hh \
+ TestExternalInterface.hh Update.hh UpdateNode.hh plan-utils.hh resource-tags.hh
 
-libPlexilExec_la_SOURCES = Array.cc Assignment.cc AssignmentNode.cc \
- Calculable.cc Calculables.cc Command.cc CommandNode.cc CoreExpressions.cc ExecListener.cc \
+libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc \
+ Command.cc CommandNode.cc CoreExpressions.cc ExecConnector.cc ExecListener.cc \
  ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc \
- ExpressionFactory.cc Expressions.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Lookup.cc \
- Node.cc NodeFactory.cc PlexilExec.cc PlexilPlan.cc PlexilXmlParser.cc ResourceArbiterInterface.cc \
- StateCache.cc TestExternalInterface.cc Update.cc UpdateNode.cc \
+ ExpressionFactory.cc Expressions.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc \
+ Node.cc NodeConstants.cc NodeFactory.cc PlexilExec.cc PlexilPlan.cc \
+ PlexilXmlParser.cc ResourceArbiterInterface.cc \
+ TestExternalInterface.cc Update.cc UpdateNode.cc \
  plan-utils.cc resource-tags.cc
 
 if MODULE_TESTS_OPT
@@ -52,7 +54,8 @@ if MODULE_TESTS_OPT
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
   test_exec_module_tests_LDADD = libPlexilExec.la ../expr/libPlexilExpr.la \
    ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
-  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils
+  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/utils -I@top_srcdir@/expr
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
 	test_exec_module_tests_SOURCES += test/jni-adapter.cc

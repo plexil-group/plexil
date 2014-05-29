@@ -31,6 +31,7 @@
 #include "Expression.hh"
 #include "ParserException.hh"
 #include "PlexilExec.hh"
+#include "State.hh"
 
 namespace PLEXIL {
   class ExternalInterface {
@@ -48,6 +49,7 @@ namespace PLEXIL {
      * @param state The state.
      * @return The current value for the state.
      */
+    // *** FIXME ***
     virtual Value lookupNow(const State& state) = 0;
 
     /**

@@ -83,48 +83,55 @@ namespace PLEXIL {
       }
   }
 
-  PlexilType
+  ValueType
   PlexilParser::parseValueTypePrefix(const std::string & str, 
                                                                          std::string::size_type prefixLen)
   {
         switch (prefixLen) {
         case 4: 
           if (0 == str.compare(0, prefixLen, REAL_STR()))
-                return PLEXIL::REAL;
-          else if (0 == str.compare(0, prefixLen, TIME_STR()))
-                return PLEXIL::TIME;
+                return PLEXIL::REAL_TYPE;
+          else if (0 == str.compare(0, prefixLen, DATE_STR()))
+                return PLEXIL::DATE_TYPE;
           else 
                 return PLEXIL::UNKNOWN_TYPE;
 
         case 5:
           if (0 == str.compare(0, prefixLen, ARRAY_STR()))
-                return PLEXIL::ARRAY;
+                return PLEXIL::ARRAY_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
 
         case 6:
           if (0 == str.compare(0, prefixLen, STRING_STR()))
-                return PLEXIL::STRING;
+                return PLEXIL::STRING_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
 
         case 7:
           if (0 == str.compare(0, prefixLen, INTEGER_STR()))
-                return PLEXIL::INTEGER;
+                return PLEXIL::INTEGER_TYPE;
           else if (0 == str.compare(0, prefixLen, BOOL_STR()))
-                return PLEXIL::BOOLEAN;
+                return PLEXIL::BOOLEAN_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
 
+        case 8:
+          if (0 == str.compare(0, prefixLen, DURATION_STR()))
+            return PLEXIL::DURATION_TYPE;
+          else
+            return PLEXIL::UNKNOWN_TYPE;
+
+
         case 9:
           if (0 == str.compare(0, prefixLen, NODE_STATE_STR()))
-                return PLEXIL::NODE_STATE;
+                return PLEXIL::NODE_STATE_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
 
         case 11:
           if (0 == str.compare(0, prefixLen, NODE_OUTCOME_STR()))
-                return PLEXIL::NODE_OUTCOME;
+                return PLEXIL::OUTCOME_TYPE;
           else if (0 == str.compare(0, prefixLen, NODE_FAILURE_STR()))
                 return PLEXIL::FAILURE_TYPE;
           else
@@ -132,7 +139,7 @@ namespace PLEXIL {
 
         case 17:
           if (0 == str.compare(0, prefixLen, NODE_COMMAND_HANDLE_STR()))
-                return PLEXIL::COMMAND_HANDLE;
+                return PLEXIL::COMMAND_HANDLE_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
       
@@ -142,29 +149,31 @@ namespace PLEXIL {
         }
   }
 
-  const std::string& PlexilParser::valueTypeString(const PlexilType& typ)
+  const std::string& PlexilParser::valueTypeString(const ValueType& typ)
   {
     switch (typ)
       {
-      case PLEXIL::INTEGER:
+      case PLEXIL::INTEGER_TYPE:
         return INTEGER_STR();
-      case PLEXIL::REAL:
+      case PLEXIL::REAL_TYPE:
         return REAL_STR();
-      case PLEXIL::BOOLEAN:
+      case PLEXIL::BOOLEAN_TYPE:
         return BOOL_STR();
-      case PLEXIL::STRING:
+      case PLEXIL::STRING_TYPE:
         return STRING_STR();
-      case PLEXIL::TIME:
-        return TIME_STR();
+      case PLEXIL::DATE_TYPE:
+        return DATE_STR();
+      case PLEXIL::DURATION_TYPE:
+        return DURATION_STR();
       case PLEXIL::ARRAY:
         return ARRAY_STR();
-      case PLEXIL::NODE_STATE:
+      case PLEXIL::NODE_STATE_TYPE:
         return NODE_STATE_STR();
-      case PLEXIL::NODE_OUTCOME:
+      case PLEXIL::OUTCOME_TYPE:
         return NODE_OUTCOME_STR();
       case PLEXIL::FAILURE_TYPE:
         return NODE_FAILURE_STR();
-      case PLEXIL::COMMAND_HANDLE:
+      case PLEXIL::COMMAND_HANDLE_TYPE:
         return NODE_COMMAND_HANDLE_STR();
 
       default:
@@ -352,7 +361,7 @@ namespace PLEXIL {
   }
          
 
-  PlexilValue::PlexilValue(const PlexilType& type, const std::string& value)
+  PlexilValue::PlexilValue(const ValueType& type, const std::string& value)
     : PlexilExpr(), m_value(value), m_type(type)
   {
     // FIXME: this computes a string that could be a constant
@@ -360,7 +369,7 @@ namespace PLEXIL {
   }
 
   PlexilArrayValue::PlexilArrayValue(
-                                     const PlexilType& type,
+                                     const ValueType& type,
                                      unsigned maxSize,
                                      const std::vector<std::string>& values)
     : PlexilValue(type), m_maxSize(maxSize), m_values(values)
@@ -379,7 +388,7 @@ namespace PLEXIL {
         }
   }
    
-  PlexilVar::PlexilVar(const std::string& name, const PlexilType& type)
+  PlexilVar::PlexilVar(const std::string& name, const ValueType& type)
     : PlexilExpr(),
           m_type(type),
       m_varId(this, PlexilExpr::getId()), 
@@ -388,7 +397,7 @@ namespace PLEXIL {
         setName(name);
   }
    
-  PlexilVar::PlexilVar(const std::string& name, const PlexilType& type, 
+  PlexilVar::PlexilVar(const std::string& name, const ValueType& type, 
                                            const std::string& value)
     : PlexilExpr(),
           m_type(type),
@@ -398,7 +407,7 @@ namespace PLEXIL {
         setName(name);
   }
    
-  PlexilVar::PlexilVar(const std::string& name, const PlexilType& type, 
+  PlexilVar::PlexilVar(const std::string& name, const ValueType& type, 
                        PlexilValue* value)
     : PlexilExpr(),
           m_type(type),
@@ -417,7 +426,7 @@ namespace PLEXIL {
    
 
   PlexilArrayVar::PlexilArrayVar(const std::string& name, 
-                                 const PlexilType& type, 
+                                 const ValueType& type, 
                                  const unsigned maxSize)
     : PlexilVar(name, type, NULL),
       m_maxSize(maxSize)
@@ -425,7 +434,7 @@ namespace PLEXIL {
   }
 
   PlexilArrayVar::PlexilArrayVar(const std::string& name, 
-                                 const PlexilType& type, 
+                                 const ValueType& type, 
                                  const unsigned maxSize, 
                                  std::vector<std::string>& values)
     : PlexilVar(name, type, new PlexilArrayValue(type, maxSize, values)),

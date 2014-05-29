@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,6 @@
 */
 
 #include "Command.hh"
-#include "BooleanVariable.hh"
-#include "CoreExpressions.hh"
 #include "Node.hh"
 
 namespace PLEXIL
@@ -34,23 +32,24 @@ namespace PLEXIL
 
   Command::Command(const ExpressionId nameExpr, 
                    const std::vector<ExpressionId>& args,
-                   const VariableId dest,
-                   const LabelStr& dest_name,
-                   const std::vector<ExpressionId>& garbage,
-                   const ResourceList& resource,
-                   const NodeId& parent)
+                   const AssignableId dest,
+                   const std::string &dest_name,
+                   const std::vector<ExpressionId> &garbage,
+                   const ResourceList &resource,
+                   const NodeId &parent)
     : m_id(this),
       m_node(parent),
       m_nameExpr(nameExpr),
       m_dest(dest),
       m_destName(dest_name),
-      m_ack((new CommandHandleVariable(parent->getNodeId().toString() + " command_handle"))->getId()), 
-      m_abortComplete((new BooleanVariable())->getId()),
+      m_ack(getId()), 
+      m_abortComplete(),
       m_garbage(garbage),
       m_args(args),
       m_resourceList(resource)
   {
-    ((VariableImpl*) m_abortComplete)->setName(parent->getNodeId().toString() + " abortComplete");
+    m_ack.setName(parent->getNodeId() + " commandHandle");
+    m_abortComplete.setName(parent->getNodeId() + " abortComplete");
   }
 
   Command::~Command() {
@@ -59,14 +58,14 @@ namespace PLEXIL
          ++it) {
       delete (Expression*) (*it);
     }
-    delete (Expression*) m_ack;
-    delete (Expression*) m_abortComplete;
     m_id.remove();
   }
 
-  const Value& Command::getName() const
+  const std::string &Command::getName() const
   {
-    return m_nameExpr->getValue();
+    std::string const *result;
+    m_nameExpr->getValuePointer(result);
+    return *result;
   }
 
   void Command::fixValues() 
@@ -74,8 +73,8 @@ namespace PLEXIL
     m_argValues.clear();
     for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
       ExpressionId expr = *it;
-      check_error(expr.isValid());
-      m_argValues.push_back(expr->getValue());
+      check_error(expr.isValid()); // ??
+      m_argValues.push_back(expr->toValue());
     }
   }
 
@@ -92,7 +91,7 @@ namespace PLEXIL
             ++resIter) {
           ExpressionId expr = resIter->second;
           check_error(expr.isValid());
-          resValues[resIter->first] = expr->getValue();
+          resValues[resIter->first] = expr->toValue();
         }
         m_resourceValuesList.push_back(resValues);
       }
@@ -102,8 +101,9 @@ namespace PLEXIL
   void Command::activate()
   {
     m_nameExpr->activate();
-    m_ack->activate();
-    m_abortComplete->activate(); // redundant?
+    m_ack.activate();
+    m_abortComplete.activate();
+    // TODO: Figure out if this is really needed
     if (m_dest != ExpressionId::noId())
       m_dest->activate();
     for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
@@ -126,8 +126,9 @@ namespace PLEXIL
 
   void Command::deactivate() {
     m_nameExpr->deactivate();
-    m_ack->deactivate();
-    m_abortComplete->deactivate(); // redundant?
+    m_ack.deactivate();
+    m_abortComplete.deactivate();
+    // TODO: Figure out if this is really needed
     if (m_dest != ExpressionId::noId())
       m_dest->deactivate();
     for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
@@ -140,12 +141,12 @@ namespace PLEXIL
 
   void Command::reset()
   {
-    m_ack->reset();
-    m_abortComplete->reset();
+    m_ack.reset();
+    m_abortComplete.reset();
   }
 
   const std::string& Command::getDestName() const {
-    return m_destName.toString();
+    return m_destName;
   }
 
 }

@@ -29,7 +29,6 @@
 
 #include "ExecConnector.hh"
 #include "generic_hash_map.hh"
-#include "LabelStr.hh"
 #include "PlexilPlan.hh"
 
 #include <list>
@@ -63,6 +62,7 @@ namespace PLEXIL
     /**
      * @brief Constructor.  Instantiates the entire plan from parsed XML.
      * @param plan The intermediate representation of the plan.
+     * @deprecated Use the default constructor instead, and add a plan.
      */
     PlexilExec(PlexilNodeId& plan);
 
@@ -115,12 +115,11 @@ namespace PLEXIL
     /**
      * @brief Add the plan under the node named by the parent.
      * @param plan The intermediate representation of the plan.
-     * @param parent The name of the node under which to insert this plan.
      * @return true if successful, false otherwise.
      * @note If the plan references any library nodes, they are linked in.
      * @note Currently parent is ignored.
      */
-    bool addPlan(PlexilNodeId& plan, const LabelStr& parent = EMPTY_LABEL());
+    bool addPlan(PlexilNodeId& plan);
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
@@ -131,6 +130,12 @@ namespace PLEXIL
      * @brief Returns true if the Exec needs to be stepped.
      */
     bool needsStep() const;
+
+    /**
+     * @brief Return the number of "macro steps" since this instance was constructed.
+     * @return The macro step count.
+     */
+    unsigned int getCycleCount() const;
 
     /**
      * @brief Set the ExecListenerHub instance.
@@ -159,11 +164,6 @@ namespace PLEXIL
      * @note Convenience method for backward compatibility.
      */
     void removeListener(const ExecListenerBaseId& listener);
-
-    /**
-     * @brief accessor for the state cache.
-     */
-    StateCacheId& getStateCache() {return m_cache;}
 
     /**
      * @brief Queries whether all plans are finished.
@@ -233,7 +233,7 @@ namespace PLEXIL
     // Private types
     typedef std::vector<NodeTransition> StateChangeQueue;
     typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
-    typedef std::map<VariableId, VariableConflictSet> VariableConflictMap;
+    typedef std::map<AssignableId, VariableConflictSet> VariableConflictMap;
 
     /**
      * @brief Resolve conflicts among potentially executing assignment variables.
@@ -243,7 +243,7 @@ namespace PLEXIL
     /**
      * @brief Resolve conflicts for this variable.
      */
-    void resolveVariableConflicts(const VariableId& var,
+    void resolveVariableConflicts(const AssignableId& var,
                                   const VariableConflictSet& conflictSet);
 
     /**
@@ -270,7 +270,6 @@ namespace PLEXIL
     void performAssignments();
 
     PlexilExecId m_id; /*<! The Id for this executive.*/
-    StateCacheId m_cache;
     ExternalInterfaceId m_interface;
     ExecListenerHubId m_listener;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
@@ -279,7 +278,7 @@ namespace PLEXIL
     StateChangeQueue m_stateChangeQueue; /*<! Nodes that are eligible for state transition.*/
     std::vector<AssignmentId> m_assignmentsToExecute;
     std::vector<AssignmentId> m_assignmentsToRetract;
-    std::vector<VariableId> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
+    std::vector<AssignableId> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
     std::list<CommandId> m_commandsToExecute;
     std::list<UpdateId> m_updatesToExecute;
     VariableConflictMap m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
@@ -288,9 +287,11 @@ namespace PLEXIL
                                                Essentially, at each quiescence cycle, the first node in each set that isn't already
                                                in state FAILING gets added to the end of the queue. */
     std::map<std::string, PlexilNodeId> m_libraries;
-    unsigned int m_cycleNum, m_queuePos;
+    unsigned int m_cycleNum;
+    unsigned int m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };
+
 }
 
 #endif

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,8 @@
 #define PLEXIL_COMMAND_HH
 
 #include "ExecDefs.hh"
-#include "LabelStr.hh"
+#include "NodeVariables.hh"
+#include "UserVariable.hh"
 #include "Value.hh"
 
 namespace PLEXIL
@@ -45,22 +46,22 @@ namespace PLEXIL
   public:
     Command(const ExpressionId nameExpr, 
             const std::vector<ExpressionId>& args, 
-            const VariableId dest,
-            const LabelStr& dest_name,
+            const AssignableId dest,
+            const std::string& dest_name,
             const std::vector<ExpressionId>& garbage,
             const ResourceList& resource,
             const NodeId& parent);
     ~Command();
 
-    CommandId& getId() {return m_id;}
-    VariableId& getDest() {return m_dest;}
-    VariableId& getAck() {return m_ack;}
-    VariableId& getAbortComplete() {return m_abortComplete;}
-    const std::vector<Value>& getArgValues() const {return m_argValues;}
-    const ResourceValuesList& getResourceValues() const {return m_resourceValuesList;}
-    const NodeId& getNode() const { return m_node; }
-    const Value& getName() const;
-    const std::string& getDestName() const;
+    const CommandId &getId() {return m_id;}
+    ExpressionId getDest() { return (ExpressionId) m_dest;}
+    const ExpressionId &getAck() {return m_ack.getId();}
+    const ExpressionId &getAbortComplete() {return m_abortComplete.getId();}
+    const std::vector<Value> &getArgValues() const {return m_argValues;}
+    const ResourceValuesList &getResourceValues() const {return m_resourceValuesList;}
+    const NodeId &getNode() const { return m_node; }
+    const std::string &getName() const;
+    const std::string &getDestName() const;
 
     void activate();
     void deactivate();
@@ -79,17 +80,18 @@ namespace PLEXIL
     Command& operator=(const Command&);
 
     CommandId m_id;
+    CommandHandleVariable m_ack;
+    BooleanVariable m_abortComplete;
     NodeId m_node; // backpointer to parent
     ExpressionId m_nameExpr;
-    VariableId m_dest;
-    LabelStr m_destName;
-    VariableId m_ack;
-    VariableId m_abortComplete;
+    AssignableId m_dest;
+    std::string m_destName;
     std::vector<ExpressionId> m_garbage;
     std::vector<ExpressionId> m_args;
     std::vector<Value> m_argValues;
     ResourceList m_resourceList;
     ResourceValuesList m_resourceValuesList;
+    uint16_t m_commandHandle;
   };
 
 }

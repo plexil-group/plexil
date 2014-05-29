@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,21 +25,20 @@
 */
 
 #include "Assignment.hh"
-#include "BooleanVariable.hh"
 #include "Debug.hh"
 
 namespace PLEXIL
 {
 
-  Assignment::Assignment(const VariableId lhs, 
+  Assignment::Assignment(const AssignableId lhs, 
                          const ExpressionId rhs,
                          const bool deleteLhs, 
                          const bool deleteRhs,
-                         const LabelStr& lhsName, 
-                         const LabelStr& nodeId)
-    : m_id(this),
-      m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
-      m_abortComplete((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
+                         const std::string &lhsName, 
+                         const std::string &nodeId)
+    : m_ack(),
+      m_abortComplete(),
+      m_id(this),
       m_dest(lhs),
       m_rhs(rhs),
       m_destName(lhsName),
@@ -47,16 +46,14 @@ namespace PLEXIL
       m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
   {
     // Make ack variable pretty
-    ((VariableImpl*) m_ack)->setName(nodeId.toString() + " ack");
-    ((VariableImpl*) m_abortComplete)->setName(nodeId.toString() + " abortComplete");
+    m_ack.setName(nodeId + " ack");
+    m_abortComplete.setName(nodeId + " abortComplete");
   }
 
   Assignment::~Assignment() 
   {
-    delete (Variable*) m_ack;
-    delete (Variable*) m_abortComplete;
     if (m_deleteLhs)
-      delete (Variable*) m_dest;
+      delete (Assignable *) m_dest;
     if (m_deleteRhs)
       delete (Expression*) m_rhs;
     m_id.remove();
@@ -65,7 +62,7 @@ namespace PLEXIL
   void Assignment::fixValue() 
   {
     m_dest->saveCurrentValue();
-    m_value = m_rhs->getValue();
+    m_value = m_rhs->toValue();
   }
 
   void Assignment::activate() 
@@ -77,39 +74,39 @@ namespace PLEXIL
   void Assignment::deactivate() 
   {
     m_rhs->deactivate();
-    m_dest->commitAssignment();
     m_dest->deactivate();
-    m_value.setUnknown();
+    m_value = Value(); // make unknown
   }
 
   void Assignment::execute()
   {
     check_error(m_dest.isValid());
-    debugMsg("Test:testOutput", "Assigning '" << m_destName.toString() <<
+    debugMsg("Test:testOutput", "Assigning '" << m_destName <<
              "' (" << m_dest->toString() << ") to " << m_value);
     m_dest->setValue(m_value);
-    m_ack->setValue(BooleanVariable::TRUE_VALUE());
+    m_ack.setValue(true);
   }
 
   void Assignment::retract()
   {
     check_error(m_dest.isValid());
     debugMsg("Test:testOutput",
-             "Restoring '" << m_destName.toString() << "' (" << m_dest->toString()
-             << ") to " << m_dest->getSavedValue());
+             "Restoring previous value of '" << m_destName << "' (" << m_dest->toString()
+             << ")");
     m_dest->restoreSavedValue();
-    m_abortComplete->setValue(BooleanVariable::TRUE_VALUE());
+    m_abortComplete.setValue(true);
   }
 
   void Assignment::reset()
   {
-    m_ack->reset();
-    m_abortComplete->reset();
+    m_ack.reset();
+    m_abortComplete.reset();
+    m_value = Value(); // set unknown
   }
 
   const std::string& Assignment::getDestName() const 
   {
-    return m_destName.toString();
+    return m_destName;
   }
 
 }

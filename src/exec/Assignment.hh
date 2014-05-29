@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,8 @@
 #define PLEXIL_ASSIGNMENT_HH
 
 #include "ExecDefs.hh"
-#include "LabelStr.hh"
+#include "UserVariable.hh"
+#include "Value.hh"
 
 namespace PLEXIL
 {
@@ -36,17 +37,17 @@ namespace PLEXIL
   class Assignment 
   {
   public:
-    Assignment(const VariableId lhs,
+    Assignment(const AssignableId lhs,
                const ExpressionId rhs, 
                const bool deleteLhs, 
                const bool deleteRhs,
-               const LabelStr& lhsName,
-               const LabelStr& nodeId);
+               const std::string &lhsName,
+               const std::string &nodeId);
     ~Assignment();
     const AssignmentId& getId() const {return m_id;}
-    const VariableId& getDest() const {return m_dest;}
-    const VariableId& getAck() const {return m_ack;}
-    const VariableId& getAbortComplete() const {return m_abortComplete;}
+    ExpressionId getDest() const {return (ExpressionId) m_dest;}
+    const ExpressionId& getAck() const {return m_ack.getId();}
+    const ExpressionId& getAbortComplete() const {return m_abortComplete.getId();}
 
     void activate();
     void deactivate();
@@ -62,13 +63,13 @@ namespace PLEXIL
     Assignment(const Assignment&);
     Assignment& operator=(const Assignment&);
 
+    BooleanVariable m_ack;
+    BooleanVariable m_abortComplete;
     AssignmentId m_id;
-    VariableId m_ack;
-    VariableId m_abortComplete;
-    VariableId m_dest;
+    AssignableId m_dest;
     ExpressionId m_rhs;
-    LabelStr m_destName;
-    Value m_value;
+    const std::string m_destName;
+    Value m_value; // TODO: templatize by assignable type?
     bool m_deleteLhs, m_deleteRhs;
   };
 

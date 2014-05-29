@@ -30,6 +30,7 @@
 #include "ExecDefs.hh"
 #include "Expression.hh"
 #include "NodeConnector.hh"
+#include "NodeVariables.hh"
 #include "PlexilPlan.hh"
 
 // Take care of annoying VxWorks macro
@@ -49,41 +50,41 @@ namespace PLEXIL {
   {
   public:
     //condition names
-    DECLARE_STATIC_CLASS_CONST_LABEL(SKIP_CONDITION, "SkipCondition"); /*!< The name for the node's skip condition. */
-    DECLARE_STATIC_CLASS_CONST_LABEL(START_CONDITION, "StartCondition"); /*!< The name for the node's start condition. */
-    DECLARE_STATIC_CLASS_CONST_LABEL(END_CONDITION, "EndCondition"); /*!< The name for the node's end condition. */
-    DECLARE_STATIC_CLASS_CONST_LABEL(EXIT_CONDITION, "ExitCondition"); /*!< The name for the node's exit condition. */
-    DECLARE_STATIC_CLASS_CONST_LABEL(INVARIANT_CONDITION, "InvariantCondition"); /*!< The name for the node's invariant condition. */
-    DECLARE_STATIC_CLASS_CONST_LABEL(PRE_CONDITION, "PreCondition"); /*!< The name for the node's pre-condition. */
-    DECLARE_STATIC_CLASS_CONST_LABEL(POST_CONDITION, "PostCondition"); /*!< The name for the node's post-condition. */
-    DECLARE_STATIC_CLASS_CONST_LABEL(REPEAT_CONDITION, "RepeatCondition"); /*!< The name for the node's repeat condition. */
-    DECLARE_STATIC_CLASS_CONST_LABEL(ANCESTOR_INVARIANT_CONDITION, "AncestorInvariantCondition"); /*!< The name for the node's ancestor-invariant
+    DECLARE_STATIC_CLASS_CONST(std::string, SKIP_CONDITION, "SkipCondition"); /*!< The name for the node's skip condition. */
+    DECLARE_STATIC_CLASS_CONST(std::string, START_CONDITION, "StartCondition"); /*!< The name for the node's start condition. */
+    DECLARE_STATIC_CLASS_CONST(std::string, END_CONDITION, "EndCondition"); /*!< The name for the node's end condition. */
+    DECLARE_STATIC_CLASS_CONST(std::string, EXIT_CONDITION, "ExitCondition"); /*!< The name for the node's exit condition. */
+    DECLARE_STATIC_CLASS_CONST(std::string, INVARIANT_CONDITION, "InvariantCondition"); /*!< The name for the node's invariant condition. */
+    DECLARE_STATIC_CLASS_CONST(std::string, PRE_CONDITION, "PreCondition"); /*!< The name for the node's pre-condition. */
+    DECLARE_STATIC_CLASS_CONST(std::string, POST_CONDITION, "PostCondition"); /*!< The name for the node's post-condition. */
+    DECLARE_STATIC_CLASS_CONST(std::string, REPEAT_CONDITION, "RepeatCondition"); /*!< The name for the node's repeat condition. */
+    DECLARE_STATIC_CLASS_CONST(std::string, ANCESTOR_INVARIANT_CONDITION, "AncestorInvariantCondition"); /*!< The name for the node's ancestor-invariant
                                                                                                         condition (parent.invariant && parent.ancestor-invariant).*/
-    DECLARE_STATIC_CLASS_CONST_LABEL(ANCESTOR_END_CONDITION, "AncestorEndCondition"); /*!< The name for the ancestor-end condition
+    DECLARE_STATIC_CLASS_CONST(std::string, ANCESTOR_END_CONDITION, "AncestorEndCondition"); /*!< The name for the ancestor-end condition
                                                                                             (parent.end || parent.ancestor-end). */
-    DECLARE_STATIC_CLASS_CONST_LABEL(ANCESTOR_EXIT_CONDITION, "AncestorExitCondition"); /*!< The name for the ancestor-exit condition
+    DECLARE_STATIC_CLASS_CONST(std::string, ANCESTOR_EXIT_CONDITION, "AncestorExitCondition"); /*!< The name for the ancestor-exit condition
                                                                                             (parent.exit || parent.ancestor-exit). */
 
-    DECLARE_STATIC_CLASS_CONST_LABEL(ACTION_COMPLETE, "ActionCompleteCondition"); /*!< The name for the action-complete condition. */
-    DECLARE_STATIC_CLASS_CONST_LABEL(ABORT_COMPLETE, "AbortCompleteCondition"); /*!< The name for the abort-complete condition. */
+    DECLARE_STATIC_CLASS_CONST(std::string, ACTION_COMPLETE, "ActionCompleteCondition"); /*!< The name for the action-complete condition. */
+    DECLARE_STATIC_CLASS_CONST(std::string, ABORT_COMPLETE, "AbortCompleteCondition"); /*!< The name for the abort-complete condition. */
 
-    static const std::vector<LabelStr>& ALL_CONDITIONS();
+    static const std::vector<std::string>& ALL_CONDITIONS();
 
     //in-built variable names
-    DECLARE_STATIC_CLASS_CONST_LABEL(STATE, "state");
-    DECLARE_STATIC_CLASS_CONST_LABEL(OUTCOME, "outcome");
-    DECLARE_STATIC_CLASS_CONST_LABEL(FAILURE_TYPE, "failure_type");
-    DECLARE_STATIC_CLASS_CONST_LABEL(COMMAND_HANDLE, "command_handle");
+    DECLARE_STATIC_CLASS_CONST(std::string, STATE, "state");
+    DECLARE_STATIC_CLASS_CONST(std::string, OUTCOME, "outcome");
+    DECLARE_STATIC_CLASS_CONST(std::string, FAILURE_TYPE, "failure_type");
+    DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_HANDLE, "command_handle");
 
     //node types
-    DECLARE_STATIC_CLASS_CONST_LABEL(ASSIGNMENT, "Assignment");
-    DECLARE_STATIC_CLASS_CONST_LABEL(COMMAND, "Command");
-    DECLARE_STATIC_CLASS_CONST_LABEL(LIST, "NodeList");
-    DECLARE_STATIC_CLASS_CONST_LABEL(LIBRARYNODECALL, "LibraryNodeCall");
-    DECLARE_STATIC_CLASS_CONST_LABEL(UPDATE, "Update");
-    DECLARE_STATIC_CLASS_CONST_LABEL(EMPTY, "Empty");
+    DECLARE_STATIC_CLASS_CONST(std::string, ASSIGNMENT, "Assignment");
+    DECLARE_STATIC_CLASS_CONST(std::string, COMMAND, "Command");
+    DECLARE_STATIC_CLASS_CONST(std::string, LIST, "NodeList");
+    DECLARE_STATIC_CLASS_CONST(std::string, LIBRARYNODECALL, "LibraryNodeCall");
+    DECLARE_STATIC_CLASS_CONST(std::string, UPDATE, "Update");
+    DECLARE_STATIC_CLASS_CONST(std::string, EMPTY, "Empty");
 
-    static const LabelStr& nodeTypeToLabelStr(PlexilNodeType nodeType);
+    static const std::string& nodeTypeToLabelStr(PlexilNodeType nodeType);
 
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
@@ -96,8 +97,8 @@ namespace PLEXIL {
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    Node(const LabelStr& type,
-         const LabelStr& name,
+    Node(const std::string& type,
+         const std::string& name,
          const NodeState state,
          const ExecConnectorId& exec = ExecConnectorId::noId(),
          const NodeId& parent = NodeId::noId());
@@ -114,12 +115,12 @@ namespace PLEXIL {
     /**
      * @brief Looks up a variable by reference.
      */
-    const VariableId& findVariable(const PlexilVarRef* ref);
+    const AssignableId& findVariable(const PlexilVarRef* ref);
 
     /**
      * @brief Looks up a variable by name.
      */
-    virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false);
+    virtual const AssignableId& findVariable(const std::string& name, bool recursive = false);
 
     const ExecConnectorId& getExec() const { return m_exec; }
 
@@ -141,7 +142,7 @@ namespace PLEXIL {
      * @brief Accessor for the NodeId as it was written in the XML.
      * @return This node's node id.
      */
-    const LabelStr& getNodeId(){return m_nodeId;}
+    const std::string& getNodeId(){return m_nodeId;}
 
     /**
      * @brief Accessor for the Node's parent.
@@ -224,7 +225,7 @@ namespace PLEXIL {
     const VariableMap& getLocalVariablesByName() { return m_variablesByName; }
     
     //Isaac - get local variables
-    const std::vector<VariableId> & getLocalVariables() { return m_localVariables; }
+    const std::vector<AssignableId> & getLocalVariables() { return m_localVariables; }
 
     //Isaac - get children
     virtual const std::vector<NodeId>& getChildren() const;
@@ -233,27 +234,27 @@ namespace PLEXIL {
      * @brief Gets the state variable representing the state of this node.
      * @return the state variable.
      */
-    const VariableId& getStateVariable() const { return m_stateVariable; }
+    const ExpressionId& getStateVariable() const { return m_stateVariable.getId(); }
 
-    const Value& getOutcome() const;
-    const VariableId& getOutcomeVariable() const { return m_outcomeVariable; }
+    NodeOutcome getOutcome() const;
+    const ExpressionId& getOutcomeVariable() const { return m_outcomeVariable.getId(); }
 
-    const Value& getFailureType() const;
-    const VariableId& getFailureTypeVariable() const { return m_failureTypeVariable; }
+    FailureType getFailureType() const;
+    const ExpressionId& getFailureTypeVariable() const { return m_failureTypeVariable.getId(); }
 
     /**
      * @brief Accessor for an assignment node's assigned variable.
      */
-    virtual const VariableId& getAssignmentVariable() const 
+    virtual ExpressionId getAssignmentVariable() const 
     {
-      return VariableId::noId();
+      return ExpressionId::noId();
     }
 
     /**
      * @brief Gets the type of this node (node list, assignment, or command).
      * @return The type of this node.
      */
-    const LabelStr& getType() const {return m_nodeType;}
+    const std::string& getType() const {return m_nodeType;}
 
     /**
      * @brief Notifies the node that one of its conditions has changed.
@@ -311,7 +312,7 @@ namespace PLEXIL {
     bool isAbortCompleteConditionActive()             { return m_conditions[abortCompleteIdx]->isActive(); }
 
     // Should only be used by LuvListener.
-    const ExpressionId& getCondition(const LabelStr& name) const;
+    const ExpressionId& getCondition(const std::string& name) const;
 
     // NodeFactory::createNode for the module test needs these to be public.
     void constructTimepointVariables();
@@ -355,10 +356,10 @@ namespace PLEXIL {
 
     void removeConditionListener(size_t idx);
 
-    static size_t getConditionIndex(const LabelStr& cName);
-    static const LabelStr& getConditionName(size_t idx);
+    static size_t getConditionIndex(const std::string& cName);
+    static const std::string& getConditionName(size_t idx);
 
-    virtual NodeId findChild(const LabelStr& childName) const;
+    virtual NodeId findChild(const std::string& childName) const;
 
     void commonInit();
 
@@ -401,6 +402,10 @@ namespace PLEXIL {
     // These are for specialized node types
     void deactivateActionCompleteCondition();
     void deactivateAbortCompleteCondition();
+
+    // Transition helpers
+    void setNodeOutcome(NodeOutcome o);
+    void setNodeFailureType(FailureType f);
 
     // Specific behaviors for derived classes
     virtual void specializedPostInit(const PlexilNodeId& node);
@@ -462,7 +467,7 @@ namespace PLEXIL {
       {
       }
 
-      void notifyValueChanged(const ExpressionId& /* expression */)
+      void notifyChanged(ExpressionId /* src */)
       {
         m_node.conditionChanged();
       }
@@ -485,19 +490,21 @@ namespace PLEXIL {
     ExecConnectorId m_exec; /*!< The executive (to notify it about condition changes and whether it needs to be executed) */
     // Listener for the various condition expressions.
     ConditionChangeListener m_listener;
-    LabelStr m_nodeId;  /*!< the NodeId from the xml.*/
-    LabelStr m_nodeType; /*!< The node type (either directly from the Node element or determined by the sub-elements. */
+    std::string m_nodeId;  /*!< the NodeId from the xml.*/
+    std::string m_nodeType; /*!< The node type (either directly from the Node element or determined by the sub-elements. */
     VariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
-    std::vector<LabelStr>* m_sortedVariableNames; /*!< Convenience for printing. */
-    std::vector<VariableId> m_localVariables; /*!< Variables created in this node. */
+    std::vector<std::string>* m_sortedVariableNames; /*!< Convenience for printing. */
+    std::vector<AssignableId> m_localVariables; /*!< Variables created in this node. */
     ExpressionId m_conditions[conditionIndexMax]; /*!< The condition expressions. */
-    VariableId m_startTimepoints[NO_NODE_STATE]; /*!< Timepoint start variables indexed by state. */
-    VariableId m_endTimepoints[NO_NODE_STATE]; /*!< Timepoint end variables indexed by state. */
-    VariableId m_stateVariable;
-    VariableId m_outcomeVariable;
-    VariableId m_failureTypeVariable;
-    NodeState m_state; /*!< The actual state of the node. */
-    NodeState m_lastQuery; /*!< The state returned by getDestState() the last time checkConditions() was called. */
+    AssignableId m_startTimepoints[NO_NODE_STATE]; /*!< Timepoint start variables indexed by state. */
+    AssignableId m_endTimepoints[NO_NODE_STATE]; /*!< Timepoint end variables indexed by state. */
+    StateVariable m_stateVariable;
+    OutcomeVariable m_outcomeVariable;
+    FailureVariable m_failureTypeVariable;
+    uint16_t m_state; /*!< The actual state of the node. */
+    uint16_t m_lastQuery; /*!< The state returned by getDestState() the last time checkConditions() was called. */
+    uint16_t m_outcome;
+    uint16_t m_failureType;
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */
     bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_checkConditionsPending;
 
@@ -508,13 +515,13 @@ namespace PLEXIL {
     void createDeclaredVars(const std::vector<PlexilVarId>& vars);
 
     void getVarsFromInterface(const PlexilInterfaceId& intf);
-    VariableId getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
-    VariableId getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
+    AssignableId getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
+    AssignableId getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
 
     void activateLocalVariables();
     void deactivateLocalVariables();
 
-    const VariableId& getInternalVariable(const LabelStr& name) const;
+    const AssignableId& getInternalVariable(const std::string& name) const;
 
     //
     // Internal versions
@@ -526,8 +533,8 @@ namespace PLEXIL {
      */
     void setConditionDefaults();
 
-    static LabelStr (&START_TIMEPOINT_NAMES())[NO_NODE_STATE];
-    static LabelStr (&END_TIMEPOINT_NAMES())[NO_NODE_STATE];
+    static std::string (&START_TIMEPOINT_NAMES())[NO_NODE_STATE];
+    static std::string (&END_TIMEPOINT_NAMES())[NO_NODE_STATE];
 
     void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
     void ensureSortedVariableNames() const;
@@ -538,7 +545,7 @@ namespace PLEXIL {
     static void purgeEndTimepointNames();
 
     // Storage for static "constants"
-    static std::vector<LabelStr>* s_allConditions;
+    static std::vector<std::string>* s_allConditions;
   };
 
   std::ostream& operator<<(std::ostream& strm, const Node& node);

@@ -29,8 +29,7 @@
 
 #include "generic_hash_map.hh"
 #include "Id.hh"
-#include "LabelStr.hh"
-#include "Value.hh"
+#include "NodeConstants.hh"
 
 #include <vector>
 #include <utility>
@@ -42,17 +41,14 @@ namespace PLEXIL
   // scientific notation in XML and doesn't parse correctly.  
   const double WORST_PRIORITY = 100000;
 
+  class Assignable;
+  typedef Id<Assignable> AssignableId;
+
   class Expression;
   typedef Id<Expression> ExpressionId;
 
   class ExpressionListener;
   typedef Id<ExpressionListener> ExpressionListenerId;
-
-  class Variable;
-  typedef Id<Variable> VariableId;
-
-  class ArrayVariableBase;
-  typedef Id<ArrayVariableBase> ArrayVariableId;
 
   class Node;
   typedef Id<Node> NodeId;
@@ -62,9 +58,6 @@ namespace PLEXIL
 
   class PlexilExec;
   typedef Id<PlexilExec> PlexilExecId;
-  
-  class StateCache;
-  typedef Id<StateCache> StateCacheId;
 
   class ExecListener;
   typedef Id<ExecListener> ExecListenerId;
@@ -87,39 +80,11 @@ namespace PLEXIL
   class Update;
   typedef Id<Update> UpdateId;
 
-  typedef std::pair<std::string, std::vector<Value> > State;
   typedef std::vector<ExpressionId> ExpressionVector;
   typedef std::vector<ExpressionId>::iterator ExpressionVectorIter;
   typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;
   typedef std::vector<ExpressionId> Expressions;
-  typedef PLEXIL_HASH_MAP(LabelStr, VariableId) VariableMap;
-
-  /**
-   * @brief Variable type enumerator.  An enumeration of plexil variable types.
-   */
-
-  enum PlexilType
-    {
-      UNKNOWN_TYPE, INTEGER, REAL, BOOLEAN, ARRAY, STRING, TIME, 
-      NODE_STATE, NODE_OUTCOME, FAILURE_TYPE, COMMAND_HANDLE
-    };
-
-  /**
-   * @brief Node state enumeration.
-   * @note Must be in same order as StateVariable::ALL_STATE_NAMES(). See CoreExpressions.cc.
-   */
-  enum NodeState {
-    INACTIVE_STATE = 0,
-    WAITING_STATE,
-    EXECUTING_STATE,
-    ITERATION_ENDED_STATE,
-    FINISHED_STATE,
-    FAILING_STATE,           // All but empty nodes
-    FINISHING_STATE,         // Command, List/LibraryCall only
-    NO_NODE_STATE,
-    NODE_STATE_MAX
-  };
-
+  typedef PLEXIL_HASH_MAP(std::string, AssignableId) VariableMap;
 
   /**
    * @brief A data structure for reporting node state transitions.

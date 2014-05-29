@@ -45,8 +45,8 @@ namespace PLEXIL
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    CommandNode(const LabelStr& type,
-                const LabelStr& name,
+    CommandNode(const std::string& type,
+                const std::string& name,
                 const NodeState state,
                 const ExecConnectorId& exec = ExecConnectorId::noId(),
                 const NodeId& parent = NodeId::noId());

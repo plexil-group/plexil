@@ -54,78 +54,6 @@
 
 using namespace PLEXIL;
 
-class AllocationExpression : public Expression {
-public:
-  AllocationExpression(PlexilExpr* /* expr */, const NodeId /* node */) : Expression() {
-    setValue((int32_t) 10);
-  }
-  void print(std::ostream& s) const { s << "AllocationExpression"; }
-private:
-  bool checkValue(const Value& /* val */) const {return true;}
-};
-
-class TestListener : public ExpressionListener {
-public:
-  TestListener(bool& changed) : ExpressionListener(), m_changed(changed) {}
-  void notifyValueChanged(const ExpressionId& /* expression */) { m_changed = true;}
-private:
-  bool& m_changed;
-};
-
-class BaseExpressionTest {
-public:
-  static bool test() {
-    runTest(testBasicAllocation);
-    runTest(testPublication);
-    return true;
-  }
-private:
-  static bool testBasicAllocation() {
-    PlexilValue data(PLEXIL::INTEGER);
-    data.setName("foo");
-    ExpressionId exp =
-      ExpressionFactory::createInstance("AllocationExpression", data.getId());
-    assertTrue(exp.isValid());
-    assertTrue(!exp->isActive());
-    exp->activate();
-    assertTrue(exp->getValue().getDoubleValue() == 10);
-    assertTrue(exp->toString() == "AllocationExpression");
-
-    delete (Expression*) exp;
-
-    return true;
-  }
-  static bool testPublication() {
-    PlexilValue data(PLEXIL::INTEGER);
-    data.setName("foo");
-    ExpressionId exp =
-      ExpressionFactory::createInstance("AllocationExpression", data.getId());
-    assertTrue(exp.isValid());
-    if (exp->isActive())
-      exp->deactivate();
-    bool changed = false;
-    ExpressionListenerId foo = (new TestListener(changed))->getId();
-    assertTrue(foo.isValid());
-    assertTrue(!foo->isActive());
-    exp->addListener(foo);
-    foo->activate();
-    assertTrue(foo->isActive());
-    //assertTrue(!foo->isActive());
-    exp->setValue((int32_t) 10);
-    assertTrue(!changed);
-    exp->activate();
-    assertTrue(exp->isActive());
-    assertTrue(foo->isActive());
-    exp->setValue((int32_t) 20);
-    assertTrue(changed);
-
-    exp->removeListener(foo);
-    delete (ExpressionListener*) foo;
-    delete (Expression*) exp;
-    return true;
-  }
-};
-
 class CoreExpressionsTest {
 public:
   static bool test() {
@@ -3018,7 +2946,6 @@ private:
 
 
 void ExecModuleTests::runTests() {
-  REGISTER_EXPRESSION(AllocationExpression, AllocationExpression);
   REGISTER_EXPRESSION(Conjunction, AND);
   REGISTER_EXPRESSION(Disjunction, OR);
   REGISTER_EXPRESSION(ExclusiveDisjunction, XOR);
