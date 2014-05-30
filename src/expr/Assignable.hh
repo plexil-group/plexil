@@ -39,7 +39,7 @@ namespace PLEXIL {
 
   /**
    * @class Assignable
-   * @brief Mixin class for all expressions which can be assigned to by a plan.
+   * @brief Pure virtual mixin class for all expressions which can be assigned to by a plan.
    * @note Examples include variables, array references, aliases for InOut variables, etc.
    */
   class Assignable : public virtual Expression
@@ -87,17 +87,17 @@ namespace PLEXIL {
      * @note Each default method reports a type error.
      * @deprecated These are being replaced with the setValue(ExpressionId const &) method below.
      */
-    virtual void setValue(double const &val);
-    virtual void setValue(int32_t const &val);
-    virtual void setValue(uint16_t const &val);
-    virtual void setValue(bool const &val);
-    virtual void setValue(std::string const &val);
-    virtual void setValue(char const *val);
+    virtual void setValue(double const &val) = 0;
+    virtual void setValue(int32_t const &val) = 0;
+    virtual void setValue(uint16_t const &val) = 0;
+    virtual void setValue(bool const &val) = 0;
+    virtual void setValue(std::string const &val) = 0;
+    virtual void setValue(char const *val) = 0;
 
-    virtual void setValue(BooleanArray const &val);
-    virtual void setValue(IntegerArray const &val);
-    virtual void setValue(RealArray const &val);
-    virtual void setValue(StringArray const &val);
+    virtual void setValue(BooleanArray const &val) = 0;
+    virtual void setValue(IntegerArray const &val) = 0;
+    virtual void setValue(RealArray const &val) = 0;
+    virtual void setValue(StringArray const &val) = 0;
 
     /**
      * @brief Set the value for this expression from another expression.
@@ -119,11 +119,11 @@ namespace PLEXIL {
      * @return True if the value is known, false if unknown or invalid.
      * @note Default method returns false and reports a type error.
      */
-    virtual bool getMutableValuePointer(std::string *& ptr);
-    virtual bool getMutableValuePointer(BooleanArray *& ptr);
-    virtual bool getMutableValuePointer(IntegerArray *& ptr);
-    virtual bool getMutableValuePointer(RealArray *& ptr);
-    virtual bool getMutableValuePointer(StringArray *& ptr);
+    virtual bool getMutableValuePointer(std::string *& ptr) = 0;
+    virtual bool getMutableValuePointer(BooleanArray *& ptr) = 0;
+    virtual bool getMutableValuePointer(IntegerArray *& ptr) = 0;
+    virtual bool getMutableValuePointer(RealArray *& ptr) = 0;
+    virtual bool getMutableValuePointer(StringArray *& ptr) = 0;
 
     /**
      * @brief Temporarily stores the previous value of this variable.

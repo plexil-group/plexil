@@ -42,10 +42,10 @@ namespace PLEXIL {
   UserVariable<T>::UserVariable()
     : NotifierImpl(),
       ExpressionImpl<T>(),
-      Assignable(),
-      m_name("anonymous"),
-      m_known(false),
-      m_savedKnown(false)
+    AssignableImpl<T>(),
+    m_name("anonymous"),
+    m_known(false),
+    m_savedKnown(false)
   {
   }
 
@@ -53,7 +53,7 @@ namespace PLEXIL {
   UserVariable<T>::UserVariable(const T &initVal)
   : NotifierImpl(),
     ExpressionImpl<T>(),
-    Assignable(),
+    AssignableImpl<T>(),
     m_initializer((new Constant<T>(initVal))->getId()),
     m_name("anonymous"),
     m_known(false),
@@ -69,13 +69,13 @@ namespace PLEXIL {
                                 bool initializerIsGarbage)
     : NotifierImpl(),
       ExpressionImpl<T>(),
-      Assignable(),
-      m_initializer(initializer),
-      m_node(node),
-      m_name(name),
-      m_known(false),
-      m_savedKnown(false),
-      m_initializerIsGarbage(initializerIsGarbage)
+    AssignableImpl<T>(),
+    m_initializer(initializer),
+    m_node(node),
+    m_name(name),
+    m_known(false),
+    m_savedKnown(false),
+    m_initializerIsGarbage(initializerIsGarbage)
   {
   }
     
@@ -134,7 +134,7 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  bool UserVariable<T>::getMutableValuePointer(T *&ptr)
+  bool UserVariable<T>::getMutableValuePointerImpl(T *&ptr)
   {
     if (!this->isActive())
       return false;
@@ -252,103 +252,8 @@ namespace PLEXIL {
       m_initializer->deactivate();
   }
 
-
   template <typename T>
-  void UserVariable<T>::setValue(ExpressionId const &valex)
-  {
-    assertTrue_2(this->isActive(), "setValue while inactive");
-    T const *newval;
-    if (valex->getValuePointer(newval))
-      setValue(*newval);
-    else 
-      setUnknown();
-  }
-
-  // Scalar types
-  template <>
-  void UserVariable<bool>::setValue(ExpressionId const &valex)
-  {
-    assertTrue_2(this->isActive(), "setValue while inactive");
-    bool newval;
-    if (valex->getValue(newval))
-      setValue(newval);
-    else 
-      setUnknown();
-  }
-
-  template <>
-  void UserVariable<int32_t>::setValue(ExpressionId const &valex)
-  {
-    assertTrue_2(this->isActive(), "setValue while inactive");
-    int32_t newval;
-    if (valex->getValue(newval))
-      setValue(newval);
-    else 
-      setUnknown();
-  }
-
-  template <>
-  void UserVariable<double>::setValue(ExpressionId const &valex)
-  {
-    assertTrue_2(this->isActive(), "setValue while inactive");
-    double newval;
-    if (valex->getValue(newval))
-      setValue(newval);
-    else 
-      setUnknown();
-  }
-
-  //
-  // Set value from generic Value
-  //
-
-  template <typename T>
-  void UserVariable<T>::setValue(Value const &value)
-  {
-    assertTrue_2(this->isActive(), "setValue while inactive");
-    T const *newval;
-    if (value.getValuePointer(newval))
-      setValue(*newval);
-    else 
-      setUnknown();
-  }
-
-  // Scalar types
-  template <>
-  void UserVariable<bool>::setValue(Value const &value)
-  {
-    assertTrue_2(this->isActive(), "setValue while inactive");
-    bool newval;
-    if (value.getValue(newval))
-      setValue(newval);
-    else 
-      setUnknown();
-  }
-
-  template <>
-  void UserVariable<int32_t>::setValue(Value const &value)
-  {
-    assertTrue_2(this->isActive(), "setValue while inactive");
-    int32_t newval;
-    if (value.getValue(newval))
-      setValue(newval);
-    else 
-      setUnknown();
-  }
-
-  template <>
-  void UserVariable<double>::setValue(Value const &value)
-  {
-    assertTrue_2(this->isActive(), "setValue while inactive");
-    double newval;
-    if (value.getValue(newval))
-      setValue(newval);
-    else 
-      setUnknown();
-  }
-
-  template <typename T>
-  void UserVariable<T>::setValue(const T &value)
+  void UserVariable<T>::setValueImpl(const T &value)
   {
     bool changed = !m_known || value != m_value;
     m_value = value;
@@ -419,52 +324,6 @@ namespace PLEXIL {
   }
 
   //
-  // Specializations
-  //
-
-  //
-  // StringVariable wrapper
-  //
-
-  StringVariable::StringVariable()
-    : UserVariable<std::string>()
-  {
-  }
-
-  StringVariable::StringVariable(const std::string &initVal)
-    : UserVariable<std::string>(initVal)
-  {
-  }
-
-  StringVariable::StringVariable(const char *initVal)
-  : UserVariable<std::string>(std::string(initVal))
-  {
-  }
-
-  StringVariable::StringVariable(const NodeId &node,
-                                 const std::string &name,
-                                 const ExpressionId &init,
-                                 bool initIsGarbage)
-    : UserVariable<std::string>(node, name, init, initIsGarbage)
-  {
-  }
-
-  StringVariable::~StringVariable()
-  {
-  }
-
-  void StringVariable::setValue(const char *val)
-  {
-    UserVariable<std::string>::setValue(std::string(val));
-  }
-
-  // Because C++ sucks.
-  void StringVariable::setValue(const std::string &val)
-  {
-    UserVariable<std::string>::setValue(val);
-  }
-
-  //
   // Explicit instantiations
   //
 
@@ -472,7 +331,8 @@ namespace PLEXIL {
   // template class UserVariable<uint16_t>;
   template class UserVariable<int32_t>;
   template class UserVariable<double>;
-  // see above for string variables
+  template class UserVariable<std::string>;
+
 
   // Required by ArrayVariable
   template class UserVariable<BooleanArray>;

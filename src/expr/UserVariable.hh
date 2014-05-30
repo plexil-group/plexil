@@ -27,7 +27,7 @@
 #ifndef PLEXIL_USER_VARIABLE_HH
 #define PLEXIL_USER_VARIABLE_HH
 
-#include "Assignable.hh"
+#include "AssignableImpl.hh"
 #include "ExpressionImpl.hh"
 
 namespace PLEXIL {
@@ -40,7 +40,10 @@ namespace PLEXIL {
   // TODO: Support exec listener for assignments
 
   template <typename T>
-  class UserVariable : public NotifierImpl, public ExpressionImpl<T>, public Assignable
+  class UserVariable :
+    public NotifierImpl,
+    public ExpressionImpl<T>,
+    public AssignableImpl<T>
   {
   public:
 
@@ -98,26 +101,14 @@ namespace PLEXIL {
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown or invalid.
      */
-    bool getMutableValuePointer(T *&ptr);
+    bool getMutableValuePointerImpl(T *&ptr);
 
     /**
      * @brief Assign a new value.
      * @param value The value to assign.
      * @note Type conversions must go on derived classes.
      */
-    void setValue(T const &value);
-
-    /**
-     * @brief Assign a new value from another expression.
-     * @param valex The expression from which to obtain the new value.
-     */
-    void setValue(ExpressionId const &valex);
-
-    /**
-     * @brief Assign a new value from generic Value.
-     * @param value The Value.
-     */
-    void setValue(Value const &value);
+    void setValueImpl(T const &value);
 
     /**
      * @brief Set the current value unknown.
@@ -164,51 +155,13 @@ namespace PLEXIL {
   };
 
   //
-  // Specializations
-  //
-
-  //
-  // StringVariable
-  //
-  class StringVariable : public UserVariable<std::string>
-  {
-  public:
-
-    StringVariable();
-
-    StringVariable(const std::string &initVal);
-    StringVariable(const char *initVal); 
-
-    StringVariable(const NodeId &node,
-                   const std::string &name = "",
-                   const ExpressionId & initializer = ExpressionId::noId(),
-                   bool initializerIsGarbage = false);
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~StringVariable();
-
-    // The reason this class exists.
-    void setValue(const char *value);
-
-    // Necessary because C++ sucks.
-    void setValue(const std::string &value);
-  };
-
-  /**
-   * @class ArrayVariable
-   * @brief A class derived from UserVariable, which adds accessors required
-   *        by the ArrayReference and MutableArrayReference expression classes.
-   */
-
-  //
   // Convenience typedefs 
   //
 
-  typedef UserVariable<bool>    BooleanVariable;
-  typedef UserVariable<int32_t> IntegerVariable;
-  typedef UserVariable<double>  RealVariable;
+  typedef UserVariable<bool>        BooleanVariable;
+  typedef UserVariable<int32_t>     IntegerVariable;
+  typedef UserVariable<double>      RealVariable;
+  typedef UserVariable<std::string> StringVariable;
 
 } // namespace PLEXIL
 

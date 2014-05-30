@@ -31,19 +31,19 @@ libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/exec -I@top_srcdir@/utils \
  -I@top_srcdir@/third-party/pugixml/src
 
 include_HEADERS = Alias.hh Array.hh ArrayImpl.hh ArrayConstant.hh \
- ArrayReference.hh ArrayVariable.hh Assignable.hh Constant.hh Expression.hh \
- ExpressionConstants.hh ExpressionImpl.hh ExpressionListener.hh Function.hh \
- Lookup.hh NotifierImpl.hh \
+ ArrayReference.hh ArrayVariable.hh Assignable.hh AssignableImpl.hh \
+ Constant.hh Expression.hh ExpressionConstants.hh ExpressionImpl.hh \
+ ExpressionListener.hh Function.hh Lookup.hh NotifierImpl.hh \
  Operator.hh State.hh StateCacheEntry.hh StateCacheMap.hh UserVariable.hh \
  Value.hh ValueType.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
  ArithmeticOperators.cc ArrayConstant.cc ArrayOperators.cc ArrayReference.cc \
- ArrayVariable.cc Assignable.cc BooleanOperators.cc Comparisons.cc Constant.cc \
- Expression.cc ExpressionConstants.cc ExpressionImpl.cc ExpressionListener.cc \
- Function.cc \
- Lookup.cc NotifierImpl.cc Operator.cc State.cc StateCacheEntry.cc \
- StateCacheMap.cc StringOperators.cc UserVariable.cc Value.cc ValueType.cc
+ ArrayVariable.cc Assignable.cc AssignableImpl.cc BooleanOperators.cc \
+ Comparisons.cc Constant.cc Expression.cc ExpressionConstants.cc \
+ ExpressionImpl.cc ExpressionListener.cc Function.cc Lookup.cc NotifierImpl.cc \
+ Operator.cc State.cc StateCacheEntry.cc StateCacheMap.cc StringOperators.cc \
+ UserVariable.cc Value.cc ValueType.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests

@@ -47,15 +47,15 @@ namespace PLEXIL
                  "ArrayReference constructor: Null subexpression");
     // TODO:
     // Check type of array, index
-    m_array->addListener(ExpressionListener::getId());
-    m_index->addListener(ExpressionListener::getId());
+    m_array->addListener(this->getId());
+    m_index->addListener(this->getId());
   }
 
   template <typename T>
   ArrayReference<T>::~ArrayReference()
   {
-    m_array->removeListener(ExpressionListener::getId());
-    m_index->removeListener(ExpressionListener::getId());
+    m_array->removeListener(this->getId());
+    m_index->removeListener(this->getId());
     if (m_arrayIsGarbage)
       delete (Expression *) m_array;
     if (m_indexIsGarbage)
@@ -80,7 +80,7 @@ namespace PLEXIL
   bool ArrayReference<T>::selfCheck(ArrayImpl<T> const *&valuePtr,
                                     size_t &idx) const
   {
-    if (!(isActive() && m_array->isActive() && m_index->isActive()))
+    if (!(this->isActive() && m_array->isActive() && m_index->isActive()))
       return false;
     int32_t idxTemp;
     if (!m_index->getValue(idxTemp))
@@ -153,7 +153,7 @@ namespace PLEXIL
                                                   bool aryIsGarbage,
                                                   bool idxIsGarbage)
     : ArrayReference<T>(ary, idx, aryIsGarbage, idxIsGarbage),
-      Assignable()
+    AssignableImpl<T>()
   {
     assertTrue_2((m_mutableArray = ary->getAssignableId()).isId(),
                  "MutableArrayReference: Not a writable array");
@@ -168,7 +168,7 @@ namespace PLEXIL
   bool MutableArrayReference<T>::mutableSelfCheck(ArrayImpl<T> *&valuePtr,
                                                   size_t &idx)
   {
-    if (!(isActive()
+    if (!(this->isActive()
           && ArrayReference<T>::m_array->isActive()
           && ArrayReference<T>::m_index->isActive()))
       return false;
@@ -190,7 +190,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void MutableArrayReference<T>::setValue(const T &value)
+  void MutableArrayReference<T>::setValueImpl(T const &value)
   {
     ArrayImpl<T> *ary;
     size_t idx;
@@ -200,52 +200,9 @@ namespace PLEXIL
     ary->m_contents[idx] = value;
     ary->m_known[idx] = true;
     if (changed) {
-      NotifierImpl::publishChange(getId());
-      m_mutableArray->getBaseVariable()->notifyChanged(getId()); // array might be alias
+      NotifierImpl::publishChange(this->getId());
+      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
     }
-  }
-
-  // Scalar types
-  template <typename T>
-  void MutableArrayReference<T>::setValue(ExpressionId const &valex)
-  {
-    T newVal;
-    if (valex->getValue(newVal))
-      setValue(newVal);
-    else
-      setUnknown();
-  }
-
-  // Prevent unnecessary copying for strings
-  template <>
-  void MutableArrayReference<std::string>::setValue(ExpressionId const &valex)
-  {
-    std::string const *newVal;
-    if (valex->getValuePointer(newVal))
-      setValue(*newVal);
-    else
-      setUnknown();
-  }
-
-  template <typename T>
-  void MutableArrayReference<T>::setValue(Value const &value)
-  {
-    T newVal;
-    if (value.getValue(newVal))
-      setValue(newVal);
-    else
-      setUnknown();
-  }
-
-  // Prevent unnecessary copying for strings
-  template <>
-  void MutableArrayReference<std::string>::setValue(Value const &value)
-  {
-    std::string const *newValPtr;
-    if (value.getValuePointer(newValPtr))
-      setValue(*newValPtr);
-    else
-      setUnknown();
   }
 
   template <typename T>
@@ -258,9 +215,34 @@ namespace PLEXIL
     bool changed = ary->m_known[idx];
     ary->m_known[idx] = false;
     if (changed) {
-      NotifierImpl::publishChange(getId());
-      m_mutableArray->getBaseVariable()->notifyChanged(getId()); // array might be alias
+      NotifierImpl::publishChange(this->getId());
+      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
     }
+  }
+
+  template <typename T>
+  bool MutableArrayReference<T>::getMutableValuePointerImpl(T *&ptr)
+  {
+    // *** TODO ***
+    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer not yet implemented");
+    return false;
+
+    // ArrayImpl<T> *ary;
+    // size_t idx;
+    // if (!mutableSelfCheck(ary, idx))
+    //   return false;
+    // std::vector<T> *resultTemp;
+    // ary->getMutableContentsVector(resultTemp);
+    // ptr = &((*resultTemp)[idx]);
+    // return true;
+  }
+
+  // Not implemented for Boolean arrays
+  template <>
+  bool MutableArrayReference<bool>::getMutableValuePointerImpl(bool *&ptr)
+  {
+    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer not implemented for BooleanArray");
+    return false;
   }
 
   template <typename T>
@@ -293,8 +275,8 @@ namespace PLEXIL
     if (m_savedKnown)
       ary->m_contents[idx] = m_savedValue;
     if (changed) {
-      NotifierImpl::publishChange(getId());
-      m_mutableArray->notifyChanged(getId());
+      NotifierImpl::publishChange(this->getId());
+      m_mutableArray->notifyChanged(this->getId());
     }
   }
 

@@ -27,7 +27,7 @@
 #ifndef PLEXIL_ARRAY_REFERENCE_HH
 #define PLEXIL_ARRAY_REFERENCE_HH
 
-#include "Assignable.hh"
+#include "AssignableImpl.hh"
 #include "ExpressionImpl.hh"
 
 namespace PLEXIL {
@@ -100,7 +100,7 @@ namespace PLEXIL {
   // TODO: Support exec listener for assignments
 
   template <typename T>
-  class MutableArrayReference : public ArrayReference<T>, public Assignable
+  class MutableArrayReference : public ArrayReference<T>, public AssignableImpl<T>
   {
   public:
     MutableArrayReference(const ExpressionId &ary,
@@ -114,24 +114,19 @@ namespace PLEXIL {
      * @brief Assign a new value.
      * @param value The value to assign.
      */
-    void setValue(T const &value);
-
-    /**
-     * @brief Set the value for this expression from another expression.
-     * @param valex The expression from which to obtain the new value.
-     */
-    void setValue(ExpressionId const &valex);
-
-    /**
-     * @brief Set the value for this expression from a generic Value.
-     * @param value The Value.
-     */
-    void setValue(Value const &value);
+    void setValueImpl(T const &value);
 
     /**
      * @brief Assign the current value to UNKNOWN.
      */
     void setUnknown();
+
+    /**
+     * @brief Get a writeable pointer to the expression's value.
+     * @param result The variable where the value will be stored.
+     * @return True if known, false if unknown.
+     */
+    bool getMutableValuePointerImpl(T *&ptr);
 
     /**
      * @brief Reset the expression.
