@@ -585,7 +585,7 @@ namespace PLEXIL
 
   bool RealToInteger::operator()(int32_t & result, const ExpressionId &arg) const
   {
-    double temp, tempInt;
+    double temp;
     if (!arg->getValue(temp))
       return false; // unknown/invalid
     return doubleToInt(temp, result);

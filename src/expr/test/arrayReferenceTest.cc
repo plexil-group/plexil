@@ -66,12 +66,6 @@ static bool testArrayConstantReference()
   RealArrayConstant    dc(vd);
   StringArrayConstant  sc(vs);
 
-  std::vector<bool> const        *pknown = NULL;
-  std::vector<bool> const        *pvb = NULL;
-  std::vector<int32_t> const     *pvi = NULL;
-  std::vector<double> const      *pvd = NULL;
-  std::vector<std::string> const *pvs = NULL;
-
   bool        pb;
   int32_t     pi;
   double      pd;
@@ -168,12 +162,6 @@ static bool testArrayVariableReference()
   IntegerArrayVariable iv(vi);
   RealArrayVariable    dv(vd);
   StringArrayVariable  sv(vs);
-
-  std::vector<bool> const        *pknown = NULL;
-  std::vector<bool> const        *pvb = NULL;
-  std::vector<int32_t> const     *pvi = NULL;
-  std::vector<double> const      *pvd = NULL;
-  std::vector<std::string> const *pvs = NULL;
 
   bool        pb;
   int32_t     pi;
@@ -286,12 +274,6 @@ bool testMutableArrayReference()
   IntegerArrayVariable iv(vi);
   RealArrayVariable    dv(vd);
   StringArrayVariable  sv(vs);
-
-  std::vector<bool> const        *pknown = NULL;
-  std::vector<bool> const        *pvb = NULL;
-  std::vector<int32_t> const     *pvi = NULL;
-  std::vector<double> const      *pvd = NULL;
-  std::vector<std::string> const *pvs = NULL;
 
   bool        pb;
   int32_t     pi;
@@ -531,12 +513,6 @@ bool testAssignableId()
   AssignableId ivp = iv.getAssignableId();
   AssignableId dvp = dv.getAssignableId();
   AssignableId svp = sv.getAssignableId();
-
-  std::vector<bool> const        *pknown = NULL;
-  std::vector<bool> const        *pvb = NULL;
-  std::vector<int32_t> const     *pvi = NULL;
-  std::vector<double> const      *pvd = NULL;
-  std::vector<std::string> const *pvs = NULL;
 
   bool        pb;
   int32_t     pi;
@@ -817,17 +793,6 @@ bool testArrayRefNotification()
   TrivialListener sarl(sarChanged);
   sar.addListener(sarl.getId());
 
-  std::vector<bool> const        *pknown = NULL;
-  std::vector<bool> const        *pvb = NULL;
-  std::vector<int32_t> const     *pvi = NULL;
-  std::vector<double> const      *pvd = NULL;
-  std::vector<std::string> const *pvs = NULL;
-
-  bool        pb;
-  int32_t     pi;
-  double      pd;
-  std::string ps;
-
   Constant<bool> dummy;
 
   // Check that nothing propagates while inactive
@@ -1035,17 +1000,6 @@ bool testMutableNotification()
   bool sarChanged = false;
   TrivialListener sarl(sarChanged);
   sar.addListener(sarl.getId());
-
-  std::vector<bool> const        *pknown = NULL;
-  std::vector<bool> const        *pvb = NULL;
-  std::vector<int32_t> const     *pvi = NULL;
-  std::vector<double> const      *pvd = NULL;
-  std::vector<std::string> const *pvs = NULL;
-
-  bool        pb;
-  int32_t     pi;
-  double      pd;
-  std::string ps;
 
   Constant<bool> dummy;
 

@@ -38,15 +38,16 @@ namespace PLEXIL
                    const ResourceList &resource,
                    const NodeId &parent)
     : m_id(this),
+      m_ack(getId()), 
+      m_abortComplete(),
       m_node(parent),
       m_nameExpr(nameExpr),
       m_dest(dest),
       m_destName(dest_name),
-      m_ack(getId()), 
-      m_abortComplete(),
       m_garbage(garbage),
       m_args(args),
-      m_resourceList(resource)
+      m_resourceList(resource),
+      m_commandHandle(NO_COMMAND_HANDLE)
   {
     m_ack.setName(parent->getNodeId() + " commandHandle");
     m_abortComplete.setName(parent->getNodeId() + " abortComplete");
