@@ -46,7 +46,8 @@ namespace PLEXIL
   public:
     Alias(const NodeId &node, // *** is this needed?? ***
           const std::string &name,
-          const ExpressionId &original); // I *believe* original can never be garbage
+          const ExpressionId &original,
+          bool garbage = false);
     virtual ~Alias();
 
     //
@@ -113,6 +114,9 @@ namespace PLEXIL
     NodeId m_node;
     // Name in the parent node
     const std::string m_name;
+
+  private:
+    bool m_garbage;
   };
 
   /**
@@ -125,7 +129,8 @@ namespace PLEXIL
   public:
     InOutAlias(const NodeId &node,
                const std::string &name,
-               const ExpressionId &original); // I *believe* original can never be garbage;
+               const ExpressionId &original,
+               bool garbage = false);
     virtual ~InOutAlias();
 
     const char *exprName() const;

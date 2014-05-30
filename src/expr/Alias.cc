@@ -35,11 +35,13 @@ namespace PLEXIL
 
   Alias::Alias(const NodeId &node,
                const std::string &name,
-               const ExpressionId &original)
+               const ExpressionId &original,
+               bool garbage)
     : NotifierImpl(),
       m_exp(original),
       m_node(node),
-      m_name(name)
+      m_name(name),
+      m_garbage(garbage)
   {
     assertTrue_2(original.isId(), "Alias constructor: Null original expression");
     m_exp->addListener(getId());
@@ -48,6 +50,8 @@ namespace PLEXIL
   Alias::~Alias()
   {
     m_exp->removeListener(getId());
+    if (m_garbage)
+      delete (Expression *) m_exp;
   }
 
   const char *Alias::exprName() const
@@ -175,8 +179,9 @@ namespace PLEXIL
 
   InOutAlias::InOutAlias(const NodeId &node,
                          const std::string &name,
-                         const ExpressionId &original)
-    : Alias(node, name, original),
+                         const ExpressionId &original,
+                         bool garbage)
+    : Alias(node, name, original, garbage),
       Assignable()
   {
     assertTrue_2((m_target = original->getAssignableId()).isId(),
