@@ -47,8 +47,8 @@ namespace PLEXIL
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    LibraryCallNode(const LabelStr& type,
-                    const LabelStr& name,
+    LibraryCallNode(const std::string& type,
+                    const std::string& name,
                     const NodeState state,
                     const ExecConnectorId& exec = ExecConnectorId::noId(),
                     const NodeId& parent = NodeId::noId());
@@ -58,7 +58,7 @@ namespace PLEXIL
      */
     virtual ~LibraryCallNode();
 
-    virtual const VariableId& findVariable(const LabelStr& name, bool recursive = false);
+    virtual const AssignableId& findVariable(const std::string& name, bool recursive = false);
 
   protected:
 

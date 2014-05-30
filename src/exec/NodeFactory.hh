@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,6 @@
 
 #include "Error.hh"
 #include "ExecDefs.hh"
-#include "LabelStr.hh"
 #include "PlexilPlan.hh"
 
 namespace PLEXIL
@@ -52,8 +51,8 @@ namespace PLEXIL
     /**
      * @brief Alternate factory method.  Used only by Exec test module.
      */
-    static NodeId createNode(const LabelStr& type, 
-                             const LabelStr& name, 
+    static NodeId createNode(const std::string& type, 
+                             const std::string& name, 
                              const NodeState state,
                              const ExecConnectorId& exec = ExecConnectorId::noId(),
                              const NodeId& parent = NodeId::noId());
@@ -77,7 +76,7 @@ namespace PLEXIL
      * @brief Alternate factory method.  Used only by Exec test module.
      */
 
-    virtual NodeId create(const LabelStr& type, const LabelStr& name, const NodeState state,
+    virtual NodeId create(const std::string& type, const std::string& name, const NodeState state,
                           const ExecConnectorId& exec = ExecConnectorId::noId(),
                           const NodeId& parent = NodeId::noId()) const = 0;
 
@@ -127,13 +126,13 @@ namespace PLEXIL
      * @brief Alternate constructor.  Used only by Exec test module.
      */
 
-    NodeId create(const LabelStr& type, const LabelStr& name, const NodeState state,
+    NodeId create(const std::string& type, const std::string& name, const NodeState state,
                   const ExecConnectorId& exec, const NodeId& parent) const
     {
       // Shouldn't happen
-      checkError(PlexilParser::parseNodeType(type.toString()) == m_nodeType,
+      checkError(PlexilParser::parseNodeType(type) == m_nodeType,
                  "Factory for node type " << PlexilParser::nodeTypeString(m_nodeType)
-                 << " invoked on node type " << type.toString());
+                 << " invoked on node type " << type);
       return (new NODE_TYPE(type, name, state, exec, parent))->getId();
     }
 

@@ -25,11 +25,13 @@
 */
 
 #include "ExecListener.hh"
+
+#include "Debug.hh"
 #include "ExecListenerFilter.hh"
 #include "ExecListenerFilterFactory.hh"
-#include "Debug.hh"
 #include "Expression.hh"
 #include "InterfaceSchema.hh"
+#include "NodeTransition.hh"
 
 namespace PLEXIL
 {
@@ -72,7 +74,7 @@ namespace PLEXIL
                       << InterfaceSchema::FILTER_TYPE_ATTR()
                       << " attribute is empty");
         ExecListenerFilterId f = 
-          ExecListenerFilterFactory::createInstance(LabelStr(filterType),
+          ExecListenerFilterFactory::createInstance(std::string(filterType),
                                                     filterSpec);
         assertTrue(f.isId(),
                    "ExecListener constructor: failed to construct filter");
@@ -105,12 +107,11 @@ namespace PLEXIL
    * @param parent The name of the parent node under which this plan will be inserted.
    */
   void
-  ExecListener::notifyOfAddPlan(const PlexilNodeId& plan, 
-                                const LabelStr& parent) const
+  ExecListener::notifyOfAddPlan(const PlexilNodeId& plan) const
   {
     if (m_filter.isNoId()
-        || m_filter->reportAddPlan(plan, parent))
-      this->implementNotifyAddPlan(plan, parent);
+        || m_filter->reportAddPlan(plan))
+      this->implementNotifyAddPlan(plan);
   }
 
   /**
@@ -128,7 +129,7 @@ namespace PLEXIL
   /**
    * @brief Notify that a variable assignment has been performed.
    * @param dest The Expression being assigned to.
-   * @param destName A LabelStr that names the destination.
+   * @param destName A string that names the destination.
    * @param value The value (in internal Exec representation) being assigned.
    */
   void
@@ -248,8 +249,7 @@ namespace PLEXIL
    * @param parent The name of the parent node under which this plan will be inserted.
    * @note The default method does nothing.
    */
-  void ExecListener::implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
-                                            const LabelStr& /* parent */) const
+  void ExecListener::implementNotifyAddPlan(const PlexilNodeId& /* plan */) const
   {
     debugMsg("ExecListener:implementNotifyAddPlan", " default method called");
   }

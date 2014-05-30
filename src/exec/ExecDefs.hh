@@ -28,8 +28,7 @@
 #define _H_ExecDefs
 
 #include "generic_hash_map.hh"
-#include "Id.hh"
-#include "NodeConstants.hh"
+#include "NodeTransition.hh" // includes Id.hh, NodeConstants.hh; declares Node, NodeId
 
 #include <vector>
 #include <utility>
@@ -49,9 +48,6 @@ namespace PLEXIL
 
   class ExpressionListener;
   typedef Id<ExpressionListener> ExpressionListenerId;
-
-  class Node;
-  typedef Id<Node> NodeId;
 
   class NodeConnector;
   typedef Id<NodeConnector> NodeConnectorId;
@@ -85,18 +81,6 @@ namespace PLEXIL
   typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;
   typedef std::vector<ExpressionId> Expressions;
   typedef PLEXIL_HASH_MAP(std::string, AssignableId) VariableMap;
-
-  /**
-   * @brief A data structure for reporting node state transitions.
-   */
-  struct NodeTransition {
-    NodeId node;
-    NodeState state;
-    // default constructor
-    NodeTransition() : node(), state(INACTIVE_STATE) {}
-    // trivial constructor
-    NodeTransition(const NodeId& nod, NodeState stat) : node(nod), state(stat) {}
-  };
 
 }
 

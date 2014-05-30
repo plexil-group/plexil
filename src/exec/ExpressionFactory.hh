@@ -30,6 +30,10 @@
 #include "ExecDefs.hh"
 #include "PlexilPlan.hh"
 
+// ***********************************
+// * TEMPORARY - TO BE REPLACED SOON *
+// ***********************************
+
 namespace PLEXIL
 {
 
@@ -127,7 +131,7 @@ namespace PLEXIL
   private:
 
     /**
-     * @brief The map from names (LabelStr/double) to ConcreteExpressionFactory instances.
+     * @brief The map from names to ConcreteExpressionFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */

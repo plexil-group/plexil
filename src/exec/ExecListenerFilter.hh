@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,23 +27,26 @@
 #ifndef _H_ExecListenerFilter
 #define _H_ExecListenerFilter
 
-#include "ExecDefs.hh"
-#include "LabelStr.hh"
+#include "Id.hh"
+#include "NodeConstants.hh"
 #include "pugixml.hpp"
 
 namespace PLEXIL
 {
   // Forward references
-  class Node;
-  typedef Id<Node> NodeId;
-  class PlexilNode;
-  typedef Id<PlexilNode> PlexilNodeId;
-  class ExecListener;
-  typedef Id<ExecListener> ExecListenerId;
   class ExecListenerFilter;
   typedef Id<ExecListenerFilter> ExecListenerFilterId;
+
   class Expression;
   typedef Id<Expression> ExpressionId;
+
+  class Node;
+  typedef Id<Node> NodeId;
+
+  class PlexilNode;
+  typedef Id<PlexilNode> PlexilNodeId;
+
+  class Value;
 
   //* Abstract base class for defining transition event filters
   class ExecListenerFilter
@@ -81,17 +84,15 @@ namespace PLEXIL
      * @note The default method simply returns true.
      */
     virtual bool reportNodeTransition(NodeState prevState, 
-                                      const NodeId& node);
+                                      NodeId const &node);
 
     /**
      * @brief Determine whether this AddPlan event should be reported.
      * @param plan Smart pointer to the plan's intermediate representation.
-     * @param parent The LabelStr naming the new plan's parent node.
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */
-    virtual bool reportAddPlan(const PlexilNodeId& plan,
-                               const LabelStr& parent);
+    virtual bool reportAddPlan(PlexilNodeId const &plan);
 
     /**
      * @brief Determine whether this AddLibraryNode event should be reported.
@@ -99,17 +100,17 @@ namespace PLEXIL
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */
-    virtual bool reportAddLibrary(const PlexilNodeId& plan);
+    virtual bool reportAddLibrary(PlexilNodeId const &plan);
 
     /**
      * @brief Determine whether this variable assignment should be reported.
      * @param dest The Expression being assigned to.
      * @param destName A string naming the destination.
-     * @param value The value (in internal Exec representation) being assigned.
+     * @param value The value (as a generic Value) being assigned.
      */
-    virtual bool reportAssignment(const ExpressionId & dest,
-                                  const std::string& destName,
-                                  const Value& value) const;
+    virtual bool reportAssignment(ExpressionId const &dest,
+                                  std::string const &destName,
+                                  Value const &value);
 
     inline const ExecListenerFilterId getId() const
     {

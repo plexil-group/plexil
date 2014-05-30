@@ -62,7 +62,7 @@ namespace PLEXIL
 			   << " attribute for filter XML is empty");
 
     // Make it
-    return createInstance(LabelStr(filterType), xml);
+    return createInstance(std::string(filterType), xml);
   }
 
 
@@ -75,10 +75,10 @@ namespace PLEXIL
    */
 
   ExecListenerFilterId 
-  ExecListenerFilterFactory::createInstance(const LabelStr& name,
-                                            const pugi::xml_node& xml)
+  ExecListenerFilterFactory::createInstance(std::string const &name,
+                                            pugi::xml_node const &xml)
   {
-    std::map<LabelStr, ExecListenerFilterFactory*>::const_iterator it = factoryMap().find(name);
+    FactoryMap::const_iterator it = factoryMap().find(name);
 #ifdef HAVE_DLFCN_H
     // Only do this if we have dynamic loading enabled
     if (it == factoryMap().end()) {
@@ -116,9 +116,9 @@ namespace PLEXIL
     ExecListenerFilterFactory::purge();
   }
 
-  std::map<LabelStr, ExecListenerFilterFactory*>& ExecListenerFilterFactory::factoryMap() 
+  ExecListenerFilterFactory::FactoryMap& ExecListenerFilterFactory::factoryMap() 
   {
-    static std::map<LabelStr, ExecListenerFilterFactory*> sl_map;
+    static FactoryMap sl_map;
     static bool sl_inited = false;
     if (!sl_inited) {
       addFinalizer(&cleanupListenerFilterFactories);
@@ -132,7 +132,7 @@ namespace PLEXIL
    */
   void ExecListenerFilterFactory::purge()
   {
-    for (std::map<LabelStr, ExecListenerFilterFactory*>::iterator it = factoryMap().begin();
+    for (FactoryMap::iterator it = factoryMap().begin();
          it != factoryMap().end();
          ++it)
       delete it->second;
@@ -144,7 +144,8 @@ namespace PLEXIL
    * @param name The name by which the Exec Listener shall be known.
    * @param factory The ExecListenerFilterFactory instance.
    */
-  void ExecListenerFilterFactory::registerFactory(const LabelStr& name, ExecListenerFilterFactory* factory)
+  void ExecListenerFilterFactory::registerFactory(std::string const &name,
+                                                  ExecListenerFilterFactory* factory)
   {
     assertTrue(factory != NULL);
     if (factoryMap().find(name) != factoryMap().end())

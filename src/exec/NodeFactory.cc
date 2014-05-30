@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -93,8 +93,8 @@ namespace PLEXIL
   /**
    * @brief Alternate factory method.  Used only by Exec test module.
    */
-  NodeId NodeFactory::createNode(const LabelStr& type, 
-                                 const LabelStr& name, 
+  NodeId NodeFactory::createNode(const std::string& type, 
+                                 const std::string& name, 
                                  const NodeState state,
                                  const ExecConnectorId& exec,
                                  const NodeId& parent)

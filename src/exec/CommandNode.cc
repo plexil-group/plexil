@@ -25,6 +25,8 @@
 */
 
 #include "CommandNode.hh"
+
+#include "BooleanOperators.hh"
 #include "Command.hh"
 #include "Comparisons.hh"
 #include "Debug.hh"
@@ -36,6 +38,42 @@
 
 namespace PLEXIL
 {
+  /**
+   * @class CommandHandleInterruptible
+   * @brief An Operator that returns true if the command handle is interruptible, false if not.
+   */
+
+  class CommandHandleInterruptible : public Operator<bool>
+  {
+  public:
+    CommandHandleInterruptible()
+      : Operator<bool>()
+    {
+    }
+
+    ~CommandHandleInterruptible()
+    {
+    }
+
+    bool operator()(bool &result, const ExpressionId &arg) const
+    {
+      uint16_t val;
+      if (!arg->getValue(val)) // unknown
+        return false;
+      if (val == COMMAND_DENIED || val == COMMAND_FAILED)
+        return true;
+      return false;
+    }
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible, bool)
+
+  private:
+    // Not implemented
+    CommandHandleInterruptible(const CommandHandleInterruptible &);
+    CommandHandleInterruptible &operator=(const CommandHandleInterruptible &);
+  };
+
+
   /**
    * @brief The constructor.  Will construct all conditions and child nodes.
    * @param node The PlexilNodeId for this node and all of its children.
@@ -132,7 +170,7 @@ namespace PLEXIL
 
     // Construct action-complete condition
     ExpressionId actionComplete =
-      (new UnaryFunction<bool>(new IsKnown(), // *** FIXME ***
+      (new UnaryFunction<bool>(IsKnown::instance(),
                                (m_command->getAck()), false))->getId();
     actionComplete->addListener(m_listener.getId());
     m_conditions[actionCompleteIdx] = actionComplete;
@@ -152,10 +190,13 @@ namespace PLEXIL
       // Construct real end condition by wrapping existing
       removeConditionListener(endIdx);
       ExpressionId realEndCondition =
-        (new Disjunction((new InterruptibleCommandHandleValues(m_command->getAck()))->getId(),
-                         true,
-                         m_conditions[endIdx],
-                         m_garbageConditions[endIdx]))->getId();
+        (new BinaryFunction<bool>(BooleanOr::instance(),
+                                  (new UnaryFunction<bool>(CommandHandleInterruptible::instance(),
+                                                           (m_command->getAck())->getId(),
+                                                           false))->getId(),
+                                  m_conditions[endIdx],
+                                  true,
+                                  m_garbageConditions[endIdx]))->getId();
       realEndCondition->addListener(m_listener.getId());
       m_conditions[endIdx] = realEndCondition;
       m_garbageConditions[endIdx] = true;

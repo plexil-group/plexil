@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,9 @@
 */
 
 #include "ExecListenerHub.hh"
+
 #include "Debug.hh"
+#include "NodeTransition.hh"
 
 #include <algorithm> // for std::find
 
@@ -89,15 +91,13 @@ namespace PLEXIL
   /**
    * @brief Notify that a plan has been received by the Exec.
    * @param plan The intermediate representation of the plan.
-   * @param parent The name of the parent node under which this plan will be inserted.
    */
-  void ExecListenerHub::notifyOfAddPlan(const PlexilNodeId& plan, 
-                                        const LabelStr& parent) const
+  void ExecListenerHub::notifyOfAddPlan(PlexilNodeId const &plan) const
   {
     for (std::vector<ExecListenerBaseId>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
-      (*it)->notifyOfAddPlan(plan, parent);
+      (*it)->notifyOfAddPlan(plan);
   }
 
   /**

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,14 +28,19 @@
 #define _H_ExecListener
 
 #include "ExecListenerBase.hh"
+#include "NodeConstants.hh"
 
 namespace PLEXIL
 {
   // Forward references
   class ExecListener;
   typedef Id<ExecListener> ExecListenerId;
+
   class ExecListenerFilter;
   typedef Id<ExecListenerFilter> ExecListenerFilterId;
+
+  class Node;
+  typedef Id<Node> NodeId;
 
   /**
    * @brief A base class for implementing notifications to external agents about exec state changes.
@@ -54,7 +59,7 @@ namespace PLEXIL
      * @brief Constructor from configuration XML
      * @param xml Pointer to the (shared) configuration XML describing this listener.
      */
-    ExecListener(const pugi::xml_node& xml);
+    ExecListener(pugi::xml_node const &xml);
 
     /**
      * @brief Destructor.
@@ -65,7 +70,7 @@ namespace PLEXIL
      * @brief Get the ID of this instance.
      * @return The ID.
      */
-    inline const ExecListenerId& getId() const
+    inline ExecListenerId const &getId() const
     { 
       return m_id; 
     }
@@ -81,21 +86,19 @@ namespace PLEXIL
      * @param Vector of node state transition info.
      * @note Current states are accessible via the node.
      */
-    void notifyOfTransitions(const std::vector<NodeTransition>& transitions) const;
+    void notifyOfTransitions(std::vector<NodeTransition> const &transitions) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.
      * @param plan The intermediate representation of the plan.
-     * @param parent The name of the parent node under which this plan will be inserted.
      */
-    void notifyOfAddPlan(const PlexilNodeId& plan, 
-                         const LabelStr& parent) const;
+    void notifyOfAddPlan(PlexilNodeId const &plan) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      */
-    void notifyOfAddLibrary(const PlexilNodeId& libNode) const;
+    void notifyOfAddLibrary(PlexilNodeId const &libNode) const;
 
     //not sure if anybody wants this
     // void notifyOfConditionChange(const NodeId& node,
@@ -108,9 +111,9 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (in internal Exec representation) being assigned.
      */
-    void notifyOfAssignment(const ExpressionId & dest,
-                            const std::string& destName,
-                            const Value& value) const;
+    void notifyOfAssignment(ExpressionId const &dest,
+                            std::string const &destName,
+                            Value const &value) const;
 
     //
     // API to be implemented by derived classes
@@ -170,7 +173,7 @@ namespace PLEXIL
      * @note ExecListener provides a default method for backward commpatibility.
      *       Derived classes may implement their own method.
      */
-    virtual void implementNotifyNodeTransitions(const std::vector<NodeTransition>& /* transitions */) const;
+    virtual void implementNotifyNodeTransitions(std::vector<NodeTransition> const & /* transitions */) const;
 
     /**
      * @brief Notify that a node has changed state.
@@ -181,23 +184,21 @@ namespace PLEXIL
      * @note Derived classes may implement methods for this, or for implementNotifyNodeTransitions() for batching purposes.
      */
     virtual void implementNotifyNodeTransition(NodeState /* prevState */,
-                                               const NodeId& /* node */) const;
+                                               NodeId const & /* node */) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.
      * @param plan The intermediate representation of the plan.
-     * @param parent The name of the parent node under which this plan will be inserted.
      * @note The default method does nothing.
      */
-    virtual void implementNotifyAddPlan(const PlexilNodeId& /* plan */, 
-                                        const LabelStr& /* parent */) const;
+    virtual void implementNotifyAddPlan(PlexilNodeId const & /* plan */) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      * @note The default method does nothing.
      */
-    virtual void implementNotifyAddLibrary(const PlexilNodeId& /* libNode */) const;
+    virtual void implementNotifyAddLibrary(PlexilNodeId const & /* libNode */) const;
 
     /**
      * @brief Notify that a variable assignment has been performed.
@@ -205,9 +206,9 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (in internal Exec representation) being assigned.
      */
-    virtual void implementNotifyAssignment(const ExpressionId & /* dest */,
-                                           const std::string& /* destName */,
-                                           const Value& /* value */) const;
+    virtual void implementNotifyAssignment(ExpressionId const & /* dest */,
+                                           std::string const & /* destName */,
+                                           Value const & /* value */) const;
 
     //
     // Member variables for derived classes to use

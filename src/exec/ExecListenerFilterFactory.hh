@@ -28,8 +28,9 @@
 #define EXEC_LISTENER_FILTER_FACTORY_H
 
 #include "Id.hh"
-#include "LabelStr.hh"
+
 #include <map>
+#include <string>
 
 // Forward reference
 namespace pugi
@@ -73,15 +74,15 @@ namespace PLEXIL
      * @return The Id for the new ExecListenerFilter.
      */
 
-    static ExecListenerFilterId createInstance(const LabelStr& name, 
-                                               const pugi::xml_node& xml);
+    static ExecListenerFilterId createInstance(std::string const &name, 
+                                               pugi::xml_node const &xml);
 
     /**
      * @brief Deallocate all factories
      */
     static void purge();
 
-    const LabelStr& getName() const {return m_name;}
+    std::string const &getName() const {return m_name;}
 
   protected:
 
@@ -93,16 +94,16 @@ namespace PLEXIL
      * @param name The name by which the filter shall be known.
      * @param factory The ExecListenerFilterFactory instance.
      */
-    static void registerFactory(const LabelStr& name, ExecListenerFilterFactory* factory);
+    static void registerFactory(std::string const &name, ExecListenerFilterFactory* factory);
 
     /**
      * @brief Instantiates a new ExecListenerFilter of the appropriate type.
      * @param xml The configuration XML for the instantiated filter
      * @return The Id for the new ExecListenerFilter.
      */
-    virtual ExecListenerFilterId create(const pugi::xml_node& xml) const = 0;
+    virtual ExecListenerFilterId create(pugi::xml_node const &xml) const = 0;
 
-    ExecListenerFilterFactory(const LabelStr& name)
+    ExecListenerFilterFactory(std::string const &name)
       : m_name(name)
     {
       registerFactory(m_name, this);
@@ -111,17 +112,20 @@ namespace PLEXIL
   private:
     // Deliberately unimplemented
     ExecListenerFilterFactory();
-    ExecListenerFilterFactory(const ExecListenerFilterFactory&);
-    ExecListenerFilterFactory& operator=(const ExecListenerFilterFactory&);
+    ExecListenerFilterFactory(ExecListenerFilterFactory const &);
+    ExecListenerFilterFactory& operator=(ExecListenerFilterFactory const &);
+
+    // Convenience typedef
+    typedef std::map<std::string, ExecListenerFilterFactory*> FactoryMap;
 
     /**
-     * @brief The map from names (LabelStr) to concrete ExecListenerFilterFactory instances.
+     * @brief The map from names to concrete ExecListenerFilterFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<LabelStr, ExecListenerFilterFactory*>& factoryMap();
+    static FactoryMap &factoryMap();
 
-    const LabelStr m_name; /*!< Name used for lookup */
+    std::string const m_name; /*!< Name used for lookup */
   };
 
   /**
@@ -131,15 +135,15 @@ namespace PLEXIL
   class ConcreteExecListenerFilterFactory : public ExecListenerFilterFactory 
   {
   public:
-    ConcreteExecListenerFilterFactory(const LabelStr& name)
+    ConcreteExecListenerFilterFactory(std::string const &name)
       : ExecListenerFilterFactory(name) 
     {}
 
   private:
     // Deliberately unimplemented
     ConcreteExecListenerFilterFactory();
-    ConcreteExecListenerFilterFactory(const ConcreteExecListenerFilterFactory&);
-    ConcreteExecListenerFilterFactory& operator=(const ConcreteExecListenerFilterFactory&);
+    ConcreteExecListenerFilterFactory(ConcreteExecListenerFilterFactory const &);
+    ConcreteExecListenerFilterFactory& operator=(ConcreteExecListenerFilterFactory const &);
 
     /**
      * @brief Instantiates a new ExecListenerFilter of the appropriate type.
@@ -147,14 +151,14 @@ namespace PLEXIL
      * @return The Id for the new ExecListenerFilter.
      */
 
-    ExecListenerFilterId create(const pugi::xml_node& xml) const
+    ExecListenerFilterId create(pugi::xml_node const &xml) const
     {
       ExecListenerFilterId result = (new FilterType(xml))->getId();
       return result;
     }
   };
 
-#define REGISTER_EXEC_LISTENER_FILTER(CLASS,NAME) {new PLEXIL::ConcreteExecListenerFilterFactory<CLASS>(PLEXIL::LabelStr(NAME));}
+#define REGISTER_EXEC_LISTENER_FILTER(CLASS,NAME) {new PLEXIL::ConcreteExecListenerFilterFactory<CLASS>(std::string(NAME));}
 
 } // namespace PLEXIL
 

@@ -25,15 +25,13 @@
 */
 
 #include "LibraryCallNode.hh"
-#include "Array.hh"
-#include "BooleanVariable.hh"
-#include "Calculables.hh"
-#include "CoreExpressions.hh"
+
+#include "Alias.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "NodeFactory.hh"
-#include "Variables.hh"
+#include "UserVariable.hh"
 
 namespace PLEXIL
 {
@@ -58,7 +56,7 @@ namespace PLEXIL
     // XML parser should have checked for this
     const PlexilLibNodeCallBody* body = nodeProto->body();
     checkError(body != NULL,
-               "Node " << m_nodeId.toString() << " is a library node call but doesn't have a " <<
+               "Node " << m_nodeId << " is a library node call but doesn't have a " <<
                "library node call body.");
     createLibraryNode(body); // constructs default end condition
   }
@@ -66,15 +64,15 @@ namespace PLEXIL
   /**
    * @brief Alternate constructor.  Used only by Exec test module.
    */
-  LibraryCallNode::LibraryCallNode(const LabelStr& type,
-                                   const LabelStr& name, 
+  LibraryCallNode::LibraryCallNode(const std::string& type,
+                                   const std::string& name, 
                                    const NodeState state,
                                    const ExecConnectorId& exec,
                                    const NodeId& parent)
     : ListNode(type, name, state, exec, parent)
   {
     checkError(type == LIBRARYNODECALL(),
-               "Invalid node type \"" << type.toString() << "\" for a LibraryCallNode");
+               "Invalid node type \"" << type << "\" for a LibraryCallNode");
   }
 
   /**
@@ -82,7 +80,7 @@ namespace PLEXIL
    */
   LibraryCallNode::~LibraryCallNode()
   {
-    debugMsg("LibraryCallNode:~LibraryCallNode", " destructor for " << m_nodeId.toString());
+    debugMsg("LibraryCallNode:~LibraryCallNode", " destructor for " << m_nodeId);
 
     cleanUpConditions();
     cleanUpNodeBody();
@@ -93,7 +91,7 @@ namespace PLEXIL
   {
     // get node body
     checkError(body != NULL,
-               "Node " << m_nodeId.toString() << ": createLibraryNode: Node has no library node call body");
+               "Node " << m_nodeId << ": createLibraryNode: Node has no library node call body");
       
     // get the lib node and its interface
     const PlexilNodeId& libNode = body->libNode();
@@ -102,7 +100,7 @@ namespace PLEXIL
     // if there is no interface, there must be no variables
     if (libInterface.isNoId()) {
       checkError(body->aliases().size() == 0,
-                 "Variable aliases in '" << m_nodeId.toString() <<
+                 "Variable aliases in '" << m_nodeId <<
                  "' do not match interface in '" << 
                  libNode->nodeId() << "'");
     }
@@ -122,7 +120,7 @@ namespace PLEXIL
       assertTrueMsg(aliasesCopy.empty(),
                     "Interface variable \"" << aliasesCopy.begin()->first 
                     << "\" not found in library node \"" << libNode->nodeId()
-                    << "\", called from node '" << getNodeId().toString() << "'");
+                    << "\", called from node '" << getNodeId() << "'");
     }
 
     // Construct the child
@@ -150,42 +148,31 @@ namespace PLEXIL
 
       // check that the expression is consistent with the interface variable
       if (aliasValue.isId()) {
-        VariableId actualVar;
+        ExpressionId actualVar;
         if (Id<PlexilVarRef>::convertable(aliasValue)) {
           actualVar = Node::findVariable((const PlexilVarRef*) aliasValue);
           assertTrueMsg(actualVar.isId(),
-                        "Node " << m_nodeId.toString()
+                        "Node " << m_nodeId
                         << ": Can't find variable named \"" << aliasValue->name()
                         << "\" for " << (isIn ? "In" : "InOut" )
                         << "alias variable \"" << varName);
 
           if (isIn) {
             // Construct const wrapper
-            if (actualVar->isArray()) {
-              actualVar = 
-                (new ArrayAliasVariable(varName,
-                                        NodeConnector::getId(),
-                                        (ExpressionId) actualVar,
-                                        false,
-                                        isIn))->getId();
-            }
-            else {
-              actualVar = 
-                (new AliasVariable(varName,
-                                   NodeConnector::getId(),
-                                   (ExpressionId) actualVar,
-                                   false,
-                                   isIn))->getId();
-            }
+            actualVar =
+              (new Alias(NodeConnector::getId(),
+                         varName,
+                         (ExpressionId) actualVar,
+                         false))->getId();
             debugMsg("LibraryCallNode:createAliases",
-                     " Node \"" << m_nodeId.toString()
+                     " Node \"" << m_nodeId
                      << "\": Constructed const alias wrapper for \"" << varName
                      << "\" to variable " << *actualVar);
             m_localVariables.push_back(actualVar);
           }
           else {
             debugMsg("LibraryCallNode:createAliases",
-                     " Node \"" << m_nodeId.toString()
+                     " Node \"" << m_nodeId
                      << "\": Aliasing \"" << varName
                      << "\" to variable " << *actualVar);
           }
@@ -200,13 +187,19 @@ namespace PLEXIL
                                               wasCreated);
 
           // Construct a wrapper for it
-          actualVar = (new AliasVariable(varName,
-                                         NodeConnector::getId(),
-                                         expr,
-                                         wasCreated,
-                                         isIn))->getId();
+          if (isIn)
+            actualVar = (new Alias(NodeConnector::getId(),
+                                   varName,
+                                   expr,
+                                   wasCreated))->getId();
+          else // InOut
+            actualVar = (new InOutAlias(NodeConnector::getId(),
+                                        varName,
+                                        expr,
+                                        wasCreated))->getId();
+
           debugMsg("LibraryCallNode:createAliases",
-                   " Node \"" << m_nodeId.toString()
+                   " Node \"" << m_nodeId
                    << "\": Constructed alias wrapper for \"" << varName
                      << "\" to array element " << *expr);
           m_localVariables.push_back(actualVar);
@@ -215,7 +208,7 @@ namespace PLEXIL
           // Expression is not a variable or array reference
           // Can't do this for InOut
           assertTrueMsg(isIn,
-                        "Node " << m_nodeId.toString()
+                        "Node " << m_nodeId
                         << ": Alias value for InOut interface variable \""
                         << varName
                         << "\" is not a variable or array reference");
@@ -229,16 +222,19 @@ namespace PLEXIL
 
           // Construct a const wrapper for it
           actualVar = 
-            (new AliasVariable(varName, NodeConnector::getId(), expr, wasCreated, isIn))->getId();
+            (new Alias(NodeConnector::getId(),
+                       varName,
+                       expr,
+                       wasCreated))->getId();
           debugMsg("LibraryCallNode:createAliases",
-                   " Node \"" << m_nodeId.toString()
+                   " Node \"" << m_nodeId
                    << "\": Constructed alias wrapper for \"" << varName
                    << "\" to expression " << *expr);
           m_localVariables.push_back(actualVar);
         }
 
         // Add to alias map
-        m_aliasVariables[LabelStr(varName)] = actualVar;
+        m_aliasVariables[std::string(varName)] = actualVar;
         
         // remove value for alias copy for later checking
         aliases.erase(varName);
@@ -246,14 +242,14 @@ namespace PLEXIL
     }
   }
 
-  const VariableId& LibraryCallNode::findVariable(const LabelStr& name, bool recursive)
+  const AssignableId& LibraryCallNode::findVariable(const std::string& name, bool recursive)
   {
     if (recursive) {
       // Check alias map only
       if (m_aliasVariables.find(name) != m_aliasVariables.end())
         return m_aliasVariables[name];
       else
-        return VariableId::noId();
+        return AssignableId::noId();
     }
     else {
       return Node::findVariable(name, false);

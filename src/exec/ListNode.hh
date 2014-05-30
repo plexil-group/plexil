@@ -47,8 +47,8 @@ namespace PLEXIL
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
-    ListNode(const LabelStr& type,
-             const LabelStr& name,
+    ListNode(const std::string& type,
+             const std::string& name,
              const NodeState state,
              const ExecConnectorId& exec = ExecConnectorId::noId(),
              const NodeId& parent = NodeId::noId());
@@ -69,7 +69,7 @@ namespace PLEXIL
 
   protected:
 
-    virtual NodeId findChild(const LabelStr& childName) const;
+    virtual NodeId findChild(const std::string& childName) const;
 
     // Specific behaviors for derived classes
     virtual void specializedPostInitLate(const PlexilNodeId& node);
