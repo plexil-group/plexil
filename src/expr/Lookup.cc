@@ -35,6 +35,9 @@
 
 namespace PLEXIL
 {
+  // *** FIXME: TEMPORARY HACK ***
+  ExecConnectorId g_exec = ExecConnectorId::noId();
+
   Lookup::Lookup(ExpressionId const &stateName,
                  bool stateNameIsGarbage,
                  std::vector<ExpressionId> const &params,
