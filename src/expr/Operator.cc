@@ -53,6 +53,12 @@ namespace PLEXIL
     return m_name;
   }
 
+  template <typename R>
+  void Operator<R>::setName(std::string const &name)
+  {
+    m_name = name;
+  }
+
   // Default method for unspecialized types
   template <typename R>
   const ValueType Operator<R>::getValueType() const

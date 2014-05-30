@@ -48,14 +48,14 @@ namespace PLEXIL
   public:
     virtual ~Operator();
 
-    virtual bool operator()(R &result, const ExpressionId &arg) const;
+    virtual bool operator()(R &result, ExpressionId const &arg) const;
 
     virtual bool operator()(R &result,
-                            const ExpressionId &argA,
-                            const ExpressionId &argB) const;
+                            ExpressionId const &argA,
+                            ExpressionId const &argB) const;
 
     virtual bool operator()(R &result,
-                            const std::vector<ExpressionId> &args) const;
+                            std::vector<ExpressionId> const &args) const;
 
     const std::string& getName() const;
     virtual const ValueType getValueType() const;
@@ -63,17 +63,30 @@ namespace PLEXIL
   protected:
     // Base class shouldn't be instantiated by itself
     Operator();
-    // but may be copied, since the only instance data is the name
-    Operator(const Operator &);
 
-    // To be filled in by derived classes
-    std::string m_name;
+    // Shortcut for derived classes
+    void setName(const std::string &name);
 
   private:
-    // Disallow assignment
-    Operator &operator=(const Operator &);
+    // Disallow copy, assignment, since there is no 
+    Operator(Operator const &);
+    Operator &operator=(Operator const &);
+
+    std::string m_name;
   };
 
 } // namespace PLEXIL
+
+/**
+ * @brief Helper macro, intended to implement "boilerplate" singleton accessors
+ *        for classes derived from Operator<R>.
+ */
+#define DECLARE_OPERATOR_STATIC_INSTANCE(CLASS, RETURNS) \
+  static Operator<RETURNS> const *instance() \
+  { \
+    static CLASS sl_instance; \
+    return static_cast<Operator<RETURNS> const *>(&sl_instance); \
+  }
+
 
 #endif // PLEXIL_OPERATOR_HH
