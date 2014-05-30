@@ -32,7 +32,7 @@ namespace PLEXIL
   BooleanNot::BooleanNot()
     : Operator<bool>()
   {
-    m_name = "NOT";
+    this->setName("NOT");
   }
 
   BooleanNot::~BooleanNot()
@@ -51,7 +51,7 @@ namespace PLEXIL
   BooleanOr::BooleanOr()
     : Operator<bool>()
   {
-    m_name = "OR";
+    this->setName("OR");
   }
 
   BooleanOr::~BooleanOr()
@@ -104,7 +104,7 @@ namespace PLEXIL
   BooleanAnd::BooleanAnd()
     : Operator<bool>()
   {
-    m_name = "AND";
+    this->setName("AND");
   }
 
   BooleanAnd::~BooleanAnd()
@@ -153,7 +153,7 @@ namespace PLEXIL
   BooleanXor::BooleanXor()
     : Operator<bool>()
   {
-    m_name = "XOR";
+    this->setName("XOR");
   }
 
   BooleanXor::~BooleanXor()

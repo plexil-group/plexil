@@ -35,7 +35,6 @@ namespace PLEXIL
   class StringConcat : public Operator<std::string>
   {
   public:
-    StringConcat();
     ~StringConcat();
 
     bool operator()(std::string &result, const ExpressionId &arg) const;
@@ -46,7 +45,11 @@ namespace PLEXIL
 
     bool operator()(std::string &result, const std::vector<ExpressionId> &args) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(StringConcat, std::string);
+
   private:
+    StringConcat();
+
     // Disallow copy, assignment
     StringConcat(const StringConcat &other);
     StringConcat &operator=(const StringConcat& other);
@@ -55,12 +58,15 @@ namespace PLEXIL
   class StringLength : public Operator<int32_t>
   {
   public:
-    StringLength();
     ~StringLength();
 
     bool operator()(int32_t &result, const ExpressionId &arg) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(StringLength, int32_t);
+
   private:
+    StringLength();
+
     // Disallow copy, assignment
     StringLength(const StringLength &other);
     StringLength &operator=(const StringLength& other);

@@ -38,15 +38,17 @@ namespace PLEXIL
   class IsKnown : public Operator<bool>
   {
   public:
-    IsKnown();
-    IsKnown(const IsKnown &);
-
     ~IsKnown();
 
     bool operator()(bool &result, const ExpressionId &arg) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(IsKnown, bool)
+
   private:
-    // Disallow assignment
+    IsKnown();
+
+    // Disallow copy, assignment
+    IsKnown(const IsKnown &);
     IsKnown& operator=(const IsKnown &);
   };
 
@@ -54,15 +56,17 @@ namespace PLEXIL
   class Equal : public Operator<bool>
   {
   public:
-    Equal();
-    Equal(const Equal<T> &);
-
     ~Equal();
 
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(Equal<T>, bool)
+
   private:
-    // Disallow assignment
+    Equal();
+
+    // Disallow copy, assignment
+    Equal(const Equal<T> &);
     Equal &operator=(const Equal<T> &);
   };
 
@@ -70,15 +74,17 @@ namespace PLEXIL
   class NotEqual : public Operator<bool>
   {
   public:
-    NotEqual();
-    NotEqual(const NotEqual<T> &);
-
     ~NotEqual();
 
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<T>, bool)
+
   private:
-    // Disallow assignment
+    NotEqual();
+
+    // Disallow copy, assignment
+    NotEqual(const NotEqual<T> &);
     NotEqual &operator=(const NotEqual<T> &);
   };
 
@@ -86,15 +92,17 @@ namespace PLEXIL
   class GreaterThan : public Operator<bool>
   {
   public:
-    GreaterThan();
-    GreaterThan(const GreaterThan<T> &);
-
     ~GreaterThan();
 
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(GreaterThan<T>, bool)
+
   private:
-    // Disallow assignment
+    GreaterThan();
+
+    // Disallow copy, assignment
+    GreaterThan(const GreaterThan<T> &);
     GreaterThan &operator=(const GreaterThan<T> &);
   };
 
@@ -102,15 +110,17 @@ namespace PLEXIL
   class GreaterEqual : public Operator<bool>
   {
   public:
-    GreaterEqual();
-    GreaterEqual(const GreaterEqual<T> &);
-
     ~GreaterEqual();
 
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(GreaterEqual<T>, bool)
+
   private:
-    // Disallow assignment
+    GreaterEqual();
+
+    // Disallow copy, assignment
+    GreaterEqual(const GreaterEqual<T> &);
     GreaterEqual &operator=(const GreaterEqual<T> &);
   };
 
@@ -118,15 +128,17 @@ namespace PLEXIL
   class LessThan : public Operator<bool>
   {
   public:
-    LessThan();
-    LessThan(const LessThan<T> &);
-
     ~LessThan();
 
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(LessThan<T>, bool)
+
   private:
-    // Disallow assignment
+    LessThan();
+
+    // Disallow copy, assignment
+    LessThan(const LessThan<T> &);
     LessThan &operator=(const LessThan<T> &);
   };
 
@@ -134,15 +146,17 @@ namespace PLEXIL
   class LessEqual : public Operator<bool>
   {
   public:
-    LessEqual();
-    LessEqual(const LessEqual<T> &);
-
     ~LessEqual();
 
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(LessEqual<T>, bool)
+
   private:
+    LessEqual();
+
     // Disallow assignment
+    LessEqual(const LessEqual<T> &);
     LessEqual &operator=(const LessEqual<T> &);
   };
 

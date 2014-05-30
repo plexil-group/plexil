@@ -36,11 +36,7 @@ namespace PLEXIL
   IsKnown::IsKnown()
     : Operator<bool>()
   {
-  }
-
-  IsKnown::IsKnown(const IsKnown &other)
-    : Operator<bool>(other)
-  {
+    this->setName("isKnown");
   }
 
   IsKnown::~IsKnown()
@@ -61,13 +57,7 @@ namespace PLEXIL
   Equal<T>::Equal()
     : Operator<bool>()
   {
-    Operator<bool>::m_name = "EQ";
-  }
-
-  template <typename T>
-  Equal<T>::Equal(const Equal<T> &other)
-    : Operator<bool>(other)
-  {
+    this->setName("EQ");
   }
 
   template <typename T>
@@ -93,13 +83,7 @@ namespace PLEXIL
   NotEqual<T>::NotEqual()
     : Operator<bool>()
   {
-    Operator<bool>::m_name = "NEQ";
-  }
-
-  template <typename T>
-  NotEqual<T>::NotEqual(const NotEqual<T> &other)
-    : Operator<bool>(other)
-  {
+    this->setName("NEQ");
   }
 
   template <typename T>
@@ -125,13 +109,7 @@ namespace PLEXIL
   GreaterThan<T>::GreaterThan()
     : Operator<bool>()
   {
-    Operator<bool>::m_name = "GT";
-  }
-
-  template <typename T>
-  GreaterThan<T>::GreaterThan(const GreaterThan<T> &other)
-    : Operator<bool>(other)
-  {
+    this->setName("GT");
   }
 
   template <typename T>
@@ -157,13 +135,7 @@ namespace PLEXIL
   GreaterEqual<T>::GreaterEqual()
     : Operator<bool>()
   {
-    Operator<bool>::m_name = "GEQ";
-  }
-
-  template <typename T>
-  GreaterEqual<T>::GreaterEqual(const GreaterEqual<T> &other)
-    : Operator<bool>(other)
-  {
+    this->setName("GEQ");
   }
 
   template <typename T>
@@ -189,13 +161,7 @@ namespace PLEXIL
   LessThan<T>::LessThan()
     : Operator<bool>()
   {
-    Operator<bool>::m_name = "LT";
-  }
-
-  template <typename T>
-  LessThan<T>::LessThan(const LessThan<T> &other)
-    : Operator<bool>(other)
-  {
+    this->setName("LT");
   }
 
   template <typename T>
@@ -221,13 +187,7 @@ namespace PLEXIL
   LessEqual<T>::LessEqual()
     : Operator<bool>()
   {
-    Operator<bool>::m_name = "LEQ";
-  }
-
-  template <typename T>
-  LessEqual<T>::LessEqual(const LessEqual<T> &other)
-    : Operator<bool>(other)
-  {
+    this->setName("LEQ");
   }
 
   template <typename T>

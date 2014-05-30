@@ -43,7 +43,7 @@ class Passthrough : public Operator<R>
 public:
   Passthrough()
   {
-    Operator<R>::m_name = "PT";
+    this->setName("PT");
   }
 
   ~Passthrough()

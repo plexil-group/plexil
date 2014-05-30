@@ -35,8 +35,7 @@ using namespace PLEXIL;
 static bool testStringLength()
 {
   StringVariable var; // initially unknown
-  StringLength len;
-  UnaryFunction<int32_t> strlen(&len, var.getId());
+  UnaryFunction<int32_t> strlen(StringLength::instance(), var.getId());
   int32_t result;
 
   strlen.activate(); // will also activate var
@@ -61,18 +60,17 @@ static bool testStringConcat()
 {
   StringConstant foo(std::string("foo!"));
   StringVariable bar, baz, bletch;
-  StringConcat conc;
   std::string result, result2;
 
   // Unary function of constant
-  UnaryFunction<std::string> fooConc(&conc, foo.getId());
+  UnaryFunction<std::string> fooConc(StringConcat::instance(), foo.getId());
   fooConc.activate();
   assertTrue_1(fooConc.getValue(result));
   assertTrue_1(foo.getValue(result2));
   assertTrue_1(result == result2);
 
   // Unary of unint'ed variable
-  UnaryFunction<std::string> barConc(&conc, bar.getId());
+  UnaryFunction<std::string> barConc(StringConcat::instance(), bar.getId());
   barConc.activate();
   assertTrue_1(!barConc.getValue(result));
 
@@ -83,7 +81,7 @@ static bool testStringConcat()
   assertTrue_1(result == result2);
 
   // Binary of constant, variable
-  BinaryFunction<std::string> fooBazConc(&conc, foo.getId(), baz.getId());
+  BinaryFunction<std::string> fooBazConc(StringConcat::instance(), foo.getId(), baz.getId());
   fooBazConc.activate();
   assertTrue_1(!fooBazConc.getValue(result));
 
@@ -105,7 +103,7 @@ static bool testStringConcat()
   args[2] = baz.getId();
   args[3] = bletch.getId();
   std::vector<bool> garbage(4, false);
-  NaryFunction<std::string> nConc(&conc, args, garbage);
+  NaryFunction<std::string> nConc(StringConcat::instance(), args, garbage);
   nConc.activate();
 
   // bletch unknown

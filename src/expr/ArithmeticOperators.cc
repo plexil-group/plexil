@@ -43,7 +43,7 @@ namespace PLEXIL
   Addition<NUM>::Addition()
     : Operator<NUM>()
   {
-    Operator<NUM>::m_name = "+";
+    this->setName("+");
   }
 
   template <typename NUM>
@@ -91,7 +91,7 @@ namespace PLEXIL
   Subtraction<NUM>::Subtraction()
     : Operator<NUM>()
   {
-    Operator<NUM>::m_name = "-";
+    this->setName("-");
   }
 
   template <typename NUM>
@@ -154,7 +154,7 @@ namespace PLEXIL
   Multiplication<NUM>::Multiplication()
     : Operator<NUM>()
   {
-    Operator<NUM>::m_name = "*";
+    this->setName("*");
   }
 
   template <typename NUM>
@@ -203,7 +203,7 @@ namespace PLEXIL
   Division<NUM>::Division()
     : Operator<NUM>()
   {
-    Operator<NUM>::m_name = "/";
+    this->setName("/");
   }
 
   template <typename NUM>
@@ -234,7 +234,7 @@ namespace PLEXIL
   Modulo<NUM>::Modulo()
     : Operator<NUM>()
   {
-    Operator<NUM>::m_name = "%";
+    this->setName("%");
   }
 
   template <typename NUM>
@@ -280,7 +280,7 @@ namespace PLEXIL
   Minimum<NUM>::Minimum()
     : Operator<NUM>()
   {
-    Operator<NUM>::m_name = "*";
+    this->setName("min");
   }
 
   template <typename NUM>
@@ -328,7 +328,7 @@ namespace PLEXIL
   Maximum<NUM>::Maximum()
     : Operator<NUM>()
   {
-    Operator<NUM>::m_name = "*";
+    this->setName("max");
   }
 
   template <typename NUM>
@@ -377,7 +377,7 @@ namespace PLEXIL
   AbsoluteValue<NUM>::AbsoluteValue()
     : Operator<NUM>()
   {
-    Operator<NUM>::m_name = "abs";
+    this->setName("abs");
   }
 
   template <typename NUM>
@@ -407,7 +407,7 @@ namespace PLEXIL
   SquareRoot<NUM>::SquareRoot()
     : Operator<NUM>()
   {
-    Operator<NUM>::m_name = "sqrt";
+    this->setName("sqrt");
   }
 
   template <typename NUM>

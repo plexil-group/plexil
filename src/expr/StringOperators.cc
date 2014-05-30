@@ -34,7 +34,7 @@ namespace PLEXIL
   StringConcat::StringConcat()
     : Operator<std::string>()
   {
-    Operator<std::string>::m_name = "concat";
+    this->setName("concat");
   }
   
   StringConcat::~StringConcat()
@@ -85,7 +85,7 @@ namespace PLEXIL
   StringLength::StringLength()
     : Operator<int32_t>()
   {
-    Operator<int32_t>::m_name = "strlen";
+    this->setName("strlen");
   }
 
   StringLength::~StringLength()
