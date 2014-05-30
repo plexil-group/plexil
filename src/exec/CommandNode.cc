@@ -570,23 +570,21 @@ namespace PLEXIL
     }
 
     debugMsg("Node:createCommand",
-             "Creating command"
-             << (nameExpr->getValue().isUnknown() ? "" : " '" + nameExpr->getValue().getStringValue() + "'")
-             << " for node '" << m_nodeId << "'");
+             "Creating command for node '" << m_nodeId << "'");
     m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getId()))->getId();
   }
 
   // Unit test variant of above
   void CommandNode::createDummyCommand() 
   {
-    ExpressionId nameExpr = (new StringConstant("dummy")->getId();
+    ExpressionId nameExpr = (new StringConstant("dummy"))->getId();
     std::vector<ExpressionId> garbage;
     garbage.push_back(nameExpr);
     // Empty arglist
     std::vector<ExpressionId> args;
     
     // No destination variable
-    VariableId destVar;
+    AssignableId destVar;
     std::string dest_name;
 
     // No resource
