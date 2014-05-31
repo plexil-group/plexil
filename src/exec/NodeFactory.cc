@@ -25,6 +25,7 @@
 */
 
 #include "NodeFactory.hh"
+
 #include "AssignmentNode.hh"
 #include "CommandNode.hh"
 #include "LibraryCallNode.hh"
@@ -99,14 +100,14 @@ namespace PLEXIL
                                  const ExecConnectorId& exec,
                                  const NodeId& parent)
   {
-    PlexilNodeType nodeType = PlexilParser::parseNodeType(type.toString());
+    PlexilNodeType nodeType = PlexilParser::parseNodeType(type);
     checkError(nodeType > NodeType_uninitialized
                && nodeType < NodeType_error,
-               "Invalid node type string " << type.toString());
+               "Invalid node type string " << type);
     ensureNodeFactoriesRegistered();
     NodeFactory* factory = factoryMap()[nodeType];
     checkError(factory != NULL, 
-               "No NodeFactory registered for node type " << type.toString());
+               "No NodeFactory registered for node type " << type);
     NodeId result = factory->create(type, name, state, exec, parent);
     // common post process here
     result->constructTimepointVariables();
