@@ -42,7 +42,7 @@ namespace PLEXIL {
     /**
      * @brief Constructor.
      */
-    StateVariable(const NodeId& node);
+    StateVariable(Node const &node);
 
     /**
      * @brief Destructor.
@@ -64,7 +64,7 @@ namespace PLEXIL {
 
     inline bool isKnown() const
     {
-      return m_node.isId();
+      return true;
     }
 
     /**
@@ -82,7 +82,7 @@ namespace PLEXIL {
     // Notifier API
     inline bool isActive() const
     {
-      return m_node.isId();
+      return true;
     }
 
     void activate() {}
@@ -94,7 +94,7 @@ namespace PLEXIL {
     StateVariable(const StateVariable &);
     StateVariable &operator=(const StateVariable &);
 
-    NodeId m_node;
+    Node const &m_node;
   };
 
   class OutcomeVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
@@ -103,7 +103,7 @@ namespace PLEXIL {
     /**
      * @brief Constructor.
      */
-    OutcomeVariable(const NodeId& node);
+    OutcomeVariable(Node const &node);
 
     /**
      * @brief Destructor.
@@ -144,7 +144,7 @@ namespace PLEXIL {
     OutcomeVariable(const OutcomeVariable &);
     OutcomeVariable &operator=(const OutcomeVariable &);
 
-    NodeId m_node;
+    Node const &m_node;
   };
 
   class FailureVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
@@ -153,7 +153,7 @@ namespace PLEXIL {
     /**
      * @brief Constructor.
      */
-    FailureVariable(const NodeId& node);
+    FailureVariable(Node const &node);
 
     /**
      * @brief Destructor.
@@ -194,7 +194,7 @@ namespace PLEXIL {
     FailureVariable(const FailureVariable &);
     FailureVariable &operator=(const FailureVariable &);
 
-    NodeId m_node;
+    Node const &m_node;
   };
 
   class CommandHandleVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
@@ -258,7 +258,7 @@ namespace PLEXIL {
     /**
      * @brief Constructor.
      */
-    TimepointVariable(const NodeId& node, NodeState state, bool isEnd);
+    TimepointVariable(Node &node, NodeState state, bool isEnd);
 
     /**
      * @brief Destructor.
@@ -300,7 +300,7 @@ namespace PLEXIL {
     TimepointVariable(const TimepointVariable &);
     TimepointVariable &operator=(const TimepointVariable &);
 
-    NodeId m_node;
+    Node const &m_node;
     const NodeState m_state;
     const bool m_isEnd, m_known;
   };
