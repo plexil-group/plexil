@@ -53,7 +53,7 @@ namespace PLEXIL {
     UserVariable();
 
     /**
-     * @brief Constructor with initial value (for regression testing).
+     * @brief Constructor with initial value.
      * @param val The initial value.
      */
     UserVariable(const T &initVal);
