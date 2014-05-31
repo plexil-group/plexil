@@ -84,7 +84,7 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(std::string, UPDATE, "Update");
     DECLARE_STATIC_CLASS_CONST(std::string, EMPTY, "Empty");
 
-    static const std::string& nodeTypeToLabelStr(PlexilNodeType nodeType);
+    static const std::string& nodeTypeToString(PlexilNodeType nodeType);
 
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
@@ -115,12 +115,12 @@ namespace PLEXIL {
     /**
      * @brief Looks up a variable by reference.
      */
-    const AssignableId& findVariable(const PlexilVarRef* ref);
+    const ExpressionId& findVariable(const PlexilVarRef* ref);
 
     /**
      * @brief Looks up a variable by name.
      */
-    virtual const AssignableId& findVariable(const std::string& name, bool recursive = false);
+    virtual const ExpressionId& findVariable(const std::string& name, bool recursive = false);
 
     const ExecConnectorId& getExec() const { return m_exec; }
 
@@ -161,7 +161,8 @@ namespace PLEXIL {
      * @param destState The new node state.
      * @param time The time of the transition.
      */
-    void transition(NodeState destState, const Value& time);
+    void transition(NodeState destState, 
+                    double time); // FIXME - need a better representation
 
     /**
      * @brief Commit a state transition based on the statuses of various conditions.
@@ -195,9 +196,9 @@ namespace PLEXIL {
 
     /**
      * @brief Gets the name of the current state of this node.
-     * @return the current node state name as a Value const reference.
+     * @return the current node state name as a const reference to string.
      */
-    const Value& getStateName() const;
+    std::string const &getStateName() const;
 
     /**
      * @brief Gets the current state of this node.
@@ -225,7 +226,7 @@ namespace PLEXIL {
     const VariableMap& getLocalVariablesByName() { return m_variablesByName; }
     
     //Isaac - get local variables
-    const std::vector<AssignableId> & getLocalVariables() { return m_localVariables; }
+    const std::vector<ExpressionId> & getLocalVariables() { return m_localVariables; }
 
     //Isaac - get children
     virtual const std::vector<NodeId>& getChildren() const;
@@ -494,10 +495,10 @@ namespace PLEXIL {
     std::string m_nodeType; /*!< The node type (either directly from the Node element or determined by the sub-elements. */
     VariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
     std::vector<std::string>* m_sortedVariableNames; /*!< Convenience for printing. */
-    std::vector<AssignableId> m_localVariables; /*!< Variables created in this node. */
+    std::vector<ExpressionId> m_localVariables; /*!< Variables created in this node. */
     ExpressionId m_conditions[conditionIndexMax]; /*!< The condition expressions. */
-    AssignableId m_startTimepoints[NO_NODE_STATE]; /*!< Timepoint start variables indexed by state. */
-    AssignableId m_endTimepoints[NO_NODE_STATE]; /*!< Timepoint end variables indexed by state. */
+    ExpressionId m_startTimepoints[NO_NODE_STATE]; /*!< Timepoint start variables indexed by state. */
+    ExpressionId m_endTimepoints[NO_NODE_STATE]; /*!< Timepoint end variables indexed by state. */
     StateVariable m_stateVariable;
     OutcomeVariable m_outcomeVariable;
     FailureVariable m_failureTypeVariable;
@@ -515,13 +516,13 @@ namespace PLEXIL {
     void createDeclaredVars(const std::vector<PlexilVarId>& vars);
 
     void getVarsFromInterface(const PlexilInterfaceId& intf);
-    AssignableId getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
+    ExpressionId getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
     AssignableId getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
 
     void activateLocalVariables();
     void deactivateLocalVariables();
 
-    const AssignableId& getInternalVariable(const std::string& name) const;
+    const ExpressionId& getInternalVariable(const std::string& name) const;
 
     //
     // Internal versions
