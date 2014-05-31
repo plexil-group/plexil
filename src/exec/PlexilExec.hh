@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -117,14 +117,13 @@ namespace PLEXIL
      * @param plan The intermediate representation of the plan.
      * @return true if successful, false otherwise.
      * @note If the plan references any library nodes, they are linked in.
-     * @note Currently parent is ignored.
      */
     bool addPlan(PlexilNodeId& plan);
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
      */
-    void step();
+    void step(double startTime); // *** FIXME ***
 
     /**
      * @brief Returns true if the Exec needs to be stepped.

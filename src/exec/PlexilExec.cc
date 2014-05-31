@@ -25,16 +25,15 @@
 */
 
 #include "PlexilExec.hh"
+
 #include "Assignment.hh"
-#include "CoreExpressions.hh" // for StateVariable::nodeStateName
 #include "Debug.hh"
-#include "ExecConnector.hh"
 #include "ExecListenerHub.hh"
 #include "Expression.hh"
 #include "ExternalInterface.hh"
 #include "Node.hh"
+#include "NodeConstants.hh"
 #include "NodeFactory.hh"
-#include "Variable.hh"
 
 #include <algorithm> // for find(), transform
 #include <iterator> // for back_insert_iterator
@@ -58,8 +57,7 @@ namespace PLEXIL
       m_queuePos(0),
       m_finishedRootNodesDeleted(false)
   {
-    addPlan(plan, EMPTY_LABEL());
-    //is it really this simple?
+    addPlan(plan);
   }
 
   PlexilExec::PlexilExec()
@@ -231,7 +229,7 @@ namespace PLEXIL
     checkError(node.isValid(),
                "PlexilExec::markRootNodeFinished: node pointer is invalid");
     checkError(node->getParent().isNoId(),
-               "PlexilExec::markRootNodeFinished: Node \"" << node->getNodeId().toString()
+               "PlexilExec::markRootNodeFinished: Node \"" << node->getNodeId()
                << "\" is not a root node");
     checkError(node->getState() == FINISHED_STATE,
                "PlexilExec::markRootNodeFinished: node not in FINISHED state");
@@ -249,7 +247,7 @@ namespace PLEXIL
                    "PlexilExec::deleteFinishedPlans: attempt to delete node at invalid pointer");
         NodeId node = *it;
         debugMsg("PlexilExec:deleteFinishedPlans",
-                 " deleting node \"" << node->getNodeId().toString() << "\"");
+                 " deleting node \"" << node->getNodeId() << "\"");
         // Remove from active plan
         bool found = false;
         for (std::list<NodeId>::iterator pit = m_plan.begin();
@@ -262,7 +260,7 @@ namespace PLEXIL
           }
         }
         assertTrueMsg(found,
-                      "PlexilExec::deleteFinishedPlan: Node \"" << node->getNodeId().toString()
+                      "PlexilExec::deleteFinishedPlan: Node \"" << node->getNodeId()
                       << "\" not found on active root node list");
         // Now safe to delete
         delete (Node*) node;
@@ -274,7 +272,7 @@ namespace PLEXIL
 
   void PlexilExec::notifyNodeConditionChanged(NodeId node)
   {
-    debugMsg("PlexilExec:notifyNodeConditionChanged", " for node " << node->getNodeId().toString());
+    debugMsg("PlexilExec:notifyNodeConditionChanged", " for node " << node->getNodeId());
     m_nodesToConsider.push(node);
   }
 
@@ -288,17 +286,17 @@ namespace PLEXIL
   void PlexilExec::handleConditionsChanged(const NodeId& node, NodeState destState) 
   {
     debugMsg("PlexilExec:handleConditionsChanged",
-             "Node " << node->getNodeId().toString() << " had a relevant condition change.");
+             "Node " << node->getNodeId() << " had a relevant condition change.");
 
     if (destState == NO_NODE_STATE) {
       // Node not eligible to transition
       debugMsg("PlexilExec:handleConditionsChanged",
-               "Node '" << node->getNodeId().toString() <<
+               "Node '" << node->getNodeId() <<
                "' was previously eligible to transition but isn't now.");
       return;
     }
     debugMsg("PlexilExec:handleConditionsChanged",
-             "Considering node '" << node->getNodeId().toString() << "' for state transition.");
+             "Considering node '" << node->getNodeId() << "' for state transition.");
     if (node->getType() == Node::ASSIGNMENT()) {
       // Node can be in contention in either EXECUTING or FAILING 
       NodeState current = node->getState();
@@ -307,7 +305,7 @@ namespace PLEXIL
       case EXECUTING_STATE: {
         // add it to contention consideration
         debugMsg("PlexilExec:handleConditionsChanged",
-                 "Node '" << node->getNodeId().toString() <<
+                 "Node '" << node->getNodeId() <<
                  "' is an assignment node that could be executing.  Adding it to the " <<
                  "resource contention list ");
         addToResourceContention(node);
@@ -316,7 +314,7 @@ namespace PLEXIL
 
       case FAILING_STATE: // Is already in conflict set, and must be enqueued now
         debugMsg("PlexilExec:handleConditionsChanged",
-                 "Node '" << node->getNodeId().toString() <<
+                 "Node '" << node->getNodeId() <<
                  "' is an assignment node that is failing, and is already in the " <<
                  "resource contention list");
         m_variablesToRetract.push_back(node->getAssignmentVariable());
@@ -332,7 +330,7 @@ namespace PLEXIL
             || current == FAILING_STATE
             || current == WAITING_STATE) {
           debugMsg("PlexilExec:handleConditionsChanged",
-                   "Node '" << node->getNodeId().toString() <<
+                   "Node '" << node->getNodeId() <<
                    "' is an assignment node that is no longer possibly executing.  " <<
                    "Removing it from resource contention.");
           removeFromResourceContention(node);
@@ -346,7 +344,7 @@ namespace PLEXIL
 
     m_stateChangeQueue.push_back(NodeTransition(node, destState));
     debugMsg("PlexilExec:handleConditionsChanged",
-             "Placing node '" << node->getNodeId().toString() <<
+             "Placing node '" << node->getNodeId() <<
              "' on the state change queue in position " << ++m_queuePos);
   }
 
@@ -385,7 +383,9 @@ namespace PLEXIL
   // Assumes node is a valid ID and points to an Assignment node
   void PlexilExec::removeFromResourceContention(const NodeId& node) 
   {
-    VariableId exp = node->getAssignmentVariable()->getBaseVariable();
+    ExpressionId lhs = node->getAssignmentVariable();
+    check_error(lhs->isAssignable());
+    AssignableId exp = ((Assignable *) lhs)->getBaseVariable();
     check_error(exp.isValid());
 
     VariableConflictMap::iterator conflict = m_resourceConflicts.find(exp);
@@ -421,11 +421,13 @@ namespace PLEXIL
 
   // Assumes node is a valid ID and points to an Assignment node whose next state is EXECUTING
   void PlexilExec::addToResourceContention(const NodeId& node) {
-    VariableId exp = node->getAssignmentVariable()->getBaseVariable();
+    ExpressionId lhs = node->getAssignmentVariable();
+    check_error(lhs->isAssignable());
+    AssignableId exp = ((Assignable *) lhs)->getBaseVariable();
     check_error(exp.isValid());
 
     debugMsg("PlexilExec:addToResourceContention",
-             "Adding node '" << node->getNodeId().toString() << "' to resource contention.");
+             "Adding node '" << node->getNodeId() << "' to resource contention.");
     VariableConflictMap::iterator resourceIt = m_resourceConflicts.find(exp);
     if (resourceIt == m_resourceConflicts.end()) {
       // No conflict set for this variable, so create one with this node
@@ -447,7 +449,7 @@ namespace PLEXIL
       for (size_t i = 0; i < count; ++i, ++conflictSetIter) {
         if (node == *conflictSetIter) {
           debugMsg("PlexilExec:addToResourceContention",
-                   "Skipping node '" << node->getNodeId().toString() <<
+                   "Skipping node '" << node->getNodeId() <<
                    "' because it's already in the set.");
           return;
         }
@@ -458,7 +460,7 @@ namespace PLEXIL
     conflictSet.insert(node);
   }
 
-  void PlexilExec::step() 
+  void PlexilExec::step(double startTime) 
   {
     //
     // *** BEGIN CRITICAL SECTION ***
@@ -470,8 +472,6 @@ namespace PLEXIL
     unsigned int stepCount = 0;
     ++m_cycleNum;
     debugMsg("PlexilExec:cycle", "==>Start cycle " << m_cycleNum);
-
-    const Value& quiescenceTime = m_cache->currentTime(); // FIXME
 
     // BEGIN QUIESCENCE LOOP
     do {
@@ -508,11 +508,11 @@ namespace PLEXIL
         const NodeId& node = it->node;
         debugMsg("PlexilExec:step",
                  "[" << m_cycleNum << ":" << stepCount << ":" << microStepCount <<
-                 "] Transitioning node " << node->getNodeId().toString()
+                 "] Transitioning node " << node->getNodeId()
                  << " from " << node->getStateName()
-                 << " to " << StateVariable::nodeStateName(it->state));
+                 << " to " << nodeStateName(it->state));
         NodeState oldState = node->getState();
-        node->transition(it->state, quiescenceTime);
+        node->transition(it->state, startTime);
         transitionsToPublish.push_back(NodeTransition(node, oldState));
         ++microStepCount;
       }
@@ -597,12 +597,12 @@ namespace PLEXIL
    * @brief Resolve conflicts for this variable.
    * @note Subroutine of resolveResourceConflicts() above.
    */
-  void PlexilExec::resolveVariableConflicts(const VariableId& var,
+  void PlexilExec::resolveVariableConflicts(const AssignableId& var,
                                             const VariableConflictSet& conflictSet)
   {
     // Ignore any variables pending retraction
     // Grumble... Why doesnt std:;vector<T> have a find() member fn?
-    for (std::vector<VariableId>::const_iterator vit = m_variablesToRetract.begin();
+    for (std::vector<AssignableId>::const_iterator vit = m_variablesToRetract.begin();
          vit != m_variablesToRetract.end();
          ++vit) {
       if ((*vit)->getBaseVariable() == var) { // compare base variables for (e.g.) aliases, array refs
@@ -637,14 +637,14 @@ namespace PLEXIL
         // Internal error
         checkError(node->getState() == EXECUTING_STATE
                    || node->getState() == FAILING_STATE,
-                   "Error: node '" << node->getNodeId().toString()
+                   "Error: node '" << node->getNodeId()
                    << " is neither executing nor failing nor eligible for either, yet is in conflict map.");
 
       // If more than one node is scheduled for execution, we have a resource contention.
       // *** FIXME: This is a plan error. Find a non-fatal way to report this conflict!! ***
       checkError(conflictCounter < 2,
-                 "Error: nodes '" << node->getNodeId().toString() << "' and '"
-                 << nodeToExecute->getNodeId().toString() << "' are in contention over variable "
+                 "Error: nodes '" << node->getNodeId() << "' and '"
+                 << nodeToExecute->getNodeId() << "' are in contention over variable "
                  << var->toString() << " and have equal priority.");
 
       nodeToExecute = node;
@@ -654,7 +654,7 @@ namespace PLEXIL
     if (destState == EXECUTING_STATE || destState == FAILING_STATE) {
       m_stateChangeQueue.push_back(NodeTransition(nodeToExecute, destState));
       debugMsg("PlexilExec:resolveResourceConflicts",
-               "Node '" << nodeToExecute->getNodeId().toString()
+               "Node '" << nodeToExecute->getNodeId()
                << "' has best priority.  Adding it to be executed in position "
                << ++m_queuePos);
     }
@@ -673,7 +673,7 @@ namespace PLEXIL
          it != m_stateChangeQueue.end();
          ++it) {
       check_error(it->node.isValid());
-      retval << it->node->getNodeId().toString() << " ";
+      retval << it->node->getNodeId() << " ";
     }
     return retval.str();
   }
