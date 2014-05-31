@@ -31,6 +31,8 @@
 // Place to define all constants used in nodes
 //
 
+#include <string>
+
 namespace PLEXIL {
 
   //
@@ -56,13 +58,13 @@ namespace PLEXIL {
    * @brief Table of state names.
    * @note Must be in same order as NodeState enum above.
    */
-  extern char const *ALL_STATE_NAMES[];
+  extern std::string const ALL_STATE_NAMES[];
 
   /**
    * @brief Get the name of this state.
-   * @return Pointer to one of the state names.
+   * @return Const reference to one of the state names.
    */
-  extern char const *nodeStateName(NodeState s);
+  extern std::string const &nodeStateName(unsigned int s);
 
   /**
    * @brief Outcome enumeration.

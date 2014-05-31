@@ -24,6 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "NodeConstants.hh"
+
 namespace PLEXIL
 {
 
@@ -31,7 +33,7 @@ namespace PLEXIL
    * @brief Table of state names.
    * @note Must be in same order as NodeState enum.
    */
-  char const *ALL_STATE_NAMES[] =
+  std::string const ALL_STATE_NAMES[] =
     {"INACTIVE",
      "WAITING",
      "EXECUTING",
@@ -82,7 +84,7 @@ namespace PLEXIL
      "COMMAND_SUCCESS"
     };
 
-  char const *nodeStateName(NodeState s)
+  std::string const &nodeStateName(unsigned int s)
   {
     if (s >= NODE_STATE_MAX)
       return ALL_STATE_NAMES[NO_NODE_STATE];
