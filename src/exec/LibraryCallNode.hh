@@ -58,7 +58,7 @@ namespace PLEXIL
      */
     virtual ~LibraryCallNode();
 
-    virtual const AssignableId& findVariable(const std::string& name, bool recursive = false);
+    virtual const ExpressionId& findVariable(const std::string& name, bool recursive = false);
 
   protected:
 

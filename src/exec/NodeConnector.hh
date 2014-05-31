@@ -38,13 +38,13 @@ namespace PLEXIL
     NodeConnector() : m_id(this) {}
     virtual ~NodeConnector() {m_id.remove();}
 	
-    const NodeConnectorId& getId() const {return m_id;}
+    NodeConnectorId const &getId() const {return m_id;}
 
-    virtual const AssignableId& findVariable(const PlexilVarRef* ref) = 0;
-    virtual const AssignableId& findVariable(const std::string &name, bool recursive = false) = 0;
-    virtual const NodeId& getNode() const = 0;
-    virtual const ExecConnectorId& getExec() const = 0;
-    virtual const ExecListenerHubId& getExecListenerHub() const = 0;
+    virtual ExpressionId const &findVariable(const PlexilVarRef* ref) = 0;
+    virtual ExpressionId const &findVariable(const std::string &name, bool recursive = false) = 0;
+    virtual NodeId const &getNode() const = 0;
+    virtual ExecConnectorId const &getExec() const = 0;
+    virtual ExecListenerHubId const &getExecListenerHub() const = 0;
 
   private:
     NodeConnectorId m_id;

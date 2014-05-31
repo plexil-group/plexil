@@ -242,14 +242,14 @@ namespace PLEXIL
     }
   }
 
-  const AssignableId& LibraryCallNode::findVariable(const std::string& name, bool recursive)
+  const ExpressionId& LibraryCallNode::findVariable(const std::string& name, bool recursive)
   {
     if (recursive) {
       // Check alias map only
       if (m_aliasVariables.find(name) != m_aliasVariables.end())
         return m_aliasVariables[name];
       else
-        return AssignableId::noId();
+        return ExpressionId::noId();
     }
     else {
       return Node::findVariable(name, false);
