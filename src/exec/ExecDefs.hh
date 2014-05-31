@@ -80,7 +80,7 @@ namespace PLEXIL
   typedef std::vector<ExpressionId>::iterator ExpressionVectorIter;
   typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;
   typedef std::vector<ExpressionId> Expressions;
-  typedef PLEXIL_HASH_MAP(std::string, AssignableId) VariableMap;
+  typedef PLEXIL_HASH_MAP(std::string, ExpressionId) VariableMap;
 
 }
 
