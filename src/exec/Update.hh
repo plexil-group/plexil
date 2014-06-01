@@ -28,6 +28,7 @@
 #define PLEXIL_UPDATE_HH
 
 #include "ExecDefs.hh"
+#include "UserVariable.hh"
 #include "Value.hh"
 
 namespace PLEXIL
@@ -43,7 +44,7 @@ namespace PLEXIL
     ~Update();
 
     const UpdateId& getId() const {return m_id;}
-    const VariableId& getAck() const {return m_ack;}
+    const ExpressionId& getAck() const {return m_ack.getId();}
     const std::map<std::string, Value>& getPairs() const {return m_valuePairs;}
     const NodeId& getSource() const {return m_source;}
     void activate();
@@ -62,7 +63,7 @@ namespace PLEXIL
 
     UpdateId m_id;
     NodeId m_source;
-    VariableId m_ack;
+    BooleanVariable m_ack;
     std::vector<ExpressionId> m_garbage;
     typedef std::map<std::string, ExpressionId> PairExpressionMap;
     PairExpressionMap m_pairs;

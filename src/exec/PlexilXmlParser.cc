@@ -25,7 +25,9 @@
  */
 
 #include "PlexilXmlParser.hh"
+
 #include "Debug.hh"
+#include "ValueType.hh"
 #include "XMLUtils.hh"
 #include "lifecycle-utils.h"
 #include "resource-tags.hh"
@@ -491,14 +493,14 @@ namespace PLEXIL
 
       // establish value type
       const char* tag = xml.name();
-      PlexilType typ = PlexilParser::parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG));
+      ValueType typ = PlexilParser::parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG));
       checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                        xml,
                                        "Unrecognized value type \"" << tag << "\"");
 
       // check for empty value
       if (!xml.first_child() || !*(xml.first_child().value())) {
-        checkParserExceptionWithLocation(typ == STRING,
+        checkParserExceptionWithLocation(typ == STRING_TYPE,
                                          xml.first_child(),
                                          "Empty value is not valid for \"" << tag << "\"");
         return (new PlexilValue(typ, string()))->getId();
@@ -506,17 +508,17 @@ namespace PLEXIL
 
       // Check value format
       const char* initval = xml.first_child().value();
-      if (typ == BOOLEAN) {
+      if (typ == BOOLEAN_TYPE) {
         checkParserExceptionWithLocation(isBoolean(initval),
                                          xml.first_child(),
                                          "Invalid Boolean value \"" << initval << "\"");
       }
-      else if (typ == INTEGER) {
+      else if (typ == INTEGER_TYPE) {
         checkParserExceptionWithLocation(isInteger(initval),
                                          xml.first_child(),
                                          "Invalid Integer value \"" << initval << "\"");
       }
-      else if (typ == REAL) {
+      else if (typ == REAL_TYPE) {
         checkParserExceptionWithLocation(isDouble(initval),
                                          xml.first_child(),
                                          "Invalid Real value \"" << initval << "\"");
@@ -539,7 +541,7 @@ namespace PLEXIL
       // confirm that we have an element type
       checkAttr(TYPE_TAG, xml);
       const char* valueType = xml.attribute(TYPE_TAG).value();
-      PlexilType valtyp = PlexilParser::parseValueType(valueType);
+      ValueType valtyp = PlexilParser::parseValueType(valueType);
       checkParserExceptionWithLocation(valtyp != UNKNOWN_TYPE,
                                        xml, // *** should be the attribute object
                                        "Unknown array element Type value \"" << valueType << "\"");
@@ -588,7 +590,7 @@ namespace PLEXIL
       checkTagSuffix(VAR_TAG, xml);
       checkNotEmpty(xml);
       const char* tag = xml.name();
-      PlexilType typ = PlexilParser::parseValueTypePrefix(tag, strlen(tag) - strlen(VAR_TAG));
+      ValueType typ = PlexilParser::parseValueTypePrefix(tag, strlen(tag) - strlen(VAR_TAG));
       checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                        xml,
                                        "Unknown variable type \"" << tag << "\"");
@@ -1356,7 +1358,7 @@ namespace PLEXIL
     child = child.next_sibling();
     checkTag(TYPE_TAG, child);
     const char* typnam = child.first_child().value();
-    PlexilType typ = parseValueType(typnam);
+    ValueType typ = parseValueType(typnam);
     checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                      child.first_child(),
                                      "Unknown type name \"" << typnam << "\"");
@@ -1420,7 +1422,7 @@ namespace PLEXIL
     child = child.next_sibling();
     checkTag(TYPE_TAG, child);
     const char* typnam = child.first_child().value();
-    PlexilType typ = parseValueType(typnam);
+    ValueType typ = parseValueType(typnam);
     checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                      child.first_child(),
                                      "Unknown type name \"" << typnam << "\"");
@@ -1437,22 +1439,22 @@ namespace PLEXIL
                                        name << "\' of incorrect type \'" << child.name() << "\'");
 
       // Check value
-      checkParserExceptionWithLocation(typ == STRING || *(child.first_child().value()),
+      checkParserExceptionWithLocation(typ == STRING_TYPE || *(child.first_child().value()),
                                        child.first_child(),
                                        "Empty initial value is not valid for " << typnam << " variable \'" <<
                                        name << "\'");
       const char* initval = child.first_child().value();
-      if (typ == BOOLEAN) {
+      if (typ == BOOLEAN_TYPE) {
         checkParserExceptionWithLocation(isBoolean(initval),
                                          child.first_child(),
                                          "Invalid Boolean initial value \"" << initval << "\" for variable \'" << name << "\'");
       }
-      else if (typ == INTEGER) {
+      else if (typ == INTEGER_TYPE) {
         checkParserExceptionWithLocation(isInteger(initval),
                                          child.first_child(),
                                          "Invalid Integer initial value \"" << initval << "\" for variable \'" << name << "\'");
       }
-      else if (typ == REAL) {
+      else if (typ == REAL_TYPE) {
         checkParserExceptionWithLocation(isDouble(initval),
                                          child.first_child(),
                                          "Invalid Real initial value \"" << initval << "\" for variable \"" << name << "\"");

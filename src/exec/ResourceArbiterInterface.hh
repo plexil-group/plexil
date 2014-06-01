@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,8 @@ namespace PLEXIL {
     bool operator() (const ChildResourceNode& x, const ChildResourceNode& y)const;
   };
 
+  typedef std::set<CommandId> CommandSet;
+
   class ResourceArbiterInterface;
   typedef Id<ResourceArbiterInterface> ResourceArbiterInterfaceId;
 
@@ -79,8 +81,8 @@ namespace PLEXIL {
     ~ResourceArbiterInterface(){m_id.remove();}
 
     void arbitrateCommands(const std::list<CommandId>& cmds,
-                           std::set<CommandId>& acceptCmds);
-    void releaseResourcesForCommand(const LabelStr& cmdName);
+                           CommandSet& acceptCmds);
+    void releaseResourcesForCommand(const std::string& cmdName);
      
     ResourceArbiterInterfaceId getId()
     {
@@ -88,19 +90,24 @@ namespace PLEXIL {
     }
 
   private:
+    // Type names
+    typedef std::set<ChildResourceNode, ResourceComparator> ResourceMapEntry;
+    typedef std::map<std::string, ResourceMapEntry > ResourceMap;
+    typedef std::map<std::string, CommandSet> ResourceCommandMap;
+
     bool m_resourceFileRead;
     std::map<std::string, double> m_lockedRes;
-    std::map<std::string, std::set<ChildResourceNode, ResourceComparator> > m_cmdResMap;
+    ResourceMap m_cmdResMap;
     std::map<std::string, ResourceNode> m_resourceHierarchy;
     std::multimap<int, CommandId> m_prioritySortedCommands;
-    std::map<std::string, std::set<CommandId> > m_resCmdMap;
+    ResourceCommandMap m_resCmdMap;
     ResourceArbiterInterfaceId m_id;
 
     void preprocessCommandToArbitrate(const std::list<CommandId>& cmds,
-                                      std::set<CommandId>& acceptCmds);
+                                      CommandSet& acceptCmds);
     double resourceAmountNeededByCommand(const std::string& resName, 
                                          const std::string& cmdName);
-    void optimalResourceArbitration (std::set<CommandId>& acceptCmds);
+    void optimalResourceArbitration (CommandSet& acceptCmds);
 
     void determineAllChildResources(const ResourceValues& res, 
                                     std::vector<ChildResourceNode>& flattenedRes);
@@ -113,7 +120,7 @@ namespace PLEXIL {
     void printResourceCommandMap() const;
     void printSortedCommands() const;
     void printLockedResources() const;
-    void printAcceptedCommands(const std::set<CommandId>& acceptCmds);
+    void printAcceptedCommands(const CommandSet& acceptCmds);
 
   };
   

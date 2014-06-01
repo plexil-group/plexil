@@ -30,7 +30,7 @@
 #include "ExecDefs.hh"
 #include "ExternalInterface.hh"
 #include "ResourceArbiterInterface.hh"
-#include "StoredArray.hh"
+#include "Array.hh"
 
 #include <iostream>
 #include <map>
@@ -66,7 +66,7 @@ namespace PLEXIL
     void batchActions(std::list<CommandId>& commands);
     void updatePlanner(std::list<UpdateId>& updates);
 
-    void executeCommand(const LabelStr& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
+    void executeCommand(const std::string& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
 
     /**
      * @brief Abort the pending command with the supplied name and arguments.
@@ -78,14 +78,9 @@ namespace PLEXIL
 
   private:
     
-    typedef State UniqueThing;
-    typedef std::map<UniqueThing, ExpressionId>         ExpressionUtMap;
-    typedef std::map<UniqueThing, Value>                StateMap;
+    typedef std::map<State, ExpressionId> ExpressionUtMap;
+    typedef std::map<State, Value>        StateMap;
 
-    std::string getText(const UniqueThing& c);
-    std::string getText(const UniqueThing& c, const Value& v);
-    std::string getText(const UniqueThing& c,
-                        const std::vector<Value>& vals);
     void handleInitialState(const pugi::xml_node& input);
 
     void setVariableValue(const std::string& source,
@@ -99,23 +94,8 @@ namespace PLEXIL
     void handleUpdateAck(const pugi::xml_node& elt);
     void handleSendPlan(const pugi::xml_node& elt);
     void handleSimultaneous(const pugi::xml_node& elt);
-        
-    void parseState(const pugi::xml_node& state, UniqueThing& result);
-    Value parseStateValue(const pugi::xml_node& stateXml);
 
-    // Parses all command-like elements: Command, CommandAck, CommandAbort.
-    void parseCommand(const pugi::xml_node& cmdXml, UniqueThing& cmd);
-
-    Value parseResult(const pugi::xml_node& valXml);
-
-    void parseParams(const pugi::xml_node& root,
-                     std::vector<Value>& dest);
-    Value parseParam(const pugi::xml_node& param);
-
-    Value parseOneValue(const std::string& type,
-                        const std::string& valStr);
-
-    std::map<LabelStr, UpdateId> m_waitingUpdates;
+    std::map<std::string, UpdateId> m_waitingUpdates;
     ExpressionUtMap m_executingCommands; //map from commands to the destination variables
     ExpressionUtMap m_commandAcks; //map from command to the acknowledgement variables
     ExpressionUtMap m_abortingCommands;

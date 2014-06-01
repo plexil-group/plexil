@@ -26,14 +26,14 @@
 
 #include "TestExternalInterface.hh"
 
-#include "BooleanVariable.hh"
 #include "Command.hh"
-#include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "Node.hh"
+#include "NodeConstants.hh"
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
-#include "StateCache.hh"
+#include "StateCacheEntry.hh"
+#include "StateCacheMap.hh"
 #include "Update.hh"
 #include "XMLUtils.hh"
 #include "plan-utils.hh"
@@ -48,6 +48,20 @@
 namespace PLEXIL
 {
 
+  // Forward declarations for local functions
+  static std::string getText(const State& c);
+  static std::string getText(const State& c, const Value& v);
+  static State parseCommand(const pugi::xml_node& cmd);
+  static Value parseOneValue(const std::string& type,
+                             const std::string& valStr);
+  static Value parseParam(const pugi::xml_node& param);
+  static void parseParams(const pugi::xml_node& root,
+                          std::vector<Value>& dest);
+  static Value parseResult(const pugi::xml_node& valXml);
+  static State parseState(const pugi::xml_node& elt);
+  static Value parseStateValue(const pugi::xml_node& stateXml);
+
+
   TestExternalInterface::TestExternalInterface()
     : ExternalInterface()
   {
@@ -60,9 +74,6 @@ namespace PLEXIL
   void TestExternalInterface::setExec(const PlexilExecId& exec)
   {
     ExternalInterface::setExec(exec);
-    // Ensure there's a "time" state
-    m_states.insert(std::make_pair(m_exec->getStateCache()->getTimeState(),
-                                   Value(0.0)));
   }
 
   void TestExternalInterface::run(const pugi::xml_node& input)
@@ -126,13 +137,13 @@ namespace PLEXIL
       }
          
       // step the exec forward
-      m_exec->step();
+      m_exec->step(currentTime());
 
       scriptElement = scriptElement.next_sibling();
     }
     // Continue stepping the Exec til quiescent
     while (m_exec->needsStep()) {
-      m_exec->step();
+      m_exec->step(currentTime());
     }
   }
 
@@ -143,10 +154,9 @@ namespace PLEXIL
                                                const Value& value)
   {
     if (expr != ExpressionId::noId()) {
-      checkError(Id<VariableImpl>::convertable(expr),
-                 "Expected string or atomic variable in \'" <<
-                 source << "\'");
-      expr->setValue(value);
+      checkError(expr->isAssignable(),
+                 "Expected variable in \'" << source << "\'");
+      ((Assignable *) expr)->setValue(value);
       std::map<ExpressionId, CommandId>::iterator iter;
       if ((iter = m_destToCmdMap.find(expr)) != m_destToCmdMap.end()) {
         m_destToCmdMap.erase(iter);
@@ -166,35 +176,32 @@ namespace PLEXIL
       // Deal with <InitialState>  </InitialState>
       if (state.type() != pugi::node_pcdata) {
         while (state) {
-          UniqueThing st;
-          parseState(state, st);
+          State st = parseState(state);
           Value value = parseStateValue(state);
           debugMsg("Test:testOutput",
                    "Creating initial state " << getText(st, value));
-          m_states.insert(std::pair<UniqueThing, Value>(st, value));
+          m_states.insert(std::pair<State, Value>(st, value));
           state = state.next_sibling();
         }
       }
     }
-    m_exec->step();
+    m_exec->step(currentTime());
   }
 
   void TestExternalInterface::handleState(const pugi::xml_node& elt)
   {
-    State st;
-    parseState(elt, st);
+    State st = parseState(elt);
     Value value = parseStateValue(elt);
     m_states[st] = value;
     debugMsg("Test:testOutput",
-             "Processing event: " << StateCache::toString(st)
-             << " = " << value);
-    m_exec->getStateCache()->updateState(st, value);
+             "Processing event: " << st << " = " << value);
+    StateCacheMap::instance().ensureStateCacheEntry(st, value.valueType())
+      ->update(value);
   }
 
   void TestExternalInterface::handleCommand(const pugi::xml_node& elt)
   {
-    UniqueThing command;
-    parseCommand(elt, command);
+    State command = parseCommand(elt);
     Value value = parseResult(elt);
     debugMsg("Test:testOutput",
              "Sending command result " << getText(command, value));
@@ -204,50 +211,48 @@ namespace PLEXIL
                "No currently executing command " << getText(command));
     setVariableValue(getText(command), it->second, value); // erases from m_destToCmdMap
     m_executingCommands.erase(it);
-    m_raInterface.releaseResourcesForCommand(command.first);
+    m_raInterface.releaseResourcesForCommand(command.name());
   }
 
   void TestExternalInterface::handleCommandAck(const pugi::xml_node& elt)
   {
-    UniqueThing command;
-    parseCommand(elt, command);
+    State command = parseCommand(elt);
     Value value = parseResult(elt);
     debugMsg("Test:testOutput",
              "Sending command ACK " << getText(command, value));
     ExpressionUtMap::iterator it = m_commandAcks.find(command);
-    checkError(it != m_commandAcks.end(), 
-               "No command waiting for acknowledgement " << getText(command));
-    it->second->setValue(value);
+    assertTrueMsg(it != m_commandAcks.end(), 
+                  "No command waiting for acknowledgement " << getText(command));
+    ((Assignable *) it->second)->setValue(value);
     // Release resources if the command does not have a return value
     if (m_executingCommands.find(command) == m_executingCommands.end())
-      m_raInterface.releaseResourcesForCommand(command.first);
+      m_raInterface.releaseResourcesForCommand(command.name());
   }
 
   void TestExternalInterface::handleCommandAbort(const pugi::xml_node& elt)
   {
-    UniqueThing command;
-    parseCommand(elt, command);
+    State command = parseCommand(elt);
     Value value = parseResult(elt);
     debugMsg("Test:testOutput",
              "Sending abort ACK " << getText(command, value));
     ExpressionUtMap::iterator it = 
       m_abortingCommands.find(command);
-    checkError(it != m_abortingCommands.end(), 
-               "No abort waiting for acknowledgement " << getText(command));
+    assertTrueMsg(it != m_abortingCommands.end(), 
+                  "No abort waiting for acknowledgement " << getText(command));
     debugMsg("Test:testOutput",
-             "Acknowledging abort into " << it->second->toString());
-    it->second->setValue(BooleanVariable::TRUE_VALUE());
+             "Acknowledging abort into " << it->second);
+    ((Assignable *) it->second)->setValue(true);
     m_abortingCommands.erase(it);
   }
 
   void TestExternalInterface::handleUpdateAck(const pugi::xml_node& elt)
   {
-    LabelStr name(elt.attribute("name").value());
-    debugMsg("Test:testOutput", "Sending update ACK " << name.toString());
-    std::map<LabelStr, UpdateId>::iterator it = m_waitingUpdates.find(name);
+    std::string name(elt.attribute("name").value());
+    debugMsg("Test:testOutput", "Sending update ACK " << name);
+    std::map<std::string, UpdateId>::iterator it = m_waitingUpdates.find(name);
     checkError(it != m_waitingUpdates.end(),
-               "No update from node " << name.toString() << " waiting for acknowledgement.");
-    it->second->getAck()->setValue(BooleanVariable::TRUE_VALUE());
+               "No update from node " << name << " waiting for acknowledgement.");
+    ((Assignable *) it->second->getAck())->setValue(true);
     m_waitingUpdates.erase(it);
   }
 
@@ -263,17 +268,11 @@ namespace PLEXIL
                "Error parsing plan file " << elt.attribute("file").value()
                << ": " << parseResult.description());
 
-    LabelStr parent;
-    if (!elt.attribute("parent").empty())
-      parent = elt.attribute("parent").value();
     debugMsg("Test:testOutput",
              "Sending plan from file " << elt.attribute("file").value());
-    condDebugMsg(parent != EMPTY_LABEL(), 
-                 "Test:testOutput",
-                 "To be child of parent " << parent.toString());
     PlexilNodeId root =
       PlexilXmlParser::parse(doc->document_element().child("PlexilPlan").child("Node"));
-    checkError(m_exec->addPlan(root, parent),
+    checkError(m_exec->addPlan(root),
                "Adding plan " << elt.attribute("file").value() << " failed");
   }
 
@@ -317,30 +316,38 @@ namespace PLEXIL
     debugMsg("Test:testOutput", "End simultaneous event(s)");
   }
 
-  void TestExternalInterface::parseState(const pugi::xml_node& elt, UniqueThing& state)
+  //
+  // Script parsing utilities
+  //
+
+  static State parseStateInternal(const pugi::xml_node& elt)
+  {
+    checkError(!elt.attribute("name").empty(),
+               "No name attribute in " << elt.name() << " element.");
+    std::string name(elt.attribute("name").value());
+    std::vector<Value> parms;
+    parseParams(elt, parms);
+    return State(name, parms);
+  }
+
+  static State parseState(const pugi::xml_node& elt)
   {
     checkError(strcmp(elt.name(), "State") == 0,
                "Expected <State> element. Found '" << elt.name() << "'");
-    checkError(!elt.attribute("name").empty(),
-               "No name attribute in <State> element.");
-    state.first = elt.attribute("name").value();
-    parseParams(elt, state.second);
+    return parseStateInternal(elt);
   }
 
-  void TestExternalInterface::parseCommand(const pugi::xml_node& cmd, UniqueThing& command)
+  // Parses all command-like elements: Command, CommandAck, CommandAbort.
+  static State parseCommand(const pugi::xml_node& cmd)
   {
     checkError(strcmp(cmd.name(), "Command") == 0 ||
                strcmp(cmd.name(), "CommandAck") == 0 ||
                strcmp(cmd.name(), "CommandAbort") == 0,
                "Expected <Command> element.  Found '" << cmd.name() << "'");
-
-    checkError(!cmd.attribute("name").empty(),
-               "No name attribute in <" << cmd.name() << "> element.");
-    command.first = cmd.attribute("name").value();
-    parseParams(cmd, command.second);
+    return parseStateInternal(cmd);
   }
 
-  Value TestExternalInterface::parseResult(const pugi::xml_node& cmd)
+  static Value parseResult(const pugi::xml_node& cmd)
   {
     pugi::xml_node resXml = cmd.child("Result");
     checkError(!resXml.empty(), "No Result child in <" << cmd.name() << "> element.");
@@ -360,13 +367,12 @@ namespace PLEXIL
         values.push_back(parseOneValue(type, resXml.first_child().value()));
         resXml = resXml.next_sibling();
       }
-      StoredArray result(values.size(), values);
-      return Value(result);
+      return Value(values);
     }
   }
 
-  void TestExternalInterface::parseParams(const pugi::xml_node& root, 
-                                          std::vector<Value>& dest)
+  static void parseParams(const pugi::xml_node& root, 
+                          std::vector<Value>& dest)
   {
     pugi::xml_node param = root.child("Param");
     while (!param.empty()) {
@@ -375,7 +381,7 @@ namespace PLEXIL
     }
   }
 
-  Value TestExternalInterface::parseParam(const pugi::xml_node& param)
+  static Value parseParam(const pugi::xml_node& param)
   {
     checkError(!param.first_child().empty()
                || strcmp(param.attribute("type").value(), "string") == 0,
@@ -390,17 +396,17 @@ namespace PLEXIL
     }
     // string case
     else if (param.first_child().empty()) {
-      return Value(EMPTY_LABEL());
+      return Value("");
     }
     else if (0 == strcmp(param.first_child().value(), "UNKNOWN")) {
-      return UNKNOWN();
+      return Value();
     }
     else {
       return Value(param.first_child().value());
     }
   }
 
-  Value TestExternalInterface::parseStateValue(const pugi::xml_node& stateXml)
+  static Value parseStateValue(const pugi::xml_node& stateXml)
   {
     // read in values
     std::string type(stateXml.attribute("type").value());
@@ -420,14 +426,13 @@ namespace PLEXIL
         values.push_back(parseOneValue(type, valXml.first_child().value()));
         valXml = valXml.next_sibling();
       }
-      StoredArray result(values.size(), values);
-      return Value(result);
+      return Value(values);
     }
   }
 
   // parse in value
-  Value TestExternalInterface::parseOneValue(const std::string& type, 
-                                             const std::string& valStr)
+  static Value parseOneValue(const std::string& type, 
+                             const std::string& valStr)
   {
     // string or string-array
     if (type.find("string") == 0) {
@@ -456,18 +461,17 @@ namespace PLEXIL
     }
     else {
       checkError(ALWAYS_FAIL, "Unknown type attribute \"" << type << "\"");
-      return UNKNOWN();
+      return Value();
     }
   }
 
   Value TestExternalInterface::lookupNow(const State& state)
   {
-    debugMsg("Test:testOutput", "Looking up immediately "
-             << StateCache::toString(state));
+    debugMsg("Test:testOutput", "Looking up immediately " << state);
     StateMap::const_iterator it = m_states.find(state);
     if (it == m_states.end()) {
       debugMsg("Test:testOutput", "No state found.  Setting UNKNOWN.");
-      it = m_states.insert(std::make_pair(state, UNKNOWN())).first;
+      it = m_states.insert(std::make_pair(state, Value())).first;
     }
     const Value& value = it->second;
     debugMsg("Test:testOutput", "Returning value " << value);
@@ -477,13 +481,13 @@ namespace PLEXIL
   void TestExternalInterface::subscribe(const State& state)
   {
     debugMsg("Test:testOutput",
-             "Registering change lookup for " << StateCache::toString(state));
+             "Registering change lookup for " << state);
 
     //ignore source, because we don't care about bandwidth here
     StateMap::iterator it = m_states.find(state);
     if (it == m_states.end()) {
-      std::pair<UniqueThing, Value> p = 
-        std::make_pair(state, UNKNOWN());
+      std::pair<State, Value> p = 
+        std::make_pair(state, Value());
       m_states.insert(p);
     }
   }
@@ -515,18 +519,18 @@ namespace PLEXIL
         debugMsg("Test:testOutput", 
                  "Permission to execute " << cmd->getName()
                  << " has been denied by the resource arbiter.");
-        cmd->getAck()->setValue(CommandHandleVariable::COMMAND_DENIED());
+        ((Assignable *) cmd->getAck())->setValue(COMMAND_DENIED);
       }
     }
   }
 
-  void TestExternalInterface::executeCommand(const LabelStr& name,
+  void TestExternalInterface::executeCommand(const std::string& name,
                                              const std::vector<Value>& args,
                                              ExpressionId dest,
                                              ExpressionId ack)
   {
     std::vector<Value> realArgs(args.begin(), args.end());
-    UniqueThing cmd(name.toString(), realArgs);
+    State cmd(name, realArgs);
     debugMsg("Test:testOutput", "Executing " << getText(cmd) <<
              " into " <<
              (dest.isNoId() ? std::string("noId") : dest->toString()) <<
@@ -535,15 +539,14 @@ namespace PLEXIL
       m_executingCommands[cmd] = dest;
 
     // Special handling of the utility commands (a bit of a hack!):
-    const std::string& cname = name.toString();
-    if (cname == "print") {
+    if (name == "print") {
       print(args);
-      ack->setValue(CommandHandleVariable::COMMAND_SUCCESS());
+      ((Assignable *) ack)->setValue(COMMAND_SUCCESS);
       m_raInterface.releaseResourcesForCommand(name);
     }
-    else if (cname == "pprint") {
+    else if (name == "pprint") {
       pprint(args);
-      ack->setValue(CommandHandleVariable::COMMAND_SUCCESS());
+      ((Assignable *) ack)->setValue(COMMAND_SUCCESS);
       m_raInterface.releaseResourcesForCommand(name);
     }
     else {
@@ -562,7 +565,7 @@ namespace PLEXIL
   {
     const std::vector<Value>& cmdArgs = command->getArgValues();
     std::vector<Value> realArgs(cmdArgs.begin(), cmdArgs.end());
-    UniqueThing cmd(command->getName().getStringValue(), realArgs);
+    State cmd(command->getName(), realArgs);
     debugMsg("Test:testOutput", "Aborting " << getText(cmd));
     m_abortingCommands[cmd] = command->getAbortComplete();
   }
@@ -578,51 +581,36 @@ namespace PLEXIL
     }
   }
 
-  std::string TestExternalInterface::getText(const UniqueThing& c)
+  static std::string getText(const State& c)
   {
     std::ostringstream retval;
-    retval << c.first << "(";
-    std::vector<Value>::const_iterator it = c.second.begin();
-    if (it != c.second.end()) {
+    retval << c.name() << "(";
+    std::vector<Value>::const_iterator it = c.parameters().begin();
+    if (it != c.parameters().end()) {
       retval << *it;
-      for (++it; it != c.second.end(); ++it)
+      for (++it; it != c.parameters().end(); ++it)
         retval << ", " << *it;
     }
     retval << ")";
     return retval.str();
   }
 
-  std::string TestExternalInterface::getText(const UniqueThing& c, 
-                                             const Value& val)
+  static std::string getText(const State& c, const Value& val)
   {
     std::ostringstream retval;
     retval << getText(c);
     retval << " = ";
-    if (val.isString())
+    if (val.valueType() == STRING_TYPE)
       retval << "(string)" << val;
     else
       retval << val;
     return retval.str();
   }
 
-  std::string TestExternalInterface::getText(const UniqueThing& c, 
-                                             const std::vector<Value>& vals)
-  {
-    std::ostringstream retval;
-    retval << getText(c);
-    retval << " = ";
-    for (std::vector<Value>::const_iterator it = vals.begin();
-         it != vals.end(); ++it) {
-      if (it->isString())
-        retval << "(string)" << *it;
-      else
-        retval << *it;
-    }
-    return retval.str();
-  }
-
   double TestExternalInterface::currentTime()
   {
-    return m_states[m_exec->getStateCache()->getTimeState()].getDoubleValue();
+    double result = 0; // default if unknown
+    m_states[State::timeState()].getValue(result);
+    return result;
   }
 }

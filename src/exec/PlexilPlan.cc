@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ namespace PLEXIL {
 
   ValueType
   PlexilParser::parseValueTypePrefix(const std::string & str, 
-                                                                         std::string::size_type prefixLen)
+                                     std::string::size_type prefixLen)
   {
         switch (prefixLen) {
         case 4: 
@@ -149,7 +149,7 @@ namespace PLEXIL {
         }
   }
 
-  const std::string& PlexilParser::valueTypeString(const ValueType& typ)
+  const std::string& PlexilParser::valueTypeString(ValueType typ)
   {
     switch (typ)
       {
@@ -165,7 +165,7 @@ namespace PLEXIL {
         return DATE_STR();
       case PLEXIL::DURATION_TYPE:
         return DURATION_STR();
-      case PLEXIL::ARRAY:
+      case PLEXIL::ARRAY_TYPE:
         return ARRAY_STR();
       case PLEXIL::NODE_STATE_TYPE:
         return NODE_STATE_STR();
@@ -197,7 +197,7 @@ namespace PLEXIL {
 
   void PlexilState::setName(const std::string& name)
   {
-    PlexilValue* pv = new PlexilValue(PLEXIL::STRING, name);
+    PlexilValue* pv = new PlexilValue(PLEXIL::STRING_TYPE, name);
     setNameExpr(pv->getId());
   }
    
@@ -361,21 +361,21 @@ namespace PLEXIL {
   }
          
 
-  PlexilValue::PlexilValue(const ValueType& type, const std::string& value)
+  PlexilValue::PlexilValue(ValueType type, const std::string& value)
     : PlexilExpr(), m_value(value), m_type(type)
   {
     // FIXME: this computes a string that could be a constant
     setName(PlexilParser::valueTypeString(m_type) + "Value");
   }
 
-  PlexilArrayValue::PlexilArrayValue(
-                                     const ValueType& type,
+  PlexilArrayValue::PlexilArrayValue(ValueType type,
                                      unsigned maxSize,
                                      const std::vector<std::string>& values)
     : PlexilValue(type), m_maxSize(maxSize), m_values(values)
   {
+    // FIXME: is this still needed??
     // Handle special case of string array
-    setName(type == STRING ? "StringArrayValue" : "ArrayValue");
+    setName(type == STRING_TYPE ? "StringArrayValue" : "ArrayValue");
   }
 
   void PlexilVarRef::setVariable(const PlexilVarId& var)
@@ -388,7 +388,7 @@ namespace PLEXIL {
         }
   }
    
-  PlexilVar::PlexilVar(const std::string& name, const ValueType& type)
+  PlexilVar::PlexilVar(const std::string& name, ValueType type)
     : PlexilExpr(),
           m_type(type),
       m_varId(this, PlexilExpr::getId()), 
@@ -397,7 +397,7 @@ namespace PLEXIL {
         setName(name);
   }
    
-  PlexilVar::PlexilVar(const std::string& name, const ValueType& type, 
+  PlexilVar::PlexilVar(const std::string& name, ValueType type, 
                                            const std::string& value)
     : PlexilExpr(),
           m_type(type),
@@ -407,7 +407,7 @@ namespace PLEXIL {
         setName(name);
   }
    
-  PlexilVar::PlexilVar(const std::string& name, const ValueType& type, 
+  PlexilVar::PlexilVar(const std::string& name, ValueType type, 
                        PlexilValue* value)
     : PlexilExpr(),
           m_type(type),
@@ -426,7 +426,7 @@ namespace PLEXIL {
    
 
   PlexilArrayVar::PlexilArrayVar(const std::string& name, 
-                                 const ValueType& type, 
+                                 ValueType type, 
                                  const unsigned maxSize)
     : PlexilVar(name, type, NULL),
       m_maxSize(maxSize)
@@ -434,7 +434,7 @@ namespace PLEXIL {
   }
 
   PlexilArrayVar::PlexilArrayVar(const std::string& name, 
-                                 const ValueType& type, 
+                                 ValueType type, 
                                  const unsigned maxSize, 
                                  std::vector<std::string>& values)
     : PlexilVar(name, type, new PlexilArrayValue(type, maxSize, values)),

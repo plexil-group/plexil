@@ -25,7 +25,6 @@
 */
 
 #include "Update.hh"
-#include "BooleanVariable.hh"
 #include "Debug.hh"
 #include "ExpressionFactory.hh"
 #include "Node.hh"
@@ -37,12 +36,12 @@ namespace PLEXIL
                  const PlexilUpdateId& updateProto)
     : m_id(this),
       m_source(node),
-      m_ack((new BooleanVariable(BooleanVariable::UNKNOWN()))->getId()),
+      m_ack(),
       m_garbage(),
       m_pairs()
   {
     // Make ack variable pretty
-    ((VariableImpl*) m_ack)->setName(node->getNodeId().toString() + " ack");
+    m_ack.setName(node->getNodeId() + " ack");
 
     if (updateProto.isId()) {
       for (std::vector<std::pair<std::string, PlexilExprId> >::const_iterator it =
@@ -77,7 +76,6 @@ namespace PLEXIL
          ++it)
       delete (Expression*) (*it);
     m_garbage.clear();
-    delete (Expression*) m_ack;
     m_id.remove();
   }
 
@@ -85,9 +83,9 @@ namespace PLEXIL
   {
     for (PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
       check_error(it->second.isValid());
-      m_valuePairs[it->first] = it->second->getValue();
+      m_valuePairs[it->first] = it->second->toValue();
       debugMsg("Update:fixValues",
-               " fixing pair '" << it->first << "', " << it->second->getValue());
+               " fixing pair '" << it->first << "', " << it->second->toValue());
     }
   }
 
@@ -95,18 +93,18 @@ namespace PLEXIL
   {
     for(PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it)
       it->second->activate();
-    m_ack->activate();
+    m_ack.activate();
   }
 
   void Update::deactivate() {
     for(PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it)
       it->second->deactivate();
-    m_ack->deactivate();
+    m_ack.deactivate();
   }
 
   void Update::reset() 
   {
-    m_ack->reset();
+    m_ack.reset();
   }
 
 }
