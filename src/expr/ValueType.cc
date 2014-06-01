@@ -117,21 +117,21 @@ namespace PLEXIL
 
   bool isArrayType(ValueType ty)
   {
-    return (ty > ARRAY_TYPE_OFFSET && ty < ARRAY_TYPE_MAX);
+    return (ty > ARRAY_TYPE && ty < ARRAY_TYPE_MAX);
   }
 
   ValueType arrayElementType(ValueType ty)
   {
-    if (ty <= ARRAY_TYPE_OFFSET || ty >= ARRAY_TYPE_MAX)
+    if (ty <= ARRAY_TYPE || ty >= ARRAY_TYPE_MAX)
       return UNKNOWN_TYPE;
-    return (ValueType) (ty - ARRAY_TYPE_OFFSET);
+    return (ValueType) (ty - ARRAY_TYPE);
   }
 
   ValueType arrayType(ValueType elTy)
   {
     if (elTy <= UNKNOWN_TYPE || elTy > STRING_TYPE)
       return UNKNOWN_TYPE;
-    return (ValueType) (elTy + ARRAY_TYPE_OFFSET);
+    return (ValueType) (elTy + ARRAY_TYPE);
   }
 
 

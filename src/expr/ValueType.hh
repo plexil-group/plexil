@@ -53,7 +53,7 @@ namespace PLEXIL
       SCALAR_TYPE_MAX,
 
       // User array types
-      ARRAY_TYPE_OFFSET = 16, // Not a valid type, but an offset from user types
+      ARRAY_TYPE = 16, // Not a valid type, but an offset from scalar types
       BOOLEAN_ARRAY_TYPE,
       INTEGER_ARRAY_TYPE,
       REAL_ARRAY_TYPE,
