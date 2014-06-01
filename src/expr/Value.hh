@@ -62,6 +62,10 @@ namespace PLEXIL
     Value(IntegerArray const &val);
     Value(RealArray const &val);
     Value(StringArray const &val);
+
+    // Constructs the appropriate array type.
+    // Used by TestExternalInterface.
+    Value(std::vector<Value> const &vals);
     
     ~Value();
     

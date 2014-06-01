@@ -165,6 +165,98 @@ namespace PLEXIL
   {
     m_value.stringArrayValue = new StringArray(val);
   }
+
+  Value::Value(std::vector<Value> const &vals)
+    : m_type(UNKNOWN_TYPE),
+      m_known(true)
+  {
+    size_t len = vals.size();
+
+    // Determine element type
+    ValueType eltType = UNKNOWN_TYPE;
+    // FIXME: Handle booleans
+    for (size_t i = 0; i < len; ++i) {
+      ValueType itype = vals[i].valueType();
+      if (eltType == UNKNOWN_TYPE)
+        eltType = itype;
+      else if (eltType == INTEGER_TYPE && itype == REAL_TYPE)
+        eltType = itype; // promote int to real
+      else if (eltType != itype) {
+        assertTrue_2(ALWAYS_FAIL, "Value constructor: Inconsistent value types in vector");
+        m_known = false;
+      }
+      // else type is consistent
+    }
+
+    assertTrue_2(eltType != UNKNOWN_TYPE,
+                 "Value constructor: Can't make array of all unknowns");
+    assertTrue_2(eltType < SCALAR_TYPE_MAX,
+                 "Value constructor: Can't make array of arrays");
+
+    // Construct array value
+    switch (eltType) {
+    case BOOLEAN_TYPE: {
+      m_type = BOOLEAN_ARRAY_TYPE;
+      m_value.booleanArrayValue = new BooleanArray(len);
+      BooleanArray *ary = m_value.booleanArrayValue;
+      for (size_t i = 0; i < len; ++i) {
+        bool temp;
+        if (vals[i].getValue(temp))
+          ary->setElement(i, temp);
+        else
+          ary->setElementUnknown(i);
+      }
+      break;
+    }
+
+    case INTEGER_TYPE: {
+      m_type = INTEGER_ARRAY_TYPE;
+      m_value.integerArrayValue = new IntegerArray(len);
+      IntegerArray *ary = m_value.integerArrayValue;
+      for (size_t i = 0; i < len; ++i) {
+        int32_t temp;
+        if (vals[i].getValue(temp))
+          ary->setElement(i, temp);
+        else
+          ary->setElementUnknown(i);
+      }
+      break;
+    }
+
+    case DATE_TYPE: // FIXME
+    case DURATION_TYPE: // FIXME
+    case REAL_TYPE: {
+      m_type = REAL_ARRAY_TYPE;
+      m_value.realArrayValue = new RealArray(len);
+      RealArray *ary = m_value.realArrayValue;
+      for (size_t i = 0; i < len; ++i) {
+        double temp;
+        if (vals[i].getValue(temp))
+          ary->setElement(i, temp);
+        else
+          ary->setElementUnknown(i);
+      }
+      break;
+    }
+
+    case STRING_TYPE: {
+      m_type = STRING_ARRAY_TYPE;
+      m_value.stringArrayValue = new StringArray(len);
+      StringArray *ary = m_value.stringArrayValue;
+      for (size_t i = 0; i < len; ++i) {
+        std::string const *temp;
+        if (vals[i].getValuePointer(temp))
+          ary->setElement(i, *temp);
+        else
+          ary->setElementUnknown(i);
+      }
+      break;
+    }
+
+    default:
+      assertTrue_2(ALWAYS_FAIL, "Value constructor: Unknown or unimplemented element type");
+    }
+  }
     
   Value::~Value()
   {
