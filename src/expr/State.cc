@@ -27,6 +27,7 @@
 #include "State.hh"
 
 #include <ostream>
+#include <sstream>
 
 namespace PLEXIL
 {
@@ -118,6 +119,13 @@ namespace PLEXIL
     s << ')';
   }
 
+  std::string State::toString() const
+  {
+    std::ostringstream s;
+    print(s);
+    return s.str();
+  }
+
   std::ostream &operator<<(std::ostream &s, State const &st)
   {
     st.print(s);
@@ -159,6 +167,5 @@ namespace PLEXIL
     static State const sl_timeState("time");
     return sl_timeState;
   }
-
 
 } // namespace PLEXIL

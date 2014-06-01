@@ -58,6 +58,7 @@ namespace PLEXIL
     Value const &parameter(size_t n) const;
 
     void print(std::ostream &s) const;
+    std::string toString() const;
 
     static State const &timeState();
 
