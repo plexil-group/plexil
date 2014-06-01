@@ -32,8 +32,8 @@ namespace PLEXIL
 {
   StateCacheMap::StateCacheMap()
   {
-    // for effect
-    ensureStateCacheEntry(State::timeState(), DATE_TYPE);
+    // Initialize time state to 0
+    ensureStateCacheEntry(State::timeState(), DATE_TYPE)->update(0);
   }
 
   StateCacheMap::~StateCacheMap()
