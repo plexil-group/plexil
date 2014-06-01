@@ -28,7 +28,6 @@
 #define PLEXIL_STATE_CACHE_ENTRY_HH
 
 #include "State.hh"
-#include "ValueType.hh"
 
 namespace PLEXIL
 {
@@ -88,6 +87,9 @@ namespace PLEXIL
     virtual bool updatePtr(IntegerArray const *valPtr) = 0;
     virtual bool updatePtr(RealArray const *valPtr) = 0;
     virtual bool updatePtr(StringArray const *valPtr) = 0;
+
+    // For convenience of TestExternalInterface, others
+    virtual bool update(Value const &val) = 0;
 
   protected:
     // Internal functions
@@ -176,6 +178,10 @@ namespace PLEXIL
     {
       return static_cast<IMPL *>(this)->updatePtrImpl(valPtr);
     }
+    inline bool update(Value const &val)
+    {
+      return static_cast<IMPL *>(this)->updateImpl(val);
+    }
     
   };
 
@@ -191,6 +197,8 @@ namespace PLEXIL
     // Type conversion or invalid type
     template <typename U>
     bool updateImpl(U const &val);
+
+    bool updateImpl(Value const &val);
 
     bool updatePtrImpl(T const *valPtr);
 

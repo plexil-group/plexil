@@ -117,6 +117,8 @@ namespace PLEXIL
       return static_cast<StateCacheEntry *>(new StateCacheEntryImpl<int32_t>(state, vtype));
 
     case REAL_TYPE:
+    case DATE_TYPE: // FIXME
+    case DURATION_TYPE: // FIXME
       return static_cast<StateCacheEntry *>(new StateCacheEntryImpl<double>(state, vtype));
 
     case STRING_TYPE:
@@ -163,7 +165,7 @@ namespace PLEXIL
       m_cachedValue = val;
       StateCacheEntry::m_cachedKnown = true;
       StateCacheEntry::m_timestamp = g_exec->getCycleCount();
-      this->notify();
+      StateCacheEntry::notify();
     }
     return true;
   }
@@ -185,6 +187,57 @@ namespace PLEXIL
     return this->update((double) val);
   }
 
+  // From Value
+  // Default case
+  template <typename T>
+  bool StateCacheEntryImpl<T>::updateImpl(Value const &val)
+  {
+    T const *valPtr;
+    if (val.getValuePointer(valPtr))
+      return this->updatePtrImpl(valPtr);
+    else {
+      StateCacheEntry::setUnknown();
+      return true;
+    }
+  }
+
+  // Scalar types
+  template <>
+  bool StateCacheEntryImpl<bool>::updateImpl(Value const &val)
+  {
+    bool nativeVal;
+    if (val.getValue(nativeVal))
+      return this->updateImpl(nativeVal);
+    else {
+      StateCacheEntry::setUnknown();
+      return true;
+    }
+  }
+
+  template <>
+  bool StateCacheEntryImpl<int32_t>::updateImpl(Value const &val)
+  {
+    int32_t nativeVal;
+    if (val.getValue(nativeVal))
+      return this->updateImpl(nativeVal);
+    else {
+      StateCacheEntry::setUnknown();
+      return true;
+    }
+  }
+
+  template <>
+  bool StateCacheEntryImpl<double>::updateImpl(Value const &val)
+  {
+    double nativeVal;
+    if (val.getValue(nativeVal))
+      return this->updateImpl(nativeVal);
+    else {
+      StateCacheEntry::setUnknown();
+      return true;
+    }
+  }
+
   template <typename T>
   bool StateCacheEntryImpl<T>::updatePtrImpl(T const *ptr)
   {
@@ -193,7 +246,7 @@ namespace PLEXIL
       m_cachedValue = *ptr;
       StateCacheEntry::m_cachedKnown = true;
       StateCacheEntry::m_timestamp = g_exec->getCycleCount();
-      this->notify();
+      StateCacheEntry::notify();
     }
     return true;
   }
