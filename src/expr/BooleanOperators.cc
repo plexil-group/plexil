@@ -65,22 +65,28 @@ namespace PLEXIL
 
   bool BooleanOr::operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const
   {
-    bool temp;
+    bool temp, known;
     if (argA->getValue(temp)) {
       if (temp) {
         result = true;
         return true;
       }
+      // A known but false
+      if ((known = argB->getValue(temp)))
+        result = temp;
+      return known;
     }
-    // fall through if A known and false
-    if (!argB->getValue(temp))
-      return false;
-    result = temp;
-    return true;
+    // A unknown
+    if (argB->getValue(temp) && temp) {
+      result = temp;
+      return true;
+    }
+    return false;
   }
 
   bool BooleanOr::operator()(bool &result, const std::vector<ExpressionId> &args) const
   {
+    bool anyKnown = false;
     for (std::vector<ExpressionId>::const_iterator it = args.begin();
          it != args.end();
          ++it) {
@@ -91,10 +97,12 @@ namespace PLEXIL
           result = true;
           return true;
         }
+        anyKnown = true; // but no true value yet
       }
-      // repeat if either unknown or false
     }
-    return false; // only if all unknown or false
+    if (anyKnown)
+      result = false; // or we would have returned above
+    return anyKnown;
   }
 
   //
@@ -118,36 +126,47 @@ namespace PLEXIL
 
   bool BooleanAnd::operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const
   {
-    bool temp;
-    if (!argA->getValue(temp))
-      return false; // can't know result if A unknown
-    if (!temp) {
-      result = false;
+    bool temp, known;
+    if (argA->getValue(temp)) {
+      // A known
+      if (!temp) {
+        result = false; // cannot be true
+        return true;
+      }
+      // A known and true
+      if ((known = (argB->getValue(temp))))
+        result = temp;
+      return known;
+    }
+    // A unknown
+    if (argB->getValue(temp) && !temp) {
+      result = false; // cannot be true
       return true;
     }
-    if (!argB->getValue(temp))
-      return false;
-    result = temp;
-    return true;
+    return false; // cannot be known
   }
 
   bool BooleanAnd::operator()(bool &result, const std::vector<ExpressionId> &args) const
   {
+    bool allKnown = true;
+    bool temp;
     for (std::vector<ExpressionId>::const_iterator it = args.begin();
          it != args.end();
          ++it) {
       bool temp;
-      // Return unknown if any arg is unknown
-      if ((*it)->getValue(temp))
-        return false;
-      if (!temp) {
-        result = false;
-        return true;
+      if ((*it)->getValue(temp)) {
+        if (!temp) {
+          // Any known and false -> result known and false
+          result = false;
+          return true;
+        }
       }
+      else
+        allKnown = false;
     }
-    // Can only get here if all known and true
-    result = true;
-    return true;
+    if (allKnown)
+      result = true;
+    return allKnown;
   }
 
   BooleanXor::BooleanXor()

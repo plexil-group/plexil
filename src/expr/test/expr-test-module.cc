@@ -34,6 +34,7 @@ extern bool arrayOperatorsTest();
 extern bool arrayReferenceTest();
 extern bool arrayTest();
 extern bool arrayVariableTest();
+extern bool booleanOperatorsTest();
 extern bool comparisonsTest();
 extern bool constantsTest();
 extern bool functionsTest();
@@ -59,6 +60,7 @@ int main(int argc, char *argv[])
   runTestSuite(aliasTest);
   runTestSuite(functionsTest);
   runTestSuite(comparisonsTest);
+  runTestSuite(booleanOperatorsTest);
   runTestSuite(arithmeticTest);
   runTestSuite(stringTest);
   runTestSuite(arrayOperatorsTest);
