@@ -27,8 +27,7 @@
 #ifndef EXPRESSION_FACTORY_HH
 #define EXPRESSION_FACTORY_HH
 
-#include "ExecDefs.hh"
-#include "PlexilPlan.hh"
+#include "Expression.hh"
 
 // ***********************************
 // * TEMPORARY - TO BE REPLACED SOON *
@@ -36,6 +35,12 @@
 
 namespace PLEXIL
 {
+  // Forward declarations
+  class NodeConnector;
+  DECLARE_ID(NodeConnector);
+  
+  class PlexilExpr;
+  DECLARE_ID(PlexilExpr);
 
   /**
    * @brief Factory class for Expressions.

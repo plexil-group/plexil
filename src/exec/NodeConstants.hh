@@ -116,32 +116,6 @@ namespace PLEXIL {
    */
   extern char const *failureTypeName(FailureType f);
 
-  /**
-   * @brief Command handle state enumeration.
-   */
-  enum CommandHandleValue
-    {NO_COMMAND_HANDLE = 48,
-     COMMAND_SENT_TO_SYSTEM,
-     COMMAND_ACCEPTED,
-     COMMAND_RCVD_BY_SYSTEM,
-     COMMAND_FAILED,
-     COMMAND_DENIED,
-     COMMAND_SUCCESS,
-     COMMAND_HANDLE_MAX
-    };
-
-  /**
-   * @brief Table of command handle value names.
-   * @note Must be in same order as CommandHandleValue enum.
-   */
-  extern char const *ALL_COMMAND_HANDLE_NAMES[];
-
-  /**
-   * @brief Get the name of this command handle value.
-   * @return Pointer to one of the names.
-   */
-  extern char const *commandHandleValueName(CommandHandleValue c);
-
 } // namespace PLEXIL
 
 #endif // PLEXIL_NODE_CONSTANTS_HH

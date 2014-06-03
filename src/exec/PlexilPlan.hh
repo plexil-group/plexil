@@ -27,14 +27,16 @@
 #ifndef _H_PlexilPlan
 #define _H_PlexilPlan
 
-#include <list>
+#include "ConstantMacros.hh"
+#include "ExecDefs.hh"
+#include "PlexilExpr.hh"
+#include "PlexilResource.hh"
+#include "PlexilUpdate.hh"
+#include "ValueType.hh"
+
 #include <vector>
 #include <map>
 #include <string>
-#include "ConstantMacros.hh"
-#include "ExecDefs.hh"
-#include "PlexilResource.hh"
-#include "ValueType.hh"
 
 // Take care of annoying VxWorks macro
 #undef UPDATE
@@ -45,11 +47,7 @@ namespace PLEXIL
 {
 
   class PlexilInterface;
-  class PlexilVar;
-  class PlexilArrayVar;
-  class PlexilValue;
   class PlexilNodeBody;
-  class PlexilVarRef;
   class PlexilNode;
   class PlexilState;
   class PlexilUpdate;
@@ -59,8 +57,6 @@ namespace PLEXIL
   DECLARE_ID(PlexilNode);
   DECLARE_ID(PlexilInterface);
   DECLARE_ID(PlexilState);
-  DECLARE_ID(PlexilVar);
-  DECLARE_ID(PlexilArrayVar);
   DECLARE_ID(PlexilNodeBody);
   DECLARE_ID(PlexilUpdate);
   DECLARE_ID(PlexilNodeRef);
@@ -239,115 +235,6 @@ namespace PLEXIL
     std::vector<PlexilVarRef*> m_inOut;
   };
 
-  class PlexilExpr {
-  public:
-    PlexilExpr() : m_id(this), m_lineNo(0), m_colNo(0) {}
-
-    virtual ~PlexilExpr() 
-    {
-      m_id.remove();
-    }
-    const PlexilExprId& getId() const {return m_id;}
-    const std::string& name() const {return m_name;}
-    int lineNo() const {return m_lineNo;}
-    int colNo() const {return m_colNo;}
-
-    void setName(const std::string& name);
-    void setLineNo(int n) {m_lineNo = n;}
-    void setColNo(int n) {m_colNo = n;}
-
-  private:
-    PlexilExprId m_id;
-    std::string m_name;
-    int m_lineNo;
-    int m_colNo;
-  };
-
-  class PlexilVarRef : public PlexilExpr
-  {
-  public:
-    PlexilVarRef() :
-      PlexilExpr(),
-      m_defaultValue(PlexilExprId::noId()),
-      m_type(PLEXIL::UNKNOWN_TYPE),
-      m_typed(false)
-    {}
-
-    ~PlexilVarRef();
-
-    bool typed() const {return m_typed;}
-    ValueType type() const {return m_type;}
-    const PlexilExprId& defaultValue() const {return m_defaultValue;}
-    const PlexilVarId& variable() const {return m_variable;}
-         
-    void setDefaultValue(const PlexilExprId& defaultValue)
-    {
-      m_defaultValue = defaultValue;
-    }
-
-    void setType(ValueType type)
-    {
-      m_type = type; 
-      m_typed = true;
-    }
-    void setVariable(const PlexilVarId& var);
-
-  private:
-    PlexilExprId m_defaultValue;
-    PlexilVarId m_variable;
-    ValueType m_type;
-    bool m_typed;
-  };
-
-  class PlexilOp : public PlexilExpr {
-  public:
-    PlexilOp() : PlexilExpr() {}
-    virtual ~PlexilOp()
-    {
-      for (std::vector<PlexilExprId>::iterator it = m_subExprs.begin();
-           it != m_subExprs.end();
-           ++it)
-        delete (PlexilExpr*) *it;
-      m_subExprs.clear();
-    }
-
-    const std::string& getOp() const {return m_op;}
-    void setOp(const std::string& op) {m_op = op; setName(op);}
-
-    const std::vector<PlexilExprId>& subExprs() const {return m_subExprs;}
-    void addSubExpr(PlexilExprId expr) {m_subExprs.push_back(expr);}
-
-  private:
-    std::string m_op;
-    std::vector<PlexilExprId> m_subExprs;
-  };
-
-  class PlexilArrayElement : public PlexilExpr {
-  public:
-    PlexilArrayElement();
-    virtual ~PlexilArrayElement()
-    {
-      for (std::vector<PlexilExprId>::iterator it = m_subExprs.begin();
-           it != m_subExprs.end();
-           ++it)
-        delete (PlexilExpr*) *it;
-      m_subExprs.clear();
-    }
-
-    const std::string& getArrayName() const
-    {
-      return m_arrayName;
-    }
-    void setArrayName(const std::string& name);
-
-    const std::vector<PlexilExprId>& subExprs() const {return m_subExprs;}
-    void addSubExpr(PlexilExprId expr) {m_subExprs.push_back(expr);}
-
-  private:
-    std::string m_arrayName;
-    std::vector<PlexilExprId> m_subExprs;
-  };
-
   class PlexilState {
   public:
     PlexilState() : m_id(this), m_lineNo(0), m_colNo(0) {}
@@ -423,88 +310,6 @@ namespace PLEXIL
     void addTolerance(const PlexilExprId& tolerance) {m_tolerances.push_back(tolerance);}
   private:
     std::vector<PlexilExprId> m_tolerances;
-  };
-
-  class PlexilValue : public PlexilExpr {
-  public:
-    PlexilValue(ValueType type, const std::string& value = "UNKNOWN");
-    ValueType type() const {return m_type;}
-    const std::string& value() const {return m_value;}
-  private:
-    std::string m_value;
-    ValueType m_type;
-  };
-
-  class PlexilArrayValue : public PlexilValue
-  {
-  public:
-    PlexilArrayValue(ValueType type, unsigned maxSize,
-                     const std::vector<std::string>& values);
-    ~PlexilArrayValue() {} 
-    const std::vector<std::string>& values() const {return m_values;}
-    unsigned maxSize() const {return m_maxSize;}
-
-  private:
-    unsigned m_maxSize;
-    std::vector<std::string> m_values;
-  };
-
-  class PlexilVar : public PlexilExpr {
-  public:
-    PlexilVar(const std::string& name, ValueType type);
-    PlexilVar(const std::string& name, ValueType type, const std::string& value);
-    PlexilVar(const std::string& name, ValueType type, PlexilValue* value);
-    virtual ~PlexilVar();
-
-    virtual bool isArray() const {return false;}
-
-    const PlexilVarId& getId() const {return m_varId;}
-    virtual ValueType type() const {return m_type;}
-    virtual const std::string& factoryTypeString() const
-    {
-      return PlexilParser::valueTypeString(m_type);
-    }
-    const PlexilValue* value() const {return m_value;}
-
-  protected:
-    ValueType m_type;
-
-  private:
-    PlexilVarId m_varId;
-    PlexilValue* m_value;
-  };
-  
-  class PlexilArrayVar : public PlexilVar {
-  public:
-    PlexilArrayVar(const std::string& name, 
-                   ValueType type, 
-                   const unsigned maxSize);
-    PlexilArrayVar(const std::string& name, 
-                   ValueType type, 
-                   const unsigned maxSize, 
-                   std::vector<std::string>& values);
-    ~PlexilArrayVar();
-
-    // override PlexilVar method
-     
-    virtual ValueType type() const
-    { 
-      return arrayType(m_type);
-    }
-    virtual const std::string& factoryTypeString() const 
-    {
-      // FIXME - individual types for every element type now
-      if (m_type == STRING_TYPE) 
-        return PlexilParser::STRING_ARRAY_STR();
-      else 
-        return PlexilParser::ARRAY_STR();
-    }
-    virtual bool isArray() const {return true;}
-    ValueType elementType() const {return m_type;}
-    virtual unsigned maxSize() const {return m_maxSize;}
-
-  private:
-    unsigned m_maxSize;
   };
   
   class PlexilNodeBody {
@@ -714,37 +519,6 @@ namespace PLEXIL
     std::string m_state;
     std::string m_timepoint;
   };
-
-  class PlexilUpdate {
-  public:
-    PlexilUpdate() : m_id(this), m_lineNo(0), m_colNo(0) {}
-
-    ~PlexilUpdate()
-    {
-      for (std::vector<std::pair<std::string, PlexilExprId> >::iterator it = m_map.begin();
-           it != m_map.end();
-           ++it)
-        delete (PlexilExpr*) it->second;
-      m_map.clear();
-      m_id.remove();
-    }
-
-    const PlexilUpdateId& getId() const {return m_id;}
-    const std::vector<std::pair<std::string, PlexilExprId> >& pairs() const {return m_map;}
-
-    void addPair(const std::string& name, const PlexilExprId& value)
-    { m_map.push_back(std::make_pair(name, value));}
-    int lineNo() const {return m_lineNo;}
-    int colNo() const {return m_colNo;}
-    void setLineNo(int n) {m_lineNo = n;}
-    void setColNo(int n) {m_colNo = n;}
-  private:
-    PlexilUpdateId m_id;
-    std::vector<std::pair<std::string, PlexilExprId> > m_map;
-    int m_lineNo;
-    int m_colNo;
-  };
-
 
   class PlexilUpdateBody : public PlexilNodeBody {
   public:

@@ -39,7 +39,6 @@ extern bool comparisonsTest();
 extern bool constantsTest();
 extern bool functionsTest();
 extern bool listenerTest();
-extern bool stateTest();
 extern bool stringTest();
 extern bool valueTest();
 extern bool variablesTest();
@@ -53,7 +52,6 @@ int main(int argc, char *argv[])
   runTestSuite(variablesTest);
   runTestSuite(arrayTest);
   runTestSuite(valueTest);
-  runTestSuite(stateTest);
   runTestSuite(arrayConstantTest);
   runTestSuite(arrayVariableTest);
   runTestSuite(arrayReferenceTest);

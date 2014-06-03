@@ -25,7 +25,6 @@
 */
 
 #include "Command.hh"
-#include "Node.hh"
 
 namespace PLEXIL
 {
@@ -36,11 +35,10 @@ namespace PLEXIL
                    const std::string &dest_name,
                    const std::vector<ExpressionId> &garbage,
                    const ResourceList &resource,
-                   const NodeId &parent)
+                   std::string const &nodeName)
     : m_id(this),
       m_ack(*this), 
       m_abortComplete(),
-      m_node(parent),
       m_nameExpr(nameExpr),
       m_dest(dest),
       m_destName(dest_name),
@@ -49,8 +47,8 @@ namespace PLEXIL
       m_resourceList(resource),
       m_commandHandle(NO_COMMAND_HANDLE)
   {
-    m_ack.setName(parent->getNodeId() + " commandHandle");
-    m_abortComplete.setName(parent->getNodeId() + " abortComplete");
+    m_ack.setName(nodeName + " commandHandle");
+    m_abortComplete.setName(nodeName + " abortComplete");
   }
 
   Command::~Command() {

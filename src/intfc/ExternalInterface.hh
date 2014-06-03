@@ -27,25 +27,53 @@
 #ifndef _H_ExternalInterface
 #define _H_ExternalInterface
 
-#include "ExecDefs.hh"
 #include "Expression.hh"
 #include "State.hh"
 
 #include <list>
 
 namespace PLEXIL {
-  // Forward declaration
+  // Forward declarations
+  class Command;
+  DECLARE_ID(Command);
+
   class StateCacheEntry;
+
+  class Update;
+  DECLARE_ID(Update);
+
+  class ExternalInterface;
+  DECLARE_ID(ExternalInterface);
+
+  /**
+   * @class ExternalInterface
+   * @brief Abstract base class for anything that interfaces the Exec to the outside world.
+   */
 
   class ExternalInterface {
   public:
+
+    virtual ~ExternalInterface();
+
     /**
      * @brief Return the ID of this instance.
      */
-    inline ExternalInterfaceId& getId()
-    {
-      return m_id;
-    }
+    ExternalInterfaceId const &getId();
+
+    //
+    // API to Lookup and StateCacheEntry
+    //
+
+    //
+    // The cycle counter is used by the Lookup interface to check whether a value is stale.
+    // It is incremented by the PlexilExec.
+    //
+
+    /**
+     * @brief Return the number of "macro steps" since this instance was constructed.
+     * @return The macro step count.
+     */
+    unsigned int getCycleCount() const;
 
     /**
      * @brief Perform an immediate lookup on an existing state.
@@ -74,37 +102,85 @@ namespace PLEXIL {
      */
     virtual void setThresholds(const State& state, double hi, double lo) = 0;
 
-    //@ Perform the set of actions from quiescence completion.
-    virtual void batchActions(std::list<CommandId>& commands) = 0;
+    //
+    // API to Node classes
+    //
 
-    // This batches planner updates.
-    virtual void updatePlanner(std::list<UpdateId>& updates) = 0;
+    /**
+     * @brief Schedule this command for execution.
+     */
+    void enqueueCommand(CommandId const &cmd);
 
     /**
      * @brief Abort the pending command.
-     * @param cmd The command.
      */
-    virtual void invokeAbort(const CommandId& cmd) = 0;
+    void abortCommand(CommandId const &cmd);
+
+    /**
+     * @brief Schedule this update for execution.
+     */
+    void enqueueUpdate(const UpdateId& update);
+
+    //
+    // API to Exec
+    //
+
+    /**
+     * @brief Send all pending commands and updates to the external system(s).
+     */
+    void executeOutboundQueue();
+
+    /**
+     * @brief See if the command and update queues are empty.
+     * @return True if both empty, false otherwise.
+     */
+    bool outboundQueueEmpty() const;
 
     // Returns the current time.
     // FIXME - use real time type
     virtual double currentTime() = 0;
 
-    virtual ~ExternalInterface()   
-    {
-      m_id.remove();
-    }
+    /**
+     * @brief Increment the macro step count and return the new value.
+     * @return The updated macro step count.
+     */
+    unsigned int incrementCycleCount();
 
   protected:
 
-    //this should eventually take a domain description as well
-    ExternalInterface()
-      : m_id(this) 
-    {
-    }
+    // Default constructor.
+    ExternalInterface();
+
+    //
+    // Member functions that are expected to be implemented by derived classes
+    //
+
+    /**
+     * @brief Schedule this command for execution.
+     */
+    virtual void executeCommand(CommandId const &cmd) = 0;
+
+    /**
+     * @brief Abort the pending command.
+     * @param cmd The command.
+     */
+    virtual void invokeAbort(CommandId const &cmd) = 0;
+
+    /**
+     * @brief Schedule this update for execution.
+     */
+    virtual void executeUpdate(const UpdateId& update) = 0;
 
   private:
+
+    // Copy, assign disallowed
+    ExternalInterface(ExternalInterface const &);
+    ExternalInterface &operator=(ExternalInterface const &);
+
     ExternalInterfaceId m_id;
+    std::vector<CommandId> m_commandsToExecute;
+    std::vector<UpdateId> m_updatesToExecute;
+    unsigned int m_cycleCount;
   };
 
   extern ExternalInterfaceId g_interface;

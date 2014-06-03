@@ -24,31 +24,11 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+#include "ExternalInterface.hh"
+#include "Lookup.hh"
+
+#include <map>
+#include <set>
 
 using namespace PLEXIL;
 
@@ -78,20 +58,20 @@ public:
   }
 
   Value lookupNow(const State& state) {
-    if (state.first == "test1") {
+    if (state.name() == "test1") {
       return Value(0.0);
     }
-    else if (state.first == "test2") {
-      check_error(state.second.size() == 1);
-      const std::string& param = state.second[0].getStringValue();
+    else if (state.name() == "test2") {
+      check_error(state.parameters.size() == 1);
+      const std::string& param = state.parameters[0].getStringValue();
       if (param == "high") return Value(1.0);
       else if (param == "low") return Value(-1.0);
     }
-    else if (state.first == "time") {
+    else if (state.name() == "time") {
       return Value(0.0);
     }
     else {
-      return m_changingExprs[state.first]->getValue();
+      return m_changingExprs[state.name()]->getValue();
     }
     std::cerr << "ERROR (shouldn't happen): reached end of lookupNow()"
               << std::endl;
@@ -133,8 +113,8 @@ public:
       expr->addListener(m_listener.getId());
       m_exprs.insert(expr);
     }
-    LabelStr nameStr(name);
-    m_changingExprs.insert(std::pair<LabelStr, ExpressionId>(nameStr, expr));
+    std::string nameStr(name);
+    m_changingExprs.insert(std::pair<std::string, ExpressionId>(nameStr, expr));
     m_exprsToStateName.insert(std::make_pair(expr, nameStr));
   }
 
@@ -144,7 +124,7 @@ public:
       m_exprs.erase(expr);
       expr->removeListener(m_listener.getId());
     }
-    LabelStr nameStr(name);
+    std::string nameStr(name);
     m_changingExprs.erase(nameStr);
     m_exprsToStateName.erase(expr);
   }
@@ -152,19 +132,19 @@ public:
 protected:
   friend class ChangeListener;
 
-  void internalExecuteCommand(const LabelStr& /* name */,
+  void internalExecuteCommand(const std::string& /* name */,
                   const std::vector<Value>& /* args */,
                   ExpressionId /* dest */)
   {}
 
-  void internalInvokeAbort(const LabelStr& /* name */,
+  void internalInvokeAbort(const std::string& /* name */,
                const std::vector<Value>& /* args */, 
                ExpressionId /* dest */)
   {}
 
   void notifyValueChanged(ExpressionId expression)
   {
-    std::multimap<ExpressionId, LabelStr>::const_iterator it = m_exprsToStateName.find(expression);
+    std::multimap<ExpressionId, std::string>::const_iterator it = m_exprsToStateName.find(expression);
     while(it != m_exprsToStateName.end() && it->first == expression) {
       State st(it->second.toString(), std::vector<Value>());
       m_cache->updateState(st, expression->getValue());
@@ -185,13 +165,12 @@ private:
   static Id<TestInterface> s_instanceTestInterface;
 
   std::set<ExpressionId> m_exprs;
-  std::map<LabelStr, ExpressionId> m_changingExprs; //map of names to expressions being watched
-  std::multimap<ExpressionId, LabelStr> m_exprsToStateName; //make of watched expressions to their state names
+  std::map<std::string, ExpressionId> m_changingExprs; //map of names to expressions being watched
+  std::multimap<ExpressionId, std::string> m_exprsToStateName; //make of watched expressions to their state names
   std::multimap<ExpressionId, ExpressionId> m_listeningExprs; //map of changing expressions to listening expressions
   std::map<ExpressionId, double> m_tolerances; //map of dest expressions to tolerances
   std::map<ExpressionId, Value> m_cachedValues; //cache of the previously returned values (dest expression, value pairs)
   ChangeListener m_listener;
-  StateCacheId m_cache;
 };
 
 Id<TestInterface> TestInterface::s_instanceTestInterface = Id<TestInterface>::noId();

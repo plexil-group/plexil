@@ -149,7 +149,6 @@ namespace PLEXIL
   bool BooleanAnd::operator()(bool &result, const std::vector<ExpressionId> &args) const
   {
     bool allKnown = true;
-    bool temp;
     for (std::vector<ExpressionId>::const_iterator it = args.begin();
          it != args.end();
          ++it) {

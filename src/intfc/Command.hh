@@ -27,7 +27,6 @@
 #ifndef PLEXIL_COMMAND_HH
 #define PLEXIL_COMMAND_HH
 
-#include "ExecDefs.hh"
 #include "CommandHandleVariable.hh"
 #include "UserVariable.hh"
 #include "Value.hh"
@@ -37,6 +36,10 @@ namespace PLEXIL
   // TODO:
   // - Move type names to common file shared with ResourceArbitrationInterface
   // - replace ResourceMap and ResourceValues with structs or classes
+
+  // Forward references
+  class Command;
+  DECLARE_ID(Command);
 
   // FIXME: conflicts with same name in ResourceArbiterInterface
   typedef std::map<std::string, ExpressionId> ResourceMap;
@@ -57,7 +60,7 @@ namespace PLEXIL
             const std::string& dest_name,
             const std::vector<ExpressionId>& garbage,
             const ResourceList& resource,
-            const NodeId& parent);
+            std::string const &nodeName);
     ~Command();
 
     const CommandId &getId() {return m_id;}
@@ -66,7 +69,6 @@ namespace PLEXIL
     const ExpressionId &getAbortComplete() {return m_abortComplete.getId();}
     const std::vector<Value> &getArgValues() const {return m_argValues;}
     const ResourceValuesList &getResourceValues() const {return m_resourceValuesList;}
-    const NodeId &getNode() const { return m_node; }
     const std::string &getName() const;
     const std::string &getDestName() const;
     CommandHandleValue getCommandHandle() const {return (CommandHandleValue) m_commandHandle;}
@@ -89,7 +91,6 @@ namespace PLEXIL
     CommandId m_id;
     CommandHandleVariable m_ack;
     BooleanVariable m_abortComplete;
-    NodeId m_node; // backpointer to parent
     ExpressionId m_nameExpr;
     AssignableId m_dest;
     std::string m_destName;

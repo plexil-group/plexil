@@ -27,8 +27,8 @@
 #ifndef PLEXIL_COMMAND_HANDLE_VARIABLE_HH
 #define PLEXIL_COMMAND_HANDLE_VARIABLE_HH
 
+#include "CommandHandle.hh"
 #include "ExpressionImpl.hh"
-#include "NodeConstants.hh"
 #include "NotifierImpl.hh"
 
 namespace PLEXIL

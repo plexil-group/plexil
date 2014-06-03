@@ -27,7 +27,7 @@
 #include "Lookup.hh"
 
 #include "Error.hh"
-#include "ExecConnector.hh" // for timestamp access
+#include "ExternalInterface.hh" // for timestamp access
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 
@@ -35,9 +35,6 @@
 
 namespace PLEXIL
 {
-  // *** FIXME: TEMPORARY HACK -- MOVE TO UNIT TEST ***
-  ExecConnectorId g_exec = ExecConnectorId::noId();
-
   Lookup::Lookup(ExpressionId const &stateName,
                  bool stateNameIsGarbage,
                  std::vector<ExpressionId> const &params,
@@ -143,7 +140,7 @@ namespace PLEXIL
   {
     bool wasKnown = m_known;
     m_known = false;
-    m_timestamp = g_exec->getCycleCount();
+    m_timestamp = g_interface->getCycleCount();
     if (wasKnown)
       this->publishChange(this->getId());
   }
@@ -229,7 +226,7 @@ namespace PLEXIL
   void LookupImpl<T>::newValue(const T &val)
   {
     m_value = val;
-    Lookup::m_timestamp = g_exec->getCycleCount();
+    Lookup::m_timestamp = g_interface->getCycleCount();
     this->publishChange(this->getId());
   }
 
@@ -245,7 +242,7 @@ namespace PLEXIL
   void LookupImpl<double>::newValue(const int32_t &val)
   {
     m_value = (double) val;
-    Lookup::m_timestamp = g_exec->getCycleCount();
+    Lookup::m_timestamp = g_interface->getCycleCount();
     this->publishChange(this->getId());
   }
 
@@ -431,9 +428,8 @@ namespace PLEXIL
   void LookupOnChange<double>::newValue(const int32_t &val)
   {
     m_value = (double) val;
-    Lookup::m_timestamp = g_exec->getCycleCount();
+    Lookup::m_timestamp = g_interface->getCycleCount();
     this->publishChange(this->getId());
   }
-
 
 } // namespace PLEXIL

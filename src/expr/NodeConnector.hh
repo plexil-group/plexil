@@ -27,10 +27,24 @@
 #ifndef NODE_CONNECTOR_HH
 #define NODE_CONNECTOR_HH
 
-#include "PlexilPlan.hh"
+#include "Id.hh"
+#include <string>
 
 namespace PLEXIL
 {
+  // Forward references
+  class ExecListenerHub;
+  DECLARE_ID(ExecListenerHub);
+
+  class PlexilVarRef;
+
+  class NodeConnector;
+  DECLARE_ID(NodeConnector);
+
+  /**
+   * @class NodeConnector
+   * @brief Represents the part of the Node API needed by the expression subsystem.
+   */
 
   class NodeConnector 
   {

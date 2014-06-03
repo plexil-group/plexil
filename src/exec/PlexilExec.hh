@@ -79,20 +79,6 @@ namespace PLEXIL
     const PlexilExecId& getId() const {return m_id;}
 
     /**
-     * @brief Set the ExternalInterface instance used by this Exec.
-     * @param id The Id of the ExternalInterface instance.
-     */
-    void setExternalInterface(ExternalInterfaceId& id);
-
-    /**
-     * @brief Return the ExternalInterface instance used by this Exec.
-     */
-    inline ExternalInterfaceId& getExternalInterface()
-    {
-      return m_interface;
-    }
-
-    /**
      * @brief Add a library node.
      * @param libNode The intermediate representation of the library node.
      */
@@ -129,12 +115,6 @@ namespace PLEXIL
      * @brief Returns true if the Exec needs to be stepped.
      */
     bool needsStep() const;
-
-    /**
-     * @brief Return the number of "macro steps" since this instance was constructed.
-     * @return The macro step count.
-     */
-    unsigned int getCycleCount() const;
 
     /**
      * @brief Set the ExecListenerHub instance.
@@ -188,16 +168,6 @@ namespace PLEXIL
      * @brief Schedule this assignment for retraction.
      */
     void enqueueAssignmentForRetraction(const AssignmentId& assign);
-
-    /**
-     * @brief Schedule this command for execution.
-     */
-    void enqueueCommand(const CommandId& cmd);
-
-    /**
-     * @brief Schedule this update for execution.
-     */
-    void enqueueUpdate(const UpdateId& update);
 
     /**
      * @brief Needed for stupid unit test
@@ -278,15 +248,12 @@ namespace PLEXIL
     std::vector<AssignmentId> m_assignmentsToExecute;
     std::vector<AssignmentId> m_assignmentsToRetract;
     std::vector<AssignableId> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
-    std::list<CommandId> m_commandsToExecute;
-    std::list<UpdateId> m_updatesToExecute;
     VariableConflictMap m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
                                                The nodes in the sets are assignment nodes which can assign values to the variable.
                                                The sets are ordered by priority, but the order is dominated by FAILING nodes.
                                                Essentially, at each quiescence cycle, the first node in each set that isn't already
                                                in state FAILING gets added to the end of the queue. */
     std::map<std::string, PlexilNodeId> m_libraries;
-    unsigned int m_cycleNum;
     unsigned int m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };

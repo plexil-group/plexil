@@ -28,7 +28,6 @@
 
 #include "ArrayImpl.hh"
 #include "Error.hh"
-#include "ExecConnector.hh"
 #include "ExternalInterface.hh"
 #include "Lookup.hh"
 
@@ -54,7 +53,7 @@ namespace PLEXIL
   void StateCacheEntry::registerLookup(Lookup *l)
   {
     m_lookups.push_back(l);
-    if (m_timestamp < g_exec->getCycleCount())
+    if (m_timestamp < g_interface->getCycleCount())
       g_interface->lookupNow(m_state, *this);
     this->notifyLookup(l); // may be redundant
   }
@@ -85,13 +84,13 @@ namespace PLEXIL
   void StateCacheEntry::setUnknown()
   {
     m_cachedKnown = false;
-    m_timestamp = g_exec->getCycleCount();
+    m_timestamp = g_interface->getCycleCount();
     notify();
   }
 
   void StateCacheEntry::checkIfStale()
   {
-    if (m_timestamp < g_exec->getCycleCount())
+    if (m_timestamp < g_interface->getCycleCount())
       g_interface->lookupNow(m_state, *this);
   }
 
@@ -160,7 +159,7 @@ namespace PLEXIL
         || m_cachedValue != val) {
       m_cachedValue = val;
       StateCacheEntry::m_cachedKnown = true;
-      StateCacheEntry::m_timestamp = g_exec->getCycleCount();
+      StateCacheEntry::m_timestamp = g_interface->getCycleCount();
       StateCacheEntry::notify();
     }
     return true;
@@ -241,7 +240,7 @@ namespace PLEXIL
         || m_cachedValue != *ptr) {
       m_cachedValue = *ptr;
       StateCacheEntry::m_cachedKnown = true;
-      StateCacheEntry::m_timestamp = g_exec->getCycleCount();
+      StateCacheEntry::m_timestamp = g_interface->getCycleCount();
       StateCacheEntry::notify();
     }
     return true;

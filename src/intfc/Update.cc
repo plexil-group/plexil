@@ -27,21 +27,19 @@
 #include "Update.hh"
 #include "Debug.hh"
 #include "ExpressionFactory.hh"
-#include "Node.hh"
-#include "PlexilPlan.hh"
+#include "PlexilUpdate.hh"
 
 namespace PLEXIL
 {
-  Update::Update(const NodeId& node, 
-                 const PlexilUpdateId& updateProto)
+  Update::Update(std::string const &nodeName,
+                 PlexilUpdateId const &updateProto)
     : m_id(this),
-      m_source(node),
       m_ack(),
       m_garbage(),
       m_pairs()
   {
     // Make ack variable pretty
-    m_ack.setName(node->getNodeId() + " ack");
+    m_ack.setName(nodeName + " ack");
 
     if (updateProto.isId()) {
       for (std::vector<std::pair<std::string, PlexilExprId> >::const_iterator it =
@@ -57,7 +55,7 @@ namespace PLEXIL
         ExpressionId valueExpr = 
           ExpressionFactory::createInstance(foo->name(),
                                             foo,
-                                            (NodeConnectorId) node,
+                                            NodeConnectorId::noId(),
                                             wasCreated);
         check_error(valueExpr.isValid());
         if (wasCreated)

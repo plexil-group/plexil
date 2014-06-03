@@ -27,8 +27,8 @@
 #include "ExpressionFactory.hh"
 #include "Debug.hh"
 #include "Expression.hh"
-#include "Node.hh"
-#include "Variable.hh"
+#include "NodeConnector.hh"
+#include "PlexilExpr.hh"
 #include "lifecycle-utils.h"
 
 namespace PLEXIL

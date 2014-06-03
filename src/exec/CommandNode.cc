@@ -509,7 +509,7 @@ namespace PLEXIL
     m_command->activate();
     m_command->fixValues();
     m_command->fixResourceValues();
-    g_exec->enqueueCommand(m_command);
+    g_interface->enqueueCommand(m_command);
   }
 
   void CommandNode::abort()
@@ -517,7 +517,7 @@ namespace PLEXIL
     checkError(m_command.isValid(), "CommandNode::abort: Command is invalid");
     // Handle stupid unit test
     if (g_interface.isId()) {
-      g_interface->invokeAbort(m_command);
+      g_interface->abortCommand(m_command);
     }
   }
 

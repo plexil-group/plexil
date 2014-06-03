@@ -12,8 +12,8 @@
 /* Define to 1 if you have the `bzero' function. */
 #undef HAVE_BZERO
 
-/* Define to 1 if you have the `clock_gettime' function. */
-#undef HAVE_CLOCK_GETTIME
+/* Define to 1 if you have the `ctime_r' function. */
+#undef HAVE_CTIME_R
 
 /* Define to 1 if PlanDebugListener is enabled in the build. */
 #undef HAVE_DEBUG_LISTENER
@@ -26,6 +26,9 @@
 
 /* Define to 1 if you have the `dup2' function. */
 #undef HAVE_DUP2
+
+/* Define to 1 if you have the <execinfo.h> header file. */
+#undef HAVE_EXECINFO_H
 
 /* Define to 1 if you have the <ext/hash_map> header file. */
 #undef HAVE_EXT_HASH_MAP
@@ -57,14 +60,17 @@
 /* Define to 1 if you have the `gethostname' function. */
 #undef HAVE_GETHOSTNAME
 
-/* Define to 1 if you have the `gettimeofday' function. */
-#undef HAVE_GETTIMEOFDAY
-
 /* Define to 1 if you have the <hash_map> header file. */
 #undef HAVE_HASH_MAP
 
 /* Define to 1 if you have the `inet_ntoa' function. */
 #undef HAVE_INET_NTOA
+
+/* Define to 1 if the system has the type `int32_t'. */
+#undef HAVE_INT32_T
+
+/* Define to 1 if the system has the type `int64_t'. */
+#undef HAVE_INT64_T
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -120,23 +126,35 @@
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
 
+/* Define to 1 if the system has the type `pid_t'. */
+#undef HAVE_PID_T
+
 /* Define to 1 if you have the `pow' function. */
 #undef HAVE_POW
 
 /* Define to 1 if you have the `pthread_mutexattr_settype' function. */
 #undef HAVE_PTHREAD_MUTEXATTR_SETTYPE
 
-/* Define to 1 if the system has the type `ptrdiff_t suseconds_t'. */
-#undef HAVE_PTRDIFF_T_SUSECONDS_T
+/* Define to 1 if the system has the type `ptrdiff_t'. */
+#undef HAVE_PTRDIFF_T
 
 /* Define to 1 if you have the `select' function. */
 #undef HAVE_SELECT
+
+/* Define to 1 if you have the `setitimer' function. */
+#undef HAVE_SETITIMER
+
+/* Define to 1 if the system has the type `size_t'. */
+#undef HAVE_SIZE_T
 
 /* Define to 1 if you have the `socket' function. */
 #undef HAVE_SOCKET
 
 /* Define to 1 if you have the `sqrt' function. */
 #undef HAVE_SQRT
+
+/* Define to 1 if the system has the type `ssize_t'. */
+#undef HAVE_SSIZE_T
 
 /* Define to 1 if stdbool.h conforms to C99. */
 #undef HAVE_STDBOOL_H
@@ -192,6 +210,9 @@
 /* Define to 1 if you have the `strtoul' function. */
 #undef HAVE_STRTOUL
 
+/* Define to 1 if the system has the type `suseconds_t'. */
+#undef HAVE_SUSECONDS_T
+
 /* Define to 1 if you have the <sys/file.h> header file. */
 #undef HAVE_SYS_FILE_H
 
@@ -228,6 +249,18 @@
 /* Define to 1 if you have the <tr1/unordered_map> header file. */
 #undef HAVE_TR1_UNORDERED_MAP
 
+/* Define to 1 if the system has the type `uint16_t'. */
+#undef HAVE_UINT16_T
+
+/* Define to 1 if the system has the type `uint32_t'. */
+#undef HAVE_UINT32_T
+
+/* Define to 1 if the system has the type `uint64_t'. */
+#undef HAVE_UINT64_T
+
+/* Define to 1 if the system has the type `uint8_t'. */
+#undef HAVE_UINT8_T
+
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
@@ -255,11 +288,12 @@
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
 
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
+
 /* Define to 1 if debug logging is disabled. */
 #undef NO_DEBUG_MESSAGE_SUPPORT
-
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#undef NO_MINUS_C_MINUS_O
 
 /* Name of package */
 #undef PACKAGE
@@ -276,14 +310,20 @@
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
 
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
 /* Define to 1 if Id validity checking is disabled. */
 #undef PLEXIL_ID_FAST
 
-/* Define to 1 if the C compiler supports function prototypes. */
-#undef PROTOTYPES
+/* Define to 1 if multithreading is enabled. */
+#undef PLEXIL_WITH_THREADS
+
+/* Define to 1 if Unix native time facilities are enabled. */
+#undef PLEXIL_WITH_UNIX_TIME
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
@@ -299,11 +339,6 @@
 
 /* Define to 1 if the `setpgrp' function takes no argument. */
 #undef SETPGRP_VOID
-
-/* Define to 1 if the `setvbuf' function takes the buffering type as its
-   second argument and the buffer pointer as the third, as on System V before
-   release 3. */
-#undef SETVBUF_REVERSED
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
@@ -321,9 +356,6 @@
    `char[]'. */
 #undef YYTEXT_POINTER
 
-/* Define like PROTOTYPES; this can be used by system headers. */
-#undef __PROTOTYPES
-
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 
@@ -335,9 +367,6 @@
 
 /* Define to `int' if <sys/types.h> does not define. */
 #undef pid_t
-
-/* Define to `unsigned' if <sys/types.h> does not define. */
-#undef size_t
 
 /* Define as `fork' if `vfork' does not work. */
 #undef vfork

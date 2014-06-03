@@ -183,6 +183,7 @@ AC_CONFIG_FILES([Makefile
                  third-party/pugixml/src/Makefile
                  utils/Makefile
                  expr/Makefile
+                 intfc/Makefile
                  exec/Makefile
                  app-framework/Makefile
                  apps/TestExec/Makefile

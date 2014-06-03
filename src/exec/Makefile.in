@@ -154,8 +154,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libPlexilExec_la_LIBADD =
 am_libPlexilExec_la_OBJECTS = libPlexilExec_la-Assignment.lo \
-	libPlexilExec_la-AssignmentNode.lo libPlexilExec_la-Command.lo \
-	libPlexilExec_la-CommandHandleVariable.lo \
+	libPlexilExec_la-AssignmentNode.lo \
 	libPlexilExec_la-CommandNode.lo \
 	libPlexilExec_la-ExecConnector.lo \
 	libPlexilExec_la-ExecListener.lo \
@@ -172,8 +171,7 @@ am_libPlexilExec_la_OBJECTS = libPlexilExec_la-Assignment.lo \
 	libPlexilExec_la-PlexilXmlParser.lo \
 	libPlexilExec_la-ResourceArbiterInterface.lo \
 	libPlexilExec_la-TestExternalInterface.lo \
-	libPlexilExec_la-Update.lo libPlexilExec_la-UpdateNode.lo \
-	libPlexilExec_la-plan-utils.lo \
+	libPlexilExec_la-UpdateNode.lo libPlexilExec_la-plan-utils.lo \
 	libPlexilExec_la-resource-tags.lo
 libPlexilExec_la_OBJECTS = $(am_libPlexilExec_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -388,22 +386,21 @@ lib_LTLIBRARIES = libPlexilExec.la
 libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
  -I@top_srcdir@/utils -I@top_srcdir@/expr
 
-include_HEADERS = Assignment.hh AssignmentNode.hh Command.hh \
- CommandHandleVariable.hh CommandNode.hh ExecConnector.hh ExecDefs.hh \
- ExecListener.hh ExecListenerBase.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
- ExecListenerHub.hh ExpressionFactory.hh Expressions.hh ExternalInterface.hh \
- InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Node.hh NodeConnector.hh \
+include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
+ ExecConnector.hh ExecDefs.hh ExecListener.hh ExecListenerBase.hh \
+ ExecListenerFilter.hh ExecListenerFilterFactory.hh \
+ ExecListenerHub.hh ExpressionFactory.hh Expressions.hh \
+ InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Node.hh \
  NodeConstants.hh NodeFactory.hh NodeVariables.hh PlexilExec.hh PlexilPlan.hh \
  PlexilResource.hh PlexilXmlParser.hh ResourceArbiterInterface.hh \
- TestExternalInterface.hh Update.hh UpdateNode.hh plan-utils.hh resource-tags.hh
+ TestExternalInterface.hh UpdateNode.hh plan-utils.hh resource-tags.hh
 
-libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc \
- Command.cc CommandHandleVariable.cc CommandNode.cc ExecConnector.cc \
- ExecListener.cc ExecListenerFilter.cc ExecListenerFilterFactory.cc \
+libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
+ ExecConnector.cc ExecListener.cc ExecListenerFilter.cc ExecListenerFilterFactory.cc \
  ExecListenerHub.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Node.cc \
  NodeConstants.cc NodeFactory.cc NodeVariables.cc PlexilExec.cc PlexilPlan.cc \
  PlexilXmlParser.cc ResourceArbiterInterface.cc TestExternalInterface.cc \
- Update.cc UpdateNode.cc plan-utils.cc resource-tags.cc
+ UpdateNode.cc plan-utils.cc resource-tags.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/exec-test-module.hh \
 @MODULE_TESTS_OPT_TRUE@	$(am__append_1)
@@ -559,8 +556,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-Assignment.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-AssignmentNode.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-Command.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-CommandHandleVariable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-CommandNode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-ExecConnector.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-ExecListener.Plo@am__quote@
@@ -579,7 +574,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-PlexilXmlParser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-ResourceArbiterInterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-TestExternalInterface.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-Update.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-UpdateNode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-plan-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-resource-tags.Plo@am__quote@
@@ -623,20 +617,6 @@ libPlexilExec_la-AssignmentNode.lo: AssignmentNode.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='AssignmentNode.cc' object='libPlexilExec_la-AssignmentNode.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-AssignmentNode.lo `test -f 'AssignmentNode.cc' || echo '$(srcdir)/'`AssignmentNode.cc
-
-libPlexilExec_la-Command.lo: Command.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-Command.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-Command.Tpo -c -o libPlexilExec_la-Command.lo `test -f 'Command.cc' || echo '$(srcdir)/'`Command.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExec_la-Command.Tpo $(DEPDIR)/libPlexilExec_la-Command.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Command.cc' object='libPlexilExec_la-Command.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-Command.lo `test -f 'Command.cc' || echo '$(srcdir)/'`Command.cc
-
-libPlexilExec_la-CommandHandleVariable.lo: CommandHandleVariable.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-CommandHandleVariable.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-CommandHandleVariable.Tpo -c -o libPlexilExec_la-CommandHandleVariable.lo `test -f 'CommandHandleVariable.cc' || echo '$(srcdir)/'`CommandHandleVariable.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExec_la-CommandHandleVariable.Tpo $(DEPDIR)/libPlexilExec_la-CommandHandleVariable.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CommandHandleVariable.cc' object='libPlexilExec_la-CommandHandleVariable.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-CommandHandleVariable.lo `test -f 'CommandHandleVariable.cc' || echo '$(srcdir)/'`CommandHandleVariable.cc
 
 libPlexilExec_la-CommandNode.lo: CommandNode.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-CommandNode.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-CommandNode.Tpo -c -o libPlexilExec_la-CommandNode.lo `test -f 'CommandNode.cc' || echo '$(srcdir)/'`CommandNode.cc
@@ -763,13 +743,6 @@ libPlexilExec_la-TestExternalInterface.lo: TestExternalInterface.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='TestExternalInterface.cc' object='libPlexilExec_la-TestExternalInterface.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-TestExternalInterface.lo `test -f 'TestExternalInterface.cc' || echo '$(srcdir)/'`TestExternalInterface.cc
-
-libPlexilExec_la-Update.lo: Update.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-Update.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-Update.Tpo -c -o libPlexilExec_la-Update.lo `test -f 'Update.cc' || echo '$(srcdir)/'`Update.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExec_la-Update.Tpo $(DEPDIR)/libPlexilExec_la-Update.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Update.cc' object='libPlexilExec_la-Update.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-Update.lo `test -f 'Update.cc' || echo '$(srcdir)/'`Update.cc
 
 libPlexilExec_la-UpdateNode.lo: UpdateNode.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-UpdateNode.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-UpdateNode.Tpo -c -o libPlexilExec_la-UpdateNode.lo `test -f 'UpdateNode.cc' || echo '$(srcdir)/'`UpdateNode.cc

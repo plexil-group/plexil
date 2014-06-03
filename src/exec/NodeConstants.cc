@@ -70,20 +70,6 @@ namespace PLEXIL
      "PARENT_EXITED"
     };
 
-  /**
-   * @brief Table of command handle value names.
-   * @note Must be in same order as CommandHandleValue enum above.
-   */
-  char const *ALL_COMMAND_HANDLE_NAMES[] =
-    {"NO_COMMAND_HANDLE",
-     "COMMAND_SENT_TO_SYSTEM",
-     "COMMAND_ACCEPTED",
-     "COMMAND_RCVD_BY_SYSTEM",
-     "COMMAND_FAILED",
-     "COMMAND_DENIED",
-     "COMMAND_SUCCESS"
-    };
-
   std::string const &nodeStateName(unsigned int s)
   {
     if (s >= NODE_STATE_MAX)
@@ -103,13 +89,6 @@ namespace PLEXIL
     if (f <= NO_FAILURE || f >= FAILURE_TYPE_MAX)
       return ALL_FAILURE_NAMES[0];
     return ALL_FAILURE_NAMES[f - NO_FAILURE];
-  }
-
-  char const *commandHandleValueName(CommandHandleValue c)
-  {
-    if (c <= NO_COMMAND_HANDLE || c >= COMMAND_HANDLE_MAX)
-      return ALL_COMMAND_HANDLE_NAMES[0];
-    return ALL_COMMAND_HANDLE_NAMES[c - NO_COMMAND_HANDLE];
   }
 
 } // namespace PLEXIL

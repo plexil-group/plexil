@@ -24,8 +24,55 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ExternalInterface.hh"
+#ifndef PLEXIL_UPDATE_HH
+#define PLEXIL_UPDATE_HH
 
-// Define global variable
-PLEXIL::ExternalInterfaceId g_interface(PLEXIL::ExternalInterfaceId::noId());
+#include "UserVariable.hh"
+#include "Value.hh"
 
+namespace PLEXIL
+{
+  // Forward declarations in PLEXIL namespace
+  class PlexilUpdate;
+  DECLARE_ID(PlexilUpdate);
+
+  class Update;
+  DECLARE_ID(Update);
+
+  class Update 
+  {
+  public:
+    Update(std::string const &node, PlexilUpdateId const &updateProto = PlexilUpdateId::noId());
+    ~Update();
+
+    const UpdateId& getId() const {return m_id;}
+    const ExpressionId& getAck() const {return m_ack.getId();}
+    const std::map<std::string, Value>& getPairs() const {return m_valuePairs;}
+    const NodeId& getSource() const {return m_source;}
+    void activate();
+    void deactivate();
+    void reset();
+
+  protected:
+    friend class UpdateNode;
+    void fixValues();
+
+  private:
+    // Deliberately unimplemented
+    Update();
+    Update(const Update&);
+    Update& operator=(const Update&);
+
+    UpdateId m_id;
+    NodeId m_source;
+    BooleanVariable m_ack;
+    std::vector<ExpressionId> m_garbage;
+    typedef std::map<std::string, ExpressionId> PairExpressionMap;
+    PairExpressionMap m_pairs;
+    typedef std::map<std::string, Value> PairValueMap;
+    PairValueMap m_valuePairs;
+  };
+
+}
+
+#endif // PLEXIL_UPDATE_HH

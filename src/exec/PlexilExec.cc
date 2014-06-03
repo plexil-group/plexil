@@ -364,22 +364,6 @@ namespace PLEXIL
     m_assignmentsToRetract.push_back(assign);
   }
 
-  /**
-   * @brief Schedule this command for execution.
-   */
-  void PlexilExec::enqueueCommand(const CommandId& cmd)
-  {
-    m_commandsToExecute.push_back(cmd);
-  }
-
-  /**
-   * @brief Schedule this update for execution.
-   */
-  void PlexilExec::enqueueUpdate(const UpdateId& update)
-  {
-    m_updatesToExecute.push_back(update);
-  }
-
   // Assumes node is a valid ID and points to an Assignment node
   void PlexilExec::removeFromResourceContention(const NodeId& node) 
   {
@@ -537,8 +521,7 @@ namespace PLEXIL
     }
     while (m_assignmentsToExecute.empty()
            && m_assignmentsToRetract.empty()
-           && m_commandsToExecute.empty()
-           && m_updatesToExecute.empty()
+           && g_interface->outboundQueueEmpty()
            && !m_nodesToConsider.empty());
     // END QUIESCENCE LOOP
 
@@ -546,13 +529,7 @@ namespace PLEXIL
 
     performAssignments();
 
-    std::list<CommandId> commands(m_commandsToExecute.begin(), m_commandsToExecute.end());
-    m_commandsToExecute.clear();
-    getExternalInterface()->batchActions(commands);
-
-    std::list<UpdateId> updates(m_updatesToExecute.begin(), m_updatesToExecute.end());
-    m_updatesToExecute.clear();
-    getExternalInterface()->updatePlanner(updates);
+    g_interface->executeOutboundQueue();
 
     debugMsg("PlexilExec:cycle", "==>End cycle " << m_cycleNum);
     for (std::list<NodeId>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {
