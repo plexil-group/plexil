@@ -41,8 +41,8 @@ libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
  ArrayVariable.cc Assignable.cc AssignableImpl.cc BooleanOperators.cc \
  Comparisons.cc Constant.cc Expression.cc ExpressionConstants.cc \
  ExpressionFactory.cc ExpressionImpl.cc ExpressionListener.cc Function.cc \
- NotifierImpl.cc Operator.cc StringOperators.cc UserVariable.cc Value.cc \
- ValueType.cc
+ NotifierImpl.cc Operator.cc PlexilExpr.cc StringOperators.cc UserVariable.cc \
+ Value.cc ValueType.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
