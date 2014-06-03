@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,14 @@
 
 #include "ExecDefs.hh"
 #include "Expression.hh"
-#include "ParserException.hh"
-#include "PlexilExec.hh"
 #include "State.hh"
 
+#include <list>
+
 namespace PLEXIL {
+  // Forward declaration
+  class StateCacheEntry;
+
   class ExternalInterface {
   public:
     /**
@@ -47,10 +50,10 @@ namespace PLEXIL {
     /**
      * @brief Perform an immediate lookup on an existing state.
      * @param state The state.
-     * @return The current value for the state.
+     * @param cacheEntry The entry in the state cache.
+     * @note Value is returned via callback on StateCacheEntry.
      */
-    // *** FIXME ***
-    virtual Value lookupNow(const State& state) = 0;
+    virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry) = 0;
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
@@ -84,19 +87,13 @@ namespace PLEXIL {
     virtual void invokeAbort(const CommandId& cmd) = 0;
 
     // Returns the current time.
+    // FIXME - use real time type
     virtual double currentTime() = 0;
-
-    virtual void setExec(const PlexilExecId& exec)
-    {
-      m_exec = exec;
-      m_exec->setExternalInterface(m_id);
-    }
 
     virtual ~ExternalInterface()   
     {
       m_id.remove();
     }
-
 
   protected:
 
@@ -106,11 +103,11 @@ namespace PLEXIL {
     {
     }
 
-    PlexilExecId m_exec;
-
   private:
     ExternalInterfaceId m_id;
   };
+
+  extern ExternalInterfaceId g_interface;
 }
 
 #endif
