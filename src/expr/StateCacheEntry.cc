@@ -29,6 +29,7 @@
 #include "ArrayImpl.hh"
 #include "Error.hh"
 #include "ExecConnector.hh"
+#include "ExternalInterface.hh"
 #include "Lookup.hh"
 
 namespace PLEXIL
@@ -54,7 +55,7 @@ namespace PLEXIL
   {
     m_lookups.push_back(l);
     if (m_timestamp < g_exec->getCycleCount())
-      callLookup(); // get current value
+      g_interface->lookupNow(m_state, *this);
     this->notifyLookup(l); // may be redundant
   }
 
@@ -91,12 +92,7 @@ namespace PLEXIL
   void StateCacheEntry::checkIfStale()
   {
     if (m_timestamp < g_exec->getCycleCount())
-      callLookup();
-  }
-
-  void StateCacheEntry::callLookup()
-  {
-    // TODO
+      g_interface->lookupNow(m_state, *this);
   }
 
   void StateCacheEntry::notify() const

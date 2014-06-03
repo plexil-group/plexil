@@ -39,11 +39,12 @@ namespace PLEXIL
 
   // OPEN QUESTIONS -
   // - Registry for Lookup, Command param/return types
-  // - Access to Exec "globals": StateCacheMap instance, cycle count (timestamp),
-  //   others?
   //
   // FORMERLY OPEN QUESTIONS -
   // - Local cache for last value? (Yes, for now; revisit when we can profile)
+  // - Access to Exec "globals":
+  //  StateCacheMap instance - via singleton pattern
+  //  cycle count (timestamp) - via g_exec global var
 
   //
   // Lookup use cases

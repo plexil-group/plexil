@@ -35,7 +35,7 @@
 
 namespace PLEXIL
 {
-  // *** FIXME: TEMPORARY HACK ***
+  // *** FIXME: TEMPORARY HACK -- MOVE TO UNIT TEST ***
   ExecConnectorId g_exec = ExecConnectorId::noId();
 
   Lookup::Lookup(ExpressionId const &stateName,

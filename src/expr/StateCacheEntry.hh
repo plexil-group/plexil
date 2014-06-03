@@ -33,10 +33,6 @@ namespace PLEXIL
 {
   class Lookup;
 
-  // TODO:
-  // - Determine how interface is accessed
-  // - Determine how quiescence count is obtained
-
   /**
    * @class StateCacheEntry
    * @brief Base class which provides the external API for a state cache entry,
@@ -94,13 +90,6 @@ namespace PLEXIL
   protected:
     // Internal functions
     StateCacheEntry(State const &, ValueType vtype);
-
-    /**
-     * @brief Call the interface to update a stale value.
-     * @note The lookup function is expected to return its value via
-     *       the appropriate update function above.
-     */
-    void callLookup();
 
     /**
      * @brief Notify all subscribers of a change in value.
