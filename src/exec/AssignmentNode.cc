@@ -37,9 +37,8 @@ namespace PLEXIL
 {
 
   AssignmentNode::AssignmentNode(const PlexilNodeId& nodeProto, 
-                                 const ExecConnectorId& exec,
                                  const NodeId& parent)
-    : Node(nodeProto, exec, parent),
+    : Node(nodeProto, parent),
       m_priority(nodeProto->priority())
   {
     checkError(nodeProto->nodeType() == NodeType_Assignment,
@@ -51,9 +50,8 @@ namespace PLEXIL
   AssignmentNode::AssignmentNode(const std::string &type,
                                  const std::string &name, 
                                  const NodeState state,
-                                 const ExecConnectorId& exec,
                                  const NodeId& parent)
-    : Node(type, name, state, exec, parent)
+    : Node(type, name, state, parent)
   {
     checkError(type == ASSIGNMENT(),
                "Invalid node type \"" << type << "\" for an AssignmentNode");
@@ -264,7 +262,7 @@ namespace PLEXIL
                "Node::execute: Assignment is invalid");
     m_assignment->activate();
     m_assignment->fixValue();
-    m_exec->enqueueAssignment(m_assignment);
+    g_exec->enqueueAssignment(m_assignment);
   }
 
   void AssignmentNode::transitionFromExecuting(NodeState destState)
@@ -388,7 +386,7 @@ namespace PLEXIL
   {
     check_error(m_assignment.isValid());
     debugMsg("Node:abort", "Aborting node " << m_nodeId);
-    m_exec->enqueueAssignmentForRetraction(m_assignment);
+    g_exec->enqueueAssignmentForRetraction(m_assignment);
   }
 
   void AssignmentNode::specializedReset()

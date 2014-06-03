@@ -144,13 +144,11 @@ namespace PLEXIL
   /**
    * @brief The constructor.  Will construct all conditions and child nodes.
    * @param node The PlexilNodeId for this node and all of its children.
-   * @param exec The executive (used for notifying the executive that a node is eligible for state transition or execution).
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
   ListNode::ListNode(const PlexilNodeId& node, 
-                     const ExecConnectorId& exec, 
                      const NodeId& parent)
-    : Node(node, exec, parent)
+    : Node(node, parent)
   {
     checkError(node->nodeType() == NodeType_NodeList || node->nodeType() == NodeType_LibraryNodeCall,
                "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
@@ -173,9 +171,8 @@ namespace PLEXIL
   ListNode::ListNode(const std::string& type,
                      const std::string& name, 
                      const NodeState state,
-                     const ExecConnectorId& exec,
                      const NodeId& parent)
-    : Node(type, name, state, exec, parent)
+    : Node(type, name, state, parent)
   {
     checkError(type == LIST() || type == LIBRARYNODECALL(),
                "Invalid node type \"" << type << "\" for a ListNode");
@@ -217,7 +214,7 @@ namespace PLEXIL
       for (std::vector<PlexilNodeId>::const_iterator it = body->children().begin();
            it != body->children().end(); 
            ++it)
-        m_children.push_back(NodeFactory::createNode(*it, m_exec, m_id));
+        m_children.push_back(NodeFactory::createNode(*it, m_id));
     }
     catch (const Error& e) {
       debugMsg("Node:node", " Error creating child nodes: " << e);

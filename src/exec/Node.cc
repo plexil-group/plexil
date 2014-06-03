@@ -180,11 +180,10 @@ namespace PLEXIL {
     return sl_empty;
   }
 
-  Node::Node(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent)
+  Node::Node(const PlexilNodeId& node, const NodeId& parent)
     : NodeConnector(),
       m_id(this, NodeConnector::getId()),
       m_parent(parent),
-      m_exec(exec),
       m_listener(*this),
       m_nodeId(node->nodeId()),
       m_nodeType(nodeTypeToString(node->nodeType())), // Can throw exception
@@ -215,13 +214,13 @@ namespace PLEXIL {
   }
 
   // Used only by module test
-  Node::Node(const std::string& type, const std::string& name, const NodeState state,
-             const ExecConnectorId& exec,
+  Node::Node(const std::string& type, 
+             const std::string& name, 
+             const NodeState state,
              const NodeId& parent)
     : NodeConnector(),
       m_id(this, NodeConnector::getId()),
       m_parent(parent),
-      m_exec(exec),
       m_listener(*this),
       m_nodeId(name),
       m_nodeType(type),
@@ -813,7 +812,7 @@ namespace PLEXIL {
     if (m_checkConditionsPending)
       return; // already in the queue
     debugMsg("Node:conditionChanged", " for node " << m_nodeId);
-    m_exec->notifyNodeConditionChanged(m_id);
+    g_exec->notifyNodeConditionChanged(m_id);
     m_checkConditionsPending = true;
   }
 
@@ -827,7 +826,7 @@ namespace PLEXIL {
     debugMsg("Node:checkConditions",
              "Can (possibly) transition to " << nodeStateName(toState));
     if (toState != m_lastQuery) {
-      m_exec->handleConditionsChanged(m_id, toState);
+      g_exec->handleConditionsChanged(m_id, toState);
       m_lastQuery = toState;
     }
     m_checkConditionsPending = false;
@@ -1560,7 +1559,7 @@ namespace PLEXIL {
     if (newValue == FINISHED_STATE && m_parent.isNoId()) {
       // Mark this node as ready to be deleted -
       // with no parent, it cannot be reset.
-      m_exec->markRootNodeFinished(m_id);
+      g_exec->markRootNodeFinished(m_id);
     }
   }
 
@@ -1935,7 +1934,7 @@ namespace PLEXIL {
              "' to be executed.");
 
     // Here only to placate the unit test
-    m_exec->notifyExecuted(getId());
+    g_exec->notifyExecuted(getId());
 
     specializedHandleExecution();
   }
@@ -2073,12 +2072,12 @@ namespace PLEXIL {
 
   const ExecListenerHubId& Node::getExecListenerHub() const
   {
-    if (m_exec.isNoId()) {
+    if (g_exec.isNoId()) {
       static ExecListenerHubId sl_hubNoId;
       return sl_hubNoId;
     }
     else
-      return m_exec->getExecListenerHub();
+      return g_exec->getExecListenerHub();
   }
 
   // Used to be a LabelStr method

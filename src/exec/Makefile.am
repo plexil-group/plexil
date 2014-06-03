@@ -31,7 +31,7 @@ libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
  -I@top_srcdir@/utils -I@top_srcdir@/expr
 
 include_HEADERS = Assignment.hh AssignmentNode.hh Command.hh \
- CommandNode.hh ExecConnector.hh ExecDefs.hh \
+ CommandHandleVariable.hh CommandNode.hh ExecConnector.hh ExecDefs.hh \
  ExecListener.hh ExecListenerBase.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
  ExecListenerHub.hh ExpressionFactory.hh Expressions.hh ExternalInterface.hh \
  InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Node.hh NodeConnector.hh \
@@ -40,13 +40,12 @@ include_HEADERS = Assignment.hh AssignmentNode.hh Command.hh \
  TestExternalInterface.hh Update.hh UpdateNode.hh plan-utils.hh resource-tags.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc \
- Command.cc CommandNode.cc ExecConnector.cc ExecListener.cc \
- ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc \
- InterfaceSchema.cc LibraryCallNode.cc ListNode.cc \
- Node.cc NodeConstants.cc NodeFactory.cc PlexilExec.cc PlexilPlan.cc \
- PlexilXmlParser.cc ResourceArbiterInterface.cc \
- TestExternalInterface.cc Update.cc UpdateNode.cc \
- plan-utils.cc resource-tags.cc
+ Command.cc CommandHandleVariable.cc CommandNode.cc ExecConnector.cc \
+ ExecListener.cc ExecListenerFilter.cc ExecListenerFilterFactory.cc \
+ ExecListenerHub.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Node.cc \
+ NodeConstants.cc NodeFactory.cc NodeVariables.cc PlexilExec.cc PlexilPlan.cc \
+ PlexilXmlParser.cc ResourceArbiterInterface.cc TestExternalInterface.cc \
+ Update.cc UpdateNode.cc plan-utils.cc resource-tags.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests

@@ -89,10 +89,9 @@ namespace PLEXIL {
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
      * @param node The PlexilNodeId for this node and all of its children.
-     * @param exec The executive (used for notifying the executive that a node is eligible for state transition or execution).
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    Node(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent = NodeId::noId());
+    Node(const PlexilNodeId& node, const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -100,7 +99,6 @@ namespace PLEXIL {
     Node(const std::string& type,
          const std::string& name,
          const NodeState state,
-         const ExecConnectorId& exec = ExecConnectorId::noId(),
          const NodeId& parent = NodeId::noId());
 
     /**
@@ -121,8 +119,6 @@ namespace PLEXIL {
      * @brief Looks up a variable by name.
      */
     virtual const ExpressionId& findVariable(const std::string& name, bool recursive = false);
-
-    const ExecConnectorId& getExec() const { return m_exec; }
 
     const NodeId& getNode() const { return m_id; }
 
@@ -326,6 +322,10 @@ namespace PLEXIL {
     friend class PlexilExec;
     friend class InternalCondition;
 
+    friend class FailureVariable;
+    friend class OutcomeVariable;
+    friend class StateVariable;
+
     // N.B.: These need to match the order of ALL_CONDITIONS()
     enum ConditionIndex {
       // Conditions on parent
@@ -488,7 +488,6 @@ namespace PLEXIL {
     //
     NodeId m_id; /*!< The Id for this node*/
     NodeId m_parent; /*!< The parent of this node.*/
-    ExecConnectorId m_exec; /*!< The executive (to notify it about condition changes and whether it needs to be executed) */
     // Listener for the various condition expressions.
     ConditionChangeListener m_listener;
     std::string m_nodeId;  /*!< the NodeId from the xml.*/
@@ -497,6 +496,7 @@ namespace PLEXIL {
     std::vector<std::string>* m_sortedVariableNames; /*!< Convenience for printing. */
     std::vector<ExpressionId> m_localVariables; /*!< Variables created in this node. */
     ExpressionId m_conditions[conditionIndexMax]; /*!< The condition expressions. */
+    // TODO: use a less space-intensive way to store node transition history
     ExpressionId m_startTimepoints[NO_NODE_STATE]; /*!< Timepoint start variables indexed by state. */
     ExpressionId m_endTimepoints[NO_NODE_STATE]; /*!< Timepoint end variables indexed by state. */
     StateVariable m_stateVariable;

@@ -77,13 +77,11 @@ namespace PLEXIL
   /**
    * @brief The constructor.  Will construct all conditions and child nodes.
    * @param node The PlexilNodeId for this node and all of its children.
-   * @param exec The executive (used for notifying the executive that a node is eligible for state transition or execution).
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
   CommandNode::CommandNode(const PlexilNodeId& nodeProto,
-                           const ExecConnectorId& exec, 
                            const NodeId& parent)
-    : Node(nodeProto, exec, parent)
+    : Node(nodeProto, parent)
   {
     checkError(nodeProto->nodeType() == NodeType_Command,
                "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
@@ -96,9 +94,8 @@ namespace PLEXIL
   CommandNode::CommandNode(const std::string& type,
                            const std::string& name, 
                            const NodeState state,
-                           const ExecConnectorId& exec,
                            const NodeId& parent)
-    : Node(type, name, state, exec, parent)
+    : Node(type, name, state, parent)
   {
     checkError(type == COMMAND(),
                "Invalid node type \"" << type << "\" for a CommandNode");
@@ -512,15 +509,15 @@ namespace PLEXIL
     m_command->activate();
     m_command->fixValues();
     m_command->fixResourceValues();
-    m_exec->enqueueCommand(m_command);
+    g_exec->enqueueCommand(m_command);
   }
 
   void CommandNode::abort()
   {
     checkError(m_command.isValid(), "CommandNode::abort: Command is invalid");
     // Handle stupid unit test
-    if (m_exec->getExternalInterface().isId()) {
-      m_exec->getExternalInterface()->invokeAbort(m_command);
+    if (g_interface.isId()) {
+      g_interface->invokeAbort(m_command);
     }
   }
 

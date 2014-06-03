@@ -28,21 +28,28 @@
 #define PLEXIL_COMMAND_HH
 
 #include "ExecDefs.hh"
-#include "NodeVariables.hh"
+#include "CommandHandleVariable.hh"
 #include "UserVariable.hh"
 #include "Value.hh"
 
 namespace PLEXIL
 {
+  // TODO:
+  // - Move type names to common file shared with ResourceArbitrationInterface
+  // - replace ResourceMap and ResourceValues with structs or classes
 
-  // *** TODO: replace ResourceMap and ResourceValues with structs or classes
+  // FIXME: conflicts with same name in ResourceArbiterInterface
   typedef std::map<std::string, ExpressionId> ResourceMap;
+
   typedef std::vector<ResourceMap> ResourceList;
   typedef std::map<std::string, Value> ResourceValues;
   typedef std::vector<ResourceValues> ResourceValuesList;
 
   class Command 
   {
+    friend class CommandNode;
+    friend class CommandHandleVariable;
+
   public:
     Command(const ExpressionId nameExpr, 
             const std::vector<ExpressionId>& args, 
@@ -62,13 +69,13 @@ namespace PLEXIL
     const NodeId &getNode() const { return m_node; }
     const std::string &getName() const;
     const std::string &getDestName() const;
+    CommandHandleValue getCommandHandle() const {return (CommandHandleValue) m_commandHandle;}
 
     void activate();
     void deactivate();
     void reset();
 
   protected:
-    friend class CommandNode;
 
     void fixValues();
     void fixResourceValues();

@@ -38,7 +38,7 @@ namespace PLEXIL
                    const ResourceList &resource,
                    const NodeId &parent)
     : m_id(this),
-      m_ack(getId()), 
+      m_ack(*this), 
       m_abortComplete(),
       m_node(parent),
       m_nameExpr(nameExpr),
@@ -142,7 +142,7 @@ namespace PLEXIL
 
   void Command::reset()
   {
-    m_ack.reset();
+    m_commandHandle = NO_COMMAND_HANDLE;
     m_abortComplete.reset();
   }
 

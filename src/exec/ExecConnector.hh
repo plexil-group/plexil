@@ -52,6 +52,9 @@ namespace PLEXIL
   class Node;
   DECLARE_ID(Node);
 
+  class PlexilNode;
+  DECLARE_ID(PlexilNode);
+
   class Update;
   DECLARE_ID(Update);
 
@@ -103,7 +106,26 @@ namespace PLEXIL
      */
     virtual unsigned int getCycleCount() const = 0;
 
-    virtual const ExternalInterfaceId& getExternalInterface() = 0;
+    // Needed by TestExternalInterface
+
+    /**
+     * @brief Add the plan under the node named by the parent.
+     * @param plan The intermediate representation of the plan.
+     * @return true if successful, false otherwise.
+     * @note If the plan references any library nodes, they are linked in.
+     */
+    bool addPlan(PlexilNodeId& plan);
+
+    /**
+     * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
+     */
+    virtual void step(double startTime) = 0; // *** FIXME: use real time type ***
+
+    /**
+     * @brief Returns true if the Exec needs to be stepped.
+     */
+    virtual bool needsStep() const = 0;
+
     virtual const ExecListenerHubId& getExecListenerHub() const = 0;
 
   private:

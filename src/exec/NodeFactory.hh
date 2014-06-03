@@ -45,7 +45,6 @@ namespace PLEXIL
      * @brief Primary factory method.
      */
     static NodeId createNode(const PlexilNodeId& nodeProto, 
-                             const ExecConnectorId& exec, 
                              const NodeId& parent = NodeId::noId());
 
     /**
@@ -54,7 +53,6 @@ namespace PLEXIL
     static NodeId createNode(const std::string& type, 
                              const std::string& name, 
                              const NodeState state,
-                             const ExecConnectorId& exec = ExecConnectorId::noId(),
                              const NodeId& parent = NodeId::noId());
 
     static void ensureNodeFactoriesRegistered();
@@ -69,7 +67,6 @@ namespace PLEXIL
      * @brief Primary factory method.
      */
     virtual NodeId create(const PlexilNodeId& node, 
-                          const ExecConnectorId& exec, 
                           const NodeId& parent = NodeId::noId()) const = 0;
 
     /**
@@ -77,7 +74,6 @@ namespace PLEXIL
      */
 
     virtual NodeId create(const std::string& type, const std::string& name, const NodeState state,
-                          const ExecConnectorId& exec = ExecConnectorId::noId(),
                           const NodeId& parent = NodeId::noId()) const = 0;
 
     PlexilNodeType m_nodeType;
@@ -111,7 +107,6 @@ namespace PLEXIL
     ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
 
     NodeId create(const PlexilNodeId& nodeProto, 
-                  const ExecConnectorId& exec, 
                   const NodeId& parent) const
     {
       // Shouldn't happen
@@ -119,21 +114,23 @@ namespace PLEXIL
                  "Factory for node type " << PlexilParser::nodeTypeString(m_nodeType)
                  << " invoked on node type "
                  << PlexilParser::nodeTypeString(nodeProto->nodeType()));
-      return (new NODE_TYPE(nodeProto, exec, parent))->getId();
+      return (new NODE_TYPE(nodeProto, parent))->getId();
     }
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
 
-    NodeId create(const std::string& type, const std::string& name, const NodeState state,
-                  const ExecConnectorId& exec, const NodeId& parent) const
+    NodeId create(const std::string& type,
+                  const std::string& name, 
+                  const NodeState state,
+                  const NodeId& parent) const
     {
       // Shouldn't happen
       checkError(PlexilParser::parseNodeType(type) == m_nodeType,
                  "Factory for node type " << PlexilParser::nodeTypeString(m_nodeType)
                  << " invoked on node type " << type);
-      return (new NODE_TYPE(type, name, state, exec, parent))->getId();
+      return (new NODE_TYPE(type, name, state, parent))->getId();
     }
 
   };

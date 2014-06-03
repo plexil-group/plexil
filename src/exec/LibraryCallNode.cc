@@ -29,6 +29,7 @@
 #include "Alias.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "ExecConnector.hh"
 #include "ExpressionFactory.hh"
 #include "NodeFactory.hh"
 #include "UserVariable.hh"
@@ -39,13 +40,11 @@ namespace PLEXIL
   /**
    * @brief The constructor.  Will construct all conditions and child nodes.
    * @param node The PlexilNodeId for this node and all of its children.
-   * @param exec The executive (used for notifying the executive that a node is eligible for state transition or execution).
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
   LibraryCallNode::LibraryCallNode(const PlexilNodeId& nodeProto, 
-                                   const ExecConnectorId& exec, 
                                    const NodeId& parent)
-    : ListNode(nodeProto, exec, parent)
+    : ListNode(nodeProto, parent)
   {
     checkError(nodeProto->nodeType() == NodeType_LibraryNodeCall,
                "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
@@ -67,9 +66,8 @@ namespace PLEXIL
   LibraryCallNode::LibraryCallNode(const std::string& type,
                                    const std::string& name, 
                                    const NodeState state,
-                                   const ExecConnectorId& exec,
                                    const NodeId& parent)
-    : ListNode(type, name, state, exec, parent)
+    : ListNode(type, name, state, parent)
   {
     checkError(type == LIBRARYNODECALL(),
                "Invalid node type \"" << type << "\" for a LibraryCallNode");
@@ -124,7 +122,7 @@ namespace PLEXIL
     }
 
     // Construct the child
-    m_children.push_back(NodeFactory::createNode(body->libNode(), m_exec, m_id));
+    m_children.push_back(NodeFactory::createNode(body->libNode(), m_id));
   }
 
   // Check aliases against interfaceVars.

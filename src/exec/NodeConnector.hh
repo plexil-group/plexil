@@ -43,7 +43,6 @@ namespace PLEXIL
     virtual ExpressionId const &findVariable(const PlexilVarRef* ref) = 0;
     virtual ExpressionId const &findVariable(const std::string &name, bool recursive = false) = 0;
     virtual NodeId const &getNode() const = 0;
-    virtual ExecConnectorId const &getExec() const = 0;
     virtual ExecListenerHubId const &getExecListenerHub() const = 0;
 
   private:

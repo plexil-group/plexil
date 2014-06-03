@@ -73,7 +73,6 @@ namespace PLEXIL
    * @brief Primary factory method.
    */
   NodeId NodeFactory::createNode(const PlexilNodeId& nodeProto, 
-                                 const ExecConnectorId& exec, 
                                  const NodeId& parent)
   {
     checkError(nodeProto.isValid(), "Invalid PlexilNodeId");
@@ -85,7 +84,7 @@ namespace PLEXIL
     NodeFactory* factory = factoryMap()[nodeType];
     checkError(factory != NULL, 
                "No NodeFactory registered for node type " << PlexilParser::nodeTypeString(nodeType));
-    NodeId result = factory->create(nodeProto, exec, parent);
+    NodeId result = factory->create(nodeProto, parent);
     // common post process here
     result->constructTimepointVariables();
     return result;
@@ -97,7 +96,6 @@ namespace PLEXIL
   NodeId NodeFactory::createNode(const std::string& type, 
                                  const std::string& name, 
                                  const NodeState state,
-                                 const ExecConnectorId& exec,
                                  const NodeId& parent)
   {
     PlexilNodeType nodeType = PlexilParser::parseNodeType(type);
@@ -108,7 +106,7 @@ namespace PLEXIL
     NodeFactory* factory = factoryMap()[nodeType];
     checkError(factory != NULL, 
                "No NodeFactory registered for node type " << type);
-    NodeId result = factory->create(type, name, state, exec, parent);
+    NodeId result = factory->create(type, name, state, parent);
     // common post process here
     result->constructTimepointVariables();
     result->activateInternalVariables();

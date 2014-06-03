@@ -39,10 +39,9 @@ namespace PLEXIL
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
      * @param node The PlexilNodeId for this node and all of its children.
-     * @param exec The executive (used for notifying the executive that a node is eligible for state transition or execution).
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    ListNode(const PlexilNodeId& node, const ExecConnectorId& exec, const NodeId& parent = NodeId::noId());
+    ListNode(const PlexilNodeId& node, const NodeId& parent = NodeId::noId());
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -50,7 +49,6 @@ namespace PLEXIL
     ListNode(const std::string& type,
              const std::string& name,
              const NodeState state,
-             const ExecConnectorId& exec = ExecConnectorId::noId(),
              const NodeId& parent = NodeId::noId());
 
     /**

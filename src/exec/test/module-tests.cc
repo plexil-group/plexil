@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,14 +24,21 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "exec-test-module.hh"
 #include <fstream>
-#include <cstring>
+#include <cstring> // for strcmp
 #include <iostream>
 #include <string>
 #include "Debug.hh"
 
-int main(int argc, char** argv) {
+// Declarations of tests
+
+
+void runTests()
+{
+
+}
+
+int main(int argc, char *argv[]) {
 
   std::string debugConfig("Debug.cfg");
   
@@ -49,6 +56,6 @@ int main(int argc, char** argv) {
   else
      std::cout << "Unable to read configuration file: " << debugConfig.c_str() << "\n";
   
-  ExecModuleTests::runTests();
+  runTests();
   return 0;
 }

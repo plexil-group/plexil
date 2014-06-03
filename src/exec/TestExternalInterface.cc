@@ -71,15 +71,10 @@ namespace PLEXIL
   {
   }
 
-  void TestExternalInterface::setExec(const PlexilExecId& exec)
-  {
-    ExternalInterface::setExec(exec);
-  }
-
   void TestExternalInterface::run(const pugi::xml_node& input)
     throw(ParserException)
   {
-    checkError(m_exec.isValid(), "Attempted to run a script without an executive.");
+    checkError(g_exec.isValid(), "Attempted to run a script without an executive.");
     handleInitialState(input);
     pugi::xml_node script = input.child("Script");
     checkError(!script.empty(), "No Script element in Plexilscript.");
@@ -137,13 +132,13 @@ namespace PLEXIL
       }
          
       // step the exec forward
-      m_exec->step(currentTime());
+      g_exec->step(currentTime());
 
       scriptElement = scriptElement.next_sibling();
     }
     // Continue stepping the Exec til quiescent
-    while (m_exec->needsStep()) {
-      m_exec->step(currentTime());
+    while (g_exec->needsStep()) {
+      g_exec->step(currentTime());
     }
   }
 
@@ -185,7 +180,7 @@ namespace PLEXIL
         }
       }
     }
-    m_exec->step(currentTime());
+    g_exec->step(currentTime());
   }
 
   void TestExternalInterface::handleState(const pugi::xml_node& elt)
@@ -272,7 +267,7 @@ namespace PLEXIL
              "Sending plan from file " << elt.attribute("file").value());
     PlexilNodeId root =
       PlexilXmlParser::parse(doc->document_element().child("PlexilPlan").child("Node"));
-    checkError(m_exec->addPlan(root),
+    checkError(g_exec->addPlan(root),
                "Adding plan " << elt.attribute("file").value() << " failed");
   }
 

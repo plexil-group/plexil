@@ -29,6 +29,7 @@
 
 #include "ExecDefs.hh"
 #include "ExternalInterface.hh"
+#include "ParserException.hh"
 #include "ResourceArbiterInterface.hh"
 #include "Array.hh"
 
@@ -44,14 +45,14 @@ namespace pugi
 
 namespace PLEXIL 
 {
+  // Forward declaration
+  class ParserException;
 
   class TestExternalInterface : public ExternalInterface 
   {
   public:
     TestExternalInterface();
     ~TestExternalInterface();
-
-    virtual void setExec(const PlexilExecId& exec);
 
     void run(const pugi::xml_node& input)
     throw(ParserException);

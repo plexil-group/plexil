@@ -39,13 +39,11 @@ namespace PLEXIL
   /**
    * @brief The constructor.  Will construct all conditions and child nodes.
    * @param node The PlexilNodeId for this node and all of its children.
-   * @param exec The executive (used for notifying the executive that a node is eligible for state transition or execution).
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
   UpdateNode::UpdateNode(const PlexilNodeId& node, 
-                         const ExecConnectorId& exec, 
                          const NodeId& parent)
-    : Node(node, exec, parent)
+    : Node(node, parent)
   {
     checkError(node->nodeType() == NodeType_Update,
                "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
@@ -58,9 +56,8 @@ namespace PLEXIL
   UpdateNode::UpdateNode(const std::string& type,
                          const std::string& name, 
                          const NodeState state,
-                         const ExecConnectorId& exec,
                          const NodeId& parent)
-    : Node(type, name, state, exec, parent)
+    : Node(type, name, state, parent)
   {
     checkError(type == UPDATE(),
                "Invalid node type \"" << type << "\" for an UpdateNode");
@@ -181,7 +178,7 @@ namespace PLEXIL
                "Node::execute: Update is invalid");
     m_update->activate();
     m_update->fixValues();
-    m_exec->enqueueUpdate(m_update);
+    g_exec->enqueueUpdate(m_update);
   }
 
   NodeState UpdateNode::getDestStateFromExecuting()
