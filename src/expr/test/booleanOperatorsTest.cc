@@ -31,7 +31,7 @@
 
 using namespace PLEXIL;
 
-bool testBooleanNot()
+static bool testBooleanNot()
 {
   BooleanConstant unk;
   BooleanConstant troo(true);
@@ -55,7 +55,7 @@ bool testBooleanNot()
   return true;
 }
 
-bool testBooleanAnd()
+static bool testBooleanAnd()
 {
   BooleanConstant unk;
   BooleanConstant troo(true);
@@ -103,7 +103,7 @@ bool testBooleanAnd()
   return true;
 }
 
-bool testBooleanOr()
+static bool testBooleanOr()
 {
   BooleanConstant unk;
   BooleanConstant troo(true);
@@ -151,7 +151,7 @@ bool testBooleanOr()
   return true;
 }
 
-bool testBooleanXor()
+static bool testBooleanXor()
 {
   BooleanConstant unk;
   BooleanConstant troo(true);
