@@ -61,14 +61,6 @@
     return *ensure__ ## NAME(); \
   }
 
-// *** FIXME ***
-/**
- * @def DECLARE_STATIC_CLASS_CONST_STRING_VALUE(TYPE,NAME)
- * @brief Declare and define class scoped constant string value to ensure initialization
- * occurs before use with all linkers.
- */
-#define DECLARE_STATIC_CLASS_CONST_STRING_VALUE(NAME, VALUE) DECLARE_STATIC_CLASS_CONST_WITH_CLEANUP(PLEXIL::Value, NAME, VALUE)
-
 /**
  * @def DECLARE_GLOBAL_CONST(TYPE,NAME)
  * @brief Declare a global constant via a global function to ensure initialization
@@ -87,6 +79,31 @@
   const TYPE& NAME() { \
     static const TYPE sl_data(VALUE); \
     return sl_data; \
+  }
+
+/**
+ * @def DEFINE_GLOBAL_CONST(TYPE,NAME,VALUE)
+ * @brief Define a global constant to have the given value via a
+ * global function to ensure initialization occurs before use with all
+ * linkers.
+ */
+#define DEFINE_GLOBAL_CONST_WITH_CLEANUP(TYPE, NAME, VALUE) \
+  static void NAME ## __destroy(); \
+  static TYPE* ensure__ ## NAME() { \
+    static TYPE *sl_ptr; \
+    static bool sl_inited; \
+    if (!sl_inited) { \
+      sl_ptr = new TYPE(VALUE); \
+      sl_inited = true; \
+      addFinalizer(&NAME ## __destroy); \
+    } \
+    return sl_ptr; \
+  } \
+  static void NAME ## __destroy() { \
+    delete ensure__ ## NAME(); \
+  } \
+  const TYPE& NAME() { \
+    return *ensure__ ## NAME(); \
   }
 
 /**
