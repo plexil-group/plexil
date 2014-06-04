@@ -24,22 +24,30 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Debug.hh"
+#include "TestSupport.hh"
+#include "lifecycle-utils.h"
+
 #include <fstream>
 #include <cstring> // for strcmp
 #include <iostream>
 #include <string>
-#include "Debug.hh"
 
 // Declarations of tests
-
+extern bool stateTransitionTests();
 
 void runTests()
 {
+  runTestSuite(stateTransitionTests);
 
+  // Clean up
+  runFinalizers();
+
+  std::cout << "Finished" << std::endl;
 }
 
-int main(int argc, char *argv[]) {
-
+int main(int argc, char *argv[]) 
+{
   std::string debugConfig("Debug.cfg");
   
   for (int i = 1; i < argc; ++i) {
