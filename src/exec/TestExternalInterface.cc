@@ -151,7 +151,7 @@ namespace PLEXIL
     if (expr != ExpressionId::noId()) {
       checkError(expr->isAssignable(),
                  "Expected variable in \'" << source << "\'");
-      ((Assignable *) expr)->setValue(value);
+      expr->getAssignableId()->setValue(value);
       std::map<ExpressionId, CommandId>::iterator iter;
       if ((iter = m_destToCmdMap.find(expr)) != m_destToCmdMap.end()) {
         m_destToCmdMap.erase(iter);
@@ -218,7 +218,7 @@ namespace PLEXIL
     ExpressionUtMap::iterator it = m_commandAcks.find(command);
     assertTrueMsg(it != m_commandAcks.end(), 
                   "No command waiting for acknowledgement " << getText(command));
-    ((Assignable *) it->second)->setValue(value);
+    it->second->getAssignableId()->setValue(value);
     // Release resources if the command does not have a return value
     if (m_executingCommands.find(command) == m_executingCommands.end())
       m_raInterface.releaseResourcesForCommand(command.name());
@@ -236,7 +236,7 @@ namespace PLEXIL
                   "No abort waiting for acknowledgement " << getText(command));
     debugMsg("Test:testOutput",
              "Acknowledging abort into " << it->second);
-    ((Assignable *) it->second)->setValue(true);
+    it->second->getAssignableId()->setValue(true);
     m_abortingCommands.erase(it);
   }
 
@@ -247,7 +247,7 @@ namespace PLEXIL
     std::map<std::string, UpdateId>::iterator it = m_waitingUpdates.find(name);
     checkError(it != m_waitingUpdates.end(),
                "No update from node " << name << " waiting for acknowledgement.");
-    ((Assignable *) it->second->getAck())->setValue(true);
+    it->second->getAck()->getAssignableId()->setValue(true);
     m_waitingUpdates.erase(it);
   }
 
@@ -514,7 +514,7 @@ namespace PLEXIL
         debugMsg("Test:testOutput", 
                  "Permission to execute " << cmd->getName()
                  << " has been denied by the resource arbiter.");
-        ((Assignable *) cmd->getAck())->setValue(COMMAND_DENIED);
+        cmd->getAck()->getAssignableId()->setValue(COMMAND_DENIED);
       }
     }
   }
@@ -536,12 +536,12 @@ namespace PLEXIL
     // Special handling of the utility commands (a bit of a hack!):
     if (name == "print") {
       print(args);
-      ((Assignable *) ack)->setValue(COMMAND_SUCCESS);
+      ack->getAssignableId()->setValue(COMMAND_SUCCESS);
       m_raInterface.releaseResourcesForCommand(name);
     }
     else if (name == "pprint") {
       pprint(args);
-      ((Assignable *) ack)->setValue(COMMAND_SUCCESS);
+      ack->getAssignableId()->setValue(COMMAND_SUCCESS);
       m_raInterface.releaseResourcesForCommand(name);
     }
     else {

@@ -919,8 +919,8 @@ namespace PLEXIL {
              << " = start time " << START_TIMEPOINT_NAMES()[destState]
              << " = " << time);
     // FIXME - Need better way to record transition times
-    ((Assignable *) m_endTimepoints[prevState])->setValue(time);
-    ((Assignable *) m_startTimepoints[destState])->setValue(time);
+    m_endTimepoints[prevState]->getAssignableId()->setValue(time);
+    m_startTimepoints[destState]->getAssignableId()->setValue(time);
   }
 
   // Common method 
@@ -1972,10 +1972,10 @@ namespace PLEXIL {
     //reset timepoints
     for (int s = INACTIVE_STATE; s <= nodeStateMax(); ++s) {
       m_startTimepoints[s]->deactivate();
-      ((Assignable *) m_startTimepoints[s])->reset();
+      m_startTimepoints[s]->getAssignableId()->reset();
       m_startTimepoints[s]->activate();
       m_endTimepoints[s]->deactivate();
-      ((Assignable *) m_endTimepoints[s])->reset();
+      m_endTimepoints[s]->getAssignableId()->reset();
       m_endTimepoints[s]->activate();
     }
 
@@ -1983,7 +1983,7 @@ namespace PLEXIL {
          it != m_localVariables.end();
          ++it)
       if ((*it)->isAssignable())
-        ((Assignable *) (*it))->reset();
+        (*it)->getAssignableId()->reset();
 
     specializedReset();
   }

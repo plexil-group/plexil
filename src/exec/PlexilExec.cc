@@ -348,7 +348,7 @@ namespace PLEXIL
   {
     ExpressionId lhs = node->getAssignmentVariable();
     check_error(lhs->isAssignable());
-    AssignableId exp = ((Assignable *) lhs)->getBaseVariable();
+    AssignableId exp = lhs->getAssignableId()->getBaseVariable();
     check_error(exp.isValid());
 
     VariableConflictMap::iterator conflict = m_resourceConflicts.find(exp);
@@ -386,7 +386,7 @@ namespace PLEXIL
   void PlexilExec::addToResourceContention(const NodeId& node) {
     ExpressionId lhs = node->getAssignmentVariable();
     check_error(lhs->isAssignable());
-    AssignableId exp = ((Assignable *) lhs)->getBaseVariable();
+    AssignableId exp = lhs->getAssignableId()->getBaseVariable();
     check_error(exp.isValid());
 
     debugMsg("PlexilExec:addToResourceContention",
