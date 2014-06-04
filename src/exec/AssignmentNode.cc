@@ -201,7 +201,7 @@ namespace PLEXIL
     checkError(cond->isActive(),
                "Node::getDestStateFromExecuting: Assignment-complete for " << m_nodeId << " is inactive.");
     bool temp;
-    if (!cond->getValue(temp) || !!temp) {
+    if (!cond->getValue(temp) || !temp) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId << "' destination: no state. Assignment node and assignment-complete false or unknown.");
       return NO_NODE_STATE;
