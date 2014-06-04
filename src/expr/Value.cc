@@ -523,11 +523,11 @@ namespace PLEXIL
       break;
 
     case STRING_TYPE:
-      printValue<bool>(m_value.stringValue, s);
+      printValue<std::string>(*m_value.stringValue, s);
       break;
 
     case BOOLEAN_ARRAY_TYPE:
-      printValue<bool>(m_value.booleanArrayValue, s);
+      printValue<bool>(*m_value.booleanArrayValue, s);
       break;
 
     case INTEGER_ARRAY_TYPE:
