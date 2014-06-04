@@ -134,7 +134,6 @@ namespace PLEXIL
     return (ValueType) (elTy + ARRAY_TYPE);
   }
 
-
   template <typename T>
   void printValue(const T &val, std::ostream &s)
   {
@@ -145,6 +144,15 @@ namespace PLEXIL
   void printValue(const ArrayImpl<T> &val, std::ostream &s)
   {
     // TODO - should delegate to array itself
+    s << "printValue not yet implemented for arrays";
   }
+
+  //
+  // Explicit instantiation
+  //
+  template void printValue(bool const &, std::ostream &);
+  template void printValue(int32_t const &, std::ostream &);
+  template void printValue(double const &, std::ostream &);
+  template void printValue(std::string const &, std::ostream &);
 
 }

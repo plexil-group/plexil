@@ -73,7 +73,7 @@ namespace PLEXIL
     };
 
   // Utility functions
-  const std::string &plexilTypeName(ValueType ty);
+  const std::string &valueTypeName(ValueType ty);
 
   bool isUserType(ValueType ty);
   bool isInternalType(ValueType ty);
