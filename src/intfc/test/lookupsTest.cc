@@ -97,6 +97,10 @@ public:
   {
   }
 
+  void setThresholds(const State& /* state */, int32_t /* hi */, int32_t /* lo */)
+  {
+  }
+
   double currentTime()
   {
     return 0.0;
