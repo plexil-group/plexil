@@ -78,6 +78,8 @@ namespace PLEXIL
 
     void setName(const std::string &);
 
+    const std::string& getName() const;
+
   private:
 
     // Not implemented
@@ -86,6 +88,7 @@ namespace PLEXIL
     CommandHandleVariable &operator=(const CommandHandleVariable &);
 
     Command const & m_command;
+    std::string m_name;
   };
 
 } // namespace PLEXIL

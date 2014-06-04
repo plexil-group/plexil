@@ -46,6 +46,16 @@ namespace PLEXIL
   {
   }
 
+  void CommandHandleVariable::setName(std::string const &name)
+  {
+    m_name = name;
+  }
+
+  const std::string& CommandHandleVariable::getName() const
+  {
+    return m_name;
+  }
+
   bool CommandHandleVariable::isKnown() const
   {
     return NO_COMMAND_HANDLE != m_command.getCommandHandle();
