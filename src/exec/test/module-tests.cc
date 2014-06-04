@@ -40,9 +40,6 @@ void runTests()
 {
   runTestSuite(stateTransitionTests);
 
-  // Clean up
-  runFinalizers();
-
   std::cout << "Finished" << std::endl;
 }
 
@@ -65,5 +62,8 @@ int main(int argc, char *argv[])
      std::cout << "Unable to read configuration file: " << debugConfig.c_str() << "\n";
   
   runTests();
+
+  // Clean up
+  runFinalizers();
   return 0;
 }
