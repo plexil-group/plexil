@@ -385,7 +385,7 @@ top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilExec.la
 libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/utils -I@top_srcdir@/intfc -I@top_srcdir@/expr
+ -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc
 
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecDefs.hh ExecListener.hh ExecListenerBase.hh \
@@ -411,7 +411,7 @@ libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
 @MODULE_TESTS_OPT_TRUE@ ../third-party/pugixml/src/libpugixml.la
 
 @MODULE_TESTS_OPT_TRUE@test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
-@MODULE_TESTS_OPT_TRUE@ -I@top_srcdir@/utils -I@top_srcdir@/intfc -I@top_srcdir@/expr
+@MODULE_TESTS_OPT_TRUE@ -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc
 
 all: all-am
 
