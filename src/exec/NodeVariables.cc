@@ -62,6 +62,11 @@ namespace PLEXIL
     s << m_node.getStateName();
   }
 
+  void StateVariable::changed()
+  {
+    this->publishChange(this->getId());
+  }
+
   //
   // OutcomeVariable
   //
@@ -75,6 +80,12 @@ namespace PLEXIL
 
   OutcomeVariable::~OutcomeVariable()
   {
+  }
+
+  bool OutcomeVariable::isKnown() const
+  {
+    uint16_t outcome = m_node.getOutcome();
+    return (outcome == NO_OUTCOME);
   }
 
   bool OutcomeVariable::getValueImpl(uint16_t &result) const
@@ -103,6 +114,11 @@ namespace PLEXIL
       s << outcomeName((NodeOutcome) outcome);
   }
 
+  void OutcomeVariable::changed()
+  {
+    this->publishChange(this->getId());
+  }
+
   //
   // FailureVariable
   //
@@ -116,6 +132,12 @@ namespace PLEXIL
 
   FailureVariable::~FailureVariable()
   {
+  }
+
+  bool FailureVariable::isKnown() const
+  {
+    uint16_t ftype = m_node.getFailureType();
+    return (ftype == NO_FAILURE);
   }
 
   bool FailureVariable::getValueImpl(uint16_t &result) const
@@ -138,6 +160,11 @@ namespace PLEXIL
   void FailureVariable::printValue(std::ostream& s) const
   {
     s << failureTypeName(m_node.getFailureType());
+  }
+
+  void FailureVariable::changed()
+  {
+    this->publishChange(this->getId());
   }
 
   //

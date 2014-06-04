@@ -95,6 +95,9 @@ namespace PLEXIL {
     void activate() {}
     void deactivate() {}
 
+    // For convenience of Node
+    void changed();
+
   private:
     // Not implemented
     StateVariable();
@@ -143,6 +146,9 @@ namespace PLEXIL {
      * @param s The output stream.
      */
     void printValue(std::ostream& s) const;
+
+    // For convenience of Node
+    void changed();
 
   private:
 
@@ -193,6 +199,9 @@ namespace PLEXIL {
      * @param s The output stream.
      */
     void printValue(std::ostream& s) const;
+
+    // For convenience of Node
+    void changed();
 
   private:
 
