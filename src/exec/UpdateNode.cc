@@ -28,9 +28,9 @@
 
 #include "BooleanOperators.hh"
 #include "Debug.hh"
-#include "ExecConnector.hh"
 #include "ExpressionConstants.hh"
 #include "ExpressionFactory.hh"
+#include "ExternalInterface.hh"
 #include "Function.hh"
 #include "Update.hh"
 
@@ -127,7 +127,7 @@ namespace PLEXIL
 
   void UpdateNode::createUpdate(const PlexilUpdateBody* body) 
   {
-    m_update = (new Update(m_id, body->update()))->getId();
+    m_update = (new Update(getNodeId(), body->update()))->getId();
   }
 
   void UpdateNode::createConditionWrappers()
@@ -158,7 +158,7 @@ namespace PLEXIL
   // Unit test variant
   void UpdateNode::createDummyUpdate() 
   {
-    m_update = (new Update(m_id))->getId();
+    m_update = (new Update(getNodeId()))->getId();
   }
 
   //
@@ -178,7 +178,7 @@ namespace PLEXIL
                "Node::execute: Update is invalid");
     m_update->activate();
     m_update->fixValues();
-    g_exec->enqueueUpdate(m_update);
+    g_interface->enqueueUpdate(m_update);
   }
 
   NodeState UpdateNode::getDestStateFromExecuting()

@@ -609,7 +609,7 @@ namespace PLEXIL
 
     debugMsg("Node:createCommand",
              "Creating command for node '" << m_nodeId << "'");
-    m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getId()))->getId();
+    m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getNodeId()))->getId();
   }
 
   // Unit test variant of above
@@ -627,7 +627,7 @@ namespace PLEXIL
 
     // No resource
     ResourceList resourceList;
-    m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getId()))->getId();
+    m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getNodeId()))->getId();
   }
 
   void CommandNode::printCommandHandle(std::ostream& stream, const unsigned int indent) const
