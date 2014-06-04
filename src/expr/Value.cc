@@ -363,24 +363,24 @@ namespace PLEXIL
 
   bool Value::getValue(bool &result) const
   {
+    if (!m_known)
+      return false;
     if (m_type != BOOLEAN_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
       return false;
     }
-    if (!m_known)
-      return false;
     result = m_value.booleanValue;
     return true;
   }
 
   bool Value::getValue(int32_t &result) const
   {
+    if (!m_known)
+      return false;
     if (m_type != INTEGER_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
       return false;
     }
-    if (!m_known)
-      return false;
     result = m_value.integerValue;
     return true;
   }
@@ -406,24 +406,24 @@ namespace PLEXIL
 
   bool Value::getValue(std::string &result) const
   {
+    if (!m_known)
+      return false;
     if (m_type != STRING_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
       return false;
     }
-    if (!m_known)
-      return false;
     result = *m_value.stringValue;
     return true;
   }
 
   bool Value::getValuePointer(std::string const *&ptr) const
   {
+    if (!m_known)
+      return false;
     if (m_type != STRING_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
       return false;
     }
-    if (!m_known)
-      return false;
     ptr = m_value.stringValue;
     return true;
   }
@@ -457,48 +457,48 @@ namespace PLEXIL
 
   bool Value::getValuePointer(BooleanArray const *&ptr) const
   {
+    if (!m_known)
+      return false;
     if (m_type != BOOLEAN_ARRAY_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
       return false;
     }
-    if (!m_known)
-      return false;
     ptr = m_value.booleanArrayValue;
     return true;
   }
 
   bool Value::getValuePointer(IntegerArray const *&ptr) const
   {
+    if (!m_known)
+      return false;
     if (m_type != INTEGER_ARRAY_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
       return false;
     }
-    if (!m_known)
-      return false;
     ptr = m_value.integerArrayValue;
     return true;
   }
 
   bool Value::getValuePointer(RealArray const *&ptr) const
   {
+    if (!m_known)
+      return false;
     if (m_type != REAL_ARRAY_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
       return false;
     }
-    if (!m_known)
-      return false;
     ptr = m_value.realArrayValue;
     return true;
   }
 
   bool Value::getValuePointer(StringArray const *&ptr) const
   {
+    if (!m_known)
+      return false;
     if (m_type != STRING_ARRAY_TYPE) {
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
       return false;
     }
-    if (!m_known)
-      return false;
     ptr = m_value.stringArrayValue;
     return true;
   }
