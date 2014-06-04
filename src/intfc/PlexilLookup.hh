@@ -24,57 +24,74 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "CommandHandleVariable.hh"
+#ifndef PLEXIL_LOOKUP_PROTO_HH
+#define PLEXIL_LOOKUP_PROTO_HH
 
-#include "Command.hh"
+#include "PlexilExpr.hh"
 
 namespace PLEXIL
 {
+  // Forward references
+  class PlexilState;
+  DECLARE_ID(PlexilState);
 
-  //
-  // CommandHandleVariable
-  //
+  class PlexilState {
+  public:
+    PlexilState();
+    ~PlexilState();
 
-  CommandHandleVariable::CommandHandleVariable(Command const &cmd)
-    : NotifierImpl(),
-      ExpressionImpl<uint16_t>(),
-      m_command(cmd)
+    const PlexilStateId& getId() const;
+    const std::vector<PlexilExprId>& args() const;
+    const std::string& name() const;
+    const PlexilExprId& nameExpr() const;
+    int lineNo() const;
+    int colNo() const;
+
+    void addArg(const PlexilExprId& arg);
+    void setName(const std::string& name);
+    void setNameExpr(const PlexilExprId& nameExpr);
+    void setLineNo(int n);
+    void setColNo(int n);
+
+  private:
+    PlexilStateId m_id;
+    PlexilExprId m_nameExpr;
+    std::vector<PlexilExprId> m_args;
+    int m_lineNo;
+    int m_colNo;
+  };
+
+  class PlexilLookup : public PlexilExpr {
+  public:
+    PlexilLookup();
+    virtual ~PlexilLookup();
+
+    const PlexilStateId& state() const;
+    void setState(const PlexilStateId& state);
+
+  private:
+    PlexilStateId m_state;
+  };
+
+
+  class PlexilLookupNow : public PlexilLookup
   {
-  }
+  public:
+    PlexilLookupNow();
+  };
 
-  CommandHandleVariable::~CommandHandleVariable()
-  {
-  }
+  class PlexilChangeLookup : public PlexilLookup {
+  public:
+    PlexilChangeLookup();
+    ~PlexilChangeLookup();
 
-  bool CommandHandleVariable::isKnown() const
-  {
-    return NO_COMMAND_HANDLE != m_command.getCommandHandle();
-  }
+    const std::vector<PlexilExprId>& tolerances() const;
+    void addTolerance(const PlexilExprId& tolerance);
 
-  bool CommandHandleVariable::getValueImpl(uint16_t &result) const
-  {
-    uint16_t handle = m_command.getCommandHandle();
-    if (handle == NO_COMMAND_HANDLE)
-      return false;
-    result = handle;
-    return true;
-  }
-
-  bool CommandHandleVariable::getValuePointerImpl(uint16_t const *&ptr) const
-  {
-    if (m_command.m_commandHandle == NO_COMMAND_HANDLE)
-      return false;
-    ptr = &m_command.m_commandHandle;
-    return true;
-  }
-
-  void CommandHandleVariable::printValue(std::ostream &s) const
-  {
-    uint16_t handle = m_command.getCommandHandle();
-    if (handle == NO_COMMAND_HANDLE)
-      s << "UNKNOWN";
-    else
-      s << commandHandleValueName((CommandHandleValue) handle);
-  }
+  private:
+    std::vector<PlexilExprId> m_tolerances;
+  };
 
 } // namespace PLEXIL
+
+#endif // PLEXIL_LOOKUP_PROTO_HH

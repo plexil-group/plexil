@@ -25,7 +25,13 @@
 */
 
 #include "ExternalInterface.hh"
+#include "Constant.hh"
 #include "Lookup.hh"
+#include "PlexilLookup.hh"
+#include "StateCacheEntry.hh"
+#include "StateCacheMap.hh"
+#include "TestSupport.hh"
+#include "UserVariable.hh"
 
 #include <map>
 #include <set>
@@ -35,47 +41,48 @@ using namespace PLEXIL;
 class TestInterface : public ExternalInterface 
 {
 public:
-  static Id<TestInterface>& instance()
-  {
-    return s_instanceTestInterface;
-  }
-
   TestInterface()
     : ExternalInterface(),
       m_listener(*this) 
   {
-    s_instanceTestInterface = (Id<TestInterface>) this->getId();
-    m_listener.activate();
   }
 
   ~TestInterface() 
   {
-    if (s_instanceTestInterface == this->getId())
-      s_instanceTestInterface = Id<TestInterface>::noId();
-
     for (std::set<ExpressionId>::iterator it = m_exprs.begin(); it != m_exprs.end(); ++it)
       (*it)->removeListener(m_listener.getId());
   }
 
-  Value lookupNow(const State& state) {
+  void lookupNow(const State& state, StateCacheEntry &entry) 
+  {
     if (state.name() == "test1") {
-      return Value(0.0);
+      entry.update((double) 0.0);
+      return;
     }
     else if (state.name() == "test2") {
-      check_error(state.parameters.size() == 1);
-      const std::string& param = state.parameters[0].getStringValue();
-      if (param == "high") return Value(1.0);
-      else if (param == "low") return Value(-1.0);
+      check_error(state.parameters().size() == 1);
+      std::string const *param = NULL;
+      state.parameters()[0].getValuePointer(param);
+      if (*param == "high") {
+        entry.update((double) 1.0);
+        return;
+      }
+      else if (*param == "low") {
+        entry.update((double) -1.0);
+        return;
+      }
+      assertTrue_2(ALWAYS_FAIL, "ERROR: no matching param for TestInterface::lookupNow, state name = \"test2\"");
     }
     else if (state.name() == "time") {
-      return Value(0.0);
+      entry.update((double) 0.0);
+      return;
     }
     else {
-      return m_changingExprs[state.name()]->getValue();
+      entry.update(m_changingExprs[state.name()]->toValue());
+      return;
     }
-    std::cerr << "ERROR (shouldn't happen): reached end of lookupNow()"
-              << std::endl;
-    return Value(0.0);
+    assertTrue_2(ALWAYS_FAIL, "ERROR: reached end of TestInterface::lookupNow()");
+    entry.update((double) 0.0);
   }
 
   void subscribe(const State& /* state */)
@@ -87,18 +94,6 @@ public:
   }
 
   void setThresholds(const State& /* state */, double /* hi */, double /* lo */)
-  {
-  }
-
-  void batchActions(std::list<CommandId>& /* commands */)
-  {
-  }
-
-  void updatePlanner(std::list<UpdateId>& /* updates */)
-  {
-  }
-
-  void invokeAbort(const CommandId& /* cmd */)
   {
   }
 
@@ -132,37 +127,43 @@ public:
 protected:
   friend class ChangeListener;
 
-  void internalExecuteCommand(const std::string& /* name */,
-                  const std::vector<Value>& /* args */,
-                  ExpressionId /* dest */)
+  void executeCommand(CommandId const & /* cmd */)
   {}
 
-  void internalInvokeAbort(const std::string& /* name */,
-               const std::vector<Value>& /* args */, 
-               ExpressionId /* dest */)
+  void invokeAbort(CommandId const & /* cmd */)
   {}
 
-  void notifyValueChanged(ExpressionId expression)
+  void executeUpdate(UpdateId const & /* cmd */)
+  {}
+
+  void notifyChanged(ExpressionId expression)
   {
     std::multimap<ExpressionId, std::string>::const_iterator it = m_exprsToStateName.find(expression);
-    while(it != m_exprsToStateName.end() && it->first == expression) {
-      State st(it->second.toString(), std::vector<Value>());
-      m_cache->updateState(st, expression->getValue());
+    while (it != m_exprsToStateName.end() && it->first == expression) {
+      State st(it->second, std::vector<Value>());
+      StateCacheMap::instance().ensureStateCacheEntry(st, expression->valueType())->update(expression->toValue());
       ++it;
     }
   }
 
 private:
-  class ChangeListener : public ExpressionListener {
+  class ChangeListener : public ExpressionListener 
+  {
   public:
-    ChangeListener(TestInterface& intf) : ExpressionListener(), m_intf(intf) {}
-    void notifyValueChanged(const ExpressionId& expression) {m_intf.notifyValueChanged(expression);}
-  protected:
+    ChangeListener(TestInterface& intf)
+    : ExpressionListener(),
+      m_intf(intf)
+    {
+    }
+
+    void notifyChanged(ExpressionId src)
+    {
+      m_intf.notifyChanged(src);
+    }
+
   private:
     TestInterface& m_intf;
   };
-
-  static Id<TestInterface> s_instanceTestInterface;
 
   std::set<ExpressionId> m_exprs;
   std::map<std::string, ExpressionId> m_changingExprs; //map of names to expressions being watched
@@ -173,117 +174,122 @@ private:
   ChangeListener m_listener;
 };
 
-Id<TestInterface> TestInterface::s_instanceTestInterface = Id<TestInterface>::noId();
-
-class LookupTestExecConnector : public ExecConnector {
-public:
-  LookupTestExecConnector() : ExecConnector() 
-  {
-    m_cache.setExternalInterface(TestInterface::instance()->getId()); // static_cast didn't work here, grumble
-  }
-
-  void notifyNodeConditionChanged(NodeId /* node */) {}
-  void handleConditionsChanged(const NodeId& /* node */, NodeState /* newState */) {}
-  void enqueueAssignment(const AssignmentId& /* assign */) {}
-  void enqueueAssignmentForRetraction(const AssignmentId& /* assign */) {}
-  void enqueueCommand(const CommandId& /* cmd */) {}
-  void enqueueUpdate(const UpdateId& /* update */) {}
-  void notifyExecuted(const NodeId& /* node */) {}
-  void markRootNodeFinished(const NodeId& /* node */) {}
-  unsigned int getCycleCount() const { return 0; /* FIXME */ }
-  const ExternalInterfaceId& getExternalInterface() 
-  {
-    return TestInterface::instance()->getId();
-  }
-  const ExecListenerHubId& getExecListenerHub() const { return ExecListenerHubId::noId(); }
-};
+static TestInterface *theInterface = NULL;
 
 static bool testLookupNow() 
 {
-  PlexilStateId state1 = (new PlexilState())->getId();
-  state1->setName("test1");
+  StringConstant test1("test1");
+  std::vector<ExpressionId> const emptyArglist;
+  std::vector<bool> const emptyGarbageList;
 
-  PlexilStateId state2 = (new PlexilState())->getId();
-  state2->setName("test2");
-  state2->addArg((new PlexilValue(PLEXIL::STRING, "high"))->getId());
+  StringConstant test2("test2");
+  std::vector<ExpressionId> test2Args(1, (new StringConstant("high"))->getId());
+  std::vector<bool> test2garbage(1, false);
 
-  PlexilStateId state3 = (new PlexilState())->getId();
-  state3->setName("test2");
-  state3->addArg((new PlexilValue(PLEXIL::STRING, "low"))->getId());
+  std::vector<ExpressionId> test3Args(1, (new StringConstant("low"))->getId());
 
-  PlexilLookupNow test1;
-  test1.setState(state1);
+  LookupImpl<double> l1(test1.getId(), false, emptyArglist, emptyGarbageList);
+  LookupImpl<double> l2(test2.getId(), false, test2Args, test2garbage);
+  LookupImpl<double> l3(test2.getId(), false, test3Args, test2garbage);
 
-  PlexilLookupNow test2;
-  test2.setState(state2);
-
-  PlexilLookupNow test3;
-  test3.setState(state3);
-
-  LookupNow l1(test1.getId(), node.getId());
-  LookupNow l2(test2.getId(), node.getId());
-  LookupNow l3(test3.getId(), node.getId());
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
 
   l1.activate();
   l2.activate();
   l3.activate();
 
-  assertTrue(l1.getValue().getDoubleValue() == 0.0);
-  assertTrue(l2.getValue().getDoubleValue() == 1.0);
-  assertTrue(l3.getValue().getDoubleValue() == -1.0);
+  double temp;
+  assertTrue_1(l1.getValue(temp));
+  assertTrue_1(temp == 0.0);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.0);
+  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(temp == -1.0);
 
   return true;
 }
 
 static bool testLookupOnChange() 
 {
-  PlexilStateId state1 = (new PlexilState())->getId();
-  state1->setName("changeTest");
-  PlexilChangeLookup test1;
-  test1.setState(state1);
-
-  PlexilStateId state2 = (new PlexilState())->getId();
-  state2->setName("changeWithToleranceTest");
-  PlexilChangeLookup test2;
-  test2.setState(state2);
-  test2.addTolerance((new PlexilValue(PLEXIL::REAL, "0.5"))->getId());
-
+  StringConstant changeTest("changeTest");
+  StringConstant changeWithToleranceTest("changeWithToleranceTest");
 
   RealVariable watchVar(0.0);
   watchVar.activate();
-  TestInterface::instance()->watch("changeTest", watchVar.getId());
-  TestInterface::instance()->watch("changeWithToleranceTest", watchVar.getId());
+  theInterface->watch("changeTest", watchVar.getId());
+  theInterface->watch("changeWithToleranceTest", watchVar.getId());
 
-  LookupOnChange l1(test1.getId(), node.getId());
-  LookupOnChange l2(test2.getId(), node.getId());
+  RealConstant tolerance(0.5);
+  tolerance.activate();
+  std::vector<ExpressionId> const emptyArglist;
+  std::vector<bool> const emptyGarbageList;
 
-  assertTrue(l1.getValue().isUnknown());
-  assertTrue(l2.getValue().isUnknown());
+  double temp;
+
+  LookupOnChange<double> l1(changeTest.getId(), false,
+                            emptyArglist, emptyGarbageList,
+                            ExpressionId::noId(), false);
+  LookupOnChange<double> l2(changeWithToleranceTest.getId(), false,
+                            emptyArglist, emptyGarbageList,
+                            tolerance.getId(), false);
+
+  assertTrue_1(!l1.isKnown());
+  assertTrue_1(!l2.isKnown());
+
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
 
   l1.activate();
-  assertTrue(l1.getValue().getDoubleValue() == 0.0);
+  assertTrue_1(l1.getValue(temp));
+  assertTrue_1(temp == 0.0);
   l2.activate();
-  assertTrue(l2.getValue().getDoubleValue() == 0.0);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 0.0);
 
   watchVar.setValue(0.1);
-  assertTrue(l1.getValue().getDoubleValue() == 0.1);
-  assertTrue(l2.getValue().getDoubleValue() == 0.0);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(l1.getValue(temp));
+  assertTrue_1(temp == 0.1);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 0.0);
 
   watchVar.setValue(0.6);
-  assertTrue(l1.getValue().getDoubleValue() == 0.6);
-  assertTrue(l2.getValue().getDoubleValue() == 0.6);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(l1.getValue(temp));
+  assertTrue_1(temp == 0.6);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 0.6);
 
   l1.deactivate();
 
   watchVar.setValue(0.7);
-  assertTrue(l1.getValue().isUnknown());
-  assertTrue(l2.getValue().getDoubleValue() == 0.6);
-  watchVar.setValue(1.1);
-  assertTrue(l1.getValue().isUnknown());
-  assertTrue(l2.getValue().getDoubleValue() == 1.1);
 
-  TestInterface::instance()->unwatch("changeTest", watchVar.getId());
-  TestInterface::instance()->unwatch("changeWithToleranceTest", watchVar.getId());
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(!l1.isKnown());
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 0.6);
+
+  watchVar.setValue(1.1);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(!l1.isKnown());
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.1);
+
+  theInterface->unwatch("changeTest", watchVar.getId());
+  theInterface->unwatch("changeWithToleranceTest", watchVar.getId());
 
   return true;
 }
@@ -291,6 +297,9 @@ static bool testLookupOnChange()
 bool lookupsTest()
 {
   TestInterface foo;
+  theInterface = &foo;
+  g_interface = foo.getId();
+
   runTest(testLookupNow);
   runTest(testLookupOnChange);
   return true;

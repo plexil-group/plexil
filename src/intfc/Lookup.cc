@@ -26,6 +26,7 @@
 
 #include "Lookup.hh"
 
+#include "ArrayImpl.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh" // for timestamp access
 #include "StateCacheEntry.hh"
@@ -77,9 +78,21 @@ namespace PLEXIL
     return false;
   }
 
+  char const *Lookup::exprName() const
+  {
+    return "LookupNow";
+  }
+
+  void Lookup::handleActivate()
+  {
+    activateInternal();
+    if (m_entry)
+      m_entry->registerLookup(this);
+  }
+
   // TODO:
   // - potential for optimization in the case of constant states
-  void Lookup::handleActivate()
+  void Lookup::activateInternal()
   {
     // Activate all subexpressions
     m_stateName->activate();
@@ -92,7 +105,6 @@ namespace PLEXIL
       m_entry =
         StateCacheMap::instance().ensureStateCacheEntry(m_cachedState, this->valueType());
       assertTrue_2(m_entry != NULL, "Lookup::handleActivate: Failed to get state cache entry");
-      m_entry->registerLookup(this);
     }
   }
 
@@ -123,7 +135,7 @@ namespace PLEXIL
       m_stateKnown = false;
     }
     else { // state now known
-      if (m_stateKnown) {
+      if (m_stateKnown && newState != m_cachedState) {
         m_entry->unregisterLookup(this);
         m_entry = NULL;
       }
@@ -172,7 +184,7 @@ namespace PLEXIL
                             bool stateNameIsGarbage,
                             std::vector<ExpressionId> const &params,
                             std::vector<bool> const &paramsAreGarbage)
-    : Lookup(stateName, stateNameIsGarbage, params, paramsAreGarbage)
+    : LookupShim<LookupImpl<T> >(stateName, stateNameIsGarbage, params, paramsAreGarbage)
   {
   }
 
@@ -181,11 +193,10 @@ namespace PLEXIL
   {
   }
 
-  // FIXME: determine whether we need to do a stale check here
   template <typename T>
   bool LookupImpl<T>::getValueImpl(T &result) const
   {
-    if (!isActive())
+    if (!this->isActive())
       return false;
     if (Lookup::m_stateKnown)
       Lookup::m_entry->checkIfStale();
@@ -195,11 +206,10 @@ namespace PLEXIL
     return true;
   }
 
-  // FIXME: determine whether we need to do a stale check here
   template <typename T>
   bool LookupImpl<T>::getValuePointerImpl(T const *&ptr) const
   {
-    if (!isActive())
+    if (!this->isActive())
       return false;
     if (Lookup::m_stateKnown)
       Lookup::m_entry->checkIfStale();
@@ -220,27 +230,33 @@ namespace PLEXIL
   {
     // Erase previous value
     m_value = T();
+    Lookup::m_known = false;
   }
 
   template <typename T>
-  void LookupImpl<T>::newValue(const T &val)
+  void LookupImpl<T>::newValueImpl(const T &val)
   {
+    if (!this->isActive())
+      return;
     m_value = val;
+    Lookup::m_known = true;
     Lookup::m_timestamp = g_interface->getCycleCount();
     this->publishChange(this->getId());
   }
 
   template <typename T>
   template <typename U>
-  void LookupImpl<T>::newValue(const U & /* val */)
+  void LookupImpl<T>::newValueImpl(const U & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "Lookup::newValue: type error");
   }
 
   template <>
   template <>
-  void LookupImpl<double>::newValue(const int32_t &val)
+  void LookupImpl<double>::newValueImpl(const int32_t &val)
   {
+    if (!this->isActive())
+      return;
     m_value = (double) val;
     Lookup::m_timestamp = g_interface->getCycleCount();
     this->publishChange(this->getId());
@@ -250,20 +266,8 @@ namespace PLEXIL
   // LookupOnChange
   //
 
-  // General case: tolerance not supported
-  template <typename T>
-  LookupOnChange<T>::LookupOnChange(ExpressionId const &stateName,
-                                    bool stateNameIsGarbage,
-                                    std::vector<ExpressionId> const &params,
-                                    std::vector<bool> const &paramsAreGarbage,
-                                    ExpressionId const &tolerance,
-                                    bool toleranceIsGarbage)
-    : LookupImpl<T>(stateName, stateNameIsGarbage, params, paramsAreGarbage),
-      m_tolerance(ExpressionId::noId()),
-      m_toleranceIsGarbage(false)
-  {
-    assertTrue_2(tolerance.isNoId(), "LookupOnChange constructor: type does not implement the tolerance option");
-  }
+  // NOTE: Generic template constructor not implemented, so attempts to call it
+  // can be prevented at link time.
 
   template <>
   LookupOnChange<int32_t>::LookupOnChange(ExpressionId const &stateName,
@@ -274,7 +278,9 @@ namespace PLEXIL
                                           bool toleranceIsGarbage)
     : LookupImpl<int32_t>(stateName, stateNameIsGarbage, params, paramsAreGarbage),
       m_tolerance(tolerance),
-      m_toleranceIsGarbage(toleranceIsGarbage)
+      m_cachedTolerance(0),
+      m_toleranceIsGarbage(toleranceIsGarbage),
+      m_toleranceKnown(tolerance.isId())
   {
     // Check that tolerance (if supplied) is of compatible type
     if (tolerance.isId()) {
@@ -292,7 +298,9 @@ namespace PLEXIL
                                          bool toleranceIsGarbage)
     : LookupImpl<double>(stateName, stateNameIsGarbage, params, paramsAreGarbage),
       m_tolerance(tolerance),
-      m_toleranceIsGarbage(toleranceIsGarbage)
+      m_cachedTolerance(0),
+      m_toleranceIsGarbage(toleranceIsGarbage),
+      m_toleranceKnown(tolerance.isId())
   {
     // Check that tolerance (if supplied) is of compatible type
     if (tolerance.isId()) {
@@ -309,127 +317,126 @@ namespace PLEXIL
       delete (Expression *) m_tolerance;
   }
 
-  // General case
+  template <typename T>
+  char const *LookupOnChange<T>::exprName() const
+  {
+    return "LookupOnChange";
+  }
+
   template <typename T>
   void LookupOnChange<T>::handleActivate()
   {
-    Lookup::handleActivate();
-  }
-
-  // Numeric cases
-  template <>
-  void LookupOnChange<int32_t>::handleActivate()
-  {
-    if (m_tolerance.isId())
+    if (m_tolerance.isId()) {
       m_tolerance->activate();
-    Lookup::handleActivate();
+      m_toleranceKnown = m_tolerance->getValue(m_cachedTolerance);
+      if (m_toleranceKnown && m_cachedTolerance < 0)
+        m_cachedTolerance = -m_cachedTolerance;
+    }
+    Lookup::activateInternal();
+    if (Lookup::m_entry) {
+      if (m_toleranceKnown && m_cachedTolerance != 0) 
+        Lookup::m_entry->registerChangeLookup(static_cast<Lookup *>(this),
+                                              m_cachedTolerance);
+      else
+        Lookup::m_entry->registerLookup(static_cast<Lookup *>(this));
+    }
   }
 
-  template <>
-  void LookupOnChange<double>::handleActivate()
-  {
-    if (m_tolerance.isId())
-      m_tolerance->activate();
-    Lookup::handleActivate();
-  }
-
-  // General case
   template <typename T>
   void LookupOnChange<T>::handleDeactivate()
   {
     Lookup::handleDeactivate();
-  }
-
-  // Numeric cases
-  template <>
-  void LookupOnChange<int32_t>::handleDeactivate()
-  {
-    Lookup::handleDeactivate();
-    if (m_tolerance.isId())
+    if (m_tolerance.isId()) {
       m_tolerance->deactivate();
+      m_toleranceKnown = false;
+    }
   }
 
-  template <>
-  void LookupOnChange<double>::handleDeactivate()
-  {
-    Lookup::handleDeactivate();
-    if (m_tolerance.isId())
-      m_tolerance->deactivate();
-  }
-
-  // General case: always notify.
+  // Consider possibility that tolerance has changed. 
   template <typename T>
-  void LookupOnChange<T>::newValue(const T &val)
+  void LookupOnChange<T>::handleChange(ExpressionId src)
   {
-    LookupImpl<T>::newValue(val);
+    Lookup::handleChange(src); // could change states on us!
+    if (m_tolerance.isId()) {
+      // Check whether tolerance changed
+      T oldTolerance = m_cachedTolerance;
+      bool wasKnown = m_toleranceKnown;
+      m_toleranceKnown = m_tolerance->getValue(m_cachedTolerance);
+      if (m_toleranceKnown) {
+        // Ensure it's positive
+        if (m_cachedTolerance < 0)
+          m_cachedTolerance = -m_cachedTolerance;
+        // Has tolerance gotten tighter?
+        if (wasKnown && m_cachedTolerance < oldTolerance) {
+          // Check to see if we should update
+          if (this->m_entry->isStale(Lookup::m_timestamp)) {
+            this->m_entry->notifyLookup(this); // will update us if newer available
+          }
+        }
+      }
+      else if (wasKnown) { // and not currently known
+        // Tolerance effectively now 0, get latest available value
+        if (this->m_entry->isStale(Lookup::m_timestamp))
+          this->m_entry->notifyLookup(this); // will update us if newer available
+      }
+    }
+  }
+
+  // Return true if the value exceeds the tolerance.
+  static bool checkTolerance(int32_t newVal, int32_t oldVal, int32_t tolerance)
+  {
+    return (tolerance <= abs(newVal - oldVal));
+  }
+
+  static bool checkTolerance(double newVal, double oldVal, double tolerance)
+  {
+    return (tolerance <= fabs(newVal - oldVal));
+  }
+
+  template <typename T>
+  void LookupOnChange<T>::newValueImpl(const T &val)
+  {
+    if (!this->isActive())
+      return;
+    bool update = !this->m_known || m_tolerance.isNoId() || !m_toleranceKnown;
+    if (this->m_known && m_tolerance.isId() && m_toleranceKnown)
+      // Evaluate whether value is enough different
+      update = checkTolerance(val, this->m_value, m_cachedTolerance);
+    if (update)
+      LookupImpl<T>::newValueImpl(val);
+  }
+  
+  // Type conversion
+  template <>
+  template <>
+  void LookupOnChange<double>::newValueImpl(const int32_t &val)
+  {
+    this->newValueImpl((double) val);
   }
 
   // Error case
   template <typename T>
   template <typename U>
-  void LookupOnChange<T>::newValue(const U & /* val */)
+  void LookupOnChange<T>::newValueImpl(const U & /* val */)
   {
     assertTrue_2(ALWAYS_FAIL, "Lookup::newValue: type error");
   }
 
-  // Integer
-  template <>
-  void LookupOnChange<int32_t>::newValue(const int32_t &val)
-  {
-    if (!m_known) {
-      // Just Do It(tm)
-      LookupImpl<int32_t>::newValue(val);
-      return;
-    }
+  //
+  // Explicit instantiation
+  //
 
-    bool update = false;
-    if (m_tolerance.isId()) {
-      int32_t tolval;
-      // TODO: negative check
-      if (m_tolerance->getValue(tolval))
-        // Evaluate whether value is enough different
-        update = (abs(val - m_value) >= tolval);
-      else
-        // Tolerance value not known, presume 0
-        update = (val != m_value);
-    }
-    if (update)
-      LookupImpl<int32_t>::newValue(val);
-  }
-  
+  template class LookupImpl<bool>;
+  template class LookupImpl<int32_t>;
+  template class LookupImpl<double>;
+  template class LookupImpl<std::string>;
+  template class LookupImpl<BooleanArray>;
+  template class LookupImpl<IntegerArray>;
+  template class LookupImpl<RealArray>;
+  template class LookupImpl<StringArray>;
 
-  // Real
-  template <>
-  void LookupOnChange<double>::newValue(const double &val)
-  {
-    if (!m_known) {
-      // Just Do It(tm)
-      LookupImpl<double>::newValue(val);
-      return;
-    }
-
-    bool update = false;
-    if (m_tolerance.isId()) {
-      double tolval;
-      // TODO: negative check
-      if (m_tolerance->getValue(tolval))
-        // Evaluate whether value is enough different
-        update = (abs(val - m_value) >= tolval);
-      else
-        // Tolerance value not known, presume 0
-        update = (val != m_value);
-    }
-    if (update)
-      LookupImpl<double>::newValue(val);
-  }
-  
-  template <>
-  template <>
-  void LookupOnChange<double>::newValue(const int32_t &val)
-  {
-    m_value = (double) val;
-    Lookup::m_timestamp = g_interface->getCycleCount();
-    this->publishChange(this->getId());
-  }
+  // LookupOnChange only implemented for numeric types
+  template class LookupOnChange<int32_t>;
+  template class LookupOnChange<double>;
 
 } // namespace PLEXIL

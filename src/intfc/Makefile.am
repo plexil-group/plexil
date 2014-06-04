@@ -31,17 +31,18 @@ libPlexilIntfc_la_CPPFLAGS = -I@top_srcdir@/expr -I@top_srcdir@/utils \
  -I@top_srcdir@/third-party/pugixml/src
 
 include_HEADERS = Command.hh CommandHandle.hh CommandHandleVariable.hh \
- ExternalInterface.hh Lookup.hh PlexilUpdate.hh State.hh StateCacheEntry.hh \
- StateCacheMap.hh Update.hh
+ ExternalInterface.hh Lookup.hh PlexilLookup.hh PlexilUpdate.hh State.hh \
+ StateCacheEntry.hh StateCacheMap.hh Update.hh
 
 libPlexilIntfc_la_SOURCES = Command.cc CommandHandle.cc \
- CommandHandleVariable.cc ExternalInterface.cc Lookup.cc State.cc \
- StateCacheEntry.cc StateCacheMap.cc Update.cc
+ CommandHandleVariable.cc ExternalInterface.cc Lookup.cc PlexilLookup.cc \
+ State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
   noinst_HEADERS =
-  test_intfc_module_tests_SOURCES = test/lookupsTest.cc test/stateTest.cc
+  test_intfc_module_tests_SOURCES = test/lookupsTest.cc test/stateTest.cc \
+ test/intfc-test-module.cc
   test_intfc_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils \
  -I../expr
   test_intfc_module_tests_LDADD = libPlexilIntfc.la ../expr/libPlexilExpr.la \

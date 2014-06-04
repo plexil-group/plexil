@@ -24,57 +24,45 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "CommandHandleVariable.hh"
+#include "Debug.hh"
+#include "lifecycle-utils.h"
+#include "TestSupport.hh"
 
-#include "Command.hh"
+#include <cstring>
+#include <fstream>
+#include <iostream>
 
-namespace PLEXIL
+extern bool lookupsTest();
+extern bool stateTest();
+
+void runTests()
 {
+  runTestSuite(stateTest);
+  runTestSuite(lookupsTest);
 
-  //
-  // CommandHandleVariable
-  //
+  runFinalizers();
 
-  CommandHandleVariable::CommandHandleVariable(Command const &cmd)
-    : NotifierImpl(),
-      ExpressionImpl<uint16_t>(),
-      m_command(cmd)
-  {
+  std::cout << "Finished" << std::endl;
+}
+
+int main(int argc, char *argv[]) {
+
+  std::string debugConfig("Debug.cfg");
+  
+  for (int i = 1; i < argc; ++i) {
+      if (strcmp(argv[i], "-d") == 0)
+          debugConfig = std::string(argv[++i]);
   }
-
-  CommandHandleVariable::~CommandHandleVariable()
-  {
+  
+  std::ifstream config(debugConfig.c_str());
+  
+  if (config.good()) {
+     readDebugConfigStream(config);
+     std::cout << "Reading configuration file: " << debugConfig.c_str() << "\n";
   }
-
-  bool CommandHandleVariable::isKnown() const
-  {
-    return NO_COMMAND_HANDLE != m_command.getCommandHandle();
-  }
-
-  bool CommandHandleVariable::getValueImpl(uint16_t &result) const
-  {
-    uint16_t handle = m_command.getCommandHandle();
-    if (handle == NO_COMMAND_HANDLE)
-      return false;
-    result = handle;
-    return true;
-  }
-
-  bool CommandHandleVariable::getValuePointerImpl(uint16_t const *&ptr) const
-  {
-    if (m_command.m_commandHandle == NO_COMMAND_HANDLE)
-      return false;
-    ptr = &m_command.m_commandHandle;
-    return true;
-  }
-
-  void CommandHandleVariable::printValue(std::ostream &s) const
-  {
-    uint16_t handle = m_command.getCommandHandle();
-    if (handle == NO_COMMAND_HANDLE)
-      s << "UNKNOWN";
-    else
-      s << commandHandleValueName((CommandHandleValue) handle);
-  }
-
-} // namespace PLEXIL
+  else
+     std::cout << "Unable to read configuration file: " << debugConfig.c_str() << "\n";
+  
+  runTests();
+  return 0;
+}

@@ -50,11 +50,16 @@ namespace PLEXIL
     ValueType valueType() const;
 
     // API to Lookup
+    virtual void registerChangeLookup(Lookup *, int32_t tolerance) = 0;
+    virtual void registerChangeLookup(Lookup *, double tolerance) = 0;
+
     void registerLookup(Lookup *); // calls checkIfStale()
-    void unregisterLookup(Lookup *);
+    virtual void unregisterLookup(Lookup *);
 
     // Check whether the cached value is current, and trigger an update if needed.
     void checkIfStale();
+    // Check whether a user's timestamp is current.
+    bool isStale(unsigned int timestamp);
 
     //
     // Callbacks for external interfaces and value queue
@@ -87,6 +92,13 @@ namespace PLEXIL
     // For convenience of TestExternalInterface, others
     virtual bool update(Value const &val) = 0;
 
+    /**
+     * @brief Notify one subscriber of a change in value.
+     * @param l The Lookup.
+     * @note Public because the Lookup may need to update itself.
+     */
+    virtual void notifyLookup(Lookup *l) const = 0;
+
   protected:
     // Internal functions
     StateCacheEntry(State const &, ValueType vtype);
@@ -97,10 +109,14 @@ namespace PLEXIL
     void notify() const;
 
     /**
-     * @brief Notify one subscriber of a change in value.
-     * @param l The Lookup.
+     * @brief Type-specific notification for one Lookup.
      */
-    virtual void notifyLookup(Lookup *l) const = 0;
+    virtual void notifyImpl(Lookup *l) const = 0;
+
+    /**
+     * @brief Notify all subscribers that the value is now unknown.
+     */
+    void notifyUnknown() const;
 
     // State shared with derived classes
     State const m_state;
@@ -131,6 +147,15 @@ namespace PLEXIL
     {
     }
 
+    void registerChangeLookup(Lookup *l, int32_t tolerance)
+    {
+      static_cast<IMPL *>(this)->registerChangeLookupImpl(l, tolerance);
+    }
+    void registerChangeLookup(Lookup *l, double tolerance)
+    {
+      static_cast<IMPL *>(this)->registerChangeLookupImpl(l, tolerance);
+    }
+
     inline bool update(bool const &val)
     {
       return static_cast<IMPL *>(this)->updateImpl(val);
@@ -143,6 +168,7 @@ namespace PLEXIL
     {
       return static_cast<IMPL *>(this)->updateImpl(val);
     }
+
     inline bool update(std::string const &val)
     {
       return static_cast<IMPL *>(this)->updateImpl(val);
@@ -151,6 +177,7 @@ namespace PLEXIL
     {
       return static_cast<IMPL *>(this)->updatePtrImpl(valPtr);
     }
+
     inline bool updatePtr(BooleanArray const *valPtr)
     {
       return static_cast<IMPL *>(this)->updatePtrImpl(valPtr);
@@ -167,6 +194,7 @@ namespace PLEXIL
     {
       return static_cast<IMPL *>(this)->updatePtrImpl(valPtr);
     }
+
     inline bool update(Value const &val)
     {
       return static_cast<IMPL *>(this)->updateImpl(val);
@@ -181,7 +209,10 @@ namespace PLEXIL
     StateCacheEntryImpl(State const &, ValueType vtype);
     ~StateCacheEntryImpl();
 
-    bool updateImpl(T const &val);
+    virtual void registerChangeLookupImpl(Lookup *l, int32_t tolerance);
+    virtual void registerChangeLookupImpl(Lookup *l, double tolerance);
+
+    virtual bool updateImpl(T const &val);
 
     // Type conversion or invalid type
     template <typename U>
@@ -198,6 +229,7 @@ namespace PLEXIL
   protected:
 
     void notifyLookup(Lookup *l) const;
+    void notifyImpl(Lookup *l) const;
 
   private:
     // Default, copy, assign disallowed
@@ -205,7 +237,34 @@ namespace PLEXIL
     StateCacheEntryImpl(StateCacheEntryImpl const &);
     StateCacheEntryImpl &operator=(StateCacheEntryImpl const &);
 
+  protected:
+
+    // Shared with NumericStateCacheEntry below
     T m_cachedValue;
+  };
+
+  // Adds support for change lookups.
+  template <typename NUM>
+  class NumericStateCacheEntry : public StateCacheEntryImpl<NUM>
+  {
+  public:
+    NumericStateCacheEntry(State const &state, ValueType vtype);
+    ~NumericStateCacheEntry();
+
+    void registerChangeLookupImpl(Lookup *l, NUM tolerance);
+    template <typename CVT>
+    void registerChangeLookupImpl(Lookup *l, CVT tolerance);
+
+    // Wrapper around base class method
+    void unregisterLookup(Lookup *);
+
+    bool updateImpl(NUM const &val);
+
+  private:
+    std::vector<Lookup *> m_changeLookups;
+    NUM m_tolerance;
+    NUM m_lowThreshold;
+    NUM m_highThreshold;
   };
 
 } // namespace PLEXIL

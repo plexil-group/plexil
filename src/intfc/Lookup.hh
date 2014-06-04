@@ -71,6 +71,7 @@ namespace PLEXIL
     // Standard Expression API
     bool isAssignable() const;
     bool isConstant() const;
+    virtual const char *exprName() const;
 
     // Common behavior required by NotifierImpl
     void handleActivate();
@@ -119,6 +120,9 @@ namespace PLEXIL
 
     // Behavior delegated to implementation classes
     virtual void makeUnknown() = 0;
+
+    // Shared behavior needed by LookupOnChange
+    void activateInternal();
     
     // Member variables shared with implementation classes
     State m_cachedState;
@@ -135,9 +139,68 @@ namespace PLEXIL
   private:
   };
 
+  // More CRTP
+  template <class IMPL>
+  class LookupShim : public Lookup
+  {
+  public:
+    LookupShim(ExpressionId const &stateName,
+               bool stateNameIsGarbage,
+               std::vector<ExpressionId> const &params,
+               std::vector<bool> const &paramsAreGarbage)
+      : Lookup(stateName, stateNameIsGarbage, params, paramsAreGarbage)
+    {
+    }
+
+    ~LookupShim()
+    {
+    }
+
+    virtual void newValue(bool const &val)
+    {
+      static_cast<IMPL *>(this)->newValueImpl(val);
+    }
+
+    virtual void newValue(int32_t const &val)
+    {
+      static_cast<IMPL *>(this)->newValueImpl(val);
+    }
+
+    virtual void newValue(double const &val)
+    {
+      static_cast<IMPL *>(this)->newValueImpl(val);
+    }
+
+    virtual void newValue(std::string const &val)
+    {
+      static_cast<IMPL *>(this)->newValueImpl(val);
+    }
+
+    virtual void newValue(BooleanArray const &val)
+    {
+      static_cast<IMPL *>(this)->newValueImpl(val);
+    }
+
+    virtual void newValue(IntegerArray const &val)
+    {
+      static_cast<IMPL *>(this)->newValueImpl(val);
+    }
+
+    virtual void newValue(RealArray const &val)
+    {
+      static_cast<IMPL *>(this)->newValueImpl(val);
+    }
+
+    virtual void newValue(StringArray const &val)
+    {
+      static_cast<IMPL *>(this)->newValueImpl(val);
+    }
+  };
+
   // Functionality common to all Lookups, but parceled out by type
   template <typename T>
-  class LookupImpl : public Lookup, public ExpressionImpl<T>
+  class LookupImpl : public LookupShim<LookupImpl<T> >,
+                     public ExpressionImpl<T>
   {
   public:
     LookupImpl(ExpressionId const &stateName,
@@ -152,10 +215,10 @@ namespace PLEXIL
     bool getValuePointerImpl(T const *&ptr) const;
 
     // API to external interface, exec
-    void newValue(const T &val);
+    virtual void newValueImpl(const T &val);
     // Error/type conversion
     template <typename U>
-    void newValue(const U &val);
+    void newValueImpl(const U &val);
 
     // API to Lookup base
     void makeUnknown();
@@ -168,6 +231,8 @@ namespace PLEXIL
   protected:
     T m_value;
   };
+
+  // Only implemented for numeric types
 
   template <typename T>
   class LookupOnChange : public LookupImpl<T>
@@ -182,15 +247,17 @@ namespace PLEXIL
     ~LookupOnChange();
 
     // API to external interface, exec
-    void newValue(const T &val);
+    void newValueImpl(const T &val);
     // Error/type conversion
     template <typename U>
-    void newValue(const U &val);
+    void newValueImpl(const U &val);
 
     // Wrappers around LookupImpl methods
     void handleActivate();
     void handleDeactivate();
     void handleChange(ExpressionId exp);
+
+    const char *exprName() const;
 
   protected:
 
@@ -202,7 +269,9 @@ namespace PLEXIL
 
     // Unique member data
     ExpressionId m_tolerance;
+    T m_cachedTolerance;
     bool m_toleranceIsGarbage;
+    bool m_toleranceKnown;
   };
 
 } // namespace PLEXIL

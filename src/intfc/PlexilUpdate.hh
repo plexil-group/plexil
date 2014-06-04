@@ -37,6 +37,9 @@ namespace PLEXIL
   class PlexilExpr;
   DECLARE_ID(PlexilExpr);
 
+  class PlexilUpdate;
+  DECLARE_ID(PlexilUpdate);
+
   class PlexilUpdate {
   public:
     PlexilUpdate() : m_id(this), m_lineNo(0), m_colNo(0) {}
