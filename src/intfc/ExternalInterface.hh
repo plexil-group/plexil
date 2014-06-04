@@ -101,6 +101,7 @@ namespace PLEXIL {
      * @param lo The lower threshold, at or below which to report changes.
      */
     virtual void setThresholds(const State& state, double hi, double lo) = 0;
+    virtual void setThresholds(const State& state, int32_t hi, int32_t lo) = 0;
 
     //
     // API to Node classes
