@@ -233,7 +233,7 @@ namespace PLEXIL
       m_type(type)
   {
     // FIXME: this computes a string that could be a constant
-    setName(plexilTypeName(m_type) + "Value");
+    setName(valueTypeName(m_type) + "Value");
   }
 
   PlexilValue::~PlexilValue()
@@ -340,7 +340,7 @@ namespace PLEXIL
 
   const std::string& PlexilVar::factoryTypeString() const
   {
-    return plexilTypeName(m_type);
+    return valueTypeName(m_type);
   }
 
   const PlexilValue* PlexilVar::value() const
@@ -380,7 +380,7 @@ namespace PLEXIL
 
   const std::string& PlexilArrayVar::factoryTypeString() const 
   {
-    return plexilTypeName(arrayType(m_type));
+    return valueTypeName(arrayType(m_type));
   }
   bool PlexilArrayVar::isArray() const
   {

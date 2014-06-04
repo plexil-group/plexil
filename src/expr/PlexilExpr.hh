@@ -191,6 +191,8 @@ namespace PLEXIL
     unsigned m_maxSize;
   };
 
+  DECLARE_ID(PlexilArrayVar);
+
 } // namespace PLEXIL
 
 #endif // PLEXIL_EXPR_PROTO_HH
