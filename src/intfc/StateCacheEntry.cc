@@ -325,7 +325,7 @@ namespace PLEXIL
       g_interface->subscribe(this->m_state);
     }
 
-    if (unsubscribed || !this->m_timestamp < g_interface->getCycleCount())
+    if (unsubscribed || !(this->m_timestamp < g_interface->getCycleCount()))
       g_interface->lookupNow(this->m_state, static_cast<StateCacheEntry &>(*this));
 
     // Can't set thresholds if we don't have a current value
