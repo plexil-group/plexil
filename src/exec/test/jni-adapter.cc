@@ -26,7 +26,7 @@
 
 #include "JNIUtils.hh"
 #include "ScopedOstreamRedirect.hh"
-#include "exec-test-module.hh"
+#include "lifecycle-utils.h'
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -34,6 +34,8 @@
 #include <time.h>
 
 using PLEXIL::JNIUtils;
+
+extern bool stateTransitionTests();
 
 std::string *logFileName(const char* dirname)
 {
@@ -73,9 +75,10 @@ jint Java_gov_nasa_plexil_android_ExecModuleTest_run(JNIEnv *env, jobject /* jav
   PLEXIL::ScopedOstreamRedirect coutRedirect(std::cout, log);
   PLEXIL::ScopedOstreamRedirect cerrRedirect(std::cerr, log);
 
-  ExecModuleTests::runTests();
+  stateTransitionTests();
   delete logName;
   delete logDir;
+  runFinalizers();
   return 0;
 }
 
