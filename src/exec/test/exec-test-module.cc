@@ -48,8 +48,6 @@
 
 using namespace PLEXIL;
 
-extern bool lookupsTest();
-
 // For Boolean variable/condition tests
 #define IDX_UNKNOWN 0
 #define IDX_FALSE 1
