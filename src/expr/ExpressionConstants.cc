@@ -24,20 +24,23 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Constant.hh"
+#include "ExpressionConstants.hh"
 
 namespace PLEXIL
 {
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(BooleanConstant, FALSE_CONSTANT, false);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(BooleanConstant, TRUE_CONSTANT, false);
+
   ExpressionId const &FALSE_EXP()
   {
-    static BooleanConstant sl_exp(false);
-    return sl_exp.getId();
+    static ExpressionId sl_falseId(FALSE_CONSTANT().getId());
+    return sl_falseId;
   }
 
   ExpressionId const &TRUE_EXP()
   {
-    static BooleanConstant sl_exp(false);
-    return sl_exp.getId();
+    static ExpressionId sl_trueId(TRUE_CONSTANT().getId());
+    return sl_trueId;
   }
 
 } // namespace PLEXIL
