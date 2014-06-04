@@ -37,9 +37,6 @@ namespace PLEXIL
   class Assignment;
   DECLARE_ID(Assignment);
 
-  class Command;
-  DECLARE_ID(Command);
-
   class ExecConnector; // defined below
   DECLARE_ID(ExecConnector);
 
@@ -54,9 +51,6 @@ namespace PLEXIL
 
   class PlexilNode;
   DECLARE_ID(PlexilNode);
-
-  class Update;
-  DECLARE_ID(Update);
 
   /**
    * @brief Abstract class representing the key API of the PlexilExec. Facilitates testing.
@@ -80,16 +74,6 @@ namespace PLEXIL
     virtual void enqueueAssignmentForRetraction(const AssignmentId& assign) = 0;
 
     /**
-     * @brief Schedule this command for execution.
-     */
-    virtual void enqueueCommand(const CommandId& cmd) = 0;
-
-    /**
-     * @brief Schedule this update for execution.
-     */
-    virtual void enqueueUpdate(const UpdateId& update) = 0;
-
-    /**
      * @brief Needed for stupid unit test
      */
     virtual void notifyExecuted(const NodeId& node) = 0;
@@ -98,13 +82,6 @@ namespace PLEXIL
      * @brief Mark node as finished and no longer eligible for execution.
      */
     virtual void markRootNodeFinished(const NodeId& node) = 0;
-
-    /**
-     * @brief Return the number of "macro steps" since this instance was constructed.
-     * @return The macro step count.
-     * @note Required for Lookup unit test.
-     */
-    virtual unsigned int getCycleCount() const = 0;
 
     // Needed by TestExternalInterface
 

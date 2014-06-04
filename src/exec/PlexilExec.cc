@@ -53,7 +53,6 @@ namespace PLEXIL
   PlexilExec::PlexilExec(PlexilNodeId& plan)
     : ExecConnector(),
       m_id(this, ExecConnector::getId()),
-      m_cycleNum(0),
       m_queuePos(0),
       m_finishedRootNodesDeleted(false)
   {
@@ -63,7 +62,6 @@ namespace PLEXIL
   PlexilExec::PlexilExec()
     : ExecConnector(),
       m_id(this, ExecConnector::getId()),
-      m_cycleNum(0),
       m_queuePos(0),
       m_finishedRootNodesDeleted(false)
   {}
@@ -82,25 +80,6 @@ namespace PLEXIL
       m_libraries.erase(it);
     }
     m_id.removeDerived(ExecConnector::getId());
-  }
-
-  /**
-   * @brief Set the ExternalInterface instance used by this Exec.
-   * @param id The Id of the ExternalInterface instance.
-   */
-  void PlexilExec::setExternalInterface(ExternalInterfaceId& id)
-  {
-    m_interface = id;
-  }
-
-
-  /**
-   * @brief Return the number of "macro steps" since this instance was constructed.
-   * @return The macro step count.
-   */
-  unsigned int PlexilExec::getCycleCount() const
-  {
-    return m_cycleNum;
   }
 
   /**
@@ -454,8 +433,8 @@ namespace PLEXIL
     checkError(m_stateChangeQueue.empty(), "State change queue not empty at entry");
 
     unsigned int stepCount = 0;
-    ++m_cycleNum;
-    debugMsg("PlexilExec:cycle", "==>Start cycle " << m_cycleNum);
+    unsigned int cycleNum = g_interface->incrementCycleCount();
+    debugMsg("PlexilExec:cycle", "==>Start cycle " << cycleNum);
 
     // BEGIN QUIESCENCE LOOP
     do {
@@ -478,7 +457,7 @@ namespace PLEXIL
         break; // nothing to do, exit quiescence loop
 
       debugMsg("PlexilExec:step",
-               "[" << m_cycleNum << ":" << stepCount << "] State change queue: "
+               "[" << cycleNum << ":" << stepCount << "] State change queue: "
                << stateChangeQueueStr());
 
       unsigned int microStepCount = 0;
@@ -491,7 +470,7 @@ namespace PLEXIL
            ++it) {
         const NodeId& node = it->node;
         debugMsg("PlexilExec:step",
-                 "[" << m_cycleNum << ":" << stepCount << ":" << microStepCount <<
+                 "[" << cycleNum << ":" << stepCount << ":" << microStepCount <<
                  "] Transitioning node " << node->getNodeId()
                  << " from " << node->getStateName()
                  << " to " << nodeStateName(it->state));
@@ -531,7 +510,7 @@ namespace PLEXIL
 
     g_interface->executeOutboundQueue();
 
-    debugMsg("PlexilExec:cycle", "==>End cycle " << m_cycleNum);
+    debugMsg("PlexilExec:cycle", "==>End cycle " << cycleNum);
     for (std::list<NodeId>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {
       debugMsg("PlexilExec:printPlan", std::endl << **it);
     }
