@@ -114,9 +114,6 @@ namespace PLEXIL
 
     DECLARE_STATIC_CLASS_CONST(std::string, UNKNOWN_STR, "UNKNOWN");
 
-    // miscellaneous constants
-    DECLARE_STATIC_CLASS_CONST(std::string, WHITESPACE_CHARS, " \t\n");
-
     static PlexilNodeType parseNodeType(const std::string & typeName);
     static const std::string& nodeTypeString(PlexilNodeType nodeType);
 
