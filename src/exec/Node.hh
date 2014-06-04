@@ -209,6 +209,11 @@ namespace PLEXIL {
      */
     virtual void setState(NodeState newValue);
 
+    // Transition helpers
+    // Public so transition tests can use them.
+    void setNodeOutcome(NodeOutcome o);
+    void setNodeFailureType(FailureType f);
+
     /**
      * @brief Gets the time at which this node entered its current state.
      * @return Time value as a double.
@@ -403,10 +408,6 @@ namespace PLEXIL {
     // These are for specialized node types
     void deactivateActionCompleteCondition();
     void deactivateAbortCompleteCondition();
-
-    // Transition helpers
-    void setNodeOutcome(NodeOutcome o);
-    void setNodeFailureType(FailureType f);
 
     // Specific behaviors for derived classes
     virtual void specializedPostInit(const PlexilNodeId& node);

@@ -1561,6 +1561,7 @@ namespace PLEXIL {
       // with no parent, it cannot be reset.
       g_exec->markRootNodeFinished(m_id);
     }
+    m_stateVariable.changed();
   }
 
   double Node::getCurrentStateStartTime() const
@@ -1579,9 +1580,25 @@ namespace PLEXIL {
     return result;
   }
 
+  void Node::setNodeOutcome(NodeOutcome o)
+  {
+    checkError(o >= NO_OUTCOME && o < OUTCOME_MAX,
+               "Node::setNodeOutcome: invalid outcome value");
+    m_outcome = o;
+    m_outcomeVariable.changed();
+  }
+
   NodeOutcome Node::getOutcome() const
   {
     return (NodeOutcome) m_outcome;
+  }
+
+  void Node::setNodeFailureType(FailureType f)
+  {
+    checkError(f >= NO_FAILURE && f < FAILURE_TYPE_MAX,
+               "Node::setNodeFailureType: invalid failureType value");
+    m_failureType = f;
+    m_failureTypeVariable.changed();
   }
 
   FailureType Node::getFailureType() const
@@ -1954,8 +1971,12 @@ namespace PLEXIL {
 
     //reset timepoints
     for (int s = INACTIVE_STATE; s <= nodeStateMax(); ++s) {
+      m_startTimepoints[s]->deactivate();
       ((Assignable *) m_startTimepoints[s])->reset();
+      m_startTimepoints[s]->activate();
+      m_endTimepoints[s]->deactivate();
       ((Assignable *) m_endTimepoints[s])->reset();
+      m_endTimepoints[s]->activate();
     }
 
     for (std::vector<ExpressionId>::const_iterator it = m_localVariables.begin();
