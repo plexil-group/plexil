@@ -84,19 +84,19 @@ namespace PLEXIL
       return sl_node_state;
 
     case OUTCOME_TYPE:
-      static const std::string sl_outcome("Outcome");
+      static const std::string sl_outcome("NodeOutcome");
       return sl_outcome;
 
     case FAILURE_TYPE:
-      static const std::string sl_failure("Failure");
+      static const std::string sl_failure("NodeFailure");
       return sl_failure;
 
     case COMMAND_HANDLE_TYPE:
-      static const std::string sl_command_handle("CommandHandle");
+      static const std::string sl_command_handle("NodeCommandHandle");
       return sl_failure;
 
     default:
-      static const std::string sl_unknown("UNKNOWN_TYPE");
+      static const std::string sl_unknown("UNKNOWN");
       return sl_unknown;
     }
   }
