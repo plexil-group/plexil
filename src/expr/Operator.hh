@@ -58,7 +58,9 @@ namespace PLEXIL
                             std::vector<ExpressionId> const &args) const;
 
     const std::string& getName() const;
-    virtual const ValueType getValueType() const;
+    virtual const ValueType valueType() const;
+
+    virtual bool checkArgCount(size_t count) const = 0;
 
   protected:
     // Base class shouldn't be instantiated by itself
@@ -82,10 +84,10 @@ namespace PLEXIL
  *        for classes derived from Operator<R>.
  */
 #define DECLARE_OPERATOR_STATIC_INSTANCE(CLASS, RETURNS) \
-  static Operator<RETURNS> const *instance() \
+  static PLEXIL::Operator<RETURNS> const *instance()     \
   { \
     static CLASS sl_instance; \
-    return static_cast<Operator<RETURNS> const *>(&sl_instance); \
+    return static_cast<PLEXIL::Operator<RETURNS> const *>(&sl_instance); \
   }
 
 

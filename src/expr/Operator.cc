@@ -61,32 +61,32 @@ namespace PLEXIL
 
   // Default method for unspecialized types
   template <typename R>
-  const ValueType Operator<R>::getValueType() const
+  const ValueType Operator<R>::valueType() const
   {
     return UNKNOWN_TYPE;
   }
 
   // Specific types
   template <>
-  const ValueType Operator<double>::getValueType() const
+  const ValueType Operator<double>::valueType() const
   {
     return REAL_TYPE;
   }
 
   template <>
-  const ValueType Operator<int32_t>::getValueType() const
+  const ValueType Operator<int32_t>::valueType() const
   {
     return INTEGER_TYPE;
   }
 
   template <>
-  const ValueType Operator<bool>::getValueType() const
+  const ValueType Operator<bool>::valueType() const
   {
     return BOOLEAN_TYPE;
   }
 
   template <>
-  const ValueType Operator<std::string>::getValueType() const
+  const ValueType Operator<std::string>::valueType() const
   {
     return STRING_TYPE;
   }
