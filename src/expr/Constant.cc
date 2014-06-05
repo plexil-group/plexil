@@ -214,20 +214,17 @@ namespace PLEXIL
   //
 
   // Scalar cases
+
+  // N.B. For all but string types, the value string may not be empty.
   template <>
   ExpressionId ConcreteExpressionFactory<Constant<bool> >::create(const PlexilExprId& expr,
                                                                   const NodeConnectorId& node) const
   {
     PlexilValue const *tmpl = (PlexilValue const *) expr;
-    assertTrue_2(tmpl, "ExpressionFactory<Constant>: PlexilExpr is not a PlexilValue");
-    bool isKnown = !tmpl->value().empty() || (tmpl->value() != "UNKNOWN");
-    Constant<bool> *result = NULL;
-    if (isKnown) {
-      bool value;
-      if (parseValue(tmpl->value(), value))
-        return (new Constant<bool>(value))->getId();
-    }
-    return (new Constant<bool>())->getId();
+    assertTrue_2(tmpl, "ExpressionFactory<BooleanValue>: Expression is not a PlexilValue");
+    bool value;
+    assertTrue_2(parseValue(tmpl->value(), value), "ExpressionFactory<BooleanValue>: Value is not Boolean");
+    return (new Constant<bool>(value))->getId();
   }
 
   template <>
@@ -235,15 +232,10 @@ namespace PLEXIL
                                                                     const NodeConnectorId& node) const
   {
     PlexilValue const *tmpl = (PlexilValue const *) expr;
-    assertTrue_2(tmpl, "ExpressionFactory<Constant>: PlexilExpr is not a PlexilValue");
-    bool isKnown = !tmpl->value().empty() || (tmpl->value() != "UNKNOWN");
-    Constant<int32_t> *result = NULL;
-    if (isKnown) {
-      int32_t value;
-      if (parseValue(tmpl->value(), value))
-        return (new Constant<int32_t>(value))->getId();
-    }
-    return (new Constant<int32_t>())->getId();
+    assertTrue_2(tmpl, "ExpressionFactory<Constant>: Expression is not a PlexilValue");
+    int32_t value;
+    assertTrue_2(parseValue(tmpl->value(), value), "ExpressionFactory<IntegerValue>: Value is not an Integer");
+    return (new Constant<int32_t>(value))->getId();
   }
 
   template <>
@@ -251,15 +243,10 @@ namespace PLEXIL
                                                                     const NodeConnectorId& node) const
   {
     PlexilValue const *tmpl = (PlexilValue const *) expr;
-    assertTrue_2(tmpl, "ExpressionFactory<Constant>: PlexilExpr is not a PlexilValue");
-    bool isKnown = !tmpl->value().empty() || (tmpl->value() != "UNKNOWN");
-    Constant<double> *result = NULL;
-    if (isKnown) {
-      double value;
-      if (parseValue(tmpl->value(), value))
-        return (new Constant<double>(value))->getId();
-    }
-    return (new Constant<double>())->getId();
+    assertTrue_2(tmpl, "ExpressionFactory<Constant>: Expression is not a PlexilValue");
+    double value;
+    assertTrue_2(parseValue(tmpl->value(), value), "ExpressionFactory<IntegerValue>: Value is not a Real");
+    return (new Constant<double>(value))->getId();
   }
 
   template <>
@@ -267,15 +254,8 @@ namespace PLEXIL
                                                                     const NodeConnectorId& node) const
   {
     PlexilValue const *tmpl = (PlexilValue const *) expr;
-    assertTrue_2(tmpl, "ExpressionFactory<Constant>: PlexilExpr is not a PlexilValue");
-    bool isKnown = !tmpl->value().empty() || (tmpl->value() != "UNKNOWN");
-    Constant<std::string> *result = NULL;
-    if (isKnown) {
-      std::string value;
-      if (parseValue(tmpl->value(), value))
-        return (new Constant<std::string>(value))->getId();
-    }
-    return (new Constant<std::string>())->getId();
+    assertTrue_2(tmpl, "ExpressionFactory<Constant>: Expression is not a PlexilValue");
+    return (new Constant<std::string>(tmpl->value()))->getId();
   }
 
   //
