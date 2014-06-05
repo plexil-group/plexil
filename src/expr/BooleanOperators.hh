@@ -38,6 +38,8 @@ namespace PLEXIL
     BooleanNot();
     ~BooleanNot();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(bool &result, const ExpressionId &arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanNot, bool)
@@ -52,6 +54,8 @@ namespace PLEXIL
   public:
     BooleanOr();
     ~BooleanOr();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(bool &result, const ExpressionId &arg) const;
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
@@ -70,6 +74,8 @@ namespace PLEXIL
     BooleanAnd();
     ~BooleanAnd();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(bool &result, const ExpressionId &arg) const;
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
     bool operator()(bool &result, const std::vector<ExpressionId> &args) const;
@@ -86,6 +92,8 @@ namespace PLEXIL
   public:
     BooleanXor();
     ~BooleanXor();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(bool &result, const ExpressionId &arg) const;
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;

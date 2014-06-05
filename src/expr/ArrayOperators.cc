@@ -42,6 +42,11 @@ namespace PLEXIL
   {
   }
 
+  bool ArrayLength::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
   bool ArrayLength::operator()(int32_t &result, const ExpressionId &arg) const
   {
     Array const *ary;
@@ -64,6 +69,11 @@ namespace PLEXIL
   {
   }
 
+  bool AllElementsKnown::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
   bool AllElementsKnown::operator()(bool &result, const ExpressionId &arg) const
   {
     Array const *ary;
@@ -84,6 +94,11 @@ namespace PLEXIL
 
   AnyElementsKnown::~AnyElementsKnown()
   {
+  }
+
+  bool AnyElementsKnown::checkArgCount(size_t count) const
+  {
+    return count == 1;
   }
 
   bool AnyElementsKnown::operator()(bool &result, const ExpressionId &arg) const

@@ -53,6 +53,11 @@ namespace PLEXIL
 
     DECLARE_OPERATOR_STATIC_INSTANCE(AllFinished, bool);
 
+    bool checkArgCount(size_t count) const
+    {
+      return true;
+    }
+
     bool operator()(bool &result,
                     std::vector<ExpressionId> const &args) const
     {
@@ -100,6 +105,11 @@ namespace PLEXIL
     }
 
     DECLARE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished, bool);
+
+    bool checkArgCount(size_t count) const
+    {
+      return true;
+    }
 
     bool operator()(bool &result,
                     std::vector<ExpressionId> const &args) const

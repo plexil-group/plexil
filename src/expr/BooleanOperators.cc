@@ -39,6 +39,11 @@ namespace PLEXIL
   {
   }
 
+  bool BooleanNot::checkArgCount(size_t count) const
+  {
+    return (count == 1);
+  }
+
   bool BooleanNot::operator()(bool &result, const ExpressionId &arg) const
   {
     bool temp;
@@ -56,6 +61,11 @@ namespace PLEXIL
 
   BooleanOr::~BooleanOr()
   {
+  }
+
+  bool BooleanOr::checkArgCount(size_t count) const
+  {
+    return (count > 0);
   }
 
   bool BooleanOr::operator()(bool &result, const ExpressionId &arg) const
@@ -119,6 +129,11 @@ namespace PLEXIL
   {
   }
 
+  bool BooleanAnd::checkArgCount(size_t count) const
+  {
+    return (count > 0);
+  }
+
   bool BooleanAnd::operator()(bool &result, const ExpressionId &arg) const
   {
     return arg->getValue(result);
@@ -176,6 +191,11 @@ namespace PLEXIL
 
   BooleanXor::~BooleanXor()
   {
+  }
+
+  bool BooleanXor::checkArgCount(size_t count) const
+  {
+    return (count == 2);
   }
 
   bool BooleanXor::operator()(bool &result, const ExpressionId &arg) const

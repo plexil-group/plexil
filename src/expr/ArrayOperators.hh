@@ -38,6 +38,8 @@ namespace PLEXIL
     ArrayLength();
     ~ArrayLength();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(int32_t &result, const ExpressionId &arg) const;
 
   private:
@@ -52,6 +54,8 @@ namespace PLEXIL
     AllElementsKnown();
     ~AllElementsKnown();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(bool &result, const ExpressionId &arg) const;
 
   private:
@@ -65,6 +69,8 @@ namespace PLEXIL
   public:
     AnyElementsKnown();
     ~AnyElementsKnown();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(bool &result, const ExpressionId &arg) const;
 

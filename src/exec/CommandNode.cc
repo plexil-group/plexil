@@ -55,6 +55,11 @@ namespace PLEXIL
     {
     }
 
+    bool checkArgCount(size_t count) const
+    {
+      return count == 1;
+    }
+
     bool operator()(bool &result, const ExpressionId &arg) const
     {
       uint16_t val;

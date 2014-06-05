@@ -40,6 +40,8 @@ namespace PLEXIL
   public:
     ~IsKnown();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(bool &result, const ExpressionId &arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(IsKnown, bool)
@@ -57,6 +59,8 @@ namespace PLEXIL
   {
   public:
     ~Equal();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
@@ -76,6 +80,8 @@ namespace PLEXIL
   public:
     ~NotEqual();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<T>, bool)
@@ -93,6 +99,8 @@ namespace PLEXIL
   {
   public:
     ~GreaterThan();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
@@ -112,6 +120,8 @@ namespace PLEXIL
   public:
     ~GreaterEqual();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(GreaterEqual<T>, bool)
@@ -130,6 +140,8 @@ namespace PLEXIL
   public:
     ~LessThan();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(LessThan<T>, bool)
@@ -147,6 +159,8 @@ namespace PLEXIL
   {
   public:
     ~LessEqual();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
 

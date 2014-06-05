@@ -43,6 +43,11 @@ namespace PLEXIL
   {
   }
 
+  bool IsKnown::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
   bool IsKnown::operator()(bool &result, const ExpressionId &arg) const
   {
     result = arg->isKnown();
@@ -63,6 +68,12 @@ namespace PLEXIL
   template <typename T>
   Equal<T>::~Equal()
   {
+  }
+
+  template <typename T>
+  bool Equal<T>::checkArgCount(size_t count) const
+  {
+    return count == 2;
   }
 
   template <typename T>
@@ -92,6 +103,12 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool NotEqual<T>::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  template <typename T>
   bool NotEqual<T>::operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const
   {
     T tempA, tempB;
@@ -115,6 +132,12 @@ namespace PLEXIL
   template <typename T>
   GreaterThan<T>::~GreaterThan()
   {
+  }
+
+  template <typename T>
+  bool GreaterThan<T>::checkArgCount(size_t count) const
+  {
+    return count == 2;
   }
 
   template <typename T>
@@ -144,6 +167,12 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool GreaterEqual<T>::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  template <typename T>
   bool GreaterEqual<T>::operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const
   {
     T tempA, tempB;
@@ -170,6 +199,12 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool LessThan<T>::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  template <typename T>
   bool LessThan<T>::operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const
   {
     T tempA, tempB;
@@ -193,6 +228,12 @@ namespace PLEXIL
   template <typename T>
   LessEqual<T>::~LessEqual()
   {
+  }
+
+  template <typename T>
+  bool LessEqual<T>::checkArgCount(size_t count) const
+  {
+    return count == 2;
   }
 
   template <typename T>

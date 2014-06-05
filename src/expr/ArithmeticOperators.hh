@@ -39,6 +39,8 @@ namespace PLEXIL
     Addition();
     ~Addition();
 
+    bool checkArgCount(size_t count) const;
+
     // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
     bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
@@ -54,6 +56,8 @@ namespace PLEXIL
   public:
     Subtraction();
     ~Subtraction();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(NUM &result, const ExpressionId &arg) const;
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
@@ -71,6 +75,8 @@ namespace PLEXIL
     Multiplication();
     ~Multiplication();
 
+    bool checkArgCount(size_t count) const;
+
     // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
     bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
@@ -86,6 +92,8 @@ namespace PLEXIL
   public:
     Division();
     ~Division();
+
+    bool checkArgCount(size_t count) const;
 
     // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
@@ -103,6 +111,8 @@ namespace PLEXIL
     Modulo();
     ~Modulo();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
 
   private:
@@ -116,6 +126,8 @@ namespace PLEXIL
   public:
     Minimum();
     ~Minimum();
+
+    bool checkArgCount(size_t count) const;
 
     // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
@@ -132,6 +144,8 @@ namespace PLEXIL
   public:
     Maximum();
     ~Maximum();
+
+    bool checkArgCount(size_t count) const;
 
     // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
@@ -153,6 +167,8 @@ namespace PLEXIL
     AbsoluteValue();
     ~AbsoluteValue();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(NUM &result, const ExpressionId &arg) const;
 
   private:
@@ -167,6 +183,8 @@ namespace PLEXIL
   public:
     SquareRoot();
     ~SquareRoot();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(NUM &result, const ExpressionId &arg) const;
 
@@ -187,6 +205,8 @@ namespace PLEXIL
     Ceiling();
     ~Ceiling();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(NUM & result, const ExpressionId &arg) const;
 
   private:
@@ -200,6 +220,8 @@ namespace PLEXIL
   public:
     Floor();
     ~Floor();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(NUM & result, const ExpressionId &arg) const;
 
@@ -215,6 +237,8 @@ namespace PLEXIL
     Round();
     ~Round();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(NUM & result, const ExpressionId &arg) const;
 
   private:
@@ -229,6 +253,8 @@ namespace PLEXIL
     Truncate();
     ~Truncate();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(NUM & result, const ExpressionId &arg) const;
 
   private:
@@ -241,6 +267,8 @@ namespace PLEXIL
   public:
     RealToInteger();
     ~RealToInteger();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(int32_t & result, const ExpressionId &arg) const;
 

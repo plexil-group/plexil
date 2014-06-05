@@ -51,6 +51,12 @@ namespace PLEXIL
   {
   }
 
+  template <typename NUM>
+  bool Addition<NUM>::checkArgCount(size_t count) const
+  {
+    return count >= 2;
+  }
+
   // TODO: overflow checks
   template <typename NUM>
   bool Addition<NUM>::operator()(NUM &result,
@@ -97,6 +103,12 @@ namespace PLEXIL
   template <typename NUM>
   Subtraction<NUM>::~Subtraction()
   {
+  }
+
+  template <typename NUM>
+  bool Subtraction<NUM>::checkArgCount(size_t count) const
+  {
+    return count >= 1;
   }
 
   // *** TODO ***
@@ -162,6 +174,12 @@ namespace PLEXIL
   {
   }
 
+  template <typename NUM>
+  bool Multiplication<NUM>::checkArgCount(size_t count) const
+  {
+    return count >= 2;
+  }
+
   // TODO: overflow checks
   template <typename NUM>
   bool Multiplication<NUM>::operator()(NUM &result,
@@ -211,6 +229,12 @@ namespace PLEXIL
   {
   }
 
+  template <typename NUM>
+  bool Division<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
   // TODO: warn on zero divisor?
   template <typename NUM>
   bool Division<NUM>::operator()(NUM &result,
@@ -240,6 +264,12 @@ namespace PLEXIL
   template <typename NUM>
   Modulo<NUM>::~Modulo()
   {
+  }
+
+  template <typename NUM>
+  bool Modulo<NUM>::checkArgCount(size_t count) const
+  {
+    return count >= 2;
   }
 
   // Integer implementation
@@ -286,6 +316,12 @@ namespace PLEXIL
   template <typename NUM>
   Minimum<NUM>::~Minimum()
   {
+  }
+
+  template <typename NUM>
+  bool Minimum<NUM>::checkArgCount(size_t count) const
+  {
+    return count >= 2;
   }
 
   template <typename NUM>
@@ -337,6 +373,12 @@ namespace PLEXIL
   }
 
   template <typename NUM>
+  bool Maximum<NUM>::checkArgCount(size_t count) const
+  {
+    return count >= 2;
+  }
+
+  template <typename NUM>
   bool Maximum<NUM>::operator()(NUM &result,
                                 const ExpressionId &argA,
                                 const ExpressionId &argB) const
@@ -381,6 +423,12 @@ namespace PLEXIL
   }
 
   template <typename NUM>
+  bool AbsoluteValue<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  template <typename NUM>
   AbsoluteValue<NUM>::~AbsoluteValue()
   {
   }
@@ -413,6 +461,12 @@ namespace PLEXIL
   template <typename NUM>
   SquareRoot<NUM>::~SquareRoot()
   {
+  }
+
+  template <typename NUM>
+  bool SquareRoot<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 1;
   }
 
   template <>
@@ -461,6 +515,12 @@ namespace PLEXIL
   {
   }
 
+  template <typename NUM>
+  bool Ceiling<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
   template <>
   bool Ceiling<double>::operator()(double &result, const ExpressionId &arg) const
   {
@@ -489,6 +549,12 @@ namespace PLEXIL
   template <typename NUM>
   Floor<NUM>::~Floor()
   {
+  }
+
+  template <typename NUM>
+  bool Floor<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 1;
   }
 
   template <>
@@ -521,6 +587,12 @@ namespace PLEXIL
   {
   }
 
+  template <typename NUM>
+  bool Round<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
   template <>
   bool Round<double>::operator()(double &result, const ExpressionId &arg) const
   {
@@ -549,6 +621,12 @@ namespace PLEXIL
   template <typename NUM>
   Truncate<NUM>::~Truncate()
   {
+  }
+
+  template <typename NUM>
+  bool Truncate<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 1;
   }
 
   template <>
@@ -581,6 +659,11 @@ namespace PLEXIL
 
   RealToInteger::~RealToInteger()
   {
+  }
+
+  bool RealToInteger::checkArgCount(size_t count) const
+  {
+    return count == 1;
   }
 
   bool RealToInteger::operator()(int32_t & result, const ExpressionId &arg) const
