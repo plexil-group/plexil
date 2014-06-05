@@ -29,6 +29,7 @@
 #include "Array.hh"
 
 #include <iostream>
+#include <sstream>
 
 namespace PLEXIL
 {
@@ -147,6 +148,74 @@ namespace PLEXIL
     s << "printValue not yet implemented for arrays";
   }
 
+  /**
+   * @brief Parse one value from the incoming stream.
+   * @param s Input stream.
+   * @param result Reference to the place to store the result.
+   * @return True if known, false if unknown or error.
+   * @note If false, the result variable will not be modified.
+   */
+
+  template <typename NUM>
+  bool parseValue(std::string const &s, NUM &result)
+  {
+    if (s.empty() || s == "UNKNOWN")
+      return false;
+
+    NUM temp;
+    std::istringstream is(s);
+    is >> temp;
+    if (is.fail())
+      return false;
+    result = temp;
+    return true;
+  }
+
+  template <>
+  bool parseValue(std::string const &s, bool &result)
+  {
+    switch (s.length()) {
+      
+    case 1:
+      if (s == "0") {
+        result = false;
+        return true;
+      }
+      if (s == "1") {
+        result = true;
+        return true;
+      }
+      return false;
+
+    case 4:
+      if (s == "true" || s == "TRUE") {
+        result = true;
+        return true;
+      }
+      return false;
+
+    case 5:
+      if (s == "false" || s == "FALSE") {
+        result = false;
+        return true;
+      }
+      // fall thru to...
+
+    default:
+      return false;
+    }
+  }
+
+  // Empty sring is interpreted as UNKNOWN; is this a good idea?
+  template <>
+  bool parseValue(std::string const &s, std::string &result)
+  {
+    if (s.empty())
+      return false;
+    result = s;
+    return true;
+  }
+
   //
   // Explicit instantiation
   //
@@ -154,5 +223,12 @@ namespace PLEXIL
   template void printValue(int32_t const &, std::ostream &);
   template void printValue(double const &, std::ostream &);
   template void printValue(std::string const &, std::ostream &);
+  // array types NYI
+
+  template bool parseValue(std::string const &, bool &);
+  template bool parseValue(std::string const &, int32_t &);
+  template bool parseValue(std::string const &, double &);
+  template bool parseValue(std::string const &, std::string &);
+  // array types NYI
 
 }

@@ -89,6 +89,16 @@ namespace PLEXIL
   template <typename T>
   void printValue(T const &val, std::ostream &s);
 
+  /**
+   * @brief Parse one value from the incoming stream.
+   * @param s Input string.
+   * @param result Reference to the place to store the result.
+   * @return True if known, false if unknown or error.
+   * @note If false, the result variable will not be modified.
+   */
+  template <typename T>
+  bool parseValue(std::string const &s, T &result);
+
 }
 
 #endif // PLEXIL_VALUE_TYPE_HH
