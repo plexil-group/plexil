@@ -43,22 +43,35 @@ namespace PLEXIL
 
   class PlexilExpr {
   public:
-    PlexilExpr();
+    PlexilExpr(std::string const &name = "", 
+               ValueType typ = UNKNOWN_TYPE);
     virtual ~PlexilExpr();
     const PlexilExprId& getId() const;
-    const std::string& name() const;
+
+    virtual const std::string& name() const;
+    bool typed() const;
+    virtual ValueType type() const; // can be overridden
     int lineNo() const;
     int colNo() const;
 
     void setName(const std::string& name);
+    void setType(ValueType type);
     void setLineNo(int n);
     void setColNo(int n);
 
   private:
     PlexilExprId m_id;
+
+  protected:
     std::string m_name;
+
+  private:
     int m_lineNo;
     int m_colNo;
+
+  protected:
+    ValueType m_type;
+    bool m_typed;
   };
 
   class PlexilVarRef : public PlexilExpr
@@ -67,25 +80,21 @@ namespace PLEXIL
     PlexilVarRef();
     ~PlexilVarRef();
 
-    bool typed() const;
-    ValueType type() const;
     const PlexilExprId& defaultValue() const;
     const PlexilVarId& variable() const;
          
     void setDefaultValue(const PlexilExprId& defaultValue);
-    void setType(ValueType type);
     void setVariable(const PlexilVarId& var);
 
   private:
     PlexilExprId m_defaultValue;
     PlexilVarId m_variable;
-    ValueType m_type;
-    bool m_typed;
   };
 
   class PlexilOp : public PlexilExpr {
   public:
-    PlexilOp();
+    PlexilOp(std::string const &op = "", 
+             ValueType typ = UNKNOWN_TYPE);
     virtual ~PlexilOp();
 
     const std::string& getOp() const;
@@ -95,7 +104,6 @@ namespace PLEXIL
     void addSubExpr(PlexilExprId expr);
 
   private:
-    std::string m_op;
     std::vector<PlexilExprId> m_subExprs;
   };
 
@@ -121,22 +129,23 @@ namespace PLEXIL
     PlexilValue(ValueType type, const std::string& value = "UNKNOWN");
     ~PlexilValue();
 
-    ValueType type() const;
     const std::string& value() const;
+    virtual std::string const & name() const;
 
   private:
     std::string m_value;
-    ValueType m_type;
   };
 
   class PlexilArrayValue : public PlexilValue
   {
   public:
-    PlexilArrayValue(ValueType type,
+    PlexilArrayValue(ValueType eltType,
                      unsigned maxSize,
                      const std::vector<std::string>& values);
     ~PlexilArrayValue();
     const std::vector<std::string>& values() const;
+    virtual ValueType type() const;
+    ValueType elementType() const;
     unsigned maxSize() const;
 
   private:
@@ -155,12 +164,8 @@ namespace PLEXIL
     virtual bool isArray() const;
 
     const PlexilVarId& getId() const;
-    virtual ValueType type() const;
     virtual const std::string& factoryTypeString() const;
     const PlexilValue* value() const;
-
-  protected:
-    ValueType m_type;
 
   private:
     PlexilVarId m_varId;
@@ -171,19 +176,19 @@ namespace PLEXIL
   {
   public:
     PlexilArrayVar(const std::string& name, 
-                   ValueType type, 
+                   ValueType eltType, 
                    const unsigned maxSize);
     PlexilArrayVar(const std::string& name, 
-                   ValueType type, 
+                   ValueType eltType, 
                    const unsigned maxSize, 
                    std::vector<std::string>& values);
     ~PlexilArrayVar();
 
     // override PlexilVar method
-    virtual ValueType type() const;
 
     virtual const std::string& factoryTypeString() const;
     virtual bool isArray() const;
+    ValueType type() const;
     ValueType elementType() const;
     virtual unsigned maxSize() const;
 

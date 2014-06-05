@@ -31,10 +31,14 @@ namespace PLEXIL
   //
   // PlexilExpr
   //
-  PlexilExpr::PlexilExpr() 
+  PlexilExpr::PlexilExpr(std::string const &name, 
+                         ValueType typ) 
     : m_id(this),
+      m_name(name),
       m_lineNo(0),
-      m_colNo(0)
+      m_colNo(0),
+      m_type(typ),
+      m_typed(typ != UNKNOWN_TYPE)
   {
   }
 
@@ -51,6 +55,16 @@ namespace PLEXIL
   const std::string& PlexilExpr::name() const 
   {
     return m_name;
+  }
+
+  bool PlexilExpr::typed() const 
+  {
+    return m_typed;
+  }
+  
+  ValueType PlexilExpr::type() const 
+  {
+    return m_type;
   }
   
   int PlexilExpr::lineNo() const 
@@ -76,6 +90,12 @@ namespace PLEXIL
     if (nonBlank + 1 < m_name.length())
       m_name.erase(nonBlank + 1);
   }
+
+  void PlexilExpr::setType(ValueType type)
+  {
+    m_type = type; 
+    m_typed = (type != UNKNOWN_TYPE);
+  }
   
   void PlexilExpr::setLineNo(int n)
   {
@@ -92,9 +112,7 @@ namespace PLEXIL
   //
   PlexilVarRef::PlexilVarRef()
     : PlexilExpr(),
-      m_defaultValue(PlexilExprId::noId()),
-      m_type(UNKNOWN_TYPE),
-      m_typed(false)
+      m_defaultValue(PlexilExprId::noId())
   {
   }
 
@@ -102,16 +120,6 @@ namespace PLEXIL
   {
     if (m_defaultValue.isId())
       delete (PlexilExpr*) m_defaultValue;
-  }
-
-  bool PlexilVarRef::typed() const 
-  {
-    return m_typed;
-  }
-  
-  ValueType PlexilVarRef::type() const 
-  {
-    return m_type;
   }
   
   const PlexilExprId& PlexilVarRef::defaultValue() const 
@@ -129,12 +137,6 @@ namespace PLEXIL
     m_defaultValue = defaultValue;
   }
 
-  void PlexilVarRef::setType(ValueType type)
-  {
-    m_type = type; 
-    m_typed = true;
-  }
-
   void PlexilVarRef::setVariable(const PlexilVarId& var)
   {
     m_variable = var;
@@ -149,8 +151,10 @@ namespace PLEXIL
   // PlexilOp
   //
 
-  PlexilOp::PlexilOp()
-    : PlexilExpr()
+  // FIXME: where to get type?
+  PlexilOp::PlexilOp(std::string const &op,
+                     ValueType typ)
+    : PlexilExpr(op, typ)
   {
   }
   
@@ -165,12 +169,11 @@ namespace PLEXIL
 
   const std::string& PlexilOp::getOp() const
   {
-    return m_op;
+    return m_name;
   }
   
   void PlexilOp::setOp(const std::string& op)
   {
-    m_op = op;
     setName(op);
   }
 
@@ -228,26 +231,23 @@ namespace PLEXIL
   //
 
   PlexilValue::PlexilValue(ValueType type, const std::string& value)
-    : PlexilExpr(),
-      m_value(value),
-      m_type(type)
+    : PlexilExpr("", type),
+      m_value(value)
   {
-    // FIXME: this computes a string that could be a constant
-    setName(valueTypeName(m_type) + "Value");
   }
 
   PlexilValue::~PlexilValue()
   {
   }
 
-  ValueType PlexilValue::type() const
-  {
-    return m_type;
-  }
-
   const std::string& PlexilValue::value() const
   {
     return m_value;
+  }
+
+  std::string const &PlexilValue::name() const
+  {
+    return valueTypeName(this->type());
   }
 
   //
@@ -261,9 +261,6 @@ namespace PLEXIL
       m_maxSize(maxSize),
       m_values(values)
   {
-    // FIXME: no longer needed
-    // Handle special case of string array
-    setName(type == STRING_TYPE ? "StringArrayValue" : "ArrayValue");
   }
 
   PlexilArrayValue::~PlexilArrayValue()
@@ -280,25 +277,32 @@ namespace PLEXIL
     return m_maxSize;
   }
 
+  ValueType PlexilArrayValue::type() const
+  {
+    return arrayType(m_type);
+  }
+
+  ValueType PlexilArrayValue::elementType() const 
+  {
+    return m_type;
+  }
+
   //
   // PlexilVar
   //
    
   PlexilVar::PlexilVar(const std::string& name,
                        ValueType type)
-    : PlexilExpr(),
-      m_type(type),
+    : PlexilExpr(name, type),
       m_varId(this, PlexilExpr::getId()), 
       m_value(NULL)
   {
-    setName(name);
   }
    
   PlexilVar::PlexilVar(const std::string& name,
                        ValueType type, 
                        const std::string& value)
-    : PlexilExpr(),
-      m_type(type),
+    : PlexilExpr(name, type),
       m_varId(this, PlexilExpr::getId()), 
       m_value(new PlexilValue(type, value))
   {
@@ -309,7 +313,6 @@ namespace PLEXIL
                        ValueType type, 
                        PlexilValue* value)
     : PlexilExpr(),
-      m_type(type),
       m_varId(this, PlexilExpr::getId()),
       m_value(value)
   {
@@ -333,11 +336,6 @@ namespace PLEXIL
     return m_varId;
   }
 
-  ValueType PlexilVar::type() const
-  {
-    return m_type;
-  }
-
   const std::string& PlexilVar::factoryTypeString() const
   {
     return valueTypeName(m_type);
@@ -353,18 +351,18 @@ namespace PLEXIL
   //
 
   PlexilArrayVar::PlexilArrayVar(const std::string& name, 
-                                 ValueType type, 
+                                 ValueType eltType, 
                                  const unsigned maxSize)
-    : PlexilVar(name, type, NULL),
+    : PlexilVar(name, eltType, NULL),
       m_maxSize(maxSize)
   {
   }
 
   PlexilArrayVar::PlexilArrayVar(const std::string& name, 
-                                 ValueType type, 
+                                 ValueType eltType, 
                                  const unsigned maxSize, 
                                  std::vector<std::string>& values)
-    : PlexilVar(name, type, new PlexilArrayValue(type, maxSize, values)),
+    : PlexilVar(name, eltType, new PlexilArrayValue(eltType, maxSize, values)),
       m_maxSize(maxSize)
   {
   }
@@ -382,10 +380,12 @@ namespace PLEXIL
   {
     return valueTypeName(arrayType(m_type));
   }
+
   bool PlexilArrayVar::isArray() const
   {
     return true;
   }
+
   ValueType PlexilArrayVar::elementType() const 
   {
     return m_type;
