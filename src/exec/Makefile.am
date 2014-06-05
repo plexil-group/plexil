@@ -33,11 +33,11 @@ libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecDefs.hh ExecListener.hh ExecListenerBase.hh \
  ExecListenerFilter.hh ExecListenerFilterFactory.hh \
- ExecListenerHub.hh ExpressionFactory.hh Expressions.hh \
- InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Node.hh \
- NodeConstants.hh NodeFactory.hh NodeVariables.hh PlexilExec.hh PlexilPlan.hh \
- PlexilResource.hh PlexilXmlParser.hh ResourceArbiterInterface.hh \
- TestExternalInterface.hh UpdateNode.hh plan-utils.hh resource-tags.hh
+ ExecListenerHub.hh Expressions.hh InterfaceSchema.hh LibraryCallNode.hh \
+ ListNode.hh Node.hh NodeConstants.hh NodeFactory.hh NodeVariables.hh \
+ PlexilExec.hh PlexilPlan.hh PlexilResource.hh PlexilXmlParser.hh \
+ ResourceArbiterInterface.hh TestExternalInterface.hh UpdateNode.hh \
+ plan-utils.hh resource-tags.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  ExecConnector.cc ExecListener.cc ExecListenerFilter.cc ExecListenerFilterFactory.cc \
@@ -48,7 +48,7 @@ libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests
-  noinst_HEADERS =test/exec-test-module.hh
+  noinst_HEADERS =
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
   test_exec_module_tests_LDADD = libPlexilExec.la ../intfc/libPlexilIntfc.la \
  ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \

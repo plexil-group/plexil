@@ -234,7 +234,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__noinst_HEADERS_DIST = test/exec-test-module.hh test/jni-adapter.hh
+am__noinst_HEADERS_DIST = test/jni-adapter.hh
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -390,11 +390,11 @@ libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecDefs.hh ExecListener.hh ExecListenerBase.hh \
  ExecListenerFilter.hh ExecListenerFilterFactory.hh \
- ExecListenerHub.hh ExpressionFactory.hh Expressions.hh \
- InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Node.hh \
- NodeConstants.hh NodeFactory.hh NodeVariables.hh PlexilExec.hh PlexilPlan.hh \
- PlexilResource.hh PlexilXmlParser.hh ResourceArbiterInterface.hh \
- TestExternalInterface.hh UpdateNode.hh plan-utils.hh resource-tags.hh
+ ExecListenerHub.hh Expressions.hh InterfaceSchema.hh LibraryCallNode.hh \
+ ListNode.hh Node.hh NodeConstants.hh NodeFactory.hh NodeVariables.hh \
+ PlexilExec.hh PlexilPlan.hh PlexilResource.hh PlexilXmlParser.hh \
+ ResourceArbiterInterface.hh TestExternalInterface.hh UpdateNode.hh \
+ plan-utils.hh resource-tags.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  ExecConnector.cc ExecListener.cc ExecListenerFilter.cc ExecListenerFilterFactory.cc \
@@ -403,8 +403,7 @@ libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  PlexilXmlParser.cc ResourceArbiterInterface.cc TestExternalInterface.cc \
  UpdateNode.cc plan-utils.cc resource-tags.cc
 
-@MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/exec-test-module.hh \
-@MODULE_TESTS_OPT_TRUE@	$(am__append_1)
+@MODULE_TESTS_OPT_TRUE@noinst_HEADERS = $(am__append_1)
 @MODULE_TESTS_OPT_TRUE@test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
 @MODULE_TESTS_OPT_TRUE@test_exec_module_tests_LDADD = libPlexilExec.la ../intfc/libPlexilIntfc.la \
 @MODULE_TESTS_OPT_TRUE@ ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \
