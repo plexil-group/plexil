@@ -456,7 +456,7 @@ namespace PLEXIL {
             // construct constant local "variable" with default value
             bool wasConstructed = false;
             // FIXME: generates temporary string when table lookup could be used
-            expr = ExpressionFactory::createInstance(PlexilParser::valueTypeString(varRef->type()) + "Value",
+            expr = ExpressionFactory::createInstance(valueTypeName(varRef->type()) + "Value",
                                                      defaultVal,
                                                      NodeConnector::getId(),
                                                      wasConstructed);
@@ -503,7 +503,7 @@ namespace PLEXIL {
             // construct local "variable" with default value
             bool wasConstructed = false;
             // FIXME: generates temporary string when table lookup could be used
-            expr = ExpressionFactory::createInstance(PlexilParser::valueTypeString(varRef->type()) + "Variable",
+            expr = ExpressionFactory::createInstance(valueTypeName(varRef->type()) + "Variable",
                                                      defaultVal,
                                                      NodeConnector::getId(),
                                                      wasConstructed);
