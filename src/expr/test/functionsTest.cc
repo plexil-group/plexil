@@ -50,6 +50,11 @@ public:
   {
   }
 
+  bool checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
   bool operator()(R &result, const ExpressionId &arg) const
   {
     R temp;

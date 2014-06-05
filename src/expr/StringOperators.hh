@@ -37,6 +37,8 @@ namespace PLEXIL
   public:
     ~StringConcat();
 
+    bool checkArgCount(size_t count) const;
+
     bool operator()(std::string &result, const ExpressionId &arg) const;
 
     bool operator()(std::string &result,
@@ -59,6 +61,8 @@ namespace PLEXIL
   {
   public:
     ~StringLength();
+
+    bool checkArgCount(size_t count) const;
 
     bool operator()(int32_t &result, const ExpressionId &arg) const;
 
