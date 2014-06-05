@@ -149,37 +149,39 @@ namespace PLEXIL {
         }
   }
 
-  const std::string& PlexilParser::valueTypeString(ValueType typ)
-  {
-    switch (typ)
-      {
-      case PLEXIL::INTEGER_TYPE:
-        return INTEGER_STR();
-      case PLEXIL::REAL_TYPE:
-        return REAL_STR();
-      case PLEXIL::BOOLEAN_TYPE:
-        return BOOL_STR();
-      case PLEXIL::STRING_TYPE:
-        return STRING_STR();
-      case PLEXIL::DATE_TYPE:
-        return DATE_STR();
-      case PLEXIL::DURATION_TYPE:
-        return DURATION_STR();
-      case PLEXIL::ARRAY_TYPE:
-        return ARRAY_STR();
-      case PLEXIL::NODE_STATE_TYPE:
-        return NODE_STATE_STR();
-      case PLEXIL::OUTCOME_TYPE:
-        return NODE_OUTCOME_STR();
-      case PLEXIL::FAILURE_TYPE:
-        return NODE_FAILURE_STR();
-      case PLEXIL::COMMAND_HANDLE_TYPE:
-        return NODE_COMMAND_HANDLE_STR();
+  // Replaced by function valueTypeName(), with an identical signature
+  // See src/expr/ValueType.cc.
+  // const std::string& PlexilParser::valueTypeString(ValueType typ)
+  // {
+  //   switch (typ)
+  //     {
+  //     case PLEXIL::INTEGER_TYPE:
+  //       return INTEGER_STR();
+  //     case PLEXIL::REAL_TYPE:
+  //       return REAL_STR();
+  //     case PLEXIL::BOOLEAN_TYPE:
+  //       return BOOL_STR();
+  //     case PLEXIL::STRING_TYPE:
+  //       return STRING_STR();
+  //     case PLEXIL::DATE_TYPE:
+  //       return DATE_STR();
+  //     case PLEXIL::DURATION_TYPE:
+  //       return DURATION_STR();
+  //     case PLEXIL::ARRAY_TYPE:
+  //       return ARRAY_STR();
+  //     case PLEXIL::NODE_STATE_TYPE:
+  //       return NODE_STATE_STR();
+  //     case PLEXIL::OUTCOME_TYPE:
+  //       return NODE_OUTCOME_STR();
+  //     case PLEXIL::FAILURE_TYPE:
+  //       return NODE_FAILURE_STR();
+  //     case PLEXIL::COMMAND_HANDLE_TYPE:
+  //       return NODE_COMMAND_HANDLE_STR();
 
-      default:
-        return UNKNOWN_STR();
-      }
-  }
+  //     default:
+  //       return UNKNOWN_STR();
+  //     }
+  // }
    
   PlexilNode::PlexilNode()
     : m_id(this),

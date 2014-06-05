@@ -124,7 +124,8 @@ namespace PLEXIL
     {
       return parseValueTypePrefix(typeStr, typeStr.length());
     }
-    static const std::string& valueTypeString(ValueType type);
+    // Replaced by function valueTypeName(). See src/exec/ValueType.hh.
+    //static const std::string& valueTypeString(ValueType type);
 
   private:
     // Deliberately not implemented because this class can't be instantiated,
