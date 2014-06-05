@@ -26,13 +26,25 @@
 
 #include "ExpressionFactory.hh"
 #include "Debug.hh"
-#include "Expression.hh"
 #include "NodeConnector.hh"
 #include "PlexilExpr.hh"
-#include "lifecycle-utils.h"
 
 namespace PLEXIL
 {
+  ExpressionFactory::ExpressionFactory(const std::string& name)
+    : m_name(name)
+  {
+    registerFactory(m_name, this);
+  }
+
+  ExpressionFactory::~ExpressionFactory()
+  {
+  }
+
+  const std::string& ExpressionFactory::getName() const
+  {
+    return m_name;
+  }
 
   void ExpressionFactory::registerFactory(const std::string& name, ExpressionFactory* factory) 
   {

@@ -29,10 +29,6 @@
 
 #include "Expression.hh"
 
-// ***********************************
-// * TEMPORARY - TO BE REPLACED SOON *
-// ***********************************
-
 namespace PLEXIL
 {
   // Forward declarations
@@ -43,7 +39,8 @@ namespace PLEXIL
   DECLARE_ID(PlexilExpr);
 
   /**
-   * @brief Factory class for Expressions.
+   * @class ExpressionFactory
+   * @brief Abstract factory class for Expressions, client side.
    * This allows you to write, e.g., \<AND\> in XML and have the correct Expression instantiated.
    */
   class ExpressionFactory {
@@ -102,10 +99,7 @@ namespace PLEXIL
                                        const NodeConnectorId& node,
                                        bool& wasCreated);
 
-    const std::string& getName() const
-    {
-      return m_name;
-    }
+    const std::string& getName() const;
 
     /**
      * @brief Deallocate all factories
@@ -114,8 +108,7 @@ namespace PLEXIL
 
   protected:
 
-    virtual ~ExpressionFactory()
-    {}
+    virtual ~ExpressionFactory();
 
     /**
      * @brief Registers an ExpressionFactory with the specific name.
@@ -127,11 +120,7 @@ namespace PLEXIL
     virtual ExpressionId create(const PlexilExprId& expr,
                                 const NodeConnectorId& node = NodeConnectorId::noId()) const = 0;
 
-    ExpressionFactory(const std::string& name)
-    : m_name(name)
-    {
-      registerFactory(m_name, this);
-    }
+    ExpressionFactory(const std::string& name);
 
   private:
 
@@ -145,52 +134,6 @@ namespace PLEXIL
     const std::string m_name; /*!< Name used for lookup */
   };
 
-  /**
-   * @brief Concrete factory class, templated for each Expression type.
-   */
-  template<class FactoryType>
-  class ConcreteExpressionFactory : public ExpressionFactory {
-  public:
-    ConcreteExpressionFactory(const std::string& name) : ExpressionFactory(name) {}
-
-  private:
-    /**
-     * @brief Instantiates a new Expression of the appropriate type.
-     * @param expr The PlexilExprId for the instantiated Expression.
-     * @param node
-     * @return The Id for the new Expression.
-     */
-
-    virtual ExpressionId create(const PlexilExprId& expr,
-                                const NodeConnectorId& node = NodeConnectorId::noId()) const
-    {return (new FactoryType(expr, node))->getId();}
-  };
-
-
-  /**
-   * @brief Variant of above for constant values.
-   */
-  template<class FactoryType>
-  class ConstantExpressionFactory : public ExpressionFactory {
-  public:
-    ConstantExpressionFactory(const std::string& name) : ExpressionFactory(name) {}
-  private:
-    /**
-     * @brief Instantiates a new Expression of the appropriate type.
-     * @param expr The PlexilExprId for the instantiated Expression.
-     * @param node
-     * @return The Id for the new Expression.
-     */
-
-    virtual ExpressionId create(const PlexilExprId& expr,
-                                const NodeConnectorId& node = NodeConnectorId::noId()) const
-    {return (new FactoryType(expr, node, true))->getId();}
-  };
-
 }
-
-// Convenience macros
-#define REGISTER_EXPRESSION(CLASS,NAME) {new PLEXIL::ConcreteExpressionFactory<CLASS>(#NAME);}
-#define REGISTER_CONSTANT_EXPRESSION(CLASS,NAME) {new PLEXIL::ConstantExpressionFactory<CLASS>(#NAME);}
 
 #endif // EXPRESSION_FACTORY_HH

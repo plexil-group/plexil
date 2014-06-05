@@ -32,9 +32,10 @@ libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils \
 
 include_HEADERS = Alias.hh Array.hh ArrayImpl.hh ArrayConstant.hh \
  ArrayReference.hh ArrayVariable.hh Assignable.hh AssignableImpl.hh \
- Constant.hh Expression.hh ExpressionConstants.hh ExpressionFactory.hh \
- ExpressionImpl.hh ExpressionListener.hh Function.hh NodeConnector.hh \
- NotifierImpl.hh Operator.hh UserVariable.hh Value.hh ValueType.hh
+ ConcreteExpressionFactory.hh Constant.hh Expression.hh ExpressionConstants.hh \
+ ExpressionFactory.hh ExpressionImpl.hh ExpressionListener.hh Function.hh \
+ NodeConnector.hh NotifierImpl.hh Operator.hh UserVariable.hh Value.hh \
+ ValueType.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
  ArithmeticOperators.cc ArrayConstant.cc ArrayOperators.cc ArrayReference.cc \
