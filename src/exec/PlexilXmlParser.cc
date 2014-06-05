@@ -109,11 +109,11 @@ namespace PLEXIL
   // Internal error checking/reporting utilities
   //
 
-  inline bool testTag(const char* t, const xml_node& e) {
+  static inline bool testTag(const char* t, const xml_node& e) {
     return e.type() == node_element && 0 == strcmp(t, e.name());
   }
 
-  bool testTagPrefix(const char* prefix, const xml_node& e)
+  static bool testTagPrefix(const char* prefix, const xml_node& e)
   {
     if (e.type() != node_element)
       return false;
@@ -124,7 +124,7 @@ namespace PLEXIL
     return 0 == strncmp(prefix, valueStr, prefixLen);
   }
 
-  bool testTagSuffix(const char* suffix, const xml_node& e)
+  static bool testTagSuffix(const char* suffix, const xml_node& e)
   {
     if (e.type() != node_element)
       return false;
@@ -136,31 +136,32 @@ namespace PLEXIL
     return 0 == strncmp(suffix, &(valueStr[valueLen - suffixLen]), suffixLen);
   }
 
-  inline bool hasChildElement(const xml_node& e) 
+  static inline bool hasChildElement(const xml_node& e) 
   {
     return e && e.first_child() && e.first_child().type() == node_element;
   }
 
-  void checkTag(const char* t, const xml_node& e) {
+  static void checkTag(const char* t, const xml_node& e) {
     checkParserExceptionWithLocation(testTag(t, e),
                                      e,
                                      "XML parsing error: Expected <" << t << "> element, but got <" << e.name() << "> instead.");
   }
 
-  void checkAttr(const char* t, const xml_node& e) {
+  static void checkAttr(const char* t, const xml_node& e) {
     checkParserExceptionWithLocation(e && e.type() == node_element && e.attribute(t),
                                      e,
                                      "XML parsing error: Expected an attribute named '" << t << "' in element <" << e.name() << ">");
   }
 
-  void checkTagPrefix(const char* t, const xml_node& e) 
-  {
-    checkParserExceptionWithLocation(testTagPrefix(t, e),
-                                     e,
-                                     "XML parsing error: Expected an element starting in '" << t << "', but instead got <" << e.name() << ">");
-  }
+  // Apparently not used.
+  // static void checkTagPrefix(const char* t, const xml_node& e) 
+  // {
+  //   checkParserExceptionWithLocation(testTagPrefix(t, e),
+  //                                    e,
+  //                                    "XML parsing error: Expected an element starting in '" << t << "', but instead got <" << e.name() << ">");
+  // }
 
-  void checkTagSuffix(const char* t, const xml_node& e) 
+  static void checkTagSuffix(const char* t, const xml_node& e) 
   {
     checkParserExceptionWithLocation(testTagSuffix(t, e),
                                      e,
@@ -168,7 +169,7 @@ namespace PLEXIL
   }
 
   // N.B. presumes e is not empty
-  void checkNotEmpty(const xml_node& e) {
+  static void checkNotEmpty(const xml_node& e) {
     checkParserExceptionWithLocation(e.first_child()
                                      && e.first_child().type() == node_pcdata
                                      && *(e.first_child().value()),
@@ -177,13 +178,13 @@ namespace PLEXIL
   }
 
   // N.B. presumes e is not empty
-  void checkHasChildElement(const xml_node& e) {
+  static void checkHasChildElement(const xml_node& e) {
     checkParserExceptionWithLocation(hasChildElement(e),
                                      e,
                                      "XML parsing error: Expected a child element of <" << e.name() << ">");
   }
 
-  bool isBoolean(const char* initval)
+  static bool isBoolean(const char* initval)
   {
     if (initval == NULL)
       return false;
@@ -207,7 +208,7 @@ namespace PLEXIL
     }
   }
 
-  bool isInteger(const char* initval)
+  static bool isInteger(const char* initval)
   {
     if (initval == NULL || !*initval)
       return false;
@@ -229,7 +230,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool isDouble(const char* initval)
+  static bool isDouble(const char* initval)
   {
     if (initval == NULL || !*initval)
       return false;
@@ -1814,7 +1815,7 @@ namespace PLEXIL
     xml_node retval = appendElement((var->isArray() ? DECL_ARRAY_TAG : DECL_VAR_TAG),
                                     parent);
     appendNamedTextElement(NAME_TAG, var->name().c_str(), retval);
-    appendNamedTextElement(TYPE_TAG, valueTypeString(var->type()).c_str(), retval);
+    appendNamedTextElement(TYPE_TAG, valueTypeName(var->type()).c_str(), retval);
 
     if (var->isArray()) {
       const PlexilArrayVarId& arrayVar = (const PlexilArrayVarId&) var;
@@ -1823,7 +1824,7 @@ namespace PLEXIL
 
       // initial values
       xml_node vals = appendElement(INITIALVAL_TAG, retval);
-      string valueTag = valueTypeString(arrayVar->type())
+      string valueTag = valueTypeName(arrayVar->type())
         + VAL_TAG;
       const std::vector<string>& values =
         ((PlexilArrayValue *) arrayVar->value())->values();
@@ -1894,7 +1895,7 @@ namespace PLEXIL
     if (Id<PlexilInternalVar>::convertable(ref->getId()))
       toXml((PlexilInternalVar*) ref, parent);
     else
-      appendNamedTextElement((ref->typed() ? valueTypeString(ref->type()) + VAR_TAG : VAR_TAG).c_str(),
+      appendNamedTextElement((ref->typed() ? valueTypeName(ref->type()) + VAR_TAG : VAR_TAG).c_str(),
                              ref->name().c_str(),
                              parent);
   }
@@ -1949,7 +1950,7 @@ namespace PLEXIL
   void PlexilXmlParser::toXml(const PlexilValue* val, xml_node& parent)
     throw(ParserException) 
   {
-    appendNamedTextElement((valueTypeString(val->type()) + VAL_TAG).c_str(),
+    appendNamedTextElement((valueTypeName(val->type()) + VAL_TAG).c_str(),
                            val->value().c_str(),
                            parent);
   }
