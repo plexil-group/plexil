@@ -31,8 +31,10 @@
 #include "Constant.hh"
 
 #include "ArrayImpl.hh"
+#include "ConcreteExpressionFactory.hh"
 
-namespace PLEXIL {
+namespace PLEXIL
+{
 
   /**
    * @brief Default constructor.
@@ -208,10 +210,78 @@ namespace PLEXIL {
   }
 
   //
+  // Concrete factories
+  //
+
+  // Scalar cases
+  template <>
+  ExpressionId ConcreteExpressionFactory<Constant<bool> >::create(const PlexilExprId& expr,
+                                                                  const NodeConnectorId& node) const
+  {
+    PlexilValue const *tmpl = (PlexilValue const *) expr;
+    assertTrue_2(tmpl, "ExpressionFactory<Constant>: PlexilExpr is not a PlexilValue");
+    bool isKnown = !tmpl->value().empty() || (tmpl->value() != "UNKNOWN");
+    Constant<bool> *result = NULL;
+    if (isKnown) {
+      bool value;
+      if (parseValue(tmpl->value(), value))
+        return (new Constant<bool>(value))->getId();
+    }
+    return (new Constant<bool>())->getId();
+  }
+
+  template <>
+  ExpressionId ConcreteExpressionFactory<Constant<int32_t> >::create(const PlexilExprId& expr,
+                                                                    const NodeConnectorId& node) const
+  {
+    PlexilValue const *tmpl = (PlexilValue const *) expr;
+    assertTrue_2(tmpl, "ExpressionFactory<Constant>: PlexilExpr is not a PlexilValue");
+    bool isKnown = !tmpl->value().empty() || (tmpl->value() != "UNKNOWN");
+    Constant<int32_t> *result = NULL;
+    if (isKnown) {
+      int32_t value;
+      if (parseValue(tmpl->value(), value))
+        return (new Constant<int32_t>(value))->getId();
+    }
+    return (new Constant<int32_t>())->getId();
+  }
+
+  template <>
+  ExpressionId ConcreteExpressionFactory<Constant<double> >::create(const PlexilExprId& expr,
+                                                                    const NodeConnectorId& node) const
+  {
+    PlexilValue const *tmpl = (PlexilValue const *) expr;
+    assertTrue_2(tmpl, "ExpressionFactory<Constant>: PlexilExpr is not a PlexilValue");
+    bool isKnown = !tmpl->value().empty() || (tmpl->value() != "UNKNOWN");
+    Constant<double> *result = NULL;
+    if (isKnown) {
+      double value;
+      if (parseValue(tmpl->value(), value))
+        return (new Constant<double>(value))->getId();
+    }
+    return (new Constant<double>())->getId();
+  }
+
+  template <>
+  ExpressionId ConcreteExpressionFactory<Constant<std::string> >::create(const PlexilExprId& expr,
+                                                                    const NodeConnectorId& node) const
+  {
+    PlexilValue const *tmpl = (PlexilValue const *) expr;
+    assertTrue_2(tmpl, "ExpressionFactory<Constant>: PlexilExpr is not a PlexilValue");
+    bool isKnown = !tmpl->value().empty() || (tmpl->value() != "UNKNOWN");
+    Constant<std::string> *result = NULL;
+    if (isKnown) {
+      std::string value;
+      if (parseValue(tmpl->value(), value))
+        return (new Constant<std::string>(value))->getId();
+    }
+    return (new Constant<std::string>())->getId();
+  }
+
+  //
   // Explicit instantiations
   //
   template class Constant<bool>;
-  template class Constant<uint16_t>;
   template class Constant<int32_t>;
   template class Constant<double>;
   template class Constant<std::string>;
@@ -220,5 +290,10 @@ namespace PLEXIL {
   template class Constant<IntegerArray>;
   template class Constant<RealArray>;
   template class Constant<StringArray>;
+
+  ENSURE_EXPRESSION_FACTORY(BooleanConstant);
+  ENSURE_EXPRESSION_FACTORY(IntegerConstant);
+  ENSURE_EXPRESSION_FACTORY(RealConstant);
+  ENSURE_EXPRESSION_FACTORY(StringConstant);
 
 } // namespace PLEXIL
