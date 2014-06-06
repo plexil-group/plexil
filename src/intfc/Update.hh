@@ -45,9 +45,11 @@ namespace PLEXIL
     Update(std::string const &node, PlexilUpdateId const &updateProto = PlexilUpdateId::noId());
     ~Update();
 
+    typedef std::map<std::string, Value> PairValueMap;
+
     const UpdateId& getId() const {return m_id;}
     const ExpressionId& getAck() const {return m_ack.getId();}
-    const std::map<std::string, Value>& getPairs() const {return m_valuePairs;}
+    const PairValueMap& getPairs() const {return m_valuePairs;}
     const NodeId& getSource() const {return m_source;}
     void activate();
     void deactivate();
@@ -69,7 +71,6 @@ namespace PLEXIL
     std::vector<ExpressionId> m_garbage;
     typedef std::map<std::string, ExpressionId> PairExpressionMap;
     PairExpressionMap m_pairs;
-    typedef std::map<std::string, Value> PairValueMap;
     PairValueMap m_valuePairs;
   };
 
