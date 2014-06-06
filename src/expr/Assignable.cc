@@ -33,19 +33,27 @@ namespace PLEXIL {
   //
 
   Assignable::Assignable()
-    : Expression(),
-      m_aid(this, m_id)
+    : Expression()
   {
   }
 
   Assignable::~Assignable()
   {
-    m_aid.removeDerived(m_id);
   }
 
   bool Assignable::isAssignable() const
   {
     return true;
+  }
+
+  Assignable *Assignable::asAssignable()
+  {
+    return this;
+  }
+
+  Assignable const *Assignable::asAssignable() const
+  {
+    return this;
   }
 
   //

@@ -33,7 +33,6 @@ namespace PLEXIL {
   
   // Forward declarations
   class Assignable;
-  typedef Id<Assignable> AssignableId;
 
   class Value;
 
@@ -41,6 +40,7 @@ namespace PLEXIL {
    * @class Assignable
    * @brief Pure virtual mixin class for all expressions which can be assigned to by a plan.
    * @note Examples include variables, array references, aliases for InOut variables, etc.
+   * @note This class has no state of its own.
    */
   class Assignable : public virtual Expression
   {
@@ -56,12 +56,21 @@ namespace PLEXIL {
      */
     virtual ~Assignable();
 
-    inline const AssignableId &getAssignableId() const
-    {
-      return m_aid;
-    }
+    /**
+     * @brief Query whether this expression is assignable.
+     * @return True if assignable, false otherwise.
+     * @note This method returns true.
+     * @note Any object which returns true must be derived from Assignable.
+     */
+    virtual bool isAssignable() const;
 
-    bool isAssignable() const;
+    /**
+     * @brief Get a pointer to this expression as an Assignable instance.
+     * @return The pointer. NULL if not an instance of Assignable.
+     * @note Only objects derived from Assignable should return a pointer.
+     */
+    virtual Assignable *asAssignable();
+    virtual Assignable const *asAssignable() const;
 
     //
     // Core Assignable API
@@ -138,11 +147,6 @@ namespace PLEXIL {
     virtual void restoreSavedValue() = 0;
 
     /**
-     * @brief Get the name of this variable, as declared in the node that owns it.
-     */
-    virtual const std::string& getName() const = 0;
-
-    /**
      * @brief Get the node that owns this expression.
      * @return The NodeId of the parent node; may be noId.
      * @note Used by LuvFormat::formatAssignment().  
@@ -152,14 +156,11 @@ namespace PLEXIL {
 
     /**
      * @brief Get the real variable for which this may be a proxy.
-     * @return The AssignableId of the base variable
+     * @return Pointer to the base variable as an Assignable.
      * @note Used by the assignment node conflict resolution logic.
      */
-    virtual const AssignableId& getBaseVariable() const = 0;
-
-  private:
-
-    AssignableId m_aid;
+    virtual Assignable *getBaseVariable() = 0;
+    virtual Assignable const *getBaseVariable() const = 0;
   };
 
 } // namespace PLEXIL
