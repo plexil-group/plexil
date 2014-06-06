@@ -35,6 +35,7 @@
 namespace PLEXIL {
 
   Expression::Expression()
+    : ExpressionListener()
   {
   }
 
@@ -43,21 +44,39 @@ namespace PLEXIL {
   }
 
   // Default method.
+  std::string const &Expression::getName() const
+  {
+    static std::string const sl_empty;
+    return sl_empty;
+  }
+
+  // Default method.
   bool Expression::isAssignable() const
   {
     return false;
   }
 
-  // Default method.
-  const AssignableId &Expression::getAssignableId() const
+  // Default methods.
+  Assignable *Expression::asAssignable()
   {
-    return AssignableId::noId();
+    return NULL;
+  }
+
+  Assignable const *Expression::asAssignable() const
+  {
+    return NULL;
   }
 
   // Default method.
   bool Expression::isConstant() const
   {
     return false;
+  }
+
+  // Default method.
+  ExpressionId const &Expression::getBaseExpression() const
+  {
+    return (ExpressionId const &) this->getId();
   }
 
   // TODO: add exprName, typeName

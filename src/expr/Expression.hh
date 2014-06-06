@@ -57,7 +57,7 @@ namespace PLEXIL
   //
 
   class Assignable;
-  typedef Id<Assignable> AssignableId;
+
   class Expression;
   typedef Id<Expression> ExpressionId;
   class Node;
@@ -71,8 +71,6 @@ namespace PLEXIL
   class Expression : public ExpressionListener
   {
   public:
-    Expression();
-
     virtual ~Expression();
 
     inline const ExpressionId &getId() const
@@ -80,11 +78,16 @@ namespace PLEXIL
       return static_cast<const ExpressionId &>(m_id);
     }
 
-    virtual const AssignableId &getAssignableId() const;
-
     //
     // Essential type-invariant Expression API
     //
+
+    /**
+     * @brief Return the name of this expression.
+     * @return Const reference to string.
+     * @note Default method returns empty string.
+     */
+    virtual std::string const &getName() const;
 
     /**
      * @brief Return a print name for the expression type.
@@ -113,11 +116,25 @@ namespace PLEXIL
     virtual bool isAssignable() const;
 
     /**
+     * @brief Get a pointer to this expression as an Assignable instance.
+     * @return The pointer. NULL if not Assignable.
+     * @note Only objects derived from Assignable should return a pointer.
+     */
+    virtual Assignable *asAssignable();
+    virtual Assignable const *asAssignable() const;
+
+    /**
      * @brief Query whether this expression is constant, i.e. incapable of change.
      * @return True if assignable, false otherwise.
      * @note The default method returns false.
      */
     virtual bool isConstant() const;
+
+    /**
+     * @brief Get the real expression for which this may be an alias or reference.
+     * @return ExpressionId of the base expression.
+     */
+    virtual ExpressionId const & getBaseExpression() const;
 
 	/**
 	 * @brief Print the object to the given stream.
@@ -242,8 +259,11 @@ namespace PLEXIL
      */
     virtual Value toValue() const = 0;
 
-  private:
+  protected:
+    // Only derived classes can call the constructor.
+    Expression();
 
+  private:
     // Deliberately not implemented.
     Expression(const Expression &);
     Expression &operator=(const Expression &);
