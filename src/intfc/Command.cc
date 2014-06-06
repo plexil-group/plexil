@@ -31,7 +31,7 @@ namespace PLEXIL
 
   Command::Command(const ExpressionId nameExpr, 
                    const std::vector<ExpressionId>& args,
-                   const AssignableId dest,
+                   Assignable *dest,
                    const std::string &dest_name,
                    const std::vector<ExpressionId> &garbage,
                    const ResourceList &resource,
@@ -45,7 +45,9 @@ namespace PLEXIL
       m_garbage(garbage),
       m_args(args),
       m_resourceList(resource),
-      m_commandHandle(NO_COMMAND_HANDLE)
+      m_commandHandle(NO_COMMAND_HANDLE),
+      m_fixed(false),
+      m_resourceFixed(false)
   {
     m_ack.setName(nodeName + " commandHandle");
     m_abortComplete.setName(nodeName + " abortComplete");
@@ -60,25 +62,58 @@ namespace PLEXIL
     m_id.remove();
   }
 
-  const std::string &Command::getName() const
+  State const &Command::getCommand() const
   {
-    std::string const *result;
-    m_nameExpr->getValuePointer(result);
-    return *result;
+    assertTrue_1(m_fixed);
+    return m_command;
+  }
+
+  std::string const &Command::getName() const
+  {
+    assertTrue_1(m_fixed);
+    return m_command.name();
+  }
+
+  std::vector<Value> const &Command::getArgValues() const
+  {
+    assertTrue_1(m_fixed);
+    return m_command.parameters();
+  }
+
+  const ResourceValuesList &Command::getResourceValues() const
+  {
+    assertTrue_1(m_resourceFixed);
+    return m_resourceValuesList;
+  }
+
+  ExpressionId Command::getDest() const
+  {
+    if (m_dest)
+      return m_dest->getId();
+    else
+      return ExpressionId::noId();
   }
 
   void Command::fixValues() 
   {
-    m_argValues.clear();
-    for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid()); // ??
-      m_argValues.push_back(expr->toValue());
-    }
+    assertTrue_1(!m_fixed);
+    std::string const *name;
+    m_nameExpr->getValuePointer(name);
+
+    std::vector<Value> vals;
+    vals.reserve(m_args.size());
+    for (std::vector<ExpressionId>::iterator it = m_args.begin();
+         it != m_args.end();
+         ++it)
+      vals.push_back((*it)->toValue());
+
+    m_command = State(*name, vals);
+    m_fixed = true;
   }
 
   void Command::fixResourceValues()
   {
+    assertTrue_1(!m_resourceFixed);
     m_resourceValuesList.clear();
     for(ResourceList::const_iterator resListIter = m_resourceList.begin();
         resListIter != m_resourceList.end();
@@ -94,6 +129,7 @@ namespace PLEXIL
         }
         m_resourceValuesList.push_back(resValues);
       }
+    m_resourceFixed = true;
   }
 
   //more error checking here
@@ -102,8 +138,7 @@ namespace PLEXIL
     m_nameExpr->activate();
     m_ack.activate();
     m_abortComplete.activate();
-    // TODO: Figure out if this is really needed
-    if (m_dest != ExpressionId::noId())
+    if (m_dest)
       m_dest->activate();
     for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
       ExpressionId expr = *it;
@@ -127,24 +162,25 @@ namespace PLEXIL
     m_nameExpr->deactivate();
     m_ack.deactivate();
     m_abortComplete.deactivate();
-    // TODO: Figure out if this is really needed
-    if (m_dest != ExpressionId::noId())
+    if (m_dest)
       m_dest->deactivate();
     for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
       ExpressionId expr = *it;
       check_error(expr.isValid());
       expr->deactivate();
     }
-    m_argValues.clear(); // ??
   }
 
   void Command::reset()
   {
     m_commandHandle = NO_COMMAND_HANDLE;
     m_abortComplete.reset();
+    // TODO: optimize in case name & args are constants (a common case)
+    m_fixed = m_resourceFixed = false;
   }
 
-  const std::string& Command::getDestName() const {
+  const std::string& Command::getDestName() const
+  {
     return m_destName;
   }
 

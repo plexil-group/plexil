@@ -28,6 +28,7 @@
 #define PLEXIL_COMMAND_HH
 
 #include "CommandHandleVariable.hh"
+#include "State.hh"
 #include "UserVariable.hh"
 #include "Value.hh"
 
@@ -56,7 +57,7 @@ namespace PLEXIL
   public:
     Command(const ExpressionId nameExpr, 
             const std::vector<ExpressionId>& args, 
-            const AssignableId dest,
+            Assignable *dest,
             const std::string& dest_name,
             const std::vector<ExpressionId>& garbage,
             const ResourceList& resource,
@@ -64,12 +65,13 @@ namespace PLEXIL
     ~Command();
 
     const CommandId &getId() {return m_id;}
-    ExpressionId getDest() { return (ExpressionId) m_dest;}
+    ExpressionId getDest() const;
     const ExpressionId &getAck() {return m_ack.getId();}
     const ExpressionId &getAbortComplete() {return m_abortComplete.getId();}
-    const std::vector<Value> &getArgValues() const {return m_argValues;}
-    const ResourceValuesList &getResourceValues() const {return m_resourceValuesList;}
-    const std::string &getName() const;
+    State const &getCommand() const;
+    std::string const &getName() const;
+    std::vector<Value> const &getArgValues() const;
+    const ResourceValuesList &getResourceValues() const;
     const std::string &getDestName() const;
     CommandHandleValue getCommandHandle() const {return (CommandHandleValue) m_commandHandle;}
 
@@ -91,15 +93,16 @@ namespace PLEXIL
     CommandId m_id;
     CommandHandleVariable m_ack;
     BooleanVariable m_abortComplete;
+    State m_command;
     ExpressionId m_nameExpr;
-    AssignableId m_dest;
+    Assignable *m_dest;
     std::string m_destName;
     std::vector<ExpressionId> m_garbage;
     std::vector<ExpressionId> m_args;
-    std::vector<Value> m_argValues;
     ResourceList m_resourceList;
     ResourceValuesList m_resourceValuesList;
     uint16_t m_commandHandle;
+    bool m_fixed, m_resourceFixed;
   };
 
 }
