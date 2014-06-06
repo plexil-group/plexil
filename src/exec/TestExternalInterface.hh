@@ -57,23 +57,20 @@ namespace PLEXIL
     void run(const pugi::xml_node& input)
     throw(ParserException);
 
-    Value lookupNow(const State& state);
+    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
 
     // LookupOnChange
     void subscribe(const State& state);
     void unsubscribe(const State& state);
     void setThresholds(const State& state, double hi, double lo);
+    void setThresholds(const State& state, int32_t hi, int32_t lo);
 
-    void batchActions(std::list<CommandId>& commands);
-    void updatePlanner(std::list<UpdateId>& updates);
+    // Commands
+    void executeCommand(CommandId const &cmd);
+    void invokeAbort(CommandId const &cmd);
 
-    void executeCommand(const std::string& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
-
-    /**
-     * @brief Abort the pending command with the supplied name and arguments.
-     * @param cmd The command.
-     */
-    void invokeAbort(const CommandId& cmd);
+    // Updates
+    void executeUpdate(UpdateId const &update) = 0;
 
     double currentTime();
 

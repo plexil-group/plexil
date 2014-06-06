@@ -151,7 +151,7 @@ namespace PLEXIL
     if (expr != ExpressionId::noId()) {
       checkError(expr->isAssignable(),
                  "Expected variable in \'" << source << "\'");
-      expr->getAssignableId()->setValue(value);
+      expr->asAssignable()->setValue(value);
       std::map<ExpressionId, CommandId>::iterator iter;
       if ((iter = m_destToCmdMap.find(expr)) != m_destToCmdMap.end()) {
         m_destToCmdMap.erase(iter);
@@ -218,7 +218,7 @@ namespace PLEXIL
     ExpressionUtMap::iterator it = m_commandAcks.find(command);
     assertTrueMsg(it != m_commandAcks.end(), 
                   "No command waiting for acknowledgement " << getText(command));
-    it->second->getAssignableId()->setValue(value);
+    it->second->asAssignable()->setValue(value);
     // Release resources if the command does not have a return value
     if (m_executingCommands.find(command) == m_executingCommands.end())
       m_raInterface.releaseResourcesForCommand(command.name());
@@ -236,7 +236,7 @@ namespace PLEXIL
                   "No abort waiting for acknowledgement " << getText(command));
     debugMsg("Test:testOutput",
              "Acknowledging abort into " << it->second);
-    it->second->getAssignableId()->setValue(true);
+    it->second->asAssignable()->setValue(true);
     m_abortingCommands.erase(it);
   }
 
@@ -247,7 +247,7 @@ namespace PLEXIL
     std::map<std::string, UpdateId>::iterator it = m_waitingUpdates.find(name);
     checkError(it != m_waitingUpdates.end(),
                "No update from node " << name << " waiting for acknowledgement.");
-    it->second->getAck()->getAssignableId()->setValue(true);
+    it->second->getAck()->asAssignable()->setValue(true);
     m_waitingUpdates.erase(it);
   }
 
@@ -460,7 +460,8 @@ namespace PLEXIL
     }
   }
 
-  Value TestExternalInterface::lookupNow(const State& state)
+  void TestExternalInterface::lookupNow(State const &state,
+                                        StateCacheEntry &cacheEntry)
   {
     debugMsg("Test:testOutput", "Looking up immediately " << state);
     StateMap::const_iterator it = m_states.find(state);
@@ -470,7 +471,8 @@ namespace PLEXIL
     }
     const Value& value = it->second;
     debugMsg("Test:testOutput", "Returning value " << value);
-    return value;
+    assertTrue_2(cacheEntry.update(value),
+                 "TestExternalInterface:lookupNow: type error");
   }
 
   void TestExternalInterface::subscribe(const State& state)
@@ -495,58 +497,38 @@ namespace PLEXIL
                                             double /* lowThreshold */)
   {}
 
-  void TestExternalInterface::batchActions(std::list<CommandId>& commands)
-  {
-    if (commands.empty())
-      return;
-      
-    std::set<CommandId> acceptCmds;
-    m_raInterface.arbitrateCommands(commands, acceptCmds);
-    for (std::list<CommandId>::iterator it = commands.begin(); it != commands.end(); ++it) {
-      CommandId cmd = *it;
-      check_error(cmd.isValid());
-         
-      if (acceptCmds.find(cmd) != acceptCmds.end()) {
-        m_destToCmdMap[cmd->getDest()] = cmd;
-        executeCommand(cmd->getName(), cmd->getArgValues(), cmd->getDest(), cmd->getAck());
-      }
-      else {
-        debugMsg("Test:testOutput", 
-                 "Permission to execute " << cmd->getName()
-                 << " has been denied by the resource arbiter.");
-        cmd->getAck()->getAssignableId()->setValue(COMMAND_DENIED);
-      }
-    }
-  }
+  void TestExternalInterface::setThresholds(const State& /* state */,
+                                            int32_t /* highThreshold */,
+                                            int32_t /* lowThreshold */)
+  {}
 
-  void TestExternalInterface::executeCommand(const std::string& name,
-                                             const std::vector<Value>& args,
-                                             ExpressionId dest,
-                                             ExpressionId ack)
+  void TestExternalInterface::executeCommand(CommandId const &cmd)
   {
-    std::vector<Value> realArgs(args.begin(), args.end());
-    State cmd(name, realArgs);
-    debugMsg("Test:testOutput", "Executing " << getText(cmd) <<
+    State const& command = cmd->getCommand();
+    ExpressionId dest = cmd->getDest();
+    ExpressionId ack = cmd->getAck();
+    debugMsg("Test:testOutput", "Executing " << command <<
              " into " <<
              (dest.isNoId() ? std::string("noId") : dest->toString()) <<
              " with ack " << ack->toString());
     if (dest.isId())
-      m_executingCommands[cmd] = dest;
+      m_executingCommands[command] = dest;
 
     // Special handling of the utility commands (a bit of a hack!):
-    if (name == "print") {
-      print(args);
-      ack->getAssignableId()->setValue(COMMAND_SUCCESS);
-      m_raInterface.releaseResourcesForCommand(name);
+    std::string const & cmdName = command.name();
+    if (cmdName == "print") {
+      print(command.parameters());
+      ack->asAssignable()->setValue(COMMAND_SUCCESS);
+      m_raInterface.releaseResourcesForCommand(cmdName);
     }
-    else if (name == "pprint") {
-      pprint(args);
-      ack->getAssignableId()->setValue(COMMAND_SUCCESS);
-      m_raInterface.releaseResourcesForCommand(name);
+    else if (cmdName == "pprint") {
+      pprint(command.parameters());
+      ack->asAssignable()->setValue(COMMAND_SUCCESS);
+      m_raInterface.releaseResourcesForCommand(cmdName);
     }
     else {
       // Usual case - set up for scripted ack value
-      m_commandAcks[cmd] = ack;
+      m_commandAcks[command] = ack;
     }
   }
 
@@ -565,15 +547,13 @@ namespace PLEXIL
     m_abortingCommands[cmd] = command->getAbortComplete();
   }
 
-  void TestExternalInterface::updatePlanner(std::list<UpdateId>& updates)
+  void TestExternalInterface::executeUpdate(UpdateId const &update)
   {
-    for (std::list<UpdateId>::const_iterator it = updates.begin(); it != updates.end(); ++it) {
-      debugMsg("Test:testOutput", "Received update: ");
-      const std::map<std::string, Value>& pairs = (*it)->getPairs();
-      for (std::map<std::string, Value>::const_iterator pairIt = pairs.begin(); pairIt != pairs.end(); ++pairIt)
-        debugMsg("Test:testOutput", " " << pairIt->first << " => " << pairIt->second);
-      m_waitingUpdates.insert(std::make_pair((*it)->getSource()->getNodeId(), *it));
-    }
+    debugMsg("Test:testOutput", "Received update: ");
+    Update::PairValueMap const &pairs = update->getPairs();
+    for (Update::PairValueMap::const_iterator pairIt = pairs.begin(); pairIt != pairs.end(); ++pairIt)
+      debugMsg("Test:testOutput", " " << pairIt->first << " => " << pairIt->second);
+    m_waitingUpdates.insert(std::make_pair(update->getSource()->getNodeId(), update));
   }
 
   static std::string getText(const State& c)
