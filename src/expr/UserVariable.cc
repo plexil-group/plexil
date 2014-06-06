@@ -318,9 +318,15 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  const AssignableId& UserVariable<T>::getBaseVariable() const
+  Assignable *UserVariable<T>::getBaseVariable()
   {
-    return Assignable::getAssignableId();
+    return Assignable::asAssignable();
+  }
+
+  template <typename T>
+  Assignable const *UserVariable<T>::getBaseVariable() const
+  {
+    return Assignable::asAssignable();
   }
 
   //

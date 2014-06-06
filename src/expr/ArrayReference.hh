@@ -50,9 +50,11 @@ namespace PLEXIL {
     // Essential Expression API
     //
 
+    const std::string &getName() const;
     const char *exprName() const;
-
     bool isKnown() const;
+    bool isConstant() const;
+    ExpressionId const &getBaseExpression() const;
 
     /**
      * @brief Get the expression's value.
@@ -137,11 +139,10 @@ namespace PLEXIL {
 
     void restoreSavedValue();
 
-    const std::string &getName() const;
-
     const NodeId &getNode() const;
 
-    const AssignableId &getBaseVariable() const;
+    Assignable *getBaseVariable();
+    Assignable const *getBaseVariable() const;
 
   private:
     // Default, copy, assignment disallowed
@@ -152,7 +153,7 @@ namespace PLEXIL {
     // Internal function
     bool mutableSelfCheck(ArrayImpl<T> *&ary, size_t &idx);
 
-    AssignableId m_mutableArray;
+    Assignable *m_mutableArray;
     T m_savedValue;
     bool m_savedKnown;
   };

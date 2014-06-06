@@ -953,8 +953,8 @@ static bool testVariableSavedValue()
 }
 
 // Confirm that we can do all the Assignable operations
-// through a pointer of type AssignableId.
-static bool testAssignableId()
+// through an Assignable * pointer.
+static bool testAssignablePointer()
 {
   std::vector<bool> bv(2, true);
   std::vector<int32_t> iv(2, 56);
@@ -966,16 +966,16 @@ static bool testAssignableId()
   RealArrayVariable vda(dv);
   StringArrayVariable vsa(sv);
 
-  AssignableId eba(vba.getAssignableId());
-  AssignableId eia(via.getAssignableId());
-  AssignableId eda(vda.getAssignableId());
-  AssignableId esa(vsa.getAssignableId());
+  Assignable *eba(vba.asAssignable());
+  Assignable *eia(via.asAssignable());
+  Assignable *eda(vda.asAssignable());
+  Assignable *esa(vsa.asAssignable());
 
-  // Confirm that we actually got IDs
-  assertTrue_1(eba.isId());
-  assertTrue_1(eia.isId());
-  assertTrue_1(eda.isId());
-  assertTrue_1(esa.isId());
+  // Confirm that we actually got pointers
+  assertTrue_1(eba != NULL);
+  assertTrue_1(eia != NULL);
+  assertTrue_1(eda != NULL);
+  assertTrue_1(esa != NULL);
 
   // Test that they are assignable and not constant
   assertTrue_1(eba->isAssignable());
@@ -1369,7 +1369,7 @@ bool arrayVariableTest()
   runTest(testVariableInitializers);
   runTest(testExpressionId);
   runTest(testVariableSavedValue);
-  runTest(testAssignableId);
+  runTest(testAssignablePointer);
   runTest(testVariableNotification);
   return true;
 }

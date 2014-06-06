@@ -130,7 +130,8 @@ namespace PLEXIL {
 
     const NodeId &getNode() const;
 
-    const AssignableId& getBaseVariable() const;
+    Assignable *getBaseVariable();
+    Assignable const *getBaseVariable() const;
 
     void handleActivate();
 

@@ -478,7 +478,7 @@ bool testMutableArrayReference()
   return true;
 }
 
-bool testAssignableId()
+bool testAssignablePointer()
 {
   // Set up test data
   std::vector<bool>        vb(2);
@@ -509,10 +509,10 @@ bool testAssignableId()
   RealArrayVariable    dv(vd);
   StringArrayVariable  sv(vs);
 
-  AssignableId bvp = bv.getAssignableId();
-  AssignableId ivp = iv.getAssignableId();
-  AssignableId dvp = dv.getAssignableId();
-  AssignableId svp = sv.getAssignableId();
+  Assignable *bvp = bv.asAssignable();
+  Assignable *ivp = iv.asAssignable();
+  Assignable *dvp = dv.asAssignable();
+  Assignable *svp = sv.asAssignable();
 
   bool        pb;
   int32_t     pi;
@@ -525,10 +525,10 @@ bool testAssignableId()
   MutableArrayReference<double>      dar(dvp->getId(), ivar.getId());
   MutableArrayReference<std::string> sar(svp->getId(), ivar.getId());
 
-  AssignableId barp = bar.getAssignableId();
-  AssignableId iarp = iar.getAssignableId();
-  AssignableId darp = dar.getAssignableId();
-  AssignableId sarp = sar.getAssignableId();
+  Assignable *barp = bar.asAssignable();
+  Assignable *iarp = iar.asAssignable();
+  Assignable *darp = dar.asAssignable();
+  Assignable *sarp = sar.asAssignable();
 
   // Check that array ref values are unknown while inactive
   assertTrue_1(!barp->isKnown());
@@ -1193,7 +1193,7 @@ bool arrayReferenceTest()
   runTest(testArrayConstantReference);
   runTest(testArrayVariableReference);
   runTest(testMutableArrayReference);
-  runTest(testAssignableId);
+  runTest(testAssignablePointer);
   runTest(testArrayRefNotification);
   runTest(testMutableNotification);
   return true;

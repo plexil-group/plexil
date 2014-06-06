@@ -575,24 +575,24 @@ static bool testSavedValue()
 }
 
 // Confirm that we can do all the Assignable operations
-// through a pointer of type AssignableId.
-static bool testAssignableId()
+// through an Assignable * pointer.
+static bool testAssignablePointer()
 {
   BooleanVariable vb(false);
   IntegerVariable vi(69);
   RealVariable vd(1.414);
   StringVariable vs(std::string("yo"));
 
-  AssignableId eb(vb.getAssignableId());
-  AssignableId ei(vi.getAssignableId());
-  AssignableId ed(vd.getAssignableId());
-  AssignableId es(vs.getAssignableId());
+  Assignable *eb(vb.asAssignable());
+  Assignable *ei(vi.asAssignable());
+  Assignable *ed(vd.asAssignable());
+  Assignable *es(vs.asAssignable());
 
-  // Confirm that we actually got IDs
-  assertTrue_1(eb.isId());
-  assertTrue_1(ei.isId());
-  assertTrue_1(ed.isId());
-  assertTrue_1(es.isId());
+  // Confirm that we actually got pointers
+  assertTrue_1(eb != NULL);
+  assertTrue_1(ei != NULL);
+  assertTrue_1(ed != NULL);
+  assertTrue_1(es != NULL);
 
   // Test that they are assignable and not constant
   assertTrue_1(eb->isAssignable());
@@ -867,7 +867,7 @@ bool variablesTest()
   runTest(testInitializers);
   runTest(testExpressionId);
   runTest(testSavedValue);
-  runTest(testAssignableId);
+  runTest(testAssignablePointer);
   runTest(testNotification);
 
   return true;

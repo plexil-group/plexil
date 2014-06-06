@@ -63,6 +63,18 @@ namespace PLEXIL
   }
 
   template <typename T>
+  const std::string &ArrayReference<T>::getName() const
+  {
+    ExpressionId base = getBaseExpression();
+    if (base) {
+      // TODO: add array subscript 
+      return base->getName();
+    }
+    static const std::string sl_dummy;
+    return sl_dummy;
+  }
+
+  template <typename T>
   const char *ArrayReference<T>::exprName() const
   {
     return "ArrayReference";
@@ -74,6 +86,18 @@ namespace PLEXIL
     ArrayImpl<T> const *dummyAry;
     size_t dummyIdx;
     return selfCheck(dummyAry, dummyIdx);
+  }
+
+  template <typename T>
+  bool ArrayReference<T>::isConstant() const
+  {
+    return m_array->isConstant() && m_index->isConstant();
+  }
+
+  template <typename T>
+  ExpressionId const &ArrayReference<T>::getBaseExpression() const
+  {
+    return m_array->getBaseExpression();
   }
 
   template <typename T>
@@ -153,9 +177,10 @@ namespace PLEXIL
                                                   bool aryIsGarbage,
                                                   bool idxIsGarbage)
     : ArrayReference<T>(ary, idx, aryIsGarbage, idxIsGarbage),
-    AssignableImpl<T>()
+    AssignableImpl<T>(),
+    m_mutableArray(ary->asAssignable())
   {
-    assertTrue_2((m_mutableArray = ary->getAssignableId()).isId(),
+    assertTrue_2(ary->isAssignable(),
                  "MutableArrayReference: Not a writable array");
   }
 
@@ -281,31 +306,21 @@ namespace PLEXIL
   }
 
   template <typename T>
-  const std::string &MutableArrayReference<T>::getName() const
-  {
-    AssignableId base = getBaseVariable();
-    if (base.isId()) {
-      // TODO: add array subscript 
-      return base->getName();
-    }
-    static const std::string sl_dummy;
-    return sl_dummy;
-  }
-
-  template <typename T>
   const NodeId &MutableArrayReference<T>::getNode() const
   {
-    AssignableId base = getBaseVariable();
-    if (base.isNoId())
-      return NodeId::noId();
-    else
-      return base->getNode();
+    return getBaseVariable()->getNode();
   }
 
   template <typename T>
-  const AssignableId &MutableArrayReference<T>::getBaseVariable() const
+  Assignable *MutableArrayReference<T>::getBaseVariable() 
   {
-    return m_mutableArray->getBaseVariable(); // could be an alias
+    return m_mutableArray->getBaseVariable();
+  }
+
+  template <typename T>
+  Assignable const *MutableArrayReference<T>::getBaseVariable() const
+  {
+    return m_mutableArray->getBaseVariable();
   }
 
   //

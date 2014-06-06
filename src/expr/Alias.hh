@@ -59,6 +59,8 @@ namespace PLEXIL
     bool isKnown() const;
     bool isAssignable() const;
     bool isConstant() const;
+    ExpressionId const & getBaseExpression() const;
+
     void printValue(std::ostream &s) const;
 
     /**
@@ -224,10 +226,10 @@ namespace PLEXIL
 
     /**
      * @brief Get the real variable for which this may be a proxy.
-     * @return The AssignableId of the base variable
-     * @note Used by the assignment node conflict resolution logic.
+     * @return Pointer to the base variable as an Assignable.
      */
-    const AssignableId& getBaseVariable() const;
+    Assignable *getBaseVariable();
+    Assignable const *getBaseVariable() const;
   
   private:
     // Default, copy, assign disallowed
@@ -236,7 +238,7 @@ namespace PLEXIL
     InOutAlias &operator=(const InOutAlias &);
 
     // The original expression as an Assignable.
-    AssignableId m_target;
+    Assignable *m_target;
   };
 
 } // namespace PLEXIL

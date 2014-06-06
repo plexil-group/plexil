@@ -81,6 +81,11 @@ namespace PLEXIL
     return m_exp->isConstant();
   }
 
+  ExpressionId const &Alias::getBaseExpression() const
+  {
+    return m_exp->getBaseExpression();
+  }
+
   void Alias::printValue(std::ostream &s) const
   {
     m_exp->printValue(s);
@@ -182,9 +187,10 @@ namespace PLEXIL
                          const ExpressionId &original,
                          bool garbage)
     : Alias(node, name, original, garbage),
-      Assignable()
+      Assignable(),
+      m_target(original->asAssignable())
   {
-    assertTrue_2((m_target = original->getAssignableId()).isId(),
+    assertTrue_2(original->isAssignable(),
                  "InOutAlias constructor: target expression is not assignable");
   }
 
@@ -342,7 +348,12 @@ namespace PLEXIL
     return m_node;
   }
 
-  const AssignableId& InOutAlias::getBaseVariable() const
+  Assignable *InOutAlias::getBaseVariable()
+  {
+    return m_target->getBaseVariable();
+  }
+
+  Assignable const *InOutAlias::getBaseVariable() const
   {
     return m_target->getBaseVariable();
   }
