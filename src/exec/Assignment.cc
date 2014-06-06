@@ -30,7 +30,7 @@
 namespace PLEXIL
 {
 
-  Assignment::Assignment(const AssignableId lhs, 
+  Assignment::Assignment(Assignable *lhs, 
                          const ExpressionId rhs,
                          const bool deleteLhs, 
                          const bool deleteRhs,
@@ -39,12 +39,13 @@ namespace PLEXIL
     : m_ack(),
       m_abortComplete(),
       m_id(this),
-      m_dest(lhs),
       m_rhs(rhs),
+      m_dest(lhs),
       m_destName(lhsName),
       m_value(),
       m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
   {
+    assertTrue_1(lhs != NULL);
     // Make ack variable pretty
     m_ack.setName(nodeId + " ack");
     m_abortComplete.setName(nodeId + " abortComplete");
@@ -53,7 +54,7 @@ namespace PLEXIL
   Assignment::~Assignment() 
   {
     if (m_deleteLhs)
-      delete (Assignable *) m_dest;
+      delete m_dest;
     if (m_deleteRhs)
       delete (Expression*) m_rhs;
     m_id.remove();
@@ -80,7 +81,6 @@ namespace PLEXIL
 
   void Assignment::execute()
   {
-    check_error(m_dest.isValid());
     debugMsg("Test:testOutput", "Assigning '" << m_destName <<
              "' (" << m_dest->toString() << ") to " << m_value);
     m_dest->setValue(m_value);
@@ -89,7 +89,6 @@ namespace PLEXIL
 
   void Assignment::retract()
   {
-    check_error(m_dest.isValid());
     debugMsg("Test:testOutput",
              "Restoring previous value of '" << m_destName << "' (" << m_dest->toString()
              << ")");

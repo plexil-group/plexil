@@ -347,9 +347,11 @@ namespace PLEXIL
   void PlexilExec::removeFromResourceContention(const NodeId& node) 
   {
     ExpressionId lhs = node->getAssignmentVariable();
-    check_error(lhs->isAssignable());
-    AssignableId exp = lhs->getAssignableId()->getBaseVariable();
-    check_error(exp.isValid());
+    assertTrue_1(lhs.isId() && lhs->isAssignable());
+    Assignable const *exp = lhs->asAssignable();
+    assertTrue_1(exp != NULL);
+    exp = exp->getBaseVariable();
+    assertTrue_1(exp != NULL);
 
     VariableConflictMap::iterator conflict = m_resourceConflicts.find(exp);
     if (conflict == m_resourceConflicts.end())
@@ -385,9 +387,11 @@ namespace PLEXIL
   // Assumes node is a valid ID and points to an Assignment node whose next state is EXECUTING
   void PlexilExec::addToResourceContention(const NodeId& node) {
     ExpressionId lhs = node->getAssignmentVariable();
-    check_error(lhs->isAssignable());
-    AssignableId exp = lhs->getAssignableId()->getBaseVariable();
-    check_error(exp.isValid());
+    assertTrue_1(lhs.isId() && lhs->isAssignable());
+    Assignable const *exp = lhs->asAssignable();
+    assertTrue_1(exp != NULL);
+    exp = exp->getBaseVariable();
+    assertTrue_1(exp != NULL);
 
     debugMsg("PlexilExec:addToResourceContention",
              "Adding node '" << node->getNodeId() << "' to resource contention.");
@@ -553,12 +557,12 @@ namespace PLEXIL
    * @brief Resolve conflicts for this variable.
    * @note Subroutine of resolveResourceConflicts() above.
    */
-  void PlexilExec::resolveVariableConflicts(const AssignableId& var,
+  void PlexilExec::resolveVariableConflicts(Assignable const *var,
                                             const VariableConflictSet& conflictSet)
   {
     // Ignore any variables pending retraction
     // Grumble... Why doesnt std:;vector<T> have a find() member fn?
-    for (std::vector<AssignableId>::const_iterator vit = m_variablesToRetract.begin();
+    for (std::vector<Assignable *>::const_iterator vit = m_variablesToRetract.begin();
          vit != m_variablesToRetract.end();
          ++vit) {
       if ((*vit)->getBaseVariable() == var) { // compare base variables for (e.g.) aliases, array refs

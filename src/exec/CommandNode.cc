@@ -627,12 +627,11 @@ namespace PLEXIL
     std::vector<ExpressionId> args;
     
     // No destination variable
-    AssignableId destVar;
     std::string dest_name;
 
     // No resource
     ResourceList resourceList;
-    m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getNodeId()))->getId();
+    m_command = (new Command(nameExpr, args, NULL, dest_name, garbage, resourceList, getNodeId()))->getId();
   }
 
   void CommandNode::printCommandHandle(std::ostream& stream, const unsigned int indent) const

@@ -202,7 +202,7 @@ namespace PLEXIL
     // Private types
     typedef std::vector<NodeTransition> StateChangeQueue;
     typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
-    typedef std::map<AssignableId, VariableConflictSet> VariableConflictMap;
+    typedef std::map<Assignable const *, VariableConflictSet> VariableConflictMap;
 
     /**
      * @brief Resolve conflicts among potentially executing assignment variables.
@@ -212,7 +212,7 @@ namespace PLEXIL
     /**
      * @brief Resolve conflicts for this variable.
      */
-    void resolveVariableConflicts(const AssignableId& var,
+    void resolveVariableConflicts(Assignable const *var,
                                   const VariableConflictSet& conflictSet);
 
     /**
@@ -247,7 +247,7 @@ namespace PLEXIL
     StateChangeQueue m_stateChangeQueue; /*<! Nodes that are eligible for state transition.*/
     std::vector<AssignmentId> m_assignmentsToExecute;
     std::vector<AssignmentId> m_assignmentsToRetract;
-    std::vector<AssignableId> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
+    std::vector<Assignable *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
     VariableConflictMap m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
                                                The nodes in the sets are assignment nodes which can assign values to the variable.
                                                The sets are ordered by priority, but the order is dominated by FAILING nodes.

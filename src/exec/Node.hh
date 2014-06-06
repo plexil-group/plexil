@@ -518,7 +518,7 @@ namespace PLEXIL {
 
     void getVarsFromInterface(const PlexilInterfaceId& intf);
     ExpressionId getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
-    AssignableId getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
+    Assignable *getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
 
     void activateLocalVariables();
     void deactivateLocalVariables();

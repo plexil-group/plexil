@@ -347,16 +347,15 @@ namespace PLEXIL {
       const PlexilVarId var = *it;
       // get the variable name
       const std::string& name = (*it)->name();
-      std::string nameLabel(name);
       // Check for duplicate names
       // FIXME: push up into XML parser
-      assertTrueMsg(m_variablesByName.find(nameLabel) == m_variablesByName.end(),
+      assertTrueMsg(m_variablesByName.find(name) == m_variablesByName.end(),
                     "Node \"" << m_nodeId << "\" already has a variable named \"" << name << "\"");
-      AssignableId varId =
-        (AssignableId)
+      ExpressionId varId =
         ExpressionFactory::createInstance(var->factoryTypeString(), 
                                           var,
-                                          NodeConnector::getId());
+                                          NodeConnector::getId())->asAssignable();
+      assertTrue(varId->getName() == name);
       m_variablesByName[varId->getName()] = varId;
       m_localVariables.push_back(varId);
       debugMsg("Node:createDeclaredVars",
@@ -412,8 +411,8 @@ namespace PLEXIL {
                     "Node \"" << m_nodeId
                     << ": 'InOut' variable name \"" << varRef->name() << "\" is already in use");
 
-      AssignableId expr = getInOutVariable(varRef, parentIsLibCall);
-      check_error(expr.isValid());
+      Assignable *expr = getInOutVariable(varRef, parentIsLibCall);
+      check_error(expr != NULL);
          
       // make it accessible
       debugMsg("Node:getVarsFromInterface", 
@@ -476,7 +475,7 @@ namespace PLEXIL {
     return expr;
   }
 
-  AssignableId Node::getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall)
+  Assignable *Node::getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall)
   {
     // Get the variable from the parent
     // findVariable(..., true) tells LibraryCallNode to only search alias vars
@@ -520,7 +519,7 @@ namespace PLEXIL {
                     << "named \"" << varRef->name() << "\""
                     << (parentIsLibCall ? ", and no default value is defined" : ""));
     }
-    return expr;
+    return expr->asAssignable();
   }
 
   void Node::postInit(const PlexilNodeId& node) 
@@ -919,8 +918,8 @@ namespace PLEXIL {
              << " = start time " << START_TIMEPOINT_NAMES()[destState]
              << " = " << time);
     // FIXME - Need better way to record transition times
-    m_endTimepoints[prevState]->getAssignableId()->setValue(time);
-    m_startTimepoints[destState]->getAssignableId()->setValue(time);
+    m_endTimepoints[prevState]->asAssignable()->setValue(time);
+    m_startTimepoints[destState]->asAssignable()->setValue(time);
   }
 
   // Common method 
@@ -1972,10 +1971,10 @@ namespace PLEXIL {
     //reset timepoints
     for (int s = INACTIVE_STATE; s <= nodeStateMax(); ++s) {
       m_startTimepoints[s]->deactivate();
-      m_startTimepoints[s]->getAssignableId()->reset();
+      m_startTimepoints[s]->asAssignable()->reset();
       m_startTimepoints[s]->activate();
       m_endTimepoints[s]->deactivate();
-      m_endTimepoints[s]->getAssignableId()->reset();
+      m_endTimepoints[s]->asAssignable()->reset();
       m_endTimepoints[s]->activate();
     }
 
@@ -1983,7 +1982,7 @@ namespace PLEXIL {
          it != m_localVariables.end();
          ++it)
       if ((*it)->isAssignable())
-        (*it)->getAssignableId()->reset();
+        (*it)->asAssignable()->reset();
 
     specializedReset();
   }

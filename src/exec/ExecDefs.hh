@@ -41,7 +41,6 @@ namespace PLEXIL
   const double WORST_PRIORITY = 100000;
 
   class Assignable;
-  typedef Id<Assignable> AssignableId;
 
   class Expression;
   typedef Id<Expression> ExpressionId;

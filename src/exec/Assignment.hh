@@ -37,7 +37,7 @@ namespace PLEXIL
   class Assignment 
   {
   public:
-    Assignment(const AssignableId lhs,
+    Assignment(Assignable *lhs,
                const ExpressionId rhs, 
                const bool deleteLhs, 
                const bool deleteRhs,
@@ -45,7 +45,7 @@ namespace PLEXIL
                const std::string &nodeId);
     ~Assignment();
     const AssignmentId& getId() const {return m_id;}
-    ExpressionId getDest() const {return (ExpressionId) m_dest;}
+    ExpressionId getDest() const {return m_dest->getId();}
     const ExpressionId& getAck() const {return m_ack.getId();}
     const ExpressionId& getAbortComplete() const {return m_abortComplete.getId();}
 
@@ -66,8 +66,8 @@ namespace PLEXIL
     BooleanVariable m_ack;
     BooleanVariable m_abortComplete;
     AssignmentId m_id;
-    AssignableId m_dest;
     ExpressionId m_rhs;
+    Assignable *m_dest;
     const std::string m_destName;
     Value m_value; // TODO: templatize by assignable type?
     bool m_deleteLhs, m_deleteRhs;

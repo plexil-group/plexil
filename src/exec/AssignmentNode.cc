@@ -27,7 +27,6 @@
 #include "AssignmentNode.hh"
 #include "Assignment.hh"
 #include "UserVariable.hh"
-//#include "Calculables.hh"
 #include "Constant.hh"
 #include "Debug.hh"
 #include "ExecConnector.hh"
@@ -114,7 +113,7 @@ namespace PLEXIL
     checkError(body->dest().size() >= 1,
                "Need at least one destination variable in assignment.");
     const PlexilExprId& destExpr = (body->dest())[0]->getId();
-    AssignableId dest;
+    ExpressionId dest;
     std::string destName;
     bool deleteLhs = false;
     if (Id<PlexilVarRef>::convertable(destExpr)) {
@@ -127,7 +126,6 @@ namespace PLEXIL
     }
     else if (Id<PlexilArrayElement>::convertable(destExpr)) {
       dest =
-        (AssignableId)
         ExpressionFactory::createInstance(destExpr,
                                           NodeConnector::getId());
       // *** beef this up later ***
@@ -137,9 +135,7 @@ namespace PLEXIL
       size_t b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
       int diff_index = e_index - b_index;
       std::string m_index = " ";
-      if(e_index != std::string::npos)
-        {
-
+      if(e_index != std::string::npos) {
           m_index = dest->toString().substr(e_index-diff_index,diff_index);
         }
       debugMsg("ArrayElement:ArrayElement", " b_index = " << b_index << ". e_index = " << e_index << ". diff_index" << diff_index);
@@ -158,16 +154,16 @@ namespace PLEXIL
                                         NodeConnector::getId(),
                                         deleteRhs);
     m_assignment =
-      (new Assignment(dest, rhs, deleteLhs, deleteRhs, destName, m_nodeId))->getId();
+      (new Assignment(dest->asAssignable(), rhs, deleteLhs, deleteRhs, destName, m_nodeId))->getId();
   }
 
   // Unit test variant of above
   void AssignmentNode::createDummyAssignment() 
   {
-    AssignableId dest = (new BooleanVariable(false))->getId();
+    ExpressionId dest = (new BooleanVariable(false))->getId();
     std::string destName("dummy");
     m_assignment =
-      (new Assignment(dest, (new BooleanConstant(true))->getId(), true, true, destName, m_nodeId))->getId();
+      (new Assignment(dest->asAssignable(), (new BooleanConstant(true))->getId(), true, true, destName, m_nodeId))->getId();
   }
 
   ExpressionId AssignmentNode::getAssignmentVariable() const
