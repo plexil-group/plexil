@@ -247,7 +247,7 @@ namespace PLEXIL
 
   std::string const &PlexilValue::name() const
   {
-    return valueTypeName(this->type());
+    return typeNameAsValue(this->type());
   }
 
   //

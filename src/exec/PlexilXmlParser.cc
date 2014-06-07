@@ -78,11 +78,13 @@ namespace PLEXIL
   const char *PAIR_TAG = "Pair";
   const char *COND_TAG = "Condition";
 
+  // FIXME: Use constants declared in ValueType.hh
   const char *INT_TAG = "Integer";
   const char *REAL_TAG = "Real";
   const char *BOOL_TAG = "Boolean";
   const char *STRING_TAG = "String";
-  const char *TIME_TAG = "Time";
+  const char *DATE_TAG = "Date";
+  const char *DURATION_TAG = "Date";
   const char *ARRAY_TAG = "Array";
 
   const char *NODE_OUTCOME_TAG = "NodeOutcome";
@@ -808,34 +810,36 @@ namespace PLEXIL
       s_exprParsers = new std::map<string, PlexilExprParser*>();
       PlexilExprParser* varRef = new PlexilVarRefParser();
       s_exprParsers->insert(std::make_pair(VAR_TAG, varRef));
-      s_exprParsers->insert(std::make_pair(string(INT_TAG) + VAR_TAG, varRef));
-      s_exprParsers->insert(std::make_pair(string(REAL_TAG) + VAR_TAG, varRef));
-      s_exprParsers->insert(std::make_pair(string(ARRAY_TAG) + VAR_TAG, varRef));
-      s_exprParsers->insert(std::make_pair(string(STRING_TAG) + VAR_TAG, varRef));
-      s_exprParsers->insert(std::make_pair(string(BOOL_TAG) + VAR_TAG, varRef));
-      s_exprParsers->insert(std::make_pair(string(TIME_TAG) + VAR_TAG, varRef));
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(INTEGER_TYPE), varRef));
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(REAL_TYPE), varRef));
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(ARRAY_TYPE), varRef));
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(STRING_TYPE), varRef));
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(BOOLEAN_TYPE), varRef));
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(DATE_TYPE), varRef));
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(DURATION_TYPE), varRef));
 
-      s_exprParsers->insert(std::make_pair(string(NODE_OUTCOME_TAG) + VAR_TAG,
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(OUTCOME_TYPE),
                                            new PlexilOutcomeVarParser()));
-      s_exprParsers->insert(std::make_pair(string(NODE_FAILURE_TAG) + VAR_TAG,
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(FAILURE_TYPE),
                                            new PlexilFailureVarParser()));
-      s_exprParsers->insert(std::make_pair(string(NODE_STATE_TAG) + VAR_TAG,
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(NODE_STATE_TYPE),
                                            new PlexilStateVarParser()));
-      s_exprParsers->insert(std::make_pair(string(NODE_COMMAND_HANDLE_TAG) + VAR_TAG,
+      s_exprParsers->insert(std::make_pair(typeNameAsVariable(COMMAND_HANDLE_TYPE),
                                            new PlexilCommandHandleVarParser()));
       s_exprParsers->insert(std::make_pair(string("NodeTimepoint") + VAL_TAG,
                                            new PlexilTimepointVarParser()));
 
       PlexilExprParser* val = new PlexilValueParser();
-      s_exprParsers->insert(std::make_pair(string(INT_TAG) + VAL_TAG, val));
-      s_exprParsers->insert(std::make_pair(string(REAL_TAG) + VAL_TAG, val));
-      s_exprParsers->insert(std::make_pair(string(STRING_TAG) + VAL_TAG, val));
-      s_exprParsers->insert(std::make_pair(string(BOOL_TAG) + VAL_TAG, val));
-      s_exprParsers->insert(std::make_pair(string(TIME_TAG) + VAL_TAG, val));
-      s_exprParsers->insert(std::make_pair(string(NODE_OUTCOME_TAG) + VAL_TAG, val));
-      s_exprParsers->insert(std::make_pair(string(NODE_FAILURE_TAG) + VAL_TAG, val));
-      s_exprParsers->insert(std::make_pair(string(NODE_STATE_TAG) + VAL_TAG, val));
-      s_exprParsers->insert(std::make_pair(string(NODE_COMMAND_HANDLE_TAG) + VAL_TAG, val));
+      s_exprParsers->insert(std::make_pair(typeNameAsValue(INTEGER_TYPE), val));
+      s_exprParsers->insert(std::make_pair(typeNameAsValue(REAL_TYPE), val));
+      s_exprParsers->insert(std::make_pair(typeNameAsValue(STRING_TYPE), val));
+      s_exprParsers->insert(std::make_pair(typeNameAsValue(BOOLEAN_TYPE), val));
+      s_exprParsers->insert(std::make_pair(typeNameAsValue(DATE_TYPE), val));
+      s_exprParsers->insert(std::make_pair(typeNameAsValue(DURATION_TYPE), val));
+      s_exprParsers->insert(std::make_pair(typeNameAsValue(OUTCOME_TYPE), val));
+      s_exprParsers->insert(std::make_pair(typeNameAsValue(FAILURE_TYPE), val));
+      s_exprParsers->insert(std::make_pair(typeNameAsValue(NODE_STATE_TYPE), val));
+      s_exprParsers->insert(std::make_pair(typeNameAsValue(COMMAND_HANDLE_TYPE), val));
 
       s_exprParsers->insert(std::make_pair(string(ARRAY_VAL_TAG),
                                            new PlexilArrayValueParser()));
@@ -1815,7 +1819,7 @@ namespace PLEXIL
     xml_node retval = appendElement((var->isArray() ? DECL_ARRAY_TAG : DECL_VAR_TAG),
                                     parent);
     appendNamedTextElement(NAME_TAG, var->name().c_str(), retval);
-    appendNamedTextElement(TYPE_TAG, valueTypeName(var->type()).c_str(), retval);
+    appendNamedTextElement(TYPE_TAG, valueTypeName(var->type()).c_str(), retval); // FIXME for arrays
 
     if (var->isArray()) {
       const PlexilArrayVarId& arrayVar = (const PlexilArrayVarId&) var;
@@ -1824,8 +1828,7 @@ namespace PLEXIL
 
       // initial values
       xml_node vals = appendElement(INITIALVAL_TAG, retval);
-      string valueTag = valueTypeName(arrayVar->type())
-        + VAL_TAG;
+      std::string const &valueTag = typeNameAsValue(arrayVar->type());
       const std::vector<string>& values =
         ((PlexilArrayValue *) arrayVar->value())->values();
       for (std::vector<string>::const_iterator it = values.begin();
@@ -1895,7 +1898,7 @@ namespace PLEXIL
     if (Id<PlexilInternalVar>::convertable(ref->getId()))
       toXml((PlexilInternalVar*) ref, parent);
     else
-      appendNamedTextElement((ref->typed() ? valueTypeName(ref->type()) + VAR_TAG : VAR_TAG).c_str(),
+      appendNamedTextElement((ref->typed() ? typeNameAsVariable(ref->type()) : VAR_TAG).c_str(),
                              ref->name().c_str(),
                              parent);
   }
@@ -1950,7 +1953,7 @@ namespace PLEXIL
   void PlexilXmlParser::toXml(const PlexilValue* val, xml_node& parent)
     throw(ParserException) 
   {
-    appendNamedTextElement((valueTypeName(val->type()) + VAL_TAG).c_str(),
+    appendNamedTextElement(typeNameAsValue(val->type()).c_str(),
                            val->value().c_str(),
                            parent);
   }
