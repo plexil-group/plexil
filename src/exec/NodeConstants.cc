@@ -70,6 +70,15 @@ namespace PLEXIL
      "PARENT_EXITED"
     };
 
+  // Simple linear search
+  NodeState parseNodeState(std::string const &name)
+  {
+    for (size_t i = INACTIVE_STATE; i < NO_NODE_STATE; ++i)
+      if (ALL_STATE_NAMES[i] == name)
+        return (NodeState) i;
+    return NO_NODE_STATE;
+  }
+
   std::string const &nodeStateName(unsigned int s)
   {
     if (s >= NODE_STATE_MAX)

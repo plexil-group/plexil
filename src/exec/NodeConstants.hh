@@ -61,6 +61,13 @@ namespace PLEXIL {
   extern std::string const ALL_STATE_NAMES[];
 
   /**
+   * @brief Parse the given string as a node state name.
+   * @param The name.
+   * @return The state, or NO_NODE_STATE if not found.
+   */
+  extern NodeState parseNodeState(std::string const &name);
+
+  /**
    * @brief Get the name of this state.
    * @return Const reference to one of the state names.
    */
