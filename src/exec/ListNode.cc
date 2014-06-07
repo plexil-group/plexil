@@ -365,7 +365,7 @@ namespace PLEXIL
     std::string m_name;
   };
 
-  NodeId ListNode::findChild(const std::string& childName) const
+  NodeId const &ListNode::findChild(const std::string& childName) const
   {
     std::vector<NodeId>::const_iterator it =
       std::find_if(m_children.begin(), m_children.end(), NodeIdEq(childName));

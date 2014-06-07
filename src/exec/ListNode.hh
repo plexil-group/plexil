@@ -67,7 +67,7 @@ namespace PLEXIL
 
   protected:
 
-    virtual NodeId findChild(const std::string& childName) const;
+    virtual NodeId const &findChild(const std::string& childName) const;
 
     // Specific behaviors for derived classes
     virtual void specializedPostInitLate(const PlexilNodeId& node);
