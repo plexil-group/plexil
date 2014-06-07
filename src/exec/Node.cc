@@ -140,7 +140,6 @@ namespace PLEXIL {
 
   Node::Node(const PlexilNodeId& node, const NodeId& parent)
     : NodeConnector(),
-      m_id(this, NodeConnector::getId()),
       m_parent(parent),
       m_listener(*this),
       m_nodeId(node->nodeId()),
@@ -178,7 +177,6 @@ namespace PLEXIL {
              const NodeState state,
              const NodeId& parent)
     : NodeConnector(),
-      m_id(this, NodeConnector::getId()),
       m_parent(parent),
       m_listener(*this),
       m_nodeId(name),
@@ -582,7 +580,6 @@ namespace PLEXIL {
     cleanUpVars();
 
     delete m_sortedVariableNames;
-    m_id.removeDerived(NodeConnector::getId());
   }
 
   void Node::cleanUpConditions() 
@@ -1634,108 +1631,96 @@ namespace PLEXIL {
              << "', searching for variable '" << ref->name() << "'");
       
     if (Id<PlexilInternalVar>::convertable(ref->getId())) {
-      PlexilInternalVar* var = (PlexilInternalVar*) ref;
-      PlexilNodeRef* nodeRef = var->ref();
-      NodeId node = NodeId::noId();
-         
-      switch(nodeRef->dir()) {
-      case PlexilNodeRef::SELF:
-        node = m_id;
-        break;
-
-      case PlexilNodeRef::PARENT:
-        // FIXME: push this check up into XML parser
-        checkError(m_parent.isValid(),
-                   "Parent node reference in root node " << 
-                   m_nodeId);
-        node = m_parent;
-        break;
-
-      case PlexilNodeRef::CHILD:
-        {
-          node = findChild(std::string(nodeRef->name()));
-          // FIXME: push this check up into XML parser
-          checkError(node.isId(),
-                     "No child named '" << nodeRef->name() << 
-                     "' in " << m_nodeId);
-          break;
-        }
-
-      case PlexilNodeRef::SIBLING: 
-        {
-          // FIXME: push this check up into XML parser
-          checkError(m_parent.isValid(),
-                     "Sibling node reference in root node " << 
-                     m_nodeId);
-          node = m_parent->findChild(std::string(nodeRef->name()));
-          // FIXME: push this check up into XML parser
-          checkError(node.isId(),
-                     "No sibling named '" << nodeRef->name() << 
-                     "' of " << m_nodeId);
-          break;
-        }
-
-      case PlexilNodeRef::GRANDPARENT:
-        {
-          node = m_parent;
-          for (int i = 1; i < nodeRef->generation() && node.isValid(); ++i) {
-            node = node->getParent();
-          }
-          // FIXME: push this check up into XML parser?
-          checkError(node.isValid(),
-                     "Grandparent node reference above root node from " << 
-                     m_nodeId);
-          checkError(nodeRef->name() == node->getNodeId(),
-                     "Grandparent node reference for '" << nodeRef->name()
-                     << "' found node '" << node->getNodeId() << "' instead");
-          break;
-        }
-
-      case PlexilNodeRef::UNCLE:
-        {
-          NodeId ancestor = m_parent;
-          for (int i = 1; i < nodeRef->generation() && ancestor.isValid(); ++i) {
-            ancestor = ancestor->getParent();
-          }
-          // FIXME: push this check up into XML parser?
-          checkError(ancestor.isValid(),
-                     "Grandparent node reference above root node from " << 
-                     m_nodeId);
-          node = ancestor->findChild(std::string(nodeRef->name()));
-          // FIXME: push this check up into XML parser
-          checkError(node.isId(),
-                     "No uncle named '" << nodeRef->name() << 
-                     "' of " << m_nodeId);
-          break;
-        }
-
-      default:
-        // FIXME: catch this error in XML parsing
-        checkError(ALWAYS_FAIL,
-                   "Invalid direction in node reference from " <<
-                   m_nodeId);
+      PlexilInternalVar const *var = (PlexilInternalVar const *) ref;
+      PlexilNodeRefId const &nodeRef = var->ref();
+      NodeId node = findNodeRef(nodeRef);
+      if (node.isNoId())
+        assertTrue_2(ALWAYS_FAIL, "Node::findVariable: invalid node reference");
         return ExpressionId::noId();
-      }
 
-      std::string name;
-      // *** FIXME *** - Use new NodeTimepointValue expression
-      if(Id<PlexilTimepointVar>::convertable(var->getId())) {
+      if (Id<PlexilTimepointVar>::convertable(var->getId())) {
         PlexilTimepointVar* tp = (PlexilTimepointVar*) var;
-        name = tp->state() + "." + tp->timepoint();
+        return node->getInternalVariable(tp->state() + "." + tp->timepoint());
       }
       else
-        name = var->name();
-      debugMsg("Node:findVariable", 
-               " Found internal variable \"" << name << "\"");
-      return node->getInternalVariable(std::string(name));
+        return node->getInternalVariable(var->name());
     }
     else {
-      return findVariable(std::string(ref->name()));
+      return findVariable(ref->name());
+    }
+  }
+
+  NodeId const &Node::findNodeRef(PlexilNodeRefId const &nodeRef) const
+  {
+    if (nodeRef.isNoId())
+      return NodeId::noId();
+
+    switch(nodeRef->dir()) {
+    case PlexilNodeRef::SELF:
+      return getId();
+
+    case PlexilNodeRef::PARENT:
+      // FIXME: push this check up into XML parser
+      checkError(m_parent.isId(),
+                 "Parent node reference in root node " << 
+                 m_nodeId);
+      return m_parent;
+      break;
+
+    case PlexilNodeRef::CHILD:
+      return findChild(nodeRef->name()); // may be noId()
+
+    case PlexilNodeRef::SIBLING: 
+      {
+        // FIXME: push this check up into XML parser
+        checkError(m_parent.isId(),
+                   "Sibling node reference in root node " << 
+                   m_nodeId);
+        return m_parent->findChild(nodeRef->name()); // may be noId()
+      }
+
+    case PlexilNodeRef::GRANDPARENT:
+      {
+        NodeId node = m_parent;
+        NodeId child = getId();
+        for (int i = 1; i < nodeRef->generation() && node.isId(); ++i) {
+          child = node;
+          node = node->getParent();
+        }
+        // FIXME: push this check up into XML parser?
+        checkError(node.isId(),
+                   "Grandparent node reference above root node from " << 
+                   m_nodeId);
+        checkError(nodeRef->name() == node->getNodeId(),
+                   "Grandparent node reference for '" << nodeRef->name()
+                   << "' found node '" << node->getNodeId() << "' instead");
+        return child->getParent(); // to avoid reference-to-temp
+      }
+
+    case PlexilNodeRef::UNCLE:
+      {
+        NodeId ancestor = m_parent;
+        for (int i = 1; i < nodeRef->generation() && ancestor.isValid(); ++i) {
+          ancestor = ancestor->getParent();
+        }
+        // FIXME: push this check up into XML parser?
+        checkError(ancestor.isId(),
+                   "Grandparent node reference above root node from " << 
+                   m_nodeId);
+        return ancestor->findChild(nodeRef->name()); // may be noId()
+      }
+
+    default:
+      // FIXME: catch this error in XML parsing
+      checkError(ALWAYS_FAIL,
+                 "Invalid direction in node reference from " <<
+                 m_nodeId);
+      return NodeId::noId();
     }
   }
 
   // Default method
-  NodeId Node::findChild(const std::string& /* childName */) const
+  NodeId const &Node::findChild(const std::string& /* childName */) const
   {
     return NodeId::noId();
   }

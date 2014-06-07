@@ -120,7 +120,9 @@ namespace PLEXIL {
      */
     virtual const ExpressionId& findVariable(const std::string& name, bool recursive = false);
 
-    const NodeId& getNode() const { return m_id; }
+    const NodeId& getNode() const { return static_cast<NodeId const &>(m_id); }
+
+    NodeId const &findNodeRef(PlexilNodeRefId const &nodeRef) const;
 
     const ExecListenerHubId& getExecListenerHub() const;
 
@@ -132,7 +134,7 @@ namespace PLEXIL {
     // Make the node active.
     virtual void activate();
 
-    const NodeId& getId() const {return m_id;}
+    NodeId const &getId() const {return static_cast<NodeId const &>(m_id);}
         
     /**
      * @brief Accessor for the NodeId as it was written in the XML.
@@ -144,7 +146,7 @@ namespace PLEXIL {
      * @brief Accessor for the Node's parent.
      * @return This node's parent.
      */
-    NodeId& getParent() {return m_parent; }
+    NodeId const &getParent() const {return m_parent; }
 
     /**
      * @brief Ask whether this node can transition now.
@@ -384,7 +386,7 @@ namespace PLEXIL {
     static size_t getConditionIndex(const std::string& cName);
     static const std::string& getConditionName(size_t idx);
 
-    virtual NodeId findChild(const std::string& childName) const;
+    virtual NodeId const &findChild(const std::string& childName) const;
 
     void commonInit();
 
@@ -506,7 +508,6 @@ namespace PLEXIL {
     //
     // Common state
     //
-    NodeId m_id; /*!< The Id for this node*/
     NodeId m_parent; /*!< The parent of this node.*/
     // Listener for the various condition expressions.
     ConditionChangeListener m_listener;
