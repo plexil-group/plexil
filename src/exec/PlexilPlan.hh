@@ -513,7 +513,8 @@ namespace PLEXIL
     void setState(const std::string& state) {m_state = state;}
     void setTimepoint(const std::string& timepoint) {m_timepoint = timepoint;}
   private:
-    // *** Both of these should be represented by enums.
+    // FIXME: State should be represented by an enum.
+    // Timepoint could be represented by a bool.
     std::string m_state;
     std::string m_timepoint;
   };
