@@ -46,4 +46,8 @@ namespace PLEXIL
 
 } // namespace PLEXIL
 
+// Convenience macros
+#define ENSURE_FUNCTION_FACTORY(CLASS) template class PLEXIL::FunctionFactory<CLASS >;
+#define REGISTER_FUNCTION(CLASS,NAME) {new PLEXIL::FunctionFactory<CLASS >(#NAME);}
+
 #endif // PLEXIL_FUNCTION_FACTORY_HH
