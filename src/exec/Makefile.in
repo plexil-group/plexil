@@ -166,6 +166,7 @@ am_libPlexilExec_la_OBJECTS = libPlexilExec_la-Assignment.lo \
 	libPlexilExec_la-ListNode.lo libPlexilExec_la-Node.lo \
 	libPlexilExec_la-NodeConstants.lo \
 	libPlexilExec_la-NodeFactory.lo \
+	libPlexilExec_la-NodeTimepointValue.lo \
 	libPlexilExec_la-NodeVariables.lo \
 	libPlexilExec_la-PlexilExec.lo libPlexilExec_la-PlexilPlan.lo \
 	libPlexilExec_la-PlexilXmlParser.lo \
@@ -391,15 +392,16 @@ include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecDefs.hh ExecListener.hh ExecListenerBase.hh \
  ExecListenerFilter.hh ExecListenerFilterFactory.hh \
  ExecListenerHub.hh Expressions.hh InterfaceSchema.hh LibraryCallNode.hh \
- ListNode.hh Node.hh NodeConstants.hh NodeFactory.hh NodeVariables.hh \
- PlexilExec.hh PlexilPlan.hh PlexilResource.hh PlexilXmlParser.hh \
- ResourceArbiterInterface.hh TestExternalInterface.hh UpdateNode.hh \
- plan-utils.hh resource-tags.hh
+ ListNode.hh Node.hh NodeConstants.hh NodeFactory.hh NodeTimepointValue.hh \
+ NodeVariables.hh PlexilExec.hh PlexilPlan.hh PlexilResource.hh \
+ PlexilXmlParser.hh ResourceArbiterInterface.hh TestExternalInterface.hh \
+ UpdateNode.hh plan-utils.hh resource-tags.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
- ExecConnector.cc ExecListener.cc ExecListenerFilter.cc ExecListenerFilterFactory.cc \
- ExecListenerHub.cc InterfaceSchema.cc LibraryCallNode.cc ListNode.cc Node.cc \
- NodeConstants.cc NodeFactory.cc NodeVariables.cc PlexilExec.cc PlexilPlan.cc \
+ ExecConnector.cc ExecListener.cc ExecListenerFilter.cc \
+ ExecListenerFilterFactory.cc ExecListenerHub.cc InterfaceSchema.cc \
+ LibraryCallNode.cc ListNode.cc Node.cc NodeConstants.cc NodeFactory.cc \
+ NodeTimepointValue.cc NodeVariables.cc PlexilExec.cc PlexilPlan.cc \
  PlexilXmlParser.cc ResourceArbiterInterface.cc TestExternalInterface.cc \
  UpdateNode.cc plan-utils.cc resource-tags.cc
 
@@ -569,6 +571,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-Node.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-NodeConstants.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-NodeFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-NodeTimepointValue.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-NodeVariables.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-PlexilExec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-PlexilPlan.Plo@am__quote@
@@ -702,6 +705,13 @@ libPlexilExec_la-NodeFactory.lo: NodeFactory.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='NodeFactory.cc' object='libPlexilExec_la-NodeFactory.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-NodeFactory.lo `test -f 'NodeFactory.cc' || echo '$(srcdir)/'`NodeFactory.cc
+
+libPlexilExec_la-NodeTimepointValue.lo: NodeTimepointValue.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-NodeTimepointValue.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-NodeTimepointValue.Tpo -c -o libPlexilExec_la-NodeTimepointValue.lo `test -f 'NodeTimepointValue.cc' || echo '$(srcdir)/'`NodeTimepointValue.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExec_la-NodeTimepointValue.Tpo $(DEPDIR)/libPlexilExec_la-NodeTimepointValue.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='NodeTimepointValue.cc' object='libPlexilExec_la-NodeTimepointValue.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-NodeTimepointValue.lo `test -f 'NodeTimepointValue.cc' || echo '$(srcdir)/'`NodeTimepointValue.cc
 
 libPlexilExec_la-NodeVariables.lo: NodeVariables.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-NodeVariables.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-NodeVariables.Tpo -c -o libPlexilExec_la-NodeVariables.lo `test -f 'NodeVariables.cc' || echo '$(srcdir)/'`NodeVariables.cc
