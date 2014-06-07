@@ -42,12 +42,12 @@ namespace PLEXIL
   public:
     NodeTimepointValue(NodeId const &node,
                        NodeState state,
-                       Boolean isEnd);
+                       bool isEnd);
     ~NodeTimepointValue();
 
     std::string const &getName() const;
     const char *exprName() const;
-    ValueType valueType() const;
+    ValueType const valueType() const;
     bool isKnown() const;
 
     bool getValueImpl(double &result) const; // FIXME
@@ -57,7 +57,8 @@ namespace PLEXIL
     void printValue(std::ostream &s) const;
 
   protected:
-    void handleChange(ExpressionId src);
+    // Default method is adequate for now
+    // void handleChange(ExpressionId src);
 
   private:
     // not implemented

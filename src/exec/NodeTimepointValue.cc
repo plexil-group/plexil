@@ -26,13 +26,16 @@
 
 #include "NodeTimepointValue.hh"
 
+#include "ConcreteExpressionFactory.hh"
+#include "Node.hh"
+#include "PlexilPlan.hh"
+
 namespace PLEXIL
 {
   NodeTimepointValue::NodeTimepointValue(NodeId const &node,
                                          NodeState state,
-                                         Boolean isEnd)
-    : m_name(node->getNodeId() + "." + nodeStateName(state)
-             + (isEnd ? ".END" : ".START")),
+                                         bool isEnd)
+    : m_name(nodeStateName(state) + (isEnd ? ".END" : ".START")), // FIXME: use table lookup, don't generate
       m_node(node),
       m_state(state),
       m_end(isEnd)
@@ -55,27 +58,25 @@ namespace PLEXIL
     return "NodeTimepointValue";
   }
 
-  ValueType NodeTimepointValue::valueType() const
+  ValueType const NodeTimepointValue::valueType() const
   {
     return DATE_TYPE;
   }
 
   bool NodeTimepointValue::isKnown() const
   {
-    // TODO
-    return false;
+    double dummy;
+    return m_node->getStateTransitionTime(m_state, m_end, dummy);
   }
 
   bool NodeTimepointValue::getValueImpl(double &result) const // FIXME
   {
-    // TODO
-    return false;
+    return m_node->getStateTransitionTime(m_state, m_end, result);
   }
 
   bool NodeTimepointValue::getValuePointerImpl(double const *&ptr) const // FIXME
   {
-    // TODO
-    return false;
+    return m_node->getStateTransitionTimePointer(m_state, m_end, ptr);
   }
 
   void NodeTimepointValue::print(std::ostream &s) const
@@ -85,12 +86,41 @@ namespace PLEXIL
 
   void NodeTimepointValue::printValue(std::ostream &s) const
   {
-    // TODO
+    double tym;
+    if (getValueImpl(tym))
+      s << tym; // FIXME: needs better format
+    else
+      s << UNKNOWN_STR;
   }
 
-  void NodeTimepointValue::handleChange(ExpressionId src)
+  // Default method is adequate for now.
+  // void NodeTimepointValue::handleChange(ExpressionId src)
+  // {
+  //   // TODO
+  // }
+
+  //
+  // ExpressionFactory method
+  //
+
+  // POSSIBLE (probable?) ENHANCEMENT:
+  // Register this expression with the node as a "variable", so that only one
+  // has to be constructed for a given node, state, and timepoint.
+
+  template <>
+  ExpressionId 
+  ConcreteExpressionFactory<NodeTimepointValue>::create(PlexilExprId const &expr,
+                                                        NodeConnectorId const &node) const
   {
-    // TODO
+    PlexilTimepointVar const *varRef = (PlexilTimepointVar const *) expr;
+    assertTrue_1(varRef != NULL);
+    NodeId const &refnode = node->findNodeRef(varRef->ref());
+    assertTrue_1(refnode.isId());
+    NodeState st = parseNodeState(varRef->state());
+    bool endpt = (varRef->timepoint() == "END");
+    return (new NodeTimepointValue(refnode, st, endpt))->getId();
   }
+
+  ENSURE_EXPRESSION_FACTORY(NodeTimepointValue);
 
 } // namespace PLEXIL
