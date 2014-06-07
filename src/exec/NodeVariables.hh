@@ -24,8 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// *** FIXME: CommandHandleVariable should be in separate file ***
-
 #ifndef PLEXIL_NODE_VARIABLES_HH
 #define PLEXIL_NODE_VARIABLES_HH
 
@@ -211,53 +209,6 @@ namespace PLEXIL {
     FailureVariable &operator=(const FailureVariable &);
 
     Node const &m_node;
-  };
-
-  // TODO: 
-  // - choose a better time representation
-  // - use a less space-intensive way to store node transition history
-  class TimepointVariable : public UserVariable<double>
-  {
-  public:
-    /**
-     * @brief Constructor.
-     */
-    TimepointVariable(Node &node, NodeState state, bool isEnd);
-
-    /**
-     * @brief Destructor.
-     */
-    ~TimepointVariable();
-
-    const char *exprName() const
-    {
-      return "TimepointVariable";
-    }
-
-    /**
-     * @brief Get the type of the expression's value.
-     */
-    const ValueType valueType() const
-    {
-      return DATE_TYPE;
-    }
-
-    /**
-     * @brief Print the expression's value to the given stream.
-     * @param s The output stream.
-     * @note Specialized for dates.
-     */
-    void printValue(std::ostream& s) const;
-
-  private:
-
-    // Not implemented
-    TimepointVariable();
-    TimepointVariable(const TimepointVariable &);
-    TimepointVariable &operator=(const TimepointVariable &);
-
-    NodeState const m_state;
-    bool const m_end;
   };
 
 } // namespace PLEXIL

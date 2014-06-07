@@ -167,28 +167,4 @@ namespace PLEXIL
     this->publishChange(this->getId());
   }
 
-  //
-  // TimepointValue
-  //
-  
-  TimepointVariable::TimepointVariable(Node &node, NodeState state, bool isEnd)
-    : UserVariable<double>(),
-      m_state(state),
-      m_end(isEnd)
-  {
-  }
-
-  TimepointVariable::~TimepointVariable()
-  {
-  }
-
-  void TimepointVariable::printValue(std::ostream &s) const
-  {
-    double val;
-    if (this->getValueImpl(val))
-      s << val; // TODO: set precision
-    else
-      s << "UNKNOWN";
-  }
-
 } // namespace PLEXIL

@@ -86,7 +86,6 @@ namespace PLEXIL
                "No NodeFactory registered for node type " << PlexilParser::nodeTypeString(nodeType));
     NodeId result = factory->create(nodeProto, parent);
     // common post process here
-    result->constructTimepointVariables();
     return result;
   }
 
@@ -108,7 +107,6 @@ namespace PLEXIL
                "No NodeFactory registered for node type " << type);
     NodeId result = factory->create(type, name, state, parent);
     // common post process here
-    result->constructTimepointVariables();
     result->activateInternalVariables();
     return result;
   }

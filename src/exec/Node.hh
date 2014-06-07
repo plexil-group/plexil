@@ -175,7 +175,7 @@ namespace PLEXIL {
     /**
      * @brief Handle the node entering this new state.
      */
-    void transitionTo(NodeState destState);
+    void transitionTo(NodeState destState, double tym); // FIXME
 
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
@@ -207,12 +207,32 @@ namespace PLEXIL {
      * @param newValue The new node state.
      * @note Virtual so it can be overridden by ListNode wrapper method.
      */
-    virtual void setState(NodeState newValue);
+    virtual void setState(NodeState newValue, double tym); // FIXME
 
     // Transition helpers
     // Public so transition tests can use them.
     void setNodeOutcome(NodeOutcome o);
     void setNodeFailureType(FailureType f);
+
+    /**
+     * @brief Get the time of the named transition.
+     * @param state The state.
+     * @param isEnd True if requesting end time of state, false for start.
+     * @param result Place to store the requested time.
+     * @return True if requested time is known, false otherwise.
+     * @note If unknown, result is not modified.
+     */
+    bool getStateTransitionTime(NodeState state, bool isEnd, double &result) const; // FIXME
+
+    /**
+     * @brief Get a const pointer to the time of the named transition.
+     * @param state The state.
+     * @param isEnd True if requesting end time of state, false for start.
+     * @param ptr Place to store the pointer to the time.
+     * @return True if requested time is known, false otherwise.
+     * @note If unknown, ptr is not modified.
+     */
+    bool getStateTransitionTimePointer(NodeState state, bool isEnd, double const *&ptr) const; // FIXME
 
     /**
      * @brief Gets the time at which this node entered its current state.
@@ -316,8 +336,7 @@ namespace PLEXIL {
     // Should only be used by LuvListener.
     const ExpressionId& getCondition(const std::string& name) const;
 
-    // NodeFactory::createNode for the module test needs these to be public.
-    void constructTimepointVariables();
+    // NodeFactory::createNode for the module test needs this to be public.
     virtual void activateInternalVariables();
 
   protected:
@@ -493,24 +512,35 @@ namespace PLEXIL {
     ConditionChangeListener m_listener;
     std::string m_nodeId;  /*!< the NodeId from the xml.*/
     std::string m_nodeType; /*!< The node type (either directly from the Node element or determined by the sub-elements. */
+
+    // Expressions
     VariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
     std::vector<std::string>* m_sortedVariableNames; /*!< Convenience for printing. */
     std::vector<ExpressionId> m_localVariables; /*!< Variables created in this node. */
     ExpressionId m_conditions[conditionIndexMax]; /*!< The condition expressions. */
-    // TODO: use a less space-intensive way to store node transition history
-    ExpressionId m_startTimepoints[NO_NODE_STATE]; /*!< Timepoint start variables indexed by state. */
-    ExpressionId m_endTimepoints[NO_NODE_STATE]; /*!< Timepoint end variables indexed by state. */
     StateVariable m_stateVariable;
     OutcomeVariable m_outcomeVariable;
     FailureVariable m_failureTypeVariable;
-    uint16_t m_state; /*!< The actual state of the node. */
+
+    // Node transition history trace
+    // Records the state and the time it was entered
+    double m_transitionTimes[NODE_STATE_MAX]; /*!< The times of each node transition since activation. */
+    uint16_t m_transitionStates[NODE_STATE_MAX]; /*!< The sequence of states since activation. */
+    uint16_t m_traceIdx; /*!< The index of the next entry into the transition history tables. */
+
+    // Current state
+    uint16_t m_state; /*!< The current state of the node. */
     uint16_t m_lastQuery; /*!< The state returned by getDestState() the last time checkConditions() was called. */
     uint16_t m_outcome;
     uint16_t m_failureType;
+
+    // Housekeeping details
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */
     bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_checkConditionsPending;
 
   private:
+
+    void logTransition(double time, NodeState newState);
 
     void createConditions(const std::vector<std::pair<PlexilExprId, std::string> >& conds);
 
@@ -535,16 +565,11 @@ namespace PLEXIL {
      */
     void setConditionDefaults();
 
-    static std::string (&START_TIMEPOINT_NAMES())[NO_NODE_STATE];
-    static std::string (&END_TIMEPOINT_NAMES())[NO_NODE_STATE];
-
     void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
     void ensureSortedVariableNames() const;
 
     // Cleanup
     static void purgeAllConditions();
-    static void purgeStartTimepointNames();
-    static void purgeEndTimepointNames();
 
     // Storage for static "constants"
     static std::vector<std::string>* s_allConditions;

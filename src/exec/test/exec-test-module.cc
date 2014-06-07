@@ -537,7 +537,7 @@ static bool finishedDestTest()
                          ITERATION_ENDED_STATE};
 
   for (size_t s = 0; s < 7; ++s) {
-    parent->setState(states[s]);
+    parent->setState(states[s], tif.currentTime());
     NodeState destState = node->getDestState();
     if (states[s] == WAITING_STATE) {
       assertTrue(destState == INACTIVE_STATE);
@@ -572,7 +572,7 @@ static bool finishedTransTest()
   for (size_t s = 0; s < 7; ++s) {
     for (int i = 0; i < 4; ++i) {
       NodeId node = NodeFactory::createNode(types[i], std::string("test"), FINISHED_STATE, parent);
-      parent->setState(states[s]);
+      parent->setState(states[s], tif.currentTime());
 
       debugMsg("UnitTest:finishedTransition",
                "Testing node type " << types[i]

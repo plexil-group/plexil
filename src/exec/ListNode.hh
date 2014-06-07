@@ -63,7 +63,7 @@ namespace PLEXIL
      * @param newValue The new node state.
      * @note This method notifies the children of a change in the parent node's state.
      */
-    virtual void setState(NodeState newValue);
+    virtual void setState(NodeState newValue, double tym); // FIXME
 
   protected:
 

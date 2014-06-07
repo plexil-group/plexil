@@ -379,9 +379,9 @@ namespace PLEXIL
    * @param newValue The new node state.
    * @note This method notifies the children of a change in the parent node's state.
    */
-  void ListNode::setState(NodeState newValue)
+  void ListNode::setState(NodeState newValue, double tym)
   {
-    Node::setState(newValue);
+    Node::setState(newValue, tym);
     // Notify the children if the new state is one that they care about.
     switch (newValue) {
     case WAITING_STATE:

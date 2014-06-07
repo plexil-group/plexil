@@ -90,48 +90,6 @@ namespace PLEXIL {
     s_allConditions = NULL;
   }
 
-  std::string (&Node::START_TIMEPOINT_NAMES())[NO_NODE_STATE] 
-  {
-    static std::string sl_startTimepointNames[NO_NODE_STATE];
-    static bool sl_inited = false;
-    if (!sl_inited) {
-      addFinalizer(&purgeStartTimepointNames);
-      for (int i = INACTIVE_STATE; i < NO_NODE_STATE; ++i) {
-        const std::string& state = nodeStateName(i);
-        sl_startTimepointNames[i] = std::string(state + ".START");
-      }
-      sl_inited = true;
-    }
-    return sl_startTimepointNames;
-  }
-
-  void Node::purgeStartTimepointNames()
-  {
-    for (int i = INACTIVE_STATE; i < NO_NODE_STATE; ++i)
-      START_TIMEPOINT_NAMES()[i] = "";
-  }
-
-  std::string (&Node::END_TIMEPOINT_NAMES())[NO_NODE_STATE]
-  {
-    static std::string sl_endTimepointNames[NO_NODE_STATE];
-    static bool sl_inited = false;
-    if (!sl_inited) {
-      addFinalizer(&purgeEndTimepointNames);
-      for (size_t i = INACTIVE_STATE; i < NO_NODE_STATE; ++i) {
-        const std::string& state = nodeStateName(i);
-        sl_endTimepointNames[i] = std::string(state + ".END");
-      }
-      sl_inited = true;
-    }
-    return sl_endTimepointNames;
-  }
-
-  void Node::purgeEndTimepointNames()
-  {
-    for (size_t i = INACTIVE_STATE; i < NO_NODE_STATE; ++i)
-      END_TIMEPOINT_NAMES()[i] = "";
-  }
-
   size_t Node::getConditionIndex(const std::string& cName) {
     const std::vector<std::string>& allConds = ALL_CONDITIONS();
     for (size_t i = 0; i < conditionIndexMax; ++i) {
@@ -191,6 +149,7 @@ namespace PLEXIL {
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
+      m_traceIdx(0),
       m_state(INACTIVE_STATE),
       m_lastQuery(NO_NODE_STATE),
       m_outcome(NO_OUTCOME),
@@ -228,6 +187,7 @@ namespace PLEXIL {
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
+      m_traceIdx(0),
       m_state(state),
       m_lastQuery(NO_NODE_STATE),
       m_outcome(NO_OUTCOME),
@@ -301,7 +261,7 @@ namespace PLEXIL {
 
   // N.B.: called from base class constructor
   void Node::commonInit() {
-    debugMsg("Node:node", "Instantiating internal variables...");
+    debugMsg("Node:node", "Registering internal variables...");
     // Register state/outcome/failure variables
     m_variablesByName[STATE()] = m_stateVariable.getId();
     m_variablesByName[OUTCOME()] = m_outcomeVariable.getId();
@@ -311,20 +271,9 @@ namespace PLEXIL {
     for (size_t i = 0; i < conditionIndexMax; ++i) {
       m_garbageConditions[i] = false;
     }
-  }
 
-  // instantiate timepoint variables, but only for states node can actually reach
-  // N.B.: can't call this from base class constructor.
-  void Node::constructTimepointVariables()
-  {
-    debugMsg("Node:node", "Instantiating timepoint variables.");
-    for (int s = INACTIVE_STATE; s <= nodeStateMax(); ++s) {
-      ExpressionId stp = (new RealVariable())->getId();
-      m_startTimepoints[s] = m_variablesByName[START_TIMEPOINT_NAMES()[s]] = stp;
-
-      ExpressionId etp = (new RealVariable())->getId();
-      m_endTimepoints[s] = m_variablesByName[END_TIMEPOINT_NAMES()[s]] = etp;
-    }
+    // Initialize transition trace
+    logTransition(g_interface->currentTime(), (NodeState) m_state);
   }
 
   // Use existing Boolean constants for the condition defaults
@@ -454,8 +403,7 @@ namespace PLEXIL {
           else {
             // construct constant local "variable" with default value
             bool wasConstructed = false;
-            // FIXME: generates temporary string when table lookup could be used
-            expr = ExpressionFactory::createInstance(valueTypeName(varRef->type()) + "Value",
+            expr = ExpressionFactory::createInstance(typeNameAsValue(varRef->type()),
                                                      defaultVal,
                                                      NodeConnector::getId(),
                                                      wasConstructed);
@@ -501,8 +449,7 @@ namespace PLEXIL {
           else {
             // construct local "variable" with default value
             bool wasConstructed = false;
-            // FIXME: generates temporary string when table lookup could be used
-            expr = ExpressionFactory::createInstance(valueTypeName(varRef->type()) + "Variable",
+            expr = ExpressionFactory::createInstance(typeNameAsVariable(varRef->type()),
                                                      defaultVal,
                                                      NodeConnector::getId(),
                                                      wasConstructed);
@@ -716,15 +663,6 @@ namespace PLEXIL {
     }
     m_localVariables.clear();
 
-    // Delete timepoint variables
-    for (size_t s = INACTIVE_STATE; s < NODE_STATE_MAX; ++s) {
-      if (m_startTimepoints[s].isId()) {
-        delete (Expression *) m_startTimepoints[s];
-        delete (Expression *) m_endTimepoints[s];
-        m_startTimepoints[s] = m_endTimepoints[s] = ExpressionId::noId();
-      }
-    }
-
     // Delete internal variables
     m_cleanedVars = true;
   }
@@ -748,12 +686,6 @@ namespace PLEXIL {
     m_stateVariable.activate();
     m_outcomeVariable.activate();
     m_failureTypeVariable.activate();
-
-    // Activate timepoints
-    for (int s = INACTIVE_STATE; s <= nodeStateMax(); ++s) {
-      m_startTimepoints[s]->activate();
-      m_endTimepoints[s]->activate();
-    }
 
     specializedActivateInternalVariables();
   }
@@ -895,11 +827,12 @@ namespace PLEXIL {
     NodeState prevState = (NodeState) m_state;
     
     transitionFrom(destState);
-    transitionTo(destState);
+    transitionTo(destState, time);
 
-    debugMsg("Node:transition", "Transitioning '" << m_nodeId <<
-             "' from " << nodeStateName(prevState) <<
-             " to " << nodeStateName(destState));
+    debugMsg("Node:transition", "Transitioning '" << m_nodeId
+             << "' from " << nodeStateName(prevState)
+             << " to " << nodeStateName(destState)
+             << " at " << time);
     condDebugMsg((destState == FINISHED_STATE),
                  "Node:outcome",
                  "Outcome of '" << m_nodeId <<
@@ -912,14 +845,6 @@ namespace PLEXIL {
                  "Node:iterationOutcome",
                  "Outcome of '" << m_nodeId <<
                  "' is " << outcomeName((NodeOutcome) m_outcome));
-    debugMsg("Node:times",
-             "Setting '" << m_nodeId
-             << "' end time " << END_TIMEPOINT_NAMES()[prevState]
-             << " = start time " << START_TIMEPOINT_NAMES()[destState]
-             << " = " << time);
-    // FIXME - Need better way to record transition times
-    m_endTimepoints[prevState]->asAssignable()->setValue(time);
-    m_startTimepoints[destState]->asAssignable()->setValue(time);
   }
 
   // Common method 
@@ -961,7 +886,7 @@ namespace PLEXIL {
   }
 
   // Common method 
-  void Node::transitionTo(NodeState destState)
+  void Node::transitionTo(NodeState destState, double time)
   {
     switch (destState) {
     case INACTIVE_STATE:
@@ -997,7 +922,7 @@ namespace PLEXIL {
                  "Node::transitionTo: Invalid destination state " << destState);
     }
 
-    setState(destState);
+    setState(destState, time);
     if (destState == EXECUTING_STATE)
       execute();
   }
@@ -1549,7 +1474,8 @@ namespace PLEXIL {
   }
 
   // Some transition handlers call this twice.
-  void Node::setState(NodeState newValue) {
+  void Node::setState(NodeState newValue, double tym) // FIXME
+  {
     checkError(newValue <= nodeStateMax(),
                "Attempted to set an invalid NodeState value for this node");
     if (newValue == m_state)
@@ -1560,23 +1486,83 @@ namespace PLEXIL {
       // with no parent, it cannot be reset.
       g_exec->markRootNodeFinished(m_id);
     }
+    logTransition(tym, newValue);
     m_stateVariable.changed();
+  }
+
+  //
+  // Transition time trace methods
+  //
+
+  void Node::logTransition(double tym, NodeState newState)
+  {
+    if (newState == INACTIVE_STATE)
+      // either just constructed or parent repeating; clear history
+      m_traceIdx = 0;
+    else if (newState == WAITING_STATE && m_traceIdx > 1)
+      // this node is repeating
+      m_traceIdx = 1;
+    else {
+      assertTrue_2(m_traceIdx < NODE_STATE_MAX,
+                   "Node transition trace is full");
+    }
+    m_transitionTimes[m_traceIdx] = tym;
+    m_transitionStates[m_traceIdx] = newState;
+    ++m_traceIdx;
+  }
+
+  bool Node::getStateTransitionTime(NodeState state,
+                                    bool isEnd,
+                                    double &result) const
+  {
+    if (!m_traceIdx)
+      return false; // buffer is empty
+    size_t i = 0;
+    // Find the entry for that state (i.e. start time)
+    for (; i < m_traceIdx; ++i)
+      if (m_transitionStates[i] == state)
+        break;
+    if (i == m_traceIdx)
+      return false; // state not found
+    if (isEnd) {
+      if (++i == m_traceIdx)
+        return false; // current state, hasn't ended yet
+    }
+    result = m_transitionTimes[i];
+    return true;
+  }
+
+  bool Node::getStateTransitionTimePointer(NodeState state,
+                                           bool isEnd,
+                                           double const *&ptr) const
+  {
+    if (!m_traceIdx)
+      return false; // buffer is empty
+    size_t i = 0;
+    // Find the entry for that state (i.e. start time)
+    for (; i < m_traceIdx; ++i)
+      if (m_transitionStates[i] == state)
+        break;
+    if (i == m_traceIdx)
+      return false; // state not found
+    if (isEnd) {
+      if (++i == m_traceIdx)
+        return false; // current state, hasn't ended yet
+    }
+    ptr = &(m_transitionTimes[i]);
+    return true;
   }
 
   double Node::getCurrentStateStartTime() const
   {
-    double result;
-    assertTrue_2(m_startTimepoints[m_state]->getValue(result),
-                 "getCurrentStateStartTime: state's start time is unknown");
-    return result;
+    if (!m_traceIdx)
+      return -DBL_MAX; // buffer empty
+    return m_transitionTimes[m_traceIdx - 1];
   }
 
   double Node::getCurrentStateEndTime() const
   {
-    double result = DBL_MAX;
-    // Unknown will leave result unmodified
-    m_endTimepoints[m_state]->getValue(result);
-    return result;
+    return DBL_MAX;
   }
 
   void Node::setNodeOutcome(NodeOutcome o)
@@ -1732,6 +1718,7 @@ namespace PLEXIL {
       }
 
       std::string name;
+      // *** FIXME *** - Use new NodeTimepointValue expression
       if(Id<PlexilTimepointVar>::convertable(var->getId())) {
         PlexilTimepointVar* tp = (PlexilTimepointVar*) var;
         name = tp->state() + "." + tp->timepoint();
@@ -1967,16 +1954,6 @@ namespace PLEXIL {
     //reset outcome and failure type
     m_outcome = NO_OUTCOME;
     m_failureType = NO_FAILURE;
-
-    //reset timepoints
-    for (int s = INACTIVE_STATE; s <= nodeStateMax(); ++s) {
-      m_startTimepoints[s]->deactivate();
-      m_startTimepoints[s]->asAssignable()->reset();
-      m_startTimepoints[s]->activate();
-      m_endTimepoints[s]->deactivate();
-      m_endTimepoints[s]->asAssignable()->reset();
-      m_endTimepoints[s]->activate();
-    }
 
     for (std::vector<ExpressionId>::const_iterator it = m_localVariables.begin();
          it != m_localVariables.end();
