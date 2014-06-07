@@ -72,8 +72,33 @@ namespace PLEXIL
       TYPE_MAX
     };
 
+  // Type name string constants
+  // Stolen from PlexilPlan.hh
+  extern std::string const BOOL_STR;
+  extern std::string const INTEGER_STR;
+  extern std::string const REAL_STR;
+  extern std::string const DATE_STR;
+  extern std::string const DURATION_STR;
+  extern std::string const STRING_STR;
+  extern std::string const ARRAY_STR;
+  extern std::string const BOOLEAN_ARRAY_STR;
+  extern std::string const INTEGER_ARRAY_STR;
+  extern std::string const REAL_ARRAY_STR;
+  extern std::string const STRING_ARRAY_STR;
+  extern std::string const NODE_STATE_STR;
+  extern std::string const NODE_OUTCOME_STR;
+  extern std::string const NODE_FAILURE_STR;
+  extern std::string const NODE_COMMAND_HANDLE_STR;
+
+  extern std::string const UNKNOWN_STR;
+
+  extern std::string const VARIABLE_STR;
+  extern std::string const VALUE_STR;
+
   // Utility functions
   const std::string &valueTypeName(ValueType ty);
+  const std::string &typeNameAsValue(ValueType ty);
+  const std::string &typeNameAsVariable(ValueType ty);
 
   bool isUserType(ValueType ty);
   bool isInternalType(ValueType ty);

@@ -33,71 +33,207 @@
 
 namespace PLEXIL
 {
+  // Initialize type name strings
+  std::string const BOOL_STR = "Boolean";
+  std::string const INTEGER_STR = "Integer";
+  std::string const REAL_STR = "Real";
+  std::string const DATE_STR = "Date";
+  std::string const DURATION_STR = "Duration";
+  std::string const STRING_STR = "String";
+  std::string const ARRAY_STR = "Array";
+  std::string const BOOLEAN_ARRAY_STR = "BooleanArray";
+  std::string const INTEGER_ARRAY_STR = "IntegerArray";
+  std::string const REAL_ARRAY_STR = "RealArray";
+  std::string const STRING_ARRAY_STR = "StringArray";
+  std::string const NODE_STATE_STR = "NodeState";
+  std::string const NODE_OUTCOME_STR = "NodeOutcome";
+  std::string const NODE_FAILURE_STR = "NodeFailure";
+  std::string const NODE_COMMAND_HANDLE_STR = "NodeCommandHandle";
+  std::string const UNKNOWN_STR = "UNKNOWN";
+  std::string const VARIABLE_STR = "Variable";
+  std::string const VALUE_STR = "Value";
 
   const std::string &valueTypeName(ValueType ty)
   {
     switch (ty) {
     case BOOLEAN_TYPE:
-      static const std::string sl_boolean("Boolean");
-      return sl_boolean;
+      return BOOL_STR;
 
     case INTEGER_TYPE:
-      static const std::string sl_integer("Integer");
-      return sl_integer;
+      return INTEGER_STR;
 
     case REAL_TYPE:
-      static const std::string sl_real("Real");
-      return sl_real;
+      return REAL_STR;
       
     case STRING_TYPE:
-      static const std::string sl_string("String");
-      return sl_string;
+      return STRING_STR;
 
     case DATE_TYPE:
-      static const std::string sl_date("Date");
-      return sl_date;
+      return DATE_STR;
 
     case DURATION_TYPE:
-      static const std::string sl_duration("Duration");
-      return sl_duration;
+      return DURATION_STR;
 
       // Array types
     case BOOLEAN_ARRAY_TYPE:
-      static const std::string sl_boolean_array("BooleanArray");
-      return sl_boolean_array;
+      return BOOLEAN_ARRAY_STR;
 
     case INTEGER_ARRAY_TYPE:
-      static const std::string sl_integer_array("IntegerArray");
-      return sl_integer_array;
+      return INTEGER_ARRAY_STR;
 
     case REAL_ARRAY_TYPE:
-      static const std::string sl_real_array("RealArray");
-      return sl_real_array;
+      return REAL_ARRAY_STR;
 
     case STRING_ARRAY_TYPE:
-      static const std::string sl_string_array("StringArray");
-      return sl_string_array;
+      return STRING_ARRAY_STR;
 
       // Internal types
     case NODE_STATE_TYPE:
-      static const std::string sl_node_state("NodeState");
-      return sl_node_state;
+      return NODE_STATE_STR;
 
     case OUTCOME_TYPE:
-      static const std::string sl_outcome("NodeOutcome");
-      return sl_outcome;
+      return NODE_OUTCOME_STR;
 
     case FAILURE_TYPE:
-      static const std::string sl_failure("NodeFailure");
-      return sl_failure;
+      return NODE_FAILURE_STR;
 
     case COMMAND_HANDLE_TYPE:
-      static const std::string sl_command_handle("NodeCommandHandle");
-      return sl_failure;
+      return NODE_COMMAND_HANDLE_STR;
 
     default:
-      static const std::string sl_unknown("UNKNOWN");
-      return sl_unknown;
+      return UNKNOWN_STR;
+    }
+  }
+
+  const std::string &typeNameAsValue(ValueType ty)
+  {
+    switch (ty) {
+    case BOOLEAN_TYPE:
+      static std::string const sl_boolval = BOOL_STR + VALUE_STR;
+      return sl_boolval;
+
+    case INTEGER_TYPE:
+      static std::string const sl_intval = INTEGER_STR + VALUE_STR;
+      return sl_intval;
+
+    case REAL_TYPE:
+      static std::string const sl_realval = REAL_STR + VALUE_STR;
+      return sl_realval;
+      
+    case STRING_TYPE:
+      static std::string const sl_stringval = STRING_STR + VALUE_STR;
+      return sl_stringval;
+
+    case DATE_TYPE:
+      static std::string const sl_dateval = DATE_STR + VALUE_STR;
+      return sl_dateval;
+
+    case DURATION_TYPE:
+      static std::string const sl_durval = DURATION_STR + VALUE_STR;
+      return sl_durval;
+
+      // Array types
+    case BOOLEAN_ARRAY_TYPE:
+      static std::string const sl_boolarrval = BOOLEAN_ARRAY_STR + VALUE_STR;
+      return sl_boolarrval;
+
+    case INTEGER_ARRAY_TYPE:
+      static std::string const sl_intarrval = INTEGER_ARRAY_STR + VALUE_STR;
+      return sl_intarrval;
+
+    case REAL_ARRAY_TYPE:
+      static std::string const sl_realarrval = REAL_ARRAY_STR + VALUE_STR;
+      return sl_realarrval;
+
+    case STRING_ARRAY_TYPE:
+      static std::string const sl_stringarrval = STRING_ARRAY_STR + VALUE_STR;
+      return sl_stringarrval;
+
+      // Internal types
+    case NODE_STATE_TYPE:
+      static std::string const sl_nsval = NODE_STATE_STR + VALUE_STR;
+      return sl_nsval;
+
+    case OUTCOME_TYPE:
+      static std::string const sl_outcomeval = NODE_OUTCOME_STR + VALUE_STR;
+      return sl_outcomeval;
+
+    case FAILURE_TYPE:
+      static std::string const sl_failval = NODE_FAILURE_STR + VALUE_STR;
+      return sl_failval;
+
+    case COMMAND_HANDLE_TYPE:
+      static std::string const sl_handleval = NODE_COMMAND_HANDLE_STR + VALUE_STR;
+      return sl_handleval;
+
+    default:
+      return VALUE_STR;
+    }
+  }
+
+  const std::string &typeNameAsVariable(ValueType ty)
+  {
+    switch (ty) {
+    case BOOLEAN_TYPE:
+      static std::string const sl_boolvar = BOOL_STR + VARIABLE_STR;
+      return sl_boolvar;
+
+    case INTEGER_TYPE:
+      static std::string const sl_intvar = INTEGER_STR + VARIABLE_STR;
+      return sl_intvar;
+
+    case REAL_TYPE:
+      static std::string const sl_realvar = REAL_STR + VARIABLE_STR;
+      return sl_realvar;
+      
+    case STRING_TYPE:
+      static std::string const sl_stringvar = STRING_STR + VARIABLE_STR;
+      return sl_stringvar;
+
+    case DATE_TYPE:
+      static std::string const sl_datevar = DATE_STR + VARIABLE_STR;
+      return sl_datevar;
+
+    case DURATION_TYPE:
+      static std::string const sl_durvar = DURATION_STR + VARIABLE_STR;
+      return sl_durvar;
+
+      // Array types
+    case BOOLEAN_ARRAY_TYPE:
+      static std::string const sl_boolarrvar = BOOLEAN_ARRAY_STR + VARIABLE_STR;
+      return sl_boolarrvar;
+
+    case INTEGER_ARRAY_TYPE:
+      static std::string const sl_intarrvar = INTEGER_ARRAY_STR + VARIABLE_STR;
+      return sl_intarrvar;
+
+    case REAL_ARRAY_TYPE:
+      static std::string const sl_realarrvar = REAL_ARRAY_STR + VARIABLE_STR;
+      return sl_realarrvar;
+
+    case STRING_ARRAY_TYPE:
+      static std::string const sl_stringarrvar = STRING_ARRAY_STR + VARIABLE_STR;
+      return sl_stringarrvar;
+
+      // Internal types
+    case NODE_STATE_TYPE:
+      static std::string const sl_nsvar = NODE_STATE_STR + VARIABLE_STR;
+      return sl_nsvar;
+
+    case OUTCOME_TYPE:
+      static std::string const sl_outcomevar = NODE_OUTCOME_STR + VARIABLE_STR;
+      return sl_outcomevar;
+
+    case FAILURE_TYPE:
+      static std::string const sl_failvar = NODE_FAILURE_STR + VARIABLE_STR;
+      return sl_failvar;
+
+    case COMMAND_HANDLE_TYPE:
+      static std::string const sl_handlevar = NODE_COMMAND_HANDLE_STR + VARIABLE_STR;
+      return sl_handlevar;
+
+    default:
+      return VARIABLE_STR;
     }
   }
   
