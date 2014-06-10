@@ -41,6 +41,9 @@ namespace PLEXIL
   class PlexilNodeRef;
   DECLARE_ID(PlexilNodeRef);
 
+  class Node;
+  DECLARE_ID(Node);
+
   class NodeConnector;
   DECLARE_ID(NodeConnector);
 
@@ -59,7 +62,6 @@ namespace PLEXIL
 
     virtual ExpressionId const &findVariable(const PlexilVarRef* ref) = 0;
     virtual ExpressionId const &findVariable(const std::string &name, bool recursive = false) = 0;
-    virtual NodeId const &getNode() const = 0;
     virtual NodeId const &findNodeRef(PlexilNodeRefId const &nodeRef) const = 0;
     virtual ExecListenerHubId const &getExecListenerHub() const = 0;
 

@@ -289,19 +289,20 @@ namespace PLEXIL {
     m_conditions[repeatIdx] = FALSE_EXP();
   }
 
-  void Node::createDeclaredVars(const std::vector<PlexilVarId>& vars) {
-    for (std::vector<PlexilVarId>::const_iterator it = vars.begin(); it != vars.end(); ++it) {
-      const PlexilVarId var = *it;
+  void Node::createDeclaredVars(const std::vector<PlexilVar *>& vars) {
+    for (std::vector<PlexilVar *>::const_iterator it = vars.begin(); it != vars.end(); ++it) {
+      PlexilVar const *var = *it;
       // get the variable name
-      const std::string& name = (*it)->name();
+      const std::string& name = var->varName();
       // Check for duplicate names
       // FIXME: push up into XML parser
       assertTrueMsg(m_variablesByName.find(name) == m_variablesByName.end(),
                     "Node \"" << m_nodeId << "\" already has a variable named \"" << name << "\"");
+      bool dummy; // we always expect variables to be constructed here
       ExpressionId varId =
-        ExpressionFactory::createInstance(var->factoryTypeString(), 
-                                          var,
-                                          NodeConnector::getId())->asAssignable();
+        createExpression(var->getId(),
+                         NodeConnector::getId(),
+                         dummy);
       assertTrue(varId->getName() == name);
       m_variablesByName[varId->getName()] = varId;
       m_localVariables.push_back(varId);
@@ -401,10 +402,9 @@ namespace PLEXIL {
           else {
             // construct constant local "variable" with default value
             bool wasConstructed = false;
-            expr = ExpressionFactory::createInstance(typeNameAsValue(varRef->type()),
-                                                     defaultVal,
-                                                     NodeConnector::getId(),
-                                                     wasConstructed);
+            expr = createExpression(defaultVal,
+                                    NodeConnector::getId(),
+                                    wasConstructed);
             if (wasConstructed)
               m_localVariables.push_back(expr);
           }
@@ -447,10 +447,12 @@ namespace PLEXIL {
           else {
             // construct local "variable" with default value
             bool wasConstructed = false;
-            expr = ExpressionFactory::createInstance(typeNameAsVariable(varRef->type()),
-                                                     defaultVal,
-                                                     NodeConnector::getId(),
-                                                     wasConstructed);
+            PlexilExprId tempVar = (new PlexilVar("InOut_Default", // TODO? gensym
+                                                  defaultVal->type(), 
+                                                  defaultVal))->getId();
+            expr = createExpression(tempVar,
+                                    NodeConnector::getId(),
+                                    wasConstructed);
             if (wasConstructed)
               m_localVariables.push_back(expr);
           }
@@ -525,9 +527,9 @@ namespace PLEXIL {
       }
 
       m_conditions[condIdx] = 
-        ExpressionFactory::createInstance(it->first,
-                                          NodeConnector::getId(), 
-                                          m_garbageConditions[condIdx]);
+        createExpression(it->first,
+                         NodeConnector::getId(), 
+                         m_garbageConditions[condIdx]);
 
       // Add listener
       switch (condIdx) {

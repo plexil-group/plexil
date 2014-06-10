@@ -210,55 +210,6 @@ namespace PLEXIL
   }
 
   //
-  // Concrete factories
-  //
-
-  // Scalar cases
-
-  // N.B. For all but string types, the value string may not be empty.
-  template <>
-  ExpressionId ConcreteExpressionFactory<Constant<bool> >::create(const PlexilExprId& expr,
-                                                                  const NodeConnectorId& node) const
-  {
-    PlexilValue const *tmpl = (PlexilValue const *) expr;
-    assertTrue_2(tmpl, "ExpressionFactory<BooleanValue>: Expression is not a PlexilValue");
-    bool value;
-    assertTrue_2(parseValue(tmpl->value(), value), "ExpressionFactory<BooleanValue>: Value is not Boolean");
-    return (new Constant<bool>(value))->getId();
-  }
-
-  template <>
-  ExpressionId ConcreteExpressionFactory<Constant<int32_t> >::create(const PlexilExprId& expr,
-                                                                    const NodeConnectorId& node) const
-  {
-    PlexilValue const *tmpl = (PlexilValue const *) expr;
-    assertTrue_2(tmpl, "ExpressionFactory<Constant>: Expression is not a PlexilValue");
-    int32_t value;
-    assertTrue_2(parseValue(tmpl->value(), value), "ExpressionFactory<IntegerValue>: Value is not an Integer");
-    return (new Constant<int32_t>(value))->getId();
-  }
-
-  template <>
-  ExpressionId ConcreteExpressionFactory<Constant<double> >::create(const PlexilExprId& expr,
-                                                                    const NodeConnectorId& node) const
-  {
-    PlexilValue const *tmpl = (PlexilValue const *) expr;
-    assertTrue_2(tmpl, "ExpressionFactory<Constant>: Expression is not a PlexilValue");
-    double value;
-    assertTrue_2(parseValue(tmpl->value(), value), "ExpressionFactory<IntegerValue>: Value is not a Real");
-    return (new Constant<double>(value))->getId();
-  }
-
-  template <>
-  ExpressionId ConcreteExpressionFactory<Constant<std::string> >::create(const PlexilExprId& expr,
-                                                                    const NodeConnectorId& node) const
-  {
-    PlexilValue const *tmpl = (PlexilValue const *) expr;
-    assertTrue_2(tmpl, "ExpressionFactory<Constant>: Expression is not a PlexilValue");
-    return (new Constant<std::string>(tmpl->value()))->getId();
-  }
-
-  //
   // Explicit instantiations
   //
   template class Constant<bool>;
@@ -270,10 +221,5 @@ namespace PLEXIL
   template class Constant<IntegerArray>;
   template class Constant<RealArray>;
   template class Constant<StringArray>;
-
-  ENSURE_EXPRESSION_FACTORY(BooleanConstant);
-  ENSURE_EXPRESSION_FACTORY(IntegerConstant);
-  ENSURE_EXPRESSION_FACTORY(RealConstant);
-  ENSURE_EXPRESSION_FACTORY(StringConstant);
 
 } // namespace PLEXIL

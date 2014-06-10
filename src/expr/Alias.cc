@@ -33,7 +33,7 @@ namespace PLEXIL
   // Alias
   //
 
-  Alias::Alias(const NodeId &node,
+  Alias::Alias(const NodeConnectorId &node,
                const std::string &name,
                const ExpressionId &original,
                bool garbage)
@@ -182,7 +182,7 @@ namespace PLEXIL
   // InOutAlias
   //
 
-  InOutAlias::InOutAlias(const NodeId &node,
+  InOutAlias::InOutAlias(const NodeConnectorId &node,
                          const std::string &name,
                          const ExpressionId &original,
                          bool garbage)
@@ -343,7 +343,7 @@ namespace PLEXIL
     return m_name;
   }
 
-  const NodeId& InOutAlias::getNode() const
+  const NodeConnectorId& InOutAlias::getNode() const
   {
     return m_node;
   }

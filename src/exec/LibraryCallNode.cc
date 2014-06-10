@@ -179,10 +179,9 @@ namespace PLEXIL
           // Expression is an array reference
           // Construct the expression
           bool wasCreated = false;
-          ExpressionId expr =
-            ExpressionFactory::createInstance(aliasValue,
-                                              NodeConnector::getId(),
-                                              wasCreated);
+          ExpressionId expr = createExpression(aliasValue,
+                                               NodeConnector::getId(),
+                                               wasCreated);
 
           // Construct a wrapper for it
           if (isIn)
@@ -213,10 +212,9 @@ namespace PLEXIL
 
           // Construct the expression
           bool wasCreated = false;
-          ExpressionId expr =
-            ExpressionFactory::createInstance(aliasValue,
-                                              NodeConnector::getId(),
-                                              wasCreated);
+          ExpressionId expr = createExpression(aliasValue,
+                                               NodeConnector::getId(),
+                                               wasCreated);
 
           // Construct a const wrapper for it
           actualVar = 

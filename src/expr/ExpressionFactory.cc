@@ -31,10 +31,29 @@
 
 namespace PLEXIL
 {
+
+  static std::map<std::string, ExpressionFactory*>& expressionFactoryMap()
+  {
+    static std::map<std::string, ExpressionFactory*> sl_map;
+    return sl_map;
+  }
+
+  static void registerExpressionFactory(const std::string& name,
+                                        ExpressionFactory* factory) 
+  {
+    check_error(factory != NULL);
+    checkError(expressionFactoryMap().find(name) == expressionFactoryMap().end(),
+               "Error:  Attempted to register a factory for name \"" << name <<
+               "\" twice.");
+    expressionFactoryMap()[name] = factory;
+    debugMsg("ExpressionFactory:registerFactory",
+             "Registered factory for name \"" << name << "\"");
+  }
+
   ExpressionFactory::ExpressionFactory(const std::string& name)
     : m_name(name)
   {
-    registerFactory(m_name, this);
+    registerExpressionFactory(m_name, this);
   }
 
   ExpressionFactory::~ExpressionFactory()
@@ -46,83 +65,40 @@ namespace PLEXIL
     return m_name;
   }
 
-  void ExpressionFactory::registerFactory(const std::string& name, ExpressionFactory* factory) 
-  {
-    check_error(factory != NULL);
-    checkError(factoryMap().find(name) == factoryMap().end(),
-               "Error:  Attempted to register a factory for name \"" << name <<
-               "\" twice.");
-    factoryMap()[name] = factory;
-    debugMsg("ExpressionFactory:registerFactory",
-             "Registered factory for name \"" << name << "\"");
-  }
-
-  ExpressionId ExpressionFactory::createInstance(const PlexilExprId& expr,
-                                                 const NodeConnectorId& node)
-  {
-    const std::string& name = expr->name();
-    bool dummy;
-    return createInstance(name, expr, node, dummy);
-  }
-
-  ExpressionId ExpressionFactory::createInstance(const std::string& name,
-                                                 const PlexilExprId& expr,
-                                                 const NodeConnectorId& node)
+  ExpressionId createExpression(const PlexilExprId& expr,
+                                const NodeConnectorId& node)
   {
     bool dummy;
-    return createInstance(name, expr, node, dummy);
+    return createExpression(expr, node, dummy);
   }
 
-  ExpressionId ExpressionFactory::createInstance(const PlexilExprId& expr,
-                                                 const NodeConnectorId& node,
-                                                 bool& wasCreated)
+  ExpressionId createExpression(const PlexilExprId& expr,
+                                const NodeConnectorId& node,
+                                bool& wasCreated)
   {
     const std::string& name = expr->name();
-    return createInstance(name, expr, node, wasCreated);
-  }
-
-  ExpressionId ExpressionFactory::createInstance(const std::string& name,
-                                                 const PlexilExprId& expr,
-                                                 const NodeConnectorId& node,
-                                                 bool& wasCreated)
-  {
-    // if this is a variable ref, look it up
-    if (Id<PlexilVarRef>::convertable(expr)) {
-      assertTrueMsg(node.isValid(),
-                    "Need a valid Node argument to find a Variable");
-      ExpressionId retval = node->findVariable(expr);         
-      assertTrueMsg(retval.isValid(),
-                    "Unable to find variable \"" << expr->name() << "\"");
-      wasCreated = false;
-      return retval;
-    }
-
-    // otherwise look up factory
-    std::map<std::string, ExpressionFactory*>::const_iterator it = factoryMap().find(name);
-    assertTrueMsg(it != factoryMap().end(),
+    // Delegate to factory
+    std::map<std::string, ExpressionFactory*>::const_iterator it =
+      expressionFactoryMap().find(name);
+    assertTrueMsg(it != expressionFactoryMap().end(),
                   "Error: No factory registered for name \"" << name << "\".");
-    ExpressionId retval = it->second->create(expr, node);
-    debugMsg("ExpressionFactory:createInstance", "Created " << retval->toString());
-    wasCreated = true;
+    ExpressionId retval = it->second->allocate(expr, node, wasCreated);
+    debugMsg("createExpression",
+             "Created " << (wasCreated ? "" : "reference to ") << retval->toString());
     return retval;
   }
 
-  std::map<std::string, ExpressionFactory*>& ExpressionFactory::factoryMap()
+  void purgeExpressionFactories()
   {
-    static std::map<std::string, ExpressionFactory*> sl_map;
-    return sl_map;
-  }
-
-  void ExpressionFactory::purge()
-  {
-    for (std::map<std::string, ExpressionFactory*>::iterator it = factoryMap().begin();
-         it != factoryMap().end();
+    for (std::map<std::string, ExpressionFactory*>::iterator it =
+           expressionFactoryMap().begin();
+         it != expressionFactoryMap().end();
          ++it) {
       ExpressionFactory* tmp = it->second;
       it->second = NULL;
       delete tmp;
     }
-    factoryMap().clear();
+    expressionFactoryMap().clear();
   }
 
 }

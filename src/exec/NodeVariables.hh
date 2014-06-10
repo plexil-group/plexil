@@ -41,6 +41,8 @@ namespace PLEXIL {
   // Forward references
   class Command;
 
+  class Node;
+
   class StateVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
   {
   public:

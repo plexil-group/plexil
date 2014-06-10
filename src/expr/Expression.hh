@@ -60,8 +60,7 @@ namespace PLEXIL
 
   class Expression;
   typedef Id<Expression> ExpressionId;
-  class Node;
-  typedef Id<Node> NodeId;
+
   class Value;
 
   /**

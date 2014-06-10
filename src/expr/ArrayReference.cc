@@ -306,7 +306,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  const NodeId &MutableArrayReference<T>::getNode() const
+  const NodeConnectorId &MutableArrayReference<T>::getNode() const
   {
     return getBaseVariable()->getNode();
   }

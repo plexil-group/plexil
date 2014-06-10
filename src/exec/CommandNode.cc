@@ -546,10 +546,9 @@ namespace PLEXIL
     PlexilStateId state = command->state();
     std::vector<ExpressionId> garbage;
     bool wasCreated = false;
-    ExpressionId nameExpr = 
-      ExpressionFactory::createInstance(state->nameExpr(), 
-                                        NodeConnector::getId(),
-                                        wasCreated);
+    ExpressionId nameExpr = createExpression(state->nameExpr(), 
+                                             NodeConnector::getId(),
+                                             wasCreated);
     if (wasCreated)
       garbage.push_back(nameExpr);
 
@@ -558,7 +557,7 @@ namespace PLEXIL
          it != state->args().end(); 
          ++it) {
       ExpressionId argExpr =
-        ExpressionFactory::createInstance(*it, NodeConnector::getId(), wasCreated);
+        createExpression(*it, NodeConnector::getId(), wasCreated);
       check_error(argExpr.isValid());
       args.push_back(argExpr);
       if (wasCreated)
@@ -570,6 +569,7 @@ namespace PLEXIL
     if (!command->dest().empty()) {
       const PlexilExprId& destExpr = command->dest()[0]->getId();
       dest_name = destExpr->name();
+      // FIXME: Let expression factory handle difference between expression types
       if (Id<PlexilVarRef>::convertable(destExpr)) {
         destVar = findVariable((Id<PlexilVarRef>) destExpr);
         // FIXME: push this check up into XML parser
@@ -579,8 +579,7 @@ namespace PLEXIL
                    m_nodeId << "'");
       }
       else if (Id<PlexilArrayElement>::convertable(destExpr)) {
-        destVar = ExpressionFactory::createInstance(destExpr,
-                                                    NodeConnector::getId());
+        destVar = createExpression(destExpr, NodeConnector::getId());
         garbage.push_back(destVar);
       }
       else {
@@ -600,10 +599,9 @@ namespace PLEXIL
            resItr != resources.end();
            ++resItr) {
         bool wasCreated = false;
-        ExpressionId resExpr
-          = ExpressionFactory::createInstance(resItr->second, 
-                                              NodeConnector::getId(),
-                                              wasCreated);
+        ExpressionId resExpr = createExpression(resItr->second, 
+                                                NodeConnector::getId(),
+                                                wasCreated);
         check_error(resExpr.isValid());
         resourceMap[resItr->first] = resExpr;
         if (wasCreated)

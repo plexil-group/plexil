@@ -52,7 +52,7 @@ namespace PLEXIL
      * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      */
-    ArrayVariable(const NodeId &node,
+    ArrayVariable(const NodeConnectorId &node,
                   const std::string &name = "",
                   const ExpressionId &size = ExpressionId::noId(),
                   const ExpressionId &initializer = ExpressionId::noId(),

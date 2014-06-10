@@ -139,7 +139,7 @@ namespace PLEXIL {
 
     void restoreSavedValue();
 
-    const NodeId &getNode() const;
+    const NodeConnectorId &getNode() const;
 
     Assignable *getBaseVariable();
     Assignable const *getBaseVariable() const;

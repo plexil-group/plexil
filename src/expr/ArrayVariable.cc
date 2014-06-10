@@ -38,7 +38,7 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable(ArrayImpl<T> const & initVal)
-    : UserVariable<ArrayImpl<T> >(NodeId::noId(),
+    : UserVariable<ArrayImpl<T> >(NodeConnectorId::noId(),
                                   std::string("anonymous"),
                                   (new ArrayConstant<T >(initVal))->getId(),
       true)
@@ -46,7 +46,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  ArrayVariable<T>::ArrayVariable(const NodeId &node,
+  ArrayVariable<T>::ArrayVariable(const NodeConnectorId &node,
                                   const std::string &name,
                                   const ExpressionId &size,
                                   const ExpressionId &initializer,

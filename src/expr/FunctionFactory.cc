@@ -64,11 +64,9 @@ namespace PLEXIL
     std::vector<bool> garbage(nargs, false);
     std::vector<ExpressionId> exprs(nargs);
     for (size_t i = 0; i < nargs; ++i) {
-      bool isGarbage = garbage[i];
-      ExpressionFactory::createInstance(args[i]->name(), // ???
-                                        args[i],
-                                        node,
-                                        isGarbage);
+      bool isGarbage;
+      createExpression(args[i], node, isGarbage);
+      garbage[i] = isGarbage;
     }
 
     switch (args.size()) {

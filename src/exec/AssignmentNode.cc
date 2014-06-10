@@ -125,9 +125,7 @@ namespace PLEXIL
                  "' not found in assignment node '" << m_nodeId << "'");
     }
     else if (Id<PlexilArrayElement>::convertable(destExpr)) {
-      dest =
-        ExpressionFactory::createInstance(destExpr,
-                                          NodeConnector::getId());
+      dest = createExpression(destExpr, NodeConnector::getId());
       // *** beef this up later ***
       PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
       debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
@@ -149,8 +147,7 @@ namespace PLEXIL
     }
 
     bool deleteRhs = false;
-    ExpressionId rhs =
-      ExpressionFactory::createInstance(body->RHS(),
+    ExpressionId rhs = createExpression(body->RHS(),
                                         NodeConnector::getId(),
                                         deleteRhs);
     m_assignment =

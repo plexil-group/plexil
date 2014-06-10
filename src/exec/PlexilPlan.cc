@@ -205,10 +205,10 @@ namespace PLEXIL {
       delete (PlexilExpr*) it->first;
     }
     m_conditions.clear();
-    for (std::vector<PlexilVarId>::iterator it = m_declarations.begin();
+    for (std::vector<PlexilVar *>::iterator it = m_declarations.begin();
          it != m_declarations.end();
          ++it) {
-      delete (PlexilVar*) *it;
+      delete *it;
     }
     m_declarations.clear();
     m_id.remove();

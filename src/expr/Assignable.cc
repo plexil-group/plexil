@@ -145,13 +145,13 @@ namespace PLEXIL {
 
   /**
    * @brief Get the node that owns this expression.
-   * @return The NodeId of the parent node; may be noId.
+   * @return The parent node; may be noId.
    * @note Used by LuvFormat::formatAssignment().  
    * @note Default method.
    */
-  const NodeId& Assignable::getNode() const
+  const NodeConnectorId& Assignable::getNode() const
   {
-    return NodeId::noId(); 
+    return NodeConnectorId::noId(); 
   }
 
 } // namespace PLEXIL

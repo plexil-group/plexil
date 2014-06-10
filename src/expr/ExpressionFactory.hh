@@ -40,100 +40,68 @@ namespace PLEXIL
 
   /**
    * @class ExpressionFactory
-   * @brief Abstract factory class for Expressions, client side.
-   * This allows you to write, e.g., \<AND\> in XML and have the correct Expression instantiated.
+   * @brief Virtual base class establishing the API for concrete factories for Expression subtypes.
    */
-  class ExpressionFactory {
+
+  class ExpressionFactory
+  {
   public:
-
-    /**
-     * @brief Creates a new Expression instance with the type associated with the
-     *        given expression prototype.
-     * @param expr The PlexilExprId to be passed to the Expression constructor.
-     * @param node Node for name lookup.
-     * @return The Id for the new Expression. May not be unique.
-     * @note Convenience wrapper.
-     */
-    static ExpressionId createInstance(const PlexilExprId& expr,
-                                       const NodeConnectorId& node = NodeConnectorId::noId());
-
-    /**
-     * @brief Creates a new Expression instance with the type associated with the name and
-     *        the given expression prototype.
-     * @param name The registered name for the factory.
-     * @param expr The PlexilExprId to be passed to the Expression constructor.
-     * @param node Node for name lookup.
-     * @return The Id for the new Expression.  May not be unique.
-     * @note Convenience wrapper.
-     */
-    static ExpressionId createInstance(const std::string& name,
-                                       const PlexilExprId& expr,
-                                       const NodeConnectorId& node = NodeConnectorId::noId());
-
-    /**
-     * @brief Creates a new Expression instance with the type associated with the
-     *        given expression prototype.
-     * @param expr The PlexilExprId to be passed to the Expression constructor.
-     * @param node Node for name lookup.
-     * @return The Id for the new Expression. May not be unique.
-     * @param wasCreated Reference to a boolean variable;
-     *                   variable will be set to true if new object created, false otherwise.
-     * @note Convenience wrapper for most common use case.
-     */
-    static ExpressionId createInstance(const PlexilExprId& expr,
-                                       const NodeConnectorId& node,
-                                       bool& wasCreated);
-
-    /**
-     * @brief Creates a new Expression instance with the type associated with the name and
-     *        the given configuration XML.
-     * @param name The registered name for the factory.
-     * @param expr The PlexilExprId to be passed to the Expression constructor.
-     * @param node Node for name lookup.
-     * @param wasCreated Reference to a boolean variable;
-     *                   variable will be set to true if new object created, false otherwise.
-     * @return The Id for the new Expression.  If wasCreated is set to false, is not unique.
-     */
-    static ExpressionId createInstance(const std::string& name,
-                                       const PlexilExprId& expr,
-                                       const NodeConnectorId& node,
-                                       bool& wasCreated);
-
-    const std::string& getName() const;
-
-    /**
-     * @brief Deallocate all factories
-     */
-    static void purge();
-
-  protected:
-
+    ExpressionFactory(const std::string& name);
     virtual ~ExpressionFactory();
 
-    /**
-     * @brief Registers an ExpressionFactory with the specific name.
-     * @param name The name by which the Expression shall be known.
-     * @param factory The ExpressionFactory instance.
-     */
-    static void registerFactory(const std::string& name, ExpressionFactory* factory);
+    virtual ExpressionId allocate(const PlexilExprId& expr,
+                                  const NodeConnectorId& node,
+                                  bool & wasCreated) const = 0;
 
+    const std::string& getName() const; // needed?
+
+  protected:
     virtual ExpressionId create(const PlexilExprId& expr,
-                                const NodeConnectorId& node = NodeConnectorId::noId()) const = 0;
+                                const NodeConnectorId& node) const = 0;
 
-    ExpressionFactory(const std::string& name);
 
   private:
-
-    /**
-     * @brief The map from names to ConcreteExpressionFactory instances.
-     * This pattern of wrapping static data in a static method is to ensure proper loading
-     * when used as a shared library.
-     */
-    static std::map<std::string, ExpressionFactory*>& factoryMap();
+    // Default, copy, assign all prohibited
+    ExpressionFactory();
+    ExpressionFactory(const ExpressionFactory &);
+    ExpressionFactory &operator=(const ExpressionFactory &);
 
     const std::string m_name; /*!< Name used for lookup */
   };
 
-}
+  /**
+   * @brief Creates a new Expression instance with the type associated with the
+   *        given expression prototype.
+   * @param expr The PlexilExprId to be passed to the Expression constructor.
+   * @param node Node for name lookup.
+   * @return The Id for the new Expression. May not be unique.
+   * @note Convenience wrapper.
+   */
+
+  // Used in AssignmentNode, CommandNode
+  extern ExpressionId createExpression(const PlexilExprId& expr,
+                                       const NodeConnectorId& node = NodeConnectorId::noId());
+
+  /**
+   * @brief Creates a new Expression instance with the type associated with the
+   *        given expression prototype.
+   * @param expr The PlexilExprId to be passed to the Expression constructor.
+   * @param node Node for name lookup.
+   * @return The Id for the new Expression. May not be unique.
+   * @param wasCreated Reference to a boolean variable;
+   *                   variable will be set to true if new object created, false otherwise.
+   * @note Convenience wrapper for most common use case.
+   */
+  // Used in AssignmentNode, CommandNode, LibraryCallNode, Node::createConditions
+  extern ExpressionId createExpression(const PlexilExprId& expr,
+                                       const NodeConnectorId& node,
+                                       bool& wasCreated);
+
+  /**
+   * @brief Deallocate all factories
+   */
+  extern void purgeExpressionFactories();
+
+} // namespace PLEXIL
 
 #endif // EXPRESSION_FACTORY_HH

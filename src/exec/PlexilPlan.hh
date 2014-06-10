@@ -154,7 +154,7 @@ namespace PLEXIL
     const std::string& nodeTypeString() const {return PlexilParser::nodeTypeString(m_nodeType);}
     double priority() const {return m_priority;}
     const PlexilInterfaceId& interface() const {return m_intf;}
-    const std::vector<PlexilVarId>& declarations() const {return m_declarations;}
+    const std::vector<PlexilVar *>& declarations() const {return m_declarations;}
     const std::vector<std::pair <PlexilExprId, std::string> >& conditions() const {return m_conditions;}
     const PlexilNodeBodyId& body() const {return m_nodeBody;}
 
@@ -173,7 +173,7 @@ namespace PLEXIL
     void setNodeId(const std::string& id) {m_nodeId = id;}
     void setNodeType(PlexilNodeType type) {m_nodeType = type;}
     void setPriority(double priority) {m_priority = priority;}
-    void addVariable(const PlexilVarId& var) {m_declarations.push_back(var);}
+    void addVariable(PlexilVar *var) {m_declarations.push_back(var);}
     void addCondition(const std::string& name, const PlexilExprId& expr)
     {m_conditions.push_back(std::make_pair(expr, name));}
     void setBody(const PlexilNodeBodyId& body) {m_nodeBody = body;}
@@ -200,7 +200,7 @@ namespace PLEXIL
     // 4 byte alignment on 32 bit, 8 on 64
     std::string m_fileName;
     std::string m_nodeId;
-    std::vector<PlexilVarId> m_declarations;
+    std::vector<PlexilVar *> m_declarations;
     std::vector<std::pair<PlexilExprId, std::string> > m_conditions;
 
     // 4 byte alignment on 32 and 64 (?)
@@ -467,9 +467,13 @@ namespace PLEXIL
     Direction m_dir;
   };
 
-  class PlexilInternalVar : public PlexilVarRef {
+  class PlexilInternalVar : public PlexilVarRef 
+  {
   public:
-    PlexilInternalVar() : PlexilVarRef() {}
+    PlexilInternalVar(std::string const &varName, ValueType type)
+      : PlexilVarRef(varName, type)
+    {
+    }
  
     virtual ~PlexilInternalVar()
     {
@@ -484,29 +488,47 @@ namespace PLEXIL
     PlexilNodeRefId m_ref;
   };
 
-  class PlexilOutcomeVar : public PlexilInternalVar {
+  class PlexilOutcomeVar : public PlexilInternalVar 
+  {
   public:
-    PlexilOutcomeVar() : PlexilInternalVar() {setName("outcome");}
+    PlexilOutcomeVar()
+      : PlexilInternalVar("outcome", OUTCOME_TYPE)
+    {
+    }
   };
 
-  class PlexilFailureVar : public PlexilInternalVar {
+  class PlexilFailureVar : public PlexilInternalVar
+  {
   public:
-    PlexilFailureVar() : PlexilInternalVar() {setName("failure_type");}
+    PlexilFailureVar()
+      : PlexilInternalVar("failure_type", FAILURE_TYPE)
+    {
+    }
   };
 
-  class PlexilStateVar : public PlexilInternalVar {
+  class PlexilStateVar : public PlexilInternalVar 
+  {
   public:
-    PlexilStateVar() : PlexilInternalVar() {setName("state");}
+    PlexilStateVar()
+      : PlexilInternalVar("state", NODE_STATE_TYPE)
+    {
+    }
   };
 
   class PlexilCommandHandleVar : public PlexilInternalVar {
   public:
-    PlexilCommandHandleVar() : PlexilInternalVar() {setName("command_handle");}
+    PlexilCommandHandleVar() 
+      : PlexilInternalVar("command_handle", COMMAND_HANDLE_TYPE)
+    {
+    }
   };
 
   class PlexilTimepointVar : public PlexilInternalVar {
   public:
-    PlexilTimepointVar() : PlexilInternalVar() {setName("@Timepoint");}
+    PlexilTimepointVar()
+      : PlexilInternalVar("@Timepoint", DATE_TYPE)
+    {
+    }
     const std::string& state() const {return m_state;}
     const std::string& timepoint() const {return m_timepoint;}
 

@@ -33,6 +33,9 @@
 
 namespace PLEXIL
 {
+  // Forward references
+  template <typename T> class Constant;
+  template <typename T> class UserVariable;
 
   /**
    * @class ConcreteExpressionFactory
@@ -42,23 +45,103 @@ namespace PLEXIL
   class ConcreteExpressionFactory : public ExpressionFactory
   {
   public:
-    ConcreteExpressionFactory(const std::string& name) 
+    ConcreteExpressionFactory(const std::string& name)
       : ExpressionFactory(name) 
-    {}
+    {
+    }
 
-  private:
+    ~ConcreteExpressionFactory() 
+    {
+    }
+
     /**
-     * @brief Instantiates a new Expression of the appropriate type.
+     * @brief Construct a new expression, or reuse one, of the requested type.
+     * @param wasCreated Reference to a variable indicating whether the result was constructed.
+     * @param expr Prototype of the expression to be allocated.
+     * @param node NodeConnector to the parent node, if any.
+     * @note Default method always calls create.
+     */
+    ExpressionId allocate(const PlexilExprId& expr,
+                          const NodeConnectorId& node,
+                          bool &wasCreated) const;
+
+  protected:
+
+    /**
+     * @brief Constructs a new Expression of the appropriate type.
      * @param expr The PlexilExprId for the instantiated Expression.
      * @param node
      * @return The Id for the new Expression.
      * @note This default definition can be overridden in a template specialization.
      */
     ExpressionId create(const PlexilExprId& expr,
-                        const NodeConnectorId& node = NodeConnectorId::noId()) const
+                        const NodeConnectorId& node) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory();
+    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
+    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
+
+  };
+
+  // Specializations for Expression class templates
+  // C++ sucks at generic programming.
+
+  template<typename T>
+  class ConcreteExpressionFactory<Constant<T> > : public ExpressionFactory
+  {
+  public:
+    ConcreteExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
     {
-      return (new FactoryType(expr, node))->getId();
     }
+
+    ~ConcreteExpressionFactory()
+    {
+    }
+
+    ExpressionId allocate(const PlexilExprId& expr,
+                          const NodeConnectorId& node,
+                          bool &wasCreated) const;
+
+  protected:
+    ExpressionId create(const PlexilExprId& expr,
+                        const NodeConnectorId& node) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory();
+    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
+    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
+  };
+
+  template<typename T>
+  class ConcreteExpressionFactory<UserVariable<T> > : public ExpressionFactory
+  {
+  public:
+    ConcreteExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
+    {
+    }
+
+    ~ConcreteExpressionFactory()
+    {
+    }
+
+    ExpressionId allocate(const PlexilExprId& expr,
+                          const NodeConnectorId& node,
+                          bool &wasCreated) const;
+
+  protected:
+    ExpressionId create(const PlexilExprId& expr,
+                        const NodeConnectorId& node) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory();
+    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
+    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
 
 } // namespace PLEXIL

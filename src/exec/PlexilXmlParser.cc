@@ -415,8 +415,7 @@ namespace PLEXIL
 
     PlexilExprId parse(const xml_node& xml) throw(ParserException) 
     {
-      PlexilOp* retval = new PlexilOp();
-      retval->setOp(xml.name());
+      PlexilOp* retval = new PlexilOp(xml.name());
       for (xml_node child = xml.first_child(); 
            child;
            child = child.next_sibling())
@@ -465,6 +464,7 @@ namespace PLEXIL
     PlexilExprId parse(const xml_node& xml) throw(ParserException) {
       checkTag(ARRAYELEMENT_TAG, xml);
 
+      // FIXME - Arrays are now 1st class expressions
       // create an array element
       PlexilArrayElement* arrayElement = new PlexilArrayElement();
 
@@ -598,9 +598,7 @@ namespace PLEXIL
                                        xml,
                                        "Unknown variable type \"" << tag << "\"");
 
-      PlexilVarRef* retval = new PlexilVarRef();
-      retval->setName(xml.first_child().value());
-      retval->setType(typ);
+      PlexilVarRef* retval = new PlexilVarRef(xml.first_child().value(), typ);
       return retval->getId();
     }
   };
@@ -1293,10 +1291,10 @@ namespace PLEXIL
 
       // if this is a declare var or array read those in
       if (testTag(DECL_VAR_TAG, var) || testTag(DECL_ARRAY_TAG, var)) {
-        PlexilVarId variable = parseDeclaration(var)->getId();
+        PlexilVar *variable = parseDeclaration(var);
 
         // convert variable to var ref
-        Id<PlexilVarRef> varRef = (new PlexilVarRef())->getId();
+        Id<PlexilVarRef> varRef = (new PlexilVarRef(variable->varName(), variable->type()))->getId();
         varRef->setVariable(variable);
 
         // add var ref to interface
@@ -1776,7 +1774,7 @@ namespace PLEXIL
 
     if (!node->declarations().empty()) {
       xml_node declarations = appendElement(VAR_DECLS_TAG, retval);
-      for (std::vector<PlexilVarId>::const_iterator it = node->declarations().begin(); 
+      for (std::vector<PlexilVar *>::const_iterator it = node->declarations().begin(); 
            it != node->declarations().end(); 
            ++it)
         toXml(*it, declarations);
@@ -1813,7 +1811,7 @@ namespace PLEXIL
     }
   }
 
-  void PlexilXmlParser::toXml(const PlexilVarId& var, xml_node& parent)
+  void PlexilXmlParser::toXml(PlexilVar const *var, xml_node& parent)
     throw(ParserException) 
   {
     xml_node retval = appendElement((var->isArray() ? DECL_ARRAY_TAG : DECL_VAR_TAG),
@@ -1836,7 +1834,7 @@ namespace PLEXIL
            ++it) 
         appendNamedTextElement(valueTag.c_str(), it->c_str(), vals);
     }
-    else if (var->value() != NULL) {
+    else if (var->value().isId()) {
       // initial value
       toXml(var->value()->getId(), retval);
     }

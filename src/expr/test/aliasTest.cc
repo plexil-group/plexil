@@ -41,10 +41,10 @@ static bool testAliasToScalarConstant()
   RealConstant pie(3.14);
   StringConstant fore("four");
 
-  Alias atroo(NodeId::noId(), "atroo", troo.getId());
-  Alias atree(NodeId::noId(), "atree", tree.getId());
-  Alias apie (NodeId::noId(), "apie",  pie.getId());
-  Alias afore(NodeId::noId(), "afore", fore.getId());
+  Alias atroo(NodeConnectorId::noId(), "atroo", troo.getId());
+  Alias atree(NodeConnectorId::noId(), "atree", tree.getId());
+  Alias apie (NodeConnectorId::noId(), "apie",  pie.getId());
+  Alias afore(NodeConnectorId::noId(), "afore", fore.getId());
 
   // Check that alias is not assignable
   assertTrue_1(!atroo.isAssignable());
@@ -153,10 +153,10 @@ static bool testAliasToArrayConstant()
   RealArrayConstant    dc(vd);
   StringArrayConstant  sc(vs);
 
-  Alias abc(NodeId::noId(), "abc", bc.getId());
-  Alias aic(NodeId::noId(), "aic", ic.getId());
-  Alias adc(NodeId::noId(), "adc", dc.getId());
-  Alias asc(NodeId::noId(), "asc", sc.getId());
+  Alias abc(NodeConnectorId::noId(), "abc", bc.getId());
+  Alias aic(NodeConnectorId::noId(), "aic", ic.getId());
+  Alias adc(NodeConnectorId::noId(), "adc", dc.getId());
+  Alias asc(NodeConnectorId::noId(), "asc", sc.getId());
 
   BooleanArray const        *pab = NULL, *paab = NULL;
   IntegerArray const     *pai = NULL, *paai = NULL;
@@ -236,15 +236,15 @@ static bool testAliasToScalarVariable()
   RealVariable pie(3.14);
   StringVariable fore("four");
 
-  Alias atroo(NodeId::noId(), "atroo", troo.getId());
-  Alias atree(NodeId::noId(), "atree", tree.getId());
-  Alias apie (NodeId::noId(), "apie",  pie.getId());
-  Alias afore(NodeId::noId(), "afore", fore.getId());
+  Alias atroo(NodeConnectorId::noId(), "atroo", troo.getId());
+  Alias atree(NodeConnectorId::noId(), "atree", tree.getId());
+  Alias apie (NodeConnectorId::noId(), "apie",  pie.getId());
+  Alias afore(NodeConnectorId::noId(), "afore", fore.getId());
 
-  InOutAlias watroo(NodeId::noId(), "watroo", troo.getId());
-  InOutAlias watree(NodeId::noId(), "watree", tree.getId());
-  InOutAlias wapie (NodeId::noId(), "wapie",  pie.getId());
-  InOutAlias wafore(NodeId::noId(), "wafore", fore.getId());
+  InOutAlias watroo(NodeConnectorId::noId(), "watroo", troo.getId());
+  InOutAlias watree(NodeConnectorId::noId(), "watree", tree.getId());
+  InOutAlias wapie (NodeConnectorId::noId(), "wapie",  pie.getId());
+  InOutAlias wafore(NodeConnectorId::noId(), "wafore", fore.getId());
 
   // Check that Alias is not assignable
   assertTrue_1(!atroo.isAssignable());
@@ -499,15 +499,15 @@ static bool testAliasToArrayVariable()
   RealArrayVariable    dc(vd);
   StringArrayVariable  sc(vs);
 
-  Alias abc(NodeId::noId(), "abc", bc.getId());
-  Alias aic(NodeId::noId(), "aic", ic.getId());
-  Alias adc(NodeId::noId(), "adc", dc.getId());
-  Alias asc(NodeId::noId(), "asc", sc.getId());
+  Alias abc(NodeConnectorId::noId(), "abc", bc.getId());
+  Alias aic(NodeConnectorId::noId(), "aic", ic.getId());
+  Alias adc(NodeConnectorId::noId(), "adc", dc.getId());
+  Alias asc(NodeConnectorId::noId(), "asc", sc.getId());
 
-  InOutAlias wabc(NodeId::noId(), "wabc", bc.getId());
-  InOutAlias waic(NodeId::noId(), "waic", ic.getId());
-  InOutAlias wadc(NodeId::noId(), "wadc", dc.getId());
-  InOutAlias wasc(NodeId::noId(), "wasc", sc.getId());
+  InOutAlias wabc(NodeConnectorId::noId(), "wabc", bc.getId());
+  InOutAlias waic(NodeConnectorId::noId(), "waic", ic.getId());
+  InOutAlias wadc(NodeConnectorId::noId(), "wadc", dc.getId());
+  InOutAlias wasc(NodeConnectorId::noId(), "wasc", sc.getId());
 
   BooleanArray const        *pab = NULL, *paab = NULL;
   IntegerArray const     *pai = NULL, *paai = NULL;
@@ -840,27 +840,27 @@ static bool testAliasToArrayReference()
 
   BooleanArrayReference bar(bc.getId(), ix.getId());
   BooleanMutableArrayReference wbar(bc.getId(), ix.getId());
-  Alias abar(NodeId::noId(), "abar", bar.getId());
-  Alias awbar(NodeId::noId(), "awbar", wbar.getId());
-  InOutAlias wawbar(NodeId::noId(), "wawbar", wbar.getId());
+  Alias abar(NodeConnectorId::noId(), "abar", bar.getId());
+  Alias awbar(NodeConnectorId::noId(), "awbar", wbar.getId());
+  InOutAlias wawbar(NodeConnectorId::noId(), "wawbar", wbar.getId());
 
   IntegerArrayReference iar(ic.getId(), ix.getId());
   IntegerMutableArrayReference wiar(ic.getId(), ix.getId());
-  Alias aiar(NodeId::noId(), "aiar", iar.getId());
-  Alias awiar(NodeId::noId(), "awiar", wiar.getId());
-  InOutAlias wawiar(NodeId::noId(), "wawiar", wiar.getId());
+  Alias aiar(NodeConnectorId::noId(), "aiar", iar.getId());
+  Alias awiar(NodeConnectorId::noId(), "awiar", wiar.getId());
+  InOutAlias wawiar(NodeConnectorId::noId(), "wawiar", wiar.getId());
 
   RealArrayReference dar(dc.getId(), ix.getId());
   RealMutableArrayReference wdar(dc.getId(), ix.getId());
-  Alias adar(NodeId::noId(), "adar", dar.getId());
-  Alias awdar(NodeId::noId(), "awdar", wdar.getId());
-  InOutAlias wawdar(NodeId::noId(), "wawdar", wdar.getId());
+  Alias adar(NodeConnectorId::noId(), "adar", dar.getId());
+  Alias awdar(NodeConnectorId::noId(), "awdar", wdar.getId());
+  InOutAlias wawdar(NodeConnectorId::noId(), "wawdar", wdar.getId());
 
   StringArrayReference sar(sc.getId(), ix.getId());
   StringMutableArrayReference wsar(sc.getId(), ix.getId());
-  Alias asar(NodeId::noId(), "asar", sar.getId());
-  Alias awsar(NodeId::noId(), "awsar", wsar.getId());
-  InOutAlias wawsar(NodeId::noId(), "wawsar", wsar.getId());
+  Alias asar(NodeConnectorId::noId(), "asar", sar.getId());
+  Alias awsar(NodeConnectorId::noId(), "awsar", wsar.getId());
+  InOutAlias wawsar(NodeConnectorId::noId(), "wawsar", wsar.getId());
 
   bool bt1, bt2;
   int32_t it1, it2;
@@ -1117,14 +1117,14 @@ static bool testAliasPropagation()
   IntegerVariable tree(3);
   BooleanConstant dummy; // used as prop source
 
-  Alias aary(NodeId::noId(), "aary", ary.getId());
-  Alias atree(NodeId::noId(), "atree", tree.getId());
-  InOutAlias waary(NodeId::noId(), "waary", ary.getId());
-  InOutAlias watree(NodeId::noId(), "watree", tree.getId());
+  Alias aary(NodeConnectorId::noId(), "aary", ary.getId());
+  Alias atree(NodeConnectorId::noId(), "atree", tree.getId());
+  InOutAlias waary(NodeConnectorId::noId(), "waary", ary.getId());
+  InOutAlias watree(NodeConnectorId::noId(), "watree", tree.getId());
 
   IntegerMutableArrayReference ref(waary.getId(), atree.getId());
-  Alias aref(NodeId::noId(), "aref", ref.getId());
-  InOutAlias waref(NodeId::noId(), "waref", ref.getId());
+  Alias aref(NodeConnectorId::noId(), "aref", ref.getId());
+  InOutAlias waref(NodeConnectorId::noId(), "waref", ref.getId());
 
   bool aryChanged, aaryChanged, waaryChanged;
   bool treeChanged, atreeChanged, watreeChanged;

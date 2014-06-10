@@ -33,7 +33,7 @@
 #include "ArrayImpl.hh"
 #include "Constant.hh"
 #include "Error.hh"
-//#include "Node.hh"
+//#include "NodeConnector.hh"
 #include "Value.hh"
 
 namespace PLEXIL {
@@ -63,7 +63,7 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  UserVariable<T>::UserVariable(const NodeId &node,
+  UserVariable<T>::UserVariable(const NodeConnectorId &node,
                                 const std::string &name,
                                 const ExpressionId &initializer,
                                 bool initializerIsGarbage)
@@ -312,7 +312,7 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  const NodeId &UserVariable<T>::getNode() const
+  const NodeConnectorId &UserVariable<T>::getNode() const
   {
     return m_node;
   }

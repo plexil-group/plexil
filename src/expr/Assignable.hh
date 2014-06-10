@@ -34,6 +34,9 @@ namespace PLEXIL {
   // Forward declarations
   class Assignable;
 
+  class NodeConnector;
+  DECLARE_ID(NodeConnector);
+
   class Value;
 
   /**
@@ -148,11 +151,11 @@ namespace PLEXIL {
 
     /**
      * @brief Get the node that owns this expression.
-     * @return The NodeId of the parent node; may be noId.
+     * @return The parent node; may be noId.
      * @note Used by LuvFormat::formatAssignment().  
      * @note Default method returns noId().
      */
-    virtual const NodeId& getNode() const;
+    virtual const NodeConnectorId& getNode() const;
 
     /**
      * @brief Get the real variable for which this may be a proxy.

@@ -120,8 +120,6 @@ namespace PLEXIL {
      */
     virtual const ExpressionId& findVariable(const std::string& name, bool recursive = false);
 
-    const NodeId& getNode() const { return static_cast<NodeId const &>(m_id); }
-
     NodeId const &findNodeRef(PlexilNodeRefId const &nodeRef) const;
 
     const ExecListenerHubId& getExecListenerHub() const;
@@ -545,7 +543,7 @@ namespace PLEXIL {
 
     void createConditions(const std::vector<std::pair<PlexilExprId, std::string> >& conds);
 
-    void createDeclaredVars(const std::vector<PlexilVarId>& vars);
+    void createDeclaredVars(const std::vector<PlexilVar *>& vars);
 
     void getVarsFromInterface(const PlexilInterfaceId& intf);
     ExpressionId getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);

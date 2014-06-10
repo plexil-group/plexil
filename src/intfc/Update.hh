@@ -33,6 +33,9 @@
 namespace PLEXIL
 {
   // Forward declarations in PLEXIL namespace
+  class Node;
+  DECLARE_ID(Node);
+
   class PlexilUpdate;
   DECLARE_ID(PlexilUpdate);
 

@@ -53,10 +53,7 @@ namespace PLEXIL
         PlexilExprId foo = it->second;
         bool wasCreated = false;
         ExpressionId valueExpr = 
-          ExpressionFactory::createInstance(foo->name(),
-                                            foo,
-                                            NodeConnectorId::noId(),
-                                            wasCreated);
+          createExpression(foo, NodeConnectorId::noId(), wasCreated);
         check_error(valueExpr.isValid());
         if (wasCreated)
           m_garbage.push_back(valueExpr);
