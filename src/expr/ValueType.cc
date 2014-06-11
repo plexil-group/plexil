@@ -28,6 +28,8 @@
 
 #include "Array.hh"
 
+#include <cerrno>
+#include <cstdlib> // for strtol()
 #include <iostream>
 #include <sstream>
 
@@ -288,12 +290,13 @@ namespace PLEXIL
    * @brief Parse one value from the incoming stream.
    * @param s Input stream.
    * @param result Reference to the place to store the result.
-   * @return True if known, false if unknown or error.
+   * @return True if known, false if unknown.
    * @note If false, the result variable will not be modified.
    */
 
   template <typename NUM>
   bool parseValue(std::string const &s, NUM &result)
+    throw (ParserException)
   {
     if (s.empty() || s == "UNKNOWN")
       return false;
@@ -301,16 +304,19 @@ namespace PLEXIL
     NUM temp;
     std::istringstream is(s);
     is >> temp;
-    if (is.fail())
-      return false;
+    checkParserException(!is.fail() && is.eof(),
+                         "parseValue: \"" << s << "\" is an invalid value for this type");
     result = temp;
     return true;
   }
 
   template <>
   bool parseValue(std::string const &s, bool &result)
+    throw (ParserException)
   {
     switch (s.length()) {
+    case 0:
+      return false;
       
     case 1:
       if (s == "0") {
@@ -338,16 +344,34 @@ namespace PLEXIL
       // fall thru to...
 
     default:
+      checkParserException(s == "UNKNOWN",
+                           "parseValue: \"" << s << "\" is not a valid Boolean value");
       return false;
     }
   }
 
-  // Empty sring is interpreted as UNKNOWN; is this a good idea?
+  template <>
+  bool parseValue<int32_t>(std::string const &s, int32_t &result)
+    throw (ParserException)
+  {
+    if (s.empty() || s == "UNKNOWN")
+      return false;
+
+    char * ends;
+    long temp = strtol(s.c_str(), &ends, 0);
+    checkParserException(ends != s.c_str() && *ends == '\0',
+                         "parseValue: \"" << s << "\" is an invalid value for this type");
+    checkParserException(errno == 0 && temp <= INT32_MAX && temp >= INT32_MIN,
+                         "parseValue: " << s << " is out of range for an integer");
+    result = (int32_t) temp;
+    return true;
+  }
+
+  // Empty string is valid
   template <>
   bool parseValue(std::string const &s, std::string &result)
+    throw (ParserException)
   {
-    if (s.empty())
-      return false;
     result = s;
     return true;
   }

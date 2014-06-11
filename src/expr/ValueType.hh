@@ -27,13 +27,15 @@
 #ifndef PLEXIL_VALUE_TYPE_HH
 #define PLEXIL_VALUE_TYPE_HH
 
+#include "ParserException.hh"
+
 #include <iosfwd>
 #include <string>
 #include <vector>
 
 namespace PLEXIL
 {
-  // Forward reference
+  // Forward references
   template <typename T> class ArrayImpl;
 
   //
@@ -118,11 +120,13 @@ namespace PLEXIL
    * @brief Parse one value from the incoming stream.
    * @param s Input string.
    * @param result Reference to the place to store the result.
-   * @return True if known, false if unknown or error.
+   * @return True if known, false if unknown.
+   * @note 
    * @note If false, the result variable will not be modified.
    */
   template <typename T>
-  bool parseValue(std::string const &s, T &result);
+  bool parseValue(std::string const &s, T &result)
+    throw (ParserException);
 
 }
 
