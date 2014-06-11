@@ -195,7 +195,7 @@ namespace PLEXIL
       REGISTER_FUNCTION(AbsoluteValue<int32_t>, int32_t, ABSInteger);
       REGISTER_FUNCTION(AbsoluteValue<double>,  double,  ABSReal);
 
-      REGISTER_FUNCTION(SquareRooot<double>, double, SQRT);
+      REGISTER_FUNCTION(SquareRoot<double>, double, SQRT);
       
       REGISTER_FUNCTION(Ceiling<int32_t>, int32_t, CEILInteger);
       REGISTER_FUNCTION(Ceiling<double>,  double,  CEILReal);
