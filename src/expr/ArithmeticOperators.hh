@@ -45,6 +45,8 @@ namespace PLEXIL
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
     bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(Addition<NUM>, NUM);
+
   private:
     Addition(const Addition &);
     Addition &operator=(const Addition &);
@@ -62,6 +64,8 @@ namespace PLEXIL
     bool operator()(NUM &result, const ExpressionId &arg) const;
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
     bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(Subtraction<NUM>, NUM);
 
   private:
     Subtraction(const Subtraction &);
@@ -81,6 +85,8 @@ namespace PLEXIL
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
     bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(Multiplication<NUM>, NUM);
+
   private:
     Multiplication(const Multiplication &);
     Multiplication &operator=(const Multiplication &);
@@ -99,6 +105,8 @@ namespace PLEXIL
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
     // bool operator()(NUM &result, const std::vector<ExpressionId> &args) const; // ??
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(Division<NUM>, NUM);
+
   private:
     Division(const Division &);
     Division &operator=(const Division &);
@@ -114,6 +122,8 @@ namespace PLEXIL
     bool checkArgCount(size_t count) const;
 
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(Modulo<NUM>, NUM);
 
   private:
     Modulo(const Modulo &);
@@ -133,6 +143,8 @@ namespace PLEXIL
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
     bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(Minimum<NUM>, NUM);
+
   private:
     Minimum(const Minimum &);
     Minimum &operator=(const Minimum &);
@@ -150,6 +162,8 @@ namespace PLEXIL
     // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
     bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
     bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(Maximum<NUM>, NUM);
 
   private:
     Maximum(const Maximum &);
@@ -171,6 +185,8 @@ namespace PLEXIL
 
     bool operator()(NUM &result, const ExpressionId &arg) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(AbsoluteValue<NUM>, NUM);
+
   private:
     AbsoluteValue(const AbsoluteValue &);
     AbsoluteValue &operator=(const AbsoluteValue &);
@@ -187,6 +203,8 @@ namespace PLEXIL
     bool checkArgCount(size_t count) const;
 
     bool operator()(NUM &result, const ExpressionId &arg) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(SquareRoot<NUM>, NUM);
 
   private:
     SquareRoot(const SquareRoot &);
@@ -209,6 +227,8 @@ namespace PLEXIL
 
     bool operator()(NUM & result, const ExpressionId &arg) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(Ceiling<NUM>, NUM);
+
   private:
     Ceiling(const Ceiling &);
     Ceiling &operator=(const Ceiling &);
@@ -224,6 +244,8 @@ namespace PLEXIL
     bool checkArgCount(size_t count) const;
 
     bool operator()(NUM & result, const ExpressionId &arg) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(Floor<NUM>, NUM);
 
   private:
     Floor(const Floor &);
@@ -241,6 +263,8 @@ namespace PLEXIL
 
     bool operator()(NUM & result, const ExpressionId &arg) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(Round<NUM>, NUM);
+
   private:
     Round(const Round &);
     Round &operator=(const Round &);
@@ -257,6 +281,8 @@ namespace PLEXIL
 
     bool operator()(NUM & result, const ExpressionId &arg) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(Truncate<NUM>, NUM);
+
   private:
     Truncate(const Truncate &);
     Truncate &operator=(const Truncate &);
@@ -271,6 +297,8 @@ namespace PLEXIL
     bool checkArgCount(size_t count) const;
 
     bool operator()(int32_t & result, const ExpressionId &arg) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, int32_t);
 
   private:
     RealToInteger(const RealToInteger &);
