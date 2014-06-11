@@ -36,6 +36,9 @@ namespace PLEXIL
   class ExecListenerHub;
   DECLARE_ID(ExecListenerHub);
 
+  class Expression;
+  DECLARE_ID(Expression);
+
   class PlexilVarRef;
 
   class PlexilNodeRef;
