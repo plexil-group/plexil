@@ -48,7 +48,7 @@ namespace PLEXIL
    * @brief Table of outcome names.
    * @note Must be in same order as NodeOutcome enum.
    */
-  char const *ALL_OUTCOME_NAMES[] =
+  std::string const ALL_OUTCOME_NAMES[] =
     {"NO_OUTCOME",
      "SUCCESS",
      "FAILURE",
@@ -60,7 +60,7 @@ namespace PLEXIL
    * @brief Table of failure type names.
    * @note Must be in same order as FailureType enum.
    */
-  char const *ALL_FAILURE_NAMES[] =
+  std::string const ALL_FAILURE_NAMES[] =
     {"NO_FAILURE",
      "PRE_CONDITION_FAILED",
      "POST_CONDITION_FAILED",
@@ -86,18 +86,49 @@ namespace PLEXIL
     return ALL_STATE_NAMES[s];
   }
 
-  char const *outcomeName(NodeOutcome o)
+  bool isNodeStateValid(unsigned int val)
+  {
+    return val >= INACTIVE_STATE && val < NO_NODE_STATE;
+  }
+  
+  NodeOutcome parseNodeOutcome(std::string const &name)
+  {
+    for (size_t i = SUCCESS_OUTCOME; i < OUTCOME_MAX; ++i)
+      if (ALL_OUTCOME_NAMES[i - NO_OUTCOME] == name)
+        return (NodeOutcome) i;
+    return NO_OUTCOME;
+  }
+
+  std::string const &outcomeName(NodeOutcome o)
   {
     if (o <= NO_OUTCOME || o >= OUTCOME_MAX)
       return ALL_OUTCOME_NAMES[0];
     return ALL_OUTCOME_NAMES[o - NO_OUTCOME];
   }
 
-  char const *failureTypeName(FailureType f)
+  bool isNodeOutcomeValid(unsigned int val)
+  {
+    return val > NO_OUTCOME && val < OUTCOME_MAX;
+  }
+
+  FailureType parseFailureType(std::string const &name)
+  {
+    for (size_t i = PRE_CONDITION_FAILED; i < FAILURE_TYPE_MAX; ++i)
+      if (ALL_FAILURE_NAMES[i - NO_FAILURE] == name)
+        return (FailureType) i;
+    return NO_FAILURE;
+  }
+
+  std::string const &failureTypeName(FailureType f)
   {
     if (f <= NO_FAILURE || f >= FAILURE_TYPE_MAX)
       return ALL_FAILURE_NAMES[0];
     return ALL_FAILURE_NAMES[f - NO_FAILURE];
+  }
+
+  bool isFailureTypeValid(unsigned int val)
+  {
+    return val > NO_FAILURE && val < FAILURE_TYPE_MAX;
   }
 
 } // namespace PLEXIL

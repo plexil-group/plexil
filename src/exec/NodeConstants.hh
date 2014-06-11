@@ -50,7 +50,7 @@ namespace PLEXIL {
     FINISHED_STATE,
     FAILING_STATE,           // All but empty nodes
     FINISHING_STATE,         // Command, List/LibraryCall only
-    NO_NODE_STATE,
+    NO_NODE_STATE,           // Used internally in state transition logic
     NODE_STATE_MAX
   };
 
@@ -74,6 +74,13 @@ namespace PLEXIL {
   extern std::string const &nodeStateName(unsigned int s);
 
   /**
+   * @brief Test whether the value is a valid NodeState value.
+   * @param val The value to check.
+   * @return True if valid, false otherwise.
+   */
+  extern bool isNodeStateValid(unsigned int val);
+
+  /**
    * @brief Outcome enumeration.
    */
   enum NodeOutcome {
@@ -89,13 +96,27 @@ namespace PLEXIL {
    * @brief Table of outcome names.
    * @note Must be in same order as NodeOutcome enum above.
    */
-  extern char const *ALL_OUTCOME_NAMES[];
+  extern std::string const ALL_OUTCOME_NAMES[];
+
+  /**
+   * @brief Parse the given string as a node outcome name.
+   * @param The name.
+   * @return The outcome value, or NO_OUTCOME if not found.
+   */
+  extern NodeOutcome parseNodeOutcome(std::string const &name);
 
   /**
    * @brief Get the name of this outcome.
    * @return Pointer to one of the outcome names.
    */
-  extern char const *outcomeName(NodeOutcome o);
+  extern std::string const &outcomeName(NodeOutcome o);
+
+  /**
+   * @brief Test whether the value is a valid NodeOutcome value.
+   * @param val The value to check.
+   * @return True if valid, false otherwise.
+   */
+  extern bool isNodeOutcomeValid(unsigned int val);
 
   /**
    * @brief Node failure type enumeration.
@@ -115,13 +136,27 @@ namespace PLEXIL {
    * @brief Table of failure type names.
    * @note Must be in same order as FailureType enum above.
    */
-  extern char const *ALL_FAILURE_NAMES[];
+  extern std::string const ALL_FAILURE_NAMES[];
+
+  /**
+   * @brief Parse the given string as a failure type name.
+   * @param The name.
+   * @return The FailureType value, or NO_FAILURE if not found.
+   */
+  extern FailureType parseFailureType(std::string const &name);
 
   /**
    * @brief Get the name of this failure type.
    * @return Pointer to one of the names.
    */
-  extern char const *failureTypeName(FailureType f);
+  extern std::string const &failureTypeName(FailureType f);
+
+  /**
+   * @brief Test whether the value is a valid FailureType value.
+   * @param val The value to check.
+   * @return True if valid, false otherwise.
+   */
+  extern bool isFailureTypeValid(unsigned int val);
 
 } // namespace PLEXIL
 

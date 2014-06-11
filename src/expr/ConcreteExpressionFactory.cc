@@ -26,10 +26,13 @@
 
 #include "ConcreteExpressionFactory.hh"
 
-#include "Constant.hh"
+#include "ArrayConstant.hh"
+#include "Error.hh"
 #include "NodeConnector.hh"
 #include "PlexilExpr.hh"
 #include "UserVariable.hh"
+
+#include <sstream>
 
 namespace PLEXIL
 {
@@ -46,17 +49,20 @@ namespace PLEXIL
     return this->create(expr, node);
   }
 
+  // Meant to be overridden by specialized methods.
   template <class FactoryType>
   ExpressionId ConcreteExpressionFactory<FactoryType>::create(const PlexilExprId& expr,
                                                               const NodeConnectorId& node) const
   {
-    // *** FIXME
-    return (new FactoryType(expr, node))->getId();
+    assertTrue_2(ALWAYS_FAIL, "No expression factory create() method for this type");
+    return ExpressionId::noId();
   }
 
   //
   // Factories for scalar constants
   //
+
+  // TODO? - common registry of constants per type
 
   // N.B. For all but string types, the value string may not be empty.
   template <typename T>
@@ -91,6 +97,45 @@ namespace PLEXIL
   }
 
   //
+  // Factories for array constants
+  //
+
+  template <typename T>
+  ExpressionId ConcreteExpressionFactory<ArrayConstant<T> >::create(const PlexilExprId& expr,
+                                                                    const NodeConnectorId& node) const
+  {
+    PlexilArrayValue const *val = dynamic_cast<PlexilArrayValue const *>((PlexilExpr const *) expr);
+    // assertTrue_2(val, "createExpression: Not an array value"); // should have been checked in allocate()
+
+    unsigned arraySize = val->maxSize();
+    std::vector<std::string> const &eltVals = val->values();
+    std::vector<T> initVals;
+    initVals.reserve(arraySize);
+    for (size_t i = 0; i < eltVals.size(); ++i) {
+      // Parse an element value and push it onto the vector
+      T temp;
+      std::istringstream s(eltVals[i]);
+      s >> temp;
+      // TODO: check for input error
+      initVals.push_back(temp);
+    }
+    return (new ArrayConstant<T>(initVals))->getId();
+  }
+
+  template <typename T>
+  ExpressionId ConcreteExpressionFactory<ArrayConstant<T>  >::allocate(const PlexilExprId& expr,
+                                                                       const NodeConnectorId& node,
+                                                                       bool &wasCreated) const
+  {
+    PlexilArrayValue const *val = dynamic_cast<PlexilArrayValue const *>((PlexilExpr const *) expr);
+    assertTrue_2(val, "createExpression: Not an array value");
+
+    wasCreated = true;
+    return this->create(expr, node);
+  }
+
+
+  //
   // Factories for scalar variables
   //
 
@@ -100,7 +145,7 @@ namespace PLEXIL
                                                         const NodeConnectorId& node,
                                                         bool &wasCreated) const
   {
-    PlexilVarRef const *varRef = dynamic_cast<PlexilVarRef const *>((Expression const *)expr);
+    PlexilVarRef const *varRef = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
     if (varRef) {
       // Variable reference - look it up
       assertTrue_2(node.isId(), "createExpression: Can't find variable reference with null node");
@@ -121,7 +166,7 @@ namespace PLEXIL
   ConcreteExpressionFactory<UserVariable<T> >::create(const PlexilExprId& expr,
                                                       const NodeConnectorId& node) const
   {
-    PlexilVar const *var = dynamic_cast<PlexilVar const * >((Expression const *)expr);
+    PlexilVar const *var = dynamic_cast<PlexilVar const * >((PlexilExpr const *)expr);
     assertTrue_2(var, "createExpression: Not a variable declaration");
     bool garbage = false;
     ExpressionId initexp;

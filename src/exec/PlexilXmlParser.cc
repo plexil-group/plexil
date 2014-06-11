@@ -335,9 +335,7 @@ namespace PLEXIL
 
     PlexilExprId parse(const xml_node& xml) throw(ParserException) 
     {
-      PlexilOutcomeVar* retval = new PlexilOutcomeVar();
-      retval->setRef(parseNodeReference(xml));
-      return retval->getId();
+      return (new PlexilOutcomeVar(parseNodeReference(xml)))->getId();
     }
   };
 
@@ -348,9 +346,7 @@ namespace PLEXIL
 
     PlexilExprId parse(const xml_node& xml) throw(ParserException) 
     {
-      PlexilFailureVar* retval = new PlexilFailureVar();
-      retval->setRef(parseNodeReference(xml));
-      return retval->getId();
+      return (new PlexilFailureVar(parseNodeReference(xml)))->getId();
     }
   };
 
@@ -361,9 +357,7 @@ namespace PLEXIL
 
     PlexilExprId parse(const xml_node& xml) throw(ParserException) 
     {
-      PlexilStateVar* retval = new PlexilStateVar();
-      retval->setRef(parseNodeReference(xml));
-      return retval->getId();
+      return (new PlexilStateVar(parseNodeReference(xml)))->getId();
     }
   };
 
@@ -374,9 +368,7 @@ namespace PLEXIL
 
     PlexilExprId parse(const xml_node& xml) throw(ParserException) 
     {
-      PlexilCommandHandleVar* retval = new PlexilCommandHandleVar();
-      retval->setRef(parseNodeReference(xml));
-      return retval->getId();
+      return (new PlexilCommandHandleVar(parseNodeReference(xml)))->getId();
     }
   };
 
@@ -387,24 +379,21 @@ namespace PLEXIL
 
     PlexilExprId parse(const xml_node& xml) throw(ParserException) 
     {
-      PlexilTimepointVar* retval = new PlexilTimepointVar();
-      retval->setRef(parseNodeReference(xml));
-
-      xml_node state = xml.child(STATEVAL_TAG);
-      checkParserExceptionWithLocation(state,
+      PlexilNodeRefId nodeRef = parseNodeReference(xml);
+      xml_node stateElt = xml.child(STATEVAL_TAG);
+      checkParserExceptionWithLocation(stateElt,
                                        xml,
                                        "XML parsing error: Timepoint missing " << STATEVAL_TAG << " tag");
-      checkNotEmpty(state);
-      retval->setState(state.first_child().value());
-
-      xml_node point = xml.child(TIMEPOINT_TAG);
-      checkParserExceptionWithLocation(point,
+      checkNotEmpty(stateElt);
+      std::string state(stateElt.first_child().value());
+      xml_node pointElt = xml.child(TIMEPOINT_TAG);
+      checkParserExceptionWithLocation(pointElt,
                                        xml,
                                        "XML parsing error: Timepoint missing " << TIMEPOINT_TAG << " tag");
-      checkNotEmpty(point);
-      retval->setTimepoint(point.first_child().value());
+      checkNotEmpty(pointElt);
+      std::string timept(pointElt.first_child().value());
 
-      return retval->getId();
+      return (new PlexilTimepointVar(nodeRef, state, timept))->getId();
     }
   };
 
@@ -464,23 +453,22 @@ namespace PLEXIL
     PlexilExprId parse(const xml_node& xml) throw(ParserException) {
       checkTag(ARRAYELEMENT_TAG, xml);
 
-      // FIXME - Arrays are now 1st class expressions
-      // create an array element
-      PlexilArrayElement* arrayElement = new PlexilArrayElement();
-
-      // extract array name
-      xml_node child = xml.first_child();
-      checkTag(NAME_TAG, child);
-      arrayElement->setArrayName(child.first_child().value());
+      // parse the array parameter
+      xml_node ary = xml.first_child();
+      PlexilExprId aryExpr;
+      if (testTag(NAME_TAG, ary))
+        // Old style - create an array variable reference
+        aryExpr = (new PlexilVarRef(ary.first_child().value(),
+                                    ARRAY_TYPE))->getId(); // ??
+      else 
+        aryExpr = PlexilXmlParser::parseExpr(ary);
 
       // extract index
-      child = child.next_sibling();
-      checkTag(INDEX_TAG, child);
-      PlexilExprId indexExpr = PlexilXmlParser::parseExpr(child.first_child());
-      arrayElement->addSubExpr(indexExpr);
+      xml_node idx = ary.next_sibling();
+      checkTag(INDEX_TAG, idx);
+      PlexilExprId indexExpr = PlexilXmlParser::parseExpr(idx.first_child());
 
-      // return new array element
-      return arrayElement->getId();
+      return (new PlexilArrayElement(aryExpr, indexExpr))->getId();
     }
   };
 

@@ -470,8 +470,9 @@ namespace PLEXIL
   class PlexilInternalVar : public PlexilVarRef 
   {
   public:
-    PlexilInternalVar(std::string const &varName, ValueType type)
-      : PlexilVarRef(varName, type)
+    PlexilInternalVar(std::string const &varName, ValueType type, PlexilNodeRefId const &ref)
+      : PlexilVarRef(varName, type),
+        m_ref(ref)
     {
     }
  
@@ -483,7 +484,6 @@ namespace PLEXIL
 
     const PlexilNodeRefId& ref() const {return m_ref;}
 
-    void setRef(const PlexilNodeRefId& ref) {m_ref = ref;}
   private:
     PlexilNodeRefId m_ref;
   };
@@ -491,8 +491,8 @@ namespace PLEXIL
   class PlexilOutcomeVar : public PlexilInternalVar 
   {
   public:
-    PlexilOutcomeVar()
-      : PlexilInternalVar("outcome", OUTCOME_TYPE)
+    PlexilOutcomeVar(PlexilNodeRefId const &ref)
+    : PlexilInternalVar("outcome", OUTCOME_TYPE, ref)
     {
     }
   };
@@ -500,8 +500,8 @@ namespace PLEXIL
   class PlexilFailureVar : public PlexilInternalVar
   {
   public:
-    PlexilFailureVar()
-      : PlexilInternalVar("failure_type", FAILURE_TYPE)
+    PlexilFailureVar(PlexilNodeRefId const &ref)
+    : PlexilInternalVar("failure_type", FAILURE_TYPE, ref)
     {
     }
   };
@@ -509,31 +509,31 @@ namespace PLEXIL
   class PlexilStateVar : public PlexilInternalVar 
   {
   public:
-    PlexilStateVar()
-      : PlexilInternalVar("state", NODE_STATE_TYPE)
+    PlexilStateVar(PlexilNodeRefId const &ref)
+    : PlexilInternalVar("state", NODE_STATE_TYPE, ref)
     {
     }
   };
 
   class PlexilCommandHandleVar : public PlexilInternalVar {
   public:
-    PlexilCommandHandleVar() 
-      : PlexilInternalVar("command_handle", COMMAND_HANDLE_TYPE)
+    PlexilCommandHandleVar(PlexilNodeRefId const &ref) 
+    : PlexilInternalVar("command_handle", COMMAND_HANDLE_TYPE, ref)
     {
     }
   };
 
   class PlexilTimepointVar : public PlexilInternalVar {
   public:
-    PlexilTimepointVar()
-      : PlexilInternalVar("@Timepoint", DATE_TYPE)
+    PlexilTimepointVar(PlexilNodeRefId const &ref, std::string const &state, std::string const &timept)
+      : PlexilInternalVar("@Timepoint", DATE_TYPE, ref),
+        m_state(state),
+        m_timepoint(timept)
     {
     }
     const std::string& state() const {return m_state;}
     const std::string& timepoint() const {return m_timepoint;}
 
-    void setState(const std::string& state) {m_state = state;}
-    void setTimepoint(const std::string& timepoint) {m_timepoint = timepoint;}
   private:
     // FIXME: State should be represented by an enum.
     // Timepoint could be represented by a bool.

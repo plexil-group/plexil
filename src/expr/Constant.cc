@@ -213,6 +213,7 @@ namespace PLEXIL
   // Explicit instantiations
   //
   template class Constant<bool>;
+  template class Constant<uint16_t>; // for internal node constants
   template class Constant<int32_t>;
   template class Constant<double>;
   template class Constant<std::string>;

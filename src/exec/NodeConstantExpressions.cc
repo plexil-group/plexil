@@ -24,79 +24,89 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "NodeTimepointValue.hh"
+#include "NodeConstantExpressions.hh"
 
-#include "ConcreteExpressionFactory.hh"
-#include "Node.hh"
-#include "PlexilPlan.hh"
+#include "Error.hh"
 
 namespace PLEXIL
 {
-  NodeTimepointValue::NodeTimepointValue(NodeId const &node,
-                                         NodeState state,
-                                         bool isEnd)
-    : m_name(nodeStateName(state) + (isEnd ? ".END" : ".START")), // FIXME: use table lookup, don't generate
-      m_node(node),
-      m_state(state),
-      m_end(isEnd)
+  NodeStateConstant::NodeStateConstant(NodeState value)
+    : Constant<uint16_t>((uint16_t) value)
   {
-    m_node->getStateVariable()->addListener(this->getId());
+    assertTrue_2(isNodeStateValid(value), "NodeStateConstant constuctor: Invalid NodeState value");
   }
 
-  NodeTimepointValue::~NodeTimepointValue()
+  NodeStateConstant::~NodeStateConstant()
   {
-    m_node->getStateVariable()->removeListener(this->getId());
   }
 
-  std::string const &NodeTimepointValue::getName() const
+  const ValueType NodeStateConstant::valueType() const
   {
-    return m_name;
-  }
-   
-  const char *NodeTimepointValue::exprName() const
-  {
-    return "NodeTimepointValue";
+    return NODE_STATE_TYPE;
   }
 
-  ValueType const NodeTimepointValue::valueType() const
+  char const *NodeStateConstant::exprName() const
   {
-    return DATE_TYPE;
+    return "NodeStateValue";
   }
 
-  bool NodeTimepointValue::isKnown() const
+  NodeOutcomeConstant::NodeOutcomeConstant(NodeOutcome value)
+    : Constant<uint16_t>((uint16_t) value)
   {
-    double dummy;
-    return m_node->getStateTransitionTime(m_state, m_end, dummy);
+    assertTrue_2(isNodeOutcomeValid(value), "NodeOutcomeConstant constuctor: Invalid NodeOutcome value");
   }
 
-  bool NodeTimepointValue::getValueImpl(double &result) const // FIXME
+  NodeOutcomeConstant::~NodeOutcomeConstant()
   {
-    return m_node->getStateTransitionTime(m_state, m_end, result);
   }
 
-  bool NodeTimepointValue::getValuePointerImpl(double const *&ptr) const // FIXME
+  const ValueType NodeOutcomeConstant::valueType() const
   {
-    return m_node->getStateTransitionTimePointer(m_state, m_end, ptr);
+    return OUTCOME_TYPE;
   }
 
-  void NodeTimepointValue::print(std::ostream &s) const
+  char const *NodeOutcomeConstant::exprName() const
   {
-    // TODO
+    return "NodeOutcomeValue";
   }
 
-  void NodeTimepointValue::printValue(std::ostream &s) const
+  FailureTypeConstant::FailureTypeConstant(FailureType value)
+    : Constant<uint16_t>((uint16_t) value)
   {
-    double tym;
-    if (getValueImpl(tym))
-      s << tym; // FIXME: needs better format
-    else
-      s << UNKNOWN_STR;
+    assertTrue_2(isFailureTypeValid(value), "FailureTypeConstant constuctor: Invalid FailureType value");
   }
 
-  // Default method is adequate for now.
-  // void NodeTimepointValue::handleChange(ExpressionId src)
-  // {
-  //   // TODO
-  // }
+  FailureTypeConstant::~FailureTypeConstant()
+  {
+  }
+
+  const ValueType FailureTypeConstant::valueType() const
+  {
+    return FAILURE_TYPE;
+  }
+
+  char const *FailureTypeConstant::exprName() const
+  {
+    return "FailureTypeValue";
+  }
+
+  CommandHandleConstant::CommandHandleConstant(CommandHandleValue value)
+    : Constant<uint16_t>((uint16_t) value)
+  {
+  }
+
+  CommandHandleConstant::~CommandHandleConstant()
+  {
+  }
+
+  const ValueType CommandHandleConstant::valueType() const
+  {
+    return COMMAND_HANDLE_TYPE;
+  }
+
+  char const *CommandHandleConstant::exprName() const
+  {
+    return "CommandHandleValue";
+  }
 
 } // namespace PLEXIL

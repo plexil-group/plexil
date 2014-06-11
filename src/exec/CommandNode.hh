@@ -60,7 +60,7 @@ namespace PLEXIL
     /**
      * @brief Get the node's command.
      */
-    const CommandId& getCommand()
+    CommandId const &getCommand() const
     {
       return m_command; 
     }

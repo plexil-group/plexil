@@ -24,30 +24,16 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_FUNCTION_FACTORY_HH
-#define PLEXIL_FUNCTION_FACTORY_HH
+#ifndef PLEXIL_INTERNAL_EXPRESSION_FACTORIES_HH
+#define PLEXIL_INTERNAL_EXPRESSION_FACTORIES_HH
 
-#include "ExpressionFactory.hh"
+#include "ConcreteExpressionFactory.hh"
 
 namespace PLEXIL
 {
 
-  template <class OP, typename RETURNS>
-  class FunctionFactory : public ExpressionFactory
-  {
-  public:
-    FunctionFactory(std::string const &name);
-    virtual ~FunctionFactory();
-
-  protected:
-    virtual ExpressionId create(PlexilExprId const &expr,
-                                NodeConnectorId const &node = NodeConnectorId::noId());
-  };
+  // nothing yet
 
 } // namespace PLEXIL
 
-// Convenience macros
-#define ENSURE_FUNCTION_FACTORY(CLASS,RETURNS) template class PLEXIL::FunctionFactory<CLASS,RETURNS>;
-#define REGISTER_FUNCTION(CLASS,RETURNS,NAME) {new PLEXIL::FunctionFactory<CLASS, RETURNS>(#NAME);}
-
-#endif // PLEXIL_FUNCTION_FACTORY_HH
+#endif // PLEXIL_INTERNAL_EXPRESSION_FACTORIES_HH

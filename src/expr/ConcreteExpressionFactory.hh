@@ -34,6 +34,8 @@
 namespace PLEXIL
 {
   // Forward references
+  template <typename T> class ArrayConstant;
+  template <typename T> class ArrayVariable;
   template <typename T> class Constant;
   template <typename T> class UserVariable;
 
@@ -86,7 +88,6 @@ namespace PLEXIL
   };
 
   // Specializations for Expression class templates
-  // C++ sucks at generic programming.
 
   template<typename T>
   class ConcreteExpressionFactory<Constant<T> > : public ExpressionFactory
@@ -117,7 +118,63 @@ namespace PLEXIL
   };
 
   template<typename T>
+  class ConcreteExpressionFactory<ArrayConstant<T> > : public ExpressionFactory
+  {
+  public:
+    ConcreteExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
+    {
+    }
+
+    ~ConcreteExpressionFactory()
+    {
+    }
+
+    ExpressionId allocate(const PlexilExprId& expr,
+                          const NodeConnectorId& node,
+                          bool &wasCreated) const;
+
+  protected:
+    ExpressionId create(const PlexilExprId& expr,
+                        const NodeConnectorId& node) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory();
+    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
+    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
+  };
+
+  template<typename T>
   class ConcreteExpressionFactory<UserVariable<T> > : public ExpressionFactory
+  {
+  public:
+    ConcreteExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
+    {
+    }
+
+    ~ConcreteExpressionFactory()
+    {
+    }
+
+    ExpressionId allocate(const PlexilExprId& expr,
+                          const NodeConnectorId& node,
+                          bool &wasCreated) const;
+
+  protected:
+    ExpressionId create(const PlexilExprId& expr,
+                        const NodeConnectorId& node) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory();
+    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
+    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
+  };
+
+  template<typename T>
+  class ConcreteExpressionFactory<ArrayVariable<T> > : public ExpressionFactory
   {
   public:
     ConcreteExpressionFactory(const std::string& name)
