@@ -112,23 +112,22 @@ namespace PLEXIL
 
     unsigned arraySize = val->maxSize();
     std::vector<std::string> const &eltVals = val->values();
-    std::vector<T> initVals;
-    initVals.reserve(arraySize);
+    ArrayImpl<T> initVals(arraySize);
     for (size_t i = 0; i < eltVals.size(); ++i) {
       // Parse an element value and push it onto the vector
       T temp;
-      std::istringstream s(eltVals[i]);
-      s >> temp;
-      // TODO: check for input error
-      initVals.push_back(temp);
+      if (parseValue<T>(eltVals[i], temp)) // will throw if format error
+        initVals.setElement(i, temp);
+      else
+        initVals.setElementUnknown(i);
     }
     return (new ArrayConstant<T>(initVals))->getId();
   }
 
   template <typename T>
-  ExpressionId ConcreteExpressionFactory<ArrayConstant<T>  >::allocate(const PlexilExprId& expr,
-                                                                       const NodeConnectorId& node,
-                                                                       bool &wasCreated) const
+  ExpressionId ConcreteExpressionFactory<ArrayConstant<T> >::allocate(const PlexilExprId& expr,
+                                                                      const NodeConnectorId& node,
+                                                                      bool &wasCreated) const
   {
     PlexilArrayValue const *val = dynamic_cast<PlexilArrayValue const *>((PlexilExpr const *) expr);
     assertTrue_2(val, "createExpression: Not an array value");
@@ -136,7 +135,6 @@ namespace PLEXIL
     wasCreated = true;
     return this->create(expr, node);
   }
-
 
   //
   // Factories for scalar variables
