@@ -26,7 +26,7 @@
 
 #include "ValueType.hh"
 
-#include "Array.hh"
+#include "ArrayImpl.hh"
 
 #include <cerrno>
 #include <cstdlib> // for strtol()
@@ -280,10 +280,9 @@ namespace PLEXIL
   }
 
   template <typename T>
-  void printValue(const ArrayImpl<T> &val, std::ostream &s)
+  void printValue(ArrayImpl<T> const &val, std::ostream &s)
   {
-    // TODO - should delegate to array itself
-    s << "printValue not yet implemented for arrays";
+    s << val;
   }
 
   /**
@@ -383,7 +382,12 @@ namespace PLEXIL
   template void printValue(int32_t const &, std::ostream &);
   template void printValue(double const &, std::ostream &);
   template void printValue(std::string const &, std::ostream &);
-  // array types NYI
+
+  template void printValue(ArrayImpl<bool> const &, std::ostream &);
+  template void printValue(ArrayImpl<int32_t> const &, std::ostream &);
+  template void printValue(ArrayImpl<double> const &, std::ostream &);
+  template void printValue(ArrayImpl<std::string> const &, std::ostream &);
+
 
   template bool parseValue(std::string const &, bool &);
   template bool parseValue(std::string const &, int32_t &);

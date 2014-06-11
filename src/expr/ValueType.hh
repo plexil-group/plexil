@@ -111,7 +111,7 @@ namespace PLEXIL
   ValueType arrayType(ValueType elTy);
 
   template <typename T>
-  void printValue(ArrayImpl<T> &val, std::ostream &s);
+  void printValue(ArrayImpl<T> const &val, std::ostream &s);
 
   template <typename T>
   void printValue(T const &val, std::ostream &s);
