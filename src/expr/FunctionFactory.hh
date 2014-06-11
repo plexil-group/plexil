@@ -27,7 +27,10 @@
 #ifndef PLEXIL_FUNCTION_FACTORY_HH
 #define PLEXIL_FUNCTION_FACTORY_HH
 
+#include "Error.hh"
 #include "ExpressionFactory.hh"
+#include "Function.hh"
+#include "PlexilExpr.hh"
 
 namespace PLEXIL
 {
@@ -36,12 +39,61 @@ namespace PLEXIL
   class FunctionFactory : public ExpressionFactory
   {
   public:
-    FunctionFactory(std::string const &name);
-    virtual ~FunctionFactory();
+    FunctionFactory(std::string const &name)
+      : ExpressionFactory(name)
+    {
+    }
+
+    virtual ~FunctionFactory()
+    {
+    }
+
+    ExpressionId allocate(const PlexilExprId& expr,
+                          const NodeConnectorId& node,
+                          bool &wasCreated) const
+    {
+      wasCreated = true;
+      return this->create(expr, node);
+    }
 
   protected:
-    virtual ExpressionId create(PlexilExprId const &expr,
-                                NodeConnectorId const &node = NodeConnectorId::noId());
+    ExpressionId create(PlexilExprId const &expr,
+                        NodeConnectorId const &node = NodeConnectorId::noId()) const
+    {
+      PlexilOp const *op = (PlexilOp const *) expr;
+      assertTrue_2(op != NULL, "FunctionFactory::create: Expression is not a PlexilOp");
+
+      std::vector<PlexilExprId> const &args = op->subExprs();
+      size_t nargs = args.size();
+      Operator<RETURNS> const *oper(OP::instance());
+      assertTrue_2(oper->valueType() == op->type(),
+                   "FunctionFactory::create: Type mismatch between operator and expression");
+      assertTrue_2(oper->checkArgCount(nargs),
+                   "FunctionFactory::create: Wrong number of arguments for operator");
+
+      // Get the argument expressions
+      std::vector<bool> garbage(nargs, false);
+      std::vector<ExpressionId> exprs(nargs);
+      for (size_t i = 0; i < nargs; ++i) {
+        bool isGarbage;
+        createExpression(args[i], node, isGarbage);
+        garbage[i] = isGarbage;
+      }
+
+      switch (args.size()) {
+      case 1:
+        return (new UnaryFunction<RETURNS>(oper, exprs[0], garbage[0]))->getId();
+
+      case 2:
+        return (new BinaryFunction<RETURNS>(oper,
+                                            exprs[0], exprs[1],
+                                            garbage[0], garbage[1]))->getId();
+
+      default: // 0, 3 or more
+        return (new NaryFunction<RETURNS>(oper, exprs, garbage))->getId();
+      }
+
+    }
   };
 
 } // namespace PLEXIL
