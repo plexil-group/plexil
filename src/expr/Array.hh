@@ -50,8 +50,7 @@ namespace PLEXIL
   public:
     Array();
     Array(Array const &);
-    // For internal use
-    Array(size_t size, bool known);
+    Array(size_t size, bool known = false);
 
     virtual ~Array();
 
