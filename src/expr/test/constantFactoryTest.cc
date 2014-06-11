@@ -376,11 +376,11 @@ static bool booleanArrayConstantFactoryTest()
   validValVector[6] = "TRUE";
   PlexilArrayValue validVal(BOOLEAN_TYPE, validValVector.size(), validValVector);
 
-  bool wasCreated;
-  BooleanArray const *aryTemp = NULL;
-
   std::vector<std::string> parseErrVector(1, "bOgUs");
   PlexilArrayValue parseErrVal(BOOLEAN_TYPE, parseErrVector.size(), parseErrVector);
+
+  bool wasCreated;
+  BooleanArray const *aryTemp = NULL;
 
   ExpressionId emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
   assertTrue_1(emptyConstant.isId());
@@ -423,6 +423,192 @@ static bool booleanArrayConstantFactoryTest()
   return true;
 }
 
+static bool integerArrayConstantFactoryTest()
+{
+  PlexilArrayValue emptyVal(INTEGER_TYPE, 0, std::vector<std::string>());
+
+  std::vector<std::string> validValVector(6);
+  validValVector[0] = "0";
+  validValVector[1] = "1";
+  validValVector[2] = "UNKNOWN";
+  validValVector[3] = "-123456789";
+  validValVector[4] = "987654321";
+  validValVector[5] = "0x69";
+  PlexilArrayValue validVal(INTEGER_TYPE, validValVector.size(), validValVector);
+
+  std::vector<std::string> bogusValueVector(1, "bOgUs");
+  PlexilArrayValue bogusValueVal(INTEGER_TYPE, bogusValueVector.size(), bogusValueVector);
+
+  std::vector<std::string> rangeErrVector(1, "-3000000000");
+  PlexilArrayValue rangeErrVal(INTEGER_TYPE, rangeErrVector.size(), rangeErrVector);
+
+  bool wasCreated;
+  IntegerArray const *aryTemp = NULL;
+
+  ExpressionId emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
+  assertTrue_1(emptyConstant.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(emptyConstant->valueType() == INTEGER_ARRAY_TYPE);
+  assertTrue_1(emptyConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 0);
+
+  int32_t temp;
+  ExpressionId validValConstant = createExpression(validVal.getId(), nc, wasCreated);
+  assertTrue_1(validValConstant.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(validValConstant->valueType() == INTEGER_ARRAY_TYPE);
+  assertTrue_1(validValConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == validValVector.size());
+  assertTrue_1(aryTemp->getElement(0, temp));
+  assertTrue_1(temp == 0);
+  assertTrue_1(aryTemp->getElement(1, temp));
+  assertTrue_1(temp == 1);
+  assertTrue_1(!aryTemp->getElement(2, temp));
+  assertTrue_1(aryTemp->getElement(3, temp));
+  assertTrue_1(temp == -123456789);
+  assertTrue_1(aryTemp->getElement(4, temp));
+  assertTrue_1(temp == 987654321);
+  assertTrue_1(aryTemp->getElement(5, temp));
+  assertTrue_1(temp == 0x69);
+
+  try {
+    ExpressionId bogusValueConstant = createExpression(bogusValueVal.getId(), nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  try {
+    ExpressionId rangeErrConstant = createExpression(rangeErrVal.getId(), nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range integer");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  return true;
+}
+
+static bool realArrayConstantFactoryTest()
+{
+  PlexilArrayValue emptyVal(REAL_TYPE, 0, std::vector<std::string>());
+
+  std::vector<std::string> validValVector(6);
+  validValVector[0] = "0";
+  validValVector[1] = "1";
+  validValVector[2] = "UNKNOWN";
+  validValVector[3] = "3.14";
+  validValVector[4] = "1e-100";
+  validValVector[5] = "6.0221413e+23";
+  PlexilArrayValue validVal(REAL_TYPE, validValVector.size(), validValVector);
+
+  std::vector<std::string> bogusValueVector(1, "bOgUs");
+  PlexilArrayValue bogusValueVal(REAL_TYPE, bogusValueVector.size(), bogusValueVector);
+
+  std::vector<std::string> rangeErrVector(1, "-3e1000000000");
+  PlexilArrayValue rangeErrVal(REAL_TYPE, rangeErrVector.size(), rangeErrVector);
+
+  bool wasCreated;
+  RealArray const *aryTemp = NULL;
+
+  ExpressionId emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
+  assertTrue_1(emptyConstant.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(emptyConstant->valueType() == REAL_ARRAY_TYPE);
+  assertTrue_1(emptyConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 0);
+
+  double temp;
+  ExpressionId validValConstant = createExpression(validVal.getId(), nc, wasCreated);
+  assertTrue_1(validValConstant.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(validValConstant->valueType() == REAL_ARRAY_TYPE);
+  assertTrue_1(validValConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == validValVector.size());
+  assertTrue_1(aryTemp->getElement(0, temp));
+  assertTrue_1(temp == 0);
+  assertTrue_1(aryTemp->getElement(1, temp));
+  assertTrue_1(temp == 1);
+  assertTrue_1(!aryTemp->getElement(2, temp));
+  assertTrue_1(aryTemp->getElement(3, temp));
+  assertTrue_1(temp == 3.14);
+  assertTrue_1(aryTemp->getElement(4, temp));
+  assertTrue_1(temp == 1e-100);
+  assertTrue_1(aryTemp->getElement(5, temp));
+  assertTrue_1(temp == 6.0221413e+23);
+
+  try {
+    ExpressionId bogusValueConstant = createExpression(bogusValueVal.getId(), nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  try {
+    ExpressionId rangeErrConstant = createExpression(rangeErrVal.getId(), nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range real");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  return true;
+}
+
+static bool stringArrayConstantFactoryTest()
+{
+  PlexilArrayValue emptyVal(STRING_TYPE, 0, std::vector<std::string>());
+
+  std::vector<std::string> validValVector(6);
+  validValVector[0] = "0";
+  validValVector[1] = "1";
+  validValVector[2] = "UNKNOWN";
+  validValVector[3] = "3.14";
+  validValVector[4] = "1e-100";
+  validValVector[5] = "6.0221413e+23";
+  PlexilArrayValue validVal(STRING_TYPE, validValVector.size(), validValVector);
+
+  bool wasCreated;
+  StringArray const *aryTemp = NULL;
+
+  ExpressionId emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
+  assertTrue_1(emptyConstant.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(emptyConstant->valueType() == STRING_ARRAY_TYPE);
+  assertTrue_1(emptyConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 0);
+
+  std::string const *temp;
+  ExpressionId validValConstant = createExpression(validVal.getId(), nc, wasCreated);
+  assertTrue_1(validValConstant.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(validValConstant->valueType() == STRING_ARRAY_TYPE);
+  assertTrue_1(validValConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == validValVector.size());
+  assertTrue_1(aryTemp->getElementPointer(0, temp));
+  assertTrue_1(*temp == "0");
+  assertTrue_1(aryTemp->getElementPointer(1, temp));
+  assertTrue_1(*temp == "1");
+  assertTrue_1(aryTemp->getElementPointer(2, temp));
+  assertTrue_1(*temp == "UNKNOWN");
+  assertTrue_1(aryTemp->getElementPointer(3, temp));
+  assertTrue_1(*temp == "3.14");
+  assertTrue_1(aryTemp->getElementPointer(4, temp));
+  assertTrue_1(*temp == "1e-100");
+  assertTrue_1(aryTemp->getElementPointer(5, temp));
+  assertTrue_1(*temp == "6.0221413e+23");
+
+  return true;
+}
+
 bool constantFactoryTest()
 {
   // Initialize factories
@@ -437,7 +623,9 @@ bool constantFactoryTest()
   runTest(stringConstantFactoryTest);
 
   runTest(booleanArrayConstantFactoryTest);
-  // TODO: more arrays
+  runTest(integerArrayConstantFactoryTest);
+  runTest(realArrayConstantFactoryTest);
+  runTest(stringArrayConstantFactoryTest);
 
   return true;
 }
