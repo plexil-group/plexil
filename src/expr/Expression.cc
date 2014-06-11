@@ -79,14 +79,13 @@ namespace PLEXIL {
     return (ExpressionId const &) this->getId();
   }
 
-  // TODO: add exprName, typeName
   void Expression::print(std::ostream& s) const
   {
-    s << "(" << getId()
-	  << "[" << (this->isActive() ? "a" : "i")
+    s << '(' << this->exprName() << ' ' << getId()
+	  << '[' << (this->isActive() ? 'a' : 'i')
 	  << "](";
 	this->printValue(s);
-	s << "): ";
+	s << "): " << valueTypeName(this->valueType()) << ')';
   }
 
   // Stream-style print operator
