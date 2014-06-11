@@ -136,10 +136,11 @@ namespace PLEXIL
       REGISTER_EXPRESSION(IntegerVariable, Integer);
       REGISTER_EXPRESSION(RealVariable, Real);
       REGISTER_EXPRESSION(StringVariable, String);
-      REGISTER_EXPRESSION(BooleanArrayVariable, BooleanArray);
-      REGISTER_EXPRESSION(IntegerArrayVariable, IntegerArray);
-      REGISTER_EXPRESSION(RealArrayVariable, RealArray);
-      REGISTER_EXPRESSION(StringArrayVariable, StringArray);
+      // FIXME: Not yet implemented
+      //REGISTER_EXPRESSION(BooleanArrayVariable, BooleanArray);
+      //REGISTER_EXPRESSION(IntegerArrayVariable, IntegerArray);
+      //REGISTER_EXPRESSION(RealArrayVariable, RealArray);
+      //REGISTER_EXPRESSION(StringArrayVariable, StringArray);
 
       // Comparisons
       REGISTER_FUNCTION(IsKnown, bool, IsKnown);
