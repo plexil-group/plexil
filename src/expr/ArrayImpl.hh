@@ -192,6 +192,9 @@ namespace PLEXIL
   template <typename T>
   bool operator>=(ArrayImpl<T> const &, ArrayImpl<T> const &);
 
+  template <typename T>
+  std::ostream &operator<<(std::ostream &, ArrayImpl<T> const &);
+
 } // namespace PLEXIL
 
 #endif // PLEXIL_ARRAY_IMPL_HH

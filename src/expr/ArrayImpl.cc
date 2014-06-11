@@ -26,6 +26,7 @@
 
 #include "ArrayImpl.hh"
 #include "Error.hh"
+#include "ValueType.hh"
 
 namespace PLEXIL
 {
@@ -183,10 +184,22 @@ namespace PLEXIL
   template <typename T>
   void ArrayImpl<T>::print(std::ostream &s) const
   {
-    // *** TODO
-    // Print head
-    // Print contents
+    s << "#(";
+
+    size_t len = this->size();
+    size_t i = 0;
+
+    while (i < len) {
+      T temp;
+      if (getElementImpl(i, temp))
+        printValue<T>(temp, s);
+      else
+        s << "UNKNOWN";
+      if (++i < len)
+        s << ' ';
+    }
     // Print tail
+    s << ')';
   }
 
   template <typename T>
@@ -303,6 +316,14 @@ namespace PLEXIL
   }
 
 
+  template <typename T>
+  std::ostream &operator<<(std::ostream &s, ArrayImpl<T> const &ary)
+  {
+    ary.print(s);
+    return s;
+  }
+
+
   //
   // Explicit instantiations
   //
@@ -340,5 +361,10 @@ namespace PLEXIL
   template bool operator>=(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
   template bool operator>=(ArrayImpl<double> const &,      ArrayImpl<double> const &);
   template bool operator>=(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
+
+  template std::ostream &operator<<(std::ostream &s, ArrayImpl<bool> const &);
+  template std::ostream &operator<<(std::ostream &s, ArrayImpl<int32_t> const &);
+  template std::ostream &operator<<(std::ostream &s, ArrayImpl<double> const &);
+  template std::ostream &operator<<(std::ostream &s, ArrayImpl<std::string> const &);
 
 } // namespace PLEXIL
