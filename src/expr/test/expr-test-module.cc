@@ -24,8 +24,12 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "lifecycle-utils.h"
+#include "Debug.hh"
 #include "TestSupport.hh"
+#include "lifecycle-utils.h"
+
+#include <cstring> // for strcmp()
+#include <fstream>
 
 extern bool aliasTest();
 extern bool arithmeticTest();
@@ -36,6 +40,7 @@ extern bool arrayTest();
 extern bool arrayVariableTest();
 extern bool booleanOperatorsTest();
 extern bool comparisonsTest();
+extern bool constantFactoryTest();
 extern bool constantsTest();
 extern bool functionsTest();
 extern bool listenerTest();
@@ -45,10 +50,11 @@ extern bool variablesTest();
 
 using namespace PLEXIL;
 
-int main(int argc, char *argv[])
+static void runExprTests()
 {
   runTestSuite(listenerTest);
   runTestSuite(constantsTest);
+  runTestSuite(constantFactoryTest);
   runTestSuite(variablesTest);
   runTestSuite(arrayTest);
   runTestSuite(valueTest);
@@ -63,9 +69,31 @@ int main(int argc, char *argv[])
   runTestSuite(stringTest);
   runTestSuite(arrayOperatorsTest);
 
+  std::cout << "Finished" << std::endl;
+}
+
+int main(int argc, char *argv[])
+{
+  std::string debugConfig("Debug.cfg");
+  
+  for (int i = 1; i < argc; ++i) {
+      if (strcmp(argv[i], "-d") == 0)
+          debugConfig = std::string(argv[++i]);
+  }
+  
+  std::ifstream config(debugConfig.c_str());
+  
+  if (config.good()) {
+     readDebugConfigStream(config);
+     std::cout << "Reading configuration file: " << debugConfig.c_str() << "\n";
+  }
+  else
+     std::cout << "Unable to read configuration file: " << debugConfig.c_str() << "\n";
+  
+  runExprTests();
+
   // clean up
   runFinalizers();
 
-  std::cout << "Finished" << std::endl;
   return 0;
 }
