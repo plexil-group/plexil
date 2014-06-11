@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "ArrayImpl.hh"
 #include "ExpressionFactory.hh"
 #include "ExpressionFactories.hh"
 #include "NodeConnector.hh"
@@ -361,6 +362,67 @@ static bool stringConstantFactoryTest()
   return true;
 }
 
+static bool booleanArrayConstantFactoryTest()
+{
+  PlexilArrayValue emptyVal(BOOLEAN_TYPE, 0, std::vector<std::string>());
+
+  std::vector<std::string> validValVector(7);
+  validValVector[0] = "0";
+  validValVector[1] = "1";
+  validValVector[2] = "UNKNOWN";
+  validValVector[3] = "true";
+  validValVector[4] = "false";
+  validValVector[5] = "FALSE";
+  validValVector[6] = "TRUE";
+  PlexilArrayValue validVal(BOOLEAN_TYPE, validValVector.size(), validValVector);
+
+  bool wasCreated;
+  BooleanArray const *aryTemp = NULL;
+
+  std::vector<std::string> parseErrVector(1, "bOgUs");
+  PlexilArrayValue parseErrVal(BOOLEAN_TYPE, parseErrVector.size(), parseErrVector);
+
+  ExpressionId emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
+  assertTrue_1(emptyConstant.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(emptyConstant->valueType() == BOOLEAN_ARRAY_TYPE);
+  assertTrue_1(emptyConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 0);
+
+  bool temp;
+  ExpressionId validValConstant = createExpression(validVal.getId(), nc, wasCreated);
+  assertTrue_1(validValConstant.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(validValConstant->valueType() == BOOLEAN_ARRAY_TYPE);
+  assertTrue_1(validValConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == validValVector.size());
+  assertTrue_1(aryTemp->getElement(0, temp));
+  assertTrue_1(!temp);
+  assertTrue_1(aryTemp->getElement(1, temp));
+  assertTrue_1(temp);
+  assertTrue_1(!aryTemp->getElement(2, temp));
+  assertTrue_1(aryTemp->getElement(3, temp));
+  assertTrue_1(temp);
+  assertTrue_1(aryTemp->getElement(4, temp));
+  assertTrue_1(!temp);
+  assertTrue_1(aryTemp->getElement(5, temp));
+  assertTrue_1(!temp);
+  assertTrue_1(aryTemp->getElement(6, temp));
+  assertTrue_1(temp);
+
+  try {
+    ExpressionId parseErrConstant = createExpression(parseErrVal.getId(), nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  return true;
+}
+
 bool constantFactoryTest()
 {
   // Initialize factories
@@ -374,7 +436,8 @@ bool constantFactoryTest()
   runTest(realConstantFactoryTest);
   runTest(stringConstantFactoryTest);
 
-  // TODO: arrays
+  runTest(booleanArrayConstantFactoryTest);
+  // TODO: more arrays
 
   return true;
 }
