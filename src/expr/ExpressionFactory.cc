@@ -78,13 +78,14 @@ namespace PLEXIL
   {
     const std::string& name = expr->name();
     // Delegate to factory
+    debugMsg("createExpression", " name=" << name);
     std::map<std::string, ExpressionFactory*>::const_iterator it =
       expressionFactoryMap().find(name);
     assertTrueMsg(it != expressionFactoryMap().end(),
                   "Error: No factory registered for name \"" << name << "\".");
     ExpressionId retval = it->second->allocate(expr, node, wasCreated);
     debugMsg("createExpression",
-             "Created " << (wasCreated ? "" : "reference to ") << retval->toString());
+             " Created " << (wasCreated ? "" : "reference to ") << retval->toString());
     return retval;
   }
 
