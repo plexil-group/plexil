@@ -81,10 +81,13 @@ namespace PLEXIL
     PlexilValue const *tmpl = (PlexilValue const *) expr;
     assertTrue_2(tmpl, "createExpression: Expression is not a PlexilValue");
     T value;
-    assertTrue_2(parseValue(tmpl->value(), value), "createExpression: Type error");
-    return (new Constant<T>(value))->getId();
+    bool known = parseValue(tmpl->value(), value);
+    if (known)
+      return (new Constant<T>(value))->getId();
+    else
+      return (new Constant<T>())->getId();
   }
-
+  
   // String is different
 
   template <>
@@ -181,6 +184,10 @@ namespace PLEXIL
   ENSURE_EXPRESSION_FACTORY(IntegerConstant);
   ENSURE_EXPRESSION_FACTORY(RealConstant);
   ENSURE_EXPRESSION_FACTORY(StringConstant);
+  ENSURE_EXPRESSION_FACTORY(BooleanArrayConstant);
+  ENSURE_EXPRESSION_FACTORY(IntegerArrayConstant);
+  ENSURE_EXPRESSION_FACTORY(RealArrayConstant);
+  ENSURE_EXPRESSION_FACTORY(StringArrayConstant);
 
   ENSURE_EXPRESSION_FACTORY(UserVariable<bool>);
   ENSURE_EXPRESSION_FACTORY(UserVariable<int32_t>);
