@@ -341,7 +341,9 @@ namespace PLEXIL
                                  ValueType eltType, 
                                  const unsigned maxSize, 
                                  std::vector<std::string>& values)
-    : PlexilVar(varName, arrayType(eltType), new PlexilArrayValue(eltType, maxSize, values)),
+    : PlexilVar(varName,
+                arrayType(eltType),
+                (new PlexilArrayValue(eltType, maxSize, values))->getId()),
       m_maxSize(maxSize)
   {
   }
