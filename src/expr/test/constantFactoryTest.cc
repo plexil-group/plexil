@@ -240,8 +240,7 @@ static bool realConstantFactoryTest()
   PlexilValue piWithJunkVal(REAL_TYPE, "3.14T");
   PlexilValue expNotationVal(REAL_TYPE, "1e-100");
   PlexilValue tooBigVal(REAL_TYPE, "1e10000000");
-  PlexilValue tooSmallVal(REAL_TYPE, "1e-10000000");
-  PlexilValue hexVal(REAL_TYPE, "0x42");
+  PlexilValue hexVal(REAL_TYPE, "0x42.8");
   PlexilValue unkVal(REAL_TYPE);
   PlexilValue bogus(REAL_TYPE, "bogus");
 
@@ -312,21 +311,13 @@ static bool realConstantFactoryTest()
     std::cout << "Caught expected error" << std::endl;
   }
 
-  try {
-    ExpressionId tooSmallValConstant = createExpression(tooSmallVal.getId(), nc, wasCreated);
-    assertTrue_2(ALWAYS_FAIL, "Failed to detect real underflow");
-  }
-  catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
-  }
-
-  try {
-    ExpressionId hexValConstant = createExpression(hexVal.getId(), nc, wasCreated);
-    assertTrue_2(ALWAYS_FAIL, "Failed to detect invalid (hex) format");
-  }
-  catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
-  }
+  ExpressionId hexValConstant = createExpression(hexVal.getId(), nc, wasCreated);
+  assertTrue_1(hexValConstant.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(!hexValConstant->isAssignable());
+  assertTrue_1(hexValConstant->valueType() == REAL_TYPE);
+  assertTrue_1(hexValConstant->getValue(temp));
+  assertTrue_1(temp == 66.5); // 66.5 ??
 
   try {
     ExpressionId bogusConstant = createExpression(bogus.getId(), nc, wasCreated);

@@ -29,7 +29,8 @@
 #include "ArrayImpl.hh"
 
 #include <cerrno>
-#include <cstdlib> // for strtol()
+#include <cmath>   // for HUGE_VAL
+#include <cstdlib> // for strtod(), strtol()
 #include <iostream>
 #include <sstream>
 
@@ -293,22 +294,6 @@ namespace PLEXIL
    * @note If false, the result variable will not be modified.
    */
 
-  template <typename NUM>
-  bool parseValue(std::string const &s, NUM &result)
-    throw (ParserException)
-  {
-    if (s.empty() || s == "UNKNOWN")
-      return false;
-
-    NUM temp;
-    std::istringstream is(s);
-    is >> temp;
-    checkParserException(!is.fail() && is.eof(),
-                         "parseValue: \"" << s << "\" is an invalid value for this type");
-    result = temp;
-    return true;
-  }
-
   template <>
   bool parseValue(std::string const &s, bool &result)
     throw (ParserException)
@@ -357,12 +342,31 @@ namespace PLEXIL
       return false;
 
     char * ends;
+    errno = 0;
     long temp = strtol(s.c_str(), &ends, 0);
     checkParserException(ends != s.c_str() && *ends == '\0',
-                         "parseValue: \"" << s << "\" is an invalid value for this type");
+                         "parseValue: \"" << s << "\" is an invalid value for an Integer");
     checkParserException(errno == 0 && temp <= INT32_MAX && temp >= INT32_MIN,
-                         "parseValue: " << s << " is out of range for an integer");
+                         "parseValue: " << s << " is out of range for an Integer");
     result = (int32_t) temp;
+    return true;
+  }
+
+  template <>
+  bool parseValue<double>(std::string const &s, double &result)
+    throw (ParserException)
+  {
+    if (s.empty() || s == "UNKNOWN")
+      return false;
+
+    char * ends;
+    errno = 0;
+    double temp = strtod(s.c_str(), &ends);
+    checkParserException(ends != s.c_str() && *ends == '\0',
+                         "parseValue: \"" << s << "\" is an invalid value for a Real");
+    checkParserException(temp != HUGE_VAL && temp != -HUGE_VAL,
+                         "parseValue: " << s << " is out of range for a Real");
+    result = temp;
     return true;
   }
 
