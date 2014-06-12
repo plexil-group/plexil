@@ -185,7 +185,7 @@ namespace PLEXIL
     PlexilArrayVar(const std::string& varName, 
                    ValueType eltType, 
                    const unsigned maxSize, 
-                   std::vector<std::string>& values);
+                   std::vector<std::string> const &values);
     ~PlexilArrayVar();
 
     virtual bool isArray() const;

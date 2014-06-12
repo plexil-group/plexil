@@ -340,7 +340,7 @@ namespace PLEXIL
   PlexilArrayVar::PlexilArrayVar(const std::string& varName, 
                                  ValueType eltType, 
                                  const unsigned maxSize, 
-                                 std::vector<std::string>& values)
+                                 std::vector<std::string> const &values)
     : PlexilVar(varName,
                 arrayType(eltType),
                 (new PlexilArrayValue(eltType, maxSize, values))->getId()),
