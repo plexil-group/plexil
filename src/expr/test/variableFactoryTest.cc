@@ -73,7 +73,12 @@ public:
   // For variable lookup testing
   void storeVariable(const std::string & name, ExpressionId var)
   {
-    m_variableMap.insert(std::pair<std::string, ExpressionId>(name, var));
+    TestVariableMap::iterator it = m_variableMap.find(name);
+    if (it != m_variableMap.end()) {
+      it->second = var; // replace existing
+    }
+    else 
+      m_variableMap.insert(std::pair<std::string, ExpressionId>(name, var));
   }
 
 private:
@@ -313,6 +318,220 @@ static bool integerVariableFactoryTest()
   return true;
 }
 
+static bool realVariableFactoryTest()
+{
+  // uninitialized
+  PlexilVar iVar("i", REAL_TYPE);
+  // initialized
+  PlexilVar zeroVar("z", REAL_TYPE, "0");
+  PlexilVar tVar("t", REAL_TYPE, "-2e10");
+  PlexilVar piVar("pi", REAL_TYPE, "3.1415");
+  PlexilVar uVar("u", REAL_TYPE, "UNKNOWN");
+  PlexilVar bogusVar("bogus", REAL_TYPE, "bOgUs");
+  PlexilVar tooBigVar("tooBig", REAL_TYPE, "3e1000000000");
+
+  // initialized via expression
+  PlexilVar xVar("x", REAL_TYPE, (new PlexilValue(REAL_TYPE, "0"))->getId());
+
+  bool wasCreated;
+  double temp;
+
+  ExpressionId iExp = createExpression(iVar.getId(), nc, wasCreated);
+  assertTrue_1(iExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(iExp->isAssignable());
+  assertTrue_1(iExp->valueType() == REAL_TYPE);
+  iExp->activate();
+  assertTrue_1(!iExp->isKnown());
+  assertTrue_1(!iExp->getValue(temp));
+  realNc->storeVariable("i", iExp);
+
+  ExpressionId zeroExp = createExpression(zeroVar.getId(), nc, wasCreated);
+  assertTrue_1(zeroExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(zeroExp->isAssignable());
+  assertTrue_1(zeroExp->valueType() == REAL_TYPE);
+  zeroExp->activate();
+  assertTrue_1(zeroExp->isKnown());
+  assertTrue_1(zeroExp->getValue(temp));
+  assertTrue_1(temp == 0);
+  realNc->storeVariable("z", zeroExp);
+
+  ExpressionId tExp = createExpression(tVar.getId(), nc, wasCreated);
+  assertTrue_1(tExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(tExp->isAssignable());
+  assertTrue_1(tExp->valueType() == REAL_TYPE);
+  tExp->activate();
+  assertTrue_1(tExp->isKnown());
+  assertTrue_1(tExp->getValue(temp));
+  assertTrue_1(temp == -20000000000);
+  realNc->storeVariable("t", tExp);
+
+  ExpressionId piExp = createExpression(piVar.getId(), nc, wasCreated);
+  assertTrue_1(piExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(piExp->isAssignable());
+  assertTrue_1(piExp->valueType() == REAL_TYPE);
+  piExp->activate();
+  assertTrue_1(piExp->isKnown());
+  assertTrue_1(piExp->getValue(temp));
+  assertTrue_1(temp == 3.1415);
+  realNc->storeVariable("pi", piExp);
+
+  ExpressionId uExp = createExpression(uVar.getId(), nc, wasCreated);
+  assertTrue_1(uExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(uExp->isAssignable());
+  assertTrue_1(uExp->valueType() == REAL_TYPE);
+  uExp->activate();
+  assertTrue_1(!uExp->isKnown());
+  assertTrue_1(!uExp->getValue(temp));
+  
+  try {
+    ExpressionId bogusExp = createExpression(bogusVar.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect invalid initial value");
+  }
+  catch (ParserException const & /*exc*/) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+  
+  try {
+    ExpressionId tooBigExp = createExpression(tooBigVar.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect out-of-range initial value");
+  }
+  catch (ParserException const & /*exc*/) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  ExpressionId xExp = createExpression(xVar.getId(), nc, wasCreated);
+  assertTrue_1(xExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(xExp->isAssignable());
+  assertTrue_1(xExp->valueType() == REAL_TYPE);
+  xExp->activate();
+  assertTrue_1(xExp->isKnown());
+  assertTrue_1(xExp->getValue(temp));
+  assertTrue_1(temp == 0);
+
+  // Variable references
+
+  PlexilVarRef iRef("i", REAL_TYPE);
+  ExpressionId iExpRef = createExpression(iRef.getId(), nc, wasCreated);
+  assertTrue_1(!wasCreated);
+  assertTrue_1(iExpRef.isId());
+  assertTrue_1(iExpRef == iExp);
+
+  PlexilVarRef qRef("q", REAL_TYPE);
+  try {
+    ExpressionId qExpRef = createExpression(qRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect nonexistent variable");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  PlexilVarRef tBadRef("z", BOOLEAN_TYPE);
+  try {
+    ExpressionId tBadExpRef = createExpression(tBadRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect variable type conflict");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+    
+  return true;
+}
+
+static bool stringVariableFactoryTest()
+{
+  PlexilVar unk("unk", STRING_TYPE); // uninited
+  PlexilVar mt("mt", STRING_TYPE, ""); // empty
+  PlexilVar foo("foo", STRING_TYPE, "Foo!"); // literal init
+  PlexilVar bar("bar", STRING_TYPE,
+                (new PlexilVarRef("foo", STRING_TYPE))->getId()); // init from var ref
+
+  bool wasCreated;
+  std::string const *temp = NULL;
+
+  ExpressionId unkExp = createExpression(unk.getId(), nc, wasCreated);
+  assertTrue_1(unkExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(unkExp->isAssignable());
+  assertTrue_1(unkExp->valueType() == STRING_TYPE);
+  unkExp->activate();
+  assertTrue_1(!unkExp->isKnown());
+  assertTrue_1(!unkExp->getValuePointer(temp));
+  assertTrue_1(temp == NULL);
+  realNc->storeVariable("unk", unkExp);
+
+  ExpressionId mtExp = createExpression(mt.getId(), nc, wasCreated);
+  assertTrue_1(mtExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(mtExp->isAssignable());
+  assertTrue_1(mtExp->valueType() == STRING_TYPE);
+  mtExp->activate();
+  assertTrue_1(mtExp->isKnown());
+  assertTrue_1(mtExp->getValuePointer(temp));
+  assertTrue_1(temp);
+  assertTrue_1(temp->empty());
+  realNc->storeVariable("mt", mtExp);
+
+  ExpressionId fooExp = createExpression(foo.getId(), nc, wasCreated);
+  assertTrue_1(fooExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(fooExp->isAssignable());
+  assertTrue_1(fooExp->valueType() == STRING_TYPE);
+  fooExp->activate();
+  assertTrue_1(fooExp->isKnown());
+  assertTrue_1(fooExp->getValuePointer(temp));
+  assertTrue_1(temp);
+  assertTrue_1(!temp->empty());
+  assertTrue_1(*temp == "Foo!");
+  realNc->storeVariable("foo", fooExp);
+
+  ExpressionId barExp = createExpression(bar.getId(), nc, wasCreated);
+  assertTrue_1(barExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(barExp->isAssignable());
+  assertTrue_1(barExp->valueType() == STRING_TYPE);
+  barExp->activate();
+  assertTrue_1(barExp->isKnown());
+  assertTrue_1(barExp->getValuePointer(temp));
+  assertTrue_1(temp);
+  assertTrue_1(!temp->empty());
+  assertTrue_1(*temp == "Foo!");
+  realNc->storeVariable("bar", barExp);
+
+  // Variable references
+
+  PlexilVarRef unkRef("unk", STRING_TYPE);
+  ExpressionId unkRefExp = createExpression(unkRef.getId(), nc, wasCreated);
+  assertTrue_1(!wasCreated);
+  assertTrue_1(unkRefExp.isId());
+  assertTrue_1(unkRefExp = unkExp);
+
+  PlexilVarRef badRef("bad", STRING_TYPE);
+  try {
+    ExpressionId badRefExp = createExpression(badRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect nonexistent variable");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  PlexilVarRef badTypeRef("mt", BOOLEAN_TYPE);
+  try {
+    ExpressionId badTypeRefExp = createExpression(badTypeRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect variable type conflict");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  return true;
+}
+
 bool variableFactoryTest()
 {
   // Initialize factories
@@ -323,6 +542,8 @@ bool variableFactoryTest()
 
   runTest(booleanVariableFactoryTest);
   runTest(integerVariableFactoryTest);
+  runTest(realVariableFactoryTest);
+  runTest(stringVariableFactoryTest);
 
   nc = NodeConnectorId::noId();
   delete realNc;
