@@ -80,49 +80,50 @@ static bool booleanConstantFactoryTest()
   PlexilValue unknownValue(BOOLEAN_TYPE);
   PlexilValue bogus(BOOLEAN_TYPE, "bogus");
 
+  bool wasCreated;
   bool temp;
 
-  ExpressionId falseConstant = createExpression(falseValue.getId(), nc, temp);
+  ExpressionId falseConstant = createExpression(falseValue.getId(), nc, wasCreated);
   assertTrue_1(falseConstant.isId());
-  assertTrue_1(temp); // was created - may not be true in future
+  assertTrue_1(!wasCreated);
   assertTrue_1(!falseConstant->isAssignable());
   assertTrue_1(falseConstant->valueType() == BOOLEAN_TYPE);
   assertTrue_1(falseConstant->getValue(temp));
   assertTrue_1(!temp);
 
-  ExpressionId zeroConstant = createExpression(zeroValue.getId(), nc, temp);
+  ExpressionId zeroConstant = createExpression(zeroValue.getId(), nc, wasCreated);
   assertTrue_1(zeroConstant.isId());
-  assertTrue_1(temp); // was created - may not be true in future
+  assertTrue_1(!wasCreated);
   assertTrue_1(!zeroConstant->isAssignable());
   assertTrue_1(zeroConstant->valueType() == BOOLEAN_TYPE);
   assertTrue_1(zeroConstant->getValue(temp));
   assertTrue_1(!temp);
 
-  ExpressionId trueConstant = createExpression(trueValue.getId(), nc, temp);
+  ExpressionId trueConstant = createExpression(trueValue.getId(), nc, wasCreated);
   assertTrue_1(trueConstant.isId());
-  assertTrue_1(temp); // was created - may not be true in future
+  assertTrue_1(!wasCreated);
   assertTrue_1(!trueConstant->isAssignable());
   assertTrue_1(trueConstant->valueType() == BOOLEAN_TYPE);
   assertTrue_1(trueConstant->getValue(temp));
   assertTrue_1(temp);
 
-  ExpressionId oneConstant = createExpression(oneValue.getId(), nc, temp);
+  ExpressionId oneConstant = createExpression(oneValue.getId(), nc, wasCreated);
   assertTrue_1(oneConstant.isId());
-  assertTrue_1(temp); // was created - may not be true in future
+  assertTrue_1(!wasCreated);
   assertTrue_1(!oneConstant->isAssignable());
   assertTrue_1(oneConstant->valueType() == BOOLEAN_TYPE);
   assertTrue_1(oneConstant->getValue(temp));
   assertTrue_1(temp);
 
-  ExpressionId unknownConstant = createExpression(unknownValue.getId(), nc, temp);
+  ExpressionId unknownConstant = createExpression(unknownValue.getId(), nc, wasCreated);
   assertTrue_1(unknownConstant.isId());
-  assertTrue_1(temp); // was created - may not be true in future
+  assertTrue_1(!wasCreated);
   assertTrue_1(!unknownConstant->isAssignable());
   assertTrue_1(unknownConstant->valueType() == BOOLEAN_TYPE);
   assertTrue_1(!unknownConstant->getValue(temp));
 
   try {
-    ExpressionId bogusConstant = createExpression(bogus.getId(), nc, temp);
+    ExpressionId bogusConstant = createExpression(bogus.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
