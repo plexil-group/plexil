@@ -28,6 +28,7 @@
 
 #include "ArrayConstant.hh"
 #include "Error.hh"
+#include "ExpressionConstants.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "PlexilExpr.hh"
@@ -73,6 +74,25 @@ namespace PLEXIL
   {
     wasCreated = true;
     return this->create(expr, node);
+  }
+
+  // Since there are exactly 3 possible Boolean constants, return references to them.
+  template <>
+  ExpressionId ConcreteExpressionFactory<Constant<bool> >::allocate(const PlexilExprId& expr,
+                                                                    const NodeConnectorId& node,
+                                                                    bool &wasCreated) const
+  {
+    PlexilValue const *tmpl = (PlexilValue const *) expr;
+    assertTrue_2(tmpl, "createExpression: Expression is not a PlexilValue");
+    bool value;
+    bool known = parseValue(tmpl->value(), value);
+    // if we got here, there was no parsing exception
+    if (!known)
+      return UNKNOWN_BOOLEAN_EXP();
+    else if (value)
+      return TRUE_EXP();
+    else
+      return FALSE_EXP();
   }
   
   template <typename T>

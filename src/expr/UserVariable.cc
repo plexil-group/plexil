@@ -31,8 +31,8 @@
 #include "UserVariable.hh"
 
 #include "ArrayImpl.hh"
-#include "Constant.hh"
 #include "Error.hh"
+#include "ExpressionConstants.hh"
 //#include "NodeConnector.hh"
 #include "Value.hh"
 
@@ -59,6 +59,20 @@ namespace PLEXIL {
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(true)
+  {
+  }
+
+  // Only two possible constant initializers for BooleanVariable
+  template <>
+  UserVariable<bool>::UserVariable(const bool &initVal)
+  : NotifierImpl(),
+    ExpressionImpl<bool>(),
+    AssignableImpl<bool>(),
+    m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
+    m_name("anonymous"),
+    m_known(false),
+    m_savedKnown(false),
+    m_initializerIsGarbage(false)
   {
   }
 
