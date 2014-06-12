@@ -598,6 +598,95 @@ static bool booleanArrayVariableFactoryTest()
     std::cout << "Caught expected error" << std::endl;
   }
 
+  // Variable refs
+  PlexilVarRef ba1Ref("ba1", BOOLEAN_ARRAY_TYPE);
+  ExpressionId ba1RefExp = createExpression(ba1Ref.getId(), nc, wasCreated);
+  assertTrue_1(ba1RefExp.isId());
+  assertTrue_1(!wasCreated);
+  assertTrue_1(ba1RefExp == ba1Exp);
+
+  PlexilVarRef ba2Ref("ba2", BOOLEAN_TYPE);
+  try {
+    ExpressionId ba2RefExp = createExpression(ba2Ref.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect variable type mismatch");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  return true;
+}
+
+static bool integerArrayVariableFactoryTest()
+{
+  PlexilArrayVar emptyVar("empty", INTEGER_TYPE, 0, std::vector<std::string>());
+
+  std::vector<std::string> validValVector(6);
+  validValVector[0] = "0";
+  validValVector[1] = "1";
+  validValVector[2] = "UNKNOWN";
+  validValVector[3] = "-123456789";
+  validValVector[4] = "987654321";
+  validValVector[5] = "0x69";
+  PlexilArrayVar validVar("valid", INTEGER_TYPE, validValVector.size(), validValVector);
+
+  std::vector<std::string> bogusValueVector(1, "bOgUs");
+  PlexilArrayVar bogusValueVar("bogus", INTEGER_TYPE, bogusValueVector.size(), bogusValueVector);
+
+  std::vector<std::string> rangeErrVector(1, "-3000000000");
+  PlexilArrayVar rangeErrVar("rangeErr", INTEGER_TYPE, rangeErrVector.size(), rangeErrVector);
+
+  bool wasCreated;
+  IntegerArray const *aryTemp = NULL;
+
+  ExpressionId emptyExp = createExpression(emptyVar.getId(), nc, wasCreated);
+  assertTrue_1(emptyExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(emptyExp->valueType() == INTEGER_ARRAY_TYPE);
+  emptyExp->activate();
+  assertTrue_1(emptyExp->isKnown());
+  assertTrue_1(emptyExp->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 0);
+
+  int32_t temp;
+  ExpressionId validValExp = createExpression(validVar.getId(), nc, wasCreated);
+  assertTrue_1(validValExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(validValExp->valueType() == INTEGER_ARRAY_TYPE);
+  validValExp->activate();
+  assertTrue_1(validValExp->isKnown());
+  assertTrue_1(validValExp->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == validValVector.size());
+  assertTrue_1(aryTemp->getElement(0, temp));
+  assertTrue_1(temp == 0);
+  assertTrue_1(aryTemp->getElement(1, temp));
+  assertTrue_1(temp == 1);
+  assertTrue_1(!aryTemp->getElement(2, temp));
+  assertTrue_1(aryTemp->getElement(3, temp));
+  assertTrue_1(temp == -123456789);
+  assertTrue_1(aryTemp->getElement(4, temp));
+  assertTrue_1(temp == 987654321);
+  assertTrue_1(aryTemp->getElement(5, temp));
+  assertTrue_1(temp == 0x69);
+
+  try {
+    ExpressionId bogusValueExp = createExpression(bogusValueVar.getId(), nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  try {
+    ExpressionId rangeErrExp = createExpression(rangeErrVar.getId(), nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range integer");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
   return true;
 }
 
@@ -614,7 +703,7 @@ bool variableFactoryTest()
   runTest(realVariableFactoryTest);
   runTest(stringVariableFactoryTest);
   runTest(booleanArrayVariableFactoryTest);
-  //runTest(integerArrayVariableFactoryTest);
+  runTest(integerArrayVariableFactoryTest);
   //runTest(realArrayVariableFactoryTest);
   //runTest(stringArrayVariableFactoryTest);
 
