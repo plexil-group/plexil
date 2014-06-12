@@ -27,12 +27,12 @@
 #include "ConcreteExpressionFactory.hh"
 
 #include "ArrayConstant.hh"
+#include "ArrayVariable.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "PlexilExpr.hh"
-#include "UserVariable.hh"
 
 #include <sstream>
 
@@ -202,6 +202,47 @@ namespace PLEXIL
     return (new UserVariable<T>(node, var->varName(), initexp, garbage))->getId();
   }
 
+  template <typename T>
+  ExpressionId ConcreteExpressionFactory<ArrayVariable<T> >::allocate(const PlexilExprId& expr,
+                          const NodeConnectorId& node,
+                          bool &wasCreated) const
+  {
+    PlexilVarRef const *varRef = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
+    if (varRef) {
+      // Variable reference - look it up
+      assertTrue_2(node.isId(), "createExpression: Internal error: Can't find array variable reference with null node"); // ??
+      ExpressionId result = node->findVariable(varRef);
+      checkParserException(result.isId(), "createExpression: Can't find array variable named " << varRef->varName());
+      checkParserException(result->valueType() == varRef->type(),
+                           "createExpression: Variable " << varRef->varName()
+                           << " is type " << valueTypeName(result->valueType())
+                           << ", but reference is for type " << valueTypeName(varRef->type()));
+      wasCreated = false;
+      return result;
+    }
+    else {
+      // Variable declaration - construct it
+      wasCreated = true;
+      return this->create(expr, node);
+    }
+  }
+
+  template <typename T>
+  ExpressionId 
+  ConcreteExpressionFactory<ArrayVariable<T> >::create(const PlexilExprId& expr,
+                                                       const NodeConnectorId& node) const
+  {
+    PlexilArrayVar const *var = dynamic_cast<PlexilArrayVar const * >((PlexilExpr const *)expr);
+    checkParserException(var, "createExpression: Not an array variable declaration");
+    bool garbage = false;
+    ExpressionId sizeexp = (new IntegerConstant(var->maxSize()))->getId();
+    ExpressionId initexp;
+    PlexilExprId initval = var->value(); 
+    if (initval.isId())
+      initexp = createExpression(initval, node, garbage);
+    return (new ArrayVariable<T>(node, var->varName(), sizeexp, initexp, true, garbage))->getId();
+  }
+
   // Explicit instantiations
   ENSURE_EXPRESSION_FACTORY(BooleanConstant);
   ENSURE_EXPRESSION_FACTORY(IntegerConstant);
@@ -212,10 +253,14 @@ namespace PLEXIL
   ENSURE_EXPRESSION_FACTORY(RealArrayConstant);
   ENSURE_EXPRESSION_FACTORY(StringArrayConstant);
 
-  ENSURE_EXPRESSION_FACTORY(UserVariable<bool>);
-  ENSURE_EXPRESSION_FACTORY(UserVariable<int32_t>);
-  ENSURE_EXPRESSION_FACTORY(UserVariable<double>);
-  ENSURE_EXPRESSION_FACTORY(UserVariable<std::string>);
+  ENSURE_EXPRESSION_FACTORY(BooleanVariable);
+  ENSURE_EXPRESSION_FACTORY(IntegerVariable);
+  ENSURE_EXPRESSION_FACTORY(RealVariable);
+  ENSURE_EXPRESSION_FACTORY(StringVariable);
+  ENSURE_EXPRESSION_FACTORY(BooleanArrayVariable);
+  ENSURE_EXPRESSION_FACTORY(IntegerArrayVariable);
+  ENSURE_EXPRESSION_FACTORY(RealArrayVariable);
+  ENSURE_EXPRESSION_FACTORY(StringArrayVariable);
 
 } // namespace PLEXIL
 
