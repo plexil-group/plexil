@@ -108,6 +108,7 @@ static bool booleanVariableFactoryTest()
   bExp->activate();
   assertTrue_1(!bExp->isKnown());
   assertTrue_1(!bExp->getValue(temp));
+  realNc->storeVariable("b", bExp);
 
   ExpressionId fExp = createExpression(fVar.getId(), nc, wasCreated);
   assertTrue_1(fExp.isId());
@@ -116,6 +117,7 @@ static bool booleanVariableFactoryTest()
   assertTrue_1(fExp->isKnown());
   assertTrue_1(fExp->getValue(temp));
   assertTrue_1(!temp);
+  realNc->storeVariable("f", fExp);
 
   ExpressionId tExp = createExpression(tVar.getId(), nc, wasCreated);
   assertTrue_1(tExp.isId());
@@ -124,6 +126,7 @@ static bool booleanVariableFactoryTest()
   assertTrue_1(tExp->isKnown());
   assertTrue_1(tExp->getValue(temp));
   assertTrue_1(temp);
+  realNc->storeVariable("t", tExp);
 
   ExpressionId uExp = createExpression(uVar.getId(), nc, wasCreated);
   assertTrue_1(uExp.isId());
@@ -148,6 +151,31 @@ static bool booleanVariableFactoryTest()
   assertTrue_1(xExp->getValue(temp));
   assertTrue_1(!temp);
 
+  // Variable references
+
+  PlexilVarRef bRef("b", BOOLEAN_TYPE);
+  ExpressionId bExpRef = createExpression(bRef.getId(), nc, wasCreated);
+  assertTrue_1(!wasCreated);
+  assertTrue_1(bExpRef == bExp);
+
+  PlexilVarRef qRef("q", BOOLEAN_TYPE);
+  try {
+    ExpressionId qExpRef = createExpression(qRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect nonexistent variable");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  PlexilVarRef tBadRef("t", INTEGER_TYPE);
+  try {
+    ExpressionId tBadExpRef = createExpression(tBadRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect variable type conflict");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+    
   return true;
 }
 
