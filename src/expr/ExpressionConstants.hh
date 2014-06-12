@@ -34,9 +34,11 @@ namespace PLEXIL
 {
   DECLARE_GLOBAL_CONST(BooleanConstant, FALSE_CONSTANT);
   DECLARE_GLOBAL_CONST(BooleanConstant, TRUE_CONSTANT);
+  DECLARE_GLOBAL_CONST(BooleanConstant, UNKNOWN_BOOLEAN_CONSTANT);
 
   extern ExpressionId const &FALSE_EXP();
   extern ExpressionId const &TRUE_EXP();
+  extern ExpressionId const &UNKNOWN_BOOLEAN_EXP();
 
   // more as required
 } // namespace PLEXIL

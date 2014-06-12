@@ -29,7 +29,8 @@
 namespace PLEXIL
 {
   DEFINE_GLOBAL_CONST_WITH_CLEANUP(BooleanConstant, FALSE_CONSTANT, false);
-  DEFINE_GLOBAL_CONST_WITH_CLEANUP(BooleanConstant, TRUE_CONSTANT, false);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(BooleanConstant, TRUE_CONSTANT, true);
+  DEFINE_GLOBAL_EMPTY_CONST_WITH_CLEANUP(BooleanConstant, UNKNOWN_BOOLEAN_CONSTANT);
 
   ExpressionId const &FALSE_EXP()
   {
@@ -41,6 +42,12 @@ namespace PLEXIL
   {
     static ExpressionId sl_trueId(TRUE_CONSTANT().getId());
     return sl_trueId;
+  }
+
+  ExpressionId const &UNKNOWN_BOOLEAN_EXP()
+  {
+    static ExpressionId sl_unknownId(UNKNOWN_BOOLEAN_CONSTANT().getId());
+    return sl_unknownId;
   }
 
 } // namespace PLEXIL
