@@ -82,7 +82,7 @@
   }
 
 /**
- * @def DEFINE_GLOBAL_CONST(TYPE,NAME,VALUE)
+ * @def DEFINE_GLOBAL_CONST_WITH_CLEANUP(TYPE,NAME,VALUE)
  * @brief Define a global constant to have the given value via a
  * global function to ensure initialization occurs before use with all
  * linkers.
@@ -115,4 +115,30 @@
   const TYPE& NAME() { \
     static const TYPE sl_data; \
     return sl_data; \
+  }
+
+
+/**
+ * @def DEFINE_GLOBAL_EMPTY_CONST_WITH_CLEANUP(TYPE,NAME)
+ * @brief Define a global constant to have the given value via a
+ * global function to ensure initialization occurs before use with all
+ * linkers.
+ */
+#define DEFINE_GLOBAL_EMPTY_CONST_WITH_CLEANUP(TYPE, NAME) \
+  static void NAME ## __destroy(); \
+  static TYPE* ensure__ ## NAME() { \
+    static TYPE *sl_ptr; \
+    static bool sl_inited; \
+    if (!sl_inited) { \
+      sl_ptr = new TYPE(); \
+      sl_inited = true; \
+      addFinalizer(&NAME ## __destroy); \
+    } \
+    return sl_ptr; \
+  } \
+  static void NAME ## __destroy() { \
+    delete ensure__ ## NAME(); \
+  } \
+  const TYPE& NAME() { \
+    return *ensure__ ## NAME(); \
   }
