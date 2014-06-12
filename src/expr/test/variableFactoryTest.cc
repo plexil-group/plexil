@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "ArrayImpl.hh"
 #include "ExpressionFactory.hh"
 #include "ExpressionFactories.hh"
 #include "NodeConnector.hh"
@@ -532,6 +533,74 @@ static bool stringVariableFactoryTest()
   return true;
 }
 
+static bool booleanArrayVariableFactoryTest()
+{
+  PlexilArrayVar ba1Var("ba1", BOOLEAN_TYPE, 2);
+
+  std::vector<std::string> ba2Vector(7);
+  ba2Vector[0] = "0";
+  ba2Vector[1] = "1";
+  ba2Vector[2] = "UNKNOWN";
+  ba2Vector[3] = "true";
+  ba2Vector[4] = "false";
+  ba2Vector[5] = "FALSE";
+  ba2Vector[6] = "TRUE";
+  PlexilArrayVar ba2Var("ba2", BOOLEAN_TYPE, ba2Vector.size(), ba2Vector);
+
+  bool wasCreated, temp;
+  BooleanArray const *aryTemp = NULL;
+
+  ExpressionId ba1Exp = createExpression(ba1Var.getId(), nc, wasCreated);
+  assertTrue_1(wasCreated);
+  assertTrue_1(ba1Exp.isId());
+  assertTrue_1(ba1Exp->valueType() == BOOLEAN_ARRAY_TYPE);
+  ba1Exp->activate();
+  assertTrue_1(ba1Exp->isKnown());
+  assertTrue_1(ba1Exp->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp);
+  assertTrue_1(aryTemp->size() == 2);
+  assertTrue_1(!aryTemp->anyElementsKnown());
+  realNc->storeVariable("ba1", ba1Exp);
+
+  ExpressionId ba2Exp = createExpression(ba2Var.getId(), nc, wasCreated);
+  assertTrue_1(wasCreated);
+  assertTrue_1(ba2Exp.isId());
+  assertTrue_1(ba2Exp->valueType() == BOOLEAN_ARRAY_TYPE);
+  ba2Exp->activate();
+  assertTrue_1(ba2Exp->isKnown());
+  assertTrue_1(ba2Exp->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp);
+  assertTrue_1(aryTemp->size() == ba2Vector.size());
+  assertTrue_1(aryTemp->anyElementsKnown());
+  assertTrue_1(!aryTemp->allElementsKnown());
+  assertTrue_1(aryTemp->getElement(0, temp));
+  assertTrue_1(!temp);
+  assertTrue_1(aryTemp->getElement(1, temp));
+  assertTrue_1(temp);
+  assertTrue_1(!aryTemp->getElement(2, temp));
+  assertTrue_1(aryTemp->getElement(3, temp));
+  assertTrue_1(temp);
+  assertTrue_1(aryTemp->getElement(4, temp));
+  assertTrue_1(!temp);
+  assertTrue_1(aryTemp->getElement(5, temp));
+  assertTrue_1(!temp);
+  assertTrue_1(aryTemp->getElement(6, temp));
+  assertTrue_1(temp);
+  realNc->storeVariable("ba2", ba2Exp);
+
+  std::vector<std::string> parseErrVector(1, "bOgUs");
+  PlexilArrayVar parseErrVar("parseErr", BOOLEAN_TYPE, parseErrVector.size(), parseErrVector);
+  try {
+    ExpressionId parseErrExp = createExpression(parseErrVar.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect bogus initial value");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  return true;
+}
+
 bool variableFactoryTest()
 {
   // Initialize factories
@@ -544,6 +613,10 @@ bool variableFactoryTest()
   runTest(integerVariableFactoryTest);
   runTest(realVariableFactoryTest);
   runTest(stringVariableFactoryTest);
+  runTest(booleanArrayVariableFactoryTest);
+  //runTest(integerArrayVariableFactoryTest);
+  //runTest(realArrayVariableFactoryTest);
+  //runTest(stringArrayVariableFactoryTest);
 
   nc = NodeConnectorId::noId();
   delete realNc;
