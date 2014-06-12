@@ -46,6 +46,7 @@ extern bool functionsTest();
 extern bool listenerTest();
 extern bool stringTest();
 extern bool valueTest();
+extern bool variableFactoryTest();
 extern bool variablesTest();
 
 using namespace PLEXIL;
@@ -54,13 +55,14 @@ static void runExprTests()
 {
   runTestSuite(listenerTest);
   runTestSuite(constantsTest);
-  runTestSuite(constantFactoryTest);
   runTestSuite(variablesTest);
   runTestSuite(arrayTest);
   runTestSuite(valueTest);
   runTestSuite(arrayConstantTest);
   runTestSuite(arrayVariableTest);
   runTestSuite(arrayReferenceTest);
+  runTestSuite(constantFactoryTest);
+  runTestSuite(variableFactoryTest);
   runTestSuite(aliasTest);
   runTestSuite(functionsTest);
   runTestSuite(comparisonsTest);
