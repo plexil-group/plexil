@@ -29,6 +29,7 @@
 #include "ArrayConstant.hh"
 #include "Error.hh"
 #include "NodeConnector.hh"
+#include "ParserException.hh"
 #include "PlexilExpr.hh"
 #include "UserVariable.hh"
 
@@ -95,7 +96,7 @@ namespace PLEXIL
                                                                          const NodeConnectorId& node) const
   {
     PlexilValue const *tmpl = (PlexilValue const *) expr;
-    assertTrue_2(tmpl, "ExpressionFactory<Constant>: Expression is not a PlexilValue");
+    checkParserException(tmpl, "ExpressionFactory<Constant>: Expression is not a PlexilValue");
     return (new Constant<std::string>(tmpl->value()))->getId();
   }
 
@@ -130,7 +131,7 @@ namespace PLEXIL
                                                                       bool &wasCreated) const
   {
     PlexilArrayValue const *val = dynamic_cast<PlexilArrayValue const *>((PlexilExpr const *) expr);
-    assertTrue_2(val, "createExpression: Not an array value");
+    checkParserException(val, "createExpression: Not an array value");
 
     wasCreated = true;
     return this->create(expr, node);
@@ -149,9 +150,13 @@ namespace PLEXIL
     PlexilVarRef const *varRef = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
     if (varRef) {
       // Variable reference - look it up
-      assertTrue_2(node.isId(), "createExpression: Can't find variable reference with null node");
+      assertTrue_2(node.isId(), "createExpression: Internal error: Can't find variable reference with null node"); // ??
       ExpressionId result = node->findVariable(varRef);
-      assertTrueMsg(result.isId(), "createExpression: Can't find referenced variable" << varRef->varName());
+      checkParserException(result.isId(), "createExpression: Can't find variable named " << varRef->varName());
+      checkParserException(result->valueType() == varRef->type(),
+                           "createExpression: Variable " << varRef->varName()
+                           << " is type " << valueTypeName(result->valueType())
+                           << ", but reference is for type " << valueTypeName(varRef->type()));
       wasCreated = false;
       return result;
     }
@@ -168,7 +173,7 @@ namespace PLEXIL
                                                       const NodeConnectorId& node) const
   {
     PlexilVar const *var = dynamic_cast<PlexilVar const * >((PlexilExpr const *)expr);
-    assertTrue_2(var, "createExpression: Not a variable declaration");
+    checkParserException(var, "createExpression: Not a variable declaration");
     bool garbage = false;
     ExpressionId initexp;
     PlexilExprId initval = var->value(); 
