@@ -105,6 +105,8 @@ static bool booleanVariableFactoryTest()
   ExpressionId bExp = createExpression(bVar.getId(), nc, wasCreated);
   assertTrue_1(bExp.isId());
   assertTrue_1(wasCreated);
+  assertTrue_1(bExp->isAssignable());
+  assertTrue_1(bExp->valueType() == BOOLEAN_TYPE);
   bExp->activate();
   assertTrue_1(!bExp->isKnown());
   assertTrue_1(!bExp->getValue(temp));
@@ -113,6 +115,8 @@ static bool booleanVariableFactoryTest()
   ExpressionId fExp = createExpression(fVar.getId(), nc, wasCreated);
   assertTrue_1(fExp.isId());
   assertTrue_1(wasCreated);
+  assertTrue_1(fExp->isAssignable());
+  assertTrue_1(fExp->valueType() == BOOLEAN_TYPE);
   fExp->activate();
   assertTrue_1(fExp->isKnown());
   assertTrue_1(fExp->getValue(temp));
@@ -122,6 +126,8 @@ static bool booleanVariableFactoryTest()
   ExpressionId tExp = createExpression(tVar.getId(), nc, wasCreated);
   assertTrue_1(tExp.isId());
   assertTrue_1(wasCreated);
+  assertTrue_1(tExp->isAssignable());
+  assertTrue_1(tExp->valueType() == BOOLEAN_TYPE);
   tExp->activate();
   assertTrue_1(tExp->isKnown());
   assertTrue_1(tExp->getValue(temp));
@@ -131,6 +137,8 @@ static bool booleanVariableFactoryTest()
   ExpressionId uExp = createExpression(uVar.getId(), nc, wasCreated);
   assertTrue_1(uExp.isId());
   assertTrue_1(wasCreated);
+  assertTrue_1(uExp->isAssignable());
+  assertTrue_1(uExp->valueType() == BOOLEAN_TYPE);
   uExp->activate();
   assertTrue_1(!uExp->isKnown());
   assertTrue_1(!uExp->getValue(temp));
@@ -146,6 +154,8 @@ static bool booleanVariableFactoryTest()
   ExpressionId xExp = createExpression(xVar.getId(), nc, wasCreated);
   assertTrue_1(xExp.isId());
   assertTrue_1(wasCreated);
+  assertTrue_1(xExp->isAssignable());
+  assertTrue_1(xExp->valueType() == BOOLEAN_TYPE);
   xExp->activate();
   assertTrue_1(xExp->isKnown());
   assertTrue_1(xExp->getValue(temp));
@@ -179,6 +189,130 @@ static bool booleanVariableFactoryTest()
   return true;
 }
 
+static bool integerVariableFactoryTest()
+{
+  // uninitialized
+  PlexilVar iVar("i", INTEGER_TYPE);
+  // initialized
+  PlexilVar zeroVar("z", INTEGER_TYPE, "0");
+  PlexilVar tVar("t", INTEGER_TYPE, "-2000000000");
+  PlexilVar hVar("h", INTEGER_TYPE, "0xBADF00D");
+  PlexilVar uVar("u", INTEGER_TYPE, "UNKNOWN");
+  PlexilVar bogusVar("bogus", INTEGER_TYPE, "bOgUs");
+  PlexilVar tooBigVar("tooBig", INTEGER_TYPE, "3000000000");
+
+  // initialized via expression
+  PlexilVar xVar("x", INTEGER_TYPE, (new PlexilValue(INTEGER_TYPE, "0"))->getId());
+
+  bool wasCreated;
+  int32_t temp;
+
+  ExpressionId iExp = createExpression(iVar.getId(), nc, wasCreated);
+  assertTrue_1(iExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(iExp->isAssignable());
+  assertTrue_1(iExp->valueType() == INTEGER_TYPE);
+  iExp->activate();
+  assertTrue_1(!iExp->isKnown());
+  assertTrue_1(!iExp->getValue(temp));
+  realNc->storeVariable("i", iExp);
+
+  ExpressionId zeroExp = createExpression(zeroVar.getId(), nc, wasCreated);
+  assertTrue_1(zeroExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(zeroExp->isAssignable());
+  assertTrue_1(zeroExp->valueType() == INTEGER_TYPE);
+  zeroExp->activate();
+  assertTrue_1(zeroExp->isKnown());
+  assertTrue_1(zeroExp->getValue(temp));
+  assertTrue_1(temp == 0);
+  realNc->storeVariable("z", zeroExp);
+
+  ExpressionId tExp = createExpression(tVar.getId(), nc, wasCreated);
+  assertTrue_1(tExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(tExp->isAssignable());
+  assertTrue_1(tExp->valueType() == INTEGER_TYPE);
+  tExp->activate();
+  assertTrue_1(tExp->isKnown());
+  assertTrue_1(tExp->getValue(temp));
+  assertTrue_1(temp == -2000000000);
+  realNc->storeVariable("t", tExp);
+
+  ExpressionId hExp = createExpression(hVar.getId(), nc, wasCreated);
+  assertTrue_1(hExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(hExp->isAssignable());
+  assertTrue_1(hExp->valueType() == INTEGER_TYPE);
+  hExp->activate();
+  assertTrue_1(hExp->isKnown());
+  assertTrue_1(hExp->getValue(temp));
+  assertTrue_1(temp == 0xBADF00D);
+  realNc->storeVariable("t", hExp);
+
+  ExpressionId uExp = createExpression(uVar.getId(), nc, wasCreated);
+  assertTrue_1(uExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(uExp->isAssignable());
+  assertTrue_1(uExp->valueType() == INTEGER_TYPE);
+  uExp->activate();
+  assertTrue_1(!uExp->isKnown());
+  assertTrue_1(!uExp->getValue(temp));
+  
+  try {
+    ExpressionId bogusExp = createExpression(bogusVar.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect invalid initial value");
+  }
+  catch (ParserException const & /*exc*/) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+  
+  try {
+    ExpressionId tooBigExp = createExpression(tooBigVar.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect out-of-range initial value");
+  }
+  catch (ParserException const & /*exc*/) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  ExpressionId xExp = createExpression(xVar.getId(), nc, wasCreated);
+  assertTrue_1(xExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(xExp->isAssignable());
+  assertTrue_1(xExp->valueType() == INTEGER_TYPE);
+  xExp->activate();
+  assertTrue_1(xExp->isKnown());
+  assertTrue_1(xExp->getValue(temp));
+  assertTrue_1(temp == 0);
+
+  // Variable references
+
+  PlexilVarRef iRef("i", INTEGER_TYPE);
+  ExpressionId iExpRef = createExpression(iRef.getId(), nc, wasCreated);
+  assertTrue_1(!wasCreated);
+  assertTrue_1(iExpRef == iExp);
+
+  PlexilVarRef qRef("q", INTEGER_TYPE);
+  try {
+    ExpressionId qExpRef = createExpression(qRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect nonexistent variable");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  PlexilVarRef tBadRef("z", BOOLEAN_TYPE);
+  try {
+    ExpressionId tBadExpRef = createExpression(tBadRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect variable type conflict");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+    
+  return true;
+}
+
 bool variableFactoryTest()
 {
   // Initialize factories
@@ -188,6 +322,7 @@ bool variableFactoryTest()
   nc = realNc->getId();
 
   runTest(booleanVariableFactoryTest);
+  runTest(integerVariableFactoryTest);
 
   nc = NodeConnectorId::noId();
   delete realNc;
