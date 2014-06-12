@@ -132,15 +132,15 @@ namespace PLEXIL
       REGISTER_EXPRESSION(StringArrayConstant, StringArrayValue);
 
       // Variables
-      REGISTER_EXPRESSION(BooleanVariable, Boolean);
-      REGISTER_EXPRESSION(IntegerVariable, Integer);
-      REGISTER_EXPRESSION(RealVariable, Real);
-      REGISTER_EXPRESSION(StringVariable, String);
+      REGISTER_EXPRESSION(BooleanVariable, BooleanVariable);
+      REGISTER_EXPRESSION(IntegerVariable, IntegerVariable);
+      REGISTER_EXPRESSION(RealVariable, RealVariable);
+      REGISTER_EXPRESSION(StringVariable, StringVariable);
       // FIXME: Not yet implemented
-      //REGISTER_EXPRESSION(BooleanArrayVariable, BooleanArray);
-      //REGISTER_EXPRESSION(IntegerArrayVariable, IntegerArray);
-      //REGISTER_EXPRESSION(RealArrayVariable, RealArray);
-      //REGISTER_EXPRESSION(StringArrayVariable, StringArray);
+      //REGISTER_EXPRESSION(BooleanArrayVariable, BooleanArrayVariable);
+      //REGISTER_EXPRESSION(IntegerArrayVariable, IntegerArrayVariable);
+      //REGISTER_EXPRESSION(RealArrayVariable, RealArrayVariable);
+      //REGISTER_EXPRESSION(StringArrayVariable, StringArrayVariable);
 
       // Comparisons
       REGISTER_FUNCTION(IsKnown, bool, IsKnown);
@@ -222,6 +222,7 @@ namespace PLEXIL
       REGISTER_FUNCTION(StringConcat, std::string, CONCAT);
       REGISTER_FUNCTION(StringLength, int32_t, STRLEN);
 
+      sl_inited = true;
     }
   }
 
