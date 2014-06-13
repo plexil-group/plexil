@@ -614,6 +614,15 @@ static bool booleanArrayVariableFactoryTest()
     std::cout << "Caught expected error" << std::endl;
   }
 
+  PlexilVarRef badRef("bad", BOOLEAN_ARRAY_TYPE);
+  try {
+    ExpressionId badRefExp = createExpression(badRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect invalid variable reference");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
   return true;
 }
 
@@ -648,6 +657,7 @@ static bool integerArrayVariableFactoryTest()
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
   assertTrue_1(aryTemp != NULL);
   assertTrue_1(aryTemp->size() == 0);
+  realNc->storeVariable("empty", emptyExp);
 
   int32_t temp;
   ExpressionId validValExp = createExpression(validVar.getId(), nc, wasCreated);
@@ -670,6 +680,7 @@ static bool integerArrayVariableFactoryTest()
   assertTrue_1(temp == 987654321);
   assertTrue_1(aryTemp->getElement(5, temp));
   assertTrue_1(temp == 0x69);
+  realNc->storeVariable("valid", validValExp);
 
   try {
     ExpressionId bogusValueExp = createExpression(bogusValueVar.getId(), nc, wasCreated);
@@ -685,6 +696,212 @@ static bool integerArrayVariableFactoryTest()
   }
   catch (ParserException const & /* exc */) {
     std::cout << "Caught expected error" << std::endl;
+  }
+
+  // Variable reference tests
+
+  PlexilVarRef validRef("valid", INTEGER_ARRAY_TYPE);
+  ExpressionId validRefExp = createExpression(validRef.getId(), nc, wasCreated);
+  assertTrue_1(validRefExp.isId());
+  assertTrue_1(!wasCreated);
+  assertTrue_1(validRefExp == validValExp);
+
+  PlexilVarRef badNameRef("bad", INTEGER_ARRAY_TYPE);
+  try {
+    ExpressionId badNameExp = createExpression(badNameRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect invalid variable reference");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  PlexilVarRef wrongTypeRef("empty", INTEGER_TYPE);
+  try {
+    ExpressionId wrongTypeExp = createExpression(wrongTypeRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect variable type mismatch");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  return true;
+}
+
+static bool realArrayVariableFactoryTest()
+{
+  PlexilArrayVar emptyVar("emmty", REAL_TYPE, 0, std::vector<std::string>());
+
+  std::vector<std::string> validVarVector(6);
+  validVarVector[0] = "0";
+  validVarVector[1] = "1";
+  validVarVector[2] = "UNKNOWN";
+  validVarVector[3] = "3.14";
+  validVarVector[4] = "1e-100";
+  validVarVector[5] = "6.0221413e+23";
+  PlexilArrayVar validVar("vallid", REAL_TYPE, validVarVector.size(), validVarVector);
+
+  std::vector<std::string> bogusValueVector(1, "bOgUs");
+  PlexilArrayVar bogusValueVar("bogus", REAL_TYPE, bogusValueVector.size(), bogusValueVector);
+
+  std::vector<std::string> rangeErrVector(1, "-3e1000000000");
+  PlexilArrayVar rangeErrVar("rangeErr", REAL_TYPE, rangeErrVector.size(), rangeErrVector);
+
+  bool wasCreated;
+  RealArray const *aryTemp = NULL;
+  double temp;
+
+  ExpressionId emptyExp = createExpression(emptyVar.getId(), nc, wasCreated);
+  assertTrue_1(emptyExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(emptyExp->valueType() == REAL_ARRAY_TYPE);
+  emptyExp->activate();
+  assertTrue_1(emptyExp->isKnown());
+  assertTrue_1(emptyExp->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 0);
+  realNc->storeVariable("emmty", emptyExp);
+
+  ExpressionId validVarExp = createExpression(validVar.getId(), nc, wasCreated);
+  assertTrue_1(validVarExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(validVarExp->valueType() == REAL_ARRAY_TYPE);
+  validVarExp->activate();
+  assertTrue_1(validVarExp->isKnown());
+  assertTrue_1(validVarExp->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == validVarVector.size());
+  assertTrue_1(aryTemp->getElement(0, temp));
+  assertTrue_1(temp == 0);
+  assertTrue_1(aryTemp->getElement(1, temp));
+  assertTrue_1(temp == 1);
+  assertTrue_1(!aryTemp->getElement(2, temp));
+  assertTrue_1(aryTemp->getElement(3, temp));
+  assertTrue_1(temp == 3.14);
+  assertTrue_1(aryTemp->getElement(4, temp));
+  assertTrue_1(temp == 1e-100);
+  assertTrue_1(aryTemp->getElement(5, temp));
+  assertTrue_1(temp == 6.0221413e+23);
+  realNc->storeVariable("vallid", validVarExp);
+
+  try {
+    ExpressionId bogusValueExp = createExpression(bogusValueVar.getId(), nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  try {
+    ExpressionId rangeErrExp = createExpression(rangeErrVar.getId(), nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range real");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  // Variable reference tests
+
+  PlexilVarRef validRef("vallid", REAL_ARRAY_TYPE);
+  ExpressionId validRefExp = createExpression(validRef.getId(), nc, wasCreated);
+  assertTrue_1(validRefExp.isId());
+  assertTrue_1(!wasCreated);
+  assertTrue_1(validRefExp == validVarExp);
+
+  PlexilVarRef badNameRef("bad", REAL_ARRAY_TYPE);
+  try {
+    ExpressionId badNameExp = createExpression(badNameRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect invalid variable reference");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  PlexilVarRef wrongTypeRef("emmty", REAL_TYPE);
+  try {
+    ExpressionId wrongTypeExp = createExpression(wrongTypeRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect variable type mismatch");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected error" << std::endl;
+  }
+
+  return true;
+}
+
+static bool stringArrayVariableFactoryTest()
+{
+  PlexilArrayVar emptyVal("mty", STRING_TYPE, 0, std::vector<std::string>());
+
+  std::vector<std::string> validValVector(6);
+  validValVector[0] = "0";
+  validValVector[1] = "1";
+  validValVector[2] = "UNKNOWN";
+  validValVector[3] = "3.14";
+  validValVector[4] = "1e-100";
+  validValVector[5] = "6.0221413e+23";
+  PlexilArrayVar validVal("vlaid", STRING_TYPE, validValVector.size(), validValVector);
+
+  bool wasCreated;
+  StringArray const *aryTemp = NULL;
+  std::string const *temp;
+
+  ExpressionId emptyExp = createExpression(emptyVal.getId(), nc, wasCreated);
+  assertTrue_1(emptyExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(emptyExp->valueType() == STRING_ARRAY_TYPE);
+  emptyExp->activate();
+  assertTrue_1(emptyExp->isKnown());
+  assertTrue_1(emptyExp->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 0);
+  realNc->storeVariable("mty", emptyExp);
+
+  ExpressionId validValExp = createExpression(validVal.getId(), nc, wasCreated);
+  assertTrue_1(validValExp.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(validValExp->valueType() == STRING_ARRAY_TYPE);
+  validValExp->activate();
+  assertTrue_1(validValExp->isKnown());
+  assertTrue_1(validValExp->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == validValVector.size());
+  assertTrue_1(aryTemp->getElementPointer(0, temp));
+  assertTrue_1(*temp == "0");
+  assertTrue_1(aryTemp->getElementPointer(1, temp));
+  assertTrue_1(*temp == "1");
+  assertTrue_1(aryTemp->getElementPointer(2, temp));
+  assertTrue_1(*temp == "UNKNOWN");
+  assertTrue_1(aryTemp->getElementPointer(3, temp));
+  assertTrue_1(*temp == "3.14");
+  assertTrue_1(aryTemp->getElementPointer(4, temp));
+  assertTrue_1(*temp == "1e-100");
+  assertTrue_1(aryTemp->getElementPointer(5, temp));
+  assertTrue_1(*temp == "6.0221413e+23");
+  realNc->storeVariable("vlaid", emptyExp);
+
+  // Variable reference tests
+  PlexilVarRef emptyRef("mty", STRING_ARRAY_TYPE);
+  ExpressionId emptyRefExp = createExpression(emptyRef.getId(), nc, wasCreated);
+  assertTrue_1(emptyRefExp.isId());
+  assertTrue_1(!wasCreated);
+  assertTrue_1(emptyRefExp == emptyExp);
+
+  PlexilVarRef wrongTypeRef("vlaid", STRING_TYPE);
+  try {
+    ExpressionId wrongTypeExp = createExpression(wrongTypeRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect variable type mismatch");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  PlexilVarRef badRef("bad", STRING_ARRAY_TYPE);
+  try {
+    ExpressionId badExp = createExpression(badRef.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect invalid variable reference");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   return true;
@@ -704,7 +921,7 @@ bool variableFactoryTest()
   runTest(stringVariableFactoryTest);
   runTest(booleanArrayVariableFactoryTest);
   runTest(integerArrayVariableFactoryTest);
-  //runTest(realArrayVariableFactoryTest);
+  runTest(realArrayVariableFactoryTest);
   //runTest(stringArrayVariableFactoryTest);
 
   nc = NodeConnectorId::noId();
