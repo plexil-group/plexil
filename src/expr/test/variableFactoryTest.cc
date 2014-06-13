@@ -922,7 +922,7 @@ bool variableFactoryTest()
   runTest(booleanArrayVariableFactoryTest);
   runTest(integerArrayVariableFactoryTest);
   runTest(realArrayVariableFactoryTest);
-  //runTest(stringArrayVariableFactoryTest);
+  runTest(stringArrayVariableFactoryTest);
 
   nc = NodeConnectorId::noId();
   delete realNc;
