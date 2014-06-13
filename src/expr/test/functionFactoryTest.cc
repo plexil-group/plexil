@@ -167,6 +167,174 @@ static bool stringFunctionFactoryTest()
   return true;
 }
 
+static bool booleanFunctionFactoryTest()
+{
+  PlexilOp notOp("NOT", BOOLEAN_TYPE);
+
+  bool wasCreated, temp;
+
+  // Check no-arg error detection
+  try {
+    ExpressionId zeroArgNot = createExpression(notOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too few args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  // Check one-arg form
+  notOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
+  ExpressionId oneArgNot = createExpression(notOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgNot.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(oneArgNot->valueType() == BOOLEAN_TYPE);
+  oneArgNot->activate();
+  assertTrue_1(oneArgNot->isKnown());
+  assertTrue_1(oneArgNot->getValue(temp));
+  assertTrue_1(!temp);
+
+  // Check two-arg form
+  notOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
+  try {
+    ExpressionId twoArgNot = createExpression(notOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too many args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  PlexilOp orOp("OR", BOOLEAN_TYPE);
+
+  // Check no-arg error detection
+  try {
+    ExpressionId zeroArgOr = createExpression(orOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too few args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  // Check one-arg form
+  orOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "0"))->getId());
+  ExpressionId oneArgOr = createExpression(orOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgOr.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(oneArgOr->valueType() == BOOLEAN_TYPE);
+  oneArgOr->activate();
+  assertTrue_1(oneArgOr->isKnown());
+  assertTrue_1(oneArgOr->getValue(temp));
+  assertTrue_1(!temp);
+
+  // Check two-arg form
+  orOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
+  ExpressionId twoArgOr = createExpression(orOp.getId(), nc, wasCreated);
+  assertTrue_1(twoArgOr.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(twoArgOr->valueType() == BOOLEAN_TYPE);
+  twoArgOr->activate();
+  assertTrue_1(twoArgOr->isKnown());
+  assertTrue_1(twoArgOr->getValue(temp));
+  assertTrue_1(temp);
+
+  // check 3-arg
+  orOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE))->getId());
+  ExpressionId threeArgOr = createExpression(orOp.getId(), nc, wasCreated);
+  assertTrue_1(threeArgOr.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(threeArgOr->valueType() == BOOLEAN_TYPE);
+  threeArgOr->activate();
+  assertTrue_1(threeArgOr->isKnown());
+  assertTrue_1(threeArgOr->getValue(temp));
+  assertTrue_1(temp);
+
+  PlexilOp andOp("AND", BOOLEAN_TYPE);
+
+  // Check no-arg error detection
+  try {
+    ExpressionId zeroArgAnd = createExpression(andOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too few args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  // Check one-arg form
+  andOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "0"))->getId());
+  ExpressionId oneArgAnd = createExpression(andOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgAnd.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(oneArgAnd->valueType() == BOOLEAN_TYPE);
+  oneArgAnd->activate();
+  assertTrue_1(oneArgAnd->isKnown());
+  assertTrue_1(oneArgAnd->getValue(temp));
+  assertTrue_1(!temp);
+
+  // Check two-arg form
+  andOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
+  ExpressionId twoArgAnd = createExpression(andOp.getId(), nc, wasCreated);
+  assertTrue_1(twoArgAnd.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(twoArgAnd->valueType() == BOOLEAN_TYPE);
+  twoArgAnd->activate();
+  assertTrue_1(twoArgAnd->isKnown());
+  assertTrue_1(twoArgAnd->getValue(temp));
+  assertTrue_1(!temp);
+
+  // check 3-arg
+  andOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE))->getId());
+  ExpressionId threeArgAnd = createExpression(andOp.getId(), nc, wasCreated);
+  assertTrue_1(threeArgAnd.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(threeArgAnd->valueType() == BOOLEAN_TYPE);
+  threeArgAnd->activate();
+  assertTrue_1(threeArgAnd->isKnown());
+  assertTrue_1(threeArgAnd->getValue(temp));
+  assertTrue_1(!temp);
+
+  PlexilOp xorOp("XOR", BOOLEAN_TYPE);
+
+  // Check no-arg error detection
+  try {
+    ExpressionId zeroArgXor = createExpression(xorOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too few args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  // Check one-arg form
+  xorOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "0"))->getId());
+  try {
+    ExpressionId oneArgXor = createExpression(xorOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too few args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  // Check two-arg form
+  xorOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
+  ExpressionId twoArgXor = createExpression(xorOp.getId(), nc, wasCreated);
+  assertTrue_1(twoArgXor.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(twoArgXor->valueType() == BOOLEAN_TYPE);
+  twoArgXor->activate();
+  assertTrue_1(twoArgXor->isKnown());
+  assertTrue_1(twoArgXor->getValue(temp));
+  assertTrue_1(temp);
+
+  // check 3-arg
+  xorOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE))->getId());
+  try {
+    ExpressionId threeArgXor = createExpression(xorOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too many args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  return true;
+}
 
 bool functionFactoryTest()
 {
@@ -177,6 +345,7 @@ bool functionFactoryTest()
 
   runTest(isKnownFactoryTest);
   runTest(stringFunctionFactoryTest);
+  runTest(booleanFunctionFactoryTest);
 
   delete (NodeConnector *) nc;
   return true;
