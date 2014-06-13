@@ -30,6 +30,10 @@
 
 namespace PLEXIL
 {
+  //
+  // NodeStateConstant
+  //
+
   NodeStateConstant::NodeStateConstant(NodeState value)
     : Constant<uint16_t>((uint16_t) value)
   {
@@ -49,6 +53,19 @@ namespace PLEXIL
   {
     return "NodeStateValue";
   }
+
+  // Instantiations
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeStateConstant, INACTIVE_CONSTANT, INACTIVE_STATE);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeStateConstant, WAITING_CONSTANT, WAITING_STATE);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeStateConstant, EXECUTING_CONSTANT, EXECUTING_STATE);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeStateConstant, ITERATION_ENDED_CONSTANT, ITERATION_ENDED_STATE);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeStateConstant, FINISHED_CONSTANT, FINISHED_STATE);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeStateConstant, FAILING_CONSTANT, FAILING_STATE);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeStateConstant, FINISHING_CONSTANT, FINISHING_STATE);
+
+  //
+  // NodeOutcomeConstant
+  //
 
   NodeOutcomeConstant::NodeOutcomeConstant(NodeOutcome value)
     : Constant<uint16_t>((uint16_t) value)
@@ -70,6 +87,17 @@ namespace PLEXIL
     return "NodeOutcomeValue";
   }
 
+  // Instantiations
+
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeOutcomeConstant, SUCCESS_CONSTANT, SUCCESS_OUTCOME);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeOutcomeConstant, FAILURE_CONSTANT, FAILURE_OUTCOME);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeOutcomeConstant, SKIPPED_CONSTANT, SKIPPED_OUTCOME);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(NodeOutcomeConstant, INTERRUPTED_CONSTANT, INTERRUPTED_OUTCOME);
+
+  //
+  // FailureTypeConstant
+  //
+
   FailureTypeConstant::FailureTypeConstant(FailureType value)
     : Constant<uint16_t>((uint16_t) value)
   {
@@ -90,6 +118,19 @@ namespace PLEXIL
     return "FailureTypeValue";
   }
 
+  // Instantiations
+
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(FailureTypeConstant, PRE_CONDITION_FAILED_CONSTANT, PRE_CONDITION_FAILED);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(FailureTypeConstant, POST_CONDITION_FAILED_CONSTANT, POST_CONDITION_FAILED);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(FailureTypeConstant, INVARIANT_CONDITION_FAILED_CONSTANT, INVARIANT_CONDITION_FAILED);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(FailureTypeConstant, PARENT_FAILED_CONSTANT, PARENT_FAILED);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(FailureTypeConstant, EXITED_CONSTANT, EXITED);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(FailureTypeConstant, PARENT_EXITED_CONSTANT, PARENT_EXITED);
+
+  //
+  // CommandHandleConstant
+  //
+
   CommandHandleConstant::CommandHandleConstant(CommandHandleValue value)
     : Constant<uint16_t>((uint16_t) value)
   {
@@ -108,5 +149,14 @@ namespace PLEXIL
   {
     return "CommandHandleValue";
   }
+
+  // Instantiations
+
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(CommandHandleConstant, COMMAND_SENT_TO_SYSTEM_CONSTANT, COMMAND_SENT_TO_SYSTEM);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(CommandHandleConstant, COMMAND_ACCEPTED_CONSTANT, COMMAND_ACCEPTED);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(CommandHandleConstant, COMMAND_RCVD_BY_SYSTEM_CONSTANT, COMMAND_RCVD_BY_SYSTEM);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(CommandHandleConstant, COMMAND_FAILED_CONSTANT, COMMAND_FAILED);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(CommandHandleConstant, COMMAND_DENIED_CONSTANT, COMMAND_DENIED);
+  DEFINE_GLOBAL_CONST_WITH_CLEANUP(CommandHandleConstant, COMMAND_SUCCESS_CONSTANT, COMMAND_SUCCESS);
 
 } // namespace PLEXIL

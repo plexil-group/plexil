@@ -30,6 +30,7 @@
 #include "Constant.hh"
 
 #include "CommandHandle.hh"
+#include "ConstantMacros.hh"
 #include "NodeConstants.hh"
 
 namespace PLEXIL
@@ -49,6 +50,14 @@ namespace PLEXIL
     NodeStateConstant(NodeStateConstant const &);
     NodeStateConstant &operator=(NodeStateConstant const &);
   };
+
+  DECLARE_GLOBAL_CONST(NodeStateConstant, INACTIVE_CONSTANT);
+  DECLARE_GLOBAL_CONST(NodeStateConstant, WAITING_CONSTANT);
+  DECLARE_GLOBAL_CONST(NodeStateConstant, EXECUTING_CONSTANT);
+  DECLARE_GLOBAL_CONST(NodeStateConstant, ITERATION_ENDED_CONSTANT);
+  DECLARE_GLOBAL_CONST(NodeStateConstant, FINISHED_CONSTANT);
+  DECLARE_GLOBAL_CONST(NodeStateConstant, FAILING_CONSTANT);
+  DECLARE_GLOBAL_CONST(NodeStateConstant, FINISHING_CONSTANT);
   
   class NodeOutcomeConstant : public Constant<uint16_t>
   {
@@ -64,6 +73,11 @@ namespace PLEXIL
     NodeOutcomeConstant(NodeOutcomeConstant const &);
     NodeOutcomeConstant &operator=(NodeOutcomeConstant const &);
   };
+
+  DECLARE_GLOBAL_CONST(NodeOutcomeConstant, SUCCESS_CONSTANT);
+  DECLARE_GLOBAL_CONST(NodeOutcomeConstant, FAILURE_CONSTANT);
+  DECLARE_GLOBAL_CONST(NodeOutcomeConstant, SKIPPED_CONSTANT);
+  DECLARE_GLOBAL_CONST(NodeOutcomeConstant, INTERRUPTED_CONSTANT);
   
   class FailureTypeConstant : public Constant<uint16_t>
   {
@@ -79,6 +93,13 @@ namespace PLEXIL
     FailureTypeConstant(FailureTypeConstant const &);
     FailureTypeConstant &operator=(FailureTypeConstant const &);
   };
+
+  DECLARE_GLOBAL_CONST(FailureTypeConstant, PRE_CONDITION_FAILED_CONSTANT);
+  DECLARE_GLOBAL_CONST(FailureTypeConstant, POST_CONDITION_FAILED_CONSTANT);
+  DECLARE_GLOBAL_CONST(FailureTypeConstant, INVARIANT_CONDITION_FAILED_CONSTANT);
+  DECLARE_GLOBAL_CONST(FailureTypeConstant, PARENT_FAILED_CONSTANT);
+  DECLARE_GLOBAL_CONST(FailureTypeConstant, EXITED_CONSTANT);
+  DECLARE_GLOBAL_CONST(FailureTypeConstant, PARENT_EXITED_CONSTANT);
   
   class CommandHandleConstant : public Constant<uint16_t>
   {
@@ -94,6 +115,13 @@ namespace PLEXIL
     CommandHandleConstant(CommandHandleConstant const &);
     CommandHandleConstant &operator=(CommandHandleConstant const &);
   };
+
+  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_SENT_TO_SYSTEM_CONSTANT);
+  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_ACCEPTED_CONSTANT);
+  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_RCVD_BY_SYSTEM_CONSTANT);
+  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_FAILED_CONSTANT);
+  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_DENIED_CONSTANT);
+  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_SUCCESS_CONSTANT);
 
 } // namespace PLEXIL
 
