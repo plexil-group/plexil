@@ -30,6 +30,7 @@
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "Function.hh"
+#include "ParserException.hh"
 #include "PlexilExpr.hh"
 
 namespace PLEXIL
@@ -61,26 +62,29 @@ namespace PLEXIL
                         NodeConnectorId const &node = NodeConnectorId::noId()) const
     {
       PlexilOp const *op = (PlexilOp const *) expr;
-      assertTrue_2(op != NULL, "FunctionFactory::create: Expression is not a PlexilOp");
+      checkParserException(op != NULL, "createExpression: Expression is not a PlexilOp");
 
       std::vector<PlexilExprId> const &args = op->subExprs();
       size_t nargs = args.size();
       Operator<RETURNS> const *oper(OP::instance());
-      assertTrue_2(oper->valueType() == op->type(),
-                   "FunctionFactory::create: Type mismatch between operator and expression");
-      assertTrue_2(oper->checkArgCount(nargs),
-                   "FunctionFactory::create: Wrong number of arguments for operator");
+      checkParserException(oper->valueType() == op->type(),
+                           "createExpression: Operator " << oper->getName()
+                           << " has return type " << valueTypeName(op->type())
+                           << " but expression has type " << valueTypeName(oper->valueType()));
+      checkParserException(oper->checkArgCount(nargs),
+                           "createExpression: Wrong number of arguments for operator "
+                           << oper->getName());
 
       // Get the argument expressions
       std::vector<bool> garbage(nargs, false);
       std::vector<ExpressionId> exprs(nargs);
       for (size_t i = 0; i < nargs; ++i) {
         bool isGarbage;
-        createExpression(args[i], node, isGarbage);
+        exprs[i] = createExpression(args[i], node, isGarbage);
         garbage[i] = isGarbage;
       }
 
-      switch (args.size()) {
+      switch (nargs) {
       case 1:
         return (new UnaryFunction<RETURNS>(oper, exprs[0], garbage[0]))->getId();
 
