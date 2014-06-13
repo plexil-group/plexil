@@ -27,6 +27,7 @@
 #include "ExpressionFactory.hh"
 #include "Debug.hh"
 #include "NodeConnector.hh"
+#include "ParserException.hh"
 #include "PlexilExpr.hh"
 
 namespace PLEXIL
@@ -81,8 +82,8 @@ namespace PLEXIL
     debugMsg("createExpression", " name=" << name);
     std::map<std::string, ExpressionFactory*>::const_iterator it =
       expressionFactoryMap().find(name);
-    assertTrueMsg(it != expressionFactoryMap().end(),
-                  "Error: No factory registered for name \"" << name << "\".");
+    checkParserException(it != expressionFactoryMap().end(),
+                         "createExpression: No factory registered for name \"" << name << "\".");
     ExpressionId retval = it->second->allocate(expr, node, wasCreated);
     debugMsg("createExpression",
              " Created " << (wasCreated ? "" : "reference to ") << retval->toString());
