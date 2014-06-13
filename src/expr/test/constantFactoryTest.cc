@@ -30,43 +30,9 @@
 #include "NodeConnector.hh"
 #include "PlexilExpr.hh"
 #include "TestSupport.hh"
+#include "TrivialNodeConnector.hh"
 
 using namespace PLEXIL;
-
-class TrivialNodeConnector : public NodeConnector
-{
-public:
-  TrivialNodeConnector()
-    : NodeConnector()
-  {
-  }
-
-  ~TrivialNodeConnector()
-  {
-  }
-
-  ExpressionId const &findVariable(const PlexilVarRef* /* ref */)
-  {
-    return ExpressionId::noId();
-  }
-
-  ExpressionId const &findVariable(const std::string & /* name */,
-                                   bool /* recursive */ = false)
-  {
-    return ExpressionId::noId();
-  }
-
-  NodeId const &findNodeRef(PlexilNodeRefId const & /* nodeRef */) const
-  {
-    return NodeId::noId();
-  }
-
-  ExecListenerHubId const &getExecListenerHub() const
-  {
-    return ExecListenerHubId::noId();
-  }
-
-};
 
 // Global variable for convenience
 static NodeConnectorId nc;
@@ -612,5 +578,3 @@ bool constantFactoryTest()
 
   return true;
 }
-
-
