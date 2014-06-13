@@ -127,7 +127,7 @@ static bool booleanConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   return true;
@@ -193,7 +193,7 @@ static bool integerConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect number followed by junk");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   try {
@@ -201,7 +201,7 @@ static bool integerConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect integer overflow");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   try {
@@ -209,7 +209,7 @@ static bool integerConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect integer overflow");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   try {
@@ -217,7 +217,7 @@ static bool integerConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect integer underflow");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   try {
@@ -225,7 +225,7 @@ static bool integerConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   return true;
@@ -292,7 +292,7 @@ static bool realConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect junk after valid real");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   ExpressionId expNotationConstant = createExpression(expNotationVal.getId(), nc, wasCreated);
@@ -308,7 +308,7 @@ static bool realConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect real overflow");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   try {
@@ -316,7 +316,7 @@ static bool realConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   return true;
@@ -400,7 +400,7 @@ static bool booleanArrayConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   return true;
@@ -461,7 +461,7 @@ static bool integerArrayConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   try {
@@ -469,7 +469,7 @@ static bool integerArrayConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range integer");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   return true;
@@ -530,7 +530,7 @@ static bool realArrayConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   try {
@@ -538,7 +538,7 @@ static bool realArrayConstantFactoryTest()
     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range real");
   }
   catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+    std::cout << "Caught expected exception" << std::endl;
   }
 
   return true;
