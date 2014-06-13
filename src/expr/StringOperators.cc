@@ -41,9 +41,9 @@ namespace PLEXIL
   {
   }
 
-  bool StringConcat::checkArgCount(size_t count) const
+  bool StringConcat::checkArgCount(size_t /* count */) const
   {
-    return count > 0;
+    return true;
   }
 
   bool StringConcat::operator()(std::string &result,
