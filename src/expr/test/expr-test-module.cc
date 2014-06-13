@@ -43,6 +43,7 @@ extern bool comparisonsTest();
 extern bool constantFactoryTest();
 extern bool constantsTest();
 extern bool functionsTest();
+extern bool functionFactoryTest();
 extern bool listenerTest();
 extern bool stringTest();
 extern bool valueTest();
@@ -65,6 +66,7 @@ static void runExprTests()
   runTestSuite(variableFactoryTest);
   runTestSuite(aliasTest);
   runTestSuite(functionsTest);
+  runTestSuite(functionFactoryTest);
   runTestSuite(comparisonsTest);
   runTestSuite(booleanOperatorsTest);
   runTestSuite(arithmeticTest);
