@@ -55,11 +55,6 @@ namespace PLEXIL
 
     const std::string& getName() const; // needed?
 
-  protected:
-    virtual ExpressionId create(const PlexilExprId& expr,
-                                const NodeConnectorId& node) const = 0;
-
-
   private:
     // Default, copy, assign all prohibited
     ExpressionFactory();

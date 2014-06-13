@@ -39,11 +39,7 @@ namespace PLEXIL
   template <typename T> class Constant;
   template <typename T> class UserVariable;
 
-  /**
-   * @class ConcreteExpressionFactory
-   * @brief Concrete factory side of the "abstract factory" design pattern for expressions.
-   */
-  template<class FactoryType>
+  template <class EXPR>
   class ConcreteExpressionFactory : public ExpressionFactory
   {
   public:
@@ -52,44 +48,22 @@ namespace PLEXIL
     {
     }
 
-    ~ConcreteExpressionFactory() 
+    ~ConcreteExpressionFactory()
     {
     }
 
-    /**
-     * @brief Construct a new expression, or reuse one, of the requested type.
-     * @param wasCreated Reference to a variable indicating whether the result was constructed.
-     * @param expr Prototype of the expression to be allocated.
-     * @param node NodeConnector to the parent node, if any.
-     * @note Default method always calls create.
-     */
     ExpressionId allocate(const PlexilExprId& expr,
                           const NodeConnectorId& node,
-                          bool &wasCreated) const;
-
-  protected:
-
-    /**
-     * @brief Constructs a new Expression of the appropriate type.
-     * @param expr The PlexilExprId for the instantiated Expression.
-     * @param node
-     * @return The Id for the new Expression.
-     * @note This default definition can be overridden in a template specialization.
-     */
-    ExpressionId create(const PlexilExprId& expr,
-                        const NodeConnectorId& node) const;
+                          bool &wasCreated) const = 0;
 
   private:
     // Default, copy, assign all prohibited
     ConcreteExpressionFactory();
     ConcreteExpressionFactory(const ConcreteExpressionFactory &);
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-
   };
 
-  // Specializations for Expression class templates
-
-  template<typename T>
+  template <typename T>
   class ConcreteExpressionFactory<Constant<T> > : public ExpressionFactory
   {
   public:
@@ -107,7 +81,7 @@ namespace PLEXIL
                           bool &wasCreated) const;
 
   protected:
-    ExpressionId create(const PlexilExprId& expr,
+    ExpressionId create(PlexilValue const *expr,
                         const NodeConnectorId& node) const;
 
   private:
@@ -117,7 +91,7 @@ namespace PLEXIL
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
 
-  template<typename T>
+  template <typename T>
   class ConcreteExpressionFactory<ArrayConstant<T> > : public ExpressionFactory
   {
   public:
@@ -135,7 +109,7 @@ namespace PLEXIL
                           bool &wasCreated) const;
 
   protected:
-    ExpressionId create(const PlexilExprId& expr,
+    ExpressionId create(PlexilArrayValue const *expr,
                         const NodeConnectorId& node) const;
 
   private:
@@ -145,7 +119,7 @@ namespace PLEXIL
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
 
-  template<typename T>
+  template <typename T>
   class ConcreteExpressionFactory<UserVariable<T> > : public ExpressionFactory
   {
   public:
@@ -163,7 +137,7 @@ namespace PLEXIL
                           bool &wasCreated) const;
 
   protected:
-    ExpressionId create(const PlexilExprId& expr,
+    ExpressionId create(PlexilVar const *expr,
                         const NodeConnectorId& node) const;
 
   private:
@@ -173,7 +147,7 @@ namespace PLEXIL
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
 
-  template<typename T>
+  template <typename T>
   class ConcreteExpressionFactory<ArrayVariable<T> > : public ExpressionFactory
   {
   public:
@@ -191,7 +165,7 @@ namespace PLEXIL
                           bool &wasCreated) const;
 
   protected:
-    ExpressionId create(const PlexilExprId& expr,
+    ExpressionId create(PlexilArrayVar const *expr,
                         const NodeConnectorId& node) const;
 
   private:
