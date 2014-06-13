@@ -43,6 +43,14 @@ namespace PLEXIL
    "COMMAND_SUCCESS"
   };
 
+  CommandHandleValue parseCommandHandleValue(std::string const &name)
+  {
+    for (size_t i = COMMAND_SENT_TO_SYSTEM; i < COMMAND_HANDLE_MAX; ++i)
+      if (ALL_COMMAND_HANDLE_NAMES[i - NO_COMMAND_HANDLE] == name)
+        return (CommandHandleValue) i;
+    return NO_COMMAND_HANDLE;
+  }
+
   std::string const &commandHandleValueName(CommandHandleValue c)
   {
     if (c <= NO_COMMAND_HANDLE || c >= COMMAND_HANDLE_MAX)

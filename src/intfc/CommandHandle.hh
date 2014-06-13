@@ -47,6 +47,13 @@ namespace PLEXIL
     };
 
   /**
+   * @brief Parse the given string as a command handle name.
+   * @param The name.
+   * @return The CommandHandle value, or NO_COMMAND_HANDLE if not found.
+   */
+  extern CommandHandleValue parseCommandHandleValue(std::string const &name);
+
+  /**
    * @brief Table of command handle value names.
    * @note Must be in same order as CommandHandleValue enum.
    */
