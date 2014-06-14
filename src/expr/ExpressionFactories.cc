@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "ArithmeticFunctionFactory.hh"
 #include "ArithmeticOperators.hh"
 #include "ArrayConstant.hh"
 #include "ArrayOperators.hh"
@@ -75,44 +76,21 @@ namespace PLEXIL
   ENSURE_FUNCTION_FACTORY(BooleanXor, bool);
 
   // Arithmetic operators
-  ENSURE_FUNCTION_FACTORY(Addition<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Addition<double>,  double);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Addition);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Subtraction);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Multiplication);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Division);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Modulo);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Minimum);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Maximum);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(AbsoluteValue);
 
-  ENSURE_FUNCTION_FACTORY(Subtraction<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Subtraction<double>,  double);
-
-  ENSURE_FUNCTION_FACTORY(Multiplication<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Multiplication<double>,  double);
-
-  ENSURE_FUNCTION_FACTORY(Division<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Division<double>,  double);
-
-  ENSURE_FUNCTION_FACTORY(Modulo<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Modulo<double>,  double);
-
-  ENSURE_FUNCTION_FACTORY(Minimum<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Minimum<double>,  double);
-
-  ENSURE_FUNCTION_FACTORY(Maximum<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Maximum<double>,  double);
-
-  ENSURE_FUNCTION_FACTORY(AbsoluteValue<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(AbsoluteValue<double>,  double);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Ceiling);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Floor);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Round);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Truncate);
 
   ENSURE_FUNCTION_FACTORY(SquareRoot<double>,  double);
-
-  ENSURE_FUNCTION_FACTORY(Ceiling<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Ceiling<double>,  double);
-
-  ENSURE_FUNCTION_FACTORY(Floor<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Floor<double>,  double);
-
-  ENSURE_FUNCTION_FACTORY(Round<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Round<double>,  double);
-
-  ENSURE_FUNCTION_FACTORY(Truncate<int32_t>, int32_t);
-  ENSURE_FUNCTION_FACTORY(Truncate<double>,  double);
-
   ENSURE_FUNCTION_FACTORY(RealToInteger, int32_t);
 
   void registerBasicExpressionFactories()
@@ -171,44 +149,21 @@ namespace PLEXIL
       REGISTER_FUNCTION(LessEqual<std::string>, bool, LEString);
 
       // Arithmetic operations
-      REGISTER_FUNCTION(Addition<int32_t>, int32_t, ADDInteger);
-      REGISTER_FUNCTION(Addition<double>,   double,  ADDReal);
-      
-      REGISTER_FUNCTION(Subtraction<int32_t>, int32_t, SUBInteger);
-      REGISTER_FUNCTION(Subtraction<double>,  double,  SUBReal);
-      
-      REGISTER_FUNCTION(Multiplication<int32_t>, int32_t, MULInteger);
-      REGISTER_FUNCTION(Multiplication<double>,  double,  MULReal);
-      
-      REGISTER_FUNCTION(Division<int32_t>, int32_t, DIVInteger);
-      REGISTER_FUNCTION(Division<double>,  double,  DIVReal);
-      
-      REGISTER_FUNCTION(Modulo<int32_t>, int32_t, MODInteger);
-      REGISTER_FUNCTION(Modulo<double>,  double,  MODReal);
-      
-      REGISTER_FUNCTION(Maximum<int32_t>, int32_t, MAXInteger);
-      REGISTER_FUNCTION(Maximum<double>,  double,  MAXReal);
-      
-      REGISTER_FUNCTION(Minimum<int32_t>, int32_t, MINInteger);
-      REGISTER_FUNCTION(Minimum<double>,  double,  MINReal);
-      
-      REGISTER_FUNCTION(AbsoluteValue<int32_t>, int32_t, ABSInteger);
-      REGISTER_FUNCTION(AbsoluteValue<double>,  double,  ABSReal);
+      REGISTER_ARITHMETIC_FUNCTION(Addition, ADD);
+      REGISTER_ARITHMETIC_FUNCTION(Subtraction, SUB);
+      REGISTER_ARITHMETIC_FUNCTION(Multiplication, MUL);
+      REGISTER_ARITHMETIC_FUNCTION(Division, DIV);
+      REGISTER_ARITHMETIC_FUNCTION(Modulo, MOD);
+      REGISTER_ARITHMETIC_FUNCTION(Maximum, MAX);
+      REGISTER_ARITHMETIC_FUNCTION(Minimum, MIN);
+      REGISTER_ARITHMETIC_FUNCTION(AbsoluteValue, ABS);
+
+      REGISTER_ARITHMETIC_FUNCTION(Ceiling, CEIL);
+      REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR);
+      REGISTER_ARITHMETIC_FUNCTION(Round, ROUND);
+      REGISTER_ARITHMETIC_FUNCTION(Truncate, TRUNC);
 
       REGISTER_FUNCTION(SquareRoot<double>, double, SQRT);
-      
-      REGISTER_FUNCTION(Ceiling<int32_t>, int32_t, CEILInteger);
-      REGISTER_FUNCTION(Ceiling<double>,  double,  CEILReal);
-      
-      REGISTER_FUNCTION(Floor<int32_t>, int32_t, FLOORInteger);
-      REGISTER_FUNCTION(Floor<double>,  double,  FLOORReal);
-      
-      REGISTER_FUNCTION(Round<int32_t>, int32_t, ROUNDInteger);
-      REGISTER_FUNCTION(Round<double>,  double,  ROUNDReal);
-      
-      REGISTER_FUNCTION(Truncate<int32_t>, int32_t, TRUNCInteger);
-      REGISTER_FUNCTION(Truncate<double>,  double,  TRUNCReal);
-
       REGISTER_FUNCTION(RealToInteger, int32_t, REAL_TO_INT);
 
       // Boolean operations
