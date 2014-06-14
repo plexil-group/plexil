@@ -40,6 +40,7 @@ namespace PLEXIL
   class FunctionFactory : public ExpressionFactory
   {
   public:
+
     FunctionFactory(std::string const &name)
       : ExpressionFactory(name)
     {
@@ -53,14 +54,6 @@ namespace PLEXIL
                           const NodeConnectorId& node,
                           bool &wasCreated) const
     {
-      wasCreated = true;
-      return this->create(expr, node);
-    }
-
-  protected:
-    ExpressionId create(PlexilExprId const &expr,
-                        NodeConnectorId const &node = NodeConnectorId::noId()) const
-    {
       PlexilOp const *op = (PlexilOp const *) expr;
       checkParserException(op != NULL, "createExpression: Expression is not a PlexilOp");
 
@@ -72,7 +65,7 @@ namespace PLEXIL
                            << " has return type " << valueTypeName(op->type())
                            << " but expression has type " << valueTypeName(oper->valueType()));
       checkParserException(oper->checkArgCount(nargs),
-                           "createExpression: Wrong number of arguments for operator "
+                           "createExpression: Wrong number of operands for operator "
                            << oper->getName());
 
       // Get the argument expressions
@@ -84,7 +77,17 @@ namespace PLEXIL
         garbage[i] = isGarbage;
       }
 
-      switch (nargs) {
+      wasCreated = true;
+      return this->create(oper, exprs, garbage);
+    }
+
+  private:
+
+    ExpressionId create(Operator<RETURNS> const * oper,
+                        std::vector<ExpressionId> const &exprs,
+                        std::vector<bool> const &garbage) const
+    {
+      switch (exprs.size()) {
       case 1:
         return (new UnaryFunction<RETURNS>(oper, exprs[0], garbage[0]))->getId();
 
@@ -96,7 +99,6 @@ namespace PLEXIL
       default: // 0, 3 or more
         return (new NaryFunction<RETURNS>(oper, exprs, garbage))->getId();
       }
-
     }
   };
 
