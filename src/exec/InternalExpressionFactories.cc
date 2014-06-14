@@ -91,13 +91,13 @@ namespace PLEXIL
     case SUCCESS_OUTCOME:
       return SUCCESS_CONSTANT().getId();
 
-    FAILURE_OUTCOME:
+    case FAILURE_OUTCOME:
       return FAILURE_CONSTANT().getId();
 
-    SKIPPED_OUTCOME:
+    case SKIPPED_OUTCOME:
       return SKIPPED_CONSTANT().getId();
 
-    INTERRUPTED_OUTCOME:
+    case INTERRUPTED_OUTCOME:
       return INTERRUPTED_CONSTANT().getId();
 
     default:
