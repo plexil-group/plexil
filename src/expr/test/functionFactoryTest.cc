@@ -336,6 +336,155 @@ static bool booleanFunctionFactoryTest()
   return true;
 }
 
+static bool arithmeticFunctionFactoryTest()
+{
+  bool wasCreated;
+  int32_t itemp;
+  double rtemp;
+
+  PlexilOp sqrtOp("SQRT", REAL_TYPE);
+
+  // Check no-arg error detection
+  try {
+    ExpressionId zeroArgSqrt = createExpression(sqrtOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too few args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  // Check one-arg form
+  sqrtOp.addSubExpr((new PlexilValue(REAL_TYPE, "4"))->getId());
+  ExpressionId oneArgSqrt = createExpression(sqrtOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgSqrt.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(oneArgSqrt->valueType() == REAL_TYPE);
+  oneArgSqrt->activate();
+  assertTrue_1(oneArgSqrt->isKnown());
+  assertTrue_1(oneArgSqrt->getValue(rtemp));
+  assertTrue_1(rtemp == 2);
+
+  // check 2-arg
+  sqrtOp.addSubExpr((new PlexilValue(REAL_TYPE, "0"))->getId());
+  try {
+    ExpressionId twoArgSqrt = createExpression(sqrtOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too many args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  PlexilOp realToIntegerOp("REAL_TO_INT", INTEGER_TYPE);
+
+  // Check no-arg error detection
+  try {
+    ExpressionId zeroArgRealToInteger = createExpression(realToIntegerOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too few args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  // Check one-arg form
+  realToIntegerOp.addSubExpr((new PlexilValue(REAL_TYPE, "4"))->getId());
+  ExpressionId oneArgRealToInteger = createExpression(realToIntegerOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgRealToInteger.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(oneArgRealToInteger->valueType() == INTEGER_TYPE);
+  oneArgRealToInteger->activate();
+  assertTrue_1(oneArgRealToInteger->isKnown());
+  assertTrue_1(oneArgRealToInteger->getValue(itemp));
+  assertTrue_1(itemp == 4);
+
+  // check 2-arg
+  realToIntegerOp.addSubExpr((new PlexilValue(REAL_TYPE, "0"))->getId());
+  try {
+    ExpressionId twoArgRealToInteger = createExpression(realToIntegerOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too many args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  PlexilOp absOp("ABS", REAL_TYPE);
+
+  // Check no-arg error detection
+  try {
+    ExpressionId zeroArgAbs = createExpression(absOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too few args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  // Check one-arg form
+  absOp.addSubExpr((new PlexilValue(REAL_TYPE, "-2"))->getId());
+  ExpressionId oneArgAbs = createExpression(absOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgAbs.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(oneArgAbs->valueType() == REAL_TYPE);
+  oneArgAbs->activate();
+  assertTrue_1(oneArgAbs->isKnown());
+  assertTrue_1(oneArgAbs->getValue(rtemp));
+  assertTrue_1(rtemp == 2);
+
+  // check 2-arg
+  absOp.addSubExpr((new PlexilValue(REAL_TYPE, "0"))->getId());
+  try {
+    ExpressionId twoArgAbs = createExpression(absOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too many args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  PlexilOp subOp("SUB", REAL_TYPE);
+
+  // Check no-arg error detection
+  try {
+    ExpressionId zeroArgSub = createExpression(subOp.getId(), nc, wasCreated);
+    assertTrue_2(false, "Failed to detect too few args");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  // Check one-arg form
+  subOp.addSubExpr((new PlexilValue(INTEGER_TYPE, "-2"))->getId());
+  ExpressionId oneArgSub = createExpression(subOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgSub.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(oneArgSub->valueType() == INTEGER_TYPE);
+  oneArgSub->activate();
+  assertTrue_1(oneArgSub->isKnown());
+  assertTrue_1(oneArgSub->getValue(itemp));
+  assertTrue_1(itemp == 2);
+
+  // Check two-arg form
+  subOp.addSubExpr((new PlexilValue(REAL_TYPE, "-2.5"))->getId());
+  ExpressionId twoArgSub = createExpression(subOp.getId(), nc, wasCreated);
+  assertTrue_1(twoArgSub.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(twoArgSub->valueType() == REAL_TYPE);
+  twoArgSub->activate();
+  assertTrue_1(twoArgSub->isKnown());
+  assertTrue_1(twoArgSub->getValue(rtemp));
+  assertTrue_1(rtemp == 0.5);
+
+  // Check three-arg form
+  subOp.addSubExpr((new PlexilValue(INTEGER_TYPE, "3"))->getId());
+  ExpressionId threeArgSub = createExpression(subOp.getId(), nc, wasCreated);
+  assertTrue_1(threeArgSub.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(threeArgSub->valueType() == REAL_TYPE);
+  threeArgSub->activate();
+  assertTrue_1(threeArgSub->isKnown());
+  assertTrue_1(threeArgSub->getValue(rtemp));
+  assertTrue_1(rtemp == -2.5);
+
+  return true;
+}
+
 bool functionFactoryTest()
 {
   // Initialize factories
@@ -346,6 +495,7 @@ bool functionFactoryTest()
   runTest(isKnownFactoryTest);
   runTest(stringFunctionFactoryTest);
   runTest(booleanFunctionFactoryTest);
+  runTest(arithmeticFunctionFactoryTest);
 
   delete (NodeConnector *) nc;
   return true;
