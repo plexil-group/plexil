@@ -28,7 +28,6 @@
 
 #include "ArrayConstant.hh"
 #include "ArrayVariable.hh"
-#include "Error.hh"
 #include "ExpressionConstants.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
@@ -48,20 +47,20 @@ namespace PLEXIL
   // N.B. For all but string types, the value string may not be empty.
   template <typename T>
   ExpressionId ConcreteExpressionFactory<Constant<T> >::allocate(const PlexilExprId& expr,
-                                                                 const NodeConnectorId& node,
+                                                                 const NodeConnectorId& /* node */,
                                                                  bool &wasCreated) const
   {
     PlexilValue const *tmpl = (PlexilValue const *) expr;
     checkParserException(tmpl, "createExpression: Expression is not a PlexilValue");
 
     wasCreated = true;
-    return this->create(tmpl, node);
+    return this->create(tmpl);
   }
 
   // Since there are exactly 3 possible Boolean constants, return references to them.
   template <>
   ExpressionId ConcreteExpressionFactory<Constant<bool> >::allocate(const PlexilExprId& expr,
-                                                                    const NodeConnectorId& node,
+                                                                    const NodeConnectorId& /* node */,
                                                                     bool &wasCreated) const
   {
     PlexilValue const *tmpl = (PlexilValue const *) expr;
@@ -78,8 +77,7 @@ namespace PLEXIL
   }
   
   template <typename T>
-  ExpressionId ConcreteExpressionFactory<Constant<T> >::create(PlexilValue const *tmpl,
-                                                               const NodeConnectorId& node) const
+  ExpressionId ConcreteExpressionFactory<Constant<T> >::create(PlexilValue const *tmpl) const
   {
     T value;
     bool known = parseValue(tmpl->value(), value);
@@ -92,8 +90,7 @@ namespace PLEXIL
   // String is different
 
   template <>
-  ExpressionId ConcreteExpressionFactory<Constant<std::string> >::create(PlexilValue const *tmpl,
-                                                                         const NodeConnectorId& node) const
+  ExpressionId ConcreteExpressionFactory<Constant<std::string> >::create(PlexilValue const *tmpl) const
   {
     checkParserException(tmpl->type() == STRING_TYPE, "createExpression: Expression is not a PlexilValue");
     return (new Constant<std::string>(tmpl->value()))->getId();
@@ -104,8 +101,7 @@ namespace PLEXIL
   //
 
   template <typename T>
-  ExpressionId ConcreteExpressionFactory<ArrayConstant<T> >::create(PlexilArrayValue const *val,
-                                                                    const NodeConnectorId& node) const
+  ExpressionId ConcreteExpressionFactory<ArrayConstant<T> >::create(PlexilArrayValue const *val) const
   {
     unsigned arraySize = val->maxSize();
     std::vector<std::string> const &eltVals = val->values();
@@ -123,14 +119,14 @@ namespace PLEXIL
 
   template <typename T>
   ExpressionId ConcreteExpressionFactory<ArrayConstant<T> >::allocate(const PlexilExprId& expr,
-                                                                      const NodeConnectorId& node,
+                                                                      const NodeConnectorId& /* node */,
                                                                       bool &wasCreated) const
   {
     PlexilArrayValue const *val = dynamic_cast<PlexilArrayValue const *>((PlexilExpr const *) expr);
     checkParserException(val, "createExpression: Not an array value");
 
     wasCreated = true;
-    return this->create(val, node);
+    return this->create(val);
   }
 
   //
@@ -163,7 +159,7 @@ namespace PLEXIL
       wasCreated = true;
       return this->create(var, node);
     }
-    checkParserException(ALWAYS_FAIL, "createExpression: Expression is neither a variable definition nor a variable reference");
+    checkParserException(false, "createExpression: Expression is neither a variable definition nor a variable reference");
     return ExpressionId::noId();
   }
 
@@ -208,7 +204,7 @@ namespace PLEXIL
       wasCreated = true;
       return this->create(var, node);
     }
-    checkParserException(ALWAYS_FAIL,
+    checkParserException(false,
                          "createExpression: Expression is neither a variable reference nor an array variable declaration");
     return ExpressionId::noId();
   }

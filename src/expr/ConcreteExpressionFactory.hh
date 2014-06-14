@@ -81,8 +81,7 @@ namespace PLEXIL
                           bool &wasCreated) const;
 
   protected:
-    ExpressionId create(PlexilValue const *expr,
-                        const NodeConnectorId& node) const;
+    ExpressionId create(PlexilValue const *expr) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -109,8 +108,7 @@ namespace PLEXIL
                           bool &wasCreated) const;
 
   protected:
-    ExpressionId create(PlexilArrayValue const *expr,
-                        const NodeConnectorId& node) const;
+    ExpressionId create(PlexilArrayValue const *expr) const;
 
   private:
     // Default, copy, assign all prohibited
