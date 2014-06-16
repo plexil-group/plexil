@@ -59,7 +59,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, const ExpressionId &arg) const;
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(bool &result, const std::vector<ExpressionId> &args) const;
+    bool operator()(bool &result, size_t nargs, ExpressionId const args[]) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanOr, bool)
 
@@ -78,7 +78,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, const ExpressionId &arg) const;
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(bool &result, const std::vector<ExpressionId> &args) const;
+    bool operator()(bool &result, size_t nargs, ExpressionId const args[]) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanAnd, bool)
 
@@ -97,7 +97,7 @@ namespace PLEXIL
 
     bool operator()(bool &result, const ExpressionId &arg) const;
     bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(bool &result, const std::vector<ExpressionId> &args) const;
+    bool operator()(bool &result, size_t nargs, ExpressionId const args[]) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanXor, bool)
 

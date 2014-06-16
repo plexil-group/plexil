@@ -27,294 +27,147 @@
 #include "Function.hh"
 
 #include "ArrayImpl.hh"
+#include "ExprVec.hh"
 #include "Operator.hh"
 
 namespace PLEXIL
 {
-  template <typename R>
-  Function<R>::Function(const Operator<R> *op)
+  Function::Function(Operator const *op, ExprVec const *exprs)
     : NotifierImpl(),
       m_op(op),
-      m_valueCache(new R())
+      m_exprVec(exprs),
+      m_valueCache(op->allocateCache())
   {
+    m_exprVec->addListener(this->getId());
   }
 
-  template <typename R>
-  Function<R>::~Function()
+  Function::~Function()
   {
-    delete m_valueCache;
+    m_op->deleteCache(m_valueCache());
+    m_exprVec->removeListener(this->getId());
+    delete m_exprVec;
   }
 
-  template <typename R>
-  const char *Function<R>::exprName() const
+  const char *Function::exprName() const
   {
     return m_op->getName().c_str();
   }
 
-  template <typename R>
-  bool Function<R>::getValueImpl(R &result) const
+  const ValueType Function::valueType() const
+  {
+    return m_op->valueType();
+  }
+
+  bool Function::isKnown() const
   {
     if (!isActive())
       return false;
-    return this->calculate(result);
+    // Delegate to operator
+    return m_op->calcNative(m_valueCache, m_exprVec);
   }
 
-  template <typename R>
-  bool Function<R>::getValuePointerImpl(R const *&ptr) const
+  void Function::printValue(std::ostream &s) const
   {
-    if (!isActive())
-      return false;
-    bool result = this->calculate(*m_valueCache);
-    if (result)
-      ptr = m_valueCache;
-    return result;
-  }
-
-  // Non-array types
-  template <typename R>
-  bool Function<R>::getValuePointerImpl(Array const *&ptr) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "Function::getValuePointer: type error");
-    return false;
-  }
-
-  template <>
-  bool Function<BooleanArray>::getValuePointerImpl(Array const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = this->calculate(*m_valueCache);
-    if (result)
-      ptr = static_cast<Array const *>(m_valueCache);
-    return result;
-  }
-
-  template <>
-  bool Function<IntegerArray>::getValuePointerImpl(Array const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = this->calculate(*m_valueCache);
-    if (result)
-      ptr = static_cast<Array const *>(m_valueCache);
-    return result;
-  }
-
-  template <>
-  bool Function<RealArray>::getValuePointerImpl(Array const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = this->calculate(*m_valueCache);
-    if (result)
-      ptr = static_cast<Array const *>(m_valueCache);
-    return result;
-  }
-
-  template <>
-  bool Function<StringArray>::getValuePointerImpl(Array const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    bool result = this->calculate(*m_valueCache);
-    if (result)
-      ptr = static_cast<Array const *>(m_valueCache);
-    return result;
-  }
-
-  //
-  // UnaryFunction
-  //
-
-  template <typename R>
-  UnaryFunction<R>::UnaryFunction(const Operator<R> *op,
-                                  const ExpressionId & exp,
-                                  bool isGarbage)
-    : Function<R>(op),
-      m_a(exp),
-      m_aGarbage(isGarbage)
-  {
-    m_a->addListener(ExpressionListener::getId());
-  }
-
-  template <typename R>
-  UnaryFunction<R>::~UnaryFunction()
-  {
-    m_a->removeListener(ExpressionListener::getId());
-    if (m_aGarbage)
-      delete (Expression *) m_a;
-  }
-
-  template <typename R>
-  void UnaryFunction<R>::handleActivate()
-  {
-    m_a->activate();
-  }
-
-  template <typename R>
-  void UnaryFunction<R>::handleDeactivate()
-  {
-    m_a->deactivate();
-  }
-
-  template <typename R>
-  bool UnaryFunction<R>::calculate(R &result) const
-  {
-    return (*Function<R>::m_op)(result, m_a);
-  }
-
-  // TODO
-  template <typename R>
-  void UnaryFunction<R>::print(std::ostream &s) const
-  {
-  }
-
-  //
-  // BinaryFunction
-  //
-
-  template <typename R>
-  BinaryFunction<R>::BinaryFunction(const Operator<R> *op,
-                                    const ExpressionId & expA,
-                                    const ExpressionId & expB,
-                                    bool isGarbageA,
-                                    bool isGarbageB)
-    : Function<R>(op),
-      m_a(expA),
-      m_b(expB),
-      m_aGarbage(isGarbageA),
-      m_bGarbage(isGarbageB)
-  {
-    m_a->addListener(ExpressionListener::getId());
-    m_b->addListener(ExpressionListener::getId());
-  }
-
-  template <typename R>
-  BinaryFunction<R>::~BinaryFunction()
-  {
-    m_a->removeListener(ExpressionListener::getId());
-    if (m_aGarbage)
-      delete (Expression *) m_a;
-    m_b->removeListener(ExpressionListener::getId());
-    if (m_bGarbage)
-      delete (Expression *) m_b;
-  }
-
-  template <typename R>
-  void BinaryFunction<R>::handleActivate()
-  {
-    m_a->activate();
-    m_b->activate();
-  }
-
-  template <typename R>
-  void BinaryFunction<R>::handleDeactivate()
-  {
-    m_a->deactivate();
-    m_b->deactivate();
-  }
-
-  template <typename R>
-  bool BinaryFunction<R>::calculate(R &result) const
-  {
-    return (*Function<R>::m_op)(result, m_a, m_b);
-  }
-
-  // TODO
-  template <typename R>
-  void BinaryFunction<R>::print(std::ostream &s) const
-  {
-  }
-
-
-  //
-  // NaryFunction
-  //
-
-  template <typename R>
-  NaryFunction<R>::NaryFunction(const Operator<R> *op,
-                                const std::vector<ExpressionId> &exps,
-                                const std::vector<bool> &garbage)
-    : Function<R>(op),
-      m_subexpressions(exps),
-      m_garbage(garbage)
-  {
-    assertTrue_2(exps.size() == garbage.size(), "Subexpression size does not match garbage size");
-    for (std::vector<ExpressionId>::iterator it = m_subexpressions.begin();
-         it != m_subexpressions.end();
-         ++it)
-      (*it)->addListener(ExpressionListener::getId());
-  }
-
-  template <typename R>
-  NaryFunction<R>::~NaryFunction()
-  {
-    for (size_t i = 0; i < m_subexpressions.size(); ++i) {
-      m_subexpressions[i]->removeListener(ExpressionListener::getId());
-      if (m_garbage[i])
-        delete (Expression *) m_subexpressions[i];
+    if (!isActive()) {
+      s << "UNKNOWN";
+      return;
     }
+    m_op->printValue(s, m_valueCache, m_exprVec);
   }
 
-  template <typename R>
-  void NaryFunction<R>::handleActivate()
+  Value Function::toValue() const
   {
-    for (size_t i = 0; i < m_subexpressions.size(); ++i)
-      m_subexpressions[i]->activate();
+    return m_op->toValue(m_valueCache, m_exprVec);
   }
 
-  template <typename R>
-  void NaryFunction<R>::handleDeactivate()
+  bool Function::getValue(bool &result) const
   {
-    for (size_t i = 0; i < m_subexpressions.size(); ++i)
-      m_subexpressions[i]->deactivate();
+    if (!isActive())
+      return false;
+    return (m_op)(result, m_exprVec);
   }
 
-  template <typename R>
-  bool NaryFunction<R>::calculate(R &result) const
+  bool Function::getValue(int32_t &result) const
   {
-    return (*Function<R>::m_op)(result, m_subexpressions);
+    if (!isActive())
+      return false;
+    return (m_op)(result, m_exprVec);
   }
 
-  // TODO
-  template <typename R>
-  void NaryFunction<R>::print(std::ostream &s) const
+  bool Function::getValue(double &result) const
   {
+    if (!isActive())
+      return false;
+    return (m_op)(result, m_exprVec);
   }
 
+  bool Function::getValue(std::string &result) const
+  {
+    if (!isActive())
+      return false;
+    return (m_op)(result, m_exprVec);
+  }
 
-  //
-  // Explicit instantiations
-  //
+  bool Function::getValuePointer(std::string const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = (m_op)(static_cast<std::string &>(*m_valueCache), m_exprVec);
+    if (result)
+      ptr = static_cast<std::string const *>(m_valueCache); // trust me
+    return result;
+  }
 
-  template class UnaryFunction<bool>;
-  template class UnaryFunction<uint16_t>;
-  template class UnaryFunction<int32_t>;
-  template class UnaryFunction<double>;
-  template class UnaryFunction<std::string>;
-  template class UnaryFunction<BooleanArray>;
-  template class UnaryFunction<IntegerArray>;
-  template class UnaryFunction<RealArray>;
-  template class UnaryFunction<StringArray>;
+  // Generic Array
+  bool Function::getValuePointer(Array const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = (m_op)(static_cast<Array &>(*m_valueCache), m_exprVec);
+    if (result)
+      ptr = static_cast<Array const *>(m_valueCache); // trust me
+    return result;
+  }
 
-  template class BinaryFunction<bool>;
-  template class BinaryFunction<uint16_t>;
-  template class BinaryFunction<int32_t>;
-  template class BinaryFunction<double>;
-  template class BinaryFunction<std::string>;
-  template class BinaryFunction<BooleanArray>;
-  template class BinaryFunction<IntegerArray>;
-  template class BinaryFunction<RealArray>;
-  template class BinaryFunction<StringArray>;
+  // Specific array types
+  bool Function::getValuePointer(BooleanArray const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = (m_op)(static_cast<BooleanArray &>(*m_valueCache), m_exprVec);
+    if (result)
+      ptr = static_cast<BooleanArray const *>(m_valueCache); // trust me
+    return result;
+  }
 
-  template class NaryFunction<bool>;
-  template class NaryFunction<uint16_t>;
-  template class NaryFunction<int32_t>;
-  template class NaryFunction<double>;
-  template class NaryFunction<std::string>;
-  template class NaryFunction<BooleanArray>;
-  template class NaryFunction<IntegerArray>;
-  template class NaryFunction<RealArray>;
-  template class NaryFunction<StringArray>;
+  bool Function::getValuePointer(IntegerArray const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = (m_op)(static_cast<IntegerArray &>(*m_valueCache), m_exprVec);
+    if (result)
+      ptr = static_cast<IntegerArray const *>(m_valueCache); // trust me
+    return result;
+  }
+
+  bool Function::getValuePointer(RealArray const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = (m_op)(static_cast<RealArray &>(*m_valueCache), m_exprVec);
+    if (result)
+      ptr = static_cast<RealArray const *>(m_valueCache); // trust me
+    return result;
+  }
+
+  bool Function::getValuePointer(StringArray const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    bool result = (m_op)(static_cast<StringArray &>(*m_valueCache), m_exprVec);
+    if (result)
+      ptr = static_cast<StringArray const *>(m_valueCache); // trust me
+    return result;
+  }
 
 } // namespace PLEXIL

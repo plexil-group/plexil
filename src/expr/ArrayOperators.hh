@@ -42,6 +42,8 @@ namespace PLEXIL
 
     bool operator()(int32_t &result, const ExpressionId &arg) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(ArrayLength, int32_t);
+
   private:
     // Disallow copy, assign
     ArrayLength(const ArrayLength &);
@@ -58,6 +60,8 @@ namespace PLEXIL
 
     bool operator()(bool &result, const ExpressionId &arg) const;
 
+    DECLARE_OPERATOR_STATIC_INSTANCE(AllElementsKnown, bool);
+
   private:
     // Disallow copy, assign
     AllElementsKnown(const AllElementsKnown &);
@@ -73,6 +77,8 @@ namespace PLEXIL
     bool checkArgCount(size_t count) const;
 
     bool operator()(bool &result, const ExpressionId &arg) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(AnyElementsKnown, bool);
 
   private:
     // Disallow copy, assign

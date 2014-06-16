@@ -42,8 +42,8 @@ class Passthrough : public Operator<R>
 {
 public:
   Passthrough()
+    : Operator<R>("PT")
   {
-    this->setName("PT");
   }
 
   ~Passthrough()

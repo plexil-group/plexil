@@ -30,9 +30,8 @@
 namespace PLEXIL
 {
   BooleanNot::BooleanNot()
-    : Operator<bool>()
+    : Operator<bool>("NOT")
   {
-    this->setName("NOT");
   }
 
   BooleanNot::~BooleanNot()
@@ -41,7 +40,7 @@ namespace PLEXIL
 
   bool BooleanNot::checkArgCount(size_t count) const
   {
-    return (count == 1);
+    return count == 1;
   }
 
   bool BooleanNot::operator()(bool &result, const ExpressionId &arg) const
@@ -54,9 +53,8 @@ namespace PLEXIL
   }
 
   BooleanOr::BooleanOr()
-    : Operator<bool>()
+    : Operator<bool>("OR")
   {
-    this->setName("OR");
   }
 
   BooleanOr::~BooleanOr()
@@ -65,7 +63,7 @@ namespace PLEXIL
 
   bool BooleanOr::checkArgCount(size_t count) const
   {
-    return (count > 0);
+    return count > 0;
   }
 
   bool BooleanOr::operator()(bool &result, const ExpressionId &arg) const
@@ -94,14 +92,14 @@ namespace PLEXIL
     return false;
   }
 
-  bool BooleanOr::operator()(bool &result, const std::vector<ExpressionId> &args) const
+  bool BooleanOr::operator()(bool &result,
+                             size_t nargs,
+                             ExpressionId const args[]) const
   {
     bool anyKnown = false;
-    for (std::vector<ExpressionId>::const_iterator it = args.begin();
-         it != args.end();
-         ++it) {
+    for (size_t i = 0; i < nargs; ++i) {
       bool temp;
-      if ((*it)->getValue(temp)) {
+      if (args[i]->getValue(temp)) {
         // Return if any arg is known and true
         if (temp) {
           result = true;
@@ -120,9 +118,8 @@ namespace PLEXIL
   //
 
   BooleanAnd::BooleanAnd()
-    : Operator<bool>()
+    : Operator<bool>("AND")
   {
-    this->setName("AND");
   }
 
   BooleanAnd::~BooleanAnd()
@@ -131,7 +128,7 @@ namespace PLEXIL
 
   bool BooleanAnd::checkArgCount(size_t count) const
   {
-    return (count > 0);
+    return count > 0;
   }
 
   bool BooleanAnd::operator()(bool &result, const ExpressionId &arg) const
@@ -161,14 +158,12 @@ namespace PLEXIL
     return false; // cannot be known
   }
 
-  bool BooleanAnd::operator()(bool &result, const std::vector<ExpressionId> &args) const
+  bool BooleanAnd::operator()(bool &result, size_t nargs, ExpressionId const args[]) const
   {
     bool allKnown = true;
-    for (std::vector<ExpressionId>::const_iterator it = args.begin();
-         it != args.end();
-         ++it) {
+    for (size_t i = 0; i < nargs; ++i) {
       bool temp;
-      if ((*it)->getValue(temp)) {
+      if (args[i]->getValue(temp)) {
         if (!temp) {
           // Any known and false -> result known and false
           result = false;
@@ -184,9 +179,8 @@ namespace PLEXIL
   }
 
   BooleanXor::BooleanXor()
-    : Operator<bool>()
+    : Operator<bool>("XOR")
   {
-    this->setName("XOR");
   }
 
   BooleanXor::~BooleanXor()
@@ -195,7 +189,7 @@ namespace PLEXIL
 
   bool BooleanXor::checkArgCount(size_t count) const
   {
-    return (count == 2);
+    return count > 0;
   }
 
   bool BooleanXor::operator()(bool &result, const ExpressionId &arg) const
@@ -214,15 +208,13 @@ namespace PLEXIL
     return true;
   }
 
-  bool BooleanXor::operator()(bool &result, const std::vector<ExpressionId> &args) const
+  bool BooleanXor::operator()(bool &result, size_t nargs, ExpressionId const args[]) const
   {
     bool temp1 = false;
-    for (std::vector<ExpressionId>::const_iterator it = args.begin();
-         it != args.end();
-         ++it) {
+    for (size_t i = 0; i < nargs; ++i) {
       bool temp2;
       // Return unknown if any arg is unknown
-      if ((*it)->getValue(temp2))
+      if (args[i]->getValue(temp2))
         return false;
       temp1 = (temp1 != temp2);
     }

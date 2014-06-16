@@ -43,37 +43,30 @@ namespace PLEXIL
   //
 
   // Comparisons
-  ENSURE_FUNCTION_FACTORY(Equal<bool>,        bool);
-  ENSURE_FUNCTION_FACTORY(Equal<int32_t>,     bool);
-  ENSURE_FUNCTION_FACTORY(Equal<double>,      bool);
-  ENSURE_FUNCTION_FACTORY(Equal<std::string>, bool);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Equal);
+  ENSURE_FUNCTION_FACTORY(Equal<bool>);
+  ENSURE_FUNCTION_FACTORY(Equal<std::string>);
 
-  ENSURE_FUNCTION_FACTORY(NotEqual<bool>,        bool);
-  ENSURE_FUNCTION_FACTORY(NotEqual<int32_t>,     bool);
-  ENSURE_FUNCTION_FACTORY(NotEqual<double>,      bool);
-  ENSURE_FUNCTION_FACTORY(NotEqual<std::string>, bool);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(NotEqual);
+  ENSURE_FUNCTION_FACTORY(NotEqual<bool>);
+  ENSURE_FUNCTION_FACTORY(NotEqual<std::string>);
 
-  ENSURE_FUNCTION_FACTORY(GreaterThan<int32_t>,     bool);
-  ENSURE_FUNCTION_FACTORY(GreaterThan<double>,      bool);
-  ENSURE_FUNCTION_FACTORY(GreaterThan<std::string>, bool);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(GreaterThan);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(GreaterEqual);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(LessThan);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(LessEqual);
 
-  ENSURE_FUNCTION_FACTORY(GreaterEqual<int32_t>,     bool);
-  ENSURE_FUNCTION_FACTORY(GreaterEqual<double>,      bool);
-  ENSURE_FUNCTION_FACTORY(GreaterEqual<std::string>, bool);
-
-  ENSURE_FUNCTION_FACTORY(LessThan<int32_t>,     bool);
-  ENSURE_FUNCTION_FACTORY(LessThan<double>,      bool);
-  ENSURE_FUNCTION_FACTORY(LessThan<std::string>, bool);
-
-  ENSURE_FUNCTION_FACTORY(LessEqual<int32_t>,     bool);
-  ENSURE_FUNCTION_FACTORY(LessEqual<double>,      bool);
-  ENSURE_FUNCTION_FACTORY(LessEqual<std::string>, bool);
+  // Not currently in the schema
+  // ENSURE_FUNCTION_FACTORY(GreaterThan<std::string>);
+  // ENSURE_FUNCTION_FACTORY(GreaterEqual<std::string>);
+  // ENSURE_FUNCTION_FACTORY(LessThan<std::string>);
+  // ENSURE_FUNCTION_FACTORY(LessEqual<std::string>);
 
   // Boolean operators
-  ENSURE_FUNCTION_FACTORY(BooleanNot, bool);
-  ENSURE_FUNCTION_FACTORY(BooleanOr,  bool);
-  ENSURE_FUNCTION_FACTORY(BooleanAnd, bool);
-  ENSURE_FUNCTION_FACTORY(BooleanXor, bool);
+  ENSURE_FUNCTION_FACTORY(BooleanNot);
+  ENSURE_FUNCTION_FACTORY(BooleanOr);
+  ENSURE_FUNCTION_FACTORY(BooleanAnd);
+  ENSURE_FUNCTION_FACTORY(BooleanXor);
 
   // Arithmetic operators
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(Addition);
@@ -90,7 +83,7 @@ namespace PLEXIL
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(Round);
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(Truncate);
 
-  ENSURE_FUNCTION_FACTORY(SquareRoot<double>,  double);
+  ENSURE_FUNCTION_FACTORY(SquareRoot<double>);
   ENSURE_FUNCTION_FACTORY(RealToInteger, int32_t);
 
   void registerBasicExpressionFactories()
@@ -120,33 +113,26 @@ namespace PLEXIL
       REGISTER_EXPRESSION(StringArrayVariable, StringArrayVariable);
 
       // Comparisons
-      REGISTER_FUNCTION(IsKnown, bool, IsKnown);
+      REGISTER_FUNCTION(IsKnown, IsKnown);
 
-      REGISTER_FUNCTION(Equal<bool>,        bool, EQBoolean);
-      REGISTER_FUNCTION(Equal<int32_t>,     bool, EQInteger);
-      REGISTER_FUNCTION(Equal<double>,      bool, EQReal);
-      REGISTER_FUNCTION(Equal<std::string>, bool, EQString);
+      REGISTER_ARITHMETIC_FUNCTION(Equal, EQNumeric);
+      REGISTER_FUNCTION(Equal<bool>, EQBoolean);
+      REGISTER_FUNCTION(Equal<std::string>, EQString);
 
-      REGISTER_FUNCTION(NotEqual<bool>,        bool, NEBoolean);
-      REGISTER_FUNCTION(NotEqual<int32_t>,     bool, NEInteger);
-      REGISTER_FUNCTION(NotEqual<double>,      bool, NEReal);
-      REGISTER_FUNCTION(NotEqual<std::string>, bool, NEString);
+      REGISTER_ARITHMETIC_FUNCTION(NotEqual, NENumeric);
+      REGISTER_FUNCTION(NotEqual<bool>, NEBoolean);
+      REGISTER_FUNCTION(NotEqual<std::string>, NEString);
 
-      REGISTER_FUNCTION(GreaterThan<int32_t>,     bool, GTInteger);
-      REGISTER_FUNCTION(GreaterThan<double>,      bool, GTReal);
-      REGISTER_FUNCTION(GreaterThan<std::string>, bool, GTString);
+      REGISTER_ARITHMETIC_FUNCTION(GreaterThan, GT);
+      REGISTER_ARITHMETIC_FUNCTION(GreaterEqual, GE);
+      REGISTER_ARITHMETIC_FUNCTION(LessThan, LT);
+      REGISTER_ARITHMETIC_FUNCTION(LessEqual, LE);
 
-      REGISTER_FUNCTION(GreaterEqual<int32_t>,     bool, GEInteger);
-      REGISTER_FUNCTION(GreaterEqual<double>,      bool, GEReal);
-      REGISTER_FUNCTION(GreaterEqual<std::string>, bool, GEString);
-
-      REGISTER_FUNCTION(LessThan<int32_t>,     bool, LTInteger);
-      REGISTER_FUNCTION(LessThan<double>,      bool, LTReal);
-      REGISTER_FUNCTION(LessThan<std::string>, bool, LTString);
-
-      REGISTER_FUNCTION(LessEqual<int32_t>,     bool, LEInteger);
-      REGISTER_FUNCTION(LessEqual<double>,      bool, LEReal);
-      REGISTER_FUNCTION(LessEqual<std::string>, bool, LEString);
+      // Not currently in the schema
+      // REGISTER_FUNCTION(GreaterThan<std::string>, GTString);
+      // REGISTER_FUNCTION(GreaterEqual<std::string>, GEString);
+      // REGISTER_FUNCTION(LessThan<std::string>, LTString);
+      // REGISTER_FUNCTION(LessEqual<std::string>, LEString);
 
       // Arithmetic operations
       REGISTER_ARITHMETIC_FUNCTION(Addition, ADD);
@@ -163,18 +149,23 @@ namespace PLEXIL
       REGISTER_ARITHMETIC_FUNCTION(Round, ROUND);
       REGISTER_ARITHMETIC_FUNCTION(Truncate, TRUNC);
 
-      REGISTER_FUNCTION(SquareRoot<double>, double, SQRT);
-      REGISTER_FUNCTION(RealToInteger, int32_t, REAL_TO_INT);
+      REGISTER_FUNCTION(SquareRoot<double>, SQRT);
+      REGISTER_FUNCTION(RealToInteger, REAL_TO_INT);
 
       // Boolean operations
-      REGISTER_FUNCTION(BooleanNot, bool, NOT);
-      REGISTER_FUNCTION(BooleanAnd, bool, AND);
-      REGISTER_FUNCTION(BooleanOr,  bool, OR);
-      REGISTER_FUNCTION(BooleanXor, bool, XOR);
+      REGISTER_FUNCTION(BooleanNot, NOT);
+      REGISTER_FUNCTION(BooleanAnd, AND);
+      REGISTER_FUNCTION(BooleanOr, OR);
+      REGISTER_FUNCTION(BooleanXor, XOR);
 
       // String operations
-      REGISTER_FUNCTION(StringConcat, std::string, CONCAT);
-      REGISTER_FUNCTION(StringLength, int32_t, STRLEN);
+      REGISTER_FUNCTION(StringConcat, CONCAT);
+      REGISTER_FUNCTION(StringLength, STRLEN);
+
+      // Array operations
+      REGISTER_FUNCTION(ArrayLength, SIZE);
+      REGISTER_FUNCTION(AllElementsKnown, ALL_KNOWN);
+      REGISTER_FUNCTION(AnyElementsKnown, ANY_KNOWN);
 
       sl_inited = true;
     }

@@ -32,9 +32,8 @@ namespace PLEXIL
   // StringConcat
   //
   StringConcat::StringConcat()
-    : Operator<std::string>()
+    : Operator<std::string>("CONCAT")
   {
-    this->setName("concat");
   }
   
   StringConcat::~StringConcat()
@@ -43,6 +42,12 @@ namespace PLEXIL
 
   bool StringConcat::checkArgCount(size_t /* count */) const
   {
+    return true;
+  }
+
+  bool StringConcat::operator()(std::string &result) const
+  {
+    result.clear();
     return true;
   }
 
@@ -67,19 +72,20 @@ namespace PLEXIL
   }
 
   bool StringConcat::operator()(std::string &result, 
-                                const std::vector<ExpressionId> &args) const
+                                size_t nargs,
+                                ExpressionId const args[]) const
   {
-    std::vector<std::string const *> vals(args.size());
-    for (size_t i = 0; i < args.size(); ++i) {
+    std::string const *vals[nargs];
+    for (size_t i = 0; i < nargs; ++i) {
       if (!args[i]->getValuePointer(vals[i]))
         return false;
     }
     size_t len = 0;
-    for (size_t i = 0; i < args.size(); ++i)
+    for (size_t i = 0; i < nargs; ++i)
       len += vals[i]->size();
     result.clear();
     result.reserve(len);
-    for (size_t i = 0; i < args.size(); ++i)
+    for (size_t i = 0; i < nargs; ++i)
       result.append(*(vals[i]));
     return true;
   }
@@ -88,9 +94,8 @@ namespace PLEXIL
   // StringLength
   //
   StringLength::StringLength()
-    : Operator<int32_t>()
+    : Operator<int32_t>("STRLEN")
   {
-    this->setName("strlen");
   }
 
   StringLength::~StringLength()

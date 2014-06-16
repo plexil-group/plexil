@@ -27,68 +27,263 @@
 #ifndef PLEXIL_OPERATOR_HH
 #define PLEXIL_OPERATOR_HH
 
+#include "ArrayFwd.hh"
 #include "Id.hh"
+#include "Value.hh"
 #include "ValueType.hh"
 
 #include <string>
-#include <vector>
 
 namespace PLEXIL
 {
   // Forward references
   class Expression;
-  typedef Id<Expression> ExpressionId;
-  
+  DECLARE_ID(Expression);
+
+  class ExprVec;
+
   // TODO:
   // - Support printing
 
-  template <typename R>
+  // Type-independent components of Operator
   class Operator
   {
   public:
-    virtual ~Operator();
+    virtual ~Operator()
+    {
+    }
 
-    virtual bool operator()(R &result, ExpressionId const &arg) const;
+    std::string const &getName() const
+    {
+      return m_name;
+    }
 
-    virtual bool operator()(R &result,
-                            ExpressionId const &argA,
-                            ExpressionId const &argB) const;
-
-    virtual bool operator()(R &result,
-                            std::vector<ExpressionId> const &args) const;
-
-    const std::string& getName() const;
-    virtual const ValueType valueType() const;
-
+    // Delegated to each individual operator.
     virtual bool checkArgCount(size_t count) const = 0;
+
+    // Delegated to OperatorImpl by default
+    virtual ValueType valueType() const = 0;
+    virtual void *allocateCache() const = 0;
+    virtual void deleteCache(void *Ptr) const = 0;
+    virtual bool calcNative(void *cache, ExprVec const *exprs) const = 0;
+    virtual void printValue(std::ostream &s, void *cache, ExprVec const *exprs) const = 0;
+    virtual Value toValue(void *cache, ExprVec const *exprs) const = 0;
+
+  protected:
+    Operator(std::string const &name)
+      : m_name(name)
+    {
+    }
+
+    std::string const m_name;
+
+  private:
+    // unimplemented
+    Operator();
+    Operator(Operator const &);
+    Operator &operator=(Operator const &);
+  };
+
+  template <class IMPL>
+  class OperatorShim : public Operator
+  {
+  public:
+    OperatorShim(std::string const &name) : Operator(name) {}
+    virtual ~OperatorShim() {}
+
+    bool operator()(bool &result, ExprVec const *args) const
+    {
+      return static_cast<IMPL const *>(this)->calc(result, args);
+    }
+
+    bool operator()(uint16_t &result, ExprVec const *args) const
+    {
+      return static_cast<IMPL const *>(this)->calc(result, args);
+    }
+
+    bool operator()(int32_t &result, ExprVec const *args) const
+    {
+      return static_cast<IMPL const *>(this)->calc(result, args);
+    }
+
+    bool operator()(double &result, ExprVec const *args) const
+    {
+      return static_cast<IMPL const *>(this)->calc(result, args);
+    }
+
+    bool operator()(std::string &result, ExprVec const *args) const
+    {
+      return static_cast<IMPL const *>(this)->calc(result, args);
+    }
+
+    bool operator()(BooleanArray &result, ExprVec const *args) const
+    {
+      return static_cast<IMPL const *>(this)->calc(result, args);
+    }
+
+    bool operator()(IntegerArray &result, ExprVec const *args) const
+    {
+      return static_cast<IMPL const *>(this)->calc(result, args);
+    }
+
+    bool operator()(RealArray &result, ExprVec const *args) const
+    {
+      return static_cast<IMPL const *>(this)->calc(result, args);
+    }
+
+    bool operator()(StringArray &result, ExprVec const *args) const
+    {
+      return static_cast<IMPL const *>(this)->calc(result, args);
+    }
+
+  protected:
+
+    // Default methods
+    virtual bool calc(bool &result, ExprVec const *args) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, this->getName() << ": Return type error");
+      return false;
+    }
+
+    virtual bool calc(uint16_t &result, ExprVec const *args) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, this->getName() << ": Return type error");
+      return false;
+    }
+
+    virtual bool calc(int32_t &result, ExprVec const *args) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, this->getName() << ": Return type error");
+      return false;
+    }
+
+    virtual bool calc(double &result, ExprVec const *args) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, this->getName() << ": Return type error");
+      return false;
+    }
+
+    virtual bool calc(std::string &result, ExprVec const *args) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, this->getName() << ": Return type error");
+      return false;
+    }
+
+    virtual bool calc(BooleanArray &result, ExprVec const *args) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, this->getName() << ": Return type error");
+      return false;
+    }
+
+    virtual bool calc(IntegerArray &result, ExprVec const *args) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, this->getName() << ": Return type error");
+      return false;
+    }
+
+    virtual bool calc(RealArray &result, ExprVec const *args) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, this->getName() << ": Return type error");
+      return false;
+    }
+
+    virtual bool calc(StringArray &result, ExprVec const *args) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, this->getName() << ": Return type error");
+      return false;
+    }
+  };
+
+  template <typename R>
+  class OperatorImpl : public OperatorShim<OperatorImpl<R> >
+  {
+  public:
+    virtual ~OperatorImpl() {}
+
+    virtual bool calc(R &result, ExprVec const *) const = 0;
+
+    // Default methods, based on R
+    ValueType valueType() const;
+    void *allocateCache() const { return static_cast<void *>(new R); }
+    void deleteCache(void *ptr) const { delete static_cast<R *>(ptr); }
+    bool calcNative(void *cache, ExprVec const *exprs) const
+    {
+      return calc(*(static_cast<R *>(cache)), exprs);
+    }
+
+    void printValue(std::ostream &s, void *cache, ExprVec const *exprs) const
+    {
+      R *nativeCache = static_cast<R *>(cache);
+      if (calc(*nativeCache, exprs))
+        PLEXIL::printValue(*nativeCache, s);
+      else
+        s << "UNKNOWN";
+    }
+
+    Value toValue(void *cache, ExprVec const *exprs) const
+    {
+      R *nativeCache = static_cast<R *>(cache);
+      bool known = calc(*nativeCache, exprs);
+      if (known)
+        return Value(*nativeCache);
+      else
+        return Value();
+    }
 
   protected:
     // Base class shouldn't be instantiated by itself
-    Operator();
-
-    // Shortcut for derived classes
-    void setName(const std::string &name);
+    OperatorImpl(std::string const &name)
+      : OperatorShim<OperatorImpl<R> >(name)
+    {
+    }
 
   private:
-    // Disallow copy, assignment, since there is no 
-    Operator(Operator const &);
-    Operator &operator=(Operator const &);
+    // Unimplemented
+    OperatorImpl();
+    OperatorImpl(OperatorImpl const &);
+    OperatorImpl &operator=(OperatorImpl const &);
+  };
 
-    std::string m_name;
+  template <typename R>
+  class OperatorImpl<ArrayImpl<R> >
+    : public OperatorShim<OperatorImpl<ArrayImpl<R> > >
+  {
+  public:
+    virtual ~OperatorImpl() {}
+
+    virtual bool calc(R &result, ExprVec const *) const = 0;
+    virtual bool calc(Array &result, ExprVec const *) const = 0;
+
+    // Default methods, based on R
+    virtual ValueType valueType() const;
+    virtual void *allocateCache() const { return new R; }
+    virtual void deleteCache(void *ptr) const { delete static_cast<ArrayImpl<R> *>(ptr); }
+
+  protected:
+    // Base class shouldn't be instantiated by itself
+    OperatorImpl(std::string const &name)
+      : OperatorShim<OperatorImpl<R> >(name)
+    {
+    }
+
+  private:
+    // Unimplemented
+    OperatorImpl();
+    OperatorImpl(OperatorImpl const &);
+    OperatorImpl &operator=(OperatorImpl const &);
   };
 
 } // namespace PLEXIL
 
 /**
  * @brief Helper macro, intended to implement "boilerplate" singleton accessors
- *        for classes derived from Operator<R>.
+ *        for classes derived from OperatorImpl<R>.
  */
 #define DECLARE_OPERATOR_STATIC_INSTANCE(CLASS, RETURNS) \
-  static PLEXIL::Operator<RETURNS> const *instance()     \
+  static PLEXIL::Operator const *instance() \
   { \
-    static CLASS sl_instance; \
-    return static_cast<PLEXIL::Operator<RETURNS> const *>(&sl_instance); \
+    static CLASS const sl_instance; \
+    return static_cast<PLEXIL::Operator const *>(&sl_instance); \
   }
-
 
 #endif // PLEXIL_OPERATOR_HH

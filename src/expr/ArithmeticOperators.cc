@@ -26,6 +26,8 @@
 
 #include "ArithmeticOperators.hh"
 #include "Expression.hh"
+#include "ExprVec.hh"
+
 #include <cmath>
 #include <limits>
 
@@ -41,9 +43,8 @@ namespace PLEXIL
 
   template <typename NUM>
   Addition<NUM>::Addition()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("ADD")
   {
-    this->setName("+");
   }
 
   template <typename NUM>
@@ -54,34 +55,18 @@ namespace PLEXIL
   template <typename NUM>
   bool Addition<NUM>::checkArgCount(size_t count) const
   {
-    return count >= 2;
-  }
-
-  // TODO: overflow checks
-  template <typename NUM>
-  bool Addition<NUM>::operator()(NUM &result,
-                                 const ExpressionId &argA,
-                                 const ExpressionId &argB) const
-  {
-    NUM tempA, tempB;
-    if (!argA->getValue(tempA)
-        || !argB->getValue(tempB))
-      return false;
-    result = tempA + tempB;
     return true;
   }
 
   // TODO: overflow checks
   template <typename NUM>
-  bool Addition<NUM>::operator()(NUM &result,
-                                 const std::vector<ExpressionId> &args) const
+  bool Addition<NUM>::calc(NUM &result,
+                           ExprVec const* args) const
   {
     NUM workingResult = 0;
-    for (std::vector<ExpressionId>::const_iterator it = args.begin();
-         it != args.end();
-         ++it) {
+    for (size_t i = 0; i < args->size(); ++i) {
       NUM temp;
-      if (!(*it)->getValue(temp))
+      if (!(*args)[i]->getValue(temp))
         return false; // unknown if any arg unknown
       workingResult += temp;
     }
@@ -95,9 +80,8 @@ namespace PLEXIL
 
   template <typename NUM>
   Subtraction<NUM>::Subtraction()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("SUB")
   {
-    this->setName("-");
   }
 
   template <typename NUM>
@@ -115,43 +99,23 @@ namespace PLEXIL
   // If we extend to unsigned numeric types, add an error message for this method
 
   template <typename NUM>
-  bool Subtraction<NUM>::operator()(NUM &result,
-                                    const ExpressionId &arg) const
+  bool Subtraction<NUM>::calc(NUM &result,
+                              ExprVec const *args) const
   {
+    assertTrue_1(args->size() > 0); // must be at least one
     NUM temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false;
-    result = -temp;
-    return true;
-  }
-
-  // TODO: overflow checks
-  template <typename NUM>
-  bool Subtraction<NUM>::operator()(NUM &result,
-                                    const ExpressionId &argA,
-                                    const ExpressionId &argB) const
-  {
-    NUM tempA, tempB;
-    if (!argA->getValue(tempA)
-        || !argB->getValue(tempB))
-      return false;
-    result = tempA - tempB;
-    return true;
-  }
-
-  // TODO: overflow checks
-  template <typename NUM>
-  bool Subtraction<NUM>::operator()(NUM &result,
-                                    const std::vector<ExpressionId> &args) const
-  {
-    std::vector<ExpressionId>::const_iterator it = args.begin();
-    NUM workingResult;
-    if (!(*it++)->getValue(workingResult))
-      return false;
-    for (; it != args.end(); ++it) {
-      NUM temp;
-      if (!(*it)->getValue(temp))
-        return false; // unknown if any arg unknown
+    if (args->size() == 1) {
+      // Unary
+      result = -temp;
+      return true;
+    }
+    // 2 or more args
+    NUM workingResult = temp;
+    for (size_t i = 1; i < args->size(); ++i) {
+      if (!(*args)[i]->getValue(temp))
+        return false;
       workingResult -= temp;
     }
     result = workingResult;
@@ -164,9 +128,8 @@ namespace PLEXIL
 
   template <typename NUM>
   Multiplication<NUM>::Multiplication()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("MUL")
   {
-    this->setName("*");
   }
 
   template <typename NUM>
@@ -177,37 +140,21 @@ namespace PLEXIL
   template <typename NUM>
   bool Multiplication<NUM>::checkArgCount(size_t count) const
   {
-    return count >= 2;
+    return count > 0;
   }
 
   // TODO: overflow checks
   template <typename NUM>
-  bool Multiplication<NUM>::operator()(NUM &result,
-                                       const ExpressionId &argA,
-                                       const ExpressionId &argB) const
+  bool Multiplication<NUM>::calc(NUM &result,
+                                 ExprVec const *args) const
   {
-    NUM tempA, tempB;
-    if (!argA->getValue(tempA)
-        || !argB->getValue(tempB))
+    NUM workingResult, temp;
+    if (!(*args)[0]->getValue(workingResult))
       return false;
-    result = tempA * tempB;
-    return true;
-  }
-
-  // TODO: overflow checks
-  template <typename NUM>
-  bool Multiplication<NUM>::operator()(NUM &result,
-                                       const std::vector<ExpressionId> &args) const
-  {
-    std::vector<ExpressionId>::const_iterator it = args.begin();
-    NUM workingResult;
-    if (!(*it++)->getValue(workingResult))
-      return false;
-    for (; it != args.end(); ++it) {
-      NUM temp;
-      if (!(*it)->getValue(temp))
-        return false; // unknown if any arg unknown
-      workingResult = workingResult * temp;
+    for (size_t i = 1; i < args->size(); ++i) {
+      if (!(*args)[i]->getValue(temp))
+        return false;
+      workingResult *= temp;
     }
     result = workingResult;
     return true;
@@ -219,9 +166,8 @@ namespace PLEXIL
 
   template <typename NUM>
   Division<NUM>::Division()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("DIV")
   {
-    this->setName("/");
   }
 
   template <typename NUM>
@@ -237,13 +183,12 @@ namespace PLEXIL
 
   // TODO: warn on zero divisor?
   template <typename NUM>
-  bool Division<NUM>::operator()(NUM &result,
-                                 const ExpressionId &argA,
-                                 const ExpressionId &argB) const
+  bool Division<NUM>::calc(NUM &result,
+                           ExprVec const *args) const
   {
     NUM tempA, tempB;
-    if (!argA->getValue(tempA)
-        || !argB->getValue(tempB)
+    if (!(*args)[0]->getValue(tempA)
+        || !(*args)[1]->getValue(tempB)
         || tempB == 0)
       return false;
     result = tempA / tempB;
@@ -256,9 +201,8 @@ namespace PLEXIL
 
   template <typename NUM>
   Modulo<NUM>::Modulo()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("MOD")
   {
-    this->setName("%");
   }
 
   template <typename NUM>
@@ -269,18 +213,17 @@ namespace PLEXIL
   template <typename NUM>
   bool Modulo<NUM>::checkArgCount(size_t count) const
   {
-    return count >= 2;
+    return count == 2;
   }
 
   // Integer implementation
   template <>
-  bool Modulo<int32_t>::operator()(int32_t &result,
-                                   const ExpressionId &argA,
-                                   const ExpressionId &argB) const
+  bool Modulo<int32_t>::calc(int32_t &result,
+                             ExprVec const *args) const
   {
     int32_t tempA, tempB;
-    if (!argA->getValue(tempA)
-        || !argB->getValue(tempB)
+    if (!(*args)[0]->getValue(tempA)
+        || !(*args)[1]->getValue(tempB)
         || tempB == 0)
       return false;
     result = tempA % tempB;
@@ -289,13 +232,12 @@ namespace PLEXIL
 
   // Real implementation
   template <>
-  bool Modulo<double>::operator()(double &result,
-                                  const ExpressionId &argA,
-                                  const ExpressionId &argB) const
+  bool Modulo<double>::calc(double &result,
+                            ExprVec const *args) const
   {
     double tempA, tempB;
-    if (!argA->getValue(tempA)
-        || !argB->getValue(tempB)
+    if (!(*args)[0]->getValue(tempA)
+        || !(*args)[1]->getValue(tempB)
         || tempB == 0)
       return false;
     result = fmod(tempA, tempB);
@@ -308,9 +250,8 @@ namespace PLEXIL
 
   template <typename NUM>
   Minimum<NUM>::Minimum()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("MIN")
   {
-    this->setName("min");
   }
 
   template <typename NUM>
@@ -321,33 +262,19 @@ namespace PLEXIL
   template <typename NUM>
   bool Minimum<NUM>::checkArgCount(size_t count) const
   {
-    return count >= 2;
+    return count >= 1;
   }
 
   template <typename NUM>
-  bool Minimum<NUM>::operator()(NUM &result,
-                                const ExpressionId &argA,
-                                const ExpressionId &argB) const
+  bool Minimum<NUM>::calc(NUM &result,
+                          ExprVec const *args) const
   {
-    NUM tempA, tempB;
-    if (!argA->getValue(tempA)
-        || !argB->getValue(tempB))
-      return false;
-    result = (tempA <= tempB) ? tempA : tempB;
-    return true;
-  }
-
-  template <typename NUM>
-  bool Minimum<NUM>::operator()(NUM &result,
-                                const std::vector<ExpressionId> &args) const
-  {
-    std::vector<ExpressionId>::const_iterator it = args.begin();
     NUM workingResult;
-    if (!(*it++)->getValue(workingResult))
+    if (!(*args)[0]->getValue(workingResult))
       return false;
-    for (; it != args.end(); ++it) {
+    for (size_t i = 1; i < args->size(); ++i) {
       NUM temp;
-      if (!(*it)->getValue(temp))
+      if (!(*args)[i]->getValue(temp))
         return false; // unknown if any arg unknown
       if (temp < workingResult)
         workingResult = temp;
@@ -362,9 +289,8 @@ namespace PLEXIL
 
   template <typename NUM>
   Maximum<NUM>::Maximum()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("MAX")
   {
-    this->setName("max");
   }
 
   template <typename NUM>
@@ -379,30 +305,15 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool Maximum<NUM>::operator()(NUM &result,
-                                const ExpressionId &argA,
-                                const ExpressionId &argB) const
+  bool Maximum<NUM>::calc(NUM &result,
+                          ExprVec const *args) const
   {
-    NUM tempA, tempB;
-    if (!argA->getValue(tempA))
-      return false;
-    if (!argB->getValue(tempB))
-      return false;
-    result = (tempA >= tempB) ? tempA : tempB;
-    return true;
-  }
-
-  template <typename NUM>
-  bool Maximum<NUM>::operator()(NUM &result,
-                                const std::vector<ExpressionId> &args) const
-  {
-    std::vector<ExpressionId>::const_iterator it = args.begin();
     NUM workingResult;
-    if (!(*it++)->getValue(workingResult))
+    if (!(*args)[0]->getValue(workingResult))
       return false;
-    for (; it != args.end(); ++it) {
+    for (size_t i = 1; i < args->size(); ++i) {
       NUM temp;
-      if (!(*it)->getValue(temp))
+      if (!(*args)[i]->getValue(temp))
         return false; // unknown if any arg unknown
       if (temp > workingResult)
         workingResult = temp;
@@ -417,9 +328,8 @@ namespace PLEXIL
 
   template <typename NUM>
   AbsoluteValue<NUM>::AbsoluteValue()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("ABS")
   {
-    this->setName("abs");
   }
 
   template <typename NUM>
@@ -433,15 +343,14 @@ namespace PLEXIL
   {
   }
 
-  // *** TODO ***
-  // Unsigned numeric types need a simple passthrough method
+  // TODO: Unsigned numeric types need a simple passthrough method
 
   template <typename NUM>
-  bool AbsoluteValue<NUM>::operator()(NUM &result,
-                                      const ExpressionId &arg) const
+  bool AbsoluteValue<NUM>::calc(NUM &result,
+                                ExprVec const *args) const
   {
     NUM temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false;
     result = (temp < 0) ? -temp : temp;
     return true;
@@ -453,9 +362,8 @@ namespace PLEXIL
 
   template <typename NUM>
   SquareRoot<NUM>::SquareRoot()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("SQRT")
   {
-    this->setName("sqrt");
   }
 
   template <typename NUM>
@@ -470,11 +378,11 @@ namespace PLEXIL
   }
 
   template <>
-  bool SquareRoot<double>::operator()(double &result,
-                                      const ExpressionId &arg) const
+  bool SquareRoot<double>::calc(double &result,
+                                ExprVec const *args) const
   {
     double temp;
-    if (!arg->getValue(temp)
+    if (!(*args)[0]->getValue(temp)
         || temp < 0) // imaginary result
       return false;
     result = sqrt(temp);
@@ -506,7 +414,7 @@ namespace PLEXIL
 
   template <typename NUM>
   Ceiling<NUM>::Ceiling()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("CEIL")
   {
   }
 
@@ -522,27 +430,29 @@ namespace PLEXIL
   }
 
   template <>
-  bool Ceiling<double>::operator()(double &result, const ExpressionId &arg) const
+  bool Ceiling<double>::calc(double &result,
+                             ExprVec const *args) const
   {
     double temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false;
     result = ceil(temp);
     return true;
   }
 
   template <>
-  bool Ceiling<int32_t>::operator()(int32_t &result, const ExpressionId &arg) const
+  bool Ceiling<int32_t>::calc(int32_t &result,
+                              ExprVec const *args) const
   {
     double temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false;
     return doubleToInt(ceil(temp), result);
   }
 
   template <typename NUM>
   Floor<NUM>::Floor()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("FLOOR")
   {
   }
 
@@ -558,27 +468,29 @@ namespace PLEXIL
   }
 
   template <>
-  bool Floor<double>::operator()(double &result, const ExpressionId &arg) const
+  bool Floor<double>::calc(double &result,
+                           ExprVec const *args) const
   {
     double temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false;
     result = floor(temp);
     return true;
   }
 
   template <>
-  bool Floor<int32_t>::operator()(int32_t &result, const ExpressionId &arg) const
+  bool Floor<int32_t>::calc(int32_t &result,
+                            ExprVec const *args) const
   {
     double temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false;
     return doubleToInt(floor(temp), result);
   }
 
   template <typename NUM>
   Round<NUM>::Round()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("ROUND")
   {
   }
 
@@ -594,27 +506,29 @@ namespace PLEXIL
   }
 
   template <>
-  bool Round<double>::operator()(double &result, const ExpressionId &arg) const
+  bool Round<double>::calc(double &result,
+                           ExprVec const *args) const
   {
     double temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false;
     result = round(temp);
     return true;
   }
 
   template <>
-  bool Round<int32_t>::operator()(int32_t &result, const ExpressionId &arg) const
+  bool Round<int32_t>::calc(int32_t &result,
+                            ExprVec const *args) const
   {
     double temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false;
     return doubleToInt(round(temp), result);
   }
 
   template <typename NUM>
   Truncate<NUM>::Truncate()
-    : Operator<NUM>()
+    : OperatorImpl<NUM>("TRUNC")
   {
   }
 
@@ -630,20 +544,22 @@ namespace PLEXIL
   }
 
   template <>
-  bool Truncate<double>::operator()(double &result, const ExpressionId &arg) const
+  bool Truncate<double>::calc(double &result,
+                              ExprVec const *args) const
   {
     double temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false;
     result = trunc(temp);
     return true;
   }
 
   template <>
-  bool Truncate<int32_t>::operator()(int32_t &result, const ExpressionId &arg) const
+  bool Truncate<int32_t>::calc(int32_t &result,
+                               ExprVec const *args) const
   {
     double temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false;
     return doubleToInt(trunc(temp), result);
   }
@@ -653,7 +569,7 @@ namespace PLEXIL
   //
 
   RealToInteger::RealToInteger()
-    : Operator<int32_t>()
+    : OperatorImpl<int32_t>("REAL_TO_INT")
   {
   }
 
@@ -666,10 +582,11 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool RealToInteger::operator()(int32_t & result, const ExpressionId &arg) const
+  bool RealToInteger::calc(int32_t & result,
+                           ExprVec const *args) const
   {
     double temp;
-    if (!arg->getValue(temp))
+    if (!(*args)[0]->getValue(temp))
       return false; // unknown/invalid
     return doubleToInt(temp, result);
   }

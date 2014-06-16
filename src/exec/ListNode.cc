@@ -87,9 +87,8 @@ namespace PLEXIL
   private:
 
     AllFinished()
-      : Operator<bool>()
+      : Operator<bool>("AllChildrenFinished")
     {
-      this->setName("AllChildrenFinished");
     }
 
     // Disallow copy, assign
@@ -130,7 +129,7 @@ namespace PLEXIL
         result = false;
       }
       else {
-        debugMsg("AllChildrenFinished ",
+        debugMsg("AllChildrenWaitingOrFinished ",
                  "All of " << total
                  << " children WAITING or FINISHED. Returning TRUE.");
         result = true;
@@ -141,9 +140,8 @@ namespace PLEXIL
   private:
     // Should only be called from instance() static member function
     AllWaitingOrFinished()
-      : Operator<bool>()
+      : Operator<bool>("AllChildrenWaitingOrFinished")
     {
-      this->setName("AllChildrenWaitingOrFinished");
     }
 
     // Disallow copy, assign

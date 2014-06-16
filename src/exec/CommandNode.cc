@@ -47,7 +47,7 @@ namespace PLEXIL
   {
   public:
     CommandHandleInterruptible()
-      : Operator<bool>()
+      : Operator<bool>("Interruptible")
     {
     }
 

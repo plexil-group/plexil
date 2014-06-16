@@ -33,18 +33,13 @@ namespace PLEXIL
 {
 
   template <typename NUM>
-  class Addition : public Operator<NUM>
+  class Addition : public OperatorImpl<NUM>
   {
   public:
     Addition();
     ~Addition();
-
     bool checkArgCount(size_t count) const;
-
-    // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
-    bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Addition<NUM>, NUM);
 
   private:
@@ -53,18 +48,13 @@ namespace PLEXIL
   };
 
   template <typename NUM>
-  class Subtraction : public Operator<NUM>
+  class Subtraction : public OperatorImpl<NUM>
   {
   public:
     Subtraction();
     ~Subtraction();
-
     bool checkArgCount(size_t count) const;
-
-    bool operator()(NUM &result, const ExpressionId &arg) const;
-    bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Subtraction<NUM>, NUM);
 
   private:
@@ -73,18 +63,13 @@ namespace PLEXIL
   };
 
   template <typename NUM>
-  class Multiplication : public Operator<NUM>
+  class Multiplication : public OperatorImpl<NUM>
   {
   public:
     Multiplication();
     ~Multiplication();
-
     bool checkArgCount(size_t count) const;
-
-    // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
-    bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Multiplication<NUM>, NUM);
 
   private:
@@ -93,18 +78,13 @@ namespace PLEXIL
   };
 
   template <typename NUM>
-  class Division : public Operator<NUM>
+  class Division : public OperatorImpl<NUM>
   {
   public:
     Division();
     ~Division();
-
     bool checkArgCount(size_t count) const;
-
-    // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
-    bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    // bool operator()(NUM &result, const std::vector<ExpressionId> &args) const; // ??
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Division<NUM>, NUM);
 
   private:
@@ -113,16 +93,13 @@ namespace PLEXIL
   };
 
   template <typename NUM>
-  class Modulo : public Operator<NUM>
+  class Modulo : public OperatorImpl<NUM>
   {
   public:
     Modulo();
     ~Modulo();
-
     bool checkArgCount(size_t count) const;
-
-    bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Modulo<NUM>, NUM);
 
   private:
@@ -131,18 +108,13 @@ namespace PLEXIL
   };
 
   template <typename NUM>
-  class Minimum : public Operator<NUM>
+  class Minimum : public OperatorImpl<NUM>
   {
   public:
     Minimum();
     ~Minimum();
-
     bool checkArgCount(size_t count) const;
-
-    // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
-    bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Minimum<NUM>, NUM);
 
   private:
@@ -151,18 +123,13 @@ namespace PLEXIL
   };
 
   template <typename NUM>
-  class Maximum : public Operator<NUM>
+  class Maximum : public OperatorImpl<NUM>
   {
   public:
     Maximum();
     ~Maximum();
-
     bool checkArgCount(size_t count) const;
-
-    // bool operator()(NUM &result, const ExpressionId &arg) const; // ??
-    bool operator()(NUM &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(NUM &result, const std::vector<ExpressionId> &args) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Maximum<NUM>, NUM);
 
   private:
@@ -175,16 +142,13 @@ namespace PLEXIL
   //
 
   template <typename NUM>
-  class AbsoluteValue : public Operator<NUM>
+  class AbsoluteValue : public OperatorImpl<NUM>
   {
   public:
     AbsoluteValue();
     ~AbsoluteValue();
-
     bool checkArgCount(size_t count) const;
-
-    bool operator()(NUM &result, const ExpressionId &arg) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(AbsoluteValue<NUM>, NUM);
 
   private:
@@ -194,16 +158,13 @@ namespace PLEXIL
   
 
   template <typename NUM>
-  class SquareRoot : public Operator<NUM>
+  class SquareRoot : public OperatorImpl<NUM>
   {
   public:
     SquareRoot();
     ~SquareRoot();
-
     bool checkArgCount(size_t count) const;
-
-    bool operator()(NUM &result, const ExpressionId &arg) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(SquareRoot<NUM>, NUM);
 
   private:
@@ -217,16 +178,13 @@ namespace PLEXIL
   //
 
   template <typename NUM>
-  class Ceiling : public Operator<NUM>
+  class Ceiling : public OperatorImpl<NUM>
   {
   public:
     Ceiling();
     ~Ceiling();
-
     bool checkArgCount(size_t count) const;
-
-    bool operator()(NUM & result, const ExpressionId &arg) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Ceiling<NUM>, NUM);
 
   private:
@@ -235,16 +193,13 @@ namespace PLEXIL
   };
 
   template <typename NUM>
-  class Floor : public Operator<NUM>
+  class Floor : public OperatorImpl<NUM>
   {
   public:
     Floor();
     ~Floor();
-
     bool checkArgCount(size_t count) const;
-
-    bool operator()(NUM & result, const ExpressionId &arg) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Floor<NUM>, NUM);
 
   private:
@@ -253,16 +208,13 @@ namespace PLEXIL
   };
 
   template <typename NUM>
-  class Round : public Operator<NUM>
+  class Round : public OperatorImpl<NUM>
   {
   public:
     Round();
     ~Round();
-
     bool checkArgCount(size_t count) const;
-
-    bool operator()(NUM & result, const ExpressionId &arg) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Round<NUM>, NUM);
 
   private:
@@ -271,16 +223,13 @@ namespace PLEXIL
   };
 
   template <typename NUM>
-  class Truncate : public Operator<NUM>
+  class Truncate : public OperatorImpl<NUM>
   {
   public:
     Truncate();
     ~Truncate();
-
     bool checkArgCount(size_t count) const;
-
-    bool operator()(NUM & result, const ExpressionId &arg) const;
-
+    bool calc(NUM &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Truncate<NUM>, NUM);
 
   private:
@@ -288,16 +237,13 @@ namespace PLEXIL
     Truncate &operator=(const Truncate &);
   };
 
-  class RealToInteger : public Operator<int32_t>
+  class RealToInteger : public OperatorImpl<int32_t>
   {
   public:
     RealToInteger();
     ~RealToInteger();
-
     bool checkArgCount(size_t count) const;
-
-    bool operator()(int32_t & result, const ExpressionId &arg) const;
-
+    bool calc(int32_t &result, ExprVec const *args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, int32_t);
 
   private:

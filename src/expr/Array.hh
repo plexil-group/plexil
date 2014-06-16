@@ -27,6 +27,8 @@
 #ifndef PLEXIL_ARRAY_HH
 #define PLEXIL_ARRAY_HH
 
+#include "ArrayFwd.hh"
+
 #include <string>
 #include <vector>
 
@@ -112,15 +114,6 @@ namespace PLEXIL
   };
 
   bool operator==(Array const &a, Array const &b);
-
-  //
-  // Convenience typedefs
-  //
-  template <typename T> class ArrayImpl;
-  typedef ArrayImpl<bool>        BooleanArray;
-  typedef ArrayImpl<int32_t>     IntegerArray;
-  typedef ArrayImpl<double>      RealArray;
-  typedef ArrayImpl<std::string> StringArray;
 
 } // namespace PLEXIL
 

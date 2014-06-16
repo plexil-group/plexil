@@ -24,90 +24,52 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ArrayOperators.hh"
-#include "Expression.hh"
+#include "FunctionFactory.hh"
 
 namespace PLEXIL
 {
-  //
-  // ArrayLength
-  //
-
-  ArrayLength::ArrayLength()
-    : Operator<int32_t>("SIZE")
-  {
-  }
-  
-  ArrayLength::~ArrayLength()
+  FunctionFactory::FunctionFactory(std::string const &name)
+    : ExpressionFactory(name)
   {
   }
 
-  bool ArrayLength::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool ArrayLength::operator()(int32_t &result, const ExpressionId &arg) const
-  {
-    Array const *ary;
-    if (!arg->getValuePointer(ary))
-      return false;
-    result = ary->size();
-    return true;
-  }
-
-  //
-  // AllElementsKnown
-  //
-
-  AllElementsKnown::AllElementsKnown()
-    : Operator<bool>("ALL_KNOWN")
+  FunctionFactory::~FunctionFactory()
   {
   }
 
-  AllElementsKnown::~AllElementsKnown()
+  ExpressionId FunctionFactory::allocate(const PlexilExprId& expr,
+                                         const NodeConnectorId& node,
+                                         bool &wasCreated) const
   {
+    PlexilOp const *op = (PlexilOp const *) expr;
+    checkParserException(op != NULL, "createExpression: Expression is not a PlexilOp");
+
+    std::vector<PlexilExprId> const &args = op->subExprs();
+    ExprVec const * exprVec = constructExprVec(args, node);
+    Operator const *oper = this->getOperator();
+    checkParserException(oper->checkArgCount(args.size()),
+                         "createExpression: Wrong number of operands for operator "
+                         << oper->getName());
+
+    wasCreated = true;
+    return (new Function(oper, exprVec))->getId();
   }
 
-  bool AllElementsKnown::checkArgCount(size_t count) const
+  ExprVec const *
+  FunctionFactory::constructExprVec(std::vector<PlexilExprId> const &subexprs,
+                                    NodeConnectorId const &node) const
   {
-    return count == 1;
-  }
+    // Get the argument expressions
+    size_t nargs = subexprs.size();
+    std::vector<bool> garbage(nargs, false);
+    std::vector<ExpressionId> exprs(nargs);
+    for (size_t i = 0; i < nargs; ++i) {
+      bool isGarbage;
+      exprs[i] = createExpression(args[i], node, isGarbage);
+      garbage[i] = isGarbage;
+    }
 
-  bool AllElementsKnown::operator()(bool &result, const ExpressionId &arg) const
-  {
-    Array const *ary;
-    if (!arg->getValuePointer(ary))
-      return false;
-    result = ary->allElementsKnown();
-    return true;
-  }
-
-  //
-  // AnyElementsKnown
-  //
-
-  AnyElementsKnown::AnyElementsKnown()
-    : Operator<bool>("ANY_KNOWN")
-  {
-  }
-
-  AnyElementsKnown::~AnyElementsKnown()
-  {
-  }
-
-  bool AnyElementsKnown::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool AnyElementsKnown::operator()(bool &result, const ExpressionId &arg) const
-  {
-    Array const *ary;
-    if (!arg->getValuePointer(ary))
-      return false;
-    result = ary->anyElementsKnown();
-    return true;
+    return makeExprVec(exprs, garbage);
   }
 
 } // namespace PLEXIL

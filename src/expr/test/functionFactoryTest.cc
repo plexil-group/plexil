@@ -304,13 +304,14 @@ static bool booleanFunctionFactoryTest()
 
   // Check one-arg form
   xorOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "0"))->getId());
-  try {
-    ExpressionId oneArgXor = createExpression(xorOp.getId(), nc, wasCreated);
-    assertTrue_2(false, "Failed to detect too few args");
-  }
-  catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected exception" << std::endl;
-  }
+  ExpressionId oneArgXor = createExpression(xorOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgXor.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(oneArgXor->valueType() == BOOLEAN_TYPE);
+  oneArgXor->activate();
+  assertTrue_1(oneArgXor->isKnown());
+  assertTrue_1(oneArgXor->getValue(temp));
+  assertTrue_1(!temp);
 
   // Check two-arg form
   xorOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
@@ -325,13 +326,13 @@ static bool booleanFunctionFactoryTest()
 
   // check 3-arg
   xorOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE))->getId());
-  try {
-    ExpressionId threeArgXor = createExpression(xorOp.getId(), nc, wasCreated);
-    assertTrue_2(false, "Failed to detect too many args");
-  }
-  catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected exception" << std::endl;
-  }
+  ExpressionId threeArgXor = createExpression(xorOp.getId(), nc, wasCreated);
+  assertTrue_1(threeArgXor.isId());
+  assertTrue_1(wasCreated);
+  assertTrue_1(threeArgXor->valueType() == BOOLEAN_TYPE);
+  threeArgXor->activate();
+  assertTrue_1(!threeArgXor->isKnown());
+  assertTrue_1(!threeArgXor->getValue(temp));
 
   return true;
 }

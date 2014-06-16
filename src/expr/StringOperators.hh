@@ -39,13 +39,15 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
+    bool operator()(std::string &result) const;
+
     bool operator()(std::string &result, const ExpressionId &arg) const;
 
     bool operator()(std::string &result,
                     const ExpressionId &argA,
                     const ExpressionId &argB) const;
 
-    bool operator()(std::string &result, const std::vector<ExpressionId> &args) const;
+    bool operator()(std::string &result, size_t nargs, ExpressionId const args[]) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(StringConcat, std::string);
 

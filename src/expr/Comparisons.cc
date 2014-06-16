@@ -34,9 +34,8 @@ namespace PLEXIL
   // IsKnown
   //
   IsKnown::IsKnown()
-    : Operator<bool>()
+    : Operator<bool>("IsKnown")
   {
-    this->setName("isKnown");
   }
 
   IsKnown::~IsKnown()
@@ -60,9 +59,8 @@ namespace PLEXIL
 
   template <typename T>
   Equal<T>::Equal()
-    : Operator<bool>()
+    : Operator<bool>("EQ")
   {
-    this->setName("EQ");
   }
 
   template <typename T>
@@ -92,9 +90,8 @@ namespace PLEXIL
 
   template <typename T>
   NotEqual<T>::NotEqual()
-    : Operator<bool>()
+    : Operator<bool>("NEQ")
   {
-    this->setName("NEQ");
   }
 
   template <typename T>
@@ -124,9 +121,8 @@ namespace PLEXIL
 
   template <typename T>
   GreaterThan<T>::GreaterThan()
-    : Operator<bool>()
+    : Operator<bool>("GT")
   {
-    this->setName("GT");
   }
 
   template <typename T>
@@ -156,9 +152,8 @@ namespace PLEXIL
 
   template <typename T>
   GreaterEqual<T>::GreaterEqual()
-    : Operator<bool>()
+    : Operator<bool>("GEQ")
   {
-    this->setName("GEQ");
   }
 
   template <typename T>
@@ -188,9 +183,8 @@ namespace PLEXIL
 
   template <typename T>
   LessThan<T>::LessThan()
-    : Operator<bool>()
+    : Operator<bool>("LT")
   {
-    this->setName("LT");
   }
 
   template <typename T>
@@ -220,9 +214,8 @@ namespace PLEXIL
 
   template <typename T>
   LessEqual<T>::LessEqual()
-    : Operator<bool>()
+    : Operator<bool>("LEQ")
   {
-    this->setName("LEQ");
   }
 
   template <typename T>

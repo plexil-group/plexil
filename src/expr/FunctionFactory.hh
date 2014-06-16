@@ -27,85 +27,71 @@
 #ifndef PLEXIL_FUNCTION_FACTORY_HH
 #define PLEXIL_FUNCTION_FACTORY_HH
 
-#include "Error.hh"
 #include "ExpressionFactory.hh"
+#include "ExprVec.hh"
 #include "Function.hh"
-#include "ParserException.hh"
 #include "PlexilExpr.hh"
 
 namespace PLEXIL
 {
 
-  template <class OP, typename RETURNS>
+  // Base class
   class FunctionFactory : public ExpressionFactory
   {
   public:
-
-    FunctionFactory(std::string const &name)
-      : ExpressionFactory(name)
-    {
-    }
-
-    virtual ~FunctionFactory()
-    {
-    }
+    FunctionFactory(std::string const &name);
+    virtual ~FunctionFactory();
 
     ExpressionId allocate(const PlexilExprId& expr,
                           const NodeConnectorId& node,
-                          bool &wasCreated) const
+                          bool &wasCreated) const;
+
+  protected:
+
+    // Base class provides this to derived
+    ExprVec const *constructExprVec(std::vector<PlexilExprId> const &subexprs,
+                                    NodeConnectorId const &node) const;
+
+    // Delegated to derived class
+    virtual Operator const *getOperator() const = 0;
+
+  private:
+    // Unimplemented
+    FunctionFactory();
+    FunctionFactory(FunctionFactory const &);
+    FunctionFactory &operator=(FunctionFactory const &);
+  };
+
+  template <class OP>
+  class FunctionFactoryImpl : public FunctionFactory
+  {
+  public:
+    FunctionFactoryImpl(std::string const &name)
+      : FunctionFactory(name)
     {
-      PlexilOp const *op = (PlexilOp const *) expr;
-      checkParserException(op != NULL, "createExpression: Expression is not a PlexilOp");
+    }
 
-      std::vector<PlexilExprId> const &args = op->subExprs();
-      size_t nargs = args.size();
-      Operator<RETURNS> const *oper(OP::instance());
-      checkParserException(oper->valueType() == op->type(),
-                           "createExpression: Operator " << oper->getName()
-                           << " has return type " << valueTypeName(op->type())
-                           << " but expression has type " << valueTypeName(oper->valueType()));
-      checkParserException(oper->checkArgCount(nargs),
-                           "createExpression: Wrong number of operands for operator "
-                           << oper->getName());
+    ~FunctionFactoryImpl()
+    {
+    }
 
-      // Get the argument expressions
-      std::vector<bool> garbage(nargs, false);
-      std::vector<ExpressionId> exprs(nargs);
-      for (size_t i = 0; i < nargs; ++i) {
-        bool isGarbage;
-        exprs[i] = createExpression(args[i], node, isGarbage);
-        garbage[i] = isGarbage;
-      }
-
-      wasCreated = true;
-      return this->create(oper, exprs, garbage);
+  protected:
+    Operator const *getOperator() const
+    {
+      return OP::instance();
     }
 
   private:
-
-    ExpressionId create(Operator<RETURNS> const * oper,
-                        std::vector<ExpressionId> const &exprs,
-                        std::vector<bool> const &garbage) const
-    {
-      switch (exprs.size()) {
-      case 1:
-        return (new UnaryFunction<RETURNS>(oper, exprs[0], garbage[0]))->getId();
-
-      case 2:
-        return (new BinaryFunction<RETURNS>(oper,
-                                            exprs[0], exprs[1],
-                                            garbage[0], garbage[1]))->getId();
-
-      default: // 0, 3 or more
-        return (new NaryFunction<RETURNS>(oper, exprs, garbage))->getId();
-      }
-    }
+    // Unimplemented
+    FunctionFactoryImpl();
+    FunctionFactoryImpl(FunctionFactoryImpl const &);
+    FunctionFactoryImpl &operator=(FunctionFactoryImpl const &);
   };
 
 } // namespace PLEXIL
 
 // Convenience macros
-#define ENSURE_FUNCTION_FACTORY(CLASS,RETURNS) template class PLEXIL::FunctionFactory<CLASS,RETURNS>;
-#define REGISTER_FUNCTION(CLASS,RETURNS,NAME) {new PLEXIL::FunctionFactory<CLASS, RETURNS>(#NAME);}
+#define ENSURE_FUNCTION_FACTORY(CLASS) template class PLEXIL::FunctionFactoryImpl<CLASS>;
+#define REGISTER_FUNCTION(CLASS,NAME) {new PLEXIL::FunctionFactoryImpl<CLASS>(#NAME);}
 
 #endif // PLEXIL_FUNCTION_FACTORY_HH

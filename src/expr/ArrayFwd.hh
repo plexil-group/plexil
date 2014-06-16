@@ -24,90 +24,26 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ArrayOperators.hh"
-#include "Expression.hh"
+#ifndef PLEXIL_ARRAY_FWD_HH
+#define PLEXIL_ARRAY_FWD_HH
+
+// Forward declarations for array types
+#include <string>
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
 
 namespace PLEXIL
 {
-  //
-  // ArrayLength
-  //
+  class Array;
+  template <typename T> class ArrayImpl;
+  typedef ArrayImpl<bool>        BooleanArray;
+  typedef ArrayImpl<int32_t>     IntegerArray;
+  typedef ArrayImpl<double>      RealArray;
+  typedef ArrayImpl<std::string> StringArray;
+}
 
-  ArrayLength::ArrayLength()
-    : Operator<int32_t>("SIZE")
-  {
-  }
-  
-  ArrayLength::~ArrayLength()
-  {
-  }
-
-  bool ArrayLength::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool ArrayLength::operator()(int32_t &result, const ExpressionId &arg) const
-  {
-    Array const *ary;
-    if (!arg->getValuePointer(ary))
-      return false;
-    result = ary->size();
-    return true;
-  }
-
-  //
-  // AllElementsKnown
-  //
-
-  AllElementsKnown::AllElementsKnown()
-    : Operator<bool>("ALL_KNOWN")
-  {
-  }
-
-  AllElementsKnown::~AllElementsKnown()
-  {
-  }
-
-  bool AllElementsKnown::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool AllElementsKnown::operator()(bool &result, const ExpressionId &arg) const
-  {
-    Array const *ary;
-    if (!arg->getValuePointer(ary))
-      return false;
-    result = ary->allElementsKnown();
-    return true;
-  }
-
-  //
-  // AnyElementsKnown
-  //
-
-  AnyElementsKnown::AnyElementsKnown()
-    : Operator<bool>("ANY_KNOWN")
-  {
-  }
-
-  AnyElementsKnown::~AnyElementsKnown()
-  {
-  }
-
-  bool AnyElementsKnown::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool AnyElementsKnown::operator()(bool &result, const ExpressionId &arg) const
-  {
-    Array const *ary;
-    if (!arg->getValuePointer(ary))
-      return false;
-    result = ary->anyElementsKnown();
-    return true;
-  }
-
-} // namespace PLEXIL
+#endif // PLEXIL_ARRAY_FWD_HH
