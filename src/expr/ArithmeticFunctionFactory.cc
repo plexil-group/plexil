@@ -83,10 +83,11 @@ namespace PLEXIL
     PlexilOp const *op = dynamic_cast<PlexilOp const *>((PlexilExpr const *) expr);
     checkParserException(op, "createExpression: Not a PlexilOp");
 
-    // Get the argument expressions
     std::vector<PlexilExprId> const &args = op->subExprs();
-    ExprVec const *exprVec = constructExprVec(args, node);
-
+    // Have to have at least one arg to check types on
+    checkParserException(args.size() > 0,
+                         "createExpression: Can't create arithmetic expression of no arguments");
+    ExprVec *exprVec = constructExprVec(args, node);
     ValueType type = this->commonType(exprVec);
     checkParserException(type != UNKNOWN_TYPE,
                          "createExpression: type inconsistency in arithmetic expression");

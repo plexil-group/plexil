@@ -43,11 +43,11 @@ namespace PLEXIL
    * @brief An Operator that returns true if the command handle is interruptible, false if not.
    */
 
-  class CommandHandleInterruptible : public Operator<bool>
+  class CommandHandleInterruptible : public OperatorImpl<bool>
   {
   public:
     CommandHandleInterruptible()
-      : Operator<bool>("Interruptible")
+      : OperatorImpl<bool>("Interruptible")
     {
     }
 
@@ -60,7 +60,7 @@ namespace PLEXIL
       return count == 1;
     }
 
-    bool operator()(bool &result, const ExpressionId &arg) const
+    bool operator()(bool &result, ExpressionId arg) const
     {
       uint16_t val;
       if (!arg->getValue(val)) // unknown
@@ -172,8 +172,9 @@ namespace PLEXIL
 
     // Construct action-complete condition
     ExpressionId actionComplete =
-      (new UnaryFunction<bool>(IsKnown::instance(),
-                               (m_command->getAck()), false))->getId();
+      (new Function(IsKnown::instance(),
+                    makeExprVec(std::vector<ExpressionId>(1, m_command->getAck()),
+                                std::vector<bool>(1, false))))->getId();
     actionComplete->addListener(m_listener.getId());
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = true;
@@ -192,13 +193,14 @@ namespace PLEXIL
       // Construct real end condition by wrapping existing
       removeConditionListener(endIdx);
       ExpressionId realEndCondition =
-        (new BinaryFunction<bool>(BooleanOr::instance(),
-                                  (new UnaryFunction<bool>(CommandHandleInterruptible::instance(),
-                                                           (m_command->getAck())->getId(),
-                                                           false))->getId(),
-                                  m_conditions[endIdx],
-                                  true,
-                                  m_garbageConditions[endIdx]))->getId();
+        (new Function(BooleanOr::instance(),
+                      (new Function(CommandHandleInterruptible::instance(),
+                                    m_command->getAck(),
+                                    false))->getId(),
+                      m_conditions[endIdx],
+                      true,
+                      m_garbageConditions[endIdx]))->getId();
+
       realEndCondition->addListener(m_listener.getId());
       m_conditions[endIdx] = realEndCondition;
       m_garbageConditions[endIdx] = true;

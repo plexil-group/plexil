@@ -35,7 +35,10 @@ using namespace PLEXIL;
 static bool testStringLength()
 {
   StringVariable var; // initially unknown
-  UnaryFunction<int32_t> strlen(StringLength::instance(), var.getId());
+  std::vector<bool> garbage(1, false);
+  std::vector<ExpressionId> varv(1, var.getId());
+
+  Function strlen(StringLength::instance(), makeExprVec(varv, garbage));
   int32_t result;
 
   strlen.activate(); // will also activate var
@@ -63,14 +66,17 @@ static bool testStringConcat()
   std::string result, result2;
 
   // Unary function of constant
-  UnaryFunction<std::string> fooConc(StringConcat::instance(), foo.getId());
+  std::vector<bool> garbage1(1, false);
+  std::vector<ExpressionId> foov(1, foo.getId());
+  Function fooConc(StringConcat::instance(), makeExprVec(foov, garbage1));
   fooConc.activate();
   assertTrue_1(fooConc.getValue(result));
   assertTrue_1(foo.getValue(result2));
   assertTrue_1(result == result2);
 
   // Unary of unint'ed variable
-  UnaryFunction<std::string> barConc(StringConcat::instance(), bar.getId());
+  std::vector<ExpressionId> barv(1, bar.getId());
+  Function barConc(StringConcat::instance(), makeExprVec(barv, garbage1));
   barConc.activate();
   assertTrue_1(!barConc.getValue(result));
 
@@ -81,7 +87,11 @@ static bool testStringConcat()
   assertTrue_1(result == result2);
 
   // Binary of constant, variable
-  BinaryFunction<std::string> fooBazConc(StringConcat::instance(), foo.getId(), baz.getId());
+  std::vector<bool> garbage2(2, false);
+  std::vector<ExpressionId> foobazv;
+  foobazv.push_back(foo.getId());
+  foobazv.push_back(baz.getId());
+  Function fooBazConc(StringConcat::instance(), makeExprVec(foobazv, garbage2));
   fooBazConc.activate();
   assertTrue_1(!fooBazConc.getValue(result));
 
@@ -102,8 +112,8 @@ static bool testStringConcat()
   args[1] = bar.getId();
   args[2] = baz.getId();
   args[3] = bletch.getId();
-  std::vector<bool> garbage(4, false);
-  NaryFunction<std::string> nConc(StringConcat::instance(), args, garbage);
+  std::vector<bool> garbage4(4, false);
+  Function nConc(StringConcat::instance(), makeExprVec(args, garbage4));
   nConc.activate();
 
   // bletch unknown

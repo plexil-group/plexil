@@ -50,6 +50,9 @@ namespace PLEXIL
                           bool & wasCreated) const;
 
   protected:
+    // Override base class virtual method
+    Operator const *getOperator() const { return NULL ;}
+
     // Delegate to derived classes
     virtual Operator const *selectOperator(ValueType type) const = 0;
     virtual ValueType commonType(ExprVec const *exprs) const = 0;

@@ -29,10 +29,11 @@
 #include "ArrayImpl.hh"
 #include "ExprVec.hh"
 #include "Operator.hh"
+#include "Value.hh"
 
 namespace PLEXIL
 {
-  Function::Function(Operator const *op, ExprVec const *exprs)
+  Function::Function(Operator const *op, ExprVec *exprs)
     : NotifierImpl(),
       m_op(op),
       m_exprVec(exprs),
@@ -41,9 +42,41 @@ namespace PLEXIL
     m_exprVec->addListener(this->getId());
   }
 
+  Function::Function(Operator const *op,
+                     ExpressionId expr, 
+                     bool garbage)
+    : NotifierImpl(),
+      m_op(op),
+      m_exprVec(makeExprVec(std::vector<ExpressionId>(1, expr),
+                            std::vector<bool>(1, garbage))),
+      m_valueCache(op->allocateCache())
+  {
+    m_exprVec->addListener(this->getId());
+  }
+
+  Function::Function(Operator const *op,
+                     ExpressionId expr1, ExpressionId expr2, 
+                     bool garbage1, bool garbage2)
+    : NotifierImpl(),
+      m_op(op),
+      m_valueCache(op->allocateCache())
+  {
+    std::vector<ExpressionId> exprs;
+    exprs.push_back(expr1);
+    exprs.push_back(expr2);
+
+    std::vector<bool> garbage;
+    garbage.push_back(garbage1);
+    garbage.push_back(garbage2);
+
+    m_exprVec = makeExprVec(exprs, garbage);
+
+    m_exprVec->addListener(this->getId());
+  }
+
   Function::~Function()
   {
-    m_op->deleteCache(m_valueCache());
+    m_op->deleteCache(m_valueCache);
     m_exprVec->removeListener(this->getId());
     delete m_exprVec;
   }
@@ -58,12 +91,22 @@ namespace PLEXIL
     return m_op->valueType();
   }
 
+  void Function::handleActivate()
+  {
+    m_exprVec->activate();
+  }
+
+  void Function::handleDeactivate()
+  {
+    m_exprVec->deactivate();
+  }
+
   bool Function::isKnown() const
   {
     if (!isActive())
       return false;
     // Delegate to operator
-    return m_op->calcNative(m_valueCache, m_exprVec);
+    return m_op->calcNative(m_valueCache, *m_exprVec);
   }
 
   void Function::printValue(std::ostream &s) const
@@ -72,47 +115,47 @@ namespace PLEXIL
       s << "UNKNOWN";
       return;
     }
-    m_op->printValue(s, m_valueCache, m_exprVec);
+    m_op->printValue(s, m_valueCache, *m_exprVec);
   }
 
   Value Function::toValue() const
   {
-    return m_op->toValue(m_valueCache, m_exprVec);
+    return m_op->toValue(m_valueCache, *m_exprVec);
   }
 
   bool Function::getValue(bool &result) const
   {
     if (!isActive())
       return false;
-    return (m_op)(result, m_exprVec);
+    return m_exprVec->apply(m_op, result);
   }
 
   bool Function::getValue(int32_t &result) const
   {
     if (!isActive())
       return false;
-    return (m_op)(result, m_exprVec);
+    return m_exprVec->apply(m_op, result);
   }
 
   bool Function::getValue(double &result) const
   {
     if (!isActive())
       return false;
-    return (m_op)(result, m_exprVec);
+    return m_exprVec->apply(m_op, result);
   }
 
   bool Function::getValue(std::string &result) const
   {
     if (!isActive())
       return false;
-    return (m_op)(result, m_exprVec);
+    return m_exprVec->apply(m_op, result);
   }
 
   bool Function::getValuePointer(std::string const *&ptr) const
   {
     if (!isActive())
       return false;
-    bool result = (m_op)(static_cast<std::string &>(*m_valueCache), m_exprVec);
+    bool result = m_exprVec->apply(m_op, *static_cast<std::string *>(m_valueCache));
     if (result)
       ptr = static_cast<std::string const *>(m_valueCache); // trust me
     return result;
@@ -123,7 +166,7 @@ namespace PLEXIL
   {
     if (!isActive())
       return false;
-    bool result = (m_op)(static_cast<Array &>(*m_valueCache), m_exprVec);
+    bool result = m_exprVec->apply(m_op, *static_cast<Array *>(m_valueCache));
     if (result)
       ptr = static_cast<Array const *>(m_valueCache); // trust me
     return result;
@@ -134,7 +177,7 @@ namespace PLEXIL
   {
     if (!isActive())
       return false;
-    bool result = (m_op)(static_cast<BooleanArray &>(*m_valueCache), m_exprVec);
+    bool result = m_exprVec->apply(m_op, *static_cast<BooleanArray *>(m_valueCache));
     if (result)
       ptr = static_cast<BooleanArray const *>(m_valueCache); // trust me
     return result;
@@ -144,7 +187,7 @@ namespace PLEXIL
   {
     if (!isActive())
       return false;
-    bool result = (m_op)(static_cast<IntegerArray &>(*m_valueCache), m_exprVec);
+    bool result = m_exprVec->apply(m_op, *static_cast<IntegerArray *>(m_valueCache));
     if (result)
       ptr = static_cast<IntegerArray const *>(m_valueCache); // trust me
     return result;
@@ -154,7 +197,7 @@ namespace PLEXIL
   {
     if (!isActive())
       return false;
-    bool result = (m_op)(static_cast<RealArray &>(*m_valueCache), m_exprVec);
+    bool result = m_exprVec->apply(m_op, *static_cast<RealArray *>(m_valueCache));
     if (result)
       ptr = static_cast<RealArray const *>(m_valueCache); // trust me
     return result;
@@ -164,7 +207,7 @@ namespace PLEXIL
   {
     if (!isActive())
       return false;
-    bool result = (m_op)(static_cast<StringArray &>(*m_valueCache), m_exprVec);
+    bool result = m_exprVec->apply(m_op, *static_cast<StringArray *>(m_valueCache));
     if (result)
       ptr = static_cast<StringArray const *>(m_valueCache); // trust me
     return result;

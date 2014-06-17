@@ -28,11 +28,11 @@
 #define PLEXIL_STRING_OPERATORS_HH
 
 #include "Expression.hh"
-#include "Operator.hh"
+#include "OperatorImpl.hh"
 
 namespace PLEXIL
 {
-  class StringConcat : public Operator<std::string>
+  class StringConcat : public OperatorImpl<std::string>
   {
   public:
     ~StringConcat();
@@ -41,13 +41,13 @@ namespace PLEXIL
 
     bool operator()(std::string &result) const;
 
-    bool operator()(std::string &result, const ExpressionId &arg) const;
+    bool operator()(std::string &result, ExpressionId arg) const;
 
     bool operator()(std::string &result,
-                    const ExpressionId &argA,
-                    const ExpressionId &argB) const;
+                    ExpressionId argA,
+                    ExpressionId argB) const;
 
-    bool operator()(std::string &result, size_t nargs, ExpressionId const args[]) const;
+    bool operator()(std::string &result, ExprVec const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(StringConcat, std::string);
 
@@ -59,14 +59,14 @@ namespace PLEXIL
     StringConcat &operator=(const StringConcat& other);
   };
 
-  class StringLength : public Operator<int32_t>
+  class StringLength : public OperatorImpl<int32_t>
   {
   public:
     ~StringLength();
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(int32_t &result, const ExpressionId &arg) const;
+    bool operator()(int32_t &result, ExpressionId arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(StringLength, int32_t);
 

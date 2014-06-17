@@ -42,11 +42,17 @@ static bool testArrayLength()
   StringArrayVariable sav;
 
   ArrayLength lop;
+
+  std::vector<bool> garbage1(1, false);
+  std::vector<ExpressionId> bexp(1, bav.getId());
+  std::vector<ExpressionId> iexp(1, iav.getId());
+  std::vector<ExpressionId> rexp(1, rav.getId());
+  std::vector<ExpressionId> sexp(1, sav.getId());
   
-  UnaryFunction<int32_t> bl(&lop, bav.getId());
-  UnaryFunction<int32_t> il(&lop, iav.getId());
-  UnaryFunction<int32_t> rl(&lop, rav.getId());
-  UnaryFunction<int32_t> sl(&lop, sav.getId());
+  Function bl(&lop, makeExprVec(bexp, garbage1));
+  Function il(&lop, makeExprVec(iexp, garbage1));
+  Function rl(&lop, makeExprVec(rexp, garbage1));
+  Function sl(&lop, makeExprVec(sexp, garbage1));
 
   int32_t len;
 
@@ -160,11 +166,17 @@ static bool testAllElementsKnown()
   StringArrayVariable sav;
 
   AllElementsKnown op;
+
+  std::vector<bool> garbage1(1, false);
+  std::vector<ExpressionId> bexp(1, bav.getId());
+  std::vector<ExpressionId> iexp(1, iav.getId());
+  std::vector<ExpressionId> rexp(1, rav.getId());
+  std::vector<ExpressionId> sexp(1, sav.getId());
   
-  UnaryFunction<bool> bl(&op, bav.getId());
-  UnaryFunction<bool> il(&op, iav.getId());
-  UnaryFunction<bool> rl(&op, rav.getId());
-  UnaryFunction<bool> sl(&op, sav.getId());
+  Function bl(&op, makeExprVec(bexp, garbage1));
+  Function il(&op, makeExprVec(iexp, garbage1));
+  Function rl(&op, makeExprVec(rexp, garbage1));
+  Function sl(&op, makeExprVec(sexp, garbage1));
 
   bool temp;
 
@@ -295,11 +307,17 @@ static bool testAnyElementsKnown()
   StringArrayVariable sav;
 
   AnyElementsKnown op;
+
+  std::vector<bool> garbage1(1, false);
+  std::vector<ExpressionId> bexp(1, bav.getId());
+  std::vector<ExpressionId> iexp(1, iav.getId());
+  std::vector<ExpressionId> rexp(1, rav.getId());
+  std::vector<ExpressionId> sexp(1, sav.getId());
   
-  UnaryFunction<bool> bl(&op, bav.getId());
-  UnaryFunction<bool> il(&op, iav.getId());
-  UnaryFunction<bool> rl(&op, rav.getId());
-  UnaryFunction<bool> sl(&op, sav.getId());
+  Function bl(&op, makeExprVec(bexp, garbage1));
+  Function il(&op, makeExprVec(iexp, garbage1));
+  Function rl(&op, makeExprVec(rexp, garbage1));
+  Function sl(&op, makeExprVec(sexp, garbage1));
 
   bool temp;
 

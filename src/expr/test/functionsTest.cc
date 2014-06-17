@@ -38,11 +38,11 @@ using namespace PLEXIL;
 //
 
 template <typename R>
-class Passthrough : public Operator<R>
+class Passthrough : public OperatorImpl<R>
 {
 public:
   Passthrough()
-    : Operator<R>("PT")
+    : OperatorImpl<R>("PT")
   {
   }
 
@@ -55,7 +55,7 @@ public:
     return count == 1;
   }
 
-  bool operator()(R &result, const ExpressionId &arg) const
+  bool operator()(R &result, ExpressionId arg) const
   {
     R temp;
     if (!arg->getValue(temp))
@@ -77,11 +77,17 @@ static bool testUnaryBasics()
   Passthrough<double> ptd;
   Passthrough<std::string> pts;
 
-  UnaryFunction<bool> boule(&ptb, treu.getId());
-  UnaryFunction<int32_t> inty(&pti, fortytwo.getId());
-  UnaryFunction<double> dub(&ptd, pie.getId());
-  UnaryFunction<double> intd(&ptd, fortytwo.getId());
-  UnaryFunction<std::string> str(&pts, fou.getId());
+  std::vector<bool> garbage1(1, false);
+  std::vector<ExpressionId> vecb(1, treu.getId());
+  std::vector<ExpressionId> veci(1, fortytwo.getId());
+  std::vector<ExpressionId> vecd(1, pie.getId());
+  std::vector<ExpressionId> vecs(1, fou.getId());
+
+  Function boule(&ptb, makeExprVec(vecb, garbage1));
+  Function inty(&pti, makeExprVec(veci, garbage1));
+  Function dub(&ptd, makeExprVec(vecd, garbage1));
+  Function intd(&ptd, makeExprVec(veci, garbage1));
+  Function str(&pts, makeExprVec(vecs, garbage1));
 
   // Test that all are unknown when inactive
   assertTrue_1(!boule.isKnown());
@@ -130,11 +136,17 @@ static bool testUnaryPropagation()
   Passthrough<double> ptd;
   Passthrough<std::string> pts;
 
-  UnaryFunction<bool> boule(&ptb, treu.getId());
-  UnaryFunction<int32_t> inty(&pti, fortytwo.getId());
-  UnaryFunction<double> dub(&ptd, pie.getId());
-  UnaryFunction<double> intd(&ptd, fortytwo.getId());
-  UnaryFunction<std::string> str(&pts, fou.getId());
+  std::vector<bool> garbage1(1, false);
+  std::vector<ExpressionId> vecb(1, treu.getId());
+  std::vector<ExpressionId> veci(1, fortytwo.getId());
+  std::vector<ExpressionId> vecd(1, pie.getId());
+  std::vector<ExpressionId> vecs(1, fou.getId());
+
+  Function boule(&ptb, makeExprVec(vecb, garbage1));
+  Function inty(&pti, makeExprVec(veci, garbage1));
+  Function dub(&ptd, makeExprVec(vecd, garbage1));
+  Function intd(&ptd, makeExprVec(veci, garbage1));
+  Function str(&pts, makeExprVec(vecs, garbage1));
 
   bool bchanged = false;
   bool ichanged = false;
@@ -237,8 +249,17 @@ static bool testBinaryBasics()
   RealVariable tree(3);
   RealConstant fore(4);
 
-  BinaryFunction<int32_t> intFn(&intAdd, won.getId(), too.getId());
-  BinaryFunction<double> realFn(&realAdd, tree.getId(), fore.getId());
+  std::vector<bool> garbage2(2, false);
+  std::vector<ExpressionId> vi, vr;
+
+  vi.push_back(won.getId());
+  vi.push_back(too.getId());
+
+  vr.push_back(tree.getId());
+  vr.push_back(fore.getId());
+
+  Function intFn(&intAdd, makeExprVec(vi, garbage2));
+  Function realFn(&realAdd, makeExprVec(vr, garbage2));
 
   int32_t itemp;
   double rtemp;
@@ -363,14 +384,14 @@ static bool testNaryBasics()
   exprs.push_back(too.getId());
   exprs.push_back(tree.getId());
 
-  NaryFunction<int32_t> intFn(&intAdd, exprs, garbage);
+  Function intFn(&intAdd, makeExprVec(exprs, garbage));
 
   exprs.clear();
   exprs.push_back(fore.getId());
   exprs.push_back(fivefive.getId());
   exprs.push_back(sixfive.getId());
 
-  NaryFunction<double> realFn(&realAdd, exprs, garbage);
+  Function realFn(&realAdd, makeExprVec(exprs, garbage));
 
   int32_t itemp;
   double rtemp;

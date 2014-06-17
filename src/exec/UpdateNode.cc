@@ -144,11 +144,11 @@ namespace PLEXIL
       // Wrap user-provided condition
       removeConditionListener(endIdx);
       ExpressionId realEnd =
-        (new BinaryFunction<bool>(BooleanAnd::instance(),
-                                  ack,
-                                  m_conditions[endIdx],
-                                  false,
-                                  m_garbageConditions[endIdx]))->getId();
+        (new Function(BooleanAnd::instance(),
+                      ack,
+                      m_conditions[endIdx],
+                      false,
+                      m_garbageConditions[endIdx]))->getId();
       realEnd->addListener(m_listener.getId());
       m_conditions[endIdx] = realEnd;
       m_garbageConditions[endIdx] = true;

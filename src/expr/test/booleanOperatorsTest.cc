@@ -37,20 +37,28 @@ static bool testBooleanNot()
   BooleanConstant troo(true);
   BooleanConstant falls(false);
 
+  std::vector<bool> garbage1(1, false);
+  std::vector<ExpressionId> unkv(1, unk.getId());
+  std::vector<ExpressionId> troov(1, troo.getId());
+  std::vector<ExpressionId> fallsv(1, falls.getId());
+
   // Test logic
-  UnaryFunction<bool> n1(BooleanNot::instance(), unk.getId());
-  UnaryFunction<bool> n2(BooleanNot::instance(), falls.getId());
-  UnaryFunction<bool> n3(BooleanNot::instance(), troo.getId());
+  Function n1(BooleanNot::instance(), makeExprVec(unkv, garbage1));
+  Function n2(BooleanNot::instance(), makeExprVec(troov, garbage1));
+  Function n3(BooleanNot::instance(), makeExprVec(fallsv, garbage1));
+
+  n1.activate();
+  n2.activate();
+  n3.activate();
 
   bool temp;
-  n1.activate();
   assertTrue_1(!n1.getValue(temp));
-  n2.activate();
+
   assertTrue_1(n2.getValue(temp));
-  assertTrue_1(temp);
-  n3.activate();
-  assertTrue_1(n3.getValue(temp));
   assertTrue_1(!temp);
+
+  assertTrue_1(n3.getValue(temp));
+  assertTrue_1(temp);
 
   return true;
 }
@@ -61,24 +69,54 @@ static bool testBooleanAnd()
   BooleanConstant troo(true);
   BooleanConstant falls(false);
 
+  std::vector<bool> garbage2(2, false);
+  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6, v7, v8, v9;
+  v1.push_back(falls.getId());
+  v1.push_back(falls.getId());
+
+  v2.push_back(falls.getId());
+  v2.push_back(unk.getId());
+
+  v3.push_back(falls.getId());
+  v3.push_back(troo.getId());
+
+  v4.push_back(unk.getId());
+  v4.push_back(falls.getId());
+
+  v5.push_back(unk.getId());
+  v5.push_back(unk.getId());
+
+  v6.push_back(unk.getId());
+  v6.push_back(troo.getId());
+
+  v7.push_back(troo.getId());
+  v7.push_back(falls.getId());
+
+  v8.push_back(troo.getId());
+  v8.push_back(unk.getId());
+
+  v9.push_back(troo.getId());
+  v9.push_back(troo.getId());
+
   // Basic three-valued AND semantics of two args
-  BinaryFunction<bool> c1(BooleanAnd::instance(), falls.getId(), falls.getId());
+  Function c1(BooleanAnd::instance(), makeExprVec(v1, garbage2));
+  Function c2(BooleanAnd::instance(), makeExprVec(v2, garbage2));
+  Function c3(BooleanAnd::instance(), makeExprVec(v3, garbage2));
+  Function c4(BooleanAnd::instance(), makeExprVec(v4, garbage2));
+  Function c5(BooleanAnd::instance(), makeExprVec(v5, garbage2));
+  Function c6(BooleanAnd::instance(), makeExprVec(v6, garbage2));
+  Function c7(BooleanAnd::instance(), makeExprVec(v7, garbage2));
+  Function c8(BooleanAnd::instance(), makeExprVec(v8, garbage2));
+  Function c9(BooleanAnd::instance(), makeExprVec(v9, garbage2));
+
   c1.activate();
-  BinaryFunction<bool> c2(BooleanAnd::instance(), falls.getId(), unk.getId());
   c2.activate();
-  BinaryFunction<bool> c3(BooleanAnd::instance(), falls.getId(), troo.getId());
   c3.activate();
-  BinaryFunction<bool> c4(BooleanAnd::instance(), unk.getId(), falls.getId());
   c4.activate();
-  BinaryFunction<bool> c5(BooleanAnd::instance(), unk.getId(), unk.getId());
   c5.activate();
-  BinaryFunction<bool> c6(BooleanAnd::instance(), unk.getId(), troo.getId());
   c6.activate();
-  BinaryFunction<bool> c7(BooleanAnd::instance(), troo.getId(), falls.getId());
   c7.activate();
-  BinaryFunction<bool> c8(BooleanAnd::instance(), troo.getId(), unk.getId());
   c8.activate();
-  BinaryFunction<bool> c9(BooleanAnd::instance(), troo.getId(), troo.getId());
   c9.activate();
 
   bool temp;
@@ -109,40 +147,70 @@ static bool testBooleanOr()
   BooleanConstant troo(true);
   BooleanConstant falls(false);
 
+  std::vector<bool> garbage2(2, false);
+  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6, v7, v8, v9;
+  v1.push_back(falls.getId());
+  v1.push_back(falls.getId());
+
+  v2.push_back(falls.getId());
+  v2.push_back(unk.getId());
+
+  v3.push_back(falls.getId());
+  v3.push_back(troo.getId());
+
+  v4.push_back(unk.getId());
+  v4.push_back(falls.getId());
+
+  v5.push_back(unk.getId());
+  v5.push_back(unk.getId());
+
+  v6.push_back(unk.getId());
+  v6.push_back(troo.getId());
+
+  v7.push_back(troo.getId());
+  v7.push_back(falls.getId());
+
+  v8.push_back(troo.getId());
+  v8.push_back(unk.getId());
+
+  v9.push_back(troo.getId());
+  v9.push_back(troo.getId());
+
   // Three-valued OR semantics of two args
-  BinaryFunction<bool> d1(BooleanOr::instance(), falls.getId(), falls.getId());
-  BinaryFunction<bool> d2(BooleanOr::instance(), falls.getId(), unk.getId());
-  BinaryFunction<bool> d3(BooleanOr::instance(), falls.getId(), troo.getId());
-  BinaryFunction<bool> d4(BooleanOr::instance(), unk.getId(), falls.getId());
-  BinaryFunction<bool> d5(BooleanOr::instance(), unk.getId(), unk.getId());
-  BinaryFunction<bool> d6(BooleanOr::instance(), unk.getId(), troo.getId());
-  BinaryFunction<bool> d7(BooleanOr::instance(), troo.getId(), falls.getId());
-  BinaryFunction<bool> d8(BooleanOr::instance(), troo.getId(), unk.getId());
-  BinaryFunction<bool> d9(BooleanOr::instance(), troo.getId(), troo.getId());
+  Function d1(BooleanOr::instance(), makeExprVec(v1, garbage2));
+  Function d2(BooleanOr::instance(), makeExprVec(v2, garbage2));
+  Function d3(BooleanOr::instance(), makeExprVec(v3, garbage2));
+  Function d4(BooleanOr::instance(), makeExprVec(v4, garbage2));
+  Function d5(BooleanOr::instance(), makeExprVec(v5, garbage2));
+  Function d6(BooleanOr::instance(), makeExprVec(v6, garbage2));
+  Function d7(BooleanOr::instance(), makeExprVec(v7, garbage2));
+  Function d8(BooleanOr::instance(), makeExprVec(v8, garbage2));
+  Function d9(BooleanOr::instance(), makeExprVec(v9, garbage2));
+
+  d1.activate();
+  d2.activate();
+  d3.activate();
+  d4.activate();
+  d5.activate();
+  d6.activate();
+  d7.activate();
+  d8.activate();
+  d9.activate();
 
   bool temp;
-  d1.activate();
   assertTrue_1(d1.getValue(temp));
   assertTrue_1(!temp);
-  d2.activate();
   assertTrue_1(!d2.getValue(temp));
-  d3.activate();
   assertTrue_1(d3.getValue(temp));
   assertTrue_1(temp);
-  d4.activate();
   assertTrue_1(!d4.getValue(temp));
-  d5.activate();
   assertTrue_1(!d5.getValue(temp));
-  d6.activate();
   assertTrue_1(d6.getValue(temp));
   assertTrue_1(temp);
-  d7.activate();
   assertTrue_1(d7.getValue(temp));
   assertTrue_1(temp);
-  d8.activate();
   assertTrue_1(d8.getValue(temp));
   assertTrue_1(temp);
-  d9.activate();
   assertTrue_1(d9.getValue(temp));
   assertTrue_1(temp);
 
@@ -157,38 +225,68 @@ static bool testBooleanXor()
   BooleanConstant troo(true);
   BooleanConstant falls(false);
 
+  std::vector<bool> garbage2(2, false);
+  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6, v7, v8, v9;
+  v1.push_back(falls.getId());
+  v1.push_back(falls.getId());
+
+  v2.push_back(falls.getId());
+  v2.push_back(unk.getId());
+
+  v3.push_back(falls.getId());
+  v3.push_back(troo.getId());
+
+  v4.push_back(unk.getId());
+  v4.push_back(falls.getId());
+
+  v5.push_back(unk.getId());
+  v5.push_back(unk.getId());
+
+  v6.push_back(unk.getId());
+  v6.push_back(troo.getId());
+
+  v7.push_back(troo.getId());
+  v7.push_back(falls.getId());
+
+  v8.push_back(troo.getId());
+  v8.push_back(unk.getId());
+
+  v9.push_back(troo.getId());
+  v9.push_back(troo.getId());
+
   //test basic three-valued XOR semantics
-  BinaryFunction<bool> d1(BooleanXor::instance(), falls.getId(), falls.getId());
-  BinaryFunction<bool> d2(BooleanXor::instance(), falls.getId(), unk.getId());
-  BinaryFunction<bool> d3(BooleanXor::instance(), falls.getId(), troo.getId());
-  BinaryFunction<bool> d4(BooleanXor::instance(), unk.getId(), falls.getId());
-  BinaryFunction<bool> d5(BooleanXor::instance(), unk.getId(), unk.getId());
-  BinaryFunction<bool> d6(BooleanXor::instance(), unk.getId(), troo.getId());
-  BinaryFunction<bool> d7(BooleanXor::instance(), troo.getId(), falls.getId());
-  BinaryFunction<bool> d8(BooleanXor::instance(), troo.getId(), unk.getId());
-  BinaryFunction<bool> d9(BooleanXor::instance(), troo.getId(), troo.getId());
+  Function d1(BooleanXor::instance(), makeExprVec(v1, garbage2));
+  Function d2(BooleanXor::instance(), makeExprVec(v2, garbage2));
+  Function d3(BooleanXor::instance(), makeExprVec(v3, garbage2));
+  Function d4(BooleanXor::instance(), makeExprVec(v4, garbage2));
+  Function d5(BooleanXor::instance(), makeExprVec(v5, garbage2));
+  Function d6(BooleanXor::instance(), makeExprVec(v6, garbage2));
+  Function d7(BooleanXor::instance(), makeExprVec(v7, garbage2));
+  Function d8(BooleanXor::instance(), makeExprVec(v8, garbage2));
+  Function d9(BooleanXor::instance(), makeExprVec(v9, garbage2));
+
+  d1.activate();
+  d2.activate();
+  d3.activate();
+  d4.activate();
+  d5.activate();
+  d6.activate();
+  d7.activate();
+  d8.activate();
+  d9.activate();
 
   bool temp;
-  d1.activate();
   assertTrue_1(d1.getValue(temp));
   assertTrue_1(!temp);
-  d2.activate();
   assertTrue_1(!d2.getValue(temp));
-  d3.activate();
   assertTrue_1(d3.getValue(temp));
   assertTrue_1(temp);
-  d4.activate();
   assertTrue_1(!d4.getValue(temp));
-  d5.activate();
   assertTrue_1(!d5.getValue(temp));
-  d6.activate();
   assertTrue_1(!d6.getValue(temp));
-  d7.activate();
   assertTrue_1(d7.getValue(temp));
   assertTrue_1(temp);
-  d8.activate();
   assertTrue_1(!d8.getValue(temp));
-  d9.activate();
   assertTrue_1(d9.getValue(temp));
   assertTrue_1(!temp);
 

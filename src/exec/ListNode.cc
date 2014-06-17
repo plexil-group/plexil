@@ -44,7 +44,7 @@ namespace PLEXIL
   // Condition operators only used by ListNode
   //
 
-  class AllFinished : public Operator<bool>
+  class AllFinished : public OperatorImpl<bool>
   {
   public:
     ~AllFinished()
@@ -59,7 +59,7 @@ namespace PLEXIL
     }
 
     bool operator()(bool &result,
-                    std::vector<ExpressionId> const &args) const
+                    ExprVec const &args) const
     {
       size_t total = args.size();
       size_t unfinished = total;
@@ -87,7 +87,7 @@ namespace PLEXIL
   private:
 
     AllFinished()
-      : Operator<bool>("AllChildrenFinished")
+      : OperatorImpl<bool>("AllChildrenFinished")
     {
     }
 
@@ -96,7 +96,7 @@ namespace PLEXIL
     AllFinished &operator=(AllFinished const &);
   };
 
-  class AllWaitingOrFinished : public Operator<bool>
+  class AllWaitingOrFinished : public OperatorImpl<bool>
   {
   public:
     ~AllWaitingOrFinished()
@@ -111,7 +111,7 @@ namespace PLEXIL
     }
 
     bool operator()(bool &result,
-                    std::vector<ExpressionId> const &args) const
+                    ExprVec const &args) const
     {
       size_t total = args.size();
       size_t unfinished = total;
@@ -140,7 +140,7 @@ namespace PLEXIL
   private:
     // Should only be called from instance() static member function
     AllWaitingOrFinished()
-      : Operator<bool>("AllChildrenWaitingOrFinished")
+      : OperatorImpl<bool>("AllChildrenWaitingOrFinished")
     {
     }
 
@@ -247,17 +247,15 @@ namespace PLEXIL
     std::vector<bool> notGarbage(nkids, false);
 
     ExpressionId cond =
-      (new NaryFunction<bool>(AllWaitingOrFinished::instance(),
-                              stateVars,
-                              notGarbage))->getId();
+      (new Function(AllWaitingOrFinished::instance(),
+                    makeExprVec(stateVars, notGarbage)))->getId();
     cond->addListener(m_listener.getId());
     m_conditions[actionCompleteIdx] = cond;
     m_garbageConditions[actionCompleteIdx] = true;
 
     ExpressionId endCond =
-      (new NaryFunction<bool>(AllFinished::instance(),
-                              stateVars,
-                              notGarbage))->getId();
+      (new Function(AllFinished::instance(),
+                    makeExprVec(stateVars, notGarbage)))->getId();
     endCond->addListener(m_listener.getId());
     m_conditions[endIdx] = endCond;
     m_garbageConditions[endIdx] = true;
@@ -283,23 +281,23 @@ namespace PLEXIL
   {
     if (m_parent) {
       m_conditions[ancestorEndIdx] =
-        (new BinaryFunction<bool>(BooleanOr::instance(),
-                                  getAncestorEndCondition(), // from parent
-                                  getEndCondition(),
-                                  false,
-                                  false))->getId();
+        (new Function(BooleanOr::instance(),
+                      getAncestorEndCondition(), // from parent
+                      getEndCondition(),
+                      false,
+                      false))->getId();
       m_conditions[ancestorExitIdx] =
-        (new BinaryFunction<bool>(BooleanOr::instance(),
-                                  getAncestorExitCondition(), // from parent
-                                  getExitCondition(),
-                                  false,
-                                  false))->getId();
+        (new Function(BooleanOr::instance(),
+                      getAncestorExitCondition(), // from parent
+                      getExitCondition(),
+                      false,
+                      false))->getId();
       m_conditions[ancestorInvariantIdx] =
-        (new BinaryFunction<bool>(BooleanAnd::instance(),
-                                  getAncestorInvariantCondition(), // from parent
-                                  getInvariantCondition(),
-                                  false,
-                                  false))->getId();
+        (new Function(BooleanAnd::instance(),
+                      getAncestorInvariantCondition(), // from parent
+                      getInvariantCondition(),
+                      false,
+                      false))->getId();
       m_garbageConditions[ancestorEndIdx] = true;
       m_garbageConditions[ancestorExitIdx] = true;
       m_garbageConditions[ancestorInvariantIdx] = true;

@@ -45,7 +45,7 @@ namespace PLEXIL
     checkParserException(op != NULL, "createExpression: Expression is not a PlexilOp");
 
     std::vector<PlexilExprId> const &args = op->subExprs();
-    ExprVec const * exprVec = constructExprVec(args, node);
+    ExprVec *exprVec = constructExprVec(args, node);
     Operator const *oper = this->getOperator();
     checkParserException(oper->checkArgCount(args.size()),
                          "createExpression: Wrong number of operands for operator "
@@ -55,7 +55,7 @@ namespace PLEXIL
     return (new Function(oper, exprVec))->getId();
   }
 
-  ExprVec const *
+  ExprVec *
   FunctionFactory::constructExprVec(std::vector<PlexilExprId> const &subexprs,
                                     NodeConnectorId const &node) const
   {
@@ -65,7 +65,7 @@ namespace PLEXIL
     std::vector<ExpressionId> exprs(nargs);
     for (size_t i = 0; i < nargs; ++i) {
       bool isGarbage;
-      exprs[i] = createExpression(args[i], node, isGarbage);
+      exprs[i] = createExpression(subexprs[i], node, isGarbage);
       garbage[i] = isGarbage;
     }
 

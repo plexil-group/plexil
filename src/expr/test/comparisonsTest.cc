@@ -42,10 +42,16 @@ static bool testIsKnown()
   RealVariable varr;
   StringVariable vars;
 
-  UnaryFunction<bool> iskfnb(IsKnown::instance(), varb.getId());
-  UnaryFunction<bool> iskfni(IsKnown::instance(), vari.getId());
-  UnaryFunction<bool> iskfnr(IsKnown::instance(), varr.getId());
-  UnaryFunction<bool> iskfns(IsKnown::instance(), vars.getId());
+  std::vector<bool> garbage1(1, false);
+  std::vector<ExpressionId> bexp(1, varb.getId());
+  std::vector<ExpressionId> iexp(1, vari.getId());
+  std::vector<ExpressionId> rexp(1, varr.getId());
+  std::vector<ExpressionId> sexp(1, vars.getId());
+  
+  Function iskfnb(IsKnown::instance(), makeExprVec(bexp, garbage1));
+  Function iskfni(IsKnown::instance(), makeExprVec(iexp, garbage1));
+  Function iskfnr(IsKnown::instance(), makeExprVec(rexp, garbage1));
+  Function iskfns(IsKnown::instance(), makeExprVec(sexp, garbage1));
 
   iskfnb.activate();
   iskfni.activate();
@@ -90,24 +96,47 @@ static bool testBoolean()
   BooleanConstant falls(false);
   BooleanVariable varb;
 
-  BinaryFunction<bool> boolEq1(Equal<bool>::instance(), troo.getId(), troo.getId());
-  BinaryFunction<bool> boolEq2(Equal<bool>::instance(), falls.getId(), falls.getId());
-  BinaryFunction<bool> boolEq3(Equal<bool>::instance(), troo.getId(), falls.getId());
-  BinaryFunction<bool> boolEq4(Equal<bool>::instance(), falls.getId(), troo.getId());
-  BinaryFunction<bool> boolEq5(Equal<bool>::instance(), troo.getId(), varb.getId());
-  BinaryFunction<bool> boolEq6(Equal<bool>::instance(), varb.getId(), falls.getId());
-  BinaryFunction<bool> boolNeq1(NotEqual<bool>::instance(), troo.getId(), troo.getId());
-  BinaryFunction<bool> boolNeq2(NotEqual<bool>::instance(), falls.getId(), falls.getId());
-  BinaryFunction<bool> boolNeq3(NotEqual<bool>::instance(), troo.getId(), falls.getId());
-  BinaryFunction<bool> boolNeq4(NotEqual<bool>::instance(), falls.getId(), troo.getId());
-  BinaryFunction<bool> boolNeq5(NotEqual<bool>::instance(), troo.getId(), varb.getId());
-  BinaryFunction<bool> boolNeq6(NotEqual<bool>::instance(), varb.getId(), falls.getId());
+  std::vector<bool> garbage2(2, false);
+  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6;
+  v1.push_back(troo.getId());
+  v1.push_back(troo.getId());
+
+  v2.push_back(falls.getId());
+  v2.push_back(falls.getId());
+
+  v3.push_back(troo.getId());
+  v3.push_back(falls.getId());
+
+  v4.push_back(falls.getId());
+  v4.push_back(troo.getId());
+
+  v5.push_back(troo.getId());
+  v5.push_back(varb.getId());
+
+  v6.push_back(varb.getId());
+  v6.push_back(falls.getId());
+
+  Function boolEq1(Equal<bool>::instance(), makeExprVec(v1, garbage2));
+  Function boolEq2(Equal<bool>::instance(), makeExprVec(v2, garbage2));
+  Function boolEq3(Equal<bool>::instance(), makeExprVec(v3, garbage2));
+  Function boolEq4(Equal<bool>::instance(), makeExprVec(v4, garbage2));
+  Function boolEq5(Equal<bool>::instance(), makeExprVec(v5, garbage2));
+  Function boolEq6(Equal<bool>::instance(), makeExprVec(v6, garbage2));
+
+  Function boolNeq1(NotEqual<bool>::instance(), makeExprVec(v1, garbage2));
+  Function boolNeq2(NotEqual<bool>::instance(), makeExprVec(v2, garbage2));
+  Function boolNeq3(NotEqual<bool>::instance(), makeExprVec(v3, garbage2));
+  Function boolNeq4(NotEqual<bool>::instance(), makeExprVec(v4, garbage2));
+  Function boolNeq5(NotEqual<bool>::instance(), makeExprVec(v5, garbage2));
+  Function boolNeq6(NotEqual<bool>::instance(), makeExprVec(v6, garbage2));
+
   boolEq1.activate();
   boolEq2.activate();
   boolEq3.activate();
   boolEq4.activate();
   boolEq5.activate();
   boolEq6.activate();
+
   boolNeq1.activate();
   boolNeq2.activate();
   boolNeq3.activate();
@@ -174,42 +203,69 @@ static bool testString()
   StringConstant mama("Mama");
   StringVariable vars;
 
-  BinaryFunction<bool> strEq1(Equal<std::string>::instance(), yo.getId(), yo.getId());
-  BinaryFunction<bool> strEq2(Equal<std::string>::instance(), mama.getId(), mama.getId());
-  BinaryFunction<bool> strEq3(Equal<std::string>::instance(), yo.getId(), mama.getId());
-  BinaryFunction<bool> strEq4(Equal<std::string>::instance(), mama.getId(), yo.getId());
-  BinaryFunction<bool> strEq5(Equal<std::string>::instance(), yo.getId(), vars.getId());
-  BinaryFunction<bool> strEq6(Equal<std::string>::instance(), vars.getId(), mama.getId());
-  BinaryFunction<bool> strNeq1(NotEqual<std::string>::instance(), yo.getId(), yo.getId());
-  BinaryFunction<bool> strNeq2(NotEqual<std::string>::instance(), mama.getId(), mama.getId());
-  BinaryFunction<bool> strNeq3(NotEqual<std::string>::instance(), yo.getId(), mama.getId());
-  BinaryFunction<bool> strNeq4(NotEqual<std::string>::instance(), mama.getId(), yo.getId());
-  BinaryFunction<bool> strNeq5(NotEqual<std::string>::instance(), yo.getId(), vars.getId());
-  BinaryFunction<bool> strNeq6(NotEqual<std::string>::instance(), vars.getId(), mama.getId());
-  BinaryFunction<bool> strGt1(GreaterThan<std::string>::instance(), yo.getId(), yo.getId());
-  BinaryFunction<bool> strGt2(GreaterThan<std::string>::instance(), mama.getId(), mama.getId());
-  BinaryFunction<bool> strGt3(GreaterThan<std::string>::instance(), yo.getId(), mama.getId());
-  BinaryFunction<bool> strGt4(GreaterThan<std::string>::instance(), mama.getId(), yo.getId());
-  BinaryFunction<bool> strGt5(GreaterThan<std::string>::instance(), yo.getId(), vars.getId());
-  BinaryFunction<bool> strGt6(GreaterThan<std::string>::instance(), vars.getId(), mama.getId());
-  BinaryFunction<bool> strGe1(GreaterEqual<std::string>::instance(), yo.getId(), yo.getId());
-  BinaryFunction<bool> strGe2(GreaterEqual<std::string>::instance(), mama.getId(), mama.getId());
-  BinaryFunction<bool> strGe3(GreaterEqual<std::string>::instance(), yo.getId(), mama.getId());
-  BinaryFunction<bool> strGe4(GreaterEqual<std::string>::instance(), mama.getId(), yo.getId());
-  BinaryFunction<bool> strGe5(GreaterEqual<std::string>::instance(), yo.getId(), vars.getId());
-  BinaryFunction<bool> strGe6(GreaterEqual<std::string>::instance(), vars.getId(), mama.getId());
-  BinaryFunction<bool> strLt1(LessThan<std::string>::instance(), yo.getId(), yo.getId());
-  BinaryFunction<bool> strLt2(LessThan<std::string>::instance(), mama.getId(), mama.getId());
-  BinaryFunction<bool> strLt3(LessThan<std::string>::instance(), yo.getId(), mama.getId());
-  BinaryFunction<bool> strLt4(LessThan<std::string>::instance(), mama.getId(), yo.getId());
-  BinaryFunction<bool> strLt5(LessThan<std::string>::instance(), yo.getId(), vars.getId());
-  BinaryFunction<bool> strLt6(LessThan<std::string>::instance(), vars.getId(), mama.getId());
-  BinaryFunction<bool> strLe1(LessEqual<std::string>::instance(), yo.getId(), yo.getId());
-  BinaryFunction<bool> strLe2(LessEqual<std::string>::instance(), mama.getId(), mama.getId());
-  BinaryFunction<bool> strLe3(LessEqual<std::string>::instance(), yo.getId(), mama.getId());
-  BinaryFunction<bool> strLe4(LessEqual<std::string>::instance(), mama.getId(), yo.getId());
-  BinaryFunction<bool> strLe5(LessEqual<std::string>::instance(), yo.getId(), vars.getId());
-  BinaryFunction<bool> strLe6(LessEqual<std::string>::instance(), vars.getId(), mama.getId());
+  std::vector<bool> garbage2(2, false);
+  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6;
+
+  v1.push_back(yo.getId());
+  v1.push_back(yo.getId());
+
+  v2.push_back(mama.getId());
+  v2.push_back(mama.getId());
+
+  v3.push_back(yo.getId());
+  v3.push_back(mama.getId());
+
+  v4.push_back(mama.getId());
+  v4.push_back(yo.getId());
+
+  v5.push_back(yo.getId());
+  v5.push_back(vars.getId());
+
+  v6.push_back(vars.getId());
+  v6.push_back(mama.getId());
+
+  Function strEq1(Equal<std::string>::instance(), makeExprVec(v1, garbage2));
+  Function strEq2(Equal<std::string>::instance(), makeExprVec(v2, garbage2));
+  Function strEq3(Equal<std::string>::instance(), makeExprVec(v3, garbage2));
+  Function strEq4(Equal<std::string>::instance(), makeExprVec(v4, garbage2));
+  Function strEq5(Equal<std::string>::instance(), makeExprVec(v5, garbage2));
+  Function strEq6(Equal<std::string>::instance(), makeExprVec(v6, garbage2));
+
+  Function strNeq1(NotEqual<std::string>::instance(), makeExprVec(v1, garbage2));
+  Function strNeq2(NotEqual<std::string>::instance(), makeExprVec(v2, garbage2));
+  Function strNeq3(NotEqual<std::string>::instance(), makeExprVec(v3, garbage2));
+  Function strNeq4(NotEqual<std::string>::instance(), makeExprVec(v4, garbage2));
+  Function strNeq5(NotEqual<std::string>::instance(), makeExprVec(v5, garbage2));
+  Function strNeq6(NotEqual<std::string>::instance(), makeExprVec(v6, garbage2));
+
+  Function strGt1(GreaterThan<std::string>::instance(), makeExprVec(v1, garbage2));
+  Function strGt2(GreaterThan<std::string>::instance(), makeExprVec(v2, garbage2));
+  Function strGt3(GreaterThan<std::string>::instance(), makeExprVec(v3, garbage2));
+  Function strGt4(GreaterThan<std::string>::instance(), makeExprVec(v4, garbage2));
+  Function strGt5(GreaterThan<std::string>::instance(), makeExprVec(v5, garbage2));
+  Function strGt6(GreaterThan<std::string>::instance(), makeExprVec(v6, garbage2));
+
+  Function strGe1(GreaterEqual<std::string>::instance(), makeExprVec(v1, garbage2));
+  Function strGe2(GreaterEqual<std::string>::instance(), makeExprVec(v2, garbage2));
+  Function strGe3(GreaterEqual<std::string>::instance(), makeExprVec(v3, garbage2));
+  Function strGe4(GreaterEqual<std::string>::instance(), makeExprVec(v4, garbage2));
+  Function strGe5(GreaterEqual<std::string>::instance(), makeExprVec(v5, garbage2));
+  Function strGe6(GreaterEqual<std::string>::instance(), makeExprVec(v6, garbage2));
+
+  Function strLt1(LessThan<std::string>::instance(), makeExprVec(v1, garbage2));
+  Function strLt2(LessThan<std::string>::instance(), makeExprVec(v2, garbage2));
+  Function strLt3(LessThan<std::string>::instance(), makeExprVec(v3, garbage2));
+  Function strLt4(LessThan<std::string>::instance(), makeExprVec(v4, garbage2));
+  Function strLt5(LessThan<std::string>::instance(), makeExprVec(v5, garbage2));
+  Function strLt6(LessThan<std::string>::instance(), makeExprVec(v6, garbage2));
+
+  Function strLe1(LessEqual<std::string>::instance(), makeExprVec(v1, garbage2));
+  Function strLe2(LessEqual<std::string>::instance(), makeExprVec(v2, garbage2));
+  Function strLe3(LessEqual<std::string>::instance(), makeExprVec(v3, garbage2));
+  Function strLe4(LessEqual<std::string>::instance(), makeExprVec(v4, garbage2));
+  Function strLe5(LessEqual<std::string>::instance(), makeExprVec(v5, garbage2));
+  Function strLe6(LessEqual<std::string>::instance(), makeExprVec(v6, garbage2));
+
   strEq1.activate();
   strEq2.activate();
   strEq3.activate();
@@ -419,42 +475,69 @@ static bool testInteger()
   IntegerConstant too(2);
   IntegerVariable vari;
 
-  BinaryFunction<bool> intEq1(Equal<int32_t>::instance(), won.getId(), won.getId());
-  BinaryFunction<bool> intEq2(Equal<int32_t>::instance(), too.getId(), too.getId());
-  BinaryFunction<bool> intEq3(Equal<int32_t>::instance(), won.getId(), too.getId());
-  BinaryFunction<bool> intEq4(Equal<int32_t>::instance(), too.getId(), won.getId());
-  BinaryFunction<bool> intEq5(Equal<int32_t>::instance(), won.getId(), vari.getId());
-  BinaryFunction<bool> intEq6(Equal<int32_t>::instance(), vari.getId(), too.getId());
-  BinaryFunction<bool> intNeq1(NotEqual<int32_t>::instance(), won.getId(), won.getId());
-  BinaryFunction<bool> intNeq2(NotEqual<int32_t>::instance(), too.getId(), too.getId());
-  BinaryFunction<bool> intNeq3(NotEqual<int32_t>::instance(), won.getId(), too.getId());
-  BinaryFunction<bool> intNeq4(NotEqual<int32_t>::instance(), too.getId(), won.getId());
-  BinaryFunction<bool> intNeq5(NotEqual<int32_t>::instance(), won.getId(), vari.getId());
-  BinaryFunction<bool> intNeq6(NotEqual<int32_t>::instance(), vari.getId(), too.getId());
-  BinaryFunction<bool> intGt1(GreaterThan<int32_t>::instance(), won.getId(), won.getId());
-  BinaryFunction<bool> intGt2(GreaterThan<int32_t>::instance(), too.getId(), too.getId());
-  BinaryFunction<bool> intGt3(GreaterThan<int32_t>::instance(), won.getId(), too.getId());
-  BinaryFunction<bool> intGt4(GreaterThan<int32_t>::instance(), too.getId(), won.getId());
-  BinaryFunction<bool> intGt5(GreaterThan<int32_t>::instance(), won.getId(), vari.getId());
-  BinaryFunction<bool> intGt6(GreaterThan<int32_t>::instance(), vari.getId(), too.getId());
-  BinaryFunction<bool> intGe1(GreaterEqual<int32_t>::instance(), won.getId(), won.getId());
-  BinaryFunction<bool> intGe2(GreaterEqual<int32_t>::instance(), too.getId(), too.getId());
-  BinaryFunction<bool> intGe3(GreaterEqual<int32_t>::instance(), won.getId(), too.getId());
-  BinaryFunction<bool> intGe4(GreaterEqual<int32_t>::instance(), too.getId(), won.getId());
-  BinaryFunction<bool> intGe5(GreaterEqual<int32_t>::instance(), won.getId(), vari.getId());
-  BinaryFunction<bool> intGe6(GreaterEqual<int32_t>::instance(), vari.getId(), too.getId());
-  BinaryFunction<bool> intLt1(LessThan<int32_t>::instance(), won.getId(), won.getId());
-  BinaryFunction<bool> intLt2(LessThan<int32_t>::instance(), too.getId(), too.getId());
-  BinaryFunction<bool> intLt3(LessThan<int32_t>::instance(), won.getId(), too.getId());
-  BinaryFunction<bool> intLt4(LessThan<int32_t>::instance(), too.getId(), won.getId());
-  BinaryFunction<bool> intLt5(LessThan<int32_t>::instance(), won.getId(), vari.getId());
-  BinaryFunction<bool> intLt6(LessThan<int32_t>::instance(), vari.getId(), too.getId());
-  BinaryFunction<bool> intLe1(LessEqual<int32_t>::instance(), won.getId(), won.getId());
-  BinaryFunction<bool> intLe2(LessEqual<int32_t>::instance(), too.getId(), too.getId());
-  BinaryFunction<bool> intLe3(LessEqual<int32_t>::instance(), won.getId(), too.getId());
-  BinaryFunction<bool> intLe4(LessEqual<int32_t>::instance(), too.getId(), won.getId());
-  BinaryFunction<bool> intLe5(LessEqual<int32_t>::instance(), won.getId(), vari.getId());
-  BinaryFunction<bool> intLe6(LessEqual<int32_t>::instance(), vari.getId(), too.getId());
+  std::vector<bool> garbage2(2, false);
+  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6;
+
+  v1.push_back(won.getId());
+  v1.push_back(won.getId());
+
+  v2.push_back(too.getId());
+  v2.push_back(too.getId());
+
+  v3.push_back(won.getId());
+  v3.push_back(too.getId());
+
+  v4.push_back(too.getId());
+  v4.push_back(won.getId());
+
+  v5.push_back(won.getId());
+  v5.push_back(vari.getId());
+
+  v6.push_back(vari.getId());
+  v6.push_back(too.getId());
+
+  Function intEq1(Equal<int32_t>::instance(), makeExprVec(v1, garbage2));
+  Function intEq2(Equal<int32_t>::instance(), makeExprVec(v2, garbage2));
+  Function intEq3(Equal<int32_t>::instance(), makeExprVec(v3, garbage2));
+  Function intEq4(Equal<int32_t>::instance(), makeExprVec(v4, garbage2));
+  Function intEq5(Equal<int32_t>::instance(), makeExprVec(v5, garbage2));
+  Function intEq6(Equal<int32_t>::instance(), makeExprVec(v6, garbage2));
+
+  Function intNeq1(NotEqual<int32_t>::instance(), makeExprVec(v1, garbage2));
+  Function intNeq2(NotEqual<int32_t>::instance(), makeExprVec(v2, garbage2));
+  Function intNeq3(NotEqual<int32_t>::instance(), makeExprVec(v3, garbage2));
+  Function intNeq4(NotEqual<int32_t>::instance(), makeExprVec(v4, garbage2));
+  Function intNeq5(NotEqual<int32_t>::instance(), makeExprVec(v5, garbage2));
+  Function intNeq6(NotEqual<int32_t>::instance(), makeExprVec(v6, garbage2));
+
+  Function intGt1(GreaterThan<int32_t>::instance(), makeExprVec(v1, garbage2));
+  Function intGt2(GreaterThan<int32_t>::instance(), makeExprVec(v2, garbage2));
+  Function intGt3(GreaterThan<int32_t>::instance(), makeExprVec(v3, garbage2));
+  Function intGt4(GreaterThan<int32_t>::instance(), makeExprVec(v4, garbage2));
+  Function intGt5(GreaterThan<int32_t>::instance(), makeExprVec(v5, garbage2));
+  Function intGt6(GreaterThan<int32_t>::instance(), makeExprVec(v6, garbage2));
+
+  Function intGe1(GreaterEqual<int32_t>::instance(), makeExprVec(v1, garbage2));
+  Function intGe2(GreaterEqual<int32_t>::instance(), makeExprVec(v2, garbage2));
+  Function intGe3(GreaterEqual<int32_t>::instance(), makeExprVec(v3, garbage2));
+  Function intGe4(GreaterEqual<int32_t>::instance(), makeExprVec(v4, garbage2));
+  Function intGe5(GreaterEqual<int32_t>::instance(), makeExprVec(v5, garbage2));
+  Function intGe6(GreaterEqual<int32_t>::instance(), makeExprVec(v6, garbage2));
+
+  Function intLt1(LessThan<int32_t>::instance(), makeExprVec(v1, garbage2));
+  Function intLt2(LessThan<int32_t>::instance(), makeExprVec(v2, garbage2));
+  Function intLt3(LessThan<int32_t>::instance(), makeExprVec(v3, garbage2));
+  Function intLt4(LessThan<int32_t>::instance(), makeExprVec(v4, garbage2));
+  Function intLt5(LessThan<int32_t>::instance(), makeExprVec(v5, garbage2));
+  Function intLt6(LessThan<int32_t>::instance(), makeExprVec(v6, garbage2));
+
+  Function intLe1(LessEqual<int32_t>::instance(), makeExprVec(v1, garbage2));
+  Function intLe2(LessEqual<int32_t>::instance(), makeExprVec(v2, garbage2));
+  Function intLe3(LessEqual<int32_t>::instance(), makeExprVec(v3, garbage2));
+  Function intLe4(LessEqual<int32_t>::instance(), makeExprVec(v4, garbage2));
+  Function intLe5(LessEqual<int32_t>::instance(), makeExprVec(v5, garbage2));
+  Function intLe6(LessEqual<int32_t>::instance(), makeExprVec(v6, garbage2));
+
   intEq1.activate();
   intEq2.activate();
   intEq3.activate();
@@ -668,42 +751,69 @@ static bool testReal()
   RealConstant tootoo(2);
   RealVariable varr;
 
-  BinaryFunction<bool> dblEq1(Equal<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblEq2(Equal<double>::instance(), tootoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblEq3(Equal<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblEq4(Equal<double>::instance(), tootoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblEq5(Equal<double>::instance(), wontoo.getId(), varr.getId());
-  BinaryFunction<bool> dblEq6(Equal<double>::instance(), varr.getId(), tootoo.getId());
-  BinaryFunction<bool> dblNeq1(NotEqual<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblNeq2(NotEqual<double>::instance(), tootoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblNeq3(NotEqual<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblNeq4(NotEqual<double>::instance(), tootoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblNeq5(NotEqual<double>::instance(), wontoo.getId(), varr.getId());
-  BinaryFunction<bool> dblNeq6(NotEqual<double>::instance(), varr.getId(), tootoo.getId());
-  BinaryFunction<bool> dblGt1(GreaterThan<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblGt2(GreaterThan<double>::instance(), tootoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblGt3(GreaterThan<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblGt4(GreaterThan<double>::instance(), tootoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblGt5(GreaterThan<double>::instance(), wontoo.getId(), varr.getId());
-  BinaryFunction<bool> dblGt6(GreaterThan<double>::instance(), varr.getId(), tootoo.getId());
-  BinaryFunction<bool> dblGe1(GreaterEqual<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblGe2(GreaterEqual<double>::instance(), tootoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblGe3(GreaterEqual<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblGe4(GreaterEqual<double>::instance(), tootoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblGe5(GreaterEqual<double>::instance(), wontoo.getId(), varr.getId());
-  BinaryFunction<bool> dblGe6(GreaterEqual<double>::instance(), varr.getId(), tootoo.getId());
-  BinaryFunction<bool> dblLt1(LessThan<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblLt2(LessThan<double>::instance(), tootoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblLt3(LessThan<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblLt4(LessThan<double>::instance(), tootoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblLt5(LessThan<double>::instance(), wontoo.getId(), varr.getId());
-  BinaryFunction<bool> dblLt6(LessThan<double>::instance(), varr.getId(), tootoo.getId());
-  BinaryFunction<bool> dblLe1(LessEqual<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblLe2(LessEqual<double>::instance(), tootoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblLe3(LessEqual<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblLe4(LessEqual<double>::instance(), tootoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblLe5(LessEqual<double>::instance(), wontoo.getId(), varr.getId());
-  BinaryFunction<bool> dblLe6(LessEqual<double>::instance(), varr.getId(), tootoo.getId());
+  std::vector<bool> garbage2(2, false);
+  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6;
+
+  v1.push_back(wontoo.getId());
+  v1.push_back(wontoo.getId());
+
+  v2.push_back(tootoo.getId());
+  v2.push_back(tootoo.getId());
+
+  v3.push_back(wontoo.getId());
+  v3.push_back(tootoo.getId());
+
+  v4.push_back(tootoo.getId());
+  v4.push_back(wontoo.getId());
+
+  v5.push_back(wontoo.getId());
+  v5.push_back(varr.getId());
+
+  v6.push_back(varr.getId());
+  v6.push_back(tootoo.getId());
+
+  Function dblEq1(Equal<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblEq2(Equal<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblEq3(Equal<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblEq4(Equal<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblEq5(Equal<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblEq6(Equal<double>::instance(), makeExprVec(v6, garbage2));
+
+  Function dblNeq1(NotEqual<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblNeq2(NotEqual<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblNeq3(NotEqual<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblNeq4(NotEqual<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblNeq5(NotEqual<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblNeq6(NotEqual<double>::instance(), makeExprVec(v6, garbage2));
+
+  Function dblGt1(GreaterThan<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblGt2(GreaterThan<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblGt3(GreaterThan<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblGt4(GreaterThan<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblGt5(GreaterThan<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblGt6(GreaterThan<double>::instance(), makeExprVec(v6, garbage2));
+
+  Function dblGe1(GreaterEqual<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblGe2(GreaterEqual<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblGe3(GreaterEqual<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblGe4(GreaterEqual<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblGe5(GreaterEqual<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblGe6(GreaterEqual<double>::instance(), makeExprVec(v6, garbage2));
+
+  Function dblLt1(LessThan<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblLt2(LessThan<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblLt3(LessThan<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblLt4(LessThan<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblLt5(LessThan<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblLt6(LessThan<double>::instance(), makeExprVec(v6, garbage2));
+
+  Function dblLe1(LessEqual<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblLe2(LessEqual<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblLe3(LessEqual<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblLe4(LessEqual<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblLe5(LessEqual<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblLe6(LessEqual<double>::instance(), makeExprVec(v6, garbage2));
+
   dblEq1.activate();
   dblEq2.activate();
   dblEq3.activate();
@@ -913,42 +1023,69 @@ static bool testMixedNumerics()
   IntegerConstant wontoo(1);
   IntegerConstant tootoo(2);
 
-  BinaryFunction<bool> dblEq1(Equal<double>::instance(), won.getId(), wontoo.getId());
-  BinaryFunction<bool> dblEq2(Equal<double>::instance(), tootoo.getId(), too.getId());
-  BinaryFunction<bool> dblEq3(Equal<double>::instance(), wontoo.getId(), too.getId());
-  BinaryFunction<bool> dblEq4(Equal<double>::instance(), won.getId(), tootoo.getId());
-  BinaryFunction<bool> dblEq5(Equal<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblEq6(Equal<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblNeq1(NotEqual<double>::instance(), won.getId(), wontoo.getId());
-  BinaryFunction<bool> dblNeq2(NotEqual<double>::instance(), tootoo.getId(), too.getId());
-  BinaryFunction<bool> dblNeq3(NotEqual<double>::instance(), wontoo.getId(), too.getId());
-  BinaryFunction<bool> dblNeq4(NotEqual<double>::instance(), won.getId(), tootoo.getId());
-  BinaryFunction<bool> dblNeq5(NotEqual<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblNeq6(NotEqual<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblGt1(GreaterThan<double>::instance(), won.getId(), wontoo.getId());
-  BinaryFunction<bool> dblGt2(GreaterThan<double>::instance(), tootoo.getId(), too.getId());
-  BinaryFunction<bool> dblGt3(GreaterThan<double>::instance(), wontoo.getId(), too.getId());
-  BinaryFunction<bool> dblGt4(GreaterThan<double>::instance(), won.getId(), tootoo.getId());
-  BinaryFunction<bool> dblGt5(GreaterThan<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblGt6(GreaterThan<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblGe1(GreaterEqual<double>::instance(), won.getId(), wontoo.getId());
-  BinaryFunction<bool> dblGe2(GreaterEqual<double>::instance(), tootoo.getId(), too.getId());
-  BinaryFunction<bool> dblGe3(GreaterEqual<double>::instance(), wontoo.getId(), too.getId());
-  BinaryFunction<bool> dblGe4(GreaterEqual<double>::instance(), won.getId(), tootoo.getId());
-  BinaryFunction<bool> dblGe5(GreaterEqual<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblGe6(GreaterEqual<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblLt1(LessThan<double>::instance(), won.getId(), wontoo.getId());
-  BinaryFunction<bool> dblLt2(LessThan<double>::instance(), tootoo.getId(), too.getId());
-  BinaryFunction<bool> dblLt3(LessThan<double>::instance(), wontoo.getId(), too.getId());
-  BinaryFunction<bool> dblLt4(LessThan<double>::instance(), won.getId(), tootoo.getId());
-  BinaryFunction<bool> dblLt5(LessThan<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblLt6(LessThan<double>::instance(), wontoo.getId(), tootoo.getId());
-  BinaryFunction<bool> dblLe1(LessEqual<double>::instance(), won.getId(), wontoo.getId());
-  BinaryFunction<bool> dblLe2(LessEqual<double>::instance(), tootoo.getId(), too.getId());
-  BinaryFunction<bool> dblLe3(LessEqual<double>::instance(), wontoo.getId(), too.getId());
-  BinaryFunction<bool> dblLe4(LessEqual<double>::instance(), won.getId(), tootoo.getId());
-  BinaryFunction<bool> dblLe5(LessEqual<double>::instance(), wontoo.getId(), wontoo.getId());
-  BinaryFunction<bool> dblLe6(LessEqual<double>::instance(), wontoo.getId(), tootoo.getId());
+  std::vector<bool> garbage2(2, false);
+  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6;
+
+  v1.push_back(won.getId());
+  v1.push_back(wontoo.getId());
+
+  v2.push_back(tootoo.getId());
+  v2.push_back(too.getId());
+
+  v3.push_back(wontoo.getId());
+  v3.push_back(too.getId());
+
+  v4.push_back(won.getId());
+  v4.push_back(tootoo.getId());
+
+  v5.push_back(wontoo.getId());
+  v5.push_back(wontoo.getId());
+
+  v6.push_back(wontoo.getId());
+  v6.push_back(tootoo.getId());
+
+  Function dblEq1(Equal<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblEq2(Equal<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblEq3(Equal<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblEq4(Equal<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblEq5(Equal<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblEq6(Equal<double>::instance(), makeExprVec(v6, garbage2));
+
+  Function dblNeq1(NotEqual<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblNeq2(NotEqual<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblNeq3(NotEqual<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblNeq4(NotEqual<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblNeq5(NotEqual<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblNeq6(NotEqual<double>::instance(), makeExprVec(v6, garbage2));
+
+  Function dblGt1(GreaterThan<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblGt2(GreaterThan<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblGt3(GreaterThan<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblGt4(GreaterThan<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblGt5(GreaterThan<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblGt6(GreaterThan<double>::instance(), makeExprVec(v6, garbage2));
+
+  Function dblGe1(GreaterEqual<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblGe2(GreaterEqual<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblGe3(GreaterEqual<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblGe4(GreaterEqual<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblGe5(GreaterEqual<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblGe6(GreaterEqual<double>::instance(), makeExprVec(v6, garbage2));
+
+  Function dblLt1(LessThan<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblLt2(LessThan<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblLt3(LessThan<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblLt4(LessThan<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblLt5(LessThan<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblLt6(LessThan<double>::instance(), makeExprVec(v6, garbage2));
+
+  Function dblLe1(LessEqual<double>::instance(), makeExprVec(v1, garbage2));
+  Function dblLe2(LessEqual<double>::instance(), makeExprVec(v2, garbage2));
+  Function dblLe3(LessEqual<double>::instance(), makeExprVec(v3, garbage2));
+  Function dblLe4(LessEqual<double>::instance(), makeExprVec(v4, garbage2));
+  Function dblLe5(LessEqual<double>::instance(), makeExprVec(v5, garbage2));
+  Function dblLe6(LessEqual<double>::instance(), makeExprVec(v6, garbage2));
+
   dblEq1.activate();
   dblEq2.activate();
   dblEq3.activate();

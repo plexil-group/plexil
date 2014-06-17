@@ -84,7 +84,7 @@ namespace PLEXIL
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(Truncate);
 
   ENSURE_FUNCTION_FACTORY(SquareRoot<double>);
-  ENSURE_FUNCTION_FACTORY(RealToInteger, int32_t);
+  ENSURE_FUNCTION_FACTORY(RealToInteger);
 
   void registerBasicExpressionFactories()
   {

@@ -49,8 +49,8 @@ namespace PLEXIL
   protected:
 
     // Base class provides this to derived
-    ExprVec const *constructExprVec(std::vector<PlexilExprId> const &subexprs,
-                                    NodeConnectorId const &node) const;
+    ExprVec *constructExprVec(std::vector<PlexilExprId> const &subexprs,
+                              NodeConnectorId const &node) const;
 
     // Delegated to derived class
     virtual Operator const *getOperator() const = 0;

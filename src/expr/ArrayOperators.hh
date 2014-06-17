@@ -27,12 +27,12 @@
 #ifndef PLEXIL_ARRAY_OPERATORS_HH
 #define PLEXIL_ARRAY_OPERATORS_HH
 
-#include "Operator.hh"
+#include "OperatorImpl.hh"
 
 namespace PLEXIL
 {
 
-  class ArrayLength : public Operator<int32_t>
+  class ArrayLength : public OperatorImpl<int32_t>
   {
   public:
     ArrayLength();
@@ -40,7 +40,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(int32_t &result, const ExpressionId &arg) const;
+    bool operator()(int32_t &result, ExpressionId arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(ArrayLength, int32_t);
 
@@ -50,7 +50,7 @@ namespace PLEXIL
     ArrayLength &operator=(const ArrayLength &);
   };
 
-  class AllElementsKnown : public Operator<bool>
+  class AllElementsKnown : public OperatorImpl<bool>
   {
   public:
     AllElementsKnown();
@@ -58,7 +58,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, const ExpressionId &arg) const;
+    bool operator()(bool &result, ExpressionId arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(AllElementsKnown, bool);
 
@@ -68,7 +68,7 @@ namespace PLEXIL
     AllElementsKnown &operator=(const AllElementsKnown &);
   };
 
-  class AnyElementsKnown : public Operator<bool>
+  class AnyElementsKnown : public OperatorImpl<bool>
   {
   public:
     AnyElementsKnown();
@@ -76,7 +76,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, const ExpressionId &arg) const;
+    bool operator()(bool &result, ExpressionId arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(AnyElementsKnown, bool);
 

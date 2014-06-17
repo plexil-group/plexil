@@ -44,7 +44,13 @@ namespace PLEXIL
   class Function : public NotifierImpl
   {
   public:
-    Function(Operator const *op, ExprVec const *exprs);
+    Function(Operator const *op, ExprVec *exprs);
+    // Convenience constructors for Node classes 
+    Function(Operator const *op, ExpressionId expr, bool garbage);
+    Function(Operator const *op, 
+             ExpressionId expr1, ExpressionId expr2,
+             bool garbage1, bool garbage2);
+
     virtual ~Function();
 
     //
@@ -96,7 +102,7 @@ namespace PLEXIL
     Function(const Function &);
     Function& operator=(const Function &);
 
-    ExprVec const *m_exprVec;
+    ExprVec *m_exprVec;
 
     // For implementing getValuePointer().
     // Must be a pointer to preserve const-ness.

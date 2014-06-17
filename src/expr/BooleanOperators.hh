@@ -27,12 +27,12 @@
 #ifndef PLEXIL_BOOLEAN_OPERATORS_HH
 #define PLEXIL_BOOLEAN_OPERATORS_HH
 
-#include "Operator.hh"
+#include "OperatorImpl.hh"
 
 namespace PLEXIL
 {
 
-  class BooleanNot : public Operator<bool>
+  class BooleanNot : public OperatorImpl<bool>
   {
   public:
     BooleanNot();
@@ -40,7 +40,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, const ExpressionId &arg) const;
+    bool operator()(bool &result, ExpressionId arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanNot, bool)
 
@@ -49,7 +49,7 @@ namespace PLEXIL
     BooleanNot &operator=(const BooleanNot &);
   };
 
-  class BooleanOr : public Operator<bool>
+  class BooleanOr : public OperatorImpl<bool>
   {
   public:
     BooleanOr();
@@ -57,9 +57,9 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, const ExpressionId &arg) const;
-    bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(bool &result, size_t nargs, ExpressionId const args[]) const;
+    bool operator()(bool &result, ExpressionId arg) const;
+    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, ExprVec const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanOr, bool)
 
@@ -68,7 +68,7 @@ namespace PLEXIL
     BooleanOr &operator=(const BooleanOr &);
   };
 
-  class BooleanAnd : public Operator<bool>
+  class BooleanAnd : public OperatorImpl<bool>
   {
   public:
     BooleanAnd();
@@ -76,9 +76,9 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, const ExpressionId &arg) const;
-    bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(bool &result, size_t nargs, ExpressionId const args[]) const;
+    bool operator()(bool &result, ExpressionId arg) const;
+    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, ExprVec const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanAnd, bool)
 
@@ -87,7 +87,7 @@ namespace PLEXIL
     BooleanAnd &operator=(const BooleanAnd &);
   };
 
-  class BooleanXor : public Operator<bool>
+  class BooleanXor : public OperatorImpl<bool>
   {
   public:
     BooleanXor();
@@ -95,9 +95,9 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, const ExpressionId &arg) const;
-    bool operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const;
-    bool operator()(bool &result, size_t nargs, ExpressionId const args[]) const;
+    bool operator()(bool &result, ExpressionId arg) const;
+    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, ExprVec const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanXor, bool)
 

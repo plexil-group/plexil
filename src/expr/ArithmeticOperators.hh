@@ -27,7 +27,7 @@
 #ifndef PLEXIL_ARITHMETIC_OPERATORS_HH
 #define PLEXIL_ARITHMETIC_OPERATORS_HH
 
-#include "Operator.hh"
+#include "OperatorImpl.hh"
 
 namespace PLEXIL
 {
@@ -39,7 +39,9 @@ namespace PLEXIL
     Addition();
     ~Addition();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
+    bool calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const;
+    bool calc(NUM &result, ExprVec const &args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Addition<NUM>, NUM);
 
   private:
@@ -54,7 +56,9 @@ namespace PLEXIL
     Subtraction();
     ~Subtraction();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
+    bool calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const;
+    bool calc(NUM &result, ExprVec const &args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Subtraction<NUM>, NUM);
 
   private:
@@ -69,7 +73,9 @@ namespace PLEXIL
     Multiplication();
     ~Multiplication();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
+    bool calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const;
+    bool calc(NUM &result, ExprVec const &args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Multiplication<NUM>, NUM);
 
   private:
@@ -84,7 +90,7 @@ namespace PLEXIL
     Division();
     ~Division();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Division<NUM>, NUM);
 
   private:
@@ -99,7 +105,7 @@ namespace PLEXIL
     Modulo();
     ~Modulo();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Modulo<NUM>, NUM);
 
   private:
@@ -114,7 +120,9 @@ namespace PLEXIL
     Minimum();
     ~Minimum();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
+    bool calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const;
+    bool calc(NUM &result, ExprVec const &args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Minimum<NUM>, NUM);
 
   private:
@@ -129,7 +137,9 @@ namespace PLEXIL
     Maximum();
     ~Maximum();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
+    bool calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const;
+    bool calc(NUM &result, ExprVec const &args) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Maximum<NUM>, NUM);
 
   private:
@@ -148,7 +158,7 @@ namespace PLEXIL
     AbsoluteValue();
     ~AbsoluteValue();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(AbsoluteValue<NUM>, NUM);
 
   private:
@@ -164,7 +174,7 @@ namespace PLEXIL
     SquareRoot();
     ~SquareRoot();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(SquareRoot<NUM>, NUM);
 
   private:
@@ -184,7 +194,7 @@ namespace PLEXIL
     Ceiling();
     ~Ceiling();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Ceiling<NUM>, NUM);
 
   private:
@@ -199,7 +209,7 @@ namespace PLEXIL
     Floor();
     ~Floor();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Floor<NUM>, NUM);
 
   private:
@@ -214,7 +224,7 @@ namespace PLEXIL
     Round();
     ~Round();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Round<NUM>, NUM);
 
   private:
@@ -229,7 +239,7 @@ namespace PLEXIL
     Truncate();
     ~Truncate();
     bool checkArgCount(size_t count) const;
-    bool calc(NUM &result, ExprVec const *args) const;
+    bool calc(NUM &result, ExpressionId arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Truncate<NUM>, NUM);
 
   private:
@@ -243,7 +253,7 @@ namespace PLEXIL
     RealToInteger();
     ~RealToInteger();
     bool checkArgCount(size_t count) const;
-    bool calc(int32_t &result, ExprVec const *args) const;
+    bool calc(int32_t &result, ExpressionId arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, int32_t);
 
   private:

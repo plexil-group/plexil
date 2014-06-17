@@ -32,7 +32,7 @@ namespace PLEXIL
   // StringConcat
   //
   StringConcat::StringConcat()
-    : Operator<std::string>("CONCAT")
+    : OperatorImpl<std::string>("CONCAT")
   {
   }
   
@@ -52,14 +52,14 @@ namespace PLEXIL
   }
 
   bool StringConcat::operator()(std::string &result,
-                                const ExpressionId &arg) const
+                                ExpressionId arg) const
   {
     return arg->getValue(result);
   }
 
   bool StringConcat::operator()(std::string &result,
-                                const ExpressionId &argA,
-                                const ExpressionId &argB) const
+                                ExpressionId argA,
+                                ExpressionId argB) const
   {
     std::string const *stringA, *stringB;
     if (!argA->getValuePointer(stringA)
@@ -72,9 +72,9 @@ namespace PLEXIL
   }
 
   bool StringConcat::operator()(std::string &result, 
-                                size_t nargs,
-                                ExpressionId const args[]) const
+                                ExprVec const &args) const
   {
+    size_t nargs = args.size();
     std::string const *vals[nargs];
     for (size_t i = 0; i < nargs; ++i) {
       if (!args[i]->getValuePointer(vals[i]))
@@ -94,7 +94,7 @@ namespace PLEXIL
   // StringLength
   //
   StringLength::StringLength()
-    : Operator<int32_t>("STRLEN")
+    : OperatorImpl<int32_t>("STRLEN")
   {
   }
 
@@ -107,7 +107,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool StringLength::operator()(int32_t &result, const ExpressionId &arg) const
+  bool StringLength::operator()(int32_t &result, ExpressionId arg) const
   {
     std::string const *str;
     if (!arg->getValuePointer(str))

@@ -34,7 +34,7 @@ namespace PLEXIL
   //
 
   ArrayLength::ArrayLength()
-    : Operator<int32_t>("SIZE")
+    : OperatorImpl<int32_t>("SIZE")
   {
   }
   
@@ -47,7 +47,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool ArrayLength::operator()(int32_t &result, const ExpressionId &arg) const
+  bool ArrayLength::operator()(int32_t &result, ExpressionId arg) const
   {
     Array const *ary;
     if (!arg->getValuePointer(ary))
@@ -61,7 +61,7 @@ namespace PLEXIL
   //
 
   AllElementsKnown::AllElementsKnown()
-    : Operator<bool>("ALL_KNOWN")
+    : OperatorImpl<bool>("ALL_KNOWN")
   {
   }
 
@@ -74,7 +74,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool AllElementsKnown::operator()(bool &result, const ExpressionId &arg) const
+  bool AllElementsKnown::operator()(bool &result, ExpressionId arg) const
   {
     Array const *ary;
     if (!arg->getValuePointer(ary))
@@ -88,7 +88,7 @@ namespace PLEXIL
   //
 
   AnyElementsKnown::AnyElementsKnown()
-    : Operator<bool>("ANY_KNOWN")
+    : OperatorImpl<bool>("ANY_KNOWN")
   {
   }
 
@@ -101,7 +101,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool AnyElementsKnown::operator()(bool &result, const ExpressionId &arg) const
+  bool AnyElementsKnown::operator()(bool &result, ExpressionId arg) const
   {
     Array const *ary;
     if (!arg->getValuePointer(ary))

@@ -27,12 +27,27 @@
 #ifndef PLEXIL_EXPR_VEC_HH
 #define PLEXIL_EXPR_VEC_HH
 
+#include "ArrayFwd.hh"
 #include "Id.hh"
+
+#include <string>
+#include <vector>
 
 namespace PLEXIL
 {
   class Expression;
   DECLARE_ID(Expression);
+
+  class ExpressionListener;
+  DECLARE_ID(ExpressionListener);
+
+  class Operator;
+
+  /**
+   * @class ExprVec
+   * @brief Virtual base class for a family of expression vector classes,
+   * whose representations vary by size.
+   */
 
   class ExprVec
   {
@@ -42,73 +57,153 @@ namespace PLEXIL
     virtual size_t size() const = 0;
     virtual ExpressionId const &operator[](size_t n) const = 0;
 
-    void activate() 
-    {
-      for (size_t i = 0; i < this->size(); ++i)
-        (*this)[i]->activate();
-    }
+    // These are in critical path of exec inner loop, 
+    // so should be optimized for each representation
+    virtual void activate() = 0;
+    virtual void deactivate() = 0;
 
-    void deactivate()
-    {
-      for (size_t i = 0; i < this->size(); ++i)
-        (*this)[i]->activate();
-    }
+    // Default methods, derived classes can use these
+    virtual void addListener(ExpressionListenerId);
+    virtual void removeListener(ExpressionListenerId);
 
-    void addListener(ExpressionListenerId id)
-    {
-      for (size_t i = 0; i < this->size(); ++i)
-        (*this)[i]->addListener(id);
-    }
-
-    void removeListener(ExpressionListenerId id)
-    {
-      for (size_t i = 0; i < this->size(); ++i)
-        (*this)[i]->removeListener(id);
-    }
-      
+    virtual bool apply(Operator const *op, bool &result) const;
+    virtual bool apply(Operator const *op, int32_t &result) const;
+    virtual bool apply(Operator const *op, double &result) const;
+    virtual bool apply(Operator const *op, std::string &result) const;
+    virtual bool apply(Operator const *op, Array &result) const;
+    virtual bool apply(Operator const *op, BooleanArray &result) const;
+    virtual bool apply(Operator const *op, IntegerArray &result) const;
+    virtual bool apply(Operator const *op, RealArray &result) const;
+    virtual bool apply(Operator const *op, StringArray &result) const;
   };
 
+  /**
+   * @class FixedExprVec
+   * @brief Concrete class template for small expression vectors.
+   * Allows optimization for common cases (specifically one and two parameter function calls).
+   */
+
   template <unsigned N>
-  class ExprVecImpl : public ExprVec
+  class FixedExprVec : public ExprVec
   {
   public:
-    ExprVecImpl(std::vector<ExpressionId> const &exps,
-                std::vector<bool> const &garb)
-      : ExprVec()
-    {
-      check_error_1(exps.size() == N && garb.size() == N);
-      for (size_t i = 0; i < N; ++i)
-        exprs[i] = exps[i];
-      for (size_t i = 0; i < N; ++i)
-        garbage[i] = garb[i];
-    }
-
-    ~ExprVecImpl()
-    {
-      for (size_t i = 0; i < N; ++i)
-        if (garbage[i])
-          delete (Expression *) exprs[i];
-    }
+    FixedExprVec(std::vector<ExpressionId> const &exps,
+                std::vector<bool> const &garb);
+    ~FixedExprVec();
 
     size_t size() const { return N; }
-    ExpressionId const &operator[](size_t n) const 
+    ExpressionId const &operator[](size_t n) const;
+
+    void activate();
+    void deactivate();
+
+    // General case defers to base class for many of these operations
+    void addListener(ExpressionListenerId id) 
     {
-      check_error_1(n < N);
-      return exprs[n]; 
+      ExprVec::addListener(id); 
+    }
+
+    void removeListener(ExpressionListenerId id) 
+    {
+      ExprVec::removeListener(id); 
+    }
+
+    bool apply(Operator const *op, bool &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, int32_t &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, double &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, std::string &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, Array &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, BooleanArray &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, IntegerArray &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, RealArray &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, StringArray &result) const
+    {
+      return ExprVec::apply(op, result); 
     }
 
   private:
     // Not implemented
-    ExprVecImpl(const ExprVecImpl &);
-    ExprVecImpl &operator=(const ExprVecImpl &);
+    FixedExprVec(const FixedExprVec &);
+    FixedExprVec &operator=(const FixedExprVec &);
 
     ExpressionId exprs[N];
     bool garbage[N];
   };
 
+  /**
+   * @class GeneralExprVec
+   * @brief Concrete variable-length variant of ExprVec which uses std::vector instead of arrays.
+   */
+  class GeneralExprVec : public ExprVec
+  {
+  public:
+    GeneralExprVec(std::vector<ExpressionId> const &exps,
+                   std::vector<bool> const &garb);
+    ~GeneralExprVec();
+
+    size_t size() const { return exprs.size(); }
+    ExpressionId const &operator[](size_t n) const;
+    void activate();
+    void deactivate();
+
+    // Defer to base class for these
+    // void addListener(ExpressionListenerId id);
+    // void removeListener(ExpressionListenerId id);
+
+    // bool apply(Operator const *op, bool &result) const;
+    // bool apply(Operator const *op, int32_t &result) const;
+    // bool apply(Operator const *op, double &result) const;
+    // bool apply(Operator const *op, std::string &result) const;
+    // bool apply(Operator const *op, Array &result) const;
+    // bool apply(Operator const *op, BooleanArray &result) const;
+    // bool apply(Operator const *op, IntegerArray &result) const;
+    // bool apply(Operator const *op, RealArray &result) const;
+    // bool apply(Operator const *op, StringArray &result) const;
+
+  private:
+    // Not implemented
+    GeneralExprVec(const GeneralExprVec &);
+    GeneralExprVec &operator=(const GeneralExprVec &);
+
+    std::vector<ExpressionId> exprs;
+    std::vector<bool> garbage;
+  };
+
   // Factory function
-  extern ExprVec const *makeExprVec(std::vector<ExpressionId> const &exprs,
-                                    std::vector<bool> const &garbage);
+  extern ExprVec *makeExprVec(std::vector<ExpressionId> const &exprs,
+                              std::vector<bool> const &garbage);
 
 } // namespace PLEXIL
 

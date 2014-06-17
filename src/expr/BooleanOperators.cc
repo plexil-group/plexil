@@ -30,7 +30,7 @@
 namespace PLEXIL
 {
   BooleanNot::BooleanNot()
-    : Operator<bool>("NOT")
+    : OperatorImpl<bool>("NOT")
   {
   }
 
@@ -43,7 +43,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool BooleanNot::operator()(bool &result, const ExpressionId &arg) const
+  bool BooleanNot::operator()(bool &result, ExpressionId arg) const
   {
     bool temp;
     if (!arg->getValue(temp))
@@ -53,7 +53,7 @@ namespace PLEXIL
   }
 
   BooleanOr::BooleanOr()
-    : Operator<bool>("OR")
+    : OperatorImpl<bool>("OR")
   {
   }
 
@@ -66,12 +66,12 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanOr::operator()(bool &result, const ExpressionId &arg) const
+  bool BooleanOr::operator()(bool &result, ExpressionId arg) const
   {
     return arg->getValue(result);
   }
 
-  bool BooleanOr::operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const
+  bool BooleanOr::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
   {
     bool temp, known;
     if (argA->getValue(temp)) {
@@ -92,12 +92,10 @@ namespace PLEXIL
     return false;
   }
 
-  bool BooleanOr::operator()(bool &result,
-                             size_t nargs,
-                             ExpressionId const args[]) const
+  bool BooleanOr::operator()(bool &result, ExprVec const &args) const
   {
     bool anyKnown = false;
-    for (size_t i = 0; i < nargs; ++i) {
+    for (size_t i = 0; i < args.size(); ++i) {
       bool temp;
       if (args[i]->getValue(temp)) {
         // Return if any arg is known and true
@@ -118,7 +116,7 @@ namespace PLEXIL
   //
 
   BooleanAnd::BooleanAnd()
-    : Operator<bool>("AND")
+    : OperatorImpl<bool>("AND")
   {
   }
 
@@ -131,12 +129,12 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanAnd::operator()(bool &result, const ExpressionId &arg) const
+  bool BooleanAnd::operator()(bool &result, ExpressionId arg) const
   {
     return arg->getValue(result);
   }
 
-  bool BooleanAnd::operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const
+  bool BooleanAnd::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
   {
     bool temp, known;
     if (argA->getValue(temp)) {
@@ -158,10 +156,10 @@ namespace PLEXIL
     return false; // cannot be known
   }
 
-  bool BooleanAnd::operator()(bool &result, size_t nargs, ExpressionId const args[]) const
+  bool BooleanAnd::operator()(bool &result, ExprVec const &args) const
   {
     bool allKnown = true;
-    for (size_t i = 0; i < nargs; ++i) {
+    for (size_t i = 0; i < args.size(); ++i) {
       bool temp;
       if (args[i]->getValue(temp)) {
         if (!temp) {
@@ -179,7 +177,7 @@ namespace PLEXIL
   }
 
   BooleanXor::BooleanXor()
-    : Operator<bool>("XOR")
+    : OperatorImpl<bool>("XOR")
   {
   }
 
@@ -192,12 +190,12 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanXor::operator()(bool &result, const ExpressionId &arg) const
+  bool BooleanXor::operator()(bool &result, ExpressionId arg) const
   {
     return arg->getValue(result);
   }
 
-  bool BooleanXor::operator()(bool &result, const ExpressionId &argA, const ExpressionId &argB) const
+  bool BooleanXor::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
   {
     bool temp1, temp2;
     if (!argA->getValue(temp1))
@@ -208,10 +206,10 @@ namespace PLEXIL
     return true;
   }
 
-  bool BooleanXor::operator()(bool &result, size_t nargs, ExpressionId const args[]) const
+  bool BooleanXor::operator()(bool &result, ExprVec const &args) const
   {
     bool temp1 = false;
-    for (size_t i = 0; i < nargs; ++i) {
+    for (size_t i = 0; i < args.size(); ++i) {
       bool temp2;
       // Return unknown if any arg is unknown
       if (args[i]->getValue(temp2))
