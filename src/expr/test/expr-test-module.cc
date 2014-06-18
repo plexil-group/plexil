@@ -35,6 +35,7 @@ extern bool aliasTest();
 extern bool arithmeticTest();
 extern bool arrayConstantTest();
 extern bool arrayOperatorsTest();
+extern bool arrayReferenceFactoryTest();
 extern bool arrayReferenceTest();
 extern bool arrayTest();
 extern bool arrayVariableTest();
@@ -64,6 +65,7 @@ static void runExprTests()
   runTestSuite(arrayReferenceTest);
   runTestSuite(constantFactoryTest);
   runTestSuite(variableFactoryTest);
+  runTestSuite(arrayReferenceFactoryTest);
   runTestSuite(aliasTest);
   runTestSuite(functionsTest);
   runTestSuite(functionFactoryTest);
