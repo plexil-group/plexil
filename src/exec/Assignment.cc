@@ -34,14 +34,12 @@ namespace PLEXIL
                          const ExpressionId rhs,
                          const bool deleteLhs, 
                          const bool deleteRhs,
-                         const std::string &lhsName, 
                          const std::string &nodeId)
     : m_ack(),
       m_abortComplete(),
       m_id(this),
       m_rhs(rhs),
       m_dest(lhs),
-      m_destName(lhsName),
       m_value(),
       m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
   {
@@ -81,8 +79,7 @@ namespace PLEXIL
 
   void Assignment::execute()
   {
-    debugMsg("Test:testOutput", "Assigning '" << m_destName <<
-             "' (" << m_dest->toString() << ") to " << m_value);
+    debugMsg("Test:testOutput", "Assigning " << m_dest->toString() << " to " << m_value);
     m_dest->setValue(m_value);
     m_ack.setValue(true);
   }
@@ -90,8 +87,7 @@ namespace PLEXIL
   void Assignment::retract()
   {
     debugMsg("Test:testOutput",
-             "Restoring previous value of '" << m_destName << "' (" << m_dest->toString()
-             << ")");
+             "Restoring previous value of " << m_dest->toString());
     m_dest->restoreSavedValue();
     m_abortComplete.setValue(true);
   }
@@ -101,11 +97,6 @@ namespace PLEXIL
     m_ack.reset();
     m_abortComplete.reset();
     m_value = Value(); // set unknown
-  }
-
-  const std::string& Assignment::getDestName() const 
-  {
-    return m_destName;
   }
 
 }

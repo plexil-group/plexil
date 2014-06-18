@@ -41,7 +41,6 @@ namespace PLEXIL
                const ExpressionId rhs, 
                const bool deleteLhs, 
                const bool deleteRhs,
-               const std::string &lhsName,
                const std::string &nodeId);
     ~Assignment();
     const AssignmentId& getId() const {return m_id;}
@@ -55,7 +54,6 @@ namespace PLEXIL
     void execute();
     void retract();
     void reset();
-    const std::string& getDestName() const;
 
   private:
     // Explicitly not implemented
@@ -68,7 +66,6 @@ namespace PLEXIL
     AssignmentId m_id;
     ExpressionId m_rhs;
     Assignable *m_dest;
-    const std::string m_destName;
     Value m_value; // TODO: templatize by assignable type?
     bool m_deleteLhs, m_deleteRhs;
   };

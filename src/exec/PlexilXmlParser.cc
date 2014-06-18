@@ -596,6 +596,7 @@ namespace PLEXIL
     PlexilActionParser() : PlexilBodyParser() {}
     virtual ~PlexilActionParser() {}
 
+    // FIXME: Limit to one destination!
     void parseDest(const xml_node& xml, PlexilActionBody* body)
     throw(ParserException) {
       for (xml_node var = xml.first_child(); 
@@ -1904,10 +1905,8 @@ namespace PLEXIL
   {
     xml_node retval = appendElement(ARRAYELEMENT_TAG, parent);
     appendNamedTextElement(NAME_TAG, op->getArrayName().c_str(), retval);
-    for (std::vector<PlexilExprId>::const_iterator it = op->subExprs().begin(); 
-         it != op->subExprs().end();
-         ++it)
-      toXml(*it, retval);
+    xml_node idx = appendElement(INDEX_TAG, retval);
+    toXml(op->index(), retval);
   }
 
   // *** FIXME: this violates the current LookupOnChange schema ***

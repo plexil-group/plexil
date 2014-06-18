@@ -114,53 +114,43 @@ namespace PLEXIL
                "Need at least one destination variable in assignment.");
     const PlexilExprId& destExpr = (body->dest())[0]->getId();
     ExpressionId dest;
-    std::string destName;
     bool deleteLhs = false;
     if (Id<PlexilVarRef>::convertable(destExpr)) {
-      destName = destExpr->name();
       dest = findVariable((Id<PlexilVarRef>) destExpr);
-      // FIXME: push this check up into XML parser
-      checkError(dest.isValid(),
-                 "Dest variable '" << destName <<
-                 "' not found in assignment node '" << m_nodeId << "'");
+      // FIXME: push this check up into XML parser?
+      assertTrueMsg(dest.isId(),
+                    "Dest variable '" << destExpr->name() <<
+                    "' not found in assignment node '" << m_nodeId << "'");
     }
     else if (Id<PlexilArrayElement>::convertable(destExpr)) {
+      // FIXME: Construct MutableArrayReference
       dest = createExpression(destExpr, NodeConnector::getId());
       // *** beef this up later ***
       PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
       debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
-      size_t e_index = dest->toString().find(": ", dest->toString().length()-15);
-      size_t b_index = dest->toString().find("u]", dest->toString().length()-40) + 2;
-      int diff_index = e_index - b_index;
-      std::string m_index = " ";
-      if(e_index != std::string::npos) {
-          m_index = dest->toString().substr(e_index-diff_index,diff_index);
-        }
-      debugMsg("ArrayElement:ArrayElement", " b_index = " << b_index << ". e_index = " << e_index << ". diff_index" << diff_index);
-      const std::string m_str = std::string("").append(arrayElement->getArrayName()).append(m_index);
-      destName = m_str;
       deleteLhs = true;
     }
     else {
       // FIXME: push this check up into XML parser 
       checkError(ALWAYS_FAIL, "Invalid left-hand side to an assignment");
     }
-
+    
+    assertTrueMsg(dest->isAssignable(),
+                  "Assignment destination " << dest->toString() << " is not writable");
     bool deleteRhs = false;
     ExpressionId rhs = createExpression(body->RHS(),
                                         NodeConnector::getId(),
                                         deleteRhs);
     m_assignment =
-      (new Assignment(dest->asAssignable(), rhs, deleteLhs, deleteRhs, destName, m_nodeId))->getId();
+      (new Assignment(dest->asAssignable(), rhs, deleteLhs, deleteRhs, m_nodeId))->getId();
   }
 
   // Unit test variant of above
   void AssignmentNode::createDummyAssignment() 
   {
     ExpressionId dest = (new BooleanVariable(false))->getId();
-    std::string destName("dummy");
     m_assignment =
-      (new Assignment(dest->asAssignable(), (new BooleanConstant(true))->getId(), true, true, destName, m_nodeId))->getId();
+      (new Assignment(dest->asAssignable(), (new BooleanConstant(true))->getId(), true, true, m_nodeId))->getId();
   }
 
   ExpressionId AssignmentNode::getAssignmentVariable() const
