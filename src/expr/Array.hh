@@ -35,7 +35,8 @@
 namespace PLEXIL
 {
   // Forward references
-  template <typename T> class MutableArrayReference;
+  class MutableArrayReference;
+  class Value;
 
   /**
    * @class Array
@@ -44,10 +45,7 @@ namespace PLEXIL
    */
   class Array
   {
-    friend class MutableArrayReference<bool>;
-    friend class MutableArrayReference<int32_t>;
-    friend class MutableArrayReference<double>;
-    friend class MutableArrayReference<std::string>;
+    friend class MutableArrayReference;
 
   public:
     Array();
@@ -69,6 +67,7 @@ namespace PLEXIL
       return m_known;
     }
 
+    virtual Value getElementValue(size_t index) const = 0;
 
     // Generic setters
 
@@ -80,6 +79,7 @@ namespace PLEXIL
      */
     virtual void resize(size_t size);
     void setElementUnknown(size_t index);
+    virtual void setElementValue(size_t index, Value const &value) = 0;
 
     // Typed accessors
     virtual bool getElement(size_t index, bool &result) const = 0;
@@ -88,6 +88,8 @@ namespace PLEXIL
     virtual bool getElement(size_t index, std::string &result) const = 0;
 
     virtual bool getElementPointer(size_t index, std::string const *&result) const = 0;
+
+    virtual bool getMutableElementPointer(size_t index, std::string *&result) = 0;
 
     virtual void getContentsVector(std::vector<bool> const *&result) const = 0;
     virtual void getContentsVector(std::vector<int32_t> const *&result) const = 0;

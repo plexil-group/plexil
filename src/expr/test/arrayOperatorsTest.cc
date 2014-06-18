@@ -240,10 +240,10 @@ static bool testAllElementsKnown()
 
   // Assign elements and try again
   IntegerVariable index(0);
-  BooleanMutableArrayReference bref(bav.getId(), index.getId());
-  IntegerMutableArrayReference iref(iav.getId(), index.getId());
-  RealMutableArrayReference rref(rav.getId(), index.getId());
-  StringMutableArrayReference sref(sav.getId(), index.getId());
+  MutableArrayReference bref(bav.getId(), index.getId());
+  MutableArrayReference iref(iav.getId(), index.getId());
+  MutableArrayReference rref(rav.getId(), index.getId());
+  MutableArrayReference sref(sav.getId(), index.getId());
 
   bref.activate();
   iref.activate();
@@ -381,10 +381,10 @@ static bool testAnyElementsKnown()
 
   // Assign elements and try again
   IntegerVariable index(0);
-  BooleanMutableArrayReference bref(bav.getId(), index.getId());
-  IntegerMutableArrayReference iref(iav.getId(), index.getId());
-  RealMutableArrayReference rref(rav.getId(), index.getId());
-  StringMutableArrayReference sref(sav.getId(), index.getId());
+  MutableArrayReference bref(bav.getId(), index.getId());
+  MutableArrayReference iref(iav.getId(), index.getId());
+  MutableArrayReference rref(rav.getId(), index.getId());
+  MutableArrayReference sref(sav.getId(), index.getId());
 
   bref.activate();
   iref.activate();

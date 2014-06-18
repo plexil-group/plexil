@@ -80,6 +80,7 @@ namespace PLEXIL
      * @return True if known, false if unknown or invalid.
      */
     bool getValuePointer(std::string const *&ptr) const;
+    bool getValuePointer(Array const *&ptr) const;
     bool getValuePointer(BooleanArray const *&ptr) const;
     bool getValuePointer(IntegerArray const *&ptr) const;
     bool getValuePointer(RealArray const *&ptr) const;
@@ -194,6 +195,7 @@ namespace PLEXIL
      * @note Default method returns false and reports a type error.
      */
     bool getMutableValuePointer(std::string *& ptr);
+    bool getMutableValuePointer(Array *& ptr);
     bool getMutableValuePointer(BooleanArray *& ptr);
     bool getMutableValuePointer(IntegerArray *& ptr);
     bool getMutableValuePointer(RealArray *& ptr);

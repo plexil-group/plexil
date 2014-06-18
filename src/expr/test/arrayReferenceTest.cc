@@ -72,10 +72,10 @@ static bool testArrayConstantReference()
   std::string ps;
   
   IntegerVariable iv;
-  ArrayReference<bool>        bar(bc.getId(), iv.getId());
-  ArrayReference<int32_t>     iar(ic.getId(), iv.getId());
-  ArrayReference<double>      dar(dc.getId(), iv.getId());
-  ArrayReference<std::string> sar(sc.getId(), iv.getId());
+  ArrayReference bar(bc.getId(), iv.getId());
+  ArrayReference iar(ic.getId(), iv.getId());
+  ArrayReference dar(dc.getId(), iv.getId());
+  ArrayReference sar(sc.getId(), iv.getId());
 
   // Check that array ref values are unknown while inactive
   assertTrue_1(!bar.isKnown());
@@ -169,10 +169,10 @@ static bool testArrayVariableReference()
   std::string ps;
   
   IntegerVariable ivar;
-  ArrayReference<bool>        bar(bv.getId(), ivar.getId());
-  ArrayReference<int32_t>     iar(iv.getId(), ivar.getId());
-  ArrayReference<double>      dar(dv.getId(), ivar.getId());
-  ArrayReference<std::string> sar(sv.getId(), ivar.getId());
+  ArrayReference bar(bv.getId(), ivar.getId());
+  ArrayReference iar(iv.getId(), ivar.getId());
+  ArrayReference dar(dv.getId(), ivar.getId());
+  ArrayReference sar(sv.getId(), ivar.getId());
 
   // Check that array ref values are unknown while inactive
   assertTrue_1(!bar.isKnown());
@@ -281,10 +281,10 @@ bool testMutableArrayReference()
   std::string ps;
   
   IntegerVariable ivar;
-  MutableArrayReference<bool>        bar(bv.getId(), ivar.getId());
-  MutableArrayReference<int32_t>     iar(iv.getId(), ivar.getId());
-  MutableArrayReference<double>      dar(dv.getId(), ivar.getId());
-  MutableArrayReference<std::string> sar(sv.getId(), ivar.getId());
+  MutableArrayReference bar(bv.getId(), ivar.getId());
+  MutableArrayReference iar(iv.getId(), ivar.getId());
+  MutableArrayReference dar(dv.getId(), ivar.getId());
+  MutableArrayReference sar(sv.getId(), ivar.getId());
 
   // Check that array ref values are unknown while inactive
   assertTrue_1(!bar.isKnown());
@@ -520,10 +520,10 @@ bool testAssignablePointer()
   std::string ps;
   
   IntegerVariable ivar;
-  MutableArrayReference<bool>        bar(bvp->getId(), ivar.getId());
-  MutableArrayReference<int32_t>     iar(ivp->getId(), ivar.getId());
-  MutableArrayReference<double>      dar(dvp->getId(), ivar.getId());
-  MutableArrayReference<std::string> sar(svp->getId(), ivar.getId());
+  MutableArrayReference bar(bvp->getId(), ivar.getId());
+  MutableArrayReference iar(ivp->getId(), ivar.getId());
+  MutableArrayReference dar(dvp->getId(), ivar.getId());
+  MutableArrayReference sar(svp->getId(), ivar.getId());
 
   Assignable *barp = bar.asAssignable();
   Assignable *iarp = iar.asAssignable();
@@ -773,22 +773,22 @@ bool testArrayRefNotification()
   TrivialListener svl(svChanged);
   sv.addListener(svl.getId());
 
-  ArrayReference<bool>        bar(bv.getId(), ivar.getId());
+  ArrayReference bar(bv.getId(), ivar.getId());
   bool barChanged = false;
   TrivialListener barl(barChanged);
   bar.addListener(barl.getId());
 
-  ArrayReference<int32_t>     iar(iv.getId(), ivar.getId());
+  ArrayReference iar(iv.getId(), ivar.getId());
   bool iarChanged = false;
   TrivialListener iarl(iarChanged);
   iar.addListener(iarl.getId());
 
-  ArrayReference<double>      dar(dv.getId(), ivar.getId());
+  ArrayReference dar(dv.getId(), ivar.getId());
   bool darChanged = false;
   TrivialListener darl(darChanged);
   dar.addListener(darl.getId());
 
-  ArrayReference<std::string> sar(sv.getId(), ivar.getId());
+  ArrayReference sar(sv.getId(), ivar.getId());
   bool sarChanged = false;
   TrivialListener sarl(sarChanged);
   sar.addListener(sarl.getId());
@@ -981,22 +981,22 @@ bool testMutableNotification()
   TrivialListener svl(svChanged);
   sv.addListener(svl.getId());
 
-  MutableArrayReference<bool>        bar(bv.getId(), ivar.getId());
+  MutableArrayReference bar(bv.getId(), ivar.getId());
   bool barChanged = false;
   TrivialListener barl(barChanged);
   bar.addListener(barl.getId());
 
-  MutableArrayReference<int32_t>     iar(iv.getId(), ivar.getId());
+  MutableArrayReference iar(iv.getId(), ivar.getId());
   bool iarChanged = false;
   TrivialListener iarl(iarChanged);
   iar.addListener(iarl.getId());
 
-  MutableArrayReference<double>      dar(dv.getId(), ivar.getId());
+  MutableArrayReference dar(dv.getId(), ivar.getId());
   bool darChanged = false;
   TrivialListener darl(darChanged);
   dar.addListener(darl.getId());
 
-  MutableArrayReference<std::string> sar(sv.getId(), ivar.getId());
+  MutableArrayReference sar(sv.getId(), ivar.getId());
   bool sarChanged = false;
   TrivialListener sarl(sarChanged);
   sar.addListener(sarl.getId());

@@ -27,6 +27,7 @@
 #include "ConcreteExpressionFactory.hh"
 
 #include "ArrayConstant.hh"
+#include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "ExpressionConstants.hh"
 #include "NodeConnector.hh"
@@ -223,6 +224,53 @@ namespace PLEXIL
     return (new ArrayVariable<T>(node, var->varName(), sizeexp, initexp, true, garbage))->getId();
   }
 
+  ExpressionId
+  ConcreteExpressionFactory<ArrayReference>::allocate(const PlexilExprId& expr,
+                                                      const NodeConnectorId& node,
+                                                      bool & wasCreated) const
+  {
+    PlexilArrayElement const * ary = 
+      dynamic_cast<PlexilArrayElement const *>((PlexilExpr const *) expr);
+    checkParserException(ary != NULL, "createExpression: Expression is not a PlexilArrayElement");
+
+    bool garbageArray;
+    ExpressionId array = createExpression(ary->array(), node, garbageArray);
+    checkParserException(array.isId(), "createExpression: Array expression not found for array reference");
+    checkParserException(isArrayType(array->valueType()),
+                         "createExpression: Array expression in array reference is not an array");
+    
+    bool garbageIndex;
+    ExpressionId index = createExpression(ary->index(), node, garbageIndex);
+    checkParserException(index.isId(), "createExpression: Index expression not found for array reference");
+
+    wasCreated = true;
+    return (new ArrayReference(array, index, garbageArray, garbageIndex))->getId();
+  }
+
+  ExpressionId 
+  ConcreteExpressionFactory<MutableArrayReference>::allocate(const PlexilExprId& expr,
+                                                             const NodeConnectorId& node,
+                                                             bool & wasCreated) const
+  {
+    PlexilArrayElement const * ary = 
+      dynamic_cast<PlexilArrayElement const *>((PlexilExpr const *) expr);
+    checkParserException(ary != NULL, "createExpression: Expression is not a PlexilArrayElement");
+
+    bool garbageArray;
+    ExpressionId array = createExpression(ary->array(), node, garbageArray);
+    checkParserException(array.isId(), "createExpression: Array expression not found for array reference");
+    checkParserException(isArrayType(array->valueType()),
+                         "createExpression: Array expression in array reference is not an array");
+    checkParserException(array->isAssignable(), "createExpression: Array expression in array reference not assignable");
+    
+    bool garbageIndex;
+    ExpressionId index = createExpression(ary->index(), node, garbageIndex);
+    checkParserException(index.isId(), "createExpression: Index expression not found for array reference");
+
+    wasCreated = true;
+    return (new MutableArrayReference(array, index, garbageArray, garbageIndex))->getId();
+  }
+
   // Explicit instantiations
   ENSURE_EXPRESSION_FACTORY(BooleanConstant);
   ENSURE_EXPRESSION_FACTORY(IntegerConstant);
@@ -241,6 +289,9 @@ namespace PLEXIL
   ENSURE_EXPRESSION_FACTORY(IntegerArrayVariable);
   ENSURE_EXPRESSION_FACTORY(RealArrayVariable);
   ENSURE_EXPRESSION_FACTORY(StringArrayVariable);
+
+  ENSURE_EXPRESSION_FACTORY(ArrayReference);
+  ENSURE_EXPRESSION_FACTORY(MutableArrayReference);
 
 } // namespace PLEXIL
 

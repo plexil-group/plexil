@@ -133,6 +133,13 @@ namespace PLEXIL
     return m_exp->getValuePointer(ptr);
   }
 
+  bool Alias::getValuePointer(Array const *&ptr) const
+  {
+    if (!isActive())
+      return false;
+    return m_exp->getValuePointer(ptr);
+  }
+
   bool Alias::getValuePointer(BooleanArray const *&ptr) const
   {
     if (!isActive())
@@ -292,6 +299,13 @@ namespace PLEXIL
   }
 
   bool InOutAlias::getMutableValuePointer(std::string *& ptr)
+  {
+    if (!isActive())
+      return false;
+    return m_target->getMutableValuePointer(ptr);
+  }
+
+  bool InOutAlias::getMutableValuePointer(Array *& ptr)
   {
     if (!isActive())
       return false;

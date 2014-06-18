@@ -143,18 +143,24 @@ namespace PLEXIL
                                          PlexilExprId const &index)
     : PlexilExpr("ArrayElement"),
       m_array(array),
-      m_subExprs(1, index)
+      m_index(index)
   {
   }
   
   PlexilArrayElement::~PlexilArrayElement()
   {
-    for (std::vector<PlexilExprId>::iterator it = m_subExprs.begin();
-         it != m_subExprs.end();
-         ++it)
-      delete (PlexilExpr*) *it;
-    m_subExprs.clear();
     delete (PlexilExpr*) m_array;
+    delete (PlexilExpr*) m_index;
+  }
+
+  PlexilExprId const &PlexilArrayElement::array() const
+  {
+    return m_array;
+  }
+
+  PlexilExprId const &PlexilArrayElement::index() const
+  {
+    return m_index;
   }
 
   std::string const &PlexilArrayElement::getArrayName() const
@@ -166,16 +172,6 @@ namespace PLEXIL
       static std::string const empty;
       return empty;
     }
-  }
-
-  const std::vector<PlexilExprId>& PlexilArrayElement::subExprs() const
-  {
-    return m_subExprs;
-  }
-  
-  void PlexilArrayElement::addSubExpr(PlexilExprId expr)
-  {
-    m_subExprs.push_back(expr);
   }
 
   //

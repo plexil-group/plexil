@@ -74,6 +74,7 @@ namespace PLEXIL
    */
 
   // Used in AssignmentNode, CommandNode
+  // *** FIXME: Rename to createAssignable ***
   extern ExpressionId createExpression(const PlexilExprId& expr,
                                        const NodeConnectorId& node = NodeConnectorId::noId());
 

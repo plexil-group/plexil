@@ -29,14 +29,14 @@
 
 #include "AssignableImpl.hh"
 #include "ExpressionImpl.hh"
+#include "Value.hh"
 
 namespace PLEXIL {
 
   // Forward reference
   class Value;
 
-  template <typename T>
-  class ArrayReference : public NotifierImpl, public ExpressionImpl<T>
+  class ArrayReference : public NotifierImpl
   {
   public:
     ArrayReference(const ExpressionId &ary,
@@ -52,9 +52,12 @@ namespace PLEXIL {
 
     const std::string &getName() const;
     const char *exprName() const;
+    const ValueType valueType() const;
     bool isKnown() const;
     bool isConstant() const;
+    bool isAssignable() const;
     ExpressionId const &getBaseExpression() const;
+    void printValue(std::ostream& s) const;
 
     /**
      * @brief Get the expression's value.
@@ -63,14 +66,24 @@ namespace PLEXIL {
      * @note Limited type conversions supported.
      * @note Unimplemented conversions will cause a link time error.
      */
-    bool getValueImpl(T &result) const;
+    virtual bool getValue(bool &) const;        // Boolean
+    virtual bool getValue(double &) const;      // Real
+    //virtual bool getValue(uint16_t &) const;    // enumerations: State, Outcome, Failure, etc.
+    virtual bool getValue(int32_t &) const;     // Integer
+    virtual bool getValue(std::string &) const; // String
 
     /**
      * @brief Get a pointer to the expression's value.
      * @param result The variable where the value will be stored.
      * @return True if known, false if unknown.
      */
-    bool getValuePointerImpl(T const *&ptr) const;
+    virtual bool getValuePointer(std::string const *&ptr) const;
+
+    Value toValue() const;
+
+    //
+    // NotifierImpl API
+    //
 
     void handleActivate();
     void handleDeactivate();
@@ -90,7 +103,7 @@ namespace PLEXIL {
     ArrayReference &operator=(const ArrayReference &);
 
     // Internal function
-    bool selfCheck(ArrayImpl<T> const *&valuePtr,
+    bool selfCheck(Array const *&valuePtr,
                    size_t &idx) const;
   };
 
@@ -101,8 +114,7 @@ namespace PLEXIL {
 
   // TODO: Support exec listener for assignments
 
-  template <typename T>
-  class MutableArrayReference : public ArrayReference<T>, public AssignableImpl<T>
+  class MutableArrayReference : public ArrayReference, public Assignable
   {
   public:
     MutableArrayReference(const ExpressionId &ary,
@@ -112,11 +124,15 @@ namespace PLEXIL {
 
     ~MutableArrayReference();
 
+    bool isAssignable() const;
+
+    Assignable const *asAssignable() const;
+    Assignable *asAssignable();
+
     /**
-     * @brief Assign a new value.
-     * @param value The value to assign.
+     * @brief Reset the expression.
      */
-    void setValueImpl(T const &value);
+    void reset();
 
     /**
      * @brief Assign the current value to UNKNOWN.
@@ -124,16 +140,50 @@ namespace PLEXIL {
     void setUnknown();
 
     /**
-     * @brief Get a writeable pointer to the expression's value.
-     * @param result The variable where the value will be stored.
-     * @return True if known, false if unknown.
+     * @brief Assign a new value.
+     * @param value The value to assign.
      */
-    bool getMutableValuePointerImpl(T *&ptr);
+    void setValue(double const &val);
+    void setValue(int32_t const &val);
+    void setValue(uint16_t const &val);
+    void setValue(bool const &val);
+    void setValue(std::string const &val);
+    void setValue(char const *val);
+
+    // These will throw an exception
+    void setValue(BooleanArray const &val);
+    void setValue(IntegerArray const &val);
+    void setValue(RealArray const &val);
+    void setValue(StringArray const &val);
 
     /**
-     * @brief Reset the expression.
+     * @brief Set the value for this expression from another expression.
+     * @param valex The expression from which to obtain the new value.
+     * @note May cause change notifications to occur.
      */
-    void reset();
+    void setValue(ExpressionId const &valex);
+
+    /**
+     * @brief Set the value for this expression from a generic Value.
+     * @param val The Value.
+     * @note May cause change notifications to occur.
+     */
+    void setValue(Value const &value);
+
+    /**
+     * @brief Retrieve a writable ponter to the value.
+     * @param valuePtr Reference to the pointer variable
+     * @return True if the value is known, false if unknown or invalid.
+     * @note Default method returns false and reports a type error.
+     */
+    bool getMutableValuePointer(std::string *& ptr);
+
+    // These will throw an exception
+    bool getMutableValuePointer(Array *& ptr);
+    bool getMutableValuePointer(BooleanArray *& ptr);
+    bool getMutableValuePointer(IntegerArray *& ptr);
+    bool getMutableValuePointer(RealArray *& ptr);
+    bool getMutableValuePointer(StringArray *& ptr);
 
     void saveCurrentValue();
 
@@ -151,25 +201,12 @@ namespace PLEXIL {
     MutableArrayReference &operator=(const MutableArrayReference &);
 
     // Internal function
-    bool mutableSelfCheck(ArrayImpl<T> *&ary, size_t &idx);
+    bool mutableSelfCheck(Array *&ary, size_t &idx);
 
     Assignable *m_mutableArray;
-    T m_savedValue;
-    bool m_savedKnown;
+    Value m_savedValue;
+    bool m_saved;
   };
-
-  //
-  // Convenience typedefs
-  //
-  typedef ArrayReference<bool>        BooleanArrayReference;
-  typedef ArrayReference<int32_t>     IntegerArrayReference;
-  typedef ArrayReference<double>      RealArrayReference;
-  typedef ArrayReference<std::string> StringArrayReference;
-
-  typedef MutableArrayReference<bool>        BooleanMutableArrayReference;
-  typedef MutableArrayReference<int32_t>     IntegerMutableArrayReference;
-  typedef MutableArrayReference<double>      RealMutableArrayReference;
-  typedef MutableArrayReference<std::string> StringMutableArrayReference;
 
 } // namespace PLEXIL
 

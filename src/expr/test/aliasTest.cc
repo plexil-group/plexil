@@ -626,21 +626,21 @@ static bool testAliasToArrayVariable()
   // Test array reference through alias
   IntegerVariable ix;
 
-  BooleanArrayReference bar(bc.getId(), ix.getId());
-  BooleanArrayReference abar(abc.getId(), ix.getId());
-  BooleanMutableArrayReference wabar(wabc.getId(), ix.getId());
+  ArrayReference bar(bc.getId(), ix.getId());
+  ArrayReference abar(abc.getId(), ix.getId());
+  MutableArrayReference wabar(wabc.getId(), ix.getId());
 
-  IntegerArrayReference iar(ic.getId(), ix.getId());
-  IntegerArrayReference aiar(aic.getId(), ix.getId());
-  IntegerMutableArrayReference waiar(waic.getId(), ix.getId());
+  ArrayReference iar(ic.getId(), ix.getId());
+  ArrayReference aiar(aic.getId(), ix.getId());
+  MutableArrayReference waiar(waic.getId(), ix.getId());
 
-  RealArrayReference dar(dc.getId(), ix.getId());
-  RealArrayReference adar(adc.getId(), ix.getId());
-  RealMutableArrayReference wadar(wadc.getId(), ix.getId());
+  ArrayReference dar(dc.getId(), ix.getId());
+  ArrayReference adar(adc.getId(), ix.getId());
+  MutableArrayReference wadar(wadc.getId(), ix.getId());
 
-  StringArrayReference sar(sc.getId(), ix.getId());
-  StringArrayReference asar(asc.getId(), ix.getId());
-  StringMutableArrayReference wasar(wasc.getId(), ix.getId());
+  ArrayReference sar(sc.getId(), ix.getId());
+  ArrayReference asar(asc.getId(), ix.getId());
+  MutableArrayReference wasar(wasc.getId(), ix.getId());
 
   bool bt1, bt2;
   int32_t it1, it2;
@@ -838,26 +838,26 @@ static bool testAliasToArrayReference()
 
   IntegerVariable ix;
 
-  BooleanArrayReference bar(bc.getId(), ix.getId());
-  BooleanMutableArrayReference wbar(bc.getId(), ix.getId());
+  ArrayReference bar(bc.getId(), ix.getId());
+  MutableArrayReference wbar(bc.getId(), ix.getId());
   Alias abar(NodeConnectorId::noId(), "abar", bar.getId());
   Alias awbar(NodeConnectorId::noId(), "awbar", wbar.getId());
   InOutAlias wawbar(NodeConnectorId::noId(), "wawbar", wbar.getId());
 
-  IntegerArrayReference iar(ic.getId(), ix.getId());
-  IntegerMutableArrayReference wiar(ic.getId(), ix.getId());
+  ArrayReference iar(ic.getId(), ix.getId());
+  MutableArrayReference wiar(ic.getId(), ix.getId());
   Alias aiar(NodeConnectorId::noId(), "aiar", iar.getId());
   Alias awiar(NodeConnectorId::noId(), "awiar", wiar.getId());
   InOutAlias wawiar(NodeConnectorId::noId(), "wawiar", wiar.getId());
 
-  RealArrayReference dar(dc.getId(), ix.getId());
-  RealMutableArrayReference wdar(dc.getId(), ix.getId());
+  ArrayReference dar(dc.getId(), ix.getId());
+  MutableArrayReference wdar(dc.getId(), ix.getId());
   Alias adar(NodeConnectorId::noId(), "adar", dar.getId());
   Alias awdar(NodeConnectorId::noId(), "awdar", wdar.getId());
   InOutAlias wawdar(NodeConnectorId::noId(), "wawdar", wdar.getId());
 
-  StringArrayReference sar(sc.getId(), ix.getId());
-  StringMutableArrayReference wsar(sc.getId(), ix.getId());
+  ArrayReference sar(sc.getId(), ix.getId());
+  MutableArrayReference wsar(sc.getId(), ix.getId());
   Alias asar(NodeConnectorId::noId(), "asar", sar.getId());
   Alias awsar(NodeConnectorId::noId(), "awsar", wsar.getId());
   InOutAlias wawsar(NodeConnectorId::noId(), "wawsar", wsar.getId());
@@ -1122,7 +1122,7 @@ static bool testAliasPropagation()
   InOutAlias waary(NodeConnectorId::noId(), "waary", ary.getId());
   InOutAlias watree(NodeConnectorId::noId(), "watree", tree.getId());
 
-  IntegerMutableArrayReference ref(waary.getId(), atree.getId());
+  MutableArrayReference ref(waary.getId(), atree.getId());
   Alias aref(NodeConnectorId::noId(), "aref", ref.getId());
   InOutAlias waref(NodeConnectorId::noId(), "waref", ref.getId());
 

@@ -131,11 +131,12 @@ namespace PLEXIL {
      * @return True if the value is known, false if unknown or invalid.
      * @note Default method returns false and reports a type error.
      */
-    virtual bool getMutableValuePointer(std::string *& ptr) = 0;
-    virtual bool getMutableValuePointer(BooleanArray *& ptr) = 0;
-    virtual bool getMutableValuePointer(IntegerArray *& ptr) = 0;
-    virtual bool getMutableValuePointer(RealArray *& ptr) = 0;
-    virtual bool getMutableValuePointer(StringArray *& ptr) = 0;
+    virtual bool getMutableValuePointer(std::string *&ptr) = 0;
+    virtual bool getMutableValuePointer(Array *&ptr) = 0;
+    virtual bool getMutableValuePointer(BooleanArray *&ptr) = 0;
+    virtual bool getMutableValuePointer(IntegerArray *&ptr) = 0;
+    virtual bool getMutableValuePointer(RealArray *&ptr) = 0;
+    virtual bool getMutableValuePointer(StringArray *&ptr) = 0;
 
     /**
      * @brief Temporarily stores the previous value of this variable.

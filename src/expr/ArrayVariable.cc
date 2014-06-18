@@ -103,6 +103,15 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool ArrayVariable<T>::getMutableValuePointer(Array *&result)
+  {
+    if (!this->isActive() || !Superclass::m_known)
+      return false;
+    result = static_cast<Array *>(&(this->m_value));
+    return true;
+  }
+
+  template <typename T>
   void ArrayVariable<T>::reserve()
   {
     if (m_size.isId()) {

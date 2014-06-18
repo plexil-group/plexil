@@ -143,7 +143,7 @@ namespace PLEXIL {
   template <typename T>
   bool UserVariable<T>::getValuePointerImpl(Array const *&ptr) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Constant::getValuePointer type error");
+    assertTrue_2(ALWAYS_FAIL, "UserVariable::getValuePointer type error");
     return false;
   }
 
@@ -155,6 +155,13 @@ namespace PLEXIL {
     if (m_known)
       ptr = &m_value;
     return m_known;
+  }
+
+  template <typename T>
+  bool UserVariable<T>::getMutableValuePointer(Array *&ptr)
+  {
+    assertTrue_2(ALWAYS_FAIL, "UserVariable::getMutableValuePointer type error");
+    return false;
   }
 
   // A variable takes its initial value when first activated,

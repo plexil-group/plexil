@@ -138,8 +138,6 @@ namespace PLEXIL
   template <typename T>
   class ArrayImpl : public ArrayAdapter<ArrayImpl<T> >
   {
-    friend class MutableArrayReference<T>;
-
   public:
     ArrayImpl();
     ArrayImpl(ArrayImpl const &);
@@ -152,6 +150,11 @@ namespace PLEXIL
 
     void resize(size_t size);
 
+    // Generic accessor/setter
+    Value getElementValue(size_t index) const;
+    void setElementValue(size_t index, Value const &value);
+
+    // Typed accessors
     bool getElementImpl(size_t index, T &result) const;
     template <typename U>
     bool getElementImpl(size_t index, U &result) const;
@@ -167,6 +170,8 @@ namespace PLEXIL
     void setElementImpl(size_t index, T const &newVal);
     template <typename U>
     void setElementImpl(size_t index, U const &newVal);
+
+    bool getMutableElementPointer(size_t index, std::string *&result);
 
     void print(std::ostream &s) const;
 

@@ -25,19 +25,16 @@
 */
 
 #include "ArrayReference.hh"
-#include "ArrayImpl.hh"
+#include "Array.hh"
 #include "UserVariable.hh"
-#include "Value.hh"
 
 namespace PLEXIL
 {
-  template <typename T>
-  ArrayReference<T>::ArrayReference(const ExpressionId &ary,
-                                    const ExpressionId &idx,
-                                    bool aryIsGarbage,
-                                    bool idxIsGarbage)
+  ArrayReference::ArrayReference(const ExpressionId &ary,
+                                 const ExpressionId &idx,
+                                 bool aryIsGarbage,
+                                 bool idxIsGarbage)
     : NotifierImpl(),
-      ExpressionImpl<T>(),
       m_array(ary),
       m_index(idx),
       m_arrayIsGarbage(aryIsGarbage),
@@ -51,8 +48,7 @@ namespace PLEXIL
     m_index->addListener(this->getId());
   }
 
-  template <typename T>
-  ArrayReference<T>::~ArrayReference()
+  ArrayReference::~ArrayReference()
   {
     m_array->removeListener(this->getId());
     m_index->removeListener(this->getId());
@@ -62,8 +58,7 @@ namespace PLEXIL
       delete (Expression *) m_index;
   }
 
-  template <typename T>
-  const std::string &ArrayReference<T>::getName() const
+  const std::string &ArrayReference::getName() const
   {
     ExpressionId base = getBaseExpression();
     if (base) {
@@ -74,35 +69,57 @@ namespace PLEXIL
     return sl_dummy;
   }
 
-  template <typename T>
-  const char *ArrayReference<T>::exprName() const
+  const char *ArrayReference::exprName() const
   {
     return "ArrayReference";
   }
 
-  template <typename T>
-  bool ArrayReference<T>::isKnown() const
+  const ValueType ArrayReference::valueType() const
   {
-    ArrayImpl<T> const *dummyAry;
+    ValueType aryType = m_array->valueType();
+    if (!isArrayType(aryType))
+      return UNKNOWN_TYPE;
+    else
+      return arrayElementType(aryType);
+  }
+
+  bool ArrayReference::isKnown() const
+  {
+    Array const *dummyAry;
     size_t dummyIdx;
     return selfCheck(dummyAry, dummyIdx);
   }
 
-  template <typename T>
-  bool ArrayReference<T>::isConstant() const
+  bool ArrayReference::isConstant() const
   {
     return m_array->isConstant() && m_index->isConstant();
   }
 
-  template <typename T>
-  ExpressionId const &ArrayReference<T>::getBaseExpression() const
+  bool ArrayReference::isAssignable() const
+  {
+    return false;
+  }
+
+  ExpressionId const &ArrayReference::getBaseExpression() const
   {
     return m_array->getBaseExpression();
   }
 
-  template <typename T>
-  bool ArrayReference<T>::selfCheck(ArrayImpl<T> const *&valuePtr,
-                                    size_t &idx) const
+  void ArrayReference::printValue(std::ostream &s) const
+  {
+    Array const *ary;
+    size_t idx;
+    if (!selfCheck(ary, idx)) {
+      s << "UNKNOWN";
+      return;
+    }
+
+    // Punt for now
+    s << ary->getElementValue(idx);
+  }
+
+  bool ArrayReference::selfCheck(Array const *&valuePtr,
+                                 size_t &idx) const
   {
     if (!(this->isActive() && m_array->isActive() && m_index->isActive()))
       return false;
@@ -123,82 +140,118 @@ namespace PLEXIL
     return valuePtr->getKnownVector()[idx];
   }
 
-  template <typename T>
-  bool ArrayReference<T>::getValueImpl(T &result) const
+  bool ArrayReference::getValue(bool &result) const
   {
-    ArrayImpl<T> const *ary;
+    Array const *ary;
     size_t idx;
     if (!selfCheck(ary, idx))
       return false;
-    std::vector<T> const *resultTemp;
-    ary->getContentsVector(resultTemp);
-    result = (*resultTemp)[idx];
-    return true;
+    return ary->getElement(idx, result);
   }
 
-  template <typename T>
-  bool ArrayReference<T>::getValuePointerImpl(T const *&ptr) const
+  bool ArrayReference::getValue(int32_t &result) const
   {
-    ArrayImpl<T> const *ary;
+    Array const *ary;
     size_t idx;
     if (!selfCheck(ary, idx))
       return false;
-    std::vector<T> const *resultTemp;
-    ary->getContentsVector(resultTemp);
-    ptr = &((*resultTemp)[idx]);
-    return true;
+    return ary->getElement(idx, result);
   }
 
-  // Not implemented for Boolean arrays
-  template <>
-  bool ArrayReference<bool>::getValuePointerImpl(bool const *&ptr) const
+  bool ArrayReference::getValue(double &result) const
   {
-    check_error_2(ALWAYS_FAIL, "ArrayReference::getValuePointerImpl not implemented for BooleanArray");
-    return false;
+    Array const *ary;
+    size_t idx;
+    if (!selfCheck(ary, idx))
+      return false;
+    return ary->getElement(idx, result);
+  }
+
+  bool ArrayReference::getValue(std::string &result) const
+  {
+    Array const *ary;
+    size_t idx;
+    if (!selfCheck(ary, idx))
+      return false;
+    return ary->getElement(idx, result);
+  }
+
+  bool ArrayReference::getValuePointer(std::string const *&ptr) const
+  {
+    Array const *ary;
+    size_t idx;
+    if (!selfCheck(ary, idx))
+      return false;
+    return ary->getElementPointer(idx, ptr);
+  }
+
+  Value ArrayReference::toValue() const
+  {
+    Array const *ary;
+    size_t idx;
+    if (!selfCheck(ary, idx))
+      return Value(); // unknown
+    else
+      return ary->getElementValue(idx);
   }
   
-  template <typename T>
-  void ArrayReference<T>::handleActivate()
+  void ArrayReference::handleActivate()
   {
     m_array->activate();
     m_index->activate();
   }
   
-  template <typename T>
-  void ArrayReference<T>::handleDeactivate()
+  void ArrayReference::handleDeactivate()
   {
     m_array->deactivate();
     m_index->deactivate();
   }
 
-  template <typename T>
-  MutableArrayReference<T>::MutableArrayReference(const ExpressionId &ary,
-                                                  const ExpressionId &idx,
-                                                  bool aryIsGarbage,
-                                                  bool idxIsGarbage)
-    : ArrayReference<T>(ary, idx, aryIsGarbage, idxIsGarbage),
-    AssignableImpl<T>(),
-    m_mutableArray(ary->asAssignable())
+  //
+  // MutableArrayReference
+  //
+
+  MutableArrayReference::MutableArrayReference(const ExpressionId &ary,
+                                               const ExpressionId &idx,
+                                               bool aryIsGarbage,
+                                               bool idxIsGarbage)
+    : ArrayReference(ary, idx, aryIsGarbage, idxIsGarbage),
+      Assignable(),
+      m_mutableArray(ary->asAssignable()),
+      m_saved(false)
   {
     assertTrue_2(ary->isAssignable(),
                  "MutableArrayReference: Not a writable array");
   }
 
-  template <typename T>
-  MutableArrayReference<T>::~MutableArrayReference()
+  MutableArrayReference::~MutableArrayReference()
   {
   }
 
-  template <typename T>
-  bool MutableArrayReference<T>::mutableSelfCheck(ArrayImpl<T> *&valuePtr,
-                                                  size_t &idx)
+  bool MutableArrayReference::isAssignable() const
+  {
+    return true;
+  }
+
+  Assignable const *MutableArrayReference::asAssignable() const
+  {
+    return dynamic_cast<Assignable const *>(this);
+  }
+
+  Assignable *MutableArrayReference::asAssignable()
+  {
+    return dynamic_cast<Assignable *>(this);
+  }
+
+  bool MutableArrayReference::mutableSelfCheck(Array *&valuePtr,
+                                               size_t &idx)
   {
     if (!(this->isActive()
-          && ArrayReference<T>::m_array->isActive()
-          && ArrayReference<T>::m_index->isActive()))
+          && ArrayReference::m_array->isActive()
+          && ArrayReference::m_index->isActive()))
       return false;
     int32_t idxTemp;
-    if (!ArrayReference<T>::m_index->getValue(idxTemp))
+    if (!ArrayReference::m_index->getValue(idxTemp))
       return false; // index is unknown
     if (idxTemp < 0) {
       assertTrue_2(ALWAYS_FAIL, "ArrayReference: Array index is negative");
@@ -214,129 +267,238 @@ namespace PLEXIL
     return true;
   }
 
-  template <typename T>
-  void MutableArrayReference<T>::setValueImpl(T const &value)
+  void MutableArrayReference::setValue(bool const &value)
   {
-    ArrayImpl<T> *ary;
+    Array *ary;
     size_t idx;
     if (!mutableSelfCheck(ary, idx))
       return;
-    bool changed = (!ary->m_known[idx] || (value != ary->m_contents[idx]));
-    ary->m_contents[idx] = value;
-    ary->m_known[idx] = true;
+    bool oldValue;
+    bool known = ary->getElement(idx, oldValue); // error here if wrong type
+    bool changed = (!known || (value != oldValue));
+    if (changed) {
+      ary->setElement(idx, value);
+      NotifierImpl::publishChange(this->getId());
+      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
+    }
+  }
+
+  void MutableArrayReference::setValue(uint16_t const &value)
+  {
+    setValue((int32_t) value);
+  }
+
+  void MutableArrayReference::setValue(int32_t const &value)
+  {
+    Array *ary;
+    size_t idx;
+    if (!mutableSelfCheck(ary, idx))
+      return;
+    // Check for case of assigning integer to real array
+    bool changed = false;
+    switch (this->m_array->valueType()) {
+    case REAL_ARRAY_TYPE: {
+      double oldValue;
+      bool known = ary->getElement(idx, oldValue);
+      double newValue = (double) value;
+      if ((changed = (!known || (oldValue != newValue))))
+        ary->setElement(idx, newValue);
+    }
+      break;
+        
+    case INTEGER_ARRAY_TYPE: {
+      int32_t oldValue;
+      bool known = ary->getElement(idx, oldValue);
+      if ((changed = (!known || (oldValue != value))))
+        ary->setElement(idx, value);
+    }      
+      break;
+
+    default:
+      assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue(Integer): array type error");
+      return;
+    }
     if (changed) {
       NotifierImpl::publishChange(this->getId());
       m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
     }
   }
 
-  template <typename T>
-  void MutableArrayReference<T>::setUnknown()
+  void MutableArrayReference::setValue(double const &value)
   {
-    ArrayImpl<T> *ary;
+    Array *ary;
     size_t idx;
     if (!mutableSelfCheck(ary, idx))
       return;
-    bool changed = ary->m_known[idx];
-    ary->m_known[idx] = false;
+    double oldValue;
+    bool known = ary->getElement(idx, oldValue);
+    bool changed = (!known || (value != oldValue));
+    if (changed) {
+      ary->setElement(idx, value); // error here if wrong type
+      NotifierImpl::publishChange(this->getId());
+      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
+    }
+  }
+
+  void MutableArrayReference::setValue(std::string const &value)
+  {
+    Array *ary;
+    size_t idx;
+    if (!mutableSelfCheck(ary, idx))
+      return;
+    std::string const *oldValue;
+    bool known = ary->getElementPointer(idx, oldValue); // error here if wrong type
+    bool changed = (!known || (value != *oldValue));
+    if (changed) {
+      ary->setElement(idx, value);
+      NotifierImpl::publishChange(this->getId());
+      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
+    }
+  }
+
+  void MutableArrayReference::setValue(char const *value)
+  {
+    setValue(std::string(value));
+  }
+
+  // TODO: optimize
+  void MutableArrayReference::setValue(ExpressionId const &valex)
+  {
+    setValue(valex->toValue());
+  }
+
+  void MutableArrayReference::setValue(Value const &value)
+  {
+    Array *ary;
+    size_t idx;
+    if (!mutableSelfCheck(ary, idx))
+      return;
+    Value oldValue = ary->getElementValue(idx);
+    if (value != oldValue) {
+      ary->setElementValue(idx, value);
+      NotifierImpl::publishChange(this->getId());
+      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
+    }
+  }
+
+  void MutableArrayReference::setValue(BooleanArray const &value)
+  {
+    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
+  }
+
+  void MutableArrayReference::setValue(IntegerArray const &value)
+  {
+    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
+  }
+
+  void MutableArrayReference::setValue(RealArray const &value)
+  {
+    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
+  }
+
+  void MutableArrayReference::setValue(StringArray const &value)
+  {
+    assertTrue_2(ALWAYS_FAIL, "MutableArrayReference::setValue: type error");
+  }
+
+  void MutableArrayReference::setUnknown()
+  {
+    Array *ary;
+    size_t idx;
+    if (!mutableSelfCheck(ary, idx))
+      return;
+    bool changed = ary->elementKnown(idx);
+    ary->setElementUnknown(idx);
     if (changed) {
       NotifierImpl::publishChange(this->getId());
       m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
     }
   }
 
-  template <typename T>
-  bool MutableArrayReference<T>::getMutableValuePointerImpl(T *&ptr)
+  bool MutableArrayReference::getMutableValuePointer(std::string *&ptr)
   {
-    // *** TODO ***
-    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer not yet implemented");
-    return false;
-
-    // ArrayImpl<T> *ary;
-    // size_t idx;
-    // if (!mutableSelfCheck(ary, idx))
-    //   return false;
-    // std::vector<T> *resultTemp;
-    // ary->getMutableContentsVector(resultTemp);
-    // ptr = &((*resultTemp)[idx]);
-    // return true;
+    Array *ary;
+    size_t idx;
+    if (!mutableSelfCheck(ary, idx))
+      return false;
+    return ary->getMutableElementPointer(idx, ptr);
   }
 
-  // Not implemented for Boolean arrays
-  template <>
-  bool MutableArrayReference<bool>::getMutableValuePointerImpl(bool *&ptr)
+  bool MutableArrayReference::getMutableValuePointer(Array *&ptr)
   {
-    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer not implemented for BooleanArray");
+    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
     return false;
   }
 
-  template <typename T>
-  void MutableArrayReference<T>::reset()
+  bool MutableArrayReference::getMutableValuePointer(BooleanArray *&ptr)
+  {
+    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
+    return false;
+  }
+
+  bool MutableArrayReference::getMutableValuePointer(IntegerArray *&ptr)
+  {
+    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
+    return false;
+  }
+
+  bool MutableArrayReference::getMutableValuePointer(RealArray *&ptr)
+  {
+    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
+    return false;
+  }
+
+  bool MutableArrayReference::getMutableValuePointer(StringArray *&ptr)
+  {
+    check_error_2(ALWAYS_FAIL, "MutableArrayReference::getMutableValuePointer: type error");
+    return false;
+  }
+
+  void MutableArrayReference::reset()
   {
     // No-op
   }
 
-  template <typename T>
-  void MutableArrayReference<T>::saveCurrentValue()
+  void MutableArrayReference::saveCurrentValue()
   {
-    ArrayImpl<T> *ary;
+    Array *ary;
     size_t idx;
-    if (!mutableSelfCheck(ary, idx))
-      return; // unknown or invalid
-    if ((m_savedKnown = ary->m_known[idx]))
-      m_savedValue = ary->m_contents[idx];
+    if (!mutableSelfCheck(ary, idx)) {
+      // unknown or invalid
+      m_saved = false;
+      return;
+    }
+    m_savedValue = ary->getElementValue(idx);
   }
 
-  template <typename T>
-  void MutableArrayReference<T>::restoreSavedValue()
+  void MutableArrayReference::restoreSavedValue()
   {
-    ArrayImpl<T> *ary;
+    Array *ary;
     size_t idx;
-    if (!mutableSelfCheck(ary, idx))
+    if (!mutableSelfCheck(ary, idx) || !m_saved) 
       return;
-    bool changed = (m_savedKnown != ary->m_known[idx])
-      || (m_savedKnown && (m_savedValue != ary->m_contents[idx]));
-    ary->m_known[idx] = m_savedKnown;
-    if (m_savedKnown)
-      ary->m_contents[idx] = m_savedValue;
-    if (changed) {
+    if (m_savedValue != ary->getElementValue(idx)) {
+      ary->setElementValue(idx, m_savedValue);
       NotifierImpl::publishChange(this->getId());
       m_mutableArray->notifyChanged(this->getId());
     }
+    m_saved = false;
   }
 
-  template <typename T>
-  const NodeConnectorId &MutableArrayReference<T>::getNode() const
+  const NodeConnectorId &MutableArrayReference::getNode() const
   {
     return getBaseVariable()->getNode();
   }
 
-  template <typename T>
-  Assignable *MutableArrayReference<T>::getBaseVariable() 
+  Assignable *MutableArrayReference::getBaseVariable() 
   {
     return m_mutableArray->getBaseVariable();
   }
 
-  template <typename T>
-  Assignable const *MutableArrayReference<T>::getBaseVariable() const
+  Assignable const *MutableArrayReference::getBaseVariable() const
   {
     return m_mutableArray->getBaseVariable();
   }
-
-  //
-  // Explicit instantiation
-  //
-
-  template class ArrayReference<bool>;
-  template class ArrayReference<int32_t>;
-  template class ArrayReference<double>;
-  template class ArrayReference<std::string>;
-
-  template class MutableArrayReference<bool>;
-  template class MutableArrayReference<int32_t>;
-  template class MutableArrayReference<double>;
-  template class MutableArrayReference<std::string>;
-
 
 } // namespace PLEXIL
 

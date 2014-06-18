@@ -47,7 +47,7 @@ bool additionTest()
   Addition<int32_t> addi;
   int32_t tempi;
 
-  // TODO: Unary
+  // Unary not implemented in schema
 
   // Binary
 
@@ -131,7 +131,7 @@ bool additionTest()
   Addition<double> addr;
   double tempr;
 
-  // TODO: Unary
+  // Unary not supported in schema
 
   // Binary
 
@@ -367,7 +367,7 @@ bool subtractionTest()
   assertTrue_1(isub2_3.getValue(tempi));
   assertTrue_1(tempi == -2);
 
-  // N-ary
+  // N-ary (not supported in schema)
 
   // Set up arglists
   std::vector<ExpressionId> iexprs3_1, iexprs3_2, iexprs3_3;
@@ -476,7 +476,7 @@ bool subtractionTest()
   assertTrue_1(rsub2_3.getValue(tempr));
   assertTrue_1(tempr == 5.0);
 
-  // N-ary
+  // N-ary (not supported in schema)
   std::vector<ExpressionId> rexprs3_1, rexprs3_2, rexprs3_3;
   rexprs3_1.push_back(too.getId());
   rexprs3_1.push_back(fore.getId());
@@ -581,7 +581,7 @@ bool subtractionTest()
   assertTrue_1(msub2_3.getValue(tempr));
   assertTrue_1(tempr == 3.5);
 
-  // N-ary
+  // N-ary (not supported in schema)
   rexprs3_1.clear();
   rexprs3_1.push_back(tree.getId());
   rexprs3_1.push_back(fore.getId());
@@ -640,7 +640,7 @@ bool multiplicationTest()
   Multiplication<int32_t> muli;
   int32_t tempi;
 
-  // TODO: Unary
+  // Unary not supported in schema
 
   // Binary
   std::vector<ExpressionId> iexprs2_1, iexprs2_2, iexprs2_3;
@@ -722,7 +722,7 @@ bool multiplicationTest()
   Multiplication<double> mulr;
   double tempr;
 
-  // TODO: Unary
+  // Unary not supported in schema
 
   // Binary
   std::vector<ExpressionId> rexprs2_1, rexprs2_2, rexprs2_3;
@@ -797,7 +797,7 @@ bool multiplicationTest()
 
   // Mixed numeric
 
-  // TODO: Unary
+  // Unary not supported in schema
 
   // Binary
   std::vector<ExpressionId> mexprs2_1, mexprs2_2, mexprs2_3;
@@ -1104,7 +1104,7 @@ bool minimumTest()
   std::vector<bool> garbage2(2, false);
   std::vector<bool> garbage3(3, false);
 
-  // TODO: Unary
+  // Unary not supported in schema
 
   // Binary
   std::vector<ExpressionId> iexprs2_1, iexprs2_2, iexprs2_3;
@@ -1139,7 +1139,7 @@ bool minimumTest()
   assertTrue_1(imin2_3.getValue(tempi));
   assertTrue_1(tempi == 3);
 
-  // N-ary
+  // N-ary (not supported in schema)
 
   // Set up arglists
   std::vector<ExpressionId> iexprs3_1, iexprs3_2, iexprs3_3;
@@ -1186,7 +1186,7 @@ bool minimumTest()
   Minimum<double> minr;
   double tempr;
 
-  // TODO: Unary
+  // Unary not supported in schema
 
   // Binary
   std::vector<ExpressionId> rexprs2_1, rexprs2_2, rexprs2_3;
@@ -1221,7 +1221,7 @@ bool minimumTest()
   assertTrue_1(rmin2_3.getValue(tempr));
   assertTrue_1(tempr == -0.5);
 
-  // N-ary
+  // N-ary (not supported in schema)
   std::vector<ExpressionId> rexprs3_1, rexprs3_2, rexprs3_3;
   rexprs3_1.push_back(too.getId());
   rexprs3_1.push_back(fore.getId());
@@ -1262,7 +1262,7 @@ bool minimumTest()
 
   // Mixed numeric
 
-  // TODO: Unary
+  // Unary not supported in schema
 
   // Binary
   std::vector<ExpressionId> mexprs2_1, mexprs2_2, mexprs2_3;
@@ -1300,7 +1300,7 @@ bool minimumTest()
   assertTrue_1(mmin2_3.getValue(tempr));
   assertTrue_1(tempr == -0.5);
 
-  // N-ary
+  // N-ary (not supported in schema)
   rexprs3_1.clear();
   rexprs3_1.push_back(tree.getId());
   rexprs3_1.push_back(fore.getId());
@@ -1358,7 +1358,7 @@ bool maximumTest()
   std::vector<bool> garbage2(2, false);
   std::vector<bool> garbage3(3, false);
 
-  // TODO: Unary
+  // Unary not supported in schema
 
   // Binary
   std::vector<ExpressionId> iexprs2_1, iexprs2_2, iexprs2_3;
@@ -1393,7 +1393,7 @@ bool maximumTest()
   assertTrue_1(imax2_3.getValue(tempi));
   assertTrue_1(tempi == 5);
 
-  // N-ary
+  // N-ary (not supported in schema)
 
   // Set up arglists
   std::vector<ExpressionId> iexprs3_1, iexprs3_2, iexprs3_3;
@@ -1440,7 +1440,7 @@ bool maximumTest()
   Maximum<double> maxr;
   double tempr;
 
-  // TODO: Unary
+  // Unary not supported in schema
 
   // Binary
   std::vector<ExpressionId> rexprs2_1, rexprs2_2, rexprs2_3;
@@ -1475,7 +1475,7 @@ bool maximumTest()
   assertTrue_1(rmax2_3.getValue(tempr));
   assertTrue_1(tempr == 4.5);
 
-  // N-ary
+  // N-ary (not supported in schema)
   std::vector<ExpressionId> rexprs3_1, rexprs3_2, rexprs3_3;
   rexprs3_1.push_back(too.getId());
   rexprs3_1.push_back(fore.getId());
@@ -1515,7 +1515,7 @@ bool maximumTest()
 
   // Mixed numeric
 
-  // TODO: Unary
+  // Unary not supported in schema
 
   // Binary
   std::vector<ExpressionId> mexprs2_1, mexprs2_2, mexprs2_3;
@@ -1553,7 +1553,7 @@ bool maximumTest()
   assertTrue_1(mmax2_3.getValue(tempr));
   assertTrue_1(tempr == 3);
 
-  // N-ary
+  // N-ary (not supported in schema)
   rexprs3_1.clear();
   rexprs3_1.push_back(tree.getId());
   rexprs3_1.push_back(fore.getId());

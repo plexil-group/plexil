@@ -64,6 +64,7 @@ namespace PLEXIL
     // Specializations from UserVariable
     void handleActivate();
     bool getValuePointerImpl(Array const *&ptr) const;
+    bool getMutableValuePointer(Array *&ptr);
 
   private:
     // Convenience typedefs

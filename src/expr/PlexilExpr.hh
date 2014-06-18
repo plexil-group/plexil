@@ -99,16 +99,14 @@ namespace PLEXIL
                        PlexilExprId const &index);
     virtual ~PlexilArrayElement();
 
-    PlexilExprId const & getArrayExpr() const;
-
-    const std::vector<PlexilExprId>& subExprs() const;
-    void addSubExpr(PlexilExprId expr);
+    PlexilExprId const & array() const;
+    PlexilExprId const & index() const;
 
     std::string const &getArrayName() const;
 
   private:
     PlexilExprId m_array;
-    std::vector<PlexilExprId> m_subExprs;
+    PlexilExprId m_index;;
   };
 
   class PlexilValue : public PlexilExpr

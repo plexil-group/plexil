@@ -144,13 +144,14 @@ namespace PLEXIL
       REGISTER_ARITHMETIC_FUNCTION(Minimum, MIN);
       REGISTER_ARITHMETIC_FUNCTION(AbsoluteValue, ABS);
 
+      REGISTER_FUNCTION(SquareRoot<double>, SQRT);
+      REGISTER_FUNCTION(RealToInteger, REAL_TO_INT);
+
+      // Not currently in the schema
       REGISTER_ARITHMETIC_FUNCTION(Ceiling, CEIL);
       REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR);
       REGISTER_ARITHMETIC_FUNCTION(Round, ROUND);
       REGISTER_ARITHMETIC_FUNCTION(Truncate, TRUNC);
-
-      REGISTER_FUNCTION(SquareRoot<double>, SQRT);
-      REGISTER_FUNCTION(RealToInteger, REAL_TO_INT);
 
       // Boolean operations
       REGISTER_FUNCTION(BooleanNot, NOT);

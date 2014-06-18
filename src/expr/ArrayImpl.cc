@@ -26,6 +26,7 @@
 
 #include "ArrayImpl.hh"
 #include "Error.hh"
+#include "Value.hh"
 #include "ValueType.hh"
 
 namespace PLEXIL
@@ -76,6 +77,15 @@ namespace PLEXIL
   {
     Array::resize(size);
     m_contents.resize(size);
+  }
+
+  template <typename T>
+  Value ArrayImpl<T>::getElementValue(size_t index) const
+  {
+    if (!(Array::checkIndex(index) && Array::m_known[index]))
+      return Value(); // unknown
+    else
+      return Value(m_contents[index]);
   }
 
   template <typename T>
@@ -130,6 +140,24 @@ namespace PLEXIL
     return false;
   }
 
+  template <typename T>
+  bool ArrayImpl<T>::getMutableElementPointer(size_t index, std::string *&result)
+  {
+    assertTrue_2(ALWAYS_FAIL, "Array:getMutableElementPointer: type error");
+    return false;
+  }
+
+  template <>
+  bool ArrayImpl<std::string>::getMutableElementPointer(size_t index, std::string *&result)
+  {
+    if (!Array::checkIndex(index))
+      return false;
+    if (!Array::m_known[index])
+      return false;
+    result = &m_contents[index];
+    return true;
+  }
+
   // Default
   template <typename T>
   template <typename U>
@@ -160,6 +188,18 @@ namespace PLEXIL
       return;
     m_contents[index] = newval;
     Array::m_known[index] = true;
+  }
+
+  template <typename T>
+  void ArrayImpl<T>::setElementValue(size_t index, Value const &value)
+  {
+    if (!Array::checkIndex(index))
+      return;
+    T temp;
+    bool known = value.getValue(temp);
+    if (known)
+      m_contents[index] = temp;
+    Array::m_known[index] = known;
   }
 
   // Default
