@@ -57,9 +57,8 @@ namespace PLEXIL
   public:
     Command(const ExpressionId nameExpr, 
             const std::vector<ExpressionId>& args, 
-            Assignable *dest,
-            const std::string& dest_name,
             const std::vector<ExpressionId>& garbage,
+            Assignable *dest,
             const ResourceList& resource,
             std::string const &nodeName);
     ~Command();
@@ -72,7 +71,6 @@ namespace PLEXIL
     std::string const &getName() const;
     std::vector<Value> const &getArgValues() const;
     const ResourceValuesList &getResourceValues() const;
-    const std::string &getDestName() const;
     CommandHandleValue getCommandHandle() const {return (CommandHandleValue) m_commandHandle;}
 
     void activate();
@@ -96,7 +94,6 @@ namespace PLEXIL
     State m_command;
     ExpressionId m_nameExpr;
     Assignable *m_dest;
-    std::string m_destName;
     std::vector<ExpressionId> m_garbage;
     std::vector<ExpressionId> m_args;
     ResourceList m_resourceList;

@@ -31,17 +31,15 @@ namespace PLEXIL
 
   Command::Command(const ExpressionId nameExpr, 
                    const std::vector<ExpressionId>& args,
-                   Assignable *dest,
-                   const std::string &dest_name,
                    const std::vector<ExpressionId> &garbage,
+                   Assignable *dest,
                    const ResourceList &resource,
                    std::string const &nodeName)
     : m_id(this),
-      m_ack(*this), 
+      m_ack(*this),
       m_abortComplete(),
       m_nameExpr(nameExpr),
       m_dest(dest),
-      m_destName(dest_name),
       m_garbage(garbage),
       m_args(args),
       m_resourceList(resource),
@@ -177,11 +175,6 @@ namespace PLEXIL
     m_abortComplete.reset();
     // TODO: optimize in case name & args are constants (a common case)
     m_fixed = m_resourceFixed = false;
-  }
-
-  const std::string& Command::getDestName() const
-  {
-    return m_destName;
   }
 
 }
