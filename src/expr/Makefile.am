@@ -54,8 +54,8 @@ if MODULE_TESTS_OPT
  test/FactoryTestNodeConnector.hh
   test_expr_module_tests_SOURCES = test/aliasTest.cc test/arithmeticTest.cc \
  test/arrayConstantTest.cc test/arrayOperatorsTest.cc \
- test/arrayReferenceTest.cc test/arrayTest.cc test/arrayVariableTest.cc \
- test/booleanOperatorsTest.cc test/comparisonsTest.cc \
+ test/arrayReferenceFactoryTest.cc test/arrayReferenceTest.cc test/arrayTest.cc \
+ test/arrayVariableTest.cc test/booleanOperatorsTest.cc test/comparisonsTest.cc \
  test/constantFactoryTest.cc test/constantsTest.cc \
  test/FactoryTestNodeConnector.cc test/functionFactoryTest.cc \
  test/functionsTest.cc test/listenerTest.cc \
