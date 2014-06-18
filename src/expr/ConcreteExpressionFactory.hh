@@ -199,31 +199,6 @@ namespace PLEXIL
     ConcreteExpressionFactory &operator=(ConcreteExpressionFactory const &);
   };
 
-  // Used in Assignment and Command nodes
-  template <>
-  class ConcreteExpressionFactory<MutableArrayReference> : public ExpressionFactory
-  {
-  public:
-    ConcreteExpressionFactory(std::string const &name)
-      : ExpressionFactory(name)
-    {
-    }
-
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    virtual ExpressionId allocate(const PlexilExprId& expr,
-                                  const NodeConnectorId& node,
-                                  bool & wasCreated) const;
-
-  private:
-    // Default, copy, assign prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(ConcreteExpressionFactory const &);
-    ConcreteExpressionFactory &operator=(ConcreteExpressionFactory const &);
-  };
-
 } // namespace PLEXIL
 
 // Convenience macros

@@ -32,6 +32,8 @@
 namespace PLEXIL
 {
   // Forward declarations
+  class Assignable;
+
   class NodeConnector;
   DECLARE_ID(NodeConnector);
   
@@ -86,12 +88,16 @@ namespace PLEXIL
    * @return The Id for the new Expression. May not be unique.
    * @param wasCreated Reference to a boolean variable;
    *                   variable will be set to true if new object created, false otherwise.
-   * @note Convenience wrapper for most common use case.
    */
   // Used in AssignmentNode, CommandNode, LibraryCallNode, Node::createConditions
   extern ExpressionId createExpression(const PlexilExprId& expr,
                                        const NodeConnectorId& node,
                                        bool& wasCreated);
+
+  // Used in AssignmentNode, CommandNode
+  extern Assignable *createAssignable(const PlexilExprId& expr,
+                                      const NodeConnectorId& node,
+                                      bool& wasCreated);
 
   /**
    * @brief Deallocate all factories

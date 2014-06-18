@@ -167,6 +167,7 @@ namespace PLEXIL
       REGISTER_FUNCTION(ArrayLength, SIZE);
       REGISTER_FUNCTION(AllElementsKnown, ALL_KNOWN);
       REGISTER_FUNCTION(AnyElementsKnown, ANY_KNOWN);
+      REGISTER_EXPRESSION(ArrayReference, ArrayElement);
 
       sl_inited = true;
     }

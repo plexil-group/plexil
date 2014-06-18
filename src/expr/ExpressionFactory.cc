@@ -25,6 +25,8 @@
 */
 
 #include "ExpressionFactory.hh"
+
+#include "ArrayReference.hh"
 #include "Debug.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
@@ -88,6 +90,47 @@ namespace PLEXIL
     debugMsg("createExpression",
              " Created " << (wasCreated ? "" : "reference to ") << retval->toString());
     return retval;
+  }
+
+  // This doesn't use the ExpressionFactory paradigm, but it could if required in the future.
+  Assignable *createAssignable(const PlexilExprId& expr,
+                               const NodeConnectorId& node,
+                               bool& wasCreated)
+  {
+    assertTrue_2(node.isId(), "createAssignable: Null node argument");
+    PlexilVarRef const *ref = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
+    if (ref) {
+      // Variable reference - always returns existing
+      wasCreated = false;
+      ExpressionId result = node->findVariable(ref);
+      checkParserException(result.isId(),
+                           "createAssignable: Variable \"" << ref->varName() << "\" not found");
+      checkParserException(result->isAssignable(),
+                           "createAssignable: Variable \"" << ref->varName() << "\" is not assignable");
+      return result->asAssignable();
+    }
+    PlexilArrayElement const *elt = dynamic_cast<PlexilArrayElement const *>((PlexilExpr const *) expr);
+    if (elt) {
+      // Get array expression (usually variable reference)
+      bool aryCreated, idxCreated;
+      ExpressionId array = createExpression(elt->array(), node, aryCreated);
+      // *** FIXME: is UNKNOWN_TYPE (e.g. undeclared Lookup) OK? ***
+      checkParserException(isArrayType(array->valueType()),
+                           "createAssignable: Array reference to non-array expression");
+      checkParserException(array->isAssignable(),
+                           "createAssignable: Array reference to read-only expression");
+
+      // Get index expression
+      ExpressionId index = createExpression(elt->index(), node, idxCreated);
+      checkParserException(index->valueType() == INTEGER_TYPE,
+                           "createAssignable: Array reference index expression not Integer");
+
+      // Always constructs (this may change in future)
+      wasCreated = true;
+      return (new MutableArrayReference(array, index, aryCreated, idxCreated))->asAssignable();
+    }
+    checkParserException(ALWAYS_FAIL,
+                         "createAssignable: Not a valid expression for assignment destination");
   }
 
   void purgeExpressionFactories()
