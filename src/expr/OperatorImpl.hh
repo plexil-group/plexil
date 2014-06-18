@@ -28,6 +28,8 @@
 #define PLEXIL_OPERATOR_IMPL_HH
 
 #include "Operator.hh"
+
+#include "Error.hh"
 #include "ExprVec.hh"
 #include "Value.hh"
 
@@ -202,13 +204,25 @@ namespace PLEXIL
 
     // Conversion or type error
     template <typename U>
-    bool calc(U &result, ExpressionId arg) const;
+    bool calc(U & /* result */, ExpressionId /* arg */) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
+    }
 
     template <typename U>
-    bool calc(U &result, ExpressionId arg0, ExpressionId arg1) const;
+    bool calc(U & /* result */, ExpressionId /* arg0 */, ExpressionId /* arg1 */) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
+    }
 
     template <typename U>
-    bool calc(U &result, ExprVec const &args) const;
+    bool calc(U & /* result */, ExprVec const & /* args */) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
+    }
 
   protected:
     // Base class shouldn't be instantiated by itself
@@ -246,20 +260,32 @@ namespace PLEXIL
 
     // Conversion or type error
     template <typename U>
-    bool calc(U &result, ExpressionId arg) const;
+    bool calc(U & /* result */, ExpressionId /* arg */) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
+    }
 
     template <typename U>
-    bool calc(U &result, ExpressionId arg0, ExpressionId arg1) const;
+    bool calc(U & /* result */, ExpressionId /* arg0 */, ExpressionId /* arg1 */) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
+    }
 
     template <typename U>
-    bool calc(U &result, ExprVec const &args) const;
+    bool calc(U & /* result */, ExprVec const & /* args */) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
+    }
 
     bool calcNative(void *cache, ExprVec const &exprs) const
     {
       return exprs.apply(*(static_cast<ArrayImpl<R> *>(cache)), this);
     }
 
-    void printValue(std::ostream &s, void *cache, ExprVec const *exprs) const
+    void printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
     {
       if (calcNative(*cache, exprs))
         PLEXIL::printValue(*(static_cast<ArrayImpl<R> *>(cache)), s);
@@ -267,7 +293,7 @@ namespace PLEXIL
         s << "UNKNOWN";
     }
 
-    Value toValue(void *cache, ExprVec const *exprs) const
+    Value toValue(void *cache, ExprVec const &exprs) const
     {
       bool known = calcNative(cache, exprs);
       if (known)

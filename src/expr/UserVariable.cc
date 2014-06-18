@@ -157,13 +157,6 @@ namespace PLEXIL {
     return m_known;
   }
 
-  template <typename T>
-  bool UserVariable<T>::getMutableValuePointer(Array *&ptr)
-  {
-    assertTrue_2(ALWAYS_FAIL, "UserVariable::getMutableValuePointer type error");
-    return false;
-  }
-
   // A variable takes its initial value when first activated,
   // or after being reset and reactivated.
   template <typename T>

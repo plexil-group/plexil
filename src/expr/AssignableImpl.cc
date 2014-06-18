@@ -26,7 +26,6 @@
 
 #include "AssignableImpl.hh"
 #include "Error.hh"
-#include "Value.hh"
 
 namespace PLEXIL
 {
@@ -37,7 +36,18 @@ namespace PLEXIL
   }
 
   template <typename T>
+  AssignableImpl<ArrayImpl<T> >::AssignableImpl()
+    : AssignableShim<AssignableImpl<ArrayImpl<T> > >()
+  {
+  }
+
+  template <typename T>
   AssignableImpl<T>::~AssignableImpl()
+  {
+  }
+
+  template <typename T>
+  AssignableImpl<ArrayImpl<T> >::~AssignableImpl()
   {
   }
 
@@ -45,13 +55,13 @@ namespace PLEXIL
   // setValue wrappers
   //
 
-  // Default
+  // Immediate types
   template <typename T>
   void AssignableImpl<T>::setValueImpl(ExpressionId const &valex)
   {
-    T const *valptr;
-    if (valex->getValuePointer(valptr))
-      this->setValueImpl(*valptr);
+    T value;
+    if (valex->getValue(value))
+      this->setValueImpl(value);
     else
       this->setUnknown();
   }
@@ -59,90 +69,53 @@ namespace PLEXIL
   template <typename T>
   void AssignableImpl<T>::setValueImpl(Value const &val)
   {
-    T const *valptr;
+    T value;
+    if (val.getValue(value))
+      this->setValueImpl(value);
+    else
+      this->setUnknown();
+  }
+
+  // Special case for string
+  template <>
+  void AssignableImpl<std::string>::setValueImpl(ExpressionId const &valex)
+  {
+    std::string const *valptr;
+    if (valex->getValuePointer(valptr))
+      this->setValueImpl(*valptr);
+    else
+      this->setUnknown();
+  }
+
+  template <>
+  void AssignableImpl<std::string>::setValueImpl(Value const &val)
+  {
+    std::string const *valptr;
     if (val.getValuePointer(valptr))
       this->setValueImpl(*valptr);
     else
       this->setUnknown();
   }
 
-  // Immediate types
-  template <>
-  void AssignableImpl<bool>::setValueImpl(ExpressionId const &valex)
-  {
-    bool temp;
-    if (valex->getValue(temp))
-      this->setValueImpl(temp);
-    else
-      this->setUnknown();
-  }
-
-  template <>
-  void AssignableImpl<int32_t>::setValueImpl(ExpressionId const &valex)
-  {
-    int32_t temp;
-    if (valex->getValue(temp))
-      this->setValueImpl(temp);
-    else
-      this->setUnknown();
-  }
-
-  template <>
-  void AssignableImpl<double>::setValueImpl(ExpressionId const &valex)
-  {
-    double temp;
-    if (valex->getValue(temp))
-      this->setValueImpl(temp);
-    else
-      this->setUnknown();
-  }
-
-  template <>
-  void AssignableImpl<bool>::setValueImpl(Value const &val)
-  {
-    bool temp;
-    if (val.getValue(temp))
-      this->setValueImpl(temp);
-    else
-      this->setUnknown();
-  }
-
-  template <>
-  void AssignableImpl<int32_t>::setValueImpl(Value const &val)
-  {
-    int32_t temp;
-    if (val.getValue(temp))
-      this->setValueImpl(temp);
-    else
-      this->setUnknown();
-  }
-
-  template <>
-  void AssignableImpl<double>::setValueImpl(Value const &val)
-  {
-    double temp;
-    if (val.getValue(temp))
-      this->setValueImpl(temp);
-    else
-      this->setUnknown();
-  }
-
-  //
-  // setValueImpl
-  //
-
-  // Type errors
+  // Array types
   template <typename T>
-  template <typename U>
-  void AssignableImpl<T>::setValueImpl(U const & /* val */)
+  void AssignableImpl<ArrayImpl<T> >::setValueImpl(ExpressionId const &valex)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+    ArrayImpl<T> const *valptr;
+    if (valex->getValuePointer(valptr))
+      this->setValueImpl(*valptr);
+    else
+      this->setUnknown();
   }
 
   template <typename T>
-  void AssignableImpl<T>::setValueImpl(char const * /* val */)
+  void AssignableImpl<ArrayImpl<T> >::setValueImpl(Value const &val)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+    ArrayImpl<T> const *valptr;
+    if (val.getValuePointer(valptr))
+      this->setValueImpl(*valptr);
+    else
+      this->setUnknown();
   }
 
   // Conversions
@@ -160,18 +133,34 @@ namespace PLEXIL
     this->setValueImpl((double) val);
   }
 
+  // Specific type mismatch
+  template <typename T>
+  void AssignableImpl<T>::setValueImpl(char const * /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+  }
+
+  template <typename T>
+  void AssignableImpl<ArrayImpl<T> >::setValueImpl(char const * /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+  }
+
+
   //
-  // getMutableValuePointerImpl
+  // getMutableValuePointerImpl conversion
   //
 
-  // Type errors
   template <typename T>
-  template <typename U>
-  bool AssignableImpl<T>::getMutableValuePointerImpl(U *& /* ptr */)
+  bool AssignableImpl<ArrayImpl<T> >::getMutableValuePointerImpl(Array *&ptr)
   {
-    assertTrue_2(ALWAYS_FAIL, "Assignable::getMutableValuePointer: type error");
-    return false;
+    ArrayImpl<T> *temp;
+    bool result;
+    if ((result = getMutableValuePointerImpl(temp)))
+      ptr = dynamic_cast<Array *>(temp); // static_cast wasn't legal?!
+    return result;
   }
+
 
   //
   // Explicit instantiations

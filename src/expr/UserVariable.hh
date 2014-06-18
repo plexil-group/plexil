@@ -102,7 +102,6 @@ namespace PLEXIL {
      * @return True if known, false if unknown or invalid.
      */
     bool getMutableValuePointerImpl(T *&ptr);
-    bool getMutableValuePointer(Array *&ptr);
 
     /**
      * @brief Assign a new value.
