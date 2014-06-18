@@ -50,13 +50,15 @@ libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
-  noinst_HEADERS = test/TrivialListener.hh test/TrivialNodeConnector.hh
+  noinst_HEADERS = test/TrivialListener.hh test/TrivialNodeConnector.hh \
+ test/FactoryTestNodeConnector.hh
   test_expr_module_tests_SOURCES = test/aliasTest.cc test/arithmeticTest.cc \
  test/arrayConstantTest.cc test/arrayOperatorsTest.cc \
  test/arrayReferenceTest.cc test/arrayTest.cc test/arrayVariableTest.cc \
  test/booleanOperatorsTest.cc test/comparisonsTest.cc \
  test/constantFactoryTest.cc test/constantsTest.cc \
- test/functionFactoryTest.cc test/functionsTest.cc test/listenerTest.cc \
+ test/FactoryTestNodeConnector.cc test/functionFactoryTest.cc \
+ test/functionsTest.cc test/listenerTest.cc \
  test/stringTest.cc test/TrivialListener.cc test/TrivialNodeConnector.cc \
  test/valueTest.cc test/variableFactoryTest.cc test/variablesTest.cc \
  test/expr-test-module.cc

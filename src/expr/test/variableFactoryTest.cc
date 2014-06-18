@@ -27,70 +27,15 @@
 #include "ArrayImpl.hh"
 #include "ExpressionFactory.hh"
 #include "ExpressionFactories.hh"
-#include "NodeConnector.hh"
+#include "FactoryTestNodeConnector.hh"
 #include "PlexilExpr.hh"
 #include "TestSupport.hh"
 
 using namespace PLEXIL;
 
-class VariableFactoryTestNodeConnector : public NodeConnector
-{
-public:
-  VariableFactoryTestNodeConnector()
-    : NodeConnector()
-  {
-  }
-
-  ~VariableFactoryTestNodeConnector()
-  {
-    m_variableMap.clear();
-  }
-
-  ExpressionId const &findVariable(const PlexilVarRef* ref)
-  {
-    return this->findVariable(ref->varName(), false);
-  }
-
-  ExpressionId const &findVariable(const std::string & name,
-                                   bool ignored = false)
-  {
-    TestVariableMap::const_iterator it = m_variableMap.find(name);
-    if (it != m_variableMap.end())
-      return it->second;
-    else
-      return ExpressionId::noId();
-  }
-
-  NodeId const &findNodeRef(PlexilNodeRefId const & /* nodeRef */) const
-  {
-    return NodeId::noId();
-  }
-
-  ExecListenerHubId const &getExecListenerHub() const
-  {
-    return ExecListenerHubId::noId();
-  }
-
-  // For variable lookup testing
-  void storeVariable(const std::string & name, ExpressionId var)
-  {
-    TestVariableMap::iterator it = m_variableMap.find(name);
-    if (it != m_variableMap.end()) {
-      it->second = var; // replace existing
-    }
-    else 
-      m_variableMap.insert(std::pair<std::string, ExpressionId>(name, var));
-  }
-
-private:
-  typedef std::map<std::string, ExpressionId> TestVariableMap;
-
-  TestVariableMap m_variableMap;
-};
-
 // Global variables for convenience
 static NodeConnectorId nc;
-static VariableFactoryTestNodeConnector *realNc = NULL;
+static FactoryTestNodeConnector *realNc = NULL;
 
 static bool booleanVariableFactoryTest()
 {
@@ -912,7 +857,7 @@ bool variableFactoryTest()
   // Initialize factories
   registerBasicExpressionFactories();
   // Initialize infrastructure
-  realNc = new VariableFactoryTestNodeConnector();
+  realNc = new FactoryTestNodeConnector();
   nc = realNc->getId();
 
   runTest(booleanVariableFactoryTest);
