@@ -67,9 +67,11 @@ namespace PLEXIL
 
     void createLibraryNode(const PlexilLibNodeCallBody* body);
 
-    void createAliases(const std::vector<PlexilVarRef*>& interfaceVars,
-                       PlexilAliasMap& aliases,
-                       bool isIn);
+    void createInAliases(const std::vector<PlexilVarRef*>& interfaceVars,
+                         PlexilAliasMap& aliases);
+
+    void createInOutAliases(const std::vector<PlexilVarRef*>& interfaceVars,
+                            PlexilAliasMap& aliases);
 
     VariableMap m_aliasVariables;
   };

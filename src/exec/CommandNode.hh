@@ -28,6 +28,8 @@
 #define COMMAND_NODE_HH
 
 #include "Node.hh"
+#include "ConstantMacros.hh"
+#include "Constant.hh"
 
 namespace PLEXIL
 {
@@ -100,6 +102,8 @@ namespace PLEXIL
     void createCommand(const PlexilCommandBody* body);
     // Unit test support
     void createDummyCommand(); // unit test variant
+
+    DECLARE_STATIC_CLASS_CONST_WITH_CLEANUP(StringConstant, DUMMY_CMD_NAME, "dummy");
 
     CommandId m_command; /*<! The command to be performed. */
   };

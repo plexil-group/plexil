@@ -30,6 +30,7 @@
 #include "Constant.hh"
 #include "Debug.hh"
 #include "ExecConnector.hh"
+#include "ExpressionConstants.hh"
 #include "ExpressionFactory.hh"
 
 namespace PLEXIL
@@ -113,44 +114,27 @@ namespace PLEXIL
     checkError(body->dest().size() >= 1,
                "Need at least one destination variable in assignment.");
     const PlexilExprId& destExpr = (body->dest())[0]->getId();
-    ExpressionId dest;
     bool deleteLhs = false;
-    if (Id<PlexilVarRef>::convertable(destExpr)) {
-      dest = findVariable((Id<PlexilVarRef>) destExpr);
-      // FIXME: push this check up into XML parser?
-      assertTrueMsg(dest.isId(),
-                    "Dest variable '" << destExpr->name() <<
-                    "' not found in assignment node '" << m_nodeId << "'");
-    }
-    else if (Id<PlexilArrayElement>::convertable(destExpr)) {
-      // FIXME: Construct MutableArrayReference
-      dest = createExpression(destExpr, NodeConnector::getId());
-      // *** beef this up later ***
-      PlexilArrayElement* arrayElement = (PlexilArrayElement*) destExpr;
-      debugMsg("ArrayElement:ArrayElement", " name = " << arrayElement->getArrayName() << ". To: " << dest->toString());
-      deleteLhs = true;
-    }
-    else {
-      // FIXME: push this check up into XML parser 
-      checkError(ALWAYS_FAIL, "Invalid left-hand side to an assignment");
-    }
-    
-    assertTrueMsg(dest->isAssignable(),
-                  "Assignment destination " << dest->toString() << " is not writable");
+    Assignable* dest = createAssignable(destExpr, 
+                                        NodeConnector::getId(),
+                                        deleteLhs);
     bool deleteRhs = false;
     ExpressionId rhs = createExpression(body->RHS(),
                                         NodeConnector::getId(),
                                         deleteRhs);
     m_assignment =
-      (new Assignment(dest->asAssignable(), rhs, deleteLhs, deleteRhs, m_nodeId))->getId();
+      (new Assignment(dest, rhs, deleteLhs, deleteRhs, m_nodeId))->getId();
   }
 
   // Unit test variant of above
   void AssignmentNode::createDummyAssignment() 
   {
-    ExpressionId dest = (new BooleanVariable(false))->getId();
     m_assignment =
-      (new Assignment(dest->asAssignable(), (new BooleanConstant(true))->getId(), true, true, m_nodeId))->getId();
+      (new Assignment((new BooleanVariable(false))->asAssignable(),
+                      TRUE_EXP(),
+                      true,
+                      false,
+                      m_nodeId))->getId();
   }
 
   ExpressionId AssignmentNode::getAssignmentVariable() const

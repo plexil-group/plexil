@@ -566,27 +566,13 @@ namespace PLEXIL
         garbage.push_back(argExpr);
     }
     
-    ExpressionId destVar;
-    std::string dest_name;
+    Assignable *dest = NULL;
     if (!command->dest().empty()) {
       const PlexilExprId& destExpr = command->dest()[0]->getId();
-      dest_name = destExpr->name();
-      // FIXME: Let expression factory handle difference between expression types
-      if (Id<PlexilVarRef>::convertable(destExpr)) {
-        destVar = findVariable((Id<PlexilVarRef>) destExpr);
-        // FIXME: push this check up into XML parser
-        checkError(destVar.isValid(),
-                   "Unknown destination variable '" << dest_name <<
-                   "' in command in node '" <<
-                   m_nodeId << "'");
-      }
-      else if (Id<PlexilArrayElement>::convertable(destExpr)) {
-        destVar = createExpression(destExpr, NodeConnector::getId());
-        garbage.push_back(destVar);
-      }
-      else {
-        checkError(ALWAYS_FAIL, "Invalid left-hand side for a command");
-      }
+      bool destCreated;
+      dest = createAssignable(destExpr, NodeConnector::getId(), destCreated);
+      if (destCreated)
+        garbage.push_back(dest->getId()); // as ExpressionId
     }
 
     // Resource
@@ -614,24 +600,20 @@ namespace PLEXIL
 
     debugMsg("Node:createCommand",
              "Creating command for node '" << m_nodeId << "'");
-    m_command = (new Command(nameExpr, args, destVar, dest_name, garbage, resourceList, getNodeId()))->getId();
+    m_command = (new Command(nameExpr, args, garbage, dest, resourceList, getNodeId()))->getId();
   }
 
   // Unit test variant of above
   void CommandNode::createDummyCommand() 
   {
-    ExpressionId nameExpr = (new StringConstant("dummy"))->getId();
-    std::vector<ExpressionId> garbage;
-    garbage.push_back(nameExpr);
     // Empty arglist
     std::vector<ExpressionId> args;
-    
+    std::vector<ExpressionId> garbage;
     // No destination variable
-    std::string dest_name;
-
     // No resource
     ResourceList resourceList;
-    m_command = (new Command(nameExpr, args, NULL, dest_name, garbage, resourceList, getNodeId()))->getId();
+    m_command = 
+      (new Command(DUMMY_CMD_NAME().getId(), args, garbage, NULL, resourceList, getNodeId()))->getId();
   }
 
   void CommandNode::printCommandHandle(std::ostream& stream, const unsigned int indent) const
