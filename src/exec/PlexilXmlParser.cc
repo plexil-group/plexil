@@ -1906,7 +1906,7 @@ namespace PLEXIL
     xml_node retval = appendElement(ARRAYELEMENT_TAG, parent);
     appendNamedTextElement(NAME_TAG, op->getArrayName().c_str(), retval);
     xml_node idx = appendElement(INDEX_TAG, retval);
-    toXml(op->index(), retval);
+    toXml(op->index(), idx);
   }
 
   // *** FIXME: this violates the current LookupOnChange schema ***
