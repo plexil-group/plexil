@@ -31,6 +31,7 @@
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 #include "TestSupport.hh"
+#include "TrivialListener.hh"
 #include "UserVariable.hh"
 
 #include <map>
@@ -214,11 +215,14 @@ static bool testLookupNow()
   return true;
 }
 
+// TODO:
+// - test state changes
+// - test tolerance changes
+
 static bool testLookupOnChange() 
 {
   StringConstant changeTest("changeTest");
   StringConstant changeWithToleranceTest("changeWithToleranceTest");
-
   RealVariable watchVar(0.0);
   watchVar.activate();
   theInterface->watch("changeTest", watchVar.getId());
@@ -237,9 +241,15 @@ static bool testLookupOnChange()
                     emptyArglist, emptyGarbageList,
                     tolerance.getId(), false);
 
+  bool changeNotified = false;
+  bool changeWithToleranceNotified = false;
+  TrivialListener changeListener(changeNotified);
+  TrivialListener changeWithToleranceListener(changeWithToleranceNotified);
+  l1.addListener(changeListener.getId());
+  l2.addListener(changeWithToleranceListener.getId());
+
   assertTrue_1(!l1.isKnown());
   assertTrue_1(!l2.isKnown());
-
 
   // Bump the cycle count
   theInterface->incrementCycleCount();
@@ -247,10 +257,14 @@ static bool testLookupOnChange()
   l1.activate();
   assertTrue_1(l1.getValue(temp));
   assertTrue_1(temp == 0.0);
+  assertTrue_1(changeNotified);
   l2.activate();
   assertTrue_1(l2.getValue(temp));
   assertTrue_1(temp == 0.0);
+  assertTrue_1(changeWithToleranceNotified);
 
+  changeNotified = false;
+  changeWithToleranceNotified = false;
   watchVar.setValue(0.1);
 
   // Bump the cycle count
@@ -258,9 +272,12 @@ static bool testLookupOnChange()
 
   assertTrue_1(l1.getValue(temp));
   assertTrue_1(temp == 0.1);
+  assertTrue_1(changeNotified);
   assertTrue_1(l2.getValue(temp));
   assertTrue_1(temp == 0.0);
+  assertTrue_1(!changeWithToleranceNotified);
 
+  changeNotified = false;
   watchVar.setValue(0.6);
 
   // Bump the cycle count
@@ -268,10 +285,14 @@ static bool testLookupOnChange()
 
   assertTrue_1(l1.getValue(temp));
   assertTrue_1(temp == 0.6);
+  assertTrue_1(changeNotified);
   assertTrue_1(l2.getValue(temp));
   assertTrue_1(temp == 0.6);
+  assertTrue_1(changeWithToleranceNotified);
 
   l1.deactivate();
+  changeNotified = false;
+  changeWithToleranceNotified = false;
 
   watchVar.setValue(0.7);
 
@@ -279,8 +300,10 @@ static bool testLookupOnChange()
   theInterface->incrementCycleCount();
 
   assertTrue_1(!l1.isKnown());
+  assertTrue_1(!changeNotified);
   assertTrue_1(l2.getValue(temp));
   assertTrue_1(temp == 0.6);
+  assertTrue_1(!changeWithToleranceNotified);
 
   watchVar.setValue(1.1);
 
@@ -290,6 +313,10 @@ static bool testLookupOnChange()
   assertTrue_1(!l1.isKnown());
   assertTrue_1(l2.getValue(temp));
   assertTrue_1(temp == 1.1);
+  assertTrue_1(changeWithToleranceNotified);
+
+  l1.removeListener(changeListener.getId());
+  l2.removeListener(changeWithToleranceListener.getId());
 
   theInterface->unwatch("changeTest", watchVar.getId());
   theInterface->unwatch("changeWithToleranceTest", watchVar.getId());
