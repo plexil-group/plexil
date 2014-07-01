@@ -27,27 +27,45 @@
 #include "StateCacheEntry.hh"
 
 #include "ArrayImpl.hh"
+#include "CachedValue.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh"
 #include "Lookup.hh"
 
 namespace PLEXIL
 {
-  StateCacheEntry::StateCacheEntry(State const &state, ValueType vtype)
+  StateCacheEntry::StateCacheEntry(State const &state)
     : m_state(state),
-      m_timestamp(0),
-      m_valueType(vtype),
-      m_cachedKnown(false)
+      m_value(NULL)
   {
+  }
+
+  // Copy constructor, used ONLY by StateCacheMap
+  // Will throw an exception if called with an entry which has a value or lookups
+  StateCacheEntry::StateCacheEntry(StateCacheEntry const &orig)
+    : m_state(orig.m_state),
+      m_value(NULL)  {
+    assertTrue_1(!orig.m_value && orig.m_lookups.empty());
   }
 
   StateCacheEntry::~StateCacheEntry()
   {
   }
 
-  ValueType StateCacheEntry::valueType() const
+  ValueType const StateCacheEntry::valueType() const
   {
-    return m_valueType;
+    if (m_value)
+      return m_value->valueType();
+    else
+      return UNKNOWN_TYPE;
+  }
+
+  bool StateCacheEntry::isKnown() const
+  {
+    if (m_value)
+      return m_value->isKnown();
+    else
+      return false;
   }
 
   void StateCacheEntry::registerLookup(Lookup *l)
@@ -56,13 +74,7 @@ namespace PLEXIL
     m_lookups.push_back(l);
     if (unsubscribed)
       g_interface->subscribe(m_state);
-
-    if (m_timestamp < g_interface->getCycleCount())
-      // Is stale. Get current value; new lookup will get notified.
-      g_interface->lookupNow(m_state, *this);
-    else 
-      // Value is current, tell the new lookup.
-      this->notifyLookup(l); // may be redundant
+    updateIfStale();
   }
 
   void StateCacheEntry::unregisterLookup(Lookup *l)
@@ -91,16 +103,185 @@ namespace PLEXIL
     // N.B. no error if not found
   }
 
-  void StateCacheEntry::setUnknown()
+  void StateCacheEntry::registerChangeLookup(Lookup *l, ExpressionId tolerance)
   {
-    m_cachedKnown = false;
-    m_timestamp = g_interface->getCycleCount();
-    notifyUnknown();
+    checkError(tolerance->isKnown(),
+               "StateCacheEntry::registerChangeLookup: tolerance unknown");
+    registerLookup(l);
+    // Can only set thresholds if we know the current value.
+    if (m_value->isKnown()) {
+      ValueType vtype = m_value->valueType();
+      assertTrueMsg(isNumericType(vtype),
+                    "LookupOnChange: lookup value of type " << valueTypeName(vtype)
+                    << " does not support a tolerance");
+      switch (tolerance->valueType()) {
+      case INTEGER_TYPE: {
+        int32_t itol;
+        tolerance->getValue(itol); // known to be known
+        if (vtype == INTEGER_TYPE) {
+          int32_t curr;
+          m_value->getValue(curr); // known to be known
+          g_interface->setThresholds(m_state, curr + itol, curr - itol);
+        }
+        // FIXME: add support for non-double date/duration types
+        else {
+          double rtol = (double) itol;
+          double rcurr;
+          m_value->getValue(rcurr); // known to be known
+          g_interface->setThresholds(m_state, rcurr + rtol, rcurr - rtol);
+        }
+        break;
+      }
+
+        // FIXME: support non-double date/duration types
+      case DATE_TYPE:
+      case DURATION_TYPE:
+
+      case REAL_TYPE: {
+        // FIXME later if this proves to be a problem
+        assertTrue_2(vtype != INTEGER_TYPE,
+                     "LookupOnChange: integer state values must have integer tolerances")
+        double rtol;
+        tolerance->getValue(rtol);
+        double rcurr;
+        m_value->getValue(rcurr); // known to be known
+        g_interface->setThresholds(m_state, rcurr + rtol, rcurr - rtol);
+        break;
+      }
+
+      default:
+        assertTrueMsg(ALWAYS_FAIL,
+                      "LookupOnChange with invalid tolerance type "
+                      << valueTypeName(tolerance->valueType()));
+        break;
+      }
+    }
   }
 
-  void StateCacheEntry::checkIfStale()
+  CachedValue const *StateCacheEntry::cachedValue() const
   {
-    if (m_timestamp < g_interface->getCycleCount())
+    return m_value;
+  }
+
+  bool StateCacheEntry::ensureCachedValue(ValueType v)
+  {
+    if (m_value) {
+      // Check that requested type is consistent with existing
+      ValueType ct = m_value->valueType();
+      if (ct == v) // usual case, we hope
+        return true;
+      if (v == UNKNOWN_TYPE) // caller doesn't know or care
+        return true;
+      if (v == INTEGER_TYPE && isNumericType(ct)) // can store an integer in any numeric type
+        return true;
+      // FIXME implement a real time type
+      if (v == REAL_TYPE && (ct == DATE_TYPE || ct == DURATION_TYPE)) // date, duration are real
+        return true;
+
+      // Type mismatch
+      // FIXME this is most likely a plan error, handle more gracefully
+      // assertTrueMsg(ALWAYS_FAIL,
+      //               "ensureCachedValue: requested type " << valueTypeName(v)
+      //               << " but existing value is type " << valueTypeName(ct));
+      return false;
+    }
+    else {
+      m_value = CachedValueFactory(v);
+      return true;
+    }
+  }
+
+  void StateCacheEntry::setUnknown()
+  {
+    if (m_value) {
+      if (m_value->setUnknown(g_interface->getCycleCount()))
+        notify();
+    }
+  }
+
+  void StateCacheEntry::update(unsigned int timestamp, bool const &val)
+  {
+    if (!ensureCachedValue(BOOLEAN_TYPE))
+      return;
+    if (m_value->update(timestamp, val))
+      notify();
+  }
+
+  void StateCacheEntry::update(unsigned int timestamp, int32_t const &val)
+  {
+    if (!ensureCachedValue(INTEGER_TYPE))
+      return;
+    if (m_value->update(timestamp, val))
+      notify();
+  }
+
+  void StateCacheEntry::update(unsigned int timestamp, double const &val)
+  {
+    if (!ensureCachedValue(REAL_TYPE))
+      return;
+    if (m_value->update(timestamp, val))
+      notify();
+  }
+
+  void StateCacheEntry::update(unsigned int timestamp, std::string const &val)
+  {
+    if (!ensureCachedValue(STRING_TYPE))
+      return;
+    if (m_value->update(timestamp, val))
+      notify();
+  }
+
+  void StateCacheEntry::update(unsigned int timestamp, Value const &val)
+  {
+    if (!ensureCachedValue(val.valueType()))
+      return;
+    if (m_value->update(timestamp, val))
+      notify();
+  }
+
+  void StateCacheEntry::updatePtr(unsigned int timestamp, std::string const *valPtr)
+  {
+    if (!ensureCachedValue(STRING_TYPE))
+      return;
+    if (m_value->updatePtr(timestamp, valPtr))
+      notify();
+  }
+
+  void StateCacheEntry::updatePtr(unsigned int timestamp, BooleanArray const *valPtr)
+  {
+    if (!ensureCachedValue(BOOLEAN_ARRAY_TYPE))
+      return;
+    if (m_value->updatePtr(timestamp, valPtr))
+      notify();
+  }
+
+  void StateCacheEntry::updatePtr(unsigned int timestamp, IntegerArray const *valPtr)
+  {
+    if (!ensureCachedValue(INTEGER_ARRAY_TYPE))
+      return;
+    if (m_value->updatePtr(timestamp, valPtr))
+      notify();
+  }
+
+  void StateCacheEntry::updatePtr(unsigned int timestamp, RealArray const *valPtr)
+  {
+    if (!ensureCachedValue(REAL_ARRAY_TYPE))
+      return;
+    if (m_value->updatePtr(timestamp, valPtr))
+      notify();
+  }
+
+  void StateCacheEntry::updatePtr(unsigned int timestamp, StringArray const *valPtr)
+  {
+    if (!ensureCachedValue(STRING_ARRAY_TYPE))
+      return;
+    if (m_value->updatePtr(timestamp, valPtr))
+      notify();
+  }
+
+  void StateCacheEntry::updateIfStale()
+  {
+    if ((!m_value) || m_value->getTimestamp() < g_interface->getCycleCount())
       g_interface->lookupNow(m_state, *this);
   }
 
@@ -109,321 +290,7 @@ namespace PLEXIL
     for (std::vector<Lookup *>::const_iterator it = m_lookups.begin();
          it != m_lookups.end();
          ++it)
-      this->notifyImpl(*it);
+      (*it)->valueChanged();
   }
-
-  void StateCacheEntry::notifyUnknown() const
-  {
-    for (std::vector<Lookup *>::const_iterator it = m_lookups.begin();
-         it != m_lookups.end();
-         ++it)
-      (*it)->setUnknown();
-  }
-
-  StateCacheEntry *StateCacheEntry::factory(State const &state, ValueType vtype)
-  {
-    switch (vtype) {
-    case BOOLEAN_TYPE:
-      return static_cast<StateCacheEntry *>(new StateCacheEntryImpl<bool>(state, vtype));
-
-    case INTEGER_TYPE:
-      return static_cast<StateCacheEntry *>(new NumericStateCacheEntry<int32_t>(state, vtype));
-
-    case REAL_TYPE:
-    case DATE_TYPE: // FIXME
-    case DURATION_TYPE: // FIXME
-      return static_cast<StateCacheEntry *>(new NumericStateCacheEntry<double>(state, vtype));
-
-    case STRING_TYPE:
-      return static_cast<StateCacheEntry *>(new StateCacheEntryImpl<std::string>(state, vtype));
-
-    case BOOLEAN_ARRAY_TYPE:
-      return static_cast<StateCacheEntry *>(new StateCacheEntryImpl<BooleanArray>(state, vtype));
-
-    case INTEGER_ARRAY_TYPE:
-      return static_cast<StateCacheEntry *>(new StateCacheEntryImpl<IntegerArray>(state, vtype));
-
-    case REAL_ARRAY_TYPE:
-      return static_cast<StateCacheEntry *>(new StateCacheEntryImpl<RealArray>(state, vtype));
-
-    case STRING_ARRAY_TYPE:
-      return static_cast<StateCacheEntry *>(new StateCacheEntryImpl<StringArray>(state, vtype));
-
-    default:
-      assertTrue_2(ALWAYS_FAIL, "StateCacheEntry::factory: Invalid or unimplemented value type");
-      return NULL;
-    }
-  }
-
-  //
-  // Typed implementation
-  //
-
-  template <typename T>
-  StateCacheEntryImpl<T>::StateCacheEntryImpl(State const &state, ValueType vtype)
-    : StateCacheEntryShim<StateCacheEntryImpl<T> >(state, vtype)
-  {
-  }
-
-  template <typename T>
-  StateCacheEntryImpl<T>::~StateCacheEntryImpl()
-  {
-  }
-
-  template <typename T>
-  void StateCacheEntryImpl<T>::registerChangeLookupImpl(Lookup * /* l */,
-                                                        int32_t /* tolerance */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "LookupOnChange not implemented for this type");
-  }
-
-  template <typename T>
-  void StateCacheEntryImpl<T>::registerChangeLookupImpl(Lookup * /* l */,
-                                                        double /* tolerance */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "LookupOnChange not implemented for this type");
-  }
-
-  template <typename T>
-  bool StateCacheEntryImpl<T>::updateImpl(T const &val)
-  {
-    if (!StateCacheEntry::m_cachedKnown
-        || m_cachedValue != val) {
-      m_cachedValue = val;
-      StateCacheEntry::m_cachedKnown = true;
-      StateCacheEntry::m_timestamp = g_interface->getCycleCount();
-      StateCacheEntry::notify();
-    }
-    return true;
-  }
-
-  // Default wrong-type method.
-  template <typename T>
-  template <typename U>
-  bool StateCacheEntryImpl<T>::updateImpl(U const & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "StateCacheEntry::update: Type error");
-    return false;
-  }
-
-  // Type conversion method.
-  template <>
-  template <>
-  bool StateCacheEntryImpl<double>::updateImpl(int32_t const &val)
-  {
-    return this->updateImpl((double) val);
-  }
-
-  // From Value
-  // Default case
-  template <typename T>
-  bool StateCacheEntryImpl<T>::updateImpl(Value const &val)
-  {
-    T const *valPtr;
-    if (val.getValuePointer(valPtr))
-      return this->updatePtrImpl(valPtr);
-    else {
-      StateCacheEntry::setUnknown();
-      return true;
-    }
-  }
-
-  // Scalar types
-  template <>
-  bool StateCacheEntryImpl<bool>::updateImpl(Value const &val)
-  {
-    bool nativeVal;
-    if (val.getValue(nativeVal))
-      return this->updateImpl(nativeVal);
-    else {
-      StateCacheEntry::setUnknown();
-      return true;
-    }
-  }
-
-  template <>
-  bool StateCacheEntryImpl<int32_t>::updateImpl(Value const &val)
-  {
-    int32_t nativeVal;
-    if (val.getValue(nativeVal))
-      return this->updateImpl(nativeVal);
-    else {
-      StateCacheEntry::setUnknown();
-      return true;
-    }
-  }
-
-  template <>
-  bool StateCacheEntryImpl<double>::updateImpl(Value const &val)
-  {
-    double nativeVal;
-    if (val.getValue(nativeVal))
-      return this->updateImpl(nativeVal);
-    else {
-      StateCacheEntry::setUnknown();
-      return true;
-    }
-  }
-
-  template <typename T>
-  bool StateCacheEntryImpl<T>::updatePtrImpl(T const *ptr)
-  {
-    if (!StateCacheEntry::m_cachedKnown
-        || m_cachedValue != *ptr) {
-      m_cachedValue = *ptr;
-      StateCacheEntry::m_cachedKnown = true;
-      StateCacheEntry::m_timestamp = g_interface->getCycleCount();
-      StateCacheEntry::notify();
-    }
-    return true;
-  }
-
-  // Default wrong-type method.
-  template <typename T>
-  template <typename U>
-  bool StateCacheEntryImpl<T>::updatePtrImpl(U const * /* ptr */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "StateCacheEntry::updatePtr: Type error");
-    return false;
-  }
-
-  template <typename T>
-  void StateCacheEntryImpl<T>::notifyLookup(Lookup *l) const
-  {
-    if (this->m_cachedKnown)
-      l->newValue(m_cachedValue);
-    else
-      l->setUnknown();
-  }
-
-  template <typename T>
-  void StateCacheEntryImpl<T>::notifyImpl(Lookup *l) const
-  {
-    assertTrue_2(this->m_cachedKnown, "StateCacheEntryImpl::notifyImpl called when unknown");
-    l->newValue(m_cachedValue);
-  }
-
-  template <typename NUM>
-  NumericStateCacheEntry<NUM>::NumericStateCacheEntry(State const &state, ValueType vtype)
-    : StateCacheEntryImpl<NUM>(state, vtype)
-  {
-  }
-
-  template <typename NUM>
-  NumericStateCacheEntry<NUM>::~NumericStateCacheEntry()
-  {
-  }
-
-  // Same type
-  template <typename NUM>
-  void NumericStateCacheEntry<NUM>::registerChangeLookupImpl(Lookup *l, NUM tolerance)
-  {
-    // Is the state already subscribed?
-    bool unsubscribed = this->m_lookups.empty();
-    if (unsubscribed) { 
-      this->m_lookups.push_back(l);
-      g_interface->subscribe(this->m_state);
-    }
-
-    if (unsubscribed || !(this->m_timestamp < g_interface->getCycleCount()))
-      g_interface->lookupNow(this->m_state, static_cast<StateCacheEntry &>(*this));
-
-    // Can't set thresholds if we don't have a current value
-    if (this->m_cachedKnown) {
-      NUM low = this->m_cachedValue - tolerance;
-      NUM high = this->m_cachedValue + tolerance;
-
-      if (m_changeLookups.empty()) {
-        // No previous active change lookups
-        m_lowThreshold = low;
-        m_highThreshold = high;
-        g_interface->setThresholds(this->m_state,
-                                   m_lowThreshold, 
-                                   m_highThreshold);
-        m_tolerance = tolerance;
-      }
-      else {
-        // Thresholds already active - narrow them
-        bool changed = false;
-        if (low > m_lowThreshold) {
-          m_lowThreshold = low;
-          changed = true;
-        }
-        if (high < m_highThreshold) {
-          m_highThreshold = high;
-          changed = true;
-        }
-        g_interface->setThresholds(this->m_state,
-                                   m_lowThreshold, 
-                                   m_highThreshold);
-        if (tolerance < m_tolerance)
-          m_tolerance = tolerance;
-      }
-    }
-  }
-
-  // Type mismatch
-  template <typename NUM>
-  template <typename CVT>
-  void NumericStateCacheEntry<NUM>::registerChangeLookupImpl(Lookup * /* l */, CVT /* tolerance */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "LookupOnChange: Invalid or unsupported tolerance type for this state")
-  }
-
-  // Valid conversions
-  template <>
-  template <>
-  void NumericStateCacheEntry<double>::registerChangeLookupImpl(Lookup *l,  int32_t tolerance)
-  {
-    this->registerChangeLookupImpl(l, (double) tolerance);
-  }
-
-  template <typename NUM>
-  void NumericStateCacheEntry<NUM>::unregisterLookup(Lookup *l)
-  {
-    if (!m_changeLookups.empty()) {
-      // FIXME: tail-first search would likely be more optimal
-      for (std::vector<Lookup *>::iterator it = m_changeLookups.begin();
-           it != m_changeLookups.end();
-           ++it) {
-        if (l == *it) {
-          m_changeLookups.erase(it);
-          break;
-        }
-      }
-    }
-    StateCacheEntry::unregisterLookup(l);
-  }
-
-  template <typename NUM>
-  bool NumericStateCacheEntry<NUM>::updateImpl(NUM const &val)
-  {
-    if (!m_changeLookups.empty()) {
-      // Reset thresholds if appropriate
-      if (!this->m_cachedKnown || val > m_highThreshold || val < m_lowThreshold) {
-        m_lowThreshold = val - m_tolerance;
-        m_highThreshold = val + m_tolerance;
-        g_interface->setThresholds(this->m_state,
-                                   m_lowThreshold,
-                                   m_highThreshold);
-      }
-    }
-    // Go on to notify
-    return StateCacheEntryImpl<NUM>::updateImpl(val);
-  }
-
-  //
-  // Explicit instantiation (possibly redundant with factory above)
-  //
-
-  template class StateCacheEntryImpl<bool>;
-  template class StateCacheEntryImpl<std::string>;
-  template class StateCacheEntryImpl<BooleanArray>;
-  template class StateCacheEntryImpl<IntegerArray>;
-  template class StateCacheEntryImpl<RealArray>;
-  template class StateCacheEntryImpl<StringArray>;
-
-  template class NumericStateCacheEntry<int32_t>;
-  template class NumericStateCacheEntry<double>;
 
 }

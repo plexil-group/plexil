@@ -27,16 +27,11 @@
 #ifndef PLEXIL_STATE_CACHE_MAP_HH
 #define PLEXIL_STATE_CACHE_MAP_HH
 
-#include "ValueType.hh"
-
-#include <map>
+#include "StateCacheEntry.hh"
+#include <set>
 
 namespace PLEXIL
 {
-  // Forward references
-  class State;
-  class StateCacheEntry;
-
   /**
    * @class StateCacheMap
    * @brief An index to the currently active StateCacheEntry instances
@@ -52,12 +47,11 @@ namespace PLEXIL
     /**
      * @brief Construct or find the cache entry for this state.
      * @param state The state being looked up.
-     * @param vtype The value type of the state.
      * @return Pointer to the StateCacheEntry for the state.
      * @note Return value can be presumed to be non-null.
      */
     // FIXME: what if existing entry has different type?
-    StateCacheEntry *ensureStateCacheEntry(State const &state, ValueType vtype);
+    StateCacheEntry *ensureStateCacheEntry(State const &state);
 
     /**
      * @brief Find the cache entry for this state.
@@ -78,8 +72,7 @@ namespace PLEXIL
     StateCacheMap(StateCacheMap const &);
     StateCacheMap &operator=(StateCacheMap const &);
 
-    typedef std::map<State, StateCacheEntry *> EntryMap;
-    typedef std::pair<State const, StateCacheEntry *> EntryPair;
+    typedef std::set<StateCacheEntry> EntryMap;
 
     EntryMap m_map;
     

@@ -30,11 +30,12 @@ lib_LTLIBRARIES = libPlexilIntfc.la
 libPlexilIntfc_la_CPPFLAGS = -I@top_srcdir@/expr -I@top_srcdir@/utils \
  -I@top_srcdir@/third-party/pugixml/src
 
-include_HEADERS = Command.hh CommandHandle.hh CommandHandleVariable.hh \
+include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
+ CommandHandle.hh CommandHandleVariable.hh \
  ExternalInterface.hh Lookup.hh PlexilLookup.hh PlexilUpdate.hh State.hh \
  StateCacheEntry.hh StateCacheMap.hh Update.hh
 
-libPlexilIntfc_la_SOURCES = Command.cc CommandHandle.cc \
+libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc CommandHandle.cc \
  CommandHandleVariable.cc ExternalInterface.cc Lookup.cc PlexilLookup.cc \
  State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc
 

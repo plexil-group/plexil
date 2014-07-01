@@ -27,6 +27,7 @@
 #include "Lookup.hh"
 
 #include "ArrayImpl.hh"
+#include "CachedValue.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh" // for timestamp access
 #include "StateCacheEntry.hh"
@@ -44,7 +45,6 @@ namespace PLEXIL
       m_garbage(paramsAreGarbage),
       m_stateName(stateName),
       m_entry(NULL),
-      m_timestamp(0),
       m_known(false),
       m_stateKnown(false),
       m_stateIsConstant(false),
@@ -83,6 +83,12 @@ namespace PLEXIL
     return "LookupNow";
   }
 
+  // punt
+  void Lookup::printValue(std::ostream &s) const
+  {
+    s << this->toValue();
+  }
+
   void Lookup::handleActivate()
   {
     activateInternal();
@@ -103,11 +109,13 @@ namespace PLEXIL
     m_stateKnown = getState(m_cachedState);
     if (m_stateKnown) {
       m_entry =
-        StateCacheMap::instance().ensureStateCacheEntry(m_cachedState, this->valueType());
+        StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
       assertTrue_2(m_entry != NULL, "Lookup::handleActivate: Failed to get state cache entry");
     }
   }
 
+  // TODO:
+  // - potential for optimization in the case of constant states
   void Lookup::handleDeactivate()
   {
     // Dectivate all subexpressions
@@ -118,43 +126,49 @@ namespace PLEXIL
     if (m_stateKnown)
       m_entry->unregisterLookup(this);
     m_entry = NULL;
-    this->makeUnknown();
   }
 
   void Lookup::handleChange(ExpressionId src)
   {
+    handleChangeInternal(src);
+  }
+
+  bool Lookup::handleChangeInternal(ExpressionId src)
+  {
     State newState;
-    bool stateKnown = getState(newState);
-    if (!stateKnown) {
-      if (m_stateKnown) {
+    bool oldKnown = m_stateKnown;
+    m_stateKnown = getState(newState);
+    bool stateChanged = (oldKnown != m_stateKnown);
+    if (!m_stateKnown) {
+      if (oldKnown) {
         // state used to be known, isn't any longer
         m_entry->unregisterLookup(this);
         m_entry = NULL;
-        setUnknown();
       }
-      m_stateKnown = false;
     }
     else { // state now known
       if (m_stateKnown && newState != m_cachedState) {
         m_entry->unregisterLookup(this);
         m_entry = NULL;
+        stateChanged = true;
       }
-      m_stateKnown = true;
       m_cachedState = newState;
       m_entry =
-        StateCacheMap::instance().ensureStateCacheEntry(m_cachedState, this->valueType());
+        StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
       assertTrue_2(m_entry != NULL, "Lookup::handleChange: Failed to get state cache entry");
-      m_entry->registerLookup(this); // will cause value update
+      m_entry->registerLookup(this);
     }
+    if (stateChanged)
+      this->publishChange(src);
+    return stateChanged;
   }
 
-  void Lookup::setUnknown()
+  const ValueType Lookup::valueType() const
   {
-    bool wasKnown = m_known;
-    m_known = false;
-    m_timestamp = g_interface->getCycleCount();
-    if (wasKnown)
-      this->publishChange(this->getId());
+    if (!m_entry)
+      return UNKNOWN_TYPE;
+    else
+      return m_entry->valueType();
   }
 
   bool Lookup::getState(State &result) const
@@ -170,95 +184,118 @@ namespace PLEXIL
     return true;
   }
 
-  unsigned int Lookup::getTimestamp() const
+  bool Lookup::isKnown() const
   {
-    return m_timestamp;
-  }
-
-  //
-  // LookupImpl
-  //
-
-  template <typename T>
-  LookupImpl<T>::LookupImpl(ExpressionId const &stateName,
-                            bool stateNameIsGarbage,
-                            std::vector<ExpressionId> const &params,
-                            std::vector<bool> const &paramsAreGarbage)
-    : LookupShim<LookupImpl<T> >(stateName, stateNameIsGarbage, params, paramsAreGarbage)
-  {
-  }
-
-  template <typename T>
-  LookupImpl<T>::~LookupImpl()
-  {
-  }
-
-  template <typename T>
-  bool LookupImpl<T>::getValueImpl(T &result) const
-  {
-    if (!this->isActive())
+    if (!this->isActive() || !m_entry)
       return false;
-    if (Lookup::m_stateKnown)
-      Lookup::m_entry->checkIfStale();
-    if (!Lookup::m_known)
+    else
+      return m_entry->isKnown();
+  }
+
+  bool Lookup::getValue(bool &result) const
+  {
+    if (!this->isActive() || !m_entry)
       return false;
-    result = m_value;
-    return true;
+    else
+      return m_entry->cachedValue()->getValue(result);
   }
 
-  template <typename T>
-  bool LookupImpl<T>::getValuePointerImpl(T const *&ptr) const
+  // Not implemented for this set of internal types
+  bool Lookup::getValue(uint16_t & /*result */) const
   {
-    if (!this->isActive())
+    assertTrue_2(ALWAYS_FAIL, "Lookup::getValue: type error");
+    return false;
+  }
+
+  bool Lookup::getValue(int32_t &result) const
+  {
+    if (!this->isActive() || !m_entry)
       return false;
-    if (Lookup::m_stateKnown)
-      Lookup::m_entry->checkIfStale();
-    if (!Lookup::m_known)
+    else {
+      return m_entry->cachedValue()->getValue(result);
+    }
+  }
+
+  bool Lookup::getValue(double &result) const
+  {
+    if (!this->isActive() || !m_entry)
       return false;
-    ptr = &m_value;
-    return true;
+    else {
+      return m_entry->cachedValue()->getValue(result);
+    }
   }
 
-  template <typename T>
-  bool LookupImpl<T>::isKnown() const
+  bool Lookup::getValue(std::string &result) const
   {
-    return Lookup::m_known;
+    if (!this->isActive() || !m_entry)
+      return false;
+    else
+      return m_entry->cachedValue()->getValue(result);
   }
 
-  template <typename T>
-  void LookupImpl<T>::makeUnknown()
+  bool Lookup::getValuePointer(std::string const *&ptr) const
   {
-    // Erase previous value
-    m_value = T();
-    Lookup::m_known = false;
+    if (!this->isActive() || !m_entry)
+      return false;
+    else
+      return m_entry->cachedValue()->getValuePointer(ptr);
   }
 
-  template <typename T>
-  void LookupImpl<T>::newValueImpl(const T &val)
+  bool Lookup::getValuePointer(Array const *&ptr) const
   {
-    if (!this->isActive())
-      return;
-    m_value = val;
-    Lookup::m_known = true;
-    Lookup::m_timestamp = g_interface->getCycleCount();
-    this->publishChange(this->getId());
+    if (!this->isActive() || !m_entry)
+      return false;
+    else
+      return m_entry->cachedValue()->getValuePointer(ptr);
   }
 
-  template <typename T>
-  template <typename U>
-  void LookupImpl<T>::newValueImpl(const U & /* val */)
+  bool Lookup::getValuePointer(BooleanArray const *&ptr) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Lookup::newValue: type error");
+    if (!this->isActive() || !m_entry)
+      return false;
+    else
+      return m_entry->cachedValue()->getValuePointer(ptr);
   }
 
-  template <>
-  template <>
-  void LookupImpl<double>::newValueImpl(const int32_t &val)
+  bool Lookup::getValuePointer(IntegerArray const *&ptr) const
   {
-    if (!this->isActive())
-      return;
-    m_value = (double) val;
-    Lookup::m_timestamp = g_interface->getCycleCount();
+    if (!this->isActive() || !m_entry)
+      return false;
+    else
+      return m_entry->cachedValue()->getValuePointer(ptr);
+  }
+
+  bool Lookup::getValuePointer(RealArray const *&ptr) const
+  {
+    if (!this->isActive() || !m_entry)
+      return false;
+    else
+      return m_entry->cachedValue()->getValuePointer(ptr);
+  }
+
+  bool Lookup::getValuePointer(StringArray const *&ptr) const
+  {
+    if (!this->isActive() || !m_entry)
+      return false;
+    else
+      return m_entry->cachedValue()->getValuePointer(ptr);
+  }
+
+  /**
+   * @brief Get the value of this expression as a Value instance.
+   * @return The Value instance.
+   */
+  Value Lookup::toValue() const
+  {
+    if (!this->isActive() || !m_entry)
+      return Value();
+    else
+      return m_entry->cachedValue()->toValue();
+  }
+
+  // Callback from external interface
+  void Lookup::valueChanged()
+  {
     this->publishChange(this->getId());
   }
 
@@ -266,177 +303,358 @@ namespace PLEXIL
   // LookupOnChange
   //
 
-  // NOTE: Generic template constructor not implemented, so attempts to call it
-  // can be prevented at link time.
-
-  template <>
-  LookupOnChange<int32_t>::LookupOnChange(ExpressionId const &stateName,
-                                          bool stateNameIsGarbage,
-                                          std::vector<ExpressionId> const &params,
-                                          std::vector<bool> const &paramsAreGarbage,
-                                          ExpressionId const &tolerance,
-                                          bool toleranceIsGarbage)
-    : LookupImpl<int32_t>(stateName, stateNameIsGarbage, params, paramsAreGarbage),
-      m_tolerance(tolerance),
-      m_cachedTolerance(0),
-      m_toleranceIsGarbage(toleranceIsGarbage),
-      m_toleranceKnown(tolerance.isId())
+  // Internal class used only by LookupOnChange
+  class ThresholdCache
   {
-    // Check that tolerance (if supplied) is of compatible type
-    if (tolerance.isId()) {
-      assertTrue_2(INTEGER_TYPE == tolerance->valueType(),
-                   "LookupOnChange<Integer> constructor: tolerance expression is not Integer type");
+  public:
+    ThresholdCache()
+      : m_known(false),
+        m_toleranceKnown(false)
+    {
+    }
+
+    virtual ~ThresholdCache()
+    {
+    }
+
+    /**
+     * @brief Check whether the threshold value itself has changed.
+     * @param tolerance Tolerance expression.
+     * @return True if changed.
+     */
+    bool thresholdChanged(ExpressionId tolerance)
+    {
+      // Always trigger on known-to-unknown or unknown-to-known transition
+      bool oldKnown = m_toleranceKnown;
+      if ((m_toleranceKnown = tolerance->isKnown()) != oldKnown)
+        return true;
+      if (m_toleranceKnown)
+        return checkTolerance(tolerance);
+      return false;
+    }
+
+    /**
+     * @brief Check whether the current value in the state cache is beyond the thresholds.
+     * @param entry Pointer to state cache entry.
+     * @return True if exceeded, false otherwise.
+     */
+    bool thresholdsExceeded(StateCacheEntry const *entry)
+    {
+      // Always trigger on known-to-unknown or unknown-to-known transition
+      bool oldKnown = m_known;
+      if ((m_known = entry->isKnown()) != oldKnown)
+        return true;
+      if (m_known)
+        return check(entry);
+      return false;
+    }
+
+    /**
+     * @brief Set the thresholds based on the current value in the state cache.
+     * @param entry Pointer to state cache entry.
+     */
+    void setThresholds(StateCacheEntry const *entry, ExpressionId tolerance)
+    {
+      if (!tolerance->isKnown()) {
+        m_toleranceKnown = false;
+        return;
+      }
+      if ((m_known = entry->isKnown()))
+        this->set(entry, tolerance);
+    }
+
+    // Reset to unknown so next update causes notification.
+    void reset()
+    {
+      m_known = false;
+    }
+
+  protected:
+    // Delegated to implementation classes
+    virtual bool checkTolerance(ExpressionId tolerance) = 0;
+    virtual bool check(StateCacheEntry const *entry) const = 0;
+    virtual void set(StateCacheEntry const *entry, ExpressionId tolerance) = 0;
+
+    bool m_known; // Whether the value and thresholds were known at last check.
+    bool m_toleranceKnown; // Whether tolerance was known at last check.
+  };
+
+  template <typename IMPL>
+  class ThresholdCacheShim : public ThresholdCache
+  {
+  public:
+    ThresholdCacheShim()
+      : ThresholdCache()
+    {
+    }
+
+    virtual ~ThresholdCacheShim()
+    {
+    }
+
+    bool checkTolerance(ExpressionId tolerance)
+    {
+      return static_cast<IMPL *>(this)->checkToleranceImpl(tolerance);
+    }
+
+    bool check(StateCacheEntry const *entry) const
+    {
+      return static_cast<IMPL const *>(this)->checkImpl(entry);
+    }
+
+    void set(StateCacheEntry const *entry, ExpressionId tolerance)
+    {
+      m_known = entry->isKnown();
+      m_toleranceKnown = tolerance->isKnown();
+      if (m_known && m_toleranceKnown)
+        static_cast<IMPL *>(this)->setImpl(entry, tolerance);
+    }
+
+  protected:
+    virtual bool checkToleranceImpl(ExpressionId tolerance) = 0;
+    virtual bool checkImpl(StateCacheEntry const *entry) const = 0;
+    virtual void setImpl(StateCacheEntry const *entry, ExpressionId tolerance) = 0;
+  };
+
+  template <typename NUM>
+  class ThresholdCacheImpl : public ThresholdCacheShim<ThresholdCacheImpl<NUM> >
+  {
+  public:
+    ThresholdCacheImpl()
+      : ThresholdCacheShim<ThresholdCacheImpl<NUM> >()
+    {
+    }
+
+    ~ThresholdCacheImpl()
+    {
+    }
+
+    // Only called if tolerance is and was known.
+    // Returns true if tolerance changed; also resets thresholds in that case.
+    bool checkToleranceImpl(ExpressionId tolerance)
+    {
+      NUM newTol;
+      tolerance->getValue(newTol);
+      if (newTol < 0)
+        newTol = -newTol;
+      if (newTol == m_tolerance)
+        return false;
+      // Calculate new thresholds based on last value
+      m_high = m_high - m_tolerance + newTol;
+      m_low = m_low + m_tolerance - newTol;
+      m_tolerance = newTol;
+      return true;
+    }
+
+    // Only called if was known and is known now.
+    bool checkImpl(StateCacheEntry const *entry) const
+    {
+      NUM currentValue;
+      entry->cachedValue()->getValue(currentValue);
+      return (currentValue >= m_high) || (currentValue <= m_low);
+    }
+
+    // Only called if both current value and tolerance known.
+    void setImpl(StateCacheEntry const *entry, ExpressionId tolerance)
+    {
+      NUM curr, tol;
+      entry->cachedValue()->getValue(curr);
+      tolerance->getValue(tol);
+      if (tol < 0)
+        tol = -tol;
+      m_tolerance = tol;
+      m_low = curr - tol;
+      m_high = curr + tol;
+    }
+
+  private:
+    NUM m_low;
+    NUM m_high;
+    NUM m_tolerance;
+  };
+
+  static ThresholdCache * ThresholdCacheFactory(ValueType typ)
+  {
+    switch (typ) {
+    case INTEGER_TYPE:
+      return new ThresholdCacheImpl<int32_t>();
+
+    case UNKNOWN_TYPE:
+      warn("ThresholdCacheFactory: type unknown, defaulting to REAL");
+      // drop thru
+
+      // FIXME: Implement for non-double date, duration types
+    case DATE_TYPE:
+    case DURATION_TYPE:
+
+    case REAL_TYPE:
+      return new ThresholdCacheImpl<double>();
+
+    default:
+      assertTrue_2(ALWAYS_FAIL, "ThresholdCacheFactory: invalid or unimplemented type");
+      return NULL;
     }
   }
 
-  template <>
-  LookupOnChange<double>::LookupOnChange(ExpressionId const &stateName,
-                                         bool stateNameIsGarbage,
-                                         std::vector<ExpressionId> const &params,
-                                         std::vector<bool> const &paramsAreGarbage,
-                                         ExpressionId const &tolerance,
-                                         bool toleranceIsGarbage)
-    : LookupImpl<double>(stateName, stateNameIsGarbage, params, paramsAreGarbage),
+  LookupOnChange::LookupOnChange(ExpressionId const &stateName,
+                                 bool stateNameIsGarbage,
+                                 std::vector<ExpressionId> const &params,
+                                 std::vector<bool> const &paramsAreGarbage,
+                                 ExpressionId const &tolerance,
+                                 bool toleranceIsGarbage)
+    : Lookup(stateName, stateNameIsGarbage, params, paramsAreGarbage),
+      m_thresholds(NULL),
+      m_cachedValue(NULL),
       m_tolerance(tolerance),
-      m_cachedTolerance(0),
-      m_toleranceIsGarbage(toleranceIsGarbage),
-      m_toleranceKnown(tolerance.isId())
+      m_toleranceIsGarbage(toleranceIsGarbage)
   {
-    // Check that tolerance (if supplied) is of compatible type
-    if (tolerance.isId()) {
-      ValueType vtype = tolerance->valueType();
-      assertTrue_2(INTEGER_TYPE == vtype || REAL_TYPE == vtype,
-                   "LookupOnChange<Real> constructor: tolerance expression has non-numeric type");
-    }
+    // Check that tolerance is of compatible type
+    assertTrue_2(tolerance.isId(),
+                 "LookupOnChange constructor: no tolerance expression supplied");
+    assertTrue_2(isNumericType(tolerance->valueType()),
+                 "LookupOnChange constructor: tolerance expression is not numeric");
   }
 
-  template <typename T>
-  LookupOnChange<T>::~LookupOnChange()
+  LookupOnChange::~LookupOnChange()
   {
+    delete m_thresholds;
+    delete m_cachedValue;
     if (m_toleranceIsGarbage)
       delete (Expression *) m_tolerance;
   }
 
-  template <typename T>
-  char const *LookupOnChange<T>::exprName() const
+  char const *LookupOnChange::exprName() const
   {
     return "LookupOnChange";
   }
 
-  template <typename T>
-  void LookupOnChange<T>::handleActivate()
+  void LookupOnChange::handleActivate()
   {
-    if (m_tolerance.isId()) {
-      m_tolerance->activate();
-      m_toleranceKnown = m_tolerance->getValue(m_cachedTolerance);
-      if (m_toleranceKnown && m_cachedTolerance < 0)
-        m_cachedTolerance = -m_cachedTolerance;
-    }
-    Lookup::activateInternal();
-    if (Lookup::m_entry) {
-      if (m_toleranceKnown && m_cachedTolerance != 0) 
-        Lookup::m_entry->registerChangeLookup(static_cast<Lookup *>(this),
-                                              m_cachedTolerance);
+    m_tolerance->activate();
+    this->activateInternal();
+    if (this->m_entry) {
+      // State is known
+      if (m_tolerance->isKnown())
+        this->m_entry->registerChangeLookup(static_cast<Lookup *>(this),
+                                            m_tolerance);
       else
-        Lookup::m_entry->registerLookup(static_cast<Lookup *>(this));
-    }
+        this->m_entry->registerLookup(static_cast<Lookup *>(this));
+      // Value should have been looked up, but may still be unknown
+      if (!m_thresholds)
+        m_thresholds = ThresholdCacheFactory(this->m_entry->valueType());
+      // Initialize or update value cache
+      updateInternal();
+    } // end state is known
   }
 
-  template <typename T>
-  void LookupOnChange<T>::handleDeactivate()
+  void LookupOnChange::handleDeactivate()
   {
     Lookup::handleDeactivate();
-    if (m_tolerance.isId()) {
-      m_tolerance->deactivate();
-      m_toleranceKnown = false;
-    }
+    m_tolerance->deactivate();
+    if (m_thresholds)
+      m_thresholds->reset();
   }
 
   // Consider possibility that tolerance has changed. 
-  template <typename T>
-  void LookupOnChange<T>::handleChange(ExpressionId src)
+  void LookupOnChange::handleChange(ExpressionId src)
   {
-    Lookup::handleChange(src); // could change states on us!
-    if (m_tolerance.isId()) {
-      // Check whether tolerance changed
-      T oldTolerance = m_cachedTolerance;
-      bool wasKnown = m_toleranceKnown;
-      m_toleranceKnown = m_tolerance->getValue(m_cachedTolerance);
-      if (m_toleranceKnown) {
-        // Ensure it's positive
-        if (m_cachedTolerance < 0)
-          m_cachedTolerance = -m_cachedTolerance;
-        // Has tolerance gotten tighter?
-        if (wasKnown && m_cachedTolerance < oldTolerance) {
-          // Check to see if we should update
-          if (this->m_entry->isStale(Lookup::m_timestamp)) {
-            this->m_entry->notifyLookup(this); // will update us if newer available
-          }
-        }
-      }
-      else if (wasKnown) { // and not currently known
-        // Tolerance effectively now 0, get latest available value
-        if (this->m_entry->isStale(Lookup::m_timestamp))
-          this->m_entry->notifyLookup(this); // will update us if newer available
+    if (Lookup::handleChangeInternal(src) && m_thresholds)
+      m_thresholds->reset(); // state changed, old thresholds invalid
+    // FIXME: tolerance unknown->known transition
+    if (m_thresholds->thresholdChanged(m_tolerance)) {
+      // Tolerance changed, resubscribe if necessary and check thresholds 
+      if (m_tolerance->isKnown())
+        this->m_entry->registerChangeLookup(static_cast<Lookup *>(this), 
+                                            m_tolerance);
+      if (m_thresholds->thresholdsExceeded(this->m_entry)) {
+        updateInternal();
+        this->publishChange(src);
       }
     }
   }
 
-  // Return true if the value exceeds the tolerance.
-  static bool checkTolerance(int32_t newVal, int32_t oldVal, int32_t tolerance)
+  void LookupOnChange::valueChanged()
   {
-    return (tolerance <= abs(newVal - oldVal));
+    bool publish = true; // publish by default
+    if (m_thresholds) {
+      publish = m_thresholds->thresholdsExceeded(this->m_entry);
+      if (publish)
+        updateInternal();
+    }
+    if (publish)
+      this->publishChange(this->getId());
   }
 
-  static bool checkTolerance(double newVal, double oldVal, double tolerance)
+  void LookupOnChange::updateInternal()
   {
-    return (tolerance <= fabs(newVal - oldVal));
-  }
-
-  template <typename T>
-  void LookupOnChange<T>::newValueImpl(const T &val)
-  {
-    if (!this->isActive())
+    if (!this->m_entry) {
+      // *** TEMP DEBUG ***
+      warn("LookupOnChange::updateInternal: no state cache entry");
       return;
-    bool update = !this->m_known || m_tolerance.isNoId() || !m_toleranceKnown;
-    if (this->m_known && m_tolerance.isId() && m_toleranceKnown)
-      // Evaluate whether value is enough different
-      update = checkTolerance(val, this->m_value, m_cachedTolerance);
-    if (update)
-      LookupImpl<T>::newValueImpl(val);
+    }
+    CachedValue const *val = this->m_entry->cachedValue();
+    if (val) {
+      if (m_cachedValue) {
+        if (*m_cachedValue == *val)
+          return; // value unchanged
+        if (m_cachedValue->valueType() == val->valueType())
+          *m_cachedValue = *val;
+        else {
+          // Type changed (possibly from UNKNOWN_TYPE)
+
+          // *** TEMP DEBUG ***
+          warn("Lookup value type changed from " << valueTypeName(m_cachedValue->valueType())
+               << " to " << valueTypeName(val->valueType()));
+
+          delete m_cachedValue;
+          m_cachedValue = val->clone();
+        }
+      }
+      else
+        m_cachedValue = val->clone();
+    }
+    // Value changed, set thresholds
+    m_thresholds->setThresholds(this->m_entry, m_tolerance);
   }
-  
-  // Type conversion
-  template <>
-  template <>
-  void LookupOnChange<double>::newValueImpl(const int32_t &val)
+
+  bool LookupOnChange::getValue(int32_t &result) const
   {
-    this->newValueImpl((double) val);
+    if (!this->isActive() || !m_entry)
+      return false;
+    else if (m_cachedValue)
+      return m_cachedValue->getValue(result);
+    else if (m_entry->isKnown())
+      return m_entry->cachedValue()->getValue(result);
+    else
+      return false;
   }
 
-  // Error case
-  template <typename T>
-  template <typename U>
-  void LookupOnChange<T>::newValueImpl(const U & /* val */)
+  bool LookupOnChange::getValue(double &result) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Lookup::newValue: type error");
+    if (!this->isActive() || !m_entry)
+      return false;
+    else if (m_cachedValue)
+      return m_cachedValue->getValue(result);
+    else if (m_entry->isKnown())
+      return m_entry->cachedValue()->getValue(result);
+    else
+      return false;
   }
 
-  //
-  // Explicit instantiation
-  //
-
-  template class LookupImpl<bool>;
-  template class LookupImpl<int32_t>;
-  template class LookupImpl<double>;
-  template class LookupImpl<std::string>;
-  template class LookupImpl<BooleanArray>;
-  template class LookupImpl<IntegerArray>;
-  template class LookupImpl<RealArray>;
-  template class LookupImpl<StringArray>;
-
-  // LookupOnChange only implemented for numeric types
-  template class LookupOnChange<int32_t>;
-  template class LookupOnChange<double>;
+  /**
+   * @brief Get the value of this expression as a Value instance.
+   * @return The Value instance.
+   */
+  Value LookupOnChange::toValue() const
+  {
+    if (!this->isActive() || !m_entry)
+      return Value();
+    else if (m_cachedValue)
+      return m_cachedValue->toValue();
+    else if (m_entry->isKnown())
+      return m_entry->cachedValue()->toValue();
+    else
+      return Value();
+  }
 
 } // namespace PLEXIL

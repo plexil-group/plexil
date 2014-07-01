@@ -33,18 +33,11 @@ namespace PLEXIL
   StateCacheMap::StateCacheMap()
   {
     // Initialize time state to 0
-    ensureStateCacheEntry(State::timeState(), DATE_TYPE)->update(0);
+    ensureStateCacheEntry(State::timeState())->update(0, (double) 0);
   }
 
   StateCacheMap::~StateCacheMap()
   {
-    // Delete all StateCacheEntry instances
-    EntryMap::iterator it = m_map.begin();
-    while (it != m_map.end()) {
-      delete it->second;
-      m_map.erase(it);
-      it = m_map.begin();
-    }
   }
 
   StateCacheMap &StateCacheMap::instance()
@@ -53,33 +46,32 @@ namespace PLEXIL
     return sl_instance;
   }
 
-  StateCacheEntry *StateCacheMap::ensureStateCacheEntry(State const &state,
-                                                        ValueType vtype)
+  StateCacheEntry *StateCacheMap::ensureStateCacheEntry(State const &state)
   {
-    EntryMap::iterator it = m_map.find(state);
-    // FIXME: check value type
+    StateCacheEntry temp(state);
+    EntryMap::iterator it = m_map.find(temp);
     if (it == m_map.end())
-      it = m_map.insert(EntryPair(state, StateCacheEntry::factory(state, vtype))).first;
-    return it->second;
+      it = m_map.insert(StateCacheEntry(state)).first;
+    return const_cast<StateCacheEntry *>(&(*it));
   }
 
   StateCacheEntry *StateCacheMap::findStateCacheEntry(State const &state)
   {
-    EntryMap::iterator it = m_map.find(state);
+    StateCacheEntry temp(state);
+    EntryMap::iterator it = m_map.find(temp);
     if (it != m_map.end())
-      return it->second;
+      return const_cast<StateCacheEntry *>(&(*it));
     else
       return NULL;
   }
 
   void StateCacheMap::removeStateCacheEntry(State const &state)
   {
+    StateCacheEntry temp(state);
     EntryMap::iterator it = m_map.find(state);
     if (it == m_map.end())
       return;
-    StateCacheEntry *entry = it->second;
     m_map.erase(it);
-    delete entry;
   }
 
 } // namespace PLEXIL

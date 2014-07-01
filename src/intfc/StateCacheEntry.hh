@@ -27,43 +27,46 @@
 #ifndef PLEXIL_STATE_CACHE_ENTRY_HH
 #define PLEXIL_STATE_CACHE_ENTRY_HH
 
+#include "Id.hh"
 #include "State.hh"
 
 namespace PLEXIL
 {
+  class CachedValue;
+
+  class Expression;
+  DECLARE_ID(Expression);
+
   class Lookup;
 
   /**
    * @class StateCacheEntry
-   * @brief Base class which provides the external API for a state cache entry,
+   * @brief Provides the external API for a state cache entry,
    *        and value-type-independent state and functionality.
    */
   class StateCacheEntry
   {
   public:
-    // Public constructor
-    static StateCacheEntry *factory(State const &state, ValueType vtype);
+    StateCacheEntry(State const &state);
+    StateCacheEntry(StateCacheEntry const &); // needed by StateCacheMap for creation
 
-    virtual ~StateCacheEntry();
+    ~StateCacheEntry();
+
+    State const &state() const { return m_state; }
 
     // Utility
-    ValueType valueType() const;
+    ValueType const valueType() const;
+    bool isKnown() const;
 
     // API to Lookup
-    virtual void registerChangeLookup(Lookup *, int32_t tolerance) = 0;
-    virtual void registerChangeLookup(Lookup *, double tolerance) = 0;
+    // Can be called multiple times
+    void registerChangeLookup(Lookup *, ExpressionId tolerance);
 
-    void registerLookup(Lookup *); // calls checkIfStale()
+    void registerLookup(Lookup *); // calls updateIfStale()
     virtual void unregisterLookup(Lookup *);
 
-    // Check whether the cached value is current, and trigger an update if needed.
-    void checkIfStale();
-    // Check whether a user's timestamp is current.
-    bool isStale(unsigned int timestamp);
-
-    //
-    // Callbacks for external interfaces and value queue
-    //
+    // Read access to the actual value is through the helper object.
+    CachedValue const *cachedValue() const;
 
     /**
      * @brief Set the state to unknown.
@@ -74,199 +77,61 @@ namespace PLEXIL
     /**
      * @brief Update the cache entry with the given new value.
      * @param val The new value.
-     * @return True if correct type for lookup, false otherwise.
      * @note Notifies all lookups of the new value.
-     * @note Default method ignores the call and returns false.
      * @note The caller is responsible for deleting the object pointed to upon return.
      */
-    virtual bool update(bool const &val) = 0;
-    virtual bool update(int32_t const &val) = 0;
-    virtual bool update(double const &val) = 0;
-    virtual bool update(std::string const &val) = 0;
-    virtual bool updatePtr(std::string const *valPtr) = 0;
-    virtual bool updatePtr(BooleanArray const *valPtr) = 0;
-    virtual bool updatePtr(IntegerArray const *valPtr) = 0;
-    virtual bool updatePtr(RealArray const *valPtr) = 0;
-    virtual bool updatePtr(StringArray const *valPtr) = 0;
+    void update(unsigned int timestamp, bool const &val);
+    void update(unsigned int timestamp, int32_t const &val);
+    void update(unsigned int timestamp, double const &val);
+    void update(unsigned int timestamp, std::string const &val);
+    void updatePtr(unsigned int timestamp, std::string const *valPtr);
+    void updatePtr(unsigned int timestamp, BooleanArray const *valPtr);
+    void updatePtr(unsigned int timestamp, IntegerArray const *valPtr);
+    void updatePtr(unsigned int timestamp, RealArray const *valPtr);
+    void updatePtr(unsigned int timestamp, StringArray const *valPtr);
 
     // For convenience of TestExternalInterface, others
-    virtual bool update(Value const &val) = 0;
-
-    /**
-     * @brief Notify one subscriber of a change in value.
-     * @param l The Lookup.
-     * @note Public because the Lookup may need to update itself.
-     */
-    virtual void notifyLookup(Lookup *l) const = 0;
+    void update(unsigned int timestamp, Value const &val);
 
   protected:
     // Internal functions
-    StateCacheEntry(State const &, ValueType vtype);
 
     /**
      * @brief Notify all subscribers of a change in value.
      */
     void notify() const;
 
-    /**
-     * @brief Type-specific notification for one Lookup.
+    /*
+     * @brief Check if the cached value is current, and update if required.
      */
-    virtual void notifyImpl(Lookup *l) const = 0;
+    void updateIfStale();
 
-    /**
-     * @brief Notify all subscribers that the value is now unknown.
-     */
-    void notifyUnknown() const;
+    // Return true if entry type is compatible with requested, false if not.
+    bool ensureCachedValue(ValueType v = UNKNOWN_TYPE);
 
-    // State shared with derived classes
+  private:
+    // Default, assign disallowed
+    StateCacheEntry();
+    StateCacheEntry &operator=(StateCacheEntry const &);
+
     State const m_state;
     std::vector<Lookup *> m_lookups;
-    unsigned int m_timestamp;
-    ValueType m_valueType;
-    bool m_cachedKnown;
-
-  private:
-    // Default, copy, assign disallowed
-    StateCacheEntry();
-    StateCacheEntry(StateCacheEntry const &);
-    StateCacheEntry &operator=(StateCacheEntry const &);
-  };
-
-  // Another invocation of CRTP.
-  // This class should never be seen in public.
-  template <class IMPL>
-  class StateCacheEntryShim : public StateCacheEntry
-  {
-  public:
-    StateCacheEntryShim(State const &state, ValueType vtype)
-      : StateCacheEntry(state, vtype)
-    {
-    }
-
-    ~StateCacheEntryShim()
-    {
-    }
-
-    void registerChangeLookup(Lookup *l, int32_t tolerance)
-    {
-      static_cast<IMPL *>(this)->registerChangeLookupImpl(l, tolerance);
-    }
-    void registerChangeLookup(Lookup *l, double tolerance)
-    {
-      static_cast<IMPL *>(this)->registerChangeLookupImpl(l, tolerance);
-    }
-
-    inline bool update(bool const &val)
-    {
-      return static_cast<IMPL *>(this)->updateImpl(val);
-    }
-    inline bool update(int32_t const &val)
-    {
-      return static_cast<IMPL *>(this)->updateImpl(val);
-    }
-    inline bool update(double const &val)
-    {
-      return static_cast<IMPL *>(this)->updateImpl(val);
-    }
-
-    inline bool update(std::string const &val)
-    {
-      return static_cast<IMPL *>(this)->updateImpl(val);
-    }
-    inline bool updatePtr(std::string const *valPtr)
-    {
-      return static_cast<IMPL *>(this)->updatePtrImpl(valPtr);
-    }
-
-    inline bool updatePtr(BooleanArray const *valPtr)
-    {
-      return static_cast<IMPL *>(this)->updatePtrImpl(valPtr);
-    }
-    inline bool updatePtr(IntegerArray const *valPtr)
-    {
-      return static_cast<IMPL *>(this)->updatePtrImpl(valPtr);
-    }
-    inline bool updatePtr(RealArray const *valPtr)
-    {
-      return static_cast<IMPL *>(this)->updatePtrImpl(valPtr);
-    }
-    inline bool updatePtr(StringArray const *valPtr)
-    {
-      return static_cast<IMPL *>(this)->updatePtrImpl(valPtr);
-    }
-
-    inline bool update(Value const &val)
-    {
-      return static_cast<IMPL *>(this)->updateImpl(val);
-    }
-    
-  };
-
-  template <typename T>
-  class StateCacheEntryImpl : public StateCacheEntryShim<StateCacheEntryImpl<T> >
-  {
-  public:
-    StateCacheEntryImpl(State const &, ValueType vtype);
-    ~StateCacheEntryImpl();
-
-    virtual void registerChangeLookupImpl(Lookup *l, int32_t tolerance);
-    virtual void registerChangeLookupImpl(Lookup *l, double tolerance);
-
-    virtual bool updateImpl(T const &val);
-
-    // Type conversion or invalid type
-    template <typename U>
-    bool updateImpl(U const &val);
-
-    bool updateImpl(Value const &val);
-
-    bool updatePtrImpl(T const *valPtr);
-
-    // Type conversion or invalid type
-    template <typename U>
-    bool updatePtrImpl(U const *valPtr);
-
-  protected:
-
-    void notifyLookup(Lookup *l) const;
-    void notifyImpl(Lookup *l) const;
-
-  private:
-    // Default, copy, assign disallowed
-    StateCacheEntryImpl();
-    StateCacheEntryImpl(StateCacheEntryImpl const &);
-    StateCacheEntryImpl &operator=(StateCacheEntryImpl const &);
-
-  protected:
-
-    // Shared with NumericStateCacheEntry below
-    T m_cachedValue;
-  };
-
-  // Adds support for change lookups.
-  template <typename NUM>
-  class NumericStateCacheEntry : public StateCacheEntryImpl<NUM>
-  {
-  public:
-    NumericStateCacheEntry(State const &state, ValueType vtype);
-    ~NumericStateCacheEntry();
-
-    void registerChangeLookupImpl(Lookup *l, NUM tolerance);
-    template <typename CVT>
-    void registerChangeLookupImpl(Lookup *l, CVT tolerance);
-
-    // Wrapper around base class method
-    void unregisterLookup(Lookup *);
-
-    bool updateImpl(NUM const &val);
-
-  private:
-    std::vector<Lookup *> m_changeLookups;
-    NUM m_tolerance;
-    NUM m_lowThreshold;
-    NUM m_highThreshold;
+    CachedValue *m_value;
   };
 
 } // namespace PLEXIL
+
+
+namespace std
+{
+  template <> struct std::less<PLEXIL::StateCacheEntry>
+  : binary_function <PLEXIL::StateCacheEntry, PLEXIL::StateCacheEntry, bool>
+  {
+    bool operator() (PLEXIL::StateCacheEntry const &x, PLEXIL::StateCacheEntry const &y) const
+    {
+      return x.state() < y.state();
+    }
+  };
+} // namespace std
 
 #endif // PLEXIL_STATE_CACHE_ENTRY_HH

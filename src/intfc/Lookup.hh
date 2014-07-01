@@ -35,7 +35,9 @@ namespace PLEXIL
 {
 
   // Forward references
+  class CachedValue;
   class StateCacheEntry;
+  class ThresholdCache; // local to LookupOnChange
 
   // OPEN QUESTIONS -
   // - Registry for Lookup, Command param/return types
@@ -55,7 +57,7 @@ namespace PLEXIL
   //
   // LookupOnChange
   //  - grab from external i/f or state cache at initial activation
-  //  - data updates via supply push
+  //  - data updates triggered by interface
   //  - frequently active for many Exec cycles
   //
 
@@ -72,6 +74,7 @@ namespace PLEXIL
     bool isAssignable() const;
     bool isConstant() const;
     virtual const char *exprName() const;
+    void printValue(std::ostream &s) const;
 
     // Common behavior required by NotifierImpl
     void handleActivate();
@@ -79,27 +82,50 @@ namespace PLEXIL
     void handleChange(ExpressionId src);
 
     //
+    // Value access
+    //
+    // These are delegated to the StateCacheEntry in every case
+    //
+    const ValueType valueType() const;
+    bool isKnown() const;
+
+    /**
+     * @brief Retrieve the value of this Expression.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The expression value is not copied if the return value is false.
+     */
+
+    virtual bool getValue(bool &) const;        // Boolean
+    virtual bool getValue(double &) const;      // Real
+    virtual bool getValue(uint16_t &) const;    // enumerations: State, Outcome, Failure, etc.
+    virtual bool getValue(int32_t &) const;     // Integer
+    virtual bool getValue(std::string &) const; // String
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The pointer is not copied if the return value is false.
+     */
+    virtual bool getValuePointer(std::string const *&ptr) const;
+    virtual bool getValuePointer(Array const *&ptr) const; // generic
+    virtual bool getValuePointer(BooleanArray const *&ptr) const; // specific
+    virtual bool getValuePointer(IntegerArray const *&ptr) const; //
+    virtual bool getValuePointer(RealArray const *&ptr) const;    //
+    virtual bool getValuePointer(StringArray const *&ptr) const;  //
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    virtual Value toValue() const;
+
+    //
     // API to external interface
     //
 
-    /**
-     * @brief Set the value of this entry to UNKNOWN and notify all registered lookups.
-     */
-    void setUnknown();
-
-    /**
-     * @brief Update the entry with a new value and notify all registered lookups.
-     * @param val The new value.
-     * @note Implemented by LookupImpl below.
-     */
-    virtual void newValue(bool const &val) = 0;
-    virtual void newValue(int32_t const &val) = 0;
-    virtual void newValue(double const &val) = 0;
-    virtual void newValue(std::string const &val) = 0;
-    virtual void newValue(BooleanArray const &val) = 0;
-    virtual void newValue(IntegerArray const &val) = 0;
-    virtual void newValue(RealArray const &val) = 0;
-    virtual void newValue(StringArray const &val) = 0;
+    virtual void valueChanged();
 
     // Utility
 
@@ -110,19 +136,11 @@ namespace PLEXIL
      */
     bool getState(State &result) const; 
 
-    /**
-     * @brief Get the quiescence count (i.e. timestamp) for the most recent update.
-     * @return The timestamp.
-     */
-    unsigned int getTimestamp() const;
-
   protected:
-
-    // Behavior delegated to implementation classes
-    virtual void makeUnknown() = 0;
 
     // Shared behavior needed by LookupOnChange
     void activateInternal();
+    bool handleChangeInternal(ExpressionId src);
     
     // Member variables shared with implementation classes
     State m_cachedState;
@@ -130,7 +148,6 @@ namespace PLEXIL
     std::vector<bool> m_garbage;
     ExpressionId m_stateName;
     StateCacheEntry* m_entry; // TODO opportunity to use refcounted ptr?
-    unsigned int m_timestamp;
     bool m_known;
     bool m_stateKnown;
     bool m_stateIsConstant; // allows early caching of state value
@@ -139,127 +156,40 @@ namespace PLEXIL
   private:
   };
 
-  // More CRTP
-  template <class IMPL>
-  class LookupShim : public Lookup
-  {
-  public:
-    LookupShim(ExpressionId const &stateName,
-               bool stateNameIsGarbage,
-               std::vector<ExpressionId> const &params,
-               std::vector<bool> const &paramsAreGarbage)
-      : Lookup(stateName, stateNameIsGarbage, params, paramsAreGarbage)
-    {
-    }
-
-    ~LookupShim()
-    {
-    }
-
-    virtual void newValue(bool const &val)
-    {
-      static_cast<IMPL *>(this)->newValueImpl(val);
-    }
-
-    virtual void newValue(int32_t const &val)
-    {
-      static_cast<IMPL *>(this)->newValueImpl(val);
-    }
-
-    virtual void newValue(double const &val)
-    {
-      static_cast<IMPL *>(this)->newValueImpl(val);
-    }
-
-    virtual void newValue(std::string const &val)
-    {
-      static_cast<IMPL *>(this)->newValueImpl(val);
-    }
-
-    virtual void newValue(BooleanArray const &val)
-    {
-      static_cast<IMPL *>(this)->newValueImpl(val);
-    }
-
-    virtual void newValue(IntegerArray const &val)
-    {
-      static_cast<IMPL *>(this)->newValueImpl(val);
-    }
-
-    virtual void newValue(RealArray const &val)
-    {
-      static_cast<IMPL *>(this)->newValueImpl(val);
-    }
-
-    virtual void newValue(StringArray const &val)
-    {
-      static_cast<IMPL *>(this)->newValueImpl(val);
-    }
-  };
-
-  // Functionality common to all Lookups, but parceled out by type
-  template <typename T>
-  class LookupImpl : public LookupShim<LookupImpl<T> >,
-                     public ExpressionImpl<T>
-  {
-  public:
-    LookupImpl(ExpressionId const &stateName,
-               bool stateNameIsGarbage,
-               std::vector<ExpressionId> const &params,
-               std::vector<bool> const &paramsAreGarbage);
-    ~LookupImpl();
-
-    bool isKnown() const; // has to be here, not on Lookup
-
-    bool getValueImpl(T &result) const;
-    bool getValuePointerImpl(T const *&ptr) const;
-
-    // API to external interface, exec
-    virtual void newValueImpl(const T &val);
-    // Error/type conversion
-    template <typename U>
-    void newValueImpl(const U &val);
-
-    // API to Lookup base
-    void makeUnknown();
-
-  private:
-    // Prohibit copy, assign
-    LookupImpl(LookupImpl const &);
-    LookupImpl &operator=(LookupImpl const &);
-
-  protected:
-    T m_value;
-  };
-
-  // Only implemented for numeric types
-
-  template <typename T>
-  class LookupOnChange : public LookupImpl<T>
+  class LookupOnChange : public Lookup
   {
   public:
     LookupOnChange(ExpressionId const &stateName,
                    bool stateNameIsGarbage,
                    std::vector<ExpressionId> const &params,
                    std::vector<bool> const &paramsAreGarbage,
-                   ExpressionId const &tolerance = ExpressionId::noId(),
+                   ExpressionId const &tolerance,
                    bool toleranceIsGarbage = false);
     ~LookupOnChange();
 
-    // API to external interface, exec
-    void newValueImpl(const T &val);
-    // Error/type conversion
-    template <typename U>
-    void newValueImpl(const U &val);
+    const char *exprName() const;
 
-    // Wrappers around LookupImpl methods
+    // Wrappers around Lookup methods
     void handleActivate();
     void handleDeactivate();
     void handleChange(ExpressionId exp);
+    void valueChanged();
 
-    const char *exprName() const;
+    /**
+     * @brief Retrieve the value of this Expression.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown or invalid.
+     * @note The expression value is not copied if the return value is false.
+     */
 
-  protected:
+    bool getValue(int32_t &) const;     // Integer
+    bool getValue(double &) const;      // Real
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
 
   private:
     // Prohibit default, copy, assign
@@ -267,11 +197,14 @@ namespace PLEXIL
     LookupOnChange(const LookupOnChange &);
     LookupOnChange &operator=(const LookupOnChange &);
 
+    // Internal helper
+    void updateInternal();
+
     // Unique member data
+    ThresholdCache *m_thresholds;
+    CachedValue *m_cachedValue;
     ExpressionId m_tolerance;
-    T m_cachedTolerance;
     bool m_toleranceIsGarbage;
-    bool m_toleranceKnown;
   };
 
 } // namespace PLEXIL

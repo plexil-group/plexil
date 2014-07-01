@@ -56,7 +56,7 @@ public:
   void lookupNow(const State& state, StateCacheEntry &entry) 
   {
     if (state.name() == "test1") {
-      entry.update((double) 0.0);
+      entry.update(this->getCycleCount(), (double) 0.0);
       return;
     }
     else if (state.name() == "test2") {
@@ -64,25 +64,25 @@ public:
       std::string const *param = NULL;
       state.parameters()[0].getValuePointer(param);
       if (*param == "high") {
-        entry.update((double) 1.0);
+        entry.update(this->getCycleCount(), (double) 1.0);
         return;
       }
       else if (*param == "low") {
-        entry.update((double) -1.0);
+        entry.update(this->getCycleCount(), (double) -1.0);
         return;
       }
       assertTrue_2(ALWAYS_FAIL, "ERROR: no matching param for TestInterface::lookupNow, state name = \"test2\"");
     }
     else if (state.name() == "time") {
-      entry.update((double) 0.0);
+      entry.update(this->getCycleCount(), (double) 0.0);
       return;
     }
     else {
-      entry.update(m_changingExprs[state.name()]->toValue());
+      entry.update(this->getCycleCount(), m_changingExprs[state.name()]->toValue());
       return;
     }
     assertTrue_2(ALWAYS_FAIL, "ERROR: reached end of TestInterface::lookupNow()");
-    entry.update((double) 0.0);
+    entry.update(this->getCycleCount(), (double) 0.0);
   }
 
   void subscribe(const State& /* state */)
@@ -145,7 +145,7 @@ protected:
     std::multimap<ExpressionId, std::string>::const_iterator it = m_exprsToStateName.find(expression);
     while (it != m_exprsToStateName.end() && it->first == expression) {
       State st(it->second, std::vector<Value>());
-      StateCacheMap::instance().ensureStateCacheEntry(st, expression->valueType())->update(expression->toValue());
+      StateCacheMap::instance().ensureStateCacheEntry(st)->update(this->getCycleCount(), expression->toValue());
       ++it;
     }
   }
@@ -192,9 +192,9 @@ static bool testLookupNow()
 
   std::vector<ExpressionId> test3Args(1, (new StringConstant("low"))->getId());
 
-  LookupImpl<double> l1(test1.getId(), false, emptyArglist, emptyGarbageList);
-  LookupImpl<double> l2(test2.getId(), false, test2Args, test2garbage);
-  LookupImpl<double> l3(test2.getId(), false, test3Args, test2garbage);
+  Lookup l1(test1.getId(), false, emptyArglist, emptyGarbageList);
+  Lookup l2(test2.getId(), false, test2Args, test2garbage);
+  Lookup l3(test2.getId(), false, test3Args, test2garbage);
 
   // Bump the cycle count
   theInterface->incrementCycleCount();
@@ -225,18 +225,17 @@ static bool testLookupOnChange()
   theInterface->watch("changeWithToleranceTest", watchVar.getId());
 
   RealConstant tolerance(0.5);
-  tolerance.activate();
+  // tolerance.activate(); // unneeded for constants
   std::vector<ExpressionId> const emptyArglist;
   std::vector<bool> const emptyGarbageList;
 
   double temp;
 
-  LookupOnChange<double> l1(changeTest.getId(), false,
-                            emptyArglist, emptyGarbageList,
-                            ExpressionId::noId(), false);
-  LookupOnChange<double> l2(changeWithToleranceTest.getId(), false,
-                            emptyArglist, emptyGarbageList,
-                            tolerance.getId(), false);
+  Lookup l1(changeTest.getId(), false,
+            emptyArglist, emptyGarbageList);
+  LookupOnChange l2(changeWithToleranceTest.getId(), false,
+                    emptyArglist, emptyGarbageList,
+                    tolerance.getId(), false);
 
   assertTrue_1(!l1.isKnown());
   assertTrue_1(!l2.isKnown());
