@@ -249,6 +249,20 @@ namespace PLEXIL
   {
     return (ty > INTERNAL_TYPE_OFFSET && ty < TYPE_MAX);
   }
+  
+  bool isNumericType(ValueType ty)
+  {
+    switch (ty) {
+    case INTEGER_TYPE:
+    case REAL_TYPE:
+    case DATE_TYPE:
+    case DURATION_TYPE:
+      return true;
+
+    default:
+      return false;
+    }
+  }
 
   bool isScalarType(ValueType ty)
   {

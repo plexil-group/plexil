@@ -104,6 +104,7 @@ namespace PLEXIL
 
   bool isUserType(ValueType ty);
   bool isInternalType(ValueType ty);
+  bool isNumericType(ValueType ty);
 
   bool isScalarType(ValueType ty);
   bool isArrayType(ValueType ty);
