@@ -190,8 +190,7 @@ namespace PLEXIL
     m_states[st] = value;
     debugMsg("Test:testOutput",
              "Processing event: " << st << " = " << value);
-    StateCacheMap::instance().ensureStateCacheEntry(st, value.valueType())
-      ->update(value);
+    StateCacheMap::instance().ensureStateCacheEntry(st)->update(this->getCycleCount(), value);
   }
 
   void TestExternalInterface::handleCommand(const pugi::xml_node& elt)
@@ -471,8 +470,7 @@ namespace PLEXIL
     }
     const Value& value = it->second;
     debugMsg("Test:testOutput", "Returning value " << value);
-    assertTrue_2(cacheEntry.update(value),
-                 "TestExternalInterface:lookupNow: type error");
+    cacheEntry.update(this->getCycleCount(), value);
   }
 
   void TestExternalInterface::subscribe(const State& state)
