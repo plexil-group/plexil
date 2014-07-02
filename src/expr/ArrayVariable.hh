@@ -34,17 +34,27 @@ namespace PLEXIL
 
   /**
    * @class ArrayVariable
-   * @brief A class derived from UserVariable, which adds accessors required
+   * @brief A class similar to UserVariable, which adds accessors required
    *        by the ArrayReference and MutableArrayReference expression classes.
    */
 
   template <typename T>
-  class ArrayVariable : public UserVariable<ArrayImpl<T> >
+  class ArrayVariable :
+    public NotifierImpl,
+    public ExpressionImpl<ArrayImpl<T> >,
+    public AssignableImpl<ArrayImpl<T> >
   {
   public:
+
+    /**
+     * @brief Default constructor.
+     */
     ArrayVariable();
 
-    // Regression testing only - to be removed
+    /**
+     * @brief Constructor with initial value.
+     * @param initVal The initial value.
+     */
     ArrayVariable(ArrayImpl<T> const & initVal);
 
     /**
@@ -61,13 +71,65 @@ namespace PLEXIL
 
     virtual ~ArrayVariable();
 
-    // Specializations from UserVariable
-    void handleActivate();
+    //
+    // Essential Expression API
+    //
+
+    const char *exprName() const;
+
+    bool isKnown() const;
+
+    bool getValueImpl(ArrayImpl<T> &result) const;
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    bool getValuePointerImpl(ArrayImpl<T> const *&ptr) const;
     bool getValuePointerImpl(Array const *&ptr) const;
 
+    /**
+     * @brief Retrieve a pointer to the (modifiable) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown or invalid.
+     */
+    bool getMutableValuePointerImpl(ArrayImpl<T> *&ptr);
+
+    /**
+     * @brief Assign a new value.
+     * @param value The value to assign.
+     */
+    void setValueImpl(ArrayImpl<T> const &value);
+
+    /**
+     * @brief Set the current value unknown.
+     */
+    void setUnknown();
+
+    /**
+     * @brief Reset to initial status.
+     */
+    void reset();
+
+    void saveCurrentValue();
+
+    void restoreSavedValue();
+
+    const std::string& getName() const;
+
+    void setName(const std::string &);
+
+    const NodeConnectorId &getNode() const;
+
+    Assignable *getBaseVariable();
+    Assignable const *getBaseVariable() const;
+
+    void handleActivate();
+
+    void handleDeactivate();
+
   private:
-    // Convenience typedefs
-    typedef UserVariable<ArrayImpl<T> > Superclass;
 
     /**
      * @brief Pre-allocate storage based on the current value of the size expression.
@@ -75,7 +137,20 @@ namespace PLEXIL
     void reserve();
 
     ExpressionId m_size;
+    ExpressionId m_initializer;
+    
+    // Only used by LuvListener at present. Eliminate?
+    NodeConnectorId m_node;
+
+    std::string m_name;
+
+    ArrayImpl<T> m_value;
+    ArrayImpl<T> m_savedValue;   // for undoing assignment 
+
+    bool m_known;
+    bool m_savedKnown;
     bool m_sizeIsGarbage;
+    bool m_initializerIsGarbage;
   };
 
   //

@@ -30,7 +30,6 @@
 
 #include "UserVariable.hh"
 
-#include "ArrayImpl.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
 //#include "NodeConnector.hh"
@@ -164,41 +163,6 @@ namespace PLEXIL {
   {
     if (m_initializer.isId()) {
       m_initializer->activate();
-      T const *valptr;
-      m_known = m_initializer->getValuePointer(valptr);
-      m_value = *valptr;
-    }
-    if (m_known)
-      this->publishChange(getId());
-  }
-
-  template <>
-  void UserVariable<bool>::handleActivate()
-  {
-    if (m_initializer.isId()) {
-      m_initializer->activate();
-      m_known = m_initializer->getValue(m_value);
-    }
-    if (m_known)
-      this->publishChange(getId());
-  }
-
-  template <>
-  void UserVariable<int32_t>::handleActivate()
-  {
-    if (m_initializer.isId()) {
-      m_initializer->activate();
-      m_known = m_initializer->getValue(m_value);
-    }
-    if (m_known)
-      this->publishChange(getId());
-  }
-
-  template <>
-  void UserVariable<double>::handleActivate()
-  {
-    if (m_initializer.isId()) {
-      m_initializer->activate();
       m_known = m_initializer->getValue(m_value);
     }
     if (m_known)
@@ -216,51 +180,23 @@ namespace PLEXIL {
 
   // Specializations for non-scalar types
   template <>
+  void UserVariable<std::string>::handleActivate()
+  {
+    if (m_initializer.isId()) {
+      m_initializer->activate();
+      std::string const *valptr;
+      m_known = m_initializer->getValuePointer(valptr);
+      m_value = *valptr;
+    }
+    if (m_known)
+      this->publishChange(getId());
+  }
+
+  template <>
   void UserVariable<std::string>::handleDeactivate()
   {
     // Clear saved value
     m_savedValue.clear();
-    m_savedKnown = false;
-    if (m_initializer.isId())
-      m_initializer->deactivate();
-  }
-
-  // C++ sucks. Should be able to specialize on Array<T>.
-  template <>
-  void UserVariable<BooleanArray>::handleDeactivate()
-  {
-    // Clear saved value
-    m_savedValue.resize(0);
-    m_savedKnown = false;
-    if (m_initializer.isId())
-      m_initializer->deactivate();
-  }
-
-  template <>
-  void UserVariable<IntegerArray>::handleDeactivate()
-  {
-    // Clear saved value
-    m_savedValue.resize(0);
-    m_savedKnown = false;
-    if (m_initializer.isId())
-      m_initializer->deactivate();
-  }
-
-  template <>
-  void UserVariable<RealArray>::handleDeactivate()
-  {
-    // Clear saved value
-    m_savedValue.resize(0);
-    m_savedKnown = false;
-    if (m_initializer.isId())
-      m_initializer->deactivate();
-  }
-
-  template <>
-  void UserVariable<StringArray>::handleDeactivate()
-  {
-    // Clear saved value
-    m_savedValue.resize(0);
     m_savedKnown = false;
     if (m_initializer.isId())
       m_initializer->deactivate();
@@ -301,8 +237,6 @@ namespace PLEXIL {
   }
 
   // Should only be called when active.
-  // TODO: 
-  // - Possible issue with array variables: Figure out if restoring previous value of an array is a problem.
   template <typename T>
   void UserVariable<T>::restoreSavedValue()
   {
@@ -352,12 +286,5 @@ namespace PLEXIL {
   template class UserVariable<int32_t>;
   template class UserVariable<double>;
   template class UserVariable<std::string>;
-
-
-  // Required by ArrayVariable
-  template class UserVariable<BooleanArray>;
-  template class UserVariable<IntegerArray>;
-  template class UserVariable<RealArray>;
-  template class UserVariable<StringArray>;
 
 } // namespace PLEXIL

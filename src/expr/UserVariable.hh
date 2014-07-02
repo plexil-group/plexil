@@ -137,7 +137,7 @@ namespace PLEXIL {
 
     void handleDeactivate();
 
-  protected:
+  private:
 
     ExpressionId m_initializer;
     

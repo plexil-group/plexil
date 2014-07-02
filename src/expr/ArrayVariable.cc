@@ -32,16 +32,28 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable()
-    : UserVariable<ArrayImpl<T> >()
+    : NotifierImpl(),
+      ExpressionImpl<ArrayImpl<T> >(),
+    AssignableImpl<ArrayImpl<T> >(),
+    m_name("anonymous"),
+    m_known(false),
+    m_savedKnown(false),
+    m_sizeIsGarbage(false),
+    m_initializerIsGarbage(false)
   {
   }
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable(ArrayImpl<T> const & initVal)
-    : UserVariable<ArrayImpl<T> >(NodeConnectorId::noId(),
-                                  std::string("anonymous"),
-                                  (new ArrayConstant<T >(initVal))->getId(),
-      true)
+    : NotifierImpl(),
+      ExpressionImpl<ArrayImpl<T> >(),
+      AssignableImpl<ArrayImpl<T> >(),
+      m_initializer((new ArrayConstant<T>(initVal))->getId()),
+      m_name("anonymous"),
+      m_known(false),
+      m_savedKnown(false),
+      m_sizeIsGarbage(false),
+      m_initializerIsGarbage(true)
   {
   }
 
@@ -52,25 +64,90 @@ namespace PLEXIL
                                   const ExpressionId &initializer,
                                   bool sizeIsGarbage,
                                   bool initializerIsGarbage)
-    : UserVariable<ArrayImpl<T> >(node, name, initializer, initializerIsGarbage),
+    : NotifierImpl(),
+      ExpressionImpl<ArrayImpl<T> >(),
+      AssignableImpl<ArrayImpl<T> >(),
       m_size(size),
-      m_sizeIsGarbage(sizeIsGarbage)
+      m_initializer(initializer),
+      m_node(node),
+      m_name(name),
+      m_known(false),
+      m_savedKnown(false),
+      m_sizeIsGarbage(sizeIsGarbage),
+      m_initializerIsGarbage(initializerIsGarbage)
   {
   }
 
   template <typename T>
   ArrayVariable<T>::~ArrayVariable()
   {
+    if (m_initializerIsGarbage)
+      delete (Expression *) m_initializer;
     if (m_sizeIsGarbage)
       delete (Expression *) m_size;
+  }
+  //
+  // Essential Expression API
+  //
+
+  template <typename T>
+  const char *ArrayVariable<T>::exprName() const
+  {
+    return "ArrayVariable";
+  }
+
+  template <typename T>
+  bool ArrayVariable<T>::isKnown() const
+  {
+    return this->isActive() && m_known;
+  }
+
+  template <typename T>
+  bool ArrayVariable<T>::getValueImpl(ArrayImpl<T> &result) const
+  {
+    if (!this->isActive())
+      return false;
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
+  template <typename T>
+  bool ArrayVariable<T>::getValuePointerImpl(ArrayImpl<T> const *&ptr) const
+  {
+    if (!this->isActive())
+      return false;
+    if (m_known)
+      ptr = &m_value;
+    return m_known;
+  }
+
+  template <typename T>
+  bool ArrayVariable<T>::getValuePointerImpl(Array const *&ptr) const
+  {
+    if (!this->isActive())
+      return false;
+    if (m_known)
+      ptr = static_cast<Array const *>(&m_value);
+    return m_known;
+  }
+
+  template <typename T>
+  bool ArrayVariable<T>::getMutableValuePointerImpl(ArrayImpl<T> *&ptr)
+  {
+    if (!this->isActive())
+      return false;
+    if (m_known)
+      ptr = &m_value;
+    return m_known;
   }
 
   template <typename T>
   void ArrayVariable<T>::handleActivate()
   {
-    if (Superclass::m_initializer.isId()) {
+    if (m_initializer.isId()) {
       ArrayImpl<T> const *valuePtr;
-      if (Superclass::m_initializer->getValuePointer(valuePtr)) {
+      if (m_initializer->getValuePointer(valuePtr)) {
         // Choose the greater of the spec'd size or the length of the initializer
         size_t size = valuePtr->size();
         if (m_size.isId()) {
@@ -81,25 +158,101 @@ namespace PLEXIL
               size = (size_t) specSize;
           }
         }
-        Superclass::m_value.resize(size);
-        Superclass::m_value = *valuePtr;
-        Superclass::m_known = true;
+        m_value.resize(size);
+        m_value = *valuePtr;
+        m_known = true;
       }
     }
     else {
       reserve();
     }
-    if (Superclass::m_known)
+    if (m_known)
       this->publishChange(Expression::getId());
   }
 
   template <typename T>
-  bool ArrayVariable<T>::getValuePointerImpl(Array const *&result) const
+  void ArrayVariable<T>::handleDeactivate()
   {
-    if (!this->isActive() || !Superclass::m_known)
-      return false;
-    result = static_cast<Array const *>(&(this->m_value));
-    return true;
+    // Clear saved value
+    m_savedValue.resize(0);
+    m_savedKnown = false;
+    if (m_initializer.isId())
+      m_initializer->deactivate();
+  }
+
+  template <typename T>
+  void ArrayVariable<T>::setValueImpl(ArrayImpl<T> const &value)
+  {
+    bool changed = !m_known || value != m_value;
+    m_value = value;
+    m_known = true;
+    if (changed)
+      this->publishChange(getId());
+  }
+
+  template <typename T>
+  void ArrayVariable<T>::setUnknown()
+  {
+    bool changed = m_known;
+    m_known = false;
+    if (changed)
+      this->publishChange(getId());
+  }
+
+  // This should only be called when inactive, therefore doesn't need to report changes.
+  template <typename T>
+  void ArrayVariable<T>::reset()
+  {
+    assertTrue_2(!this->isActive(), "ArrayVariable: reset while active");
+    m_savedKnown = m_known = false;
+  }
+
+  template <typename T>
+  void ArrayVariable<T>::saveCurrentValue()
+  {
+    m_savedValue = m_value;
+    m_savedKnown = m_known;
+  }
+
+  // Should only be called when active.
+  template <typename T>
+  void ArrayVariable<T>::restoreSavedValue()
+  {
+    bool changed = (m_known != m_savedKnown) || (m_value != m_savedValue);
+    m_value = m_savedValue;
+    m_known = m_savedKnown;
+    if (changed)
+      this->publishChange(getId());
+  }
+
+  template <typename T>
+  const std::string &ArrayVariable<T>::getName() const
+  {
+    return m_name;
+  }
+
+  template <typename T>
+  void ArrayVariable<T>::setName(const std::string &name)
+  {
+    m_name = name;
+  }
+
+  template <typename T>
+  const NodeConnectorId &ArrayVariable<T>::getNode() const
+  {
+    return m_node;
+  }
+
+  template <typename T>
+  Assignable *ArrayVariable<T>::getBaseVariable()
+  {
+    return Assignable::asAssignable();
+  }
+
+  template <typename T>
+  Assignable const *ArrayVariable<T>::getBaseVariable() const
+  {
+    return Assignable::asAssignable();
   }
 
   template <typename T>
@@ -109,8 +262,8 @@ namespace PLEXIL
       int32_t size;
       if (m_size->getValue(size)) {
         assertTrue_2(size >= 0, "Array initialization: Negative array size illegal");
-        Superclass::m_value.resize(size);
-        Superclass::m_known = true; // array is known, not its contents
+        m_value.resize(size);
+        m_known = true; // array is known, not its contents
       }
     }
   }
