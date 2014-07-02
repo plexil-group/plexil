@@ -107,7 +107,19 @@ namespace PLEXIL
   {
     checkError(tolerance->isKnown(),
                "StateCacheEntry::registerChangeLookup: tolerance unknown");
-    registerLookup(l);
+    // Already registered?
+    bool found = false;
+    for (std::vector<Lookup *>::iterator it = m_lookups.begin();
+         it != m_lookups.end();
+         ++it) {
+      if (l == *it) {
+        found = true;
+        break;
+      }
+    }
+    
+    if (!found)
+      registerLookup(l);
     // Can only set thresholds if we know the current value.
     if (m_value->isKnown()) {
       ValueType vtype = m_value->valueType();

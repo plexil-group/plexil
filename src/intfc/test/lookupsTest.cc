@@ -57,7 +57,7 @@ public:
   void lookupNow(const State& state, StateCacheEntry &entry) 
   {
     if (state.name() == "test1") {
-      entry.update(this->getCycleCount(), (double) 0.0);
+      entry.update(this->getCycleCount(), (double) 2.0);
       return;
     }
     else if (state.name() == "test2") {
@@ -181,6 +181,10 @@ private:
 
 static TestInterface *theInterface = NULL;
 
+// TODO:
+// - test change propagation
+// - test state changes
+
 static bool testLookupNow() 
 {
   StringConstant test1("test1");
@@ -193,31 +197,56 @@ static bool testLookupNow()
 
   std::vector<ExpressionId> test3Args(1, (new StringConstant("low"))->getId());
 
-  Lookup l1(test1.getId(), false, emptyArglist, emptyGarbageList);
-  Lookup l2(test2.getId(), false, test2Args, test2garbage);
-  Lookup l3(test2.getId(), false, test3Args, test2garbage);
+  StringVariable test4("test1");
+
+  ExpressionId l1 = (new Lookup(test1.getId(), false, emptyArglist, emptyGarbageList))->getId();
+  ExpressionId l2 = (new Lookup(test2.getId(), false, test2Args, test2garbage))->getId();
+  ExpressionId l3 = (new Lookup(test2.getId(), false, test3Args, test2garbage))->getId();
+  ExpressionId l4 = (new Lookup(test4.getId(), false, emptyArglist, emptyGarbageList))->getId();
 
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
-  l1.activate();
-  l2.activate();
-  l3.activate();
+  l1->activate();
+  l2->activate();
+  l3->activate();
+  l4->activate();
+  assertTrue_1(test4.isActive());
 
   double temp;
-  assertTrue_1(l1.getValue(temp));
-  assertTrue_1(temp == 0.0);
-  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(l1->getValue(temp));
+  assertTrue_1(temp == 2.0);
+  assertTrue_1(l2->getValue(temp));
   assertTrue_1(temp == 1.0);
-  assertTrue_1(l3.getValue(temp));
+  assertTrue_1(l3->getValue(temp));
   assertTrue_1(temp == -1.0);
+  assertTrue_1(l4->isKnown());
+  assertTrue_1(l4->getValue(temp));
+  assertTrue_1(temp == 2.0);
+
+  test4.setValue("time");
+  assertTrue_1(l4->isKnown());
+  assertTrue_1(l4->getValue(temp));
+  assertTrue_1(temp == 0.0);
+
+  test4.setUnknown();
+  assertTrue_1(!l4->isKnown());
+  assertTrue_1(!l4->getValue(temp));
+
+  // Clean up
+  delete (Expression *) l4;
+  delete (Expression *) l3;
+  delete (Expression *) l2;
+  delete (Expression *) l1;
+
+  delete (Expression *)test2Args[0];
+  delete (Expression *)test3Args[0];
 
   return true;
 }
 
 // TODO:
 // - test state changes
-// - test tolerance changes
 
 static bool testLookupOnChange() 
 {
@@ -228,8 +257,8 @@ static bool testLookupOnChange()
   theInterface->watch("changeTest", watchVar.getId());
   theInterface->watch("changeWithToleranceTest", watchVar.getId());
 
-  RealConstant tolerance(0.5);
-  // tolerance.activate(); // unneeded for constants
+  RealVariable tolerance(0.5);
+  // tolerance.activate(); // should be activated when lookup is activated
   std::vector<ExpressionId> const emptyArglist;
   std::vector<bool> const emptyGarbageList;
 
@@ -259,6 +288,7 @@ static bool testLookupOnChange()
   assertTrue_1(temp == 0.0);
   assertTrue_1(changeNotified);
   l2.activate();
+  assertTrue_1(tolerance.isActive());
   assertTrue_1(l2.getValue(temp));
   assertTrue_1(temp == 0.0);
   assertTrue_1(changeWithToleranceNotified);
@@ -314,6 +344,62 @@ static bool testLookupOnChange()
   assertTrue_1(l2.getValue(temp));
   assertTrue_1(temp == 1.1);
   assertTrue_1(changeWithToleranceNotified);
+
+  // Test changing tolerance
+
+  l1.activate();
+  changeNotified = false;
+  changeWithToleranceNotified = false;
+  watchVar.setValue(1.4);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(l1.isKnown());
+  assertTrue_1(l1.getValue(temp));
+  assertTrue_1(temp == 1.4);
+  assertTrue_1(changeNotified);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.1);
+  assertTrue_1(!changeWithToleranceNotified);
+
+  tolerance.setValue(0.25);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.4);
+  assertTrue_1(changeWithToleranceNotified);
+
+  // Test making tolerance unknown
+  tolerance.setUnknown();
+  changeWithToleranceNotified = false;
+  watchVar.setValue(1.5);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(changeWithToleranceNotified);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.5); // should update on every change
+
+  // Test making tolerance known again
+  tolerance.setValue(0.125);
+  changeWithToleranceNotified = false;
+  watchVar.setValue(1.6);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(!changeWithToleranceNotified);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.5); // threshold should be back in effect
+
+  watchVar.setValue(1.7);
+
+  // Bump the cycle count
+  theInterface->incrementCycleCount();
+
+  assertTrue_1(changeWithToleranceNotified);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.7); // threshold should be back in effect
 
   l1.removeListener(changeListener.getId());
   l2.removeListener(changeWithToleranceListener.getId());

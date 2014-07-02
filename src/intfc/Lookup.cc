@@ -50,9 +50,16 @@ namespace PLEXIL
       m_stateIsConstant(false),
       m_stateNameIsGarbage(stateNameIsGarbage)
   {
+    assertTrue_2(stateName.isId(), "Lookup constructor: Null state name expression");
+    if (!m_stateName->isConstant())
+      m_stateName->addListener(getId());
     assertTrue_2(params.size() == paramsAreGarbage.size(),
                  "Lookup constructor: Parameter vector and garbage vector differ in length");
-    // TODO: check whether all expressions are constants
+    for (size_t i = 0; i < params.size(); ++i) {
+      if (!m_params[i]->isConstant())
+        m_params[i]->addListener(getId());
+    }
+    // TODO: If all expressions are constants, can cache state now
   }
 
   Lookup::~Lookup()
@@ -61,9 +68,14 @@ namespace PLEXIL
       m_entry->unregisterLookup(this);
       m_entry = NULL;
     }
-    for (size_t i = 0; i < m_params.size(); ++i)
+    for (size_t i = 0; i < m_params.size(); ++i) {
+      if (!m_params[i]->isConstant())
+        m_params[i]->removeListener(getId());
       if (m_garbage[i])
         delete (Expression *) m_params[i];
+    }
+    if (!m_stateName->isConstant())
+      m_stateName->removeListener(getId());
     if (m_stateNameIsGarbage)
       delete (Expression *) m_stateName;
   }
@@ -147,7 +159,7 @@ namespace PLEXIL
       }
     }
     else { // state now known
-      if (m_stateKnown && newState != m_cachedState) {
+      if (oldKnown && newState != m_cachedState) {
         m_entry->unregisterLookup(this);
         m_entry = NULL;
         stateChanged = true;
@@ -344,9 +356,9 @@ namespace PLEXIL
       bool oldKnown = m_known;
       if ((m_known = entry->isKnown()) != oldKnown)
         return true;
-      if (m_known)
-        return check(entry);
-      return false;
+      if (!m_toleranceKnown)
+        return true; // always
+      return check(entry);
     }
 
     /**
@@ -513,12 +525,16 @@ namespace PLEXIL
                  "LookupOnChange constructor: no tolerance expression supplied");
     assertTrue_2(isNumericType(tolerance->valueType()),
                  "LookupOnChange constructor: tolerance expression is not numeric");
+    if (!m_tolerance->isConstant())
+      m_tolerance->addListener(getId());
   }
 
   LookupOnChange::~LookupOnChange()
   {
     delete m_thresholds;
     delete m_cachedValue;
+    if (!m_tolerance->isConstant())
+      m_tolerance->removeListener(getId());
     if (m_toleranceIsGarbage)
       delete (Expression *) m_tolerance;
   }
@@ -530,8 +546,8 @@ namespace PLEXIL
 
   void LookupOnChange::handleActivate()
   {
-    m_tolerance->activate();
     this->activateInternal();
+    m_tolerance->activate();
     if (this->m_entry) {
       // State is known
       if (m_tolerance->isKnown())
@@ -555,21 +571,37 @@ namespace PLEXIL
       m_thresholds->reset();
   }
 
-  // Consider possibility that tolerance has changed. 
+  // Consider possibility that tolerance has changed.
+  // Consider possibility lookup may not be fully activated yet.
   void LookupOnChange::handleChange(ExpressionId src)
   {
-    if (Lookup::handleChangeInternal(src) && m_thresholds)
-      m_thresholds->reset(); // state changed, old thresholds invalid
-    // FIXME: tolerance unknown->known transition
-    if (m_thresholds->thresholdChanged(m_tolerance)) {
-      // Tolerance changed, resubscribe if necessary and check thresholds 
-      if (m_tolerance->isKnown())
-        this->m_entry->registerChangeLookup(static_cast<Lookup *>(this), 
-                                            m_tolerance);
-      if (m_thresholds->thresholdsExceeded(this->m_entry)) {
-        updateInternal();
-        this->publishChange(src);
+    if (Lookup::handleChangeInternal(src)) {
+      // State changed
+      if (m_thresholds)
+        m_thresholds->reset();
+    }
+    if (m_thresholds) {
+      if (m_thresholds->thresholdChanged(m_tolerance)) {
+        // Tolerance changed, resubscribe if necessary and check thresholds 
+        if (m_tolerance->isKnown())
+          this->m_entry->registerChangeLookup(static_cast<Lookup *>(this), 
+                                              m_tolerance);
+        // THIS IS MISLEADING - value of lookup may not have changed
+        if (m_thresholds->thresholdsExceeded(this->m_entry)) {
+          updateInternal();
+          this->publishChange(src);
+        }
       }
+    }
+    else if (m_tolerance->isKnown()
+             && this->m_stateKnown
+             && this->m_entry->isKnown()) {
+      // Tolerance became known, and we have a value for state,
+      // so set thresholds
+      m_thresholds = ThresholdCacheFactory(this->m_entry->valueType());
+      m_thresholds->setThresholds(this->m_entry, m_tolerance);
+      this->m_entry->registerChangeLookup(static_cast<Lookup *>(this), 
+                                          m_tolerance);
     }
   }
 
@@ -615,6 +647,9 @@ namespace PLEXIL
     }
     // Value changed, set thresholds
     m_thresholds->setThresholds(this->m_entry, m_tolerance);
+    if (m_tolerance->isKnown())
+      this->m_entry->registerChangeLookup(static_cast<Lookup *>(this), 
+                                          m_tolerance);
   }
 
   bool LookupOnChange::getValue(int32_t &result) const
