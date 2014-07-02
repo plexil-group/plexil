@@ -27,6 +27,7 @@
 #ifndef PLEXIL_CONSTANT_HH
 #define PLEXIL_CONSTANT_HH
 
+#include "ArrayImpl.hh"
 #include "ExpressionImpl.hh"
 
 namespace PLEXIL {
@@ -87,8 +88,6 @@ namespace PLEXIL {
      * @return True if known, false if unknown.
      */
     bool getValuePointerImpl(T const *& ptr) const;
-    // generic array version
-    bool getValuePointerImpl(Array const *& ptr) const;
 
     /**
      * @brief Query whether the expression's value is known.
@@ -151,6 +150,105 @@ namespace PLEXIL {
     Constant &operator=(const Constant &);
   };
 
+  template <typename T>
+  class Constant<ArrayImpl<T> > : public ExpressionImpl<ArrayImpl<T> >
+  {
+  public:
+
+    /**
+     * @brief Default constructor.
+     */
+    Constant();
+
+    /**
+     * @brief Copy constructor.
+     */
+    Constant(const Constant &other);
+
+    /**
+     * @brief Constructor from value type.
+     */
+    Constant(const ArrayImpl<T> &value);
+
+    /**
+     * @brief Destructor.
+     */
+    virtual ~Constant();
+
+    /**
+     * @brief Return a print name for the expression type.
+     * @return A constant character string.
+     */
+    const char *exprName() const;
+
+    /**
+     * @brief Retrieve a pointer to the (const) value of this Expression.
+     * @param ptr Reference to the pointer variable to receive the result.
+     * @return True if known, false if unknown.
+     */
+    bool getValuePointerImpl(ArrayImpl<T> const *& ptr) const;
+
+    /**
+     * @brief Query whether the expression's value is known.
+     * @return True if known, false otherwise.
+     */
+    bool isKnown() const;
+
+    /**
+     * @brief Query whether this expression is constant, i.e. incapable of change.
+     * @return True if constant, false otherwise.
+     */
+    bool isConstant() const;
+
+    /**
+     * @brief Is this expression active (i.e. propagating value changes?)
+     * @return true if this Expression is active, false if it is not.
+     */
+    bool isActive() const;
+
+    /**
+     * @brief Make this expression active.
+     * @note No-op for constants.
+     */
+    void activate();
+
+    /**
+     * @brief Make this expression inactive.
+     * @note No-op for constants.
+     */
+    void deactivate();
+
+    /**
+     * @brief Add a listener for changes to this Expression's value.
+     * @param id The Id of the listener to notify.
+     * @note No-op for constants.
+     */
+    void addListener(ExpressionListenerId /* id */);
+
+    /**
+     * @brief Remove a listener from this Expression.
+     * @param id The Id of the listener to remove.
+     * @note No-op for constants.
+     */
+    void removeListener(ExpressionListenerId /* id */);
+
+    /**
+     * @brief Notify this expression that a subexpression's value has changed.
+     * @note No-op for constants.
+     */
+    void notifyChanged(ExpressionId /* src */);
+
+  protected:
+
+    ArrayImpl<T> m_value;
+    bool m_known;
+
+  private:
+
+    // Disallow assignment
+    Constant &operator=(const Constant &);
+  };
+
 
   //
   // Convenience typedefs
@@ -160,6 +258,11 @@ namespace PLEXIL {
   typedef Constant<int32_t>     IntegerConstant;
   typedef Constant<double>      RealConstant;
   typedef Constant<std::string> StringConstant;
+
+  typedef Constant<ArrayImpl<bool> >        BooleanArrayConstant;
+  typedef Constant<ArrayImpl<int32_t> >     IntegerArrayConstant;
+  typedef Constant<ArrayImpl<double> >      RealArrayConstant;
+  typedef Constant<ArrayImpl<std::string> > StringArrayConstant;
   
 } // namespace PLEXIL
 

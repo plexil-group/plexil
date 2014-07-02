@@ -24,9 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ArrayConstant.hh"
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
+#include "Constant.hh"
 #include "TestSupport.hh"
 #include "TrivialListener.hh"
 #include "UserVariable.hh"

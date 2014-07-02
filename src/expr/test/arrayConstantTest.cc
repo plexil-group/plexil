@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ArrayConstant.hh"
+#include "Constant.hh"
 #include "TestSupport.hh"
 
 using namespace PLEXIL;

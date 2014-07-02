@@ -172,6 +172,55 @@ namespace PLEXIL
     Value toValue() const;
 
   };
+
+  template <typename T>
+  class ExpressionImpl<ArrayImpl<T> >
+    : public ExpressionAdapter<ExpressionImpl<ArrayImpl<T> > >
+  {
+  public:
+    /**
+     * @brief Query whether the expression's value is known.
+     * @return True if known, false otherwise.
+     * @note Default method uses getValueImpl().
+     */
+    virtual bool isKnown() const;
+
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
+     */
+    const ValueType valueType() const;
+
+	/**
+	 * @brief Print the expression's value to the given stream.
+	 * @param s The output stream.
+	 */
+    void printValue(std::ostream &) const; // may be overridden?
+
+    // Error for array types
+    template <typename U>
+    bool getValueImpl(U &result) const;
+
+    /**
+     * @brief Retrieve the value of this Expression as a pointer to const.
+     * @param ptr Reference to the pointer variable.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValuePointerImpl(ArrayImpl<T> const *& ptr) const = 0;
+    bool getValuePointerImpl(Array const *& ptr) const;
+
+    // Error for wrong type call
+    template <typename U>
+    bool getValuePointerImpl(U const *&) const;
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
+
+  };
   
 }
 

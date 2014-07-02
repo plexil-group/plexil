@@ -25,7 +25,7 @@
 */
 
 #include "ArrayVariable.hh"
-#include "ArrayConstant.hh"
+#include "Constant.hh"
 
 namespace PLEXIL
 {
@@ -48,7 +48,7 @@ namespace PLEXIL
     : NotifierImpl(),
       ExpressionImpl<ArrayImpl<T> >(),
       AssignableImpl<ArrayImpl<T> >(),
-      m_initializer((new ArrayConstant<T>(initVal))->getId()),
+      m_initializer((new Constant<ArrayImpl<T> >(initVal))->getId()),
       m_name("anonymous"),
       m_known(false),
       m_savedKnown(false),
@@ -103,32 +103,12 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool ArrayVariable<T>::getValueImpl(ArrayImpl<T> &result) const
-  {
-    if (!this->isActive())
-      return false;
-    if (m_known)
-      result = m_value;
-    return m_known;
-  }
-
-  template <typename T>
   bool ArrayVariable<T>::getValuePointerImpl(ArrayImpl<T> const *&ptr) const
   {
     if (!this->isActive())
       return false;
     if (m_known)
       ptr = &m_value;
-    return m_known;
-  }
-
-  template <typename T>
-  bool ArrayVariable<T>::getValuePointerImpl(Array const *&ptr) const
-  {
-    if (!this->isActive())
-      return false;
-    if (m_known)
-      ptr = static_cast<Array const *>(&m_value);
     return m_known;
   }
 

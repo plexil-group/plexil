@@ -30,7 +30,7 @@ lib_LTLIBRARIES = libPlexilExpr.la
 libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils \
  -I@top_srcdir@/third-party/pugixml/src
 
-include_HEADERS = Alias.hh Array.hh ArrayImpl.hh ArrayConstant.hh \
+include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
  ArrayReference.hh ArrayVariable.hh Assignable.hh AssignableImpl.hh \
  ConcreteExpressionFactory.hh Constant.hh Expression.hh ExpressionConstants.hh \
  ExpressionFactories.hh ExpressionFactory.hh ExpressionImpl.hh \
@@ -39,7 +39,7 @@ include_HEADERS = Alias.hh Array.hh ArrayImpl.hh ArrayConstant.hh \
  ValueType.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
- ArithmeticFunctionFactory.cc ArithmeticOperators.cc ArrayConstant.cc \
+ ArithmeticFunctionFactory.cc ArithmeticOperators.cc \
  ArrayOperators.cc ArrayReference.cc ArrayVariable.cc Assignable.cc \
  AssignableImpl.cc BooleanOperators.cc Comparisons.cc \
  ConcreteExpressionFactory.cc Constant.cc Expression.cc ExpressionConstants.cc \

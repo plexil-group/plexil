@@ -94,7 +94,7 @@ namespace PLEXIL
   };
 
   template <typename T>
-  class ConcreteExpressionFactory<ArrayConstant<T> > : public ExpressionFactory
+  class ConcreteExpressionFactory<Constant<ArrayImpl<T> > > : public ExpressionFactory
   {
   public:
     ConcreteExpressionFactory(const std::string& name)

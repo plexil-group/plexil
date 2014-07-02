@@ -24,10 +24,11 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ArrayConstant.hh"
-#include "ArrayVariable.hh" // includes UserVariable.hh
+#include "ArrayVariable.hh"
+#include "Constant.hh"
 #include "TestSupport.hh"
 #include "TrivialListener.hh"
+#include "UserVariable.hh"
 
 using namespace PLEXIL;
 

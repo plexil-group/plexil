@@ -79,15 +79,12 @@ namespace PLEXIL
 
     bool isKnown() const;
 
-    bool getValueImpl(ArrayImpl<T> &result) const;
-
     /**
      * @brief Retrieve a pointer to the (const) value of this Expression.
      * @param ptr Reference to the pointer variable to receive the result.
      * @return True if known, false if unknown.
      */
     bool getValuePointerImpl(ArrayImpl<T> const *&ptr) const;
-    bool getValuePointerImpl(Array const *&ptr) const;
 
     /**
      * @brief Retrieve a pointer to the (modifiable) value of this Expression.

@@ -46,6 +46,13 @@ namespace PLEXIL
   {
   }
 
+  template <typename T>
+  Constant<ArrayImpl<T> >::Constant()
+    : ExpressionImpl<ArrayImpl<T> >(),
+      m_known(false)
+  {
+  }
+
   /**
    * @brief Copy constructor.
    */
@@ -57,12 +64,28 @@ namespace PLEXIL
   {
   }
 
+  template <typename T>
+  Constant<ArrayImpl<T> >::Constant(const Constant &other)
+    : ExpressionImpl<ArrayImpl<T> >(),
+    m_value(other.m_value),
+    m_known(other.m_known)
+  {
+  }
+
   /**
    * @brief Constructor from value type.
    */
   template <typename T>
   Constant<T>::Constant(const T &value)
   : ExpressionImpl<T>(),
+    m_value(value),
+    m_known(true)
+  {
+  }
+
+  template <typename T>
+  Constant<ArrayImpl<T> >::Constant(const ArrayImpl<T> &value)
+    : ExpressionImpl<ArrayImpl<T> >(),
     m_value(value),
     m_known(true)
   {
@@ -89,6 +112,11 @@ namespace PLEXIL
   {
   }
 
+  template <typename T>
+  Constant<ArrayImpl<T> >::~Constant()
+  {
+  }
+
   /**
    * @brief Return a print name for the expression type.
    * @return A constant character string.
@@ -97,6 +125,12 @@ namespace PLEXIL
   const char *Constant<T>::exprName() const
   {
     return "Constant";
+  }
+
+  template <typename T>
+  const char *Constant<ArrayImpl<T> >::exprName() const
+  {
+    return "ArrayConstant";
   }
 
   /**
@@ -126,10 +160,11 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool Constant<T>::getValuePointerImpl(Array const *&ptr) const
+  bool Constant<ArrayImpl<T> >::getValuePointerImpl(ArrayImpl<T> const *&ptr) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Constant::getValuePointer type error");
-    return false;
+    if (m_known)
+      ptr = &m_value;
+    return m_known;
   }
 
   /**
@@ -138,6 +173,12 @@ namespace PLEXIL
    */
   template <typename T>
   bool Constant<T>::isKnown() const
+  {
+    return m_known;
+  }
+
+  template <typename T>
+  bool Constant<ArrayImpl<T> >::isKnown() const
   {
     return m_known;
   }
@@ -152,12 +193,24 @@ namespace PLEXIL
     return true;
   }
 
+  template <typename T>
+  bool Constant<ArrayImpl<T> >::isConstant() const
+  {
+    return true;
+  }
+
   /**
    * @brief Is this expression active (i.e. propagating value changes?)
    * @return true if this Expression is active, false if it is not.
    */
   template <typename T>
   bool Constant<T>::isActive() const
+  {
+    return true; // constants are always active
+  }
+ 
+  template <typename T>
+  bool Constant<ArrayImpl<T> >::isActive() const
   {
     return true; // constants are always active
   }
@@ -171,12 +224,22 @@ namespace PLEXIL
   {
   }
 
+  template <typename T>
+  void Constant<ArrayImpl<T> >::activate()
+  {
+  }
+
   /**
    * @brief Make this expression inactive.
    * @note No-op for constants.
    */
   template <typename T>
   void Constant<T>::deactivate()
+  {
+  }
+
+  template <typename T>
+  void Constant<ArrayImpl<T> >::deactivate()
   {
   }
 
@@ -190,6 +253,11 @@ namespace PLEXIL
   {
   }
 
+  template <typename T>
+  void Constant<ArrayImpl<T> >::addListener(ExpressionListenerId /* id */)
+  {
+  }
+
   /**
    * @brief Remove a listener from this Expression.
    * @param id The Id of the listener to remove.
@@ -200,12 +268,22 @@ namespace PLEXIL
   {
   }
 
+  template <typename T>
+  void Constant<ArrayImpl<T> >::removeListener(ExpressionListenerId /* id */)
+  {
+  }
+
   /**
    * @brief Notify this expression that a subexpression's value has changed.
    * @note No-op for constants.
    */
   template <typename T>
   void Constant<T>::notifyChanged(ExpressionId /* src */)
+  {
+  }
+
+  template <typename T>
+  void Constant<ArrayImpl<T> >::notifyChanged(ExpressionId /* src */)
   {
   }
 

@@ -36,37 +36,22 @@ namespace PLEXIL
   template <typename T>
   bool ExpressionImpl<T>::isKnown() const
   {
-    T const *dummy;
+    T dummy;
+    return this->getValueImpl(dummy);
+  }
+
+  template <>
+  bool ExpressionImpl<std::string>::isKnown() const
+  {
+    std::string const *dummy;
     return this->getValuePointerImpl(dummy);
   }
 
-  // For immediate types
-  template <>
-  bool ExpressionImpl<bool>::isKnown() const
+  template <typename T>
+  bool ExpressionImpl<ArrayImpl<T> >::isKnown() const
   {
-    bool dummy;
-    return this->getValueImpl(dummy);
-  }
-
-  template <>
-  bool ExpressionImpl<uint16_t>::isKnown() const
-  {
-    uint16_t dummy;
-    return this->getValueImpl(dummy);
-  }
-
-  template <>
-  bool ExpressionImpl<int32_t>::isKnown() const
-  {
-    int32_t dummy;
-    return this->getValueImpl(dummy);
-  }
-
-  template <>
-  bool ExpressionImpl<double>::isKnown() const
-  {
-    double dummy;
-    return this->getValueImpl(dummy);
+    ArrayImpl<T> const *dummy;
+    return this->getValuePointerImpl(dummy);
   }
 
   // Default methods.
@@ -140,8 +125,37 @@ namespace PLEXIL
   }
 
   template <typename T>
+  void ExpressionImpl<ArrayImpl<T> >::printValue(std::ostream &s) const
+  {
+    ArrayImpl<T> const *temp;
+    if (this->getValuePointerImpl(temp))
+      PLEXIL::printValue(*temp, s);
+    else
+      s << "UNKNOWN";
+  }
+
+  template <>
+  void ExpressionImpl<std::string>::printValue(std::ostream &s) const
+  {
+    std::string const *temp;
+    if (this->getValuePointerImpl(temp))
+      PLEXIL::printValue(*temp, s);
+    else
+      s << "UNKNOWN";
+  }
+
+  template <typename T>
   template <typename U>
   bool ExpressionImpl<T>::getValueImpl(U &result) const
+  {
+    check_error_2(ALWAYS_FAIL, "getValue: value type error");
+    return false;
+  }
+
+  // Report error for array types
+  template <typename T>
+  template <typename U>
+  bool ExpressionImpl<ArrayImpl<T> >::getValueImpl(U &result) const
   {
     check_error_2(ALWAYS_FAIL, "getValue: value type error");
     return false;
@@ -167,6 +181,17 @@ namespace PLEXIL
     return false;
   }
 
+  // Downcast default for arrays
+  template <typename T>
+  bool ExpressionImpl<ArrayImpl<T> >::getValuePointerImpl(Array const *&ptr) const
+  {
+    ArrayImpl<T> const *temp;
+    if (!this->getValuePointerImpl(temp))
+      return false;
+    ptr = static_cast<Array const *>(temp);
+    return true;
+  }
+
   // Report error for type mismatch
   template <typename T>
   template <typename U>
@@ -177,9 +202,28 @@ namespace PLEXIL
   }
 
   template <typename T>
+  template <typename U>
+  bool ExpressionImpl<ArrayImpl<T> >::getValuePointerImpl(U const *& /* ptr */) const
+  {
+    check_error_2(ALWAYS_FAIL, "getValuePointer: value type error");
+    return false;
+  }
+
+  template <typename T>
   Value ExpressionImpl<T>::toValue() const
   {
-    T const *ptr;
+    T temp;
+    bool known = this->getValueImpl(temp);
+    if (known)
+      return Value(temp);
+    else
+      return Value(0, this->valueType());
+  }
+
+  template <typename T>
+  Value ExpressionImpl<ArrayImpl<T> >::toValue() const
+  {
+    ArrayImpl<T> const *ptr;
     bool known = this->getValuePointerImpl(ptr);
     if (known)
       return Value(*ptr);
@@ -189,45 +233,16 @@ namespace PLEXIL
 
   // Specializations
   template <>
-  Value ExpressionImpl<bool>::toValue() const
+  Value ExpressionImpl<std::string>::toValue() const
   {
-    bool val;
-    bool known = this->getValueImpl(val);
+    std::string const *ptr;
+    bool known = this->getValuePointerImpl(ptr);
     if (known)
-      return Value(val);
+      return Value(*ptr);
     else
       return Value(0, this->valueType());
   }
 
-  template <>
-  Value ExpressionImpl<uint16_t>::toValue() const
-  {
-    bool val;
-    this->getValueImpl(val);
-    return Value(val, this->valueType());
-  }
-
-  template <>
-  Value ExpressionImpl<int32_t>::toValue() const
-  {
-    int32_t val;
-    bool known = this->getValueImpl(val);
-    if (known)
-      return Value(val);
-    else
-      return Value(0, this->valueType());
-  }
-
-  template <>
-  Value ExpressionImpl<double>::toValue() const
-  {
-    double val;
-    bool known = this->getValueImpl(val);
-    if (known)
-      return Value(val);
-    else
-      return Value(0, this->valueType());
-  }
 
   //
   // Explicit instantiations

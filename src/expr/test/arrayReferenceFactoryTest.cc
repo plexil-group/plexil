@@ -26,9 +26,9 @@
 
 #include "Debug.hh"
 #include "Alias.hh"
-#include "ArrayConstant.hh"
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
+#include "Constant.hh"
 #include "ExpressionFactories.hh"
 #include "ExpressionFactory.hh"
 #include "FactoryTestNodeConnector.hh"

@@ -25,7 +25,7 @@
 */
 
 #include "Alias.hh"
-#include "ArrayConstant.hh"
+#include "Constant.hh"
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "Function.hh"

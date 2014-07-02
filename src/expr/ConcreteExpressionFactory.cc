@@ -26,9 +26,9 @@
 
 #include "ConcreteExpressionFactory.hh"
 
-#include "ArrayConstant.hh"
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
+#include "Constant.hh"
 #include "ExpressionConstants.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
@@ -102,7 +102,7 @@ namespace PLEXIL
   //
 
   template <typename T>
-  ExpressionId ConcreteExpressionFactory<ArrayConstant<T> >::create(PlexilArrayValue const *val) const
+  ExpressionId ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::create(PlexilArrayValue const *val) const
   {
     unsigned arraySize = val->maxSize();
     std::vector<std::string> const &eltVals = val->values();
@@ -115,11 +115,11 @@ namespace PLEXIL
       else
         initVals.setElementUnknown(i);
     }
-    return (new ArrayConstant<T>(initVals))->getId();
+    return (new Constant<ArrayImpl<T> >(initVals))->getId();
   }
 
   template <typename T>
-  ExpressionId ConcreteExpressionFactory<ArrayConstant<T> >::allocate(const PlexilExprId& expr,
+  ExpressionId ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::allocate(const PlexilExprId& expr,
                                                                       const NodeConnectorId& /* node */,
                                                                       bool &wasCreated) const
   {

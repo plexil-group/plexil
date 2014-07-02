@@ -26,12 +26,12 @@
 
 #include "ArithmeticFunctionFactory.hh"
 #include "ArithmeticOperators.hh"
-#include "ArrayConstant.hh"
 #include "ArrayOperators.hh"
 #include "ArrayVariable.hh"
 #include "BooleanOperators.hh"
 #include "Comparisons.hh"
 #include "ConcreteExpressionFactory.hh"
+#include "Constant.hh"
 #include "FunctionFactory.hh"
 #include "StringOperators.hh"
 #include "lifecycle-utils.h"
