@@ -72,10 +72,10 @@ static bool testArrayConstantReference()
   std::string ps;
   
   IntegerVariable iv;
-  ArrayReference bar(bc.getId(), iv.getId());
-  ArrayReference iar(ic.getId(), iv.getId());
-  ArrayReference dar(dc.getId(), iv.getId());
-  ArrayReference sar(sc.getId(), iv.getId());
+  ArrayReference bar(&bc, &iv);
+  ArrayReference iar(&ic, &iv);
+  ArrayReference dar(&dc, &iv);
+  ArrayReference sar(&sc, &iv);
 
   // Check that array ref values are unknown while inactive
   assertTrue_1(!bar.isKnown());
@@ -169,10 +169,10 @@ static bool testArrayVariableReference()
   std::string ps;
   
   IntegerVariable ivar;
-  ArrayReference bar(bv.getId(), ivar.getId());
-  ArrayReference iar(iv.getId(), ivar.getId());
-  ArrayReference dar(dv.getId(), ivar.getId());
-  ArrayReference sar(sv.getId(), ivar.getId());
+  ArrayReference bar(&bv, &ivar);
+  ArrayReference iar(&iv, &ivar);
+  ArrayReference dar(&dv, &ivar);
+  ArrayReference sar(&sv, &ivar);
 
   // Check that array ref values are unknown while inactive
   assertTrue_1(!bar.isKnown());
@@ -281,10 +281,10 @@ bool testMutableArrayReference()
   std::string ps;
   
   IntegerVariable ivar;
-  MutableArrayReference bar(bv.getId(), ivar.getId());
-  MutableArrayReference iar(iv.getId(), ivar.getId());
-  MutableArrayReference dar(dv.getId(), ivar.getId());
-  MutableArrayReference sar(sv.getId(), ivar.getId());
+  MutableArrayReference bar(&bv, &ivar);
+  MutableArrayReference iar(&iv, &ivar);
+  MutableArrayReference dar(&dv, &ivar);
+  MutableArrayReference sar(&sv, &ivar);
 
   // Check that array ref values are unknown while inactive
   assertTrue_1(!bar.isKnown());
@@ -520,10 +520,10 @@ bool testAssignablePointer()
   std::string ps;
   
   IntegerVariable ivar;
-  MutableArrayReference bar(bvp->getId(), ivar.getId());
-  MutableArrayReference iar(ivp->getId(), ivar.getId());
-  MutableArrayReference dar(dvp->getId(), ivar.getId());
-  MutableArrayReference sar(svp->getId(), ivar.getId());
+  MutableArrayReference bar(bvp, &ivar);
+  MutableArrayReference iar(ivp, &ivar);
+  MutableArrayReference dar(dvp, &ivar);
+  MutableArrayReference sar(svp, &ivar);
 
   Assignable *barp = bar.asAssignable();
   Assignable *iarp = iar.asAssignable();
@@ -773,22 +773,22 @@ bool testArrayRefNotification()
   TrivialListener svl(svChanged);
   sv.addListener(&svl);
 
-  ArrayReference bar(bv.getId(), ivar.getId());
+  ArrayReference bar(&bv, &ivar);
   bool barChanged = false;
   TrivialListener barl(barChanged);
   bar.addListener(&barl);
 
-  ArrayReference iar(iv.getId(), ivar.getId());
+  ArrayReference iar(&iv, &ivar);
   bool iarChanged = false;
   TrivialListener iarl(iarChanged);
   iar.addListener(&iarl);
 
-  ArrayReference dar(dv.getId(), ivar.getId());
+  ArrayReference dar(&dv, &ivar);
   bool darChanged = false;
   TrivialListener darl(darChanged);
   dar.addListener(&darl);
 
-  ArrayReference sar(sv.getId(), ivar.getId());
+  ArrayReference sar(&sv, &ivar);
   bool sarChanged = false;
   TrivialListener sarl(sarChanged);
   sar.addListener(&sarl);
@@ -796,7 +796,7 @@ bool testArrayRefNotification()
   Constant<bool> dummy;
 
   // Check that nothing propagates while inactive
-  ivar.notifyChanged(dummy.getId());
+  ivar.notifyChanged(&dummy);
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -847,7 +847,7 @@ bool testArrayRefNotification()
 
   // Changing array should propagate to refs but not ivar
   ivarChanged = barChanged = iarChanged = darChanged = sarChanged = false;
-  bv.notifyChanged(dummy.getId());
+  bv.notifyChanged(&dummy);
   assertTrue_1(!ivarChanged);
   assertTrue_1(bvChanged);
   assertTrue_1(!ivChanged);
@@ -859,7 +859,7 @@ bool testArrayRefNotification()
   assertTrue_1(!sarChanged);
   
   bvChanged = barChanged = false;
-  iv.notifyChanged(dummy.getId());
+  iv.notifyChanged(&dummy);
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(ivChanged);
@@ -871,7 +871,7 @@ bool testArrayRefNotification()
   assertTrue_1(!sarChanged);
   
   ivChanged = iarChanged = false;
-  dv.notifyChanged(dummy.getId());
+  dv.notifyChanged(&dummy);
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -883,7 +883,7 @@ bool testArrayRefNotification()
   assertTrue_1(!sarChanged);
   
   dvChanged = darChanged = false;
-  sv.notifyChanged(dummy.getId());
+  sv.notifyChanged(&dummy);
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -979,22 +979,22 @@ bool testMutableNotification()
   TrivialListener svl(svChanged);
   sv.addListener(&svl);
 
-  MutableArrayReference bar(bv.getId(), ivar.getId());
+  MutableArrayReference bar(&bv, &ivar);
   bool barChanged = false;
   TrivialListener barl(barChanged);
   bar.addListener(&barl);
 
-  MutableArrayReference iar(iv.getId(), ivar.getId());
+  MutableArrayReference iar(&iv, &ivar);
   bool iarChanged = false;
   TrivialListener iarl(iarChanged);
   iar.addListener(&iarl);
 
-  MutableArrayReference dar(dv.getId(), ivar.getId());
+  MutableArrayReference dar(&dv, &ivar);
   bool darChanged = false;
   TrivialListener darl(darChanged);
   dar.addListener(&darl);
 
-  MutableArrayReference sar(sv.getId(), ivar.getId());
+  MutableArrayReference sar(&sv, &ivar);
   bool sarChanged = false;
   TrivialListener sarl(sarChanged);
   sar.addListener(&sarl);
@@ -1002,7 +1002,7 @@ bool testMutableNotification()
   Constant<bool> dummy;
 
   // Check that nothing propagates while inactive
-  ivar.notifyChanged(dummy.getId());
+  ivar.notifyChanged(&dummy);
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -1053,7 +1053,7 @@ bool testMutableNotification()
 
   // Changing array should propagate to refs but not ivar
   ivarChanged = barChanged = iarChanged = darChanged = sarChanged = false;
-  bv.notifyChanged(dummy.getId());
+  bv.notifyChanged(&dummy);
   assertTrue_1(!ivarChanged);
   assertTrue_1(bvChanged);
   assertTrue_1(!ivChanged);
@@ -1065,7 +1065,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
   
   bvChanged = barChanged = false;
-  iv.notifyChanged(dummy.getId());
+  iv.notifyChanged(&dummy);
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(ivChanged);
@@ -1077,7 +1077,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
   
   ivChanged = iarChanged = false;
-  dv.notifyChanged(dummy.getId());
+  dv.notifyChanged(&dummy);
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -1089,7 +1089,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
   
   dvChanged = darChanged = false;
-  sv.notifyChanged(dummy.getId());
+  sv.notifyChanged(&dummy);
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);

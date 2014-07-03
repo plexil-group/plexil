@@ -43,6 +43,7 @@ namespace PLEXIL {
     : NotifierImpl(),
       ExpressionImpl<T>(),
     AssignableImpl<T>(),
+    m_initializer(NULL),
     m_name("anonymous"),
     m_known(false),
     m_savedKnown(false)

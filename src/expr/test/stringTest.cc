@@ -36,7 +36,7 @@ static bool testStringLength()
 {
   StringVariable var; // initially unknown
   std::vector<bool> garbage(1, false);
-  std::vector<ExpressionId> varv(1, var.getId());
+  std::vector<Expression *> varv(1, &var);
 
   Function strlen(StringLength::instance(), makeExprVec(varv, garbage));
   int32_t result;
@@ -67,7 +67,7 @@ static bool testStringConcat()
 
   // Unary function of constant
   std::vector<bool> garbage1(1, false);
-  std::vector<ExpressionId> foov(1, foo.getId());
+  std::vector<Expression *> foov(1, &foo);
   Function fooConc(StringConcat::instance(), makeExprVec(foov, garbage1));
   fooConc.activate();
   assertTrue_1(fooConc.getValue(result));
@@ -75,7 +75,7 @@ static bool testStringConcat()
   assertTrue_1(result == result2);
 
   // Unary of unint'ed variable
-  std::vector<ExpressionId> barv(1, bar.getId());
+  std::vector<Expression *> barv(1, &bar);
   Function barConc(StringConcat::instance(), makeExprVec(barv, garbage1));
   barConc.activate();
   assertTrue_1(!barConc.getValue(result));
@@ -88,9 +88,9 @@ static bool testStringConcat()
 
   // Binary of constant, variable
   std::vector<bool> garbage2(2, false);
-  std::vector<ExpressionId> foobazv;
-  foobazv.push_back(foo.getId());
-  foobazv.push_back(baz.getId());
+  std::vector<Expression *> foobazv;
+  foobazv.push_back(&foo);
+  foobazv.push_back(&baz);
   Function fooBazConc(StringConcat::instance(), makeExprVec(foobazv, garbage2));
   fooBazConc.activate();
   assertTrue_1(!fooBazConc.getValue(result));
@@ -107,11 +107,11 @@ static bool testStringConcat()
   assertTrue_1(result == std::string("foo! bazzz"));
 
   // N-ary
-  std::vector<ExpressionId> args(4);
-  args[0] = foo.getId();
-  args[1] = bar.getId();
-  args[2] = baz.getId();
-  args[3] = bletch.getId();
+  std::vector<Expression *> args(4);
+  args[0] = &foo;
+  args[1] = &bar;
+  args[2] = &baz;
+  args[3] = &bletch;
   std::vector<bool> garbage4(4, false);
   Function nConc(StringConcat::instance(), makeExprVec(args, garbage4));
   nConc.activate();

@@ -55,7 +55,7 @@ public:
     return count == 1;
   }
 
-  bool operator()(R &result, ExpressionId arg) const
+  bool operator()(R &result, Expression const * arg) const
   {
     R temp;
     if (!arg->getValue(temp))
@@ -78,10 +78,10 @@ static bool testUnaryBasics()
   Passthrough<std::string> pts;
 
   std::vector<bool> garbage1(1, false);
-  std::vector<ExpressionId> vecb(1, treu.getId());
-  std::vector<ExpressionId> veci(1, fortytwo.getId());
-  std::vector<ExpressionId> vecd(1, pie.getId());
-  std::vector<ExpressionId> vecs(1, fou.getId());
+  std::vector<Expression *> vecb(1, &treu);
+  std::vector<Expression *> veci(1, &fortytwo);
+  std::vector<Expression *> vecd(1, &pie);
+  std::vector<Expression *> vecs(1, &fou);
 
   Function boule(&ptb, makeExprVec(vecb, garbage1));
   Function inty(&pti, makeExprVec(veci, garbage1));
@@ -137,10 +137,10 @@ static bool testUnaryPropagation()
   Passthrough<std::string> pts;
 
   std::vector<bool> garbage1(1, false);
-  std::vector<ExpressionId> vecb(1, treu.getId());
-  std::vector<ExpressionId> veci(1, fortytwo.getId());
-  std::vector<ExpressionId> vecd(1, pie.getId());
-  std::vector<ExpressionId> vecs(1, fou.getId());
+  std::vector<Expression *> vecb(1, &treu);
+  std::vector<Expression *> veci(1, &fortytwo);
+  std::vector<Expression *> vecd(1, &pie);
+  std::vector<Expression *> vecs(1, &fou);
 
   Function boule(&ptb, makeExprVec(vecb, garbage1));
   Function inty(&pti, makeExprVec(veci, garbage1));
@@ -250,13 +250,13 @@ static bool testBinaryBasics()
   RealConstant fore(4);
 
   std::vector<bool> garbage2(2, false);
-  std::vector<ExpressionId> vi, vr;
+  std::vector<Expression *> vi, vr;
 
-  vi.push_back(won.getId());
-  vi.push_back(too.getId());
+  vi.push_back(&won);
+  vi.push_back(&too);
 
-  vr.push_back(tree.getId());
-  vr.push_back(fore.getId());
+  vr.push_back(&tree);
+  vr.push_back(&fore);
 
   Function intFn(&intAdd, makeExprVec(vi, garbage2));
   Function realFn(&realAdd, makeExprVec(vr, garbage2));
@@ -377,19 +377,19 @@ static bool testNaryBasics()
   RealVariable fivefive(5.5);
   RealVariable sixfive(6.5);
 
-  std::vector<ExpressionId> exprs;
+  std::vector<Expression *> exprs;
   const std::vector<bool> garbage(3, false);
 
-  exprs.push_back(won.getId());
-  exprs.push_back(too.getId());
-  exprs.push_back(tree.getId());
+  exprs.push_back(&won);
+  exprs.push_back(&too);
+  exprs.push_back(&tree);
 
   Function intFn(&intAdd, makeExprVec(exprs, garbage));
 
   exprs.clear();
-  exprs.push_back(fore.getId());
-  exprs.push_back(fivefive.getId());
-  exprs.push_back(sixfive.getId());
+  exprs.push_back(&fore);
+  exprs.push_back(&fivefive);
+  exprs.push_back(&sixfive);
 
   Function realFn(&realAdd, makeExprVec(exprs, garbage));
 

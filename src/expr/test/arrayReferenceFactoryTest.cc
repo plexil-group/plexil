@@ -76,14 +76,14 @@ static bool testArrayConstantReferenceFactory()
   StringArrayConstant  sc(vs);
   
   // Associate arrays with names
-  realNc->storeVariable("bul", bc.getId());
-  realNc->storeVariable("int", ic.getId());
-  realNc->storeVariable("dbl", dc.getId());
-  realNc->storeVariable("str", sc.getId());
+  realNc->storeVariable("bul", &bc);
+  realNc->storeVariable("int", &ic);
+  realNc->storeVariable("dbl", &dc);
+  realNc->storeVariable("str", &sc);
 
   // Store array index too
   IntegerVariable iv;
-  realNc->storeVariable("i", iv.getId());
+  realNc->storeVariable("i", &iv);
 
   // Construct reference templates
   PlexilArrayElement bart0((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
@@ -105,50 +105,50 @@ static bool testArrayConstantReferenceFactory()
 
   bool wasCreated = false;
 
-  ExpressionId bar0 = createExpression(bart0.getId(), nc, wasCreated);
-  assertTrue_1(bar0.isId());
+  Expression *bar0 = createExpression(bart0.getId(), nc, wasCreated);
+  assertTrue_1(bar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
   assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
 
-  ExpressionId bari = createExpression(barti.getId(), nc, wasCreated);
-  assertTrue_1(bari.isId());
+  Expression *bari = createExpression(barti.getId(), nc, wasCreated);
+  assertTrue_1(bari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
   assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
 
-  ExpressionId iar0 = createExpression(iart0.getId(), nc, wasCreated);
-  assertTrue_1(iar0.isId());
+  Expression *iar0 = createExpression(iart0.getId(), nc, wasCreated);
+  assertTrue_1(iar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
   assertTrue_1(iar0->valueType() == INTEGER_TYPE);
 
-  ExpressionId iari = createExpression(iarti.getId(), nc, wasCreated);
-  assertTrue_1(iari.isId());
+  Expression *iari = createExpression(iarti.getId(), nc, wasCreated);
+  assertTrue_1(iari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
   assertTrue_1(iari->valueType() == INTEGER_TYPE);
 
-  ExpressionId dar0 = createExpression(dart0.getId(), nc, wasCreated);
-  assertTrue_1(dar0.isId());
+  Expression *dar0 = createExpression(dart0.getId(), nc, wasCreated);
+  assertTrue_1(dar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
   assertTrue_1(dar0->valueType() == REAL_TYPE);
 
-  ExpressionId dari = createExpression(darti.getId(), nc, wasCreated);
-  assertTrue_1(dari.isId());
+  Expression *dari = createExpression(darti.getId(), nc, wasCreated);
+  assertTrue_1(dari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
   assertTrue_1(dari->valueType() == REAL_TYPE);
 
-  ExpressionId sar0 = createExpression(sart0.getId(), nc, wasCreated);
-  assertTrue_1(sar0.isId());
+  Expression *sar0 = createExpression(sart0.getId(), nc, wasCreated);
+  assertTrue_1(sar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
   assertTrue_1(sar0->valueType() == STRING_TYPE);
 
-  ExpressionId sari = createExpression(sarti.getId(), nc, wasCreated);
-  assertTrue_1(sari.isId());
+  Expression *sari = createExpression(sarti.getId(), nc, wasCreated);
+  assertTrue_1(sari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
   assertTrue_1(sari->valueType() == STRING_TYPE);
@@ -236,14 +236,14 @@ static bool testArrayConstantReferenceFactory()
     assertTrue_1(ps == vs[i]);
   }
 
-  delete (Expression *) bar0;
-  delete (Expression *) bari;
-  delete (Expression *) iar0;
-  delete (Expression *) iari;
-  delete (Expression *) dar0;
-  delete (Expression *) dari;
-  delete (Expression *) sar0;
-  delete (Expression *) sari;
+  delete bar0;
+  delete bari;
+  delete iar0;
+  delete iari;
+  delete dar0;
+  delete dari;
+  delete sar0;
+  delete sari;
 
   return true;
 }
@@ -279,20 +279,20 @@ static bool testArrayVariableReferenceFactory()
   RealArrayConstant    dc(vd);
   StringArrayConstant  sc(vs);
   
-  BooleanArrayVariable bav(nc, "bul", ExpressionId::noId(), bc.getId(), false, false);
-  IntegerArrayVariable iav(nc, "int", ExpressionId::noId(), ic.getId(), false, false);
-  RealArrayVariable    dav(nc, "dbl", ExpressionId::noId(), dc.getId(), false, false);
-  StringArrayVariable  sav(nc, "str", ExpressionId::noId(), sc.getId(), false, false);
+  BooleanArrayVariable bav(nc, "bul", NULL, &bc, false, false);
+  IntegerArrayVariable iav(nc, "int", NULL, &ic, false, false);
+  RealArrayVariable    dav(nc, "dbl", NULL, &dc, false, false);
+  StringArrayVariable  sav(nc, "str", NULL, &sc, false, false);
 
   // Associate arrays with names
-  realNc->storeVariable("bul", bav.getId());
-  realNc->storeVariable("int", iav.getId());
-  realNc->storeVariable("dbl", dav.getId());
-  realNc->storeVariable("str", sav.getId());
+  realNc->storeVariable("bul", &bav);
+  realNc->storeVariable("int", &iav);
+  realNc->storeVariable("dbl", &dav);
+  realNc->storeVariable("str", &sav);
 
   // Store array index too
   IntegerVariable iv;
-  realNc->storeVariable("i", iv.getId());
+  realNc->storeVariable("i", &iv);
 
   // Construct reference templates
   PlexilArrayElement bart0((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
@@ -314,50 +314,50 @@ static bool testArrayVariableReferenceFactory()
 
   bool wasCreated = false;
 
-  ExpressionId bar0 = createExpression(bart0.getId(), nc, wasCreated);
-  assertTrue_1(bar0.isId());
+  Expression *bar0 = createExpression(bart0.getId(), nc, wasCreated);
+  assertTrue_1(bar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
   assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
 
-  ExpressionId bari = createExpression(barti.getId(), nc, wasCreated);
-  assertTrue_1(bari.isId());
+  Expression *bari = createExpression(barti.getId(), nc, wasCreated);
+  assertTrue_1(bari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
   assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
 
-  ExpressionId iar0 = createExpression(iart0.getId(), nc, wasCreated);
-  assertTrue_1(iar0.isId());
+  Expression *iar0 = createExpression(iart0.getId(), nc, wasCreated);
+  assertTrue_1(iar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
   assertTrue_1(iar0->valueType() == INTEGER_TYPE);
 
-  ExpressionId iari = createExpression(iarti.getId(), nc, wasCreated);
-  assertTrue_1(iari.isId());
+  Expression *iari = createExpression(iarti.getId(), nc, wasCreated);
+  assertTrue_1(iari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
   assertTrue_1(iari->valueType() == INTEGER_TYPE);
 
-  ExpressionId dar0 = createExpression(dart0.getId(), nc, wasCreated);
-  assertTrue_1(dar0.isId());
+  Expression *dar0 = createExpression(dart0.getId(), nc, wasCreated);
+  assertTrue_1(dar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
   assertTrue_1(dar0->valueType() == REAL_TYPE);
 
-  ExpressionId dari = createExpression(darti.getId(), nc, wasCreated);
-  assertTrue_1(dari.isId());
+  Expression *dari = createExpression(darti.getId(), nc, wasCreated);
+  assertTrue_1(dari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
   assertTrue_1(dari->valueType() == REAL_TYPE);
 
-  ExpressionId sar0 = createExpression(sart0.getId(), nc, wasCreated);
-  assertTrue_1(sar0.isId());
+  Expression *sar0 = createExpression(sart0.getId(), nc, wasCreated);
+  assertTrue_1(sar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
   assertTrue_1(sar0->valueType() == STRING_TYPE);
 
-  ExpressionId sari = createExpression(sarti.getId(), nc, wasCreated);
-  assertTrue_1(sari.isId());
+  Expression *sari = createExpression(sarti.getId(), nc, wasCreated);
+  assertTrue_1(sari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
   assertTrue_1(sari->valueType() == STRING_TYPE);
@@ -445,14 +445,14 @@ static bool testArrayVariableReferenceFactory()
     assertTrue_1(ps == vs[i]);
   }
 
-  delete (Expression *) bar0;
-  delete (Expression *) bari;
-  delete (Expression *) iar0;
-  delete (Expression *) iari;
-  delete (Expression *) dar0;
-  delete (Expression *) dari;
-  delete (Expression *) sar0;
-  delete (Expression *) sari;
+  delete bar0;
+  delete bari;
+  delete iar0;
+  delete iari;
+  delete dar0;
+  delete dari;
+  delete sar0;
+  delete sari;
 
   return true;
 }
@@ -488,25 +488,25 @@ static bool testArrayAliasReferenceFactory()
   RealArrayConstant    dc(vd);
   StringArrayConstant  sc(vs);
   
-  BooleanArrayVariable bav(nc, "rbul", ExpressionId::noId(), bc.getId(), false, false);
-  IntegerArrayVariable iav(nc, "rint", ExpressionId::noId(), ic.getId(), false, false);
-  RealArrayVariable    dav(nc, "rdbl", ExpressionId::noId(), dc.getId(), false, false);
-  StringArrayVariable  sav(nc, "rstr", ExpressionId::noId(), sc.getId(), false, false);
+  BooleanArrayVariable bav(nc, "rbul", NULL, &bc, false, false);
+  IntegerArrayVariable iav(nc, "rint", NULL, &ic, false, false);
+  RealArrayVariable    dav(nc, "rdbl", NULL, &dc, false, false);
+  StringArrayVariable  sav(nc, "rstr", NULL, &sc, false, false);
 
-  Alias abav(nc, "bul", bav.getId(), false);
-  Alias aiav(nc, "int", iav.getId(), false);
-  Alias adav(nc, "dbl", dav.getId(), false);
-  Alias asav(nc, "str", sav.getId(), false);
+  Alias abav(nc, "bul", &bav, false);
+  Alias aiav(nc, "int", &iav, false);
+  Alias adav(nc, "dbl", &dav, false);
+  Alias asav(nc, "str", &sav, false);
 
   // Associate aliases with names
-  realNc->storeVariable("bul", abav.getId());
-  realNc->storeVariable("int", aiav.getId());
-  realNc->storeVariable("dbl", adav.getId());
-  realNc->storeVariable("str", asav.getId());
+  realNc->storeVariable("bul", &abav);
+  realNc->storeVariable("int", &aiav);
+  realNc->storeVariable("dbl", &adav);
+  realNc->storeVariable("str", &asav);
 
   // Store array index too
   IntegerVariable iv;
-  realNc->storeVariable("i", iv.getId());
+  realNc->storeVariable("i", &iv);
 
   // Construct reference templates
   PlexilArrayElement bart0((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
@@ -528,50 +528,50 @@ static bool testArrayAliasReferenceFactory()
 
   bool wasCreated = false;
 
-  ExpressionId bar0 = createExpression(bart0.getId(), nc, wasCreated);
-  assertTrue_1(bar0.isId());
+  Expression *bar0 = createExpression(bart0.getId(), nc, wasCreated);
+  assertTrue_1(bar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
   assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
 
-  ExpressionId bari = createExpression(barti.getId(), nc, wasCreated);
-  assertTrue_1(bari.isId());
+  Expression *bari = createExpression(barti.getId(), nc, wasCreated);
+  assertTrue_1(bari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
   assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
 
-  ExpressionId iar0 = createExpression(iart0.getId(), nc, wasCreated);
-  assertTrue_1(iar0.isId());
+  Expression *iar0 = createExpression(iart0.getId(), nc, wasCreated);
+  assertTrue_1(iar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
   assertTrue_1(iar0->valueType() == INTEGER_TYPE);
 
-  ExpressionId iari = createExpression(iarti.getId(), nc, wasCreated);
-  assertTrue_1(iari.isId());
+  Expression *iari = createExpression(iarti.getId(), nc, wasCreated);
+  assertTrue_1(iari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
   assertTrue_1(iari->valueType() == INTEGER_TYPE);
 
-  ExpressionId dar0 = createExpression(dart0.getId(), nc, wasCreated);
-  assertTrue_1(dar0.isId());
+  Expression *dar0 = createExpression(dart0.getId(), nc, wasCreated);
+  assertTrue_1(dar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
   assertTrue_1(dar0->valueType() == REAL_TYPE);
 
-  ExpressionId dari = createExpression(darti.getId(), nc, wasCreated);
-  assertTrue_1(dari.isId());
+  Expression *dari = createExpression(darti.getId(), nc, wasCreated);
+  assertTrue_1(dari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
   assertTrue_1(dari->valueType() == REAL_TYPE);
 
-  ExpressionId sar0 = createExpression(sart0.getId(), nc, wasCreated);
-  assertTrue_1(sar0.isId());
+  Expression *sar0 = createExpression(sart0.getId(), nc, wasCreated);
+  assertTrue_1(sar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
   assertTrue_1(sar0->valueType() == STRING_TYPE);
 
-  ExpressionId sari = createExpression(sarti.getId(), nc, wasCreated);
-  assertTrue_1(sari.isId());
+  Expression *sari = createExpression(sarti.getId(), nc, wasCreated);
+  assertTrue_1(sari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
   assertTrue_1(sari->valueType() == STRING_TYPE);
@@ -673,14 +673,14 @@ static bool testArrayAliasReferenceFactory()
     assertTrue_1(ps == vs[i]);
   }
 
-  delete (Expression *) bar0;
-  delete (Expression *) bari;
-  delete (Expression *) iar0;
-  delete (Expression *) iari;
-  delete (Expression *) dar0;
-  delete (Expression *) dari;
-  delete (Expression *) sar0;
-  delete (Expression *) sari;
+  delete bar0;
+  delete bari;
+  delete iar0;
+  delete iari;
+  delete dar0;
+  delete dari;
+  delete sar0;
+  delete sari;
 
   return true;
 }
@@ -716,20 +716,20 @@ static bool testMutableArrayReferenceFactory()
   RealArrayConstant    dc(vd);
   StringArrayConstant  sc(vs);
   
-  BooleanArrayVariable bav(nc, "bul", ExpressionId::noId(), bc.getId(), false, false);
-  IntegerArrayVariable iav(nc, "int", ExpressionId::noId(), ic.getId(), false, false);
-  RealArrayVariable    dav(nc, "dbl", ExpressionId::noId(), dc.getId(), false, false);
-  StringArrayVariable  sav(nc, "str", ExpressionId::noId(), sc.getId(), false, false);
+  BooleanArrayVariable bav(nc, "bul", NULL, &bc, false, false);
+  IntegerArrayVariable iav(nc, "int", NULL, &ic, false, false);
+  RealArrayVariable    dav(nc, "dbl", NULL, &dc, false, false);
+  StringArrayVariable  sav(nc, "str", NULL, &sc, false, false);
 
   // Associate arrays with names
-  realNc->storeVariable("bul", bav.getId());
-  realNc->storeVariable("int", iav.getId());
-  realNc->storeVariable("dbl", dav.getId());
-  realNc->storeVariable("str", sav.getId());
+  realNc->storeVariable("bul", &bav);
+  realNc->storeVariable("int", &iav);
+  realNc->storeVariable("dbl", &dav);
+  realNc->storeVariable("str", &sav);
 
   // Store array index too
   IntegerVariable iv;
-  realNc->storeVariable("i", iv.getId());
+  realNc->storeVariable("i", &iv);
 
   // Construct reference templates
   PlexilArrayElement bart0((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
@@ -943,14 +943,14 @@ static bool testMutableArrayReferenceFactory()
     assertTrue_1(ps.substr(0, ps.size() -1) == vs[i]);
   }
 
-  delete (Expression *) bar0;
-  delete (Expression *) bari;
-  delete (Expression *) iar0;
-  delete (Expression *) iari;
-  delete (Expression *) dar0;
-  delete (Expression *) dari;
-  delete (Expression *) sar0;
-  delete (Expression *) sari;
+  delete bar0;
+  delete bari;
+  delete iar0;
+  delete iari;
+  delete dar0;
+  delete dari;
+  delete sar0;
+  delete sari;
 
   return true;
 }
@@ -986,25 +986,25 @@ static bool testMutableArrayAliasReferenceFactory()
   RealArrayConstant    dc(vd);
   StringArrayConstant  sc(vs);
   
-  BooleanArrayVariable bav(nc, "rbul", ExpressionId::noId(), bc.getId(), false, false);
-  IntegerArrayVariable iav(nc, "rint", ExpressionId::noId(), ic.getId(), false, false);
-  RealArrayVariable    dav(nc, "rdbl", ExpressionId::noId(), dc.getId(), false, false);
-  StringArrayVariable  sav(nc, "rstr", ExpressionId::noId(), sc.getId(), false, false);
+  BooleanArrayVariable bav(nc, "rbul", NULL, &bc, false, false);
+  IntegerArrayVariable iav(nc, "rint", NULL, &ic, false, false);
+  RealArrayVariable    dav(nc, "rdbl", NULL, &dc, false, false);
+  StringArrayVariable  sav(nc, "rstr", NULL, &sc, false, false);
 
-  InOutAlias abav(nc, "bul", bav.getId(), false);
-  InOutAlias aiav(nc, "int", iav.getId(), false);
-  InOutAlias adav(nc, "dbl", dav.getId(), false);
-  InOutAlias asav(nc, "str", sav.getId(), false);
+  InOutAlias abav(nc, "bul", &bav, false);
+  InOutAlias aiav(nc, "int", &iav, false);
+  InOutAlias adav(nc, "dbl", &dav, false);
+  InOutAlias asav(nc, "str", &sav, false);
 
   // Associate aliases with names
-  realNc->storeVariable("bul", abav.getId());
-  realNc->storeVariable("int", aiav.getId());
-  realNc->storeVariable("dbl", adav.getId());
-  realNc->storeVariable("str", asav.getId());
+  realNc->storeVariable("bul", &abav);
+  realNc->storeVariable("int", &aiav);
+  realNc->storeVariable("dbl", &adav);
+  realNc->storeVariable("str", &asav);
 
   // Store array index too
   IntegerVariable iv;
-  realNc->storeVariable("i", iv.getId());
+  realNc->storeVariable("i", &iv);
 
   // Construct reference templates
   PlexilArrayElement bart0((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
@@ -1232,14 +1232,14 @@ static bool testMutableArrayAliasReferenceFactory()
     assertTrue_1(ps.substr(0, ps.size() -1) == vs[i]);
   }
 
-  delete (Expression *) bar0;
-  delete (Expression *) bari;
-  delete (Expression *) iar0;
-  delete (Expression *) iari;
-  delete (Expression *) dar0;
-  delete (Expression *) dari;
-  delete (Expression *) sar0;
-  delete (Expression *) sari;
+  delete bar0;
+  delete bari;
+  delete iar0;
+  delete iari;
+  delete dar0;
+  delete dari;
+  delete sar0;
+  delete sari;
 
   return true;
 }

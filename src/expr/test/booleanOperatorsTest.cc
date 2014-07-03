@@ -38,9 +38,9 @@ static bool testBooleanNot()
   BooleanConstant falls(false);
 
   std::vector<bool> garbage1(1, false);
-  std::vector<ExpressionId> unkv(1, unk.getId());
-  std::vector<ExpressionId> troov(1, troo.getId());
-  std::vector<ExpressionId> fallsv(1, falls.getId());
+  std::vector<Expression *> unkv(1, &unk);
+  std::vector<Expression *> troov(1, &troo);
+  std::vector<Expression *> fallsv(1, &falls);
 
   // Test logic
   Function n1(BooleanNot::instance(), makeExprVec(unkv, garbage1));
@@ -70,33 +70,33 @@ static bool testBooleanAnd()
   BooleanConstant falls(false);
 
   std::vector<bool> garbage2(2, false);
-  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6, v7, v8, v9;
-  v1.push_back(falls.getId());
-  v1.push_back(falls.getId());
+  std::vector<Expression *> v1, v2, v3, v4, v5, v6, v7, v8, v9;
+  v1.push_back(&falls);
+  v1.push_back(&falls);
 
-  v2.push_back(falls.getId());
-  v2.push_back(unk.getId());
+  v2.push_back(&falls);
+  v2.push_back(&unk);
 
-  v3.push_back(falls.getId());
-  v3.push_back(troo.getId());
+  v3.push_back(&falls);
+  v3.push_back(&troo);
 
-  v4.push_back(unk.getId());
-  v4.push_back(falls.getId());
+  v4.push_back(&unk);
+  v4.push_back(&falls);
 
-  v5.push_back(unk.getId());
-  v5.push_back(unk.getId());
+  v5.push_back(&unk);
+  v5.push_back(&unk);
 
-  v6.push_back(unk.getId());
-  v6.push_back(troo.getId());
+  v6.push_back(&unk);
+  v6.push_back(&troo);
 
-  v7.push_back(troo.getId());
-  v7.push_back(falls.getId());
+  v7.push_back(&troo);
+  v7.push_back(&falls);
 
-  v8.push_back(troo.getId());
-  v8.push_back(unk.getId());
+  v8.push_back(&troo);
+  v8.push_back(&unk);
 
-  v9.push_back(troo.getId());
-  v9.push_back(troo.getId());
+  v9.push_back(&troo);
+  v9.push_back(&troo);
 
   // Basic three-valued AND semantics of two args
   Function c1(BooleanAnd::instance(), makeExprVec(v1, garbage2));
@@ -148,33 +148,33 @@ static bool testBooleanOr()
   BooleanConstant falls(false);
 
   std::vector<bool> garbage2(2, false);
-  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6, v7, v8, v9;
-  v1.push_back(falls.getId());
-  v1.push_back(falls.getId());
+  std::vector<Expression *> v1, v2, v3, v4, v5, v6, v7, v8, v9;
+  v1.push_back(&falls);
+  v1.push_back(&falls);
 
-  v2.push_back(falls.getId());
-  v2.push_back(unk.getId());
+  v2.push_back(&falls);
+  v2.push_back(&unk);
 
-  v3.push_back(falls.getId());
-  v3.push_back(troo.getId());
+  v3.push_back(&falls);
+  v3.push_back(&troo);
 
-  v4.push_back(unk.getId());
-  v4.push_back(falls.getId());
+  v4.push_back(&unk);
+  v4.push_back(&falls);
 
-  v5.push_back(unk.getId());
-  v5.push_back(unk.getId());
+  v5.push_back(&unk);
+  v5.push_back(&unk);
 
-  v6.push_back(unk.getId());
-  v6.push_back(troo.getId());
+  v6.push_back(&unk);
+  v6.push_back(&troo);
 
-  v7.push_back(troo.getId());
-  v7.push_back(falls.getId());
+  v7.push_back(&troo);
+  v7.push_back(&falls);
 
-  v8.push_back(troo.getId());
-  v8.push_back(unk.getId());
+  v8.push_back(&troo);
+  v8.push_back(&unk);
 
-  v9.push_back(troo.getId());
-  v9.push_back(troo.getId());
+  v9.push_back(&troo);
+  v9.push_back(&troo);
 
   // Three-valued OR semantics of two args
   Function d1(BooleanOr::instance(), makeExprVec(v1, garbage2));
@@ -226,33 +226,33 @@ static bool testBooleanXor()
   BooleanConstant falls(false);
 
   std::vector<bool> garbage2(2, false);
-  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6, v7, v8, v9;
-  v1.push_back(falls.getId());
-  v1.push_back(falls.getId());
+  std::vector<Expression *> v1, v2, v3, v4, v5, v6, v7, v8, v9;
+  v1.push_back(&falls);
+  v1.push_back(&falls);
 
-  v2.push_back(falls.getId());
-  v2.push_back(unk.getId());
+  v2.push_back(&falls);
+  v2.push_back(&unk);
 
-  v3.push_back(falls.getId());
-  v3.push_back(troo.getId());
+  v3.push_back(&falls);
+  v3.push_back(&troo);
 
-  v4.push_back(unk.getId());
-  v4.push_back(falls.getId());
+  v4.push_back(&unk);
+  v4.push_back(&falls);
 
-  v5.push_back(unk.getId());
-  v5.push_back(unk.getId());
+  v5.push_back(&unk);
+  v5.push_back(&unk);
 
-  v6.push_back(unk.getId());
-  v6.push_back(troo.getId());
+  v6.push_back(&unk);
+  v6.push_back(&troo);
 
-  v7.push_back(troo.getId());
-  v7.push_back(falls.getId());
+  v7.push_back(&troo);
+  v7.push_back(&falls);
 
-  v8.push_back(troo.getId());
-  v8.push_back(unk.getId());
+  v8.push_back(&troo);
+  v8.push_back(&unk);
 
-  v9.push_back(troo.getId());
-  v9.push_back(troo.getId());
+  v9.push_back(&troo);
+  v9.push_back(&troo);
 
   //test basic three-valued XOR semantics
   Function d1(BooleanXor::instance(), makeExprVec(v1, garbage2));

@@ -53,8 +53,8 @@ static bool booleanVariableFactoryTest()
   bool wasCreated;
   bool temp;
 
-  ExpressionId bExp = createExpression(bVar.getId(), nc, wasCreated);
-  assertTrue_1(bExp.isId());
+  Expression *bExp = createExpression(bVar.getId(), nc, wasCreated);
+  assertTrue_1(bExp);
   assertTrue_1(wasCreated);
   assertTrue_1(bExp->isAssignable());
   assertTrue_1(bExp->valueType() == BOOLEAN_TYPE);
@@ -63,8 +63,8 @@ static bool booleanVariableFactoryTest()
   assertTrue_1(!bExp->getValue(temp));
   realNc->storeVariable("b", bExp);
 
-  ExpressionId fExp = createExpression(fVar.getId(), nc, wasCreated);
-  assertTrue_1(fExp.isId());
+  Expression *fExp = createExpression(fVar.getId(), nc, wasCreated);
+  assertTrue_1(fExp);
   assertTrue_1(wasCreated);
   assertTrue_1(fExp->isAssignable());
   assertTrue_1(fExp->valueType() == BOOLEAN_TYPE);
@@ -74,8 +74,8 @@ static bool booleanVariableFactoryTest()
   assertTrue_1(!temp);
   realNc->storeVariable("f", fExp);
 
-  ExpressionId tExp = createExpression(tVar.getId(), nc, wasCreated);
-  assertTrue_1(tExp.isId());
+  Expression *tExp = createExpression(tVar.getId(), nc, wasCreated);
+  assertTrue_1(tExp);
   assertTrue_1(wasCreated);
   assertTrue_1(tExp->isAssignable());
   assertTrue_1(tExp->valueType() == BOOLEAN_TYPE);
@@ -85,8 +85,8 @@ static bool booleanVariableFactoryTest()
   assertTrue_1(temp);
   realNc->storeVariable("t", tExp);
 
-  ExpressionId uExp = createExpression(uVar.getId(), nc, wasCreated);
-  assertTrue_1(uExp.isId());
+  Expression *uExp = createExpression(uVar.getId(), nc, wasCreated);
+  assertTrue_1(uExp);
   assertTrue_1(wasCreated);
   assertTrue_1(uExp->isAssignable());
   assertTrue_1(uExp->valueType() == BOOLEAN_TYPE);
@@ -95,15 +95,15 @@ static bool booleanVariableFactoryTest()
   assertTrue_1(!uExp->getValue(temp));
   
   try {
-    ExpressionId bogusExp = createExpression(bogusVar.getId(), nc, wasCreated);
+    Expression *bogusExp = createExpression(bogusVar.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect invalid initial value");
   }
   catch (ParserException const & /*exc*/) {
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  ExpressionId xExp = createExpression(xVar.getId(), nc, wasCreated);
-  assertTrue_1(xExp.isId());
+  Expression *xExp = createExpression(xVar.getId(), nc, wasCreated);
+  assertTrue_1(xExp);
   assertTrue_1(wasCreated);
   assertTrue_1(xExp->isAssignable());
   assertTrue_1(xExp->valueType() == BOOLEAN_TYPE);
@@ -115,13 +115,13 @@ static bool booleanVariableFactoryTest()
   // Variable references
 
   PlexilVarRef bRef("b", BOOLEAN_TYPE);
-  ExpressionId bExpRef = createExpression(bRef.getId(), nc, wasCreated);
+  Expression *bExpRef = createExpression(bRef.getId(), nc, wasCreated);
   assertTrue_1(!wasCreated);
   assertTrue_1(bExpRef == bExp);
 
   PlexilVarRef qRef("q", BOOLEAN_TYPE);
   try {
-    ExpressionId qExpRef = createExpression(qRef.getId(), nc, wasCreated);
+    Expression *qExpRef = createExpression(qRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect nonexistent variable");
   }
   catch (ParserException const & /* exc */) {
@@ -130,7 +130,7 @@ static bool booleanVariableFactoryTest()
 
   PlexilVarRef tBadRef("t", INTEGER_TYPE);
   try {
-    ExpressionId tBadExpRef = createExpression(tBadRef.getId(), nc, wasCreated);
+    Expression *tBadExpRef = createExpression(tBadRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect variable type conflict");
   }
   catch (ParserException const & /* exc */) {
@@ -158,8 +158,8 @@ static bool integerVariableFactoryTest()
   bool wasCreated;
   int32_t temp;
 
-  ExpressionId iExp = createExpression(iVar.getId(), nc, wasCreated);
-  assertTrue_1(iExp.isId());
+  Expression *iExp = createExpression(iVar.getId(), nc, wasCreated);
+  assertTrue_1(iExp);
   assertTrue_1(wasCreated);
   assertTrue_1(iExp->isAssignable());
   assertTrue_1(iExp->valueType() == INTEGER_TYPE);
@@ -168,8 +168,8 @@ static bool integerVariableFactoryTest()
   assertTrue_1(!iExp->getValue(temp));
   realNc->storeVariable("i", iExp);
 
-  ExpressionId zeroExp = createExpression(zeroVar.getId(), nc, wasCreated);
-  assertTrue_1(zeroExp.isId());
+  Expression *zeroExp = createExpression(zeroVar.getId(), nc, wasCreated);
+  assertTrue_1(zeroExp);
   assertTrue_1(wasCreated);
   assertTrue_1(zeroExp->isAssignable());
   assertTrue_1(zeroExp->valueType() == INTEGER_TYPE);
@@ -179,8 +179,8 @@ static bool integerVariableFactoryTest()
   assertTrue_1(temp == 0);
   realNc->storeVariable("z", zeroExp);
 
-  ExpressionId tExp = createExpression(tVar.getId(), nc, wasCreated);
-  assertTrue_1(tExp.isId());
+  Expression *tExp = createExpression(tVar.getId(), nc, wasCreated);
+  assertTrue_1(tExp);
   assertTrue_1(wasCreated);
   assertTrue_1(tExp->isAssignable());
   assertTrue_1(tExp->valueType() == INTEGER_TYPE);
@@ -190,8 +190,8 @@ static bool integerVariableFactoryTest()
   assertTrue_1(temp == -2000000000);
   realNc->storeVariable("t", tExp);
 
-  ExpressionId hExp = createExpression(hVar.getId(), nc, wasCreated);
-  assertTrue_1(hExp.isId());
+  Expression *hExp = createExpression(hVar.getId(), nc, wasCreated);
+  assertTrue_1(hExp);
   assertTrue_1(wasCreated);
   assertTrue_1(hExp->isAssignable());
   assertTrue_1(hExp->valueType() == INTEGER_TYPE);
@@ -201,8 +201,8 @@ static bool integerVariableFactoryTest()
   assertTrue_1(temp == 0xBADF00D);
   realNc->storeVariable("t", hExp);
 
-  ExpressionId uExp = createExpression(uVar.getId(), nc, wasCreated);
-  assertTrue_1(uExp.isId());
+  Expression *uExp = createExpression(uVar.getId(), nc, wasCreated);
+  assertTrue_1(uExp);
   assertTrue_1(wasCreated);
   assertTrue_1(uExp->isAssignable());
   assertTrue_1(uExp->valueType() == INTEGER_TYPE);
@@ -211,7 +211,7 @@ static bool integerVariableFactoryTest()
   assertTrue_1(!uExp->getValue(temp));
   
   try {
-    ExpressionId bogusExp = createExpression(bogusVar.getId(), nc, wasCreated);
+    Expression *bogusExp = createExpression(bogusVar.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect invalid initial value");
   }
   catch (ParserException const & /*exc*/) {
@@ -219,15 +219,15 @@ static bool integerVariableFactoryTest()
   }
   
   try {
-    ExpressionId tooBigExp = createExpression(tooBigVar.getId(), nc, wasCreated);
+    Expression *tooBigExp = createExpression(tooBigVar.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect out-of-range initial value");
   }
   catch (ParserException const & /*exc*/) {
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  ExpressionId xExp = createExpression(xVar.getId(), nc, wasCreated);
-  assertTrue_1(xExp.isId());
+  Expression *xExp = createExpression(xVar.getId(), nc, wasCreated);
+  assertTrue_1(xExp);
   assertTrue_1(wasCreated);
   assertTrue_1(xExp->isAssignable());
   assertTrue_1(xExp->valueType() == INTEGER_TYPE);
@@ -239,13 +239,13 @@ static bool integerVariableFactoryTest()
   // Variable references
 
   PlexilVarRef iRef("i", INTEGER_TYPE);
-  ExpressionId iExpRef = createExpression(iRef.getId(), nc, wasCreated);
+  Expression *iExpRef = createExpression(iRef.getId(), nc, wasCreated);
   assertTrue_1(!wasCreated);
   assertTrue_1(iExpRef == iExp);
 
   PlexilVarRef qRef("q", INTEGER_TYPE);
   try {
-    ExpressionId qExpRef = createExpression(qRef.getId(), nc, wasCreated);
+    Expression *qExpRef = createExpression(qRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect nonexistent variable");
   }
   catch (ParserException const & /* exc */) {
@@ -254,7 +254,7 @@ static bool integerVariableFactoryTest()
 
   PlexilVarRef tBadRef("z", BOOLEAN_TYPE);
   try {
-    ExpressionId tBadExpRef = createExpression(tBadRef.getId(), nc, wasCreated);
+    Expression *tBadExpRef = createExpression(tBadRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect variable type conflict");
   }
   catch (ParserException const & /* exc */) {
@@ -282,8 +282,8 @@ static bool realVariableFactoryTest()
   bool wasCreated;
   double temp;
 
-  ExpressionId iExp = createExpression(iVar.getId(), nc, wasCreated);
-  assertTrue_1(iExp.isId());
+  Expression *iExp = createExpression(iVar.getId(), nc, wasCreated);
+  assertTrue_1(iExp);
   assertTrue_1(wasCreated);
   assertTrue_1(iExp->isAssignable());
   assertTrue_1(iExp->valueType() == REAL_TYPE);
@@ -292,8 +292,8 @@ static bool realVariableFactoryTest()
   assertTrue_1(!iExp->getValue(temp));
   realNc->storeVariable("i", iExp);
 
-  ExpressionId zeroExp = createExpression(zeroVar.getId(), nc, wasCreated);
-  assertTrue_1(zeroExp.isId());
+  Expression *zeroExp = createExpression(zeroVar.getId(), nc, wasCreated);
+  assertTrue_1(zeroExp);
   assertTrue_1(wasCreated);
   assertTrue_1(zeroExp->isAssignable());
   assertTrue_1(zeroExp->valueType() == REAL_TYPE);
@@ -303,8 +303,8 @@ static bool realVariableFactoryTest()
   assertTrue_1(temp == 0);
   realNc->storeVariable("z", zeroExp);
 
-  ExpressionId tExp = createExpression(tVar.getId(), nc, wasCreated);
-  assertTrue_1(tExp.isId());
+  Expression *tExp = createExpression(tVar.getId(), nc, wasCreated);
+  assertTrue_1(tExp);
   assertTrue_1(wasCreated);
   assertTrue_1(tExp->isAssignable());
   assertTrue_1(tExp->valueType() == REAL_TYPE);
@@ -314,8 +314,8 @@ static bool realVariableFactoryTest()
   assertTrue_1(temp == -20000000000);
   realNc->storeVariable("t", tExp);
 
-  ExpressionId piExp = createExpression(piVar.getId(), nc, wasCreated);
-  assertTrue_1(piExp.isId());
+  Expression *piExp = createExpression(piVar.getId(), nc, wasCreated);
+  assertTrue_1(piExp);
   assertTrue_1(wasCreated);
   assertTrue_1(piExp->isAssignable());
   assertTrue_1(piExp->valueType() == REAL_TYPE);
@@ -325,8 +325,8 @@ static bool realVariableFactoryTest()
   assertTrue_1(temp == 3.1415);
   realNc->storeVariable("pi", piExp);
 
-  ExpressionId uExp = createExpression(uVar.getId(), nc, wasCreated);
-  assertTrue_1(uExp.isId());
+  Expression *uExp = createExpression(uVar.getId(), nc, wasCreated);
+  assertTrue_1(uExp);
   assertTrue_1(wasCreated);
   assertTrue_1(uExp->isAssignable());
   assertTrue_1(uExp->valueType() == REAL_TYPE);
@@ -335,7 +335,7 @@ static bool realVariableFactoryTest()
   assertTrue_1(!uExp->getValue(temp));
   
   try {
-    ExpressionId bogusExp = createExpression(bogusVar.getId(), nc, wasCreated);
+    Expression *bogusExp = createExpression(bogusVar.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect invalid initial value");
   }
   catch (ParserException const & /*exc*/) {
@@ -343,15 +343,15 @@ static bool realVariableFactoryTest()
   }
   
   try {
-    ExpressionId tooBigExp = createExpression(tooBigVar.getId(), nc, wasCreated);
+    Expression *tooBigExp = createExpression(tooBigVar.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect out-of-range initial value");
   }
   catch (ParserException const & /*exc*/) {
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  ExpressionId xExp = createExpression(xVar.getId(), nc, wasCreated);
-  assertTrue_1(xExp.isId());
+  Expression *xExp = createExpression(xVar.getId(), nc, wasCreated);
+  assertTrue_1(xExp);
   assertTrue_1(wasCreated);
   assertTrue_1(xExp->isAssignable());
   assertTrue_1(xExp->valueType() == REAL_TYPE);
@@ -363,14 +363,14 @@ static bool realVariableFactoryTest()
   // Variable references
 
   PlexilVarRef iRef("i", REAL_TYPE);
-  ExpressionId iExpRef = createExpression(iRef.getId(), nc, wasCreated);
+  Expression *iExpRef = createExpression(iRef.getId(), nc, wasCreated);
   assertTrue_1(!wasCreated);
-  assertTrue_1(iExpRef.isId());
+  assertTrue_1(iExpRef);
   assertTrue_1(iExpRef == iExp);
 
   PlexilVarRef qRef("q", REAL_TYPE);
   try {
-    ExpressionId qExpRef = createExpression(qRef.getId(), nc, wasCreated);
+    Expression *qExpRef = createExpression(qRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect nonexistent variable");
   }
   catch (ParserException const & /* exc */) {
@@ -379,7 +379,7 @@ static bool realVariableFactoryTest()
 
   PlexilVarRef tBadRef("z", BOOLEAN_TYPE);
   try {
-    ExpressionId tBadExpRef = createExpression(tBadRef.getId(), nc, wasCreated);
+    Expression *tBadExpRef = createExpression(tBadRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect variable type conflict");
   }
   catch (ParserException const & /* exc */) {
@@ -400,8 +400,8 @@ static bool stringVariableFactoryTest()
   bool wasCreated;
   std::string const *temp = NULL;
 
-  ExpressionId unkExp = createExpression(unk.getId(), nc, wasCreated);
-  assertTrue_1(unkExp.isId());
+  Expression *unkExp = createExpression(unk.getId(), nc, wasCreated);
+  assertTrue_1(unkExp);
   assertTrue_1(wasCreated);
   assertTrue_1(unkExp->isAssignable());
   assertTrue_1(unkExp->valueType() == STRING_TYPE);
@@ -411,8 +411,8 @@ static bool stringVariableFactoryTest()
   assertTrue_1(temp == NULL);
   realNc->storeVariable("unk", unkExp);
 
-  ExpressionId mtExp = createExpression(mt.getId(), nc, wasCreated);
-  assertTrue_1(mtExp.isId());
+  Expression *mtExp = createExpression(mt.getId(), nc, wasCreated);
+  assertTrue_1(mtExp);
   assertTrue_1(wasCreated);
   assertTrue_1(mtExp->isAssignable());
   assertTrue_1(mtExp->valueType() == STRING_TYPE);
@@ -423,8 +423,8 @@ static bool stringVariableFactoryTest()
   assertTrue_1(temp->empty());
   realNc->storeVariable("mt", mtExp);
 
-  ExpressionId fooExp = createExpression(foo.getId(), nc, wasCreated);
-  assertTrue_1(fooExp.isId());
+  Expression *fooExp = createExpression(foo.getId(), nc, wasCreated);
+  assertTrue_1(fooExp);
   assertTrue_1(wasCreated);
   assertTrue_1(fooExp->isAssignable());
   assertTrue_1(fooExp->valueType() == STRING_TYPE);
@@ -436,8 +436,8 @@ static bool stringVariableFactoryTest()
   assertTrue_1(*temp == "Foo!");
   realNc->storeVariable("foo", fooExp);
 
-  ExpressionId barExp = createExpression(bar.getId(), nc, wasCreated);
-  assertTrue_1(barExp.isId());
+  Expression *barExp = createExpression(bar.getId(), nc, wasCreated);
+  assertTrue_1(barExp);
   assertTrue_1(wasCreated);
   assertTrue_1(barExp->isAssignable());
   assertTrue_1(barExp->valueType() == STRING_TYPE);
@@ -452,14 +452,14 @@ static bool stringVariableFactoryTest()
   // Variable references
 
   PlexilVarRef unkRef("unk", STRING_TYPE);
-  ExpressionId unkRefExp = createExpression(unkRef.getId(), nc, wasCreated);
+  Expression *unkRefExp = createExpression(unkRef.getId(), nc, wasCreated);
   assertTrue_1(!wasCreated);
-  assertTrue_1(unkRefExp.isId());
+  assertTrue_1(unkRefExp);
   assertTrue_1(unkRefExp = unkExp);
 
   PlexilVarRef badRef("bad", STRING_TYPE);
   try {
-    ExpressionId badRefExp = createExpression(badRef.getId(), nc, wasCreated);
+    Expression *badRefExp = createExpression(badRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect nonexistent variable");
   }
   catch (ParserException const & /* exc */) {
@@ -468,7 +468,7 @@ static bool stringVariableFactoryTest()
 
   PlexilVarRef badTypeRef("mt", BOOLEAN_TYPE);
   try {
-    ExpressionId badTypeRefExp = createExpression(badTypeRef.getId(), nc, wasCreated);
+    Expression *badTypeRefExp = createExpression(badTypeRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect variable type conflict");
   }
   catch (ParserException const & /* exc */) {
@@ -495,9 +495,9 @@ static bool booleanArrayVariableFactoryTest()
   bool wasCreated, temp;
   BooleanArray const *aryTemp = NULL;
 
-  ExpressionId ba1Exp = createExpression(ba1Var.getId(), nc, wasCreated);
+  Expression *ba1Exp = createExpression(ba1Var.getId(), nc, wasCreated);
   assertTrue_1(wasCreated);
-  assertTrue_1(ba1Exp.isId());
+  assertTrue_1(ba1Exp);
   assertTrue_1(ba1Exp->valueType() == BOOLEAN_ARRAY_TYPE);
   ba1Exp->activate();
   assertTrue_1(ba1Exp->isKnown());
@@ -507,9 +507,9 @@ static bool booleanArrayVariableFactoryTest()
   assertTrue_1(!aryTemp->anyElementsKnown());
   realNc->storeVariable("ba1", ba1Exp);
 
-  ExpressionId ba2Exp = createExpression(ba2Var.getId(), nc, wasCreated);
+  Expression *ba2Exp = createExpression(ba2Var.getId(), nc, wasCreated);
   assertTrue_1(wasCreated);
-  assertTrue_1(ba2Exp.isId());
+  assertTrue_1(ba2Exp);
   assertTrue_1(ba2Exp->valueType() == BOOLEAN_ARRAY_TYPE);
   ba2Exp->activate();
   assertTrue_1(ba2Exp->isKnown());
@@ -536,7 +536,7 @@ static bool booleanArrayVariableFactoryTest()
   std::vector<std::string> parseErrVector(1, "bOgUs");
   PlexilArrayVar parseErrVar("parseErr", BOOLEAN_TYPE, parseErrVector.size(), parseErrVector);
   try {
-    ExpressionId parseErrExp = createExpression(parseErrVar.getId(), nc, wasCreated);
+    Expression *parseErrExp = createExpression(parseErrVar.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect bogus initial value");
   }
   catch (ParserException const & /* exc */) {
@@ -545,14 +545,14 @@ static bool booleanArrayVariableFactoryTest()
 
   // Variable refs
   PlexilVarRef ba1Ref("ba1", BOOLEAN_ARRAY_TYPE);
-  ExpressionId ba1RefExp = createExpression(ba1Ref.getId(), nc, wasCreated);
-  assertTrue_1(ba1RefExp.isId());
+  Expression *ba1RefExp = createExpression(ba1Ref.getId(), nc, wasCreated);
+  assertTrue_1(ba1RefExp);
   assertTrue_1(!wasCreated);
   assertTrue_1(ba1RefExp == ba1Exp);
 
   PlexilVarRef ba2Ref("ba2", BOOLEAN_TYPE);
   try {
-    ExpressionId ba2RefExp = createExpression(ba2Ref.getId(), nc, wasCreated);
+    Expression *ba2RefExp = createExpression(ba2Ref.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect variable type mismatch");
   }
   catch (ParserException const & /* exc */) {
@@ -561,7 +561,7 @@ static bool booleanArrayVariableFactoryTest()
 
   PlexilVarRef badRef("bad", BOOLEAN_ARRAY_TYPE);
   try {
-    ExpressionId badRefExp = createExpression(badRef.getId(), nc, wasCreated);
+    Expression *badRefExp = createExpression(badRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect invalid variable reference");
   }
   catch (ParserException const & /* exc */) {
@@ -593,8 +593,8 @@ static bool integerArrayVariableFactoryTest()
   bool wasCreated;
   IntegerArray const *aryTemp = NULL;
 
-  ExpressionId emptyExp = createExpression(emptyVar.getId(), nc, wasCreated);
-  assertTrue_1(emptyExp.isId());
+  Expression *emptyExp = createExpression(emptyVar.getId(), nc, wasCreated);
+  assertTrue_1(emptyExp);
   assertTrue_1(wasCreated);
   assertTrue_1(emptyExp->valueType() == INTEGER_ARRAY_TYPE);
   emptyExp->activate();
@@ -605,8 +605,8 @@ static bool integerArrayVariableFactoryTest()
   realNc->storeVariable("empty", emptyExp);
 
   int32_t temp;
-  ExpressionId validValExp = createExpression(validVar.getId(), nc, wasCreated);
-  assertTrue_1(validValExp.isId());
+  Expression *validValExp = createExpression(validVar.getId(), nc, wasCreated);
+  assertTrue_1(validValExp);
   assertTrue_1(wasCreated);
   assertTrue_1(validValExp->valueType() == INTEGER_ARRAY_TYPE);
   validValExp->activate();
@@ -628,7 +628,7 @@ static bool integerArrayVariableFactoryTest()
   realNc->storeVariable("valid", validValExp);
 
   try {
-    ExpressionId bogusValueExp = createExpression(bogusValueVar.getId(), nc, wasCreated);
+    Expression *bogusValueExp = createExpression(bogusValueVar.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
@@ -636,7 +636,7 @@ static bool integerArrayVariableFactoryTest()
   }
 
   try {
-    ExpressionId rangeErrExp = createExpression(rangeErrVar.getId(), nc, wasCreated);
+    Expression *rangeErrExp = createExpression(rangeErrVar.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range integer");
   }
   catch (ParserException const & /* exc */) {
@@ -646,14 +646,14 @@ static bool integerArrayVariableFactoryTest()
   // Variable reference tests
 
   PlexilVarRef validRef("valid", INTEGER_ARRAY_TYPE);
-  ExpressionId validRefExp = createExpression(validRef.getId(), nc, wasCreated);
-  assertTrue_1(validRefExp.isId());
+  Expression *validRefExp = createExpression(validRef.getId(), nc, wasCreated);
+  assertTrue_1(validRefExp);
   assertTrue_1(!wasCreated);
   assertTrue_1(validRefExp == validValExp);
 
   PlexilVarRef badNameRef("bad", INTEGER_ARRAY_TYPE);
   try {
-    ExpressionId badNameExp = createExpression(badNameRef.getId(), nc, wasCreated);
+    Expression *badNameExp = createExpression(badNameRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect invalid variable reference");
   }
   catch (ParserException const & /* exc */) {
@@ -662,7 +662,7 @@ static bool integerArrayVariableFactoryTest()
 
   PlexilVarRef wrongTypeRef("empty", INTEGER_TYPE);
   try {
-    ExpressionId wrongTypeExp = createExpression(wrongTypeRef.getId(), nc, wasCreated);
+    Expression *wrongTypeExp = createExpression(wrongTypeRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect variable type mismatch");
   }
   catch (ParserException const & /* exc */) {
@@ -695,8 +695,8 @@ static bool realArrayVariableFactoryTest()
   RealArray const *aryTemp = NULL;
   double temp;
 
-  ExpressionId emptyExp = createExpression(emptyVar.getId(), nc, wasCreated);
-  assertTrue_1(emptyExp.isId());
+  Expression *emptyExp = createExpression(emptyVar.getId(), nc, wasCreated);
+  assertTrue_1(emptyExp);
   assertTrue_1(wasCreated);
   assertTrue_1(emptyExp->valueType() == REAL_ARRAY_TYPE);
   emptyExp->activate();
@@ -706,8 +706,8 @@ static bool realArrayVariableFactoryTest()
   assertTrue_1(aryTemp->size() == 0);
   realNc->storeVariable("emmty", emptyExp);
 
-  ExpressionId validVarExp = createExpression(validVar.getId(), nc, wasCreated);
-  assertTrue_1(validVarExp.isId());
+  Expression *validVarExp = createExpression(validVar.getId(), nc, wasCreated);
+  assertTrue_1(validVarExp);
   assertTrue_1(wasCreated);
   assertTrue_1(validVarExp->valueType() == REAL_ARRAY_TYPE);
   validVarExp->activate();
@@ -729,7 +729,7 @@ static bool realArrayVariableFactoryTest()
   realNc->storeVariable("vallid", validVarExp);
 
   try {
-    ExpressionId bogusValueExp = createExpression(bogusValueVar.getId(), nc, wasCreated);
+    Expression *bogusValueExp = createExpression(bogusValueVar.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
@@ -737,7 +737,7 @@ static bool realArrayVariableFactoryTest()
   }
 
   try {
-    ExpressionId rangeErrExp = createExpression(rangeErrVar.getId(), nc, wasCreated);
+    Expression *rangeErrExp = createExpression(rangeErrVar.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range real");
   }
   catch (ParserException const & /* exc */) {
@@ -747,14 +747,14 @@ static bool realArrayVariableFactoryTest()
   // Variable reference tests
 
   PlexilVarRef validRef("vallid", REAL_ARRAY_TYPE);
-  ExpressionId validRefExp = createExpression(validRef.getId(), nc, wasCreated);
-  assertTrue_1(validRefExp.isId());
+  Expression *validRefExp = createExpression(validRef.getId(), nc, wasCreated);
+  assertTrue_1(validRefExp);
   assertTrue_1(!wasCreated);
   assertTrue_1(validRefExp == validVarExp);
 
   PlexilVarRef badNameRef("bad", REAL_ARRAY_TYPE);
   try {
-    ExpressionId badNameExp = createExpression(badNameRef.getId(), nc, wasCreated);
+    Expression *badNameExp = createExpression(badNameRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect invalid variable reference");
   }
   catch (ParserException const & /* exc */) {
@@ -763,7 +763,7 @@ static bool realArrayVariableFactoryTest()
 
   PlexilVarRef wrongTypeRef("emmty", REAL_TYPE);
   try {
-    ExpressionId wrongTypeExp = createExpression(wrongTypeRef.getId(), nc, wasCreated);
+    Expression *wrongTypeExp = createExpression(wrongTypeRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect variable type mismatch");
   }
   catch (ParserException const & /* exc */) {
@@ -790,8 +790,8 @@ static bool stringArrayVariableFactoryTest()
   StringArray const *aryTemp = NULL;
   std::string const *temp;
 
-  ExpressionId emptyExp = createExpression(emptyVal.getId(), nc, wasCreated);
-  assertTrue_1(emptyExp.isId());
+  Expression *emptyExp = createExpression(emptyVal.getId(), nc, wasCreated);
+  assertTrue_1(emptyExp);
   assertTrue_1(wasCreated);
   assertTrue_1(emptyExp->valueType() == STRING_ARRAY_TYPE);
   emptyExp->activate();
@@ -801,8 +801,8 @@ static bool stringArrayVariableFactoryTest()
   assertTrue_1(aryTemp->size() == 0);
   realNc->storeVariable("mty", emptyExp);
 
-  ExpressionId validValExp = createExpression(validVal.getId(), nc, wasCreated);
-  assertTrue_1(validValExp.isId());
+  Expression *validValExp = createExpression(validVal.getId(), nc, wasCreated);
+  assertTrue_1(validValExp);
   assertTrue_1(wasCreated);
   assertTrue_1(validValExp->valueType() == STRING_ARRAY_TYPE);
   validValExp->activate();
@@ -826,14 +826,14 @@ static bool stringArrayVariableFactoryTest()
 
   // Variable reference tests
   PlexilVarRef emptyRef("mty", STRING_ARRAY_TYPE);
-  ExpressionId emptyRefExp = createExpression(emptyRef.getId(), nc, wasCreated);
-  assertTrue_1(emptyRefExp.isId());
+  Expression *emptyRefExp = createExpression(emptyRef.getId(), nc, wasCreated);
+  assertTrue_1(emptyRefExp);
   assertTrue_1(!wasCreated);
   assertTrue_1(emptyRefExp == emptyExp);
 
   PlexilVarRef wrongTypeRef("vlaid", STRING_TYPE);
   try {
-    ExpressionId wrongTypeExp = createExpression(wrongTypeRef.getId(), nc, wasCreated);
+    Expression *wrongTypeExp = createExpression(wrongTypeRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect variable type mismatch");
   }
   catch (ParserException const & /* exc */) {
@@ -842,7 +842,7 @@ static bool stringArrayVariableFactoryTest()
 
   PlexilVarRef badRef("bad", STRING_ARRAY_TYPE);
   try {
-    ExpressionId badExp = createExpression(badRef.getId(), nc, wasCreated);
+    Expression *badExp = createExpression(badRef.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect invalid variable reference");
   }
   catch (ParserException const & /* exc */) {

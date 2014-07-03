@@ -55,24 +55,6 @@ static bool testScalarConstants()
   assertTrue_1(!ud.isKnown());
   assertTrue_1(!us.isKnown());
 
-  // Access through ExpressionId
-  ExpressionId iub = ub.getId();
-  ExpressionId iui = ui.getId();
-  ExpressionId iud = ud.getId();
-  ExpressionId ius = us.getId();
-  assertTrue_1(iub->isConstant());
-  assertTrue_1(iui->isConstant());
-  assertTrue_1(iud->isConstant());
-  assertTrue_1(ius->isConstant());
-  assertTrue_1(!iub->isAssignable());
-  assertTrue_1(!iui->isAssignable());
-  assertTrue_1(!iud->isAssignable());
-  assertTrue_1(!ius->isAssignable());
-  assertTrue_1(!iub->isKnown());
-  assertTrue_1(!iui->isKnown());
-  assertTrue_1(!iud->isKnown());
-  assertTrue_1(!ius->isKnown());
-
   // getValue on unknowns
   double food;
   std::string foos;
@@ -82,15 +64,10 @@ static bool testScalarConstants()
   assertTrue_1(!ui.getValue(fooi));
   assertTrue_1(!ud.getValue(food));
   assertTrue_1(!us.getValue(foos));
-  assertTrue_1(!iub->getValue(foob));
-  assertTrue_1(!iui->getValue(fooi));
-  assertTrue_1(!iud->getValue(food));
-  assertTrue_1(!ius->getValue(foos));
 
   // getValuePointer on unknowns
   std::string const *pfoos;
   assertTrue_1(!us.getValuePointer(pfoos));
-  assertTrue_1(!ius->getValuePointer(pfoos));
 
   // Constants with values
   BooleanConstant troo = true;
@@ -119,24 +96,9 @@ static bool testScalarConstants()
   // Numeric conversion
   assertTrue_1(too.getValue(food));
   assertTrue_1(food == 2);
-    
-  // getValue() through ExpressionId test
-  assertTrue_1((troo.getId())->getValue(foob));
-  assertTrue_1(foob == true);
-  assertTrue_1((too.getId())->getValue(fooi));
-  assertTrue_1(fooi == 2);
-  assertTrue_1((doo.getId())->getValue(food));
-  assertTrue_1(food == 2.718);
-  assertTrue_1((soo.getId())->getValue(foos));
-  assertTrue_1(foos == std::string("Sue"));
-  // Numeric conversion
-  assertTrue_1((too.getId())->getValue(food));
-  assertTrue_1(food == 2);
 
   // getValuePointer() tests
   assertTrue_1(soo.getValuePointer(pfoos));
-  assertTrue_1(*pfoos == std::string("Sue"));
-  assertTrue_1((soo.getId())->getValuePointer(pfoos));
   assertTrue_1(*pfoos == std::string("Sue"));
 
   return true;

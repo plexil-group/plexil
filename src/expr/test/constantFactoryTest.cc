@@ -49,47 +49,47 @@ static bool booleanConstantFactoryTest()
   bool wasCreated;
   bool temp;
 
-  ExpressionId falseConstant = createExpression(falseValue.getId(), nc, wasCreated);
-  assertTrue_1(falseConstant.isId());
+  Expression *falseConstant = createExpression(falseValue.getId(), nc, wasCreated);
+  assertTrue_1(falseConstant);
   assertTrue_1(!wasCreated);
   assertTrue_1(!falseConstant->isAssignable());
   assertTrue_1(falseConstant->valueType() == BOOLEAN_TYPE);
   assertTrue_1(falseConstant->getValue(temp));
   assertTrue_1(!temp);
 
-  ExpressionId zeroConstant = createExpression(zeroValue.getId(), nc, wasCreated);
-  assertTrue_1(zeroConstant.isId());
+  Expression *zeroConstant = createExpression(zeroValue.getId(), nc, wasCreated);
+  assertTrue_1(zeroConstant);
   assertTrue_1(!wasCreated);
   assertTrue_1(!zeroConstant->isAssignable());
   assertTrue_1(zeroConstant->valueType() == BOOLEAN_TYPE);
   assertTrue_1(zeroConstant->getValue(temp));
   assertTrue_1(!temp);
 
-  ExpressionId trueConstant = createExpression(trueValue.getId(), nc, wasCreated);
-  assertTrue_1(trueConstant.isId());
+  Expression *trueConstant = createExpression(trueValue.getId(), nc, wasCreated);
+  assertTrue_1(trueConstant);
   assertTrue_1(!wasCreated);
   assertTrue_1(!trueConstant->isAssignable());
   assertTrue_1(trueConstant->valueType() == BOOLEAN_TYPE);
   assertTrue_1(trueConstant->getValue(temp));
   assertTrue_1(temp);
 
-  ExpressionId oneConstant = createExpression(oneValue.getId(), nc, wasCreated);
-  assertTrue_1(oneConstant.isId());
+  Expression *oneConstant = createExpression(oneValue.getId(), nc, wasCreated);
+  assertTrue_1(oneConstant);
   assertTrue_1(!wasCreated);
   assertTrue_1(!oneConstant->isAssignable());
   assertTrue_1(oneConstant->valueType() == BOOLEAN_TYPE);
   assertTrue_1(oneConstant->getValue(temp));
   assertTrue_1(temp);
 
-  ExpressionId unknownConstant = createExpression(unknownValue.getId(), nc, wasCreated);
-  assertTrue_1(unknownConstant.isId());
+  Expression *unknownConstant = createExpression(unknownValue.getId(), nc, wasCreated);
+  assertTrue_1(unknownConstant);
   assertTrue_1(!wasCreated);
   assertTrue_1(!unknownConstant->isAssignable());
   assertTrue_1(unknownConstant->valueType() == BOOLEAN_TYPE);
   assertTrue_1(!unknownConstant->getValue(temp));
 
   try {
-    ExpressionId bogusConstant = createExpression(bogus.getId(), nc, wasCreated);
+    Expression *bogusConstant = createExpression(bogus.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
@@ -115,39 +115,39 @@ static bool integerConstantFactoryTest()
   bool wasCreated;
   int32_t temp;
 
-  ExpressionId zeroConstant = createExpression(zeroVal.getId(), nc, wasCreated);
-  assertTrue_1(zeroConstant.isId());
+  Expression *zeroConstant = createExpression(zeroVal.getId(), nc, wasCreated);
+  assertTrue_1(zeroConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!zeroConstant->isAssignable());
   assertTrue_1(zeroConstant->valueType() == INTEGER_TYPE);
   assertTrue_1(zeroConstant->getValue(temp));
   assertTrue_1(temp == 0);
 
-  ExpressionId oneConstant = createExpression(oneVal.getId(), nc, wasCreated);
-  assertTrue_1(oneConstant.isId());
+  Expression *oneConstant = createExpression(oneVal.getId(), nc, wasCreated);
+  assertTrue_1(oneConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!oneConstant->isAssignable());
   assertTrue_1(oneConstant->valueType() == INTEGER_TYPE);
   assertTrue_1(oneConstant->getValue(temp));
   assertTrue_1(temp == 1);
 
-  ExpressionId minusOneConstant = createExpression(minusOneVal.getId(), nc, wasCreated);
-  assertTrue_1(minusOneConstant.isId());
+  Expression *minusOneConstant = createExpression(minusOneVal.getId(), nc, wasCreated);
+  assertTrue_1(minusOneConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!minusOneConstant->isAssignable());
   assertTrue_1(minusOneConstant->valueType() == INTEGER_TYPE);
   assertTrue_1(minusOneConstant->getValue(temp));
   assertTrue_1(temp == -1);
 
-  ExpressionId unkConstant = createExpression(unkVal.getId(), nc, wasCreated);
-  assertTrue_1(unkConstant.isId());
+  Expression *unkConstant = createExpression(unkVal.getId(), nc, wasCreated);
+  assertTrue_1(unkConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!unkConstant->isAssignable());
   assertTrue_1(unkConstant->valueType() == INTEGER_TYPE);
   assertTrue_1(!unkConstant->getValue(temp));
 
-  ExpressionId hexConstant = createExpression(hexVal.getId(), nc, wasCreated);
-  assertTrue_1(hexConstant.isId());
+  Expression *hexConstant = createExpression(hexVal.getId(), nc, wasCreated);
+  assertTrue_1(hexConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!hexConstant->isAssignable());
   assertTrue_1(hexConstant->valueType() == INTEGER_TYPE);
@@ -155,7 +155,7 @@ static bool integerConstantFactoryTest()
   assertTrue_1(temp == 0x42); // = 66 decimal
 
   try {
-    ExpressionId hexWithJunkConstant = createExpression(hexWithJunkVal.getId(), nc, wasCreated);
+    Expression *hexWithJunkConstant = createExpression(hexWithJunkVal.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect number followed by junk");
   }
   catch (ParserException const & /* exc */) {
@@ -163,7 +163,7 @@ static bool integerConstantFactoryTest()
   }
 
   try {
-    ExpressionId tooBigConstant = createExpression(tooBig.getId(), nc, wasCreated);
+    Expression *tooBigConstant = createExpression(tooBig.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect integer overflow");
   }
   catch (ParserException const & /* exc */) {
@@ -171,7 +171,7 @@ static bool integerConstantFactoryTest()
   }
 
   try {
-    ExpressionId wayTooBigConstant = createExpression(wayTooBig.getId(), nc, wasCreated);
+    Expression *wayTooBigConstant = createExpression(wayTooBig.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect integer overflow");
   }
   catch (ParserException const & /* exc */) {
@@ -179,7 +179,7 @@ static bool integerConstantFactoryTest()
   }
 
   try {
-    ExpressionId tooSmallConstant = createExpression(tooSmall.getId(), nc, wasCreated);
+    Expression *tooSmallConstant = createExpression(tooSmall.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect integer underflow");
   }
   catch (ParserException const & /* exc */) {
@@ -187,7 +187,7 @@ static bool integerConstantFactoryTest()
   }
 
   try {
-    ExpressionId bogusConstant = createExpression(bogus.getId(), nc, wasCreated);
+    Expression *bogusConstant = createExpression(bogus.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
@@ -213,40 +213,40 @@ static bool realConstantFactoryTest()
   bool wasCreated;
   double temp;
 
-  ExpressionId zeroConstant = createExpression(zeroVal.getId(), nc, wasCreated);
-  assertTrue_1(zeroConstant.isId());
+  Expression *zeroConstant = createExpression(zeroVal.getId(), nc, wasCreated);
+  assertTrue_1(zeroConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!zeroConstant->isAssignable());
   assertTrue_1(zeroConstant->valueType() == REAL_TYPE);
   assertTrue_1(zeroConstant->getValue(temp));
   assertTrue_1(temp == 0);
 
-  ExpressionId minusZeroConstant = createExpression(minusZeroVal.getId(), nc, wasCreated);
-  assertTrue_1(minusZeroConstant.isId());
+  Expression *minusZeroConstant = createExpression(minusZeroVal.getId(), nc, wasCreated);
+  assertTrue_1(minusZeroConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!minusZeroConstant->isAssignable());
   assertTrue_1(minusZeroConstant->valueType() == REAL_TYPE);
   assertTrue_1(minusZeroConstant->getValue(temp));
   assertTrue_1(temp == 0);
 
-  ExpressionId oneConstant = createExpression(oneVal.getId(), nc, wasCreated);
-  assertTrue_1(oneConstant.isId());
+  Expression *oneConstant = createExpression(oneVal.getId(), nc, wasCreated);
+  assertTrue_1(oneConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!oneConstant->isAssignable());
   assertTrue_1(oneConstant->valueType() == REAL_TYPE);
   assertTrue_1(oneConstant->getValue(temp));
   assertTrue_1(temp == 1);
 
-  ExpressionId minusOneConstant = createExpression(minusOneVal.getId(), nc, wasCreated);
-  assertTrue_1(minusOneConstant.isId());
+  Expression *minusOneConstant = createExpression(minusOneVal.getId(), nc, wasCreated);
+  assertTrue_1(minusOneConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!minusOneConstant->isAssignable());
   assertTrue_1(minusOneConstant->valueType() == REAL_TYPE);
   assertTrue_1(minusOneConstant->getValue(temp));
   assertTrue_1(temp == -1);
 
-  ExpressionId piConstant = createExpression(piVal.getId(), nc, wasCreated);
-  assertTrue_1(piConstant.isId());
+  Expression *piConstant = createExpression(piVal.getId(), nc, wasCreated);
+  assertTrue_1(piConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!piConstant->isAssignable());
   assertTrue_1(piConstant->valueType() == REAL_TYPE);
@@ -254,15 +254,15 @@ static bool realConstantFactoryTest()
   assertTrue_1(temp == 3.14);
 
   try {
-    ExpressionId piWithJunkConstant = createExpression(piWithJunkVal.getId(), nc, wasCreated);
+    Expression *piWithJunkConstant = createExpression(piWithJunkVal.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect junk after valid real");
   }
   catch (ParserException const & /* exc */) {
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  ExpressionId expNotationConstant = createExpression(expNotationVal.getId(), nc, wasCreated);
-  assertTrue_1(expNotationConstant.isId());
+  Expression *expNotationConstant = createExpression(expNotationVal.getId(), nc, wasCreated);
+  assertTrue_1(expNotationConstant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(!expNotationConstant->isAssignable());
   assertTrue_1(expNotationConstant->valueType() == REAL_TYPE);
@@ -270,7 +270,7 @@ static bool realConstantFactoryTest()
   assertTrue_1(temp == 1e-100);
 
   try {
-    ExpressionId tooBigConstant = createExpression(tooBigVal.getId(), nc, wasCreated);
+    Expression *tooBigConstant = createExpression(tooBigVal.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect real overflow");
   }
   catch (ParserException const & /* exc */) {
@@ -278,7 +278,7 @@ static bool realConstantFactoryTest()
   }
 
   try {
-    ExpressionId bogusConstant = createExpression(bogus.getId(), nc, wasCreated);
+    Expression *bogusConstant = createExpression(bogus.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
@@ -296,14 +296,14 @@ static bool stringConstantFactoryTest()
   bool wasCreated;
   std::string temp;
 
-  ExpressionId s1Constant = createExpression(s1.getId(), nc, wasCreated);
-  assertTrue_1(s1Constant.isId());
+  Expression *s1Constant = createExpression(s1.getId(), nc, wasCreated);
+  assertTrue_1(s1Constant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(s1Constant->getValue(temp));
   assertTrue_1(temp.empty());
 
-  ExpressionId s2Constant = createExpression(s2.getId(), nc, wasCreated);
-  assertTrue_1(s2Constant.isId());
+  Expression *s2Constant = createExpression(s2.getId(), nc, wasCreated);
+  assertTrue_1(s2Constant);
   assertTrue_1(wasCreated); // was created - may not be true in future
   assertTrue_1(s2Constant->getValue(temp));
   assertTrue_1(temp == "foo");
@@ -331,8 +331,8 @@ static bool booleanArrayConstantFactoryTest()
   bool wasCreated;
   BooleanArray const *aryTemp = NULL;
 
-  ExpressionId emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
-  assertTrue_1(emptyConstant.isId());
+  Expression *emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
+  assertTrue_1(emptyConstant);
   assertTrue_1(wasCreated);
   assertTrue_1(emptyConstant->valueType() == BOOLEAN_ARRAY_TYPE);
   assertTrue_1(emptyConstant->getValuePointer(aryTemp));
@@ -340,8 +340,8 @@ static bool booleanArrayConstantFactoryTest()
   assertTrue_1(aryTemp->size() == 0);
 
   bool temp;
-  ExpressionId validValConstant = createExpression(validVal.getId(), nc, wasCreated);
-  assertTrue_1(validValConstant.isId());
+  Expression *validValConstant = createExpression(validVal.getId(), nc, wasCreated);
+  assertTrue_1(validValConstant);
   assertTrue_1(wasCreated);
   assertTrue_1(validValConstant->valueType() == BOOLEAN_ARRAY_TYPE);
   assertTrue_1(validValConstant->getValuePointer(aryTemp));
@@ -362,7 +362,7 @@ static bool booleanArrayConstantFactoryTest()
   assertTrue_1(temp);
 
   try {
-    ExpressionId parseErrConstant = createExpression(parseErrVal.getId(), nc, wasCreated);
+    Expression *parseErrConstant = createExpression(parseErrVal.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
@@ -394,8 +394,8 @@ static bool integerArrayConstantFactoryTest()
   bool wasCreated;
   IntegerArray const *aryTemp = NULL;
 
-  ExpressionId emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
-  assertTrue_1(emptyConstant.isId());
+  Expression *emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
+  assertTrue_1(emptyConstant);
   assertTrue_1(wasCreated);
   assertTrue_1(emptyConstant->valueType() == INTEGER_ARRAY_TYPE);
   assertTrue_1(emptyConstant->getValuePointer(aryTemp));
@@ -403,8 +403,8 @@ static bool integerArrayConstantFactoryTest()
   assertTrue_1(aryTemp->size() == 0);
 
   int32_t temp;
-  ExpressionId validValConstant = createExpression(validVal.getId(), nc, wasCreated);
-  assertTrue_1(validValConstant.isId());
+  Expression *validValConstant = createExpression(validVal.getId(), nc, wasCreated);
+  assertTrue_1(validValConstant);
   assertTrue_1(wasCreated);
   assertTrue_1(validValConstant->valueType() == INTEGER_ARRAY_TYPE);
   assertTrue_1(validValConstant->getValuePointer(aryTemp));
@@ -423,7 +423,7 @@ static bool integerArrayConstantFactoryTest()
   assertTrue_1(temp == 0x69);
 
   try {
-    ExpressionId bogusValueConstant = createExpression(bogusValueVal.getId(), nc, wasCreated);
+    Expression *bogusValueConstant = createExpression(bogusValueVal.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
@@ -431,7 +431,7 @@ static bool integerArrayConstantFactoryTest()
   }
 
   try {
-    ExpressionId rangeErrConstant = createExpression(rangeErrVal.getId(), nc, wasCreated);
+    Expression *rangeErrConstant = createExpression(rangeErrVal.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range integer");
   }
   catch (ParserException const & /* exc */) {
@@ -463,8 +463,8 @@ static bool realArrayConstantFactoryTest()
   bool wasCreated;
   RealArray const *aryTemp = NULL;
 
-  ExpressionId emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
-  assertTrue_1(emptyConstant.isId());
+  Expression *emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
+  assertTrue_1(emptyConstant);
   assertTrue_1(wasCreated);
   assertTrue_1(emptyConstant->valueType() == REAL_ARRAY_TYPE);
   assertTrue_1(emptyConstant->getValuePointer(aryTemp));
@@ -472,8 +472,8 @@ static bool realArrayConstantFactoryTest()
   assertTrue_1(aryTemp->size() == 0);
 
   double temp;
-  ExpressionId validValConstant = createExpression(validVal.getId(), nc, wasCreated);
-  assertTrue_1(validValConstant.isId());
+  Expression *validValConstant = createExpression(validVal.getId(), nc, wasCreated);
+  assertTrue_1(validValConstant);
   assertTrue_1(wasCreated);
   assertTrue_1(validValConstant->valueType() == REAL_ARRAY_TYPE);
   assertTrue_1(validValConstant->getValuePointer(aryTemp));
@@ -492,7 +492,7 @@ static bool realArrayConstantFactoryTest()
   assertTrue_1(temp == 6.0221413e+23);
 
   try {
-    ExpressionId bogusValueConstant = createExpression(bogusValueVal.getId(), nc, wasCreated);
+    Expression *bogusValueConstant = createExpression(bogusValueVal.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
   }
   catch (ParserException const & /* exc */) {
@@ -500,7 +500,7 @@ static bool realArrayConstantFactoryTest()
   }
 
   try {
-    ExpressionId rangeErrConstant = createExpression(rangeErrVal.getId(), nc, wasCreated);
+    Expression *rangeErrConstant = createExpression(rangeErrVal.getId(), nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range real");
   }
   catch (ParserException const & /* exc */) {
@@ -526,8 +526,8 @@ static bool stringArrayConstantFactoryTest()
   bool wasCreated;
   StringArray const *aryTemp = NULL;
 
-  ExpressionId emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
-  assertTrue_1(emptyConstant.isId());
+  Expression *emptyConstant = createExpression(emptyVal.getId(), nc, wasCreated);
+  assertTrue_1(emptyConstant);
   assertTrue_1(wasCreated);
   assertTrue_1(emptyConstant->valueType() == STRING_ARRAY_TYPE);
   assertTrue_1(emptyConstant->getValuePointer(aryTemp));
@@ -535,8 +535,8 @@ static bool stringArrayConstantFactoryTest()
   assertTrue_1(aryTemp->size() == 0);
 
   std::string const *temp;
-  ExpressionId validValConstant = createExpression(validVal.getId(), nc, wasCreated);
-  assertTrue_1(validValConstant.isId());
+  Expression *validValConstant = createExpression(validVal.getId(), nc, wasCreated);
+  assertTrue_1(validValConstant);
   assertTrue_1(wasCreated);
   assertTrue_1(validValConstant->valueType() == STRING_ARRAY_TYPE);
   assertTrue_1(validValConstant->getValuePointer(aryTemp));

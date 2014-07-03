@@ -43,10 +43,10 @@ static bool testIsKnown()
   StringVariable vars;
 
   std::vector<bool> garbage1(1, false);
-  std::vector<ExpressionId> bexp(1, varb.getId());
-  std::vector<ExpressionId> iexp(1, vari.getId());
-  std::vector<ExpressionId> rexp(1, varr.getId());
-  std::vector<ExpressionId> sexp(1, vars.getId());
+  std::vector<Expression *> bexp(1, &varb);
+  std::vector<Expression *> iexp(1, &vari);
+  std::vector<Expression *> rexp(1, &varr);
+  std::vector<Expression *> sexp(1, &vars);
   
   Function iskfnb(IsKnown::instance(), makeExprVec(bexp, garbage1));
   Function iskfni(IsKnown::instance(), makeExprVec(iexp, garbage1));
@@ -97,24 +97,24 @@ static bool testBoolean()
   BooleanVariable varb;
 
   std::vector<bool> garbage2(2, false);
-  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6;
-  v1.push_back(troo.getId());
-  v1.push_back(troo.getId());
+  std::vector<Expression *> v1, v2, v3, v4, v5, v6;
+  v1.push_back(&troo);
+  v1.push_back(&troo);
 
-  v2.push_back(falls.getId());
-  v2.push_back(falls.getId());
+  v2.push_back(&falls);
+  v2.push_back(&falls);
 
-  v3.push_back(troo.getId());
-  v3.push_back(falls.getId());
+  v3.push_back(&troo);
+  v3.push_back(&falls);
 
-  v4.push_back(falls.getId());
-  v4.push_back(troo.getId());
+  v4.push_back(&falls);
+  v4.push_back(&troo);
 
-  v5.push_back(troo.getId());
-  v5.push_back(varb.getId());
+  v5.push_back(&troo);
+  v5.push_back(&varb);
 
-  v6.push_back(varb.getId());
-  v6.push_back(falls.getId());
+  v6.push_back(&varb);
+  v6.push_back(&falls);
 
   Function boolEq1(Equal<bool>::instance(), makeExprVec(v1, garbage2));
   Function boolEq2(Equal<bool>::instance(), makeExprVec(v2, garbage2));
@@ -204,25 +204,25 @@ static bool testString()
   StringVariable vars;
 
   std::vector<bool> garbage2(2, false);
-  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6;
+  std::vector<Expression *> v1, v2, v3, v4, v5, v6;
 
-  v1.push_back(yo.getId());
-  v1.push_back(yo.getId());
+  v1.push_back(&yo);
+  v1.push_back(&yo);
 
-  v2.push_back(mama.getId());
-  v2.push_back(mama.getId());
+  v2.push_back(&mama);
+  v2.push_back(&mama);
 
-  v3.push_back(yo.getId());
-  v3.push_back(mama.getId());
+  v3.push_back(&yo);
+  v3.push_back(&mama);
 
-  v4.push_back(mama.getId());
-  v4.push_back(yo.getId());
+  v4.push_back(&mama);
+  v4.push_back(&yo);
 
-  v5.push_back(yo.getId());
-  v5.push_back(vars.getId());
+  v5.push_back(&yo);
+  v5.push_back(&vars);
 
-  v6.push_back(vars.getId());
-  v6.push_back(mama.getId());
+  v6.push_back(&vars);
+  v6.push_back(&mama);
 
   Function strEq1(Equal<std::string>::instance(), makeExprVec(v1, garbage2));
   Function strEq2(Equal<std::string>::instance(), makeExprVec(v2, garbage2));
@@ -476,25 +476,25 @@ static bool testInteger()
   IntegerVariable vari;
 
   std::vector<bool> garbage2(2, false);
-  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6;
+  std::vector<Expression *> v1, v2, v3, v4, v5, v6;
 
-  v1.push_back(won.getId());
-  v1.push_back(won.getId());
+  v1.push_back(&won);
+  v1.push_back(&won);
 
-  v2.push_back(too.getId());
-  v2.push_back(too.getId());
+  v2.push_back(&too);
+  v2.push_back(&too);
 
-  v3.push_back(won.getId());
-  v3.push_back(too.getId());
+  v3.push_back(&won);
+  v3.push_back(&too);
 
-  v4.push_back(too.getId());
-  v4.push_back(won.getId());
+  v4.push_back(&too);
+  v4.push_back(&won);
 
-  v5.push_back(won.getId());
-  v5.push_back(vari.getId());
+  v5.push_back(&won);
+  v5.push_back(&vari);
 
-  v6.push_back(vari.getId());
-  v6.push_back(too.getId());
+  v6.push_back(&vari);
+  v6.push_back(&too);
 
   Function intEq1(Equal<int32_t>::instance(), makeExprVec(v1, garbage2));
   Function intEq2(Equal<int32_t>::instance(), makeExprVec(v2, garbage2));
@@ -752,25 +752,25 @@ static bool testReal()
   RealVariable varr;
 
   std::vector<bool> garbage2(2, false);
-  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6;
+  std::vector<Expression *> v1, v2, v3, v4, v5, v6;
 
-  v1.push_back(wontoo.getId());
-  v1.push_back(wontoo.getId());
+  v1.push_back(&wontoo);
+  v1.push_back(&wontoo);
 
-  v2.push_back(tootoo.getId());
-  v2.push_back(tootoo.getId());
+  v2.push_back(&tootoo);
+  v2.push_back(&tootoo);
 
-  v3.push_back(wontoo.getId());
-  v3.push_back(tootoo.getId());
+  v3.push_back(&wontoo);
+  v3.push_back(&tootoo);
 
-  v4.push_back(tootoo.getId());
-  v4.push_back(wontoo.getId());
+  v4.push_back(&tootoo);
+  v4.push_back(&wontoo);
 
-  v5.push_back(wontoo.getId());
-  v5.push_back(varr.getId());
+  v5.push_back(&wontoo);
+  v5.push_back(&varr);
 
-  v6.push_back(varr.getId());
-  v6.push_back(tootoo.getId());
+  v6.push_back(&varr);
+  v6.push_back(&tootoo);
 
   Function dblEq1(Equal<double>::instance(), makeExprVec(v1, garbage2));
   Function dblEq2(Equal<double>::instance(), makeExprVec(v2, garbage2));
@@ -1024,25 +1024,25 @@ static bool testMixedNumerics()
   IntegerConstant tootoo(2);
 
   std::vector<bool> garbage2(2, false);
-  std::vector<ExpressionId> v1, v2, v3, v4, v5, v6;
+  std::vector<Expression *> v1, v2, v3, v4, v5, v6;
 
-  v1.push_back(won.getId());
-  v1.push_back(wontoo.getId());
+  v1.push_back(&won);
+  v1.push_back(&wontoo);
 
-  v2.push_back(tootoo.getId());
-  v2.push_back(too.getId());
+  v2.push_back(&tootoo);
+  v2.push_back(&too);
 
-  v3.push_back(wontoo.getId());
-  v3.push_back(too.getId());
+  v3.push_back(&wontoo);
+  v3.push_back(&too);
 
-  v4.push_back(won.getId());
-  v4.push_back(tootoo.getId());
+  v4.push_back(&won);
+  v4.push_back(&tootoo);
 
-  v5.push_back(wontoo.getId());
-  v5.push_back(wontoo.getId());
+  v5.push_back(&wontoo);
+  v5.push_back(&wontoo);
 
-  v6.push_back(wontoo.getId());
-  v6.push_back(tootoo.getId());
+  v6.push_back(&wontoo);
+  v6.push_back(&tootoo);
 
   Function dblEq1(Equal<double>::instance(), makeExprVec(v1, garbage2));
   Function dblEq2(Equal<double>::instance(), makeExprVec(v2, garbage2));

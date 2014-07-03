@@ -34,12 +34,14 @@ namespace PLEXIL
   ArrayVariable<T>::ArrayVariable()
     : NotifierImpl(),
       ExpressionImpl<ArrayImpl<T> >(),
-    AssignableImpl<ArrayImpl<T> >(),
-    m_name("anonymous"),
-    m_known(false),
-    m_savedKnown(false),
-    m_sizeIsGarbage(false),
-    m_initializerIsGarbage(false)
+      AssignableImpl<ArrayImpl<T> >(),
+      m_size(NULL),
+      m_initializer(NULL),
+      m_name("anonymous"),
+      m_known(false),
+      m_savedKnown(false),
+      m_sizeIsGarbage(false),
+      m_initializerIsGarbage(false)
   {
   }
 
@@ -48,6 +50,7 @@ namespace PLEXIL
     : NotifierImpl(),
       ExpressionImpl<ArrayImpl<T> >(),
       AssignableImpl<ArrayImpl<T> >(),
+      m_size(NULL),
       m_initializer(new Constant<ArrayImpl<T> >(initVal)),
       m_name("anonymous"),
       m_known(false),

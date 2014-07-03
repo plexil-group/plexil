@@ -47,7 +47,7 @@ static bool isKnownFactoryTest()
 
   // Check no-arg error detection
   try {
-    ExpressionId zeroArgExp = createExpression(known.getId(), nc, wasCreated);
+    Expression *zeroArgExp = createExpression(known.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
   catch (ParserException const & /* exc */) {
@@ -56,8 +56,8 @@ static bool isKnownFactoryTest()
 
   // Check one-arg form
   known.addSubExpr((new PlexilValue(BOOLEAN_TYPE))->getId());
-  ExpressionId oneArgExp = createExpression(known.getId(), nc, wasCreated);
-  assertTrue_1(oneArgExp.isId());
+  Expression *oneArgExp = createExpression(known.getId(), nc, wasCreated);
+  assertTrue_1(oneArgExp);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgExp->valueType() == BOOLEAN_TYPE);
   oneArgExp->activate();
@@ -68,7 +68,7 @@ static bool isKnownFactoryTest()
   // Check two-arg form
   known.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
   try {
-    ExpressionId twoArgExp = createExpression(known.getId(), nc, wasCreated);
+    Expression *twoArgExp = createExpression(known.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
   catch (ParserException const & /* exc */) {
@@ -88,7 +88,7 @@ static bool stringFunctionFactoryTest()
 
   // Check no-arg error detection
   try {
-    ExpressionId zeroArgExp = createExpression(len.getId(), nc, wasCreated);
+    Expression *zeroArgExp = createExpression(len.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
   catch (ParserException const & /* exc */) {
@@ -97,8 +97,8 @@ static bool stringFunctionFactoryTest()
 
   // Check one-arg form
   len.addSubExpr((new PlexilValue(STRING_TYPE, "Foo"))->getId());
-  ExpressionId oneArgExp = createExpression(len.getId(), nc, wasCreated);
-  assertTrue_1(oneArgExp.isId());
+  Expression *oneArgExp = createExpression(len.getId(), nc, wasCreated);
+  assertTrue_1(oneArgExp);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgExp->valueType() == INTEGER_TYPE);
   oneArgExp->activate();
@@ -109,7 +109,7 @@ static bool stringFunctionFactoryTest()
   // Check two-arg form
   len.addSubExpr((new PlexilValue(STRING_TYPE, "1"))->getId());
   try {
-    ExpressionId twoArgExp = createExpression(len.getId(), nc, wasCreated);
+    Expression *twoArgExp = createExpression(len.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
   catch (ParserException const & /* exc */) {
@@ -122,8 +122,8 @@ static bool stringFunctionFactoryTest()
   std::string const *stemp;
 
   // No-arg form
-  ExpressionId noArgCat = createExpression(cat.getId(), nc, wasCreated);
-  assertTrue_1(noArgCat.isId());
+  Expression *noArgCat = createExpression(cat.getId(), nc, wasCreated);
+  assertTrue_1(noArgCat);
   assertTrue_1(wasCreated);
   assertTrue_1(noArgCat->valueType() == STRING_TYPE);
   noArgCat->activate();
@@ -133,8 +133,8 @@ static bool stringFunctionFactoryTest()
 
   // One-arg form
   cat.addSubExpr((new PlexilValue(STRING_TYPE, "Foo"))->getId());
-  ExpressionId oneArgCat = createExpression(cat.getId(), nc, wasCreated);
-  assertTrue_1(oneArgCat.isId());
+  Expression *oneArgCat = createExpression(cat.getId(), nc, wasCreated);
+  assertTrue_1(oneArgCat);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgCat->valueType() == STRING_TYPE);
   oneArgCat->activate();
@@ -144,8 +144,8 @@ static bool stringFunctionFactoryTest()
 
   // Two-arg form
   cat.addSubExpr((new PlexilValue(STRING_TYPE, "Bar"))->getId());
-  ExpressionId twoArgCat = createExpression(cat.getId(), nc, wasCreated);
-  assertTrue_1(twoArgCat.isId());
+  Expression *twoArgCat = createExpression(cat.getId(), nc, wasCreated);
+  assertTrue_1(twoArgCat);
   assertTrue_1(wasCreated);
   assertTrue_1(twoArgCat->valueType() == STRING_TYPE);
   twoArgCat->activate();
@@ -155,8 +155,8 @@ static bool stringFunctionFactoryTest()
 
   // Three-arg form
   cat.addSubExpr((new PlexilValue(STRING_TYPE, "Baz"))->getId());
-  ExpressionId threeArgCat = createExpression(cat.getId(), nc, wasCreated);
-  assertTrue_1(threeArgCat.isId());
+  Expression *threeArgCat = createExpression(cat.getId(), nc, wasCreated);
+  assertTrue_1(threeArgCat);
   assertTrue_1(wasCreated);
   assertTrue_1(threeArgCat->valueType() == STRING_TYPE);
   threeArgCat->activate();
@@ -175,7 +175,7 @@ static bool booleanFunctionFactoryTest()
 
   // Check no-arg error detection
   try {
-    ExpressionId zeroArgNot = createExpression(notOp.getId(), nc, wasCreated);
+    Expression *zeroArgNot = createExpression(notOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
   catch (ParserException const & /* exc */) {
@@ -184,8 +184,8 @@ static bool booleanFunctionFactoryTest()
 
   // Check one-arg form
   notOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
-  ExpressionId oneArgNot = createExpression(notOp.getId(), nc, wasCreated);
-  assertTrue_1(oneArgNot.isId());
+  Expression *oneArgNot = createExpression(notOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgNot);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgNot->valueType() == BOOLEAN_TYPE);
   oneArgNot->activate();
@@ -196,7 +196,7 @@ static bool booleanFunctionFactoryTest()
   // Check two-arg form
   notOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
   try {
-    ExpressionId twoArgNot = createExpression(notOp.getId(), nc, wasCreated);
+    Expression *twoArgNot = createExpression(notOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
   catch (ParserException const & /* exc */) {
@@ -207,7 +207,7 @@ static bool booleanFunctionFactoryTest()
 
   // Check no-arg error detection
   try {
-    ExpressionId zeroArgOr = createExpression(orOp.getId(), nc, wasCreated);
+    Expression *zeroArgOr = createExpression(orOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
   catch (ParserException const & /* exc */) {
@@ -216,8 +216,8 @@ static bool booleanFunctionFactoryTest()
 
   // Check one-arg form
   orOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "0"))->getId());
-  ExpressionId oneArgOr = createExpression(orOp.getId(), nc, wasCreated);
-  assertTrue_1(oneArgOr.isId());
+  Expression *oneArgOr = createExpression(orOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgOr);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgOr->valueType() == BOOLEAN_TYPE);
   oneArgOr->activate();
@@ -227,8 +227,8 @@ static bool booleanFunctionFactoryTest()
 
   // Check two-arg form
   orOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
-  ExpressionId twoArgOr = createExpression(orOp.getId(), nc, wasCreated);
-  assertTrue_1(twoArgOr.isId());
+  Expression *twoArgOr = createExpression(orOp.getId(), nc, wasCreated);
+  assertTrue_1(twoArgOr);
   assertTrue_1(wasCreated);
   assertTrue_1(twoArgOr->valueType() == BOOLEAN_TYPE);
   twoArgOr->activate();
@@ -238,8 +238,8 @@ static bool booleanFunctionFactoryTest()
 
   // check 3-arg
   orOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE))->getId());
-  ExpressionId threeArgOr = createExpression(orOp.getId(), nc, wasCreated);
-  assertTrue_1(threeArgOr.isId());
+  Expression *threeArgOr = createExpression(orOp.getId(), nc, wasCreated);
+  assertTrue_1(threeArgOr);
   assertTrue_1(wasCreated);
   assertTrue_1(threeArgOr->valueType() == BOOLEAN_TYPE);
   threeArgOr->activate();
@@ -251,7 +251,7 @@ static bool booleanFunctionFactoryTest()
 
   // Check no-arg error detection
   try {
-    ExpressionId zeroArgAnd = createExpression(andOp.getId(), nc, wasCreated);
+    Expression *zeroArgAnd = createExpression(andOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
   catch (ParserException const & /* exc */) {
@@ -260,8 +260,8 @@ static bool booleanFunctionFactoryTest()
 
   // Check one-arg form
   andOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "0"))->getId());
-  ExpressionId oneArgAnd = createExpression(andOp.getId(), nc, wasCreated);
-  assertTrue_1(oneArgAnd.isId());
+  Expression *oneArgAnd = createExpression(andOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgAnd);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgAnd->valueType() == BOOLEAN_TYPE);
   oneArgAnd->activate();
@@ -271,8 +271,8 @@ static bool booleanFunctionFactoryTest()
 
   // Check two-arg form
   andOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
-  ExpressionId twoArgAnd = createExpression(andOp.getId(), nc, wasCreated);
-  assertTrue_1(twoArgAnd.isId());
+  Expression *twoArgAnd = createExpression(andOp.getId(), nc, wasCreated);
+  assertTrue_1(twoArgAnd);
   assertTrue_1(wasCreated);
   assertTrue_1(twoArgAnd->valueType() == BOOLEAN_TYPE);
   twoArgAnd->activate();
@@ -282,8 +282,8 @@ static bool booleanFunctionFactoryTest()
 
   // check 3-arg
   andOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE))->getId());
-  ExpressionId threeArgAnd = createExpression(andOp.getId(), nc, wasCreated);
-  assertTrue_1(threeArgAnd.isId());
+  Expression *threeArgAnd = createExpression(andOp.getId(), nc, wasCreated);
+  assertTrue_1(threeArgAnd);
   assertTrue_1(wasCreated);
   assertTrue_1(threeArgAnd->valueType() == BOOLEAN_TYPE);
   threeArgAnd->activate();
@@ -295,7 +295,7 @@ static bool booleanFunctionFactoryTest()
 
   // Check no-arg error detection
   try {
-    ExpressionId zeroArgXor = createExpression(xorOp.getId(), nc, wasCreated);
+    Expression *zeroArgXor = createExpression(xorOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
   catch (ParserException const & /* exc */) {
@@ -304,8 +304,8 @@ static bool booleanFunctionFactoryTest()
 
   // Check one-arg form
   xorOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "0"))->getId());
-  ExpressionId oneArgXor = createExpression(xorOp.getId(), nc, wasCreated);
-  assertTrue_1(oneArgXor.isId());
+  Expression *oneArgXor = createExpression(xorOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgXor);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgXor->valueType() == BOOLEAN_TYPE);
   oneArgXor->activate();
@@ -315,8 +315,8 @@ static bool booleanFunctionFactoryTest()
 
   // Check two-arg form
   xorOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE, "1"))->getId());
-  ExpressionId twoArgXor = createExpression(xorOp.getId(), nc, wasCreated);
-  assertTrue_1(twoArgXor.isId());
+  Expression *twoArgXor = createExpression(xorOp.getId(), nc, wasCreated);
+  assertTrue_1(twoArgXor);
   assertTrue_1(wasCreated);
   assertTrue_1(twoArgXor->valueType() == BOOLEAN_TYPE);
   twoArgXor->activate();
@@ -326,8 +326,8 @@ static bool booleanFunctionFactoryTest()
 
   // check 3-arg
   xorOp.addSubExpr((new PlexilValue(BOOLEAN_TYPE))->getId());
-  ExpressionId threeArgXor = createExpression(xorOp.getId(), nc, wasCreated);
-  assertTrue_1(threeArgXor.isId());
+  Expression *threeArgXor = createExpression(xorOp.getId(), nc, wasCreated);
+  assertTrue_1(threeArgXor);
   assertTrue_1(wasCreated);
   assertTrue_1(threeArgXor->valueType() == BOOLEAN_TYPE);
   threeArgXor->activate();
@@ -347,7 +347,7 @@ static bool arithmeticFunctionFactoryTest()
 
   // Check no-arg error detection
   try {
-    ExpressionId zeroArgSqrt = createExpression(sqrtOp.getId(), nc, wasCreated);
+    Expression *zeroArgSqrt = createExpression(sqrtOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
   catch (ParserException const & /* exc */) {
@@ -356,8 +356,8 @@ static bool arithmeticFunctionFactoryTest()
 
   // Check one-arg form
   sqrtOp.addSubExpr((new PlexilValue(REAL_TYPE, "4"))->getId());
-  ExpressionId oneArgSqrt = createExpression(sqrtOp.getId(), nc, wasCreated);
-  assertTrue_1(oneArgSqrt.isId());
+  Expression *oneArgSqrt = createExpression(sqrtOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgSqrt);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgSqrt->valueType() == REAL_TYPE);
   oneArgSqrt->activate();
@@ -368,7 +368,7 @@ static bool arithmeticFunctionFactoryTest()
   // check 2-arg
   sqrtOp.addSubExpr((new PlexilValue(REAL_TYPE, "0"))->getId());
   try {
-    ExpressionId twoArgSqrt = createExpression(sqrtOp.getId(), nc, wasCreated);
+    Expression *twoArgSqrt = createExpression(sqrtOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
   catch (ParserException const & /* exc */) {
@@ -379,7 +379,7 @@ static bool arithmeticFunctionFactoryTest()
 
   // Check no-arg error detection
   try {
-    ExpressionId zeroArgRealToInteger = createExpression(realToIntegerOp.getId(), nc, wasCreated);
+    Expression *zeroArgRealToInteger = createExpression(realToIntegerOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
   catch (ParserException const & /* exc */) {
@@ -388,8 +388,8 @@ static bool arithmeticFunctionFactoryTest()
 
   // Check one-arg form
   realToIntegerOp.addSubExpr((new PlexilValue(REAL_TYPE, "4"))->getId());
-  ExpressionId oneArgRealToInteger = createExpression(realToIntegerOp.getId(), nc, wasCreated);
-  assertTrue_1(oneArgRealToInteger.isId());
+  Expression *oneArgRealToInteger = createExpression(realToIntegerOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgRealToInteger);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgRealToInteger->valueType() == INTEGER_TYPE);
   oneArgRealToInteger->activate();
@@ -400,7 +400,7 @@ static bool arithmeticFunctionFactoryTest()
   // check 2-arg
   realToIntegerOp.addSubExpr((new PlexilValue(REAL_TYPE, "0"))->getId());
   try {
-    ExpressionId twoArgRealToInteger = createExpression(realToIntegerOp.getId(), nc, wasCreated);
+    Expression *twoArgRealToInteger = createExpression(realToIntegerOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
   catch (ParserException const & /* exc */) {
@@ -411,7 +411,7 @@ static bool arithmeticFunctionFactoryTest()
 
   // Check no-arg error detection
   try {
-    ExpressionId zeroArgAbs = createExpression(absOp.getId(), nc, wasCreated);
+    Expression *zeroArgAbs = createExpression(absOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
   catch (ParserException const & /* exc */) {
@@ -420,8 +420,8 @@ static bool arithmeticFunctionFactoryTest()
 
   // Check one-arg form
   absOp.addSubExpr((new PlexilValue(REAL_TYPE, "-2"))->getId());
-  ExpressionId oneArgAbs = createExpression(absOp.getId(), nc, wasCreated);
-  assertTrue_1(oneArgAbs.isId());
+  Expression *oneArgAbs = createExpression(absOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgAbs);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgAbs->valueType() == REAL_TYPE);
   oneArgAbs->activate();
@@ -432,7 +432,7 @@ static bool arithmeticFunctionFactoryTest()
   // check 2-arg
   absOp.addSubExpr((new PlexilValue(REAL_TYPE, "0"))->getId());
   try {
-    ExpressionId twoArgAbs = createExpression(absOp.getId(), nc, wasCreated);
+    Expression *twoArgAbs = createExpression(absOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too many args");
   }
   catch (ParserException const & /* exc */) {
@@ -443,7 +443,7 @@ static bool arithmeticFunctionFactoryTest()
 
   // Check no-arg error detection
   try {
-    ExpressionId zeroArgSub = createExpression(subOp.getId(), nc, wasCreated);
+    Expression *zeroArgSub = createExpression(subOp.getId(), nc, wasCreated);
     assertTrue_2(false, "Failed to detect too few args");
   }
   catch (ParserException const & /* exc */) {
@@ -452,8 +452,8 @@ static bool arithmeticFunctionFactoryTest()
 
   // Check one-arg form
   subOp.addSubExpr((new PlexilValue(INTEGER_TYPE, "-2"))->getId());
-  ExpressionId oneArgSub = createExpression(subOp.getId(), nc, wasCreated);
-  assertTrue_1(oneArgSub.isId());
+  Expression *oneArgSub = createExpression(subOp.getId(), nc, wasCreated);
+  assertTrue_1(oneArgSub);
   assertTrue_1(wasCreated);
   assertTrue_1(oneArgSub->valueType() == INTEGER_TYPE);
   oneArgSub->activate();
@@ -463,8 +463,8 @@ static bool arithmeticFunctionFactoryTest()
 
   // Check two-arg form
   subOp.addSubExpr((new PlexilValue(REAL_TYPE, "-2.5"))->getId());
-  ExpressionId twoArgSub = createExpression(subOp.getId(), nc, wasCreated);
-  assertTrue_1(twoArgSub.isId());
+  Expression *twoArgSub = createExpression(subOp.getId(), nc, wasCreated);
+  assertTrue_1(twoArgSub);
   assertTrue_1(wasCreated);
   assertTrue_1(twoArgSub->valueType() == REAL_TYPE);
   twoArgSub->activate();
@@ -474,8 +474,8 @@ static bool arithmeticFunctionFactoryTest()
 
   // Check three-arg form
   subOp.addSubExpr((new PlexilValue(INTEGER_TYPE, "3"))->getId());
-  ExpressionId threeArgSub = createExpression(subOp.getId(), nc, wasCreated);
-  assertTrue_1(threeArgSub.isId());
+  Expression *threeArgSub = createExpression(subOp.getId(), nc, wasCreated);
+  assertTrue_1(threeArgSub);
   assertTrue_1(wasCreated);
   assertTrue_1(threeArgSub->valueType() == REAL_TYPE);
   threeArgSub->activate();

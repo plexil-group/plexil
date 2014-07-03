@@ -342,75 +342,6 @@ static bool testInitializers()
   return true;
 }
 
-// Confirm that we can do all the read-only operations
-// through a pointer of type ExpressionId.
-static bool testExpressionId()
-{
-  BooleanVariable vb(false);
-  IntegerVariable vi(69);
-  RealVariable vd(1.414);
-  StringVariable vs(std::string("yo"));
-
-  ExpressionId eb(vb.getId());
-  ExpressionId ei(vi.getId());
-  ExpressionId ed(vd.getId());
-  ExpressionId es(vs.getId());
-
-  // Test that they are assignable and not constant
-  assertTrue_1(eb->isAssignable());
-  assertTrue_1(ei->isAssignable());
-  assertTrue_1(ed->isAssignable());
-  assertTrue_1(es->isAssignable());
-
-  assertTrue_1(!eb->isConstant());
-  assertTrue_1(!ei->isConstant());
-  assertTrue_1(!ed->isConstant());
-  assertTrue_1(!es->isConstant());
-
-  // Test that they are created inactive
-  assertTrue_1(!eb->isActive());
-  assertTrue_1(!ei->isActive());
-  assertTrue_1(!ed->isActive());
-  assertTrue_1(!es->isActive());
-
-  // Test that they are unknown while inactive
-  assertTrue_1(!eb->isKnown());
-  assertTrue_1(!ei->isKnown());
-  assertTrue_1(!ed->isKnown());
-  assertTrue_1(!es->isKnown());
-
-  // Activate and confirm they are known
-  eb->activate();
-  ei->activate();
-  ed->activate();
-  es->activate();
-
-  assertTrue_1(eb->isKnown());
-  assertTrue_1(ei->isKnown());
-  assertTrue_1(ed->isKnown());
-  assertTrue_1(es->isKnown());
-
-  // Check values
-  bool foob;
-  int32_t fooi;
-  double food;
-  std::string foos;
-    
-  assertTrue_1(eb->getValue(foob));
-  assertTrue_1(foob == false);
-  assertTrue_1(ei->getValue(fooi));
-  assertTrue_1(fooi == 69);
-  assertTrue_1(ed->getValue(food));
-  assertTrue_1(food == 1.414);
-  assertTrue_1(es->getValue(foos));
-  assertTrue_1(foos == std::string("yo"));
-  // Numeric conversion
-  assertTrue_1(ei->getValue(food));
-  assertTrue_1(food == 69);
-
-  return true;
-}
-
 static bool testSavedValue()
 {
   BooleanVariable vub;
@@ -865,7 +796,6 @@ bool variablesTest()
   runTest(testUninitialized);
   runTest(testInitialValue);
   runTest(testInitializers);
-  runTest(testExpressionId);
   runTest(testSavedValue);
   runTest(testAssignablePointer);
   runTest(testNotification);
