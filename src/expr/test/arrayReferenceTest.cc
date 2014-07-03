@@ -751,47 +751,47 @@ bool testArrayRefNotification()
   IntegerVariable ivar;
   bool ivarChanged = false;
   TrivialListener ivarl(ivarChanged);
-  ivar.addListener(ivarl.getId());
+  ivar.addListener(&ivarl);
 
   BooleanArrayVariable bv(vb);
   bool bvChanged = false;
   TrivialListener bvl(bvChanged);
-  bv.addListener(bvl.getId());
+  bv.addListener(&bvl);
 
   IntegerArrayVariable iv(vi);
   bool ivChanged = false;
   TrivialListener ivl(ivChanged);
-  iv.addListener(ivl.getId());
+  iv.addListener(&ivl);
 
   RealArrayVariable    dv(vd);
   bool dvChanged = false;
   TrivialListener dvl(dvChanged);
-  dv.addListener(dvl.getId());
+  dv.addListener(&dvl);
 
   StringArrayVariable  sv(vs);
   bool svChanged = false;
   TrivialListener svl(svChanged);
-  sv.addListener(svl.getId());
+  sv.addListener(&svl);
 
   ArrayReference bar(bv.getId(), ivar.getId());
   bool barChanged = false;
   TrivialListener barl(barChanged);
-  bar.addListener(barl.getId());
+  bar.addListener(&barl);
 
   ArrayReference iar(iv.getId(), ivar.getId());
   bool iarChanged = false;
   TrivialListener iarl(iarChanged);
-  iar.addListener(iarl.getId());
+  iar.addListener(&iarl);
 
   ArrayReference dar(dv.getId(), ivar.getId());
   bool darChanged = false;
   TrivialListener darl(darChanged);
-  dar.addListener(darl.getId());
+  dar.addListener(&darl);
 
   ArrayReference sar(sv.getId(), ivar.getId());
   bool sarChanged = false;
   TrivialListener sarl(sarChanged);
-  sar.addListener(sarl.getId());
+  sar.addListener(&sarl);
 
   Constant<bool> dummy;
 
@@ -915,15 +915,15 @@ bool testArrayRefNotification()
   assertTrue_1(!sar.isActive());
 
   // Clean up
-  ivar.removeListener(ivarl.getId());
-  bv.removeListener(bvl.getId());
-  iv.removeListener(ivl.getId());
-  dv.removeListener(dvl.getId());
-  sv.removeListener(svl.getId());
-  bar.removeListener(barl.getId());
-  iar.removeListener(iarl.getId());
-  dar.removeListener(darl.getId());
-  sar.removeListener(sarl.getId());
+  ivar.removeListener(&ivarl);
+  bv.removeListener(&bvl);
+  iv.removeListener(&ivl);
+  dv.removeListener(&dvl);
+  sv.removeListener(&svl);
+  bar.removeListener(&barl);
+  iar.removeListener(&iarl);
+  dar.removeListener(&darl);
+  sar.removeListener(&sarl);
 
   return true;
 }
@@ -957,47 +957,47 @@ bool testMutableNotification()
   IntegerVariable ivar;
   bool ivarChanged = false;
   TrivialListener ivarl(ivarChanged);
-  ivar.addListener(ivarl.getId());
+  ivar.addListener(&ivarl);
 
   BooleanArrayVariable bv(vb);
   bool bvChanged = false;
   TrivialListener bvl(bvChanged);
-  bv.addListener(bvl.getId());
+  bv.addListener(&bvl);
 
   IntegerArrayVariable iv(vi);
   bool ivChanged = false;
   TrivialListener ivl(ivChanged);
-  iv.addListener(ivl.getId());
+  iv.addListener(&ivl);
 
   RealArrayVariable    dv(vd);
   bool dvChanged = false;
   TrivialListener dvl(dvChanged);
-  dv.addListener(dvl.getId());
+  dv.addListener(&dvl);
 
   StringArrayVariable  sv(vs);
   bool svChanged = false;
   TrivialListener svl(svChanged);
-  sv.addListener(svl.getId());
+  sv.addListener(&svl);
 
   MutableArrayReference bar(bv.getId(), ivar.getId());
   bool barChanged = false;
   TrivialListener barl(barChanged);
-  bar.addListener(barl.getId());
+  bar.addListener(&barl);
 
   MutableArrayReference iar(iv.getId(), ivar.getId());
   bool iarChanged = false;
   TrivialListener iarl(iarChanged);
-  iar.addListener(iarl.getId());
+  iar.addListener(&iarl);
 
   MutableArrayReference dar(dv.getId(), ivar.getId());
   bool darChanged = false;
   TrivialListener darl(darChanged);
-  dar.addListener(darl.getId());
+  dar.addListener(&darl);
 
   MutableArrayReference sar(sv.getId(), ivar.getId());
   bool sarChanged = false;
   TrivialListener sarl(sarChanged);
-  sar.addListener(sarl.getId());
+  sar.addListener(&sarl);
 
   Constant<bool> dummy;
 
@@ -1173,15 +1173,15 @@ bool testMutableNotification()
   assertTrue_1(!sar.isActive());
 
   // Clean up
-  ivar.removeListener(ivarl.getId());
-  bv.removeListener(bvl.getId());
-  iv.removeListener(ivl.getId());
-  dv.removeListener(dvl.getId());
-  sv.removeListener(svl.getId());
-  bar.removeListener(barl.getId());
-  iar.removeListener(iarl.getId());
-  dar.removeListener(darl.getId());
-  sar.removeListener(sarl.getId());
+  ivar.removeListener(&ivarl);
+  bv.removeListener(&bvl);
+  iv.removeListener(&ivl);
+  dv.removeListener(&dvl);
+  sv.removeListener(&svl);
+  bar.removeListener(&barl);
+  iar.removeListener(&iarl);
+  dar.removeListener(&darl);
+  sar.removeListener(&sarl);
 
   return true;
 }

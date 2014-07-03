@@ -52,12 +52,12 @@ namespace PLEXIL
   {
     assertTrue_2(stateName.isId(), "Lookup constructor: Null state name expression");
     if (!m_stateName->isConstant())
-      m_stateName->addListener(getId());
+      m_stateName->addListener(this);
     assertTrue_2(params.size() == paramsAreGarbage.size(),
                  "Lookup constructor: Parameter vector and garbage vector differ in length");
     for (size_t i = 0; i < params.size(); ++i) {
       if (!m_params[i]->isConstant())
-        m_params[i]->addListener(getId());
+        m_params[i]->addListener(this);
     }
     // TODO: If all expressions are constants, can cache state now
   }
@@ -70,12 +70,12 @@ namespace PLEXIL
     }
     for (size_t i = 0; i < m_params.size(); ++i) {
       if (!m_params[i]->isConstant())
-        m_params[i]->removeListener(getId());
+        m_params[i]->removeListener(this);
       if (m_garbage[i])
         delete (Expression *) m_params[i];
     }
     if (!m_stateName->isConstant())
-      m_stateName->removeListener(getId());
+      m_stateName->removeListener(this);
     if (m_stateNameIsGarbage)
       delete (Expression *) m_stateName;
   }
@@ -475,7 +475,7 @@ namespace PLEXIL
     assertTrue_2(isNumericType(tolerance->valueType()),
                  "LookupOnChange constructor: tolerance expression is not numeric");
     if (!m_tolerance->isConstant())
-      m_tolerance->addListener(getId());
+      m_tolerance->addListener(this);
   }
 
   LookupOnChange::~LookupOnChange()
@@ -483,7 +483,7 @@ namespace PLEXIL
     delete m_thresholds;
     delete m_cachedValue;
     if (!m_tolerance->isConstant())
-      m_tolerance->removeListener(getId());
+      m_tolerance->removeListener(this);
     if (m_toleranceIsGarbage)
       delete (Expression *) m_tolerance;
   }

@@ -35,12 +35,14 @@
 namespace PLEXIL {
 
   Expression::Expression()
-    : ExpressionListener()
+    : ExpressionListener(),
+      m_id(this)
   {
   }
 
   Expression::~Expression()
   {
+    m_id.remove();
   }
 
   // Default method.
@@ -76,7 +78,7 @@ namespace PLEXIL {
   // Default method.
   ExpressionId Expression::getBaseExpression() const
   {
-    return (ExpressionId) this->getId();
+    return m_id;
   }
 
   void Expression::print(std::ostream& s) const

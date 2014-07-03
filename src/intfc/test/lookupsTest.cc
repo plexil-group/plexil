@@ -51,7 +51,7 @@ public:
   ~TestInterface() 
   {
     for (std::set<ExpressionId>::iterator it = m_exprs.begin(); it != m_exprs.end(); ++it)
-      (*it)->removeListener(m_listener.getId());
+      (*it)->removeListener(&m_listener);
   }
 
   void lookupNow(const State& state, StateCacheEntry &entry) 
@@ -110,7 +110,7 @@ public:
   void watch(const char* name, ExpressionId expr)
   {
     if (m_exprs.find(expr) == m_exprs.end()) {
-      expr->addListener(m_listener.getId());
+      expr->addListener(&m_listener);
       m_exprs.insert(expr);
     }
     std::string nameStr(name);
@@ -122,7 +122,7 @@ public:
   {
     if (m_exprs.find(expr) != m_exprs.end()) {
       m_exprs.erase(expr);
-      expr->removeListener(m_listener.getId());
+      expr->removeListener(&m_listener);
     }
     std::string nameStr(name);
     m_changingExprs.erase(nameStr);
@@ -213,10 +213,10 @@ static bool testLookupNow()
   TrivialListener l3listener(l3changed);
   TrivialListener l4listener(l4changed);
 
-  l1->addListener(l1listener.getId());
-  l2->addListener(l2listener.getId());
-  l3->addListener(l3listener.getId());
-  l4->addListener(l4listener.getId());
+  l1->addListener(&l1listener);
+  l2->addListener(&l2listener);
+  l3->addListener(&l3listener);
+  l4->addListener(&l4listener);
 
   // Bump the cycle count
   theInterface->incrementCycleCount();
@@ -271,10 +271,10 @@ static bool testLookupNow()
   l3->deactivate();
   l4->deactivate();
 
-  l1->removeListener(l1listener.getId());
-  l2->removeListener(l2listener.getId());
-  l3->removeListener(l3listener.getId());
-  l4->removeListener(l4listener.getId());
+  l1->removeListener(&l1listener);
+  l2->removeListener(&l2listener);
+  l3->removeListener(&l3listener);
+  l4->removeListener(&l4listener);
 
   delete (Expression *) l4;
   delete (Expression *) l3;
@@ -312,8 +312,8 @@ static bool testLookupOnChange()
   bool changeWithToleranceNotified = false;
   TrivialListener changeListener(changeNotified);
   TrivialListener changeWithToleranceListener(changeWithToleranceNotified);
-  l1.addListener(changeListener.getId());
-  l2.addListener(changeWithToleranceListener.getId());
+  l1.addListener(&changeListener);
+  l2.addListener(&changeWithToleranceListener);
 
   assertTrue_1(!l1.isKnown());
   assertTrue_1(!l2.isKnown());
@@ -457,8 +457,8 @@ static bool testLookupOnChange()
   l1.deactivate();
   l2.deactivate();
 
-  l1.removeListener(changeListener.getId());
-  l2.removeListener(changeWithToleranceListener.getId());
+  l1.removeListener(&changeListener);
+  l2.removeListener(&changeWithToleranceListener);
 
   theInterface->unwatch("changeTest", watchVar.getId());
   theInterface->unwatch("changeWithToleranceTest", watchVar.getId());

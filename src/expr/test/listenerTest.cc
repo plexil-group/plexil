@@ -64,11 +64,6 @@ public:
   {
   }
 
-  void setListener(const PLEXIL::ExpressionListenerId & l)
-  {
-    m_listener = l;
-  }
-
   // Only ever called when active
   void handleChange(PLEXIL::ExpressionId src)
   {
@@ -87,9 +82,6 @@ public:
 
   PLEXIL::Value toValue() const { return PLEXIL::Value(); }
 
-private:
-  PLEXIL::ExpressionListenerId m_listener;
-
 public:
   bool changed;
 };
@@ -101,11 +93,10 @@ static bool testListenerPropagation()
   TrivialExpression dest;
   TrivialExpression dummy;
   PropagatingListener p(dest.getId());
-  source.addListener(p.getId());
-  dest.setListener(p.getId());
+  source.addListener(&p);
   bool transitiveChanged = false;
   TrivialListener t(transitiveChanged);
-  dest.addListener(t.getId());
+  dest.addListener(&t);
 
   // Test that all are initialized to inactive,
   // not assignable, and changed is false
@@ -157,8 +148,8 @@ static bool testListenerPropagation()
   assertTrue_1(!transitiveChanged);
 
   // Clean up
-  dest.removeListener(t.getId());
-  source.removeListener(p.getId());
+  dest.removeListener(&t);
+  source.removeListener(&p);
 
   return true;
 }
@@ -169,7 +160,7 @@ static bool testDirectPropagation()
   TrivialExpression source;
   TrivialExpression dest;
   TrivialExpression dummy;
-  source.addListener(dest.getId());
+  source.addListener(&dest);
 
   // Test that all are initialized to inactive,
   // not assignable, and changed is false
@@ -217,7 +208,7 @@ static bool testDirectPropagation()
   assertTrue_1(!dest.changed);
 
   // Clean up
-  source.removeListener(dest.getId());
+  source.removeListener(&dest);
 
   return true;
 }
@@ -228,3 +219,9 @@ bool listenerTest()
   runTest(testDirectPropagation);
   return true;
 }
+
+
+
+
+
+

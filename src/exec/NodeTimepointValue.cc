@@ -40,12 +40,12 @@ namespace PLEXIL
       m_state(state),
       m_end(isEnd)
   {
-    m_node->getStateVariable()->addListener(this->getId());
+    m_node->getStateVariable()->addListener(this);
   }
 
   NodeTimepointValue::~NodeTimepointValue()
   {
-    m_node->getStateVariable()->removeListener(this->getId());
+    m_node->getStateVariable()->removeListener(this);
   }
 
   std::string const &NodeTimepointValue::getName() const

@@ -39,7 +39,7 @@ namespace PLEXIL
       m_exprVec(exprs),
       m_valueCache(op->allocateCache())
   {
-    m_exprVec->addListener(this->getId());
+    m_exprVec->addListener(this);
   }
 
   Function::Function(Operator const *op,
@@ -51,7 +51,7 @@ namespace PLEXIL
                             std::vector<bool>(1, garbage))),
       m_valueCache(op->allocateCache())
   {
-    m_exprVec->addListener(this->getId());
+    m_exprVec->addListener(this);
   }
 
   Function::Function(Operator const *op,
@@ -71,13 +71,13 @@ namespace PLEXIL
 
     m_exprVec = makeExprVec(exprs, garbage);
 
-    m_exprVec->addListener(this->getId());
+    m_exprVec->addListener(this);
   }
 
   Function::~Function()
   {
     m_op->deleteCache(m_valueCache);
-    m_exprVec->removeListener(this->getId());
+    m_exprVec->removeListener(this);
     delete m_exprVec;
   }
 

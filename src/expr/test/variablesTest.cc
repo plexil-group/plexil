@@ -756,10 +756,10 @@ static bool testNotification()
   TrivialListener ld(dchanged);
   TrivialListener ls(schanged);
 
-  vub.addListener(lb.getId());
-  vui.addListener(li.getId());
-  vud.addListener(ld.getId());
-  vus.addListener(ls.getId());
+  vub.addListener(&lb);
+  vui.addListener(&li);
+  vud.addListener(&ld);
+  vus.addListener(&ls);
 
   // Activation alone should not notify
   vub.activate();
@@ -852,10 +852,10 @@ static bool testNotification()
   assertTrue_1(schanged);
 
   // Clean up
-  vub.removeListener(lb.getId());
-  vui.removeListener(li.getId());
-  vud.removeListener(ld.getId());
-  vus.removeListener(ls.getId());
+  vub.removeListener(&lb);
+  vui.removeListener(&li);
+  vud.removeListener(&ld);
+  vus.removeListener(&ls);
 
   return true;
 }

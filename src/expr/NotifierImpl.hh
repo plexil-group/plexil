@@ -77,15 +77,15 @@ namespace PLEXIL {
 
     /**
      * @brief Add a listener for changes to this Expression's value.
-     * @param id The Id of the listener to notify.
+     * @param ptr The pointer to the listener to add.
      */
-    void addListener(ExpressionListenerId id);
+    void addListener(ExpressionListener *ptr);
 
     /**
      * @brief Remove a listener from this Expression.
-     * @param id The Id of the listener to remove.
+     * @param ptr The pointer to the listener to remove.
      */
-    void removeListener(ExpressionListenerId id);
+    void removeListener(ExpressionListener *ptr);
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
@@ -131,7 +131,7 @@ namespace PLEXIL {
     NotifierImpl &operator=(const NotifierImpl &);
 
     // Essential member variables
-    std::vector<ExpressionListenerId> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
+    std::vector<ExpressionListener *> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
     unsigned int m_activeCount;
   };
 

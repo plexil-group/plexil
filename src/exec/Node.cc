@@ -206,7 +206,7 @@ namespace PLEXIL {
       m_conditions[i] = expr;
       m_garbageConditions[i] = true;
       if (i != preIdx && i != postIdx)
-        getCondition(i)->addListener(m_listener.getId());
+        getCondition(i)->addListener(&m_listener);
     }
 
     // Activate the conditions required by the provided state
@@ -493,17 +493,17 @@ namespace PLEXIL {
       ExpressionId ancestorEnd = getAncestorEndCondition();
       assertTrueMsg(ancestorEnd.isId(),
                     "Internal error: ancestor end condition is null!");
-      ancestorEnd->addListener(m_listener.getId());
+      ancestorEnd->addListener(&m_listener);
 
       ExpressionId ancestorExit = getAncestorExitCondition();
       assertTrueMsg(ancestorExit.isId(),
                     "Internal error: ancestor exit condition is null!");
-      ancestorExit->addListener(m_listener.getId());
+      ancestorExit->addListener(&m_listener);
 
       ExpressionId ancestorInvariant = getAncestorInvariantCondition();
       assertTrueMsg(ancestorInvariant.isId(),
                     "Internal error: ancestor invariant condition is null!");
-      ancestorInvariant->addListener(m_listener.getId());
+      ancestorInvariant->addListener(&m_listener);
     }
 
     // Let the derived class do its thing (currently only ListNode)
@@ -539,7 +539,7 @@ namespace PLEXIL {
         break; // these conditions don't need listeners
 
       default:
-        m_conditions[condIdx]->addListener(m_listener.getId());
+        m_conditions[condIdx]->addListener(&m_listener);
         break;
       }
     }
@@ -595,7 +595,7 @@ namespace PLEXIL {
     for (size_t i = 0; i < conditionIndexMax; ++i) {
       ExpressionId cond = getCondition(i);
       if (cond.isId())
-        cond->removeListener(m_listener.getId());
+        cond->removeListener(&m_listener);
     }
 
     // Clean up conditions
@@ -627,11 +627,11 @@ namespace PLEXIL {
     case ancestorEndIdx:
     case ancestorExitIdx:
     case ancestorInvariantIdx:
-      getCondition(condIdx)->removeListener(m_listener.getId());
+      getCondition(condIdx)->removeListener(&m_listener);
       break;
 
     default:
-      m_conditions[condIdx]->removeListener(m_listener.getId());
+      m_conditions[condIdx]->removeListener(&m_listener);
       break;
     }
   }

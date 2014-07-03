@@ -249,14 +249,14 @@ namespace PLEXIL
     ExpressionId cond =
       (new Function(AllWaitingOrFinished::instance(),
                     makeExprVec(stateVars, notGarbage)))->getId();
-    cond->addListener(m_listener.getId());
+    cond->addListener(&m_listener);
     m_conditions[actionCompleteIdx] = cond;
     m_garbageConditions[actionCompleteIdx] = true;
 
     ExpressionId endCond =
       (new Function(AllFinished::instance(),
                     makeExprVec(stateVars, notGarbage)))->getId();
-    endCond->addListener(m_listener.getId());
+    endCond->addListener(&m_listener);
     m_conditions[endIdx] = endCond;
     m_garbageConditions[endIdx] = true;
   }

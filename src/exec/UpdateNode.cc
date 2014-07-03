@@ -120,7 +120,7 @@ namespace PLEXIL
 
     // Create action-complete condition
     ExpressionId actionComplete = (ExpressionId) m_update->getAck();
-    actionComplete->addListener(m_listener.getId());
+    actionComplete->addListener(&m_listener);
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = false;
   }
@@ -136,7 +136,7 @@ namespace PLEXIL
     if (m_conditions[endIdx] == TRUE_EXP()) {
       // Default - don't wrap, replace - (True && anything) == anything
       m_conditions[endIdx] = ack;
-      ack->addListener(m_listener.getId());
+      ack->addListener(&m_listener);
       m_garbageConditions[endIdx] = false;
     }
     else {
@@ -149,7 +149,7 @@ namespace PLEXIL
                       m_conditions[endIdx],
                       false,
                       m_garbageConditions[endIdx]))->getId();
-      realEnd->addListener(m_listener.getId());
+      realEnd->addListener(&m_listener);
       m_conditions[endIdx] = realEnd;
       m_garbageConditions[endIdx] = true;
     }

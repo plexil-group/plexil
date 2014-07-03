@@ -175,13 +175,13 @@ namespace PLEXIL
       (new Function(IsKnown::instance(),
                     makeExprVec(std::vector<ExpressionId>(1, m_command->getAck()),
                                 std::vector<bool>(1, false))))->getId();
-    actionComplete->addListener(m_listener.getId());
+    actionComplete->addListener(&m_listener);
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = true;
 
     // Construct command-aborted condition
     ExpressionId commandAbort = (ExpressionId) m_command->getAbortComplete();
-    commandAbort->addListener(m_listener.getId());
+    commandAbort->addListener(&m_listener);
     m_conditions[abortCompleteIdx] = commandAbort;
     m_garbageConditions[abortCompleteIdx] = false;
   }
@@ -201,7 +201,7 @@ namespace PLEXIL
                       true,
                       m_garbageConditions[endIdx]))->getId();
 
-      realEndCondition->addListener(m_listener.getId());
+      realEndCondition->addListener(&m_listener);
       m_conditions[endIdx] = realEndCondition;
       m_garbageConditions[endIdx] = true;
     }

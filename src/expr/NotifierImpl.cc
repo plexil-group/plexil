@@ -98,18 +98,18 @@ namespace PLEXIL {
     this->publishChange(src);
   }
 
-  void NotifierImpl::addListener(ExpressionListenerId l)
+  void NotifierImpl::addListener(ExpressionListener *ptr)
   {
-    m_outgoingListeners.push_back(l);
+    m_outgoingListeners.push_back(ptr);
   }
 
-  void NotifierImpl::removeListener(ExpressionListenerId l)
+  void NotifierImpl::removeListener(ExpressionListener *ptr)
   {
-    std::vector<ExpressionListenerId>::iterator it =
-      std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), l);
+    std::vector<ExpressionListener *>::iterator it =
+      std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), ptr);
     if (it == m_outgoingListeners.end()) {
 #ifdef EXPRESSION_DEBUG
-        debugMsg("NotifierImpl:removeListener", " listener " << l << " not found");
+        debugMsg("NotifierImpl:removeListener", " listener " << ptr << " not found");
 #endif
         return;
     }
@@ -119,7 +119,7 @@ namespace PLEXIL {
   void NotifierImpl::publishChange(ExpressionId src)
   {
     if (isActive())
-      for (std::vector<ExpressionListenerId>::iterator it = m_outgoingListeners.begin();
+      for (std::vector<ExpressionListener *>::iterator it = m_outgoingListeners.begin();
            it != m_outgoingListeners.end();
            ++it)
         (*it)->notifyChanged(src);

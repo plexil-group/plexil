@@ -1247,10 +1247,10 @@ static bool testVariableNotification()
   TrivialListener lda(dachanged);
   TrivialListener lsa(sachanged);
 
-  vuba.addListener(lba.getId());
-  vuia.addListener(lia.getId());
-  vuda.addListener(lda.getId());
-  vusa.addListener(lsa.getId());
+  vuba.addListener(&lba);
+  vuia.addListener(&lia);
+  vuda.addListener(&lda);
+  vusa.addListener(&lsa);
 
   // Activation alone should not notify
   vuba.activate();
@@ -1354,10 +1354,10 @@ static bool testVariableNotification()
   assertTrue_1(sachanged);
 
   // Clean up
-  vuba.removeListener(lba.getId());
-  vuia.removeListener(lia.getId());
-  vuda.removeListener(lda.getId());
-  vusa.removeListener(lsa.getId());
+  vuba.removeListener(&lba);
+  vuia.removeListener(&lia);
+  vuda.removeListener(&lda);
+  vusa.removeListener(&lsa);
 
   return true;
 }

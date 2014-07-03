@@ -44,14 +44,14 @@ namespace PLEXIL
                  "ArrayReference constructor: Null subexpression");
     // TODO:
     // Check type of array, index
-    m_array->addListener(this->getId());
-    m_index->addListener(this->getId());
+    m_array->addListener(this);
+    m_index->addListener(this);
   }
 
   ArrayReference::~ArrayReference()
   {
-    m_array->removeListener(this->getId());
-    m_index->removeListener(this->getId());
+    m_array->removeListener(this);
+    m_index->removeListener(this);
     if (m_arrayIsGarbage)
       delete (Expression *) m_array;
     if (m_indexIsGarbage)

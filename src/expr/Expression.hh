@@ -74,7 +74,7 @@ namespace PLEXIL
 
     inline ExpressionId getId() const
     {
-      return (ExpressionId) m_id;
+      return m_id;
     }
 
     //
@@ -188,15 +188,15 @@ namespace PLEXIL
 
     /**
      * @brief Add a listener for changes to this Expression's value.
-     * @param id The Id of the listener to notify.
+     * @param id The pointer to the listener to add.
      */
-    virtual void addListener(ExpressionListenerId id) = 0;
+    virtual void addListener(ExpressionListener *ptr) = 0;
 
     /**
      * @brief Remove a listener from this Expression.
-     * @param id The Id of the listener to remove.
+     * @param id The pointer to the listener to remove.
      */
-    virtual void removeListener(ExpressionListenerId id) = 0;
+    virtual void removeListener(ExpressionListener *ptr) = 0;
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
@@ -261,6 +261,9 @@ namespace PLEXIL
   protected:
     // Only derived classes can call the constructor.
     Expression();
+
+    // Local storage, shared with derived classes
+    ExpressionId m_id; /*!< The Id for this expression */
 
   private:
     // Deliberately not implemented.

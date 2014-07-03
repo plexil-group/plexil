@@ -46,7 +46,6 @@ namespace PLEXIL
   typedef Id<Expression> ExpressionId;
 
   class ExpressionListener;
-  typedef Id<ExpressionListener> ExpressionListenerId;
 
   class NodeConnector;
   typedef Id<NodeConnector> NodeConnectorId;

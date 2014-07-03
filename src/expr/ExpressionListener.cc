@@ -30,13 +30,11 @@ namespace PLEXIL
 {
 
   ExpressionListener::ExpressionListener()
-    : m_id(this)
   {
   }
 
   ExpressionListener::~ExpressionListener()
   {
-    m_id.remove();
   }
 
 }

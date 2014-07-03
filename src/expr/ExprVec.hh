@@ -39,7 +39,6 @@ namespace PLEXIL
   DECLARE_ID(Expression);
 
   class ExpressionListener;
-  DECLARE_ID(ExpressionListener);
 
   class Operator;
 
@@ -63,8 +62,8 @@ namespace PLEXIL
     virtual void deactivate() = 0;
 
     // Default methods, derived classes can use these
-    virtual void addListener(ExpressionListenerId);
-    virtual void removeListener(ExpressionListenerId);
+    virtual void addListener(ExpressionListener *);
+    virtual void removeListener(ExpressionListener *);
 
     virtual bool apply(Operator const *op, bool &result) const;
     virtual bool apply(Operator const *op, int32_t &result) const;

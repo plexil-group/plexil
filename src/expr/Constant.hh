@@ -121,17 +121,17 @@ namespace PLEXIL {
 
     /**
      * @brief Add a listener for changes to this Expression's value.
-     * @param id The Id of the listener to notify.
+     * @param ptr The pointer to the listener to add.
      * @note No-op for constants.
      */
-    void addListener(ExpressionListenerId /* id */);
+    void addListener(ExpressionListener * /* ptr */);
 
     /**
      * @brief Remove a listener from this Expression.
-     * @param id The Id of the listener to remove.
+     * @param ptr The pointer to the listener to remove.
      * @note No-op for constants.
      */
-    void removeListener(ExpressionListenerId /* id */);
+    void removeListener(ExpressionListener * /* ptr */);
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.
@@ -223,14 +223,14 @@ namespace PLEXIL {
      * @param id The Id of the listener to notify.
      * @note No-op for constants.
      */
-    void addListener(ExpressionListenerId /* id */);
+    void addListener(ExpressionListener * /* ptr */);
 
     /**
      * @brief Remove a listener from this Expression.
-     * @param id The Id of the listener to remove.
+     * @param ptr The pointer to the listener to remove.
      * @note No-op for constants.
      */
-    void removeListener(ExpressionListenerId /* id */);
+    void removeListener(ExpressionListener * /* ptr */);
 
     /**
      * @brief Notify this expression that a subexpression's value has changed.

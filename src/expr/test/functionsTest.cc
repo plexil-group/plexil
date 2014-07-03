@@ -160,11 +160,11 @@ static bool testUnaryPropagation()
   TrivialListener rl2(r2changed);
   TrivialListener sl(schanged);
 
-  boule.addListener(bl.getId());
-  inty.addListener(il.getId());
-  dub.addListener(rl.getId());
-  intd.addListener(rl2.getId());
-  str.addListener(sl.getId());
+  boule.addListener(&bl);
+  inty.addListener(&il);
+  dub.addListener(&rl);
+  intd.addListener(&rl2);
+  str.addListener(&sl);
 
   // Check propagation doesn't happen when inactive
   treu.setValue(false);
@@ -230,11 +230,11 @@ static bool testUnaryPropagation()
   assertTrue_1(schanged);
 
   // Clean up
-  boule.removeListener(bl.getId());
-  inty.removeListener(il.getId());
-  dub.removeListener(rl.getId());
-  intd.removeListener(rl2.getId());
-  str.removeListener(sl.getId());
+  boule.removeListener(&bl);
+  inty.removeListener(&il);
+  dub.removeListener(&rl);
+  intd.removeListener(&rl2);
+  str.removeListener(&sl);
 
   return true;
 }
@@ -270,8 +270,8 @@ static bool testBinaryBasics()
   TrivialListener il(ichanged);
   TrivialListener rl(rchanged);
 
-  intFn.addListener(il.getId());
-  realFn.addListener(rl.getId());
+  intFn.addListener(&il);
+  realFn.addListener(&rl);
 
   // Check that variables and functions are inactive when created
   assertTrue_1(!intFn.isActive());
@@ -358,8 +358,8 @@ static bool testBinaryBasics()
   assertTrue_1(rchanged);
 
   // Clean up
-  intFn.removeListener(il.getId());
-  realFn.removeListener(rl.getId());
+  intFn.removeListener(&il);
+  realFn.removeListener(&rl);
 
   return true;
 }
@@ -402,8 +402,8 @@ static bool testNaryBasics()
   TrivialListener il(ichanged);
   TrivialListener rl(rchanged);
 
-  intFn.addListener(il.getId());
-  realFn.addListener(rl.getId());
+  intFn.addListener(&il);
+  realFn.addListener(&rl);
 
   // Check that variables and functions are inactive when created
   assertTrue_1(!intFn.isActive());
@@ -484,8 +484,8 @@ static bool testNaryBasics()
   assertTrue_1(rchanged);
 
   // Clean up
-  intFn.removeListener(il.getId());
-  realFn.removeListener(rl.getId());
+  intFn.removeListener(&il);
+  realFn.removeListener(&rl);
 
   return true;
 }

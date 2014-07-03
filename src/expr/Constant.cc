@@ -249,27 +249,22 @@ namespace PLEXIL
    * @note No-op for constants.
    */
   template <typename T>
-  void Constant<T>::addListener(ExpressionListenerId /* id */)
+  void Constant<T>::addListener(ExpressionListener * /* ptr */)
   {
   }
 
   template <typename T>
-  void Constant<ArrayImpl<T> >::addListener(ExpressionListenerId /* id */)
-  {
-  }
-
-  /**
-   * @brief Remove a listener from this Expression.
-   * @param id The Id of the listener to remove.
-   * @note No-op for constants.
-   */
-  template <typename T>
-  void Constant<T>::removeListener(ExpressionListenerId /* id */)
+  void Constant<ArrayImpl<T> >::addListener(ExpressionListener * /* ptr */)
   {
   }
 
   template <typename T>
-  void Constant<ArrayImpl<T> >::removeListener(ExpressionListenerId /* id */)
+  void Constant<T>::removeListener(ExpressionListener * /* ptr */)
+  {
+  }
+
+  template <typename T>
+  void Constant<ArrayImpl<T> >::removeListener(ExpressionListener * /* ptr */)
   {
   }
 

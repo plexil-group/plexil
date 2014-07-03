@@ -36,7 +36,6 @@ namespace PLEXIL
   // Forward declarations
   //
   class ExpressionListener;
-  typedef Id<ExpressionListener> ExpressionListenerId;
   class Expression;
   typedef Id<Expression> ExpressionId;
 
@@ -55,11 +54,6 @@ namespace PLEXIL
     ExpressionListener();
     virtual ~ExpressionListener();
 
-    inline ExpressionListenerId getId() const 
-    {
-      return m_id;
-    }
-
     /**
      * @brief Virtual function for notification that an expression's value has changed.
      * @param src The source of the notification, so that recipients can check for circularity.
@@ -72,11 +66,6 @@ namespace PLEXIL
     // Not implemented
     ExpressionListener(const ExpressionListener &);
     ExpressionListener &operator=(const ExpressionListener &);
-
-  protected:
-
-    // Local storage, shared with derived classes
-    ExpressionListenerId m_id; /*!< The Id for this listener */
   };
 
 }

@@ -1140,15 +1140,15 @@ static bool testAliasPropagation()
   TrivialListener arefListener(arefChanged);
   TrivialListener warefListener(warefChanged);
 
-  ary.addListener(aryListener.getId());
-  aary.addListener(aaryListener.getId());
-  waary.addListener(waaryListener.getId());
-  tree.addListener(treeListener.getId());
-  atree.addListener(atreeListener.getId());
-  watree.addListener(watreeListener.getId());
-  ref.addListener(refListener.getId());
-  aref.addListener(arefListener.getId());
-  waref.addListener(warefListener.getId());
+  ary.addListener(&aryListener);
+  aary.addListener(&aaryListener);
+  waary.addListener(&waaryListener);
+  tree.addListener(&treeListener);
+  atree.addListener(&atreeListener);
+  watree.addListener(&watreeListener);
+  ref.addListener(&refListener);
+  aref.addListener(&arefListener);
+  waref.addListener(&warefListener);
 
   aryChanged = aaryChanged = waaryChanged = false;
   treeChanged = atreeChanged = watreeChanged = false;
@@ -1429,15 +1429,15 @@ static bool testAliasPropagation()
   assertTrue_1(warefChanged);
 
   // Clean up
-  ary.removeListener(aryListener.getId());
-  aary.removeListener(aaryListener.getId());
-  waary.removeListener(waaryListener.getId());
-  tree.removeListener(treeListener.getId());
-  atree.removeListener(atreeListener.getId());
-  watree.removeListener(watreeListener.getId());
-  ref.removeListener(refListener.getId());
-  aref.removeListener(arefListener.getId());
-  waref.removeListener(warefListener.getId());
+  ary.removeListener(&aryListener);
+  aary.removeListener(&aaryListener);
+  waary.removeListener(&waaryListener);
+  tree.removeListener(&treeListener);
+  atree.removeListener(&atreeListener);
+  watree.removeListener(&watreeListener);
+  ref.removeListener(&refListener);
+  aref.removeListener(&arefListener);
+  waref.removeListener(&warefListener);
 
   return true;
 }

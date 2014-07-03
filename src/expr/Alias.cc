@@ -44,12 +44,12 @@ namespace PLEXIL
       m_garbage(garbage)
   {
     assertTrue_2(original.isId(), "Alias constructor: Null original expression");
-    m_exp->addListener(getId());
+    m_exp->addListener(this);
   }
 
   Alias::~Alias()
   {
-    m_exp->removeListener(getId());
+    m_exp->removeListener(this);
     if (m_garbage)
       delete (Expression *) m_exp;
   }

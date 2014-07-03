@@ -35,16 +35,16 @@ namespace PLEXIL
   // ExprVec base class methods
   //
 
-  void ExprVec::addListener(ExpressionListenerId id)
+  void ExprVec::addListener(ExpressionListener * ptr)
   {
     for (size_t i = 0; i < this->size(); ++i)
-      (*this)[i]->addListener(id);
+      (*this)[i]->addListener(ptr);
   }
 
-  void ExprVec::removeListener(ExpressionListenerId id)
+  void ExprVec::removeListener(ExpressionListener * ptr)
   {
     for (size_t i = 0; i < this->size(); ++i)
-      (*this)[i]->removeListener(id);
+      (*this)[i]->removeListener(ptr);
   }
 
   bool ExprVec::apply(Operator const *op, bool &result) const
@@ -128,12 +128,11 @@ namespace PLEXIL
     {
     }
 
-    // General case defers to base class for many of these operations
-    void addListener(ExpressionListenerId id) 
+    void addListener(ExpressionListener * /* ptr */) 
     {
     }
 
-    void removeListener(ExpressionListenerId id) 
+    void removeListener(ExpressionListener * /* id */) 
     {
     }
 
@@ -201,14 +200,14 @@ namespace PLEXIL
     }
 
     // General case defers to base class for many of these operations
-    void addListener(ExpressionListenerId id) 
+    void addListener(ExpressionListener * ptr) 
     {
-      ExprVec::addListener(id); 
+      ExprVec::addListener(ptr);
     }
 
-    void removeListener(ExpressionListenerId id) 
+    void removeListener(ExpressionListener * ptr) 
     {
-      ExprVec::removeListener(id); 
+      ExprVec::removeListener(ptr);
     }
 
     bool apply(Operator const *op, bool &result) const
@@ -297,15 +296,15 @@ namespace PLEXIL
   }
 
   template <>
-  void FixedExprVec<1>::addListener(ExpressionListenerId id)
+  void FixedExprVec<1>::addListener(ExpressionListener * ptr)
   {
-    exprs[0]->addListener(id);
+    exprs[0]->addListener(ptr);
   }
 
   template <>
-  void FixedExprVec<1>::removeListener(ExpressionListenerId id)
+  void FixedExprVec<1>::removeListener(ExpressionListener * ptr)
   {
-    exprs[0]->removeListener(id);
+    exprs[0]->removeListener(ptr);
   }
 
   template <>
@@ -402,17 +401,17 @@ namespace PLEXIL
   }
 
   template <>
-  void FixedExprVec<2>::addListener(ExpressionListenerId id)
+  void FixedExprVec<2>::addListener(ExpressionListener * ptr)
   {
-    exprs[0]->addListener(id);
-    exprs[1]->addListener(id);
+    exprs[0]->addListener(ptr);
+    exprs[1]->addListener(ptr);
   }
 
   template <>
-  void FixedExprVec<2>::removeListener(ExpressionListenerId id)
+  void FixedExprVec<2>::removeListener(ExpressionListener * ptr)
   {
-    exprs[0]->removeListener(id);
-    exprs[1]->removeListener(id);
+    exprs[0]->removeListener(ptr);
+    exprs[1]->removeListener(ptr);
   }
 
   template <>
