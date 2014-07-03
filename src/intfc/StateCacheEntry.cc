@@ -103,7 +103,7 @@ namespace PLEXIL
     // N.B. no error if not found
   }
 
-  void StateCacheEntry::setThresholds(ExpressionId tolerance)
+  void StateCacheEntry::setThresholds(Expression const *tolerance)
   {
     // Check for valid tolerance
     if (!tolerance->isKnown())

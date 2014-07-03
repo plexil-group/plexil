@@ -29,9 +29,9 @@
 namespace PLEXIL
 {
 
-  Command::Command(const ExpressionId nameExpr, 
-                   const std::vector<ExpressionId>& args,
-                   const std::vector<ExpressionId> &garbage,
+  Command::Command(Expression *nameExpr, 
+                   std::vector<Expression *> const &args,
+                   std::vector<Expression *> const &garbage,
                    Assignable *dest,
                    const ResourceList &resource,
                    std::string const &nodeName)
@@ -52,10 +52,10 @@ namespace PLEXIL
   }
 
   Command::~Command() {
-    for (std::vector<ExpressionId>::const_iterator it = m_garbage.begin();
+    for (std::vector<Expression *>::const_iterator it = m_garbage.begin();
          it != m_garbage.end();
          ++it) {
-      delete (Expression*) (*it);
+      delete (*it);
     }
     m_id.remove();
   }
@@ -84,12 +84,12 @@ namespace PLEXIL
     return m_resourceValuesList;
   }
 
-  ExpressionId Command::getDest() const
+  Expression *Command::getDest()
   {
     if (m_dest)
-      return m_dest->getId();
+      return m_dest;
     else
-      return ExpressionId::noId();
+      return NULL;
   }
 
   void Command::fixValues() 
@@ -100,7 +100,7 @@ namespace PLEXIL
 
     std::vector<Value> vals;
     vals.reserve(m_args.size());
-    for (std::vector<ExpressionId>::iterator it = m_args.begin();
+    for (std::vector<Expression *>::const_iterator it = m_args.begin();
          it != m_args.end();
          ++it)
       vals.push_back((*it)->toValue());
@@ -121,8 +121,7 @@ namespace PLEXIL
         for(ResourceMap::const_iterator resIter = resListIter->begin();
             resIter != resListIter->end();
             ++resIter) {
-          ExpressionId expr = resIter->second;
-          check_error(expr.isValid());
+          Expression *expr = resIter->second;
           resValues[resIter->first] = expr->toValue();
         }
         m_resourceValuesList.push_back(resValues);
@@ -138,9 +137,8 @@ namespace PLEXIL
     m_abortComplete.activate();
     if (m_dest)
       m_dest->activate();
-    for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
+    for (std::vector<Expression *>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
+      Expression *expr = *it;
       expr->activate();
     }
     for (ResourceList::const_iterator resListIter = m_resourceList.begin();
@@ -149,8 +147,7 @@ namespace PLEXIL
       for (ResourceMap::const_iterator resIter = resListIter->begin();
            resIter != resListIter->end();
            ++resIter) {
-        ExpressionId expr = resIter->second;
-        check_error(expr.isValid());
+        Expression *expr = resIter->second;
         expr->activate();
       }
     }
@@ -162,9 +159,8 @@ namespace PLEXIL
     m_abortComplete.deactivate();
     if (m_dest)
       m_dest->deactivate();
-    for (std::vector<ExpressionId>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      ExpressionId expr = *it;
-      check_error(expr.isValid());
+    for (std::vector<Expression *>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
+      Expression *expr = *it;
       expr->deactivate();
     }
   }

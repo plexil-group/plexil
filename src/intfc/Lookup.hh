@@ -64,9 +64,9 @@ namespace PLEXIL
   class Lookup : public NotifierImpl
   {
   public:
-    Lookup(ExpressionId const &stateName,
+    Lookup(Expression *stateName,
            bool stateNameIsGarbage,
-           std::vector<ExpressionId> const &params,
+           std::vector<Expression*> const &params,
            std::vector<bool> const &paramsAreGarbage);
     virtual ~Lookup();
 
@@ -79,7 +79,7 @@ namespace PLEXIL
     // Common behavior required by NotifierImpl
     void handleActivate();
     void handleDeactivate();
-    void handleChange(ExpressionId src);
+    void handleChange(Expression const *src);
 
     //
     // Value access
@@ -139,13 +139,13 @@ namespace PLEXIL
   protected:
 
     // Shared behavior needed by LookupOnChange
-    bool handleChangeInternal(ExpressionId src);
+    bool handleChangeInternal(Expression const *src);
     
     // Member variables shared with implementation classes
     State m_cachedState;
-    std::vector<ExpressionId> m_params;
+    std::vector<Expression *> m_params;
     std::vector<bool> m_garbage;
-    ExpressionId m_stateName;
+    Expression *m_stateName;
     StateCacheEntry* m_entry; // TODO opportunity to use refcounted ptr?
     bool m_known;
     bool m_stateKnown;
@@ -158,11 +158,11 @@ namespace PLEXIL
   class LookupOnChange : public Lookup
   {
   public:
-    LookupOnChange(ExpressionId const &stateName,
+    LookupOnChange(Expression *stateName,
                    bool stateNameIsGarbage,
-                   std::vector<ExpressionId> const &params,
+                   std::vector<Expression *> const &params,
                    std::vector<bool> const &paramsAreGarbage,
-                   ExpressionId const &tolerance,
+                   Expression *tolerance,
                    bool toleranceIsGarbage = false);
     ~LookupOnChange();
 
@@ -171,7 +171,7 @@ namespace PLEXIL
     // Wrappers around Lookup methods
     void handleActivate();
     void handleDeactivate();
-    void handleChange(ExpressionId exp);
+    void handleChange(Expression const *exp);
     void valueChanged();
 
     /**
@@ -202,7 +202,7 @@ namespace PLEXIL
     // Unique member data
     ThresholdCache *m_thresholds;
     CachedValue *m_cachedValue;
-    ExpressionId m_tolerance;
+    Expression *m_tolerance;
     bool m_toleranceIsGarbage;
   };
 

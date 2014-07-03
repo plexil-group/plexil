@@ -51,7 +51,7 @@ namespace PLEXIL
     typedef std::map<std::string, Value> PairValueMap;
 
     const UpdateId& getId() const {return m_id;}
-    ExpressionId getAck() const {return m_ack.getId();}
+    Expression *getAck() {return &m_ack;}
     const PairValueMap& getPairs() const {return m_valuePairs;}
     NodeId getSource() const {return m_source;}
     void activate();
@@ -71,8 +71,8 @@ namespace PLEXIL
     UpdateId m_id;
     NodeId m_source;
     BooleanVariable m_ack;
-    std::vector<ExpressionId> m_garbage;
-    typedef std::map<std::string, ExpressionId> PairExpressionMap;
+    std::vector<Expression *> m_garbage;
+    typedef std::map<std::string, Expression *> PairExpressionMap;
     PairExpressionMap m_pairs;
     PairValueMap m_valuePairs;
   };

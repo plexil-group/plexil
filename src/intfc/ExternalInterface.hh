@@ -28,6 +28,7 @@
 #define _H_ExternalInterface
 
 #include "Expression.hh"
+#include "Id.hh"
 #include "State.hh"
 
 #include <list>

@@ -37,9 +37,9 @@
 
 namespace PLEXIL
 {
-  Lookup::Lookup(ExpressionId const &stateName,
+  Lookup::Lookup(Expression *stateName,
                  bool stateNameIsGarbage,
-                 std::vector<ExpressionId> const &params,
+                 std::vector<Expression *> const &params,
                  std::vector<bool> const &paramsAreGarbage)
     : m_params(params),
       m_garbage(paramsAreGarbage),
@@ -50,7 +50,7 @@ namespace PLEXIL
       m_stateIsConstant(false),
       m_stateNameIsGarbage(stateNameIsGarbage)
   {
-    assertTrue_2(stateName.isId(), "Lookup constructor: Null state name expression");
+    assertTrue_2(stateName, "Lookup constructor: Null state name expression");
     if (!m_stateName->isConstant())
       m_stateName->addListener(this);
     assertTrue_2(params.size() == paramsAreGarbage.size(),
@@ -72,12 +72,12 @@ namespace PLEXIL
       if (!m_params[i]->isConstant())
         m_params[i]->removeListener(this);
       if (m_garbage[i])
-        delete (Expression *) m_params[i];
+        delete m_params[i];
     }
     if (!m_stateName->isConstant())
       m_stateName->removeListener(this);
     if (m_stateNameIsGarbage)
-      delete (Expression *) m_stateName;
+      delete m_stateName;
   }
 
   bool Lookup::isAssignable() const
@@ -136,14 +136,14 @@ namespace PLEXIL
   }
 
   // Called whenever state name or parameter changes
-  void Lookup::handleChange(ExpressionId src)
+  void Lookup::handleChange(Expression const *src)
   {
     if (handleChangeInternal(src))
       this->publishChange(src);
   }
 
   // Return true if state changed, false otherwise
-  bool Lookup::handleChangeInternal(ExpressionId src)
+  bool Lookup::handleChangeInternal(Expression const *src)
   {
     State newState;
     bool oldKnown = m_stateKnown;
@@ -304,7 +304,7 @@ namespace PLEXIL
   // Callback from external interface
   void Lookup::valueChanged()
   {
-    this->publishChange(this->getId());
+    this->publishChange(this);
   }
 
   //
@@ -329,7 +329,7 @@ namespace PLEXIL
      * @param tolerance Tolerance expression.
      * @return True if changed.
      */
-    virtual bool toleranceChanged(ExpressionId tolerance) const = 0;
+    virtual bool toleranceChanged(Expression const *tolerance) const = 0;
 
     /**
      * @brief Check whether the current value is beyond the thresholds.
@@ -342,7 +342,7 @@ namespace PLEXIL
      * @brief Set the thresholds based on the given cached value.
      * @param entry Pointer to state cache entry.
      */
-    virtual void setThresholds(CachedValue const *value, ExpressionId tolerance) = 0;
+    virtual void setThresholds(CachedValue const *value, Expression const *tolerance) = 0;
   };
 
   template <typename IMPL>
@@ -358,7 +358,7 @@ namespace PLEXIL
     {
     }
 
-    bool toleranceChanged(ExpressionId tolerance) const
+    bool toleranceChanged(Expression const *tolerance) const
     {
       return static_cast<IMPL const *>(this)->checkToleranceImpl(tolerance);
     }
@@ -368,15 +368,15 @@ namespace PLEXIL
       return static_cast<IMPL const *>(this)->checkImpl(value);
     }
 
-    void setThresholds(CachedValue const *value, ExpressionId tolerance)
+    void setThresholds(CachedValue const *value, Expression const *tolerance)
     {
       static_cast<IMPL *>(this)->setImpl(value, tolerance);
     }
 
   protected:
-    virtual bool checkToleranceImpl(ExpressionId tolerance) const = 0;
+    virtual bool checkToleranceImpl(Expression const *tolerance) const = 0;
     virtual bool checkImpl(CachedValue const *value) const = 0;
-    virtual void setImpl(CachedValue const *value, ExpressionId tolerance) = 0;
+    virtual void setImpl(CachedValue const *value, Expression const *tolerance) = 0;
   };
 
   template <typename NUM>
@@ -392,9 +392,9 @@ namespace PLEXIL
     {
     }
 
-    bool checkToleranceImpl(ExpressionId tolerance) const
+    bool checkToleranceImpl(Expression const *tolerance) const
     {
-      check_error(tolerance.isId()); // paranoid check
+      check_error(tolerance); // paranoid check
       NUM newTol;
       assertTrue_2(tolerance->getValue(newTol),
                    "LookupOnChange: internal error: tolerance unknown");
@@ -412,10 +412,10 @@ namespace PLEXIL
       return (currentValue >= m_high) || (currentValue <= m_low);
     }
 
-    void setImpl(CachedValue const *value, ExpressionId tolerance)
+    void setImpl(CachedValue const *value, Expression const *tolerance)
     {
       check_error(value); // paranoid check
-      check_error(tolerance.isId()); // paranoid check
+      check_error(tolerance); // paranoid check
       NUM base, tol;
       assertTrue_2(value->getValue(base),
                    "LookupOnChange: internal error: lookup value unknown");
@@ -457,11 +457,11 @@ namespace PLEXIL
     }
   }
 
-  LookupOnChange::LookupOnChange(ExpressionId const &stateName,
+  LookupOnChange::LookupOnChange(Expression *stateName,
                                  bool stateNameIsGarbage,
-                                 std::vector<ExpressionId> const &params,
+                                 std::vector<Expression *> const &params,
                                  std::vector<bool> const &paramsAreGarbage,
-                                 ExpressionId const &tolerance,
+                                 Expression *tolerance,
                                  bool toleranceIsGarbage)
     : Lookup(stateName, stateNameIsGarbage, params, paramsAreGarbage),
       m_thresholds(NULL),
@@ -470,7 +470,7 @@ namespace PLEXIL
       m_toleranceIsGarbage(toleranceIsGarbage)
   {
     // Check that tolerance is of compatible type
-    assertTrue_2(tolerance.isId(),
+    assertTrue_2(tolerance,
                  "LookupOnChange constructor: no tolerance expression supplied");
     assertTrue_2(isNumericType(tolerance->valueType()),
                  "LookupOnChange constructor: tolerance expression is not numeric");
@@ -485,7 +485,7 @@ namespace PLEXIL
     if (!m_tolerance->isConstant())
       m_tolerance->removeListener(this);
     if (m_toleranceIsGarbage)
-      delete (Expression *) m_tolerance;
+      delete m_tolerance;
   }
 
   char const *LookupOnChange::exprName() const
@@ -499,7 +499,7 @@ namespace PLEXIL
                               // may cause calls to handleChange(), valueChanged()
     m_tolerance->activate();  // may cause calls to handleChange()
     if (updateInternal(true)) // may cause redundant notifications
-      this->publishChange(this->getId());
+      this->publishChange(this);
   }
 
   // TODO: Optimization opportunity if state is known to be constant
@@ -515,7 +515,7 @@ namespace PLEXIL
 
   // Consider possibility that tolerance has changed.
   // Consider possibility lookup may not be fully activated yet.
-  void LookupOnChange::handleChange(ExpressionId src)
+  void LookupOnChange::handleChange(Expression const *src)
   {
     bool stateChanged = Lookup::handleChangeInternal(src);
     if (stateChanged && m_thresholds) {
@@ -535,7 +535,7 @@ namespace PLEXIL
     if (!this->isActive()) 
       return;
     if (updateInternal(true))
-      this->publishChange(this->getId());
+      this->publishChange(this);
   }
 
   // Call if something has changed - could be state, tolerance, or value

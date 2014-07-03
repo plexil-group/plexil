@@ -43,7 +43,7 @@ namespace PLEXIL
   DECLARE_ID(Command);
 
   // FIXME: conflicts with same name in ResourceArbiterInterface
-  typedef std::map<std::string, ExpressionId> ResourceMap;
+  typedef std::map<std::string, Expression *> ResourceMap;
 
   typedef std::vector<ResourceMap> ResourceList;
   typedef std::map<std::string, Value> ResourceValues;
@@ -55,18 +55,18 @@ namespace PLEXIL
     friend class CommandHandleVariable;
 
   public:
-    Command(const ExpressionId nameExpr, 
-            const std::vector<ExpressionId>& args, 
-            const std::vector<ExpressionId>& garbage,
+    Command(Expression *nameExpr, 
+            std::vector<Expression *> const &args, 
+            std::vector<Expression *> const &garbage,
             Assignable *dest,
-            const ResourceList& resource,
+            ResourceList const &resource,
             std::string const &nodeName);
     ~Command();
 
     const CommandId &getId() {return m_id;}
-    ExpressionId getDest() const;
-    ExpressionId getAck() {return m_ack.getId();}
-    ExpressionId getAbortComplete() {return m_abortComplete.getId();}
+    Expression *getDest();
+    Expression *getAck() {return &m_ack;}
+    Expression *getAbortComplete() {return &m_abortComplete;}
     State const &getCommand() const;
     std::string const &getName() const;
     std::vector<Value> const &getArgValues() const;
@@ -92,10 +92,10 @@ namespace PLEXIL
     CommandHandleVariable m_ack;
     BooleanVariable m_abortComplete;
     State m_command;
-    ExpressionId m_nameExpr;
+    Expression *m_nameExpr;
     Assignable *m_dest;
-    std::vector<ExpressionId> m_garbage;
-    std::vector<ExpressionId> m_args;
+    std::vector<Expression *> m_garbage;
+    std::vector<Expression *> m_args;
     ResourceList m_resourceList;
     ResourceValuesList m_resourceValuesList;
     uint16_t m_commandHandle;

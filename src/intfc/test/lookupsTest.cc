@@ -50,7 +50,7 @@ public:
 
   ~TestInterface() 
   {
-    for (std::set<ExpressionId>::iterator it = m_exprs.begin(); it != m_exprs.end(); ++it)
+    for (std::set<Expression *>::iterator it = m_exprs.begin(); it != m_exprs.end(); ++it)
       (*it)->removeListener(&m_listener);
   }
 
@@ -107,18 +107,18 @@ public:
     return 0.0;
   }
 
-  void watch(const char* name, ExpressionId expr)
+  void watch(const char* name, Expression *expr)
   {
     if (m_exprs.find(expr) == m_exprs.end()) {
       expr->addListener(&m_listener);
       m_exprs.insert(expr);
     }
     std::string nameStr(name);
-    m_changingExprs.insert(std::pair<std::string, ExpressionId>(nameStr, expr));
+    m_changingExprs.insert(std::pair<std::string, Expression *>(nameStr, expr));
     m_exprsToStateName.insert(std::make_pair(expr, nameStr));
   }
 
-  void unwatch(const char* name, ExpressionId expr)
+  void unwatch(const char* name, Expression *expr)
   {
     if (m_exprs.find(expr) != m_exprs.end()) {
       m_exprs.erase(expr);
@@ -141,9 +141,9 @@ protected:
   void executeUpdate(UpdateId const & /* cmd */)
   {}
 
-  void notifyChanged(ExpressionId expression)
+  void notifyChanged(Expression const *expression)
   {
-    std::multimap<ExpressionId, std::string>::const_iterator it = m_exprsToStateName.find(expression);
+    std::multimap<Expression const *, std::string>::const_iterator it = m_exprsToStateName.find(expression);
     while (it != m_exprsToStateName.end() && it->first == expression) {
       State st(it->second, std::vector<Value>());
       StateCacheMap::instance().ensureStateCacheEntry(st)->update(this->getCycleCount(), expression->toValue());
@@ -161,7 +161,7 @@ private:
     {
     }
 
-    void notifyChanged(ExpressionId src)
+    void notifyChanged(Expression const *src)
     {
       m_intf.notifyChanged(src);
     }
@@ -170,12 +170,12 @@ private:
     TestInterface& m_intf;
   };
 
-  std::set<ExpressionId> m_exprs;
-  std::map<std::string, ExpressionId> m_changingExprs; //map of names to expressions being watched
-  std::multimap<ExpressionId, std::string> m_exprsToStateName; //make of watched expressions to their state names
-  std::multimap<ExpressionId, ExpressionId> m_listeningExprs; //map of changing expressions to listening expressions
-  std::map<ExpressionId, double> m_tolerances; //map of dest expressions to tolerances
-  std::map<ExpressionId, Value> m_cachedValues; //cache of the previously returned values (dest expression, value pairs)
+  std::set<Expression *> m_exprs;
+  std::map<std::string, Expression *> m_changingExprs; //map of names to expressions being watched
+  std::multimap<Expression const *, std::string> m_exprsToStateName; //make of watched expressions to their state names
+  std::multimap<Expression const *, Expression *> m_listeningExprs; //map of changing expressions to listening expressions
+  std::map<Expression const *, double> m_tolerances; //map of dest expressions to tolerances
+  std::map<Expression const *, Value> m_cachedValues; //cache of the previously returned values (dest expression, value pairs)
   ChangeListener m_listener;
 };
 
@@ -187,21 +187,21 @@ static TestInterface *theInterface = NULL;
 static bool testLookupNow() 
 {
   StringConstant test1("test1");
-  std::vector<ExpressionId> const emptyArglist;
+  std::vector<Expression *> const emptyArglist;
   std::vector<bool> const emptyGarbageList;
 
   StringConstant test2("test2");
-  std::vector<ExpressionId> test2Args(1, (new StringConstant("high"))->getId());
+  std::vector<Expression *> test2Args(1, new StringConstant("high"));
   std::vector<bool> test2garbage(1, false);
 
-  std::vector<ExpressionId> test3Args(1, (new StringConstant("low"))->getId());
+  std::vector<Expression *> test3Args(1, new StringConstant("low"));
 
   StringVariable test4("test1");
 
-  ExpressionId l1 = (new Lookup(test1.getId(), false, emptyArglist, emptyGarbageList))->getId();
-  ExpressionId l2 = (new Lookup(test2.getId(), false, test2Args, test2garbage))->getId();
-  ExpressionId l3 = (new Lookup(test2.getId(), false, test3Args, test2garbage))->getId();
-  ExpressionId l4 = (new Lookup(test4.getId(), false, emptyArglist, emptyGarbageList))->getId();
+  Expression *l1 = new Lookup(&test1, false, emptyArglist, emptyGarbageList);
+  Expression *l2 = new Lookup(&test2, false, test2Args, test2garbage);
+  Expression *l3 = new Lookup(&test2, false, test3Args, test2garbage);
+  Expression *l4 = new Lookup(&test4, false, emptyArglist, emptyGarbageList);
 
   bool l1changed = false;
   bool l2changed = false;
@@ -276,13 +276,13 @@ static bool testLookupNow()
   l3->removeListener(&l3listener);
   l4->removeListener(&l4listener);
 
-  delete (Expression *) l4;
-  delete (Expression *) l3;
-  delete (Expression *) l2;
-  delete (Expression *) l1;
+  delete l4;
+  delete l3;
+  delete l2;
+  delete l1;
 
-  delete (Expression *)test2Args[0];
-  delete (Expression *)test3Args[0];
+  delete test2Args[0];
+  delete test3Args[0];
 
   return true;
 }
@@ -293,20 +293,20 @@ static bool testLookupOnChange()
   StringVariable changeWithToleranceTest("changeWithToleranceTest");
   RealVariable watchVar(0.0);
   watchVar.activate();
-  theInterface->watch("changeTest", watchVar.getId());
-  theInterface->watch("changeWithToleranceTest", watchVar.getId());
+  theInterface->watch("changeTest", &watchVar);
+  theInterface->watch("changeWithToleranceTest", &watchVar);
 
   RealVariable tolerance(0.5);
-  std::vector<ExpressionId> const emptyArglist;
+  std::vector<Expression *> const emptyArglist;
   std::vector<bool> const emptyGarbageList;
 
   double temp;
 
-  Lookup l1(changeTest.getId(), false,
+  Lookup l1(&changeTest, false,
             emptyArglist, emptyGarbageList);
-  LookupOnChange l2(changeWithToleranceTest.getId(), false,
+  LookupOnChange l2(&changeWithToleranceTest, false,
                     emptyArglist, emptyGarbageList,
-                    tolerance.getId(), false);
+                    &tolerance, false);
 
   bool changeNotified = false;
   bool changeWithToleranceNotified = false;
@@ -460,8 +460,8 @@ static bool testLookupOnChange()
   l1.removeListener(&changeListener);
   l2.removeListener(&changeWithToleranceListener);
 
-  theInterface->unwatch("changeTest", watchVar.getId());
-  theInterface->unwatch("changeWithToleranceTest", watchVar.getId());
+  theInterface->unwatch("changeTest", &watchVar);
+  theInterface->unwatch("changeWithToleranceTest", &watchVar);
 
   return true;
 }

@@ -27,16 +27,12 @@
 #ifndef PLEXIL_STATE_CACHE_ENTRY_HH
 #define PLEXIL_STATE_CACHE_ENTRY_HH
 
-#include "Id.hh"
 #include "State.hh"
 
 namespace PLEXIL
 {
   class CachedValue;
-
   class Expression;
-  DECLARE_ID(Expression);
-
   class Lookup;
 
   /**
@@ -63,7 +59,7 @@ namespace PLEXIL
     virtual void unregisterLookup(Lookup *);
 
     // Can be called multiple times
-    void setThresholds(ExpressionId tolerance);
+    void setThresholds(Expression const *tolerance);
 
     // Read access to the actual value is through the helper object.
     CachedValue const *cachedValue() const;

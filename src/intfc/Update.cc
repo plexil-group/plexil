@@ -52,9 +52,9 @@ namespace PLEXIL
                       "Update constructor: Duplicate pairs with name \"" << it->first << "\"");
         PlexilExprId foo = it->second;
         bool wasCreated = false;
-        ExpressionId valueExpr = 
+        Expression *valueExpr = 
           createExpression(foo, NodeConnectorId::noId(), wasCreated);
-        check_error(valueExpr.isValid());
+        check_error(valueExpr);
         if (wasCreated)
           m_garbage.push_back(valueExpr);
         m_pairs[it->first] = valueExpr;
@@ -66,10 +66,10 @@ namespace PLEXIL
   {
     m_valuePairs.clear();
     m_pairs.clear();
-    for (std::vector<ExpressionId>::const_iterator it = m_garbage.begin(); 
+    for (std::vector<Expression *>::const_iterator it = m_garbage.begin(); 
          it != m_garbage.end();
          ++it)
-      delete (Expression*) (*it);
+      delete (*it);
     m_garbage.clear();
     m_id.remove();
   }
@@ -77,7 +77,7 @@ namespace PLEXIL
   void Update::fixValues() 
   {
     for (PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
-      check_error(it->second.isValid());
+      check_error(it->second);
       m_valuePairs[it->first] = it->second->toValue();
       debugMsg("Update:fixValues",
                " fixing pair '" << it->first << "', " << it->second->toValue());
