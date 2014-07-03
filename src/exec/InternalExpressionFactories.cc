@@ -42,9 +42,9 @@ namespace PLEXIL
   // Constants - specializations of Constant<uint16_t>
 
   template <>
-  ExpressionId ConcreteExpressionFactory<NodeStateConstant>::allocate(PlexilExprId const &expr,
-                                                                      const NodeConnectorId& node,
-                                                                      bool &wasCreated) const
+  Expression *ConcreteExpressionFactory<NodeStateConstant>::allocate(PlexilExprId const &expr,
+                                                                     const NodeConnectorId& node,
+                                                                     bool &wasCreated) const
   {
     PlexilValue const *valex = dynamic_cast<PlexilValue const *>((Expression const *) expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
@@ -52,36 +52,36 @@ namespace PLEXIL
     wasCreated = false;
     switch (parseNodeState(valex->value())) {
     case INACTIVE_STATE:
-      return INACTIVE_CONSTANT().getId();
+      return INACTIVE_CONSTANT();
 
     case WAITING_STATE:
-      return WAITING_CONSTANT().getId();
+      return WAITING_CONSTANT();
 
     case EXECUTING_STATE:
-      return EXECUTING_CONSTANT().getId();
+      return EXECUTING_CONSTANT();
 
     case ITERATION_ENDED_STATE:
-      return ITERATION_ENDED_CONSTANT().getId();
+      return ITERATION_ENDED_CONSTANT();
 
     case FINISHED_STATE:
-      return FINISHED_CONSTANT().getId();
+      return FINISHED_CONSTANT();
 
     case FAILING_STATE:
-      return FAILING_CONSTANT().getId();
+      return FAILING_CONSTANT();
 
     case FINISHING_STATE:
-      return FINISHING_CONSTANT().getId();
+      return FINISHING_CONSTANT();
 
     default:
       checkParserException(ALWAYS_FAIL, "createExpression: Invalid NodeStateValue \"" << valex->value() << "\"");
-      return ExpressionId::noId();
+      return NULL;
     }
   }
 
   template <>
-  ExpressionId ConcreteExpressionFactory<NodeOutcomeConstant>::allocate(PlexilExprId const &expr,
-                                                                        const NodeConnectorId& node,
-                                                                        bool &wasCreated) const
+  Expression *ConcreteExpressionFactory<NodeOutcomeConstant>::allocate(PlexilExprId const &expr,
+                                                                       const NodeConnectorId& node,
+                                                                       bool &wasCreated) const
   {
     PlexilValue const *valex = dynamic_cast<PlexilValue const *>((Expression const *) expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
@@ -89,27 +89,27 @@ namespace PLEXIL
     wasCreated = false;
     switch (parseNodeOutcome(valex->value())) {
     case SUCCESS_OUTCOME:
-      return SUCCESS_CONSTANT().getId();
+      return SUCCESS_CONSTANT();
 
     case FAILURE_OUTCOME:
-      return FAILURE_CONSTANT().getId();
+      return FAILURE_CONSTANT();
 
     case SKIPPED_OUTCOME:
-      return SKIPPED_CONSTANT().getId();
+      return SKIPPED_CONSTANT();
 
     case INTERRUPTED_OUTCOME:
-      return INTERRUPTED_CONSTANT().getId();
+      return INTERRUPTED_CONSTANT();
 
     default:
       checkParserException(ALWAYS_FAIL, "createExpression: Invalid NodeOutcomeValue \"" << valex->value() << "\"");
-      return ExpressionId::noId();
+      return NULL;
     }
   }
 
   template <>
-  ExpressionId ConcreteExpressionFactory<FailureTypeConstant>::allocate(PlexilExprId const &expr,
-                                                                      const NodeConnectorId& node,
-                                                                      bool &wasCreated) const
+  Expression *ConcreteExpressionFactory<FailureTypeConstant>::allocate(PlexilExprId const &expr,
+                                                                       const NodeConnectorId& node,
+                                                                       bool &wasCreated) const
   {
     PlexilValue const *valex = dynamic_cast<PlexilValue const *>((Expression const *) expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
@@ -117,33 +117,33 @@ namespace PLEXIL
     wasCreated = false;
     switch (parseFailureType(valex->value())) {
     case PRE_CONDITION_FAILED:
-      return PRE_CONDITION_FAILED_CONSTANT().getId();
+      return PRE_CONDITION_FAILED_CONSTANT();
 
     case POST_CONDITION_FAILED:
-      return POST_CONDITION_FAILED_CONSTANT().getId();
+      return POST_CONDITION_FAILED_CONSTANT();
 
     case INVARIANT_CONDITION_FAILED:
-      return INVARIANT_CONDITION_FAILED_CONSTANT().getId();
+      return INVARIANT_CONDITION_FAILED_CONSTANT();
 
     case PARENT_FAILED:
-      return PARENT_FAILED_CONSTANT().getId();
+      return PARENT_FAILED_CONSTANT();
 
     case EXITED:
-      return EXITED_CONSTANT().getId();
+      return EXITED_CONSTANT();
 
     case PARENT_EXITED:
-      return PARENT_EXITED_CONSTANT().getId();
+      return PARENT_EXITED_CONSTANT();
 
     default:
-        checkParserException(ALWAYS_FAIL, "createExpression: Invalid FailureTypeValue \"" << valex->value() << "\"");
-        return ExpressionId::noId();
+      checkParserException(ALWAYS_FAIL, "createExpression: Invalid FailureTypeValue \"" << valex->value() << "\"");
+      return NULL;
     }
   }
 
   template <>
-  ExpressionId ConcreteExpressionFactory<CommandHandleConstant>::allocate(PlexilExprId const &expr,
-                                                                          const NodeConnectorId& node,
-                                                                          bool &wasCreated) const
+  Expression *ConcreteExpressionFactory<CommandHandleConstant>::allocate(PlexilExprId const &expr,
+                                                                         const NodeConnectorId& node,
+                                                                         bool &wasCreated) const
   {
     PlexilValue const *valex = dynamic_cast<PlexilValue const *>((Expression const *) expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
@@ -151,26 +151,26 @@ namespace PLEXIL
     wasCreated = false;
     switch (parseCommandHandleValue(valex->value())) {
     case COMMAND_SENT_TO_SYSTEM:
-      return COMMAND_SENT_TO_SYSTEM_CONSTANT().getId();
+      return COMMAND_SENT_TO_SYSTEM_CONSTANT();
 
     case COMMAND_ACCEPTED:
-      return COMMAND_ACCEPTED_CONSTANT().getId();
+      return COMMAND_ACCEPTED_CONSTANT();
 
     case COMMAND_RCVD_BY_SYSTEM:
-      return COMMAND_RCVD_BY_SYSTEM_CONSTANT().getId();
+      return COMMAND_RCVD_BY_SYSTEM_CONSTANT();
 
     case COMMAND_FAILED:
-      return COMMAND_FAILED_CONSTANT().getId();
+      return COMMAND_FAILED_CONSTANT();
 
     case COMMAND_DENIED:
-      return COMMAND_DENIED_CONSTANT().getId();
+      return COMMAND_DENIED_CONSTANT();
 
     case COMMAND_SUCCESS:
-      return COMMAND_SUCCESS_CONSTANT().getId();
+      return COMMAND_SUCCESS_CONSTANT();
 
     default:
       checkParserException(ALWAYS_FAIL, "createExpression: Invalid CommandHandleValue \"" << valex->value() << "\"");
-      return ExpressionId::noId();
+      return NULL;
     }
   }
 
@@ -179,9 +179,9 @@ namespace PLEXIL
   //
 
   template <>
-  ExpressionId ConcreteExpressionFactory<StateVariable>::allocate(const PlexilExprId& expr,
-                                                                  const NodeConnectorId& node,
-                                                                  bool &wasCreated) const
+  Expression *ConcreteExpressionFactory<StateVariable>::allocate(const PlexilExprId& expr,
+                                                                 const NodeConnectorId& node,
+                                                                 bool &wasCreated) const
   {
     PlexilStateVar const *var = dynamic_cast<PlexilStateVar const *>((Expression const *) expr);
     checkParserException(var, "createExpression: not a PlexilStateVar");
@@ -192,9 +192,9 @@ namespace PLEXIL
   }
 
   template <>
-  ExpressionId ConcreteExpressionFactory<OutcomeVariable>::allocate(const PlexilExprId& expr,
-                                                                    const NodeConnectorId& node,
-                                                                    bool &wasCreated) const
+  Expression *ConcreteExpressionFactory<OutcomeVariable>::allocate(const PlexilExprId& expr,
+                                                                   const NodeConnectorId& node,
+                                                                   bool &wasCreated) const
   {
     PlexilOutcomeVar const *var = dynamic_cast<PlexilOutcomeVar const *>((Expression const *) expr);
     checkParserException(var, "createExpression: not a PlexilOutcomeVar");
@@ -205,9 +205,9 @@ namespace PLEXIL
   }
 
   template <>
-  ExpressionId ConcreteExpressionFactory<FailureVariable>::allocate(const PlexilExprId& expr,
-                                                                    const NodeConnectorId& node,
-                                                                    bool &wasCreated) const
+  Expression *ConcreteExpressionFactory<FailureVariable>::allocate(const PlexilExprId& expr,
+                                                                   const NodeConnectorId& node,
+                                                                   bool &wasCreated) const
   {
     PlexilFailureVar const *var = dynamic_cast<PlexilFailureVar const *>((Expression const *) expr);
     checkParserException(var, "createExpression: not a PlexilFailureVar");
@@ -222,9 +222,9 @@ namespace PLEXIL
   //
 
   template <>
-  ExpressionId ConcreteExpressionFactory<CommandHandleVariable>::allocate(const PlexilExprId& expr,
-                                                                          const NodeConnectorId& node,
-                                                                          bool &wasCreated) const
+  Expression *ConcreteExpressionFactory<CommandHandleVariable>::allocate(const PlexilExprId& expr,
+                                                                         const NodeConnectorId& node,
+                                                                         bool &wasCreated) const
   {
     PlexilCommandHandleVar const *var = dynamic_cast<PlexilCommandHandleVar const *>((Expression const *) expr);
     checkParserException(var, "createExpression: not a PlexilCommandHandleVar");
@@ -251,9 +251,9 @@ namespace PLEXIL
   {
   }
 
-  ExpressionId ConcreteExpressionFactory<NodeTimepointValue>::allocate(const PlexilExprId& expr,
-                                                                       const NodeConnectorId& node,
-                                                                       bool &wasCreated) const
+  Expression *ConcreteExpressionFactory<NodeTimepointValue>::allocate(const PlexilExprId& expr,
+                                                                      const NodeConnectorId& node,
+                                                                      bool &wasCreated) const
   {
     PlexilTimepointVar const *var = dynamic_cast<PlexilTimepointVar const *>((Expression const *) expr);
     checkParserException(var, "createExpression: not a PlexilTimepointVar");
@@ -261,16 +261,16 @@ namespace PLEXIL
     return create(var, node);
   }
 
-  ExpressionId ConcreteExpressionFactory<NodeTimepointValue>::create(PlexilTimepointVar const *var,
-                                                                     NodeConnectorId const &node) const
+  Expression *ConcreteExpressionFactory<NodeTimepointValue>::create(PlexilTimepointVar const *var,
+                                                                    NodeConnectorId const &node) const
   {
     NodeId refNode = node->findNodeRef(var->ref());
     checkParserException(refNode.isId(), "createExpression: Timepoint node reference not found");
     NodeState state = parseNodeState(var->state());
     checkParserException(isNodeStateValid(state), "createExpression: Invalid NodeState value \"" << var->state() << "\"");
-    return (new NodeTimepointValue(refNode,
-                                   state,
-                                   ("END" == var->timepoint())))->getId();
+    return new NodeTimepointValue(refNode,
+                                  state,
+                                  ("END" == var->timepoint()));
   }
   
   ENSURE_EXPRESSION_FACTORY(NodeStateConstant);

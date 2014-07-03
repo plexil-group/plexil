@@ -346,8 +346,8 @@ namespace PLEXIL
   // Assumes node is a valid ID and points to an Assignment node
   void PlexilExec::removeFromResourceContention(const NodeId& node) 
   {
-    ExpressionId lhs = node->getAssignmentVariable();
-    assertTrue_1(lhs.isId() && lhs->isAssignable());
+    Assignable *lhs = node->getAssignmentVariable();
+    assertTrue_1(lhs && lhs->isAssignable());
     Assignable const *exp = lhs->asAssignable();
     assertTrue_1(exp != NULL);
     exp = exp->getBaseVariable();
@@ -386,8 +386,8 @@ namespace PLEXIL
 
   // Assumes node is a valid ID and points to an Assignment node whose next state is EXECUTING
   void PlexilExec::addToResourceContention(const NodeId& node) {
-    ExpressionId lhs = node->getAssignmentVariable();
-    assertTrue_1(lhs.isId() && lhs->isAssignable());
+    Assignable *lhs = node->getAssignmentVariable();
+    assertTrue_1(lhs && lhs->isAssignable());
     Assignable const *exp = lhs->asAssignable();
     assertTrue_1(exp != NULL);
     exp = exp->getBaseVariable();

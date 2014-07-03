@@ -140,11 +140,11 @@ namespace PLEXIL
       // check that the expression is consistent with the interface variable
       if (aliasValue.isId()) {
         bool wasCreated = false;
-        ExpressionId aliasedExpr;
+        Expression *aliasedExpr;
         if (Id<PlexilVarRef>::convertable(aliasValue)) {
           aliasedExpr = Node::findVariable((const PlexilVarRef*) aliasValue);
           // TODO: Skip creating alias if variable already read-only
-          assertTrueMsg(aliasedExpr.isId(),
+          assertTrueMsg(aliasedExpr,
                         "Node " << m_nodeId
                         << ": Can't find variable named \"" << aliasValue->name()
                         << "\" for In alias variable \"" << varName);
@@ -165,11 +165,11 @@ namespace PLEXIL
         }
 
         // Construct the alias
-        ExpressionId actualVar =             
-          (new Alias(NodeConnector::getId(),
-                     varName,
-                     aliasedExpr,
-                     wasCreated))->getId();
+        Expression *actualVar =             
+          new Alias(NodeConnector::getId(),
+                    varName,
+                    aliasedExpr,
+                    wasCreated);
 
         m_localVariables.push_back(actualVar);
         m_aliasVariables[varName] = actualVar;
@@ -194,10 +194,10 @@ namespace PLEXIL
 
       // check that the expression is consistent with the interface variable
       if (aliasValue.isId()) {
-        ExpressionId actualVar;
+        Expression *actualVar;
         if (Id<PlexilVarRef>::convertable(aliasValue)) {
-          ExpressionId aliasedExpr = Node::findVariable((const PlexilVarRef*) aliasValue);
-          checkParserException(aliasedExpr.isId(),
+          Expression *aliasedExpr = Node::findVariable((const PlexilVarRef*) aliasValue);
+          checkParserException(aliasedExpr,
                                "Node " << m_nodeId
                                << ": Can't find variable named \"" << aliasValue->name()
                                << "\" for InOut alias variable \"" << varName);
@@ -220,10 +220,10 @@ namespace PLEXIL
                                               NodeConnector::getId(),
                                               wasCreated);
           // Construct a wrapper for it
-          actualVar = (new InOutAlias(NodeConnector::getId(),
-                                      varName,
-                                      aref->getId(),
-                                      wasCreated))->getId();
+          actualVar = new InOutAlias(NodeConnector::getId(),
+                                     varName,
+                                     aref,
+                                     wasCreated);
           debugMsg("LibraryCallNode:createAliases",
                    " Node \"" << m_nodeId
                    << "\": Constructing InOutAlias wrapper for \"" << varName
@@ -248,14 +248,14 @@ namespace PLEXIL
     } // for
   }
 
-  const ExpressionId& LibraryCallNode::findVariable(const std::string& name, bool recursive)
+  Expression *LibraryCallNode::findVariable(const std::string& name, bool recursive)
   {
     if (recursive) {
       // Check alias map only
       if (m_aliasVariables.find(name) != m_aliasVariables.end())
         return m_aliasVariables[name];
       else
-        return ExpressionId::noId();
+        return NULL;
     }
     else {
       return Node::findVariable(name, false);

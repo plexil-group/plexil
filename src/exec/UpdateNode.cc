@@ -119,7 +119,7 @@ namespace PLEXIL
     createUpdate((PlexilUpdateBody*) node->body());
 
     // Create action-complete condition
-    ExpressionId actionComplete = (ExpressionId) m_update->getAck();
+    Expression *actionComplete = m_update->getAck();
     actionComplete->addListener(&m_listener);
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = false;
@@ -132,7 +132,7 @@ namespace PLEXIL
 
   void UpdateNode::createConditionWrappers()
   {
-    ExpressionId ack = (ExpressionId) m_update->getAck();
+    Expression *ack = m_update->getAck();
     if (m_conditions[endIdx] == TRUE_EXP()) {
       // Default - don't wrap, replace - (True && anything) == anything
       m_conditions[endIdx] = ack;
@@ -143,12 +143,12 @@ namespace PLEXIL
       // TODO: optimize to not create wrapper if end condition is constant and true
       // Wrap user-provided condition
       removeConditionListener(endIdx);
-      ExpressionId realEnd =
-        (new Function(BooleanAnd::instance(),
-                      ack,
-                      m_conditions[endIdx],
-                      false,
-                      m_garbageConditions[endIdx]))->getId();
+      Expression *realEnd =
+        new Function(BooleanAnd::instance(),
+                     ack,
+                     m_conditions[endIdx],
+                     false,
+                     m_garbageConditions[endIdx]);
       realEnd->addListener(&m_listener);
       m_conditions[endIdx] = realEnd;
       m_garbageConditions[endIdx] = true;
@@ -183,7 +183,7 @@ namespace PLEXIL
 
   NodeState UpdateNode::getDestStateFromExecuting()
   {
-    ExpressionId cond = getAncestorExitCondition();
+    Expression *cond = getAncestorExitCondition();
     checkError(cond->isActive(),
                "Ancestor exit for " << m_nodeId << " is inactive.");
     bool temp;
@@ -313,7 +313,7 @@ namespace PLEXIL
 
   NodeState UpdateNode::getDestStateFromFailing()
   {
-    ExpressionId cond = getActionCompleteCondition();
+    Expression *cond = getActionCompleteCondition();
     checkError(cond->isActive(),
                "Action complete for " << m_nodeId << " is inactive.");
     bool temp;

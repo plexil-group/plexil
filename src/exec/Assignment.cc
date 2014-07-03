@@ -31,7 +31,7 @@ namespace PLEXIL
 {
 
   Assignment::Assignment(Assignable *lhs, 
-                         const ExpressionId rhs,
+                         Expression *rhs,
                          const bool deleteLhs, 
                          const bool deleteRhs,
                          const std::string &nodeId)
@@ -44,6 +44,8 @@ namespace PLEXIL
       m_deleteLhs(deleteLhs), m_deleteRhs(deleteRhs)
   {
     assertTrue_1(lhs != NULL);
+    assertTrue_1(rhs != NULL);
+
     // Make ack variable pretty
     m_ack.setName(nodeId + " ack");
     m_abortComplete.setName(nodeId + " abortComplete");
@@ -54,7 +56,7 @@ namespace PLEXIL
     if (m_deleteLhs)
       delete m_dest;
     if (m_deleteRhs)
-      delete (Expression*) m_rhs;
+      delete m_rhs;
     m_id.remove();
   }
 

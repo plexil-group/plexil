@@ -103,8 +103,6 @@ namespace PLEXIL
     // Unit test support
     void createDummyCommand(); // unit test variant
 
-    DECLARE_STATIC_CLASS_CONST_WITH_CLEANUP(StringConstant, DUMMY_CMD_NAME, "dummy");
-
     CommandId m_command; /*<! The command to be performed. */
   };
 

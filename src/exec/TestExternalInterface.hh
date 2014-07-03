@@ -76,13 +76,13 @@ namespace PLEXIL
 
   private:
     
-    typedef std::map<State, ExpressionId> ExpressionUtMap;
+    typedef std::map<State, Expression *> ExpressionUtMap;
     typedef std::map<State, Value>        StateMap;
 
     void handleInitialState(const pugi::xml_node& input);
 
     void setVariableValue(const std::string& source,
-                          ExpressionId expr,
+                          Expression *expr,
                           const Value& value);
 
     void handleState(const pugi::xml_node& elt);
@@ -98,7 +98,7 @@ namespace PLEXIL
     ExpressionUtMap m_commandAcks; //map from command to the acknowledgement variables
     ExpressionUtMap m_abortingCommands;
     StateMap m_states; //uniquely identified states and their values
-    std::map<ExpressionId, CommandId> m_destToCmdMap;
+    std::map<Expression *, CommandId> m_destToCmdMap;
     ResourceArbiterInterface m_raInterface;
   };
 }

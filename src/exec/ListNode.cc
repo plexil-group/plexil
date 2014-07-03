@@ -239,23 +239,23 @@ namespace PLEXIL
   // N.B. The end condition constructed below can be overridden by the user
   void ListNode::createSpecializedConditions()
   {
-    std::vector<ExpressionId> stateVars;
+    std::vector<Expression *> stateVars;
     size_t nkids = m_children.size();
     stateVars.reserve(nkids);
     for (size_t i = 0; i < nkids; ++i)
       stateVars.push_back(m_children[i]->getStateVariable());
     std::vector<bool> notGarbage(nkids, false);
 
-    ExpressionId cond =
-      (new Function(AllWaitingOrFinished::instance(),
-                    makeExprVec(stateVars, notGarbage)))->getId();
+    Expression *cond =
+      new Function(AllWaitingOrFinished::instance(),
+                   makeExprVec(stateVars, notGarbage));
     cond->addListener(&m_listener);
     m_conditions[actionCompleteIdx] = cond;
     m_garbageConditions[actionCompleteIdx] = true;
 
-    ExpressionId endCond =
-      (new Function(AllFinished::instance(),
-                    makeExprVec(stateVars, notGarbage)))->getId();
+    Expression *endCond =
+      new Function(AllFinished::instance(),
+                   makeExprVec(stateVars, notGarbage));
     endCond->addListener(&m_listener);
     m_conditions[endIdx] = endCond;
     m_garbageConditions[endIdx] = true;
@@ -281,23 +281,23 @@ namespace PLEXIL
   {
     if (m_parent) {
       m_conditions[ancestorEndIdx] =
-        (new Function(BooleanOr::instance(),
-                      getAncestorEndCondition(), // from parent
-                      getEndCondition(),
-                      false,
-                      false))->getId();
+        new Function(BooleanOr::instance(),
+                     getAncestorEndCondition(), // from parent
+                     getEndCondition(),
+                     false,
+                     false);
       m_conditions[ancestorExitIdx] =
-        (new Function(BooleanOr::instance(),
-                      getAncestorExitCondition(), // from parent
-                      getExitCondition(),
-                      false,
-                      false))->getId();
+        new Function(BooleanOr::instance(),
+                     getAncestorExitCondition(), // from parent
+                     getExitCondition(),
+                     false,
+                     false);
       m_conditions[ancestorInvariantIdx] =
-        (new Function(BooleanAnd::instance(),
-                      getAncestorInvariantCondition(), // from parent
-                      getInvariantCondition(),
-                      false,
-                      false))->getId();
+        new Function(BooleanAnd::instance(),
+                     getAncestorInvariantCondition(), // from parent
+                     getInvariantCondition(),
+                     false,
+                     false);
       m_garbageConditions[ancestorEndIdx] = true;
       m_garbageConditions[ancestorExitIdx] = true;
       m_garbageConditions[ancestorInvariantIdx] = true;
@@ -431,7 +431,7 @@ namespace PLEXIL
 
   NodeState ListNode::getDestStateFromExecuting()
   {
-    ExpressionId cond = getAncestorExitCondition();
+    Expression *cond = getAncestorExitCondition();
     checkError(cond->isActive(),
                "Ancestor exit for " << m_nodeId << " is inactive.");
     bool temp;
@@ -536,7 +536,7 @@ namespace PLEXIL
 
   NodeState ListNode::getDestStateFromFinishing()
   {
-    ExpressionId cond = getAncestorExitCondition();
+    Expression *cond = getAncestorExitCondition();
     checkError(cond->isActive(),
                "Ancestor exit for " << m_nodeId << " is inactive.");
     bool temp;
@@ -658,7 +658,7 @@ namespace PLEXIL
 
   NodeState ListNode::getDestStateFromFailing()
   {
-    ExpressionId cond = getActionCompleteCondition();
+    Expression *cond = getActionCompleteCondition();
     checkError(cond->isActive(),
                "Children waiting or finished for " << getNodeId() <<
                " is inactive.");

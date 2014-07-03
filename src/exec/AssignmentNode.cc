@@ -95,13 +95,13 @@ namespace PLEXIL
     createAssignment((PlexilAssignmentBody*) node->body());
 
     // Set action-complete condition
-    ExpressionId ack = (ExpressionId) m_assignment->getAck();
+    Expression *ack = m_assignment->getAck();
     ack->addListener(&m_listener);
     m_conditions[actionCompleteIdx] = ack;
     m_garbageConditions[actionCompleteIdx] = false;
 
     // Set abort-complete condition
-    ExpressionId abortComplete = (ExpressionId) m_assignment->getAbortComplete();
+    Expression *abortComplete = m_assignment->getAbortComplete();
     abortComplete->addListener(&m_listener);
     m_conditions[abortCompleteIdx] = abortComplete;
     m_garbageConditions[abortCompleteIdx] = false;
@@ -115,13 +115,13 @@ namespace PLEXIL
                "Need at least one destination variable in assignment.");
     const PlexilExprId& destExpr = (body->dest())[0]->getId();
     bool deleteLhs = false;
-    Assignable* dest = createAssignable(destExpr, 
+    Assignable *dest = createAssignable(destExpr, 
                                         NodeConnector::getId(),
                                         deleteLhs);
     bool deleteRhs = false;
-    ExpressionId rhs = createExpression(body->RHS(),
-                                        NodeConnector::getId(),
-                                        deleteRhs);
+    Expression *rhs = createExpression(body->RHS(),
+                                       NodeConnector::getId(),
+                                       deleteRhs);
     m_assignment =
       (new Assignment(dest, rhs, deleteLhs, deleteRhs, m_nodeId))->getId();
   }
@@ -137,9 +137,9 @@ namespace PLEXIL
                       m_nodeId))->getId();
   }
 
-  ExpressionId AssignmentNode::getAssignmentVariable() const
+  Assignable *AssignmentNode::getAssignmentVariable()
   {
-    return m_assignment->getDest();
+    return m_assignment->getDest()->asAssignable();
   }
 
   //
@@ -164,7 +164,7 @@ namespace PLEXIL
   NodeState AssignmentNode::getDestStateFromExecuting()
   {
     // Not eligible to transition from EXECUTING until the assignment has been executed.
-    ExpressionId cond = getActionCompleteCondition();
+    Expression *cond = getActionCompleteCondition();
     checkError(cond->isActive(),
                "Node::getDestStateFromExecuting: Assignment-complete for " << m_nodeId << " is inactive.");
     bool temp;
@@ -301,7 +301,7 @@ namespace PLEXIL
 
   NodeState AssignmentNode::getDestStateFromFailing()
   {
-    ExpressionId cond = getAbortCompleteCondition();
+    Expression *cond = getAbortCompleteCondition();
     checkError(cond->isActive(),
                "Abort complete for " << getNodeId() << " is inactive.");
     bool temp;

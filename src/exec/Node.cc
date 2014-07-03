@@ -198,7 +198,7 @@ namespace PLEXIL {
     commonInit();
 
     for (size_t i = 0; i < conditionIndexMax; ++i) {
-      ExpressionId expr = (new BooleanVariable(false))->getId();
+      Expression *expr = new BooleanVariable(false);
       debugMsg("Node:node",
                " Created internal variable "
                << ALL_CONDITIONS()[i] <<
@@ -261,9 +261,9 @@ namespace PLEXIL {
   void Node::commonInit() {
     debugMsg("Node:node", "Registering internal variables...");
     // Register state/outcome/failure variables
-    m_variablesByName[STATE()] = m_stateVariable.getId();
-    m_variablesByName[OUTCOME()] = m_outcomeVariable.getId();
-    m_variablesByName[FAILURE_TYPE()] = m_failureTypeVariable.getId();
+    m_variablesByName[STATE()] = &m_stateVariable;
+    m_variablesByName[OUTCOME()] = &m_outcomeVariable;
+    m_variablesByName[FAILURE_TYPE()] = &m_failureTypeVariable;
 
     // initialize m_garbageConditions
     for (size_t i = 0; i < conditionIndexMax; ++i) {
@@ -299,7 +299,7 @@ namespace PLEXIL {
       assertTrueMsg(m_variablesByName.find(name) == m_variablesByName.end(),
                     "Node \"" << m_nodeId << "\" already has a variable named \"" << name << "\"");
       bool dummy; // we always expect variables to be constructed here
-      ExpressionId varId =
+      Expression *varId =
         createExpression(var->getId(),
                          NodeConnector::getId(),
                          dummy);
@@ -337,8 +337,8 @@ namespace PLEXIL {
                     "Node \"" << m_nodeId
                     << ": 'In' variable name \"" << varRef->name() << "\" is already in use");
 
-      ExpressionId expr = getInVariable(varRef, parentIsLibCall);
-      check_error(expr.isValid());
+      Expression *expr = getInVariable(varRef, parentIsLibCall);
+      check_error(expr);
 
       // make it accessible
       debugMsg("Node:getVarsFromInterface", 
@@ -371,17 +371,17 @@ namespace PLEXIL {
     }
   }
 
-  ExpressionId Node::getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall)
+  Expression *Node::getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall)
   {
     // Get the variable from the parent
     // findVariable(..., true) tells LibraryCallNode to only search alias vars
     std::string varLabel(varRef->name());
-    ExpressionId expr = m_parent->findVariable(varLabel, true);
-    if (expr.isId()) {
+    Expression *expr = m_parent->findVariable(varLabel, true);
+    if (expr) {
       // Try to avoid constructing alias var
       if (!parentIsLibCall && expr->isAssignable()) {
         // Construct const wrapper
-        expr = (new Alias(getId(), varRef->name(), expr, false))->getId();
+        expr = new Alias(getId(), varRef->name(), expr, false);
         debugMsg("Node::getInVariable",
                  " Node \"" << m_nodeId
                  << "\": Constructed const alias wrapper for \"" << varRef->name()
@@ -411,7 +411,7 @@ namespace PLEXIL {
         }
       }
 
-      assertTrueMsg(expr.isId(),
+      assertTrueMsg(expr,
                     "In node \"" << m_nodeId
                     << "\" 'In' interface: Parent has no "
                     << (parentIsLibCall ? "alias " : "variable ")
@@ -425,8 +425,8 @@ namespace PLEXIL {
   {
     // Get the variable from the parent
     // findVariable(..., true) tells LibraryCallNode to only search alias vars
-    ExpressionId expr = m_parent->findVariable(std::string(varRef->name()), true);
-    if (expr.isId()) {
+    Expression *expr = m_parent->findVariable(std::string(varRef->name()), true);
+    if (expr) {
       assertTrueMsg(expr->isAssignable(),
                     "In node \"" << m_nodeId
                     << "\" 'InOut' interface: "
@@ -459,7 +459,7 @@ namespace PLEXIL {
         }
       }
 
-      assertTrueMsg(expr.isId(),
+      assertTrueMsg(expr,
                     "In node \"" << m_nodeId
                     << "\" 'InOut' interface: Parent has no "
                     << (parentIsLibCall ? "alias " : "variable ")
@@ -490,18 +490,18 @@ namespace PLEXIL {
     // Attach listeners to ancestor invariant and ancestor end conditions
     // Root node doesn't need them because the default conditions are constants
     if (m_parent.isId()) {
-      ExpressionId ancestorEnd = getAncestorEndCondition();
-      assertTrueMsg(ancestorEnd.isId(),
+      Expression *ancestorEnd = getAncestorEndCondition();
+      assertTrueMsg(ancestorEnd,
                     "Internal error: ancestor end condition is null!");
       ancestorEnd->addListener(&m_listener);
 
-      ExpressionId ancestorExit = getAncestorExitCondition();
-      assertTrueMsg(ancestorExit.isId(),
+      Expression *ancestorExit = getAncestorExitCondition();
+      assertTrueMsg(ancestorExit,
                     "Internal error: ancestor exit condition is null!");
       ancestorExit->addListener(&m_listener);
 
-      ExpressionId ancestorInvariant = getAncestorInvariantCondition();
-      assertTrueMsg(ancestorInvariant.isId(),
+      Expression *ancestorInvariant = getAncestorInvariantCondition();
+      assertTrueMsg(ancestorInvariant,
                     "Internal error: ancestor invariant condition is null!");
       ancestorInvariant->addListener(&m_listener);
     }
@@ -593,8 +593,8 @@ namespace PLEXIL {
 
     // Remove condition listeners
     for (size_t i = 0; i < conditionIndexMax; ++i) {
-      ExpressionId cond = getCondition(i);
-      if (cond.isId())
+      Expression *cond = getCondition(i);
+      if (cond)
         cond->removeListener(&m_listener);
     }
 
@@ -607,7 +607,7 @@ namespace PLEXIL {
                  "<" << m_nodeId << "> Removing condition " << getConditionName(i));
         delete (Expression*) m_conditions[i];
       }
-      m_conditions[i] = ExpressionId::noId();
+      m_conditions[i] = NULL;
       m_garbageConditions[i] = false;
     }
 
@@ -655,7 +655,7 @@ namespace PLEXIL {
     m_variablesByName.clear();
 
     // Delete user-spec'd variables
-    for (std::vector<ExpressionId>::iterator it = m_localVariables.begin(); it != m_localVariables.end(); ++it) {
+    for (std::vector<Expression *>::iterator it = m_localVariables.begin(); it != m_localVariables.end(); ++it) {
       debugMsg("Node:cleanUpVars",
                "<" << m_nodeId << "> Removing " << **it);
       delete (Expression *) (*it);
@@ -699,7 +699,7 @@ namespace PLEXIL {
   {
   }
 
-  const ExpressionId& Node::getCondition(size_t idx) const
+  Expression *Node::getCondition(size_t idx)
   {
     switch (idx) {
 
@@ -723,7 +723,32 @@ namespace PLEXIL {
     }
   }
 
-  const ExpressionId& Node::getCondition(const std::string& name) const {
+  Expression const *Node::getCondition(size_t idx) const
+  {
+    switch (idx) {
+
+    case ancestorEndIdx:
+    case ancestorExitIdx:
+
+      if (m_parent.isId())
+        return m_parent->m_conditions[idx];
+      else
+        return FALSE_EXP();
+
+    case ancestorInvariantIdx:
+
+      if (m_parent.isId())
+        return m_parent->m_conditions[idx];
+      else
+        return TRUE_EXP();
+
+    default:
+      return m_conditions[idx];
+    }
+  }
+
+  Expression *Node::getCondition(const std::string& name) 
+  {
     return getCondition(getConditionIndex(name));
   }
 
@@ -956,7 +981,7 @@ namespace PLEXIL {
 
       case EXECUTING_STATE: {
         // N.B. Ancestor-exit, ancestor-invariant, ancestor-end should have been activated by parent
-        ExpressionId cond = getAncestorExitCondition();
+        Expression *cond = getAncestorExitCondition();
         checkError(cond->isActive(),
                    "Node::getDestStateFromInactive: Ancestor exit for " << m_nodeId << " is inactive.");
         if (cond->getValue(temp) && temp) {
@@ -1037,7 +1062,7 @@ namespace PLEXIL {
   // Default method
   NodeState Node::getDestStateFromWaiting()
   {
-    ExpressionId cond = getAncestorExitCondition();
+    Expression *cond = getAncestorExitCondition();
     checkError(cond->isActive(),
                "Node::getDestStateFromWaiting: Ancestor exit for " << m_nodeId << " is inactive.");
     bool temp;
@@ -1158,7 +1183,7 @@ namespace PLEXIL {
   // Default method
   NodeState Node::getDestStateFromExecuting()
   {
-    ExpressionId cond = getAncestorExitCondition();
+    Expression *cond = getAncestorExitCondition();
     checkError(cond->isActive(),
                "Node::getDestStateFromExecuting: Ancestor exit for " << m_nodeId << " is inactive.");
     bool temp;
@@ -1275,7 +1300,7 @@ namespace PLEXIL {
   // Default method
   NodeState Node::getDestStateFromIterationEnded()
   {
-    ExpressionId cond = getAncestorExitCondition();
+    Expression *cond = getAncestorExitCondition();
     checkError(cond->isActive(),
                "Node::getDestStateFromIterationEnded: Ancestor exit for " << m_nodeId << " is inactive.");
     bool temp;
@@ -1456,7 +1481,15 @@ namespace PLEXIL {
   // *** END NODE STATE LOGIC ***
   // ***
 
-  const ExpressionId& Node::getInternalVariable(const std::string& name) const
+  Expression *Node::getInternalVariable(const std::string& name)
+  {
+    VariableMap::const_iterator it = m_variablesByName.find(name);
+    checkError(it != m_variablesByName.end(),
+               "No variable named " << name << " in " << m_nodeId);
+    return it->second;
+  }
+
+  Expression const *Node::getInternalVariable(const std::string& name) const
   {
     VariableMap::const_iterator it = m_variablesByName.find(name);
     checkError(it != m_variablesByName.end(),
@@ -1591,7 +1624,7 @@ namespace PLEXIL {
   }
 
   // Searches ancestors when required
-  const ExpressionId& Node::findVariable(const std::string& name, bool recursive)
+  Expression *Node::findVariable(const std::string& name, bool recursive)
   {
     debugMsg("Node:findVariable",
              " for node '" << m_nodeId
@@ -1607,15 +1640,15 @@ namespace PLEXIL {
     // Stop at library call nodes, as interfaces there are explicit
     if (m_parent.isId()
         && m_parent->m_nodeType != LIBRARYNODECALL()) {
-      const ExpressionId& result = m_parent->findVariable(name, true);
-      if (result.isId()) {
+      Expression *result = m_parent->findVariable(name, true);
+      if (result) {
         // Found it - cache for later reuse
         m_variablesByName[name] = result;
         return result;
       }
       // Not found 
       else if (recursive)
-        return ExpressionId::noId(); // so that error happens at approriate level
+        return NULL; // so that error happens at approriate level
       // else fall through to failure
     }
 
@@ -1623,10 +1656,10 @@ namespace PLEXIL {
     checkError(ALWAYS_FAIL,
                "No variable named \"" << name << "\" accessible from node " <<
                m_nodeId);
-    return ExpressionId::noId();
+    return NULL;
   }
 
-  const ExpressionId& Node::findVariable(const PlexilVarRef* ref)
+  Expression *Node::findVariable(const PlexilVarRef* ref)
   {
     debugMsg("Node:findVariable",
              " for node '" << m_nodeId
@@ -1638,7 +1671,7 @@ namespace PLEXIL {
       NodeId node = findNodeRef(nodeRef);
       if (node.isNoId())
         assertTrue_2(ALWAYS_FAIL, "Node::findVariable: invalid node reference");
-        return ExpressionId::noId();
+        return NULL;
 
       if (Id<PlexilTimepointVar>::convertable(var->getId())) {
         PlexilTimepointVar* tp = (PlexilTimepointVar*) var;
@@ -1742,11 +1775,11 @@ namespace PLEXIL {
   // User conditions
   void Node::activatePreSkipStartConditions()
   {
-    checkError(m_conditions[preIdx].isId(),
+    checkError(m_conditions[preIdx],
                "No PreCondition exists in node \"" << m_nodeId << "\"");
-    checkError(m_conditions[skipIdx].isId(),
+    checkError(m_conditions[skipIdx],
                "No SkipCondition exists in node \"" << m_nodeId << "\"");
-    checkError(m_conditions[startIdx].isId(),
+    checkError(m_conditions[startIdx],
                "No StartCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activatePreSkipStartConditions",
              "Activating PreCondition, SkipCondition, and StartCondition in node \"" << m_nodeId << "\"");
@@ -1757,7 +1790,7 @@ namespace PLEXIL {
 
   void Node::activateEndCondition()
   {
-    checkError(m_conditions[endIdx].isId(),
+    checkError(m_conditions[endIdx],
                "No EndCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activateEndCondition",
              "Activating EndCondition in node \"" << m_nodeId << "\"");
@@ -1766,7 +1799,7 @@ namespace PLEXIL {
 
   void Node::activateExitCondition()
   {
-    checkError(m_conditions[exitIdx].isId(),
+    checkError(m_conditions[exitIdx],
                "No ExitCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activateExitCondition",
              "Activating ExitCondition in node \"" << m_nodeId << "\"");
@@ -1775,7 +1808,7 @@ namespace PLEXIL {
 
   void Node::activateInvariantCondition()
   {
-    checkError(m_conditions[invariantIdx].isId(),
+    checkError(m_conditions[invariantIdx],
                "No InvariantCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activateInvariantCondition",
              "Activating InvariantCondition in node \"" << m_nodeId << "\"");
@@ -1784,7 +1817,7 @@ namespace PLEXIL {
 
   void Node::activatePostCondition()
   {
-    checkError(m_conditions[postIdx].isId(),
+    checkError(m_conditions[postIdx],
                "No PostCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activatePostCondition",
              "Activating PostCondition in node \"" << m_nodeId << "\"");
@@ -1793,7 +1826,7 @@ namespace PLEXIL {
 
   void Node::activateRepeatCondition()
   {
-    checkError(m_conditions[repeatIdx].isId(),
+    checkError(m_conditions[repeatIdx],
                "No RepeatCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activateRepeatCondition",
              "Activating RepeatCondition in node \"" << m_nodeId << "\"");
@@ -1803,7 +1836,7 @@ namespace PLEXIL {
   // These are for specialized node types
   void Node::activateActionCompleteCondition()
   {
-    checkError(m_conditions[actionCompleteIdx].isId(),
+    checkError(m_conditions[actionCompleteIdx],
                "No ActionCompleteCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activateActionCompleteCondition",
              "Activating ActionCompleteCondition in node \"" << m_nodeId << "\"");
@@ -1812,7 +1845,7 @@ namespace PLEXIL {
 
   void Node::activateAbortCompleteCondition()
   {
-    checkError(m_conditions[abortCompleteIdx].isId(),
+    checkError(m_conditions[abortCompleteIdx],
                "No AbortCompleteCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activateAbortCompleteCondition",
              "Activating AbortCompleteCondition in node \"" << m_nodeId << "\"");
@@ -1830,11 +1863,11 @@ namespace PLEXIL {
   // User conditions
   void Node::deactivatePreSkipStartConditions()
   {
-    checkError(m_conditions[preIdx].isId(),
+    checkError(m_conditions[preIdx],
                "No PreCondition exists in node \"" << m_nodeId << "\"");
-    checkError(m_conditions[skipIdx].isId(),
+    checkError(m_conditions[skipIdx],
                "No SkipCondition exists in node \"" << m_nodeId << "\"");
-    checkError(m_conditions[startIdx].isId(),
+    checkError(m_conditions[startIdx],
                "No StartCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivatePreSkipStartConditions",
              "Deactivating PreCondition, SkipCondition, and StartCondition in node \"" << m_nodeId << "\"");
@@ -1845,7 +1878,7 @@ namespace PLEXIL {
 
   void Node::deactivateEndCondition()
   {
-    checkError(m_conditions[endIdx].isId(),
+    checkError(m_conditions[endIdx],
                "No EndCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivateEndCondition",
              "Deactivating EndCondition in node \"" << m_nodeId << "\"");
@@ -1854,7 +1887,7 @@ namespace PLEXIL {
 
   void Node::deactivateExitCondition()
   {
-    checkError(m_conditions[exitIdx].isId(),
+    checkError(m_conditions[exitIdx],
                "No ExitCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivateExitCondition",
              "Deactivating ExitCondition in node \"" << m_nodeId << "\"");
@@ -1863,7 +1896,7 @@ namespace PLEXIL {
 
   void Node::deactivateInvariantCondition()
   {
-    checkError(m_conditions[invariantIdx].isId(),
+    checkError(m_conditions[invariantIdx],
                "No InvariantCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivateInvariantCondition",
              "Deactivating InvariantCondition in node \"" << m_nodeId << "\"");
@@ -1872,7 +1905,7 @@ namespace PLEXIL {
 
   void Node::deactivatePostCondition()
   {
-    checkError(m_conditions[postIdx].isId(),
+    checkError(m_conditions[postIdx],
                "No PostCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivatePostCondition",
              "Deactivating PostCondition in node \"" << m_nodeId << "\"");
@@ -1881,7 +1914,7 @@ namespace PLEXIL {
 
   void Node::deactivateRepeatCondition()
   {
-    checkError(m_conditions[repeatIdx].isId(),
+    checkError(m_conditions[repeatIdx],
                "No RepeatCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivateRepeatCondition",
              "Deactivating RepeatCondition in node \"" << m_nodeId << "\"");
@@ -1891,7 +1924,7 @@ namespace PLEXIL {
   // These are for specialized node types
   void Node::deactivateActionCompleteCondition()
   {
-    checkError(m_conditions[actionCompleteIdx].isId(),
+    checkError(m_conditions[actionCompleteIdx],
                "No ActionCompleteCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivateActionCompleteCondition",
              "Deactivating ActionCompleteCondition in node \"" << m_nodeId << "\"");
@@ -1900,7 +1933,7 @@ namespace PLEXIL {
 
   void Node::deactivateAbortCompleteCondition()
   {
-    checkError(m_conditions[abortCompleteIdx].isId(),
+    checkError(m_conditions[abortCompleteIdx],
                "No AbortCompleteCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivateAbortCompleteCondition",
              "Deactivating AbortCompleteCondition in node \"" << m_nodeId << "\"");
@@ -1942,7 +1975,7 @@ namespace PLEXIL {
     m_outcome = NO_OUTCOME;
     m_failureType = NO_FAILURE;
 
-    for (std::vector<ExpressionId>::const_iterator it = m_localVariables.begin();
+    for (std::vector<Expression *>::const_iterator it = m_localVariables.begin();
          it != m_localVariables.end();
          ++it)
       if ((*it)->isAssignable())
@@ -1975,7 +2008,7 @@ namespace PLEXIL {
 
   void Node::activateLocalVariables()
   {
-    for (std::vector<ExpressionId>::iterator vit = m_localVariables.begin();
+    for (std::vector<Expression *>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
          ++vit)
       (*vit)->activate();
@@ -1983,7 +2016,7 @@ namespace PLEXIL {
 
   void Node::deactivateLocalVariables()
   {
-    for (std::vector<ExpressionId>::iterator vit = m_localVariables.begin();
+    for (std::vector<Expression *>::iterator vit = m_localVariables.begin();
          vit != m_localVariables.end();
          ++vit)
       (*vit)->deactivate();
@@ -2021,7 +2054,7 @@ namespace PLEXIL {
     else if (m_state != INACTIVE_STATE) {
       // Print conditions
       for (size_t i = 0; i < conditionIndexMax; ++i) {
-        if (getCondition(i).isId()) {
+        if (getCondition(i)) {
           stream << indentStr << " " << getConditionName(i) << ": " <<
             getCondition(i)->toString() << '\n';
         }

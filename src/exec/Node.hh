@@ -113,12 +113,12 @@ namespace PLEXIL {
     /**
      * @brief Looks up a variable by reference.
      */
-    const ExpressionId& findVariable(const PlexilVarRef* ref);
+    Expression *findVariable(const PlexilVarRef* ref);
 
     /**
      * @brief Looks up a variable by name.
      */
-    virtual const ExpressionId& findVariable(const std::string& name, bool recursive = false);
+    virtual Expression *findVariable(const std::string& name, bool recursive = false);
 
     NodeId findNodeRef(PlexilNodeRefId const &nodeRef) const;
 
@@ -247,7 +247,7 @@ namespace PLEXIL {
     const VariableMap& getLocalVariablesByName() { return m_variablesByName; }
     
     //Isaac - get local variables
-    const std::vector<ExpressionId> & getLocalVariables() { return m_localVariables; }
+    const std::vector<Expression *> & getLocalVariables() { return m_localVariables; }
 
     //Isaac - get children
     virtual const std::vector<NodeId>& getChildren() const;
@@ -256,20 +256,20 @@ namespace PLEXIL {
      * @brief Gets the state variable representing the state of this node.
      * @return the state variable.
      */
-    ExpressionId getStateVariable() const { return m_stateVariable.getId(); }
+    Expression *getStateVariable() { return &m_stateVariable; }
 
     NodeOutcome getOutcome() const;
-    ExpressionId getOutcomeVariable() const { return m_outcomeVariable.getId(); }
+    Expression *getOutcomeVariable() { return &m_outcomeVariable; }
 
     FailureType getFailureType() const;
-    ExpressionId getFailureTypeVariable() const { return m_failureTypeVariable.getId(); }
+    Expression *getFailureTypeVariable() { return &m_failureTypeVariable; }
 
     /**
      * @brief Accessor for an assignment node's assigned variable.
      */
-    virtual ExpressionId getAssignmentVariable() const 
+    virtual Assignable *getAssignmentVariable() const 
     {
-      return ExpressionId::noId();
+      return NULL;
     }
 
     /**
@@ -295,22 +295,22 @@ namespace PLEXIL {
     // These are public only to appease the module test
 
     // These conditions belong to the parent node.
-    const ExpressionId& getAncestorEndCondition() const               { return getCondition(ancestorEndIdx); }
-    const ExpressionId& getAncestorExitCondition() const              { return getCondition(ancestorExitIdx); }
-    const ExpressionId& getAncestorInvariantCondition() const         { return getCondition(ancestorInvariantIdx); }
+    Expression *getAncestorEndCondition()               { return getCondition(ancestorEndIdx); }
+    Expression *getAncestorExitCondition()              { return getCondition(ancestorExitIdx); }
+    Expression *getAncestorInvariantCondition()         { return getCondition(ancestorInvariantIdx); }
 
     // User conditions
-    const ExpressionId& getSkipCondition() const                      { return m_conditions[skipIdx]; }
-    const ExpressionId& getStartCondition() const                     { return m_conditions[startIdx]; }
-    const ExpressionId& getEndCondition() const                       { return m_conditions[endIdx]; }
-    const ExpressionId& getExitCondition() const                      { return m_conditions[exitIdx]; }
-    const ExpressionId& getInvariantCondition() const                 { return m_conditions[invariantIdx]; }
-    const ExpressionId& getPreCondition() const                       { return m_conditions[preIdx]; }
-    const ExpressionId& getPostCondition() const                      { return m_conditions[postIdx]; }
-    const ExpressionId& getRepeatCondition() const                    { return m_conditions[repeatIdx]; }
+    Expression *getSkipCondition()                      { return m_conditions[skipIdx]; }
+    Expression *getStartCondition()                     { return m_conditions[startIdx]; }
+    Expression *getEndCondition()                       { return m_conditions[endIdx]; }
+    Expression *getExitCondition()                      { return m_conditions[exitIdx]; }
+    Expression *getInvariantCondition()                 { return m_conditions[invariantIdx]; }
+    Expression *getPreCondition()                       { return m_conditions[preIdx]; }
+    Expression *getPostCondition()                      { return m_conditions[postIdx]; }
+    Expression *getRepeatCondition()                    { return m_conditions[repeatIdx]; }
     // These are for specialized node types
-    const ExpressionId& getActionCompleteCondition() const            { return m_conditions[actionCompleteIdx]; }
-    const ExpressionId& getAbortCompleteCondition() const             { return m_conditions[abortCompleteIdx]; }
+    Expression *getActionCompleteCondition()            { return m_conditions[actionCompleteIdx]; }
+    Expression *getAbortCompleteCondition()             { return m_conditions[abortCompleteIdx]; }
 
     // Test whether a condition is active
     // These are public only to appease the module test
@@ -334,7 +334,7 @@ namespace PLEXIL {
     bool isAbortCompleteConditionActive()             { return m_conditions[abortCompleteIdx]->isActive(); }
 
     // Should only be used by LuvListener.
-    const ExpressionId& getCondition(const std::string& name) const;
+    Expression *getCondition(const std::string& name);
 
     // NodeFactory::createNode for the module test needs this to be public.
     virtual void activateInternalVariables();
@@ -377,7 +377,8 @@ namespace PLEXIL {
     };
 
     // Abstracts out the issue of where the condition comes from.
-    const ExpressionId& getCondition(size_t idx) const;
+    Expression *getCondition(size_t idx);
+    Expression const *getCondition(size_t idx) const;
 
     void removeConditionListener(size_t idx);
 
@@ -488,7 +489,7 @@ namespace PLEXIL {
       {
       }
 
-      void notifyChanged(ExpressionId /* src */)
+      void notifyChanged(Expression const * /* src */)
       {
         m_node.conditionChanged();
       }
@@ -515,8 +516,8 @@ namespace PLEXIL {
     // Expressions
     VariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
     std::vector<std::string>* m_sortedVariableNames; /*!< Convenience for printing. */
-    std::vector<ExpressionId> m_localVariables; /*!< Variables created in this node. */
-    ExpressionId m_conditions[conditionIndexMax]; /*!< The condition expressions. */
+    std::vector<Expression *> m_localVariables; /*!< Variables created in this node. */
+    Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
     StateVariable m_stateVariable;
     OutcomeVariable m_outcomeVariable;
     FailureVariable m_failureTypeVariable;
@@ -546,13 +547,14 @@ namespace PLEXIL {
     void createDeclaredVars(const std::vector<PlexilVar *>& vars);
 
     void getVarsFromInterface(const PlexilInterfaceId& intf);
-    ExpressionId getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
+    Expression *getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
     Assignable *getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
 
     void activateLocalVariables();
     void deactivateLocalVariables();
 
-    const ExpressionId& getInternalVariable(const std::string& name) const;
+    Expression *getInternalVariable(const std::string& name);
+    Expression const *getInternalVariable(const std::string& name) const;
 
     //
     // Internal versions

@@ -30,7 +30,6 @@
 #include "Constant.hh"
 
 #include "CommandHandle.hh"
-#include "ConstantMacros.hh"
 #include "NodeConstants.hh"
 
 namespace PLEXIL
@@ -51,13 +50,13 @@ namespace PLEXIL
     NodeStateConstant &operator=(NodeStateConstant const &);
   };
 
-  DECLARE_GLOBAL_CONST(NodeStateConstant, INACTIVE_CONSTANT);
-  DECLARE_GLOBAL_CONST(NodeStateConstant, WAITING_CONSTANT);
-  DECLARE_GLOBAL_CONST(NodeStateConstant, EXECUTING_CONSTANT);
-  DECLARE_GLOBAL_CONST(NodeStateConstant, ITERATION_ENDED_CONSTANT);
-  DECLARE_GLOBAL_CONST(NodeStateConstant, FINISHED_CONSTANT);
-  DECLARE_GLOBAL_CONST(NodeStateConstant, FAILING_CONSTANT);
-  DECLARE_GLOBAL_CONST(NodeStateConstant, FINISHING_CONSTANT);
+  extern Expression *INACTIVE_CONSTANT();
+  extern Expression *WAITING_CONSTANT();
+  extern Expression *EXECUTING_CONSTANT();
+  extern Expression *ITERATION_ENDED_CONSTANT();
+  extern Expression *FINISHED_CONSTANT();
+  extern Expression *FAILING_CONSTANT();
+  extern Expression *FINISHING_CONSTANT();
   
   class NodeOutcomeConstant : public Constant<uint16_t>
   {
@@ -74,10 +73,10 @@ namespace PLEXIL
     NodeOutcomeConstant &operator=(NodeOutcomeConstant const &);
   };
 
-  DECLARE_GLOBAL_CONST(NodeOutcomeConstant, SUCCESS_CONSTANT);
-  DECLARE_GLOBAL_CONST(NodeOutcomeConstant, FAILURE_CONSTANT);
-  DECLARE_GLOBAL_CONST(NodeOutcomeConstant, SKIPPED_CONSTANT);
-  DECLARE_GLOBAL_CONST(NodeOutcomeConstant, INTERRUPTED_CONSTANT);
+  extern Expression *SUCCESS_CONSTANT();
+  extern Expression *FAILURE_CONSTANT();
+  extern Expression *SKIPPED_CONSTANT();
+  extern Expression *INTERRUPTED_CONSTANT();
   
   class FailureTypeConstant : public Constant<uint16_t>
   {
@@ -94,12 +93,12 @@ namespace PLEXIL
     FailureTypeConstant &operator=(FailureTypeConstant const &);
   };
 
-  DECLARE_GLOBAL_CONST(FailureTypeConstant, PRE_CONDITION_FAILED_CONSTANT);
-  DECLARE_GLOBAL_CONST(FailureTypeConstant, POST_CONDITION_FAILED_CONSTANT);
-  DECLARE_GLOBAL_CONST(FailureTypeConstant, INVARIANT_CONDITION_FAILED_CONSTANT);
-  DECLARE_GLOBAL_CONST(FailureTypeConstant, PARENT_FAILED_CONSTANT);
-  DECLARE_GLOBAL_CONST(FailureTypeConstant, EXITED_CONSTANT);
-  DECLARE_GLOBAL_CONST(FailureTypeConstant, PARENT_EXITED_CONSTANT);
+  extern Expression *PRE_CONDITION_FAILED_CONSTANT();
+  extern Expression *POST_CONDITION_FAILED_CONSTANT();
+  extern Expression *INVARIANT_CONDITION_FAILED_CONSTANT();
+  extern Expression *PARENT_FAILED_CONSTANT();
+  extern Expression *EXITED_CONSTANT();
+  extern Expression *PARENT_EXITED_CONSTANT();
   
   class CommandHandleConstant : public Constant<uint16_t>
   {
@@ -116,12 +115,12 @@ namespace PLEXIL
     CommandHandleConstant &operator=(CommandHandleConstant const &);
   };
 
-  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_SENT_TO_SYSTEM_CONSTANT);
-  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_ACCEPTED_CONSTANT);
-  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_RCVD_BY_SYSTEM_CONSTANT);
-  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_FAILED_CONSTANT);
-  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_DENIED_CONSTANT);
-  DECLARE_GLOBAL_CONST(CommandHandleConstant, COMMAND_SUCCESS_CONSTANT);
+  extern Expression *COMMAND_SENT_TO_SYSTEM_CONSTANT();
+  extern Expression *COMMAND_ACCEPTED_CONSTANT();
+  extern Expression *COMMAND_RCVD_BY_SYSTEM_CONSTANT();
+  extern Expression *COMMAND_FAILED_CONSTANT();
+  extern Expression *COMMAND_DENIED_CONSTANT();
+  extern Expression *COMMAND_SUCCESS_CONSTANT();
 
 } // namespace PLEXIL
 

@@ -145,14 +145,14 @@ namespace PLEXIL
   // map values from script into a variable expression
 
   void TestExternalInterface::setVariableValue(const std::string& source,
-                                               ExpressionId expr,
+                                               Expression *expr,
                                                const Value& value)
   {
-    if (expr != ExpressionId::noId()) {
+    if (expr) {
       checkError(expr->isAssignable(),
                  "Expected variable in \'" << source << "\'");
       expr->asAssignable()->setValue(value);
-      std::map<ExpressionId, CommandId>::iterator iter;
+      std::map<Expression *, CommandId>::iterator iter;
       if ((iter = m_destToCmdMap.find(expr)) != m_destToCmdMap.end()) {
         m_destToCmdMap.erase(iter);
       }
@@ -503,13 +503,13 @@ namespace PLEXIL
   void TestExternalInterface::executeCommand(CommandId const &cmd)
   {
     State const& command = cmd->getCommand();
-    ExpressionId dest = cmd->getDest();
-    ExpressionId ack = cmd->getAck();
+    Expression *dest = cmd->getDest();
+    Expression *ack = cmd->getAck();
     debugMsg("Test:testOutput", "Executing " << command <<
              " into " <<
-             (dest.isNoId() ? std::string("noId") : dest->toString()) <<
+             (dest ? dest->toString() : std::string("noId")) <<
              " with ack " << ack->toString());
-    if (dest.isId())
+    if (dest)
       m_executingCommands[command] = dest;
 
     // Special handling of the utility commands (a bit of a hack!):

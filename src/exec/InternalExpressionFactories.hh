@@ -49,9 +49,9 @@ namespace PLEXIL
     {
     }
 
-    ExpressionId allocate(const PlexilExprId& expr,
-                          const NodeConnectorId& node,
-                          bool &wasCreated) const;
+    Expression *allocate(const PlexilExprId& expr,
+                         const NodeConnectorId& node,
+                         bool &wasCreated) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -74,9 +74,9 @@ namespace PLEXIL
     {
     }
 
-    ExpressionId allocate(const PlexilExprId& expr,
-                          const NodeConnectorId& node,
-                          bool &wasCreated) const;
+    Expression *allocate(const PlexilExprId& expr,
+                         const NodeConnectorId& node,
+                         bool &wasCreated) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -93,13 +93,13 @@ namespace PLEXIL
     ConcreteExpressionFactory(const std::string& name);
     ~ConcreteExpressionFactory();
 
-    ExpressionId allocate(const PlexilExprId& expr,
-                          const NodeConnectorId& node,
-                          bool &wasCreated) const;
+    Expression *allocate(const PlexilExprId& expr,
+                         const NodeConnectorId& node,
+                         bool &wasCreated) const;
 
   private:
-    ExpressionId create(PlexilTimepointVar const *var,
-                        NodeConnectorId const &node) const;
+    Expression *create(PlexilTimepointVar const *var,
+                       NodeConnectorId const &node) const;
 
     // Default, copy, assign all prohibited
     ConcreteExpressionFactory();

@@ -94,7 +94,7 @@ namespace PLEXIL
   }
 
   // Default method is adequate for now.
-  // void NodeTimepointValue::handleChange(ExpressionId src)
+  // void NodeTimepointValue::handleChange(Expression const *src)
   // {
   //   // TODO
   // }

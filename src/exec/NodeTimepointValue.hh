@@ -28,6 +28,7 @@
 #define PLEXIL_NODE_TIMEPOINT_VALUE_HH
 
 #include "ExpressionImpl.hh"
+#include "Id.hh"
 #include "NodeConstants.hh"
 #include "NotifierImpl.hh"
 

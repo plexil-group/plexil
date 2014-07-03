@@ -43,8 +43,6 @@ namespace PLEXIL
   class Assignable;
 
   class Expression;
-  typedef Id<Expression> ExpressionId;
-
   class ExpressionListener;
 
   class NodeConnector;
@@ -74,11 +72,11 @@ namespace PLEXIL
   class Update;
   typedef Id<Update> UpdateId;
 
-  typedef std::vector<ExpressionId> ExpressionVector;
-  typedef std::vector<ExpressionId>::iterator ExpressionVectorIter;
-  typedef std::vector<ExpressionId>::const_iterator ExpressionVectorConstIter;
-  typedef std::vector<ExpressionId> Expressions;
-  typedef PLEXIL_HASH_MAP(std::string, ExpressionId) VariableMap;
+  typedef std::vector<Expression *> ExpressionVector;
+  typedef std::vector<Expression *>::iterator ExpressionVectorIter;
+  typedef std::vector<Expression *>::const_iterator ExpressionVectorConstIter;
+  typedef std::vector<Expression *> Expressions;
+  typedef PLEXIL_HASH_MAP(std::string, Expression *) VariableMap;
 
 }
 

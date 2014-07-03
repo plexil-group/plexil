@@ -60,7 +60,7 @@ namespace PLEXIL
       return count == 1;
     }
 
-    bool operator()(bool &result, ExpressionId arg) const
+    bool operator()(bool &result, Expression const *arg) const
     {
       uint16_t val;
       if (!arg->getValue(val)) // unknown
@@ -72,7 +72,7 @@ namespace PLEXIL
 
     DECLARE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible, bool)
 
-  private:
+    private:
     // Not implemented
     CommandHandleInterruptible(const CommandHandleInterruptible &);
     CommandHandleInterruptible &operator=(const CommandHandleInterruptible &);
@@ -171,16 +171,16 @@ namespace PLEXIL
     m_variablesByName[COMMAND_HANDLE()] = m_command->getAck();
 
     // Construct action-complete condition
-    ExpressionId actionComplete =
-      (new Function(IsKnown::instance(),
-                    makeExprVec(std::vector<ExpressionId>(1, m_command->getAck()),
-                                std::vector<bool>(1, false))))->getId();
+    Expression *actionComplete =
+      new Function(IsKnown::instance(),
+                   makeExprVec(std::vector<Expression *>(1, m_command->getAck()),
+                               std::vector<bool>(1, false)));
     actionComplete->addListener(&m_listener);
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = true;
 
     // Construct command-aborted condition
-    ExpressionId commandAbort = (ExpressionId) m_command->getAbortComplete();
+    Expression *commandAbort = m_command->getAbortComplete();
     commandAbort->addListener(&m_listener);
     m_conditions[abortCompleteIdx] = commandAbort;
     m_garbageConditions[abortCompleteIdx] = false;
@@ -192,14 +192,14 @@ namespace PLEXIL
     if (m_conditions[endIdx] != TRUE_EXP()) {
       // Construct real end condition by wrapping existing
       removeConditionListener(endIdx);
-      ExpressionId realEndCondition =
-        (new Function(BooleanOr::instance(),
-                      (new Function(CommandHandleInterruptible::instance(),
-                                    m_command->getAck(),
-                                    false))->getId(),
-                      m_conditions[endIdx],
-                      true,
-                      m_garbageConditions[endIdx]))->getId();
+      Expression *realEndCondition =
+        new Function(BooleanOr::instance(),
+                     new Function(CommandHandleInterruptible::instance(),
+                                  m_command->getAck(),
+                                  false),
+                     m_conditions[endIdx],
+                     true,
+                     m_garbageConditions[endIdx]);
 
       realEndCondition->addListener(&m_listener);
       m_conditions[endIdx] = realEndCondition;
@@ -226,45 +226,45 @@ namespace PLEXIL
 
   NodeState CommandNode::getDestStateFromExecuting()
   {
-    ExpressionId cond = getAncestorExitCondition();
+    Expression *cond = getAncestorExitCondition();
     checkError(cond->isActive(),
                "Ancestor exit for " << getNodeId() << " is inactive.");
     bool temp;
     if (cond->getValue(temp) && temp) {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId << 
-                 "' destination: FAILING. Command node and ancestor exit true.");
-        return FAILING_STATE;
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId << 
+               "' destination: FAILING. Command node and ancestor exit true.");
+      return FAILING_STATE;
     }
 
     cond = getExitCondition();
     checkError(cond->isActive(),
                "Exit for " << getNodeId() << " is inactive.");
     if (cond->getValue(temp) && temp) {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId << 
-                 "' destination: FAILING. Command node and exit true.");
-        return FAILING_STATE;
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId << 
+               "' destination: FAILING. Command node and exit true.");
+      return FAILING_STATE;
     }
 
     cond = getAncestorInvariantCondition();
     checkError(cond->isActive(),
                "Ancestor invariant for " << getNodeId() << " is inactive.");
     if (cond->getValue(temp) && !temp) {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId << 
-                 "' destination: FAILING. Command node and ancestor invariant false.");
-        return FAILING_STATE;
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId << 
+               "' destination: FAILING. Command node and ancestor invariant false.");
+      return FAILING_STATE;
     }
 
     cond = getInvariantCondition();
     checkError(cond->isActive(),
                "Invariant for " << getNodeId() << " is inactive.");
     if (cond->getValue(temp) && !temp) {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId << 
-                 "' destination: FAILING. Command node and invariant false.");
-        return FAILING_STATE;
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId << 
+               "' destination: FAILING. Command node and invariant false.");
+      return FAILING_STATE;
     }
 
     cond = getEndCondition();
@@ -336,7 +336,7 @@ namespace PLEXIL
 
   NodeState CommandNode::getDestStateFromFinishing()
   {
-    ExpressionId cond = getAncestorExitCondition();
+    Expression *cond = getAncestorExitCondition();
     checkError(cond->isActive(),
                "Ancestor exit for " << getNodeId() << " is inactive.");
     bool temp;
@@ -457,7 +457,7 @@ namespace PLEXIL
 
   NodeState CommandNode::getDestStateFromFailing()
   {
-    ExpressionId cond = getAbortCompleteCondition();
+    Expression *cond = getAbortCompleteCondition();
     checkError(cond->isActive(),
                "Abort complete for " << getNodeId() << " is inactive.");
     bool temp;
@@ -485,7 +485,7 @@ namespace PLEXIL
     }
 
     debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: no state.");
+             " '" << m_nodeId << "' destination: no state.");
     return NO_NODE_STATE;
   }
 
@@ -542,25 +542,25 @@ namespace PLEXIL
 
   void CommandNode::createCommand(const PlexilCommandBody* command) 
   {
-    checkError(command->state()->nameExpr().isValid(),
-               "Attempt to create command with invalid name expression");
+    checkError(command->state()->nameExpr(),
+               "Attempt to create command with null name expression");
 
     PlexilStateId state = command->state();
-    std::vector<ExpressionId> garbage;
+    std::vector<Expression *> garbage;
     bool wasCreated = false;
-    ExpressionId nameExpr = createExpression(state->nameExpr(), 
-                                             NodeConnector::getId(),
-                                             wasCreated);
+    Expression *nameExpr = createExpression(state->nameExpr(), 
+                                            NodeConnector::getId(),
+                                            wasCreated);
     if (wasCreated)
       garbage.push_back(nameExpr);
 
-    std::vector<ExpressionId> args;
+    std::vector<Expression *> args;
     for (std::vector<PlexilExprId>::const_iterator it = state->args().begin();
          it != state->args().end(); 
          ++it) {
-      ExpressionId argExpr =
+      Expression *argExpr =
         createExpression(*it, NodeConnector::getId(), wasCreated);
-      check_error(argExpr.isValid());
+      check_error(argExpr);
       args.push_back(argExpr);
       if (wasCreated)
         garbage.push_back(argExpr);
@@ -572,7 +572,7 @@ namespace PLEXIL
       bool destCreated;
       dest = createAssignable(destExpr, NodeConnector::getId(), destCreated);
       if (destCreated)
-        garbage.push_back(dest->getId()); // as ExpressionId
+        garbage.push_back(dest);
     }
 
     // Resource
@@ -587,10 +587,10 @@ namespace PLEXIL
            resItr != resources.end();
            ++resItr) {
         bool wasCreated = false;
-        ExpressionId resExpr = createExpression(resItr->second, 
-                                                NodeConnector::getId(),
-                                                wasCreated);
-        check_error(resExpr.isValid());
+        Expression *resExpr = createExpression(resItr->second, 
+                                               NodeConnector::getId(),
+                                               wasCreated);
+        check_error(resExpr);
         resourceMap[resItr->first] = resExpr;
         if (wasCreated)
           garbage.push_back(resExpr);
@@ -606,14 +606,16 @@ namespace PLEXIL
   // Unit test variant of above
   void CommandNode::createDummyCommand() 
   {
+    static StringConstant sl_dummyCmdName("dummy");
+
     // Empty arglist
-    std::vector<ExpressionId> args;
-    std::vector<ExpressionId> garbage;
+    std::vector<Expression *> args;
+    std::vector<Expression *> garbage;
     // No destination variable
     // No resource
     ResourceList resourceList;
     m_command = 
-      (new Command(DUMMY_CMD_NAME().getId(), args, garbage, NULL, resourceList, getNodeId()))->getId();
+      (new Command(&sl_dummyCmdName, args, garbage, NULL, resourceList, getNodeId()))->getId();
   }
 
   void CommandNode::printCommandHandle(std::ostream& stream, const unsigned int indent) const
