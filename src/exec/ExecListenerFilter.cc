@@ -99,7 +99,7 @@ namespace PLEXIL
    * @param value The value (as a generic Value) being assigned.
    */
   bool 
-  ExecListenerFilter::reportAssignment(ExpressionId const & /* dest */,
+  ExecListenerFilter::reportAssignment(Expression const * /* dest */,
                                        std::string const & /* destName */,
                                        Value const & /* value */)
   {

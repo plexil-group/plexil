@@ -59,7 +59,7 @@ namespace PLEXIL
 
   protected:
     // Default method is adequate for now
-    // void handleChange(ExpressionId src);
+    // void handleChange(Expression const *src);
 
   private:
     // not implemented

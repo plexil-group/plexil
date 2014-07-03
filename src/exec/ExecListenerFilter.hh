@@ -38,7 +38,6 @@ namespace PLEXIL
   typedef Id<ExecListenerFilter> ExecListenerFilterId;
 
   class Expression;
-  typedef Id<Expression> ExpressionId;
 
   class Node;
   typedef Id<Node> NodeId;
@@ -108,7 +107,7 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (as a generic Value) being assigned.
      */
-    virtual bool reportAssignment(ExpressionId const &dest,
+    virtual bool reportAssignment(Expression const *dest,
                                   std::string const &destName,
                                   Value const &value);
 

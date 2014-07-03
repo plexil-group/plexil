@@ -40,7 +40,6 @@ namespace PLEXIL
   typedef Id<ExecListenerBase> ExecListenerBaseId;
 
   class Expression;
-  DECLARE_ID(Expression);
 
   class Node;
   DECLARE_ID(Node);
@@ -127,7 +126,7 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (as a generic Value) being assigned.
      */
-    virtual void notifyOfAssignment(ExpressionId const &dest,
+    virtual void notifyOfAssignment(Expression const *dest,
                                     std::string const &destName,
                                     Value const &value) const = 0;
 

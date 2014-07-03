@@ -111,7 +111,7 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (in internal Exec representation) being assigned.
      */
-    void notifyOfAssignment(ExpressionId const &dest,
+    void notifyOfAssignment(Expression const *dest,
                             std::string const &destName,
                             Value const &value) const;
 
@@ -206,7 +206,7 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (in internal Exec representation) being assigned.
      */
-    virtual void implementNotifyAssignment(ExpressionId const & /* dest */,
+    virtual void implementNotifyAssignment(Expression const * /* dest */,
                                            std::string const & /* destName */,
                                            Value const & /* value */) const;
 

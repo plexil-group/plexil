@@ -133,7 +133,7 @@ namespace PLEXIL
    * @param value The value (in internal Exec representation) being assigned.
    */
   void
-  ExecListener::notifyOfAssignment(const ExpressionId & dest,
+  ExecListener::notifyOfAssignment(Expression const *dest,
                                    const std::string& destName,
                                    const Value& value) const
   {
@@ -270,7 +270,7 @@ namespace PLEXIL
    * @param destName A string naming the destination.
    * @param value The value (in internal Exec representation) being assigned.
    */
-  void ExecListener::implementNotifyAssignment(const ExpressionId & /* dest */,
+  void ExecListener::implementNotifyAssignment(Expression const * /* dest */,
                                                const std::string& /* destName */,
                                                const Value& /* value */) const
   {
