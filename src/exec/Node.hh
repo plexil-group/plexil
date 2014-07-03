@@ -120,7 +120,7 @@ namespace PLEXIL {
      */
     virtual const ExpressionId& findVariable(const std::string& name, bool recursive = false);
 
-    NodeId const &findNodeRef(PlexilNodeRefId const &nodeRef) const;
+    NodeId findNodeRef(PlexilNodeRefId const &nodeRef) const;
 
     const ExecListenerHubId& getExecListenerHub() const;
 
@@ -132,7 +132,7 @@ namespace PLEXIL {
     // Make the node active.
     virtual void activate();
 
-    NodeId const &getId() const {return static_cast<NodeId const &>(m_id);}
+    NodeId getId() const { return (NodeId) m_id; }
         
     /**
      * @brief Accessor for the NodeId as it was written in the XML.
@@ -256,13 +256,13 @@ namespace PLEXIL {
      * @brief Gets the state variable representing the state of this node.
      * @return the state variable.
      */
-    const ExpressionId& getStateVariable() const { return m_stateVariable.getId(); }
+    ExpressionId getStateVariable() const { return m_stateVariable.getId(); }
 
     NodeOutcome getOutcome() const;
-    const ExpressionId& getOutcomeVariable() const { return m_outcomeVariable.getId(); }
+    ExpressionId getOutcomeVariable() const { return m_outcomeVariable.getId(); }
 
     FailureType getFailureType() const;
-    const ExpressionId& getFailureTypeVariable() const { return m_failureTypeVariable.getId(); }
+    ExpressionId getFailureTypeVariable() const { return m_failureTypeVariable.getId(); }
 
     /**
      * @brief Accessor for an assignment node's assigned variable.

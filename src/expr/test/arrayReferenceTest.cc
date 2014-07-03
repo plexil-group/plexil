@@ -894,8 +894,6 @@ bool testArrayRefNotification()
   assertTrue_1(!darChanged);
   assertTrue_1(sarChanged);
 
-  svChanged = sarChanged = false;
-
   // Deactivate refs first, arrays next
   bar.deactivate();
   iar.deactivate();

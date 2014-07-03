@@ -182,8 +182,7 @@ private:
 static TestInterface *theInterface = NULL;
 
 // TODO:
-// - test change propagation
-// - test state changes
+// - test state parameter changes
 
 static bool testLookupNow() 
 {
@@ -204,13 +203,32 @@ static bool testLookupNow()
   ExpressionId l3 = (new Lookup(test2.getId(), false, test3Args, test2garbage))->getId();
   ExpressionId l4 = (new Lookup(test4.getId(), false, emptyArglist, emptyGarbageList))->getId();
 
+  bool l1changed = false;
+  bool l2changed = false;
+  bool l3changed = false;
+  bool l4changed = false;
+
+  TrivialListener l1listener(l1changed);
+  TrivialListener l2listener(l2changed);
+  TrivialListener l3listener(l3changed);
+  TrivialListener l4listener(l4changed);
+
+  l1->addListener(l1listener.getId());
+  l2->addListener(l2listener.getId());
+  l3->addListener(l3listener.getId());
+  l4->addListener(l4listener.getId());
+
   // Bump the cycle count
   theInterface->incrementCycleCount();
 
   l1->activate();
+  assertTrue_1(l1changed);
   l2->activate();
+  assertTrue_1(l2changed);
   l3->activate();
+  assertTrue_1(l3changed)
   l4->activate();
+  assertTrue_1(l4changed);
   assertTrue_1(test4.isActive());
 
   double temp;
@@ -224,16 +242,40 @@ static bool testLookupNow()
   assertTrue_1(l4->getValue(temp));
   assertTrue_1(temp == 2.0);
 
+  l4changed = false;
+
   test4.setValue("time");
+  assertTrue_1(l4changed);
   assertTrue_1(l4->isKnown());
   assertTrue_1(l4->getValue(temp));
   assertTrue_1(temp == 0.0);
 
+  l4changed = false;
+
   test4.setUnknown();
+  assertTrue_1(l4changed);
   assertTrue_1(!l4->isKnown());
   assertTrue_1(!l4->getValue(temp));
 
+  l4changed = false;
+
+  test4.setValue("test1");
+  assertTrue_1(l4changed);
+  assertTrue_1(l4->isKnown());
+  assertTrue_1(l4->getValue(temp));
+  assertTrue_1(temp == 2.0);
+
   // Clean up
+  l1->deactivate();
+  l2->deactivate();
+  l3->deactivate();
+  l4->deactivate();
+
+  l1->removeListener(l1listener.getId());
+  l2->removeListener(l2listener.getId());
+  l3->removeListener(l3listener.getId());
+  l4->removeListener(l4listener.getId());
+
   delete (Expression *) l4;
   delete (Expression *) l3;
   delete (Expression *) l2;
@@ -245,20 +287,16 @@ static bool testLookupNow()
   return true;
 }
 
-// TODO:
-// - test state changes
-
 static bool testLookupOnChange() 
 {
   StringConstant changeTest("changeTest");
-  StringConstant changeWithToleranceTest("changeWithToleranceTest");
+  StringVariable changeWithToleranceTest("changeWithToleranceTest");
   RealVariable watchVar(0.0);
   watchVar.activate();
   theInterface->watch("changeTest", watchVar.getId());
   theInterface->watch("changeWithToleranceTest", watchVar.getId());
 
   RealVariable tolerance(0.5);
-  // tolerance.activate(); // should be activated when lookup is activated
   std::vector<ExpressionId> const emptyArglist;
   std::vector<bool> const emptyGarbageList;
 
@@ -400,6 +438,24 @@ static bool testLookupOnChange()
   assertTrue_1(changeWithToleranceNotified);
   assertTrue_1(l2.getValue(temp));
   assertTrue_1(temp == 1.7); // threshold should be back in effect
+
+  // Test making state name unknown
+  changeWithToleranceNotified = false;
+  changeWithToleranceTest.setUnknown();
+
+  assertTrue_1(changeWithToleranceNotified);
+  assertTrue_1(!l2.getValue(temp));
+
+  // Set state name back
+  changeWithToleranceNotified = false;
+  changeWithToleranceTest.setValue("changeWithToleranceTest");
+
+  assertTrue_1(changeWithToleranceNotified);
+  assertTrue_1(l2.getValue(temp));
+  assertTrue_1(temp == 1.7);
+
+  l1.deactivate();
+  l2.deactivate();
 
   l1.removeListener(changeListener.getId());
   l2.removeListener(changeWithToleranceListener.getId());

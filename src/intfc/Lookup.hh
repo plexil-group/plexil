@@ -139,7 +139,6 @@ namespace PLEXIL
   protected:
 
     // Shared behavior needed by LookupOnChange
-    void activateInternal();
     bool handleChangeInternal(ExpressionId src);
     
     // Member variables shared with implementation classes
@@ -198,7 +197,7 @@ namespace PLEXIL
     LookupOnChange &operator=(const LookupOnChange &);
 
     // Internal helper
-    void updateInternal();
+    bool updateInternal(bool valueChanged);
 
     // Unique member data
     ThresholdCache *m_thresholds;

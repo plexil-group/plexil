@@ -74,9 +74,9 @@ namespace PLEXIL {
   }
 
   // Default method.
-  ExpressionId const &Expression::getBaseExpression() const
+  ExpressionId Expression::getBaseExpression() const
   {
-    return (ExpressionId const &) this->getId();
+    return (ExpressionId) this->getId();
   }
 
   void Expression::print(std::ostream& s) const

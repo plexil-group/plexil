@@ -51,9 +51,9 @@ namespace PLEXIL
     typedef std::map<std::string, Value> PairValueMap;
 
     const UpdateId& getId() const {return m_id;}
-    const ExpressionId& getAck() const {return m_ack.getId();}
+    ExpressionId getAck() const {return m_ack.getId();}
     const PairValueMap& getPairs() const {return m_valuePairs;}
-    const NodeId& getSource() const {return m_source;}
+    NodeId getSource() const {return m_source;}
     void activate();
     void deactivate();
     void reset();

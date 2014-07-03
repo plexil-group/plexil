@@ -103,70 +103,72 @@ namespace PLEXIL
     // N.B. no error if not found
   }
 
-  void StateCacheEntry::registerChangeLookup(Lookup *l, ExpressionId tolerance)
+  void StateCacheEntry::setThresholds(ExpressionId tolerance)
   {
-    checkError(tolerance->isKnown(),
-               "StateCacheEntry::registerChangeLookup: tolerance unknown");
-    // Already registered?
-    bool found = false;
-    for (std::vector<Lookup *>::iterator it = m_lookups.begin();
-         it != m_lookups.end();
-         ++it) {
-      if (l == *it) {
-        found = true;
-        break;
-      }
-    }
-    
-    if (!found)
-      registerLookup(l);
+    // Check for valid tolerance
+    if (!tolerance->isKnown())
+      return;
+    ValueType ttype = tolerance->valueType();
+    assertTrueMsg(isNumericType(ttype),
+                  "LookupOnChange with invalid tolerance type "
+                  << valueTypeName(tolerance->valueType()));
+
     // Can only set thresholds if we know the current value.
-    if (m_value->isKnown()) {
-      ValueType vtype = m_value->valueType();
-      assertTrueMsg(isNumericType(vtype),
-                    "LookupOnChange: lookup value of type " << valueTypeName(vtype)
-                    << " does not support a tolerance");
-      switch (tolerance->valueType()) {
-      case INTEGER_TYPE: {
-        int32_t itol;
-        tolerance->getValue(itol); // known to be known
-        if (vtype == INTEGER_TYPE) {
-          int32_t curr;
-          m_value->getValue(curr); // known to be known
-          g_interface->setThresholds(m_state, curr + itol, curr - itol);
-        }
-        // FIXME: add support for non-double date/duration types
-        else {
-          double rtol = (double) itol;
-          double rcurr;
-          m_value->getValue(rcurr); // known to be known
-          g_interface->setThresholds(m_state, rcurr + rtol, rcurr - rtol);
-        }
-        break;
+    if (!m_value->isKnown())
+      return;
+
+    ValueType vtype = m_value->valueType();
+    assertTrueMsg(isNumericType(vtype),
+                  "LookupOnChange: lookup value of type " << valueTypeName(vtype)
+                  << " does not allow a tolerance");
+    switch (ttype) {
+    case INTEGER_TYPE: {
+      int32_t itol;
+      tolerance->getValue(itol); // known to be known
+      if (itol == 0)
+        return;
+      if (itol < 0)
+        itol = -itol;
+      if (vtype == INTEGER_TYPE) {
+        int32_t curr;
+        m_value->getValue(curr); // known to be known
+        g_interface->setThresholds(m_state, curr + itol, curr - itol);
       }
-
-        // FIXME: support non-double date/duration types
-      case DATE_TYPE:
-      case DURATION_TYPE:
-
-      case REAL_TYPE: {
-        // FIXME later if this proves to be a problem
-        assertTrue_2(vtype != INTEGER_TYPE,
-                     "LookupOnChange: integer state values must have integer tolerances")
-        double rtol;
-        tolerance->getValue(rtol);
+      // FIXME: add support for non-double date/duration types
+      else {
+        double rtol = (double) itol;
         double rcurr;
         m_value->getValue(rcurr); // known to be known
         g_interface->setThresholds(m_state, rcurr + rtol, rcurr - rtol);
-        break;
       }
+      break;
+    }
 
-      default:
-        assertTrueMsg(ALWAYS_FAIL,
-                      "LookupOnChange with invalid tolerance type "
-                      << valueTypeName(tolerance->valueType()));
-        break;
-      }
+      // FIXME: support non-double date/duration types
+    case DATE_TYPE:
+    case DURATION_TYPE:
+
+    case REAL_TYPE: {
+      // FIXME later if this proves to be a problem
+      assertTrue_2(vtype != INTEGER_TYPE,
+                   "LookupOnChange: integer state values must have integer tolerances");
+      double rtol;
+      tolerance->getValue(rtol);
+      if (rtol == 0)
+        return;
+      if (rtol < 0)
+        rtol = -rtol;
+      double rcurr;
+      m_value->getValue(rcurr); // known to be known
+      g_interface->setThresholds(m_state, rcurr + rtol, rcurr - rtol);
+      break;
+    }
+
+    default:
+      assertTrueMsg(ALWAYS_FAIL,
+                    "LookupOnChange internal error: tolerance type "
+                    << valueTypeName(ttype));
+      break;
     }
   }
 

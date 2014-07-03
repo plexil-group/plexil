@@ -81,7 +81,7 @@ namespace PLEXIL
     return m_exp->isConstant();
   }
 
-  ExpressionId const &Alias::getBaseExpression() const
+  ExpressionId Alias::getBaseExpression() const
   {
     return m_exp->getBaseExpression();
   }

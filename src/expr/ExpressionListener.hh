@@ -55,7 +55,7 @@ namespace PLEXIL
     ExpressionListener();
     virtual ~ExpressionListener();
 
-    inline const ExpressionListenerId& getId() const 
+    inline ExpressionListenerId getId() const 
     {
       return m_id;
     }

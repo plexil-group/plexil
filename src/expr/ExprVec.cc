@@ -92,52 +92,178 @@ namespace PLEXIL
     return (*op)(result, *this);
   }
 
+  /**
+   * @class NullExprVec
+   * @brief Concrete class template for empty expression vectors.
+   */
+
+  class NullExprVec : public ExprVec
+  {
+  public:
+    NullExprVec(std::vector<ExpressionId> const &exps,
+                std::vector<bool> const &garb)
+    {
+      assertTrue(exps.empty() && garb.empty());
+    }
+
+    ~NullExprVec()
+    {
+    }
+
+    size_t size() const
+    {
+      return 0; 
+    }
+
+    ExpressionId const &operator[](size_t /* n */) const
+    {
+      return ExpressionId::noId();
+    }
+
+    void activate()
+    {
+    }
+
+    void deactivate()
+    {
+    }
+
+    // General case defers to base class for many of these operations
+    void addListener(ExpressionListenerId id) 
+    {
+    }
+
+    void removeListener(ExpressionListenerId id) 
+    {
+    }
+
+  private:
+    // Not implemented
+    NullExprVec(const NullExprVec &);
+    NullExprVec &operator=(const NullExprVec &);
+  };
+
   //
   // FixedExprVec
   //
   // General cases - optimized cases below
   //
 
+  /**
+   * @class FixedExprVec
+   * @brief Concrete class template for small expression vectors.
+   * Allows optimization for common cases (specifically one and two parameter function calls).
+   */
+
   template <unsigned N>
-  FixedExprVec<N>::FixedExprVec(std::vector<ExpressionId> const &exps,
-                              std::vector<bool> const &garb)
+  class FixedExprVec : public ExprVec
+  {
+  public:
+    FixedExprVec(std::vector<ExpressionId> const &exps,
+                std::vector<bool> const &garb)
     : ExprVec()
-  {
-    check_error_1(exps.size() == N && garb.size() == N);
-    for (size_t i = 0; i < N; ++i)
-      exprs[i] = exps[i];
-    for (size_t i = 0; i < N; ++i)
-      garbage[i] = garb[i];
-  }
+    {
+      check_error_1(exps.size() == N && garb.size() == N);
+      for (size_t i = 0; i < N; ++i)
+        exprs[i] = exps[i];
+      for (size_t i = 0; i < N; ++i)
+        garbage[i] = garb[i];
+    }
 
-  template <unsigned N>
-  FixedExprVec<N>::~FixedExprVec()
-  {
-    for (size_t i = 0; i < N; ++i)
-      if (garbage[i])
-        delete (Expression *) exprs[i];
-  }
+    ~FixedExprVec()
+    {
+      for (size_t i = 0; i < N; ++i)
+        if (garbage[i])
+          delete (Expression *) exprs[i];
+    }
 
-  template <unsigned N>
-  ExpressionId const &FixedExprVec<N>::operator[](size_t n) const 
-  {
-    check_error_1(n < N);
-    return exprs[n]; 
-  }
+    size_t size() const 
+    {
+      return N; 
+    }
 
-  template <unsigned N>
-  void FixedExprVec<N>::activate() 
-  {
-    for (size_t i = 0; i < N; ++i)
-      exprs[i]->activate();
-  }
+    ExpressionId const &operator[](size_t n) const
+    {
+      check_error_1(n < N);
+      return exprs[n]; 
+    }
 
-  template <unsigned N>
-  void FixedExprVec<N>::deactivate()
-  {
-    for (size_t i = 0; i < N; ++i)
-     exprs[i]->deactivate();
-  }
+    void activate()
+    {
+      for (size_t i = 0; i < N; ++i)
+        exprs[i]->activate();
+    }
+
+    void deactivate()
+    {
+      for (size_t i = 0; i < N; ++i)
+        exprs[i]->deactivate();
+    }
+
+    // General case defers to base class for many of these operations
+    void addListener(ExpressionListenerId id) 
+    {
+      ExprVec::addListener(id); 
+    }
+
+    void removeListener(ExpressionListenerId id) 
+    {
+      ExprVec::removeListener(id); 
+    }
+
+    bool apply(Operator const *op, bool &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, int32_t &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, double &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, std::string &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, Array &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, BooleanArray &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, IntegerArray &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, RealArray &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+    bool apply(Operator const *op, StringArray &result) const
+    {
+      return ExprVec::apply(op, result); 
+    }
+
+  private:
+    // Not implemented
+    FixedExprVec(const FixedExprVec &);
+    FixedExprVec &operator=(const FixedExprVec &);
+
+    ExpressionId exprs[N];
+    bool garbage[N];
+  };
 
   // One-arg variants
 
@@ -344,45 +470,66 @@ namespace PLEXIL
   }
 
   //
-  // GeneralExprVec methods
+  // GeneralExprVec
   //
 
-  GeneralExprVec::GeneralExprVec(std::vector<ExpressionId> const &exps,
-                                 std::vector<bool> const &garb)
-    : ExprVec(),
-      exprs(exps),
-      garbage(garb)
+  /**
+   * @class GeneralExprVec
+   * @brief Concrete variable-length variant of ExprVec which uses std::vector instead of arrays.
+   */
+  class GeneralExprVec : public ExprVec
   {
-    check_error_1(exps.size() == garb.size());
-  }
+  public:
+    GeneralExprVec(std::vector<ExpressionId> const &exps,
+                   std::vector<bool> const &garb)
+      : ExprVec(),
+        exprs(exps),
+        garbage(garb)
+    {
+      check_error_1(exps.size() == garb.size());
+    }
 
-  GeneralExprVec::~GeneralExprVec()
-  {
-    size_t n = exprs.size();
-    for (size_t i = 0; i < n; ++i)
-      if (garbage[i])
-        delete (Expression *) exprs[i];
-  }
+    ~GeneralExprVec()
+    {
+      size_t n = exprs.size();
+      for (size_t i = 0; i < n; ++i)
+        if (garbage[i])
+          delete (Expression *) exprs[i];
+    }
 
-  ExpressionId const &GeneralExprVec::operator[](size_t n) const 
-  {
-    check_error_1(n < exprs.size());
-    return exprs[n]; 
-  }
+    size_t size() const
+    {
+      return exprs.size(); 
+    }
 
-  void GeneralExprVec::activate() 
-  {
-    size_t n = exprs.size();
-    for (size_t i = 0; i < n; ++i)
-      exprs[i]->activate();
-  }
+    ExpressionId const &operator[](size_t n) const
+    {
+      check_error_1(n < exprs.size());
+      return exprs[n]; 
+    }
 
-  void GeneralExprVec::deactivate()
-  {
-    size_t n = exprs.size();
-    for (size_t i = 0; i < n; ++i)
-     exprs[i]->deactivate();
-  }
+    void activate()
+    {
+      size_t n = exprs.size();
+      for (size_t i = 0; i < n; ++i)
+        exprs[i]->activate();
+    }
+      
+    void deactivate()
+    {
+      size_t n = exprs.size();
+      for (size_t i = 0; i < n; ++i)
+        exprs[i]->deactivate();
+    }
+
+  private:
+    // Not implemented
+    GeneralExprVec(const GeneralExprVec &);
+    GeneralExprVec &operator=(const GeneralExprVec &);
+
+    std::vector<ExpressionId> exprs;
+    std::vector<bool> garbage;
+  };
 
   //
   // Factory function
@@ -396,7 +543,7 @@ namespace PLEXIL
                          "makeExprVec: expression and garbage vectors of different lengths");
     switch (exprs.size()) {
     case 0:
-      return static_cast<ExprVec *>(new FixedExprVec<0>(exprs, garbage));
+      return static_cast<ExprVec *>(new NullExprVec(exprs, garbage));
     case 1:
       return static_cast<ExprVec *>(new FixedExprVec<1>(exprs, garbage));
     case 2:
@@ -418,7 +565,6 @@ namespace PLEXIL
     }
   }
 
-  template class FixedExprVec<0>;
   template class FixedExprVec<1>;
   template class FixedExprVec<2>;
   template class FixedExprVec<3>;

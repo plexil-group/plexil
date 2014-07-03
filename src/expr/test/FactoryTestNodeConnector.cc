@@ -55,7 +55,7 @@ namespace PLEXIL
       return ExpressionId::noId();
   }
 
-  NodeId const &FactoryTestNodeConnector::findNodeRef(PlexilNodeRefId const & /* nodeRef */) const
+  NodeId FactoryTestNodeConnector::findNodeRef(PlexilNodeRefId const & /* nodeRef */) const
   {
     return NodeId::noId();
   }

@@ -65,8 +65,8 @@ namespace PLEXIL
 
     const CommandId &getId() {return m_id;}
     ExpressionId getDest() const;
-    const ExpressionId &getAck() {return m_ack.getId();}
-    const ExpressionId &getAbortComplete() {return m_abortComplete.getId();}
+    ExpressionId getAck() {return m_ack.getId();}
+    ExpressionId getAbortComplete() {return m_abortComplete.getId();}
     State const &getCommand() const;
     std::string const &getName() const;
     std::vector<Value> const &getArgValues() const;

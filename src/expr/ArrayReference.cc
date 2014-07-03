@@ -100,7 +100,7 @@ namespace PLEXIL
     return false;
   }
 
-  ExpressionId const &ArrayReference::getBaseExpression() const
+  ExpressionId ArrayReference::getBaseExpression() const
   {
     return m_array->getBaseExpression();
   }

@@ -101,16 +101,9 @@ namespace PLEXIL
     s << this->toValue();
   }
 
-  void Lookup::handleActivate()
-  {
-    activateInternal();
-    if (m_entry)
-      m_entry->registerLookup(this);
-  }
-
   // TODO:
   // - potential for optimization in the case of constant states
-  void Lookup::activateInternal()
+  void Lookup::handleActivate()
   {
     // Activate all subexpressions
     m_stateName->activate();
@@ -124,6 +117,8 @@ namespace PLEXIL
         StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
       assertTrue_2(m_entry != NULL, "Lookup::handleActivate: Failed to get state cache entry");
     }
+    if (m_entry)
+      m_entry->registerLookup(this);
   }
 
   // TODO:
@@ -140,11 +135,14 @@ namespace PLEXIL
     m_entry = NULL;
   }
 
+  // Called whenever state name or parameter changes
   void Lookup::handleChange(ExpressionId src)
   {
-    handleChangeInternal(src);
+    if (handleChangeInternal(src))
+      this->publishChange(src);
   }
 
+  // Return true if state changed, false otherwise
   bool Lookup::handleChangeInternal(ExpressionId src)
   {
     State newState;
@@ -170,8 +168,6 @@ namespace PLEXIL
       assertTrue_2(m_entry != NULL, "Lookup::handleChange: Failed to get state cache entry");
       m_entry->registerLookup(this);
     }
-    if (stateChanged)
-      this->publishChange(src);
     return stateChanged;
   }
 
@@ -316,12 +312,11 @@ namespace PLEXIL
   //
 
   // Internal class used only by LookupOnChange
+  // Presumes both lookup value and tolerance value are known.
   class ThresholdCache
   {
   public:
     ThresholdCache()
-      : m_known(false),
-        m_toleranceKnown(false)
     {
     }
 
@@ -334,61 +329,20 @@ namespace PLEXIL
      * @param tolerance Tolerance expression.
      * @return True if changed.
      */
-    bool thresholdChanged(ExpressionId tolerance)
-    {
-      // Always trigger on known-to-unknown or unknown-to-known transition
-      bool oldKnown = m_toleranceKnown;
-      if ((m_toleranceKnown = tolerance->isKnown()) != oldKnown)
-        return true;
-      if (m_toleranceKnown)
-        return checkTolerance(tolerance);
-      return false;
-    }
+    virtual bool toleranceChanged(ExpressionId tolerance) const = 0;
 
     /**
-     * @brief Check whether the current value in the state cache is beyond the thresholds.
-     * @param entry Pointer to state cache entry.
+     * @brief Check whether the current value is beyond the thresholds.
+     * @param entry Pointer to the value.
      * @return True if exceeded, false otherwise.
      */
-    bool thresholdsExceeded(StateCacheEntry const *entry)
-    {
-      // Always trigger on known-to-unknown or unknown-to-known transition
-      bool oldKnown = m_known;
-      if ((m_known = entry->isKnown()) != oldKnown)
-        return true;
-      if (!m_toleranceKnown)
-        return true; // always
-      return check(entry);
-    }
+    virtual bool thresholdsExceeded(CachedValue const *value) const = 0;
 
     /**
-     * @brief Set the thresholds based on the current value in the state cache.
+     * @brief Set the thresholds based on the given cached value.
      * @param entry Pointer to state cache entry.
      */
-    void setThresholds(StateCacheEntry const *entry, ExpressionId tolerance)
-    {
-      if (!tolerance->isKnown()) {
-        m_toleranceKnown = false;
-        return;
-      }
-      if ((m_known = entry->isKnown()))
-        this->set(entry, tolerance);
-    }
-
-    // Reset to unknown so next update causes notification.
-    void reset()
-    {
-      m_known = false;
-    }
-
-  protected:
-    // Delegated to implementation classes
-    virtual bool checkTolerance(ExpressionId tolerance) = 0;
-    virtual bool check(StateCacheEntry const *entry) const = 0;
-    virtual void set(StateCacheEntry const *entry, ExpressionId tolerance) = 0;
-
-    bool m_known; // Whether the value and thresholds were known at last check.
-    bool m_toleranceKnown; // Whether tolerance was known at last check.
+    virtual void setThresholds(CachedValue const *value, ExpressionId tolerance) = 0;
   };
 
   template <typename IMPL>
@@ -404,28 +358,25 @@ namespace PLEXIL
     {
     }
 
-    bool checkTolerance(ExpressionId tolerance)
+    bool toleranceChanged(ExpressionId tolerance) const
     {
-      return static_cast<IMPL *>(this)->checkToleranceImpl(tolerance);
+      return static_cast<IMPL const *>(this)->checkToleranceImpl(tolerance);
     }
 
-    bool check(StateCacheEntry const *entry) const
+    bool thresholdsExceeded(CachedValue const *value) const
     {
-      return static_cast<IMPL const *>(this)->checkImpl(entry);
+      return static_cast<IMPL const *>(this)->checkImpl(value);
     }
 
-    void set(StateCacheEntry const *entry, ExpressionId tolerance)
+    void setThresholds(CachedValue const *value, ExpressionId tolerance)
     {
-      m_known = entry->isKnown();
-      m_toleranceKnown = tolerance->isKnown();
-      if (m_known && m_toleranceKnown)
-        static_cast<IMPL *>(this)->setImpl(entry, tolerance);
+      static_cast<IMPL *>(this)->setImpl(value, tolerance);
     }
 
   protected:
-    virtual bool checkToleranceImpl(ExpressionId tolerance) = 0;
-    virtual bool checkImpl(StateCacheEntry const *entry) const = 0;
-    virtual void setImpl(StateCacheEntry const *entry, ExpressionId tolerance) = 0;
+    virtual bool checkToleranceImpl(ExpressionId tolerance) const = 0;
+    virtual bool checkImpl(CachedValue const *value) const = 0;
+    virtual void setImpl(CachedValue const *value, ExpressionId tolerance) = 0;
   };
 
   template <typename NUM>
@@ -441,42 +392,40 @@ namespace PLEXIL
     {
     }
 
-    // Only called if tolerance is and was known.
-    // Returns true if tolerance changed; also resets thresholds in that case.
-    bool checkToleranceImpl(ExpressionId tolerance)
+    bool checkToleranceImpl(ExpressionId tolerance) const
     {
+      check_error(tolerance.isId()); // paranoid check
       NUM newTol;
-      tolerance->getValue(newTol);
+      assertTrue_2(tolerance->getValue(newTol),
+                   "LookupOnChange: internal error: tolerance unknown");
       if (newTol < 0)
         newTol = -newTol;
-      if (newTol == m_tolerance)
-        return false;
-      // Calculate new thresholds based on last value
-      m_high = m_high - m_tolerance + newTol;
-      m_low = m_low + m_tolerance - newTol;
-      m_tolerance = newTol;
-      return true;
+      return newTol != m_tolerance;
     }
 
-    // Only called if was known and is known now.
-    bool checkImpl(StateCacheEntry const *entry) const
+    bool checkImpl(CachedValue const *value) const
     {
+      check_error(value); // paranoid check
       NUM currentValue;
-      entry->cachedValue()->getValue(currentValue);
+      assertTrue_2(value->getValue(currentValue),
+                   "LookupOnChange: internal error: lookup value unknown");
       return (currentValue >= m_high) || (currentValue <= m_low);
     }
 
-    // Only called if both current value and tolerance known.
-    void setImpl(StateCacheEntry const *entry, ExpressionId tolerance)
+    void setImpl(CachedValue const *value, ExpressionId tolerance)
     {
-      NUM curr, tol;
-      entry->cachedValue()->getValue(curr);
-      tolerance->getValue(tol);
+      check_error(value); // paranoid check
+      check_error(tolerance.isId()); // paranoid check
+      NUM base, tol;
+      assertTrue_2(value->getValue(base),
+                   "LookupOnChange: internal error: lookup value unknown");
+      assertTrue_2(tolerance->getValue(tol),
+                   "LookupOnChange: internal error: tolerance unknown");
       if (tol < 0)
         tol = -tol;
       m_tolerance = tol;
-      m_low = curr - tol;
-      m_high = curr + tol;
+      m_low = base - tol;
+      m_high = base + tol;
     }
 
   private:
@@ -546,110 +495,90 @@ namespace PLEXIL
 
   void LookupOnChange::handleActivate()
   {
-    this->activateInternal();
-    m_tolerance->activate();
-    if (this->m_entry) {
-      // State is known
-      if (m_tolerance->isKnown())
-        this->m_entry->registerChangeLookup(static_cast<Lookup *>(this),
-                                            m_tolerance);
-      else
-        this->m_entry->registerLookup(static_cast<Lookup *>(this));
-      // Value should have been looked up, but may still be unknown
-      if (!m_thresholds)
-        m_thresholds = ThresholdCacheFactory(this->m_entry->valueType());
-      // Initialize or update value cache
-      updateInternal();
-    } // end state is known
+    Lookup::handleActivate(); // may register lookup if state known,
+                              // may cause calls to handleChange(), valueChanged()
+    m_tolerance->activate();  // may cause calls to handleChange()
+    if (updateInternal(true)) // may cause redundant notifications
+      this->publishChange(this->getId());
   }
 
+  // TODO: Optimization opportunity if state is known to be constant
   void LookupOnChange::handleDeactivate()
   {
     Lookup::handleDeactivate();
     m_tolerance->deactivate();
-    if (m_thresholds)
-      m_thresholds->reset();
+    delete m_thresholds;
+    m_thresholds = NULL;
+    delete m_cachedValue;
+    m_cachedValue = NULL;
   }
 
   // Consider possibility that tolerance has changed.
   // Consider possibility lookup may not be fully activated yet.
   void LookupOnChange::handleChange(ExpressionId src)
   {
-    if (Lookup::handleChangeInternal(src)) {
-      // State changed
-      if (m_thresholds)
-        m_thresholds->reset();
+    bool stateChanged = Lookup::handleChangeInternal(src);
+    if (stateChanged && m_thresholds) {
+      // State changed, thresholds & value cache are now invalid
+      delete m_thresholds;
+      m_thresholds = NULL;
+      delete m_cachedValue;
+      m_cachedValue = NULL;
     }
-    if (m_thresholds) {
-      if (m_thresholds->thresholdChanged(m_tolerance)) {
-        // Tolerance changed, resubscribe if necessary and check thresholds 
-        if (m_tolerance->isKnown())
-          this->m_entry->registerChangeLookup(static_cast<Lookup *>(this), 
-                                              m_tolerance);
-        // THIS IS MISLEADING - value of lookup may not have changed
-        if (m_thresholds->thresholdsExceeded(this->m_entry)) {
-          updateInternal();
-          this->publishChange(src);
-        }
-      }
-    }
-    else if (m_tolerance->isKnown()
-             && this->m_stateKnown
-             && this->m_entry->isKnown()) {
-      // Tolerance became known, and we have a value for state,
-      // so set thresholds
-      m_thresholds = ThresholdCacheFactory(this->m_entry->valueType());
-      m_thresholds->setThresholds(this->m_entry, m_tolerance);
-      this->m_entry->registerChangeLookup(static_cast<Lookup *>(this), 
-                                          m_tolerance);
-    }
+    if (updateInternal(false) || stateChanged)
+      this->publishChange(src);
   }
 
+  // May be called before lookup fully activated
   void LookupOnChange::valueChanged()
   {
-    bool publish = true; // publish by default
-    if (m_thresholds) {
-      publish = m_thresholds->thresholdsExceeded(this->m_entry);
-      if (publish)
-        updateInternal();
-    }
-    if (publish)
+    if (!this->isActive()) 
+      return;
+    if (updateInternal(true))
       this->publishChange(this->getId());
   }
 
-  void LookupOnChange::updateInternal()
+  // Call if something has changed - could be state, tolerance, or value
+  // Returns true if event should trigger notification, false otherwise.
+  bool LookupOnChange::updateInternal(bool valueChanged)
   {
-    if (!this->m_entry) {
-      // *** TEMP DEBUG ***
-      warn("LookupOnChange::updateInternal: no state cache entry");
-      return;
-    }
-    CachedValue const *val = this->m_entry->cachedValue();
-    if (val) {
-      if (m_cachedValue) {
-        if (*m_cachedValue == *val)
-          return; // value unchanged
-        if (m_cachedValue->valueType() == val->valueType())
-          *m_cachedValue = *val;
-        else {
-          // Type changed (possibly from UNKNOWN_TYPE)
-
-          // *** TEMP DEBUG ***
-          warn("Lookup value type changed from " << valueTypeName(m_cachedValue->valueType())
-               << " to " << valueTypeName(val->valueType()));
-
-          delete m_cachedValue;
-          m_cachedValue = val->clone();
-        }
+    if (this->m_entry && this->m_entry->isKnown() && m_tolerance->isKnown()) {
+      CachedValue const *val = this->m_entry->cachedValue();
+      // If no threshold, establish one and cache current value
+      if (!m_thresholds) {
+        m_thresholds = ThresholdCacheFactory(this->m_entry->valueType());
+        m_cachedValue = this->m_entry->cachedValue()->clone();
+        m_thresholds->setThresholds(val, m_tolerance);
+        return true;
       }
-      else
-        m_cachedValue = val->clone();
+      else {
+        // Have previous value and thresholds
+        // Have the thresholds changed?
+        if (m_thresholds->toleranceChanged(m_tolerance)) {
+          m_thresholds->setThresholds(m_cachedValue, m_tolerance);
+        }
+        // Has the (possibly updated) threshold been exceeded?
+        if (m_thresholds->thresholdsExceeded(val)) {
+          // TODO? Check that value hasn't changed type
+          *m_cachedValue = *val;
+          m_thresholds->setThresholds(val, m_tolerance);
+          m_entry->setThresholds(m_tolerance);
+          return true;
+        }
+        else
+          return false; // value or threshold updated, but value within tolerances
+      }
     }
-    // Value changed, set thresholds
-    m_thresholds->setThresholds(this->m_entry, m_tolerance);
-    if (m_tolerance->isKnown())
-      this->m_entry->registerChangeLookup(static_cast<Lookup *>(this), 
-                                          m_tolerance);
+
+    // State, value, or tolerance unknown; delete cache and threshold
+    if (m_thresholds) {
+      delete m_thresholds;
+      m_thresholds = NULL;
+      delete m_cachedValue;
+      m_cachedValue = NULL;
+      return true; // was known, is no longer
+    }
+    return valueChanged;
   }
 
   bool LookupOnChange::getValue(int32_t &result) const

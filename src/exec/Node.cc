@@ -1652,7 +1652,7 @@ namespace PLEXIL {
     }
   }
 
-  NodeId const &Node::findNodeRef(PlexilNodeRefId const &nodeRef) const
+  NodeId Node::findNodeRef(PlexilNodeRefId const &nodeRef) const
   {
     if (nodeRef.isNoId())
       return NodeId::noId();

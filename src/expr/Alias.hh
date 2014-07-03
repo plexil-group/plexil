@@ -59,7 +59,7 @@ namespace PLEXIL
     bool isKnown() const;
     bool isAssignable() const;
     bool isConstant() const;
-    ExpressionId const & getBaseExpression() const;
+    ExpressionId getBaseExpression() const;
 
     void printValue(std::ostream &s) const;
 

@@ -45,7 +45,7 @@ public:
   ExpressionId const &findVariable(const PlexilVarRef* /* ref */);
   ExpressionId const &findVariable(const std::string & /* name */,
                                    bool /* recursive */ = false);
-  NodeId const &findNodeRef(PlexilNodeRefId const & /* nodeRef */) const;
+  NodeId findNodeRef(PlexilNodeRefId const & /* nodeRef */) const;
   ExecListenerHubId const &getExecListenerHub() const;
 };
 

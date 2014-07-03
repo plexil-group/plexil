@@ -59,11 +59,11 @@ namespace PLEXIL
     bool isKnown() const;
 
     // API to Lookup
-    // Can be called multiple times
-    void registerChangeLookup(Lookup *, ExpressionId tolerance);
-
     void registerLookup(Lookup *); // calls updateIfStale()
     virtual void unregisterLookup(Lookup *);
+
+    // Can be called multiple times
+    void setThresholds(ExpressionId tolerance);
 
     // Read access to the actual value is through the helper object.
     CachedValue const *cachedValue() const;

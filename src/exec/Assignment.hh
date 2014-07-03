@@ -45,8 +45,8 @@ namespace PLEXIL
     ~Assignment();
     const AssignmentId& getId() const {return m_id;}
     ExpressionId getDest() const {return m_dest->getId();}
-    const ExpressionId& getAck() const {return m_ack.getId();}
-    const ExpressionId& getAbortComplete() const {return m_abortComplete.getId();}
+    ExpressionId getAck() const {return m_ack.getId();}
+    ExpressionId getAbortComplete() const {return m_abortComplete.getId();}
 
     void activate();
     void deactivate();

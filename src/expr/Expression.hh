@@ -72,9 +72,9 @@ namespace PLEXIL
   public:
     virtual ~Expression();
 
-    inline const ExpressionId &getId() const
+    inline ExpressionId getId() const
     {
-      return static_cast<const ExpressionId &>(m_id);
+      return (ExpressionId) m_id;
     }
 
     //
@@ -133,7 +133,7 @@ namespace PLEXIL
      * @brief Get the real expression for which this may be an alias or reference.
      * @return ExpressionId of the base expression.
      */
-    virtual ExpressionId const & getBaseExpression() const;
+    virtual ExpressionId getBaseExpression() const;
 
 	/**
 	 * @brief Print the object to the given stream.
