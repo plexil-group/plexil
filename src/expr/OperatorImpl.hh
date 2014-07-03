@@ -43,12 +43,12 @@ namespace PLEXIL
     OperatorShim(std::string const &name) : Operator(name) {}
     virtual ~OperatorShim() {}
 
-    bool operator()(bool &result, ExpressionId arg) const
+    bool operator()(bool &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(bool &result, ExpressionId arg0, ExpressionId arg1) const
+    bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
@@ -58,12 +58,12 @@ namespace PLEXIL
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(int32_t &result, ExpressionId arg) const
+    bool operator()(int32_t &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(int32_t &result, ExpressionId arg0, ExpressionId arg1) const
+    bool operator()(int32_t &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
@@ -73,12 +73,12 @@ namespace PLEXIL
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(double &result, ExpressionId arg) const
+    bool operator()(double &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(double &result, ExpressionId arg0, ExpressionId arg1) const
+    bool operator()(double &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
@@ -88,12 +88,12 @@ namespace PLEXIL
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(std::string &result, ExpressionId arg) const
+    bool operator()(std::string &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(std::string &result, ExpressionId arg0, ExpressionId arg1) const
+    bool operator()(std::string &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
@@ -103,12 +103,12 @@ namespace PLEXIL
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(Array &result, ExpressionId arg) const
+    bool operator()(Array &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(Array &result, ExpressionId arg0, ExpressionId arg1) const
+    bool operator()(Array &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
@@ -118,12 +118,12 @@ namespace PLEXIL
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(BooleanArray &result, ExpressionId arg) const
+    bool operator()(BooleanArray &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(BooleanArray &result, ExpressionId arg0, ExpressionId arg1) const
+    bool operator()(BooleanArray &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
@@ -133,12 +133,12 @@ namespace PLEXIL
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(IntegerArray &result, ExpressionId arg) const
+    bool operator()(IntegerArray &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(IntegerArray &result, ExpressionId arg0, ExpressionId arg1) const
+    bool operator()(IntegerArray &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
@@ -148,12 +148,12 @@ namespace PLEXIL
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(RealArray &result, ExpressionId arg) const
+    bool operator()(RealArray &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(RealArray &result, ExpressionId arg0, ExpressionId arg1) const
+    bool operator()(RealArray &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
@@ -163,12 +163,12 @@ namespace PLEXIL
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(StringArray &result, ExpressionId arg) const
+    bool operator()(StringArray &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(StringArray &result, ExpressionId arg0, ExpressionId arg1) const
+    bool operator()(StringArray &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
@@ -198,20 +198,20 @@ namespace PLEXIL
 
     // Delegated to derived classes
     // Default methods issue "wrong argument count" error
-    virtual bool calc(R &result, ExpressionId arg) const;
-    virtual bool calc(R &result, ExpressionId arg0, ExpressionId arg1) const;
+    virtual bool calc(R &result, Expression const *arg) const;
+    virtual bool calc(R &result, Expression const *arg0, Expression const *arg1) const;
     virtual bool calc(R &result, ExprVec const &args) const;
 
     // Conversion or type error
     template <typename U>
-    bool calc(U & /* result */, ExpressionId /* arg */) const
+    bool calc(U & /* result */, Expression const */* arg */) const
     {
       assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
       return false;
     }
 
     template <typename U>
-    bool calc(U & /* result */, ExpressionId /* arg0 */, ExpressionId /* arg1 */) const
+    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
     {
       assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
       return false;
@@ -246,11 +246,11 @@ namespace PLEXIL
     virtual ~OperatorImpl() {}
 
     // Delegated to derived classes
-    virtual bool calc(ArrayImpl<R> &result, ExpressionId arg) const = 0;
-    virtual bool calc(ArrayImpl<R> &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool calc(ArrayImpl<R> &result, Expression const *arg) const = 0;
+    virtual bool calc(ArrayImpl<R> &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool calc(ArrayImpl<R> &result, ExprVec const &args) const = 0;
-    virtual bool calc(Array &result, ExpressionId arg) const = 0;
-    virtual bool calc(Array &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool calc(Array &result, Expression const *arg) const = 0;
+    virtual bool calc(Array &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool calc(Array &result, ExprVec const &args) const = 0;
 
     // Default methods, based on R
@@ -260,14 +260,14 @@ namespace PLEXIL
 
     // Conversion or type error
     template <typename U>
-    bool calc(U & /* result */, ExpressionId /* arg */) const
+    bool calc(U & /* result */, Expression const */* arg */) const
     {
       assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
       return false;
     }
 
     template <typename U>
-    bool calc(U & /* result */, ExpressionId /* arg0 */, ExpressionId /* arg1 */) const
+    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
     {
       assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
       return false;

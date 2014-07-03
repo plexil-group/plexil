@@ -76,9 +76,9 @@ namespace PLEXIL
   {
   }
 
-  ExpressionId ArithmeticFunctionFactory::allocate(const PlexilExprId& expr,
-                                                   const NodeConnectorId& node,
-                                                   bool & wasCreated) const
+  Expression *ArithmeticFunctionFactory::allocate(const PlexilExprId& expr,
+                                                  const NodeConnectorId& node,
+                                                  bool & wasCreated) const
   {
     PlexilOp const *op = dynamic_cast<PlexilOp const *>((PlexilExpr const *) expr);
     checkParserException(op, "createExpression: Not a PlexilOp");
@@ -97,7 +97,7 @@ namespace PLEXIL
                          << oper->getName());
 
     wasCreated = true;
-    return (new Function(oper, exprVec))->getId();
+    return new Function(oper, exprVec);
   }
 
 } // namespace PLEXIL

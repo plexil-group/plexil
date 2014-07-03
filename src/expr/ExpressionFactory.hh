@@ -28,6 +28,7 @@
 #define EXPRESSION_FACTORY_HH
 
 #include "Expression.hh"
+#include "Id.hh"
 
 namespace PLEXIL
 {
@@ -51,7 +52,7 @@ namespace PLEXIL
     ExpressionFactory(const std::string& name);
     virtual ~ExpressionFactory();
 
-    virtual ExpressionId allocate(const PlexilExprId& expr,
+    virtual Expression *allocate(const PlexilExprId& expr,
                                   const NodeConnectorId& node,
                                   bool & wasCreated) const = 0;
 
@@ -71,28 +72,28 @@ namespace PLEXIL
    *        given expression prototype.
    * @param expr The PlexilExprId to be passed to the Expression constructor.
    * @param node Node for name lookup.
-   * @return The Id for the new Expression. May not be unique.
+   * @return Pointer to the new Expression. May not be unique.
    * @note Convenience wrapper.
    */
 
   // Used in AssignmentNode, CommandNode
   // *** FIXME: Rename to createAssignable ***
-  extern ExpressionId createExpression(const PlexilExprId& expr,
-                                       const NodeConnectorId& node = NodeConnectorId::noId());
+  extern Expression *createExpression(const PlexilExprId& expr,
+                                      const NodeConnectorId& node = NodeConnectorId::noId());
 
   /**
    * @brief Creates a new Expression instance with the type associated with the
    *        given expression prototype.
    * @param expr The PlexilExprId to be passed to the Expression constructor.
    * @param node Node for name lookup.
-   * @return The Id for the new Expression. May not be unique.
+   * @return Pointer to the new Expression. May not be unique.
    * @param wasCreated Reference to a boolean variable;
    *                   variable will be set to true if new object created, false otherwise.
    */
   // Used in AssignmentNode, CommandNode, LibraryCallNode, Node::createConditions
-  extern ExpressionId createExpression(const PlexilExprId& expr,
-                                       const NodeConnectorId& node,
-                                       bool& wasCreated);
+  extern Expression *createExpression(const PlexilExprId& expr,
+                                      const NodeConnectorId& node,
+                                      bool& wasCreated);
 
   // Used in AssignmentNode, CommandNode
   extern Assignable *createAssignable(const PlexilExprId& expr,

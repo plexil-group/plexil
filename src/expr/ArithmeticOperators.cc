@@ -59,14 +59,14 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool Addition<NUM>::calc(NUM &result, ExpressionId arg) const
+  bool Addition<NUM>::calc(NUM &result, Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
   // TODO: overflow checks
   template <typename NUM>
-  bool Addition<NUM>::calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const
+  bool Addition<NUM>::calc(NUM &result, Expression const *arg0, Expression const *arg1) const
   {
     NUM temp0, temp1;
     if (!(arg0->getValue(temp0) && arg1->getValue(temp1)))
@@ -117,7 +117,7 @@ namespace PLEXIL
   // - If we extend to unsigned numeric types, add an error message for these methods 
 
   template <typename NUM>
-  bool Subtraction<NUM>::calc(NUM &result, ExpressionId arg) const
+  bool Subtraction<NUM>::calc(NUM &result, Expression const *arg) const
   {
     NUM temp;
     if (!arg->getValue(temp))
@@ -127,7 +127,7 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool Subtraction<NUM>::calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const
+  bool Subtraction<NUM>::calc(NUM &result, Expression const *arg0, Expression const *arg1) const
   {
     NUM temp0, temp1;
     if (!(arg0->getValue(temp0) && arg1->getValue(temp1)))
@@ -182,14 +182,14 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool Multiplication<NUM>::calc(NUM &result, ExpressionId arg) const
+  bool Multiplication<NUM>::calc(NUM &result, Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
   // TODO: overflow checks
   template <typename NUM>
-  bool Multiplication<NUM>::calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const
+  bool Multiplication<NUM>::calc(NUM &result, Expression const *arg0, Expression const *arg1) const
   {
     NUM temp0, temp1;
     if (!(arg0->getValue(temp0) && arg1->getValue(temp1)))
@@ -238,7 +238,7 @@ namespace PLEXIL
 
   // TODO: warn on zero divisor?
   template <typename NUM>
-  bool Division<NUM>::calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const
+  bool Division<NUM>::calc(NUM &result, Expression const *arg0, Expression const *arg1) const
   {
     NUM temp0, temp1;
     if (!(arg0->getValue(temp0) && arg1->getValue(temp1))
@@ -271,7 +271,7 @@ namespace PLEXIL
 
   // Integer implementation
   template <>
-  bool Modulo<int32_t>::calc(int32_t &result, ExpressionId arg0, ExpressionId arg1) const
+  bool Modulo<int32_t>::calc(int32_t &result, Expression const *arg0, Expression const *arg1) const
   {
     int32_t temp0, temp1;
     if (!(arg0->getValue(temp0) && arg1->getValue(temp1))
@@ -283,7 +283,7 @@ namespace PLEXIL
 
   // Real implementation
   template <>
-  bool Modulo<double>::calc(double &result, ExpressionId arg0, ExpressionId arg1) const
+  bool Modulo<double>::calc(double &result, Expression const *arg0, Expression const *arg1) const
   {
     double temp0, temp1;
     if (!(arg0->getValue(temp0) && arg1->getValue(temp1))
@@ -315,13 +315,13 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool Minimum<NUM>::calc(NUM &result, ExpressionId arg) const
+  bool Minimum<NUM>::calc(NUM &result, Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
   template <typename NUM>
-  bool Minimum<NUM>::calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const
+  bool Minimum<NUM>::calc(NUM &result, Expression const *arg0, Expression const *arg1) const
   {
     NUM temp0, temp1;
     if (!(arg0->getValue(temp0) && arg1->getValue(temp1)))
@@ -370,13 +370,13 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool Maximum<NUM>::calc(NUM &result, ExpressionId arg) const
+  bool Maximum<NUM>::calc(NUM &result, Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
   template <typename NUM>
-  bool Maximum<NUM>::calc(NUM &result, ExpressionId arg0, ExpressionId arg1) const
+  bool Maximum<NUM>::calc(NUM &result, Expression const *arg0, Expression const *arg1) const
   {
     NUM temp0, temp1;
     if (!(arg0->getValue(temp0) && arg1->getValue(temp1)))
@@ -428,7 +428,7 @@ namespace PLEXIL
 
   template <typename NUM>
   bool AbsoluteValue<NUM>::calc(NUM &result,
-                                ExpressionId arg) const
+                                Expression const *arg) const
   {
     NUM temp;
     if (!arg->getValue(temp))
@@ -460,7 +460,7 @@ namespace PLEXIL
 
   template <>
   bool SquareRoot<double>::calc(double &result,
-                                ExpressionId arg) const
+                                Expression const *arg) const
   {
     double temp;
     if (!arg->getValue(temp)
@@ -512,7 +512,7 @@ namespace PLEXIL
 
   template <>
   bool Ceiling<double>::calc(double &result,
-                             ExpressionId arg) const
+                             Expression const *arg) const
   {
     double temp;
     if (!arg->getValue(temp))
@@ -523,7 +523,7 @@ namespace PLEXIL
 
   template <>
   bool Ceiling<int32_t>::calc(int32_t &result,
-                              ExpressionId arg) const
+                              Expression const *arg) const
   {
     double temp;
     if (!arg->getValue(temp))
@@ -550,7 +550,7 @@ namespace PLEXIL
 
   template <>
   bool Floor<double>::calc(double &result,
-                           ExpressionId arg) const
+                           Expression const *arg) const
   {
     double temp;
     if (!arg->getValue(temp))
@@ -561,7 +561,7 @@ namespace PLEXIL
 
   template <>
   bool Floor<int32_t>::calc(int32_t &result,
-                            ExpressionId arg) const
+                            Expression const *arg) const
   {
     double temp;
     if (!arg->getValue(temp))
@@ -588,7 +588,7 @@ namespace PLEXIL
 
   template <>
   bool Round<double>::calc(double &result,
-                           ExpressionId arg) const
+                           Expression const *arg) const
   {
     double temp;
     if (!arg->getValue(temp))
@@ -599,7 +599,7 @@ namespace PLEXIL
 
   template <>
   bool Round<int32_t>::calc(int32_t &result,
-                            ExpressionId arg) const
+                            Expression const *arg) const
   {
     double temp;
     if (!arg->getValue(temp))
@@ -626,7 +626,7 @@ namespace PLEXIL
 
   template <>
   bool Truncate<double>::calc(double &result,
-                              ExpressionId arg) const
+                              Expression const *arg) const
   {
     double temp;
     if (!arg->getValue(temp))
@@ -637,7 +637,7 @@ namespace PLEXIL
 
   template <>
   bool Truncate<int32_t>::calc(int32_t &result,
-                               ExpressionId arg) const
+                               Expression const *arg) const
   {
     double temp;
     if (!arg->getValue(temp))
@@ -664,7 +664,7 @@ namespace PLEXIL
   }
 
   bool RealToInteger::calc(int32_t & result,
-                           ExpressionId arg) const
+                           Expression const *arg) const
   {
     double temp;
     if (!arg->getValue(temp))

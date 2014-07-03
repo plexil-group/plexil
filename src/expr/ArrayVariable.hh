@@ -64,8 +64,8 @@ namespace PLEXIL
      */
     ArrayVariable(const NodeConnectorId &node,
                   const std::string &name = "",
-                  const ExpressionId &size = ExpressionId::noId(),
-                  const ExpressionId &initializer = ExpressionId::noId(),
+                  Expression *size = NULL,
+                  Expression *initializer = NULL,
                   bool sizeIsGarbage = false,
                   bool initializerIsGarbage = false);
 
@@ -133,8 +133,8 @@ namespace PLEXIL
      */
     void reserve();
 
-    ExpressionId m_size;
-    ExpressionId m_initializer;
+    Expression *m_size;
+    Expression *m_initializer;
     
     // Only used by LuvListener at present. Eliminate?
     NodeConnectorId m_node;

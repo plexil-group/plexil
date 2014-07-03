@@ -35,15 +35,15 @@ TrivialNodeConnector::~TrivialNodeConnector()
 {
 }
 
-ExpressionId const &TrivialNodeConnector::findVariable(const PlexilVarRef* /* ref */)
+Expression *TrivialNodeConnector::findVariable(const PlexilVarRef* /* ref */)
 {
-  return ExpressionId::noId();
+  return NULL;
 }
 
-ExpressionId const &TrivialNodeConnector::findVariable(const std::string & /* name */,
-                                                       bool /* recursive */)
+Expression *TrivialNodeConnector::findVariable(const std::string & /* name */,
+                                               bool /* recursive */)
 {
-  return ExpressionId::noId();
+  return NULL;
 }
 
 NodeId TrivialNodeConnector::findNodeRef(PlexilNodeRefId const & /* nodeRef */) const

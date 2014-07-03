@@ -28,7 +28,6 @@
 #define PLEXIL_OPERATOR_HH
 
 #include "ArrayFwd.hh"
-#include "Id.hh"
 #include "ValueType.hh"
 
 #include <string>
@@ -37,10 +36,7 @@ namespace PLEXIL
 {
   // Forward references
   class Expression;
-  DECLARE_ID(Expression);
-
   class ExprVec;
-
   class Value;
 
   // TODO:
@@ -68,40 +64,40 @@ namespace PLEXIL
     virtual void *allocateCache() const = 0;
     virtual void deleteCache(void *Ptr) const = 0;
 
-    virtual bool operator()(bool &result, ExpressionId arg) const = 0;
-    virtual bool operator()(bool &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool operator()(bool &result, Expression const *arg) const = 0;
+    virtual bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool operator()(bool &result, ExprVec const &args) const = 0;
 
-    virtual bool operator()(int32_t &result, ExpressionId arg) const = 0;
-    virtual bool operator()(int32_t &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool operator()(int32_t &result, Expression const *arg) const = 0;
+    virtual bool operator()(int32_t &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool operator()(int32_t &result, ExprVec const &args) const = 0;
 
-    virtual bool operator()(double &result, ExpressionId arg) const = 0;
-    virtual bool operator()(double &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool operator()(double &result, Expression const *arg) const = 0;
+    virtual bool operator()(double &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool operator()(double &result, ExprVec const &args) const = 0;
 
-    virtual bool operator()(std::string &result, ExpressionId arg) const = 0;
-    virtual bool operator()(std::string &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool operator()(std::string &result, Expression const *arg) const = 0;
+    virtual bool operator()(std::string &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool operator()(std::string &result, ExprVec const &args) const = 0;
 
-    virtual bool operator()(Array &result, ExpressionId arg) const = 0;
-    virtual bool operator()(Array &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool operator()(Array &result, Expression const *arg) const = 0;
+    virtual bool operator()(Array &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool operator()(Array &result, ExprVec const &args) const = 0;
 
-    virtual bool operator()(BooleanArray &result, ExpressionId arg) const = 0;
-    virtual bool operator()(BooleanArray &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool operator()(BooleanArray &result, Expression const *arg) const = 0;
+    virtual bool operator()(BooleanArray &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool operator()(BooleanArray &result, ExprVec const &args) const = 0;
 
-    virtual bool operator()(IntegerArray &result, ExpressionId arg) const = 0;
-    virtual bool operator()(IntegerArray &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool operator()(IntegerArray &result, Expression const *arg) const = 0;
+    virtual bool operator()(IntegerArray &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool operator()(IntegerArray &result, ExprVec const &args) const = 0;
 
-    virtual bool operator()(RealArray &result, ExpressionId arg) const = 0;
-    virtual bool operator()(RealArray &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool operator()(RealArray &result, Expression const *arg) const = 0;
+    virtual bool operator()(RealArray &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool operator()(RealArray &result, ExprVec const &args) const = 0;
 
-    virtual bool operator()(StringArray &result, ExpressionId arg) const = 0;
-    virtual bool operator()(StringArray &result, ExpressionId arg0, ExpressionId arg1) const = 0;
+    virtual bool operator()(StringArray &result, Expression const *arg) const = 0;
+    virtual bool operator()(StringArray &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool operator()(StringArray &result, ExprVec const &args) const = 0;
 
     virtual bool calcNative(void *cache, ExprVec const &exprs) const = 0;

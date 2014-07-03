@@ -35,14 +35,12 @@
 namespace PLEXIL {
 
   Expression::Expression()
-    : ExpressionListener(),
-      m_id(this)
+    : ExpressionListener()
   {
   }
 
   Expression::~Expression()
   {
-    m_id.remove();
   }
 
   // Default method.
@@ -76,14 +74,19 @@ namespace PLEXIL {
   }
 
   // Default method.
-  ExpressionId Expression::getBaseExpression() const
+  Expression *Expression::getBaseExpression()
   {
-    return m_id;
+    return this;
+  }
+
+  Expression const *Expression::getBaseExpression() const
+  {
+    return this;
   }
 
   void Expression::print(std::ostream& s) const
   {
-    s << '(' << this->exprName() << ' ' << getId()
+    s << '(' << this->exprName() << ' ' << this
 	  << '[' << (this->isActive() ? 'a' : 'i')
 	  << "](";
 	this->printValue(s);
@@ -112,7 +115,7 @@ namespace PLEXIL {
   }
 
   // Default method, does nothing.
-  void Expression::notifyChanged(ExpressionId /* src */)
+  void Expression::notifyChanged(Expression const * /* src */)
   {
   }
 

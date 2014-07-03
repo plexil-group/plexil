@@ -27,18 +27,13 @@
 #ifndef PLEXIL_EXPRESSION_CONSTANTS_HH
 #define PLEXIL_EXPRESSION_CONSTANTS_HH
 
-#include "Constant.hh"
-#include "ConstantMacros.hh"
-
 namespace PLEXIL
 {
-  DECLARE_GLOBAL_CONST(BooleanConstant, FALSE_CONSTANT);
-  DECLARE_GLOBAL_CONST(BooleanConstant, TRUE_CONSTANT);
-  DECLARE_GLOBAL_CONST(BooleanConstant, UNKNOWN_BOOLEAN_CONSTANT);
+  class Expression;
 
-  extern ExpressionId const &FALSE_EXP();
-  extern ExpressionId const &TRUE_EXP();
-  extern ExpressionId const &UNKNOWN_BOOLEAN_EXP();
+  extern Expression *FALSE_EXP();
+  extern Expression *TRUE_EXP();
+  extern Expression *UNKNOWN_BOOLEAN_EXP();
 
   // more as required
 } // namespace PLEXIL

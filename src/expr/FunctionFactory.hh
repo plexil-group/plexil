@@ -42,9 +42,9 @@ namespace PLEXIL
     FunctionFactory(std::string const &name);
     virtual ~FunctionFactory();
 
-    ExpressionId allocate(const PlexilExprId& expr,
-                          const NodeConnectorId& node,
-                          bool &wasCreated) const;
+    Expression *allocate(const PlexilExprId& expr,
+                         const NodeConnectorId& node,
+                         bool &wasCreated) const;
 
   protected:
 

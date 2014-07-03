@@ -45,9 +45,9 @@ namespace PLEXIL
     ArithmeticFunctionFactory(std::string const &name);
     ~ArithmeticFunctionFactory();
 
-    ExpressionId allocate(const PlexilExprId& expr,
-                          const NodeConnectorId& node,
-                          bool & wasCreated) const;
+    Expression *allocate(const PlexilExprId& expr,
+                         const NodeConnectorId& node,
+                         bool & wasCreated) const;
 
   protected:
     // Override base class virtual method

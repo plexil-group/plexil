@@ -30,8 +30,8 @@
 
 namespace PLEXIL
 {
-  ArrayReference::ArrayReference(const ExpressionId &ary,
-                                 const ExpressionId &idx,
+  ArrayReference::ArrayReference(Expression *ary,
+                                 Expression *idx,
                                  bool aryIsGarbage,
                                  bool idxIsGarbage)
     : NotifierImpl(),
@@ -40,7 +40,7 @@ namespace PLEXIL
       m_arrayIsGarbage(aryIsGarbage),
       m_indexIsGarbage(idxIsGarbage)
   {
-    assertTrue_2(ary.isId() && idx.isId(),
+    assertTrue_2(ary && idx,
                  "ArrayReference constructor: Null subexpression");
     // TODO:
     // Check type of array, index
@@ -53,14 +53,14 @@ namespace PLEXIL
     m_array->removeListener(this);
     m_index->removeListener(this);
     if (m_arrayIsGarbage)
-      delete (Expression *) m_array;
+      delete m_array;
     if (m_indexIsGarbage)
-      delete (Expression *) m_index;
+      delete m_index;
   }
 
   const std::string &ArrayReference::getName() const
   {
-    ExpressionId base = getBaseExpression();
+    Expression const *base = getBaseExpression();
     if (base) {
       // TODO: add array subscript 
       return base->getName();
@@ -100,7 +100,12 @@ namespace PLEXIL
     return false;
   }
 
-  ExpressionId ArrayReference::getBaseExpression() const
+  Expression const *ArrayReference::getBaseExpression() const
+  {
+    return m_array->getBaseExpression();
+  }
+
+  Expression *ArrayReference::getBaseExpression()
   {
     return m_array->getBaseExpression();
   }
@@ -211,8 +216,8 @@ namespace PLEXIL
   // MutableArrayReference
   //
 
-  MutableArrayReference::MutableArrayReference(const ExpressionId &ary,
-                                               const ExpressionId &idx,
+  MutableArrayReference::MutableArrayReference(Expression *ary,
+                                               Expression *idx,
                                                bool aryIsGarbage,
                                                bool idxIsGarbage)
     : ArrayReference(ary, idx, aryIsGarbage, idxIsGarbage),
@@ -278,8 +283,8 @@ namespace PLEXIL
     bool changed = (!known || (value != oldValue));
     if (changed) {
       ary->setElement(idx, value);
-      NotifierImpl::publishChange(this->getId());
-      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
+      NotifierImpl::publishChange(this);
+      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
     }
   }
 
@@ -319,8 +324,8 @@ namespace PLEXIL
       return;
     }
     if (changed) {
-      NotifierImpl::publishChange(this->getId());
-      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
+      NotifierImpl::publishChange(this);
+      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
     }
   }
 
@@ -335,8 +340,8 @@ namespace PLEXIL
     bool changed = (!known || (value != oldValue));
     if (changed) {
       ary->setElement(idx, value); // error here if wrong type
-      NotifierImpl::publishChange(this->getId());
-      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
+      NotifierImpl::publishChange(this);
+      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
     }
   }
 
@@ -351,8 +356,8 @@ namespace PLEXIL
     bool changed = (!known || (value != *oldValue));
     if (changed) {
       ary->setElement(idx, value);
-      NotifierImpl::publishChange(this->getId());
-      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
+      NotifierImpl::publishChange(this);
+      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
     }
   }
 
@@ -362,7 +367,7 @@ namespace PLEXIL
   }
 
   // TODO: optimize
-  void MutableArrayReference::setValue(ExpressionId const &valex)
+  void MutableArrayReference::setValue(Expression const *valex)
   {
     setValue(valex->toValue());
   }
@@ -376,8 +381,8 @@ namespace PLEXIL
     Value oldValue = ary->getElementValue(idx);
     if (value != oldValue) {
       ary->setElementValue(idx, value);
-      NotifierImpl::publishChange(this->getId());
-      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
+      NotifierImpl::publishChange(this);
+      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
     }
   }
 
@@ -410,8 +415,8 @@ namespace PLEXIL
     bool changed = ary->elementKnown(idx);
     ary->setElementUnknown(idx);
     if (changed) {
-      NotifierImpl::publishChange(this->getId());
-      m_mutableArray->getBaseVariable()->notifyChanged(this->getId()); // array might be alias
+      NotifierImpl::publishChange(this);
+      m_mutableArray->getBaseVariable()->notifyChanged(this); // array might be alias
     }
   }
 
@@ -479,8 +484,8 @@ namespace PLEXIL
       return;
     if (m_savedValue != ary->getElementValue(idx)) {
       ary->setElementValue(idx, m_savedValue);
-      NotifierImpl::publishChange(this->getId());
-      m_mutableArray->notifyChanged(this->getId());
+      NotifierImpl::publishChange(this);
+      m_mutableArray->notifyChanged(this);
     }
     m_saved = false;
   }

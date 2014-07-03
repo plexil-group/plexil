@@ -47,7 +47,7 @@ namespace PLEXIL
 
   // N.B. For all but string types, the value string may not be empty.
   template <typename T>
-  ExpressionId ConcreteExpressionFactory<Constant<T> >::allocate(const PlexilExprId& expr,
+  Expression *ConcreteExpressionFactory<Constant<T> >::allocate(const PlexilExprId& expr,
                                                                  const NodeConnectorId& /* node */,
                                                                  bool &wasCreated) const
   {
@@ -60,7 +60,7 @@ namespace PLEXIL
 
   // Since there are exactly 3 possible Boolean constants, return references to them.
   template <>
-  ExpressionId ConcreteExpressionFactory<Constant<bool> >::allocate(const PlexilExprId& expr,
+  Expression *ConcreteExpressionFactory<Constant<bool> >::allocate(const PlexilExprId& expr,
                                                                     const NodeConnectorId& /* node */,
                                                                     bool &wasCreated) const
   {
@@ -78,23 +78,23 @@ namespace PLEXIL
   }
   
   template <typename T>
-  ExpressionId ConcreteExpressionFactory<Constant<T> >::create(PlexilValue const *tmpl) const
+  Expression *ConcreteExpressionFactory<Constant<T> >::create(PlexilValue const *tmpl) const
   {
     T value;
     bool known = parseValue(tmpl->value(), value);
     if (known)
-      return (new Constant<T>(value))->getId();
+      return new Constant<T>(value);
     else
-      return (new Constant<T>())->getId();
+      return new Constant<T>();
   }
   
   // String is different
 
   template <>
-  ExpressionId ConcreteExpressionFactory<Constant<std::string> >::create(PlexilValue const *tmpl) const
+  Expression *ConcreteExpressionFactory<Constant<std::string> >::create(PlexilValue const *tmpl) const
   {
     checkParserException(tmpl->type() == STRING_TYPE, "createExpression: Expression is not a PlexilValue");
-    return (new Constant<std::string>(tmpl->value()))->getId();
+    return new Constant<std::string>(tmpl->value());
   }
 
   //
@@ -102,7 +102,7 @@ namespace PLEXIL
   //
 
   template <typename T>
-  ExpressionId ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::create(PlexilArrayValue const *val) const
+  Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::create(PlexilArrayValue const *val) const
   {
     unsigned arraySize = val->maxSize();
     std::vector<std::string> const &eltVals = val->values();
@@ -115,11 +115,11 @@ namespace PLEXIL
       else
         initVals.setElementUnknown(i);
     }
-    return (new Constant<ArrayImpl<T> >(initVals))->getId();
+    return new Constant<ArrayImpl<T> >(initVals);
   }
 
   template <typename T>
-  ExpressionId ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::allocate(const PlexilExprId& expr,
+  Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::allocate(const PlexilExprId& expr,
                                                                       const NodeConnectorId& /* node */,
                                                                       bool &wasCreated) const
   {
@@ -135,7 +135,7 @@ namespace PLEXIL
   //
 
   template <typename T>
-  ExpressionId 
+  Expression *
   ConcreteExpressionFactory<UserVariable<T> >::allocate(const PlexilExprId& expr,
                                                         const NodeConnectorId& node,
                                                         bool &wasCreated) const
@@ -145,8 +145,8 @@ namespace PLEXIL
       // Variable reference - look it up
       checkParserException(node.isId(),
                            "createExpression: Variable reference with null node"); // ??
-      ExpressionId result = node->findVariable(varRef);
-      checkParserException(result.isId(), "createExpression: Can't find variable named " << varRef->varName());
+      Expression *result = node->findVariable(varRef);
+      checkParserException(result, "createExpression: Can't find variable named " << varRef->varName());
       checkParserException(result->valueType() == varRef->type(),
                            "createExpression: Variable " << varRef->varName()
                            << " is type " << valueTypeName(result->valueType())
@@ -161,20 +161,20 @@ namespace PLEXIL
       return this->create(var, node);
     }
     checkParserException(false, "createExpression: Expression is neither a variable definition nor a variable reference");
-    return ExpressionId::noId();
+    return NULL;
   }
 
   template <typename T>
-  ExpressionId 
+  Expression *
   ConcreteExpressionFactory<UserVariable<T> >::create(PlexilVar const *var,
                                                       const NodeConnectorId& node) const
   {
     bool garbage = false;
-    ExpressionId initexp;
+    Expression *initexp = NULL;
     PlexilExprId initval = var->value(); 
     if (initval.isId())
       initexp = createExpression(initval, node, garbage);
-    return (new UserVariable<T>(node, var->varName(), initexp, garbage))->getId();
+    return new UserVariable<T>(node, var->varName(), initexp, garbage);
   }
 
   //
@@ -182,7 +182,7 @@ namespace PLEXIL
   //
 
   template <typename T>
-  ExpressionId ConcreteExpressionFactory<ArrayVariable<T> >::allocate(const PlexilExprId& expr,
+  Expression *ConcreteExpressionFactory<ArrayVariable<T> >::allocate(const PlexilExprId& expr,
                                                                       const NodeConnectorId& node,
                                                                       bool &wasCreated) const
   {
@@ -190,8 +190,8 @@ namespace PLEXIL
     if (varRef) {
       // Variable reference - look it up
       checkParserException(node.isId(), "createExpression: Internal error: Can't find array variable reference with null node"); // ??
-      ExpressionId result = node->findVariable(varRef);
-      checkParserException(result.isId(), "createExpression: Can't find array variable named " << varRef->varName());
+      Expression *result = node->findVariable(varRef);
+      checkParserException(result, "createExpression: Can't find array variable named " << varRef->varName());
       checkParserException(result->valueType() == varRef->type(),
                            "createExpression: Variable " << varRef->varName()
                            << " is type " << valueTypeName(result->valueType())
@@ -207,24 +207,24 @@ namespace PLEXIL
     }
     checkParserException(false,
                          "createExpression: Expression is neither a variable reference nor an array variable declaration");
-    return ExpressionId::noId();
+    return NULL;
   }
 
   template <typename T>
-  ExpressionId 
+  Expression *
   ConcreteExpressionFactory<ArrayVariable<T> >::create(PlexilArrayVar const *var,
                                                        const NodeConnectorId& node) const
   {
     bool garbage = false;
-    ExpressionId sizeexp = (new IntegerConstant(var->maxSize()))->getId();
-    ExpressionId initexp;
+    Expression *sizeexp = new IntegerConstant(var->maxSize());
+    Expression *initexp = NULL;
     PlexilExprId initval = var->value(); 
     if (initval.isId())
       initexp = createExpression(initval, node, garbage);
-    return (new ArrayVariable<T>(node, var->varName(), sizeexp, initexp, true, garbage))->getId();
+    return new ArrayVariable<T>(node, var->varName(), sizeexp, initexp, true, garbage);
   }
 
-  ExpressionId
+  Expression *
   ConcreteExpressionFactory<ArrayReference>::allocate(const PlexilExprId& expr,
                                                       const NodeConnectorId& node,
                                                       bool & wasCreated) const
@@ -234,17 +234,17 @@ namespace PLEXIL
     checkParserException(ary != NULL, "createExpression: Expression is not a PlexilArrayElement");
 
     bool garbageArray;
-    ExpressionId array = createExpression(ary->array(), node, garbageArray);
-    checkParserException(array.isId(), "createExpression: Array expression not found for array reference");
+    Expression *array = createExpression(ary->array(), node, garbageArray);
+    checkParserException(array, "createExpression: Array expression not found for array reference");
     checkParserException(isArrayType(array->valueType()),
                          "createExpression: Array expression in array reference is not an array");
     
     bool garbageIndex;
-    ExpressionId index = createExpression(ary->index(), node, garbageIndex);
-    checkParserException(index.isId(), "createExpression: Index expression not found for array reference");
+    Expression *index = createExpression(ary->index(), node, garbageIndex);
+    checkParserException(index, "createExpression: Index expression not found for array reference");
 
     wasCreated = true;
-    return (new ArrayReference(array, index, garbageArray, garbageIndex))->getId();
+    return new ArrayReference(array, index, garbageArray, garbageIndex);
   }
 
   // Explicit instantiations

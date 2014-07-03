@@ -101,7 +101,7 @@ namespace PLEXIL
     }
 
     // Wrappers
-    inline void setValue(ExpressionId const &valex)
+    inline void setValue(Expression const *valex)
     {
       static_cast<IMPL *>(this)->setValueImpl(valex);
     }
@@ -173,7 +173,7 @@ namespace PLEXIL
     }
 
     // Delegate to typed setValueImpl() methods.
-    void setValueImpl(ExpressionId const &valex);
+    void setValueImpl(Expression const *valex);
     void setValueImpl(Value const &val);
 
     virtual bool getMutableValuePointerImpl(T *& ptr) = 0;
@@ -193,7 +193,7 @@ namespace PLEXIL
 
   // Special case for string
   template <>
-  void AssignableImpl<std::string>::setValueImpl(ExpressionId const &valex);
+  void AssignableImpl<std::string>::setValueImpl(Expression const *valex);
 
   template <>
   void AssignableImpl<std::string>::setValueImpl(Value const &val);
@@ -220,7 +220,7 @@ namespace PLEXIL
     }
 
     // Delegate to typed setValueImpl() methods.
-    void setValueImpl(ExpressionId const &valex);
+    void setValueImpl(Expression const *valex);
     void setValueImpl(Value const &val);
 
     // To be defined by derived classes.

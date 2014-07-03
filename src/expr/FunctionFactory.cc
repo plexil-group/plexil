@@ -37,9 +37,9 @@ namespace PLEXIL
   {
   }
 
-  ExpressionId FunctionFactory::allocate(const PlexilExprId& expr,
-                                         const NodeConnectorId& node,
-                                         bool &wasCreated) const
+  Expression *FunctionFactory::allocate(const PlexilExprId& expr,
+                                        const NodeConnectorId& node,
+                                        bool &wasCreated) const
   {
     PlexilOp const *op = (PlexilOp const *) expr;
     checkParserException(op != NULL, "createExpression: Expression is not a PlexilOp");
@@ -52,7 +52,7 @@ namespace PLEXIL
                          << oper->getName());
 
     wasCreated = true;
-    return (new Function(oper, exprVec))->getId();
+    return new Function(oper, exprVec);
   }
 
   ExprVec *
@@ -62,7 +62,7 @@ namespace PLEXIL
     // Get the argument expressions
     size_t nargs = subexprs.size();
     std::vector<bool> garbage(nargs, false);
-    std::vector<ExpressionId> exprs(nargs);
+    std::vector<Expression *> exprs(nargs);
     for (size_t i = 0; i < nargs; ++i) {
       bool isGarbage;
       exprs[i] = createExpression(subexprs[i], node, isGarbage);

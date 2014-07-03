@@ -35,7 +35,7 @@ namespace PLEXIL
 
   Alias::Alias(const NodeConnectorId &node,
                const std::string &name,
-               const ExpressionId &original,
+               Expression *original,
                bool garbage)
     : NotifierImpl(),
       m_exp(original),
@@ -43,7 +43,7 @@ namespace PLEXIL
       m_name(name),
       m_garbage(garbage)
   {
-    assertTrue_2(original.isId(), "Alias constructor: Null original expression");
+    assertTrue_2(original, "Alias constructor: Null expression");
     m_exp->addListener(this);
   }
 
@@ -51,7 +51,7 @@ namespace PLEXIL
   {
     m_exp->removeListener(this);
     if (m_garbage)
-      delete (Expression *) m_exp;
+      delete m_exp;
   }
 
   const char *Alias::exprName() const
@@ -81,7 +81,12 @@ namespace PLEXIL
     return m_exp->isConstant();
   }
 
-  ExpressionId Alias::getBaseExpression() const
+  Expression *Alias::getBaseExpression()
+  {
+    return m_exp->getBaseExpression();
+  }
+
+  Expression const *Alias::getBaseExpression() const
   {
     return m_exp->getBaseExpression();
   }
@@ -191,7 +196,7 @@ namespace PLEXIL
 
   InOutAlias::InOutAlias(const NodeConnectorId &node,
                          const std::string &name,
-                         const ExpressionId &original,
+                         Expression *original,
                          bool garbage)
     : Alias(node, name, original, garbage),
       Assignable(),
@@ -286,7 +291,7 @@ namespace PLEXIL
     m_target->setValue(val);
   }
 
-  void InOutAlias::setValue(ExpressionId const &valex)
+  void InOutAlias::setValue(Expression const *valex)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
     m_target->setValue(valex);

@@ -47,7 +47,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool IsKnown::operator()(bool &result, ExpressionId arg) const
+  bool IsKnown::operator()(bool &result, Expression const *arg) const
   {
     result = arg->isKnown();
     return true; // result of active IsKnown is always known
@@ -75,7 +75,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool Equal<T>::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
+  bool Equal<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
@@ -106,7 +106,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool NotEqual<T>::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
+  bool NotEqual<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
@@ -137,7 +137,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool GreaterThan<T>::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
+  bool GreaterThan<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
@@ -168,7 +168,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool GreaterEqual<T>::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
+  bool GreaterEqual<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
@@ -199,7 +199,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool LessThan<T>::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
+  bool LessThan<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
@@ -230,7 +230,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool LessEqual<T>::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
+  bool LessEqual<T>::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))

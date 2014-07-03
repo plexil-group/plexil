@@ -39,8 +39,8 @@ namespace PLEXIL {
   class ArrayReference : public NotifierImpl
   {
   public:
-    ArrayReference(const ExpressionId &ary,
-                   const ExpressionId &idx,
+    ArrayReference(Expression *ary,
+                   Expression *idx,
                    bool aryIsGarbage = false,
                    bool idxIsGarbage = false);
 
@@ -56,7 +56,8 @@ namespace PLEXIL {
     bool isKnown() const;
     bool isConstant() const;
     bool isAssignable() const;
-    ExpressionId getBaseExpression() const;
+    Expression *getBaseExpression();
+    Expression const *getBaseExpression() const;
     void printValue(std::ostream& s) const;
 
     /**
@@ -90,8 +91,8 @@ namespace PLEXIL {
 
   protected:
     // State shared with MutableArrayReference
-    ExpressionId m_array;
-    ExpressionId m_index;
+    Expression *m_array;
+    Expression *m_index;
 
     bool m_arrayIsGarbage;
     bool m_indexIsGarbage;
@@ -117,8 +118,8 @@ namespace PLEXIL {
   class MutableArrayReference : public ArrayReference, public Assignable
   {
   public:
-    MutableArrayReference(const ExpressionId &ary,
-                          const ExpressionId &idx,
+    MutableArrayReference(Expression *ary,
+                          Expression *idx,
                           bool aryIsGarbage = false,
                           bool idxIsGarbage = false);
 
@@ -161,7 +162,7 @@ namespace PLEXIL {
      * @param valex The expression from which to obtain the new value.
      * @note May cause change notifications to occur.
      */
-    void setValue(ExpressionId const &valex);
+    void setValue(Expression const *valex);
 
     /**
      * @brief Set the value for this expression from a generic Value.

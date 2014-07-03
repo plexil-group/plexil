@@ -41,11 +41,11 @@ namespace PLEXIL
 
     bool operator()(std::string &result) const;
 
-    bool operator()(std::string &result, ExpressionId arg) const;
+    bool operator()(std::string &result, Expression const *arg) const;
 
     bool operator()(std::string &result,
-                    ExpressionId argA,
-                    ExpressionId argB) const;
+                    Expression const *argA,
+                    Expression const *argB) const;
 
     bool operator()(std::string &result, ExprVec const &args) const;
 
@@ -66,7 +66,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(int32_t &result, ExpressionId arg) const;
+    bool operator()(int32_t &result, Expression const *arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(StringLength, int32_t);
 

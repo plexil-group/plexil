@@ -25,29 +25,26 @@
 */
 
 #include "ExpressionConstants.hh"
+#include "Constant.hh"
 
 namespace PLEXIL
 {
-  DEFINE_GLOBAL_CONST_WITH_CLEANUP(BooleanConstant, FALSE_CONSTANT, false);
-  DEFINE_GLOBAL_CONST_WITH_CLEANUP(BooleanConstant, TRUE_CONSTANT, true);
-  DEFINE_GLOBAL_EMPTY_CONST_WITH_CLEANUP(BooleanConstant, UNKNOWN_BOOLEAN_CONSTANT);
-
-  ExpressionId const &FALSE_EXP()
+  Expression *FALSE_EXP()
   {
-    static ExpressionId sl_falseId(FALSE_CONSTANT().getId());
-    return sl_falseId;
+    static BooleanConstant sl_false(false);
+    return &sl_false;
   }
 
-  ExpressionId const &TRUE_EXP()
+  Expression *TRUE_EXP()
   {
-    static ExpressionId sl_trueId(TRUE_CONSTANT().getId());
-    return sl_trueId;
+    static BooleanConstant sl_true(true);
+    return &sl_true;
   }
 
-  ExpressionId const &UNKNOWN_BOOLEAN_EXP()
+  Expression *UNKNOWN_BOOLEAN_EXP()
   {
-    static ExpressionId sl_unknownId(UNKNOWN_BOOLEAN_CONSTANT().getId());
-    return sl_unknownId;
+    static BooleanConstant sl_unknown;
+    return &sl_unknown;
   }
 
 } // namespace PLEXIL

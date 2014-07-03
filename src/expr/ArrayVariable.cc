@@ -48,7 +48,7 @@ namespace PLEXIL
     : NotifierImpl(),
       ExpressionImpl<ArrayImpl<T> >(),
       AssignableImpl<ArrayImpl<T> >(),
-      m_initializer((new Constant<ArrayImpl<T> >(initVal))->getId()),
+      m_initializer(new Constant<ArrayImpl<T> >(initVal)),
       m_name("anonymous"),
       m_known(false),
       m_savedKnown(false),
@@ -60,8 +60,8 @@ namespace PLEXIL
   template <typename T>
   ArrayVariable<T>::ArrayVariable(const NodeConnectorId &node,
                                   const std::string &name,
-                                  const ExpressionId &size,
-                                  const ExpressionId &initializer,
+                                  Expression *size,
+                                  Expression *initializer,
                                   bool sizeIsGarbage,
                                   bool initializerIsGarbage)
     : NotifierImpl(),
@@ -125,12 +125,12 @@ namespace PLEXIL
   template <typename T>
   void ArrayVariable<T>::handleActivate()
   {
-    if (m_initializer.isId()) {
+    if (m_initializer) {
       ArrayImpl<T> const *valuePtr;
       if (m_initializer->getValuePointer(valuePtr)) {
         // Choose the greater of the spec'd size or the length of the initializer
         size_t size = valuePtr->size();
-        if (m_size.isId()) {
+        if (m_size) {
           int32_t specSize;
           if (m_size->getValue(specSize)) {
             assertTrue_2(specSize >= 0, "Array initialization: Negative array size illegal");
@@ -147,7 +147,7 @@ namespace PLEXIL
       reserve();
     }
     if (m_known)
-      this->publishChange(Expression::getId());
+      this->publishChange(this);
   }
 
   template <typename T>
@@ -156,7 +156,7 @@ namespace PLEXIL
     // Clear saved value
     m_savedValue.resize(0);
     m_savedKnown = false;
-    if (m_initializer.isId())
+    if (m_initializer)
       m_initializer->deactivate();
   }
 
@@ -167,7 +167,7 @@ namespace PLEXIL
     m_value = value;
     m_known = true;
     if (changed)
-      this->publishChange(getId());
+      this->publishChange(this);
   }
 
   template <typename T>
@@ -176,7 +176,7 @@ namespace PLEXIL
     bool changed = m_known;
     m_known = false;
     if (changed)
-      this->publishChange(getId());
+      this->publishChange(this);
   }
 
   // This should only be called when inactive, therefore doesn't need to report changes.
@@ -202,7 +202,7 @@ namespace PLEXIL
     m_value = m_savedValue;
     m_known = m_savedKnown;
     if (changed)
-      this->publishChange(getId());
+      this->publishChange(this);
   }
 
   template <typename T>
@@ -238,7 +238,7 @@ namespace PLEXIL
   template <typename T>
   void ArrayVariable<T>::reserve()
   {
-    if (m_size.isId()) {
+    if (m_size) {
       int32_t size;
       if (m_size->getValue(size)) {
         assertTrue_2(size >= 0, "Array initialization: Negative array size illegal");

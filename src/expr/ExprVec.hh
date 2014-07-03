@@ -28,7 +28,6 @@
 #define PLEXIL_EXPR_VEC_HH
 
 #include "ArrayFwd.hh"
-#include "Id.hh"
 
 #include <string>
 #include <vector>
@@ -36,10 +35,7 @@
 namespace PLEXIL
 {
   class Expression;
-  DECLARE_ID(Expression);
-
   class ExpressionListener;
-
   class Operator;
 
   /**
@@ -54,7 +50,8 @@ namespace PLEXIL
     ExprVec() {}
     virtual ~ExprVec() {}
     virtual size_t size() const = 0;
-    virtual ExpressionId const &operator[](size_t n) const = 0;
+    virtual Expression const *operator[](size_t n) const = 0;
+    virtual Expression *operator[](size_t n) = 0;
 
     // These are in critical path of exec inner loop, 
     // so should be optimized for each representation
@@ -77,7 +74,7 @@ namespace PLEXIL
   };
 
   // Factory function
-  extern ExprVec *makeExprVec(std::vector<ExpressionId> const &exprs,
+  extern ExprVec *makeExprVec(std::vector<Expression *> const &exprs,
                               std::vector<bool> const &garbage);
 
 } // namespace PLEXIL

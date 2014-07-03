@@ -68,16 +68,16 @@ namespace PLEXIL
     return m_name;
   }
 
-  ExpressionId createExpression(const PlexilExprId& expr,
-                                const NodeConnectorId& node)
+  Expression *createExpression(const PlexilExprId& expr,
+                               const NodeConnectorId& node)
   {
     bool dummy;
     return createExpression(expr, node, dummy);
   }
 
-  ExpressionId createExpression(const PlexilExprId& expr,
-                                const NodeConnectorId& node,
-                                bool& wasCreated)
+  Expression *createExpression(const PlexilExprId& expr,
+                               const NodeConnectorId& node,
+                               bool& wasCreated)
   {
     const std::string& name = expr->name();
     // Delegate to factory
@@ -86,7 +86,7 @@ namespace PLEXIL
       expressionFactoryMap().find(name);
     checkParserException(it != expressionFactoryMap().end(),
                          "createExpression: No factory registered for name \"" << name << "\".");
-    ExpressionId retval = it->second->allocate(expr, node, wasCreated);
+    Expression *retval = it->second->allocate(expr, node, wasCreated);
     debugMsg("createExpression",
              " Created " << (wasCreated ? "" : "reference to ") << retval->toString());
     return retval;
@@ -102,8 +102,8 @@ namespace PLEXIL
     if (ref) {
       // Variable reference - always returns existing
       wasCreated = false;
-      ExpressionId result = node->findVariable(ref);
-      checkParserException(result.isId(),
+      Expression *result = node->findVariable(ref);
+      checkParserException(result,
                            "createAssignable: Variable \"" << ref->varName() << "\" not found");
       checkParserException(result->isAssignable(),
                            "createAssignable: Variable \"" << ref->varName() << "\" is not assignable");
@@ -113,7 +113,7 @@ namespace PLEXIL
     if (elt) {
       // Get array expression (usually variable reference)
       bool aryCreated, idxCreated;
-      ExpressionId array = createExpression(elt->array(), node, aryCreated);
+      Expression *array = createExpression(elt->array(), node, aryCreated);
       // *** FIXME: is UNKNOWN_TYPE (e.g. undeclared Lookup) OK? ***
       checkParserException(isArrayType(array->valueType()),
                            "createAssignable: Array reference to non-array expression");
@@ -121,7 +121,7 @@ namespace PLEXIL
                            "createAssignable: Array reference to read-only expression");
 
       // Get index expression
-      ExpressionId index = createExpression(elt->index(), node, idxCreated);
+      Expression *index = createExpression(elt->index(), node, idxCreated);
       checkParserException(index->valueType() == INTEGER_TYPE,
                            "createAssignable: Array reference index expression not Integer");
 

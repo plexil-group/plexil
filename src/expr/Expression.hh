@@ -43,10 +43,8 @@
 
 //
 // TODO:
-//  - Flush Ids!
-//  - Move dependency on ExpressionListener somewhere else when Ids are flushed
-//    Some expressions (notably Constant and derivatives thereof, nullary functions)
-//    don't need it.
+//  - Move dependency on ExpressionListener somewhere else
+//    Some expressions (e.g. Constant) don't need it.
 //
 
 namespace PLEXIL
@@ -57,10 +55,6 @@ namespace PLEXIL
   //
 
   class Assignable;
-
-  class Expression;
-  typedef Id<Expression> ExpressionId;
-
   class Value;
 
   /**
@@ -71,11 +65,6 @@ namespace PLEXIL
   {
   public:
     virtual ~Expression();
-
-    inline ExpressionId getId() const
-    {
-      return m_id;
-    }
 
     //
     // Essential type-invariant Expression API
@@ -131,9 +120,10 @@ namespace PLEXIL
 
     /**
      * @brief Get the real expression for which this may be an alias or reference.
-     * @return ExpressionId of the base expression.
+     * @return Pointer to the base expression.
      */
-    virtual ExpressionId getBaseExpression() const;
+    virtual Expression *getBaseExpression();
+    virtual Expression const *getBaseExpression() const;
 
 	/**
 	 * @brief Print the object to the given stream.
@@ -188,13 +178,13 @@ namespace PLEXIL
 
     /**
      * @brief Add a listener for changes to this Expression's value.
-     * @param id The pointer to the listener to add.
+     * @param ptr The pointer to the listener to add.
      */
     virtual void addListener(ExpressionListener *ptr) = 0;
 
     /**
      * @brief Remove a listener from this Expression.
-     * @param id The pointer to the listener to remove.
+     * @param ptr The pointer to the listener to remove.
      */
     virtual void removeListener(ExpressionListener *ptr) = 0;
 
@@ -203,7 +193,7 @@ namespace PLEXIL
      * @note The default method does nothing.
      * @note Overrides method of same name on ExpressionListener.
      */
-    virtual void notifyChanged(ExpressionId src);
+    virtual void notifyChanged(Expression const *src);
 
     //
     // Value API
@@ -261,9 +251,6 @@ namespace PLEXIL
   protected:
     // Only derived classes can call the constructor.
     Expression();
-
-    // Local storage, shared with derived classes
-    ExpressionId m_id; /*!< The Id for this expression */
 
   private:
     // Deliberately not implemented.

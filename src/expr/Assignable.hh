@@ -27,6 +27,7 @@
 #ifndef PLEXIL_ASSIGNABLE_HH
 #define PLEXIL_ASSIGNABLE_HH
 
+#include "Id.hh"
 #include "NotifierImpl.hh"
 
 namespace PLEXIL {
@@ -97,7 +98,7 @@ namespace PLEXIL {
      * @param val The new value for this expression.
      * @note May cause change notifications to occur.
      * @note Each default method reports a type error.
-     * @deprecated These are being replaced with the setValue(ExpressionId const &) method below.
+     * @deprecated These are being replaced with the setValue(Expression const *) method below.
      */
     virtual void setValue(double const &val) = 0;
     virtual void setValue(int32_t const &val) = 0;
@@ -116,7 +117,7 @@ namespace PLEXIL {
      * @param valex The expression from which to obtain the new value.
      * @note May cause change notifications to occur.
      */
-    virtual void setValue(ExpressionId const &valex) = 0;
+    virtual void setValue(Expression const *valex) = 0;
 
     /**
      * @brief Set the value for this expression from a generic Value.

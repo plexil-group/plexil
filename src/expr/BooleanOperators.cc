@@ -43,7 +43,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool BooleanNot::operator()(bool &result, ExpressionId arg) const
+  bool BooleanNot::operator()(bool &result, Expression const *arg) const
   {
     bool temp;
     if (!arg->getValue(temp))
@@ -66,12 +66,12 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanOr::operator()(bool &result, ExpressionId arg) const
+  bool BooleanOr::operator()(bool &result, Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
-  bool BooleanOr::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
+  bool BooleanOr::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     bool temp, known;
     if (argA->getValue(temp)) {
@@ -129,12 +129,12 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanAnd::operator()(bool &result, ExpressionId arg) const
+  bool BooleanAnd::operator()(bool &result, Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
-  bool BooleanAnd::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
+  bool BooleanAnd::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     bool temp, known;
     if (argA->getValue(temp)) {
@@ -190,12 +190,12 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanXor::operator()(bool &result, ExpressionId arg) const
+  bool BooleanXor::operator()(bool &result, Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
-  bool BooleanXor::operator()(bool &result, ExpressionId argA, ExpressionId argB) const
+  bool BooleanXor::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     bool temp1, temp2;
     if (!argA->getValue(temp1))

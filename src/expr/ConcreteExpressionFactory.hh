@@ -55,9 +55,9 @@ namespace PLEXIL
     {
     }
 
-    ExpressionId allocate(const PlexilExprId& expr,
-                          const NodeConnectorId& node,
-                          bool &wasCreated) const = 0;
+    Expression *allocate(const PlexilExprId& expr,
+                         const NodeConnectorId& node,
+                         bool &wasCreated) const = 0;
 
   private:
     // Default, copy, assign all prohibited
@@ -79,12 +79,12 @@ namespace PLEXIL
     {
     }
 
-    ExpressionId allocate(const PlexilExprId& expr,
-                          const NodeConnectorId& node,
-                          bool &wasCreated) const;
+    Expression *allocate(const PlexilExprId& expr,
+                         const NodeConnectorId& node,
+                         bool &wasCreated) const;
 
   protected:
-    ExpressionId create(PlexilValue const *expr) const;
+    Expression *create(PlexilValue const *expr) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -106,12 +106,12 @@ namespace PLEXIL
     {
     }
 
-    ExpressionId allocate(const PlexilExprId& expr,
-                          const NodeConnectorId& node,
-                          bool &wasCreated) const;
+    Expression *allocate(const PlexilExprId& expr,
+                         const NodeConnectorId& node,
+                         bool &wasCreated) const;
 
   protected:
-    ExpressionId create(PlexilArrayValue const *expr) const;
+    Expression *create(PlexilArrayValue const *expr) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -133,13 +133,13 @@ namespace PLEXIL
     {
     }
 
-    ExpressionId allocate(const PlexilExprId& expr,
-                          const NodeConnectorId& node,
-                          bool &wasCreated) const;
+    Expression *allocate(const PlexilExprId& expr,
+                         const NodeConnectorId& node,
+                         bool &wasCreated) const;
 
   protected:
-    ExpressionId create(PlexilVar const *expr,
-                        const NodeConnectorId& node) const;
+    Expression *create(PlexilVar const *expr,
+                       const NodeConnectorId& node) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -161,13 +161,13 @@ namespace PLEXIL
     {
     }
 
-    ExpressionId allocate(const PlexilExprId& expr,
-                          const NodeConnectorId& node,
-                          bool &wasCreated) const;
+    Expression *allocate(const PlexilExprId& expr,
+                         const NodeConnectorId& node,
+                         bool &wasCreated) const;
 
   protected:
-    ExpressionId create(PlexilArrayVar const *expr,
-                        const NodeConnectorId& node) const;
+    Expression *create(PlexilArrayVar const *expr,
+                       const NodeConnectorId& node) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -188,9 +188,9 @@ namespace PLEXIL
     {
     }
 
-    virtual ExpressionId allocate(const PlexilExprId& expr,
-                                  const NodeConnectorId& node,
-                                  bool & wasCreated) const;
+    virtual Expression *allocate(const PlexilExprId& expr,
+                                 const NodeConnectorId& node,
+                                 bool & wasCreated) const;
 
   private:
     // Default, copy, assign prohibited

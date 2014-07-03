@@ -57,7 +57,7 @@ namespace PLEXIL
 
   // Immediate types
   template <typename T>
-  void AssignableImpl<T>::setValueImpl(ExpressionId const &valex)
+  void AssignableImpl<T>::setValueImpl(Expression const *valex)
   {
     T value;
     if (valex->getValue(value))
@@ -78,7 +78,7 @@ namespace PLEXIL
 
   // Special case for string
   template <>
-  void AssignableImpl<std::string>::setValueImpl(ExpressionId const &valex)
+  void AssignableImpl<std::string>::setValueImpl(Expression const *valex)
   {
     std::string const *valptr;
     if (valex->getValuePointer(valptr))
@@ -99,7 +99,7 @@ namespace PLEXIL
 
   // Array types
   template <typename T>
-  void AssignableImpl<ArrayImpl<T> >::setValueImpl(ExpressionId const &valex)
+  void AssignableImpl<ArrayImpl<T> >::setValueImpl(Expression const *valex)
   {
     ArrayImpl<T> const *valptr;
     if (valex->getValuePointer(valptr))

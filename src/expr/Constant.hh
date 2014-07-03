@@ -137,7 +137,7 @@ namespace PLEXIL {
      * @brief Notify this expression that a subexpression's value has changed.
      * @note No-op for constants.
      */
-    void notifyChanged(ExpressionId /* src */);
+    void notifyChanged(Expression const * /* src */);
 
   protected:
 
@@ -220,7 +220,7 @@ namespace PLEXIL {
 
     /**
      * @brief Add a listener for changes to this Expression's value.
-     * @param id The Id of the listener to notify.
+     * @param ptr The pointer to the listener to notify.
      * @note No-op for constants.
      */
     void addListener(ExpressionListener * /* ptr */);
@@ -236,7 +236,7 @@ namespace PLEXIL {
      * @brief Notify this expression that a subexpression's value has changed.
      * @note No-op for constants.
      */
-    void notifyChanged(ExpressionId /* src */);
+    void notifyChanged(Expression const * /* src */);
 
   protected:
 

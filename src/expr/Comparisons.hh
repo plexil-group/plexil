@@ -42,7 +42,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId arg) const;
+    bool operator()(bool &result, Expression const *arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(IsKnown, bool)
 
@@ -62,7 +62,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(Equal<T>, bool)
 
@@ -82,7 +82,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(NotEqual<T>, bool)
 
@@ -102,7 +102,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(GreaterThan<T>, bool)
 
@@ -122,7 +122,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(GreaterEqual<T>, bool)
 
@@ -142,7 +142,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(LessThan<T>, bool)
 
@@ -162,7 +162,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(LessEqual<T>, bool)
 

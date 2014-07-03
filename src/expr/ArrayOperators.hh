@@ -40,7 +40,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(int32_t &result, ExpressionId arg) const;
+    bool operator()(int32_t &result, Expression const *arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(ArrayLength, int32_t);
 
@@ -58,7 +58,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId arg) const;
+    bool operator()(bool &result, Expression const *arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(AllElementsKnown, bool);
 
@@ -76,7 +76,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId arg) const;
+    bool operator()(bool &result, Expression const *arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(AnyElementsKnown, bool);
 

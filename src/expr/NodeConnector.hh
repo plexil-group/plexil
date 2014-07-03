@@ -37,7 +37,6 @@ namespace PLEXIL
   DECLARE_ID(ExecListenerHub);
 
   class Expression;
-  DECLARE_ID(Expression);
 
   class PlexilVarRef;
 
@@ -63,8 +62,8 @@ namespace PLEXIL
 	
     NodeConnectorId const &getId() const {return m_id;}
 
-    virtual ExpressionId const &findVariable(const PlexilVarRef* ref) = 0;
-    virtual ExpressionId const &findVariable(const std::string &name, bool recursive = false) = 0;
+    virtual Expression *findVariable(const PlexilVarRef* ref) = 0;
+    virtual Expression *findVariable(const std::string &name, bool recursive = false) = 0;
     virtual NodeId findNodeRef(PlexilNodeRefId const &nodeRef) const = 0;
     virtual ExecListenerHubId const &getExecListenerHub() const = 0;
 

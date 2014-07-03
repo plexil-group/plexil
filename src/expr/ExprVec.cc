@@ -25,6 +25,7 @@
 */
 
 #include "ExprVec.hh"
+#include "Error.hh"
 #include "Expression.hh"
 #include "Operator.hh"
 #include "ParserException.hh"
@@ -100,7 +101,7 @@ namespace PLEXIL
   class NullExprVec : public ExprVec
   {
   public:
-    NullExprVec(std::vector<ExpressionId> const &exps,
+    NullExprVec(std::vector<Expression *> const &exps,
                 std::vector<bool> const &garb)
     {
       assertTrue(exps.empty() && garb.empty());
@@ -115,9 +116,14 @@ namespace PLEXIL
       return 0; 
     }
 
-    ExpressionId const &operator[](size_t /* n */) const
+    Expression const *operator[](size_t /* n */) const
     {
-      return ExpressionId::noId();
+      return NULL;
+    }
+
+    Expression *operator[](size_t /* n */)
+    {
+      return NULL;
     }
 
     void activate()
@@ -158,7 +164,7 @@ namespace PLEXIL
   class FixedExprVec : public ExprVec
   {
   public:
-    FixedExprVec(std::vector<ExpressionId> const &exps,
+    FixedExprVec(std::vector<Expression *> const &exps,
                 std::vector<bool> const &garb)
     : ExprVec()
     {
@@ -181,7 +187,13 @@ namespace PLEXIL
       return N; 
     }
 
-    ExpressionId const &operator[](size_t n) const
+    Expression const *operator[](size_t n) const
+    {
+      check_error_1(n < N);
+      return exprs[n]; 
+    }
+
+    Expression *operator[](size_t n)
     {
       check_error_1(n < N);
       return exprs[n]; 
@@ -260,14 +272,14 @@ namespace PLEXIL
     FixedExprVec(const FixedExprVec &);
     FixedExprVec &operator=(const FixedExprVec &);
 
-    ExpressionId exprs[N];
+    Expression *exprs[N];
     bool garbage[N];
   };
 
   // One-arg variants
 
   template <>
-  FixedExprVec<1>::FixedExprVec(std::vector<ExpressionId> const &exps,
+  FixedExprVec<1>::FixedExprVec(std::vector<Expression *> const &exps,
                               std::vector<bool> const &garb)
     : ExprVec()
   {
@@ -366,7 +378,7 @@ namespace PLEXIL
   //
 
   template <>
-  FixedExprVec<2>::FixedExprVec(std::vector<ExpressionId> const &exps,
+  FixedExprVec<2>::FixedExprVec(std::vector<Expression *> const &exps,
                               std::vector<bool> const &garb)
     : ExprVec()
   {
@@ -479,7 +491,7 @@ namespace PLEXIL
   class GeneralExprVec : public ExprVec
   {
   public:
-    GeneralExprVec(std::vector<ExpressionId> const &exps,
+    GeneralExprVec(std::vector<Expression *> const &exps,
                    std::vector<bool> const &garb)
       : ExprVec(),
         exprs(exps),
@@ -501,7 +513,13 @@ namespace PLEXIL
       return exprs.size(); 
     }
 
-    ExpressionId const &operator[](size_t n) const
+    Expression const *operator[](size_t n) const
+    {
+      check_error_1(n < exprs.size());
+      return exprs[n]; 
+    }
+
+    Expression *operator[](size_t n)
     {
       check_error_1(n < exprs.size());
       return exprs[n]; 
@@ -526,7 +544,7 @@ namespace PLEXIL
     GeneralExprVec(const GeneralExprVec &);
     GeneralExprVec &operator=(const GeneralExprVec &);
 
-    std::vector<ExpressionId> exprs;
+    std::vector<Expression *> exprs;
     std::vector<bool> garbage;
   };
 
@@ -535,7 +553,7 @@ namespace PLEXIL
   //
 
   // A crude but effective factory for ExprVec instances
-  ExprVec *makeExprVec(std::vector<ExpressionId> const &exprs,
+  ExprVec *makeExprVec(std::vector<Expression *> const &exprs,
                        std::vector<bool> const &garbage)
   {
     checkParserException(exprs.size() == garbage.size(),

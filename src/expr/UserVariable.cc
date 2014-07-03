@@ -30,6 +30,7 @@
 
 #include "UserVariable.hh"
 
+#include "Constant.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
 //#include "NodeConnector.hh"
@@ -53,7 +54,7 @@ namespace PLEXIL {
   : NotifierImpl(),
     ExpressionImpl<T>(),
     AssignableImpl<T>(),
-    m_initializer((new Constant<T>(initVal))->getId()),
+    m_initializer(new Constant<T>(initVal)),
     m_name("anonymous"),
     m_known(false),
     m_savedKnown(false),
@@ -78,7 +79,7 @@ namespace PLEXIL {
   template <typename T>
   UserVariable<T>::UserVariable(const NodeConnectorId &node,
                                 const std::string &name,
-                                const ExpressionId &initializer,
+                                Expression *initializer,
                                 bool initializerIsGarbage)
     : NotifierImpl(),
       ExpressionImpl<T>(),
@@ -161,12 +162,12 @@ namespace PLEXIL {
   template <typename T>
   void UserVariable<T>::handleActivate()
   {
-    if (m_initializer.isId()) {
+    if (m_initializer) {
       m_initializer->activate();
       m_known = m_initializer->getValue(m_value);
     }
     if (m_known)
-      this->publishChange(getId());
+      this->publishChange(this);
   }
 
   template <typename T>
@@ -174,7 +175,7 @@ namespace PLEXIL {
   {
     // Clear saved value
     m_savedKnown = false;
-    if (m_initializer.isId())
+    if (m_initializer)
       m_initializer->deactivate();
   }
 
@@ -182,14 +183,14 @@ namespace PLEXIL {
   template <>
   void UserVariable<std::string>::handleActivate()
   {
-    if (m_initializer.isId()) {
+    if (m_initializer) {
       m_initializer->activate();
       std::string const *valptr;
       m_known = m_initializer->getValuePointer(valptr);
       m_value = *valptr;
     }
     if (m_known)
-      this->publishChange(getId());
+      this->publishChange(this);
   }
 
   template <>
@@ -198,7 +199,7 @@ namespace PLEXIL {
     // Clear saved value
     m_savedValue.clear();
     m_savedKnown = false;
-    if (m_initializer.isId())
+    if (m_initializer)
       m_initializer->deactivate();
   }
 
@@ -209,7 +210,7 @@ namespace PLEXIL {
     m_value = value;
     m_known = true;
     if (changed)
-      this->publishChange(getId());
+      this->publishChange(this);
   }
 
   template <typename T>
@@ -218,7 +219,7 @@ namespace PLEXIL {
     bool changed = m_known;
     m_known = false;
     if (changed)
-      this->publishChange(getId());
+      this->publishChange(this);
   }
 
   // This should only be called when inactive, therefore doesn't need to report changes.
@@ -244,7 +245,7 @@ namespace PLEXIL {
     m_value = m_savedValue;
     m_known = m_savedKnown;
     if (changed)
-      this->publishChange(getId());
+      this->publishChange(this);
   }
 
   template <typename T>

@@ -43,9 +43,9 @@ namespace PLEXIL
 
     ~FactoryTestNodeConnector();
 
-    ExpressionId const &findVariable(const PlexilVarRef* ref);
+    Expression *findVariable(const PlexilVarRef* ref);
 
-    ExpressionId const &findVariable(const std::string & name,
+    Expression *findVariable(const std::string & name,
                                      bool ignored = false);
 
     NodeId findNodeRef(PlexilNodeRefId const & /* nodeRef */) const;
@@ -53,10 +53,10 @@ namespace PLEXIL
     ExecListenerHubId const &getExecListenerHub() const;
 
     // Test setup
-    void storeVariable(const std::string & name, ExpressionId var);
+    void storeVariable(const std::string & name, Expression *var);
 
   private:
-    typedef std::map<std::string, ExpressionId> TestVariableMap;
+    typedef std::map<std::string, Expression *> TestVariableMap;
 
     TestVariableMap m_variableMap;
   };

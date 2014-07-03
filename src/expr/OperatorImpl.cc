@@ -116,7 +116,7 @@ namespace PLEXIL
 
   // Default methods
   template <typename R>
-  bool OperatorImpl<R>::calc(R &result, ExpressionId arg) const
+  bool OperatorImpl<R>::calc(R &result, Expression const *arg) const
   {
     assertTrueMsg(ALWAYS_FAIL,
                   "Operator " << this->getName() << " not implemented for one-arg case");
@@ -124,7 +124,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool OperatorImpl<R>::calc(R &result, ExpressionId arg0, ExpressionId arg1) const
+  bool OperatorImpl<R>::calc(R &result, Expression const *arg0, Expression const *arg1) const
   {
     assertTrueMsg(ALWAYS_FAIL,
                   "Operator " << this->getName() << " not implemented for two-arg case");
@@ -140,7 +140,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, ExpressionId arg) const
+  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, Expression const *arg) const
   {
     assertTrueMsg(ALWAYS_FAIL,
                   "Operator " << this->getName() << " not implemented for one-arg case");
@@ -148,7 +148,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, ExpressionId arg0, ExpressionId arg1) const
+  bool OperatorImpl<ArrayImpl<R> >::calc(ArrayImpl<R> &result, Expression const *arg0, Expression const *arg1) const
   {
     assertTrueMsg(ALWAYS_FAIL,
                   "Operator " << this->getName() << " not implemented for two-arg case");
@@ -167,7 +167,7 @@ namespace PLEXIL
  
   template <>
   template <>
-  bool OperatorImpl<int32_t>::calc(double &result, ExpressionId arg) const
+  bool OperatorImpl<int32_t>::calc(double &result, Expression const *arg) const
   {
     int32_t temp;
     if (!this->calc(temp, arg))
@@ -178,7 +178,7 @@ namespace PLEXIL
 
   template <>
   template <>
-  bool OperatorImpl<int32_t>::calc(double &result, ExpressionId arg0, ExpressionId arg1) const
+  bool OperatorImpl<int32_t>::calc(double &result, Expression const *arg0, Expression const *arg1) const
   {
     int32_t temp;
     if (!this->calc(temp, arg0, arg1))

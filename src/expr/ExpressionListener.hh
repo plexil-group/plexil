@@ -27,17 +27,12 @@
 #ifndef PLEXIL_EXPRESSION_LISTENER_HH
 #define PLEXIL_EXPRESSION_LISTENER_HH
 
-// *** TODO: FLUSH!! ***
-#include "Id.hh"
-
 namespace PLEXIL
 {
   //
   // Forward declarations
   //
-  class ExpressionListener;
   class Expression;
-  typedef Id<Expression> ExpressionId;
 
   /**
    * @brief Abstract base class for listeners in the expression notification graph.
@@ -59,7 +54,7 @@ namespace PLEXIL
      * @param src The source of the notification, so that recipients can check for circularity.
      *            (e.g. an array reference modifying its array)
      */
-    virtual void notifyChanged(ExpressionId src) = 0;
+    virtual void notifyChanged(Expression const *src) = 0;
 
   private:
 

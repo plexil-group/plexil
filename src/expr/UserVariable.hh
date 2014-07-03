@@ -65,7 +65,7 @@ namespace PLEXIL {
      */
     UserVariable(const NodeConnectorId &node,
                  const std::string &name = "",
-                 const ExpressionId &initializer = ExpressionId::noId(),
+                 Expression *initializer = NULL,
                  bool initializerIsGarbage = false);
     
     /**
@@ -139,7 +139,7 @@ namespace PLEXIL {
 
   private:
 
-    ExpressionId m_initializer;
+    Expression *m_initializer;
     
     // Only used by LuvListener at present. Eliminate?
     NodeConnectorId m_node;

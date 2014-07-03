@@ -25,6 +25,8 @@
 */
 
 #include "NotifierImpl.hh"
+
+#include "Error.hh"
 #include "ExpressionListener.hh"
 
 #include <algorithm> // for std::find()
@@ -44,8 +46,8 @@ namespace PLEXIL {
 
   NotifierImpl::~NotifierImpl()
   {
-    assertTrueMsg(m_outgoingListeners.empty(),
-                  "Error: Expression '" << getId() << "' still has outgoing listeners.");
+    assertTrue_2(m_outgoingListeners.empty(),
+                 "Error: Expression still has outgoing listeners.");
   }
 
   bool NotifierImpl::isActive() const
@@ -61,8 +63,8 @@ namespace PLEXIL {
       this->handleActivate();
     else
       // Check for counter wrap only if active at entry
-      assertTrueMsg(m_activeCount,
-                    "NotifierImpl::activate: Active counter overflowed for " << getId());
+      assertTrue_2(m_activeCount,
+                   "NotifierImpl::activate: Active counter overflowed.");
   }
 
   // No-op default method.
@@ -72,8 +74,8 @@ namespace PLEXIL {
 
   void NotifierImpl::deactivate()
   {
-    assertTrueMsg(m_activeCount != 0,
-                  "Attempted to deactivate expression " << getId() << " too many times.");
+    assertTrue_2(m_activeCount != 0,
+                 "Attempted to deactivate expression too many times.");
     if (--m_activeCount == 0)
       this->handleDeactivate();
   }
@@ -83,17 +85,17 @@ namespace PLEXIL {
   {
   }
 
-  void NotifierImpl::notifyChanged(ExpressionId src)
+  void NotifierImpl::notifyChanged(Expression const *src)
   {
     if (isActive()) {
-      if (src == getId())
+      if (src == this)
         return; // prevent infinite looping
       this->handleChange(src);
     }
   }
 
   // Default method.
-  void NotifierImpl::handleChange(ExpressionId src)
+  void NotifierImpl::handleChange(Expression const *src)
   {
     this->publishChange(src);
   }
@@ -109,14 +111,14 @@ namespace PLEXIL {
       std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), ptr);
     if (it == m_outgoingListeners.end()) {
 #ifdef EXPRESSION_DEBUG
-        debugMsg("NotifierImpl:removeListener", " listener " << ptr << " not found");
+      debugMsg("NotifierImpl:removeListener", " listener " << (uintptr) ptr << " not found");
 #endif
         return;
     }
     m_outgoingListeners.erase(it);
   }
 
-  void NotifierImpl::publishChange(ExpressionId src)
+  void NotifierImpl::publishChange(Expression const *src)
   {
     if (isActive())
       for (std::vector<ExpressionListener *>::iterator it = m_outgoingListeners.begin();

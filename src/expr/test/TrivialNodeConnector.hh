@@ -31,7 +31,7 @@
 
 using PLEXIL::NodeConnector;
 using PLEXIL::ExecListenerHubId;
-using PLEXIL::ExpressionId;
+using PLEXIL::Expression;
 using PLEXIL::NodeId;
 using PLEXIL::PlexilNodeRefId;
 using PLEXIL::PlexilVarRef;
@@ -42,9 +42,9 @@ public:
   TrivialNodeConnector();
   ~TrivialNodeConnector();
 
-  ExpressionId const &findVariable(const PlexilVarRef* /* ref */);
-  ExpressionId const &findVariable(const std::string & /* name */,
-                                   bool /* recursive */ = false);
+  Expression *findVariable(const PlexilVarRef* /* ref */);
+  Expression *findVariable(const std::string & /* name */,
+                           bool /* recursive */ = false);
   NodeId findNodeRef(PlexilNodeRefId const & /* nodeRef */) const;
   ExecListenerHubId const &getExecListenerHub() const;
 };

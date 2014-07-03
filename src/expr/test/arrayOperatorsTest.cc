@@ -44,10 +44,10 @@ static bool testArrayLength()
   ArrayLength lop;
 
   std::vector<bool> garbage1(1, false);
-  std::vector<ExpressionId> bexp(1, bav.getId());
-  std::vector<ExpressionId> iexp(1, iav.getId());
-  std::vector<ExpressionId> rexp(1, rav.getId());
-  std::vector<ExpressionId> sexp(1, sav.getId());
+  std::vector<Expression *> bexp(1, &bav);
+  std::vector<Expression *> iexp(1, &iav);
+  std::vector<Expression *> rexp(1, &rav);
+  std::vector<Expression *> sexp(1, &sav);
   
   Function bl(&lop, makeExprVec(bexp, garbage1));
   Function il(&lop, makeExprVec(iexp, garbage1));
@@ -79,10 +79,10 @@ static bool testArrayLength()
   RealArrayConstant emptyrac(0);
   StringArrayConstant emptysac(0);
 
-  bav.setValue(emptybac.getId());
-  iav.setValue(emptyiac.getId());
-  rav.setValue(emptyrac.getId());
-  sav.setValue(emptysac.getId());
+  bav.setValue(&emptybac);
+  iav.setValue(&emptyiac);
+  rav.setValue(&emptyrac);
+  sav.setValue(&emptysac);
 
   assertTrue_1(bl.getValue(len));
   assertTrue_1(len == 0);
@@ -99,10 +99,10 @@ static bool testArrayLength()
   RealArrayConstant shortrac(8);
   StringArrayConstant shortsac(8);
 
-  bav.setValue(shortbac.getId());
-  iav.setValue(shortiac.getId());
-  rav.setValue(shortrac.getId());
-  sav.setValue(shortsac.getId());
+  bav.setValue(&shortbac);
+  iav.setValue(&shortiac);
+  rav.setValue(&shortrac);
+  sav.setValue(&shortsac);
 
   assertTrue_1(bl.getValue(len));
   assertTrue_1(len == 8);
@@ -145,10 +145,10 @@ static bool testArrayLength()
   RealArrayConstant unknownrac;
   StringArrayConstant unknownsac;
 
-  bav.setValue(unknownbac.getId());
-  iav.setValue(unknowniac.getId());
-  rav.setValue(unknownrac.getId());
-  sav.setValue(unknownsac.getId());
+  bav.setValue(&unknownbac);
+  iav.setValue(&unknowniac);
+  rav.setValue(&unknownrac);
+  sav.setValue(&unknownsac);
 
   assertTrue_1(!bl.getValue(len));
   assertTrue_1(!il.getValue(len));
@@ -168,10 +168,10 @@ static bool testAllElementsKnown()
   AllElementsKnown op;
 
   std::vector<bool> garbage1(1, false);
-  std::vector<ExpressionId> bexp(1, bav.getId());
-  std::vector<ExpressionId> iexp(1, iav.getId());
-  std::vector<ExpressionId> rexp(1, rav.getId());
-  std::vector<ExpressionId> sexp(1, sav.getId());
+  std::vector<Expression *> bexp(1, &bav);
+  std::vector<Expression *> iexp(1, &iav);
+  std::vector<Expression *> rexp(1, &rav);
+  std::vector<Expression *> sexp(1, &sav);
   
   Function bl(&op, makeExprVec(bexp, garbage1));
   Function il(&op, makeExprVec(iexp, garbage1));
@@ -203,10 +203,10 @@ static bool testAllElementsKnown()
   RealArrayConstant emptyrac(0);
   StringArrayConstant emptysac(0);
 
-  bav.setValue(emptybac.getId());
-  iav.setValue(emptyiac.getId());
-  rav.setValue(emptyrac.getId());
-  sav.setValue(emptysac.getId());
+  bav.setValue(&emptybac);
+  iav.setValue(&emptyiac);
+  rav.setValue(&emptyrac);
+  sav.setValue(&emptysac);
 
   // *** Boundary case -- see Array.cc ***
   assertTrue_1(bl.getValue(temp));
@@ -224,10 +224,10 @@ static bool testAllElementsKnown()
   RealArrayConstant shortrac(2);
   StringArrayConstant shortsac(2);
 
-  bav.setValue(shortbac.getId());
-  iav.setValue(shortiac.getId());
-  rav.setValue(shortrac.getId());
-  sav.setValue(shortsac.getId());
+  bav.setValue(&shortbac);
+  iav.setValue(&shortiac);
+  rav.setValue(&shortrac);
+  sav.setValue(&shortsac);
 
   assertTrue_1(bl.getValue(temp));
   assertTrue_1(!temp);
@@ -240,10 +240,10 @@ static bool testAllElementsKnown()
 
   // Assign elements and try again
   IntegerVariable index(0);
-  MutableArrayReference bref(bav.getId(), index.getId());
-  MutableArrayReference iref(iav.getId(), index.getId());
-  MutableArrayReference rref(rav.getId(), index.getId());
-  MutableArrayReference sref(sav.getId(), index.getId());
+  MutableArrayReference bref(&bav, &index);
+  MutableArrayReference iref(&iav, &index);
+  MutableArrayReference rref(&rav, &index);
+  MutableArrayReference sref(&sav, &index);
 
   bref.activate();
   iref.activate();
@@ -286,10 +286,10 @@ static bool testAllElementsKnown()
   RealArrayConstant unknownrac;
   StringArrayConstant unknownsac;
 
-  bav.setValue(unknownbac.getId());
-  iav.setValue(unknowniac.getId());
-  rav.setValue(unknownrac.getId());
-  sav.setValue(unknownsac.getId());
+  bav.setValue(&unknownbac);
+  iav.setValue(&unknowniac);
+  rav.setValue(&unknownrac);
+  sav.setValue(&unknownsac);
 
   assertTrue_1(!bl.getValue(temp));
   assertTrue_1(!il.getValue(temp));
@@ -309,10 +309,10 @@ static bool testAnyElementsKnown()
   AnyElementsKnown op;
 
   std::vector<bool> garbage1(1, false);
-  std::vector<ExpressionId> bexp(1, bav.getId());
-  std::vector<ExpressionId> iexp(1, iav.getId());
-  std::vector<ExpressionId> rexp(1, rav.getId());
-  std::vector<ExpressionId> sexp(1, sav.getId());
+  std::vector<Expression *> bexp(1, &bav);
+  std::vector<Expression *> iexp(1, &iav);
+  std::vector<Expression *> rexp(1, &rav);
+  std::vector<Expression *> sexp(1, &sav);
   
   Function bl(&op, makeExprVec(bexp, garbage1));
   Function il(&op, makeExprVec(iexp, garbage1));
@@ -344,10 +344,10 @@ static bool testAnyElementsKnown()
   RealArrayConstant emptyrac(0);
   StringArrayConstant emptysac(0);
 
-  bav.setValue(emptybac.getId());
-  iav.setValue(emptyiac.getId());
-  rav.setValue(emptyrac.getId());
-  sav.setValue(emptysac.getId());
+  bav.setValue(&emptybac);
+  iav.setValue(&emptyiac);
+  rav.setValue(&emptyrac);
+  sav.setValue(&emptysac);
 
   // *** Boundary case -- see Array.cc ***
   assertTrue_1(bl.getValue(temp));
@@ -365,10 +365,10 @@ static bool testAnyElementsKnown()
   RealArrayConstant shortrac(2);
   StringArrayConstant shortsac(2);
 
-  bav.setValue(shortbac.getId());
-  iav.setValue(shortiac.getId());
-  rav.setValue(shortrac.getId());
-  sav.setValue(shortsac.getId());
+  bav.setValue(&shortbac);
+  iav.setValue(&shortiac);
+  rav.setValue(&shortrac);
+  sav.setValue(&shortsac);
 
   assertTrue_1(bl.getValue(temp));
   assertTrue_1(!temp);
@@ -381,10 +381,10 @@ static bool testAnyElementsKnown()
 
   // Assign elements and try again
   IntegerVariable index(0);
-  MutableArrayReference bref(bav.getId(), index.getId());
-  MutableArrayReference iref(iav.getId(), index.getId());
-  MutableArrayReference rref(rav.getId(), index.getId());
-  MutableArrayReference sref(sav.getId(), index.getId());
+  MutableArrayReference bref(&bav, &index);
+  MutableArrayReference iref(&iav, &index);
+  MutableArrayReference rref(&rav, &index);
+  MutableArrayReference sref(&sav, &index);
 
   bref.activate();
   iref.activate();
@@ -427,10 +427,10 @@ static bool testAnyElementsKnown()
   RealArrayConstant unknownrac;
   StringArrayConstant unknownsac;
 
-  bav.setValue(unknownbac.getId());
-  iav.setValue(unknowniac.getId());
-  rav.setValue(unknownrac.getId());
-  sav.setValue(unknownsac.getId());
+  bav.setValue(&unknownbac);
+  iav.setValue(&unknowniac);
+  rav.setValue(&unknownrac);
+  sav.setValue(&unknownsac);
 
   assertTrue_1(!bl.getValue(temp));
   assertTrue_1(!il.getValue(temp));

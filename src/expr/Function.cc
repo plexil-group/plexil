@@ -43,11 +43,11 @@ namespace PLEXIL
   }
 
   Function::Function(Operator const *op,
-                     ExpressionId expr, 
+                     Expression *expr, 
                      bool garbage)
     : NotifierImpl(),
       m_op(op),
-      m_exprVec(makeExprVec(std::vector<ExpressionId>(1, expr),
+      m_exprVec(makeExprVec(std::vector<Expression *>(1, expr),
                             std::vector<bool>(1, garbage))),
       m_valueCache(op->allocateCache())
   {
@@ -55,13 +55,13 @@ namespace PLEXIL
   }
 
   Function::Function(Operator const *op,
-                     ExpressionId expr1, ExpressionId expr2, 
+                     Expression *expr1, Expression *expr2, 
                      bool garbage1, bool garbage2)
     : NotifierImpl(),
       m_op(op),
       m_valueCache(op->allocateCache())
   {
-    std::vector<ExpressionId> exprs;
+    std::vector<Expression *> exprs;
     exprs.push_back(expr1);
     exprs.push_back(expr2);
 

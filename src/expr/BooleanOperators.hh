@@ -40,7 +40,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId arg) const;
+    bool operator()(bool &result, Expression const *arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanNot, bool)
 
@@ -57,8 +57,8 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId arg) const;
-    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, Expression const *arg) const;
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
     bool operator()(bool &result, ExprVec const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanOr, bool)
@@ -76,8 +76,8 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId arg) const;
-    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, Expression const *arg) const;
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
     bool operator()(bool &result, ExprVec const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanAnd, bool)
@@ -95,8 +95,8 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool operator()(bool &result, ExpressionId arg) const;
-    bool operator()(bool &result, ExpressionId argA, ExpressionId argB) const;
+    bool operator()(bool &result, Expression const *arg) const;
+    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
     bool operator()(bool &result, ExprVec const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanXor, bool)

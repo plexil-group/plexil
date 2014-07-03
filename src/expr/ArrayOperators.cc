@@ -47,7 +47,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool ArrayLength::operator()(int32_t &result, ExpressionId arg) const
+  bool ArrayLength::operator()(int32_t &result, Expression const *arg) const
   {
     Array const *ary;
     if (!arg->getValuePointer(ary))
@@ -74,7 +74,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool AllElementsKnown::operator()(bool &result, ExpressionId arg) const
+  bool AllElementsKnown::operator()(bool &result, Expression const *arg) const
   {
     Array const *ary;
     if (!arg->getValuePointer(ary))
@@ -101,7 +101,7 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool AnyElementsKnown::operator()(bool &result, ExpressionId arg) const
+  bool AnyElementsKnown::operator()(bool &result, Expression const *arg) const
   {
     Array const *ary;
     if (!arg->getValuePointer(ary))

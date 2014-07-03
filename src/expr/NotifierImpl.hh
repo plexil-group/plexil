@@ -90,7 +90,7 @@ namespace PLEXIL {
     /**
      * @brief Notify this expression that a subexpression's value has changed.
      */
-    void notifyChanged(ExpressionId src);
+    void notifyChanged(Expression const *src);
 
   protected:
 
@@ -118,12 +118,12 @@ namespace PLEXIL {
      * @brief Called by notifyChanged() when the expression is active.
      * @note Default method calls publishChange().
      */
-    virtual void handleChange(ExpressionId src);
+    virtual void handleChange(Expression const *src);
 
     /**
      * @brief Notify all listeners that this expression's value has changed.
      */
-    void publishChange(ExpressionId src);
+    void publishChange(Expression const *src);
 
   private:
     // Not implemented

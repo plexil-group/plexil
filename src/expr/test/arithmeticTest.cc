@@ -52,15 +52,15 @@ bool additionTest()
   // Binary
 
   // Set up arglists
-  std::vector<ExpressionId> iexprs2_1, iexprs2_2, iexprs2_3;
-  iexprs2_1.push_back(m1.getId());
-  iexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs2_1, iexprs2_2, iexprs2_3;
+  iexprs2_1.push_back(&m1);
+  iexprs2_1.push_back(&tree);
 
-  iexprs2_2.push_back(i.getId());
-  iexprs2_2.push_back(won.getId());
+  iexprs2_2.push_back(&i);
+  iexprs2_2.push_back(&won);
 
-  iexprs2_3.push_back(tree.getId());
-  iexprs2_3.push_back(i.getId());
+  iexprs2_3.push_back(&tree);
+  iexprs2_3.push_back(&i);
 
   Function iadd2_1(&addi, makeExprVec(iexprs2_1, garbage2));
   Function iadd2_2(&addi, makeExprVec(iexprs2_2, garbage2));
@@ -87,18 +87,18 @@ bool additionTest()
   // N-ary
 
   // Set up arglists
-  std::vector<ExpressionId> iexprs3_1, iexprs3_2, iexprs3_3;
-  iexprs3_1.push_back(m1.getId());
-  iexprs3_1.push_back(won.getId());
-  iexprs3_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs3_1, iexprs3_2, iexprs3_3;
+  iexprs3_1.push_back(&m1);
+  iexprs3_1.push_back(&won);
+  iexprs3_1.push_back(&tree);
 
-  iexprs3_2.push_back(won.getId());
-  iexprs3_2.push_back(tree.getId());
-  iexprs3_2.push_back(i.getId());
+  iexprs3_2.push_back(&won);
+  iexprs3_2.push_back(&tree);
+  iexprs3_2.push_back(&i);
 
-  iexprs3_3.push_back(i.getId());
-  iexprs3_3.push_back(m1.getId());
-  iexprs3_3.push_back(won.getId());
+  iexprs3_3.push_back(&i);
+  iexprs3_3.push_back(&m1);
+  iexprs3_3.push_back(&won);
 
   Function iadd3_1(&addi, makeExprVec(iexprs3_1, garbage3));
   Function iadd3_2(&addi, makeExprVec(iexprs3_2, garbage3));
@@ -136,15 +136,15 @@ bool additionTest()
   // Binary
 
   // Set up arglists
-  std::vector<ExpressionId> rexprs2_1, rexprs2_2, rexprs2_3;
-  rexprs2_1.push_back(too.getId());
-  rexprs2_1.push_back(fore.getId());
+  std::vector<Expression *> rexprs2_1, rexprs2_2, rexprs2_3;
+  rexprs2_1.push_back(&too);
+  rexprs2_1.push_back(&fore);
 
-  rexprs2_2.push_back(x.getId());
-  rexprs2_2.push_back(too.getId());
+  rexprs2_2.push_back(&x);
+  rexprs2_2.push_back(&too);
 
-  rexprs2_3.push_back(fore.getId());
-  rexprs2_3.push_back(x.getId());
+  rexprs2_3.push_back(&fore);
+  rexprs2_3.push_back(&x);
 
   Function radd2_1(&addr, makeExprVec(rexprs2_1, garbage2));
   Function radd2_2(&addr, makeExprVec(rexprs2_2, garbage2));
@@ -169,18 +169,18 @@ bool additionTest()
   assertTrue_1(tempr == 4.0);
 
   // N-ary
-  std::vector<ExpressionId> rexprs3_1, rexprs3_2, rexprs3_3;
-  rexprs3_1.push_back(too.getId());
-  rexprs3_1.push_back(fore.getId());
-  rexprs3_1.push_back(too.getId());
+  std::vector<Expression *> rexprs3_1, rexprs3_2, rexprs3_3;
+  rexprs3_1.push_back(&too);
+  rexprs3_1.push_back(&fore);
+  rexprs3_1.push_back(&too);
 
-  rexprs3_2.push_back(x.getId());
-  rexprs3_2.push_back(too.getId());
-  rexprs3_2.push_back(fore.getId());
+  rexprs3_2.push_back(&x);
+  rexprs3_2.push_back(&too);
+  rexprs3_2.push_back(&fore);
 
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(x.getId());
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&x);
 
   Function radd3_1(&addr, makeExprVec(rexprs3_1, garbage3));
   Function radd3_2(&addr, makeExprVec(rexprs3_2, garbage3));
@@ -212,15 +212,15 @@ bool additionTest()
   // Binary
 
   // Set up arglists
-  std::vector<ExpressionId> mexprs2_1, mexprs2_2, mexprs2_3;
-  mexprs2_1.push_back(too.getId());
-  mexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> mexprs2_1, mexprs2_2, mexprs2_3;
+  mexprs2_1.push_back(&too);
+  mexprs2_1.push_back(&tree);
 
-  mexprs2_2.push_back(i.getId());
-  mexprs2_2.push_back(too.getId());
+  mexprs2_2.push_back(&i);
+  mexprs2_2.push_back(&too);
 
-  mexprs2_3.push_back(tree.getId());
-  mexprs2_3.push_back(x.getId());
+  mexprs2_3.push_back(&tree);
+  mexprs2_3.push_back(&x);
 
   Function madd2_1(&addr, makeExprVec(mexprs2_1, garbage2));
   Function madd2_2(&addr, makeExprVec(mexprs2_2, garbage2));
@@ -249,19 +249,19 @@ bool additionTest()
 
   // N-ary
   rexprs3_1.clear();
-  rexprs3_1.push_back(tree.getId());
-  rexprs3_1.push_back(fore.getId());
-  rexprs3_1.push_back(m1.getId());
+  rexprs3_1.push_back(&tree);
+  rexprs3_1.push_back(&fore);
+  rexprs3_1.push_back(&m1);
 
   rexprs3_2.clear();
-  rexprs3_2.push_back(x.getId());
-  rexprs3_2.push_back(won.getId());
-  rexprs3_2.push_back(fore.getId());
+  rexprs3_2.push_back(&x);
+  rexprs3_2.push_back(&won);
+  rexprs3_2.push_back(&fore);
 
   rexprs3_3.clear();
-  rexprs3_3.push_back(tree.getId());
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(i.getId());
+  rexprs3_3.push_back(&tree);
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&i);
 
   Function madd3_1(&addr, makeExprVec(rexprs3_1, garbage3));
   Function madd3_2(&addr, makeExprVec(rexprs3_2, garbage3));
@@ -306,10 +306,10 @@ bool subtractionTest()
   std::vector<bool> garbage3(3, false);
 
   // Unary
-  std::vector<ExpressionId> iexprs1_1, iexprs1_2, iexprs1_3;
-  iexprs1_1.push_back(m1.getId());
-  iexprs1_2.push_back(tree.getId());
-  iexprs1_3.push_back(i.getId());
+  std::vector<Expression *> iexprs1_1, iexprs1_2, iexprs1_3;
+  iexprs1_1.push_back(&m1);
+  iexprs1_2.push_back(&tree);
+  iexprs1_3.push_back(&i);
 
   Function isub1_1(&subi, makeExprVec(iexprs1_1, garbage1));
   Function isub1_2(&subi, makeExprVec(iexprs1_2, garbage1));
@@ -333,15 +333,15 @@ bool subtractionTest()
   assertTrue_1(tempi == -7);
 
   // Binary
-  std::vector<ExpressionId> iexprs2_1, iexprs2_2, iexprs2_3;
-  iexprs2_1.push_back(m1.getId());
-  iexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs2_1, iexprs2_2, iexprs2_3;
+  iexprs2_1.push_back(&m1);
+  iexprs2_1.push_back(&tree);
 
-  iexprs2_2.push_back(i.getId());
-  iexprs2_2.push_back(won.getId());
+  iexprs2_2.push_back(&i);
+  iexprs2_2.push_back(&won);
 
-  iexprs2_3.push_back(tree.getId());
-  iexprs2_3.push_back(i.getId());
+  iexprs2_3.push_back(&tree);
+  iexprs2_3.push_back(&i);
 
   Function isub2_1(&subi, makeExprVec(iexprs2_1, garbage2));
   Function isub2_2(&subi, makeExprVec(iexprs2_2, garbage2));
@@ -370,18 +370,18 @@ bool subtractionTest()
   // N-ary (not supported in schema)
 
   // Set up arglists
-  std::vector<ExpressionId> iexprs3_1, iexprs3_2, iexprs3_3;
-  iexprs3_1.push_back(m1.getId());
-  iexprs3_1.push_back(won.getId());
-  iexprs3_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs3_1, iexprs3_2, iexprs3_3;
+  iexprs3_1.push_back(&m1);
+  iexprs3_1.push_back(&won);
+  iexprs3_1.push_back(&tree);
 
-  iexprs3_2.push_back(won.getId());
-  iexprs3_2.push_back(tree.getId());
-  iexprs3_2.push_back(i.getId());
+  iexprs3_2.push_back(&won);
+  iexprs3_2.push_back(&tree);
+  iexprs3_2.push_back(&i);
 
-  iexprs3_3.push_back(i.getId());
-  iexprs3_3.push_back(m1.getId());
-  iexprs3_3.push_back(won.getId());
+  iexprs3_3.push_back(&i);
+  iexprs3_3.push_back(&m1);
+  iexprs3_3.push_back(&won);
 
   Function isub3_1(&subi, makeExprVec(iexprs3_1, garbage3));
   Function isub3_2(&subi, makeExprVec(iexprs3_2, garbage3));
@@ -415,10 +415,10 @@ bool subtractionTest()
   double tempr;
 
   // Unary
-  std::vector<ExpressionId> rexprs1_1, rexprs1_2, rexprs1_3;
-  rexprs1_1.push_back(too.getId());
-  rexprs1_2.push_back(fore.getId());
-  rexprs1_3.push_back(x.getId());
+  std::vector<Expression *> rexprs1_1, rexprs1_2, rexprs1_3;
+  rexprs1_1.push_back(&too);
+  rexprs1_2.push_back(&fore);
+  rexprs1_3.push_back(&x);
 
   Function rsub1_1(&subr, makeExprVec(rexprs1_1, garbage1));
   Function rsub1_2(&subr, makeExprVec(rexprs1_2, garbage1));
@@ -442,15 +442,15 @@ bool subtractionTest()
   assertTrue_1(tempr == -1.5);
 
   // Binary
-  std::vector<ExpressionId> rexprs2_1, rexprs2_2, rexprs2_3;
-  rexprs2_1.push_back(too.getId());
-  rexprs2_1.push_back(fore.getId());
+  std::vector<Expression *> rexprs2_1, rexprs2_2, rexprs2_3;
+  rexprs2_1.push_back(&too);
+  rexprs2_1.push_back(&fore);
 
-  rexprs2_2.push_back(x.getId());
-  rexprs2_2.push_back(too.getId());
+  rexprs2_2.push_back(&x);
+  rexprs2_2.push_back(&too);
 
-  rexprs2_3.push_back(fore.getId());
-  rexprs2_3.push_back(x.getId());
+  rexprs2_3.push_back(&fore);
+  rexprs2_3.push_back(&x);
 
   Function rsub2_1(&subr, makeExprVec(rexprs2_1, garbage2));
   Function rsub2_2(&subr, makeExprVec(rexprs2_2, garbage2));
@@ -477,18 +477,18 @@ bool subtractionTest()
   assertTrue_1(tempr == 5.0);
 
   // N-ary (not supported in schema)
-  std::vector<ExpressionId> rexprs3_1, rexprs3_2, rexprs3_3;
-  rexprs3_1.push_back(too.getId());
-  rexprs3_1.push_back(fore.getId());
-  rexprs3_1.push_back(too.getId());
+  std::vector<Expression *> rexprs3_1, rexprs3_2, rexprs3_3;
+  rexprs3_1.push_back(&too);
+  rexprs3_1.push_back(&fore);
+  rexprs3_1.push_back(&too);
 
-  rexprs3_2.push_back(x.getId());
-  rexprs3_2.push_back(too.getId());
-  rexprs3_2.push_back(fore.getId());
+  rexprs3_2.push_back(&x);
+  rexprs3_2.push_back(&too);
+  rexprs3_2.push_back(&fore);
 
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(x.getId());
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&x);
 
   Function rsub3_1(&subr, makeExprVec(rexprs3_1, garbage3));
   Function rsub3_2(&subr, makeExprVec(rexprs3_2, garbage3));
@@ -517,10 +517,10 @@ bool subtractionTest()
   // Mixed numeric
 
   // Unary
-  std::vector<ExpressionId> mexprs1_1, mexprs1_2, mexprs1_3;
-  mexprs1_1.push_back(m1.getId());
-  mexprs1_2.push_back(tree.getId());
-  mexprs1_3.push_back(i.getId());
+  std::vector<Expression *> mexprs1_1, mexprs1_2, mexprs1_3;
+  mexprs1_1.push_back(&m1);
+  mexprs1_2.push_back(&tree);
+  mexprs1_3.push_back(&i);
 
   Function msub1_1(&subr, makeExprVec(mexprs1_1, garbage1));
   Function msub1_2(&subr, makeExprVec(mexprs1_2, garbage1));
@@ -546,15 +546,15 @@ bool subtractionTest()
   assertTrue_1(tempr == -7);
 
   // Binary
-  std::vector<ExpressionId> mexprs2_1, mexprs2_2, mexprs2_3;
-  mexprs2_1.push_back(too.getId());
-  mexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> mexprs2_1, mexprs2_2, mexprs2_3;
+  mexprs2_1.push_back(&too);
+  mexprs2_1.push_back(&tree);
 
-  mexprs2_2.push_back(i.getId());
-  mexprs2_2.push_back(too.getId());
+  mexprs2_2.push_back(&i);
+  mexprs2_2.push_back(&too);
 
-  mexprs2_3.push_back(tree.getId());
-  mexprs2_3.push_back(x.getId());
+  mexprs2_3.push_back(&tree);
+  mexprs2_3.push_back(&x);
 
   Function msub2_1(&subr, makeExprVec(mexprs2_1, garbage2));
   Function msub2_2(&subr, makeExprVec(mexprs2_2, garbage2));
@@ -583,19 +583,19 @@ bool subtractionTest()
 
   // N-ary (not supported in schema)
   rexprs3_1.clear();
-  rexprs3_1.push_back(tree.getId());
-  rexprs3_1.push_back(fore.getId());
-  rexprs3_1.push_back(m1.getId());
+  rexprs3_1.push_back(&tree);
+  rexprs3_1.push_back(&fore);
+  rexprs3_1.push_back(&m1);
 
   rexprs3_2.clear();
-  rexprs3_2.push_back(x.getId());
-  rexprs3_2.push_back(won.getId());
-  rexprs3_2.push_back(fore.getId());
+  rexprs3_2.push_back(&x);
+  rexprs3_2.push_back(&won);
+  rexprs3_2.push_back(&fore);
 
   rexprs3_3.clear();
-  rexprs3_3.push_back(tree.getId());
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(i.getId());
+  rexprs3_3.push_back(&tree);
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&i);
 
   Function msub3_1(&subr, makeExprVec(rexprs3_1, garbage3));
   Function msub3_2(&subr, makeExprVec(rexprs3_2, garbage3));
@@ -643,15 +643,15 @@ bool multiplicationTest()
   // Unary not supported in schema
 
   // Binary
-  std::vector<ExpressionId> iexprs2_1, iexprs2_2, iexprs2_3;
-  iexprs2_1.push_back(m1.getId());
-  iexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs2_1, iexprs2_2, iexprs2_3;
+  iexprs2_1.push_back(&m1);
+  iexprs2_1.push_back(&tree);
 
-  iexprs2_2.push_back(i.getId());
-  iexprs2_2.push_back(six.getId());
+  iexprs2_2.push_back(&i);
+  iexprs2_2.push_back(&six);
 
-  iexprs2_3.push_back(tree.getId());
-  iexprs2_3.push_back(i.getId());
+  iexprs2_3.push_back(&tree);
+  iexprs2_3.push_back(&i);
 
   Function imul2_1(&muli, makeExprVec(iexprs2_1, garbage2));
   Function imul2_2(&muli, makeExprVec(iexprs2_2, garbage2));
@@ -678,18 +678,18 @@ bool multiplicationTest()
   // N-ary
 
   // Set up arglists
-  std::vector<ExpressionId> iexprs3_1, iexprs3_2, iexprs3_3;
-  iexprs3_1.push_back(m1.getId());
-  iexprs3_1.push_back(six.getId());
-  iexprs3_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs3_1, iexprs3_2, iexprs3_3;
+  iexprs3_1.push_back(&m1);
+  iexprs3_1.push_back(&six);
+  iexprs3_1.push_back(&tree);
 
-  iexprs3_2.push_back(six.getId());
-  iexprs3_2.push_back(tree.getId());
-  iexprs3_2.push_back(i.getId());
+  iexprs3_2.push_back(&six);
+  iexprs3_2.push_back(&tree);
+  iexprs3_2.push_back(&i);
 
-  iexprs3_3.push_back(i.getId());
-  iexprs3_3.push_back(m1.getId());
-  iexprs3_3.push_back(six.getId());
+  iexprs3_3.push_back(&i);
+  iexprs3_3.push_back(&m1);
+  iexprs3_3.push_back(&six);
 
   Function imul3_1(&muli, makeExprVec(iexprs3_1, garbage3));
   Function imul3_2(&muli, makeExprVec(iexprs3_2, garbage3));
@@ -725,15 +725,15 @@ bool multiplicationTest()
   // Unary not supported in schema
 
   // Binary
-  std::vector<ExpressionId> rexprs2_1, rexprs2_2, rexprs2_3;
-  rexprs2_1.push_back(too.getId());
-  rexprs2_1.push_back(fore.getId());
+  std::vector<Expression *> rexprs2_1, rexprs2_2, rexprs2_3;
+  rexprs2_1.push_back(&too);
+  rexprs2_1.push_back(&fore);
 
-  rexprs2_2.push_back(x.getId());
-  rexprs2_2.push_back(too.getId());
+  rexprs2_2.push_back(&x);
+  rexprs2_2.push_back(&too);
 
-  rexprs2_3.push_back(fore.getId());
-  rexprs2_3.push_back(x.getId());
+  rexprs2_3.push_back(&fore);
+  rexprs2_3.push_back(&x);
 
   Function rmul2_1(&mulr, makeExprVec(rexprs2_1, garbage2));
   Function rmul2_2(&mulr, makeExprVec(rexprs2_2, garbage2));
@@ -758,18 +758,18 @@ bool multiplicationTest()
   assertTrue_1(tempr == -2.0);
 
   // N-ary
-  std::vector<ExpressionId> rexprs3_1, rexprs3_2, rexprs3_3;
-  rexprs3_1.push_back(too.getId());
-  rexprs3_1.push_back(fore.getId());
-  rexprs3_1.push_back(too.getId());
+  std::vector<Expression *> rexprs3_1, rexprs3_2, rexprs3_3;
+  rexprs3_1.push_back(&too);
+  rexprs3_1.push_back(&fore);
+  rexprs3_1.push_back(&too);
 
-  rexprs3_2.push_back(x.getId());
-  rexprs3_2.push_back(too.getId());
-  rexprs3_2.push_back(fore.getId());
+  rexprs3_2.push_back(&x);
+  rexprs3_2.push_back(&too);
+  rexprs3_2.push_back(&fore);
 
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(x.getId());
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&x);
 
   Function rmul3_1(&mulr, makeExprVec(rexprs3_1, garbage3));
   Function rmul3_2(&mulr, makeExprVec(rexprs3_2, garbage3));
@@ -800,15 +800,15 @@ bool multiplicationTest()
   // Unary not supported in schema
 
   // Binary
-  std::vector<ExpressionId> mexprs2_1, mexprs2_2, mexprs2_3;
-  mexprs2_1.push_back(too.getId());
-  mexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> mexprs2_1, mexprs2_2, mexprs2_3;
+  mexprs2_1.push_back(&too);
+  mexprs2_1.push_back(&tree);
 
-  mexprs2_2.push_back(i.getId());
-  mexprs2_2.push_back(too.getId());
+  mexprs2_2.push_back(&i);
+  mexprs2_2.push_back(&too);
 
-  mexprs2_3.push_back(tree.getId());
-  mexprs2_3.push_back(x.getId());
+  mexprs2_3.push_back(&tree);
+  mexprs2_3.push_back(&x);
 
   Function mmul2_1(&mulr, makeExprVec(mexprs2_1, garbage2));
   Function mmul2_2(&mulr, makeExprVec(mexprs2_2, garbage2));
@@ -837,19 +837,19 @@ bool multiplicationTest()
 
   // N-ary
   rexprs3_1.clear();
-  rexprs3_1.push_back(tree.getId());
-  rexprs3_1.push_back(fore.getId());
-  rexprs3_1.push_back(m1.getId());
+  rexprs3_1.push_back(&tree);
+  rexprs3_1.push_back(&fore);
+  rexprs3_1.push_back(&m1);
 
   rexprs3_2.clear();
-  rexprs3_2.push_back(x.getId());
-  rexprs3_2.push_back(six.getId());
-  rexprs3_2.push_back(fore.getId());
+  rexprs3_2.push_back(&x);
+  rexprs3_2.push_back(&six);
+  rexprs3_2.push_back(&fore);
 
   rexprs3_3.clear();
-  rexprs3_3.push_back(tree.getId());
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(i.getId());
+  rexprs3_3.push_back(&tree);
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&i);
 
   Function mmul3_1(&mulr, makeExprVec(rexprs3_1, garbage3));
   Function mmul3_2(&mulr, makeExprVec(rexprs3_2, garbage3));
@@ -892,15 +892,15 @@ bool divisionTest()
   std::vector<bool> garbage2(2, false);
 
   // Binary
-  std::vector<ExpressionId> iexprs2_1, iexprs2_2, iexprs2_3;
-  iexprs2_1.push_back(five.getId());
-  iexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs2_1, iexprs2_2, iexprs2_3;
+  iexprs2_1.push_back(&five);
+  iexprs2_1.push_back(&tree);
 
-  iexprs2_2.push_back(i.getId());
-  iexprs2_2.push_back(five.getId());
+  iexprs2_2.push_back(&i);
+  iexprs2_2.push_back(&five);
 
-  iexprs2_3.push_back(tree.getId());
-  iexprs2_3.push_back(i.getId());
+  iexprs2_3.push_back(&tree);
+  iexprs2_3.push_back(&i);
 
   Function idiv2_1(&divi, makeExprVec(iexprs2_1, garbage2));
   Function idiv2_2(&divi, makeExprVec(iexprs2_2, garbage2));
@@ -932,15 +932,15 @@ bool divisionTest()
   double tempr;
 
   // Binary
-  std::vector<ExpressionId> rexprs2_1, rexprs2_2, rexprs2_3;
-  rexprs2_1.push_back(fore.getId());
-  rexprs2_1.push_back(too.getId());
+  std::vector<Expression *> rexprs2_1, rexprs2_2, rexprs2_3;
+  rexprs2_1.push_back(&fore);
+  rexprs2_1.push_back(&too);
 
-  rexprs2_2.push_back(x.getId());
-  rexprs2_2.push_back(fore.getId());
+  rexprs2_2.push_back(&x);
+  rexprs2_2.push_back(&fore);
 
-  rexprs2_3.push_back(too.getId());
-  rexprs2_3.push_back(x.getId());
+  rexprs2_3.push_back(&too);
+  rexprs2_3.push_back(&x);
 
   Function rdiv2_1(&divr, makeExprVec(rexprs2_1, garbage2));
   Function rdiv2_2(&divr, makeExprVec(rexprs2_2, garbage2));
@@ -966,15 +966,15 @@ bool divisionTest()
 
   // Mixed
   // Binary
-  std::vector<ExpressionId> mexprs2_1, mexprs2_2, mexprs2_3;
-  mexprs2_1.push_back(too.getId());
-  mexprs2_1.push_back(five.getId());
+  std::vector<Expression *> mexprs2_1, mexprs2_2, mexprs2_3;
+  mexprs2_1.push_back(&too);
+  mexprs2_1.push_back(&five);
 
-  mexprs2_2.push_back(i.getId());
-  mexprs2_2.push_back(too.getId());
+  mexprs2_2.push_back(&i);
+  mexprs2_2.push_back(&too);
 
-  mexprs2_3.push_back(tree.getId());
-  mexprs2_3.push_back(x.getId());
+  mexprs2_3.push_back(&tree);
+  mexprs2_3.push_back(&x);
 
   Function mdiv2_1(&divr, makeExprVec(mexprs2_1, garbage2));
   Function mdiv2_2(&divr, makeExprVec(mexprs2_2, garbage2));
@@ -1016,15 +1016,15 @@ bool moduloTest()
   std::vector<bool> garbage2(2, false);
 
   // Integer
-  std::vector<ExpressionId> iexprs2_1, iexprs2_2, iexprs2_3;
-  iexprs2_1.push_back(tree.getId());
-  iexprs2_1.push_back(too.getId());
+  std::vector<Expression *> iexprs2_1, iexprs2_2, iexprs2_3;
+  iexprs2_1.push_back(&tree);
+  iexprs2_1.push_back(&too);
 
-  iexprs2_2.push_back(i.getId());
-  iexprs2_2.push_back(tree.getId());
+  iexprs2_2.push_back(&i);
+  iexprs2_2.push_back(&tree);
 
-  iexprs2_3.push_back(nein.getId());
-  iexprs2_3.push_back(i.getId());
+  iexprs2_3.push_back(&nein);
+  iexprs2_3.push_back(&i);
 
   Function imod2_1(&modi, makeExprVec(iexprs2_1, garbage2));
   Function imod2_2(&modi, makeExprVec(iexprs2_2, garbage2));
@@ -1055,15 +1055,15 @@ bool moduloTest()
   Modulo<double> modd;
   double tempd;
 
-  std::vector<ExpressionId> dexprs2_1, dexprs2_2, dexprs2_3;
-  dexprs2_1.push_back(three.getId());
-  dexprs2_1.push_back(tue.getId());
+  std::vector<Expression *> dexprs2_1, dexprs2_2, dexprs2_3;
+  dexprs2_1.push_back(&three);
+  dexprs2_1.push_back(&tue);
 
-  dexprs2_2.push_back(x.getId());
-  dexprs2_2.push_back(three.getId());
+  dexprs2_2.push_back(&x);
+  dexprs2_2.push_back(&three);
 
-  dexprs2_3.push_back(nin.getId());
-  dexprs2_3.push_back(x.getId());
+  dexprs2_3.push_back(&nin);
+  dexprs2_3.push_back(&x);
   
   Function dmod2_1(&modd, makeExprVec(dexprs2_1, garbage2));
   Function dmod2_2(&modd, makeExprVec(dexprs2_2, garbage2));
@@ -1107,15 +1107,15 @@ bool minimumTest()
   // Unary not supported in schema
 
   // Binary
-  std::vector<ExpressionId> iexprs2_1, iexprs2_2, iexprs2_3;
-  iexprs2_1.push_back(m1.getId());
-  iexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs2_1, iexprs2_2, iexprs2_3;
+  iexprs2_1.push_back(&m1);
+  iexprs2_1.push_back(&tree);
 
-  iexprs2_2.push_back(i.getId());
-  iexprs2_2.push_back(won.getId());
+  iexprs2_2.push_back(&i);
+  iexprs2_2.push_back(&won);
 
-  iexprs2_3.push_back(tree.getId());
-  iexprs2_3.push_back(i.getId());
+  iexprs2_3.push_back(&tree);
+  iexprs2_3.push_back(&i);
 
   Function imin2_1(&mini, makeExprVec(iexprs2_1, garbage2));
   Function imin2_2(&mini, makeExprVec(iexprs2_2, garbage2));
@@ -1142,18 +1142,18 @@ bool minimumTest()
   // N-ary (not supported in schema)
 
   // Set up arglists
-  std::vector<ExpressionId> iexprs3_1, iexprs3_2, iexprs3_3;
-  iexprs3_1.push_back(m1.getId());
-  iexprs3_1.push_back(won.getId());
-  iexprs3_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs3_1, iexprs3_2, iexprs3_3;
+  iexprs3_1.push_back(&m1);
+  iexprs3_1.push_back(&won);
+  iexprs3_1.push_back(&tree);
 
-  iexprs3_2.push_back(won.getId());
-  iexprs3_2.push_back(tree.getId());
-  iexprs3_2.push_back(i.getId());
+  iexprs3_2.push_back(&won);
+  iexprs3_2.push_back(&tree);
+  iexprs3_2.push_back(&i);
 
-  iexprs3_3.push_back(i.getId());
-  iexprs3_3.push_back(m1.getId());
-  iexprs3_3.push_back(won.getId());
+  iexprs3_3.push_back(&i);
+  iexprs3_3.push_back(&m1);
+  iexprs3_3.push_back(&won);
 
   Function imin3_1(&mini, makeExprVec(iexprs3_1, garbage3));
   Function imin3_2(&mini, makeExprVec(iexprs3_2, garbage3));
@@ -1189,15 +1189,15 @@ bool minimumTest()
   // Unary not supported in schema
 
   // Binary
-  std::vector<ExpressionId> rexprs2_1, rexprs2_2, rexprs2_3;
-  rexprs2_1.push_back(too.getId());
-  rexprs2_1.push_back(fore.getId());
+  std::vector<Expression *> rexprs2_1, rexprs2_2, rexprs2_3;
+  rexprs2_1.push_back(&too);
+  rexprs2_1.push_back(&fore);
 
-  rexprs2_2.push_back(x.getId());
-  rexprs2_2.push_back(too.getId());
+  rexprs2_2.push_back(&x);
+  rexprs2_2.push_back(&too);
 
-  rexprs2_3.push_back(fore.getId());
-  rexprs2_3.push_back(x.getId());
+  rexprs2_3.push_back(&fore);
+  rexprs2_3.push_back(&x);
 
   Function rmin2_1(&minr, makeExprVec(rexprs2_1, garbage2));
   Function rmin2_2(&minr, makeExprVec(rexprs2_2, garbage2));
@@ -1222,18 +1222,18 @@ bool minimumTest()
   assertTrue_1(tempr == -0.5);
 
   // N-ary (not supported in schema)
-  std::vector<ExpressionId> rexprs3_1, rexprs3_2, rexprs3_3;
-  rexprs3_1.push_back(too.getId());
-  rexprs3_1.push_back(fore.getId());
-  rexprs3_1.push_back(too.getId());
+  std::vector<Expression *> rexprs3_1, rexprs3_2, rexprs3_3;
+  rexprs3_1.push_back(&too);
+  rexprs3_1.push_back(&fore);
+  rexprs3_1.push_back(&too);
 
-  rexprs3_2.push_back(x.getId());
-  rexprs3_2.push_back(too.getId());
-  rexprs3_2.push_back(fore.getId());
+  rexprs3_2.push_back(&x);
+  rexprs3_2.push_back(&too);
+  rexprs3_2.push_back(&fore);
 
-  rexprs3_3.push_back(fore.getId());
-  rexprs3_3.push_back(fore.getId());
-  rexprs3_3.push_back(x.getId());
+  rexprs3_3.push_back(&fore);
+  rexprs3_3.push_back(&fore);
+  rexprs3_3.push_back(&x);
 
   Function rmin3_1(&minr, makeExprVec(rexprs3_1, garbage3));
   Function rmin3_2(&minr, makeExprVec(rexprs3_2, garbage3));
@@ -1265,15 +1265,15 @@ bool minimumTest()
   // Unary not supported in schema
 
   // Binary
-  std::vector<ExpressionId> mexprs2_1, mexprs2_2, mexprs2_3;
-  mexprs2_1.push_back(too.getId());
-  mexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> mexprs2_1, mexprs2_2, mexprs2_3;
+  mexprs2_1.push_back(&too);
+  mexprs2_1.push_back(&tree);
 
-  mexprs2_2.push_back(i.getId());
-  mexprs2_2.push_back(too.getId());
+  mexprs2_2.push_back(&i);
+  mexprs2_2.push_back(&too);
 
-  mexprs2_3.push_back(tree.getId());
-  mexprs2_3.push_back(x.getId());
+  mexprs2_3.push_back(&tree);
+  mexprs2_3.push_back(&x);
 
   Function mmin2_1(&minr, makeExprVec(mexprs2_1, garbage2));
   Function mmin2_2(&minr, makeExprVec(mexprs2_2, garbage2));
@@ -1302,19 +1302,19 @@ bool minimumTest()
 
   // N-ary (not supported in schema)
   rexprs3_1.clear();
-  rexprs3_1.push_back(tree.getId());
-  rexprs3_1.push_back(fore.getId());
-  rexprs3_1.push_back(m1.getId());
+  rexprs3_1.push_back(&tree);
+  rexprs3_1.push_back(&fore);
+  rexprs3_1.push_back(&m1);
 
   rexprs3_2.clear();
-  rexprs3_2.push_back(x.getId());
-  rexprs3_2.push_back(won.getId());
-  rexprs3_2.push_back(fore.getId());
+  rexprs3_2.push_back(&x);
+  rexprs3_2.push_back(&won);
+  rexprs3_2.push_back(&fore);
 
   rexprs3_3.clear();
-  rexprs3_3.push_back(tree.getId());
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(i.getId());
+  rexprs3_3.push_back(&tree);
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&i);
 
   Function mmin3_1(&minr, makeExprVec(rexprs3_1, garbage3));
   Function mmin3_2(&minr, makeExprVec(rexprs3_2, garbage3));
@@ -1361,15 +1361,15 @@ bool maximumTest()
   // Unary not supported in schema
 
   // Binary
-  std::vector<ExpressionId> iexprs2_1, iexprs2_2, iexprs2_3;
-  iexprs2_1.push_back(m1.getId());
-  iexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs2_1, iexprs2_2, iexprs2_3;
+  iexprs2_1.push_back(&m1);
+  iexprs2_1.push_back(&tree);
 
-  iexprs2_2.push_back(i.getId());
-  iexprs2_2.push_back(won.getId());
+  iexprs2_2.push_back(&i);
+  iexprs2_2.push_back(&won);
 
-  iexprs2_3.push_back(tree.getId());
-  iexprs2_3.push_back(i.getId());
+  iexprs2_3.push_back(&tree);
+  iexprs2_3.push_back(&i);
 
   Function imax2_1(&maxi, makeExprVec(iexprs2_1, garbage2));
   Function imax2_2(&maxi, makeExprVec(iexprs2_2, garbage2));
@@ -1396,18 +1396,18 @@ bool maximumTest()
   // N-ary (not supported in schema)
 
   // Set up arglists
-  std::vector<ExpressionId> iexprs3_1, iexprs3_2, iexprs3_3;
-  iexprs3_1.push_back(m1.getId());
-  iexprs3_1.push_back(won.getId());
-  iexprs3_1.push_back(tree.getId());
+  std::vector<Expression *> iexprs3_1, iexprs3_2, iexprs3_3;
+  iexprs3_1.push_back(&m1);
+  iexprs3_1.push_back(&won);
+  iexprs3_1.push_back(&tree);
 
-  iexprs3_2.push_back(won.getId());
-  iexprs3_2.push_back(tree.getId());
-  iexprs3_2.push_back(i.getId());
+  iexprs3_2.push_back(&won);
+  iexprs3_2.push_back(&tree);
+  iexprs3_2.push_back(&i);
 
-  iexprs3_3.push_back(i.getId());
-  iexprs3_3.push_back(m1.getId());
-  iexprs3_3.push_back(won.getId());
+  iexprs3_3.push_back(&i);
+  iexprs3_3.push_back(&m1);
+  iexprs3_3.push_back(&won);
 
   Function imax3_1(&maxi, makeExprVec(iexprs3_1, garbage3));
   Function imax3_2(&maxi, makeExprVec(iexprs3_2, garbage3));
@@ -1443,15 +1443,15 @@ bool maximumTest()
   // Unary not supported in schema
 
   // Binary
-  std::vector<ExpressionId> rexprs2_1, rexprs2_2, rexprs2_3;
-  rexprs2_1.push_back(too.getId());
-  rexprs2_1.push_back(fore.getId());
+  std::vector<Expression *> rexprs2_1, rexprs2_2, rexprs2_3;
+  rexprs2_1.push_back(&too);
+  rexprs2_1.push_back(&fore);
 
-  rexprs2_2.push_back(x.getId());
-  rexprs2_2.push_back(too.getId());
+  rexprs2_2.push_back(&x);
+  rexprs2_2.push_back(&too);
 
-  rexprs2_3.push_back(fore.getId());
-  rexprs2_3.push_back(x.getId());
+  rexprs2_3.push_back(&fore);
+  rexprs2_3.push_back(&x);
 
   Function rmax2_1(&maxr, makeExprVec(rexprs2_1, garbage2));
   Function rmax2_2(&maxr, makeExprVec(rexprs2_2, garbage2));
@@ -1476,18 +1476,18 @@ bool maximumTest()
   assertTrue_1(tempr == 4.5);
 
   // N-ary (not supported in schema)
-  std::vector<ExpressionId> rexprs3_1, rexprs3_2, rexprs3_3;
-  rexprs3_1.push_back(too.getId());
-  rexprs3_1.push_back(fore.getId());
-  rexprs3_1.push_back(too.getId());
+  std::vector<Expression *> rexprs3_1, rexprs3_2, rexprs3_3;
+  rexprs3_1.push_back(&too);
+  rexprs3_1.push_back(&fore);
+  rexprs3_1.push_back(&too);
 
-  rexprs3_2.push_back(x.getId());
-  rexprs3_2.push_back(too.getId());
-  rexprs3_2.push_back(fore.getId());
+  rexprs3_2.push_back(&x);
+  rexprs3_2.push_back(&too);
+  rexprs3_2.push_back(&fore);
 
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(x.getId());
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&x);
 
   Function rmax3_1(&maxr, makeExprVec(rexprs3_1, garbage3));
   Function rmax3_2(&maxr, makeExprVec(rexprs3_2, garbage3));
@@ -1518,15 +1518,15 @@ bool maximumTest()
   // Unary not supported in schema
 
   // Binary
-  std::vector<ExpressionId> mexprs2_1, mexprs2_2, mexprs2_3;
-  mexprs2_1.push_back(too.getId());
-  mexprs2_1.push_back(tree.getId());
+  std::vector<Expression *> mexprs2_1, mexprs2_2, mexprs2_3;
+  mexprs2_1.push_back(&too);
+  mexprs2_1.push_back(&tree);
 
-  mexprs2_2.push_back(i.getId());
-  mexprs2_2.push_back(too.getId());
+  mexprs2_2.push_back(&i);
+  mexprs2_2.push_back(&too);
 
-  mexprs2_3.push_back(tree.getId());
-  mexprs2_3.push_back(x.getId());
+  mexprs2_3.push_back(&tree);
+  mexprs2_3.push_back(&x);
 
   Function mmax2_1(&maxr, makeExprVec(mexprs2_1, garbage2));
   Function mmax2_2(&maxr, makeExprVec(mexprs2_2, garbage2));
@@ -1555,19 +1555,19 @@ bool maximumTest()
 
   // N-ary (not supported in schema)
   rexprs3_1.clear();
-  rexprs3_1.push_back(tree.getId());
-  rexprs3_1.push_back(fore.getId());
-  rexprs3_1.push_back(m1.getId());
+  rexprs3_1.push_back(&tree);
+  rexprs3_1.push_back(&fore);
+  rexprs3_1.push_back(&m1);
 
   rexprs3_2.clear();
-  rexprs3_2.push_back(x.getId());
-  rexprs3_2.push_back(won.getId());
-  rexprs3_2.push_back(fore.getId());
+  rexprs3_2.push_back(&x);
+  rexprs3_2.push_back(&won);
+  rexprs3_2.push_back(&fore);
 
   rexprs3_3.clear();
-  rexprs3_3.push_back(tree.getId());
-  rexprs3_3.push_back(too.getId());
-  rexprs3_3.push_back(i.getId());
+  rexprs3_3.push_back(&tree);
+  rexprs3_3.push_back(&too);
+  rexprs3_3.push_back(&i);
 
   Function mmax3_1(&maxr, makeExprVec(rexprs3_1, garbage3));
   Function mmax3_2(&maxr, makeExprVec(rexprs3_2, garbage3));
@@ -1608,10 +1608,10 @@ bool absTest()
   int32_t tempi;
   std::vector<bool> garbage1(1, false);
 
-  std::vector<ExpressionId> iexpr1, iexpr2, iexpr3;
-  iexpr1.push_back(m1.getId());
-  iexpr2.push_back(won.getId());
-  iexpr3.push_back(i.getId());
+  std::vector<Expression *> iexpr1, iexpr2, iexpr3;
+  iexpr1.push_back(&m1);
+  iexpr2.push_back(&won);
+  iexpr3.push_back(&i);
 
   Function iabs1(&absi, makeExprVec(iexpr1, garbage1));
   Function iabs2(&absi, makeExprVec(iexpr2, garbage1));
@@ -1639,10 +1639,10 @@ bool absTest()
   AbsoluteValue<double> absr;
   double tempr;
 
-  std::vector<ExpressionId> rexpr1, rexpr2, rexpr3;
-  rexpr1.push_back(mtoo.getId());
-  rexpr2.push_back(tree.getId());
-  rexpr3.push_back(x.getId());
+  std::vector<Expression *> rexpr1, rexpr2, rexpr3;
+  rexpr1.push_back(&mtoo);
+  rexpr2.push_back(&tree);
+  rexpr3.push_back(&x);
 
   Function rabs1(&absr, makeExprVec(rexpr1, garbage1));
   Function rabs2(&absr, makeExprVec(rexpr2, garbage1));
@@ -1664,10 +1664,10 @@ bool absTest()
   assertTrue_1(tempr == 18.5);
 
   // Mixed
-  std::vector<ExpressionId> mexpr1, mexpr2, mexpr3;
-  mexpr1.push_back(m1.getId());
-  mexpr2.push_back(won.getId());
-  mexpr3.push_back(i.getId());
+  std::vector<Expression *> mexpr1, mexpr2, mexpr3;
+  mexpr1.push_back(&m1);
+  mexpr2.push_back(&won);
+  mexpr3.push_back(&i);
   
   Function mabs1(&absr, makeExprVec(mexpr1, garbage1));
   Function mabs2(&absr, makeExprVec(mexpr2, garbage1));
@@ -1704,10 +1704,10 @@ bool sqrtTest()
   double tempr;
   std::vector<bool> garbage1(1, false);
 
-  std::vector<ExpressionId> rexpr1, rexpr2, rexpr3;
-  rexpr1.push_back(too.getId());
-  rexpr2.push_back(nein.getId());
-  rexpr3.push_back(x.getId());
+  std::vector<Expression *> rexpr1, rexpr2, rexpr3;
+  rexpr1.push_back(&too);
+  rexpr2.push_back(&nein);
+  rexpr3.push_back(&x);
 
   Function rsqrt1(&sqrt, makeExprVec(rexpr1, garbage1));
   Function rsqrt2(&sqrt, makeExprVec(rexpr2, garbage1));
@@ -1733,10 +1733,10 @@ bool sqrtTest()
   IntegerConstant sixteen(16);
   IntegerVariable i;
 
-  std::vector<ExpressionId> mexpr1, mexpr2, mexpr3;
-  mexpr1.push_back(fore.getId());
-  mexpr2.push_back(sixteen.getId());
-  mexpr3.push_back(i.getId());
+  std::vector<Expression *> mexpr1, mexpr2, mexpr3;
+  mexpr1.push_back(&fore);
+  mexpr2.push_back(&sixteen);
+  mexpr3.push_back(&i);
 
   Function msqrt1(&sqrt, makeExprVec(mexpr1, garbage1));
   Function msqrt2(&sqrt, makeExprVec(mexpr2, garbage1));
@@ -1775,7 +1775,7 @@ static bool testCeiling()
   Ceiling<int32_t> iCeiling;
 
   RealVariable x;
-  std::vector<ExpressionId> xexpr(1, x.getId());
+  std::vector<Expression *> xexpr(1, &x);
   std::vector<bool> garbage1(1, false);
 
   Function realCeiling(&rCeiling, makeExprVec(xexpr, garbage1));
@@ -1794,7 +1794,7 @@ static bool testCeiling()
   assertTrue_1(!realCeiling.getValue(rtemp));
   assertTrue_1(!intCeiling.getValue(itemp));
 
-  x.setValue(three.getId());
+  x.setValue(&three);
   assertTrue_1(x.isKnown());
   assertTrue_1(realCeiling.isKnown());
   assertTrue_1(intCeiling.isKnown());
@@ -1805,7 +1805,7 @@ static bool testCeiling()
   assertTrue_1(intCeiling.getValue(itemp));
   assertTrue_1(itemp == 3);
 
-  x.setValue(pi.getId());
+  x.setValue(&pi);
   assertTrue_1(x.isKnown());
   assertTrue_1(realCeiling.isKnown());
   assertTrue_1(intCeiling.isKnown());
@@ -1816,7 +1816,7 @@ static bool testCeiling()
   assertTrue_1(intCeiling.getValue(itemp));
   assertTrue_1(itemp == 4);
 
-  x.setValue(e.getId());
+  x.setValue(&e);
   assertTrue_1(x.isKnown());
   assertTrue_1(realCeiling.isKnown());
   assertTrue_1(intCeiling.isKnown());
@@ -1827,7 +1827,7 @@ static bool testCeiling()
   assertTrue_1(intCeiling.getValue(itemp));
   assertTrue_1(itemp == 3);
 
-  x.setValue(minusthree.getId());
+  x.setValue(&minusthree);
   assertTrue_1(x.isKnown());
   assertTrue_1(realCeiling.isKnown());
   assertTrue_1(intCeiling.isKnown());
@@ -1838,7 +1838,7 @@ static bool testCeiling()
   assertTrue_1(intCeiling.getValue(itemp));
   assertTrue_1(itemp == -3);
 
-  x.setValue(minuspi.getId());
+  x.setValue(&minuspi);
   assertTrue_1(x.isKnown());
   assertTrue_1(realCeiling.isKnown());
   assertTrue_1(intCeiling.isKnown());
@@ -1849,7 +1849,7 @@ static bool testCeiling()
   assertTrue_1(intCeiling.getValue(itemp));
   assertTrue_1(itemp == -3);
 
-  x.setValue(minuse.getId());
+  x.setValue(&minuse);
   assertTrue_1(x.isKnown());
   assertTrue_1(realCeiling.isKnown());
   assertTrue_1(intCeiling.isKnown());
@@ -1860,7 +1860,7 @@ static bool testCeiling()
   assertTrue_1(intCeiling.getValue(itemp));
   assertTrue_1(itemp == -2);
 
-  x.setValue(toobig.getId());
+  x.setValue(&toobig);
   assertTrue_1(x.isKnown());
   assertTrue_1(realCeiling.isKnown());
   assertTrue_1(!intCeiling.isKnown());
@@ -1870,7 +1870,7 @@ static bool testCeiling()
   assertTrue_1(rtemp == 3000000001);
   assertTrue_1(!intCeiling.getValue(itemp));
 
-  x.setValue(toonegative.getId());
+  x.setValue(&toonegative);
   assertTrue_1(x.isKnown());
   assertTrue_1(realCeiling.isKnown());
   assertTrue_1(!intCeiling.isKnown());
@@ -1898,7 +1898,7 @@ static bool testFloor()
   Floor<int32_t> iFloor;
 
   RealVariable x;
-  std::vector<ExpressionId> xexpr(1, x.getId());
+  std::vector<Expression *> xexpr(1, &x);
   std::vector<bool> garbage1(1, false);
 
   Function realFloor(&rFloor, makeExprVec(xexpr, garbage1));
@@ -1917,7 +1917,7 @@ static bool testFloor()
   assertTrue_1(!realFloor.getValue(rtemp));
   assertTrue_1(!intFloor.getValue(itemp));
 
-  x.setValue(three.getId());
+  x.setValue(&three);
   assertTrue_1(x.isKnown());
   assertTrue_1(realFloor.isKnown());
   assertTrue_1(intFloor.isKnown());
@@ -1928,7 +1928,7 @@ static bool testFloor()
   assertTrue_1(intFloor.getValue(itemp));
   assertTrue_1(itemp == 3);
 
-  x.setValue(pi.getId());
+  x.setValue(&pi);
   assertTrue_1(x.isKnown());
   assertTrue_1(realFloor.isKnown());
   assertTrue_1(intFloor.isKnown());
@@ -1939,7 +1939,7 @@ static bool testFloor()
   assertTrue_1(intFloor.getValue(itemp));
   assertTrue_1(itemp == 3);
 
-  x.setValue(e.getId());
+  x.setValue(&e);
   assertTrue_1(x.isKnown());
   assertTrue_1(realFloor.isKnown());
   assertTrue_1(intFloor.isKnown());
@@ -1950,7 +1950,7 @@ static bool testFloor()
   assertTrue_1(intFloor.getValue(itemp));
   assertTrue_1(itemp == 2);
 
-  x.setValue(minusthree.getId());
+  x.setValue(&minusthree);
   assertTrue_1(x.isKnown());
   assertTrue_1(realFloor.isKnown());
   assertTrue_1(intFloor.isKnown());
@@ -1961,7 +1961,7 @@ static bool testFloor()
   assertTrue_1(intFloor.getValue(itemp));
   assertTrue_1(itemp == -3);
 
-  x.setValue(minuspi.getId());
+  x.setValue(&minuspi);
   assertTrue_1(x.isKnown());
   assertTrue_1(realFloor.isKnown());
   assertTrue_1(intFloor.isKnown());
@@ -1972,7 +1972,7 @@ static bool testFloor()
   assertTrue_1(intFloor.getValue(itemp));
   assertTrue_1(itemp == -4);
 
-  x.setValue(minuse.getId());
+  x.setValue(&minuse);
   assertTrue_1(x.isKnown());
   assertTrue_1(realFloor.isKnown());
   assertTrue_1(intFloor.isKnown());
@@ -1983,7 +1983,7 @@ static bool testFloor()
   assertTrue_1(intFloor.getValue(itemp));
   assertTrue_1(itemp == -3);
 
-  x.setValue(toobig.getId());
+  x.setValue(&toobig);
   assertTrue_1(x.isKnown());
   assertTrue_1(realFloor.isKnown());
   assertTrue_1(!intFloor.isKnown());
@@ -1993,7 +1993,7 @@ static bool testFloor()
   assertTrue_1(rtemp == 3000000000);
   assertTrue_1(!intFloor.getValue(itemp));
 
-  x.setValue(toonegative.getId());
+  x.setValue(&toonegative);
   assertTrue_1(x.isKnown());
   assertTrue_1(realFloor.isKnown());
   assertTrue_1(!intFloor.isKnown());
@@ -2021,7 +2021,7 @@ static bool testRound()
   Round<int32_t> iRound;
 
   RealVariable x;
-  std::vector<ExpressionId> xexpr(1, x.getId());
+  std::vector<Expression *> xexpr(1, &x);
   std::vector<bool> garbage1(1, false);
 
   Function realRound(&rRound, makeExprVec(xexpr, garbage1));
@@ -2040,7 +2040,7 @@ static bool testRound()
   assertTrue_1(!realRound.getValue(rtemp));
   assertTrue_1(!intRound.getValue(itemp));
 
-  x.setValue(three.getId());
+  x.setValue(&three);
   assertTrue_1(x.isKnown());
   assertTrue_1(realRound.isKnown());
   assertTrue_1(intRound.isKnown());
@@ -2051,7 +2051,7 @@ static bool testRound()
   assertTrue_1(intRound.getValue(itemp));
   assertTrue_1(itemp == 3);
 
-  x.setValue(pi.getId());
+  x.setValue(&pi);
   assertTrue_1(x.isKnown());
   assertTrue_1(realRound.isKnown());
   assertTrue_1(intRound.isKnown());
@@ -2062,7 +2062,7 @@ static bool testRound()
   assertTrue_1(intRound.getValue(itemp));
   assertTrue_1(itemp == 3);
 
-  x.setValue(e.getId());
+  x.setValue(&e);
   assertTrue_1(x.isKnown());
   assertTrue_1(realRound.isKnown());
   assertTrue_1(intRound.isKnown());
@@ -2073,7 +2073,7 @@ static bool testRound()
   assertTrue_1(intRound.getValue(itemp));
   assertTrue_1(itemp == 3);
 
-  x.setValue(minusthree.getId());
+  x.setValue(&minusthree);
   assertTrue_1(x.isKnown());
   assertTrue_1(realRound.isKnown());
   assertTrue_1(intRound.isKnown());
@@ -2084,7 +2084,7 @@ static bool testRound()
   assertTrue_1(intRound.getValue(itemp));
   assertTrue_1(itemp == -3);
 
-  x.setValue(minuspi.getId());
+  x.setValue(&minuspi);
   assertTrue_1(x.isKnown());
   assertTrue_1(realRound.isKnown());
   assertTrue_1(intRound.isKnown());
@@ -2095,7 +2095,7 @@ static bool testRound()
   assertTrue_1(intRound.getValue(itemp));
   assertTrue_1(itemp == -3);
 
-  x.setValue(minuse.getId());
+  x.setValue(&minuse);
   assertTrue_1(x.isKnown());
   assertTrue_1(realRound.isKnown());
   assertTrue_1(intRound.isKnown());
@@ -2106,7 +2106,7 @@ static bool testRound()
   assertTrue_1(intRound.getValue(itemp));
   assertTrue_1(itemp == -3);
 
-  x.setValue(toobig.getId());
+  x.setValue(&toobig);
   assertTrue_1(x.isKnown());
   assertTrue_1(realRound.isKnown());
   assertTrue_1(!intRound.isKnown());
@@ -2116,7 +2116,7 @@ static bool testRound()
   assertTrue_1(rtemp == 3000000001);
   assertTrue_1(!intRound.getValue(itemp));
 
-  x.setValue(toonegative.getId());
+  x.setValue(&toonegative);
   assertTrue_1(x.isKnown());
   assertTrue_1(realRound.isKnown());
   assertTrue_1(!intRound.isKnown());
@@ -2144,7 +2144,7 @@ static bool testTruncate()
   Truncate<int32_t> iTruncate;
 
   RealVariable x;
-  std::vector<ExpressionId> xexpr(1, x.getId());
+  std::vector<Expression *> xexpr(1, &x);
   std::vector<bool> garbage1(1, false);
 
   Function realTruncate(&rTruncate, makeExprVec(xexpr, garbage1));
@@ -2163,7 +2163,7 @@ static bool testTruncate()
   assertTrue_1(!realTruncate.getValue(rtemp));
   assertTrue_1(!intTruncate.getValue(itemp));
 
-  x.setValue(three.getId());
+  x.setValue(&three);
   assertTrue_1(x.isKnown());
   assertTrue_1(realTruncate.isKnown());
   assertTrue_1(intTruncate.isKnown());
@@ -2174,7 +2174,7 @@ static bool testTruncate()
   assertTrue_1(intTruncate.getValue(itemp));
   assertTrue_1(itemp == 3);
 
-  x.setValue(pi.getId());
+  x.setValue(&pi);
   assertTrue_1(x.isKnown());
   assertTrue_1(realTruncate.isKnown());
   assertTrue_1(intTruncate.isKnown());
@@ -2185,7 +2185,7 @@ static bool testTruncate()
   assertTrue_1(intTruncate.getValue(itemp));
   assertTrue_1(itemp == 3);
 
-  x.setValue(e.getId());
+  x.setValue(&e);
   assertTrue_1(x.isKnown());
   assertTrue_1(realTruncate.isKnown());
   assertTrue_1(intTruncate.isKnown());
@@ -2196,7 +2196,7 @@ static bool testTruncate()
   assertTrue_1(intTruncate.getValue(itemp));
   assertTrue_1(itemp == 2);
 
-  x.setValue(minusthree.getId());
+  x.setValue(&minusthree);
   assertTrue_1(x.isKnown());
   assertTrue_1(realTruncate.isKnown());
   assertTrue_1(intTruncate.isKnown());
@@ -2207,7 +2207,7 @@ static bool testTruncate()
   assertTrue_1(intTruncate.getValue(itemp));
   assertTrue_1(itemp == -3);
 
-  x.setValue(minuspi.getId());
+  x.setValue(&minuspi);
   assertTrue_1(x.isKnown());
   assertTrue_1(realTruncate.isKnown());
   assertTrue_1(intTruncate.isKnown());
@@ -2218,7 +2218,7 @@ static bool testTruncate()
   assertTrue_1(intTruncate.getValue(itemp));
   assertTrue_1(itemp == -3);
 
-  x.setValue(minuse.getId());
+  x.setValue(&minuse);
   assertTrue_1(x.isKnown());
   assertTrue_1(realTruncate.isKnown());
   assertTrue_1(intTruncate.isKnown());
@@ -2229,7 +2229,7 @@ static bool testTruncate()
   assertTrue_1(intTruncate.getValue(itemp));
   assertTrue_1(itemp == -2);
 
-  x.setValue(toobig.getId());
+  x.setValue(&toobig);
   assertTrue_1(x.isKnown());
   assertTrue_1(realTruncate.isKnown());
   assertTrue_1(!intTruncate.isKnown());
@@ -2239,7 +2239,7 @@ static bool testTruncate()
   assertTrue_1(rtemp == 3000000000);
   assertTrue_1(!intTruncate.getValue(itemp));
 
-  x.setValue(toonegative.getId());
+  x.setValue(&toonegative);
   assertTrue_1(x.isKnown());
   assertTrue_1(realTruncate.isKnown());
   assertTrue_1(!intTruncate.isKnown());
@@ -2264,7 +2264,7 @@ static bool testRealToInteger()
 
   RealToInteger rtiOp;
   RealVariable x;
-  std::vector<ExpressionId> xexpr(1, x.getId());
+  std::vector<Expression *> xexpr(1, &x);
   std::vector<bool> garbage1(1, false);
 
   Function rti(&rtiOp, makeExprVec(xexpr, garbage1));
@@ -2280,7 +2280,7 @@ static bool testRealToInteger()
   assertTrue_1(!x.getValue(rtemp));
   assertTrue_1(!rti.getValue(itemp));
 
-  x.setValue(zero.getId());
+  x.setValue(&zero);
   assertTrue_1(x.isKnown());
   assertTrue_1(rti.isKnown());
   assertTrue_1(x.getValue(rtemp));
@@ -2288,7 +2288,7 @@ static bool testRealToInteger()
   assertTrue_1(rti.getValue(itemp));
   assertTrue_1(itemp == 0);
 
-  x.setValue(three.getId());
+  x.setValue(&three);
   assertTrue_1(x.isKnown());
   assertTrue_1(rti.isKnown());
   assertTrue_1(x.getValue(rtemp));
@@ -2296,14 +2296,14 @@ static bool testRealToInteger()
   assertTrue_1(rti.getValue(itemp));
   assertTrue_1(itemp == 3);
 
-  x.setValue(pi.getId());
+  x.setValue(&pi);
   assertTrue_1(x.isKnown());
   assertTrue_1(!rti.isKnown());
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == 3.14);
   assertTrue_1(!rti.getValue(itemp));
 
-  x.setValue(minusthree.getId());
+  x.setValue(&minusthree);
   assertTrue_1(x.isKnown());
   assertTrue_1(rti.isKnown());
   assertTrue_1(x.getValue(rtemp));
@@ -2311,21 +2311,21 @@ static bool testRealToInteger()
   assertTrue_1(rti.getValue(itemp));
   assertTrue_1(itemp == -3);
 
-  x.setValue(minuspi.getId());
+  x.setValue(&minuspi);
   assertTrue_1(x.isKnown());
   assertTrue_1(!rti.isKnown());
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == -3.14);
   assertTrue_1(!rti.getValue(itemp));
 
-  x.setValue(toobig.getId());
+  x.setValue(&toobig);
   assertTrue_1(x.isKnown());
   assertTrue_1(!rti.isKnown());
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == 3000000000);
   assertTrue_1(!rti.getValue(itemp));
 
-  x.setValue(toonegative.getId());
+  x.setValue(&toonegative);
   assertTrue_1(x.isKnown());
   assertTrue_1(!rti.isKnown());
   assertTrue_1(x.getValue(rtemp));

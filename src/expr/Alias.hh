@@ -46,7 +46,7 @@ namespace PLEXIL
   public:
     Alias(const NodeConnectorId &node, // *** is this needed?? ***
           const std::string &name,
-          const ExpressionId &original,
+          Expression *original,
           bool garbage = false);
     virtual ~Alias();
 
@@ -59,7 +59,8 @@ namespace PLEXIL
     bool isKnown() const;
     bool isAssignable() const;
     bool isConstant() const;
-    ExpressionId getBaseExpression() const;
+    Expression *getBaseExpression();
+    Expression const *getBaseExpression() const;
 
     void printValue(std::ostream &s) const;
 
@@ -110,7 +111,7 @@ namespace PLEXIL
     Alias &operator=(const Alias &);
 
     // The expression being aliased.
-    ExpressionId m_exp;
+    Expression *m_exp;
 
   protected:
     // Parent node
@@ -132,7 +133,7 @@ namespace PLEXIL
   public:
     InOutAlias(const NodeConnectorId &node,
                const std::string &name,
-               const ExpressionId &original,
+               Expression *original,
                bool garbage = false);
     virtual ~InOutAlias();
 
@@ -160,7 +161,7 @@ namespace PLEXIL
     /**
      * @brief Set the value for this expression.
      * @param val The new value for this expression.
-     * @deprecated These are being replaced with the setValue(ExpressionId const &) method below.
+     * @deprecated These are being replaced with the setValue(Expression const *) method below.
      */
     void setValue(const double &val);
     void setValue(const int32_t &val);
@@ -179,7 +180,7 @@ namespace PLEXIL
      * @param valex The expression from which to obtain the new value.
      * @note May cause change notifications to occur.
      */
-    void setValue(ExpressionId const &valex);
+    void setValue(Expression const *valex);
 
     /**
      * @brief Set the value for this expression from a generic Value.

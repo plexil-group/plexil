@@ -40,19 +40,19 @@ namespace PLEXIL
     m_variableMap.clear();
   }
 
-  ExpressionId const &FactoryTestNodeConnector::findVariable(const PlexilVarRef* ref)
+  Expression *FactoryTestNodeConnector::findVariable(const PlexilVarRef* ref)
   {
     return this->findVariable(ref->varName(), false);
   }
 
-  ExpressionId const &FactoryTestNodeConnector::findVariable(const std::string & name,
-                                                             bool ignored)
+  Expression *FactoryTestNodeConnector::findVariable(const std::string & name,
+                                                     bool ignored)
   {
     TestVariableMap::const_iterator it = m_variableMap.find(name);
     if (it != m_variableMap.end())
       return it->second;
     else
-      return ExpressionId::noId();
+      return NULL;
   }
 
   NodeId FactoryTestNodeConnector::findNodeRef(PlexilNodeRefId const & /* nodeRef */) const
@@ -65,14 +65,14 @@ namespace PLEXIL
     return ExecListenerHubId::noId();
   }
 
-  void FactoryTestNodeConnector::storeVariable(const std::string & name, ExpressionId var)
+  void FactoryTestNodeConnector::storeVariable(const std::string & name, Expression *var)
   {
     TestVariableMap::iterator it = m_variableMap.find(name);
     if (it != m_variableMap.end()) {
       it->second = var; // replace existing
     }
     else 
-      m_variableMap.insert(std::pair<std::string, ExpressionId>(name, var));
+      m_variableMap.insert(std::pair<std::string, Expression *>(name, var));
   }
 
 } // namespace PLEXIL

@@ -46,9 +46,9 @@ namespace PLEXIL
   public:
     Function(Operator const *op, ExprVec *exprs);
     // Convenience constructors for Node classes 
-    Function(Operator const *op, ExpressionId expr, bool garbage);
+    Function(Operator const *op, Expression *expr, bool garbage);
     Function(Operator const *op, 
-             ExpressionId expr1, ExpressionId expr2,
+             Expression *expr1, Expression *expr2,
              bool garbage1, bool garbage2);
 
     virtual ~Function();

@@ -245,7 +245,7 @@ namespace PLEXIL
 
   /**
    * @brief Add a listener for changes to this Expression's value.
-   * @param id The Id of the listener to notify.
+   * @param ptr Pointer to the listener to notify.
    * @note No-op for constants.
    */
   template <typename T>
@@ -273,12 +273,12 @@ namespace PLEXIL
    * @note No-op for constants.
    */
   template <typename T>
-  void Constant<T>::notifyChanged(ExpressionId /* src */)
+  void Constant<T>::notifyChanged(Expression const * /* src */)
   {
   }
 
   template <typename T>
-  void Constant<ArrayImpl<T> >::notifyChanged(ExpressionId /* src */)
+  void Constant<ArrayImpl<T> >::notifyChanged(Expression const * /* src */)
   {
   }
 
