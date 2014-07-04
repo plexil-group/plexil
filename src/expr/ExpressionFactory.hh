@@ -29,6 +29,7 @@
 
 #include "Expression.hh"
 #include "Id.hh"
+#include "ParserException.hh"
 
 namespace PLEXIL
 {
@@ -79,7 +80,8 @@ namespace PLEXIL
   // Used in AssignmentNode, CommandNode
   // *** FIXME: Rename to createAssignable ***
   extern Expression *createExpression(const PlexilExprId& expr,
-                                      const NodeConnectorId& node = NodeConnectorId::noId());
+                                      const NodeConnectorId& node = NodeConnectorId::noId())
+    throw (ParserException);
 
   /**
    * @brief Creates a new Expression instance with the type associated with the
@@ -93,12 +95,14 @@ namespace PLEXIL
   // Used in AssignmentNode, CommandNode, LibraryCallNode, Node::createConditions
   extern Expression *createExpression(const PlexilExprId& expr,
                                       const NodeConnectorId& node,
-                                      bool& wasCreated);
+                                      bool& wasCreated)
+    throw (ParserException);
 
   // Used in AssignmentNode, CommandNode
   extern Assignable *createAssignable(const PlexilExprId& expr,
                                       const NodeConnectorId& node,
-                                      bool& wasCreated);
+                                      bool& wasCreated)
+    throw (ParserException);
 
   /**
    * @brief Deallocate all factories

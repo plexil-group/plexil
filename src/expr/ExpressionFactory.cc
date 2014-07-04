@@ -70,6 +70,7 @@ namespace PLEXIL
 
   Expression *createExpression(const PlexilExprId& expr,
                                const NodeConnectorId& node)
+    throw (ParserException)
   {
     bool dummy;
     return createExpression(expr, node, dummy);
@@ -78,6 +79,7 @@ namespace PLEXIL
   Expression *createExpression(const PlexilExprId& expr,
                                const NodeConnectorId& node,
                                bool& wasCreated)
+    throw (ParserException)
   {
     const std::string& name = expr->name();
     // Delegate to factory
@@ -96,6 +98,7 @@ namespace PLEXIL
   Assignable *createAssignable(const PlexilExprId& expr,
                                const NodeConnectorId& node,
                                bool& wasCreated)
+    throw (ParserException)
   {
     assertTrue_2(node.isId(), "createAssignable: Null node argument");
     PlexilVarRef const *ref = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
