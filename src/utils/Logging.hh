@@ -53,17 +53,6 @@ private:
   Logging& operator=(const Logging&);
   ~Logging();
 
-  static void print_message(int msg_type, const char *fullmsg);
-  static void prompt_user();
-  static void print_stack();
-  static const char* msg_type_name(int msg);
-  static const char *get_date_time();
-  static void ensure_log_file_name();
-  static void purge(); /* clean up any allocations */
-  
-  static const char *DEFAULT_LOG_FILE_NAME;
-  static char * FILE_NAME;
-  static unsigned int FILE_NAME_LEN;
 };
 
 #endif /* _LOGGING_HH */
