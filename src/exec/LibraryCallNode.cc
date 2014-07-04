@@ -206,11 +206,11 @@ namespace PLEXIL
                                "Node " << m_nodeId
                                << ": Variable \"" << aliasValue->name()
                                << "\" is not assignable for InOut alias variable \"" << varName);
+          actualVar = aliasedExpr;
           debugMsg("LibraryCallNode:createAliases",
                    " Node \"" << m_nodeId
                    << "\": Aliasing \"" << varName
                    << "\" to variable " << *actualVar);
-          actualVar = aliasedExpr;
         }
         else if (Id<PlexilArrayElement>::convertable(aliasValue)) {
           // Expression is an array reference
