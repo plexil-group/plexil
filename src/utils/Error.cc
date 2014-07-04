@@ -49,6 +49,7 @@
 
 #include "Error.hh"
 #include "Logging.hh"
+#include <cassert>
 
 std::ostream *Error::s_os = 0;
 bool Error::s_throw = false;

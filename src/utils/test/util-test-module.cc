@@ -60,6 +60,7 @@
 #include "timeval-utils.hh"
 #include "XMLUtils.hh"
 
+#include <cassert>
 #include <cfloat>
 #include <cstring> // for strcmp
 #include <iomanip>
