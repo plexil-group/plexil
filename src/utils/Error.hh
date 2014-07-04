@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,18 @@
 #include <string>
 #include <sstream>
 #include <map>
-#include <cassert>
+
+// Helper macro for telling compiler that error handler won't return
+#ifdef __GNUC__
+// This version for g++ and clang++
+#define PLEXIL_NORETURN __attribute__((__noreturn__))
+#else
+// TODO: Support other compilers here
+// fallback (no-op)
+#define PLEXIL_NORETURN
+#endif
+
+
 /**
  * @def ALWAYS_FAIL
  * False.
@@ -496,7 +507,7 @@ public:
    * @note Which is done depends on throwEnabled().
    * @see throwEnabled
    */
-  void handleAssert();
+  void handleAssert() PLEXIL_NORETURN;
 
 private:
 
