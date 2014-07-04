@@ -86,25 +86,26 @@ namespace PLEXIL
    
   bool State::isParameterKnown(size_t n) const
   {
-    if (n > m_parameters.size())
-      return false;
-    return m_parameters[n].isKnown();
+    if (n < m_parameters.size())
+      return m_parameters[n].isKnown();
+    return false;
   }
 
   ValueType State::parameterType(size_t n) const
   {
-    if (n > m_parameters.size())
-      return UNKNOWN_TYPE;
-    return m_parameters[n].valueType();
+    if (n < m_parameters.size())
+      return m_parameters[n].valueType();
+    return UNKNOWN_TYPE;
   }
 
   Value const &State::parameter(size_t n) const
   {
-    if (n > m_parameters.size()) {
-      static Value const sl_unknown;
-      return sl_unknown;
-    }
-    return m_parameters[n];
+    if (n < m_parameters.size())
+      return m_parameters[n];
+
+    // FIXME: This should be a global constant
+    static Value const sl_unknown;
+    return sl_unknown;
   }
 
   void State::print(std::ostream &s) const
