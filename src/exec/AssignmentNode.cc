@@ -137,7 +137,7 @@ namespace PLEXIL
                       m_nodeId))->getId();
   }
 
-  Assignable *AssignmentNode::getAssignmentVariable()
+  Assignable *AssignmentNode::getAssignmentVariable() const
   {
     return m_assignment->getDest()->asAssignable();
   }
