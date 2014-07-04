@@ -54,7 +54,7 @@ namespace PLEXIL
         bool wasCreated = false;
         Expression *valueExpr = 
           createExpression(foo, NodeConnectorId::noId(), wasCreated);
-        check_error(valueExpr);
+        check_error_1(valueExpr);
         if (wasCreated)
           m_garbage.push_back(valueExpr);
         m_pairs[it->first] = valueExpr;
@@ -77,7 +77,7 @@ namespace PLEXIL
   void Update::fixValues() 
   {
     for (PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
-      check_error(it->second);
+      check_error_1(it->second);
       m_valuePairs[it->first] = it->second->toValue();
       debugMsg("Update:fixValues",
                " fixing pair '" << it->first << "', " << it->second->toValue());

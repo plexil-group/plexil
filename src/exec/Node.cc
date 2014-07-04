@@ -78,8 +78,8 @@ namespace PLEXIL {
       sl_inited = true;
 
       // inexpensive sanity check
-      assertTrue(s_allConditions->size() == conditionIndexMax,
-                 "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
+      assertTrue_2(s_allConditions->size() == conditionIndexMax,
+                   "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
     }
     return *s_allConditions;
   }
@@ -303,7 +303,7 @@ namespace PLEXIL {
         createExpression(var->getId(),
                          NodeConnector::getId(),
                          dummy);
-      assertTrue(varId->getName() == name);
+      assertTrue_1(varId->getName() == name);
       m_variablesByName[varId->getName()] = varId;
       m_localVariables.push_back(varId);
       debugMsg("Node:createDeclaredVars",
@@ -316,7 +316,7 @@ namespace PLEXIL {
 
   void Node::getVarsFromInterface(const PlexilInterfaceId& intf)
   {
-    check_error(intf.isValid());
+    check_error_1(intf.isValid());
     debugMsg("Node:getVarsFromInterface",
              "Getting interface vars for node '" << m_nodeId << "'");
     assertTrueMsg(m_parent.isId(),
@@ -338,7 +338,7 @@ namespace PLEXIL {
                     << ": 'In' variable name \"" << varRef->name() << "\" is already in use");
 
       Expression *expr = getInVariable(varRef, parentIsLibCall);
-      check_error(expr);
+      check_error_1(expr);
 
       // make it accessible
       debugMsg("Node:getVarsFromInterface", 
@@ -360,7 +360,7 @@ namespace PLEXIL {
                     << ": 'InOut' variable name \"" << varRef->name() << "\" is already in use");
 
       Assignable *expr = getInOutVariable(varRef, parentIsLibCall);
-      check_error(expr != NULL);
+      check_error_1(expr);
          
       // make it accessible
       debugMsg("Node:getVarsFromInterface", 

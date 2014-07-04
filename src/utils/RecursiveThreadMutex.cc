@@ -41,17 +41,17 @@ namespace PLEXIL
     pthread_mutexattr_t   mta;
 
     int rv = pthread_mutexattr_init(&mta);
-    assertTrue(rv != ENOMEM, "No memory for mutex attribute init.");
-    assertTrue(rv == 0, "Error initializing mutex attribute structure.");
+    assertTrue_2(rv != ENOMEM, "No memory for mutex attribute init.");
+    assertTrue_2(rv == 0, "Error initializing mutex attribute structure.");
 
 #if !defined(__VXWORKS__) /* platform lacks function */
     rv = pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_ERRORCHECK);
-    assertTrue(rv != EINVAL, "PTHREAD_MUTEX_ERRORCHECK is an invalid value");
-    assertTrue(0 == rv, "Could not set the mutex attribute.");
+    assertTrue_2(rv != EINVAL, "PTHREAD_MUTEX_ERRORCHECK is an invalid value");
+    assertTrue_2(0 == rv, "Could not set the mutex attribute.");
 #endif
 
     rv = pthread_mutex_init(&m_mutex, &mta);
-    assertTrue(0 == rv, "Could not initialize the mutex.");
+    assertTrue_2(0 == rv, "Could not initialize the mutex.");
   }
 
   RecursiveThreadMutex::~RecursiveThreadMutex()
@@ -60,47 +60,47 @@ namespace PLEXIL
     while (isLockedByCurrentThread())
       unlock();
     int rv = pthread_mutex_destroy(&m_mutex);
-    assertTrue(rv != EBUSY, "Attempted to destroy mutex while locked or referenced.");
-    assertTrue(0 == rv, "Could not destroy the mutex.");
+    assertTrue_2(rv != EBUSY, "Attempted to destroy mutex while locked or referenced.");
+    assertTrue_2(0 == rv, "Could not destroy the mutex.");
   }
 
   void RecursiveThreadMutex::lock() 
   {
     if (isLockedByCurrentThread()) 
       {
-	debugMsg("RecursiveThreadMutex:lock",
-		 " Re-locking mutex " << (void *) this << " from thread " << pthread_self() << " with count of " << m_lockCount + 1);
-	++m_lockCount;
-	return;
+        debugMsg("RecursiveThreadMutex:lock",
+                 " Re-locking mutex " << (void *) this << " from thread " << pthread_self() << " with count of " << m_lockCount + 1);
+        ++m_lockCount;
+        return;
       }
     debugMsg("RecursiveThreadMutex:lock",
-	     " mutex " << (void *) this << " from thread " << pthread_self());
+             " mutex " << (void *) this << " from thread " << pthread_self());
     int rv = pthread_mutex_lock(&m_mutex);
-    assertTrue(rv != EINVAL, "The mutex was created with the protocol attribute having the value PTHREAD_PRIO_PROTECT and the calling thread's priority is higher than the mutex's current priority ceiling.");
-    assertTrue(rv != EAGAIN, "The mutex could not be acquired because the maximum number of recursive locks for mutex has been exceeded.");
-    assertTrue(rv == 0, "The mutex could not be locked. ");
+    assertTrue_2(rv != EINVAL, "The mutex was created with the protocol attribute having the value PTHREAD_PRIO_PROTECT and the calling thread's priority is higher than the mutex's current priority ceiling.");
+    assertTrue_2(rv != EAGAIN, "The mutex could not be acquired because the maximum number of recursive locks for mutex has been exceeded.");
+    assertTrue_2(rv == 0, "Could not lock the mutex.");
     checkError(m_lockCount == 0, "Got a lock without a lock count of 0.");
     m_lockingThread = pthread_self();
     ++m_lockCount;
     debugMsg("RecursiveThreadMutex:lock",
-	     " thread " << pthread_self() << " acquired mutex " << (void *) this);
+             " thread " << pthread_self() << " acquired mutex " << (void *) this);
   }
 
   void RecursiveThreadMutex::unlock()
   {
     checkError(isLockedByCurrentThread(),
-	       "Tried to unlock without owning the mutex.");
+               "Tried to unlock without owning the mutex.");
     checkError(m_lockCount > 0, "Tried to unlock more than locked.");
     debugMsg("RecursiveThreadMutex:unlock",
-	     " mutex " << (void *) this << " from thread " << pthread_self() << " with count of " << m_lockCount);
+             " mutex " << (void *) this << " from thread " << pthread_self() << " with count of " << m_lockCount);
     --m_lockCount;
     if (m_lockCount == 0)
       {
-	m_lockingThread = (pthread_t) 0;
-	int rv = pthread_mutex_unlock(&m_mutex);
-	assertTrue(0 == rv, "Could not unlock the mutex.");
-	debugMsg("RecursiveThreadMutex:unlock",
-		 " mutex " << (void *) this << " released by thread " << pthread_self());
+        m_lockingThread = (pthread_t) 0;
+        int rv = pthread_mutex_unlock(&m_mutex);
+        assertTrue_2(0 == rv, "Could not unlock the mutex.");
+        debugMsg("RecursiveThreadMutex:unlock",
+                 " mutex " << (void *) this << " released by thread " << pthread_self());
       }
   }
 

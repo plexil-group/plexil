@@ -76,8 +76,8 @@ namespace PLEXIL
         ExecListenerFilterId f = 
           ExecListenerFilterFactory::createInstance(std::string(filterType),
                                                     filterSpec);
-        assertTrue(f.isId(),
-                   "ExecListener constructor: failed to construct filter");
+        assertTrue_2(f.isId(),
+                     "ExecListener constructor: failed to construct filter");
         m_filter = f;
       }
     }

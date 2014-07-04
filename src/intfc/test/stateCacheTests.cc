@@ -1,3 +1,28 @@
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 class CacheTestInterface : public ExternalInterface {
 public:
@@ -80,26 +105,26 @@ private:
     cache.handleQuiescenceStarted();
 
     //single lookup for new state
-    assertTrue(destVar.getValue().isUnknown());
+    assertTrue_1(destVar.getValue().isUnknown());
     cache.registerLookupNow(destVar.getId(), st);
-    assertTrue(iface.lookupNowCalled());
-    assertTrue(destVar.getValue().getDoubleValue() == 1);
+    assertTrue_1(iface.lookupNowCalled());
+    assertTrue_1(destVar.getValue().getDoubleValue() == 1);
     cache.unregisterLookupNow(destVar.getId());
 
     //re-lookup for same state in same quiescence
     iface.setValue(st, 2, cache.getId(), false);
     iface.clearLookupNowCalled();
     cache.registerLookupNow(destVar.getId(), st);
-    assertTrue(!iface.lookupNowCalled());
-    assertTrue(destVar.getValue().getDoubleValue() == 1);
+    assertTrue_1(!iface.lookupNowCalled());
+    assertTrue_1(destVar.getValue().getDoubleValue() == 1);
     cache.unregisterLookupNow(destVar.getId());
 
     //re-lookup for same state in next quiescence
     cache.handleQuiescenceEnded();
     cache.handleQuiescenceStarted();
     cache.registerLookupNow(destVar.getId(), st);
-    assertTrue(iface.lookupNowCalled());
-    assertTrue(destVar.getValue().getDoubleValue() == 2);
+    assertTrue_1(iface.lookupNowCalled());
+    assertTrue_1(destVar.getValue().getDoubleValue() == 2);
     cache.unregisterLookupNow(destVar.getId());
 
     // *** TODO: Add test for updating LookupNow that 
@@ -123,15 +148,15 @@ private:
     iface.setValue(st, 1, cache.getId(), false);
     cache.handleQuiescenceStarted();
     cache.registerChangeLookup(destVar1.getId(), st, 1);
-    assertTrue(destVar1.getValue().getDoubleValue() == 1);
+    assertTrue_1(destVar1.getValue().getDoubleValue() == 1);
     cache.registerChangeLookup(destVar2.getId(), st, 2);
-    assertTrue(destVar2.getValue().getDoubleValue() == 1);
+    assertTrue_1(destVar2.getValue().getDoubleValue() == 1);
     cache.handleQuiescenceEnded();
 
     //update value
     iface.setValue(st, 2, cache.getId());
-    assertTrue(destVar1.getValue().getDoubleValue() == 2);
-    assertTrue(destVar2.getValue().getDoubleValue() == 1);
+    assertTrue_1(destVar1.getValue().getDoubleValue() == 2);
+    assertTrue_1(destVar2.getValue().getDoubleValue() == 1);
 
     //lookupNow triggering change
     IntegerVariable nowDestVar;
@@ -141,17 +166,17 @@ private:
     cache.handleQuiescenceEnded();
     cache.handleQuiescenceStarted();
     cache.registerLookupNow(nowDestVar.getId(), st);
-    assertTrue(nowDestVar.getValue().getDoubleValue() == 3);
-    assertTrue(destVar1.getValue().getDoubleValue() == 3);
-    assertTrue(destVar2.getValue().getDoubleValue() == 3);
+    assertTrue_1(nowDestVar.getValue().getDoubleValue() == 3);
+    assertTrue_1(destVar1.getValue().getDoubleValue() == 3);
+    assertTrue_1(destVar2.getValue().getDoubleValue() == 3);
 
     //unregister
     cache.unregisterLookupNow(nowDestVar.getId());
     cache.unregisterChangeLookup(destVar2.getId());
     cache.handleQuiescenceEnded();
     iface.setValue(st, 5, cache.getId());
-    assertTrue(destVar2.getValue().getDoubleValue() == 3);
-    assertTrue(destVar1.getValue().getDoubleValue() == 5);
+    assertTrue_1(destVar2.getValue().getDoubleValue() == 3);
+    assertTrue_1(destVar1.getValue().getDoubleValue() == 5);
     return true;
   }
 };

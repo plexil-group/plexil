@@ -61,7 +61,7 @@ public:
       return;
     }
     else if (state.name() == "test2") {
-      check_error(state.parameters().size() == 1);
+      check_error_1(state.parameters().size() == 1);
       std::string const *param = NULL;
       state.parameters()[0].getValuePointer(param);
       if (*param == "high") {

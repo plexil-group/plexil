@@ -266,7 +266,8 @@ namespace PLEXIL
   ENSURE_EXPRESSION_FACTORY(RealArrayVariable);
   ENSURE_EXPRESSION_FACTORY(StringArrayVariable);
 
-  ENSURE_EXPRESSION_FACTORY(ArrayReference);
+  // Redundant with above
+  // ENSURE_EXPRESSION_FACTORY(ArrayReference);
 
 } // namespace PLEXIL
 

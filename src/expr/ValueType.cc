@@ -406,11 +406,6 @@ namespace PLEXIL
   template void printValue(ArrayImpl<double> const &, std::ostream &);
   template void printValue(ArrayImpl<std::string> const &, std::ostream &);
 
-
-  template bool parseValue(std::string const &, bool &);
-  template bool parseValue(std::string const &, int32_t &);
-  template bool parseValue(std::string const &, double &);
-  template bool parseValue(std::string const &, std::string &);
   // array types NYI
 
 }

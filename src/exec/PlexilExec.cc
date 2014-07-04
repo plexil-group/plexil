@@ -45,8 +45,8 @@ namespace PLEXIL
 {
   bool NodeConflictComparator::operator() (NodeId x, NodeId y) const 
   {
-    check_error(x->getType() == Node::ASSIGNMENT());
-    check_error(y->getType() == Node::ASSIGNMENT());
+    check_error_1(x->getType() == Node::ASSIGNMENT());
+    check_error_1(y->getType() == Node::ASSIGNMENT());
     return (x->getPriority() < y->getPriority() ? true : false);
   }
 
@@ -158,7 +158,7 @@ namespace PLEXIL
       if (!wasThrowEnabled)
         Error::doThrowExceptions();
       root = NodeFactory::createNode(plan, ExecConnector::getId());
-      check_error(root.isValid());
+      check_error_1(root.isValid());
       root->postInit(plan);
     }
     catch (const Error& e) {
@@ -450,7 +450,7 @@ namespace PLEXIL
         NodeId candidate = m_nodesToConsider.front();
         m_nodesToConsider.pop();
         // If we have to check node validity, do it here, instead of redundantly below.
-        check_error(candidate.isValid());
+        check_error_1(candidate.isValid());
         candidate->checkConditions(); // modifies m_stateChangeQueue, m_resourceConflicts
       }
 
@@ -532,7 +532,7 @@ namespace PLEXIL
          it != m_assignmentsToExecute.end();
          ++it) {
       AssignmentId assn = *it;
-      check_error(assn.isValid());
+      check_error_1(assn.isValid());
       assn->execute();
     }
     m_assignmentsToExecute.clear();
@@ -540,7 +540,7 @@ namespace PLEXIL
          it != m_assignmentsToRetract.end();
          ++it) {
       AssignmentId assn = *it;
-      check_error(assn.isValid());
+      check_error_1(assn.isValid());
       assn->retract();
     }
     m_assignmentsToRetract.clear();
@@ -588,7 +588,7 @@ namespace PLEXIL
       NodeId node = *conflictIt;
       NodeState dest = node->getDestState();
 
-      check_error(node.isValid());
+      check_error_1(node.isValid());
 
       // Found one that is scheduled for execution
       if (dest == EXECUTING_STATE || dest == FAILING_STATE)
@@ -632,7 +632,7 @@ namespace PLEXIL
     for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
          it != m_stateChangeQueue.end();
          ++it) {
-      check_error(it->node.isValid());
+      check_error_1(it->node.isValid());
       retval << it->node->getNodeId() << " ";
     }
     return retval.str();
@@ -641,16 +641,16 @@ namespace PLEXIL
   // Convenience method for backward compatibility
   void PlexilExec::addListener(const ExecListenerBaseId& listener) 
   {
-    check_error(m_listener.isValid());
-    check_error(listener.isValid());
+    check_error_1(m_listener.isValid());
+    check_error_1(listener.isValid());
     m_listener->addListener(listener);
   }
 
   // Convenience method for backward compatibility
   void PlexilExec::removeListener(const ExecListenerBaseId& listener) 
   {
-    check_error(m_listener.isValid());
-    check_error(listener.isValid());
+    check_error_1(m_listener.isValid());
+    check_error_1(listener.isValid());
     m_listener->removeListener(listener);
   }
 }

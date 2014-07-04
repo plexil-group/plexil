@@ -44,7 +44,7 @@ namespace PLEXIL
   static void registerExpressionFactory(const std::string& name,
                                         ExpressionFactory* factory) 
   {
-    check_error(factory != NULL);
+    check_error_1(factory != NULL);
     checkError(expressionFactoryMap().find(name) == expressionFactoryMap().end(),
                "Error:  Attempted to register a factory for name \"" << name <<
                "\" twice.");

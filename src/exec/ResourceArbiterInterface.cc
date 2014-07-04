@@ -78,7 +78,7 @@ namespace PLEXIL {
     //Loop through each command
     for (std::list<CommandId>::const_iterator it = cmds.begin(); it != cmds.end(); ++it) {
       CommandId cmd = *it;
-      check_error(cmd.isValid());
+      check_error_1(cmd.isValid());
       const ResourceValuesList& resList = cmd->getResourceValues();
 
       if (!resList.empty()) {

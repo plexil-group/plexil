@@ -86,7 +86,7 @@
 
 // Utility used only in IdTests
 #ifndef PLEXIL_ID_FAST
-#define non_fast_only_assert(T) assertTrue(T)
+#define non_fast_only_assert(T) assertTrue_1(T)
 #else
 #define non_fast_only_assert(T) //NO-OP
 #endif
@@ -158,14 +158,14 @@ public:
   }
 private:
   static bool testExceptions() {
-    assertTrue(strcmp(TestError::TEST_CONST(), "TestData") == 0);
+    assertTrue_1(strcmp(TestError::TEST_CONST(), "TestData") == 0);
     bool success = true;
     Error::doThrowExceptions();
     int var = 1;
-    assertTrue(var == 1);
-    assertTrue(Error::printingErrors());
-    assertTrue(Error::displayWarnings());
-    assertTrue(Error::throwEnabled());
+    assertTrue_1(var == 1);
+    assertTrue_1(Error::printingErrors());
+    assertTrue_1(Error::displayWarnings());
+    assertTrue_1(Error::throwEnabled());
     assertTrue_1(var == 1);
     assertTrue_1(Error::printingErrors());
     assertTrue_1(Error::displayWarnings());
@@ -196,7 +196,7 @@ private:
     }
     // check_error will not throw the errors for PLEXIL_FAST
 #if !defined(PLEXIL_FAST) && !defined(__CYGWIN__)
-    assertTrue(Error::throwEnabled());
+    assertTrue_1(Error::throwEnabled());
     /* Do not print errors that we are provoking on purpose to ensure they are noticed. */
     try {
       Error::doNotDisplayErrors();
@@ -260,11 +260,11 @@ private:
     // check_error will not throw the errors for PLEXIL_FAST
 #if !defined(PLEXIL_FAST) && !defined(NO_DEBUG_MESSAGE_SUPPORT)
     Error::doThrowExceptions();
-    assertTrue(Error::throwEnabled());
+    assertTrue_1(Error::throwEnabled());
     //!!Add a test of DebugMessage that should throw an error here.
     //!!  Skipped for lack of time presently. --wedgingt@email.arc.nasa.gov
     Error::doNotThrowExceptions();
-    assertTrue(!Error::throwEnabled());
+    assertTrue_1(!Error::throwEnabled());
 #endif
     return(success);
   }
@@ -286,11 +286,11 @@ private:
     Error::doNotThrowExceptions();
     Error::doNotDisplayErrors();
     std::ofstream debugOutput(cfgOut.c_str());
-    assertTrue(debugOutput.good(), "could not open debug output file");
+    assertTrue_2(debugOutput.good(), "could not open debug output file");
     setDebugOutputStream(debugOutput);
     std::ifstream debugStream(cfgFile.c_str());
-    assertTrue(debugStream.good(), "could not open debug config file",
-                DebugErr::DebugConfigError());
+    assertTrue_3(debugStream.good(), "could not open debug config file",
+                 DebugErr::DebugConfigError());
     if (!readDebugConfigStream(debugStream))
       handle_error(!readDebugConfigStream(debugStream),
                    "problems reading debug config file",
@@ -324,7 +324,7 @@ public:
     try {
       ThreadMutexGuard mg(m);
       Error::doThrowExceptions();
-      assertTrue(0 == 1, "This assertion is supposed to fail");
+      assertTrue_2(0 == 1, "This assertion is supposed to fail");
       std::cout << "ERROR: Failed to throw exception" << std::endl;
       result = false;
     }
@@ -436,11 +436,11 @@ public:
 };
 
 void overloadFunc(const Id<Bing>& /* arg */) {
-  assertTrue(true);
+  assertTrue_1(true);
 }
 
 void overloadFunc(const Id<Foo>& /* arg */) {
-  assertTrue(true);
+  assertTrue_1(true);
 }
 
 class IdTests {
@@ -481,22 +481,22 @@ bool IdTests::testBasicAllocation() {
   Foo *fooPtr = new Foo();
   Id<Foo> fId1(fooPtr);
   assert(fId1.isId());
-  assertTrue(Foo::getCount() == 1);
+  assertTrue_1(Foo::getCount() == 1);
   non_fast_only_assert(IdTable::size() == initialSize + 1);
 
   fId1->increment();
-  assertTrue(Foo::getCount() == 2);
+  assertTrue_1(Foo::getCount() == 2);
   fId1->decrement();
-  assertTrue(Foo::getCount() == 1);
+  assertTrue_1(Foo::getCount() == 1);
 
   Id<Foo> fId2 = fId1;
-  assertTrue(Foo::getCount() == 1);
+  assertTrue_1(Foo::getCount() == 1);
 
-  assertTrue(fId1.isValid() && fId2.isValid());
-  assertTrue(!fId1.isInvalid() && !fId2.isInvalid());
+  assertTrue_1(fId1.isValid() && fId2.isValid());
+  assertTrue_1(!fId1.isInvalid() && !fId2.isInvalid());
 
   fId2.release();
-  assertTrue(Foo::getCount() == 0);
+  assertTrue_1(Foo::getCount() == 0);
   non_fast_only_assert( fId1.isInvalid() &&  fId2.isInvalid());
   return true;
 }
@@ -507,17 +507,17 @@ bool IdTests::testTypicalConversionsAndComparisons()
   Foo* foo1 = new Foo();
   Id<Foo> fId1(foo1);
   Id<Foo> fId2(fId1);
-  assertTrue(fId1 == fId2); // Equality operator
-  assertTrue(&*fId1 == &*fId2); // Dereferencing operator
-  assertTrue(foo1 == &*fId2); // Dereferencing operator
-  assertTrue(foo1 == (Foo*) fId2); // Dereferencing operator
-  assertTrue(foo1 == fId2.operator->());
-  assertTrue( ! (fId1 > fId2));
-  assertTrue( ! (fId1 < fId2));
+  assertTrue_1(fId1 == fId2); // Equality operator
+  assertTrue_1(&*fId1 == &*fId2); // Dereferencing operator
+  assertTrue_1(foo1 == &*fId2); // Dereferencing operator
+  assertTrue_1(foo1 == (Foo*) fId2); // Dereferencing operator
+  assertTrue_1(foo1 == fId2.operator->());
+  assertTrue_1( ! (fId1 > fId2));
+  assertTrue_1( ! (fId1 < fId2));
 
   Foo* foo2 = new Foo();
   Id<Foo> fId3(foo2);
-  assertTrue(fId1 != fId3);
+  assertTrue_1(fId1 != fId3);
 
   fId1.release();
   fId3.release();
@@ -528,7 +528,7 @@ bool IdTests::testCollectionSupport()
 {
   // Test inclusion in a collection class - forces compilation test
   std::list< Id<Foo> > fooList;
-  assertTrue(fooList.empty());
+  assertTrue_1(fooList.empty());
   return true;
 }
 
@@ -537,7 +537,7 @@ bool IdTests::testDoubleConversion()
   Id<Foo> fId(new Foo());
   double fooAsDouble = (double) fId;
   Id<Foo> idFromDbl(fooAsDouble);
-  assertTrue(idFromDbl == fId);
+  assertTrue_1(idFromDbl == fId);
   fId.release();
   return true;
 }
@@ -547,23 +547,23 @@ bool IdTests::testCastingSupport()
   Foo* foo = new Foo();
   Id<Foo> fId(foo);
   Foo* fooByCast = (Foo*) fId;
-  assertTrue(foo == fooByCast);
+  assertTrue_1(foo == fooByCast);
 
-  assertTrue(Id<Bar>::convertable(fId) == false);
+  assertTrue_1(Id<Bar>::convertable(fId) == false);
   fId.release();
 
   Foo* bar = new Bar();
   Id<Bar> bId((Bar*) bar);
   fId = bId;
-  assertTrue(Id<Bar>::convertable(fId) == true);
+  assertTrue_1(Id<Bar>::convertable(fId) == true);
   bId.release();
 
   bId = Id<Bar>(new Bar());
   double ptrAsDouble = bId; // Cast to double
 
   const Id<Bar>& cbId(ptrAsDouble);
-  assertTrue(cbId.isValid());
-  assertTrue(cbId == bId);
+  assertTrue_1(cbId.isValid());
+  assertTrue_1(cbId == bId);
   bId.release();
   non_fast_only_assert(cbId.isInvalid());
 
@@ -587,7 +587,7 @@ bool IdTests::testBadAllocationErrorHandling()
   try {
     Error::doNotDisplayErrors();
     Id<Foo> fId0((Foo*) 0);
-    assertTrue(false, "Id<Foo> fId0((Foo*) 0); failed to error out.");
+    assertTrue_2(false, "Id<Foo> fId0((Foo*) 0); failed to error out.");
     success = false;
   }
   catch (Error &e) {
@@ -625,17 +625,17 @@ bool IdTests::testVirtualInheritance()
 
   // ID of base 
   Id<Root> pootdootRoot(dynamic_cast<Root*>(pootdoot));
-  assertTrue(pootdootRoot.isValid());
+  assertTrue_1(pootdootRoot.isValid());
 
   // ID of supers
   Id<Poot> pootdootPoot(dynamic_cast<Poot*>(pootdoot), pootdootRoot);
-  assertTrue(pootdootPoot.isValid());
+  assertTrue_1(pootdootPoot.isValid());
   Id<Doot> pootdootDoot(dynamic_cast<Doot*>(pootdoot), pootdootRoot);
-  assertTrue(pootdootDoot.isValid());
+  assertTrue_1(pootdootDoot.isValid());
 
   // ID of derived class
   Id<PootDoot> pootdootPootDoot(pootdoot, pootdootRoot);
-  assertTrue(pootdootPootDoot.isValid());
+  assertTrue_1(pootdootPootDoot.isValid());
 
   // Check the checks
   std::cout << std::endl;
@@ -646,7 +646,7 @@ bool IdTests::testVirtualInheritance()
   try {
     Error::doNotDisplayErrors();
     Id<PootDoot> pdId0((PootDoot*) 0, Id<Root>::noId());
-    assertTrue(false, "Id<PootDoot> pdId0((PootDoot*) 0, Id<Root>::noId()); failed to error out.");
+    assertTrue_2(false, "Id<PootDoot> pdId0((PootDoot*) 0, Id<Root>::noId()); failed to error out.");
     success = false;
     Error::doDisplayErrors();
   }
@@ -671,7 +671,7 @@ bool IdTests::testVirtualInheritance()
   try {
     Error::doNotDisplayErrors();
     Id<PootDoot> bogusBase(pootdoot, Id<Root>::noId());
-    assertTrue(false, "Id<PootDoot> bogusBase(pootdoot, Id<Root>::noId()); failed to throw an error.");
+    assertTrue_2(false, "Id<PootDoot> bogusBase(pootdoot, Id<Root>::noId()); failed to throw an error.");
     success = false;
     Error::doDisplayErrors();
   }
@@ -695,7 +695,7 @@ bool IdTests::testVirtualInheritance()
   try {
     Error::doNotDisplayErrors();
     Id<PootDoot> duplicateId(pootdoot, pootdootDoot);
-    assertTrue(false, "Id<PootDoot> duplicateId(pootdoot, pootdootDoot); failed to throw an error.");
+    assertTrue_2(false, "Id<PootDoot> duplicateId(pootdoot, pootdootDoot); failed to throw an error.");
     success = false;
     Error::doDisplayErrors();
   }
@@ -718,36 +718,36 @@ bool IdTests::testVirtualInheritance()
 #endif
 
   // Upcasts to root
-  assertTrue(pootdootRoot == Id<Root>(pootdootPoot));
-  assertTrue(pootdootRoot == Id<Root>(pootdootDoot));
-  assertTrue(pootdootRoot == Id<Root>(pootdootPootDoot));
+  assertTrue_1(pootdootRoot == Id<Root>(pootdootPoot));
+  assertTrue_1(pootdootRoot == Id<Root>(pootdootDoot));
+  assertTrue_1(pootdootRoot == Id<Root>(pootdootPootDoot));
 
   // To supers
-  assertTrue(pootdootPoot == Id<Poot>(pootdootPootDoot));
-  assertTrue(pootdootDoot == Id<Doot>(pootdootPootDoot));
+  assertTrue_1(pootdootPoot == Id<Poot>(pootdootPootDoot));
+  assertTrue_1(pootdootDoot == Id<Doot>(pootdootPootDoot));
 
   // Downcasts
 
   // Base to supers
-  assertTrue(pootdootPoot == Id<Poot>(pootdootRoot));
-  assertTrue(pootdootDoot == Id<Doot>(pootdootRoot));
+  assertTrue_1(pootdootPoot == Id<Poot>(pootdootRoot));
+  assertTrue_1(pootdootDoot == Id<Doot>(pootdootRoot));
 
   // All supers to derived
-  assertTrue(pootdootPootDoot == Id<PootDoot>(pootdootRoot));
-  assertTrue(pootdootPootDoot == Id<PootDoot>(pootdootPoot));
-  assertTrue(pootdootPootDoot == Id<PootDoot>(pootdootDoot));
+  assertTrue_1(pootdootPootDoot == Id<PootDoot>(pootdootRoot));
+  assertTrue_1(pootdootPootDoot == Id<PootDoot>(pootdootPoot));
+  assertTrue_1(pootdootPootDoot == Id<PootDoot>(pootdootDoot));
 
   // Remove
   pootdootPootDoot.removeDerived(pootdootRoot);
-  assertTrue(pootdootPootDoot.isNoId());
+  assertTrue_1(pootdootPootDoot.isNoId());
   pootdootDoot.removeDerived(pootdootRoot);
-  assertTrue(pootdootDoot.isNoId());
+  assertTrue_1(pootdootDoot.isNoId());
   pootdootPoot.removeDerived(pootdootRoot);
-  assertTrue(pootdootPoot.isNoId());
+  assertTrue_1(pootdootPoot.isNoId());
 
   // Release
   pootdootRoot.release();
-  assertTrue(pootdootRoot.isNoId());
+  assertTrue_1(pootdootRoot.isNoId());
 
   return success;
 }
@@ -762,7 +762,7 @@ bool IdTests::testBadIdUsage() {
     Error::doNotDisplayErrors();
     Id<Bing> bingId = barId;
     // Work around 'unused variable' warning
-    assertTrue(bingId != bingId , "Id<Bing> bingId = barId; failed to error out.");
+    assertTrue_2(bingId != bingId , "Id<Bing> bingId = barId; failed to error out.");
     success = false;
   }
   catch (Error &e) {
@@ -795,7 +795,7 @@ bool IdTests::testIdConversion()
   Id<Bar> barId3;
   barId3 = fooId3;
   barId3.release();
-  assertTrue(Foo::getCount() == count);
+  assertTrue_1(Foo::getCount() == count);
   return true;
 }
 
@@ -803,7 +803,7 @@ bool IdTests::testConstId()
 {
   Id<Foo> fooId(new Foo());
   const Id<const Foo> constFooId(fooId);
-  assertTrue(constFooId->doConstFunc());
+  assertTrue_1(constFooId->doConstFunc());
   fooId->increment();
   fooId.remove();
   return true;
@@ -828,28 +828,28 @@ private:
     struct timespec b = {2, 0};
     struct timespec c = {1, 1};
 
-    assertTrue(a < b, "Timespec operator< failed");
-    assertTrue(a < c, "Timespec operator< failed");
-    assertTrue(c < b, "Timespec operator< failed");
-    assertTrue(!(b < a), "Timespec operator< failed");
-    assertTrue(!(c < a), "Timespec operator< failed");
-    assertTrue(!(b < c), "Timespec operator< failed");
-    assertTrue(!(a1 < a), "Timespec operator< failed");
-    assertTrue(!(a < a1), "Timespec operator< failed");
+    assertTrue_2(a < b, "Timespec operator< failed");
+    assertTrue_2(a < c, "Timespec operator< failed");
+    assertTrue_2(c < b, "Timespec operator< failed");
+    assertTrue_2(!(b < a), "Timespec operator< failed");
+    assertTrue_2(!(c < a), "Timespec operator< failed");
+    assertTrue_2(!(b < c), "Timespec operator< failed");
+    assertTrue_2(!(a1 < a), "Timespec operator< failed");
+    assertTrue_2(!(a < a1), "Timespec operator< failed");
 
-    assertTrue(b > a, "Timespec operator> failed");
-    assertTrue(b > c, "Timespec operator> failed");
-    assertTrue(c > a, "Timespec operator> failed");
-    assertTrue(!(a > b), "Timespec operator> failed");
-    assertTrue(!(a > c), "Timespec operator> failed");
-    assertTrue(!(c > b), "Timespec operator> failed");
-    assertTrue(!(a1 > a), "Timespec operator> failed");
-    assertTrue(!(a > a1), "Timespec operator> failed");
+    assertTrue_2(b > a, "Timespec operator> failed");
+    assertTrue_2(b > c, "Timespec operator> failed");
+    assertTrue_2(c > a, "Timespec operator> failed");
+    assertTrue_2(!(a > b), "Timespec operator> failed");
+    assertTrue_2(!(a > c), "Timespec operator> failed");
+    assertTrue_2(!(c > b), "Timespec operator> failed");
+    assertTrue_2(!(a1 > a), "Timespec operator> failed");
+    assertTrue_2(!(a > a1), "Timespec operator> failed");
 
-    assertTrue(a == a, "Timespec operator== failed - identity");
-    assertTrue(a == a1, "Timespec operator== failed - equality");
-    assertTrue(!(a == b), "Timespec operator== failed - tv_sec");
-    assertTrue(!(a == c), "Timespec operator== failed - tv_nsec");
+    assertTrue_2(a == a, "Timespec operator== failed - identity");
+    assertTrue_2(a == a1, "Timespec operator== failed - equality");
+    assertTrue_2(!(a == b), "Timespec operator== failed - tv_sec");
+    assertTrue_2(!(a == c), "Timespec operator== failed - tv_nsec");
 
     return true;
   }
@@ -863,23 +863,23 @@ private:
     struct timespec ts0pt9 = {0, 999999999};
     struct timespec ts2 = {2, 0};
 
-    assertTrue(ts0 == ts0 + ts0, "Timespec operator+ failed - 0 + 0");
-    assertTrue(ts1 == ts0 + ts1, "Timespec operator+ failed - 0 + 1");
-    assertTrue(ts0 == ts1 + tsminus1, "Timespec operator+ failed - 1 + -1");
-    assertTrue(ts0 == tsminus1 + ts1, "Timespec operator+ failed - -1 + 1");
-    assertTrue(ts1pt1 == ts0 + ts1pt1, "Timespec operator+ failed - 0 + 1.000000001");
-    assertTrue(ts1 == ts1 + ts0, "Timespec operator+ failed - 1 + 0");
-    assertTrue(ts2 == ts1 + ts1, "Timespec operator+ failed - 1 + 1");
-    assertTrue(ts2 == ts1pt1 + ts0pt9, "Timespec operator+ failed - 1.00000001 + 0.999999999");
+    assertTrue_2(ts0 == ts0 + ts0, "Timespec operator+ failed - 0 + 0");
+    assertTrue_2(ts1 == ts0 + ts1, "Timespec operator+ failed - 0 + 1");
+    assertTrue_2(ts0 == ts1 + tsminus1, "Timespec operator+ failed - 1 + -1");
+    assertTrue_2(ts0 == tsminus1 + ts1, "Timespec operator+ failed - -1 + 1");
+    assertTrue_2(ts1pt1 == ts0 + ts1pt1, "Timespec operator+ failed - 0 + 1.000000001");
+    assertTrue_2(ts1 == ts1 + ts0, "Timespec operator+ failed - 1 + 0");
+    assertTrue_2(ts2 == ts1 + ts1, "Timespec operator+ failed - 1 + 1");
+    assertTrue_2(ts2 == ts1pt1 + ts0pt9, "Timespec operator+ failed - 1.00000001 + 0.999999999");
 
-    assertTrue(ts0 == ts0 - ts0, "Timespec operator- failed - 0 - 0");
-    assertTrue(ts0 == ts1 - ts1, "Timespec operator- failed - 1 - 1");
-    assertTrue(ts0 == tsminus1 - tsminus1, "Timespec operator- failed - -1 - -1");
-    assertTrue(ts1 == ts1 - ts0, "Timespec operator- failed - 1 - 0");
-    assertTrue(tsminus1 == ts0 - ts1, "Timespec operator- failed - 0 - 1");
-    assertTrue(ts1 == ts0 - tsminus1, "Timespec operator- failed - 0 - -1");
-    assertTrue(ts1pt1 == ts2 - ts0pt9, "Timespec operator- failed - 2 - 0.999999999");
-    assertTrue(ts0pt9 == ts2 - ts1pt1, "Timespec operator- failed - 2 - 1.000000001");
+    assertTrue_2(ts0 == ts0 - ts0, "Timespec operator- failed - 0 - 0");
+    assertTrue_2(ts0 == ts1 - ts1, "Timespec operator- failed - 1 - 1");
+    assertTrue_2(ts0 == tsminus1 - tsminus1, "Timespec operator- failed - -1 - -1");
+    assertTrue_2(ts1 == ts1 - ts0, "Timespec operator- failed - 1 - 0");
+    assertTrue_2(tsminus1 == ts0 - ts1, "Timespec operator- failed - 0 - 1");
+    assertTrue_2(ts1 == ts0 - tsminus1, "Timespec operator- failed - 0 - -1");
+    assertTrue_2(ts1pt1 == ts2 - ts0pt9, "Timespec operator- failed - 2 - 0.999999999");
+    assertTrue_2(ts0pt9 == ts2 - ts1pt1, "Timespec operator- failed - 2 - 1.000000001");
 
     return true;
   }
@@ -910,28 +910,28 @@ private:
     struct timeval b = {2, 0};
     struct timeval c = {1, 1};
 
-    assertTrue(a < b, "Timeval operator< failed");
-    assertTrue(a < c, "Timeval operator< failed");
-    assertTrue(c < b, "Timeval operator< failed");
-    assertTrue(!(b < a), "Timeval operator< failed");
-    assertTrue(!(c < a), "Timeval operator< failed");
-    assertTrue(!(b < c), "Timeval operator< failed");
-    assertTrue(!(a1 < a), "Timeval operator< failed");
-    assertTrue(!(a < a1), "Timeval operator< failed");
+    assertTrue_2(a < b, "Timeval operator< failed");
+    assertTrue_2(a < c, "Timeval operator< failed");
+    assertTrue_2(c < b, "Timeval operator< failed");
+    assertTrue_2(!(b < a), "Timeval operator< failed");
+    assertTrue_2(!(c < a), "Timeval operator< failed");
+    assertTrue_2(!(b < c), "Timeval operator< failed");
+    assertTrue_2(!(a1 < a), "Timeval operator< failed");
+    assertTrue_2(!(a < a1), "Timeval operator< failed");
 
-    assertTrue(b > a, "Timeval operator> failed");
-    assertTrue(b > c, "Timeval operator> failed");
-    assertTrue(c > a, "Timeval operator> failed");
-    assertTrue(!(a > b), "Timeval operator> failed");
-    assertTrue(!(a > c), "Timeval operator> failed");
-    assertTrue(!(c > b), "Timeval operator> failed");
-    assertTrue(!(a1 > a), "Timeval operator> failed");
-    assertTrue(!(a > a1), "Timeval operator> failed");
+    assertTrue_2(b > a, "Timeval operator> failed");
+    assertTrue_2(b > c, "Timeval operator> failed");
+    assertTrue_2(c > a, "Timeval operator> failed");
+    assertTrue_2(!(a > b), "Timeval operator> failed");
+    assertTrue_2(!(a > c), "Timeval operator> failed");
+    assertTrue_2(!(c > b), "Timeval operator> failed");
+    assertTrue_2(!(a1 > a), "Timeval operator> failed");
+    assertTrue_2(!(a > a1), "Timeval operator> failed");
 
-    assertTrue(a == a, "Timeval operator== failed - identity");
-    assertTrue(a == a1, "Timeval operator== failed - equality");
-    assertTrue(!(a == b), "Timeval operator== failed - tv_sec");
-    assertTrue(!(a == c), "Timeval operator== failed - tv_nsec");
+    assertTrue_2(a == a, "Timeval operator== failed - identity");
+    assertTrue_2(a == a1, "Timeval operator== failed - equality");
+    assertTrue_2(!(a == b), "Timeval operator== failed - tv_sec");
+    assertTrue_2(!(a == c), "Timeval operator== failed - tv_nsec");
 
     return true;
   }
@@ -945,23 +945,23 @@ private:
     struct timeval ts0pt9 = {0, 999999};
     struct timeval ts2 = {2, 0};
 
-    assertTrue(ts0 == ts0 + ts0, "Timeval operator+ failed - 0 + 0");
-    assertTrue(ts1 == ts0 + ts1, "Timeval operator+ failed - 0 + 1");
-    assertTrue(ts0 == ts1 + tsminus1, "Timeval operator+ failed - 1 + -1");
-    assertTrue(ts0 == tsminus1 + ts1, "Timeval operator+ failed - -1 + 1");
-    assertTrue(ts1pt1 == ts0 + ts1pt1, "Timeval operator+ failed - 0 + 1.000001");
-    assertTrue(ts1 == ts1 + ts0, "Timeval operator+ failed - 1 + 0");
-    assertTrue(ts2 == ts1 + ts1, "Timeval operator+ failed - 1 + 1");
-    assertTrue(ts2 == ts1pt1 + ts0pt9, "Timeval operator+ failed - 1.000001 + 0.999999");
+    assertTrue_2(ts0 == ts0 + ts0, "Timeval operator+ failed - 0 + 0");
+    assertTrue_2(ts1 == ts0 + ts1, "Timeval operator+ failed - 0 + 1");
+    assertTrue_2(ts0 == ts1 + tsminus1, "Timeval operator+ failed - 1 + -1");
+    assertTrue_2(ts0 == tsminus1 + ts1, "Timeval operator+ failed - -1 + 1");
+    assertTrue_2(ts1pt1 == ts0 + ts1pt1, "Timeval operator+ failed - 0 + 1.000001");
+    assertTrue_2(ts1 == ts1 + ts0, "Timeval operator+ failed - 1 + 0");
+    assertTrue_2(ts2 == ts1 + ts1, "Timeval operator+ failed - 1 + 1");
+    assertTrue_2(ts2 == ts1pt1 + ts0pt9, "Timeval operator+ failed - 1.000001 + 0.999999");
 
-    assertTrue(ts0 == ts0 - ts0, "Timeval operator- failed - 0 - 0");
-    assertTrue(ts0 == ts1 - ts1, "Timeval operator- failed - 1 - 1");
-    assertTrue(ts0 == tsminus1 - tsminus1, "Timeval operator- failed - -1 - -1");
-    assertTrue(ts1 == ts1 - ts0, "Timeval operator- failed - 1 - 0");
-    assertTrue(tsminus1 == ts0 - ts1, "Timeval operator- failed - 0 - 1");
-    assertTrue(ts1 == ts0 - tsminus1, "Timeval operator- failed - 0 - -1");
-    assertTrue(ts1pt1 == ts2 - ts0pt9, "Timeval operator- failed - 2 - 0.999999");
-    assertTrue(ts0pt9 == ts2 - ts1pt1, "Timeval operator- failed - 2 - 1.000001");
+    assertTrue_2(ts0 == ts0 - ts0, "Timeval operator- failed - 0 - 0");
+    assertTrue_2(ts0 == ts1 - ts1, "Timeval operator- failed - 1 - 1");
+    assertTrue_2(ts0 == tsminus1 - tsminus1, "Timeval operator- failed - -1 - -1");
+    assertTrue_2(ts1 == ts1 - ts0, "Timeval operator- failed - 1 - 0");
+    assertTrue_2(tsminus1 == ts0 - ts1, "Timeval operator- failed - 0 - 1");
+    assertTrue_2(ts1 == ts0 - tsminus1, "Timeval operator- failed - 0 - -1");
+    assertTrue_2(ts1pt1 == ts2 - ts0pt9, "Timeval operator- failed - 2 - 0.999999");
+    assertTrue_2(ts0pt9 == ts2 - ts1pt1, "Timeval operator- failed - 2 - 1.000001");
 
     return true;
   }
@@ -996,9 +996,9 @@ public:
   {
     const char* localDate1 = "2012-09-17T16:00:00";
     double localTime1 = 0;
-    assertTrue(parseISO8601Date(localDate1, localTime1)
-               || localTime1 != 0,
-               "Basic date parsing failed");
+    assertTrue_2(parseISO8601Date(localDate1, localTime1)
+                 || localTime1 != 0,
+                 "Basic date parsing failed");
 
     std::ostringstream str1;
     printISO8601Date(localTime1, str1);
@@ -1035,9 +1035,9 @@ public:
   {
     const char* relDate1 = "2012-09-17T16:00:00+04:00";
     double relTime1 = 0;
-    assertTrue(parseISO8601Date(relDate1, relTime1)
-               || relTime1 != 0,
-               "Offset date parsing failed");
+    assertTrue_2(parseISO8601Date(relDate1, relTime1)
+                 || relTime1 != 0,
+                 "Offset date parsing failed");
 
     std::ostringstream str3;
     printISO8601DateUTC(relTime1, str3);
@@ -1074,13 +1074,13 @@ public:
     time_t date1 = mktime(&tm1);
     std::ostringstream sstr1;
     printISO8601Date((double) date1, sstr1);
-    assertTrue(sstr1.str() == "2012-06-16T05:30:00", 
-               "Date printing error");
+    assertTrue_2(sstr1.str() == "2012-06-16T05:30:00", 
+                 "Date printing error");
 
     std::ostringstream sstr2;
     printISO8601Date(0.5 + (double) date1, sstr2);
-    assertTrue(sstr2.str() == "2012-06-16T05:30:00.500", 
-               "Date printing error - fractional seconds");
+    assertTrue_2(sstr2.str() == "2012-06-16T05:30:00.500", 
+                 "Date printing error - fractional seconds");
 
     return true;
   }
@@ -1099,8 +1099,8 @@ public:
     time_t gmtime1 = timegm(&gmt1);
     std::ostringstream sstr3;
     printISO8601DateUTC((double) gmtime1, sstr3);
-    assertTrue(sstr3.str() == "2012-06-16T05:30:00Z", 
-               "GMT date printing error");
+    assertTrue_2(sstr3.str() == "2012-06-16T05:30:00Z", 
+                 "GMT date printing error");
 
     return true;
   }
@@ -1111,82 +1111,82 @@ public:
     double result = 0;
     
     // Basics
-    assertTrue(NULL != parseISO8601Duration("PT20S", result),
-               "Complete duration parsing (seconds) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT20S", result),
+                 "Complete duration parsing (seconds) failed");
     assertTrueMsg(result == 20.0,
                   "Complete duration parsing (seconds) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT20M", result),
-               "Complete duration parsing (minutes) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT20M", result),
+                 "Complete duration parsing (minutes) failed");
     assertTrueMsg(result == 1200.0,
                   "Complete duration parsing (minutes) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT20H", result),
-               "Complete duration parsing (hours) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT20H", result),
+                 "Complete duration parsing (hours) failed");
     assertTrueMsg(result == 72000.0,
                   "Complete duration parsing (hours) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20D", result),
-               "Complete duration parsing (days) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20D", result),
+                 "Complete duration parsing (days) failed");
     assertTrueMsg(result == 1728000.0,
                   "Complete duration parsing (days) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20W", result),
-               "Complete duration parsing (weeks) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20W", result),
+                 "Complete duration parsing (weeks) failed");
     assertTrueMsg(result == 12096000.0,
                   "Complete duration parsing (weeks) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20M", result),
-               "Complete duration parsing (months) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20M", result),
+                 "Complete duration parsing (months) failed");
     assertTrueMsg(result == 51840000.0,
                   "Complete duration parsing (months) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20Y", result),
-               "Complete duration parsing (years) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20Y", result),
+                 "Complete duration parsing (years) failed");
     assertTrueMsg(result == 630720000.0,
                   "Complete duration parsing (years) returned wrong result " << result);
 
     // Combinations
-    assertTrue(NULL != parseISO8601Duration("P20DT20S", result),
-               "Complete duration parsing (days, seconds) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20DT20S", result),
+                 "Complete duration parsing (days, seconds) failed");
     assertTrueMsg(result == 1728020.0,
                   "Complete duration parsing (days, seconds) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20DT20M", result),
-               "Complete duration parsing (days, minutes) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20DT20M", result),
+                 "Complete duration parsing (days, minutes) failed");
     assertTrueMsg(result == 1729200.0,
                   "Complete duration parsing (days, minutes) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20DT20M20S", result),
-               "Complete duration parsing (days, minutes, seconds) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20DT20M20S", result),
+                 "Complete duration parsing (days, minutes, seconds) failed");
     assertTrueMsg(result == 1729220.0,
                   "Complete duration parsing (days, minutes, seconds) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20DT20H", result),
-               "Complete duration parsing (days, hours) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20DT20H", result),
+                 "Complete duration parsing (days, hours) failed");
     assertTrueMsg(result == 1800000.0,
                   "Complete duration parsing (days, hours) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20DT20H20S", result),
-               "Complete duration parsing (days, hours, seconds) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20DT20H20S", result),
+                 "Complete duration parsing (days, hours, seconds) failed");
     assertTrueMsg(result == 1800020.0,
                   "Complete duration parsing (days, hours, seconds) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20DT20H20M20S", result),
-               "Complete duration parsing (days, hours, minutes, seconds) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20DT20H20M20S", result),
+                 "Complete duration parsing (days, hours, minutes, seconds) failed");
     assertTrueMsg(result == 1801220.0,
                   "Complete duration parsing (days, hours, minutes, seconds) returned wrong result " << result);
 
-    assertTrue(NULL != parseISO8601Duration("P20M20D", result),
-               "Complete duration parsing (months, days) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20M20D", result),
+                 "Complete duration parsing (months, days) failed");
     assertTrueMsg(result == 53568000.0,
                   "Complete duration parsing (months, days) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20MT20S", result),
-               "Complete duration parsing (months, seconds) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20MT20S", result),
+                 "Complete duration parsing (months, seconds) failed");
     assertTrueMsg(result == 51840020.0,
                   "Complete duration parsing (months, seconds) returned wrong result " << result);
 
-    assertTrue(NULL != parseISO8601Duration("P20Y20D", result),
-               "Complete duration parsing (years, days) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20Y20D", result),
+                 "Complete duration parsing (years, days) failed");
     assertTrueMsg(result == 632448000.0,
                   "Complete duration parsing (years) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P20YT20S", result),
-               "Complete duration parsing (years, seconds) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P20YT20S", result),
+                 "Complete duration parsing (years, seconds) failed");
     assertTrueMsg(result == 630720020.0,
                   "Complete duration parsing (years, seconds) returned wrong result " << std::setprecision(15) << result);
 
     // Error checking
-    assertTrue(NULL == parseISO8601Duration("P20Y20S", result),
-               "Complete duration parsing (years, seconds) failed to detect missing T separator");
+    assertTrue_2(NULL == parseISO8601Duration("P20Y20S", result),
+                 "Complete duration parsing (years, seconds) failed to detect missing T separator");
 
     return true;
   }
@@ -1194,40 +1194,40 @@ public:
   static bool testAlternativeBasicDurationParsing()
   {
     double result = 0;
-    assertTrue(NULL != parseISO8601Duration("PT000020", result),
-               "Alternative basic duration parsing (seconds) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT000020", result),
+                 "Alternative basic duration parsing (seconds) failed");
     assertTrueMsg(result == 20.0,
                   "Alternative basic duration parsing (seconds) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT002000", result),
-               "Alternative basic duration parsing (minutes) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT002000", result),
+                 "Alternative basic duration parsing (minutes) failed");
     assertTrueMsg(result == 1200.0,
                   "Alternative basic duration parsing (minutes) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT0020", result),
-               "Alternative basic duration parsing (minutes) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT0020", result),
+                 "Alternative basic duration parsing (minutes) failed");
     assertTrueMsg(result == 1200.0,
                   "Alternative basic duration parsing (minutes) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT200000", result),
-               "Alternative basic duration parsing (hours) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT200000", result),
+                 "Alternative basic duration parsing (hours) failed");
     assertTrueMsg(result == 72000.0,
                   "Alternative basic duration parsing (hours) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT2000", result),
-               "Alternative basic duration parsing (hours) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT2000", result),
+                 "Alternative basic duration parsing (hours) failed");
     assertTrueMsg(result == 72000.0,
                   "Alternative basic duration parsing (hours) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT20", result),
-               "Alternative basic duration parsing (hours) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT20", result),
+                 "Alternative basic duration parsing (hours) failed");
     assertTrueMsg(result == 72000.0,
                   "Alternative basic duration parsing (hours) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P00000020", result),
-               "Alternative basic duration parsing (days) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P00000020", result),
+                 "Alternative basic duration parsing (days) failed");
     assertTrueMsg(result == 1728000.0,
                   "Alternative basic duration parsing (days) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P00002000", result),
-               "Alternative basic duration parsing (months) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P00002000", result),
+                 "Alternative basic duration parsing (months) failed");
     assertTrueMsg(result == 51840000.0,
                   "Alternative basic duration parsing (months) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P00200000", result),
-               "Alternative basic duration parsing (years) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P00200000", result),
+                 "Alternative basic duration parsing (years) failed");
     assertTrueMsg(result == 630720000.0,
                   "Alternative basic duration parsing (years) returned wrong result " << result);
     return true;
@@ -1236,40 +1236,40 @@ public:
   static bool testAlternativeExtendedDurationParsing()
   {
     double result = 0;
-    assertTrue(NULL != parseISO8601Duration("PT00:00:20", result),
-               "Alternative extended duration parsing (seconds) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT00:00:20", result),
+                 "Alternative extended duration parsing (seconds) failed");
     assertTrueMsg(result == 20.0,
                   "Alternative extended duration parsing (seconds) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT00:20:00", result),
-               "Alternative extended duration parsing (minutes) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT00:20:00", result),
+                 "Alternative extended duration parsing (minutes) failed");
     assertTrueMsg(result == 1200.0,
                   "Alternative extended duration parsing (minutes) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT00:20", result),
-               "Alternative extended duration parsing (minutes) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT00:20", result),
+                 "Alternative extended duration parsing (minutes) failed");
     assertTrueMsg(result == 1200.0,
                   "Alternative extended duration parsing (minutes) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT20:00:00", result),
-               "Alternative extended duration parsing (hours) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT20:00:00", result),
+                 "Alternative extended duration parsing (hours) failed");
     assertTrueMsg(result == 72000.0,
                   "Alternative extended duration parsing (hours) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT20:00", result),
-               "Alternative extended duration parsing (hours) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT20:00", result),
+                 "Alternative extended duration parsing (hours) failed");
     assertTrueMsg(result == 72000.0,
                   "Alternative extended duration parsing (hours) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("PT20", result),
-               "Alternative extended duration parsing (hours) failed");
+    assertTrue_2(NULL != parseISO8601Duration("PT20", result),
+                 "Alternative extended duration parsing (hours) failed");
     assertTrueMsg(result == 72000.0,
                   "Alternative extended duration parsing (hours) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P0000-00-20", result),
-               "Alternative extended duration parsing (days) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P0000-00-20", result),
+                 "Alternative extended duration parsing (days) failed");
     assertTrueMsg(result == 1728000.0,
                   "Alternative extended duration parsing (days) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P0000-20-00", result),
-               "Alternative extended duration parsing (months) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P0000-20-00", result),
+                 "Alternative extended duration parsing (months) failed");
     assertTrueMsg(result == 51840000.0,
                   "Alternative extended duration parsing (months) returned wrong result " << result);
-    assertTrue(NULL != parseISO8601Duration("P0020-00-00", result),
-               "Alternative extended duration parsing (years) failed");
+    assertTrue_2(NULL != parseISO8601Duration("P0020-00-00", result),
+                 "Alternative extended duration parsing (years) failed");
     assertTrueMsg(result == 630720000.0,
                   "Alternative extended duration parsing (years) returned wrong result " << result);
     return true;

@@ -36,7 +36,7 @@ namespace PLEXIL
     int rv = pthread_mutexattr_init(&m_mta);
     if (rv != 0)
       {
-        assertTrue(rv != ENOMEM, "No memory for mutex attribute init.");
+        assertTrue_2(rv != ENOMEM, "No memory for mutex attribute init.");
         assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_init failed, errno = " << rv);
       }
 
@@ -44,7 +44,7 @@ namespace PLEXIL
     rv = pthread_mutexattr_settype(&m_mta, PTHREAD_MUTEX_NORMAL);
     if (rv != 0)
       {
-        assertTrue(rv != EINVAL, "PTHREAD_MUTEX_NORMAL is an invalid value");
+        assertTrue_2(rv != EINVAL, "PTHREAD_MUTEX_NORMAL is an invalid value");
         assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_settype failed, errno = " << rv);
       }
 #endif
@@ -55,8 +55,8 @@ namespace PLEXIL
     rv = pthread_mutexattr_setprotocol(&m_mta, PTHREAD_PRIO_INHERIT);
     if (rv != 0)
       {
-        assertTrue(rv != ENOTSUP, "PTHREAD_PRIO_INHERIT is not supported");
-        assertTrue(rv != EINVAL, "Invalid value to pthread_mutexattr_setprotocol");
+        assertTrue_2(rv != ENOTSUP, "PTHREAD_PRIO_INHERIT is not supported");
+        assertTrue_2(rv != EINVAL, "Invalid value to pthread_mutexattr_setprotocol");
         assertTrueMsg(ALWAYS_FAIL, "pthread_mutexattr_setprotocol failed, errno = " << rv);
       }
 #endif
@@ -64,11 +64,11 @@ namespace PLEXIL
     rv = pthread_mutex_init(&m_mutex, &m_mta);
     if (rv != 0)
       {
-        assertTrue(rv != EINVAL, "Mutex pointer or attribute pointer invalid.");
-        assertTrue(rv != EPERM, "Insufficient permissions for mutex initialization.");
-        assertTrue(rv != EBUSY, "Attempt to initialize mutex which was already initialized.");
-        assertTrue(rv != ENOMEM, "No memory for mutex initialization.");
-        assertTrue(rv != EAGAIN, "Insufficient system resources for mutex initialization.");
+        assertTrue_2(rv != EINVAL, "Mutex pointer or attribute pointer invalid.");
+        assertTrue_2(rv != EPERM, "Insufficient permissions for mutex initialization.");
+        assertTrue_2(rv != EBUSY, "Attempt to initialize mutex which was already initialized.");
+        assertTrue_2(rv != ENOMEM, "No memory for mutex initialization.");
+        assertTrue_2(rv != EAGAIN, "Insufficient system resources for mutex initialization.");
         assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_init failed, errno = " << rv);
       }
     
@@ -82,7 +82,7 @@ namespace PLEXIL
     int rv = pthread_mutex_destroy(&m_mutex);
     if (rv == 0)
       return;
-    assertTrue(rv != EBUSY, "Attempted to destroy mutex while locked or referenced.");
+    assertTrue_2(rv != EBUSY, "Attempted to destroy mutex while locked or referenced.");
     assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_destroy failed, errno = " << rv);
   }
 
@@ -92,8 +92,8 @@ namespace PLEXIL
     if (rv == 0)
       return;
 
-    assertTrue(rv != EDEADLK, "Deadlock detected, or attempt to lock mutex that is already locked by this thread.");
-    assertTrue(rv != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
+    assertTrue_2(rv != EDEADLK, "Deadlock detected, or attempt to lock mutex that is already locked by this thread.");
+    assertTrue_2(rv != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
     assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_lock failed, errno = " << rv);
   }
 
@@ -105,7 +105,7 @@ namespace PLEXIL
     if (rv == EBUSY)
       // mutex already locked
       return false;
-    assertTrue(rv != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
+    assertTrue_2(rv != EINVAL, "Invalid mutex or insufficient mutex priority ceiling.");
     assertTrueMsg(ALWAYS_FAIL,  "pthread_mutex_trylock failed, errno = " << rv);
     return false; // to make compiler happy
   }
@@ -115,7 +115,7 @@ namespace PLEXIL
     int rv = pthread_mutex_unlock(&m_mutex);
     if (rv == 0)
       return;
-    assertTrue(rv != EPERM, "Attempt to unlock mutex that is locked by another thread.");
+    assertTrue_2(rv != EPERM, "Attempt to unlock mutex that is locked by another thread.");
     assertTrueMsg(ALWAYS_FAIL, "pthread_mutex_unlock failed, errno = " << rv);
   }
 

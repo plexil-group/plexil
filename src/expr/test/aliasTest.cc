@@ -210,21 +210,21 @@ static bool testAliasToArrayConstant()
   assertTrue_1(asc.isKnown());
   
   // Check that getValuePointer is forwarded
-  assertTrue(bc.getValuePointer(pab));
-  assertTrue(abc.getValuePointer(paab));
-  assertTrue(*pab == *paab);
+  assertTrue_1(bc.getValuePointer(pab));
+  assertTrue_1(abc.getValuePointer(paab));
+  assertTrue_1(*pab == *paab);
 
-  assertTrue(ic.getValuePointer(pai));
-  assertTrue(aic.getValuePointer(paai));
-  assertTrue(*pai == *paai);
+  assertTrue_1(ic.getValuePointer(pai));
+  assertTrue_1(aic.getValuePointer(paai));
+  assertTrue_1(*pai == *paai);
 
-  assertTrue(dc.getValuePointer(pad));
-  assertTrue(adc.getValuePointer(paad));
-  assertTrue(*pad == *paad);
+  assertTrue_1(dc.getValuePointer(pad));
+  assertTrue_1(adc.getValuePointer(paad));
+  assertTrue_1(*pad == *paad);
 
-  assertTrue(sc.getValuePointer(pas));
-  assertTrue(asc.getValuePointer(paas));
-  assertTrue(*pas == *paas);
+  assertTrue_1(sc.getValuePointer(pas));
+  assertTrue_1(asc.getValuePointer(paas));
+  assertTrue_1(*pas == *paas);
 
   return true;
 }
@@ -599,29 +599,29 @@ static bool testAliasToArrayVariable()
   assertTrue_1(wasc.isKnown());
   
   // Check that getValuePointer is forwarded
-  assertTrue(bc.getValuePointer(pab));
-  assertTrue(abc.getValuePointer(paab));
-  assertTrue(*pab == *paab);
-  assertTrue(wabc.getValuePointer(paab));
-  assertTrue(*pab == *paab);
+  assertTrue_1(bc.getValuePointer(pab));
+  assertTrue_1(abc.getValuePointer(paab));
+  assertTrue_1(*pab == *paab);
+  assertTrue_1(wabc.getValuePointer(paab));
+  assertTrue_1(*pab == *paab);
 
-  assertTrue(ic.getValuePointer(pai));
-  assertTrue(aic.getValuePointer(paai));
-  assertTrue(*pai == *paai);
-  assertTrue(waic.getValuePointer(paai));
-  assertTrue(*pai == *paai);
+  assertTrue_1(ic.getValuePointer(pai));
+  assertTrue_1(aic.getValuePointer(paai));
+  assertTrue_1(*pai == *paai);
+  assertTrue_1(waic.getValuePointer(paai));
+  assertTrue_1(*pai == *paai);
 
-  assertTrue(dc.getValuePointer(pad));
-  assertTrue(adc.getValuePointer(paad));
-  assertTrue(*pad == *paad);
-  assertTrue(wadc.getValuePointer(paad));
-  assertTrue(*pad == *paad);
+  assertTrue_1(dc.getValuePointer(pad));
+  assertTrue_1(adc.getValuePointer(paad));
+  assertTrue_1(*pad == *paad);
+  assertTrue_1(wadc.getValuePointer(paad));
+  assertTrue_1(*pad == *paad);
 
-  assertTrue(sc.getValuePointer(pas));
-  assertTrue(asc.getValuePointer(paas));
-  assertTrue(*pas == *paas);
-  assertTrue(wasc.getValuePointer(paas));
-  assertTrue(*pas == *paas);
+  assertTrue_1(sc.getValuePointer(pas));
+  assertTrue_1(asc.getValuePointer(paas));
+  assertTrue_1(*pas == *paas);
+  assertTrue_1(wasc.getValuePointer(paas));
+  assertTrue_1(*pas == *paas);
 
   // Test array reference through alias
   IntegerVariable ix;
@@ -1393,12 +1393,12 @@ static bool testAliasPropagation()
 
   IntegerConstant luftballoons(99);
   waref.setValue(&luftballoons);
-  assertTrue(ref.getValue(temp));
-  assertTrue(temp == 99);
-  assertTrue(aref.getValue(temp));
-  assertTrue(temp == 99);
-  assertTrue(waref.getValue(temp));
-  assertTrue(temp == 99);
+  assertTrue_1(ref.getValue(temp));
+  assertTrue_1(temp == 99);
+  assertTrue_1(aref.getValue(temp));
+  assertTrue_1(temp == 99);
+  assertTrue_1(waref.getValue(temp));
+  assertTrue_1(temp == 99);
   assertTrue_1(!treeChanged);
   assertTrue_1(!atreeChanged);
   assertTrue_1(!watreeChanged);
@@ -1412,12 +1412,12 @@ static bool testAliasPropagation()
   refChanged = arefChanged = warefChanged = false;
 
   waref.setValue(42);
-  assertTrue(ref.getValue(temp));
-  assertTrue(temp == 42);
-  assertTrue(aref.getValue(temp));
-  assertTrue(temp == 42);
-  assertTrue(waref.getValue(temp));
-  assertTrue(temp == 42);
+  assertTrue_1(ref.getValue(temp));
+  assertTrue_1(temp == 42);
+  assertTrue_1(aref.getValue(temp));
+  assertTrue_1(temp == 42);
+  assertTrue_1(waref.getValue(temp));
+  assertTrue_1(temp == 42);
   assertTrue_1(!treeChanged);
   assertTrue_1(!atreeChanged);
   assertTrue_1(!watreeChanged);

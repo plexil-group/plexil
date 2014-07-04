@@ -59,7 +59,7 @@ public:
   void enqueueAssignment(const AssignmentId& /* assign */) {}
   void enqueueAssignmentForRetraction(const AssignmentId& /* assign */) {}
   // Replacement for handleNeedsExecution()
-  void notifyExecuted(const NodeId& node) {assertTrue(node->getState() == EXECUTING_STATE); m_executed = true;}
+  void notifyExecuted(const NodeId& node) {assertTrue_1(node->getState() == EXECUTING_STATE); m_executed = true;}
   void markRootNodeFinished(const NodeId& /* node */) {}
   void step(double /* startTime */) {}
   bool needsStep() const {return false;}
@@ -143,21 +143,21 @@ static bool inactiveDestTest()
                        << " Parent state: " << nodeStateName(states[s])
                        << " Dest: " << nodeStateName(destState));
               if (states[s] == FINISHED_STATE) {
-                assertTrue(destState == FINISHED_STATE);
+                assertTrue_1(destState == FINISHED_STATE);
               }
               else if (states[s] == EXECUTING_STATE) {
                 if (ancestorExit == IDX_TRUE
                     || ancestorInvariant == IDX_FALSE
                     || ancestorEnd == IDX_TRUE) {
-                  assertTrue(destState == FINISHED_STATE);
+                  assertTrue_1(destState == FINISHED_STATE);
                 }
                 else {
-                  assertTrue(destState == WAITING_STATE);
+                  assertTrue_1(destState == WAITING_STATE);
                 }
               }
             }
             else {
-              assertTrue(destState == NO_NODE_STATE);
+              assertTrue_1(destState == NO_NODE_STATE);
             }
           }
         }
@@ -217,30 +217,30 @@ static bool inactiveTransTest()
                        << " Parent state " << nodeStateName(states[s])
                        << " Node state " << nodeStateName(state));
               if (states[s] == FINISHED_STATE) {
-                assertTrue(state == FINISHED_STATE);
-                assertTrue(node->getOutcome() == SKIPPED_OUTCOME);
+                assertTrue_1(state == FINISHED_STATE);
+                assertTrue_1(node->getOutcome() == SKIPPED_OUTCOME);
               }
               else if (states[s] == EXECUTING_STATE) {
                 if (ancestorExit == IDX_TRUE
                     || ancestorInvariant == IDX_FALSE
                     || ancestorEnd == IDX_TRUE) {
-                  assertTrue(state == FINISHED_STATE);
-                  assertTrue(node->getOutcome() == SKIPPED_OUTCOME);
+                  assertTrue_1(state == FINISHED_STATE);
+                  assertTrue_1(node->getOutcome() == SKIPPED_OUTCOME);
                 }
                 else {
-                  assertTrue(state == WAITING_STATE);
+                  assertTrue_1(state == WAITING_STATE);
                   // These are activated by the parent node on transition to EXECUTING.
-                  //assertTrue(node->isAncestorEndConditionActive());
-                  //assertTrue(node->isAncestorExitConditionActive());
-                  //assertTrue(node->isAncestorInvariantConditionActive());
-                  assertTrue(node->isExitConditionActive());
-                  assertTrue(node->isPreConditionActive());
-                  assertTrue(node->isSkipConditionActive());
-                  assertTrue(node->isStartConditionActive());
+                  //assertTrue_1(node->isAncestorEndConditionActive());
+                  //assertTrue_1(node->isAncestorExitConditionActive());
+                  //assertTrue_1(node->isAncestorInvariantConditionActive());
+                  assertTrue_1(node->isExitConditionActive());
+                  assertTrue_1(node->isPreConditionActive());
+                  assertTrue_1(node->isSkipConditionActive());
+                  assertTrue_1(node->isStartConditionActive());
                 }
               }
               else {
-                assertTrue(false);
+                assertTrue_1(false);
               }
             }
             delete (Node*) node;
@@ -289,18 +289,18 @@ static bool waitingDestTest()
                     || ancestorInvariant == IDX_FALSE
                     || ancestorEnd == IDX_TRUE
                     || skip == IDX_TRUE) {
-                  assertTrue(destState == FINISHED_STATE);
+                  assertTrue_1(destState == FINISHED_STATE);
                 }
                 else if (start == IDX_TRUE) {
                   if (pre == IDX_TRUE) {
-                    assertTrue(destState == EXECUTING_STATE);
+                    assertTrue_1(destState == EXECUTING_STATE);
                   }
                   else {
-                    assertTrue(destState == ITERATION_ENDED_STATE);
+                    assertTrue_1(destState == ITERATION_ENDED_STATE);
                   }
                 }
                 else {
-                  assertTrue(destState == NO_NODE_STATE);
+                  assertTrue_1(destState == NO_NODE_STATE);
                 }
               }
             }
@@ -363,32 +363,32 @@ static bool waitingTransTest()
                         || ancestorInvariant == IDX_FALSE
                         || ancestorEnd == IDX_TRUE
                         || skip == IDX_TRUE) {
-                      assertTrue(state == FINISHED_STATE);
-                      assertTrue(node->getOutcome() == SKIPPED_OUTCOME);
+                      assertTrue_1(state == FINISHED_STATE);
+                      assertTrue_1(node->getOutcome() == SKIPPED_OUTCOME);
                     }
                     else if (start == IDX_TRUE) {
-                      assertTrue(node->isAncestorExitConditionActive());
-                      assertTrue(node->isAncestorInvariantConditionActive());
+                      assertTrue_1(node->isAncestorExitConditionActive());
+                      assertTrue_1(node->isAncestorInvariantConditionActive());
                       if (pre == IDX_TRUE) {
-                        assertTrue(state == EXECUTING_STATE);
-                        assertTrue(node->isEndConditionActive());
-                        assertTrue(node->isExitConditionActive());
-                        assertTrue(node->isInvariantConditionActive());
+                        assertTrue_1(state == EXECUTING_STATE);
+                        assertTrue_1(node->isEndConditionActive());
+                        assertTrue_1(node->isExitConditionActive());
+                        assertTrue_1(node->isInvariantConditionActive());
                         if (types[i] == Node::ASSIGNMENT()) {
-                          assertTrue(node->isActionCompleteConditionActive());
+                          assertTrue_1(node->isActionCompleteConditionActive());
                         }
-                        assertTrue(con.executed());
+                        assertTrue_1(con.executed());
                       }
                       else {
-                        assertTrue(state == ITERATION_ENDED_STATE);
-                        assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                        assertTrue(node->getFailureType() == PRE_CONDITION_FAILED);
-                        assertTrue(node->isRepeatConditionActive());
-                        assertTrue(node->isAncestorEndConditionActive());
+                        assertTrue_1(state == ITERATION_ENDED_STATE);
+                        assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                        assertTrue_1(node->getFailureType() == PRE_CONDITION_FAILED);
+                        assertTrue_1(node->isRepeatConditionActive());
+                        assertTrue_1(node->isAncestorEndConditionActive());
                       }
                     }
                     else {
-                      assertTrue(false);
+                      assertTrue_1(false);
                     }
                   }
                   delete (Node*) node;
@@ -432,13 +432,13 @@ static bool iterationEndedDestTest()
               || ancestorInvariant == IDX_FALSE
               || ancestorEnd == IDX_TRUE
               || repeat == IDX_FALSE) {
-            assertTrue(destState == FINISHED_STATE);
+            assertTrue_1(destState == FINISHED_STATE);
           }
           else if (repeat == IDX_TRUE) {
-            assertTrue(destState == WAITING_STATE);
+            assertTrue_1(destState == WAITING_STATE);
           }
           else {
-            assertTrue(destState == NO_NODE_STATE);
+            assertTrue_1(destState == NO_NODE_STATE);
           }
         }
       }
@@ -488,23 +488,23 @@ static bool iterationEndedTransTest()
 
               // TODO: check to make sure the reset happened here
               if (ancestorExit == IDX_TRUE) {
-                assertTrue(state == FINISHED_STATE);
-                assertTrue(node->getOutcome() == INTERRUPTED_OUTCOME);
-                assertTrue(node->getFailureType() == PARENT_EXITED);
+                assertTrue_1(state == FINISHED_STATE);
+                assertTrue_1(node->getOutcome() == INTERRUPTED_OUTCOME);
+                assertTrue_1(node->getFailureType() == PARENT_EXITED);
               }
               else if (ancestorInvariant == IDX_FALSE || ancestorEnd == IDX_TRUE || repeat == IDX_FALSE) {
-                assertTrue(state == FINISHED_STATE);
+                assertTrue_1(state == FINISHED_STATE);
                 if (ancestorInvariant == IDX_FALSE) {
-                  assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                  assertTrue(node->getFailureType() == PARENT_FAILED);
+                  assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                  assertTrue_1(node->getFailureType() == PARENT_FAILED);
                 }
               }
               else if (repeat == IDX_TRUE) {
-                assertTrue(state == WAITING_STATE);
-                assertTrue(node->getStartCondition()->isActive());
+                assertTrue_1(state == WAITING_STATE);
+                assertTrue_1(node->getStartCondition()->isActive());
               }
               else {
-                assertTrue(false);
+                assertTrue_1(false);
               }
             }
             delete (Node*) node;
@@ -540,10 +540,10 @@ static bool finishedDestTest()
     parent->setState(states[s], tif.currentTime());
     NodeState destState = node->getDestState();
     if (states[s] == WAITING_STATE) {
-      assertTrue(destState == INACTIVE_STATE);
+      assertTrue_1(destState == INACTIVE_STATE);
     }
     else {
-      assertTrue(destState == NO_NODE_STATE);
+      assertTrue_1(destState == NO_NODE_STATE);
     }
   }
   delete (Node*) node;
@@ -583,10 +583,10 @@ static bool finishedTransTest()
         NodeState state = node->getState();
 
         if (states[s] == WAITING_STATE) {
-          assertTrue(state == INACTIVE_STATE);
+          assertTrue_1(state == INACTIVE_STATE);
         }
         else {
-          assertTrue(false);
+          assertTrue_1(false);
         }
       }
       delete (Node*) node;
@@ -625,13 +625,13 @@ static bool listExecutingDestTest()
                 || exit == IDX_TRUE
                 || ancestorInvariant == IDX_FALSE 
                 || invariant == IDX_FALSE) {
-              assertTrue(destState == FAILING_STATE);
+              assertTrue_1(destState == FAILING_STATE);
             }
             else if (end == IDX_TRUE) {
-              assertTrue(destState == FINISHING_STATE);
+              assertTrue_1(destState == FINISHING_STATE);
             }
             else {
-              assertTrue(destState == NO_NODE_STATE);
+              assertTrue_1(destState == NO_NODE_STATE);
             }
           }
         }
@@ -678,34 +678,34 @@ static bool listExecutingTransTest()
             if (node->canTransition()) {
               node->transition(node->getDestState());
               NodeState state = node->getState();
-              assertTrue(node->getActionCompleteCondition()->isActive());
+              assertTrue_1(node->getActionCompleteCondition()->isActive());
               if (ancestorExit == IDX_TRUE || exit == IDX_TRUE) {
-                assertTrue(state == FAILING_STATE);
-                assertTrue(node->getOutcome() == INTERRUPTED_OUTCOME);
+                assertTrue_1(state == FAILING_STATE);
+                assertTrue_1(node->getOutcome() == INTERRUPTED_OUTCOME);
                 if (ancestorExit == IDX_TRUE) {
-                  assertTrue(node->getFailureType() == PARENT_EXITED);
+                  assertTrue_1(node->getFailureType() == PARENT_EXITED);
                 }
                 else if (exit == IDX_TRUE) {
-                  assertTrue(node->getFailureType() == EXITED);
+                  assertTrue_1(node->getFailureType() == EXITED);
                 }
               }
               else if (ancestorInvariant == IDX_FALSE || invariant == IDX_FALSE) {
-                assertTrue(state == FAILING_STATE);
-                assertTrue(node->getOutcome() == FAILURE_OUTCOME);
+                assertTrue_1(state == FAILING_STATE);
+                assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
                 if (ancestorInvariant == IDX_FALSE) {
-                  assertTrue(node->getFailureType() == PARENT_FAILED);
+                  assertTrue_1(node->getFailureType() == PARENT_FAILED);
                 }
                 else if (invariant == IDX_FALSE) {
-                  assertTrue(node->getFailureType() == INVARIANT_CONDITION_FAILED);
+                  assertTrue_1(node->getFailureType() == INVARIANT_CONDITION_FAILED);
                 }
               }
               else if (end == IDX_TRUE) {
-                assertTrue(state == FINISHING_STATE);
-                assertTrue(node->getInvariantCondition()->isActive());
-                assertTrue(node->isAncestorInvariantConditionActive());
+                assertTrue_1(state == FINISHING_STATE);
+                assertTrue_1(node->getInvariantCondition()->isActive());
+                assertTrue_1(node->isAncestorInvariantConditionActive());
               }
               else {
-                assertTrue(false);
+                assertTrue_1(false);
               }
             }
             delete (Node*) node;
@@ -741,14 +741,14 @@ static bool listFailingDestTest()
 
       if (children == IDX_TRUE) {
         if (failure == 0) {
-          assertTrue(destState == ITERATION_ENDED_STATE);
+          assertTrue_1(destState == ITERATION_ENDED_STATE);
         }
         else if (failure == 1) {
-          assertTrue(destState == FINISHED_STATE);
+          assertTrue_1(destState == FINISHED_STATE);
         }
       }
       else {
-        assertTrue(destState == NO_NODE_STATE);
+        assertTrue_1(destState == NO_NODE_STATE);
       }
     }
   }
@@ -788,20 +788,20 @@ static bool listFailingTransTest()
 
         if (children == IDX_TRUE) {
           if (i == 0) {
-            assertTrue(state == ITERATION_ENDED_STATE);
-            assertTrue(node->isAncestorInvariantConditionActive());
-            assertTrue(node->isAncestorEndConditionActive());
-            assertTrue(node->isRepeatConditionActive());
+            assertTrue_1(state == ITERATION_ENDED_STATE);
+            assertTrue_1(node->isAncestorInvariantConditionActive());
+            assertTrue_1(node->isAncestorEndConditionActive());
+            assertTrue_1(node->isRepeatConditionActive());
           }
           else if (i == 1) {
-            assertTrue(state == FINISHED_STATE);
+            assertTrue_1(state == FINISHED_STATE);
           }
           else {
-            assertTrue(false);
+            assertTrue_1(false);
           }
         }
         else {
-          assertTrue(false);
+          assertTrue_1(false);
         }
       }
       delete (Node*) node;
@@ -851,13 +851,13 @@ static bool listFinishingDestTest()
                   || exit == IDX_TRUE
                   || ancestorInvariant == IDX_FALSE
                   || invariant == IDX_FALSE) {
-                assertTrue(destState == FAILING_STATE);
+                assertTrue_1(destState == FAILING_STATE);
               }
               else if (children == IDX_TRUE) {
-                assertTrue(destState == ITERATION_ENDED_STATE);
+                assertTrue_1(destState == ITERATION_ENDED_STATE);
               }
               else {
-                assertTrue(destState == NO_NODE_STATE);
+                assertTrue_1(destState == NO_NODE_STATE);
               }
             }
           }
@@ -910,43 +910,43 @@ static bool listFinishingTransTest()
                 NodeState state = node->getState();
 
                 if (ancestorExit == IDX_TRUE || exit == IDX_TRUE) {
-                  assertTrue(state == FAILING_STATE);
-                  assertTrue(node->getOutcome() == INTERRUPTED_OUTCOME);
+                  assertTrue_1(state == FAILING_STATE);
+                  assertTrue_1(node->getOutcome() == INTERRUPTED_OUTCOME);
                   if (ancestorExit == IDX_TRUE) {
-                    assertTrue(node->getFailureType() == PARENT_EXITED);
+                    assertTrue_1(node->getFailureType() == PARENT_EXITED);
                   }
                   else if (exit == IDX_TRUE) {
-                    assertTrue(node->getFailureType() == EXITED);
+                    assertTrue_1(node->getFailureType() == EXITED);
                   }
-                  assertTrue(node->getActionCompleteCondition()->isActive());
+                  assertTrue_1(node->getActionCompleteCondition()->isActive());
                 }
                 else if (ancestorInvariant == IDX_FALSE || invariant == IDX_FALSE) {
-                  assertTrue(state == FAILING_STATE);
-                  assertTrue(node->getOutcome() == FAILURE_OUTCOME);
+                  assertTrue_1(state == FAILING_STATE);
+                  assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
                   if (ancestorInvariant == IDX_FALSE) {
-                    assertTrue(node->getFailureType() == PARENT_FAILED);
+                    assertTrue_1(node->getFailureType() == PARENT_FAILED);
                   }
                   else if (invariant == IDX_FALSE) {
-                    assertTrue(node->getFailureType() == INVARIANT_CONDITION_FAILED);
+                    assertTrue_1(node->getFailureType() == INVARIANT_CONDITION_FAILED);
                   }
-                  assertTrue(node->getActionCompleteCondition()->isActive());
+                  assertTrue_1(node->getActionCompleteCondition()->isActive());
                 }
                 else if (children == IDX_TRUE) {
-                  assertTrue(state == ITERATION_ENDED_STATE);
-                  assertTrue(node->isAncestorInvariantConditionActive());
-                  assertTrue(node->isAncestorExitConditionActive());
-                  assertTrue(node->isAncestorEndConditionActive());
-                  assertTrue(node->isRepeatConditionActive());
+                  assertTrue_1(state == ITERATION_ENDED_STATE);
+                  assertTrue_1(node->isAncestorInvariantConditionActive());
+                  assertTrue_1(node->isAncestorExitConditionActive());
+                  assertTrue_1(node->isAncestorEndConditionActive());
+                  assertTrue_1(node->isRepeatConditionActive());
                   if (post == IDX_TRUE) {
-                    assertTrue(node->getOutcome() == SUCCESS_OUTCOME);
+                    assertTrue_1(node->getOutcome() == SUCCESS_OUTCOME);
                   }
                   else {
-                    assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                    assertTrue(node->getFailureType() == POST_CONDITION_FAILED);
+                    assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                    assertTrue_1(node->getFailureType() == POST_CONDITION_FAILED);
                   }
                 }
                 else {
-                  assertTrue(false);
+                  assertTrue_1(false);
                 }
               }
               delete (Node*) node;
@@ -996,25 +996,25 @@ static bool bindingExecutingDestTest()
 
                 NodeState destState = node->getDestState();
                 if (actionComplete != IDX_TRUE) {
-                  assertTrue(destState == NO_NODE_STATE);
+                  assertTrue_1(destState == NO_NODE_STATE);
                 }
                 else if (ancestorExit == IDX_TRUE) {
-                  assertTrue(destState == FAILING_STATE);
+                  assertTrue_1(destState == FAILING_STATE);
                 }
                 else if (exit == IDX_TRUE) {
-                  assertTrue(destState == FAILING_STATE);
+                  assertTrue_1(destState == FAILING_STATE);
                 }
                 else if (ancestorInvariant == IDX_FALSE) {
-                  assertTrue(destState == FAILING_STATE);
+                  assertTrue_1(destState == FAILING_STATE);
                 }
                 else if (invariant == IDX_FALSE) {
-                  assertTrue(destState == FAILING_STATE);
+                  assertTrue_1(destState == FAILING_STATE);
                 }
                 else if (end == IDX_TRUE) {
-                  assertTrue(destState == ITERATION_ENDED_STATE);
+                  assertTrue_1(destState == ITERATION_ENDED_STATE);
                 }
                 else {
-                  assertTrue(destState == NO_NODE_STATE);
+                  assertTrue_1(destState == NO_NODE_STATE);
                 }
               }
             }
@@ -1073,47 +1073,47 @@ static bool bindingExecutingTransTest()
                   NodeState state = node->getState();
 
                   if (ancestorExit == IDX_TRUE || exit == IDX_TRUE) {
-                    assertTrue(node->getOutcome() == INTERRUPTED_OUTCOME);
+                    assertTrue_1(node->getOutcome() == INTERRUPTED_OUTCOME);
                     if (ancestorExit == IDX_TRUE) {
-                      assertTrue(node->getFailureType() == PARENT_EXITED);
-                      assertTrue(state == FAILING_STATE);
-                      assertTrue(node->isAbortCompleteConditionActive());
+                      assertTrue_1(node->getFailureType() == PARENT_EXITED);
+                      assertTrue_1(state == FAILING_STATE);
+                      assertTrue_1(node->isAbortCompleteConditionActive());
                     }
                     else if (exit == IDX_TRUE) {
-                      assertTrue(node->getFailureType() == EXITED);
-                      assertTrue(state == FAILING_STATE);
-                      assertTrue(node->isAbortCompleteConditionActive());
+                      assertTrue_1(node->getFailureType() == EXITED);
+                      assertTrue_1(state == FAILING_STATE);
+                      assertTrue_1(node->isAbortCompleteConditionActive());
                     }
                   }
                   else if (ancestorInvariant == IDX_FALSE || invariant == IDX_FALSE) {
-                    assertTrue(node->getOutcome() == FAILURE_OUTCOME);
+                    assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
                     if (ancestorInvariant == IDX_FALSE) {
-                      assertTrue(node->getFailureType() == PARENT_FAILED);
-                      assertTrue(state == FAILING_STATE);
-                      assertTrue(node->isAbortCompleteConditionActive());
+                      assertTrue_1(node->getFailureType() == PARENT_FAILED);
+                      assertTrue_1(state == FAILING_STATE);
+                      assertTrue_1(node->isAbortCompleteConditionActive());
                     }
                     else if (invariant == IDX_FALSE) {
-                      assertTrue(node->getFailureType() == INVARIANT_CONDITION_FAILED);
-                      assertTrue(state == FAILING_STATE);
-                      assertTrue(node->isAbortCompleteConditionActive());
+                      assertTrue_1(node->getFailureType() == INVARIANT_CONDITION_FAILED);
+                      assertTrue_1(state == FAILING_STATE);
+                      assertTrue_1(node->isAbortCompleteConditionActive());
                     }
                   }
                   else if (end == IDX_TRUE) {
-                    assertTrue(state == ITERATION_ENDED_STATE);
-                    assertTrue(node->isAncestorEndConditionActive());
-                    assertTrue(node->isAncestorExitConditionActive());
-                    assertTrue(node->isAncestorInvariantConditionActive());
-                    assertTrue(node->isRepeatConditionActive());
+                    assertTrue_1(state == ITERATION_ENDED_STATE);
+                    assertTrue_1(node->isAncestorEndConditionActive());
+                    assertTrue_1(node->isAncestorExitConditionActive());
+                    assertTrue_1(node->isAncestorInvariantConditionActive());
+                    assertTrue_1(node->isRepeatConditionActive());
                     if (post == IDX_TRUE) {
-                      assertTrue(node->getOutcome() == SUCCESS_OUTCOME);
+                      assertTrue_1(node->getOutcome() == SUCCESS_OUTCOME);
                     }
                     else {
-                      assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                      assertTrue(node->getFailureType() == POST_CONDITION_FAILED);
+                      assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                      assertTrue_1(node->getFailureType() == POST_CONDITION_FAILED);
                     }
                   }
                   else {
-                    assertTrue(false);
+                    assertTrue_1(false);
                   }
                 }
                 delete (Node*) node;
@@ -1153,14 +1153,14 @@ static bool bindingFailingDestTest()
       if (abortComplete == IDX_TRUE) {
         if (failureType[failure] == PARENT_FAILED
             || failureType[failure] == PARENT_EXITED) {
-          assertTrue(destState == FINISHED_STATE);
+          assertTrue_1(destState == FINISHED_STATE);
         }
         else {
-          assertTrue(destState == ITERATION_ENDED_STATE);
+          assertTrue_1(destState == ITERATION_ENDED_STATE);
         }
       }
       else {
-        assertTrue(destState == NO_NODE_STATE);
+        assertTrue_1(destState == NO_NODE_STATE);
       }
     }
   }
@@ -1201,17 +1201,17 @@ static bool bindingFailingTransTest()
         if (children == IDX_TRUE) {
           if (failureType[failure] == PARENT_FAILED
               || failureType[failure] == PARENT_EXITED) {
-            assertTrue(state == FINISHED_STATE);
+            assertTrue_1(state == FINISHED_STATE);
           }
           else {
-            assertTrue(state == ITERATION_ENDED_STATE);
-            assertTrue(node->isAncestorInvariantConditionActive());
-            assertTrue(node->isAncestorEndConditionActive());
-            assertTrue(node->isRepeatConditionActive());
+            assertTrue_1(state == ITERATION_ENDED_STATE);
+            assertTrue_1(node->isAncestorInvariantConditionActive());
+            assertTrue_1(node->isAncestorEndConditionActive());
+            assertTrue_1(node->isRepeatConditionActive());
           }
         }
         else {
-          assertTrue(false);
+          assertTrue_1(false);
         }
       }
       delete (Node*) node;
@@ -1250,22 +1250,22 @@ static bool commandExecutingDestTest()
 
             NodeState destState = node->getDestState();
             if (ancestorExit == IDX_TRUE) {
-              assertTrue(destState == FAILING_STATE);
+              assertTrue_1(destState == FAILING_STATE);
             }
             else if (exit == IDX_TRUE) {
-              assertTrue(destState == FAILING_STATE);
+              assertTrue_1(destState == FAILING_STATE);
             }
             else if (ancestorInvariant == IDX_FALSE) {
-              assertTrue(destState == FAILING_STATE);
+              assertTrue_1(destState == FAILING_STATE);
             }
             else if (invariant == IDX_FALSE) {
-              assertTrue(destState == FAILING_STATE);
+              assertTrue_1(destState == FAILING_STATE);
             }
             else if (end == IDX_TRUE) {
-              assertTrue(destState == FINISHING_STATE);
+              assertTrue_1(destState == FINISHING_STATE);
             }
             else {
-              assertTrue(destState == NO_NODE_STATE);
+              assertTrue_1(destState == NO_NODE_STATE);
             }
           }
         }
@@ -1313,40 +1313,40 @@ static bool commandExecutingTransTest()
               node->transition(node->getDestState());
               NodeState state = node->getState();
               if (ancestorExit == IDX_TRUE) {
-                assertTrue(node->getOutcome() == INTERRUPTED_OUTCOME);
-                assertTrue(node->getFailureType() == PARENT_EXITED);
-                assertTrue(state == FAILING_STATE);
-                assertTrue(node->isAbortCompleteConditionActive());
+                assertTrue_1(node->getOutcome() == INTERRUPTED_OUTCOME);
+                assertTrue_1(node->getFailureType() == PARENT_EXITED);
+                assertTrue_1(state == FAILING_STATE);
+                assertTrue_1(node->isAbortCompleteConditionActive());
               }
               else if (exit == IDX_TRUE) {
-                assertTrue(node->getOutcome() == INTERRUPTED_OUTCOME);
-                assertTrue(node->getFailureType() == EXITED);
-                assertTrue(state == FAILING_STATE);
-                assertTrue(node->isAbortCompleteConditionActive());
+                assertTrue_1(node->getOutcome() == INTERRUPTED_OUTCOME);
+                assertTrue_1(node->getFailureType() == EXITED);
+                assertTrue_1(state == FAILING_STATE);
+                assertTrue_1(node->isAbortCompleteConditionActive());
               }
               else if (ancestorInvariant == IDX_FALSE) {
-                assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                assertTrue(node->getFailureType() == PARENT_FAILED);
-                assertTrue(state == FAILING_STATE);
-                assertTrue(node->isAbortCompleteConditionActive());
+                assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                assertTrue_1(node->getFailureType() == PARENT_FAILED);
+                assertTrue_1(state == FAILING_STATE);
+                assertTrue_1(node->isAbortCompleteConditionActive());
               }
               else if (invariant == IDX_FALSE) {
-                assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                assertTrue(node->getFailureType() == INVARIANT_CONDITION_FAILED);
-                assertTrue(state == FAILING_STATE);
-                assertTrue(node->isAbortCompleteConditionActive());
+                assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                assertTrue_1(node->getFailureType() == INVARIANT_CONDITION_FAILED);
+                assertTrue_1(state == FAILING_STATE);
+                assertTrue_1(node->isAbortCompleteConditionActive());
               }
               else if (end == IDX_TRUE) {
-                assertTrue(state == FINISHING_STATE);
-                assertTrue(node->isActionCompleteConditionActive());
-                assertTrue(node->isAncestorExitConditionActive());
-                assertTrue(node->isAncestorInvariantConditionActive());
-                assertTrue(node->isExitConditionActive());
-                assertTrue(node->isInvariantConditionActive());
-                assertTrue(node->isPostConditionActive());
+                assertTrue_1(state == FINISHING_STATE);
+                assertTrue_1(node->isActionCompleteConditionActive());
+                assertTrue_1(node->isAncestorExitConditionActive());
+                assertTrue_1(node->isAncestorInvariantConditionActive());
+                assertTrue_1(node->isExitConditionActive());
+                assertTrue_1(node->isInvariantConditionActive());
+                assertTrue_1(node->isPostConditionActive());
               }
               else {
-                assertTrue(false);
+                assertTrue_1(false);
               }
             }
             delete (Node*) node;
@@ -1382,14 +1382,14 @@ static bool commandFailingDestTest()
       if (abortComplete == IDX_TRUE) {
         if (failureTypes[failure] == PARENT_FAILED
             || failureTypes[failure] == PARENT_EXITED) {
-          assertTrue(destState == FINISHED_STATE);
+          assertTrue_1(destState == FINISHED_STATE);
         }
         else {
-          assertTrue(destState == ITERATION_ENDED_STATE);
+          assertTrue_1(destState == ITERATION_ENDED_STATE);
         }
       }
       else {
-        assertTrue(destState == NO_NODE_STATE);
+        assertTrue_1(destState == NO_NODE_STATE);
       }
     }
   }
@@ -1431,18 +1431,18 @@ static bool commandFailingTransTest()
         if (abort == IDX_TRUE) {
           if (failureTypes[failure] == PARENT_FAILED
               || failureTypes[failure] == PARENT_EXITED) {
-            assertTrue(state == FINISHED_STATE);
+            assertTrue_1(state == FINISHED_STATE);
           }
           else {
-            assertTrue(state == ITERATION_ENDED_STATE);
-            assertTrue(node->isRepeatConditionActive());
-            assertTrue(node->isAncestorEndConditionActive());
-            assertTrue(node->isAncestorExitConditionActive());
-            assertTrue(node->isAncestorInvariantConditionActive());
+            assertTrue_1(state == ITERATION_ENDED_STATE);
+            assertTrue_1(node->isRepeatConditionActive());
+            assertTrue_1(node->isAncestorEndConditionActive());
+            assertTrue_1(node->isAncestorExitConditionActive());
+            assertTrue_1(node->isAncestorInvariantConditionActive());
           }
         }
         else {
-          assertTrue(false);
+          assertTrue_1(false);
         }
       }
       delete (Node*) node;
@@ -1477,22 +1477,22 @@ static bool commandFinishingDestTest()
 
             NodeState destState = node->getDestState();
             if (ancestorExit == IDX_TRUE) {
-              assertTrue(destState == FAILING_STATE);
+              assertTrue_1(destState == FAILING_STATE);
             }
             else if (exit == IDX_TRUE) {
-              assertTrue(destState == FAILING_STATE);
+              assertTrue_1(destState == FAILING_STATE);
             }
             else if (ancestorInvariant == IDX_FALSE) {
-              assertTrue(destState == FAILING_STATE);
+              assertTrue_1(destState == FAILING_STATE);
             }
             else if (invariant == IDX_FALSE) {
-              assertTrue(destState == FAILING_STATE);
+              assertTrue_1(destState == FAILING_STATE);
             }
             else if (actionComplete == IDX_TRUE) {
-              assertTrue(destState == ITERATION_ENDED_STATE);
+              assertTrue_1(destState == ITERATION_ENDED_STATE);
             }
             else {
-              assertTrue(destState == NO_NODE_STATE);
+              assertTrue_1(destState == NO_NODE_STATE);
             }
           }
         }
@@ -1542,45 +1542,45 @@ static bool commandFinishingTransTest()
                 node->transition(node->getDestState());
                 NodeState state = node->getState();
                 if (ancestorExit == IDX_TRUE) {
-                  assertTrue(node->getOutcome() == INTERRUPTED_OUTCOME);
-                  assertTrue(node->getFailureType() == PARENT_EXITED);
-                  assertTrue(state == FAILING_STATE);
-                  assertTrue(node->isAbortCompleteConditionActive());
+                  assertTrue_1(node->getOutcome() == INTERRUPTED_OUTCOME);
+                  assertTrue_1(node->getFailureType() == PARENT_EXITED);
+                  assertTrue_1(state == FAILING_STATE);
+                  assertTrue_1(node->isAbortCompleteConditionActive());
                 }
                 else if (exit == IDX_TRUE) {
-                  assertTrue(node->getOutcome() == INTERRUPTED_OUTCOME);
-                  assertTrue(node->getFailureType() == EXITED);
-                  assertTrue(state == FAILING_STATE);
-                  assertTrue(node->isAbortCompleteConditionActive());
+                  assertTrue_1(node->getOutcome() == INTERRUPTED_OUTCOME);
+                  assertTrue_1(node->getFailureType() == EXITED);
+                  assertTrue_1(state == FAILING_STATE);
+                  assertTrue_1(node->isAbortCompleteConditionActive());
                 }
                 else if (ancestorInvariant == IDX_FALSE) {
-                  assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                  assertTrue(node->getFailureType() == PARENT_FAILED);
-                  assertTrue(state == FAILING_STATE);
-                  assertTrue(node->isAbortCompleteConditionActive());
+                  assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                  assertTrue_1(node->getFailureType() == PARENT_FAILED);
+                  assertTrue_1(state == FAILING_STATE);
+                  assertTrue_1(node->isAbortCompleteConditionActive());
                 }
                 else if (invariant == IDX_FALSE) {
-                  assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                  assertTrue(node->getFailureType() == INVARIANT_CONDITION_FAILED);
-                  assertTrue(state == FAILING_STATE);
-                  assertTrue(node->isAbortCompleteConditionActive());
+                  assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                  assertTrue_1(node->getFailureType() == INVARIANT_CONDITION_FAILED);
+                  assertTrue_1(state == FAILING_STATE);
+                  assertTrue_1(node->isAbortCompleteConditionActive());
                 }
                 else if (actionComplete == IDX_TRUE) {
-                  assertTrue(state == ITERATION_ENDED_STATE);
-                  assertTrue(node->isAncestorEndConditionActive());
-                  assertTrue(node->isAncestorExitConditionActive());
-                  assertTrue(node->isAncestorInvariantConditionActive());
-                  assertTrue(node->isRepeatConditionActive());
+                  assertTrue_1(state == ITERATION_ENDED_STATE);
+                  assertTrue_1(node->isAncestorEndConditionActive());
+                  assertTrue_1(node->isAncestorExitConditionActive());
+                  assertTrue_1(node->isAncestorInvariantConditionActive());
+                  assertTrue_1(node->isRepeatConditionActive());
                   if (post == IDX_TRUE) {
-                    assertTrue(node->getOutcome() == SUCCESS_OUTCOME);
+                    assertTrue_1(node->getOutcome() == SUCCESS_OUTCOME);
                   }
                   else {
-                    assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                    assertTrue(node->getFailureType() == POST_CONDITION_FAILED);
+                    assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                    assertTrue_1(node->getFailureType() == POST_CONDITION_FAILED);
                   }
                 }
                 else {
-                  assertTrue(false);
+                  assertTrue_1(false);
                 }
               }
               delete (Node*) node;
@@ -1625,22 +1625,22 @@ static bool updateExecutingDestTest()
 
               NodeState destState = node->getDestState();
               if (ancestorExit == IDX_TRUE) {
-                assertTrue(destState == FAILING_STATE);
+                assertTrue_1(destState == FAILING_STATE);
               }
               else if (exit == IDX_TRUE) {
-                assertTrue(destState == FAILING_STATE);
+                assertTrue_1(destState == FAILING_STATE);
               }
               else if (ancestorInvariant == IDX_FALSE) {
-                assertTrue(destState == FAILING_STATE);
+                assertTrue_1(destState == FAILING_STATE);
               }
               else if (invariant == IDX_FALSE) {
-                assertTrue(destState == FAILING_STATE);
+                assertTrue_1(destState == FAILING_STATE);
               }
               else if (end == IDX_TRUE) {
-                assertTrue(destState == ITERATION_ENDED_STATE);
+                assertTrue_1(destState == ITERATION_ENDED_STATE);
               }
               else {
-                assertTrue(destState == NO_NODE_STATE);
+                assertTrue_1(destState == NO_NODE_STATE);
               }
             }
           }
@@ -1691,44 +1691,44 @@ static bool updateExecutingTransTest()
                 node->transition(node->getDestState());
                 NodeState state = node->getState();
                 if (ancestorExit == IDX_TRUE) {
-                  assertTrue(node->getOutcome() == INTERRUPTED_OUTCOME);
-                  assertTrue(node->getFailureType() == PARENT_EXITED);
-                  assertTrue(state == FAILING_STATE);
-                  assertTrue(node->isActionCompleteConditionActive());
+                  assertTrue_1(node->getOutcome() == INTERRUPTED_OUTCOME);
+                  assertTrue_1(node->getFailureType() == PARENT_EXITED);
+                  assertTrue_1(state == FAILING_STATE);
+                  assertTrue_1(node->isActionCompleteConditionActive());
                 }
                 else if (exit == IDX_TRUE) {
-                  assertTrue(node->getOutcome() == INTERRUPTED_OUTCOME);
-                  assertTrue(node->getFailureType() == EXITED);
-                  assertTrue(state == FAILING_STATE);
-                  assertTrue(node->isActionCompleteConditionActive());
+                  assertTrue_1(node->getOutcome() == INTERRUPTED_OUTCOME);
+                  assertTrue_1(node->getFailureType() == EXITED);
+                  assertTrue_1(state == FAILING_STATE);
+                  assertTrue_1(node->isActionCompleteConditionActive());
                 }
                 else if (ancestorInvariant == IDX_FALSE) {
-                  assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                  assertTrue(node->getFailureType() == PARENT_FAILED);
-                  assertTrue(state == FAILING_STATE);
-                  assertTrue(node->isActionCompleteConditionActive());
+                  assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                  assertTrue_1(node->getFailureType() == PARENT_FAILED);
+                  assertTrue_1(state == FAILING_STATE);
+                  assertTrue_1(node->isActionCompleteConditionActive());
                 }
                 else if (invariant == IDX_FALSE) {
-                  assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                  assertTrue(node->getFailureType() == INVARIANT_CONDITION_FAILED);
-                  assertTrue(state == FAILING_STATE);
-                  assertTrue(node->isActionCompleteConditionActive());
+                  assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                  assertTrue_1(node->getFailureType() == INVARIANT_CONDITION_FAILED);
+                  assertTrue_1(state == FAILING_STATE);
+                  assertTrue_1(node->isActionCompleteConditionActive());
                 }
                 else if (end == IDX_TRUE) {
-                  assertTrue(state == ITERATION_ENDED_STATE);
-                  assertTrue(node->isAncestorEndConditionActive());
-                  assertTrue(node->isAncestorExitConditionActive());
-                  assertTrue(node->isAncestorInvariantConditionActive());
+                  assertTrue_1(state == ITERATION_ENDED_STATE);
+                  assertTrue_1(node->isAncestorEndConditionActive());
+                  assertTrue_1(node->isAncestorExitConditionActive());
+                  assertTrue_1(node->isAncestorInvariantConditionActive());
                   if (post == IDX_TRUE) {
-                    assertTrue(node->getOutcome() == SUCCESS_OUTCOME);
+                    assertTrue_1(node->getOutcome() == SUCCESS_OUTCOME);
                   }
                   else {
-                    assertTrue(node->getOutcome() == FAILURE_OUTCOME);
-                    assertTrue(node->getFailureType() == POST_CONDITION_FAILED);
+                    assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                    assertTrue_1(node->getFailureType() == POST_CONDITION_FAILED);
                   }
                 }
                 else {
-                  assertTrue(false);
+                  assertTrue_1(false);
                 }
               }
               delete (Node*) node;
@@ -1765,14 +1765,14 @@ static bool updateFailingDestTest()
       if (actionComplete == IDX_TRUE) {
         if (failureTypes[failure] == PARENT_FAILED
             || failureTypes[failure] == PARENT_EXITED) {
-          assertTrue(destState == FINISHED_STATE);
+          assertTrue_1(destState == FINISHED_STATE);
         }
         else {
-          assertTrue(destState == ITERATION_ENDED_STATE);
+          assertTrue_1(destState == ITERATION_ENDED_STATE);
         }
       }
       else {
-        assertTrue(destState == NO_NODE_STATE);
+        assertTrue_1(destState == NO_NODE_STATE);
       }
     }
   }
@@ -1814,18 +1814,18 @@ static bool updateFailingTransTest()
         if (actionComplete == IDX_TRUE) {
           if (failureTypes[failure] == PARENT_FAILED
               || failureTypes[failure] == PARENT_EXITED) {
-            assertTrue(state == FINISHED_STATE);
+            assertTrue_1(state == FINISHED_STATE);
           }
           else {
-            assertTrue(state == ITERATION_ENDED_STATE);
-            assertTrue(node->isRepeatConditionActive());
-            assertTrue(node->isAncestorEndConditionActive());
-            assertTrue(node->isAncestorExitConditionActive());
-            assertTrue(node->isAncestorInvariantConditionActive());
+            assertTrue_1(state == ITERATION_ENDED_STATE);
+            assertTrue_1(node->isRepeatConditionActive());
+            assertTrue_1(node->isAncestorEndConditionActive());
+            assertTrue_1(node->isAncestorExitConditionActive());
+            assertTrue_1(node->isAncestorInvariantConditionActive());
           }
         }
         else {
-          assertTrue(false);
+          assertTrue_1(false);
         }
       }
       delete (Node*) node;

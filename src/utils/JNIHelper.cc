@@ -47,7 +47,7 @@ JNIHelper::JNIHelper(JNIEnv* env, jobject java_this)
 
 JNIHelper::~JNIHelper()
 {
-  assertTrue(s_instance == this, "JNIHelper destructor: this != s_instance");
+  assertTrue_2(s_instance == this, "JNIHelper destructor: this != s_instance");
 
   // Restore static instance pointer from reentrant calls
   debugMsg("JNIHelper",
@@ -77,7 +77,7 @@ jclass JNIHelper::getClassClass()
   if (m_classClass == NULL) {
 	debugMsg("JNIHelper:getClassClass", " fetching Class class");
 	m_classClass = m_env->FindClass("java/lang/Class");
-	assertTrue(m_classClass != NULL, "JNIHelper::getClassClass failed");
+	assertTrue_2(m_classClass != NULL, "JNIHelper::getClassClass failed");
   }
   return m_classClass;
 }
@@ -88,7 +88,7 @@ jclass JNIHelper::getClassClass()
 bool JNIHelper::isArray(jobject object)
 {
   jclass objectClass = m_env->GetObjectClass(object);
-  assertTrue(objectClass != NULL, "JNIHelper::isArray: GetObjectClass() returned NULL");
+  assertTrue_2(objectClass != NULL, "JNIHelper::isArray: GetObjectClass() returned NULL");
   bool result = isArrayClass(objectClass);
   m_env->DeleteLocalRef(objectClass);
   return result;
@@ -102,7 +102,7 @@ bool JNIHelper::isArrayClass(jclass klass)
   if (m_isArrayMethod == NULL) {
 	debugMsg("JNIHelper:isArrayClass", " fetching Class.isArray() method");
 	m_isArrayMethod = m_env->GetMethodID(getClassClass(), "isArray", "()Z");
-	assertTrue(m_isArrayMethod != NULL, "JNIHelper::isArrayClass: Failed to fetch Class.isArray() method");
+	assertTrue_2(m_isArrayMethod != NULL, "JNIHelper::isArrayClass: Failed to fetch Class.isArray() method");
   }
   debugMsg("JNIHelper:isArrayClass", " calling Class.isArray()");
   bool result = m_env->CallBooleanMethod(klass, m_isArrayMethod);
@@ -121,7 +121,7 @@ char* JNIHelper::getClassName(jclass klass)
   if (m_getNameMethod == NULL) {
 	debugMsg("JNIHelper:getClassName", " fetching Class.getName() method");
 	m_getNameMethod = m_env->GetMethodID(getClassClass(), "getName", "()Ljava/lang/String;");
-	assertTrue(m_getNameMethod != NULL, "JNIHelper::getClassName: Failed to fetch Class.getName() method");
+	assertTrue_2(m_getNameMethod != NULL, "JNIHelper::getClassName: Failed to fetch Class.getName() method");
   }
   jstring name = (jstring) m_env->CallObjectMethod(klass, m_getNameMethod);
   if (name == NULL) 

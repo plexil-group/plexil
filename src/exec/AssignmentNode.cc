@@ -351,7 +351,7 @@ namespace PLEXIL
     
   void AssignmentNode::abort()
   {
-    check_error(m_assignment.isValid());
+    check_error_1(m_assignment.isValid());
     debugMsg("Node:abort", "Aborting node " << m_nodeId);
     g_exec->enqueueAssignmentForRetraction(m_assignment);
   }

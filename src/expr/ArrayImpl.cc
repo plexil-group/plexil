@@ -382,7 +382,8 @@ namespace PLEXIL
   template bool operator!=(ArrayImpl<double> const &,      ArrayImpl<double> const &);
   template bool operator!=(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
 
-  template bool operator<(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
+  // Explicitly defined above
+  // template bool operator<(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
   template bool operator<(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
   template bool operator<(ArrayImpl<double> const &,      ArrayImpl<double> const &);
   template bool operator<(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);

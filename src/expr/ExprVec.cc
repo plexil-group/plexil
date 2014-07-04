@@ -104,7 +104,7 @@ namespace PLEXIL
     NullExprVec(std::vector<Expression *> const &exps,
                 std::vector<bool> const &garb)
     {
-      assertTrue(exps.empty() && garb.empty());
+      assertTrue_1(exps.empty() && garb.empty());
     }
 
     ~NullExprVec()

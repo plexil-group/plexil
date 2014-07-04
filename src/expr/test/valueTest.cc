@@ -561,309 +561,309 @@ static bool testEquality()
   assertTrue_1(sav != rav);
 
   // Array to unknown
-  assertTrue(!(unkv == bav));
-  assertTrue(unkv != bav);
-  assertTrue(!(bav == unkv));
-  assertTrue(bav != unkv);
+  assertTrue_1(!(unkv == bav));
+  assertTrue_1(unkv != bav);
+  assertTrue_1(!(bav == unkv));
+  assertTrue_1(bav != unkv);
 
-  assertTrue(!(unkv == ibav));
-  assertTrue(unkv != ibav);
-  assertTrue(!(ibav == unkv));
-  assertTrue(ibav != unkv);
+  assertTrue_1(!(unkv == ibav));
+  assertTrue_1(unkv != ibav);
+  assertTrue_1(!(ibav == unkv));
+  assertTrue_1(ibav != unkv);
 
-  assertTrue(!(unkv == sbav));
-  assertTrue(unkv != sbav);
-  assertTrue(!(sbav == unkv));
-  assertTrue(sbav != unkv);
+  assertTrue_1(!(unkv == sbav));
+  assertTrue_1(unkv != sbav);
+  assertTrue_1(!(sbav == unkv));
+  assertTrue_1(sbav != unkv);
 
-  assertTrue(!(unkv == iav));
-  assertTrue(unkv != iav);
-  assertTrue(!(iav == unkv));
-  assertTrue(iav != unkv);
+  assertTrue_1(!(unkv == iav));
+  assertTrue_1(unkv != iav);
+  assertTrue_1(!(iav == unkv));
+  assertTrue_1(iav != unkv);
 
-  assertTrue(!(unkv == iiav));
-  assertTrue(unkv != iiav);
-  assertTrue(!(iiav == unkv));
-  assertTrue(iiav != unkv);
+  assertTrue_1(!(unkv == iiav));
+  assertTrue_1(unkv != iiav);
+  assertTrue_1(!(iiav == unkv));
+  assertTrue_1(iiav != unkv);
 
-  assertTrue(!(unkv == siav));
-  assertTrue(unkv != siav);
-  assertTrue(!(siav == unkv));
-  assertTrue(siav != unkv);
+  assertTrue_1(!(unkv == siav));
+  assertTrue_1(unkv != siav);
+  assertTrue_1(!(siav == unkv));
+  assertTrue_1(siav != unkv);
 
-  assertTrue(!(unkv == rav));
-  assertTrue(unkv != rav);
-  assertTrue(!(rav == unkv));
-  assertTrue(rav != unkv);
+  assertTrue_1(!(unkv == rav));
+  assertTrue_1(unkv != rav);
+  assertTrue_1(!(rav == unkv));
+  assertTrue_1(rav != unkv);
 
-  assertTrue(!(unkv == irav));
-  assertTrue(unkv != irav);
-  assertTrue(!(irav == unkv));
-  assertTrue(irav != unkv);
+  assertTrue_1(!(unkv == irav));
+  assertTrue_1(unkv != irav);
+  assertTrue_1(!(irav == unkv));
+  assertTrue_1(irav != unkv);
 
-  assertTrue(!(unkv == srav));
-  assertTrue(unkv != srav);
-  assertTrue(!(srav == unkv));
-  assertTrue(srav != unkv);
+  assertTrue_1(!(unkv == srav));
+  assertTrue_1(unkv != srav);
+  assertTrue_1(!(srav == unkv));
+  assertTrue_1(srav != unkv);
 
-  assertTrue(!(unkv == sav));
-  assertTrue(unkv != sav);
-  assertTrue(!(sav == unkv));
-  assertTrue(sav != unkv);
+  assertTrue_1(!(unkv == sav));
+  assertTrue_1(unkv != sav);
+  assertTrue_1(!(sav == unkv));
+  assertTrue_1(sav != unkv);
 
-  assertTrue(!(unkv == isav));
-  assertTrue(unkv != isav);
-  assertTrue(!(isav == unkv));
-  assertTrue(isav != unkv);
+  assertTrue_1(!(unkv == isav));
+  assertTrue_1(unkv != isav);
+  assertTrue_1(!(isav == unkv));
+  assertTrue_1(isav != unkv);
 
-  assertTrue(!(unkv == ssav));
-  assertTrue(unkv != ssav);
-  assertTrue(!(ssav == unkv));
-  assertTrue(ssav != unkv);
+  assertTrue_1(!(unkv == ssav));
+  assertTrue_1(unkv != ssav);
+  assertTrue_1(!(ssav == unkv));
+  assertTrue_1(ssav != unkv);
 
   // Array to Boolean
-  assertTrue(!(boolv == bav));
-  assertTrue(boolv != bav);
-  assertTrue(!(bav == boolv));
-  assertTrue(bav != boolv);
+  assertTrue_1(!(boolv == bav));
+  assertTrue_1(boolv != bav);
+  assertTrue_1(!(bav == boolv));
+  assertTrue_1(bav != boolv);
 
-  assertTrue(!(boolv == ibav));
-  assertTrue(boolv != ibav);
-  assertTrue(!(ibav == boolv));
-  assertTrue(ibav != boolv);
+  assertTrue_1(!(boolv == ibav));
+  assertTrue_1(boolv != ibav);
+  assertTrue_1(!(ibav == boolv));
+  assertTrue_1(ibav != boolv);
 
-  assertTrue(!(boolv == sbav));
-  assertTrue(boolv != sbav);
-  assertTrue(!(sbav == boolv));
-  assertTrue(sbav != boolv);
+  assertTrue_1(!(boolv == sbav));
+  assertTrue_1(boolv != sbav);
+  assertTrue_1(!(sbav == boolv));
+  assertTrue_1(sbav != boolv);
 
-  assertTrue(!(boolv == iav));
-  assertTrue(boolv != iav);
-  assertTrue(!(iav == boolv));
-  assertTrue(iav != boolv);
+  assertTrue_1(!(boolv == iav));
+  assertTrue_1(boolv != iav);
+  assertTrue_1(!(iav == boolv));
+  assertTrue_1(iav != boolv);
 
-  assertTrue(!(boolv == iiav));
-  assertTrue(boolv != iiav);
-  assertTrue(!(iiav == boolv));
-  assertTrue(iiav != boolv);
+  assertTrue_1(!(boolv == iiav));
+  assertTrue_1(boolv != iiav);
+  assertTrue_1(!(iiav == boolv));
+  assertTrue_1(iiav != boolv);
 
-  assertTrue(!(boolv == siav));
-  assertTrue(boolv != siav);
-  assertTrue(!(siav == boolv));
-  assertTrue(siav != boolv);
+  assertTrue_1(!(boolv == siav));
+  assertTrue_1(boolv != siav);
+  assertTrue_1(!(siav == boolv));
+  assertTrue_1(siav != boolv);
 
-  assertTrue(!(boolv == rav));
-  assertTrue(boolv != rav);
-  assertTrue(!(rav == boolv));
-  assertTrue(rav != boolv);
+  assertTrue_1(!(boolv == rav));
+  assertTrue_1(boolv != rav);
+  assertTrue_1(!(rav == boolv));
+  assertTrue_1(rav != boolv);
 
-  assertTrue(!(boolv == irav));
-  assertTrue(boolv != irav);
-  assertTrue(!(irav == boolv));
-  assertTrue(irav != boolv);
+  assertTrue_1(!(boolv == irav));
+  assertTrue_1(boolv != irav);
+  assertTrue_1(!(irav == boolv));
+  assertTrue_1(irav != boolv);
 
-  assertTrue(!(boolv == srav));
-  assertTrue(boolv != srav);
-  assertTrue(!(srav == boolv));
-  assertTrue(srav != boolv);
+  assertTrue_1(!(boolv == srav));
+  assertTrue_1(boolv != srav);
+  assertTrue_1(!(srav == boolv));
+  assertTrue_1(srav != boolv);
 
-  assertTrue(!(boolv == sav));
-  assertTrue(boolv != sav);
-  assertTrue(!(sav == boolv));
-  assertTrue(sav != boolv);
+  assertTrue_1(!(boolv == sav));
+  assertTrue_1(boolv != sav);
+  assertTrue_1(!(sav == boolv));
+  assertTrue_1(sav != boolv);
 
-  assertTrue(!(boolv == isav));
-  assertTrue(boolv != isav);
-  assertTrue(!(isav == boolv));
-  assertTrue(isav != boolv);
+  assertTrue_1(!(boolv == isav));
+  assertTrue_1(boolv != isav);
+  assertTrue_1(!(isav == boolv));
+  assertTrue_1(isav != boolv);
 
-  assertTrue(!(boolv == ssav));
-  assertTrue(boolv != ssav);
-  assertTrue(!(ssav == boolv));
-  assertTrue(ssav != boolv);
+  assertTrue_1(!(boolv == ssav));
+  assertTrue_1(boolv != ssav);
+  assertTrue_1(!(ssav == boolv));
+  assertTrue_1(ssav != boolv);
 
   // Array to Integer
-  assertTrue(!(intv == bav));
-  assertTrue(intv != bav);
-  assertTrue(!(bav == intv));
-  assertTrue(bav != intv);
+  assertTrue_1(!(intv == bav));
+  assertTrue_1(intv != bav);
+  assertTrue_1(!(bav == intv));
+  assertTrue_1(bav != intv);
 
-  assertTrue(!(intv == ibav));
-  assertTrue(intv != ibav);
-  assertTrue(!(ibav == intv));
-  assertTrue(ibav != intv);
+  assertTrue_1(!(intv == ibav));
+  assertTrue_1(intv != ibav);
+  assertTrue_1(!(ibav == intv));
+  assertTrue_1(ibav != intv);
 
-  assertTrue(!(intv == sbav));
-  assertTrue(intv != sbav);
-  assertTrue(!(sbav == intv));
-  assertTrue(sbav != intv);
+  assertTrue_1(!(intv == sbav));
+  assertTrue_1(intv != sbav);
+  assertTrue_1(!(sbav == intv));
+  assertTrue_1(sbav != intv);
 
-  assertTrue(!(intv == iav));
-  assertTrue(intv != iav);
-  assertTrue(!(iav == intv));
-  assertTrue(iav != intv);
+  assertTrue_1(!(intv == iav));
+  assertTrue_1(intv != iav);
+  assertTrue_1(!(iav == intv));
+  assertTrue_1(iav != intv);
 
-  assertTrue(!(intv == iiav));
-  assertTrue(intv != iiav);
-  assertTrue(!(iiav == intv));
-  assertTrue(iiav != intv);
+  assertTrue_1(!(intv == iiav));
+  assertTrue_1(intv != iiav);
+  assertTrue_1(!(iiav == intv));
+  assertTrue_1(iiav != intv);
 
-  assertTrue(!(intv == siav));
-  assertTrue(intv != siav);
-  assertTrue(!(siav == intv));
-  assertTrue(siav != intv);
+  assertTrue_1(!(intv == siav));
+  assertTrue_1(intv != siav);
+  assertTrue_1(!(siav == intv));
+  assertTrue_1(siav != intv);
 
-  assertTrue(!(intv == rav));
-  assertTrue(intv != rav);
-  assertTrue(!(rav == intv));
-  assertTrue(rav != intv);
+  assertTrue_1(!(intv == rav));
+  assertTrue_1(intv != rav);
+  assertTrue_1(!(rav == intv));
+  assertTrue_1(rav != intv);
 
-  assertTrue(!(intv == irav));
-  assertTrue(intv != irav);
-  assertTrue(!(irav == intv));
-  assertTrue(irav != intv);
+  assertTrue_1(!(intv == irav));
+  assertTrue_1(intv != irav);
+  assertTrue_1(!(irav == intv));
+  assertTrue_1(irav != intv);
 
-  assertTrue(!(intv == srav));
-  assertTrue(intv != srav);
-  assertTrue(!(srav == intv));
-  assertTrue(srav != intv);
+  assertTrue_1(!(intv == srav));
+  assertTrue_1(intv != srav);
+  assertTrue_1(!(srav == intv));
+  assertTrue_1(srav != intv);
 
-  assertTrue(!(intv == sav));
-  assertTrue(intv != sav);
-  assertTrue(!(sav == intv));
-  assertTrue(sav != intv);
+  assertTrue_1(!(intv == sav));
+  assertTrue_1(intv != sav);
+  assertTrue_1(!(sav == intv));
+  assertTrue_1(sav != intv);
 
-  assertTrue(!(intv == isav));
-  assertTrue(intv != isav);
-  assertTrue(!(isav == intv));
-  assertTrue(isav != intv);
+  assertTrue_1(!(intv == isav));
+  assertTrue_1(intv != isav);
+  assertTrue_1(!(isav == intv));
+  assertTrue_1(isav != intv);
 
-  assertTrue(!(intv == ssav));
-  assertTrue(intv != ssav);
-  assertTrue(!(ssav == intv));
-  assertTrue(ssav != intv);
+  assertTrue_1(!(intv == ssav));
+  assertTrue_1(intv != ssav);
+  assertTrue_1(!(ssav == intv));
+  assertTrue_1(ssav != intv);
 
   // Array to Real
-  assertTrue(!(realv == bav));
-  assertTrue(realv != bav);
-  assertTrue(!(bav == realv));
-  assertTrue(bav != realv);
+  assertTrue_1(!(realv == bav));
+  assertTrue_1(realv != bav);
+  assertTrue_1(!(bav == realv));
+  assertTrue_1(bav != realv);
 
-  assertTrue(!(realv == ibav));
-  assertTrue(realv != ibav);
-  assertTrue(!(ibav == realv));
-  assertTrue(ibav != realv);
+  assertTrue_1(!(realv == ibav));
+  assertTrue_1(realv != ibav);
+  assertTrue_1(!(ibav == realv));
+  assertTrue_1(ibav != realv);
 
-  assertTrue(!(realv == sbav));
-  assertTrue(realv != sbav);
-  assertTrue(!(sbav == realv));
-  assertTrue(sbav != realv);
+  assertTrue_1(!(realv == sbav));
+  assertTrue_1(realv != sbav);
+  assertTrue_1(!(sbav == realv));
+  assertTrue_1(sbav != realv);
 
-  assertTrue(!(realv == iav));
-  assertTrue(realv != iav);
-  assertTrue(!(iav == realv));
-  assertTrue(iav != realv);
+  assertTrue_1(!(realv == iav));
+  assertTrue_1(realv != iav);
+  assertTrue_1(!(iav == realv));
+  assertTrue_1(iav != realv);
 
-  assertTrue(!(realv == iiav));
-  assertTrue(realv != iiav);
-  assertTrue(!(iiav == realv));
-  assertTrue(iiav != realv);
+  assertTrue_1(!(realv == iiav));
+  assertTrue_1(realv != iiav);
+  assertTrue_1(!(iiav == realv));
+  assertTrue_1(iiav != realv);
 
-  assertTrue(!(realv == siav));
-  assertTrue(realv != siav);
-  assertTrue(!(siav == realv));
-  assertTrue(siav != realv);
+  assertTrue_1(!(realv == siav));
+  assertTrue_1(realv != siav);
+  assertTrue_1(!(siav == realv));
+  assertTrue_1(siav != realv);
 
-  assertTrue(!(realv == rav));
-  assertTrue(realv != rav);
-  assertTrue(!(rav == realv));
-  assertTrue(rav != realv);
+  assertTrue_1(!(realv == rav));
+  assertTrue_1(realv != rav);
+  assertTrue_1(!(rav == realv));
+  assertTrue_1(rav != realv);
 
-  assertTrue(!(realv == irav));
-  assertTrue(realv != irav);
-  assertTrue(!(irav == realv));
-  assertTrue(irav != realv);
+  assertTrue_1(!(realv == irav));
+  assertTrue_1(realv != irav);
+  assertTrue_1(!(irav == realv));
+  assertTrue_1(irav != realv);
 
-  assertTrue(!(realv == srav));
-  assertTrue(realv != srav);
-  assertTrue(!(srav == realv));
-  assertTrue(srav != realv);
+  assertTrue_1(!(realv == srav));
+  assertTrue_1(realv != srav);
+  assertTrue_1(!(srav == realv));
+  assertTrue_1(srav != realv);
 
-  assertTrue(!(realv == sav));
-  assertTrue(realv != sav);
-  assertTrue(!(sav == realv));
-  assertTrue(sav != realv);
+  assertTrue_1(!(realv == sav));
+  assertTrue_1(realv != sav);
+  assertTrue_1(!(sav == realv));
+  assertTrue_1(sav != realv);
 
-  assertTrue(!(realv == isav));
-  assertTrue(realv != isav);
-  assertTrue(!(isav == realv));
-  assertTrue(isav != realv);
+  assertTrue_1(!(realv == isav));
+  assertTrue_1(realv != isav);
+  assertTrue_1(!(isav == realv));
+  assertTrue_1(isav != realv);
 
-  assertTrue(!(realv == ssav));
-  assertTrue(realv != ssav);
-  assertTrue(!(ssav == realv));
-  assertTrue(ssav != realv);
+  assertTrue_1(!(realv == ssav));
+  assertTrue_1(realv != ssav);
+  assertTrue_1(!(ssav == realv));
+  assertTrue_1(ssav != realv);
 
   // Array to String
-  assertTrue(!(stringv == bav));
-  assertTrue(stringv != bav);
-  assertTrue(!(bav == stringv));
-  assertTrue(bav != stringv);
+  assertTrue_1(!(stringv == bav));
+  assertTrue_1(stringv != bav);
+  assertTrue_1(!(bav == stringv));
+  assertTrue_1(bav != stringv);
 
-  assertTrue(!(stringv == ibav));
-  assertTrue(stringv != ibav);
-  assertTrue(!(ibav == stringv));
-  assertTrue(ibav != stringv);
+  assertTrue_1(!(stringv == ibav));
+  assertTrue_1(stringv != ibav);
+  assertTrue_1(!(ibav == stringv));
+  assertTrue_1(ibav != stringv);
 
-  assertTrue(!(stringv == sbav));
-  assertTrue(stringv != sbav);
-  assertTrue(!(sbav == stringv));
-  assertTrue(sbav != stringv);
+  assertTrue_1(!(stringv == sbav));
+  assertTrue_1(stringv != sbav);
+  assertTrue_1(!(sbav == stringv));
+  assertTrue_1(sbav != stringv);
 
-  assertTrue(!(stringv == iav));
-  assertTrue(stringv != iav);
-  assertTrue(!(iav == stringv));
-  assertTrue(iav != stringv);
+  assertTrue_1(!(stringv == iav));
+  assertTrue_1(stringv != iav);
+  assertTrue_1(!(iav == stringv));
+  assertTrue_1(iav != stringv);
 
-  assertTrue(!(stringv == iiav));
-  assertTrue(stringv != iiav);
-  assertTrue(!(iiav == stringv));
-  assertTrue(iiav != stringv);
+  assertTrue_1(!(stringv == iiav));
+  assertTrue_1(stringv != iiav);
+  assertTrue_1(!(iiav == stringv));
+  assertTrue_1(iiav != stringv);
 
-  assertTrue(!(stringv == siav));
-  assertTrue(stringv != siav);
-  assertTrue(!(siav == stringv));
-  assertTrue(siav != stringv);
+  assertTrue_1(!(stringv == siav));
+  assertTrue_1(stringv != siav);
+  assertTrue_1(!(siav == stringv));
+  assertTrue_1(siav != stringv);
 
-  assertTrue(!(stringv == rav));
-  assertTrue(stringv != rav);
-  assertTrue(!(rav == stringv));
-  assertTrue(rav != stringv);
+  assertTrue_1(!(stringv == rav));
+  assertTrue_1(stringv != rav);
+  assertTrue_1(!(rav == stringv));
+  assertTrue_1(rav != stringv);
 
-  assertTrue(!(stringv == irav));
-  assertTrue(stringv != irav);
-  assertTrue(!(irav == stringv));
-  assertTrue(irav != stringv);
+  assertTrue_1(!(stringv == irav));
+  assertTrue_1(stringv != irav);
+  assertTrue_1(!(irav == stringv));
+  assertTrue_1(irav != stringv);
 
-  assertTrue(!(stringv == srav));
-  assertTrue(stringv != srav);
-  assertTrue(!(srav == stringv));
-  assertTrue(srav != stringv);
+  assertTrue_1(!(stringv == srav));
+  assertTrue_1(stringv != srav);
+  assertTrue_1(!(srav == stringv));
+  assertTrue_1(srav != stringv);
 
-  assertTrue(!(stringv == sav));
-  assertTrue(stringv != sav);
-  assertTrue(!(sav == stringv));
-  assertTrue(sav != stringv);
+  assertTrue_1(!(stringv == sav));
+  assertTrue_1(stringv != sav);
+  assertTrue_1(!(sav == stringv));
+  assertTrue_1(sav != stringv);
 
-  assertTrue(!(stringv == isav));
-  assertTrue(stringv != isav);
-  assertTrue(!(isav == stringv));
-  assertTrue(isav != stringv);
+  assertTrue_1(!(stringv == isav));
+  assertTrue_1(stringv != isav);
+  assertTrue_1(!(isav == stringv));
+  assertTrue_1(isav != stringv);
 
-  assertTrue(!(stringv == ssav));
-  assertTrue(stringv != ssav);
-  assertTrue(!(ssav == stringv));
-  assertTrue(ssav != stringv);
+  assertTrue_1(!(stringv == ssav));
+  assertTrue_1(stringv != ssav);
+  assertTrue_1(!(ssav == stringv));
+  assertTrue_1(ssav != stringv);
 
   return true;
 }

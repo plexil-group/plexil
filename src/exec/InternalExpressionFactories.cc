@@ -282,6 +282,7 @@ namespace PLEXIL
   ENSURE_EXPRESSION_FACTORY(OutcomeVariable);
   ENSURE_EXPRESSION_FACTORY(FailureVariable);
   ENSURE_EXPRESSION_FACTORY(CommandHandleVariable);
-  ENSURE_EXPRESSION_FACTORY(NodeTimepointValue);
+  // Redundant with explicit specialization
+  // ENSURE_EXPRESSION_FACTORY(NodeTimepointValue);
 
 } // namespace PLEXIL

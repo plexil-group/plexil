@@ -394,7 +394,7 @@ namespace PLEXIL
 
     bool checkToleranceImpl(Expression const *tolerance) const
     {
-      check_error(tolerance); // paranoid check
+      check_error_1(tolerance); // paranoid check
       NUM newTol;
       assertTrue_2(tolerance->getValue(newTol),
                    "LookupOnChange: internal error: tolerance unknown");
@@ -405,7 +405,7 @@ namespace PLEXIL
 
     bool checkImpl(CachedValue const *value) const
     {
-      check_error(value); // paranoid check
+      check_error_1(value); // paranoid check
       NUM currentValue;
       assertTrue_2(value->getValue(currentValue),
                    "LookupOnChange: internal error: lookup value unknown");
@@ -414,8 +414,8 @@ namespace PLEXIL
 
     void setImpl(CachedValue const *value, Expression const *tolerance)
     {
-      check_error(value); // paranoid check
-      check_error(tolerance); // paranoid check
+      check_error_1(value); // paranoid check
+      check_error_1(tolerance); // paranoid check
       NUM base, tol;
       assertTrue_2(value->getValue(base),
                    "LookupOnChange: internal error: lookup value unknown");

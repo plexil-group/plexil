@@ -152,7 +152,7 @@ namespace PLEXIL
    */
   std::vector<std::string>* JNIUtils::getJavaStringArray(jobjectArray ary)
   {
-    assertTrue(ary != NULL);
+    assertTrue_1(ary != NULL);
 
     jsize n = m_env->GetArrayLength(ary);
     std::vector<std::string>* result = new std::vector<std::string>(n);

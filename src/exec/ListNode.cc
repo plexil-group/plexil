@@ -65,8 +65,8 @@ namespace PLEXIL
       size_t unfinished = total;
       for (size_t i = 0; i < total; ++i) {
         uint16_t state;
-        assertTrue(args[i]->getValue(state), // should ALWAYS be known
-                   "AllChildrenFinished: node state variables may not be unknown.");
+        assertTrue_2(args[i]->getValue(state), // should ALWAYS be known
+                     "AllChildrenFinished: node state variables may not be unknown.");
         if (state == FINISHED_STATE)
           --unfinished;
       }
@@ -117,8 +117,8 @@ namespace PLEXIL
       size_t unfinished = total;
       for (size_t i = 0; i < total; ++i) {
         uint16_t state;
-        assertTrue(args[i]->getValue(state), // should ALWAYS be known
-                   "AllChildrenWaitingOrFinished: node state variables may not be unknown.");
+        assertTrue_2(args[i]->getValue(state), // should ALWAYS be known
+                     "AllChildrenWaitingOrFinished: node state variables may not be unknown.");
         if (state == FINISHED_STATE || state == WAITING_STATE)
           --unfinished;
       }
@@ -265,7 +265,7 @@ namespace PLEXIL
   {
     //call postInit on all children
     const PlexilListBody* body = (const PlexilListBody*) node->body();
-    check_error(body != NULL);
+    check_error_1(body != NULL);
     std::vector<NodeId>::iterator it = m_children.begin();
     std::vector<PlexilNodeId>::const_iterator pit = body->children().begin();   
     while (it != m_children.end() && pit != body->children().end()) {

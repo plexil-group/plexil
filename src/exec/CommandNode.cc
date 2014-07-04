@@ -560,7 +560,7 @@ namespace PLEXIL
          ++it) {
       Expression *argExpr =
         createExpression(*it, NodeConnector::getId(), wasCreated);
-      check_error(argExpr);
+      check_error_1(argExpr);
       args.push_back(argExpr);
       if (wasCreated)
         garbage.push_back(argExpr);
@@ -590,7 +590,7 @@ namespace PLEXIL
         Expression *resExpr = createExpression(resItr->second, 
                                                NodeConnector::getId(),
                                                wasCreated);
-        check_error(resExpr);
+        check_error_1(resExpr);
         resourceMap[resItr->first] = resExpr;
         if (wasCreated)
           garbage.push_back(resExpr);

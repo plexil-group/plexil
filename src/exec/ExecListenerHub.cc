@@ -54,7 +54,7 @@ namespace PLEXIL
    */
   void ExecListenerHub::addListener(const ExecListenerBaseId& listener)
   {
-    check_error(listener.isValid());
+    check_error_1(listener.isValid());
     if (std::find(m_listeners.begin(), m_listeners.end(), listener) != m_listeners.end())
       return;
     m_listeners.push_back(listener);

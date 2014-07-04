@@ -106,7 +106,7 @@ namespace PLEXIL
 
   private:
     PlexilExprId m_array;
-    PlexilExprId m_index;;
+    PlexilExprId m_index;
   };
 
   class PlexilValue : public PlexilExpr
