@@ -40,10 +40,10 @@
 #endif
 
 
-#define runTest(test, args...) {			\
+#define runTest(test) {	\
   try { \
   std::cout << "   " << #test << " "; \
-  bool result = test(args); \
+  bool result = test(); \
   unsigned int id_count = ID_TABLE_SIZE; \
   if (result && ID_TABLE_SIZE <= id_count) \
     std::cout << " PASSED." << std::endl; \
