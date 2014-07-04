@@ -161,14 +161,14 @@ void Logging::set_log_file_name(const char * fname)
 {
   static bool sl_allocated = false;
 
-  if (fname == NULL) {
+  if (!fname) {
     ensure_log_file_name();
     return;
   }
 
   // Ensure buffer is large enough
   size_t len = strlen(fname) + 1;
-  if (FILE_NAME_LEN < len) {
+  if (!FILE_NAME || (FILE_NAME_LEN < len)) {
     char *oldFileName = FILE_NAME;
     FILE_NAME_LEN = len;
     FILE_NAME = (char *) new char[len];
