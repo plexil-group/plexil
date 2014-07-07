@@ -34,7 +34,6 @@
 namespace PLEXIL
 {
   // Forward references
-  template <typename T> class ArrayConstant;
   template <typename T> class ArrayVariable;
   template <typename T> class Constant;
   template <typename T> class UserVariable;

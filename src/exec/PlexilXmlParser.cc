@@ -422,11 +422,11 @@ namespace PLEXIL
       checkTag(LOOKUPCHANGE_TAG, xml);
       PlexilChangeLookup* retval = new PlexilChangeLookup();
       retval->setState(PlexilXmlParser::parseState(xml));
-      for (xml_node tol = xml.child(TOLERANCE_TAG); 
-           tol;
-           tol = tol.next_sibling(TOLERANCE_TAG)) {
+      retval->setName("LookupOnChange");
+      xml_node tol = xml.child(TOLERANCE_TAG); 
+      if (tol) {
         checkHasChildElement(tol);
-        retval->addTolerance(PlexilXmlParser::parseExpr(tol.first_child()));
+        retval->setTolerance(PlexilXmlParser::parseExpr(tol.first_child()));
       }
       return retval->getId();
     }
@@ -439,7 +439,8 @@ namespace PLEXIL
 
     PlexilExprId parse(const xml_node& xml) throw(ParserException) {
       checkTag(LOOKUPNOW_TAG, xml);
-      PlexilLookupNow* retval = new PlexilLookupNow();
+      PlexilLookup* retval = new PlexilLookup();
+      retval->setName("LookupNow");
       retval->setState(PlexilXmlParser::parseState(xml));
       return retval->getId();
     }
@@ -1914,10 +1915,10 @@ namespace PLEXIL
     throw(ParserException) 
   {
     xml_node retval;
-    if (Id<PlexilLookupNow>::convertable(lookup->getId()))
-      retval = appendElement(LOOKUPNOW_TAG, parent);
-    else if (Id<PlexilChangeLookup>::convertable(lookup->getId()))
+    if (Id<PlexilChangeLookup>::convertable(lookup->getId()))
       retval = toXml((PlexilChangeLookup*) lookup, parent);
+    else if (Id<PlexilLookup>::convertable(lookup->getId()))
+      retval = appendElement(LOOKUPNOW_TAG, parent);
     else
       checkParserException(ALWAYS_FAIL, "Unknown lookup type.");
     toXml(lookup->state(), retval);
@@ -1928,10 +1929,7 @@ namespace PLEXIL
     throw(ParserException) 
   {
     xml_node retval = appendElement(LOOKUPCHANGE_TAG, parent);
-    for (std::vector<PlexilExprId>::const_iterator it = lookup->tolerances().begin(); 
-         it != lookup->tolerances().end();
-         ++it)
-      toXml(*it, retval);
+    toXml(lookup->tolerance(), retval);
     return retval;
   }
 

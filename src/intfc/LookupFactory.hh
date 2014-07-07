@@ -24,69 +24,12 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_LOOKUP_PROTO_HH
-#define PLEXIL_LOOKUP_PROTO_HH
-
-#include "PlexilExpr.hh"
+#ifndef PLEXIL_LOOKUP_FACTORY_HH
+#define PLEXIL_LOOKUP_FACTORY_HH
 
 namespace PLEXIL
 {
-  // Forward references
-  class PlexilState;
-  DECLARE_ID(PlexilState);
+  extern void registerLookupFactories();
+}
 
-  class PlexilState {
-  public:
-    PlexilState();
-    ~PlexilState();
-
-    const PlexilStateId& getId() const;
-    const std::vector<PlexilExprId>& args() const;
-    const std::string& name() const;
-    const PlexilExprId& nameExpr() const;
-    int lineNo() const;
-    int colNo() const;
-
-    void addArg(const PlexilExprId& arg);
-    void setName(const std::string& name);
-    void setNameExpr(const PlexilExprId& nameExpr);
-    void setLineNo(int n);
-    void setColNo(int n);
-
-  private:
-    PlexilStateId m_id;
-    PlexilExprId m_nameExpr;
-    std::vector<PlexilExprId> m_args;
-    int m_lineNo;
-    int m_colNo;
-  };
-
-  class PlexilLookup : public PlexilExpr {
-  public:
-    PlexilLookup();
-    virtual ~PlexilLookup();
-
-    const PlexilStateId& state() const;
-    void setState(const PlexilStateId& state);
-
-    virtual PlexilExprId const &tolerance() const;
-
-  private:
-    PlexilStateId m_state;
-  };
-
-  class PlexilChangeLookup : public PlexilLookup {
-  public:
-    PlexilChangeLookup();
-    ~PlexilChangeLookup();
-
-    PlexilExprId const &tolerance() const;
-    void setTolerance(PlexilExprId const &tolerance);
-
-  private:
-    PlexilExprId m_tolerance;
-  };
-
-} // namespace PLEXIL
-
-#endif // PLEXIL_LOOKUP_PROTO_HH
+#endif // PLEXIL_LOOKUP_FACTORY_HH

@@ -131,14 +131,9 @@ namespace PLEXIL
     m_state = state;
   }
 
-  //
-  // PlexilLookupNow
-  //
-
-  PlexilLookupNow::PlexilLookupNow()
-    : PlexilLookup()
+  PlexilExprId const &PlexilLookup::tolerance() const
   {
-    setName("LookupNow");
+    return PlexilExprId::noId();
   }
 
   //
@@ -147,26 +142,21 @@ namespace PLEXIL
   PlexilChangeLookup::PlexilChangeLookup()
     : PlexilLookup()
   {
-    setName("LookupOnChange");
   }
 
   PlexilChangeLookup::~PlexilChangeLookup()
   {
-    for (std::vector<PlexilExprId>::iterator it = m_tolerances.begin();
-         it != m_tolerances.end();
-         ++it)
-      delete (PlexilExpr*) *it;
-    m_tolerances.clear();
+    delete (PlexilExpr*) m_tolerance;
   }
 
-  const std::vector<PlexilExprId>& PlexilChangeLookup::tolerances() const
+  PlexilExprId const &PlexilChangeLookup::tolerance() const
   {
-    return m_tolerances;
+    return m_tolerance;
   }
   
-  void PlexilChangeLookup::addTolerance(const PlexilExprId& tolerance) 
+  void PlexilChangeLookup::setTolerance(PlexilExprId const &tolerance) 
   {
-    m_tolerances.push_back(tolerance);
+    m_tolerance = tolerance;
   }
 
 } // namespace PLEXIL

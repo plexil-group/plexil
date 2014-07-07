@@ -59,7 +59,7 @@ namespace PLEXIL
     int lineNo() const;
     int colNo() const;
 
-    void setName(const std::string& name); // *** FIXME: is this still needed? ***
+    void setName(const std::string& name);
     void setType(ValueType type);
     void setLineNo(int n);
     void setColNo(int n);
