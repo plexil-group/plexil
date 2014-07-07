@@ -30,6 +30,7 @@
 #include "ConstantMacros.hh"
 #include "ExecDefs.hh"
 #include "PlexilExpr.hh"
+#include "PlexilLookup.hh"
 #include "PlexilResource.hh"
 #include "PlexilUpdate.hh"
 #include "ValueType.hh"
@@ -49,14 +50,12 @@ namespace PLEXIL
   class PlexilInterface;
   class PlexilNodeBody;
   class PlexilNode;
-  class PlexilState;
   class PlexilUpdate;
   class PlexilNodeRef;
   class PlexilInternalVar;
 
   DECLARE_ID(PlexilNode);
   DECLARE_ID(PlexilInterface);
-  DECLARE_ID(PlexilState);
   DECLARE_ID(PlexilNodeBody);
   DECLARE_ID(PlexilUpdate);
   DECLARE_ID(PlexilNodeRef);
@@ -231,83 +230,6 @@ namespace PLEXIL
     PlexilInterfaceId m_id;
     std::vector<PlexilVarRef*> m_in;
     std::vector<PlexilVarRef*> m_inOut;
-  };
-
-  class PlexilState {
-  public:
-    PlexilState() : m_id(this), m_lineNo(0), m_colNo(0) {}
-
-    ~PlexilState()
-    {
-      for (std::vector<PlexilExprId>::iterator it = m_args.begin();
-           it != m_args.end();
-           ++it)
-        delete (PlexilExpr*) *it;
-      m_args.clear();
-      if (m_nameExpr.isId())
-        delete (PlexilExpr*) m_nameExpr;
-      m_id.remove();
-    }
-    const PlexilStateId& getId() const {return m_id;}
-    const std::vector<PlexilExprId>& args() const {return m_args;}
-    const std::string& name() const;
-    const PlexilExprId& nameExpr() const {return m_nameExpr;}
-    int lineNo() const {return m_lineNo;}
-    int colNo() const {return m_colNo;}
-
-    void addArg(const PlexilExprId& arg) {m_args.push_back(arg);}
-    void setName(const std::string& name);
-    void setNameExpr(const PlexilExprId& nameExpr) {m_nameExpr = nameExpr;}
-    void setLineNo(int n) {m_lineNo = n;}
-    void setColNo(int n) {m_colNo = n;}
-
-  private:
-    PlexilStateId m_id;
-    PlexilExprId m_nameExpr;
-    std::vector<PlexilExprId> m_args;
-    int m_lineNo;
-    int m_colNo;
-  };
-
-  class PlexilLookup : public PlexilExpr {
-  public:
-    PlexilLookup() : PlexilExpr() {}
-
-    virtual ~PlexilLookup()
-    {
-      if (m_state.isId())
-        delete (PlexilState*) m_state;
-    }
-
-    const PlexilStateId& state() const {return m_state;}
-    void setState(const PlexilStateId& state) {m_state = state;}
-  private:
-    PlexilStateId m_state;
-  };
-
-
-  class PlexilLookupNow : public PlexilLookup {
-  public:
-    PlexilLookupNow() : PlexilLookup() {setName("LookupNow");}
-  };
-
-  class PlexilChangeLookup : public PlexilLookup {
-  public:
-    PlexilChangeLookup() : PlexilLookup() {setName("LookupOnChange");}
-
-    ~PlexilChangeLookup()
-    {
-      for (std::vector<PlexilExprId>::iterator it = m_tolerances.begin();
-           it != m_tolerances.end();
-           ++it)
-        delete (PlexilExpr*) *it;
-      m_tolerances.clear();
-    }
-
-    const std::vector<PlexilExprId>& tolerances() const {return m_tolerances;}
-    void addTolerance(const PlexilExprId& tolerance) {m_tolerances.push_back(tolerance);}
-  private:
-    std::vector<PlexilExprId> m_tolerances;
   };
   
   class PlexilNodeBody {

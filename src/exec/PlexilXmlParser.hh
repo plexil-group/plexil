@@ -29,7 +29,6 @@
 
 #include "PlexilPlan.hh"
 #include "ConstantMacros.hh"
-#include "PlexilResource.hh"
 #include "ParserException.hh"
 #include "pugixml.hpp"
 #include <map>
