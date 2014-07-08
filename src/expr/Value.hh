@@ -77,6 +77,7 @@ namespace PLEXIL
     bool isKnown() const;
 
     bool getValue(bool &result) const;
+    bool getValue(uint16_t &result) const;
     bool getValue(int32_t &result) const;
     bool getValue(double &result) const;
     bool getValue(std::string &result) const;

@@ -29,6 +29,8 @@
 
 #include "ExecConnector.hh"
 #include "generic_hash_map.hh"
+#include "CommandHandle.hh"
+#include "InputQueue.hh"
 #include "PlexilPlan.hh"
 
 #include <list>
@@ -60,29 +62,16 @@ namespace PLEXIL
   {
   public:
     /**
-     * @brief Constructor.  Instantiates the entire plan from parsed XML.
-     * @param plan The intermediate representation of the plan.
-     * @deprecated Use the default constructor instead, and add a plan.
-     */
-    PlexilExec(PlexilNodeId& plan);
-
-    /**
      * @brief Default constructor.
      */
     PlexilExec();
 
     /**
-     * @brief Destructor.  Kills the plan dead.
+     * @brief Destructor.
      */
     ~PlexilExec();
 
     const PlexilExecId& getId() const {return m_id;}
-
-    /**
-     * @brief Add a library node.
-     * @param libNode The intermediate representation of the library node.
-     */
-    void addLibraryNode(const PlexilNodeId& libNode);
 
     /**
      * @brief Queries whether the named library node is loaded.
@@ -99,12 +88,45 @@ namespace PLEXIL
     const PlexilNodeId getLibrary(const std::string& nodeName) const;
 
     /**
-     * @brief Add the plan under the node named by the parent.
-     * @param plan The intermediate representation of the plan.
-     * @return true if successful, false otherwise.
-     * @note If the plan references any library nodes, they are linked in.
+     * @brief Return a value from a registered (change) lookup.
+     * @param state Reference to the state.
+     * @param value Pointer to the value.
+     * @note Value is deleted by the Exec.
      */
-    bool addPlan(PlexilNodeId& plan);
+    void lookupReturn(State const &state, Value *value);
+
+    /**
+     * @brief Return a value from a command
+     * @param cmd Command ID reference.
+     * @param value Pointer to the value.
+     * @note Value is deleted by the Exec.
+     */
+    void commandReturn(CommandId const &cmd, Value *value);
+
+    /**
+     * @brief Return a command handle value for a command.
+     * @param cmd Command ID reference.
+     * @param value The command handle value.
+     */
+    void commandHandleReturn(CommandId const &cmd, CommandHandleValue val);
+
+    /**
+     * @brief Insert the given plan into the input queue.
+     * @param Intermediate representation of the node.
+     */
+    void addPlan(PlexilNodeId const &plan);
+
+    /**
+     * @brief Add the given plan as a library node.
+     * @param Intermediate representation of the node.
+     */
+    void addLibraryNode(PlexilNodeId const &plan);
+
+    /**
+     * @brief Process all the entries in the input queue.
+     * @return True if the Exec needs to be stepped afterward.
+     */
+    bool processQueue();
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
@@ -170,13 +192,6 @@ namespace PLEXIL
     void enqueueAssignmentForRetraction(const AssignmentId& assign);
 
     /**
-     * @brief Needed for stupid unit test
-     */
-    virtual void notifyExecuted(const NodeId& /* node */) 
-    {
-    }
-
-    /**
      * @brief Mark node as finished and no longer eligible for execution.
      */
     void markRootNodeFinished(const NodeId& node);
@@ -198,11 +213,28 @@ namespace PLEXIL
     void handleConditionsChanged(const NodeId& node, NodeState newState);
 
   private:
+    // Not implemented
+    PlexilExec(PlexilExec const &);
+    PlexilExec &operator=(PlexilExec const &);
 
     // Private types
     typedef std::vector<NodeTransition> StateChangeQueue;
     typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
     typedef std::map<Assignable const *, VariableConflictSet> VariableConflictMap;
+
+    /**
+     * @brief Add the plan under the node named by the parent.
+     * @param plan The intermediate representation of the plan.
+     * @return true if successful, false otherwise.
+     * @note If the plan references any library nodes, they are linked in.
+     */
+    void addPlanInternal(PlexilNodeId const &plan);
+
+    /**
+     * @brief Add a library node.
+     * @param libNode The intermediate representation of the library node.
+     */
+    void addLibraryInternal(PlexilNodeId const &libNode);
 
     /**
      * @brief Resolve conflicts among potentially executing assignment variables.
@@ -239,6 +271,7 @@ namespace PLEXIL
     void performAssignments();
 
     PlexilExecId m_id; /*<! The Id for this executive.*/
+    InputQueue m_inputQueue;
     ExternalInterfaceId m_interface;
     ExecListenerHubId m_listener;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/

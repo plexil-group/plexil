@@ -1956,9 +1956,6 @@ namespace PLEXIL {
              "' of type '" << m_nodeType << 
              "' to be executed.");
 
-    // Here only to placate the unit test
-    g_exec->notifyExecuted(getId());
-
     specializedHandleExecution();
   }
 

@@ -373,6 +373,25 @@ namespace PLEXIL
     return true;
   }
 
+  bool Value::getValue(uint16_t &result) const
+  {
+    if (!m_known)
+      return false;
+
+    switch (m_type) {
+    case NODE_STATE_TYPE:
+    case OUTCOME_TYPE:
+    case FAILURE_TYPE:
+    case COMMAND_HANDLE_TYPE:
+      result = m_value.enumValue;
+      return true;
+
+    default:
+      assertTrue_2(ALWAYS_FAIL, "Value::getValue: type error");
+      return false;
+    }
+  }
+
   bool Value::getValue(int32_t &result) const
   {
     if (!m_known)

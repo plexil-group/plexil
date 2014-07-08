@@ -74,11 +74,6 @@ namespace PLEXIL
     virtual void enqueueAssignmentForRetraction(const AssignmentId& assign) = 0;
 
     /**
-     * @brief Needed for stupid unit test
-     */
-    virtual void notifyExecuted(const NodeId& node) = 0;
-
-    /**
      * @brief Mark node as finished and no longer eligible for execution.
      */
     virtual void markRootNodeFinished(const NodeId& node) = 0;
@@ -88,10 +83,15 @@ namespace PLEXIL
     /**
      * @brief Add the plan under the node named by the parent.
      * @param plan The intermediate representation of the plan.
-     * @return true if successful, false otherwise.
      * @note If the plan references any library nodes, they are linked in.
      */
-    bool addPlan(PlexilNodeId& plan);
+    void addPlan(PlexilNodeId const &plan);
+
+    /**
+     * @brief Process all the entries in the input queue.
+     * @return True if the Exec needs to be stepped afterward.
+     */
+    bool processQueue();
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.

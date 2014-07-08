@@ -31,7 +31,6 @@
 #include "ExternalInterface.hh"
 #include "ParserException.hh"
 #include "ResourceArbiterInterface.hh"
-#include "Array.hh"
 
 #include <iostream>
 #include <map>

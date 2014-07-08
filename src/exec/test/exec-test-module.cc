@@ -58,14 +58,10 @@ public:
   void handleConditionsChanged(const NodeId& /* node */, NodeState /* newState */) {}
   void enqueueAssignment(const AssignmentId& /* assign */) {}
   void enqueueAssignmentForRetraction(const AssignmentId& /* assign */) {}
-  // Replacement for handleNeedsExecution()
-  void notifyExecuted(const NodeId& node) {assertTrue_1(node->getState() == EXECUTING_STATE); m_executed = true;}
   void markRootNodeFinished(const NodeId& /* node */) {}
   void step(double /* startTime */) {}
   bool needsStep() const {return false;}
   const ExecListenerHubId& getExecListenerHub() const { return ExecListenerHubId::noId(); }
-
-  bool executed() {return m_executed;}
 
 private:
   bool m_executed;
@@ -377,7 +373,6 @@ static bool waitingTransTest()
                         if (types[i] == Node::ASSIGNMENT()) {
                           assertTrue_1(node->isActionCompleteConditionActive());
                         }
-                        assertTrue_1(con.executed());
                       }
                       else {
                         assertTrue_1(state == ITERATION_ENDED_STATE);

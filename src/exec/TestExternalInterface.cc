@@ -132,7 +132,8 @@ namespace PLEXIL
       }
          
       // step the exec forward
-      g_exec->step(currentTime());
+      if (g_exec->processQueue())
+        g_exec->step(currentTime());
 
       scriptElement = scriptElement.next_sibling();
     }
@@ -266,8 +267,7 @@ namespace PLEXIL
              "Sending plan from file " << elt.attribute("file").value());
     PlexilNodeId root =
       PlexilXmlParser::parse(doc->document_element().child("PlexilPlan").child("Node"));
-    checkError(g_exec->addPlan(root),
-               "Adding plan " << elt.attribute("file").value() << " failed");
+    g_exec->addPlan(root);
   }
 
   void TestExternalInterface::handleSimultaneous(const pugi::xml_node& elt)
