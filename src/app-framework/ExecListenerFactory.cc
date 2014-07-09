@@ -64,7 +64,7 @@ namespace PLEXIL
                << *xml);
 
     // Make it
-    return createInstance(LabelStr(listenerType), xml);
+    return createInstance(std::string(listenerType), xml);
   }
 
   /**
@@ -76,10 +76,10 @@ namespace PLEXIL
    */
 
   ExecListenerId 
-  ExecListenerFactory::createInstance(const LabelStr& name,
+  ExecListenerFactory::createInstance(std::string const &name,
                                       const pugi::xml_node& xml)
   {
-    std::map<LabelStr, ExecListenerFactory*>::const_iterator it = factoryMap().find(name);
+    std::map<std::string, ExecListenerFactory*>::const_iterator it = factoryMap().find(name);
 #ifdef HAVE_DLFCN_H
     if (it == factoryMap().end()) {
       debugMsg("ExecListenerFactory:createInstance", 
@@ -109,9 +109,9 @@ namespace PLEXIL
     return retval;
   }
 
-  std::map<LabelStr, ExecListenerFactory*>& ExecListenerFactory::factoryMap() 
+  std::map<std::string, ExecListenerFactory*>& ExecListenerFactory::factoryMap() 
   {
-    static std::map<LabelStr, ExecListenerFactory*> sl_map;
+    static std::map<std::string, ExecListenerFactory*> sl_map;
     static bool sl_inited = false;
     if (!sl_inited) {
       addFinalizer(&purge);
@@ -125,7 +125,7 @@ namespace PLEXIL
    */
   void ExecListenerFactory::purge()
   {
-    for (std::map<LabelStr, ExecListenerFactory*>::iterator it = factoryMap().begin();
+    for (std::map<std::string, ExecListenerFactory*>::iterator it = factoryMap().begin();
          it != factoryMap().end();
          ++it)
       delete it->second;
@@ -137,7 +137,7 @@ namespace PLEXIL
    * @param name The name by which the Exec Listener shall be known.
    * @param factory The ExecListenerFactory instance.
    */
-  void ExecListenerFactory::registerFactory(const LabelStr& name, ExecListenerFactory* factory)
+  void ExecListenerFactory::registerFactory(std::string const &name, ExecListenerFactory* factory)
   {
     assertTrue(factory != NULL);
     if (factoryMap().find(name) != factoryMap().end())
@@ -153,7 +153,7 @@ namespace PLEXIL
              " Registered exec listener factory for name \"" << name.c_str() << "\"");
   }
 
-  bool ExecListenerFactory::isRegistered(const LabelStr& name) {
+  bool ExecListenerFactory::isRegistered(std::string const &name) {
     return factoryMap().find(name) != factoryMap().end();
   }
 }

@@ -48,15 +48,7 @@ public:
   {
   }
 
-  void batchActions(std::list<CommandId>& /* commands */)
-  {
-  }
-
-  void updatePlanner(std::list<UpdateId>& /* updates */)
-  {
-  }
-
-  void invokeAbort(const CommandId& /* cmd */)
+  void setThresholds(const State& /* state */, int32_t /* hi */, int32_t /* lo */)
   {
   }
 
@@ -77,6 +69,19 @@ public:
       cache->updateState(state, Value(value));
   }
 protected:
+
+  void executeCommand(Command * /* cmd */)
+  {
+  }
+
+  void invokeAbort(Command * /* cmd */)
+  {
+  }
+
+  void executeUpdate(Update * /* update */)
+  {
+  }
+
 private:
   std::map<State, Value> m_values;
   StateCacheId m_cache;

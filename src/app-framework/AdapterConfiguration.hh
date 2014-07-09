@@ -35,7 +35,6 @@
 
 #include "Id.hh"
 #include "InterfaceAdapter.hh"
-#include "LabelStr.hh"
 
 #include <set>
 
@@ -95,7 +94,7 @@ namespace PLEXIL {
      * @param commandName The command to map to this adapter.
      * @param intf The interface adapter to handle this command.
      */
-    bool registerCommandInterface(const LabelStr & commandName,
+    bool registerCommandInterface(std::string const &commandName,
                   InterfaceAdapterId intf);
 
     /**
@@ -106,7 +105,7 @@ namespace PLEXIL {
      * @param stateName The name of the state to map to this adapter.
      * @param intf The interface adapter to handle this lookup.
      */
-    bool registerLookupInterface(const LabelStr & stateName,
+    bool registerLookupInterface(std::string const &stateName,
                  InterfaceAdapterId intf);
 
     /**
@@ -154,13 +153,13 @@ namespace PLEXIL {
      * @brief Retract registration of the previous interface adapter for this command.
      * @param commandName The command.
      */
-    void unregisterCommandInterface(const LabelStr & commandName);
+    void unregisterCommandInterface(std::string const &commandName);
 
     /**
      * @brief Retract registration of the previous interface adapter for this state.
      * @param stateName The state name.
      */
-    void unregisterLookupInterface(const LabelStr & stateName);
+    void unregisterLookupInterface(std::string const &stateName);
 
     /**
      * @brief Retract registration of the previous interface adapter for planner updates.
@@ -187,7 +186,7 @@ namespace PLEXIL {
      specifically registered or default. May return NoId().
      * @param commandName The command.
      */
-    InterfaceAdapterId getCommandInterface(const LabelStr & commandName);
+    InterfaceAdapterId getCommandInterface(std::string const &commandName);
 
     /**
      * @brief Return the current default interface adapter for commands.
@@ -200,7 +199,7 @@ namespace PLEXIL {
      whether specifically registered or default. May return NoId().
      * @param stateName The state.
      */
-    InterfaceAdapterId getLookupInterface(const LabelStr & stateName);
+    InterfaceAdapterId getLookupInterface(std::string const& stateName);
 
     /**
      * @brief Return the current default interface adapter for lookups.
@@ -256,7 +255,7 @@ namespace PLEXIL {
     // Maps by command/lookup
 
     // Interface adapter maps
-    typedef std::map<LabelStr, InterfaceAdapterId> InterfaceMap;
+    typedef std::map<std::string, InterfaceAdapterId> InterfaceMap;
     InterfaceMap m_lookupMap;
     InterfaceMap m_commandMap;
 

@@ -50,7 +50,7 @@ namespace PLEXIL {
     return (x.name < y.name ? true : false);
   }
 
-  void ResourceArbiterInterface::arbitrateCommands(const std::list<CommandId>& cmds,
+  void ResourceArbiterInterface::arbitrateCommands(const std::list<Command *>& cmds,
                                                    CommandSet& acceptCmds)
   {
     //1. Construct the sorted priority table for each resource
@@ -70,15 +70,15 @@ namespace PLEXIL {
   }
 
   void ResourceArbiterInterface::preprocessCommandToArbitrate
-  (const std::list<CommandId>& cmds, CommandSet& acceptCmds)
+  (const std::list<Command *>& cmds, CommandSet& acceptCmds)
   {
     m_prioritySortedCommands.clear();
     m_resCmdMap.clear();
 
     //Loop through each command
-    for (std::list<CommandId>::const_iterator it = cmds.begin(); it != cmds.end(); ++it) {
-      CommandId cmd = *it;
-      check_error_1(cmd.isValid());
+    for (std::list<Command *>::const_iterator it = cmds.begin(); it != cmds.end(); ++it) {
+      Command *cmd = *it;
+      assertTrue_1(cmd);
       const ResourceValuesList& resList = cmd->getResourceValues();
 
       if (!resList.empty()) {
@@ -204,12 +204,12 @@ namespace PLEXIL {
   {
     // convert the priority sorted map to a vector for convenience
 
-    std::vector<CommandId> sortedCmdVector;
-    std::vector<CommandId> commandCombo;
+    std::vector<Command *> sortedCmdVector;
+    std::vector<Command *> commandCombo;
     std::map<std::string, double> totalConsResMap;
     std::map<std::string, double> totalRenewResMap;
 
-    for(std::multimap<int, CommandId>::const_iterator iter = m_prioritySortedCommands.begin();
+    for(std::multimap<int, Command *>::const_iterator iter = m_prioritySortedCommands.begin();
         iter != m_prioritySortedCommands.end(); ++iter)
       sortedCmdVector.push_back(iter->second);
 
@@ -222,7 +222,7 @@ namespace PLEXIL {
       totalConsResMap[resName] = totalRenewResMap[resName] = resLocked;
     }
     
-    for (std::vector<CommandId>::const_iterator cmdIter1 = sortedCmdVector.begin();
+    for (std::vector<Command *>::const_iterator cmdIter1 = sortedCmdVector.begin();
          cmdIter1 != sortedCmdVector.end(); ++cmdIter1) {
       std::string const &cmd1Name = (*cmdIter1)->getName();
 
@@ -265,7 +265,7 @@ namespace PLEXIL {
     }
 
     // Process accepted command combination
-    for (std::vector<CommandId>::const_iterator cIter = commandCombo.begin();
+    for (std::vector<Command *>::const_iterator cIter = commandCombo.begin();
         cIter < commandCombo.end(); ++cIter) {
       std::string const &cName = (*cIter)->getName();
       acceptCmds.insert(*cIter);
@@ -444,12 +444,12 @@ namespace PLEXIL {
 
   void ResourceArbiterInterface::printSortedCommands() const
   {
-    for(std::multimap<int, CommandId>::const_iterator iter = m_prioritySortedCommands.begin();
+    for(std::multimap<int, Command *>::const_iterator iter = m_prioritySortedCommands.begin();
         iter != m_prioritySortedCommands.end(); ++iter)
       {
-        CommandId cmdId = iter->second;
+        Command *cmd = iter->second;
         debugMsg("ResourceArbiterInterface:printSortedCommands", 
-                 "CommandName: " << cmdId->getName()
+                 "CommandName: " << cmd->getName()
                  << " Priority: " << iter->first);
       }
   }
@@ -465,11 +465,11 @@ namespace PLEXIL {
         for (CommandSet::const_iterator iter2 = iter->second.begin(); 
              iter2 != iter->second.end(); ++iter2)
           {
-            CommandId cmdId = *iter2;
+            Command *cmd = *iter2;
             debugMsg("ResourceArbiterInterface:printResourceCommandMap", 
-                     "cmds: " << cmdId->getName() << " uses the following resources");
+                     "cmds: " << cmd->getName() << " uses the following resources");
 
-            const ResourceValuesList& resList = cmdId->getResourceValues();
+            const ResourceValuesList& resList = cmd->getResourceValues();
             for (ResourceValuesList::const_iterator resListIter = resList.begin();
                  resListIter != resList.end();
                  ++resListIter) {
@@ -515,7 +515,7 @@ namespace PLEXIL {
     for (CommandSet::const_iterator it = acceptCmds.begin(); 
          it != acceptCmds.end(); ++it)
       {
-        CommandId cmd = *it;
+        Command const *cmd = *it;
         const std::string& name = cmd->getName();
         debugMsg("ResourceArbiterInterface:printAcceptedCommands", 
                  "Accepted command: " << name

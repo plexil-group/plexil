@@ -62,10 +62,8 @@ namespace PLEXIL
     /**
      * @brief Get the node's command.
      */
-    CommandId const &getCommand() const
-    {
-      return m_command; 
-    }
+    Command const *getCommand() const { return m_command; }
+    Command *getCommand() { return m_command; }
 
   protected:
 
@@ -103,7 +101,7 @@ namespace PLEXIL
     // Unit test support
     void createDummyCommand(); // unit test variant
 
-    CommandId m_command; /*<! The command to be performed. */
+    Command *m_command; /*<! The command to be performed. */
   };
 
 }

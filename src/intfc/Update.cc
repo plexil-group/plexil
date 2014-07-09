@@ -27,14 +27,14 @@
 #include "Update.hh"
 #include "Debug.hh"
 #include "ExpressionFactory.hh"
+#include "ExternalInterface.hh"
 #include "PlexilUpdate.hh"
 
 namespace PLEXIL
 {
   Update::Update(std::string const &nodeName,
                  PlexilUpdateId const &updateProto)
-    : m_id(this),
-      m_ack(),
+    : m_ack(),
       m_garbage(),
       m_pairs()
   {
@@ -71,10 +71,9 @@ namespace PLEXIL
          ++it)
       delete (*it);
     m_garbage.clear();
-    m_id.remove();
   }
 
-  void Update::fixValues() 
+  void Update::fixValues()
   {
     for (PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it) {
       check_error_1(it->second);
@@ -86,12 +85,29 @@ namespace PLEXIL
 
   void Update::activate() 
   {
+    assertTrue_1(!m_ack.isActive());
     for(PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it)
       it->second->activate();
     m_ack.activate();
   }
 
-  void Update::deactivate() {
+  void Update::execute()
+  {
+    assertTrue_1(m_ack.isActive());
+    fixValues();
+    g_interface->enqueueUpdate(this);
+  }
+
+  void Update::acknowledge(bool ack)
+  {
+    if (!m_ack.isActive())
+      return; // ignore if not executing
+    m_ack.setValue(ack);
+  }
+
+  void Update::deactivate()
+  {
+    assertTrue_1(m_ack.isActive());
     for(PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it)
       it->second->deactivate();
     m_ack.deactivate();

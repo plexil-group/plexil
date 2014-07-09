@@ -28,7 +28,6 @@
 #define EXEC_LISTENER_FACTORY_H
 
 #include "Id.hh"
-#include "LabelStr.hh"
 #include <map>
 
 // Forward reference
@@ -71,7 +70,7 @@ namespace PLEXIL
      * @return The Id for the new ExecListener.
      */
 
-    static ExecListenerId createInstance(const LabelStr& name, 
+    static ExecListenerId createInstance(std::string const &name, 
                                          const pugi::xml_node& xml);
 
     /**
@@ -80,14 +79,14 @@ namespace PLEXIL
      * @return True if the factory is registered, false otherwise
      */
 
-    static bool isRegistered(const LabelStr& name);
+    static bool isRegistered(std::string const &name);
 
     /**
      * @brief Deallocate all factories
      */
     static void purge();
 
-    const LabelStr& getName() const {return m_name;}
+    std::string const &getName() const {return m_name;}
 
   protected:
 
@@ -99,7 +98,7 @@ namespace PLEXIL
      * @param name The name by which the listener shall be known.
      * @param factory The ExecListenerFactory instance.
      */
-    static void registerFactory(const LabelStr& name, ExecListenerFactory* factory);
+    static void registerFactory(std::string const &name, ExecListenerFactory* factory);
 
     /**
      * @brief Instantiates a new ExecListener of the appropriate type.
@@ -108,7 +107,7 @@ namespace PLEXIL
      */
     virtual ExecListenerId create(const pugi::xml_node& xml) const = 0;
 
-    ExecListenerFactory(const LabelStr& name)
+    ExecListenerFactory(std::string const &name)
       : m_name(name)
     {
       registerFactory(m_name, this);
@@ -121,13 +120,13 @@ namespace PLEXIL
     ExecListenerFactory& operator=(const ExecListenerFactory&);
 
     /**
-     * @brief The map from names (LabelStr) to concrete ExecListenerFactory instances.
+     * @brief The map from names (std::string) to concrete ExecListenerFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<LabelStr, ExecListenerFactory*>& factoryMap();
+    static std::map<std::string, ExecListenerFactory*>& factoryMap();
 
-    const LabelStr m_name; /*!< Name used for lookup */
+    const std::string m_name; /*!< Name used for lookup */
   };
 
   /**
@@ -137,7 +136,7 @@ namespace PLEXIL
   class ConcreteExecListenerFactory : public ExecListenerFactory 
   {
   public:
-    ConcreteExecListenerFactory(const LabelStr& name)
+    ConcreteExecListenerFactory(std::string const &name)
       : ExecListenerFactory(name) 
     {}
 

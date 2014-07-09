@@ -27,11 +27,15 @@
 #ifndef VALUE_QUEUE_HH
 #define VALUE_QUEUE_HH
 
-#include "Expression.hh"
+#include "CommandHandle.hh"
 #include "PlexilPlan.hh"
+#include "State.hh"
 
 namespace PLEXIL
 {
+  // Forward decls
+  class Command;
+  class Update;
 
   //
   // Value queue
@@ -62,9 +66,12 @@ namespace PLEXIL
     ~ValueQueue();
 
     // Inserts the new expression/value pair into the queue
-    void enqueue(const ExpressionId & exp, const Value& newValue);
+    void enqueue(Command *cmd, Value const &returnValue);
+    void enqueue(Command *cmd, CommandHandleValue handle);
+    void enqueue(Command *cmd, bool abortAck);
+    void enqueue(Update *upd, bool ack);
     void enqueue(const State & state, const Value& newValue);
-    void enqueue(PlexilNodeId newPlan, const LabelStr & parent);
+    void enqueue(PlexilNodeId newPlan, const std::string &parent); // FIXME
     void enqueue(PlexilNodeId newlibraryNode);
 
     /**
@@ -76,7 +83,6 @@ namespace PLEXIL
                            State& state,
                            ExpressionId& exp,
                            PlexilNodeId& plan,
-                           LabelStr& planParent,
                            unsigned int& sequence);
 
     // returns true iff the queue is empty

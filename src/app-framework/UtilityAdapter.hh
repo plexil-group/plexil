@@ -49,15 +49,9 @@ public:
   bool reset();
   bool shutdown();
 
-  void executeCommand (const LabelStr& name,
-                       const std::vector<Value>& args,
-                       ExpressionId dest,
-                       ExpressionId ack);
+  void executeCommand(Command *cmd);
 
-  void invokeAbort(const LabelStr& name, 
-                   const std::vector<Value>& args, 
-                   ExpressionId abort_ack,
-                   ExpressionId cmd_ack);
+  void invokeAbort(Command *cmd);
 
 };
 

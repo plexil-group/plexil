@@ -241,13 +241,17 @@ namespace PLEXIL
 
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl()
-    : CachedValueShim<CachedValueImpl<T> >()
+    : CachedValueShim<CachedValueImpl<T> >(),
+      m_timestamp(0),
+      m_known(false)
   {
   }
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl()
-    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >()
+    : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
+      m_timestamp(0),
+      m_known(false)
   {
   }
 

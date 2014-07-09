@@ -84,13 +84,12 @@ namespace PLEXIL
      */
     bool shutdown();
 
-
     /**
      * @brief Perform an immediate lookup on an existing state.
      * @param state The state.
      * @return The current value for the state.
      */
-    Value lookupNow(const State& state);
+    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
@@ -111,16 +110,15 @@ namespace PLEXIL
      * @param lo The lower threshold, at or below which to report changes.
      */
     void setThresholds(const State& state, double hi, double lo);
+    void setThresholds(const State& state, int32_t hi, int32_t lo);
 
-    void sendPlannerUpdate(const NodeId& node,
-                           const std::map<std::string, Value>& valuePairs,
-                           ExpressionId ack);
+    void sendPlannerUpdate(Update *upd);
 
     // execute a command
-    void executeCommand(const CommandId& cmd);
+    void executeCommand(Command *cmd);
 
     //abort the given command
-    void invokeAbort(const CommandId& cmd);
+    void invokeAbort(Command *cmd);
     
   private:
     // deliberately unimplemented

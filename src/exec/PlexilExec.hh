@@ -29,8 +29,6 @@
 
 #include "ExecConnector.hh"
 #include "generic_hash_map.hh"
-#include "CommandHandle.hh"
-#include "InputQueue.hh"
 #include "PlexilPlan.hh"
 
 #include <list>
@@ -47,16 +45,10 @@ namespace PLEXIL
   class ExecListenerHub;
   typedef Id<ExecListenerHub> ExecListenerHubId;
 
-  /**
-   * @brief Comparator for ordering nodes that are in conflict.  Higher priority wins, but nodes already EXECUTING dominate.
-   */
-  struct NodeConflictComparator {
-    bool operator() (NodeId x, NodeId y) const;
-  };
+  struct NodeConflictComparator;
 
   /**
-   * @brief The core PLEXIL executive.  Instantiate it with the XML representation for a plan, instantiate
-   * an external interface, and it should start doing things the moment an event comes in.
+   * @brief The core PLEXIL executive.
    */
   class PlexilExec : public ExecConnector
   {
@@ -87,46 +79,21 @@ namespace PLEXIL
      */
     const PlexilNodeId getLibrary(const std::string& nodeName) const;
 
-    /**
-     * @brief Return a value from a registered (change) lookup.
-     * @param state Reference to the state.
-     * @param value Pointer to the value.
-     * @note Value is deleted by the Exec.
-     */
-    void lookupReturn(State const &state, Value *value);
+    //
+    // API to ExternalInterface
+    //
 
     /**
-     * @brief Return a value from a command
-     * @param cmd Command ID reference.
-     * @param value Pointer to the value.
-     * @note Value is deleted by the Exec.
-     */
-    void commandReturn(CommandId const &cmd, Value *value);
-
-    /**
-     * @brief Return a command handle value for a command.
-     * @param cmd Command ID reference.
-     * @param value The command handle value.
-     */
-    void commandHandleReturn(CommandId const &cmd, CommandHandleValue val);
-
-    /**
-     * @brief Insert the given plan into the input queue.
-     * @param Intermediate representation of the node.
+     * @brief Prepare the given plan for execution.
+     * @param Intermediate representation of the plan's root node.
      */
     void addPlan(PlexilNodeId const &plan);
 
     /**
      * @brief Add the given plan as a library node.
-     * @param Intermediate representation of the node.
+     * @param Intermediate representation of the plan's root node.
      */
     void addLibraryNode(PlexilNodeId const &plan);
-
-    /**
-     * @brief Process all the entries in the input queue.
-     * @return True if the Exec needs to be stepped afterward.
-     */
-    bool processQueue();
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
@@ -223,20 +190,6 @@ namespace PLEXIL
     typedef std::map<Assignable const *, VariableConflictSet> VariableConflictMap;
 
     /**
-     * @brief Add the plan under the node named by the parent.
-     * @param plan The intermediate representation of the plan.
-     * @return true if successful, false otherwise.
-     * @note If the plan references any library nodes, they are linked in.
-     */
-    void addPlanInternal(PlexilNodeId const &plan);
-
-    /**
-     * @brief Add a library node.
-     * @param libNode The intermediate representation of the library node.
-     */
-    void addLibraryInternal(PlexilNodeId const &libNode);
-
-    /**
      * @brief Resolve conflicts among potentially executing assignment variables.
      */
     void resolveResourceConflicts();
@@ -271,8 +224,6 @@ namespace PLEXIL
     void performAssignments();
 
     PlexilExecId m_id; /*<! The Id for this executive.*/
-    InputQueue m_inputQueue;
-    ExternalInterfaceId m_interface;
     ExecListenerHubId m_listener;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
     std::vector<NodeId> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */

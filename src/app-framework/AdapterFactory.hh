@@ -28,8 +28,9 @@
 #define ADAPTER_FACTORY_H
 
 #include "Id.hh"
-#include "LabelStr.hh"
+
 #include <map>
+#include <string>
 
 // Forward reference
 namespace pugi
@@ -77,7 +78,7 @@ namespace PLEXIL
      * @return The Id for the new InterfaceAdapter.  May not be unique.
      */
 
-    static InterfaceAdapterId createInstance(const LabelStr& name, 
+    static InterfaceAdapterId createInstance(std::string const& name, 
                                              const pugi::xml_node& xml,
                                              AdapterExecInterface& execInterface);
 
@@ -92,7 +93,7 @@ namespace PLEXIL
      * @return The Id for the new InterfaceAdapter.  If wasCreated is set to false, is not unique.
      */
 
-    static InterfaceAdapterId createInstance(const LabelStr& name,
+    static InterfaceAdapterId createInstance(std::string const& name,
                                              const pugi::xml_node& xml,
                                              AdapterExecInterface& execInterface,
                                              bool& wasCreated);
@@ -103,14 +104,14 @@ namespace PLEXIL
      * @return True if the factory is registered, false otherwise
      */
 
-    static bool isRegistered(const LabelStr& name);
+    static bool isRegistered(std::string const& name);
 
     /**
      * @brief Deallocate all factories
      */
     static void purge();
 
-    const LabelStr& getName() const {return m_name;}
+    std::string const& getName() const {return m_name;}
 
   protected:
     virtual ~AdapterFactory()
@@ -121,7 +122,7 @@ namespace PLEXIL
      * @param name The name by which the Adapter shall be known.
      * @param factory The AdapterFactory instance.
      */
-    static void registerFactory(const LabelStr& name, AdapterFactory* factory);
+    static void registerFactory(std::string const& name, AdapterFactory* factory);
 
     /**
      * @brief Instantiates a new InterfaceAdapter of the appropriate type.
@@ -135,7 +136,7 @@ namespace PLEXIL
                                       AdapterExecInterface& execInterface,
                                       bool& wasCreated) const = 0;
 
-    AdapterFactory(const LabelStr& name)
+    AdapterFactory(std::string const& name)
     : m_name(name)
     {
       registerFactory(m_name, this);
@@ -148,13 +149,13 @@ namespace PLEXIL
     AdapterFactory& operator=(const AdapterFactory&);
 
     /**
-     * @brief The map from names (LabelStr) to concrete AdapterFactory instances.
+     * @brief The map from names to concrete AdapterFactory instances.
      * This pattern of wrapping static data in a static method is to ensure proper loading
      * when used as a shared library.
      */
-    static std::map<LabelStr, AdapterFactory*>& factoryMap();
+    static std::map<std::string, AdapterFactory*>& factoryMap();
 
-    const LabelStr m_name; /*!< Name used for lookup */
+    std::string const m_name; /*!< Name used for lookup */
   };
 
   /**
@@ -164,7 +165,7 @@ namespace PLEXIL
   class ConcreteAdapterFactory : public AdapterFactory 
   {
   public:
-    ConcreteAdapterFactory(const LabelStr& name)
+    ConcreteAdapterFactory(std::string const& name)
     : AdapterFactory(name) 
     {}
 

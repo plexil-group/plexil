@@ -87,9 +87,9 @@ public:
   double currentTime() {return 0.0;}
 
 protected:
-  void executeCommand(CommandId const & /* cmd */) {}
-  void invokeAbort(CommandId const & /* cmd */) {}
-  void executeUpdate(UpdateId const & /* update */) {}
+  void executeCommand(Command * /* cmd */) {}
+  void invokeAbort(Command * /* cmd */) {}
+  void executeUpdate(Update * /* update */) {}
 
 };
 

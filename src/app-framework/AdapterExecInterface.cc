@@ -28,6 +28,8 @@
 
 #include "Debug.hh"
 #include "Expression.hh"
+#include "State.hh"
+#include "Value.hh"
 
 #include <cstring>
 #include <cstdlib> // for strtod(), strtoll()
@@ -58,11 +60,11 @@ namespace PLEXIL
   std::string AdapterExecInterface::getText(const State& c) 
   {
     std::ostringstream retval;
-    retval << c.first << "(";
-    std::vector<Value>::const_iterator it = c.second.begin();
-    if(it != c.second.end()) {
+    retval << c.name() << "(";
+    std::vector<Value>::const_iterator it = c.parameters().begin();
+    if(it != c.parameters().end()) {
       retval << *it;
-      for (++it; it != c.second.end(); ++it)
+      for (++it; it != c.parameters().end(); ++it)
         retval << ", " << *it;
     }
     retval << ")";

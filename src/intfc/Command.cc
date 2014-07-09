@@ -25,6 +25,7 @@
 */
 
 #include "Command.hh"
+#include "ExternalInterface.hh"
 
 namespace PLEXIL
 {
@@ -35,8 +36,7 @@ namespace PLEXIL
                    Assignable *dest,
                    const ResourceList &resource,
                    std::string const &nodeName)
-    : m_id(this),
-      m_ack(*this),
+    : m_ack(*this),
       m_abortComplete(),
       m_nameExpr(nameExpr),
       m_dest(dest),
@@ -45,7 +45,8 @@ namespace PLEXIL
       m_resourceList(resource),
       m_commandHandle(NO_COMMAND_HANDLE),
       m_fixed(false),
-      m_resourceFixed(false)
+      m_resourceFixed(false),
+      m_active(false)
   {
     m_ack.setName(nodeName + " commandHandle");
     m_abortComplete.setName(nodeName + " abortComplete");
@@ -57,7 +58,6 @@ namespace PLEXIL
          ++it) {
       delete (*it);
     }
-    m_id.remove();
   }
 
   State const &Command::getCommand() const
@@ -94,7 +94,7 @@ namespace PLEXIL
 
   void Command::fixValues() 
   {
-    assertTrue_1(!m_fixed);
+    assertTrue_1(m_active && !m_fixed);
     std::string const *name;
     m_nameExpr->getValuePointer(name);
 
@@ -111,7 +111,7 @@ namespace PLEXIL
 
   void Command::fixResourceValues()
   {
-    assertTrue_1(!m_resourceFixed);
+    assertTrue_1(m_active && !m_resourceFixed);
     m_resourceValuesList.clear();
     for(ResourceList::const_iterator resListIter = m_resourceList.begin();
         resListIter != m_resourceList.end();
@@ -129,9 +129,10 @@ namespace PLEXIL
     m_resourceFixed = true;
   }
 
-  //more error checking here
+  // more error checking here
   void Command::activate()
   {
+    assertTrue_1(!m_active);
     m_nameExpr->activate();
     m_ack.activate();
     m_abortComplete.activate();
@@ -151,9 +152,54 @@ namespace PLEXIL
         expr->activate();
       }
     }
+    m_active = true;
   }
 
-  void Command::deactivate() {
+  void Command::execute()
+  {
+    assertTrue_1(m_active);
+    fixValues();
+    fixResourceValues();
+    g_interface->enqueueCommand(this);
+  }
+
+  void Command::setCommandHandle(CommandHandleValue handle)
+  {
+    if (!m_active)
+      return;
+    assertTrue_1(handle > NO_COMMAND_HANDLE && handle < COMMAND_HANDLE_MAX);
+    m_commandHandle = handle;
+    m_ack.valueChanged();
+  }
+
+  void Command::returnValue(Value const &val)
+  {
+    if (!m_active || !m_dest)
+      return;
+    m_dest->setValue(val);
+  }
+
+  void Command::abort()
+  {
+    assertTrue_1(m_active);
+    // Handle stupid unit test
+    if (g_interface.isId()) {
+      g_interface->abortCommand(this);
+    }
+  }
+
+  void Command::acknowledgeAbort(bool ack)
+  {
+    // Ignore late or erroneous acks
+    if (!m_active)
+      return;
+    m_abortComplete.setValue(ack);
+  }
+
+  void Command::deactivate() 
+  {
+    assertTrue_1(m_active);
+    m_active = false;
     m_nameExpr->deactivate();
     m_ack.deactivate();
     m_abortComplete.deactivate();
@@ -170,7 +216,7 @@ namespace PLEXIL
     m_commandHandle = NO_COMMAND_HANDLE;
     m_abortComplete.reset();
     // TODO: optimize in case name & args are constants (a common case)
-    m_fixed = m_resourceFixed = false;
+    m_fixed = m_resourceFixed = m_active = false;
   }
 
 }

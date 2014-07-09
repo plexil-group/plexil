@@ -27,8 +27,10 @@
 #ifndef INTERFACE_ADAPTER_H
 #define INTERFACE_ADAPTER_H
 
-#include "ExecDefs.hh"
 #include "pugixml.hpp"
+
+#include "Id.hh"
+#include "Value.hh"
 
 #include <map>
 #include <set>
@@ -36,16 +38,19 @@
 
 namespace PLEXIL
 {
-  // forward references
+  // forward references 
+  class Command;
+  class Expression;
+  class State;
+  class StateCacheEntry;
+  class Update;
+
+  class AdapterExecInterface;
   class InterfaceAdapter;
   typedef Id<InterfaceAdapter> InterfaceAdapterId;
 
-  class Expression;
-  typedef Id<Expression> ExpressionId;
 
-  class LabelStr;
 
-  class AdapterExecInterface;
 
   /**
    * @brief An abstract base class for interfacing the PLEXIL Universal Exec
@@ -106,14 +111,14 @@ namespace PLEXIL
     /**
      * @brief Resets the adapter.  
      * @return true if successful, false otherwise.
-     * @note Adapters should provide their own methods.  The default method simply returns true.
+     * @note Adapters should provide their own methods.
      */
     virtual bool reset() = 0;
 
     /**
      * @brief Shuts down the adapter, releasing any of its resources.
      * @return true if successful, false otherwise.
-     * @note Adapters should provide their own methods.  The default method simply returns true.
+     * @note Adapters should provide their own methods.
      */
     virtual bool shutdown() = 0;
 
@@ -123,7 +128,7 @@ namespace PLEXIL
      * @return The current value for the state.
      * @note Adapters should provide their own methods.  The default method raises an assertion.
      */
-    virtual Value lookupNow(const State& state);
+    virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry);
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
@@ -143,62 +148,33 @@ namespace PLEXIL
      * @param state The state.
      * @param hi The upper threshold, at or above which to report changes.
      * @param lo The lower threshold, at or below which to report changes.
-     * @note Adapters should provide their own methods as appropriate.  The default method does nothing.
+     * @note Adapters should provide their own methods as appropriate.  The default methods do nothing.
      */
     virtual void setThresholds(const State& state, double hi, double lo);
+    virtual void setThresholds(const State& state, int32_t hi, int32_t lo);
 
     /**
      * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.
      * @param node The Node requesting the update.
      * @param valuePairs A map of <string_key, value> pairs.
      * @param ack The expression in which to store an acknowledgement of completion.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+     * @note Derived classes may implement this method.
      */
 
-    virtual void sendPlannerUpdate(const NodeId& node,
-                                   const std::map<std::string, Value>& valuePairs,
-                                   ExpressionId ack);
+    virtual void sendPlannerUpdate(Update *update);
 
     /**
      * @brief Execute a command with the requested arguments.
      * @param cmd The Command instance.
-     * @note The default method calls the method below.
      */
-    virtual void executeCommand(const CommandId& cmd);
-
-    /**
-     * @brief Execute a command with the requested arguments.
-     * @param name The LabelString representing the command name.
-     * @param args The command arguments.
-     * @param dest The expression in which to store any value returned from the command.
-     * @param ack The expression in which to store an acknowledgement of command transmission.
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-     */
-
-    virtual void executeCommand(const LabelStr& name,
-                                const std::vector<Value>& args,
-                                ExpressionId dest,
-                                ExpressionId ack);
+    virtual void executeCommand(Command *cmd);
 
     /**
      * @brief Abort the pending command.
      * @param cmd Id of the descriptor of the command being aborted.
-     * @note Derived classes may implement this method. The default method calls the compatibility method below.
+     * @note Derived classes may implement this method.
      */
-    virtual void invokeAbort(const CommandId& cmd);
-
-    /**
-     * @brief Abort the pending command with the supplied name and arguments.
-     * @param name The LabelString representing the command name.
-     * @param args The command arguments.
-     * @param abort_ack The expression in which to store an acknowledgement of command abort.
-     * @param cmd_ack The original acknowledgment for this command (for identification purposes)
-     * @note Derived classes may implement this method.  The default method causes an assertion to fail.
-     */
-    virtual void invokeAbort(const LabelStr& name, 
-                             const std::vector<Value>& args, 
-                             ExpressionId abort_ack,
-                             ExpressionId cmd_ack);
+    virtual void invokeAbort(Command *cmd);
 
     /**
      * @brief Register this adapter based on its XML configuration data.

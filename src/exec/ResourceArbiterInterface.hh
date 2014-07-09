@@ -28,13 +28,19 @@
 #define _H_ResourceArbiterInterface
 
 #include "Id.hh"
-#include "ExecDefs.hh"
-#include "Command.hh" // for Command
+#include "Value.hh"
 
 #include <list>
+#include <map>
 #include <set>
+#include <vector>
 
 namespace PLEXIL {
+
+  class Command;
+
+  // Shared with Command.hh
+  typedef std::map<std::string, Value> ResourceValues;
 
   struct ChildResourceNode
   {
@@ -64,7 +70,7 @@ namespace PLEXIL {
     bool operator() (const ChildResourceNode& x, const ChildResourceNode& y)const;
   };
 
-  typedef std::set<CommandId> CommandSet;
+  typedef std::set<Command *> CommandSet;
 
   class ResourceArbiterInterface;
   typedef Id<ResourceArbiterInterface> ResourceArbiterInterfaceId;
@@ -80,7 +86,7 @@ namespace PLEXIL {
 
     ~ResourceArbiterInterface(){m_id.remove();}
 
-    void arbitrateCommands(const std::list<CommandId>& cmds,
+    void arbitrateCommands(const std::list<Command *>& cmds,
                            CommandSet& acceptCmds);
     void releaseResourcesForCommand(const std::string& cmdName);
      
@@ -92,18 +98,18 @@ namespace PLEXIL {
   private:
     // Type names
     typedef std::set<ChildResourceNode, ResourceComparator> ResourceMapEntry;
-    typedef std::map<std::string, ResourceMapEntry > ResourceMap;
+    typedef std::map<std::string, ResourceMapEntry> ResourceMap;
     typedef std::map<std::string, CommandSet> ResourceCommandMap;
 
     bool m_resourceFileRead;
     std::map<std::string, double> m_lockedRes;
     ResourceMap m_cmdResMap;
     std::map<std::string, ResourceNode> m_resourceHierarchy;
-    std::multimap<int, CommandId> m_prioritySortedCommands;
+    std::multimap<int, Command *> m_prioritySortedCommands;
     ResourceCommandMap m_resCmdMap;
     ResourceArbiterInterfaceId m_id;
 
-    void preprocessCommandToArbitrate(const std::list<CommandId>& cmds,
+    void preprocessCommandToArbitrate(const std::list<Command *>& cmds,
                                       CommandSet& acceptCmds);
     double resourceAmountNeededByCommand(const std::string& resName, 
                                          const std::string& cmdName);

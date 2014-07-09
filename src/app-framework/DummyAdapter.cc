@@ -27,12 +27,10 @@
 #include "DummyAdapter.hh"
 
 #include "AdapterExecInterface.hh"
-#include "BooleanVariable.hh"
 #include "Command.hh"
-#include "CoreExpressions.hh"
 #include "Debug.hh"
-#include "Node.hh"
-#include "StateCache.hh"
+#include "StateCacheEntry.hh"
+#include "Update.hh"
 
 namespace PLEXIL
 {
@@ -106,60 +104,65 @@ namespace PLEXIL
   }
 
 
-  Value DummyAdapter::lookupNow(const State& state)
+  void DummyAdapter::lookupNow(State const &state, StateCacheEntry &cacheEntry)
   {
     debugMsg("ExternalInterface:dummy", 
-             " LookupNow of " << StateCache::toString(state) << " returning UNKNOWN");
-    return UNKNOWN();
+             " LookupNow of " << state << " returning UNKNOWN");
+    cacheEntry.setUnknown();
   }
 
   void DummyAdapter::subscribe(const State& state)
   {
     debugMsg("ExternalInterface:dummy",
-             " subscribe of " << StateCache::toString(state) << " called, ignoring");
+             " subscribe of " << state << " called, ignoring");
   }
 
   void DummyAdapter::unsubscribe(const State& state)
   {
     debugMsg("ExternalInterface:dummy",
-             " unsubscribe of " << StateCache::toString(state) << " called, ignoring");
+             " unsubscribe of " << state << " called, ignoring");
   }
 
   void DummyAdapter::setThresholds(const State& state, double /* hi */, double /* lo */)
   {
     debugMsg("ExternalInterface:dummy",
-             " setThresholds of " << StateCache::toString(state) << " called, ignoring");
+             " setThresholds of " << state << " called, ignoring");
   }
 
-  void DummyAdapter::sendPlannerUpdate(const NodeId& node,
-                                       const std::map<std::string, Value>& /* valuePairs */,
-                                       ExpressionId ack)
+  void DummyAdapter::setThresholds(const State& state, int32_t /* hi */, int32_t /* lo */)
+  {
+    debugMsg("ExternalInterface:dummy",
+             " setThresholds of " << state << " called, ignoring");
+  }
+
+  void DummyAdapter::sendPlannerUpdate(Update *upd)
   {
     debugMsg("ExternalInterface:dummy", " sendPlannerUpdate called");
 
     // acknowledge updates
     debugMsg("ExternalInterface:dummy",
-             " faking acknowledgment of update node '"
-             << node->getNodeId().toString()
-             << "'");
-    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE_VALUE());
+             " faking acknowledgment of update");
+    // *** FIXME ***
+    // m_execInterface.handleValueChange(ack, BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 
-  void DummyAdapter::executeCommand(const CommandId& cmd)
+  void DummyAdapter::executeCommand(Command *cmd)
   {
     debugMsg("ExternalInterface:dummy", " executeCommand for " << cmd->getName());
-    m_execInterface.handleValueChange(cmd->getAck(),
-                                      CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+    // *** FIXME ***
+    // m_execInterface.handleValueChange(cmd->getAck(),
+    //                                   CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
     m_execInterface.notifyOfExternalEvent();
   }
 
   //abort the given command
-  void DummyAdapter::invokeAbort(const CommandId& cmd)
+  void DummyAdapter::invokeAbort(Command *cmd)
   {
     debugMsg("ExternalInterface:dummy", " invokeAbort for " << cmd->getName());
-    m_execInterface.handleValueChange(cmd->getAbortComplete(),
-                                      BooleanVariable::TRUE_VALUE());
+    // *** FIXME ***
+    // m_execInterface.handleValueChange(cmd->getAbortComplete(),
+    //                                   BooleanVariable::TRUE_VALUE());
     m_execInterface.notifyOfExternalEvent();
   }
 

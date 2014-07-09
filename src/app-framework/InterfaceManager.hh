@@ -114,11 +114,6 @@ namespace PLEXIL
     {
       return m_adapterConfig;
     }
-    
-    /**
-     * @brief Set the Exec.
-     */
-    virtual void setExec(const PlexilExecId& exec);
 
     //
     // API for all related objects
@@ -239,10 +234,7 @@ namespace PLEXIL
      * @brief Insert a mark in the value queue.
      * @return The sequence number of the mark.
      */
-    unsigned int markQueue()
-    {
-      return m_valueQueue.mark();
-    }
+    unsigned int markQueue();
 
     /**
      * @brief Get the sequence number of the most recently processed mark.
@@ -267,7 +259,7 @@ namespace PLEXIL
      * @param state The state.
      * @return The current value of the state or UNKNOWN().
      */
-    Value lookupNow(const State& state);
+    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
@@ -287,23 +279,19 @@ namespace PLEXIL
      * @param lo The lower threshold, at or below which to report changes.
      */
     void setThresholds(const State& state, double hi, double lo);
+    void setThresholds(const State& state, int32_t hi, int32_t lo);
 
-    //this batches the set of actions from quiescence completion.  calls PlexilExecutive::step() at the end
-    //assignments must be performed first.
-    //though it only takes a list of commands as an argument at the moment, it will eventually take function calls and the like
-    //so the name remains "batchActions"
-    void batchActions(std::list<CommandId>& commands);
-    void updatePlanner(std::list<UpdateId>& updates);
+    void executeCommand(Command *cmd);
 
     /**
      * @brief Abort the pending command with the supplied name and arguments.
      * @param cmd The command.
      */
+    void invokeAbort(Command *cmd);
 
-    void invokeAbort(const CommandId& cmd);
+    void executeUpdate(Update *upd);
 
     double currentTime();
-
 
     //
     // API to interface adapters
@@ -323,7 +311,7 @@ namespace PLEXIL
      * @param commandName The command to map to this adapter.
      * @param intf The interface adapter to handle this command.
      */
-    bool registerCommandInterface(const LabelStr & commandName,
+    bool registerCommandInterface(std::string const &commandName,
                   InterfaceAdapterId intf);
 
     /**
@@ -333,7 +321,7 @@ namespace PLEXIL
      * @param stateName The name of the state to map to this adapter.
      * @param intf The interface adapter to handle this lookup.
      */
-    bool registerLookupInterface(const LabelStr & stateName,
+    bool registerLookupInterface(std::string const & stateName,
         const InterfaceAdapterId& intf);
 
     /**
@@ -378,13 +366,13 @@ namespace PLEXIL
      * @brief Retract registration of the previous interface adapter for this command.  
      * @param commandName The command.
      */
-    void unregisterCommandInterface(const LabelStr & commandName);
+    void unregisterCommandInterface(std::string const &commandName);
 
     /**
      * @brief Retract registration of the previous interface adapter for this state.
      * @param stateName The state name.
      */
-    void unregisterLookupInterface(const LabelStr & stateName);
+    void unregisterLookupInterface(std::string const &stateName);
 
     /**
      * @brief Retract registration of the previous interface adapter for planner updates.
@@ -411,7 +399,7 @@ namespace PLEXIL
      specifically registered or default. May return NoId().
      * @param commandName The command.
      */
-    InterfaceAdapterId getCommandInterface(const LabelStr & commandName);
+    InterfaceAdapterId getCommandInterface(std::string const &commandName);
 
     /**
      * @brief Return the current default interface adapter for commands.
@@ -424,7 +412,7 @@ namespace PLEXIL
      whether specifically registered or default. May return NoId().
      * @param stateName The state.
      */
-    InterfaceAdapterId getLookupInterface(const LabelStr & stateName);
+    InterfaceAdapterId getLookupInterface(std::string const &stateName);
 
     /**
      * @brief Return the current default interface adapter for lookups.
@@ -468,33 +456,27 @@ namespace PLEXIL
      */
     void handleValueChange(const State& state, const Value& value);
 
-    /**
-     * @brief Notify of the availability of (e.g.) a command return or acknowledgement.
-     * @param exp The expression whose value is being returned.
-     * @param value The new value of the expression.
-     */
-    void handleValueChange(const ExpressionId & exp, const Value& value);
+    void handleCommandReturn(Command * cmd, Value const& value);
+
+    void handleCommandAck(Command * cmd, CommandHandleValue value);
+
+    void handleCommandAbortAck(Command * cmd, bool ack);
+
+    void handleUpdateAck(Update * upd, bool ack);
 
     /**
      * @brief Notify the executive of a new plan.
      * @param planXml The TinyXML representation of the new plan.
      * @param parent The node which is the parent of the new node.
-     * @return False if the plan references unloaded libraries, true otherwise.
-     * @note This is deprecated, use the PlexilNodeId variant instead.
      */
-    bool handleAddPlan(const pugi::xml_node& planXml,
-                       const LabelStr& parent)
+    void handleAddPlan(const pugi::xml_node& planXml)
       throw(ParserException);
 
     /**
      * @brief Notify the executive of a new plan.
      * @param planStruct The PlexilNode representation of the new plan.
-     * @param parent The node which is the parent of the new node.
-     * @return False if the plan references unloaded libraries, true otherwise.
-     * @note Deletes planStruct upon completion!
      */
-    bool handleAddPlan(PlexilNodeId planStruct,
-                       const LabelStr& parent);
+    void handleAddPlan(PlexilNodeId planStruct);
 
     /**
      * @brief Notify the executive of a new library node.
@@ -520,17 +502,9 @@ namespace PLEXIL
     void notifyAndWaitForCompletion();
 #endif
 
-    StateCacheId getStateCache() const;
-
     //
     // Utility accessors
     //
-
-    // *** Is this actually needed?? ***
-    inline PlexilExecId getExec() const
-    { 
-      return m_exec; 
-    }
 
     /**
      * @brief Clears the interface adapter registry.
@@ -544,15 +518,8 @@ namespace PLEXIL
     // Internal functionality
     //
 
-    // Executes a command.
-    void executeCommand(const CommandId& cmd);
-
     // rejects a command due to non-availability of resources
-    // FIXME: need CommandId variant
-    void rejectCommand(const LabelStr& name,
-                       const std::vector<Value>& args,
-                       ExpressionId dest,
-                       ExpressionId ack);
+    void rejectCommand(Command *cmd);
 
     /**
      * @brief Removes the adapter and deletes it iff nothing refers to it.
@@ -573,7 +540,7 @@ namespace PLEXIL
      * has been received so that resources can be released.
      * @param ackOrDest The expression id for which a value has been posted.
      */
-    void releaseResourcesAtCommandTermination(ExpressionId ackOrDest);
+    void releaseResourcesAtCommandTermination(Expression *ackOrDest);
 
     /**
      * @brief Deletes the given adapter
@@ -584,17 +551,6 @@ namespace PLEXIL
     //
     // Internal types and classes
     //
-
-    //
-    // State cache
-    //
-    // The state cache is always updated by the exec thread.  Older 
-    // implementations could have been updated by another thread, which
-    // caused race conditions in the quiescence loop.
-    //
-
-    bool expressionToState(const ExpressionId & exp, State & key) const;
-    bool updateStateListener(const ExpressionId & dest, const Value& value);
 
     //
     // Private member variables
@@ -608,18 +564,11 @@ namespace PLEXIL
     //* Adapter Config
     AdapterConfigurationId m_adapterConfig;
 
-    //* The queue
-    ValueQueue m_valueQueue;
-
     //* ExecListener hub
     ExecListenerHubId m_listenerHub;
 
     //* Set of all known InterfaceAdapter instances
     std::set<InterfaceAdapterId> m_adapters;
-
-    // Maps
-    std::map<ExpressionId, CommandId> m_ackToCmdMap;
-    std::map<ExpressionId, CommandId> m_destToCmdMap;
 
     // Properties
     typedef std::map<const std::string, void*> PropertyMap;
@@ -631,6 +580,8 @@ namespace PLEXIL
     //* List of directory names for plan file search paths
     std::vector<std::string> m_libraryPath;
     std::vector<std::string> m_planPath;
+
+    ValueQueue m_valueQueue;
 
     //* Holds the most recent idea of the current time
     double m_currentTime;

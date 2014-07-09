@@ -65,10 +65,13 @@ namespace PLEXIL
     bool isKnown() const;
 
     /**
-     * @brief Get the current value of the node's state.
+     * @brief Get the current value of the command handle.
      */
     bool getValueImpl(uint16_t &) const;
     bool getValuePointerImpl(uint16_t const *&) const;
+
+    // Command notifies variable when value changes
+    void valueChanged();
 
     /**
      * @brief Print the expression's value to the given stream.

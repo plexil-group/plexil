@@ -102,10 +102,10 @@ namespace PLEXIL
   // Can be called redundantly, e.g. from ListNode::cleanUpChildConditions().
   void UpdateNode::cleanUpNodeBody()
   {
-    if (m_update.isId()) {
+    if (m_update) {
       debugMsg("UpdateNode:cleanUpNodeBody", " removing update for " << m_nodeId);
-      delete (Update*) m_update;
-      m_update = UpdateId::noId();
+      delete m_update;
+      m_update = NULL;
     }
   }
 
@@ -127,7 +127,7 @@ namespace PLEXIL
 
   void UpdateNode::createUpdate(const PlexilUpdateBody* body) 
   {
-    m_update = (new Update(getNodeId(), body->update()))->getId();
+    m_update = new Update(getNodeId(), body->update());
   }
 
   void UpdateNode::createConditionWrappers()
@@ -158,7 +158,7 @@ namespace PLEXIL
   // Unit test variant
   void UpdateNode::createDummyUpdate() 
   {
-    m_update = (new Update(getNodeId()))->getId();
+    m_update = new Update(getNodeId());
   }
 
   //
@@ -174,11 +174,9 @@ namespace PLEXIL
 
   void UpdateNode::specializedHandleExecution()
   {
-    checkError(m_update.isValid(),
-               "Node::execute: Update is invalid");
+    assertTrue_1(m_update);
     m_update->activate();
-    m_update->fixValues();
-    g_interface->enqueueUpdate(m_update);
+    m_update->execute();
   }
 
   NodeState UpdateNode::getDestStateFromExecuting()
@@ -363,12 +361,13 @@ namespace PLEXIL
 
   void UpdateNode::specializedDeactivateExecutable()
   {
-    if (m_update.isValid())
-      m_update->deactivate();
+    assertTrue_1(m_update);
+    m_update->deactivate();
   }
 
   void UpdateNode::specializedReset()
   {
+    assertTrue_1(m_update);
     m_update->reset();
   }
 

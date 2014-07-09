@@ -159,8 +159,7 @@ am__libPlexilAppFramework_la_SOURCES_DIST = AdapterConfiguration.cc \
 	AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc \
 	ExecApplication.cc ExecListenerFactory.cc InterfaceAdapter.cc \
 	InterfaceManager.cc ListenerFilters.cc UtilityAdapter.cc \
-	ValueQueue.cc TimeAdapter.cc PosixTimeAdapter.cc \
-	DarwinTimeAdapter.cc
+	TimeAdapter.cc PosixTimeAdapter.cc DarwinTimeAdapter.cc
 @UNIX_TIME_OPT_TRUE@am__objects_1 =  \
 @UNIX_TIME_OPT_TRUE@	libPlexilAppFramework_la-TimeAdapter.lo \
 @UNIX_TIME_OPT_TRUE@	libPlexilAppFramework_la-PosixTimeAdapter.lo \
@@ -175,8 +174,7 @@ am_libPlexilAppFramework_la_OBJECTS =  \
 	libPlexilAppFramework_la-InterfaceAdapter.lo \
 	libPlexilAppFramework_la-InterfaceManager.lo \
 	libPlexilAppFramework_la-ListenerFilters.lo \
-	libPlexilAppFramework_la-UtilityAdapter.lo \
-	libPlexilAppFramework_la-ValueQueue.lo $(am__objects_1)
+	libPlexilAppFramework_la-UtilityAdapter.lo $(am__objects_1)
 libPlexilAppFramework_la_OBJECTS =  \
 	$(am_libPlexilAppFramework_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -228,8 +226,7 @@ am__include_HEADERS_DIST = AdapterConfiguration.hh \
 	AdapterExecInterface.hh AdapterFactory.hh DummyAdapter.hh \
 	ExecApplication.hh ExecListenerFactory.hh InterfaceAdapter.hh \
 	InterfaceManager.hh ListenerFilters.hh UtilityAdapter.hh \
-	ValueQueue.hh TimeAdapter.hh PosixTimeAdapter.hh \
-	DarwinTimeAdapter.hh
+	TimeAdapter.hh PosixTimeAdapter.hh DarwinTimeAdapter.hh
 HEADERS = $(include_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
@@ -380,17 +377,17 @@ top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libPlexilAppFramework.la
 libPlexilAppFramework_la_CPPFLAGS =  \
 	-I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
-	-I@top_srcdir@/exec $(am__append_1) $(am__append_2)
+	-I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec \
+	$(am__append_1) $(am__append_2)
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
 	AdapterFactory.hh DummyAdapter.hh ExecApplication.hh \
 	ExecListenerFactory.hh InterfaceAdapter.hh InterfaceManager.hh \
-	ListenerFilters.hh UtilityAdapter.hh ValueQueue.hh \
-	$(am__append_3)
+	ListenerFilters.hh UtilityAdapter.hh $(am__append_3)
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
 	AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc \
 	ExecApplication.cc ExecListenerFactory.cc InterfaceAdapter.cc \
 	InterfaceManager.cc ListenerFilters.cc UtilityAdapter.cc \
-	ValueQueue.cc $(am__append_4)
+	$(am__append_4)
 all: all-am
 
 .SUFFIXES:
@@ -483,7 +480,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-PosixTimeAdapter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-TimeAdapter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-UtilityAdapter.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-ValueQueue.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -575,13 +571,6 @@ libPlexilAppFramework_la-UtilityAdapter.lo: UtilityAdapter.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='UtilityAdapter.cc' object='libPlexilAppFramework_la-UtilityAdapter.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilAppFramework_la-UtilityAdapter.lo `test -f 'UtilityAdapter.cc' || echo '$(srcdir)/'`UtilityAdapter.cc
-
-libPlexilAppFramework_la-ValueQueue.lo: ValueQueue.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilAppFramework_la-ValueQueue.lo -MD -MP -MF $(DEPDIR)/libPlexilAppFramework_la-ValueQueue.Tpo -c -o libPlexilAppFramework_la-ValueQueue.lo `test -f 'ValueQueue.cc' || echo '$(srcdir)/'`ValueQueue.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilAppFramework_la-ValueQueue.Tpo $(DEPDIR)/libPlexilAppFramework_la-ValueQueue.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ValueQueue.cc' object='libPlexilAppFramework_la-ValueQueue.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilAppFramework_la-ValueQueue.lo `test -f 'ValueQueue.cc' || echo '$(srcdir)/'`ValueQueue.cc
 
 libPlexilAppFramework_la-TimeAdapter.lo: TimeAdapter.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilAppFramework_la-TimeAdapter.lo -MD -MP -MF $(DEPDIR)/libPlexilAppFramework_la-TimeAdapter.Tpo -c -o libPlexilAppFramework_la-TimeAdapter.lo `test -f 'TimeAdapter.cc' || echo '$(srcdir)/'`TimeAdapter.cc

@@ -33,6 +33,7 @@ namespace PLEXIL
   class Command;
   class PlexilNode;
   class State;
+  class Update;
   class Value;
 
   enum QueueEntryType {
@@ -40,6 +41,7 @@ namespace PLEXIL
     Q_LOOKUP,
     Q_COMMAND_ACK,
     Q_COMMAND_RETURN,
+    Q_UPDATE_ACK,
     Q_ADD_PLAN,
     Q_ADD_LIBRARY,
 
@@ -55,6 +57,7 @@ namespace PLEXIL
     };
     union {
       Command *command;
+      Update *update;
       State const *state;
     };
     QueueEntryType type;

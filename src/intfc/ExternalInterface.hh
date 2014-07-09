@@ -27,6 +27,7 @@
 #ifndef _H_ExternalInterface
 #define _H_ExternalInterface
 
+#include "CommandHandle.hh"
 #include "Expression.hh"
 #include "Id.hh"
 #include "State.hh"
@@ -36,12 +37,8 @@
 namespace PLEXIL {
   // Forward declarations
   class Command;
-  DECLARE_ID(Command);
-
   class StateCacheEntry;
-
   class Update;
-  DECLARE_ID(Update);
 
   class ExternalInterface;
   DECLARE_ID(ExternalInterface);
@@ -111,17 +108,17 @@ namespace PLEXIL {
     /**
      * @brief Schedule this command for execution.
      */
-    void enqueueCommand(CommandId const &cmd);
+    void enqueueCommand(Command *cmd);
 
     /**
      * @brief Abort the pending command.
      */
-    void abortCommand(CommandId const &cmd);
+    void abortCommand(Command *cmd);
 
     /**
      * @brief Schedule this update for execution.
      */
-    void enqueueUpdate(const UpdateId& update);
+    void enqueueUpdate(Update *update);
 
     //
     // API to Exec
@@ -148,6 +145,45 @@ namespace PLEXIL {
      */
     unsigned int incrementCycleCount();
 
+    //
+    // Interface from outside world to plan state
+    //
+
+    /**
+     * @brief Return a value from a lookup.
+     * @param state Const reference to the state.
+     * @param value Const reference to the value.
+     */
+    void lookupReturn(State const &state, Value const &value);
+
+    /**
+     * @brief Return a value from a command
+     * @param cmd Pointer to the Command.
+     * @param value Const reference to the value.
+     */
+    void commandReturn(Command *cmd, Value const &value);
+
+    /**
+     * @brief Return a command handle value for a command.
+     * @param cmd Pointer to the Command.
+     * @param value The command handle value.
+     */
+    void commandHandleReturn(Command *cmd, CommandHandleValue val);
+
+    /**
+     * @brief Return an abort-acknowledge value for a command.
+     * @param cmd Pointer to the Command.
+     * @param ack The acknowledgement value.
+     */
+    void commandAbortAcknowledge(Command *cmd, bool ack);
+
+    /**
+     * @brief Return an update acknowledgment value
+     * @param upd Update ID reference.
+     * @param value The ack value.
+     */
+    void acknowledgeUpdate(Update *upd, bool val);
+
   protected:
 
     // Default constructor.
@@ -160,18 +196,18 @@ namespace PLEXIL {
     /**
      * @brief Schedule this command for execution.
      */
-    virtual void executeCommand(CommandId const &cmd) = 0;
+    virtual void executeCommand(Command *cmd) = 0;
 
     /**
      * @brief Abort the pending command.
      * @param cmd The command.
      */
-    virtual void invokeAbort(CommandId const &cmd) = 0;
+    virtual void invokeAbort(Command *cmd) = 0;
 
     /**
      * @brief Schedule this update for execution.
      */
-    virtual void executeUpdate(const UpdateId& update) = 0;
+    virtual void executeUpdate(Update *update) = 0;
 
   private:
 
@@ -180,8 +216,8 @@ namespace PLEXIL {
     ExternalInterface &operator=(ExternalInterface const &);
 
     ExternalInterfaceId m_id;
-    std::vector<CommandId> m_commandsToExecute;
-    std::vector<UpdateId> m_updatesToExecute;
+    std::vector<Command *> m_commandsToExecute;
+    std::vector<Update *> m_updatesToExecute;
     unsigned int m_cycleCount;
   };
 

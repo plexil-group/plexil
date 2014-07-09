@@ -78,6 +78,11 @@ namespace PLEXIL
     return true;
   }
 
+  void CommandHandleVariable::valueChanged()
+  {
+    this->publishChange(static_cast<Expression const *>(this));
+  }
+  
   void CommandHandleVariable::printValue(std::ostream &s) const
   {
     uint16_t handle = m_command.getCommandHandle();

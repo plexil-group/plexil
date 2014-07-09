@@ -132,13 +132,13 @@ public:
 protected:
   friend class ChangeListener;
 
-  void executeCommand(CommandId const & /* cmd */)
+  void executeCommand(Command * /* cmd */)
   {}
 
-  void invokeAbort(CommandId const & /* cmd */)
+  void invokeAbort(Command * /* cmd */)
   {}
 
-  void executeUpdate(UpdateId const & /* cmd */)
+  void executeUpdate(Update * /* upd */)
   {}
 
   void notifyChanged(Expression const *expression)

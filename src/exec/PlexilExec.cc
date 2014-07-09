@@ -27,7 +27,6 @@
 #include "PlexilExec.hh"
 
 #include "Assignment.hh"
-#include "Command.hh"
 #include "Debug.hh"
 #include "ExecListenerHub.hh"
 #include "Expression.hh"
@@ -35,8 +34,6 @@
 #include "Node.hh"
 #include "NodeConstants.hh"
 #include "NodeFactory.hh"
-#include "StateCacheEntry.hh"
-#include "StateCacheMap.hh"
 
 #include <algorithm> // for find(), transform
 #include <iterator> // for back_insert_iterator
@@ -46,12 +43,18 @@
 
 namespace PLEXIL 
 {
-  bool NodeConflictComparator::operator() (NodeId x, NodeId y) const 
-  {
-    check_error_1(x->getType() == Node::ASSIGNMENT());
-    check_error_1(y->getType() == Node::ASSIGNMENT());
-    return (x->getPriority() < y->getPriority() ? true : false);
-  }
+
+  /**
+   * @brief Comparator for ordering nodes that are in conflict.  Higher priority wins, but nodes already EXECUTING dominate.
+   */
+  struct NodeConflictComparator {
+    bool operator() (NodeId x, NodeId y) const
+    {
+      check_error_1(x->getType() == Node::ASSIGNMENT());
+      check_error_1(y->getType() == Node::ASSIGNMENT());
+      return (x->getPriority() < y->getPriority() ? true : false);
+    }
+  };
 
   PlexilExec::PlexilExec()
     : ExecConnector(),
@@ -106,7 +109,7 @@ namespace PLEXIL
 
   // Add a new library node
 
-  void PlexilExec::addLibraryInternal(const PlexilNodeId& libNode) 
+  void PlexilExec::addLibraryNode(PlexilNodeId const &libNode) 
   {
     checkError(libNode.isValid(), 
                "PlexilExec::addLibraryNode: Invalid library node pointer");
@@ -135,7 +138,7 @@ namespace PLEXIL
 
   // Add a plan
 
-  void PlexilExec::addPlanInternal(PlexilNodeId const &plan) 
+  void PlexilExec::addPlan(PlexilNodeId const &plan) 
   {
     // Try to link any library calls
     if (!plan->link(m_libraries)) {
@@ -240,130 +243,6 @@ namespace PLEXIL
       m_finishedRootNodes.clear();
       m_finishedRootNodesDeleted = true;
     }
-  }
-
-  void PlexilExec::lookupReturn(State const &state, Value *value)
-  {
-    assertTrue_1(value);
-    QueueEntry *entry = m_inputQueue.allocate();
-    entry->type = Q_LOOKUP;
-    entry->value = value;
-    entry->state = new State(state);
-    m_inputQueue.put(entry);
-  }
-
-  void PlexilExec::commandReturn(CommandId const &cmd, Value *value)
-  {
-    assertTrue_1(cmd.isId() && value);
-    QueueEntry *entry = m_inputQueue.allocate();
-    entry->type = Q_COMMAND_RETURN;
-    entry->value = value;
-    entry->command = (Command *) cmd;
-    m_inputQueue.put(entry);
-  }
-
-  void PlexilExec::commandHandleReturn(CommandId const &cmd, CommandHandleValue val)
-  {
-    assertTrue_1(cmd.isId());
-    assertTrue_1(val > NO_COMMAND_HANDLE && val < COMMAND_HANDLE_MAX);
-    QueueEntry *entry = m_inputQueue.allocate();
-    entry->type = Q_COMMAND_ACK;
-    entry->value = new Value((uint16_t) val, COMMAND_HANDLE_TYPE);
-    entry->command = (Command *) cmd;
-    m_inputQueue.put(entry);
-  }
-
-  void PlexilExec::addPlan(PlexilNodeId const &plan)
-  {
-    assertTrue_1(plan.isId());
-    QueueEntry *entry = m_inputQueue.allocate();
-    entry->type = Q_ADD_PLAN;
-    entry->plan = (PlexilNode *) plan;
-    m_inputQueue.put(entry);
-  }
-
-  void PlexilExec::addLibraryNode(PlexilNodeId const &plan)
-  {
-    assertTrue_1(plan.isId());
-    QueueEntry *entry = m_inputQueue.allocate();
-    entry->type = Q_ADD_LIBRARY;
-    entry->plan = (PlexilNode *) plan;
-    m_inputQueue.put(entry);
-  }
-
-  bool PlexilExec::processQueue()
-  {
-    bool result = false;
-    QueueEntry *entry;
-    while ((entry = m_inputQueue.get())) {
-      switch (entry->type) {
-      case Q_LOOKUP: {
-        assertTrue_1(entry->value && entry->state);
-        StateCacheEntry *cacheEntry = StateCacheMap::instance().findStateCacheEntry(*(entry->state));
-        // Ignore any data we don't know about
-        if (cacheEntry) {
-          cacheEntry->update(g_interface->getCycleCount(),
-                             *(entry->value));
-          result = true;
-        }
-        delete entry->value;
-        entry->value = NULL;
-        break;
-      }
-
-      case Q_COMMAND_ACK: {
-        assertTrue_1(entry->value && entry->command);
-        Assignable *ackVar = entry->command->getAck()->asAssignable();
-        assertTrue_1(ackVar);
-        if (ackVar->isActive()) {
-          ackVar->setValue(*(entry->value));
-          result = true;
-        }
-        delete entry->value;
-        entry->value = NULL;
-        break;
-      }
-
-      case Q_COMMAND_RETURN: {
-        assertTrue_1(entry->value && entry->command);
-        Expression *dest = entry->command->getDest();
-        if (!dest) {
-          delete entry->value;
-          entry->value = NULL;
-          break;
-        }
-        Assignable *destVar = dest->asAssignable();
-        assertTrue_1(destVar);
-        if (destVar->isActive()) {
-          destVar->setValue(*(entry->value));
-          result = true;
-        }
-        delete entry->value;
-        entry->value = NULL;
-        break;
-      }
-
-      case Q_ADD_PLAN: {
-        PlexilNodeId plan = entry->plan->getId();
-        addPlanInternal(plan);
-        result = true;
-        break;
-      }
-
-      case Q_ADD_LIBRARY: {
-        PlexilNodeId plan = entry->plan->getId();
-        addLibraryInternal(plan);
-        break;
-      }
-
-      default:
-        assertTrue_2(ALWAYS_FAIL, "processQueue: Invalid queue entry type");
-        break;
-      }
-
-      m_inputQueue.release(entry);
-    }
-    return result;
   }
 
   void PlexilExec::notifyNodeConditionChanged(NodeId node)
@@ -628,7 +507,6 @@ namespace PLEXIL
     // Perform side effects
 
     performAssignments();
-
     g_interface->executeOutboundQueue();
 
     debugMsg("PlexilExec:cycle", "==>End cycle " << cycleNum);

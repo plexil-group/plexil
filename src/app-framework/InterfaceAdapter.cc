@@ -27,12 +27,10 @@
 #include "InterfaceAdapter.hh"
 #include "AdapterExecInterface.hh"
 #include "Command.hh"
+#include "Update.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "LabelStr.hh"
-#include "Node.hh"
-#include "StateCache.hh"
-#include "Variable.hh"
+#include "StateCacheEntry.hh"
 
 namespace PLEXIL
 {
@@ -70,11 +68,10 @@ namespace PLEXIL
   // Default methods for InterfaceManager API
   //
 
-  Value InterfaceAdapter::lookupNow(const State& /* state */)
+  void InterfaceAdapter::lookupNow(State const & state, StateCacheEntry &cacheEntry)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::lookupNow: default method called!");
-    return UNKNOWN();
+    warn("InterfaceAdapter::lookupNow: default method called for state " << state);
+    cacheEntry.setUnknown();
   }
 
   void InterfaceAdapter::subscribe(const State& /* state */)
@@ -94,42 +91,24 @@ namespace PLEXIL
     debugMsg("InterfaceAdapter:setThresholds", " default method called");
   }
 
-  void InterfaceAdapter::sendPlannerUpdate(const NodeId& /* node */,
-                                           const std::map<std::string, Value>& /* valuePairs */,
-                                           ExpressionId /* ack */)
+  void InterfaceAdapter::setThresholds(const State& /* state */, int32_t /* hi */, int32_t /* lo */)
+  {
+    debugMsg("InterfaceAdapter:setThresholds", " default method called");
+  }
+
+  void InterfaceAdapter::sendPlannerUpdate(Update * /* upd */)
   {
     assertTrue(ALWAYS_FAIL,
                "InterfaceAdapter::updatePlanner: default method called!");
   }
 
-
-  // This default method is a wrapper for backward compatibility.
-  void InterfaceAdapter::executeCommand(const CommandId& cmd)
-  {
-    this->executeCommand(cmd->getName(), cmd->getArgValues(), cmd->getDest(), cmd->getAck());
-  }
-
-  // executes a command with the given arguments
-  void InterfaceAdapter::executeCommand(const LabelStr& /* name */,
-                                        const std::vector<Value>& /* args */,
-                                        ExpressionId /* dest */,
-                                        ExpressionId /* ack */)
+  void InterfaceAdapter::executeCommand(Command * /* cmd */)
   {
     assertTrue(ALWAYS_FAIL,
                "InterfaceAdapter::executeCommand: default method called!");
   }
 
-  // Abort the given command. Call method below for compatibility.
-  void InterfaceAdapter::invokeAbort(const CommandId& cmd)
-  {
-    this->invokeAbort(cmd->getName(), cmd->getArgValues(), cmd->getAbortComplete(), cmd->getAck());
-  }
-
-  //abort the given command with the given arguments.
-  void InterfaceAdapter::invokeAbort(const LabelStr& /* name */, 
-                                     const std::vector<Value>& /* args */, 
-                                     ExpressionId /* abort_ack */,
-                                     ExpressionId /* cmd_ack */)
+  void InterfaceAdapter::invokeAbort(Command * /* cmd */)
   {
     assertTrue(ALWAYS_FAIL,
                "InterfaceAdapter::invokeAbort: default method called!");

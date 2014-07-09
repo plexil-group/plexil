@@ -27,9 +27,11 @@
 #ifndef _H_AdapterExecInterface
 #define _H_AdapterExecInterface
 
-#include "ExecDefs.hh"
-#include "LabelStr.hh"
+#include "CommandHandle.hh"
+#include "Id.hh"
 #include "ParserException.hh"
+
+#include <vector>
 
 // forward reference
 namespace pugi
@@ -40,17 +42,22 @@ namespace pugi
 namespace PLEXIL
 {
   // forward references
-  class AdapterExecInterface;
-  typedef Id<AdapterExecInterface> AdapterExecInterfaceId;
-
-  class InterfaceAdapter;
-  typedef Id<InterfaceAdapter> InterfaceAdapterId;
+  class Command;
+  class State;
+  class Update;
+  class Value;
 
   class ResourceArbiterInterface;
   typedef Id<ResourceArbiterInterface> ResourceArbiterInterfaceId;
 
   class PlexilNode;
   typedef Id<PlexilNode> PlexilNodeId;
+
+  class AdapterExecInterface;
+  typedef Id<AdapterExecInterface> AdapterExecInterfaceId;
+
+  class InterfaceAdapter;
+  typedef Id<InterfaceAdapter> InterfaceAdapterId;
 
   /**
    * @brief An abstract base class representing the InterfaceManager API
@@ -82,7 +89,7 @@ namespace PLEXIL
      * @param intf The interface adapter to handle this command.
      * @return True if successful, false if there is already an adapter registered for this command.
      */
-    virtual bool registerCommandInterface(const LabelStr & commandName,
+    virtual bool registerCommandInterface(std::string const &commandName,
                                           InterfaceAdapterId intf) = 0;
 
     /**
@@ -93,7 +100,7 @@ namespace PLEXIL
      * @param intf The interface adapter to handle this lookup.
      * @return True if successful, false if there is already an adapter registered for this state name.
      */
-    virtual bool registerLookupInterface(const LabelStr & stateName,
+    virtual bool registerLookupInterface(std::string const &stateName,
                                          const InterfaceAdapterId& intf) = 0;
 
     /**
@@ -142,13 +149,13 @@ namespace PLEXIL
      * @brief Retract registration of the previous interface adapter for this command.  
      * @param commandName The command.
      */
-    virtual void unregisterCommandInterface(const LabelStr & commandName) = 0;
+    virtual void unregisterCommandInterface(std::string const &commandName) = 0;
 
     /**
      * @brief Retract registration of the previous interface adapter for this state.
      * @param stateName The state name.
      */
-    virtual void unregisterLookupInterface(const LabelStr & stateName) = 0;
+    virtual void unregisterLookupInterface(std::string const &stateName) = 0;
 
     /**
      * @brief Retract registration of the previous interface adapter for planner updates.
@@ -175,7 +182,7 @@ namespace PLEXIL
      specifically registered or default. May return NoId().
      * @param commandName The command.
      */
-    virtual InterfaceAdapterId getCommandInterface(const LabelStr & commandName) = 0;
+    virtual InterfaceAdapterId getCommandInterface(std::string const &commandName) = 0;
 
     /**
      * @brief Return the current default interface adapter for commands.
@@ -188,7 +195,7 @@ namespace PLEXIL
      whether specifically registered or default. May return NoId().
      * @param stateName The state.
      */
-    virtual InterfaceAdapterId getLookupInterface(const LabelStr & stateName) = 0;
+    virtual InterfaceAdapterId getLookupInterface(std::string const &stateName) = 0;
 
     /**
      * @brief Return the current default interface adapter. May return NoId().
@@ -224,36 +231,29 @@ namespace PLEXIL
      * @param state The state for the new value.
      * @param value The new value.
      */
-    virtual void handleValueChange(const State& state, const Value& value) = 0;
+    virtual void handleValueChange(State const &state, const Value& value) = 0;
 
-    /**
-     * @brief Notify of the availability of (e.g.) a command return or acknowledgement.
-     * @param exp The expression whose value is being returned.
-     * @param value The new value of the expression.
-     */
-    virtual void handleValueChange(const ExpressionId & exp,
-                                   const Value& value) = 0;
+    virtual void handleCommandReturn(Command * cmd, Value const& value) = 0;
+
+    virtual void handleCommandAck(Command * cmd, CommandHandleValue value) = 0;
+
+    virtual void handleCommandAbortAck(Command * cmd, bool ack) = 0;
+
+    virtual void handleUpdateAck(Update * upd, bool ack) = 0;
 
     /**
      * @brief Notify the executive of a new plan.
      * @param planXml The TinyXML representation of the new plan.
-     * @param parent The node which is the parent of the new node.
-     * @return False if the plan references unloaded libraries, true otherwise.
-     * @note This is deprecated, use the PlexilNodeId variant instead.
      */
-    virtual bool handleAddPlan(const pugi::xml_node& planXml,
-                               const LabelStr& parent)
+    virtual void handleAddPlan(const pugi::xml_node& planXml)
       throw(ParserException)
       = 0;
 
     /**
      * @brief Notify the executive of a new plan.
      * @param planStruct The PlexilNode representation of the new plan.
-     * @param parent The node which is the parent of the new node.
-     * @return False if the plan references unloaded libraries, true otherwise.
      */
-    virtual bool handleAddPlan(PlexilNodeId planStruct,
-                               const LabelStr& parent) = 0;
+    virtual void handleAddPlan(PlexilNodeId planStruct) = 0;
 
     /**
      * @brief Get the search path for library nodes.
@@ -321,11 +321,6 @@ namespace PLEXIL
      * @return Seconds since the epoch as a double float.
      */
     virtual double currentTime() = 0;
-
-    /**
-     * @brief Get the state cache for this instance of the interface.
-     */
-    virtual StateCacheId getStateCache() const = 0;
 
     //
     // Property list API (formerly on InterfaceManagerBase)

@@ -59,7 +59,7 @@ namespace PLEXIL
     /**
      * @brief Get the node's update structure.
      */
-    const UpdateId& getUpdate()
+    Update *getUpdate()
     {
       return m_update; 
     }
@@ -92,7 +92,7 @@ namespace PLEXIL
     void createUpdate(const PlexilUpdateBody* body);
     void createDummyUpdate(); // unit test variant
 
-    UpdateId m_update;
+    Update *m_update;
   };
 
 }

@@ -34,7 +34,6 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListener.hh"
-#include "Expressions.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "PlexilXmlParser.hh"
@@ -67,8 +66,8 @@ namespace PLEXIL
       m_blockedSignals[i] = 0;
 
     // connect exec and interface manager
-    m_exec.setExternalInterface(m_interface.getId());
-    m_interface.setExec(m_exec.getId());
+    g_exec = m_exec.getId();
+    g_interface = m_interface.getId();
   }
 
   ExecApplication::~ExecApplication()
@@ -117,7 +116,8 @@ namespace PLEXIL
     // *** NYI ***
 
     // Initialize Exec static data structures
-    initializeExpressions();
+    // *** FIXME ***
+    // initializeExpressions();
 
     // Construct interfaces
     if (! m_interface.constructInterfaces(configXml)) {
@@ -177,7 +177,7 @@ namespace PLEXIL
       if (m_interface.processQueue()) {
         do {
           debugMsg("ExecApplication:step", " Stepping exec");
-          m_exec.step();
+          m_exec.step(0.0); // *** FIXME ***
         }
         while (m_exec.needsStep());
         debugMsg("ExecApplication:step", " Step complete and all nodes quiescent");
@@ -206,7 +206,7 @@ namespace PLEXIL
       debugMsg("ExecApplication:stepUntilQuiescent", " Checking interface queue");
       while (m_interface.processQueue() || m_exec.needsStep()) {
         debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
-        m_exec.step();
+        m_exec.step(0.0); // *** FIXME ***
       }
       m_exec.deleteFinishedPlans();
     }
@@ -436,11 +436,7 @@ namespace PLEXIL
         std::cerr << "Error parsing plan from XML: \n" << e.what() << std::endl;
         return false;
       }
-
-      if (!m_interface.handleAddPlan(root, EMPTY_LABEL())) {
-        std::cerr << "Plan loading failed due to missing library node(s)" << std::endl;
-        return false;
-      }
+      m_interface.handleAddPlan(root);
     }
     debugMsg("ExecApplication:addPlan", " Plan added, stepping exec\n");
     m_interface.notifyOfExternalEvent();
@@ -518,7 +514,7 @@ namespace PLEXIL
 #endif
     if (stepFirst) {
       debugMsg("ExecApplication:runExec", " Stepping exec because stepFirst is set");
-      m_exec.step();
+      m_exec.step(0.0); // *** FIXME ***
     }
     else {
       m_exec.deleteFinishedPlans();
@@ -526,7 +522,7 @@ namespace PLEXIL
     while (!m_suspended && 
            (m_exec.needsStep() || m_interface.processQueue())) {
       debugMsg("ExecApplication:runExec", " Stepping exec");
-      m_exec.step();
+      m_exec.step(0.0); // *** FIXME ***
     }
     condDebugMsg(!m_suspended, "ExecApplication:runExec", " No events are pending");
     condDebugMsg(m_suspended, "ExecApplication:runExec", " Suspended");

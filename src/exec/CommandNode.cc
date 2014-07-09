@@ -86,7 +86,8 @@ namespace PLEXIL
    */
   CommandNode::CommandNode(const PlexilNodeId& nodeProto,
                            const NodeId& parent)
-    : Node(nodeProto, parent)
+    : Node(nodeProto, parent),
+      m_command(NULL)
   {
     checkError(nodeProto->nodeType() == NodeType_Command,
                "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
@@ -100,7 +101,8 @@ namespace PLEXIL
                            const std::string& name, 
                            const NodeState state,
                            const NodeId& parent)
-    : Node(type, name, state, parent)
+    : Node(type, name, state, parent),
+      m_command(NULL)
   {
     checkError(type == COMMAND(),
                "Invalid node type \"" << type << "\" for a CommandNode");
@@ -153,10 +155,10 @@ namespace PLEXIL
   {
     debugMsg("CommandNode:cleanUpNodeBody", " for " << m_nodeId);
 
-    if (m_command.isId()) {
+    if (m_command) {
       debugMsg("CommandNode:cleanUpNodeBody", "<" << m_nodeId << "> Removing command.");
-      delete (Command*) m_command;
-      m_command = CommandId::noId();
+      delete m_command;
+      m_command = NULL;
     }
   }
 
@@ -512,31 +514,26 @@ namespace PLEXIL
 
   void CommandNode::specializedHandleExecution()
   {
-    checkError(m_command.isValid(), "CommandNode::specializedHandleExecution: Command is invalid");
+    assertTrue_1(m_command);
     m_command->activate();
-    m_command->fixValues();
-    m_command->fixResourceValues();
-    g_interface->enqueueCommand(m_command);
+    m_command->execute();
   }
 
   void CommandNode::abort()
   {
-    checkError(m_command.isValid(), "CommandNode::abort: Command is invalid");
-    // Handle stupid unit test
-    if (g_interface.isId()) {
-      g_interface->abortCommand(m_command);
-    }
+    assertTrue_1(m_command);
+    m_command->abort();
   }
 
   void CommandNode::specializedDeactivateExecutable()
   {
-    checkError(m_command.isValid(), "CommandNode::specializedDeactivateExecutable: Command is invalid");
+    assertTrue_1(m_command);
     m_command->deactivate();
   }
 
   void CommandNode::specializedReset()
   {
-    checkError(m_command.isValid(), "CommandNode::specializedReset: Command is invalid");
+    assertTrue_1(m_command);
     m_command->reset();
   }
 
@@ -600,7 +597,7 @@ namespace PLEXIL
 
     debugMsg("Node:createCommand",
              "Creating command for node '" << m_nodeId << "'");
-    m_command = (new Command(nameExpr, args, garbage, dest, resourceList, getNodeId()))->getId();
+    m_command = new Command(nameExpr, args, garbage, dest, resourceList, getNodeId());
   }
 
   // Unit test variant of above
@@ -615,7 +612,7 @@ namespace PLEXIL
     // No resource
     ResourceList resourceList;
     m_command = 
-      (new Command(&sl_dummyCmdName, args, garbage, NULL, resourceList, getNodeId()))->getId();
+      new Command(&sl_dummyCmdName, args, garbage, NULL, resourceList, getNodeId());
   }
 
   void CommandNode::printCommandHandle(std::ostream& stream, const unsigned int indent) const

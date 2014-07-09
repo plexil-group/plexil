@@ -64,13 +64,11 @@ namespace PLEXIL
   typedef Id<ExternalInterface> ExternalInterfaceId;
 
   class Command;
-  typedef Id<Command> CommandId;
 
   class Assignment;
   typedef Id<Assignment> AssignmentId;
 
   class Update;
-  typedef Id<Update> UpdateId;
 
   typedef std::vector<Expression *> ExpressionVector;
   typedef std::vector<Expression *>::iterator ExpressionVectorIter;

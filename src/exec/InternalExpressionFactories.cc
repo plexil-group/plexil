@@ -230,9 +230,9 @@ namespace PLEXIL
     checkParserException(var, "createExpression: not a PlexilCommandHandleVar");
     NodeId target = node->findNodeRef(var->ref());
     checkParserException(target.isId(), "createExpression: Can't find node for CommandHandleVariable");
-    CommandNode const * cnode = dynamic_cast<CommandNode const *>((Node const *) target);
+    CommandNode *cnode = dynamic_cast<CommandNode *>((Node *) target);
     checkParserException(cnode, "createExpression: Node for CommandHandleVariable not a Command node");
-    CommandId cmd = cnode->getCommand();
+    Command *cmd = cnode->getCommand();
     checkParserException(cmd, "createExpression: Internal error: Command node has no Command");
     wasCreated = false;
     return cmd->getAck();

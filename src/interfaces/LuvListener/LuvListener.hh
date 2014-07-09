@@ -29,7 +29,7 @@
 
 #include "ConstantMacros.hh"
 #include "Id.hh"
-#include "ExecDefs.hh" // for NodeState
+#include "NodeConstants.hh"
 #include "ExecListener.hh"
 
 #include <string>
@@ -98,8 +98,7 @@ namespace PLEXIL
      * @param plan The intermediate representation of the plan.
      * @param parent The name of the parent node under which this plan will be inserted.
      */
-    void implementNotifyAddPlan(const PlexilNodeId& plan, 
-								const LabelStr& parent) const;
+    void implementNotifyAddPlan(const PlexilNodeId& plan) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
@@ -114,7 +113,7 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (in internal Exec representation) being assigned.
      */
-    void implementNotifyAssignment(const ExpressionId & dest,
+    void implementNotifyAssignment(Expression *dest,
 								   const std::string& destName,
 								   const Value& value) const;
 

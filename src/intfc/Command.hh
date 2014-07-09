@@ -38,20 +38,18 @@ namespace PLEXIL
   // - Move type names to common file shared with ResourceArbitrationInterface
   // - replace ResourceMap and ResourceValues with structs or classes
 
-  // Forward references
-  class Command;
-  DECLARE_ID(Command);
-
   // FIXME: conflicts with same name in ResourceArbiterInterface
   typedef std::map<std::string, Expression *> ResourceMap;
-
   typedef std::vector<ResourceMap> ResourceList;
+
+  // Shared with ResourceArbiterInterface.hh
   typedef std::map<std::string, Value> ResourceValues;
+
   typedef std::vector<ResourceValues> ResourceValuesList;
+
 
   class Command 
   {
-    friend class CommandNode;
     friend class CommandHandleVariable;
 
   public:
@@ -63,7 +61,6 @@ namespace PLEXIL
             std::string const &nodeName);
     ~Command();
 
-    const CommandId &getId() {return m_id;}
     Expression *getDest();
     Expression *getAck() {return &m_ack;}
     Expression *getAbortComplete() {return &m_abortComplete;}
@@ -73,14 +70,22 @@ namespace PLEXIL
     const ResourceValuesList &getResourceValues() const;
     CommandHandleValue getCommandHandle() const {return (CommandHandleValue) m_commandHandle;}
 
+    // Interface to CommandNode
     void activate();
     void deactivate();
     void reset();
 
-  protected:
+    void execute();
+    void abort();
 
-    void fixValues();
-    void fixResourceValues();
+    // Interface to ExternalInterface
+
+    // Delegates to m_dest
+    void returnValue(Value const &val);
+
+    void setCommandHandle(CommandHandleValue handle);
+    // Delegates to m_abortComplete
+    void acknowledgeAbort(bool ack);
 
   private:
     // Deliberately not implemented
@@ -88,7 +93,9 @@ namespace PLEXIL
     Command(const Command&);
     Command& operator=(const Command&);
 
-    CommandId m_id;
+    void fixValues();
+    void fixResourceValues();
+
     CommandHandleVariable m_ack;
     BooleanVariable m_abortComplete;
     State m_command;
@@ -98,8 +105,8 @@ namespace PLEXIL
     std::vector<Expression *> m_args;
     ResourceList m_resourceList;
     ResourceValuesList m_resourceValuesList;
-    uint16_t m_commandHandle;
-    bool m_fixed, m_resourceFixed;
+    uint16_t m_commandHandle; // accessed by CommandHandleVariable
+    bool m_fixed, m_resourceFixed, m_active;
   };
 
 }

@@ -65,25 +65,20 @@ namespace PLEXIL
     void setThresholds(const State& state, int32_t hi, int32_t lo);
 
     // Commands
-    void executeCommand(CommandId const &cmd);
-    void invokeAbort(CommandId const &cmd);
+    void executeCommand(Command *cmd);
+    void invokeAbort(Command *cmd);
 
     // Updates
-    void executeUpdate(UpdateId const &update) = 0;
+    void executeUpdate(Update * update);
 
     double currentTime();
 
   private:
     
-    typedef std::map<State, Expression *> ExpressionUtMap;
+    typedef std::map<State, Command *> StateCommandMap;
     typedef std::map<State, Value>        StateMap;
 
     void handleInitialState(const pugi::xml_node& input);
-
-    void setVariableValue(const std::string& source,
-                          Expression *expr,
-                          const Value& value);
-
     void handleState(const pugi::xml_node& elt);
     void handleCommand(const pugi::xml_node& elt);
     void handleCommandAck(const pugi::xml_node& elt);
@@ -92,12 +87,11 @@ namespace PLEXIL
     void handleSendPlan(const pugi::xml_node& elt);
     void handleSimultaneous(const pugi::xml_node& elt);
 
-    std::map<std::string, UpdateId> m_waitingUpdates;
-    ExpressionUtMap m_executingCommands; //map from commands to the destination variables
-    ExpressionUtMap m_commandAcks; //map from command to the acknowledgement variables
-    ExpressionUtMap m_abortingCommands;
+    std::map<std::string, Update *> m_waitingUpdates;
+    StateCommandMap m_executingCommands; //map from state to the command objects
+    StateCommandMap m_commandAcks; //map from state to commands awaiting ack
+    StateCommandMap m_abortingCommands; // map from state to commands expecting abort ack
     StateMap m_states; //uniquely identified states and their values
-    std::map<Expression *, CommandId> m_destToCmdMap;
     ResourceArbiterInterface m_raInterface;
   };
 }

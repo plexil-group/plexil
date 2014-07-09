@@ -39,9 +39,6 @@ namespace PLEXIL
   class PlexilUpdate;
   DECLARE_ID(PlexilUpdate);
 
-  class Update;
-  DECLARE_ID(Update);
-
   class Update 
   {
   public:
@@ -50,7 +47,6 @@ namespace PLEXIL
 
     typedef std::map<std::string, Value> PairValueMap;
 
-    const UpdateId& getId() const {return m_id;}
     Expression *getAck() {return &m_ack;}
     const PairValueMap& getPairs() const {return m_valuePairs;}
     NodeId getSource() const {return m_source;}
@@ -58,9 +54,10 @@ namespace PLEXIL
     void deactivate();
     void reset();
 
+    void execute();
+    void acknowledge(bool ack);
+
   protected:
-    friend class UpdateNode;
-    void fixValues();
 
   private:
     // Deliberately unimplemented
@@ -68,7 +65,8 @@ namespace PLEXIL
     Update(const Update&);
     Update& operator=(const Update&);
 
-    UpdateId m_id;
+    void fixValues();
+
     NodeId m_source;
     BooleanVariable m_ack;
     std::vector<Expression *> m_garbage;

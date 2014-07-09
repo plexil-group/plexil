@@ -65,7 +65,7 @@ namespace PLEXIL
 
     // Make it
     bool dummy;
-    return createInstance(LabelStr(adapterType), xml, execInterface, dummy);
+    return createInstance(adapterType, xml, execInterface, dummy);
   }
 
   /**
@@ -78,7 +78,7 @@ namespace PLEXIL
    */
 
   InterfaceAdapterId 
-  AdapterFactory::createInstance(const LabelStr& name,
+  AdapterFactory::createInstance(std::string const& name,
                                  const pugi::xml_node& xml,
                                  AdapterExecInterface& execInterface)
   {
@@ -98,12 +98,12 @@ namespace PLEXIL
    */
 
   InterfaceAdapterId 
-  AdapterFactory::createInstance(const LabelStr& name,
+  AdapterFactory::createInstance(std::string const& name,
                                  const pugi::xml_node& xml,
                                  AdapterExecInterface& execInterface,
                                  bool& wasCreated)
   {
-    std::map<LabelStr, AdapterFactory*>::const_iterator it = factoryMap().find(name);
+    std::map<std::string, AdapterFactory*>::const_iterator it = factoryMap().find(name);
 #ifdef HAVE_DLFCN_H
     if (it == factoryMap().end()) {
       debugMsg("AdapterFactory:createInstance", 
@@ -136,13 +136,13 @@ namespace PLEXIL
     return retval;
   }
 
-  bool AdapterFactory::isRegistered(const LabelStr& name) {
+  bool AdapterFactory::isRegistered(std::string const& name) {
     return factoryMap().find(name) != factoryMap().end();
   }
 
-  std::map<LabelStr, AdapterFactory*>& AdapterFactory::factoryMap() 
+  std::map<std::string, AdapterFactory*>& AdapterFactory::factoryMap() 
   {
-    static std::map<LabelStr, AdapterFactory*> sl_map;
+    static std::map<std::string, AdapterFactory*> sl_map;
     static bool sl_inited = false;
     if (!sl_inited) {
       addFinalizer(&purge);
@@ -156,7 +156,7 @@ namespace PLEXIL
    */
   void AdapterFactory::purge()
   {
-    for (std::map<LabelStr, AdapterFactory*>::iterator it = factoryMap().begin();
+    for (std::map<std::string, AdapterFactory*>::iterator it = factoryMap().begin();
          it != factoryMap().end();
          ++it)
       delete it->second;
@@ -168,7 +168,7 @@ namespace PLEXIL
    * @param name The name by which the Adapter shall be known.
    * @param factory The AdapterFactory instance.
    */
-  void AdapterFactory::registerFactory(const LabelStr& name, AdapterFactory* factory)
+  void AdapterFactory::registerFactory(std::string const& name, AdapterFactory* factory)
   {
     assertTrue(factory != NULL);
     if (factoryMap().find(name) != factoryMap().end()) {

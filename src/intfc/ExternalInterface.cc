@@ -26,6 +26,10 @@
 
 #include "ExternalInterface.hh"
 
+#include "Command.hh"
+#include "StateCacheMap.hh"
+#include "Update.hh"
+
 namespace PLEXIL
 {
   // Define global variable
@@ -68,7 +72,7 @@ namespace PLEXIL
   /**
    * @brief Schedule this command for execution.
    */
-  void ExternalInterface::enqueueCommand(const CommandId& cmd)
+  void ExternalInterface::enqueueCommand(Command *cmd)
   {
     m_commandsToExecute.push_back(cmd);
   }
@@ -77,7 +81,7 @@ namespace PLEXIL
   /**
    * @brief Abort the pending command.
    */
-  void ExternalInterface::abortCommand(CommandId const &cmd)
+  void ExternalInterface::abortCommand(Command *cmd)
   {
     this->invokeAbort(cmd);
   }
@@ -85,7 +89,7 @@ namespace PLEXIL
   /**
    * @brief Schedule this update for execution.
    */
-  void ExternalInterface::enqueueUpdate(const UpdateId& update)
+  void ExternalInterface::enqueueUpdate(Update *update)
   {
     m_updatesToExecute.push_back(update);
   }
@@ -95,12 +99,12 @@ namespace PLEXIL
    */
   void ExternalInterface::executeOutboundQueue()
   {
-    for (std::vector<CommandId>::iterator cit = m_commandsToExecute.begin();
+    for (std::vector<Command *>::iterator cit = m_commandsToExecute.begin();
          cit != m_commandsToExecute.end();
          ++cit)
       this->executeCommand(*cit);
     m_commandsToExecute.clear();
-    for (std::vector<UpdateId>::iterator uit = m_updatesToExecute.begin();
+    for (std::vector<Update *>::iterator uit = m_updatesToExecute.begin();
          uit != m_updatesToExecute.end();
          ++uit)
       this->executeUpdate(*uit);
@@ -111,5 +115,38 @@ namespace PLEXIL
   {
     return m_commandsToExecute.empty() && m_updatesToExecute.empty();
   }
+
+  void ExternalInterface::lookupReturn(State const &state, Value const &value)
+  {
+    StateCacheEntry *cacheEntry = StateCacheMap::instance().findStateCacheEntry(state);
+    // Silently ignore any data we don't know about
+    if (cacheEntry)
+      cacheEntry->update(m_cycleCount, value);
+  }
+
+  void ExternalInterface::commandReturn(Command *cmd, Value const &value)
+  {
+    assertTrue_1(cmd);
+    cmd->returnValue(value);
+  }
+
+  void ExternalInterface::commandHandleReturn(Command *cmd, CommandHandleValue val)
+  {
+    assertTrue_1(cmd);
+    cmd->setCommandHandle(val);
+  }
+
+  void ExternalInterface::commandAbortAcknowledge(Command *cmd, bool ack)
+  {
+    assertTrue_1(cmd);
+    cmd->acknowledgeAbort(ack);
+  }
+
+  void ExternalInterface::acknowledgeUpdate(Update *upd, bool val)
+  {
+    assertTrue_1(upd);
+    upd->acknowledge(val);
+  }
+
 }
 

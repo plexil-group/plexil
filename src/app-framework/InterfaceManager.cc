@@ -37,9 +37,8 @@
 
 #include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"
-#include "BooleanVariable.hh"
+#include "UserVariable.hh"
 #include "Command.hh"
-#include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "DummyAdapter.hh"
 #include "Error.hh"
@@ -51,11 +50,10 @@
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "ListenerFilters.hh"
-#include "Node.hh"
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
 #include "ResourceArbiterInterface.hh"
-#include "StateCache.hh"
+#include "StateCacheEntry.hh"
 #include "Update.hh"
 #include "UtilityAdapter.hh"
 
@@ -96,11 +94,8 @@ namespace PLEXIL
       m_interfaceManagerId(this, ExternalInterface::getId()),
       m_application(app),
       m_adapterConfig(),
-      m_valueQueue(),
       m_listenerHub((new ExecListenerHub())->getId()),
       m_adapters(),
-      m_ackToCmdMap(),
-      m_destToCmdMap(),
       m_raInterface(),
       m_currentTime(std::numeric_limits<double>::min()),
       m_lastMark(0)
@@ -132,10 +127,6 @@ namespace PLEXIL
    */
   InterfaceManager::~InterfaceManager()
   {
-    // unregister and delete listeners
-    m_exec->setExecListenerHub(ExecListenerHubId::noId());
-    delete (ExecListenerHub*) m_listenerHub; // deletes listeners too
-
     // unregister and delete adapters
     // *** kludge for buggy std::set template ***
     std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
@@ -149,12 +140,6 @@ namespace PLEXIL
     // we may not have initialized these!
     if (m_adapterConfig.isId())
       delete m_adapterConfig.operator->();
-  }
-
-  void InterfaceManager::setExec(const PlexilExecId& exec)
-  {
-    ExternalInterface::setExec(exec);
-    exec->setExecListenerHub(m_listenerHub);
   }
 
   //
