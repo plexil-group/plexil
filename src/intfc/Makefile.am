@@ -31,11 +31,11 @@ libPlexilIntfc_la_CPPFLAGS = -I@top_srcdir@/expr -I@top_srcdir@/utils \
  -I@top_srcdir@/third-party/pugixml/src
 
 include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
- CommandHandle.hh CommandHandleVariable.hh ExternalInterface.hh \
+ CommandHandleVariable.hh ExternalInterface.hh \
  InputQueue.hh Lookup.hh PlexilLookup.hh PlexilUpdate.hh QueueEntry.hh \
  SimpleInputQueue.hh State.hh StateCacheEntry.hh StateCacheMap.hh Update.hh
 
-libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc CommandHandle.cc \
+libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
  CommandHandleVariable.cc ExternalInterface.cc Lookup.cc LookupFactory.cc \
  PlexilLookup.cc QueueEntry.cc SimpleInputQueue.cc State.cc StateCacheEntry.cc \
  StateCacheMap.cc Update.cc

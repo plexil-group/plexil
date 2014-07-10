@@ -51,11 +51,16 @@ namespace PLEXIL
     return NO_COMMAND_HANDLE;
   }
 
-  std::string const &commandHandleValueName(CommandHandleValue c)
+  std::string const &commandHandleValueName(unsigned int c)
   {
     if (c <= NO_COMMAND_HANDLE || c >= COMMAND_HANDLE_MAX)
       return ALL_COMMAND_HANDLE_NAMES[0];
     return ALL_COMMAND_HANDLE_NAMES[c - NO_COMMAND_HANDLE];
+  }
+
+  bool isCommandHandleValid(unsigned int val)
+  {
+    return (val > NO_COMMAND_HANDLE && val < COMMAND_HANDLE_MAX);
   }
 
 } // namespace PLEXIL

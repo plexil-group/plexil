@@ -77,7 +77,7 @@ namespace PLEXIL
      * @param nodeName The name of the library node.
      * @return The library node, or noId() if not found.
      */
-    const PlexilNodeId getLibrary(const std::string& nodeName) const;
+    PlexilNodeId getLibrary(const std::string& nodeName) const;
 
     //
     // API to ExternalInterface
@@ -86,8 +86,9 @@ namespace PLEXIL
     /**
      * @brief Prepare the given plan for execution.
      * @param Intermediate representation of the plan's root node.
+     * @return True if succesful, false otherwise.
      */
-    void addPlan(PlexilNodeId const &plan);
+    bool addPlan(PlexilNodeId const &plan);
 
     /**
      * @brief Add the given plan as a library node.

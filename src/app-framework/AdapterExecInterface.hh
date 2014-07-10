@@ -233,12 +233,32 @@ namespace PLEXIL
      */
     virtual void handleValueChange(State const &state, const Value& value) = 0;
 
-    virtual void handleCommandReturn(Command * cmd, Value const& value) = 0;
-
+    /**
+     * @brief Notify of the availability of a command handle value for a command.
+     * @param cmd Pointer to the Command instance.
+     * @param value The new value.
+     */
     virtual void handleCommandAck(Command * cmd, CommandHandleValue value) = 0;
 
+    /**
+     * @brief Notify of the availability of a return value for a command.
+     * @param cmd Pointer to the Command instance.
+     * @param value The new value.
+     */
+    virtual void handleCommandReturn(Command * cmd, Value const& value) = 0;
+
+    /**
+     * @brief Notify of the availability of a command abort acknowledgment.
+     * @param cmd Pointer to the Command instance.
+     * @param ack The acknowledgment value.
+     */
     virtual void handleCommandAbortAck(Command * cmd, bool ack) = 0;
 
+    /**
+     * @brief Notify of the availability of a planner update acknowledgment.
+     * @param upd Pointer to the Update instance.
+     * @param ack The acknowledgment value.
+     */
     virtual void handleUpdateAck(Update * upd, bool ack) = 0;
 
     /**

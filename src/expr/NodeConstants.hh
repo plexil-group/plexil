@@ -109,7 +109,7 @@ namespace PLEXIL {
    * @brief Get the name of this outcome.
    * @return Pointer to one of the outcome names.
    */
-  extern std::string const &outcomeName(NodeOutcome o);
+  extern std::string const &outcomeName(unsigned int o);
 
   /**
    * @brief Test whether the value is a valid NodeOutcome value.
@@ -149,7 +149,7 @@ namespace PLEXIL {
    * @brief Get the name of this failure type.
    * @return Pointer to one of the names.
    */
-  extern std::string const &failureTypeName(FailureType f);
+  extern std::string const &failureTypeName(unsigned int f);
 
   /**
    * @brief Test whether the value is a valid FailureType value.

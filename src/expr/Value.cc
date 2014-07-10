@@ -27,7 +27,9 @@
 #include "Value.hh"
 
 #include "ArrayImpl.hh"
+#include "CommandHandle.hh"
 #include "Error.hh"
+#include "NodeConstants.hh"
 
 namespace PLEXIL
 {
@@ -619,10 +621,19 @@ namespace PLEXIL
       break;
 
     case NODE_STATE_TYPE:
+      s << nodeStateName(m_value.enumValue);
+      break;
+
     case OUTCOME_TYPE:
+      s << outcomeName(m_value.enumValue);
+      break;
+
     case FAILURE_TYPE:
+      s << failureTypeName(m_value.enumValue);
+      break;
+
     case COMMAND_HANDLE_TYPE:
-      s << "<INTERNAL_TYPE_NYI>";
+      s << commandHandleValueName(m_value.enumValue);
       break;
 
     default:

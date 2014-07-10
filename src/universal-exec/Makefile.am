@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,12 +26,13 @@
 bin_PROGRAMS = universalExec
 universalExec_SOURCES = UniversalExec.cc
 
-universalExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
+universalExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc \
  -I@top_srcdir@/exec -I@top_srcdir@/app-framework
 
 universalExec_LDADD = ../app-framework/libPlexilAppFramework.la \
- ../exec/libPlexilExec.la ../utils/libPlexilUtils.la \
- ../third-party/pugixml/src/libpugixml.la
+ ../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
+ ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
 
 if DEBUG_LISTENER_OPT
   universalExec_LDADD += ../interfaces/PlanDebugListener/libPlanDebugListener.la

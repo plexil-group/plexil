@@ -84,7 +84,7 @@ namespace PLEXIL
    * @param nodeName The name of the library node.
    * @return The library node, or noId() if not found.
    */
-  const PlexilNodeId PlexilExec::getLibrary(const std::string& nodeName) const
+  PlexilNodeId PlexilExec::getLibrary(const std::string& nodeName) const
   {
     checkError(!nodeName.empty(),
                "PlexilExec::getLibrary: Node name is empty");
@@ -138,12 +138,12 @@ namespace PLEXIL
 
   // Add a plan
 
-  void PlexilExec::addPlan(PlexilNodeId const &plan) 
+  bool PlexilExec::addPlan(PlexilNodeId const &plan) 
   {
     // Try to link any library calls
     if (!plan->link(m_libraries)) {
       debugMsg("PlexilExec:addPlan", " library linking failed");
-      return;
+      return false;
     }
 
     // Try to construct the node, 
@@ -161,7 +161,7 @@ namespace PLEXIL
       if (!wasThrowEnabled)
         Error::doNotThrowExceptions();
       debugMsg("PlexilExec:addPlan", " failed: " << e);
-      return;
+      return false;
     }
     if (!wasThrowEnabled)
       Error::doNotThrowExceptions();
@@ -173,8 +173,8 @@ namespace PLEXIL
              "Added plan: " << std::endl << root->toString());
     if (m_listener.isId())
       m_listener->notifyOfAddPlan(plan);
-    root->conditionChanged();
-    return;
+    root->conditionChanged(); // redundant?
+    return true;
   }
 
   /**

@@ -83,20 +83,20 @@ namespace PLEXIL
     /**
      * @brief Add the plan under the node named by the parent.
      * @param plan The intermediate representation of the plan.
-     * @note If the plan references any library nodes, they are linked in.
+     * @return True if succesful, false otherwise.
      */
-    void addPlan(PlexilNodeId const &plan);
+    virtual bool addPlan(PlexilNodeId const &plan) = 0;
 
     /**
      * @brief Add the node to the known libraries.
      * @param plan The intermediate representation of the node.
      */
-    void addLibraryNode(PlexilNodeId const &lib);
+    virtual void addLibraryNode(PlexilNodeId const &lib) = 0;
 
     /**
      * @brief Get the named library.
      */
-    PlexilNodeId getLibrary(std::string const &name);
+    virtual PlexilNodeId getLibrary(std::string const &name) const = 0;
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
@@ -108,6 +108,14 @@ namespace PLEXIL
      */
     virtual bool needsStep() const = 0;
 
+    /**
+     * @brief Set the ExecListenerHub instance.
+     */
+    virtual void setExecListenerHub(const ExecListenerHubId& hub) = 0;
+
+    /**
+     * @brief Get the ExecListenerHub instance.
+     */
     virtual const ExecListenerHubId& getExecListenerHub() const = 0;
 
   private:

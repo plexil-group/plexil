@@ -24,8 +24,8 @@
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 bin_PROGRAMS = TestExec
-noinst_HEADERS = ExecTestRunner.hh
-TestExec_SOURCES = exec-test-runner.cc ExecTestRunner.cc
+noinst_HEADERS = ExecTestRunner.hh TestExternalInterface.hh 
+TestExec_SOURCES = exec-test-runner.cc ExecTestRunner.cc TestExternalInterface.cc 
 
 # Try to get right library ordering
 TestExec_LDADD =
@@ -50,7 +50,7 @@ if VIEWER_OPT
    -I@top_srcdir@/interfaces/Sockets
 endif
 
-TestExec_LDADD += ../../exec/libPlexilExec.la ../../exec/libPlexilIntfc.la \
- ../../exec/libPlexilExpr.la ../../utils/libPlexilUtils.la \
+TestExec_LDADD += ../../exec/libPlexilExec.la ../../intfc/libPlexilIntfc.la \
+ ../../expr/libPlexilExpr.la ../../utils/libPlexilUtils.la \
  ../../third-party/pugixml/src/libpugixml.la
 

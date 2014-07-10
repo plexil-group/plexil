@@ -33,6 +33,7 @@
 #include "ConcreteExpressionFactory.hh"
 #include "Constant.hh"
 #include "FunctionFactory.hh"
+#include "NodeConstantExpressions.hh"
 #include "StringOperators.hh"
 #include "lifecycle-utils.h"
 
@@ -86,6 +87,12 @@ namespace PLEXIL
   ENSURE_FUNCTION_FACTORY(SquareRoot<double>);
   ENSURE_FUNCTION_FACTORY(RealToInteger);
 
+  // Named constants
+  ENSURE_NAMED_CONSTANT_FACTORY(NodeStateConstant);
+  ENSURE_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant);
+  ENSURE_NAMED_CONSTANT_FACTORY(FailureTypeConstant);
+  ENSURE_NAMED_CONSTANT_FACTORY(CommandHandleConstant);
+
   void registerBasicExpressionFactories()
   {
     static bool sl_inited = false;
@@ -101,6 +108,12 @@ namespace PLEXIL
       REGISTER_EXPRESSION(IntegerArrayConstant, IntegerArrayValue);
       REGISTER_EXPRESSION(RealArrayConstant, RealArrayValue);
       REGISTER_EXPRESSION(StringArrayConstant, StringArrayValue);
+
+      // Named constants
+      REGISTER_NAMED_CONSTANT_FACTORY(NodeStateConstant, NodeStateValue);
+      REGISTER_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant, NodeOutcomeValue);
+      REGISTER_NAMED_CONSTANT_FACTORY(FailureTypeConstant, NodeFailureValue);
+      REGISTER_NAMED_CONSTANT_FACTORY(CommandHandleConstant, NodeCommandHandleValue);
 
       // Variables
       REGISTER_EXPRESSION(BooleanVariable, BooleanVariable);

@@ -34,19 +34,17 @@ include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecDefs.hh ExecListener.hh ExecListenerBase.hh \
  ExecListenerFilter.hh ExecListenerFilterFactory.hh ExecListenerHub.hh \
  Expressions.hh InterfaceSchema.hh InternalExpressionFactories.hh \
- LibraryCallNode.hh ListNode.hh Node.hh NodeConstantExpressions.cc \
- NodeConstants.hh NodeFactory.hh NodeTimepointValue.hh \
+ LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh NodeTimepointValue.hh \
  NodeVariables.hh PlexilExec.hh PlexilPlan.hh PlexilResource.hh \
- PlexilXmlParser.hh ResourceArbiterInterface.hh TestExternalInterface.hh \
- UpdateNode.hh plan-utils.hh resource-tags.hh
+ PlexilXmlParser.hh ResourceArbiterInterface.hh UpdateNode.hh plan-utils.hh \
+ resource-tags.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  ExecConnector.cc ExecListener.cc ExecListenerFilter.cc \
- ExecListenerFilterFactory.cc ExecListenerHub.cc InterfaceSchema.cc \
- InternalExpressionFactories.cc LibraryCallNode.cc ListNode.cc Node.cc \
- NodeConstantExpressions.cc NodeConstants.cc NodeFactory.cc \
- NodeTimepointValue.cc NodeVariables.cc PlexilExec.cc PlexilPlan.cc \
- PlexilXmlParser.cc ResourceArbiterInterface.cc TestExternalInterface.cc \
+ ExecListenerFilterFactory.cc ExecListenerHub.cc Expressions.cc \
+ InterfaceSchema.cc InternalExpressionFactories.cc LibraryCallNode.cc \
+ ListNode.cc Node.cc NodeFactory.cc NodeTimepointValue.cc NodeVariables.cc \
+ PlexilExec.cc PlexilPlan.cc PlexilXmlParser.cc ResourceArbiterInterface.cc \
  UpdateNode.cc plan-utils.cc resource-tags.cc
 
 if MODULE_TESTS_OPT

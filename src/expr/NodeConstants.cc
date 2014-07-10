@@ -99,7 +99,7 @@ namespace PLEXIL
     return NO_OUTCOME;
   }
 
-  std::string const &outcomeName(NodeOutcome o)
+  std::string const &outcomeName(unsigned int o)
   {
     if (o <= NO_OUTCOME || o >= OUTCOME_MAX)
       return ALL_OUTCOME_NAMES[0];
@@ -119,7 +119,7 @@ namespace PLEXIL
     return NO_FAILURE;
   }
 
-  std::string const &failureTypeName(FailureType f)
+  std::string const &failureTypeName(unsigned int f)
   {
     if (f <= NO_FAILURE || f >= FAILURE_TYPE_MAX)
       return ALL_FAILURE_NAMES[0];

@@ -53,18 +53,19 @@ using namespace PLEXIL;
 class TransitionExecConnector : public ExecConnector
 {
 public:
-  TransitionExecConnector() : ExecConnector(), m_executed(false) {}
+  TransitionExecConnector() : ExecConnector() {}
   void notifyNodeConditionChanged(NodeId /* node */) {}
   void handleConditionsChanged(const NodeId& /* node */, NodeState /* newState */) {}
   void enqueueAssignment(const AssignmentId& /* assign */) {}
   void enqueueAssignmentForRetraction(const AssignmentId& /* assign */) {}
   void markRootNodeFinished(const NodeId& /* node */) {}
+  bool addPlan(PlexilNodeId const & /* plan */) { return false; }
+  void addLibraryNode(PlexilNodeId const & /* lib */) {}
+  PlexilNodeId getLibrary(std::string const & /* name */) const { return PlexilNodeId::noId(); }
   void step(double /* startTime */) {}
   bool needsStep() const {return false;}
+  void setExecListenerHub(const ExecListenerHubId& /* hub */) {}
   const ExecListenerHubId& getExecListenerHub() const { return ExecListenerHubId::noId(); }
-
-private:
-  bool m_executed;
 };
 
 class TransitionExternalInterface : public ExternalInterface

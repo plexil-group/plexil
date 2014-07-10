@@ -27,86 +27,11 @@
 #ifndef PLEXIL_INTERNAL_EXPRESSION_FACTORIES_HH
 #define PLEXIL_INTERNAL_EXPRESSION_FACTORIES_HH
 
-#include "ConcreteExpressionFactory.hh"
-
 namespace PLEXIL
 {
-  // Forward references
-  class NodeTimepointValue;
-  class PlexilTimepointVar;
 
-  // Specialization for node constants
-  template <>
-  class ConcreteExpressionFactory<Constant<uint16_t> > : public ExpressionFactory
-  {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
+  extern void registerInternalExpressionFactories();
 
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
-                         bool &wasCreated) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-  
-  // Specialization for internal variables
-  template <>
-  class ConcreteExpressionFactory<UserVariable<uint16_t> > : public ExpressionFactory
-  {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
-
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
-                         bool &wasCreated) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-  
-  // Specialization for node timepoint references
-  template <>
-  class ConcreteExpressionFactory<NodeTimepointValue> : public ExpressionFactory
-  {
-  public:
-    ConcreteExpressionFactory(const std::string& name);
-    ~ConcreteExpressionFactory();
-
-    Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
-                         bool &wasCreated) const;
-
-  private:
-    Expression *create(PlexilTimepointVar const *var,
-                       NodeConnectorId const &node) const;
-
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-  
 } // namespace PLEXIL
 
 #endif // PLEXIL_INTERNAL_EXPRESSION_FACTORIES_HH

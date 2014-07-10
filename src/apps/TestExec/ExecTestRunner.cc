@@ -28,7 +28,6 @@
 
 #include "ExecTestRunner.hh"
 
-#include "CoreExpressions.hh"
 #include "Debug.hh"
 #include "ExecListenerHub.hh"
 #include "Expressions.hh"
@@ -211,10 +210,10 @@ int ExecTestRunner::run(int argc, char** argv)
   // create the exec
 
   TestExternalInterface intf;
-  PlexilExecId exec = (new PlexilExec())->getId();
-  intf.setExec(exec);
+  g_interface = intf.getId();
+  g_exec = (new PlexilExec())->getId();
   ExecListenerHub hub;
-  exec->setExecListenerHub(hub.getId());
+  g_exec->setExecListenerHub(hub.getId());
 
 
 #if HAVE_DEBUG_LISTENER
@@ -252,7 +251,8 @@ int ExecTestRunner::run(int argc, char** argv)
       warn("XML error parsing library file '" << *libraryName
            << "' (offset " << parseResult.offset
            << "):\n" << parseResult.description());
-      delete (PlexilExec*) exec;
+      delete (PlexilExec *) g_exec;
+      g_exec = ExecConnectorId::noId();
       return 1;
     }
 
@@ -263,11 +263,12 @@ int ExecTestRunner::run(int argc, char** argv)
     } 
     catch (ParserException& e) {
       warn("XML error parsing library '" << *libraryName << "':\n" << e.what());
-      delete (PlexilExec*) exec;
+      delete (PlexilExec *) g_exec;
+      g_exec = ExecConnectorId::noId();
       return 1;
     }
 
-    exec->addLibraryNode(libnode);
+    g_exec->addLibraryNode(libnode);
   }
 
   // Load the plan
@@ -279,7 +280,8 @@ int ExecTestRunner::run(int argc, char** argv)
       warn("XML error parsing plan file '" << planName
            << "' (offset " << parseResult.offset
            << "):\n" << parseResult.description());
-      delete (PlexilExec*) exec;
+      delete (PlexilExec *) g_exec;
+      g_exec = ExecConnectorId::noId();
       return 1;
     }
 
@@ -290,7 +292,8 @@ int ExecTestRunner::run(int argc, char** argv)
     }
     catch (ParserException& e) {
       warn("XML error parsing plan '" << planName << "':\n" << e.what());
-      delete (PlexilExec*) exec;
+      delete (PlexilExec *) g_exec;
+      g_exec = ExecConnectorId::noId();
       return 1;
     }
 
@@ -304,7 +307,7 @@ int ExecTestRunner::run(int argc, char** argv)
         // COPY the string because its location may change out from under us!
         const std::string libname(libs[i]);
 
-        PlexilNodeId libroot = exec->getLibrary(libname);
+        PlexilNodeId libroot = g_exec->getLibrary(libname);
         if (libroot.isNoId()) {
           // Try to load the library
           libroot = PlexilXmlParser::findLibraryNode(libname, libraryPaths);
@@ -313,12 +316,13 @@ int ExecTestRunner::run(int argc, char** argv)
                  << " failed because library " << libname
                  << " could not be loaded");
             delete (PlexilNode*) root;
-            delete (PlexilExec*) exec;
+            delete (PlexilExec *) g_exec;
+            g_exec = ExecConnectorId::noId();
             return 1;
           }
 
           // add the library node
-          exec->addLibraryNode(libroot);
+          g_exec->addLibraryNode(libroot);
         }
 
         // Make note of any dependencies in the library itself
@@ -326,10 +330,11 @@ int ExecTestRunner::run(int argc, char** argv)
       }
     }
 
-    if (!exec->addPlan(root)) {
+    if (!g_exec->addPlan(root)) {
       warn("Adding plan " << planName << " failed");
       delete (PlexilNode*) root;
-      delete (PlexilExec*) exec;
+      delete (PlexilExec *) g_exec;
+      g_exec = ExecConnectorId::noId();
       return 1;
     }
     delete (PlexilNode*) root;
@@ -346,7 +351,8 @@ int ExecTestRunner::run(int argc, char** argv)
                              "(offset " << parseResult.offset
                              << ") XML error parsing script '" << scriptName << "': "
                              << parseResult.description());
-        delete (PlexilExec*) exec;
+        delete (PlexilExec *) g_exec;
+        g_exec = ExecConnectorId::noId();
         return 1;
       }
     }
@@ -356,7 +362,8 @@ int ExecTestRunner::run(int argc, char** argv)
     pugi::xml_node scriptElement = script.child("PLEXILScript");
     if (scriptElement.empty()) {
       warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
-      delete (PlexilExec*) exec;
+      delete (PlexilExec *) g_exec;
+      g_exec = ExecConnectorId::noId();
       return 1;
     }
     intf.run(scriptElement);
@@ -365,7 +372,9 @@ int ExecTestRunner::run(int argc, char** argv)
 
   // clean up
 
-  delete (PlexilExec*) exec;
+  delete (PlexilExec *) g_exec;
+  g_exec = ExecConnectorId::noId();
+
   return 0;
 }
 

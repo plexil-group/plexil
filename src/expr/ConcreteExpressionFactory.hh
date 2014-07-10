@@ -92,6 +92,8 @@ namespace PLEXIL
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
 
+  // Specialization for array constants
+
   template <typename T>
   class ConcreteExpressionFactory<Constant<ArrayImpl<T> > > : public ExpressionFactory
   {

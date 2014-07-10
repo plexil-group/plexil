@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -129,7 +129,8 @@ am_universalExec_OBJECTS = universalExec-UniversalExec.$(OBJEXT)
 universalExec_OBJECTS = $(am_universalExec_OBJECTS)
 universalExec_DEPENDENCIES =  \
 	../app-framework/libPlexilAppFramework.la \
-	../exec/libPlexilExec.la ../utils/libPlexilUtils.la \
+	../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la \
+	../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \
 	../third-party/pugixml/src/libpugixml.la $(am__append_1) \
 	$(am__append_3)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -325,10 +326,12 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 universalExec_SOURCES = UniversalExec.cc
 universalExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
-	-I@top_srcdir@/utils -I@top_srcdir@/exec \
-	-I@top_srcdir@/app-framework $(am__append_2)
+	-I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc \
+	-I@top_srcdir@/exec -I@top_srcdir@/app-framework \
+	$(am__append_2)
 universalExec_LDADD = ../app-framework/libPlexilAppFramework.la \
-	../exec/libPlexilExec.la ../utils/libPlexilUtils.la \
+	../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la \
+	../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \
 	../third-party/pugixml/src/libpugixml.la $(am__append_1) \
 	$(am__append_3)
 all: all-am

@@ -63,7 +63,14 @@ namespace PLEXIL
    * @brief Get the name of this command handle value.
    * @return Pointer to one of the names.
    */
-  extern std::string const &commandHandleValueName(CommandHandleValue c);
+  extern std::string const &commandHandleValueName(unsigned int c);
+
+  /**
+   * @brief Test whether the value is a valid CommandHandle value.
+   * @param val The value to check.
+   * @return True if valid, false otherwise.
+   */
+  extern bool isCommandHandleValid(unsigned int val);
 
 } // namespace PLEXIL
 
