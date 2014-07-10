@@ -139,7 +139,7 @@ namespace PLEXIL
    */
   void ExecListenerFactory::registerFactory(std::string const &name, ExecListenerFactory* factory)
   {
-    assertTrue(factory != NULL);
+    assertTrue_1(factory != NULL);
     if (factoryMap().find(name) != factoryMap().end())
       {
         warn("Attempted to register an exec listener factory for name \""

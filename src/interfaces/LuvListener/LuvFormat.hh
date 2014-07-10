@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,19 +29,17 @@
 
 #include "ConstantMacros.hh"
 #include "Id.hh"
-#include "ExecDefs.hh" // for NodeState
+#include "NodeConstants.hh"
+#include "Value.hh"
 #include "pugixml.hpp" // for pugi::format_raw
+
 #include <iosfwd>
 #include <string>
 
 namespace PLEXIL {
 
   // Forward references in PLEXIL namespace
-
-  class LabelStr;
-
   class Expression;
-  typedef Id<Expression> ExpressionId;
 
   class Node;
   typedef Id<Node> NodeId;
@@ -91,7 +89,7 @@ namespace PLEXIL {
      * @param s The stream to write the XML to.
      * @param block Whether the viewer should block.
      */
-    static void formatPlanInfo(std::ostream& s, bool block);
+    static void formatPlanInfo(std::ostream &s, bool block);
 
     /**
      * @brief Construct the node state transition XML.
@@ -99,7 +97,7 @@ namespace PLEXIL {
      * @param prevState The state from which the node is transitioning.
      * @param node The node.
      */
-    static void formatTransition(std::ostream& s, 
+    static void formatTransition(std::ostream &s, 
                                  NodeState prevState,
                                  const NodeId& node);
 
@@ -110,10 +108,10 @@ namespace PLEXIL {
      * @param destName The variable name of the expression.
      * @param value The internal representation of the new value.
      */
-    static void formatAssignment(std::ostream& s,
-                                 const ExpressionId& dest,
-                                 const std::string& destName,
-                                 const Value& value);
+    static void formatAssignment(std::ostream &s,
+                                 Expression const *dest,
+                                 std::string const &destName,
+                                 Value const &value);
 
     /**
      * @brief Construct the message representing a new plan.
@@ -121,9 +119,8 @@ namespace PLEXIL {
      * @param plan The intermediate representation of the new plan.
      * @param parent The node ID of the parent (currently ignored).
      */
-    static void formatPlan(std::ostream& s,
-                           const PlexilNodeId& plan, 
-                           const LabelStr& parent);
+    static void formatPlan(std::ostream &s,
+                           PlexilNodeId const &plan);
 
     /**
      * @brief Construct the message representing a new library node.

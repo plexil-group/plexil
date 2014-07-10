@@ -170,7 +170,7 @@ namespace PLEXIL
    */
   void AdapterFactory::registerFactory(std::string const& name, AdapterFactory* factory)
   {
-    assertTrue(factory != NULL);
+    assertTrue_1(factory != NULL);
     if (factoryMap().find(name) != factoryMap().end()) {
       warn("Attempted to register an adapter factory for name \""
            << name.c_str()

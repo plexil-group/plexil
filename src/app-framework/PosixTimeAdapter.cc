@@ -105,10 +105,10 @@ namespace PLEXIL
   {
     // Mask SIGUSR1 at the process level
     sigset_t mask;
-    assertTrue(0 == sigemptyset(&mask),
-               "PosixTimeAdapter::configureSignalHandling: sigemptyset failed!");
-    assertTrue(0 == sigaddset(&mask, SIGUSR1),
-               "PosixTimeAdapter::configureSignalHandling: sigaddset failed!");
+    assertTrue_2(0 == sigemptyset(&mask),
+                 "PosixTimeAdapter::configureSignalHandling: sigemptyset failed!");
+    assertTrue_2(0 == sigaddset(&mask, SIGUSR1),
+                 "PosixTimeAdapter::configureSignalHandling: sigaddset failed!");
     assertTrueMsg(0 == sigprocmask(SIG_BLOCK, &mask, NULL),
                   "PosixTimeAdapter::configureSignalHandling: sigprocmask failed, errno = "
                   << errno);
@@ -209,16 +209,16 @@ namespace PLEXIL
    */
   bool PosixTimeAdapter::configureWaitThreadSigmask(sigset_t* mask)
   {
-    assertTrue(0 == sigemptyset(mask),
-               "PosixTimeAdapter::configureWaitThreadSigmask: sigemptyset failed!");
+    assertTrue_2(0 == sigemptyset(mask),
+                 "PosixTimeAdapter::configureWaitThreadSigmask: sigemptyset failed!");
     int errnum = sigaddset(mask, SIGALRM);
     errnum = errnum | sigaddset(mask, SIGINT);
     errnum = errnum | sigaddset(mask, SIGHUP);
     errnum = errnum | sigaddset(mask, SIGQUIT);
     errnum = errnum | sigaddset(mask, SIGTERM);
     errnum = errnum | sigaddset(mask, SIGUSR2);
-    assertTrue(errnum == 0,
-               "PosixTimeAdapter::configureWaitThreadSigmask: sigaddset failed!");
+    assertTrue_2(errnum == 0,
+                 "PosixTimeAdapter::configureWaitThreadSigmask: sigaddset failed!");
     return errnum == 0;
   }
 
@@ -230,10 +230,10 @@ namespace PLEXIL
   bool PosixTimeAdapter::initializeSigwaitMask(sigset_t* mask)
   {
     // listen only for SIGUSR1
-    assertTrue(0 == sigemptyset(mask),
-               "PosixTimeAdapter::initializeSigwaitMask: sigemptyset failed!");
-    assertTrue(0 == sigaddset(mask, SIGUSR1),
-               "PosixTimeAdapter::initializeSigwaitMask: sigaddset failed!");
+    assertTrue_2(0 == sigemptyset(mask),
+                 "PosixTimeAdapter::initializeSigwaitMask: sigemptyset failed!");
+    assertTrue_2(0 == sigaddset(mask, SIGUSR1),
+                 "PosixTimeAdapter::initializeSigwaitMask: sigaddset failed!");
     return true;
   }
 

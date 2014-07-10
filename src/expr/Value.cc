@@ -637,6 +637,13 @@ namespace PLEXIL
     return s;
   }
 
+  std::string Value::valueToString() const
+  {
+    std::ostringstream s;
+    print(s);
+    return s.str();
+  }
+
   // Issues:
   // - is unknown always equal to unknown?
   bool Value::equals(Value const &other) const

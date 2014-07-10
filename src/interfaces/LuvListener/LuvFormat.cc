@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,12 +25,10 @@
 */
 
 #include "LuvFormat.hh"
-#include "Expression.hh"
+#include "Assignable.hh"
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "PlexilXmlParser.hh"
-#include "Variable.hh"
-
 #include "pugixml.hpp"
 
 #include <iostream>
@@ -111,12 +109,12 @@ namespace PLEXIL {
   {
     simpleStartTag(s, LuvFormat::CONDITIONS_TAG());
 
-    const std::vector<LabelStr>& allConditions = node->ALL_CONDITIONS();
-    for (std::vector<LabelStr>::const_iterator conditionName = allConditions.begin();
+    const std::vector<std::string>& allConditions = node->ALL_CONDITIONS();
+    for (std::vector<std::string>::const_iterator conditionName = allConditions.begin();
          conditionName != allConditions.end();
          ++conditionName) {
-      ExpressionId cond = node->getCondition(*conditionName);
-      if (cond.isId()) {
+      Expression const *cond = node->getCondition(*conditionName);
+      if (cond) {
         simpleTextElement(s, 
                           conditionName->c_str(), 
                           cond->valueString().c_str());
@@ -158,10 +156,10 @@ namespace PLEXIL {
     simpleTextElement(s, NODE_STATE_TAG(), node->getStateName().c_str());
 
     // add outcome
-    simpleTextElement(s, NODE_OUTCOME_TAG(), node->getOutcome().valueToString().c_str());
+    simpleTextElement(s, NODE_OUTCOME_TAG(), outcomeName(node->getOutcome()).c_str());
 
     // add failure type
-    simpleTextElement(s, NODE_FAILURE_TYPE_TAG(), node->getFailureType().valueToString().c_str());
+    simpleTextElement(s, NODE_FAILURE_TYPE_TAG(), failureTypeName(node->getFailureType()).c_str());
       
     // add the condition states
     formatConditions(s, node);
@@ -180,15 +178,15 @@ namespace PLEXIL {
    * @param value The internal representation of the new value.
    */
   void LuvFormat::formatAssignment(std::ostream& s, 
-                                   const ExpressionId& dest,
-                                   const std::string& destName,
-                                   const Value& value) {
+                                   Expression const *dest,
+                                   std::string const &destName,
+                                   Value const &value) {
     simpleStartTag(s, ASSIGNMENT_TAG());
 
     // format variable name
     simpleStartTag(s, VARIABLE_TAG());
     // get path to node, if any
-    const NodeId node = ((VariableId) dest)->getNode();
+    const NodeId node = dest->asAssignable()->getNode();
     if (node.isId()) 
       formatNodePath(s, node);
 
@@ -198,7 +196,7 @@ namespace PLEXIL {
     endTag(s, VARIABLE_TAG());
 
     // format variable value
-    simpleTextElement(s, 
+    simpleTextElement(s,
                       VARIABLE_VALUE_TAG(), 
                       value.valueToString().c_str());
     
@@ -209,11 +207,9 @@ namespace PLEXIL {
    * @brief Format the message representing a new plan.
    * @param s The stream to write the XML to.
    * @param plan The intermediate representation of the new plan.
-   * @param parent The node ID of the parent (currently ignored).
    */
   void LuvFormat::formatPlan(std::ostream& s, 
-                             const PlexilNodeId& plan, 
-                             const LabelStr& /* parent */) {
+                             const PlexilNodeId& plan) {
     // create a PLEXIL Plan wrapper and stick the plan in it
     simpleStartTag(s, PLEXIL_PLAN_TAG());
     pugi::xml_document* planXml = PlexilXmlParser::toXml(plan);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -55,8 +55,8 @@ namespace PLEXIL
     }
     states = xml.child_value(IGNORED_STATES_TAG);
     if (*states) {
-      assertTrue(!hasStates,
-                 "NodeStateFilter constructor: configuration error: both <States> and <IgnoredStates> provided");
+      assertTrue_2(!hasStates,
+                   "NodeStateFilter constructor: configuration error: both <States> and <IgnoredStates> provided");
       hasIgnoredStates = true;
       // Default is report
       for (size_t i = 0; i < NODE_STATE_MAX; ++i)

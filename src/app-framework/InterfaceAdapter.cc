@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -76,14 +76,14 @@ namespace PLEXIL
 
   void InterfaceAdapter::subscribe(const State& /* state */)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::subscribe: default method called!");
+    assertTrue_2(ALWAYS_FAIL,
+                 "InterfaceAdapter::subscribe: default method called!");
   }
 
   void InterfaceAdapter::unsubscribe(const State& /* state */)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::unsubscribe: default method called!");
+    assertTrue_2(ALWAYS_FAIL,
+                 "InterfaceAdapter::unsubscribe: default method called!");
   }
 
   void InterfaceAdapter::setThresholds(const State& /* state */, double /* hi */, double /* lo */)
@@ -98,20 +98,20 @@ namespace PLEXIL
 
   void InterfaceAdapter::sendPlannerUpdate(Update * /* upd */)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::updatePlanner: default method called!");
+    assertTrue_2(ALWAYS_FAIL,
+                 "InterfaceAdapter::updatePlanner: default method called!");
   }
 
   void InterfaceAdapter::executeCommand(Command * /* cmd */)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::executeCommand: default method called!");
+    assertTrue_2(ALWAYS_FAIL,
+                 "InterfaceAdapter::executeCommand: default method called!");
   }
 
   void InterfaceAdapter::invokeAbort(Command * /* cmd */)
   {
-    assertTrue(ALWAYS_FAIL,
-               "InterfaceAdapter::invokeAbort: default method called!");
+    assertTrue_2(ALWAYS_FAIL,
+                 "InterfaceAdapter::invokeAbort: default method called!");
   }
 
   /**

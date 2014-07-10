@@ -37,7 +37,6 @@
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "StateCache.hh"
 #include "TimeAdapter.hh"
 #include "timeval-utils.hh"
 #include <cerrno>
@@ -86,7 +85,7 @@ namespace PLEXIL
     assertTrueMsg(status == 0,
                   "TimeAdapter:getCurrentTime: gettimeofday() failed, errno = " << errno);
     double tym = timevalToDouble(tv);
-    debugMsg("TimeAdapter:getCurrentTime", " returning " << Value::valueToString(tym));
+    debugMsg("TimeAdapter:getCurrentTime", " returning " << tym);
     return tym;
   }
 
@@ -140,7 +139,7 @@ namespace PLEXIL
     if (myItimerval.it_value.tv_usec < 0 || myItimerval.it_value.tv_sec < 0) {
       // Already past the scheduled time, submit wakeup
       debugMsg("TimeAdapter:setTimer",
-               " new value " << Value::valueToString(date) << " is in past");
+               " new value " << date << " is in past");
       return false;
     }
 
@@ -148,7 +147,7 @@ namespace PLEXIL
     assertTrueMsg(0 == setitimer(ITIMER_REAL, &myItimerval, NULL),
                   "TimeAdapter:setTimer: setitimer failed, errno = " << errno);
     debugMsg("TimeAdapter:setTimer",
-             " timer set for " << Value::valueToString(date));
+             " timer set for " << date);
     return true;
   }
 
@@ -181,15 +180,15 @@ namespace PLEXIL
    */
   bool DarwinTimeAdapter::configureWaitThreadSigmask(sigset_t* mask)
   {
-    assertTrue(0 == sigemptyset(mask),
-               "DarwinTimeAdapter::configureWaitThreadSigmask: sigemptyset failed!");
+    assertTrue_2(0 == sigemptyset(mask),
+                 "DarwinTimeAdapter::configureWaitThreadSigmask: sigemptyset failed!");
     int errnum = sigaddset(mask, SIGINT);
     errnum = errnum | sigaddset(mask, SIGHUP);
     errnum = errnum | sigaddset(mask, SIGQUIT);
     errnum = errnum | sigaddset(mask, SIGTERM);
     errnum = errnum | sigaddset(mask, SIGUSR2);
-    assertTrue(errnum == 0,
-               "DarwinTimeAdapter::configureWaitThreadSigmask: sigaddset failed!");
+    assertTrue_2(errnum == 0,
+                 "DarwinTimeAdapter::configureWaitThreadSigmask: sigaddset failed!");
     return errnum == 0;
   }
 
@@ -201,12 +200,12 @@ namespace PLEXIL
   bool DarwinTimeAdapter::initializeSigwaitMask(sigset_t* mask)
   {
     // listen for SIGALRM and SIGUSR1
-    assertTrue(0 == sigemptyset(mask),
-               "DarwinTimeAdapter::initializeSigwaitMask: sigemptyset failed!");
+    assertTrue_2(0 == sigemptyset(mask),
+                 "DarwinTimeAdapter::initializeSigwaitMask: sigemptyset failed!");
     int status = sigaddset(mask, SIGUSR1);
     status = status | sigaddset(mask, SIGALRM);
-    assertTrue(0 == status,
-               "DarwinTimeAdapter::initializeSigwaitMask: sigaddset failed!");
+    assertTrue_2(0 == status,
+                 "DarwinTimeAdapter::initializeSigwaitMask: sigaddset failed!");
     return true;
   }
 

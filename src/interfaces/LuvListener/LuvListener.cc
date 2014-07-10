@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -222,14 +222,13 @@ namespace PLEXIL
    * @param parent The name of the parent node under which this plan will be inserted.
    */
   void
-  LuvListener::implementNotifyAddPlan(const PlexilNodeId& plan, 
-									  const LabelStr& parent) const 
+  LuvListener::implementNotifyAddPlan(const PlexilNodeId& plan) const 
   {
 	if (m_socket != NULL) {
 	  sendPlanInfo();
 
 	  std::ostringstream s;
-	  LuvFormat::formatPlan(s, plan, parent);
+	  LuvFormat::formatPlan(s, plan);
 	  sendMessage(s.str());
 	}
   }
@@ -260,9 +259,9 @@ namespace PLEXIL
    * @param value The value (in internal Exec representation) being assigned.
    */
   void 
-  LuvListener::implementNotifyAssignment(const ExpressionId & dest,
-										 const std::string& destName,
-										 const Value& value) const
+  LuvListener::implementNotifyAssignment(Expression const *dest,
+										 std::string const &destName,
+										 Value const &value) const
   {
 	if (m_socket != NULL) {
 	  std::ostringstream s;

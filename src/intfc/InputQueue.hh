@@ -29,7 +29,7 @@
 
 namespace PLEXIL
 {
-  class QueueEntry;
+  struct QueueEntry;
 
   /**
    * @class InputQueue

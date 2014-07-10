@@ -25,13 +25,16 @@
 */
 
 #include "TimeAdapter.hh"
+#include "ExternalInterface.hh" // for g_interface
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "StateCache.hh"
+#include "State.hh"
+#include "StateCacheEntry.hh"
 #ifdef PLEXIL_WITH_THREADS
 #include "ThreadSpawn.hh"
 #endif
+
 #include <cerrno>
 #include <cmath> // for modf
 
@@ -75,7 +78,7 @@ namespace PLEXIL
   bool TimeAdapter::initialize()
   {
     // Automatically register self for time
-    m_execInterface.registerLookupInterface(LabelStr("time"), getId());
+    m_execInterface.registerLookupInterface("time", getId());
     return true;
   }
 
@@ -147,11 +150,11 @@ namespace PLEXIL
    * @param state The state for this lookup.
    * @return The current value of the lookup.
    */
-  Value TimeAdapter::lookupNow(const State& state)
+  void TimeAdapter::lookupNow(State const &state, StateCacheEntry &cacheEntry)
   {
-    assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
-                  "TimeAdapter does not implement lookups for state " << state.first);
-    return Value(getCurrentTime());
+    assertTrueMsg(state == State::timeState(),
+                  "TimeAdapter does not implement lookups for state " << state);
+    cacheEntry.update(g_interface->getCycleCount(), getCurrentTime());
   }
 
   /**
@@ -181,18 +184,23 @@ namespace PLEXIL
    */
   void TimeAdapter::setThresholds(const State& state, double hi, double /* lo */)
   {
-    assertTrueMsg(state == m_execInterface.getStateCache()->getTimeState(),
-                  "TimeAdapter does not implement lookups for state " << state.first);
+    assertTrueMsg(state == State::timeState(),
+                  "TimeAdapter does not implement lookups for state " << state);
 
     if (setTimer(hi)) {
       debugMsg("TimeAdapter:setThresholds",
-               " timer set for " << Value::valueToString(hi));
+               " timer set for " << hi);
     }
     else {
       debugMsg("TimeAdapter:setThresholds",
-               " sending wakeup for missed timer at " << Value::valueToString(hi));
+               " sending wakeup for missed timer at " << hi);
       timerTimeout();
     }
+  }
+
+  void TimeAdapter::setThresholds(const State& state, int32_t /* hi */, int32_t /* lo */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setThresholds of integer thresholds not implemented");
   }
 
 #ifdef PLEXIL_WITH_THREADS
@@ -202,8 +210,8 @@ namespace PLEXIL
    */
   void* TimeAdapter::timerWaitThread(void* this_as_void_ptr)
   {
-    assertTrue(this_as_void_ptr != NULL,
-               "TimeAdapter::timerWaitThread: argument is null!");
+    assertTrue_2(this_as_void_ptr != NULL,
+                 "TimeAdapter::timerWaitThread: argument is null!");
     TimeAdapter* myInstance = reinterpret_cast<TimeAdapter*>(this_as_void_ptr);
     return myInstance->timerWaitThreadImpl();
   }
@@ -215,15 +223,15 @@ namespace PLEXIL
   {
     // block most common signals for this thread
     sigset_t threadSigset;
-    assertTrue(configureWaitThreadSigmask(&threadSigset),
-               "TimeAdapter::timerWaitThreadImpl: signal mask initialization failed");
+    assertTrue_2(configureWaitThreadSigmask(&threadSigset),
+                 "TimeAdapter::timerWaitThreadImpl: signal mask initialization failed");
     int errnum = pthread_sigmask(SIG_BLOCK, &threadSigset, NULL);
     assertTrueMsg(0 == errnum,
                   "TimeAdapter::timerWaitThreadImpl: pthread_sigmask failed, result = " << errnum);
 
     sigset_t waitSigset;
-    assertTrue(initializeSigwaitMask(&waitSigset),
-               "TimeAdapter::timerWaitThreadImpl: signal mask initialization failed");
+    assertTrue_2(initializeSigwaitMask(&waitSigset),
+                 "TimeAdapter::timerWaitThreadImpl: signal mask initialization failed");
 
     //
     // The wait loop
@@ -251,8 +259,8 @@ namespace PLEXIL
   {
     // report the current time and kick-start the Exec
     double time = getCurrentTime();
-    debugMsg("TimeAdapter:timerTimeout", " at " << Value::valueToString(time));
-    m_execInterface.handleValueChange(m_execInterface.getStateCache()->getTimeState(), time);
+    debugMsg("TimeAdapter:timerTimeout", " at " << time);
+    m_execInterface.handleValueChange(State::timeState(), time);
     m_execInterface.notifyOfExternalEvent();
   }
 

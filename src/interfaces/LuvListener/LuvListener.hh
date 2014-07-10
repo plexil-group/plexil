@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -113,7 +113,7 @@ namespace PLEXIL
      * @param destName A string naming the destination.
      * @param value The value (in internal Exec representation) being assigned.
      */
-    void implementNotifyAssignment(Expression *dest,
+    void implementNotifyAssignment(Expression const *dest,
 								   const std::string& destName,
 								   const Value& value) const;
 

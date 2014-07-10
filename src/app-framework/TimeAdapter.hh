@@ -119,8 +119,7 @@ namespace PLEXIL
      * @param state The state for this lookup.
      * @return The current value of the lookup.
      */
-
-    Value lookupNow(const State& state);
+    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
@@ -141,6 +140,7 @@ namespace PLEXIL
      * @param lo The lower threshold, at or below which to report changes.
      */
     void setThresholds(const State& state, double hi, double lo);
+    void setThresholds(const State& state, int32_t hi, int32_t lo);
 
     /**
      * @brief Get the current time from the operating system.

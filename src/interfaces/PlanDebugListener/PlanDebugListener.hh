@@ -27,7 +27,6 @@
 #ifndef _H_PlanDebugListener
 #define _H_PlanDebugListener
 
-#include "ExecDefs.hh"
 #include "ExecListener.hh"
 
 namespace PLEXIL
@@ -50,8 +49,8 @@ namespace PLEXIL
     virtual bool shutdown() { return true; }
 
     // Capture and report about useful node state transitions.
-    void implementNotifyNodeTransition (NodeState prevState,
-                                        const NodeId& node) const;
+    void implementNotifyNodeTransition(NodeState prevState,
+                                       const NodeId& node) const;
 
   private:
     // Disallow copy, and assignment

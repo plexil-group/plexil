@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,13 +51,13 @@ namespace PLEXIL
 
     condDebugMsg((newState == FINISHED_STATE),
                  "Node:clock",
-                 "Node '" << nodeId->getNodeId().toString() <<
+                 "Node '" << nodeId->getNodeId() <<
                  "' finished at " << std::setprecision(15) <<
                  nodeId->getCurrentStateStartTime() << " (" <<
                  nodeId->getOutcome() << ")");
     condDebugMsg((newState == EXECUTING_STATE),
                  "Node:clock",
-                 "Node '" << nodeId->getNodeId().toString() <<
+                 "Node '" << nodeId->getNodeId() <<
                  "' started at " << std::setprecision(15) <<
                  nodeId->getCurrentStateStartTime());
   }

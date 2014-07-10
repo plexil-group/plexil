@@ -466,7 +466,7 @@ namespace PLEXIL
 
   void * ExecApplication::execTopLevel(void * this_as_void_ptr)
   {
-    assertTrue(this_as_void_ptr != NULL); 
+    assertTrue_1(this_as_void_ptr != NULL); 
     (reinterpret_cast<ExecApplication*>(this_as_void_ptr))->runInternal();
     return 0;
   }
