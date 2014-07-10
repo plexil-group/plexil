@@ -25,7 +25,7 @@
 */
 
 #include "ListenerFilters.hh"
-#include "CoreExpressions.hh"
+#include "NodeConstants.hh"
 #include "InterfaceSchema.hh"
 #include "Node.hh"
 
@@ -34,19 +34,6 @@
 
 namespace PLEXIL
 {
-  static NodeState parseStateName(const std::string& name)
-  {
-    const std::vector<Value>& allStates = StateVariable::ALL_STATE_NAMES();
-    for (size_t i = 0; i < NODE_STATE_MAX; ++i) {
-      if (allStates[i].getStringValue() == name)
-        return (NodeState) i;
-    }
-    assertTrueMsg(ALWAYS_FAIL,
-                  "NodeStateFilter constructor: configuration error: \""
-                  << name << "\" is not a valid state name");
-    return NO_NODE_STATE;
-  }
-
   NodeStateFilter::NodeStateFilter(const pugi::xml_node& xml)
     : ExecListenerFilter(xml)
   {
@@ -63,7 +50,7 @@ namespace PLEXIL
       for (std::vector<std::string>::const_iterator it = stateNames->begin();
            it != stateNames->end();
            ++it)
-        m_stateEnabled[parseStateName(*it)] = true;
+        m_stateEnabled[parseNodeState(*it)] = true;
       delete stateNames;
     }
     states = xml.child_value(IGNORED_STATES_TAG);
@@ -78,7 +65,7 @@ namespace PLEXIL
       for (std::vector<std::string>::const_iterator it = stateNames->begin();
            it != stateNames->end();
            ++it)
-        m_stateEnabled[parseStateName(*it)] = false;
+        m_stateEnabled[parseNodeState(*it)] = false;
       delete stateNames;
     }
     if (!hasStates && !hasIgnoredStates) {

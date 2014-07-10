@@ -146,12 +146,19 @@ namespace PLEXIL
 
     ~ArrayImpl();
 
-    ArrayImpl &operator=(ArrayImpl const &);
+    Array *clone() const;
+    ArrayImpl &operator=(ArrayImpl<T> const &);
 
     void resize(size_t size);
 
-    // Generic accessor/setter
+    // Generic accessors
+    ValueType getElementType() const;
     Value getElementValue(size_t index) const;
+
+    bool operator==(Array const &other) const;
+    bool operator==(ArrayImpl<T> const &other) const;
+
+    // Generic setter
     void setElementValue(size_t index, Value const &value);
 
     // Typed accessors
@@ -178,9 +185,6 @@ namespace PLEXIL
   private:
     std::vector<T> m_contents;
   };
-
-  template <typename T>
-  bool operator==(ArrayImpl<T> const &, ArrayImpl<T> const &);
 
   template <typename T>
   bool operator!=(ArrayImpl<T> const &, ArrayImpl<T> const &);

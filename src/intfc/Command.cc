@@ -24,6 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+// *** FIXME: Release resources when command goes inactive ***
+
 #include "Command.hh"
 #include "ExternalInterface.hh"
 

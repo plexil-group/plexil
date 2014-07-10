@@ -37,7 +37,7 @@
 
 #include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"
-#include "UserVariable.hh"
+#include "CachedValue.hh"
 #include "Command.hh"
 #include "Debug.hh"
 #include "DummyAdapter.hh"
@@ -50,10 +50,14 @@
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "ListenerFilters.hh"
+#include "Node.hh"
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
+#include "QueueEntry.hh"
 #include "ResourceArbiterInterface.hh"
+#include "SimpleInputQueue.hh" // FIXME: add lockable variety
 #include "StateCacheEntry.hh"
+#include "StateCacheMap.hh"
 #include "Update.hh"
 #include "UtilityAdapter.hh"
 
@@ -97,6 +101,8 @@ namespace PLEXIL
       m_listenerHub((new ExecListenerHub())->getId()),
       m_adapters(),
       m_raInterface(),
+      // *** FIXME *** Allow other types to be specified
+      m_inputQueue(new SimpleInputQueue()),
       m_currentTime(std::numeric_limits<double>::min()),
       m_lastMark(0)
   {
@@ -140,6 +146,8 @@ namespace PLEXIL
     // we may not have initialized these!
     if (m_adapterConfig.isId())
       delete m_adapterConfig.operator->();
+
+    delete m_inputQueue;
   }
 
   //
@@ -299,7 +307,7 @@ namespace PLEXIL
    * @brief Add the specified directory name to the end of the library node loading path.
    * @param libdir The directory name.
    */
-  void InterfaceManager::addLibraryPath(const std::string& libdir)
+  void InterfaceManager::addLibraryPath(const std::string &libdir)
   {
     m_libraryPath.push_back(libdir);
   }
@@ -321,7 +329,7 @@ namespace PLEXIL
    * @brief Add the specified directory name to the end of the plan loading path.
    * @param libdir The directory name.
    */
-  void InterfaceManager::addPlanPath(const std::string& libdir)
+  void InterfaceManager::addPlanPath(const std::string &libdir)
   {
     m_planPath.push_back(libdir);
   }
@@ -485,9 +493,7 @@ namespace PLEXIL
    */
   void InterfaceManager::resetQueue()
   {
-    debugMsg("InterfaceManager:resetQueue", " entered");
-    while (!m_valueQueue.isEmpty())
-      m_valueQueue.pop();
+    m_inputQueue->flush();
   }
     
     
@@ -498,104 +504,121 @@ namespace PLEXIL
    */
   bool InterfaceManager::processQueue()
   {
-    debugMsg("InterfaceManager:processQueue", " entered");
-
-    // Potential optimization (?): these could be member variables
-    // Can't use static as that would cause collisions between multiple instances
-    Value newValue;
-    State state;
-    ExpressionId exp;
-    PlexilNodeId plan;
-    LabelStr parent;
-    unsigned int sequence;
-    QueueEntryType typ;
+    assertTrue_1(m_inputQueue);
+    if (m_inputQueue->isEmpty())
+      return false;
 
     bool needsStep = false;
-
-    while (true) {
-      // get next entry
-      debugMsg("InterfaceManager:processQueue", " Fetch next queue entry");
-      typ = m_valueQueue.dequeue(newValue, 
-                                 state,
-                                 exp,
-                                 plan,
-                                 parent,
-                                 sequence);
-      switch (typ) {
-      case queueEntry_EMPTY:
-        debugMsg("InterfaceManager:processQueue",
-                 " Queue empty, returning " << (needsStep ? "true" : "false"));
-        return needsStep;
-        break;
-
-      case queueEntry_MARK:
+    QueueEntry *entry;
+    while ((entry = m_inputQueue->get())) {
+      switch (entry->type) {
+      case Q_MARK:
+        debugMsg("InterfaceManager:processQueue", " Received mark");
         // Store sequence number and notify application
-        m_lastMark = sequence;
+        m_lastMark = entry->sequence; // ???
         m_application.markProcessed();
-        debugMsg("InterfaceManager:processQueue",
-                 " Received mark, returning " << (needsStep ? "true" : "false"));
-        return needsStep;
         break;
 
-      case queueEntry_LOOKUP_VALUES:
-        // State -- update all listeners
+      case Q_LOOKUP:
+        assertTrue_1(entry->state);
+        debugMsg("InterfaceManager:processQueue",
+                 " Received new value " << entry->value << " for " << *(entry->state));
+
+        // If this is a time state update message, grab it
+        if (*(entry->state) == State::timeState()) {
+          // FIXME: assumes time is a double
+          double newValue;
+          bool known = entry->value.getValue(newValue);
+          assertTrue_2(known, "Time cannot be unknown");
+#if PARANOID_ABOUT_TIME_DIRECTION
+          assertTrue_2(newValue >= m_currentTime, "Time is going backwards!");
+#endif
+          debugMsg("InterfaceManager:processQueue", " setting current time to " << newValue);
+          m_currentTime = newValue;
+        }
+
+        g_interface->lookupReturn(*(entry->state), entry->value);
+        break;
+
+      case Q_COMMAND_ACK:
+        assertTrue_1(entry->command);
+        assertTrue_1(entry->value.valueType() == COMMAND_HANDLE_TYPE);
         {
+          uint16_t handle;
+          bool known = entry->value.getValue(handle);
+          assertTrue_1(known);
+          assertTrue_1(handle > NO_COMMAND_HANDLE && handle < COMMAND_HANDLE_MAX);
+
           debugMsg("InterfaceManager:processQueue",
-                   " Handling state change for " << StateCache::toString(state));
-
-          // If this is a time state update message, check if it's stale
-          if (state == m_exec->getStateCache()->getTimeState()) {
-            if (newValue.getDoubleValue() <= m_currentTime) {
-              debugMsg("InterfaceManager:processQueue",
-                       " Ignoring stale time update - new value "
-                       << newValue << " is not greater than cached value "
-                       << Value::valueToString(m_currentTime));
-            }
-            else {
-              debugMsg("InterfaceManager:processQueue", " setting current time to " << newValue);
-              m_currentTime = newValue.getDoubleValue();
-              m_exec->getStateCache()->updateState(state, newValue);
-            }
-          }
-          else {
-            // General case, update state cache
-            m_exec->getStateCache()->updateState(state, newValue);
-          }
-          needsStep = true;
-          break;
+                   " received command handle value "
+                   << commandHandleValueName((CommandHandleValue) handle)
+                   << " for command " << entry->command->getCommand());
+          g_interface->commandHandleReturn(entry->command, (CommandHandleValue) handle);
         }
-
-      case queueEntry_RETURN_VALUE:
-        // Expression -- update the expression only.  Note that this could
-        // be either an assignment OR command return value.
-        debugMsg("InterfaceManager:processQueue",
-                 " Updating expression " << exp
-                 << ", new value is '" << newValue << "'");
-
-        // Handle potential command return value.
-        this->releaseResourcesAtCommandTermination(exp);
-
-        exp->setValue(newValue);
         needsStep = true;
         break;
 
-      case queueEntry_PLAN:
+      case Q_COMMAND_RETURN:
+        assertTrue_1(entry->command);
+        debugMsg("InterfaceManager:processQueue",
+                 " received return value " << entry->value
+                 << " for command " << entry->command->getCommand());
+        g_interface->commandReturn(entry->command, entry->value);
+        needsStep = true;
+        break;
+
+      case Q_COMMAND_ABORT:
+        assertTrue_1(entry->command);
+        {
+          bool ack;
+          bool known = entry->value.getValue(ack);
+          assertTrue_1(known);
+          debugMsg("InterfaceManager:processQueue",
+                   " received command abort ack " << (ack ? "true" : "false")
+                   << " for command " << entry->command->getCommand());
+          g_interface->commandAbortAcknowledge(entry->command, ack);
+        }
+        needsStep = true;
+        break;
+
+      case Q_UPDATE_ACK:
+        assertTrue_1(entry->update);
+        {
+          bool ack;
+          bool known = entry->value.getValue(ack);
+          assertTrue_1(known);
+          debugMsg("InterfaceManager:processQueue",
+                   " received update ack " << (ack ? "true" : "false")
+                   << " for node "
+                   << entry->update->getSource()->getNodeId());
+          g_interface->acknowledgeUpdate(entry->update, ack);
+        }
+
+      case Q_ADD_PLAN:
         // Plan -- add the plan
-        debugMsg("InterfaceManager:processQueue", " Received plan");
-        if (!getExec()->addPlan(plan, parent)) {
-          debugMsg("InterfaceManager:processQueue", " addPlan failed!");
-          // TODO: report back to whoever enqueued it
+        assertTrue_1(entry->plan);
+        {
+          PlexilNodeId pid = entry->plan->getId();
+          assertTrue_1(pid.isValid());
+          debugMsg("InterfaceManager:processQueue",
+                   " adding plan " << entry->plan->nodeId());
+          g_exec->addPlan(pid);
+          delete (PlexilNode *)pid;
         }
-        delete (PlexilNode*) plan;
+        entry->plan = NULL;
         needsStep = true;
         break;
 
-      case queueEntry_LIBRARY:
+      case Q_ADD_LIBRARY:
         // Library -- add the library
-
-        debugMsg("InterfaceManager:processQueue",
-                 " Received library");
-        getExec()->addLibraryNode(plan);
+        assertTrue_1(entry->plan);
+        {
+          PlexilNodeId pid = entry->plan->getId();
+          assertTrue_1(pid.isValid());
+          debugMsg("InterfaceManager:processQueue",
+                   " adding library " << entry->plan->nodeId());
+          g_exec->addLibraryNode(pid);
+        }
         // no need to step here
         break;
 
@@ -603,45 +626,47 @@ namespace PLEXIL
         // error
         checkError(ALWAYS_FAIL,
                    "InterfaceManager:processQueue: Invalid entry type "
-                   << typ);
+                   << entry->type);
         break;
       }
+
+      // Recycle the queue entry
+      m_inputQueue->release(entry);
     }
+
+    debugMsg("InterfaceManager:processQueue",
+             " Queue empty, returning " << (needsStep ? "true" : "false"));
+    return needsStep;
   }
 
   /**
    * @brief Perform an immediate lookup on a new state.
    * @param key The key for the state to be used in future communications about the state.
    */
-
-  Value
-  InterfaceManager::lookupNow(const State& state)
+  void 
+  InterfaceManager::lookupNow(State const &state, StateCacheEntry &cacheEntry)
   {
-    const LabelStr& stateName(state.first);
-    debugMsg("InterfaceManager:lookupNow", " of " << StateCache::toString(state));
-    InterfaceAdapterId adapter = getLookupInterface(stateName);
-    assertTrueMsg(!adapter.isNoId(),
-                  "lookupNow: No interface adapter found for lookup '"
-                  << stateName.toString() << "'");
-
-    Value result = adapter->lookupNow(state);
-    // update internal idea of time if required
-    if (state == m_exec->getStateCache()->getTimeState()) {
-      if (result.getDoubleValue() <= m_currentTime) {
-        debugMsg("InterfaceManager:verboseLookupNow",
-                 " Ignoring stale time update - new value "
-                 << result << " is not greater than cached value "
-                 << Value::valueToString(m_currentTime));
-      }
-      else {
-        debugMsg("InterfaceManager:verboseLookupNow",
-                 " setting current time to " << result);
-        m_currentTime = result.getDoubleValue();
-      }
+    debugMsg("InterfaceManager:lookupNow", " of " << state);
+    InterfaceAdapterId adapter = getLookupInterface(state.name());
+    if (!adapter.isNoId()) {
+      warn("lookupNow: No interface adapter found for lookup "
+           << state.name() << ", returning UNKNOWN");
+      return;
     }
-
-    debugMsg("InterfaceManager:lookupNow", " of '" << stateName.toString() << "' returning " << result);
-    return result;
+    adapter->lookupNow(state, cacheEntry);
+    // update internal idea of time if required
+    if (state == State::timeState()) {
+      CachedValue const *val = cacheEntry.cachedValue();
+      assertTrue_2(val, "Time is unknown");
+      double newTime; // FIXME
+      assertTrue_2(val->getValue(newTime), "Time is unknown");
+#if PARANOID_ABOUT_TIME_DIRECTION
+      assertTrue_2(newTime >= m_currentTime, "Time is going backwards!");
+#endif
+      debugMsg("InterfaceManager:lookupNow",
+               " setting current time to " << newTime);
+      m_currentTime = newTime;
+    }
   }
 
   /**
@@ -650,12 +675,12 @@ namespace PLEXIL
    */
   void InterfaceManager::subscribe(const State& state)
   {
-    const LabelStr stateName(state.first);
-    debugMsg("InterfaceManager:subscribe", " to state " << StateCache::toString(state));
-    InterfaceAdapterId adapter = getLookupInterface(stateName);
-    assertTrueMsg(!adapter.isNoId(),
-                  "subscribe: No interface adapter found for lookup '"
-                  << stateName.toString() << "'");
+    debugMsg("InterfaceManager:subscribe", " to state " << state);
+    InterfaceAdapterId adapter = getLookupInterface(state.name());
+    if (adapter.isNoId()) {
+      warn("subscribe: No interface adapter found for lookup " << state);
+      return;
+    }
     adapter->subscribe(state);
   }
 
@@ -664,12 +689,12 @@ namespace PLEXIL
    */
   void InterfaceManager::unsubscribe(const State& state)
   {
-    const LabelStr stateName(state.first);
-    debugMsg("InterfaceManager:unsubscribe", " to state " << StateCache::toString(state));
-    InterfaceAdapterId adapter = getLookupInterface(stateName);
-    assertTrueMsg(!adapter.isNoId(),
-                  "unsubscribe: No interface adapter found for lookup '"
-                  << stateName.toString() << "'");
+    debugMsg("InterfaceManager:unsubscribe", " to state " << state);
+    InterfaceAdapterId adapter = getLookupInterface(state.name());
+    if (adapter.isNoId()) {
+      warn("unsubscribe: No interface adapter found for lookup " << state);
+      return;
+    }
     adapter->unsubscribe(state);
   }
 
@@ -681,107 +706,45 @@ namespace PLEXIL
    */
   void InterfaceManager::setThresholds(const State& state, double hi, double lo)
   {
-    const LabelStr stateName(state.first);
-    debugMsg("InterfaceManager:setThresholds", " for state " << StateCache::toString(state));
-    InterfaceAdapterId adapter = getLookupInterface(stateName);
-    assertTrueMsg(!adapter.isNoId(),
-                  "setThresholds: No interface adapter found for lookup '"
-                  << stateName.toString() << "'");
+    debugMsg("InterfaceManager:setThresholds", " for state " << state);
+    InterfaceAdapterId adapter = getLookupInterface(state.name());
+    if (!adapter.isNoId()) {
+      warn("setThresholds: No interface adapter found for lookup "
+           << state);
+      return;
+    }
     adapter->setThresholds(state, hi, lo);
   }
 
-  // this batches the set of commands from quiescence completion.
-
-  void 
-  InterfaceManager::batchActions(std::list<CommandId>& commands)
+  void InterfaceManager::setThresholds(const State& state, int32_t hi, int32_t lo)
   {
-    if (commands.empty())
+    debugMsg("InterfaceManager:setThresholds", " for state " << state);
+    InterfaceAdapterId adapter = getLookupInterface(state.name());
+    if (!adapter.isNoId()) {
+      warn("setThresholds: No interface adapter found for lookup "
+           << state);
       return;
-
-    debugMsg("InterfaceManager:batchActions", " entered");
-
-    bool commandRejected = false;
-    std::set<CommandId> acceptCmds;
-    bool resourceArbiterExists = getResourceArbiterInterface().isId();
-
-    if (resourceArbiterExists) 
-      getResourceArbiterInterface()->arbitrateCommands(commands, acceptCmds);
-
-    for (std::list<CommandId>::const_iterator it = commands.begin();
-         it != commands.end();
-         ++it) {
-      CommandId cmd = *it;
-
-      if (!resourceArbiterExists || (acceptCmds.find(cmd) != acceptCmds.end())) {
-        condDebugMsg(resourceArbiterExists,
-                     "InterfaceManager:batchActions", 
-                     " Permission to execute " << cmd->getName()
-                     << " has been granted by the resource arbiter.");
-        // Maintain a <acks, cmdId> map of commands
-        m_ackToCmdMap[cmd->getAck()] = cmd;
-        // Maintain a <dest, cmdId> map
-        m_destToCmdMap[cmd->getDest()] = cmd;
-            
-        executeCommand(cmd);
-      }
-      else {
-        commandRejected = true;
-        debugMsg("InterfaceManager:batchActions ", 
-                 "Permission to execute " << cmd->getName()
-                 << " has been denied by the resource arbiter.");
-            
-        this->rejectCommand(cmd->getName(),
-                            cmd->getArgValues(),
-                            cmd->getDest(),
-                            cmd->getAck());
-      }
     }
-
-    if (commandRejected)
-      this->notifyOfExternalEvent();
-
-    debugMsg("InterfaceManager:batchActions", " exited");
+    adapter->setThresholds(state, hi, lo);
   }
 
   // *** To do:
   //  - bookkeeping (i.e. tracking non-acked updates) ?
 
   void
-  InterfaceManager::updatePlanner(std::list<UpdateId>& updates)
+  InterfaceManager::executeUpdate(Update *update)
   {
-    if (updates.empty()) 
-      {
-        debugMsg("InterfaceManager:updatePlanner", " update list is empty, returning");
-        return;
-      }
+    assertTrue_1(update);
     InterfaceAdapterId intf = this->getPlannerUpdateInterface();
-    if (intf.isNoId())
-      {
-        // Must acknowledge updates if no interface for them
-        debugMsg("InterfaceManager:updatePlanner",
-                 " no planner update interface defined, acknowledging updates");
-        for (std::list<UpdateId>::const_iterator it = updates.begin();
-             it != updates.end();
-             ++it)
-          handleValueChange((ExpressionId) (*it)->getAck(),
-                            BooleanVariable::TRUE_VALUE());
-        notifyOfExternalEvent();
-      }
-    else
-      {
-        for (std::list<UpdateId>::const_iterator it = updates.begin();
-             it != updates.end();
-             ++it)
-          {
-            UpdateId upd = *it;
-            debugMsg("InterfaceManager:updatePlanner",
-                     " sending planner update for node '"
-                     << upd->getSource()->getNodeId().toString() << "'");
-            intf->sendPlannerUpdate(upd->getSource(),
-                                    upd->getPairs(),
-                                    upd->getAck());
-          }
-      }
+    if (intf.isNoId()) {
+      // Fake the ack
+      g_interface->acknowledgeUpdate(update, true);
+      return;
+    }
+    debugMsg("InterfaceManager:updatePlanner",
+             " sending planner update for node "
+             << update->getSource()->getNodeId());
+    intf->sendPlannerUpdate(update);
   }
 
   // executes a command with the given arguments by looking up the command name 
@@ -790,36 +753,40 @@ namespace PLEXIL
   // *** To do:
   //  - bookkeeping (i.e. tracking active commands), mostly for invokeAbort() below
   void
-  InterfaceManager::executeCommand(const CommandId& cmd)
+  InterfaceManager::executeCommand(Command *cmd)
   {
-    LabelStr name(cmd->getName());
     InterfaceAdapterId intf = getCommandInterface(cmd->getName());
-    assertTrueMsg(!intf.isNoId(),
-                  "executeCommand: null interface adapter for command " << name.toString());
-    intf->executeCommand(cmd);
+    if (intf.isId()) {
+      intf->executeCommand(cmd);
+    }
+    else {
+      // return failed status
+      warn("executeCommand: null interface adapter for command " << cmd->getName());
+      g_interface->commandHandleReturn(cmd, COMMAND_FAILED);
+    }
   }
 
   // rejects a command due to non-availability of resources
   void 
-  InterfaceManager::rejectCommand(const LabelStr& /* name */,
-                                  const std::vector<Value>& /* args */,
-                                  ExpressionId /* dest */,
-                                  ExpressionId ack)
+  InterfaceManager::rejectCommand(Command *cmd)
   {
-    this->handleValueChange(ack, CommandHandleVariable::COMMAND_DENIED());
+    g_interface->commandHandleReturn(cmd, COMMAND_DENIED);
   }
 
   /**
    * @brief Abort the pending command with the supplied name and arguments.
    * @param cmd The command.
    */
-
-  void InterfaceManager::invokeAbort(const CommandId& cmd)
+  void InterfaceManager::invokeAbort(Command *cmd)
   {
     InterfaceAdapterId intf = getCommandInterface(cmd->getName());
-    assertTrueMsg(!intf.isNoId(),
-                  "invokeAbort: null interface adapter for command " << cmd->getName());
-    intf->invokeAbort(cmd);
+    if (intf.isId()) {
+      intf->invokeAbort(cmd);
+    }
+    else {
+      warn("invokeAbort: null interface adapter for command " << cmd->getCommand());
+      g_interface->commandAbortAcknowledge(cmd, false);
+    }
   }
 
   double 
@@ -842,7 +809,7 @@ namespace PLEXIL
    * @param intf The interface adapter to handle this command.
    */
   bool
-  InterfaceManager::registerCommandInterface(const LabelStr & commandName,
+  InterfaceManager::registerCommandInterface(const std::string &commandName,
                                              InterfaceAdapterId intf)
   {
     assertTrue(m_adapterConfig.isId());
@@ -857,7 +824,7 @@ namespace PLEXIL
    * @param intf The interface adapter to handle this lookup.
    */
   bool 
-  InterfaceManager::registerLookupInterface(const LabelStr & stateName,
+  InterfaceManager::registerLookupInterface(const std::string &stateName,
                                             const InterfaceAdapterId& intf)
   {
     assertTrue(m_adapterConfig.isId());
@@ -932,7 +899,7 @@ namespace PLEXIL
    * @param commandName The command.
    */
   void
-  InterfaceManager::unregisterCommandInterface(const LabelStr & commandName)
+  InterfaceManager::unregisterCommandInterface(const std::string &commandName)
   {
     assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->unregisterCommandInterface(commandName);
@@ -943,7 +910,7 @@ namespace PLEXIL
    * @param stateName The state name.
    */
   void
-  InterfaceManager::unregisterLookupInterface(const LabelStr & stateName)
+  InterfaceManager::unregisterLookupInterface(const std::string &stateName)
   {
     assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->unregisterLookupInterface(stateName);
@@ -995,7 +962,7 @@ namespace PLEXIL
    * @param commandName The command.
    */
   InterfaceAdapterId
-  InterfaceManager::getCommandInterface(const LabelStr & commandName)
+  InterfaceManager::getCommandInterface(const std::string &commandName)
   {
     assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->getCommandInterface(commandName);
@@ -1007,7 +974,7 @@ namespace PLEXIL
    * @param stateName The state.
    */
   InterfaceAdapterId
-  InterfaceManager::getLookupInterface(const LabelStr & stateName)
+  InterfaceManager::getLookupInterface(const std::string &stateName)
   {
     assertTrue(m_adapterConfig.isId());
     return m_adapterConfig->getLookupInterface(stateName);
@@ -1095,32 +1062,73 @@ namespace PLEXIL
   InterfaceManager::handleValueChange(const State& state, const Value& value)
   {
     debugMsg("InterfaceManager:handleValueChange",
-             " for state " << state.first << ", new value = " << value);
-    m_valueQueue.enqueue(state, value);
+             " for state " << state << ", new value = " << value);
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    entry->initForLookup(state, value);
+    m_inputQueue->put(entry);
   }
 
-  /**
-   * @brief Notify of the availability of (e.g.) a command return or acknowledgement.
-   * @param exp The expression whose value is being returned.
-   * @param value The new value of the expression.
-   */
-  void 
-  InterfaceManager::handleValueChange(const ExpressionId & exp,
-                                      const Value& value)
+  void
+  InterfaceManager::handleCommandAck(Command * cmd, CommandHandleValue value)
   {
-    debugMsg("InterfaceManager:handleValueChange", " for return value entered");
-    m_valueQueue.enqueue(exp, value);
+    assertTrue_1(cmd);
+    assertTrue_1(value > NO_COMMAND_HANDLE && value < COMMAND_HANDLE_MAX);
+    debugMsg("InterfaceManager:handleCommandAck",
+             " for command " << cmd->getCommand()
+             << ", handle = " << commandHandleValueName(value));
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    entry->initForCommandAck(cmd, value);
+    m_inputQueue->put(entry);
+  }
+
+  void
+  InterfaceManager::handleCommandReturn(Command * cmd, Value const &value)
+  {
+    assertTrue_1(cmd);
+    debugMsg("InterfaceManager:handleCommandReturn",
+             " for command " << cmd->getCommand()
+             << ", value = " << value);
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    entry->initForCommandReturn(cmd, value);
+    m_inputQueue->put(entry);
+  }
+
+  void
+  InterfaceManager::handleCommandAbortAck(Command * cmd, bool ack)
+  {
+    assertTrue_1(cmd);
+    debugMsg("InterfaceManager:handleCommandAbortAck",
+             " for command " << cmd->getCommand()
+             << ", ack = " << (ack ? "true" : "false"));
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    entry->initForCommandAbort(cmd, ack);
+    m_inputQueue->put(entry);
+  }
+
+  void
+  InterfaceManager::handleUpdateAck(Update * upd, bool ack)
+  {
+    assertTrue_1(upd);
+    debugMsg("InterfaceManager:handleUpdateAck",
+             " for node " << upd->getSource()->getNodeId()
+             << ", ack = " << (ack ? "true" : "false"));
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    entry->initForUpdateAck(upd, ack);
+    m_inputQueue->put(entry);
   }
 
   /**
    * @brief Notify the executive of a new plan.
    * @param planXml The XML representation of the new plan.
-   * @param parent Label string naming the parent node.
    * @return False if the plan references unloaded libraries, true otherwise.
    */
   bool
-  InterfaceManager::handleAddPlan(const pugi::xml_node& planXml,
-                                  const LabelStr& parent)
+  InterfaceManager::handleAddPlan(const pugi::xml_node& planXml)
     throw(ParserException)
   {
     debugMsg("InterfaceManager:handleAddPlan", " (XML) entered");
@@ -1136,18 +1144,16 @@ namespace PLEXIL
     PlexilNodeId root =
       PlexilXmlParser::parse(planXml.child("Node")); // can also throw ParserException
 
-    return this->handleAddPlan(root, parent);
+    return this->handleAddPlan(root);
   }
 
   /**
    * @brief Notify the executive of a new plan.
    * @param planStruct The PlexilNode representation of the new plan.
-   * @param parent The node which is the parent of the new node.
    * @return False if the plan references unloaded libraries, true otherwise.
    */
   bool
-  InterfaceManager::handleAddPlan(PlexilNodeId planStruct,
-                                  const LabelStr& parent)
+  InterfaceManager::handleAddPlan(PlexilNodeId planStruct)
   {
     checkError(planStruct.isId(),
                "InterfaceManager::handleAddPlan: Invalid PlexilNodeId");
@@ -1180,7 +1186,7 @@ namespace PLEXIL
     for (unsigned int i = 0; i < libs.size(); i++) {
       // COPY the string because its location may change out from under us!
       const std::string libname(libs[i]);
-      PlexilNodeId libroot = m_exec->getLibrary(libname);
+      PlexilNodeId libroot = g_exec->getLibrary(libname);
       if (libroot.isNoId()) {
         // Try to load the library
         libroot = PlexilXmlParser::findLibraryNode(libname, m_libraryPath);
@@ -1201,7 +1207,10 @@ namespace PLEXIL
     }
 
     if (result) {
-      m_valueQueue.enqueue(planStruct, parent);
+      QueueEntry *entry = m_inputQueue->allocate();
+      assertTrue_1(entry);
+      entry->initForAddPlan((PlexilNode *) planStruct);
+      m_inputQueue->put(entry);
       debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
     }
     return result;
@@ -1216,8 +1225,11 @@ namespace PLEXIL
   {
     checkError(planStruct.isId(),
                "InterfaceManager::handleAddLibrary: Invalid PlexilNodeId");
-    debugMsg("InterfaceManager:handleAddLibrary", " entered");
-    m_valueQueue.enqueue(planStruct);
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    entry->initForAddPlan((PlexilNode *) planStruct);
+    m_inputQueue->put(entry);
+    debugMsg("InterfaceManager:handleAddLibrary", " library node enqueued");
   }
 
   /**
@@ -1225,8 +1237,8 @@ namespace PLEXIL
    * @return True if loaded, false otherwise.
    */
   bool
-  InterfaceManager::isLibraryLoaded(const std::string& libName) const {
-    return m_exec->hasLibrary(libName);
+  InterfaceManager::isLibraryLoaded(const std::string &libName) const {
+    return g_exec->getLibrary(libName).isId();
   }
 
   /**
@@ -1250,65 +1262,59 @@ namespace PLEXIL
   }
 #endif
 
-  //
-  // Utility accessors
-  //
-
-  StateCacheId
-  InterfaceManager::getStateCache() const
-  { 
-    return m_exec->getStateCache(); 
-  }
+  // *************
+  // *** FIXME ***
+  // *************
 
   /**
    * @brief update the resoruce arbiter interface that an ack or return value
    * has been received so that resources can be released.
    * @param ackOrDest The expression id for which a value has been posted.
    */
-  void InterfaceManager::releaseResourcesAtCommandTermination(ExpressionId ackOrDest)
-  {
-    // Check if the expression is an ack or a return value
-    std::map<ExpressionId, CommandId>::iterator iter;
+  // void InterfaceManager::releaseResourcesAtCommandTermination(ExpressionId ackOrDest)
+  // {
+  //   // Check if the expression is an ack or a return value
+  //   std::map<ExpressionId, CommandId>::iterator iter;
 
-    if ((iter = m_ackToCmdMap.find(ackOrDest)) != m_ackToCmdMap.end())
-      {
-        CommandId cmdId = iter->second;
-        debugMsg("InterfaceManager:releaseResourcesAtCommandTermination",
-                 " The expression that was received is a valid acknowledgement"
-                 << " for the command: " << cmdId->getName());
+  //   if ((iter = m_ackToCmdMap.find(ackOrDest)) != m_ackToCmdMap.end())
+  //     {
+  //       CommandId cmdId = iter->second;
+  //       debugMsg("InterfaceManager:releaseResourcesAtCommandTermination",
+  //                " The expression that was received is a valid acknowledgement"
+  //                << " for the command: " << cmdId->getName());
         
-        // Check if the command has a return value. If not, release resources
-        // otherwise ignore
-        if (cmdId->getDest().isNoId())
-          {
-            if (getResourceArbiterInterface().isId())
-              getResourceArbiterInterface()->releaseResourcesForCommand(cmdId->getName());
-            // remove the ack expression from the map
-            m_ackToCmdMap.erase(iter);
-          }
-      }
-    else if ((iter = m_destToCmdMap.find(ackOrDest)) != m_destToCmdMap.end())
-      {
-        CommandId cmdId = iter->second;
-        debugMsg("InterfaceManager:releaseResourcesForCommand",
-                 " The expression that was received is a valid return value"
-                 << " for the command: " << cmdId->getName());
+  //       // Check if the command has a return value. If not, release resources
+  //       // otherwise ignore
+  //       if (cmdId->getDest().isNoId())
+  //         {
+  //           if (getResourceArbiterInterface().isId())
+  //             getResourceArbiterInterface()->releaseResourcesForCommand(cmdId->getName());
+  //           // remove the ack expression from the map
+  //           m_ackToCmdMap.erase(iter);
+  //         }
+  //     }
+  //   else if ((iter = m_destToCmdMap.find(ackOrDest)) != m_destToCmdMap.end())
+  //     {
+  //       CommandId cmdId = iter->second;
+  //       debugMsg("InterfaceManager:releaseResourcesForCommand",
+  //                " The expression that was received is a valid return value"
+  //                << " for the command: " << cmdId->getName());
 
-        //Release resources
-        if (getResourceArbiterInterface().isId())
-          getResourceArbiterInterface()->releaseResourcesForCommand(cmdId->getName());
-        //remove the ack from the map        
-        m_ackToCmdMap.erase(m_ackToCmdMap.find(cmdId->getAck()));
+  //       //Release resources
+  //       if (getResourceArbiterInterface().isId())
+  //         getResourceArbiterInterface()->releaseResourcesForCommand(cmdId->getName());
+  //       //remove the ack from the map        
+  //       m_ackToCmdMap.erase(m_ackToCmdMap.find(cmdId->getAck()));
 
-        //remove the dest from the map
-        m_destToCmdMap.erase(iter);
-      }
-    else
-      debugMsg("InterfaceManager:releaseResourcesForCommand:",
-               " The expression is neither an acknowledgement"
-               << " nor a return value for a command. Ignoring.");
+  //       //remove the dest from the map
+  //       m_destToCmdMap.erase(iter);
+  //     }
+  //   else
+  //     debugMsg("InterfaceManager:releaseResourcesForCommand:",
+  //              " The expression is neither an acknowledgement"
+  //              << " nor a return value for a command. Ignoring.");
 
-  }
+  // }
 
   /**
    * @brief Deletes the given adapter
@@ -1326,7 +1332,7 @@ namespace PLEXIL
    * @param name The string naming the property.
    * @param thing The property value as an untyped pointer.
    */
-  void InterfaceManager::setProperty(const std::string& name, void * thing)
+  void InterfaceManager::setProperty(const std::string &name, void * thing)
   {
     m_propertyMap[name] = thing;
   }
@@ -1336,7 +1342,7 @@ namespace PLEXIL
    * @param name The string naming the property.
    * @return The property value as an untyped pointer.
    */
-  void* InterfaceManager::getProperty(const std::string& name)
+  void* InterfaceManager::getProperty(const std::string &name)
   {
     PropertyMap::const_iterator it = m_propertyMap.find(name);
     if (it == m_propertyMap.end())

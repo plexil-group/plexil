@@ -30,7 +30,6 @@
 #include "ExternalInterface.hh"
 #include "AdapterExecInterface.hh"
 #include "PlexilPlan.hh"
-#include "ValueQueue.hh"
 
 // STL
 #include <set>
@@ -63,6 +62,8 @@ namespace PLEXIL
 
   class ExecListenerHub;
   typedef Id<ExecListenerHub> ExecListenerHubId;
+
+  class InputQueue;
 
   /**
    * @brief A concrete derived class implementing the APIs of the
@@ -467,16 +468,17 @@ namespace PLEXIL
     /**
      * @brief Notify the executive of a new plan.
      * @param planXml The TinyXML representation of the new plan.
-     * @param parent The node which is the parent of the new node.
+     * @return True if parsing successful, false otherwise.
      */
-    void handleAddPlan(const pugi::xml_node& planXml)
+    bool handleAddPlan(const pugi::xml_node& planXml)
       throw(ParserException);
 
     /**
      * @brief Notify the executive of a new plan.
      * @param planStruct The PlexilNode representation of the new plan.
+     * @return True if all referenced libraries were found, false otherwise.
      */
-    void handleAddPlan(PlexilNodeId planStruct);
+    bool handleAddPlan(PlexilNodeId planStruct);
 
     /**
      * @brief Notify the executive of a new library node.
@@ -581,7 +583,8 @@ namespace PLEXIL
     std::vector<std::string> m_libraryPath;
     std::vector<std::string> m_planPath;
 
-    ValueQueue m_valueQueue;
+    //* The queue
+    InputQueue *m_inputQueue;
 
     //* Holds the most recent idea of the current time
     double m_currentTime;

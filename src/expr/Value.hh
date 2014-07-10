@@ -70,8 +70,17 @@ namespace PLEXIL
     ~Value();
     
     Value &operator=(Value const &);
-
-    // TODO: operator= from raw values?
+    Value &operator=(bool val);
+    Value &operator=(uint16_t enumVal);
+    Value &operator=(int32_t val);
+    Value &operator=(double val);
+    Value &operator=(std::string const &val);
+    Value &operator=(char const *val);
+    Value &operator=(BooleanArray const &val);
+    Value &operator=(IntegerArray const &val);
+    Value &operator=(RealArray const &val);
+    Value &operator=(StringArray const &val);
+    void setUnknown();
 
     ValueType valueType() const;
     bool isKnown() const;
@@ -104,10 +113,7 @@ namespace PLEXIL
       int32_t       integerValue;
       double        realValue;
       std::string  *stringValue;
-      BooleanArray *booleanArrayValue;
-      IntegerArray *integerArrayValue;
-      RealArray    *realArrayValue;
-      StringArray  *stringArrayValue;
+      Array        *arrayValue;
     } m_value;
     ValueType m_type;
     bool m_known;

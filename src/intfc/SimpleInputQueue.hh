@@ -24,90 +24,60 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Array.hh"
-#include "Error.hh"
-#include <string>
+#ifndef PLEXIL_SIMPLE_INPUT_QUEUE_HH
+#define PLEXIL_SIMPLE_INPUT_QUEUE_HH
+
+#include "InputQueue.hh"
 
 namespace PLEXIL
 {
-  Array::Array()
+
+  /**
+   * @class SimpleInputQueue
+   * @brief A simple implementation of the InputQueue API.
+   */
+  class SimpleInputQueue : public InputQueue
   {
-  }
+  public:
+    SimpleInputQueue();
+    virtual ~SimpleInputQueue();
 
-  Array::Array(Array const &orig)
-    : m_known(orig.m_known)
-  {
-  }
+    // Simple query
+    bool isEmpty() const;
 
-  Array::Array(size_t size, bool known)
-  : m_known(size, known)
-  {
-  }
+    //
+    // Reader side
+    //
 
-  Array::~Array()
-  {
-  }
+    // Get the head of the queue. If empty, returns NULL.
+    virtual QueueEntry *get();
 
-  Array &Array::operator=(Array const &other)
-  {
-    m_known = other.m_known;
-    return *this;
-  }
+    // Flush the queue without examining it.
+    virtual void flush();
 
-  size_t Array::size() const
-  {
-    return m_known.size();
-  }
+    // Return an entry to the free list after use.
+    virtual void release(QueueEntry *entry);
 
-  bool Array::elementKnown(size_t index) const
-  {
-    if (!checkIndex(index)) {
-      check_error_2(ALWAYS_FAIL, "Array::elementKnown: Index exceeds array size");
-      return false;
-    }
-    return m_known[index];
-  }
+    //
+    // Writer side
+    //
 
-  void Array::resize(size_t size)
-  {
-    if (!checkIndex(size)) {
-      m_known.resize(size, false);
-    }
-  }
+    // Get an entry for insertion. Will allocate if none on the free list.
+    virtual QueueEntry *allocate();
 
-  void Array::setElementUnknown(size_t index)
-  {
-    if (!checkIndex(index)) {
-      check_error_2(ALWAYS_FAIL, "Array::setElementUnknown: Index exceeds array size");
-      return;
-    }
-    m_known[index] = false;
-  }
+    // Insert an entry on the queue.
+    virtual void put(QueueEntry *entry);
 
-  bool Array::operator==(Array const &other) const
-  {
-    return m_known == other.m_known;
-  }
+  private:
+    // Disallow copy, assign
+    SimpleInputQueue(SimpleInputQueue const &);
+    SimpleInputQueue &operator=(SimpleInputQueue const &);
 
-  //
-  // TODO:
-  // - Define boundary case size == 0 for any/allElementsKnown
-  //
+    QueueEntry *m_queueGet;
+    QueueEntry *m_queuePut;
+    QueueEntry *m_freeList;
+  };
 
-  bool Array::allElementsKnown() const
-  {
-    for (size_t i = 0; i < m_known.size(); ++i)
-      if (!m_known[i])
-        return false;
-    return true;
-  }
+}
 
-  bool Array::anyElementsKnown() const
-  {
-    for (size_t i = 0; i < m_known.size(); ++i)
-      if (m_known[i])
-        return true;
-    return false;
-  }
-
-} // namespace PLEXIL
+#endif // PLEXIL_SIMPLE_INPUT_QUEUE_HH

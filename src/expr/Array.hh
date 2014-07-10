@@ -28,6 +28,7 @@
 #define PLEXIL_ARRAY_HH
 
 #include "ArrayFwd.hh"
+#include "ValueType.hh"
 
 #include <string>
 #include <vector>
@@ -54,6 +55,7 @@ namespace PLEXIL
 
     virtual ~Array();
 
+    virtual Array *clone() const = 0;
     Array &operator=(Array const &);
 
     // Generic accessors
@@ -67,7 +69,10 @@ namespace PLEXIL
       return m_known;
     }
 
+    virtual ValueType getElementType() const = 0;
     virtual Value getElementValue(size_t index) const = 0;
+
+    virtual bool operator==(Array const &other) const;
 
     // Generic setters
 
@@ -114,8 +119,6 @@ namespace PLEXIL
 
     std::vector<bool> m_known;
   };
-
-  bool operator==(Array const &a, Array const &b);
 
 } // namespace PLEXIL
 

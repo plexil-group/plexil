@@ -29,77 +29,48 @@
 
 namespace PLEXIL
 {
-  // Forward declarations
-  class Command;
-  class PlexilNode;
-  class State;
-  class Update;
-  class Value;
-
-  enum QueueEntryType {
-    Q_UNINITED = 0,
-    Q_LOOKUP,
-    Q_COMMAND_ACK,
-    Q_COMMAND_RETURN,
-    Q_UPDATE_ACK,
-    Q_ADD_PLAN,
-    Q_ADD_LIBRARY,
-
-    Q_INVALID
-  };
-
-  struct QueueEntry
-  {
-    QueueEntry *next;
-    union {
-      Value *value;
-      PlexilNode *plan;
-    };
-    union {
-      Command *command;
-      Update *update;
-      State const *state;
-    };
-    QueueEntryType type;
-  };
+  class QueueEntry;
 
   /**
    * @class InputQueue
-   * @brief A simple linked-list implementation of an input queue for the exec.
+   * @brief API for an input queue for the exec.
    */
   class InputQueue
   {
   public:
-    InputQueue();
-    ~InputQueue();
+    InputQueue() {}
+    virtual ~InputQueue() {}
 
     // Simple query
-    bool isEmpty() const;
+    virtual bool isEmpty() const = 0;
 
     //
-    // Resource management
+    // Reader side
+    //
+
+    // Get the head of the queue. If empty, returns NULL.
+    virtual QueueEntry *get() = 0;
+
+    // Flush the queue without examining it.
+    virtual void flush() = 0;
+
+    // Return an entry to the free list after use.
+    virtual void release(QueueEntry *entry) = 0;
+
+    //
+    // Writer side
     //
 
     // Get an entry for insertion. Will allocate if none on the free list.
-    QueueEntry *allocate();
+    virtual QueueEntry *allocate() = 0;
 
-    // Return an entry to the free list after use.
-    void release(QueueEntry *entry);
-    
     // Insert an entry on the queue.
-    void put(QueueEntry *entry);
-
-    // Get the head of the queue. If empty, returns NULL.
-    QueueEntry *get();
+    virtual void put(QueueEntry *entry) = 0;
 
   private:
     // Disallow copy, assign
     InputQueue(InputQueue const &);
     InputQueue &operator=(InputQueue const &);
-
-    QueueEntry *m_queueGet;
-    QueueEntry *m_queuePut;
-    QueueEntry *m_freeList; // simple linked-list LIFO stack
   };
 
 } // namespace PLEXIL

@@ -245,7 +245,7 @@ namespace PLEXIL
      * @brief Notify the executive of a new plan.
      * @param planXml The TinyXML representation of the new plan.
      */
-    virtual void handleAddPlan(const pugi::xml_node& planXml)
+    virtual bool handleAddPlan(const pugi::xml_node& planXml)
       throw(ParserException)
       = 0;
 
@@ -253,7 +253,7 @@ namespace PLEXIL
      * @brief Notify the executive of a new plan.
      * @param planStruct The PlexilNode representation of the new plan.
      */
-    virtual void handleAddPlan(PlexilNodeId planStruct) = 0;
+    virtual bool handleAddPlan(PlexilNodeId planStruct) = 0;
 
     /**
      * @brief Get the search path for library nodes.

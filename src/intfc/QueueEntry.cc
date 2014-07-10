@@ -24,80 +24,70 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <cstddef> // for NULL
-
-#include "InputQueue.hh"
-#include "Error.hh"
+#include "QueueEntry.hh"
 
 namespace PLEXIL
 {
-  InputQueue::InputQueue()
-    : m_queueGet(NULL),
-      m_queuePut(NULL),
-      m_freeList(NULL)
+
+  void QueueEntry::reset()
   {
+    next = NULL;
+    sequence = 0;
+    value.setUnknown();
+    type = Q_UNINITED;
   }
 
-  InputQueue::~InputQueue()
+  void QueueEntry::initForLookup(State const &st, Value const &val)
   {
-    m_queuePut = NULL;
-    while (m_queueGet) {
-      QueueEntry *temp = m_queueGet;
-      m_queueGet = temp->next;
-      delete temp;
-    }
-    while (m_freeList) {
-      QueueEntry *temp = m_freeList;
-      m_freeList = temp->next;
-      delete temp;
-    }
+    state = &st;
+    value = &val;
+    type = Q_LOOKUP;
   }
 
-  bool InputQueue::isEmpty() const
+  void QueueEntry::initForCommandAck(Command *cmd, uint16_t val)
   {
-    return m_queueGet == NULL;
+    command = cmd;
+    value = val;
+    type = Q_COMMAND_ACK;
   }
 
-  QueueEntry *InputQueue::allocate()
+  void QueueEntry::initForCommandReturn(Command *cmd, Value const &val)
   {
-    QueueEntry* result = m_freeList;
-    if (result)
-      m_freeList = result->next;
-    else
-      result = new QueueEntry;
-    return result;
+    command = cmd;
+    value = val;
+    type = Q_COMMAND_RETURN;
   }
 
-  void InputQueue::release(QueueEntry *entry)
+  void QueueEntry::initForCommandAbort(Command *cmd, bool ack)
   {
-    assertTrue_1(entry);
-    entry->next = m_freeList;
-    m_freeList = entry;
+    command = cmd;
+    value = ack;
+    type = Q_COMMAND_ABORT;
   }
 
-  void InputQueue::put(QueueEntry *entry)
+  void QueueEntry::initForUpdateAck(Update *upd, bool ack)
   {
-    assertTrue_1(entry);
-    entry->next = NULL;
-    entry->type = Q_UNINITED;
-    if (m_queuePut)
-      m_queuePut->next = entry;
-    m_queuePut = entry;
-    if (!m_queueGet)
-      m_queueGet = entry;
+    update = upd;
+    value = ack;
+    type = Q_UPDATE_ACK;
   }
 
-  QueueEntry *InputQueue::get()
+  void QueueEntry::initForAddPlan(PlexilNode const *p)
   {
-    if (!m_queueGet)
-      return NULL; // empty
-    QueueEntry *result = m_queueGet;
-    m_queueGet = result->next;
-    if (!m_queueGet) { // queue now empty
-      assertTrue_1(m_queuePut == result); // sanity check
-      m_queueGet = m_queuePut = NULL;
-    }
-    return result;
+    plan = p;
+    type = Q_ADD_PLAN;
+  }
+
+  void QueueEntry::initForAddLibrary(PlexilNode const *p)
+  {
+    plan = p;
+    type = Q_ADD_LIBRARY;
+  }
+
+  void QueueEntry::initForMark(uintptr_t seq)
+  {
+    sequence = seq;
+    type = Q_MARK;
   }
 
 } // namespace PLEXIL

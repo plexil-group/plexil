@@ -88,10 +88,15 @@ namespace PLEXIL
     void addPlan(PlexilNodeId const &plan);
 
     /**
-     * @brief Process all the entries in the input queue.
-     * @return True if the Exec needs to be stepped afterward.
+     * @brief Add the node to the known libraries.
+     * @param plan The intermediate representation of the node.
      */
-    bool processQueue();
+    void addLibraryNode(PlexilNodeId const &lib);
+
+    /**
+     * @brief Get the named library.
+     */
+    PlexilNodeId getLibrary(std::string const &name);
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.

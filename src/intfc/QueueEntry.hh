@@ -24,90 +24,63 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Array.hh"
-#include "Error.hh"
-#include <string>
+#ifndef PLEXIL_QUEUE_ENTRY_HH
+#define PLEXIL_QUEUE_ENTRY_HH
+
+#include "Value.hh"
 
 namespace PLEXIL
 {
-  Array::Array()
-  {
-  }
+  // Forward declarations
+  class Command;
+  class PlexilNode;
+  class State;
+  class Update;
 
-  Array::Array(Array const &orig)
-    : m_known(orig.m_known)
-  {
-  }
+  enum QueueEntryType {
+    Q_UNINITED = 0,
+    Q_LOOKUP,
+    Q_COMMAND_ACK,
+    Q_COMMAND_RETURN,
+    Q_COMMAND_ABORT,
+    Q_UPDATE_ACK,
+    Q_ADD_PLAN,
+    Q_ADD_LIBRARY,
+    Q_MARK,
 
-  Array::Array(size_t size, bool known)
-  : m_known(size, known)
-  {
-  }
+    Q_INVALID
+  };
 
-  Array::~Array()
+  struct QueueEntry
   {
-  }
+    QueueEntry *next;
+    union {
+      Command *command;
+      Update *update;
+      State const *state;
+      PlexilNode const *plan;
+      uintptr_t sequence;
+    };
+    Value value;
+    QueueEntryType type;
 
-  Array &Array::operator=(Array const &other)
-  {
-    m_known = other.m_known;
-    return *this;
-  }
+    void reset();
 
-  size_t Array::size() const
-  {
-    return m_known.size();
-  }
+    void initForLookup(State const &st, Value const &val);
 
-  bool Array::elementKnown(size_t index) const
-  {
-    if (!checkIndex(index)) {
-      check_error_2(ALWAYS_FAIL, "Array::elementKnown: Index exceeds array size");
-      return false;
-    }
-    return m_known[index];
-  }
+    void initForCommandAck(Command *cmd, uint16_t val);
+    void initForCommandReturn(Command *cmd, Value const &val);
+    void initForCommandAbort(Command *cmd, bool ack);
 
-  void Array::resize(size_t size)
-  {
-    if (!checkIndex(size)) {
-      m_known.resize(size, false);
-    }
-  }
+    void initForUpdateAck(Update *upd, bool ack);
 
-  void Array::setElementUnknown(size_t index)
-  {
-    if (!checkIndex(index)) {
-      check_error_2(ALWAYS_FAIL, "Array::setElementUnknown: Index exceeds array size");
-      return;
-    }
-    m_known[index] = false;
-  }
+    void initForAddPlan(PlexilNode const *p);
+    void initForAddLibrary(PlexilNode const *p);
 
-  bool Array::operator==(Array const &other) const
-  {
-    return m_known == other.m_known;
-  }
+    void initForMark(uintptr_t seq);
 
-  //
-  // TODO:
-  // - Define boundary case size == 0 for any/allElementsKnown
-  //
-
-  bool Array::allElementsKnown() const
-  {
-    for (size_t i = 0; i < m_known.size(); ++i)
-      if (!m_known[i])
-        return false;
-    return true;
-  }
-
-  bool Array::anyElementsKnown() const
-  {
-    for (size_t i = 0; i < m_known.size(); ++i)
-      if (m_known[i])
-        return true;
-    return false;
-  }
+  };
 
 } // namespace PLEXIL
+
+#endif // PLEXIL_QUEUE_ENTRY_HH

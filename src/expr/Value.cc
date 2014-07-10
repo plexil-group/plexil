@@ -64,19 +64,10 @@ namespace PLEXIL
 
       // Copy the entire array
     case BOOLEAN_ARRAY_TYPE:
-      m_value.booleanArrayValue = new BooleanArray(*other.m_value.booleanArrayValue);
-      break;
-
     case INTEGER_ARRAY_TYPE:
-      m_value.integerArrayValue = new IntegerArray(*other.m_value.integerArrayValue);
-      break;
-
     case REAL_ARRAY_TYPE:
-      m_value.realArrayValue = new RealArray(*other.m_value.realArrayValue);
-      break;
-
     case STRING_ARRAY_TYPE:
-      m_value.stringArrayValue = new StringArray(*other.m_value.stringArrayValue);
+      m_value.arrayValue = other.m_value.arrayValue->clone();
       break;
 
     default:
@@ -142,28 +133,28 @@ namespace PLEXIL
     : m_type(BOOLEAN_ARRAY_TYPE),
       m_known(true)
   {
-    m_value.booleanArrayValue = new BooleanArray(val);
+    m_value.arrayValue = static_cast<Array *>(new BooleanArray(val));
   }
 
   Value::Value(IntegerArray const &val)
     : m_type(INTEGER_ARRAY_TYPE),
       m_known(true)
   {
-    m_value.integerArrayValue = new IntegerArray(val);
+    m_value.arrayValue = static_cast<Array *>(new IntegerArray(val));
   }
 
   Value::Value(RealArray const &val)
     : m_type(REAL_ARRAY_TYPE),
       m_known(true)
   {
-    m_value.realArrayValue = new RealArray(val);
+    m_value.arrayValue = static_cast<Array *>(new RealArray(val));
   }
 
   Value::Value(StringArray const &val)
     : m_type(STRING_ARRAY_TYPE),
       m_known(true)
   {
-    m_value.stringArrayValue = new StringArray(val);
+    m_value.arrayValue = static_cast<Array *>(new StringArray(val));
   }
 
   Value::Value(std::vector<Value> const &vals)
@@ -197,8 +188,8 @@ namespace PLEXIL
     switch (eltType) {
     case BOOLEAN_TYPE: {
       m_type = BOOLEAN_ARRAY_TYPE;
-      m_value.booleanArrayValue = new BooleanArray(len);
-      BooleanArray *ary = m_value.booleanArrayValue;
+      BooleanArray *ary = new BooleanArray(len);
+      m_value.arrayValue = static_cast<Array *>(ary);
       for (size_t i = 0; i < len; ++i) {
         bool temp;
         if (vals[i].getValue(temp))
@@ -211,8 +202,8 @@ namespace PLEXIL
 
     case INTEGER_TYPE: {
       m_type = INTEGER_ARRAY_TYPE;
-      m_value.integerArrayValue = new IntegerArray(len);
-      IntegerArray *ary = m_value.integerArrayValue;
+      IntegerArray *ary = new IntegerArray(len);
+      m_value.arrayValue = static_cast<Array *>(ary);
       for (size_t i = 0; i < len; ++i) {
         int32_t temp;
         if (vals[i].getValue(temp))
@@ -227,8 +218,8 @@ namespace PLEXIL
     case DURATION_TYPE: // FIXME
     case REAL_TYPE: {
       m_type = REAL_ARRAY_TYPE;
-      m_value.realArrayValue = new RealArray(len);
-      RealArray *ary = m_value.realArrayValue;
+      RealArray *ary = new RealArray(len);
+      m_value.arrayValue = static_cast<Array *>(ary);
       for (size_t i = 0; i < len; ++i) {
         double temp;
         if (vals[i].getValue(temp))
@@ -241,8 +232,8 @@ namespace PLEXIL
 
     case STRING_TYPE: {
       m_type = STRING_ARRAY_TYPE;
-      m_value.stringArrayValue = new StringArray(len);
-      StringArray *ary = m_value.stringArrayValue;
+      StringArray *ary = new StringArray(len);
+      m_value.arrayValue = static_cast<Array *>(ary);
       for (size_t i = 0; i < len; ++i) {
         std::string const *temp;
         if (vals[i].getValuePointer(temp))
@@ -291,19 +282,10 @@ namespace PLEXIL
         break;
 
       case BOOLEAN_ARRAY_TYPE:
-        m_value.booleanArrayValue = new BooleanArray(*other.m_value.booleanArrayValue);
-        break;
-
       case INTEGER_ARRAY_TYPE:
-        m_value.integerArrayValue = new IntegerArray(*other.m_value.integerArrayValue);
-        break;
-
       case REAL_ARRAY_TYPE:
-        m_value.realArrayValue = new RealArray(*other.m_value.realArrayValue);
-        break;
-
       case STRING_ARRAY_TYPE:
-        m_value.stringArrayValue = new StringArray(*other.m_value.stringArrayValue);
+        m_value.arrayValue = other.m_value.arrayValue->clone();
         break;
 
       default:
@@ -311,6 +293,98 @@ namespace PLEXIL
         break;
       }
     }
+    return *this;
+  }
+
+  Value &Value::operator=(bool val)
+  {
+    cleanup();
+    m_value.booleanValue = val;
+    m_type = BOOLEAN_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(uint16_t enumVal)
+  {
+    cleanup();
+    m_value.enumValue = enumVal;
+    // *** FIXME: Have to determine type ***
+    // For now assume command handle
+    m_type = COMMAND_HANDLE_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(int32_t val)
+  {
+    cleanup();
+    m_value.integerValue = val;
+    m_type = INTEGER_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(double val)
+  {
+    cleanup();
+    m_value.realValue = val;
+    m_type = REAL_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(std::string const &val)
+  {
+    cleanup();
+    m_value.stringValue = new std::string(val);
+    m_type = STRING_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(char const *val)
+  {
+    cleanup();
+    m_value.stringValue = new std::string(val);
+    m_type = STRING_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(BooleanArray const &val)
+  {
+    cleanup();
+    m_value.arrayValue = val.clone();
+    m_type = BOOLEAN_ARRAY_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(IntegerArray const &val)
+  {
+    cleanup();
+    m_value.arrayValue = val.clone();
+    m_type = INTEGER_ARRAY_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(RealArray const &val)
+  {
+    cleanup();
+    m_value.arrayValue = val.clone();
+    m_type = REAL_ARRAY_TYPE;
+    m_known = true;
+    return *this;
+  }
+
+  Value &Value::operator=(StringArray const &val)
+  {
+    cleanup();
+    m_value.arrayValue = val.clone();
+    m_type = STRING_ARRAY_TYPE;
+    m_known = true;
     return *this;
   }
 
@@ -327,23 +401,11 @@ namespace PLEXIL
       break;
       
     case BOOLEAN_ARRAY_TYPE:
-      delete m_value.booleanArrayValue;
-      m_value.booleanArrayValue = NULL;
-      break;
-
     case INTEGER_ARRAY_TYPE:
-      delete m_value.integerArrayValue;
-      m_value.integerArrayValue = NULL;
-      break;
-
     case REAL_ARRAY_TYPE:
-      delete m_value.realArrayValue;
-      m_value.realArrayValue = NULL;
-      break;
-
     case STRING_ARRAY_TYPE:
-      delete m_value.stringArrayValue;
-      m_value.stringArrayValue = NULL;
+      delete m_value.arrayValue;
+      m_value.arrayValue = NULL;
       break;
 
     default:
@@ -453,19 +515,10 @@ namespace PLEXIL
       return false;
     switch (m_type) {
     case BOOLEAN_ARRAY_TYPE:
-      ptr = static_cast<Array const *>(m_value.booleanArrayValue);
-      return true;
-
     case INTEGER_ARRAY_TYPE:
-      ptr = static_cast<Array const *>(m_value.integerArrayValue);
-      return true;
-
     case REAL_ARRAY_TYPE:
-      ptr = static_cast<Array const *>(m_value.realArrayValue);
-      return true;
-
     case STRING_ARRAY_TYPE:
-      ptr = static_cast<Array const *>(m_value.stringArrayValue);
+      ptr = m_value.arrayValue;
       return true;
 
     default:
@@ -482,7 +535,8 @@ namespace PLEXIL
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
       return false;
     }
-    ptr = m_value.booleanArrayValue;
+    ptr = dynamic_cast<BooleanArray const *>(m_value.arrayValue);
+    assertTrue_1(ptr);
     return true;
   }
 
@@ -494,7 +548,8 @@ namespace PLEXIL
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
       return false;
     }
-    ptr = m_value.integerArrayValue;
+    ptr = dynamic_cast<IntegerArray const *>(m_value.arrayValue);
+    assertTrue_1(ptr);
     return true;
   }
 
@@ -506,7 +561,8 @@ namespace PLEXIL
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
       return false;
     }
-    ptr = m_value.realArrayValue;
+    ptr = dynamic_cast<RealArray const *>(m_value.arrayValue);
+    assertTrue_1(ptr);
     return true;
   }
 
@@ -518,7 +574,8 @@ namespace PLEXIL
       assertTrue_2(ALWAYS_FAIL, "Value::getValuePointer: type error");
       return false;
     }
-    ptr = m_value.stringArrayValue;
+    ptr = dynamic_cast<StringArray const *>(m_value.arrayValue);
+    assertTrue_1(ptr);
     return true;
   }
 
@@ -546,19 +603,19 @@ namespace PLEXIL
       break;
 
     case BOOLEAN_ARRAY_TYPE:
-      printValue<bool>(*m_value.booleanArrayValue, s);
+      printValue<bool>(*dynamic_cast<BooleanArray const *>(m_value.arrayValue), s);
       break;
 
     case INTEGER_ARRAY_TYPE:
-      printValue<int32_t>(*m_value.integerArrayValue, s);
+      printValue<int32_t>(*dynamic_cast<IntegerArray const *>(m_value.arrayValue), s);
       break;
 
     case REAL_ARRAY_TYPE:
-      printValue<double>(*m_value.realArrayValue, s);
+      printValue<double>(*dynamic_cast<RealArray const *>(m_value.arrayValue), s);
       break;
 
     case STRING_ARRAY_TYPE:
-      printValue<std::string>(*m_value.stringArrayValue, s);
+      printValue<std::string>(*dynamic_cast<StringArray const *>(m_value.arrayValue), s);
       break;
 
     case NODE_STATE_TYPE:
@@ -635,16 +692,10 @@ namespace PLEXIL
         return *m_value.stringValue == *other.m_value.stringValue;
 
       case BOOLEAN_ARRAY_TYPE:
-        return *m_value.booleanArrayValue == *other.m_value.booleanArrayValue;
-
       case INTEGER_ARRAY_TYPE:
-        return *m_value.integerArrayValue == *other.m_value.integerArrayValue;
-
       case REAL_ARRAY_TYPE:
-        return *m_value.realArrayValue == *other.m_value.realArrayValue;
-
       case STRING_ARRAY_TYPE:
-        return *m_value.stringArrayValue == *other.m_value.stringArrayValue;
+        return *m_value.arrayValue == *other.m_value.arrayValue;
 
       default:
         assertTrue_2(ALWAYS_FAIL, "Value::equals: unknown value type");
@@ -720,16 +771,24 @@ namespace PLEXIL
         return *m_value.stringValue < *other.m_value.stringValue;
 
       case BOOLEAN_ARRAY_TYPE:
-        return *m_value.booleanArrayValue < *other.m_value.booleanArrayValue;
+        return 
+          *dynamic_cast<BooleanArray const *>(m_value.arrayValue) < 
+          *dynamic_cast<BooleanArray const *>(other.m_value.arrayValue);
 
       case INTEGER_ARRAY_TYPE:
-        return *m_value.integerArrayValue < *other.m_value.integerArrayValue;
+        return 
+          *dynamic_cast<IntegerArray const *>(m_value.arrayValue) < 
+          *dynamic_cast<IntegerArray const *>(other.m_value.arrayValue);
 
       case REAL_ARRAY_TYPE:
-        return *m_value.realArrayValue < *other.m_value.realArrayValue;
+        return 
+          *dynamic_cast<RealArray const *>(m_value.arrayValue) < 
+          *dynamic_cast<RealArray const *>(other.m_value.arrayValue);
 
       case STRING_ARRAY_TYPE:
-        return *m_value.stringArrayValue < *other.m_value.stringArrayValue;
+        return 
+          *dynamic_cast<StringArray const *>(m_value.arrayValue) < 
+          *dynamic_cast<StringArray const *>(other.m_value.arrayValue);
 
       default:
         assertTrue_2(ALWAYS_FAIL, "Value::lessThan: unknown value type");

@@ -132,7 +132,7 @@ namespace PLEXIL
       }
          
       // step the exec forward
-      if (g_exec->processQueue())
+      if (true /* g_exec->processQueue() */ ) // *** FIXME ***
         g_exec->step(currentTime());
 
       scriptElement = scriptElement.next_sibling();

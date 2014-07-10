@@ -27,8 +27,7 @@
 #include <iostream>
 #include "AdapterFactory.hh"
 #include "AdapterExecInterface.hh"
-#include "BooleanVariable.hh"
-#include "CoreExpressions.hh"
+#include "Command.hh"
 #include "Debug.hh"
 #include "UtilityAdapter.hh"
 #include "plan-utils.hh"
@@ -44,8 +43,8 @@ UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
 
 bool UtilityAdapter::initialize()
 {
-  m_execInterface.registerCommandInterface(LabelStr("print"), getId());
-  m_execInterface.registerCommandInterface(LabelStr("pprint"), getId());
+  m_execInterface.registerCommandInterface("print", getId());
+  m_execInterface.registerCommandInterface("pprint", getId());
   debugMsg("UtilityAdapter", " initialized.");
   return true;
 }
@@ -74,45 +73,32 @@ bool UtilityAdapter::shutdown()
   return true;
 }
 
-void UtilityAdapter::executeCommand(const LabelStr& command_name,
-                                    const std::vector<Value>& args,
-                                    ExpressionId dest,
-                                    ExpressionId ack) 
+void UtilityAdapter::executeCommand(Command * cmd) 
 {
-  const std::string& name = command_name.toString();
+  const std::string& name = cmd->getName();
   debugMsg("UtilityAdapter", "Received executeCommand for " << name);  
 
   if (name == "print") 
-    print(args);
+    print(cmd->getArgValues());
   else if (name == "pprint") 
-    pprint(args);
+    pprint(cmd->getArgValues());
   else
     std::cerr <<
       "Error in Utility Adapter: invalid command (should never happen!): "
               << name << std::endl;
 
-  m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS());
-
-  // Technically, this may be unnecessary, but is the closest equivalent of a
-  // "void" return value.
-  if (dest.isId()) {
-    m_execInterface.handleValueChange (dest, UNKNOWN());
-  }
-
+  m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
   m_execInterface.notifyOfExternalEvent();
 }
 
-void UtilityAdapter::invokeAbort(const LabelStr& command_name, 
-                                 const std::vector<Value>& /* args */, 
-                                 ExpressionId abort_ack,
-                                 ExpressionId /* cmd_ack */)
+void UtilityAdapter::invokeAbort(Command *cmd)
 {
-  const std::string& name = command_name.toString();
+  const std::string& name = cmd->getName();
   if (name != "print" && name != "pprint") {
     std::cerr << "Error in Utility Adapter: aborting invalid command \"" 
               << name << "\" (should never happen!)" << std::endl;
   }
-  m_execInterface.handleValueChange(abort_ack, BooleanVariable::TRUE_VALUE());
+  m_execInterface.handleCommandAbortAck(cmd, true);
   m_execInterface.notifyOfExternalEvent();
 }
 

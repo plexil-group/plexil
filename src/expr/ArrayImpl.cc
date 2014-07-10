@@ -65,6 +65,12 @@ namespace PLEXIL
   }
 
   template <typename T>
+  Array *ArrayImpl<T>::clone() const
+  {
+    return new ArrayImpl<T>(*this);
+  }
+
+  template <typename T>
   ArrayImpl<T> &ArrayImpl<T>::operator=(ArrayImpl<T> const &orig)
   {
     Array::operator=(orig);
@@ -77,6 +83,30 @@ namespace PLEXIL
   {
     Array::resize(size);
     m_contents.resize(size);
+  }
+
+  template <>
+  ValueType ArrayImpl<bool>::getElementType() const
+  {
+    return BOOLEAN_TYPE;
+  }
+
+  template <>
+  ValueType ArrayImpl<int32_t>::getElementType() const
+  {
+    return INTEGER_TYPE;
+  }
+
+  template <>
+  ValueType ArrayImpl<double>::getElementType() const
+  {
+    return REAL_TYPE;
+  }
+
+  template <>
+  ValueType ArrayImpl<std::string>::getElementType() const
+  {
+    return STRING_TYPE;
   }
 
   template <typename T>
@@ -119,6 +149,26 @@ namespace PLEXIL
       return false;
     result = (double) m_contents[index];
     return true;
+  }
+
+  // Generic equality
+  template <typename T>
+  bool ArrayImpl<T>::operator==(Array const &other) const
+  {
+    ArrayImpl<T> const *typedOther = 
+      dynamic_cast<ArrayImpl<T> const *>(&other);
+    if (!typedOther)
+      return false;
+    return operator==(*typedOther);
+  }
+
+  // Specific equality
+  template <typename T>
+  bool ArrayImpl<T>::operator==(ArrayImpl<T> const &other) const
+  {
+    if (!(this->getKnownVector() == other.getKnownVector()))
+      return false;
+    return m_contents == other.m_contents;
   }
 
   template <typename T>
@@ -253,6 +303,14 @@ namespace PLEXIL
     return *avec == *bvec;
   }
 
+  // Generic
+  template <typename T>
+  bool operator!=(ArrayImpl<T> const &a, Array const &b)
+  {
+    return !(a == b);
+  }
+
+  // Specific
   template <typename T>
   bool operator!=(ArrayImpl<T> const &a, ArrayImpl<T> const &b)
   {
@@ -371,11 +429,6 @@ namespace PLEXIL
   template class ArrayImpl<int32_t>;
   template class ArrayImpl<double>;
   template class ArrayImpl<std::string>;
-
-  template bool operator==(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
-  template bool operator==(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
-  template bool operator==(ArrayImpl<double> const &,      ArrayImpl<double> const &);
-  template bool operator==(ArrayImpl<std::string> const &, ArrayImpl<std::string> const &);
 
   template bool operator!=(ArrayImpl<bool> const &,        ArrayImpl<bool> const &);
   template bool operator!=(ArrayImpl<int32_t> const &,     ArrayImpl<int32_t> const &);
