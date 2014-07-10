@@ -260,6 +260,9 @@ namespace PLEXIL {
     InterfaceMap m_commandMap;
 
   };
+
+  extern AdapterConfigurationId g_configuration;
+
 }
 
 #endif /* ADAPTERCONFIGURATION_HH_ */

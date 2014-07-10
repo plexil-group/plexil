@@ -24,13 +24,16 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <iostream>
+#include "UtilityAdapter.hh"
+
+#include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"
 #include "AdapterExecInterface.hh"
 #include "Command.hh"
 #include "Debug.hh"
-#include "UtilityAdapter.hh"
 #include "plan-utils.hh"
+
+#include <iostream>
 
 namespace PLEXIL {
 
@@ -43,8 +46,8 @@ UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
 
 bool UtilityAdapter::initialize()
 {
-  m_execInterface.registerCommandInterface("print", getId());
-  m_execInterface.registerCommandInterface("pprint", getId());
+  g_configuration->registerCommandInterface("print", getId());
+  g_configuration->registerCommandInterface("pprint", getId());
   debugMsg("UtilityAdapter", " initialized.");
   return true;
 }

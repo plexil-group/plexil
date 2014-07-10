@@ -108,13 +108,17 @@ namespace PLEXIL
       return m_application;
     }
 
+    //
+    // *** FIXME - Move to AdapterConfiguration ***
+    //
+
     /**
-     * @brief Get adapterConfiguration.
+     * @brief Register the given resource arbiter interface for all commands
+     * Returns true if successful.
+     * Fails and returns false if there is already an interface registered.
+     * @param raIntf The resource arbiter interface to use as the default.
      */
-    inline AdapterConfigurationId getAdapterConfig() const
-    {
-      return m_adapterConfig;
-    }
+    bool setResourceArbiterInterface(ResourceArbiterInterfaceId raIntf);
 
     //
     // API for all related objects
@@ -299,158 +303,6 @@ namespace PLEXIL
     //
 
     /**
-     * @brief Register the given interface adapter based on its configuration XML.  
-     * @param adapter The interface adapter to handle this command.
-     */
-
-    virtual void defaultRegisterAdapter(InterfaceAdapterId adapter);
-
-    /**
-     * @brief Register the given interface adapter for this command.  
-     Returns true if successful.  Fails and returns false 
-     iff the command name already has an adapter registered.
-     * @param commandName The command to map to this adapter.
-     * @param intf The interface adapter to handle this command.
-     */
-    bool registerCommandInterface(std::string const &commandName,
-                  InterfaceAdapterId intf);
-
-    /**
-     * @brief Register the given interface adapter for lookups to this state.
-     Returns true if successful.  Fails and returns false 
-     if the state name already has an adapter registered.
-     * @param stateName The name of the state to map to this adapter.
-     * @param intf The interface adapter to handle this lookup.
-     */
-    bool registerLookupInterface(std::string const & stateName,
-        const InterfaceAdapterId& intf);
-
-    /**
-     * @brief Register the given interface adapter for planner updates.
-              Returns true if successful.  Fails and returns false 
-              iff an adapter is already registered.
-     * @param intf The interface adapter to handle planner updates.
-     */
-    bool registerPlannerUpdateInterface(InterfaceAdapterId intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for all lookups and commands
-     which do not have a specific adapter.  Returns true if successful.
-     Fails and returns false if there is already a default adapter registered.
-     * @param intf The interface adapter to use as the default.
-     */
-    bool setDefaultInterface(InterfaceAdapterId intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for lookups.
-              This interface will be used for all lookups which do not have
-          a specific adapter.  
-              Returns true if successful.
-          Fails and returns false if there is already a default lookup adapter registered.
-     * @param intf The interface adapter to use as the default.
-     * @return True if successful, false if there is already a default adapter registered.
-     */
-    bool setDefaultLookupInterface(InterfaceAdapterId intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for commands.
-              This interface will be used for all commands which do not have
-          a specific adapter.  
-              Returns true if successful.
-          Fails and returns false if there is already a default command adapter registered.
-     * @param intf The interface adapter to use as the default.
-     * @return True if successful, false if there is already a default adapter registered.
-     */
-    bool setDefaultCommandInterface(InterfaceAdapterId intf);
-
-    /**
-     * @brief Retract registration of the previous interface adapter for this command.  
-     * @param commandName The command.
-     */
-    void unregisterCommandInterface(std::string const &commandName);
-
-    /**
-     * @brief Retract registration of the previous interface adapter for this state.
-     * @param stateName The state name.
-     */
-    void unregisterLookupInterface(std::string const &stateName);
-
-    /**
-     * @brief Retract registration of the previous interface adapter for planner updates.
-     */
-    void unregisterPlannerUpdateInterface();
-
-    /**
-     * @brief Retract registration of the previous default interface adapter.
-     */
-    void unsetDefaultInterface();
-
-    /**
-     * @brief Retract registration of the previous default interface adapter for commands.
-     */
-    void unsetDefaultCommandInterface();
-
-    /**
-     * @brief Retract registration of the previous default interface adapter for lookups.
-     */
-    void unsetDefaultLookupInterface();
-
-    /**
-     * @brief Return the interface adapter in effect for this command, whether 
-     specifically registered or default. May return NoId().
-     * @param commandName The command.
-     */
-    InterfaceAdapterId getCommandInterface(std::string const &commandName);
-
-    /**
-     * @brief Return the current default interface adapter for commands.
-              May return NoId().
-     */
-    InterfaceAdapterId getDefaultCommandInterface();
-
-    /**
-     * @brief Return the interface adapter in effect for lookups with this state name,
-     whether specifically registered or default. May return NoId().
-     * @param stateName The state.
-     */
-    InterfaceAdapterId getLookupInterface(std::string const &stateName);
-
-    /**
-     * @brief Return the current default interface adapter for lookups.
-              May return NoId().
-     */
-    InterfaceAdapterId getDefaultLookupInterface();
-
-    /**
-     * @brief Return the interface adapter in effect for planner updates,
-              whether specifically registered or default. May return NoId().
-     */
-    InterfaceAdapterId getPlannerUpdateInterface();
-
-    /**
-     * @brief Return the current default interface adapter. May return NoId().
-     */
-    InterfaceAdapterId getDefaultInterface();
-
-    /**
-     * @brief Register the given resource arbiter interface for all commands
-     Returns true if successful.
-     Fails and returns false if there is already an interface registered.
-     * @param raIntf The resource arbiter interface to use.
-     */
-    bool setResourceArbiterInterface(ResourceArbiterInterfaceId raIntf);
-
-    /**
-     * @brief Retract registration of the previous resource arbiter interface.
-     */
-    void unsetResourceArbiterInterface();
-
-    /**
-     * @brief Return the current resource arbiter interface. May return NoId().
-     */
-    ResourceArbiterInterfaceId getResourceArbiterInterface() const {return m_raInterface;}
-
-    /**
      * @brief Notify of the availability of a new value for a lookup.
      * @param state The state for the new value.
      * @param value The new value.
@@ -563,8 +415,6 @@ namespace PLEXIL
 
     //* Parent object
     ExecApplication& m_application;
-    //* Adapter Config
-    AdapterConfigurationId m_adapterConfig;
 
     //* ExecListener hub
     ExecListenerHubId m_listenerHub;

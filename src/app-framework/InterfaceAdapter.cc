@@ -25,6 +25,7 @@
 */
 
 #include "InterfaceAdapter.hh"
+#include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
 #include "Command.hh"
 #include "Update.hh"
@@ -121,7 +122,7 @@ namespace PLEXIL
    */
   void InterfaceAdapter::registerAdapter()
   {
-    m_execInterface.defaultRegisterAdapter(m_id);
+    g_configuration->defaultRegisterAdapter(m_id);
   }
 
 }

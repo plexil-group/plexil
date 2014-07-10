@@ -32,11 +32,36 @@
 
 #include "AdapterConfiguration.hh"
 
+#include "AdapterFactory.hh"
 #include "Debug.hh"
+#include "DummyAdapter.hh"
 #include "Error.hh"
+#include "ExecListenerFactory.hh"
+#include "ExecListenerFilterFactory.hh"
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
+#include "ListenerFilters.hh"
 #include "PlexilXmlParser.hh"
+#include "UtilityAdapter.hh"
+
+#if HAVE_LUV_LISTENER
+#include "LuvListener.hh"
+#endif
+
+#if HAVE_DEBUG_LISTENER
+#include "PlanDebugListener.hh"
+#endif
+
+#ifdef PLEXIL_WITH_UNIX_TIME 
+#include "TimeAdapter.hh"
+#if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))
+#include "PosixTimeAdapter.hh"
+#elif defined(HAVE_SETITIMER)
+#include "DarwinTimeAdapter.hh"
+//#else
+//#error "No time adapter implementation class for this environment"
+#endif
+#endif
 
 #include <cstring>
 
@@ -48,7 +73,28 @@ namespace PLEXIL {
     m_defaultInterface(),
     m_defaultCommandInterface(),
     m_defaultLookupInterface()
-  {}
+  {
+    // Every application has access to the dummy and utility adapters
+    REGISTER_ADAPTER(DummyAdapter, "Dummy");
+    REGISTER_ADAPTER(UtilityAdapter, "Utility");
+
+#ifdef PLEXIL_WITH_UNIX_TIME
+    // Every application has access to the OS-native time adapter
+    REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
+#endif
+    // Every application has access to the NodeState filter
+    REGISTER_EXEC_LISTENER_FILTER(NodeStateFilter, "NodeState")
+
+#if HAVE_DEBUG_LISTENER
+      // Every application should have access to the Plan Debug Listener
+      REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
+#endif
+
+#if HAVE_LUV_LISTENER
+    // Every application should have access to the Plexil Viewer (formerly LUV) Listener
+    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
+#endif
+  }
 
   AdapterConfiguration::~AdapterConfiguration()
   {
@@ -485,5 +531,8 @@ namespace PLEXIL {
       deleteAdapter(intf);
     }
   }
+
+  // Initialize global variable
+  AdapterConfigurationId g_configuration;
 
 }

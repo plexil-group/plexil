@@ -25,10 +25,12 @@
 */
 
 #include "TimeAdapter.hh"
-#include "ExternalInterface.hh" // for g_interface
+
+#include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "ExternalInterface.hh" // for g_interface
 #include "State.hh"
 #include "StateCacheEntry.hh"
 #ifdef PLEXIL_WITH_THREADS
@@ -78,7 +80,7 @@ namespace PLEXIL
   bool TimeAdapter::initialize()
   {
     // Automatically register self for time
-    m_execInterface.registerLookupInterface("time", getId());
+    g_configuration->registerLookupInterface("time", getId());
     return true;
   }
 

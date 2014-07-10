@@ -40,16 +40,14 @@
 #include "CachedValue.hh"
 #include "Command.hh"
 #include "Debug.hh"
-#include "DummyAdapter.hh"
 #include "Error.hh"
 #include "ExecApplication.hh"
 #include "ExecListener.hh"
 #include "ExecListenerFactory.hh"
-#include "ExecListenerFilterFactory.hh"
+#include "ExecListenerFilter.hh"
 #include "ExecListenerHub.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
-#include "ListenerFilters.hh"
 #include "Node.hh"
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
@@ -59,26 +57,6 @@
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 #include "Update.hh"
-#include "UtilityAdapter.hh"
-
-#if HAVE_LUV_LISTENER
-#include "LuvListener.hh"
-#endif
-
-#if HAVE_DEBUG_LISTENER
-#include "PlanDebugListener.hh"
-#endif
-
-#ifdef PLEXIL_WITH_UNIX_TIME 
-#include "TimeAdapter.hh"
-#if defined(_POSIX_TIMERS) && ((_POSIX_TIMERS - 200112L) >= 0L || defined(PLEXIL_ANDROID))
-#include "PosixTimeAdapter.hh"
-#elif defined(HAVE_SETITIMER)
-#include "DarwinTimeAdapter.hh"
-//#else
-//#error "No time adapter implementation class for this environment"
-#endif
-#endif
 
 #include <cstring>
 #include <limits>
@@ -97,7 +75,6 @@ namespace PLEXIL
       AdapterExecInterface(),
       m_interfaceManagerId(this, ExternalInterface::getId()),
       m_application(app),
-      m_adapterConfig(),
       m_listenerHub((new ExecListenerHub())->getId()),
       m_adapters(),
       m_raInterface(),
@@ -106,26 +83,6 @@ namespace PLEXIL
       m_currentTime(std::numeric_limits<double>::min()),
       m_lastMark(0)
   {
-    // Every application has access to the dummy and utility adapters
-    REGISTER_ADAPTER(DummyAdapter, "Dummy");
-    REGISTER_ADAPTER(UtilityAdapter, "Utility");
-
-#ifdef PLEXIL_WITH_UNIX_TIME
-    // Every application has access to the OS-native time adapter
-    REGISTER_ADAPTER(TIME_ADAPTER_CLASS, "OSNativeTime");
-#endif
-    // Every application has access to the NodeState filter
-    REGISTER_EXEC_LISTENER_FILTER(NodeStateFilter, "NodeState")
-
-#if HAVE_DEBUG_LISTENER
-      // Every application should have access to the Plan Debug Listener
-      REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
-#endif
-
-#if HAVE_LUV_LISTENER
-    // Every application should have access to the Plexil Viewer (formerly LUV) Listener
-    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
-#endif
   }
 
   /**
@@ -142,10 +99,6 @@ namespace PLEXIL
       it = m_adapters.begin(); // it = m_adapters.erase(it)
       delete (InterfaceAdapter*) ia;
     }
-    
-    // we may not have initialized these!
-    if (m_adapterConfig.isId())
-      delete m_adapterConfig.operator->();
 
     delete m_inputQueue;
   }
@@ -155,32 +108,20 @@ namespace PLEXIL
   //
 
   /**
-   * @brief Register this adapter using the set AdapterConfiguration
-   * @note The adapter is presumed to be fully initialized and working at the time of this call.
-   * @note TODO: strategy for handling redundant registrations
-   */
-  void InterfaceManager::defaultRegisterAdapter(InterfaceAdapterId adapter)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    debugMsg("InterfaceManager:defaultRegisterAdapter", " for adapter " << adapter);
-    m_adapterConfig->defaultRegisterAdapter(adapter);
-  }
-
-  /**
    * @brief Constructs interface adapters from the provided XML.
    * @param configXml The XML element used for interface configuration.
    * @return true if successful, false otherwise.
    */
   bool InterfaceManager::constructInterfaces(const pugi::xml_node& configXml)
   {
-    // Construct configuration helper
-    m_adapterConfig = (new AdapterConfiguration(this))->getId();
-
     if (configXml.empty()) {
       debugMsg("InterfaceManager:constructInterfaces",
                " empty configuration, nothing to construct");
       return true;
     }
+
+    assertTrue_2(g_configuration.isNoId(),
+                 "No AdapterConfiguration instance");
 
     debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML");
     const char* elementType = configXml.name();
@@ -456,8 +397,8 @@ namespace PLEXIL
    * @brief Clears the interface adapter registry.
    */
   void InterfaceManager::clearAdapterRegistry() {
-    assertTrue_1(m_adapterConfig.isId());
-    m_adapterConfig->clearAdapterRegistry();
+    assertTrue_1(g_configuration.isId());
+    g_configuration->clearAdapterRegistry();
   }
 
   /**
@@ -647,7 +588,7 @@ namespace PLEXIL
   InterfaceManager::lookupNow(State const &state, StateCacheEntry &cacheEntry)
   {
     debugMsg("InterfaceManager:lookupNow", " of " << state);
-    InterfaceAdapterId adapter = getLookupInterface(state.name());
+    InterfaceAdapterId adapter = g_configuration->getLookupInterface(state.name());
     if (!adapter.isNoId()) {
       warn("lookupNow: No interface adapter found for lookup "
            << state.name() << ", returning UNKNOWN");
@@ -676,7 +617,7 @@ namespace PLEXIL
   void InterfaceManager::subscribe(const State& state)
   {
     debugMsg("InterfaceManager:subscribe", " to state " << state);
-    InterfaceAdapterId adapter = getLookupInterface(state.name());
+    InterfaceAdapterId adapter = g_configuration->getLookupInterface(state.name());
     if (adapter.isNoId()) {
       warn("subscribe: No interface adapter found for lookup " << state);
       return;
@@ -690,7 +631,7 @@ namespace PLEXIL
   void InterfaceManager::unsubscribe(const State& state)
   {
     debugMsg("InterfaceManager:unsubscribe", " to state " << state);
-    InterfaceAdapterId adapter = getLookupInterface(state.name());
+    InterfaceAdapterId adapter = g_configuration->getLookupInterface(state.name());
     if (adapter.isNoId()) {
       warn("unsubscribe: No interface adapter found for lookup " << state);
       return;
@@ -707,7 +648,7 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, double hi, double lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    InterfaceAdapterId adapter = getLookupInterface(state.name());
+    InterfaceAdapterId adapter = g_configuration->getLookupInterface(state.name());
     if (!adapter.isNoId()) {
       warn("setThresholds: No interface adapter found for lookup "
            << state);
@@ -719,7 +660,7 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, int32_t hi, int32_t lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    InterfaceAdapterId adapter = getLookupInterface(state.name());
+    InterfaceAdapterId adapter = g_configuration->getLookupInterface(state.name());
     if (!adapter.isNoId()) {
       warn("setThresholds: No interface adapter found for lookup "
            << state);
@@ -735,7 +676,7 @@ namespace PLEXIL
   InterfaceManager::executeUpdate(Update *update)
   {
     assertTrue_1(update);
-    InterfaceAdapterId intf = this->getPlannerUpdateInterface();
+    InterfaceAdapterId intf = g_configuration->getPlannerUpdateInterface();
     if (intf.isNoId()) {
       // Fake the ack
       g_interface->acknowledgeUpdate(update, true);
@@ -755,7 +696,7 @@ namespace PLEXIL
   void
   InterfaceManager::executeCommand(Command *cmd)
   {
-    InterfaceAdapterId intf = getCommandInterface(cmd->getName());
+    InterfaceAdapterId intf = g_configuration->getCommandInterface(cmd->getName());
     if (intf.isId()) {
       intf->executeCommand(cmd);
     }
@@ -779,7 +720,7 @@ namespace PLEXIL
    */
   void InterfaceManager::invokeAbort(Command *cmd)
   {
-    InterfaceAdapterId intf = getCommandInterface(cmd->getName());
+    InterfaceAdapterId intf = g_configuration->getCommandInterface(cmd->getName());
     if (intf.isId()) {
       intf->invokeAbort(cmd);
     }
@@ -796,229 +737,18 @@ namespace PLEXIL
     return m_currentTime;
   }
 
-
   //
   // API to interface adapters
   //
-
-  /**
-   * @brief Register the given interface adapter for this command.  
-   Returns true if successful.  Fails and returns false 
-   iff the command name already has an adapter registered.
-   * @param commandName The command to map to this adapter.
-   * @param intf The interface adapter to handle this command.
-   */
-  bool
-  InterfaceManager::registerCommandInterface(const std::string &commandName,
-                                             InterfaceAdapterId intf)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->registerCommandInterface(commandName, intf);
-  }
-
-  /**
-   * @brief Register the given interface adapter for lookups to this state.
-   Returns true if successful.  Fails and returns false 
-   if the state name already has an adapter registered.
-   * @param stateName The name of the state to map to this adapter.
-   * @param intf The interface adapter to handle this lookup.
-   */
-  bool 
-  InterfaceManager::registerLookupInterface(const std::string &stateName,
-                                            const InterfaceAdapterId& intf)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->registerLookupInterface(stateName, intf);
-  }
-
-  /**
-   * @brief Register the given interface adapter for planner updates.
-   Returns true if successful.  Fails and returns false 
-   iff an adapter is already registered.
-   * @param intf The interface adapter to handle planner updates.
-   */
-  bool
-  InterfaceManager::registerPlannerUpdateInterface(InterfaceAdapterId intf)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->registerPlannerUpdateInterface(intf);
-  }
-
-  /**
-   * @brief Register the given interface adapter as the default for all lookups and commands
-   which do not have a specific adapter.  Returns true if successful.
-   Fails and returns false if there is already a default adapter registered.
-   * @param intf The interface adapter to use as the default.
-   */
-  bool 
-  InterfaceManager::setDefaultInterface(InterfaceAdapterId intf)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->setDefaultInterface(intf);
-  }
-
-  /**
-   * @brief Register the given interface adapter as the default for all commands
-   which do not have a specific adapter.  Returns true if successful.
-   Fails and returns false if there is already a default adapter registered.
-   * @param intf The interface adapter to use as the default.
-   */
-  bool 
-  InterfaceManager::setDefaultCommandInterface(InterfaceAdapterId intf)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->setDefaultCommandInterface(intf);
-  }
-
-  /**
-   * @brief Register the given interface adapter as the default for all lookups
-   which do not have a specific adapter.  Returns true if successful.
-   Fails and returns false if there is already a default adapter registered.
-   * @param intf The interface adapter to use as the default.
-   */
-  bool 
-  InterfaceManager::setDefaultLookupInterface(InterfaceAdapterId intf)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->setDefaultLookupInterface(intf);
-  }
-
 
   /**
    * @brief Removes the adapter and deletes it iff nothing refers to it.
    */
   void InterfaceManager::deleteIfUnknown(InterfaceAdapterId intf)
   {
-    assertTrue_1(m_adapterConfig.isId());
-    if (!m_adapterConfig->isKnown(intf))
+    assertTrue_1(g_configuration.isId());
+    if (!g_configuration->isKnown(intf))
       deleteAdapter(intf);
-  }
-
-  /**
-   * @brief Retract registration of the previous interface adapter for this command.  
-   * @param commandName The command.
-   */
-  void
-  InterfaceManager::unregisterCommandInterface(const std::string &commandName)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->unregisterCommandInterface(commandName);
-  }
-
-  /**
-   * @brief Retract registration of the previous interface adapter for this state.
-   * @param stateName The state name.
-   */
-  void
-  InterfaceManager::unregisterLookupInterface(const std::string &stateName)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->unregisterLookupInterface(stateName);
-  }
-
-  /**
-   * @brief Retract registration of the previous interface adapter for planner updates.
-   */
-  void
-  InterfaceManager::unregisterPlannerUpdateInterface()
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->unregisterPlannerUpdateInterface();
-  }
-
-  /**
-   * @brief Retract registration of the previous default interface adapter.
-   */
-  void
-  InterfaceManager::unsetDefaultInterface()
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->unsetDefaultInterface();
-  }
-
-  /**
-   * @brief Retract registration of the previous default interface adapter for commands.
-   */
-  void
-  InterfaceManager::unsetDefaultCommandInterface()
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->unsetDefaultCommandInterface();
-  }
-
-  /**
-   * @brief Retract registration of the previous default interface adapter for lookups.
-   */
-  void
-  InterfaceManager::unsetDefaultLookupInterface()
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->unsetDefaultLookupInterface();
-  }
-
-  /**
-   * @brief Return the interface adapter in effect for this command, whether 
-   specifically registered or default. May return NoId().
-   * @param commandName The command.
-   */
-  InterfaceAdapterId
-  InterfaceManager::getCommandInterface(const std::string &commandName)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->getCommandInterface(commandName);
-  }
-
-  /**
-   * @brief Return the interface adapter in effect for lookups with this state name,
-   whether specifically registered or default. May return NoId().
-   * @param stateName The state.
-   */
-  InterfaceAdapterId
-  InterfaceManager::getLookupInterface(const std::string &stateName)
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->getLookupInterface(stateName);
-  }
-
-  /**
-   * @brief Return the current default interface adapter. May return NoId().
-   */
-  InterfaceAdapterId 
-  InterfaceManager::getDefaultInterface()
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->getDefaultInterface();
-  }
-
-  /**
-   * @brief Return the current default interface adapter for commands. May return NoId().
-   */
-  InterfaceAdapterId 
-  InterfaceManager::getDefaultCommandInterface()
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->getDefaultCommandInterface();
-  }
-
-  /**
-   * @brief Return the current default interface adapter for lookups. May return NoId().
-   */
-  InterfaceAdapterId 
-  InterfaceManager::getDefaultLookupInterface()
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->getDefaultLookupInterface();
-  }
-
-  /**
-   * @brief Return the interface adapter in effect for planner updates,
-   whether specifically registered or default. May return NoId().
-  */
-  InterfaceAdapterId
-  InterfaceManager::getPlannerUpdateInterface()
-  {
-    assertTrue_1(m_adapterConfig.isId());
-    return m_adapterConfig->getPlannerUpdateInterface();
   }
 
   /**
@@ -1040,17 +770,6 @@ namespace PLEXIL
     debugMsg("InterfaceManager:setResourceArbiterInterface",
              " setting resource arbiter interface " << raIntf);
     return true;
-  }
-
-  /**
-   * @brief Retract registration of the previous resource arbiter interface.
-   */
-  void 
-  InterfaceManager::unsetResourceArbiterInterface()
-  {
-    debugMsg("InterfaceManager:unsetResourceArbiterInterface",
-             " removing resource arbiter interface");
-    m_raInterface = ResourceArbiterInterfaceId::noId();
   }
 
   /**
