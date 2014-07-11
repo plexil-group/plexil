@@ -2,12 +2,12 @@
 // repeat2
 
 initial-state {
-  state x () = 0 : real;
+  state x () = 0 : int;
 }
 
 script {
   command-ack foo () = "COMMAND_SUCCESS" : string;
-  state       x   () = 1 : real;
+  state       x   () = 1 : int;
   command-ack foo () = "COMMAND_SUCCESS" : string;
 }
 

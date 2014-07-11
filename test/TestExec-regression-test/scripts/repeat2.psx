@@ -1,7 +1,7 @@
 <PLEXILScript>
   <InitialState>
 
-    <State name="x" type="real">
+    <State name="x" type="int">
       <Value>0</Value>
     </State>
   </InitialState>
@@ -12,7 +12,7 @@
       <Result>COMMAND_SUCCESS</Result>
     </CommandAck>
 
-    <State name="x" type="real">
+    <State name="x" type="int">
       <Value>1</Value>
     </State>
 
