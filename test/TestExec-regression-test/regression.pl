@@ -95,8 +95,8 @@ close(F2);
                     if(@lines1[$i] =~ m/PlexilExec:printPlan/){
                          $k = 1;
                         if (@lines1[$i+1] =~ m/^$rootNode\{$/){
-                            if (@lines1[$i+3] =~ m/^ Outcome: $rootNode \((id_[0-9]{2,4}|ptr_0x[0-9a-fA-F]{2,16})\[a\]\((.*)\): outcome/){
-							  $outcome = $2;
+                            if (@lines1[$i+3] =~ m/^ Outcome: ([A-Z]*)$/){
+							  $outcome = $1;
                                 if ($outcome eq "SUCCESS"){
                                     print DIF "\nTEST PASSED: ", $testName, "\n";
                                     $i = 0;
