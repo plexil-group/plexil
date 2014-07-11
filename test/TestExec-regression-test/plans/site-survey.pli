@@ -103,7 +103,7 @@
                           (assignment-node "Get_hinted_speed"
                             (assignment (realvar "waypt_hinted_speed") (lookup-now "hintedSpeed")))
                           (assignment-node "Get_task_type"
-                            (assignment (realvar "task_type") (lookup-now "inspect_waypoint")))
+                            (assignment (intvar "task_type") (lookup-now "inspect_waypoint")))
                           (assignment-node "Get_task_id"
                             (assignment (intvar "waypt_id") (lookup-now "task_id")))
                           (assignment-node "Get_timeout"
