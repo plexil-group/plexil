@@ -84,6 +84,19 @@ namespace PLEXIL
     return true;
   }
 
+  // a.k.a. EQInternal
+  template <>
+  bool Equal<uint16_t>::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  {
+    if (argA->valueType() != argB->valueType())
+      return false; // type mismatch
+    uint16_t tempA, tempB;
+    if (!argA->getValue(tempA) || !argB->getValue(tempB))
+      return false; // some value unknown -> result unknown
+    result = (tempA == tempB);
+    return true;
+  }
+
   //
   // NotEqual
   //
@@ -111,6 +124,19 @@ namespace PLEXIL
     T tempA, tempB;
     if (!argA->getValue(tempA) || !argB->getValue(tempB))
       return false; // some value unknown
+    result = (tempA != tempB);
+    return true;
+  }
+
+  // a.k.a. NEInternal
+  template <>
+  bool NotEqual<uint16_t>::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  {
+    if (argA->valueType() != argB->valueType())
+      return true; // type mismatch
+    uint16_t tempA, tempB;
+    if (!argA->getValue(tempA) || !argB->getValue(tempB))
+      return false; // some value unknown -> result unknown
     result = (tempA != tempB);
     return true;
   }
@@ -244,11 +270,13 @@ namespace PLEXIL
   //
 
   template class Equal<bool>;
+  template class Equal<uint16_t>;
   template class Equal<int32_t>;
   template class Equal<double>;
   template class Equal<std::string>;
 
   template class NotEqual<bool>;
+  template class NotEqual<uint16_t>;
   template class NotEqual<int32_t>;
   template class NotEqual<double>;
   template class NotEqual<std::string>;

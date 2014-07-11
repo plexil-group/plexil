@@ -47,10 +47,12 @@ namespace PLEXIL
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(Equal);
   ENSURE_FUNCTION_FACTORY(Equal<bool>);
   ENSURE_FUNCTION_FACTORY(Equal<std::string>);
+  ENSURE_FUNCTION_FACTORY(Equal<uint16_t>);
 
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(NotEqual);
   ENSURE_FUNCTION_FACTORY(NotEqual<bool>);
   ENSURE_FUNCTION_FACTORY(NotEqual<std::string>);
+  ENSURE_FUNCTION_FACTORY(NotEqual<uint16_t>);
 
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(GreaterThan);
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(GreaterEqual);
@@ -131,10 +133,12 @@ namespace PLEXIL
       REGISTER_ARITHMETIC_FUNCTION(Equal, EQNumeric);
       REGISTER_FUNCTION(Equal<bool>, EQBoolean);
       REGISTER_FUNCTION(Equal<std::string>, EQString);
+      REGISTER_FUNCTION(Equal<uint16_t>, EQInternal);
 
       REGISTER_ARITHMETIC_FUNCTION(NotEqual, NENumeric);
       REGISTER_FUNCTION(NotEqual<bool>, NEBoolean);
       REGISTER_FUNCTION(NotEqual<std::string>, NEString);
+      REGISTER_FUNCTION(NotEqual<uint16_t>, NEInternal);
 
       REGISTER_ARITHMETIC_FUNCTION(GreaterThan, GT);
       REGISTER_ARITHMETIC_FUNCTION(GreaterEqual, GE);

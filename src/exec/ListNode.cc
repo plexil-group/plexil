@@ -58,6 +58,29 @@ namespace PLEXIL
       return true;
     }
 
+    // One-arg case
+    bool operator()(bool &result, Expression const *arg) const
+    {
+      uint16_t state;
+      assertTrue_2(arg->getValue(state), // should ALWAYS be known
+                   "AllChildrenFinished: node state variables may not be unknown.");
+      return (state == FINISHED_STATE);
+    }
+
+    // Two-arg case
+    bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const
+    {
+      uint16_t state;
+      assertTrue_2(arg0->getValue(state), // should ALWAYS be known
+                   "AllChildrenFinished: node state variables may not be unknown.");
+      if (state != FINISHED_STATE)
+        return false;
+      assertTrue_2(arg1->getValue(state), // should ALWAYS be known
+                   "AllChildrenFinished: node state variables may not be unknown.");
+      return (state == FINISHED_STATE);
+    }
+
+    // General case
     bool operator()(bool &result,
                     ExprVec const &args) const
     {
@@ -110,6 +133,29 @@ namespace PLEXIL
       return true;
     }
 
+    // One-arg case
+    bool operator()(bool &result, Expression const *arg) const
+    {
+      uint16_t state;
+      assertTrue_2(arg->getValue(state), // should ALWAYS be known
+                   "AllChildrenWaitingOrFinished: node state variables may not be unknown.");
+      return (state == FINISHED_STATE || state == WAITING_STATE);
+    }
+
+    // Two-arg case
+    bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const
+    {
+      uint16_t state;
+      assertTrue_2(arg0->getValue(state), // should ALWAYS be known
+                   "AllChildrenWaitingOrFinished: node state variables may not be unknown.");
+      if (state != FINISHED_STATE && state != WAITING_STATE)
+        return false;
+      assertTrue_2(arg1->getValue(state), // should ALWAYS be known
+                   "AllChildrenWaitingOrFinished: node state variables may not be unknown.");
+      return (state == FINISHED_STATE || state == WAITING_STATE);
+    }
+
+    // General case
     bool operator()(bool &result,
                     ExprVec const &args) const
     {

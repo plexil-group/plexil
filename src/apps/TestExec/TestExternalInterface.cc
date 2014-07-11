@@ -170,6 +170,7 @@ namespace PLEXIL
     m_states[st] = value;
     debugMsg("Test:testOutput",
              "Processing event: " << st << " = " << value);
+    // FIXME: call this->lookupReturn() instead?
     StateCacheMap::instance().ensureStateCacheEntry(st)->update(this->getCycleCount(), value);
   }
 
@@ -185,6 +186,7 @@ namespace PLEXIL
                "No currently executing command " << getText(command));
     this->commandReturn(it->second, value);
     m_executingCommands.erase(it);
+    // *** FIXME: Move to CommandNode ***
     m_raInterface.releaseResourcesForCommand(command.name());
   }
 
@@ -204,6 +206,7 @@ namespace PLEXIL
                   "No command waiting for acknowledgement " << getText(command));
 
     this->commandHandleReturn(it->second, handle);
+    // *** FIXME: Move to CommandNode ***
     // Release resources if the command does not have a return value
     if (m_executingCommands.find(command) == m_executingCommands.end())
       m_raInterface.releaseResourcesForCommand(command.name());
@@ -232,7 +235,7 @@ namespace PLEXIL
     std::map<std::string, Update*>::iterator it = m_waitingUpdates.find(name);
     checkError(it != m_waitingUpdates.end(),
                "No update from node " << name << " waiting for acknowledgement.");
-    it->second->getAck()->asAssignable()->setValue(true);
+    this->acknowledgeUpdate(it->second, true);
     m_waitingUpdates.erase(it);
   }
 

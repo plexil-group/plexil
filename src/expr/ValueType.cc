@@ -27,6 +27,8 @@
 #include "ValueType.hh"
 
 #include "ArrayImpl.hh"
+#include "CommandHandle.hh"
+#include "NodeConstants.hh"
 
 #include <cerrno>
 #include <cmath>   // for HUGE_VAL
@@ -294,6 +296,22 @@ namespace PLEXIL
     s << val;
   }
 
+  // Specialization for internal enums
+  template <>
+  void printValue(const uint16_t &val, std::ostream &s)
+  {
+    if (isNodeStateValid(val))
+      s << nodeStateName(val);
+    else if (isNodeOutcomeValid(val))
+      s << outcomeName(val);
+    else if (isFailureTypeValid(val))
+      s << failureTypeName(val);
+    else if (isCommandHandleValid(val))
+      s << commandHandleValueName(val);
+    else
+      s << "<INVALID ENUM " << val << ">";
+  }
+
   template <typename T>
   void printValue(ArrayImpl<T> const &val, std::ostream &s)
   {
@@ -397,6 +415,7 @@ namespace PLEXIL
   // Explicit instantiation
   //
   template void printValue(bool const &, std::ostream &);
+  // template void printValue(uint16_t const &, std::ostream &); // redundant
   template void printValue(int32_t const &, std::ostream &);
   template void printValue(double const &, std::ostream &);
   template void printValue(std::string const &, std::ostream &);

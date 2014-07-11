@@ -1663,9 +1663,10 @@ namespace PLEXIL {
   {
     debugMsg("Node:findVariable",
              " for node '" << m_nodeId
-             << "', searching for variable '" << ref->name() << "'");
+             << "', searching for variable '" << ref->varName() << "'");
       
     if (Id<PlexilInternalVar>::convertable(ref->getId())) {
+      assertTrue_2(ALWAYS_FAIL, "Node::findVariable of internal variable");
       PlexilInternalVar const *var = (PlexilInternalVar const *) ref;
       PlexilNodeRefId const &nodeRef = var->ref();
       NodeId node = findNodeRef(nodeRef);
@@ -1678,10 +1679,10 @@ namespace PLEXIL {
         return node->getInternalVariable(tp->state() + "." + tp->timepoint());
       }
       else
-        return node->getInternalVariable(var->name());
+        return node->getInternalVariable(var->varName());
     }
     else {
-      return findVariable(ref->name());
+      return findVariable(ref->varName());
     }
   }
 

@@ -172,7 +172,7 @@ namespace PLEXIL
                                                                           const NodeConnectorId& node,
                                                                           bool &wasCreated) const
   {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((Expression const *) expr);
+    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
     checkParserException(valex->type() == NODE_STATE_TYPE, "createExpression: not a NodeStateValue");
     wasCreated = false;
@@ -209,7 +209,7 @@ namespace PLEXIL
                                                                             const NodeConnectorId& node,
                                                                             bool &wasCreated) const
   {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((Expression const *) expr);
+    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
     checkParserException(valex->type() == OUTCOME_TYPE, "createExpression: not a NodeOutcomeValue");
     wasCreated = false;
@@ -237,7 +237,7 @@ namespace PLEXIL
                                                                             const NodeConnectorId& node,
                                                                             bool &wasCreated) const
   {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((Expression const *) expr);
+    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
     checkParserException(valex->type() == FAILURE_TYPE, "createExpression: not a FailureTypeValue");
     wasCreated = false;
@@ -271,7 +271,7 @@ namespace PLEXIL
                                                                               const NodeConnectorId& node,
                                                                               bool &wasCreated) const
   {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((Expression const *) expr);
+    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
     checkParserException(valex->type() == COMMAND_HANDLE_TYPE, "createExpression: not a CommandHandleValue");
     wasCreated = false;

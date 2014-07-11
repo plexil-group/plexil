@@ -416,6 +416,7 @@ namespace PLEXIL
     PlexilOutcomeVar(PlexilNodeRefId const &ref)
     : PlexilInternalVar("outcome", OUTCOME_TYPE, ref)
     {
+      setName("NodeOutcomeVariable");
     }
   };
 
@@ -425,6 +426,7 @@ namespace PLEXIL
     PlexilFailureVar(PlexilNodeRefId const &ref)
     : PlexilInternalVar("failure_type", FAILURE_TYPE, ref)
     {
+      setName("NodeFailureVariable");
     }
   };
 
@@ -434,6 +436,7 @@ namespace PLEXIL
     PlexilStateVar(PlexilNodeRefId const &ref)
     : PlexilInternalVar("state", NODE_STATE_TYPE, ref)
     {
+      setName("NodeStateVariable");
     }
   };
 
@@ -442,6 +445,7 @@ namespace PLEXIL
     PlexilCommandHandleVar(PlexilNodeRefId const &ref) 
     : PlexilInternalVar("command_handle", COMMAND_HANDLE_TYPE, ref)
     {
+      setName("NodeCommandHandleVariable");
     }
   };
 
@@ -452,6 +456,7 @@ namespace PLEXIL
         m_state(state),
         m_timepoint(timept)
     {
+      setName("NodeTimepointValue");
     }
     const std::string& state() const {return m_state;}
     const std::string& timepoint() const {return m_timepoint;}

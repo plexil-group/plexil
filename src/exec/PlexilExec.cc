@@ -153,7 +153,7 @@ namespace PLEXIL
     try {
       if (!wasThrowEnabled)
         Error::doThrowExceptions();
-      root = NodeFactory::createNode(plan, ExecConnector::getId());
+      root = NodeFactory::createNode(plan);
       check_error_1(root.isValid());
       root->postInit(plan);
     }
