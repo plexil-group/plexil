@@ -101,30 +101,8 @@ namespace PLEXIL
    */
   bool InterfaceManager::initialize()
   {
-    debugMsg("InterfaceManager:initialize", " initializing interface adapters");
-    bool success = true;
-    for (std::set<InterfaceAdapterId>::iterator it = g_configuration->getAdapters().begin();
-         success && it != g_configuration->getAdapters().end();
-         ++it) {
-      InterfaceAdapterId a = *it;
-      success = a->initialize();
-      if (!success) {
-        const pugi::xml_node& adapterXml = a->getXml();
-        const char* adapterType = adapterXml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();        
-        debugMsg("InterfaceManager:initialize",
-                 " adapter initialization failed for type \"" << adapterType << "\", returning false");
-        g_configuration->getAdapters().erase(it);
-        delete (InterfaceAdapter*) a;
-        return false;
-      }
-    }
-    success = g_configuration->getListenerHub()->initialize();
-    if (!success) {
-      debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
-      return false;
-    }
-
-    return success;
+    assertTrue_1(g_configuration.isId());
+    return g_configuration->initialize();
   }
 
   /**
@@ -133,25 +111,8 @@ namespace PLEXIL
    */
   bool InterfaceManager::start()
   {
-    debugMsg("InterfaceManager:start", " starting interface adapters");
-    bool success = true;
-    for (std::set<InterfaceAdapterId>::iterator it = g_configuration->getAdapters().begin();
-         success && it != g_configuration->getAdapters().end();
-         ++it) {
-      success = (*it)->start();
-      if (!success) {
-        const pugi::xml_node& adapterXml = (*it)->getXml();
-        const char* adapterType = adapterXml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();        
-        debugMsg("InterfaceManager:initialize",
-                 " adapter start failed for type \"" << adapterType << "\", returning false");
-        return false;
-      }
-    }
-
-    success = g_configuration->getListenerHub()->start();
-    condDebugMsg(!success, 
-                 "InterfaceManager:start", " failed to start all Exec listeners, returning false");
-    return success;
+    assertTrue_1(g_configuration.isId());
+    return g_configuration->start();
   }
 
   /**
@@ -160,19 +121,8 @@ namespace PLEXIL
    */
   bool InterfaceManager::stop()
   {
-    debugMsg("InterfaceManager:stop", " entered");
-
-    // halt adapters
-    bool success = true;
-    for (std::set<InterfaceAdapterId>::iterator it = g_configuration->getAdapters().begin();
-         it != g_configuration->getAdapters().end();
-         ++it)
-      success = (*it)->stop() && success;
-
-    success = g_configuration->getListenerHub()->stop() && success;
-
-    debugMsg("InterfaceManager:stop", " completed");
-    return success;
+    assertTrue_1(g_configuration.isId());
+    return g_configuration->stop();
   }
 
   /**
@@ -186,26 +136,8 @@ namespace PLEXIL
     // reset queue etc. to freshly initialized state
     // *** NYI ***
 
-    // clear adapter registry
-    clearAdapterRegistry();
-
-    bool success = true;
-    for (std::set<InterfaceAdapterId>::iterator it = g_configuration->getAdapters().begin();
-         it != g_configuration->getAdapters().end();
-         ++it)
-      success = (*it)->reset() && success;
-
-    success = g_configuration->getListenerHub()->reset() && success;
-    debugMsg("InterfaceManager:reset", " completed");
-    return success;
-  }
-
-  /**
-   * @brief Clears the interface adapter registry.
-   */
-  void InterfaceManager::clearAdapterRegistry() {
     assertTrue_1(g_configuration.isId());
-    g_configuration->clearAdapterRegistry();
+    return g_configuration->reset();
   }
 
   /**
@@ -214,16 +146,8 @@ namespace PLEXIL
    */
   bool InterfaceManager::shutdown()
   {
-    debugMsg("InterfaceManager:shutdown", " entered");
-    // clear adapter registry
-    clearAdapterRegistry();
-
-    bool success = true;
-    for (std::set<InterfaceAdapterId>::iterator it = g_configuration->getAdapters().begin();
-         it != g_configuration->getAdapters().end();
-         ++it)
-      success = (*it)->shutdown() && success;
-    success = g_configuration->getListenerHub()->shutdown() && success;
+    assertTrue_1(g_configuration.isId());
+    bool success = g_configuration->stop();
 
     // Clean up
     // *** NYI ***
@@ -248,7 +172,6 @@ namespace PLEXIL
   /**
    * @brief Updates the state cache from the items in the queue.
    * @return True if the Exec needs to be stepped, false otherwise.
-   * @note Should only be called with exec locked by the current thread
    */
   bool InterfaceManager::processQueue()
   {

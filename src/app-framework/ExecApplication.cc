@@ -226,9 +226,9 @@ namespace PLEXIL
    * @return true if successful, false otherwise.
    */
 
-#ifdef PLEXIL_WITH_THREADS
   bool ExecApplication::run()
   {
+#ifdef PLEXIL_WITH_THREADS
     if (m_state != APP_READY)
       return false;
 
@@ -237,15 +237,17 @@ namespace PLEXIL
 
 #ifndef BROKEN_ANDROID_PTHREAD_SIGMASK
     // Set up signal handling in main thread
-    assertTrueMsg(initializeMainSignalHandling(),
-                  "ExecApplication::run: failed to initialize main thread signal handling");
+    assertTrue_2(initializeMainSignalHandling(),
+                 "ExecApplication::run: failed to initialize main thread signal handling");
 #endif // !BROKEN_ANDROID_PTHREAD_SIGMASK
 
     // Start the event listener thread
     return spawnExecThread();
-
-  }
+#else // !defined(PLEXIL_WITH_THREADS)
+    warn("ExecApplication::run: threads must be enabled in the build");
+    return false;
 #endif // PLEXIL_WITH_THREADS
+  }
 
   /**
    * @brief Suspends the running Exec.
@@ -564,6 +566,7 @@ namespace PLEXIL
     while (m_suspended);
     return (status == 0);
   }
+#endif // PLEXIL_WITH_THREADS
 
   /**
    * @brief Suspend the current thread until the plan finishes executing.
@@ -571,6 +574,7 @@ namespace PLEXIL
   void
   ExecApplication::waitForPlanFinished()
   {
+#ifdef PLEXIL_WITH_THREADS
     // Should never happen, but just in case...
     assertTrueMsg(!m_execMutex.isLockedByCurrentThread(),
                   "Internal error: waitForPlanFinished: called with Exec mutex locked!");
@@ -584,6 +588,9 @@ namespace PLEXIL
         RTMutexGuard guard(m_execMutex);
         finished = g_exec->allPlansFinished();
       }
+#else // !defined(PLEXIL_WITH_THREADS)
+    warn("ExecApplication:waitForPlanFinished: threads must be enabled in build");
+#endif // PLEXIL_WITH_THREADS
   }
 
   /**
@@ -593,13 +600,16 @@ namespace PLEXIL
    */
   void
   ExecApplication::waitForShutdown() {
+#ifdef PLEXIL_WITH_THREADS
     int waitStatus = PLEXIL_SEMAPHORE_STATUS_INTERRUPTED;
     while ((waitStatus = m_shutdownSem.wait()) == PLEXIL_SEMAPHORE_STATUS_INTERRUPTED)
       continue;
     if (waitStatus == 0)
       m_shutdownSem.post(); // pass it on to the next, if any
+#else // !defined(PLEXIL_WITH_THREADS)
+    warn("ExecApplication:waitForShutdown: threads must be enabled in build");
+#endif // PLEXIL_WITH_THREADS
   }
-#endif
 
   /**
    * @brief Whatever state the application may be in, bring it down in a controlled fashion.
@@ -959,13 +969,13 @@ namespace PLEXIL
     this->runExec();
   }
 
-#ifdef PLEXIL_WITH_THREADS
   /**
    * @brief Run the exec and wait until all events in the queue have been processed. 
   */
   void
   ExecApplication::notifyAndWaitForCompletion()
   {
+#ifdef PLEXIL_WITH_THREADS
     debugMsg("ExecApplication:notifyAndWait", " received external event");
     unsigned int sequence = g_manager->markQueue();
     notifyExec();
@@ -973,8 +983,10 @@ namespace PLEXIL
       m_markSem.wait();
       m_markSem.post(); // in case it's not our mark and we got there first
     }
+#else // !defined(PLEXIL_WITH_THREADS)
+    warn("ExecApplication::notifyAndWaitForCompletion: threads must be enabled in build");
+#endif // PLEXIL_WITH_THREADS
   }
-#endif
 
   /**
    * @brief Notify the application that a queue mark was processed.

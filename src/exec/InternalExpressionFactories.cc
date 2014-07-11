@@ -217,13 +217,6 @@ namespace PLEXIL
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
 
-  ENSURE_EXPRESSION_FACTORY(StateVariable);
-  ENSURE_EXPRESSION_FACTORY(OutcomeVariable);
-  ENSURE_EXPRESSION_FACTORY(FailureVariable);
-  ENSURE_EXPRESSION_FACTORY(CommandHandleVariable);
-  // Redundant with explicit specialization
-  // ENSURE_EXPRESSION_FACTORY(NodeTimepointValue);
-
   void registerInternalExpressionFactories()
   {
     static bool sl_inited = false;

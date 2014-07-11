@@ -301,16 +301,6 @@ namespace PLEXIL
     void notifyAndWaitForCompletion();
 #endif
 
-    //
-    // Utility accessors
-    //
-
-    /**
-     * @brief Clears the interface adapter registry.
-     */
-    void clearAdapterRegistry();
-
-
   protected:
 
     //

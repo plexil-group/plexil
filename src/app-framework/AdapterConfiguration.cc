@@ -212,6 +212,129 @@ namespace PLEXIL {
   }
 
   /**
+   * @brief Performs basic initialization of the interface and all adapters.
+   * @return true if successful, false otherwise.
+   */
+  bool AdapterConfiguration::initialize()
+  {
+    debugMsg("AdapterConfiguration:initialize", " initializing interface adapters");
+    bool success = true;
+    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+         success && it != m_adapters.end();
+         ++it) {
+      InterfaceAdapterId a = *it;
+      success = a->initialize();
+      if (!success) {
+        const pugi::xml_node& adapterXml = a->getXml();
+        const char* adapterType = adapterXml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();        
+        debugMsg("AdapterConfiguration:initialize",
+                 " adapter initialization failed for type \"" << adapterType << "\", returning false");
+        m_adapters.erase(it);
+        delete (InterfaceAdapter*) a;
+        return false;
+      }
+    }
+    success = m_listenerHub->initialize();
+    if (!success) {
+      debugMsg("AdapterConfiguration:initialize", " failed to initialize all Exec listeners, returning false");
+      return false;
+    }
+
+    return success;
+  }
+
+  /**
+   * @brief Prepares the interface and adapters for execution.
+   * @return true if successful, false otherwise.
+   */
+  bool AdapterConfiguration::start()
+  {
+    debugMsg("AdapterConfiguration:start", " starting interface adapters");
+    bool success = true;
+    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+         success && it != m_adapters.end();
+         ++it) {
+      success = (*it)->start();
+      if (!success) {
+        const pugi::xml_node& adapterXml = (*it)->getXml();
+        const char* adapterType = adapterXml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();        
+        debugMsg("AdapterConfiguration:initialize",
+                 " adapter start failed for type \"" << adapterType << "\", returning false");
+        return false;
+      }
+    }
+
+    success = m_listenerHub->start();
+    condDebugMsg(!success, 
+                 "AdapterConfiguration:start", " failed to start all Exec listeners, returning false");
+    return success;
+  }
+
+  /**
+   * @brief Halts all interfaces.
+   * @return true if successful, false otherwise.
+   */
+  bool AdapterConfiguration::stop()
+  {
+    debugMsg("AdapterConfiguration:stop", " entered");
+
+    // halt adapters
+    bool success = true;
+    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+         it != m_adapters.end();
+         ++it)
+      success = (*it)->stop() && success;
+
+    success = m_listenerHub->stop() && success;
+
+    debugMsg("AdapterConfiguration:stop", " completed");
+    return success;
+  }
+
+  /**
+   * @brief Resets the interface prior to restarting.
+   * @return true if successful, false otherwise.
+   */
+  bool AdapterConfiguration::reset()
+  {
+    debugMsg("AdapterConfiguration:reset", " entered");
+
+    clearAdapterRegistry();
+    bool success = true;
+    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+         it != m_adapters.end();
+         ++it)
+      success = (*it)->reset() && success;
+
+    success = m_listenerHub->reset() && success;
+    debugMsg("AdapterConfiguration:reset", " completed");
+    return success;
+  }
+
+  /**
+   * @brief Shuts down the interface.
+   * @return true if successful, false otherwise.
+   */
+  bool AdapterConfiguration::shutdown()
+  {
+    debugMsg("AdapterConfiguration:shutdown", " entered");
+    clearAdapterRegistry();
+
+    bool success = true;
+    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
+         it != m_adapters.end();
+         ++it)
+      success = (*it)->shutdown() && success;
+    success = m_listenerHub->shutdown() && success;
+
+    // Clean up
+    // *** NYI ***
+
+    debugMsg("AdapterConfiguration:shutdown", " completed");
+    return success;
+  }
+
+  /**
    * @brief Add an externally constructed interface adapter.
    * @param The adapter ID.
    */
@@ -485,90 +608,6 @@ namespace PLEXIL {
     debugMsg("AdapterConfiguration:setDefaultCommandInterface",
              " setting default command interface " << intf);
     return true;
-  }
-
-  /**
-   * @brief Retract registration of the previous interface adapter for this command.
-   * @param commandName The command.
-   */
-  void AdapterConfiguration:: unregisterCommandInterface(std::string const &commandName) 
-  {
-    InterfaceMap::iterator it = m_commandMap.find(commandName);
-    if (it != m_commandMap.end()) {
-      debugMsg("AdapterConfiguration:unregisterCommandInterface",
-               " removing interface for command '" << commandName << "'");
-      InterfaceAdapterId intf = it->second;
-      m_commandMap.erase(it);
-      deleteIfUnknown(intf);
-    }
-  }
-
-  /**
-   * @brief Retract registration of the previous interface adapter for this state.
-   * @param stateName The state name.
-   */
-  void AdapterConfiguration:: unregisterLookupInterface(std::string const &stateName) 
-  {
-    InterfaceMap::iterator it = m_lookupMap.find(stateName);
-    if (it != m_lookupMap.end()) {
-      debugMsg("AdapterConfiguration:unregisterLookupInterface",
-               " removing interface for lookup '" << stateName << "'");
-      InterfaceAdapterId intf = it->second;
-      m_lookupMap.erase(it);
-      deleteIfUnknown(intf);
-    }
-  }
-
-  /**
-   * @brief Retract registration of the previous interface adapter for planner updates.
-   * Does nothing by default.
-   */
-  void AdapterConfiguration:: unregisterPlannerUpdateInterface() 
-  {
-    debugMsg("AdapterConfiguration:unregisterPlannerUpdateInterface",
-             " removing planner update interface");
-    InterfaceAdapterId intf = m_plannerUpdateInterface;
-    m_plannerUpdateInterface = InterfaceAdapterId::noId();
-    deleteIfUnknown(intf);
-  }
-
-  /**
-   * @brief Retract registration of the previous default interface adapter.
-   * If default interfaces are implemented, this must retract registration. Otherwise, does nothing.
-   */
-  void AdapterConfiguration:: unsetDefaultInterface() 
-  {
-    debugMsg("AdapterConfiguration:unsetDefaultInterface",
-             " removing default interface");
-    InterfaceAdapterId intf = m_defaultInterface;
-    m_defaultInterface = InterfaceAdapterId::noId();
-    deleteIfUnknown(intf);
-  }
-
-  /**
-   * @brief Retract registration of the previous default interface adapter for commands.
-   * If default interfaces are implemented, this must retract registration. Otherwise, does nothing.
-   */
-  void AdapterConfiguration:: unsetDefaultCommandInterface() 
-  {
-    debugMsg("AdapterConfiguration:unsetDefaultCommandInterface",
-             " removing default command interface");
-    InterfaceAdapterId intf = m_defaultCommandInterface;
-    m_defaultCommandInterface = InterfaceAdapterId::noId();
-    deleteIfUnknown(intf);
-  }
-
-  /**
-   * @brief Retract registration of the previous default interface adapter for lookups.
-   * If default interfaces are implemented, this must retract registration. Otherwise, does nothing.
-   */
-  void AdapterConfiguration:: unsetDefaultLookupInterface()
-  {
-    debugMsg("AdapterConfiguration:unsetDefaultLookupInterface",
-             " removing default lookup interface");
-    InterfaceAdapterId intf = m_defaultLookupInterface;
-    m_defaultLookupInterface = InterfaceAdapterId::noId();
-    deleteIfUnknown(intf);
   }
 
   /**

@@ -81,6 +81,36 @@ namespace PLEXIL {
     bool constructInterfaces(const pugi::xml_node& configXml);
 
     /**
+     * @brief Performs basic initialization of the interface and all adapters.
+     * @return true if successful, false otherwise.
+     */
+    bool initialize();
+
+    /**
+     * @brief Prepares the interface and adapters for execution.
+     * @return true if successful, false otherwise.
+     */
+    bool start();
+
+    /**
+     * @brief Halts all interfaces.
+     * @return true if successful, false otherwise.
+     */
+    bool stop();
+
+    /**
+     * @brief Resets the interface prior to restarting.
+     * @return true if successful, false otherwise.
+     */
+    bool reset();
+
+    /**
+     * @brief Shuts down the interface.
+     * @return true if successful, false otherwise.
+     */
+    bool shutdown();
+
+    /**
      * @brief Add an externally constructed interface adapter.
      * @param adapter The adapter ID.
      */
@@ -165,38 +195,6 @@ namespace PLEXIL {
      * @return True if successful, false if there is already a default adapter registered.
      */
     bool setDefaultCommandInterface(InterfaceAdapterId intf);
-
-    /**
-     * @brief Retract registration of the previous interface adapter for this command.
-     * @param commandName The command.
-     */
-    void unregisterCommandInterface(std::string const &commandName);
-
-    /**
-     * @brief Retract registration of the previous interface adapter for this state.
-     * @param stateName The state name.
-     */
-    void unregisterLookupInterface(std::string const &stateName);
-
-    /**
-     * @brief Retract registration of the previous interface adapter for planner updates.
-     */
-    void unregisterPlannerUpdateInterface();
-
-    /**
-     * @brief Retract registration of the previous default interface adapter.
-     */
-    void unsetDefaultInterface();
-
-    /**
-     * @brief Retract registration of the previous default interface adapter for commands.
-     */
-    void unsetDefaultCommandInterface();
-
-    /**
-     * @brief Retract registration of the previous default interface adapter for lookups.
-     */
-    void unsetDefaultLookupInterface();
 
     /**
      * @brief Return the interface adapter in effect for this command, whether

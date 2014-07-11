@@ -137,13 +137,11 @@ namespace PLEXIL
      */
     virtual bool stepUntilQuiescent();
 
-#ifdef PLEXIL_WITH_THREADS
     /**
      * @brief Runs the initialized Exec.
      * @return true if successful, false otherwise.
      */
     virtual bool run();
-#endif
 
     /**
      * @brief Suspends the running Exec.
@@ -201,7 +199,6 @@ namespace PLEXIL
      */
     virtual bool addPlan(const pugi::xml_document* planXml);
 
-#ifdef PLEXIL_WITH_THREADS
     /**
      * @brief Notify the executive and wait for all queue entries to be processed.
      */
@@ -219,7 +216,6 @@ namespace PLEXIL
      * @note Wait can be interrupted by signal handling; calling threads should block (e.g.) SIGALRM.
      */
     virtual void waitForShutdown();
-#endif
 
     /**
      * @brief Whatever state the application may be in, bring it down in a controlled fashion.
