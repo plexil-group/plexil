@@ -65,6 +65,12 @@ namespace PLEXIL
     return ExecListenerHubId::noId();
   }
 
+  std::string const &FactoryTestNodeConnector::getNodeId() const
+  {
+    static std::string sl_empty;
+    return sl_empty;
+  }
+
   void FactoryTestNodeConnector::storeVariable(const std::string & name, Expression *var)
   {
     TestVariableMap::iterator it = m_variableMap.find(name);

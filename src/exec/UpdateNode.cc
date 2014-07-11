@@ -127,7 +127,7 @@ namespace PLEXIL
 
   void UpdateNode::createUpdate(const PlexilUpdateBody* body) 
   {
-    m_update = new Update(getNodeId(), body->update());
+    m_update = new Update(getId(), body->update());
   }
 
   void UpdateNode::createConditionWrappers()
@@ -158,7 +158,7 @@ namespace PLEXIL
   // Unit test variant
   void UpdateNode::createDummyUpdate() 
   {
-    m_update = new Update(getNodeId());
+    m_update = new Update(getId());
   }
 
   //

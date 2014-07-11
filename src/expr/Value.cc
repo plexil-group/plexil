@@ -43,6 +43,8 @@ namespace PLEXIL
     : m_type(other.m_type),
       m_known(other.m_known)
   {
+    if (!m_known)
+      return;
     switch (m_type) {
       // Unknown - do nothing
     case UNKNOWN_TYPE:

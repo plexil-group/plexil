@@ -138,7 +138,7 @@ namespace PLEXIL {
      * @brief Accessor for the NodeId as it was written in the XML.
      * @return This node's node id.
      */
-    const std::string& getNodeId(){return m_nodeId;}
+    std::string const &getNodeId() const { return m_nodeId; }
 
     /**
      * @brief Accessor for the Node's parent.

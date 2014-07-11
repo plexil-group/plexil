@@ -369,19 +369,41 @@ namespace PLEXIL
                || strcmp(param.attribute("type").value(), "string") == 0,
                "Empty Param child in <" << param.parent().name() << "> element.");
     std::string type(param.attribute("type").value());
-    if (!type.empty() &&
-        (type == "int" || type == "real" || type == "bool")) {
+    std::string val(param.first_child().value());
+    if (val == "UNKNOWN") {
+      // Create a typed unknown
+      ValueType t = UNKNOWN_TYPE;
+      if (type == "int")
+        t = INTEGER_TYPE;
+      else if (type == "real")
+        t = REAL_TYPE;
+      else if (type == "bool")
+        t = BOOLEAN_TYPE;
+      else if (type == "string")
+        t = STRING_TYPE;
+      return Value(0, t);
+    }
+    else if (type == "int") {
+      int32_t value;
+      std::istringstream str(val);
+      str >> value;
+      return Value(value);
+    }
+    else if (type == "real") {
       double value;
-      std::istringstream str(param.first_child().value());
+      std::istringstream str(val);
+      str >> value;
+      return Value(value);
+    }
+    else if (type == "bool") {
+      bool value;
+      std::istringstream str(val);
       str >> value;
       return Value(value);
     }
     // string case
     else if (param.first_child().empty()) {
       return Value("");
-    }
-    else if (0 == strcmp(param.first_child().value(), "UNKNOWN")) {
-      return Value();
     }
     else {
       return Value(param.first_child().value());

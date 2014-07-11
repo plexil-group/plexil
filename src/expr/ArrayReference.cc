@@ -138,11 +138,12 @@ namespace PLEXIL
     idx = (size_t) idxTemp;
     if (!m_array->getValuePointer(valuePtr))
       return false; // array unknown or invalid
-    if (idx >= valuePtr->size()) {
+    std::vector<bool> const &kv = valuePtr->getKnownVector();
+    if (idx >= kv.size()) {
       assertTrue_2(ALWAYS_FAIL, "ArrayReference: Array index exceeds array size");
-      return false;
+      return false; // unallocated implies unknown
     }
-    return valuePtr->getKnownVector()[idx];
+    return kv[idx];
   }
 
   bool ArrayReference::getValue(bool &result) const

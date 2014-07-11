@@ -52,6 +52,8 @@ namespace PLEXIL
 
     ExecListenerHubId const &getExecListenerHub() const;
 
+    std::string const &getNodeId() const;
+
     // Test setup
     void storeVariable(const std::string & name, Expression *var);
 

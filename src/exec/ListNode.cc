@@ -262,13 +262,18 @@ namespace PLEXIL
     }
   }
 
+#define ADD_PLAN_DEBUG
+
   void ListNode::createChildNodes(const PlexilListBody* body) 
   {
+#ifndef ADD_PLAN_DEBUG
     try {
+#endif
       for (std::vector<PlexilNodeId>::const_iterator it = body->children().begin();
            it != body->children().end(); 
            ++it)
         m_children.push_back(NodeFactory::createNode(*it, m_id));
+#ifndef ADD_PLAN_DEBUG
     }
     catch (const Error& e) {
       debugMsg("Node:node", " Error creating child nodes: " << e);
@@ -280,6 +285,7 @@ namespace PLEXIL
       // Rethrow so that outer error handler can deal with this as well
       throw;
     }
+#endif
   }
 
   // N.B. The end condition constructed below can be overridden by the user

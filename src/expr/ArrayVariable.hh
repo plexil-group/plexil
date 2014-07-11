@@ -144,6 +144,8 @@ namespace PLEXIL
     ArrayImpl<T> m_value;
     ArrayImpl<T> m_savedValue;   // for undoing assignment 
 
+    size_t m_maxSize;
+
     bool m_known;
     bool m_savedKnown;
     bool m_sizeIsGarbage;

@@ -33,8 +33,8 @@
 namespace PLEXIL
 {
   // Forward declarations in PLEXIL namespace
-  class Node;
-  DECLARE_ID(Node);
+  class NodeConnector;
+  DECLARE_ID(NodeConnector);
 
   class PlexilUpdate;
   DECLARE_ID(PlexilUpdate);
@@ -42,14 +42,15 @@ namespace PLEXIL
   class Update 
   {
   public:
-    Update(std::string const &node, PlexilUpdateId const &updateProto = PlexilUpdateId::noId());
+    Update(NodeConnectorId const &node,
+           PlexilUpdateId const &updateProto = PlexilUpdateId::noId());
     ~Update();
 
     typedef std::map<std::string, Value> PairValueMap;
 
     Expression *getAck() {return &m_ack;}
     const PairValueMap& getPairs() const {return m_valuePairs;}
-    NodeId getSource() const {return m_source;}
+    NodeConnectorId getSource() const {return m_source;}
     void activate();
     void deactivate();
     void reset();
@@ -67,7 +68,7 @@ namespace PLEXIL
 
     void fixValues();
 
-    NodeId m_source;
+    NodeConnectorId m_source;
     BooleanVariable m_ack;
     std::vector<Expression *> m_garbage;
     typedef std::map<std::string, Expression *> PairExpressionMap;

@@ -136,8 +136,10 @@ namespace PLEXIL
     }
   }
 
-  // Add a plan
 
+#define ADD_PLAN_DEBUG
+
+  // Add a plan
   bool PlexilExec::addPlan(PlexilNodeId const &plan) 
   {
     // Try to link any library calls
@@ -150,12 +152,15 @@ namespace PLEXIL
     // and catch any errors that may occur
     NodeId root;
     bool wasThrowEnabled = Error::throwEnabled();
+#ifndef ADD_PLAN_DEBUG
     try {
+#endif
       if (!wasThrowEnabled)
         Error::doThrowExceptions();
       root = NodeFactory::createNode(plan);
       check_error_1(root.isValid());
       root->postInit(plan);
+#ifndef ADD_PLAN_DEBUG
     }
     catch (const Error& e) {
       if (!wasThrowEnabled)
@@ -163,6 +168,7 @@ namespace PLEXIL
       debugMsg("PlexilExec:addPlan", " failed: " << e);
       return false;
     }
+#endif
     if (!wasThrowEnabled)
       Error::doNotThrowExceptions();
 

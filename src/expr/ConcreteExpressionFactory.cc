@@ -69,6 +69,7 @@ namespace PLEXIL
     bool value;
     bool known = parseValue(tmpl->value(), value);
     // if we got here, there was no parsing exception
+    wasCreated = false;
     if (!known)
       return UNKNOWN_BOOLEAN_EXP();
     else if (value)

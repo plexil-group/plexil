@@ -134,7 +134,7 @@ namespace PLEXIL
          var != interfaceVars.end();
          ++var) {
       // get var name and matching value in alias list
-      const std::string& varName((*var)->name());
+      const std::string& varName((*var)->varName());
       PlexilExprId& aliasValue = aliases[varName];
 
       // check that the expression is consistent with the interface variable
@@ -142,11 +142,12 @@ namespace PLEXIL
         bool wasCreated = false;
         Expression *aliasedExpr;
         if (Id<PlexilVarRef>::convertable(aliasValue)) {
-          aliasedExpr = Node::findVariable((const PlexilVarRef*) aliasValue);
+          PlexilVarRef const *aliasVar = (PlexilVarRef const *) aliasValue;
+          aliasedExpr = Node::findVariable(aliasVar);
           // TODO: Skip creating alias if variable already read-only
           assertTrueMsg(aliasedExpr,
                         "Node " << m_nodeId
-                        << ": Can't find variable named \"" << aliasValue->name()
+                        << ": Can't find variable named \"" << aliasVar->varName()
                         << "\" for In alias variable \"" << varName);
           debugMsg("LibraryCallNode:createAliases",
                    " Node \"" << m_nodeId
@@ -189,22 +190,23 @@ namespace PLEXIL
          var != interfaceVars.end();
          ++var) {
       // get var name and matching value in alias list
-      const std::string& varName((*var)->name());
+      const std::string& varName((*var)->varName());
       PlexilExprId& aliasValue = aliases[varName];
 
       // check that the expression is consistent with the interface variable
       if (aliasValue.isId()) {
         Expression *actualVar;
         if (Id<PlexilVarRef>::convertable(aliasValue)) {
-          Expression *aliasedExpr = Node::findVariable((const PlexilVarRef*) aliasValue);
+          PlexilVarRef const *aliasVar = (PlexilVarRef const *) aliasValue;
+          Expression *aliasedExpr = Node::findVariable(aliasVar);
           checkParserException(aliasedExpr,
                                "Node " << m_nodeId
-                               << ": Can't find variable named \"" << aliasValue->name()
+                               << ": Can't find variable named \"" << aliasVar->varName()
                                << "\" for InOut alias variable \"" << varName);
           // Check that alias target is writable
           checkParserException(aliasedExpr->isAssignable(),
                                "Node " << m_nodeId
-                               << ": Variable \"" << aliasValue->name()
+                               << ": Variable \"" << aliasVar->varName()
                                << "\" is not assignable for InOut alias variable \"" << varName);
           actualVar = aliasedExpr;
           debugMsg("LibraryCallNode:createAliases",
@@ -224,6 +226,7 @@ namespace PLEXIL
                                      varName,
                                      aref,
                                      wasCreated);
+          m_localVariables.push_back(actualVar);
           debugMsg("LibraryCallNode:createAliases",
                    " Node \"" << m_nodeId
                    << "\": Constructing InOutAlias wrapper for \"" << varName
@@ -239,7 +242,6 @@ namespace PLEXIL
                                << "\" is not a variable or array reference");
         }
 
-        m_localVariables.push_back(actualVar);
         m_aliasVariables[varName] = actualVar;
         
         // remove value for alias copy for later checking

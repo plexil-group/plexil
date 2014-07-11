@@ -28,18 +28,20 @@
 #include "Debug.hh"
 #include "ExpressionFactory.hh"
 #include "ExternalInterface.hh"
+#include "NodeConnector.hh"
 #include "PlexilUpdate.hh"
 
 namespace PLEXIL
 {
-  Update::Update(std::string const &nodeName,
+  Update::Update(NodeConnectorId const &node,
                  PlexilUpdateId const &updateProto)
-    : m_ack(),
+    : m_source(node),
+      m_ack(),
       m_garbage(),
       m_pairs()
   {
     // Make ack variable pretty
-    m_ack.setName(nodeName + " ack");
+    m_ack.setName(node->getNodeId() + " ack");
 
     if (updateProto.isId()) {
       for (std::vector<std::pair<std::string, PlexilExprId> >::const_iterator it =
@@ -53,7 +55,7 @@ namespace PLEXIL
         PlexilExprId foo = it->second;
         bool wasCreated = false;
         Expression *valueExpr = 
-          createExpression(foo, NodeConnectorId::noId(), wasCreated);
+          createExpression(foo, m_source, wasCreated);
         check_error_1(valueExpr);
         if (wasCreated)
           m_garbage.push_back(valueExpr);
@@ -85,8 +87,7 @@ namespace PLEXIL
 
   void Update::activate() 
   {
-    assertTrue_1(!m_ack.isActive());
-    for(PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it)
+    for (PairExpressionMap::iterator it = m_pairs.begin(); it != m_pairs.end(); ++it)
       it->second->activate();
     m_ack.activate();
   }

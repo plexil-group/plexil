@@ -100,8 +100,17 @@ namespace PLEXIL {
     this->publishChange(src);
   }
 
+  // Have to check for duplicates, sigh.
   void NotifierImpl::addListener(ExpressionListener *ptr)
   {
+    std::vector<ExpressionListener *>::iterator it =
+      std::find(m_outgoingListeners.begin(), m_outgoingListeners.end(), ptr);
+    if (it != m_outgoingListeners.end()) {
+#ifdef EXPRESSION_DEBUG
+      debugMsg("NotifierImpl:addListener", " listener " << (uintptr) ptr << " already present");
+#endif
+        return;
+    }
     m_outgoingListeners.push_back(ptr);
   }
 

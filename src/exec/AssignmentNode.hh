@@ -66,29 +66,30 @@ namespace PLEXIL
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
      * @return the priority of this node.
      */
-    virtual double getPriority() const {return m_priority;}
+    double getPriority() const {return m_priority;}
     
   protected:
 
     // Specific behaviors for derived classes
-    virtual void specializedPostInit(const PlexilNodeId& node);
-    virtual void specializedHandleExecution();
-    virtual void specializedDeactivateExecutable();
-    virtual void specializedReset();
+    void specializedPostInit(const PlexilNodeId& node);
+    void specializedHandleExecution();
+    void specializedDeactivateExecutable();
+    void specializedReset();
 
-    virtual void cleanUpNodeBody();
+    // void cleanUpConditions();
+    void cleanUpNodeBody();
 
-    virtual NodeState getDestStateFromExecuting();
-    virtual NodeState getDestStateFromFailing();
+    NodeState getDestStateFromExecuting();
+    NodeState getDestStateFromFailing();
 
-    virtual void transitionFromExecuting(NodeState toState);
-    virtual void transitionFromFailing(NodeState toState);
+    void transitionFromExecuting(NodeState toState);
+    void transitionFromFailing(NodeState toState);
 
-    virtual void transitionToExecuting();
-    virtual void transitionToFailing();
+    void transitionToExecuting();
+    void transitionToFailing();
 
     // Node state limit
-    virtual NodeState nodeStateMax() const { return FAILING_STATE; }
+    NodeState nodeStateMax() const { return FAILING_STATE; }
 
   private:
 

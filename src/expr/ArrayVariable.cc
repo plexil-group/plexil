@@ -38,6 +38,7 @@ namespace PLEXIL
       m_size(NULL),
       m_initializer(NULL),
       m_name("anonymous"),
+      m_maxSize(0),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(false),
@@ -53,6 +54,7 @@ namespace PLEXIL
       m_size(NULL),
       m_initializer(new Constant<ArrayImpl<T> >(initVal)),
       m_name("anonymous"),
+      m_maxSize(initVal.size()),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(false),
@@ -74,6 +76,7 @@ namespace PLEXIL
       m_initializer(initializer),
       m_node(node),
       m_name(name),
+      m_maxSize(0),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(sizeIsGarbage),
@@ -137,8 +140,9 @@ namespace PLEXIL
           int32_t specSize;
           if (m_size->getValue(specSize)) {
             assertTrue_2(specSize >= 0, "Array initialization: Negative array size illegal");
-            if (size < (size_t) specSize)
-              size = (size_t) specSize;
+            m_maxSize = (size_t) specSize;
+            if (size < m_maxSize)
+              size = m_maxSize;
           }
         }
         m_value.resize(size);
@@ -167,8 +171,14 @@ namespace PLEXIL
   void ArrayVariable<T>::setValueImpl(ArrayImpl<T> const &value)
   {
     bool changed = !m_known || value != m_value;
+    size_t newSize = value.size();
+    assertTrue_2(m_maxSize && newSize <= m_maxSize,
+                 "ArrayVariable::setValue: New value is bigger than array declared size");
     m_value = value;
     m_known = true;
+    // TODO: find more efficient way to handle arrays smaller than max
+    if (newSize < m_maxSize)
+      m_value.resize(m_maxSize);
     if (changed)
       this->publishChange(this);
   }

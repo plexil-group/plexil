@@ -47,6 +47,7 @@ public:
                            bool /* recursive */ = false);
   NodeId findNodeRef(PlexilNodeRefId const & /* nodeRef */) const;
   ExecListenerHubId const &getExecListenerHub() const;
+  std::string const &getNodeId() const;
 };
 
 #endif // PLEXIL_TRIVIAL_NODE_CONNECTOR_HH

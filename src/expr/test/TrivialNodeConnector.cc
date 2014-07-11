@@ -55,3 +55,11 @@ ExecListenerHubId const &TrivialNodeConnector::getExecListenerHub() const
 {
   return ExecListenerHubId::noId();
 }
+
+
+std::string const &TrivialNodeConnector::getNodeId() const
+{
+  static std::string sl_empty;
+  return sl_empty;
+}
+

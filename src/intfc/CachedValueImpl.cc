@@ -506,6 +506,18 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   }
 
   template <typename T>
+  bool CachedValueImpl<T>::updatePtrImpl(unsigned int timestamp, T const *ptr)
+  {
+    if (!m_known || m_value != *ptr) {
+      m_value = *ptr;
+      m_known = true;
+      this->m_timestamp = timestamp;
+      return true;
+    }
+    return false;
+  }
+
+  template <typename T>
   bool CachedValueImpl<ArrayImpl<T> >::updatePtrImpl(unsigned int timestamp, ArrayImpl<T> const *ptr)
   {
     if (!m_known || m_value != *ptr) {
