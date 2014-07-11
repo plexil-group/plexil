@@ -475,6 +475,7 @@ namespace PLEXIL
       return;
     }
     m_savedValue = ary->getElementValue(idx);
+    m_saved = true;
   }
 
   void MutableArrayReference::restoreSavedValue()
