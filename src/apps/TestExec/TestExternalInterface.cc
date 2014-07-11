@@ -420,9 +420,15 @@ namespace PLEXIL
     if (type.find("string") == 0) {
       return Value(valStr);
     }
-    // int, int-array, real, real-array
-    else if (type.find("int") == 0
-             || type.find("real") == 0) {
+    // int, int-array
+    else if (type.find("int") == 0) {
+      int32_t value;
+      std::istringstream ss(valStr);
+      ss >> value;
+      return Value(value);
+    }
+    // real, real-array
+    else if (type.find("real") == 0) {
       double value;
       std::istringstream ss(valStr);
       ss >> value;
@@ -435,7 +441,7 @@ namespace PLEXIL
       else if (0 == stricmp(valStr.c_str(), "false"))
         return Value(false);
       else {
-        double value;
+        bool value;
         std::istringstream ss(valStr);
         ss >> value;
         return Value(value);
