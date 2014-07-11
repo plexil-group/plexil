@@ -66,6 +66,8 @@ public:
   bool needsStep() const {return false;}
   void setExecListenerHub(const ExecListenerHubId& /* hub */) {}
   const ExecListenerHubId& getExecListenerHub() const { return ExecListenerHubId::noId(); }
+  void deleteFinishedPlans() {}
+  bool allPlansFinished() const { return true; }
 };
 
 class TransitionExternalInterface : public ExternalInterface

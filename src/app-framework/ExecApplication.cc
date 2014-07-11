@@ -31,11 +31,14 @@
 
 #include "ExecApplication.hh"
 
+#include "AdapterConfiguration.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListener.hh"
 #include "InterfaceAdapter.hh"
+#include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
+#include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
 #include "pugixml.hpp"
 
@@ -44,9 +47,7 @@
 namespace PLEXIL
 {
   ExecApplication::ExecApplication()
-    : m_exec(),
-      m_interface(*this),
-      m_id(this),
+    : m_id(this),
 #ifdef PLEXIL_WITH_THREADS
       m_execThread(),
       m_execMutex(),
@@ -66,12 +67,17 @@ namespace PLEXIL
       m_blockedSignals[i] = 0;
 
     // connect exec and interface manager
-    g_exec = m_exec.getId();
-    g_interface = m_interface.getId();
+    g_configuration = (new AdapterConfiguration())->getId();
+    g_exec = (new PlexilExec())->getId();
+    g_manager = (new InterfaceManager(*this))->getInterfaceManagerId();
+    g_interface = g_manager->getId();
   }
 
   ExecApplication::~ExecApplication()
   {
+    delete (InterfaceManager *) g_manager;
+    delete (PlexilExec *) g_exec;
+    delete (AdapterConfiguration *) g_configuration;
   }
 
   /**
@@ -80,7 +86,7 @@ namespace PLEXIL
    */
   void ExecApplication::addLibraryPath(const std::string& libdir)
   {
-    m_interface.addLibraryPath(libdir);
+    g_configuration->addLibraryPath(libdir);
   }
 
   /**
@@ -89,7 +95,7 @@ namespace PLEXIL
    */
   void ExecApplication::addLibraryPath(const std::vector<std::string>& libdirs)
   {
-    m_interface.addLibraryPath(libdirs);
+    g_configuration->addLibraryPath(libdirs);
   }
 
   /**
@@ -120,7 +126,7 @@ namespace PLEXIL
     // initializeExpressions();
 
     // Construct interfaces
-    if (! m_interface.constructInterfaces(configXml)) {
+    if (!g_configuration->constructInterfaces(configXml)) {
       debugMsg("ExecApplication:initialize",
 	       " construction of interfaces failed");
       return false;
@@ -128,7 +134,7 @@ namespace PLEXIL
     
 
     // Initialize them
-    if (! m_interface.initialize()) {
+    if (!g_manager->initialize()) {
       debugMsg("ExecApplication:initialize",
 	       " initialization of interfaces failed");
       return false;
@@ -149,12 +155,11 @@ namespace PLEXIL
 
     // Start 'em up!
 
-    if (!m_interface.start())
-      {
-        debugMsg("ExecApplication:startInterfaces",
-                 " failed to start interfaces");
-        return false;
-      }
+    if (!g_manager->start()) {
+      debugMsg("ExecApplication:startInterfaces",
+               " failed to start interfaces");
+      return false;
+    }
       
     return setApplicationState(APP_READY);
   }
@@ -174,12 +179,12 @@ namespace PLEXIL
       RTMutexGuard guard(m_execMutex);
 #endif
       debugMsg("ExecApplication:step", " Checking interface queue");
-      if (m_interface.processQueue()) {
+      if (g_manager->processQueue()) {
         do {
           debugMsg("ExecApplication:step", " Stepping exec");
-          m_exec.step(0.0); // *** FIXME ***
+          g_exec->step(g_manager->currentTime());
         }
-        while (m_exec.needsStep());
+        while (g_exec->needsStep());
         debugMsg("ExecApplication:step", " Step complete and all nodes quiescent");
       }
       else {
@@ -204,11 +209,11 @@ namespace PLEXIL
       RTMutexGuard guard(m_execMutex);
 #endif
       debugMsg("ExecApplication:stepUntilQuiescent", " Checking interface queue");
-      while (m_interface.processQueue() || m_exec.needsStep()) {
+      while (g_manager->processQueue() || g_exec->needsStep()) {
         debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
-        m_exec.step(0.0); // *** FIXME ***
+        g_exec->step(g_manager->currentTime());
       }
-      m_exec.deleteFinishedPlans();
+      g_exec->deleteFinishedPlans();
     }
     debugMsg("ExecApplication:stepUntilQuiescent", " completed, queue empty and Exec quiescent.");
 
@@ -289,7 +294,7 @@ namespace PLEXIL
       return false;
 
     // Stop interfaces
-    m_interface.stop();
+    g_manager->stop();
 
 #ifdef PLEXIL_WITH_THREADS
     // Stop the Exec
@@ -342,7 +347,7 @@ namespace PLEXIL
       return false;
 
     // Reset interfaces
-    m_interface.reset();
+    g_manager->reset();
 
     // Clear suspended flag
     m_suspended = false;
@@ -369,7 +374,7 @@ namespace PLEXIL
     // *** NYI ***
 
     // Shut down interfaces
-    m_interface.shutdown();
+    g_manager->shutdown();
     
     debugMsg("ExecApplication:shutdown", " completed");
     return setApplicationState(APP_SHUTDOWN);
@@ -402,7 +407,7 @@ namespace PLEXIL
         return false;
       }
 
-    m_interface.handleAddLibrary(root);
+    g_manager->handleAddLibrary(root);
     debugMsg("ExecApplication:addLibrary", " Library added");
 #ifdef PLEXIL_WITH_THREADS
     notifyAndWaitForCompletion();
@@ -436,10 +441,10 @@ namespace PLEXIL
         std::cerr << "Error parsing plan from XML: \n" << e.what() << std::endl;
         return false;
       }
-      m_interface.handleAddPlan(root);
+      g_manager->handleAddPlan(root);
     }
     debugMsg("ExecApplication:addPlan", " Plan added, stepping exec\n");
-    m_interface.notifyOfExternalEvent();
+    g_manager->notifyOfExternalEvent();
     return true;
   }
 
@@ -514,15 +519,15 @@ namespace PLEXIL
 #endif
     if (stepFirst) {
       debugMsg("ExecApplication:runExec", " Stepping exec because stepFirst is set");
-      m_exec.step(0.0); // *** FIXME ***
+      g_exec->step(g_manager->currentTime());
     }
     else {
-      m_exec.deleteFinishedPlans();
+      g_exec->deleteFinishedPlans();
     }
     while (!m_suspended && 
-           (m_exec.needsStep() || m_interface.processQueue())) {
+           (g_exec->needsStep() || g_manager->processQueue())) {
       debugMsg("ExecApplication:runExec", " Stepping exec");
-      m_exec.step(0.0); // *** FIXME ***
+      g_exec->step(g_manager->currentTime());
     }
     condDebugMsg(!m_suspended, "ExecApplication:runExec", " No events are pending");
     condDebugMsg(m_suspended, "ExecApplication:runExec", " Suspended");
@@ -577,7 +582,7 @@ namespace PLEXIL
     
         // grab the exec and find out if it's finished yet
         RTMutexGuard guard(m_execMutex);
-        finished = m_exec.allPlansFinished();
+        finished = g_exec->allPlansFinished();
       }
   }
 
@@ -614,7 +619,7 @@ namespace PLEXIL
     case APP_INITED:
     case APP_READY:
       // Shut down interfaces
-      m_interface.shutdown();
+      g_manager->shutdown();
       break;
 
     case APP_RUNNING:
@@ -962,9 +967,9 @@ namespace PLEXIL
   ExecApplication::notifyAndWaitForCompletion()
   {
     debugMsg("ExecApplication:notifyAndWait", " received external event");
-    unsigned int sequence = m_interface.markQueue();
+    unsigned int sequence = g_manager->markQueue();
     notifyExec();
-    while (m_interface.getLastMark() < sequence) {
+    while (g_manager->getLastMark() < sequence) {
       m_markSem.wait();
       m_markSem.post(); // in case it's not our mark and we got there first
     }

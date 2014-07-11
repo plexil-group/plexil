@@ -75,8 +75,6 @@ namespace PLEXIL
       AdapterExecInterface(),
       m_interfaceManagerId(this, ExternalInterface::getId()),
       m_application(app),
-      m_listenerHub((new ExecListenerHub())->getId()),
-      m_adapters(),
       m_raInterface(),
       // *** FIXME *** Allow other types to be specified
       m_inputQueue(new SimpleInputQueue()),
@@ -90,203 +88,12 @@ namespace PLEXIL
    */
   InterfaceManager::~InterfaceManager()
   {
-    // unregister and delete adapters
-    // *** kludge for buggy std::set template ***
-    std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-    while (it != m_adapters.end()) {
-      InterfaceAdapterId ia = *it;
-      m_adapters.erase(it); // these two lines should be:
-      it = m_adapters.begin(); // it = m_adapters.erase(it)
-      delete (InterfaceAdapter*) ia;
-    }
-
     delete m_inputQueue;
   }
 
   //
   // Top-level loop
   //
-
-  /**
-   * @brief Constructs interface adapters from the provided XML.
-   * @param configXml The XML element used for interface configuration.
-   * @return true if successful, false otherwise.
-   */
-  bool InterfaceManager::constructInterfaces(const pugi::xml_node& configXml)
-  {
-    if (configXml.empty()) {
-      debugMsg("InterfaceManager:constructInterfaces",
-               " empty configuration, nothing to construct");
-      return true;
-    }
-
-    assertTrue_2(g_configuration.isNoId(),
-                 "No AdapterConfiguration instance");
-
-    debugMsg("InterfaceManager:verboseConstructInterfaces", " parsing configuration XML");
-    const char* elementType = configXml.name();
-    if (strcmp(elementType, InterfaceSchema::INTERFACES_TAG()) != 0) {
-      debugMsg("InterfaceManager:constructInterfaces",
-               " invalid configuration XML: no " << InterfaceSchema::INTERFACES_TAG() << " element");
-      return false;
-    }
-
-    // Walk the children of the configuration XML element
-    // and register the adapter according to the data found there
-    pugi::xml_node element = configXml.first_child();
-    while (!element.empty()) {
-      debugMsg("InterfaceManager:verboseConstructInterfaces", " found element " << element.name());
-      const char* elementType = element.name();
-      if (strcmp(elementType, InterfaceSchema::ADAPTER_TAG()) == 0) {
-        // Construct the adapter
-        debugMsg("InterfaceManager:constructInterfaces",
-                 " constructing adapter type \""
-                 << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
-                 << "\"");
-        InterfaceAdapterId adapter = 
-          AdapterFactory::createInstance(element,
-                                         *((AdapterExecInterface*)this));
-        if (!adapter.isId()) {
-          debugMsg("InterfaceManager:constructInterfaces",
-                   " failed to construct adapter type \""
-                   << element.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
-                   << "\"");
-          return false;
-        }
-        m_adapters.insert(adapter);
-      }
-      else if (strcmp(elementType, InterfaceSchema::LISTENER_TAG()) == 0) {
-        // Construct an ExecListener instance and attach it to the Exec
-        debugMsg("InterfaceManager:constructInterfaces",
-                 " constructing listener type \""
-                 << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value()
-                 << "\"");
-        ExecListenerId listener = 
-          ExecListenerFactory::createInstance(element);
-        if (!listener.isId()) {
-          debugMsg("InterfaceManager:constructInterfaces",
-                   " failed to construct listener from XML");
-          return false;
-        }
-        m_listenerHub->addListener(listener);
-      }
-      else if (strcmp(elementType, InterfaceSchema::LIBRARY_NODE_PATH_TAG()) == 0) {
-        // Add to library path
-        const char* pathstring = element.child_value();
-        if (*pathstring != '\0') {
-          std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
-          for (std::vector<std::string>::const_iterator it = path->begin();
-               it != path->end();
-               ++it)
-            m_libraryPath.push_back(*it);
-          delete path;
-        }
-      }
-      else if (strcmp(elementType, InterfaceSchema::PLAN_PATH_TAG()) == 0) {
-        // Add to plan path
-        const char* pathstring = element.child_value();
-        if (pathstring != '\0') {
-          std::vector<std::string> * path = InterfaceSchema::parseCommaSeparatedArgs(pathstring);
-          for (std::vector<std::string>::const_iterator it = path->begin();
-               it != path->end();
-               ++it)
-            m_planPath.push_back(*it);
-          delete path;
-        }
-      }
-      else {
-        debugMsg("InterfaceManager:constructInterfaces",
-                 " ignoring unrecognized XML element \""
-                 << elementType << "\"");
-      }
-
-      element = element.next_sibling();
-    }
-
-    debugMsg("InterfaceManager:verboseConstructInterfaces", " done.");
-    return true;
-  }
-
-  /**
-   * @brief Add an externally constructed interface adapter.
-   * @param The adapter ID.
-   */
-  void InterfaceManager::addInterfaceAdapter(const InterfaceAdapterId& adapter)
-  {
-    if (m_adapters.find(adapter) == m_adapters.end())
-      m_adapters.insert(adapter);
-  }
-
-  /**
-   * @brief Add an externally constructed ExecListener.
-   * @param listener The ExecListener ID.
-   */
-  void InterfaceManager::addExecListener(const ExecListenerId& listener)
-  {
-    m_listenerHub->addListener(listener);
-  }
-
-  /**
-   * @brief Get the search path for library nodes.
-   * @return A reference to the library search path.
-   */
-  const std::vector<std::string>& InterfaceManager::getLibraryPath() const
-  {
-    return m_libraryPath;
-  }
-
-  /**
-   * @brief Get the search path for plans.
-   * @return A reference to the plan search path.
-   */
-  const std::vector<std::string>& InterfaceManager::getPlanPath() const
-  {
-    return m_planPath;
-  }
-
-  /**
-   * @brief Add the specified directory name to the end of the library node loading path.
-   * @param libdir The directory name.
-   */
-  void InterfaceManager::addLibraryPath(const std::string &libdir)
-  {
-    m_libraryPath.push_back(libdir);
-  }
-
-  /**
-   * @brief Add the specified directory names to the end of the library node loading path.
-   * @param libdirs The vector of directory names.
-   */
-  void InterfaceManager::addLibraryPath(const std::vector<std::string>& libdirs)
-  {
-    for (std::vector<std::string>::const_iterator it = libdirs.begin();
-         it != libdirs.end();
-         ++it) {
-      m_libraryPath.push_back(*it);
-    }
-  }
-
-  /**
-   * @brief Add the specified directory name to the end of the plan loading path.
-   * @param libdir The directory name.
-   */
-  void InterfaceManager::addPlanPath(const std::string &libdir)
-  {
-    m_planPath.push_back(libdir);
-  }
-
-  /**
-   * @brief Add the specified directory names to the end of the plan loading path.
-   * @param libdirs The vector of directory names.
-   */
-  void InterfaceManager::addPlanPath(const std::vector<std::string>& libdirs)
-  {
-    for (std::vector<std::string>::const_iterator it = libdirs.begin();
-         it != libdirs.end();
-         ++it) {
-      m_planPath.push_back(*it);
-    }
-  }
 
   /**
    * @brief Performs basic initialization of the interface and all adapters.
@@ -296,8 +103,8 @@ namespace PLEXIL
   {
     debugMsg("InterfaceManager:initialize", " initializing interface adapters");
     bool success = true;
-    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         success && it != m_adapters.end();
+    for (std::set<InterfaceAdapterId>::iterator it = g_configuration->getAdapters().begin();
+         success && it != g_configuration->getAdapters().end();
          ++it) {
       InterfaceAdapterId a = *it;
       success = a->initialize();
@@ -306,12 +113,12 @@ namespace PLEXIL
         const char* adapterType = adapterXml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();        
         debugMsg("InterfaceManager:initialize",
                  " adapter initialization failed for type \"" << adapterType << "\", returning false");
-        m_adapters.erase(it);
+        g_configuration->getAdapters().erase(it);
         delete (InterfaceAdapter*) a;
         return false;
       }
     }
-    success = m_listenerHub->initialize();
+    success = g_configuration->getListenerHub()->initialize();
     if (!success) {
       debugMsg("InterfaceManager:initialize", " failed to initialize all Exec listeners, returning false");
       return false;
@@ -328,8 +135,8 @@ namespace PLEXIL
   {
     debugMsg("InterfaceManager:start", " starting interface adapters");
     bool success = true;
-    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         success && it != m_adapters.end();
+    for (std::set<InterfaceAdapterId>::iterator it = g_configuration->getAdapters().begin();
+         success && it != g_configuration->getAdapters().end();
          ++it) {
       success = (*it)->start();
       if (!success) {
@@ -341,7 +148,7 @@ namespace PLEXIL
       }
     }
 
-    success = m_listenerHub->start();
+    success = g_configuration->getListenerHub()->start();
     condDebugMsg(!success, 
                  "InterfaceManager:start", " failed to start all Exec listeners, returning false");
     return success;
@@ -357,12 +164,12 @@ namespace PLEXIL
 
     // halt adapters
     bool success = true;
-    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         it != m_adapters.end();
+    for (std::set<InterfaceAdapterId>::iterator it = g_configuration->getAdapters().begin();
+         it != g_configuration->getAdapters().end();
          ++it)
       success = (*it)->stop() && success;
 
-    success = m_listenerHub->stop() && success;
+    success = g_configuration->getListenerHub()->stop() && success;
 
     debugMsg("InterfaceManager:stop", " completed");
     return success;
@@ -383,12 +190,12 @@ namespace PLEXIL
     clearAdapterRegistry();
 
     bool success = true;
-    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         it != m_adapters.end();
+    for (std::set<InterfaceAdapterId>::iterator it = g_configuration->getAdapters().begin();
+         it != g_configuration->getAdapters().end();
          ++it)
       success = (*it)->reset() && success;
 
-    success = m_listenerHub->reset() && success;
+    success = g_configuration->getListenerHub()->reset() && success;
     debugMsg("InterfaceManager:reset", " completed");
     return success;
   }
@@ -412,11 +219,11 @@ namespace PLEXIL
     clearAdapterRegistry();
 
     bool success = true;
-    for (std::set<InterfaceAdapterId>::iterator it = m_adapters.begin();
-         it != m_adapters.end();
+    for (std::set<InterfaceAdapterId>::iterator it = g_configuration->getAdapters().begin();
+         it != g_configuration->getAdapters().end();
          ++it)
       success = (*it)->shutdown() && success;
-    success = m_listenerHub->shutdown() && success;
+    success = g_configuration->getListenerHub()->shutdown() && success;
 
     // Clean up
     // *** NYI ***
@@ -742,16 +549,6 @@ namespace PLEXIL
   //
 
   /**
-   * @brief Removes the adapter and deletes it iff nothing refers to it.
-   */
-  void InterfaceManager::deleteIfUnknown(InterfaceAdapterId intf)
-  {
-    assertTrue_1(g_configuration.isId());
-    if (!g_configuration->isKnown(intf))
-      deleteAdapter(intf);
-  }
-
-  /**
    * @brief Register the given resource arbiter interface for all commands
    Returns true if successful.
    Fails and returns false if there is already an interface registered.
@@ -908,7 +705,8 @@ namespace PLEXIL
       PlexilNodeId libroot = g_exec->getLibrary(libname);
       if (libroot.isNoId()) {
         // Try to load the library
-        libroot = PlexilXmlParser::findLibraryNode(libname, m_libraryPath);
+        libroot = PlexilXmlParser::findLibraryNode(libname,
+                                                   g_configuration->getLibraryPath());
         if (libroot.isNoId()) {
           debugMsg("InterfaceManager:handleAddPlan", 
                    " Plan references unloaded library node \"" << libname << "\"");
@@ -1036,17 +834,6 @@ namespace PLEXIL
   // }
 
   /**
-   * @brief Deletes the given adapter
-   * @return true if the given adapter existed and was deleted. False if not found
-   */
-  bool InterfaceManager::deleteAdapter(InterfaceAdapterId intf) {
-    int res = m_adapters.erase(intf);
-    intf.release();
-    return res != 0;
-  }
-
-
-  /**
    * @brief Associate an arbitrary object with a string.
    * @param name The string naming the property.
    * @param thing The property value as an untyped pointer.
@@ -1069,5 +856,8 @@ namespace PLEXIL
     else
       return it->second;
   }
+
+  // Initialize global variable
+  InterfaceManagerId g_manager;
 
 }

@@ -28,8 +28,6 @@
 #define EXEC_APPLICATION_H
 
 #include "Id.hh"
-#include "InterfaceManager.hh"
-#include "PlexilExec.hh"
 
 #ifdef PLEXIL_WITH_THREADS
 #include "ThreadMutex.hh"
@@ -92,21 +90,6 @@ namespace PLEXIL
     inline const ExecApplicationId getId() const
     {
       return m_id;
-    }
-
-    inline const PlexilExecId getExec() const
-    {
-      return m_exec.getId();
-    }
-
-    inline InterfaceManagerId getInterfaceManager() const
-    {
-      return m_interface.getInterfaceManagerId();
-    }
-
-    inline InterfaceManager& getInterfaceManagerReference()
-    {
-      return m_interface;
     }
 
     /**
@@ -363,8 +346,6 @@ namespace PLEXIL
     //
     // Member variables
     //
-    PlexilExec m_exec;
-    InterfaceManager m_interface;
     ExecApplicationId m_id;
 
 #ifdef PLEXIL_WITH_THREADS

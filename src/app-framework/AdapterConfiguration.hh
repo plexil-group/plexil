@@ -41,7 +41,11 @@
 namespace PLEXIL {
 
   // forward references
-  class InterfaceManager;
+  class ExecListener;
+  DECLARE_ID(ExecListener);
+
+  class ExecListenerHub;
+  DECLARE_ID(ExecListenerHub);
 
   class InterfaceAdapter;
   typedef Id<InterfaceAdapter> InterfaceAdapterId;
@@ -55,7 +59,7 @@ namespace PLEXIL {
     /**
      * @brief Constructor.
      */
-    AdapterConfiguration(InterfaceManager* manager);
+    AdapterConfiguration();
 
     /**
      * @brief Destructor.
@@ -63,17 +67,30 @@ namespace PLEXIL {
     ~AdapterConfiguration();
 
     /**
-     * @brief Returns the InterfaceManager set in initialization
-     * @return The InterfaceManager set in initialization.
-     */
-    InterfaceManager* getInterfaceManager();
-
-    /**
      * @brief Get the ID of this instance.
      */
     AdapterConfigurationId getId() {
       return m_id;
     }
+
+    /**
+     * @brief Constructs interface adapters from the provided XML.
+     * @param configXml The XML element used for interface configuration.
+     * @return true if successful, false otherwise.
+     */
+    bool constructInterfaces(const pugi::xml_node& configXml);
+
+    /**
+     * @brief Add an externally constructed interface adapter.
+     * @param adapter The adapter ID.
+     */
+    void addInterfaceAdapter(const InterfaceAdapterId& adapter);
+
+    /**
+     * @brief Add an externally constructed ExecListener.
+     * @param listener The ExecListener ID.
+     */
+    void addExecListener(const ExecListenerId& listener);
 
     //
     // API to interface adapters
@@ -218,6 +235,21 @@ namespace PLEXIL {
      */
     InterfaceAdapterId getDefaultInterface();
 
+    std::set<InterfaceAdapterId> & getAdapters()
+    {
+      return m_adapters;
+    }
+
+    std::set<InterfaceAdapterId> const & getAdapters() const
+    {
+      return m_adapters;
+    }
+
+    ExecListenerHubId const & getListenerHub() const
+    {
+      return m_listenerHub;
+    }
+
     /**
      * @brief Returns true if the given adapter is a known interface in the system. False otherwise
      */
@@ -227,6 +259,46 @@ namespace PLEXIL {
      * @brief Clears the interface adapter registry.
      */
     void clearAdapterRegistry();
+
+    //
+    // Plan, library path access
+    //
+
+    /**
+     * @brief Get the search path for library nodes.
+     * @return A reference to the library search path.
+     */
+    const std::vector<std::string>& getLibraryPath() const;
+
+    /**
+     * @brief Get the search path for plan files.
+     * @return A reference to the plan search path.
+     */
+    const std::vector<std::string>& getPlanPath() const;
+
+    /**
+     * @brief Add the specified directory name to the end of the library node loading path.
+     * @param libdir The directory name.
+     */
+    void addLibraryPath(const std::string& libdir);
+
+    /**
+     * @brief Add the specified directory names to the end of the library node loading path.
+     * @param libdirs The vector of directory names.
+     */
+    void addLibraryPath(const std::vector<std::string>& libdirs);
+
+    /**
+     * @brief Add the specified directory name to the end of the plan loading path.
+     * @param libdir The directory name.
+     */
+    void addPlanPath(const std::string& libdir);
+
+    /**
+     * @brief Add the specified directory names to the end of the plan loading path.
+     * @param libdirs The vector of directory names.
+     */
+    void addPlanPath(const std::vector<std::string>& libdirs);
 
   private:
 
@@ -241,7 +313,6 @@ namespace PLEXIL {
      */
     void deleteIfUnknown(InterfaceAdapterId intf);
 
-    InterfaceManager* m_manager;
     AdapterConfigurationId m_id;
 
     //* Default InterfaceAdapters
@@ -259,6 +330,15 @@ namespace PLEXIL {
     InterfaceMap m_lookupMap;
     InterfaceMap m_commandMap;
 
+    //* ExecListener hub
+    ExecListenerHubId m_listenerHub;
+
+    //* Set of all known InterfaceAdapter instances
+    std::set<InterfaceAdapterId> m_adapters;
+
+    //* List of directory names for plan file search paths
+    std::vector<std::string> m_libraryPath;
+    std::vector<std::string> m_planPath;
   };
 
   extern AdapterConfigurationId g_configuration;

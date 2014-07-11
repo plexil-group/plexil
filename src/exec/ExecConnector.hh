@@ -118,6 +118,12 @@ namespace PLEXIL
      */
     virtual const ExecListenerHubId& getExecListenerHub() const = 0;
 
+    // Needed by ExecApplication
+
+    virtual void deleteFinishedPlans() = 0;
+
+    virtual bool allPlansFinished() const = 0;
+
   private:
     ExecConnectorId m_id;
   };

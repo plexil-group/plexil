@@ -144,61 +144,6 @@ namespace PLEXIL
     //
 
     /**
-     * @brief Get the search path for library nodes.
-     * @return A reference to the library search path.
-     */
-    const std::vector<std::string>& getLibraryPath() const;
-
-    /**
-     * @brief Get the search path for plan files.
-     * @return A reference to the plan search path.
-     */
-    const std::vector<std::string>& getPlanPath() const;
-
-    /**
-     * @brief Add the specified directory name to the end of the library node loading path.
-     * @param libdir The directory name.
-     */
-    void addLibraryPath(const std::string& libdir);
-
-    /**
-     * @brief Add the specified directory names to the end of the library node loading path.
-     * @param libdirs The vector of directory names.
-     */
-    void addLibraryPath(const std::vector<std::string>& libdirs);
-
-    /**
-     * @brief Add the specified directory name to the end of the plan loading path.
-     * @param libdir The directory name.
-     */
-    void addPlanPath(const std::string& libdir);
-
-    /**
-     * @brief Add the specified directory names to the end of the plan loading path.
-     * @param libdirs The vector of directory names.
-     */
-    void addPlanPath(const std::vector<std::string>& libdirs);
-
-    /**
-     * @brief Constructs interface adapters from the provided XML.
-     * @param configXml The XML element used for interface configuration.
-     * @return true if successful, false otherwise.
-     */
-    bool constructInterfaces(const pugi::xml_node& configXml);
-
-    /**
-     * @brief Add an externally constructed interface adapter.
-     * @param adapter The adapter ID.
-     */
-    void addInterfaceAdapter(const InterfaceAdapterId& adapter);
-
-    /**
-     * @brief Add an externally constructed ExecListener.
-     * @param listener The ExecListener ID.
-     */
-    void addExecListener(const ExecListenerId& listener);
-
-    /**
      * @brief Performs basic initialization of the interface and all adapters.
      * @return true if successful, false otherwise.
      */
@@ -375,11 +320,6 @@ namespace PLEXIL
     // rejects a command due to non-availability of resources
     void rejectCommand(Command *cmd);
 
-    /**
-     * @brief Removes the adapter and deletes it iff nothing refers to it.
-     */
-    void deleteIfUnknown(InterfaceAdapterId intf);
-
     friend class AdapterConfiguration;
 
   private:
@@ -394,13 +334,8 @@ namespace PLEXIL
      * has been received so that resources can be released.
      * @param ackOrDest The expression id for which a value has been posted.
      */
-    void releaseResourcesAtCommandTermination(Expression *ackOrDest);
-
-    /**
-     * @brief Deletes the given adapter
-     * @return true if the given adapter existed and was deleted. False if not found
-     */
-    bool deleteAdapter(InterfaceAdapterId intf);
+    // *** FIXME ***
+    //void releaseResourcesAtCommandTermination(Expression *ackOrDest);
 
     //
     // Internal types and classes
@@ -416,22 +351,12 @@ namespace PLEXIL
     //* Parent object
     ExecApplication& m_application;
 
-    //* ExecListener hub
-    ExecListenerHubId m_listenerHub;
-
-    //* Set of all known InterfaceAdapter instances
-    std::set<InterfaceAdapterId> m_adapters;
-
     // Properties
     typedef std::map<const std::string, void*> PropertyMap;
     PropertyMap m_propertyMap;
 
     //* The resource arbiter
     ResourceArbiterInterfaceId m_raInterface;
-
-    //* List of directory names for plan file search paths
-    std::vector<std::string> m_libraryPath;
-    std::vector<std::string> m_planPath;
 
     //* The queue
     InputQueue *m_inputQueue;
@@ -442,6 +367,8 @@ namespace PLEXIL
     //* Most recent mark processed.
     unsigned int m_lastMark;
   };
+
+  extern InterfaceManagerId g_manager;
 
 }
 
