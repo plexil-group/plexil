@@ -178,7 +178,7 @@ namespace PLEXIL
       REGISTER_FUNCTION(BooleanXor, XOR);
 
       // String operations
-      REGISTER_FUNCTION(StringConcat, CONCAT);
+      REGISTER_FUNCTION(StringConcat, Concat);
       REGISTER_FUNCTION(StringLength, STRLEN);
 
       // Array operations

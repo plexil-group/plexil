@@ -45,6 +45,9 @@ namespace PLEXIL
       result = INTEGER_TYPE;
       break;
 
+    case UNKNOWN_TYPE: // e.g. lookup, command
+      break;
+
     default: // not a valid type in an arithmetic expression
       return UNKNOWN_TYPE;
     }
@@ -58,12 +61,20 @@ namespace PLEXIL
         break;
 
       case INTEGER_TYPE:
+        if (result == UNKNOWN_TYPE)
+          result = INTEGER_TYPE;
+        break;
+
+      case UNKNOWN_TYPE:
         break;
 
       default:
         return UNKNOWN_TYPE; // bail out early
       }
     }
+    // No type info? Choose a "safe" default.
+    if (result == UNKNOWN_TYPE)
+      result = REAL_TYPE;
     return result;
   }
 
@@ -90,7 +101,7 @@ namespace PLEXIL
     ExprVec *exprVec = constructExprVec(args, node);
     ValueType type = this->commonType(exprVec);
     checkParserException(type != UNKNOWN_TYPE,
-                         "createExpression: type inconsistency in arithmetic expression");
+                         "createExpression: type inconsistency or indeterminacy in arithmetic expression");
     Operator const *oper = this->selectOperator(type);
     checkParserException(oper->checkArgCount(args.size()),
                          "createExpression: Wrong number of operands for operator "
