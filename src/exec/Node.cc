@@ -2127,13 +2127,10 @@ namespace PLEXIL {
            it != m_variablesByName.end();
            ++it) {
         const std::string& name = it->first;
-        if (name == STATE()
-            || name == OUTCOME()
-            || name == FAILURE_TYPE()
-            || name == COMMAND_HANDLE()
-            || countElements(name, ".") > 1)
-          continue;
-        m_sortedVariableNames->push_back(it->first);
+        std::vector<Expression *>::const_iterator vit = 
+          std::find(m_localVariables.begin(), m_localVariables.end(), it->second);
+        if (vit != m_localVariables.end())
+          m_sortedVariableNames->push_back(it->first);
       }
       // Sort the names
       std::sort(m_sortedVariableNames->begin(),
