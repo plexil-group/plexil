@@ -126,6 +126,7 @@ namespace PLEXIL
       REGISTER_EXPRESSION(IntegerArrayVariable, IntegerArrayVariable);
       REGISTER_EXPRESSION(RealArrayVariable, RealArrayVariable);
       REGISTER_EXPRESSION(StringArrayVariable, StringArrayVariable);
+      new VariableReferenceFactory("ArrayVariable"); // for effect
 
       // Comparisons
       REGISTER_FUNCTION(IsKnown, IsKnown);

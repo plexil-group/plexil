@@ -200,6 +200,29 @@ namespace PLEXIL
     ConcreteExpressionFactory &operator=(ConcreteExpressionFactory const &);
   };
 
+  class VariableReferenceFactory : public ExpressionFactory
+  {
+  public:
+    VariableReferenceFactory(std::string const &name)
+      : ExpressionFactory(name)
+    {
+    }
+
+    ~VariableReferenceFactory()
+    {
+    }
+
+    virtual Expression *allocate(const PlexilExprId& expr,
+                                 const NodeConnectorId& node,
+                                 bool & wasCreated) const;
+
+  private:
+    // Default, copy, assign prohibited
+    VariableReferenceFactory();
+    VariableReferenceFactory(VariableReferenceFactory const &);
+    VariableReferenceFactory &operator=(VariableReferenceFactory const &);
+  };
+
 } // namespace PLEXIL
 
 // Convenience macros

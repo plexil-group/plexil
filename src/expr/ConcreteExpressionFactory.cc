@@ -247,6 +247,30 @@ namespace PLEXIL
     return new ArrayReference(array, index, garbageArray, garbageIndex);
   }
 
+  // Generic variable references
+  Expression *
+  VariableReferenceFactory::allocate(const PlexilExprId& expr,
+                                     const NodeConnectorId& node,
+                                     bool & wasCreated) const
+  {
+    PlexilVarRef const *varRef = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
+    checkParserException(varRef, "createExpression: Expression is not a variable reference");
+    // Look it up
+    wasCreated = false;
+    checkParserException(node.isId(),
+                         "createExpression: Variable reference with null node"); // ??
+    Expression *result = node->findVariable(varRef);
+    checkParserException(result, "createExpression: Can't find variable named " << varRef->varName());
+    // FIXME: add more type checking later
+    if (varRef->type() == ARRAY_TYPE) {
+      checkParserException(isArrayType(result->valueType()),
+                           "createExpression: Variable " << varRef->varName()
+                           << " is type " << valueTypeName(result->valueType())
+                           << ", but reference is for array type");
+    }
+    return result;
+  }
+
   // Explicit instantiations
   ENSURE_EXPRESSION_FACTORY(BooleanConstant);
   ENSURE_EXPRESSION_FACTORY(IntegerConstant);

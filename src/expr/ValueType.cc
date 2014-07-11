@@ -204,6 +204,12 @@ namespace PLEXIL
       return sl_durvar;
 
       // Array types
+
+      // generic (for array reference)
+    case ARRAY_TYPE:
+      static std::string const sl_arrvar = ARRAY_STR + VARIABLE_STR;
+      return sl_arrvar;
+
     case BOOLEAN_ARRAY_TYPE:
       static std::string const sl_boolarrvar = BOOLEAN_ARRAY_STR + VARIABLE_STR;
       return sl_boolarrvar;
