@@ -44,10 +44,13 @@ namespace PLEXIL
     CachedValue(CachedValue const &) {}
     virtual ~CachedValue() {}
 
+    unsigned int getTimestamp() const
+    {
+      return m_timestamp;
+    }
 
     // Delegated to derived classes.
     virtual ValueType const valueType() const = 0;
-    virtual unsigned int getTimestamp() const = 0;
     virtual bool isKnown() const = 0;
     virtual CachedValue &operator=(CachedValue const &) = 0;
     virtual CachedValue *clone() const = 0;
@@ -109,6 +112,9 @@ namespace PLEXIL
 
     // For convenience of TestExternalInterface, others
     virtual bool update(unsigned int timestamp, Value const &val) = 0;
+
+  protected:
+    unsigned int m_timestamp;
   };
 
   // Factory function

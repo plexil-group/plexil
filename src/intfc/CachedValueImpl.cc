@@ -55,11 +55,6 @@ namespace PLEXIL
     return UNKNOWN_TYPE;
   }
 
-  unsigned int VoidCachedValue::getTimestamp() const
-  {
-    return 0;
-  }
-
   bool VoidCachedValue::isKnown() const
   {
     return false;
@@ -223,10 +218,11 @@ namespace PLEXIL
     return false;
   }
 
-  bool VoidCachedValue::update(unsigned int /* timestamp */, Value const &val)
+  bool VoidCachedValue::update(unsigned int timestamp, Value const &val)
   {
-    assertTrue_2(ALWAYS_FAIL, "Can't update a VoidCachedValue");
-    return false;
+    assertTrue_2(!val.isKnown(), "Can't update a VoidCachedValue");
+    this->m_timestamp = timestamp;
+    return true;
   }
 
   CachedValue *VOID_CACHED_VALUE()
@@ -242,7 +238,6 @@ namespace PLEXIL
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl()
     : CachedValueShim<CachedValueImpl<T> >(),
-      m_timestamp(0),
       m_known(false)
   {
   }
@@ -250,7 +245,6 @@ namespace PLEXIL
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl()
     : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
-      m_timestamp(0),
       m_known(false)
   {
   }
@@ -259,18 +253,18 @@ namespace PLEXIL
   CachedValueImpl<T>::CachedValueImpl(CachedValueImpl<T> const &orig)
     : CachedValueShim<CachedValueImpl<T> >(),
       m_value(orig.m_value),
-      m_timestamp(orig.m_timestamp),
       m_known(orig.m_known)
   {
+    this->m_timestamp = orig.getTimestamp();
   }
 
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl(CachedValueImpl<ArrayImpl<T> > const &orig)
     : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
       m_value(orig.m_value),
-      m_timestamp(orig.m_timestamp),
       m_known(orig.m_known)
   {
+    this->m_timestamp = orig.getTimestamp();
   }
 
   template <typename T>
@@ -304,7 +298,7 @@ namespace PLEXIL
   template <typename T>
   CachedValueImpl<T> &CachedValueImpl<T>::operator=(CachedValueImpl<T> const &other)
   {
-    m_timestamp = other.m_timestamp;
+    this->m_timestamp = other.getTimestamp();
     if ((m_known = other.m_known))
       m_value = other.m_value;
     return *this;
@@ -313,7 +307,7 @@ namespace PLEXIL
   template <typename T>
   CachedValueImpl<ArrayImpl<T> > &CachedValueImpl<ArrayImpl<T> >::operator=(CachedValueImpl<ArrayImpl<T> > const &other)
   {
-    m_timestamp = other.m_timestamp;
+    this->m_timestamp = other.getTimestamp();
     if ((m_known = other.m_known))
       m_value = other.m_value;
     return *this;
@@ -368,18 +362,6 @@ namespace PLEXIL
   }
 
   template <typename T>
-  unsigned int CachedValueImpl<T>::getTimestamp() const
-  {
-    return m_timestamp;
-  }
-
-  template <typename T>
-  unsigned int CachedValueImpl<ArrayImpl<T> >::getTimestamp() const
-  {
-    return m_timestamp;
-  }
-
-  template <typename T>
   bool CachedValueImpl<T>::isKnown() const
   {
     return m_known;
@@ -396,7 +378,7 @@ namespace PLEXIL
   {
     bool wasKnown = m_known;
     m_known = false;
-    m_timestamp = timestamp;
+    this->m_timestamp = timestamp;
     return wasKnown;
   }
 
@@ -405,7 +387,7 @@ namespace PLEXIL
   {
     bool wasKnown = m_known;
     m_known = false;
-    m_timestamp = timestamp;
+    this->m_timestamp = timestamp;
     return wasKnown;
   }
 
@@ -458,7 +440,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     if (!m_known || m_value != val) {
       m_value = val;
       m_known = true;
-      m_timestamp = timestamp;
+      this->m_timestamp = timestamp;
       return true;
     }
     return false;
@@ -529,7 +511,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     if (!m_known || m_value != *ptr) {
       m_value = *ptr;
       m_known = true;
-      m_timestamp = timestamp;
+      this->m_timestamp = timestamp;
       return true;
     }
     return false;
@@ -668,6 +650,9 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
 
     case STRING_ARRAY_TYPE:
       return static_cast<CachedValue *>(new CachedValueImpl<StringArray>());
+
+    case UNKNOWN_TYPE:
+      return static_cast<CachedValue *>(new VoidCachedValue());
 
     default:
       assertTrue_2(ALWAYS_FAIL, "CachedValueFactory: Invalid or unimplemented value type");

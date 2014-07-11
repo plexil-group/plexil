@@ -186,6 +186,12 @@ namespace PLEXIL
         return true;
       if (v == UNKNOWN_TYPE) // caller doesn't know or care
         return true;
+      if (ct == UNKNOWN_TYPE) {
+        // Replace placeholder with correct type
+        delete m_value;
+        m_value = CachedValueFactory(v);
+        return true;
+      }
       if (v == INTEGER_TYPE && isNumericType(ct)) // can store an integer in any numeric type
         return true;
       // FIXME implement a real time type

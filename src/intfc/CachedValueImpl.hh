@@ -41,7 +41,6 @@ namespace PLEXIL
 
 
     ValueType const valueType() const;
-    unsigned int getTimestamp() const;
     bool isKnown() const;
     CachedValue &operator=(CachedValue const &other);
     CachedValue *clone() const;
@@ -249,7 +248,6 @@ namespace PLEXIL
     CachedValueImpl<T> &operator=(CachedValueImpl<T> const &);
 
     ValueType const valueType() const;
-    unsigned int getTimestamp() const;
     bool isKnown() const;
 
     CachedValue *cloneImpl() const;
@@ -289,7 +287,6 @@ namespace PLEXIL
 
   private:
     T m_value;
-    unsigned int m_timestamp;
     bool m_known;
   };
 
@@ -308,7 +305,6 @@ namespace PLEXIL
     CachedValueImpl<ArrayImpl<T> > &operator=(CachedValueImpl<ArrayImpl<T> > const &);
 
     ValueType const valueType() const;
-    unsigned int getTimestamp() const;
     bool isKnown() const;
 
     CachedValue *cloneImpl() const;
@@ -347,7 +343,6 @@ namespace PLEXIL
 
   private:
     ArrayImpl<T> m_value;
-    unsigned int m_timestamp;
     bool m_known;
   };
 
