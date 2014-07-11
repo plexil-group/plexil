@@ -2,10 +2,10 @@
 // test-timepoint
 
 initial-state {
-  state time () = 0 : bool;
+  state time () = 0 : real;
 }
 
 script {
-  state time () = 181 : bool;
+  state time () = 181 : real;
 }
 
