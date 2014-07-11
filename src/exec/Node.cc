@@ -332,10 +332,10 @@ namespace PLEXIL {
       PlexilVarRef* varRef = *it;
 
       // Check for duplicate name
-      std::string name(varRef->name());
+      std::string name(varRef->varName());
       assertTrueMsg(m_variablesByName.find(name) == m_variablesByName.end(),
                     "Node \"" << m_nodeId
-                    << ": 'In' variable name \"" << varRef->name() << "\" is already in use");
+                    << ": 'In' variable name \"" << varRef->varName() << "\" is already in use");
 
       Expression *expr = getInVariable(varRef, parentIsLibCall);
       check_error_1(expr);
@@ -344,7 +344,7 @@ namespace PLEXIL {
       debugMsg("Node:getVarsFromInterface", 
                " for node \"" << m_nodeId.c_str()
                << "\": Adding In variable " << expr->toString()
-               << " as \"" << varRef->name() << "\""); 
+               << " as \"" << varRef->varName() << "\""); 
       m_variablesByName[name] = expr;
     }
       
@@ -354,10 +354,10 @@ namespace PLEXIL {
       PlexilVarRef* varRef = *it;
 
       // Check for duplicate name
-      std::string name(varRef->name());
+      std::string name(varRef->varName());
       assertTrueMsg(m_variablesByName.find(name) == m_variablesByName.end(),
                     "Node \"" << m_nodeId
-                    << ": 'InOut' variable name \"" << varRef->name() << "\" is already in use");
+                    << ": 'InOut' variable name \"" << varRef->varName() << "\" is already in use");
 
       Assignable *expr = getInOutVariable(varRef, parentIsLibCall);
       check_error_1(expr);
@@ -366,7 +366,7 @@ namespace PLEXIL {
       debugMsg("Node:getVarsFromInterface", 
                " for node \"" << m_nodeId.c_str()
                << "\": Adding InOut variable " << expr->toString()
-               << " as \"" << varRef->name() << "\""); 
+               << " as \"" << varRef->varName() << "\""); 
       m_variablesByName[name] = expr;
     }
   }
@@ -375,16 +375,15 @@ namespace PLEXIL {
   {
     // Get the variable from the parent
     // findVariable(..., true) tells LibraryCallNode to only search alias vars
-    std::string varLabel(varRef->name());
-    Expression *expr = m_parent->findVariable(varLabel, true);
+    Expression *expr = m_parent->findVariable(varRef->varName(), true);
     if (expr) {
       // Try to avoid constructing alias var
       if (!parentIsLibCall && expr->isAssignable()) {
         // Construct const wrapper
-        expr = new Alias(getId(), varRef->name(), expr, false);
+        expr = new Alias(getId(), varRef->varName(), expr, false);
         debugMsg("Node::getInVariable",
                  " Node \"" << m_nodeId
-                 << "\": Constructed const alias wrapper for \"" << varRef->name()
+                 << "\": Constructed const alias wrapper for \"" << varRef->varName()
                  << "\" to variable " << *expr);
         m_localVariables.push_back(expr);
       }
@@ -415,7 +414,7 @@ namespace PLEXIL {
                     "In node \"" << m_nodeId
                     << "\" 'In' interface: Parent has no "
                     << (parentIsLibCall ? "alias " : "variable ")
-                    << "named \"" << varRef->name() << "\""
+                    << "named \"" << varRef->varName() << "\""
                     << (parentIsLibCall ? ", and no default value is defined" : ""));
     }
     return expr;
@@ -425,13 +424,13 @@ namespace PLEXIL {
   {
     // Get the variable from the parent
     // findVariable(..., true) tells LibraryCallNode to only search alias vars
-    Expression *expr = m_parent->findVariable(std::string(varRef->name()), true);
+    Expression *expr = m_parent->findVariable(std::string(varRef->varName()), true);
     if (expr) {
       assertTrueMsg(expr->isAssignable(),
                     "In node \"" << m_nodeId
                     << "\" 'InOut' interface: "
                     << (parentIsLibCall ? "Alias for \"" : "Variable \"")
-                    << varRef->name() << "\", "
+                    << varRef->varName() << "\", "
                     << *expr << ", is read-only");
     }
     else {
@@ -463,7 +462,7 @@ namespace PLEXIL {
                     "In node \"" << m_nodeId
                     << "\" 'InOut' interface: Parent has no "
                     << (parentIsLibCall ? "alias " : "variable ")
-                    << "named \"" << varRef->name() << "\""
+                    << "named \"" << varRef->varName() << "\""
                     << (parentIsLibCall ? ", and no default value is defined" : ""));
     }
     return expr->asAssignable();
