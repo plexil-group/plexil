@@ -262,7 +262,8 @@ namespace PLEXIL
     }
   }
 
-#define ADD_PLAN_DEBUG
+  // Uncomment this to troubleshoot plan loading problems.
+  //#define ADD_PLAN_DEBUG
 
   void ListNode::createChildNodes(const PlexilListBody* body) 
   {

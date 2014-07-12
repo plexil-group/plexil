@@ -136,8 +136,8 @@ namespace PLEXIL
     }
   }
 
-
-#define ADD_PLAN_DEBUG
+  // Uncomment this to troubleshoot plan loading problems.
+  //#define ADD_PLAN_DEBUG
 
   // Add a plan
   bool PlexilExec::addPlan(PlexilNodeId const &plan) 
