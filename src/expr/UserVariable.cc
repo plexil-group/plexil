@@ -233,7 +233,7 @@ namespace PLEXIL {
   template <typename T>
   void UserVariable<T>::reset()
   {
-    assertTrue_2(!this->isActive(), "UserVariable: reset while active");
+    assertTrueMsg(!this->isActive(), "UserVariable " << *this << " reset while active");
     m_savedKnown = m_known = false;
   }
 

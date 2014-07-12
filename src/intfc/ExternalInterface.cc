@@ -27,6 +27,8 @@
 #include "ExternalInterface.hh"
 
 #include "Command.hh"
+#include "Debug.hh"
+#include "ResourceArbiterInterface.hh"
 #include "StateCacheMap.hh"
 #include "Update.hh"
 
@@ -37,12 +39,14 @@ namespace PLEXIL
 
   ExternalInterface::ExternalInterface()
     : m_id(this),
+      m_raInterface(new ResourceArbiterInterface()),
       m_cycleCount(0)
   {
   }
 
   ExternalInterface::~ExternalInterface()
   {
+    delete m_raInterface;
     m_id.remove();
   }
   
@@ -99,10 +103,23 @@ namespace PLEXIL
    */
   void ExternalInterface::executeOutboundQueue()
   {
+    std::set<Command *> acceptCmds;
+    m_raInterface->arbitrateCommands(m_commandsToExecute, acceptCmds);
     for (std::vector<Command *>::iterator cit = m_commandsToExecute.begin();
          cit != m_commandsToExecute.end();
-         ++cit)
-      this->executeCommand(*cit);
+         ++cit) {
+      assertTrue_1(*cit);
+      Command *cmd = *cit;
+      if (acceptCmds.find(cmd) != acceptCmds.end())
+        this->executeCommand(*cit);
+      else {
+        debugMsg("Test:testOutput", 
+                 "Permission to execute " << cmd->getName()
+                 << " has been denied by the resource arbiter.");
+        // FIXME: if we have a queue, this should go through it.
+        commandHandleReturn(cmd, COMMAND_DENIED);
+      }
+    }
     m_commandsToExecute.clear();
     for (std::vector<Update *>::iterator uit = m_updatesToExecute.begin();
          uit != m_updatesToExecute.end();

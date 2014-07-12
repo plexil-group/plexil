@@ -24,10 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// *** FIXME: Release resources when command goes inactive ***
-
 #include "Command.hh"
 #include "ExternalInterface.hh"
+#include "ResourceArbiterInterface.hh"
 
 namespace PLEXIL
 {
@@ -140,19 +139,15 @@ namespace PLEXIL
     m_abortComplete.activate();
     if (m_dest)
       m_dest->activate();
-    for (std::vector<Expression *>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      Expression *expr = *it;
-      expr->activate();
-    }
+    for (std::vector<Expression *>::iterator it = m_args.begin(); it != m_args.end(); ++it)
+      (*it)->activate();
     for (ResourceList::const_iterator resListIter = m_resourceList.begin();
          resListIter != m_resourceList.end();
          ++resListIter) {
       for (ResourceMap::const_iterator resIter = resListIter->begin();
            resIter != resListIter->end();
-           ++resIter) {
-        Expression *expr = resIter->second;
-        expr->activate();
-      }
+           ++resIter)
+        resIter->second->activate();
     }
     m_active = true;
   }
@@ -202,15 +197,23 @@ namespace PLEXIL
   {
     assertTrue_1(m_active);
     m_active = false;
-    m_nameExpr->deactivate();
-    m_ack.deactivate();
-    m_abortComplete.deactivate();
+    if (m_commandHandle != COMMAND_DENIED)
+      g_interface->getResourceArbiter()->releaseResourcesForCommand(m_command.name());
+    for (ResourceList::const_iterator resListIter = m_resourceList.begin();
+         resListIter != m_resourceList.end();
+         ++resListIter) {
+      for (ResourceMap::const_iterator resIter = resListIter->begin();
+           resIter != resListIter->end();
+           ++resIter)
+        resIter->second->deactivate();
+    }
+    for (std::vector<Expression *>::iterator it = m_args.begin(); it != m_args.end(); ++it)
+      (*it)->deactivate();
     if (m_dest)
       m_dest->deactivate();
-    for (std::vector<Expression *>::iterator it = m_args.begin(); it != m_args.end(); ++it) {
-      Expression *expr = *it;
-      expr->deactivate();
-    }
+    m_abortComplete.deactivate();
+    m_ack.deactivate();
+    m_nameExpr->deactivate();
   }
 
   void Command::reset()

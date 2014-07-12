@@ -186,8 +186,6 @@ namespace PLEXIL
                "No currently executing command " << getText(command));
     this->commandReturn(it->second, value);
     m_executingCommands.erase(it);
-    // *** FIXME: Move to CommandNode ***
-    m_raInterface.releaseResourcesForCommand(command.name());
   }
 
   void TestExternalInterface::handleCommandAck(const pugi::xml_node& elt)
@@ -206,10 +204,6 @@ namespace PLEXIL
                   "No command waiting for acknowledgement " << getText(command));
 
     this->commandHandleReturn(it->second, handle);
-    // *** FIXME: Move to CommandNode ***
-    // Release resources if the command does not have a return value
-    if (m_executingCommands.find(command) == m_executingCommands.end())
-      m_raInterface.releaseResourcesForCommand(command.name());
   }
 
   void TestExternalInterface::handleCommandAbort(const pugi::xml_node& elt)
@@ -533,12 +527,10 @@ namespace PLEXIL
     if (cmdName == "print") {
       print(command.parameters());
       this->commandHandleReturn(cmd, COMMAND_SUCCESS);
-      m_raInterface.releaseResourcesForCommand(cmdName);
     }
     else if (cmdName == "pprint") {
       pprint(command.parameters());
       this->commandHandleReturn(cmd, COMMAND_SUCCESS);
-      m_raInterface.releaseResourcesForCommand(cmdName);
     }
     else {
       // Usual case - set up for scripted ack value

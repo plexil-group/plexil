@@ -30,7 +30,6 @@
 #include "ExecDefs.hh"
 #include "ExternalInterface.hh"
 #include "ParserException.hh"
-#include "ResourceArbiterInterface.hh"
 
 #include <iostream>
 #include <map>
@@ -92,7 +91,6 @@ namespace PLEXIL
     StateCommandMap m_commandAcks; //map from state to commands awaiting ack
     StateCommandMap m_abortingCommands; // map from state to commands expecting abort ack
     StateMap m_states; //uniquely identified states and their values
-    ResourceArbiterInterface m_raInterface;
   };
 }
 

@@ -38,6 +38,7 @@ namespace PLEXIL {
   // Forward declarations
   class Command;
   class StateCacheEntry;
+  class ResourceArbiterInterface;
   class Update;
 
   class ExternalInterface;
@@ -57,6 +58,11 @@ namespace PLEXIL {
      * @brief Return the ID of this instance.
      */
     ExternalInterfaceId const &getId();
+
+    ResourceArbiterInterface *getResourceArbiter()
+    {
+      return m_raInterface;
+    }
 
     //
     // API to Lookup and StateCacheEntry
@@ -216,6 +222,7 @@ namespace PLEXIL {
     ExternalInterface &operator=(ExternalInterface const &);
 
     ExternalInterfaceId m_id;
+    ResourceArbiterInterface *m_raInterface;
     std::vector<Command *> m_commandsToExecute;
     std::vector<Update *> m_updatesToExecute;
     unsigned int m_cycleCount;

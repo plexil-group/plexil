@@ -27,10 +27,8 @@
 #ifndef _H_ResourceArbiterInterface
 #define _H_ResourceArbiterInterface
 
-#include "Id.hh"
 #include "Value.hh"
 
-#include <list>
 #include <map>
 #include <set>
 #include <vector>
@@ -70,30 +68,18 @@ namespace PLEXIL {
     bool operator() (const ChildResourceNode& x, const ChildResourceNode& y)const;
   };
 
-  typedef std::set<Command *> CommandSet;
-
-  class ResourceArbiterInterface;
-  typedef Id<ResourceArbiterInterface> ResourceArbiterInterfaceId;
-
   class ResourceArbiterInterface
   {
   public:
-    ResourceArbiterInterface(): m_resourceFileRead(false), m_id(this)
-    {
-      if (readResourceHeirarchy("resource.data"))
-        m_resourceFileRead = true;
-    }
+    // Convenience typedef
+    typedef std::set<Command *> CommandSet;
+    
+    ResourceArbiterInterface();
+    ~ResourceArbiterInterface();
 
-    ~ResourceArbiterInterface(){m_id.remove();}
-
-    void arbitrateCommands(const std::list<Command *>& cmds,
+    void arbitrateCommands(std::vector<Command *> const &cmds,
                            CommandSet& acceptCmds);
     void releaseResourcesForCommand(const std::string& cmdName);
-     
-    ResourceArbiterInterfaceId getId()
-    {
-      return m_id;
-    }
 
   private:
     // Type names
@@ -101,23 +87,20 @@ namespace PLEXIL {
     typedef std::map<std::string, ResourceMapEntry> ResourceMap;
     typedef std::map<std::string, CommandSet> ResourceCommandMap;
 
-    bool m_resourceFileRead;
     std::map<std::string, double> m_lockedRes;
     ResourceMap m_cmdResMap;
     std::map<std::string, ResourceNode> m_resourceHierarchy;
     std::multimap<int, Command *> m_prioritySortedCommands;
     ResourceCommandMap m_resCmdMap;
-    ResourceArbiterInterfaceId m_id;
+    bool m_resourceFileRead;
 
-    void preprocessCommandToArbitrate(const std::list<Command *>& cmds,
+    void preprocessCommandToArbitrate(const std::vector<Command *>& cmds,
                                       CommandSet& acceptCmds);
     double resourceAmountNeededByCommand(const std::string& resName, 
                                          const std::string& cmdName);
     void optimalResourceArbitration (CommandSet& acceptCmds);
 
-    void determineAllChildResources(const ResourceValues& res, 
-                                    std::vector<ChildResourceNode>& flattenedRes);
-    bool readResourceHeirarchy(const std::string& fName);
+    bool readResourceHierarchy(const std::string& fName);
     double maxConsumableResourceValue(const std::string& resName) const;
     double maxRenewableResourceValue(const std::string& resName) const;
     bool isResourceUsageOutsideLimits(const double resNeeded, 

@@ -45,38 +45,146 @@ namespace PLEXIL {
   const std::string RESOURCE_UPPER_BOUND_STR(RESOURCE_UPPER_BOUND_TAG);
   const std::string RESOURCE_RELEASE_AT_TERMINATION_STR(RESOURCE_RELEASE_AT_TERMINATION_TAG);
 
+  // Forward declarations of local functions
+  static void determineAllChildResources(const ResourceValues& res,
+                                         std::map<std::string, ResourceNode> const &resourceHierarchy,
+                                         std::vector<ChildResourceNode>& flattenedRes);
+
   bool ResourceComparator::operator() (const ChildResourceNode& x, const ChildResourceNode& y) const
   {
     return (x.name < y.name ? true : false);
   }
 
-  void ResourceArbiterInterface::arbitrateCommands(const std::list<Command *>& cmds,
+  ResourceArbiterInterface::ResourceArbiterInterface()
+    : m_resourceFileRead(false)
+  {
+    if (readResourceHierarchy("resource.data"))
+      m_resourceFileRead = true;
+  }
+
+  ResourceArbiterInterface::~ResourceArbiterInterface()
+  {
+  }
+
+  bool ResourceArbiterInterface::readResourceHierarchy(const std::string& fName)
+  {
+    std::ifstream myFile;
+    myFile.open(fName.c_str());
+    if (!myFile.is_open()) {
+      debugMsg("ResourceArbiterInterface:readResourceHierarchy", "The file: " 
+               << fName << " does not exist. No resources read.");
+      return false;
+    }
+
+    while (!myFile.eof()) {
+      std::string dataStr;
+      char const delimiter = ' ';
+      char firstChar = 0;
+      std::getline(myFile, dataStr);
+      if (dataStr.size() > 1)
+        firstChar = dataStr[0];
+      if (firstChar && firstChar != '%' && !isspace(firstChar)) {
+        // first element which is the parent resource name
+        std::string::size_type lastPos = dataStr.find_first_not_of(delimiter, 0);
+        std::string::size_type pos = dataStr.find_first_of(delimiter, lastPos);
+        if ((std::string::npos == pos) && (std::string::npos == lastPos)) {
+          std::cerr << "Error reading the first element of resource file: "
+                    << dataStr << std::endl;
+          myFile.close();
+          return false;
+        }
+        std::string const pName = dataStr.substr(lastPos, pos - lastPos);
+
+        // second element which is the max renewable value. DOn't have this 
+        // anymore. Fixed to 0.0. Can be converted to initial value.
+        /*
+          lastPos = dataStr.find_first_not_of(delimiter, pos);
+          pos = dataStr.find_first_of(delimiter, lastPos);
+          if ((std::string::npos == pos) && (std::string::npos == lastPos))
+          {
+          std::cerr << "Error reading the second element of resource file: "
+          << dataStr << std::endl;
+          myFile.close();
+          return false;
+          }
+          std::istringstream maxRstr(dataStr.substr(lastPos, pos - lastPos));
+          double maxRen;
+          maxRstr >> maxRen;
+        */
+        double maxRen = 0.0;
+
+        // third element which is the max consumable value
+        lastPos = dataStr.find_first_not_of(delimiter, pos);
+        pos = dataStr.find_first_of(delimiter, lastPos);
+        if ((std::string::npos == pos) && (std::string::npos == lastPos)) {
+          std::cerr << "Error reading the third element of resource file: "
+                    << dataStr << std::endl;
+          myFile.close();
+          return false;
+        }
+        // FIXME: use strtod()
+        std::istringstream maxCstr(dataStr.substr(lastPos, pos - lastPos));
+        double maxCons;
+        maxCstr >> maxCons;
+
+        lastPos = dataStr.find_first_not_of(delimiter, pos);
+        pos = dataStr.find_first_of(delimiter, lastPos);
+        std::vector<ChildResourceNode> children;
+        while ((std::string::npos != pos) || (std::string::npos != lastPos)) {
+
+          // FIXME: use strtod()
+          std::istringstream str(dataStr.substr(lastPos, pos - lastPos));
+          double d;
+          str >> d;
+
+          lastPos = dataStr.find_first_not_of(delimiter, pos);
+          pos = dataStr.find_first_of(delimiter, lastPos);
+
+          std::string const cName = dataStr.substr(lastPos, pos - lastPos);
+                
+          lastPos = dataStr.find_first_not_of(delimiter, pos);
+          pos = dataStr.find_first_of(delimiter, lastPos);
+
+          children.push_back(ChildResourceNode(d, cName));
+        }
+
+        m_resourceHierarchy[pName] = ResourceNode(maxCons, maxRen, children);
+      }
+    }
+    return true;
+  }
+
+  void ResourceArbiterInterface::arbitrateCommands(const std::vector<Command *>& cmds,
                                                    CommandSet& acceptCmds)
   {
     //1. Construct the sorted priority table for each resource
 
     preprocessCommandToArbitrate(cmds, acceptCmds);
     
-    printResourceCommandMap();
+    debugStmt("ResourceArbiterInterface:printResourceCommandMap", 
+              printResourceCommandMap());
 
-    printSortedCommands();
+    debugStmt("ResourceArbiterInterface:printSortedCommands",
+              printSortedCommands());
 
     optimalResourceArbitration(acceptCmds);
     
-    printAcceptedCommands(acceptCmds);
+    debugStmt("ResourceArbiterInterface:printAcceptedCommands",
+              printAcceptedCommands(acceptCmds));
 
-    // Also print all the locked resources.
-    printLockedResources();
+    // Also print all the locked resources. 
+    debugStmt("ResourceArbiterInterface:printLockedResources",
+              printLockedResources());
   }
 
-  void ResourceArbiterInterface::preprocessCommandToArbitrate
-  (const std::list<Command *>& cmds, CommandSet& acceptCmds)
+  void ResourceArbiterInterface::preprocessCommandToArbitrate(std::vector<Command *> const &cmds,
+                                                              CommandSet& acceptCmds)
   {
     m_prioritySortedCommands.clear();
     m_resCmdMap.clear();
 
     //Loop through each command
-    for (std::list<Command *>::const_iterator it = cmds.begin(); it != cmds.end(); ++it) {
+    for (std::vector<Command *>::const_iterator it = cmds.begin(); it != cmds.end(); ++it) {
       Command *cmd = *it;
       assertTrue_1(cmd);
       const ResourceValuesList& resList = cmd->getResourceValues();
@@ -103,7 +211,7 @@ namespace PLEXIL {
           // Flatten out the hierarchy into a vector ChildResourceNode with scaled weights
 
           std::vector<ChildResourceNode> flattenedRes;
-          determineAllChildResources(*resListIter, flattenedRes);
+          determineAllChildResources(*resListIter, m_resourceHierarchy, flattenedRes);
 
           //loop through each hierarchy element in the flattened structure
           for(std::vector<ChildResourceNode>::const_iterator rIter = flattenedRes.begin();
@@ -294,8 +402,9 @@ namespace PLEXIL {
             (resNeeded > maxConsumableResourceValue(resName)));
   }
 
-  void ResourceArbiterInterface::determineAllChildResources(const ResourceValues& res,
-                                                            std::vector<ChildResourceNode>& flattenedRes)
+  static void determineAllChildResources(const ResourceValues& res,
+                                         std::map<std::string, ResourceNode> const &resourceHierarchy,
+                                         std::vector<ChildResourceNode>& flattenedRes)
   {
     ResourceValues::const_iterator resit = res.find(RESOURCE_NAME_STR);
     assertTrueMsg(resit != res.end(), "ResourceName not found");
@@ -316,9 +425,9 @@ namespace PLEXIL {
     flattenedRes.push_back(ChildResourceNode(scale, *resName, release));
     // Push all the children into a queue (uses a std::vector).
 
-    if (m_resourceHierarchy.find(*resName) != m_resourceHierarchy.end()) {
+    if (resourceHierarchy.find(*resName) != resourceHierarchy.end()) {
       const std::vector<ChildResourceNode>& children = 
-        m_resourceHierarchy.find(*resName)->second.children;
+        resourceHierarchy.find(*resName)->second.children;
       std::queue<ChildResourceNode> q;
       for (std::vector<ChildResourceNode>::const_iterator cIter = children.begin();
            cIter != children.end();
@@ -330,7 +439,7 @@ namespace PLEXIL {
         q.pop();
         flattenedRes.push_back(ChildResourceNode(child.weight, child.name, release));
         const std::vector<ChildResourceNode>& children = 
-          m_resourceHierarchy.find(child.name)->second.children;
+          resourceHierarchy.find(child.name)->second.children;
         for (std::vector<ChildResourceNode>::const_iterator cIter = children.begin();
              cIter != children.end();
              ++cIter) {
@@ -338,94 +447,6 @@ namespace PLEXIL {
         }
       }
     }
-  }
-
-  bool ResourceArbiterInterface::readResourceHeirarchy(const std::string& fName)
-  {
-    std::string dataStr;
-    std::string delimiter = " ";
-    std::ifstream myFile;
-    myFile.open(fName.c_str());
-    if (!myFile.is_open())
-      {
-        debugMsg("ResourceArbiterInterface:readResourceHeirarchy", "The file: " 
-                 << fName << " does not exist. No resources read.");
-        return false;
-      }
-    while (!myFile.eof())
-      {
-        std::getline(myFile, dataStr);
-        if (dataStr.substr(0,1) != "%" && ~isspace(dataStr.substr(0,1)[0]))
-          {
-            // first element which is the parent resource name
-            std::string::size_type lastPos = dataStr.find_first_not_of(delimiter, 0);
-            std::string::size_type pos = dataStr.find_first_of(delimiter, lastPos);
-            if ((std::string::npos == pos) && (std::string::npos == lastPos))
-              {
-                std::cerr << "Error reading the first element of resource file: "
-                          << dataStr << std::endl;
-                myFile.close();
-                return false;
-              }
-            std::string pName = dataStr.substr(lastPos, pos - lastPos);
-
-            // second element which is the max renewable value. DOn't have this 
-            // anymore. Fixed to 0.0. Can be converted to initial value.
-            /*
-              lastPos = dataStr.find_first_not_of(delimiter, pos);
-              pos = dataStr.find_first_of(delimiter, lastPos);
-              if ((std::string::npos == pos) && (std::string::npos == lastPos))
-              {
-              std::cerr << "Error reading the second element of resource file: "
-              << dataStr << std::endl;
-              myFile.close();
-              return false;
-              }
-              std::istringstream maxRstr(dataStr.substr(lastPos, pos - lastPos));
-              double maxRen;
-              maxRstr >> maxRen;
-            */
-            double maxRen = 0.0;
-
-            // third element which is the max consumable value
-            lastPos = dataStr.find_first_not_of(delimiter, pos);
-            pos = dataStr.find_first_of(delimiter, lastPos);
-            if ((std::string::npos == pos) && (std::string::npos == lastPos))
-              {
-                std::cerr << "Error reading the third element of resource file: "
-                          << dataStr << std::endl;
-                myFile.close();
-                return false;
-              }
-            std::istringstream maxCstr(dataStr.substr(lastPos, pos - lastPos));
-            double maxCons;
-            maxCstr >> maxCons;
-
-            lastPos = dataStr.find_first_not_of(delimiter, pos);
-            pos = dataStr.find_first_of(delimiter, lastPos);
-            std::vector<ChildResourceNode> children;
-            while ((std::string::npos != pos) || (std::string::npos != lastPos))
-              {
-
-                std::istringstream str(dataStr.substr(lastPos, pos - lastPos));
-                double d;
-                str >> d;
-
-                lastPos = dataStr.find_first_not_of(delimiter, pos);
-                pos = dataStr.find_first_of(delimiter, lastPos);
-
-                std::string cName = dataStr.substr(lastPos, pos - lastPos);
-                
-                lastPos = dataStr.find_first_not_of(delimiter, pos);
-                pos = dataStr.find_first_of(delimiter, lastPos);
-
-                children.push_back(ChildResourceNode(d, cName));
-              }
-
-            m_resourceHierarchy[pName] = ResourceNode(maxCons, maxRen, children);
-          }
-      }
-    return true;
   }
 
   double ResourceArbiterInterface::maxConsumableResourceValue(const std::string& resName) const

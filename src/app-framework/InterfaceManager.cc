@@ -52,7 +52,6 @@
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
 #include "QueueEntry.hh"
-#include "ResourceArbiterInterface.hh"
 #include "SimpleInputQueue.hh" // FIXME: add lockable variety
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
@@ -75,7 +74,6 @@ namespace PLEXIL
       AdapterExecInterface(),
       m_interfaceManagerId(this, ExternalInterface::getId()),
       m_application(app),
-      m_raInterface(),
       // *** FIXME *** Allow other types to be specified
       m_inputQueue(new SimpleInputQueue()),
       m_currentTime(std::numeric_limits<double>::min()),
@@ -437,13 +435,6 @@ namespace PLEXIL
     }
   }
 
-  // rejects a command due to non-availability of resources
-  void 
-  InterfaceManager::rejectCommand(Command *cmd)
-  {
-    g_interface->commandHandleReturn(cmd, COMMAND_DENIED);
-  }
-
   /**
    * @brief Abort the pending command with the supplied name and arguments.
    * @param cmd The command.
@@ -470,27 +461,6 @@ namespace PLEXIL
   //
   // API to interface adapters
   //
-
-  /**
-   * @brief Register the given resource arbiter interface for all commands
-   Returns true if successful.
-   Fails and returns false if there is already an interface registered.
-   * @param raIntf The resource arbiter interface to use as the default.
-   */
-  bool 
-  InterfaceManager::setResourceArbiterInterface(ResourceArbiterInterfaceId raIntf)
-  {
-    if (m_raInterface.isId())
-      {
-        debugMsg("InterfaceManager:setResourceArbiterInterface",
-                 " attempt to overwrite resource arbiter interface " << m_raInterface);
-        return false;
-      }
-    m_raInterface = raIntf;
-    debugMsg("InterfaceManager:setResourceArbiterInterface",
-             " setting resource arbiter interface " << raIntf);
-    return true;
-  }
 
   /**
    * @brief Notify of the availability of a new value for a lookup.
@@ -701,60 +671,6 @@ namespace PLEXIL
     m_application.notifyAndWaitForCompletion();
   }
 #endif
-
-  // *************
-  // *** FIXME ***
-  // *************
-
-  /**
-   * @brief update the resoruce arbiter interface that an ack or return value
-   * has been received so that resources can be released.
-   * @param ackOrDest The expression id for which a value has been posted.
-   */
-  // void InterfaceManager::releaseResourcesAtCommandTermination(ExpressionId ackOrDest)
-  // {
-  //   // Check if the expression is an ack or a return value
-  //   std::map<ExpressionId, CommandId>::iterator iter;
-
-  //   if ((iter = m_ackToCmdMap.find(ackOrDest)) != m_ackToCmdMap.end())
-  //     {
-  //       CommandId cmdId = iter->second;
-  //       debugMsg("InterfaceManager:releaseResourcesAtCommandTermination",
-  //                " The expression that was received is a valid acknowledgement"
-  //                << " for the command: " << cmdId->getName());
-        
-  //       // Check if the command has a return value. If not, release resources
-  //       // otherwise ignore
-  //       if (cmdId->getDest().isNoId())
-  //         {
-  //           if (getResourceArbiterInterface().isId())
-  //             getResourceArbiterInterface()->releaseResourcesForCommand(cmdId->getName());
-  //           // remove the ack expression from the map
-  //           m_ackToCmdMap.erase(iter);
-  //         }
-  //     }
-  //   else if ((iter = m_destToCmdMap.find(ackOrDest)) != m_destToCmdMap.end())
-  //     {
-  //       CommandId cmdId = iter->second;
-  //       debugMsg("InterfaceManager:releaseResourcesForCommand",
-  //                " The expression that was received is a valid return value"
-  //                << " for the command: " << cmdId->getName());
-
-  //       //Release resources
-  //       if (getResourceArbiterInterface().isId())
-  //         getResourceArbiterInterface()->releaseResourcesForCommand(cmdId->getName());
-  //       //remove the ack from the map        
-  //       m_ackToCmdMap.erase(m_ackToCmdMap.find(cmdId->getAck()));
-
-  //       //remove the dest from the map
-  //       m_destToCmdMap.erase(iter);
-  //     }
-  //   else
-  //     debugMsg("InterfaceManager:releaseResourcesForCommand:",
-  //              " The expression is neither an acknowledgement"
-  //              << " nor a return value for a command. Ignoring.");
-
-  // }
 
   /**
    * @brief Associate an arbitrary object with a string.

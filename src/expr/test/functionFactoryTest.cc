@@ -118,7 +118,7 @@ static bool stringFunctionFactoryTest()
 
   // String concatenation
 
-  PlexilOp cat("CONCAT", STRING_TYPE);
+  PlexilOp cat("Concat", STRING_TYPE);
   std::string const *stemp;
 
   // No-arg form

@@ -50,6 +50,7 @@ namespace PLEXIL
 
   StateCacheEntry::~StateCacheEntry()
   {
+    delete m_value;
   }
 
   ValueType const StateCacheEntry::valueType() const

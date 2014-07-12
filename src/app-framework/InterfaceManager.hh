@@ -57,9 +57,6 @@ namespace PLEXIL
   class InterfaceManager;
   typedef Id<InterfaceManager> InterfaceManagerId;
 
-  class ResourceArbiterInterface;
-  typedef Id<ResourceArbiterInterface> ResourceArbiterInterfaceId;
-
   class ExecListenerHub;
   typedef Id<ExecListenerHub> ExecListenerHubId;
 
@@ -107,18 +104,6 @@ namespace PLEXIL
     {
       return m_application;
     }
-
-    //
-    // *** FIXME - Move to AdapterConfiguration ***
-    //
-
-    /**
-     * @brief Register the given resource arbiter interface for all commands
-     * Returns true if successful.
-     * Fails and returns false if there is already an interface registered.
-     * @param raIntf The resource arbiter interface to use as the default.
-     */
-    bool setResourceArbiterInterface(ResourceArbiterInterfaceId raIntf);
 
     //
     // API for all related objects
@@ -319,14 +304,6 @@ namespace PLEXIL
     InterfaceManager(const InterfaceManager &);
     InterfaceManager & operator=(const InterfaceManager &);
 
-    /**
-     * @brief update the resoruce arbiter interface that an ack or return value
-     * has been received so that resources can be released.
-     * @param ackOrDest The expression id for which a value has been posted.
-     */
-    // *** FIXME ***
-    //void releaseResourcesAtCommandTermination(Expression *ackOrDest);
-
     //
     // Internal types and classes
     //
@@ -344,9 +321,6 @@ namespace PLEXIL
     // Properties
     typedef std::map<const std::string, void*> PropertyMap;
     PropertyMap m_propertyMap;
-
-    //* The resource arbiter
-    ResourceArbiterInterfaceId m_raInterface;
 
     //* The queue
     InputQueue *m_inputQueue;

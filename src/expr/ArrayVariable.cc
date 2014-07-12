@@ -54,7 +54,7 @@ namespace PLEXIL
       m_size(NULL),
       m_initializer(new Constant<ArrayImpl<T> >(initVal)),
       m_name("anonymous"),
-      m_maxSize(initVal.size()),
+      m_maxSize(0),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(false),
@@ -180,7 +180,7 @@ namespace PLEXIL
   {
     bool changed = !m_known || value != m_value;
     size_t newSize = value.size();
-    assertTrue_2(m_maxSize && newSize <= m_maxSize,
+    assertTrue_2(!m_maxSize || newSize <= m_maxSize,
                  "ArrayVariable::setValue: New value is bigger than array declared size");
     m_value = value;
     m_known = true;
