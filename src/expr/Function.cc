@@ -118,6 +118,11 @@ namespace PLEXIL
     m_op->printValue(s, m_valueCache, *m_exprVec);
   }
 
+  void Function::printSubexpressions(std::ostream &s) const
+  {
+    m_exprVec->print(s);
+  }
+
   Value Function::toValue() const
   {
     return m_op->toValue(m_valueCache, *m_exprVec);

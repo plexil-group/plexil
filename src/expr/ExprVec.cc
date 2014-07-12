@@ -142,6 +142,10 @@ namespace PLEXIL
     {
     }
 
+    void print(std::ostream & /* s */) const
+    {
+    }
+
   private:
     // Not implemented
     NullExprVec(const NullExprVec &);
@@ -220,6 +224,14 @@ namespace PLEXIL
     void removeListener(ExpressionListener * ptr) 
     {
       ExprVec::removeListener(ptr);
+    }
+
+    void print(std::ostream & s) const
+    {
+      for (size_t i = 0; i < N; ++i) {
+        s << ' ';
+        exprs[i]->print(s);
+      }
     }
 
     bool apply(Operator const *op, bool &result) const
@@ -372,6 +384,14 @@ namespace PLEXIL
   {
     return (*op)(result, exprs[0]);
   }
+ 
+  template <>
+  void FixedExprVec<1>::print(std::ostream & s) const
+  {
+      s << ' ';
+      exprs[0]->print(s);
+  }
+
 
   //
   // Two-arg variants
@@ -379,7 +399,7 @@ namespace PLEXIL
 
   template <>
   FixedExprVec<2>::FixedExprVec(std::vector<Expression *> const &exps,
-                              std::vector<bool> const &garb)
+                                std::vector<bool> const &garb)
     : ExprVec()
   {
     check_error_1(exps.size() == 2 && garb.size() == 2);
@@ -479,6 +499,15 @@ namespace PLEXIL
   {
     return (*op)(result, exprs[0], exprs[1]);
   }
+ 
+  template <>
+  void FixedExprVec<2>::print(std::ostream & s) const
+  {
+      s << ' ';
+      exprs[0]->print(s);
+      s << ' ';
+      exprs[1]->print(s);
+  }
 
   //
   // GeneralExprVec
@@ -537,6 +566,15 @@ namespace PLEXIL
       size_t n = exprs.size();
       for (size_t i = 0; i < n; ++i)
         exprs[i]->deactivate();
+    }
+
+    void print(std::ostream & s) const
+    {
+      size_t n = exprs.size();
+      for (size_t i = 0; i < n; ++i) {
+        s << ' ';
+        exprs[i]->print(s);
+      }
     }
 
   private:

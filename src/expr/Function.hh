@@ -61,6 +61,7 @@ namespace PLEXIL
     const ValueType valueType() const;
     bool isKnown() const;
     void printValue(std::ostream &s) const;
+    void printSubexpressions(std::ostream &s) const;
     Value toValue() const;
 
     /**

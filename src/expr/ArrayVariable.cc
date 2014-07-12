@@ -168,6 +168,14 @@ namespace PLEXIL
   }
 
   template <typename T>
+  void ArrayVariable<T>::printSpecialized(std::ostream &s) const
+  {
+    s << m_name << ' ';
+    if (m_maxSize)
+      s << "size = " << m_maxSize << ' ';
+  }
+
+  template <typename T>
   void ArrayVariable<T>::setValueImpl(ArrayImpl<T> const &value)
   {
     bool changed = !m_known || value != m_value;

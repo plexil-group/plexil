@@ -137,6 +137,8 @@ namespace PLEXIL {
 
     void handleDeactivate();
 
+    void printSpecialized(std::ostream &s) const;
+
   private:
 
     Expression *m_initializer;

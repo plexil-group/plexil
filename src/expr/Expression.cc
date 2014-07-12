@@ -86,11 +86,25 @@ namespace PLEXIL {
 
   void Expression::print(std::ostream& s) const
   {
-    s << '(' << this->exprName() << ' ' << this
-	  << '[' << (this->isActive() ? 'a' : 'i')
+    s << '(' << this->exprName() << ' ' 
+      << valueTypeName(this->valueType()) << ' ';
+    this->printSpecialized(s);
+	s << this << " [" << (this->isActive() ? 'a' : 'i')
 	  << "](";
 	this->printValue(s);
-	s << "): " << valueTypeName(this->valueType()) << ')';
+	s << ')';
+    this->printSubexpressions(s);
+    s << ')';
+  }
+
+  // Default method, derived classes can elaborate
+  void Expression::printSpecialized(std::ostream &s) const
+  {
+  }
+
+  // Default method, derived classes can elaborate
+  void Expression::printSubexpressions(std::ostream & /* s */) const
+  {
   }
 
   // Stream-style print operator

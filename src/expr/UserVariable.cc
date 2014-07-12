@@ -205,6 +205,12 @@ namespace PLEXIL {
   }
 
   template <typename T>
+  void UserVariable<T>::printSpecialized(std::ostream &s) const
+  {
+    s << m_name << ' ';
+  }
+
+  template <typename T>
   void UserVariable<T>::setValueImpl(const T &value)
   {
     bool changed = !m_known || value != m_value;

@@ -62,6 +62,11 @@ namespace PLEXIL
     s << m_node.getStateName();
   }
 
+  void StateVariable::printSpecialized(std::ostream& s) const
+  {
+    s << m_node.getNodeId() << ' ';
+  }
+
   void StateVariable::changed()
   {
     this->publishChange(this);
@@ -114,6 +119,11 @@ namespace PLEXIL
       s << outcomeName((NodeOutcome) outcome);
   }
 
+  void OutcomeVariable::printSpecialized(std::ostream& s) const
+  {
+    s << m_node.getNodeId() << ' ';
+  }
+
   void OutcomeVariable::changed()
   {
     this->publishChange(this);
@@ -160,6 +170,11 @@ namespace PLEXIL
   void FailureVariable::printValue(std::ostream& s) const
   {
     s << failureTypeName(m_node.getFailureType());
+  }
+
+  void FailureVariable::printSpecialized(std::ostream& s) const
+  {
+    s << m_node.getNodeId() << ' ';
   }
 
   void FailureVariable::changed()

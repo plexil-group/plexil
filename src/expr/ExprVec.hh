@@ -62,6 +62,8 @@ namespace PLEXIL
     virtual void addListener(ExpressionListener *);
     virtual void removeListener(ExpressionListener *);
 
+    virtual void print(std::ostream &s) const = 0;
+
     virtual bool apply(Operator const *op, bool &result) const;
     virtual bool apply(Operator const *op, int32_t &result) const;
     virtual bool apply(Operator const *op, double &result) const;

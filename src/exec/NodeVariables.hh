@@ -86,6 +86,8 @@ namespace PLEXIL {
      */
     void printValue(std::ostream& s) const;
 
+    void printSpecialized(std::ostream &s) const;
+
     // Notifier API
     inline bool isActive() const
     {
@@ -147,6 +149,8 @@ namespace PLEXIL {
      */
     void printValue(std::ostream& s) const;
 
+    void printSpecialized(std::ostream &s) const;
+
     // For convenience of Node
     void changed();
 
@@ -199,6 +203,8 @@ namespace PLEXIL {
      * @param s The output stream.
      */
     void printValue(std::ostream& s) const;
+
+    void printSpecialized(std::ostream &s) const;
 
     // For convenience of Node
     void changed();

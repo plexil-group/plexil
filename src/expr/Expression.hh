@@ -131,6 +131,18 @@ namespace PLEXIL
 	 */
     virtual void print(std::ostream& s) const;
 
+    /**
+     * @brief Print additional information about derived objects.
+     * @param s The output stream.
+     */
+    virtual void printSpecialized(std::ostream &s) const;
+
+    /**
+     * @brief Print subexpressions of derived objects.
+     * @param s The output stream.
+     */
+    virtual void printSubexpressions(std::ostream &s) const;
+
 	/**
 	 * @brief Print the expression's value to the given stream.
 	 * @param s The output stream.
