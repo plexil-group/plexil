@@ -47,6 +47,21 @@
 
 namespace PLEXIL {
 
+  Node::ConditionChangeListener::ConditionChangeListener(Node &node)
+    : ExpressionListener(), m_node(node)
+  {
+  }
+
+  Node::ConditionChangeListener::~ConditionChangeListener()
+  {
+  }
+
+  void Node::ConditionChangeListener::notifyChanged(Expression const *src)
+  {
+    debugMsg("Node:conditionChanged", " node " << m_node.getNodeId() << " from " << *src);
+    m_node.conditionChanged();
+  }
+
   // Initialize class static variables
   std::vector<std::string>* Node::s_allConditions = NULL;
 

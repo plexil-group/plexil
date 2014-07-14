@@ -485,15 +485,10 @@ namespace PLEXIL {
     class ConditionChangeListener : public ExpressionListener 
     {
     public:
-      ConditionChangeListener(Node& node)
-      : ExpressionListener(), m_node(node)
-      {
-      }
+      ConditionChangeListener(Node& node);
+      ~ConditionChangeListener();
 
-      void notifyChanged(Expression const * /* src */)
-      {
-        m_node.conditionChanged();
-      }
+      void notifyChanged(Expression const *src);
 
     private:
 
