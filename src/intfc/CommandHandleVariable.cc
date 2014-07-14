@@ -63,6 +63,8 @@ namespace PLEXIL
 
   bool CommandHandleVariable::getValueImpl(uint16_t &result) const
   {
+    if (!isActive())
+      return false;
     uint16_t handle = m_command.getCommandHandle();
     if (handle == NO_COMMAND_HANDLE)
       return false;
@@ -72,6 +74,8 @@ namespace PLEXIL
 
   bool CommandHandleVariable::getValuePointerImpl(uint16_t const *&ptr) const
   {
+    if (!isActive())
+      return false;
     if (m_command.m_commandHandle == NO_COMMAND_HANDLE)
       return false;
     ptr = &m_command.m_commandHandle;
@@ -85,8 +89,9 @@ namespace PLEXIL
   
   void CommandHandleVariable::printValue(std::ostream &s) const
   {
-    uint16_t handle = m_command.getCommandHandle();
-    if (handle == NO_COMMAND_HANDLE)
+    uint16_t handle;
+    if (!isActive()
+        || (handle = m_command.getCommandHandle()) == NO_COMMAND_HANDLE)
       s << "UNKNOWN";
     else
       s << commandHandleValueName((CommandHandleValue) handle);
