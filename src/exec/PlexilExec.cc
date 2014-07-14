@@ -561,6 +561,9 @@ namespace PLEXIL
   void PlexilExec::resolveVariableConflicts(Assignable const *var,
                                             const VariableConflictSet& conflictSet)
   {
+    checkError(!conflictSet.empty(),
+               "Resource conflict set for " << var->toString() << " is empty.");
+
     // Ignore any variables pending retraction
     // Grumble... Why doesnt std:;vector<T> have a find() member fn?
     for (std::vector<Assignable *>::const_iterator vit = m_variablesToRetract.begin();
@@ -574,42 +577,44 @@ namespace PLEXIL
       }
     }
 
-    checkError(!conflictSet.empty(),
-               "Resource conflict set for " << var->toString() << " is empty.");
-
     //we only have to look at all the nodes with the highest priority
-    VariableConflictSet::const_iterator conflictIt = conflictSet.begin(); 
-    size_t count = conflictSet.count(*conflictIt); // # of nodes with same priority as top
-
     NodeId nodeToExecute;
     NodeState destState = NO_NODE_STATE;
+    VariableConflictSet::const_iterator conflictIt = conflictSet.begin(); 
+    size_t count = conflictSet.count(*conflictIt); // # of nodes with same priority as top
+    if (count == 1) {
+      // Usual case (we hope) - make it simple
+      nodeToExecute = *conflictIt;
+      destState = nodeToExecute->getNextState();
+    }
+    else {
 
-    // Look at the destination states of all the nodes with equal priority
-    for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
-      NodeId node = *conflictIt;
-      NodeState dest = node->getNextState();
 
-      check_error_1(node.isValid());
+      // Look at the destination states of all the nodes with equal priority
+      for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
+        NodeId node = *conflictIt;
+        NodeState dest = node->getNextState();
 
-      // Found one that is scheduled for execution
-      if (dest == EXECUTING_STATE || dest == FAILING_STATE)
-        ++conflictCounter;
-      else 
-        // Internal error
-        checkError(node->getState() == EXECUTING_STATE
-                   || node->getState() == FAILING_STATE,
-                   "Error: node '" << node->getNodeId()
-                   << " is neither executing nor failing nor eligible for either, yet is in conflict map.");
+        // Found one that is scheduled for execution
+        if (dest == EXECUTING_STATE || dest == FAILING_STATE)
+          ++conflictCounter;
+        else 
+          // Internal error
+          checkError(node->getState() == EXECUTING_STATE
+                     || node->getState() == FAILING_STATE,
+                     "Error: node '" << node->getNodeId()
+                     << " is neither executing nor failing nor eligible for either, yet is in conflict map.");
 
-      // If more than one node is scheduled for execution, we have a resource contention.
-      // *** FIXME: This is a plan error. Find a non-fatal way to report this conflict!! ***
-      checkError(conflictCounter < 2,
-                 "Error: nodes '" << node->getNodeId() << "' and '"
-                 << nodeToExecute->getNodeId() << "' are in contention over variable "
-                 << var->toString() << " and have equal priority.");
+        // If more than one node is scheduled for execution, we have a resource contention.
+        // *** FIXME: This is a plan error. Find a non-fatal way to report this conflict!! ***
+        checkError(conflictCounter < 2,
+                   "Error: nodes '" << node->getNodeId() << "' and '"
+                   << nodeToExecute->getNodeId() << "' are in contention over variable "
+                   << var->toString() << " and have equal priority.");
 
-      nodeToExecute = node;
-      destState = dest;
+        nodeToExecute = node;
+        destState = dest;
+      }
     }
 
     if (destState == EXECUTING_STATE || destState == FAILING_STATE) {
