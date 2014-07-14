@@ -63,8 +63,10 @@ namespace PLEXIL
     {
       uint16_t state;
       assertTrue_2(arg->getValue(state), // should ALWAYS be known
-                   "AllChildrenFinished: node state variables may not be unknown.");
-      return (state == FINISHED_STATE);
+                   "AllFinished: node states may not be unknown.");
+      result = (state == FINISHED_STATE);
+      debugMsg("AllFinished", "result = " << result);
+      return true;
     }
 
     // Two-arg case
@@ -72,12 +74,17 @@ namespace PLEXIL
     {
       uint16_t state;
       assertTrue_2(arg0->getValue(state), // should ALWAYS be known
-                   "AllChildrenFinished: node state variables may not be unknown.");
-      if (state != FINISHED_STATE)
-        return false;
+                   "AllFinished: node states may not be unknown.");
+      if (state != FINISHED_STATE) {
+        result = false;
+        debugMsg("AllFinished", "result = " << result);
+        return true;
+      }
       assertTrue_2(arg1->getValue(state), // should ALWAYS be known
-                   "AllChildrenFinished: node state variables may not be unknown.");
-      return (state == FINISHED_STATE);
+                   "AllFinished: node states may not be unknown.");
+      result = (state == FINISHED_STATE);
+      debugMsg("AllFinished", "result = " << result);
+      return true;
     }
 
     // General case
@@ -85,25 +92,18 @@ namespace PLEXIL
                     ExprVec const &args) const
     {
       size_t total = args.size();
-      size_t unfinished = total;
       for (size_t i = 0; i < total; ++i) {
         uint16_t state;
         assertTrue_2(args[i]->getValue(state), // should ALWAYS be known
-                     "AllChildrenFinished: node state variables may not be unknown.");
-        if (state == FINISHED_STATE)
-          --unfinished;
+                     "AllFinished: node states may not be unknown.");
+        if (state != FINISHED_STATE) {
+          result = false;
+          debugMsg("AllFinished", "result = false");
+          return true;
+        }
       }
-      if (unfinished) {
-        debugMsg("AllChildrenFinished ",
-                 unfinished << " of " << total <<
-                 " children not FINISHED. Returning FALSE.");
-        result = false;
-      }
-      else {
-        debugMsg("AllChildrenFinished ",
-                 "All of " << total << " children FINISHED. Returning TRUE.");
-        result = true;
-      }
+      debugMsg("AllFinished", "result = true");
+      result = true;
       return true; // always known
     }
 
@@ -138,8 +138,10 @@ namespace PLEXIL
     {
       uint16_t state;
       assertTrue_2(arg->getValue(state), // should ALWAYS be known
-                   "AllChildrenWaitingOrFinished: node state variables may not be unknown.");
-      return (state == FINISHED_STATE || state == WAITING_STATE);
+                   "AllWaitingOrFinished: node states may not be unknown.");
+      result = (state == FINISHED_STATE) || (state == WAITING_STATE);
+      debugMsg("AllWaitingOrFinished", " result = " << result);
+      return true;
     }
 
     // Two-arg case
@@ -147,12 +149,17 @@ namespace PLEXIL
     {
       uint16_t state;
       assertTrue_2(arg0->getValue(state), // should ALWAYS be known
-                   "AllChildrenWaitingOrFinished: node state variables may not be unknown.");
-      if (state != FINISHED_STATE && state != WAITING_STATE)
-        return false;
+                   "AllWaitingOrFinished: node states may not be unknown.");
+      if (state != FINISHED_STATE && state != WAITING_STATE) {
+        result = false;
+        debugMsg("AllWaitingOrFinished", " result = " << result);
+        return true;
+      }
       assertTrue_2(arg1->getValue(state), // should ALWAYS be known
-                   "AllChildrenWaitingOrFinished: node state variables may not be unknown.");
-      return (state == FINISHED_STATE || state == WAITING_STATE);
+                   "AllWaitingOrFinished: node states may not be unknown.");
+      result = (state == FINISHED_STATE || state == WAITING_STATE);
+      debugMsg("AllWaitingOrFinished", " result = " << result);
+      return true;
     }
 
     // General case
@@ -160,26 +167,23 @@ namespace PLEXIL
                     ExprVec const &args) const
     {
       size_t total = args.size();
-      size_t unfinished = total;
       for (size_t i = 0; i < total; ++i) {
         uint16_t state;
         assertTrue_2(args[i]->getValue(state), // should ALWAYS be known
-                     "AllChildrenWaitingOrFinished: node state variables may not be unknown.");
-        if (state == FINISHED_STATE || state == WAITING_STATE)
-          --unfinished;
+                     "AllWaitingOrFinished: node states may not be unknown.");
+        switch (state) {
+        case WAITING_STATE:
+        case FINISHED_STATE:
+          break;
+
+        default:
+          result = false;
+          debugMsg("AllWaitingOrFinished", " result = false");
+          return true;
+        }
       }
-      if (unfinished) {
-        debugMsg("AllChildrenWaitingOrFinished ",
-                 unfinished << " of " << total <<
-                 " children not WAITING or FINISHED. Returning FALSE.");
-        result = false;
-      }
-      else {
-        debugMsg("AllChildrenWaitingOrFinished ",
-                 "All of " << total
-                 << " children WAITING or FINISHED. Returning TRUE.");
-        result = true;
-      }
+      result = true;
+      debugMsg("AllWaitingOrFinished", " result = true");
       return true; // always known
     }
 
