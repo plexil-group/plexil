@@ -634,7 +634,9 @@ namespace PLEXIL
     checkError(cond->isActive(),
                "Children waiting or finished for " << getNodeId() <<
                " is inactive.");
-    if (cond->getValue(temp) && temp) {
+    checkError(cond->getValue(temp),
+               "getDestStateFromFinishing: AllWaitingOrFinished condition is unknown");
+    if (temp) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId << "' destination: ITERATION_ENDED. List node " <<
                "and ALL_CHILDREN_WAITING_OR_FINISHED true.");
@@ -721,7 +723,10 @@ namespace PLEXIL
                " is inactive.");
 
     bool tempb;
-    if (cond->getValue(tempb) && tempb) {
+    checkError(cond->getValue(tempb),
+               "getDestStateFromFailing: action-complete condition is unknown");
+
+    if (tempb) {
       if (this->getFailureType() == PARENT_EXITED) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FINISHED. "
