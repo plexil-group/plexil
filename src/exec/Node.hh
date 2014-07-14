@@ -182,6 +182,16 @@ namespace PLEXIL {
     NodeState getDestState();
 
     /**
+     * @brief Gets the previously calculated destination state of this node.
+     * @return The destination state.
+     * @note Should only be called by PlexilExec::resolveVariableConflicts().
+     */
+    NodeState getNextState() const 
+    {
+      return (NodeState) m_lastQuery;
+    }
+
+    /**
      * @brief Gets the name of the current state of this node.
      * @return the current node state name as a const reference to string.
      */

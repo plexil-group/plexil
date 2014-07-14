@@ -587,7 +587,7 @@ namespace PLEXIL
     // Look at the destination states of all the nodes with equal priority
     for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
       NodeId node = *conflictIt;
-      NodeState dest = node->getDestState();
+      NodeState dest = node->getNextState();
 
       check_error_1(node.isValid());
 
