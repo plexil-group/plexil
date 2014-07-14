@@ -29,6 +29,7 @@
 
 #include "Error.hh"
 #include "ExecDefs.hh"
+#include "PlexilNodeType.hh"
 #include "PlexilPlan.hh"
 
 namespace PLEXIL
@@ -111,9 +112,9 @@ namespace PLEXIL
     {
       // Shouldn't happen
       checkError(nodeProto->nodeType() == m_nodeType,
-                 "Factory for node type " << PlexilParser::nodeTypeString(m_nodeType)
+                 "Factory for node type " << nodeTypeString(m_nodeType)
                  << " invoked on node type "
-                 << PlexilParser::nodeTypeString(nodeProto->nodeType()));
+                 << nodeTypeString(nodeProto->nodeType()));
       return (new NODE_TYPE(nodeProto, parent))->getId();
     }
 
@@ -127,8 +128,8 @@ namespace PLEXIL
                   const NodeId& parent) const
     {
       // Shouldn't happen
-      checkError(PlexilParser::parseNodeType(type) == m_nodeType,
-                 "Factory for node type " << PlexilParser::nodeTypeString(m_nodeType)
+      checkError(parseNodeType(type) == m_nodeType,
+                 "Factory for node type " << nodeTypeString(m_nodeType)
                  << " invoked on node type " << type);
       return (new NODE_TYPE(type, name, state, parent))->getId();
     }

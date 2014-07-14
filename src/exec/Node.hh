@@ -31,6 +31,7 @@
 #include "Expression.hh"
 #include "NodeConnector.hh"
 #include "NodeVariables.hh"
+#include "PlexilNodeType.hh"
 #include "PlexilPlan.hh"
 
 // Take care of annoying VxWorks macro
@@ -75,16 +76,6 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(std::string, OUTCOME, "outcome");
     DECLARE_STATIC_CLASS_CONST(std::string, FAILURE_TYPE, "failure_type");
     DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_HANDLE, "command_handle");
-
-    //node types
-    DECLARE_STATIC_CLASS_CONST(std::string, ASSIGNMENT, "Assignment");
-    DECLARE_STATIC_CLASS_CONST(std::string, COMMAND, "Command");
-    DECLARE_STATIC_CLASS_CONST(std::string, LIST, "NodeList");
-    DECLARE_STATIC_CLASS_CONST(std::string, LIBRARYNODECALL, "LibraryNodeCall");
-    DECLARE_STATIC_CLASS_CONST(std::string, UPDATE, "Update");
-    DECLARE_STATIC_CLASS_CONST(std::string, EMPTY, "Empty");
-
-    static const std::string& nodeTypeToString(PlexilNodeType nodeType);
 
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
@@ -273,10 +264,10 @@ namespace PLEXIL {
     }
 
     /**
-     * @brief Gets the type of this node (node list, assignment, or command).
+     * @brief Gets the type of this node.
      * @return The type of this node.
      */
-    const std::string& getType() const {return m_nodeType;}
+    PlexilNodeType getType() const {return m_nodeType;}
 
     /**
      * @brief Notifies the node that one of its conditions has changed.
@@ -511,8 +502,7 @@ namespace PLEXIL {
     // Listener for the various condition expressions.
     ConditionChangeListener m_listener;
     std::string m_nodeId;  /*!< the NodeId from the xml.*/
-    std::string m_nodeType; /*!< The node type (either directly from the Node element or determined by the sub-elements. */
-
+ 
     // Expressions
     VariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
     std::vector<std::string>* m_sortedVariableNames; /*!< Convenience for printing. */
@@ -537,6 +527,7 @@ namespace PLEXIL {
     // Housekeeping details
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */
     bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_checkConditionsPending;
+    PlexilNodeType m_nodeType; /*!< The node type. */
 
   private:
 

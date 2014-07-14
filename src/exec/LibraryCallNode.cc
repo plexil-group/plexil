@@ -47,7 +47,7 @@ namespace PLEXIL
     : ListNode(nodeProto, parent)
   {
     checkError(nodeProto->nodeType() == NodeType_LibraryNodeCall,
-               "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
+               "Invalid node type \"" << nodeTypeString(nodeProto->nodeType())
                << "\" for a LibraryCallNode");
 
     // Create library call node
@@ -69,7 +69,7 @@ namespace PLEXIL
                                    const NodeId& parent)
     : ListNode(type, name, state, parent)
   {
-    checkError(type == LIBRARYNODECALL(),
+    checkError(type == LIBRARYNODECALL,
                "Invalid node type \"" << type << "\" for a LibraryCallNode");
   }
 

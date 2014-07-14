@@ -50,8 +50,8 @@ namespace PLEXIL
   struct NodeConflictComparator {
     bool operator() (NodeId x, NodeId y) const
     {
-      check_error_1(x->getType() == Node::ASSIGNMENT());
-      check_error_1(y->getType() == Node::ASSIGNMENT());
+      check_error_1(x->getType() == NodeType_Assignment);
+      check_error_1(y->getType() == NodeType_Assignment);
       return (x->getPriority() < y->getPriority() ? true : false);
     }
   };
@@ -278,7 +278,7 @@ namespace PLEXIL
     }
     debugMsg("PlexilExec:handleConditionsChanged",
              "Considering node '" << node->getNodeId() << "' for state transition.");
-    if (node->getType() == Node::ASSIGNMENT()) {
+    if (node->getType() == NodeType_Assignment) {
       // Node can be in contention in either EXECUTING or FAILING 
       NodeState current = node->getState();
       switch (destState) {

@@ -32,113 +32,62 @@
 
 namespace PLEXIL {
 
-  PlexilNodeType PlexilParser::parseNodeType(const std::string & typeName)
-  {
-    if (typeName == LIST())
-      return NodeType_NodeList;
-    else if (typeName == COMMAND())
-      return NodeType_Command;
-    else if (typeName == ASSIGNMENT())
-      return NodeType_Assignment;
-    else if (typeName == UPDATE())
-      return NodeType_Update;
-    else if (typeName == EMPTY())
-      return NodeType_Empty;
-    else if (typeName == LIBRARYNODECALL())
-      return NodeType_LibraryNodeCall;
-        else
-          return NodeType_error;
-  }
-
-  const std::string& PlexilParser::nodeTypeString(PlexilNodeType nodeType)
-  {
-    static const std::string errorReturn = "Invalid Node Type";
-    switch (nodeType)
-      {
-      case NodeType_NodeList:
-        return PlexilParser::LIST();
-        break;
-      case NodeType_Command:
-        return PlexilParser::COMMAND();
-        break;
-      case NodeType_Assignment:
-        return PlexilParser::ASSIGNMENT();
-        break;
-      case NodeType_Update:
-        return PlexilParser::UPDATE();
-        break;
-      case NodeType_Empty:
-        return PlexilParser::EMPTY();
-        break;
-      case NodeType_LibraryNodeCall:
-        return PlexilParser::LIBRARYNODECALL();
-        break;
-
-        // fall thru case
-      default:
-        checkError(ALWAYS_FAIL,
-                   "Invalid node type " << nodeType);
-        return errorReturn;
-        break;
-      }
-  }
-
   ValueType
   PlexilParser::parseValueTypePrefix(const std::string & str, 
                                      std::string::size_type prefixLen)
   {
         switch (prefixLen) {
         case 4: 
-          if (0 == str.compare(0, prefixLen, REAL_STR()))
+          if (0 == str.compare(0, prefixLen, REAL_STR))
                 return PLEXIL::REAL_TYPE;
-          else if (0 == str.compare(0, prefixLen, DATE_STR()))
+          else if (0 == str.compare(0, prefixLen, DATE_STR))
                 return PLEXIL::DATE_TYPE;
           else 
                 return PLEXIL::UNKNOWN_TYPE;
 
         case 5:
-          if (0 == str.compare(0, prefixLen, ARRAY_STR()))
+          if (0 == str.compare(0, prefixLen, ARRAY_STR))
                 return PLEXIL::ARRAY_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
 
         case 6:
-          if (0 == str.compare(0, prefixLen, STRING_STR()))
+          if (0 == str.compare(0, prefixLen, STRING_STR))
                 return PLEXIL::STRING_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
 
         case 7:
-          if (0 == str.compare(0, prefixLen, INTEGER_STR()))
+          if (0 == str.compare(0, prefixLen, INTEGER_STR))
                 return PLEXIL::INTEGER_TYPE;
-          else if (0 == str.compare(0, prefixLen, BOOL_STR()))
+          else if (0 == str.compare(0, prefixLen, BOOL_STR))
                 return PLEXIL::BOOLEAN_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
 
         case 8:
-          if (0 == str.compare(0, prefixLen, DURATION_STR()))
+          if (0 == str.compare(0, prefixLen, DURATION_STR))
             return PLEXIL::DURATION_TYPE;
           else
             return PLEXIL::UNKNOWN_TYPE;
 
 
         case 9:
-          if (0 == str.compare(0, prefixLen, NODE_STATE_STR()))
+          if (0 == str.compare(0, prefixLen, NODE_STATE_STR))
                 return PLEXIL::NODE_STATE_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
 
         case 11:
-          if (0 == str.compare(0, prefixLen, NODE_OUTCOME_STR()))
+          if (0 == str.compare(0, prefixLen, NODE_OUTCOME_STR))
                 return PLEXIL::OUTCOME_TYPE;
-          else if (0 == str.compare(0, prefixLen, NODE_FAILURE_STR()))
+          else if (0 == str.compare(0, prefixLen, NODE_FAILURE_STR))
                 return PLEXIL::FAILURE_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
 
         case 17:
-          if (0 == str.compare(0, prefixLen, NODE_COMMAND_HANDLE_STR()))
+          if (0 == str.compare(0, prefixLen, NODE_COMMAND_HANDLE_STR))
                 return PLEXIL::COMMAND_HANDLE_TYPE;
           else
                 return PLEXIL::UNKNOWN_TYPE;
@@ -148,40 +97,6 @@ namespace PLEXIL {
           return PLEXIL::UNKNOWN_TYPE;
         }
   }
-
-  // Replaced by function valueTypeName(), with an identical signature
-  // See src/expr/ValueType.cc.
-  // const std::string& PlexilParser::valueTypeString(ValueType typ)
-  // {
-  //   switch (typ)
-  //     {
-  //     case PLEXIL::INTEGER_TYPE:
-  //       return INTEGER_STR();
-  //     case PLEXIL::REAL_TYPE:
-  //       return REAL_STR();
-  //     case PLEXIL::BOOLEAN_TYPE:
-  //       return BOOL_STR();
-  //     case PLEXIL::STRING_TYPE:
-  //       return STRING_STR();
-  //     case PLEXIL::DATE_TYPE:
-  //       return DATE_STR();
-  //     case PLEXIL::DURATION_TYPE:
-  //       return DURATION_STR();
-  //     case PLEXIL::ARRAY_TYPE:
-  //       return ARRAY_STR();
-  //     case PLEXIL::NODE_STATE_TYPE:
-  //       return NODE_STATE_STR();
-  //     case PLEXIL::OUTCOME_TYPE:
-  //       return NODE_OUTCOME_STR();
-  //     case PLEXIL::FAILURE_TYPE:
-  //       return NODE_FAILURE_STR();
-  //     case PLEXIL::COMMAND_HANDLE_TYPE:
-  //       return NODE_COMMAND_HANDLE_STR();
-
-  //     default:
-  //       return UNKNOWN_STR();
-  //     }
-  // }
    
   PlexilNode::PlexilNode()
     : m_id(this),

@@ -1147,7 +1147,7 @@ namespace PLEXIL
     if (!bodyXml) {
       checkParserExceptionWithLocation(retval->nodeType() == NodeType_Empty,
                                        xml,
-                                       "XML parsing error: " << retval->nodeTypeString()
+                                       "XML parsing error: " << nodeTypeString(retval->nodeType())
                                        << " node \"" << retval->nodeId() <<
                                        "\" lacks a <NodeBody> element.");
     }
@@ -1172,7 +1172,7 @@ namespace PLEXIL
         // check for PlexilListBody
         checkParserExceptionWithLocation(NULL != (PlexilListBody*) bodyStruct,
                                          realBodyXml,
-                                         "XML parsing error: Body of " << retval->nodeTypeString()
+                                         "XML parsing error: Body of " << nodeTypeString(retval->nodeType())
                                          << " node \"" << retval->nodeId()
                                          << "\" contains a " << realBodyXml.name() << " element.")
           break;
@@ -1181,7 +1181,7 @@ namespace PLEXIL
         // check for PlexilCommandBody
         checkParserExceptionWithLocation(NULL != (PlexilCommandBody*) bodyStruct,
                                          realBodyXml,
-                                         "XML parsing error: Body of " << retval->nodeTypeString()
+                                         "XML parsing error: Body of " << nodeTypeString(retval->nodeType())
                                          << " node \"" << retval->nodeId()
                                          << "\" contains a " << realBodyXml.name() << " element.")
           break;
@@ -1190,7 +1190,7 @@ namespace PLEXIL
         // check for PlexilAssignmentBody
         checkParserExceptionWithLocation(NULL != (PlexilAssignmentBody*) bodyStruct,
                                          realBodyXml,
-                                         "XML parsing error: Body of " << retval->nodeTypeString()
+                                         "XML parsing error: Body of " << nodeTypeString(retval->nodeType())
                                          << " node \"" << retval->nodeId()
                                          << "\" contains a " << realBodyXml.name() << " element.")
           break;
@@ -1199,7 +1199,7 @@ namespace PLEXIL
         // check for PlexilUpdateBody
         checkParserExceptionWithLocation(NULL != (PlexilUpdateBody*) bodyStruct,
                                          realBodyXml,
-                                         "XML parsing error: Body of " << retval->nodeTypeString()
+                                         "XML parsing error: Body of " << nodeTypeString(retval->nodeType())
                                          << " node \"" << retval->nodeId()
                                          << "\" contains a " << realBodyXml.name() << " element.")
           break;
@@ -1208,7 +1208,7 @@ namespace PLEXIL
         // check for PlexilLibNodeCallBody
         checkParserExceptionWithLocation(NULL != (PlexilLibNodeCallBody*) bodyStruct,
                                          realBodyXml,
-                                         "XML parsing error: Body of " << retval->nodeTypeString()
+                                         "XML parsing error: Body of " << nodeTypeString(retval->nodeType())
                                          << " node \"" << retval->nodeId()
                                          << "\" contains a " << realBodyXml.name() << " element.")
           break;
@@ -1749,7 +1749,7 @@ namespace PLEXIL
     throw(ParserException) 
   {
     xml_node retval = appendElement(NODE_TAG, parent);
-    retval.append_attribute(NODETYPE_ATTR).set_value(node->nodeTypeString().c_str());
+    retval.append_attribute(NODETYPE_ATTR).set_value(nodeTypeString(node->nodeType()).c_str());
     const string & filename = node->fileName();
     if (!filename.empty())
       retval.append_attribute(FILENAME_ATTR).set_value(filename.c_str());

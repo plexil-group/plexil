@@ -90,7 +90,7 @@ namespace PLEXIL
       m_command(NULL)
   {
     checkError(nodeProto->nodeType() == NodeType_Command,
-               "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
+               "Invalid node type \"" << nodeTypeString(nodeProto->nodeType())
                << "\" for a CommandNode");
   }
 
@@ -104,7 +104,7 @@ namespace PLEXIL
     : Node(type, name, state, parent),
       m_command(NULL)
   {
-    checkError(type == COMMAND(),
+    checkError(type == COMMAND,
                "Invalid node type \"" << type << "\" for a CommandNode");
 
     // Create dummy command for unit test

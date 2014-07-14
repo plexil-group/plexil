@@ -31,6 +31,7 @@
 #include "ExecDefs.hh"
 #include "PlexilExpr.hh"
 #include "PlexilLookup.hh"
+#include "PlexilNodeType.hh"
 #include "PlexilResource.hh"
 #include "PlexilUpdate.hh"
 #include "ValueType.hh"
@@ -64,42 +65,14 @@ namespace PLEXIL
   typedef std::vector<const PlexilNode*> PlexilNodeSet;
   typedef std::map<std::string, PlexilExprId>  PlexilAliasMap;
 
-  enum PlexilNodeType
-    {
-      NodeType_uninitialized = 0,
-      NodeType_NodeList,
-      NodeType_Command,
-      NodeType_Assignment,
-      NodeType_Update,
-      NodeType_Empty,
-      NodeType_LibraryNodeCall,
-      NodeType_error
-    };
-
   class PlexilParser 
   {
   public:
     //node types
-    DECLARE_STATIC_CLASS_CONST(std::string, LIST, "NodeList");
-    DECLARE_STATIC_CLASS_CONST(std::string, COMMAND, "Command");
-    DECLARE_STATIC_CLASS_CONST(std::string, ASSIGNMENT, "Assignment");
-    DECLARE_STATIC_CLASS_CONST(std::string, UPDATE, "Update");
-    DECLARE_STATIC_CLASS_CONST(std::string, EMPTY, "Empty");
-    DECLARE_STATIC_CLASS_CONST(std::string, LIBRARYNODECALL, "LibraryNodeCall");
+    // see src/expr/PlexilNodeType.{hh,cc}
 
     // value types
-    DECLARE_STATIC_CLASS_CONST(std::string, INTEGER_STR, "Integer");
-    DECLARE_STATIC_CLASS_CONST(std::string, REAL_STR, "Real");
-    DECLARE_STATIC_CLASS_CONST(std::string, BOOL_STR, "Boolean");
-    DECLARE_STATIC_CLASS_CONST(std::string, DATE_STR, "Date");
-    DECLARE_STATIC_CLASS_CONST(std::string, DURATION_STR, "Duration");
-    DECLARE_STATIC_CLASS_CONST(std::string, ARRAY_STR, "Array");
-    DECLARE_STATIC_CLASS_CONST(std::string, STRING_STR, "String");
-    DECLARE_STATIC_CLASS_CONST(std::string, STRING_ARRAY_STR, "StringArray");
-    DECLARE_STATIC_CLASS_CONST(std::string, NODE_STATE_STR, "NodeState");
-    DECLARE_STATIC_CLASS_CONST(std::string, NODE_OUTCOME_STR, "NodeOutcome");
-    DECLARE_STATIC_CLASS_CONST(std::string, NODE_FAILURE_STR, "NodeFailure");
-    DECLARE_STATIC_CLASS_CONST(std::string, NODE_COMMAND_HANDLE_STR, "NodeCommandHandle");
+    // see src/expr/ValueType.hh
 
     // condition names
     DECLARE_STATIC_CLASS_CONST(std::string, START_CONDITION_TAG, "StartCondition");
@@ -113,18 +86,12 @@ namespace PLEXIL
 
     DECLARE_STATIC_CLASS_CONST(std::string, UNKNOWN_STR, "UNKNOWN");
 
-    static PlexilNodeType parseNodeType(const std::string & typeName);
-    static const std::string& nodeTypeString(PlexilNodeType nodeType);
-
-
     static ValueType parseValueTypePrefix(const std::string & str, 
                                            std::string::size_type prefixLen);
     inline static ValueType parseValueType(const std::string& typeStr)
     {
       return parseValueTypePrefix(typeStr, typeStr.length());
     }
-    // Replaced by function valueTypeName(). See src/exec/ValueType.hh.
-    //static const std::string& valueTypeString(ValueType type);
 
   private:
     // Deliberately not implemented because this class can't be instantiated,
@@ -150,7 +117,6 @@ namespace PLEXIL
 
     const std::string& nodeId() const {return m_nodeId;}
     PlexilNodeType nodeType() const {return m_nodeType;}
-    const std::string& nodeTypeString() const {return PlexilParser::nodeTypeString(m_nodeType);}
     double priority() const {return m_priority;}
     const PlexilInterfaceId& interface() const {return m_intf;}
     const std::vector<PlexilVar *>& declarations() const {return m_declarations;}

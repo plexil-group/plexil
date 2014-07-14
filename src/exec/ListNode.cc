@@ -205,7 +205,7 @@ namespace PLEXIL
     : Node(node, parent)
   {
     checkError(node->nodeType() == NodeType_NodeList || node->nodeType() == NodeType_LibraryNodeCall,
-               "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
+               "Invalid node type \"" << nodeTypeString(node->nodeType())
                << "\" for a ListNode");
 
     // Instantiate child nodes, if any
@@ -228,7 +228,7 @@ namespace PLEXIL
                      const NodeId& parent)
     : Node(type, name, state, parent)
   {
-    checkError(type == LIST() || type == LIBRARYNODECALL(),
+    checkError(type == LIST || type == LIBRARYNODECALL,
                "Invalid node type \"" << type << "\" for a ListNode");
 
     switch (m_state) {

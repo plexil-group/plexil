@@ -39,7 +39,7 @@ namespace PLEXIL
     : m_nodeType(nodeType)
   {
     checkError(factoryMap()[nodeType] == NULL,
-               "A NodeFactory is already registered for node type " << PlexilParser::nodeTypeString(nodeType));
+               "A NodeFactory is already registered for node type " << nodeTypeString(nodeType));
     factoryMap()[nodeType] = this;
   }
 
@@ -83,7 +83,7 @@ namespace PLEXIL
     ensureNodeFactoriesRegistered();
     NodeFactory* factory = factoryMap()[nodeType];
     checkError(factory != NULL, 
-               "No NodeFactory registered for node type " << PlexilParser::nodeTypeString(nodeType));
+               "No NodeFactory registered for node type " << nodeTypeString(nodeType));
     NodeId result = factory->create(nodeProto, parent);
     // common post process here
     return result;
@@ -97,7 +97,7 @@ namespace PLEXIL
                                  const NodeState state,
                                  const NodeId& parent)
   {
-    PlexilNodeType nodeType = PlexilParser::parseNodeType(type);
+    PlexilNodeType nodeType = parseNodeType(type);
     checkError(nodeType > NodeType_uninitialized
                && nodeType < NodeType_error,
                "Invalid node type string " << type);

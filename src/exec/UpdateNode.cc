@@ -46,7 +46,7 @@ namespace PLEXIL
     : Node(node, parent)
   {
     checkError(node->nodeType() == NodeType_Update,
-               "Invalid node type \"" << PlexilParser::nodeTypeString(node->nodeType())
+               "Invalid node type \"" << nodeTypeString(node->nodeType())
                << "\" for an UpdateNode");
   }
 
@@ -59,7 +59,7 @@ namespace PLEXIL
                          const NodeId& parent)
     : Node(type, name, state, parent)
   {
-    checkError(type == UPDATE(),
+    checkError(type == UPDATE,
                "Invalid node type \"" << type << "\" for an UpdateNode");
 
     // Construct stuff as required for unit test

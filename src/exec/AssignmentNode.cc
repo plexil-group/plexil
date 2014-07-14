@@ -42,7 +42,7 @@ namespace PLEXIL
       m_priority(nodeProto->priority())
   {
     checkError(nodeProto->nodeType() == NodeType_Assignment,
-               "Invalid node type \"" << PlexilParser::nodeTypeString(nodeProto->nodeType())
+               "Invalid node type \"" << nodeTypeString(nodeProto->nodeType())
                << "\" for an AssignmentNode");
   }
 
@@ -53,7 +53,7 @@ namespace PLEXIL
                                  const NodeId& parent)
     : Node(type, name, state, parent)
   {
-    checkError(type == ASSIGNMENT(),
+    checkError(type == ASSIGNMENT,
                "Invalid node type \"" << type << "\" for an AssignmentNode");
 
     // Create Assignment object

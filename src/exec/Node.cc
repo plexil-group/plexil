@@ -106,44 +106,11 @@ namespace PLEXIL {
     return ALL_CONDITIONS()[idx];
   }
 
-  const std::string& 
-  Node::nodeTypeToString(PlexilNodeType nodeType)
-  {
-    switch(nodeType) {
-    case NodeType_NodeList:
-      return LIST();
-
-    case NodeType_Command:
-      return COMMAND();
-
-    case NodeType_Assignment:
-      return ASSIGNMENT();
-
-    case NodeType_Update:
-      return UPDATE();
-
-    case NodeType_Empty:
-      return EMPTY();
-
-    case NodeType_LibraryNodeCall:
-      return LIBRARYNODECALL();
-
-      // fall thru case
-    default:
-      checkError(ALWAYS_FAIL,
-                 "Invalid node type " << nodeType);
-      break;
-    }
-    static std::string sl_empty;
-    return sl_empty;
-  }
-
   Node::Node(const PlexilNodeId& node, const NodeId& parent)
     : NodeConnector(),
       m_parent(parent),
       m_listener(*this),
       m_nodeId(node->nodeId()),
-      m_nodeType(nodeTypeToString(node->nodeType())), // Can throw exception
       m_sortedVariableNames(new std::vector<std::string>()),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
@@ -156,7 +123,9 @@ namespace PLEXIL {
       m_postInitCalled(false),
       m_cleanedConditions(false),
       m_cleanedVars(false),
-      m_checkConditionsPending(false)
+      m_checkConditionsPending(false),      
+      m_nodeType(node->nodeType())
+
   {
     debugMsg("Node:node", "Creating node \"" << node->nodeId() << "\"");
 
@@ -180,7 +149,6 @@ namespace PLEXIL {
       m_parent(parent),
       m_listener(*this),
       m_nodeId(name),
-      m_nodeType(type),
       m_sortedVariableNames(new std::vector<std::string>()),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
@@ -193,7 +161,8 @@ namespace PLEXIL {
       m_postInitCalled(false), 
       m_cleanedConditions(false), 
       m_cleanedVars(false),
-      m_checkConditionsPending(false)
+      m_checkConditionsPending(false),
+      m_nodeType(parseNodeType(type))
   {
     commonInit();
 
@@ -232,13 +201,13 @@ namespace PLEXIL {
       break;
 
     case FAILING_STATE:
-      assertTrueMsg(m_nodeType != EMPTY(),
+      assertTrueMsg(m_nodeType != NodeType_Empty,
                     "Node module test constructor: FAILING state invalid for " << m_nodeType << " nodes");
       // Defer to subclass
       break;
 
     case FINISHING_STATE:
-      assertTrueMsg(m_nodeType != EMPTY(),
+      assertTrueMsg(m_nodeType != NodeType_Empty,
                     "Node module test constructor: FINISHING state invalid for " << m_nodeType << " nodes");
       // Defer to subclass
       break;
@@ -323,7 +292,7 @@ namespace PLEXIL {
                   "Node \"" << m_nodeId
                   << "\" has an Interface but no parent; may be a library node without a caller.");
 
-    bool parentIsLibCall = m_parent->getType() == LIBRARYNODECALL();
+    bool parentIsLibCall = (m_parent->getType() == NodeType_LibraryNodeCall);
 
     // Process In variables
     for (std::vector<PlexilVarRef*>::const_iterator it = intf->in().begin();
@@ -1234,8 +1203,8 @@ namespace PLEXIL {
   // Empty node method
   void Node::transitionFromExecuting(NodeState destState)
   {
-    checkError(m_nodeType == Node::EMPTY(),
-               "Expected empty node, got " << m_nodeType);
+    checkError(m_nodeType == NodeType_Empty,
+               "Expected empty node, got " << nodeTypeString(m_nodeType));
     checkError(destState == FINISHED_STATE || destState == ITERATION_ENDED_STATE,
                "Attempting to transition from EXECUTING to invalid state '"
                << nodeStateName(destState) << "'");
@@ -1638,7 +1607,7 @@ namespace PLEXIL {
     // Not found locally - try ancestors if possible
     // Stop at library call nodes, as interfaces there are explicit
     if (m_parent.isId()
-        && m_parent->m_nodeType != LIBRARYNODECALL()) {
+        && m_parent->getType() != NodeType_LibraryNodeCall) {
       Expression *result = m_parent->findVariable(name, true);
       if (result) {
         // Found it - cache for later reuse
@@ -1953,7 +1922,7 @@ namespace PLEXIL {
     // legacy message for unit test
     debugMsg("PlexilExec:handleNeedsExecution",
              "Storing action for node '" << m_nodeId <<
-             "' of type '" << m_nodeType << 
+             "' of type '" << nodeTypeString(m_nodeType) << 
              "' to be executed.");
 
     specializedHandleExecution();
@@ -2094,29 +2063,6 @@ namespace PLEXIL {
       return g_exec->getExecListenerHub();
   }
 
-  // Used to be a LabelStr method
-  static size_t countElements(const std::string &str, const char* delimiters)
-  {
-    assertTrueMsg(delimiters != NULL && delimiters[0] != '\0',
-                  "'NULL' and empty string are not valid delimiters");
-    size_t result = 0;
-
-    // Skip delimiters at beginning. Note the "not_of".
-    std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
-    // Find first "non-delimiter".
-    std::string::size_type pos     = str.find_first_of(delimiters, lastPos);
-
-    while (std::string::npos != pos || std::string::npos != lastPos) {
-      // Found a token
-      ++result;
-      // Skip next delimiter.
-      lastPos = str.find_first_not_of(delimiters, pos);
-      // Find next non-delimiter.
-      pos = str.find_first_of(delimiters, lastPos);
-    }
-    return result;
-  }
-
   void Node::ensureSortedVariableNames() const
   {
     checkError(m_sortedVariableNames != NULL,
@@ -2126,7 +2072,6 @@ namespace PLEXIL {
       for (VariableMap::const_iterator it = m_variablesByName.begin();
            it != m_variablesByName.end();
            ++it) {
-        const std::string& name = it->first;
         std::vector<Expression *>::const_iterator vit = 
           std::find(m_localVariables.begin(), m_localVariables.end(), it->second);
         if (vit != m_localVariables.end())
