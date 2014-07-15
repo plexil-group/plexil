@@ -1,22 +1,18 @@
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
 [PlexilExec:addPlan]Added plan: 
 SimpleTask{
- State: SimpleTask (id_78[a](INACTIVE): state) (inf)
+ State: INACTIVE (0)
   C1{
-   State: C1 (id_117[a](INACTIVE): state) (inf)
+   State: INACTIVE (0)
   }
   C2{
-   State: C2 (id_154[a](INACTIVE): state) (inf)
+   State: INACTIVE (0)
   }
   C3{
-   State: C3 (id_193[a](INACTIVE): state) (inf)
+   State: INACTIVE (0)
   }
 }
 
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 1
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
@@ -47,11 +43,12 @@ SimpleTask{
 [PlexilExec:handleConditionsChanged]Node 'SimpleTask' was previously eligible to transition but isn't now.
 [PlexilExec:step][1:2] State change queue: C1 C2 C3 
 [PlexilExec:step][1:2:0] Transitioning node C1 from INACTIVE to WAITING
-[PlexilExec:step][1:2:1] Transitioning node C2 from INACTIVE to WAITING
-[PlexilExec:step][1:2:2] Transitioning node C3 from INACTIVE to WAITING
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:notifyNodeConditionChanged] for node C3
+[PlexilExec:step][1:2:1] Transitioning node C2 from INACTIVE to WAITING
+[PlexilExec:step][1:2:2] Transitioning node C3 from INACTIVE to WAITING
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 6
@@ -64,94 +61,93 @@ SimpleTask{
 [PlexilExec:step][1:3] State change queue: C1 C2 C3 
 [PlexilExec:step][1:3:0] Transitioning node C1 from WAITING to EXECUTING
 [PlexilExec:notifyNodeConditionChanged] for node C1
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleNeedsExecution]Storing action for node 'C1' of type 'Command' to be executed.
 [PlexilExec:step][1:3:1] Transitioning node C2 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:handleNeedsExecution]Storing action for node 'C2' of type 'Command' to be executed.
 [PlexilExec:step][1:3:2] Transitioning node C3 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleNeedsExecution]Storing action for node 'C3' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing c1() into returnValue (id_151[a](-1): int) with ack C1 command_handle (id_260[a](UNKNOWN): command_handle)
-[Test:testOutput]Executing c2() into returnValue (id_190[a](-1): int) with ack C2 command_handle (id_296[a](UNKNOWN): command_handle)
-[Test:testOutput]Executing c3() into returnValue (id_229[a](-1): int) with ack C3 command_handle (id_335[a](UNKNOWN): command_handle)
+[Test:testOutput]Executing c1() into (Variable Integer returnValue 0x7f8d3140c970 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](UNKNOWN))
+[Test:testOutput]Executing c2() into (Variable Integer returnValue 0x7f8d3140ce10 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))
+[Test:testOutput]Executing c3() into (Variable Integer returnValue 0x7f8d3140d290 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_78[a](EXECUTING): state) (0)
- AncestorEndCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
- SkipCondition: Boolean constant false (id_112[a](0): boolean)
- StartCondition: Boolean constant true (id_114[a](1): boolean)
- EndCondition: (id_238[a](0): childrenFinished(0:3))
- ExitCondition: Boolean constant false (id_112[a](0): boolean)
- InvariantCondition: Boolean constant true (id_114[a](1): boolean)
- PreCondition: Boolean constant true (id_114[a](1): boolean)
- PostCondition: Boolean constant true (id_114[a](1): boolean)
- RepeatCondition: Boolean constant false (id_112[a](0): boolean)
- ActionCompleteCondition: (id_231[i](UNKNOWN): childrenWaitingOrFinished(0:3))
+ State: EXECUTING (0)
+ AncestorEndCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+ ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PostCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8d3140d3e0 [i](UNKNOWN) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
   C1{
-   State: C1 (id_117[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_285[a](0): ((id_283[a](0): interruptibleCommandHandleValues(C1 command_handle (id_260[a](UNKNOWN): command_handle))) || (id_272[a](0): (returnValue (id_151[a](-1): int) == IntegerValue (id_274[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_277[i](UNKNOWN): (id_281[i](UNKNOWN): (C1 command_handle (id_260[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_279[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_264[i](UNKNOWN): isknown(C1 command_handle (id_260[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C1 abortComplete (id_262[a](UNKNOWN): boolean)
-   Command handle: C1 command_handle (id_260[a](UNKNOWN): command_handle)
-   returnValue: returnValue (id_151[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e0c0 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140e120 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140dfd0 [a](0) (Variable Integer returnValue 0x7f8d3140c970 [a](-1)) (Constant Integer 0x7f8d3140daa0 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e080 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140d830 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C1 abortComplete 0x7f8d3140daf0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140c970 [a](-1))
   }
   C2{
-   State: C2 (id_154[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_328[a](0): ((id_326[a](0): interruptibleCommandHandleValues(C2 command_handle (id_296[a](UNKNOWN): command_handle))) || (id_308[a](0): (returnValue (id_190[a](-1): int) == IntegerValue (id_310[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_313[i](UNKNOWN): (id_317[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_315[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: (id_320[i](UNKNOWN): (id_324[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_322[a](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_300[i](UNKNOWN): isknown(C2 command_handle (id_296[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C2 abortComplete (id_298[a](UNKNOWN): boolean)
-   Command handle: C2 command_handle (id_296[a](UNKNOWN): command_handle)
-   mem_priority: mem_priority (id_188[a](30): int)
-   returnValue: returnValue (id_190[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e7b0 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140e7f0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140e760 [a](0) (Variable Integer returnValue 0x7f8d3140ce10 [a](-1)) (Constant Integer 0x7f8d3140e730 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e6d0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (EQ Boolean 0x7f8d3140e420 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8a0 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e260 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C2 abortComplete 0x7f8d3140e4c0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))
+   mem_priority: (Variable Integer mem_priority 0x7f8d3140cd60 [a](30))
+   returnValue: (Variable Integer returnValue 0x7f8d3140ce10 [a](-1))
   }
   C3{
-   State: C3 (id_193[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_360[a](0): ((id_358[a](0): interruptibleCommandHandleValues(C3 command_handle (id_335[a](UNKNOWN): command_handle))) || (id_347[a](0): (returnValue (id_229[a](-1): int) == IntegerValue (id_349[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_352[i](UNKNOWN): (id_356[i](UNKNOWN): (C3 command_handle (id_335[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_354[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_339[i](UNKNOWN): isknown(C3 command_handle (id_335[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C3 abortComplete (id_337[a](UNKNOWN): boolean)
-   Command handle: C3 command_handle (id_335[a](UNKNOWN): command_handle)
-   returnValue: returnValue (id_229[a](-1): int)
-   vision_priority: vision_priority (id_227[a](10): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140ed00 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140ed40 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140ecb0 [a](0) (Variable Integer returnValue 0x7f8d3140d290 [a](-1)) (Constant Integer 0x7f8d3140ec80 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140ec30 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e970 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C3 abortComplete 0x7f8d3140ea40 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140d290 [a](-1))
+   vision_priority: (Variable Integer vision_priority 0x7f8d3140d1f0 [a](10))
   }
 }
 
 [Test:testOutput]Sending command ACK c1() = (string)COMMAND_SENT_TO_SYSTEM
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 2
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
@@ -163,336 +159,340 @@ SimpleTask{
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_78[a](EXECUTING): state) (0)
- AncestorEndCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
- SkipCondition: Boolean constant false (id_112[a](0): boolean)
- StartCondition: Boolean constant true (id_114[a](1): boolean)
- EndCondition: (id_238[a](0): childrenFinished(0:3))
- ExitCondition: Boolean constant false (id_112[a](0): boolean)
- InvariantCondition: Boolean constant true (id_114[a](1): boolean)
- PreCondition: Boolean constant true (id_114[a](1): boolean)
- PostCondition: Boolean constant true (id_114[a](1): boolean)
- RepeatCondition: Boolean constant false (id_112[a](0): boolean)
- ActionCompleteCondition: (id_231[i](UNKNOWN): childrenWaitingOrFinished(0:3))
+ State: EXECUTING (0)
+ AncestorEndCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+ ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PostCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8d3140d3e0 [i](UNKNOWN) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
   C1{
-   State: C1 (id_117[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_285[a](0): ((id_283[a](0): interruptibleCommandHandleValues(C1 command_handle (id_260[a](COMMAND_SENT_TO_SYSTEM): command_handle))) || (id_272[a](0): (returnValue (id_151[a](-1): int) == IntegerValue (id_274[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_277[i](UNKNOWN): (id_281[i](UNKNOWN): (C1 command_handle (id_260[a](COMMAND_SENT_TO_SYSTEM): command_handle) == NodeCommandHandleValue (id_279[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_264[i](UNKNOWN): isknown(C1 command_handle (id_260[a](COMMAND_SENT_TO_SYSTEM): command_handle)))
-   AbortCompleteCondition: C1 abortComplete (id_262[a](UNKNOWN): boolean)
-   Command handle: C1 command_handle (id_260[a](COMMAND_SENT_TO_SYSTEM): command_handle)
-   returnValue: returnValue (id_151[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e0c0 [a](0) (Interruptible Boolean 0x7f8d3140e120 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7f8d3140dfd0 [a](0) (Variable Integer returnValue 0x7f8d3140c970 [a](-1)) (Constant Integer 0x7f8d3140daa0 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e080 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140d830 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SENT_TO_SYSTEM)))
+   AbortCompleteCondition: (Variable Boolean C1 abortComplete 0x7f8d3140daf0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SENT_TO_SYSTEM))
+   returnValue: (Variable Integer returnValue 0x7f8d3140c970 [a](-1))
   }
   C2{
-   State: C2 (id_154[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_328[a](0): ((id_326[a](0): interruptibleCommandHandleValues(C2 command_handle (id_296[a](UNKNOWN): command_handle))) || (id_308[a](0): (returnValue (id_190[a](-1): int) == IntegerValue (id_310[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_313[i](UNKNOWN): (id_317[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_315[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: (id_320[i](UNKNOWN): (id_324[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_322[a](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_300[i](UNKNOWN): isknown(C2 command_handle (id_296[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C2 abortComplete (id_298[a](UNKNOWN): boolean)
-   Command handle: C2 command_handle (id_296[a](UNKNOWN): command_handle)
-   mem_priority: mem_priority (id_188[a](30): int)
-   returnValue: returnValue (id_190[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e7b0 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140e7f0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140e760 [a](0) (Variable Integer returnValue 0x7f8d3140ce10 [a](-1)) (Constant Integer 0x7f8d3140e730 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e6d0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (EQ Boolean 0x7f8d3140e420 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8a0 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e260 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C2 abortComplete 0x7f8d3140e4c0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))
+   mem_priority: (Variable Integer mem_priority 0x7f8d3140cd60 [a](30))
+   returnValue: (Variable Integer returnValue 0x7f8d3140ce10 [a](-1))
   }
   C3{
-   State: C3 (id_193[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_360[a](0): ((id_358[a](0): interruptibleCommandHandleValues(C3 command_handle (id_335[a](UNKNOWN): command_handle))) || (id_347[a](0): (returnValue (id_229[a](-1): int) == IntegerValue (id_349[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_352[i](UNKNOWN): (id_356[i](UNKNOWN): (C3 command_handle (id_335[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_354[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_339[i](UNKNOWN): isknown(C3 command_handle (id_335[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C3 abortComplete (id_337[a](UNKNOWN): boolean)
-   Command handle: C3 command_handle (id_335[a](UNKNOWN): command_handle)
-   returnValue: returnValue (id_229[a](-1): int)
-   vision_priority: vision_priority (id_227[a](10): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140ed00 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140ed40 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140ecb0 [a](0) (Variable Integer returnValue 0x7f8d3140d290 [a](-1)) (Constant Integer 0x7f8d3140ec80 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140ec30 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e970 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C3 abortComplete 0x7f8d3140ea40 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140d290 [a](-1))
+   vision_priority: (Variable Integer vision_priority 0x7f8d3140d1f0 [a](10))
   }
 }
 
 [Test:testOutput]Sending command ACK c1() = (string)COMMAND_SUCCESS
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
+[PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:cycle]==>Start cycle 3
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 3
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_78[a](EXECUTING): state) (0)
- AncestorEndCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
- SkipCondition: Boolean constant false (id_112[a](0): boolean)
- StartCondition: Boolean constant true (id_114[a](1): boolean)
- EndCondition: (id_238[a](0): childrenFinished(0:3))
- ExitCondition: Boolean constant false (id_112[a](0): boolean)
- InvariantCondition: Boolean constant true (id_114[a](1): boolean)
- PreCondition: Boolean constant true (id_114[a](1): boolean)
- PostCondition: Boolean constant true (id_114[a](1): boolean)
- RepeatCondition: Boolean constant false (id_112[a](0): boolean)
- ActionCompleteCondition: (id_231[i](UNKNOWN): childrenWaitingOrFinished(0:3))
+ State: EXECUTING (0)
+ AncestorEndCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+ ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PostCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8d3140d3e0 [i](UNKNOWN) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
   C1{
-   State: C1 (id_117[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_285[a](0): ((id_283[a](0): interruptibleCommandHandleValues(C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle))) || (id_272[a](0): (returnValue (id_151[a](-1): int) == IntegerValue (id_274[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_277[i](UNKNOWN): (id_281[i](UNKNOWN): (C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle) == NodeCommandHandleValue (id_279[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_264[i](UNKNOWN): isknown(C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle)))
-   AbortCompleteCondition: C1 abortComplete (id_262[a](UNKNOWN): boolean)
-   Command handle: C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_151[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e0c0 [a](0) (Interruptible Boolean 0x7f8d3140e120 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f8d3140dfd0 [a](0) (Variable Integer returnValue 0x7f8d3140c970 [a](-1)) (Constant Integer 0x7f8d3140daa0 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e080 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140d830 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS)))
+   AbortCompleteCondition: (Variable Boolean C1 abortComplete 0x7f8d3140daf0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS))
+   returnValue: (Variable Integer returnValue 0x7f8d3140c970 [a](-1))
   }
   C2{
-   State: C2 (id_154[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_328[a](0): ((id_326[a](0): interruptibleCommandHandleValues(C2 command_handle (id_296[a](UNKNOWN): command_handle))) || (id_308[a](0): (returnValue (id_190[a](-1): int) == IntegerValue (id_310[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_313[i](UNKNOWN): (id_317[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_315[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: (id_320[i](UNKNOWN): (id_324[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_322[a](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_300[i](UNKNOWN): isknown(C2 command_handle (id_296[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C2 abortComplete (id_298[a](UNKNOWN): boolean)
-   Command handle: C2 command_handle (id_296[a](UNKNOWN): command_handle)
-   mem_priority: mem_priority (id_188[a](30): int)
-   returnValue: returnValue (id_190[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e7b0 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140e7f0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140e760 [a](0) (Variable Integer returnValue 0x7f8d3140ce10 [a](-1)) (Constant Integer 0x7f8d3140e730 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e6d0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (EQ Boolean 0x7f8d3140e420 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8a0 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e260 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C2 abortComplete 0x7f8d3140e4c0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))
+   mem_priority: (Variable Integer mem_priority 0x7f8d3140cd60 [a](30))
+   returnValue: (Variable Integer returnValue 0x7f8d3140ce10 [a](-1))
   }
   C3{
-   State: C3 (id_193[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_360[a](0): ((id_358[a](0): interruptibleCommandHandleValues(C3 command_handle (id_335[a](UNKNOWN): command_handle))) || (id_347[a](0): (returnValue (id_229[a](-1): int) == IntegerValue (id_349[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_352[i](UNKNOWN): (id_356[i](UNKNOWN): (C3 command_handle (id_335[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_354[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_339[i](UNKNOWN): isknown(C3 command_handle (id_335[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C3 abortComplete (id_337[a](UNKNOWN): boolean)
-   Command handle: C3 command_handle (id_335[a](UNKNOWN): command_handle)
-   returnValue: returnValue (id_229[a](-1): int)
-   vision_priority: vision_priority (id_227[a](10): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140ed00 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140ed40 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140ecb0 [a](0) (Variable Integer returnValue 0x7f8d3140d290 [a](-1)) (Constant Integer 0x7f8d3140ec80 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140ec30 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e970 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C3 abortComplete 0x7f8d3140ea40 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140d290 [a](-1))
+   vision_priority: (Variable Integer vision_priority 0x7f8d3140d1f0 [a](10))
   }
 }
 
 [Test:testOutput]Sending command ACK c3() = (string)COMMAND_SENT_TO_SYSTEM
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:cycle]==>Start cycle 4
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 4
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_78[a](EXECUTING): state) (0)
- AncestorEndCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
- SkipCondition: Boolean constant false (id_112[a](0): boolean)
- StartCondition: Boolean constant true (id_114[a](1): boolean)
- EndCondition: (id_238[a](0): childrenFinished(0:3))
- ExitCondition: Boolean constant false (id_112[a](0): boolean)
- InvariantCondition: Boolean constant true (id_114[a](1): boolean)
- PreCondition: Boolean constant true (id_114[a](1): boolean)
- PostCondition: Boolean constant true (id_114[a](1): boolean)
- RepeatCondition: Boolean constant false (id_112[a](0): boolean)
- ActionCompleteCondition: (id_231[i](UNKNOWN): childrenWaitingOrFinished(0:3))
+ State: EXECUTING (0)
+ AncestorEndCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+ ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PostCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8d3140d3e0 [i](UNKNOWN) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
   C1{
-   State: C1 (id_117[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_285[a](0): ((id_283[a](0): interruptibleCommandHandleValues(C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle))) || (id_272[a](0): (returnValue (id_151[a](-1): int) == IntegerValue (id_274[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_277[i](UNKNOWN): (id_281[i](UNKNOWN): (C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle) == NodeCommandHandleValue (id_279[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_264[i](UNKNOWN): isknown(C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle)))
-   AbortCompleteCondition: C1 abortComplete (id_262[a](UNKNOWN): boolean)
-   Command handle: C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_151[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e0c0 [a](0) (Interruptible Boolean 0x7f8d3140e120 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f8d3140dfd0 [a](0) (Variable Integer returnValue 0x7f8d3140c970 [a](-1)) (Constant Integer 0x7f8d3140daa0 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e080 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140d830 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS)))
+   AbortCompleteCondition: (Variable Boolean C1 abortComplete 0x7f8d3140daf0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS))
+   returnValue: (Variable Integer returnValue 0x7f8d3140c970 [a](-1))
   }
   C2{
-   State: C2 (id_154[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_328[a](0): ((id_326[a](0): interruptibleCommandHandleValues(C2 command_handle (id_296[a](UNKNOWN): command_handle))) || (id_308[a](0): (returnValue (id_190[a](-1): int) == IntegerValue (id_310[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_313[i](UNKNOWN): (id_317[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_315[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: (id_320[i](UNKNOWN): (id_324[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_322[a](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_300[i](UNKNOWN): isknown(C2 command_handle (id_296[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C2 abortComplete (id_298[a](UNKNOWN): boolean)
-   Command handle: C2 command_handle (id_296[a](UNKNOWN): command_handle)
-   mem_priority: mem_priority (id_188[a](30): int)
-   returnValue: returnValue (id_190[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e7b0 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140e7f0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140e760 [a](0) (Variable Integer returnValue 0x7f8d3140ce10 [a](-1)) (Constant Integer 0x7f8d3140e730 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e6d0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (EQ Boolean 0x7f8d3140e420 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8a0 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e260 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C2 abortComplete 0x7f8d3140e4c0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))
+   mem_priority: (Variable Integer mem_priority 0x7f8d3140cd60 [a](30))
+   returnValue: (Variable Integer returnValue 0x7f8d3140ce10 [a](-1))
   }
   C3{
-   State: C3 (id_193[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_360[a](0): ((id_358[a](0): interruptibleCommandHandleValues(C3 command_handle (id_335[a](COMMAND_SENT_TO_SYSTEM): command_handle))) || (id_347[a](0): (returnValue (id_229[a](-1): int) == IntegerValue (id_349[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_352[i](UNKNOWN): (id_356[i](UNKNOWN): (C3 command_handle (id_335[a](COMMAND_SENT_TO_SYSTEM): command_handle) == NodeCommandHandleValue (id_354[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_339[i](UNKNOWN): isknown(C3 command_handle (id_335[a](COMMAND_SENT_TO_SYSTEM): command_handle)))
-   AbortCompleteCondition: C3 abortComplete (id_337[a](UNKNOWN): boolean)
-   Command handle: C3 command_handle (id_335[a](COMMAND_SENT_TO_SYSTEM): command_handle)
-   returnValue: returnValue (id_229[a](-1): int)
-   vision_priority: vision_priority (id_227[a](10): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140ed00 [a](0) (Interruptible Boolean 0x7f8d3140ed40 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7f8d3140ecb0 [a](0) (Variable Integer returnValue 0x7f8d3140d290 [a](-1)) (Constant Integer 0x7f8d3140ec80 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140ec30 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e970 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](COMMAND_SENT_TO_SYSTEM)))
+   AbortCompleteCondition: (Variable Boolean C3 abortComplete 0x7f8d3140ea40 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](COMMAND_SENT_TO_SYSTEM))
+   returnValue: (Variable Integer returnValue 0x7f8d3140d290 [a](-1))
+   vision_priority: (Variable Integer vision_priority 0x7f8d3140d1f0 [a](10))
   }
 }
 
 [Test:testOutput]Sending command ACK c3() = (string)COMMAND_SUCCESS
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:cycle]==>Start cycle 5
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 5
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_78[a](EXECUTING): state) (0)
- AncestorEndCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
- SkipCondition: Boolean constant false (id_112[a](0): boolean)
- StartCondition: Boolean constant true (id_114[a](1): boolean)
- EndCondition: (id_238[a](0): childrenFinished(0:3))
- ExitCondition: Boolean constant false (id_112[a](0): boolean)
- InvariantCondition: Boolean constant true (id_114[a](1): boolean)
- PreCondition: Boolean constant true (id_114[a](1): boolean)
- PostCondition: Boolean constant true (id_114[a](1): boolean)
- RepeatCondition: Boolean constant false (id_112[a](0): boolean)
- ActionCompleteCondition: (id_231[i](UNKNOWN): childrenWaitingOrFinished(0:3))
+ State: EXECUTING (0)
+ AncestorEndCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+ ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PostCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8d3140d3e0 [i](UNKNOWN) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
   C1{
-   State: C1 (id_117[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_285[a](0): ((id_283[a](0): interruptibleCommandHandleValues(C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle))) || (id_272[a](0): (returnValue (id_151[a](-1): int) == IntegerValue (id_274[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_277[i](UNKNOWN): (id_281[i](UNKNOWN): (C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle) == NodeCommandHandleValue (id_279[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_264[i](UNKNOWN): isknown(C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle)))
-   AbortCompleteCondition: C1 abortComplete (id_262[a](UNKNOWN): boolean)
-   Command handle: C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_151[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e0c0 [a](0) (Interruptible Boolean 0x7f8d3140e120 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f8d3140dfd0 [a](0) (Variable Integer returnValue 0x7f8d3140c970 [a](-1)) (Constant Integer 0x7f8d3140daa0 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e080 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140d830 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS)))
+   AbortCompleteCondition: (Variable Boolean C1 abortComplete 0x7f8d3140daf0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS))
+   returnValue: (Variable Integer returnValue 0x7f8d3140c970 [a](-1))
   }
   C2{
-   State: C2 (id_154[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_328[a](0): ((id_326[a](0): interruptibleCommandHandleValues(C2 command_handle (id_296[a](UNKNOWN): command_handle))) || (id_308[a](0): (returnValue (id_190[a](-1): int) == IntegerValue (id_310[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_313[i](UNKNOWN): (id_317[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_315[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: (id_320[i](UNKNOWN): (id_324[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_322[a](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_300[i](UNKNOWN): isknown(C2 command_handle (id_296[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C2 abortComplete (id_298[a](UNKNOWN): boolean)
-   Command handle: C2 command_handle (id_296[a](UNKNOWN): command_handle)
-   mem_priority: mem_priority (id_188[a](30): int)
-   returnValue: returnValue (id_190[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e7b0 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140e7f0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140e760 [a](0) (Variable Integer returnValue 0x7f8d3140ce10 [a](-1)) (Constant Integer 0x7f8d3140e730 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e6d0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (EQ Boolean 0x7f8d3140e420 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8a0 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e260 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C2 abortComplete 0x7f8d3140e4c0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))
+   mem_priority: (Variable Integer mem_priority 0x7f8d3140cd60 [a](30))
+   returnValue: (Variable Integer returnValue 0x7f8d3140ce10 [a](-1))
   }
   C3{
-   State: C3 (id_193[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(0:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_360[a](0): ((id_358[a](0): interruptibleCommandHandleValues(C3 command_handle (id_335[a](COMMAND_SUCCESS): command_handle))) || (id_347[a](0): (returnValue (id_229[a](-1): int) == IntegerValue (id_349[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_352[i](UNKNOWN): (id_356[i](UNKNOWN): (C3 command_handle (id_335[a](COMMAND_SUCCESS): command_handle) == NodeCommandHandleValue (id_354[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_339[i](UNKNOWN): isknown(C3 command_handle (id_335[a](COMMAND_SUCCESS): command_handle)))
-   AbortCompleteCondition: C3 abortComplete (id_337[a](UNKNOWN): boolean)
-   Command handle: C3 command_handle (id_335[a](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_229[a](-1): int)
-   vision_priority: vision_priority (id_227[a](10): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](EXECUTING)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140ed00 [a](0) (Interruptible Boolean 0x7f8d3140ed40 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f8d3140ecb0 [a](0) (Variable Integer returnValue 0x7f8d3140d290 [a](-1)) (Constant Integer 0x7f8d3140ec80 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140ec30 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e970 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](COMMAND_SUCCESS)))
+   AbortCompleteCondition: (Variable Boolean C3 abortComplete 0x7f8d3140ea40 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [a](COMMAND_SUCCESS))
+   returnValue: (Variable Integer returnValue 0x7f8d3140d290 [a](-1))
+   vision_priority: (Variable Integer vision_priority 0x7f8d3140d1f0 [a](10))
   }
 }
 
 [Test:testOutput]Sending command result c3() = 10
 [PlexilExec:notifyNodeConditionChanged] for node C3
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 6
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 9
 [PlexilExec:step][6:0] State change queue: C3 
 [PlexilExec:step][6:0:0] Transitioning node C3 from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node C1
+[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 10
 [PlexilExec:step][6:1] State change queue: C3 
 [PlexilExec:step][6:1:0] Transitioning node C3 from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node C1
+[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 11
 [PlexilExec:step][6:2] State change queue: C3 
 [PlexilExec:step][6:2:0] Transitioning node C3 from ITERATION_ENDED to FINISHED
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node C1
+[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C3' was previously eligible to transition but isn't now.
@@ -500,275 +500,286 @@ SimpleTask{
 [PlexilExec:cycle]==>End cycle 6
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_78[a](EXECUTING): state) (0)
- AncestorEndCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
- SkipCondition: Boolean constant false (id_112[a](0): boolean)
- StartCondition: Boolean constant true (id_114[a](1): boolean)
- EndCondition: (id_238[a](0): childrenFinished(1:3))
- ExitCondition: Boolean constant false (id_112[a](0): boolean)
- InvariantCondition: Boolean constant true (id_114[a](1): boolean)
- PreCondition: Boolean constant true (id_114[a](1): boolean)
- PostCondition: Boolean constant true (id_114[a](1): boolean)
- RepeatCondition: Boolean constant false (id_112[a](0): boolean)
- ActionCompleteCondition: (id_231[i](UNKNOWN): childrenWaitingOrFinished(0:3))
+ State: EXECUTING (0)
+ AncestorEndCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
+ ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PostCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8d3140d3e0 [i](UNKNOWN) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
   C1{
-   State: C1 (id_117[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(1:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_285[a](0): ((id_283[a](0): interruptibleCommandHandleValues(C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle))) || (id_272[a](0): (returnValue (id_151[a](-1): int) == IntegerValue (id_274[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_277[i](UNKNOWN): (id_281[i](UNKNOWN): (C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle) == NodeCommandHandleValue (id_279[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: Boolean constant false (id_112[a](0): boolean)
-   ActionCompleteCondition: (id_264[i](UNKNOWN): isknown(C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle)))
-   AbortCompleteCondition: C1 abortComplete (id_262[a](UNKNOWN): boolean)
-   Command handle: C1 command_handle (id_260[a](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_151[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e0c0 [a](0) (Interruptible Boolean 0x7f8d3140e120 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f8d3140dfd0 [a](0) (Variable Integer returnValue 0x7f8d3140c970 [a](-1)) (Constant Integer 0x7f8d3140daa0 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e080 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140d830 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS)))
+   AbortCompleteCondition: (Variable Boolean C1 abortComplete 0x7f8d3140daf0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [a](COMMAND_SUCCESS))
+   returnValue: (Variable Integer returnValue 0x7f8d3140c970 [a](-1))
   }
   C2{
-   State: C2 (id_154[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(1:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_328[a](0): ((id_326[a](0): interruptibleCommandHandleValues(C2 command_handle (id_296[a](UNKNOWN): command_handle))) || (id_308[a](0): (returnValue (id_190[a](-1): int) == IntegerValue (id_310[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_313[i](UNKNOWN): (id_317[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_315[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: (id_320[i](UNKNOWN): (id_324[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_322[a](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_300[i](UNKNOWN): isknown(C2 command_handle (id_296[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C2 abortComplete (id_298[a](UNKNOWN): boolean)
-   Command handle: C2 command_handle (id_296[a](UNKNOWN): command_handle)
-   mem_priority: mem_priority (id_188[a](30): int)
-   returnValue: returnValue (id_190[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](EXECUTING)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e7b0 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140e7f0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140e760 [a](0) (Variable Integer returnValue 0x7f8d3140ce10 [a](-1)) (Constant Integer 0x7f8d3140e730 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e6d0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (EQ Boolean 0x7f8d3140e420 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8a0 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e260 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C2 abortComplete 0x7f8d3140e4c0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))
+   mem_priority: (Variable Integer mem_priority 0x7f8d3140cd60 [a](30))
+   returnValue: (Variable Integer returnValue 0x7f8d3140ce10 [a](-1))
   }
   C3{
-   State: C3 (id_193[a](FINISHED): state) (0)
-   Outcome: C3 (id_195[a](SUCCESS): outcome)
-   Command handle: C3 command_handle (id_335[i](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_229[i](10): int)
-   vision_priority: vision_priority (id_227[a](10): int)
+   State: FINISHED (0)
+   Outcome: SUCCESS
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140d290 [i](UNKNOWN))
+   vision_priority: (Variable Integer vision_priority 0x7f8d3140d1f0 [i](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command result c1() = 10
 [PlexilExec:notifyNodeConditionChanged] for node C1
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 7
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 12
 [PlexilExec:step][7:0] State change queue: C1 
 [PlexilExec:step][7:0:0] Transitioning node C1 from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:notifyNodeConditionChanged] for node C1
+[PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 13
 [PlexilExec:step][7:1] State change queue: C1 
 [PlexilExec:step][7:1:0] Transitioning node C1 from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:notifyNodeConditionChanged] for node C1
+[PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 14
 [PlexilExec:step][7:2] State change queue: C1 
 [PlexilExec:step][7:2:0] Transitioning node C1 from ITERATION_ENDED to FINISHED
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
 [PlexilExec:notifyNodeConditionChanged] for node C1
+[PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Node 'C1' was previously eligible to transition but isn't now.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 7
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_78[a](EXECUTING): state) (0)
- AncestorEndCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
- SkipCondition: Boolean constant false (id_112[a](0): boolean)
- StartCondition: Boolean constant true (id_114[a](1): boolean)
- EndCondition: (id_238[a](0): childrenFinished(2:3))
- ExitCondition: Boolean constant false (id_112[a](0): boolean)
- InvariantCondition: Boolean constant true (id_114[a](1): boolean)
- PreCondition: Boolean constant true (id_114[a](1): boolean)
- PostCondition: Boolean constant true (id_114[a](1): boolean)
- RepeatCondition: Boolean constant false (id_112[a](0): boolean)
- ActionCompleteCondition: (id_231[i](UNKNOWN): childrenWaitingOrFinished(0:3))
+ State: EXECUTING (0)
+ AncestorEndCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](FINISHED)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
+ ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PostCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8d3140d3e0 [i](UNKNOWN) (StateVariable NodeState C1 0x7f8d3140c688 [a](FINISHED)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
   C1{
-   State: C1 (id_117[a](FINISHED): state) (0)
-   Outcome: C1 (id_119[a](SUCCESS): outcome)
-   Command handle: C1 command_handle (id_260[i](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_151[i](10): int)
+   State: FINISHED (0)
+   Outcome: SUCCESS
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140c970 [i](UNKNOWN))
   }
   C2{
-   State: C2 (id_154[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(2:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_328[a](0): ((id_326[a](0): interruptibleCommandHandleValues(C2 command_handle (id_296[a](UNKNOWN): command_handle))) || (id_308[a](0): (returnValue (id_190[a](-1): int) == IntegerValue (id_310[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_313[i](UNKNOWN): (id_317[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_315[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: (id_320[i](UNKNOWN): (id_324[i](UNKNOWN): (C2 command_handle (id_296[a](UNKNOWN): command_handle) == NodeCommandHandleValue (id_322[a](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_300[i](UNKNOWN): isknown(C2 command_handle (id_296[a](UNKNOWN): command_handle)))
-   AbortCompleteCondition: C2 abortComplete (id_298[a](UNKNOWN): boolean)
-   Command handle: C2 command_handle (id_296[a](UNKNOWN): command_handle)
-   mem_priority: mem_priority (id_188[a](30): int)
-   returnValue: returnValue (id_190[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](FINISHED)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e7b0 [a](UNKNOWN) (Interruptible Boolean 0x7f8d3140e7f0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))) (EQ Boolean 0x7f8d3140e760 [a](0) (Variable Integer returnValue 0x7f8d3140ce10 [a](-1)) (Constant Integer 0x7f8d3140e730 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e6d0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (EQ Boolean 0x7f8d3140e420 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10573a8a0 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e260 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean C2 abortComplete 0x7f8d3140e4c0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](UNKNOWN))
+   mem_priority: (Variable Integer mem_priority 0x7f8d3140cd60 [a](30))
+   returnValue: (Variable Integer returnValue 0x7f8d3140ce10 [a](-1))
   }
   C3{
-   State: C3 (id_193[a](FINISHED): state) (0)
-   Outcome: C3 (id_195[a](SUCCESS): outcome)
-   Command handle: C3 command_handle (id_335[i](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_229[i](10): int)
-   vision_priority: vision_priority (id_227[a](10): int)
+   State: FINISHED (0)
+   Outcome: SUCCESS
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140d290 [i](UNKNOWN))
+   vision_priority: (Variable Integer vision_priority 0x7f8d3140d1f0 [i](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command ACK c2() = (string)COMMAND_SENT_TO_SYSTEM
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
+[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:cycle]==>Start cycle 8
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 8
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_78[a](EXECUTING): state) (0)
- AncestorEndCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
- SkipCondition: Boolean constant false (id_112[a](0): boolean)
- StartCondition: Boolean constant true (id_114[a](1): boolean)
- EndCondition: (id_238[a](0): childrenFinished(2:3))
- ExitCondition: Boolean constant false (id_112[a](0): boolean)
- InvariantCondition: Boolean constant true (id_114[a](1): boolean)
- PreCondition: Boolean constant true (id_114[a](1): boolean)
- PostCondition: Boolean constant true (id_114[a](1): boolean)
- RepeatCondition: Boolean constant false (id_112[a](0): boolean)
- ActionCompleteCondition: (id_231[i](UNKNOWN): childrenWaitingOrFinished(0:3))
+ State: EXECUTING (0)
+ AncestorEndCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](FINISHED)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
+ ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PostCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8d3140d3e0 [i](UNKNOWN) (StateVariable NodeState C1 0x7f8d3140c688 [a](FINISHED)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
   C1{
-   State: C1 (id_117[a](FINISHED): state) (0)
-   Outcome: C1 (id_119[a](SUCCESS): outcome)
-   Command handle: C1 command_handle (id_260[i](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_151[i](10): int)
+   State: FINISHED (0)
+   Outcome: SUCCESS
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140c970 [i](UNKNOWN))
   }
   C2{
-   State: C2 (id_154[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(2:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_328[a](0): ((id_326[a](0): interruptibleCommandHandleValues(C2 command_handle (id_296[a](COMMAND_SENT_TO_SYSTEM): command_handle))) || (id_308[a](0): (returnValue (id_190[a](-1): int) == IntegerValue (id_310[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_313[i](UNKNOWN): (id_317[i](UNKNOWN): (C2 command_handle (id_296[a](COMMAND_SENT_TO_SYSTEM): command_handle) == NodeCommandHandleValue (id_315[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: (id_320[i](UNKNOWN): (id_324[i](UNKNOWN): (C2 command_handle (id_296[a](COMMAND_SENT_TO_SYSTEM): command_handle) == NodeCommandHandleValue (id_322[a](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_300[i](UNKNOWN): isknown(C2 command_handle (id_296[a](COMMAND_SENT_TO_SYSTEM): command_handle)))
-   AbortCompleteCondition: C2 abortComplete (id_298[a](UNKNOWN): boolean)
-   Command handle: C2 command_handle (id_296[a](COMMAND_SENT_TO_SYSTEM): command_handle)
-   mem_priority: mem_priority (id_188[a](30): int)
-   returnValue: returnValue (id_190[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](FINISHED)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e7b0 [a](0) (Interruptible Boolean 0x7f8d3140e7f0 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](COMMAND_SENT_TO_SYSTEM))) (EQ Boolean 0x7f8d3140e760 [a](0) (Variable Integer returnValue 0x7f8d3140ce10 [a](-1)) (Constant Integer 0x7f8d3140e730 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e6d0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (EQ Boolean 0x7f8d3140e420 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x10573a8a0 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e260 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](COMMAND_SENT_TO_SYSTEM)))
+   AbortCompleteCondition: (Variable Boolean C2 abortComplete 0x7f8d3140e4c0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](COMMAND_SENT_TO_SYSTEM))
+   mem_priority: (Variable Integer mem_priority 0x7f8d3140cd60 [a](30))
+   returnValue: (Variable Integer returnValue 0x7f8d3140ce10 [a](-1))
   }
   C3{
-   State: C3 (id_193[a](FINISHED): state) (0)
-   Outcome: C3 (id_195[a](SUCCESS): outcome)
-   Command handle: C3 command_handle (id_335[i](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_229[i](10): int)
-   vision_priority: vision_priority (id_227[a](10): int)
+   State: FINISHED (0)
+   Outcome: SUCCESS
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140d290 [i](UNKNOWN))
+   vision_priority: (Variable Integer vision_priority 0x7f8d3140d1f0 [i](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command ACK c2() = (string)COMMAND_SUCCESS
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
+[PlexilExec:notifyNodeConditionChanged] for node C2
 [PlexilExec:cycle]==>Start cycle 9
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 9
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_78[a](EXECUTING): state) (0)
- AncestorEndCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
- AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
- SkipCondition: Boolean constant false (id_112[a](0): boolean)
- StartCondition: Boolean constant true (id_114[a](1): boolean)
- EndCondition: (id_238[a](0): childrenFinished(2:3))
- ExitCondition: Boolean constant false (id_112[a](0): boolean)
- InvariantCondition: Boolean constant true (id_114[a](1): boolean)
- PreCondition: Boolean constant true (id_114[a](1): boolean)
- PostCondition: Boolean constant true (id_114[a](1): boolean)
- RepeatCondition: Boolean constant false (id_112[a](0): boolean)
- ActionCompleteCondition: (id_231[i](UNKNOWN): childrenWaitingOrFinished(0:3))
+ State: EXECUTING (0)
+ AncestorEndCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ EndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](FINISHED)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
+ ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ PostCondition: (Constant Boolean 0x10573a5f0 [a](1))
+ RepeatCondition: (Constant Boolean 0x10573a5d8 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7f8d3140d3e0 [i](UNKNOWN) (StateVariable NodeState C1 0x7f8d3140c688 [a](FINISHED)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
   C1{
-   State: C1 (id_117[a](FINISHED): state) (0)
-   Outcome: C1 (id_119[a](SUCCESS): outcome)
-   Command handle: C1 command_handle (id_260[i](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_151[i](10): int)
+   State: FINISHED (0)
+   Outcome: SUCCESS
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140c970 [i](UNKNOWN))
   }
   C2{
-   State: C2 (id_154[a](EXECUTING): state) (0)
-   AncestorEndCondition: (id_238[a](0): childrenFinished(2:3))
-   AncestorExitCondition: Boolean constant false (id_112[a](0): boolean)
-   AncestorInvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   SkipCondition: Boolean constant false (id_112[a](0): boolean)
-   StartCondition: Boolean constant true (id_114[a](1): boolean)
-   EndCondition: (id_328[a](0): ((id_326[a](0): interruptibleCommandHandleValues(C2 command_handle (id_296[a](COMMAND_SUCCESS): command_handle))) || (id_308[a](0): (returnValue (id_190[a](-1): int) == IntegerValue (id_310[a](10): int)))))
-   ExitCondition: Boolean constant false (id_112[a](0): boolean)
-   InvariantCondition: Boolean constant true (id_114[a](1): boolean)
-   PreCondition: Boolean constant true (id_114[a](1): boolean)
-   PostCondition: (id_313[i](UNKNOWN): (id_317[i](UNKNOWN): (C2 command_handle (id_296[a](COMMAND_SUCCESS): command_handle) == NodeCommandHandleValue (id_315[a](COMMAND_SUCCESS): command_handle))))
-   RepeatCondition: (id_320[i](UNKNOWN): (id_324[i](UNKNOWN): (C2 command_handle (id_296[a](COMMAND_SUCCESS): command_handle) == NodeCommandHandleValue (id_322[a](COMMAND_DENIED): command_handle))))
-   ActionCompleteCondition: (id_300[i](UNKNOWN): isknown(C2 command_handle (id_296[a](COMMAND_SUCCESS): command_handle)))
-   AbortCompleteCondition: C2 abortComplete (id_298[a](UNKNOWN): boolean)
-   Command handle: C2 command_handle (id_296[a](COMMAND_SUCCESS): command_handle)
-   mem_priority: mem_priority (id_188[a](30): int)
-   returnValue: returnValue (id_190[a](-1): int)
+   State: EXECUTING (0)
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7f8d3140d4e0 [a](0) (StateVariable NodeState C1 0x7f8d3140c688 [a](FINISHED)) (StateVariable NodeState C2 0x7f8d3140cb28 [a](EXECUTING)) (StateVariable NodeState C3 0x7f8d3140cfc8 [a](FINISHED)))
+   AncestorExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   AncestorInvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   SkipCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   StartCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   EndCondition: (OR Boolean 0x7f8d3140e7b0 [a](0) (Interruptible Boolean 0x7f8d3140e7f0 [a](0) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](COMMAND_SUCCESS))) (EQ Boolean 0x7f8d3140e760 [a](0) (Variable Integer returnValue 0x7f8d3140ce10 [a](-1)) (Constant Integer 0x7f8d3140e730 [a](10))))
+   ExitCondition: (Constant Boolean 0x10573a5d8 [a](0))
+   InvariantCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PreCondition: (Constant Boolean 0x10573a5f0 [a](1))
+   PostCondition: (EQ Boolean 0x7f8d3140e6d0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10573a8b8 [a](COMMAND_SUCCESS)))
+   RepeatCondition: (EQ Boolean 0x7f8d3140e420 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](COMMAND_SUCCESS)) (CommandHandleValue NodeCommandHandle 0x10573a8a0 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7f8d3140e260 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](COMMAND_SUCCESS)))
+   AbortCompleteCondition: (Variable Boolean C2 abortComplete 0x7f8d3140e4c0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [a](COMMAND_SUCCESS))
+   mem_priority: (Variable Integer mem_priority 0x7f8d3140cd60 [a](30))
+   returnValue: (Variable Integer returnValue 0x7f8d3140ce10 [a](-1))
   }
   C3{
-   State: C3 (id_193[a](FINISHED): state) (0)
-   Outcome: C3 (id_195[a](SUCCESS): outcome)
-   Command handle: C3 command_handle (id_335[i](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_229[i](10): int)
-   vision_priority: vision_priority (id_227[a](10): int)
+   State: FINISHED (0)
+   Outcome: SUCCESS
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140d290 [i](UNKNOWN))
+   vision_priority: (Variable Integer vision_priority 0x7f8d3140d1f0 [i](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command result c2() = 10
 [PlexilExec:notifyNodeConditionChanged] for node C2
-[Test:testOutput]Looking up immediately time()
-[Test:testOutput]Returning value 0
 [PlexilExec:cycle]==>Start cycle 10
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 15
 [PlexilExec:step][10:0] State change queue: C2 
 [PlexilExec:step][10:0:0] Transitioning node C2 from EXECUTING to FINISHING
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 16
 [PlexilExec:step][10:1] State change queue: C2 
 [PlexilExec:step][10:1:0] Transitioning node C2 from FINISHING to ITERATION_ENDED
+[PlexilExec:notifyNodeConditionChanged] for node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 17
 [PlexilExec:step][10:2] State change queue: C2 
 [PlexilExec:step][10:2:0] Transitioning node C2 from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node SimpleTask
+[PlexilExec:notifyNodeConditionChanged] for node C1
 [PlexilExec:notifyNodeConditionChanged] for node C2
+[PlexilExec:notifyNodeConditionChanged] for node C3
 [PlexilExec:handleConditionsChanged]Node SimpleTask had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleTask' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleTask' on the state change queue in position 18
@@ -795,27 +806,27 @@ SimpleTask{
 [PlexilExec:cycle]==>End cycle 10
 [PlexilExec:printPlan]
 SimpleTask{
- State: SimpleTask (id_78[a](FINISHED): state) (0)
- Outcome: SimpleTask (id_80[a](SUCCESS): outcome)
+ State: FINISHED (0)
+ Outcome: SUCCESS
   C1{
-   State: C1 (id_117[a](FINISHED): state) (0)
-   Outcome: C1 (id_119[a](SUCCESS): outcome)
-   Command handle: C1 command_handle (id_260[i](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_151[i](10): int)
+   State: FINISHED (0)
+   Outcome: SUCCESS
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140dab0 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140c970 [i](UNKNOWN))
   }
   C2{
-   State: C2 (id_154[a](FINISHED): state) (0)
-   Outcome: C2 (id_156[a](SUCCESS): outcome)
-   Command handle: C2 command_handle (id_296[i](COMMAND_SUCCESS): command_handle)
-   mem_priority: mem_priority (id_188[a](30): int)
-   returnValue: returnValue (id_190[i](10): int)
+   State: FINISHED (0)
+   Outcome: SUCCESS
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140e480 [i](UNKNOWN))
+   mem_priority: (Variable Integer mem_priority 0x7f8d3140cd60 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140ce10 [i](UNKNOWN))
   }
   C3{
-   State: C3 (id_193[a](FINISHED): state) (0)
-   Outcome: C3 (id_195[a](SUCCESS): outcome)
-   Command handle: C3 command_handle (id_335[i](COMMAND_SUCCESS): command_handle)
-   returnValue: returnValue (id_229[i](10): int)
-   vision_priority: vision_priority (id_227[a](10): int)
+   State: FINISHED (0)
+   Outcome: SUCCESS
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f8d3140ea00 [i](UNKNOWN))
+   returnValue: (Variable Integer returnValue 0x7f8d3140d290 [i](UNKNOWN))
+   vision_priority: (Variable Integer vision_priority 0x7f8d3140d1f0 [i](UNKNOWN))
   }
 }
 
