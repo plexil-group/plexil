@@ -66,8 +66,10 @@ namespace PLEXIL
       if (!arg->getValue(val)) // unknown
         return false;
       if (val == COMMAND_DENIED || val == COMMAND_FAILED)
-        return true;
-      return false;
+        result = true;
+      else
+        result = false;
+      return true;
     }
 
     DECLARE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible, bool)
