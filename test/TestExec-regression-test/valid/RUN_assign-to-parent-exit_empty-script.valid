@@ -43,39 +43,21 @@ Root{
 [PlexilExec:notifyNodeConditionChanged] for node Kid
 [PlexilExec:handleNeedsExecution]Storing action for node 'Kid' of type 'Assignment' to be executed.
 [PlexilExec:performAssignments] performing 1 assignments and 0 retractions
-[Test:testOutput]Assigning (Variable Boolean step_failed 0x7fd391409c90 [a](0)) to 1
+[Test:testOutput]Assigning (Variable Boolean step_failed 0x7faad3409c90 [a](0)) to 1
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 Root{
  State: EXECUTING (0)
- AncestorEndCondition: (Constant Boolean 0x10c5885d8 [a](0))
- AncestorExitCondition: (Constant Boolean 0x10c5885d8 [a](0))
- AncestorInvariantCondition: (Constant Boolean 0x10c5885f0 [a](1))
- SkipCondition: (Constant Boolean 0x10c5885d8 [a](0))
- StartCondition: (Constant Boolean 0x10c5885f0 [a](1))
- EndCondition: (EQ Boolean 0x7fd39140a220 [a](0) (StateVariable NodeState Kid 0x7fd391409e88 [a](EXECUTING)) (NodeStateValue NodeState 0x10c588708 [a](FINISHED)))
- ExitCondition: (Variable Boolean step_failed 0x7fd391409c90 [a](1))
- InvariantCondition: (Constant Boolean 0x10c5885f0 [a](1))
- PreCondition: (Constant Boolean 0x10c5885f0 [a](1))
- PostCondition: (Constant Boolean 0x10c5885f0 [a](1))
- RepeatCondition: (Constant Boolean 0x10c5885d8 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fd39140a150 [i](UNKNOWN) (StateVariable NodeState Kid 0x7fd391409e88 [a](EXECUTING)))
- step_failed: (Variable Boolean step_failed 0x7fd391409c90 [a](1))
+ EndCondition: (EQ Boolean 0x7faad340a220 [a](0) (StateVariable NodeState Kid 0x7faad3409e88 [a](EXECUTING)) (NodeStateValue NodeState 0x100cd7708 [a](FINISHED)))
+ ExitCondition: (Variable Boolean step_failed 0x7faad3409c90 [a](1))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7faad340a150 [i](UNKNOWN) (StateVariable NodeState Kid 0x7faad3409e88 [a](EXECUTING)))
+ step_failed: (Variable Boolean step_failed 0x7faad3409c90 [a](1))
   Kid{
    State: EXECUTING (0)
-   AncestorEndCondition: (EQ Boolean 0x7fd39140a220 [a](0) (StateVariable NodeState Kid 0x7fd391409e88 [a](EXECUTING)) (NodeStateValue NodeState 0x10c588708 [a](FINISHED)))
-   AncestorExitCondition: (Variable Boolean step_failed 0x7fd391409c90 [a](1))
-   AncestorInvariantCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   SkipCondition: (Constant Boolean 0x10c5885d8 [a](0))
-   StartCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   EndCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   ExitCondition: (Constant Boolean 0x10c5885d8 [a](0))
-   InvariantCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   PreCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   PostCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   RepeatCondition: (Constant Boolean 0x10c5885d8 [a](0))
-   ActionCompleteCondition: (Variable Boolean Kid ack 0x7fd39140a750 [a](1))
-   AbortCompleteCondition: (Variable Boolean Kid abortComplete 0x7fd39140a7b0 [i](UNKNOWN))
+   AncestorEndCondition: (EQ Boolean 0x7faad340a220 [a](0) (StateVariable NodeState Kid 0x7faad3409e88 [a](EXECUTING)) (NodeStateValue NodeState 0x100cd7708 [a](FINISHED)))
+   AncestorExitCondition: (Variable Boolean step_failed 0x7faad3409c90 [a](1))
+   ActionCompleteCondition: (Variable Boolean Kid ack 0x7faad340a750 [a](1))
+   AbortCompleteCondition: (Variable Boolean Kid abortComplete 0x7faad340a7b0 [i](UNKNOWN))
   }
 }
 
@@ -94,39 +76,21 @@ Root{
 [PlexilExec:notifyNodeConditionChanged] for node Root
 [PlexilExec:notifyNodeConditionChanged] for node Kid
 [PlexilExec:performAssignments] performing 0 assignments and 1 retractions
-[Test:testOutput]Restoring previous value of (Variable Boolean step_failed 0x7fd391409c90 [a](1))
+[Test:testOutput]Restoring previous value of (Variable Boolean step_failed 0x7faad3409c90 [a](1))
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 Root{
  State: FAILING (0)
- AncestorEndCondition: (Constant Boolean 0x10c5885d8 [a](0))
- AncestorExitCondition: (Constant Boolean 0x10c5885d8 [a](0))
- AncestorInvariantCondition: (Constant Boolean 0x10c5885f0 [a](1))
- SkipCondition: (Constant Boolean 0x10c5885d8 [a](0))
- StartCondition: (Constant Boolean 0x10c5885f0 [a](1))
- EndCondition: (EQ Boolean 0x7fd39140a220 [a](0) (StateVariable NodeState Kid 0x7fd391409e88 [a](FAILING)) (NodeStateValue NodeState 0x10c588708 [a](FINISHED)))
- ExitCondition: (Variable Boolean step_failed 0x7fd391409c90 [a](0))
- InvariantCondition: (Constant Boolean 0x10c5885f0 [a](1))
- PreCondition: (Constant Boolean 0x10c5885f0 [a](1))
- PostCondition: (Constant Boolean 0x10c5885f0 [a](1))
- RepeatCondition: (Constant Boolean 0x10c5885d8 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fd39140a150 [a](0) (StateVariable NodeState Kid 0x7fd391409e88 [a](FAILING)))
- step_failed: (Variable Boolean step_failed 0x7fd391409c90 [a](0))
+ EndCondition: (EQ Boolean 0x7faad340a220 [a](0) (StateVariable NodeState Kid 0x7faad3409e88 [a](FAILING)) (NodeStateValue NodeState 0x100cd7708 [a](FINISHED)))
+ ExitCondition: (Variable Boolean step_failed 0x7faad3409c90 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7faad340a150 [a](0) (StateVariable NodeState Kid 0x7faad3409e88 [a](FAILING)))
+ step_failed: (Variable Boolean step_failed 0x7faad3409c90 [a](0))
   Kid{
    State: FAILING (0)
-   AncestorEndCondition: (EQ Boolean 0x7fd39140a220 [a](0) (StateVariable NodeState Kid 0x7fd391409e88 [a](FAILING)) (NodeStateValue NodeState 0x10c588708 [a](FINISHED)))
-   AncestorExitCondition: (Variable Boolean step_failed 0x7fd391409c90 [a](0))
-   AncestorInvariantCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   SkipCondition: (Constant Boolean 0x10c5885d8 [a](0))
-   StartCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   EndCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   ExitCondition: (Constant Boolean 0x10c5885d8 [a](0))
-   InvariantCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   PreCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   PostCondition: (Constant Boolean 0x10c5885f0 [a](1))
-   RepeatCondition: (Constant Boolean 0x10c5885d8 [a](0))
-   ActionCompleteCondition: (Variable Boolean Kid ack 0x7fd39140a750 [i](UNKNOWN))
-   AbortCompleteCondition: (Variable Boolean Kid abortComplete 0x7fd39140a7b0 [a](1))
+   AncestorEndCondition: (EQ Boolean 0x7faad340a220 [a](0) (StateVariable NodeState Kid 0x7faad3409e88 [a](FAILING)) (NodeStateValue NodeState 0x100cd7708 [a](FINISHED)))
+   AncestorExitCondition: (Variable Boolean step_failed 0x7faad3409c90 [a](0))
+   ActionCompleteCondition: (Variable Boolean Kid ack 0x7faad340a750 [i](UNKNOWN))
+   AbortCompleteCondition: (Variable Boolean Kid abortComplete 0x7faad340a7b0 [a](1))
   }
 }
 
@@ -164,7 +128,7 @@ Root{
  State: FINISHED (0)
  Outcome: INTERRUPTED
  Failure type: EXITED
- step_failed: (Variable Boolean step_failed 0x7fd391409c90 [i](UNKNOWN))
+ step_failed: (Variable Boolean step_failed 0x7faad3409c90 [i](UNKNOWN))
   Kid{
    State: FINISHED (0)
    Outcome: INTERRUPTED

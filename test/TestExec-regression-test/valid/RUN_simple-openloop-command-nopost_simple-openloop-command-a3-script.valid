@@ -40,39 +40,19 @@ SimpleDrive{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fd8a2409da0 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fe979409da0 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- AncestorEndCondition: (Constant Boolean 0x10fb975d8 [a](0))
- AncestorExitCondition: (Constant Boolean 0x10fb975d8 [a](0))
- AncestorInvariantCondition: (Constant Boolean 0x10fb975f0 [a](1))
- SkipCondition: (Constant Boolean 0x10fb975d8 [a](0))
- StartCondition: (Constant Boolean 0x10fb975f0 [a](1))
- EndCondition: (AllChildrenFinished Boolean 0x7fd8a2409b50 [a](0) (StateVariable NodeState Drive 0x7fd8a2409758 [a](EXECUTING)))
- ExitCondition: (Constant Boolean 0x10fb975d8 [a](0))
- InvariantCondition: (Constant Boolean 0x10fb975f0 [a](1))
- PreCondition: (Constant Boolean 0x10fb975f0 [a](1))
- PostCondition: (Constant Boolean 0x10fb975f0 [a](1))
- RepeatCondition: (Constant Boolean 0x10fb975d8 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fd8a2409aa0 [i](UNKNOWN) (StateVariable NodeState Drive 0x7fd8a2409758 [a](EXECUTING)))
+ EndCondition: (AllChildrenFinished Boolean 0x7fe979409b50 [a](0) (StateVariable NodeState Drive 0x7fe979409758 [a](EXECUTING)))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe979409aa0 [i](UNKNOWN) (StateVariable NodeState Drive 0x7fe979409758 [a](EXECUTING)))
   Drive{
    State: EXECUTING (0)
-   AncestorEndCondition: (AllChildrenFinished Boolean 0x7fd8a2409b50 [a](0) (StateVariable NodeState Drive 0x7fd8a2409758 [a](EXECUTING)))
-   AncestorExitCondition: (Constant Boolean 0x10fb975d8 [a](0))
-   AncestorInvariantCondition: (Constant Boolean 0x10fb975f0 [a](1))
-   SkipCondition: (Constant Boolean 0x10fb975d8 [a](0))
-   StartCondition: (Constant Boolean 0x10fb975f0 [a](1))
-   EndCondition: (Constant Boolean 0x10fb975f0 [a](1))
-   ExitCondition: (Constant Boolean 0x10fb975d8 [a](0))
-   InvariantCondition: (Constant Boolean 0x10fb975f0 [a](1))
-   PreCondition: (Constant Boolean 0x10fb975f0 [a](1))
-   PostCondition: (Constant Boolean 0x10fb975f0 [a](1))
-   RepeatCondition: (Constant Boolean 0x10fb975d8 [a](0))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fd8a2409f90 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd8a2409da0 [a](UNKNOWN)))
-   AbortCompleteCondition: (Variable Boolean Drive abortComplete 0x7fd8a2409de0 [a](UNKNOWN))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd8a2409da0 [a](UNKNOWN))
+   AncestorEndCondition: (AllChildrenFinished Boolean 0x7fe979409b50 [a](0) (StateVariable NodeState Drive 0x7fe979409758 [a](EXECUTING)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fe979409f90 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe979409da0 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean Drive abortComplete 0x7fe979409de0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe979409da0 [a](UNKNOWN))
   }
 }
 
@@ -130,7 +110,7 @@ SimpleDrive{
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd8a2409da0 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe979409da0 [i](UNKNOWN))
   }
 }
 
