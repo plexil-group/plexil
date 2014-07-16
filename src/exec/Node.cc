@@ -29,7 +29,6 @@
 #include "Alias.hh"
 #include "Debug.hh"
 #include "ExecConnector.hh"
-// #include "Expressions.hh"
 #include "ExpressionConstants.hh"
 #include "ExpressionFactory.hh"
 #include "ExternalInterface.hh"
@@ -58,7 +57,9 @@ namespace PLEXIL {
 
   void Node::ConditionChangeListener::notifyChanged(Expression const *src)
   {
-    debugMsg("Node:conditionChanged", " node " << m_node.getNodeId() << " from " << *src);
+    // Uncomment this if you need to identify the source of an
+    // unexpected notification.
+    // debugMsg("Node:conditionChanged", " node " << m_node.getNodeId() << " from " << *src);
     m_node.conditionChanged();
   }
 
@@ -127,6 +128,7 @@ namespace PLEXIL {
       m_listener(*this),
       m_nodeId(node->nodeId()),
       m_sortedVariableNames(new std::vector<std::string>()),
+      m_conditions(),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
@@ -135,6 +137,7 @@ namespace PLEXIL {
       m_lastQuery(NO_NODE_STATE),
       m_outcome(NO_OUTCOME),
       m_failureType(NO_FAILURE),
+      m_garbageConditions(),
       m_postInitCalled(false),
       m_cleanedConditions(false),
       m_cleanedVars(false),
@@ -145,7 +148,6 @@ namespace PLEXIL {
     debugMsg("Node:node", "Creating node \"" << node->nodeId() << "\"");
 
     commonInit();
-    setConditionDefaults();
 
     // Instantiate declared variables
     createDeclaredVars(node->declarations());
@@ -165,6 +167,7 @@ namespace PLEXIL {
       m_listener(*this),
       m_nodeId(name),
       m_sortedVariableNames(new std::vector<std::string>()),
+      m_conditions(),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
@@ -173,6 +176,7 @@ namespace PLEXIL {
       m_lastQuery(NO_NODE_STATE),
       m_outcome(NO_OUTCOME),
       m_failureType(NO_FAILURE),
+      m_garbageConditions(),
       m_postInitCalled(false), 
       m_cleanedConditions(false), 
       m_cleanedVars(false),
@@ -189,7 +193,7 @@ namespace PLEXIL {
                " with value FALSE for node " << m_nodeId);
       m_conditions[i] = expr;
       m_garbageConditions[i] = true;
-      if (i != preIdx && i != postIdx)
+      if (i != preIdx && i != postIdx && getCondition(i))
         getCondition(i)->addListener(&m_listener);
     }
 
@@ -249,28 +253,8 @@ namespace PLEXIL {
     m_variablesByName[OUTCOME()] = &m_outcomeVariable;
     m_variablesByName[FAILURE_TYPE()] = &m_failureTypeVariable;
 
-    // initialize m_garbageConditions
-    for (size_t i = 0; i < conditionIndexMax; ++i) {
-      m_garbageConditions[i] = false;
-    }
-
     // Initialize transition trace
     logTransition(g_interface->currentTime(), (NodeState) m_state);
-  }
-
-  // Use existing Boolean constants for the condition defaults
-  void Node::setConditionDefaults() 
-  {
-    // These may be user-specified
-    // End condition will be overridden 
-    m_conditions[skipIdx] = FALSE_EXP();
-    m_conditions[startIdx] = TRUE_EXP();
-    m_conditions[endIdx] = TRUE_EXP();
-    m_conditions[exitIdx] = FALSE_EXP();
-    m_conditions[invariantIdx] = TRUE_EXP();
-    m_conditions[preIdx] = TRUE_EXP();
-    m_conditions[postIdx] = TRUE_EXP();
-    m_conditions[repeatIdx] = FALSE_EXP();
   }
 
   void Node::createDeclaredVars(const std::vector<PlexilVar *>& vars) {
@@ -474,19 +458,16 @@ namespace PLEXIL {
     // Root node doesn't need them because the default conditions are constants
     if (m_parent.isId()) {
       Expression *ancestorEnd = getAncestorEndCondition();
-      assertTrueMsg(ancestorEnd,
-                    "Internal error: ancestor end condition is null!");
-      ancestorEnd->addListener(&m_listener);
+      if (ancestorEnd)
+        ancestorEnd->addListener(&m_listener);
 
       Expression *ancestorExit = getAncestorExitCondition();
-      assertTrueMsg(ancestorExit,
-                    "Internal error: ancestor exit condition is null!");
-      ancestorExit->addListener(&m_listener);
+      if (ancestorExit)
+        ancestorExit->addListener(&m_listener);
 
       Expression *ancestorInvariant = getAncestorInvariantCondition();
-      assertTrueMsg(ancestorInvariant,
-                    "Internal error: ancestor invariant condition is null!");
-      ancestorInvariant->addListener(&m_listener);
+      if (ancestorInvariant)
+        ancestorInvariant->addListener(&m_listener);
     }
 
     // Let the derived class do its thing (currently only ListNode)
@@ -497,16 +478,14 @@ namespace PLEXIL {
          it != conds.end(); 
          ++it) {
       size_t condIdx = getConditionIndex(std::string(it->second));
-
-      // Delete existing condition if required
-      // (e.g. explicit override of default end condition for list or library call node)
-
-      // Remove appropriate listener before deleting
-      removeConditionListener(condIdx);
-
-      if (m_garbageConditions[condIdx]) {
-        delete (Expression*) m_conditions[condIdx];
-        m_garbageConditions[condIdx] = false;
+      if (m_conditions[condIdx]) {
+        // Delete existing condition if required
+        // (e.g. explicit override of default end condition for list or library call node)
+        removeConditionListener(condIdx);
+        if (m_garbageConditions[condIdx]) {
+          delete (Expression*) m_conditions[condIdx];
+          m_garbageConditions[condIdx] = false;
+        }
       }
 
       m_conditions[condIdx] = 
@@ -610,11 +589,13 @@ namespace PLEXIL {
     case ancestorEndIdx:
     case ancestorExitIdx:
     case ancestorInvariantIdx:
-      getCondition(condIdx)->removeListener(&m_listener);
+      if (m_conditions[condIdx])
+        getCondition(condIdx)->removeListener(&m_listener);
       break;
 
     default:
-      m_conditions[condIdx]->removeListener(&m_listener);
+      if (m_conditions[condIdx])
+        m_conditions[condIdx]->removeListener(&m_listener);
       break;
     }
   }
@@ -688,18 +669,11 @@ namespace PLEXIL {
 
     case ancestorEndIdx:
     case ancestorExitIdx:
-
-      if (m_parent.isId())
-        return m_parent->m_conditions[idx];
-      else
-        return FALSE_EXP();
-
     case ancestorInvariantIdx:
-
       if (m_parent.isId())
         return m_parent->m_conditions[idx];
       else
-        return TRUE_EXP();
+        return NULL;
 
     default:
       return m_conditions[idx];
@@ -712,18 +686,11 @@ namespace PLEXIL {
 
     case ancestorEndIdx:
     case ancestorExitIdx:
-
-      if (m_parent.isId())
-        return m_parent->m_conditions[idx];
-      else
-        return FALSE_EXP();
-
     case ancestorInvariantIdx:
-
       if (m_parent.isId())
         return m_parent->m_conditions[idx];
       else
-        return TRUE_EXP();
+        return NULL;
 
     default:
       return m_conditions[idx];
@@ -954,6 +921,7 @@ namespace PLEXIL {
   NodeState Node::getDestStateFromInactive()
   {
     bool temp;
+    Expression *cond;
     if (m_parent.isId()) {
       switch (m_parent->getState()) {
 
@@ -964,31 +932,34 @@ namespace PLEXIL {
 
       case EXECUTING_STATE: {
         // N.B. Ancestor-exit, ancestor-invariant, ancestor-end should have been activated by parent
-        Expression *cond = getAncestorExitCondition();
-        checkError(cond->isActive(),
-                   "Node::getDestStateFromInactive: Ancestor exit for " << m_nodeId << " is inactive.");
-        if (cond->getValue(temp) && temp) {
-          debugMsg("Node:getDestState",
-                   " '" << m_nodeId << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_EXIT_CONDITION true.");
-          return FINISHED_STATE;
+        if ((cond = getAncestorExitCondition())) {
+          checkError(cond->isActive(),
+                     "Node::getDestStateFromInactive: Ancestor exit for " << m_nodeId << " is inactive.");
+          if (cond->getValue(temp) && temp) {
+            debugMsg("Node:getDestState",
+                     " '" << m_nodeId << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_EXIT_CONDITION true.");
+            return FINISHED_STATE;
+          }
         }
 
-        cond = getAncestorInvariantCondition();
-        checkError(cond->isActive(),
-                   "Node::getDestStateFromInactive: Ancestor invariant for " << m_nodeId << " is inactive.");
-        if (cond->getValue(temp) && !temp) {
-          debugMsg("Node:getDestState",
-                   " '" << m_nodeId << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_INVARIANT_CONDITION false.");
-          return FINISHED_STATE;
+        if ((cond = getAncestorInvariantCondition())) {
+          checkError(cond->isActive(),
+                     "Node::getDestStateFromInactive: Ancestor invariant for " << m_nodeId << " is inactive.");
+          if (cond->getValue(temp) && !temp) {
+            debugMsg("Node:getDestState",
+                     " '" << m_nodeId << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_INVARIANT_CONDITION false.");
+            return FINISHED_STATE;
+          }
         }
 
-        cond = getAncestorEndCondition();
-        checkError(cond->isActive(),
-                   "Node::getDestStateFromInactive: Ancestor end for " << m_nodeId << " is inactive.");
-        if (cond->getValue(temp) && temp) {
-          debugMsg("Node:getDestState",
-                   " '" << m_nodeId << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_END_CONDITION true.");
-          return FINISHED_STATE;
+        if ((cond = getAncestorEndCondition())) {
+          checkError(cond->isActive(),
+                     "Node::getDestStateFromInactive: Ancestor end for " << m_nodeId << " is inactive.");
+          if (cond->getValue(temp) && temp) {
+            debugMsg("Node:getDestState",
+                     " '" << m_nodeId << "' destination: FINISHED. Parent EXECUTING and ANCESTOR_END_CONDITION true.");
+            return FINISHED_STATE;
+          }
         }
 
         debugMsg("Node:getDestState",
@@ -1045,74 +1016,77 @@ namespace PLEXIL {
   // Default method
   NodeState Node::getDestStateFromWaiting()
   {
-    Expression *cond = getAncestorExitCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromWaiting: Ancestor exit for " << m_nodeId << " is inactive.");
+    Expression *cond;
     bool temp;
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
-      return FINISHED_STATE;
-    }
-
-    cond = getExitCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromWaiting: Exit condition for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. EXIT_CONDITION true.");
-      return FINISHED_STATE;
-    }
-
-    cond = getAncestorInvariantCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromWaiting: Ancestor invariant for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && !temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_INVARIANT_CONDITION false.");
-      return FINISHED_STATE;
-    }
-
-    cond = getAncestorEndCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromWaiting: Ancestor end for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_END_CONDITION true.");
-      return FINISHED_STATE;
-    }
-
-    cond = getSkipCondition();
-    checkError(cond->isActive(), 
-               "Node::getDestStateFromWaiting: Skip for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. SKIP_CONDITION true.");
-      return FINISHED_STATE;
-    }
-
-    cond = getStartCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromWaiting: Start for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && temp) {
-      cond = getPreCondition();
+    if ((cond = getAncestorExitCondition())) {
       checkError(cond->isActive(),
-                 "Node::getDestStateFromWaiting: Pre for " << m_nodeId << " is inactive.");
+                 "Node::getDestStateFromWaiting: Ancestor exit for " << m_nodeId << " is inactive.");
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: EXECUTING. START_CONDITION and PRE_CONDITION are both true.");
-        return EXECUTING_STATE;
-      }
-      else {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId << "' destination: ITERATION_ENDED. START_CONDITION true and PRE_CONDITION false or unknown.");
-        return ITERATION_ENDED_STATE;
+                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
+        return FINISHED_STATE;
       }
     }
 
+    if ((cond = getExitCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromWaiting: Exit condition for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: FINISHED. EXIT_CONDITION true.");
+        return FINISHED_STATE;
+      }
+    }
+
+    if ((cond = getAncestorInvariantCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromWaiting: Ancestor invariant for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && !temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_INVARIANT_CONDITION false.");
+        return FINISHED_STATE;
+      }
+    }
+
+    if ((cond = getAncestorEndCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromWaiting: Ancestor end for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_END_CONDITION true.");
+        return FINISHED_STATE;
+      }
+    }
+
+    if ((cond = getSkipCondition())) {
+      checkError(cond->isActive(), 
+                 "Node::getDestStateFromWaiting: Skip for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: FINISHED. SKIP_CONDITION true.");
+        return FINISHED_STATE;
+      }
+    }
+
+    if ((cond = getStartCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromWaiting: Start for " << m_nodeId << " is inactive.");
+      if (!cond->getValue(temp) || !temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: no state. START_CONDITION false or unknown");
+        return NO_NODE_STATE;
+      }
+    }
+    if ((cond = getPreCondition()) && (!cond->getValue(temp) || !temp)) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromWaiting: Pre for " << m_nodeId << " is inactive.");
+      debugMsg("Node:getDestState",
+               " '" << m_nodeId << "' destination: ITERATION_ENDED. START_CONDITION true and PRE_CONDITION false or unknown.");
+      return ITERATION_ENDED_STATE;
+    }
     debugMsg("Node:getDestState",
-             " '" << m_nodeId << "' destination: no state. START_CONDITION false or unknown");
-    return NO_NODE_STATE;
+             " '" << m_nodeId << "' destination: EXECUTING. START_CONDITION and PRE_CONDITION are both true.");
+    return EXECUTING_STATE;
   }
 
   // Default method
@@ -1166,53 +1140,57 @@ namespace PLEXIL {
   // Default method
   NodeState Node::getDestStateFromExecuting()
   {
-    Expression *cond = getAncestorExitCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromExecuting: Ancestor exit for " << m_nodeId << " is inactive.");
+    Expression *cond;
     bool temp;
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
-      return FINISHED_STATE;
+    if ((cond = getAncestorExitCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromExecuting: Ancestor exit for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
+        return FINISHED_STATE;
+      }
     }
 
-    cond = getExitCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromExecuting: Exit condition for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: ITERATION_ENDED. EXIT_CONDITION true.");
-      return ITERATION_ENDED_STATE;
+    if ((cond = getExitCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromExecuting: Exit condition for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: ITERATION_ENDED. EXIT_CONDITION true.");
+        return ITERATION_ENDED_STATE;
+      }
     }
 
-    cond = getAncestorInvariantCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromExecuting: Ancestor invariant for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && !temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. Ancestor invariant false.");
-      return FINISHED_STATE;
+    if ((cond = getAncestorInvariantCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromExecuting: Ancestor invariant for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && !temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: FINISHED. Ancestor invariant false.");
+        return FINISHED_STATE;
+      }
     }
 
-    cond = getInvariantCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromExecuting: Invariant for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && !temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: ITERATION_ENDED. Invariant false.");
-      return ITERATION_ENDED_STATE;
+    if ((cond = getInvariantCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromExecuting: Invariant for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && !temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: ITERATION_ENDED. Invariant false.");
+        return ITERATION_ENDED_STATE;
+      }
     }
 
-    cond = getEndCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromExecuting: End for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: ITERATION_ENDED. End condition true.");
-      return ITERATION_ENDED_STATE;
+    if ((cond = getEndCondition()) && (!cond->getValue(temp) || !temp)) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromExecuting: End for " << m_nodeId << " is inactive.");
+      return NO_NODE_STATE;
     }
 
-    return NO_NODE_STATE;
+    debugMsg("Node:getDestState",
+             " '" << m_nodeId << "' destination: ITERATION_ENDED. End condition true.");
+    return ITERATION_ENDED_STATE;
   }
 
   // Empty node method
@@ -1225,29 +1203,31 @@ namespace PLEXIL {
                << nodeStateName(destState) << "'");
 
     bool temp;
-    if (getAncestorExitCondition()->getValue(temp) && temp) {
+    if (getAncestorExitCondition() && getAncestorExitCondition()->getValue(temp) && temp) {
       setNodeOutcome(INTERRUPTED_OUTCOME);
       setNodeFailureType(PARENT_EXITED);
     }
-    else if (getExitCondition()->getValue(temp) && temp) {
+    else if (getExitCondition() && getExitCondition()->getValue(temp) && temp) {
       setNodeOutcome(INTERRUPTED_OUTCOME);
       setNodeFailureType(EXITED);
     }
-    else if (getAncestorInvariantCondition()->getValue(temp) && !temp) {
+    else if (getAncestorInvariantCondition() && getAncestorInvariantCondition()->getValue(temp) && !temp) {
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(PARENT_FAILED);
     }
-    else if (getInvariantCondition()->getValue(temp) && !temp) {
+    else if (getInvariantCondition() && getInvariantCondition()->getValue(temp) && !temp) {
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(INVARIANT_CONDITION_FAILED);
     }
-    // Below here, we know EndCondition is true
-    else if (getPostCondition()->getValue(temp) && temp)
-      setNodeOutcome(SUCCESS_OUTCOME);
-    else {
+    // Below here, we know EndCondition must be true
+    else if (getPostCondition() && (!getPostCondition()->getValue(temp) || !temp)) {
+      checkError(isPostConditionActive(),
+                 "Node::transitionFromExecuting: Post for " << m_nodeId << " is inactive.");
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(POST_CONDITION_FAILED);
     }
+    else
+      setNodeOutcome(SUCCESS_OUTCOME);
 
     deactivateEndCondition();
     deactivateExitCondition();
@@ -1283,52 +1263,56 @@ namespace PLEXIL {
   // Default method
   NodeState Node::getDestStateFromIterationEnded()
   {
-    Expression *cond = getAncestorExitCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromIterationEnded: Ancestor exit for " << m_nodeId << " is inactive.");
+    Expression *cond;
     bool temp;
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
-      return FINISHED_STATE;
+    if ((cond = getAncestorExitCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromIterationEnded: Ancestor exit for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_EXIT_CONDITION true.");
+        return FINISHED_STATE;
+      }
     }
 
-    cond = getAncestorInvariantCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromIterationEnded: Ancestor invariant for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && !temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_INVARIANT false.");
-      return FINISHED_STATE;
+    if ((cond = getAncestorInvariantCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromIterationEnded: Ancestor invariant for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && !temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_INVARIANT false.");
+        return FINISHED_STATE;
+      }
     }
 
-    cond = getAncestorEndCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromIterationEnded: Ancestor end for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_END true.");
-      return FINISHED_STATE;
+    if ((cond = getAncestorEndCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromIterationEnded: Ancestor end for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: FINISHED. ANCESTOR_END true.");
+        return FINISHED_STATE;
+      }
     }
 
-    cond = getRepeatCondition();
-    checkError(cond->isActive(),
-               "Node::getDestStateFromIterationEnded: Repeat for " << m_nodeId << " is inactive.");
-    if (!cond->getValue(temp)) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: no state. ANCESTOR_END false or unknown and REPEAT unknown.");
-      return NO_NODE_STATE;
-    } 
-    if (temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: WAITING. REPEAT_CONDITION true.");
-      return WAITING_STATE;
+    if ((cond = getRepeatCondition())) {
+      checkError(cond->isActive(),
+                 "Node::getDestStateFromIterationEnded: Repeat for " << m_nodeId << " is inactive.");
+      if (!cond->getValue(temp)) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: no state. ANCESTOR_END false or unknown and REPEAT unknown.");
+        return NO_NODE_STATE;
+      } 
+      if (temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << "' destination: WAITING. REPEAT_CONDITION true.");
+        return WAITING_STATE;
+      }
     }
-    else {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: FINISHED. REPEAT_CONDITION false.");
-      return FINISHED_STATE;
-    }
+
+    debugMsg("Node:getDestState",
+             " '" << m_nodeId << "' destination: FINISHED. REPEAT_CONDITION false.");
+    return FINISHED_STATE;
   }
 
   // Default method
@@ -1339,11 +1323,11 @@ namespace PLEXIL {
                << nodeStateName(destState) << "'");
 
     bool temp;
-    if (getAncestorExitCondition()->getValue(temp) && temp) {
+    if (getAncestorExitCondition() && getAncestorExitCondition()->getValue(temp) && temp) {
       setNodeOutcome(INTERRUPTED_OUTCOME);
       setNodeFailureType(PARENT_EXITED);
     }
-    else if (getAncestorInvariantCondition()->getValue(temp) && !temp) {
+    else if (getAncestorInvariantCondition() && getAncestorInvariantCondition()->getValue(temp) && !temp) {
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(PARENT_FAILED);
     }
@@ -1759,62 +1743,55 @@ namespace PLEXIL {
   // User conditions
   void Node::activatePreSkipStartConditions()
   {
-    checkError(m_conditions[preIdx],
-               "No PreCondition exists in node \"" << m_nodeId << "\"");
-    checkError(m_conditions[skipIdx],
-               "No SkipCondition exists in node \"" << m_nodeId << "\"");
-    checkError(m_conditions[startIdx],
-               "No StartCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activatePreSkipStartConditions",
              "Activating PreCondition, SkipCondition, and StartCondition in node \"" << m_nodeId << "\"");
-    m_conditions[preIdx]->activate();
-    m_conditions[skipIdx]->activate();
-    m_conditions[startIdx]->activate();
+    Expression *temp;
+    if ((temp = m_conditions[preIdx]))
+      temp->activate();
+    if ((temp = m_conditions[skipIdx]))
+      temp->activate();
+    if ((temp = m_conditions[startIdx]))
+      temp->activate();
   }
 
   void Node::activateEndCondition()
   {
-    checkError(m_conditions[endIdx],
-               "No EndCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activateEndCondition",
              "Activating EndCondition in node \"" << m_nodeId << "\"");
-    m_conditions[endIdx]->activate();
+    if (m_conditions[endIdx])
+      m_conditions[endIdx]->activate();
   }
 
   void Node::activateExitCondition()
   {
-    checkError(m_conditions[exitIdx],
-               "No ExitCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activateExitCondition",
              "Activating ExitCondition in node \"" << m_nodeId << "\"");
-    m_conditions[exitIdx]->activate();
+    if (m_conditions[exitIdx])
+      m_conditions[exitIdx]->activate();
   }
 
   void Node::activateInvariantCondition()
   {
-    checkError(m_conditions[invariantIdx],
-               "No InvariantCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activateInvariantCondition",
              "Activating InvariantCondition in node \"" << m_nodeId << "\"");
-    m_conditions[invariantIdx]->activate();
+    if (m_conditions[invariantIdx])
+      m_conditions[invariantIdx]->activate();
   }
 
   void Node::activatePostCondition()
   {
-    checkError(m_conditions[postIdx],
-               "No PostCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activatePostCondition",
              "Activating PostCondition in node \"" << m_nodeId << "\"");
-    m_conditions[postIdx]->activate();
+    if (m_conditions[postIdx])
+      m_conditions[postIdx]->activate();
   }
 
   void Node::activateRepeatCondition()
   {
-    checkError(m_conditions[repeatIdx],
-               "No RepeatCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:activateRepeatCondition",
              "Activating RepeatCondition in node \"" << m_nodeId << "\"");
-    m_conditions[repeatIdx]->activate();
+    if (m_conditions[repeatIdx])
+      m_conditions[repeatIdx]->activate();
   }
 
   // These are for specialized node types
@@ -1847,62 +1824,55 @@ namespace PLEXIL {
   // User conditions
   void Node::deactivatePreSkipStartConditions()
   {
-    checkError(m_conditions[preIdx],
-               "No PreCondition exists in node \"" << m_nodeId << "\"");
-    checkError(m_conditions[skipIdx],
-               "No SkipCondition exists in node \"" << m_nodeId << "\"");
-    checkError(m_conditions[startIdx],
-               "No StartCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivatePreSkipStartConditions",
              "Deactivating PreCondition, SkipCondition, and StartCondition in node \"" << m_nodeId << "\"");
-    m_conditions[preIdx]->deactivate();
-    m_conditions[skipIdx]->deactivate();
-    m_conditions[startIdx]->deactivate();
+    Expression *temp;
+    if ((temp = m_conditions[preIdx]))
+      temp->deactivate();
+    if ((temp = m_conditions[skipIdx]))
+      temp->deactivate();
+    if ((temp = m_conditions[startIdx]))
+      temp->deactivate();
   }
 
   void Node::deactivateEndCondition()
   {
-    checkError(m_conditions[endIdx],
-               "No EndCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivateEndCondition",
              "Deactivating EndCondition in node \"" << m_nodeId << "\"");
-    m_conditions[endIdx]->deactivate();
+    if (m_conditions[endIdx])
+      m_conditions[endIdx]->deactivate();
   }
 
   void Node::deactivateExitCondition()
   {
-    checkError(m_conditions[exitIdx],
-               "No ExitCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivateExitCondition",
              "Deactivating ExitCondition in node \"" << m_nodeId << "\"");
-    m_conditions[exitIdx]->deactivate();
+    if ((m_conditions[exitIdx]))
+      m_conditions[exitIdx]->deactivate();
   }
 
   void Node::deactivateInvariantCondition()
   {
-    checkError(m_conditions[invariantIdx],
-               "No InvariantCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivateInvariantCondition",
              "Deactivating InvariantCondition in node \"" << m_nodeId << "\"");
-    m_conditions[invariantIdx]->deactivate();
+    if ((m_conditions[invariantIdx]))
+      m_conditions[invariantIdx]->deactivate();
   }
 
   void Node::deactivatePostCondition()
   {
-    checkError(m_conditions[postIdx],
-               "No PostCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivatePostCondition",
              "Deactivating PostCondition in node \"" << m_nodeId << "\"");
-    m_conditions[postIdx]->deactivate();
+    if ((m_conditions[postIdx]))
+      m_conditions[postIdx]->deactivate();
   }
 
   void Node::deactivateRepeatCondition()
   {
-    checkError(m_conditions[repeatIdx],
-               "No RepeatCondition exists in node \"" << m_nodeId << "\"");
     debugMsg("Node:deactivateRepeatCondition",
              "Deactivating RepeatCondition in node \"" << m_nodeId << "\"");
-    m_conditions[repeatIdx]->deactivate();
+    if (m_conditions[repeatIdx])
+      m_conditions[repeatIdx]->deactivate();
   }
 
   // These are for specialized node types
@@ -2035,10 +2005,10 @@ namespace PLEXIL {
     else if (m_state != INACTIVE_STATE) {
       // Print conditions
       for (size_t i = 0; i < conditionIndexMax; ++i) {
-        if (getCondition(i)) {
-          stream << indentStr << " " << getConditionName(i) << ": " <<
-            getCondition(i)->toString() << '\n';
-        }
+        if (getCondition(i))
+        stream << indentStr << " " << getConditionName(i) << ": "
+               << getCondition(i)->toString()
+               << '\n';
       }
       // Print variables, starting with command handle
       printCommandHandle(stream, indent);

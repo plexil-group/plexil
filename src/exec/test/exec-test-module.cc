@@ -731,7 +731,7 @@ static bool listFailingDestTest()
 
   FailureType failureTypes[2] = {PRE_CONDITION_FAILED, PARENT_FAILED};
 
-  for (int children = 0; children < 3; ++children) {
+  for (int children = IDX_FALSE; children < 3; ++children) {
     node->getActionCompleteCondition()->asAssignable()->setValue(values[children]);
     for (int failure = 0; failure < 2; ++failure) {
       node->setNodeFailureType(failureTypes[failure]);
@@ -770,7 +770,7 @@ static bool listFailingTransTest()
   Value values[3] = {Value(), Value(false), Value(true)};
   FailureType failureType[2] = {INVARIANT_CONDITION_FAILED, PARENT_FAILED};
 
-  for (int children = 0; children < 3; ++children) {
+  for (int children = IDX_FALSE; children < 3; ++children) {
     for (int i = 0; i < 2; ++i) {
       NodeId node = NodeFactory::createNode(LIST, std::string("test"), FAILING_STATE, parent);
       node->getActionCompleteCondition()->asAssignable()->setValue(values[children]);
@@ -829,7 +829,7 @@ static bool listFinishingDestTest()
         node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
         for (int invariant = 0; invariant < 3; ++invariant) {
           node->getInvariantCondition()->asAssignable()->setValue(values[invariant]);
-          for (int children = 0; children < 3; ++children) {
+          for (int children = IDX_FALSE; children < 3; ++children) {
             node->getActionCompleteCondition()->asAssignable()->setValue(values[children]);
             for (int post = 0; post < 3; ++post) {
               node->getPostCondition()->asAssignable()->setValue(values[post]);
@@ -884,7 +884,7 @@ static bool listFinishingTransTest()
     for (int exit = 0; exit < 3; ++exit) {
       for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
         for (int invariant = 0; invariant < 3; ++invariant) {
-          for (int children = 0; children < 3; ++children) {
+          for (int children = IDX_FALSE; children < 3; ++children) {
             for (int post = 0; post < 3; ++post) {
               NodeId node = NodeFactory::createNode(LIST, std::string("test"), FINISHING_STATE, parent);
               node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
@@ -1517,7 +1517,7 @@ static bool commandFinishingTransTest()
     for (int exit = 0; exit < 3; ++exit) {
       for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
         for (int invariant = 0; invariant < 3; ++invariant) {
-          for (int actionComplete = 0; actionComplete < 3; ++actionComplete) {
+          for (int actionComplete = IDX_FALSE; actionComplete < 3; ++actionComplete) {
             for (int post = 0; post < 3; ++post) {
               NodeId node = NodeFactory::createNode(COMMAND, std::string("test"), FINISHING_STATE, parent);
               node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);

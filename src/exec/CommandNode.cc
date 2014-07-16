@@ -193,7 +193,7 @@ namespace PLEXIL
   void CommandNode::createConditionWrappers()
   {
     // No need to wrap if end condition is default - (True || anything) == True
-    if (m_conditions[endIdx] != TRUE_EXP()) {
+    if (m_conditions[endIdx] && m_conditions[endIdx] != TRUE_EXP()) {
       // Construct real end condition by wrapping existing
       removeConditionListener(endIdx);
       Expression *realEndCondition =
@@ -230,66 +230,65 @@ namespace PLEXIL
 
   NodeState CommandNode::getDestStateFromExecuting()
   {
-    Expression *cond = getAncestorExitCondition();
-    checkError(cond->isActive(),
-               "Ancestor exit for " << getNodeId() << " is inactive.");
+    Expression *cond;
     bool temp;
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Command node and ancestor exit true.");
-      return FAILING_STATE;
+    if ((cond = getAncestorExitCondition())) {
+      checkError(cond->isActive(),
+                 "Ancestor exit for " << getNodeId() << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Command node and ancestor exit true.");
+        return FAILING_STATE;
+      }
     }
 
-    cond = getExitCondition();
-    checkError(cond->isActive(),
-               "Exit for " << getNodeId() << " is inactive.");
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Command node and exit true.");
-      return FAILING_STATE;
+    if ((cond = getExitCondition())) {
+      checkError(cond->isActive(),
+                 "Exit for " << getNodeId() << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Command node and exit true.");
+        return FAILING_STATE;
+      }
     }
 
-    cond = getAncestorInvariantCondition();
-    checkError(cond->isActive(),
-               "Ancestor invariant for " << getNodeId() << " is inactive.");
-    if (cond->getValue(temp) && !temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Command node and ancestor invariant false.");
-      return FAILING_STATE;
+    if ((cond = getAncestorInvariantCondition())) {
+      checkError(cond->isActive(),
+                 "Ancestor invariant for " << getNodeId() << " is inactive.");
+      if (cond->getValue(temp) && !temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Command node and ancestor invariant false.");
+        return FAILING_STATE;
+      }
     }
 
-    cond = getInvariantCondition();
-    checkError(cond->isActive(),
-               "Invariant for " << getNodeId() << " is inactive.");
-    if (cond->getValue(temp) && !temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Command node and invariant false.");
-      return FAILING_STATE;
+    if ((cond = getInvariantCondition())) {
+      checkError(cond->isActive(),
+                 "Invariant for " << getNodeId() << " is inactive.");
+      if (cond->getValue(temp) && !temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Command node and invariant false.");
+        return FAILING_STATE;
+      }
     }
 
-    cond = getEndCondition();
-    checkError(cond->isActive(),
-               "End for " << getNodeId() << " is inactive.");
-    if (cond->getValue(temp) && temp) {
+    if ((cond = getEndCondition()) && (!cond->getValue(temp) || !temp )) {
+      checkError(cond->isActive(),
+                 "End for " << getNodeId() << " is inactive.");
       debugMsg("Node:getDestState",
                " '" << m_nodeId << 
-               "' destination: FINISHING.  Command node and end condition true.");
-      return FINISHING_STATE;
+               "' destination from EXECUTING: no state.");
+      return NO_NODE_STATE;
     }
-      
+
     debugMsg("Node:getDestState",
              " '" << m_nodeId << 
-             "' destination from EXECUTING: no state."
-             << "\n  Ancestor exit: " << getAncestorExitCondition()->toString() 
-             << "\n  Exit: " << getExitCondition()->toString() 
-             << "\n  Ancestor invariant: " << getAncestorInvariantCondition()->toString() 
-             << "\n  Invariant: " << getInvariantCondition()->toString() 
-             << "\n  End: " << getEndCondition()->toString());
-    return NO_NODE_STATE;
+             "' destination: FINISHING.  Command node and end condition true.");
+    return FINISHING_STATE;
   }
 
   void CommandNode::transitionFromExecuting(NodeState destState)
@@ -300,19 +299,19 @@ namespace PLEXIL
                << nodeStateName(destState) << "'");
 
     bool temp;
-    if ((getAncestorExitCondition()->getValue(temp)) && temp) {
+    if (getAncestorExitCondition() && getAncestorExitCondition()->getValue(temp) && temp) {
       setNodeOutcome(INTERRUPTED_OUTCOME);
       setNodeFailureType(PARENT_EXITED);
     }
-    else if (getExitCondition()->getValue(temp) && temp) {
+    else if (getExitCondition() && getExitCondition()->getValue(temp) && temp) {
       setNodeOutcome(INTERRUPTED_OUTCOME);
       setNodeFailureType(EXITED);
     }
-    else if (getAncestorInvariantCondition()->getValue(temp) && !temp) {
+    else if (getAncestorInvariantCondition() && getAncestorInvariantCondition()->getValue(temp) && !temp) {
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(PARENT_FAILED);
     }
-    else if (getInvariantCondition()->getValue(temp) && !temp) {
+    else if (getInvariantCondition() && getInvariantCondition()->getValue(temp) && !temp) {
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(INVARIANT_CONDITION_FAILED);
     }
@@ -340,45 +339,50 @@ namespace PLEXIL
 
   NodeState CommandNode::getDestStateFromFinishing()
   {
-    Expression *cond = getAncestorExitCondition();
-    checkError(cond->isActive(),
-               "Ancestor exit for " << getNodeId() << " is inactive.");
+    Expression *cond;
     bool temp;
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Command node and ancestor exit true.");
-      return FAILING_STATE;
+    if ((cond = getAncestorExitCondition())) {
+      checkError(cond->isActive(),
+                 "Ancestor exit for " << getNodeId() << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Command node and ancestor exit true.");
+        return FAILING_STATE;
+      }
     }
 
-    cond = getExitCondition();
-    checkError(cond->isActive(),
-               "Exit for " << getNodeId() << " is inactive.");
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Command node and exit true.");
-      return FAILING_STATE;
+    if ((cond = getExitCondition())) {
+      checkError(cond->isActive(),
+                 "Exit for " << getNodeId() << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Command node and exit true.");
+        return FAILING_STATE;
+      }
     }
 
-    cond = getAncestorInvariantCondition();
-    checkError(cond->isActive(),
-               "Ancestor invariant for " << getNodeId() << " is inactive.");
-    if (cond->getValue(temp) && !temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Command node and ancestor invariant false.");
-      return FAILING_STATE;
+    if ((cond = getAncestorInvariantCondition())) {
+      checkError(cond->isActive(),
+                 "Ancestor invariant for " << getNodeId() << " is inactive.");
+      if (cond->getValue(temp) && !temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Command node and ancestor invariant false.");
+        return FAILING_STATE;
+      }
     }
 
-    cond = getInvariantCondition();
-    checkError(cond->isActive(),
-               "Invariant for " << getNodeId() << " is inactive.");
-    if (cond->getValue(temp) && !temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Command node, invariant false and end false or unknown.");
-      return FAILING_STATE;
+    if ((cond = getInvariantCondition())) {
+      checkError(cond->isActive(),
+                 "Invariant for " << getNodeId() << " is inactive.");
+      if (cond->getValue(temp) && !temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Command node, invariant false and end false or unknown.");
+        return FAILING_STATE;
+      }
     }
 
     cond = getActionCompleteCondition();
@@ -394,37 +398,39 @@ namespace PLEXIL
     debugMsg("Node:getDestState",
              " '" << m_nodeId << 
              "' destination from FINISHING: no state."
-             << "\n  Ancestor exit: " << getAncestorExitCondition()->toString() 
-             << "\n  Exit: " << getExitCondition()->toString()
-             << "\n  Ancestor invariant: " << getAncestorInvariantCondition()->toString() 
-             << "\n  Invariant: " << getInvariantCondition()->toString()
+             << "\n  Ancestor exit: "
+             << (getAncestorExitCondition() ? getAncestorExitCondition()->toString() : "NULL")
+             << "\n  Exit: " << (getExitCondition() ? getExitCondition()->toString() : "NULL")
+             << "\n  Ancestor invariant: "
+             << (getAncestorInvariantCondition() ? getAncestorInvariantCondition()->toString() : "NULL")
+             << "\n  Invariant: "
+             << (getInvariantCondition() ? getInvariantCondition()->toString() : "NULL")
              << "\n  Action complete: " << getActionCompleteCondition()->toString());
     return NO_NODE_STATE;
   }
 
   void CommandNode::transitionFromFinishing(NodeState destState)
   {
-    checkError(isPostConditionActive(),
-               "Post for " << getNodeId() << " is inactive.");
-
     bool temp;
-    if (getAncestorExitCondition()->getValue(temp) && temp) {
+    if (getAncestorExitCondition() && getAncestorExitCondition()->getValue(temp) && temp) {
       setNodeOutcome(INTERRUPTED_OUTCOME);
       setNodeFailureType(PARENT_EXITED);
     }
-    else if (getExitCondition()->getValue(temp) && temp) {
+    else if (getExitCondition() && getExitCondition()->getValue(temp) && temp) {
       setNodeOutcome(INTERRUPTED_OUTCOME);
       setNodeFailureType(EXITED);
     }
-    else if (getAncestorInvariantCondition()->getValue(temp) && !temp) {
+    else if (getAncestorInvariantCondition() && getAncestorInvariantCondition()->getValue(temp) && !temp) {
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(PARENT_FAILED);
     }
-    else if (getInvariantCondition()->getValue(temp) && !temp) {
+    else if (getInvariantCondition() && getInvariantCondition()->getValue(temp) && !temp) {
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(INVARIANT_CONDITION_FAILED);
     }
-    else if (!getPostCondition()->getValue(temp) || !temp) {
+    else if (getPostCondition() && (!getPostCondition()->getValue(temp) || !temp)) {
+      checkError(isPostConditionActive(),
+                 "CommandNode::transitionFromExecuting: Post for " << m_nodeId << " is inactive.");
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(POST_CONDITION_FAILED);
     }

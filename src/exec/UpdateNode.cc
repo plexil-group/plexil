@@ -133,14 +133,13 @@ namespace PLEXIL
   void UpdateNode::createConditionWrappers()
   {
     Expression *ack = m_update->getAck();
-    if (m_conditions[endIdx] == TRUE_EXP()) {
+    if (!(m_conditions[endIdx]) || m_conditions[endIdx] == TRUE_EXP()) {
       // Default - don't wrap, replace - (True && anything) == anything
       m_conditions[endIdx] = ack;
       ack->addListener(&m_listener);
       m_garbageConditions[endIdx] = false;
     }
     else {
-      // TODO: optimize to not create wrapper if end condition is constant and true
       // Wrap user-provided condition
       removeConditionListener(endIdx);
       Expression *realEnd =
@@ -181,64 +180,64 @@ namespace PLEXIL
 
   NodeState UpdateNode::getDestStateFromExecuting()
   {
-    Expression *cond = getAncestorExitCondition();
-    checkError(cond->isActive(),
-               "Ancestor exit for " << m_nodeId << " is inactive.");
+    Expression *cond;
     bool temp;
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Update node and ancestor exit true.");
-      return FAILING_STATE;
+    if ((cond = getAncestorExitCondition())) {
+      checkError(cond->isActive(),
+                 "Ancestor exit for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Update node and ancestor exit true.");
+        return FAILING_STATE;
+      }
     }
 
-    cond = getExitCondition();
-    checkError(cond->isActive(),
-               "Exit for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Update node and exit true.");
-      return FAILING_STATE;
+    if ((cond = getExitCondition())) {
+      checkError(cond->isActive(),
+                 "Exit for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Update node and exit true.");
+        return FAILING_STATE;
+      }
     }
 
-    cond = getAncestorInvariantCondition();
-    checkError(cond->isActive(),
-               "Ancestor invariant for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && !temp) {
+    if ((cond = getAncestorInvariantCondition())) {
+      checkError(cond->isActive(),
+                 "Ancestor invariant for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Update node and ancestor invariant false.");
         return FAILING_STATE;
+      }
     }
 
-    cond = getInvariantCondition();
-    checkError(cond->isActive(),
-               "Invariant for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && !temp) {
-      debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: FAILING. Update node and invariant false.");
-      return FAILING_STATE;
+    if ((cond = getInvariantCondition())) {
+      checkError(cond->isActive(),
+                 "Invariant for " << m_nodeId << " is inactive.");
+      if (cond->getValue(temp) && !temp) {
+        debugMsg("Node:getDestState",
+                 " '" << m_nodeId << 
+                 "' destination: FAILING. Update node and invariant false.");
+        return FAILING_STATE;
+      }
     }
 
-    cond = getEndCondition();
-    checkError(cond->isActive(),
-               "End for " << m_nodeId << " is inactive.");
-    if (cond->getValue(temp) && temp) {
+    if ((cond = getEndCondition()) && (!cond->getValue(temp) || !temp)) {
+      checkError(cond->isActive(),
+                 "End for " << m_nodeId << " is inactive.");
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << 
-               "' destination: ITERATION_ENDED.  Update node and end condition true.");
-      return ITERATION_ENDED_STATE;
+               " '" << m_nodeId << "' destination from EXECUTING: no state.");
+      return NO_NODE_STATE;
     }
-      
+
     debugMsg("Node:getDestState",
              " '" << m_nodeId << 
-             "' destination from EXECUTING: no state.\n  Ancestor invariant: " 
-             << getAncestorInvariantCondition()->toString()
-             << "\n  Invariant: " << getInvariantCondition()->toString() 
-             << "\n  End: " << getEndCondition()->toString());
-    return NO_NODE_STATE;
+             "' destination: ITERATION_ENDED.  Update node and end condition true.");
+    return ITERATION_ENDED_STATE;
   }
 
   void UpdateNode::transitionFromExecuting(NodeState destState)
@@ -249,33 +248,31 @@ namespace PLEXIL
                << nodeStateName(destState) << "'");
 
     bool temp;
-    if (getAncestorExitCondition()->getValue(temp) && temp) {
+    if (getAncestorExitCondition() && getAncestorExitCondition()->getValue(temp) && temp) {
       setNodeOutcome(INTERRUPTED_OUTCOME);
       setNodeFailureType(PARENT_EXITED);
     }
-    else if (getExitCondition()->getValue(temp) && temp) {
+    else if (getExitCondition() && getExitCondition()->getValue(temp) && temp) {
       setNodeOutcome(INTERRUPTED_OUTCOME);
       setNodeFailureType(EXITED);
     }
-    else if (getAncestorInvariantCondition()->getValue(temp) && !temp) {
+    else if (getAncestorInvariantCondition() && getAncestorInvariantCondition()->getValue(temp) && !temp) {
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(PARENT_FAILED);
     }
-    else if (getInvariantCondition()->getValue(temp) && !temp) {
+    else if (getInvariantCondition() && getInvariantCondition()->getValue(temp) && !temp) {
       setNodeOutcome(FAILURE_OUTCOME);
       setNodeFailureType(INVARIANT_CONDITION_FAILED);
     }
-    else { // End true -> ITERATION_ENDED
+    // End true -> ITERATION_ENDED
+    else if (getPostCondition() && (!getPostCondition()->getValue(temp) || !temp)) { 
       checkError(isPostConditionActive(),
                  "AssignmentNode::transitionFromExecuting: Post for " << m_nodeId << " is inactive.");
-      if (getPostCondition()->getValue(temp) && temp) {
-        setNodeOutcome(SUCCESS_OUTCOME);
-      }
-      else {
-        setNodeOutcome(FAILURE_OUTCOME);
-        setNodeFailureType(POST_CONDITION_FAILED);
-      }
+      setNodeOutcome(FAILURE_OUTCOME);
+      setNodeFailureType(POST_CONDITION_FAILED);
     }
+    else
+      setNodeOutcome(SUCCESS_OUTCOME);
 
     deactivateEndCondition();
     deactivateExitCondition();

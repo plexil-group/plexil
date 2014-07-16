@@ -556,12 +556,6 @@ namespace PLEXIL {
     // Internal versions
     //
 
-    /**
-     * @brief Sets the default variables for the conditions and establishes the internal conditions that are dependent on parent conditions
-     *
-     */
-    void setConditionDefaults();
-
     void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
     void ensureSortedVariableNames() const;
 
