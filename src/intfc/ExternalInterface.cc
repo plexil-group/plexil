@@ -116,8 +116,7 @@ namespace PLEXIL
         debugMsg("Test:testOutput", 
                  "Permission to execute " << cmd->getName()
                  << " has been denied by the resource arbiter.");
-        // FIXME: if we have a queue, this should go through it.
-        commandHandleReturn(cmd, COMMAND_DENIED);
+        reportCommandArbitrationFailure(cmd);
       }
     }
     m_commandsToExecute.clear();

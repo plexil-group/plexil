@@ -39,6 +39,7 @@
 
 #include <cerrno>
 #include <cmath> // for modf
+#include <iomanip>
 
 namespace PLEXIL
 {
@@ -80,7 +81,7 @@ namespace PLEXIL
   bool TimeAdapter::initialize()
   {
     // Automatically register self for time
-    g_configuration->registerLookupInterface("time", getId());
+    g_configuration->registerLookupInterface("time", this);
     return true;
   }
 
@@ -189,6 +190,7 @@ namespace PLEXIL
     assertTrueMsg(state == State::timeState(),
                   "TimeAdapter does not implement lookups for state " << state);
 
+    debugMsg("TimeAdapter:setThresholds", " setting wakeup at " << std::setprecision(15) << hi);
     if (setTimer(hi)) {
       debugMsg("TimeAdapter:setThresholds",
                " timer set for " << hi);
@@ -255,14 +257,10 @@ namespace PLEXIL
 #endif // PLEXIL_WITH_THREADS
 
   /**
-   * @brief Report the current time to the Exec as an asynchronous lookup value.
+   * @brief Wake up the exec
    */
   void TimeAdapter::timerTimeout()
   {
-    // report the current time and kick-start the Exec
-    double time = getCurrentTime();
-    debugMsg("TimeAdapter:timerTimeout", " at " << time);
-    m_execInterface.handleValueChange(State::timeState(), time);
     m_execInterface.notifyOfExternalEvent();
   }
 

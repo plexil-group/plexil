@@ -28,6 +28,7 @@
 
 #include "ArrayImpl.hh"
 #include "CachedValue.hh"
+#include "Debug.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh" // for timestamp access
 #include "StateCacheEntry.hh"
@@ -414,6 +415,7 @@ namespace PLEXIL
 
     void setImpl(CachedValue const *value, Expression const *tolerance)
     {
+      debugMsg("LookupOnChange:setThresholds", " entered");
       check_error_1(value); // paranoid check
       check_error_1(tolerance); // paranoid check
       NUM base, tol;
@@ -469,6 +471,7 @@ namespace PLEXIL
       m_tolerance(tolerance),
       m_toleranceIsGarbage(toleranceIsGarbage)
   {
+    debugMsg("LookupOnChange", " constructor");
     // Check that tolerance is of compatible type
     assertTrue_2(tolerance,
                  "LookupOnChange constructor: no tolerance expression supplied");
@@ -495,6 +498,7 @@ namespace PLEXIL
 
   void LookupOnChange::handleActivate()
   {
+    debugMsg("LookupOnChange:handleActivate", " called");
     Lookup::handleActivate(); // may register lookup if state known,
                               // may cause calls to handleChange(), valueChanged()
     m_tolerance->activate();  // may cause calls to handleChange()
@@ -505,6 +509,7 @@ namespace PLEXIL
   // TODO: Optimization opportunity if state is known to be constant
   void LookupOnChange::handleDeactivate()
   {
+    debugMsg("LookupOnChange:handleDeactivate", " called");
     Lookup::handleDeactivate();
     m_tolerance->deactivate();
     delete m_thresholds;
@@ -547,16 +552,17 @@ namespace PLEXIL
       // If no threshold, establish one and cache current value
       if (!m_thresholds) {
         m_thresholds = ThresholdCacheFactory(this->m_entry->valueType());
-        m_cachedValue = this->m_entry->cachedValue()->clone();
+        m_cachedValue = val->clone();
         m_thresholds->setThresholds(val, m_tolerance);
+        m_entry->setThresholds(m_tolerance);
         return true;
       }
       else {
         // Have previous value and thresholds
-        // Have the thresholds changed?
-        if (m_thresholds->toleranceChanged(m_tolerance)) {
+        // Check whether the thresholds have changed
+        if (m_thresholds->toleranceChanged(m_tolerance))
           m_thresholds->setThresholds(m_cachedValue, m_tolerance);
-        }
+
         // Has the (possibly updated) threshold been exceeded?
         if (m_thresholds->thresholdsExceeded(val)) {
           // TODO? Check that value hasn't changed type

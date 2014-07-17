@@ -34,7 +34,8 @@
 namespace PLEXIL
 {
   ExecListenerHub::ExecListenerHub()
-    : m_id(this)
+    : m_listeners(),
+      m_id(this)
   {
   }
 

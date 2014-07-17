@@ -29,9 +29,6 @@
 
 #include "pugixml.hpp"
 
-#include "Id.hh"
-#include "Value.hh"
-
 #include <map>
 #include <set>
 #include <vector>
@@ -46,11 +43,6 @@ namespace PLEXIL
   class Update;
 
   class AdapterExecInterface;
-  class InterfaceAdapter;
-  typedef Id<InterfaceAdapter> InterfaceAdapterId;
-
-
-
 
   /**
    * @brief An abstract base class for interfacing the PLEXIL Universal Exec
@@ -171,7 +163,7 @@ namespace PLEXIL
 
     /**
      * @brief Abort the pending command.
-     * @param cmd Id of the descriptor of the command being aborted.
+     * @param cmd Pointer to the command being aborted.
      * @note Derived classes may implement this method.
      */
     virtual void invokeAbort(Command *cmd);
@@ -182,14 +174,6 @@ namespace PLEXIL
      * @note This is a default method; adapters are free to override it.
      */
     virtual void registerAdapter();
-
-    /**
-     * @brief Get the ID of this instance.
-     */
-    InterfaceAdapterId getId()
-    {
-      return m_id;
-    }
 
     /**
      * @brief Get the configuration XML for this instance.
@@ -227,10 +211,7 @@ namespace PLEXIL
     //
 
     const pugi::xml_node m_xml;
-    InterfaceAdapterId m_id;
   };
-
-  typedef Id<InterfaceAdapter> InterfaceAdapterId;
 }
 
 #endif // INTERFACE_ADAPTER_H

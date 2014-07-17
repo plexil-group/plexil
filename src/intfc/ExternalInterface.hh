@@ -200,6 +200,11 @@ namespace PLEXIL {
     //
 
     /**
+     * @brief Report the failure in the appropriate way for the application.
+     */
+    virtual void reportCommandArbitrationFailure(Command *cmd) = 0;
+
+    /**
      * @brief Schedule this command for execution.
      */
     virtual void executeCommand(Command *cmd) = 0;

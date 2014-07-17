@@ -42,16 +42,14 @@ namespace PLEXIL
 
   InterfaceAdapter::InterfaceAdapter(AdapterExecInterface& execInterface)
     : m_execInterface(execInterface),
-      m_xml(),
-      m_id(this)
+      m_xml()
   {
   }
 
   InterfaceAdapter::InterfaceAdapter(AdapterExecInterface& execInterface, 
                                      const pugi::xml_node& xml)
     : m_execInterface(execInterface),
-      m_xml(xml),
-      m_id(this)
+      m_xml(xml)
   {
   }
 
@@ -61,7 +59,6 @@ namespace PLEXIL
 
   InterfaceAdapter::~InterfaceAdapter()
   {
-    m_id.remove();
   }
 
 
@@ -122,7 +119,7 @@ namespace PLEXIL
    */
   void InterfaceAdapter::registerAdapter()
   {
-    g_configuration->defaultRegisterAdapter(m_id);
+    g_configuration->defaultRegisterAdapter(this);
   }
 
 }

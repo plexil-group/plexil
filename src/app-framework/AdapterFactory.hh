@@ -45,8 +45,6 @@ namespace PLEXIL
   //
 
   class InterfaceAdapter;
-  typedef Id<InterfaceAdapter> InterfaceAdapterId;
-
   class AdapterExecInterface;
 
   /**
@@ -65,8 +63,8 @@ namespace PLEXIL
      * @return The Id for the new InterfaceAdapter.  May not be unique.
      */
 
-    static InterfaceAdapterId createInstance(const pugi::xml_node& xml,
-                                             AdapterExecInterface& execInterface);
+    static InterfaceAdapter *createInstance(const pugi::xml_node& xml,
+                                            AdapterExecInterface& execInterface);
 
 
     /**
@@ -78,9 +76,9 @@ namespace PLEXIL
      * @return The Id for the new InterfaceAdapter.  May not be unique.
      */
 
-    static InterfaceAdapterId createInstance(std::string const& name, 
-                                             const pugi::xml_node& xml,
-                                             AdapterExecInterface& execInterface);
+    static InterfaceAdapter *createInstance(std::string const& name, 
+                                            const pugi::xml_node& xml,
+                                            AdapterExecInterface& execInterface);
 
     /**
      * @brief Creates a new InterfaceAdapter instance with the type associated with the name and
@@ -93,10 +91,10 @@ namespace PLEXIL
      * @return The Id for the new InterfaceAdapter.  If wasCreated is set to false, is not unique.
      */
 
-    static InterfaceAdapterId createInstance(std::string const& name,
-                                             const pugi::xml_node& xml,
-                                             AdapterExecInterface& execInterface,
-                                             bool& wasCreated);
+    static InterfaceAdapter *createInstance(std::string const& name,
+                                            const pugi::xml_node& xml,
+                                            AdapterExecInterface& execInterface,
+                                            bool& wasCreated);
 
     /**
      * @brief Checks whether or not the given AdapterFactory is registered.
@@ -132,12 +130,12 @@ namespace PLEXIL
      *                   variable will be set to true if new object created, false otherwise.
      * @return The Id for the new InterfaceAdapter.
      */
-    virtual InterfaceAdapterId create(const pugi::xml_node& xml,
-                                      AdapterExecInterface& execInterface,
-                                      bool& wasCreated) const = 0;
+    virtual InterfaceAdapter *create(const pugi::xml_node& xml,
+                                     AdapterExecInterface& execInterface,
+                                     bool& wasCreated) const = 0;
 
     AdapterFactory(std::string const& name)
-    : m_name(name)
+      : m_name(name)
     {
       registerFactory(m_name, this);
     }
@@ -166,7 +164,7 @@ namespace PLEXIL
   {
   public:
     ConcreteAdapterFactory(std::string const& name)
-    : AdapterFactory(name) 
+      : AdapterFactory(name) 
     {}
 
   private:
@@ -184,11 +182,11 @@ namespace PLEXIL
      * @return The Id for the new InterfaceAdapter.
      */
 
-    InterfaceAdapterId create(const pugi::xml_node& xml,
-                              AdapterExecInterface& execInterface,
-                              bool& wasCreated) const
+    InterfaceAdapter *create(const pugi::xml_node& xml,
+                             AdapterExecInterface& execInterface,
+                             bool& wasCreated) const
     {
-      InterfaceAdapterId result = (new AdapterType(execInterface, xml))->getId();
+      InterfaceAdapter *result = new AdapterType(execInterface, xml);
       wasCreated = true;
       return result;
     }

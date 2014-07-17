@@ -56,7 +56,6 @@ namespace PLEXIL
 
   // forward references
   class InterfaceAdapter;
-  typedef Id<InterfaceAdapter> InterfaceAdapterId;
 
   class ExecApplication;
   typedef Id<ExecApplication> ExecApplicationId;

@@ -38,12 +38,14 @@ endif
 
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
  AdapterFactory.hh DummyAdapter.hh ExecApplication.hh ExecListenerFactory.hh \
- InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh UtilityAdapter.hh
+ InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh \
+ SerializedInputQueue.hh SimpleInputQueue.hh UtilityAdapter.hh
 
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
  AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc ExecApplication.cc \
  ExecListenerFactory.cc InterfaceAdapter.cc InterfaceManager.cc \
- ListenerFilters.cc UtilityAdapter.cc
+ ListenerFilters.cc SerializedInputQueue.cc SimpleInputQueue.cc \
+ UtilityAdapter.cc
 
 # FIXME: if we can figure out whether unistd.h contains a suitable value of _POSIX_TIMERS,
 # include only the appropriate sources for the platform.

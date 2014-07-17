@@ -46,8 +46,8 @@ UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
 
 bool UtilityAdapter::initialize()
 {
-  g_configuration->registerCommandInterface("print", getId());
-  g_configuration->registerCommandInterface("pprint", getId());
+  g_configuration->registerCommandInterface("print", this);
+  g_configuration->registerCommandInterface("pprint", this);
   debugMsg("UtilityAdapter", " initialized.");
   return true;
 }

@@ -46,7 +46,7 @@ namespace PLEXIL
    * @return The Id for the new InterfaceAdapter.  May not be unique.
    */
 
-  InterfaceAdapterId 
+  InterfaceAdapter *
   AdapterFactory::createInstance(const pugi::xml_node& xml,
                                  AdapterExecInterface& execInterface)
   {
@@ -77,7 +77,7 @@ namespace PLEXIL
    * @return The Id for the new InterfaceAdapter.  May not be unique.
    */
 
-  InterfaceAdapterId 
+  InterfaceAdapter *
   AdapterFactory::createInstance(std::string const& name,
                                  const pugi::xml_node& xml,
                                  AdapterExecInterface& execInterface)
@@ -97,7 +97,7 @@ namespace PLEXIL
    * @return The Id for the new InterfaceAdapter.  If wasCreated is set to false, is not unique.
    */
 
-  InterfaceAdapterId 
+  InterfaceAdapter *
   AdapterFactory::createInstance(std::string const& name,
                                  const pugi::xml_node& xml,
                                  AdapterExecInterface& execInterface,
@@ -107,17 +107,17 @@ namespace PLEXIL
 #ifdef HAVE_DLFCN_H
     if (it == factoryMap().end()) {
       debugMsg("AdapterFactory:createInstance", 
-	       "Attempting to dynamically load adapter type \""
-	       << name.c_str() << "\"");
+               "Attempting to dynamically load adapter type \""
+               << name.c_str() << "\"");
       // Attempt to dynamically load library
       const char* libCPath =
-	xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
+        xml.attribute(InterfaceSchema::LIB_PATH_ATTR()).value();
       if (!DynamicLoader::loadModule(name.c_str(), libCPath)) {
-	debugMsg("AdapterFactory::createInstance",
-		 " unable to load module for adapter type \""
-		 << name.c_str() << "\"");
-	wasCreated = false;
-	return InterfaceAdapterId::noId();
+        debugMsg("AdapterFactory::createInstance",
+                 " unable to load module for adapter type \""
+                 << name.c_str() << "\"");
+        wasCreated = false;
+        return NULL;
       }
 
       // See if it's registered now
@@ -129,9 +129,9 @@ namespace PLEXIL
       debugMsg("AdapterFactory:createInstance", 
                " No adapter factory registered for name \"" << name.c_str() << "\".");
       wasCreated = false;
-      return InterfaceAdapterId::noId();
+      return NULL;
     }
-    InterfaceAdapterId retval = it->second->create(xml, execInterface, wasCreated);
+    InterfaceAdapter *retval = it->second->create(xml, execInterface, wasCreated);
     debugMsg("AdapterFactory:createInstance", " Created adapter " << name.c_str());
     return retval;
   }

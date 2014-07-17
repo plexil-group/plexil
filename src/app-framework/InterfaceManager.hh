@@ -49,13 +49,8 @@ namespace PLEXIL
   class ExecApplication;
 
   class InterfaceAdapter;
-  typedef Id<InterfaceAdapter> InterfaceAdapterId;
 
   class AdapterConfiguration;
-  typedef Id<AdapterConfiguration> AdapterConfigurationId;
-
-  class InterfaceManager;
-  typedef Id<InterfaceManager> InterfaceManagerId;
 
   class ExecListenerHub;
   typedef Id<ExecListenerHub> ExecListenerHubId;
@@ -88,14 +83,6 @@ namespace PLEXIL
      * @brief Destructor.
      */
     virtual ~InterfaceManager();
-
-    /**
-     * @brief Get internal ID pointer.
-     */
-    const InterfaceManagerId& getInterfaceManagerId() const
-    {
-      return m_interfaceManagerId;
-    }
 
     /**
      * @brief Get parent application.
@@ -219,14 +206,23 @@ namespace PLEXIL
     void executeCommand(Command *cmd);
 
     /**
-     * @brief Abort the pending command with the supplied name and arguments.
+     * @brief Report the failure in the appropriate way for the application.
+     */
+    void reportCommandArbitrationFailure(Command *cmd);
+
+    /**
+     * @brief Abort one command in execution.
      * @param cmd The command.
      */
     void invokeAbort(Command *cmd);
 
     void executeUpdate(Update *upd);
 
+    // Use most recent cached value of time
     double currentTime();
+
+    // Query interface and actually retrieve the current time
+    double queryTime();
 
     //
     // API to interface adapters
@@ -312,9 +308,6 @@ namespace PLEXIL
     // Private member variables
     //
 
-    //* ID as an interface manager
-    InterfaceManagerId m_interfaceManagerId;
-
     //* Parent object
     ExecApplication& m_application;
 
@@ -332,7 +325,7 @@ namespace PLEXIL
     unsigned int m_lastMark;
   };
 
-  extern InterfaceManagerId g_manager;
+  extern InterfaceManager *g_manager;
 
 }
 

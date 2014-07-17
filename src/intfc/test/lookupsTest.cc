@@ -134,6 +134,9 @@ protected:
 
   void executeCommand(Command * /* cmd */)
   {}
+  
+  void reportCommandArbitrationFailure(Command * /* cmd */)
+  {}
 
   void invokeAbort(Command * /* cmd */)
   {}

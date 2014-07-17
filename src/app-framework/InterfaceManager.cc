@@ -26,8 +26,6 @@
 
 //
 // TODO:
-//  - implement tracking of active commands (?)
-//  - implement un/registerCommandReturnValue()
 //  - utilities for adapters?
 //
 
@@ -46,18 +44,19 @@
 #include "ExecListenerFactory.hh"
 #include "ExecListenerFilter.hh"
 #include "ExecListenerHub.hh"
+#include "InputQueue.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceSchema.hh"
 #include "Node.hh"
 #include "PlexilExec.hh"
 #include "PlexilXmlParser.hh"
 #include "QueueEntry.hh"
-#include "SimpleInputQueue.hh" // FIXME: add lockable variety
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 #include "Update.hh"
 
 #include <cstring>
+#include <iomanip>
 #include <limits>
 #include <sstream>
 
@@ -69,13 +68,11 @@ namespace PLEXIL
   /**
    * @brief Default constructor.
    */
-  InterfaceManager::InterfaceManager(ExecApplication & app)
+  InterfaceManager::InterfaceManager(ExecApplication &app)
     : ExternalInterface(),
       AdapterExecInterface(),
-      m_interfaceManagerId(this, ExternalInterface::getId()),
       m_application(app),
-      // *** FIXME *** Allow other types to be specified
-      m_inputQueue(new SimpleInputQueue()),
+      m_inputQueue(NULL), // configurable
       m_currentTime(std::numeric_limits<double>::min()),
       m_lastMark(0)
   {
@@ -99,8 +96,13 @@ namespace PLEXIL
    */
   bool InterfaceManager::initialize()
   {
-    assertTrue_1(g_configuration.isId());
-    return g_configuration->initialize();
+    if (!g_configuration)
+      return false;
+    bool result = g_configuration->initialize();
+    m_inputQueue = g_configuration->getInputQueue();
+    if (!m_inputQueue)
+      return false;
+    return result;
   }
 
   /**
@@ -109,7 +111,7 @@ namespace PLEXIL
    */
   bool InterfaceManager::start()
   {
-    assertTrue_1(g_configuration.isId());
+    assertTrue_1(g_configuration);
     return g_configuration->start();
   }
 
@@ -119,7 +121,7 @@ namespace PLEXIL
    */
   bool InterfaceManager::stop()
   {
-    assertTrue_1(g_configuration.isId());
+    assertTrue_1(g_configuration);
     return g_configuration->stop();
   }
 
@@ -134,7 +136,7 @@ namespace PLEXIL
     // reset queue etc. to freshly initialized state
     // *** NYI ***
 
-    assertTrue_1(g_configuration.isId());
+    assertTrue_1(g_configuration);
     return g_configuration->reset();
   }
 
@@ -144,7 +146,7 @@ namespace PLEXIL
    */
   bool InterfaceManager::shutdown()
   {
-    assertTrue_1(g_configuration.isId());
+    assertTrue_1(g_configuration);
     bool success = g_configuration->stop();
 
     // Clean up
@@ -163,6 +165,7 @@ namespace PLEXIL
    */
   void InterfaceManager::resetQueue()
   {
+    assertTrue_1(m_inputQueue);
     m_inputQueue->flush();
   }
     
@@ -202,7 +205,8 @@ namespace PLEXIL
 #if PARANOID_ABOUT_TIME_DIRECTION
           assertTrue_2(newValue >= m_currentTime, "Time is going backwards!");
 #endif
-          debugMsg("InterfaceManager:processQueue", " setting current time to " << newValue);
+          debugMsg("InterfaceManager:processQueue",
+                   " setting current time to " << std::setprecision(15) << newValue);
           m_currentTime = newValue;
         }
 
@@ -316,8 +320,8 @@ namespace PLEXIL
   InterfaceManager::lookupNow(State const &state, StateCacheEntry &cacheEntry)
   {
     debugMsg("InterfaceManager:lookupNow", " of " << state);
-    InterfaceAdapterId adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter.isNoId()) {
+    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
+    if (!adapter) {
       warn("lookupNow: No interface adapter found for lookup "
            << state.name() << ", returning UNKNOWN");
       return;
@@ -345,8 +349,8 @@ namespace PLEXIL
   void InterfaceManager::subscribe(const State& state)
   {
     debugMsg("InterfaceManager:subscribe", " to state " << state);
-    InterfaceAdapterId adapter = g_configuration->getLookupInterface(state.name());
-    if (adapter.isNoId()) {
+    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
+    if (!adapter) {
       warn("subscribe: No interface adapter found for lookup " << state);
       return;
     }
@@ -359,8 +363,8 @@ namespace PLEXIL
   void InterfaceManager::unsubscribe(const State& state)
   {
     debugMsg("InterfaceManager:unsubscribe", " to state " << state);
-    InterfaceAdapterId adapter = g_configuration->getLookupInterface(state.name());
-    if (adapter.isNoId()) {
+    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
+    if (!adapter) {
       warn("unsubscribe: No interface adapter found for lookup " << state);
       return;
     }
@@ -376,8 +380,8 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, double hi, double lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    InterfaceAdapterId adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter.isNoId()) {
+    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
+    if (!adapter) {
       warn("setThresholds: No interface adapter found for lookup "
            << state);
       return;
@@ -388,8 +392,8 @@ namespace PLEXIL
   void InterfaceManager::setThresholds(const State& state, int32_t hi, int32_t lo)
   {
     debugMsg("InterfaceManager:setThresholds", " for state " << state);
-    InterfaceAdapterId adapter = g_configuration->getLookupInterface(state.name());
-    if (!adapter.isNoId()) {
+    InterfaceAdapter *adapter = g_configuration->getLookupInterface(state.name());
+    if (!adapter) {
       warn("setThresholds: No interface adapter found for lookup "
            << state);
       return;
@@ -404,8 +408,8 @@ namespace PLEXIL
   InterfaceManager::executeUpdate(Update *update)
   {
     assertTrue_1(update);
-    InterfaceAdapterId intf = g_configuration->getPlannerUpdateInterface();
-    if (intf.isNoId()) {
+    InterfaceAdapter *intf = g_configuration->getPlannerUpdateInterface();
+    if (!intf) {
       // Fake the ack
       g_interface->acknowledgeUpdate(update, true);
       return;
@@ -424,8 +428,8 @@ namespace PLEXIL
   void
   InterfaceManager::executeCommand(Command *cmd)
   {
-    InterfaceAdapterId intf = g_configuration->getCommandInterface(cmd->getName());
-    if (intf.isId()) {
+    InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
+    if (intf) {
       intf->executeCommand(cmd);
     }
     else {
@@ -436,13 +440,21 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Abort the pending command with the supplied name and arguments.
+   * @brief Report the failure in the appropriate way for the application.
+   */
+  void InterfaceManager::reportCommandArbitrationFailure(Command *cmd)
+  {
+    this->handleCommandAck(cmd, COMMAND_DENIED);
+  }
+
+  /**
+   * @brief Abort one command in execution.
    * @param cmd The command.
    */
   void InterfaceManager::invokeAbort(Command *cmd)
   {
-    InterfaceAdapterId intf = g_configuration->getCommandInterface(cmd->getName());
-    if (intf.isId()) {
+    InterfaceAdapter *intf = g_configuration->getCommandInterface(cmd->getName());
+    if (intf) {
       intf->invokeAbort(cmd);
     }
     else {
@@ -454,7 +466,17 @@ namespace PLEXIL
   double 
   InterfaceManager::currentTime()
   {
-    // *** punt for now
+    return m_currentTime;
+  }
+
+  double
+  InterfaceManager::queryTime()
+  {
+    assertTrue_1(g_configuration);
+    debugMsg("InterfaceManager:queryTime", " called");
+    StateCacheEntry *cacheEntry = 
+      StateCacheMap::instance().ensureStateCacheEntry(State::timeState());
+    this->lookupNow(State::timeState(), *cacheEntry); // sets m_current time as side effect
     return m_currentTime;
   }
 
@@ -470,6 +492,7 @@ namespace PLEXIL
   void
   InterfaceManager::handleValueChange(const State& state, const Value& value)
   {
+    assertTrue_1(m_inputQueue);
     debugMsg("InterfaceManager:handleValueChange",
              " for state " << state << ", new value = " << value);
     QueueEntry *entry = m_inputQueue->allocate();
@@ -483,6 +506,7 @@ namespace PLEXIL
   {
     assertTrue_1(cmd);
     assertTrue_1(value > NO_COMMAND_HANDLE && value < COMMAND_HANDLE_MAX);
+    assertTrue_1(m_inputQueue);
     debugMsg("InterfaceManager:handleCommandAck",
              " for command " << cmd->getCommand()
              << ", handle = " << commandHandleValueName(value));
@@ -496,6 +520,7 @@ namespace PLEXIL
   InterfaceManager::handleCommandReturn(Command * cmd, Value const &value)
   {
     assertTrue_1(cmd);
+    assertTrue_1(m_inputQueue);
     debugMsg("InterfaceManager:handleCommandReturn",
              " for command " << cmd->getCommand()
              << ", value = " << value);
@@ -509,6 +534,7 @@ namespace PLEXIL
   InterfaceManager::handleCommandAbortAck(Command * cmd, bool ack)
   {
     assertTrue_1(cmd);
+    assertTrue_1(m_inputQueue);
     debugMsg("InterfaceManager:handleCommandAbortAck",
              " for command " << cmd->getCommand()
              << ", ack = " << (ack ? "true" : "false"));
@@ -522,6 +548,7 @@ namespace PLEXIL
   InterfaceManager::handleUpdateAck(Update * upd, bool ack)
   {
     assertTrue_1(upd);
+    assertTrue_1(m_inputQueue);
     debugMsg("InterfaceManager:handleUpdateAck",
              " for node " << upd->getSource()->getNodeId()
              << ", ack = " << (ack ? "true" : "false"));
@@ -540,6 +567,7 @@ namespace PLEXIL
   InterfaceManager::handleAddPlan(const pugi::xml_node& planXml)
     throw(ParserException)
   {
+    assertTrue_1(m_inputQueue);
     debugMsg("InterfaceManager:handleAddPlan", " (XML) entered");
 
     // check that the plan actually *has* a Node element!
@@ -564,6 +592,7 @@ namespace PLEXIL
   bool
   InterfaceManager::handleAddPlan(PlexilNodeId planStruct)
   {
+    assertTrue_1(m_inputQueue);
     checkError(planStruct.isId(),
                "InterfaceManager::handleAddPlan: Invalid PlexilNodeId");
 
@@ -578,7 +607,7 @@ namespace PLEXIL
 
     // Check whether plan is a library w/o a caller
     PlexilInterfaceId interface = planStruct->interface();
-    if (interface.isId()) {
+    if (interface) {
       debugMsg("InterfaceManager:handleAddPlan", 
                " for " << planStruct->nodeId() << " failed; root node may not have interface variables");
       return false;
@@ -627,12 +656,13 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Notify the executive of a new plan.
-   * @param planStruct The PlexilNode representation of the new plan.
+   * @brief Notify the executive of a new library node.
+   * @param planStruct The PlexilNode representation of the new node.
    */
   void
   InterfaceManager::handleAddLibrary(PlexilNodeId planStruct)
   {
+    assertTrue_1(m_inputQueue);
     checkError(planStruct.isId(),
                "InterfaceManager::handleAddLibrary: Invalid PlexilNodeId");
     QueueEntry *entry = m_inputQueue->allocate();
@@ -697,6 +727,6 @@ namespace PLEXIL
   }
 
   // Initialize global variable
-  InterfaceManagerId g_manager;
+  InterfaceManager *g_manager = NULL;
 
 }

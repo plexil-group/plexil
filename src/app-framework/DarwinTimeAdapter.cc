@@ -41,6 +41,7 @@
 #include "timeval-utils.hh"
 #include <cerrno>
 #include <cmath> // for modf
+#include <iomanip>
 #include <mach/kern_return.h> // for KERN_ABORTED
 #include <sys/time.h> // for gettimeofday, itimerval
 
@@ -85,7 +86,7 @@ namespace PLEXIL
     assertTrueMsg(status == 0,
                   "TimeAdapter:getCurrentTime: gettimeofday() failed, errno = " << errno);
     double tym = timevalToDouble(tv);
-    debugMsg("TimeAdapter:getCurrentTime", " returning " << tym);
+    debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
     return tym;
   }
 

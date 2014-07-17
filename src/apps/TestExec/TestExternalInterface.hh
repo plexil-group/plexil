@@ -63,14 +63,17 @@ namespace PLEXIL
     void setThresholds(const State& state, double hi, double lo);
     void setThresholds(const State& state, int32_t hi, int32_t lo);
 
+    double currentTime();
+
+  protected:
+
     // Commands
     void executeCommand(Command *cmd);
+    void reportCommandArbitrationFailure(Command *cmd);
     void invokeAbort(Command *cmd);
 
     // Updates
     void executeUpdate(Update * update);
-
-    double currentTime();
 
   private:
     

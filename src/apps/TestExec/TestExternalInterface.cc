@@ -538,9 +538,16 @@ namespace PLEXIL
     }
   }
 
+  /**
+   * @brief Report the failure in the appropriate way for the application.
+   */
+  void TestExternalInterface::reportCommandArbitrationFailure(Command *cmd)
+  {
+    this->commandHandleReturn(cmd, COMMAND_DENIED);
+  }
 
   /**
-   * @brief Abort the pending command with the supplied name and arguments.
+   * @brief Abort one command in execution.
    * @param cmd The command.
    */
 

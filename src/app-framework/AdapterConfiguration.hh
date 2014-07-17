@@ -48,10 +48,7 @@ namespace PLEXIL {
   DECLARE_ID(ExecListenerHub);
 
   class InterfaceAdapter;
-  typedef Id<InterfaceAdapter> InterfaceAdapterId;
-
-  class AdapterConfiguration;
-  typedef Id<AdapterConfiguration> AdapterConfigurationId;
+  class InputQueue;
 
   class AdapterConfiguration {
   public:
@@ -65,13 +62,6 @@ namespace PLEXIL {
      * @brief Destructor.
      */
     ~AdapterConfiguration();
-
-    /**
-     * @brief Get the ID of this instance.
-     */
-    AdapterConfigurationId getId() {
-      return m_id;
-    }
 
     /**
      * @brief Constructs interface adapters from the provided XML.
@@ -114,7 +104,7 @@ namespace PLEXIL {
      * @brief Add an externally constructed interface adapter.
      * @param adapter The adapter ID.
      */
-    void addInterfaceAdapter(const InterfaceAdapterId& adapter);
+    void addInterfaceAdapter(InterfaceAdapter *adapter);
 
     /**
      * @brief Add an externally constructed ExecListener.
@@ -131,7 +121,7 @@ namespace PLEXIL {
      * @param adapter The interface adapter to be registered.
      */
 
-    void defaultRegisterAdapter(InterfaceAdapterId adapter);
+    void defaultRegisterAdapter(InterfaceAdapter *adapter);
 
     /**
      * @brief Register the given interface adapter for this command.
@@ -142,7 +132,7 @@ namespace PLEXIL {
      * @param intf The interface adapter to handle this command.
      */
     bool registerCommandInterface(std::string const &commandName,
-                  InterfaceAdapterId intf);
+                                  InterfaceAdapter *intf);
 
     /**
      * @brief Register the given interface adapter for lookups to this state.
@@ -153,7 +143,7 @@ namespace PLEXIL {
      * @param intf The interface adapter to handle this lookup.
      */
     bool registerLookupInterface(std::string const &stateName,
-                 InterfaceAdapterId intf);
+                                 InterfaceAdapter *intf);
 
     /**
      * @brief Register the given interface adapter for planner updates.
@@ -162,7 +152,7 @@ namespace PLEXIL {
               or setting the default planner update interface is not implemented.
      * @param intf The interface adapter to handle planner updates.
      */
-    bool registerPlannerUpdateInterface(InterfaceAdapterId intf);
+    bool registerPlannerUpdateInterface(InterfaceAdapter *intf);
 
     /**
      * @brief Register the given interface adapter as the default for all lookups and commands
@@ -171,7 +161,7 @@ namespace PLEXIL {
               or setting the default interface is not implemented.
      * @param intf The interface adapter to use as the default.
      */
-    bool setDefaultInterface(InterfaceAdapterId intf);
+    bool setDefaultInterface(InterfaceAdapter *intf);
 
     /**
      * @brief Register the given interface adapter as the default for lookups.
@@ -183,7 +173,7 @@ namespace PLEXIL {
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
-    bool setDefaultLookupInterface(InterfaceAdapterId intf);
+    bool setDefaultLookupInterface(InterfaceAdapter *intf);
 
     /**
      * @brief Register the given interface adapter as the default for commands.
@@ -194,51 +184,51 @@ namespace PLEXIL {
      * @param intf The interface adapter to use as the default.
      * @return True if successful, false if there is already a default adapter registered.
      */
-    bool setDefaultCommandInterface(InterfaceAdapterId intf);
+    bool setDefaultCommandInterface(InterfaceAdapter *intf);
 
     /**
      * @brief Return the interface adapter in effect for this command, whether
      specifically registered or default. May return NoId().
      * @param commandName The command.
      */
-    InterfaceAdapterId getCommandInterface(std::string const &commandName);
+    InterfaceAdapter *getCommandInterface(std::string const &commandName);
 
     /**
      * @brief Return the current default interface adapter for commands.
               May return NoId().
      */
-    InterfaceAdapterId getDefaultCommandInterface();
+    InterfaceAdapter *getDefaultCommandInterface();
 
     /**
      * @brief Return the interface adapter in effect for lookups with this state name,
      whether specifically registered or default. May return NoId().
      * @param stateName The state.
      */
-    InterfaceAdapterId getLookupInterface(std::string const& stateName);
+    InterfaceAdapter *getLookupInterface(std::string const& stateName);
 
     /**
      * @brief Return the current default interface adapter for lookups.
               May return NoId().
      */
-    InterfaceAdapterId getDefaultLookupInterface();
+    InterfaceAdapter *getDefaultLookupInterface();
 
     /**
      * @brief Return the interface adapter in effect for planner updates,
               whether specifically registered or default. May return NoId().
      */
-    InterfaceAdapterId getPlannerUpdateInterface();
+    InterfaceAdapter *getPlannerUpdateInterface();
 
     /**
      * @brief Return the current default interface adapter. May return NoId().
      */
-    InterfaceAdapterId getDefaultInterface();
+    InterfaceAdapter *getDefaultInterface();
 
-    std::set<InterfaceAdapterId> & getAdapters()
+    std::set<InterfaceAdapter *> & getAdapters()
     {
       return m_adapters;
     }
 
-    std::set<InterfaceAdapterId> const & getAdapters() const
+    std::set<InterfaceAdapter *> const & getAdapters() const
     {
       return m_adapters;
     }
@@ -251,7 +241,7 @@ namespace PLEXIL {
     /**
      * @brief Returns true if the given adapter is a known interface in the system. False otherwise
      */
-    bool isKnown(InterfaceAdapterId intf);
+    bool isKnown(InterfaceAdapter *intf);
 
     /**
      * @brief Clears the interface adapter registry.
@@ -298,33 +288,37 @@ namespace PLEXIL {
      */
     void addPlanPath(const std::vector<std::string>& libdirs);
 
+    /**
+     * @brief Construct the input queue specified by the configuration data.
+     * @return Pointer to instance of a class derived from InputQueue.
+     */
+    InputQueue *getInputQueue() const;
+
   private:
 
     /**
      * @brief Deletes the given adapter from the interface manager
      * @return true if the given adapter existed and was deleted. False if not found
      */
-    bool deleteAdapter(InterfaceAdapterId intf);
+    bool deleteAdapter(InterfaceAdapter *intf);
 
     /**
      * @brief Removes the adapter and deletes it from the manager iff nothing refers to it.
      */
-    void deleteIfUnknown(InterfaceAdapterId intf);
-
-    AdapterConfigurationId m_id;
+    void deleteIfUnknown(InterfaceAdapter *intf);
 
     //* Default InterfaceAdapters
-    InterfaceAdapterId m_defaultInterface;
-    InterfaceAdapterId m_defaultCommandInterface;
-    InterfaceAdapterId m_defaultLookupInterface;
+    InterfaceAdapter *m_defaultInterface;
+    InterfaceAdapter *m_defaultCommandInterface;
+    InterfaceAdapter *m_defaultLookupInterface;
 
     //* InterfaceAdapter to use for PlannerUpdate nodes
-    InterfaceAdapterId m_plannerUpdateInterface;
+    InterfaceAdapter *m_plannerUpdateInterface;
 
     // Maps by command/lookup
 
     // Interface adapter maps
-    typedef std::map<std::string, InterfaceAdapterId> InterfaceMap;
+    typedef std::map<std::string, InterfaceAdapter *> InterfaceMap;
     InterfaceMap m_lookupMap;
     InterfaceMap m_commandMap;
 
@@ -332,14 +326,14 @@ namespace PLEXIL {
     ExecListenerHubId m_listenerHub;
 
     //* Set of all known InterfaceAdapter instances
-    std::set<InterfaceAdapterId> m_adapters;
+    std::set<InterfaceAdapter *> m_adapters;
 
     //* List of directory names for plan file search paths
     std::vector<std::string> m_libraryPath;
     std::vector<std::string> m_planPath;
   };
 
-  extern AdapterConfigurationId g_configuration;
+  extern AdapterConfiguration *g_configuration;
 
 }
 

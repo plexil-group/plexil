@@ -24,17 +24,13 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-//
-// *** TO DO ***
-//  - Integrate all thread functionality here
-//
-
 #include "ExecApplication.hh"
 
 #include "AdapterConfiguration.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListener.hh"
+#include "Expressions.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
@@ -67,17 +63,18 @@ namespace PLEXIL
       m_blockedSignals[i] = 0;
 
     // connect exec and interface manager
-    g_configuration = (new AdapterConfiguration())->getId();
+    g_configuration = new AdapterConfiguration();
     g_exec = (new PlexilExec())->getId();
-    g_manager = (new InterfaceManager(*this))->getInterfaceManagerId();
+    g_manager = new InterfaceManager(*this);
     g_interface = g_manager->getId();
   }
 
   ExecApplication::~ExecApplication()
   {
-    delete (InterfaceManager *) g_manager;
+    delete g_configuration;
+    g_interface = ExternalInterfaceId::noId();
+    delete g_manager;
     delete (PlexilExec *) g_exec;
-    delete (AdapterConfiguration *) g_configuration;
   }
 
   /**
@@ -112,7 +109,7 @@ namespace PLEXIL
 
     if (m_state != APP_UNINITED) {
       debugMsg("ExecApplication:initialize",
-	       " application already initialized");
+               " application already initialized");
       return false;
     }
 
@@ -122,8 +119,7 @@ namespace PLEXIL
     // *** NYI ***
 
     // Initialize Exec static data structures
-    // *** FIXME ***
-    // initializeExpressions();
+    initializeExpressions();
 
     // Construct interfaces
     if (!g_configuration->constructInterfaces(configXml)) {
@@ -131,7 +127,6 @@ namespace PLEXIL
 	       " construction of interfaces failed");
       return false;
     }
-    
 
     // Initialize them
     if (!g_manager->initialize()) {
@@ -182,7 +177,7 @@ namespace PLEXIL
       if (g_manager->processQueue()) {
         do {
           debugMsg("ExecApplication:step", " Stepping exec");
-          g_exec->step(g_manager->currentTime());
+          g_exec->step(g_manager->queryTime());
         }
         while (g_exec->needsStep());
         debugMsg("ExecApplication:step", " Step complete and all nodes quiescent");
@@ -211,7 +206,7 @@ namespace PLEXIL
       debugMsg("ExecApplication:stepUntilQuiescent", " Checking interface queue");
       while (g_manager->processQueue() || g_exec->needsStep()) {
         debugMsg("ExecApplication:stepUntilQuiescent", " Stepping exec");
-        g_exec->step(g_manager->currentTime());
+        g_exec->step(g_manager->queryTime());
       }
       g_exec->deleteFinishedPlans();
     }
@@ -521,15 +516,18 @@ namespace PLEXIL
 #endif
     if (stepFirst) {
       debugMsg("ExecApplication:runExec", " Stepping exec because stepFirst is set");
-      g_exec->step(g_manager->currentTime());
+      g_exec->step(g_manager->queryTime());
     }
     else {
       g_exec->deleteFinishedPlans();
     }
+    // Must update time BEFORE checking whether step is needed
+    double currentTime = g_manager->queryTime(); // for effect
     while (!m_suspended && 
            (g_exec->needsStep() || g_manager->processQueue())) {
       debugMsg("ExecApplication:runExec", " Stepping exec");
-      g_exec->step(g_manager->currentTime());
+      g_exec->step(currentTime);
+      currentTime = g_manager->queryTime(); // for effect
     }
     condDebugMsg(!m_suspended, "ExecApplication:runExec", " No events are pending");
     condDebugMsg(m_suspended, "ExecApplication:runExec", " Suspended");
@@ -937,8 +935,6 @@ namespace PLEXIL
       return "*** ILLEGAL APPLICATION STATE ***";
       break;
     }
-    // just in case
-    return "*** ILLEGAL APPLICATION STATE ***";
   }
 
   /**
