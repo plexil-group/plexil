@@ -84,7 +84,7 @@ namespace PLEXIL
     type = Q_ADD_LIBRARY;
   }
 
-  void QueueEntry::initForMark(uintptr_t seq)
+  void QueueEntry::initForMark(unsigned int seq)
   {
     sequence = seq;
     type = Q_MARK;

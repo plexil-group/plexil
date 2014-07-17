@@ -59,7 +59,7 @@ namespace PLEXIL
       Update *update;
       State const *state;
       PlexilNode const *plan;
-      uintptr_t sequence;
+      unsigned int sequence;
     };
     Value value;
     QueueEntryType type;
@@ -77,7 +77,7 @@ namespace PLEXIL
     void initForAddPlan(PlexilNode const *p);
     void initForAddLibrary(PlexilNode const *p);
 
-    void initForMark(uintptr_t seq);
+    void initForMark(unsigned int seq);
 
   };
 
