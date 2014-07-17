@@ -71,7 +71,7 @@ namespace PLEXIL
 
   void StateCacheEntry::registerLookup(Lookup *l)
   {
-    bool unsubscribed = !m_lookups.empty();
+    bool unsubscribed = m_lookups.empty();
     m_lookups.push_back(l);
     if (unsubscribed)
       g_interface->subscribe(m_state);
@@ -81,27 +81,21 @@ namespace PLEXIL
   void StateCacheEntry::unregisterLookup(Lookup *l)
   {
     // Most likely to remove last item first, so check for that special case.
-    if (l == m_lookups.back()) {
+    if (l == m_lookups.back())
       m_lookups.pop_back();
-      if (m_lookups.empty()) {
-        g_interface->unsubscribe(m_state);
+    else {
+      // Do it the hard way.
+      for (std::vector<Lookup *>::iterator it = m_lookups.begin();
+           it != m_lookups.end();
+           ++it) {
+        if (l == *it) 
+          m_lookups.erase(it);
       }
-      return;
     }
 
-    // Standard C++ library sucks. 
-    // Should be able to do this in reverse order without gimmicks.
-    // For now, KISS.
-    for (std::vector<Lookup *>::iterator it = m_lookups.begin();
-         it != m_lookups.end();
-         ++it) {
-      if (l == *it) {
-        m_lookups.erase(it);
-        // TODO (?): Delete self if none left??
-        return;
-      }
+    if (m_lookups.empty()) {
+      g_interface->unsubscribe(m_state);
     }
-    // N.B. no error if not found
   }
 
   void StateCacheEntry::setThresholds(Expression const *tolerance)
