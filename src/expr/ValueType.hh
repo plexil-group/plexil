@@ -29,8 +29,9 @@
 
 #include "ParserException.hh"
 
+#include "ArrayFwd.hh"
+
 #include <iosfwd>
-#include <string>
 #include <vector>
 
 namespace PLEXIL

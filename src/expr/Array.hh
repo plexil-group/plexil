@@ -27,11 +27,7 @@
 #ifndef PLEXIL_ARRAY_HH
 #define PLEXIL_ARRAY_HH
 
-#include "ArrayFwd.hh"
 #include "ValueType.hh"
-
-#include <string>
-#include <vector>
 
 namespace PLEXIL
 {

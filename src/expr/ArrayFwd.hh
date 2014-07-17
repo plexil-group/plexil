@@ -27,7 +27,10 @@
 #ifndef PLEXIL_ARRAY_FWD_HH
 #define PLEXIL_ARRAY_FWD_HH
 
+#include <plexil-config.h>
+
 // Forward declarations for array types
+
 #include <string>
 
 #ifdef HAVE_STDINT_H

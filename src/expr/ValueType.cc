@@ -26,6 +26,8 @@
 
 #include "ValueType.hh"
 
+#include <plexil-config.h>
+
 #include "ArrayImpl.hh"
 #include "CommandHandle.hh"
 #include "NodeConstants.hh"
@@ -34,6 +36,7 @@
 #include <cmath>   // for HUGE_VAL
 #include <cstdlib> // for strtod(), strtol()
 #include <iostream>
+#include <limits>
 #include <sstream>
 
 namespace PLEXIL
@@ -384,7 +387,9 @@ namespace PLEXIL
     long temp = strtol(s.c_str(), &ends, 0);
     checkParserException(ends != s.c_str() && *ends == '\0',
                          "parseValue: \"" << s << "\" is an invalid value for an Integer");
-    checkParserException(errno == 0 && temp <= INT32_MAX && temp >= INT32_MIN,
+    checkParserException(errno == 0
+                         && temp <= std::numeric_limits<int32_t>::max()
+                         && temp >= std::numeric_limits<int32_t>::min(),
                          "parseValue: " << s << " is out of range for an Integer");
     result = (int32_t) temp;
     return true;

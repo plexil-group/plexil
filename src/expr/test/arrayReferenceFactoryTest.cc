@@ -36,7 +36,7 @@
 #include "TestSupport.hh"
 #include "UserVariable.hh"
 
-#include <cstdlib> // for strcmp()
+#include <cstring> // for strcmp()
 
 using namespace PLEXIL;
 
