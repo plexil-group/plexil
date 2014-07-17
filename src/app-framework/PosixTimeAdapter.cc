@@ -40,6 +40,7 @@
 #include "timespec-utils.hh"
 
 #include <cerrno>
+#include <iomanip>
 
 namespace PLEXIL
 {
@@ -87,13 +88,10 @@ namespace PLEXIL
   double PosixTimeAdapter::getCurrentTime()
   {
     timespec ts;
-    if (0 != clock_gettime(CLOCK_REALTIME, &ts)) {
-      debugMsg("TimeAdapter:getCurrentTime",
-               " clock_gettime() failed, errno = " << errno << "; returning UNKNOWN");
-      return Value::UNKNOWN_VALUE();
-    }
+    assertTrueMsg(!clock_gettime(CLOCK_REALTIME, &ts),
+                  "TimeAdapter::getCurrentTime:: clock_gettime() failed, errno = " << errno);
     double tym = timespecToDouble(ts);
-    debugMsg("TimeAdapter:getCurrentTime", " returning " << Value::valueToString(tym));
+    debugMsg("TimeAdapter:getCurrentTime", " returning " << std::setprecision(15) << tym);
     return tym;
   }
 
@@ -158,7 +156,7 @@ namespace PLEXIL
     if (tymrSpec.it_value.tv_nsec < 0 || tymrSpec.it_value.tv_sec < 0) {
       // Already past the scheduled time
       debugMsg("TimeAdapter:setTimer",
-               " new value " << Value::valueToString(date) << " is in past, waking up Exec");
+               " new value " << std::setprecision(15) << date << " is in past, waking up Exec");
       return false;
     }
 
@@ -169,7 +167,7 @@ namespace PLEXIL
                                      NULL),
                   "TimeAdapter::setTimer: timer_settime failed, errno = " << errno);
     debugMsg("TimeAdapter:setTimer",
-             " timer set for " << Value::valueToString(date)
+             " timer set for " << std::setprecision(15) << date
              << ", tv_nsec = " << tymrSpec.it_value.tv_nsec);
     return true;
   }
