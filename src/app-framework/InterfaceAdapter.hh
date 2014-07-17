@@ -27,11 +27,19 @@
 #ifndef INTERFACE_ADAPTER_H
 #define INTERFACE_ADAPTER_H
 
+#include <plexil-config.h>
+
 #include "pugixml.hpp"
 
 #include <map>
 #include <set>
 #include <vector>
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
 
 namespace PLEXIL
 {
