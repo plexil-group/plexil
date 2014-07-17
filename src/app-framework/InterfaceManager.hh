@@ -323,6 +323,9 @@ namespace PLEXIL
 
     //* Most recent mark processed.
     unsigned int m_lastMark;
+
+    //* Last mark enqueued.
+    unsigned int m_markCount;
   };
 
   extern InterfaceManager *g_manager;

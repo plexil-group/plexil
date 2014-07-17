@@ -74,7 +74,8 @@ namespace PLEXIL
       m_application(app),
       m_inputQueue(NULL), // configurable
       m_currentTime(std::numeric_limits<double>::min()),
-      m_lastMark(0)
+      m_lastMark(0),
+      m_markCount(0)
   {
   }
 
@@ -187,7 +188,7 @@ namespace PLEXIL
       case Q_MARK:
         debugMsg("InterfaceManager:processQueue", " Received mark");
         // Store sequence number and notify application
-        m_lastMark = entry->sequence; // ???
+        m_lastMark = entry->sequence;
         m_application.markProcessed();
         break;
 
@@ -337,7 +338,7 @@ namespace PLEXIL
       assertTrue_2(newTime >= m_currentTime, "Time is going backwards!");
 #endif
       debugMsg("InterfaceManager:lookupNow",
-               " setting current time to " << newTime);
+               " setting current time to " << std::setprecision(15) << newTime);
       m_currentTime = newTime;
     }
   }
@@ -556,6 +557,19 @@ namespace PLEXIL
     assertTrue_1(entry);
     entry->initForUpdateAck(upd, ack);
     m_inputQueue->put(entry);
+  }
+
+  unsigned int InterfaceManager::markQueue()
+  {
+    assertTrue_1(m_inputQueue);
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    unsigned int sequence = ++m_markCount;
+    entry->initForMark(sequence);
+    m_inputQueue->put(entry);
+    debugMsg("InterfaceManager:markQueue",
+             " sequence # " << sequence);
+    return sequence;
   }
 
   /**
