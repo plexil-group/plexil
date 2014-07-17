@@ -118,6 +118,14 @@ namespace PLEXIL
       this->setUnknown();
   }
 
+  // Generalized type mismatch
+  template <typename T>
+  template <typename U>
+  void AssignableImpl<T>::setValueImpl(U const &val)
+  {
+    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+  }
+
   // Conversions
   template <>
   void AssignableImpl<std::string>::setValueImpl(char const *val)

@@ -167,10 +167,7 @@ namespace PLEXIL
 
     // Generalized type mismatch
     template <typename U>
-    void setValueImpl(U const &val)
-    {
-      assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
-    }
+    void setValueImpl(U const &val);
 
     // Delegate to typed setValueImpl() methods.
     void setValueImpl(Expression const *valex);
