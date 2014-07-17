@@ -120,7 +120,7 @@ namespace PLEXIL
 
 namespace std
 {
-  template <> struct std::less<PLEXIL::StateCacheEntry>
+  template <> struct less<PLEXIL::StateCacheEntry>
   : binary_function <PLEXIL::StateCacheEntry, PLEXIL::StateCacheEntry, bool>
   {
     bool operator() (PLEXIL::StateCacheEntry const &x, PLEXIL::StateCacheEntry const &y) const
