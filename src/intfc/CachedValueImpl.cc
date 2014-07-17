@@ -529,10 +529,18 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return false;
   }
 
-  // Default wrong-type method.
+  // Default wrong-type methods.
   template <typename T>
   template <typename U>
   bool CachedValueImpl<T>::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "CachedValue::updatePtr: Type error");
+    return false;
+  }
+
+  template <typename T>
+  template <typename U>
+  bool CachedValueImpl<ArrayImpl<T> >::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
   {
     assertTrue_2(ALWAYS_FAIL, "CachedValue::updatePtr: Type error");
     return false;
@@ -550,10 +558,25 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return m_known;
   }
 
-  // Default wrong-type method.
+  // Default wrong-type methods.
   template <typename T>
   template <typename U>
   bool CachedValueImpl<T>::getValueImpl(U & /* result */) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
+    return false;
+  }
+
+  template <typename T>
+  template <typename U>
+  bool CachedValueImpl<ArrayImpl<T> >::getValueImpl(U & /* result */) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
+    return false;
+  }
+
+  template <typename T>
+  bool CachedValueImpl<ArrayImpl<T> >::getValueImpl(T & /* result */) const
   {
     assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
     return false;
