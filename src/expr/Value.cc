@@ -392,6 +392,12 @@ namespace PLEXIL
     return *this;
   }
 
+  void Value::setUnknown()
+  {
+    m_known = false;
+    cleanup();
+  }
+
   // Do whatever is necessary to delete the previous contents
   void Value::cleanup()
   {
