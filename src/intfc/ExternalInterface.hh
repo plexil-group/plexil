@@ -41,9 +41,6 @@ namespace PLEXIL {
   class ResourceArbiterInterface;
   class Update;
 
-  class ExternalInterface;
-  DECLARE_ID(ExternalInterface);
-
   /**
    * @class ExternalInterface
    * @brief Abstract base class for anything that interfaces the Exec to the outside world.
@@ -53,11 +50,6 @@ namespace PLEXIL {
   public:
 
     virtual ~ExternalInterface();
-
-    /**
-     * @brief Return the ID of this instance.
-     */
-    ExternalInterfaceId const &getId();
 
     ResourceArbiterInterface *getResourceArbiter()
     {
@@ -226,14 +218,13 @@ namespace PLEXIL {
     ExternalInterface(ExternalInterface const &);
     ExternalInterface &operator=(ExternalInterface const &);
 
-    ExternalInterfaceId m_id;
     ResourceArbiterInterface *m_raInterface;
     std::vector<Command *> m_commandsToExecute;
     std::vector<Update *> m_updatesToExecute;
     unsigned int m_cycleCount;
   };
 
-  extern ExternalInterfaceId g_interface;
+  extern ExternalInterface *g_interface;
 }
 
 #endif

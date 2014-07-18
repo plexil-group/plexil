@@ -473,9 +473,10 @@ bool lookupsTest()
 {
   TestInterface foo;
   theInterface = &foo;
-  g_interface = foo.getId();
+  g_interface = &foo;
 
   runTest(testLookupNow);
   runTest(testLookupOnChange);
+  g_interface = NULL;
   return true;
 }

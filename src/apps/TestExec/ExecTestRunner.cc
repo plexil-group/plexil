@@ -210,15 +210,15 @@ int ExecTestRunner::run(int argc, char** argv)
   // create the exec
 
   TestExternalInterface intf;
-  g_interface = intf.getId();
-  g_exec = (new PlexilExec())->getId();
+  g_interface = &intf;
+  g_exec = new PlexilExec();
   ExecListenerHub hub;
   g_exec->setExecListenerHub(&hub);
 
 
 #if HAVE_DEBUG_LISTENER
   // add the debug listener
-  hub.addListener((new PlanDebugListener())->getId());
+  hub.addListener(new PlanDebugListener());
 #endif
 
 #if HAVE_LUV_LISTENER
@@ -228,7 +228,7 @@ int ExecTestRunner::run(int argc, char** argv)
     LuvListener* ll = 
       new LuvListener(luvHost, luvPort, luvBlock);
     if (ll->isConnected()) {
-      hub.addListener(ll->getId());
+      hub.addListener(ll);
     }
     else {
       warn("WARNING: Unable to connect to Plexil Viewer: " << endl
@@ -251,8 +251,9 @@ int ExecTestRunner::run(int argc, char** argv)
       warn("XML error parsing library file '" << *libraryName
            << "' (offset " << parseResult.offset
            << "):\n" << parseResult.description());
-      delete (PlexilExec *) g_exec;
-      g_exec = ExecConnectorId::noId();
+      delete g_exec;
+      g_exec = NULL;
+      g_interface = NULL;
       return 1;
     }
 
@@ -263,8 +264,9 @@ int ExecTestRunner::run(int argc, char** argv)
     } 
     catch (ParserException& e) {
       warn("XML error parsing library '" << *libraryName << "':\n" << e.what());
-      delete (PlexilExec *) g_exec;
-      g_exec = ExecConnectorId::noId();
+      delete g_exec;
+      g_exec = NULL;
+      g_interface = NULL;
       return 1;
     }
 
@@ -280,8 +282,9 @@ int ExecTestRunner::run(int argc, char** argv)
       warn("XML error parsing plan file '" << planName
            << "' (offset " << parseResult.offset
            << "):\n" << parseResult.description());
-      delete (PlexilExec *) g_exec;
-      g_exec = ExecConnectorId::noId();
+      delete g_exec;
+      g_exec = NULL;
+      g_interface = NULL;
       return 1;
     }
 
@@ -292,8 +295,9 @@ int ExecTestRunner::run(int argc, char** argv)
     }
     catch (ParserException& e) {
       warn("XML error parsing plan '" << planName << "':\n" << e.what());
-      delete (PlexilExec *) g_exec;
-      g_exec = ExecConnectorId::noId();
+      delete g_exec;
+      g_exec = NULL;
+      g_interface = NULL;
       return 1;
     }
 
@@ -316,8 +320,9 @@ int ExecTestRunner::run(int argc, char** argv)
                  << " failed because library " << libname
                  << " could not be loaded");
             delete (PlexilNode*) root;
-            delete (PlexilExec *) g_exec;
-            g_exec = ExecConnectorId::noId();
+            delete g_exec;
+            g_exec = NULL;
+            g_interface = NULL;
             return 1;
           }
 
@@ -333,8 +338,9 @@ int ExecTestRunner::run(int argc, char** argv)
     if (!g_exec->addPlan(root)) {
       warn("Adding plan " << planName << " failed");
       delete (PlexilNode*) root;
-      delete (PlexilExec *) g_exec;
-      g_exec = ExecConnectorId::noId();
+      delete g_exec;
+      g_exec = NULL;
+      g_interface = NULL;
       return 1;
     }
     delete (PlexilNode*) root;
@@ -351,8 +357,9 @@ int ExecTestRunner::run(int argc, char** argv)
                              "(offset " << parseResult.offset
                              << ") XML error parsing script '" << scriptName << "': "
                              << parseResult.description());
-        delete (PlexilExec *) g_exec;
-        g_exec = ExecConnectorId::noId();
+        delete g_exec;
+        g_exec = NULL;
+        g_interface = NULL;
         return 1;
       }
     }
@@ -362,8 +369,9 @@ int ExecTestRunner::run(int argc, char** argv)
     pugi::xml_node scriptElement = script.child("PLEXILScript");
     if (scriptElement.empty()) {
       warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
-      delete (PlexilExec *) g_exec;
-      g_exec = ExecConnectorId::noId();
+      delete g_exec;
+      g_exec = NULL;
+      g_interface = NULL;
       return 1;
     }
     intf.run(scriptElement);
@@ -372,8 +380,9 @@ int ExecTestRunner::run(int argc, char** argv)
 
   // clean up
 
-  delete (PlexilExec *) g_exec;
-  g_exec = ExecConnectorId::noId();
+  delete g_exec;
+  g_exec = NULL;
+  g_interface = NULL;
 
   return 0;
 }

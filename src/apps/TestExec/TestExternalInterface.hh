@@ -27,7 +27,6 @@
 #ifndef _H_TestExternalInterface
 #define _H_TestExternalInterface
 
-#include "ExecDefs.hh"
 #include "ExternalInterface.hh"
 #include "ParserException.hh"
 

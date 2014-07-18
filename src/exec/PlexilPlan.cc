@@ -25,7 +25,6 @@
 */
 
 #include "PlexilPlan.hh"
-#include "ExecDefs.hh"
 #include "Debug.hh"
 #include "Node.hh"
 #include <sstream>

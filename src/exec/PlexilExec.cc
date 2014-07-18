@@ -58,7 +58,6 @@ namespace PLEXIL
 
   PlexilExec::PlexilExec()
     : ExecConnector(),
-      m_id(this, ExecConnector::getId()),
       m_queuePos(0),
       m_finishedRootNodesDeleted(false)
   {}
@@ -76,7 +75,6 @@ namespace PLEXIL
       delete (PlexilNode*) it->second;
       m_libraries.erase(it);
     }
-    m_id.removeDerived(ExecConnector::getId());
   }
 
   /**
@@ -332,7 +330,7 @@ namespace PLEXIL
   /**
    * @brief Schedule this assignment for execution.
    */
-  void PlexilExec::enqueueAssignment(const AssignmentId& assign)
+  void PlexilExec::enqueueAssignment(Assignment *assign)
   {
     m_assignmentsToExecute.push_back(assign);
   }
@@ -340,7 +338,7 @@ namespace PLEXIL
   /**
    * @brief Schedule this assignment for retraction.
    */
-  void PlexilExec::enqueueAssignmentForRetraction(const AssignmentId& assign)
+  void PlexilExec::enqueueAssignmentForRetraction(Assignment *assign)
   {
     m_assignmentsToRetract.push_back(assign);
   }
@@ -529,19 +527,19 @@ namespace PLEXIL
     debugMsg("PlexilExec:performAssignments",
              " performing " << m_assignmentsToExecute.size() <<  " assignments and "
              << m_assignmentsToRetract.size() << " retractions");
-    for (std::vector<AssignmentId>::iterator it = m_assignmentsToExecute.begin();
+    for (std::vector<Assignment *>::iterator it = m_assignmentsToExecute.begin();
          it != m_assignmentsToExecute.end();
          ++it) {
-      AssignmentId assn = *it;
-      check_error_1(assn.isValid());
+      Assignment *assn = *it;
+      check_error_1(assn);
       assn->execute();
     }
     m_assignmentsToExecute.clear();
-    for (std::vector<AssignmentId>::iterator it = m_assignmentsToRetract.begin();
+    for (std::vector<Assignment *>::iterator it = m_assignmentsToRetract.begin();
          it != m_assignmentsToRetract.end();
          ++it) {
-      AssignmentId assn = *it;
-      check_error_1(assn.isValid());
+      Assignment *assn = *it;
+      check_error_1(assn);
       assn->retract();
     }
     m_assignmentsToRetract.clear();
@@ -645,18 +643,18 @@ namespace PLEXIL
   }
 
   // Convenience method for backward compatibility
-  void PlexilExec::addListener(const ExecListenerBaseId& listener) 
+  void PlexilExec::addListener(ExecListenerBase *listener) 
   {
     check_error_1(m_listener);
-    check_error_1(listener.isValid());
+    check_error_1(listener);
     m_listener->addListener(listener);
   }
 
   // Convenience method for backward compatibility
-  void PlexilExec::removeListener(const ExecListenerBaseId& listener) 
+  void PlexilExec::removeListener(ExecListenerBase *listener) 
   {
     check_error_1(m_listener);
-    check_error_1(listener.isValid());
+    check_error_1(listener);
     m_listener->removeListener(listener);
   }
 }

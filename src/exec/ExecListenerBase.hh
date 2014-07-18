@@ -36,9 +36,6 @@ namespace PLEXIL
 {
 
   // Forward references
-  class ExecListenerBase;
-  typedef Id<ExecListenerBase> ExecListenerBaseId;
-
   class Expression;
 
   class Node;
@@ -62,8 +59,7 @@ namespace PLEXIL
      * @brief Default constructor.
      */
 	ExecListenerBase()
-	  : m_xml(),
-		m_baseId(this)
+	  : m_xml()
 	{
 	}
 
@@ -72,19 +68,12 @@ namespace PLEXIL
      * @param xml Reference to the (shared) configuration XML describing this listener.
      */
 	ExecListenerBase(pugi::xml_node const &xml)
-	  : m_xml(xml),
-		m_baseId(this)
+	  : m_xml(xml)
 	{
 	}
 
 	virtual ~ExecListenerBase()
 	{
-	  m_baseId.remove();
-	}
-
-	ExecListenerBaseId const &getId() const 
-	{
-	  return m_baseId;
 	}
 
 	pugi::xml_node const &getXml() const
@@ -168,7 +157,6 @@ namespace PLEXIL
 	pugi::xml_node const m_xml;
 
   private:
-	ExecListenerBaseId m_baseId;
   };
 
 }

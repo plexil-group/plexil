@@ -27,7 +27,6 @@
 #ifndef EXEC_LISTENER_HUB_HH
 #define EXEC_LISTENER_HUB_HH
 
-#include "Id.hh"
 #include "ExecListenerBase.hh"
 
 namespace PLEXIL
@@ -49,12 +48,12 @@ namespace PLEXIL
     /**
      * @brief Adds an Exec listener for publication of plan events.
      */
-    void addListener(ExecListenerBaseId const &listener);
+    void addListener(ExecListenerBase *listener);
 
     /**
      * @brief Removes an Exec listener.
      */
-    void removeListener(ExecListenerBaseId const &listener);
+    void removeListener(ExecListenerBase *listener);
 
     //
     // API to Exec
@@ -138,7 +137,7 @@ namespace PLEXIL
     ExecListenerHub(const ExecListenerHub&);
     ExecListenerHub& operator=(const ExecListenerHub&);
 
-    std::vector<ExecListenerBaseId> m_listeners;
+    std::vector<ExecListenerBase *> m_listeners;
   };
 
 }

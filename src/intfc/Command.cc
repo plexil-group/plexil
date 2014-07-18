@@ -180,7 +180,7 @@ namespace PLEXIL
   {
     assertTrue_1(m_active);
     // Handle stupid unit test
-    if (g_interface.isId()) {
+    if (g_interface) {
       g_interface->abortCommand(this);
     }
   }

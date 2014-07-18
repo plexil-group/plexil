@@ -27,8 +27,6 @@
 #ifndef EXEC_LISTENER_FILTER_FACTORY_H
 #define EXEC_LISTENER_FILTER_FACTORY_H
 
-#include "Id.hh"
-
 #include <map>
 #include <string>
 
@@ -44,10 +42,7 @@ namespace PLEXIL
   // Forward declarations
   //
 
-  //  class ExecListener;
-  //  typedef Id<ExecListener> ExecListenerId;
   class ExecListenerFilter;
-  typedef Id<ExecListenerFilter> ExecListenerFilterId;
 
   /**
    * @brief Factory class for ExecListenerFilter instances.
@@ -61,21 +56,21 @@ namespace PLEXIL
      * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
      *        the given configuration XML.
      * @param xml The configuration XML specifying the filter.
-     * @return The Id for the new ExecListenerFilter.
+     * @return The new ExecListenerFilter.
      */
 
-    static ExecListenerFilterId createInstance(const pugi::xml_node& xml);
+    static ExecListenerFilter *createInstance(const pugi::xml_node& xml);
 
     /**
      * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
      *        the given configuration XML.
      * @param name The registered name for the factory.
      * @param xml The configuration XML to be passed to the ExecListenerFilter constructor.
-     * @return The Id for the new ExecListenerFilter.
+     * @return The new ExecListenerFilter.
      */
 
-    static ExecListenerFilterId createInstance(std::string const &name, 
-                                               pugi::xml_node const &xml);
+    static ExecListenerFilter *createInstance(std::string const &name, 
+                                              pugi::xml_node const &xml);
 
     /**
      * @brief Deallocate all factories
@@ -101,7 +96,7 @@ namespace PLEXIL
      * @param xml The configuration XML for the instantiated filter
      * @return The Id for the new ExecListenerFilter.
      */
-    virtual ExecListenerFilterId create(pugi::xml_node const &xml) const = 0;
+    virtual ExecListenerFilter *create(pugi::xml_node const &xml) const = 0;
 
     ExecListenerFilterFactory(std::string const &name)
       : m_name(name)
@@ -148,13 +143,12 @@ namespace PLEXIL
     /**
      * @brief Instantiates a new ExecListenerFilter of the appropriate type.
      * @param xml The configuration XML for the instantiated filter.
-     * @return The Id for the new ExecListenerFilter.
+     * @return The new ExecListenerFilter.
      */
 
-    ExecListenerFilterId create(pugi::xml_node const &xml) const
+    ExecListenerFilter *create(pugi::xml_node const &xml) const
     {
-      ExecListenerFilterId result = (new FilterType(xml))->getId();
-      return result;
+      return new FilterType(xml);
     }
   };
 

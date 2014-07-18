@@ -41,8 +41,7 @@ namespace PLEXIL
    */
   ExecListener::ExecListener()
     : ExecListenerBase(),
-      m_filter(),
-      m_id(this, ExecListenerBase::getId())
+      m_filter()
   {
   }
 
@@ -51,8 +50,7 @@ namespace PLEXIL
    */
   ExecListener::ExecListener(const pugi::xml_node& xml)
     : ExecListenerBase(xml),
-      m_filter(),
-      m_id(this, ExecListenerBase::getId())
+      m_filter()
   {
     if (!xml.empty()) {
       pugi::xml_node filterSpec = xml.child(InterfaceSchema::FILTER_TAG());
@@ -73,10 +71,10 @@ namespace PLEXIL
                       << "> element's "
                       << InterfaceSchema::FILTER_TYPE_ATTR()
                       << " attribute is empty");
-        ExecListenerFilterId f = 
+        ExecListenerFilter *f = 
           ExecListenerFilterFactory::createInstance(std::string(filterType),
                                                     filterSpec);
-        assertTrue_2(f.isId(),
+        assertTrue_2(f,
                      "ExecListener constructor: failed to construct filter");
         m_filter = f;
       }
@@ -88,7 +86,7 @@ namespace PLEXIL
    */
   ExecListener::~ExecListener() 
   { 
-    m_id.removeDerived(ExecListenerBase::getId()); 
+    delete m_filter;
   }
 
   /**
@@ -109,7 +107,7 @@ namespace PLEXIL
   void
   ExecListener::notifyOfAddPlan(const PlexilNodeId& plan) const
   {
-    if (m_filter.isNoId()
+    if (!m_filter
         || m_filter->reportAddPlan(plan))
       this->implementNotifyAddPlan(plan);
   }
@@ -121,7 +119,7 @@ namespace PLEXIL
   void 
   ExecListener::notifyOfAddLibrary(const PlexilNodeId& libNode) const
   {
-    if (m_filter.isNoId()
+    if (!m_filter
         || m_filter->reportAddLibrary(libNode))
       this->implementNotifyAddLibrary(libNode);
   }
@@ -137,7 +135,7 @@ namespace PLEXIL
                                    const std::string& destName,
                                    const Value& value) const
   {
-    if (m_filter.isNoId()
+    if (!m_filter
         || m_filter->reportAssignment(dest, destName, value))
       this->implementNotifyAssignment(dest, destName, value);
   }
@@ -194,9 +192,9 @@ namespace PLEXIL
 
   /**
    * @brief Set the filter of this instance.
-   * @param fltr Smart pointer to the filter.
+   * @param fltr Pointer to the filter.
    */
-  void ExecListener::setFilter(ExecListenerFilterId fltr)
+  void ExecListener::setFilter(ExecListenerFilter *fltr)
   {
     m_filter = fltr;
   }
@@ -215,7 +213,7 @@ namespace PLEXIL
   void ExecListener::implementNotifyNodeTransitions(const std::vector<NodeTransition>& transitions) const
   {
     debugMsg("ExecListener:implementNotifyNodeTransitions", " default method called");
-    if (m_filter.isNoId()) {
+    if (!m_filter) {
       for (std::vector<NodeTransition>::const_iterator it = transitions.begin();
            it != transitions.end();
            ++it) 

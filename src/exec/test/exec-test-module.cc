@@ -26,7 +26,6 @@
 
 #include "Debug.hh"
 #include "ExecConnector.hh"
-#include "ExecDefs.hh"
 #include "Expression.hh"
 #include "ExpressionConstants.hh" // FALSE_EXP(), TRUE_EXP()
 #include "ExpressionFactory.hh"
@@ -56,8 +55,8 @@ public:
   TransitionExecConnector() : ExecConnector() {}
   void notifyNodeConditionChanged(NodeId /* node */) {}
   void handleConditionsChanged(const NodeId& /* node */, NodeState /* newState */) {}
-  void enqueueAssignment(const AssignmentId& /* assign */) {}
-  void enqueueAssignmentForRetraction(const AssignmentId& /* assign */) {}
+  void enqueueAssignment(Assignment * /* assign */) {}
+  void enqueueAssignmentForRetraction(Assignment * /* assign */) {}
   void markRootNodeFinished(const NodeId& /* node */) {}
   bool addPlan(PlexilNodeId const & /* plan */) { return false; }
   void addLibraryNode(PlexilNodeId const & /* lib */) {}
@@ -99,9 +98,9 @@ protected:
 static bool inactiveDestTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
 
   std::string types[5] = {ASSIGNMENT,
                           COMMAND,
@@ -165,17 +164,17 @@ static bool inactiveDestTest()
     }
     delete (Node*) parent;
   }
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool inactiveTransTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   std::string types[5] = {ASSIGNMENT,
                           COMMAND,
                           LIBRARYNODECALL,
@@ -249,17 +248,17 @@ static bool inactiveTransTest()
     }
     delete (Node*) parent;
   }
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool waitingDestTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), WAITING_STATE, parent);
@@ -310,17 +309,17 @@ static bool waitingDestTest()
   }
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool waitingTransTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -399,17 +398,17 @@ static bool waitingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool iterationEndedDestTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), ITERATION_ENDED_STATE, parent);
@@ -444,17 +443,17 @@ static bool iterationEndedDestTest()
   }
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool iterationEndedTransTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
 
@@ -512,17 +511,17 @@ static bool iterationEndedTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool finishedDestTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent =
     NodeFactory::createNode(LIST, std::string("testParent"), INACTIVE_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), FINISHED_STATE, parent);
@@ -552,9 +551,9 @@ static bool finishedDestTest()
 static bool finishedTransTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent =
     NodeFactory::createNode(LIST, std::string("testParent"), INACTIVE_STATE, NodeId::noId());
 
@@ -591,17 +590,17 @@ static bool finishedTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool listExecutingDestTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(LIST, std::string("test"), EXECUTING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -639,17 +638,17 @@ static bool listExecutingDestTest()
 
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool listExecutingTransTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   Value values[3] = {Value(), Value(false), Value(true)};
 
@@ -713,17 +712,17 @@ static bool listExecutingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool listFailingDestTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(LIST, std::string("test"), FAILING_STATE, parent);
@@ -753,17 +752,17 @@ static bool listFailingDestTest()
 
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool listFailingTransTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent =
     NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
 
@@ -806,17 +805,17 @@ static bool listFailingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool listFinishingDestTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(LIST, std::string("test"), FINISHING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -865,17 +864,17 @@ static bool listFinishingDestTest()
   }
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool listFinishingTransTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
 
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -955,17 +954,17 @@ static bool listFinishingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool bindingExecutingDestTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), EXECUTING_STATE, parent);
   Value const values[3] = {Value(), Value(false), Value(true)};
@@ -1023,17 +1022,17 @@ static bool bindingExecutingDestTest()
   }
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool bindingExecutingTransTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
 
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1123,17 +1122,17 @@ static bool bindingExecutingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool bindingFailingDestTest()
 {
   TransitionExecConnector con; 
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(ASSIGNMENT, std::string("test"), FAILING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1164,17 +1163,17 @@ static bool bindingFailingDestTest()
   }
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool bindingFailingTransTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   Value values[3] = {Value(), Value(false), Value(true)};
   FailureType failureType[4] = {INVARIANT_CONDITION_FAILED,
@@ -1216,8 +1215,8 @@ static bool bindingFailingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
@@ -1228,9 +1227,9 @@ static bool bindingFailingTransTest()
 static bool commandExecutingDestTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(COMMAND, std::string("test"), EXECUTING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1272,17 +1271,17 @@ static bool commandExecutingDestTest()
   }
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool commandExecutingTransTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
 
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1354,17 +1353,17 @@ static bool commandExecutingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool commandFailingDestTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(COMMAND, std::string("test"), FAILING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1393,17 +1392,17 @@ static bool commandFailingDestTest()
   }
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool commandFailingTransTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   Value values[3] = {Value(), Value(false), Value(true)};
   FailureType failureTypes[4] = {INVARIANT_CONDITION_FAILED,
@@ -1447,17 +1446,17 @@ static bool commandFailingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool commandFinishingDestTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(COMMAND, std::string("test"), FINISHING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1499,17 +1498,17 @@ static bool commandFinishingDestTest()
   }
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool commandFinishingTransTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   Value values[3] = {Value(), Value(false), Value(true)};
 
@@ -1589,8 +1588,8 @@ static bool commandFinishingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
@@ -1601,9 +1600,9 @@ static bool commandFinishingTransTest()
 static bool updateExecutingDestTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(UPDATE, std::string("test"), EXECUTING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1648,17 +1647,17 @@ static bool updateExecutingDestTest()
   }
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool updateExecutingTransTest()
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   Value values[3] = {Value(), Value(false), Value(true)};
 
@@ -1737,17 +1736,17 @@ static bool updateExecutingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool updateFailingDestTest() 
 {
   TransitionExecConnector con; 
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   NodeId node = NodeFactory::createNode(UPDATE, std::string("test"), FAILING_STATE, parent);
   Value values[3] = {Value(), Value(false), Value(true)};
@@ -1776,17 +1775,17 @@ static bool updateFailingDestTest()
   }
   delete (Node*) node;
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 
 static bool updateFailingTransTest() 
 {
   TransitionExecConnector con;
-  g_exec = con.getId();
+  g_exec = &con;
   TransitionExternalInterface tif;
-  g_interface = tif.getId();
+  g_interface = &tif;
   NodeId parent = NodeFactory::createNode(LIST, std::string("testParent"), EXECUTING_STATE, NodeId::noId());
   Value values[3] = {Value(), Value(false), Value(true)};
   FailureType failureTypes[4] = {INVARIANT_CONDITION_FAILED,
@@ -1830,8 +1829,8 @@ static bool updateFailingTransTest()
     }
   }
   delete (Node*) parent;
-  g_exec = ExecConnectorId::noId();
-  g_interface = ExternalInterfaceId::noId();
+  g_exec = NULL;
+  g_interface = NULL;
   return true;
 }
 

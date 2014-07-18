@@ -123,18 +123,18 @@ namespace PLEXIL
                                        NodeConnector::getId(),
                                        deleteRhs);
     m_assignment =
-      (new Assignment(dest, rhs, deleteLhs, deleteRhs, m_nodeId))->getId();
+      new Assignment(dest, rhs, deleteLhs, deleteRhs, m_nodeId);
   }
 
   // Unit test variant of above
   void AssignmentNode::createDummyAssignment() 
   {
     m_assignment =
-      (new Assignment((new BooleanVariable(false))->asAssignable(),
-                      TRUE_EXP(),
-                      true,
-                      false,
-                      m_nodeId))->getId();
+      new Assignment((new BooleanVariable(false))->asAssignable(),
+                     TRUE_EXP(),
+                     true,
+                     false,
+                     m_nodeId);
   }
 
   Assignable *AssignmentNode::getAssignmentVariable() const
@@ -228,7 +228,7 @@ namespace PLEXIL
   void AssignmentNode::specializedHandleExecution()
   {
     // Perform assignment
-    checkError(m_assignment.isValid(),
+    checkError(m_assignment,
                "Node::execute: Assignment is invalid");
     m_assignment->activate();
     m_assignment->fixValue();
@@ -352,7 +352,7 @@ namespace PLEXIL
     
   void AssignmentNode::abort()
   {
-    check_error_1(m_assignment.isValid());
+    check_error_1(m_assignment);
     debugMsg("Node:abort", "Aborting node " << m_nodeId);
     g_exec->enqueueAssignmentForRetraction(m_assignment);
   }
@@ -364,16 +364,16 @@ namespace PLEXIL
 
   void AssignmentNode::specializedDeactivateExecutable() 
   {
-    if (m_assignment.isValid())
+    if (m_assignment)
       m_assignment->deactivate();
   }
 
   void AssignmentNode::cleanUpNodeBody()
   {
-    if (m_assignment.isId()) {
+    if (m_assignment) {
       debugMsg("AssignmentNode:cleanUpNodeBody", "<" << m_nodeId << "> Removing assignment.");
-      delete (Assignment*) m_assignment;
-      m_assignment = AssignmentId::noId();
+      delete m_assignment;
+      m_assignment = NULL;
     }
   }
 

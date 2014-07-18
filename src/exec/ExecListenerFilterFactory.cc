@@ -39,10 +39,10 @@ namespace PLEXIL
    * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
    *        the given configuration XML.
    * @param xml The configuration XML specifying the ExecListenerFilter.
-   * @return The Id for the new ExecListenerFilter.
+   * @return The new ExecListenerFilter.
    */
 
-  ExecListenerFilterId 
+  ExecListenerFilter * 
   ExecListenerFilterFactory::createInstance(const pugi::xml_node& xml)
   {
     // Can't do anything without the spec
@@ -71,10 +71,10 @@ namespace PLEXIL
    *        the given configuration XML.
    * @param name The registered name for the factory.
    * @param xml The configuration XML to be passed to the ExecListenerFilter constructor.
-   * @return The Id for the new ExecListenerFilter.
+   * @return The new ExecListenerFilter.
    */
 
-  ExecListenerFilterId 
+  ExecListenerFilter *
   ExecListenerFilterFactory::createInstance(std::string const &name,
                                             pugi::xml_node const &xml)
   {
@@ -92,7 +92,7 @@ namespace PLEXIL
 		debugMsg("ExecListenerFilterFactory:createInstance",
 				 " unable to load module for filter type \""
 				 << name.c_str() << "\"");
-		return ExecListenerFilterId::noId();
+		return NULL;
 	  }
 	  // See if it's registered now
 	  it = factoryMap().find(name);
@@ -102,9 +102,9 @@ namespace PLEXIL
       debugMsg("ExecListenerFilterFactory:createInstance", 
           " No exec listener filter factory registered for name \""
                   << name.c_str() << "\".");
-      return ExecListenerFilterId::noId();
+      return NULL;
     }
-    ExecListenerFilterId retval = it->second->create(xml);
+    ExecListenerFilter *retval = it->second->create(xml);
     debugMsg("ExecListenerFilterFactory:createInstance",
              " Created Exec listener filter " << name.c_str());
     return retval;

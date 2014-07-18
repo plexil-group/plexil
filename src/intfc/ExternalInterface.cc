@@ -35,11 +35,10 @@
 namespace PLEXIL
 {
   // Define global variable
-  ExternalInterfaceId g_interface;
+  ExternalInterface *g_interface = NULL;
 
   ExternalInterface::ExternalInterface()
-    : m_id(this),
-      m_raInterface(new ResourceArbiterInterface()),
+    : m_raInterface(new ResourceArbiterInterface()),
       m_cycleCount(0)
   {
   }
@@ -47,12 +46,6 @@ namespace PLEXIL
   ExternalInterface::~ExternalInterface()
   {
     delete m_raInterface;
-    m_id.remove();
-  }
-  
-  ExternalInterfaceId const &ExternalInterface::getId()
-  {
-    return m_id;
   }
 
   /**

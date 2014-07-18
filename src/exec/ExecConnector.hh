@@ -27,7 +27,6 @@
 #ifndef EXEC_CONNECTOR_HH
 #define EXEC_CONNECTOR_HH
 
-// #include "ExecDefs.hh"
 #include "Id.hh"
 #include "NodeConstants.hh"
 
@@ -35,16 +34,8 @@ namespace PLEXIL
 {
   // Forward references
   class Assignment;
-  DECLARE_ID(Assignment);
-
-  class ExecConnector; // defined below
-  DECLARE_ID(ExecConnector);
-
   class ExecListenerHub;
-  DECLARE_ID(ExecListenerHub);
-
   class ExternalInterface;
-  DECLARE_ID(ExternalInterface);
 
   class Node;
   DECLARE_ID(Node);
@@ -57,21 +48,20 @@ namespace PLEXIL
    */
   class ExecConnector {
   public:
-    ExecConnector() : m_id(this) {}
-    virtual ~ExecConnector() {m_id.remove();}
-    const ExecConnectorId& getId() const {return m_id;}
+    ExecConnector() {}
+    virtual ~ExecConnector() {}
     virtual void notifyNodeConditionChanged(NodeId node) = 0;
     virtual void handleConditionsChanged(const NodeId& node, NodeState newState) = 0;
 
     /**
      * @brief Schedule this assignment for execution.
      */
-    virtual void enqueueAssignment(const AssignmentId& assign) = 0;
+    virtual void enqueueAssignment(Assignment *assign) = 0;
 
     /**
      * @brief Schedule this assignment for execution.
      */
-    virtual void enqueueAssignmentForRetraction(const AssignmentId& assign) = 0;
+    virtual void enqueueAssignmentForRetraction(Assignment *assign) = 0;
 
     /**
      * @brief Mark node as finished and no longer eligible for execution.
@@ -118,13 +108,10 @@ namespace PLEXIL
     virtual void deleteFinishedPlans() = 0;
 
     virtual bool allPlansFinished() const = 0;
-
-  private:
-    ExecConnectorId m_id;
   };
 
   // Global pointer to the exec instance
-  extern ExecConnectorId g_exec;
+  extern ExecConnector *g_exec;
 
 }
 

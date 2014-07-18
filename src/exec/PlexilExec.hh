@@ -29,6 +29,7 @@
 
 #include "ExecConnector.hh"
 #include "generic_hash_map.hh"
+#include "NodeTransition.hh"
 #include "PlexilPlan.hh"
 
 #include <list>
@@ -38,10 +39,8 @@
 namespace PLEXIL 
 {
   // Forward references
-  class ExternalInterface;
-  typedef Id<ExternalInterface> ExternalInterfaceId;
+  class Assignable;
   class ExecListenerBase;
-  typedef Id<ExecListenerBase> ExecListenerBaseId;
   class ExecListenerHub;
 
   struct NodeConflictComparator;
@@ -61,8 +60,6 @@ namespace PLEXIL
      * @brief Destructor.
      */
     ~PlexilExec();
-
-    const PlexilExecId& getId() const {return m_id;}
 
     /**
      * @brief Queries whether the named library node is loaded.
@@ -117,13 +114,13 @@ namespace PLEXIL
      * @brief Adds an ExecListener for publication of node transition events.
      * @note Convenience method for backward compatibility.
      */
-    void addListener(const ExecListenerBaseId& listener);
+    void addListener(ExecListenerBase *listener);
 
     /**
      * @brief Removes an ExecListener.
      * @note Convenience method for backward compatibility.
      */
-    void removeListener(const ExecListenerBaseId& listener);
+    void removeListener(ExecListenerBase *listener);
 
     /**
      * @brief Queries whether all plans are finished.
@@ -143,12 +140,12 @@ namespace PLEXIL
     /**
      * @brief Schedule this assignment for execution.
      */
-    void enqueueAssignment(const AssignmentId& assign);
+    void enqueueAssignment(Assignment *assign);
 
     /**
      * @brief Schedule this assignment for retraction.
      */
-    void enqueueAssignmentForRetraction(const AssignmentId& assign);
+    void enqueueAssignmentForRetraction(Assignment *assign);
 
     /**
      * @brief Mark node as finished and no longer eligible for execution.
@@ -215,14 +212,13 @@ namespace PLEXIL
      */
     void performAssignments();
 
-    PlexilExecId m_id; /*<! The Id for this executive.*/
     ExecListenerHub *m_listener;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
     std::vector<NodeId> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
     std::queue<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
     StateChangeQueue m_stateChangeQueue; /*<! Nodes that are eligible for state transition.*/
-    std::vector<AssignmentId> m_assignmentsToExecute;
-    std::vector<AssignmentId> m_assignmentsToRetract;
+    std::vector<Assignment *> m_assignmentsToExecute;
+    std::vector<Assignment *> m_assignmentsToRetract;
     std::vector<Assignable *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
     VariableConflictMap m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
                                                The nodes in the sets are assignment nodes which can assign values to the variable.

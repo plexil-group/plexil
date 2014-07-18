@@ -33,11 +33,7 @@
 namespace PLEXIL
 {
   // Forward references
-  class ExecListener;
-  typedef Id<ExecListener> ExecListenerId;
-
   class ExecListenerFilter;
-  typedef Id<ExecListenerFilter> ExecListenerFilterId;
 
   class Node;
   typedef Id<Node> NodeId;
@@ -65,16 +61,6 @@ namespace PLEXIL
      * @brief Destructor.
      */
     virtual ~ExecListener();
-
-    /**
-     * @brief Get the ID of this instance.
-     * @return The ID.
-     */
-    inline ExecListenerId const &getId() const
-    { 
-      return m_id; 
-    }
-
 
     //
     // API to Exec
@@ -158,7 +144,7 @@ namespace PLEXIL
      * @brief Set the filter of this instance.
      * @param fltr Smart pointer to the filter.
      */
-    void setFilter(ExecListenerFilterId fltr);
+    void setFilter(ExecListenerFilter *fltr);
 
   protected:
 
@@ -215,17 +201,11 @@ namespace PLEXIL
     //
 
     /**
-     * @brief The ID of this instance's filter.
+     * @brief This instance's filter.
      */
-    ExecListenerFilterId m_filter;
+    ExecListenerFilter *m_filter;
 
   private:
-
-    /**
-     * @brief The ID of this instance.
-     */
-    ExecListenerId m_id;
-    
   };
 }
 

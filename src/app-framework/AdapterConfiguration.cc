@@ -162,9 +162,9 @@ namespace PLEXIL {
                  " constructing listener type \""
                  << element.attribute(InterfaceSchema::LISTENER_TYPE_ATTR()).value()
                  << "\"");
-        ExecListenerId listener = 
+        ExecListener *listener = 
           ExecListenerFactory::createInstance(element);
-        if (!listener.isId()) {
+        if (!listener) {
           debugMsg("AdapterConfiguration:constructInterfaces",
                    " failed to construct listener from XML");
           return false;
@@ -345,11 +345,10 @@ namespace PLEXIL {
    * @brief Add an externally constructed ExecListener.
    * @param listener The ExecListener ID.
    */
-  void AdapterConfiguration::addExecListener(const ExecListenerId& listener)
+  void AdapterConfiguration::addExecListener(ExecListener *listener)
   {
     m_listenerHub->addListener(listener);
   }
-
 
   /**
    * @brief Construct the input queue specified by the configuration data.

@@ -64,17 +64,17 @@ namespace PLEXIL
 
     // connect exec and interface manager
     g_configuration = new AdapterConfiguration();
-    g_exec = (new PlexilExec())->getId();
+    g_exec = new PlexilExec();
     g_manager = new InterfaceManager(*this);
-    g_interface = g_manager->getId();
+    g_interface = static_cast<ExternalInterface *>(g_manager);
   }
 
   ExecApplication::~ExecApplication()
   {
     delete g_configuration;
-    g_interface = ExternalInterfaceId::noId();
+    g_interface = NULL;
     delete g_manager;
-    delete (PlexilExec *) g_exec;
+    delete g_exec;
   }
 
   /**

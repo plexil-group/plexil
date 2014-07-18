@@ -47,9 +47,6 @@ namespace PLEXIL
   class Update;
   class Value;
 
-  class ResourceArbiterInterface;
-  typedef Id<ResourceArbiterInterface> ResourceArbiterInterfaceId;
-
   class PlexilNode;
   typedef Id<PlexilNode> PlexilNodeId;
 

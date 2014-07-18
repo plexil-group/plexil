@@ -28,7 +28,6 @@
 #define _H_PlexilPlan
 
 #include "ConstantMacros.hh"
-#include "ExecDefs.hh"
 #include "PlexilExpr.hh"
 #include "PlexilLookup.hh"
 #include "PlexilNodeType.hh"

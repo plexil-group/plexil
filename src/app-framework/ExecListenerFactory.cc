@@ -44,10 +44,10 @@ namespace PLEXIL
    * @brief Creates a new ExecListener instance with the type associated with the name and
    *        the given configuration XML.
    * @param xml The configuration XML specifying the ExecListener.
-   * @return The Id for the new ExecListener.
+   * @return The new ExecListener.
    */
 
-  ExecListenerId 
+  ExecListener *
   ExecListenerFactory::createInstance(const pugi::xml_node& xml)
   {
     // Can't do anything without the spec
@@ -72,10 +72,10 @@ namespace PLEXIL
    *        the given configuration XML.
    * @param name The registered name for the factory.
    * @param xml The configuration XML to be passed to the ExecListener constructor.
-   * @return The Id for the new ExecListener.
+   * @return The new ExecListener.
    */
 
-  ExecListenerId 
+  ExecListener * 
   ExecListenerFactory::createInstance(std::string const &name,
                                       const pugi::xml_node& xml)
   {
@@ -92,7 +92,7 @@ namespace PLEXIL
         debugMsg("ExecListenerFactory:createInstance", 
                  " unable to load module for listener type \""
                  << name.c_str() << "\"");
-        return ExecListenerId::noId();
+        return NULL;
       }
       // See if it's registered now
       it = factoryMap().find(name);
@@ -102,9 +102,9 @@ namespace PLEXIL
     if (it == factoryMap().end()) {
       debugMsg("ExecListenerFactory:createInstance", 
                " No exec listener factory registered for name \"" << name.c_str() << "\"");
-      return ExecListenerId::noId();
+      return NULL;
     }
-    ExecListenerId retval = it->second->create(xml);
+    ExecListener *retval = it->second->create(xml);
     debugMsg("ExecListenerFactory:createInstance", " Created Exec listener " << name.c_str());
     return retval;
   }

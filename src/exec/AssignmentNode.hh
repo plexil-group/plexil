@@ -31,6 +31,8 @@
 
 namespace PLEXIL
 {
+  // Forward references
+  class Assignment;
 
   class AssignmentNode : public Node
   {
@@ -97,7 +99,7 @@ namespace PLEXIL
     void createDummyAssignment(); // unit test variant
     void abort();
 
-    AssignmentId m_assignment;
+    Assignment *m_assignment;
     double m_priority; /*<! The priority of this node. */
   };
 

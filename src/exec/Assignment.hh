@@ -27,7 +27,6 @@
 #ifndef PLEXIL_ASSIGNMENT_HH
 #define PLEXIL_ASSIGNMENT_HH
 
-#include "ExecDefs.hh"
 #include "UserVariable.hh"
 #include "Value.hh"
 
@@ -43,7 +42,6 @@ namespace PLEXIL
                const bool deleteRhs,
                const std::string &nodeId);
     ~Assignment();
-    const AssignmentId& getId() const {return m_id;}
     Expression *getDest() {return m_dest;}
     Expression *getAck() {return &m_ack;}
     Expression *getAbortComplete() {return &m_abortComplete;}
@@ -63,7 +61,6 @@ namespace PLEXIL
 
     BooleanVariable m_ack;
     BooleanVariable m_abortComplete;
-    AssignmentId m_id;
     Expression *m_rhs;
     Assignable *m_dest;
     Value m_value; // TODO: templatize by assignable type?

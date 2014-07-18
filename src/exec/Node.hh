@@ -27,7 +27,6 @@
 #ifndef _H_Node
 #define _H_Node
 
-#include "ExecDefs.hh"
 #include "Expression.hh"
 #include "NodeConnector.hh"
 #include "NodeVariables.hh"
@@ -38,6 +37,12 @@
 #undef UPDATE
 
 namespace PLEXIL {
+
+  typedef PLEXIL_HASH_MAP(std::string, Expression *) VariableMap;
+
+  // NOTE: this used to be 100000000, which somehow gets printed as
+  // scientific notation in XML and doesn't parse correctly.  
+  const double WORST_PRIORITY = 100000;
 
   /**
    * @brief The class representing a Node in the plan--either a list of sub-Nodes, an assignment, or a command execution.

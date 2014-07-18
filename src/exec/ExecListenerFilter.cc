@@ -32,8 +32,7 @@ namespace PLEXIL
    * @brief Constructor.
    */
   ExecListenerFilter::ExecListenerFilter()
-    : m_id(this),
-      m_xml()
+    : m_xml()
   {
   }
 
@@ -41,8 +40,7 @@ namespace PLEXIL
    * @brief Constructor from configuration XML.
    */
   ExecListenerFilter::ExecListenerFilter(const pugi::xml_node& xml)
-    : m_id(this),
-      m_xml(xml)
+    : m_xml(xml)
   {
   }
 
@@ -51,7 +49,6 @@ namespace PLEXIL
    */
   ExecListenerFilter::~ExecListenerFilter()
   {
-    m_id.remove();
   }
 
   /**

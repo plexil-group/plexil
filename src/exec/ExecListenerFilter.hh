@@ -34,9 +34,6 @@
 namespace PLEXIL
 {
   // Forward references
-  class ExecListenerFilter;
-  typedef Id<ExecListenerFilter> ExecListenerFilterId;
-
   class Expression;
 
   class Node;
@@ -111,11 +108,6 @@ namespace PLEXIL
                                   std::string const &destName,
                                   Value const &value);
 
-    inline const ExecListenerFilterId getId() const
-    {
-      return m_id;
-    }
-
   private:
     //
     // Deliberately unimplemented
@@ -126,7 +118,6 @@ namespace PLEXIL
     //
     // Member variables
     //
-    ExecListenerFilterId m_id;
 
     /**
      * @brief The configuration XML used at construction time.

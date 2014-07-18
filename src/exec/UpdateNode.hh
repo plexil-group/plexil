@@ -31,6 +31,7 @@
 
 namespace PLEXIL
 {
+  class Update;
 
   class UpdateNode : public Node
   {

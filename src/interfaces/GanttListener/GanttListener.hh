@@ -30,7 +30,6 @@
 #ifndef _H_GanttListener
 #define _H_GanttListener
 
-#include "ExecDefs.hh"
 #include "ExecListener.hh"
 
 namespace PLEXIL

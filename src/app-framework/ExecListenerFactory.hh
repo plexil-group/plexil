@@ -27,8 +27,8 @@
 #ifndef EXEC_LISTENER_FACTORY_H
 #define EXEC_LISTENER_FACTORY_H
 
-#include "Id.hh"
 #include <map>
+#include <string>
 
 // Forward reference
 namespace pugi
@@ -43,7 +43,6 @@ namespace PLEXIL
   //
 
   class ExecListener;
-  typedef Id<ExecListener> ExecListenerId;
 
   /**
    * @brief Factory class for ExecListener instances.
@@ -57,21 +56,21 @@ namespace PLEXIL
      * @brief Creates a new ExecListener instance with the type associated with the name and
      *        the given configuration XML.
      * @param xml The configuration XML specifying the ExecListener.
-     * @return The Id for the new ExecListener.
+     * @return The new ExecListener.
      */
 
-    static ExecListenerId createInstance(const pugi::xml_node& xml);
+    static ExecListener *createInstance(const pugi::xml_node& xml);
 
     /**
      * @brief Creates a new ExecListener instance with the type associated with the name and
      *        the given configuration XML.
      * @param name The registered name for the factory.
      * @param xml The configuration XML to be passed to the ExecListener constructor.
-     * @return The Id for the new ExecListener.
+     * @return The new ExecListener.
      */
 
-    static ExecListenerId createInstance(std::string const &name, 
-                                         const pugi::xml_node& xml);
+    static ExecListener *createInstance(std::string const &name, 
+                                        const pugi::xml_node& xml);
 
     /**
      * @brief Checks whether or not the given ExecListenerFactory is registered.
@@ -103,9 +102,9 @@ namespace PLEXIL
     /**
      * @brief Instantiates a new ExecListener of the appropriate type.
      * @param xml The configuration XML for the instantiated listener.
-     * @return The Id for the new ExecListener.
+     * @return The new ExecListener.
      */
-    virtual ExecListenerId create(const pugi::xml_node& xml) const = 0;
+    virtual ExecListener *create(const pugi::xml_node& xml) const = 0;
 
     ExecListenerFactory(std::string const &name)
       : m_name(name)
@@ -149,13 +148,12 @@ namespace PLEXIL
     /**
      * @brief Instantiates a new ExecListener of the appropriate type.
      * @param xml The configuration XML for the instantiated listener.
-     * @return The Id for the new ExecListener.
+     * @return The new ExecListener.
      */
 
-    ExecListenerId create(const pugi::xml_node& xml) const
+    ExecListener *create(const pugi::xml_node& xml) const
     {
-      ExecListenerId result = (new ListenerType(xml))->getId();
-      return result;
+      return new ListenerType(xml);
     }
   };
 

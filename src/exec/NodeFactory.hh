@@ -28,12 +28,15 @@
 #define NODE_FACTORY_HH
 
 #include "Error.hh"
-#include "ExecDefs.hh"
+#include "NodeConstants.hh"
 #include "PlexilNodeType.hh"
 #include "PlexilPlan.hh"
 
 namespace PLEXIL
 {
+
+  class Node;
+  DECLARE_ID(Node);
 
   /**
    * @brief Abstract factory class for Node instances.

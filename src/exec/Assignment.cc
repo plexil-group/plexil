@@ -37,7 +37,6 @@ namespace PLEXIL
                          const std::string &nodeId)
     : m_ack(),
       m_abortComplete(),
-      m_id(this),
       m_rhs(rhs),
       m_dest(lhs),
       m_value(),
@@ -57,7 +56,6 @@ namespace PLEXIL
       delete m_dest;
     if (m_deleteRhs)
       delete m_rhs;
-    m_id.remove();
   }
 
   void Assignment::fixValue() 

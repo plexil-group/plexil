@@ -74,7 +74,7 @@ namespace PLEXIL
   void TestExternalInterface::run(const pugi::xml_node& input)
     throw(ParserException)
   {
-    checkError(g_exec.isValid(), "Attempted to run a script without an executive.");
+    checkError(g_exec, "Attempted to run a script without an executive.");
     handleInitialState(input);
     pugi::xml_node script = input.child("Script");
     checkError(!script.empty(), "No Script element in Plexilscript.");

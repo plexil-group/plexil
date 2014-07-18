@@ -27,5 +27,5 @@
 #include "ExecConnector.hh"
 
 // Global pointer to the exec instance
-PLEXIL::ExecConnectorId PLEXIL::g_exec = PLEXIL::ExecConnectorId::noId();
+PLEXIL::ExecConnector *PLEXIL::g_exec = NULL;
 
