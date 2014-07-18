@@ -60,11 +60,6 @@ namespace PLEXIL
     return NodeId::noId();
   }
 
-  ExecListenerHubId const &FactoryTestNodeConnector::getExecListenerHub() const
-  {
-    return ExecListenerHubId::noId();
-  }
-
   std::string const &FactoryTestNodeConnector::getNodeId() const
   {
     static std::string sl_empty;

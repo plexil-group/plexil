@@ -33,11 +33,7 @@
 namespace PLEXIL
 {
   // Forward references
-  class ExecListenerHub;
-  DECLARE_ID(ExecListenerHub);
-
   class Expression;
-
   class PlexilVarRef;
 
   class PlexilNodeRef;
@@ -65,7 +61,6 @@ namespace PLEXIL
     virtual Expression *findVariable(const PlexilVarRef* ref) = 0;
     virtual Expression *findVariable(const std::string &name, bool recursive = false) = 0;
     virtual NodeId findNodeRef(PlexilNodeRefId const &nodeRef) const = 0;
-    virtual ExecListenerHubId const &getExecListenerHub() const = 0;
     virtual std::string const &getNodeId() const = 0;
 
   protected:

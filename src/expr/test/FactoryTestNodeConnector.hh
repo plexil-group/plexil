@@ -50,8 +50,6 @@ namespace PLEXIL
 
     NodeId findNodeRef(PlexilNodeRefId const & /* nodeRef */) const;
 
-    ExecListenerHubId const &getExecListenerHub() const;
-
     std::string const &getNodeId() const;
 
     // Test setup

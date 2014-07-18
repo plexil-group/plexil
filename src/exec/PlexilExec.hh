@@ -43,7 +43,6 @@ namespace PLEXIL
   class ExecListenerBase;
   typedef Id<ExecListenerBase> ExecListenerBaseId;
   class ExecListenerHub;
-  typedef Id<ExecListenerHub> ExecListenerHubId;
 
   struct NodeConflictComparator;
 
@@ -109,17 +108,9 @@ namespace PLEXIL
     /**
      * @brief Set the ExecListenerHub instance.
      */
-    void setExecListenerHub(const ExecListenerHubId& hub)
+    void setExecListenerHub(ExecListenerHub *hub)
     {
       m_listener = hub;
-    }
-
-    /**
-     * @brief Get the ExecListenerHub instance.
-     */
-    const ExecListenerHubId& getExecListenerHub() const
-    {
-      return m_listener;
     }
 
     /**
@@ -225,7 +216,7 @@ namespace PLEXIL
     void performAssignments();
 
     PlexilExecId m_id; /*<! The Id for this executive.*/
-    ExecListenerHubId m_listener;
+    ExecListenerHub *m_listener;
     std::list<NodeId> m_plan; /*<! The root of the plan.*/
     std::vector<NodeId> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
     std::queue<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */

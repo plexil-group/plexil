@@ -55,7 +55,6 @@ namespace PLEXIL
   typedef Id<ExecListener> ExecListenerId;
 
   class ExecListenerHub;
-  typedef Id<ExecListenerHub> ExecListenerHubId;
 
   class ExecConnector;
   typedef Id<ExecConnector> ExecConnectorId;

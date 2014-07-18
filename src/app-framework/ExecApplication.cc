@@ -43,7 +43,7 @@
 namespace PLEXIL
 {
   ExecApplication::ExecApplication()
-    : m_id(this),
+    :
 #ifdef PLEXIL_WITH_THREADS
       m_execThread(),
       m_execMutex(),
@@ -105,7 +105,8 @@ namespace PLEXIL
   bool ExecApplication::initialize(const pugi::xml_node& configXml)
   {
     condDebugMsg(configXml.empty(), "ExecApplication:initialize", " configuration is NULL");
-    condDebugMsg(!configXml.empty(), "ExecApplication:initialize", " configuration = " << configXml);
+    condDebugMsg(!configXml.empty(), "ExecApplication:initialize",
+                 " configuration = " << configXml); // *** FIXME - PRINTS "1" ***
 
     if (m_state != APP_UNINITED) {
       debugMsg("ExecApplication:initialize",

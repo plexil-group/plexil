@@ -51,12 +51,6 @@ NodeId TrivialNodeConnector::findNodeRef(PlexilNodeRefId const & /* nodeRef */) 
   return NodeId::noId();
 }
 
-ExecListenerHubId const &TrivialNodeConnector::getExecListenerHub() const
-{
-  return ExecListenerHubId::noId();
-}
-
-
 std::string const &TrivialNodeConnector::getNodeId() const
 {
   static std::string sl_empty;

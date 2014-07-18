@@ -34,8 +34,7 @@
 namespace PLEXIL
 {
   ExecListenerHub::ExecListenerHub()
-    : m_listeners(),
-      m_id(this)
+    : m_listeners()
   {
   }
 
@@ -47,7 +46,6 @@ namespace PLEXIL
       delete ((ExecListenerBase*) *it);
     }
     m_listeners.clear();
-    m_id.remove();
   }
 
   /**

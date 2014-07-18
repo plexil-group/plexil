@@ -45,8 +45,6 @@ namespace PLEXIL {
   DECLARE_ID(ExecListener);
 
   class ExecListenerHub;
-  DECLARE_ID(ExecListenerHub);
-
   class InterfaceAdapter;
   class InputQueue;
 
@@ -233,7 +231,7 @@ namespace PLEXIL {
       return m_adapters;
     }
 
-    ExecListenerHubId const & getListenerHub() const
+    ExecListenerHub *getListenerHub()
     {
       return m_listenerHub;
     }
@@ -323,7 +321,7 @@ namespace PLEXIL {
     InterfaceMap m_commandMap;
 
     //* ExecListener hub
-    ExecListenerHubId m_listenerHub;
+    ExecListenerHub *m_listenerHub;
 
     //* Set of all known InterfaceAdapter instances
     std::set<InterfaceAdapter *> m_adapters;

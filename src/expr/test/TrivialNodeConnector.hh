@@ -30,7 +30,6 @@
 #include "NodeConnector.hh"
 
 using PLEXIL::NodeConnector;
-using PLEXIL::ExecListenerHubId;
 using PLEXIL::Expression;
 using PLEXIL::NodeId;
 using PLEXIL::PlexilNodeRefId;
@@ -46,7 +45,6 @@ public:
   Expression *findVariable(const std::string & /* name */,
                            bool /* recursive */ = false);
   NodeId findNodeRef(PlexilNodeRefId const & /* nodeRef */) const;
-  ExecListenerHubId const &getExecListenerHub() const;
   std::string const &getNodeId() const;
 };
 

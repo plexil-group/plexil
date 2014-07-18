@@ -64,8 +64,7 @@ public:
   PlexilNodeId getLibrary(std::string const & /* name */) const { return PlexilNodeId::noId(); }
   void step(double /* startTime */) {}
   bool needsStep() const {return false;}
-  void setExecListenerHub(const ExecListenerHubId& /* hub */) {}
-  const ExecListenerHubId& getExecListenerHub() const { return ExecListenerHubId::noId(); }
+  void setExecListenerHub(ExecListenerHub * /* hub */) {}
   void deleteFinishedPlans() {}
   bool allPlansFinished() const { return true; }
 };

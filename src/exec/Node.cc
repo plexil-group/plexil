@@ -2038,16 +2038,6 @@ namespace PLEXIL {
     }
   }
 
-  const ExecListenerHubId& Node::getExecListenerHub() const
-  {
-    if (g_exec.isNoId()) {
-      static ExecListenerHubId sl_hubNoId;
-      return sl_hubNoId;
-    }
-    else
-      return g_exec->getExecListenerHub();
-  }
-
   void Node::ensureSortedVariableNames() const
   {
     checkError(m_sortedVariableNames != NULL,

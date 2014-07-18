@@ -113,9 +113,6 @@ namespace PLEXIL {
 
     NodeId findNodeRef(PlexilNodeRefId const &nodeRef) const;
 
-    const ExecListenerHubId& getExecListenerHub() const;
-
-
     // create conditions, assignments, and commands.
     // We have to do this late because they could refer to internal variables of other nodes.
     void postInit(const PlexilNodeId& node);

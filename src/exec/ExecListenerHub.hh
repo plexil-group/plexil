@@ -33,9 +33,6 @@
 namespace PLEXIL
 {
 
-  class ExecListenerHub;
-  typedef Id<ExecListenerHub> ExecListenerHubId;
-
   /**
    * @brief A central dispatcher for multiple exec listeners.
    */
@@ -44,11 +41,6 @@ namespace PLEXIL
   public:
     ExecListenerHub();
     virtual ~ExecListenerHub();
-
-    ExecListenerHubId const &getId() const
-    {
-      return m_id;
-    }
 
     //
     // Interface management API
@@ -147,7 +139,6 @@ namespace PLEXIL
     ExecListenerHub& operator=(const ExecListenerHub&);
 
     std::vector<ExecListenerBaseId> m_listeners;
-    ExecListenerHubId m_id;
   };
 
 }

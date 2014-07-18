@@ -57,9 +57,6 @@ namespace PLEXIL
   // forward references
   class InterfaceAdapter;
 
-  class ExecApplication;
-  typedef Id<ExecApplication> ExecApplicationId;
-
   /**
    * @brief Provides a "pre-packaged" application skeleton for Universal Exec users.
    */
@@ -85,11 +82,6 @@ namespace PLEXIL
      * @brief Destructor.
      */
     virtual ~ExecApplication();
-
-    inline const ExecApplicationId getId() const
-    {
-      return m_id;
-    }
 
     /**
      * @brief Add the specified directory name to the end of the library node loading path.
@@ -341,7 +333,6 @@ namespace PLEXIL
     //
     // Member variables
     //
-    ExecApplicationId m_id;
 
 #ifdef PLEXIL_WITH_THREADS
     //

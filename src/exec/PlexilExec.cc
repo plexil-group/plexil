@@ -127,7 +127,7 @@ namespace PLEXIL
     debugMsg("PlexilExec:addLibrary",
              "Added library node \"" << nodeName
              << (oldNode.isId() ? "\", deleting previous" : "\""));
-    if (m_listener.isId())
+    if (m_listener)
       m_listener->notifyOfAddLibrary(libNode);
 
     // Delete previous
@@ -177,7 +177,7 @@ namespace PLEXIL
     root->activate();
     debugMsg("PlexilExec:addPlan",
              "Added plan: " << std::endl << root->toString());
-    if (m_listener.isId())
+    if (m_listener)
       m_listener->notifyOfAddPlan(plan);
     root->conditionChanged(); // redundant?
     return true;
@@ -496,7 +496,7 @@ namespace PLEXIL
 
       // Publish the transitions
       // FIXME: Move call to listener outside of quiescence loop
-      if (m_listener.isId())
+      if (m_listener)
         m_listener->notifyOfTransitions(transitionsToPublish);
 
       // done with this batch
@@ -647,7 +647,7 @@ namespace PLEXIL
   // Convenience method for backward compatibility
   void PlexilExec::addListener(const ExecListenerBaseId& listener) 
   {
-    check_error_1(m_listener.isValid());
+    check_error_1(m_listener);
     check_error_1(listener.isValid());
     m_listener->addListener(listener);
   }
@@ -655,7 +655,7 @@ namespace PLEXIL
   // Convenience method for backward compatibility
   void PlexilExec::removeListener(const ExecListenerBaseId& listener) 
   {
-    check_error_1(m_listener.isValid());
+    check_error_1(m_listener);
     check_error_1(listener.isValid());
     m_listener->removeListener(listener);
   }

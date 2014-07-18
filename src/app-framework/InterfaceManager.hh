@@ -52,9 +52,6 @@ namespace PLEXIL
 
   class AdapterConfiguration;
 
-  class ExecListenerHub;
-  typedef Id<ExecListenerHub> ExecListenerHubId;
-
   class InputQueue;
 
   /**

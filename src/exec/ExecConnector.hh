@@ -111,12 +111,7 @@ namespace PLEXIL
     /**
      * @brief Set the ExecListenerHub instance.
      */
-    virtual void setExecListenerHub(const ExecListenerHubId& hub) = 0;
-
-    /**
-     * @brief Get the ExecListenerHub instance.
-     */
-    virtual const ExecListenerHubId& getExecListenerHub() const = 0;
+    virtual void setExecListenerHub(ExecListenerHub *hub) = 0;
 
     // Needed by ExecApplication
 

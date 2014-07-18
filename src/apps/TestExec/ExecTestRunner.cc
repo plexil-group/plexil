@@ -213,7 +213,7 @@ int ExecTestRunner::run(int argc, char** argv)
   g_interface = intf.getId();
   g_exec = (new PlexilExec())->getId();
   ExecListenerHub hub;
-  g_exec->setExecListenerHub(hub.getId());
+  g_exec->setExecListenerHub(&hub);
 
 
 #if HAVE_DEBUG_LISTENER

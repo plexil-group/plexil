@@ -53,9 +53,6 @@ namespace PLEXIL
   class PlexilNode;
   typedef Id<PlexilNode> PlexilNodeId;
 
-  class AdapterExecInterface;
-  typedef Id<AdapterExecInterface> AdapterExecInterfaceId;
-
   /**
    * @brief An abstract base class representing the InterfaceManager API
    *        from the interface adapter's point of view.

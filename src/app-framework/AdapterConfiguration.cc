@@ -72,7 +72,7 @@ namespace PLEXIL {
     m_defaultCommandInterface(),
     m_defaultLookupInterface(),
     m_plannerUpdateInterface(),
-    m_listenerHub((new ExecListenerHub())->getId())
+    m_listenerHub(new ExecListenerHub())
   {
     // Every application has access to the dummy and utility adapters
     REGISTER_ADAPTER(DummyAdapter, "Dummy");
