@@ -43,7 +43,7 @@ namespace PLEXIL
       virtual ~GanttListener();
       // Capture and report about useful node state transitions.
       virtual void implementNotifyNodeTransition (NodeState prevState,
-         const NodeId& node) const;
+                                                  Node *node) const;
    private:
       struct NodeObj {
          double start;
@@ -97,20 +97,20 @@ namespace PLEXIL
       void deliverJSONAsFile();
       void deliverPartialJSON();
 
-      NodeObj createNodeObj(const NodeId& nodeId);
-      void getFinalLocalVar(const NodeId& nodeId);
+      NodeObj createNodeObj(Node *nodeId);
+      void getFinalLocalVar(Node *nodeId);
 
       void processLocalVar(const std::vector<std::string>& prevLocalVarsVector, 
                            const std::vector<std::string>& thisLocalVarsVectorValues, 
                            const std::vector<std::string>& thisLocalVarsVectorKeys);
 
-      void processTempValsForNode(const NodeId& nodeId);
+      void processTempValsForNode(Node *nodeId);
       void produceSingleJSONObj();
       void createJSONStream();
       void generateTempOutputFiles();
       void generateFinalOutputFiles();
-      void findNode(const NodeId& nodeId);
-      void processOutputData(const NodeId& nodeId);
+      void findNode(Node *nodeId);
+      void processOutputData(Node *nodeId);
 
       int m_uniqueFileName;
       int m_pid;
@@ -124,7 +124,7 @@ namespace PLEXIL
       std::string m_plexilGanttDirectory;
       std::string m_currentWorkingDir;
       double m_startTime;
-      std::map<NodeId, int> m_stateMap, m_counterMap;
+      std::map<Node *, int> m_stateMap, m_counterMap;
       std::string m_parent;
       bool m_planFailureState; // when node fail, parial JSON generation should be suppressed
       bool m_continueOutputingData; // when I/O error occurs, write no file

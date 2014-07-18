@@ -39,7 +39,7 @@ namespace PLEXIL
 
   ExternalInterface::ExternalInterface()
     : m_raInterface(new ResourceArbiterInterface()),
-      m_cycleCount(0)
+      m_cycleCount(1)
   {
   }
 

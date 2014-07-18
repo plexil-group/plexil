@@ -122,7 +122,7 @@ namespace PLEXIL {
     return ALL_CONDITIONS()[idx];
   }
 
-  Node::Node(const PlexilNodeId& node, const NodeId& parent)
+  Node::Node(const PlexilNodeId& node, Node *parent)
     : NodeConnector(),
       m_parent(parent),
       m_listener(*this),
@@ -161,7 +161,7 @@ namespace PLEXIL {
   Node::Node(const std::string& type, 
              const std::string& name, 
              const NodeState state,
-             const NodeId& parent)
+             Node *parent)
     : NodeConnector(),
       m_parent(parent),
       m_listener(*this),
@@ -268,9 +268,7 @@ namespace PLEXIL {
                     "Node \"" << m_nodeId << "\" already has a variable named \"" << name << "\"");
       bool dummy; // we always expect variables to be constructed here
       Expression *varId =
-        createExpression(var->getId(),
-                         NodeConnector::getId(),
-                         dummy);
+        createExpression(var->getId(), this, dummy);
       assertTrue_1(varId->getName() == name);
       m_variablesByName[varId->getName()] = varId;
       m_localVariables.push_back(varId);
@@ -287,7 +285,7 @@ namespace PLEXIL {
     check_error_1(intf.isValid());
     debugMsg("Node:getVarsFromInterface",
              "Getting interface vars for node '" << m_nodeId << "'");
-    assertTrueMsg(m_parent.isId(),
+    assertTrueMsg(m_parent,
                   "Node \"" << m_nodeId
                   << "\" has an Interface but no parent; may be a library node without a caller.");
 
@@ -348,7 +346,7 @@ namespace PLEXIL {
       // Try to avoid constructing alias var
       if (!parentIsLibCall && expr->isAssignable()) {
         // Construct const wrapper
-        expr = new Alias(getId(), varRef->varName(), expr, false);
+        expr = new Alias(this, varRef->varName(), expr, false);
         debugMsg("Node::getInVariable",
                  " Node \"" << m_nodeId
                  << "\": Constructed const alias wrapper for \"" << varRef->varName()
@@ -369,9 +367,7 @@ namespace PLEXIL {
           else {
             // construct constant local "variable" with default value
             bool wasConstructed = false;
-            expr = createExpression(defaultVal,
-                                    NodeConnector::getId(),
-                                    wasConstructed);
+            expr = createExpression(defaultVal, this, wasConstructed);
             if (wasConstructed)
               m_localVariables.push_back(expr);
           }
@@ -417,9 +413,7 @@ namespace PLEXIL {
             PlexilExprId tempVar = (new PlexilVar("InOut_Default", // TODO? gensym
                                                   defaultVal->type(), 
                                                   defaultVal))->getId();
-            expr = createExpression(tempVar,
-                                    NodeConnector::getId(),
-                                    wasConstructed);
+            expr = createExpression(tempVar, this, wasConstructed);
             if (wasConstructed)
               m_localVariables.push_back(expr);
           }
@@ -456,7 +450,7 @@ namespace PLEXIL {
   {
     // Attach listeners to ancestor invariant and ancestor end conditions
     // Root node doesn't need them because the default conditions are constants
-    if (m_parent.isId()) {
+    if (m_parent) {
       Expression *ancestorEnd = getAncestorEndCondition();
       if (ancestorEnd)
         ancestorEnd->addListener(&m_listener);
@@ -489,9 +483,7 @@ namespace PLEXIL {
       }
 
       m_conditions[condIdx] = 
-        createExpression(it->first,
-                         NodeConnector::getId(), 
-                         m_garbageConditions[condIdx]);
+        createExpression(it->first, this, m_garbageConditions[condIdx]);
 
       // Add listener
       switch (condIdx) {
@@ -670,7 +662,7 @@ namespace PLEXIL {
     case ancestorEndIdx:
     case ancestorExitIdx:
     case ancestorInvariantIdx:
-      if (m_parent.isId())
+      if (m_parent)
         return m_parent->m_conditions[idx];
       else
         return NULL;
@@ -687,7 +679,7 @@ namespace PLEXIL {
     case ancestorEndIdx:
     case ancestorExitIdx:
     case ancestorInvariantIdx:
-      if (m_parent.isId())
+      if (m_parent)
         return m_parent->m_conditions[idx];
       else
         return NULL;
@@ -703,9 +695,9 @@ namespace PLEXIL {
   }
 
   // Default method.
-  const std::vector<NodeId>& Node::getChildren() const
+  const std::vector<Node *>& Node::getChildren() const
   {
-    static std::vector<NodeId> sl_emptyNodeVec;
+    static std::vector<Node *> sl_emptyNodeVec;
     return sl_emptyNodeVec;
   }
 
@@ -717,7 +709,7 @@ namespace PLEXIL {
     if (m_checkConditionsPending)
       return; // already in the queue
     debugMsg("Node:conditionChanged", " for node " << m_nodeId);
-    g_exec->notifyNodeConditionChanged(m_id);
+    g_exec->notifyNodeConditionChanged(this);
     m_checkConditionsPending = true;
   }
 
@@ -731,7 +723,7 @@ namespace PLEXIL {
     debugMsg("Node:checkConditions",
              "Can (possibly) transition to " << nodeStateName(toState));
     if (toState != m_lastQuery) {
-      g_exec->handleConditionsChanged(m_id, toState);
+      g_exec->handleConditionsChanged(this, toState);
       m_lastQuery = toState;
     }
     m_checkConditionsPending = false;
@@ -922,7 +914,7 @@ namespace PLEXIL {
   {
     bool temp;
     Expression *cond;
-    if (m_parent.isId()) {
+    if (m_parent) {
       switch (m_parent->getState()) {
 
       case FINISHED_STATE:
@@ -1360,7 +1352,7 @@ namespace PLEXIL {
   // Default method
   NodeState Node::getDestStateFromFinished()
   {
-    if (m_parent.isId() && m_parent->getState() == WAITING_STATE) {
+    if (m_parent && m_parent->getState() == WAITING_STATE) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId << "' destination: INACTIVE.  Parent state == WAITING.");
       return INACTIVE_STATE;
@@ -1480,10 +1472,10 @@ namespace PLEXIL {
     if (newValue == m_state)
       return;
     m_state = newValue;
-    if (newValue == FINISHED_STATE && m_parent.isNoId()) {
+    if (newValue == FINISHED_STATE && !m_parent) {
       // Mark this node as ready to be deleted -
       // with no parent, it cannot be reset.
-      g_exec->markRootNodeFinished(m_id);
+      g_exec->markRootNodeFinished(this);
     }
     logTransition(tym, newValue);
     m_stateVariable.changed();
@@ -1605,7 +1597,7 @@ namespace PLEXIL {
 
     // Not found locally - try ancestors if possible
     // Stop at library call nodes, as interfaces there are explicit
-    if (m_parent.isId()
+    if (m_parent
         && m_parent->getType() != NodeType_LibraryNodeCall) {
       Expression *result = m_parent->findVariable(name, true);
       if (result) {
@@ -1631,40 +1623,21 @@ namespace PLEXIL {
     debugMsg("Node:findVariable",
              " for node '" << m_nodeId
              << "', searching for variable '" << ref->varName() << "'");
-      
-    if (Id<PlexilInternalVar>::convertable(ref->getId())) {
-      assertTrue_2(ALWAYS_FAIL, "Node::findVariable of internal variable");
-      PlexilInternalVar const *var = (PlexilInternalVar const *) ref;
-      PlexilNodeRefId const &nodeRef = var->ref();
-      NodeId node = findNodeRef(nodeRef);
-      if (node.isNoId())
-        assertTrue_2(ALWAYS_FAIL, "Node::findVariable: invalid node reference");
-        return NULL;
-
-      if (Id<PlexilTimepointVar>::convertable(var->getId())) {
-        PlexilTimepointVar* tp = (PlexilTimepointVar*) var;
-        return node->getInternalVariable(tp->state() + "." + tp->timepoint());
-      }
-      else
-        return node->getInternalVariable(var->varName());
-    }
-    else {
-      return findVariable(ref->varName());
-    }
+    return findVariable(ref->varName());
   }
 
-  NodeId Node::findNodeRef(PlexilNodeRefId const &nodeRef) const
+  Node *Node::findNodeRef(PlexilNodeRefId const &nodeRef)
   {
-    if (nodeRef.isNoId())
-      return NodeId::noId();
+    if (!nodeRef)
+      return NULL;
 
     switch(nodeRef->dir()) {
     case PlexilNodeRef::SELF:
-      return getId();
+      return this;
 
     case PlexilNodeRef::PARENT:
       // FIXME: push this check up into XML parser
-      checkError(m_parent.isId(),
+      checkError(m_parent,
                  "Parent node reference in root node " << 
                  m_nodeId);
       return m_parent;
@@ -1676,7 +1649,7 @@ namespace PLEXIL {
     case PlexilNodeRef::SIBLING: 
       {
         // FIXME: push this check up into XML parser
-        checkError(m_parent.isId(),
+        checkError(m_parent,
                    "Sibling node reference in root node " << 
                    m_nodeId);
         return m_parent->findChild(nodeRef->name()); // may be noId()
@@ -1684,14 +1657,14 @@ namespace PLEXIL {
 
     case PlexilNodeRef::GRANDPARENT:
       {
-        NodeId node = m_parent;
-        NodeId child = getId();
-        for (int i = 1; i < nodeRef->generation() && node.isId(); ++i) {
+        Node *node = m_parent;
+        Node *child = this;
+        for (int i = 1; i < nodeRef->generation() && node; ++i) {
           child = node;
           node = node->getParent();
         }
         // FIXME: push this check up into XML parser?
-        checkError(node.isId(),
+        checkError(node,
                    "Grandparent node reference above root node from " << 
                    m_nodeId);
         checkError(nodeRef->name() == node->getNodeId(),
@@ -1702,12 +1675,12 @@ namespace PLEXIL {
 
     case PlexilNodeRef::UNCLE:
       {
-        NodeId ancestor = m_parent;
-        for (int i = 1; i < nodeRef->generation() && ancestor.isValid(); ++i) {
+        Node *ancestor = m_parent;
+        for (int i = 1; i < nodeRef->generation() && ancestor; ++i) {
           ancestor = ancestor->getParent();
         }
         // FIXME: push this check up into XML parser?
-        checkError(ancestor.isId(),
+        checkError(ancestor,
                    "Grandparent node reference above root node from " << 
                    m_nodeId);
         return ancestor->findChild(nodeRef->name()); // may be noId()
@@ -1718,14 +1691,19 @@ namespace PLEXIL {
       checkError(ALWAYS_FAIL,
                  "Invalid direction in node reference from " <<
                  m_nodeId);
-      return NodeId::noId();
+      return NULL;
     }
   }
 
-  // Default method
-  NodeId const &Node::findChild(const std::string& /* childName */) const
+  // Default methods
+  Node const *Node::findChild(const std::string& /* childName */) const
   {
-    return NodeId::noId();
+    return NULL;
+  }
+
+  Node *Node::findChild(const std::string& /* childName */)
+  {
+    return NULL;
   }
 
   //
@@ -2015,7 +1993,7 @@ namespace PLEXIL {
       printVariables(stream, indent);
     }
     // print children
-    for (std::vector<NodeId>::const_iterator it = getChildren().begin(); it != getChildren().end(); ++it)
+    for (std::vector<Node *>::const_iterator it = getChildren().begin(); it != getChildren().end(); ++it)
       (*it)->print(stream, indent + 2);
     stream << indentStr << "}" << std::endl;
   }

@@ -69,7 +69,7 @@ namespace PLEXIL
   }
 
   Expression *createExpression(const PlexilExprId& expr,
-                               const NodeConnectorId& node)
+                               NodeConnector *node)
     throw (ParserException)
   {
     bool dummy;
@@ -77,7 +77,7 @@ namespace PLEXIL
   }
 
   Expression *createExpression(const PlexilExprId& expr,
-                               const NodeConnectorId& node,
+                               NodeConnector *node,
                                bool& wasCreated)
     throw (ParserException)
   {
@@ -96,11 +96,11 @@ namespace PLEXIL
 
   // This doesn't use the ExpressionFactory paradigm, but it could if required in the future.
   Assignable *createAssignable(const PlexilExprId& expr,
-                               const NodeConnectorId& node,
+                               NodeConnector *node,
                                bool& wasCreated)
     throw (ParserException)
   {
-    assertTrue_2(node.isId(), "createAssignable: Null node argument");
+    assertTrue_2(node, "createAssignable: Null node argument");
     PlexilVarRef const *ref = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
     if (ref) {
       // Variable reference - always returns existing

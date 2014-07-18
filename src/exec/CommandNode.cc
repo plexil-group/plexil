@@ -87,7 +87,7 @@ namespace PLEXIL
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
   CommandNode::CommandNode(const PlexilNodeId& nodeProto,
-                           const NodeId& parent)
+                           Node *parent)
     : Node(nodeProto, parent),
       m_command(NULL)
   {
@@ -102,7 +102,7 @@ namespace PLEXIL
   CommandNode::CommandNode(const std::string& type,
                            const std::string& name, 
                            const NodeState state,
-                           const NodeId& parent)
+                           Node *parent)
     : Node(type, name, state, parent),
       m_command(NULL)
   {
@@ -554,7 +554,7 @@ namespace PLEXIL
     std::vector<Expression *> garbage;
     bool wasCreated = false;
     Expression *nameExpr = createExpression(state->nameExpr(), 
-                                            NodeConnector::getId(),
+                                            this,
                                             wasCreated);
     if (wasCreated)
       garbage.push_back(nameExpr);
@@ -564,7 +564,7 @@ namespace PLEXIL
          it != state->args().end(); 
          ++it) {
       Expression *argExpr =
-        createExpression(*it, NodeConnector::getId(), wasCreated);
+        createExpression(*it, this, wasCreated);
       check_error_1(argExpr);
       args.push_back(argExpr);
       if (wasCreated)
@@ -575,7 +575,7 @@ namespace PLEXIL
     if (!command->dest().empty()) {
       const PlexilExprId& destExpr = command->dest()[0]->getId();
       bool destCreated;
-      dest = createAssignable(destExpr, NodeConnector::getId(), destCreated);
+      dest = createAssignable(destExpr, this, destCreated);
       if (destCreated)
         garbage.push_back(dest);
     }
@@ -592,9 +592,7 @@ namespace PLEXIL
            resItr != resources.end();
            ++resItr) {
         bool wasCreated = false;
-        Expression *resExpr = createExpression(resItr->second, 
-                                               NodeConnector::getId(),
-                                               wasCreated);
+        Expression *resExpr = createExpression(resItr->second, this, wasCreated);
         check_error_1(resExpr);
         resourceMap[resItr->first] = resExpr;
         if (wasCreated)

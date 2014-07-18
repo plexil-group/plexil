@@ -283,7 +283,7 @@ namespace PLEXIL
          "JSON tokens file written to "+ outputFileName);
    }
 
-   static string getLocalVarInExecStateFromMap(const NodeId& nodeId, 
+   static string getLocalVarInExecStateFromMap(Node *nodeId, 
                                                vector<string>& myLocalVariableMapValues)
    {
       std::ostringstream myLocalVars;
@@ -308,21 +308,21 @@ namespace PLEXIL
       return myLocalVars.str();
    }
 
-   static string getChildNode(const NodeId& nodeId)
+   static string getChildNode(Node *nodeId)
    {
       std::ostringstream myChildNode;
       //get child nodes
-      const vector<NodeId>& tempChildList = nodeId->getChildren();
+      const vector<Node *>& tempChildList = nodeId->getChildren();
       if (tempChildList.size() == 0) 
       {
          return std::string();
       }
       else
       {
-         for (vector<NodeId>::const_iterator i = tempChildList.begin(); 
+         for (vector<Node *>::const_iterator i = tempChildList.begin(); 
             i != tempChildList.end(); i++) 
          {
-            string tempString = ((NodeId) *i)->getNodeId().toString();
+            string tempString = (*i)->getNodeId().toString();
             myChildNode << tempString << ", ";
          }
       }
@@ -336,7 +336,7 @@ namespace PLEXIL
     * Once these steps are completed, such information are stored in a NodeObj structure, 
     * which is defined inside GanttListener class.
     */
-   GanttListener::NodeObj GanttListener::createNodeObj(const NodeId& nodeId)
+   GanttListener::NodeObj GanttListener::createNodeObj(Node *nodeId)
    {
       vector<string> myLocalVariableMapValues;
 
@@ -352,7 +352,7 @@ namespace PLEXIL
       string myType = nodeId->getType().toString();
       string myVal = nodeId->getStateName().getStringValue();
 
-      if (nodeId->getParent().isId())
+      if (nodeId->getParent())
          m_parent = nodeId->getParent()->getNodeId().toString();
       if (m_parent.empty()) {
          m_parent = nodeId->getNodeId().toString();
@@ -442,7 +442,7 @@ namespace PLEXIL
       }
    }
 
-   void GanttListener::getFinalLocalVar(const NodeId& nodeId)
+   void GanttListener::getFinalLocalVar(Node *nodeId)
    {
       const VariableMap tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
       vector<string> prevLocalVarsVector = m_nodes[m_index].localvarsvector;
@@ -471,13 +471,13 @@ namespace PLEXIL
       }
    }
 
-   void GanttListener::processTempValsForNode(const NodeId& nodeId)
+   void GanttListener::processTempValsForNode(Node *nodeId)
    {
       m_parent.clear();
       m_nodes[m_index].end = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
       m_nodes[m_index].duration = m_nodes[m_index].end - m_nodes[m_index].start;
       //doesn't exist until node is finished     
-      if (nodeId->getParent().isId()) {
+      if (nodeId->getParent()) {
          m_parent = nodeId->getParent()->getNodeId().toString();
       }
       if(m_parent.empty()) {
@@ -557,14 +557,14 @@ namespace PLEXIL
             "finished gathering data; JSON and HTML stored");
    }
 
-   void GanttListener::findNode(const NodeId& nodeId)
+   void GanttListener::findNode(Node *nodeId)
    {
       // find the node it corresponds to in nodes vector
       int i, size;
       string tempId = nodeId->getNodeId().toString();
       string tempType = nodeId->getType().toString();
       string tempParent = "invalid_parent_id";
-      if(nodeId->getParent().isId()) {
+      if(nodeId->getParent()) {
          tempParent = nodeId->getParent()->getNodeId().toString();
       }
       size = m_nodes.size();
@@ -598,7 +598,7 @@ namespace PLEXIL
     * repeatedly, and it supports writing data to JSON output even with partially executed plans 
     * and failed plans. 
     */
-   void GanttListener::processOutputData(const NodeId& nodeId)
+   void GanttListener::processOutputData(Node *nodeId)
    {
       findNode(nodeId);
       processTempValsForNode(nodeId); 
@@ -620,7 +620,7 @@ namespace PLEXIL
    *  nodes info is stored in each node's NodeObj struct
    **/
    void GanttListener::implementNotifyNodeTransition(NodeState /* prevState */, 
-                                                     const NodeId& nodeId) const
+                                                     Node *nodeId) const
    {  
       static GanttListener myListener;
       //get state

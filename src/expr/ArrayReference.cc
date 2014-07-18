@@ -26,6 +26,7 @@
 
 #include "ArrayReference.hh"
 #include "Array.hh"
+#include "Error.hh"
 #include "UserVariable.hh"
 
 namespace PLEXIL
@@ -492,7 +493,12 @@ namespace PLEXIL
     m_saved = false;
   }
 
-  const NodeConnectorId &MutableArrayReference::getNode() const
+  NodeConnector const *MutableArrayReference::getNode() const
+  {
+    return getBaseVariable()->getNode();
+  }
+
+  NodeConnector *MutableArrayReference::getNode()
   {
     return getBaseVariable()->getNode();
   }

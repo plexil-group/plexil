@@ -35,9 +35,7 @@ namespace PLEXIL
 {
   // Forward references
   class Expression;
-
   class Node;
-  typedef Id<Node> NodeId;
 
   class PlexilNode;
   typedef Id<PlexilNode> PlexilNodeId;
@@ -80,7 +78,7 @@ namespace PLEXIL
      * @note The default method simply returns true.
      */
     virtual bool reportNodeTransition(NodeState prevState, 
-                                      NodeId const &node);
+                                      Node *node);
 
     /**
      * @brief Determine whether this AddPlan event should be reported.

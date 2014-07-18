@@ -55,16 +55,16 @@ namespace PLEXIL
     }
 
     Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
+                         NodeConnector *node,
                          bool &wasCreated) const
-  {
-    PlexilStateVar const *var = dynamic_cast<PlexilStateVar const *>((PlexilExpr const *) expr);
-    checkParserException(var, "createExpression: not a PlexilStateVar");
-    NodeId target = node->findNodeRef(var->ref());
-    checkParserException(target.isId(), "createExpression: Can't find node for StateVariable");
-    wasCreated = false;
-    return target->getStateVariable();
-  }
+    {
+      PlexilStateVar const *var = dynamic_cast<PlexilStateVar const *>((PlexilExpr const *) expr);
+      checkParserException(var, "createExpression: not a PlexilStateVar");
+      Node *target = node->findNodeRef(var->ref());
+      checkParserException(target, "createExpression: Can't find node for StateVariable");
+      wasCreated = false;
+      return target->getStateVariable();
+    }
 
   private:
     // Default, copy, assign all prohibited
@@ -87,16 +87,16 @@ namespace PLEXIL
     }
 
     Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
+                         NodeConnector *node,
                          bool &wasCreated) const
-  {
-    PlexilOutcomeVar const *var = dynamic_cast<PlexilOutcomeVar const *>((PlexilExpr const *) expr);
-    checkParserException(var, "createExpression: not a PlexilOutcomeVar");
-    NodeId target = node->findNodeRef(var->ref());
-    checkParserException(target.isId(), "createExpression: Can't find node for OutcomeVariable");
-    wasCreated = false;
-    return target->getOutcomeVariable();
-  }
+    {
+      PlexilOutcomeVar const *var = dynamic_cast<PlexilOutcomeVar const *>((PlexilExpr const *) expr);
+      checkParserException(var, "createExpression: not a PlexilOutcomeVar");
+      Node *target = node->findNodeRef(var->ref());
+      checkParserException(target, "createExpression: Can't find node for OutcomeVariable");
+      wasCreated = false;
+      return target->getOutcomeVariable();
+    }
 
 
   private:
@@ -120,16 +120,16 @@ namespace PLEXIL
     }
 
     Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
+                         NodeConnector *node,
                          bool &wasCreated) const
-  {
-    PlexilFailureVar const *var = dynamic_cast<PlexilFailureVar const *>((PlexilExpr const *) expr);
-    checkParserException(var, "createExpression: not a PlexilFailureVar");
-    NodeId target = node->findNodeRef(var->ref());
-    checkParserException(target.isId(), "createExpression: Can't find node for FailureTypeVariable");
-    wasCreated = false;
-    return target->getFailureTypeVariable();
-  }
+    {
+      PlexilFailureVar const *var = dynamic_cast<PlexilFailureVar const *>((PlexilExpr const *) expr);
+      checkParserException(var, "createExpression: not a PlexilFailureVar");
+      Node *target = node->findNodeRef(var->ref());
+      checkParserException(target, "createExpression: Can't find node for FailureTypeVariable");
+      wasCreated = false;
+      return target->getFailureTypeVariable();
+    }
 
   private:
     // Default, copy, assign all prohibited
@@ -152,20 +152,20 @@ namespace PLEXIL
     }
 
     Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
+                         NodeConnector *node,
                          bool &wasCreated) const
-  {
-    PlexilCommandHandleVar const *var = dynamic_cast<PlexilCommandHandleVar const *>((PlexilExpr const *) expr);
-    checkParserException(var, "createExpression: not a PlexilCommandHandleVar");
-    NodeId target = node->findNodeRef(var->ref());
-    checkParserException(target.isId(), "createExpression: Can't find node for CommandHandleVariable");
-    CommandNode *cnode = dynamic_cast<CommandNode *>((Node *) target);
-    checkParserException(cnode, "createExpression: Node for CommandHandleVariable not a Command node");
-    Command *cmd = cnode->getCommand();
-    checkParserException(cmd, "createExpression: Internal error: Command node has no Command");
-    wasCreated = false;
-    return cmd->getAck();
-  }
+    {
+      PlexilCommandHandleVar const *var = dynamic_cast<PlexilCommandHandleVar const *>((PlexilExpr const *) expr);
+      checkParserException(var, "createExpression: not a PlexilCommandHandleVar");
+      Node *target = node->findNodeRef(var->ref());
+      checkParserException(target, "createExpression: Can't find node for CommandHandleVariable");
+      CommandNode *cnode = dynamic_cast<CommandNode *>(target);
+      checkParserException(cnode, "createExpression: Node for CommandHandleVariable not a Command node");
+      Command *cmd = cnode->getCommand();
+      checkParserException(cmd, "createExpression: Internal error: Command node has no Command");
+      wasCreated = false;
+      return cmd->getAck();
+    }
 
   private:
     // Default, copy, assign all prohibited
@@ -189,7 +189,7 @@ namespace PLEXIL
     }
 
     Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
+                         NodeConnector *node,
                          bool &wasCreated) const
     {
       PlexilTimepointVar const *var = dynamic_cast<PlexilTimepointVar const *>((PlexilExpr const *) expr);
@@ -200,10 +200,10 @@ namespace PLEXIL
 
   private:
     Expression *create(PlexilTimepointVar const *var,
-                       NodeConnectorId const &node) const
+                       NodeConnector *node) const
     {
-      NodeId refNode = node->findNodeRef(var->ref());
-      checkParserException(refNode.isId(), "createExpression: Timepoint node reference not found");
+      Node *refNode = node->findNodeRef(var->ref());
+      checkParserException(refNode, "createExpression: Timepoint node reference not found");
       NodeState state = parseNodeState(var->state());
       checkParserException(isNodeStateValid(state), "createExpression: Invalid NodeState value \"" << var->state() << "\"");
       return new NodeTimepointValue(refNode,

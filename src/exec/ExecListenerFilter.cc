@@ -60,7 +60,7 @@ namespace PLEXIL
    */
   bool 
   ExecListenerFilter::reportNodeTransition(NodeState /* prevState */, 
-                                           NodeId const & /* node */)
+                                           Node * /* node */)
   {
     return true;
   }

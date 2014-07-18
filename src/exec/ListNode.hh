@@ -41,7 +41,7 @@ namespace PLEXIL
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    ListNode(const PlexilNodeId& node, const NodeId& parent = NodeId::noId());
+    ListNode(const PlexilNodeId& node, Node *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -49,14 +49,14 @@ namespace PLEXIL
     ListNode(const std::string& type,
              const std::string& name,
              const NodeState state,
-             const NodeId& parent = NodeId::noId());
+             Node *parent = NULL);
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
      */
     virtual ~ListNode();
 
-    virtual const std::vector<NodeId>& getChildren() const { return m_children; }
+    virtual const std::vector<Node *>& getChildren() const { return m_children; }
 
     /**
      * @brief Sets the state variable to the new state.
@@ -67,7 +67,8 @@ namespace PLEXIL
 
   protected:
 
-    virtual NodeId const &findChild(const std::string& childName) const;
+    virtual Node *findChild(const std::string& childName);
+    virtual Node const *findChild(const std::string& childName) const;
 
     // Specific behaviors for derived classes
     virtual void specializedPostInitLate(const PlexilNodeId& node);
@@ -92,7 +93,7 @@ namespace PLEXIL
     virtual void transitionToFailing();
 
     // Shared with derived class LibraryCallNode
-    std::vector<NodeId> m_children; /*<! Vector of child nodes. */
+    std::vector<Node *> m_children; /*<! Vector of child nodes. */
 
     // Node state limit, shared with LibraryCallNode
     virtual NodeState nodeStateMax() const { return FINISHING_STATE; }

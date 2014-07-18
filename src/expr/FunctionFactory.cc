@@ -38,7 +38,7 @@ namespace PLEXIL
   }
 
   Expression *FunctionFactory::allocate(const PlexilExprId& expr,
-                                        const NodeConnectorId& node,
+                                        NodeConnector *node,
                                         bool &wasCreated) const
   {
     PlexilOp const *op = (PlexilOp const *) expr;
@@ -57,7 +57,7 @@ namespace PLEXIL
 
   ExprVec *
   FunctionFactory::constructExprVec(std::vector<PlexilExprId> const &subexprs,
-                                    NodeConnectorId const &node) const
+                                    NodeConnector *node) const
   {
     // Get the argument expressions
     size_t nargs = subexprs.size();

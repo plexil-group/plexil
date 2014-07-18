@@ -31,7 +31,7 @@ libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
  -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc
 
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
- ExecConnector.hh ExecDefs.hh ExecListener.hh ExecListenerBase.hh \
+ ExecConnector.hh ExecListener.hh ExecListenerBase.hh \
  ExecListenerFilter.hh ExecListenerFilterFactory.hh ExecListenerHub.hh \
  Expressions.hh InterfaceSchema.hh InternalExpressionFactories.hh \
  LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh NodeTimepointValue.hh \

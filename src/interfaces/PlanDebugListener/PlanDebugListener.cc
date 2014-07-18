@@ -45,7 +45,7 @@ namespace PLEXIL
   // interface may be in order.
 
   void PlanDebugListener::
-  implementNotifyNodeTransition (NodeState /* prevState */, const NodeId& nodeId) const
+  implementNotifyNodeTransition (NodeState /* prevState */, Node *nodeId) const
   {
     const NodeState& newState = nodeId->getState();
 

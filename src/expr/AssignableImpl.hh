@@ -175,12 +175,9 @@ namespace PLEXIL
 
     virtual bool getMutableValuePointerImpl(T *& ptr) = 0;
 
+    // Type mismatch
     template <typename U>
-    bool getMutableValuePointerImpl(U *& ptr)
-    {
-      assertTrue_2(ALWAYS_FAIL, "Assignable::getMutableValuePointer: type error");
-      return false;
-    }
+    bool getMutableValuePointerImpl(U *& ptr);
 
   private:
     // No need for copy, assign
@@ -211,10 +208,7 @@ namespace PLEXIL
 
     // Generalized type mismatch
     template <typename U>
-    void setValueImpl(U const &val)
-    {
-      assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
-    }
+    void setValueImpl(U const &val);
 
     // Delegate to typed setValueImpl() methods.
     void setValueImpl(Expression const *valex);
@@ -224,11 +218,7 @@ namespace PLEXIL
     virtual bool getMutableValuePointerImpl(ArrayImpl<T> *& ptr) = 0;
 
     template <typename U>
-    bool getMutableValuePointerImpl(U *& ptr)
-    {
-      assertTrue_2(ALWAYS_FAIL, "Assignable::getMutableValuePointer: type error");
-      return false;
-    }
+    bool getMutableValuePointerImpl(U *& ptr);
 
     bool getMutableValuePointerImpl(Array *&ptr);
 

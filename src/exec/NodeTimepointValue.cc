@@ -32,7 +32,7 @@
 
 namespace PLEXIL
 {
-  NodeTimepointValue::NodeTimepointValue(NodeId const &node,
+  NodeTimepointValue::NodeTimepointValue(Node *node,
                                          NodeState state,
                                          bool isEnd)
     : m_name(nodeStateName(state) + (isEnd ? ".END" : ".START")), // FIXME: use table lookup, don't generate

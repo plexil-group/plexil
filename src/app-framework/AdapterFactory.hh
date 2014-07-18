@@ -27,8 +27,6 @@
 #ifndef ADAPTER_FACTORY_H
 #define ADAPTER_FACTORY_H
 
-#include "Id.hh"
-
 #include <map>
 #include <string>
 
@@ -60,7 +58,7 @@ namespace PLEXIL
      *        the given configuration XML.
      * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
      * @param execInterface Reference to the parent InterfaceManager instance.
-     * @return The Id for the new InterfaceAdapter.  May not be unique.
+     * @return The new InterfaceAdapter.  May not be unique.
      */
 
     static InterfaceAdapter *createInstance(const pugi::xml_node& xml,
@@ -73,7 +71,7 @@ namespace PLEXIL
      * @param name The registered name for the factory.
      * @param xml The configuration XML to be passed to the InterfaceAdapter constructor.
      * @param execInterface Reference to the parent InterfaceManager instance.
-     * @return The Id for the new InterfaceAdapter.  May not be unique.
+     * @return The new InterfaceAdapter.  May not be unique.
      */
 
     static InterfaceAdapter *createInstance(std::string const& name, 
@@ -88,7 +86,7 @@ namespace PLEXIL
      * @param execInterface Reference to the parent InterfaceManager instance.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
-     * @return The Id for the new InterfaceAdapter.  If wasCreated is set to false, is not unique.
+     * @return The new InterfaceAdapter.  If wasCreated is set to false, is not unique.
      */
 
     static InterfaceAdapter *createInstance(std::string const& name,
@@ -128,7 +126,7 @@ namespace PLEXIL
      * @param execInterface Reference to the parent InterfaceManager instance.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
-     * @return The Id for the new InterfaceAdapter.
+     * @return The new InterfaceAdapter.
      */
     virtual InterfaceAdapter *create(const pugi::xml_node& xml,
                                      AdapterExecInterface& execInterface,
@@ -179,7 +177,7 @@ namespace PLEXIL
      * @param execInterface Reference to the parent InterfaceManager instance.
      * @param wasCreated Reference to a boolean variable;
      *                   variable will be set to true if new object created, false otherwise.
-     * @return The Id for the new InterfaceAdapter.
+     * @return The new InterfaceAdapter.
      */
 
     InterfaceAdapter *create(const pugi::xml_node& xml,

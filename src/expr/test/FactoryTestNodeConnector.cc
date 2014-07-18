@@ -55,9 +55,9 @@ namespace PLEXIL
       return NULL;
   }
 
-  NodeId FactoryTestNodeConnector::findNodeRef(PlexilNodeRefId const & /* nodeRef */) const
+  Node *FactoryTestNodeConnector::findNodeRef(PlexilNodeRefId const & /* nodeRef */)
   {
-    return NodeId::noId();
+    return NULL;
   }
 
   std::string const &FactoryTestNodeConnector::getNodeId() const

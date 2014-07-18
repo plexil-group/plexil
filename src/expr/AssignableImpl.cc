@@ -126,6 +126,13 @@ namespace PLEXIL
     assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
   }
 
+  template <typename T>
+  template <typename U>
+  void AssignableImpl<ArrayImpl<T> >::setValueImpl(U const &val)
+  {
+    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+  }
+
   // Conversions
   template <>
   void AssignableImpl<std::string>::setValueImpl(char const *val)
@@ -156,8 +163,24 @@ namespace PLEXIL
 
 
   //
-  // getMutableValuePointerImpl conversion
+  // getMutableValuePointerImpl
   //
+
+  template <typename T>
+  template <typename U>
+  bool AssignableImpl<T>::getMutableValuePointerImpl(U *& ptr)
+  {
+    assertTrue_2(ALWAYS_FAIL, "Assignable::getMutableValuePointer: type error");
+    return false;
+  }
+
+  template <typename T>
+  template <typename U>
+  bool AssignableImpl<ArrayImpl<T> >::getMutableValuePointerImpl(U *& ptr)
+  {
+    assertTrue_2(ALWAYS_FAIL, "Assignable::getMutableValuePointer: type error");
+    return false;
+  }
 
   template <typename T>
   bool AssignableImpl<ArrayImpl<T> >::getMutableValuePointerImpl(Array *&ptr)

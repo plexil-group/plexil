@@ -236,7 +236,7 @@ namespace PLEXIL
    * @note The default method does nothing.
    */
   void ExecListener::implementNotifyNodeTransition(NodeState /* prevState */,
-                                                   const NodeId& /* node */) const
+                                                   Node * /* node */) const
   {
     debugMsg("ExecListener:implementNotifyNodeTransition", " default method called");
   }

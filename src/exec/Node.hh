@@ -87,7 +87,7 @@ namespace PLEXIL {
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    Node(const PlexilNodeId& node, const NodeId& parent = NodeId::noId());
+    Node(const PlexilNodeId& node, Node *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -95,7 +95,7 @@ namespace PLEXIL {
     Node(const std::string& type,
          const std::string& name,
          const NodeState state,
-         const NodeId& parent = NodeId::noId());
+         Node *parent = NULL);
 
     /**
      * @brief Destructor.  Cleans up this entire part of the node tree.
@@ -116,7 +116,7 @@ namespace PLEXIL {
      */
     virtual Expression *findVariable(const std::string& name, bool recursive = false);
 
-    NodeId findNodeRef(PlexilNodeRefId const &nodeRef) const;
+    Node *findNodeRef(PlexilNodeRefId const &nodeRef);
 
     // create conditions, assignments, and commands.
     // We have to do this late because they could refer to internal variables of other nodes.
@@ -124,8 +124,6 @@ namespace PLEXIL {
 
     // Make the node active.
     virtual void activate();
-
-    NodeId getId() const { return (NodeId) m_id; }
         
     /**
      * @brief Accessor for the NodeId as it was written in the XML.
@@ -137,7 +135,8 @@ namespace PLEXIL {
      * @brief Accessor for the Node's parent.
      * @return This node's parent.
      */
-    NodeId const &getParent() const {return m_parent; }
+    Node *getParent() {return m_parent; }
+    Node const *getParent() const {return m_parent; }
 
     /**
      * @brief Ask whether this node can transition now.
@@ -253,7 +252,7 @@ namespace PLEXIL {
     const std::vector<Expression *> & getLocalVariables() { return m_localVariables; }
 
     //Isaac - get children
-    virtual const std::vector<NodeId>& getChildren() const;
+    virtual const std::vector<Node *>& getChildren() const;
 
     /**
      * @brief Gets the state variable representing the state of this node.
@@ -388,7 +387,8 @@ namespace PLEXIL {
     static size_t getConditionIndex(const std::string& cName);
     static const std::string& getConditionName(size_t idx);
 
-    virtual NodeId const &findChild(const std::string& childName) const;
+    virtual Node const *findChild(const std::string& childName) const;
+    virtual Node *findChild(const std::string& childName);
 
     void commonInit();
 
@@ -505,7 +505,7 @@ namespace PLEXIL {
     //
     // Common state
     //
-    NodeId m_parent; /*!< The parent of this node.*/
+    Node *m_parent; /*!< The parent of this node.*/
     // Listener for the various condition expressions.
     ConditionChangeListener m_listener;
     std::string m_nodeId;  /*!< the NodeId from the xml.*/

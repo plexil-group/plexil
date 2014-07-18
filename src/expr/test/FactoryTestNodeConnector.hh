@@ -48,7 +48,7 @@ namespace PLEXIL
     Expression *findVariable(const std::string & name,
                                      bool ignored = false);
 
-    NodeId findNodeRef(PlexilNodeRefId const & /* nodeRef */) const;
+    Node *findNodeRef(PlexilNodeRefId const & /* nodeRef */);
 
     std::string const &getNodeId() const;
 

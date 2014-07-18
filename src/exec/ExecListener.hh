@@ -36,7 +36,6 @@ namespace PLEXIL
   class ExecListenerFilter;
 
   class Node;
-  typedef Id<Node> NodeId;
 
   /**
    * @brief A base class for implementing notifications to external agents about exec state changes.
@@ -87,7 +86,7 @@ namespace PLEXIL
     void notifyOfAddLibrary(PlexilNodeId const &libNode) const;
 
     //not sure if anybody wants this
-    // void notifyOfConditionChange(const NodeId& node,
+    // void notifyOfConditionChange(Node *node,
     //                              const LabelStr& condition,
     //                              const bool value) const;
 
@@ -170,7 +169,7 @@ namespace PLEXIL
      * @note Derived classes may implement methods for this, or for implementNotifyNodeTransitions() for batching purposes.
      */
     virtual void implementNotifyNodeTransition(NodeState /* prevState */,
-                                               NodeId const & /* node */) const;
+                                               Node * /* node */) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.

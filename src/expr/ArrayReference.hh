@@ -190,7 +190,8 @@ namespace PLEXIL {
 
     void restoreSavedValue();
 
-    const NodeConnectorId &getNode() const;
+    NodeConnector const *getNode() const;
+    NodeConnector *getNode();
 
     Assignable *getBaseVariable();
     Assignable const *getBaseVariable() const;

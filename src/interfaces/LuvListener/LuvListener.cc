@@ -206,7 +206,7 @@ namespace PLEXIL
    */
   void 
   LuvListener::implementNotifyNodeTransition(NodeState prevState, 
-											 const NodeId& node) const 
+											 Node *node) const 
   {
 	if (m_socket != NULL) {
 	  std::ostringstream s;

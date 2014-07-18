@@ -88,7 +88,7 @@ namespace PLEXIL
   }
 
   Expression *ArithmeticFunctionFactory::allocate(const PlexilExprId& expr,
-                                                  const NodeConnectorId& node,
+                                                  NodeConnector *node,
                                                   bool & wasCreated) const
   {
     PlexilOp const *op = dynamic_cast<PlexilOp const *>((PlexilExpr const *) expr);

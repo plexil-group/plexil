@@ -46,7 +46,7 @@ namespace PLEXIL
     ~ArithmeticFunctionFactory();
 
     Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
+                         NodeConnector *node,
                          bool & wasCreated) const;
 
   protected:

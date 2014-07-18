@@ -28,20 +28,18 @@
 #define PLEXIL_NODE_TIMEPOINT_VALUE_HH
 
 #include "ExpressionImpl.hh"
-#include "Id.hh"
 #include "NodeConstants.hh"
 #include "NotifierImpl.hh"
 
 namespace PLEXIL
 {
   class Node;
-  DECLARE_ID(Node);
 
   class NodeTimepointValue : public NotifierImpl,
                              public ExpressionImpl<double> // FIXME
   {
   public:
-    NodeTimepointValue(NodeId const &node,
+    NodeTimepointValue(Node *node,
                        NodeState state,
                        bool isEnd);
     ~NodeTimepointValue();
@@ -68,7 +66,7 @@ namespace PLEXIL
     NodeTimepointValue &operator=(NodeTimepointValue const &);
 
     std::string const m_name;
-    NodeId m_node;
+    Node *m_node;
     NodeState m_state;
     bool m_end;
   };

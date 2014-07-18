@@ -42,7 +42,7 @@ namespace PLEXIL
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
   UpdateNode::UpdateNode(const PlexilNodeId& node, 
-                         const NodeId& parent)
+                         Node *parent)
     : Node(node, parent)
   {
     checkError(node->nodeType() == NodeType_Update,
@@ -56,7 +56,7 @@ namespace PLEXIL
   UpdateNode::UpdateNode(const std::string& type,
                          const std::string& name, 
                          const NodeState state,
-                         const NodeId& parent)
+                         Node *parent)
     : Node(type, name, state, parent)
   {
     checkError(type == UPDATE,
@@ -127,7 +127,7 @@ namespace PLEXIL
 
   void UpdateNode::createUpdate(const PlexilUpdateBody* body) 
   {
-    m_update = new Update(getId(), body->update());
+    m_update = new Update(this, body->update());
   }
 
   void UpdateNode::createConditionWrappers()
@@ -157,7 +157,7 @@ namespace PLEXIL
   // Unit test variant
   void UpdateNode::createDummyUpdate() 
   {
-    m_update = new Update(getId());
+    m_update = new Update(this);
   }
 
   //

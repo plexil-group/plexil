@@ -46,7 +46,7 @@ namespace PLEXIL
     }
 
     Expression *allocate(PlexilExprId const &expr,
-                         NodeConnectorId const &node,
+                         NodeConnector *node,
                          bool & wasCreated) const
   {
     PlexilLookup const *lkup = (PlexilLookup const *) expr;

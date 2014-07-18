@@ -78,7 +78,7 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  UserVariable<T>::UserVariable(const NodeConnectorId &node,
+  UserVariable<T>::UserVariable(NodeConnector *node,
                                 const std::string &name,
                                 Expression *initializer,
                                 bool initializerIsGarbage)
@@ -268,7 +268,13 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  const NodeConnectorId &UserVariable<T>::getNode() const
+  NodeConnector *UserVariable<T>::getNode()
+  {
+    return m_node;
+  }
+
+  template <typename T>
+  NodeConnector const *UserVariable<T>::getNode() const
   {
     return m_node;
   }

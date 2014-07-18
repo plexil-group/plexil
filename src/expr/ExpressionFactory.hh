@@ -35,9 +35,7 @@ namespace PLEXIL
 {
   // Forward declarations
   class Assignable;
-
   class NodeConnector;
-  DECLARE_ID(NodeConnector);
   
   class PlexilExpr;
   DECLARE_ID(PlexilExpr);
@@ -54,8 +52,8 @@ namespace PLEXIL
     virtual ~ExpressionFactory();
 
     virtual Expression *allocate(const PlexilExprId& expr,
-                                  const NodeConnectorId& node,
-                                  bool & wasCreated) const = 0;
+                                 NodeConnector *node,
+                                 bool & wasCreated) const = 0;
 
     const std::string& getName() const; // needed?
 
@@ -80,7 +78,7 @@ namespace PLEXIL
   // Used in AssignmentNode, CommandNode
   // *** FIXME: Rename to createAssignable ***
   extern Expression *createExpression(const PlexilExprId& expr,
-                                      const NodeConnectorId& node = NodeConnectorId::noId())
+                                      NodeConnector *node = NULL)
     throw (ParserException);
 
   /**
@@ -94,13 +92,13 @@ namespace PLEXIL
    */
   // Used in AssignmentNode, CommandNode, LibraryCallNode, Node::createConditions
   extern Expression *createExpression(const PlexilExprId& expr,
-                                      const NodeConnectorId& node,
+                                      NodeConnector *node,
                                       bool& wasCreated)
     throw (ParserException);
 
   // Used in AssignmentNode, CommandNode
   extern Assignable *createAssignable(const PlexilExprId& expr,
-                                      const NodeConnectorId& node,
+                                      NodeConnector *node,
                                       bool& wasCreated)
     throw (ParserException);
 

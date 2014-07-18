@@ -72,8 +72,8 @@ namespace PLEXIL
   /**
    * @brief Primary factory method.
    */
-  NodeId NodeFactory::createNode(const PlexilNodeId& nodeProto, 
-                                 const NodeId& parent)
+  Node *NodeFactory::createNode(const PlexilNodeId& nodeProto, 
+                                Node *parent)
   {
     checkError(nodeProto.isValid(), "Invalid PlexilNodeId");
     PlexilNodeType nodeType = nodeProto->nodeType();
@@ -84,7 +84,7 @@ namespace PLEXIL
     NodeFactory* factory = factoryMap()[nodeType];
     checkError(factory != NULL, 
                "No NodeFactory registered for node type " << nodeTypeString(nodeType));
-    NodeId result = factory->create(nodeProto, parent);
+    Node *result = factory->create(nodeProto, parent);
     // common post process here
     return result;
   }
@@ -92,10 +92,10 @@ namespace PLEXIL
   /**
    * @brief Alternate factory method.  Used only by Exec test module.
    */
-  NodeId NodeFactory::createNode(const std::string& type, 
-                                 const std::string& name, 
-                                 const NodeState state,
-                                 const NodeId& parent)
+  Node *NodeFactory::createNode(const std::string& type, 
+                                const std::string& name, 
+                                const NodeState state,
+                                Node *parent)
   {
     PlexilNodeType nodeType = parseNodeType(type);
     checkError(nodeType > NodeType_uninitialized
@@ -105,7 +105,7 @@ namespace PLEXIL
     NodeFactory* factory = factoryMap()[nodeType];
     checkError(factory != NULL, 
                "No NodeFactory registered for node type " << type);
-    NodeId result = factory->create(type, name, state, parent);
+    Node *result = factory->create(type, name, state, parent);
     // common post process here
     result->activateInternalVariables();
     return result;

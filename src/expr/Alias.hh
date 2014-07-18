@@ -44,7 +44,7 @@ namespace PLEXIL
   class Alias : public NotifierImpl
   {
   public:
-    Alias(const NodeConnectorId &node, // *** is this needed?? ***
+    Alias(NodeConnector *node, // *** is this needed?? ***
           const std::string &name,
           Expression *original,
           bool garbage = false);
@@ -115,7 +115,7 @@ namespace PLEXIL
 
   protected:
     // Parent node
-    NodeConnectorId m_node;
+    NodeConnector *m_node;
     // Name in the parent node
     const std::string m_name;
 
@@ -131,7 +131,7 @@ namespace PLEXIL
   class InOutAlias : public Alias, public Assignable
   {
   public:
-    InOutAlias(const NodeConnectorId &node,
+    InOutAlias(NodeConnector *node,
                const std::string &name,
                Expression *original,
                bool garbage = false);
@@ -221,11 +221,12 @@ namespace PLEXIL
 
     /**
      * @brief Get the node that owns this expression.
-     * @return The NodeConnectorId of the parent node; may be noId.
+     * @return The parent node; may be NULL.
      * @note Used by LuvFormat::formatAssignment().  
      * @note Default method returns noId().
      */
-    const NodeConnectorId& getNode() const;
+    NodeConnector const *getNode() const;
+    NodeConnector *getNode();
 
     /**
      * @brief Get the real variable for which this may be a proxy.

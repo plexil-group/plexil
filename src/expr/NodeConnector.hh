@@ -40,10 +40,6 @@ namespace PLEXIL
   DECLARE_ID(PlexilNodeRef);
 
   class Node;
-  DECLARE_ID(Node);
-
-  class NodeConnector;
-  DECLARE_ID(NodeConnector);
 
   /**
    * @class NodeConnector
@@ -53,18 +49,15 @@ namespace PLEXIL
   class NodeConnector 
   {
   public:
-    NodeConnector() : m_id(this) {}
-    virtual ~NodeConnector() {m_id.remove();}
-	
-    NodeConnectorId const &getId() const {return m_id;}
+    NodeConnector() {}
+    virtual ~NodeConnector() {}
 
     virtual Expression *findVariable(const PlexilVarRef* ref) = 0;
     virtual Expression *findVariable(const std::string &name, bool recursive = false) = 0;
-    virtual NodeId findNodeRef(PlexilNodeRefId const &nodeRef) const = 0;
+    virtual Node *findNodeRef(PlexilNodeRefId const &nodeRef) = 0;
     virtual std::string const &getNodeId() const = 0;
 
   protected:
-    NodeConnectorId m_id; // shared with derived classes
   };
 
 } // namespace PLEXIL

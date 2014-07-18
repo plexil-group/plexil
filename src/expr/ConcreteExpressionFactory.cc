@@ -48,7 +48,7 @@ namespace PLEXIL
   // N.B. For all but string types, the value string may not be empty.
   template <typename T>
   Expression *ConcreteExpressionFactory<Constant<T> >::allocate(const PlexilExprId& expr,
-                                                                 const NodeConnectorId& /* node */,
+                                                                 NodeConnector * /* node */,
                                                                  bool &wasCreated) const
   {
     PlexilValue const *tmpl = (PlexilValue const *) expr;
@@ -61,7 +61,7 @@ namespace PLEXIL
   // Since there are exactly 3 possible Boolean constants, return references to them.
   template <>
   Expression *ConcreteExpressionFactory<Constant<bool> >::allocate(const PlexilExprId& expr,
-                                                                    const NodeConnectorId& /* node */,
+                                                                    NodeConnector * /* node */,
                                                                     bool &wasCreated) const
   {
     PlexilValue const *tmpl = (PlexilValue const *) expr;
@@ -121,7 +121,7 @@ namespace PLEXIL
 
   template <typename T>
   Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::allocate(const PlexilExprId& expr,
-                                                                      const NodeConnectorId& /* node */,
+                                                                      NodeConnector * /* node */,
                                                                       bool &wasCreated) const
   {
     PlexilArrayValue const *val = dynamic_cast<PlexilArrayValue const *>((PlexilExpr const *) expr);
@@ -138,13 +138,13 @@ namespace PLEXIL
   template <typename T>
   Expression *
   ConcreteExpressionFactory<UserVariable<T> >::allocate(const PlexilExprId& expr,
-                                                        const NodeConnectorId& node,
+                                                        NodeConnector *node,
                                                         bool &wasCreated) const
   {
     PlexilVarRef const *varRef = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
     if (varRef) {
       // Variable reference - look it up
-      checkParserException(node.isId(),
+      checkParserException(node,
                            "createExpression: Variable reference with null node"); // ??
       Expression *result = node->findVariable(varRef);
       checkParserException(result, "createExpression: Can't find variable named " << varRef->varName());
@@ -168,7 +168,7 @@ namespace PLEXIL
   template <typename T>
   Expression *
   ConcreteExpressionFactory<UserVariable<T> >::create(PlexilVar const *var,
-                                                      const NodeConnectorId& node) const
+                                                      NodeConnector *node) const
   {
     bool garbage = false;
     Expression *initexp = NULL;
@@ -184,13 +184,13 @@ namespace PLEXIL
 
   template <typename T>
   Expression *ConcreteExpressionFactory<ArrayVariable<T> >::allocate(const PlexilExprId& expr,
-                                                                      const NodeConnectorId& node,
+                                                                      NodeConnector *node,
                                                                       bool &wasCreated) const
   {
     PlexilVarRef const *varRef = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
     if (varRef) {
       // Variable reference - look it up
-      checkParserException(node.isId(), "createExpression: Internal error: Can't find array variable reference with null node"); // ??
+      checkParserException(node, "createExpression: Internal error: Can't find array variable reference with null node"); // ??
       Expression *result = node->findVariable(varRef);
       checkParserException(result, "createExpression: Can't find array variable named " << varRef->varName());
       checkParserException(result->valueType() == varRef->type(),
@@ -214,7 +214,7 @@ namespace PLEXIL
   template <typename T>
   Expression *
   ConcreteExpressionFactory<ArrayVariable<T> >::create(PlexilArrayVar const *var,
-                                                       const NodeConnectorId& node) const
+                                                       NodeConnector *node) const
   {
     bool garbage = false;
     Expression *sizeexp = new IntegerConstant(var->maxSize());
@@ -227,7 +227,7 @@ namespace PLEXIL
 
   Expression *
   ConcreteExpressionFactory<ArrayReference>::allocate(const PlexilExprId& expr,
-                                                      const NodeConnectorId& node,
+                                                      NodeConnector *node,
                                                       bool & wasCreated) const
   {
     PlexilArrayElement const * ary = 
@@ -251,14 +251,14 @@ namespace PLEXIL
   // Generic variable references
   Expression *
   VariableReferenceFactory::allocate(const PlexilExprId& expr,
-                                     const NodeConnectorId& node,
+                                     NodeConnector *node,
                                      bool & wasCreated) const
   {
     PlexilVarRef const *varRef = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
     checkParserException(varRef, "createExpression: Expression is not a variable reference");
     // Look it up
     wasCreated = false;
-    checkParserException(node.isId(),
+    checkParserException(node,
                          "createExpression: Variable reference with null node"); // ??
     Expression *result = node->findVariable(varRef);
     checkParserException(result, "createExpression: Can't find variable named " << varRef->varName());

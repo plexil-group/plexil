@@ -33,7 +33,6 @@
 #ifndef ADAPTERCONFIGURATION_HH_
 #define ADAPTERCONFIGURATION_HH_
 
-#include "Id.hh"
 #include "InterfaceAdapter.hh"
 
 #include <set>
@@ -184,38 +183,38 @@ namespace PLEXIL {
 
     /**
      * @brief Return the interface adapter in effect for this command, whether
-     specifically registered or default. May return NoId().
+     specifically registered or default. May return NULL.
      * @param commandName The command.
      */
     InterfaceAdapter *getCommandInterface(std::string const &commandName);
 
     /**
      * @brief Return the current default interface adapter for commands.
-              May return NoId().
+              May return NULL.
      */
     InterfaceAdapter *getDefaultCommandInterface();
 
     /**
      * @brief Return the interface adapter in effect for lookups with this state name,
-     whether specifically registered or default. May return NoId().
+     whether specifically registered or default. May return NULL.
      * @param stateName The state.
      */
     InterfaceAdapter *getLookupInterface(std::string const& stateName);
 
     /**
      * @brief Return the current default interface adapter for lookups.
-              May return NoId().
+              May return NULL.
      */
     InterfaceAdapter *getDefaultLookupInterface();
 
     /**
      * @brief Return the interface adapter in effect for planner updates,
-              whether specifically registered or default. May return NoId().
+              whether specifically registered or default. May return NULL.
      */
     InterfaceAdapter *getPlannerUpdateInterface();
 
     /**
-     * @brief Return the current default interface adapter. May return NoId().
+     * @brief Return the current default interface adapter. May return NULL.
      */
     InterfaceAdapter *getDefaultInterface();
 

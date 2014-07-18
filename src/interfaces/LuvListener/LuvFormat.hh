@@ -40,9 +40,7 @@ namespace PLEXIL {
 
   // Forward references in PLEXIL namespace
   class Expression;
-
   class Node;
-  typedef Id<Node> NodeId;
 
   class PlexilNode;
   typedef Id<PlexilNode> PlexilNodeId;
@@ -99,7 +97,7 @@ namespace PLEXIL {
      */
     static void formatTransition(std::ostream &s, 
                                  NodeState prevState,
-                                 const NodeId& node);
+                                 Node *node);
 
     /**
      * @brief Construct the assignment XML.

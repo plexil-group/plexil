@@ -35,7 +35,7 @@
 using namespace PLEXIL;
 
 // Global variable for convenience
-static NodeConnectorId nc;
+static NodeConnector *nc = NULL;
 
 static bool booleanConstantFactoryTest()
 {
@@ -564,7 +564,7 @@ bool constantFactoryTest()
   registerBasicExpressionFactories();
   // Initialize infrastructure
   TrivialNodeConnector conn;
-  nc = conn.getId();
+  nc = &conn;
 
   runTest(booleanConstantFactoryTest);
   runTest(integerConstantFactoryTest);
@@ -576,5 +576,6 @@ bool constantFactoryTest()
   runTest(realArrayConstantFactoryTest);
   runTest(stringArrayConstantFactoryTest);
 
+  nc = NULL;
   return true;
 }

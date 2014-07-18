@@ -93,7 +93,7 @@ namespace PLEXIL
     Value lookupNow(const State& stateKey);
     void subscribe(const State& state);
     void unsubscribe(const State& state);
-    void sendPlannerUpdate(const NodeId& node,
+    void sendPlannerUpdate(Node *node,
                            const std::map<std::string, Value>& valuePairs,
                            ExpressionId ack);
     // Executes a command with the given arguments

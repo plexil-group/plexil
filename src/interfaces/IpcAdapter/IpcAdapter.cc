@@ -300,7 +300,7 @@ namespace PLEXIL
    * @note Derived classes may implement this method.  The default method causes an assertion to fail.
    */
 
-  void IpcAdapter::sendPlannerUpdate(const NodeId& /* node */,
+  void IpcAdapter::sendPlannerUpdate(Node * /* node */,
                                      const std::map<LabelStr, double>& /* valuePairs */,
                                      ExpressionId /* ack */) {
     assertTrueMsg(ALWAYS_FAIL,

@@ -33,7 +33,7 @@
 
 namespace PLEXIL
 {
-  Update::Update(NodeConnectorId const &node,
+  Update::Update(NodeConnector *node,
                  PlexilUpdateId const &updateProto)
     : m_source(node),
       m_ack(),

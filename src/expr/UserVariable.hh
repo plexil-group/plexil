@@ -63,7 +63,7 @@ namespace PLEXIL {
      * @param node The node to which this variable belongs (default none).
      * @param name The name of this variable in the parent node.
      */
-    UserVariable(const NodeConnectorId &node,
+    UserVariable(NodeConnector *node,
                  const std::string &name = "",
                  Expression *initializer = NULL,
                  bool initializerIsGarbage = false);
@@ -128,7 +128,8 @@ namespace PLEXIL {
 
     void setName(const std::string &);
 
-    const NodeConnectorId &getNode() const;
+    NodeConnector *getNode();
+    NodeConnector const *getNode() const;
 
     Assignable *getBaseVariable();
     Assignable const *getBaseVariable() const;
@@ -144,7 +145,7 @@ namespace PLEXIL {
     Expression *m_initializer;
     
     // Only used by LuvListener at present. Eliminate?
-    NodeConnectorId m_node;
+    NodeConnector *m_node;
 
     std::string m_name;
 

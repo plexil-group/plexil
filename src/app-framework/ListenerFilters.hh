@@ -50,7 +50,7 @@ namespace PLEXIL
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */
-    bool reportNodeTransition(NodeState prevState, const NodeId& node);
+    bool reportNodeTransition(NodeState prevState, Node *node);
 
   private:
 

@@ -79,7 +79,7 @@ namespace PLEXIL
 
   // Return true if either the previous or new state is in the filter.
 
-  bool NodeStateFilter::reportNodeTransition(NodeState prevState, const NodeId& node)
+  bool NodeStateFilter::reportNodeTransition(NodeState prevState, Node *node)
   {
     return m_stateEnabled[prevState] || m_stateEnabled[node->getState()];
   }

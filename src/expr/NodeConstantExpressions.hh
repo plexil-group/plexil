@@ -141,7 +141,7 @@ namespace PLEXIL
     }
 
     Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
+                         NodeConnector *node,
                          bool &wasCreated) const;
 
   private:

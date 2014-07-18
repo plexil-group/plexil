@@ -43,7 +43,7 @@ namespace PLEXIL
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
   LibraryCallNode::LibraryCallNode(const PlexilNodeId& nodeProto, 
-                                   const NodeId& parent)
+                                   Node *parent)
     : ListNode(nodeProto, parent)
   {
     checkError(nodeProto->nodeType() == NodeType_LibraryNodeCall,
@@ -66,7 +66,7 @@ namespace PLEXIL
   LibraryCallNode::LibraryCallNode(const std::string& type,
                                    const std::string& name, 
                                    const NodeState state,
-                                   const NodeId& parent)
+                                   Node *parent)
     : ListNode(type, name, state, parent)
   {
     checkError(type == LIBRARYNODECALL,
@@ -122,7 +122,7 @@ namespace PLEXIL
     }
 
     // Construct the child
-    m_children.push_back(NodeFactory::createNode(body->libNode(), m_id));
+    m_children.push_back(NodeFactory::createNode(body->libNode(), this));
   }
 
   void LibraryCallNode::createInAliases(const std::vector<PlexilVarRef*>& interfaceVars,
@@ -157,7 +157,7 @@ namespace PLEXIL
         else {
           // Construct the expression
           aliasedExpr = createExpression(aliasValue,
-                                         NodeConnector::getId(),
+                                         this,
                                          wasCreated);
           debugMsg("LibraryCallNode:createAliases",
                    " Node \"" << m_nodeId
@@ -167,7 +167,7 @@ namespace PLEXIL
 
         // Construct the alias
         Expression *actualVar =             
-          new Alias(NodeConnector::getId(),
+          new Alias(this,
                     varName,
                     aliasedExpr,
                     wasCreated);
@@ -219,10 +219,10 @@ namespace PLEXIL
           // Construct the expression (will error if array read-only)
           bool wasCreated = false;
           Assignable *aref = createAssignable(aliasValue,
-                                              NodeConnector::getId(),
+                                              this,
                                               wasCreated);
           // Construct a wrapper for it
-          actualVar = new InOutAlias(NodeConnector::getId(),
+          actualVar = new InOutAlias(this,
                                      varName,
                                      aref,
                                      wasCreated);

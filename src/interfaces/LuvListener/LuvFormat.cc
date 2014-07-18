@@ -79,9 +79,9 @@ namespace PLEXIL {
 
   //* Internal function for formatNodePath
   void formatNodePathInternal(std::ostream& s, 
-                              const NodeId& node) {
+                              Node const *node) {
     // Fill in parents recursively
-    if (node->getParent().isId())
+    if (node->getParent())
       formatNodePathInternal(s, node->getParent());
     // Put ours at the end
     simpleTextElement(s, LuvFormat::NODE_ID_TAG(), node->getNodeId().c_str());
@@ -93,7 +93,7 @@ namespace PLEXIL {
    * @param node The plan node whose path is being constructed.
    */
   void formatNodePath(std::ostream& s, 
-                      const NodeId& node) {
+                      Node const *node) {
     simpleStartTag(s, LuvFormat::NODE_PATH_TAG());
     formatNodePathInternal(s, node);
     endTag(s, LuvFormat::NODE_PATH_TAG());
@@ -105,7 +105,7 @@ namespace PLEXIL {
    * @param node The node whose conditions are being extracted.
    */
   void formatConditions(std::ostream& s, 
-                        const NodeId& node) 
+                        Node *node) 
   {
     simpleStartTag(s, LuvFormat::CONDITIONS_TAG());
 
@@ -148,7 +148,7 @@ namespace PLEXIL {
    */
   void LuvFormat::formatTransition(std::ostream& s, 
                                    NodeState /* prevState */,
-                                   const NodeId& node) {
+                                   Node *node) {
 
     simpleStartTag(s, NODE_STATE_UPDATE_TAG());
 
@@ -186,8 +186,8 @@ namespace PLEXIL {
     // format variable name
     simpleStartTag(s, VARIABLE_TAG());
     // get path to node, if any
-    const NodeId node = dest->asAssignable()->getNode();
-    if (node.isId()) 
+    Node const *node = dynamic_cast<Node const *>(dest->asAssignable()->getNode());
+    if (node) 
       formatNodePath(s, node);
 
     // get variable name

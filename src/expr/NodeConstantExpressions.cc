@@ -169,7 +169,7 @@ namespace PLEXIL
 
   template <>
   Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(PlexilExprId const &expr,
-                                                                          const NodeConnectorId& node,
+                                                                          NodeConnector *node,
                                                                           bool &wasCreated) const
   {
     PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
@@ -206,7 +206,7 @@ namespace PLEXIL
 
   template <>
   Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(PlexilExprId const &expr,
-                                                                            const NodeConnectorId& node,
+                                                                            NodeConnector *node,
                                                                             bool &wasCreated) const
   {
     PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
@@ -234,7 +234,7 @@ namespace PLEXIL
 
   template <>
   Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(PlexilExprId const &expr,
-                                                                            const NodeConnectorId& node,
+                                                                            NodeConnector *node,
                                                                             bool &wasCreated) const
   {
     PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
@@ -268,7 +268,7 @@ namespace PLEXIL
 
   template <>
   Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(PlexilExprId const &expr,
-                                                                              const NodeConnectorId& node,
+                                                                              NodeConnector *node,
                                                                               bool &wasCreated) const
   {
     PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);

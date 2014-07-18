@@ -36,7 +36,6 @@ namespace PLEXIL
 {
 
   class Node;
-  DECLARE_ID(Node);
 
   /**
    * @brief Abstract factory class for Node instances.
@@ -48,16 +47,16 @@ namespace PLEXIL
     /**
      * @brief Primary factory method.
      */
-    static NodeId createNode(const PlexilNodeId& nodeProto, 
-                             const NodeId& parent = NodeId::noId());
+    static Node *createNode(const PlexilNodeId& nodeProto, 
+                            Node *parent = NULL);
 
     /**
      * @brief Alternate factory method.  Used only by Exec test module.
      */
-    static NodeId createNode(const std::string& type, 
-                             const std::string& name, 
-                             const NodeState state,
-                             const NodeId& parent = NodeId::noId());
+    static Node *createNode(const std::string& type, 
+                            const std::string& name, 
+                            const NodeState state,
+                            Node *parent = NULL);
 
     static void ensureNodeFactoriesRegistered();
 
@@ -70,15 +69,17 @@ namespace PLEXIL
     /**
      * @brief Primary factory method.
      */
-    virtual NodeId create(const PlexilNodeId& node, 
-                          const NodeId& parent = NodeId::noId()) const = 0;
+    virtual Node *create(const PlexilNodeId& node, 
+                         Node *parent = NULL) const = 0;
 
     /**
      * @brief Alternate factory method.  Used only by Exec test module.
      */
 
-    virtual NodeId create(const std::string& type, const std::string& name, const NodeState state,
-                          const NodeId& parent = NodeId::noId()) const = 0;
+    virtual Node *create(const std::string& type,
+                         const std::string& name,
+                         const NodeState state,
+                         Node *parent = NULL) const = 0;
 
     PlexilNodeType m_nodeType;
 
@@ -110,31 +111,31 @@ namespace PLEXIL
     ConcreteNodeFactory(const ConcreteNodeFactory&);
     ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
 
-    NodeId create(const PlexilNodeId& nodeProto, 
-                  const NodeId& parent) const
+    Node *create(const PlexilNodeId& nodeProto, 
+                 Node *parent) const
     {
       // Shouldn't happen
       checkError(nodeProto->nodeType() == m_nodeType,
                  "Factory for node type " << nodeTypeString(m_nodeType)
                  << " invoked on node type "
                  << nodeTypeString(nodeProto->nodeType()));
-      return (new NODE_TYPE(nodeProto, parent))->getId();
+      return new NODE_TYPE(nodeProto, parent);
     }
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
 
-    NodeId create(const std::string& type,
-                  const std::string& name, 
-                  const NodeState state,
-                  const NodeId& parent) const
+    Node *create(const std::string& type,
+                 const std::string& name, 
+                 const NodeState state,
+                 Node *parent) const
     {
       // Shouldn't happen
       checkError(parseNodeType(type) == m_nodeType,
                  "Factory for node type " << nodeTypeString(m_nodeType)
                  << " invoked on node type " << type);
-      return (new NODE_TYPE(type, name, state, parent))->getId();
+      return new NODE_TYPE(type, name, state, parent);
     }
 
   };

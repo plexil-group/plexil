@@ -27,7 +27,7 @@
 #ifndef EXEC_APPLICATION_H
 #define EXEC_APPLICATION_H
 
-#include "Id.hh"
+#include <plexil-config.h>
 
 #ifdef PLEXIL_WITH_THREADS
 #include "ThreadMutex.hh"

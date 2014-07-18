@@ -26,6 +26,7 @@
 
 #include "ArrayVariable.hh"
 #include "Constant.hh"
+#include "Error.hh"
 
 namespace PLEXIL
 {
@@ -63,7 +64,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  ArrayVariable<T>::ArrayVariable(const NodeConnectorId &node,
+  ArrayVariable<T>::ArrayVariable(NodeConnector *node,
                                   const std::string &name,
                                   Expression *size,
                                   Expression *initializer,
@@ -239,7 +240,13 @@ namespace PLEXIL
   }
 
   template <typename T>
-  const NodeConnectorId &ArrayVariable<T>::getNode() const
+  NodeConnector const *ArrayVariable<T>::getNode() const
+  {
+    return m_node;
+  }
+
+  template <typename T>
+  NodeConnector *ArrayVariable<T>::getNode()
   {
     return m_node;
   }

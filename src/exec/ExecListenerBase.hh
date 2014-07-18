@@ -37,10 +37,7 @@ namespace PLEXIL
 
   // Forward references
   class Expression;
-
   class Node;
-  DECLARE_ID(Node);
-
   struct NodeTransition;
 
   class PlexilNode;
@@ -105,7 +102,7 @@ namespace PLEXIL
     virtual void notifyOfAddLibrary(PlexilNodeId const &libNode) const = 0;
 
     //not sure if anybody wants this
-    //virtual void notifyOfConditionChange(const NodeId& node,
+    //virtual void notifyOfConditionChange(Node *node,
     //                                     const LabelStr& condition,
     //                                     const bool value) const;
 

@@ -32,6 +32,8 @@
 #include "UserVariable.hh"
 #include "Value.hh"
 
+#include <map>
+
 namespace PLEXIL
 {
   // TODO:

@@ -28,13 +28,13 @@
 #define PLEXIL_UPDATE_HH
 
 #include "UserVariable.hh"
+#include "Id.hh"
 #include "Value.hh"
 
 namespace PLEXIL
 {
   // Forward declarations in PLEXIL namespace
   class NodeConnector;
-  DECLARE_ID(NodeConnector);
 
   class PlexilUpdate;
   DECLARE_ID(PlexilUpdate);
@@ -42,7 +42,7 @@ namespace PLEXIL
   class Update 
   {
   public:
-    Update(NodeConnectorId const &node,
+    Update(NodeConnector *node,
            PlexilUpdateId const &updateProto = PlexilUpdateId::noId());
     ~Update();
 
@@ -50,7 +50,8 @@ namespace PLEXIL
 
     Expression *getAck() {return &m_ack;}
     const PairValueMap& getPairs() const {return m_valuePairs;}
-    NodeConnectorId getSource() const {return m_source;}
+    NodeConnector *getSource() {return m_source;}
+    NodeConnector const *getSource() const {return m_source;}
     void activate();
     void deactivate();
     void reset();
@@ -68,7 +69,7 @@ namespace PLEXIL
 
     void fixValues();
 
-    NodeConnectorId m_source;
+    NodeConnector *m_source;
     BooleanVariable m_ack;
     std::vector<Expression *> m_garbage;
     typedef std::map<std::string, Expression *> PairExpressionMap;

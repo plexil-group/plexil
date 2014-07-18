@@ -79,7 +79,7 @@ namespace PLEXIL
     void notifyOfAddLibrary(PlexilNodeId const &libNode) const;
 
     //not sure if anybody wants this
-    //void notifyOfConditionChange(const NodeId& node,
+    //void notifyOfConditionChange(Node *node,
     //                             const LabelStr& condition,
     //                             const bool value) const;
 

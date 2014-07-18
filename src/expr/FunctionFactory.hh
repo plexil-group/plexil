@@ -43,14 +43,14 @@ namespace PLEXIL
     virtual ~FunctionFactory();
 
     Expression *allocate(const PlexilExprId& expr,
-                         const NodeConnectorId& node,
+                         NodeConnector *node,
                          bool &wasCreated) const;
 
   protected:
 
     // Base class provides this to derived
     ExprVec *constructExprVec(std::vector<PlexilExprId> const &subexprs,
-                              NodeConnectorId const &node) const;
+                              NodeConnector *node) const;
 
     // Delegated to derived class
     virtual Operator const *getOperator() const = 0;

@@ -48,7 +48,7 @@ namespace PLEXIL
    * @brief Comparator for ordering nodes that are in conflict.  Higher priority wins, but nodes already EXECUTING dominate.
    */
   struct NodeConflictComparator {
-    bool operator() (NodeId x, NodeId y) const
+    bool operator() (Node const *x, Node const *y) const
     {
       check_error_1(x->getType() == NodeType_Assignment);
       check_error_1(y->getType() == NodeType_Assignment);
@@ -66,7 +66,7 @@ namespace PLEXIL
   {
     // Every node on this list is also in m_plan
     m_finishedRootNodes.clear();
-    for (std::list<NodeId>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
+    for (std::list<Node *>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
       delete (Node*) (*it);
     // Delete libraries
     for (std::map<std::string, PlexilNodeId>::iterator it = m_libraries.begin();
@@ -148,7 +148,7 @@ namespace PLEXIL
 
     // Try to construct the node, 
     // and catch any errors that may occur
-    NodeId root;
+    Node *root;
     bool wasThrowEnabled = Error::throwEnabled();
 #ifndef ADD_PLAN_DEBUG
     try {
@@ -156,7 +156,7 @@ namespace PLEXIL
       if (!wasThrowEnabled)
         Error::doThrowExceptions();
       root = NodeFactory::createNode(plan);
-      check_error_1(root.isValid());
+      check_error_1(root);
       root->postInit(plan);
 #ifndef ADD_PLAN_DEBUG
     }
@@ -190,11 +190,11 @@ namespace PLEXIL
   {
     bool result = m_finishedRootNodesDeleted; // return value in the event no plan is active
 
-    for (std::list<NodeId>::const_iterator planit = m_plan.begin();
+    for (std::list<Node *>::const_iterator planit = m_plan.begin();
          planit != m_plan.end();
          ++planit)
       {
-        NodeId root = *planit;
+        Node *root = *planit;
         if (root->getState() == FINISHED_STATE)
           result = true;
         else
@@ -203,11 +203,11 @@ namespace PLEXIL
     return result;
   }
 
-  void PlexilExec::markRootNodeFinished(const NodeId& node)
+  void PlexilExec::markRootNodeFinished(Node *node)
   {
-    checkError(node.isValid(),
+    checkError(node,
                "PlexilExec::markRootNodeFinished: node pointer is invalid");
-    checkError(node->getParent().isNoId(),
+    checkError(!node->getParent(),
                "PlexilExec::markRootNodeFinished: Node \"" << node->getNodeId()
                << "\" is not a root node");
     checkError(node->getState() == FINISHED_STATE,
@@ -219,17 +219,17 @@ namespace PLEXIL
   void PlexilExec::deleteFinishedPlans()
   {
     if (!m_finishedRootNodes.empty()) {
-      for (std::vector<NodeId>::iterator it = m_finishedRootNodes.begin();
+      for (std::vector<Node *>::iterator it = m_finishedRootNodes.begin();
            it != m_finishedRootNodes.end();
            ++it) {
-        checkError(it->isValid(),
-                   "PlexilExec::deleteFinishedPlans: attempt to delete node at invalid pointer");
-        NodeId node = *it;
+        check_error_2(*it,
+                      "PlexilExec::deleteFinishedPlans: null node in finished list");
+        Node *node = *it;
         debugMsg("PlexilExec:deleteFinishedPlans",
                  " deleting node \"" << node->getNodeId() << "\"");
         // Remove from active plan
         bool found = false;
-        for (std::list<NodeId>::iterator pit = m_plan.begin();
+        for (std::list<Node *>::iterator pit = m_plan.begin();
              pit != m_plan.end();
              ++pit) {
           if (*pit == node) {
@@ -249,7 +249,7 @@ namespace PLEXIL
     }
   }
 
-  void PlexilExec::notifyNodeConditionChanged(NodeId node)
+  void PlexilExec::notifyNodeConditionChanged(Node *node)
   {
     debugMsg("PlexilExec:notifyNodeConditionChanged", " for node " << node->getNodeId());
     m_nodesToConsider.push(node);
@@ -262,7 +262,7 @@ namespace PLEXIL
 
   //as a possible optimization, if we spend a lot of time searching through this list,
   //it should be faster to search the list backwards.
-  void PlexilExec::handleConditionsChanged(const NodeId& node, NodeState destState) 
+  void PlexilExec::handleConditionsChanged(Node *node, NodeState destState) 
   {
     debugMsg("PlexilExec:handleConditionsChanged",
              "Node " << node->getNodeId() << " had a relevant condition change.");
@@ -344,7 +344,7 @@ namespace PLEXIL
   }
 
   // Assumes node is a valid ID and points to an Assignment node
-  void PlexilExec::removeFromResourceContention(const NodeId& node) 
+  void PlexilExec::removeFromResourceContention(Node *node) 
   {
     Assignable *lhs = node->getAssignmentVariable();
     assertTrue_1(lhs && lhs->isAssignable());
@@ -385,7 +385,7 @@ namespace PLEXIL
   }
 
   // Assumes node is a valid ID and points to an Assignment node whose next state is EXECUTING
-  void PlexilExec::addToResourceContention(const NodeId& node) {
+  void PlexilExec::addToResourceContention(Node *node) {
     Assignable *lhs = node->getAssignmentVariable();
     assertTrue_1(lhs && lhs->isAssignable());
     Assignable const *exp = lhs->asAssignable();
@@ -437,7 +437,7 @@ namespace PLEXIL
     checkError(m_stateChangeQueue.empty(), "State change queue not empty at entry");
 
     unsigned int stepCount = 0;
-    unsigned int cycleNum = g_interface->incrementCycleCount();
+    unsigned int cycleNum = g_interface->getCycleCount();
     debugMsg("PlexilExec:cycle", "==>Start cycle " << cycleNum);
 
     // BEGIN QUIESCENCE LOOP
@@ -447,10 +447,9 @@ namespace PLEXIL
 
       // Evaluate conditions of nodes reporting a change
       while (!m_nodesToConsider.empty()) {
-        NodeId candidate = m_nodesToConsider.front();
+        Node *candidate = m_nodesToConsider.front();
         m_nodesToConsider.pop();
-        // If we have to check node validity, do it here, instead of redundantly below.
-        check_error_1(candidate.isValid());
+        check_error_1(candidate);
         candidate->checkConditions(); // modifies m_stateChangeQueue, m_resourceConflicts
       }
 
@@ -472,7 +471,7 @@ namespace PLEXIL
       for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
            it != m_stateChangeQueue.end();
            ++it) {
-        const NodeId& node = it->node;
+        Node *node = it->node;
         debugMsg("PlexilExec:step",
                  "[" << cycleNum << ":" << stepCount << ":" << microStepCount <<
                  "] Transitioning node " << node->getNodeId()
@@ -507,14 +506,13 @@ namespace PLEXIL
            && g_interface->outboundQueueEmpty()
            && !m_nodesToConsider.empty());
     // END QUIESCENCE LOOP
-
     // Perform side effects
-
+    g_interface->incrementCycleCount();
     performAssignments();
     g_interface->executeOutboundQueue();
 
     debugMsg("PlexilExec:cycle", "==>End cycle " << cycleNum);
-    for (std::list<NodeId>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {
+    for (std::list<Node *>::const_iterator it = m_plan.begin(); it != m_plan.end(); ++it) {
       debugMsg("PlexilExec:printPlan", std::endl << **it);
     }
     //
@@ -576,7 +574,7 @@ namespace PLEXIL
     }
 
     //we only have to look at all the nodes with the highest priority
-    NodeId nodeToExecute;
+    Node *nodeToExecute;
     NodeState destState = NO_NODE_STATE;
     VariableConflictSet::const_iterator conflictIt = conflictSet.begin(); 
     size_t count = conflictSet.count(*conflictIt); // # of nodes with same priority as top
@@ -590,7 +588,7 @@ namespace PLEXIL
 
       // Look at the destination states of all the nodes with equal priority
       for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
-        NodeId node = *conflictIt;
+        Node *node = *conflictIt;
         NodeState dest = node->getNextState();
 
         // Found one that is scheduled for execution
@@ -636,7 +634,7 @@ namespace PLEXIL
     for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
          it != m_stateChangeQueue.end();
          ++it) {
-      check_error_1(it->node.isValid());
+      check_error_1(it->node);
       retval << it->node->getNodeId() << " ";
     }
     return retval.str();

@@ -25,7 +25,6 @@
  */
 
 #include "InterfaceAdapter.hh"
-#include "LabelStr.hh"
 #include "ThreadSemaphore.hh"
 #include "MessageQueueMap.hh"
 #include "IpcFacade.hh"
@@ -151,7 +150,7 @@ public:
    * @param ack The expression in which to store an acknowledgement of completion.
    */
 
-  virtual void sendPlannerUpdate(const NodeId& node, const std::map<LabelStr, double>& valuePairs, ExpressionId ack);
+  virtual void sendPlannerUpdate(Node *node, const std::map<LabelStr, double>& valuePairs, ExpressionId ack);
 
   /**
    * @brief Execute a command with the requested arguments.

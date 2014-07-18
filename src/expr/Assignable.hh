@@ -27,17 +27,12 @@
 #ifndef PLEXIL_ASSIGNABLE_HH
 #define PLEXIL_ASSIGNABLE_HH
 
-#include "Id.hh"
 #include "NotifierImpl.hh"
 
 namespace PLEXIL {
   
   // Forward declarations
-  class Assignable;
-
   class NodeConnector;
-  DECLARE_ID(NodeConnector);
-
   class Value;
 
   /**
@@ -153,11 +148,12 @@ namespace PLEXIL {
 
     /**
      * @brief Get the node that owns this expression.
-     * @return The parent node; may be noId.
+     * @return The parent node; may be NULL.
      * @note Used by LuvFormat::formatAssignment().  
-     * @note Default method returns noId().
+     * @note Default method returns NULL.
      */
-    virtual const NodeConnectorId& getNode() const;
+    virtual NodeConnector *getNode();
+    virtual NodeConnector const *getNode() const;
 
     /**
      * @brief Get the real variable for which this may be a proxy.

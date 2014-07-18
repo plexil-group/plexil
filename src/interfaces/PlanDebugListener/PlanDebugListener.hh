@@ -50,7 +50,7 @@ namespace PLEXIL
 
     // Capture and report about useful node state transitions.
     void implementNotifyNodeTransition(NodeState prevState,
-                                       const NodeId& node) const;
+                                       Node *node) const;
 
   private:
     // Disallow copy, and assignment

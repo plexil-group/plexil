@@ -25,6 +25,7 @@
 */
 
 #include "Assignable.hh"
+#include "Error.hh"
 
 namespace PLEXIL {
 
@@ -145,13 +146,18 @@ namespace PLEXIL {
 
   /**
    * @brief Get the node that owns this expression.
-   * @return The parent node; may be noId.
+   * @return The parent node; may be NULL.
    * @note Used by LuvFormat::formatAssignment().  
    * @note Default method.
    */
-  const NodeConnectorId& Assignable::getNode() const
+  NodeConnector *Assignable::getNode()
   {
-    return NodeConnectorId::noId(); 
+    return NULL;
+  }
+
+  NodeConnector const *Assignable::getNode() const
+  {
+    return NULL;
   }
 
 } // namespace PLEXIL

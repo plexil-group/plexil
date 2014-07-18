@@ -91,7 +91,7 @@ namespace PLEXIL
      * @note The current state is accessible via the node.
      */
     void implementNotifyNodeTransition(NodeState prevState, 
-									   const NodeId& node) const;
+									   Node *node) const;
 
     /**
      * @brief Notify that a plan has been received by the Exec.

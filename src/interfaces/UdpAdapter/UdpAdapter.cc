@@ -135,7 +135,7 @@ namespace PLEXIL
     return Value();
   }
 
-  void UdpAdapter::sendPlannerUpdate(const NodeId& node,
+  void UdpAdapter::sendPlannerUpdate(Node *node,
                                      const std::map<std::string, Value>& /* valuePairs */,
                                      ExpressionId ack)
   {

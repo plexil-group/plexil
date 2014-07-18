@@ -27,25 +27,23 @@
 #ifndef PLEXIL_NODE_TRANSITION_HH
 #define PLEXIL_NODE_TRANSITION_HH
 
-#include "Id.hh"
 #include "NodeConstants.hh" // for NodeState type
 
 namespace PLEXIL
 {
   // Forward references
   class Node;
-  DECLARE_ID(Node);
 
   /**
    * @brief A data structure for recording or reporting node state transitions.
    */
   struct NodeTransition {
-    NodeId node;
+    Node *node;
     NodeState state;
     // default constructor
     NodeTransition() : node(), state(INACTIVE_STATE) {}
     // trivial constructor
-    NodeTransition(const NodeId& nod, NodeState stat) : node(nod), state(stat) {}
+    NodeTransition(Node *nod, NodeState stat) : node(nod), state(stat) {}
   };
 
 } // namespace PLEXIL

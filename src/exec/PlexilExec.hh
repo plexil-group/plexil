@@ -150,7 +150,7 @@ namespace PLEXIL
     /**
      * @brief Mark node as finished and no longer eligible for execution.
      */
-    void markRootNodeFinished(const NodeId& node);
+    void markRootNodeFinished(Node *node);
 
   protected:
     friend class RealExecConnector;
@@ -159,14 +159,14 @@ namespace PLEXIL
      * @brief Handle the fact that a node's conditions may have changed (it is eligible for state change).
      * @param node The node which is eligible for state change.
      */
-    void notifyNodeConditionChanged(NodeId node);
+    void notifyNodeConditionChanged(Node *node);
 
     /**
      * @brief Handle the fact that a node's relevant conditions have changed (it is eligible for state change).
      * Adds assignment nodes that are eligible for execution to the resource conflict map.
      * @param node The node which is eligible for state change.
      */
-    void handleConditionsChanged(const NodeId& node, NodeState newState);
+    void handleConditionsChanged(Node *node, NodeState newState);
 
   private:
     // Not implemented
@@ -175,7 +175,7 @@ namespace PLEXIL
 
     // Private types
     typedef std::vector<NodeTransition> StateChangeQueue;
-    typedef std::multiset<NodeId, NodeConflictComparator> VariableConflictSet;
+    typedef std::multiset<Node *, NodeConflictComparator> VariableConflictSet;
     typedef std::map<Assignable const *, VariableConflictSet> VariableConflictMap;
 
     /**
@@ -193,14 +193,14 @@ namespace PLEXIL
      * @brief Adds a node to consideration for resource contention.  The node must be an assignment node and it must be eligible to transition to EXECUTING.
      * @param node The assignment node.
      */
-    void addToResourceContention(const NodeId& node);
+    void addToResourceContention(Node *node);
 
     /**
      * @brief Removes a node from consideration for resource contention.  This is usually because some condition has changed that makes the node no longer
      * eligible for execution.
      * @param node The assignment node.
      */
-    void removeFromResourceContention(const NodeId& node);
+    void removeFromResourceContention(Node *node);
 
     /**
      * @brief Gets a stringified version of the current state change queue.
@@ -213,9 +213,9 @@ namespace PLEXIL
     void performAssignments();
 
     ExecListenerHub *m_listener;
-    std::list<NodeId> m_plan; /*<! The root of the plan.*/
-    std::vector<NodeId> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
-    std::queue<NodeId> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
+    std::list<Node *> m_plan; /*<! The root of the plan.*/
+    std::vector<Node *> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
+    std::queue<Node *> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
     StateChangeQueue m_stateChangeQueue; /*<! Nodes that are eligible for state transition.*/
     std::vector<Assignment *> m_assignmentsToExecute;
     std::vector<Assignment *> m_assignmentsToRetract;

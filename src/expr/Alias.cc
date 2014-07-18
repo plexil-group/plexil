@@ -25,6 +25,7 @@
 */
 
 #include "Alias.hh"
+#include "Error.hh"
 #include "Value.hh"
 
 namespace PLEXIL
@@ -33,7 +34,7 @@ namespace PLEXIL
   // Alias
   //
 
-  Alias::Alias(const NodeConnectorId &node,
+  Alias::Alias(NodeConnector *node,
                const std::string &name,
                Expression *original,
                bool garbage)
@@ -194,7 +195,7 @@ namespace PLEXIL
   // InOutAlias
   //
 
-  InOutAlias::InOutAlias(const NodeConnectorId &node,
+  InOutAlias::InOutAlias(NodeConnector *node,
                          const std::string &name,
                          Expression *original,
                          bool garbage)
@@ -362,7 +363,12 @@ namespace PLEXIL
     return m_name;
   }
 
-  const NodeConnectorId& InOutAlias::getNode() const
+  NodeConnector const *InOutAlias::getNode() const
+  {
+    return m_node;
+  }
+
+  NodeConnector *InOutAlias::getNode()
   {
     return m_node;
   }

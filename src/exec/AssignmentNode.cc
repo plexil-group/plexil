@@ -37,7 +37,7 @@ namespace PLEXIL
 {
 
   AssignmentNode::AssignmentNode(const PlexilNodeId& nodeProto, 
-                                 const NodeId& parent)
+                                 Node *parent)
     : Node(nodeProto, parent),
       m_priority(nodeProto->priority())
   {
@@ -50,7 +50,7 @@ namespace PLEXIL
   AssignmentNode::AssignmentNode(const std::string &type,
                                  const std::string &name, 
                                  const NodeState state,
-                                 const NodeId& parent)
+                                 Node *parent)
     : Node(type, name, state, parent)
   {
     checkError(type == ASSIGNMENT,
@@ -115,13 +115,9 @@ namespace PLEXIL
                "Need at least one destination variable in assignment.");
     const PlexilExprId& destExpr = (body->dest())[0]->getId();
     bool deleteLhs = false;
-    Assignable *dest = createAssignable(destExpr, 
-                                        NodeConnector::getId(),
-                                        deleteLhs);
+    Assignable *dest = createAssignable(destExpr, this, deleteLhs);
     bool deleteRhs = false;
-    Expression *rhs = createExpression(body->RHS(),
-                                       NodeConnector::getId(),
-                                       deleteRhs);
+    Expression *rhs = createExpression(body->RHS(), this, deleteRhs);
     m_assignment =
       new Assignment(dest, rhs, deleteLhs, deleteRhs, m_nodeId);
   }

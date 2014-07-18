@@ -34,7 +34,7 @@
 using namespace PLEXIL;
 
 // Global variables for convenience
-static NodeConnectorId nc;
+static NodeConnector *nc = NULL;
 static FactoryTestNodeConnector *realNc = NULL;
 
 static bool booleanVariableFactoryTest()
@@ -858,7 +858,7 @@ bool variableFactoryTest()
   registerBasicExpressionFactories();
   // Initialize infrastructure
   realNc = new FactoryTestNodeConnector();
-  nc = realNc->getId();
+  nc = realNc;
 
   runTest(booleanVariableFactoryTest);
   runTest(integerVariableFactoryTest);
@@ -869,7 +869,7 @@ bool variableFactoryTest()
   runTest(realArrayVariableFactoryTest);
   runTest(stringArrayVariableFactoryTest);
 
-  nc = NodeConnectorId::noId();
+  nc = NULL;
   delete realNc;
   return true;
 }

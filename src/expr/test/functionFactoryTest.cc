@@ -37,7 +37,7 @@ using namespace PLEXIL;
 
 // Global for convenience
 
-static NodeConnectorId nc = NodeConnectorId::noId();
+static NodeConnector *nc = NULL;
 
 static bool isKnownFactoryTest()
 {
@@ -491,13 +491,14 @@ bool functionFactoryTest()
   // Initialize factories
   registerBasicExpressionFactories();
   // Initialize infrastructure
-  nc = (new TrivialNodeConnector())->getId();
+  nc = new TrivialNodeConnector();
 
   runTest(isKnownFactoryTest);
   runTest(stringFunctionFactoryTest);
   runTest(booleanFunctionFactoryTest);
   runTest(arithmeticFunctionFactoryTest);
 
-  delete (NodeConnector *) nc;
+  delete nc;
+  nc = NULL;
   return true;
 }

@@ -36,9 +36,7 @@ namespace PLEXIL
   class Assignment;
   class ExecListenerHub;
   class ExternalInterface;
-
   class Node;
-  DECLARE_ID(Node);
 
   class PlexilNode;
   DECLARE_ID(PlexilNode);
@@ -50,8 +48,8 @@ namespace PLEXIL
   public:
     ExecConnector() {}
     virtual ~ExecConnector() {}
-    virtual void notifyNodeConditionChanged(NodeId node) = 0;
-    virtual void handleConditionsChanged(const NodeId& node, NodeState newState) = 0;
+    virtual void notifyNodeConditionChanged(Node *node) = 0;
+    virtual void handleConditionsChanged(Node *node, NodeState newState) = 0;
 
     /**
      * @brief Schedule this assignment for execution.
@@ -66,7 +64,7 @@ namespace PLEXIL
     /**
      * @brief Mark node as finished and no longer eligible for execution.
      */
-    virtual void markRootNodeFinished(const NodeId& node) = 0;
+    virtual void markRootNodeFinished(Node *node) = 0;
 
     // Needed by TestExternalInterface
 
