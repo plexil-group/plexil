@@ -32,7 +32,10 @@ namespace PLEXIL
   // PlexilState
   //
   PlexilState::PlexilState() 
-  : m_lineNo(0), m_colNo(0) 
+    : m_nameExpr(NULL),
+      m_args(),
+      m_lineNo(0),
+      m_colNo(0) 
   {
   }
 
@@ -83,7 +86,7 @@ namespace PLEXIL
 
   void PlexilState::setName(const std::string& name)
   {
-    setNameExpr(new PlexilValue(STRING_TYPE, name));
+    m_nameExpr = new PlexilValue(STRING_TYPE, name);
   }
 
   void PlexilState::setNameExpr(PlexilExpr *nameExpr)
@@ -106,7 +109,8 @@ namespace PLEXIL
   //
 
   PlexilLookup::PlexilLookup()
-    : PlexilExpr() 
+    : PlexilExpr(),
+      m_state(NULL)
   {
   }
 
@@ -135,7 +139,8 @@ namespace PLEXIL
   // PlexilChangeLookup
   //
   PlexilChangeLookup::PlexilChangeLookup()
-    : PlexilLookup()
+    : PlexilLookup(),
+      m_tolerance(NULL)
   {
   }
 

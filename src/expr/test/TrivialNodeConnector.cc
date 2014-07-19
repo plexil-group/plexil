@@ -46,7 +46,7 @@ Expression *TrivialNodeConnector::findVariable(const std::string & /* name */,
   return NULL;
 }
 
-Node *TrivialNodeConnector::findNodeRef(PlexilNodeRefId const & /* nodeRef */)
+Node *TrivialNodeConnector::findNodeRef(PlexilNodeRef const * /* nodeRef */)
 {
   return NULL;
 }

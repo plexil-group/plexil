@@ -72,10 +72,10 @@ namespace PLEXIL
   /**
    * @brief Primary factory method.
    */
-  Node *NodeFactory::createNode(const PlexilNodeId& nodeProto, 
+  Node *NodeFactory::createNode(PlexilNode const *nodeProto, 
                                 Node *parent)
   {
-    checkError(nodeProto.isValid(), "Invalid PlexilNodeId");
+    checkError(nodeProto, "Invalid PlexilNodeId");
     PlexilNodeType nodeType = nodeProto->nodeType();
     checkError(nodeType > NodeType_uninitialized
                && nodeType < NodeType_error,
@@ -94,7 +94,7 @@ namespace PLEXIL
    */
   Node *NodeFactory::createNode(const std::string& type, 
                                 const std::string& name, 
-                                const NodeState state,
+                                NodeState state,
                                 Node *parent)
   {
     PlexilNodeType nodeType = parseNodeType(type);

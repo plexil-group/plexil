@@ -58,7 +58,7 @@ namespace PLEXIL
       Command *command;
       Update *update;
       State const *state;
-      PlexilNode const *plan;
+      PlexilNode *plan;
       unsigned int sequence;
     };
     Value value;
@@ -74,8 +74,8 @@ namespace PLEXIL
 
     void initForUpdateAck(Update *upd, bool ack);
 
-    void initForAddPlan(PlexilNode const *p);
-    void initForAddLibrary(PlexilNode const *p);
+    void initForAddPlan(PlexilNode *p);
+    void initForAddLibrary(PlexilNode *p);
 
     void initForMark(unsigned int seq);
 

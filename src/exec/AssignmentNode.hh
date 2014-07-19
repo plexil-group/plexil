@@ -43,7 +43,7 @@ namespace PLEXIL
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    AssignmentNode(const PlexilNodeId& node,
+    AssignmentNode(PlexilNode const *node,
                    Node *parent = NULL);
 
     /**
@@ -51,7 +51,7 @@ namespace PLEXIL
      */
     AssignmentNode(const std::string &type,
                    const std::string &name,
-                   const NodeState state,
+                   NodeState state,
                    Node *parent = NULL);
 
     /**
@@ -73,7 +73,7 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    void specializedPostInit(const PlexilNodeId& node);
+    void specializedPostInit(PlexilNode const *node);
     void specializedHandleExecution();
     void specializedDeactivateExecutable();
     void specializedReset();

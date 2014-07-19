@@ -27,7 +27,6 @@
 #ifndef EXEC_LISTENER_BASE_HH
 #define EXEC_LISTENER_BASE_HH
 
-#include "Id.hh"
 #include "pugixml.hpp"
 
 #include <vector>
@@ -39,10 +38,7 @@ namespace PLEXIL
   class Expression;
   class Node;
   struct NodeTransition;
-
   class PlexilNode;
-  typedef Id<PlexilNode> PlexilNodeId;
-
   class Value;
 
   /**
@@ -93,18 +89,13 @@ namespace PLEXIL
      * @brief Notify that a plan has been received by the Exec.
      * @param plan The intermediate representation of the plan.
      */
-    virtual void notifyOfAddPlan(PlexilNodeId const &plan) const = 0;
+    virtual void notifyOfAddPlan(PlexilNode const *plan) const = 0;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      */
-    virtual void notifyOfAddLibrary(PlexilNodeId const &libNode) const = 0;
-
-    //not sure if anybody wants this
-    //virtual void notifyOfConditionChange(Node *node,
-    //                                     const LabelStr& condition,
-    //                                     const bool value) const;
+    virtual void notifyOfAddLibrary(PlexilNode const *libNode) const = 0;
 
     /**
      * @brief Notify that a variable assignment has been performed.

@@ -34,7 +34,7 @@
 namespace PLEXIL
 {
   Update::Update(NodeConnector *node,
-                 PlexilUpdateId const &updateProto)
+                 PlexilUpdate const *updateProto)
     : m_source(node),
       m_ack(),
       m_garbage(),
@@ -43,7 +43,7 @@ namespace PLEXIL
     // Make ack variable pretty
     m_ack.setName(node->getNodeId() + " ack");
 
-    if (updateProto.isId()) {
+    if (updateProto) {
       for (std::vector<std::pair<std::string, PlexilExpr *> >::const_iterator it =
              updateProto->pairs().begin();
            it != updateProto->pairs().end();

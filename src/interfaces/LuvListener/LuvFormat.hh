@@ -28,7 +28,6 @@
 #define Luv_Format_hh
 
 #include "ConstantMacros.hh"
-#include "Id.hh"
 #include "NodeConstants.hh"
 #include "Value.hh"
 #include "pugixml.hpp" // for pugi::format_raw
@@ -41,9 +40,7 @@ namespace PLEXIL {
   // Forward references in PLEXIL namespace
   class Expression;
   class Node;
-
   class PlexilNode;
-  typedef Id<PlexilNode> PlexilNodeId;
 
   class LuvFormat {
   public:
@@ -118,7 +115,7 @@ namespace PLEXIL {
      * @param parent The node ID of the parent (currently ignored).
      */
     static void formatPlan(std::ostream &s,
-                           PlexilNodeId const &plan);
+                           PlexilNode const *plan);
 
     /**
      * @brief Construct the message representing a new library node.
@@ -126,7 +123,7 @@ namespace PLEXIL {
      * @param plan The intermediate representation of the library node.
      */
     static void formatLibrary(std::ostream& s,
-                              const PlexilNodeId& libNode);
+                              PlexilNode const *libNode);
 
   private:
 

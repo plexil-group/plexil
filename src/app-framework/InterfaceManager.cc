@@ -272,12 +272,12 @@ namespace PLEXIL
         // Plan -- add the plan
         assertTrue_1(entry->plan);
         {
-          PlexilNodeId pid = entry->plan->getId();
-          assertTrue_1(pid.isValid());
+          PlexilNode *pid = entry->plan;
+          assertTrue_1(pid);
           debugMsg("InterfaceManager:processQueue",
                    " adding plan " << entry->plan->nodeId());
           g_exec->addPlan(pid);
-          delete (PlexilNode *)pid;
+          delete pid;
         }
         entry->plan = NULL;
         needsStep = true;
@@ -287,8 +287,8 @@ namespace PLEXIL
         // Library -- add the library
         assertTrue_1(entry->plan);
         {
-          PlexilNodeId pid = entry->plan->getId();
-          assertTrue_1(pid.isValid());
+          PlexilNode *pid = entry->plan;
+          assertTrue_1(pid);
           debugMsg("InterfaceManager:processQueue",
                    " adding library " << entry->plan->nodeId());
           g_exec->addLibraryNode(pid);
@@ -592,7 +592,7 @@ namespace PLEXIL
                          "<" << planXml.name() << "> is not a valid Plexil XML plan");
 
     // parse the plan
-    PlexilNodeId root =
+    PlexilNode *root =
       PlexilXmlParser::parse(planXml.child("Node")); // can also throw ParserException
 
     return this->handleAddPlan(root);
@@ -604,23 +604,21 @@ namespace PLEXIL
    * @return False if the plan references unloaded libraries, true otherwise.
    */
   bool
-  InterfaceManager::handleAddPlan(PlexilNodeId planStruct)
+  InterfaceManager::handleAddPlan(PlexilNode *planStruct)
   {
     assertTrue_1(m_inputQueue);
-    checkError(planStruct.isId(),
-               "InterfaceManager::handleAddPlan: Invalid PlexilNodeId");
-
-    debugMsg("InterfaceManager:handleAddPlan", " entered");
 
     // Check for null
-    if (planStruct.isNoId()) {
+    if (!planStruct) {
       debugMsg("InterfaceManager:handleAddPlan", 
                " failed; PlexilNodeId is null");
       return false;
     }
 
+    debugMsg("InterfaceManager:handleAddPlan", " entered");
+
     // Check whether plan is a library w/o a caller
-    PlexilInterfaceId interface = planStruct->interface();
+    PlexilInterface const *interface = planStruct->interface();
     if (interface) {
       debugMsg("InterfaceManager:handleAddPlan", 
                " for " << planStruct->nodeId() << " failed; root node may not have interface variables");
@@ -638,31 +636,32 @@ namespace PLEXIL
     for (unsigned int i = 0; i < libs.size(); i++) {
       // COPY the string because its location may change out from under us!
       const std::string libname(libs[i]);
-      PlexilNodeId libroot = g_exec->getLibrary(libname);
-      if (libroot.isNoId()) {
+      PlexilNode const *libroot = g_exec->getLibrary(libname);
+      if (!libroot) {
         // Try to load the library
-        libroot = PlexilXmlParser::findLibraryNode(libname,
-                                                   g_configuration->getLibraryPath());
-        if (libroot.isNoId()) {
+        PlexilNode *loadroot =
+          PlexilXmlParser::findLibraryNode(libname,
+                                           g_configuration->getLibraryPath());
+        if (!loadroot) {
           debugMsg("InterfaceManager:handleAddPlan", 
                    " Plan references unloaded library node \"" << libname << "\"");
-          delete (PlexilNode*) planStruct;
+          delete planStruct;
           return false;
         }
         
         // add the library node
-        handleAddLibrary(libroot);
+        handleAddLibrary(loadroot);
+        libroot = loadroot;
       }
 
       // Make note of any dependencies in the library itself
-      if (libroot.isId())
-        libroot->getLibraryReferences(libs);
+      libroot->getLibraryReferences(libs);
     }
 
     if (result) {
       QueueEntry *entry = m_inputQueue->allocate();
       assertTrue_1(entry);
-      entry->initForAddPlan((PlexilNode *) planStruct);
+      entry->initForAddPlan(planStruct);
       m_inputQueue->put(entry);
       debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
     }
@@ -674,14 +673,14 @@ namespace PLEXIL
    * @param planStruct The PlexilNode representation of the new node.
    */
   void
-  InterfaceManager::handleAddLibrary(PlexilNodeId planStruct)
+  InterfaceManager::handleAddLibrary(PlexilNode *planStruct)
   {
     assertTrue_1(m_inputQueue);
-    checkError(planStruct.isId(),
-               "InterfaceManager::handleAddLibrary: Invalid PlexilNodeId");
+    checkError(planStruct,
+               "InterfaceManager::handleAddLibrary: Null plan");
     QueueEntry *entry = m_inputQueue->allocate();
     assertTrue_1(entry);
-    entry->initForAddPlan((PlexilNode *) planStruct);
+    entry->initForAddPlan(planStruct);
     m_inputQueue->put(entry);
     debugMsg("InterfaceManager:handleAddLibrary", " library node enqueued");
   }
@@ -692,7 +691,7 @@ namespace PLEXIL
    */
   bool
   InterfaceManager::isLibraryLoaded(const std::string &libName) const {
-    return g_exec->getLibrary(libName).isId();
+    return NULL != g_exec->getLibrary(libName);
   }
 
   /**

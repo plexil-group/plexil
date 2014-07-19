@@ -41,7 +41,7 @@ namespace PLEXIL
    * @param node The PlexilNodeId for this node and all of its children.
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
-  UpdateNode::UpdateNode(const PlexilNodeId& node, 
+  UpdateNode::UpdateNode(PlexilNode const *node, 
                          Node *parent)
     : Node(node, parent)
   {
@@ -55,7 +55,7 @@ namespace PLEXIL
    */
   UpdateNode::UpdateNode(const std::string& type,
                          const std::string& name, 
-                         const NodeState state,
+                         NodeState state,
                          Node *parent)
     : Node(type, name, state, parent)
   {
@@ -110,13 +110,13 @@ namespace PLEXIL
   }
 
   // Specific behaviors for derived classes
-  void UpdateNode::specializedPostInit(const PlexilNodeId& node)
+  void UpdateNode::specializedPostInit(PlexilNode const *node)
   {
     debugMsg("Node:postInit", "Creating update for node '" << m_nodeId << "'");
     // XML parser should have checked for this
-    checkError(Id<PlexilUpdateBody>::convertable(node->body()),
-               "Node is an update node but doesn't have an update body.");
-    createUpdate((PlexilUpdateBody*) node->body());
+    assertTrue_2(dynamic_cast<PlexilUpdateBody const *>(node->body()),
+                 "Node is an update node but doesn't have an update body.");
+    createUpdate((PlexilUpdateBody const *) node->body());
 
     // Create action-complete condition
     Expression *actionComplete = m_update->getAck();
@@ -125,7 +125,7 @@ namespace PLEXIL
     m_garbageConditions[actionCompleteIdx] = false;
   }
 
-  void UpdateNode::createUpdate(const PlexilUpdateBody* body) 
+  void UpdateNode::createUpdate(PlexilUpdateBody const *body) 
   {
     m_update = new Update(this, body->update());
   }

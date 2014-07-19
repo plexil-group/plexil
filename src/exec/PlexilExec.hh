@@ -71,9 +71,9 @@ namespace PLEXIL
     /**
      * @brief Retrieves the named library node if it is present.
      * @param nodeName The name of the library node.
-     * @return The library node, or noId() if not found.
+     * @return The library node, or NULL if not found.
      */
-    PlexilNodeId getLibrary(const std::string& nodeName) const;
+    PlexilNode const *getLibrary(const std::string& nodeName) const;
 
     //
     // API to ExternalInterface
@@ -84,13 +84,13 @@ namespace PLEXIL
      * @param Intermediate representation of the plan's root node.
      * @return True if succesful, false otherwise.
      */
-    bool addPlan(PlexilNodeId const &plan);
+    bool addPlan(PlexilNode *plan);
 
     /**
      * @brief Add the given plan as a library node.
      * @param Intermediate representation of the plan's root node.
      */
-    void addLibraryNode(PlexilNodeId const &plan);
+    void addLibraryNode(PlexilNode *plan);
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
@@ -225,7 +225,7 @@ namespace PLEXIL
                                                The sets are ordered by priority, but the order is dominated by FAILING nodes.
                                                Essentially, at each quiescence cycle, the first node in each set that isn't already
                                                in state FAILING gets added to the end of the queue. */
-    std::map<std::string, PlexilNodeId> m_libraries;
+    std::map<std::string, PlexilNode *> m_libraries;
     unsigned int m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };

@@ -32,7 +32,7 @@
 using PLEXIL::NodeConnector;
 using PLEXIL::Expression;
 using PLEXIL::Node;
-using PLEXIL::PlexilNodeRefId;
+using PLEXIL::PlexilNodeRef;
 using PLEXIL::PlexilVarRef;
 
 class TrivialNodeConnector : public NodeConnector
@@ -44,7 +44,7 @@ public:
   Expression *findVariable(const PlexilVarRef* /* ref */);
   Expression *findVariable(const std::string & /* name */,
                            bool /* recursive */ = false);
-  Node *findNodeRef(PlexilNodeRefId const & /* nodeRef */);
+  Node *findNodeRef(PlexilNodeRef const * /* nodeRef */);
   std::string const &getNodeId() const;
 };
 

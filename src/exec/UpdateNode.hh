@@ -42,14 +42,14 @@ namespace PLEXIL
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    UpdateNode(const PlexilNodeId& node, Node *parent = NULL);
+    UpdateNode(PlexilNode const *node, Node *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
     UpdateNode(const std::string& type,
                const std::string& name,
-               const NodeState state,
+               NodeState state,
                Node *parent = NULL);
 
     /**
@@ -68,7 +68,7 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    virtual void specializedPostInit(const PlexilNodeId& node);
+    virtual void specializedPostInit(PlexilNode const *node);
     virtual void createConditionWrappers();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
@@ -90,7 +90,7 @@ namespace PLEXIL
 
   private:
 
-    void createUpdate(const PlexilUpdateBody* body);
+    void createUpdate(PlexilUpdateBody const *body);
     void createDummyUpdate(); // unit test variant
 
     Update *m_update;

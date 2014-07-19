@@ -26,6 +26,8 @@
 
 #include "ArithmeticFunctionFactory.hh"
 
+#include "Error.hh"
+
 namespace PLEXIL
 {
   // Common case logic

@@ -122,7 +122,7 @@ namespace PLEXIL {
     return ALL_CONDITIONS()[idx];
   }
 
-  Node::Node(const PlexilNodeId& node, Node *parent)
+  Node::Node(PlexilNode const *node, Node *parent)
     : NodeConnector(),
       m_parent(parent),
       m_listener(*this),
@@ -152,15 +152,14 @@ namespace PLEXIL {
     // Instantiate declared variables
     createDeclaredVars(node->declarations());
 
-    // get interface variables
-    if (node->interface().isId())
-      getVarsFromInterface(node->interface());
+    // get interface variables, if any
+    getVarsFromInterface(node->interface());
   }
 
   // Used only by module test
   Node::Node(const std::string& type, 
              const std::string& name, 
-             const NodeState state,
+             NodeState state,
              Node *parent)
     : NodeConnector(),
       m_parent(parent),
@@ -280,9 +279,10 @@ namespace PLEXIL {
     }
   }
 
-  void Node::getVarsFromInterface(const PlexilInterfaceId& intf)
+  void Node::getVarsFromInterface(PlexilInterface const *intf)
   {
-    check_error_1(intf.isValid());
+    if (!intf)
+      return;
     debugMsg("Node:getVarsFromInterface",
              "Getting interface vars for node '" << m_nodeId << "'");
     assertTrueMsg(m_parent,
@@ -337,7 +337,7 @@ namespace PLEXIL {
     }
   }
 
-  Expression *Node::getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall)
+  Expression *Node::getInVariable(PlexilVarRef const *varRef, bool parentIsLibCall)
   {
     // Get the variable from the parent
     // findVariable(..., true) tells LibraryCallNode to only search alias vars
@@ -386,7 +386,7 @@ namespace PLEXIL {
     return expr;
   }
 
-  Assignable *Node::getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall)
+  Assignable *Node::getInOutVariable(PlexilVarRef const *varRef, bool parentIsLibCall)
   {
     // Get the variable from the parent
     // findVariable(..., true) tells LibraryCallNode to only search alias vars
@@ -438,7 +438,7 @@ namespace PLEXIL {
     return expr->asAssignable();
   }
 
-  void Node::postInit(const PlexilNodeId& node) 
+  void Node::postInit(PlexilNode const *node) 
   {
     checkError(!m_postInitCalled, "Called postInit on node '" << m_nodeId << "' twice.");
     m_postInitCalled = true;
@@ -521,12 +521,12 @@ namespace PLEXIL {
   }
 
   // Default method
-  void Node::specializedPostInit(const PlexilNodeId& /* node */)
+  void Node::specializedPostInit(PlexilNode const * /* node */)
   {
   }
 
   // Default method
-  void Node::specializedPostInitLate(const PlexilNodeId& /* node */)
+  void Node::specializedPostInitLate(PlexilNode const * /* node */)
   {
   }
 
@@ -1634,7 +1634,7 @@ namespace PLEXIL {
     return findVariable(ref->varName());
   }
 
-  Node *Node::findNodeRef(PlexilNodeRefId const &nodeRef)
+  Node *Node::findNodeRef(PlexilNodeRef const *nodeRef)
   {
     if (!nodeRef)
       return NULL;

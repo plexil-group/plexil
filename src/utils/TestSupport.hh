@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,41 +27,22 @@
 #ifndef _H_TestSupport
 #define _H_TestSupport
 
-
 #include "Error.hh"
-#include "Utils.hh"
-
-#ifdef PLEXIL_ID_FAST
-#define ID_TABLE_SIZE (0)
-#define ID_TABLE_OUTPUT(dummy)
-#else
-#define ID_TABLE_SIZE PLEXIL::IdTable::size()
-#define ID_TABLE_OUTPUT(str) PLEXIL::IdTable::output(str)
-#endif
-
 
 #define runTest(test) {	\
   try { \
   std::cout << "   " << #test << " "; \
   bool result = test(); \
-  unsigned int id_count = ID_TABLE_SIZE; \
-  if (result && ID_TABLE_SIZE <= id_count) \
+  if (result) \
     std::cout << " PASSED." << std::endl; \
-  else \
-    if (result) { \
-      std::cout << " FAILED = DID NOT CLEAN UP ALLOCATED IDs:\n"; \
-      ID_TABLE_OUTPUT(std::cout); \
-      std::cout << "\tWere " << id_count << " IDs before; " << ID_TABLE_SIZE << " now"; \
-      std::cout << std::endl; \
-      throw Error::GeneralMemoryError(); \
-    } else { \
-      std::cout << "      " << " FAILED TO PASS UNIT TEST." << std::endl; \
-      throw Error::GeneralUnknownError(); \
-    } \
+  else  { \
+    std::cout << "      " << " FAILED TO PASS UNIT TEST." << std::endl; \
+    throw Error::GeneralUnknownError(); \
+  } \
   } \
   catch (Error &err){ \
    err.print(std::cout); \
-  }\
+  } \
   }
 
 #define runTestSuite(test) { \
@@ -71,11 +52,10 @@
     std::cout << #test << " PASSED." << std::endl; \
   else \
     std::cout << #test << " FAILED." << std::endl; \
-  }\
-  catch (Error &err){\
-   err.print(std::cout);\
-  }\
+  } \
+  catch (Error &err){ \
+   err.print(std::cout); \
+  } \
   }
-#endif
 
-
+#endif // _H_TestSupport

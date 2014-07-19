@@ -36,7 +36,7 @@
 namespace PLEXIL
 {
 
-  AssignmentNode::AssignmentNode(const PlexilNodeId& nodeProto, 
+  AssignmentNode::AssignmentNode(PlexilNode const *nodeProto, 
                                  Node *parent)
     : Node(nodeProto, parent),
       m_priority(nodeProto->priority())
@@ -49,7 +49,7 @@ namespace PLEXIL
   // Used only by module test
   AssignmentNode::AssignmentNode(const std::string &type,
                                  const std::string &name, 
-                                 const NodeState state,
+                                 NodeState state,
                                  Node *parent)
     : Node(type, name, state, parent)
   {
@@ -85,14 +85,14 @@ namespace PLEXIL
     cleanUpNodeBody();
   }
 
-  void AssignmentNode::specializedPostInit(const PlexilNodeId& node)
+  void AssignmentNode::specializedPostInit(PlexilNode const *node)
   {
     debugMsg("Node:postInit",
              "Creating assignment for node '" << m_nodeId << "'");
     // XML parser should have checked for this
-    checkError(Id<PlexilAssignmentBody>::convertable(node->body()),
+    checkError(dynamic_cast<PlexilAssignmentBody const *>(node->body()),
                "Node is an assignment node but doesn't have an assignment body.");
-    createAssignment((PlexilAssignmentBody*) node->body());
+    createAssignment((PlexilAssignmentBody const *) node->body());
 
     // Set action-complete condition
     Expression *ack = m_assignment->getAck();
@@ -107,7 +107,7 @@ namespace PLEXIL
     m_garbageConditions[abortCompleteIdx] = false;
   }
 
-  void AssignmentNode::createAssignment(const PlexilAssignmentBody* body) 
+  void AssignmentNode::createAssignment(PlexilAssignmentBody const *body) 
   {
     //we still only support one variable on the LHS
     // FIXME: push this check up into XML parser

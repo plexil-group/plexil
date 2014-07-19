@@ -69,10 +69,10 @@ namespace PLEXIL
     for (std::list<Node *>::iterator it = m_plan.begin(); it != m_plan.end(); ++it)
       delete (Node*) (*it);
     // Delete libraries
-    for (std::map<std::string, PlexilNodeId>::iterator it = m_libraries.begin();
+    for (std::map<std::string, PlexilNode *>::iterator it = m_libraries.begin();
          it != m_libraries.end();
          it = m_libraries.begin()) {
-      delete (PlexilNode*) it->second;
+      delete it->second;
       m_libraries.erase(it);
     }
   }
@@ -82,15 +82,15 @@ namespace PLEXIL
    * @param nodeName The name of the library node.
    * @return The library node, or noId() if not found.
    */
-  PlexilNodeId PlexilExec::getLibrary(const std::string& nodeName) const
+  PlexilNode const *PlexilExec::getLibrary(const std::string& nodeName) const
   {
     checkError(!nodeName.empty(),
                "PlexilExec::getLibrary: Node name is empty");
-    std::map<std::string, PlexilNodeId>::const_iterator it = 
+    std::map<std::string, PlexilNode *>::const_iterator it = 
       m_libraries.find(nodeName);
     if (it == m_libraries.end()) {
       debugMsg("PlexilExec:getLibrary", " library node \"" << nodeName << "\" not found");
-      return PlexilNodeId::noId();
+      return NULL;
     }
     debugMsg("PlexilExec:getLibrary", " found library node \"" << nodeName << "\"");
     return it->second;
@@ -102,21 +102,21 @@ namespace PLEXIL
    * @return True if the node is already defined, false otherwise.
    */
   bool PlexilExec::hasLibrary(const std::string& nodeName) const {
-    return getLibrary(nodeName).isId();
+    return NULL != getLibrary(nodeName);
   }
 
   // Add a new library node
 
-  void PlexilExec::addLibraryNode(PlexilNodeId const &libNode) 
+  void PlexilExec::addLibraryNode(PlexilNode *libNode) 
   {
-    checkError(libNode.isValid(), 
-               "PlexilExec::addLibraryNode: Invalid library node pointer");
+    checkError(libNode, 
+               "PlexilExec::addLibraryNode: Null library node pointer");
     const std::string& nodeName = libNode->nodeId();
     checkError(!nodeName.empty(), 
                "PlexilExec::addLibraryNode: Library node ID value is empty");
 
     // Check for previous
-    PlexilNodeId oldNode;
+    PlexilNode *oldNode = NULL;
     if (m_libraries.find(nodeName) != m_libraries.end()) {
       oldNode = m_libraries[nodeName];
     }
@@ -124,21 +124,19 @@ namespace PLEXIL
     m_libraries[nodeName] = libNode;
     debugMsg("PlexilExec:addLibrary",
              "Added library node \"" << nodeName
-             << (oldNode.isId() ? "\", deleting previous" : "\""));
+             << (oldNode ? "\", deleting previous" : "\""));
     if (m_listener)
       m_listener->notifyOfAddLibrary(libNode);
 
     // Delete previous
-    if (oldNode.isId()) {
-      delete (PlexilNode*) oldNode;
-    }
+    delete oldNode;
   }
 
   // Uncomment this to troubleshoot plan loading problems.
   //#define ADD_PLAN_DEBUG
 
   // Add a plan
-  bool PlexilExec::addPlan(PlexilNodeId const &plan) 
+  bool PlexilExec::addPlan(PlexilNode *plan)
   {
     // Try to link any library calls
     if (!plan->link(m_libraries)) {

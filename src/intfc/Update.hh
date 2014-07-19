@@ -28,22 +28,21 @@
 #define PLEXIL_UPDATE_HH
 
 #include "UserVariable.hh"
-#include "Id.hh"
 #include "Value.hh"
+
+#include <map>
 
 namespace PLEXIL
 {
   // Forward declarations in PLEXIL namespace
   class NodeConnector;
-
   class PlexilUpdate;
-  DECLARE_ID(PlexilUpdate);
 
   class Update 
   {
   public:
     Update(NodeConnector *node,
-           PlexilUpdateId const &updateProto = PlexilUpdateId::noId());
+           PlexilUpdate const *updateProto = NULL);
     ~Update();
 
     typedef std::map<std::string, Value> PairValueMap;

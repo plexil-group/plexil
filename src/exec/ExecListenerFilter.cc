@@ -72,7 +72,7 @@ namespace PLEXIL
    * @note The default method simply returns true.
    */
   bool
-  ExecListenerFilter::reportAddPlan(PlexilNodeId const & /* plan */)
+  ExecListenerFilter::reportAddPlan(PlexilNode const * /* plan */)
   {
     return true;
   }
@@ -84,7 +84,7 @@ namespace PLEXIL
    * @note The default method simply returns true.
    */
   bool 
-  ExecListenerFilter::reportAddLibrary(PlexilNodeId const & /* plan */)
+  ExecListenerFilter::reportAddLibrary(PlexilNode const * /* plan */)
   {
     return true;
   }

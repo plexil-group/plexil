@@ -395,7 +395,7 @@ namespace PLEXIL
     }
 
     // parse XML into node structure
-    PlexilNodeId root;
+    PlexilNode *root;
     try {
       root = PlexilXmlParser::parse(plexilXml.child("Node"));
     }
@@ -431,7 +431,7 @@ namespace PLEXIL
 
     // parse XML into node structure
     {
-      PlexilNodeId root;
+      PlexilNode *root;
       try {
         root = PlexilXmlParser::parse(plexilXml.child("Node"));
       }

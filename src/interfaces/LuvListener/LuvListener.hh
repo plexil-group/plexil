@@ -28,7 +28,6 @@
 #define LUV_LISTENER_HH
 
 #include "ConstantMacros.hh"
-#include "Id.hh"
 #include "NodeConstants.hh"
 #include "ExecListener.hh"
 
@@ -98,14 +97,14 @@ namespace PLEXIL
      * @param plan The intermediate representation of the plan.
      * @param parent The name of the parent node under which this plan will be inserted.
      */
-    void implementNotifyAddPlan(const PlexilNodeId& plan) const;
+    void implementNotifyAddPlan(PlexilNode const *plan) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      * @note The default method is deprecated and will go away in a future release.
      */
-    void implementNotifyAddLibrary(const PlexilNodeId& libNode) const;
+    void implementNotifyAddLibrary(PlexilNode const *libNode) const;
 
     /**
      * @brief Notify that a variable assignment has been performed.

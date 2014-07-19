@@ -25,9 +25,10 @@
 */
 
 #include "ListenerFilters.hh"
-#include "NodeConstants.hh"
+#include "Error.hh"
 #include "InterfaceSchema.hh"
 #include "Node.hh"
+#include "NodeConstants.hh"
 
 #define STATES_TAG "States"
 #define IGNORED_STATES_TAG "IgnoredStates"

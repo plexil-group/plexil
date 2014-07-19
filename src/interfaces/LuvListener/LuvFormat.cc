@@ -28,7 +28,7 @@
 #include "Assignable.hh"
 #include "Node.hh"
 #include "PlexilPlan.hh"
-#include "PlexilXmlParser.hh"
+#include "PlexilToXml.hh"
 #include "pugixml.hpp"
 
 #include <iostream>
@@ -209,10 +209,10 @@ namespace PLEXIL {
    * @param plan The intermediate representation of the new plan.
    */
   void LuvFormat::formatPlan(std::ostream& s, 
-                             const PlexilNodeId& plan) {
+                             PlexilNode const *plan) {
     // create a PLEXIL Plan wrapper and stick the plan in it
     simpleStartTag(s, PLEXIL_PLAN_TAG());
-    pugi::xml_document* planXml = PlexilXmlParser::toXml(plan);
+    pugi::xml_document* planXml = toXml(plan);
     planXml->save(s, " ", PUGI_FORMAT_OPTIONS());
     delete planXml;
     endTag(s, PLEXIL_PLAN_TAG());
@@ -224,10 +224,10 @@ namespace PLEXIL {
    * @param plan The intermediate representation of the library node.
    */
   void LuvFormat::formatLibrary(std::ostream& s, 
-                                const PlexilNodeId& libNode) {
+                                PlexilNode const *libNode) {
     // create a PLEXIL Library wrapper and stick the library node in it
     simpleStartTag(s, PLEXIL_LIBRARY_TAG());
-    pugi::xml_document* libXml = PlexilXmlParser::toXml(libNode);
+    pugi::xml_document* libXml = toXml(libNode);
     libXml->save(s, " ", PUGI_FORMAT_OPTIONS());
     delete libXml;
     endTag(s, PLEXIL_LIBRARY_TAG());

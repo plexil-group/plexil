@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,14 +41,14 @@ namespace PLEXIL
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    LibraryCallNode(const PlexilNodeId& node, Node *parent = NULL);
+    LibraryCallNode(PlexilNode const *node, Node *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
     LibraryCallNode(const std::string& type,
                     const std::string& name,
-                    const NodeState state,
+                    NodeState state,
                     Node *parent = NULL);
 
     /**
@@ -61,11 +61,11 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    virtual void specializedPostInitLate(const PlexilNodeId& node);
+    virtual void specializedPostInitLate(PlexilNode const *node);
 
   private:
 
-    void createLibraryNode(const PlexilLibNodeCallBody* body);
+    void createLibraryNode(PlexilLibNodeCallBody const *body);
 
     void createInAliases(const std::vector<PlexilVarRef*>& interfaceVars,
                          PlexilAliasMap& aliases);

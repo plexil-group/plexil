@@ -222,7 +222,7 @@ namespace PLEXIL
    * @param parent The name of the parent node under which this plan will be inserted.
    */
   void
-  LuvListener::implementNotifyAddPlan(const PlexilNodeId& plan) const 
+  LuvListener::implementNotifyAddPlan(PlexilNode const *plan) const 
   {
 	if (m_socket != NULL) {
 	  sendPlanInfo();
@@ -240,7 +240,7 @@ namespace PLEXIL
    * @note The default method is deprecated and will go away in a future release.
    */
   void
-  LuvListener::implementNotifyAddLibrary(const PlexilNodeId& libNode) const 
+  LuvListener::implementNotifyAddLibrary(PlexilNode const *libNode) const 
   {
 	if (m_socket != NULL) {
 	  sendPlanInfo();

@@ -58,9 +58,9 @@ public:
   void enqueueAssignment(Assignment * /* assign */) {}
   void enqueueAssignmentForRetraction(Assignment * /* assign */) {}
   void markRootNodeFinished(Node * /* node */) {}
-  bool addPlan(PlexilNodeId const & /* plan */) { return false; }
-  void addLibraryNode(PlexilNodeId const & /* lib */) {}
-  PlexilNodeId getLibrary(std::string const & /* name */) const { return PlexilNodeId::noId(); }
+  bool addPlan(PlexilNode * /* plan */) { return false; }
+  void addLibraryNode(PlexilNode * /* lib */) {}
+  PlexilNode const *getLibrary(std::string const & /* name */) const { return NULL; }
   void step(double /* startTime */) {}
   bool needsStep() const {return false;}
   void setExecListenerHub(ExecListenerHub * /* hub */) {}

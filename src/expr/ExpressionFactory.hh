@@ -28,7 +28,6 @@
 #define EXPRESSION_FACTORY_HH
 
 #include "Expression.hh"
-#include "Id.hh"
 #include "ParserException.hh"
 
 namespace PLEXIL
@@ -36,9 +35,7 @@ namespace PLEXIL
   // Forward declarations
   class Assignable;
   class NodeConnector;
-  
   class PlexilExpr;
-  DECLARE_ID(PlexilExpr);
 
   /**
    * @class ExpressionFactory

@@ -86,7 +86,7 @@ namespace PLEXIL
    * @param node The PlexilNodeId for this node and all of its children.
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
-  CommandNode::CommandNode(const PlexilNodeId& nodeProto,
+  CommandNode::CommandNode(PlexilNode const *nodeProto,
                            Node *parent)
     : Node(nodeProto, parent),
       m_command(NULL)
@@ -101,7 +101,7 @@ namespace PLEXIL
    */
   CommandNode::CommandNode(const std::string& type,
                            const std::string& name, 
-                           const NodeState state,
+                           NodeState state,
                            Node *parent)
     : Node(type, name, state, parent),
       m_command(NULL)
@@ -165,13 +165,13 @@ namespace PLEXIL
   }
 
   // Specific behaviors for derived classes
-  void CommandNode::specializedPostInit(const PlexilNodeId& node)
+  void CommandNode::specializedPostInit(PlexilNode const *node)
   {
     debugMsg("Node:postInit", "Creating command for node '" << m_nodeId << "'");
     // XML parser should have checked for this
-    checkError(Id<PlexilCommandBody>::convertable(node->body()),
+    checkError(dynamic_cast<PlexilCommandBody const *>(node->body()),
                "Node is a command node but doesn't have a command body.");
-    createCommand((PlexilCommandBody*)node->body());
+    createCommand((PlexilCommandBody const *)node->body());
     m_variablesByName[COMMAND_HANDLE()] = m_command->getAck();
 
     // Construct action-complete condition
@@ -582,8 +582,8 @@ namespace PLEXIL
 
     // Resource
     ResourceList resourceList;
-    const std::vector<PlexilResourceId>& plexilResourceList = command->getResource();
-    for(std::vector<PlexilResourceId>::const_iterator resListItr = plexilResourceList.begin();
+    const std::vector<PlexilResource *>& plexilResourceList = command->getResource();
+    for(std::vector<PlexilResource *>::const_iterator resListItr = plexilResourceList.begin();
         resListItr != plexilResourceList.end(); ++resListItr) {
       ResourceMap resourceMap;
 

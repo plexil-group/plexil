@@ -42,7 +42,7 @@ namespace PLEXIL
    * @param node The PlexilNodeId for this node and all of its children.
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
-  LibraryCallNode::LibraryCallNode(const PlexilNodeId& nodeProto, 
+  LibraryCallNode::LibraryCallNode(PlexilNode const *nodeProto, 
                                    Node *parent)
     : ListNode(nodeProto, parent)
   {
@@ -53,10 +53,11 @@ namespace PLEXIL
     // Create library call node
     debugMsg("Node:node", "Creating library node call.");
     // XML parser should have checked for this
-    const PlexilLibNodeCallBody* body = nodeProto->body();
-    checkError(body != NULL,
-               "Node " << m_nodeId << " is a library node call but doesn't have a " <<
-               "library node call body.");
+    PlexilLibNodeCallBody const *body =
+      dynamic_cast<PlexilLibNodeCallBody const *>(nodeProto->body());
+    assertTrueMsg(body,
+                  "Node " << m_nodeId << " is a library node call but doesn't have a " <<
+                  "library node call body.");
     createLibraryNode(body); // constructs default end condition
   }
 
@@ -65,7 +66,7 @@ namespace PLEXIL
    */
   LibraryCallNode::LibraryCallNode(const std::string& type,
                                    const std::string& name, 
-                                   const NodeState state,
+                                   NodeState state,
                                    Node *parent)
     : ListNode(type, name, state, parent)
   {
@@ -85,18 +86,18 @@ namespace PLEXIL
     cleanUpVars(); // flush alias vars
   }
 
-  void LibraryCallNode::createLibraryNode(const PlexilLibNodeCallBody* body)
+  void LibraryCallNode::createLibraryNode(PlexilLibNodeCallBody const *body)
   {
     // get node body
     checkError(body != NULL,
                "Node " << m_nodeId << ": createLibraryNode: Node has no library node call body");
       
     // get the lib node and its interface
-    const PlexilNodeId& libNode = body->libNode();
-    const PlexilInterfaceId& libInterface = libNode->interface();
+    PlexilNode const *libNode = body->libNode();
+    PlexilInterface const *libInterface = libNode->interface();
       
     // if there is no interface, there must be no variables
-    if (libInterface.isNoId()) {
+    if (!libInterface) {
       checkError(body->aliases().size() == 0,
                  "Variable aliases in '" << m_nodeId <<
                  "' do not match interface in '" << 
@@ -267,11 +268,12 @@ namespace PLEXIL
   }
 
   // Specific behaviors for derived classes
-  void LibraryCallNode::specializedPostInitLate(const PlexilNodeId& node)
+  void LibraryCallNode::specializedPostInitLate(PlexilNode const *node)
   {
     // Get node body
-    const PlexilLibNodeCallBody* body = (const PlexilLibNodeCallBody*) node->body();
-    check_error_1(body != NULL);
+    PlexilLibNodeCallBody const *body =
+      dynamic_cast<PlexilLibNodeCallBody const *>(node->body());
+    assertTrue_1(body);
     //call postInit on the child
     m_children.front()->postInit(body->libNode());
   }

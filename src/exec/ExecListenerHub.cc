@@ -90,7 +90,7 @@ namespace PLEXIL
    * @brief Notify that a plan has been received by the Exec.
    * @param plan The intermediate representation of the plan.
    */
-  void ExecListenerHub::notifyOfAddPlan(PlexilNodeId const &plan) const
+  void ExecListenerHub::notifyOfAddPlan(PlexilNode const *plan) const
   {
     for (std::vector<ExecListenerBase *>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();
@@ -102,7 +102,7 @@ namespace PLEXIL
    * @brief Notify that a library node has been received by the Exec.
    * @param libNode The intermediate representation of the plan.
    */
-  void ExecListenerHub::notifyOfAddLibrary(const PlexilNodeId& libNode) const
+  void ExecListenerHub::notifyOfAddLibrary(PlexilNode const *libNode) const
   {
     for (std::vector<ExecListenerBase *>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();

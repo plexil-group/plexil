@@ -257,7 +257,7 @@ int ExecTestRunner::run(int argc, char** argv)
       return 1;
     }
 
-    PlexilNodeId libnode;
+    PlexilNode *libnode;
     try {
       libnode =
         PlexilXmlParser::parse(libraryXml.document_element().child("PlexilPlan").child("Node"));
@@ -288,7 +288,7 @@ int ExecTestRunner::run(int argc, char** argv)
       return 1;
     }
 
-    PlexilNodeId root;
+    PlexilNode *root;
     try {
       root =
         PlexilXmlParser::parse(plan.document_element().child("Node"));
@@ -311,15 +311,15 @@ int ExecTestRunner::run(int argc, char** argv)
         // COPY the string because its location may change out from under us!
         const std::string libname(libs[i]);
 
-        PlexilNodeId libroot = g_exec->getLibrary(libname);
-        if (libroot.isNoId()) {
+        PlexilNode const *libroot = g_exec->getLibrary(libname);
+        if (!libroot) {
           // Try to load the library
-          libroot = PlexilXmlParser::findLibraryNode(libname, libraryPaths);
-          if (libroot.isNoId()) {
+          PlexilNode *loadroot = PlexilXmlParser::findLibraryNode(libname, libraryPaths);
+          if (!loadroot) {
             warn("Adding plan " << planName
                  << " failed because library " << libname
                  << " could not be loaded");
-            delete (PlexilNode*) root;
+            delete root;
             delete g_exec;
             g_exec = NULL;
             g_interface = NULL;
@@ -327,7 +327,8 @@ int ExecTestRunner::run(int argc, char** argv)
           }
 
           // add the library node
-          g_exec->addLibraryNode(libroot);
+          g_exec->addLibraryNode(loadroot);
+          libroot = loadroot;
         }
 
         // Make note of any dependencies in the library itself
@@ -337,7 +338,7 @@ int ExecTestRunner::run(int argc, char** argv)
 
     if (!g_exec->addPlan(root)) {
       warn("Adding plan " << planName << " failed");
-      delete (PlexilNode*) root;
+      delete root;
       delete g_exec;
       g_exec = NULL;
       g_interface = NULL;

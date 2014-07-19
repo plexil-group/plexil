@@ -47,7 +47,7 @@ namespace PLEXIL
     /**
      * @brief Primary factory method.
      */
-    static Node *createNode(const PlexilNodeId& nodeProto, 
+    static Node *createNode(PlexilNode const *nodeProto, 
                             Node *parent = NULL);
 
     /**
@@ -55,7 +55,7 @@ namespace PLEXIL
      */
     static Node *createNode(const std::string& type, 
                             const std::string& name, 
-                            const NodeState state,
+                            NodeState state,
                             Node *parent = NULL);
 
     static void ensureNodeFactoriesRegistered();
@@ -69,7 +69,7 @@ namespace PLEXIL
     /**
      * @brief Primary factory method.
      */
-    virtual Node *create(const PlexilNodeId& node, 
+    virtual Node *create(PlexilNode const *node, 
                          Node *parent = NULL) const = 0;
 
     /**
@@ -78,7 +78,7 @@ namespace PLEXIL
 
     virtual Node *create(const std::string& type,
                          const std::string& name,
-                         const NodeState state,
+                         NodeState state,
                          Node *parent = NULL) const = 0;
 
     PlexilNodeType m_nodeType;
@@ -111,7 +111,7 @@ namespace PLEXIL
     ConcreteNodeFactory(const ConcreteNodeFactory&);
     ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
 
-    Node *create(const PlexilNodeId& nodeProto, 
+    Node *create(PlexilNode const *nodeProto, 
                  Node *parent) const
     {
       // Shouldn't happen
@@ -128,7 +128,7 @@ namespace PLEXIL
 
     Node *create(const std::string& type,
                  const std::string& name, 
-                 const NodeState state,
+                 NodeState state,
                  Node *parent) const
     {
       // Shouldn't happen

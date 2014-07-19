@@ -27,7 +27,6 @@
 #ifndef _H_ExecListenerFilter
 #define _H_ExecListenerFilter
 
-#include "Id.hh"
 #include "NodeConstants.hh"
 #include "pugixml.hpp"
 
@@ -36,10 +35,7 @@ namespace PLEXIL
   // Forward references
   class Expression;
   class Node;
-
   class PlexilNode;
-  typedef Id<PlexilNode> PlexilNodeId;
-
   class Value;
 
   //* Abstract base class for defining transition event filters
@@ -86,7 +82,7 @@ namespace PLEXIL
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */
-    virtual bool reportAddPlan(PlexilNodeId const &plan);
+    virtual bool reportAddPlan(PlexilNode const *plan);
 
     /**
      * @brief Determine whether this AddLibraryNode event should be reported.
@@ -94,7 +90,7 @@ namespace PLEXIL
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */
-    virtual bool reportAddLibrary(PlexilNodeId const &plan);
+    virtual bool reportAddLibrary(PlexilNode const *plan);
 
     /**
      * @brief Determine whether this variable assignment should be reported.

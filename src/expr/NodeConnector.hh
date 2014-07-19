@@ -27,17 +27,15 @@
 #ifndef NODE_CONNECTOR_HH
 #define NODE_CONNECTOR_HH
 
-#include "Id.hh"
 #include <string>
 
 namespace PLEXIL
 {
   // Forward references
   class Expression;
-  class PlexilVarRef;
 
+  class PlexilVarRef;
   class PlexilNodeRef;
-  DECLARE_ID(PlexilNodeRef);
 
   class Node;
 
@@ -54,7 +52,7 @@ namespace PLEXIL
 
     virtual Expression *findVariable(const PlexilVarRef* ref) = 0;
     virtual Expression *findVariable(const std::string &name, bool recursive = false) = 0;
-    virtual Node *findNodeRef(PlexilNodeRefId const &nodeRef) = 0;
+    virtual Node *findNodeRef(PlexilNodeRef const *nodeRef) = 0;
     virtual std::string const &getNodeId() const = 0;
 
   protected:

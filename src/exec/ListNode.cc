@@ -204,7 +204,7 @@ namespace PLEXIL
    * @param node The PlexilNodeId for this node and all of its children.
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
-  ListNode::ListNode(const PlexilNodeId& node, 
+  ListNode::ListNode(PlexilNode const *node, 
                      Node *parent)
     : Node(node, parent)
   {
@@ -216,10 +216,10 @@ namespace PLEXIL
     if (node->nodeType() == NodeType_NodeList) {
       debugMsg("Node:node", "Creating child nodes.");
       // XML parser should have checked for this
-      checkError(Id<PlexilListBody>::convertable(node->body()),
+      checkError(dynamic_cast<PlexilListBody const *>(node->body()),
                  "Node " << m_nodeId << " is a list node but doesn't have a " <<
                  "list body.");
-      createChildNodes((PlexilListBody*) node->body()); // constructs default end condition
+      createChildNodes((PlexilListBody const *) node->body()); // constructs default end condition
     }
   }
 
@@ -229,7 +229,7 @@ namespace PLEXIL
    */
   ListNode::ListNode(const std::string& type,
                      const std::string& name, 
-                     const NodeState state,
+                     NodeState state,
                      Node *parent)
     : Node(type, name, state, parent)
   {
@@ -270,12 +270,12 @@ namespace PLEXIL
   // Uncomment this to troubleshoot plan loading problems.
   //#define ADD_PLAN_DEBUG
 
-  void ListNode::createChildNodes(const PlexilListBody* body) 
+  void ListNode::createChildNodes(PlexilListBody const *body) 
   {
 #ifndef ADD_PLAN_DEBUG
     try {
 #endif
-      for (std::vector<PlexilNodeId>::const_iterator it = body->children().begin();
+      for (std::vector<PlexilNode *>::const_iterator it = body->children().begin();
            it != body->children().end(); 
            ++it)
         m_children.push_back(NodeFactory::createNode(*it, this));
@@ -285,7 +285,7 @@ namespace PLEXIL
       debugMsg("Node:node", " Error creating child nodes: " << e);
       // Clean up 
       while (!m_children.empty()) {
-        delete (Node*) m_children.back();
+        delete m_children.back();
         m_children.pop_back();
       }
       // Rethrow so that outer error handler can deal with this as well
@@ -319,13 +319,13 @@ namespace PLEXIL
     m_garbageConditions[endIdx] = true;
   }
 
-  void ListNode::specializedPostInitLate(const PlexilNodeId& node)
+  void ListNode::specializedPostInitLate(PlexilNode const *node)
   {
     //call postInit on all children
-    const PlexilListBody* body = (const PlexilListBody*) node->body();
-    check_error_1(body != NULL);
+    PlexilListBody const *body = dynamic_cast<PlexilListBody const *>(node->body());
+    assertTrue_1(body);
     std::vector<Node *>::iterator it = m_children.begin();
-    std::vector<PlexilNodeId>::const_iterator pit = body->children().begin();   
+    std::vector<PlexilNode *>::const_iterator pit = body->children().begin();   
     while (it != m_children.end() && pit != body->children().end()) {
       (*it++)->postInit(*pit++);
     }

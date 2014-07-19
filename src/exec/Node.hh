@@ -32,6 +32,7 @@
 #include "NodeVariables.hh"
 #include "PlexilNodeType.hh"
 #include "PlexilPlan.hh"
+#include "generic_hash_map.hh"
 
 // Take care of annoying VxWorks macro
 #undef UPDATE
@@ -87,14 +88,14 @@ namespace PLEXIL {
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
-    Node(const PlexilNodeId& node, Node *parent = NULL);
+    Node(PlexilNode const *node, Node *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
      */
     Node(const std::string& type,
          const std::string& name,
-         const NodeState state,
+         NodeState state,
          Node *parent = NULL);
 
     /**
@@ -116,11 +117,11 @@ namespace PLEXIL {
      */
     virtual Expression *findVariable(const std::string& name, bool recursive = false);
 
-    Node *findNodeRef(PlexilNodeRefId const &nodeRef);
+    Node *findNodeRef(PlexilNodeRef const *nodeRef);
 
     // create conditions, assignments, and commands.
     // We have to do this late because they could refer to internal variables of other nodes.
-    void postInit(const PlexilNodeId& node);
+    void postInit(PlexilNode const *node);
 
     // Make the node active.
     virtual void activate();
@@ -433,8 +434,8 @@ namespace PLEXIL {
     void deactivateAbortCompleteCondition();
 
     // Specific behaviors for derived classes
-    virtual void specializedPostInit(const PlexilNodeId& node);
-    virtual void specializedPostInitLate(const PlexilNodeId& node);
+    virtual void specializedPostInit(PlexilNode const *node);
+    virtual void specializedPostInitLate(PlexilNode const *node);
     virtual void createSpecializedConditions();
     virtual void createConditionWrappers();
     virtual void specializedActivate();
@@ -544,9 +545,9 @@ namespace PLEXIL {
 
     void createDeclaredVars(const std::vector<PlexilVar *>& vars);
 
-    void getVarsFromInterface(const PlexilInterfaceId& intf);
-    Expression *getInVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
-    Assignable *getInOutVariable(const PlexilVarRef* varRef, bool parentIsLibCall);
+    void getVarsFromInterface(PlexilInterface const *intf);
+    Expression *getInVariable(PlexilVarRef const *varRef, bool parentIsLibCall);
+    Assignable *getInOutVariable(PlexilVarRef const *varRef, bool parentIsLibCall);
 
     void activateLocalVariables();
     void deactivateLocalVariables();

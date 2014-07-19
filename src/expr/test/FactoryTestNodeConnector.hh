@@ -29,6 +29,8 @@
 
 #include "NodeConnector.hh"
 
+#include <map>
+
 namespace PLEXIL
 {
 
@@ -48,7 +50,7 @@ namespace PLEXIL
     Expression *findVariable(const std::string & name,
                                      bool ignored = false);
 
-    Node *findNodeRef(PlexilNodeRefId const & /* nodeRef */);
+    Node *findNodeRef(PlexilNodeRef const * /* nodeRef */);
 
     std::string const &getNodeId() const;
 

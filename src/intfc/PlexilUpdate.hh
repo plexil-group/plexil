@@ -29,32 +29,26 @@
 
 #include "PlexilExpr.hh"
 
+#include <string>
 #include <vector>
 #include <utility>
 
 namespace PLEXIL
 {
   class PlexilExpr;
-  DECLARE_ID(PlexilExpr);
-
-  class PlexilUpdate;
-  DECLARE_ID(PlexilUpdate);
 
   class PlexilUpdate {
   public:
-    PlexilUpdate() : m_id(this), m_lineNo(0), m_colNo(0) {}
-
+    PlexilUpdate() : m_lineNo(0), m_colNo(0) {}
     ~PlexilUpdate()
     {
       for (std::vector<std::pair<std::string, PlexilExpr *> >::iterator it = m_map.begin();
            it != m_map.end();
            ++it)
-        delete (PlexilExpr*) it->second;
+        delete it->second;
       m_map.clear();
-      m_id.remove();
     }
 
-    const PlexilUpdateId& getId() const {return m_id;}
     const std::vector<std::pair<std::string, PlexilExpr *> >& pairs() const {return m_map;}
 
     void addPair(const std::string& name, PlexilExpr *value)
@@ -64,7 +58,6 @@ namespace PLEXIL
     void setLineNo(int n) {m_lineNo = n;}
     void setColNo(int n) {m_colNo = n;}
   private:
-    PlexilUpdateId m_id;
     std::vector<std::pair<std::string, PlexilExpr *> > m_map;
     int m_lineNo;
     int m_colNo;

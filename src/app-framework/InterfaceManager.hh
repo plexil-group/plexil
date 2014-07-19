@@ -253,13 +253,13 @@ namespace PLEXIL
      * @param planStruct The PlexilNode representation of the new plan.
      * @return True if all referenced libraries were found, false otherwise.
      */
-    bool handleAddPlan(PlexilNodeId planStruct);
+    bool handleAddPlan(PlexilNode *planStruct);
 
     /**
      * @brief Notify the executive of a new library node.
      * @param planStruct The PlexilNode representation of the new library node.
      */
-    void handleAddLibrary(PlexilNodeId planStruct);
+    void handleAddLibrary(PlexilNode *planStruct);
 
     /**
      * @brief Determine whether the named library is loaded.

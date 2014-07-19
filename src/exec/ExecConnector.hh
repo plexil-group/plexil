@@ -27,7 +27,6 @@
 #ifndef EXEC_CONNECTOR_HH
 #define EXEC_CONNECTOR_HH
 
-#include "Id.hh"
 #include "NodeConstants.hh"
 
 namespace PLEXIL
@@ -37,9 +36,7 @@ namespace PLEXIL
   class ExecListenerHub;
   class ExternalInterface;
   class Node;
-
   class PlexilNode;
-  DECLARE_ID(PlexilNode);
 
   /**
    * @brief Abstract class representing the key API of the PlexilExec. Facilitates testing.
@@ -73,18 +70,18 @@ namespace PLEXIL
      * @param plan The intermediate representation of the plan.
      * @return True if succesful, false otherwise.
      */
-    virtual bool addPlan(PlexilNodeId const &plan) = 0;
+    virtual bool addPlan(PlexilNode *plan) = 0;
 
     /**
      * @brief Add the node to the known libraries.
      * @param plan The intermediate representation of the node.
      */
-    virtual void addLibraryNode(PlexilNodeId const &lib) = 0;
+    virtual void addLibraryNode(PlexilNode *lib) = 0;
 
     /**
      * @brief Get the named library.
      */
-    virtual PlexilNodeId getLibrary(std::string const &name) const = 0;
+    virtual PlexilNode const *getLibrary(std::string const &name) const = 0;
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.

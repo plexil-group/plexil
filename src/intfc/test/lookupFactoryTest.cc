@@ -82,10 +82,6 @@ static bool testBasics()
   assertTrue_1(wasCreated);
   assertTrue_1(0 == strcmp(lookup3->exprName(), "LookupNow"));
 
-  delete state1;
-  delete state2;
-  delete state3;
-
   return true;
 }
 

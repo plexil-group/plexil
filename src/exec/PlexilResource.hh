@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,12 @@
 #ifndef _H_PlexilResource
 #define _H_PlexilResource
 
-#include "Id.hh"
+#include <map>
+#include <string>
 
 namespace PLEXIL {
 
   class PlexilExpr;
-  
-  class PlexilResource;
-  DECLARE_ID(PlexilResource);
 
   //* The data structure to hold the resource specification.
   typedef std::map<std::string, PlexilExpr *> PlexilResourceMap;
@@ -47,19 +45,12 @@ namespace PLEXIL {
   {
   public:
 	//* Constructor.
-    PlexilResource() : m_id(this)
+    PlexilResource()
 	{}
 
 	//* Destructor.
     ~PlexilResource()
-	{
-	  m_id.remove();
-	}
-
-    const PlexilResourceId& getId() const 
-	{
-	  return m_id;
-	}
+	{}
 
     void addResource(const std::string& tag, PlexilExpr *resource)
     {
@@ -72,7 +63,6 @@ namespace PLEXIL {
     }
 
   private:
-    PlexilResourceId m_id;
     PlexilResourceMap m_resource;
   };
 

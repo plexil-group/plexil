@@ -77,18 +77,13 @@ namespace PLEXIL
      * @brief Notify that a plan has been received by the Exec.
      * @param plan The intermediate representation of the plan.
      */
-    void notifyOfAddPlan(PlexilNodeId const &plan) const;
+    void notifyOfAddPlan(PlexilNode const *plan) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      */
-    void notifyOfAddLibrary(PlexilNodeId const &libNode) const;
-
-    //not sure if anybody wants this
-    // void notifyOfConditionChange(Node *node,
-    //                              const LabelStr& condition,
-    //                              const bool value) const;
+    void notifyOfAddLibrary(PlexilNode const *libNode) const;
 
     /**
      * @brief Notify that a variable assignment has been performed.
@@ -176,14 +171,14 @@ namespace PLEXIL
      * @param plan The intermediate representation of the plan.
      * @note The default method does nothing.
      */
-    virtual void implementNotifyAddPlan(PlexilNodeId const & /* plan */) const;
+    virtual void implementNotifyAddPlan(PlexilNode const * /* plan */) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      * @note The default method does nothing.
      */
-    virtual void implementNotifyAddLibrary(PlexilNodeId const & /* libNode */) const;
+    virtual void implementNotifyAddLibrary(PlexilNode const * /* libNode */) const;
 
     /**
      * @brief Notify that a variable assignment has been performed.

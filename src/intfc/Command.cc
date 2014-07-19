@@ -25,6 +25,7 @@
 */
 
 #include "Command.hh"
+#include "Error.hh"
 #include "ExternalInterface.hh"
 #include "ResourceArbiterInterface.hh"
 

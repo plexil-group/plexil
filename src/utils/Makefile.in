@@ -166,9 +166,9 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libPlexilUtils_la_LIBADD =
 am__libPlexilUtils_la_SOURCES_DIST = Debug.cc Error.cc \
-	hash-functions.c IdTable.cc Logging.cc ParserException.cc \
-	Utils.cc XMLUtils.cc iso-8601.cc lifecycle-utils.c stricmp.c \
-	timespec-utils.cc timeval-utils.cc JNIHelper.cc JNIUtils.cc \
+	hash-functions.c Logging.cc ParserException.cc XMLUtils.cc \
+	iso-8601.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
+	timeval-utils.cc JNIHelper.cc JNIUtils.cc \
 	RecursiveThreadMutex.cc ThreadMutex.cc ThreadSemaphore.cc \
 	ThreadSpawn.cc DynamicLoader.cc
 @JNI_OPT_TRUE@am__objects_1 = libPlexilUtils_la-JNIHelper.lo \
@@ -182,10 +182,9 @@ am__libPlexilUtils_la_SOURCES_DIST = Debug.cc Error.cc \
 @PLEXIL_DLFCN_H_TRUE@	libPlexilUtils_la-DynamicLoader.lo
 am_libPlexilUtils_la_OBJECTS = libPlexilUtils_la-Debug.lo \
 	libPlexilUtils_la-Error.lo libPlexilUtils_la-hash-functions.lo \
-	libPlexilUtils_la-IdTable.lo libPlexilUtils_la-Logging.lo \
+	libPlexilUtils_la-Logging.lo \
 	libPlexilUtils_la-ParserException.lo \
-	libPlexilUtils_la-Utils.lo libPlexilUtils_la-XMLUtils.lo \
-	libPlexilUtils_la-iso-8601.lo \
+	libPlexilUtils_la-XMLUtils.lo libPlexilUtils_la-iso-8601.lo \
 	libPlexilUtils_la-lifecycle-utils.lo \
 	libPlexilUtils_la-stricmp.lo \
 	libPlexilUtils_la-timespec-utils.lo \
@@ -273,9 +272,9 @@ am__can_run_installinfo = \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
 am__include_HEADERS_DIST = ConstantMacros.hh Debug.hh \
-	Dinkum_hash_map.hh Error.hh GNU_hash_map.hh Id.hh IdTable.hh \
-	Logging.hh ParserException.hh TestSupport.hh Utils.hh \
-	XMLUtils.hh generic_hash_map.hh hash-functions.h iso-8601.hh \
+	Dinkum_hash_map.hh Error.hh GNU_hash_map.hh Logging.hh \
+	ParserException.hh TestSupport.hh XMLUtils.hh \
+	generic_hash_map.hh hash-functions.h iso-8601.hh \
 	lifecycle-utils.h stricmp.h timespec-utils.hh timeval-utils.hh \
 	utils_main_page.hh JNIHelper.hh JNIUtils.hh \
 	ScopedOstreamRedirect.hh RecursiveThreadMutex.hh \
@@ -434,17 +433,15 @@ AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilUtils.la
 libPlexilUtils_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src
 include_HEADERS = ConstantMacros.hh Debug.hh Dinkum_hash_map.hh \
-	Error.hh GNU_hash_map.hh Id.hh IdTable.hh Logging.hh \
-	ParserException.hh TestSupport.hh Utils.hh XMLUtils.hh \
-	generic_hash_map.hh hash-functions.h iso-8601.hh \
-	lifecycle-utils.h stricmp.h timespec-utils.hh timeval-utils.hh \
-	utils_main_page.hh $(am__append_1) $(am__append_3) \
-	$(am__append_5)
+	Error.hh GNU_hash_map.hh Logging.hh ParserException.hh \
+	TestSupport.hh XMLUtils.hh generic_hash_map.hh \
+	hash-functions.h iso-8601.hh lifecycle-utils.h stricmp.h \
+	timespec-utils.hh timeval-utils.hh utils_main_page.hh \
+	$(am__append_1) $(am__append_3) $(am__append_5)
 libPlexilUtils_la_SOURCES = Debug.cc Error.cc hash-functions.c \
-	IdTable.cc Logging.cc ParserException.cc Utils.cc XMLUtils.cc \
-	iso-8601.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
-	timeval-utils.cc $(am__append_2) $(am__append_4) \
-	$(am__append_6)
+	Logging.cc ParserException.cc XMLUtils.cc iso-8601.cc \
+	lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc \
+	$(am__append_2) $(am__append_4) $(am__append_6)
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/TestData.hh \
 @MODULE_TESTS_OPT_TRUE@	test/util-test-module.hh \
 @MODULE_TESTS_OPT_TRUE@	$(am__append_7)
@@ -604,7 +601,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-Debug.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-DynamicLoader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-Error.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-IdTable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-JNIHelper.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-JNIUtils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-Logging.Plo@am__quote@
@@ -613,7 +609,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-ThreadMutex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-ThreadSemaphore.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-ThreadSpawn.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-Utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-XMLUtils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-hash-functions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-iso-8601.Plo@am__quote@
@@ -709,13 +704,6 @@ libPlexilUtils_la-Error.lo: Error.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-Error.lo `test -f 'Error.cc' || echo '$(srcdir)/'`Error.cc
 
-libPlexilUtils_la-IdTable.lo: IdTable.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilUtils_la-IdTable.lo -MD -MP -MF $(DEPDIR)/libPlexilUtils_la-IdTable.Tpo -c -o libPlexilUtils_la-IdTable.lo `test -f 'IdTable.cc' || echo '$(srcdir)/'`IdTable.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilUtils_la-IdTable.Tpo $(DEPDIR)/libPlexilUtils_la-IdTable.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='IdTable.cc' object='libPlexilUtils_la-IdTable.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-IdTable.lo `test -f 'IdTable.cc' || echo '$(srcdir)/'`IdTable.cc
-
 libPlexilUtils_la-Logging.lo: Logging.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilUtils_la-Logging.lo -MD -MP -MF $(DEPDIR)/libPlexilUtils_la-Logging.Tpo -c -o libPlexilUtils_la-Logging.lo `test -f 'Logging.cc' || echo '$(srcdir)/'`Logging.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilUtils_la-Logging.Tpo $(DEPDIR)/libPlexilUtils_la-Logging.Plo
@@ -729,13 +717,6 @@ libPlexilUtils_la-ParserException.lo: ParserException.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ParserException.cc' object='libPlexilUtils_la-ParserException.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-ParserException.lo `test -f 'ParserException.cc' || echo '$(srcdir)/'`ParserException.cc
-
-libPlexilUtils_la-Utils.lo: Utils.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilUtils_la-Utils.lo -MD -MP -MF $(DEPDIR)/libPlexilUtils_la-Utils.Tpo -c -o libPlexilUtils_la-Utils.lo `test -f 'Utils.cc' || echo '$(srcdir)/'`Utils.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilUtils_la-Utils.Tpo $(DEPDIR)/libPlexilUtils_la-Utils.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Utils.cc' object='libPlexilUtils_la-Utils.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-Utils.lo `test -f 'Utils.cc' || echo '$(srcdir)/'`Utils.cc
 
 libPlexilUtils_la-XMLUtils.lo: XMLUtils.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilUtils_la-XMLUtils.lo -MD -MP -MF $(DEPDIR)/libPlexilUtils_la-XMLUtils.Tpo -c -o libPlexilUtils_la-XMLUtils.lo `test -f 'XMLUtils.cc' || echo '$(srcdir)/'`XMLUtils.cc

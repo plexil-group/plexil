@@ -247,7 +247,7 @@ namespace PLEXIL
 
     debugMsg("Test:testOutput",
              "Sending plan from file " << elt.attribute("file").value());
-    PlexilNodeId root =
+    PlexilNode *root =
       PlexilXmlParser::parse(doc->document_element().child("PlexilPlan").child("Node"));
     g_exec->addPlan(root);
   }

@@ -30,13 +30,13 @@ lib_LTLIBRARIES = libPlexilUtils.la
 libPlexilUtils_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src
 
 include_HEADERS = ConstantMacros.hh Debug.hh Dinkum_hash_map.hh Error.hh \
- GNU_hash_map.hh Id.hh IdTable.hh Logging.hh ParserException.hh TestSupport.hh \
- Utils.hh XMLUtils.hh generic_hash_map.hh hash-functions.h iso-8601.hh \
+ GNU_hash_map.hh Logging.hh ParserException.hh TestSupport.hh \
+ XMLUtils.hh generic_hash_map.hh hash-functions.h iso-8601.hh \
  lifecycle-utils.h stricmp.h timespec-utils.hh timeval-utils.hh \
  utils_main_page.hh
 
-libPlexilUtils_la_SOURCES = Debug.cc Error.cc hash-functions.c IdTable.cc \
- Logging.cc ParserException.cc Utils.cc XMLUtils.cc iso-8601.cc \
+libPlexilUtils_la_SOURCES = Debug.cc Error.cc hash-functions.c \
+ Logging.cc ParserException.cc XMLUtils.cc iso-8601.cc \
  lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc
 
 if JNI_OPT

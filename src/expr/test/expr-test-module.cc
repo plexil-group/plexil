@@ -51,8 +51,6 @@ extern bool valueTest();
 extern bool variableFactoryTest();
 extern bool variablesTest();
 
-using namespace PLEXIL;
-
 static void runExprTests()
 {
   runTestSuite(listenerTest);

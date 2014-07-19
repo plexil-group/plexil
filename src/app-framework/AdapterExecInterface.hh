@@ -28,7 +28,6 @@
 #define _H_AdapterExecInterface
 
 #include "CommandHandle.hh"
-#include "Id.hh"
 #include "ParserException.hh"
 
 #include <vector>
@@ -46,9 +45,7 @@ namespace PLEXIL
   class State;
   class Update;
   class Value;
-
   class PlexilNode;
-  typedef Id<PlexilNode> PlexilNodeId;
 
   /**
    * @brief An abstract base class representing the InterfaceManager API
@@ -108,13 +105,13 @@ namespace PLEXIL
      * @brief Notify the executive of a new plan.
      * @param planStruct The PlexilNode representation of the new plan.
      */
-    virtual bool handleAddPlan(PlexilNodeId planStruct) = 0;
+    virtual bool handleAddPlan(PlexilNode *planStruct) = 0;
 
     /**
      * @brief Notify the executive of a new library node.
      * @param planStruct The PlexilNode representation of the new library node.
      */
-    virtual void handleAddLibrary(PlexilNodeId planStruct) = 0;
+    virtual void handleAddLibrary(PlexilNode *planStruct) = 0;
 
     /**
      * @brief Notify the executive that it should run one cycle.  This should be sent after
