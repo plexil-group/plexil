@@ -540,7 +540,7 @@ namespace PLEXIL {
 
     void logTransition(double time, NodeState newState);
 
-    void createConditions(const std::vector<std::pair<PlexilExprId, std::string> >& conds);
+    void createConditions(const std::vector<std::pair<PlexilExpr *, std::string> >& conds);
 
     void createDeclaredVars(const std::vector<PlexilVar *>& vars);
 

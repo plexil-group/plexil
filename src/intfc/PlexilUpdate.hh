@@ -46,7 +46,7 @@ namespace PLEXIL
 
     ~PlexilUpdate()
     {
-      for (std::vector<std::pair<std::string, PlexilExprId> >::iterator it = m_map.begin();
+      for (std::vector<std::pair<std::string, PlexilExpr *> >::iterator it = m_map.begin();
            it != m_map.end();
            ++it)
         delete (PlexilExpr*) it->second;
@@ -55,9 +55,9 @@ namespace PLEXIL
     }
 
     const PlexilUpdateId& getId() const {return m_id;}
-    const std::vector<std::pair<std::string, PlexilExprId> >& pairs() const {return m_map;}
+    const std::vector<std::pair<std::string, PlexilExpr *> >& pairs() const {return m_map;}
 
-    void addPair(const std::string& name, const PlexilExprId& value)
+    void addPair(const std::string& name, PlexilExpr *value)
     { m_map.push_back(std::make_pair(name, value));}
     int lineNo() const {return m_lineNo;}
     int colNo() const {return m_colNo;}
@@ -65,7 +65,7 @@ namespace PLEXIL
     void setColNo(int n) {m_colNo = n;}
   private:
     PlexilUpdateId m_id;
-    std::vector<std::pair<std::string, PlexilExprId> > m_map;
+    std::vector<std::pair<std::string, PlexilExpr *> > m_map;
     int m_lineNo;
     int m_colNo;
   };

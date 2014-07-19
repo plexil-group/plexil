@@ -40,25 +40,25 @@ static bool testBasics()
 {
   FactoryTestNodeConnector conn;
 
-  PlexilStateId state1 = (new PlexilState())->getId();
+  PlexilState *state1 = new PlexilState();
   state1->setName("foo");
 
-  PlexilStateId state2 = (new PlexilState())->getId();
+  PlexilState *state2 = new PlexilState();
   state2->setName("bar");
-  state2->addArg((new PlexilValue(INTEGER_TYPE, "0"))->getId());
+  state2->addArg(new PlexilValue(INTEGER_TYPE, "0"));
 
-  PlexilStateId state3 = (new PlexilState())->getId();
+  PlexilState *state3 = new PlexilState();
   state3->setName("baz");
-  state3->addArg((new PlexilValue(INTEGER_TYPE, "1"))->getId());
-  state3->addArg((new PlexilValue(REAL_TYPE, "1.5"))->getId());
-  state3->addArg((new PlexilValue(STRING_TYPE, "too"))->getId());
+  state3->addArg(new PlexilValue(INTEGER_TYPE, "1"));
+  state3->addArg(new PlexilValue(REAL_TYPE, "1.5"));
+  state3->addArg(new PlexilValue(STRING_TYPE, "too"));
 
   // Basics
   PlexilLookup test1;
   test1.setName("LookupNow");
   test1.setState(state1);
   bool wasCreated = false;
-  Expression *lookup1 = createExpression(test1.getId(), &conn, wasCreated);
+  Expression *lookup1 = createExpression(&test1, &conn, wasCreated);
   assertTrue_1(lookup1);
   assertTrue_1(wasCreated);
   assertTrue_1(0 == strcmp(lookup1->exprName(), "LookupNow"));
@@ -66,9 +66,9 @@ static bool testBasics()
   PlexilChangeLookup test2;
   test2.setName("LookupOnChange");
   test2.setState(state2);
-  test2.setTolerance((new PlexilValue(REAL_TYPE, "0.5"))->getId());
+  test2.setTolerance(new PlexilValue(REAL_TYPE, "0.5"));
   wasCreated = false;
-  Expression *lookup2 = createExpression(test2.getId(), &conn, wasCreated);
+  Expression *lookup2 = createExpression(&test2, &conn, wasCreated);
   assertTrue_1(lookup2);
   assertTrue_1(wasCreated);
   assertTrue_1(0 == strcmp(lookup2->exprName(), "LookupOnChange"));
@@ -77,10 +77,14 @@ static bool testBasics()
   test3.setName("LookupOnChange");
   test3.setState(state3);
   wasCreated = false;
-  Expression *lookup3 = createExpression(test3.getId(), &conn, wasCreated);
+  Expression *lookup3 = createExpression(&test3, &conn, wasCreated);
   assertTrue_1(lookup3);
   assertTrue_1(wasCreated);
   assertTrue_1(0 == strcmp(lookup3->exprName(), "LookupNow"));
+
+  delete state1;
+  delete state2;
+  delete state3;
 
   return true;
 }

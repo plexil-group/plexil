@@ -68,7 +68,7 @@ namespace PLEXIL
     return m_name;
   }
 
-  Expression *createExpression(const PlexilExprId& expr,
+  Expression *createExpression(PlexilExpr const *expr,
                                NodeConnector *node)
     throw (ParserException)
   {
@@ -76,7 +76,7 @@ namespace PLEXIL
     return createExpression(expr, node, dummy);
   }
 
-  Expression *createExpression(const PlexilExprId& expr,
+  Expression *createExpression(PlexilExpr const *expr,
                                NodeConnector *node,
                                bool& wasCreated)
     throw (ParserException)
@@ -95,13 +95,13 @@ namespace PLEXIL
   }
 
   // This doesn't use the ExpressionFactory paradigm, but it could if required in the future.
-  Assignable *createAssignable(const PlexilExprId& expr,
+  Assignable *createAssignable(PlexilExpr const *expr,
                                NodeConnector *node,
                                bool& wasCreated)
     throw (ParserException)
   {
     assertTrue_2(node, "createAssignable: Null node argument");
-    PlexilVarRef const *ref = dynamic_cast<PlexilVarRef const *>((PlexilExpr const *) expr);
+    PlexilVarRef const *ref = dynamic_cast<PlexilVarRef const *>(expr);
     if (ref) {
       // Variable reference - always returns existing
       wasCreated = false;
@@ -112,7 +112,7 @@ namespace PLEXIL
                            "createAssignable: Variable \"" << ref->varName() << "\" is not assignable");
       return result->asAssignable();
     }
-    PlexilArrayElement const *elt = dynamic_cast<PlexilArrayElement const *>((PlexilExpr const *) expr);
+    PlexilArrayElement const *elt = dynamic_cast<PlexilArrayElement const *>(expr);
     if (elt) {
       // Get array expression (usually variable reference)
       bool aryCreated, idxCreated;

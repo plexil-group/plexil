@@ -54,7 +54,7 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const *expr,
                          NodeConnector *node,
                          bool &wasCreated) const = 0;
 
@@ -78,7 +78,7 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const *expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
 
@@ -107,7 +107,7 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const *expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
 
@@ -134,7 +134,7 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const *expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
 
@@ -162,7 +162,7 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const *expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
 
@@ -189,7 +189,7 @@ namespace PLEXIL
     {
     }
 
-    virtual Expression *allocate(const PlexilExprId& expr,
+    virtual Expression *allocate(PlexilExpr const *expr,
                                  NodeConnector *node,
                                  bool & wasCreated) const;
 
@@ -212,7 +212,7 @@ namespace PLEXIL
     {
     }
 
-    virtual Expression *allocate(const PlexilExprId& expr,
+    virtual Expression *allocate(PlexilExpr const *expr,
                                  NodeConnector *node,
                                  bool & wasCreated) const;
 

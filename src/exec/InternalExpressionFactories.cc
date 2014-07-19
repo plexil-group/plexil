@@ -54,11 +54,11 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const * expr,
                          NodeConnector *node,
                          bool &wasCreated) const
     {
-      PlexilStateVar const *var = dynamic_cast<PlexilStateVar const *>((PlexilExpr const *) expr);
+      PlexilStateVar const *var = dynamic_cast<PlexilStateVar const *>(expr);
       checkParserException(var, "createExpression: not a PlexilStateVar");
       Node *target = node->findNodeRef(var->ref());
       checkParserException(target, "createExpression: Can't find node for StateVariable");
@@ -86,11 +86,11 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const * expr,
                          NodeConnector *node,
                          bool &wasCreated) const
     {
-      PlexilOutcomeVar const *var = dynamic_cast<PlexilOutcomeVar const *>((PlexilExpr const *) expr);
+      PlexilOutcomeVar const *var = dynamic_cast<PlexilOutcomeVar const *>(expr);
       checkParserException(var, "createExpression: not a PlexilOutcomeVar");
       Node *target = node->findNodeRef(var->ref());
       checkParserException(target, "createExpression: Can't find node for OutcomeVariable");
@@ -119,11 +119,11 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const * expr,
                          NodeConnector *node,
                          bool &wasCreated) const
     {
-      PlexilFailureVar const *var = dynamic_cast<PlexilFailureVar const *>((PlexilExpr const *) expr);
+      PlexilFailureVar const *var = dynamic_cast<PlexilFailureVar const *>(expr);
       checkParserException(var, "createExpression: not a PlexilFailureVar");
       Node *target = node->findNodeRef(var->ref());
       checkParserException(target, "createExpression: Can't find node for FailureTypeVariable");
@@ -151,11 +151,11 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const * expr,
                          NodeConnector *node,
                          bool &wasCreated) const
     {
-      PlexilCommandHandleVar const *var = dynamic_cast<PlexilCommandHandleVar const *>((PlexilExpr const *) expr);
+      PlexilCommandHandleVar const *var = dynamic_cast<PlexilCommandHandleVar const *>(expr);
       checkParserException(var, "createExpression: not a PlexilCommandHandleVar");
       Node *target = node->findNodeRef(var->ref());
       checkParserException(target, "createExpression: Can't find node for CommandHandleVariable");
@@ -188,11 +188,11 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const * expr,
                          NodeConnector *node,
                          bool &wasCreated) const
     {
-      PlexilTimepointVar const *var = dynamic_cast<PlexilTimepointVar const *>((PlexilExpr const *) expr);
+      PlexilTimepointVar const *var = dynamic_cast<PlexilTimepointVar const *>(expr);
       checkParserException(var, "createExpression: not a PlexilTimepointVar");
       wasCreated = true;
       return create(var, node);

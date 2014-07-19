@@ -550,7 +550,7 @@ namespace PLEXIL
     checkError(command->state()->nameExpr(),
                "Attempt to create command with null name expression");
 
-    PlexilStateId state = command->state();
+    PlexilState const *state = command->state();
     std::vector<Expression *> garbage;
     bool wasCreated = false;
     Expression *nameExpr = createExpression(state->nameExpr(), 
@@ -560,7 +560,7 @@ namespace PLEXIL
       garbage.push_back(nameExpr);
 
     std::vector<Expression *> args;
-    for (std::vector<PlexilExprId>::const_iterator it = state->args().begin();
+    for (std::vector<PlexilExpr *>::const_iterator it = state->args().begin();
          it != state->args().end(); 
          ++it) {
       Expression *argExpr =
@@ -573,7 +573,7 @@ namespace PLEXIL
     
     Assignable *dest = NULL;
     if (!command->dest().empty()) {
-      const PlexilExprId& destExpr = command->dest()[0]->getId();
+      PlexilExpr const *destExpr = command->dest()[0];
       bool destCreated;
       dest = createAssignable(destExpr, this, destCreated);
       if (destCreated)

@@ -86,68 +86,68 @@ static bool testArrayConstantReferenceFactory()
   realNc->storeVariable("i", &iv);
 
   // Construct reference templates
-  PlexilArrayElement bart0((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement barti((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement iart0((new PlexilVarRef("int", INTEGER_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement iarti((new PlexilVarRef("int", INTEGER_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement dart0((new PlexilVarRef("dbl", REAL_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement darti((new PlexilVarRef("dbl", REAL_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement sart0((new PlexilVarRef("str", STRING_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement sarti((new PlexilVarRef("str", STRING_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
+  PlexilArrayElement bart0(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement barti(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement iart0(new PlexilVarRef("int", INTEGER_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement iarti(new PlexilVarRef("int", INTEGER_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement dart0(new PlexilVarRef("dbl", REAL_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement darti(new PlexilVarRef("dbl", REAL_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement sart0(new PlexilVarRef("str", STRING_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement sarti(new PlexilVarRef("str", STRING_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
 
   bool wasCreated = false;
 
-  Expression *bar0 = createExpression(bart0.getId(), nc, wasCreated);
+  Expression *bar0 = createExpression(&bart0, nc, wasCreated);
   assertTrue_1(bar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
   assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
 
-  Expression *bari = createExpression(barti.getId(), nc, wasCreated);
+  Expression *bari = createExpression(&barti, nc, wasCreated);
   assertTrue_1(bari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
   assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
 
-  Expression *iar0 = createExpression(iart0.getId(), nc, wasCreated);
+  Expression *iar0 = createExpression(&iart0, nc, wasCreated);
   assertTrue_1(iar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
   assertTrue_1(iar0->valueType() == INTEGER_TYPE);
 
-  Expression *iari = createExpression(iarti.getId(), nc, wasCreated);
+  Expression *iari = createExpression(&iarti, nc, wasCreated);
   assertTrue_1(iari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
   assertTrue_1(iari->valueType() == INTEGER_TYPE);
 
-  Expression *dar0 = createExpression(dart0.getId(), nc, wasCreated);
+  Expression *dar0 = createExpression(&dart0, nc, wasCreated);
   assertTrue_1(dar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
   assertTrue_1(dar0->valueType() == REAL_TYPE);
 
-  Expression *dari = createExpression(darti.getId(), nc, wasCreated);
+  Expression *dari = createExpression(&darti, nc, wasCreated);
   assertTrue_1(dari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
   assertTrue_1(dari->valueType() == REAL_TYPE);
 
-  Expression *sar0 = createExpression(sart0.getId(), nc, wasCreated);
+  Expression *sar0 = createExpression(&sart0, nc, wasCreated);
   assertTrue_1(sar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
   assertTrue_1(sar0->valueType() == STRING_TYPE);
 
-  Expression *sari = createExpression(sarti.getId(), nc, wasCreated);
+  Expression *sari = createExpression(&sarti, nc, wasCreated);
   assertTrue_1(sari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
@@ -295,68 +295,68 @@ static bool testArrayVariableReferenceFactory()
   realNc->storeVariable("i", &iv);
 
   // Construct reference templates
-  PlexilArrayElement bart0((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement barti((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement iart0((new PlexilVarRef("int", INTEGER_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement iarti((new PlexilVarRef("int", INTEGER_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement dart0((new PlexilVarRef("dbl", REAL_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement darti((new PlexilVarRef("dbl", REAL_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement sart0((new PlexilVarRef("str", STRING_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement sarti((new PlexilVarRef("str", STRING_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
+  PlexilArrayElement bart0(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement barti(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement iart0(new PlexilVarRef("int", INTEGER_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement iarti(new PlexilVarRef("int", INTEGER_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement dart0(new PlexilVarRef("dbl", REAL_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement darti(new PlexilVarRef("dbl", REAL_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement sart0(new PlexilVarRef("str", STRING_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement sarti(new PlexilVarRef("str", STRING_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
 
   bool wasCreated = false;
 
-  Expression *bar0 = createExpression(bart0.getId(), nc, wasCreated);
+  Expression *bar0 = createExpression(&bart0, nc, wasCreated);
   assertTrue_1(bar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
   assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
 
-  Expression *bari = createExpression(barti.getId(), nc, wasCreated);
+  Expression *bari = createExpression(&barti, nc, wasCreated);
   assertTrue_1(bari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
   assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
 
-  Expression *iar0 = createExpression(iart0.getId(), nc, wasCreated);
+  Expression *iar0 = createExpression(&iart0, nc, wasCreated);
   assertTrue_1(iar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
   assertTrue_1(iar0->valueType() == INTEGER_TYPE);
 
-  Expression *iari = createExpression(iarti.getId(), nc, wasCreated);
+  Expression *iari = createExpression(&iarti, nc, wasCreated);
   assertTrue_1(iari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
   assertTrue_1(iari->valueType() == INTEGER_TYPE);
 
-  Expression *dar0 = createExpression(dart0.getId(), nc, wasCreated);
+  Expression *dar0 = createExpression(&dart0, nc, wasCreated);
   assertTrue_1(dar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
   assertTrue_1(dar0->valueType() == REAL_TYPE);
 
-  Expression *dari = createExpression(darti.getId(), nc, wasCreated);
+  Expression *dari = createExpression(&darti, nc, wasCreated);
   assertTrue_1(dari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
   assertTrue_1(dari->valueType() == REAL_TYPE);
 
-  Expression *sar0 = createExpression(sart0.getId(), nc, wasCreated);
+  Expression *sar0 = createExpression(&sart0, nc, wasCreated);
   assertTrue_1(sar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
   assertTrue_1(sar0->valueType() == STRING_TYPE);
 
-  Expression *sari = createExpression(sarti.getId(), nc, wasCreated);
+  Expression *sari = createExpression(&sarti, nc, wasCreated);
   assertTrue_1(sari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
@@ -509,68 +509,68 @@ static bool testArrayAliasReferenceFactory()
   realNc->storeVariable("i", &iv);
 
   // Construct reference templates
-  PlexilArrayElement bart0((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement barti((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement iart0((new PlexilVarRef("int", INTEGER_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement iarti((new PlexilVarRef("int", INTEGER_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement dart0((new PlexilVarRef("dbl", REAL_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement darti((new PlexilVarRef("dbl", REAL_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement sart0((new PlexilVarRef("str", STRING_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement sarti((new PlexilVarRef("str", STRING_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
+  PlexilArrayElement bart0(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement barti(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement iart0(new PlexilVarRef("int", INTEGER_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement iarti(new PlexilVarRef("int", INTEGER_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement dart0(new PlexilVarRef("dbl", REAL_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement darti(new PlexilVarRef("dbl", REAL_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement sart0(new PlexilVarRef("str", STRING_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement sarti(new PlexilVarRef("str", STRING_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
 
   bool wasCreated = false;
 
-  Expression *bar0 = createExpression(bart0.getId(), nc, wasCreated);
+  Expression *bar0 = createExpression(&bart0, nc, wasCreated);
   assertTrue_1(bar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
   assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
 
-  Expression *bari = createExpression(barti.getId(), nc, wasCreated);
+  Expression *bari = createExpression(&barti, nc, wasCreated);
   assertTrue_1(bari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
   assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
 
-  Expression *iar0 = createExpression(iart0.getId(), nc, wasCreated);
+  Expression *iar0 = createExpression(&iart0, nc, wasCreated);
   assertTrue_1(iar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
   assertTrue_1(iar0->valueType() == INTEGER_TYPE);
 
-  Expression *iari = createExpression(iarti.getId(), nc, wasCreated);
+  Expression *iari = createExpression(&iarti, nc, wasCreated);
   assertTrue_1(iari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
   assertTrue_1(iari->valueType() == INTEGER_TYPE);
 
-  Expression *dar0 = createExpression(dart0.getId(), nc, wasCreated);
+  Expression *dar0 = createExpression(&dart0, nc, wasCreated);
   assertTrue_1(dar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
   assertTrue_1(dar0->valueType() == REAL_TYPE);
 
-  Expression *dari = createExpression(darti.getId(), nc, wasCreated);
+  Expression *dari = createExpression(&darti, nc, wasCreated);
   assertTrue_1(dari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
   assertTrue_1(dari->valueType() == REAL_TYPE);
 
-  Expression *sar0 = createExpression(sart0.getId(), nc, wasCreated);
+  Expression *sar0 = createExpression(&sart0, nc, wasCreated);
   assertTrue_1(sar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
   assertTrue_1(sar0->valueType() == STRING_TYPE);
 
-  Expression *sari = createExpression(sarti.getId(), nc, wasCreated);
+  Expression *sari = createExpression(&sarti, nc, wasCreated);
   assertTrue_1(sari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
@@ -732,68 +732,68 @@ static bool testMutableArrayReferenceFactory()
   realNc->storeVariable("i", &iv);
 
   // Construct reference templates
-  PlexilArrayElement bart0((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement barti((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement iart0((new PlexilVarRef("int", INTEGER_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement iarti((new PlexilVarRef("int", INTEGER_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement dart0((new PlexilVarRef("dbl", REAL_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement darti((new PlexilVarRef("dbl", REAL_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement sart0((new PlexilVarRef("str", STRING_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement sarti((new PlexilVarRef("str", STRING_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
+  PlexilArrayElement bart0(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement barti(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement iart0(new PlexilVarRef("int", INTEGER_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement iarti(new PlexilVarRef("int", INTEGER_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement dart0(new PlexilVarRef("dbl", REAL_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement darti(new PlexilVarRef("dbl", REAL_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement sart0(new PlexilVarRef("str", STRING_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement sarti(new PlexilVarRef("str", STRING_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
 
   bool wasCreated = false;
 
-  Assignable *bar0 = createAssignable(bart0.getId(), nc, wasCreated);
+  Assignable *bar0 = createAssignable(&bart0, nc, wasCreated);
   assertTrue_1(bar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
   assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
 
-  Assignable *bari = createAssignable(barti.getId(), nc, wasCreated);
+  Assignable *bari = createAssignable(&barti, nc, wasCreated);
   assertTrue_1(bari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
   assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
 
-  Assignable *iar0 = createAssignable(iart0.getId(), nc, wasCreated);
+  Assignable *iar0 = createAssignable(&iart0, nc, wasCreated);
   assertTrue_1(iar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
   assertTrue_1(iar0->valueType() == INTEGER_TYPE);
 
-  Assignable *iari = createAssignable(iarti.getId(), nc, wasCreated);
+  Assignable *iari = createAssignable(&iarti, nc, wasCreated);
   assertTrue_1(iari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
   assertTrue_1(iari->valueType() == INTEGER_TYPE);
 
-  Assignable *dar0 = createAssignable(dart0.getId(), nc, wasCreated);
+  Assignable *dar0 = createAssignable(&dart0, nc, wasCreated);
   assertTrue_1(dar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
   assertTrue_1(dar0->valueType() == REAL_TYPE);
 
-  Assignable *dari = createAssignable(darti.getId(), nc, wasCreated);
+  Assignable *dari = createAssignable(&darti, nc, wasCreated);
   assertTrue_1(dari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
   assertTrue_1(dari->valueType() == REAL_TYPE);
 
-  Assignable *sar0 = createAssignable(sart0.getId(), nc, wasCreated);
+  Assignable *sar0 = createAssignable(&sart0, nc, wasCreated);
   assertTrue_1(sar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
   assertTrue_1(sar0->valueType() == STRING_TYPE);
 
-  Assignable *sari = createAssignable(sarti.getId(), nc, wasCreated);
+  Assignable *sari = createAssignable(&sarti, nc, wasCreated);
   assertTrue_1(sari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
@@ -1007,68 +1007,68 @@ static bool testMutableArrayAliasReferenceFactory()
   realNc->storeVariable("i", &iv);
 
   // Construct reference templates
-  PlexilArrayElement bart0((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement barti((new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement iart0((new PlexilVarRef("int", INTEGER_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement iarti((new PlexilVarRef("int", INTEGER_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement dart0((new PlexilVarRef("dbl", REAL_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement darti((new PlexilVarRef("dbl", REAL_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
-  PlexilArrayElement sart0((new PlexilVarRef("str", STRING_ARRAY_TYPE))->getId(),
-                           (new PlexilValue(INTEGER_TYPE, "0"))->getId());
-  PlexilArrayElement sarti((new PlexilVarRef("str", STRING_ARRAY_TYPE))->getId(),
-                           (new PlexilVarRef("i", INTEGER_TYPE))->getId());
+  PlexilArrayElement bart0(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement barti(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement iart0(new PlexilVarRef("int", INTEGER_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement iarti(new PlexilVarRef("int", INTEGER_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement dart0(new PlexilVarRef("dbl", REAL_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement darti(new PlexilVarRef("dbl", REAL_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
+  PlexilArrayElement sart0(new PlexilVarRef("str", STRING_ARRAY_TYPE),
+                           new PlexilValue(INTEGER_TYPE, "0"));
+  PlexilArrayElement sarti(new PlexilVarRef("str", STRING_ARRAY_TYPE),
+                           new PlexilVarRef("i", INTEGER_TYPE));
 
   bool wasCreated = false;
 
-  Assignable *bar0 = createAssignable(bart0.getId(), nc, wasCreated);
+  Assignable *bar0 = createAssignable(&bart0, nc, wasCreated);
   assertTrue_1(bar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
   assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
 
-  Assignable *bari = createAssignable(barti.getId(), nc, wasCreated);
+  Assignable *bari = createAssignable(&barti, nc, wasCreated);
   assertTrue_1(bari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
   assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
 
-  Assignable *iar0 = createAssignable(iart0.getId(), nc, wasCreated);
+  Assignable *iar0 = createAssignable(&iart0, nc, wasCreated);
   assertTrue_1(iar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
   assertTrue_1(iar0->valueType() == INTEGER_TYPE);
 
-  Assignable *iari = createAssignable(iarti.getId(), nc, wasCreated);
+  Assignable *iari = createAssignable(&iarti, nc, wasCreated);
   assertTrue_1(iari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
   assertTrue_1(iari->valueType() == INTEGER_TYPE);
 
-  Assignable *dar0 = createAssignable(dart0.getId(), nc, wasCreated);
+  Assignable *dar0 = createAssignable(&dart0, nc, wasCreated);
   assertTrue_1(dar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
   assertTrue_1(dar0->valueType() == REAL_TYPE);
 
-  Assignable *dari = createAssignable(darti.getId(), nc, wasCreated);
+  Assignable *dari = createAssignable(&darti, nc, wasCreated);
   assertTrue_1(dari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
   assertTrue_1(dari->valueType() == REAL_TYPE);
 
-  Assignable *sar0 = createAssignable(sart0.getId(), nc, wasCreated);
+  Assignable *sar0 = createAssignable(&sart0, nc, wasCreated);
   assertTrue_1(sar0);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
   assertTrue_1(sar0->valueType() == STRING_TYPE);
 
-  Assignable *sari = createAssignable(sarti.getId(), nc, wasCreated);
+  Assignable *sari = createAssignable(&sarti, nc, wasCreated);
   assertTrue_1(sari);
   assertTrue_1(wasCreated);
   assertTrue_1(!strcmp("ArrayReference", sari->exprName()));

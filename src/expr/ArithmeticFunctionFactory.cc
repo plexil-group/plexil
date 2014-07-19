@@ -87,14 +87,14 @@ namespace PLEXIL
   {
   }
 
-  Expression *ArithmeticFunctionFactory::allocate(const PlexilExprId& expr,
+  Expression *ArithmeticFunctionFactory::allocate(PlexilExpr const *expr,
                                                   NodeConnector *node,
                                                   bool & wasCreated) const
   {
-    PlexilOp const *op = dynamic_cast<PlexilOp const *>((PlexilExpr const *) expr);
+    PlexilOp const *op = dynamic_cast<PlexilOp const *>(expr);
     checkParserException(op, "createExpression: Not a PlexilOp");
 
-    std::vector<PlexilExprId> const &args = op->subExprs();
+    std::vector<PlexilExpr *> const &args = op->subExprs();
     // Have to have at least one arg to check types on
     checkParserException(args.size() > 0,
                          "createExpression: Can't create arithmetic expression of no arguments");

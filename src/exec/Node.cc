@@ -268,7 +268,7 @@ namespace PLEXIL {
                     "Node \"" << m_nodeId << "\" already has a variable named \"" << name << "\"");
       bool dummy; // we always expect variables to be constructed here
       Expression *varId =
-        createExpression(var->getId(), this, dummy);
+        createExpression(var, this, dummy);
       assertTrue_1(varId->getName() == name);
       m_variablesByName[varId->getName()] = varId;
       m_localVariables.push_back(varId);
@@ -358,11 +358,13 @@ namespace PLEXIL {
       // FIXME: should we generate default even if not a library call?
       if (parentIsLibCall) {
         // Get default, if any
-        PlexilExprId defaultVal = varRef->defaultValue();
-        if (defaultVal.isId()) {
-          if (Id<PlexilVarRef>::convertable(defaultVal)) {
+        PlexilExpr const *defaultVal = varRef->defaultValue();
+        if (defaultVal) {
+          PlexilVarRef const *varref =
+            dynamic_cast<PlexilVarRef const *>(defaultVal);
+          if (varref) {
             // Get a reference to the variable
-            expr = findVariable((PlexilVarRef*) defaultVal);
+            expr = findVariable(varref);
           }
           else {
             // construct constant local "variable" with default value
@@ -401,18 +403,23 @@ namespace PLEXIL {
       // FIXME: should we generate default even if not a library call?
       if (parentIsLibCall) {
         // Get default, if any
-        PlexilExprId defaultVal = varRef->defaultValue();
-        if (defaultVal.isId()) {
-          if (Id<PlexilVarRef>::convertable(defaultVal)) {
+        PlexilExpr const *defaultVal = varRef->defaultValue();
+        if (defaultVal) {
+          PlexilVarRef const *varref = 
+            dynamic_cast<PlexilVarRef const *>(defaultVal);
+          if (varref) {
             // Get a reference to the variable
-            expr = findVariable((PlexilVarRef*) defaultVal);
+            expr = findVariable(varref);
           }
           else {
             // construct local "variable" with default value
             bool wasConstructed = false;
-            PlexilExprId tempVar = (new PlexilVar("InOut_Default", // TODO? gensym
-                                                  defaultVal->type(), 
-                                                  defaultVal))->getId();
+            // *** FIXME ***
+            // This object is garbage. We have to DEEP COPY defaultVal,
+            // so we can delete this expression template when we exit this block.
+            PlexilExpr *tempVar = new PlexilVar("InOut_Default", // TODO? gensym
+                                                defaultVal->type(), 
+                                                const_cast<PlexilExpr *>(defaultVal));  // *** KLUDGE ***
             expr = createExpression(tempVar, this, wasConstructed);
             if (wasConstructed)
               m_localVariables.push_back(expr);
@@ -446,7 +453,7 @@ namespace PLEXIL {
     specializedPostInitLate(node);
   }
 
-  void Node::createConditions(const std::vector<std::pair<PlexilExprId, std::string> >& conds) 
+  void Node::createConditions(const std::vector<std::pair<PlexilExpr *, std::string> >& conds) 
   {
     // Attach listeners to ancestor invariant and ancestor end conditions
     // Root node doesn't need them because the default conditions are constants
@@ -468,10 +475,10 @@ namespace PLEXIL {
     createSpecializedConditions();
 
     // Add user-specified conditions
-    for (std::vector<std::pair <PlexilExprId, std::string> >::const_iterator it = conds.begin(); 
+    for (std::vector<std::pair <PlexilExpr *, std::string> >::const_iterator it = conds.begin(); 
          it != conds.end(); 
          ++it) {
-      size_t condIdx = getConditionIndex(std::string(it->second));
+      size_t condIdx = getConditionIndex(it->second);
       if (m_conditions[condIdx]) {
         // Delete existing condition if required
         // (e.g. explicit override of default end condition for list or library call node)

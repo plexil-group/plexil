@@ -168,11 +168,11 @@ namespace PLEXIL
   //
 
   template <>
-  Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(PlexilExprId const &expr,
+  Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(PlexilExpr const *expr,
                                                                           NodeConnector *node,
                                                                           bool &wasCreated) const
   {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
+    PlexilValue const *valex = dynamic_cast<PlexilValue const *>(expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
     checkParserException(valex->type() == NODE_STATE_TYPE, "createExpression: not a NodeStateValue");
     wasCreated = false;
@@ -205,11 +205,11 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(PlexilExprId const &expr,
+  Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(PlexilExpr const *expr,
                                                                             NodeConnector *node,
                                                                             bool &wasCreated) const
   {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
+    PlexilValue const *valex = dynamic_cast<PlexilValue const *>(expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
     checkParserException(valex->type() == OUTCOME_TYPE, "createExpression: not a NodeOutcomeValue");
     wasCreated = false;
@@ -233,11 +233,11 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(PlexilExprId const &expr,
+  Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(PlexilExpr const *expr,
                                                                             NodeConnector *node,
                                                                             bool &wasCreated) const
   {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
+    PlexilValue const *valex = dynamic_cast<PlexilValue const *>(expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
     checkParserException(valex->type() == FAILURE_TYPE, "createExpression: not a FailureTypeValue");
     wasCreated = false;
@@ -267,11 +267,11 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(PlexilExprId const &expr,
+  Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(PlexilExpr const *expr,
                                                                               NodeConnector *node,
                                                                               bool &wasCreated) const
   {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>((PlexilExpr const *) expr);
+    PlexilValue const *valex = dynamic_cast<PlexilValue const *>(expr);
     checkParserException(valex, "createExpression: not a PlexilValue");
     checkParserException(valex->type() == COMMAND_HANDLE_TYPE, "createExpression: not a CommandHandleValue");
     wasCreated = false;

@@ -113,7 +113,7 @@ namespace PLEXIL {
     if (m_nodeBody.isId())
       delete (PlexilNodeBody*) m_nodeBody;
     m_nodeBody = PlexilNodeBodyId::noId();
-    for (std::vector<std::pair<PlexilExprId, std::string> >::iterator it = m_conditions.begin();
+    for (std::vector<std::pair<PlexilExpr *, std::string> >::iterator it = m_conditions.begin();
          it != m_conditions.end();
          ++it) {
       delete (PlexilExpr*) it->first;

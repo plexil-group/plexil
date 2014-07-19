@@ -333,7 +333,7 @@ namespace PLEXIL
     PlexilOutcomeVarParser() : PlexilInternalVarParser() {}
     ~PlexilOutcomeVarParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) 
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) 
     {
       return (new PlexilOutcomeVar(parseNodeReference(xml)))->getId();
     }
@@ -344,7 +344,7 @@ namespace PLEXIL
     PlexilFailureVarParser() : PlexilInternalVarParser() {}
     ~PlexilFailureVarParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) 
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) 
     {
       return (new PlexilFailureVar(parseNodeReference(xml)))->getId();
     }
@@ -355,7 +355,7 @@ namespace PLEXIL
     PlexilStateVarParser() : PlexilInternalVarParser() {}
     ~PlexilStateVarParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) 
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) 
     {
       return (new PlexilStateVar(parseNodeReference(xml)))->getId();
     }
@@ -366,7 +366,7 @@ namespace PLEXIL
     PlexilCommandHandleVarParser() : PlexilInternalVarParser() {}
     ~PlexilCommandHandleVarParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) 
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) 
     {
       return (new PlexilCommandHandleVar(parseNodeReference(xml)))->getId();
     }
@@ -377,7 +377,7 @@ namespace PLEXIL
     PlexilTimepointVarParser() : PlexilInternalVarParser() {}
     ~PlexilTimepointVarParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) 
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) 
     {
       PlexilNodeRefId nodeRef = parseNodeReference(xml);
       xml_node stateElt = xml.child(STATEVAL_TAG);
@@ -402,7 +402,7 @@ namespace PLEXIL
     PlexilOpParser() : PlexilExprParser() {}
     ~PlexilOpParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) 
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) 
     {
       PlexilOp* retval = new PlexilOp(xml.name());
       for (xml_node child = xml.first_child(); 
@@ -418,7 +418,7 @@ namespace PLEXIL
     PlexilChangeLookupParser() : PlexilExprParser() {}
     ~PlexilChangeLookupParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) {
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) {
       checkTag(LOOKUPCHANGE_TAG, xml);
       PlexilChangeLookup* retval = new PlexilChangeLookup();
       retval->setState(PlexilXmlParser::parseState(xml));
@@ -437,7 +437,7 @@ namespace PLEXIL
     PlexilLookupNowParser() : PlexilExprParser() {}
     ~PlexilLookupNowParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) {
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) {
       checkTag(LOOKUPNOW_TAG, xml);
       PlexilLookup* retval = new PlexilLookup();
       retval->setName("LookupNow");
@@ -451,25 +451,25 @@ namespace PLEXIL
     PlexilArrayElementParser() : PlexilExprParser() {}
     ~PlexilArrayElementParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) {
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) {
       checkTag(ARRAYELEMENT_TAG, xml);
 
       // parse the array parameter
       xml_node ary = xml.first_child();
-      PlexilExprId aryExpr;
+      PlexilExpr *aryExpr;
       if (testTag(NAME_TAG, ary))
         // Old style - create an array variable reference
-        aryExpr = (new PlexilVarRef(ary.first_child().value(),
-                                    ARRAY_TYPE))->getId(); // ??
+        aryExpr = new PlexilVarRef(ary.first_child().value(),
+                                   ARRAY_TYPE); // ??
       else 
         aryExpr = PlexilXmlParser::parseExpr(ary);
 
       // extract index
       xml_node idx = ary.next_sibling();
       checkTag(INDEX_TAG, idx);
-      PlexilExprId indexExpr = PlexilXmlParser::parseExpr(idx.first_child());
+      PlexilExpr *indexExpr = PlexilXmlParser::parseExpr(idx.first_child());
 
-      return (new PlexilArrayElement(aryExpr, indexExpr))->getId();
+      return new PlexilArrayElement(aryExpr, indexExpr);
     }
   };
 
@@ -478,7 +478,7 @@ namespace PLEXIL
     PlexilValueParser() : PlexilExprParser() {}
     ~PlexilValueParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) 
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) 
     {
       // confirm that we have a value
       checkTagSuffix(VAL_TAG, xml);
@@ -526,7 +526,7 @@ namespace PLEXIL
     PlexilArrayValueParser() : PlexilExprParser() {}
     ~PlexilArrayValueParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) {
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) {
       // confirm that we have an array value
       checkTag(ARRAY_VAL_TAG, xml);
 
@@ -578,7 +578,7 @@ namespace PLEXIL
     PlexilVarRefParser() : PlexilExprParser() {}
     ~PlexilVarRefParser() {}
 
-    PlexilExprId parse(const xml_node& xml) throw(ParserException) {
+    PlexilExpr *parse(const xml_node& xml) throw(ParserException) {
       checkTagSuffix(VAR_TAG, xml);
       checkNotEmpty(xml);
       const char* tag = xml.name();
@@ -712,7 +712,7 @@ namespace PLEXIL
                                          "XML parsing library error: Empty <NodeParameter> element in library call.");
 
         // get node parameter value
-        PlexilExprId value = PlexilXmlParser::parseExpr(libParamXml.next_sibling());
+        PlexilExpr *value = PlexilXmlParser::parseExpr(libParamXml.next_sibling());
 
         // add alias to body
         body->addAlias(libParam, value);
@@ -1050,7 +1050,7 @@ namespace PLEXIL
     return result;
   }
 
-  PlexilExprId PlexilXmlParser::parseExpr(const xml_node& xml)
+  PlexilExpr *PlexilXmlParser::parseExpr(const xml_node& xml)
   throw(ParserException) {
     std::map<string, PlexilExprParser*>::iterator it =
       s_exprParsers->find(std::string(xml.name()));
@@ -1472,10 +1472,10 @@ namespace PLEXIL
 
   // N.B. Tolerance comes between Name and Arguments in a LookupOnChange.
   // N.B. Also used by Command parser, where position of Name is flexible (may be 1st - 3rd element!).
-  PlexilStateId PlexilXmlParser::parseState(const xml_node& xml)
+  PlexilState *PlexilXmlParser::parseState(const xml_node& xml)
   throw(ParserException) 
   {
-    PlexilStateId retval = (new PlexilState())->getId();
+    PlexilState *retval = new PlexilState();
     xml_node nameElt = xml.child(NAME_TAG);
     checkParserExceptionWithLocation(nameElt,
                                      xml,
@@ -1770,7 +1770,7 @@ namespace PLEXIL
         toXml(*it, declarations);
     }
 
-    for (std::vector<std::pair<PlexilExprId, std::string> >::const_iterator it = node->conditions().begin(); 
+    for (std::vector<std::pair<PlexilExpr const *, std::string const> >::const_iterator it = node->conditions().begin(); 
          it != node->conditions().end();
          ++it) {
       xml_node cond = appendElement(it->second.c_str(), retval);
@@ -1832,13 +1832,13 @@ namespace PLEXIL
     addSourceLocators(retval, var);
   }
 
-  void PlexilXmlParser::toXml(const PlexilExprId& exprId, xml_node& parent)
+  void PlexilXmlParser::toXml(PlexilExpr const *exprId, xml_node& parent)
     throw(ParserException)
   {
-    toXml(exprId.operator->(), parent);
+    toXml(exprid, parent);
   }
 
-  void PlexilXmlParser::toXml(const PlexilExpr* expr, xml_node& parent)
+  void PlexilXmlParser::toXml(PlexilExpr const *expr, xml_node& parent)
     throw(ParserException)
   {
 
@@ -1895,7 +1895,7 @@ namespace PLEXIL
     throw(ParserException) 
   {
     xml_node retval = appendElement(op->name().c_str(), parent);
-    for (std::vector<PlexilExprId>::const_iterator it = op->subExprs().begin(); 
+    for (std::vector<PlexilExpr const *>::const_iterator it = op->subExprs().begin(); 
          it != op->subExprs().end();
          ++it)
       toXml(*it, retval);
@@ -1994,7 +1994,7 @@ namespace PLEXIL
          ++it) {
       // double is key to LabelStr of formal param name
       // expr is actual param
-      const std::pair<std::string, PlexilExprId>& entry = *it;
+      const std::pair<std::string const, PlexilExpr const *>& entry = *it;
       xml_node aliasXml = appendElement(ALIAS_TAG, retval);
       appendNamedTextElement(NODE_PARAMETER_TAG, entry.first.c_str(), aliasXml);
       toXml(entry.second, aliasXml);
@@ -2028,12 +2028,12 @@ namespace PLEXIL
     }
   }
 
-  void PlexilXmlParser::toXml(const PlexilStateId& state, xml_node& parent)
+  void PlexilXmlParser::toXml(PlexilState const *state, xml_node& parent)
     throw(ParserException) 
   {
     appendNamedTextElement(NAME_TAG, state->name().c_str(), parent);
     xml_node args = appendElement(ARGS_TAG, parent);
-    for (std::vector<PlexilExprId>::const_iterator it = state->args().begin();
+    for (std::vector<PlexilExpr const *>::const_iterator it = state->args().begin();
          it != state->args().end();
          ++it)
       toXml(*it, args);
@@ -2042,7 +2042,7 @@ namespace PLEXIL
   void PlexilXmlParser::toXml(const PlexilUpdateId& update, xml_node& parent)
     throw(ParserException) 
   {
-    for (std::vector<std::pair<string, PlexilExprId> >::const_iterator it = update->pairs().begin(); 
+    for (std::vector<std::pair<string const, PlexilExpr const *> >::const_iterator it = update->pairs().begin(); 
          it != update->pairs().end();
          ++it) {
       xml_node pair = appendElement(PAIR_TAG, parent);

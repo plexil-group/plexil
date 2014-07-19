@@ -45,7 +45,7 @@ namespace PLEXIL
     ArithmeticFunctionFactory(std::string const &name);
     ~ArithmeticFunctionFactory();
 
-    Expression *allocate(const PlexilExprId& expr,
+    Expression *allocate(PlexilExpr const *expr,
                          NodeConnector *node,
                          bool & wasCreated) const;
 

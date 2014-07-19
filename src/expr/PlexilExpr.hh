@@ -27,7 +27,6 @@
 #ifndef PLEXIL_EXPR_PROTO_HH
 #define PLEXIL_EXPR_PROTO_HH
 
-#include "Id.hh"
 #include "ValueType.hh"
 
 #include <string>
@@ -36,9 +35,6 @@ namespace PLEXIL
 {
   // Forward references
   class PlexilVar;
-
-  class PlexilExpr;
-  DECLARE_ID(PlexilExpr);
 
   /**
    * @class PlexilExpr
@@ -49,8 +45,8 @@ namespace PLEXIL
   public:
     PlexilExpr(std::string const &factoryName = "",
                ValueType typ = UNKNOWN_TYPE);
+    PlexilExpr(PlexilExpr const &orig);
     virtual ~PlexilExpr();
-    const PlexilExprId& getId() const;
 
     // The name to use for expression factory lookup.
     virtual const std::string& name() const;
@@ -63,9 +59,6 @@ namespace PLEXIL
     void setType(ValueType type);
     void setLineNo(int n);
     void setColNo(int n);
-
-  private:
-    PlexilExprId m_id;
 
   protected:
     std::string m_name;
@@ -85,34 +78,35 @@ namespace PLEXIL
              ValueType typ = UNKNOWN_TYPE);
     virtual ~PlexilOp();
 
-    const std::vector<PlexilExprId>& subExprs() const;
-    void addSubExpr(PlexilExprId expr);
+    const std::vector<PlexilExpr *> &subExprs() const;
+    void addSubExpr(PlexilExpr * expr);
 
   private:
-    std::vector<PlexilExprId> m_subExprs;
+    std::vector<PlexilExpr *> m_subExprs;
   };
 
   class PlexilArrayElement : public PlexilExpr 
   {
   public:
-    PlexilArrayElement(PlexilExprId const &array,
-                       PlexilExprId const &index);
+    PlexilArrayElement(PlexilExpr *array,
+                       PlexilExpr *index);
     virtual ~PlexilArrayElement();
 
-    PlexilExprId const & array() const;
-    PlexilExprId const & index() const;
+    PlexilExpr const *array() const;
+    PlexilExpr const *index() const;
 
     std::string const &getArrayName() const;
 
   private:
-    PlexilExprId m_array;
-    PlexilExprId m_index;
+    PlexilExpr *m_array;
+    PlexilExpr *m_index;
   };
 
   class PlexilValue : public PlexilExpr
   {
   public:
     PlexilValue(ValueType type, const std::string& value = "UNKNOWN");
+    PlexilValue(PlexilValue const &orig);
     ~PlexilValue();
 
     const std::string& value() const;
@@ -147,11 +141,11 @@ namespace PLEXIL
     std::string const &varName() const;
     // The following are only used in interface declarations.
     PlexilVar const *variable() const;
-    const PlexilExprId& defaultValue() const;
+    PlexilExpr const *defaultValue() const;
     void setVariable(PlexilVar const *var);
 
   private:
-    PlexilExprId m_defaultValue;
+    PlexilExpr const *m_defaultValue;
     PlexilVar const *m_variable;
     std::string m_varName;
   };
@@ -161,16 +155,16 @@ namespace PLEXIL
   public:
     PlexilVar(const std::string& varName, ValueType type);
     PlexilVar(const std::string& varName, ValueType type, const std::string& value);
-    PlexilVar(const std::string& varName, ValueType type, PlexilExprId const &value);
+    PlexilVar(const std::string& varName, ValueType type, PlexilExpr *value);
     virtual ~PlexilVar();
     
     virtual bool isArray() const;
 
     std::string const &varName() const;
-    PlexilExprId const &value() const;
+    PlexilExpr const *value() const;
 
   private:
-    PlexilExprId m_value;
+    PlexilExpr *m_value;
     std::string m_varName;
   };
   
@@ -193,8 +187,6 @@ namespace PLEXIL
   private:
     unsigned m_maxSize;
   };
-
-  DECLARE_ID(PlexilArrayVar);
 
 } // namespace PLEXIL
 

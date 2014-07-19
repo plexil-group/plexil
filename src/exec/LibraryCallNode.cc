@@ -135,14 +135,15 @@ namespace PLEXIL
          ++var) {
       // get var name and matching value in alias list
       const std::string& varName((*var)->varName());
-      PlexilExprId& aliasValue = aliases[varName];
+      PlexilExpr const *aliasValue = aliases[varName];
 
       // check that the expression is consistent with the interface variable
-      if (aliasValue.isId()) {
+      if (aliasValue) {
         bool wasCreated = false;
         Expression *aliasedExpr;
-        if (Id<PlexilVarRef>::convertable(aliasValue)) {
-          PlexilVarRef const *aliasVar = (PlexilVarRef const *) aliasValue;
+        PlexilVarRef const *aliasVar =
+          dynamic_cast<PlexilVarRef const *>(aliasValue);
+        if (aliasVar) {
           aliasedExpr = Node::findVariable(aliasVar);
           // TODO: Skip creating alias if variable already read-only
           assertTrueMsg(aliasedExpr,
@@ -191,13 +192,14 @@ namespace PLEXIL
          ++var) {
       // get var name and matching value in alias list
       const std::string& varName((*var)->varName());
-      PlexilExprId& aliasValue = aliases[varName];
+      PlexilExpr const *aliasValue = aliases[varName];
 
       // check that the expression is consistent with the interface variable
-      if (aliasValue.isId()) {
-        Expression *actualVar;
-        if (Id<PlexilVarRef>::convertable(aliasValue)) {
-          PlexilVarRef const *aliasVar = (PlexilVarRef const *) aliasValue;
+      if (aliasValue) {
+        Expression *actualVar = NULL;
+        PlexilArrayElement const *arrayRef = NULL;
+        PlexilVarRef const *aliasVar = NULL;
+        if ((aliasVar = dynamic_cast<PlexilVarRef const *>(aliasValue))) {
           Expression *aliasedExpr = Node::findVariable(aliasVar);
           checkParserException(aliasedExpr,
                                "Node " << m_nodeId
@@ -214,11 +216,11 @@ namespace PLEXIL
                    << "\": Aliasing \"" << varName
                    << "\" to variable " << *actualVar);
         }
-        else if (Id<PlexilArrayElement>::convertable(aliasValue)) {
+        else if ((arrayRef = dynamic_cast<PlexilArrayElement const *>(aliasValue))) {
           // Expression is an array reference
           // Construct the expression (will error if array read-only)
           bool wasCreated = false;
-          Assignable *aref = createAssignable(aliasValue,
+          Assignable *aref = createAssignable(arrayRef,
                                               this,
                                               wasCreated);
           // Construct a wrapper for it

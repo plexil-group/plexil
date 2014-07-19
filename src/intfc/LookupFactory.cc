@@ -45,20 +45,20 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(PlexilExprId const &expr,
+    Expression *allocate(PlexilExpr const *expr,
                          NodeConnector *node,
                          bool & wasCreated) const
   {
     PlexilLookup const *lkup = (PlexilLookup const *) expr;
     checkParserException(lkup, "createExpression: Expression is not a PlexilLookup");
-    PlexilStateId stateSpec = lkup->state();
-    checkParserException(stateSpec.isId(), "createExpression: PlexilLookup missing a State specification");
+    PlexilState const *stateSpec = lkup->state();
+    checkParserException(stateSpec, "createExpression: PlexilLookup missing a State specification");
     bool stateNameGarbage = false;
     Expression *stateName = createExpression(stateSpec->nameExpr(), node, stateNameGarbage);
     ValueType stateNameType = stateName->valueType();
     checkParserException(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
                          "createExpression: Lookup name must be a string expression");
-    std::vector<PlexilExprId> const &args = stateSpec->args();
+    std::vector<PlexilExpr *> const &args = stateSpec->args();
     size_t nargs = args.size();
     std::vector<Expression* > params(nargs, NULL);
     std::vector<bool> paramsGarbage(nargs, false);
@@ -68,7 +68,7 @@ namespace PLEXIL
       paramsGarbage[i] = garbage;
     }
     wasCreated = true;
-    if (lkup->tolerance().isId()) {
+    if (lkup->tolerance()) {
       bool tolGarbage = false;
       Expression *tol = createExpression(lkup->tolerance(), node, tolGarbage);
       ValueType tolType = tol->valueType();

@@ -51,7 +51,7 @@ namespace PLEXIL
     ExpressionFactory(const std::string& name);
     virtual ~ExpressionFactory();
 
-    virtual Expression *allocate(const PlexilExprId& expr,
+    virtual Expression *allocate(PlexilExpr const *expr,
                                  NodeConnector *node,
                                  bool & wasCreated) const = 0;
 
@@ -69,7 +69,7 @@ namespace PLEXIL
   /**
    * @brief Creates a new Expression instance with the type associated with the
    *        given expression prototype.
-   * @param expr The PlexilExprId to be passed to the Expression constructor.
+   * @param expr The PlexilExpr to be passed to the Expression constructor.
    * @param node Node for name lookup.
    * @return Pointer to the new Expression. May not be unique.
    * @note Convenience wrapper.
@@ -77,27 +77,27 @@ namespace PLEXIL
 
   // Used in AssignmentNode, CommandNode
   // *** FIXME: Rename to createAssignable ***
-  extern Expression *createExpression(const PlexilExprId& expr,
+  extern Expression *createExpression(PlexilExpr const *expr,
                                       NodeConnector *node = NULL)
     throw (ParserException);
 
   /**
    * @brief Creates a new Expression instance with the type associated with the
    *        given expression prototype.
-   * @param expr The PlexilExprId to be passed to the Expression constructor.
+   * @param expr The PlexilExpr to be passed to the Expression constructor.
    * @param node Node for name lookup.
    * @return Pointer to the new Expression. May not be unique.
    * @param wasCreated Reference to a boolean variable;
    *                   variable will be set to true if new object created, false otherwise.
    */
   // Used in AssignmentNode, CommandNode, LibraryCallNode, Node::createConditions
-  extern Expression *createExpression(const PlexilExprId& expr,
+  extern Expression *createExpression(PlexilExpr const *expr,
                                       NodeConnector *node,
                                       bool& wasCreated)
     throw (ParserException);
 
   // Used in AssignmentNode, CommandNode
-  extern Assignable *createAssignable(const PlexilExprId& expr,
+  extern Assignable *createAssignable(PlexilExpr const *expr,
                                       NodeConnector *node,
                                       bool& wasCreated)
     throw (ParserException);

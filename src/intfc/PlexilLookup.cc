@@ -32,40 +32,36 @@ namespace PLEXIL
   // PlexilState
   //
   PlexilState::PlexilState() 
-  : m_id(this), m_lineNo(0), m_colNo(0) 
+  : m_lineNo(0), m_colNo(0) 
   {
   }
 
   PlexilState::~PlexilState()
   {
-    for (std::vector<PlexilExprId>::iterator it = m_args.begin();
+    for (std::vector<PlexilExpr *>::iterator it = m_args.begin();
          it != m_args.end();
          ++it)
-      delete (PlexilExpr*) *it;
+      delete *it;
     m_args.clear();
-    if (m_nameExpr.isId())
-      delete (PlexilExpr*) m_nameExpr;
-    m_id.remove();
-  }
-  
-  const PlexilStateId& PlexilState::getId() const
-  {
-    return m_id;
+    if (m_nameExpr)
+      delete m_nameExpr;
   }
 
-  const std::vector<PlexilExprId>& PlexilState::args() const
+  const std::vector<PlexilExpr *>& PlexilState::args() const
   {
     return m_args;
   }
    
   const std::string& PlexilState::name() const
   {
-    if (Id<PlexilValue>::convertable(m_nameExpr))
-      return ((PlexilValue*)&(*m_nameExpr))->value();
-    return m_nameExpr->name();
+    PlexilValue const *val = dynamic_cast<PlexilValue const *>(m_nameExpr);
+    if (val)
+      return val->value();
+    else
+      return m_nameExpr->name();
   }
 
-  const PlexilExprId& PlexilState::nameExpr() const
+  PlexilExpr const *PlexilState::nameExpr() const
   {
     return m_nameExpr;
   }
@@ -80,18 +76,17 @@ namespace PLEXIL
     return m_colNo;
   }
 
-  void PlexilState::addArg(const PlexilExprId& arg) 
+  void PlexilState::addArg(PlexilExpr *arg) 
   {
     m_args.push_back(arg);
   }
 
   void PlexilState::setName(const std::string& name)
   {
-    PlexilValue* pv = new PlexilValue(STRING_TYPE, name);
-    setNameExpr(pv->getId());
+    setNameExpr(new PlexilValue(STRING_TYPE, name));
   }
 
-  void PlexilState::setNameExpr(const PlexilExprId& nameExpr)
+  void PlexilState::setNameExpr(PlexilExpr *nameExpr)
   {
     m_nameExpr = nameExpr;
   }
@@ -117,23 +112,23 @@ namespace PLEXIL
 
   PlexilLookup::~PlexilLookup()
   {
-    if (m_state.isId())
-      delete (PlexilState*) m_state;
+    if (m_state)
+      delete m_state;
   }
 
-  const PlexilStateId& PlexilLookup::state() const
+  PlexilState const *PlexilLookup::state() const
   {
     return m_state;
   }
 
-  void PlexilLookup::setState(const PlexilStateId& state)
+  void PlexilLookup::setState(PlexilState *state)
   {
     m_state = state;
   }
 
-  PlexilExprId const &PlexilLookup::tolerance() const
+  PlexilExpr const *PlexilLookup::tolerance() const
   {
-    return PlexilExprId::noId();
+    return NULL;
   }
 
   //
@@ -146,15 +141,15 @@ namespace PLEXIL
 
   PlexilChangeLookup::~PlexilChangeLookup()
   {
-    delete (PlexilExpr*) m_tolerance;
+    delete m_tolerance;
   }
 
-  PlexilExprId const &PlexilChangeLookup::tolerance() const
+  PlexilExpr const *PlexilChangeLookup::tolerance() const
   {
     return m_tolerance;
   }
   
-  void PlexilChangeLookup::setTolerance(PlexilExprId const &tolerance) 
+  void PlexilChangeLookup::setTolerance(PlexilExpr *tolerance) 
   {
     m_tolerance = tolerance;
   }

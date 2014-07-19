@@ -44,7 +44,7 @@ namespace PLEXIL
     m_ack.setName(node->getNodeId() + " ack");
 
     if (updateProto.isId()) {
-      for (std::vector<std::pair<std::string, PlexilExprId> >::const_iterator it =
+      for (std::vector<std::pair<std::string, PlexilExpr *> >::const_iterator it =
              updateProto->pairs().begin();
            it != updateProto->pairs().end();
            ++it) {
@@ -52,7 +52,7 @@ namespace PLEXIL
         // FIXME: move error check to parser if not already there
         assertTrueMsg(m_pairs.find(it->first) == m_pairs.end(),
                       "Update constructor: Duplicate pairs with name \"" << it->first << "\"");
-        PlexilExprId foo = it->second;
+        PlexilExpr const *foo = it->second;
         bool wasCreated = false;
         Expression *valueExpr = 
           createExpression(foo, m_source, wasCreated);

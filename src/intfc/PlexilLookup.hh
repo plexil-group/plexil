@@ -32,31 +32,26 @@
 namespace PLEXIL
 {
   // Forward references
-  class PlexilState;
-  DECLARE_ID(PlexilState);
-
   class PlexilState {
   public:
     PlexilState();
     ~PlexilState();
 
-    const PlexilStateId& getId() const;
-    const std::vector<PlexilExprId>& args() const;
+    const std::vector<PlexilExpr *>& args() const;
     const std::string& name() const;
-    const PlexilExprId& nameExpr() const;
+    PlexilExpr const *nameExpr() const;
     int lineNo() const;
     int colNo() const;
 
-    void addArg(const PlexilExprId& arg);
+    void addArg(PlexilExpr *arg);
     void setName(const std::string& name);
-    void setNameExpr(const PlexilExprId& nameExpr);
+    void setNameExpr(PlexilExpr *nameExpr);
     void setLineNo(int n);
     void setColNo(int n);
 
   private:
-    PlexilStateId m_id;
-    PlexilExprId m_nameExpr;
-    std::vector<PlexilExprId> m_args;
+    PlexilExpr *m_nameExpr;
+    std::vector<PlexilExpr *> m_args;
     int m_lineNo;
     int m_colNo;
   };
@@ -66,13 +61,13 @@ namespace PLEXIL
     PlexilLookup();
     virtual ~PlexilLookup();
 
-    const PlexilStateId& state() const;
-    void setState(const PlexilStateId& state);
+    PlexilState const *state() const;
+    void setState(PlexilState *state);
 
-    virtual PlexilExprId const &tolerance() const;
+    virtual PlexilExpr const *tolerance() const;
 
   private:
-    PlexilStateId m_state;
+    PlexilState *m_state;
   };
 
   class PlexilChangeLookup : public PlexilLookup {
@@ -80,11 +75,11 @@ namespace PLEXIL
     PlexilChangeLookup();
     ~PlexilChangeLookup();
 
-    PlexilExprId const &tolerance() const;
-    void setTolerance(PlexilExprId const &tolerance);
+    PlexilExpr const *tolerance() const;
+    void setTolerance(PlexilExpr *tolerance);
 
   private:
-    PlexilExprId m_tolerance;
+    PlexilExpr *m_tolerance;
   };
 
 } // namespace PLEXIL

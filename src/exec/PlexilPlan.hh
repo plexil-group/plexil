@@ -61,8 +61,8 @@ namespace PLEXIL
   DECLARE_ID(PlexilNodeRef);
   DECLARE_ID(PlexilInternalVar);
 
-  typedef std::vector<const PlexilNode*> PlexilNodeSet;
-  typedef std::map<std::string, PlexilExprId>  PlexilAliasMap;
+  typedef std::vector<const PlexilNode *> PlexilNodeSet;
+  typedef std::map<std::string, PlexilExpr *> PlexilAliasMap;
 
   class PlexilParser 
   {
@@ -119,7 +119,7 @@ namespace PLEXIL
     double priority() const {return m_priority;}
     const PlexilInterfaceId& interface() const {return m_intf;}
     const std::vector<PlexilVar *>& declarations() const {return m_declarations;}
-    const std::vector<std::pair <PlexilExprId, std::string> >& conditions() const {return m_conditions;}
+    const std::vector<std::pair <PlexilExpr *, std::string> >& conditions() const {return m_conditions;}
     const PlexilNodeBodyId& body() const {return m_nodeBody;}
 
     /**
@@ -138,7 +138,7 @@ namespace PLEXIL
     void setNodeType(PlexilNodeType type) {m_nodeType = type;}
     void setPriority(double priority) {m_priority = priority;}
     void addVariable(PlexilVar *var) {m_declarations.push_back(var);}
-    void addCondition(const std::string& name, const PlexilExprId& expr)
+    void addCondition(const std::string& name, PlexilExpr *expr)
     {m_conditions.push_back(std::make_pair(expr, name));}
     void setBody(const PlexilNodeBodyId& body) {m_nodeBody = body;}
     void setInterface(const PlexilInterfaceId& intf) { m_intf = intf;}
@@ -165,7 +165,7 @@ namespace PLEXIL
     std::string m_fileName;
     std::string m_nodeId;
     std::vector<PlexilVar *> m_declarations;
-    std::vector<std::pair<PlexilExprId, std::string> > m_conditions;
+    std::vector<std::pair<PlexilExpr *, std::string> > m_conditions;
 
     // 4 byte alignment on 32 and 64 (?)
     int m_lineNo;
@@ -241,17 +241,16 @@ namespace PLEXIL
 
     ~PlexilAssignmentBody()
     {
-      if (m_rhs.isId())
-        delete (PlexilExpr*) m_rhs;
+      delete m_rhs;
     }
 
-    const PlexilExprId& RHS() const {return m_rhs;}
+    PlexilExpr const *RHS() const {return m_rhs;}
     ValueType type() const {return m_type;}
 
-    void setRHS(const PlexilExprId& rhs) {m_rhs = rhs;}
+    void setRHS(PlexilExpr *rhs) {m_rhs = rhs;}
     void setType(ValueType type) {m_type = type;}
   private:
-    PlexilExprId m_rhs;
+    PlexilExpr *m_rhs;
     ValueType m_type;
   };
 
@@ -266,17 +265,17 @@ namespace PLEXIL
            ++it)
         delete (PlexilResource*) *it;
       m_resource.clear();
-      if (m_state.isId())
-        delete (PlexilState*) m_state;
+      if (m_state)
+        delete m_state;
     }
 
-    const PlexilStateId& state() const {return m_state;}
+    PlexilState const *state() const {return m_state;}
     const std::vector<PlexilResourceId>& getResource() const {return m_resource;}
 
-    void setState(const PlexilStateId& state) {m_state = state;}
+    void setState(PlexilState *state) {m_state = state;}
     void setResource(const std::vector<PlexilResourceId>& resource) {m_resource=resource;}
   private:
-    PlexilStateId m_state;
+    PlexilState *m_state;
     std::vector<PlexilResourceId> m_resource;
   };
 
@@ -509,10 +508,10 @@ namespace PLEXIL
     }
     // add an alias pair to the library call
 
-    void addAlias(const std::string& param, PlexilExprId value)
+    void addAlias(const std::string& param, PlexilExpr *value)
     {
-      PlexilExprId &alias = m_aliases[param];
-      checkError(!alias.isId(), "Alias '" << param
+      PlexilExpr *&alias = m_aliases[param];
+      checkError(!alias, "Alias '" << param
                  << "' apears more then once in call to "
                  << m_libNodeName);
       alias = value;

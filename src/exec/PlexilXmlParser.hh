@@ -42,9 +42,9 @@ namespace PLEXIL
   public:
     PlexilElementParser() {}
     virtual ~PlexilElementParser() {}
+
     virtual Id<Ret> parse(const pugi::xml_node& xml)
-      throw(ParserException)
-      = 0;
+      throw(ParserException) = 0;
 
   private:
     // deliberately not implemented
@@ -130,13 +130,13 @@ namespace PLEXIL
       throw(ParserException);
     static pugi::xml_node getNodeParent(const pugi::xml_node& node);
 
-    static PlexilExprId parseExpr(const pugi::xml_node& xml)
+    static PlexilExpr *parseExpr(const pugi::xml_node& xml)
       throw(ParserException);
     static PlexilNodeId parseNode(const pugi::xml_node& node)
       throw(ParserException);
     static PlexilNodeRefId parseNodeRef(const pugi::xml_node& xml)
       throw(ParserException);
-    static PlexilStateId parseState(const pugi::xml_node& xml)
+    static PlexilState *parseState(const pugi::xml_node& xml)
       throw(ParserException);
     static std::vector<PlexilResourceId> parseResource(const pugi::xml_node& xml)
       throw(ParserException);
@@ -191,9 +191,7 @@ namespace PLEXIL
       throw(ParserException);
     static void toXml(PlexilVar const *var, pugi::xml_node& parent)
       throw(ParserException);
-    static void toXml(const PlexilExprId& expr, pugi::xml_node& parent)
-      throw(ParserException);
-    static void toXml(const PlexilExpr* expr, pugi::xml_node& parent)
+    static void toXml(PlexilExpr const *expr, pugi::xml_node& parent)
       throw(ParserException);
     static void toXml(const PlexilNodeBodyId& body, pugi::xml_node& parent)
       throw(ParserException);
@@ -221,7 +219,7 @@ namespace PLEXIL
       throw(ParserException);
     static void toXml(const PlexilInternalVar* ref, pugi::xml_node& parent)
       throw(ParserException);
-    static void toXml(const PlexilStateId& state, pugi::xml_node& parent)
+    static void toXml(PlexilState const *state, pugi::xml_node& parent)
       throw(ParserException);
     static void toXml(const PlexilUpdateId& update, pugi::xml_node& parent)
       throw(ParserException);

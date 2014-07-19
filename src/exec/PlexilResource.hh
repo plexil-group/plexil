@@ -31,14 +31,13 @@
 
 namespace PLEXIL {
 
-  class PlexilResource;
   class PlexilExpr;
   
+  class PlexilResource;
   DECLARE_ID(PlexilResource);
-  DECLARE_ID(PlexilExpr);
 
   //* The data structure to hold the resource specification.
-  typedef std::map<std::string, PlexilExprId> PlexilResourceMap;
+  typedef std::map<std::string, PlexilExpr *> PlexilResourceMap;
 
   /**
    * @brief A class to represent resource specifications in commands.
@@ -62,7 +61,7 @@ namespace PLEXIL {
 	  return m_id;
 	}
 
-    void addResource(const std::string& tag, const PlexilExprId& resource)
+    void addResource(const std::string& tag, PlexilExpr *resource)
     {
       m_resource[tag] = resource;
     }

@@ -113,7 +113,7 @@ namespace PLEXIL
     // FIXME: push this check up into XML parser
     checkError(body->dest().size() >= 1,
                "Need at least one destination variable in assignment.");
-    const PlexilExprId& destExpr = (body->dest())[0]->getId();
+    PlexilExpr const *destExpr = (body->dest())[0];
     bool deleteLhs = false;
     Assignable *dest = createAssignable(destExpr, this, deleteLhs);
     bool deleteRhs = false;

@@ -37,14 +37,14 @@ namespace PLEXIL
   {
   }
 
-  Expression *FunctionFactory::allocate(const PlexilExprId& expr,
+  Expression *FunctionFactory::allocate(PlexilExpr const *expr,
                                         NodeConnector *node,
                                         bool &wasCreated) const
   {
-    PlexilOp const *op = (PlexilOp const *) expr;
+    PlexilOp const *op = dynamic_cast<PlexilOp const *>(expr);
     checkParserException(op != NULL, "createExpression: Expression is not a PlexilOp");
 
-    std::vector<PlexilExprId> const &args = op->subExprs();
+    std::vector<PlexilExpr *> const &args = op->subExprs();
     ExprVec *exprVec = constructExprVec(args, node);
     Operator const *oper = this->getOperator();
     checkParserException(oper->checkArgCount(args.size()),
@@ -56,7 +56,7 @@ namespace PLEXIL
   }
 
   ExprVec *
-  FunctionFactory::constructExprVec(std::vector<PlexilExprId> const &subexprs,
+  FunctionFactory::constructExprVec(std::vector<PlexilExpr *> const &subexprs,
                                     NodeConnector *node) const
   {
     // Get the argument expressions
