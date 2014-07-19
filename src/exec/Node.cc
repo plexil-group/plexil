@@ -415,8 +415,9 @@ namespace PLEXIL {
             // construct local "variable" with default value
             bool wasConstructed = false;
             // *** FIXME ***
-            // This object is garbage. We have to DEEP COPY defaultVal,
-            // so we can delete this expression template when we exit this block.
+            // This object is garbage. We can't delete it when we exit this block,
+            // because the defaultVal object is shared and would be deleted.
+            // Find another way to do this.
             PlexilExpr *tempVar = new PlexilVar("InOut_Default", // TODO? gensym
                                                 defaultVal->type(), 
                                                 const_cast<PlexilExpr *>(defaultVal));  // *** KLUDGE ***
