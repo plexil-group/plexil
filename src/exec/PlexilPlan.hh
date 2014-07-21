@@ -57,37 +57,6 @@ namespace PLEXIL
   typedef std::vector<const PlexilNode *> PlexilNodeSet;
   typedef std::map<std::string, PlexilExpr *> PlexilAliasMap;
 
-  class PlexilParser 
-  {
-  public:
-    //node types
-    // see src/expr/PlexilNodeType.{hh,cc}
-
-    // value types
-    // see src/expr/ValueType.hh
-
-    // condition names
-    // see src/exec/PlexilSchema.{hh,cc}
-
-    DECLARE_STATIC_CLASS_CONST(std::string, UNKNOWN_STR, "UNKNOWN");
-
-    static ValueType parseValueTypePrefix(const std::string & str, 
-                                           std::string::size_type prefixLen);
-    inline static ValueType parseValueType(const std::string& typeStr)
-    {
-      return parseValueTypePrefix(typeStr, typeStr.length());
-    }
-
-  private:
-    // Deliberately not implemented because this class can't be instantiated,
-    // only derived from.
-    PlexilParser();
-    PlexilParser(const PlexilParser&);
-    PlexilParser& operator=(const PlexilParser&);
-    ~PlexilParser();
-
-  };
-
   class PlexilNode 
   {
   public:

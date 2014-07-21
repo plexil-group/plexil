@@ -36,29 +36,10 @@
 namespace PLEXIL
 {
 
-  template <typename Ret>
-  class PlexilElementParser
-  {
-  public:
-    PlexilElementParser() {}
-    virtual ~PlexilElementParser() {}
-
-    virtual Ret *parse(const pugi::xml_node& xml)
-      throw(ParserException) = 0;
-
-  private:
-    // deliberately not implemented
-    PlexilElementParser(const PlexilElementParser&);
-    PlexilElementParser& operator=(const PlexilElementParser&);
-  };
-
-  typedef PlexilElementParser<PlexilNodeBody> PlexilBodyParser;
-  typedef PlexilElementParser<PlexilExpr> PlexilExprParser;
-
   /*
    * @brief A stateless class for parsing Plexil XML plans.
    */
-  class PlexilXmlParser : public PlexilParser
+  class PlexilXmlParser
   {
   public:
     //
@@ -109,31 +90,6 @@ namespace PLEXIL
     static PlexilNode *parse(pugi::xml_node xml)
       throw(ParserException);
 
-    // These don't really need to be public,
-    // but the alternative is forward declaring the classes of their callers
-    // so that they can be declared friends.
-    // C++ sucks at encapsulation.
-    // -- Chucko 12 Nov 2010
-
-    //this is used to get around the old way of handling node references
-    static PlexilNodeRef *getNodeRef(const pugi::xml_node& ref, 
-                                      const pugi::xml_node& node)
-      throw(ParserException);
-    static pugi::xml_node getNodeParent(const pugi::xml_node& node);
-
-    static PlexilExpr *parseExpr(const pugi::xml_node& xml)
-      throw(ParserException);
-    static PlexilNode *parseNode(const pugi::xml_node& node)
-      throw(ParserException);
-    static PlexilNodeRef *parseNodeRef(const pugi::xml_node& xml)
-      throw(ParserException);
-    static PlexilState *parseState(const pugi::xml_node& xml)
-      throw(ParserException);
-    static std::vector<PlexilResource *> parseResource(const pugi::xml_node& xml)
-      throw(ParserException);
-
-    static void deleteParsers();
-
   private:
 
     // Explicitly not implemented
@@ -141,43 +97,6 @@ namespace PLEXIL
     PlexilXmlParser(const PlexilXmlParser&);
     PlexilXmlParser& operator=(const PlexilXmlParser&);
     ~PlexilXmlParser();
-
-    static PlexilInterface *parseDeprecatedInterface(const pugi::xml_node& intf)
-      throw(ParserException);
-    static PlexilInterface *parseInterface(const pugi::xml_node& intf)
-      throw(ParserException);
-    static void parseInOrInOut(const pugi::xml_node& inOrInOut, 
-                               PlexilInterface *interface,
-                               bool isInOut)
-      throw(ParserException);
-    static void parseDeclarations(const pugi::xml_node& decls, PlexilNode *node)
-      throw(ParserException);
-    static PlexilVar* parseDeclaration(const pugi::xml_node& decl)
-      throw(ParserException);
-    static PlexilVar* parseArrayDeclaration(const pugi::xml_node& decls)
-      throw(ParserException);
-    static PlexilVar* parseAtomicOrStringDeclaration(const pugi::xml_node& decls)
-      throw(ParserException);
-    static PlexilNodeBody *parseBody(const pugi::xml_node& body)
-      throw(ParserException);
-
-    static PlexilNodeRef *getNodeRefInternal(const char* name, 
-                                             const pugi::xml_node& node,
-                                             const pugi::xml_node& referringNode,
-                                             const pugi::xml_node& ref)
-      throw(ParserException);
-
-    static PlexilNodeRef *getLocalNodeRef(const char* name,
-                                          const pugi::xml_node& node,
-                                          const pugi::xml_node& referringNode,
-                                          const pugi::xml_node& ref)
-      throw(ParserException);
-
-    static void registerParsers();
-
-    static std::map<std::string, PlexilBodyParser*> *s_bodyParsers;
-    static std::map<std::string, PlexilExprParser*> *s_exprParsers;
-    static bool s_init;
   };
 }
 
