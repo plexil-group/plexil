@@ -243,6 +243,7 @@ namespace PLEXIL
   PlexilVarRef::PlexilVarRef(std::string const &varName, ValueType type)
     : PlexilExpr(typeNameAsVariable(type), type),
       m_defaultValue(NULL),
+      m_variable(NULL),
       m_varName(varName)
   {
   }
@@ -284,7 +285,7 @@ namespace PLEXIL
   PlexilVar::PlexilVar(const std::string& varName,
                        ValueType type)
     : PlexilExpr(typeNameAsVariable(type), type),
-      m_value(),
+      m_value(NULL),
       m_varName(varName)
   {
   }

@@ -100,6 +100,8 @@ namespace PLEXIL {
    
   PlexilNode::PlexilNode()
     : m_priority(WORST_PRIORITY),
+      m_intf(NULL),
+      m_nodeBody(NULL),
       m_lineNo(0),
       m_colNo(0),
       m_nodeType(NodeType_uninitialized)
@@ -288,6 +290,8 @@ namespace PLEXIL {
       }
 
       // link the the two nodes
+      debugMsg("PlexilPlan:link",
+               " linking " << m_nodeId <<  " to " << body->libNodeName());
       body->setLibNode(library);
 
       // add this to the seen library nodes
@@ -350,6 +354,23 @@ namespace PLEXIL {
 
     default: // includes NO_DIR, GRANDPARENT, UNCLE
       assertTrueMsg(ALWAYS_FAIL, "PlexilNodeRef::setGeneration(): invalid direction");
+    }
+  }
+
+  PlexilLibNodeCallBody::PlexilLibNodeCallBody(const std::string& libNodeName)
+    : PlexilNodeBody(),
+      m_libNodeName(libNodeName),
+      m_libNode(NULL)
+  {
+  }
+
+  PlexilLibNodeCallBody::~PlexilLibNodeCallBody()
+  {
+    for (PlexilAliasMap::iterator it = m_aliases.begin();
+         it != m_aliases.end();
+         it = m_aliases.begin()) {
+      delete it->second;
+      m_aliases.erase(it);
     }
   }
 

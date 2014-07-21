@@ -215,6 +215,7 @@ namespace PLEXIL
   public:
     PlexilAssignmentBody()
       : PlexilActionBody(),
+        m_rhs(NULL),
         m_type(PLEXIL::UNKNOWN_TYPE)
     {}
 
@@ -235,7 +236,10 @@ namespace PLEXIL
 
   class PlexilCommandBody : public PlexilActionBody {
   public:
-    PlexilCommandBody() : PlexilActionBody() {}
+    PlexilCommandBody()
+      : PlexilActionBody(),
+        m_state(NULL)
+    {}
 
     ~PlexilCommandBody()
     {
@@ -381,7 +385,10 @@ namespace PLEXIL
 
   class PlexilUpdateBody : public PlexilNodeBody {
   public:
-    PlexilUpdateBody() : PlexilNodeBody() {}
+    PlexilUpdateBody()
+      : PlexilNodeBody(),
+        m_update(NULL)
+    {}
 
     ~PlexilUpdateBody()
     {
@@ -422,21 +429,9 @@ namespace PLEXIL
 
     // construct a library node call body with the name of the
     // library node
-    PlexilLibNodeCallBody(const std::string& libNodeName)
-      : PlexilNodeBody(),
-        m_libNodeName(libNodeName)
-    {
-    }
+    PlexilLibNodeCallBody(const std::string& libNodeName);
 
-    ~PlexilLibNodeCallBody()
-    {
-      for (PlexilAliasMap::iterator it = m_aliases.begin();
-           it != m_aliases.end();
-           it = m_aliases.begin()) {
-        delete it->second;
-        m_aliases.erase(it);
-      }
-    }
+    ~PlexilLibNodeCallBody();
 
     // getter for library node name
     const std::string& libNodeName() const {return m_libNodeName;}
