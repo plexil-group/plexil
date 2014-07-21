@@ -30,6 +30,8 @@
 #include "Node.hh"
 #include "PlexilPlan.hh"
 
+#include <iomanip> // for std::setprecision()
+
 namespace PLEXIL
 {
   NodeTimepointValue::NodeTimepointValue(Node *node,
@@ -88,7 +90,7 @@ namespace PLEXIL
   {
     double tym;
     if (getValueImpl(tym))
-      s << tym; // FIXME: needs better format
+      s << std::setprecision(15) << tym; // FIXME: needs better format
     else
       s << UNKNOWN_STR;
   }
