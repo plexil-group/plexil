@@ -1867,7 +1867,7 @@ static bool testCeiling()
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == 3000000000.5);
   assertTrue_1(realCeiling.getValue(rtemp));
-  assertTrue_1(rtemp == 3000000001);
+  assertTrue_1(rtemp == 3000000001.0);
   assertTrue_1(!intCeiling.getValue(itemp));
 
   x.setValue(&toonegative);
@@ -1877,7 +1877,7 @@ static bool testCeiling()
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == -3000000000.5);
   assertTrue_1(realCeiling.getValue(rtemp));
-  assertTrue_1(rtemp == -3000000000);
+  assertTrue_1(rtemp == -3000000000.0);
   assertTrue_1(!intCeiling.getValue(itemp));
   
   return true;
@@ -1990,7 +1990,7 @@ static bool testFloor()
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == 3000000000.5);
   assertTrue_1(realFloor.getValue(rtemp));
-  assertTrue_1(rtemp == 3000000000);
+  assertTrue_1(rtemp == 3000000000.0);
   assertTrue_1(!intFloor.getValue(itemp));
 
   x.setValue(&toonegative);
@@ -2000,7 +2000,7 @@ static bool testFloor()
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == -3000000000.5);
   assertTrue_1(realFloor.getValue(rtemp));
-  assertTrue_1(rtemp == -3000000001);
+  assertTrue_1(rtemp == -3000000001.0);
   assertTrue_1(!intFloor.getValue(itemp));
 
   return true;
@@ -2113,7 +2113,7 @@ static bool testRound()
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == 3000000000.5);
   assertTrue_1(realRound.getValue(rtemp));
-  assertTrue_1(rtemp == 3000000001);
+  assertTrue_1(rtemp == 3000000001.0);
   assertTrue_1(!intRound.getValue(itemp));
 
   x.setValue(&toonegative);
@@ -2123,7 +2123,7 @@ static bool testRound()
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == -3000000000.5);
   assertTrue_1(realRound.getValue(rtemp));
-  assertTrue_1(rtemp == -3000000001);
+  assertTrue_1(rtemp == -3000000001.0);
   assertTrue_1(!intRound.getValue(itemp));
 
   return true;
@@ -2236,7 +2236,7 @@ static bool testTruncate()
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == 3000000000.5);
   assertTrue_1(realTruncate.getValue(rtemp));
-  assertTrue_1(rtemp == 3000000000);
+  assertTrue_1(rtemp == 3000000000.0);
   assertTrue_1(!intTruncate.getValue(itemp));
 
   x.setValue(&toonegative);
@@ -2246,7 +2246,7 @@ static bool testTruncate()
   assertTrue_1(x.getValue(rtemp));
   assertTrue_1(rtemp == -3000000000.5);
   assertTrue_1(realTruncate.getValue(rtemp));
-  assertTrue_1(rtemp == -3000000000);
+  assertTrue_1(rtemp == -3000000000.0);
   assertTrue_1(!intTruncate.getValue(itemp));
 
   return true;
@@ -2259,8 +2259,8 @@ static bool testRealToInteger()
   RealConstant pi(3.14);
   RealConstant minusthree(-3);
   RealConstant minuspi(-3.14);
-  RealConstant toobig(3000000000);
-  RealConstant toonegative(-3000000000);
+  RealConstant toobig(3000000000.0);
+  RealConstant toonegative(-3000000000.0);
 
   RealToInteger rtiOp;
   RealVariable x;
@@ -2322,14 +2322,14 @@ static bool testRealToInteger()
   assertTrue_1(x.isKnown());
   assertTrue_1(!rti.isKnown());
   assertTrue_1(x.getValue(rtemp));
-  assertTrue_1(rtemp == 3000000000);
+  assertTrue_1(rtemp == 3000000000.0);
   assertTrue_1(!rti.getValue(itemp));
 
   x.setValue(&toonegative);
   assertTrue_1(x.isKnown());
   assertTrue_1(!rti.isKnown());
   assertTrue_1(x.getValue(rtemp));
-  assertTrue_1(rtemp == -3000000000);
+  assertTrue_1(rtemp == -3000000000.0);
   assertTrue_1(!rti.getValue(itemp));
 
   return true;
