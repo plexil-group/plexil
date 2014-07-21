@@ -344,7 +344,7 @@ int ExecTestRunner::run(int argc, char** argv)
       g_interface = NULL;
       return 1;
     }
-    delete (PlexilNode*) root;
+    delete root;
   }
 
   // load script
