@@ -40,7 +40,6 @@ namespace PLEXIL
     return this->getValueImpl(dummy);
   }
 
-  template <>
   bool ExpressionImpl<std::string>::isKnown() const
   {
     std::string const *dummy;
@@ -79,7 +78,6 @@ namespace PLEXIL
     return REAL_TYPE;
   }
 
-  template <>
   const ValueType ExpressionImpl<std::string>::valueType() const
   {
     return STRING_TYPE;
@@ -134,7 +132,6 @@ namespace PLEXIL
       s << "UNKNOWN";
   }
 
-  template <>
   void ExpressionImpl<std::string>::printValue(std::ostream &s) const
   {
     std::string const *temp;
@@ -152,7 +149,21 @@ namespace PLEXIL
     return false;
   }
 
+  template <typename U>
+  bool ExpressionImpl<std::string>::getValueImpl(U &result) const
+  {
+    check_error_2(ALWAYS_FAIL, "getValue: value type error");
+    return false;
+  }
+
   // Report error for array types
+  template <typename T>
+  bool ExpressionImpl<ArrayImpl<T> >::getValueImpl(ArrayImpl<T> &result) const
+  {
+    check_error_2(ALWAYS_FAIL, "getValue not implemented for array types");
+    return false;
+  }
+
   template <typename T>
   template <typename U>
   bool ExpressionImpl<ArrayImpl<T> >::getValueImpl(U &result) const
@@ -175,7 +186,23 @@ namespace PLEXIL
 
   // Report error for scalar types
   template <typename T>
-  bool ExpressionImpl<T>::getValuePointerImpl(Array const *& /* ptr */) const
+  bool ExpressionImpl<T>::getValuePointerImpl(T const *& /* ptr */) const
+  {
+    check_error_2(ALWAYS_FAIL, "getValuePointer not implemented for this type");
+    return false;
+  }
+
+  template <typename T>
+  template <typename U>
+  bool ExpressionImpl<T>::getValuePointerImpl(U const *& /* ptr */) const
+  {
+    check_error_2(ALWAYS_FAIL, "getValuePointer: value type error");
+    return false;
+  }
+
+  // Report error for string types
+  template <typename U>
+  bool ExpressionImpl<std::string>::getValuePointerImpl(U const *& /* ptr */) const
   {
     check_error_2(ALWAYS_FAIL, "getValuePointer: value type error");
     return false;
@@ -193,14 +220,6 @@ namespace PLEXIL
   }
 
   // Report error for type mismatch
-  template <typename T>
-  template <typename U>
-  bool ExpressionImpl<T>::getValuePointerImpl(U const *& /* ptr */) const
-  {
-    check_error_2(ALWAYS_FAIL, "getValuePointer: value type error");
-    return false;
-  }
-
   template <typename T>
   template <typename U>
   bool ExpressionImpl<ArrayImpl<T> >::getValuePointerImpl(U const *& /* ptr */) const
@@ -231,8 +250,6 @@ namespace PLEXIL
       return Value(0, this->valueType());
   }
 
-  // Specializations
-  template <>
   Value ExpressionImpl<std::string>::toValue() const
   {
     std::string const *ptr;

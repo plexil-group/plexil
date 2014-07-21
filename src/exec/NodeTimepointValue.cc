@@ -76,11 +76,6 @@ namespace PLEXIL
     return m_node->getStateTransitionTime(m_state, m_end, result);
   }
 
-  bool NodeTimepointValue::getValuePointerImpl(double const *&ptr) const // FIXME
-  {
-    return m_node->getStateTransitionTimePointer(m_state, m_end, ptr);
-  }
-
   void NodeTimepointValue::print(std::ostream &s) const
   {
     // TODO

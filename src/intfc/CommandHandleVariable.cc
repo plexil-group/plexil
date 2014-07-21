@@ -72,16 +72,6 @@ namespace PLEXIL
     return true;
   }
 
-  bool CommandHandleVariable::getValuePointerImpl(uint16_t const *&ptr) const
-  {
-    if (!isActive())
-      return false;
-    if (m_command.m_commandHandle == NO_COMMAND_HANDLE)
-      return false;
-    ptr = &m_command.m_commandHandle;
-    return true;
-  }
-
   void CommandHandleVariable::valueChanged()
   {
     this->publishChange(static_cast<Expression const *>(this));

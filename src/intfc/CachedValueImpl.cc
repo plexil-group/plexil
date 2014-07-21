@@ -242,6 +242,12 @@ namespace PLEXIL
   {
   }
 
+  CachedValueImpl<std::string>::CachedValueImpl()
+    : CachedValueShim<CachedValueImpl<std::string> >(),
+      m_known(false)
+  {
+  }
+
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::CachedValueImpl()
     : CachedValueShim<CachedValueImpl<ArrayImpl<T> > >(),
@@ -252,6 +258,14 @@ namespace PLEXIL
   template <typename T>
   CachedValueImpl<T>::CachedValueImpl(CachedValueImpl<T> const &orig)
     : CachedValueShim<CachedValueImpl<T> >(),
+      m_value(orig.m_value),
+      m_known(orig.m_known)
+  {
+    this->m_timestamp = orig.getTimestamp();
+  }
+
+  CachedValueImpl<std::string>::CachedValueImpl(CachedValueImpl<std::string> const &orig)
+    : CachedValueShim<CachedValueImpl<std::string> >(),
       m_value(orig.m_value),
       m_known(orig.m_known)
   {
@@ -272,6 +286,10 @@ namespace PLEXIL
   {
   }
 
+  CachedValueImpl<std::string>::~CachedValueImpl()
+  {
+  }
+
   template <typename T>
   CachedValueImpl<ArrayImpl<T> >::~CachedValueImpl()
   {
@@ -282,6 +300,14 @@ namespace PLEXIL
   {
     CachedValueImpl<T> const *otherPtr = 
       dynamic_cast<CachedValueImpl<T> const * > (&other);
+    assertTrue_2(otherPtr, "CachedValue: invalid assignment from other type");
+    return static_cast<CachedValue &>(operator=(*otherPtr));
+  }
+
+  CachedValue &CachedValueImpl<std::string>::operator=(CachedValue const &other)
+  {
+    CachedValueImpl<std::string> const *otherPtr = 
+      dynamic_cast<CachedValueImpl<std::string> const * > (&other);
     assertTrue_2(otherPtr, "CachedValue: invalid assignment from other type");
     return static_cast<CachedValue &>(operator=(*otherPtr));
   }
@@ -297,6 +323,14 @@ namespace PLEXIL
 
   template <typename T>
   CachedValueImpl<T> &CachedValueImpl<T>::operator=(CachedValueImpl<T> const &other)
+  {
+    this->m_timestamp = other.getTimestamp();
+    if ((m_known = other.m_known))
+      m_value = other.m_value;
+    return *this;
+  }
+
+  CachedValueImpl<std::string> &CachedValueImpl<std::string>::operator=(CachedValueImpl<std::string> const &other)
   {
     this->m_timestamp = other.getTimestamp();
     if ((m_known = other.m_known))
@@ -331,7 +365,6 @@ namespace PLEXIL
     return REAL_TYPE;
   }
 
-  template <>
   const ValueType CachedValueImpl<std::string>::valueType() const
   {
     return STRING_TYPE;
@@ -367,6 +400,11 @@ namespace PLEXIL
     return m_known;
   }
 
+  bool CachedValueImpl<std::string>::isKnown() const
+  {
+    return m_known;
+  }
+
   template <typename T>
   bool CachedValueImpl<ArrayImpl<T> >::isKnown() const
   {
@@ -375,6 +413,14 @@ namespace PLEXIL
 
   template <typename T>
   bool CachedValueImpl<T>::setUnknown(unsigned int timestamp)
+  {
+    bool wasKnown = m_known;
+    m_known = false;
+    this->m_timestamp = timestamp;
+    return wasKnown;
+  }
+
+  bool CachedValueImpl<std::string>::setUnknown(unsigned int timestamp)
   {
     bool wasKnown = m_known;
     m_known = false;
@@ -406,6 +452,20 @@ bool CachedValueImpl<T>::operator==(CachedValue const &other) const
   return true;
 }
 
+bool CachedValueImpl<std::string>::operator==(CachedValue const &other) const
+{
+  if (!m_known && other.isKnown())
+    return true;
+  CachedValueImpl<std::string> const *otherPtr = 
+    dynamic_cast<CachedValueImpl<std::string> const *>(&other);
+  if (!otherPtr)
+    return false; // different type
+  if (m_known != otherPtr->m_known
+      || m_value != otherPtr->m_value)
+    return false; // different value
+  return true;
+}
+
 template <typename T>
 bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
 {
@@ -427,6 +487,11 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return new CachedValueImpl<T>(*this);
   }
 
+  CachedValue *CachedValueImpl<std::string>::cloneImpl() const
+  {
+    return new CachedValueImpl<std::string>(*this);
+  }
+
   template <typename T>
   CachedValue *CachedValueImpl<ArrayImpl<T> >::cloneImpl() const
   {
@@ -436,6 +501,17 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   // Only implemented for scalar types (and string)
   template <typename T>
   bool CachedValueImpl<T>::updateImpl(unsigned int timestamp, T const &val)
+  {
+    if (!m_known || m_value != val) {
+      m_value = val;
+      m_known = true;
+      this->m_timestamp = timestamp;
+      return true;
+    }
+    return false;
+  }
+
+  bool CachedValueImpl<std::string>::updateImpl(unsigned int timestamp, std::string const &val)
   {
     if (!m_known || m_value != val) {
       m_value = val;
@@ -484,7 +560,6 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   }
 
   // Special case for string
-  template <>
   bool CachedValueImpl<std::string>::updateImpl(unsigned int timestamp, Value const &val)
   {
     std::string const *valPtr;
@@ -505,8 +580,11 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
       return setUnknown(timestamp);
   }
 
-  template <typename T>
-  bool CachedValueImpl<T>::updatePtrImpl(unsigned int timestamp, T const *ptr)
+//
+// updatePtrImpl
+//
+
+bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::string const *ptr)
   {
     if (!m_known || m_value != *ptr) {
       m_value = *ptr;
@@ -538,6 +616,13 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return false;
   }
 
+  template <typename U>
+  bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "CachedValue::updatePtr: Type error");
+    return false;
+  }
+
   template <typename T>
   template <typename U>
   bool CachedValueImpl<ArrayImpl<T> >::updatePtrImpl(unsigned int /* timestamp */, U const * /* ptr */)
@@ -552,6 +637,13 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
 
   template <typename T>
   bool CachedValueImpl<T>::getValueImpl(T &result) const
+  {
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
+  bool CachedValueImpl<std::string>::getValueImpl(std::string &result) const
   {
     if (m_known)
       result = m_value;
@@ -575,13 +667,6 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return false;
   }
 
-  template <typename T>
-  bool CachedValueImpl<ArrayImpl<T> >::getValueImpl(T & /* result */) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
-    return false;
-  }
-
   // Conversion method
   template <>
   template <>
@@ -593,8 +678,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   }
 
   // Same-type methods
-  template <typename T>
-  bool CachedValueImpl<T>::getValuePointerImpl(T const *&ptr) const
+  bool CachedValueImpl<std::string>::getValuePointerImpl(std::string const *&ptr) const
   {
     if (m_known)
       ptr = &m_value;
@@ -613,6 +697,13 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   template <typename T>
   template <typename U>
   bool CachedValueImpl<T>::getValuePointerImpl(U const *& /* ptr */) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
+    return false;
+  }
+
+  template <typename U>
+  bool CachedValueImpl<std::string>::getValuePointerImpl(U const *& /* ptr */) const
   {
     assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
     return false;
@@ -637,6 +728,14 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
 
   template <typename T>
   Value CachedValueImpl<T>::toValue() const
+  {
+    if (m_known)
+      return Value(m_value);
+    else
+      return Value(0, valueType());
+  }
+
+  Value CachedValueImpl<std::string>::toValue() const
   {
     if (m_known)
       return Value(m_value);
@@ -702,7 +801,7 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
   template class CachedValueImpl<bool>;
   template class CachedValueImpl<int32_t>;
   template class CachedValueImpl<double>;
-  template class CachedValueImpl<std::string>;
+// template class CachedValueImpl<std::string>; // redundant
   template class CachedValueImpl<BooleanArray>;
   template class CachedValueImpl<IntegerArray>;
   template class CachedValueImpl<RealArray>;

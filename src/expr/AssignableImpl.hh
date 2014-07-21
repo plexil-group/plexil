@@ -46,7 +46,7 @@ namespace PLEXIL
     {
     }
 
-    ~AssignableShim()
+    virtual ~AssignableShim()
     {
     }
 
@@ -151,15 +151,49 @@ namespace PLEXIL
    * @class AssignableImpl
    * @brief Typed implementation derived class of Assignable.
    */
+
+  // Scalar case
   template <typename T>
   class AssignableImpl : public AssignableShim<AssignableImpl<T> >
   {
   public:
     AssignableImpl();
-    ~AssignableImpl();
+    virtual ~AssignableImpl();
 
     // To be defined by derived classes.
     virtual void setValueImpl(T const &val) = 0;
+
+    // Type mismatch methods.
+    virtual void setValueImpl(char const *val);
+
+    // Generalized type mismatch
+    template <typename U>
+    void setValueImpl(U const &val);
+
+    // Delegate to typed setValueImpl() methods.
+    void setValueImpl(Expression const *valex);
+    void setValueImpl(Value const &val);
+
+    // Error for scalar types
+    template <typename U>
+    bool getMutableValuePointerImpl(U *& ptr);
+
+  private:
+    // No need for copy, assign
+    AssignableImpl(AssignableImpl const &);
+    AssignableImpl &operator=(AssignableImpl const &);
+  };
+
+  // Special case for string
+  template <>
+  class AssignableImpl<std::string> : public AssignableShim<AssignableImpl<std::string> >
+  {
+  public:
+    AssignableImpl();
+    virtual ~AssignableImpl();
+
+    // To be defined by derived classes.
+    virtual void setValueImpl(std::string const &val) = 0;
 
     // Type mismatch methods.
     // Can be overridden for conversions (e.g. for string).
@@ -173,7 +207,7 @@ namespace PLEXIL
     void setValueImpl(Expression const *valex);
     void setValueImpl(Value const &val);
 
-    virtual bool getMutableValuePointerImpl(T *& ptr) = 0;
+    virtual bool getMutableValuePointerImpl(std::string *& ptr) = 0;
 
     // Type mismatch
     template <typename U>
@@ -185,20 +219,13 @@ namespace PLEXIL
     AssignableImpl &operator=(AssignableImpl const &);
   };
 
-  // Special case for string
-  template <>
-  void AssignableImpl<std::string>::setValueImpl(Expression const *valex);
-
-  template <>
-  void AssignableImpl<std::string>::setValueImpl(Value const &val);
-
   // Array variant
   template <typename T>
   class AssignableImpl<ArrayImpl<T> > : public AssignableShim<AssignableImpl<ArrayImpl<T> > >
   {
   public:
     AssignableImpl();
-    ~AssignableImpl();
+    virtual ~AssignableImpl();
 
     // To be defined by derived classes.
     virtual void setValueImpl(ArrayImpl<T> const &val) = 0;
@@ -217,10 +244,12 @@ namespace PLEXIL
     // To be defined by derived classes.
     virtual bool getMutableValuePointerImpl(ArrayImpl<T> *& ptr) = 0;
 
+    // Downcast wrapper for above
+    bool getMutableValuePointerImpl(Array *&ptr);
+
+    // Type mismatch
     template <typename U>
     bool getMutableValuePointerImpl(U *& ptr);
-
-    bool getMutableValuePointerImpl(Array *&ptr);
 
   private:
     // No need for copy, assign

@@ -68,7 +68,6 @@ namespace PLEXIL
      * @brief Get the current value of the command handle.
      */
     bool getValueImpl(uint16_t &) const;
-    bool getValuePointerImpl(uint16_t const *&) const;
 
     // Command notifies variable when value changes
     void valueChanged();

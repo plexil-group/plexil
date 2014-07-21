@@ -46,6 +46,12 @@ namespace PLEXIL
   {
   }
 
+  Constant<std::string>::Constant()
+    : ExpressionImpl<std::string>(),
+      m_known(false)
+  {
+  }
+
   template <typename T>
   Constant<ArrayImpl<T> >::Constant()
     : ExpressionImpl<ArrayImpl<T> >(),
@@ -59,6 +65,13 @@ namespace PLEXIL
   template <typename T>
   Constant<T>::Constant(const Constant &other)
   : ExpressionImpl<T>(),
+    m_value(other.m_value),
+    m_known(other.m_known)
+  {
+  }
+
+  Constant<std::string>::Constant(const Constant &other)
+  : ExpressionImpl<std::string>(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -83,6 +96,13 @@ namespace PLEXIL
   {
   }
 
+  Constant<std::string>::Constant(const std::string &value)
+  : ExpressionImpl<std::string>(),
+    m_value(value),
+    m_known(true)
+  {
+  }
+
   template <typename T>
   Constant<ArrayImpl<T> >::Constant(const ArrayImpl<T> &value)
     : ExpressionImpl<ArrayImpl<T> >(),
@@ -96,7 +116,6 @@ namespace PLEXIL
    */
 
   // *** TODO: More types ***
-  template <>
   Constant<std::string>::Constant(const char *value)
   : ExpressionImpl<std::string>(),
     m_value(value),
@@ -109,6 +128,10 @@ namespace PLEXIL
    */
   template <typename T>
   Constant<T>::~Constant()
+  {
+  }
+
+  Constant<std::string>::~Constant()
   {
   }
 
@@ -127,10 +150,15 @@ namespace PLEXIL
     return "Constant";
   }
 
+  const char *Constant<std::string>::exprName() const
+  {
+    return "Constant";
+  }
+
   template <typename T>
   const char *Constant<ArrayImpl<T> >::exprName() const
   {
-    return "ArrayConstant";
+    return "Constant";
   }
 
   /**
@@ -146,13 +174,19 @@ namespace PLEXIL
     return m_known;
   }
 
+  bool Constant<std::string>::getValueImpl(std::string& result) const
+  {
+    if (m_known)
+      result = m_value;
+    return m_known;
+  }
+
   /**
    * @brief Retrieve a pointer to the (const) value of this Expression.
    * @param ptr Reference to the pointer variable to receive the result.
    * @return True if known, false if unknown.
    */
-  template <typename T>
-  bool Constant<T>::getValuePointerImpl(T const *&ptr) const
+  bool Constant<std::string>::getValuePointerImpl(std::string const *&ptr) const
   {
     if (m_known)
       ptr = &m_value;
@@ -177,6 +211,11 @@ namespace PLEXIL
     return m_known;
   }
 
+  bool Constant<std::string>::isKnown() const
+  {
+    return m_known;
+  }
+
   template <typename T>
   bool Constant<ArrayImpl<T> >::isKnown() const
   {
@@ -189,6 +228,11 @@ namespace PLEXIL
    */
   template <typename T>
   bool Constant<T>::isConstant() const
+  {
+    return true;
+  }
+
+  bool Constant<std::string>::isConstant() const
   {
     return true;
   }
@@ -209,6 +253,11 @@ namespace PLEXIL
     return true; // constants are always active
   }
  
+  bool Constant<std::string>::isActive() const
+  {
+    return true; // constants are always active
+  }
+ 
   template <typename T>
   bool Constant<ArrayImpl<T> >::isActive() const
   {
@@ -224,6 +273,10 @@ namespace PLEXIL
   {
   }
 
+  void Constant<std::string>::activate()
+  {
+  }
+
   template <typename T>
   void Constant<ArrayImpl<T> >::activate()
   {
@@ -235,6 +288,10 @@ namespace PLEXIL
    */
   template <typename T>
   void Constant<T>::deactivate()
+  {
+  }
+
+  void Constant<std::string>::deactivate()
   {
   }
 
@@ -253,6 +310,10 @@ namespace PLEXIL
   {
   }
 
+  void Constant<std::string>::addListener(ExpressionListener * /* ptr */)
+  {
+  }
+
   template <typename T>
   void Constant<ArrayImpl<T> >::addListener(ExpressionListener * /* ptr */)
   {
@@ -260,6 +321,10 @@ namespace PLEXIL
 
   template <typename T>
   void Constant<T>::removeListener(ExpressionListener * /* ptr */)
+  {
+  }
+
+  void Constant<std::string>::removeListener(ExpressionListener * /* ptr */)
   {
   }
 
@@ -277,6 +342,10 @@ namespace PLEXIL
   {
   }
 
+  void Constant<std::string>::notifyChanged(Expression const * /* src */)
+  {
+  }
+
   template <typename T>
   void Constant<ArrayImpl<T> >::notifyChanged(Expression const * /* src */)
   {
@@ -289,7 +358,7 @@ namespace PLEXIL
   template class Constant<uint16_t>; // for internal node constants
   template class Constant<int32_t>;
   template class Constant<double>;
-  template class Constant<std::string>;
+  // template class Constant<std::string>; redundant
 
   template class Constant<BooleanArray>;
   template class Constant<IntegerArray>;

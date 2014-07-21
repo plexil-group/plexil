@@ -50,12 +50,6 @@ namespace PLEXIL
     result = m_node.getState();
     return true;
   }
-
-  bool StateVariable::getValuePointerImpl(uint16_t const *&ptr) const
-  {
-    ptr = &m_node.m_state;
-    return true;
-  }
       
   void StateVariable::printValue(std::ostream& s) const
   {
@@ -99,14 +93,6 @@ namespace PLEXIL
     if (outcome == NO_OUTCOME)
       return false;
     result = outcome;
-    return true;
-  }
-
-  bool OutcomeVariable::getValuePointerImpl(uint16_t const *&ptr) const
-  {
-    if (m_node.m_outcome == NO_OUTCOME)
-      return false;
-    ptr = &m_node.m_outcome;
     return true;
   }
       
@@ -156,14 +142,6 @@ namespace PLEXIL
     if (ftype == NO_FAILURE)
       return false;
     result = ftype;
-    return true;
-  }
-
-  bool FailureVariable::getValuePointerImpl(uint16_t const *&ptr) const
-  {
-    if (m_node.m_failureType == NO_FAILURE)
-      return false;
-    ptr = &m_node.m_failureType;
     return true;
   }
       

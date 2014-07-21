@@ -235,6 +235,7 @@ namespace PLEXIL
     
   };
 
+  // Scalar types
   template <typename T>
   class CachedValueImpl : public CachedValueShim<CachedValueImpl<T> >
   {
@@ -260,8 +261,6 @@ namespace PLEXIL
     template <typename U>
     bool getValueImpl(U &result) const;
 
-    bool getValuePointerImpl(T const *&ptr) const;
-
     // Type conversion or invalid type
     template <typename U>
     bool getValuePointerImpl(U const *&ptr) const;
@@ -279,14 +278,68 @@ namespace PLEXIL
 
     bool updateImpl(unsigned int timestamp, Value const &val);
 
-    bool updatePtrImpl(unsigned int timestamp, T const *valPtr);
-
-    // Type conversion or invalid type
+    // Type error
     template <typename U>
     bool updatePtrImpl(unsigned int timestamp, U const *valPtr);
 
   private:
     T m_value;
+    bool m_known;
+  };
+
+  // String is special
+  template <>
+  class CachedValueImpl<std::string> : public CachedValueShim<CachedValueImpl<std::string> >
+  {
+  public:
+    CachedValueImpl();
+    CachedValueImpl(CachedValueImpl<std::string> const &);
+
+    ~CachedValueImpl();
+
+    CachedValue &operator=(CachedValue const &);
+    CachedValueImpl<std::string> &operator=(CachedValueImpl<std::string> const &);
+
+    ValueType const valueType() const;
+    bool isKnown() const;
+
+    CachedValue *cloneImpl() const;
+
+    bool operator==(CachedValue const &) const;
+
+    bool getValueImpl(std::string &result) const;
+
+    // Type error
+    template <typename U>
+    bool getValueImpl(U &result) const;
+
+    bool getValuePointerImpl(std::string const *&ptr) const;
+
+    // Type error
+    template <typename U>
+    bool getValuePointerImpl(U const *&ptr) const;
+
+    Value toValue() const;
+
+    // API to external interface
+    bool setUnknown(unsigned int timestamp);
+
+    virtual bool updateImpl(unsigned int timestamp, std::string const &val);
+
+    // Type error
+    template <typename U>
+    bool updateImpl(unsigned int timestamp, U const &val);
+
+    bool updateImpl(unsigned int timestamp, Value const &val);
+
+    bool updatePtrImpl(unsigned int timestamp, std::string const *valPtr);
+
+    // Type error
+    template <typename U>
+    bool updatePtrImpl(unsigned int timestamp, U const *valPtr);
+
+  private:
+    std::string m_value;
     bool m_known;
   };
 
@@ -310,8 +363,6 @@ namespace PLEXIL
     CachedValue *cloneImpl() const;
 
     bool operator==(CachedValue const &) const;
-
-    bool getValueImpl(T &result) const;
 
     // Type conversion or invalid type
     template <typename U>

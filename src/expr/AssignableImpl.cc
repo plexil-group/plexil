@@ -35,6 +35,11 @@ namespace PLEXIL
   {
   }
 
+  AssignableImpl<std::string>::AssignableImpl()
+    : AssignableShim<AssignableImpl<std::string> >()
+  {
+  }
+
   template <typename T>
   AssignableImpl<ArrayImpl<T> >::AssignableImpl()
     : AssignableShim<AssignableImpl<ArrayImpl<T> > >()
@@ -43,6 +48,10 @@ namespace PLEXIL
 
   template <typename T>
   AssignableImpl<T>::~AssignableImpl()
+  {
+  }
+
+  AssignableImpl<std::string>::~AssignableImpl()
   {
   }
 
@@ -77,7 +86,6 @@ namespace PLEXIL
   }
 
   // Special case for string
-  template <>
   void AssignableImpl<std::string>::setValueImpl(Expression const *valex)
   {
     std::string const *valptr;
@@ -87,7 +95,6 @@ namespace PLEXIL
       this->setUnknown();
   }
 
-  template <>
   void AssignableImpl<std::string>::setValueImpl(Value const &val)
   {
     std::string const *valptr;
@@ -126,6 +133,12 @@ namespace PLEXIL
     assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
   }
 
+  template <typename U>
+  void AssignableImpl<std::string>::setValueImpl(U const &val)
+  {
+    assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
+  }
+
   template <typename T>
   template <typename U>
   void AssignableImpl<ArrayImpl<T> >::setValueImpl(U const &val)
@@ -134,10 +147,9 @@ namespace PLEXIL
   }
 
   // Conversions
-  template <>
   void AssignableImpl<std::string>::setValueImpl(char const *val)
   {
-    std::string temp(val);
+    std::string const temp(val);
     this->setValueImpl(temp);
   }
 
@@ -161,7 +173,6 @@ namespace PLEXIL
     assertTrue_2(ALWAYS_FAIL, "Assignable::setValue: type error");
   }
 
-
   //
   // getMutableValuePointerImpl
   //
@@ -169,6 +180,13 @@ namespace PLEXIL
   template <typename T>
   template <typename U>
   bool AssignableImpl<T>::getMutableValuePointerImpl(U *& ptr)
+  {
+    assertTrue_2(ALWAYS_FAIL, "Assignable::getMutableValuePointer: type error");
+    return false;
+  }
+
+  template <typename U>
+  bool AssignableImpl<std::string>::getMutableValuePointerImpl(U *& ptr)
   {
     assertTrue_2(ALWAYS_FAIL, "Assignable::getMutableValuePointer: type error");
     return false;

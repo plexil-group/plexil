@@ -50,7 +50,6 @@ namespace PLEXIL
     bool isKnown() const;
 
     bool getValueImpl(double &result) const; // FIXME
-    bool getValuePointerImpl(double const *&ptr) const; // FIXME
 
     void print(std::ostream &s) const;
     void printValue(std::ostream &s) const;

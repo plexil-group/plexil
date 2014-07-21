@@ -157,11 +157,11 @@ namespace PLEXIL
      * @brief Retrieve the value of this Expression as a pointer to const.
      * @param ptr Reference to the pointer variable.
      * @return True if known, false if unknown.
+     * @note These are errors for Boolean and numeric expressions.
      */
-    virtual bool getValuePointerImpl(T const *& ptr) const = 0;
-    virtual bool getValuePointerImpl(Array const *& ptr) const;
 
-    // Error for wrong type call
+    // Error for scalar types
+    bool getValuePointerImpl(T const *&) const;
     template <typename U>
     bool getValuePointerImpl(U const *&) const;
 
@@ -173,6 +173,64 @@ namespace PLEXIL
 
   };
 
+  // Specialization for string
+  template <>
+  class ExpressionImpl<std::string>
+    : public ExpressionAdapter<ExpressionImpl<std::string> >
+  {
+  public:
+    /**
+     * @brief Query whether the expression's value is known.
+     * @return True if known, false otherwise.
+     * @note Default method uses getValuePointerImpl().
+     */
+    virtual bool isKnown() const;
+
+    /**
+     * @brief Return the value type.
+     * @return A constant enumeration.
+     * @note May be overridden by derived classes.
+     */
+    const ValueType valueType() const;
+
+	/**
+	 * @brief Print the expression's value to the given stream.
+	 * @param s The output stream.
+	 */
+    void printValue(std::ostream &) const; // may be overridden?
+
+    /**
+     * @brief Retrieve the value of this Expression in its native type.
+     * @param The appropriately typed place to put the result.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValueImpl(std::string &result) const = 0;
+
+    // Conversion wrapper, error if particular conversion not supported
+    template <typename U>
+    bool getValueImpl(U &result) const;
+
+    /**
+     * @brief Retrieve the value of this Expression as a pointer to const.
+     * @param ptr Reference to the pointer variable.
+     * @return True if known, false if unknown.
+     */
+    virtual bool getValuePointerImpl(std::string const *& ptr) const = 0;
+
+    // Error for wrong type call
+    bool getValuePointerImpl(Array const *& ptr) const;
+    template <typename U>
+    bool getValuePointerImpl(U const *&) const;
+
+    /**
+     * @brief Get the value of this expression as a Value instance.
+     * @return The Value instance.
+     */
+    Value toValue() const;
+
+  };
+
+  // Specialization for array types
   template <typename T>
   class ExpressionImpl<ArrayImpl<T> >
     : public ExpressionAdapter<ExpressionImpl<ArrayImpl<T> > >
@@ -199,6 +257,7 @@ namespace PLEXIL
     void printValue(std::ostream &) const; // may be overridden?
 
     // Error for array types
+    bool getValueImpl(ArrayImpl<T> &result) const;
     template <typename U>
     bool getValueImpl(U &result) const;
 
