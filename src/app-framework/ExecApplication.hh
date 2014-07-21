@@ -38,6 +38,7 @@
 
 // STL
 #include <set>
+#include <string>
 #include <vector>
 
 #include <csignal>

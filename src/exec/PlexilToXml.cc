@@ -232,7 +232,7 @@ namespace PLEXIL
     throw(ParserException) 
   {
     xml_node retval = appendElement(op->name().c_str(), parent);
-    for (std::vector<PlexilExpr const *>::const_iterator it = op->subExprs().begin(); 
+    for (std::vector<PlexilExpr *>::const_iterator it = op->subExprs().begin(); 
          it != op->subExprs().end();
          ++it)
       toXml(*it, retval);
@@ -368,7 +368,7 @@ namespace PLEXIL
   {
     appendNamedTextElement(NAME_TAG, state->name().c_str(), parent);
     xml_node args = appendElement(ARGS_TAG, parent);
-    for (std::vector<PlexilExpr const *>::const_iterator it = state->args().begin();
+    for (std::vector<PlexilExpr *>::const_iterator it = state->args().begin();
          it != state->args().end();
          ++it)
       toXml(*it, args);

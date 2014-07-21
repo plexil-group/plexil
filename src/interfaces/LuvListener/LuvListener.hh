@@ -27,9 +27,16 @@
 #ifndef LUV_LISTENER_HH
 #define LUV_LISTENER_HH
 
+#include "plexil-config.h"
+
 #include "ConstantMacros.hh"
-#include "NodeConstants.hh"
 #include "ExecListener.hh"
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
 
 #include <string>
 
