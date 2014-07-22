@@ -218,7 +218,6 @@ namespace PLEXIL
     virtual bool getValuePointerImpl(std::string const *& ptr) const = 0;
 
     // Error for wrong type call
-    bool getValuePointerImpl(Array const *& ptr) const;
     template <typename U>
     bool getValuePointerImpl(U const *&) const;
 

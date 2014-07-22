@@ -531,6 +531,13 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     return false;
   }
 
+  template <typename U>
+  bool CachedValueImpl<std::string>::updateImpl(unsigned int timestamp, U const & /* val */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "CachedValue::update: Type error");
+    return false;
+  }
+
   template <typename T>
   template <typename U>
   bool CachedValueImpl<ArrayImpl<T> >::updateImpl(unsigned int timestamp, U const & /* val */)
@@ -654,6 +661,13 @@ bool CachedValueImpl<std::string>::updatePtrImpl(unsigned int timestamp, std::st
   template <typename T>
   template <typename U>
   bool CachedValueImpl<T>::getValueImpl(U & /* result */) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
+    return false;
+  }
+
+  template <typename U>
+  bool CachedValueImpl<std::string>::getValueImpl(U & /* result */) const
   {
     assertTrue_2(ALWAYS_FAIL, "CachedValue::getValue: Type error");
     return false;
