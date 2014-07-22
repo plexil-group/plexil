@@ -28,6 +28,7 @@
 
 #include "Command.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "ResourceArbiterInterface.hh"
 #include "StateCacheMap.hh"
 #include "Update.hh"

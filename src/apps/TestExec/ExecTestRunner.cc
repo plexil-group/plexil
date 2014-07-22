@@ -29,6 +29,7 @@
 #include "ExecTestRunner.hh"
 
 #include "Debug.hh"
+#include "Error.hh"
 #include "ExecListenerHub.hh"
 #include "Expressions.hh"
 #include "Logging.hh"

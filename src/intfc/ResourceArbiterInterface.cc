@@ -27,6 +27,7 @@
 #include "ResourceArbiterInterface.hh"
 #include "Command.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "resource-tags.hh"
 
 #include <queue>

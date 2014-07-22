@@ -26,6 +26,7 @@
 
 #include "Update.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "ExternalInterface.hh"
 #include "NodeConnector.hh"

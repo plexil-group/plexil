@@ -28,6 +28,7 @@
 
 #include "Command.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "Node.hh"
 #include "NodeConstants.hh"
 #include "PlexilExec.hh"

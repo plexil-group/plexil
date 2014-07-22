@@ -28,9 +28,12 @@
 
 #include "ArrayReference.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "PlexilExpr.hh"
+
+#include <map>
 
 namespace PLEXIL
 {
