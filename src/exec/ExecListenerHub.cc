@@ -27,6 +27,7 @@
 #include "ExecListenerHub.hh"
 
 #include "Debug.hh"
+#include "Error.hh"
 #include "NodeTransition.hh"
 
 #include <algorithm> // for std::find

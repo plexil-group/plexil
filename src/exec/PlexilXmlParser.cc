@@ -27,6 +27,7 @@
 #include "PlexilXmlParser.hh"
 
 #include "Debug.hh"
+#include "Error.hh"
 #include "PlexilSchema.hh"
 #include "ValueType.hh"
 #include "XMLUtils.hh"

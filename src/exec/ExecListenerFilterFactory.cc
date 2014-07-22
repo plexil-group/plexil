@@ -29,6 +29,7 @@
 #ifdef HAVE_DLFCN_H
 #include "DynamicLoader.hh"
 #endif
+#include "Error.hh"
 #include "InterfaceSchema.hh"
 #include "lifecycle-utils.h"
 #include "pugixml.hpp"

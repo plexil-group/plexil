@@ -29,6 +29,7 @@
 #include "UserVariable.hh"
 #include "Constant.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "ExecConnector.hh"
 #include "ExpressionConstants.hh"
 #include "ExpressionFactory.hh"

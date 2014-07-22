@@ -26,6 +26,7 @@
 
 #include "Assignment.hh"
 #include "Debug.hh"
+#include "Error.hh"
 
 namespace PLEXIL
 {
