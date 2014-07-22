@@ -316,9 +316,6 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
-/* Define to 1 if Id validity checking is disabled. */
-#undef PLEXIL_ID_FAST
-
 /* Define to 1 if multithreading is enabled. */
 #undef PLEXIL_WITH_THREADS
 

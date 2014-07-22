@@ -30,8 +30,6 @@ AC_ARG_ENABLE([ipc],
         AS_HELP_STRING([--enable-ipc], [Build IPC and IpcAdapter library (default=no)]))
 AC_ARG_ENABLE([module-tests],
         AS_HELP_STRING([--enable-module-tests], [Build module tests (default=no)]))
-AC_ARG_ENABLE([pointer-checks],
-        AS_HELP_STRING([--enable-pointer-checks], [Check smart pointers for validity (default=yes)]))
 AC_ARG_ENABLE([viewer],
         AS_HELP_STRING([--enable-viewer], [Build Plexil Viewer interface (default=yes)]))
 AC_ARG_ENABLE([sas],
@@ -68,9 +66,6 @@ AM_CONDITIONAL([UDP_OPT], [test "x$enable_udp" = "xyes"])
 # Helpers for headers
 AS_IF([test "x$enable_debug_logging" = "xno"],[
   AC_DEFINE([NO_DEBUG_MESSAGE_SUPPORT],[1],[Define to 1 if debug logging is disabled.])
-])
-AS_IF([test "x$enable_pointer_checks" = "xno"],[
-  AC_DEFINE([PLEXIL_ID_FAST],[1],[Define to 1 if Id validity checking is disabled.])
 ])
 AS_IF([test "x$with_threads" != "xno"],[
   AC_DEFINE([PLEXIL_WITH_THREADS],[1],[Define to 1 if multithreading is enabled.])
