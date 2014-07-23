@@ -53,6 +53,11 @@ namespace PLEXIL
     delete m_value;
   }
 
+  bool StateCacheEntry::operator<(StateCacheEntry const &y) const
+  {
+    return m_state < y.m_state;
+  }
+
   ValueType const StateCacheEntry::valueType() const
   {
     if (m_value)

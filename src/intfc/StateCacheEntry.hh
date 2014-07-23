@@ -51,6 +51,7 @@ namespace PLEXIL
     State const &state() const { return m_state; }
 
     // Utility
+    bool operator<(StateCacheEntry const &y) const;
     ValueType const valueType() const;
     bool isKnown() const;
 
@@ -115,25 +116,6 @@ namespace PLEXIL
     CachedValue *m_value;
   };
 
-  // Substitute for the below
-  bool operator<(StateCacheEntry const &x, StateCacheEntry const &y)
-  {
-    return x.state() < y.state();
-  }
-
 } // namespace PLEXIL
-
-// namespace std
-// {
-//   //g++ 4.1.2 doesn't like this
-//   template <> struct less<PLEXIL::StateCacheEntry>
-//   : binary_function <PLEXIL::StateCacheEntry, PLEXIL::StateCacheEntry, bool>
-//   {
-//     bool operator() (PLEXIL::StateCacheEntry const &x, PLEXIL::StateCacheEntry const &y) const
-//     {
-//       return x.state() < y.state();
-//     }
-//   };
-// } // namespace std
 
 #endif // PLEXIL_STATE_CACHE_ENTRY_HH

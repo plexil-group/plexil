@@ -255,8 +255,8 @@ namespace PLEXIL {
       if (!success) {
         debugMsg("AdapterConfiguration:initialize",
                  " adapter start failed for type \""
-		 << a->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
-		 << "\", returning false");
+                 << (*it)->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+                 << "\", returning false");
         return false;
       }
     }
