@@ -98,10 +98,9 @@
  * Create an error instance for throwing, printing, etc., per class Error.
  * @param cond Condition that failed (was false), implying an error has occurred.
  * @param msg String describing the error.
- * @param err A specific Error instance.
  */
-#define handle_error(cond, msg, err) {         \
-  Error(#cond, #msg, err, __FILE__, __LINE__);        \
+#define handle_error(cond, msg) {         \
+  Error(#cond, #msg, __FILE__, __LINE__);        \
 }
 
 #define runTest(test) { \
@@ -280,13 +279,10 @@ private:
     assertTrue_2(debugOutput.good(), "could not open debug output file");
     setDebugOutputStream(debugOutput);
     std::ifstream debugStream(cfgFile.c_str());
-    assertTrue_3(debugStream.good(), "could not open debug config file",
-                 DebugErr::DebugConfigError());
+    assertTrue_2(debugStream.good(), "could not open debug config file");
     if (!readDebugConfigStream(debugStream))
       handle_error(!readDebugConfigStream(debugStream),
-                   "problems reading debug config file",
-                   DebugErr::DebugConfigError());
-    
+                   "problems reading debug config file");
     debugMsg("main1", "done opening files");
     condDebugMsg(std::cout.good(), "main1a", "std::cout is good");
     debugStmt("main2a", int s = 0; for (int i = 0; i < 5; i++) { s += i; } debugOutput << "Sum is " << s << '\n'; );

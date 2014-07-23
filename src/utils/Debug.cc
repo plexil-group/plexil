@@ -45,6 +45,7 @@
 
 #ifndef NO_DEBUG_MESSAGE_SUPPORT
 
+#include "Error.hh"
 #include "lifecycle-utils.h"
 
 #include <fstream>
@@ -52,6 +53,14 @@
 #include <functional>
 
 using std::string;
+
+class DebugErr
+{
+public:
+  DECLARE_ERROR(DebugMessageError);
+  DECLARE_ERROR(DebugMemoryError);
+  DECLARE_ERROR(DebugConfigError);
+};
 
 /**
  * @class DebugConfig
@@ -123,6 +132,82 @@ DebugMessage *DebugMessage::addMsg(const string &file, const int& line,
   return(msg);
 }
 
+void DebugMessage::enable()
+{
+  checkError(streamPtr()->good(), 
+             "cannot enable debug message(s) without a good debug stream: " << 
+             (streamPtr()->rdstate() & std::ostream::badbit ? " bad " : "") <<
+             (streamPtr()->rdstate() & std::ostream::eofbit ? " eof " : "") <<
+             (streamPtr()->rdstate() & std::ostream::failbit ? " fail " : "") <<
+             (streamPtr()->rdstate() & std::ostream::goodbit ? " good???" : ""));
+  m_enabled = true;
+}
+
+/**
+   @brief Print the data members of the debug message in a format
+   that Emacs can use to display the corresponding source code.
+   @param os
+*/
+void DebugMessage::print(std::ostream *os) const
+{
+  try {
+    os[0].exceptions(std::ostream::badbit);
+    os[0] << m_file << ':' << m_line << ": " << m_marker << ' ';
+  }
+  catch(std::ios_base::failure& exc) {
+    checkError(ALWAYS_FAIL, exc.what());
+    throw;
+  }
+}
+
+/**
+   @brief Whether the given marker matches the "pattern".
+   Exists solely to ensure the same method is always used to check
+   for a match.
+*/
+inline static bool markerMatches(const std::string& marker,
+                                 const std::string& pattern) 
+{
+  if (pattern.length() < 1)
+    return(true);
+  if (marker.length() < pattern.length())
+    return(false);
+  return(marker.find(pattern) < marker.length());
+}
+
+/**
+   @brief Whether the message is matched by the pattern.
+*/
+bool DebugMessage::matches(const DebugPattern& pattern) const 
+{
+  return(markerMatches(getFile(), pattern.m_file) &&
+         markerMatches(getMarker(), pattern.m_pattern));
+}
+
+/**
+   @class MatchesPattern DebugDefs.hh
+   @brief Helper class to use markerMatches via STL find_if().
+*/
+template<class T>
+class MatchesPattern : public std::unary_function<T, bool>
+{
+private:
+  const DebugPattern pattern;
+  
+public:
+  explicit MatchesPattern(const std::string& f, const std::string& p)
+    : pattern(f, p) {
+  }
+
+  explicit MatchesPattern(const DebugPattern& p)
+  : pattern(p) {
+  }
+
+  bool operator() (const T& dm) const {
+    return(dm->matches(pattern));
+  }
+};
+
 DebugMessage *DebugMessage::findMsg(const string &file,
                                     const string &pattern) {
   typedef std::vector<DebugMessage*>::const_iterator VDMPCI;
@@ -133,6 +218,34 @@ DebugMessage *DebugMessage::findMsg(const string &file,
     return(0);
   return(*iter);
 }
+
+/**
+   @class GetMatches DebugDefs.hh
+   @brief Helper class to gather matching messages via STL for_each().
+*/
+class GetMatches 
+{
+private:
+
+  const DebugPattern pattern;
+
+  std::vector<DebugMessage*>& matches;
+
+public:
+  explicit GetMatches(const std::string& f, const std::string& p,
+                      std::vector<DebugMessage*>& m)
+    : pattern(f, p), matches(m) {
+  }
+
+  explicit GetMatches(const DebugPattern& p, std::vector<DebugMessage*>& m)
+    : pattern(p), matches(m) {
+  }
+
+  void operator() (DebugMessage* dm) {
+    if (dm->matches(pattern))
+      matches.push_back(dm);
+  }
+};
 
 void DebugMessage::findMatchingMsgs(const string &file,
                                     const string &pattern,
@@ -165,6 +278,28 @@ void DebugMessage::enableAll() {
                 std::mem_fun(&DebugMessage::enable));
 }
 
+/**
+   @class EnableMatches DebugDefs.hh
+   @brief Helper class to enable matching messages via STL for_each().
+*/
+class EnableMatches 
+{
+private:
+
+  const DebugPattern& pattern;
+
+public:
+
+  explicit EnableMatches(const DebugPattern& p)
+  : pattern(p) {
+  }
+
+  void operator() (DebugMessage* dm) {
+    if (dm->matches(pattern))
+      dm->enable();
+  }
+};
+
 void DebugMessage::enableMatchingMsgs(const string& file,
                                       const string& pattern) {
   if (file.length() < 1 && pattern.length() < 1) {
@@ -177,6 +312,18 @@ void DebugMessage::enableMatchingMsgs(const string& file,
                 allMsgs().end(),
                 EnableMatches(dp));
 }
+
+class DisableMatches 
+{
+private:
+  const DebugPattern& pattern;
+public:
+  explicit DisableMatches(const DebugPattern& p) : pattern(p) {}
+  void operator() (DebugMessage* dm) {
+    if(dm->matches(pattern))
+      dm->disable();
+  }
+};
 
 void DebugMessage::disableMatchingMsgs(const string& file,
                        const string& pattern) {

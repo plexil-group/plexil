@@ -85,8 +85,6 @@
 #include <string>
 #include <vector>
 
-#include "Error.hh"
-
 /**
   @brief Use the debugMsg() macro to create a debug message that
   will be printed when the code is executed if and only if this
@@ -168,12 +166,47 @@
  */
 #define setDebugOutputStream(outstream) { DebugMessage::setStream(outstream); }
 
-class DebugErr {
+/**
+ * @class DebugPattern Debug.hh
+ * @brief Used to store the "patterns" of presently enabled debug messages.
+ * @see DebugMessage::enableMatchingMsgs
+ */
+class DebugPattern
+{
 public:
-  DECLARE_ERROR(DebugStreamError);
-  DECLARE_ERROR(DebugMessageError);
-  DECLARE_ERROR(DebugMemoryError);
-  DECLARE_ERROR(DebugConfigError);
+  /**
+   * @brief Zero argument constructor.
+   * @note Should not be used except implicitly (e.g., by std::vector<DebugPattern>).
+   */
+  inline DebugPattern();
+
+  /**
+   * @brief Destructor.
+   */
+  inline virtual ~DebugPattern() {
+  }
+
+  /**
+   * @brief Constructor with data.
+   * @note Should be the only constructor called explicitly.
+   */
+  DebugPattern(const std::string& f, const std::string& m)
+    : m_file(f), m_pattern(m) {
+  }
+
+  /**
+   * @brief The source file(s) that match the pattern.
+   */
+  std::string m_file;
+
+  /**
+   * @brief The markers that match the pattern.
+   * @note Markers refer to those of class DebugMessage.
+   * @see class DebugMessage
+   */
+  std::string m_pattern;
+
+  bool operator== (const DebugPattern& other) const {return m_file == other.m_file && m_pattern == other.m_pattern;}
 };
 
 /**
@@ -209,47 +242,6 @@ private:
                const std::string& marker,
                const bool& enabled = DebugMessage::allEnabled());
 
-  /**
-   * @class DebugPattern Debug.hh
-   * @brief Used to store the "patterns" of presently enabled debug messages.
-   * @see DebugMessage::enableMatchingMsgs
-   */
-  class DebugPattern {
-  public:
-    /**
-     * @brief Zero argument constructor.
-     * @note Should not be used except implicitly (e.g., by std::vector<DebugPattern>).
-     */
-    inline DebugPattern();
-
-    /**
-     * @brief Destructor.
-     */
-    inline virtual ~DebugPattern() {
-    }
-
-    /**
-     * @brief Constructor with data.
-     * @note Should be the only constructor called explicitly.
-     */
-    DebugPattern(const std::string& f, const std::string& m)
-      : m_file(f), m_pattern(m) {
-    }
-
-    /**
-     * @brief The source file(s) that match the pattern.
-     */
-    std::string m_file;
-
-    /**
-     * @brief The markers that match the pattern.
-     * @note Markers refer to those of class DebugMessage.
-     * @see class DebugMessage
-     */
-    std::string m_pattern;
-
-    bool operator== (const DebugPattern& other) const {return m_file == other.m_file && m_pattern == other.m_pattern;}
-  };
 
   /**
    * @brief Destroy a DebugMessage.
@@ -371,19 +363,7 @@ public:
     @par Errors thrown:
     @li If the stream has not been set.
    */
-  inline void enable() {
-    checkError(streamPtr()->good(), 
-           "cannot enable debug message(s) without a good debug stream: " << 
-           (streamPtr()->rdstate() & std::ostream::badbit ? " bad " : "") <<
-           (streamPtr()->rdstate() & std::ostream::eofbit ? " eof " : "") <<
-           (streamPtr()->rdstate() & std::ostream::failbit ? " fail " : "") <<
-           (streamPtr()->rdstate() & std::ostream::goodbit ? " good???" : ""));
-    /*
-    check_error(streamPtr()->good(), 
-           "cannot enable debug message(s) without a good debug stream:",DebugErr::DebugStreamError());
-    */
-    m_enabled = true;
-  }
+  void enable();
 
   /**
     @brief Disable the debug message.
@@ -397,19 +377,7 @@ public:
     that Emacs can use to display the corresponding source code.
     @param os
    */
-      inline void print(std::ostream *os = streamPtr()) const
-      {
-         try
-         {
-            os[0].exceptions(std::ostream::badbit);
-            os[0] << m_file << ':' << m_line << ": " << m_marker << ' ';
-         }
-         catch(std::ios_base::failure& exc) 
-         {
-            checkError(ALWAYS_FAIL, exc.what());
-            throw;
-         }
-      }
+  void print(std::ostream *os = streamPtr()) const;
       
   /**
     @brief Enable matching debug messages, including those created later.
@@ -429,16 +397,12 @@ public:
    */
 
   static void disableMatchingMsgs(const std::string& file,
-                                 const std::string& marker);
-
+                                  const std::string& marker);
 
   /**
      @brief Whether the message is matched by the pattern.
   */
-  bool matches(const DebugPattern& pattern) const {
-   return(markerMatches(getFile(), pattern.m_file) &&
-          markerMatches(getMarker(), pattern.m_pattern));
-  }
+  bool matches(const DebugPattern& pattern) const;
 
   static bool isGood() {
     return streamPtr()->good();
@@ -490,20 +454,6 @@ private:
   bool m_enabled;
 
   /**
-    @brief Whether the given marker matches the "pattern".
-    Exists solely to ensure the same method is always used to check
-    for a match.
-   */
-  inline static bool markerMatches(const std::string& marker,
-                                   const std::string& pattern) {
-    if (pattern.length() < 1)
-      return(true);
-    if (marker.length() < pattern.length())
-      return(false);
-    return(marker.find(pattern) < marker.length());
-  }
-
-  /**
      @class PatternMatches DebugDefs.hh
      @brief Helper function for addMsg()'s use of STL find_if().
   */
@@ -521,88 +471,6 @@ private:
     }
   };
 
-  /**
-     @class MatchesPattern DebugDefs.hh
-     @brief Helper class to use markerMatches via STL find_if().
-  */
-  template<class T>
-  class MatchesPattern : public std::unary_function<T, bool> {
-  private:
-    const DebugPattern pattern;
-
-  public:
-    explicit MatchesPattern(const std::string& f, const std::string& p)
-      : pattern(f, p) {
-    }
-
-    explicit MatchesPattern(const DebugPattern& p)
-      : pattern(p) {
-    }
-
-    bool operator() (const T& dm) const {
-      return(dm->matches(pattern));
-    }
-  };
-
-  /**
-     @class GetMatches DebugDefs.hh
-     @brief Helper class to gather matching messages via STL for_each().
-  */
-  class GetMatches {
-  private:
-
-    const DebugPattern pattern;
-
-    std::vector<DebugMessage*>& matches;
-
-  public:
-    explicit GetMatches(const std::string& f, const std::string& p,
-                        std::vector<DebugMessage*>& m)
-      : pattern(f, p), matches(m) {
-    }
-
-    explicit GetMatches(const DebugPattern& p, std::vector<DebugMessage*>& m)
-      : pattern(p), matches(m) {
-    }
-
-    void operator() (DebugMessage* dm) {
-      if (dm->matches(pattern))
-        matches.push_back(dm);
-    }
-  };
-
-  /**
-     @class EnableMatches DebugDefs.hh
-     @brief Helper class to enable matching messages via STL for_each().
-  */
-  class EnableMatches {
-  private:
-
-    const DebugPattern& pattern;
-
-  public:
-
-    explicit EnableMatches(const DebugPattern& p)
-      : pattern(p) {
-    }
-
-    void operator() (DebugMessage* dm) {
-      if (dm->matches(pattern))
-        dm->enable();
-    }
-  };
-
-
-  class DisableMatches {
-  private:
-    const DebugPattern& pattern;
-  public:
-    explicit DisableMatches(const DebugPattern& p) : pattern(p) {}
-    void operator() (DebugMessage* dm) {
-      if(dm->matches(pattern))
-    dm->disable();
-    }
-  };
 
   /**
     @brief Should not be used.
