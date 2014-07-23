@@ -39,9 +39,6 @@
 #include <map>
 #include <string>
 
-// Take care of annoying VxWorks macro
-#undef UPDATE
-
 #define isType(p,type) (dynamic_cast<type*>(p) != NULL)
 
 namespace PLEXIL 

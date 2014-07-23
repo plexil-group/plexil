@@ -239,6 +239,18 @@ namespace PLEXIL
       return Value(0, this->valueType());
   }
 
+  // Specialization for internal values
+  template <>
+  Value ExpressionImpl<uint16_t>::toValue() const
+  {
+    uint16_t temp;
+    bool known = this->getValueImpl(temp);
+    if (known)
+      return Value(temp, this->valueType());
+    else
+      return Value(0, this->valueType());
+  }
+
   template <typename T>
   Value ExpressionImpl<ArrayImpl<T> >::toValue() const
   {

@@ -205,7 +205,12 @@ static const char *get_date_time()
   time_t sl_rawtime;
   time(&sl_rawtime);
 #ifdef HAVE_CTIME_R
+#if defined(__VXWORKS__)
+  static size_t sl_len = LOG_TIME_STRING_LEN;
+  ctime_r(&sl_rawtime, sl_log_time, &sl_len);
+#else
   ctime_r(&sl_rawtime, sl_log_time);
+#endif
 #else
   // *** TODO: do something sane if ctime_r() not available ***
 #endif

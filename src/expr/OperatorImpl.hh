@@ -287,7 +287,7 @@ namespace PLEXIL
 
     void printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
     {
-      if (calcNative(*cache, exprs))
+      if (calcNative(cache, exprs))
         PLEXIL::printValue(*(static_cast<ArrayImpl<R> *>(cache)), s);
       else
         s << "UNKNOWN";

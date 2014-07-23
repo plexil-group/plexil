@@ -222,10 +222,10 @@ namespace PLEXIL {
       InterfaceAdapter *a = *it;
       success = a->initialize();
       if (!success) {
-        const pugi::xml_node& adapterXml = a->getXml();
-        const char* adapterType = adapterXml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();        
         debugMsg("AdapterConfiguration:initialize",
-                 " adapter initialization failed for type \"" << adapterType << "\", returning false");
+                 " adapter initialization failed for type \""
+		 << a->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+		 << "\", returning false");
         m_adapters.erase(it);
         delete a;
         return false;
@@ -253,10 +253,10 @@ namespace PLEXIL {
          ++it) {
       success = (*it)->start();
       if (!success) {
-        const pugi::xml_node& adapterXml = (*it)->getXml();
-        const char* adapterType = adapterXml.attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value();        
         debugMsg("AdapterConfiguration:initialize",
-                 " adapter start failed for type \"" << adapterType << "\", returning false");
+                 " adapter start failed for type \""
+		 << a->getXml().attribute(InterfaceSchema::ADAPTER_TYPE_ATTR()).value()
+		 << "\", returning false");
         return false;
       }
     }

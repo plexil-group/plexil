@@ -572,7 +572,7 @@ namespace PLEXIL
     }
 
     //we only have to look at all the nodes with the highest priority
-    Node *nodeToExecute;
+    Node *nodeToExecute = NULL;
     NodeState destState = NO_NODE_STATE;
     VariableConflictSet::const_iterator conflictIt = conflictSet.begin(); 
     size_t count = conflictSet.count(*conflictIt); // # of nodes with same priority as top
@@ -582,8 +582,6 @@ namespace PLEXIL
       destState = nodeToExecute->getNextState();
     }
     else {
-
-
       // Look at the destination states of all the nodes with equal priority
       for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
         Node *node = *conflictIt;
@@ -609,6 +607,7 @@ namespace PLEXIL
         nodeToExecute = node;
         destState = dest;
       }
+      assertTrue_1(nodeToExecute);
     }
 
     if (destState == EXECUTING_STATE || destState == FAILING_STATE) {

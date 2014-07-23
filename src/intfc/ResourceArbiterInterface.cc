@@ -468,12 +468,9 @@ namespace PLEXIL {
   {
     for(std::multimap<int, Command *>::const_iterator iter = m_prioritySortedCommands.begin();
         iter != m_prioritySortedCommands.end(); ++iter)
-      {
-        Command *cmd = iter->second;
-        debugMsg("ResourceArbiterInterface:printSortedCommands", 
-                 "CommandName: " << cmd->getName()
-                 << " Priority: " << iter->first);
-      }
+      debugMsg("ResourceArbiterInterface:printSortedCommands", 
+	       "CommandName: " << iter->second->getName()
+	       << " Priority: " << iter->first);
   }
 
   void ResourceArbiterInterface::printResourceCommandMap() const
@@ -512,7 +509,7 @@ namespace PLEXIL {
 
               ResourceValues::const_iterator prioIt = resListIter->find(RESOURCE_PRIORITY_STR);
               assertTrueMsg(prioIt != resListIter->end(), "ResourcePriority not found");
-              int priority;
+              int32_t priority;
               prioIt->second.getValue(priority);
               debugMsg("ResourceArbiterInterface:printResourceCommandMap", 
                        "<" << resName << "," << priority << "," << lbound

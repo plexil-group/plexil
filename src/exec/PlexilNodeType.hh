@@ -29,6 +29,9 @@
 
 #include <string>
 
+// Take care of annoying VxWorks macro
+#undef UPDATE
+
 namespace PLEXIL
 {
   // Node type name constants

@@ -798,15 +798,14 @@ namespace PLEXIL {
                "Attempted to transition node " << m_nodeId <<
                " when it is ineligible.");
 
-    NodeState prevState = (NodeState) m_state;
+    debugMsg("Node:transition", "Transitioning '" << m_nodeId
+             << "' from " << nodeStateName(m_state)
+             << " to " << nodeStateName(destState)
+             << " at " << time);
     
     transitionFrom(destState);
     transitionTo(destState, time);
 
-    debugMsg("Node:transition", "Transitioning '" << m_nodeId
-             << "' from " << nodeStateName(prevState)
-             << " to " << nodeStateName(destState)
-             << " at " << time);
     condDebugMsg((destState == FINISHED_STATE),
                  "Node:outcome",
                  "Outcome of '" << m_nodeId <<

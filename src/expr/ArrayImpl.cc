@@ -112,7 +112,7 @@ namespace PLEXIL
   template <typename T>
   Value ArrayImpl<T>::getElementValue(size_t index) const
   {
-    if (!(Array::checkIndex(index) && Array::m_known[index]))
+    if (!(this->checkIndex(index) && this->m_known[index]))
       return Value(); // unknown
     else
       return Value(m_contents[index]);
@@ -121,9 +121,9 @@ namespace PLEXIL
   template <typename T>
   bool ArrayImpl<T>::getElementImpl(size_t index, T &result) const
   {
-    if (!Array::checkIndex(index))
+    if (!this->checkIndex(index))
       return false;
-    if (!Array::m_known[index])
+    if (!this->m_known[index])
       return false;
     result = m_contents[index];
     return true;
@@ -143,9 +143,9 @@ namespace PLEXIL
   template <>
   bool ArrayImpl<int32_t>::getElementImpl(size_t index, double &result) const
   {
-    if (!Array::checkIndex(index))
+    if (!this->checkIndex(index))
       return false;
-    if (!Array::m_known[index])
+    if (!this->m_known[index])
       return false;
     result = (double) m_contents[index];
     return true;
@@ -174,9 +174,9 @@ namespace PLEXIL
   template <typename T>
   bool ArrayImpl<T>::getElementPointerImpl(size_t index, T const *&result) const
   {
-    if (!Array::checkIndex(index))
+    if (!this->checkIndex(index))
       return false;
-    if (!Array::m_known[index])
+    if (!this->m_known[index])
       return false;
     result = &m_contents[index];
     return true;
@@ -200,9 +200,9 @@ namespace PLEXIL
   template <>
   bool ArrayImpl<std::string>::getMutableElementPointer(size_t index, std::string *&result)
   {
-    if (!Array::checkIndex(index))
+    if (!this->checkIndex(index))
       return false;
-    if (!Array::m_known[index])
+    if (!this->m_known[index])
       return false;
     result = &m_contents[index];
     return true;
@@ -234,22 +234,22 @@ namespace PLEXIL
   template <typename T>
   void ArrayImpl<T>::setElementImpl(size_t index, T const &newval)
   {
-    if (!Array::checkIndex(index))
+    if (!this->checkIndex(index))
       return;
     m_contents[index] = newval;
-    Array::m_known[index] = true;
+    this->m_known[index] = true;
   }
 
   template <typename T>
   void ArrayImpl<T>::setElementValue(size_t index, Value const &value)
   {
-    if (!Array::checkIndex(index))
+    if (!this->checkIndex(index))
       return;
     T temp;
     bool known = value.getValue(temp);
     if (known)
       m_contents[index] = temp;
-    Array::m_known[index] = known;
+    this->m_known[index] = known;
   }
 
   // Default
@@ -265,10 +265,10 @@ namespace PLEXIL
   template <>
   void ArrayImpl<double>::setElementImpl(size_t index, int32_t const &newval)
   {
-    if (!Array::checkIndex(index))
+    if (!this->checkIndex(index))
       return;
     m_contents[index] = (double) newval;
-    Array::m_known[index] = true;
+    this->m_known[index] = true;
   }
 
   template <typename T>

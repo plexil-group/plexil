@@ -47,20 +47,17 @@ namespace PLEXIL
   void PlanDebugListener::
   implementNotifyNodeTransition (NodeState /* prevState */, Node *nodeId) const
   {
-    const NodeState& newState = nodeId->getState();
-
-    condDebugMsg((newState == FINISHED_STATE),
+    condDebugMsg((nodeId->getState() == FINISHED_STATE),
                  "Node:clock",
                  "Node '" << nodeId->getNodeId() <<
                  "' finished at " << std::setprecision(15) <<
                  nodeId->getCurrentStateStartTime() << " (" <<
                  nodeId->getOutcome() << ")");
-    condDebugMsg((newState == EXECUTING_STATE),
+    condDebugMsg((nodeId->getState() == EXECUTING_STATE),
                  "Node:clock",
                  "Node '" << nodeId->getNodeId() <<
                  "' started at " << std::setprecision(15) <<
                  nodeId->getCurrentStateStartTime());
   }
-
 
 }
