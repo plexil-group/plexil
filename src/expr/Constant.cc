@@ -41,20 +41,23 @@ namespace PLEXIL
    */
   template <typename T>
   Constant<T>::Constant()
-    : ExpressionImpl<T>(),
+    : Expression(),
+      ExpressionImpl<T>(),
       m_known(false)
   {
   }
 
   Constant<std::string>::Constant()
-    : ExpressionImpl<std::string>(),
+    : Expression(),
+      ExpressionImpl<std::string>(),
       m_known(false)
   {
   }
 
   template <typename T>
   Constant<ArrayImpl<T> >::Constant()
-    : ExpressionImpl<ArrayImpl<T> >(),
+    : Expression(),
+      ExpressionImpl<ArrayImpl<T> >(),
       m_known(false)
   {
   }
@@ -64,14 +67,16 @@ namespace PLEXIL
    */
   template <typename T>
   Constant<T>::Constant(const Constant &other)
-  : ExpressionImpl<T>(),
+  : Expression(),
+    ExpressionImpl<T>(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
   }
 
   Constant<std::string>::Constant(const Constant &other)
-  : ExpressionImpl<std::string>(),
+  : Expression(),
+    ExpressionImpl<std::string>(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -79,7 +84,8 @@ namespace PLEXIL
 
   template <typename T>
   Constant<ArrayImpl<T> >::Constant(const Constant &other)
-    : ExpressionImpl<ArrayImpl<T> >(),
+    : Expression(),
+      ExpressionImpl<ArrayImpl<T> >(),
     m_value(other.m_value),
     m_known(other.m_known)
   {
@@ -90,14 +96,16 @@ namespace PLEXIL
    */
   template <typename T>
   Constant<T>::Constant(const T &value)
-  : ExpressionImpl<T>(),
+  : Expression(),
+    ExpressionImpl<T>(),
     m_value(value),
     m_known(true)
   {
   }
 
   Constant<std::string>::Constant(const std::string &value)
-  : ExpressionImpl<std::string>(),
+  : Expression(),
+    ExpressionImpl<std::string>(),
     m_value(value),
     m_known(true)
   {
@@ -105,7 +113,8 @@ namespace PLEXIL
 
   template <typename T>
   Constant<ArrayImpl<T> >::Constant(const ArrayImpl<T> &value)
-    : ExpressionImpl<ArrayImpl<T> >(),
+    : Expression(),
+      ExpressionImpl<ArrayImpl<T> >(),
     m_value(value),
     m_known(true)
   {
@@ -117,7 +126,8 @@ namespace PLEXIL
 
   // *** TODO: More types ***
   Constant<std::string>::Constant(const char *value)
-  : ExpressionImpl<std::string>(),
+  : Expression(),
+    ExpressionImpl<std::string>(),
     m_value(value),
     m_known(true)
   {
