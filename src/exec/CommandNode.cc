@@ -30,6 +30,7 @@
 #include "Command.hh"
 #include "Comparisons.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "ExecConnector.hh"
 #include "ExpressionFactory.hh"
 #include "ExpressionConstants.hh"

@@ -29,7 +29,6 @@
 
 #include "Operator.hh"
 
-#include "Error.hh"
 #include "ExprVec.hh"
 #include "Value.hh"
 
@@ -204,25 +203,13 @@ namespace PLEXIL
 
     // Conversion or type error
     template <typename U>
-    bool calc(U & /* result */, Expression const */* arg */) const
-    {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-      return false;
-    }
+    bool calc(U & /* result */, Expression const */* arg */) const;
 
     template <typename U>
-    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
-    {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-      return false;
-    }
+    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const;
 
     template <typename U>
-    bool calc(U & /* result */, ExprVec const & /* args */) const
-    {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-      return false;
-    }
+    bool calc(U & /* result */, ExprVec const & /* args */) const;
 
   protected:
     // Base class shouldn't be instantiated by itself
@@ -260,25 +247,13 @@ namespace PLEXIL
 
     // Conversion or type error
     template <typename U>
-    bool calc(U & /* result */, Expression const */* arg */) const
-    {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-      return false;
-    }
+    bool calc(U & /* result */, Expression const */* arg */) const;
 
     template <typename U>
-    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
-    {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-      return false;
-    }
+    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const;
 
     template <typename U>
-    bool calc(U & /* result */, ExprVec const & /* args */) const
-    {
-      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-      return false;
-    }
+    bool calc(U & /* result */, ExprVec const & /* args */) const;
 
     bool calcNative(void *cache, ExprVec const &exprs) const
     {

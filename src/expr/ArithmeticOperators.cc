@@ -25,6 +25,7 @@
 */
 
 #include "ArithmeticOperators.hh"
+#include "Error.hh"
 #include "Expression.hh"
 #include "ExprVec.hh"
 

@@ -163,6 +163,55 @@ namespace PLEXIL
     return false;
   }
 
+  // Conversion or type error - default methods
+  template <typename R>
+  template <typename U>
+  bool OperatorImpl<R>::calc(U & /* result */, Expression const */* arg */) const
+  {
+    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+    return false;
+  }
+
+  template <typename R>
+  template <typename U>
+  bool OperatorImpl<R>::calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
+  {
+    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+    return false;
+  }
+
+  template <typename R>
+  template <typename U>
+  bool OperatorImpl<R>::calc(U & /* result */, ExprVec const & /* args */) const
+  {
+    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+    return false;
+  }
+
+  template <typename R>
+  template <typename U>
+  bool OperatorImpl<ArrayImpl<R> >::calc(U & /* result */, Expression const */* arg */) const
+  {
+    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+    return false;
+  }
+
+  template <typename R>
+  template <typename U>
+  bool OperatorImpl<ArrayImpl<R> >::calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
+  {
+    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+    return false;
+  }
+
+  template <typename R>
+  template <typename U>
+  bool OperatorImpl<ArrayImpl<R> >::calc(U & /* result */, ExprVec const & /* args */) const
+  {
+    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+    return false;
+  }
+
   // Conversion methods
  
   template <>
