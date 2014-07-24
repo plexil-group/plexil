@@ -116,7 +116,9 @@
   @see DebugMessage
 */
 #define condDebugMsg(cond, marker, data) { \
-  static DebugMessage *dmPtr = DebugMessage::addMsg(__FILE__, __LINE__, marker); \
+  static DebugMessage *dmPtr = NULL; \
+  if (!dmPtr) \
+     dmPtr = DebugMessage::addMsg(__FILE__, __LINE__, marker); \
   if (dmPtr->isEnabled() && (cond)) { \
     DebugMessage::getStream() << "[" << marker << "]" << data << std::endl; \
   } \
@@ -216,8 +218,6 @@ public:
 */
 class DebugMessage {
 
-  typedef std::ostream* oSptr;
-
 private:
 
   /**
@@ -243,14 +243,15 @@ private:
                const bool& enabled = DebugMessage::allEnabled());
 
 
+public:
+
   /**
    * @brief Destroy a DebugMessage.
-   * @note Should only be called implicitly (e.g., by std::vector<DebugMessage>).
+   * @note Should only be called by purgePatternsAndMessages().
    */
-  inline virtual ~DebugMessage() {
+  inline virtual ~DebugMessage() 
+  {
   }
-
-public:
 
   /**
     @brief Create a new DebugMessage.  Should only be called from the
@@ -287,16 +288,6 @@ public:
                                std::vector<DebugMessage*>& matches);
 
   /**
-    @brief Get list of all known debug messages.
-   */
-  static const std::vector<DebugMessage*>& getAllMsgs();
-
-  /**
-   * @brief Delete all allocated objects, e.g. at program exit.
-   */
-  static void purge();
-
-  /**
     @brief Enable all debug messages, including ones not yet created.
     @par Errors thrown:
     @li If no debug stream has been assigned.
@@ -308,16 +299,13 @@ public:
     @brief Assign a stream to which all debug messages will be sent.
     @param os
    */
-  inline static void setStream(std::ostream& os) {
-    streamPtr() = &os;
-  }
+  static void setStream(std::ostream& os);
 
   /**
-    @brief Return the stream being used for debug messages.
+   * @brief Return the stream being used for debug messages.
+   * @note Doesn't seem to have any external callers.
    */
-  inline static std::ostream& getStream() {
-    return(*(streamPtr()));
-  }
+  static std::ostream& getStream();
 
   /**
     @brief Read a list of debug message enablements from the
@@ -329,27 +317,6 @@ public:
     and some existing debug messages should be enabled.
    */
   static bool readConfigFile(std::istream& is);
-
-  /**
-    @brief Return the file used to create the debug message.
-   */
-  inline const std::string& getFile() const {
-    return(m_file);
-  }
-
-  /**
-    @brief Return the line used to create the debug message.
-   */
-  inline int getLine() const {
-    return(m_line);
-  }
-
-  /**
-    @brief Return the marker used to create the debug message.
-   */
-  inline const std::string& getMarker() const {
-    return(m_marker);
-  }
 
   /**
     @brief Return whether the debug message is currently enabled.
@@ -377,7 +344,7 @@ public:
     that Emacs can use to display the corresponding source code.
     @param os
    */
-  void print(std::ostream *os = streamPtr()) const;
+  void print(std::ostream &os = getStream()) const;
       
   /**
     @brief Enable matching debug messages, including those created later.
@@ -391,47 +358,13 @@ public:
                                  const std::string& marker);
 
   /**
-     @brief Disable matching debug messages, including those created later.
-     @param file
-     @param marker
-   */
-
-  static void disableMatchingMsgs(const std::string& file,
-                                  const std::string& marker);
-
-  /**
      @brief Whether the message is matched by the pattern.
   */
   bool matches(const DebugPattern& pattern) const;
 
-  static bool isGood() {
-    return streamPtr()->good();
-  }
+  static bool isGood();
 
 private:
-
-  /**
-    @brief The pointer to the stream being used.
-    @note Has to be a pointer because some C++ compiler
-    implementations have a private operator=().
-  */
-  inline static oSptr& streamPtr() {
-    static oSptr s_debugStream = &(std::cerr);
-    return(s_debugStream);
-  }
-
-  /**
-    @brief List of pointers to all debug messages.
-  */
-  static std::vector<DebugMessage*>& allMsgs();
-
-  /**
-    @brief List of all enabled debug patterns.
-  */
-  static std::vector<DebugPattern>& enabledPatterns() {
-    static std::vector<DebugPattern> s_patterns;
-    return(s_patterns);
-  }
 
   /**
     @brief File given when this instance was created.
@@ -452,25 +385,6 @@ private:
     @brief Whether this instance is 'enabled' or not.
   */
   bool m_enabled;
-
-  /**
-     @class PatternMatches DebugDefs.hh
-     @brief Helper function for addMsg()'s use of STL find_if().
-  */
-  template<class U>
-  class PatternMatches : public std::unary_function<U, bool> {
-  private:
-    const DebugMessage& dm;
-
-  public:
-    explicit PatternMatches(const DebugMessage& debugMsg) : dm(debugMsg) {
-    }
-
-    bool operator() (const U& y) const {
-      return(dm.matches(y));
-    }
-  };
-
 
   /**
     @brief Should not be used.
@@ -494,8 +408,9 @@ private:
 
 };
 
-inline std::ostream& operator<<(std::ostream& os, const DebugMessage& dm) {
-  dm.print(&os);
+inline std::ostream& operator<<(std::ostream& os, const DebugMessage& dm)
+{
+  dm.print(os);
   return(os);
 }
 

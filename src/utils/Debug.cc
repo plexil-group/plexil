@@ -54,6 +54,39 @@
 
 using std::string;
 
+static std::ostream *debugStream = NULL;
+
+/**
+ * @brief List of pointers to all debug messages.
+ */
+static std::vector<DebugMessage*> allMsgs;
+
+/**
+ * @brief List of all enabled debug patterns.
+ */
+static std::vector<DebugPattern> enabledPatterns;
+
+static void purgePatternsAndMessages()
+{
+  enabledPatterns.clear();
+  for (std::vector<DebugMessage*>::const_iterator it = allMsgs.begin();
+       it != allMsgs.end();
+       ++it)
+    delete *it;
+  allMsgs.clear();
+}
+
+static void initPatternsAndMessages()
+{
+  static bool sl_inited = false;
+  if (!sl_inited) {
+    addFinalizer(&purgePatternsAndMessages);
+    debugStream = &std::cerr;
+    sl_inited = true;
+  }
+}
+
+
 class DebugErr
 {
 public:
@@ -96,6 +129,28 @@ private:
 
 DebugConfig* DebugConfig::s_instance = NULL;
 
+/**
+ * @class PatternMatches DebugDefs.hh
+ * @brief Helper function for addMsg()'s use of STL find_if().
+ */
+template <class U>
+class PatternMatches : public std::unary_function<U, bool>
+{
+private:
+  const DebugMessage& dm;
+  
+public:
+  explicit PatternMatches(const DebugMessage& debugMsg)
+    : dm(debugMsg) 
+  {
+  }
+  
+  bool operator() (const U& y) const
+  {
+    return(dm.matches(y));
+  }
+};
+
 DebugMessage::DebugMessage(const string& file,
                            const int& line,
                            const string& marker,
@@ -108,39 +163,61 @@ DebugMessage::DebugMessage(const string& file,
 }
 
 DebugMessage *DebugMessage::addMsg(const string &file, const int& line,
-                                   const string &marker) {
-  DebugConfig::init();
-  check_error(line > 0, "debug messages must have positive line numbers",
-              DebugErr::DebugMessageError());
-  check_error(!file.empty() && !marker.empty(), "debug messages must have non-empty file and marker",
-              DebugErr::DebugMessageError());
+                                   const string &marker) 
+{
+  static bool sl_inited = false;
+  if (!sl_inited) {
+    initPatternsAndMessages();
+    DebugConfig::init();
+    sl_inited = true;
+  }
+  check_error_3(!file.empty() && !marker.empty(),
+                "debug messages must have non-empty file and marker",
+                DebugErr::DebugMessageError());
   DebugMessage *msg = findMsg(file, marker);
-  if (msg == 0) {
+  if (!msg) {
+    check_error(line > 0, "debug messages must have positive line numbers",
+                DebugErr::DebugMessageError());
     msg = new DebugMessage(file, line, marker);
-    check_error(msg != 0, "no memory for new debug message",
+    check_error(msg, "no memory for new debug message",
                 DebugErr::DebugMemoryError());
-    allMsgs().push_back(msg);
-    if (!msg->isEnabled()) {
-      typedef std::vector<DebugPattern>::iterator VDPI;
-      VDPI iter = std::find_if(enabledPatterns().begin(),
-                               enabledPatterns().end(),
-                               PatternMatches<DebugPattern>(*msg));
-      if (iter != enabledPatterns().end())
-        msg->enable();
-    }
+    allMsgs.push_back(msg);
+    std::vector<DebugPattern>::iterator iter = 
+      std::find_if(enabledPatterns.begin(),
+                   enabledPatterns.end(),
+                   PatternMatches<DebugPattern>(*msg));
+    if (iter != enabledPatterns.end())
+      msg->enable();
   }
   return(msg);
 }
 
 void DebugMessage::enable()
 {
-  checkError(streamPtr()->good(), 
-             "cannot enable debug message(s) without a good debug stream: " << 
-             (streamPtr()->rdstate() & std::ostream::badbit ? " bad " : "") <<
-             (streamPtr()->rdstate() & std::ostream::eofbit ? " eof " : "") <<
-             (streamPtr()->rdstate() & std::ostream::failbit ? " fail " : "") <<
-             (streamPtr()->rdstate() & std::ostream::goodbit ? " good???" : ""));
+  check_error_2(isGood(), 
+                "cannot enable debug message(s) without a good debug stream");
   m_enabled = true;
+}
+
+/**
+   @brief Assign a stream to which all debug messages will be sent.
+   @param os
+*/
+void DebugMessage::setStream(std::ostream& os)
+{
+  debugStream = &os;
+}
+
+std::ostream& DebugMessage::getStream()
+{
+  return *debugStream;
+}
+
+bool DebugMessage::isGood() 
+{
+  if (!debugStream)
+    return false;
+  return debugStream->good();
 }
 
 /**
@@ -148,11 +225,11 @@ void DebugMessage::enable()
    that Emacs can use to display the corresponding source code.
    @param os
 */
-void DebugMessage::print(std::ostream *os) const
+void DebugMessage::print(std::ostream &os) const
 {
   try {
-    os[0].exceptions(std::ostream::badbit);
-    os[0] << m_file << ':' << m_line << ": " << m_marker << ' ';
+    os.exceptions(std::ostream::badbit);
+    os << m_file << ':' << m_line << ": " << m_marker << ' ';
   }
   catch(std::ios_base::failure& exc) {
     checkError(ALWAYS_FAIL, exc.what());
@@ -168,11 +245,9 @@ void DebugMessage::print(std::ostream *os) const
 inline static bool markerMatches(const std::string& marker,
                                  const std::string& pattern) 
 {
-  if (pattern.length() < 1)
+  if (pattern.empty())
     return(true);
-  if (marker.length() < pattern.length())
-    return(false);
-  return(marker.find(pattern) < marker.length());
+  return(marker.find(pattern) != std::string::npos);
 }
 
 /**
@@ -180,8 +255,8 @@ inline static bool markerMatches(const std::string& marker,
 */
 bool DebugMessage::matches(const DebugPattern& pattern) const 
 {
-  return(markerMatches(getFile(), pattern.m_file) &&
-         markerMatches(getMarker(), pattern.m_pattern));
+  return(markerMatches(m_file, pattern.m_file) &&
+         markerMatches(m_marker, pattern.m_pattern));
 }
 
 /**
@@ -192,30 +267,30 @@ template<class T>
 class MatchesPattern : public std::unary_function<T, bool>
 {
 private:
-  const DebugPattern pattern;
+  DebugPattern const pattern;
   
 public:
-  explicit MatchesPattern(const std::string& f, const std::string& p)
-    : pattern(f, p) {
+  explicit MatchesPattern(string const &file,
+                          string const &pat)
+    : pattern(file, pat)
+  {
   }
 
-  explicit MatchesPattern(const DebugPattern& p)
-  : pattern(p) {
-  }
-
-  bool operator() (const T& dm) const {
-    return(dm->matches(pattern));
+  bool operator() (const T& dm) const 
+  {
+    return dm->matches(pattern);
   }
 };
 
 DebugMessage *DebugMessage::findMsg(const string &file,
-                                    const string &pattern) {
-  typedef std::vector<DebugMessage*>::const_iterator VDMPCI;
-  VDMPCI iter = std::find_if(allMsgs().begin(),
-                             allMsgs().end(),
-                             MatchesPattern<DebugMessage*>(file, pattern));
-  if (iter == allMsgs().end())
-    return(0);
+                                    const string &pattern)
+{
+  std::vector<DebugMessage*>::const_iterator iter =
+    std::find_if(allMsgs.begin(),
+                 allMsgs.end(),
+                 MatchesPattern<DebugMessage*>(file, pattern));
+  if (iter == allMsgs.end())
+    return NULL;
   return(*iter);
 }
 
@@ -227,7 +302,7 @@ class GetMatches
 {
 private:
 
-  const DebugPattern pattern;
+  DebugPattern const pattern;
 
   std::vector<DebugMessage*>& matches;
 
@@ -235,10 +310,6 @@ public:
   explicit GetMatches(const std::string& f, const std::string& p,
                       std::vector<DebugMessage*>& m)
     : pattern(f, p), matches(m) {
-  }
-
-  explicit GetMatches(const DebugPattern& p, std::vector<DebugMessage*>& m)
-    : pattern(p), matches(m) {
   }
 
   void operator() (DebugMessage* dm) {
@@ -250,31 +321,14 @@ public:
 void DebugMessage::findMatchingMsgs(const string &file,
                                     const string &pattern,
                                     std::vector<DebugMessage*> &matches) {
-  std::for_each(allMsgs().begin(), allMsgs().end(), GetMatches(file, pattern, matches));
-}
-
-const std::vector<DebugMessage*>& DebugMessage::getAllMsgs() {
-  return(allMsgs());
-}
-
-/**
- *  @brief List of pointers to all debug messages.
- */
-std::vector<DebugMessage*>& DebugMessage::allMsgs() {
-  static std::vector<DebugMessage*> sl_msgs;
-  static bool sl_inited = false;
-  if (!sl_inited) {
-    addFinalizer(&purge);
-    sl_inited = true;
-  }
-  return sl_msgs;
+  std::for_each(allMsgs.begin(), allMsgs.end(), GetMatches(file, pattern, matches));
 }
 
 void DebugMessage::enableAll() {
   allEnabled() = true;
-  enabledPatterns().clear();
-  std::for_each(allMsgs().begin(),
-                allMsgs().end(),
+  enabledPatterns.clear();
+  std::for_each(allMsgs.begin(),
+                allMsgs.end(),
                 std::mem_fun(&DebugMessage::enable));
 }
 
@@ -307,34 +361,10 @@ void DebugMessage::enableMatchingMsgs(const string& file,
     return;
   }
   DebugPattern dp(file, pattern);
-  enabledPatterns().push_back(dp);
-  std::for_each(allMsgs().begin(),
-                allMsgs().end(),
+  enabledPatterns.push_back(dp);
+  std::for_each(allMsgs.begin(),
+                allMsgs.end(),
                 EnableMatches(dp));
-}
-
-class DisableMatches 
-{
-private:
-  const DebugPattern& pattern;
-public:
-  explicit DisableMatches(const DebugPattern& p) : pattern(p) {}
-  void operator() (DebugMessage* dm) {
-    if(dm->matches(pattern))
-      dm->disable();
-  }
-};
-
-void DebugMessage::disableMatchingMsgs(const string& file,
-                       const string& pattern) {
-  if(file.length() < 1 && pattern.length() < 1)
-    return;
-
-  DebugPattern dp(file, pattern);
-  enabledPatterns().erase(std::find(enabledPatterns().begin(), enabledPatterns().end(), dp));
-  std::for_each(allMsgs().begin(),
-        allMsgs().end(),
-        DisableMatches(dp));
 }
 
 bool DebugMessage::readConfigFile(std::istream& is)
@@ -383,16 +413,6 @@ bool DebugMessage::readConfigFile(std::istream& is)
   check_error(is.eof(), "error while reading debug config file",
               DebugErr::DebugConfigError());
   return(is.eof());
-}
-
-void DebugMessage::purge()
-{
-  enabledPatterns().clear();
-  for (std::vector<DebugMessage*>::const_iterator it = allMsgs().begin();
-       it != allMsgs().end();
-       ++it)
-    delete *it;
-  allMsgs().clear();
 }
 
 #endif /* NO_DEBUG_MESSAGE_SUPPORT */
