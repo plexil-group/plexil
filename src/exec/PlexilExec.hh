@@ -152,9 +152,6 @@ namespace PLEXIL
      */
     void markRootNodeFinished(Node *node);
 
-  protected:
-    friend class RealExecConnector;
-
     /**
      * @brief Handle the fact that a node's conditions may have changed (it is eligible for state change).
      * @param node The node which is eligible for state change.
@@ -163,8 +160,8 @@ namespace PLEXIL
 
     /**
      * @brief Handle the fact that a node's relevant conditions have changed (it is eligible for state change).
-     * Adds assignment nodes that are eligible for execution to the resource conflict map.
      * @param node The node which is eligible for state change.
+     * @param newState The state the node will transition to.
      */
     void handleConditionsChanged(Node *node, NodeState newState);
 
