@@ -33,8 +33,8 @@
 #include "Expressions.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
-#include "InterfaceSchema.hh"
 #include "PlexilExec.hh"
+#include "PlexilSchema.hh"
 #include "PlexilXmlParser.hh"
 #include "pugixml.hpp"
 
@@ -389,7 +389,7 @@ namespace PLEXIL
 
     // grab the library itself from the document
     pugi::xml_node plexilXml = libraryXml->document_element();
-    if (plexilXml.empty() || 0 != strcmp(plexilXml.name(), "PlexilPlan")) {
+    if (plexilXml.empty() || 0 != strcmp(plexilXml.name(), PLEXIL_PLAN_TAG)) {
       std::cerr << "Error parsing library from XML: No \"PlexilPlan\" tag found" << std::endl;
       return false;
     }
@@ -424,7 +424,7 @@ namespace PLEXIL
 
     // grab the plan itself from the document
     pugi::xml_node plexilXml = planXml->document_element();
-    if (plexilXml.empty() || 0 != strcmp(plexilXml.name(), "PlexilPlan")) {
+    if (plexilXml.empty() || 0 != strcmp(plexilXml.name(), PLEXIL_PLAN_TAG)) {
       std::cerr << "Error parsing plan from XML: No \"PlexilPlan\" tag found" << std::endl;
       return false;
     }

@@ -46,9 +46,9 @@
 #include "ExecListenerHub.hh"
 #include "InputQueue.hh"
 #include "InterfaceAdapter.hh"
-#include "InterfaceSchema.hh"
 #include "Node.hh"
 #include "PlexilExec.hh"
+#include "PlexilSchema.hh"
 #include "PlexilXmlParser.hh"
 #include "QueueEntry.hh"
 #include "StateCacheEntry.hh"
@@ -593,7 +593,7 @@ namespace PLEXIL
 
     // parse the plan
     PlexilNode *root =
-      PlexilXmlParser::parse(planXml.child("Node")); // can also throw ParserException
+      PlexilXmlParser::parse(planXml.child(NODE_TAG)); // can also throw ParserException
 
     return this->handleAddPlan(root);
   }
