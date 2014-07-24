@@ -280,7 +280,7 @@ namespace PLEXIL
   template class ExpressionImpl<uint16_t>;
   template class ExpressionImpl<int32_t>;
   template class ExpressionImpl<double>;
-  template class ExpressionImpl<std::string>;
+  //template class ExpressionImpl<std::string>;
 
   template class ExpressionImpl<BooleanArray>;
   template class ExpressionImpl<IntegerArray>;

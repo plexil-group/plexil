@@ -431,6 +431,6 @@ namespace PLEXIL {
   // template class UserVariable<uint16_t>;
   template class UserVariable<int32_t>;
   template class UserVariable<double>;
-  template class UserVariable<std::string>;
+  //template class UserVariable<std::string>;
 
 } // namespace PLEXIL

@@ -217,7 +217,7 @@ namespace PLEXIL
   template class AssignableImpl<bool>;
   template class AssignableImpl<int32_t>;
   template class AssignableImpl<double>;
-  template class AssignableImpl<std::string>;
+  //template class AssignableImpl<std::string>;
 
   template class AssignableImpl<BooleanArray>;
   template class AssignableImpl<IntegerArray>;
