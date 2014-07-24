@@ -60,8 +60,6 @@
 #include <limits>
 #include <sstream>
 
-#include <pthread.h>
-
 namespace PLEXIL
 {
 
