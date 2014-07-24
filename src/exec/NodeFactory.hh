@@ -27,7 +27,6 @@
 #ifndef NODE_FACTORY_HH
 #define NODE_FACTORY_HH
 
-#include "Error.hh"
 #include "NodeConstants.hh"
 #include "PlexilNodeType.hh"
 #include "PlexilPlan.hh"
@@ -112,15 +111,7 @@ namespace PLEXIL
     ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
 
     Node *create(PlexilNode const *nodeProto, 
-                 Node *parent) const
-    {
-      // Shouldn't happen
-      checkError(nodeProto->nodeType() == m_nodeType,
-                 "Factory for node type " << nodeTypeString(m_nodeType)
-                 << " invoked on node type "
-                 << nodeTypeString(nodeProto->nodeType()));
-      return new NODE_TYPE(nodeProto, parent);
-    }
+                 Node *parent) const;
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -129,17 +120,9 @@ namespace PLEXIL
     Node *create(const std::string& type,
                  const std::string& name, 
                  NodeState state,
-                 Node *parent) const
-    {
-      // Shouldn't happen
-      checkError(parseNodeType(type) == m_nodeType,
-                 "Factory for node type " << nodeTypeString(m_nodeType)
-                 << " invoked on node type " << type);
-      return new NODE_TYPE(type, name, state, parent);
-    }
+                 Node *parent) const;
 
   };
-
 
 }
 

@@ -28,6 +28,7 @@
 
 #include "Assignment.hh"
 #include "Debug.hh"
+#include "Error.hh"
 #include "ExecListenerHub.hh"
 #include "Expression.hh"
 #include "ExternalInterface.hh"

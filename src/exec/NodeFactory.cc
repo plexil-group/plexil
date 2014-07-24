@@ -28,6 +28,7 @@
 
 #include "AssignmentNode.hh"
 #include "CommandNode.hh"
+#include "Error.hh"
 #include "LibraryCallNode.hh"
 #include "ListNode.hh"
 #include "UpdateNode.hh"
@@ -109,6 +110,31 @@ namespace PLEXIL
     // common post process here
     result->activateInternalVariables();
     return result;
+  }
+
+  template<class NODE_TYPE>
+  Node *ConcreteNodeFactory<NODE_TYPE>::create(PlexilNode const *nodeProto, 
+                                               Node *parent) const
+  {
+    // Shouldn't happen
+    checkError(nodeProto->nodeType() == m_nodeType,
+               "Factory for node type " << nodeTypeString(m_nodeType)
+               << " invoked on node type "
+               << nodeTypeString(nodeProto->nodeType()));
+    return new NODE_TYPE(nodeProto, parent);
+  }
+
+  template<class NODE_TYPE>
+  Node *ConcreteNodeFactory<NODE_TYPE>::create(const std::string& type,
+                                               const std::string& name, 
+                                               NodeState state,
+                                               Node *parent) const
+  {
+    // Shouldn't happen
+    checkError(parseNodeType(type) == m_nodeType,
+               "Factory for node type " << nodeTypeString(m_nodeType)
+               << " invoked on node type " << type);
+    return new NODE_TYPE(type, name, state, parent);
   }
 
 #define REGISTER_NODE_FACTORY(CLASS,NODE_TYPE) { new PLEXIL::ConcreteNodeFactory<CLASS>(NODE_TYPE); }
