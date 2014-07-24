@@ -99,7 +99,7 @@ namespace PLEXIL
   void OperatorImpl<R>::printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
   {
     if (calcNative(cache, exprs))
-      PLEXIL::printValue(*(static_cast<R *>(cache)), s);
+      PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
     else
       s << "UNKNOWN";
   }
@@ -109,7 +109,7 @@ namespace PLEXIL
   {
     bool known = calcNative(cache, exprs);
     if (known)
-      return Value(*(static_cast<R *>(cache)));
+      return Value(*(static_cast<R const *>(cache)));
     else
       return Value();
   }

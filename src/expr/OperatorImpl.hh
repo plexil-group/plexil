@@ -263,7 +263,7 @@ namespace PLEXIL
     void printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
     {
       if (calcNative(cache, exprs))
-        PLEXIL::printValue(*(static_cast<ArrayImpl<R> *>(cache)), s);
+        PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
       else
         s << "UNKNOWN";
     }
@@ -272,7 +272,7 @@ namespace PLEXIL
     {
       bool known = calcNative(cache, exprs);
       if (known)
-        return Value(*(static_cast<ArrayImpl<R> *>(cache)));
+        return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
       else
         return Value();
     }
