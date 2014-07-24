@@ -34,16 +34,11 @@
 #include <plexil-config.h>
 
 #include "AdapterConfiguration.hh"
-#include "AdapterFactory.hh"
 #include "CachedValue.hh"
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecApplication.hh"
-#include "ExecListener.hh"
-#include "ExecListenerFactory.hh"
-#include "ExecListenerFilter.hh"
-#include "ExecListenerHub.hh"
 #include "InputQueue.hh"
 #include "InterfaceAdapter.hh"
 #include "Node.hh"
