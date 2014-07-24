@@ -239,9 +239,9 @@ namespace PLEXIL
     switch (m_state) {
     case EXECUTING_STATE:
       deactivatePostCondition();
-      m_conditions[ancestorEndIdx]->activate();
       m_conditions[ancestorExitIdx]->activate();
       m_conditions[ancestorInvariantIdx]->activate();
+      m_conditions[ancestorEndIdx]->activate();
       break;
 
     case FINISHING_STATE:
@@ -250,16 +250,16 @@ namespace PLEXIL
       activateExitCondition();
       activateInvariantCondition();
       activatePostCondition();
-      m_conditions[ancestorEndIdx]->activate();
       m_conditions[ancestorExitIdx]->activate();
       m_conditions[ancestorInvariantIdx]->activate();
+      m_conditions[ancestorEndIdx]->activate();
       break;
 
     case FAILING_STATE:
       activateActionCompleteCondition();
-      m_conditions[ancestorEndIdx]->activate();
       m_conditions[ancestorExitIdx]->activate();
       m_conditions[ancestorInvariantIdx]->activate();
+      m_conditions[ancestorEndIdx]->activate();
       break;
 
     default:
@@ -337,22 +337,6 @@ namespace PLEXIL
   void ListNode::createConditionWrappers()
   {
     if (m_parent) {
-      if (getEndCondition()) {
-        if (getAncestorEndCondition()) {
-          m_conditions[ancestorEndIdx] =
-            new Function(BooleanOr::instance(),
-                         getEndCondition(),
-                         getAncestorEndCondition(), // from parent
-                         false,
-                         false);
-          m_garbageConditions[ancestorEndIdx] = true;
-        }
-        else
-          m_conditions[ancestorEndIdx] = getEndCondition();
-      }
-      else
-        m_conditions[ancestorEndIdx] = getAncestorExitCondition(); // could be null
-
       if (getExitCondition()) {
         if (getAncestorExitCondition()) {
           m_conditions[ancestorExitIdx] =
@@ -384,12 +368,28 @@ namespace PLEXIL
       }
       else 
         m_conditions[ancestorInvariantIdx] = getAncestorInvariantCondition(); // could be null
+
+      if (getEndCondition()) {
+        if (getAncestorEndCondition()) {
+          m_conditions[ancestorEndIdx] =
+            new Function(BooleanOr::instance(),
+                         getEndCondition(),
+                         getAncestorEndCondition(), // from parent
+                         false,
+                         false);
+          m_garbageConditions[ancestorEndIdx] = true;
+        }
+        else
+          m_conditions[ancestorEndIdx] = getEndCondition();
+      }
+      else
+        m_conditions[ancestorEndIdx] = getAncestorExitCondition(); // could be null
     }
     else {
       // Simply reuse existing conditions
-      m_conditions[ancestorEndIdx] = m_conditions[endIdx]; // could be null
       m_conditions[ancestorExitIdx] = m_conditions[exitIdx]; // could be null
       m_conditions[ancestorInvariantIdx] = m_conditions[invariantIdx]; // could be null
+      m_conditions[ancestorEndIdx] = m_conditions[endIdx]; // could be null
     }
   }
 
@@ -516,12 +516,12 @@ namespace PLEXIL
     activateEndCondition();
 
     // These conditions are for the children.
-    if (m_conditions[ancestorEndIdx])
-      m_conditions[ancestorEndIdx]->activate();
     if (m_conditions[ancestorExitIdx])
       m_conditions[ancestorExitIdx]->activate();
     if (m_conditions[ancestorInvariantIdx])
       m_conditions[ancestorInvariantIdx]->activate();
+    if (m_conditions[ancestorEndIdx])
+      m_conditions[ancestorEndIdx]->activate();
   }
 
   NodeState ListNode::getDestStateFromExecuting()
@@ -737,12 +737,12 @@ namespace PLEXIL
       activateAncestorEndCondition();
 
       // N.B. These are conditions for the children.
-      if (m_conditions[ancestorEndIdx])
-        m_conditions[ancestorEndIdx]->deactivate();
       if (m_conditions[ancestorExitIdx])
         m_conditions[ancestorExitIdx]->deactivate();
       if (m_conditions[ancestorInvariantIdx])
         m_conditions[ancestorInvariantIdx]->deactivate();
+      if (m_conditions[ancestorEndIdx])
+        m_conditions[ancestorEndIdx]->deactivate();
 
       deactivateExecutable();
     }
@@ -813,16 +813,16 @@ namespace PLEXIL
     deactivateActionCompleteCondition();
 
     // N.B. These are conditions for the children.
-    if (m_conditions[ancestorEndIdx])
-      m_conditions[ancestorEndIdx]->deactivate();
     if (m_conditions[ancestorExitIdx])
       m_conditions[ancestorExitIdx]->deactivate();
     if (m_conditions[ancestorInvariantIdx])
-    m_conditions[ancestorInvariantIdx]->deactivate();
+      m_conditions[ancestorInvariantIdx]->deactivate();
+    if (m_conditions[ancestorEndIdx])
+      m_conditions[ancestorEndIdx]->deactivate();
 
     if (destState == ITERATION_ENDED_STATE) {
-      activateAncestorEndCondition();
       activateAncestorExitInvariantConditions();
+      activateAncestorEndCondition();
     }
 
     deactivateExecutable();

@@ -266,11 +266,11 @@ namespace PLEXIL
     else 
       setNodeOutcome(SUCCESS_OUTCOME);
 
-    deactivateActionCompleteCondition();
-    deactivateEndCondition();
     deactivateExitCondition();
     deactivateInvariantCondition();
+    deactivateEndCondition();
     deactivatePostCondition();
+    deactivateActionCompleteCondition();
 
     if (destState == FAILING_STATE) {
       deactivateAncestorExitInvariantConditions();
@@ -340,8 +340,8 @@ namespace PLEXIL
 
     deactivateAbortCompleteCondition();
     if (destState == ITERATION_ENDED_STATE) {
-      activateAncestorEndCondition();
       activateAncestorExitInvariantConditions();
+      activateAncestorEndCondition();
     }
 
     deactivateExecutable();

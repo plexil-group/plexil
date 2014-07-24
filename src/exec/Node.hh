@@ -359,16 +359,16 @@ namespace PLEXIL {
       // N.B. Ancestor end/exit/invariant MUST come before
       // end/exit/invariant, respectively, because the former depend
       // on the latter and must be cleaned up first.
-      ancestorEndIdx = 0,
-      ancestorExitIdx,
+      ancestorExitIdx = 0,
       ancestorInvariantIdx,
+      ancestorEndIdx,
       // User specified conditions
       skipIdx,
       startIdx,
-      endIdx,
+      preIdx,
       exitIdx,
       invariantIdx,
-      preIdx,
+      endIdx,
       postIdx,
       repeatIdx,
       // For all but Empty nodes

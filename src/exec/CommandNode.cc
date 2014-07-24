@@ -120,11 +120,11 @@ namespace PLEXIL
       break;
 
     case FINISHING_STATE:
-      activateActionCompleteCondition();
       activateAncestorExitInvariantConditions();
       activateExitCondition();
       activateInvariantCondition();
       activatePostCondition();
+      activateActionCompleteCondition();
       m_command->activate();
       break;
 
@@ -317,12 +317,12 @@ namespace PLEXIL
       setNodeFailureType(INVARIANT_CONDITION_FAILED);
     }
 
-    deactivateEndCondition();
     if (destState == FAILING_STATE) {
+      deactivateAncestorExitInvariantConditions();
       deactivateExitCondition();
       deactivateInvariantCondition();
-      deactivateAncestorExitInvariantConditions();
     }
+    deactivateEndCondition();
   }
 
   //
@@ -334,8 +334,8 @@ namespace PLEXIL
 
   void CommandNode::transitionToFinishing()
   {
-    activateActionCompleteCondition();
     activatePostCondition();
+    activateActionCompleteCondition();
   }
 
   NodeState CommandNode::getDestStateFromFinishing()
@@ -439,10 +439,10 @@ namespace PLEXIL
       setNodeOutcome(SUCCESS_OUTCOME);
     }
 
-    deactivateActionCompleteCondition();
     deactivateExitCondition();
     deactivateInvariantCondition();
     deactivatePostCondition();
+    deactivateActionCompleteCondition();
     if (destState == FAILING_STATE) {
       deactivateAncestorExitInvariantConditions();
     }
@@ -509,8 +509,8 @@ namespace PLEXIL
 
     deactivateAbortCompleteCondition();
     if (destState == ITERATION_ENDED_STATE) {
-      activateAncestorEndCondition();
       activateAncestorExitInvariantConditions();
+      activateAncestorEndCondition();
     }
 
     deactivateExecutable();

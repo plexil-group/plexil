@@ -75,16 +75,16 @@ namespace PLEXIL {
 
       // *** N.B.: Order MUST agree with enum ConditionIndex!
       // Conditions on parent
-      s_allConditions->push_back(ANCESTOR_END_CONDITION());
       s_allConditions->push_back(ANCESTOR_EXIT_CONDITION());
       s_allConditions->push_back(ANCESTOR_INVARIANT_CONDITION());
+      s_allConditions->push_back(ANCESTOR_END_CONDITION());
       // User specified conditions
       s_allConditions->push_back(SKIP_CONDITION());
       s_allConditions->push_back(START_CONDITION());
-      s_allConditions->push_back(END_CONDITION());
+      s_allConditions->push_back(PRE_CONDITION());
       s_allConditions->push_back(EXIT_CONDITION());
       s_allConditions->push_back(INVARIANT_CONDITION());
-      s_allConditions->push_back(PRE_CONDITION());
+      s_allConditions->push_back(END_CONDITION());
       s_allConditions->push_back(POST_CONDITION());
       s_allConditions->push_back(REPEAT_CONDITION());
       // For all but Empty nodes
@@ -203,8 +203,8 @@ namespace PLEXIL {
       break;
 
     case WAITING_STATE:
-      activateAncestorEndCondition();
       activateAncestorExitInvariantConditions();
+      activateAncestorEndCondition();
       activateExitCondition();
       activateInvariantCondition();
       activatePreSkipStartConditions();
@@ -212,9 +212,9 @@ namespace PLEXIL {
 
     case EXECUTING_STATE:
       activateAncestorExitInvariantConditions();
-      activateEndCondition();
       activateExitCondition();
       activateInvariantCondition();
+      activateEndCondition();
       activatePostCondition();
       break;
 
@@ -231,8 +231,8 @@ namespace PLEXIL {
       break;
 
     case ITERATION_ENDED_STATE:
-      activateAncestorEndCondition();
       activateAncestorExitInvariantConditions();
+      activateAncestorEndCondition();
       activateRepeatCondition();
       break;
 
@@ -459,10 +459,6 @@ namespace PLEXIL {
     // Attach listeners to ancestor invariant and ancestor end conditions
     // Root node doesn't need them because the default conditions are constants
     if (m_parent) {
-      Expression *ancestorEnd = getAncestorEndCondition();
-      if (ancestorEnd)
-        ancestorEnd->addListener(&m_listener);
-
       Expression *ancestorExit = getAncestorExitCondition();
       if (ancestorExit)
         ancestorExit->addListener(&m_listener);
@@ -470,6 +466,10 @@ namespace PLEXIL {
       Expression *ancestorInvariant = getAncestorInvariantCondition();
       if (ancestorInvariant)
         ancestorInvariant->addListener(&m_listener);
+
+      Expression *ancestorEnd = getAncestorEndCondition();
+      if (ancestorEnd)
+        ancestorEnd->addListener(&m_listener);
     }
 
     // Let the derived class do its thing (currently only ListNode)
@@ -589,8 +589,7 @@ namespace PLEXIL {
     case ancestorEndIdx:
     case ancestorExitIdx:
     case ancestorInvariantIdx:
-      if (m_conditions[condIdx])
-        getCondition(condIdx)->removeListener(&m_listener);
+      assertTrue_2(ALWAYS_FAIL, "removeConditionListener called on parent condition");
       break;
 
     default:
@@ -989,8 +988,8 @@ namespace PLEXIL {
       setNodeOutcome(SKIPPED_OUTCOME);
     }
     else { // WAITING
-      activateAncestorEndCondition();
       activateAncestorExitInvariantConditions();
+      activateAncestorEndCondition();
     }
   }
 
@@ -1105,8 +1104,8 @@ namespace PLEXIL {
       break;
 
     case FINISHED_STATE:
-      deactivateAncestorEndCondition();
       deactivateAncestorExitInvariantConditions();
+      deactivateAncestorEndCondition();
       deactivateExitCondition();
       setNodeOutcome(SKIPPED_OUTCOME);
       break;
@@ -1228,9 +1227,9 @@ namespace PLEXIL {
     else
       setNodeOutcome(SUCCESS_OUTCOME);
 
-    deactivateEndCondition();
     deactivateExitCondition();
     deactivateInvariantCondition();
+    deactivateEndCondition();
     deactivatePostCondition();
     if (destState == FINISHED_STATE) {
       deactivateAncestorExitInvariantConditions();
@@ -1334,8 +1333,8 @@ namespace PLEXIL {
     deactivateRepeatCondition();
 
     if (destState == FINISHED_STATE) {
-      deactivateAncestorEndCondition();
       deactivateAncestorExitInvariantConditions();
+      deactivateAncestorEndCondition();
     }
     else { // WAITING
       reset();
@@ -1731,11 +1730,11 @@ namespace PLEXIL {
     debugMsg("Node:activatePreSkipStartConditions",
              "Activating PreCondition, SkipCondition, and StartCondition in node \"" << m_nodeId << "\"");
     Expression *temp;
-    if ((temp = m_conditions[preIdx]))
-      temp->activate();
     if ((temp = m_conditions[skipIdx]))
       temp->activate();
     if ((temp = m_conditions[startIdx]))
+      temp->activate();
+    if ((temp = m_conditions[preIdx]))
       temp->activate();
   }
 
@@ -1812,11 +1811,11 @@ namespace PLEXIL {
     debugMsg("Node:deactivatePreSkipStartConditions",
              "Deactivating PreCondition, SkipCondition, and StartCondition in node \"" << m_nodeId << "\"");
     Expression *temp;
-    if ((temp = m_conditions[preIdx]))
-      temp->deactivate();
     if ((temp = m_conditions[skipIdx]))
       temp->deactivate();
     if ((temp = m_conditions[startIdx]))
+      temp->deactivate();
+    if ((temp = m_conditions[preIdx]))
       temp->deactivate();
   }
 
