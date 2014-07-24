@@ -439,13 +439,6 @@ namespace PLEXIL {
     pugi::xml_node element = adapter->getXml().first_child();
     while (!element.empty()) {
       const char* elementType = element.name();
-      // look for text as the only child of this element
-      // to use below
-      const pugi::xml_node firstChild = element.first_child();
-      const char* text = NULL;
-      if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
-        text = firstChild.value();
-
       if (strcmp(elementType, InterfaceSchema::DEFAULT_ADAPTER_TAG()) == 0) {
         setDefaultInterface(adapter);
       } 
@@ -459,7 +452,11 @@ namespace PLEXIL {
         registerPlannerUpdateInterface(adapter);
       }
       else if (strcmp(elementType, InterfaceSchema::COMMAND_NAMES_TAG()) == 0) {
-        checkError(*text != '\0',
+        const pugi::xml_node firstChild = element.first_child();
+        const char* text = NULL;
+        if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
+          text = firstChild.value();
+        checkError(text && *text != '\0',
                    "registerAdapter: Invalid configuration XML: "
                    << InterfaceSchema::COMMAND_NAMES_TAG()
                    << " requires one or more comma-separated command names");
@@ -470,7 +467,11 @@ namespace PLEXIL {
         delete cmdNames;
       } 
       else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0) {
-        checkError(*text != '\0',
+        const pugi::xml_node firstChild = element.first_child();
+        const char* text = NULL;
+        if (!firstChild.empty() && firstChild.type() == pugi::node_pcdata)
+          text = firstChild.value();
+        checkError(text && *text != '\0',
                    "registerAdapter: Invalid configuration XML: "
                    << InterfaceSchema::LOOKUP_NAMES_TAG()
                    << " requires one or more comma-separated lookup names");
