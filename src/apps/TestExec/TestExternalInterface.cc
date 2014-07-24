@@ -36,7 +36,6 @@
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 #include "Update.hh"
-#include "XMLUtils.hh"
 #include "plan-utils.hh"
 #include "pugixml.hpp"
 #include "stricmp.h"

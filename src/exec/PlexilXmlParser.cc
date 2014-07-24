@@ -30,7 +30,6 @@
 #include "Error.hh"
 #include "PlexilSchema.hh"
 #include "ValueType.hh"
-#include "XMLUtils.hh"
 #include "lifecycle-utils.h"
 #include "resource-tags.hh"
 

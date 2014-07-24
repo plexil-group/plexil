@@ -55,7 +55,6 @@
 #include "ThreadMutex.hh"
 #include "timespec-utils.hh"
 #include "timeval-utils.hh"
-#include "XMLUtils.hh"
 
 #include <cassert>
 #include <cfloat>

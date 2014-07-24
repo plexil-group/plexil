@@ -36,7 +36,6 @@
 #include "NodeFactory.hh"
 #include "PlexilExec.hh"
 #include "UserVariable.hh"
-#include "XMLUtils.hh"
 #include "lifecycle-utils.h"
 
 #include <algorithm> // for sort

@@ -35,7 +35,6 @@
 #include "NodeFactory.hh"
 #include "PlexilPlan.hh"
 #include "TestSupport.hh"
-#include "XMLUtils.hh"
 #include "lifecycle-utils.h"
 
 #include <iostream>
