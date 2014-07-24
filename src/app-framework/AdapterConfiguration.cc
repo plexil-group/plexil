@@ -36,7 +36,6 @@
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
 #include "ListenerFilters.hh"
-#include "PlexilXmlParser.hh"
 #ifdef PLEXIL_WITH_THREADS
 #include "SerializedInputQueue.hh"
 #else
