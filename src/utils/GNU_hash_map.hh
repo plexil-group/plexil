@@ -65,8 +65,6 @@
 # endif // defined (__GLIBCXX__)
 #endif
 
-#include "KeySource.hh"
-
 namespace __gnu_cxx
 {
 
