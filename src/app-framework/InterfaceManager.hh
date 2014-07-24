@@ -29,11 +29,8 @@
 
 #include "ExternalInterface.hh"
 #include "AdapterExecInterface.hh"
-#include "PlexilPlan.hh"
 
-// STL
-#include <set>
-#include <vector>
+#include <map>
 
 // Forward reference
 namespace pugi
@@ -53,6 +50,8 @@ namespace PLEXIL
   class AdapterConfiguration;
 
   class InputQueue;
+
+  class PlexilNode;
 
   /**
    * @brief A concrete derived class implementing the APIs of the

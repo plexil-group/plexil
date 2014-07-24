@@ -28,6 +28,7 @@
 
 #include "Debug.hh"
 #include "Error.hh"
+#include "PlexilPlan.hh"
 #include "PlexilSchema.hh"
 #include "ValueType.hh"
 #include "lifecycle-utils.h"
@@ -714,8 +715,8 @@ namespace PLEXIL
     }
   }
 
-  PlexilInterface *parseInterface(const xml_node& intf)
-  throw(ParserException) {
+  static PlexilInterface *parseInterface(const xml_node& intf)
+    throw(ParserException) {
     PlexilInterface *retval = new PlexilInterface();
     checkTag(INTERFACE_TAG, intf);
     parseInOrInOut(intf.child(IN_TAG), retval, false);
@@ -766,7 +767,7 @@ namespace PLEXIL
     return rId_vec;
   }
 
-  PlexilNodeBody *parseBody(const xml_node& body)
+  static PlexilNodeBody *parseBody(const xml_node& body)
   throw(ParserException)
   {
     const char* name = body.name();

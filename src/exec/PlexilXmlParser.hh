@@ -27,14 +27,16 @@
 #ifndef _H_PlexilXmlParser
 #define _H_PlexilXmlParser
 
-#include "PlexilPlan.hh"
 #include "ConstantMacros.hh"
 #include "ParserException.hh"
 #include "pugixml.hpp"
-#include <map>
+
+#include <vector>
 
 namespace PLEXIL
 {
+  // Forward references
+  class PlexilNode;
 
   /*
    * @brief A stateless class for parsing Plexil XML plans.

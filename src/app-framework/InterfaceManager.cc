@@ -43,6 +43,7 @@
 #include "InterfaceAdapter.hh"
 #include "Node.hh"
 #include "PlexilExec.hh"
+#include "PlexilPlan.hh"
 #include "PlexilSchema.hh"
 #include "PlexilXmlParser.hh"
 #include "QueueEntry.hh"
