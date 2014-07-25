@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,8 @@
 
 #include "MessageQueueMap.hh"
 #include "Debug.hh"
-#include <map>
+#include "Expression.hh"
+#include "Value.hh"
 #include <utility>
 
 namespace PLEXIL 
@@ -54,11 +55,11 @@ namespace PLEXIL
    * @param dest The command destination
    * @param ack The command acknowledgment
    */
-  void MessageQueueMap::addRecipient(const LabelStr& message, const ExpressionId& ack, const ExpressionId& dest) {
+  void MessageQueueMap::addRecipient(const std::string& message, Command *cmd) {
     debugMsg("MessageQueueMap::addRecipient", " entered for \"" << message.c_str() << "\"");
     ThreadMutexGuard guard(m_mutex);
     PairingQueue* que = getQueue(message);
-    que->m_recipientQueue.push_back(Recipient(ack, dest));
+    que->m_recipientQueue.push_back(Recipient(cmd));
     updateQueue(que);
     debugMsg("MessageQueueMap::addRecipient", " recipient for message \"" << que->m_name.c_str() << "\" added");
   }
@@ -66,11 +67,11 @@ namespace PLEXIL
   /**
    * @brief Removes all instances of the given recipient waiting on the given message string.
    */
-  void MessageQueueMap::removeRecipient(const LabelStr& message, const ExpressionId ack) {
+  void MessageQueueMap::removeRecipient(const std::string& message, Command const *cmd) {
     ThreadMutexGuard guard(m_mutex);
     PairingQueue* pq = getQueue(message);
     for (RecipientQueue::iterator it = pq->m_recipientQueue.begin(); it != pq->m_recipientQueue.end(); it++) {
-      if (it->m_ack.equals(ack)) {
+      if (it->m_cmd == cmd) {
         debugMsg("MessageQueueMap::removeRecipient", " Removing recipient for \"" << pq->m_name.c_str() << "\"");
         it = pq->m_recipientQueue.erase(it);
         //this increments the iterator, so check for the end immediately
@@ -83,7 +84,7 @@ namespace PLEXIL
   /**
    * @brief Removes all recipients waiting on the given message string.
    */
-  void MessageQueueMap::clearRecipientsForMessage(const LabelStr& message) {
+  void MessageQueueMap::clearRecipientsForMessage(const std::string& message) {
     ThreadMutexGuard guard(m_mutex);
     PairingQueue* pq = getQueue(message);
     pq->m_recipientQueue.clear();
@@ -93,13 +94,13 @@ namespace PLEXIL
    * @brief Adds the given message to its queue. If there is a recipient waiting for the message, it is sent immediately.
    * @param message The message string to be added
    */
-  void MessageQueueMap::addMessage(const LabelStr& message) {
+  void MessageQueueMap::addMessage(const std::string& message) {
     ThreadMutexGuard guard(m_mutex);
     PairingQueue* pq = getQueue(message);
     if (!pq->m_allowDuplicateMessages)
       pq->m_messageQueue.clear();
-    pq->m_messageQueue.push_back(message.getKey());
-    updateQueue( pq);
+    pq->m_messageQueue.push_back(message);
+    updateQueue(pq);
     debugMsg("MessageQueueMap:addMessage", " Message \"" << pq->m_name.c_str() << "\" added");
   }
 
@@ -109,7 +110,7 @@ namespace PLEXIL
    * @param message The message string to be added
    * @param params The parameters that are to be sent with the message
    */
-  void MessageQueueMap::addMessage(const LabelStr& message, const Value& param) {
+  void MessageQueueMap::addMessage(const std::string& message, const Value& param) {
     ThreadMutexGuard guard(m_mutex);
     PairingQueue* pq = getQueue(message);
     if (!pq->m_allowDuplicateMessages)
@@ -132,7 +133,7 @@ namespace PLEXIL
    */
   void MessageQueueMap::setAllowDuplicateMessages(bool flag) {
     ThreadMutexGuard guard(m_mutex);
-    for (std::map<LabelStr, PairingQueue*>::iterator it = m_map.begin(); it != m_map.end(); it++) {
+    for (std::map<std::string, PairingQueue*>::iterator it = m_map.begin(); it != m_map.end(); it++) {
       MessageQueue mq = it->second->m_messageQueue;
       //if setting flag from true to false, ensure all queues have at most one message
       if (m_allowDuplicateMessages && !flag && mq.size() > 1) {
@@ -146,18 +147,19 @@ namespace PLEXIL
     m_allowDuplicateMessages = flag;
   }
 
-  MessageQueueMap::PairingQueue * MessageQueueMap::getQueue(const LabelStr& message) {
+  MessageQueueMap::PairingQueue * MessageQueueMap::getQueue(const std::string& message) {
     PairingQueue* result;
-    std::map<LabelStr, PairingQueue*>::iterator it = m_map.find(message);
+    std::map<std::string, PairingQueue*>::iterator it = m_map.find(message);
     if (m_map.end() == it) {
       debugMsg("MessageQueueMap::getQueue", " creating new queue with name \"" << message.c_str() << "\"");
       result = new PairingQueue(message, m_allowDuplicateMessages);
-      m_map.insert(it, std::pair<LabelStr, PairingQueue*> (message, result));
+      m_map.insert(it, std::pair<std::string, PairingQueue*> (message, result));
     } else {
       result = it->second;
     }
     return result;
   }
+
   /**
    * @brief Resolves matches between messages and recipients. Should be called whenever updates occur to a queue.
    */
@@ -169,8 +171,8 @@ namespace PLEXIL
     RecipientQueue::iterator rqIter = rq.begin();
     bool valChanged = !mq.empty() && !rq.empty();
     while (! (mqIter == mq.end()) && !(rqIter == rq.end())) {
-      debugMsg("MessageQueueMap::updateQueue", " calling handleValueChange");
-      m_execInterface.handleValueChange(rqIter->m_dest, (*mqIter));
+      debugMsg("MessageQueueMap::updateQueue", " returning value");
+      m_execInterface.handleCommandReturn(rqIter->m_cmd, (*mqIter));
       rqIter = rq.erase(rqIter);
       mqIter = mq.erase(mqIter);
     }

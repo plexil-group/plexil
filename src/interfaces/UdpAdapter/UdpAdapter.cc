@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,13 +25,16 @@
  */
 
 #include "UdpAdapter.hh"
+
+#include "AdapterConfiguration.hh"
 #include "AdapterExecInterface.hh"
-#include "AdapterFactory.hh"    // initUdpAdapter
-#include "BooleanVariable.hh"
-#include "CoreExpressions.hh"   // BooleanVariable, etc.
+#include "AdapterFactory.hh" // for REGISTER_ADAPTER macro
 #include "Command.hh"
 #include "Debug.hh"             // debugMsg
+#include "Error.hh"
 #include "Node.hh"              // struct PLEXIL::Node
+#include "StateCacheEntry.hh"
+>#include "Update.hh"
 #include "pugixml.hpp"
 #include "stricmp.h"
 
@@ -76,12 +79,12 @@ namespace PLEXIL
     // parse the XML message definitions
     parseXmlMessageDefinitions(xml); // also calls registerCommandInterface for each message
     if (m_debug) printMessageDefinitions();
-    m_execInterface.registerCommandInterface(LabelStr(SEND_MESSAGE_COMMAND()), getId());
-    //m_execInterface.registerCommandInterface(LabelStr(SEND_UDP_MESSAGE_COMMAND()), getId());
-    //m_execInterface.registerCommandInterface(LabelStr(RECEIVE_UDP_MESSAGE_COMMAND()), getId());
-    m_execInterface.registerCommandInterface(LabelStr(RECEIVE_COMMAND_COMMAND()), getId());
-    m_execInterface.registerCommandInterface(LabelStr(GET_PARAMETER_COMMAND()), getId());
-    m_execInterface.registerCommandInterface(LabelStr(SEND_RETURN_VALUE_COMMAND()), getId());
+    g_configuration->registerCommandInterface(std::string(SEND_MESSAGE_COMMAND()), this);
+    //g_configuration->registerCommandInterface(std::string(SEND_UDP_MESSAGE_COMMAND()), this);
+    //g_configuration->registerCommandInterface(std::string(RECEIVE_UDP_MESSAGE_COMMAND()), this);
+    g_configuration->registerCommandInterface(std::string(RECEIVE_COMMAND_COMMAND()), this);
+    g_configuration->registerCommandInterface(std::string(GET_PARAMETER_COMMAND()), this);
+    g_configuration->registerCommandInterface(std::string(SEND_RETURN_VALUE_COMMAND()), this);
     debugMsg("UdpAdapter::initialize", " done");
     return true;
   }
@@ -128,77 +131,72 @@ namespace PLEXIL
     debugMsg("ExternalInterface:udp", " unsubscribe called");
   }
 
-  Value UdpAdapter::lookupNow(const State& /* state */)
+  void UdpAdapter::lookupNow(State const & /* state */, StateCacheEntry &entry)
   {
     debugMsg("UdpAdapter::lookupNow", " called");
     debugMsg("ExternalInterface:udp", " lookupNow called; returning UNKNOWN");
-    return Value();
+    entry.setUnknown();
   }
 
-  void UdpAdapter::sendPlannerUpdate(Node *node,
-                                     const std::map<std::string, Value>& /* valuePairs */,
-                                     ExpressionId ack)
+  void UdpAdapter::sendPlannerUpdate(Update *update)
   {
     debugMsg("UdpAdapter::sendPlannerUpdate", " called");
     debugMsg("ExternalInterface:udp", " sendPlannerUpdate called");
     // acknowledge updates
-    debugMsg("ExternalInterface:udp", " faking acknowledgment of update node '" << node->getNodeId().toString() << "'");
-    m_execInterface.handleValueChange(ack, BooleanVariable::TRUE_VALUE());
+    debugMsg("ExternalInterface:udp",
+             " faking acknowledgment of update node '" << update->getSource()->getNodeId() << "'");
+    m_execInterface.handleUpdateAck(update, true);
     m_execInterface.notifyOfExternalEvent();
   }
 
   // Execute a Plexil Command
-  // void UdpAdapter::executeCommand(const LabelStr& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack)
-  void UdpAdapter::executeCommand(const CommandId& cmd)
+  void UdpAdapter::executeCommand(Command *cmd)
   {
-    Value name = cmd->getName();
-    VariableId dest = cmd->getDest();
-    VariableId ack = cmd->getAck();
-    const std::vector<Value>& args = cmd->getArgValues();
-    debugMsg("UdpAdapter::executeCommand", " " << name << " (dest==" << dest << ", ack==" << ack << ")");
+    std::string const &name = cmd->getName();
+    debugMsg("UdpAdapter::executeCommand", " " << name);
     if (name == SEND_MESSAGE_COMMAND())
-      executeSendMessageCommand(args, dest, ack);
+      executeSendMessageCommand(cmd);
     //else if (name == SEND_UDP_MESSAGE_COMMAND())
-    //  executeSendUdpMessageCommand(args, dest, ack);
+    //  executeSendUdpMessageCommand(cmd);
     //else if (name == RECEIVE_UDP_MESSAGE_COMMAND()) // SendUdpCommand("cmd_name", arg1, ...); XXXX
-    //  executeReceiveUdpCommand(args, dest, ack);
+    //  executeReceiveUdpCommand(cmd);
     else if (name == RECEIVE_COMMAND_COMMAND())
-      executeReceiveCommandCommand(args, dest, ack); // OnCommand cmd_name (arg1, ...); XXXX
+      executeReceiveCommandCommand(cmd); // OnCommand cmd_name (arg1, ...); XXXX
     else if (name == GET_PARAMETER_COMMAND())
-      executeGetParameterCommand(args, dest, ack);
+      executeGetParameterCommand(cmd);
     else if (name == SEND_RETURN_VALUE_COMMAND())
-      executeSendReturnValueCommand(args, dest, ack);
+      executeSendReturnValueCommand(cmd);
     else
-      executeDefaultCommand(name, args, dest, ack); // Command cmd_name (arg1, ...); XXXX
-    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+      executeDefaultCommand(cmd); // Command cmd_name (arg1, ...); XXXX
+    m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
     m_execInterface.notifyOfExternalEvent();
-    //debugMsg("UdpAdapter::executeCommand", " " << name.c_str() << " done.");
+    //debugMsg("UdpAdapter::executeCommand", " " << name << " done.");
   }
 
   // Abort the given command with the given arguments.  Store the abort-complete into dest
-  void UdpAdapter::invokeAbort(const CommandId& cmd) 
+  void UdpAdapter::invokeAbort(Command *cmd) 
   {
-    Value cmdName = cmd->getName();
+    std::string const &cmdName = cmd->getName();
     if (cmdName != RECEIVE_COMMAND_COMMAND()) {
-      m_execInterface.handleValueChange(cmd->getAbortComplete(), BooleanVariable::TRUE_VALUE());
+      m_execInterface.handleCommandAbortAck(cmd, true);
       m_execInterface.notifyOfExternalEvent();
       return;
     }
 
-    const std::vector<Value>& cmdArgs = cmd->getArgValues();
-    assertTrueMsg(cmdArgs.size() == 1, "UdpAdapter: Aborting ReceiveCommand requires exactly one argument");
-    assertTrueMsg(cmdArgs.front().isString(),
-                  "UdpAdapter: The argument to the ReceiveMessage abort, "
+    std::vector<Value> const &cmdArgs = cmd->getArgValues();
+    assertTrue_2(cmdArgs.size() == 1, "UdpAdapter: Aborting ReceiveCommand requires exactly one argument");
+    assertTrueMsg(cmdArgs.front().valueType() == STRING_TYPE,
+                  "UdpAdapter: The argument to the ReceiveCommand abort request, "
                   << cmdArgs.front() << ", is not a string");
-    const char* msgName = cmdArgs.front().c_str(); // The defined message name, needed for looking up the thread and socket
-    VariableId dest = cmd->getDest();
-    VariableId cmdAck = cmd->getAck();
-    debugMsg("UdpAdapter::invokeAbort", " called for " << cmdName.c_str() << " (" << msgName <<
-             "), " << dest << ", " << cmdAck);
+    std::string msgName;
+    assertTrueMsg(cmdArgs.front().getValue(msgName), // The defined message name, needed for looking up the thread and socket
+                  "UdpAdapter: The argument to the ReceiveCommand abort request, "
+                  << cmdArgs.front() << ", is unknown");
+    debugMsg("UdpAdapter::invokeAbort", " called for " << cmdName);
     int status;                        // The return status of the calls to pthread_cancel() and close()
     // First, find the active thread for this message, cancel and erase it
     ThreadMap::iterator thread;
-    thread=m_activeThreads.find(msgName); // recorded by startUdpMessageReceiver
+    thread = m_activeThreads.find(msgName); // recorded by startUdpMessageReceiver
     assertTrueMsg(thread != m_activeThreads.end(), "UdpAdapter::invokeAbort: no thread found for " << msgName);
     status = pthread_cancel(thread->second);
     assertTrueMsg(status == 0, "UdpAdapter::invokeAbort: pthread_cancel(" << thread->second << ") returned " << status);
@@ -213,8 +211,8 @@ namespace PLEXIL
     debugMsg("UdpAdapter::invokeAbort", " " << msgName << " socket (" << socket->second << ") closed");
     m_activeSockets.erase(socket); // erase the closed socket
     // Let the exec know that we believe things are cleaned up
-    m_messageQueues.removeRecipient(formatMessageName(msgName, RECEIVE_COMMAND_COMMAND()), cmdAck);
-    m_execInterface.handleValueChange(cmd->getAbortComplete(), BooleanVariable::TRUE_VALUE());
+    m_messageQueues.removeRecipient(formatMessageName(msgName, RECEIVE_COMMAND_COMMAND()), cmd);
+    m_execInterface.handleCommandAbortAck(cmd, true);
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -223,18 +221,23 @@ namespace PLEXIL
   //
 
   // Default UDP command handler
-  void UdpAdapter::executeDefaultCommand(const LabelStr& msgName,
-                                         const std::vector<Value>& args,
-                                         ExpressionId /* dest */,
-                                         ExpressionId ack)
+  void UdpAdapter::executeDefaultCommand(Command *cmd)
   {
-    debugMsg("UdpAdapter::executeDefaultCommand", " called for \"" << msgName.c_str() << "\" with " << args.size() << " args");
+    std::vector<Value> const &args = cmd->getArgValues();
+    assertTrue_2(args.size() > 0,
+                 "UdpAdapter::executeDefaultCommand: command requires at least one argument");
+    assertTrue_2(args[0].valueType() == STRING_TYPE,
+                 "UdpAdapter::executeDefaultCommand: message name must be a string");
+    std::string msgName;
+    assertTrue_2(args[0].getValue(msgName),
+                 "UdpAdapter::executeDefaultCommand: message name is unknown");
+    debugMsg("UdpAdapter::executeDefaultCommand", " called for \"" << msgName << "\" with " << args.size() << " args");
     ThreadMutexGuard guard(m_cmdMutex);
     MessageMap::iterator msg;
-    msg=m_messages.find(msgName.c_str());
+    msg = m_messages.find(msgName);
     // Check for an obviously bogus port
     assertTrueMsg(msg->second.peer_port != 0,
-                  "executeDefaultCommand: bad peer port (0) given for " << msgName.c_str() << " message");
+                  "executeDefaultCommand: bad peer port (0) given for " << msgName << " message");
     // Set up the outgoing UDP buffer to be sent
     int length = msg->second.len;
     unsigned char* udp_buffer = new unsigned char[length]; // fixed length to start with
@@ -246,61 +249,59 @@ namespace PLEXIL
     status = sendUdpMessage(udp_buffer, msg->second, m_debug);
     debugMsg("UdpAdapter::executeDefaultCommand", " sendUdpMessage returned " << status << " (bytes sent)");
     // Do the internal Plexil Boiler Plate (as per example in IpcAdapter.cc)
-    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS());
+    m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
     m_execInterface.notifyOfExternalEvent();
     // Clean up some (one hopes)
     delete udp_buffer;
   }
 
   // RECEIVE_COMMAND_COMMAND
-  void UdpAdapter::executeReceiveCommandCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack)
+  void UdpAdapter::executeReceiveCommandCommand(Command *cmd)
   {
+    std::vector<Value> const &args = cmd->getArgValues();
     assertTrueMsg(args.size() == 1,
                   "UdpAdapter: The " << RECEIVE_COMMAND_COMMAND().c_str() << " command requires exactly one argument");
-    assertTrueMsg(args.front().isString(),
-                  "UdpAdapter: The argument to the " << RECEIVE_COMMAND_COMMAND().c_str()
+    assertTrueMsg(args.front().valueType() == STRING_TYPE,
+                  "UdpAdapter: The argument to the " << RECEIVE_COMMAND_COMMAND()
                   << " command, " << args.front() << ", is not a string");
-    const char* msgName = args.front().c_str();
+    std::string msgName;
+    assertTrue_2(args.front().getValue(msgName),
+                 "UdpAdapter::executeDefaultCommand: message name is unknown");
     debugMsg("UdpAdapter::executeReceiveCommandCommand", " called for " << msgName);
-    LabelStr command = formatMessageName(msgName, RECEIVE_COMMAND_COMMAND());
-    m_messageQueues.addRecipient(command, ack, dest);
-    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+    std::string command = formatMessageName(msgName, RECEIVE_COMMAND_COMMAND());
+    m_messageQueues.addRecipient(msgName, cmd);
+    m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
     m_execInterface.notifyOfExternalEvent();
     // Set up the thread on which the message may/will eventually be received
     int status = -1;
-    status = startUdpMessageReceiver(msgName, dest, ack);
-    debugMsg("UdpAdapter::executeReceiveCommandCommand", " message handler for \"" << command.c_str() << "\" registered");
+    status = startUdpMessageReceiver(msgName, cmd);
+    debugMsg("UdpAdapter::executeReceiveCommandCommand", " message handler for \"" << command << "\" registered");
   }
 
 //   // RECEIVE_UDP_MESSAGE_COMMAND
-//   void UdpAdapter::executeReceiveUdpCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack)
+//   void UdpAdapter::executeReceiveUdpCommand(Command *cmd)
 //   {
 //     // Called when node _starts_ executing, so, record the message and args so that they can be filled in
 //     // if and when a UDP message comes in the fulfill this expectation.
 //     // First arg is message name (which better match one of the defined messages...)
-//     assertTrueMsg(LabelStr::isString(args.front()),
-//                   "UdpAdapter: the first parameter to ReceiveUdpMessage command, "
-//                   << args.front() << ", is not a string");
-//     LabelStr command(args.front());
-//     debugMsg("UdpAdapter::executeReceiveUdpCommand", " " << command.c_str() << ", dest==" << dest
+//     std::string command(args.front());
+//     debugMsg("UdpAdapter::executeReceiveUdpCommand", " " << command << ", dest==" << dest
 //              << ", ack==" << ack << ", args.size()==" << args.size());
-//     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+//     m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
 //     m_execInterface.notifyOfExternalEvent();
-//     debugMsg("UdpAdapter::executeReceiveUdpCommand", " handler for \"" << command.c_str() << "\" registered");
+//     debugMsg("UdpAdapter::executeReceiveUdpCommand", " handler for \"" << command << "\" registered");
 //   }
 
 //  // SEND_UDP_MESSAGE_COMMAND
-//   void UdpAdapter::executeSendUdpMessageCommand(const std::vector<Value>& args, ExpressionId /* dest */, ExpressionId ack)
+//   void UdpAdapter::executeSendUdpMessageCommand(Command *cmd)
 //   {
 //     // First arg is message name (which better match one of the defined messages...)
-//     assertTrueMsg(LabelStr::isString(args.front()), "UdpAdapter: the first parameter to SendUdpMessage command, "
-//                   << args.front() << ", is not a string");
 //     // Lookup the appropriate message in the message definitions in m_messages
-//     LabelStr msgName(args.front());
-//     debugMsg("UdpAdapter::executeSendUdpMessageCommand", " called for " << msgName.c_str());
+//     std::string msgName(args.front());
+//     debugMsg("UdpAdapter::executeSendUdpMessageCommand", " called for " << msgName);
 //     //printMessageContent(msgName, args);
 //     MessageMap::iterator msg;
-//     msg=m_messages.find(msgName.c_str());
+//     msg=m_messages.find(msgName);
 //     // Set up the outgoing UDP buffer to be sent
 //     int length = msg->second.len;
 //     unsigned char* udp_buffer = new unsigned char[length]; // fixed length to start with
@@ -312,83 +313,83 @@ namespace PLEXIL
 //     status = sendUdpMessage(udp_buffer, msg->second, m_debug);
 //     debugMsg("UdpAdapter::executeSendUdpMessageCommand", " sendUdpMessage returned " << status << " (bytes sent)");
 //     // Do the internal Plexil Boiler Plate (as per example in IpcAdapter.cc)
-//     m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS());
+//     m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
 //     m_execInterface.notifyOfExternalEvent();
 //     // Clean up some (one hopes)
 //     delete udp_buffer;
 //  }
 
   // GET_PARAMETER_COMMAND
-  void UdpAdapter::executeGetParameterCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack)
+  void UdpAdapter::executeGetParameterCommand(Command *cmd)
   {
+    std::vector<Value> const &args = cmd->getArgValues();
     assertTrueMsg(args.size() == 1 || args.size() == 2,
-                  "UdpAdapter: The " << GET_PARAMETER_COMMAND().c_str() << " command requires either one or two arguments");
-    assertTrueMsg(args.front().isString(),
-                  "UdpAdapter: The first argument to the " << GET_PARAMETER_COMMAND().c_str() << " command, "
+                  "UdpAdapter: The " << GET_PARAMETER_COMMAND() << " command requires either one or two arguments");
+    assertTrueMsg(args.front().valueType() == STRING_TYPE,
+                  "UdpAdapter: The first argument to the " << GET_PARAMETER_COMMAND() << " command, "
                   << args.front() << ", is not a string");
     // Extract the message name and try to verify the number of parameters defined vs the number of args used in the plan
-    std::string msgName = args.front().getStringValue();
-    debugMsg("UdpAdapter::executeGetParameterCommand",
-             " " << msgName << ", dest==" << dest << ", ack==" << ack);
+    std::string msgName;
+    assertTrue_2(args.front().getValue(msgName),
+                 "UdpAdapter::executeGetParameterCommand: message name is unknown");
+    debugMsg("UdpAdapter::executeGetParameterCommand", " " << msgName);
     size_t pos;
     pos = msgName.find(":");
     msgName = msgName.substr(0, pos);
     MessageMap::iterator msg;
-    msg=m_messages.find(msgName);
+    msg = m_messages.find(msgName);
     assertTrueMsg(msg != m_messages.end(), "UdpAdapter::executeGetParameterCommand: no message definition found for " << msgName);
     int params = msg->second.parameters.size();
     //debugMsg("UdpAdapter::executeGetParameterCommand", " msgName==" << msgName << ", params==" << params);
     std::vector<Value>::const_iterator it = ++args.begin();
-    int id;
-    if (it == args.end())
-      {
-        id = 0;
-      }
-    else
-      {
-        assertTrueMsg(it->isInteger(),
-                      "UdpAdapter: The second argument to the " << GET_PARAMETER_COMMAND().c_str() << " command, " << *it
-                      << ", is not an integer");
-        id = it->getIntValue();
-        assertTrueMsg(id >= 0,
-                      "UdpAdapter: The second argument to the " << GET_PARAMETER_COMMAND().c_str() << " command, " << *it
-                      << ", is not a valid index");
-        // Brute strength error check for the plan using a message/command with to many arguments.
-        // The intent is that this might be discovered during development.
-        assertTrueMsg(id < params,
-                      "UdpAdapter: the message \"" << msgName << "\" is defined to have " << params
-                      << " parameters in the XML configuration file, but is being used in the plan with "
-                      << id+1 << " arguments");
-      }
-    LabelStr command = formatMessageName(args.front().c_str(), GET_PARAMETER_COMMAND(), id);
-    m_messageQueues.addRecipient(command, ack, dest);
-    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+    int32_t id = 0;
+    if (it != args.end()) {
+      assertTrueMsg(it->valueType() == INTEGER_TYPE,
+                    "UdpAdapter: The second argument to the " << GET_PARAMETER_COMMAND() << " command, " << *it
+                    << ", is not an integer");
+      assertTrueMsg(it->getValue(id),
+                   "UdpAdapter: The second argument to the " << GET_PARAMETER_COMMAND()
+                    << " command is unknown");
+      assertTrueMsg(id >= 0,
+                    "UdpAdapter: The second argument to the " << GET_PARAMETER_COMMAND() << " command, " << *it
+                    << ", is not a valid index");
+      // Brute strength error check for the plan using a message/command with to many arguments.
+      // The intent is that this might be discovered during development.
+      assertTrueMsg(id < params,
+                    "UdpAdapter: the message \"" << msgName << "\" is defined to have " << params
+                    << " parameters in the XML configuration file, but is being used in the plan with "
+                    << id+1 << " arguments");
+    }
+    std::string command = formatMessageName(msgName, GET_PARAMETER_COMMAND(), id);
+    m_messageQueues.addRecipient(msgName, cmd);
+    m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
     m_execInterface.notifyOfExternalEvent();
-    debugMsg("UdpAdapter::executeGetParameterCommand", " message handler for \"" << command.c_str() << "\" registered");
+    debugMsg("UdpAdapter::executeGetParameterCommand", " message handler for \"" << cmd->getName() << "\" registered");
   }
 
   // SEND_RETURN_VALUE_COMMAND
-  void UdpAdapter::executeSendReturnValueCommand(const std::vector<Value>& /* args */,
-                                                 ExpressionId /* dest */,
-                                                 ExpressionId /* ack */)
+  void UdpAdapter::executeSendReturnValueCommand(Command * /* cmd */)
   {
     // Open loop communications only.  Perhaps this is being called by the expanded nodes?
-    //debugMsg("UdpAdapter::executeSendReturnValueCommand", " called for " << LabelStr::c_str(args.front()));
+    //debugMsg("UdpAdapter::executeSendReturnValueCommand", " called for " << std::string::c_str(args.front()));
   }
 
   // SEND_MESSAGE_COMMAND
-  void UdpAdapter::executeSendMessageCommand(const std::vector<Value>& args, ExpressionId /* dest */, ExpressionId ack)
+  void UdpAdapter::executeSendMessageCommand(Command *cmd)
   {
+    std::vector<Value> const &args = cmd->getArgValues();
     // Check for one argument, the message
-    assertTrueMsg(args.size() == 1, "UdpAdapter: The SendMessage command requires exactly one argument");
-    assertTrueMsg(args.front().isString(),
+    assertTrue_2(args.size() == 1, "UdpAdapter: The SendMessage command requires exactly one argument");
+    assertTrueMsg(args.front().valueType() == STRING_TYPE,
                   "UdpAdapter: The argument to the SendMessage command, "
                   << args.front()
                   << ", is not a string");
-    const char* theMessage = args.front().c_str();
+    std::string theMessage;
+    assertTrue_2(args.front().getValue(theMessage),
+                 "UdpAdapter: The message name argument to the SendMessage command is unknown");
     debugMsg("UdpAdapter::executeSendMessageCommand", " SendMessage(\"" << theMessage << "\")");
     // store ack
-    m_execInterface.handleValueChange(ack, CommandHandleVariable::COMMAND_SUCCESS());
+    m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
     m_execInterface.notifyOfExternalEvent();
     debugMsg("UdpAdapter::executeSendMessageCommand", " message \"" << theMessage << "\" sent.");
   }
@@ -504,8 +505,8 @@ namespace PLEXIL
             msg.len += arg.len * size; // only arrays are not of size 1
             msg.parameters.push_back(arg);
           }
-        m_messages[child.attribute("name").value()]=msg; // record the message with the name as the key
-        m_execInterface.registerCommandInterface(LabelStr(name), getId()); // register name with executeCommand
+        m_messages[child.attribute("name").value()] = msg; // record the message with the name as the key
+        g_configuration->registerCommandInterface(std::string(name), this); // register name with executeCommand
       }
   }
 
@@ -541,25 +542,25 @@ namespace PLEXIL
   }
 
   // Start a UDP Message Handler for a node waiting on a UDP message
-  int UdpAdapter::startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack)
+  int UdpAdapter::startUdpMessageReceiver(const std::string& name, Command * /* cmd */)
   {
     //ThreadMutexGuard guard(m_cmdMutex);
     debugMsg("UdpAdapter::startUdpMessageReceiver",
-             " entered for " << name.toString() << ", dest==" << dest << ", ack==" << ack);
+             " entered for " << name);
     // Find the message definition to get the message port and size
     MessageMap::iterator msg;
-    msg=m_messages.find(name.c_str());
+    msg=m_messages.find(name);
     assertTrueMsg(msg != m_messages.end(),
-                  "UdpAdapter::startUdpMessageReceiver: no message found for " << name.c_str());
+                  "UdpAdapter::startUdpMessageReceiver: no message found for " << name);
     // Check for a bogus local port
     assertTrueMsg(msg->second.local_port != 0,
-                  "startUdpMessageReceiver: bad local port (0) given for " << name.c_str() << " message");
-    msg->second.name = name.c_str();
+                  "startUdpMessageReceiver: bad local port (0) given for " << name << " message");
+    msg->second.name = name;
     msg->second.self = (void*) this; // pass a reference to "this" UdpAdapter for later use
     // Try to set up the socket so that we can close it later if the thread is cancelled
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     assertTrueMsg(sock > 0, "UdpAdapter::startUdpMessageReceiver: call to socket() failed");
-    debugMsg("UdpAdapter::startUdpMessageReceiver", " " << name.toString() << " socket (" << sock << ") opened");
+    debugMsg("UdpAdapter::startUdpMessageReceiver", " " << name << " socket (" << sock << ") opened");
     msg->second.sock = sock; // pass the socket descriptor to waitForUdpMessage, which will then reset it
     pthread_t thread_handle;
     // Spawn the listener thread
@@ -567,10 +568,10 @@ namespace PLEXIL
     // Check to see if the thread got started correctly
     assertTrueMsg(thread_handle != 0, "UdpAdapter::startUdpMessageReceiver: threadSpawn return NULL");
     debugMsg("UdpAdapter::startUdpMessageReceiver",
-             " " << name.toString() << " listener thread (" << thread_handle << ") spawned");
+             " " << name << " listener thread (" << thread_handle << ") spawned");
     // Record the thread and socket in case they have to be cancelled and closed later (in invokeAbort)
-    m_activeThreads[name.c_str()]=thread_handle;
-    m_activeSockets[name.c_str()]=sock;
+    m_activeThreads[name] = thread_handle;
+    m_activeSockets[name] = sock;
     return 0;
   }
 
@@ -607,9 +608,9 @@ namespace PLEXIL
     static int counter = 1;     // gensym counter
     std::ostringstream unique_id;
     unique_id << msgDef->name << ":msg_parameter:" << counter++;
-    LabelStr msg_label(unique_id.str());
+    std::string msg_label(unique_id.str());
     debugMsg("UdpAdapter::handleUdpMessage", " adding \"" << msgDef->name << "\" to the command queue");
-    const LabelStr msg_name = formatMessageName(msgDef->name.c_str(), RECEIVE_COMMAND_COMMAND());
+    const std::string msg_name = formatMessageName(msgDef->name, RECEIVE_COMMAND_COMMAND());
     m_messageQueues.addMessage(msg_name, msg_label);
     // (2) walk the parameters, and for each, call addMessage(label, <value-or-key>), which
     //     (somehow) arranges for executeCommand(GetParameter) to be called, and which in turn
@@ -619,7 +620,7 @@ namespace PLEXIL
     std::vector<Parameter>::const_iterator param;
     for (param=msgDef->parameters.begin() ; param != msgDef->parameters.end() ; param++, i++)
       {
-        const LabelStr param_label = formatMessageName(msg_label, GET_PARAMETER_COMMAND(), i);
+        const std::string param_label = formatMessageName(msg_label, GET_PARAMETER_COMMAND(), i);
         int len = param->len;   // number of bytes to read
         int size = param->elements; // size of the array, or 1 for scalars
         std::string type = param->type; // type to decode
@@ -637,108 +638,105 @@ namespace PLEXIL
                         << "]: ";
             }
         }
-        if (type.compare("int") == 0)
-          {
-            assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
-            int num;
-            num = (len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset);
-            if (debug) std::cout << num << std::endl;
-            debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (integer) parameter " << num);
-            m_messageQueues.addMessage(param_label, Value(num));
+        if (type.compare("int") == 0) {
+          assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
+          int num;
+          num = (len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset);
+          if (debug) std::cout << num << std::endl;
+          debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (integer) parameter " << num);
+          m_messageQueues.addMessage(param_label, Value(num));
+          offset += len;
+        }
+        else if (type.compare("int-array") == 0) {
+          assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
+          IntegerArray array(size);
+          for (int i = 0 ; i < size ; i++) {
+            array.setElement(i, (int32_t) ((len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset)));
             offset += len;
           }
-        else if (type.compare("int-array") == 0)
-          {
-            assertTrueMsg((len==2 || len==4), "handleUdpMessage: Integers must be 2 or 4 bytes, not " << len);
-            StoredArray array(size, Value(0));
-            for (int i = 0 ; i < size ; i++)
-              {
-                array[i] = Value((int32_t) ((len == 2) ? decode_short_int(buffer, offset) : decode_long_int(buffer, offset)));
-                offset += len;
-              }
-            if (debug) std::cout << array.toString() << std::endl;
-            debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (integer) array " << array.toString());
-            m_messageQueues.addMessage(param_label, array);
-          }
-        else if (type.compare("float") == 0)
-          {
-            assertTrueMsg(len==4, "handleUdpMessage: Reals must be 4 bytes, not " << len);
-            float num;
-            num = decode_float(buffer, offset);
-            if (debug) std::cout << num << std::endl;
-            debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (real) parameter " << num);
-            m_messageQueues.addMessage(param_label, Value((double) num));
+          if (debug)
+            std::cout << array.toString() << std::endl;
+          debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (integer) array " << array.toString());
+          m_messageQueues.addMessage(param_label, array);
+        }
+        else if (type.compare("float") == 0) {
+          assertTrueMsg(len==4, "handleUdpMessage: Reals must be 4 bytes, not " << len);
+          float num = decode_float(buffer, offset);
+          if (debug)
+            std::cout << num << std::endl;
+          debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (real) parameter " << num);
+          m_messageQueues.addMessage(param_label, Value((double) num));
+          offset += len;
+        }
+        else if (type.compare("float-array") == 0) {
+          assertTrueMsg(len==4, "handleUdpMessage: Reals must be 4 bytes, not " << len);
+          RealArray array(size);
+          for (int i = 0 ; i < size ; i++) {
+            array.setElement(i, (double) decode_float(buffer, offset));
             offset += len;
           }
-        else if (type.compare("float-array") == 0)
-          {
-            assertTrueMsg(len==4, "handleUdpMessage: Reals must be 4 bytes, not " << len);
-            StoredArray array(size, Value(0.0));
-            for (int i = 0 ; i < size ; i++)
-              {
-                array[i] = Value(decode_float(buffer, offset));
-                offset += len;
-              }
-            if (debug) std::cout << array.toString() << std::endl;
-            debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (real) array " << array.toString());
-            m_messageQueues.addMessage(param_label, Value(array));
+          if (debug)
+            std::cout << array.toString() << std::endl;
+          debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (real) array " << array.toString());
+          m_messageQueues.addMessage(param_label, Value(array));
+        }
+        else if (type.compare("bool") == 0) {
+          assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
+          int num;
+          switch (len) {
+          case 1:
+            num = network_bytes_to_number(buffer, offset, 8, false); break;
+          case 2:
+            num = decode_short_int(buffer, offset); break;
+          default:
+            num = decode_long_int(buffer, offset);
           }
-        else if (type.compare("bool") == 0)
-          {
-            assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
-            int num;
-            switch (len)
-              {
-              case 1: num = network_bytes_to_number(buffer, offset, 8, false); break;
-              case 2: num = decode_short_int(buffer, offset); break;
-              default: num = decode_long_int(buffer, offset);
-              }
-            if (debug) std::cout << num << std::endl;
-            debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (boolean) parameter " << num);
-            m_messageQueues.addMessage(param_label, Value((double) num));
+          if (debug)
+            std::cout << num << std::endl;
+          debugMsg("UdpAdapter::handleUdpMessage", " queueing numeric (boolean) parameter " << num);
+          m_messageQueues.addMessage(param_label, Value(num != 0));
+          offset += len;
+        }
+        else if (type.compare("bool-array") == 0) {
+          assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
+          BooleanArray array(size);
+          for (int i = 0 ; i < size ; i++) {
+            switch (len) {
+            case 1: 
+              array.setElement(i, 0 != network_bytes_to_number(buffer, offset, 8, false)); break;
+            case 2:
+              array.setElement(i, 0 != decode_short_int(buffer, offset)); break;
+            default:
+              array.setElement(i, 0 != decode_long_int(buffer, offset)); break;
+            }
             offset += len;
           }
-        else if (type.compare("bool-array") == 0)
-          {
-            assertTrueMsg((len==1 || len==2 || len==4), "handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
-            StoredArray array(size, Value(false));
-            for (int i = 0 ; i < size ; i++)
-              {
-                switch (len)
-                  {
-                  case 1: array[i] = Value((double) network_bytes_to_number(buffer, offset, 8, false)); break;
-                  case 2: array[i] = Value((double) decode_short_int(buffer, offset)); break;
-                  default: array[i] = Value((double) decode_long_int(buffer, offset)); break;
-                  }
-                offset += len;
-              }
-            if (debug) std::cout << array.toString() << std::endl;
-            debugMsg("UdpAdapter::handleUdpMessage", " queueing boolean array " << array.toString());
-            m_messageQueues.addMessage(param_label, Value(array));
-          }
-        else if (type.compare("string-array") == 0)
-          {
-            // XXXX For unknown reasons, OnCommand(... String arg); is unable to receive this (inlike int and float arrays)
-            StoredArray array(size, LabelStr());
-            for (int i = 0 ; i < size ; i++)
-              {
-                std::string str = decode_string(buffer, offset, len);
-                array[i] = Value(str);
-                offset += len;
-              }
-            if (debug) std::cout << array.toString() << std::endl;
-            debugMsg("UdpAdapter::handleUdpMessage", " queuing string array " << array.toString());
-            m_messageQueues.addMessage(param_label, Value(array));
-          }
-        else // string or die
-          {
-            assertTrueMsg(!type.compare("string"), "handleUdpMessage: unknown parameter type " << type.c_str());
-            std::string str = decode_string(buffer, offset, len);
-            if (debug) std::cout << str << std::endl;
-            debugMsg("UdpAdapter::handleUdpMessage", " queuing string parameter \"" << str << "\"");
-            m_messageQueues.addMessage(param_label, Value(str));
+          if (debug)
+            std::cout << array.toString() << std::endl;
+          debugMsg("UdpAdapter::handleUdpMessage", " queueing boolean array " << array.toString());
+          m_messageQueues.addMessage(param_label, Value(array));
+        }
+        else if (type.compare("string-array") == 0) {
+          // XXXX For unknown reasons, OnCommand(... String arg); is unable to receive this (inlike int and float arrays)
+          StringArray array(size);
+          for (int i = 0 ; i < size ; i++) {
+            array.setElement(i, decode_string(buffer, offset, len));
             offset += len;
           }
+          if (debug)
+            std::cout << array.toString() << std::endl;
+          debugMsg("UdpAdapter::handleUdpMessage", " queuing string array " << array.toString());
+          m_messageQueues.addMessage(param_label, Value(array));
+        }
+        else { // string or die
+          assertTrueMsg(!type.compare("string"), "handleUdpMessage: unknown parameter type " << type);
+          std::string str = decode_string(buffer, offset, len);
+          if (debug)
+            std::cout << str << std::endl;
+          debugMsg("UdpAdapter::handleUdpMessage", " queuing string parameter \"" << str << "\"");
+          m_messageQueues.addMessage(param_label, Value(str));
+          offset += len;
+        }
       }
     return 0;
   }
@@ -751,8 +749,11 @@ namespace PLEXIL
     return status;
   }
 
-  int UdpAdapter::buildUdpBuffer(unsigned char* buffer, const UdpMessage& msg, const std::vector<Value>& args,
-                                 bool skip_arg, bool debug)
+  int UdpAdapter::buildUdpBuffer(unsigned char* buffer,
+                                 const UdpMessage& msg,
+                                 const std::vector<Value>& args,
+                                 bool skip_arg,
+                                 bool debug)
   {
     std::vector<Value>::const_iterator it;
     std::vector<Parameter>::const_iterator param;
@@ -763,178 +764,230 @@ namespace PLEXIL
     if (skip_arg) param_count++;
     assertTrueMsg((args.size() == param_count),
                   "the " << param_count << " parameters defined in the XML configuration file do not match the "
-                  << args.size() << " para-maters used in the plan for <Message name=\"" << msg.name << "\"/>");
+                  << args.size() << " parameters used in the plan for <Message name=\"" << msg.name << "\"/>");
     // Iterate over the given args (it) and the message definition (param) in lock step to encode the outgoing buffer.
-    for (param=msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(); param++, it++)
-      {
-        if (skip_arg) { it++; skip_arg = false; } // only skip the first arg
-        unsigned int len = param->len;
-        std::string type = param->type;
-        const Value& plexil_val = *it;
-        // The parameter passed will be one of these two
-        if (debug) std::cout << "  buildUdpBuffer: encoding ";
-        // Encode only 32 bit entities (i.e., no 64 bit reals/ints)
-        if (type.compare("int") == 0)
-          {
-            assertTrueMsg((len==2 || len==4), "buildUdpBuffer: Integers must be 2 or 4 bytes, not " << len);
-            // Large ints (> 32 bits) are caught in Expression.cc:337
-            if (debug) std::cout << len << " byte int starting at buffer[" << start_index << "]: " << plexil_val.getIntValue();
-            if (len==2)
-              {
-                int temp = plexil_val.getIntValue();
-                assertTrueMsg(SHRT_MIN <= temp && temp <= SHRT_MAX,
-                              "buildUdpBuffer: 2 bytes integers must be between " << SHRT_MIN << " and " << SHRT_MAX
-                              << ", " << temp << " is not");
-                encode_short_int(temp, buffer, start_index);
-              }
-            else
-              encode_long_int(plexil_val.getIntValue(), buffer, start_index);
-            start_index += len;
-          }
-        else if (type.compare("int-array") == 0)
-          {
-            assertTrueMsg((len==2 || len==4), "buildUdpBuffer: Integers must be 2 or 4 bytes, not " << len);
-            unsigned int size = param->elements; // XXXX
-            StoredArray array = plexil_val;
-            if (debug) std::cout << size << " element array of " << len << " byte ints starting at ["
-                                 << start_index << "]: " << array.toString();
-            assertTrueMsg(size==array.size(), "buildUdpBuffer: declared and actual array sizes differ: "
-                          << size << " was delcared, but " << array.size() << " is being used in the plan");
-            for (unsigned int i = 0 ; i < size ; i++)
-              {
-                int temp = array[i].getIntValue();
-                if (len==2)
-                  {
-                    assertTrueMsg(SHRT_MIN <= temp && temp <= SHRT_MAX,
-                                  "buildUdpBuffer: 2 bytes integers must be between " << SHRT_MIN << " and " << SHRT_MAX
-                                  << ", " << temp << " is not");
-                    encode_short_int(temp, buffer, start_index);
-                  }
-                else
-                  encode_long_int(temp, buffer, start_index);
-                start_index += len;
-              }
-          }
-        else if (type.compare("float-array") == 0)
-          {
-            assertTrueMsg(len==4, "buildUdpBuffer: Reals must be 4 bytes, not " << len);
-            unsigned int size = param->elements;
-            assertTrueMsg(size >= 1, "buildUdpBuffer: all scalars and arrays must be of at least size 1, not " << size);
-            StoredArray array = plexil_val;
-            if (debug) std::cout << size << " element array of " << len << " byte floats starting at buffer["
-                                 << start_index << "]: " << array.toString();
-            assertTrueMsg(size==array.size(), "buildUdpBuffer: declared and actual (float) array sizes differ: "
-                          << size << " was delcared, but " << array.size() << " is being used in the plan");
-            for (unsigned int i = 0 ; i < size ; i++)
-              {
-                double temp = array[i].getDoubleValue();
-                assertTrueMsg((-FLT_MAX) <= temp && temp <= FLT_MAX,
-                              "buildUdpBuffer: Reals (floats) must be between " << (-FLT_MAX) << " and " << FLT_MAX <<
-                              ", " << temp << " is not");
-                encode_float((float) temp, buffer, start_index);
-                start_index += len;
-              }
-          }
-        else if (type.compare("float") == 0)
-          {
-            double temp = plexil_val.getDoubleValue();
-            assertTrueMsg(len==4, "buildUdpBuffer: Reals must be 4 bytes, not " << len);
-            // Catch really big floats
-            assertTrueMsg((-FLT_MAX) <= temp && temp <= FLT_MAX,
-                          "buildUdpBuffer: Reals (floats) must be between " << (-FLT_MAX) << " and " << FLT_MAX <<
-                          ", not " << plexil_val);
-            if (debug) std::cout << len << " byte float starting at buffer[" << start_index << "]: " << temp;
-            encode_float((float) temp, buffer, start_index);
-            start_index += len;
-          }
-        else if (type.compare("bool-array") == 0)
-          {
-            assertTrueMsg((len==1 || len==2 || len==4), "buildUdpBuffer: Booleans must be 1, 2 or 4 bytes, not " << len);
-            unsigned int size = param->elements;
-            StoredArray array = plexil_val;
-            if (debug) std::cout << size << " element array of " << len << " byte booleans starting at buffer["
-                                 << start_index << "]: " << array.toString();
-            assertTrueMsg(size==array.size(), "buildUdpBuffer: declared and actual (boolean) array sizes differ: "
-                          << size << " was delcared, but " << array.size() << " is being used in the plan");
-            for (unsigned int i = 0 ; i < size ; i++)
-              {
-                assertTrueMsg(!array[i].isUnknown(), "buildUdpBuffer: Booleans must be either true ("
-                              << true << ") or false (" << false << ")" << ", not UNKNOWN");
-                bool temp = array[i].getBoolValue();
-                switch (len)
-                  {
-                  case 1: number_to_network_bytes(temp, buffer, start_index, 8, false); break;
-                  case 2: encode_short_int(temp, buffer, start_index); break;
-                  default: encode_long_int(temp, buffer, start_index);
-                  }
-                start_index += len;
-              }
-          }
-        else if (type.compare("bool") == 0) // these are 64 bits in Plexil
-          {
-            assertTrueMsg((len==1 || len==2 || len==4), "buildUdpBuffer: Booleans must be 1, 2 or 4 bytes, not " << len);
-            assertTrueMsg(plexil_val.isBoolean(), "buildUdpBuffer: Booleans must be either true ("
-                          << true << ") or false (" << false << ")" << ", not " << plexil_val);
-            if (debug)
-              std::cout << len << " byte bool starting at buffer[" << start_index << "]: " << plexil_val.getBoolValue();
-            switch (len)
-              {
-              case 1: number_to_network_bytes(plexil_val.getBoolValue(), buffer, start_index, 8, false); break;
-              case 2: encode_short_int(plexil_val.getBoolValue(), buffer, start_index); break;
-              default: encode_long_int(plexil_val.getBoolValue(), buffer, start_index);
-              }
-            start_index += len;
-          }
-        else if (type.compare("string-array") == 0)
-          {
-            unsigned int size = param->elements;
-            StoredArray array = plexil_val;
-            if (debug) std::cout << size << " element array of " << len << " byte strings starting at buffer["
-                                 << start_index << "]: " << array.toString();
-            assertTrueMsg(size==array.size(), "buildUdpBuffer: declared and actual (string) array sizes differ: "
-                          << size << " was delcared, but " << array.size() << " is being used in the plan");
-            for (unsigned int i = 0 ; i < size ; i++)
-              {
-                const std::string& str = array[i].getStringValue();
-                assertTrueMsg(str.length()<=len, "buildUdpBuffer: declared string length (" << len <<
-                              ") and actual length (" << str.length() << ", " << str.c_str() <<
-                              ") used in the plan are not compatible");
-                encode_string(str, buffer, start_index);
-                start_index += len;
-              }
-          }
-        else
-          {
-            assertTrueMsg(!type.compare("string"), "buildUdpBuffer: unknown parameter type " << type.c_str());
-            const std::string& str = plexil_val.getStringValue();
-            assertTrueMsg(str.length()<=len, "buildUdpBuffer: declared string length (" << len <<
-                          ") and actual length (" << str.length() << ", " << str.c_str() <<
-                          ") used in the plan are not compatible");
-            if (debug) std::cout << len << " byte string starting at buffer[" << start_index << "]: " << str;
-            encode_string(str, buffer, start_index);
-            start_index += len;
-          }
-        if (debug) std::cout << std::endl;
+    for (param = msg.parameters.begin(), it=args.begin(); param != msg.parameters.end(); param++, it++) {
+      if (skip_arg) { // only skip the first arg
+        it++; 
+        skip_arg = false; 
       }
-    if (debug)
-      {
+      unsigned int len = param->len;
+      std::string type = param->type;
+      Value const &plexil_val = *it;
+      assertTrue_2(plexil_val.isKnown(),
+                   "buildUdpBuffer: Value to be sent is unknown");
+
+      ValueType valType = plexil_val.valueType();
+      
+      if (debug)
+        std::cout << "  buildUdpBuffer: encoding ";
+      if (type.compare("bool") == 0) {
+        assertTrueMsg((len==1 || len==2 || len==4),
+                      "buildUdpBuffer: Booleans must be 1, 2 or 4 bytes, not " << len);
+        assertTrue_2(valType == BOOLEAN_TYPE,
+                     "buildUdpBuffer: Format requires Boolean, but supplied value is not");
+        bool temp;
+        plexil_val.getValue(temp);
+        if (debug)
+          std::cout << len << " byte bool starting at buffer[" << start_index << "]: " << temp;
+        switch (len) {
+        case 1: 
+          number_to_network_bytes(temp, buffer, start_index, 8, false); break;
+        case 2:
+          encode_short_int(temp, buffer, start_index); break;
+        default:
+          encode_long_int(temp, buffer, start_index);
+        }
+        start_index += len;
+      }
+      else if (type.compare("int") == 0) {
+        assertTrueMsg((len==2 || len==4),
+                      "buildUdpBuffer: Integers must be 2 or 4 bytes, not " << len);
+        assertTrue_2(valType == INTEGER_TYPE,
+                      "buildUdpBuffer: Format requires Integer, but supplied value is not");
+
+        if (debug)
+          std::cout << len << " byte int starting at buffer[" << start_index << "]: " << plexil_val;
+        int32_t temp;
+        plexil_val.getValue(temp);
+        if (len==2) {
+          // *** FIXME *** Portability issues
+          assertTrueMsg(SHRT_MIN <= temp && temp <= SHRT_MAX,
+                        "buildUdpBuffer: 2 bytes integers must be between " << SHRT_MIN << " and " << SHRT_MAX
+                        << ", " << temp << " is not");
+          encode_short_int(temp, buffer, start_index);
+        }
+        else
+          encode_long_int(temp, buffer, start_index);
+        start_index += len;
+      }
+      else if (type.compare("float") == 0) {
+        assertTrueMsg(len == 4,
+                      "buildUdpBuffer: Reals must be 4 bytes, not " << len);
+        assertTrue_2(valType == REAL_TYPE,
+                     "buildUdpBuffer: Format requires Real, but supplied value is not");
+        double temp;
+        plexil_val.getValue(temp);
+        // Catch really big floats
+        assertTrueMsg((-FLT_MAX) <= temp && temp <= FLT_MAX,
+                      "buildUdpBuffer: Reals (floats) must be between " << (-FLT_MAX) << " and " << FLT_MAX <<
+                      ", not " << plexil_val);
+        if (debug) std::cout << len << " byte float starting at buffer[" << start_index << "]: " << temp;
+        encode_float((float) temp, buffer, start_index);
+        start_index += len;
+      }
+      else if (type.compare("string") == 0) {
+        assertTrue_2(valType == STRING_TYPE,
+                     "buildUdpBuffer: Format requires String, but supplied value is not");
+        std::string const *str = NULL;
+        plexil_val.getValuePointer(str);
+        assertTrueMsg(str->length() <= len,
+                      "buildUdpBuffer: declared string length (" << len <<
+                      ") and actual length (" << str->length() << ", " << *str <<
+                      ") used in the plan are not compatible");
+        if (debug) 
+          std::cout << len << " byte string starting at buffer[" << start_index << "]: " << str;
+        encode_string(*str, buffer, start_index);
+        start_index += len;
+      }
+      else if (type.compare("bool-array") == 0) {
+        assertTrue_2(valType == BOOLEAN_ARRAY_TYPE,
+                     "buildUdpBuffer: Format requires BooleanArray, but supplied value is not");
+        assertTrueMsg((len == 1 || len == 2 || len == 4),
+                      "buildUdpBuffer: Booleans must be 1, 2 or 4 bytes, not " << len);
+        unsigned int size = param->elements;
+        BooleanArray const *array = NULL;
+        plexil_val.getValuePointer(array);
+        if (debug)
+          std::cout << size << " element array of " << len << " byte booleans starting at buffer["
+                    << start_index << "]: " << array->toString();
+        assertTrueMsg(size == array->size(),
+                      "buildUdpBuffer: declared and actual (boolean) array sizes differ: "
+                      << size << " was declared, but " << array->size() << " is being used in the plan");
+        for (unsigned int i = 0 ; i < size ; i++) {
+          bool temp;
+          assertTrueMsg(array->getElement(i, temp),
+                        "buildUdpBuffer: Array element at index " << i << " is unknown");
+          switch (len) {
+          case 1:
+            number_to_network_bytes(temp, buffer, start_index, 8, false); break;
+          case 2:
+            encode_short_int(temp, buffer, start_index); break;
+          default:
+            encode_long_int(temp, buffer, start_index);
+          }
+          start_index += len;
+        }
+      }
+      else if (type.compare("int-array") == 0) {
+        assertTrueMsg((len==2 || len==4), "buildUdpBuffer: Integers must be 2 or 4 bytes, not " << len);
+        unsigned int size = param->elements;
+        assertTrueMsg(plexil_val.valueType() == INTEGER_ARRAY_TYPE,
+                      "buildUdpBuffer: Format requires IntegerArray, supplied value is a "
+                      << valueTypeName(plexil_val.valueType()));
+        IntegerArray const *array = NULL;
+        plexil_val.getValuePointer(array);
+        if (debug)
+          std::cout << size << " element array of " << len << " byte ints starting at ["
+                    << start_index << "]: " << array->toString();
+        assertTrueMsg(size == array->size(),
+                      "buildUdpBuffer: declared and actual array sizes differ: "
+                      << size << " was declared, but " << array->size() << " is being used in the plan");
+        for (unsigned int i = 0 ; i < size ; i++) {
+          int32_t temp;
+          assertTrueMsg(array->getElement(i, temp),
+                        "buildUdpBuffer: Array element at index " << i << " is unknown");
+          if (len==2) {
+            assertTrueMsg(SHRT_MIN <= temp && temp <= SHRT_MAX,
+                          "buildUdpBuffer: 2 bytes integers must be between " << SHRT_MIN << " and " << SHRT_MAX
+                          << ", " << temp << " is not");
+            encode_short_int(temp, buffer, start_index);
+          }
+          else
+            encode_long_int(temp, buffer, start_index);
+          start_index += len;
+        }
+      }
+      else if (type.compare("float-array") == 0) {
+        assertTrueMsg(len==4, "buildUdpBuffer: Reals must be 4 bytes, not " << len);
+        unsigned int size = param->elements;
+        assertTrueMsg(size >= 1, "buildUdpBuffer: all scalars and arrays must be of at least size 1, not " << size);
+        assertTrueMsg(plexil_val.valueType() == REAL_ARRAY_TYPE,
+                      "buildUdpBuffer: Format requires RealArray, supplied value is a "
+                      << valueTypeName(plexil_val.valueType()));
+        RealArray const *array = NULL;
+        plexil_val.getValuePointer(array);
+        if (debug)
+          std::cout << size << " element array of " << len << " byte floats starting at buffer["
+                    << start_index << "]: " << array->toString();
+        assertTrueMsg(size == array->size(),
+                      "buildUdpBuffer: declared and actual (float) array sizes differ: "
+                      << size << " was declared, but " << array->size() << " is being used in the plan");
+        for (unsigned int i = 0 ; i < size ; i++) {
+          double temp;
+          assertTrueMsg(array->getElement(i, temp),
+                        "buildUdpBuffer: Array element at index " << i << " is unknown");
+          assertTrueMsg((-FLT_MAX) <= temp && temp <= FLT_MAX,
+                        "buildUdpBuffer: Reals (floats) must be between " << (-FLT_MAX) << " and " << FLT_MAX <<
+                        ", " << temp << " is not");
+          encode_float((float) temp, buffer, start_index);
+          start_index += len;
+        }
+      }
+      else if (type.compare("string-array") == 0) {
+        unsigned int size = param->elements;
+        assertTrueMsg(plexil_val.valueType() == STRING_ARRAY_TYPE,
+                      "buildUdpBuffer: Format requires StringArray, supplied value is a "
+                      << valueTypeName(plexil_val.valueType()));
+        StringArray const *array = NULL;
+        plexil_val.getValuePointer(array);
+        if (debug)
+          std::cout << size << " element array of " << len << " byte strings starting at buffer["
+                    << start_index << "]: " << array->toString();
+        assertTrueMsg(size == array->size(),
+                      "buildUdpBuffer: declared and actual (string) array sizes differ: "
+                      << size << " was declared, but " << array->size() << " is being used in the plan");
+        for (unsigned int i = 0 ; i < size ; i++) {
+          std::string const *temp = NULL;
+          assertTrueMsg(array->getElementPointer(i, temp),
+                        "buildUdpBuffer: Array element at index " << i << " is unknown");
+          assertTrueMsg(temp->length() <= len, "buildUdpBuffer: declared string length (" << len <<
+                        ") and actual length (" << temp->length() <<
+                        ") used in the plan are not compatible");
+          encode_string(*temp, buffer, start_index);
+          start_index += len;
+        }
+      }
+      else
+        assertTrueMsg(ALWAYS_FAIL, "buildUdpBuffer: unknown parameter type " << type);
+
+      if (debug)
+        std::cout << std::endl;
+    }
+    if (debug) {
         std::cout << "  buildUdpBuffer: buffer: ";
         print_buffer(buffer, msg.len);
       }
     return start_index;
   }
 
-  void UdpAdapter::printMessageContent(const LabelStr& name, const std::vector<Value>& args)
+  void UdpAdapter::printMessageContent(const std::string& name, const std::vector<Value>& args)
   {
     // Print the content of a message
     std::vector<Value>::const_iterator it;
-    std::cout << "Message: " << name.c_str() << ", Params:";
+    std::cout << "Message: " << name << ", Params:";
     for (it=args.begin(); it != args.end(); it++) {
       // Real, Integer, Boolean, String (and Array, maybe...)
       // Integers and Booleans are represented as Real (oops...)
       std::cout << " ";
-      if (it->isString()) // Extract strings
-        std::cout << "\"" << it->getStringValue() << "\"";
+      if (it->valueType() == STRING_TYPE) { 
+        // Extract strings
+        std::string const *temp = NULL;
+        if (it->getValuePointer(temp))
+          std::cout << "\"" << *temp << "\"";
+        else
+          std::cout << "UNKNOWN";
+      }
       else { // Extract numbers (bool, float, int)
         std::cout << *it;
       }
@@ -942,17 +995,17 @@ namespace PLEXIL
     std::cout << std::endl;
   }
 
-  LabelStr UdpAdapter::formatMessageName(const LabelStr& name, const LabelStr& command, int /* id */)
+  std::string UdpAdapter::formatMessageName(const std::string& name, const std::string& command, int /* id */)
   {
-    return formatMessageName(name.c_str(), command, 0);
+    return formatMessageName(name, command, 0);
   }
 
-  LabelStr UdpAdapter::formatMessageName(const LabelStr& name, const LabelStr& command)
+  std::string UdpAdapter::formatMessageName(const std::string& name, const std::string& command)
   {
-    return formatMessageName(name.c_str(), command, 0);
+    return formatMessageName(name, command, 0);
   }
 
-  LabelStr UdpAdapter::formatMessageName(const char* name, const LabelStr& command, int id)
+  std::string UdpAdapter::formatMessageName(const char* name, const std::string& command, int id)
   {
     std::ostringstream ss;
     if (command == RECEIVE_COMMAND_COMMAND())
@@ -960,7 +1013,7 @@ namespace PLEXIL
     else if (command == GET_PARAMETER_COMMAND())
       ss << PARAM_PREFIX();
     ss << name << '_' << id;
-    return LabelStr(ss.str());
+    return ss.str();
   }
 
 }

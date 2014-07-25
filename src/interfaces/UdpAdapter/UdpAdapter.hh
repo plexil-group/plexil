@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,8 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "ConstantMacros.hh"
 #include "InterfaceAdapter.hh"
-#include "LabelStr.hh"
 #include "MessageQueueMap.hh"
 #include "udp-utils.hh"
 #include "ThreadSpawn.hh"
@@ -66,18 +66,18 @@ namespace PLEXIL
     // Static Class Constants
     DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_PREFIX, "__COMMAND__")
     DECLARE_STATIC_CLASS_CONST(std::string, PARAM_PREFIX, "__PARAMETER__")
-    DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_MESSAGE_COMMAND, "SendMessage")
-    DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
-    DECLARE_STATIC_CLASS_CONST(LabelStr, GET_PARAMETER_COMMAND, "GetParameter")
-    DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
+    DECLARE_STATIC_CLASS_CONST(std::string, SEND_MESSAGE_COMMAND, "SendMessage")
+    DECLARE_STATIC_CLASS_CONST(std::string, RECEIVE_COMMAND_COMMAND, "ReceiveCommand")
+    DECLARE_STATIC_CLASS_CONST(std::string, GET_PARAMETER_COMMAND, "GetParameter")
+    DECLARE_STATIC_CLASS_CONST(std::string, SEND_RETURN_VALUE_COMMAND, "SendReturnValue")
     //DECLARE_STATIC_CLASS_CONST(std::string, MESSAGE_PREFIX, "__MESSAGE__")
     //DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_PREFIX, "__LOOKUP__")
     //DECLARE_STATIC_CLASS_CONST(std::string, LOOKUP_ON_CHANGE_PREFIX, "__LOOKUP_ON_CHANGE__")
     //DECLARE_STATIC_CLASS_CONST(std::string, SERIAL_UID_SEPARATOR, ":")
-    //DECLARE_STATIC_CLASS_CONST(LabelStr, SEND_UDP_MESSAGE_COMMAND, "SendUdpMessage")
-    //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_UDP_MESSAGE_COMMAND, "ReceiveUdpMessage")
-    //DECLARE_STATIC_CLASS_CONST(LabelStr, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
-    //DECLARE_STATIC_CLASS_CONST(LabelStr, UPDATE_LOOKUP_COMMAND, "UpdateLookup")
+    //DECLARE_STATIC_CLASS_CONST(std::string, SEND_UDP_MESSAGE_COMMAND, "SendUdpMessage")
+    //DECLARE_STATIC_CLASS_CONST(std::string, RECEIVE_UDP_MESSAGE_COMMAND, "ReceiveUdpMessage")
+    //DECLARE_STATIC_CLASS_CONST(std::string, RECEIVE_MESSAGE_COMMAND, "ReceiveMessage")
+    //DECLARE_STATIC_CLASS_CONST(std::string, UPDATE_LOOKUP_COMMAND, "UpdateLookup")
 
     // Constructor/Destructor
     UdpAdapter(AdapterExecInterface& execInterface);
@@ -90,16 +90,14 @@ namespace PLEXIL
     bool stop();
     bool reset();
     bool shutdown();
-    Value lookupNow(const State& stateKey);
+    void lookupNow(State const &state, StateCacheEntry &cacheEntry);
     void subscribe(const State& state);
     void unsubscribe(const State& state);
-    void sendPlannerUpdate(Node *node,
-                           const std::map<std::string, Value>& valuePairs,
-                           ExpressionId ack);
-    // Executes a command with the given arguments
-    void executeCommand(const CommandId& cmd);
-    // Abort the given command with the given arguments.  Store the abort-complete into ack
-    void invokeAbort(const CommandId& cmd);
+    void sendPlannerUpdate(Update *upd);
+    // Executes the command.
+    void executeCommand(Command *cmd);
+    // Abort the given command.  Store the abort-complete into ack
+    void invokeAbort(Command *cmd);
 
     ThreadMutex m_cmdMutex;
 
@@ -122,13 +120,13 @@ namespace PLEXIL
     //
     // Implementation methods
     //
-    void executeSendUdpMessageCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
-    void executeReceiveUdpCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
-    void executeSendMessageCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
-    void executeReceiveCommandCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
-    void executeGetParameterCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
-    void executeSendReturnValueCommand(const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
-    void executeDefaultCommand(const LabelStr& name, const std::vector<Value>& args, ExpressionId dest, ExpressionId ack);
+    void executeSendUdpMessageCommand(Command *cmd);
+    void executeReceiveUdpCommand(Command *cmd);
+    void executeSendMessageCommand(Command *cmd);
+    void executeReceiveCommandCommand(Command *cmd);
+    void executeGetParameterCommand(Command *cmd);
+    void executeSendReturnValueCommand(Command *cmd);
+    void executeDefaultCommand(Command *cmd);
 
     //
     // XML Support
@@ -140,14 +138,14 @@ namespace PLEXIL
                        const std::vector<Value>& args,
                        bool skip_arg=false,
                        bool debug=false);
-    void printMessageContent(const LabelStr& name, const std::vector<Value>& args);
+    void printMessageContent(const std::string& name, const std::vector<Value>& args);
     int sendUdpMessage(const unsigned char* buffer, const UdpMessage& msg, bool debug=false);
-    int startUdpMessageReceiver(const LabelStr& name, ExpressionId dest, ExpressionId ack);
+    int startUdpMessageReceiver(const std::string& name, Command *cmd);
     static void* waitForUdpMessage(UdpMessage* msg);
     int handleUdpMessage(const UdpMessage* msg, const unsigned char* buffer, bool debug=false);
-    LabelStr formatMessageName(const LabelStr& name, const LabelStr& command, int id);
-    LabelStr formatMessageName(const LabelStr& name, const LabelStr& command);
-    LabelStr formatMessageName(const char* name, const LabelStr& command, int id);
+    std::string formatMessageName(const std::string& name, const std::string& command, int id);
+    std::string formatMessageName(const std::string& name, const std::string& command);
+    std::string formatMessageName(const char* name, const std::string& command, int id);
   };
 }
 
