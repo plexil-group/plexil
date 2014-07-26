@@ -105,6 +105,7 @@ namespace PLEXIL
 
     // Utility
     virtual void print(std::ostream &s) const = 0;
+    virtual std::string toString() const;
 
   protected:
     // For use by implementation classes
@@ -115,6 +116,8 @@ namespace PLEXIL
 
     std::vector<bool> m_known;
   };
+
+  std::ostream &operator<<(std::ostream &s, Array const &a);
 
 } // namespace PLEXIL
 

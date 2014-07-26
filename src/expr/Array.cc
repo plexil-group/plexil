@@ -26,7 +26,8 @@
 
 #include "Array.hh"
 #include "Error.hh"
-#include <string>
+//#include <string>  // included by Error.hh
+//#include <sstream> // included by Error.hh
 
 namespace PLEXIL
 {
@@ -108,6 +109,19 @@ namespace PLEXIL
       if (m_known[i])
         return true;
     return false;
+  }
+
+  std::string Array::toString() const
+  {
+    std::ostringstream s;
+    this->print(s);
+    return s.str();
+  }
+
+  std::ostream &operator<<(std::ostream &s, Array const &a)
+  {
+    a.print(s);
+    return s;
   }
 
 } // namespace PLEXIL
