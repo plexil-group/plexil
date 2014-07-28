@@ -34,7 +34,7 @@
 #include "Error.hh"
 #include "Node.hh"              // struct PLEXIL::Node
 #include "StateCacheEntry.hh"
->#include "Update.hh"
+#include "Update.hh"
 #include "pugixml.hpp"
 #include "stricmp.h"
 
