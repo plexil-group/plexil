@@ -124,12 +124,28 @@ bool additionTest()
   assertTrue_1(iadd3_3.getValue(tempi));
   assertTrue_1(tempi == 27);
 
+  // Integer operator conversion to real
+  double tempr;
+
+  assertTrue_1(iadd2_1.getValue(tempr));
+  assertTrue_1(tempr == 2.0);
+  assertTrue_1(iadd2_2.getValue(tempr));
+  assertTrue_1(tempr == 28.0);
+  assertTrue_1(iadd2_3.getValue(tempr));
+  assertTrue_1(tempr == 30.0);
+
+  assertTrue_1(iadd3_1.getValue(tempr));
+  assertTrue_1(tempr == 3.0);
+  assertTrue_1(iadd3_2.getValue(tempr));
+  assertTrue_1(tempr == 31.0);
+  assertTrue_1(iadd3_3.getValue(tempr));
+  assertTrue_1(tempr == 27.0);
+
   // Real
   RealConstant too(2.5);
   RealConstant fore(4.5);
   RealVariable x;
   Addition<double> addr;
-  double tempr;
 
   // Unary not supported in schema
 
@@ -332,6 +348,16 @@ bool subtractionTest()
   assertTrue_1(isub1_3.getValue(tempi));
   assertTrue_1(tempi == -7);
 
+  // Integer operator to real result
+  double tempr;
+
+  assertTrue_1(isub1_1.getValue(tempr));
+  assertTrue_1(tempr == 1.0);
+  assertTrue_1(isub1_2.getValue(tempr));
+  assertTrue_1(tempr == -3.0);
+  assertTrue_1(isub1_3.getValue(tempr));
+  assertTrue_1(tempr == -7.0);
+
   // Binary
   std::vector<Expression *> iexprs2_1, iexprs2_2, iexprs2_3;
   iexprs2_1.push_back(&m1);
@@ -412,7 +438,6 @@ bool subtractionTest()
   RealConstant fore(4.5);
   RealVariable x;
   Subtraction<double> subr;
-  double tempr;
 
   // Unary
   std::vector<Expression *> rexprs1_1, rexprs1_2, rexprs1_3;
