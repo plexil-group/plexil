@@ -25,7 +25,6 @@
 */
 
 #include "OperatorImpl.hh"
-#include "Error.hh"
 #include "Expression.hh"
 #include "ArrayFwd.hh"
 
@@ -96,10 +95,25 @@ namespace PLEXIL
   }
 
   template <typename R>
+  bool OperatorImpl<ArrayImpl<R> >::calcNative(void *cache, ExprVec const &exprs) const
+  {
+    return exprs.apply(*(static_cast<ArrayImpl<R> *>(cache)), this);
+  }
+
+  template <typename R>
   void OperatorImpl<R>::printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
   {
     if (calcNative(cache, exprs))
       PLEXIL::printValue(*(static_cast<R const *>(cache)), s);
+    else
+      s << "UNKNOWN";
+  }
+
+  template <typename R>
+  void OperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
+  {
+    if (calcNative(cache, exprs))
+      PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
     else
       s << "UNKNOWN";
   }
@@ -110,6 +124,16 @@ namespace PLEXIL
     bool known = calcNative(cache, exprs);
     if (known)
       return Value(*(static_cast<R const *>(cache)));
+    else
+      return Value();
+  }
+
+  template <typename R>
+  Value OperatorImpl<ArrayImpl<R> >::toValue(void *cache, ExprVec const &exprs) const
+  {
+    bool known = calcNative(cache, exprs);
+    if (known)
+      return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
     else
       return Value();
   }
@@ -160,55 +184,6 @@ namespace PLEXIL
   {
     assertTrueMsg(ALWAYS_FAIL,
                   "Operator " << this->getName() << " not implemented for three or more arg case");
-    return false;
-  }
-
-  // Conversion or type error - default methods
-  template <typename R>
-  template <typename U>
-  bool OperatorImpl<R>::calc(U & /* result */, Expression const */* arg */) const
-  {
-    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-    return false;
-  }
-
-  template <typename R>
-  template <typename U>
-  bool OperatorImpl<R>::calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
-  {
-    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-    return false;
-  }
-
-  template <typename R>
-  template <typename U>
-  bool OperatorImpl<R>::calc(U & /* result */, ExprVec const & /* args */) const
-  {
-    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-    return false;
-  }
-
-  template <typename R>
-  template <typename U>
-  bool OperatorImpl<ArrayImpl<R> >::calc(U & /* result */, Expression const */* arg */) const
-  {
-    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-    return false;
-  }
-
-  template <typename R>
-  template <typename U>
-  bool OperatorImpl<ArrayImpl<R> >::calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
-  {
-    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
-    return false;
-  }
-
-  template <typename R>
-  template <typename U>
-  bool OperatorImpl<ArrayImpl<R> >::calc(U & /* result */, ExprVec const & /* args */) const
-  {
-    assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
     return false;
   }
 

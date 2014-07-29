@@ -29,6 +29,7 @@
 
 #include "Operator.hh"
 
+#include "Error.hh"
 #include "ExprVec.hh"
 #include "Value.hh"
 
@@ -38,146 +39,147 @@ namespace PLEXIL
   template <class IMPL>
   class OperatorShim : public Operator
   {
-  public:
+  protected:
     OperatorShim(std::string const &name) : Operator(name) {}
+
+  public:
     virtual ~OperatorShim() {}
 
-    bool operator()(bool &result, Expression const *arg) const
+    inline bool operator()(bool &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const
+    inline bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
 
-    bool operator()(bool &result, ExprVec const &args) const
+    inline bool operator()(bool &result, ExprVec const &args) const
     {
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(int32_t &result, Expression const *arg) const
+    inline bool operator()(int32_t &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(int32_t &result, Expression const *arg0, Expression const *arg1) const
+    inline bool operator()(int32_t &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
 
-    bool operator()(int32_t &result, ExprVec const &args) const
+    inline bool operator()(int32_t &result, ExprVec const &args) const
     {
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(double &result, Expression const *arg) const
+    inline bool operator()(double &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(double &result, Expression const *arg0, Expression const *arg1) const
+    inline bool operator()(double &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
 
-    bool operator()(double &result, ExprVec const &args) const
+    inline bool operator()(double &result, ExprVec const &args) const
     {
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(std::string &result, Expression const *arg) const
+    inline bool operator()(std::string &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(std::string &result, Expression const *arg0, Expression const *arg1) const
+    inline bool operator()(std::string &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
 
-    bool operator()(std::string &result, ExprVec const &args) const
+    inline bool operator()(std::string &result, ExprVec const &args) const
     {
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(Array &result, Expression const *arg) const
+    inline bool operator()(Array &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(Array &result, Expression const *arg0, Expression const *arg1) const
+    inline bool operator()(Array &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
 
-    bool operator()(Array &result, ExprVec const &args) const
+    inline bool operator()(Array &result, ExprVec const &args) const
     {
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(BooleanArray &result, Expression const *arg) const
+    inline bool operator()(BooleanArray &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(BooleanArray &result, Expression const *arg0, Expression const *arg1) const
+    inline bool operator()(BooleanArray &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
 
-    bool operator()(BooleanArray &result, ExprVec const &args) const
+    inline bool operator()(BooleanArray &result, ExprVec const &args) const
     {
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(IntegerArray &result, Expression const *arg) const
+    inline bool operator()(IntegerArray &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(IntegerArray &result, Expression const *arg0, Expression const *arg1) const
+    inline bool operator()(IntegerArray &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
 
-    bool operator()(IntegerArray &result, ExprVec const &args) const
+    inline bool operator()(IntegerArray &result, ExprVec const &args) const
     {
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(RealArray &result, Expression const *arg) const
+    inline bool operator()(RealArray &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(RealArray &result, Expression const *arg0, Expression const *arg1) const
+    inline bool operator()(RealArray &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
 
-    bool operator()(RealArray &result, ExprVec const &args) const
+    inline bool operator()(RealArray &result, ExprVec const &args) const
     {
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-    bool operator()(StringArray &result, Expression const *arg) const
+    inline bool operator()(StringArray &result, Expression const *arg) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg);
     }
 
-    bool operator()(StringArray &result, Expression const *arg0, Expression const *arg1) const
+    inline bool operator()(StringArray &result, Expression const *arg0, Expression const *arg1) const
     {
       return static_cast<IMPL const *>(this)->calc(result, arg0, arg1);
     }
 
-    bool operator()(StringArray &result, ExprVec const &args) const
+    inline bool operator()(StringArray &result, ExprVec const &args) const
     {
       return static_cast<IMPL const *>(this)->calc(result, args);
     }
 
-  protected:
   };
 
   template <typename R>
@@ -202,14 +204,27 @@ namespace PLEXIL
     virtual bool calc(R &result, ExprVec const &args) const;
 
     // Conversion or type error
+    // *** OS X 10.9.x requires these to be here, instead of the .cc file ***
     template <typename U>
-    bool calc(U & /* result */, Expression const */* arg */) const;
+    bool calc(U & /* result */, Expression const */* arg */) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
+    }
 
     template <typename U>
-    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const;
+    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
+    }
 
     template <typename U>
-    bool calc(U & /* result */, ExprVec const & /* args */) const;
+    bool calc(U & /* result */, ExprVec const & /* args */) const
+    {
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
+    }
 
   protected:
     // Base class shouldn't be instantiated by itself
@@ -225,6 +240,20 @@ namespace PLEXIL
     OperatorImpl &operator=(OperatorImpl const &);
   };
 
+  // Specialized conversions for Integer operator to Real
+  // *** Must be declared here for OS X 10.9 ***
+  template <>
+  template <>
+  bool OperatorImpl<int32_t>::calc(double &result, Expression const *arg) const;
+
+  template <>
+  template <>
+  bool OperatorImpl<int32_t>::calc(double &result, Expression const *arg0, Expression const *arg1) const;
+
+  template <>
+  template <>
+  bool OperatorImpl<int32_t>::calc(double &result, ExprVec const &args) const;
+
   template <typename R>
   class OperatorImpl<ArrayImpl<R> >
     : public OperatorShim<OperatorImpl<ArrayImpl<R> > >
@@ -232,49 +261,46 @@ namespace PLEXIL
   public:
     virtual ~OperatorImpl() {}
 
+    // Default methods, based on R
+    ValueType valueType() const;
+    void *allocateCache() const { return static_cast<void *>(new ArrayImpl<R>); }
+    void deleteCache(void *ptr) const { delete static_cast<ArrayImpl<R> *>(ptr); }
+
+    bool calcNative(void *cache, ExprVec const &exprs) const;
+    void printValue(std::ostream &s, void *cache, ExprVec const &exprs) const;
+    Value toValue(void *cache, ExprVec const &exprs) const;
+
     // Delegated to derived classes
     virtual bool calc(ArrayImpl<R> &result, Expression const *arg) const = 0;
     virtual bool calc(ArrayImpl<R> &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool calc(ArrayImpl<R> &result, ExprVec const &args) const = 0;
+
+    // Downcast to Array base
     virtual bool calc(Array &result, Expression const *arg) const = 0;
     virtual bool calc(Array &result, Expression const *arg0, Expression const *arg1) const = 0;
     virtual bool calc(Array &result, ExprVec const &args) const = 0;
 
-    // Default methods, based on R
-    virtual ValueType valueType() const;
-    virtual void *allocateCache() const { return static_cast<void *>(new ArrayImpl<R>); }
-    virtual void deleteCache(void *ptr) const { delete static_cast<ArrayImpl<R> *>(ptr); }
-
     // Conversion or type error
+    // *** OS X 10.9.x requires these to be here, instead of the .cc file ***
     template <typename U>
-    bool calc(U & /* result */, Expression const */* arg */) const;
-
-    template <typename U>
-    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const;
-
-    template <typename U>
-    bool calc(U & /* result */, ExprVec const & /* args */) const;
-
-    bool calcNative(void *cache, ExprVec const &exprs) const
+    bool calc(U & /* result */, Expression const */* arg */) const
     {
-      return exprs.apply(*(static_cast<ArrayImpl<R> *>(cache)), this);
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
     }
 
-    void printValue(std::ostream &s, void *cache, ExprVec const &exprs) const
+    template <typename U>
+    bool calc(U & /* result */, Expression const */* arg0 */, Expression const */* arg1 */) const
     {
-      if (calcNative(cache, exprs))
-        PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
-      else
-        s << "UNKNOWN";
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
     }
 
-    Value toValue(void *cache, ExprVec const &exprs) const
+    template <typename U>
+    bool calc(U & /* result */, ExprVec const & /* args */) const
     {
-      bool known = calcNative(cache, exprs);
-      if (known)
-        return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
-      else
-        return Value();
+      assertTrueMsg(ALWAYS_FAIL, "Type error for " << this->getName());
+      return false;
     }
 
   protected:
