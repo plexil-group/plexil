@@ -26,7 +26,8 @@
 
 #include "udp-utils.hh"
 
-#include <string.h>
+#include <cstring>
+#include <cerrno>
 #include <unistd.h> // for close()
 
 namespace PLEXIL
@@ -268,7 +269,8 @@ namespace PLEXIL
 
   int wait_for_input(int local_port, unsigned char* buffer, size_t size, int sock, bool debug)
   {
-    if (debug) printf("  wait_for_input(%d, buffer, %d) called\n", local_port, (int) size);
+    if (debug)
+      printf("  wait_for_input(%d, buffer, %d, %d) called\n", local_port, (int) size, sock);
     // Set up an appropriate local address (port)
     struct sockaddr_in local_addr = {};
     memset((char *) &local_addr, 0, sizeof(local_addr));
@@ -285,24 +287,23 @@ namespace PLEXIL
 
     // Bind to the socket
     int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
-    if (bind_err < 0)
-      {
-        char buf[50];
-        sprintf(buf, "wait_for_input: bind() returned -1 for %d", local_port);
-        perror(buf);
-        //perror("wait_for_input: bind() returned -1");
-        return bind_err;
-      }
+    if (bind_err < 0) {
+      char buf[50];
+      sprintf(buf, "wait_for_input: bind() returned -1 for %d", local_port);
+      perror(buf);
+      return bind_err;
+    }
 
     // Wait for input to become available and then read from the socket
     socklen_t slen = sizeof(struct sockaddr_in);
     int bytes_read = recvfrom(sock, buffer, size, 0, (struct sockaddr *) &peer_addr, &slen);
-    if (bytes_read < 0)
-      {
-        perror("wait_for_input: recvfrom returned -1");
-        close(sock);
-        return bytes_read;
-      }
+    if (bytes_read < 0) {
+      char buf[80];
+      sprintf(buf, "wait_for_input: recvfrom(%d) returned -1, errno %d", sock, errno);
+      perror(buf);
+      close(sock);
+      return bytes_read;
+    }
     if (debug) printf("  wait_for_input(%d, buffer, %d) received %d bytes from %s:%d\n",
                       local_port, (int) size, bytes_read,
                       inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port));
