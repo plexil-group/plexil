@@ -59,6 +59,12 @@ namespace PLEXIL
   public:
 
     /**
+     * @brief Return the number of "macro steps" since this instance was constructed.
+     * @return The macro step count.
+     */
+    virtual unsigned int getCycleCount() const = 0;
+
+    /**
      * @brief Notify of the availability of a new value for a lookup.
      * @param state The state for the new value.
      * @param value The new value.

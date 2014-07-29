@@ -92,6 +92,17 @@ namespace PLEXIL
     // API for all related objects
     //
 
+    
+    /**
+     * @brief Return the number of "macro steps" since this instance was constructed.
+     * @return The macro step count.
+     * @note Needed by the StateCacheEntry API.
+     */
+    unsigned int getCycleCount() const
+    {
+      return ExternalInterface::getCycleCount();
+    }
+
     /**
      * @brief Associate an arbitrary object with a string.
      * @param name The string naming the property.
