@@ -39,9 +39,9 @@
 #include "UserVariable.hh"
 #include "lifecycle-utils.h"
 
-#include <algorithm> // for sort
+#include <algorithm> // for std::sort
 #include <cfloat>    // for DBL_MAX
-#include <iomanip>   // for setprecision (NOT CURRENTLY USED)
+#include <iomanip>   // for std::setprecision
 #include <sstream>
 
 namespace PLEXIL {
@@ -800,7 +800,7 @@ namespace PLEXIL {
     debugMsg("Node:transition", "Transitioning '" << m_nodeId
              << "' from " << nodeStateName(m_state)
              << " to " << nodeStateName(destState)
-             << " at " << time);
+             << " at " << std::setprecision(15) << time);
     
     transitionFrom(destState);
     transitionTo(destState, time);
