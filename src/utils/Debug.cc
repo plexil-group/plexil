@@ -59,7 +59,7 @@ static std::ostream *debugStream = NULL;
 /**
  * @brief List of pointers to all debug messages.
  */
-static std::vector<DebugMessage*> allMsgs;
+static DebugMessage* allMsgs = NULL;
 
 /**
  * @brief List of all enabled debug patterns.
@@ -69,11 +69,11 @@ static std::vector<DebugPattern> enabledPatterns;
 static void purgePatternsAndMessages()
 {
   enabledPatterns.clear();
-  for (std::vector<DebugMessage*>::const_iterator it = allMsgs.begin();
-       it != allMsgs.end();
-       ++it)
-    delete *it;
-  allMsgs.clear();
+  while (allMsgs) {
+    DebugMessage *msg = allMsgs;
+    allMsgs = msg->next();
+    delete msg;
+  }
 }
 
 static void initPatternsAndMessages()
@@ -181,7 +181,8 @@ DebugMessage *DebugMessage::addMsg(const string &file, const int& line,
     msg = new DebugMessage(file, line, marker);
     check_error(msg, "no memory for new debug message",
                 DebugErr::DebugMemoryError());
-    allMsgs.push_back(msg);
+    msg->m_next = allMsgs;
+    allMsgs = msg;
     std::vector<DebugPattern>::iterator iter = 
       std::find_if(enabledPatterns.begin(),
                    enabledPatterns.end(),
@@ -259,100 +260,41 @@ bool DebugMessage::matches(const DebugPattern& pattern) const
          markerMatches(m_marker, pattern.m_pattern));
 }
 
-/**
-   @class MatchesPattern DebugDefs.hh
-   @brief Helper class to use markerMatches via STL find_if().
-*/
-template<class T>
-class MatchesPattern : public std::unary_function<T, bool>
-{
-private:
-  DebugPattern const pattern;
-  
-public:
-  explicit MatchesPattern(string const &file,
-                          string const &pat)
-    : pattern(file, pat)
-  {
-  }
-
-  bool operator() (const T& dm) const 
-  {
-    return dm->matches(pattern);
-  }
-};
-
 DebugMessage *DebugMessage::findMsg(const string &file,
                                     const string &pattern)
 {
-  std::vector<DebugMessage*>::const_iterator iter =
-    std::find_if(allMsgs.begin(),
-                 allMsgs.end(),
-                 MatchesPattern<DebugMessage*>(file, pattern));
-  if (iter == allMsgs.end())
-    return NULL;
-  return(*iter);
+  DebugPattern const dp(file, pattern);
+  DebugMessage *next = allMsgs;
+  while (next) {
+    if (next->matches(dp)) 
+      return next;
+    next = next->m_next;
+  }
+  return NULL;
 }
-
-/**
-   @class GetMatches DebugDefs.hh
-   @brief Helper class to gather matching messages via STL for_each().
-*/
-class GetMatches 
-{
-private:
-
-  DebugPattern const pattern;
-
-  std::vector<DebugMessage*>& matches;
-
-public:
-  explicit GetMatches(const std::string& f, const std::string& p,
-                      std::vector<DebugMessage*>& m)
-    : pattern(f, p), matches(m) {
-  }
-
-  void operator() (DebugMessage* dm) {
-    if (dm->matches(pattern))
-      matches.push_back(dm);
-  }
-};
 
 void DebugMessage::findMatchingMsgs(const string &file,
                                     const string &pattern,
-                                    std::vector<DebugMessage*> &matches) {
-  std::for_each(allMsgs.begin(), allMsgs.end(), GetMatches(file, pattern, matches));
+                                    std::vector<DebugMessage*> &matches) 
+{
+  DebugPattern const dp(file, pattern);
+  DebugMessage *next = allMsgs;
+  while (next) {
+    if (next->matches(dp))
+      matches.push_back(next);
+    next = next->m_next;
+  }
 }
 
 void DebugMessage::enableAll() {
   allEnabled() = true;
   enabledPatterns.clear();
-  std::for_each(allMsgs.begin(),
-                allMsgs.end(),
-                std::mem_fun(&DebugMessage::enable));
+  DebugMessage *next = allMsgs;
+  while (next) {
+    next->enable();
+    next = next->m_next;
+  }
 }
-
-/**
-   @class EnableMatches DebugDefs.hh
-   @brief Helper class to enable matching messages via STL for_each().
-*/
-class EnableMatches 
-{
-private:
-
-  const DebugPattern& pattern;
-
-public:
-
-  explicit EnableMatches(const DebugPattern& p)
-  : pattern(p) {
-  }
-
-  void operator() (DebugMessage* dm) {
-    if (dm->matches(pattern))
-      dm->enable();
-  }
-};
 
 void DebugMessage::enableMatchingMsgs(const string& file,
                                       const string& pattern) {
@@ -360,11 +302,14 @@ void DebugMessage::enableMatchingMsgs(const string& file,
     enableAll();
     return;
   }
-  DebugPattern dp(file, pattern);
+  DebugPattern const dp(file, pattern);
   enabledPatterns.push_back(dp);
-  std::for_each(allMsgs.begin(),
-                allMsgs.end(),
-                EnableMatches(dp));
+  DebugMessage *next = allMsgs;
+  while (next) {
+    if (next->matches(dp))
+      next->enable();
+    next = next->m_next;
+  }
 }
 
 bool DebugMessage::readConfigFile(std::istream& is)
