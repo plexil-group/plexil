@@ -63,9 +63,12 @@
 
 #else
 
+#include <iostream>
+#include <vector>
+
 /**
    @brief The SHOW() macro is intended as a convenience debugging tool
-   inserted briefly and removed when certanty is restored.  It prints
+   inserted briefly and removed when certainty is restored.  It prints
    the name of the passed parameter and it's value, along with the file
    and line number where it occurs in the code.
  */
@@ -74,16 +77,11 @@
 
 /**
    @brief The MARK macro is intended as a convenience debugging tool
-   inserted briefly and removed when certanty is restored.  It prints
+   inserted briefly and removed when certainty is restored.  It prints
    the file and line number where it occurs in the code.
  */
 
 #define MARK std::cout << __FILE__ << "(" << __LINE__ << ") MARK" << std::endl << std::flush
-
-
-#include <iostream>
-#include <string>
-#include <vector>
 
 /**
   @brief Use the debugMsg() macro to create a debug message that
@@ -118,7 +116,7 @@
 #define condDebugMsg(cond, marker, data) { \
   static DebugMessage *dmPtr = NULL; \
   if (!dmPtr) \
-     dmPtr = DebugMessage::addMsg(__FILE__, __LINE__, marker); \
+     dmPtr = DebugMessage::addMsg(__FILE__, marker); \
   if (dmPtr->isEnabled() && (cond)) { \
     DebugMessage::getStream() << "[" << marker << "]" << data << std::endl; \
   } \
@@ -149,7 +147,7 @@
   @see DebugMessage
 */
 #define condDebugStmt(cond, marker, stmt) { \
-  static DebugMessage *dmPtr = DebugMessage::addMsg(__FILE__, __LINE__, marker); \
+  static DebugMessage *dmPtr = DebugMessage::addMsg(__FILE__, marker); \
   if (dmPtr->isEnabled() && (cond)) { \
     stmt ; \
   } \
@@ -176,39 +174,56 @@
 class DebugPattern
 {
 public:
-  /**
-   * @brief Zero argument constructor.
-   * @note Should not be used except implicitly (e.g., by std::vector<DebugPattern>).
-   */
-  inline DebugPattern();
 
   /**
    * @brief Destructor.
    */
-  inline virtual ~DebugPattern() {
+  inline ~DebugPattern() 
+  {
+    if (m_garbage) {
+      delete m_file;
+      delete m_pattern;
+    }
   }
 
   /**
    * @brief Constructor with data.
    * @note Should be the only constructor called explicitly.
    */
-  DebugPattern(const std::string& f, const std::string& m)
-    : m_file(f), m_pattern(m) {
+  inline DebugPattern(char const *f, char const *m, bool garbage = false)
+    : m_next(NULL), 
+      m_file(f),
+      m_pattern(m),
+      m_garbage(garbage)
+  {
   }
+
+  DebugPattern *m_next;
 
   /**
    * @brief The source file(s) that match the pattern.
    */
-  std::string m_file;
+  char const *m_file;
 
   /**
    * @brief The markers that match the pattern.
    * @note Markers refer to those of class DebugMessage.
    * @see class DebugMessage
    */
-  std::string m_pattern;
+  char const *m_pattern;
 
-  bool operator== (const DebugPattern& other) const {return m_file == other.m_file && m_pattern == other.m_pattern;}
+  /**
+   * @brief True if the file and pattern should be deleted, false otherwise.
+   */
+  bool m_garbage;
+
+  bool operator==(DebugPattern const &other) const;
+
+private:
+  // Not implemented
+  DebugPattern();
+  DebugPattern(DebugPattern const &);
+  DebugPattern &operator=(DebugPattern const &);
 };
 
 /**
@@ -216,7 +231,8 @@ public:
   @brief Implements support for debugMsg() macro, which should be used
   to create all instances.
 */
-class DebugMessage {
+class DebugMessage 
+{
 
 private:
 
@@ -238,10 +254,20 @@ private:
    * @note Only constructor that should be used.
    * @note Should only be called from static member functions.
    */
-  DebugMessage(const std::string& file, const int& line,
-               const std::string& marker,
-               const bool& enabled = DebugMessage::allEnabled());
-
+  DebugMessage(char const *file,
+               char const *marker,
+               bool enabled = DebugMessage::allEnabled());
+      
+  /**
+    @brief Enable matching debug messages, including those created later.
+    @param file
+    @param marker
+    @par Errors thrown:
+    @li If a message would be enabled but no debug stream has been set.
+    @see DebugMessage::setStream
+  */
+  static void enableMatchingMsgs(char const *file,
+                                 char const *marker);
 
 public:
 
@@ -257,24 +283,22 @@ public:
     @brief Create a new DebugMessage.  Should only be called from the
     debugMsg() macro and readConfigFile().
     @param file
-    @param line
     @param marker
     @par Errors thrown:
     @li If no debug stream has been assigned.
     @see DebugMessage::enable
     @see DebugMessage::setStream
   */
-  static DebugMessage *addMsg(const std::string& file,
-                              const int& line,
-                              const std::string& marker);
+  static DebugMessage *addMsg(char const *file,
+                              char const *marker);
 
   /**
     @brief Find any matching DebugMessage.
     @param file
     @param pattern
   */
-  static DebugMessage *findMsg(const std::string& file,
-                               const std::string& pattern);
+  static DebugMessage *findMsg(char const *file,
+                               char const *pattern);
 
   /**
     @brief Find all matching DebugMessages and appends them to matches parameter
@@ -283,8 +307,8 @@ public:
     @param pattern
     @param matches
   */
-  static void findMatchingMsgs(const std::string& file,
-                               const std::string& pattern,
+  static void findMatchingMsgs(char const *file,
+                               char const *pattern,
                                std::vector<DebugMessage*>& matches);
 
   /**
@@ -345,17 +369,6 @@ public:
     @param os
    */
   void print(std::ostream &os = getStream()) const;
-      
-  /**
-    @brief Enable matching debug messages, including those created later.
-    @param file
-    @param marker
-    @par Errors thrown:
-    @li If a message would be enabled but no debug stream has been set.
-    @see DebugMessage::setStream
-  */
-  static void enableMatchingMsgs(const std::string& file,
-                                 const std::string& marker);
 
   /**
      @brief Whether the message is matched by the pattern.
@@ -377,17 +390,12 @@ private:
   /**
     @brief File given when this instance was created.
   */
-  std::string m_file;
+  char const *m_file;
 
   /**
     @brief Marker given when this instance was created.
   */
-  std::string m_marker;
-
-  /**
-    @brief Line given when this instance was created.
-  */
-  int m_line;
+  char const *m_marker;
 
   /**
     @brief Whether this instance is 'enabled' or not.

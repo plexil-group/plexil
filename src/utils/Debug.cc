@@ -48,9 +48,8 @@
 #include "Error.hh"
 #include "lifecycle-utils.h"
 
+#include <cstring>
 #include <fstream>
-#include <algorithm>
-#include <functional>
 
 using std::string;
 
@@ -59,16 +58,20 @@ static std::ostream *debugStream = NULL;
 /**
  * @brief List of pointers to all debug messages.
  */
-static DebugMessage* allMsgs = NULL;
+static DebugMessage *allMsgs = NULL;
 
 /**
  * @brief List of all enabled debug patterns.
  */
-static std::vector<DebugPattern> enabledPatterns;
+static DebugPattern *enabledPatterns = NULL;
 
 static void purgePatternsAndMessages()
 {
-  enabledPatterns.clear();
+  while (enabledPatterns) {
+    DebugPattern *pat = enabledPatterns;
+    enabledPatterns = pat->m_next;
+    delete pat;
+  }
   while (allMsgs) {
     DebugMessage *msg = allMsgs;
     allMsgs = msg->next();
@@ -76,16 +79,23 @@ static void purgePatternsAndMessages()
   }
 }
 
-static void initPatternsAndMessages()
+static void ensureDebugInited()
 {
   static bool sl_inited = false;
   if (!sl_inited) {
     addFinalizer(&purgePatternsAndMessages);
-    debugStream = &std::cerr;
+    debugStream = &std::cout;
+    allMsgs = NULL;
+    enabledPatterns = NULL;
     sl_inited = true;
   }
 }
 
+bool DebugPattern::operator==(DebugPattern const &other) const
+{
+  return (!strcmp(m_file, other.m_file))
+    && (!strcmp(m_pattern, other.m_pattern));
+}
 
 class DebugErr
 {
@@ -95,100 +105,38 @@ public:
   DECLARE_ERROR(DebugConfigError);
 };
 
-/**
- * @class DebugConfig
- * @brief Used to perform default allocation, based on 'Debug.cfg'.
- * @author Conor McGann
- * @see DebugMessage::addMsg
- */
-class DebugConfig {
-public:
-  static void init() 
-  {
-    static bool sl_inited = false; 
-    if (!sl_inited) {
-      addFinalizer(&purge);
-      s_instance = new DebugConfig();
-      sl_inited = true;
-    }
-  }
-
-private:
-  DebugConfig() {
-    DebugMessage::setStream(std::cout);
-  }
-
-  static void purge() {
-    DebugConfig* inst = s_instance;
-    s_instance = NULL;
-    delete inst;
-  }
-
-  static DebugConfig* s_instance;
-};
-
-DebugConfig* DebugConfig::s_instance = NULL;
-
-/**
- * @class PatternMatches DebugDefs.hh
- * @brief Helper function for addMsg()'s use of STL find_if().
- */
-template <class U>
-class PatternMatches : public std::unary_function<U, bool>
-{
-private:
-  const DebugMessage& dm;
-  
-public:
-  explicit PatternMatches(const DebugMessage& debugMsg)
-    : dm(debugMsg) 
-  {
-  }
-  
-  bool operator() (const U& y) const
-  {
-    return(dm.matches(y));
-  }
-};
-
-DebugMessage::DebugMessage(const string& file,
-                           const int& line,
-                           const string& marker,
-                           const bool& enabled)
-  : m_file(file), 
+DebugMessage::DebugMessage(char const *file,
+                           char const *marker,
+                           bool enabled)
+  : m_next(NULL),
+    m_file(file), 
     m_marker(marker),
-    m_line(line),
     m_enabled(enabled)
 {
 }
 
-DebugMessage *DebugMessage::addMsg(const string &file, const int& line,
-                                   const string &marker) 
+DebugMessage *DebugMessage::addMsg(char const *file,
+                                   char const *marker) 
 {
-  static bool sl_inited = false;
-  if (!sl_inited) {
-    initPatternsAndMessages();
-    DebugConfig::init();
-    sl_inited = true;
-  }
-  check_error_3(!file.empty() && !marker.empty(),
+  ensureDebugInited();
+  check_error_3(file && *file && marker && *marker,
                 "debug messages must have non-empty file and marker",
                 DebugErr::DebugMessageError());
   DebugMessage *msg = findMsg(file, marker);
   if (!msg) {
-    check_error(line > 0, "debug messages must have positive line numbers",
-                DebugErr::DebugMessageError());
-    msg = new DebugMessage(file, line, marker);
+    msg = new DebugMessage(file, marker);
     check_error(msg, "no memory for new debug message",
                 DebugErr::DebugMemoryError());
     msg->m_next = allMsgs;
     allMsgs = msg;
-    std::vector<DebugPattern>::iterator iter = 
-      std::find_if(enabledPatterns.begin(),
-                   enabledPatterns.end(),
-                   PatternMatches<DebugPattern>(*msg));
-    if (iter != enabledPatterns.end())
-      msg->enable();
+    DebugPattern const *pat = enabledPatterns;
+    while (pat) {
+      if (msg->matches(*pat)) {
+        msg->enable();
+        break;
+      }
+      pat = pat->m_next;
+    }
   }
   return(msg);
 }
@@ -230,7 +178,7 @@ void DebugMessage::print(std::ostream &os) const
 {
   try {
     os.exceptions(std::ostream::badbit);
-    os << m_file << ':' << m_line << ": " << m_marker << ' ';
+    os << m_file << ':' << m_marker << ' ';
   }
   catch(std::ios_base::failure& exc) {
     checkError(ALWAYS_FAIL, exc.what());
@@ -243,25 +191,25 @@ void DebugMessage::print(std::ostream &os) const
    Exists solely to ensure the same method is always used to check
    for a match.
 */
-inline static bool markerMatches(const std::string& marker,
-                                 const std::string& pattern) 
+inline static bool markerMatches(char const *marker,
+                                 char const *pattern) 
 {
-  if (pattern.empty())
-    return(true);
-  return(marker.find(pattern) != std::string::npos);
+  if (!pattern || !*pattern)
+    return true;
+  return (NULL != strstr(marker, pattern));
 }
 
 /**
    @brief Whether the message is matched by the pattern.
 */
-bool DebugMessage::matches(const DebugPattern& pattern) const 
+bool DebugMessage::matches(DebugPattern const &pattern) const 
 {
-  return(markerMatches(m_file, pattern.m_file) &&
-         markerMatches(m_marker, pattern.m_pattern));
+  return markerMatches(m_file, pattern.m_file)
+    && markerMatches(m_marker, pattern.m_pattern);
 }
 
-DebugMessage *DebugMessage::findMsg(const string &file,
-                                    const string &pattern)
+DebugMessage *DebugMessage::findMsg(char const *file,
+                                    char const *pattern)
 {
   DebugPattern const dp(file, pattern);
   DebugMessage *next = allMsgs;
@@ -273,8 +221,8 @@ DebugMessage *DebugMessage::findMsg(const string &file,
   return NULL;
 }
 
-void DebugMessage::findMatchingMsgs(const string &file,
-                                    const string &pattern,
+void DebugMessage::findMatchingMsgs(char const *file,
+                                    char const *pattern,
                                     std::vector<DebugMessage*> &matches) 
 {
   DebugPattern const dp(file, pattern);
@@ -288,7 +236,11 @@ void DebugMessage::findMatchingMsgs(const string &file,
 
 void DebugMessage::enableAll() {
   allEnabled() = true;
-  enabledPatterns.clear();
+  while (enabledPatterns) {
+    DebugPattern *tmp = enabledPatterns;
+    enabledPatterns = enabledPatterns->m_next;
+    delete tmp;
+  }
   DebugMessage *next = allMsgs;
   while (next) {
     next->enable();
@@ -296,17 +248,37 @@ void DebugMessage::enableAll() {
   }
 }
 
-void DebugMessage::enableMatchingMsgs(const string& file,
-                                      const string& pattern) {
-  if (file.length() < 1 && pattern.length() < 1) {
+static char *copyString(char const *orig)
+{
+  char *result = NULL;
+  if (orig && *orig) {
+    size_t len = strlen(orig);
+    result = new char[len + 1];
+    strcpy(result, orig);
+  }
+  else {
+    result = new char[1];
+    *result = '\0';
+  }
+  return result;
+}
+
+void DebugMessage::enableMatchingMsgs(char const *file,
+                                      char const *pattern)
+{
+  if ((!file || !*file) && (!pattern || !*pattern)) {
     enableAll();
     return;
   }
-  DebugPattern const dp(file, pattern);
-  enabledPatterns.push_back(dp);
+  
+  DebugPattern* dp = 
+    new DebugPattern(copyString(file), copyString(pattern), true);
+  dp->m_next = enabledPatterns;
+  enabledPatterns = dp;
+
   DebugMessage *next = allMsgs;
   while (next) {
-    if (next->matches(dp))
+    if (next->matches(*dp))
       next->enable();
     next = next->m_next;
   }
@@ -316,6 +288,8 @@ bool DebugMessage::readConfigFile(std::istream& is)
 {
   static const string sl_whitespace(" \f\n\r\t\v");
   static const string sl_comment(";#/");
+
+  ensureDebugInited();
 
   check_error(is.good(), "cannot read debug config from invalid/error'd stream",
               DebugErr::DebugConfigError());
@@ -352,7 +326,7 @@ bool DebugMessage::readConfigFile(std::istream& is)
       content = input.substr(left, colon - left);
       pattern = input.substr(colon + 1, right - colon - 1);
     }
-    enableMatchingMsgs(content, pattern);
+    enableMatchingMsgs(content.c_str(), pattern.c_str());
   }
 
   check_error(is.eof(), "error while reading debug config file",
