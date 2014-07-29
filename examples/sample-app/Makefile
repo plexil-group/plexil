@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,11 @@ LIBRARY = SampleAdapter
 SRC = subscriber.cc sample_system.cc SampleAdapter.cc
 INC = subscriber.hh sample_system.hh SampleAdapter.hh
 
-INC_DIRS += $(PLEXIL_HOME)/src/third-party/pugixml/src $(PLEXIL_HOME)/src/utils $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework
+INC_DIRS += $(PLEXIL_HOME)/src/third-party/pugixml/src $(PLEXIL_HOME)/src/utils \
+ $(PLEXIL_HOME)/src/expr $(PLEXIL_HOME)/src/intfc $(PLEXIL_HOME)/src/exec \
+ $(PLEXIL_HOME)/src/app-framework
 
-LIBS		+= dl pugixml PlexilAppFramework PlexilUtils PlexilExec
+LIBS		+= dl pugixml PlexilAppFramework PlexilExec PlexilIntfc PlexilExpr PlexilUtils
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 

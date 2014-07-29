@@ -32,9 +32,9 @@
 #ifndef _H__SampleAdapter
 #define _H__SampleAdapter
 
+#include "Command.hh"
 #include "InterfaceAdapter.hh"
 #include "Value.hh"
-#include "Command.hh"
 
 using namespace PLEXIL;
 
@@ -49,11 +49,12 @@ public:
   bool reset();
   bool shutdown();
 
-  virtual void executeCommand(const CommandId& cmd);
-  virtual Value lookupNow (const State& state);
+  virtual void lookupNow (State const &state, StateCacheEntry &cacheEntry);
   virtual void subscribe(const State& state);
   virtual void unsubscribe(const State& state);
   virtual void setThresholds(const State& state, double hi, double lo);
+  virtual void setThresholds(const State& state, int32_t hi, int32_t lo);
+  virtual void executeCommand(Command *cmd);
 
   // The following member, not inherited from the base class, propagates a state
   // value change from the system to the executive.

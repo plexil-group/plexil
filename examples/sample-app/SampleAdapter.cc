@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,23 +24,22 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// NOTE: this file contains a lot of static functions, which
-// we might later choose to incorporate as class members.
+#include "SampleAdapter.hh"
 
-#include <iostream>
-#include "AdapterFactory.hh"
-#include "CoreExpressions.hh"
-#include "AdapterExecInterface.hh"
-#include "Expression.hh"
-#include "Debug.hh"
 #include "subscriber.hh"
 #include "sample_system.hh"
-#include "SampleAdapter.hh"
+
+#include "AdapterConfiguration.hh"
+#include "AdapterFactory.hh"
+#include "AdapterExecInterface.hh"
+#include "Debug.hh"
+#include "StateCacheEntry.hh"
+
+#include <iostream>
 
 using std::cout;
 using std::cerr;
 using std::endl;
-using std::list;
 using std::map;
 using std::string;
 using std::vector;
@@ -50,10 +49,10 @@ using std::copy;
 ///////////////////////////// Conveniences //////////////////////////////////
 
 // A preamble for error messages.
-static string error = "Error in SampleAdaptor: ";
+static string error = "Error in SampleAdapter: ";
 
 // A prettier name for the "unknown" value.
-static Value Unknown = UNKNOWN();
+static Value Unknown;
 
 // A localized handle on the adapter, which allows a
 // decoupling between the sample system and adapter.
@@ -81,10 +80,20 @@ static Value fetch (const string& state_name, const vector<Value>& args)
   else if (state_name == "Color") retval = getColor();
   else if (state_name == "at") {
     switch (args.size()) {
-    case 0: retval = at (); break;
-    case 1: retval = at (args[0].getStringValue()); break;
+    case 0:
+      retval = at ();
+      break;
+    case 1: {
+      std::string s;
+      args[0].getValue(s);
+      retval = at (s); 
+      break;
+    }
     case 2: {
-      retval = at (args[0].getIntValue(), args[1].getIntValue());
+      int32_t arg0 = 0, arg1 = 0;
+      args[0].getValue(arg0);
+      args[1].getValue(arg1);
+      retval = at (arg0, arg1);
       break;
     }
     default: {
@@ -114,19 +123,19 @@ static void propagate (const State& state, const vector<Value>& value)
 
 static void receive (const string& state_name, int val)
 {
-  propagate (State (LabelStr (state_name), EmptyArgs),
+  propagate (State (state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receive (const string& state_name, float val)
 {
-  propagate (State (LabelStr (state_name), EmptyArgs),
+  propagate (State (state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receive (const string& state_name, const string& val)
 {
-  propagate (State (LabelStr (state_name), EmptyArgs),
+  propagate (State (state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
@@ -158,7 +167,7 @@ SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
 
 bool SampleAdapter::initialize()
 {
-  m_execInterface.defaultRegisterAdapter(getId());
+  g_configuration->defaultRegisterAdapter(this);
   Adapter = this;
   setSubscriberInt (receive);
   setSubscriberReal (receive);
@@ -197,10 +206,9 @@ bool SampleAdapter::shutdown()
 // Sends a command (as invoked in a Plexil command node) to the system and sends
 // the status, and return value if applicable, back to the executive.
 //
-void SampleAdapter::executeCommand(const CommandId& cmd)
+void SampleAdapter::executeCommand(Command *cmd)
 {
-  const LabelStr& command_name = cmd->getName();
-  string name = command_name.toString();
+  const string &name = cmd->getName();
   debugMsg("SampleAdapter", "Received executeCommand for " << name);  
 
   Value retval = Unknown;
@@ -210,57 +218,75 @@ void SampleAdapter::executeCommand(const CommandId& cmd)
 
   // NOTE: A more streamlined approach to dispatching on command type
   // would be nice.
+  string s;
+  int32_t i1 = 0, i2 = 0;
+  double d = 0.0;
 
-  if (name == "SetSize") setSize (args[0].getDoubleValue());
-  else if (name == "SetSpeed") setSpeed (args[0].getIntValue());
-  else if (name == "SetColor") setColor (args[0].getStringValue());
-  else if (name == "Move") move (args[0].getStringValue(),
-                                 args[1].getIntValue(),
-                                 args[2].getIntValue());
-  else if (name == "Hello") hello ();
-  else if (name == "Square") retval = square (args[0].getIntValue());
-  else cerr << error << "invalid command: " << name << endl;
+  if (name == "SetSize") {
+    args[0].getValue(d);
+    setSize(d);
+  }
+  else if (name == "SetSpeed") {
+    args[0].getValue(i1);
+    setSpeed (i1);
+  }
+  else if (name == "SetColor") {
+    args[0].getValue(s);
+    setColor (s);
+  }
+  else if (name == "Move") {
+    args[0].getValue(s);
+    args[1].getValue(i1);
+    args[2].getValue(i2);
+    move (s, i1, i2);
+  }
+  else if (name == "Hello") 
+    hello ();
+  else if (name == "Square") {
+    args[0].getValue(i1);
+    retval = square (i1);
+  }
+  else 
+    cerr << error << "invalid command: " << name << endl;
 
   // This sends a command handle back to the executive.
-    m_execInterface.handleValueChange
-    (cmd->getAck(), CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+  m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
   // This sends the command's return value (if expected) to the executive.
-  if (cmd->getDest() != ExpressionId::noId()) {
-    m_execInterface.handleValueChange (cmd->getDest(), retval);
-  }
-
+  if (retval != Unknown)
+    m_execInterface.handleCommandReturn(cmd, retval);
   m_execInterface.notifyOfExternalEvent();
 }
 
-
-Value SampleAdapter::lookupNow (const State& state)
+void SampleAdapter::lookupNow(State const &state, StateCacheEntry &entry)
 {
   // This is the name of the state as given in the plan's LookupNow
-  const LabelStr& name = state.first;
-  const vector<Value>& args = state.second;
-  return fetch(name.toString(), args);
+  string const &name = state.name();
+  const vector<Value>& args = state.parameters();
+  entry.update(m_execInterface.getCycleCount(), fetch(name, args));
 }
 
 
 void SampleAdapter::subscribe(const State& state)
 {
-  const LabelStr& nameLabel = state.first;
   debugMsg("SampleAdapter:subscribe", " processing state "
-           << nameLabel.toString());
+           << state.name());
   m_subscribedStates.insert(state);
 }
 
 
 void SampleAdapter::unsubscribe (const State& state)
 {
-  const LabelStr& nameLabel = state.first;
   debugMsg("SampleAdapter:subscribe", " from state "
-           << nameLabel.toString());
+           << state.name());
   m_subscribedStates.erase(state);
 }
 
 // Does nothing.
 void SampleAdapter::setThresholds (const State& state, double hi, double lo)
+{
+}
+
+void SampleAdapter::setThresholds (const State& state, int32_t hi, int32_t lo)
 {
 }
 
@@ -270,7 +296,7 @@ void SampleAdapter::propagateValueChange (const State& state,
 {
   if (!isStateSubscribed(state))
     return; 
-  m_execInterface.handleValueChange (state, vals.front());
+  m_execInterface.handleValueChange(state, vals.front());
   m_execInterface.notifyOfExternalEvent();
 }
 
