@@ -1,7 +1,7 @@
 # Top level Makefile for Plexil
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
-# All rights reserved.
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+#  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,8 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-all: TestExec UniversalExec IpcAdapter UdpAdapter GanttListener plexil-compiler plexilscript checker plexilsim robosim sample pv
+# Add GanttListener, robosim later
+all: UniversalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim sample pv
 
 # convenience target for AMO project
 amo AMO: exec-core app-framework pv plexil-compiler
@@ -47,6 +48,7 @@ TestExec: exec-core PlanDebugListener LuvListener pv
 plexilsim: utils ipc IpcUtils
 	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
 
+# Currently broken
 robosim: UniversalExec IpcAdapter
 	$(MAKE) -C examples/robosim
 
