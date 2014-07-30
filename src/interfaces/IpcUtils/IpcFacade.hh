@@ -29,16 +29,17 @@
 
 #include "ipc.h"
 #include "ipc-data-formats.h"
-#include "ThreadSpawn.hh"
-#include "RecursiveThreadMutex.hh"
-#include "ConstantMacros.hh"
-#include "LabelStr.hh"
 
-#include <vector>
+#include "ConstantMacros.hh"
+#include "RecursiveThreadMutex.hh"
+#include "ThreadSpawn.hh"
+#include "Value.hh"
+
 #include <limits>
 #include <list>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 
 namespace PLEXIL {
@@ -122,7 +123,7 @@ public:
    * @brief publishes the given message via IPC
    * @param command The command string to send
    */
-  uint32_t publishMessage(const LabelStr& command);
+  uint32_t publishMessage(std::string const &command);
 
   /**
    * @brief publishes the given command via IPC. This is equivalent to calling
@@ -131,7 +132,7 @@ public:
    * this method returns.
    * @param command The command string to send
    */
-  uint32_t publishCommand(const LabelStr& command, const std::list<double>& argsToDeliver);
+  uint32_t publishCommand(std::string const &command, std::vector<Value> const &argsToDeliver);
 
   /**
    * @brief Sends the given command to the given client ID via IPC. If the client ID is
@@ -141,14 +142,17 @@ public:
    * @param command The command string to send
    * @param dest The destination ID for this command
    */
-  uint32_t sendCommand(const LabelStr& command, const LabelStr& dest, const std::list<double>& argsToDeliver);
+  uint32_t sendCommand(std::string const &command,
+                       std::string const &dest, 
+                       std::vector<Value> const &argsToDeliver);
 
   /**
    * @brief publishes the given LookupNow via IPC
-   * @param command The command string to send
+   * @param lookup The state name
+   * @param argsToDeliver Vector of parameters.
    */
-  uint32_t publishLookupNow(const LabelStr& lookup, const std::list<double>& argsToDeliver);
-
+  uint32_t publishLookupNow(std::string const &lookup, 
+                            std::vector<Value> const &argsToDeliver);
 
   /**
    * @brief Sends the given LookupNow to the given client ID via IPC. If the client ID is
@@ -156,19 +160,23 @@ public:
    * @param lookup The lookup string to send
    * @param dest The destination ID for this LookupNow
    */
-  uint32_t sendLookupNow(const LabelStr& lookup, const LabelStr& dest, const std::list<double>& argsToDeliver);
+  uint32_t sendLookupNow(std::string const &lookup,
+                         std::string const &dest,
+                         std::vector<Value> const &argsToDeliver);
 
   /**
    * @brief publishes the given return values via IPC
    * @param command The command string to send
    */
-  uint32_t publishReturnValues(uint32_t request_serial, const LabelStr& command, double arg);
+  uint32_t publishReturnValues(uint32_t request_serial,
+                               std::string const &command,
+                               Value const &arg);
 
   /**
    * @brief publishes the given telemetry value via IPC
    * @param command The command string to send
    */
-  uint32_t publishTelemetry(const std::string& destName, const std::list<double>& values);
+  uint32_t publishTelemetry(std::string const &destName, std::vector<Value> const &values);
 
   /**
    * @brief Get next serial number
@@ -249,7 +257,7 @@ private:
    * @param args The arguments to convert into messages and send
    * @param serial The serial to send along with each parameter. This should be the same serial as the header
    */
-  IPC_RETURN_TYPE sendParameters(const std::list<double>& args, uint32_t serial);
+  IPC_RETURN_TYPE sendParameters(std::vector<Value> const &args, uint32_t serial);
 
   /**
    * @brief Helper function for sending a vector of parameters via IPC to a specific executive.
@@ -257,7 +265,7 @@ private:
    * @param serial The serial to send along with each parameter. This should be the same serial as the header
    * @param dest The destination executive name
    */
-  IPC_RETURN_TYPE sendParameters(const std::list<double>& args, uint32_t serial, const LabelStr& dest);
+  IPC_RETURN_TYPE sendParameters(std::vector<Value> const &args, uint32_t serial, std::string const &dest);
 
   /**
    * @brief Define all PLEXIL message types with Central. Also defines each PLEXIL message type with
