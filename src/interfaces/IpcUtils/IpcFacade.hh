@@ -32,7 +32,6 @@
 
 #include "ConstantMacros.hh"
 #include "RecursiveThreadMutex.hh"
-#include "ThreadSpawn.hh"
 #include "Value.hh"
 
 #include <limits>
@@ -302,27 +301,6 @@ private:
   static std::string generateUID();
 
   /**
-   * Returns a formatted message type string given the basic message type and destination ID.
-   * @param msgName The name of the message type
-   * @param destId The destination ID for the message
-   */
-  static std::string formatMsgName(const std::string& msgName, const std::string& destId);
-
-  /**
-   * @brief Given a transaction ID string, return the UID and the serial
-   */
-  static void parseTransactionId(const std::string& transId, std::string& uidOut, uint32_t& serialOut);
-
-  /**
-   * @brief Determines the type of the given StoredArray by iterating over the elements, determining the type of each one until
-   * an item is not UNKNOWN.
-   *
-   * @return STRING if LabelStr::isString() returns true for the first non-unknown value, NUMERIC if LabelStr::isString()
-   * returns false for the first non-unknown value, and UNKNOWN if all items are UNKNOWN.
-   */
-  static BasicType determineType(double array_id);
-
-  /**
    * Unsubscribes from the given message on central. Wrapper for IPC_unsubscribe
    * @param msgName the name of the message to unsubscribe from
    * @param handler The handler to unsubscribe.
@@ -374,80 +352,6 @@ public:
   virtual void ReceiveMessage(const std::vector<const PlexilMsgBase*>& msgs) = 0;
 };
 
-/**
- * @brief Bounds check the supplied message type.
- * @param mtyp The message type value to check.
- * @return true if valid, false if not.
- */
-inline bool msgTypeIsValid(const PlexilMsgType mtyp)
-{
-  return (mtyp > PlexilMsgType_uninited) && (mtyp < PlexilMsgType_limit);
-}
-
-/**
- * @brief Return the message format string corresponding to the message type.
- * @param typ The message type.
- * @return Const char pointer to the message format name.
- */
-inline const char* msgFormatForType(const PlexilMsgType typ)
-{
-  switch (typ)
-    {
-    case PlexilMsgType_NotifyExec:
-    case PlexilMsgType_TerminateChangeLookup:
-
-      return MSG_BASE;
-      break;
-
-    case PlexilMsgType_AddPlan:
-    case PlexilMsgType_AddPlanFile:
-    case PlexilMsgType_AddLibrary:
-    case PlexilMsgType_AddLibraryFile:
-    case PlexilMsgType_Command:
-    case PlexilMsgType_Message:
-    case PlexilMsgType_LookupNow:
-    case PlexilMsgType_LookupOnChange:
-    case PlexilMsgType_PlannerUpdate:
-    case PlexilMsgType_StringValue:
-    case PlexilMsgType_TelemetryValues:
-
-      return STRING_VALUE_MSG;
-      break;
-
-    case PlexilMsgType_ReturnValues:
-
-      return RETURN_VALUE_MSG;
-      break;
-
-    case PlexilMsgType_NumericValue:
-
-      return NUMERIC_VALUE_MSG;
-      break;
-
-    case PlexilMsgType_PairNumeric:
-      
-      return NUMERIC_PAIR_MSG;
-      break;
-
-    case PlexilMsgType_PairString:
-
-      return STRING_PAIR_MSG;
-      break;
-              
-    case PlexilMsgType_NumericArray:
-      return NUMERIC_ARRAY_MSG;
-      break;
-
-    case PlexilMsgType_StringArray:
-      return STRING_ARRAY_MSG;
-      break;
-
-    default:
-
-      return NULL;
-      break;
-    }
-}
 }
 
 #endif /* DEFINE_IPC_FACADE_H */

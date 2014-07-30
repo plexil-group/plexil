@@ -26,8 +26,10 @@
 
 #include "IpcFacade.hh"
 
+#include "ArrayImpl.hh"
 #include "Debug.hh"
-#include "Utils.hh"
+#include "Error.hh"
+#include "ThreadSpawn.hh"
 
 #include <cstring>
 
@@ -35,7 +37,106 @@
 #include "uuid.h"
 #include "devrand.h"
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
+
+  /**
+   * Returns a formatted message type string given the basic message type and destination ID.
+   * The caller is responsible for
+   * @param msgName The name of the message type
+   * @param destId The destination ID for the message
+   */
+  static std::string formatMsgName(const std::string& msgName, const std::string& destId) {
+    return destId + msgName;
+  }
+
+  /**
+   * @brief Return the message format string corresponding to the message type.
+   * @param typ The message type.
+   * @return Const char pointer to the message format name.
+   */
+  static inline const char* msgFormatForType(const PlexilMsgType typ)
+  {
+    switch (typ) {
+    case PlexilMsgType_NotifyExec:
+    case PlexilMsgType_TerminateChangeLookup:
+    case PlexilMsgType_UnknownValue:
+
+      return MSG_BASE;
+      break;
+
+    case PlexilMsgType_AddPlan:
+    case PlexilMsgType_AddPlanFile:
+    case PlexilMsgType_AddLibrary:
+    case PlexilMsgType_AddLibraryFile:
+    case PlexilMsgType_Command:
+    case PlexilMsgType_Message:
+    case PlexilMsgType_LookupNow:
+    case PlexilMsgType_LookupOnChange:
+    case PlexilMsgType_PlannerUpdate:
+    case PlexilMsgType_StringValue:
+    case PlexilMsgType_TelemetryValues:
+
+      return STRING_VALUE_MSG;
+      break;
+
+    case PlexilMsgType_ReturnValues:
+
+      return RETURN_VALUE_MSG;
+      break;
+
+    case PlexilMsgType_BooleanValue:
+
+      return BOOLEAN_VALUE_MSG;
+      break;
+
+    case PlexilMsgType_IntegerValue:
+
+      return INTEGER_VALUE_MSG;
+      break;
+
+    case PlexilMsgType_RealValue:
+
+      return REAL_VALUE_MSG;
+      break;
+              
+    case PlexilMsgType_BooleanArray:
+      return BOOLEAN_ARRAY_MSG;
+      break;
+              
+    case PlexilMsgType_IntegerArray:
+      return INTEGER_ARRAY_MSG;
+      break;
+              
+    case PlexilMsgType_RealArray:
+      return REAL_ARRAY_MSG;
+      break;
+
+    case PlexilMsgType_StringArray:
+      return STRING_ARRAY_MSG;
+      break;
+
+    case PlexilMsgType_PairBoolean:
+      return BOOLEAN_PAIR_MSG;
+      break;
+
+    case PlexilMsgType_PairInteger:
+      return INTEGER_PAIR_MSG;
+      break;
+
+    case PlexilMsgType_PairReal:
+      return REAL_PAIR_MSG;
+      break;
+
+    case PlexilMsgType_PairString:
+      return STRING_PAIR_MSG;
+      break;
+
+    default:
+      return NULL;
+      break;
+    }
+  }
 
   IpcFacade::IpcFacade() :
     m_isInitialized(false),
@@ -144,21 +245,23 @@ namespace PLEXIL {
         assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << MSG_BASE << " messages, IPC_errno = " << IPC_errno);
         status = subscribeDataCentral(RETURN_VALUE_MSG, messageHandler);
         assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << RETURN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(NUMERIC_VALUE_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << NUMERIC_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+        status = subscribeDataCentral(BOOLEAN_VALUE_MSG, messageHandler);
+        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << BOOLEAN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+        status = subscribeDataCentral(INTEGER_VALUE_MSG, messageHandler);
+        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << INTEGER_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+        status = subscribeDataCentral(REAL_VALUE_MSG, messageHandler);
+        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
         status = subscribeDataCentral(STRING_VALUE_MSG, messageHandler);
         assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+        status = subscribeDataCentral(BOOLEAN_ARRAY_MSG, messageHandler);
+        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << BOOLEAN_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
+        status = subscribeDataCentral(INTEGER_ARRAY_MSG, messageHandler);
+        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << INTEGER_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
+        status = subscribeDataCentral(REAL_ARRAY_MSG, messageHandler);
+        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
         status = subscribeDataCentral(STRING_ARRAY_MSG, messageHandler);
         assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(NUMERIC_ARRAY_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << NUMERIC_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
         // *** TODO: implement receiving planner update
-        //    status = subscribeDataCentral(NUMERIC_PAIR_MSG, messageHandler);
-        //    assertTrueMsg(status == IPC_OK,
-        //          "IpcFacade: Error subscribing to " << NUMERIC_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-        //    status = subscribeDataCentral(STRING_PAIR_MSG, messageHandler);
-        //    assertTrueMsg(status == IPC_OK,
-        //          "IpcFacade: Error subscribing to " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
       } else {
         result = IPC_Error;
       }
@@ -193,19 +296,31 @@ namespace PLEXIL {
     status = IPC_unsubscribe(RETURN_VALUE_MSG, messageHandler);
     assertTrueMsg(status == IPC_OK,
                   "IpcFacade: Error unsubscribing from " << RETURN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(NUMERIC_VALUE_MSG, messageHandler);
+    status = IPC_unsubscribe(BOOLEAN_VALUE_MSG, messageHandler);
     assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << NUMERIC_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+                  "IpcFacade: Error unsubscribing from " << BOOLEAN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = IPC_unsubscribe(INTEGER_VALUE_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK,
+                  "IpcFacade: Error unsubscribing from " << INTEGER_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = IPC_unsubscribe(REAL_VALUE_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK,
+                  "IpcFacade: Error unsubscribing from " << REAL_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
     status = IPC_unsubscribe(STRING_VALUE_MSG, messageHandler);
     assertTrueMsg(status == IPC_OK,
                   "IpcFacade: Error unsubscribing from " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = IPC_unsubscribe(BOOLEAN_ARRAY_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK,
+                  "IpcFacade: Error unsubscribing from " << BOOLEAN_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = IPC_unsubscribe(INTEGER_ARRAY_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK,
+                  "IpcFacade: Error unsubscribing from " << INTEGER_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = IPC_unsubscribe(REAL_ARRAY_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK,
+                  "IpcFacade: Error unsubscribing from " << REAL_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = IPC_unsubscribe(STRING_ARRAY_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK,
+                  "IpcFacade: Error unsubscribing from " << STRING_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
     // *** TODO: implement receiving planner update
-    //     status = IPC_unsubscribe(NUMERIC_PAIR_MSG, handler);
-    //     assertTrueMsg(status == IPC_OK,
-    //          "IpcFacade: Error unsubscribing from " << NUMERIC_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-    //     status = IPC_unsubscribe(STRING_PAIR_MSG, handler);
-    //     assertTrueMsg(status == IPC_OK,
-    //          "IpcFacade: Error unsubscribing from " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
 
     // Cancel IPC dispatch thread
     debugMsg("IpcFacade:stop", " cancelling dispatch thread");
@@ -284,10 +399,10 @@ namespace PLEXIL {
     assertTrue(m_isStarted, "publishCommand called before started");
     uint32_t serial = getSerialNumber();
     struct PlexilStringValueMsg cmdPacket = { { PlexilMsgType_Command, argsToDeliver.size(), serial, m_myUID.c_str() }, command.c_str() };
-    IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest.toString()).c_str(), (void *) &cmdPacket);
+    IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest).c_str(), (void *) &cmdPacket);
     if (result == IPC_OK) {
       result = sendParameters(argsToDeliver, serial);
-      debugMsg("IpcFacade:publishCommand", "Command " << command.toString() << " published with serial " << serial);
+      debugMsg("IpcFacade:publishCommand", "Command " << command << " published with serial " << serial);
     }
     setError(result);
     return result == IPC_OK ? serial : ERROR_SERIAL();
@@ -304,7 +419,7 @@ namespace PLEXIL {
     struct PlexilStringValueMsg leader = { { PlexilMsgType_LookupNow, argsToDeliver.size(), serial, m_myUID.c_str() }, lookup.c_str() };
 
     IPC_RETURN_TYPE result;
-    result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest.toString()).c_str(), (void *) &leader);
+    result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest).c_str(), (void *) &leader);
     if (result == IPC_OK) {
       result = sendParameters(argsToDeliver, serial);
     }
@@ -314,12 +429,12 @@ namespace PLEXIL {
 
   uint32_t IpcFacade::publishReturnValues(uint32_t request_serial,
                                           std::string const &request_uid,
-                                          Value const arg)
+                                          Value const &arg)
   {
     assertTrue(m_isStarted, "publishReturnValues called before started");
     uint32_t serial = getSerialNumber();
     struct PlexilReturnValuesMsg packet = { { PlexilMsgType_ReturnValues, 1, serial, m_myUID.c_str() }, request_serial, request_uid.c_str() };
-    IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(RETURN_VALUE_MSG, request_uid.toString()).c_str(), (void *) &packet);
+    IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(RETURN_VALUE_MSG, request_uid).c_str(), (void *) &packet);
     if (result == IPC_OK) {
       result = sendParameters(std::vector<Value>(1, arg), serial, request_uid);
     }
@@ -379,73 +494,148 @@ namespace PLEXIL {
     for (std::vector<Value>::const_iterator it = args.begin(); it != args.end(); it++, i++) {
       Value const &param = *it;
       PlexilMsgBase* paramMsg = NULL;
-      if (param.isKnown() && isArrayType(param.valueType())) {
-        Array const *array = NULL;
-        param.getValuePointer(array);
-        assertTrue_1(array);
-        int size = array->size();
-        switch (array->getElementType()) {
-        case STRING_TYPE: {
-          const char* strings[] = new const char*[size];
-          for (int i = 0; i < size; i++) {
+      if (param.isKnown())
+        switch (param.valueType()) {
+        case BOOLEAN_TYPE: {
+          bool b;
+          param.getValue(b);
+          struct PlexilBooleanValueMsg *boolMsg = new PlexilBooleanValueMsg;
+          boolMsg->boolValue = (unsigned char) b;
+          debugMsg("IpcFacade:sendParameters", "Boolean value is " << b);
+          paramMsg = (PlexilMsgBase*) boolMsg;
+          paramMsg->msgType = PlexilMsgType_BooleanValue;
+          break;
+        }
+
+        case INTEGER_TYPE: {
+          struct PlexilIntegerValueMsg *intMsg = new PlexilIntegerValueMsg;
+          param.getValue(intMsg->intValue);
+          debugMsg("IpcFacade:sendParameters", "Integer value is " << intMsg->intValue);
+          paramMsg = (PlexilMsgBase*) intMsg;
+          paramMsg->msgType = PlexilMsgType_IntegerValue;
+          break;
+        }
+
+        case REAL_TYPE: {
+          struct PlexilRealValueMsg *realMsg = new PlexilRealValueMsg;
+          param.getValue(realMsg->doubleValue);
+          debugMsg("IpcFacade:sendParameters", "Real value is " << realMsg->doubleValue);
+          paramMsg = (PlexilMsgBase*) realMsg;
+          paramMsg->msgType = PlexilMsgType_RealValue;
+          break;
+        }
+
+        case STRING_TYPE:  {
+          std::string const *sp;
+          param.getValuePointer(sp);
+          struct PlexilStringValueMsg *stringMsg = new PlexilStringValueMsg;
+          stringMsg->stringValue = sp->c_str();
+          debugMsg("IpcFacade:sendParameters", "String value is \"" << *sp << "\"");
+          paramMsg = (PlexilMsgBase*) stringMsg;
+          paramMsg->msgType = PlexilMsgType_StringValue;
+          break;
+        }
+
+        case BOOLEAN_ARRAY_TYPE: {
+          BooleanArray const *ba = NULL;
+          param.getValuePointer(ba);
+          assertTrue_1(ba);
+          size_t size = ba->size();
+          unsigned char *bools = new unsigned char[size];
+          for (size_t i = 0; i < size; i++) {
+            bool b;
+            assertTrue_2(ba->getElement(i, b), "Boolean array element is UNKNOWN");
+            bools[i] = (unsigned char) b;
+          }
+          struct PlexilBooleanArrayMsg* boolArrayMsg = new PlexilBooleanArrayMsg();
+          boolArrayMsg->arraySize = size;
+          boolArrayMsg->boolArray = bools;
+          debugMsg("IpcFacade:sendParameters", "First parameter of Boolean array is " << (bool) boolArrayMsg->boolArray[0]);
+          paramMsg = (PlexilMsgBase*) boolArrayMsg;
+          paramMsg->msgType = PlexilMsgType_BooleanArray;
+          break;
+        }
+
+        case INTEGER_ARRAY_TYPE: {
+          IntegerArray const *ia = NULL;
+          param.getValuePointer(ia);
+          assertTrue_1(ia);
+          size_t size = ia->size();
+          int32_t *nums = new int32_t[size];
+          for (size_t i = 0; i < size; i++) 
+            assertTrue_2(ia->getElement(i, nums[i]), "Integer array element is UNKNOWN");
+          struct PlexilIntegerArrayMsg* intArrayMsg = new PlexilIntegerArrayMsg();
+          intArrayMsg->arraySize = size;
+          intArrayMsg->intArray = nums;
+          debugMsg("IpcFacade:sendParameters", "First parameter of Integer array is " << intArrayMsg->intArray[0]);
+          paramMsg = (PlexilMsgBase*) intArrayMsg;
+          paramMsg->msgType = PlexilMsgType_IntegerArray;
+          break;
+        }
+
+        case REAL_ARRAY_TYPE: {
+          RealArray const *ra = NULL;
+          param.getValuePointer(ra);
+          assertTrue_1(ra);
+          size_t size = ra->size();
+          double *nums = new double[size];
+          for (size_t i = 0; i < size; i++) 
+            assertTrue_1(ra->getElement(i, nums[i]));
+          struct PlexilRealArrayMsg* realArrayMsg = new PlexilRealArrayMsg();
+          realArrayMsg->arraySize = size;
+          realArrayMsg->doubleArray = nums;
+          debugMsg("IpcFacade:sendParameters", "First parameter of Real array is " << realArrayMsg->doubleArray[0]);
+          paramMsg = (PlexilMsgBase*) realArrayMsg;
+          paramMsg->msgType = PlexilMsgType_RealArray;
+          break;
+        }
+
+        case STRING_ARRAY_TYPE: {
+          StringArray const *sa = NULL;
+          param.getValuePointer(sa);
+          assertTrue_1(sa);
+          size_t size = sa->size();
+          const char **strings = new const char*[size];
+          for (size_t i = 0; i < size; i++) {
             std::string const *temp = NULL;
-            assertTrue_1(array->getElementPointer(i, temp));
-            strings[i] = temp.c_str();
+            assertTrue_1(sa->getElementPointer(i, temp));
+            strings[i] = temp->c_str();
           }
           struct PlexilStringArrayMsg* strArrayMsg = new PlexilStringArrayMsg();
-          strArrayMsg->stringArray = strings;
           strArrayMsg->arraySize = size;
+          strArrayMsg->stringArray = strings;
+          debugMsg("IpcFacade:sendParameters",
+                   "First parameter of String array is \"" << strArrayMsg->stringArray[0] << "\"");
           paramMsg = (PlexilMsgBase*) strArrayMsg;
           paramMsg->msgType = PlexilMsgType_StringArray;
           break;
         }
 
-        case REAL_TYPE:
-        case INTEGER_TYPE: {
-          double nums[] = new double[size];
-          for (int i = 0; i < size; i++) 
-            assertTrue_1(array->getElement(nums[i]));
-          struct PlexilNumericArrayMsg* numArrayMsg = new PlexilNumericArrayMsg();
-          numArrayMsg->arraySize = size;
-          numArrayMsg->doubleArray = nums;
-          debugMsg("IpcFacade:sendParameters", "First parameter of array is " << numArrayMsg->doubleArray[0]);
-          paramMsg = (PlexilMsgBase*) numArrayMsg;
-          paramMsg->msgType = PlexilMsgType_NumericArray;
+        default:
+          assertTrue_2(ALWAYS_FAIL, "Invalid or unimplemented PLEXIL data type");
           break;
         }
-
-        default: // *** TODO ***
-          assertTrue_2(ALWAYS_FAIL, "Boolean arrays not yet implemented");
-          break;
-        }
+      else {
+        // Unknown
+        paramMsg = (PlexilMsgBase *) new PlexilUnknownValueMsg;
+        paramMsg->msgType = PlexilMsgType_UnknownValue;
+        debugMsg("IpcFacade:sendParameters", " Unknown value");
       }
-      else if (PLEXIL::UNKNOWN() == param || !LabelStr::isString(param)) {
-        // number or Boolean
-        struct PlexilNumericValueMsg* numMsg = new PlexilNumericValueMsg();
-        numMsg->doubleValue = param;
-        paramMsg = (PlexilMsgBase*) numMsg;
-        paramMsg->msgType = PlexilMsgType_NumericValue;
-        debugMsg("IpcFacade:sendParameters", "Numeric parameter: " << param);
-      } else {
-        // string
-        struct PlexilStringValueMsg* strMsg = new PlexilStringValueMsg();
-        strMsg->stringValue = LabelStr(param).c_str();
-        paramMsg = (PlexilMsgBase*) strMsg;
-        paramMsg->msgType = PlexilMsgType_StringValue;
-        debugMsg("IpcFacade:sendParameters", "String parameter: " << strMsg->stringValue);
-      }
-
       // Fill in common fields
       paramMsg->count = i;
       paramMsg->serial = serial;
       paramMsg->senderUID = m_myUID.c_str();
       paramMsgs[i] = paramMsg;
     }
-
+    
     // Send the messages
     IPC_RETURN_TYPE result = IPC_OK;
     for (size_t i = 0; i < nParams && result == IPC_OK; i++) {
-      result = IPC_publishData(formatMsgName(std::string(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType)), dest.toString()).c_str(), paramMsgs[i]);
+      result = 
+        // *** FIXME: Potential pointer-to-temporary problem ***
+        IPC_publishData(formatMsgName(std::string(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType)),
+                                      dest).c_str(),
+                        paramMsgs[i]);
     }
 
     // free the parameter packets
@@ -453,17 +643,56 @@ namespace PLEXIL {
       PlexilMsgBase* m = paramMsgs[i];
       paramMsgs[i] = NULL;
       switch (m->msgType) {
-      case (PlexilMsgType_NumericValue):
-        delete (PlexilNumericValueMsg*) m;
+      case PlexilMsgType_UnknownValue:
+        delete (PlexilUnknownValueMsg*) m;
         break;
-      case (PlexilMsgType_StringValue):
+
+      case PlexilMsgType_BooleanValue:
+        delete (PlexilBooleanValueMsg*) m;
+        break;
+
+      case PlexilMsgType_IntegerValue:
+        delete (PlexilIntegerValueMsg*) m;
+        break;
+
+      case PlexilMsgType_RealValue:
+        delete (PlexilRealValueMsg*) m;
+        break;
+
+      case PlexilMsgType_StringValue:
         delete (PlexilStringValueMsg*) m;
         break;
-      case (PlexilMsgType_NumericArray):
-        delete (PlexilNumericArrayMsg*) m;
+
+      case PlexilMsgType_BooleanArray: {
+        PlexilBooleanArrayMsg *bam = (PlexilBooleanArrayMsg*) m;
+        delete bam->boolArray;
+        delete bam;
         break;
+      }
+
+      case PlexilMsgType_IntegerArray: {
+        PlexilIntegerArrayMsg *iam = (PlexilIntegerArrayMsg*) m;
+        delete iam->intArray;
+        delete iam;
+        break;
+      }
+
+      case PlexilMsgType_RealArray: {
+        PlexilRealArrayMsg *ram = (PlexilRealArrayMsg*) m;
+        delete ram->doubleArray;
+        delete ram;
+        break;
+      }
+
+      case PlexilMsgType_StringArray: {
+        PlexilStringArrayMsg *sam = (PlexilStringArrayMsg*) m;
+        delete sam->stringArray;
+        delete sam;
+        break;
+      }
+
       default:
-        delete (PlexilStringArrayMsg*) m;
+        delete m;
         break;
       }
     }
@@ -493,10 +722,22 @@ namespace PLEXIL {
     status = IPC_defineMsg(formatMsgName(std::string(RETURN_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(NUMERIC_VALUE_MSG, IPC_VARIABLE_LENGTH, NUMERIC_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(BOOLEAN_VALUE_MSG, IPC_VARIABLE_LENGTH, BOOLEAN_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(NUMERIC_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, NUMERIC_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(std::string(BOOLEAN_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, BOOLEAN_VALUE_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(INTEGER_VALUE_MSG, IPC_VARIABLE_LENGTH, INTEGER_VALUE_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(formatMsgName(std::string(INTEGER_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, INTEGER_VALUE_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(REAL_VALUE_MSG, IPC_VARIABLE_LENGTH, REAL_VALUE_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(formatMsgName(std::string(REAL_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, REAL_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(STRING_VALUE_MSG, IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
@@ -505,10 +746,22 @@ namespace PLEXIL {
     status = IPC_defineMsg(formatMsgName(std::string(STRING_VALUE_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(NUMERIC_ARRAY_MSG, IPC_VARIABLE_LENGTH, NUMERIC_ARRAY_MSG_FORMAT);
+    status = IPC_defineMsg(BOOLEAN_ARRAY_MSG, IPC_VARIABLE_LENGTH, BOOLEAN_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(NUMERIC_ARRAY_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, NUMERIC_ARRAY_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(std::string(BOOLEAN_ARRAY_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, BOOLEAN_ARRAY_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(INTEGER_ARRAY_MSG, IPC_VARIABLE_LENGTH, INTEGER_ARRAY_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(formatMsgName(std::string(INTEGER_ARRAY_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, INTEGER_ARRAY_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(REAL_ARRAY_MSG, IPC_VARIABLE_LENGTH, REAL_ARRAY_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(formatMsgName(std::string(REAL_ARRAY_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, REAL_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(STRING_ARRAY_MSG, IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
@@ -517,10 +770,22 @@ namespace PLEXIL {
     status = IPC_defineMsg(formatMsgName(std::string(STRING_ARRAY_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(NUMERIC_PAIR_MSG, IPC_VARIABLE_LENGTH, NUMERIC_PAIR_MSG_FORMAT);
+    status = IPC_defineMsg(BOOLEAN_PAIR_MSG, IPC_VARIABLE_LENGTH, BOOLEAN_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(std::string(NUMERIC_PAIR_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, NUMERIC_PAIR_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(std::string(BOOLEAN_PAIR_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, BOOLEAN_PAIR_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(INTEGER_PAIR_MSG, IPC_VARIABLE_LENGTH, INTEGER_PAIR_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(formatMsgName(std::string(INTEGER_PAIR_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, INTEGER_PAIR_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(REAL_PAIR_MSG, IPC_VARIABLE_LENGTH, REAL_PAIR_MSG_FORMAT);
+    if (status != IPC_OK)
+      return false;
+    status = IPC_defineMsg(formatMsgName(std::string(REAL_PAIR_MSG), m_myUID).c_str(), IPC_VARIABLE_LENGTH, REAL_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(STRING_PAIR_MSG, IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
@@ -591,14 +856,21 @@ namespace PLEXIL {
       break;
     }
       // Values - could be parameters or return values
-    case PlexilMsgType_NumericValue:
+    case PlexilMsgType_UnknownValue:
+    case PlexilMsgType_BooleanValue:
+    case PlexilMsgType_IntegerValue:
+    case PlexilMsgType_RealValue:
     case PlexilMsgType_StringValue:
       // Arrays
-    case PlexilMsgType_NumericArray:
+    case PlexilMsgType_BooleanArray:
+    case PlexilMsgType_IntegerArray:
+    case PlexilMsgType_RealArray:
     case PlexilMsgType_StringArray:
 
       // PlannerUpdate pairs
-    case PlexilMsgType_PairNumeric:
+    case PlexilMsgType_PairBoolean:
+    case PlexilMsgType_PairInteger:
+    case PlexilMsgType_PairReal:
     case PlexilMsgType_PairString:
 
       // Log with corresponding leader message
@@ -726,22 +998,6 @@ namespace PLEXIL {
     return s.str();
   }
 
-  IpcFacade::BasicType IpcFacade::determineType(double array_id) {
-    BasicType type = UNKNOWN;
-    StoredArray array(array_id);
-    int size = array.size();
-    for (int i = 0; i < size && type == UNKNOWN; i++) {
-      if (PLEXIL::UNKNOWN() == array[i]) {
-        continue;
-      } else if (LabelStr::isString(array[i])) {
-        type = STRING;
-      } else {
-        type = NUMERIC;
-      }
-    }
-    return type;
-  }
-
   /**
    * Unsubscribes from the given message and the UID-specific version of the given message on central. Wrapper for IPC_unsubscribe.
    * If an error occurs in unsubscribing from the given message, the UID-specific version is not processed
@@ -776,16 +1032,6 @@ namespace PLEXIL {
     condDebugMsg(result != IPC_OK,
                  "IpcFacade:subscribeDataCentral", " for message name \"" << msgName << "\" failed, IPC_errno = " << IPC_errno);
     return result;
-  }
-
-  /**
-   * Returns a formatted message type string given the basic message type and destination ID.
-   * The caller is responsible for
-   * @param msgName The name of the message type
-   * @param destId The destination ID for the message
-   */
-  std::string IpcFacade::formatMsgName(const std::string& msgName, const std::string& destId) {
-    return destId + msgName;
   }
 
 }

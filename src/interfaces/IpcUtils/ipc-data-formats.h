@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@
 #define IPC_DATA_FORMATS_H
 
 #include <stdint.h>
+#include <limits.h>
 
 /*
  * Data formats used by IpcAdapter
@@ -67,17 +68,55 @@ struct PlexilReturnValuesMsg
 #define RETURN_VALUE_MSG_FORMAT "{ushort, ushort, uint, string, uint, string}"
 
 /*
- * Used for numeric argument or return values
+ * Unknown carries no value
  */
 
-struct PlexilNumericValueMsg
+struct PlexilUnknownValueMsg
+{
+  struct PlexilMsgBase header;
+};
+
+#define UNKNOWN_VALUE_MSG "PlexilUnknownValue"
+#define UNKNOWN_VALUE_MSG_FORMAT MSG_BASE_FORMAT
+
+/*
+ * Used for Boolean argument or return values
+ */
+
+struct PlexilBooleanValueMsg
+{
+  struct PlexilMsgBase header;
+  unsigned char boolValue;
+};
+
+#define BOOLEAN_VALUE_MSG "PlexilBooleanValue"
+#define BOOLEAN_VALUE_MSG_FORMAT "{ushort, ushort, uint, string, ubyte}"
+
+/*
+ * Used for Integer argument or return values
+ */
+
+struct PlexilIntegerValueMsg
+{
+  struct PlexilMsgBase header;
+  int32_t intValue;
+};
+
+#define INTEGER_VALUE_MSG "PlexilIntegerValue"
+#define INTEGER_VALUE_MSG_FORMAT "{ushort, ushort, uint, string, int}"
+
+/*
+ * Used for Real argument or return values
+ */
+
+struct PlexilRealValueMsg
 {
   struct PlexilMsgBase header;
   double doubleValue;
 };
 
-#define NUMERIC_VALUE_MSG "PlexilNumericValue"
-#define NUMERIC_VALUE_MSG_FORMAT "{ushort, ushort, uint, string, double}"
+#define REAL_VALUE_MSG "PlexilRealValue"
+#define REAL_VALUE_MSG_FORMAT "{ushort, ushort, uint, string, double}"
 
 /*
  * When used for commands, lookups:
@@ -120,21 +159,61 @@ struct PlexilStringArrayMsg
 #define STRING_ARRAY_MSG_FORMAT "{ushort, ushort, uint, string, int, <string:5>}"
 
 /*
- * Used for numeric argument or return values
+ * Used for Real array argument or return values
  */
 
-struct PlexilNumericArrayMsg
+struct PlexilRealArrayMsg
 {
-  ~PlexilNumericArrayMsg() {
-    delete doubleArray;
-  }
   struct PlexilMsgBase header;
   int32_t arraySize;
   double* doubleArray;
+
+  ~PlexilRealArrayMsg()
+  {
+    delete doubleArray;
+  }
 };
 
-#define NUMERIC_ARRAY_MSG "PlexilNumericArray"
-#define NUMERIC_ARRAY_MSG_FORMAT "{ushort, ushort, uint, string, int, <double:5>}"
+#define REAL_ARRAY_MSG "PlexilRealArray"
+#define REAL_ARRAY_MSG_FORMAT "{ushort, ushort, uint, string, int, <double:5>}"
+
+/*
+ * Used for Integer array argument or return values
+ */
+
+struct PlexilIntegerArrayMsg
+{
+  struct PlexilMsgBase header;
+  int32_t arraySize;
+  int32_t* intArray;
+
+  ~PlexilIntegerArrayMsg()
+  {
+    delete intArray;
+  }
+};
+
+#define INTEGER_ARRAY_MSG "PlexilIntegerArray"
+#define INTEGER_ARRAY_MSG_FORMAT "{ushort, ushort, uint, string, int, <int:5>}"
+
+/*
+ * Used for Boolean array argument or return values
+ */
+
+struct PlexilBooleanArrayMsg
+{
+  struct PlexilMsgBase header;
+  int32_t arraySize;
+  unsigned char* boolArray;
+
+  ~PlexilBooleanArrayMsg()
+  {
+    delete boolArray;
+  }
+};
+
+#define BOOLEAN_ARRAY_MSG "PlexilBooleanArray"
+#define BOOLEAN_ARRAY_MSG_FORMAT "{ushort, ushort, uint, string, int, <ubyte:5>}"
 
 struct PairHeader
 {
@@ -142,14 +221,32 @@ struct PairHeader
   const char* pairName;
 };
 
-struct NumericPair
+struct BooleanPair
+{
+  struct PairHeader pairHeader;
+  unsigned char pairBoolValue;
+};
+
+#define BOOLEAN_PAIR_MSG "PlexilBooleanPair"
+#define BOOLEAN_PAIR_MSG_FORMAT "{ushort, ushort, uint, string, string, ubyte}"
+
+struct IntegerPair
+{
+  struct PairHeader pairHeader;
+  int32_t pairIntValue;
+};
+
+#define INTEGER_PAIR_MSG "PlexilIntegerPair"
+#define INTEGER_PAIR_MSG_FORMAT "{ushort, ushort, uint, string, string, int}"
+
+struct RealPair
 {
   struct PairHeader pairHeader;
   double pairDoubleValue;
 };
 
-#define NUMERIC_PAIR_MSG "PlexilNumericPair"
-#define NUMERIC_PAIR_MSG_FORMAT "{ushort, ushort, uint, string, string, double}"
+#define REAL_PAIR_MSG "PlexilRealPair"
+#define REAL_PAIR_MSG_FORMAT "{ushort, ushort, uint, string, string, double}"
 
 struct StringPair
 {
@@ -160,63 +257,89 @@ struct StringPair
 #define STRING_PAIR_MSG "PlexilStringPair"
 #define STRING_PAIR_MSG_FORMAT "{ushort, ushort, uint, string, string, string}"
 
-typedef enum
-  {
-    PlexilMsgType_uninited=0,
+typedef enum {
+  PlexilMsgType_uninited=0,
 
-    /* PlexilMsgBase - 
-     * These messages are complete unto themselves */
-    PlexilMsgType_NotifyExec,
-    PlexilMsgType_TerminateChangeLookup,
+  /* PlexilMsgBase - 
+   * These messages are complete unto themselves */
+  PlexilMsgType_NotifyExec,
+  PlexilMsgType_TerminateChangeLookup,
 
-    /* PlexilStringValueMsg -
-     * These have an operation (or state) name and an argument count */
-    PlexilMsgType_Command,
-    PlexilMsgType_Message,
-    PlexilMsgType_LookupNow,
-    PlexilMsgType_LookupOnChange,
-    PlexilMsgType_TelemetryValues,
+  /* PlexilStringValueMsg -
+   * These have an operation (or state) name and an argument count */
+  PlexilMsgType_Command,
+  PlexilMsgType_Message,
+  PlexilMsgType_LookupNow,
+  PlexilMsgType_LookupOnChange,
+  PlexilMsgType_TelemetryValues,
 
-    /* PlexilReturnValuesMsg - 
-     * These have a unique ID of the requested operation and count of values (which may be 0) */
-    PlexilMsgType_ReturnValues,
+  /* PlexilReturnValuesMsg - 
+   * These have a unique ID of the requested operation and count of values (which may be 0) */
+  PlexilMsgType_ReturnValues,
 
-    /* PlexilStringValueMsg -
-     * These have one (non-empty?) string datum, the plan or file name
-     * Count must be 0 */
-    PlexilMsgType_AddPlan,
-    PlexilMsgType_AddPlanFile,
-    PlexilMsgType_AddLibrary,
-    PlexilMsgType_AddLibraryFile,
+  /* PlexilStringValueMsg -
+   * These have one (non-empty?) string datum, the plan or file name
+   * Count must be 0 */
+  PlexilMsgType_AddPlan,
+  PlexilMsgType_AddPlanFile,
+  PlexilMsgType_AddLibrary,
+  PlexilMsgType_AddLibraryFile,
 
-    /* PlexilStringValueMsg -
-     * These have a node name and a pair count (which may be 0?) */
-    PlexilMsgType_PlannerUpdate,
+  /* PlexilStringValueMsg -
+   * These have a node name and a pair count (which may be 0?) */
+  PlexilMsgType_PlannerUpdate,
 
-    /* PlexilNumericValueMsg -
-     * A simple numeric datum
-     * Count indicates position in sequence */
-    PlexilMsgType_NumericValue,
-    PlexilMsgType_NumericArray,
+  /* PlexilUnknownValueMsg - 
+   * no datum
+   * Count indicates position in sequence */
+  PlexilMsgType_UnknownValue,
 
-    /* PlexilStringValueMsg -
-     * A simple string datum
-     * Count indicates position in sequence */
-    PlexilMsgType_StringValue,
-    PlexilMsgType_StringArray,
+  /* PlexilBooleanValueMsg -
+   * Simple bool datum
+   * Count indicates position in sequence */
+  PlexilMsgType_BooleanValue,
+  PlexilMsgType_BooleanArray,
 
-    /* NumericPair -
-     * A pair of a name and a numeric value
-     * Count indicates position in sequence */
-    PlexilMsgType_PairNumeric,
+  /* PlexilIntegerValueMsg -
+   * A simple integer datum
+   * Count indicates position in sequence */
+  PlexilMsgType_IntegerValue,
+  PlexilMsgType_IntegerArray,
 
-    /* StringPair -
-     * A pair of a name and a string value
-     * Count indicates position in sequence */
-    PlexilMsgType_PairString,
+  /* PlexilRealValueMsg -
+   * A simple real datum
+   * Count indicates position in sequence */
+  PlexilMsgType_RealValue,
+  PlexilMsgType_RealArray,
 
-    PlexilMsgType_limit
-  }
+  /* PlexilStringValueMsg -
+   * A simple string datum
+   * Count indicates position in sequence */
+  PlexilMsgType_StringValue,
+  PlexilMsgType_StringArray,
+
+  /* BooleanPair -
+   * A pair of a name and a boolean value
+   * Count indicates position in sequence */
+  PlexilMsgType_PairBoolean,
+
+  /* IntegerPair -
+   * A pair of a name and a integer value
+   * Count indicates position in sequence */
+  PlexilMsgType_PairInteger,
+
+  /* RealPair -
+   * A pair of a name and a real value
+   * Count indicates position in sequence */
+  PlexilMsgType_PairReal,
+
+  /* StringPair -
+   * A pair of a name and a string value
+   * Count indicates position in sequence */
+  PlexilMsgType_PairString,
+
+  PlexilMsgType_limit
+}
   PlexilMsgType;
 
 #endif /* IPC_DATA_FORMATS_H */

@@ -30,9 +30,9 @@ LIBRARY		:= IpcUtils
 # External dependencies
 INC_DIRS	+= ../../third-party/ipc/src \
   ../../third-party/ooid/kashmir \
-  ../../utils
+  ../../utils ../../expr
 LIB_PATH	+=
-LIBS		+= ipc PlexilUtils
+LIBS		+= ipc PlexilUtils PlexilExpr
 
 SRC		:= IpcFacade.cc
 INC		:= ipc-data-formats.h IpcFacade.hh
