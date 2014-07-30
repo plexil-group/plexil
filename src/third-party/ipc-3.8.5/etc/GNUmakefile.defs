@@ -277,7 +277,8 @@ LD		= ld
 LD_SHARED_Solaris= ld -G -dy
 LD_SHARED_SunOS	= ld -assert pure-text
 LD_SHARED_Linux	= ld -G -dy
-LD_SHARED_Darwin = libtool -dynamic
+# May be overridden by user
+LD_SHARED_Darwin = /usr/bin/libtool -dynamic
 LD_SHARED	= $(LD_SHARED_$(THIS_OS))
 CP		= /bin/cp
 CHMOD		= /bin/chmod
