@@ -57,7 +57,7 @@ namespace PLEXIL
     union {
       Command *command;
       Update *update;
-      State const *state;
+      State *state;
       PlexilNode *plan;
       unsigned int sequence;
     };

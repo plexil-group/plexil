@@ -26,20 +26,24 @@
 
 #include "QueueEntry.hh"
 
+#include "State.hh"
+
 namespace PLEXIL
 {
 
   void QueueEntry::reset()
   {
     next = NULL;
-    sequence = 0;
+    if (type == Q_LOOKUP)
+      delete state;
+    state = NULL;
     value.setUnknown();
     type = Q_UNINITED;
   }
 
   void QueueEntry::initForLookup(State const &st, Value const &val)
   {
-    state = &st;
+    state = new State(st); // have to copy 
     value = &val;
     type = Q_LOOKUP;
   }
