@@ -28,6 +28,7 @@
 
 #include "Debug.hh"
 #include "Error.hh"
+#include "Node.hh"
 #include "PlexilPlan.hh"
 #include "PlexilSchema.hh"
 #include "ValueType.hh"
@@ -533,6 +534,12 @@ namespace PLEXIL
     checkTag(NAME_TAG, child);
     const char* name = child.first_child().value();
 
+    checkParserExceptionWithLocation(name != Node::STATE()
+                                     && name != Node::OUTCOME()
+                                     && name != Node::FAILURE_TYPE(),
+                                     child.first_child(),
+                                     "In array variable declaration: name \"" << name << "\" is reserved");
+
     // extract array type
 
     child = child.next_sibling();
@@ -597,6 +604,12 @@ namespace PLEXIL
     xml_node child = decl.first_child();
     checkTag(NAME_TAG, child);
     const string& name = child.first_child().value();
+
+    checkParserExceptionWithLocation(name != Node::STATE()
+                                     && name != Node::OUTCOME()
+                                     && name != Node::FAILURE_TYPE(),
+                                     child.first_child(),
+                                     "In variable declaration: name \"" << name << "\" is reserved");
 
     // extract type
     child = child.next_sibling();
