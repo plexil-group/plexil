@@ -80,6 +80,19 @@ struct PlexilUnknownValueMsg
 #define UNKNOWN_VALUE_MSG_FORMAT MSG_BASE_FORMAT
 
 /*
+ * Used for command handle (acknowledge) value
+ */
+
+struct PlexilCommandHandleValueMsg
+{
+  struct PlexilMsgBase header;
+  uint16_t commandHandleValue;
+};
+
+#define COMMAND_HANDLE_VALUE_MSG "PlexilCommandHandleValue"
+#define COMMAND_HANDLE_VALUE_MSG_FORMAT "{ushort, ushort, uint, string, ushort}"
+
+/*
  * Used for Boolean argument or return values
  */
 
@@ -293,6 +306,11 @@ typedef enum {
    * no datum
    * Count indicates position in sequence */
   PlexilMsgType_UnknownValue,
+
+  /* PlexilCommandHandleValueMsg -
+   * Enumeration datum
+   * Count indicates position in sequence */
+  PlexilMsgType_CommandHandleValue,
 
   /* PlexilBooleanValueMsg -
    * Simple bool datum
