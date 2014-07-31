@@ -718,7 +718,6 @@ namespace PLEXIL
     PlexilMsgBase* paramMsgs[nParams];
     unsigned int i = 0;
     for (std::vector<Value>::const_iterator it = args.begin(); it != args.end(); it++, i++) {
-      //Value const &param = *it;
       PlexilMsgBase* paramMsg = constructPlexilValueMsg(*it);
       // Fill in common fields
       paramMsg->count = i;
@@ -765,30 +764,27 @@ namespace PLEXIL
         delete (PlexilStringValueMsg*) m;
         break;
 
+        // *** DON'T FREE ARRAY DATA! IPC does this. ***
       case PlexilMsgType_BooleanArray: {
         PlexilBooleanArrayMsg *bam = (PlexilBooleanArrayMsg*) m;
-        delete bam->boolArray;
         delete bam;
         break;
       }
 
       case PlexilMsgType_IntegerArray: {
         PlexilIntegerArrayMsg *iam = (PlexilIntegerArrayMsg*) m;
-        delete iam->intArray;
         delete iam;
         break;
       }
 
       case PlexilMsgType_RealArray: {
         PlexilRealArrayMsg *ram = (PlexilRealArrayMsg*) m;
-        delete ram->doubleArray;
         delete ram;
         break;
       }
 
       case PlexilMsgType_StringArray: {
         PlexilStringArrayMsg *sam = (PlexilStringArrayMsg*) m;
-        delete sam->stringArray;
         delete sam;
         break;
       }
