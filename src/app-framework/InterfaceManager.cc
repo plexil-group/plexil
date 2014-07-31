@@ -674,7 +674,7 @@ namespace PLEXIL
                "InterfaceManager::handleAddLibrary: Null plan");
     QueueEntry *entry = m_inputQueue->allocate();
     assertTrue_1(entry);
-    entry->initForAddPlan(planStruct);
+    entry->initForAddLibrary(planStruct);
     m_inputQueue->put(entry);
     debugMsg("InterfaceManager:handleAddLibrary", " library node enqueued");
   }
