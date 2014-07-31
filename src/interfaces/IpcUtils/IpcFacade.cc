@@ -138,6 +138,232 @@ namespace PLEXIL
     }
   }
 
+  /**
+   * @brief Utility function to create a value message from a PLEXIL Value.
+   * @param val The Value to encode in the message.
+   * @return Pointer to newly allocated IPC message.
+   * @note Returns NULL for unimplemented/invalid Values.
+   */
+  PlexilMsgBase *constructPlexilValueMsg(Value const val)
+  {
+    PlexilMsgBase *result = NULL;
+    if (val.isKnown())
+      switch (val.valueType()) {
+      case BOOLEAN_TYPE: {
+        bool b;
+        val.getValue(b);
+        struct PlexilBooleanValueMsg *boolMsg = new PlexilBooleanValueMsg;
+        boolMsg->boolValue = (unsigned char) b;
+        debugMsg("constructPlexilValueMsg", "Boolean value is " << b);
+        result = (PlexilMsgBase*) boolMsg;
+        result->msgType = PlexilMsgType_BooleanValue;
+        break;
+      }
+
+      case INTEGER_TYPE: {
+        struct PlexilIntegerValueMsg *intMsg = new PlexilIntegerValueMsg;
+        val.getValue(intMsg->intValue);
+        debugMsg("constructPlexilValueMsg", "Integer value is " << intMsg->intValue);
+        result = (PlexilMsgBase*) intMsg;
+        result->msgType = PlexilMsgType_IntegerValue;
+        break;
+      }
+
+      case REAL_TYPE: {
+        struct PlexilRealValueMsg *realMsg = new PlexilRealValueMsg;
+        val.getValue(realMsg->doubleValue);
+        debugMsg("constructPlexilValueMsg", "Real value is " << realMsg->doubleValue);
+        result = (PlexilMsgBase*) realMsg;
+        result->msgType = PlexilMsgType_RealValue;
+        break;
+      }
+
+      case STRING_TYPE:  {
+        std::string const *sp;
+        val.getValuePointer(sp);
+        struct PlexilStringValueMsg *stringMsg = new PlexilStringValueMsg;
+        stringMsg->stringValue = sp->c_str();
+        debugMsg("constructPlexilValueMsg", "String value is \"" << *sp << "\"");
+        result = (PlexilMsgBase*) stringMsg;
+        result->msgType = PlexilMsgType_StringValue;
+        break;
+      }
+
+      case COMMAND_HANDLE_TYPE: {
+        uint16_t handle;
+        val.getValue(handle);
+        struct PlexilCommandHandleValueMsg *handleMsg = new PlexilCommandHandleValueMsg;
+        handleMsg->commandHandleValue = handle;
+        result = (PlexilMsgBase *) handleMsg;
+        result->msgType = PlexilMsgType_CommandHandleValue;
+        break;
+      }
+
+      case BOOLEAN_ARRAY_TYPE: {
+        BooleanArray const *ba = NULL;
+        val.getValuePointer(ba);
+        assertTrue_1(ba);
+        size_t size = ba->size();
+        unsigned char *bools = new unsigned char[size];
+        for (size_t i = 0; i < size; i++) {
+          bool b;
+          assertTrue_2(ba->getElement(i, b), "Boolean array element is UNKNOWN");
+          bools[i] = (unsigned char) b;
+        }
+        struct PlexilBooleanArrayMsg* boolArrayMsg = new PlexilBooleanArrayMsg();
+        boolArrayMsg->arraySize = size;
+        boolArrayMsg->boolArray = bools;
+        debugMsg("constructPlexilValueMsg", "First parameter of Boolean array is " << (bool) boolArrayMsg->boolArray[0]);
+        result = (PlexilMsgBase*) boolArrayMsg;
+        result->msgType = PlexilMsgType_BooleanArray;
+        break;
+      }
+
+      case INTEGER_ARRAY_TYPE: {
+        IntegerArray const *ia = NULL;
+        val.getValuePointer(ia);
+        assertTrue_1(ia);
+        size_t size = ia->size();
+        int32_t *nums = new int32_t[size];
+        for (size_t i = 0; i < size; i++) 
+          assertTrue_2(ia->getElement(i, nums[i]), "Integer array element is UNKNOWN");
+        struct PlexilIntegerArrayMsg* intArrayMsg = new PlexilIntegerArrayMsg();
+        intArrayMsg->arraySize = size;
+        intArrayMsg->intArray = nums;
+        debugMsg("constructPlexilValueMsg", "First parameter of Integer array is " << intArrayMsg->intArray[0]);
+        result = (PlexilMsgBase*) intArrayMsg;
+        result->msgType = PlexilMsgType_IntegerArray;
+        break;
+      }
+
+      case REAL_ARRAY_TYPE: {
+        RealArray const *ra = NULL;
+        val.getValuePointer(ra);
+        assertTrue_1(ra);
+        size_t size = ra->size();
+        double *nums = new double[size];
+        for (size_t i = 0; i < size; i++) 
+          assertTrue_1(ra->getElement(i, nums[i]));
+        struct PlexilRealArrayMsg* realArrayMsg = new PlexilRealArrayMsg();
+        realArrayMsg->arraySize = size;
+        realArrayMsg->doubleArray = nums;
+        debugMsg("constructPlexilValueMsg", "First parameter of Real array is " << realArrayMsg->doubleArray[0]);
+        result = (PlexilMsgBase*) realArrayMsg;
+        result->msgType = PlexilMsgType_RealArray;
+        break;
+      }
+
+      case STRING_ARRAY_TYPE: {
+        StringArray const *sa = NULL;
+        val.getValuePointer(sa);
+        assertTrue_1(sa);
+        size_t size = sa->size();
+        const char **strings = new const char*[size];
+        for (size_t i = 0; i < size; i++) {
+          std::string const *temp = NULL;
+          assertTrue_1(sa->getElementPointer(i, temp));
+          strings[i] = temp->c_str();
+        }
+        struct PlexilStringArrayMsg* strArrayMsg = new PlexilStringArrayMsg();
+        strArrayMsg->arraySize = size;
+        strArrayMsg->stringArray = strings;
+        debugMsg("constructPlexilValueMsg",
+                 "First parameter of String array is \"" << strArrayMsg->stringArray[0] << "\"");
+        result = (PlexilMsgBase*) strArrayMsg;
+        result->msgType = PlexilMsgType_StringArray;
+        break;
+      }
+
+      default:
+        assertTrue_2(ALWAYS_FAIL, "Invalid or unimplemented PLEXIL data type");
+        break;
+      }
+    else {
+      // Unknown
+      result = (PlexilMsgBase *) new PlexilUnknownValueMsg;
+      result->msgType = PlexilMsgType_UnknownValue;
+      debugMsg("constructPlexilValueMsg", " Unknown value");
+    }
+
+    return result;
+  }
+
+  /**
+   * @brief Utility function to extract the value from a value message.
+   * @param msg Pointer to const IPC message.
+   * @return The Value represented by the message.
+   * @note The returned value will be unknown if the message is not a value message.
+   */
+  Value getPlexilMsgValue(PlexilMsgBase const *msg)
+  {
+    switch ((PlexilMsgType) msg->msgType) {
+    case PlexilMsgType_CommandHandleValue: {
+      PlexilCommandHandleValueMsg const *param = reinterpret_cast<const PlexilCommandHandleValueMsg*> (msg);
+      return Value(param->commandHandleValue, COMMAND_HANDLE_TYPE);
+    }
+
+    case PlexilMsgType_BooleanValue: {
+      const PlexilBooleanValueMsg* param = reinterpret_cast<const PlexilBooleanValueMsg*> (msg);
+      return Value(param->boolValue);
+    }
+
+    case PlexilMsgType_IntegerValue: {
+      const PlexilIntegerValueMsg* param = reinterpret_cast<const PlexilIntegerValueMsg*> (msg);
+      return Value(param->intValue);
+    }
+
+    case PlexilMsgType_RealValue: {
+      const PlexilRealValueMsg* param = reinterpret_cast<const PlexilRealValueMsg*> (msg);
+      return Value(param->doubleValue);
+    }
+
+    case PlexilMsgType_StringValue: {
+      const PlexilStringValueMsg* param = reinterpret_cast<const PlexilStringValueMsg*> (msg);
+      return Value(param->stringValue);
+    }
+
+    case PlexilMsgType_BooleanArray: {
+      const PlexilBooleanArrayMsg* param = reinterpret_cast<const PlexilBooleanArrayMsg*> (msg);
+      BooleanArray array(param->arraySize);
+      for (size_t j = 0; j < param->arraySize; j++)
+        array.setElement(j, param->boolArray[j]);
+      return Value(array);
+    }
+
+    case PlexilMsgType_IntegerArray: {
+      const PlexilIntegerArrayMsg* param = reinterpret_cast<const PlexilIntegerArrayMsg*> (msg);
+      IntegerArray array(param->arraySize);
+      for (size_t j = 0; j < param->arraySize; j++)
+        array.setElement(j, param->intArray[j]);
+      return Value(array);
+    }
+
+    case PlexilMsgType_RealArray: {
+      const PlexilRealArrayMsg* param = reinterpret_cast<const PlexilRealArrayMsg*> (msg);
+      RealArray array(param->arraySize);
+      for (size_t j = 0; j < param->arraySize; j++)
+        array.setElement(j, param->doubleArray[j]);
+      return Value(array);
+    }
+
+    case PlexilMsgType_StringArray: {
+      const PlexilStringArrayMsg* param = reinterpret_cast<const PlexilStringArrayMsg*> (msg);
+      StringArray array(param->arraySize);
+      for (size_t j = 0; j < param->arraySize; j++)
+        array.setElement(j, param->stringArray[j]);
+      return Value(array);
+    }
+
+    default:
+      // TODO: handle error more gracefully
+      assertTrue_2(ALWAYS_FAIL, "getPlexilMsgValue: invalid or unimplemented message type");
+      // fall thru...
+
+    case PlexilMsgType_UnknownValue:
+      return Value();
+    }
+  }
+
   IpcFacade::IpcFacade() :
     m_isInitialized(false),
     m_isStarted(false),
@@ -492,135 +718,8 @@ namespace PLEXIL
     PlexilMsgBase* paramMsgs[nParams];
     unsigned int i = 0;
     for (std::vector<Value>::const_iterator it = args.begin(); it != args.end(); it++, i++) {
-      Value const &param = *it;
-      PlexilMsgBase* paramMsg = NULL;
-      if (param.isKnown())
-        switch (param.valueType()) {
-        case BOOLEAN_TYPE: {
-          bool b;
-          param.getValue(b);
-          struct PlexilBooleanValueMsg *boolMsg = new PlexilBooleanValueMsg;
-          boolMsg->boolValue = (unsigned char) b;
-          debugMsg("IpcFacade:sendParameters", "Boolean value is " << b);
-          paramMsg = (PlexilMsgBase*) boolMsg;
-          paramMsg->msgType = PlexilMsgType_BooleanValue;
-          break;
-        }
-
-        case INTEGER_TYPE: {
-          struct PlexilIntegerValueMsg *intMsg = new PlexilIntegerValueMsg;
-          param.getValue(intMsg->intValue);
-          debugMsg("IpcFacade:sendParameters", "Integer value is " << intMsg->intValue);
-          paramMsg = (PlexilMsgBase*) intMsg;
-          paramMsg->msgType = PlexilMsgType_IntegerValue;
-          break;
-        }
-
-        case REAL_TYPE: {
-          struct PlexilRealValueMsg *realMsg = new PlexilRealValueMsg;
-          param.getValue(realMsg->doubleValue);
-          debugMsg("IpcFacade:sendParameters", "Real value is " << realMsg->doubleValue);
-          paramMsg = (PlexilMsgBase*) realMsg;
-          paramMsg->msgType = PlexilMsgType_RealValue;
-          break;
-        }
-
-        case STRING_TYPE:  {
-          std::string const *sp;
-          param.getValuePointer(sp);
-          struct PlexilStringValueMsg *stringMsg = new PlexilStringValueMsg;
-          stringMsg->stringValue = sp->c_str();
-          debugMsg("IpcFacade:sendParameters", "String value is \"" << *sp << "\"");
-          paramMsg = (PlexilMsgBase*) stringMsg;
-          paramMsg->msgType = PlexilMsgType_StringValue;
-          break;
-        }
-
-        case BOOLEAN_ARRAY_TYPE: {
-          BooleanArray const *ba = NULL;
-          param.getValuePointer(ba);
-          assertTrue_1(ba);
-          size_t size = ba->size();
-          unsigned char *bools = new unsigned char[size];
-          for (size_t i = 0; i < size; i++) {
-            bool b;
-            assertTrue_2(ba->getElement(i, b), "Boolean array element is UNKNOWN");
-            bools[i] = (unsigned char) b;
-          }
-          struct PlexilBooleanArrayMsg* boolArrayMsg = new PlexilBooleanArrayMsg();
-          boolArrayMsg->arraySize = size;
-          boolArrayMsg->boolArray = bools;
-          debugMsg("IpcFacade:sendParameters", "First parameter of Boolean array is " << (bool) boolArrayMsg->boolArray[0]);
-          paramMsg = (PlexilMsgBase*) boolArrayMsg;
-          paramMsg->msgType = PlexilMsgType_BooleanArray;
-          break;
-        }
-
-        case INTEGER_ARRAY_TYPE: {
-          IntegerArray const *ia = NULL;
-          param.getValuePointer(ia);
-          assertTrue_1(ia);
-          size_t size = ia->size();
-          int32_t *nums = new int32_t[size];
-          for (size_t i = 0; i < size; i++) 
-            assertTrue_2(ia->getElement(i, nums[i]), "Integer array element is UNKNOWN");
-          struct PlexilIntegerArrayMsg* intArrayMsg = new PlexilIntegerArrayMsg();
-          intArrayMsg->arraySize = size;
-          intArrayMsg->intArray = nums;
-          debugMsg("IpcFacade:sendParameters", "First parameter of Integer array is " << intArrayMsg->intArray[0]);
-          paramMsg = (PlexilMsgBase*) intArrayMsg;
-          paramMsg->msgType = PlexilMsgType_IntegerArray;
-          break;
-        }
-
-        case REAL_ARRAY_TYPE: {
-          RealArray const *ra = NULL;
-          param.getValuePointer(ra);
-          assertTrue_1(ra);
-          size_t size = ra->size();
-          double *nums = new double[size];
-          for (size_t i = 0; i < size; i++) 
-            assertTrue_1(ra->getElement(i, nums[i]));
-          struct PlexilRealArrayMsg* realArrayMsg = new PlexilRealArrayMsg();
-          realArrayMsg->arraySize = size;
-          realArrayMsg->doubleArray = nums;
-          debugMsg("IpcFacade:sendParameters", "First parameter of Real array is " << realArrayMsg->doubleArray[0]);
-          paramMsg = (PlexilMsgBase*) realArrayMsg;
-          paramMsg->msgType = PlexilMsgType_RealArray;
-          break;
-        }
-
-        case STRING_ARRAY_TYPE: {
-          StringArray const *sa = NULL;
-          param.getValuePointer(sa);
-          assertTrue_1(sa);
-          size_t size = sa->size();
-          const char **strings = new const char*[size];
-          for (size_t i = 0; i < size; i++) {
-            std::string const *temp = NULL;
-            assertTrue_1(sa->getElementPointer(i, temp));
-            strings[i] = temp->c_str();
-          }
-          struct PlexilStringArrayMsg* strArrayMsg = new PlexilStringArrayMsg();
-          strArrayMsg->arraySize = size;
-          strArrayMsg->stringArray = strings;
-          debugMsg("IpcFacade:sendParameters",
-                   "First parameter of String array is \"" << strArrayMsg->stringArray[0] << "\"");
-          paramMsg = (PlexilMsgBase*) strArrayMsg;
-          paramMsg->msgType = PlexilMsgType_StringArray;
-          break;
-        }
-
-        default:
-          assertTrue_2(ALWAYS_FAIL, "Invalid or unimplemented PLEXIL data type");
-          break;
-        }
-      else {
-        // Unknown
-        paramMsg = (PlexilMsgBase *) new PlexilUnknownValueMsg;
-        paramMsg->msgType = PlexilMsgType_UnknownValue;
-        debugMsg("IpcFacade:sendParameters", " Unknown value");
-      }
+      //Value const &param = *it;
+      PlexilMsgBase* paramMsg = constructPlexilValueMsg(*it);
       // Fill in common fields
       paramMsg->count = i;
       paramMsg->serial = serial;
@@ -631,11 +730,10 @@ namespace PLEXIL
     // Send the messages
     IPC_RETURN_TYPE result = IPC_OK;
     for (size_t i = 0; i < nParams && result == IPC_OK; i++) {
-      result = 
-        // *** FIXME: Potential pointer-to-temporary problem ***
-        IPC_publishData(formatMsgName(std::string(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType)),
-                                      dest).c_str(),
-                        paramMsgs[i]);
+      std::string msgName = 
+        formatMsgName(std::string(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType)),
+                      dest);
+      result = IPC_publishData(msgName.c_str(), paramMsgs[i]);
     }
 
     // free the parameter packets
@@ -645,6 +743,10 @@ namespace PLEXIL
       switch (m->msgType) {
       case PlexilMsgType_UnknownValue:
         delete (PlexilUnknownValueMsg*) m;
+        break;
+
+      case PlexilMsgType_CommandHandleValue:
+        delete (PlexilCommandHandleValueMsg*) m;
         break;
 
       case PlexilMsgType_BooleanValue:
