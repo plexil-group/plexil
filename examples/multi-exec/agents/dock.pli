@@ -98,7 +98,7 @@
       (repeat-condition true)
       ;; mod (now - start-time) period < 2 * tolerance
       (start-condition (< (mod (- (lookup-on-change-with-tolerance "time" 0.01) (array-element "times" 0))
-                               (intvar "period"))
+                               (realvar "period"))
                           0.02)) ;twice the tolerance (i.e., 2 * latency), or wakeups will be skipped
       (assignment (array-element "times" 1) (- (lookup-now "time") (array-element "times" 0)))
       (command "print" "\n\n[" (stringvar "name") " (" (array-element "times" 1) ")]")
