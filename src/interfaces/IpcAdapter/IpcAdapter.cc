@@ -451,7 +451,7 @@ namespace PLEXIL
              " SendReturnValue(sender_serial:\"" << serial << "\" \"" << front_string << "\")");
     //publish
     serial = m_ipcFacade.publishReturnValues(serial, front_string, args[1]);
-    assertTrue(serial != IpcFacade::ERROR_SERIAL(), "Return values failed to be sent");
+    assertTrue_2(serial != IpcFacade::ERROR_SERIAL(), "Return values failed to be sent");
 
     // store ack
     m_execInterface.handleCommandAck(command, COMMAND_SUCCESS);
