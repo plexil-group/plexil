@@ -125,7 +125,7 @@ namespace PLEXIL
      * @param state The state.
      * @return The current value for the state.
      */
-    virtual void lookupNow(const State& state, StateCacheEntry *entry);
+    virtual void lookupNow(const State& state, StateCacheEntry &entry);
 
     /**
      * @brief Inform the interface that it should report changes in value of this state.
@@ -301,7 +301,7 @@ namespace PLEXIL
     typedef std::map<std::string, State> ActiveListenerMap;
 
     //* brief Cache of command serials and their corresponding ack and return value variables
-    typedef std::map<uint32_t, Command *> > PendingCommandsMap;
+    typedef std::map<uint32_t, Command *> PendingCommandsMap;
 
     typedef std::map<std::string, Value> ExternalLookupMap;
 
