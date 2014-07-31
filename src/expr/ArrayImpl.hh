@@ -142,6 +142,7 @@ namespace PLEXIL
     ArrayImpl();
     ArrayImpl(ArrayImpl const &);
     ArrayImpl(size_t size);
+    ArrayImpl(size_t size, T const &initval);
     ArrayImpl(std::vector<T> const &initval);
 
     ~ArrayImpl();

@@ -76,6 +76,34 @@ static bool testConstructors()
   assertTrue_1(!sizedString.getElement(0, stemp));
   assertTrue_1(!sizedString.getElement(1, stemp));
 
+  // Sized constructor with initial value
+  BooleanArray sizedInitedBool(2, true);
+  IntegerArray sizedInitedInt(2, 42);
+  RealArray    sizedInitedReal(2, 2.5);
+  StringArray  sizedInitedString(2, "foo");
+
+  assertTrue_1(sizedInitedBool.size()   == 2);
+  assertTrue_1(sizedInitedInt.size()    == 2);
+  assertTrue_1(sizedInitedReal.size()   == 2);
+  assertTrue_1(sizedInitedString.size() == 2);
+
+  assertTrue_1(sizedInitedBool.getElement(0, btemp));
+  assertTrue_1(btemp);
+  assertTrue_1(sizedInitedBool.getElement(1, btemp));
+  assertTrue_1(btemp);
+  assertTrue_1(sizedInitedInt.getElement(0, itemp));
+  assertTrue_1(itemp == 42);
+  assertTrue_1(sizedInitedInt.getElement(1, itemp));
+  assertTrue_1(itemp == 42);
+  assertTrue_1(sizedInitedReal.getElement(0, dtemp));
+  assertTrue_1(dtemp == 2.5);
+  assertTrue_1(sizedInitedReal.getElement(1, dtemp));
+  assertTrue_1(dtemp == 2.5);
+  assertTrue_1(sizedInitedString.getElement(0, stemp));
+  assertTrue_1(stemp == "foo");
+  assertTrue_1(sizedInitedString.getElement(1, stemp));
+  assertTrue_1(stemp == "foo");
+
   // Constructor from vector
   std::vector<bool>        bv(2);
   std::vector<int32_t>     iv(2);

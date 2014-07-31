@@ -53,6 +53,13 @@ namespace PLEXIL
   }
 
   template <typename T>
+  ArrayImpl<T>::ArrayImpl(size_t size, T const &initval)
+  : ArrayAdapter<ArrayImpl<T> >(size, true),
+    m_contents(size, initval)
+  {
+  }
+
+  template <typename T>
   ArrayImpl<T>::ArrayImpl(std::vector<T> const &initval)
     : ArrayAdapter<ArrayImpl<T> >(initval.size(), true),
       m_contents(initval)
