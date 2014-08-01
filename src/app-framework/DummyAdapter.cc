@@ -142,17 +142,14 @@ namespace PLEXIL
     // acknowledge updates
     debugMsg("ExternalInterface:dummy",
              " faking acknowledgment of update");
-    // *** FIXME ***
-    // m_execInterface.handleValueChange(ack, BooleanVariable::TRUE_VALUE());
+    m_execInterface.handleUpdateAck(upd, true);
     m_execInterface.notifyOfExternalEvent();
   }
 
   void DummyAdapter::executeCommand(Command *cmd)
   {
     debugMsg("ExternalInterface:dummy", " executeCommand for " << cmd->getName());
-    // *** FIXME ***
-    // m_execInterface.handleValueChange(cmd->getAck(),
-    //                                   CommandHandleVariable::COMMAND_SENT_TO_SYSTEM());
+    m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -160,9 +157,7 @@ namespace PLEXIL
   void DummyAdapter::invokeAbort(Command *cmd)
   {
     debugMsg("ExternalInterface:dummy", " invokeAbort for " << cmd->getName());
-    // *** FIXME ***
-    // m_execInterface.handleValueChange(cmd->getAbortComplete(),
-    //                                   BooleanVariable::TRUE_VALUE());
+    m_execInterface.handleCommandAbortAck(cmd, true);
     m_execInterface.notifyOfExternalEvent();
   }
 
