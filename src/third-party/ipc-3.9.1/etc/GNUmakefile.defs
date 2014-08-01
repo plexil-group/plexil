@@ -325,7 +325,7 @@ INC_PATH	= -I. -I$(PUBLIC_INC_DIR)  \
 
 DEFINES		= 
 
-THIS_RELEASE := $(shell uname -r)
+#THIS_RELEASE := $(shell uname -r)
 ifeq ($(THIS_OS),Linux)
 # See if this is at release 2.0, or higher
 ifeq ($(sort 2.0 $(THIS_RELEASE)),2.0 $(THIS_RELEASE))
@@ -392,11 +392,12 @@ LIB_PATH	= -L$(PWD) -L$(LDIR) -L$(PUBLIC_LIB_DIR) \
 
 LDFLAGS 	= $(LIB_PATH)
 LIBS_DBMALLOC 	= -ldbmalloc
-ifneq ($(sort 2.7 $(THIS_RELEASE)),2.7 $(THIS_RELEASE))
-LIBS_Linux	= -lc
-endif
+LIBS_Linux      = -lc
+#ifneq ($(sort 2.7 $(THIS_RELEASE)),2.7 $(THIS_RELEASE))
+#LIBS_Linux	= -lc
+#endif
 ifneq ($(sort 2.6 $(THIS_RELEASE)),2.6 $(THIS_RELEASE))
-LIBS_Linux	=  -lbsd -lc
+LIBS_Linux	+=  -lbsd
 endif
 LIBS_Solaris	=  -lsocket -lnsl
 LIBS_Darwin     =  -lc
