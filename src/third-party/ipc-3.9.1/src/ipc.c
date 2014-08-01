@@ -230,7 +230,8 @@ IPC_RETURN_TYPE _IPC_initialize (BOOLEAN isLispModule)
 #ifdef LISP
   if (isLispModule) set_Is_Lisp_Module();
 #else
-  if (isLispModule) ; /* No-op to keep compiler happy */
+  if (isLispModule)
+    ; /* No-op to keep compiler happy */
 #endif
   return IPC_OK;
 }

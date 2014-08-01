@@ -284,6 +284,7 @@ LD_SHARED_Solaris= ld -G -dy
 LD_SHARED_SunOS	= ld -assert pure-text
 LD_SHARED_Linux	= ld -G -dy
 LD_SHARED_wnt	= gcc -shared
+LD_SHARED_Darwin = ld -dylib
 LD_SHARED	= $(LD_SHARED_$(THIS_OS))
 CP		= /bin/cp
 CHMOD		= /bin/chmod
@@ -398,6 +399,7 @@ ifneq ($(sort 2.6 $(THIS_RELEASE)),2.6 $(THIS_RELEASE))
 LIBS_Linux	=  -lbsd -lc
 endif
 LIBS_Solaris	=  -lsocket -lnsl
+LIBS_Darwin     =  -lc
 LIBS_wnt	=  -lwsock32
 LIBRARIES	= -lipc $(LIBS_$(DBMALLOC)) $(LIBS_$(THIS_OS))
 DYN_LIBS_Solaris=  -ldl

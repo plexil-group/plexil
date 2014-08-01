@@ -85,7 +85,11 @@ MUTEX_STATUS initMutex(MUTEX_PTR mutex)
   pthread_mutexattr_init(&mutex->mutexAttributes);
 
   result = PTHREAD_MUTEX_SETKIND(&mutex->mutexAttributes,
+#if defined(PTHREAD_MUTEX_RECURSIVE) || defined(__FreeBSD__)
+				 PTHREAD_MUTEX_RECURSIVE);
+#else
 				 PTHREAD_MUTEX_RECURSIVE_NP);
+#endif
   switch (result) {
   case 0:  /* It worked */
     pthread_mutex_init(&mutex->mutexData,
