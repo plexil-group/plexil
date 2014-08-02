@@ -34,8 +34,8 @@
 #include <cstring>
 
 // ooid classes
-#include "uuid.h"
-#include "devrand.h"
+#include "uuid_gen.h"
+#include "system/devrand.h"
 
 namespace PLEXIL 
 {
