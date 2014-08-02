@@ -39,6 +39,7 @@
 #include "ThreadSpawn.hh"
 #include "pugixml.hpp"
 
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <sstream>
