@@ -56,12 +56,12 @@ namespace PLEXIL
    * @param ack The command acknowledgment
    */
   void MessageQueueMap::addRecipient(const std::string& message, Command *cmd) {
-    debugMsg("MessageQueueMap::addRecipient", " entered for \"" << message.c_str() << "\"");
+    debugMsg("MessageQueueMap:addRecipient", " entered for \"" << message.c_str() << "\"");
     ThreadMutexGuard guard(m_mutex);
     PairingQueue* que = getQueue(message);
     que->m_recipientQueue.push_back(Recipient(cmd));
     updateQueue(que);
-    debugMsg("MessageQueueMap::addRecipient", " recipient for message \"" << que->m_name.c_str() << "\" added");
+    debugMsg("MessageQueueMap:addRecipient", " recipient for message \"" << que->m_name.c_str() << "\" added");
   }
 
   /**
@@ -72,7 +72,7 @@ namespace PLEXIL
     PairingQueue* pq = getQueue(message);
     for (RecipientQueue::iterator it = pq->m_recipientQueue.begin(); it != pq->m_recipientQueue.end(); it++) {
       if (it->m_cmd == cmd) {
-        debugMsg("MessageQueueMap::removeRecipient", " Removing recipient for \"" << pq->m_name.c_str() << "\"");
+        debugMsg("MessageQueueMap:removeRecipient", " Removing recipient for \"" << pq->m_name.c_str() << "\"");
         it = pq->m_recipientQueue.erase(it);
         //this increments the iterator, so check for the end immediately
         if (it == pq->m_recipientQueue.end())
@@ -151,7 +151,7 @@ namespace PLEXIL
     PairingQueue* result;
     std::map<std::string, PairingQueue*>::iterator it = m_map.find(message);
     if (m_map.end() == it) {
-      debugMsg("MessageQueueMap::getQueue", " creating new queue with name \"" << message.c_str() << "\"");
+      debugMsg("MessageQueueMap:getQueue", " creating new queue with name \"" << message.c_str() << "\"");
       result = new PairingQueue(message, m_allowDuplicateMessages);
       m_map.insert(it, std::pair<std::string, PairingQueue*> (message, result));
     } else {
@@ -164,20 +164,20 @@ namespace PLEXIL
    * @brief Resolves matches between messages and recipients. Should be called whenever updates occur to a queue.
    */
   void MessageQueueMap::updateQueue(PairingQueue* queue) {
-    debugMsg("MessageQueueMap::updateQueue", " entered");
+    debugMsg("MessageQueueMap:updateQueue", " entered");
     MessageQueue& mq = queue->m_messageQueue;
     RecipientQueue& rq = queue->m_recipientQueue;
     MessageQueue::iterator mqIter = mq.begin();
     RecipientQueue::iterator rqIter = rq.begin();
     bool valChanged = !mq.empty() && !rq.empty();
     while (! (mqIter == mq.end()) && !(rqIter == rq.end())) {
-      debugMsg("MessageQueueMap::updateQueue", " returning value");
+      debugMsg("MessageQueueMap:updateQueue", " returning value");
       m_execInterface.handleCommandReturn(rqIter->m_cmd, (*mqIter));
       rqIter = rq.erase(rqIter);
       mqIter = mq.erase(mqIter);
     }
     if (valChanged) {
-      debugMsg("MessageQueueMap::updateQueue", " Message \"" << queue->m_name.c_str() << "\" paired and sent");
+      debugMsg("MessageQueueMap:updateQueue", " Message \"" << queue->m_name.c_str() << "\" paired and sent");
       m_execInterface.notifyOfExternalEvent();
     }
   }
