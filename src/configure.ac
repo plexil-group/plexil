@@ -1,6 +1,31 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+#  All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Universities Space Research Association nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 AC_PREREQ(2.59)
 AC_INIT(Plexil, 3.0.0a1, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
 AC_LANG(C++)
@@ -131,18 +156,9 @@ AM_CONDITIONAL([PLEXIL_DLFCN_H], [test "x$ac_cv_header_dlfcn_h" = "xyes"])
 AC_HEADER_STDBOOL
 AC_C_CONST
 AC_C_INLINE
-# Not present in older autoconf versions
-#AC_TYPE_INT32_T
-#AC_TYPE_INT64_T
-#AC_TYPE_UINT16_T
-#AC_TYPE_UINT32_T
-#AC_TYPE_UINT64_T
-#AC_TYPE_UINT8_T
+# These types have special macros in newer autoconf versions,
+# which aren't present in older autoconf versions
 AC_CHECK_TYPES([int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t])
-# Not present in older autoconf versions
-#AC_TYPE_PID_T
-#AC_TYPE_SIZE_T
-#AC_TYPE_SSIZE_T
 AC_CHECK_TYPES([pid_t, size_t, ssize_t])
 AC_HEADER_TIME
 AC_STRUCT_TM
@@ -157,9 +173,22 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
-AC_CHECK_FUNCS([ctime_r floor getcwd gethostbyname inet_ntoa localtime_r memmove memset modf pow pthread_mutexattr_settype select setitimer socket sqrt strcasecmp strchr strcspn strdup strerror strpbrk strspn strstr strtol strtoll strtoul])
+AC_CHECK_FUNCS([ctime_r floor localtime_r memmove memset modf pow setitimer socket sqrt])
+AC_CHECK_FUNCS([strchr strcspn strspn strstr strtol strtoll strtoul strtoull])
+# Used by UdpAdapter (and IPC)
+AC_CHECK_FUNCS([gethostbyname inet_ntoa])
+
+# Only needed by threads (and IPC)
+AS_IF([test "x$with_threads" != "xno"],[
+AC_CHECK_FUNCS([pthread_mutexattr_settype])
+])
 
 # FIXME: define PLEXIL_POSIX_TIME_FUNCS macro if unistd.h contains a suitable value of _POSIX_TIMERS
+
+# Used only in GanttListener
+AS_IF([test "x$enable_gantt" = "xyes"], [
+AC_CHECK_FUNCS([getcwd])
+])
 
 # Used only in IPC
 AS_IF([test "x$enable_ipc" = "xyes"], [
@@ -171,7 +200,7 @@ AC_FUNC_FORK
 AC_FUNC_SETPGRP
 AC_FUNC_SETVBUF_REVERSED
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir])
+AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir select strdup strpbrk])
 ])
 
 AC_CONFIG_FILES([Makefile
@@ -190,16 +219,10 @@ AC_CONFIG_FILES([Makefile
                  universal-exec/Makefile])
 
 AS_IF([test "x$enable_ipc" = "xyes"], [
-AC_CONFIG_FILES([third-party/ipc-3.8.5/src/Makefile
+AC_CONFIG_FILES([third-party/ipc/Makefile
                  interfaces/IpcAdapter/Makefile
                  interfaces/IpcUtils/Makefile
                  apps/StandAloneSimulator/Makefile])
-# Add these back later?
-#                 third-party/ipc-3.8.5/doc/GNUmakefile
-#                 third-party/ipc-3.8.5/java/GNUmakefile
-#                 third-party/ipc-3.8.5/lisp/GNUmakefile
-#                 third-party/ipc-3.8.5/test/GNUmakefile
-#                 third-party/ipc-3.8.5/xdrgen/GNUmakefile
 ])
 
 AC_OUTPUT
