@@ -123,7 +123,7 @@ SRCS	=
 
 PRIVATE_INCS	= 
 
-MISC		=  GNUmakefile README README.MAC LICENSE.TXT
+MISC		=  GNUmakefile.ipc README README.MAC LICENSE.TXT
 
 ##########
 # Default Target
