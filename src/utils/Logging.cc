@@ -233,11 +233,11 @@ static void print_stack()
   messages = backtrace_symbols(trace, trace_size);
   Error::getStream() << "Execution path:\n";
   if (Logging::ENABLE_LOGGING)
-    print_to_log("Execution path:");
+    Logging::print_to_log("Execution path:");
   for (i = 0; i < trace_size; ++i) {
     Error::getStream() << messages[i] << "\n";
     if (Logging::ENABLE_LOGGING)
-      print_to_log(messages[i]);
+      Logging::print_to_log(messages[i]);
   }
   free(messages);
 #endif
