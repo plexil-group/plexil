@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,8 +28,8 @@ lib_LTLIBRARIES = libIpcUtils.la
 include_HEADERS = IpcFacade.hh ipc-data-formats.h
 
 libIpcUtils_la_SOURCES = IpcFacade.cc
-libIpcUtils_la_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/third-party/ipc/src \
- -I@top_srcdir@/third-party/ooid/kashmir 
+libIpcUtils_la_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/expr \
+ -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/third-party/ooid/kashmir 
 
 # TODO: libraries to link against (?)
 
