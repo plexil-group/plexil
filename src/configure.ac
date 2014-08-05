@@ -221,8 +221,11 @@ AC_CONFIG_FILES([Makefile
 AS_IF([test "x$enable_ipc" = "xyes"], [
 AC_CONFIG_FILES([third-party/ipc/Makefile
                  interfaces/IpcAdapter/Makefile
-                 interfaces/IpcUtils/Makefile
-                 apps/StandAloneSimulator/Makefile])
+                 interfaces/IpcUtils/Makefile])
+])
+
+AS_IF([test "x$enable_sas" = "xyes"], [
+AC_CONFIG_FILES([apps/StandAloneSimulator/Makefile])
 ])
 
 AC_OUTPUT
