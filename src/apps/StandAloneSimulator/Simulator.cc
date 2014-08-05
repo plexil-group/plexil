@@ -32,6 +32,7 @@
 #include "ResponseMessageManager.hh"
 
 #include "Debug.hh"
+#include "Error.hh"
 #include "ThreadSpawn.hh"
 
 #include <cerrno>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,12 +27,13 @@
 #define GENERIC_RESPONSE_HH
 
 #include "ResponseBase.hh"
+#include "Value.hh"
 #include <vector>
 
 class GenericResponse : public ResponseBase
 {
 public:
-  GenericResponse(const std::vector<double>& value) 
+  GenericResponse(const std::vector<PLEXIL::Value>& value) 
     : m_ReturnValue(value)
   {
   }
@@ -41,13 +42,13 @@ public:
   {
   }
 
-  const std::vector<double>& getReturnValue() const
+  const std::vector<PLEXIL::Value>& getReturnValue() const
   {
     return m_ReturnValue;
   }
 
 private:
-  std::vector<double> m_ReturnValue;
+  std::vector<PLEXIL::Value> m_ReturnValue;
 };
 
 #endif //GENERIC_RESPONSE_HH

@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -105,7 +105,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = PlexilSimulator$(EXEEXT)
+bin_PROGRAMS = simulator$(EXEEXT)
 subdir = apps/StandAloneSimulator
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/depcomp $(include_HEADERS) $(noinst_HEADERS)
@@ -151,10 +151,14 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libstandalonesimulator_la_LIBADD =
-am_libstandalonesimulator_la_OBJECTS = IpcCommRelay.lo \
-	ResponseFactory.lo ResponseMessageManager.lo Simulator.lo \
-	SimulatorScriptReader.lo TelemetryResponseManager.lo \
-	TimingService.lo
+am_libstandalonesimulator_la_OBJECTS =  \
+	libstandalonesimulator_la-IpcCommRelay.lo \
+	libstandalonesimulator_la-ResponseFactory.lo \
+	libstandalonesimulator_la-ResponseMessageManager.lo \
+	libstandalonesimulator_la-Simulator.lo \
+	libstandalonesimulator_la-SimulatorScriptReader.lo \
+	libstandalonesimulator_la-TelemetryResponseManager.lo \
+	libstandalonesimulator_la-TimingService.lo
 libstandalonesimulator_la_OBJECTS =  \
 	$(am_libstandalonesimulator_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -163,13 +167,16 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
-am_PlexilSimulator_OBJECTS = PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.$(OBJEXT) \
-	PlexilSimulator/PlexilSimulator-PlexilSimulator.$(OBJEXT)
-PlexilSimulator_OBJECTS = $(am_PlexilSimulator_OBJECTS)
-PlexilSimulator_DEPENDENCIES = libstandalonesimulator.la \
-	../../interfaces/libIpcUtils.la \
-	../../third-party/ipc/src/libipc.la \
-	../../utils/libPlexilUtils.la
+am_simulator_OBJECTS =  \
+	PlexilSimulator/simulator-PlexilSimResponseFactory.$(OBJEXT) \
+	PlexilSimulator/simulator-PlexilSimulator.$(OBJEXT)
+simulator_OBJECTS = $(am_simulator_OBJECTS)
+simulator_DEPENDENCIES = libstandalonesimulator.la \
+	../../interfaces/IpcUtils/libIpcUtils.la \
+	../../utils/libPlexilUtils.la ../../expr/libPlexilExpr.la
+simulator_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(simulator_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -204,10 +211,9 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libstandalonesimulator_la_SOURCES) \
-	$(PlexilSimulator_SOURCES)
+SOURCES = $(libstandalonesimulator_la_SOURCES) $(simulator_SOURCES)
 DIST_SOURCES = $(libstandalonesimulator_la_SOURCES) \
-	$(PlexilSimulator_SOURCES)
+	$(simulator_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -362,29 +368,28 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libstandalonesimulator.la
+libstandalonesimulator_la_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/expr \
+ -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/interfaces/IpcUtils
 
-# FIXME: replace MutexGuard with ThreadMutexGuard
-include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh MutexGuard.hh \
+include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh \
  ResponseBase.hh ResponseFactory.hh ResponseMessage.hh ResponseMessageManager.hh Simulator.hh \
  SimulatorScriptReader.hh TelemetryResponseManager.hh TimingService.hh simdefs.hh
 
 libstandalonesimulator_la_SOURCES = IpcCommRelay.cc ResponseFactory.cc ResponseMessageManager.cc \
  Simulator.cc SimulatorScriptReader.cc TelemetryResponseManager.cc TimingService.cc
 
-libstandalinesimulator_la_CPPFLAGS = @top_srcdir@/utils @top_srcdir@/third-party/ipc/src \
- @top_srcdir@/interfaces/IpcUtils
-
 noinst_HEADERS = PlexilSimulator/PlexilSimResponse.hh PlexilSimulator/PlexilSimResponseFactory.hh
-PlexilSimulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
+simulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
  PlexilSimulator/PlexilSimulator.cc
 
-PlexilSimulator_CPPFLAGS = @top_srcdir@/utils @top_srcdir@/third-party/ipc/src \
- @top_srcdir@/interfaces/IpcUtils
+simulator_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/expr \
+ -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/interfaces/IpcUtils
 
-PlexilSimulator_LDADD = libstandalonesimulator.la \
- ../../interfaces/libIpcUtils.la ../../third-party/ipc/src/libipc.la \
- ../../utils/libPlexilUtils.la
+simulator_LDADD = libstandalonesimulator.la \
+ ../../interfaces/IpcUtils/libIpcUtils.la \
+ ../../utils/libPlexilUtils.la ../../expr/libPlexilExpr.la
 
+simulator_LDFLAGS = -L../../../lib -lipc
 all: all-am
 
 .SUFFIXES:
@@ -512,16 +517,16 @@ PlexilSimulator/$(am__dirstamp):
 PlexilSimulator/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) PlexilSimulator/$(DEPDIR)
 	@: > PlexilSimulator/$(DEPDIR)/$(am__dirstamp)
-PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.$(OBJEXT):  \
+PlexilSimulator/simulator-PlexilSimResponseFactory.$(OBJEXT):  \
 	PlexilSimulator/$(am__dirstamp) \
 	PlexilSimulator/$(DEPDIR)/$(am__dirstamp)
-PlexilSimulator/PlexilSimulator-PlexilSimulator.$(OBJEXT):  \
+PlexilSimulator/simulator-PlexilSimulator.$(OBJEXT):  \
 	PlexilSimulator/$(am__dirstamp) \
 	PlexilSimulator/$(DEPDIR)/$(am__dirstamp)
 
-PlexilSimulator$(EXEEXT): $(PlexilSimulator_OBJECTS) $(PlexilSimulator_DEPENDENCIES) $(EXTRA_PlexilSimulator_DEPENDENCIES) 
-	@rm -f PlexilSimulator$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(PlexilSimulator_OBJECTS) $(PlexilSimulator_LDADD) $(LIBS)
+simulator$(EXEEXT): $(simulator_OBJECTS) $(simulator_DEPENDENCIES) $(EXTRA_simulator_DEPENDENCIES) 
+	@rm -f simulator$(EXEEXT)
+	$(AM_V_CXXLD)$(simulator_LINK) $(simulator_OBJECTS) $(simulator_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -530,15 +535,15 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/IpcCommRelay.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ResponseFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ResponseMessageManager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Simulator.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SimulatorScriptReader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TelemetryResponseManager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TimingService.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimResponseFactory.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimulator.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libstandalonesimulator_la-IpcCommRelay.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libstandalonesimulator_la-ResponseFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libstandalonesimulator_la-ResponseMessageManager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libstandalonesimulator_la-Simulator.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libstandalonesimulator_la-SimulatorScriptReader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libstandalonesimulator_la-TelemetryResponseManager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libstandalonesimulator_la-TimingService.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@PlexilSimulator/$(DEPDIR)/simulator-PlexilSimResponseFactory.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@PlexilSimulator/$(DEPDIR)/simulator-PlexilSimulator.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -564,33 +569,82 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
-PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.o: PlexilSimulator/PlexilSimResponseFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(PlexilSimulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.o -MD -MP -MF PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimResponseFactory.Tpo -c -o PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.o `test -f 'PlexilSimulator/PlexilSimResponseFactory.cc' || echo '$(srcdir)/'`PlexilSimulator/PlexilSimResponseFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimResponseFactory.Tpo PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimResponseFactory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilSimulator/PlexilSimResponseFactory.cc' object='PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.o' libtool=no @AMDEPBACKSLASH@
+libstandalonesimulator_la-IpcCommRelay.lo: IpcCommRelay.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libstandalonesimulator_la-IpcCommRelay.lo -MD -MP -MF $(DEPDIR)/libstandalonesimulator_la-IpcCommRelay.Tpo -c -o libstandalonesimulator_la-IpcCommRelay.lo `test -f 'IpcCommRelay.cc' || echo '$(srcdir)/'`IpcCommRelay.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libstandalonesimulator_la-IpcCommRelay.Tpo $(DEPDIR)/libstandalonesimulator_la-IpcCommRelay.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='IpcCommRelay.cc' object='libstandalonesimulator_la-IpcCommRelay.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(PlexilSimulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.o `test -f 'PlexilSimulator/PlexilSimResponseFactory.cc' || echo '$(srcdir)/'`PlexilSimulator/PlexilSimResponseFactory.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libstandalonesimulator_la-IpcCommRelay.lo `test -f 'IpcCommRelay.cc' || echo '$(srcdir)/'`IpcCommRelay.cc
 
-PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.obj: PlexilSimulator/PlexilSimResponseFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(PlexilSimulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.obj -MD -MP -MF PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimResponseFactory.Tpo -c -o PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.obj `if test -f 'PlexilSimulator/PlexilSimResponseFactory.cc'; then $(CYGPATH_W) 'PlexilSimulator/PlexilSimResponseFactory.cc'; else $(CYGPATH_W) '$(srcdir)/PlexilSimulator/PlexilSimResponseFactory.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimResponseFactory.Tpo PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimResponseFactory.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilSimulator/PlexilSimResponseFactory.cc' object='PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.obj' libtool=no @AMDEPBACKSLASH@
+libstandalonesimulator_la-ResponseFactory.lo: ResponseFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libstandalonesimulator_la-ResponseFactory.lo -MD -MP -MF $(DEPDIR)/libstandalonesimulator_la-ResponseFactory.Tpo -c -o libstandalonesimulator_la-ResponseFactory.lo `test -f 'ResponseFactory.cc' || echo '$(srcdir)/'`ResponseFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libstandalonesimulator_la-ResponseFactory.Tpo $(DEPDIR)/libstandalonesimulator_la-ResponseFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ResponseFactory.cc' object='libstandalonesimulator_la-ResponseFactory.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(PlexilSimulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PlexilSimulator/PlexilSimulator-PlexilSimResponseFactory.obj `if test -f 'PlexilSimulator/PlexilSimResponseFactory.cc'; then $(CYGPATH_W) 'PlexilSimulator/PlexilSimResponseFactory.cc'; else $(CYGPATH_W) '$(srcdir)/PlexilSimulator/PlexilSimResponseFactory.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libstandalonesimulator_la-ResponseFactory.lo `test -f 'ResponseFactory.cc' || echo '$(srcdir)/'`ResponseFactory.cc
 
-PlexilSimulator/PlexilSimulator-PlexilSimulator.o: PlexilSimulator/PlexilSimulator.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(PlexilSimulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT PlexilSimulator/PlexilSimulator-PlexilSimulator.o -MD -MP -MF PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimulator.Tpo -c -o PlexilSimulator/PlexilSimulator-PlexilSimulator.o `test -f 'PlexilSimulator/PlexilSimulator.cc' || echo '$(srcdir)/'`PlexilSimulator/PlexilSimulator.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimulator.Tpo PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimulator.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilSimulator/PlexilSimulator.cc' object='PlexilSimulator/PlexilSimulator-PlexilSimulator.o' libtool=no @AMDEPBACKSLASH@
+libstandalonesimulator_la-ResponseMessageManager.lo: ResponseMessageManager.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libstandalonesimulator_la-ResponseMessageManager.lo -MD -MP -MF $(DEPDIR)/libstandalonesimulator_la-ResponseMessageManager.Tpo -c -o libstandalonesimulator_la-ResponseMessageManager.lo `test -f 'ResponseMessageManager.cc' || echo '$(srcdir)/'`ResponseMessageManager.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libstandalonesimulator_la-ResponseMessageManager.Tpo $(DEPDIR)/libstandalonesimulator_la-ResponseMessageManager.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ResponseMessageManager.cc' object='libstandalonesimulator_la-ResponseMessageManager.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(PlexilSimulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PlexilSimulator/PlexilSimulator-PlexilSimulator.o `test -f 'PlexilSimulator/PlexilSimulator.cc' || echo '$(srcdir)/'`PlexilSimulator/PlexilSimulator.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libstandalonesimulator_la-ResponseMessageManager.lo `test -f 'ResponseMessageManager.cc' || echo '$(srcdir)/'`ResponseMessageManager.cc
 
-PlexilSimulator/PlexilSimulator-PlexilSimulator.obj: PlexilSimulator/PlexilSimulator.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(PlexilSimulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT PlexilSimulator/PlexilSimulator-PlexilSimulator.obj -MD -MP -MF PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimulator.Tpo -c -o PlexilSimulator/PlexilSimulator-PlexilSimulator.obj `if test -f 'PlexilSimulator/PlexilSimulator.cc'; then $(CYGPATH_W) 'PlexilSimulator/PlexilSimulator.cc'; else $(CYGPATH_W) '$(srcdir)/PlexilSimulator/PlexilSimulator.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimulator.Tpo PlexilSimulator/$(DEPDIR)/PlexilSimulator-PlexilSimulator.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilSimulator/PlexilSimulator.cc' object='PlexilSimulator/PlexilSimulator-PlexilSimulator.obj' libtool=no @AMDEPBACKSLASH@
+libstandalonesimulator_la-Simulator.lo: Simulator.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libstandalonesimulator_la-Simulator.lo -MD -MP -MF $(DEPDIR)/libstandalonesimulator_la-Simulator.Tpo -c -o libstandalonesimulator_la-Simulator.lo `test -f 'Simulator.cc' || echo '$(srcdir)/'`Simulator.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libstandalonesimulator_la-Simulator.Tpo $(DEPDIR)/libstandalonesimulator_la-Simulator.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Simulator.cc' object='libstandalonesimulator_la-Simulator.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(PlexilSimulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PlexilSimulator/PlexilSimulator-PlexilSimulator.obj `if test -f 'PlexilSimulator/PlexilSimulator.cc'; then $(CYGPATH_W) 'PlexilSimulator/PlexilSimulator.cc'; else $(CYGPATH_W) '$(srcdir)/PlexilSimulator/PlexilSimulator.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libstandalonesimulator_la-Simulator.lo `test -f 'Simulator.cc' || echo '$(srcdir)/'`Simulator.cc
+
+libstandalonesimulator_la-SimulatorScriptReader.lo: SimulatorScriptReader.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libstandalonesimulator_la-SimulatorScriptReader.lo -MD -MP -MF $(DEPDIR)/libstandalonesimulator_la-SimulatorScriptReader.Tpo -c -o libstandalonesimulator_la-SimulatorScriptReader.lo `test -f 'SimulatorScriptReader.cc' || echo '$(srcdir)/'`SimulatorScriptReader.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libstandalonesimulator_la-SimulatorScriptReader.Tpo $(DEPDIR)/libstandalonesimulator_la-SimulatorScriptReader.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='SimulatorScriptReader.cc' object='libstandalonesimulator_la-SimulatorScriptReader.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libstandalonesimulator_la-SimulatorScriptReader.lo `test -f 'SimulatorScriptReader.cc' || echo '$(srcdir)/'`SimulatorScriptReader.cc
+
+libstandalonesimulator_la-TelemetryResponseManager.lo: TelemetryResponseManager.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libstandalonesimulator_la-TelemetryResponseManager.lo -MD -MP -MF $(DEPDIR)/libstandalonesimulator_la-TelemetryResponseManager.Tpo -c -o libstandalonesimulator_la-TelemetryResponseManager.lo `test -f 'TelemetryResponseManager.cc' || echo '$(srcdir)/'`TelemetryResponseManager.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libstandalonesimulator_la-TelemetryResponseManager.Tpo $(DEPDIR)/libstandalonesimulator_la-TelemetryResponseManager.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='TelemetryResponseManager.cc' object='libstandalonesimulator_la-TelemetryResponseManager.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libstandalonesimulator_la-TelemetryResponseManager.lo `test -f 'TelemetryResponseManager.cc' || echo '$(srcdir)/'`TelemetryResponseManager.cc
+
+libstandalonesimulator_la-TimingService.lo: TimingService.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libstandalonesimulator_la-TimingService.lo -MD -MP -MF $(DEPDIR)/libstandalonesimulator_la-TimingService.Tpo -c -o libstandalonesimulator_la-TimingService.lo `test -f 'TimingService.cc' || echo '$(srcdir)/'`TimingService.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libstandalonesimulator_la-TimingService.Tpo $(DEPDIR)/libstandalonesimulator_la-TimingService.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='TimingService.cc' object='libstandalonesimulator_la-TimingService.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libstandalonesimulator_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libstandalonesimulator_la-TimingService.lo `test -f 'TimingService.cc' || echo '$(srcdir)/'`TimingService.cc
+
+PlexilSimulator/simulator-PlexilSimResponseFactory.o: PlexilSimulator/PlexilSimResponseFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(simulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT PlexilSimulator/simulator-PlexilSimResponseFactory.o -MD -MP -MF PlexilSimulator/$(DEPDIR)/simulator-PlexilSimResponseFactory.Tpo -c -o PlexilSimulator/simulator-PlexilSimResponseFactory.o `test -f 'PlexilSimulator/PlexilSimResponseFactory.cc' || echo '$(srcdir)/'`PlexilSimulator/PlexilSimResponseFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) PlexilSimulator/$(DEPDIR)/simulator-PlexilSimResponseFactory.Tpo PlexilSimulator/$(DEPDIR)/simulator-PlexilSimResponseFactory.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilSimulator/PlexilSimResponseFactory.cc' object='PlexilSimulator/simulator-PlexilSimResponseFactory.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(simulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PlexilSimulator/simulator-PlexilSimResponseFactory.o `test -f 'PlexilSimulator/PlexilSimResponseFactory.cc' || echo '$(srcdir)/'`PlexilSimulator/PlexilSimResponseFactory.cc
+
+PlexilSimulator/simulator-PlexilSimResponseFactory.obj: PlexilSimulator/PlexilSimResponseFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(simulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT PlexilSimulator/simulator-PlexilSimResponseFactory.obj -MD -MP -MF PlexilSimulator/$(DEPDIR)/simulator-PlexilSimResponseFactory.Tpo -c -o PlexilSimulator/simulator-PlexilSimResponseFactory.obj `if test -f 'PlexilSimulator/PlexilSimResponseFactory.cc'; then $(CYGPATH_W) 'PlexilSimulator/PlexilSimResponseFactory.cc'; else $(CYGPATH_W) '$(srcdir)/PlexilSimulator/PlexilSimResponseFactory.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) PlexilSimulator/$(DEPDIR)/simulator-PlexilSimResponseFactory.Tpo PlexilSimulator/$(DEPDIR)/simulator-PlexilSimResponseFactory.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilSimulator/PlexilSimResponseFactory.cc' object='PlexilSimulator/simulator-PlexilSimResponseFactory.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(simulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PlexilSimulator/simulator-PlexilSimResponseFactory.obj `if test -f 'PlexilSimulator/PlexilSimResponseFactory.cc'; then $(CYGPATH_W) 'PlexilSimulator/PlexilSimResponseFactory.cc'; else $(CYGPATH_W) '$(srcdir)/PlexilSimulator/PlexilSimResponseFactory.cc'; fi`
+
+PlexilSimulator/simulator-PlexilSimulator.o: PlexilSimulator/PlexilSimulator.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(simulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT PlexilSimulator/simulator-PlexilSimulator.o -MD -MP -MF PlexilSimulator/$(DEPDIR)/simulator-PlexilSimulator.Tpo -c -o PlexilSimulator/simulator-PlexilSimulator.o `test -f 'PlexilSimulator/PlexilSimulator.cc' || echo '$(srcdir)/'`PlexilSimulator/PlexilSimulator.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) PlexilSimulator/$(DEPDIR)/simulator-PlexilSimulator.Tpo PlexilSimulator/$(DEPDIR)/simulator-PlexilSimulator.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilSimulator/PlexilSimulator.cc' object='PlexilSimulator/simulator-PlexilSimulator.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(simulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PlexilSimulator/simulator-PlexilSimulator.o `test -f 'PlexilSimulator/PlexilSimulator.cc' || echo '$(srcdir)/'`PlexilSimulator/PlexilSimulator.cc
+
+PlexilSimulator/simulator-PlexilSimulator.obj: PlexilSimulator/PlexilSimulator.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(simulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT PlexilSimulator/simulator-PlexilSimulator.obj -MD -MP -MF PlexilSimulator/$(DEPDIR)/simulator-PlexilSimulator.Tpo -c -o PlexilSimulator/simulator-PlexilSimulator.obj `if test -f 'PlexilSimulator/PlexilSimulator.cc'; then $(CYGPATH_W) 'PlexilSimulator/PlexilSimulator.cc'; else $(CYGPATH_W) '$(srcdir)/PlexilSimulator/PlexilSimulator.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) PlexilSimulator/$(DEPDIR)/simulator-PlexilSimulator.Tpo PlexilSimulator/$(DEPDIR)/simulator-PlexilSimulator.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilSimulator/PlexilSimulator.cc' object='PlexilSimulator/simulator-PlexilSimulator.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(simulator_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o PlexilSimulator/simulator-PlexilSimulator.obj `if test -f 'PlexilSimulator/PlexilSimulator.cc'; then $(CYGPATH_W) 'PlexilSimulator/PlexilSimulator.cc'; else $(CYGPATH_W) '$(srcdir)/PlexilSimulator/PlexilSimulator.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,25 +27,27 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libstandalonesimulator.la
 
-# FIXME: replace MutexGuard with ThreadMutexGuard
-include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh MutexGuard.hh \
+libstandalonesimulator_la_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/expr \
+ -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/interfaces/IpcUtils
+
+include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh \
  ResponseBase.hh ResponseFactory.hh ResponseMessage.hh ResponseMessageManager.hh Simulator.hh \
  SimulatorScriptReader.hh TelemetryResponseManager.hh TimingService.hh simdefs.hh
 
 libstandalonesimulator_la_SOURCES = IpcCommRelay.cc ResponseFactory.cc ResponseMessageManager.cc \
  Simulator.cc SimulatorScriptReader.cc TelemetryResponseManager.cc TimingService.cc
-libstandalinesimulator_la_CPPFLAGS = @top_srcdir@/utils @top_srcdir@/third-party/ipc/src \
- @top_srcdir@/interfaces/IpcUtils
 
-bin_PROGRAMS = PlexilSimulator
+bin_PROGRAMS = simulator
 
 noinst_HEADERS = PlexilSimulator/PlexilSimResponse.hh PlexilSimulator/PlexilSimResponseFactory.hh
 
-PlexilSimulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
+simulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
  PlexilSimulator/PlexilSimulator.cc
-PlexilSimulator_CPPFLAGS = @top_srcdir@/utils @top_srcdir@/third-party/ipc/src \
- @top_srcdir@/interfaces/IpcUtils
+simulator_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/expr \
+ -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/interfaces/IpcUtils
 
-PlexilSimulator_LDADD = libstandalonesimulator.la \
- ../../interfaces/libIpcUtils.la ../../third-party/ipc/src/libipc.la \
- ../../utils/libPlexilUtils.la
+simulator_LDADD = libstandalonesimulator.la \
+ ../../interfaces/IpcUtils/libIpcUtils.la \
+ ../../utils/libPlexilUtils.la ../../expr/libPlexilExpr.la
+
+simulator_LDFLAGS = -L../../../lib -lipc

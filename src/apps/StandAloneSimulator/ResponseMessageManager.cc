@@ -28,6 +28,7 @@
 #include "ResponseBase.hh"
 
 #include "Debug.hh"
+#include "Error.hh"
 
 ResponseMessageManager::ResponseMessageManager(const std::string& id)
   : m_Identifier(id), 
@@ -61,9 +62,9 @@ void ResponseMessageManager::addResponse(ResponseBase* resp, int cmdIndex)
   if (m_CmdIdToResponse.find(cmdIndex) != m_CmdIdToResponse.end())
     {
       debugMsg("ResponseMessageManager:addResponse",
-	       "Warning for " << m_Identifier
+           "Warning for " << m_Identifier
                 << ": Command index " << cmdIndex
-	       << " has been repeated. Ignoring it.");
+           << " has been repeated. Ignoring it.");
       delete resp;
       return;
     }
@@ -84,23 +85,23 @@ const ResponseBase* ResponseMessageManager::getResponses(timeval& tDelay)
   if ((iter = m_CmdIdToResponse.find(m_Counter)) == m_CmdIdToResponse.end())
     {
       debugMsg("ResponseMessageManager:getResponses",
-	       " for " << m_Identifier << ": Getting default response");
+           " for " << m_Identifier << ": Getting default response");
       respBase = m_DefaultResponse;
     }
   else
     {
       debugMsg("ResponseMessageManager:getResponses",
-	       " for " << m_Identifier << ": Using response for index " << m_Counter);
+           " for " << m_Identifier << ": Using response for index " << m_Counter);
       respBase = iter->second;
     }
   debugMsg("ResponseMessageManager:getResponses",
-	   " " << m_Identifier << ", count: " << m_Counter);
+       " " << m_Identifier << ", count: " << m_Counter);
   ++m_Counter;
 
   // This shouldn't happen, but check anyway just in case
   assertTrueMsg(respBase != NULL,
-		"ResponseMessageManager::getResponses: Internal error: No response found for \""
-		<< m_Identifier << "\"");
+                "ResponseMessageManager::getResponses: Internal error: No response found for \""
+                << m_Identifier << "\"");
 
   if (respBase->getNumberOfResponses() > 0)
     {
@@ -117,7 +118,7 @@ const ResponseBase* ResponseMessageManager::getResponses(timeval& tDelay)
 void ResponseMessageManager::scheduleInitialEvents(Simulator* sim)
 {
   debugMsg("ResponseMessageManager:scheduleInitialEvents",
-	   " " << m_Identifier << " is a command manager, ignoring");
+       " " << m_Identifier << " is a command manager, ignoring");
 }
 
 /**
