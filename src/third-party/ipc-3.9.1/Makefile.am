@@ -4,11 +4,12 @@ IPC_LOCATIONS = PUBLIC_BIN_DIR=$(bindir) PUBLIC_LIB_DIR=$(libdir) \
 
 IPC_SUBDIRS = SUBDIRS='etc src doc'
 
-all-local:
+all-local: ipc-all install-exec-local
+
+ipc-all:
 	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
  $(IPC_LOCATIONS) THREADED=1 MAKE_SHARED_LIBS=1 $(IPC_SUBDIRS) all
-check-local:
-	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) test
+
 clean-local:
 	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
  $(IPC_LOCATIONS) $(IPC_SUBDIRS) clean
@@ -29,7 +30,7 @@ uninstall-local:
 # Distribute files from here.
 #EXTRA_DIST = subdir/Makefile subdir/program.c ...
 
-EMPTY_AUTOMAKE_TARGETS = dvi pdf ps info html ctags
+EMPTY_AUTOMAKE_TARGETS = dvi pdf ps info html ctags check-local
 
 .PHONY: $(EMPTY_AUTOMAKE_TARGETS)
 
