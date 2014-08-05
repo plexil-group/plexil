@@ -17,15 +17,15 @@ clean-local:
 # Assuming the package knows how to install itself
 install-data-local:
 	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
- $(IPC_LOCATIONS) $(IPC_SUBDIRS) install_mans install_docs
+ $(IPC_LOCATIONS) THREADED=1 MAKE_SHARED_LIBS=1 $(IPC_SUBDIRS) install_mans install_docs
 
 install-exec-local:
 	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
- $(IPC_LOCATIONS) $(IPC_SUBDIRS) install_incs install_libs install_bins
+ $(IPC_LOCATIONS) THREADED=1 MAKE_SHARED_LIBS=1 $(IPC_SUBDIRS) install_incs install_libs install_bins
 
 uninstall-local:
 	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
- $(IPC_LOCATIONS) $(IPC_SUBDIRS) uninstall
+ $(IPC_LOCATIONS) THREADED=1 MAKE_SHARED_LIBS=1 $(IPC_SUBDIRS) uninstall
 
 # Distribute files from here.
 #EXTRA_DIST = subdir/Makefile subdir/program.c ...
