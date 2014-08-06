@@ -455,46 +455,23 @@ namespace PLEXIL
    */
   IPC_RETURN_TYPE IpcFacade::start() {
     IPC_RETURN_TYPE result = IPC_OK;
-    if (!m_isInitialized)
+    if (!m_isInitialized || !IPC_isConnected())
       result = IPC_Error;
     debugMsg("IpcFacade:start", " locking mutex");
     RTMutexGuard guard(m_mutex);
     //perform only when this instance is the only started instance of the class
     if (result == IPC_OK && !m_isStarted) {
-      //spawn message thread - separated for readability
+      // Subscribe to messages
+      debugMsg("IpcFacade:start", " subscribing to messages");
+      subscribeToMsgs();
+
+      // Spawn message thread AFTER all subscribes complete
+      // Running thread in parallel with subscriptions resulted in deadlocks
       debugMsg("IpcFacade:start", " spawning IPC dispatch thread");
       if (threadSpawn((THREAD_FUNC_PTR) myIpcDispatch, this, m_threadHandle)) {
-        // Subscribe to messages
-        debugMsg("IpcFacade:start", " subscribing to messages");
-        IPC_RETURN_TYPE status;
-        status = subscribeDataCentral(MSG_BASE, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << MSG_BASE << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(RETURN_VALUE_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << RETURN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(BOOLEAN_VALUE_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << BOOLEAN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(INTEGER_VALUE_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << INTEGER_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(REAL_VALUE_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(STRING_VALUE_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(BOOLEAN_ARRAY_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << BOOLEAN_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(INTEGER_ARRAY_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << INTEGER_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(REAL_ARRAY_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-        status = subscribeDataCentral(STRING_ARRAY_MSG, messageHandler);
-        assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-        // *** TODO: implement receiving planner update
-      } else {
-        result = IPC_Error;
+        debugMsg("IpcFacade:start", " succeeded");
+        m_isStarted = true;
       }
-    }
-    if (result == IPC_OK) {
-      debugMsg("IpcFacade:start", " succeeded");
-      m_isStarted = true;
     }
     return result;
   }
@@ -510,11 +487,102 @@ namespace PLEXIL
     }
     debugMsg("IpcFacade:stop", " locking mutex");
     RTMutexGuard guard(m_mutex);
+
+    // Cancel IPC dispatch thread first to prevent deadlocks
+    debugMsg("IpcFacade:stop", " cancelling dispatch thread");
+    m_stopDispatchThread = true;
+    int myErrno = pthread_join(m_threadHandle, NULL);
+    if (myErrno != 0) {
+      debugMsg("IpcUtil:stop", "Error in pthread_join; errno = " << myErrno);
+    }
+
+    debugMsg("IpcFacade:stop", " unsubscribing from messages");
+    unsubscribeFromMsgs();
+
     m_isStarted = false;
     unsubscribeAll();
 
-    // Unsubscribe from messages
-    debugMsg("IpcFacade:stop", " unsubscribing from messages");
+  }
+
+  /**
+   * @brief Disconnects from the Ipc server. This puts Ipc back in its initial state before
+   * being initialized.
+   */
+  void IpcFacade::shutdown() {
+    debugMsg("IpcFacade::shutdown", "locking mutex");
+    RTMutexGuard guard(m_mutex);
+    if (m_isInitialized) {
+      if (m_isStarted) {
+        stop();
+      }
+
+      // Disconnect from central
+      IPC_disconnect();
+    }
+    m_isInitialized = false;
+  }
+
+  void IpcFacade::subscribeAll(IpcMessageListener* listener) {
+    m_localRegisteredHandlers.push_back(LocalListenerRef(ALL_MSG_TYPE(), listener));
+    subscribeGlobal(LocalListenerRef(ALL_MSG_TYPE(), listener));
+  }
+
+  void IpcFacade::subscribe(IpcMessageListener* listener, PlexilMsgType type) {
+    m_localRegisteredHandlers.push_back(LocalListenerRef((uint16_t) type, listener));
+    subscribeGlobal(LocalListenerRef((uint16_t) type, listener));
+  }
+
+  IPC_RETURN_TYPE IpcFacade::subscribeToMsgs()
+  {
+    IPC_RETURN_TYPE status;
+    status = subscribeDataCentral(MSG_BASE, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << MSG_BASE << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(RETURN_VALUE_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << RETURN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(BOOLEAN_VALUE_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << BOOLEAN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(INTEGER_VALUE_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << INTEGER_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(REAL_VALUE_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(STRING_VALUE_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(BOOLEAN_ARRAY_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << BOOLEAN_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(INTEGER_ARRAY_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << INTEGER_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(REAL_ARRAY_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
+    status = subscribeDataCentral(STRING_ARRAY_MSG, messageHandler);
+    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
+    // *** TODO: implement receiving planner update
+    return status;
+  }
+
+  void IpcFacade::unsubscribeAll() {
+    debugMsg("IpcFacade:unsubscribeAll", " entered");
+    while (!m_localRegisteredHandlers.empty())
+      unsubscribeAll(m_localRegisteredHandlers.front().second);
+    debugMsg("IpcFacade:unsubscribeAll", " succeeded");
+  }
+
+  void IpcFacade::unsubscribeAll(IpcMessageListener* listener) {
+    //prevent modification and access while removing
+    RTMutexGuard guard(m_mutex);
+    bool removed = false;
+    for (LocalListenerList::iterator it = m_localRegisteredHandlers.begin();
+         !removed && it != m_localRegisteredHandlers.end();
+         it++) {
+      if ((*it).second == listener) {
+        unsubscribeGlobal(*it);
+        m_localRegisteredHandlers.erase(it);
+        removed = true;
+      }
+    }
+  }
+
+  IPC_RETURN_TYPE IpcFacade::unsubscribeFromMsgs()
+  {
     IPC_RETURN_TYPE status;
     status = IPC_unsubscribe(MSG_BASE, messageHandler);
     assertTrueMsg(status == IPC_OK,
@@ -547,64 +615,7 @@ namespace PLEXIL
     assertTrueMsg(status == IPC_OK,
                   "IpcFacade: Error unsubscribing from " << STRING_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
     // *** TODO: implement receiving planner update
-
-    // Cancel IPC dispatch thread
-    debugMsg("IpcFacade:stop", " cancelling dispatch thread");
-    m_stopDispatchThread = true;
-    int myErrno = pthread_join(m_threadHandle, NULL);
-    if (myErrno != 0) {
-      debugMsg("IpcUtil:stop", "Error in pthread_join; errno = " << myErrno);
-    }
-  }
-
-  /**
-   * @brief Disconnects from the Ipc server. This puts Ipc back in its initial state before
-   * being initialized.
-   */
-  void IpcFacade::shutdown() {
-    debugMsg("IpcFacade::shutdown", "locking mutex");
-    RTMutexGuard guard(m_mutex);
-    if (m_isInitialized) {
-      if (m_isStarted) {
-        stop();
-      }
-
-      // Disconnect from central
-      IPC_disconnect();
-    }
-    m_isInitialized = false;
-  }
-
-  void IpcFacade::subscribeAll(IpcMessageListener* listener) {
-    m_localRegisteredHandlers.push_back(LocalListenerRef(ALL_MSG_TYPE(), listener));
-    subscribeGlobal(LocalListenerRef(ALL_MSG_TYPE(), listener));
-  }
-
-  void IpcFacade::subscribe(IpcMessageListener* listener, PlexilMsgType type) {
-    m_localRegisteredHandlers.push_back(LocalListenerRef((uint16_t) type, listener));
-    subscribeGlobal(LocalListenerRef((uint16_t) type, listener));
-  }
-
-  void IpcFacade::unsubscribeAll() {
-    debugMsg("IpcFacade:unsubscribeAll", " entered");
-    while (!m_localRegisteredHandlers.empty())
-      unsubscribeAll(m_localRegisteredHandlers.front().second);
-    debugMsg("IpcFacade:unsubscribeAll", " succeeded");
-  }
-
-  void IpcFacade::unsubscribeAll(IpcMessageListener* listener) {
-    //prevent modification and access while removing
-    RTMutexGuard guard(m_mutex);
-    bool removed = false;
-    for (LocalListenerList::iterator it = m_localRegisteredHandlers.begin();
-         !removed && it != m_localRegisteredHandlers.end();
-         it++) {
-      if ((*it).second == listener) {
-        unsubscribeGlobal(*it);
-        m_localRegisteredHandlers.erase(it);
-        removed = true;
-      }
-    }
+    return status;
   }
 
   /**

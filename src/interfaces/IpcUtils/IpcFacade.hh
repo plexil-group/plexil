@@ -108,6 +108,18 @@ namespace PLEXIL {
     void subscribe(IpcMessageListener* listener, PlexilMsgType type);
 
     /**
+     * @brief Subscribes to all PLEXIL messages.
+     * @return IPC_OK if all succeeded.
+     */
+    IPC_RETURN_TYPE subscribeToMsgs();
+
+    /**
+     * @brief Unsubscribes from all PLEXIL messages.
+     * @return IPC_OK if all succeeded.
+     */
+    IPC_RETURN_TYPE unsubscribeFromMsgs();
+
+    /**
      * @brief Removes all registered IpcMessageListeners to all plexil message subscriptions
      */
     void unsubscribeAll();
