@@ -206,6 +206,7 @@ namespace PLEXIL
         }
 
         g_interface->lookupReturn(*(entry->state), entry->value);
+        needsStep = true;
         break;
 
       case Q_COMMAND_ACK:
