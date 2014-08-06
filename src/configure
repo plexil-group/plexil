@@ -1466,7 +1466,8 @@ Optional Features:
   --enable-ipc            Build IPC and IpcAdapter library (default=no)
   --enable-module-tests   Build module tests (default=no)
   --enable-viewer         Build Plexil Viewer interface (default=yes)
-  --enable-sas            Build StandAloneSimulator (default=no)
+  --enable-sas            Build StandAloneSimulator - requires IPC
+                          (default=no)
   --enable-test-exec      Build TestExec executable (default=no)
   --enable-udp            Build UdpAdapter interface (default=no)
   --enable-universal-exec Build universalExec executable (default=yes)
@@ -15483,15 +15484,6 @@ fi
 # Check whether --enable-sas was given.
 if test "${enable_sas+set}" = set; then :
   enableval=$enable_sas;
-fi
-
-# SAS requires IPC
-if test "x$enable_sas" = "xyes"; then :
-
-  if test "x$enable_ipc" = "xno"; then :
-  enable_ipc=yes
-fi
-
 fi
 
 # Check whether --enable-test-exec was given.
