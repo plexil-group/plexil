@@ -31,6 +31,8 @@ libIpcUtils_la_SOURCES = IpcFacade.cc
 libIpcUtils_la_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/expr \
  -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/third-party/ooid/kashmir 
 
-# TODO: libraries to link against (?)
+libIpcUtils_la_LIBADD = ../../expr/libPlexilExpr.la ../../utils/libPlexilUtils.la
+
+libIpcUtils_la_LDFLAGS = -L../../../lib -lipc
 
 
