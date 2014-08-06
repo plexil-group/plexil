@@ -4,28 +4,29 @@ IPC_LOCATIONS = PUBLIC_BIN_DIR=$(bindir) PUBLIC_LIB_DIR=$(libdir) \
 
 IPC_SUBDIRS = SUBDIRS='etc src doc'
 
+IPC_OPTIONS = THREADED=1 MAKE_SHARED_LIBS=1
+
 all-local: ipc-all install-exec-local
 
 ipc-all:
 	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
- $(IPC_LOCATIONS) THREADED=1 MAKE_SHARED_LIBS=1 $(IPC_SUBDIRS) all
+ $(IPC_LOCATIONS) $(IPC_OPTIONS) $(IPC_SUBDIRS) all
 
 clean-local:
 	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
- $(IPC_LOCATIONS) $(IPC_SUBDIRS) clean
-
-# Assuming the package knows how to install itself
-install-data-local:
-	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
- $(IPC_LOCATIONS) THREADED=1 MAKE_SHARED_LIBS=1 $(IPC_SUBDIRS) install_mans install_docs
+ $(IPC_LOCATIONS) $(IPC_OPTIONS) $(IPC_SUBDIRS) clean
 
 install-exec-local:
 	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
- $(IPC_LOCATIONS) THREADED=1 MAKE_SHARED_LIBS=1 $(IPC_SUBDIRS) install_incs install_libs install_bins
+ $(IPC_LOCATIONS) $(IPC_OPTIONS) $(IPC_SUBDIRS) install_incs install_libs install_bins
+
+install-data-local:
+	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
+ $(IPC_LOCATIONS) $(IPC_OPTIONS) $(IPC_SUBDIRS) install_mans install_docs
 
 uninstall-local:
 	$(MAKE) -f GNUmakefile.ipc $(AM_MAKEFLAGS) \
- $(IPC_LOCATIONS) THREADED=1 MAKE_SHARED_LIBS=1 $(IPC_SUBDIRS) uninstall
+ $(IPC_LOCATIONS) $(IPC_OPTIONS) $(IPC_SUBDIRS) uninstall
 
 # Distribute files from here.
 #EXTRA_DIST = subdir/Makefile subdir/program.c ...
