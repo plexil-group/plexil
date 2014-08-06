@@ -371,7 +371,12 @@ void Simulator::scheduleNextResponse(const timeval& time)
 
 void Simulator::handleWakeUp()
 {
-  debugMsg("Simulator:handleWakeUp", " entered");
+  timeval now;
+  gettimeofday(&now, NULL);
+  debugMsg("Simulator:handleWakeUp",
+           " entered at "
+           << std::setiosflags(std::ios_base::fixed) 
+           << timevalToDouble(now));
 
   //
   // Send every message with a scheduled time earlier than now.
@@ -380,11 +385,6 @@ void Simulator::handleWakeUp()
   do {
 	moreEvents = false;
 	ResponseMessage* resp = NULL;
-
-	// Get the current time inside the loop to account for time lost in sending messages
-	// Could be pulled out of the loop for a small efficiency gain.
-	timeval now;
-	gettimeofday(&now, NULL);
 
 	// begin critical section
 	{
@@ -426,13 +426,12 @@ void Simulator::handleWakeUp()
   }
   // end critical section
 
-  if (scheduleTimer) 
-    {
-      debugMsg("Simulator:handleWakeUp",
-			   " Scheduling next wakeup at "
-			   << std::setiosflags(std::ios_base::fixed) 
-			   << timevalToDouble(nextWakeup));
-      scheduleNextResponse(nextWakeup);
-    }
+  if (scheduleTimer) {
+    debugMsg("Simulator:handleWakeUp",
+             " Scheduling next wakeup at "
+             << std::setiosflags(std::ios_base::fixed) 
+             << timevalToDouble(nextWakeup));
+    scheduleNextResponse(nextWakeup);
+  }
   debugMsg("Simulator:handleWakeUp", " completed");
 }
