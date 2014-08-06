@@ -146,9 +146,9 @@ void *threadLoop (void * /* ignored */)
 
 void idleFunc(void)
 {
-  usleep(5000); // *** Why?? *** 
   if (cleanUp)
     exit(0);
+  usleep(40000); // update 25 times/sec
   glutPostRedisplay();
 }
 

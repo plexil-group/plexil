@@ -141,7 +141,7 @@ void Robot::displayRobot(void)
     glVertex2f(xCenter+m_ScanScale*m_BeamWidth, yLB+m_ScanScale*rWidthBy2);
     glEnd();
   
-    m_ScanScale += 0.025;
+    m_ScanScale += 0.1;
     if (m_ScanScale > 1.0) m_ScanScale = 0.0;
   }
 }
@@ -409,7 +409,7 @@ const std::vector<double> Robot::moveRobotInternal(int rowDirOffset,
       && m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext))
     {
       setRobotPositionLocal(rowNext, colNext);// local cache for display purposes only
-      updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.025);
+      updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.1);
       result.push_back(1.0);
     }
   else if (!traversible)
