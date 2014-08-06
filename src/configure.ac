@@ -58,12 +58,7 @@ AC_ARG_ENABLE([module-tests],
 AC_ARG_ENABLE([viewer],
         AS_HELP_STRING([--enable-viewer], [Build Plexil Viewer interface (default=yes)]))
 AC_ARG_ENABLE([sas],
-        AS_HELP_STRING([--enable-sas], [Build StandAloneSimulator (default=no)]))
-# SAS requires IPC
-AS_IF([test "x$enable_sas" = "xyes"], [
-  AS_IF([test "x$enable_ipc" = "xno"], [enable_ipc=yes])
-])
-
+        AS_HELP_STRING([--enable-sas], [Build StandAloneSimulator - requires IPC (default=no)]))
 AC_ARG_ENABLE([test-exec],
         AS_HELP_STRING([--enable-test-exec], [Build TestExec executable (default=no)]))
 AC_ARG_ENABLE([udp],
