@@ -40,14 +40,12 @@ namespace PLEXIL
     case REAL_TYPE:
     case DATE_TYPE:
     case DURATION_TYPE:
+    case UNKNOWN_TYPE: // e.g. lookup, command - assume the worst
       result = REAL_TYPE;
       break;
 
     case INTEGER_TYPE:
       result = INTEGER_TYPE;
-      break;
-
-    case UNKNOWN_TYPE: // e.g. lookup, command
       break;
 
     default: // not a valid type in an arithmetic expression
@@ -59,15 +57,13 @@ namespace PLEXIL
       case REAL_TYPE:
       case DATE_TYPE:
       case DURATION_TYPE:
+      case UNKNOWN_TYPE: // e.g. lookup, command - assume the worst
         result = REAL_TYPE;
         break;
 
       case INTEGER_TYPE:
-        if (result == UNKNOWN_TYPE)
+        if (result != REAL_TYPE)
           result = INTEGER_TYPE;
-        break;
-
-      case UNKNOWN_TYPE:
         break;
 
       default:
