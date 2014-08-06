@@ -111,67 +111,75 @@ void Robot::displayRobot(void)
   glVertex2f(xUB, yUB);
   glVertex2f(xUB, yLB);
   glEnd();
+
+  if (m_EnergyLevel > 0) {
+    // The East sensors
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(xUB, yCenter);
+    glVertex2f(xUB+m_ScanScale*rWidthBy2, yCenter-m_ScanScale*m_BeamWidth);
+    glVertex2f(xUB+m_ScanScale*rWidthBy2, yCenter+m_ScanScale*m_BeamWidth);
+    glEnd();
   
-  // The East sensors
-  glBegin(GL_TRIANGLE_FAN);
-  glVertex2f(xUB, yCenter);
-  glVertex2f(xUB+m_ScanScale*rWidthBy2, yCenter-m_ScanScale*m_BeamWidth);
-  glVertex2f(xUB+m_ScanScale*rWidthBy2, yCenter+m_ScanScale*m_BeamWidth);
-  glEnd();
+    // The South sensors
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(xCenter, yUB);
+    glVertex2f(xCenter-m_ScanScale*m_BeamWidth, yUB-m_ScanScale*rWidthBy2);
+    glVertex2f(xCenter+m_ScanScale*m_BeamWidth, yUB-m_ScanScale*rWidthBy2);
+    glEnd();
   
-  // The South sensors
-  glBegin(GL_TRIANGLE_FAN);
-  glVertex2f(xCenter, yUB);
-  glVertex2f(xCenter-m_ScanScale*m_BeamWidth, yUB-m_ScanScale*rWidthBy2);
-  glVertex2f(xCenter+m_ScanScale*m_BeamWidth, yUB-m_ScanScale*rWidthBy2);
-  glEnd();
+    // The West sensors
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(xLB, yCenter);
+    glVertex2f(xLB-m_ScanScale*rWidthBy2, yCenter-m_ScanScale*m_BeamWidth);
+    glVertex2f(xLB-m_ScanScale*rWidthBy2, yCenter+m_ScanScale*m_BeamWidth);
+    glEnd();
   
-  // The West sensors
-  glBegin(GL_TRIANGLE_FAN);
-  glVertex2f(xLB, yCenter);
-  glVertex2f(xLB-m_ScanScale*rWidthBy2, yCenter-m_ScanScale*m_BeamWidth);
-  glVertex2f(xLB-m_ScanScale*rWidthBy2, yCenter+m_ScanScale*m_BeamWidth);
-  glEnd();
+    // The North sensors
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex2f(xCenter, yLB);
+    glVertex2f(xCenter-m_ScanScale*m_BeamWidth, yLB+m_ScanScale*rWidthBy2);
+    glVertex2f(xCenter+m_ScanScale*m_BeamWidth, yLB+m_ScanScale*rWidthBy2);
+    glEnd();
   
-  // The North sensors
-  glBegin(GL_TRIANGLE_FAN);
-  glVertex2f(xCenter, yLB);
-  glVertex2f(xCenter-m_ScanScale*m_BeamWidth, yLB+m_ScanScale*rWidthBy2);
-  glVertex2f(xCenter+m_ScanScale*m_BeamWidth, yLB+m_ScanScale*rWidthBy2);
-  glEnd();
-  
-  m_ScanScale += 0.025;
-  if (m_ScanScale > 1.0) m_ScanScale = 0.0;
+    m_ScanScale += 0.025;
+    if (m_ScanScale > 1.0) m_ScanScale = 0.0;
+  }
 }
 
 // Purely for demo to have a robot moving in the scene
 void Robot::updateRobotPosition()
 {
-  std::vector<std::vector<int> > dirOffset(4, std::vector<int>(2));
-  dirOffset[0][0] = 0;
-  dirOffset[0][1] = 1;
-  dirOffset[1][0] = 1;
-  dirOffset[1][1] = 0;
-  dirOffset[2][0] = 0;
-  dirOffset[2][1] = -1;
-  dirOffset[3][0] = -1;
-  dirOffset[3][1] = 0;
+  static bool sl_inited = false;
+  static std::vector<std::vector<int> > dirOffset(4, std::vector<int>(2));
+  if (!sl_inited) {
+    dirOffset[0][0] = 0;
+    dirOffset[0][1] = 1;
+    dirOffset[1][0] = 1;
+    dirOffset[1][1] = 0;
+    dirOffset[2][0] = 0;
+    dirOffset[2][1] = -1;
+    dirOffset[3][0] = -1;
+    dirOffset[3][1] = 0;
+    sl_inited = true;
+  }
   
-  std::vector<std::vector<int> >::const_iterator dIter = dirOffset.begin();
   bool done = false;
   
-  while (!done) {
-    std::vector<int> dir = dirOffset[RANDOM_NUMBER_INT(0, 3)];
-    int rowNext = m_Row + dir[0];
-    int colNext = m_Col + dir[1];
-    if (m_Terrain->isTraversable(m_Row, m_Col, rowNext, colNext) &&
-        m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext)) {
-      done = true;
-      setRobotPositionLocal(rowNext, colNext); // local cache for display purposes only
-      updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext)-0.025);
+  // Only move if there is energy left.
+  if (m_EnergyLevel > 0) {
+    while (!done) {
+      std::vector<int> dir = dirOffset[RANDOM_NUMBER_INT(0, 3)];
+      int rowNext = m_Row + dir[0];
+      int colNext = m_Col + dir[1];
+      if (m_Terrain->isTraversable(m_Row, m_Col, rowNext, colNext) &&
+          m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext)) {
+        done = true;
+        setRobotPositionLocal(rowNext, colNext); // local cache for display purposes only
+      }
     }
-    ++dIter;
   }
+
+  updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(m_Row, m_Col) - 0.025);
 }
 
 double Robot::determineEnergySourceLevel()
