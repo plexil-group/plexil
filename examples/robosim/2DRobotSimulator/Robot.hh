@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,6 @@
 
 #include "RobotBase.hh"
 
-#include <vector>
-
 #include "ThreadMutex.hh"
 
 class IpcRobotAdapter;
@@ -60,7 +58,7 @@ public:
   double determineEnergySourceLevel();
   double determineGoalLevel();
 
-  const std::vector<double> processCommand(const std::string& cmd, double parameter = 0.0);
+  const std::vector<double> processCommand(const std::string& cmd, int32_t parameter = 0);
 
 private:
 

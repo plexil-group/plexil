@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 
 #include "IpcRobotAdapter.hh"
 #include "MyOpenGL.hh"
@@ -87,7 +87,7 @@ void Robot::displayRobot(void)
 {
   double rWidth = 2.0 / static_cast<double>(m_Terrain->getWidth());
   double rWidthBy2 = rWidth / 2.0;
-  double wallThickness = 0.005;
+  static double wallThickness = 0.005;
   
   // Use the locally cached value here since we do not want to overload 
   // the position server.
@@ -140,7 +140,6 @@ void Robot::displayRobot(void)
   glVertex2f(xCenter+m_ScanScale*m_BeamWidth, yLB+m_ScanScale*rWidthBy2);
   glEnd();
   
-  
   m_ScanScale += 0.025;
   if (m_ScanScale > 1.0) m_ScanScale = 0.0;
 }
@@ -161,20 +160,18 @@ void Robot::updateRobotPosition()
   std::vector<std::vector<int> >::const_iterator dIter = dirOffset.begin();
   bool done = false;
   
-  while (!done)
-    {
-      std::vector<int> dir = dirOffset[RANDOM_NUMBER_INT(0, 3)];
-      int rowNext = m_Row + dir[0];
-      int colNext = m_Col + dir[1];
-      if (m_Terrain->isTraversable(m_Row, m_Col, rowNext, colNext) &&
-          m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext))
-        {
-          done = true;
-          setRobotPositionLocal(rowNext, colNext); // local cache for display purposes only
-          updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext)-0.025);
-        }
-      ++dIter;
+  while (!done) {
+    std::vector<int> dir = dirOffset[RANDOM_NUMBER_INT(0, 3)];
+    int rowNext = m_Row + dir[0];
+    int colNext = m_Col + dir[1];
+    if (m_Terrain->isTraversable(m_Row, m_Col, rowNext, colNext) &&
+        m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext)) {
+      done = true;
+      setRobotPositionLocal(rowNext, colNext); // local cache for display purposes only
+      updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext)-0.025);
     }
+    ++dIter;
+  }
 }
 
 double Robot::determineEnergySourceLevel()
@@ -193,13 +190,13 @@ double Robot::determineGoalLevel()
   return m_Goals->determineGoalLevel(row, col);
 }
 
-const std::vector<double> Robot::processCommand(const std::string& cmd, double parameter)
+const std::vector<double> Robot::processCommand(const std::string& cmd, int32_t parameter)
 {
   std::cout << "Received " << cmd << std::endl;
   sleep(1);
 
   if (cmd == "Move")
-    return moveRobotParameterized((int) parameter);
+    return moveRobotParameterized(parameter);
   else if ((cmd == "MoveUp")
       || (cmd == "MoveDown")
       || (cmd == "MoveRight")
@@ -391,7 +388,7 @@ const std::vector<double> Robot::moveRobotParameterized(int direction)
 }
 
 const std::vector<double> Robot::moveRobotInternal(int rowDirOffset,
-						   int colDirOffset)
+														  int colDirOffset)
 {
   int rowCurr, colCurr;
   m_RobotPositionServer->getRobotPosition(m_Name, rowCurr, colCurr);

@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -39,11 +39,12 @@ EXECUTABLE := robotSimulator
 
 # External dependencies
 INC_DIRS	+= $(PLEXIL_HOME)/src/utils \
+  $(PLEXIL_HOME)/src/expr \
   $(PLEXIL_HOME)/src/interfaces/IpcUtils \
   $(PLEXIL_HOME)/src/third-party/ipc/src \
   $(PLEXIL_HOME)/src/third-party/ooid/kashmir
 LIB_PATH	+= $(OPENGL_LIB_PATH)
-LIBS		+= pugixml IpcUtils ipc PlexilUtils $(PTHREAD_LIB) $(OPENGL_LIBS)
+LIBS		+= pugixml IpcUtils ipc PlexilExpr PlexilUtils $(PTHREAD_LIB) $(OPENGL_LIBS)
 EXTRA_FLAGS	+= $(OPENGL_EXTRA_FLAGS)
 
 SRC		:= $(wildcard *.cc)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,16 +27,15 @@
 #include "IpcRobotAdapter.hh"
 #include "RobotBase.hh"
 
-#include "LabelStr.hh"
-#include "StoredArray.hh"
+#include "ArrayImpl.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ThreadSpawn.hh"
-
+#include "Value.hh"
 
 // ooid classes
 #include "uuid.h"
-#include "devrand.h"
+#include "system/devrand.h"
 
 #include <sys/time.h>
 
@@ -106,32 +105,31 @@ void IpcRobotAdapter::processCommand(const std::vector<const PlexilMsgBase*>& ms
   IpcMessageId transId = IpcMessageId(msgs[0]->senderUID, msgs[0]->serial);
   double parameter = 0.0;
   // Check for missing parameter
-  if (cmdName == "Move")
-    {
-      assertTrueMsg(msgs[0]->count >= 2,
-		    "IpcRobotAdapter::processCommand: missing required direction argument to \""
-		    << cmdName << "\" command");
-      checkError(msgs.size() >= 3,
-		 "IpcRobotAdapter::processCommand: internal error: not enough arguments to \""
-		 << cmdName << "\" command");
-      assertTrueMsg(msgs[2]->msgType == PlexilMsgType_NumericValue,
-		    "IpcRobotAdapter::processCommand: direction argument for command \"" << cmdName << "\" is not a number");
-      parameter = ((const PlexilNumericValueMsg*)msgs[2])->doubleValue;
-      condDebugMsg(msgs[0]->count > 2,
-		   "IpcRobotAdapter:processCommand",
-		   "Ignoring " << msgs[0]->count - 2 << " argument(s)");
-    }
+  if (cmdName == "Move") {
+    assertTrueMsg(msgs[0]->count >= 2,
+                  "IpcRobotAdapter::processCommand: missing required direction argument to \""
+                  << cmdName << "\" command");
+    checkError(msgs.size() >= 3,
+               "IpcRobotAdapter::processCommand: internal error: not enough arguments to \""
+               << cmdName << "\" command");
+    assertTrueMsg(msgs[2]->msgType == PlexilMsgType_IntegerValue,
+                  "IpcRobotAdapter::processCommand: direction argument for command \"" << cmdName << "\" is not an integer");
+    parameter = ((const PlexilIntegerValueMsg*)msgs[2])->intValue;
+    condDebugMsg(msgs[0]->count > 2,
+                 "IpcRobotAdapter:processCommand",
+                 "Ignoring " << msgs[0]->count - 2 << " argument(s)");
+  }
+  else {
+    condDebugMsg(msgs[0]->count > 1,
+                 "IpcRobotAdapter:processCommand",
+                 "Ignoring " << msgs[0]->count - 1 << " argument(s)");
+  }
+  const PLEXIL::RealArray ret_array(robot->processCommand(cmdName, parameter));
+  if (ret_array.size() > 1)
+    m_ipcFacade.publishReturnValues(transId.second, transId.first,
+									PLEXIL::Value(ret_array));
   else
-    {
-      condDebugMsg(msgs[0]->count > 1,
-		   "IpcRobotAdapter:processCommand",
-		   "Ignoring " << msgs[0]->count - 1 << " argument(s)");
-    }
-  const std::vector<double>& ret_values = robot->processCommand(cmdName, parameter);
-  if (ret_values.size() > 1)
-    m_ipcFacade.publishReturnValues(transId.second, PLEXIL::LabelStr(transId.first), PLEXIL::StoredArray(ret_values).getKey());
-  else
-    m_ipcFacade.publishReturnValues(transId.second, PLEXIL::LabelStr(transId.first), ret_values.at(0));
+    m_ipcFacade.publishReturnValues(transId.second, transId.first, ret_array.getElementValue(0));
 }
 
 /**

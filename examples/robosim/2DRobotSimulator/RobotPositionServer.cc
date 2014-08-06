@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,16 +25,12 @@
 */
 
 #include "RobotPositionServer.hh"
-#include <string>
-#include <vector>
 #include <iostream>
 
 RobotPositionServer::RobotPositionServer(int _height, int _width) : 
   m_OccupancyGrid(std::vector<std::vector<std::string> >(_height,
                                                          std::vector<std::string>(_width, "EMPTY"))),
-  m_RobotPositionMutex(),
-  m_Height(_height),
-  m_Width(_width)
+  m_RobotPositionMutex()
 {
 }
 

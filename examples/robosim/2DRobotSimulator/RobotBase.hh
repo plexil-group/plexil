@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,7 @@ public:
   
   virtual void displayRobot(void) = 0;
 
-  virtual const std::vector<double> processCommand(const std::string& cmd, double parameter) = 0;
+  virtual const std::vector<double> processCommand(const std::string& cmd, int32_t parameter) = 0;
 
 protected:
   const TerrainBase* m_Terrain;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,6 @@
 */
 
 #include "Simulator.hh"
-#include <csignal>
-#include <fstream>
 
 #include "Debug.hh"
 #include "IpcCommRelay.hh"
@@ -34,10 +32,17 @@
 
 #include "RoboSimResponseFactory.hh"
 
-PLEXIL::ThreadSemaphore doneSemaphore;
-Simulator* _the_simulator_ = NULL;
+#include <cassert>
+#include <csignal>
+#include <cstring>
+#include <fstream>
 
-void SIGINT_handler (int signum)
+
+static PLEXIL::ThreadSemaphore doneSemaphore;
+
+static Simulator* _the_simulator_ = NULL;
+
+static void SIGINT_handler (int signum)
 {
   assert (signum == SIGINT);
   debugMsg("RoboSimSimulator", " Terminating simulator");
@@ -51,62 +56,50 @@ int main(int argc, char** argv)
   std::string commandScriptName("Test.script");
   std::string telemetryScriptName("Telemetry.script");
   std::string centralhost("localhost:1381");
-  std::string debugConfig("");
+  std::string debugConfig("RoboSimDebug.cfg");
 
   std::string usage("Usage: RoboSimSimulator [-c <command script>] [-t <telemetry script>] [-d <debug config file>] [-central <centralhost>]");
 
-  for (int i = 1; i < argc; ++i)
-    {
-      if (strcmp(argv[i], "-c") == 0)
-        commandScriptName = argv[++i];
-      else if (strcmp(argv[i], "-t") == 0)
-        telemetryScriptName = argv[++i];
-      else if (strcmp(argv[i], "-d") == 0)
-        debugConfig = argv[++i];
-      else if (strcmp(argv[i], "-central") == 0)
-        centralhost = argv[++i];
-      else if (strcmp(argv[i], "-h") == 0)
-        {
-          std::cout << usage << std::endl;
-          return 0;
-        }
-      else
-    {
+  for (int i = 1; i < argc; ++i) {
+    if (strcmp(argv[i], "-c") == 0)
+      commandScriptName = argv[++i];
+    else if (strcmp(argv[i], "-t") == 0)
+      telemetryScriptName = argv[++i];
+    else if (strcmp(argv[i], "-d") == 0)
+      debugConfig = argv[++i];
+    else if (strcmp(argv[i], "-central") == 0)
+      centralhost = argv[++i];
+    else if (strcmp(argv[i], "-h") == 0) {
+        std::cout << usage << std::endl;
+        return 0;
+      }
+    else {
       std::cout << "Unknown option '" 
-            << argv[i] 
-            << "'.  " 
-            << usage 
-            << std::endl;
+                << argv[i] 
+                << "'.  " 
+                << usage 
+                << std::endl;
       return -1;
     }
-    }
+  }
 
-  if (commandScriptName.empty() && telemetryScriptName.empty())
-    {
-      std::cerr << "Error: no script(s) supplied\n" << usage << std::endl;
-      return -1;
-    }
+  if (commandScriptName.empty() && telemetryScriptName.empty()) {
+    std::cerr << "Error: no script(s) supplied\n" << usage << std::endl;
+    return -1;
+  }
 
-  if (!debugConfig.empty())
-    {
-      std::ifstream dc(debugConfig.c_str());
-      if (dc.fail())
-    {
-      std::cerr << "Error: unable to open debug configuration file "
-            << debugConfig << std::endl;
-      return -1;
-    }
-      DebugMessage::setStream(std::cerr);
-      if (!DebugMessage::readConfigFile(dc))
-    {
-      std::cerr << "Error in debug configuration file " << debugConfig << std::endl;
-      return -1;
-    }
-    }
+  std::ifstream dc(debugConfig.c_str());
+  if (dc.fail())
+    std::cerr << "Warning: unable to open debug configuration file "
+              << debugConfig << std::endl;
+  else if (!DebugMessage::readConfigFile(dc))
+    std::cerr << "Warning: unable to read debug configuration file " << debugConfig << std::endl;
+  else
+    DebugMessage::setStream(std::cerr);
 
   debugMsg("RoboSimSimulator",  
-       " Running with command script: " << commandScriptName
-       << " and telemetry script: " << telemetryScriptName);
+           " Running with command script: " << commandScriptName
+           << " and telemetry script: " << telemetryScriptName);
 
   ResponseManagerMap mgrMap;
   {
@@ -138,6 +131,7 @@ int main(int argc, char** argv)
     sigaction(SIGINT, &previous_sa, NULL);
   }
   delete _the_simulator_;
+  std::cout << "RoboSimSimulator exiting" << std::endl;
 
   return 0;
 }
