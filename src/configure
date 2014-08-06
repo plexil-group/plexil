@@ -17315,13 +17315,8 @@ _ACEOF
     ;;
 esac
 
-# Not present in older autoconf versions
-#AC_TYPE_INT32_T
-#AC_TYPE_INT64_T
-#AC_TYPE_UINT16_T
-#AC_TYPE_UINT32_T
-#AC_TYPE_UINT64_T
-#AC_TYPE_UINT8_T
+# These types have special macros in newer autoconf versions,
+# which aren't present in older autoconf versions
 ac_fn_cxx_check_type "$LINENO" "int32_t" "ac_cv_type_int32_t" "$ac_includes_default"
 if test "x$ac_cv_type_int32_t" = xyes; then :
 
@@ -17377,10 +17372,6 @@ _ACEOF
 
 fi
 
-# Not present in older autoconf versions
-#AC_TYPE_PID_T
-#AC_TYPE_SIZE_T
-#AC_TYPE_SSIZE_T
 ac_fn_cxx_check_type "$LINENO" "pid_t" "ac_cv_type_pid_t" "$ac_includes_default"
 if test "x$ac_cv_type_pid_t" = xyes; then :
 
@@ -18150,7 +18141,32 @@ fi
 
 fi
 
-for ac_func in ctime_r floor getcwd gethostbyname inet_ntoa localtime_r memmove memset modf pow pthread_mutexattr_settype select setitimer socket sqrt strcasecmp strchr strcspn strdup strerror strpbrk strspn strstr strtol strtoll strtoul
+for ac_func in ctime_r floor localtime_r memmove memset modf pow setitimer socket sqrt
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_cxx_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+for ac_func in strchr strcspn strspn strstr strtol strtoll strtoul strtoull
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_cxx_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+done
+
+# Used by UdpAdapter (and IPC)
+for ac_func in gethostbyname inet_ntoa
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_cxx_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -18163,7 +18179,41 @@ fi
 done
 
 
+# Only needed by threads (and IPC)
+if test "x$with_threads" != "xno"; then :
+
+for ac_func in pthread_mutexattr_settype
+do :
+  ac_fn_cxx_check_func "$LINENO" "pthread_mutexattr_settype" "ac_cv_func_pthread_mutexattr_settype"
+if test "x$ac_cv_func_pthread_mutexattr_settype" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_PTHREAD_MUTEXATTR_SETTYPE 1
+_ACEOF
+
+fi
+done
+
+
+fi
+
 # FIXME: define PLEXIL_POSIX_TIME_FUNCS macro if unistd.h contains a suitable value of _POSIX_TIMERS
+
+# Used only in GanttListener
+if test "x$enable_gantt" = "xyes"; then :
+
+for ac_func in getcwd
+do :
+  ac_fn_cxx_check_func "$LINENO" "getcwd" "ac_cv_func_getcwd"
+if test "x$ac_cv_func_getcwd" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_GETCWD 1
+_ACEOF
+
+fi
+done
+
+
+fi
 
 # Used only in IPC
 ac_fn_cxx_check_type "$LINENO" "pid_t" "ac_cv_type_pid_t" "$ac_includes_default"
@@ -18602,7 +18652,7 @@ fi
 done
 
 
-for ac_func in bzero dup2 gethostbyaddr gethostname mkdir
+for ac_func in bzero dup2 gethostbyaddr gethostname mkdir select strdup strpbrk
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_cxx_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -18622,14 +18672,15 @@ ac_config_files="$ac_config_files Makefile third-party/pugixml/src/Makefile util
 
 if test "x$enable_ipc" = "xyes"; then :
 
-ac_config_files="$ac_config_files third-party/ipc-3.8.5/src/Makefile interfaces/IpcAdapter/Makefile interfaces/IpcUtils/Makefile apps/StandAloneSimulator/Makefile"
+ac_config_files="$ac_config_files third-party/ipc/Makefile interfaces/IpcAdapter/Makefile interfaces/IpcUtils/Makefile"
 
-# Add these back later?
-#                 third-party/ipc-3.8.5/doc/GNUmakefile
-#                 third-party/ipc-3.8.5/java/GNUmakefile
-#                 third-party/ipc-3.8.5/lisp/GNUmakefile
-#                 third-party/ipc-3.8.5/test/GNUmakefile
-#                 third-party/ipc-3.8.5/xdrgen/GNUmakefile
+
+fi
+
+if test "x$enable_sas" = "xyes"; then :
+
+ac_config_files="$ac_config_files apps/StandAloneSimulator/Makefile"
+
 
 fi
 
@@ -19807,7 +19858,7 @@ do
     "interfaces/Sockets/Makefile") CONFIG_FILES="$CONFIG_FILES interfaces/Sockets/Makefile" ;;
     "interfaces/UdpAdapter/Makefile") CONFIG_FILES="$CONFIG_FILES interfaces/UdpAdapter/Makefile" ;;
     "universal-exec/Makefile") CONFIG_FILES="$CONFIG_FILES universal-exec/Makefile" ;;
-    "third-party/ipc-3.8.5/src/Makefile") CONFIG_FILES="$CONFIG_FILES third-party/ipc-3.8.5/src/Makefile" ;;
+    "third-party/ipc/Makefile") CONFIG_FILES="$CONFIG_FILES third-party/ipc/Makefile" ;;
     "interfaces/IpcAdapter/Makefile") CONFIG_FILES="$CONFIG_FILES interfaces/IpcAdapter/Makefile" ;;
     "interfaces/IpcUtils/Makefile") CONFIG_FILES="$CONFIG_FILES interfaces/IpcUtils/Makefile" ;;
     "apps/StandAloneSimulator/Makefile") CONFIG_FILES="$CONFIG_FILES apps/StandAloneSimulator/Makefile" ;;
