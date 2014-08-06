@@ -49,56 +49,57 @@ int main(int argc, char** argv)
   //
 
   for (int i = 1; i < argc; ++i) {
-	if (argv[i][0] == '-') {
-	  // It's an option
-	  if (strcmp(argv[i], "-h") == 0) {
-		std::cout << usage << std::endl;
-		return 0;
-	  }
-	  else if (strcmp(argv[i], "-d") == 0)
-		debugConfig = argv[++i];
-	  else if (strcmp(argv[i], "-central") == 0)
-		centralhost = argv[++i];
-	  else if (strcmp(argv[i], "-t") == 0) {
-		telemetryScriptName = argv[++i];
-		std::cout << "WARNING: The '-t' option is deprecated.\n\
+        if (argv[i][0] == '-') {
+          // It's an option
+          if (strcmp(argv[i], "-h") == 0) {
+                std::cout << usage << std::endl;
+                return 0;
+          }
+          else if (strcmp(argv[i], "-d") == 0)
+                debugConfig = argv[++i];
+          else if (strcmp(argv[i], "-central") == 0)
+                centralhost = argv[++i];
+          else if (strcmp(argv[i], "-t") == 0) {
+                telemetryScriptName = argv[++i];
+                std::cout << "WARNING: The '-t' option is deprecated.\n\
 Telemetry scripts can be converted to the unified format by adding the line:\n\n\
 BEGIN_TELEMETRY\n\n\
 at the top of the script."
-				  << std::endl;
-	  }
-	  else {
-		std::cout << "Unknown option '" 
-				  << argv[i] 
-				  << "'.\n" 
-				  << usage 
-				  << std::endl;
-		return -1;
-	  }
-	}
-	else {
-	  // presume it's a file name
-	  scriptNames.push_back(argv[i]);
-	}
+                                  << std::endl;
+          }
+          else {
+                std::cout << "Unknown option '" 
+                                  << argv[i] 
+                                  << "'.\n" 
+                                  << usage 
+                                  << std::endl;
+                return -1;
+          }
+        }
+        else {
+          // presume it's a file name
+          scriptNames.push_back(argv[i]);
+        }
   }
 
   if (scriptNames.empty() && telemetryScriptName.empty()) {
-	std::cerr << "Error: no script(s) supplied\n" << usage << std::endl;
-	return -1;
+        std::cerr << "Error: no script(s) supplied\n" << usage << std::endl;
+        return -1;
   }
 
   if (!debugConfig.empty()) {
-	std::ifstream dc(debugConfig.c_str());
-	if (dc.fail()) {
-	  std::cerr << "Error: unable to open debug configuration file "
-				<< debugConfig << std::endl;
-	  return -1;
-	}
-	setDebugOutputStream(std::cerr);
-	if (!readDebugConfigStream(dc)) {
-	  std::cerr << "Error in debug configuration file " << debugConfig << std::endl;
-	  return -1;
-	}
+    std::ifstream dc(debugConfig.c_str());
+    if (dc.fail()) {
+      std::cerr << "Warning: unable to open debug configuration file "
+                << debugConfig << std::endl;
+    }
+    else {
+      setDebugOutputStream(std::cerr);
+      if (!readDebugConfigStream(dc)) {
+        std::cerr << "Error in debug configuration file " << debugConfig << std::endl;
+        return -1;
+      }
+    }
   }
 
 
@@ -111,18 +112,18 @@ at the top of the script."
     // These objects can go away as soon as we finish reading scripts.
     PlexilSimResponseFactory respFactory;
     SimulatorScriptReader rdr(mgrMap, respFactory);
-	for (std::vector<std::string>::const_iterator it = scriptNames.begin();
-		 it != scriptNames.end();
-		 it++) {
-	  debugMsg("PlexilSimulator",  
-			   " reading script " << *it);
-	  rdr.readScript(*it);
-	}
-	if (!telemetryScriptName.empty()) {
-	  debugMsg("PlexilSimulator",  
-			   " reading telemetry script " << telemetryScriptName);
-	  rdr.readScript(telemetryScriptName, true);
-	}
+        for (std::vector<std::string>::const_iterator it = scriptNames.begin();
+                 it != scriptNames.end();
+                 it++) {
+          debugMsg("PlexilSimulator",  
+                           " reading script " << *it);
+          rdr.readScript(*it);
+        }
+        if (!telemetryScriptName.empty()) {
+          debugMsg("PlexilSimulator",  
+                           " reading telemetry script " << telemetryScriptName);
+          rdr.readScript(telemetryScriptName, true);
+        }
   }
 
   //
