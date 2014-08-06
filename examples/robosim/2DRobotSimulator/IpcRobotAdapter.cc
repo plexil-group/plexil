@@ -27,11 +27,9 @@
 #include "IpcRobotAdapter.hh"
 #include "RobotBase.hh"
 
-#include "ArrayImpl.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ThreadSpawn.hh"
-#include "Value.hh"
 
 // ooid classes
 #include "uuid.h"
@@ -124,12 +122,9 @@ void IpcRobotAdapter::processCommand(const std::vector<const PlexilMsgBase*>& ms
                  "IpcRobotAdapter:processCommand",
                  "Ignoring " << msgs[0]->count - 1 << " argument(s)");
   }
-  const PLEXIL::RealArray ret_array(robot->processCommand(cmdName, parameter));
-  if (ret_array.size() > 1)
-    m_ipcFacade.publishReturnValues(transId.second, transId.first,
-									PLEXIL::Value(ret_array));
-  else
-    m_ipcFacade.publishReturnValues(transId.second, transId.first, ret_array.getElementValue(0));
+  m_ipcFacade.publishReturnValues(transId.second, transId.first,
+                                  robot->processCommand(cmdName, parameter));
+  debugMsg("IpcRobotAdapter:processCommand", " result published");
 }
 
 /**

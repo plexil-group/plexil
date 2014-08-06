@@ -36,6 +36,7 @@
 #include "Macros.hh"
 #include "Robot.hh"
 
+#include "ArrayImpl.hh"
 #include "Debug.hh"
 #include "Error.hh"
 
@@ -198,7 +199,7 @@ double Robot::determineGoalLevel()
   return m_Goals->determineGoalLevel(row, col);
 }
 
-const std::vector<double> Robot::processCommand(const std::string& cmd, int32_t parameter)
+PLEXIL::Value Robot::processCommand(const std::string& cmd, int32_t parameter)
 {
   std::cout << "Received " << cmd << std::endl;
   sleep(1);
@@ -223,8 +224,8 @@ const std::vector<double> Robot::processCommand(const std::string& cmd, int32_t 
 
   // fall-thru return
   debugMsg("Robot:processCommand",
-	   " Ignoring unknown command \"" << cmd << "\"");
-  return std::vector<double>(0);
+           " Ignoring unknown command \"" << cmd << "\"");
+  return PLEXIL::Value();
 }
 
 void Robot::getRobotPositionLocal(int& row, int& col)
@@ -253,7 +254,7 @@ void Robot::updateRobotEnergyLevel(double energyLevel)
   m_EnergyLevel = std::max(0.0, std::min(1.0, m_EnergyLevel + energyLevel));
 }
 
-const std::vector<double> Robot::queryRobotState()
+PLEXIL::Value Robot::queryRobotState()
 {
   std::vector<double> result;
   int row, col;
@@ -263,11 +264,11 @@ const std::vector<double> Robot::queryRobotState()
   double energyLevel = readRobotEnergyLevel();
   result.push_back(energyLevel);
   debugMsg("Robot:queryRobotState",
-	   " returning " << row << ", " << col << ", " << energyLevel);
-  return result;
+           " returning " << row << ", " << col << ", " << energyLevel);
+  return PLEXIL::Value(PLEXIL::RealArray(result));
 }
 
-const std::vector<double> Robot::queryEnergySensor()
+PLEXIL::Value Robot::queryEnergySensor()
 {
   int row, col;
   m_RobotPositionServer->getRobotPosition(m_Name, row, col);
@@ -276,15 +277,13 @@ const std::vector<double> Robot::queryEnergySensor()
   for (std::vector<std::vector<int> >::const_iterator dIter = m_DirOffset.begin();
        dIter != m_DirOffset.end();
        ++dIter)
-    {
       result.push_back(m_EnergySources->determineEnergySourceLevel(row+(*dIter)[0], 
 								   col+(*dIter)[1]));
-    }
   
-  return result;
+  return PLEXIL::Value(PLEXIL::RealArray(result));
 }
 
-const std::vector<double> Robot::queryGoalSensor()
+PLEXIL::Value Robot::queryGoalSensor()
 {
   int row, col;
   m_RobotPositionServer->getRobotPosition(m_Name, row, col);
@@ -293,16 +292,13 @@ const std::vector<double> Robot::queryGoalSensor()
   for (std::vector<std::vector<int> >::const_iterator dIter = m_DirOffset.begin();
        dIter != m_DirOffset.end();
        ++dIter)
-    {
       result.push_back(m_Goals->determineGoalLevel(row+(*dIter)[0], 
-						   col+(*dIter)[1]));
-      
-    }
+                                                   col+(*dIter)[1]));
 
-  return result;
+  return PLEXIL::Value(PLEXIL::RealArray(result));
 }
 
-const std::vector<double> Robot::queryVisibility()
+PLEXIL::Value Robot::queryVisibility()
 {
   int row, col;
   m_RobotPositionServer->getRobotPosition(m_Name, row, col);
@@ -312,57 +308,48 @@ const std::vector<double> Robot::queryVisibility()
   int currCol = col;
   int iter =  m_DirOffset.size();
 
-  std::vector<double> result;
+  std::vector<int32_t> result;
   // The last (row, col) pair is the curr location. No need to consider it
   // for visibility
-  while (iter > 1)
-    {
-      bool noWall = m_Terrain->isTraversable(currRow, 
-					     currCol, 
-					     currRow+(*dIter)[0], 
-                                             currCol+(*dIter)[1]);
-      // If no wall make sure there are no other robots occupying the location.
-      if (noWall && m_RobotPositionServer->gridOccupied(currRow+(*dIter)[0],
-                                                        currCol+(*dIter)[1]))
-        result.push_back(-1.0);
-      else
-        result.push_back(noWall ? 1.0 : 0.0);
+  while (iter > 1) {
+    bool noWall = m_Terrain->isTraversable(currRow, 
+                                           currCol, 
+                                           currRow+(*dIter)[0], 
+                                           currCol+(*dIter)[1]);
+    // If no wall make sure there are no other robots occupying the location.
+    if (noWall && m_RobotPositionServer->gridOccupied(currRow+(*dIter)[0],
+                                                      currCol+(*dIter)[1]))
+      result.push_back(-1);
+    else
+      result.push_back(noWall ? 1 : 0);
       
-      ++dIter;
-      --iter;
-    }
+    ++dIter;
+    --iter;
+  }
 
-  return result;
+  return PLEXIL::Value(PLEXIL::IntegerArray(result));
 }
 
-const std::vector<double> Robot::moveRobot(const std::string& str)
+PLEXIL::Value Robot::moveRobot(const std::string& str)
 {
   int rowDirOffset = 0;
   int colDirOffset = 0;
   
   if (str == "MoveUp") 
-    {
-      rowDirOffset = -1;
-    }
+    rowDirOffset = -1;
   else if (str == "MoveDown")
-    {
-      rowDirOffset = 1;
-    }
+    rowDirOffset = 1;
   else if (str == "MoveRight")
-    {
-      colDirOffset = 1;
-    }
+    colDirOffset = 1;
   else if (str == "MoveLeft")
-    {
-      colDirOffset = -1;
-    }
+    colDirOffset = -1;
   else
     assertTrueMsg(ALWAYS_FAIL,
-		  "moveRobot: Unknown direction \"" << str << "\"");
+                  "moveRobot: Unknown direction \"" << str << "\"");
   return moveRobotInternal(rowDirOffset, colDirOffset);
 }
 
-const std::vector<double> Robot::moveRobotParameterized(int direction)
+PLEXIL::Value Robot::moveRobotParameterized(int direction)
 {
   assertTrueMsg(direction >= 0 && direction <= 3,
 		"Robot::moveRobot: direction parameter " << direction << " not in range 0 to 3");
@@ -370,67 +357,63 @@ const std::vector<double> Robot::moveRobotParameterized(int direction)
   int rowDirOffset = 0; // -1 is up, +1 is down
   int colDirOffset = 0; // -1 is left, +1 is right
 
-  switch (direction)
-    {
-    case 0: // up
-      rowDirOffset = -1;
-      break;
+  switch (direction) {
+  case 0: // up
+    rowDirOffset = -1;
+    break;
 
-    case 1: // right
-      colDirOffset = 1;
-      break;
+  case 1: // right
+    colDirOffset = 1;
+    break;
 
-    case 2: // down
-      rowDirOffset = 1;
-      break;
+  case 2: // down
+    rowDirOffset = 1;
+    break;
 
-    case 3: // left
-      colDirOffset = -1;
-      break;
+  case 3: // left
+    colDirOffset = -1;
+    break;
 
-    default: // should never get here
-      break;
-    }
+  default: // should never get here
+    break;
+  }
 
   return moveRobotInternal(rowDirOffset, colDirOffset);
 }
 
-const std::vector<double> Robot::moveRobotInternal(int rowDirOffset,
-														  int colDirOffset)
+PLEXIL::Value Robot::moveRobotInternal(int rowDirOffset, int colDirOffset)
 {
   int rowCurr, colCurr;
   m_RobotPositionServer->getRobotPosition(m_Name, rowCurr, colCurr);
 
   int rowNext = rowCurr + rowDirOffset;
   int colNext = colCurr + colDirOffset;
-  std::vector<double> result;
+  int32_t result;
   bool traversible = false;
   if ((traversible = m_Terrain->isTraversable(rowCurr, colCurr, rowNext, colNext))
-      && m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext))
-    {
-      setRobotPositionLocal(rowNext, colNext);// local cache for display purposes only
-      updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.1);
-      result.push_back(1.0);
-    }
-  else if (!traversible)
-    {
-      debugMsg("Robot:moveRobot", " Cannot move to desired location due to a fixed obstacle.");
-      result.push_back(0.0);
-    }
-  else
-    {
-      debugMsg("Robot:moveRobot", " Cannot move to desired location due to a dynamic obstacle.");
-      result.push_back(-1.0);
-    }
+      && m_RobotPositionServer->setRobotPosition(m_Name, rowNext, colNext)) {
+    setRobotPositionLocal(rowNext, colNext);// local cache for display purposes only
+    updateRobotEnergyLevel(m_EnergySources->acquireEnergySource(rowNext, colNext) - 0.1);
+    debugMsg("Robot:moveRobot", " Move to " << rowNext << ", " << colNext << " succeeded.");
+    result = 1;
+  }
+  else if (!traversible) {
+    debugMsg("Robot:moveRobot", " Cannot move to desired location due to a fixed obstacle.");
+    result = 0;
+  }
+  else {
+    debugMsg("Robot:moveRobot", " Cannot move to desired location due to a dynamic obstacle.");
+    result = -1;
+  }
   
-  return result;
+  return PLEXIL::Value(result);
 }
 
-const std::vector<double> Robot::moveRandom()
+PLEXIL::Value Robot::moveRandom()
 {
-    int minVal = 0;
-    int maxVal = 3;
+  int minVal = 0;
+  int maxVal = 3;
     
-    int random = minVal + (int) ((double) (maxVal - minVal) * ((double) rand() / (double) RAND_MAX) + 0.5);
-    return moveRobotParameterized(random);    
+  int random = minVal + (int) ((double) (maxVal - minVal) * ((double) rand() / (double) RAND_MAX) + 0.5);
+  return moveRobotParameterized(random);    
 }

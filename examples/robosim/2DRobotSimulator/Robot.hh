@@ -58,7 +58,7 @@ public:
   double determineEnergySourceLevel();
   double determineGoalLevel();
 
-  const std::vector<double> processCommand(const std::string& cmd, int32_t parameter = 0);
+  PLEXIL::Value processCommand(const std::string& cmd, int32_t parameter = 0);
 
 private:
 
@@ -75,21 +75,21 @@ private:
 
   void updateRobotEnergyLevel(double energyLevel);
 
-  const std::vector<double> queryRobotState();
+  PLEXIL::Value queryRobotState();
 
-  const std::vector<double> queryEnergySensor();
+  PLEXIL::Value queryEnergySensor();
 
-  const std::vector<double> queryGoalSensor();
+  PLEXIL::Value queryGoalSensor();
 
-  const std::vector<double> queryVisibility();
+  PLEXIL::Value queryVisibility();
 
-  const std::vector<double> moveRobot(const std::string& cmd);
+  PLEXIL::Value moveRobot(const std::string& cmd);
 
-  const std::vector<double> moveRobotParameterized(int direction);
+  PLEXIL::Value moveRobotParameterized(int direction);
 
-  const std::vector<double> moveRobotInternal(int rowDirOffset, int colDirOffset);
+  PLEXIL::Value moveRobotInternal(int rowDirOffset, int colDirOffset);
 
-  const std::vector<double> moveRandom();
+  PLEXIL::Value moveRandom();
 
   std::vector<std::vector<int> > m_DirOffset;
   const std::string m_Name;

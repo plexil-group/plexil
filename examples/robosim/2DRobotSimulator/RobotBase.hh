@@ -31,6 +31,8 @@
 #include "Goals.hh"
 #include "RobotPositionServer.hh"
 
+#include "Value.hh"
+
 class RobotBase
 {
 public:
@@ -47,7 +49,7 @@ public:
   
   virtual void displayRobot(void) = 0;
 
-  virtual const std::vector<double> processCommand(const std::string& cmd, int32_t parameter) = 0;
+  virtual PLEXIL::Value processCommand(const std::string& cmd, int32_t parameter) = 0;
 
 protected:
   const TerrainBase* m_Terrain;
