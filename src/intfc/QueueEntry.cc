@@ -44,7 +44,7 @@ namespace PLEXIL
   void QueueEntry::initForLookup(State const &st, Value const &val)
   {
     state = new State(st); // have to copy 
-    value = &val;
+    value = val;
     type = Q_LOOKUP;
   }
 
