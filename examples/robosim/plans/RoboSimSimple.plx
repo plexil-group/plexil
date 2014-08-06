@@ -160,23 +160,23 @@
                                  <VariableDeclarations>
                                     <DeclareVariable LineNo="47" ColNo="4">
                                        <Name>res</Name>
-                                       <Type>Real</Type>
+                                       <Type>Integer</Type>
                                     </DeclareVariable>
                                  </VariableDeclarations>
                                  <EndCondition>
                                     <IsKnown>
-                                       <RealVariable>res</RealVariable>
+                                       <IntegerVariable>res</IntegerVariable>
                                     </IsKnown>
                                  </EndCondition>
                                  <PostCondition>
                                     <EQNumeric>
-                                       <RealVariable>res</RealVariable>
-                                       <RealValue>1.0</RealValue>
+                                       <IntegerVariable>res</IntegerVariable>
+                                       <IntegerValue>1</IntegerValue>
                                     </EQNumeric>
                                  </PostCondition>
                                  <NodeBody>
                                     <Command>
-                                       <RealVariable>res</RealVariable>
+                                       <IntegerVariable>res</IntegerVariable>
                                        <Name>
                                           <StringValue>Move</StringValue>
                                        </Name>

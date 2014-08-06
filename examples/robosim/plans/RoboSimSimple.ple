@@ -44,9 +44,9 @@ RoboSimSimple:
 
 			Move:
 			{
-				Real res;
+				Integer res;
 				EndCondition isKnown(res);
-				PostCondition res == 1.0;
+				PostCondition res == 1;
 				res = Move(RobotName, randNumber);
 			}
 
