@@ -71,6 +71,7 @@ namespace PLEXIL
     std::vector<Value> const &getArgValues() const;
     const ResourceValuesList &getResourceValues() const;
     CommandHandleValue getCommandHandle() const {return (CommandHandleValue) m_commandHandle;}
+    bool isActive() const { return m_active; }
 
     // Interface to CommandNode
     void activate();
