@@ -823,11 +823,18 @@ namespace PLEXIL
     PendingCommandsMap::iterator cit = m_pendingCommands.find(rv->requestSerial);
     if (cit != m_pendingCommands.end()) {
       Command *cmd = cit->second;
+      assertTrue_1(cmd);
       size_t nValues = msgs[0]->count;
       if (msgs[1]->count == MSG_COUNT_CMD_ACK) {
         assertTrueMsg(nValues == 1,
                       "IpcAdapter::handleReturnValuesSequence: command ack requires 1 value, received "
                       << nValues);
+        if (!cmd->isActive()) {
+          debugMsg("IpcAdapter:handleReturnValuesSequence",
+                   " ignoring command handle value for inactive command");
+          m_pendingCommands.erase(rv->requestSerial);
+          return;
+        }
         debugMsg("IpcAdapter:handleReturnValuesSequence",
                  " processing command acknowledgment for command " << cmd->getName());
         Value ack = parseReturnValue(msgs);
@@ -839,6 +846,12 @@ namespace PLEXIL
         m_execInterface.notifyOfExternalEvent();
       }
       else {
+        if (!cmd->isActive()) {
+          debugMsg("IpcAdapter:handleReturnValuesSequence",
+                   " ignoring return value for inactive command");
+          m_pendingCommands.erase(rv->requestSerial);
+          return;
+        }
         debugMsg("IpcAdapter:handleReturnValuesSequence",
                  " processing command return value for command " << cmd->getName());
         m_execInterface.handleCommandReturn(cmd, parseReturnValue(msgs));
