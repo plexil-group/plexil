@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,7 @@ int main(int argc, char** argv)
   std::vector<std::string> scriptNames;
   std::string telemetryScriptName("");
   std::string centralhost("localhost:1381");
-  std::string debugConfig("");
+  std::string debugConfig("SimDebug.cfg");
 
   std::string usage("Usage: PlexilSimulator [<script file>]+ [-t <telemetry script file>] [-d <debug config file>] [-central <centralhost>]");
 
