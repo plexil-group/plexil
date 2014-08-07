@@ -36,27 +36,14 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 default: all
 
-# Add GanttListener, robosim later
-all: UniversalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim sample pv
+# Add robosim later
+all: UniversalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim robosim sample pv
 
-# convenience target for AMO project
-amo AMO: exec-core app-framework pv plexil-compiler
-
-TestExec: exec-core PlanDebugListener LuvListener pv
-	$(MAKE) -C src/apps/TestExec
-
-plexilsim: utils ipc IpcUtils
-	$(MAKE) -C src/apps/StandAloneSimulator plexilsim
-
-# Currently broken
-robosim: UniversalExec IpcAdapter
+robosim: 
 	$(MAKE) -C examples/robosim
 
-sample: UniversalExec utils app-framework
+sample:
 	$(MAKE) -C examples/sample-app
-
-universal-exec UniversalExec: exec-core app-framework
-	$(MAKE) -C src/universal-exec
 
 checker:
 	(cd checker && ant jar)
@@ -70,68 +57,18 @@ plexil-compiler:
 plexilscript:
 	(cd compilers/plexilscript && ant install)
 
-pugixml:
-	$(MAKE) -C src/third-party/pugixml/src
+app-framework exec-core GanttListener ipc IpcUtils IpcAdapter LuvListener PlanDebugListener plexilsim pugixml sockets TestExec UdpAdapter universal-exec UniversalExec utils: src/Makefile
+	$(MAKE) -C src
+	$(MAKE) -C src install
 
-utils: pugixml
-	$(MAKE) -C src/utils
+src/Makefile: src/configure
+    cd src && ./configure --prefix=$(PLEXIL_HOME) --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
 
-exec-core: utils
-	$(MAKE) -C src/exec
-
-IpcAdapter: app-framework IpcUtils
-	$(MAKE) -C src/interfaces/IpcAdapter
-
-UdpAdapter: app-framework
-	$(MAKE) -C src/interfaces/UdpAdapter
-
-GanttListener: utils exec-core app-framework
-	$(MAKE) -C src/interfaces/GanttListener
-
-IpcUtils: ipc
-	$(MAKE) -C src/interfaces/IpcUtils
-
-LuvListener: exec-core sockets
-	$(MAKE) -C src/interfaces/LuvListener
-
-PlanDebugListener: exec-core
-	$(MAKE) -C src/interfaces/PlanDebugListener
-
-app-framework: exec-core sockets LuvListener PlanDebugListener
-	$(MAKE) -C src/app-framework
-
-sockets:
-	$(MAKE) -C src/interfaces/Sockets
-
-ipc:
-	$(MAKE) -C src/third-party/ipc \
- PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include \
- THREADED=1 MAKE_SHARED_LIBS=1 SUBDIRS='etc src doc'
-
-clean-ipc:
-	-$(MAKE) -C src/third-party/ipc \
- PUBLIC_BIN_DIR=$(PLEXIL_HOME)/bin PUBLIC_LIB_DIR=$(PLEXIL_HOME)/lib PUBLIC_INC_DIR=$(PLEXIL_HOME)/include \
- clean
-	-$(RM) lib/libipc.*
-
-clean: clean-ipc
+clean:
 	-$(MAKE) -C compilers/plexil $@
 	-$(MAKE) -C examples/robosim $@
 	-$(MAKE) -C examples/sample-app $@
-	-$(MAKE) -C src/third-party/pugixml/src $@
-	-$(MAKE) -C src/utils $@
-	-$(MAKE) -C src/exec $@
-	-$(MAKE) -C src/interfaces/GanttListener $@
-	-$(MAKE) -C src/interfaces/IpcAdapter $@
-	-$(MAKE) -C src/interfaces/IpcUtils $@
-	-$(MAKE) -C src/interfaces/LuvListener $@
-	-$(MAKE) -C src/interfaces/PlanDebugListener $@
-	-$(MAKE) -C src/interfaces/Sockets $@
-	-$(MAKE) -C src/interfaces/UdpAdapter $@
-	-$(MAKE) -C src/app-framework $@
-	-$(MAKE) -C src/universal-exec $@
-	-$(MAKE) -C src/apps/StandAloneSimulator $@
-	-$(MAKE) -C src/apps/TestExec $@
+	-$(MAKE) -C src $@
 	(cd checker && ant $@)
 	(cd compilers/plexilscript && ant $@)
 	(cd viewers/pv && ant $@)
