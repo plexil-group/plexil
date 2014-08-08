@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -201,21 +201,21 @@ public class Constants
       /** Represents the script path for running the "Universal executive" for PLEXIL. */ 
       public static final String    RUN_UE_EXEC = PLEXIL_HOME +
                                               System.getProperty("file.separator") + 
-                                              "bin" + 
+                                              "scripts" + 
                                               System.getProperty("file.separator") + 
                                               UE_SCRIPT;
       
       /** Represents the script path for running the "Test executive" for PLEXIL. */ 
       public static final String    RUN_TEST_EXEC = PLEXIL_HOME +
                                               System.getProperty("file.separator") + 
-                                              "bin" + 
+                                              "scripts" + 
                                               System.getProperty("file.separator") + 
                                               TE_SCRIPT;
       
       /** Represents the script path for running the "Plexil Simulator" for PLEXIL. */ 
       public static final String    RUN_SIMULATOR = PLEXIL_HOME +
                                               System.getProperty("file.separator") + 
-                                              "bin" + 
+                                              "scripts" + 
                                               System.getProperty("file.separator") + 
                                               SIM_SCRIPT;
       
@@ -227,7 +227,7 @@ public class Constants
       /** Represents the python script that is used to create a complete list of debug flag list. */ 
       public static final String    PYTHON_SCRIPT = PLEXIL_HOME +
                                                     System.getProperty("file.separator") +
-                                                    "bin" + 
+                                                    "scripts" + 
                                                     System.getProperty("file.separator") +
                                                     "debugFlagCollector.py";
       
@@ -251,9 +251,9 @@ public class Constants
       /** Represents the user defined list of debug flags. */
       public static final String    DEBUG_CFG_FILE = PLEXIL_HOME +
       												 System.getProperty("file.separator") +
-      												 "src" +
+      												 "viewers" +
                                                      System.getProperty("file.separator") +
-                                                     "luv" + 
+                                                     "pv" + 
                                                      System.getProperty("file.separator") +
                                                      "Debug.cfg";
 
