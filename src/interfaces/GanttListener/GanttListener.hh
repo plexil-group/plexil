@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,9 @@
 #define _H_GanttListener
 
 #include "ExecListener.hh"
+
+#include <map>
+#include <sstream>
 
 namespace PLEXIL
 {

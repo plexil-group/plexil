@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,18 +28,17 @@
 */
 
 #include "GanttListener.hh"
-#include "Node.hh"
-#include "ExecListenerFactory.hh"
-#include "AdapterFactory.hh"
-#include "CoreExpressions.hh"
+
 #include "AdapterExecInterface.hh"
-#include "Expression.hh"
+#include "AdapterFactory.hh"
 #include "Debug.hh"
+#include "ExecListenerFactory.hh"
+#include "Expression.hh"
+#include "Node.hh"
 
 #include <fstream>
 #include <cmath>
 #include <ctime>
-#include <map>
 #include <sys/stat.h>
 
 #include <cstdio>
@@ -295,7 +294,7 @@ namespace PLEXIL
       for (VariableMap::const_iterator it = tempLocalVariablesMap.begin();
          it != tempLocalVariablesMap.end(); ++it) 
       {
-         const string& tempNameString = it->first.toString();
+         const string& tempNameString = it->first;
          string tempValueString = it->second->valueString();
          std::ostringstream tempString;
          tempString << "<br><i>" << tempNameString << "</i>" 
@@ -321,10 +320,7 @@ namespace PLEXIL
       {
          for (vector<Node *>::const_iterator i = tempChildList.begin(); 
             i != tempChildList.end(); i++) 
-         {
-            string tempString = (*i)->getNodeId().toString();
-            myChildNode << tempString << ", ";
-         }
+           myChildNode << (*i)->getNodeId() << ", ";
       }
       return myChildNode.str();
    }
@@ -347,15 +343,12 @@ namespace PLEXIL
 
       m_parent.clear();
 
-      string myId = nodeId->getNodeId().toString();
       double myStartValdbl = ((nodeId->getCurrentStateStartTime()) - m_startTime) * 100;
-      string myType = nodeId->getType().toString();
-      string myVal = nodeId->getStateName().getStringValue();
 
       if (nodeId->getParent())
-         m_parent = nodeId->getParent()->getNodeId().toString();
+         m_parent = nodeId->getParent()->getNodeId();
       if (m_parent.empty()) {
-         m_parent = nodeId->getNodeId().toString();
+         m_parent = nodeId->getNodeId();
       }
 
       m_actualId++; //actualId ensures that looping nodes have the same ID for each token
@@ -371,8 +364,17 @@ namespace PLEXIL
       //get local variables from map in state 'EXECUTING'
       string myLocalVars = getLocalVarInExecStateFromMap(nodeId, myLocalVariableMapValues);
       string myChildren = getChildNode(nodeId); //get child nodes
-      return NodeObj(myStartValdbl, -1, -1, myId, myType, myVal, 
-         m_parent, m_actualId, myLocalVars, myChildren, myLocalVariableMapValues);
+      return NodeObj(myStartValdbl,
+                     -1,
+                     -1,
+                     nodeId->getNodeId(), 
+                     nodeTypeString(nodeId->getType()),
+                     nodeId->getStateName(), 
+                     m_parent,
+                     m_actualId,
+                     myLocalVars,
+                     myChildren,
+                     myLocalVariableMapValues);
    }
 
    static string boldenFinalString(const vector<string>& prevLocalVarsVector, 
@@ -459,7 +461,7 @@ namespace PLEXIL
          for (VariableMap::const_iterator it = tempLocalVariableMapAfter.begin(); 
             it != tempLocalVariableMapAfter.end(); it++) 
          {
-            thisLocalVarsVectorKeys.push_back(it->first.toString());
+            thisLocalVarsVectorKeys.push_back(it->first);
             thisLocalVarsVectorValues.push_back(it->second->valueString());
          }
          processLocalVar(prevLocalVarsVector, thisLocalVarsVectorValues, 
@@ -478,7 +480,7 @@ namespace PLEXIL
       m_nodes[m_index].duration = m_nodes[m_index].end - m_nodes[m_index].start;
       //doesn't exist until node is finished     
       if (nodeId->getParent()) {
-         m_parent = nodeId->getParent()->getNodeId().toString();
+         m_parent = nodeId->getParent()->getNodeId();
       }
       if(m_parent.empty()) {
          m_parent = m_nodes[m_index].name;
@@ -561,11 +563,11 @@ namespace PLEXIL
    {
       // find the node it corresponds to in nodes vector
       int i, size;
-      string tempId = nodeId->getNodeId().toString();
-      string tempType = nodeId->getType().toString();
+      string tempId = nodeId->getNodeId();
+      string const &tempType = nodeTypeString(nodeId->getType());
       string tempParent = "invalid_parent_id";
       if(nodeId->getParent()) {
-         tempParent = nodeId->getParent()->getNodeId().toString();
+         tempParent = nodeId->getParent()->getNodeId();
       }
       size = m_nodes.size();
       for(i = 0; i < size; i++) // tree search
@@ -610,7 +612,7 @@ namespace PLEXIL
       }
 
       debugMsg("GanttViewer:printProgress", "Token added for node " +
-         nodeId->getType().toString() + "." + nodeId->getNodeId().toString());
+               nodeTypeString(nodeId->getType()) + "." + nodeId->getNodeId());
    }   
 
    /** executed when nodes transition state
