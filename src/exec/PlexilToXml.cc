@@ -266,7 +266,8 @@ namespace PLEXIL
     throw(ParserException) 
   {
     xml_node retval = appendElement(LOOKUPCHANGE_TAG, parent);
-    toXml(lookup->tolerance(), retval);
+    if (lookup->tolerance())
+      toXml(lookup->tolerance(), retval);
     return retval;
   }
 
