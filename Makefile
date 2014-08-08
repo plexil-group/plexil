@@ -34,21 +34,20 @@ endif
 
 export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
-default: all
+include makeinclude/standard-defs.make
 
-# Add robosim later
-all: UniversalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim robosim sample pv
+plexil-default: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim robosim sample pv
 
-robosim: 
+robosim: ipc utils
 	$(MAKE) -C examples/robosim
 
-sample:
+sample: universalExec
 	$(MAKE) -C examples/sample-app
 
 checker:
 	(cd checker && ant jar)
 
-pv:
+pv: LuvListener
 	(cd viewers/pv && ant jar)
 
 plexil-compiler:
@@ -57,12 +56,75 @@ plexil-compiler:
 plexilscript:
 	(cd compilers/plexilscript && ant install)
 
-app-framework exec-core GanttListener ipc IpcUtils IpcAdapter LuvListener PlanDebugListener plexilsim pugixml sockets TestExec UdpAdapter universal-exec UniversalExec utils: src/Makefile
+#
+# Targets under the Automake build system
+#
+# Dependencies may be too messy to capture here
+#
+
+app-framework: lib/libPlexilAppFramework.$(SUFSHARE)
+
+exec-core: pugixml utils lib/libPlexilExec.$(SUFSHARE) lib/libPlexilIntfc.$(SUFSHARE) lib/libPlexilExpr.$(SUFSHARE)
+
+GanttListener: lib/libGanttListener.$(SUFSHARE)
+
+ipc: lib/libipc.a bin/central
+
+IpcUtils: lib/libIpcUtils.$(SUFSHARE)
+
+IpcAdapter: lib/libIpcAdapter.$(SUFSHARE)
+
+LuvListener: lib/libLuvListener.$(SUFSHARE)
+
+PlanDebugListener: lib/libPlanDebugListener.$(SUFSHARE)
+
+plexilsim: bin/simulator
+
+pugixml: lib/libpugixml.$(SUFSHARE)
+
+sockets: lib/libPlexilSockets.$(SUFSHARE)
+
+TestExec: bin/TestExec
+
+UdpAdapter: lib/libUdpAdapter.$(SUFSHARE)
+
+universalExec: bin/universalExec 
+
+utils: lib/libPlexilUtils.$(SUFSHARE)
+
+bin/central lib/libIpc.a : most
+bin/simulator : most
+bin/TestExec : most
+bin/universalExec : most
+lib/libGanttListener.$(SUFSHARE) : most
+lib/libipc.a : most
+lib/libIpcAdapter.$(SUFSHARE) : most
+lib/libIpcUtils.$(SUFSHARE) : most
+lib/libLuvListener.$(SUFSHARE) : most
+lib/libPlanDebugListener.$(SUFSHARE) : most
+lib/libPlexilAppFramework.$(SUFSHARE) : most
+lib/libPlexilExec.$(SUFSHARE) : most
+lib/libPlexilExpr.$(SUFSHARE) : most
+lib/libPlexilIntfc.$(SUFSHARE) : most
+lib/libPlexilSockets.$(SUFSHARE) : most
+lib/libPlexilUtils.$(SUFSHARE) : most
+lib/libpugixml.$(SUFSHARE) : most
+lib/libUdpAdapter.$(SUFSHARE) : most
+
+most: most-build most-install
+
+most-build: src/Makefile
 	$(MAKE) -C src
+
+most-install: most-build src/Makefile
 	$(MAKE) -C src install
 
-src/Makefile: src/configure
-    cd src && ./configure --prefix=$(PLEXIL_HOME) --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+src/Makefile: src/configure src/Makefile.am
+	cd ./src && ./configure --prefix=$(PLEXIL_HOME) --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+
+#
+# End Automake targets
+#
 
 clean:
 	-$(MAKE) -C compilers/plexil $@
@@ -72,7 +134,7 @@ clean:
 	(cd checker && ant $@)
 	(cd compilers/plexilscript && ant $@)
 	(cd viewers/pv && ant $@)
-	-$(RM) lib/lib*
+	-$(RM) lib/lib* bin/*
 	@ echo Done.
 
 # Convenience targets
@@ -91,3 +153,7 @@ jtags:
 
 alltags:
 	@ find . \( -name "*.cc" -or -name "*.cpp" -or -name "*.hh" -or -name "*.hpp" -or -name "*.java" -or -name "*.xml" -or -name Makefile \) | etags -
+
+.PHONY: app-framework exec-core GanttListener ipc IpcAdapter IpcUtils 
+
+.PHONY: alltags clean ctags jtags most most-build most-install plexil-default tags
