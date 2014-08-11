@@ -123,7 +123,10 @@ using std::memmove;
 #endif
 
 // uintptr_t
-#if !defined(_MSC_VER) || _MSC_VER >= 1600
+#if defined(__VXWORKS__)
+#include <vxWorks.h>
+typedef size_t uintptr_t;
+#elif !defined(_MSC_VER) || _MSC_VER >= 1600
 #	include <stdint.h>
 #else
 #	ifndef _UINTPTR_T_DEFINED
