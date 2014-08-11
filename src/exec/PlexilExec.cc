@@ -436,7 +436,10 @@ namespace PLEXIL
     checkError(m_stateChangeQueue.empty(), "State change queue not empty at entry");
 
     unsigned int stepCount = 0;
+#ifndef NO_DEBUG_MESSAGE_SUPPORT
+    // Only used in debugMsg calls
     unsigned int cycleNum = g_interface->getCycleCount();
+#endif
     debugMsg("PlexilExec:cycle", "==>Start cycle " << cycleNum);
 
     // BEGIN QUIESCENCE LOOP
