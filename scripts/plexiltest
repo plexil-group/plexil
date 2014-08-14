@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -199,7 +199,7 @@ done
 # Check if user typed invalid plan
 if [ ! -e "$plan_name" ] || [ "$plan_name" = "" ]
   then
-        echo Error: Plan $plan_name, does not exist.
+        echo Error: Plan $plan_name does not exist.
         exit 1    
 fi
 
@@ -341,10 +341,7 @@ if [ $quiet -eq 0 ]
 fi
 
 if [ "$automate" = "true" ]
-  then    
-    $prog $plan_cmd -s $script_name $debug_file $library_dirs $libraries $err $warning $log_file $viewer $host $port $block &
-    echo "RUN_UE_PID$!"
-    trap "{ kill $!; }" SIGINT
-  else     
-    $prog $plan_cmd -s $script_name $debug_file $library_dirs $libraries $err $warning $log_file $viewer $host $port $block
+then    
+    echo "RUN_TE_PID$$"
 fi
+exec $prog $plan_cmd -s $script_name $debug_file $library_dirs $libraries $err $warning $log_file $viewer $host $port $block

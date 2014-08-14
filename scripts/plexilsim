@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -208,8 +208,7 @@ sleep 2
 
 if [ "$automate" = "true" ]
   then    
-    plexilexec $plan_cmd $config_cmd $debug_file $viewer $host_in $port_in $block $library_dirs $libraries &    
-    echo "RUN_UE_PID$!"
+    plexilexec -a $plan_cmd $config_cmd $debug_file $viewer $host_in $port_in $block $library_dirs $libraries &    
     trap "{ kill $!; }" SIGINT
     trap "{ kill $!; }" SIGQUIT    
   else     
