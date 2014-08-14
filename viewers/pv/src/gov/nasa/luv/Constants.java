@@ -240,11 +240,7 @@ public class Constants
       /** Represents the complete list of debug flags. */ 
       public static final String    COMPLETE_FLAG_LIST = PLEXIL_HOME +
                                                          System.getProperty("file.separator") +
-                                                         "src" + 
-                                                         System.getProperty("file.separator") +
-                                                         "utils" + 
-                                                         System.getProperty("file.separator") +
-                                                         "test" + 
+                                                         "doc" + 
                                                          System.getProperty("file.separator") +
                                                          "CompleteDebugFlags.cfg";
       
