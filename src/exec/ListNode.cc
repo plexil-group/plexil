@@ -294,31 +294,6 @@ namespace PLEXIL
 #endif
   }
 
-  // N.B. The end condition constructed below can be overridden by the user
-  void ListNode::createSpecializedConditions()
-  {
-    std::vector<Expression *> stateVars;
-    size_t nkids = m_children.size();
-    stateVars.reserve(nkids);
-    for (size_t i = 0; i < nkids; ++i)
-      stateVars.push_back(m_children[i]->getStateVariable());
-    std::vector<bool> notGarbage(nkids, false);
-
-    Expression *cond =
-      new Function(AllWaitingOrFinished::instance(),
-                   makeExprVec(stateVars, notGarbage));
-    cond->addListener(&m_listener);
-    m_conditions[actionCompleteIdx] = cond;
-    m_garbageConditions[actionCompleteIdx] = true;
-
-    Expression *endCond =
-      new Function(AllFinished::instance(),
-                   makeExprVec(stateVars, notGarbage));
-    endCond->addListener(&m_listener);
-    m_conditions[endIdx] = endCond;
-    m_garbageConditions[endIdx] = true;
-  }
-
   void ListNode::specializedPostInitLate(PlexilNode const *node)
   {
     //call postInit on all children
@@ -334,8 +309,23 @@ namespace PLEXIL
   }
 
   // Create the ancestor end, ancestor exit, and ancestor invariant conditions required by children
+  // This method is called after all user-spec'd conditions have been instantiated
   void ListNode::createConditionWrappers()
   {
+    std::vector<Expression *> stateVars;
+    size_t nkids = m_children.size();
+    stateVars.reserve(nkids);
+    for (size_t i = 0; i < nkids; ++i)
+      stateVars.push_back(m_children[i]->getStateVariable());
+    std::vector<bool> notGarbage(nkids, false);
+
+    // Not really a "wrapper", but this is best place to add it.
+    Expression *cond =
+      new Function(AllWaitingOrFinished::instance(),
+                   makeExprVec(stateVars, notGarbage));
+    m_conditions[actionCompleteIdx] = cond;
+    m_garbageConditions[actionCompleteIdx] = true;
+
     if (m_parent) {
       if (getExitCondition()) {
         if (getAncestorExitCondition()) {
@@ -369,6 +359,7 @@ namespace PLEXIL
       else 
         m_conditions[ancestorInvariantIdx] = getAncestorInvariantCondition(); // could be null
 
+      // End is special
       if (getEndCondition()) {
         if (getAncestorEndCondition()) {
           m_conditions[ancestorEndIdx] =
@@ -382,14 +373,45 @@ namespace PLEXIL
         else
           m_conditions[ancestorEndIdx] = getEndCondition();
       }
-      else
-        m_conditions[ancestorEndIdx] = getAncestorExitCondition(); // could be null
+      else {
+        // No user-spec'd end condition - build one
+        m_conditions[endIdx] =
+          new Function(AllFinished::instance(),
+                       makeExprVec(stateVars, notGarbage));
+        m_garbageConditions[endIdx] = true;
+        // *** N.B. ***
+        // Normally ancestor-end is our end condition ORed with parent's ancestor-end.
+        // But default all-children-finished end condition will always be false
+        // when child evaluates ancestor-end.
+        // See node state transition diagrams for proof.
+        // Since false OR <anything> == <anything>,
+        // just use parent's ancestor-end (which may be empty).
+        m_conditions[ancestorEndIdx] = getAncestorEndCondition();
+      }
     }
     else {
-      // Simply reuse existing conditions
+      // No parent - simply reuse existing conditions, if any
       m_conditions[ancestorExitIdx] = m_conditions[exitIdx]; // could be null
       m_conditions[ancestorInvariantIdx] = m_conditions[invariantIdx]; // could be null
-      m_conditions[ancestorEndIdx] = m_conditions[endIdx]; // could be null
+      // End is special
+      if (m_conditions[endIdx]) {
+        // User-spec'd end condition doubles as ancestor-end
+        m_conditions[ancestorEndIdx] = m_conditions[endIdx];
+      }
+      else {
+        // No user-spec'd end condition - build one
+        m_conditions[endIdx] =           
+          new Function(AllFinished::instance(),
+                       makeExprVec(stateVars, notGarbage));
+        m_garbageConditions[endIdx] = true;
+        // *** N.B. ***
+        // Normally for root nodes, ancestor-end is same as end. 
+        // But default all-children-finished end condition will always be false
+        // when child evaluates ancestor-end.
+        // See node state transition diagrams for proof.
+        // So if no parent and no user end condition, just leave ancestor-end empty.
+        m_conditions[ancestorEndIdx] = NULL;
+      }
     }
   }
 

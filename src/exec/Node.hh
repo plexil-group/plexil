@@ -436,7 +436,6 @@ namespace PLEXIL {
     // Specific behaviors for derived classes
     virtual void specializedPostInit(PlexilNode const *node);
     virtual void specializedPostInitLate(PlexilNode const *node);
-    virtual void createSpecializedConditions();
     virtual void createConditionWrappers();
     virtual void specializedActivate();
     virtual void specializedActivateInternalVariables();

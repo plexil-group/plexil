@@ -121,7 +121,6 @@ namespace PLEXIL
 
     // Create action-complete condition
     Expression *actionComplete = m_update->getAck();
-    actionComplete->addListener(&m_listener);
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = false;
   }
@@ -137,20 +136,16 @@ namespace PLEXIL
     if (!(m_conditions[endIdx]) || m_conditions[endIdx] == TRUE_EXP()) {
       // Default - don't wrap, replace - (True && anything) == anything
       m_conditions[endIdx] = ack;
-      ack->addListener(&m_listener);
       m_garbageConditions[endIdx] = false;
     }
     else {
       // Wrap user-provided condition
-      removeConditionListener(endIdx);
-      Expression *realEnd =
+      m_conditions[endIdx] =
         new Function(BooleanAnd::instance(),
                      ack,
                      m_conditions[endIdx],
                      false,
                      m_garbageConditions[endIdx]);
-      realEnd->addListener(&m_listener);
-      m_conditions[endIdx] = realEnd;
       m_garbageConditions[endIdx] = true;
     }
   }

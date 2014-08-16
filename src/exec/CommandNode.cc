@@ -180,13 +180,11 @@ namespace PLEXIL
       new Function(IsKnown::instance(),
                    makeExprVec(std::vector<Expression *>(1, m_command->getAck()),
                                std::vector<bool>(1, false)));
-    actionComplete->addListener(&m_listener);
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = true;
 
     // Construct command-aborted condition
     Expression *commandAbort = m_command->getAbortComplete();
-    commandAbort->addListener(&m_listener);
     m_conditions[abortCompleteIdx] = commandAbort;
     m_garbageConditions[abortCompleteIdx] = false;
   }
@@ -196,8 +194,7 @@ namespace PLEXIL
     // No need to wrap if end condition is default - (True || anything) == True
     if (m_conditions[endIdx] && m_conditions[endIdx] != TRUE_EXP()) {
       // Construct real end condition by wrapping existing
-      removeConditionListener(endIdx);
-      Expression *realEndCondition =
+      m_conditions[endIdx] = 
         new Function(BooleanOr::instance(),
                      new Function(CommandHandleInterruptible::instance(),
                                   m_command->getAck(),
@@ -205,9 +202,6 @@ namespace PLEXIL
                      m_conditions[endIdx],
                      true,
                      m_garbageConditions[endIdx]);
-
-      realEndCondition->addListener(&m_listener);
-      m_conditions[endIdx] = realEndCondition;
       m_garbageConditions[endIdx] = true;
     }
   }

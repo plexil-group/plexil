@@ -97,13 +97,11 @@ namespace PLEXIL
 
     // Set action-complete condition
     Expression *ack = m_assignment->getAck();
-    ack->addListener(&m_listener);
     m_conditions[actionCompleteIdx] = ack;
     m_garbageConditions[actionCompleteIdx] = false;
 
     // Set abort-complete condition
     Expression *abortComplete = m_assignment->getAbortComplete();
-    abortComplete->addListener(&m_listener);
     m_conditions[abortCompleteIdx] = abortComplete;
     m_garbageConditions[abortCompleteIdx] = false;
   }

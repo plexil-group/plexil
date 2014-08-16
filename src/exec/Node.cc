@@ -456,44 +456,25 @@ namespace PLEXIL {
 
   void Node::createConditions(const std::vector<std::pair<PlexilExpr *, std::string> >& conds) 
   {
-    // Attach listeners to ancestor invariant and ancestor end conditions
-    // Root node doesn't need them because the default conditions are constants
-    if (m_parent) {
-      Expression *ancestorExit = getAncestorExitCondition();
-      if (ancestorExit)
-        ancestorExit->addListener(&m_listener);
-
-      Expression *ancestorInvariant = getAncestorInvariantCondition();
-      if (ancestorInvariant)
-        ancestorInvariant->addListener(&m_listener);
-
-      Expression *ancestorEnd = getAncestorEndCondition();
-      if (ancestorEnd)
-        ancestorEnd->addListener(&m_listener);
-    }
-
-    // Let the derived class do its thing (currently only ListNode)
-    createSpecializedConditions();
-
     // Add user-specified conditions
     for (std::vector<std::pair <PlexilExpr *, std::string> >::const_iterator it = conds.begin(); 
          it != conds.end(); 
          ++it) {
       size_t condIdx = getConditionIndex(it->second);
-      if (m_conditions[condIdx]) {
-        // Delete existing condition if required
-        // (e.g. explicit override of default end condition for list or library call node)
-        removeConditionListener(condIdx);
-        if (m_garbageConditions[condIdx]) {
-          delete (Expression*) m_conditions[condIdx];
-          m_garbageConditions[condIdx] = false;
-        }
-      }
-
       m_conditions[condIdx] = 
         createExpression(it->first, this, m_garbageConditions[condIdx]);
+    }
 
-      // Add listener
+    // Create conditions that may wrap user-defined conditions
+    createConditionWrappers();
+
+    //
+    // *** N.B. ***
+    // This should be the only place where listeners are added to conditions.
+    //
+
+    // Add listeners to local conditions
+    for (size_t condIdx = skipIdx; condIdx < conditionIndexMax; ++condIdx)
       switch (condIdx) {
 
       case postIdx:
@@ -501,18 +482,26 @@ namespace PLEXIL {
         break; // these conditions don't need listeners
 
       default:
-        m_conditions[condIdx]->addListener(&m_listener);
+        if (m_conditions[condIdx])
+          m_conditions[condIdx]->addListener(&m_listener);
         break;
       }
+
+    // Attach listeners to ancestor invariant and ancestor end conditions
+    // Root node doesn't need them because the default conditions are constants
+    if (m_parent) {
+      Expression *ancestorCond = getAncestorExitCondition();
+      if (ancestorCond)
+        ancestorCond->addListener(&m_listener);
+
+      ancestorCond = getAncestorInvariantCondition();
+      if (ancestorCond)
+        ancestorCond->addListener(&m_listener);
+
+      ancestorCond = getAncestorEndCondition();
+      if (ancestorCond)
+        ancestorCond->addListener(&m_listener);
     }
-
-    // Create conditions that may wrap user-defined conditions
-    createConditionWrappers();
-  }
-
-  // Default method
-  void Node::createSpecializedConditions()
-  {
   }
 
   // Default method
@@ -535,7 +524,7 @@ namespace PLEXIL {
     debugMsg("Node:~Node", " base class destructor for " << m_nodeId);
 
     // Remove conditions as they may refer to variables, either ours or another node's
-    // Derived classes should also call this
+    // Derived classes' destructors should also call this
     cleanUpConditions();
 
     // cleanUpNodeBody(); // NOT USEFUL here - derived classes MUST call this!
