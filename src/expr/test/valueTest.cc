@@ -43,7 +43,7 @@ static bool testConstructorsAndAccessors()
   assertTrue_1(boolv.getValue(tempb));
   assertTrue_1(tempb);
 
-  Value intv(42);
+  Value intv((int32_t) 42);
   assertTrue_1(intv.isKnown());
   assertTrue_1(INTEGER_TYPE == intv.valueType());
   int32_t tempi;
@@ -186,7 +186,7 @@ static bool testEquality()
   // Basics
   Value unkv, tempv; // both type & value unknown
   Value boolv(true);
-  Value intv(42);
+  Value intv((int32_t) 42);
   Value realv(2.5);
   std::string foo("Foo");
   Value stringv(foo);
@@ -932,8 +932,8 @@ static bool testLessThan()
   assertTrue_1(!(falls < unkstr));
   assertTrue_1(!(troo < unkstr));
 
-  Value fortytwo(42);
-  Value fortythree(43);
+  Value fortytwo((int32_t) 42);
+  Value fortythree((int32_t) 43);
   assertTrue_1(!(fortytwo < fortytwo));
   assertTrue_1(!(fortythree < fortythree));
   assertTrue_1(fortytwo < fortythree);

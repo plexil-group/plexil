@@ -239,7 +239,7 @@ static bool testAllElementsKnown()
   assertTrue_1(!temp);
 
   // Assign elements and try again
-  IntegerVariable index(0);
+  IntegerVariable index((int32_t) 0);
   MutableArrayReference bref(&bav, &index);
   MutableArrayReference iref(&iav, &index);
   MutableArrayReference rref(&rav, &index);
@@ -251,8 +251,8 @@ static bool testAllElementsKnown()
   sref.activate();
 
   bref.setValue(false);
-  iref.setValue(0);
-  rref.setValue(0);
+  iref.setValue((int32_t) 0);
+  rref.setValue(0.0);
   sref.setValue(std::string(""));
 
   assertTrue_1(bl.getValue(temp));
@@ -265,10 +265,10 @@ static bool testAllElementsKnown()
   assertTrue_1(!temp);
 
   // Set other element and try again
-  index.setValue(1);
+  index.setValue((int32_t) 1);
   bref.setValue(false);
-  iref.setValue(0);
-  rref.setValue(0);
+  iref.setValue((int32_t) 0);
+  rref.setValue(0.0);
   sref.setValue(std::string(""));
 
   assertTrue_1(bl.getValue(temp));
@@ -380,7 +380,7 @@ static bool testAnyElementsKnown()
   assertTrue_1(!temp);
 
   // Assign elements and try again
-  IntegerVariable index(0);
+  IntegerVariable index((int32_t) 0);
   MutableArrayReference bref(&bav, &index);
   MutableArrayReference iref(&iav, &index);
   MutableArrayReference rref(&rav, &index);
@@ -392,8 +392,8 @@ static bool testAnyElementsKnown()
   sref.activate();
 
   bref.setValue(false);
-  iref.setValue(0);
-  rref.setValue(0);
+  iref.setValue((int32_t) 0);
+  rref.setValue(0.0);
   sref.setValue(std::string(""));
 
   assertTrue_1(bl.getValue(temp));
@@ -406,10 +406,10 @@ static bool testAnyElementsKnown()
   assertTrue_1(temp);
 
   // Set other element and try again
-  index.setValue(1);
+  index.setValue((int32_t) 1);
   bref.setValue(false);
-  iref.setValue(0);
-  rref.setValue(0);
+  iref.setValue((int32_t) 0);
+  rref.setValue(0.0);
   sref.setValue(std::string(""));
 
   assertTrue_1(bl.getValue(temp));

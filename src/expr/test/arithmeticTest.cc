@@ -77,7 +77,7 @@ bool additionTest()
   assertTrue_1(!iadd2_2.getValue(tempi));
   assertTrue_1(!iadd2_3.getValue(tempi));
 
-  i.setValue(5);
+  i.setValue((int32_t) 5);
   // should be known now
   assertTrue_1(iadd2_2.getValue(tempi));
   assertTrue_1(tempi == 6);
@@ -117,7 +117,7 @@ bool additionTest()
   assertTrue_1(!iadd3_2.getValue(tempi));
   assertTrue_1(!iadd3_3.getValue(tempi));
 
-  i.setValue(27);
+  i.setValue((int32_t) 27);
   // should be known now
   assertTrue_1(iadd3_2.getValue(tempi));
   assertTrue_1(tempi == 31);
@@ -255,7 +255,7 @@ bool additionTest()
   assertTrue_1(!madd2_2.getValue(tempr));
   assertTrue_1(!madd2_3.getValue(tempr));
 
-  i.setValue(42);
+  i.setValue((int32_t) 42);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(madd2_2.getValue(tempr));
@@ -297,7 +297,7 @@ bool additionTest()
   assertTrue_1(!madd3_2.getValue(tempr));
   assertTrue_1(!madd3_3.getValue(tempr));
 
-  i.setValue(42);
+  i.setValue((int32_t) 42);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(madd3_2.getValue(tempr));
@@ -343,7 +343,7 @@ bool subtractionTest()
   // Should be unknown because i not initialized yet
   assertTrue_1(!isub1_3.getValue(tempi));
 
-  i.setValue(7);
+  i.setValue((int32_t) 7);
   // should be known now
   assertTrue_1(isub1_3.getValue(tempi));
   assertTrue_1(tempi == -7);
@@ -386,7 +386,7 @@ bool subtractionTest()
   assertTrue_1(!isub2_2.getValue(tempi));
   assertTrue_1(!isub2_3.getValue(tempi));
 
-  i.setValue(5);
+  i.setValue((int32_t) 5);
   // should be known now
   assertTrue_1(isub2_2.getValue(tempi));
   assertTrue_1(tempi == 4);
@@ -426,7 +426,7 @@ bool subtractionTest()
   assertTrue_1(!isub3_2.getValue(tempi));
   assertTrue_1(!isub3_3.getValue(tempi));
 
-  i.setValue(27);
+  i.setValue((int32_t) 27);
   // should be known now
   assertTrue_1(isub3_2.getValue(tempi));
   assertTrue_1(tempi == -29);
@@ -565,7 +565,7 @@ bool subtractionTest()
   // Should be unknown because i unknown
   assertTrue_1(!msub1_3.getValue(tempr));
 
-  i.setValue(7);
+  i.setValue((int32_t) 7);
   // should be known now
   assertTrue_1(msub1_3.getValue(tempr));
   assertTrue_1(tempr == -7);
@@ -598,7 +598,7 @@ bool subtractionTest()
   assertTrue_1(!msub2_2.getValue(tempr));
   assertTrue_1(!msub2_3.getValue(tempr));
 
-  i.setValue(42);
+  i.setValue((int32_t) 42);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(msub2_2.getValue(tempr));
@@ -640,7 +640,7 @@ bool subtractionTest()
   assertTrue_1(!msub3_2.getValue(tempr));
   assertTrue_1(!msub3_3.getValue(tempr));
 
-  i.setValue(42);
+  i.setValue((int32_t) 42);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(msub3_2.getValue(tempr));
@@ -693,7 +693,7 @@ bool multiplicationTest()
   assertTrue_1(!imul2_2.getValue(tempi));
   assertTrue_1(!imul2_3.getValue(tempi));
 
-  i.setValue(5);
+  i.setValue((int32_t) 5);
   // should be known now
   assertTrue_1(imul2_2.getValue(tempi));
   assertTrue_1(tempi == 30);
@@ -733,7 +733,7 @@ bool multiplicationTest()
   assertTrue_1(!imul3_2.getValue(tempi));
   assertTrue_1(!imul3_3.getValue(tempi));
 
-  i.setValue(2);
+  i.setValue((int32_t) 2);
   // should be known now
   assertTrue_1(imul3_2.getValue(tempi));
   assertTrue_1(tempi == 36);
@@ -813,7 +813,7 @@ bool multiplicationTest()
   assertTrue_1(!rmul3_2.getValue(tempr));
   assertTrue_1(!rmul3_3.getValue(tempr));
 
-  x.setValue(8);
+  x.setValue((int32_t) 8);
   // should be known now
   assertTrue_1(rmul3_2.getValue(tempr));
   assertTrue_1(tempr == 80);
@@ -852,7 +852,7 @@ bool multiplicationTest()
   assertTrue_1(!mmul2_2.getValue(tempr));
   assertTrue_1(!mmul2_3.getValue(tempr));
 
-  i.setValue(2);
+  i.setValue((int32_t) 2);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(mmul2_2.getValue(tempr));
@@ -894,7 +894,7 @@ bool multiplicationTest()
   assertTrue_1(!mmul3_2.getValue(tempr));
   assertTrue_1(!mmul3_3.getValue(tempr));
 
-  i.setValue(2);
+  i.setValue((int32_t) 2);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(mmul3_2.getValue(tempr));
@@ -942,7 +942,7 @@ bool divisionTest()
   assertTrue_1(!idiv2_2.getValue(tempi));
   assertTrue_1(!idiv2_3.getValue(tempi));
 
-  i.setValue(2);
+  i.setValue((int32_t) 2);
   // should be known now
   assertTrue_1(idiv2_2.getValue(tempi));
   assertTrue_1(tempi == 0);
@@ -1018,7 +1018,7 @@ bool divisionTest()
   assertTrue_1(!mdiv2_2.getValue(tempr));
   assertTrue_1(!mdiv2_3.getValue(tempr));
 
-  i.setValue(5);
+  i.setValue((int32_t) 5);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(mdiv2_2.getValue(tempr));
@@ -1066,7 +1066,7 @@ bool moduloTest()
   assertTrue_1(!imod2_2.getValue(tempi));
   assertTrue_1(!imod2_3.getValue(tempi));
 
-  i.setValue(5);
+  i.setValue((int32_t) 5);
   assertTrue_1(imod2_2.getValue(tempi));
   assertTrue_1(tempi == 2);
   assertTrue_1(imod2_3.getValue(tempi));
@@ -1105,7 +1105,7 @@ bool moduloTest()
   assertTrue_1(!dmod2_2.getValue(tempd));
   assertTrue_1(!dmod2_3.getValue(tempd));
 
-  x.setValue(5);
+  x.setValue((int32_t) 5);
   assertTrue_1(dmod2_2.getValue(tempd));
   assertTrue_1(tempd == 2);
   assertTrue_1(dmod2_3.getValue(tempd));
@@ -1157,7 +1157,7 @@ bool minimumTest()
   assertTrue_1(!imin2_2.getValue(tempi));
   assertTrue_1(!imin2_3.getValue(tempi));
 
-  i.setValue(5);
+  i.setValue((int32_t) 5);
   // should be known now
   assertTrue_1(imin2_2.getValue(tempi));
   assertTrue_1(tempi == 1);
@@ -1197,7 +1197,7 @@ bool minimumTest()
   assertTrue_1(!imin3_2.getValue(tempi));
   assertTrue_1(!imin3_3.getValue(tempi));
 
-  i.setValue(27);
+  i.setValue((int32_t) 27);
   // should be known now
   assertTrue_1(imin3_2.getValue(tempi));
   assertTrue_1(tempi == 1);
@@ -1317,7 +1317,7 @@ bool minimumTest()
   assertTrue_1(!mmin2_2.getValue(tempr));
   assertTrue_1(!mmin2_3.getValue(tempr));
 
-  i.setValue(42);
+  i.setValue((int32_t) 42);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(mmin2_2.getValue(tempr));
@@ -1359,7 +1359,7 @@ bool minimumTest()
   assertTrue_1(!mmin3_2.getValue(tempr));
   assertTrue_1(!mmin3_3.getValue(tempr));
 
-  i.setValue(42);
+  i.setValue((int32_t) 42);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(mmin3_2.getValue(tempr));
@@ -1411,7 +1411,7 @@ bool maximumTest()
   assertTrue_1(!imax2_2.getValue(tempi));
   assertTrue_1(!imax2_3.getValue(tempi));
 
-  i.setValue(5);
+  i.setValue((int32_t) 5);
   // should be known now
   assertTrue_1(imax2_2.getValue(tempi));
   assertTrue_1(tempi == 5);
@@ -1451,7 +1451,7 @@ bool maximumTest()
   assertTrue_1(!imax3_2.getValue(tempi));
   assertTrue_1(!imax3_3.getValue(tempi));
 
-  i.setValue(27);
+  i.setValue((int32_t) 27);
   // should be known now
   assertTrue_1(imax3_2.getValue(tempi));
   assertTrue_1(tempi == 27);
@@ -1570,7 +1570,7 @@ bool maximumTest()
   assertTrue_1(!mmax2_2.getValue(tempr));
   assertTrue_1(!mmax2_3.getValue(tempr));
 
-  i.setValue(42);
+  i.setValue((int32_t) 42);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(mmax2_2.getValue(tempr));
@@ -1612,7 +1612,7 @@ bool maximumTest()
   assertTrue_1(!mmax3_2.getValue(tempr));
   assertTrue_1(!mmax3_3.getValue(tempr));
 
-  i.setValue(42);
+  i.setValue((int32_t) 42);
   x.setValue(-0.5);
   // should be known now
   assertTrue_1(mmax3_2.getValue(tempr));
@@ -1653,7 +1653,7 @@ bool absTest()
   
   assertTrue_1(!iabs3.getValue(tempi));
 
-  i.setValue(-22);
+  i.setValue((int32_t) -22);
   assertTrue_1(iabs3.getValue(tempi));
   assertTrue_1(tempi == 22);
 
@@ -1711,7 +1711,7 @@ bool absTest()
   
   assertTrue_1(!mabs3.getValue(tempr));
 
-  i.setValue(14);
+  i.setValue((int32_t) 14);
   assertTrue_1(mabs3.getValue(tempr));
   assertTrue_1(tempr == 14);
 
@@ -1778,7 +1778,7 @@ bool sqrtTest()
   
   assertTrue_1(!msqrt3.getValue(tempr));
 
-  i.setValue(49);
+  i.setValue((int32_t) 49);
   assertTrue_1(msqrt3.getValue(tempr));
   assertTrue_1(tempr == 7);
 

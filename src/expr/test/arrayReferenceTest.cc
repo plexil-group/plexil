@@ -834,7 +834,7 @@ bool testArrayRefNotification()
   bvChanged = ivChanged = dvChanged = svChanged = false;
   barChanged = iarChanged = darChanged = sarChanged = false;
 
-  ivar.setValue(0);
+  ivar.setValue((int32_t) 0);
   assertTrue_1(ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -1040,7 +1040,7 @@ bool testMutableNotification()
   bvChanged = ivChanged = dvChanged = svChanged = false;
   barChanged = iarChanged = darChanged = sarChanged = false;
 
-  ivar.setValue(0);
+  ivar.setValue((int32_t) 0);
   assertTrue_1(ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);
@@ -1117,7 +1117,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
 
   bvChanged = barChanged = false;
-  iar.setValue(4);
+  iar.setValue((int32_t) 4);
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(ivChanged);
@@ -1129,7 +1129,7 @@ bool testMutableNotification()
   assertTrue_1(!sarChanged);
 
   ivChanged = iarChanged = false;
-  dar.setValue(4);
+  dar.setValue(4.0);
   assertTrue_1(!ivarChanged);
   assertTrue_1(!bvChanged);
   assertTrue_1(!ivChanged);

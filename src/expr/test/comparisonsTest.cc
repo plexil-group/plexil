@@ -70,7 +70,7 @@ static bool testIsKnown()
 
   // Set variables and try again
   varb.setValue(true);
-  vari.setValue(93);
+  vari.setValue((int32_t) 93);
   varr.setValue(27.1);
   vars.setValue(std::string("Oop"));
 
@@ -649,7 +649,7 @@ static bool testInteger()
   assertTrue_1(!intLe6.getValue(tempb));
 
   // Set vari and try again
-  vari.setValue(2);
+  vari.setValue((int32_t) 2);
     
   // 1 ? vari
   assertTrue_1(intEq5.getValue(tempb));
@@ -679,7 +679,7 @@ static bool testInteger()
   assertTrue_1(intLe6.getValue(tempb));
   assertTrue_1(tempb);
 
-  vari.setValue(1);
+  vari.setValue((int32_t) 1);
 
   // 1 ? vari
   assertTrue_1(intEq5.getValue(tempb));
@@ -709,7 +709,7 @@ static bool testInteger()
   assertTrue_1(intLe6.getValue(tempb));
   assertTrue_1(tempb);
 
-  vari.setValue(-1);
+  vari.setValue((int32_t) -1);
 
   // 1 ? vari
   assertTrue_1(intEq5.getValue(tempb));
@@ -923,7 +923,7 @@ static bool testReal()
   assertTrue_1(!dblLe6.getValue(tempb));
 
   // Set varr and try again
-  varr.setValue(2);
+  varr.setValue((int32_t) 2);
 
   // 1 ? 2
   assertTrue_1(dblEq5.getValue(tempb));
@@ -953,7 +953,7 @@ static bool testReal()
   assertTrue_1(dblLe6.getValue(tempb));
   assertTrue_1(tempb);
 
-  varr.setValue(1);
+  varr.setValue((int32_t) 1);
   // 1 ? 1
   assertTrue_1(dblEq5.getValue(tempb));
   assertTrue_1(tempb);
@@ -982,7 +982,7 @@ static bool testReal()
   assertTrue_1(dblLe6.getValue(tempb));
   assertTrue_1(tempb);
 
-  varr.setValue(-1);
+  varr.setValue((int32_t) -1);
   // 1 ? -1
   assertTrue_1(dblEq5.getValue(tempb));
   assertTrue_1(!tempb);

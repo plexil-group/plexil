@@ -387,7 +387,7 @@ static bool testAliasToScalarVariable()
   assertTrue_1(atroo.getValue(tba));
   assertTrue_1(tb == tba);
 
-  watree.setValue(42);
+  watree.setValue((int32_t) 42);
   assertTrue_1(tree.getValue(ti));
   assertTrue_1(ti == 42);
   assertTrue_1(watree.getValue(tia));
@@ -662,7 +662,7 @@ static bool testAliasToArrayVariable()
   asar.activate();
   wasar.activate();
 
-  ix.setValue(0);
+  ix.setValue((int32_t) 0);
 
   assertTrue_1(bar.getValue(bt1));
   assertTrue_1(!bt1);
@@ -771,7 +771,7 @@ static bool testAliasToArrayVariable()
   assertTrue_1(wabar.getValue(bt2));
   assertTrue_1(bt1 == bt2);
 
-  waiar.setValue(42);
+  waiar.setValue((int32_t) 42);
   assertTrue_1(iar.getValue(it1));
   assertTrue_1(it1 == 42);
   assertTrue_1(aiar.getValue(it2));
@@ -884,7 +884,7 @@ static bool testAliasToArrayReference()
   wsar.activate();
 
   // Set the index
-  ix.setValue(1);
+  ix.setValue((int32_t) 1);
 
   // Check that aliases are inactive and unknown
   assertTrue_1(!abar.isActive());
@@ -1000,7 +1000,7 @@ static bool testAliasToArrayReference()
   assertTrue_1(*stp1 == *stp2);
 
   // Change index, ensure value tracks
-  ix.setValue(0);
+  ix.setValue((int32_t) 0);
 
   assertTrue_1(bar.getValue(bt1));
   assertTrue_1(!bt1);
@@ -1058,7 +1058,7 @@ static bool testAliasToArrayReference()
   assertTrue_1(wawbar.getValue(bt2));
   assertTrue_1(bt1 == bt2);
 
-  wawiar.setValue(69);
+  wawiar.setValue((int32_t) 69);
   assertTrue_1(iar.getValue(it1));
   assertTrue_1(it1 == 69);
   assertTrue_1(aiar.getValue(it2));
@@ -1336,7 +1336,7 @@ static bool testAliasPropagation()
   refChanged = arefChanged = warefChanged = false;
 
   // Assign to writable aliases, ensure that the change propagates
-  watree.setValue(2);
+  watree.setValue((int32_t) 2);
   int32_t temp;
   assertTrue_1(tree.getValue(temp));
   assertTrue_1(temp == 2);
@@ -1411,7 +1411,7 @@ static bool testAliasPropagation()
   aryChanged = aaryChanged = waaryChanged = false;
   refChanged = arefChanged = warefChanged = false;
 
-  waref.setValue(42);
+  waref.setValue((int32_t) 42);
   assertTrue_1(ref.getValue(temp));
   assertTrue_1(temp == 42);
   assertTrue_1(aref.getValue(temp));

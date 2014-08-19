@@ -168,7 +168,7 @@ static bool testUnaryPropagation()
 
   // Check propagation doesn't happen when inactive
   treu.setValue(false);
-  fortytwo.setValue(43);
+  fortytwo.setValue((int32_t) 43);
   pie.setValue(2.718);
   fou.setValue(std::string("fu"));
 
@@ -196,7 +196,7 @@ static bool testUnaryPropagation()
 
   // Assign again (activation reinitialized variable values)
   treu.setValue(false);
-  fortytwo.setValue(43);
+  fortytwo.setValue((int32_t) 43);
   pie.setValue(2.718);
   fou.setValue(std::string("fu"));
 

@@ -97,7 +97,7 @@ static bool testUninitialized()
 
   // Assign and check result
   vub.setValue(true);
-  vui.setValue(42);
+  vui.setValue((int32_t) 42);
   vud.setValue(3.14);
   vus.setValue(std::string("yoohoo"));
 
@@ -157,7 +157,7 @@ static bool testUninitialized()
 
   // Set value and check result
   vub.setValue(true);
-  vui.setValue(42);
+  vui.setValue((int32_t) 42);
   vud.setValue(3.14);
   vus.setValue(std::string("yoohoo"));
 
@@ -177,7 +177,7 @@ static bool testUninitialized()
 
   // Set values and check that they changed
   vub.setValue(false);
-  vui.setValue(69);
+  vui.setValue((int32_t) 69);
   vud.setValue(1.414);
   vus.setValue(std::string("yo"));
 
@@ -314,7 +314,7 @@ static bool testInitialValue()
 
   // Set values and check
   vb.setValue(true);
-  vi.setValue(42);
+  vi.setValue((int32_t) 42);
   vd.setValue(2.718);
   vs.setValue(std::string("mama"));
 
@@ -379,7 +379,7 @@ static bool testSavedValue()
 
   // Assign and check result
   vub.setValue(true);
-  vui.setValue(42);
+  vui.setValue((int32_t) 42);
   vud.setValue(3.14);
   vus.setValue("yoohoo");
 
@@ -415,7 +415,7 @@ static bool testSavedValue()
 
   // Assign again
   vub.setValue(true);
-  vui.setValue(42);
+  vui.setValue((int32_t) 42);
   vud.setValue(3.14);
   vus.setValue("yoohoo");
 
@@ -580,7 +580,7 @@ static bool testAssignablePointer()
 
   // Set values
   eb->setValue(true);
-  ei->setValue(42);
+  ei->setValue((int32_t) 42);
   ed->setValue(3.14);
   es->setValue(std::string("yoohoo"));
 
@@ -726,7 +726,7 @@ static bool testNotification()
 
   // Assign should notify this time
   vub.setValue(false);
-  vui.setValue(69);
+  vui.setValue((int32_t) 69);
   vud.setValue(1.414);
   vus.setValue(std::string("jojo"));
 

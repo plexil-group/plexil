@@ -187,7 +187,7 @@ static bool integerVariableFactoryTest()
   tExp->activate();
   assertTrue_1(tExp->isKnown());
   assertTrue_1(tExp->getValue(temp));
-  assertTrue_1(temp == -2000000000);
+  assertTrue_1(temp == (int32_t) -2000000000);
   realNc->storeVariable("t", tExp);
 
   Expression *hExp = createExpression(&hVar, nc, wasCreated);
@@ -311,7 +311,7 @@ static bool realVariableFactoryTest()
   tExp->activate();
   assertTrue_1(tExp->isKnown());
   assertTrue_1(tExp->getValue(temp));
-  assertTrue_1(temp == -20000000000);
+  assertTrue_1(temp == -20000000000.0);
   realNc->storeVariable("t", tExp);
 
   Expression *piExp = createExpression(&piVar, nc, wasCreated);
