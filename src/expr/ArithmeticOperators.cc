@@ -25,7 +25,7 @@
 */
 
 #include "ArithmeticOperators.hh"
-#include "Error.hh"
+// #include "Error.hh" // included by OperatorImpl.hh
 #include "Expression.hh"
 #include "ExprVec.hh"
 
@@ -570,6 +570,9 @@ namespace PLEXIL
     return doubleToInt(floor(temp), result);
   }
 
+  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
+#if !defined(__VXWORKS__)
+
   template <typename NUM>
   Round<NUM>::Round()
     : OperatorImpl<NUM>("ROUND")
@@ -645,6 +648,7 @@ namespace PLEXIL
       return false;
     return doubleToInt(trunc(temp), result);
   }
+#endif // !defined(__VXWORKS__)
 
   //
   // RealToInteger
@@ -699,9 +703,12 @@ namespace PLEXIL
   template class Ceiling<int32_t>;
   template class Floor<double>;
   template class Floor<int32_t>;
+  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
+#if !defined(__VXWORKS__)
   template class Round<double>;
   template class Round<int32_t>;
   template class Truncate<double>;
   template class Truncate<int32_t>;
+#endif // !defined(__VXWORKS__)
 
 } // namespace PLEXIL

@@ -83,9 +83,11 @@ namespace PLEXIL
 
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(Ceiling);
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(Floor);
+  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
+#if !defined(__VXWORKS__)
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(Round);
   ENSURE_ARITHMETIC_FUNCTION_FACTORY(Truncate);
-
+#endif // !defined(__VXWORKS__)
   ENSURE_FUNCTION_FACTORY(SquareRoot<double>);
   ENSURE_FUNCTION_FACTORY(RealToInteger);
 
@@ -168,8 +170,11 @@ namespace PLEXIL
       // Not currently in the schema
       REGISTER_ARITHMETIC_FUNCTION(Ceiling, CEIL);
       REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR);
+  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
+#if !defined(__VXWORKS__)
       REGISTER_ARITHMETIC_FUNCTION(Round, ROUND);
       REGISTER_ARITHMETIC_FUNCTION(Truncate, TRUNC);
+#endif // !defined(__VXWORKS__)
 
       // Boolean operations
       REGISTER_FUNCTION(BooleanNot, NOT);

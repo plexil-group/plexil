@@ -2031,6 +2031,9 @@ static bool testFloor()
   return true;
 }
 
+  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
+#if !defined(__VXWORKS__)
+
 static bool testRound()
 {
   RealConstant three(3);
@@ -2277,6 +2280,8 @@ static bool testTruncate()
   return true;
 }
 
+#endif // !defined(__VXWORKS__)
+
 static bool testRealToInteger()
 {
   RealConstant zero((double) 0);
@@ -2373,8 +2378,11 @@ bool arithmeticTest()
   runTest(sqrtTest);
   runTest(testCeiling);
   runTest(testFloor);
+  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
+#if !defined(__VXWORKS__)
   runTest(testRound);
   runTest(testTruncate);
+#endif // !defined(__VXWORKS__)
   runTest(testRealToInteger);
   return true;
 }

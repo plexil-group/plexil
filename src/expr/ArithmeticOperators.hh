@@ -216,6 +216,8 @@ namespace PLEXIL
     Floor(const Floor &);
     Floor &operator=(const Floor &);
   };
+  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
+#if !defined(__VXWORKS__)
 
   template <typename NUM>
   class Round : public OperatorImpl<NUM>
@@ -246,6 +248,7 @@ namespace PLEXIL
     Truncate(const Truncate &);
     Truncate &operator=(const Truncate &);
   };
+#endif // !defined(__VXWORKS__)
 
   class RealToInteger : public OperatorImpl<int32_t>
   {
