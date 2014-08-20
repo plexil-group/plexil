@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -65,17 +65,41 @@ public class ArithmeticOperatorNode extends ExpressionNode
         checkChildren (context, state);
 
         switch (this.getType()) {
-        case PlexilLexer.PLUS: m_dataType = checkPlus (state); break;
-        case PlexilLexer.MINUS: m_dataType = checkMinus (state); break;
-        case PlexilLexer.ASTERISK: m_dataType = checkMult (state); break;
-        case PlexilLexer.SLASH: m_dataType = checkDiv (state); break;
-        case PlexilLexer.ABS_KYWD: m_dataType = checkAbs (state); break;
+        case PlexilLexer.PLUS:
+            m_dataType = checkPlus (state); break;
+
+        case PlexilLexer.MINUS:
+            m_dataType = checkMinus (state); break;
+
+        case PlexilLexer.ASTERISK:
+            m_dataType = checkMult (state); break;
+
+        case PlexilLexer.SLASH:
+            m_dataType = checkDiv (state); break;
+
+        case PlexilLexer.ABS_KYWD:
+            m_dataType = checkAbs (state); break;
+
         case PlexilLexer.MAX_KYWD:
-        case PlexilLexer.MIN_KYWD: m_dataType = checkMaxMin(state); break;
+        case PlexilLexer.MIN_KYWD:
+            m_dataType = checkMaxMin(state); break;
+
         case PlexilLexer.MOD_KYWD:
-        case PlexilLexer.PERCENT: m_dataType = checkMod (state); break;
-        case PlexilLexer.SQRT_KYWD: m_dataType = PlexilDataType.REAL_TYPE; break; 
-        default: m_dataType = PlexilDataType.ERROR_TYPE;
+        case PlexilLexer.PERCENT:
+            m_dataType = checkMod (state); break;
+
+        case PlexilLexer.SQRT_KYWD:
+            m_dataType = PlexilDataType.REAL_TYPE; break; 
+
+        case PlexilLexer.CEIL_KYWD:
+        case PlexilLexer.FLOOR_KYWD:
+        case PlexilLexer.REAL_TO_INT_KYWD:
+        case PlexilLexer.ROUND_KYWD:
+        case PlexilLexer.TRUNC_KYWD:
+            m_dataType = checkIntConversions(state); break;
+
+        default:
+            m_dataType = PlexilDataType.ERROR_TYPE;
         }
 
         if (m_dataType == PlexilDataType.ERROR_TYPE) {
@@ -85,6 +109,193 @@ public class ArithmeticOperatorNode extends ExpressionNode
         }
     }
 
+    //
+    // Individual checkers
+    //
+
+    private PlexilDataType checkAbs (CompilerState state)
+    {
+        // ABS has exactly one child
+        PlexilDataType type = ((ExpressionNode) this.getChild(0)).getDataType();
+
+        // It can be a number or duration
+        if (type == PlexilDataType.DURATION_TYPE || type.isNumeric()) return type;
+
+        // Otherwise, no good...
+
+        else {
+            state.addDiagnostic (this,
+                                 "ABS operator given invalid argument: " +
+                                 type.toString(),
+                                 Severity.ERROR);
+            return PlexilDataType.ERROR_TYPE;
+        }
+    }
+
+    private PlexilDataType checkDiv (CompilerState state)
+    {
+        // DIV has exactly two children
+
+        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
+        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
+
+        // They can both be numbers...
+
+        if (ltype.isNumeric() && rtype.isNumeric()) return PlexilDataType.REAL_TYPE;
+
+        // They can be certain combinations of duration and number...
+
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype.isNumeric()) return ltype;
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype) return ltype;
+
+        // Otherwise, no good...
+
+        else {
+            state.addDiagnostic (this,
+                                 "Operator '/' given invalid argument pair: " +
+                                 ltype.toString() + ", " + rtype.toString(),
+                                 Severity.ERROR);
+            return PlexilDataType.ERROR_TYPE;
+        }
+    }
+
+    private PlexilDataType checkIntConversions(CompilerState state)
+    {
+        // Conversions have exactly one child
+        PlexilDataType type = ((ExpressionNode) this.getChild(0)).getDataType();
+
+        // It can be a number, duration, or date
+        if (type == PlexilDataType.DURATION_TYPE || type == PlexilDataType.DATE_TYPE)
+            return type;
+        else if (type.isNumeric())
+            return PlexilDataType.INTEGER_TYPE;
+
+        // Otherwise, no good...
+        else {
+            state.addDiagnostic (this,
+                                 "ABS operator given invalid argument: " +
+                                 type.toString(),
+                                 Severity.ERROR);
+            return PlexilDataType.ERROR_TYPE;
+        }
+    }
+
+    private PlexilDataType checkMaxMin(CompilerState state)
+    {
+        // MIN and MAX have exactly two children
+        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
+        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
+
+        // Two integers yield an integer
+        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype)
+            return ltype;
+        // Two numbers return a real
+        else if (ltype.isNumeric() && ltype.isNumeric())
+            return PlexilDataType.REAL_TYPE;
+        // Two durations return a duration
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype)
+            return ltype;
+        // Two dates return a date
+        else if (ltype == PlexilDataType.DATE_TYPE && rtype == ltype)
+            return ltype;
+        // Otherwise, no good...
+        else {
+            state.addDiagnostic (this,
+                                 "Operator '" + this.getToken().getText() + "' given invalid argument pair: " +
+                                 ltype.toString() + ", " + rtype.toString(),
+                                 Severity.ERROR);
+            return PlexilDataType.ERROR_TYPE;
+        }
+    }
+
+    private PlexilDataType checkMinus (CompilerState state)
+    {
+        // MINUS has exactly two children
+
+        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
+        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
+
+        // They can be numbers...
+
+        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
+        else if (ltype.isNumeric() && rtype.isNumeric()) return rtype;
+
+        // They can be certain combinations of duration and date...
+
+        else if (ltype == PlexilDataType.DATE_TYPE &&
+                 rtype == PlexilDataType.DURATION_TYPE) return ltype;
+        else if (ltype == PlexilDataType.DATE_TYPE &&
+                 rtype == ltype) return PlexilDataType.DURATION_TYPE;
+        else if (ltype == PlexilDataType.DURATION_TYPE &&
+                 rtype == ltype) return rtype;
+
+        // Otherwise, no good...
+
+        else {
+            state.addDiagnostic (this,
+                                 "MINUS given invalid argument pair: " +
+                                 ltype.toString() + ", " + rtype.toString(),
+                                 Severity.ERROR);
+            return PlexilDataType.ERROR_TYPE;
+        }
+    }
+
+
+    private PlexilDataType checkMod (CompilerState state)
+    {
+        // MOD has exactly two children
+
+        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
+        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
+
+        // They can both be numbers...
+
+        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
+        else if (ltype.isNumeric() && ltype.isNumeric()) return PlexilDataType.REAL_TYPE;
+
+        // They can be certain combinations of duration and number...
+
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype.isNumeric()) return ltype;
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype) return ltype;
+
+        // Otherwise, no good...
+
+        else {
+            state.addDiagnostic (this,
+                                 "Modulo operator given invalid argument pair: " +
+                                 ltype.toString() + ", " + rtype.toString(),
+                                 Severity.ERROR);
+            return PlexilDataType.ERROR_TYPE;
+        }
+    }
+
+    private PlexilDataType checkMult (CompilerState state)
+    {
+        // MULT has exactly two children
+
+        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
+        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
+
+        // They can be numbers...
+
+        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
+        else if (ltype.isNumeric() && rtype.isNumeric()) return rtype;
+
+        // They can be certain combinations of duration and number...
+
+        else if (ltype == PlexilDataType.DURATION_TYPE && rtype.isNumeric()) return ltype;
+        else if (ltype.isNumeric() && rtype == PlexilDataType.DURATION_TYPE) return rtype;
+
+        // Otherwise, no good...
+
+        else {
+            state.addDiagnostic (this,
+                                 "Operator '*' given invalid argument pair: " +
+                                 ltype.toString() + ", " + rtype.toString(),
+                                 Severity.ERROR);
+            return PlexilDataType.ERROR_TYPE;
+        }
+    }
 
     private PlexilDataType checkPlus (CompilerState state)
     {
@@ -123,173 +334,9 @@ public class ArithmeticOperatorNode extends ExpressionNode
         }
     }
 
-
-    private PlexilDataType checkMinus (CompilerState state)
-    {
-        // MINUS has exactly two children
-
-        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
-        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
-
-        // They can be numbers...
-
-        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
-        else if (ltype.isNumeric() && rtype.isNumeric()) return rtype;
-
-        // They can be certain combinations of duration and date...
-
-        else if (ltype == PlexilDataType.DATE_TYPE &&
-                 rtype == PlexilDataType.DURATION_TYPE) return ltype;
-        else if (ltype == PlexilDataType.DATE_TYPE &&
-                 rtype == ltype) return PlexilDataType.DURATION_TYPE;
-        else if (ltype == PlexilDataType.DURATION_TYPE &&
-                 rtype == ltype) return rtype;
-
-        // Otherwise, no good...
-
-        else {
-            state.addDiagnostic (this,
-                                 "MINUS given invalid argument pair: " +
-                                 ltype.toString() + ", " + rtype.toString(),
-                                 Severity.ERROR);
-            return PlexilDataType.ERROR_TYPE;
-        }
-    }
-
-
-    private PlexilDataType checkMult (CompilerState state)
-    {
-        // MULT has exactly two children
-
-        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
-        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
-
-        // They can be numbers...
-
-        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
-        else if (ltype.isNumeric() && rtype.isNumeric()) return rtype;
-
-        // They can be certain combinations of duration and number...
-
-        else if (ltype == PlexilDataType.DURATION_TYPE && rtype.isNumeric()) return ltype;
-        else if (ltype.isNumeric() && rtype == PlexilDataType.DURATION_TYPE) return rtype;
-
-        // Otherwise, no good...
-
-        else {
-            state.addDiagnostic (this,
-                                 "Operator '*' given invalid argument pair: " +
-                                 ltype.toString() + ", " + rtype.toString(),
-                                 Severity.ERROR);
-            return PlexilDataType.ERROR_TYPE;
-        }
-    }
-
-
-    private PlexilDataType checkDiv (CompilerState state)
-    {
-        // DIV has exactly two children
-
-        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
-        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
-
-        // They can both be numbers...
-
-        if (ltype.isNumeric() && rtype.isNumeric()) return PlexilDataType.REAL_TYPE;
-
-        // They can be certain combinations of duration and number...
-
-        else if (ltype == PlexilDataType.DURATION_TYPE && rtype.isNumeric()) return ltype;
-        else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype) return ltype;
-
-        // Otherwise, no good...
-
-        else {
-            state.addDiagnostic (this,
-                                 "Operator '/' given invalid argument pair: " +
-                                 ltype.toString() + ", " + rtype.toString(),
-                                 Severity.ERROR);
-            return PlexilDataType.ERROR_TYPE;
-        }
-    }
-
-
-    private PlexilDataType checkMod (CompilerState state)
-    {
-        // MOD has exactly two children
-
-        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
-        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
-
-        // They can both be numbers...
-
-        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype) return ltype;
-        else if (ltype.isNumeric() && ltype.isNumeric()) return PlexilDataType.REAL_TYPE;
-
-        // They can be certain combinations of duration and number...
-
-        else if (ltype == PlexilDataType.DURATION_TYPE && rtype.isNumeric()) return ltype;
-        else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype) return ltype;
-
-        // Otherwise, no good...
-
-        else {
-            state.addDiagnostic (this,
-                                 "Modulo operator given invalid argument pair: " +
-                                 ltype.toString() + ", " + rtype.toString(),
-                                 Severity.ERROR);
-            return PlexilDataType.ERROR_TYPE;
-        }
-    }
-
-    private PlexilDataType checkAbs (CompilerState state)
-    {
-        // ABS has exactly one child
-
-        PlexilDataType type = ((ExpressionNode) this.getChild(0)).getDataType();
-
-        // It can be a number or duration
-
-        if (type == PlexilDataType.DURATION_TYPE || type.isNumeric()) return type;
-
-        // Otherwise, no good...
-
-        else {
-            state.addDiagnostic (this,
-                                 "ABS operator given invalid argument: " +
-                                 type.toString(),
-                                 Severity.ERROR);
-            return PlexilDataType.ERROR_TYPE;
-        }
-    }
-
-    private PlexilDataType checkMaxMin(CompilerState state)
-    {
-        // MIN and MAX have exactly two children
-        PlexilDataType ltype = ((ExpressionNode) this.getChild(0)).getDataType();
-        PlexilDataType rtype = ((ExpressionNode) this.getChild(1)).getDataType();
-
-        // Two integers yield an integer
-        if (ltype == PlexilDataType.INTEGER_TYPE && rtype == ltype)
-            return ltype;
-        // Two numbers return a real
-        else if (ltype.isNumeric() && ltype.isNumeric())
-            return PlexilDataType.REAL_TYPE;
-        // Two durations return a duration
-        else if (ltype == PlexilDataType.DURATION_TYPE && rtype == ltype)
-            return ltype;
-        // Two dates return a date
-        else if (ltype == PlexilDataType.DATE_TYPE && rtype == ltype)
-            return ltype;
-        // Otherwise, no good...
-        else {
-            state.addDiagnostic (this,
-                                 "Operator '" + this.getToken().getText() + "' given invalid argument pair: " +
-                                 ltype.toString() + ", " + rtype.toString(),
-                                 Severity.ERROR);
-            return PlexilDataType.ERROR_TYPE;
-        }
-    }
+    //
+    // XML construction
+    //
 
     public void constructXML()
     {
@@ -307,6 +354,12 @@ public class ArithmeticOperatorNode extends ExpressionNode
 
         case PlexilLexer.ASTERISK:
             return "MUL";
+
+        case PlexilLexer.CEIL_KYWD:
+            return "CEIL";
+
+        case PlexilLexer.FLOOR_KYWD:
+            return "FLOOR";
 
         case PlexilLexer.MINUS:
             return "SUB";
@@ -326,11 +379,20 @@ public class ArithmeticOperatorNode extends ExpressionNode
                 return "Concat";
             else return "ADD";
 
+        case PlexilLexer.REAL_TO_INT_KYWD:
+            return "REAL_TO_INT";
+
+        case PlexilLexer.ROUND_KYWD:
+            return "ROUND";
+
         case PlexilLexer.SLASH:
             return "DIV";
 
         case PlexilLexer.SQRT_KYWD:
             return "SQRT";
+
+        case PlexilLexer.TRUNC_KYWD:
+            return "TRUNC";
 
         default:
             return this.getToken().getText();

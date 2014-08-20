@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -139,6 +139,11 @@ SQRT_KYWD = 'sqrt';
 MAX_KYWD = 'max';
 MIN_KYWD = 'min';
 MOD_KYWD = 'mod';
+CEIL_KYWD = 'ceil';
+FLOOR_KYWD = 'floor';
+ROUND_KYWD = 'round';
+TRUNC_KYWD = 'trunc';
+REAL_TO_INT_KYWD = 'real_to_int';
 
 // NodeRef directions
 CHILD_KYWD = 'Child';
@@ -959,6 +964,11 @@ quantity :
 oneArgFn : 
     SQRT_KYWD
   | ABS_KYWD
+  | CEIL_KYWD
+  | FLOOR_KYWD
+  | ROUND_KYWD
+  | TRUNC_KYWD
+  | REAL_TO_INT_KYWD
  ;
 
 twoArgFn :

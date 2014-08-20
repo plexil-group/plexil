@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -44,14 +44,19 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
             // Arithmetic operators
         case PlexilLexer.ABS_KYWD:
         case PlexilLexer.ASTERISK:
+        case PlexilLexer.CEIL_KYWD:
+        case PlexilLexer.FLOOR_KYWD:
         case PlexilLexer.MAX_KYWD:
         case PlexilLexer.MIN_KYWD:
         case PlexilLexer.MINUS:
         case PlexilLexer.MOD_KYWD:
         case PlexilLexer.PERCENT:
         case PlexilLexer.PLUS:
+        case PlexilLexer.REAL_TO_INT_KYWD:
+        case PlexilLexer.ROUND_KYWD:
         case PlexilLexer.SLASH:
         case PlexilLexer.SQRT_KYWD:
+        case PlexilLexer.TRUNC_KYWD:
             return new ArithmeticOperatorNode(payload);
 
             // Logical operators
