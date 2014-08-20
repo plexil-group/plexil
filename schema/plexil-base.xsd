@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -950,6 +950,11 @@ element.  It is used as an included schema only.
       <xsd:element ref="MIN"/>
       <xsd:element ref="SQRT"/>
       <xsd:element ref="ABS"/>
+      <xsd:element ref="CEIL"/>
+      <xsd:element ref="FLOOR"/>
+      <xsd:element ref="ROUND"/>
+      <xsd:element ref="TRUNC"/>
+      <xsd:element ref="REAL_TO_INT"/>
     </xsd:choice>
   </xsd:group>
 
@@ -1024,6 +1029,41 @@ element.  It is used as an included schema only.
   </xsd:element>
 
   <xsd:element name="ABS">
+    <xsd:complexType>
+      <xsd:group ref="NumericExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="CEIL">
+    <xsd:complexType>
+      <xsd:group ref="NumericExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="FLOOR">
+    <xsd:complexType>
+      <xsd:group ref="NumericExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ROUND">
+    <xsd:complexType>
+      <xsd:group ref="NumericExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="TRUNC">
+    <xsd:complexType>
+      <xsd:group ref="NumericExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="REAL_TO_INT">
     <xsd:complexType>
       <xsd:group ref="NumericExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
