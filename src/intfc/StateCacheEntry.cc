@@ -219,83 +219,83 @@ namespace PLEXIL
     }
   }
 
-  void StateCacheEntry::update(unsigned int timestamp, bool const &val)
+  void StateCacheEntry::update(bool const &val)
   {
     if (!ensureCachedValue(BOOLEAN_TYPE))
       return;
-    if (m_value->update(timestamp, val))
+    if (m_value->update(g_interface->getCycleCount(), val))
       notify();
   }
 
-  void StateCacheEntry::update(unsigned int timestamp, int32_t const &val)
+  void StateCacheEntry::update(int32_t const &val)
   {
     if (!ensureCachedValue(INTEGER_TYPE))
       return;
-    if (m_value->update(timestamp, val))
+    if (m_value->update(g_interface->getCycleCount(), val))
       notify();
   }
 
-  void StateCacheEntry::update(unsigned int timestamp, double const &val)
+  void StateCacheEntry::update(double const &val)
   {
     if (!ensureCachedValue(REAL_TYPE))
       return;
-    if (m_value->update(timestamp, val))
+    if (m_value->update(g_interface->getCycleCount(), val))
       notify();
   }
 
-  void StateCacheEntry::update(unsigned int timestamp, std::string const &val)
+  void StateCacheEntry::update(std::string const &val)
   {
     if (!ensureCachedValue(STRING_TYPE))
       return;
-    if (m_value->update(timestamp, val))
+    if (m_value->update(g_interface->getCycleCount(), val))
       notify();
   }
 
-  void StateCacheEntry::update(unsigned int timestamp, Value const &val)
+  void StateCacheEntry::update(Value const &val)
   {
     if (!ensureCachedValue(val.valueType()))
       return;
-    if (m_value->update(timestamp, val))
+    if (m_value->update(g_interface->getCycleCount(), val))
       notify();
   }
 
-  void StateCacheEntry::updatePtr(unsigned int timestamp, std::string const *valPtr)
+  void StateCacheEntry::updatePtr(std::string const *valPtr)
   {
     if (!ensureCachedValue(STRING_TYPE))
       return;
-    if (m_value->updatePtr(timestamp, valPtr))
+    if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
       notify();
   }
 
-  void StateCacheEntry::updatePtr(unsigned int timestamp, BooleanArray const *valPtr)
+  void StateCacheEntry::updatePtr(BooleanArray const *valPtr)
   {
     if (!ensureCachedValue(BOOLEAN_ARRAY_TYPE))
       return;
-    if (m_value->updatePtr(timestamp, valPtr))
+    if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
       notify();
   }
 
-  void StateCacheEntry::updatePtr(unsigned int timestamp, IntegerArray const *valPtr)
+  void StateCacheEntry::updatePtr(IntegerArray const *valPtr)
   {
     if (!ensureCachedValue(INTEGER_ARRAY_TYPE))
       return;
-    if (m_value->updatePtr(timestamp, valPtr))
+    if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
       notify();
   }
 
-  void StateCacheEntry::updatePtr(unsigned int timestamp, RealArray const *valPtr)
+  void StateCacheEntry::updatePtr(RealArray const *valPtr)
   {
     if (!ensureCachedValue(REAL_ARRAY_TYPE))
       return;
-    if (m_value->updatePtr(timestamp, valPtr))
+    if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
       notify();
   }
 
-  void StateCacheEntry::updatePtr(unsigned int timestamp, StringArray const *valPtr)
+  void StateCacheEntry::updatePtr(StringArray const *valPtr)
   {
     if (!ensureCachedValue(STRING_ARRAY_TYPE))
       return;
-    if (m_value->updatePtr(timestamp, valPtr))
+    if (m_value->updatePtr(g_interface->getCycleCount(), valPtr))
       notify();
   }
 

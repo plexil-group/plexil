@@ -57,7 +57,7 @@ public:
   void lookupNow(const State& state, StateCacheEntry &entry) 
   {
     if (state.name() == "test1") {
-      entry.update(this->getCycleCount(), (double) 2.0);
+      entry.update((double) 2.0);
       return;
     }
     else if (state.name() == "test2") {
@@ -65,25 +65,25 @@ public:
       std::string const *param = NULL;
       state.parameters()[0].getValuePointer(param);
       if (*param == "high") {
-        entry.update(this->getCycleCount(), (double) 1.0);
+        entry.update((double) 1.0);
         return;
       }
       else if (*param == "low") {
-        entry.update(this->getCycleCount(), (double) -1.0);
+        entry.update((double) -1.0);
         return;
       }
       assertTrue_2(ALWAYS_FAIL, "ERROR: no matching param for TestInterface::lookupNow, state name = \"test2\"");
     }
     else if (state.name() == "time") {
-      entry.update(this->getCycleCount(), (double) 0.0);
+      entry.update((double) 0.0);
       return;
     }
     else {
-      entry.update(this->getCycleCount(), m_changingExprs[state.name()]->toValue());
+      entry.update(m_changingExprs[state.name()]->toValue());
       return;
     }
     assertTrue_2(ALWAYS_FAIL, "ERROR: reached end of TestInterface::lookupNow()");
-    entry.update(this->getCycleCount(), (double) 0.0);
+    entry.update((double) 0.0);
   }
 
   void subscribe(const State& /* state */)
@@ -149,7 +149,7 @@ protected:
     std::multimap<Expression const *, std::string>::const_iterator it = m_exprsToStateName.find(expression);
     while (it != m_exprsToStateName.end() && it->first == expression) {
       State st(it->second, std::vector<Value>());
-      StateCacheMap::instance().ensureStateCacheEntry(st)->update(this->getCycleCount(), expression->toValue());
+      StateCacheMap::instance().ensureStateCacheEntry(st)->update(expression->toValue());
       ++it;
     }
   }

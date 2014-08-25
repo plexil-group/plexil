@@ -77,18 +77,18 @@ namespace PLEXIL
      * @note Notifies all lookups of the new value.
      * @note The caller is responsible for deleting the object pointed to upon return.
      */
-    void update(unsigned int timestamp, bool const &val);
-    void update(unsigned int timestamp, int32_t const &val);
-    void update(unsigned int timestamp, double const &val);
-    void update(unsigned int timestamp, std::string const &val);
-    void updatePtr(unsigned int timestamp, std::string const *valPtr);
-    void updatePtr(unsigned int timestamp, BooleanArray const *valPtr);
-    void updatePtr(unsigned int timestamp, IntegerArray const *valPtr);
-    void updatePtr(unsigned int timestamp, RealArray const *valPtr);
-    void updatePtr(unsigned int timestamp, StringArray const *valPtr);
+    void update(bool const &val);
+    void update(int32_t const &val);
+    void update(double const &val);
+    void update(std::string const &val);
+    void updatePtr(std::string const *valPtr);
+    void updatePtr(BooleanArray const *valPtr);
+    void updatePtr(IntegerArray const *valPtr);
+    void updatePtr(RealArray const *valPtr);
+    void updatePtr(StringArray const *valPtr);
 
     // For convenience of TestExternalInterface, others
-    void update(unsigned int timestamp, Value const &val);
+    void update(Value const &val);
 
   protected:
     // Internal functions

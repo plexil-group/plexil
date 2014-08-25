@@ -171,7 +171,7 @@ namespace PLEXIL
     debugMsg("Test:testOutput",
              "Processing event: " << st << " = " << value);
     // FIXME: call this->lookupReturn() instead?
-    StateCacheMap::instance().ensureStateCacheEntry(st)->update(this->getCycleCount(), value);
+    StateCacheMap::instance().ensureStateCacheEntry(st)->update(value);
   }
 
   void TestExternalInterface::handleCommand(const pugi::xml_node& elt)
@@ -480,7 +480,7 @@ namespace PLEXIL
     }
     const Value& value = it->second;
     debugMsg("Test:testOutput", "Returning value " << value);
-    cacheEntry.update(this->getCycleCount(), value);
+    cacheEntry.update(value);
   }
 
   void TestExternalInterface::subscribe(const State& state)

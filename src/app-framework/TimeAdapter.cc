@@ -157,7 +157,7 @@ namespace PLEXIL
   {
     assertTrueMsg(state == State::timeState(),
                   "TimeAdapter does not implement lookups for state " << state);
-    cacheEntry.update(g_interface->getCycleCount(), getCurrentTime());
+    cacheEntry.update(getCurrentTime());
   }
 
   /**

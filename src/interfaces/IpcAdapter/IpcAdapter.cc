@@ -202,7 +202,7 @@ namespace PLEXIL
       debugMsg("IpcAdapter:lookupNow",
                " returning external lookup " << state.name()
                << " with internal value " << it->second);
-      entry.update(m_execInterface.getCycleCount(), it->second);
+      entry.update(it->second);
     }
     else {
       const std::string& stateName = state.name();
@@ -235,7 +235,7 @@ namespace PLEXIL
       assertTrueMsg(errnum == 0,
                     "IpcAdapter::lookupNow: semaphore wait failed, result = " << errnum);
 
-      entry.update(m_execInterface.getCycleCount(), m_pendingLookupResult);
+      entry.update(m_pendingLookupResult);
 
       // Clean up
       m_pendingLookupSerial = 0;

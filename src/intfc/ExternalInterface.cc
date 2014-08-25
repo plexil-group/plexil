@@ -131,7 +131,7 @@ namespace PLEXIL
     StateCacheEntry *cacheEntry = StateCacheMap::instance().findStateCacheEntry(state);
     // Silently ignore any data we don't know about
     if (cacheEntry)
-      cacheEntry->update(m_cycleCount, value);
+      cacheEntry->update(value);
   }
 
   void ExternalInterface::commandReturn(Command *cmd, Value const &value)
