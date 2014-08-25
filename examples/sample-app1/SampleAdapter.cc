@@ -266,8 +266,7 @@ void SampleAdapter::executeCommand(Command *cmd)
 
 void SampleAdapter::lookupNow (const State& state, StateCacheEntry &entry)
 {
-  entry.update(m_execInterface.getCycleCount(),
-               fetch(state.name(), state.parameters()));
+  entry.update(fetch(state.name(), state.parameters()));
 }
 
 

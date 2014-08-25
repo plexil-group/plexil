@@ -262,7 +262,7 @@ void SampleAdapter::lookupNow(State const &state, StateCacheEntry &entry)
   // This is the name of the state as given in the plan's LookupNow
   string const &name = state.name();
   const vector<Value>& args = state.parameters();
-  entry.update(m_execInterface.getCycleCount(), fetch(name, args));
+  entry.update(fetch(name, args));
 }
 
 
