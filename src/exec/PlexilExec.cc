@@ -59,6 +59,7 @@ namespace PLEXIL
 
   PlexilExec::PlexilExec()
     : ExecConnector(),
+      m_listener(NULL),
       m_queuePos(0),
       m_finishedRootNodesDeleted(false)
   {}
