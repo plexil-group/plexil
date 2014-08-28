@@ -502,6 +502,7 @@ static bool realArrayConstantFactoryTest()
     std::cout << "Caught expected exception" << std::endl;
   }
 
+#if !defined(__VXWORKS__)
   try {
     Expression *rangeErrConstant = createExpression(&rangeErrVal, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range real");
@@ -509,6 +510,7 @@ static bool realArrayConstantFactoryTest()
   catch (ParserException const & /* exc */) {
     std::cout << "Caught expected exception" << std::endl;
   }
+#endif // !defined(__VXWORKS__)
 
   return true;
 }
