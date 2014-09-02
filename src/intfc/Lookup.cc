@@ -203,7 +203,7 @@ namespace PLEXIL
 
   bool Lookup::getValue(bool &result) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else
       return m_entry->cachedValue()->getValue(result);
@@ -218,7 +218,7 @@ namespace PLEXIL
 
   bool Lookup::getValue(int32_t &result) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else {
       return m_entry->cachedValue()->getValue(result);
@@ -227,7 +227,7 @@ namespace PLEXIL
 
   bool Lookup::getValue(double &result) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else {
       return m_entry->cachedValue()->getValue(result);
@@ -236,7 +236,7 @@ namespace PLEXIL
 
   bool Lookup::getValue(std::string &result) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else
       return m_entry->cachedValue()->getValue(result);
@@ -244,7 +244,7 @@ namespace PLEXIL
 
   bool Lookup::getValuePointer(std::string const *&ptr) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else
       return m_entry->cachedValue()->getValuePointer(ptr);
@@ -252,7 +252,7 @@ namespace PLEXIL
 
   bool Lookup::getValuePointer(Array const *&ptr) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else
       return m_entry->cachedValue()->getValuePointer(ptr);
@@ -260,7 +260,7 @@ namespace PLEXIL
 
   bool Lookup::getValuePointer(BooleanArray const *&ptr) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else
       return m_entry->cachedValue()->getValuePointer(ptr);
@@ -268,7 +268,7 @@ namespace PLEXIL
 
   bool Lookup::getValuePointer(IntegerArray const *&ptr) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else
       return m_entry->cachedValue()->getValuePointer(ptr);
@@ -276,7 +276,7 @@ namespace PLEXIL
 
   bool Lookup::getValuePointer(RealArray const *&ptr) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else
       return m_entry->cachedValue()->getValuePointer(ptr);
@@ -284,7 +284,7 @@ namespace PLEXIL
 
   bool Lookup::getValuePointer(StringArray const *&ptr) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else
       return m_entry->cachedValue()->getValuePointer(ptr);
@@ -296,7 +296,7 @@ namespace PLEXIL
    */
   Value Lookup::toValue() const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return Value();
     else
       return m_entry->cachedValue()->toValue();
@@ -589,7 +589,7 @@ namespace PLEXIL
 
   bool LookupOnChange::getValue(int32_t &result) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else if (m_cachedValue)
       return m_cachedValue->getValue(result);
@@ -601,7 +601,7 @@ namespace PLEXIL
 
   bool LookupOnChange::getValue(double &result) const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return false;
     else if (m_cachedValue)
       return m_cachedValue->getValue(result);
@@ -617,7 +617,7 @@ namespace PLEXIL
    */
   Value LookupOnChange::toValue() const
   {
-    if (!this->isActive() || !m_entry)
+    if (!this->isActive() || !m_entry || !m_entry->cachedValue())
       return Value();
     else if (m_cachedValue)
       return m_cachedValue->toValue();
