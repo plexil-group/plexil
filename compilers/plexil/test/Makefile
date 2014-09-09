@@ -53,6 +53,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
 SYNTAX_ERROR_TESTS   = array-library-call
 
 SEMANTIC_ERROR_TESTS = on-message3 expr5 expr2 lookup1
+#SEMANTIC_ERROR_TESTS = on-message3 expr5 expr2 lookup1 lookupTypo
 
 TESTS	         := $(SMALL_TESTS)
 
