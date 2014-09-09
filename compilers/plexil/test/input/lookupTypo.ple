@@ -1,5 +1,5 @@
-Boolean Lookup abc;
-     
+Integer Lookup abc;
+
 Command foo();
 
 lookupTypo: {
