@@ -9,6 +9,6 @@ fi
 for f in ${1}/*.out
 do
 	out=`echo $f | sed -e 's/\.out/\.stripped/'`
-	sed -e 's/id_[0-9]*/id_/g' $f > $out
+	sed -e 's/0x[0-9a-fA-F]*/0x/g' $f > $out
 	echo $out
 done
