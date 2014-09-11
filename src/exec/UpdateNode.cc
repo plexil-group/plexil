@@ -239,7 +239,6 @@ namespace PLEXIL
                  "End for " << m_nodeId << " is inactive.");
       debugMsg("Node:getDestState",
                " '" << m_nodeId << "' destination from EXECUTING: no state.");
-      m_nextState = NO_NODE_STATE;
       return false;
     }
 
@@ -258,27 +257,26 @@ namespace PLEXIL
     return true;
   }
 
-  void UpdateNode::transitionFromExecuting(NodeState destState)
+  void UpdateNode::transitionFromExecuting()
   {
-    checkError(destState == FAILING_STATE ||
-               destState == ITERATION_ENDED_STATE,
-               "Attempting to transition Update node from EXECUTING to invalid state '"
-               << nodeStateName(destState) << "'");
-
     deactivateExitCondition();
     deactivateInvariantCondition();
     deactivateEndCondition();
     deactivatePostCondition();
 
-    if (destState == FAILING_STATE) {
+    if (m_nextState == FAILING_STATE) {
       // N.B. FAILING waits on ActionComplete, *not* AbortComplete!
       deactivateAncestorExitInvariantConditions();
       activateActionCompleteCondition();
     }
-    else { // ITERATION_ENDED
+    else if (m_nextState == ITERATION_ENDED_STATE) {
       deactivateExecutable();
       activateAncestorEndCondition();
     }
+    else
+      checkError(ALWAYS_FAIL,
+                 "Attempting to transition Update node from EXECUTING to invalid state '"
+                 << nodeStateName(m_nextState) << "'");
   }
 
   //
@@ -326,23 +324,21 @@ namespace PLEXIL
     debugMsg("Node:getDestState",
              " '" << m_nodeId << 
              "' destination: no state. Update node and action complete false or unknown.");
-    m_nextState = NO_NODE_STATE;
     return false;
   }
 
-  void UpdateNode::transitionFromFailing(NodeState destState)
+  void UpdateNode::transitionFromFailing()
   {
-    checkError(destState == FINISHED_STATE || destState == ITERATION_ENDED_STATE,
-               "Attempting to transition Update node from FAILING to invalid state '"
-               << nodeStateName(destState) << "'");
-
     deactivateActionCompleteCondition();
-    if (destState == ITERATION_ENDED_STATE) {
+    deactivateExecutable();
+    if (m_nextState == ITERATION_ENDED_STATE) {
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
     }
-
-    deactivateExecutable();
+    else 
+      checkError(m_nextState == FINISHED_STATE,
+                 "Attempting to transition Update node from FAILING to invalid state '"
+                 << nodeStateName(m_nextState) << "'");
   }
 
 

@@ -73,25 +73,24 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    void specializedPostInit(PlexilNode const *node);
-    void specializedHandleExecution();
-    void specializedDeactivateExecutable();
-    void specializedReset();
+    virtual void specializedPostInit(PlexilNode const *node);
+    virtual void specializedHandleExecution();
+    virtual void specializedDeactivateExecutable();
+    virtual void specializedReset();
 
-    // void cleanUpConditions();
-    void cleanUpNodeBody();
+    virtual void cleanUpNodeBody();
 
-    bool getDestStateFromExecuting();
-    bool getDestStateFromFailing();
+    virtual bool getDestStateFromExecuting();
+    virtual bool getDestStateFromFailing();
 
-    void transitionFromExecuting(NodeState toState);
-    void transitionFromFailing(NodeState toState);
+    virtual void transitionFromExecuting();
+    virtual void transitionFromFailing();
 
-    void transitionToExecuting();
-    void transitionToFailing();
+    virtual void transitionToExecuting();
+    virtual void transitionToFailing();
 
     // Node state limit
-    NodeState nodeStateMax() const { return FAILING_STATE; }
+    virtual NodeState nodeStateMax() const { return FAILING_STATE; }
 
   private:
 

@@ -207,7 +207,7 @@ static bool inactiveTransTest()
             node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
             node->getAncestorEndCondition()->asAssignable()->setValue(values[ancestorEnd]);
       
-            if (node->canTransition()) {
+            if (node->getDestState()) {
               node->transition();
               NodeState state = node->getState();
               debugMsg("UnitTest:inactiveTransTest",
@@ -358,7 +358,7 @@ static bool waitingTransTest()
                            << " pre = " << values[pre]
                            );
 
-                  if (node->canTransition()) {
+                  if (node->getDestState()) {
                     node->transition();
                     NodeState state = node->getState();
 
@@ -485,7 +485,7 @@ static bool iterationEndedTransTest()
                      << " repeat = " << values[repeat]
                      );
 
-            if (node->canTransition()) {
+            if (node->getDestState()) {
               node->transition();
               NodeState state = node->getState();
 
@@ -582,7 +582,7 @@ static bool finishedTransTest()
                "Testing node type " << types[i]
                << " with parent state = " << nodeStateName(states[s]));
 
-      if (node->canTransition()) {
+      if (node->getDestState()) {
         node->transition();
         NodeState state = node->getState();
 
@@ -679,7 +679,7 @@ static bool listExecutingTransTest()
                      << " invariant = " << values[invariant]
                      << " end = " << values[end]);
 
-            if (node->canTransition()) {
+            if (node->getDestState()) {
               node->transition();
               NodeState state = node->getState();
               assertTrue_1(node->getActionCompleteCondition()->isActive());
@@ -787,7 +787,7 @@ static bool listFailingTransTest()
                "Testing with children waiting or finished = " << values[children]
                << " failure type = " << failureType[i]);
 
-      if (node->canTransition()) {
+      if (node->getDestState()) {
         node->transition();
         NodeState state = node->getState();
 
@@ -911,7 +911,7 @@ static bool listFinishingTransTest()
                        << " children waiting or finished = " << values[children]
                        << " post = " << values[post]);
 
-              if (node->canTransition()) {
+              if (node->getDestState()) {
                 node->transition();
                 NodeState state = node->getState();
 
@@ -1075,7 +1075,7 @@ static bool bindingExecutingTransTest()
                          << " post = " << values[post]
                          );
 
-                if (node->canTransition()) {
+                if (node->getDestState()) {
                   node->transition();
                   NodeState state = node->getState();
 
@@ -1202,7 +1202,7 @@ static bool bindingFailingTransTest()
                "Testing with children waiting or finished = " << values[children]
                << " failure type = " << failureType[failure]);
 
-      if (node->canTransition()) {
+      if (node->getDestState()) {
         node->transition();
         NodeState state = node->getState();
 
@@ -1318,7 +1318,7 @@ static bool commandExecutingTransTest()
                      << " end = " << values[end]
                      );
 
-            if (node->canTransition()) {
+            if (node->getDestState()) {
               node->transition();
               NodeState state = node->getState();
               if (ancestorExit == IDX_TRUE) {
@@ -1434,7 +1434,7 @@ static bool commandFailingTransTest()
                << " abort complete = " << values[abort]
                << " failure type = " << failureTypes[failure]);
 
-      if (node->canTransition()) {
+      if (node->getDestState()) {
         node->transition();
         NodeState state = node->getState();
 
@@ -1549,7 +1549,7 @@ static bool commandFinishingTransTest()
                        << " post = " << values[post]
                        );
 
-              if (node->canTransition()) {
+              if (node->getDestState()) {
                 node->transition();
                 NodeState state = node->getState();
                 if (ancestorExit == IDX_TRUE) {
@@ -1699,7 +1699,7 @@ static bool updateExecutingTransTest()
                        << " post = " << values[post]
                        );
 
-              if (node->canTransition()) {
+              if (node->getDestState()) {
                 node->transition();
                 NodeState state = node->getState();
                 if (ancestorExit == IDX_TRUE) {
@@ -1820,7 +1820,7 @@ static bool updateFailingTransTest()
                << " action complete = " << values[actionComplete]
                << " failure type = " << failureTypes[failure]);
 
-      if (node->canTransition()) {
+      if (node->getDestState()) {
         node->transition();
         NodeState state = node->getState();
 

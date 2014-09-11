@@ -83,9 +83,9 @@ namespace PLEXIL
     virtual bool getDestStateFromFailing();
     virtual bool getDestStateFromFinishing();
 
-    virtual void transitionFromExecuting(NodeState toState);
-    virtual void transitionFromFinishing(NodeState toState);
-    virtual void transitionFromFailing(NodeState toState);
+    virtual void transitionFromExecuting();
+    virtual void transitionFromFinishing();
+    virtual void transitionFromFailing();
 
     virtual void transitionToExecuting();
     virtual void transitionToFinishing();

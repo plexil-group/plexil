@@ -767,14 +767,6 @@ namespace PLEXIL {
   // State transition logic
   //
 
-  // This method is used only by exec-test-module.
-  // Its logic has been absorbed into transition() below to avoid redundant calls to getDestState().
-  bool Node::canTransition()
-  {
-    getDestState(); // for effect
-    return m_nextState != NO_NODE_STATE && m_nextState != m_state;
-  }
-
   void Node::transition(double time) 
   {
     checkError(m_nextState != NO_NODE_STATE
@@ -814,31 +806,31 @@ namespace PLEXIL {
   {
     switch (m_state) {
     case INACTIVE_STATE:
-      transitionFromInactive((NodeState) m_nextState);
+      transitionFromInactive();
       break;
 
     case WAITING_STATE:
-      transitionFromWaiting((NodeState) m_nextState);
+      transitionFromWaiting();
       break;
 
     case EXECUTING_STATE:
-      transitionFromExecuting((NodeState) m_nextState);
+      transitionFromExecuting();
       break;
 
     case FINISHING_STATE:
-      transitionFromFinishing((NodeState) m_nextState);
+      transitionFromFinishing();
       break;
 
     case FINISHED_STATE:
-      transitionFromFinished((NodeState) m_nextState);
+      transitionFromFinished();
       break;
 
     case FAILING_STATE:
-      transitionFromFailing((NodeState) m_nextState);
+      transitionFromFailing();
       break;
 
     case ITERATION_ENDED_STATE:
-      transitionFromIterationEnded((NodeState) m_nextState);
+      transitionFromIterationEnded();
       break;
 
     default:
@@ -905,16 +897,14 @@ namespace PLEXIL {
   //                    else none
   // Legal successor states: WAITING, FINISHED
 
-  // Default method
+  // Common method
   void Node::transitionToInactive()
   {
   }
 
-  // Default method
+  // Common method
   bool Node::getDestStateFromInactive()
   {
-    bool temp;
-    Expression *cond;
     if (m_parent) {
       switch (m_parent->getState()) {
 
@@ -927,6 +917,8 @@ namespace PLEXIL {
 
       case EXECUTING_STATE: {
         // N.B. Ancestor-exit, ancestor-invariant, ancestor-end should have been activated by parent
+        bool temp;
+        Expression *cond;
         if ((cond = getAncestorExitCondition())) {
           checkError(cond->isActive(),
                      "Node::getDestStateFromInactive: Ancestor exit for " << m_nodeId << " is inactive.");
@@ -983,17 +975,19 @@ namespace PLEXIL {
     }
   }
 
-  // Default method
-  void Node::transitionFromInactive(NodeState destState)
+  // Common method
+  void Node::transitionFromInactive()
   {
-    checkError(destState == WAITING_STATE || destState == FINISHED_STATE,
-               "Attempting to transition from INACTIVE to invalid state '"
-               << nodeStateName(destState) << "'");
-    if (destState == WAITING_STATE) {
+    if (m_nextState == WAITING_STATE) {
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
+      return;
     }
-    // else nothing to do
+    // Only other legal transition is to FINISHED,
+    // in which case no action is required.
+    checkError(m_nextState == FINISHED_STATE,
+               "Attempting to transition from INACTIVE to invalid state '"
+               << nodeStateName(m_nextState) << "'");
   }
 
   //
@@ -1007,14 +1001,14 @@ namespace PLEXIL {
 
   // ** N.B. Preceding state must ensure that AncestorEnd, AncestorExit, and AncestorInvariant are active.
 
-  // Default method
+  // Common method
   void Node::transitionToWaiting()
   {
     activateExitCondition();
     activatePreSkipStartConditions();
   }
 
-  // Default method
+  // Common method
   bool Node::getDestStateFromWaiting()
   {
     Expression *cond;
@@ -1104,30 +1098,28 @@ namespace PLEXIL {
     return true;
   }
 
-  // Default method
-  void Node::transitionFromWaiting(NodeState destState)
+  // Common method
+  void Node::transitionFromWaiting()
   {
     deactivatePreSkipStartConditions();
-    switch (destState) {
+    switch (m_nextState) {
 
     case EXECUTING_STATE:
       deactivateAncestorEndCondition();
       break;
 
-    case ITERATION_ENDED_STATE:
-      deactivateExitCondition();
-      break;
-
     case FINISHED_STATE:
       deactivateAncestorExitInvariantConditions();
       deactivateAncestorEndCondition();
+      // fall through
+    case ITERATION_ENDED_STATE:
       deactivateExitCondition();
       break;
 
     default:
       checkError(ALWAYS_FAIL,
                  "Attempting to transition from WAITING to invalid state '"
-                 << nodeStateName(destState) << "'");
+                 << nodeStateName(m_nextState) << "'");
       break;
     }
   }
@@ -1227,26 +1219,26 @@ namespace PLEXIL {
   }
 
   // Empty node method
-  void Node::transitionFromExecuting(NodeState destState)
+  void Node::transitionFromExecuting()
   {
     checkError(m_nodeType == NodeType_Empty,
                "Expected empty node, got " << nodeTypeString(m_nodeType));
-    checkError(destState == FINISHED_STATE || destState == ITERATION_ENDED_STATE,
-               "Attempting to transition from EXECUTING to invalid state '"
-               << nodeStateName(destState) << "'");
 
     deactivateExitCondition();
     deactivateInvariantCondition();
     deactivateEndCondition();
     deactivatePostCondition();
-    if (destState == FINISHED_STATE) {
+    if (m_nextState == FINISHED_STATE) {
       deactivateAncestorExitInvariantConditions();
     }
-    else { // ITERATION_ENDED
+    else if (m_nextState == ITERATION_ENDED_STATE) {
       activateAncestorEndCondition();
     }
+    else checkError(ALWAYS_FAIL,
+                    "Attempting to transition empty node from EXECUTING to invalid state '"
+                    << nodeStateName(m_nextState) << "'");
 
-    deactivateExecutable(); // ??
+    deactivateExecutable();
   }
 
   //
@@ -1260,13 +1252,13 @@ namespace PLEXIL {
 
   // *** N.B.: Preceding state must ensure that AncestorEnd, AncestorExit, and AncestorInvariant are active!
 
-  // Default method
+  // Common method
   void Node::transitionToIterationEnded() 
   {
     activateRepeatCondition();
   }
 
-  // Default method
+  // Common method
   bool Node::getDestStateFromIterationEnded()
   {
     Expression *cond;
@@ -1331,22 +1323,23 @@ namespace PLEXIL {
     return true;
   }
 
-  // Default method
-  void Node::transitionFromIterationEnded(NodeState destState)
+  // Common method
+  void Node::transitionFromIterationEnded()
   {
-    checkError(destState == FINISHED_STATE || destState == WAITING_STATE,
-               "Attempting to transition from ITERATION_ENDED to invalid state '"
-               << nodeStateName(destState) << "'");
-
     deactivateRepeatCondition();
 
-    if (destState == FINISHED_STATE) {
+    if (m_nextState == FINISHED_STATE) {
       deactivateAncestorExitInvariantConditions();
       deactivateAncestorEndCondition();
     }
-    else { // WAITING
+    else if (m_nextState == WAITING_STATE) {
       reset();
     }
+    else
+      checkError(ALWAYS_FAIL,
+                 "Attempting to transition from ITERATION_ENDED to invalid state '"
+                 << nodeStateName(m_nextState) << "'");
+
   }
 
   //
@@ -1358,12 +1351,12 @@ namespace PLEXIL {
   // Conditions active:
   // Legal successor states: INACTIVE
 
-  // Default method
+  // Common method
   void Node::transitionToFinished()
   {
   }
 
-  // Default method
+  // Common method
   bool Node::getDestStateFromFinished()
   {
     if (m_parent && m_parent->getState() == WAITING_STATE) {
@@ -1378,12 +1371,12 @@ namespace PLEXIL {
     return false;
   }
 
-  // Default method
-  void Node::transitionFromFinished(NodeState destState)
+  // Common method
+  void Node::transitionFromFinished()
   {
-    checkError(destState == INACTIVE_STATE,
+    checkError(m_nextState == INACTIVE_STATE,
                "Attempting to transition from FINISHED to invalid state '"
-               << nodeStateName(destState) << "'");
+               << nodeStateName(m_nextState) << "'");
     reset();
   }
 
@@ -1413,7 +1406,7 @@ namespace PLEXIL {
   }
 
   // Default method
-  void Node::transitionFromFinishing(NodeState /* destState */)
+  void Node::transitionFromFinishing()
   {
     checkError(ALWAYS_FAIL,
                "No transition from FINISHING state defined for this node");
@@ -1445,7 +1438,7 @@ namespace PLEXIL {
   }
 
   // Default method
-  void Node::transitionFromFailing(NodeState /* destState */)
+  void Node::transitionFromFailing()
   {
     checkError(ALWAYS_FAIL,
                "No transition from FAILING state defined for this node");

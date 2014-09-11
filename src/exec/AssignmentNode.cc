@@ -166,7 +166,6 @@ namespace PLEXIL
     if (!cond->getValue(temp) || !temp) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId << "' destination: no state. Assignment node and assignment-complete false or unknown.");
-      m_nextState = NO_NODE_STATE;
       return false;
     }
 
@@ -225,7 +224,6 @@ namespace PLEXIL
     if ((cond = getEndCondition()) && (!cond->getValue(temp) || !temp)) {
       checkError(cond->isActive(),
                  "Node::getDestStateFromExecuting: End for " << m_nodeId << " is inactive.");
-      m_nextState = NO_NODE_STATE;
       return false;
     }
 
@@ -253,27 +251,25 @@ namespace PLEXIL
     g_exec->enqueueAssignment(m_assignment);
   }
 
-  void AssignmentNode::transitionFromExecuting(NodeState destState)
+  void AssignmentNode::transitionFromExecuting()
   {
-    checkError(destState == FAILING_STATE
-               || destState == ITERATION_ENDED_STATE,
-               "Attempting to transition AssignmentNode from EXECUTING to invalid state '"
-               << nodeStateName(destState) << "'");
-
     deactivateExitCondition();
     deactivateInvariantCondition();
     deactivateEndCondition();
     deactivatePostCondition();
     deactivateActionCompleteCondition();
 
-    if (destState == FAILING_STATE) {
+    if (m_nextState == FAILING_STATE) {
       deactivateAncestorExitInvariantConditions();
     }
-    else { // ITERATION_ENDED
+    else if (m_nextState == ITERATION_ENDED_STATE) {
       activateAncestorEndCondition();
-
       deactivateExecutable();
     }
+    else 
+      checkError(ALWAYS_FAIL,
+                 "Attempting to transition AssignmentNode from EXECUTING to invalid state '"
+                 << nodeStateName(m_nextState) << "'");
   }
     
   //
@@ -301,7 +297,6 @@ namespace PLEXIL
       debugMsg("Node:getDestState",
                " '" << m_nodeId
                << "' destination: no state. Assignment node and abort complete false or unknown.");
-      m_nextState = NO_NODE_STATE;
       return false;
     }
 
@@ -329,20 +324,19 @@ namespace PLEXIL
     }
   }
 
-  void AssignmentNode::transitionFromFailing(NodeState destState)
+  void AssignmentNode::transitionFromFailing()
   {
-    checkError(destState == FINISHED_STATE ||
-               destState == ITERATION_ENDED_STATE,
-               "Attempting to transition Assignment node from FAILING to invalid state '"
-               << nodeStateName(destState) << "'");
-
     deactivateAbortCompleteCondition();
-    if (destState == ITERATION_ENDED_STATE) {
+    deactivateExecutable();
+
+    if (m_nextState == ITERATION_ENDED_STATE) {
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
     }
-
-    deactivateExecutable();
+    else 
+      checkError(m_nextState == FINISHED_STATE,
+                 "Attempting to transition Assignment node from FAILING to invalid state '"
+                 << nodeStateName(m_nextState) << "'");
   }
     
   void AssignmentNode::abort()

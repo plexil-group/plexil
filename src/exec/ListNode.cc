@@ -607,7 +607,6 @@ namespace PLEXIL
                  "End for " << getNodeId() << " is inactive.");
       debugMsg("Node:getDestState",
                " '" << m_nodeId << "' destination: no state.");
-      m_nextState = NO_NODE_STATE;
       return false;
     }
 
@@ -617,24 +616,22 @@ namespace PLEXIL
     return true;
   }
 
-  void ListNode::transitionFromExecuting(NodeState destState)
+  void ListNode::transitionFromExecuting()
   {
-    checkError(destState == FINISHING_STATE || destState == FAILING_STATE,
-               "Attempting to transition NodeList/LibraryNodeCall from EXECUTING to invalid state '"
-               << nodeStateName(destState) << "'");
-      
     deactivateEndCondition();
-    // Both successor states will need this
-    activateActionCompleteCondition();
 
-    if (destState == FAILING_STATE) {
+    if (m_nextState == FAILING_STATE) {
       deactivateAncestorExitInvariantConditions(); 
       deactivateExitCondition();
       deactivateInvariantCondition();
     }
+    else 
+      checkError(m_nextState == FINISHING_STATE,
+                 "Attempting to transition NodeList/LibraryNodeCall from EXECUTING to invalid state '"
+                 << nodeStateName(m_nextState) << "'");
 
-    // Defer deactivating local variables to FAILING or FINISHING.
-    // deactivateExecutable();
+    // Both successor states will need this
+    activateActionCompleteCondition();
   }
 
   //
@@ -731,25 +728,16 @@ namespace PLEXIL
 
     debugMsg("Node:getDestState",
              " '" << m_nodeId << "' destination: no state. ALL_CHILDREN_WAITING_OR_FINISHED false or unknown.");
-    m_nextState = NO_NODE_STATE;
     return false;
   }
 
-  void ListNode::transitionFromFinishing(NodeState destState)
+  void ListNode::transitionFromFinishing()
   {
-    checkError(destState == ITERATION_ENDED_STATE ||
-               destState == FAILING_STATE,
-               "Attempting to transition List node from FINISHING to invalid state '"
-               << nodeStateName(destState) << "'");
-
     deactivateExitCondition();
     deactivateInvariantCondition();
     deactivatePostCondition();
 
-    if (destState == ITERATION_ENDED_STATE) {
-      deactivateActionCompleteCondition();
-      activateAncestorEndCondition();
-
+    if (m_nextState == ITERATION_ENDED_STATE) {
       // N.B. These are conditions for the children.
       if (m_conditions[ancestorExitIdx])
         m_conditions[ancestorExitIdx]->deactivate();
@@ -757,12 +745,18 @@ namespace PLEXIL
         m_conditions[ancestorInvariantIdx]->deactivate();
       if (m_conditions[ancestorEndIdx])
         m_conditions[ancestorEndIdx]->deactivate();
-
+      // Local conditions
+      deactivateActionCompleteCondition();
       deactivateExecutable();
+      activateAncestorEndCondition();
     }
-    else { // FAILING
+    else if (m_nextState == FAILING_STATE) {
       deactivateAncestorExitInvariantConditions();
     }
+    else 
+      checkError(ALWAYS_FAIL,
+                 "Attempting to transition List node from FINISHING to invalid state '"
+                 << nodeStateName(m_nextState) << "'");
   }
 
   //
@@ -817,19 +811,11 @@ namespace PLEXIL
 
     debugMsg("Node:getDestState",
              " '" << m_nodeId << "' destination: no state.");
-    m_nextState = NO_NODE_STATE;
     return false;
   }
 
-  void ListNode::transitionFromFailing(NodeState destState)
+  void ListNode::transitionFromFailing()
   {
-    checkError(destState == ITERATION_ENDED_STATE ||
-               destState == FINISHED_STATE,
-               "Attempting to transition NodeList/LibraryNodeCall node from FAILING to invalid state '"
-               << nodeStateName(destState) << "'");
-
-    deactivateActionCompleteCondition();
-
     // N.B. These are conditions for the children.
     if (m_conditions[ancestorExitIdx])
       m_conditions[ancestorExitIdx]->deactivate();
@@ -838,12 +824,17 @@ namespace PLEXIL
     if (m_conditions[ancestorEndIdx])
       m_conditions[ancestorEndIdx]->deactivate();
 
-    if (destState == ITERATION_ENDED_STATE) {
+    deactivateActionCompleteCondition();
+    deactivateExecutable();
+
+    if (m_nextState == ITERATION_ENDED_STATE) {
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
     }
-
-    deactivateExecutable();
+    else 
+      checkError(m_nextState == FINISHED_STATE,
+                 "Attempting to transition NodeList/LibraryNodeCall node from FAILING to invalid state '"
+                 << nodeStateName(m_nextState) << "'");
   }
 
 

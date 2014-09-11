@@ -124,7 +124,7 @@ namespace PLEXIL {
     void postInit(PlexilNode const *node);
 
     // Make the node active.
-    virtual void activate();
+    void activate();
         
     /**
      * @brief Accessor for the NodeId as it was written in the XML.
@@ -138,12 +138,6 @@ namespace PLEXIL {
      */
     Node *getParent() {return m_parent; }
     Node const *getParent() const {return m_parent; }
-
-    /**
-     * @brief Ask whether this node can transition now.
-     * @note This member function is used only by exec-test-module.
-     */
-    bool canTransition();
 
     /**
      * @brief Commit a pending state transition based on the statuses of various conditions.
@@ -322,7 +316,7 @@ namespace PLEXIL {
     Expression *getCondition(const std::string& name);
 
     // NodeFactory::createNode for the module test needs this to be public.
-    virtual void activateInternalVariables();
+    void activateInternalVariables();
 
   protected:
     friend class LibraryCallNode;
@@ -424,38 +418,46 @@ namespace PLEXIL {
     virtual void specializedDeactivateExecutable();
     virtual void specializedReset();
 
-    /**
-     * @return True if the new destination state is different from the last check, false otherwise.
-     * @note Sets m_nextState, m_nextOutcome, m_nextFailureType as a side effect.
-     */
-    virtual bool getDestStateFromInactive();
-    virtual bool getDestStateFromWaiting();
+    //
+    // State transition implementation methods
+    //
+    // Non-virtual member functions are common to all node types.
+    // Virtual members are specialized by node type.
+    //
+
+    // getDestStateFrom...
+    // Return true if the new destination state is different from the last check, false otherwise.
+    // Set m_nextState, m_nextOutcome, m_nextFailureType as a side effect.
+    bool getDestStateFromInactive();
+    bool getDestStateFromWaiting();
     virtual bool getDestStateFromExecuting();
     virtual bool getDestStateFromFinishing();
-    virtual bool getDestStateFromFinished();
+    bool getDestStateFromFinished();
     virtual bool getDestStateFromFailing();
-    virtual bool getDestStateFromIterationEnded();
+    bool getDestStateFromIterationEnded();
 
-    virtual void transitionFromInactive(NodeState toState);
-    virtual void transitionFromWaiting(NodeState toState);
-    virtual void transitionFromExecuting(NodeState toState);
-    virtual void transitionFromFinishing(NodeState toState);
-    virtual void transitionFromFinished(NodeState toState);
-    virtual void transitionFromFailing(NodeState toState);
-    virtual void transitionFromIterationEnded(NodeState toState);
+    //
+    // Transition out of the named current state.
+    void transitionFromInactive();
+    void transitionFromWaiting();
+    virtual void transitionFromExecuting();
+    virtual void transitionFromFinishing();
+    void transitionFromFinished();
+    virtual void transitionFromFailing();
+    void transitionFromIterationEnded();
 
-    virtual void transitionToInactive();
-    virtual void transitionToWaiting();
+    void transitionToInactive();
+    void transitionToWaiting();
     virtual void transitionToExecuting();
     virtual void transitionToFinishing();
-    virtual void transitionToFinished();
+    void transitionToFinished();
     virtual void transitionToFailing();
-    virtual void transitionToIterationEnded(); 
+    void transitionToIterationEnded(); 
 
     // Phases of destructor
     // Not useful if called from base class destructor!
     virtual void cleanUpConditions();
-    virtual void cleanUpVars();
+    void cleanUpVars();
     virtual void cleanUpNodeBody();
 
     // Printing utility

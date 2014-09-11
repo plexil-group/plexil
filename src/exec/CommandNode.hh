@@ -82,9 +82,9 @@ namespace PLEXIL
     virtual void transitionToFinishing();
     virtual void transitionToFailing();
 
-    virtual void transitionFromExecuting(NodeState toState);
-    virtual void transitionFromFinishing(NodeState toState);
-    virtual void transitionFromFailing(NodeState toState);
+    virtual void transitionFromExecuting();
+    virtual void transitionFromFinishing();
+    virtual void transitionFromFailing();
 
     // These are not useful if called from base class destructor!
     virtual void cleanUpNodeBody();

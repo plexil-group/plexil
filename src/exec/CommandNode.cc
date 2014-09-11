@@ -289,7 +289,6 @@ namespace PLEXIL
       debugMsg("Node:getDestState",
                " '" << m_nodeId << 
                "' destination from EXECUTING: no state.");
-      m_nextState = NO_NODE_STATE;
       return false;
     }
 
@@ -300,18 +299,18 @@ namespace PLEXIL
     return true;
   }
 
-  void CommandNode::transitionFromExecuting(NodeState destState)
+  void CommandNode::transitionFromExecuting()
   {
-    checkError(destState == FINISHING_STATE ||
-               destState == FAILING_STATE,
-               "Attempting to transition Command node from EXECUTING to invalid state '"
-               << nodeStateName(destState) << "'");
-
-    if (destState == FAILING_STATE) {
+    if (m_nextState == FAILING_STATE) {
       deactivateAncestorExitInvariantConditions();
       deactivateExitCondition();
       deactivateInvariantCondition();
     }
+    else
+      checkError(m_nextState == FINISHING_STATE,
+                 "Attempting to transition Command node from EXECUTING to invalid state '"
+                 << nodeStateName(m_nextState) << "'");
+
     deactivateEndCondition();
   }
 
@@ -410,13 +409,12 @@ namespace PLEXIL
     debugMsg("Node:getDestState",
              " '" << m_nodeId << 
              "' destination from FINISHING: no state.");
-    m_nextState = NO_NODE_STATE;
     return false;
   }
 
-  void CommandNode::transitionFromFinishing(NodeState destState)
+  void CommandNode::transitionFromFinishing()
   {
-    switch (destState) {
+    switch (m_nextState) {
     case FAILING_STATE:
       deactivateAncestorExitInvariantConditions();
       break;
@@ -429,7 +427,7 @@ namespace PLEXIL
     default:
       checkError(ALWAYS_FAIL,
                  "Attempting to transition Command node from FINISHING to invalid state '"
-                 << nodeStateName(destState) << "'");
+                 << nodeStateName(m_nextState) << "'");
       break;
     }
 
@@ -487,24 +485,22 @@ namespace PLEXIL
 
     debugMsg("Node:getDestState",
              " '" << m_nodeId << "' destination: no state.");
-    m_nextState = NO_NODE_STATE;
     return false;
   }
 
-  void CommandNode::transitionFromFailing(NodeState destState)
+  void CommandNode::transitionFromFailing()
   {
-    checkError(destState == FINISHED_STATE ||
-               destState == ITERATION_ENDED_STATE,
-               "Attempting to transition Command node from FAILING to invalid state '"
-               << nodeStateName(destState) << "'");
-
     deactivateAbortCompleteCondition();
-    if (destState == ITERATION_ENDED_STATE) {
+    deactivateExecutable();
+
+    if (m_nextState == ITERATION_ENDED_STATE) {
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
     }
-
-    deactivateExecutable();
+    else 
+      checkError(m_nextState == FINISHED_STATE,
+                 "Attempting to transition Command node from FAILING to invalid state '"
+                 << nodeStateName(m_nextState) << "'");
   }
 
   void CommandNode::specializedHandleExecution()
