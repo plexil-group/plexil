@@ -25,8 +25,6 @@ SimpleDrive{
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 3
-[PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'SimpleDrive' was previously eligible to transition but isn't now.
 [PlexilExec:step][1:2] State change queue: Drive 
 [PlexilExec:step][1:2:0] Transitioning node Drive from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
@@ -40,21 +38,21 @@ SimpleDrive{
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7fe011409500 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fe011409b70 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into (Variable Integer retTestFunction 0x7fc749c095e0 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fc749c09c60 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fe0114099f0 [a](0) (StateVariable NodeState Drive 0x7fe0114096d0 [a](EXECUTING)))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe011409930 [i](UNKNOWN) (StateVariable NodeState Drive 0x7fe0114096d0 [a](EXECUTING)))
- retTestFunction: (Variable Integer retTestFunction 0x7fe011409500 [a](-1))
+ EndCondition: (AllChildrenFinished Boolean 0x7fc749c09ae0 [a](0) (StateVariable NodeState Drive 0x7fc749c097b0 [a](EXECUTING)))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fc749c09a20 [i](UNKNOWN) (StateVariable NodeState Drive 0x7fc749c097b0 [a](EXECUTING)))
+ retTestFunction: (Variable Integer retTestFunction 0x7fc749c095e0 [a](-1))
   Drive{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fe01140a250 [a](UNKNOWN) (Interruptible Boolean 0x7fe01140a2b0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe011409b70 [a](UNKNOWN))) (EQ Boolean 0x7fe01140a170 [a](0) (Constant Integer 0x7fe01140a120 [a](10)) (Variable Integer retTestFunction 0x7fe011409500 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fe01140a210 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe011409b70 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10cbc0658 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fe011409d60 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fe011409b70 [a](UNKNOWN)))
-   AbortCompleteCondition: (Variable Boolean Drive abortComplete 0x7fe011409bb0 [a](UNKNOWN))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011409b70 [a](UNKNOWN))
+   EndCondition: (OR Boolean 0x7fc749c0a340 [a](UNKNOWN) (Interruptible Boolean 0x7fc749c0a3a0 [a](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fc749c09c60 [a](UNKNOWN))) (EQ Boolean 0x7fc749c0a260 [a](0) (Constant Integer 0x7fc749c0a210 [a](10)) (Variable Integer retTestFunction 0x7fc749c095e0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7fc749c0a300 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fc749c09c60 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x106da8658 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fc749c09e50 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fc749c09c60 [a](UNKNOWN)))
+   AbortCompleteCondition: (Variable Boolean Drive abortComplete 0x7fc749c09ca0 [a](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc749c09c60 [a](UNKNOWN))
   }
 }
 
@@ -84,8 +82,6 @@ SimpleDrive{
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 8
-[PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'Drive' was previously eligible to transition but isn't now.
 [PlexilExec:step][2:3] State change queue: SimpleDrive 
 [PlexilExec:step][2:3:0] Transitioning node SimpleDrive from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
@@ -101,20 +97,18 @@ SimpleDrive{
 [PlexilExec:step][2:5] State change queue: SimpleDrive 
 [PlexilExec:step][2:5:0] Transitioning node SimpleDrive from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
-[PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Node 'SimpleDrive' was previously eligible to transition but isn't now.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 SimpleDrive{
  State: FINISHED (0)
  Outcome: SUCCESS
- retTestFunction: (Variable Integer retTestFunction 0x7fe011409500 [i](UNKNOWN))
+ retTestFunction: (Variable Integer retTestFunction 0x7fc749c095e0 [i](UNKNOWN))
   Drive{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011409b70 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc749c09c60 [i](UNKNOWN))
   }
 }
 
@@ -126,12 +120,12 @@ SimpleDrive{
 SimpleDrive{
  State: FINISHED (0)
  Outcome: SUCCESS
- retTestFunction: (Variable Integer retTestFunction 0x7fe011409500 [i](UNKNOWN))
+ retTestFunction: (Variable Integer retTestFunction 0x7fc749c095e0 [i](UNKNOWN))
   Drive{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe011409b70 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc749c09c60 [i](UNKNOWN))
   }
 }
 
