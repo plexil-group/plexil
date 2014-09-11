@@ -218,6 +218,7 @@ static bool integerVariableFactoryTest()
     std::cout << "Caught expected exception" << std::endl;
   }
   
+#if !defined(__VXWORKS__)
   try {
     Expression *tooBigExp = createExpression(&tooBigVar, nc, wasCreated);
     assertTrue_2(false, "Failed to detect out-of-range initial value");
@@ -225,6 +226,7 @@ static bool integerVariableFactoryTest()
   catch (ParserException const & /*exc*/) {
     std::cout << "Caught expected exception" << std::endl;
   }
+#endif // !defined(__VXWORKS__)
 
   Expression *xExp = createExpression(&xVar, nc, wasCreated);
   assertTrue_1(xExp);
@@ -342,6 +344,7 @@ static bool realVariableFactoryTest()
     std::cout << "Caught expected exception" << std::endl;
   }
   
+#if !defined(__VXWORKS__)
   try {
     Expression *tooBigExp = createExpression(&tooBigVar, nc, wasCreated);
     assertTrue_2(false, "Failed to detect out-of-range initial value");
@@ -349,6 +352,7 @@ static bool realVariableFactoryTest()
   catch (ParserException const & /*exc*/) {
     std::cout << "Caught expected exception" << std::endl;
   }
+#endif // !defined(__VXWORKS__)
 
   Expression *xExp = createExpression(&xVar, nc, wasCreated);
   assertTrue_1(xExp);
@@ -736,6 +740,7 @@ static bool realArrayVariableFactoryTest()
     std::cout << "Caught expected error" << std::endl;
   }
 
+#if !defined(__VXWORKS__)
   try {
     Expression *rangeErrExp = createExpression(&rangeErrVar, nc, wasCreated);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range real");
@@ -743,6 +748,7 @@ static bool realArrayVariableFactoryTest()
   catch (ParserException const & /* exc */) {
     std::cout << "Caught expected error" << std::endl;
   }
+#endif // !defined(__VXWORKS__)
 
   // Variable reference tests
 
