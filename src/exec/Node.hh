@@ -146,29 +146,10 @@ namespace PLEXIL {
     bool canTransition();
 
     /**
-     * @brief Commit a state transition based on the statuses of various conditions.
-     * @param destState The new node state.
+     * @brief Commit a pending state transition based on the statuses of various conditions.
      * @param time The time of the transition.
      */
-    void transition(NodeState destState, 
-                    double time); // FIXME - need a better representation
-
-    /**
-     * @brief Commit a state transition based on the statuses of various conditions.
-     * @param destState The new node state.
-     * @note For use in the unit test only.
-     */
-    void transition(NodeState destState);
-
-    /**
-     * @brief Handle the node exiting its current state.
-     */
-    void transitionFrom(NodeState destState);
-
-    /**
-     * @brief Handle the node entering this new state.
-     */
-    void transitionTo(NodeState destState, double tym); // FIXME
+    void transition(double time = 0.0); // FIXME - need a better representation
 
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
@@ -179,18 +160,20 @@ namespace PLEXIL {
 
     /**
      * @brief Gets the destination state of this node, were it to transition, based on the values of various conditions.
-     * @return The destination state.
+     * @return True if the new destination state is different from the last check, false otherwise.
+     * @note Sets m_nextState, m_nextOutcome, m_nextFailureType as a side effect.
+     * @note External only for convenience of unit tests.
      */
-    NodeState getDestState();
+    bool getDestState();
 
     /**
      * @brief Gets the previously calculated destination state of this node.
      * @return The destination state.
-     * @note Should only be called by PlexilExec::resolveVariableConflicts().
+     * @note Should only be called by PlexilExec::resolveVariableConflicts() and unit tests.
      */
     NodeState getNextState() const 
     {
-      return (NodeState) m_lastQuery;
+      return (NodeState) m_nextState;
     }
 
     /**
@@ -213,8 +196,7 @@ namespace PLEXIL {
     virtual void setState(NodeState newValue, double tym); // FIXME
 
     // Transition helpers
-    // Public so transition tests can use them.
-    void setNodeOutcome(NodeOutcome o);
+    // Public so transition tests can use it.
     void setNodeFailureType(FailureType f);
 
     /**
@@ -438,19 +420,21 @@ namespace PLEXIL {
     virtual void specializedPostInitLate(PlexilNode const *node);
     virtual void createConditionWrappers();
     virtual void specializedActivate();
-    virtual void specializedActivateInternalVariables();
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
     virtual void specializedReset();
 
-    // *** are these const? ***
-    virtual NodeState getDestStateFromInactive();
-    virtual NodeState getDestStateFromWaiting();
-    virtual NodeState getDestStateFromExecuting();
-    virtual NodeState getDestStateFromFinishing();
-    virtual NodeState getDestStateFromFinished();
-    virtual NodeState getDestStateFromFailing();
-    virtual NodeState getDestStateFromIterationEnded();
+    /**
+     * @return True if the new destination state is different from the last check, false otherwise.
+     * @note Sets m_nextState, m_nextOutcome, m_nextFailureType as a side effect.
+     */
+    virtual bool getDestStateFromInactive();
+    virtual bool getDestStateFromWaiting();
+    virtual bool getDestStateFromExecuting();
+    virtual bool getDestStateFromFinishing();
+    virtual bool getDestStateFromFinished();
+    virtual bool getDestStateFromFailing();
+    virtual bool getDestStateFromIterationEnded();
 
     virtual void transitionFromInactive(NodeState toState);
     virtual void transitionFromWaiting(NodeState toState);
@@ -527,9 +511,11 @@ namespace PLEXIL {
 
     // Current state
     uint16_t m_state; /*!< The current state of the node. */
-    uint16_t m_lastQuery; /*!< The state returned by getDestState() the last time checkConditions() was called. */
+    uint16_t m_nextState; /*!< The state returned by getDestState() the last time checkConditions() was called. */
     uint16_t m_outcome;
+    uint16_t m_nextOutcome;
     uint16_t m_failureType;
+    uint16_t m_nextFailureType;
 
     // Housekeeping details
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */
@@ -547,6 +533,11 @@ namespace PLEXIL {
     void getVarsFromInterface(PlexilInterface const *intf);
     Expression *getInVariable(PlexilVarRef const *varRef, bool parentIsLibCall);
     Assignable *getInOutVariable(PlexilVarRef const *varRef, bool parentIsLibCall);
+
+    // These 3 should only be called from transition().
+    void setNodeOutcome(NodeOutcome o);
+    void transitionFrom();
+    void transitionTo(double tym); // FIXME
 
     void activateLocalVariables();
     void deactivateLocalVariables();

@@ -81,8 +81,8 @@ namespace PLEXIL
     // void cleanUpConditions();
     void cleanUpNodeBody();
 
-    NodeState getDestStateFromExecuting();
-    NodeState getDestStateFromFailing();
+    bool getDestStateFromExecuting();
+    bool getDestStateFromFailing();
 
     void transitionFromExecuting(NodeState toState);
     void transitionFromFailing(NodeState toState);

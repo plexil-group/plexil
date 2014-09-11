@@ -223,7 +223,7 @@ namespace PLEXIL
     activateEndCondition();
   }
 
-  NodeState CommandNode::getDestStateFromExecuting()
+  bool CommandNode::getDestStateFromExecuting()
   {
     Expression *cond;
     bool temp;
@@ -234,7 +234,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Command node and ancestor exit true.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = INTERRUPTED_OUTCOME;
+        m_nextFailureType = PARENT_EXITED;
+        return true;
       }
     }
 
@@ -245,7 +248,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Command node and exit true.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = INTERRUPTED_OUTCOME;
+        m_nextFailureType = EXITED;
+        return true;
       }
     }
 
@@ -256,7 +262,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Command node and ancestor invariant false.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = FAILURE_OUTCOME;
+        m_nextFailureType = PARENT_FAILED;
+        return true;
       }
     }
 
@@ -267,7 +276,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Command node and invariant false.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = FAILURE_OUTCOME;
+        m_nextFailureType = INVARIANT_CONDITION_FAILED;
+        return true;
       }
     }
 
@@ -277,13 +289,15 @@ namespace PLEXIL
       debugMsg("Node:getDestState",
                " '" << m_nodeId << 
                "' destination from EXECUTING: no state.");
-      return NO_NODE_STATE;
+      m_nextState = NO_NODE_STATE;
+      return false;
     }
 
     debugMsg("Node:getDestState",
              " '" << m_nodeId << 
              "' destination: FINISHING.  Command node and end condition true.");
-    return FINISHING_STATE;
+    m_nextState = FINISHING_STATE;
+    return true;
   }
 
   void CommandNode::transitionFromExecuting(NodeState destState)
@@ -292,24 +306,6 @@ namespace PLEXIL
                destState == FAILING_STATE,
                "Attempting to transition Command node from EXECUTING to invalid state '"
                << nodeStateName(destState) << "'");
-
-    bool temp;
-    if (getAncestorExitCondition() && getAncestorExitCondition()->getValue(temp) && temp) {
-      setNodeOutcome(INTERRUPTED_OUTCOME);
-      setNodeFailureType(PARENT_EXITED);
-    }
-    else if (getExitCondition() && getExitCondition()->getValue(temp) && temp) {
-      setNodeOutcome(INTERRUPTED_OUTCOME);
-      setNodeFailureType(EXITED);
-    }
-    else if (getAncestorInvariantCondition() && getAncestorInvariantCondition()->getValue(temp) && !temp) {
-      setNodeOutcome(FAILURE_OUTCOME);
-      setNodeFailureType(PARENT_FAILED);
-    }
-    else if (getInvariantCondition() && getInvariantCondition()->getValue(temp) && !temp) {
-      setNodeOutcome(FAILURE_OUTCOME);
-      setNodeFailureType(INVARIANT_CONDITION_FAILED);
-    }
 
     if (destState == FAILING_STATE) {
       deactivateAncestorExitInvariantConditions();
@@ -332,7 +328,7 @@ namespace PLEXIL
     activateActionCompleteCondition();
   }
 
-  NodeState CommandNode::getDestStateFromFinishing()
+  bool CommandNode::getDestStateFromFinishing()
   {
     Expression *cond;
     bool temp;
@@ -343,7 +339,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Command node and ancestor exit true.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = INTERRUPTED_OUTCOME;
+        m_nextFailureType = PARENT_EXITED;
+        return true;
       }
     }
 
@@ -354,7 +353,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Command node and exit true.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = INTERRUPTED_OUTCOME;
+        m_nextFailureType = EXITED;
+        return true;
       }
     }
 
@@ -365,7 +367,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Command node and ancestor invariant false.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = FAILURE_OUTCOME;
+        m_nextFailureType = PARENT_FAILED;
+        return true;
       }
     }
 
@@ -376,7 +381,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Command node, invariant false and end false or unknown.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = FAILURE_OUTCOME;
+        m_nextFailureType = INVARIANT_CONDITION_FAILED;
+        return true;
       }
     }
 
@@ -387,63 +395,48 @@ namespace PLEXIL
       debugMsg("Node:getDestState",
                " '" << m_nodeId << 
                "' destination: ITERATION_ENDED.  Command node and action complete true.");
-      return ITERATION_ENDED_STATE;
+      m_nextState = ITERATION_ENDED_STATE;
+      if ((cond = getPostCondition()) && (!cond->getValue(temp) || !temp)) {
+        checkError(cond->isActive(),
+                   "Node::getDestState: Post for " << m_nodeId << " is inactive.");
+        m_nextOutcome = FAILURE_OUTCOME;
+        m_nextFailureType = POST_CONDITION_FAILED;
+      }
+      else
+        m_nextOutcome = SUCCESS_OUTCOME;
+      return true;
     }
       
     debugMsg("Node:getDestState",
              " '" << m_nodeId << 
-             "' destination from FINISHING: no state."
-             << "\n  Ancestor exit: "
-             << (getAncestorExitCondition() ? getAncestorExitCondition()->toString() : "NULL")
-             << "\n  Exit: " << (getExitCondition() ? getExitCondition()->toString() : "NULL")
-             << "\n  Ancestor invariant: "
-             << (getAncestorInvariantCondition() ? getAncestorInvariantCondition()->toString() : "NULL")
-             << "\n  Invariant: "
-             << (getInvariantCondition() ? getInvariantCondition()->toString() : "NULL")
-             << "\n  Action complete: " << getActionCompleteCondition()->toString());
-    return NO_NODE_STATE;
+             "' destination from FINISHING: no state.");
+    m_nextState = NO_NODE_STATE;
+    return false;
   }
 
   void CommandNode::transitionFromFinishing(NodeState destState)
   {
-    bool temp;
-    if (getAncestorExitCondition() && getAncestorExitCondition()->getValue(temp) && temp) {
-      setNodeOutcome(INTERRUPTED_OUTCOME);
-      setNodeFailureType(PARENT_EXITED);
-    }
-    else if (getExitCondition() && getExitCondition()->getValue(temp) && temp) {
-      setNodeOutcome(INTERRUPTED_OUTCOME);
-      setNodeFailureType(EXITED);
-    }
-    else if (getAncestorInvariantCondition() && getAncestorInvariantCondition()->getValue(temp) && !temp) {
-      setNodeOutcome(FAILURE_OUTCOME);
-      setNodeFailureType(PARENT_FAILED);
-    }
-    else if (getInvariantCondition() && getInvariantCondition()->getValue(temp) && !temp) {
-      setNodeOutcome(FAILURE_OUTCOME);
-      setNodeFailureType(INVARIANT_CONDITION_FAILED);
-    }
-    else if (getPostCondition() && (!getPostCondition()->getValue(temp) || !temp)) {
-      checkError(isPostConditionActive(),
-                 "CommandNode::transitionFromExecuting: Post for " << m_nodeId << " is inactive.");
-      setNodeOutcome(FAILURE_OUTCOME);
-      setNodeFailureType(POST_CONDITION_FAILED);
-    }
-    else {
-      setNodeOutcome(SUCCESS_OUTCOME);
+    switch (destState) {
+    case FAILING_STATE:
+      deactivateAncestorExitInvariantConditions();
+      break;
+
+    case ITERATION_ENDED_STATE:
+      activateAncestorEndCondition();
+      deactivateExecutable();
+      break;
+
+    default:
+      checkError(ALWAYS_FAIL,
+                 "Attempting to transition Command node from FINISHING to invalid state '"
+                 << nodeStateName(destState) << "'");
+      break;
     }
 
     deactivateExitCondition();
     deactivateInvariantCondition();
     deactivatePostCondition();
     deactivateActionCompleteCondition();
-    if (destState == FAILING_STATE) {
-      deactivateAncestorExitInvariantConditions();
-    }
-    else { // ITERATION_ENDED
-      activateAncestorEndCondition();
-      deactivateExecutable();
-    }
   }
 
 
@@ -460,7 +453,7 @@ namespace PLEXIL
     abort();
   }
 
-  NodeState CommandNode::getDestStateFromFailing()
+  bool CommandNode::getDestStateFromFailing()
   {
     Expression *cond = getAbortCompleteCondition();
     checkError(cond->isActive(),
@@ -472,26 +465,30 @@ namespace PLEXIL
                  " '" << m_nodeId << 
                  "' destination: FINISHED.  Command node abort complete, " <<
                  "and parent failed.");
-        return FINISHED_STATE;
+        m_nextState = FINISHED_STATE;
+        return true;
       }
       else if (getFailureType() == PARENT_EXITED) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FINISHED.  Command node abort complete, " <<
                  "and parent exited.");
-        return FINISHED_STATE;
+        m_nextState = FINISHED_STATE;
+        return true;
       }
       else {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: ITERATION_ENDED.  Command node abort complete.");
-        return ITERATION_ENDED_STATE;
+        m_nextState = ITERATION_ENDED_STATE;
+        return true;
       }
     }
 
     debugMsg("Node:getDestState",
              " '" << m_nodeId << "' destination: no state.");
-    return NO_NODE_STATE;
+    m_nextState = NO_NODE_STATE;
+    return false;
   }
 
   void CommandNode::transitionFromFailing(NodeState destState)
@@ -508,11 +505,6 @@ namespace PLEXIL
     }
 
     deactivateExecutable();
-  }
-
-  // TODO: figure out if this should be activated on entering EXECUTING state
-  void CommandNode::specializedActivateInternalVariables()
-  {
   }
 
   void CommandNode::specializedHandleExecution()

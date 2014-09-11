@@ -156,7 +156,7 @@ namespace PLEXIL
     activateActionCompleteCondition();
   }
 
-  NodeState AssignmentNode::getDestStateFromExecuting()
+  bool AssignmentNode::getDestStateFromExecuting()
   {
     // Not eligible to transition from EXECUTING until the assignment has been executed.
     Expression *cond = getActionCompleteCondition();
@@ -166,7 +166,8 @@ namespace PLEXIL
     if (!cond->getValue(temp) || !temp) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId << "' destination: no state. Assignment node and assignment-complete false or unknown.");
-      return NO_NODE_STATE;
+      m_nextState = NO_NODE_STATE;
+      return false;
     }
 
     if ((cond = getAncestorExitCondition())) {
@@ -175,7 +176,10 @@ namespace PLEXIL
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. Assignment node and ANCESTOR_EXIT_CONDITION true.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = INTERRUPTED_OUTCOME;
+        m_nextFailureType = PARENT_EXITED;
+        return true;
       }
     }
 
@@ -185,7 +189,10 @@ namespace PLEXIL
       if (cond->getValue(temp) && temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. Assignment node and EXIT_CONDITION true.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = INTERRUPTED_OUTCOME;
+        m_nextFailureType = EXITED;
+        return true;
       }
     }
 
@@ -195,7 +202,10 @@ namespace PLEXIL
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. Assignment node and Ancestor invariant false.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = FAILURE_OUTCOME;
+        m_nextFailureType = PARENT_FAILED;
+        return true;
       }
     }
 
@@ -205,19 +215,32 @@ namespace PLEXIL
       if (cond->getValue(temp) && !temp) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << "' destination: FAILING. Assignment node and Invariant false.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = FAILURE_OUTCOME;
+        m_nextFailureType = INVARIANT_CONDITION_FAILED;
+        return true;
       }
     }
 
     if ((cond = getEndCondition()) && (!cond->getValue(temp) || !temp)) {
       checkError(cond->isActive(),
                  "Node::getDestStateFromExecuting: End for " << m_nodeId << " is inactive.");
-      return NO_NODE_STATE;
+      m_nextState = NO_NODE_STATE;
+      return false;
     }
 
     debugMsg("Node:getDestState",
              " '" << m_nodeId << "' destination: ITERATION_ENDED. Assignment node and End condition true.");
-    return ITERATION_ENDED_STATE;
+    m_nextState = ITERATION_ENDED_STATE;
+    if ((cond = getPostCondition()) && (!cond->getValue(temp) || !temp)) { 
+      checkError(cond->isActive(),
+                 "Node::getDestState: Post for " << m_nodeId << " is inactive.");
+      m_nextOutcome = FAILURE_OUTCOME;
+      m_nextFailureType = POST_CONDITION_FAILED;
+    }
+    else 
+      m_nextOutcome = SUCCESS_OUTCOME;
+    return true;
   }
 
   void AssignmentNode::specializedHandleExecution()
@@ -236,33 +259,6 @@ namespace PLEXIL
                || destState == ITERATION_ENDED_STATE,
                "Attempting to transition AssignmentNode from EXECUTING to invalid state '"
                << nodeStateName(destState) << "'");
-
-    bool temp;
-    if (getAncestorExitCondition() && getAncestorExitCondition()->getValue(temp) && temp) {
-      setNodeOutcome(INTERRUPTED_OUTCOME);
-      setNodeFailureType(PARENT_EXITED);
-    }
-    else if (getExitCondition() && getExitCondition()->getValue(temp) && temp) {
-      setNodeOutcome(INTERRUPTED_OUTCOME);
-      setNodeFailureType(EXITED);
-    }
-    else if (getAncestorInvariantCondition() && getAncestorInvariantCondition()->getValue(temp) && !temp) {
-      setNodeOutcome(FAILURE_OUTCOME);
-      setNodeFailureType(PARENT_FAILED);
-    }
-    else if (getInvariantCondition() && getInvariantCondition()->getValue(temp) && !temp) {
-      setNodeOutcome(FAILURE_OUTCOME);
-      setNodeFailureType(INVARIANT_CONDITION_FAILED);
-    }
-    // End true -> ITERATION_ENDED
-    else if (getPostCondition() && (!getPostCondition()->getValue(temp) || !temp)) { 
-      checkError(isPostConditionActive(),
-                 "AssignmentNode::transitionFromExecuting: Post for " << m_nodeId << " is inactive.");
-        setNodeOutcome(FAILURE_OUTCOME);
-        setNodeFailureType(POST_CONDITION_FAILED);
-    }
-    else 
-      setNodeOutcome(SUCCESS_OUTCOME);
 
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -295,7 +291,7 @@ namespace PLEXIL
     abort();
   }
 
-  NodeState AssignmentNode::getDestStateFromFailing()
+  bool AssignmentNode::getDestStateFromFailing()
   {
     Expression *cond = getAbortCompleteCondition();
     checkError(cond->isActive(),
@@ -305,7 +301,8 @@ namespace PLEXIL
       debugMsg("Node:getDestState",
                " '" << m_nodeId
                << "' destination: no state. Assignment node and abort complete false or unknown.");
-      return NO_NODE_STATE;
+      m_nextState = NO_NODE_STATE;
+      return false;
     }
 
     FailureType failureValue = getFailureType();
@@ -313,19 +310,22 @@ namespace PLEXIL
       debugMsg("Node:getDestState",
                " '" << m_nodeId << 
                "' destination: FINISHED.  Assignment node, abort complete, and parent failed.");
-      return FINISHED_STATE;
+      m_nextState = FINISHED_STATE;
+      return true;
     }
     else if (failureValue == PARENT_EXITED) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId << 
                "' destination: FINISHED.  Assignment node, abort complete, and parent exited.");
-      return FINISHED_STATE;
+      m_nextState = FINISHED_STATE;
+      return true;
     }
     else {
       debugMsg("Node:getDestState",
                " '" << m_nodeId << 
                "' destination: ITERATION_ENDED.  Assignment node and abort complete.");
-      return ITERATION_ENDED_STATE;
+      m_nextState = ITERATION_ENDED_STATE;
+      return true;
     }
   }
 

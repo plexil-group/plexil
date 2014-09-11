@@ -174,7 +174,7 @@ namespace PLEXIL
     m_update->execute();
   }
 
-  NodeState UpdateNode::getDestStateFromExecuting()
+  bool UpdateNode::getDestStateFromExecuting()
   {
     Expression *cond;
     bool temp;
@@ -185,7 +185,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Update node and ancestor exit true.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = INTERRUPTED_OUTCOME;
+        m_nextFailureType = PARENT_EXITED;
+        return true;
       }
     }
 
@@ -196,7 +199,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Update node and exit true.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = INTERRUPTED_OUTCOME;
+        m_nextFailureType = EXITED;
+        return true;
       }
     }
 
@@ -207,7 +213,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Update node and ancestor invariant false.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = FAILURE_OUTCOME;
+        m_nextFailureType = PARENT_FAILED;
+        return true;
       }
     }
 
@@ -218,7 +227,10 @@ namespace PLEXIL
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FAILING. Update node and invariant false.");
-        return FAILING_STATE;
+        m_nextState = FAILING_STATE;
+        m_nextOutcome = FAILURE_OUTCOME;
+        m_nextFailureType = INVARIANT_CONDITION_FAILED;
+        return true;
       }
     }
 
@@ -227,13 +239,23 @@ namespace PLEXIL
                  "End for " << m_nodeId << " is inactive.");
       debugMsg("Node:getDestState",
                " '" << m_nodeId << "' destination from EXECUTING: no state.");
-      return NO_NODE_STATE;
+      m_nextState = NO_NODE_STATE;
+      return false;
     }
 
     debugMsg("Node:getDestState",
              " '" << m_nodeId << 
              "' destination: ITERATION_ENDED.  Update node and end condition true.");
-    return ITERATION_ENDED_STATE;
+    m_nextState = ITERATION_ENDED_STATE;
+    if ((cond = getPostCondition()) && (!cond->getValue(temp) || !temp)) { 
+      checkError(cond->isActive(),
+                 "Node::getDestState: Post for " << m_nodeId << " is inactive.");
+      m_nextOutcome = FAILURE_OUTCOME;
+      m_nextFailureType = POST_CONDITION_FAILED;
+    }
+    else
+      m_nextOutcome = SUCCESS_OUTCOME;
+    return true;
   }
 
   void UpdateNode::transitionFromExecuting(NodeState destState)
@@ -243,33 +265,6 @@ namespace PLEXIL
                "Attempting to transition Update node from EXECUTING to invalid state '"
                << nodeStateName(destState) << "'");
 
-    bool temp;
-    if (getAncestorExitCondition() && getAncestorExitCondition()->getValue(temp) && temp) {
-      setNodeOutcome(INTERRUPTED_OUTCOME);
-      setNodeFailureType(PARENT_EXITED);
-    }
-    else if (getExitCondition() && getExitCondition()->getValue(temp) && temp) {
-      setNodeOutcome(INTERRUPTED_OUTCOME);
-      setNodeFailureType(EXITED);
-    }
-    else if (getAncestorInvariantCondition() && getAncestorInvariantCondition()->getValue(temp) && !temp) {
-      setNodeOutcome(FAILURE_OUTCOME);
-      setNodeFailureType(PARENT_FAILED);
-    }
-    else if (getInvariantCondition() && getInvariantCondition()->getValue(temp) && !temp) {
-      setNodeOutcome(FAILURE_OUTCOME);
-      setNodeFailureType(INVARIANT_CONDITION_FAILED);
-    }
-    // End true -> ITERATION_ENDED
-    else if (getPostCondition() && (!getPostCondition()->getValue(temp) || !temp)) { 
-      checkError(isPostConditionActive(),
-                 "AssignmentNode::transitionFromExecuting: Post for " << m_nodeId << " is inactive.");
-      setNodeOutcome(FAILURE_OUTCOME);
-      setNodeFailureType(POST_CONDITION_FAILED);
-    }
-    else
-      setNodeOutcome(SUCCESS_OUTCOME);
-
     deactivateExitCondition();
     deactivateInvariantCondition();
     deactivateEndCondition();
@@ -277,15 +272,13 @@ namespace PLEXIL
 
     if (destState == FAILING_STATE) {
       // N.B. FAILING waits on ActionComplete, *not* AbortComplete!
-      activateActionCompleteCondition();
       deactivateAncestorExitInvariantConditions();
+      activateActionCompleteCondition();
     }
     else { // ITERATION_ENDED
-      activateAncestorEndCondition();
-
       deactivateExecutable();
+      activateAncestorEndCondition();
     }
-
   }
 
   //
@@ -302,38 +295,39 @@ namespace PLEXIL
     abort(); // no-op for now
   }
 
-  NodeState UpdateNode::getDestStateFromFailing()
+  bool UpdateNode::getDestStateFromFailing()
   {
     Expression *cond = getActionCompleteCondition();
-    checkError(cond->isActive(),
-               "Action complete for " << m_nodeId << " is inactive.");
     bool temp;
     if (cond->getValue(temp) && temp) {
       if (getFailureType() == PARENT_FAILED) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FINISHED. Update node, action complete true, and parent failed.");
-        return FINISHED_STATE;
+        m_nextState = FINISHED_STATE;
+        return true;
       }
       if (getFailureType() == PARENT_EXITED) {
         debugMsg("Node:getDestState",
                  " '" << m_nodeId << 
                  "' destination: FINISHED. Update node, action complete true, and parent exited.");
-        return FINISHED_STATE;
+        m_nextState = FINISHED_STATE;
+        return true;
       }
-      else {
-        debugMsg("Node:getDestState",
-                 " '" << m_nodeId << 
-                 "' destination: ITERATION_ENDED. Update node, action complete true, and exited or invariant failed.");
-        return ITERATION_ENDED_STATE;
-      }
-    }
-    else {
       debugMsg("Node:getDestState",
                " '" << m_nodeId << 
-               "' destination: no state. Update node and action complete false or unknown.");
-      return NO_NODE_STATE;
+               "' destination: ITERATION_ENDED. Update node, action complete true, and exited or invariant failed.");
+      m_nextState = ITERATION_ENDED_STATE;
+      return true;
     }
+
+    checkError(cond->isActive(),
+               "Action complete for " << m_nodeId << " is inactive.");
+    debugMsg("Node:getDestState",
+             " '" << m_nodeId << 
+             "' destination: no state. Update node and action complete false or unknown.");
+    m_nextState = NO_NODE_STATE;
+    return false;
   }
 
   void UpdateNode::transitionFromFailing(NodeState destState)

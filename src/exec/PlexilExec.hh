@@ -29,7 +29,6 @@
 
 #include "ExecConnector.hh"
 #include "generic_hash_map.hh"
-#include "NodeTransition.hh"
 #include "PlexilPlan.hh"
 
 #include <list>
@@ -171,7 +170,6 @@ namespace PLEXIL
     PlexilExec &operator=(PlexilExec const &);
 
     // Private types
-    typedef std::vector<NodeTransition> StateChangeQueue;
     typedef std::multiset<Node *, NodeConflictComparator> VariableConflictSet;
     typedef std::map<Assignable const *, VariableConflictSet> VariableConflictMap;
 
@@ -213,7 +211,7 @@ namespace PLEXIL
     std::list<Node *> m_plan; /*<! The root of the plan.*/
     std::vector<Node *> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
     std::queue<Node *> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
-    StateChangeQueue m_stateChangeQueue; /*<! Nodes that are eligible for state transition.*/
+    std::vector<Node *> m_stateChangeQueue; /*<! Nodes that are eligible for state transition.*/
     std::vector<Assignment *> m_assignmentsToExecute;
     std::vector<Assignment *> m_assignmentsToRetract;
     std::vector<Assignable *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */

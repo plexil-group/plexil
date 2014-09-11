@@ -35,6 +35,7 @@
 #include "Node.hh"
 #include "NodeConstants.hh"
 #include "NodeFactory.hh"
+#include "NodeTransition.hh"
 
 #include <algorithm> // for find(), transform
 #include <iterator> // for back_insert_iterator
@@ -267,13 +268,6 @@ namespace PLEXIL
     debugMsg("PlexilExec:handleConditionsChanged",
              "Node " << node->getNodeId() << " had a relevant condition change.");
 
-    if (destState == NO_NODE_STATE) {
-      // Node not eligible to transition
-      debugMsg("PlexilExec:handleConditionsChanged",
-               "Node '" << node->getNodeId() <<
-               "' was previously eligible to transition but isn't now.");
-      return;
-    }
     debugMsg("PlexilExec:handleConditionsChanged",
              "Considering node '" << node->getNodeId() << "' for state transition.");
     if (node->getType() == NodeType_Assignment) {
@@ -321,7 +315,7 @@ namespace PLEXIL
       } // end switch (destState)
     }
 
-    m_stateChangeQueue.push_back(NodeTransition(node, destState));
+    m_stateChangeQueue.push_back(node);
     debugMsg("PlexilExec:handleConditionsChanged",
              "Placing node '" << node->getNodeId() <<
              "' on the state change queue in position " << ++m_queuePos);
@@ -471,28 +465,28 @@ namespace PLEXIL
       // Transition the nodes
       std::vector<NodeTransition> transitionsToPublish;
       transitionsToPublish.reserve(m_stateChangeQueue.size());
-      for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
+      for (std::vector<Node *>::const_iterator it = m_stateChangeQueue.begin();
            it != m_stateChangeQueue.end();
            ++it) {
-        Node *node = it->node;
+        Node *node = *it;
         debugMsg("PlexilExec:step",
                  "[" << cycleNum << ":" << stepCount << ":" << microStepCount <<
                  "] Transitioning node " << node->getNodeId()
                  << " from " << node->getStateName()
-                 << " to " << nodeStateName(it->state));
+                 << " to " << nodeStateName(node->getNextState()));
         NodeState oldState = node->getState();
-        node->transition(it->state, startTime);
+        node->transition(startTime);
         transitionsToPublish.push_back(NodeTransition(node, oldState));
         ++microStepCount;
       }
 
       // TODO: instrument high-water-mark of max nodes transitioned in this step
 
-      // Synchronously notify transitioned nodes they may be eligible again (redundant?)
-      for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
+      // Synchronously notify transitioned nodes they may be eligible again
+      for (std::vector<Node *>::const_iterator it = m_stateChangeQueue.begin();
            it != m_stateChangeQueue.end();
            ++it)
-        it->node->conditionChanged();
+         (*it)->conditionChanged();
 
       // Publish the transitions
       // FIXME: Move call to listener outside of quiescence loop
@@ -616,7 +610,7 @@ namespace PLEXIL
     }
 
     if (destState == EXECUTING_STATE || destState == FAILING_STATE) {
-      m_stateChangeQueue.push_back(NodeTransition(nodeToExecute, destState));
+      m_stateChangeQueue.push_back(nodeToExecute);
       debugMsg("PlexilExec:resolveResourceConflicts",
                "Node '" << nodeToExecute->getNodeId()
                << "' has best priority.  Adding it to be executed in position "
@@ -633,11 +627,11 @@ namespace PLEXIL
 
   std::string PlexilExec::stateChangeQueueStr() {
     std::ostringstream retval;
-    for (StateChangeQueue::const_iterator it = m_stateChangeQueue.begin();
+    for (std::vector<Node *>::const_iterator it = m_stateChangeQueue.begin();
          it != m_stateChangeQueue.end();
          ++it) {
-      check_error_1(it->node);
-      retval << it->node->getNodeId() << " ";
+      check_error_1(*it);
+      retval << (*it)->getNodeId() << " ";
     }
     return retval.str();
   }
