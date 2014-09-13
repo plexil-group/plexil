@@ -938,7 +938,7 @@ namespace PLEXIL
         if (*thisElementValue) {
           values.push_back(string(thisElementValue));
         }
-        else if (valueType == STRING_TAG) {
+        else if (valueType == STRING_STR) {
           values.push_back(string());
         }
         else {
