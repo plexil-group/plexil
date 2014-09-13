@@ -67,20 +67,6 @@ namespace PLEXIL
   extern char const *EXIT_CONDITION_TAG;
   extern char const *SKIP_CONDITION_TAG;
 
-  // FIXME: Use constants declared in ValueType.hh
-  extern char const *INT_TAG;
-  extern char const *REAL_TAG;
-  extern char const *BOOL_TAG;
-  extern char const *STRING_TAG;
-  extern char const *DATE_TAG;
-  extern char const *DURATION_TAG; 
-  extern char const *ARRAY_TAG;
-
-  extern char const *NODE_OUTCOME_TAG;
-  extern char const *NODE_FAILURE_TAG;
-  extern char const *NODE_STATE_TAG;
-  extern char const *NODE_COMMAND_HANDLE_TAG;
-
   extern char const *DECL_ARRAY_TAG;
 
   extern char const *NODETYPE_ATTR;

@@ -61,20 +61,6 @@ namespace PLEXIL
   char const *EXIT_CONDITION_TAG = "ExitCondition";
   char const *SKIP_CONDITION_TAG = "SkipCondition";
 
-  // FIXME: Use constants declared in ValueType.hh
-  char const *INT_TAG = "Integer";
-  char const *REAL_TAG = "Real";
-  char const *BOOL_TAG = "Boolean";
-  char const *STRING_TAG = "String";
-  char const *DATE_TAG = "Date";
-  char const *DURATION_TAG = "Date";
-  char const *ARRAY_TAG = "Array";
-
-  char const *NODE_OUTCOME_TAG = "NodeOutcome";
-  char const *NODE_FAILURE_TAG = "NodeFailure";
-  char const *NODE_STATE_TAG = "NodeState";
-  char const *NODE_COMMAND_HANDLE_TAG = "NodeCommandHandle";
-
   char const *DECL_ARRAY_TAG = "DeclareArray";
 
   char const *NODETYPE_ATTR = "NodeType";
