@@ -66,6 +66,7 @@ namespace PLEXIL {
    * @return The state, or NO_NODE_STATE if not found.
    */
   extern NodeState parseNodeState(std::string const &name);
+  extern NodeState parseNodeState(char const *name);
 
   /**
    * @brief Get the name of this state.
@@ -104,6 +105,7 @@ namespace PLEXIL {
    * @return The outcome value, or NO_OUTCOME if not found.
    */
   extern NodeOutcome parseNodeOutcome(std::string const &name);
+  extern NodeOutcome parseNodeOutcome(char const *name);
 
   /**
    * @brief Get the name of this outcome.
@@ -144,6 +146,7 @@ namespace PLEXIL {
    * @return The FailureType value, or NO_FAILURE if not found.
    */
   extern FailureType parseFailureType(std::string const &name);
+  extern FailureType parseFailureType(char const *name);
 
   /**
    * @brief Get the name of this failure type.

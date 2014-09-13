@@ -29,10 +29,14 @@
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "Constant.hh"
+#include "Error.hh"
 #include "ExpressionConstants.hh"
+#include "expression-schema.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
+#include "parser-utils.hh"
 #include "PlexilExpr.hh"
+#include "pugixml.hpp"
 
 #include <sstream>
 
@@ -42,8 +46,6 @@ namespace PLEXIL
   //
   // Factories for scalar constants
   //
-
-  // TODO? - common registry of constants per type
 
   // N.B. For all but string types, the value string may not be empty.
   template <typename T>
@@ -56,6 +58,31 @@ namespace PLEXIL
 
     wasCreated = true;
     return this->create(tmpl);
+  }
+
+  template <typename T>
+  Expression *ConcreteExpressionFactory<Constant<T> >::allocate(pugi::xml_node const &expr,
+                                                                NodeConnector * /* node */,
+                                                                bool &wasCreated) const
+  {
+    // confirm that we have a value element
+    checkTagSuffix(VAL_TAG, expr);
+
+    // establish value type
+    const char* tag = expr.name();
+    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG));
+    checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+                                     expr,
+                                     "Unrecognized value type \"" << tag << "\"");
+
+    // check for empty value
+    if (typ != STRING_TYPE)
+      checkParserExceptionWithLocation(expr.first_child() && *(expr.first_child().value()),
+                                       expr,
+                                       "Empty value is not valid for \"" << tag << "\"");
+
+    wasCreated = true;
+    return this->create(expr);
   }
 
   // Since there are exactly 3 possible Boolean constants, return references to them.
@@ -77,12 +104,55 @@ namespace PLEXIL
     else
       return FALSE_EXP();
   }
-  
+
+  template <>
+  Expression *ConcreteExpressionFactory<Constant<bool> >::allocate(pugi::xml_node const &expr,
+                                                                   NodeConnector * /* node */,
+                                                                   bool &wasCreated) const
+  {
+    // confirm that we have a value element
+    checkTagSuffix(VAL_TAG, expr);
+
+    // establish value type
+    const char* tag = expr.name();
+    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG));
+    checkParserExceptionWithLocation(typ != BOOLEAN_TYPE,
+                                     expr,
+                                     "Internal error: Boolean constant factory invoked on \"" << tag << "\"");
+
+    // check for empty value
+    checkParserExceptionWithLocation(expr.first_child() && *(expr.first_child().value()),
+                                     expr,
+                                     "Empty value is not valid for \"" << tag << "\"");
+
+    bool value;
+    bool known = parseValue(expr.first_child().value(), value);
+    // if we got here, there was no parsing exception
+    wasCreated = false;
+    if (!known)
+      return UNKNOWN_BOOLEAN_EXP();
+    else if (value)
+      return TRUE_EXP();
+    else
+      return FALSE_EXP();
+  }
+
   template <typename T>
   Expression *ConcreteExpressionFactory<Constant<T> >::create(PlexilValue const *tmpl) const
   {
     T value;
     bool known = parseValue(tmpl->value(), value);
+    if (known)
+      return new Constant<T>(value);
+    else
+      return new Constant<T>();
+  }
+
+  template <typename T>
+  Expression *ConcreteExpressionFactory<Constant<T> >::create(pugi::xml_node const &tmpl) const
+  {
+    T value;
+    bool known = parseValue(tmpl.value(), value);
     if (known)
       return new Constant<T>(value);
     else
@@ -94,13 +164,36 @@ namespace PLEXIL
   template <>
   Expression *ConcreteExpressionFactory<Constant<std::string> >::create(PlexilValue const *tmpl) const
   {
-    checkParserException(tmpl->type() == STRING_TYPE, "createExpression: Expression is not a PlexilValue");
+    checkParserException(tmpl->type() == STRING_TYPE, "createExpression: Internal error: Constant expression is not a String");
     return new Constant<std::string>(tmpl->value());
+  }
+
+  template <>
+  Expression *ConcreteExpressionFactory<Constant<std::string> >::create(pugi::xml_node const &tmpl) const
+  {
+    const char* tag = tmpl.name();
+    checkParserExceptionWithLocation(STRING_TYPE == parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG)),
+                                     tmpl,
+                                     "createExpression: Internal error: Constant expression is not a String");
+
+    return new Constant<std::string>(tmpl.value());
   }
 
   //
   // Factories for array constants
   //
+
+  template <typename T>
+  Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::allocate(PlexilExpr const *expr,
+                                                                            NodeConnector * /* node */,
+                                                                            bool &wasCreated) const
+  {
+    PlexilArrayValue const *val = dynamic_cast<PlexilArrayValue const *>(expr);
+    checkParserException(val, "createExpression: Not an array value");
+
+    wasCreated = true;
+    return this->create(val);
+  }
 
   template <typename T>
   Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::create(PlexilArrayValue const *val) const
@@ -120,15 +213,78 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::allocate(PlexilExpr const *expr,
+  Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::allocate(pugi::xml_node const &expr,
                                                                             NodeConnector * /* node */,
                                                                             bool &wasCreated) const
   {
-    PlexilArrayValue const *val = dynamic_cast<PlexilArrayValue const *>(expr);
-    checkParserException(val, "createExpression: Not an array value");
+    // confirm that we have an array value
+    checkTag(ARRAY_VAL_TAG, expr);
 
+    // confirm that we have an element type
+    checkAttr(TYPE_TAG, expr);
+
+    // Defer rest to create()
     wasCreated = true;
-    return this->create(val);
+    return this->create(expr);
+  }
+
+  // *** FIXME: guts should be used by array variable initial value parser too,
+  // probably need to refactor into function
+
+  template <typename T>
+  Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::create(pugi::xml_node const &val) const
+  {
+    const char* valueType = val.attribute(TYPE_TAG).value();
+    ValueType valtyp = parseValueType(valueType);
+    checkParserExceptionWithLocation(valtyp != UNKNOWN_TYPE,
+                                     val, // should be attribute
+                                     "Unknown array element Type value \"" << valueType << "\"");
+
+    // gather elements
+    std::vector<T> values;
+
+    pugi::xml_node thisElement = val.first_child();
+    size_t i = 0;
+    std::vector<size_t> unknowns;
+    while (thisElement) {
+      checkTagSuffix(VAL_TAG, thisElement);
+      // Check type
+      const char* thisElementTag = thisElement.name();
+      checkParserExceptionWithLocation(0 == strcmp(thisElementTag, valueType),
+                                       thisElement,
+                                       "Element type mismatch: element type " << thisElementTag
+                                       << " in array value of type \"" << valueType);
+
+      // Get array element value
+      const char* thisElementValue = thisElement.first_child().value();
+      if (*thisElementValue) {
+        T temp;
+        if (parseValue<T>(thisElementValue, temp)) // will throw if format error
+          values.push_back(temp);
+        else {
+          unknowns.push_back(i);
+          values.push_back(T()); // push a placeholder for unknown
+        }
+      }
+      else {
+        // parse error - empty array element not of type string
+        checkParserExceptionWithLocation(valueType == STRING_STR,
+                                         thisElement,
+                                         "ArrayValue parsing error: Empty " << valueType << " element value in array value");
+        values.push_back(T()); // empty
+      }
+      thisElement = thisElement.next_sibling();
+      ++i;
+    }
+
+    // Handle unknowns here
+    ArrayImpl<T> initVals(values);
+    for (std::vector<size_t>::const_iterator it = unknowns.begin();
+         it != unknowns.end();
+         ++it)
+      initVals.setElementUnknown(*it);
+
+    return new Constant<ArrayImpl<T> >(initVals);
   }
 
   //
@@ -163,6 +319,39 @@ namespace PLEXIL
     }
     checkParserException(false, "createExpression: Expression is neither a variable definition nor a variable reference");
     return NULL;
+  }
+
+  // DeclareVariable needs to be handled elsewhere as the type name is not in the tag.
+
+  template <typename T>
+  Expression *
+  ConcreteExpressionFactory<UserVariable<T> >::allocate(pugi::xml_node const &expr,
+                                                        NodeConnector *node,
+                                                        bool &wasCreated) const
+  {
+    // Variable reference - look it up
+    checkTagSuffix(VAR_TAG, expr);
+    checkNotEmpty(expr);
+    const char* tag = expr.name();
+    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAR_TAG));
+    checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+                                     expr,
+                                     "Unknown variable type \"" << tag << "\"");
+    checkParserExceptionWithLocation(node,
+                                     expr,
+                                     "createExpression: Internal error: Variable reference with null node");
+    const char *varName = expr.first_child().value();
+    Expression *result = node->findVariable(std::string(varName));
+    checkParserExceptionWithLocation(result,
+                                     expr,
+                                     "createExpression: Can't find variable named " << varName);
+    checkParserExceptionWithLocation(result->valueType() == typ,
+                                     expr,
+                                     "createExpression: Variable " << varName
+                                     << " is type " << valueTypeName(result->valueType())
+                                     << ", but reference is for type " << valueTypeName(typ));
+    wasCreated = false;
+    return result;
   }
 
   template <typename T>
@@ -225,6 +414,19 @@ namespace PLEXIL
     return new ArrayVariable<T>(node, var->varName(), sizeexp, initexp, true, garbage);
   }
 
+  template <typename T>
+  Expression *ConcreteExpressionFactory<ArrayVariable<T> >::allocate(pugi::xml_node const &expr,
+                                                                     NodeConnector *node,
+                                                                     bool &wasCreated) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
+    return NULL;
+  }
+
+  //
+  // Array references
+  //
+
   Expression *
   ConcreteExpressionFactory<ArrayReference>::allocate(PlexilExpr const *expr,
                                                       NodeConnector *node,
@@ -248,6 +450,14 @@ namespace PLEXIL
     return new ArrayReference(array, index, garbageArray, garbageIndex);
   }
 
+  Expression *
+  ConcreteExpressionFactory<ArrayReference>::allocate(pugi::xml_node const &expr,
+                                                      NodeConnector *node,
+                                                      bool & wasCreated) const
+  {
+    assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
+  }
+
   // Generic variable references
   Expression *
   VariableReferenceFactory::allocate(PlexilExpr const *expr,
@@ -269,6 +479,45 @@ namespace PLEXIL
                            << " is type " << valueTypeName(result->valueType())
                            << ", but reference is for array type");
     }
+    return result;
+  }
+
+  Expression *
+  VariableReferenceFactory::allocate(pugi::xml_node const &expr,
+                                     NodeConnector *node,
+                                     bool & wasCreated) const
+  {
+    checkParserExceptionWithLocation(testTagSuffix(VAR_TAG, expr),
+                                     expr,
+                                     "createExpression: Internal error: not a variable reference");
+    assertTrue_1(node); // internal error
+    checkNotEmpty(expr);
+    ValueType typ = parseValueTypePrefix(expr.name() , strlen(expr.name()) - strlen(VAR_TAG));
+    checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+                                     expr,
+                                     "createExpression: Unknown variable reference type " << expr.name());
+    char const *varName = expr.first_child().value();
+    // Look it up
+    std::string const varRef(varName);
+    Expression *result = node->findVariable(varRef);
+    checkParserExceptionWithLocation(result,
+                                     expr,
+                                     "createExpression: Can't find variable named " << varName);
+    if (typ == ARRAY_TYPE) {
+      checkParserExceptionWithLocation(isArrayType(result->valueType()),
+                                       expr,
+                                       "createExpression: Variable " << varName
+                                       << " has invalid type " << valueTypeName(result->valueType())
+                                       << " for a " << expr.name());
+    }
+    else {
+      checkParserExceptionWithLocation(typ == result->valueType(),
+                                       expr,
+                                       "createExpression: Variable " << varName
+                                       << " has invalid type " << valueTypeName(result->valueType())
+                                       << " for a " << expr.name());
+    }
+    wasCreated = false;
     return result;
   }
 

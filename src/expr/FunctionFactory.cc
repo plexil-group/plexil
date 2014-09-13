@@ -25,6 +25,7 @@
 */
 
 #include "FunctionFactory.hh"
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -55,6 +56,20 @@ namespace PLEXIL
     return new Function(oper, exprVec);
   }
 
+  Expression *FunctionFactory::allocate(pugi::xml_node const &expr,
+                                        NodeConnector *node,
+                                        bool &wasCreated) const
+  {
+    ExprVec *exprVec = constructExprVec(expr, node);
+    Operator const *oper = this->getOperator();
+    checkParserException(oper->checkArgCount(exprVec->size()),
+                         "createExpression: Wrong number of operands for operator "
+                         << oper->getName());
+
+    wasCreated = true;
+    return new Function(oper, exprVec);
+  }
+
   ExprVec *
   FunctionFactory::constructExprVec(std::vector<PlexilExpr *> const &subexprs,
                                     NodeConnector *node) const
@@ -67,6 +82,23 @@ namespace PLEXIL
       bool isGarbage;
       exprs[i] = createExpression(subexprs[i], node, isGarbage);
       garbage[i] = isGarbage;
+    }
+
+    return makeExprVec(exprs, garbage);
+  }
+
+  ExprVec *
+  FunctionFactory::constructExprVec(pugi::xml_node const &expr,
+                                    NodeConnector *node) const
+  {
+    std::vector<Expression *> exprs;
+    std::vector<bool> garbage;
+    pugi::xml_node subexp = expr.first_child();
+    while (subexp) {
+      bool created;
+      exprs.push_back(createExpression(subexp, node, created));
+      garbage.push_back(created);
+      subexp = subexp.next_sibling();
     }
 
     return makeExprVec(exprs, garbage);

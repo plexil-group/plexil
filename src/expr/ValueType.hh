@@ -76,7 +76,6 @@ namespace PLEXIL
     };
 
   // Type name string constants
-  // Stolen from PlexilPlan.hh
   extern std::string const BOOL_STR;
   extern std::string const INTEGER_STR;
   extern std::string const REAL_STR;
@@ -95,22 +94,26 @@ namespace PLEXIL
 
   extern std::string const UNKNOWN_STR;
 
-  extern std::string const VARIABLE_STR;
-  extern std::string const VALUE_STR;
-
   // Utility functions
   const std::string &valueTypeName(ValueType ty);
   const std::string &typeNameAsValue(ValueType ty);
   const std::string &typeNameAsVariable(ValueType ty);
 
-  bool isUserType(ValueType ty);
-  bool isInternalType(ValueType ty);
-  bool isNumericType(ValueType ty);
+  extern bool isUserType(ValueType ty);
+  extern bool isInternalType(ValueType ty);
+  extern bool isNumericType(ValueType ty);
 
-  bool isScalarType(ValueType ty);
-  bool isArrayType(ValueType ty);
-  ValueType arrayElementType(ValueType ty);
-  ValueType arrayType(ValueType elTy);
+  extern bool isScalarType(ValueType ty);
+  extern bool isArrayType(ValueType ty);
+
+  extern ValueType arrayElementType(ValueType ty);
+  extern ValueType arrayType(ValueType elTy);
+
+  extern ValueType parseValueTypePrefix(const std::string &str, size_t prefixLen);
+  extern ValueType parseValueTypePrefix(char const &str, size_t prefixLen);
+
+  extern ValueType parseValueType(const std::string &typeStr);
+  extern ValueType parseValueType(char const *typeStr);
 
   template <typename T>
   void printValue(ArrayImpl<T> const &val, std::ostream &s);
@@ -127,8 +130,15 @@ namespace PLEXIL
    * @note If false, the result variable will not be modified.
    */
   template <typename T>
-  bool parseValue(std::string const &s, T &result)
+  bool parseValue(char const *s, T &result)
     throw (ParserException);
+
+  template <typename T>
+  bool parseValue(std::string const &s, T &result)
+    throw (ParserException)
+  {
+    return parseValue<T>(s.c_str(), result);
+  }
 
 }
 

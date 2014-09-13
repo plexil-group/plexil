@@ -26,10 +26,14 @@
 
 #include "LookupFactory.hh"
 
+#include "Error.hh"
 #include "ExpressionFactory.hh"
+#include "interface-schema.hh"
 #include "Lookup.hh"
 #include "ParserException.hh"
+#include "parser-utils.hh"
 #include "PlexilLookup.hh"
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -48,40 +52,100 @@ namespace PLEXIL
     Expression *allocate(PlexilExpr const *expr,
                          NodeConnector *node,
                          bool & wasCreated) const
-  {
-    PlexilLookup const *lkup = (PlexilLookup const *) expr;
-    checkParserException(lkup, "createExpression: Expression is not a PlexilLookup");
-    PlexilState const *stateSpec = lkup->state();
-    checkParserException(stateSpec, "createExpression: PlexilLookup missing a State specification");
-    bool stateNameGarbage = false;
-    Expression *stateName = createExpression(stateSpec->nameExpr(), node, stateNameGarbage);
-    ValueType stateNameType = stateName->valueType();
-    checkParserException(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
-                         "createExpression: Lookup name must be a string expression");
-    std::vector<PlexilExpr *> const &args = stateSpec->args();
-    size_t nargs = args.size();
-    std::vector<Expression* > params(nargs, NULL);
-    std::vector<bool> paramsGarbage(nargs, false);
-    for (size_t i = 0; i < nargs; ++i) {
-      bool garbage = false;
-      params[i] = createExpression(args[i], node, garbage);
-      paramsGarbage[i] = garbage;
+    {
+      PlexilLookup const *lkup = (PlexilLookup const *) expr;
+      checkParserException(lkup, "createExpression: Expression is not a PlexilLookup");
+      PlexilState const *stateSpec = lkup->state();
+      checkParserException(stateSpec, "createExpression: PlexilLookup missing a State specification");
+      bool stateNameGarbage = false;
+      Expression *stateName = createExpression(stateSpec->nameExpr(), node, stateNameGarbage);
+      ValueType stateNameType = stateName->valueType();
+      checkParserException(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
+                           "createExpression: Lookup name must be a string expression");
+      std::vector<PlexilExpr *> const &args = stateSpec->args();
+      size_t nargs = args.size();
+      std::vector<Expression* > params(nargs, NULL);
+      std::vector<bool> paramsGarbage(nargs, false);
+      for (size_t i = 0; i < nargs; ++i) {
+        bool garbage = false;
+        params[i] = createExpression(args[i], node, garbage);
+        paramsGarbage[i] = garbage;
+      }
+      wasCreated = true;
+      if (lkup->tolerance()) {
+        bool tolGarbage = false;
+        Expression *tol = createExpression(lkup->tolerance(), node, tolGarbage);
+        ValueType tolType = tol->valueType();
+        checkParserException(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
+                             "createExpression: LookupOnChange tolerance expression must be numeric");
+        return new LookupOnChange(stateName, stateNameGarbage,
+                                  params, paramsGarbage,
+                                  tol, tolGarbage);
+      }
+      else
+        return new Lookup(stateName, stateNameGarbage,
+                          params, paramsGarbage);
     }
-    wasCreated = true;
-    if (lkup->tolerance()) {
-      bool tolGarbage = false;
-      Expression *tol = createExpression(lkup->tolerance(), node, tolGarbage);
-      ValueType tolType = tol->valueType();
-      checkParserException(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
-                           "createExpression: LookupOnChange tolerance expression must be numeric");
-      return new LookupOnChange(stateName, stateNameGarbage,
-                                params, paramsGarbage,
-                                tol, tolGarbage);
+
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool & wasCreated) const
+    {
+      checkNotEmpty(expr);
+      pugi::xml_node stateNameXml = expr.first_child();
+      checkTag(NAME_TAG, stateNameXml);
+      pugi::xml_node argsXml = stateNameXml.next_sibling();
+      pugi::xml_node tolXml;
+      if (argsXml) {
+        // Tolerance tag is supposed to come between name and args, sigh
+        if (0 == strcmp(TOLERANCE_TAG, argsXml.name())) {
+          tolXml = argsXml;
+          argsXml = tolXml.next_sibling();
+        }
+      }
+      if (argsXml) {
+        checkTag(ARGS_TAG, argsXml);
+      }
+
+      // Sanity check this element's name
+      if (0 == strcmp(LOOKUPNOW_TAG, expr.name())) {
+        checkParserExceptionWithLocation(tolXml,
+                                         tolXml,
+                                         "createExpression: LookupNow may not have a Tolerance element");
+      }
+      else
+        assertTrue_2(0 == strcmp(LOOKUPCHANGE_TAG, expr.name()),
+                     "createExpression: internal error: element is neither LookupNow nor LookupOnChange");
+
+      bool stateNameGarbage = false;
+      Expression *stateName = createExpression(stateNameXml, node, stateNameGarbage);
+      ValueType stateNameType = stateName->valueType();
+      checkParserException(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
+                           "createExpression: Lookup name must be a string expression");
+
+      std::vector<Expression* > params;
+      std::vector<bool> paramsGarbage;
+      pugi::xml_node arg = argsXml.first_child();
+      while (arg) {
+        bool garbage = false;
+        params.push_back(createExpression(arg, node, garbage));
+        paramsGarbage.push_back(garbage);
+      }
+      wasCreated = true;
+      if (tolXml) {
+        bool tolGarbage = false;
+        Expression *tol = createExpression(tolXml, node, tolGarbage);
+        ValueType tolType = tol->valueType();
+        checkParserException(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
+                             "createExpression: LookupOnChange tolerance expression must be numeric");
+        return new LookupOnChange(stateName, stateNameGarbage,
+                                  params, paramsGarbage,
+                                  tol, tolGarbage);
+      }
+      else
+        return new Lookup(stateName, stateNameGarbage,
+                          params, paramsGarbage);
     }
-    else
-      return new Lookup(stateName, stateNameGarbage,
-                        params, paramsGarbage);
-  }
 
   private:
     // Unimplemented

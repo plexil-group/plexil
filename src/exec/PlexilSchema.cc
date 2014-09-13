@@ -35,12 +35,8 @@ namespace PLEXIL
   char const *DECL_VAR_TAG = "DeclareVariable";
   char const *IN_TAG = "In";
   char const *INOUT_TAG = "InOut";
-  char const *VAR_TAG = "Variable";
-  char const *TYPE_TAG = "Type";
   char const *MAXSIZE_TAG = "MaxSize";
   char const *DECL_TAG = "Declare";
-  char const *VAL_TAG = "Value";
-  char const *ARRAY_VAL_TAG = "ArrayValue";
   char const *INITIALVAL_TAG = "InitialValue";
   char const *ASSN_TAG = "Assignment";
   char const *BODY_TAG = "NodeBody";
@@ -49,18 +45,10 @@ namespace PLEXIL
   char const *LIBRARYNODECALL_TAG = "LibraryNodeCall";
   char const *ALIAS_TAG = "Alias";
   char const *NODE_PARAMETER_TAG = "NodeParameter";
-  char const *CMD_TAG = "Command";
-  char const *NAME_TAG = "Name";
   char const *INDEX_TAG = "Index";
-  char const *ARGS_TAG = "Arguments";
-  char const *LOOKUPNOW_TAG = "LookupNow";
-  char const *LOOKUPCHANGE_TAG = "LookupOnChange";
-  char const *TOLERANCE_TAG = "Tolerance";
   char const *NODEREF_TAG = "NodeRef";
   char const *STATEVAL_TAG = "NodeStateValue";
   char const *TIMEPOINT_TAG = "Timepoint";
-  char const *UPDATE_TAG = "Update";
-  char const *PAIR_TAG = "Pair";
   char const *COND_TAG = "Condition";
 
   // condition names
@@ -88,14 +76,9 @@ namespace PLEXIL
   char const *NODE_COMMAND_HANDLE_TAG = "NodeCommandHandle";
 
   char const *DECL_ARRAY_TAG = "DeclareArray";
-  char const *ARRAYELEMENT_TAG = "ArrayElement";
 
   char const *NODETYPE_ATTR = "NodeType";
   char const *DIR_ATTR = "dir";
-
-  char const *FILENAME_ATTR = "FileName";
-  char const *LINENO_ATTR = "LineNo";
-  char const *COLNO_ATTR = "ColNo";
 
   char const *PARENT_VAL = "parent";
   char const *CHILD_VAL = "child";

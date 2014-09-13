@@ -30,7 +30,10 @@
 
 #include "ArrayImpl.hh"
 #include "CommandHandle.hh"
+#include "Error.hh"
+#include "expression-schema.hh"
 #include "NodeConstants.hh"
+#include "stricmp.h"
 
 #include <cerrno>
 #include <cmath>   // for HUGE_VAL
@@ -58,8 +61,6 @@ namespace PLEXIL
   std::string const NODE_FAILURE_STR = "NodeFailure";
   std::string const NODE_COMMAND_HANDLE_STR = "NodeCommandHandle";
   std::string const UNKNOWN_STR = "UNKNOWN";
-  std::string const VARIABLE_STR = "Variable";
-  std::string const VALUE_STR = "Value";
 
   const std::string &valueTypeName(ValueType ty)
   {
@@ -115,139 +116,143 @@ namespace PLEXIL
 
   const std::string &typeNameAsValue(ValueType ty)
   {
+    static std::string const sl_val = VAL_TAG;
+
     switch (ty) {
     case BOOLEAN_TYPE:
-      static std::string const sl_boolval = BOOL_STR + VALUE_STR;
+      static std::string const sl_boolval = BOOL_STR + sl_val;
       return sl_boolval;
 
     case INTEGER_TYPE:
-      static std::string const sl_intval = INTEGER_STR + VALUE_STR;
+      static std::string const sl_intval = INTEGER_STR + sl_val;
       return sl_intval;
 
     case REAL_TYPE:
-      static std::string const sl_realval = REAL_STR + VALUE_STR;
+      static std::string const sl_realval = REAL_STR + sl_val;
       return sl_realval;
       
     case STRING_TYPE:
-      static std::string const sl_stringval = STRING_STR + VALUE_STR;
+      static std::string const sl_stringval = STRING_STR + sl_val;
       return sl_stringval;
 
     case DATE_TYPE:
-      static std::string const sl_dateval = DATE_STR + VALUE_STR;
+      static std::string const sl_dateval = DATE_STR + sl_val;
       return sl_dateval;
 
     case DURATION_TYPE:
-      static std::string const sl_durval = DURATION_STR + VALUE_STR;
+      static std::string const sl_durval = DURATION_STR + sl_val;
       return sl_durval;
 
       // Array types
     case BOOLEAN_ARRAY_TYPE:
-      static std::string const sl_boolarrval = BOOLEAN_ARRAY_STR + VALUE_STR;
+      static std::string const sl_boolarrval = BOOLEAN_ARRAY_STR + sl_val;
       return sl_boolarrval;
 
     case INTEGER_ARRAY_TYPE:
-      static std::string const sl_intarrval = INTEGER_ARRAY_STR + VALUE_STR;
+      static std::string const sl_intarrval = INTEGER_ARRAY_STR + sl_val;
       return sl_intarrval;
 
     case REAL_ARRAY_TYPE:
-      static std::string const sl_realarrval = REAL_ARRAY_STR + VALUE_STR;
+      static std::string const sl_realarrval = REAL_ARRAY_STR + sl_val;
       return sl_realarrval;
 
     case STRING_ARRAY_TYPE:
-      static std::string const sl_stringarrval = STRING_ARRAY_STR + VALUE_STR;
+      static std::string const sl_stringarrval = STRING_ARRAY_STR + sl_val;
       return sl_stringarrval;
 
       // Internal types
     case NODE_STATE_TYPE:
-      static std::string const sl_nsval = NODE_STATE_STR + VALUE_STR;
+      static std::string const sl_nsval = NODE_STATE_STR + sl_val;
       return sl_nsval;
 
     case OUTCOME_TYPE:
-      static std::string const sl_outcomeval = NODE_OUTCOME_STR + VALUE_STR;
+      static std::string const sl_outcomeval = NODE_OUTCOME_STR + sl_val;
       return sl_outcomeval;
 
     case FAILURE_TYPE:
-      static std::string const sl_failval = NODE_FAILURE_STR + VALUE_STR;
+      static std::string const sl_failval = NODE_FAILURE_STR + sl_val;
       return sl_failval;
 
     case COMMAND_HANDLE_TYPE:
-      static std::string const sl_handleval = NODE_COMMAND_HANDLE_STR + VALUE_STR;
+      static std::string const sl_handleval = NODE_COMMAND_HANDLE_STR + sl_val;
       return sl_handleval;
 
     default:
-      return VALUE_STR;
+      return sl_val;
     }
   }
 
   const std::string &typeNameAsVariable(ValueType ty)
   {
+    static std::string const sl_var = VAR_TAG;
+
     switch (ty) {
     case BOOLEAN_TYPE:
-      static std::string const sl_boolvar = BOOL_STR + VARIABLE_STR;
+      static std::string const sl_boolvar = BOOL_STR + sl_var;
       return sl_boolvar;
 
     case INTEGER_TYPE:
-      static std::string const sl_intvar = INTEGER_STR + VARIABLE_STR;
+      static std::string const sl_intvar = INTEGER_STR + sl_var;
       return sl_intvar;
 
     case REAL_TYPE:
-      static std::string const sl_realvar = REAL_STR + VARIABLE_STR;
+      static std::string const sl_realvar = REAL_STR + sl_var;
       return sl_realvar;
       
     case STRING_TYPE:
-      static std::string const sl_stringvar = STRING_STR + VARIABLE_STR;
+      static std::string const sl_stringvar = STRING_STR + sl_var;
       return sl_stringvar;
 
     case DATE_TYPE:
-      static std::string const sl_datevar = DATE_STR + VARIABLE_STR;
+      static std::string const sl_datevar = DATE_STR + sl_var;
       return sl_datevar;
 
     case DURATION_TYPE:
-      static std::string const sl_durvar = DURATION_STR + VARIABLE_STR;
+      static std::string const sl_durvar = DURATION_STR + sl_var;
       return sl_durvar;
 
       // Array types
 
       // generic (for array reference)
     case ARRAY_TYPE:
-      static std::string const sl_arrvar = ARRAY_STR + VARIABLE_STR;
+      static std::string const sl_arrvar = ARRAY_STR + sl_var;
       return sl_arrvar;
 
     case BOOLEAN_ARRAY_TYPE:
-      static std::string const sl_boolarrvar = BOOLEAN_ARRAY_STR + VARIABLE_STR;
+      static std::string const sl_boolarrvar = BOOLEAN_ARRAY_STR + sl_var;
       return sl_boolarrvar;
 
     case INTEGER_ARRAY_TYPE:
-      static std::string const sl_intarrvar = INTEGER_ARRAY_STR + VARIABLE_STR;
+      static std::string const sl_intarrvar = INTEGER_ARRAY_STR + sl_var;
       return sl_intarrvar;
 
     case REAL_ARRAY_TYPE:
-      static std::string const sl_realarrvar = REAL_ARRAY_STR + VARIABLE_STR;
+      static std::string const sl_realarrvar = REAL_ARRAY_STR + sl_var;
       return sl_realarrvar;
 
     case STRING_ARRAY_TYPE:
-      static std::string const sl_stringarrvar = STRING_ARRAY_STR + VARIABLE_STR;
+      static std::string const sl_stringarrvar = STRING_ARRAY_STR + sl_var;
       return sl_stringarrvar;
 
       // Internal types
     case NODE_STATE_TYPE:
-      static std::string const sl_nsvar = NODE_STATE_STR + VARIABLE_STR;
+      static std::string const sl_nsvar = NODE_STATE_STR + sl_var;
       return sl_nsvar;
 
     case OUTCOME_TYPE:
-      static std::string const sl_outcomevar = NODE_OUTCOME_STR + VARIABLE_STR;
+      static std::string const sl_outcomevar = NODE_OUTCOME_STR + sl_var;
       return sl_outcomevar;
 
     case FAILURE_TYPE:
-      static std::string const sl_failvar = NODE_FAILURE_STR + VARIABLE_STR;
+      static std::string const sl_failvar = NODE_FAILURE_STR + sl_var;
       return sl_failvar;
 
     case COMMAND_HANDLE_TYPE:
-      static std::string const sl_handlevar = NODE_COMMAND_HANDLE_STR + VARIABLE_STR;
+      static std::string const sl_handlevar = NODE_COMMAND_HANDLE_STR + sl_var;
       return sl_handlevar;
 
     default:
-      return VARIABLE_STR;
+      return sl_var;
     }
   }
   
@@ -299,6 +304,96 @@ namespace PLEXIL
     return (ValueType) (elTy + ARRAY_TYPE);
   }
 
+  ValueType parseValueTypePrefix(const std::string & str, size_t prefixLen)
+  {
+    return parseValueTypePrefix(str.c_str(), prefixLen);
+  }
+
+  ValueType parseValueTypePrefix(char const *str, size_t prefixLen)
+  {
+    switch (prefixLen) {
+    case 4: 
+      if (0 == REAL_STR.compare(0, prefixLen, str))
+        return PLEXIL::REAL_TYPE;
+      else if (0 == DATE_STR.compare(0, prefixLen, str))
+        return PLEXIL::DATE_TYPE;
+      else 
+        return PLEXIL::UNKNOWN_TYPE;
+
+    case 5:
+      if (0 == ARRAY_STR.compare(0, prefixLen, str))
+        return PLEXIL::ARRAY_TYPE;
+      else
+        return PLEXIL::UNKNOWN_TYPE;
+
+    case 6:
+      if (0 == STRING_STR.compare(0, prefixLen, str))
+        return PLEXIL::STRING_TYPE;
+      else
+        return PLEXIL::UNKNOWN_TYPE;
+
+    case 7:
+      if (0 == INTEGER_STR.compare(0, prefixLen, str))
+        return PLEXIL::INTEGER_TYPE;
+      else if (0 == BOOL_STR.compare(0, prefixLen, str))
+        return PLEXIL::BOOLEAN_TYPE;
+      else
+        return PLEXIL::UNKNOWN_TYPE;
+
+    case 8:
+      if (0 == DURATION_STR.compare(0, prefixLen, str))
+        return PLEXIL::DURATION_TYPE;
+      else
+        return PLEXIL::UNKNOWN_TYPE;
+
+    case 9:
+      if (0 == REAL_ARRAY_STR.compare(0, prefixLen, str))
+        return PLEXIL::REAL_ARRAY_TYPE;
+      else if (0 == NODE_STATE_STR.compare(0, prefixLen, str))
+        return PLEXIL::NODE_STATE_TYPE;
+      else
+        return PLEXIL::UNKNOWN_TYPE;
+
+    case 11:
+      if (0 == NODE_OUTCOME_STR.compare(0, prefixLen, str))
+        return PLEXIL::OUTCOME_TYPE;
+      else if (0 == NODE_FAILURE_STR.compare(0, prefixLen, str))
+        return PLEXIL::FAILURE_TYPE;
+      else if (0 == STRING_ARRAY_STR.compare(0, prefixLen, str))
+        return PLEXIL::STRING_ARRAY_TYPE;
+      else
+        return PLEXIL::UNKNOWN_TYPE;
+
+    case 12:
+      if (0 == BOOLEAN_ARRAY_STR.compare(0, prefixLen, str))
+        return PLEXIL::BOOLEAN_ARRAY_TYPE;
+      else if (0 == INTEGER_ARRAY_STR.compare(0, prefixLen, str))
+        return PLEXIL::INTEGER_ARRAY_TYPE;
+      else
+        return PLEXIL::UNKNOWN_TYPE;
+
+    case 17:
+      if (0 == NODE_COMMAND_HANDLE_STR.compare(0, prefixLen, str))
+        return PLEXIL::COMMAND_HANDLE_TYPE;
+      else
+        return PLEXIL::UNKNOWN_TYPE;
+      
+      // default case
+    default:
+      return PLEXIL::UNKNOWN_TYPE;
+    }
+  }
+
+  ValueType parseValueType(const std::string& typeStr)
+  {
+    return parseValueTypePrefix(typeStr.c_str(), typeStr.length());
+  }
+
+  ValueType parseValueType(char const *typeStr)
+  {
+    return parseValueTypePrefix(typeStr, strlen(typeStr));
+  }
+
   template <typename T>
   void printValue(const T &val, std::ostream &s)
   {
@@ -336,56 +431,58 @@ namespace PLEXIL
    */
 
   template <>
-  bool parseValue(std::string const &s, bool &result)
+  bool parseValue(char const *s, bool &result)
     throw (ParserException)
   {
-    switch (s.length()) {
+    assertTrue_1(s);
+    switch (strlen(s)) {
     case 0:
       return false;
       
     case 1:
-      if (s == "0") {
+      if (*s == '0') {
         result = false;
         return true;
       }
-      if (s == "1") {
+      if (*s == '1') {
         result = true;
         return true;
       }
       return false;
 
     case 4:
-      if (s == "true" || s == "TRUE") {
+      if (0 == stricmp(s, "true")) {
         result = true;
         return true;
       }
       return false;
 
     case 5:
-      if (s == "false" || s == "FALSE") {
+      if (0 == stricmp(s, "false")) {
         result = false;
         return true;
       }
       // fall thru to...
 
     default:
-      checkParserException(s == "UNKNOWN",
+      checkParserException(0 == strcmp(s, "UNKNOWN"),
                            "parseValue: \"" << s << "\" is not a valid Boolean value");
       return false;
     }
   }
 
   template <>
-  bool parseValue<int32_t>(std::string const &s, int32_t &result)
+  bool parseValue<int32_t>(char const *s, int32_t &result)
     throw (ParserException)
   {
-    if (s.empty() || s == "UNKNOWN")
+    assertTrue_1(s);
+    if (!*s || 0 == strcmp(s, "UNKNOWN"))
       return false;
 
     char * ends;
     errno = 0;
-    long temp = strtol(s.c_str(), &ends, 0);
-    checkParserException(ends != s.c_str() && *ends == '\0',
+    long temp = strtol(s, &ends, 0);
+    checkParserException(ends != s && *ends == '\0',
                          "parseValue: \"" << s << "\" is an invalid value for an Integer");
     checkParserException(errno == 0
                          && temp <= std::numeric_limits<int32_t>::max()
@@ -396,16 +493,17 @@ namespace PLEXIL
   }
 
   template <>
-  bool parseValue<double>(std::string const &s, double &result)
+  bool parseValue<double>(char const *s, double &result)
     throw (ParserException)
   {
-    if (s.empty() || s == "UNKNOWN")
+    assertTrue_1(s);
+    if (!*s || 0 == strcmp(s, "UNKNOWN"))
       return false;
 
     char * ends;
     errno = 0;
-    double temp = strtod(s.c_str(), &ends);
-    checkParserException(ends != s.c_str() && *ends == '\0',
+    double temp = strtod(s, &ends);
+    checkParserException(ends != s && *ends == '\0',
                          "parseValue: \"" << s << "\" is an invalid value for a Real");
     checkParserException(temp != HUGE_VAL && temp != -HUGE_VAL,
                          "parseValue: " << s << " is out of range for a Real");
@@ -415,9 +513,10 @@ namespace PLEXIL
 
   // Empty string is valid
   template <>
-  bool parseValue(std::string const &s, std::string &result)
+  bool parseValue(char const *s, std::string &result)
     throw (ParserException)
   {
+    assertTrue_1(s);
     result = s;
     return true;
   }

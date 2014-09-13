@@ -167,10 +167,10 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libPlexilUtils_la_LIBADD =
 am__libPlexilUtils_la_SOURCES_DIST = Debug.cc Error.cc \
 	hash-functions.c Logging.cc ParserException.cc \
-	lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc \
-	JNIHelper.cc JNIUtils.cc RecursiveThreadMutex.cc \
-	ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc \
-	DynamicLoader.cc
+	lifecycle-utils.c parser-utils.cc stricmp.c timespec-utils.cc \
+	timeval-utils.cc JNIHelper.cc JNIUtils.cc \
+	RecursiveThreadMutex.cc ThreadMutex.cc ThreadSemaphore.cc \
+	ThreadSpawn.cc DynamicLoader.cc
 @JNI_OPT_TRUE@am__objects_1 = libPlexilUtils_la-JNIHelper.lo \
 @JNI_OPT_TRUE@	libPlexilUtils_la-JNIUtils.lo
 @THREADS_OPT_TRUE@am__objects_2 =  \
@@ -185,7 +185,7 @@ am_libPlexilUtils_la_OBJECTS = libPlexilUtils_la-Debug.lo \
 	libPlexilUtils_la-Logging.lo \
 	libPlexilUtils_la-ParserException.lo \
 	libPlexilUtils_la-lifecycle-utils.lo \
-	libPlexilUtils_la-stricmp.lo \
+	libPlexilUtils_la-parser-utils.lo libPlexilUtils_la-stricmp.lo \
 	libPlexilUtils_la-timespec-utils.lo \
 	libPlexilUtils_la-timeval-utils.lo $(am__objects_1) \
 	$(am__objects_2) $(am__objects_3)
@@ -273,11 +273,11 @@ am__can_run_installinfo = \
 am__include_HEADERS_DIST = ConstantMacros.hh Debug.hh \
 	Dinkum_hash_map.hh Error.hh GNU_hash_map.hh Logging.hh \
 	ParserException.hh TestSupport.hh generic_hash_map.hh \
-	hash-functions.h lifecycle-utils.h stricmp.h timespec-utils.hh \
-	timeval-utils.hh utils_main_page.hh JNIHelper.hh JNIUtils.hh \
-	ScopedOstreamRedirect.hh RecursiveThreadMutex.hh \
-	ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh \
-	DynamicLoader.hh
+	hash-functions.h lifecycle-utils.h parser-utils.hh stricmp.h \
+	timespec-utils.hh timeval-utils.hh utils_main_page.hh \
+	JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh \
+	RecursiveThreadMutex.hh ThreadMutex.hh ThreadSemaphore.hh \
+	ThreadSpawn.hh DynamicLoader.hh
 am__noinst_HEADERS_DIST = test/TestData.hh test/util-test-module.hh \
 	test/jni-adapter.hh
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
@@ -433,13 +433,13 @@ libPlexilUtils_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src
 include_HEADERS = ConstantMacros.hh Debug.hh Dinkum_hash_map.hh \
 	Error.hh GNU_hash_map.hh Logging.hh ParserException.hh \
 	TestSupport.hh generic_hash_map.hh hash-functions.h \
-	lifecycle-utils.h stricmp.h timespec-utils.hh timeval-utils.hh \
-	utils_main_page.hh $(am__append_1) $(am__append_3) \
-	$(am__append_5)
+	lifecycle-utils.h parser-utils.hh stricmp.h timespec-utils.hh \
+	timeval-utils.hh utils_main_page.hh $(am__append_1) \
+	$(am__append_3) $(am__append_5)
 libPlexilUtils_la_SOURCES = Debug.cc Error.cc hash-functions.c \
-	Logging.cc ParserException.cc lifecycle-utils.c stricmp.c \
-	timespec-utils.cc timeval-utils.cc $(am__append_2) \
-	$(am__append_4) $(am__append_6)
+	Logging.cc ParserException.cc lifecycle-utils.c \
+	parser-utils.cc stricmp.c timespec-utils.cc timeval-utils.cc \
+	$(am__append_2) $(am__append_4) $(am__append_6)
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/TestData.hh \
 @MODULE_TESTS_OPT_TRUE@	test/util-test-module.hh \
 @MODULE_TESTS_OPT_TRUE@	$(am__append_7)
@@ -609,6 +609,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-ThreadSpawn.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-hash-functions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-lifecycle-utils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-parser-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-stricmp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-timespec-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-timeval-utils.Plo@am__quote@
@@ -713,6 +714,13 @@ libPlexilUtils_la-ParserException.lo: ParserException.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ParserException.cc' object='libPlexilUtils_la-ParserException.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-ParserException.lo `test -f 'ParserException.cc' || echo '$(srcdir)/'`ParserException.cc
+
+libPlexilUtils_la-parser-utils.lo: parser-utils.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilUtils_la-parser-utils.lo -MD -MP -MF $(DEPDIR)/libPlexilUtils_la-parser-utils.Tpo -c -o libPlexilUtils_la-parser-utils.lo `test -f 'parser-utils.cc' || echo '$(srcdir)/'`parser-utils.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilUtils_la-parser-utils.Tpo $(DEPDIR)/libPlexilUtils_la-parser-utils.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parser-utils.cc' object='libPlexilUtils_la-parser-utils.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-parser-utils.lo `test -f 'parser-utils.cc' || echo '$(srcdir)/'`parser-utils.cc
 
 libPlexilUtils_la-timespec-utils.lo: timespec-utils.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilUtils_la-timespec-utils.lo -MD -MP -MF $(DEPDIR)/libPlexilUtils_la-timespec-utils.Tpo -c -o libPlexilUtils_la-timespec-utils.lo `test -f 'timespec-utils.cc' || echo '$(srcdir)/'`timespec-utils.cc

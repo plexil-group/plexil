@@ -32,6 +32,7 @@
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "PlexilExpr.hh"
+#include "pugixml.hpp"
 
 #include <map>
 
@@ -79,6 +80,14 @@ namespace PLEXIL
     return createExpression(expr, node, dummy);
   }
 
+  Expression *createExpression(pugi::xml_node const &expr,
+                               NodeConnector *node)
+    throw (ParserException)
+  {
+    bool dummy;
+    return createExpression(expr, node, dummy);
+  }
+
   Expression *createExpression(PlexilExpr const *expr,
                                NodeConnector *node,
                                bool& wasCreated)
@@ -97,13 +106,37 @@ namespace PLEXIL
     return retval;
   }
 
-  // This doesn't use the ExpressionFactory paradigm, but it could if required in the future.
+  Expression *createExpression(pugi::xml_node const &expr,
+                               NodeConnector *node,
+                               bool& wasCreated)
+    throw (ParserException)
+  {
+    checkParserExceptionWithLocation(expr.type() == pugi::node_element,
+                                     expr,
+                                     "createExpression: argument is not an XML element");
+    std::string const name = expr.name();
+    // Delegate to factory
+    debugMsg("createExpression", " name = " << name);
+    std::map<std::string, ExpressionFactory*>::const_iterator it =
+      expressionFactoryMap().find(name);
+    checkParserException(it != expressionFactoryMap().end(),
+                         "createExpression: No factory registered for name \"" << name << "\".");
+    Expression *retval = it->second->allocate(expr, node, wasCreated);
+    debugMsg("createExpression",
+             " Created " << (wasCreated ? "" : "reference to ") << retval->toString());
+    return retval;
+  }
+
+  //
+  // createAssignable
+  //
+
   Assignable *createAssignable(PlexilExpr const *expr,
                                NodeConnector *node,
                                bool& wasCreated)
     throw (ParserException)
   {
-    assertTrue_2(node, "createAssignable: Null node argument");
+    assertTrue_2(node, "createAssignable: Internal error: Null node argument");
     PlexilVarRef const *ref = dynamic_cast<PlexilVarRef const *>(expr);
     if (ref) {
       // Variable reference - always returns existing
@@ -137,6 +170,22 @@ namespace PLEXIL
     }
     checkParserException(ALWAYS_FAIL,
                          "createAssignable: Not a valid expression for assignment destination");
+  }
+
+  // Delegate to expression factory.
+  Assignable *createAssignable(pugi::xml_node const &expr,
+                               NodeConnector *node,
+                               bool& wasCreated)
+    throw (ParserException)
+  {
+    checkParserExceptionWithLocation(expr.type() == pugi::node_element,
+                                     expr,
+                                     "createAssignable: argument is not an XML element");
+    assertTrue_2(node, "createAssignable: Internal error: Null node argument");
+    Expression *resultExpr = createExpression(expr, node, wasCreated);
+    checkParserException(resultExpr->isAssignable(),
+                         "createAssignable: Not a valid expression for assignment destination");
+    return resultExpr->asAssignable();
   }
 
   void purgeExpressionFactories()

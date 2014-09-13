@@ -30,12 +30,14 @@
 #include "CommandHandleVariable.hh"
 #include "CommandNode.hh"
 #include "ConcreteExpressionFactory.hh"
+#include "Error.hh"
 #include "Node.hh"
 #include "NodeConstantExpressions.hh"
 #include "NodeTimepointValue.hh"
 #include "NodeVariables.hh"
 #include "ParserException.hh"
 #include "PlexilPlan.hh"
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -64,6 +66,14 @@ namespace PLEXIL
       checkParserException(target, "createExpression: Can't find node for StateVariable");
       wasCreated = false;
       return target->getStateVariable();
+    }
+
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const
+    {
+      assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
+      return NULL;
     }
 
   private:
@@ -98,6 +108,13 @@ namespace PLEXIL
       return target->getOutcomeVariable();
     }
 
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const
+    {
+      assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
+      return NULL;
+    }
 
   private:
     // Default, copy, assign all prohibited
@@ -129,6 +146,14 @@ namespace PLEXIL
       checkParserException(target, "createExpression: Can't find node for FailureTypeVariable");
       wasCreated = false;
       return target->getFailureTypeVariable();
+    }
+
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const
+    {
+      assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
+      return NULL;
     }
 
   private:
@@ -167,6 +192,14 @@ namespace PLEXIL
       return cmd->getAck();
     }
 
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const
+    {
+      assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
+      return NULL;
+    }
+
   private:
     // Default, copy, assign all prohibited
     ConcreteExpressionFactory();
@@ -196,6 +229,14 @@ namespace PLEXIL
       checkParserException(var, "createExpression: not a PlexilTimepointVar");
       wasCreated = true;
       return create(var, node);
+    }
+
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const
+    {
+      assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
+      return NULL;
     }
 
   private:

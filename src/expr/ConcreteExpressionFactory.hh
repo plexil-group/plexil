@@ -58,6 +58,10 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const = 0;
 
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const = 0;
+
   private:
     // Default, copy, assign all prohibited
     ConcreteExpressionFactory();
@@ -82,8 +86,14 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const;
 
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
   protected:
     Expression *create(PlexilValue const *expr) const;
+
+    Expression *create(pugi::xml_node const &expr) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -111,8 +121,14 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const;
 
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
   protected:
     Expression *create(PlexilArrayValue const *expr) const;
+
+    Expression *create(pugi::xml_node const &expr) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -120,6 +136,8 @@ namespace PLEXIL
     ConcreteExpressionFactory(const ConcreteExpressionFactory &);
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
+
+  // *** TODO: Need an untyped factory class for scalar variable declarations ***
 
   template <typename T>
   class ConcreteExpressionFactory<UserVariable<T> > : public ExpressionFactory
@@ -138,6 +156,10 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const;
 
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
   protected:
     Expression *create(PlexilVar const *expr,
                        NodeConnector *node) const;
@@ -148,6 +170,8 @@ namespace PLEXIL
     ConcreteExpressionFactory(const ConcreteExpressionFactory &);
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
+
+  // *** TODO: Need a general factory for ArrayVariable declarations and another for ary var references ***
 
   template <typename T>
   class ConcreteExpressionFactory<ArrayVariable<T> > : public ExpressionFactory
@@ -163,6 +187,10 @@ namespace PLEXIL
     }
 
     Expression *allocate(PlexilExpr const *expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
+    Expression *allocate(pugi::xml_node const &expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
 
@@ -193,6 +221,10 @@ namespace PLEXIL
                                  NodeConnector *node,
                                  bool & wasCreated) const;
 
+    virtual Expression *allocate(pugi::xml_node const &expr,
+                                 NodeConnector *node,
+                                 bool & wasCreated) const;
+
   private:
     // Default, copy, assign prohibited
     ConcreteExpressionFactory();
@@ -213,6 +245,10 @@ namespace PLEXIL
     }
 
     virtual Expression *allocate(PlexilExpr const *expr,
+                                 NodeConnector *node,
+                                 bool & wasCreated) const;
+
+    virtual Expression *allocate(pugi::xml_node const &expr,
                                  NodeConnector *node,
                                  bool & wasCreated) const;
 

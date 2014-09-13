@@ -73,6 +73,11 @@ namespace PLEXIL
   // Simple linear search
   NodeState parseNodeState(std::string const &name)
   {
+    return parseNodeState(name.c_str());
+  }
+
+  NodeState parseNodeState(char const *name)
+  {
     for (size_t i = INACTIVE_STATE; i < NO_NODE_STATE; ++i)
       if (ALL_STATE_NAMES[i] == name)
         return (NodeState) i;
@@ -93,6 +98,11 @@ namespace PLEXIL
   
   NodeOutcome parseNodeOutcome(std::string const &name)
   {
+    return parseNodeOutcome(name.c_str());
+  }
+
+  NodeOutcome parseNodeOutcome(char const *name)
+  {
     for (size_t i = SUCCESS_OUTCOME; i < OUTCOME_MAX; ++i)
       if (ALL_OUTCOME_NAMES[i - NO_OUTCOME] == name)
         return (NodeOutcome) i;
@@ -112,6 +122,11 @@ namespace PLEXIL
   }
 
   FailureType parseFailureType(std::string const &name)
+  {
+    return parseFailureType(name.c_str());
+  }
+
+  FailureType parseFailureType(char const *name)
   {
     for (size_t i = PRE_CONDITION_FAILED; i < FAILURE_TYPE_MAX; ++i)
       if (ALL_FAILURE_NAMES[i - NO_FAILURE] == name)

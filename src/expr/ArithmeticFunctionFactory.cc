@@ -109,4 +109,22 @@ namespace PLEXIL
     return new Function(oper, exprVec);
   }
 
+  Expression *ArithmeticFunctionFactory::allocate(pugi::xml_node const &expr,
+                                                  NodeConnector *node,
+                                                  bool & wasCreated) const
+  {
+    // Get subexpressions
+    ExprVec *exprVec = this->constructExprVec(expr, node);
+    ValueType type = this->commonType(exprVec);
+    checkParserException(type != UNKNOWN_TYPE,
+                         "createExpression: type inconsistency or indeterminacy in arithmetic expression");
+    Operator const *oper = this->selectOperator(type);
+    checkParserException(oper->checkArgCount(exprVec->size()),
+                         "createExpression: Wrong number of operands for operator "
+                         << oper->getName());
+
+    wasCreated = true;
+    return new Function(oper, exprVec);
+  }
+
 } // namespace PLEXIL

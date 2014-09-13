@@ -180,7 +180,8 @@ am_libPlexilExpr_la_OBJECTS = libPlexilExpr_la-Alias.lo \
 	libPlexilExpr_la-PlexilExpr.lo \
 	libPlexilExpr_la-StringOperators.lo \
 	libPlexilExpr_la-UserVariable.lo libPlexilExpr_la-Value.lo \
-	libPlexilExpr_la-ValueType.lo
+	libPlexilExpr_la-ValueType.lo \
+	libPlexilExpr_la-expression-schema.lo
 libPlexilExpr_la_OBJECTS = $(am_libPlexilExpr_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -431,7 +432,7 @@ include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
  ExpressionFactories.hh ExpressionFactory.hh ExpressionImpl.hh \
  ExpressionListener.hh ExprVec.hh Function.hh FunctionFactory.hh \
  NodeConnector.hh NodeConstants.hh NotifierImpl.hh Operator.hh UserVariable.hh Value.hh \
- ValueType.hh
+ ValueType.hh expression-schema.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
  ArithmeticFunctionFactory.cc ArithmeticOperators.cc \
@@ -441,7 +442,7 @@ libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
  ExpressionFactories.cc ExpressionFactory.cc ExpressionImpl.cc \
  ExpressionListener.cc ExprVec.cc Function.cc FunctionFactory.cc \
  NodeConstants.cc NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc PlexilExpr.cc StringOperators.cc \
- UserVariable.cc Value.cc ValueType.cc
+ UserVariable.cc Value.cc ValueType.cc expression-schema.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/TrivialListener.hh test/TrivialNodeConnector.hh \
 @MODULE_TESTS_OPT_TRUE@ test/FactoryTestNodeConnector.hh
@@ -679,6 +680,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-UserVariable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-Value.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ValueType.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-expression-schema.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-FactoryTestNodeConnector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-TrivialListener.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-TrivialNodeConnector.Po@am__quote@
@@ -957,6 +959,13 @@ libPlexilExpr_la-ValueType.lo: ValueType.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ValueType.cc' object='libPlexilExpr_la-ValueType.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ValueType.lo `test -f 'ValueType.cc' || echo '$(srcdir)/'`ValueType.cc
+
+libPlexilExpr_la-expression-schema.lo: expression-schema.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-expression-schema.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-expression-schema.Tpo -c -o libPlexilExpr_la-expression-schema.lo `test -f 'expression-schema.cc' || echo '$(srcdir)/'`expression-schema.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-expression-schema.Tpo $(DEPDIR)/libPlexilExpr_la-expression-schema.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='expression-schema.cc' object='libPlexilExpr_la-expression-schema.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-expression-schema.lo `test -f 'expression-schema.cc' || echo '$(srcdir)/'`expression-schema.cc
 
 test/test_expr_module_tests-aliasTest.o: test/aliasTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-aliasTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-aliasTest.Tpo -c -o test/test_expr_module_tests-aliasTest.o `test -f 'test/aliasTest.cc' || echo '$(srcdir)/'`test/aliasTest.cc

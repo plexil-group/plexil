@@ -27,7 +27,9 @@
 #include "NodeConstantExpressions.hh"
 
 #include "Error.hh"
+#include "parser-utils.hh"
 #include "PlexilExpr.hh"
+#include "pugixml.hpp"
 
 #define DEFINE_EXPRESSION_CONSTANT(TYPE, NAME, VALUE)\
   Expression *NAME() { static TYPE sl_ ## NAME(VALUE); return &sl_ ## NAME; }
@@ -205,6 +207,43 @@ namespace PLEXIL
   }
 
   template <>
+  Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(pugi::xml_node const &expr,
+                                                                          NodeConnector *node,
+                                                                          bool &wasCreated) const
+  {
+    checkNotEmpty(expr);
+    wasCreated = false;
+    switch (parseNodeState(expr.first_child().value())) {
+    case INACTIVE_STATE:
+      return INACTIVE_CONSTANT();
+
+    case WAITING_STATE:
+      return WAITING_CONSTANT();
+
+    case EXECUTING_STATE:
+      return EXECUTING_CONSTANT();
+
+    case ITERATION_ENDED_STATE:
+      return ITERATION_ENDED_CONSTANT();
+
+    case FINISHED_STATE:
+      return FINISHED_CONSTANT();
+
+    case FAILING_STATE:
+      return FAILING_CONSTANT();
+
+    case FINISHING_STATE:
+      return FINISHING_CONSTANT();
+
+    default:
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr.first_child(),
+                                       "createExpression: Invalid NodeStateValue \"" << expr.first_child().value() << "\"");
+      return NULL;
+    }
+  }
+
+  template <>
   Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(PlexilExpr const *expr,
                                                                             NodeConnector *node,
                                                                             bool &wasCreated) const
@@ -228,6 +267,34 @@ namespace PLEXIL
 
     default:
       checkParserException(ALWAYS_FAIL, "createExpression: Invalid NodeOutcomeValue \"" << valex->value() << "\"");
+      return NULL;
+    }
+  }
+
+  template <>
+  Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(pugi::xml_node const &expr,
+                                                                            NodeConnector *node,
+                                                                            bool &wasCreated) const
+  {
+    checkNotEmpty(expr);
+    wasCreated = false;
+    switch (parseNodeOutcome(expr.first_child().value())) {
+    case SUCCESS_OUTCOME:
+      return SUCCESS_CONSTANT();
+
+    case FAILURE_OUTCOME:
+      return FAILURE_CONSTANT();
+
+    case SKIPPED_OUTCOME:
+      return SKIPPED_CONSTANT();
+
+    case INTERRUPTED_OUTCOME:
+      return INTERRUPTED_CONSTANT();
+
+    default:
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr.first_child(),
+                                       "createExpression: Invalid NodeOutcomeValue \"" << expr.first_child().value() << "\"");
       return NULL;
     }
   }
@@ -267,6 +334,40 @@ namespace PLEXIL
   }
 
   template <>
+  Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(pugi::xml_node const &expr,
+                                                                            NodeConnector *node,
+                                                                            bool &wasCreated) const
+  {
+    checkNotEmpty(expr);
+    wasCreated = false;
+    switch (parseFailureType(expr.first_child().value())) {
+    case PRE_CONDITION_FAILED:
+      return PRE_CONDITION_FAILED_CONSTANT();
+
+    case POST_CONDITION_FAILED:
+      return POST_CONDITION_FAILED_CONSTANT();
+
+    case INVARIANT_CONDITION_FAILED:
+      return INVARIANT_CONDITION_FAILED_CONSTANT();
+
+    case PARENT_FAILED:
+      return PARENT_FAILED_CONSTANT();
+
+    case EXITED:
+      return EXITED_CONSTANT();
+
+    case PARENT_EXITED:
+      return PARENT_EXITED_CONSTANT();
+
+    default:
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr.first_child(),
+                                       "createExpression: Invalid FailureTypeValue \"" << expr.first_child().value() << "\"");
+      return NULL;
+    }
+  }
+
+  template <>
   Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(PlexilExpr const *expr,
                                                                               NodeConnector *node,
                                                                               bool &wasCreated) const
@@ -296,6 +397,40 @@ namespace PLEXIL
 
     default:
       checkParserException(ALWAYS_FAIL, "createExpression: Invalid CommandHandleValue \"" << valex->value() << "\"");
+      return NULL;
+    }
+  }
+
+  template <>
+  Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(pugi::xml_node const &expr,
+                                                                              NodeConnector *node,
+                                                                              bool &wasCreated) const
+  {
+    checkNotEmpty(expr);
+    wasCreated = false;
+    switch (parseCommandHandleValue(expr.first_child().value())) {
+    case COMMAND_SENT_TO_SYSTEM:
+      return COMMAND_SENT_TO_SYSTEM_CONSTANT();
+
+    case COMMAND_ACCEPTED:
+      return COMMAND_ACCEPTED_CONSTANT();
+
+    case COMMAND_RCVD_BY_SYSTEM:
+      return COMMAND_RCVD_BY_SYSTEM_CONSTANT();
+
+    case COMMAND_FAILED:
+      return COMMAND_FAILED_CONSTANT();
+
+    case COMMAND_DENIED:
+      return COMMAND_DENIED_CONSTANT();
+
+    case COMMAND_SUCCESS:
+      return COMMAND_SUCCESS_CONSTANT();
+
+    default:
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr.first_child(),
+                                       "createExpression: Invalid CommandHandleValue \"" << expr.first_child().value() << "\"");
       return NULL;
     }
   }

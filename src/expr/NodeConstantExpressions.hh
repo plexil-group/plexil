@@ -144,6 +144,10 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const;
 
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
   private:
     // Default, copy, assign all prohibited
     NamedConstantExpressionFactory();

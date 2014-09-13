@@ -49,6 +49,10 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool & wasCreated) const;
 
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool & wasCreated) const;
+
   protected:
     // Override base class virtual method
     Operator const *getOperator() const { return NULL ;}

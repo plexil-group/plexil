@@ -31,11 +31,11 @@ libPlexilUtils_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src
 
 include_HEADERS = ConstantMacros.hh Debug.hh Dinkum_hash_map.hh Error.hh \
  GNU_hash_map.hh Logging.hh ParserException.hh TestSupport.hh \
- generic_hash_map.hh hash-functions.h lifecycle-utils.h stricmp.h \
+ generic_hash_map.hh hash-functions.h lifecycle-utils.h parser-utils.hh stricmp.h \
  timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
 libPlexilUtils_la_SOURCES = Debug.cc Error.cc hash-functions.c Logging.cc \
- ParserException.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
+ ParserException.cc lifecycle-utils.c parser-utils.cc stricmp.c timespec-utils.cc \
  timeval-utils.cc
 
 if JNI_OPT

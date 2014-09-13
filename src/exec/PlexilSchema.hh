@@ -27,6 +27,9 @@
 #ifndef PLEXIL_SCHEMA_HH
 #define PLEXIL_SCHEMA_HH
 
+#include "expression-schema.hh"
+#include "interface-schema.hh"
+
 namespace PLEXIL
 {
   extern char const *PLEXIL_PLAN_TAG;
@@ -38,12 +41,8 @@ namespace PLEXIL
   extern char const *DECL_VAR_TAG;
   extern char const *IN_TAG;
   extern char const *INOUT_TAG;
-  extern char const *VAR_TAG;
-  extern char const *TYPE_TAG;
   extern char const *MAXSIZE_TAG;
   extern char const *DECL_TAG;
-  extern char const *VAL_TAG;
-  extern char const *ARRAY_VAL_TAG;
   extern char const *INITIALVAL_TAG;
   extern char const *ASSN_TAG;
   extern char const *BODY_TAG;
@@ -52,18 +51,10 @@ namespace PLEXIL
   extern char const *LIBRARYNODECALL_TAG;
   extern char const *ALIAS_TAG;
   extern char const *NODE_PARAMETER_TAG;
-  extern char const *CMD_TAG;
-  extern char const *NAME_TAG;
   extern char const *INDEX_TAG;
-  extern char const *ARGS_TAG;
-  extern char const *LOOKUPNOW_TAG;
-  extern char const *LOOKUPCHANGE_TAG;
-  extern char const *TOLERANCE_TAG;
   extern char const *NODEREF_TAG;
   extern char const *STATEVAL_TAG;
   extern char const *TIMEPOINT_TAG;
-  extern char const *UPDATE_TAG;
-  extern char const *PAIR_TAG;
   extern char const *COND_TAG;
 
   // condition names
@@ -91,14 +82,9 @@ namespace PLEXIL
   extern char const *NODE_COMMAND_HANDLE_TAG;
 
   extern char const *DECL_ARRAY_TAG;
-  extern char const *ARRAYELEMENT_TAG;
 
   extern char const *NODETYPE_ATTR;
   extern char const *DIR_ATTR;
-
-  extern char const *FILENAME_ATTR;
-  extern char const *LINENO_ATTR;
-  extern char const *COLNO_ATTR;
 
   extern char const *PARENT_VAL;
   extern char const *CHILD_VAL;
