@@ -45,7 +45,7 @@
 namespace PLEXIL
 {
   // Initialize type name strings
-  std::string const BOOL_STR = "Boolean";
+  std::string const BOOLEAN_STR = "Boolean";
   std::string const INTEGER_STR = "Integer";
   std::string const REAL_STR = "Real";
   std::string const DATE_STR = "Date";
@@ -66,7 +66,7 @@ namespace PLEXIL
   {
     switch (ty) {
     case BOOLEAN_TYPE:
-      return BOOL_STR;
+      return BOOLEAN_STR;
 
     case INTEGER_TYPE:
       return INTEGER_STR;
@@ -120,7 +120,7 @@ namespace PLEXIL
 
     switch (ty) {
     case BOOLEAN_TYPE:
-      static std::string const sl_boolval = BOOL_STR + sl_val;
+      static std::string const sl_boolval = BOOLEAN_STR + sl_val;
       return sl_boolval;
 
     case INTEGER_TYPE:
@@ -188,7 +188,7 @@ namespace PLEXIL
 
     switch (ty) {
     case BOOLEAN_TYPE:
-      static std::string const sl_boolvar = BOOL_STR + sl_var;
+      static std::string const sl_boolvar = BOOLEAN_STR + sl_var;
       return sl_boolvar;
 
     case INTEGER_TYPE:
@@ -304,76 +304,71 @@ namespace PLEXIL
     return (ValueType) (elTy + ARRAY_TYPE);
   }
 
-  ValueType parseValueTypePrefix(const std::string & str, size_t prefixLen)
-  {
-    return parseValueTypePrefix(str.c_str(), prefixLen);
-  }
-
   ValueType parseValueTypePrefix(char const *str, size_t prefixLen)
   {
     switch (prefixLen) {
     case 4: 
-      if (0 == REAL_STR.compare(0, prefixLen, str))
+      if (0 == REAL_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::REAL_TYPE;
-      else if (0 == DATE_STR.compare(0, prefixLen, str))
+      else if (0 == DATE_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::DATE_TYPE;
       else 
         return PLEXIL::UNKNOWN_TYPE;
 
     case 5:
-      if (0 == ARRAY_STR.compare(0, prefixLen, str))
+      if (0 == ARRAY_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::ARRAY_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 6:
-      if (0 == STRING_STR.compare(0, prefixLen, str))
+      if (0 == STRING_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::STRING_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 7:
-      if (0 == INTEGER_STR.compare(0, prefixLen, str))
+      if (0 == INTEGER_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::INTEGER_TYPE;
-      else if (0 == BOOL_STR.compare(0, prefixLen, str))
+      else if (0 == BOOLEAN_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::BOOLEAN_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 8:
-      if (0 == DURATION_STR.compare(0, prefixLen, str))
+      if (0 == DURATION_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::DURATION_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 9:
-      if (0 == REAL_ARRAY_STR.compare(0, prefixLen, str))
+      if (0 == REAL_ARRAY_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::REAL_ARRAY_TYPE;
-      else if (0 == NODE_STATE_STR.compare(0, prefixLen, str))
+      else if (0 == NODE_STATE_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::NODE_STATE_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 11:
-      if (0 == NODE_OUTCOME_STR.compare(0, prefixLen, str))
+      if (0 == NODE_OUTCOME_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::OUTCOME_TYPE;
-      else if (0 == NODE_FAILURE_STR.compare(0, prefixLen, str))
+      else if (0 == NODE_FAILURE_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::FAILURE_TYPE;
-      else if (0 == STRING_ARRAY_STR.compare(0, prefixLen, str))
+      else if (0 == STRING_ARRAY_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::STRING_ARRAY_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 12:
-      if (0 == BOOLEAN_ARRAY_STR.compare(0, prefixLen, str))
+      if (0 == BOOLEAN_ARRAY_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::BOOLEAN_ARRAY_TYPE;
-      else if (0 == INTEGER_ARRAY_STR.compare(0, prefixLen, str))
+      else if (0 == INTEGER_ARRAY_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::INTEGER_ARRAY_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 17:
-      if (0 == NODE_COMMAND_HANDLE_STR.compare(0, prefixLen, str))
+      if (0 == NODE_COMMAND_HANDLE_STR.compare(0, prefixLen, str, prefixLen))
         return PLEXIL::COMMAND_HANDLE_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
@@ -384,14 +379,19 @@ namespace PLEXIL
     }
   }
 
-  ValueType parseValueType(const std::string& typeStr)
+  ValueType parseValueTypePrefix(const std::string & str, size_t prefixLen)
   {
-    return parseValueTypePrefix(typeStr.c_str(), typeStr.length());
+    return parseValueTypePrefix(str.c_str(), prefixLen);
   }
 
   ValueType parseValueType(char const *typeStr)
   {
     return parseValueTypePrefix(typeStr, strlen(typeStr));
+  }
+
+  ValueType parseValueType(const std::string& typeStr)
+  {
+    return parseValueTypePrefix(typeStr.c_str(), typeStr.length());
   }
 
   template <typename T>

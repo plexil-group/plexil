@@ -76,7 +76,7 @@ namespace PLEXIL
     };
 
   // Type name string constants
-  extern std::string const BOOL_STR;
+  extern std::string const BOOLEAN_STR;
   extern std::string const INTEGER_STR;
   extern std::string const REAL_STR;
   extern std::string const DATE_STR;
