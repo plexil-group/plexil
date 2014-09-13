@@ -42,7 +42,6 @@ namespace PLEXIL
   extern char const *IN_TAG;
   extern char const *INOUT_TAG;
   extern char const *MAXSIZE_TAG;
-  extern char const *DECL_TAG;
   extern char const *INITIALVAL_TAG;
   extern char const *ASSN_TAG;
   extern char const *BODY_TAG;

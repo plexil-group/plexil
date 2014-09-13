@@ -36,7 +36,6 @@ namespace PLEXIL
   char const *IN_TAG = "In";
   char const *INOUT_TAG = "InOut";
   char const *MAXSIZE_TAG = "MaxSize";
-  char const *DECL_TAG = "Declare";
   char const *INITIALVAL_TAG = "InitialValue";
   char const *ASSN_TAG = "Assignment";
   char const *BODY_TAG = "NodeBody";
