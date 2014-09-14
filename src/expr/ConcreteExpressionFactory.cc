@@ -455,7 +455,48 @@ namespace PLEXIL
                                                       NodeConnector *node,
                                                       bool & wasCreated) const
   {
-    assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
+    // Syntax checks
+    checkHasChildElement(expr);
+    pugi::xml_node nameXml = expr.first_child();
+    checkParserExceptionWithLocation(nameXml && testTag(NAME_TAG, nameXml),
+                                     expr,
+                                     "createExpression: ArrayElement has no Name element");
+    checkNotEmpty(nameXml);
+    pugi::xml_node indexXml = nameXml.next_sibling();
+    checkParserExceptionWithLocation(indexXml && testTag(INDEX_TAG, indexXml),
+                                     expr,
+                                     "createExpression: ArrayElement has no Index element");
+    checkHasChildElement(indexXml);
+    indexXml = indexXml.first_child();
+    checkParserExceptionWithLocation(indexXml.type() == pugi::node_element,
+                                     indexXml,
+                                     "createExpression: ArrayElement Index is not an element");
+
+    // Checks on array
+    bool arrayCreated = false;
+    const char *arrayName = nameXml.first_child().value();
+    Expression *arrayVar = node->findVariable(std::string(arrayName));
+    checkParserExceptionWithLocation(arrayVar,
+                                     nameXml,
+                                     "createExpression: No array variable named \""
+                                     << arrayName << "\" accessible from node "
+                                     << node->getNodeId());
+    checkParserExceptionWithLocation(isArrayType(arrayVar->valueType()),
+                                     nameXml,
+                                     "createExpression: Variable \"" << arrayName
+                                     << "\" is not an array variable");
+
+    // Checks on index
+    bool indexCreated = false;
+    Expression *indexExpr = createExpression(indexXml, node, indexCreated);
+    assertTrue_1(indexExpr);
+    ValueType indexType = indexExpr->valueType();
+    checkParserExceptionWithLocation(indexType == INTEGER_TYPE || indexType == UNKNOWN_TYPE,
+                                     indexXml,
+                                     "createExpression: Array index expression is not numeric");
+
+    wasCreated = true;
+    return new ArrayReference(arrayVar, indexExpr, arrayCreated, indexCreated);
   }
 
   // Generic variable references
