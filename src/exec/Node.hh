@@ -257,6 +257,9 @@ namespace PLEXIL {
      */
     PlexilNodeType getType() const {return m_nodeType;}
 
+    virtual Node const *findChild(const std::string& childName) const;
+    virtual Node *findChild(const std::string& childName);
+
     /**
      * @brief Notifies the node that one of its conditions has changed.
      */
@@ -363,9 +366,6 @@ namespace PLEXIL {
 
     static size_t getConditionIndex(const std::string& cName);
     static const std::string& getConditionName(size_t idx);
-
-    virtual Node const *findChild(const std::string& childName) const;
-    virtual Node *findChild(const std::string& childName);
 
     void commonInit();
 
