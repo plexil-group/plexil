@@ -91,7 +91,7 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool & wasCreated) const
     {
-      checkNotEmpty(expr);
+      checkHasChildElement(expr);
       pugi::xml_node stateNameXml = expr.first_child();
       checkTag(NAME_TAG, stateNameXml);
       pugi::xml_node argsXml = stateNameXml.next_sibling();
