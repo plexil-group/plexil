@@ -33,16 +33,17 @@
 
 namespace PLEXIL
 {
-  extern char const *VAR_TAG;
-  extern char const *VAL_TAG;
-  extern char const *ARRAY_VAL_TAG;
   extern char const *ARRAYELEMENT_TAG;
+  extern char const *ARRAY_VAL_TAG;
+  extern char const *INDEX_TAG;
+  extern char const *NAME_TAG;
   extern char const *TYPE_TAG;
+  extern char const *VAL_TAG;
+  extern char const *VAR_TAG;
 
+  extern char const *COLNO_ATTR;
   extern char const *FILENAME_ATTR;
   extern char const *LINENO_ATTR;
-  extern char const *COLNO_ATTR;
-
 } // namespace PLEXIL
 
 #endif // PLEXIL_EXPRESSION_SCHEMA_HH
