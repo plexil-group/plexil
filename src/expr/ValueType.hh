@@ -76,23 +76,23 @@ namespace PLEXIL
     };
 
   // Type name string constants
-  extern std::string const BOOLEAN_STR;
-  extern std::string const INTEGER_STR;
-  extern std::string const REAL_STR;
-  extern std::string const DATE_STR;
-  extern std::string const DURATION_STR;
-  extern std::string const STRING_STR;
-  extern std::string const ARRAY_STR;
-  extern std::string const BOOLEAN_ARRAY_STR;
-  extern std::string const INTEGER_ARRAY_STR;
-  extern std::string const REAL_ARRAY_STR;
-  extern std::string const STRING_ARRAY_STR;
-  extern std::string const NODE_STATE_STR;
-  extern std::string const NODE_OUTCOME_STR;
-  extern std::string const NODE_FAILURE_STR;
-  extern std::string const NODE_COMMAND_HANDLE_STR;
+  extern char const *BOOLEAN_STR;
+  extern char const *INTEGER_STR;
+  extern char const *REAL_STR;
+  extern char const *DATE_STR;
+  extern char const *DURATION_STR;
+  extern char const *STRING_STR;
+  extern char const *ARRAY_STR;
+  extern char const *BOOLEAN_ARRAY_STR;
+  extern char const *INTEGER_ARRAY_STR;
+  extern char const *REAL_ARRAY_STR;
+  extern char const *STRING_ARRAY_STR;
+  extern char const *NODE_STATE_STR;
+  extern char const *NODE_OUTCOME_STR;
+  extern char const *NODE_FAILURE_STR;
+  extern char const *NODE_COMMAND_HANDLE_STR;
 
-  extern std::string const UNKNOWN_STR;
+  extern char const *UNKNOWN_STR;
 
   // Utility functions
   const std::string &valueTypeName(ValueType ty);

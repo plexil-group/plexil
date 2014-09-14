@@ -45,72 +45,87 @@
 namespace PLEXIL
 {
   // Initialize type name strings
-  std::string const BOOLEAN_STR = "Boolean";
-  std::string const INTEGER_STR = "Integer";
-  std::string const REAL_STR = "Real";
-  std::string const DATE_STR = "Date";
-  std::string const DURATION_STR = "Duration";
-  std::string const STRING_STR = "String";
-  std::string const ARRAY_STR = "Array";
-  std::string const BOOLEAN_ARRAY_STR = "BooleanArray";
-  std::string const INTEGER_ARRAY_STR = "IntegerArray";
-  std::string const REAL_ARRAY_STR = "RealArray";
-  std::string const STRING_ARRAY_STR = "StringArray";
-  std::string const NODE_STATE_STR = "NodeState";
-  std::string const NODE_OUTCOME_STR = "NodeOutcome";
-  std::string const NODE_FAILURE_STR = "NodeFailure";
-  std::string const NODE_COMMAND_HANDLE_STR = "NodeCommandHandle";
-  std::string const UNKNOWN_STR = "UNKNOWN";
+  char const *BOOLEAN_STR = "Boolean";
+  char const *INTEGER_STR = "Integer";
+  char const *REAL_STR = "Real";
+  char const *DATE_STR = "Date";
+  char const *DURATION_STR = "Duration";
+  char const *STRING_STR = "String";
+  char const *ARRAY_STR = "Array";
+  char const *BOOLEAN_ARRAY_STR = "BooleanArray";
+  char const *INTEGER_ARRAY_STR = "IntegerArray";
+  char const *REAL_ARRAY_STR = "RealArray";
+  char const *STRING_ARRAY_STR = "StringArray";
+  char const *NODE_STATE_STR = "NodeState";
+  char const *NODE_OUTCOME_STR = "NodeOutcome";
+  char const *NODE_FAILURE_STR = "NodeFailure";
+  char const *NODE_COMMAND_HANDLE_STR = "NodeCommandHandle";
+  char const *UNKNOWN_STR = "UNKNOWN";
 
   const std::string &valueTypeName(ValueType ty)
   {
     switch (ty) {
     case BOOLEAN_TYPE:
-      return BOOLEAN_STR;
+      static std::string const sl_boolean(BOOLEAN_STR);
+      return sl_boolean;
 
     case INTEGER_TYPE:
-      return INTEGER_STR;
+      static std::string const sl_integer(INTEGER_STR);
+      return sl_integer;
 
     case REAL_TYPE:
-      return REAL_STR;
+      static std::string const sl_real(REAL_STR);
+      return sl_real;
       
     case STRING_TYPE:
-      return STRING_STR;
+      static std::string const sl_string(STRING_STR);
+      return sl_string;
 
     case DATE_TYPE:
-      return DATE_STR;
+      static std::string const sl_date(DATE_STR);
+      return sl_date;
 
     case DURATION_TYPE:
-      return DURATION_STR;
+      static std::string const sl_duration(DURATION_STR);
+      return sl_duration;
 
       // Array types
     case BOOLEAN_ARRAY_TYPE:
-      return BOOLEAN_ARRAY_STR;
+      static std::string const sl_boolean_array(BOOLEAN_ARRAY_STR);
+      return sl_boolean_array;
 
     case INTEGER_ARRAY_TYPE:
-      return INTEGER_ARRAY_STR;
+      static std::string const sl_integer_array(INTEGER_ARRAY_STR);
+      return sl_integer_array;
 
     case REAL_ARRAY_TYPE:
-      return REAL_ARRAY_STR;
+      static std::string const sl_real_array(REAL_ARRAY_STR);
+      return sl_real_array;
 
     case STRING_ARRAY_TYPE:
-      return STRING_ARRAY_STR;
+      static std::string const sl_string_array(STRING_ARRAY_STR);
+      return sl_string_array;
 
       // Internal types
     case NODE_STATE_TYPE:
-      return NODE_STATE_STR;
+      static std::string const sl_state(NODE_STATE_STR);
+      return sl_state;
 
     case OUTCOME_TYPE:
-      return NODE_OUTCOME_STR;
+      static std::string const sl_outcome(NODE_OUTCOME_STR);
+      return sl_outcome;
 
     case FAILURE_TYPE:
-      return NODE_FAILURE_STR;
+      static std::string const sl_failure(NODE_FAILURE_STR);
+      return sl_failure;
 
     case COMMAND_HANDLE_TYPE:
-      return NODE_COMMAND_HANDLE_STR;
+      static std::string const sl_command_handle(NODE_COMMAND_HANDLE_STR);
+      return sl_command_handle;
 
     default:
-      return UNKNOWN_STR;
+      static std::string const sl_unknown(UNKNOWN_STR);
+      return sl_unknown;
     }
   }
 
@@ -308,67 +323,67 @@ namespace PLEXIL
   {
     switch (prefixLen) {
     case 4: 
-      if (0 == REAL_STR.compare(0, prefixLen, str, prefixLen))
+      if (0 == strncmp(REAL_STR, str, prefixLen))
         return PLEXIL::REAL_TYPE;
-      else if (0 == DATE_STR.compare(0, prefixLen, str, prefixLen))
+      else if (0 == strncmp(DATE_STR, str, prefixLen))
         return PLEXIL::DATE_TYPE;
       else 
         return PLEXIL::UNKNOWN_TYPE;
 
     case 5:
-      if (0 == ARRAY_STR.compare(0, prefixLen, str, prefixLen))
+      if (0 == strncmp(ARRAY_STR, str, prefixLen))
         return PLEXIL::ARRAY_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 6:
-      if (0 == STRING_STR.compare(0, prefixLen, str, prefixLen))
+      if (0 == strncmp(STRING_STR, str, prefixLen))
         return PLEXIL::STRING_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 7:
-      if (0 == INTEGER_STR.compare(0, prefixLen, str, prefixLen))
+      if (0 == strncmp(INTEGER_STR, str, prefixLen))
         return PLEXIL::INTEGER_TYPE;
-      else if (0 == BOOLEAN_STR.compare(0, prefixLen, str, prefixLen))
+      else if (0 == strncmp(BOOLEAN_STR, str, prefixLen))
         return PLEXIL::BOOLEAN_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 8:
-      if (0 == DURATION_STR.compare(0, prefixLen, str, prefixLen))
+      if (0 == strncmp(DURATION_STR, str, prefixLen))
         return PLEXIL::DURATION_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 9:
-      if (0 == REAL_ARRAY_STR.compare(0, prefixLen, str, prefixLen))
+      if (0 == strncmp(REAL_ARRAY_STR, str, prefixLen))
         return PLEXIL::REAL_ARRAY_TYPE;
-      else if (0 == NODE_STATE_STR.compare(0, prefixLen, str, prefixLen))
+      else if (0 == strncmp(NODE_STATE_STR, str, prefixLen))
         return PLEXIL::NODE_STATE_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 11:
-      if (0 == NODE_OUTCOME_STR.compare(0, prefixLen, str, prefixLen))
+      if (0 == strncmp(NODE_OUTCOME_STR, str, prefixLen))
         return PLEXIL::OUTCOME_TYPE;
-      else if (0 == NODE_FAILURE_STR.compare(0, prefixLen, str, prefixLen))
+      else if (0 == strncmp(NODE_FAILURE_STR, str, prefixLen))
         return PLEXIL::FAILURE_TYPE;
-      else if (0 == STRING_ARRAY_STR.compare(0, prefixLen, str, prefixLen))
+      else if (0 == strncmp(STRING_ARRAY_STR, str, prefixLen))
         return PLEXIL::STRING_ARRAY_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 12:
-      if (0 == BOOLEAN_ARRAY_STR.compare(0, prefixLen, str, prefixLen))
+      if (0 == strncmp(BOOLEAN_ARRAY_STR, str, prefixLen))
         return PLEXIL::BOOLEAN_ARRAY_TYPE;
-      else if (0 == INTEGER_ARRAY_STR.compare(0, prefixLen, str, prefixLen))
+      else if (0 == strncmp(INTEGER_ARRAY_STR, str, prefixLen))
         return PLEXIL::INTEGER_ARRAY_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
 
     case 17:
-      if (0 == NODE_COMMAND_HANDLE_STR.compare(0, prefixLen, str, prefixLen))
+      if (0 == strncmp(NODE_COMMAND_HANDLE_STR, str, prefixLen))
         return PLEXIL::COMMAND_HANDLE_TYPE;
       else
         return PLEXIL::UNKNOWN_TYPE;
