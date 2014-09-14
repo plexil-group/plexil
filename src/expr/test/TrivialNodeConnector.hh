@@ -46,6 +46,10 @@ public:
                            bool /* recursive */ = false);
   Node *findNodeRef(PlexilNodeRef const * /* nodeRef */);
   std::string const &getNodeId() const;
+  Node const *findChild(const std::string& childName) const;
+  Node *findChild(const std::string& childName);
+  Node *getParent();
+  Node const *getParent() const;
 };
 
 #endif // PLEXIL_TRIVIAL_NODE_CONNECTOR_HH

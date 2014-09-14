@@ -66,6 +66,26 @@ namespace PLEXIL
     return sl_empty;
   }
 
+  Node const *FactoryTestNodeConnector::findChild(const std::string& childName) const
+  {
+    return NULL;
+  }
+   
+  Node *FactoryTestNodeConnector::findChild(const std::string& childName)
+  {
+    return NULL;
+  }
+
+  Node *FactoryTestNodeConnector::getParent()
+  {
+    return NULL;
+  }
+
+  Node const *FactoryTestNodeConnector::getParent() const
+  {
+    return NULL;
+  }
+
   void FactoryTestNodeConnector::storeVariable(const std::string & name, Expression *var)
   {
     TestVariableMap::iterator it = m_variableMap.find(name);

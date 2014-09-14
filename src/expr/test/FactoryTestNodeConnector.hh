@@ -54,6 +54,11 @@ namespace PLEXIL
 
     std::string const &getNodeId() const;
 
+    Node const *findChild(const std::string& childName) const;
+    Node *findChild(const std::string& childName);
+    Node *getParent();
+    Node const *getParent() const;
+
     // Test setup
     void storeVariable(const std::string & name, Expression *var);
 
