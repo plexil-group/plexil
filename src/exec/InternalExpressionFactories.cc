@@ -36,11 +36,115 @@
 #include "NodeTimepointValue.hh"
 #include "NodeVariables.hh"
 #include "ParserException.hh"
+#include "parser-utils.hh"
 #include "PlexilPlan.hh"
+#include "PlexilSchema.hh"
 #include "pugixml.hpp"
 
 namespace PLEXIL
 {
+  // Utility routines
+  static Node *parseNodeRef(pugi::xml_node nodeRef, NodeConnector *node)
+  {
+    // parse directional reference
+    checkAttr(DIR_ATTR, nodeRef);
+    const char* dirValue = nodeRef.attribute(DIR_ATTR).value();
+
+    if (0 == strcmp(dirValue, SELF_VAL))
+      return dynamic_cast<Node *>(node);
+
+    Node *result = NULL;
+    if (0 == strcmp(dirValue, PARENT_VAL)) {
+      result = node->getParent();
+      checkParserExceptionWithLocation(result,
+                                       nodeRef,
+                                       "createExpression: Parent node reference in root node "
+                                       << node->getNodeId());
+      return result;
+    }
+
+    checkNotEmpty(nodeRef);
+    const char *name = nodeRef.first_child().value();
+    if (0 == strcmp(dirValue, CHILD_VAL)) {
+      result = node->findChild(std::string(name));
+      checkParserExceptionWithLocation(result,
+                                       nodeRef,
+                                       "createExpression: No child node named " << name 
+                                       << " in node " << node->getNodeId());
+      return result;
+    }
+    if (0 == strcmp(dirValue, SIBLING_VAL)) {
+      Node *parent = node->getParent();
+      checkParserExceptionWithLocation(parent,
+                                       nodeRef,
+                                       "createExpression: Sibling node reference from root node "
+                                       << node->getNodeId());
+      result = parent->findChild(std::string(name));
+      checkParserExceptionWithLocation(result,
+                                       nodeRef,
+                                       "createExpression: No sibling node named " << name 
+                                       << " for node " << node->getNodeId());
+      return result;
+    }
+    else {
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       nodeRef,
+                                       "XML parsing error: Invalid value for " << DIR_ATTR << " attibute \""
+                                       << dirValue << "\"");
+    }
+  }
+
+  static Node *findLocalNodeId(std::string const &nameStr, NodeConnector *node)
+  {
+    // search for node ID
+    if (nameStr == node->getNodeId())
+      return dynamic_cast<Node *>(node);
+    // Check children, if any
+    Node *result = node->findChild(nameStr);
+    if (result)
+      return result;
+    return NULL;
+  }
+
+  static Node *parseNodeId(pugi::xml_node nodeRef, NodeConnector *node)
+  {
+    // search for node ID
+    checkNotEmpty(nodeRef);
+    std::string const nameStr(nodeRef.first_child().value());
+    Node *result = findLocalNodeId(nameStr, node);
+    if (result)
+      return result;
+
+    Node *parent = node->getParent();
+    while (parent) {
+      result = findLocalNodeId(nameStr, parent);
+      if (result)
+        return result;
+      parent = parent->getParent();
+    }
+    checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                     nodeRef.first_child(),
+                                     "createExpression: No node named "
+                                     << nameStr
+                                     << " reachable from node " << node->getNodeId());
+    return NULL;
+  }
+
+  static Node *parseNodeReference(pugi::xml_node nodeRef, NodeConnector *node)
+  {
+    checkParserExceptionWithLocation(nodeRef.type() == pugi::node_element,
+                                     nodeRef,
+                                     "createExpression: Node reference is not an element");
+    const char* tag = nodeRef.name();
+    if (0 == strcmp(tag, NODEREF_TAG))
+      return parseNodeRef(nodeRef, node);
+    else if (0 == strcmp(tag, NODEID_TAG))
+      return parseNodeId(nodeRef, node);
+    else 
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       nodeRef,
+                                       "createExpression: Invalid node reference");
+  }
   
   // Specialization for internal variables
   template <>
@@ -72,8 +176,10 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const
     {
-      assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
-      return NULL;
+      checkHasChildElement(expr);
+      Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+      wasCreated = false;
+      return refNode->getStateVariable();
     }
 
   private:
@@ -112,8 +218,10 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const
     {
-      assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
-      return NULL;
+      checkHasChildElement(expr);
+      Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+      wasCreated = false;
+      return refNode->getOutcomeVariable();
     }
 
   private:
@@ -152,8 +260,10 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const
     {
-      assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
-      return NULL;
+      checkHasChildElement(expr);
+      Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+      wasCreated = false;
+      return refNode->getFailureTypeVariable();
     }
 
   private:
@@ -196,8 +306,17 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const
     {
-      assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
-      return NULL;
+      checkHasChildElement(expr);
+      pugi::xml_node nodeRef = expr.first_child();
+      Node *refNode = parseNodeReference(nodeRef, node); // can throw ParserException
+      checkParserExceptionWithLocation(refNode->getType() == NodeType_Command,
+                                       expr.first_child(),
+                                       "createExpression: Node " << refNode->getNodeId()
+                                       << " is not a Command node");
+      CommandNode *cnode = dynamic_cast<CommandNode *>(refNode);
+      assertTrue_1(cnode);
+      wasCreated = false;
+      return cnode->getCommand()->getAck();
     }
 
   private:
@@ -235,8 +354,38 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const
     {
-      assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
-      return NULL;
+      checkHasChildElement(expr);
+      pugi::xml_node nodeRef = expr.first_child();
+      Node *refNode = parseNodeReference(nodeRef, node); // can throw ParserException
+      pugi::xml_node stateName = nodeRef.next_sibling();
+      checkParserExceptionWithLocation(stateName && testTag(STATEVAL_TAG, stateName),
+                                       expr,
+                                       "createExpression: NodeTimepointValue has no NodeStateValue element");
+      checkNotEmpty(stateName);
+      NodeState state = parseNodeState(stateName.first_child().value());
+      checkParserExceptionWithLocation(state != NO_NODE_STATE,
+                                       stateName,
+                                       "createExpression: Invalid NodeStateValue \""
+                                       << stateName.first_child().value()
+                                       << "\"");
+      pugi::xml_node which = stateName.next_sibling();
+      checkParserExceptionWithLocation(which && testTag(TIMEPOINT_TAG, which),
+                                       expr,
+                                       "createExpression: NodeTimepointValue has no Timepoint element");
+      checkNotEmpty(which);
+      char const *whichStr = which.first_child().value();
+      bool isEnd;
+      if (0 == strcmp(START_VAL, whichStr))
+        isEnd = false;
+      else if (0 == strcmp(END_VAL, whichStr))
+        isEnd = true;
+      else
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         which,
+                                         "createExpression: Invalid Timepoint value \""
+                                         << whichStr << "\"");
+      wasCreated = true;
+      return new NodeTimepointValue(refNode, state, isEnd);
     }
 
   private:
