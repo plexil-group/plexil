@@ -70,4 +70,7 @@ namespace PLEXIL
   char const *SIBLING_VAL = "sibling";
   char const *SELF_VAL = "self";
 
+  char const *START_VAL = "START";
+  char const *END_VAL = "END";
+
 }

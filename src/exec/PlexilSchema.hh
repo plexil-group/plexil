@@ -76,6 +76,9 @@ namespace PLEXIL
   extern char const *SIBLING_VAL;
   extern char const *SELF_VAL;
 
+  extern char const *START_VAL;
+  extern char const *END_VAL;
+
 } // namespace PLEXIL
 
 #endif // PLEXIL_SCHEMA_HH
