@@ -39,8 +39,9 @@ include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
  ValueType.hh expression-schema.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
- ArithmeticFunctionFactory.cc ArithmeticOperators.cc \
- ArrayOperators.cc ArrayReference.cc ArrayVariable.cc ArrayVariableFactory.cc Assignable.cc \
+ ArithmeticFunctionFactory.cc ArithmeticOperators.cc ArrayOperators.cc \
+ ArrayReference.cc ArrayVariable.cc ArrayVariableFactory.cc \
+ ArrayVariableReferenceFactory.cc Assignable.cc \
  AssignableImpl.cc BooleanOperators.cc CommandHandle.cc Comparisons.cc \
  ConcreteExpressionFactory.cc Constant.cc Expression.cc ExpressionConstants.cc \
  ExpressionFactories.cc ExpressionFactory.cc ExpressionImpl.cc \

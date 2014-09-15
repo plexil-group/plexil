@@ -160,6 +160,7 @@ am_libPlexilExpr_la_OBJECTS = libPlexilExpr_la-Alias.lo \
 	libPlexilExpr_la-ArrayReference.lo \
 	libPlexilExpr_la-ArrayVariable.lo \
 	libPlexilExpr_la-ArrayVariableFactory.lo \
+	libPlexilExpr_la-ArrayVariableReferenceFactory.lo \
 	libPlexilExpr_la-Assignable.lo \
 	libPlexilExpr_la-AssignableImpl.lo \
 	libPlexilExpr_la-BooleanOperators.lo \
@@ -437,8 +438,9 @@ include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
  ValueType.hh expression-schema.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
- ArithmeticFunctionFactory.cc ArithmeticOperators.cc \
- ArrayOperators.cc ArrayReference.cc ArrayVariable.cc ArrayVariableFactory.cc Assignable.cc \
+ ArithmeticFunctionFactory.cc ArithmeticOperators.cc ArrayOperators.cc \
+ ArrayReference.cc ArrayVariable.cc ArrayVariableFactory.cc \
+ ArrayVariableReferenceFactory.cc Assignable.cc \
  AssignableImpl.cc BooleanOperators.cc CommandHandle.cc Comparisons.cc \
  ConcreteExpressionFactory.cc Constant.cc Expression.cc ExpressionConstants.cc \
  ExpressionFactories.cc ExpressionFactory.cc ExpressionImpl.cc \
@@ -658,6 +660,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayReference.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayVariable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayVariableFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayVariableReferenceFactory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-Assignable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-AssignableImpl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-BooleanOperators.Plo@am__quote@
@@ -795,6 +798,13 @@ libPlexilExpr_la-ArrayVariableFactory.lo: ArrayVariableFactory.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayVariableFactory.cc' object='libPlexilExpr_la-ArrayVariableFactory.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArrayVariableFactory.lo `test -f 'ArrayVariableFactory.cc' || echo '$(srcdir)/'`ArrayVariableFactory.cc
+
+libPlexilExpr_la-ArrayVariableReferenceFactory.lo: ArrayVariableReferenceFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArrayVariableReferenceFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArrayVariableReferenceFactory.Tpo -c -o libPlexilExpr_la-ArrayVariableReferenceFactory.lo `test -f 'ArrayVariableReferenceFactory.cc' || echo '$(srcdir)/'`ArrayVariableReferenceFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-ArrayVariableReferenceFactory.Tpo $(DEPDIR)/libPlexilExpr_la-ArrayVariableReferenceFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayVariableReferenceFactory.cc' object='libPlexilExpr_la-ArrayVariableReferenceFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArrayVariableReferenceFactory.lo `test -f 'ArrayVariableReferenceFactory.cc' || echo '$(srcdir)/'`ArrayVariableReferenceFactory.cc
 
 libPlexilExpr_la-Assignable.lo: Assignable.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-Assignable.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-Assignable.Tpo -c -o libPlexilExpr_la-Assignable.lo `test -f 'Assignable.cc' || echo '$(srcdir)/'`Assignable.cc
