@@ -29,10 +29,8 @@
 #include "Error.hh"
 #include "expression-schema.hh"
 #include "NodeConnector.hh"
-#include "ParserException.hh"
 #include "parser-utils.hh"
 #include "UserVariable.hh"
-#include "ValueType.hh"
 
 #include "pugixml.hpp"
 
