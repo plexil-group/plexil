@@ -29,6 +29,7 @@ namespace PLEXIL
   char const *ARRAYELEMENT_TAG = "ArrayElement";
   char const *ARRAY_VAL_TAG = "ArrayValue";
   char const *INDEX_TAG = "Index";
+  char const *MAX_SIZE_TAG = "MaxSize";
   char const *NAME_TAG = "Name";
   char const *TYPE_TAG = "Type";
   char const *VAL_TAG = "Value";

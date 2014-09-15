@@ -24,27 +24,40 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_EXPRESSION_SCHEMA_HH
-#define PLEXIL_EXPRESSION_SCHEMA_HH
+#ifndef PLEXIL_ARRAY_VARIABLE_FACTORY_HH
+#define PLEXIL_ARRAY_VARIABLE_FACTORY_HH
 
-//
-// Declarations of constants used in parsing expressions from XML
-//
+#include "ExpressionFactory.hh"
 
 namespace PLEXIL
 {
-  extern char const *ARRAYELEMENT_TAG;
-  extern char const *ARRAY_VAL_TAG;
-  extern char const *INDEX_TAG;
-  extern char const *MAX_SIZE_TAG;
-  extern char const *NAME_TAG;
-  extern char const *TYPE_TAG;
-  extern char const *VAL_TAG;
-  extern char const *VAR_TAG;
 
-  extern char const *COLNO_ATTR;
-  extern char const *FILENAME_ATTR;
-  extern char const *LINENO_ATTR;
+  // *** DELETE ME ***
+  class PlexilExpr; 
+
+  class ArrayVariableFactory : public ExpressionFactory
+  {
+  public:
+    ArrayVariableFactory(std::string const &name);
+    ~ArrayVariableFactory();
+
+    // *** DELETE ME ***
+    Expression *allocate(PlexilExpr const *expr,
+                         NodeConnector *node,
+                         bool &wasCreated);
+
+    Expression *allocate(pugi::xml_node const &expr,
+                         NodeConnector *node,
+                         bool &wasCreated);
+
+  private:
+    // Default, copy, assign all prohibited
+    ArrayVariableFactory();
+    ArrayVariableFactory(ArrayVariableFactory const &);
+    ArrayVariableFactory & operator=(ArrayVariableFactory const &);
+  };
+
 } // namespace PLEXIL
 
-#endif // PLEXIL_EXPRESSION_SCHEMA_HH
+#endif // PLEXIL_ARRAY_VARIABLE_FACTORY_HH
+

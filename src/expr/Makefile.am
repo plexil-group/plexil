@@ -40,13 +40,13 @@ include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
 
 libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
  ArithmeticFunctionFactory.cc ArithmeticOperators.cc \
- ArrayOperators.cc ArrayReference.cc ArrayVariable.cc Assignable.cc \
+ ArrayOperators.cc ArrayReference.cc ArrayVariable.cc ArrayVariableFactory.cc Assignable.cc \
  AssignableImpl.cc BooleanOperators.cc CommandHandle.cc Comparisons.cc \
  ConcreteExpressionFactory.cc Constant.cc Expression.cc ExpressionConstants.cc \
  ExpressionFactories.cc ExpressionFactory.cc ExpressionImpl.cc \
  ExpressionListener.cc ExprVec.cc Function.cc FunctionFactory.cc \
  NodeConstants.cc NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc PlexilExpr.cc StringOperators.cc \
- UserVariable.cc Value.cc ValueType.cc expression-schema.cc
+ UserVariable.cc UserVariableFactory.cc Value.cc ValueType.cc expression-schema.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
