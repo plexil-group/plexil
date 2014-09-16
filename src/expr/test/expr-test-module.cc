@@ -51,6 +51,9 @@ extern bool valueTest();
 extern bool variableFactoryTest();
 extern bool variablesTest();
 
+// New XML parser tests
+extern bool constantXmlParserTest();
+
 static void runExprTests()
 {
   runTestSuite(listenerTest);
@@ -72,6 +75,9 @@ static void runExprTests()
   runTestSuite(arithmeticTest);
   runTestSuite(stringTest);
   runTestSuite(arrayOperatorsTest);
+
+  // New XML parser tests
+  runTestSuite(constantXmlParserTest);
 
   std::cout << "Finished" << std::endl;
 }

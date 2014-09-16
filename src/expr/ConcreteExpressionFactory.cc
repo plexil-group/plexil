@@ -116,7 +116,7 @@ namespace PLEXIL
     // establish value type
     const char* tag = expr.name();
     ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG));
-    checkParserExceptionWithLocation(typ != BOOLEAN_TYPE,
+    checkParserExceptionWithLocation(typ == BOOLEAN_TYPE,
                                      expr,
                                      "Internal error: Boolean constant factory invoked on \"" << tag << "\"");
 
@@ -152,7 +152,7 @@ namespace PLEXIL
   Expression *ConcreteExpressionFactory<Constant<T> >::create(pugi::xml_node const &tmpl) const
   {
     T value;
-    bool known = parseValue(tmpl.value(), value);
+    bool known = parseValue<T>(tmpl.value(), value);
     if (known)
       return new Constant<T>(value);
     else
