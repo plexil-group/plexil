@@ -498,74 +498,102 @@ static bool booleanArrayConstantXmlParserTest()
   return true;
 }
 
-// static bool integerArrayConstantXmlParserTest()
-// {
-//   PlexilArrayValue emptyVal(INTEGER_TYPE, 0, std::vector<std::string>());
+static bool integerArrayConstantXmlParserTest()
+{
+  bool wasCreated;
+  IntegerArray const *aryTemp = NULL;
 
-//   std::vector<std::string> validValVector(6);
-//   validValVector[0] = "0";
-//   validValVector[1] = "1";
-//   validValVector[2] = "UNKNOWN";
-//   validValVector[3] = "-123456789";
-//   validValVector[4] = "987654321";
-//   validValVector[5] = "0x69";
-//   PlexilArrayValue validVal(INTEGER_TYPE, validValVector.size(), validValVector);
+  xml_document doc;
+  doc.set_name("booleanArrayConstantXmlParserTest");
 
-//   std::vector<std::string> bogusValueVector(1, "bOgUs");
-//   PlexilArrayValue bogusValueVal(INTEGER_TYPE, bogusValueVector.size(), bogusValueVector);
+  xml_node emptyXml = doc.append_child("ArrayValue");
+  xml_attribute typeAttr = emptyXml.append_attribute("Type");
+  typeAttr.set_value("Integer");
 
-//   std::vector<std::string> rangeErrVector(1, "-3000000000");
-//   PlexilArrayValue rangeErrVal(INTEGER_TYPE, rangeErrVector.size(), rangeErrVector);
+  Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
+  assertTrue_1(emptyConstant);
+  assertTrue_1(wasCreated);
+  assertTrue_1(emptyConstant->valueType() == INTEGER_ARRAY_TYPE);
+  assertTrue_1(emptyConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 0);
 
-//   bool wasCreated;
-//   IntegerArray const *aryTemp = NULL;
+  xml_node validXml = doc.append_copy(emptyXml);
+  xml_node elementTemp = validXml.append_child("IntegerValue");
+  elementTemp.append_child(node_pcdata);
+  elementTemp.first_child().set_value("0");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("1");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("UNKNOWN");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("-123456789");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("987654321");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("0x69");
 
-//   Expression *emptyConstant = createExpression(&emptyVal, nc, wasCreated);
-//   assertTrue_1(emptyConstant);
-//   assertTrue_1(wasCreated);
-//   assertTrue_1(emptyConstant->valueType() == INTEGER_ARRAY_TYPE);
-//   assertTrue_1(emptyConstant->getValuePointer(aryTemp));
-//   assertTrue_1(aryTemp != NULL);
-//   assertTrue_1(aryTemp->size() == 0);
+  int32_t temp;
+  Expression *validValConstant = createExpression(validXml, nc, wasCreated);
+  assertTrue_1(validValConstant);
+  assertTrue_1(wasCreated);
+  assertTrue_1(validValConstant->valueType() == INTEGER_ARRAY_TYPE);
+  assertTrue_1(validValConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 6);
+  assertTrue_1(aryTemp->getElement(0, temp));
+  assertTrue_1(temp == 0);
+  assertTrue_1(aryTemp->getElement(1, temp));
+  assertTrue_1(temp == 1);
+  assertTrue_1(!aryTemp->getElement(2, temp));
+  assertTrue_1(aryTemp->getElement(3, temp));
+  assertTrue_1(temp == -123456789);
+  assertTrue_1(aryTemp->getElement(4, temp));
+  assertTrue_1(temp == 987654321);
+  assertTrue_1(aryTemp->getElement(5, temp));
+  assertTrue_1(temp == 0x69);
 
-//   int32_t temp;
-//   Expression *validValConstant = createExpression(&validVal, nc, wasCreated);
-//   assertTrue_1(validValConstant);
-//   assertTrue_1(wasCreated);
-//   assertTrue_1(validValConstant->valueType() == INTEGER_ARRAY_TYPE);
-//   assertTrue_1(validValConstant->getValuePointer(aryTemp));
-//   assertTrue_1(aryTemp != NULL);
-//   assertTrue_1(aryTemp->size() == validValVector.size());
-//   assertTrue_1(aryTemp->getElement(0, temp));
-//   assertTrue_1(temp == 0);
-//   assertTrue_1(aryTemp->getElement(1, temp));
-//   assertTrue_1(temp == 1);
-//   assertTrue_1(!aryTemp->getElement(2, temp));
-//   assertTrue_1(aryTemp->getElement(3, temp));
-//   assertTrue_1(temp == -123456789);
-//   assertTrue_1(aryTemp->getElement(4, temp));
-//   assertTrue_1(temp == 987654321);
-//   assertTrue_1(aryTemp->getElement(5, temp));
-//   assertTrue_1(temp == 0x69);
+  xml_node bogusValueXml = doc.append_copy(emptyXml);
+  elementTemp = bogusValueXml.append_child("IntegerValue");
+  elementTemp.append_child(node_pcdata);
+  elementTemp.first_child().set_value("bOgUs");
 
-//   try {
-//     Expression *bogusValueConstant = createExpression(&bogusValueVal, nc, wasCreated);
-//     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
-//   }
-//   catch (ParserException const & /* exc */) {
-//     std::cout << "Caught expected exception" << std::endl;
-//   }
+  try {
+    Expression *bogusValueConstant = createExpression(bogusValueXml, nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect element with bogus value");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
 
-//   try {
-//     Expression *rangeErrConstant = createExpression(&rangeErrVal, nc, wasCreated);
-//     assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range integer");
-//   }
-//   catch (ParserException const & /* exc */) {
-//     std::cout << "Caught expected exception" << std::endl;
-//   }
+  xml_node bogusTypeXml = doc.append_copy(emptyXml);
+  elementTemp = bogusTypeXml.append_child("BooleanValue");
+  elementTemp.append_child(node_pcdata);
+  elementTemp.first_child().set_value("0");
 
-//   return true;
-// }
+  try {
+    Expression *bogusTypeConstant = createExpression(bogusTypeXml, nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect element with bogus type");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  xml_node rangeErrorXml = doc.append_copy(emptyXml);
+  elementTemp = rangeErrorXml.append_child("IntegerValue");
+  elementTemp.append_child(node_pcdata);
+  elementTemp.first_child().set_value("-3000000000");
+
+  try {
+    Expression *rangeErrConstant = createExpression(rangeErrorXml, nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect out-of-range integer");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  return true;
+}
 
 // static bool realArrayConstantXmlParserTest()
 // {
@@ -700,7 +728,7 @@ bool constantXmlParserTest()
   runTest(stringConstantXmlParserTest);
 
   runTest(booleanArrayConstantXmlParserTest);
-  // runTest(integerArrayConstantXmlParserTest);
+  runTest(integerArrayConstantXmlParserTest);
   // runTest(realArrayConstantXmlParserTest);
   // runTest(stringArrayConstantXmlParserTest);
 
