@@ -153,13 +153,14 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libPlexilExpr_la_LIBADD =
 am_libPlexilExpr_la_OBJECTS = libPlexilExpr_la-Alias.lo \
-	libPlexilExpr_la-Array.lo libPlexilExpr_la-ArrayImpl.lo \
 	libPlexilExpr_la-ArithmeticFunctionFactory.lo \
 	libPlexilExpr_la-ArithmeticOperators.lo \
-	libPlexilExpr_la-ArrayOperators.lo \
+	libPlexilExpr_la-Array.lo libPlexilExpr_la-ArrayImpl.lo \
+	libPlexilExpr_la-ArrayLiteralFactory.lo \
 	libPlexilExpr_la-ArrayReference.lo \
 	libPlexilExpr_la-ArrayVariable.lo \
 	libPlexilExpr_la-ArrayVariableFactory.lo \
+	libPlexilExpr_la-ArrayOperators.lo \
 	libPlexilExpr_la-ArrayVariableReferenceFactory.lo \
 	libPlexilExpr_la-Assignable.lo \
 	libPlexilExpr_la-AssignableImpl.lo \
@@ -439,9 +440,9 @@ include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
  NodeConnector.hh NodeConstants.hh NotifierImpl.hh Operator.hh UserVariable.hh Value.hh \
  ValueType.hh expression-schema.hh
 
-libPlexilExpr_la_SOURCES = Alias.cc Array.cc ArrayImpl.cc \
- ArithmeticFunctionFactory.cc ArithmeticOperators.cc ArrayOperators.cc \
- ArrayReference.cc ArrayVariable.cc ArrayVariableFactory.cc \
+libPlexilExpr_la_SOURCES = Alias.cc ArithmeticFunctionFactory.cc \
+ ArithmeticOperators.cc Array.cc ArrayImpl.cc ArrayLiteralFactory.cc \
+ ArrayReference.cc ArrayVariable.cc ArrayVariableFactory.cc ArrayOperators.cc \
  ArrayVariableReferenceFactory.cc Assignable.cc \
  AssignableImpl.cc BooleanOperators.cc CommandHandle.cc Comparisons.cc \
  ConcreteExpressionFactory.cc Constant.cc Expression.cc ExpressionConstants.cc \
@@ -661,6 +662,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArithmeticOperators.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-Array.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayImpl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayLiteralFactory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayOperators.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayReference.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayVariable.Plo@am__quote@
@@ -749,20 +751,6 @@ libPlexilExpr_la-Alias.lo: Alias.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-Alias.lo `test -f 'Alias.cc' || echo '$(srcdir)/'`Alias.cc
 
-libPlexilExpr_la-Array.lo: Array.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-Array.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-Array.Tpo -c -o libPlexilExpr_la-Array.lo `test -f 'Array.cc' || echo '$(srcdir)/'`Array.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-Array.Tpo $(DEPDIR)/libPlexilExpr_la-Array.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Array.cc' object='libPlexilExpr_la-Array.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-Array.lo `test -f 'Array.cc' || echo '$(srcdir)/'`Array.cc
-
-libPlexilExpr_la-ArrayImpl.lo: ArrayImpl.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArrayImpl.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArrayImpl.Tpo -c -o libPlexilExpr_la-ArrayImpl.lo `test -f 'ArrayImpl.cc' || echo '$(srcdir)/'`ArrayImpl.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-ArrayImpl.Tpo $(DEPDIR)/libPlexilExpr_la-ArrayImpl.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayImpl.cc' object='libPlexilExpr_la-ArrayImpl.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArrayImpl.lo `test -f 'ArrayImpl.cc' || echo '$(srcdir)/'`ArrayImpl.cc
-
 libPlexilExpr_la-ArithmeticFunctionFactory.lo: ArithmeticFunctionFactory.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArithmeticFunctionFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArithmeticFunctionFactory.Tpo -c -o libPlexilExpr_la-ArithmeticFunctionFactory.lo `test -f 'ArithmeticFunctionFactory.cc' || echo '$(srcdir)/'`ArithmeticFunctionFactory.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-ArithmeticFunctionFactory.Tpo $(DEPDIR)/libPlexilExpr_la-ArithmeticFunctionFactory.Plo
@@ -777,12 +765,26 @@ libPlexilExpr_la-ArithmeticOperators.lo: ArithmeticOperators.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArithmeticOperators.lo `test -f 'ArithmeticOperators.cc' || echo '$(srcdir)/'`ArithmeticOperators.cc
 
-libPlexilExpr_la-ArrayOperators.lo: ArrayOperators.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArrayOperators.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArrayOperators.Tpo -c -o libPlexilExpr_la-ArrayOperators.lo `test -f 'ArrayOperators.cc' || echo '$(srcdir)/'`ArrayOperators.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-ArrayOperators.Tpo $(DEPDIR)/libPlexilExpr_la-ArrayOperators.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayOperators.cc' object='libPlexilExpr_la-ArrayOperators.lo' libtool=yes @AMDEPBACKSLASH@
+libPlexilExpr_la-Array.lo: Array.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-Array.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-Array.Tpo -c -o libPlexilExpr_la-Array.lo `test -f 'Array.cc' || echo '$(srcdir)/'`Array.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-Array.Tpo $(DEPDIR)/libPlexilExpr_la-Array.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Array.cc' object='libPlexilExpr_la-Array.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArrayOperators.lo `test -f 'ArrayOperators.cc' || echo '$(srcdir)/'`ArrayOperators.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-Array.lo `test -f 'Array.cc' || echo '$(srcdir)/'`Array.cc
+
+libPlexilExpr_la-ArrayImpl.lo: ArrayImpl.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArrayImpl.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArrayImpl.Tpo -c -o libPlexilExpr_la-ArrayImpl.lo `test -f 'ArrayImpl.cc' || echo '$(srcdir)/'`ArrayImpl.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-ArrayImpl.Tpo $(DEPDIR)/libPlexilExpr_la-ArrayImpl.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayImpl.cc' object='libPlexilExpr_la-ArrayImpl.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArrayImpl.lo `test -f 'ArrayImpl.cc' || echo '$(srcdir)/'`ArrayImpl.cc
+
+libPlexilExpr_la-ArrayLiteralFactory.lo: ArrayLiteralFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArrayLiteralFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArrayLiteralFactory.Tpo -c -o libPlexilExpr_la-ArrayLiteralFactory.lo `test -f 'ArrayLiteralFactory.cc' || echo '$(srcdir)/'`ArrayLiteralFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-ArrayLiteralFactory.Tpo $(DEPDIR)/libPlexilExpr_la-ArrayLiteralFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayLiteralFactory.cc' object='libPlexilExpr_la-ArrayLiteralFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArrayLiteralFactory.lo `test -f 'ArrayLiteralFactory.cc' || echo '$(srcdir)/'`ArrayLiteralFactory.cc
 
 libPlexilExpr_la-ArrayReference.lo: ArrayReference.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArrayReference.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArrayReference.Tpo -c -o libPlexilExpr_la-ArrayReference.lo `test -f 'ArrayReference.cc' || echo '$(srcdir)/'`ArrayReference.cc
@@ -804,6 +806,13 @@ libPlexilExpr_la-ArrayVariableFactory.lo: ArrayVariableFactory.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayVariableFactory.cc' object='libPlexilExpr_la-ArrayVariableFactory.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArrayVariableFactory.lo `test -f 'ArrayVariableFactory.cc' || echo '$(srcdir)/'`ArrayVariableFactory.cc
+
+libPlexilExpr_la-ArrayOperators.lo: ArrayOperators.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArrayOperators.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArrayOperators.Tpo -c -o libPlexilExpr_la-ArrayOperators.lo `test -f 'ArrayOperators.cc' || echo '$(srcdir)/'`ArrayOperators.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-ArrayOperators.Tpo $(DEPDIR)/libPlexilExpr_la-ArrayOperators.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayOperators.cc' object='libPlexilExpr_la-ArrayOperators.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArrayOperators.lo `test -f 'ArrayOperators.cc' || echo '$(srcdir)/'`ArrayOperators.cc
 
 libPlexilExpr_la-ArrayVariableReferenceFactory.lo: ArrayVariableReferenceFactory.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArrayVariableReferenceFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArrayVariableReferenceFactory.Tpo -c -o libPlexilExpr_la-ArrayVariableReferenceFactory.lo `test -f 'ArrayVariableReferenceFactory.cc' || echo '$(srcdir)/'`ArrayVariableReferenceFactory.cc

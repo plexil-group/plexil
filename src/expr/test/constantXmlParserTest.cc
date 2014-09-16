@@ -35,6 +35,7 @@
 
 using namespace PLEXIL;
 
+using pugi::xml_attribute;
 using pugi::xml_document;
 using pugi::xml_node;
 using pugi::node_pcdata;
@@ -51,8 +52,7 @@ static bool booleanConstantXmlParserTest()
   bool wasCreated;
   bool temp;
 
-  pugi::xml_node falseXml = doc.append_child();
-  falseXml.set_name("BooleanValue");
+  pugi::xml_node falseXml = doc.append_child("BooleanValue");
   pugi::xml_node falseText = falseXml.append_child(node_pcdata);
   falseText.set_value("false");
 
@@ -64,8 +64,7 @@ static bool booleanConstantXmlParserTest()
   assertTrue_1(falseConstant->getValue(temp));
   assertTrue_1(!temp);
 
-  pugi::xml_node zeroXml = doc.append_child();
-  zeroXml.set_name("BooleanValue");
+  pugi::xml_node zeroXml = doc.append_child("BooleanValue");
   pugi::xml_node zeroText = zeroXml.append_child(node_pcdata);
   zeroText.set_value("0");
 
@@ -77,8 +76,7 @@ static bool booleanConstantXmlParserTest()
   assertTrue_1(zeroConstant->getValue(temp));
   assertTrue_1(!temp);
 
-  pugi::xml_node trueXml = doc.append_child();
-  trueXml.set_name("BooleanValue");
+  pugi::xml_node trueXml = doc.append_child("BooleanValue");
   pugi::xml_node trueText = trueXml.append_child(node_pcdata);
   trueText.set_value("true");
 
@@ -90,8 +88,7 @@ static bool booleanConstantXmlParserTest()
   assertTrue_1(trueConstant->getValue(temp));
   assertTrue_1(temp);
 
-  pugi::xml_node oneXml = doc.append_child();
-  oneXml.set_name("BooleanValue");
+  pugi::xml_node oneXml = doc.append_child("BooleanValue");
   pugi::xml_node oneText = oneXml.append_child(node_pcdata);
   oneText.set_value("1");
 
@@ -103,8 +100,7 @@ static bool booleanConstantXmlParserTest()
   assertTrue_1(oneConstant->getValue(temp));
   assertTrue_1(temp);
 
-  pugi::xml_node bogusXml = doc.append_child();
-  bogusXml.set_name("BooleanValue");
+  pugi::xml_node bogusXml = doc.append_child("BooleanValue");
   pugi::xml_node bogusText = bogusXml.append_child(node_pcdata);
   bogusText.set_value("bogus");
 
@@ -127,8 +123,7 @@ static bool integerConstantXmlParserTest()
   bool wasCreated;
   int32_t temp;
 
-  pugi::xml_node zeroXml = doc.append_child();
-  zeroXml.set_name("IntegerValue");
+  pugi::xml_node zeroXml = doc.append_child("IntegerValue");
   pugi::xml_node zeroText = zeroXml.append_child(node_pcdata);
   zeroText.set_value("0");
 
@@ -140,8 +135,7 @@ static bool integerConstantXmlParserTest()
   assertTrue_1(zeroConstant->getValue(temp));
   assertTrue_1(temp == 0);
 
-  pugi::xml_node oneXml = doc.append_child();
-  oneXml.set_name("IntegerValue");
+  pugi::xml_node oneXml = doc.append_child("IntegerValue");
   pugi::xml_node oneText = oneXml.append_child(node_pcdata);
   oneText.set_value("1");
 
@@ -153,8 +147,7 @@ static bool integerConstantXmlParserTest()
   assertTrue_1(oneConstant->getValue(temp));
   assertTrue_1(temp == 1);
 
-  pugi::xml_node minusOneXml = doc.append_child();
-  minusOneXml.set_name("IntegerValue");
+  pugi::xml_node minusOneXml = doc.append_child("IntegerValue");
   pugi::xml_node minusOneText = minusOneXml.append_child(node_pcdata);
   minusOneText.set_value("-1");
 
@@ -166,8 +159,7 @@ static bool integerConstantXmlParserTest()
   assertTrue_1(minusOneConstant->getValue(temp));
   assertTrue_1(temp == -1);
 
-  pugi::xml_node hexXml = doc.append_child();
-  hexXml.set_name("IntegerValue");
+  pugi::xml_node hexXml = doc.append_child("IntegerValue");
   pugi::xml_node hexText = hexXml.append_child(node_pcdata);
   hexText.set_value("0x42");
 
@@ -179,8 +171,7 @@ static bool integerConstantXmlParserTest()
   assertTrue_1(hexConstant->getValue(temp));
   assertTrue_1(temp == 0x42); // = 66 decimal
 
-  pugi::xml_node hexWithJunkXml = doc.append_child();
-  hexWithJunkXml.set_name("IntegerValue");
+  pugi::xml_node hexWithJunkXml = doc.append_child("IntegerValue");
   pugi::xml_node hexWithJunkText = hexWithJunkXml.append_child(node_pcdata);
   hexWithJunkText.set_value("0x42r");
 
@@ -192,8 +183,7 @@ static bool integerConstantXmlParserTest()
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  pugi::xml_node tooBigXml = doc.append_child();
-  tooBigXml.set_name("IntegerValue");
+  pugi::xml_node tooBigXml = doc.append_child("IntegerValue");
   pugi::xml_node tooBigText = tooBigXml.append_child(node_pcdata);
   tooBigText.set_value("3000000000");
 
@@ -205,8 +195,7 @@ static bool integerConstantXmlParserTest()
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  pugi::xml_node wayTooBigXml = doc.append_child();
-  wayTooBigXml.set_name("IntegerValue");
+  pugi::xml_node wayTooBigXml = doc.append_child("IntegerValue");
   pugi::xml_node wayTooBigText = wayTooBigXml.append_child(node_pcdata);
   wayTooBigText.set_value("0x30000000000000000000000");
 
@@ -218,8 +207,7 @@ static bool integerConstantXmlParserTest()
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  pugi::xml_node tooSmallXml = doc.append_child();
-  tooSmallXml.set_name("IntegerValue");
+  pugi::xml_node tooSmallXml = doc.append_child("IntegerValue");
   pugi::xml_node tooSmallText = tooSmallXml.append_child(node_pcdata);
   tooSmallText.set_value("-3000000000");
 
@@ -231,8 +219,7 @@ static bool integerConstantXmlParserTest()
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  pugi::xml_node emptyXml = doc.append_child();
-  emptyXml.set_name("IntegerValue");
+  pugi::xml_node emptyXml = doc.append_child("IntegerValue");
   emptyXml.append_child(node_pcdata);
 
   try {
@@ -243,8 +230,7 @@ static bool integerConstantXmlParserTest()
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  pugi::xml_node bogusXml = doc.append_child();
-  bogusXml.set_name("IntegerValue");
+  pugi::xml_node bogusXml = doc.append_child("IntegerValue");
   pugi::xml_node bogusText = bogusXml.append_child(node_pcdata);
   bogusText.set_value("bogus");
 
@@ -267,8 +253,7 @@ static bool realConstantXmlParserTest()
   bool wasCreated;
   double temp;
 
-  pugi::xml_node zeroXml = doc.append_child();
-  zeroXml.set_name("RealValue");
+  pugi::xml_node zeroXml = doc.append_child("RealValue");
   pugi::xml_node zeroText = zeroXml.append_child(node_pcdata);
   zeroText.set_value("0");
 
@@ -280,8 +265,7 @@ static bool realConstantXmlParserTest()
   assertTrue_1(zeroConstant->getValue(temp));
   assertTrue_1(temp == 0);
 
-  pugi::xml_node minusZeroXml = doc.append_child();
-  minusZeroXml.set_name("RealValue");
+  pugi::xml_node minusZeroXml = doc.append_child("RealValue");
   pugi::xml_node minusZeroText = minusZeroXml.append_child(node_pcdata);
   minusZeroText.set_value("-0");
 
@@ -293,8 +277,7 @@ static bool realConstantXmlParserTest()
   assertTrue_1(minusZeroConstant->getValue(temp));
   assertTrue_1(temp == 0);
 
-  pugi::xml_node oneXml = doc.append_child();
-  oneXml.set_name("RealValue");
+  pugi::xml_node oneXml = doc.append_child("RealValue");
   pugi::xml_node oneText = oneXml.append_child(node_pcdata);
   oneText.set_value("1");
 
@@ -306,8 +289,7 @@ static bool realConstantXmlParserTest()
   assertTrue_1(oneConstant->getValue(temp));
   assertTrue_1(temp == 1);
 
-  pugi::xml_node minusOneXml = doc.append_child();
-  minusOneXml.set_name("RealValue");
+  pugi::xml_node minusOneXml = doc.append_child("RealValue");
   pugi::xml_node minusOneText = minusOneXml.append_child(node_pcdata);
   minusOneText.set_value("-1");
 
@@ -319,8 +301,7 @@ static bool realConstantXmlParserTest()
   assertTrue_1(minusOneConstant->getValue(temp));
   assertTrue_1(temp == -1);
 
-  pugi::xml_node piXml = doc.append_child();
-  piXml.set_name("RealValue");
+  pugi::xml_node piXml = doc.append_child("RealValue");
   pugi::xml_node piText = piXml.append_child(node_pcdata);
   piText.set_value("3.14");
 
@@ -332,8 +313,7 @@ static bool realConstantXmlParserTest()
   assertTrue_1(piConstant->getValue(temp));
   assertTrue_1(temp == 3.14);
 
-  pugi::xml_node piWithJunkXml = doc.append_child();
-  piWithJunkXml.set_name("RealValue");
+  pugi::xml_node piWithJunkXml = doc.append_child("RealValue");
   pugi::xml_node piWithJunkText = piWithJunkXml.append_child(node_pcdata);
   piWithJunkText.set_value("3.14T");
 
@@ -345,8 +325,7 @@ static bool realConstantXmlParserTest()
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  pugi::xml_node expNotationXml = doc.append_child();
-  expNotationXml.set_name("RealValue");
+  pugi::xml_node expNotationXml = doc.append_child("RealValue");
   pugi::xml_node expNotationText = expNotationXml.append_child(node_pcdata);
   expNotationText.set_value("1e-100");
 
@@ -360,8 +339,7 @@ static bool realConstantXmlParserTest()
 
   // Overflow not detected on VxWorks/PPC
 #if !defined(__VXWORKS__)
-  pugi::xml_node tooBigXml = doc.append_child();
-  tooBigXml.set_name("RealValue");
+  pugi::xml_node tooBigXml = doc.append_child("RealValue");
   pugi::xml_node tooBigText = tooBigXml.append_child(node_pcdata);
   tooBigText.set_value("1e10000000");
 
@@ -374,8 +352,7 @@ static bool realConstantXmlParserTest()
   }
 #endif // !defined(__VXWORKS__)
 
-  pugi::xml_node emptyXml = doc.append_child();
-  emptyXml.set_name("RealValue");
+  pugi::xml_node emptyXml = doc.append_child("RealValue");
   emptyXml.append_child(node_pcdata);
 
   try {
@@ -386,8 +363,7 @@ static bool realConstantXmlParserTest()
     std::cout << "Caught expected exception" << std::endl;
   }
 
-  pugi::xml_node bogusXml = doc.append_child();
-  bogusXml.set_name("RealValue");
+  pugi::xml_node bogusXml = doc.append_child("RealValue");
   pugi::xml_node bogusText = bogusXml.append_child(node_pcdata);
   bogusText.set_value("bogus");
 
@@ -410,8 +386,7 @@ static bool stringConstantXmlParserTest()
   bool wasCreated;
   std::string temp;
 
-  xml_node emptyXml = doc.append_child();
-  emptyXml.set_name("StringValue");
+  xml_node emptyXml = doc.append_child("StringValue");
   emptyXml.append_child(node_pcdata);
 
   Expression *s1Constant = createExpression(emptyXml, nc, wasCreated);
@@ -420,8 +395,7 @@ static bool stringConstantXmlParserTest()
   assertTrue_1(s1Constant->getValue(temp));
   assertTrue_1(temp.empty());
 
-  xml_node s2Xml = doc.append_child();
-  s2Xml.set_name("StringValue");
+  xml_node s2Xml = doc.append_child("StringValue");
   xml_node s2Text = s2Xml.append_child(node_pcdata);
   s2Text.set_value("foo");
 
@@ -434,66 +408,95 @@ static bool stringConstantXmlParserTest()
   return true;
 }
 
-// static bool booleanArrayConstantXmlParserTest()
-// {
-//   PlexilArrayValue emptyVal(BOOLEAN_TYPE, 0, std::vector<std::string>());
+static bool booleanArrayConstantXmlParserTest()
+{
+  xml_document doc;
+  doc.set_name("booleanArrayConstantXmlParserTest");
 
-//   std::vector<std::string> validValVector(7);
-//   validValVector[0] = "0";
-//   validValVector[1] = "1";
-//   validValVector[2] = "UNKNOWN";
-//   validValVector[3] = "true";
-//   validValVector[4] = "false";
-//   validValVector[5] = "FALSE";
-//   validValVector[6] = "TRUE";
-//   PlexilArrayValue validVal(BOOLEAN_TYPE, validValVector.size(), validValVector);
+  bool wasCreated;
+  BooleanArray const *aryTemp = NULL;
 
-//   std::vector<std::string> parseErrVector(1, "bOgUs");
-//   PlexilArrayValue parseErrVal(BOOLEAN_TYPE, parseErrVector.size(), parseErrVector);
+  xml_node emptyXml = doc.append_child("ArrayValue");
+  xml_attribute typeAttr = emptyXml.append_attribute("Type");
+  typeAttr.set_value("Boolean");
 
-//   bool wasCreated;
-//   BooleanArray const *aryTemp = NULL;
+  Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
+  assertTrue_1(emptyConstant);
+  assertTrue_1(wasCreated);
+  assertTrue_1(emptyConstant->valueType() == BOOLEAN_ARRAY_TYPE);
+  assertTrue_1(emptyConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 0);
 
-//   Expression *emptyConstant = createExpression(&emptyVal, nc, wasCreated);
-//   assertTrue_1(emptyConstant);
-//   assertTrue_1(wasCreated);
-//   assertTrue_1(emptyConstant->valueType() == BOOLEAN_ARRAY_TYPE);
-//   assertTrue_1(emptyConstant->getValuePointer(aryTemp));
-//   assertTrue_1(aryTemp != NULL);
-//   assertTrue_1(aryTemp->size() == 0);
+  xml_node validXml = doc.append_copy(emptyXml);
+  xml_node elementTemp = validXml.append_child("BooleanValue");
+  elementTemp.append_child(node_pcdata);
+  elementTemp.first_child().set_value("0");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("1");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("UNKNOWN");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("true");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("false");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("TRUE");
+  elementTemp = validXml.append_copy(elementTemp);
+  elementTemp.first_child().set_value("FALSE");
 
-//   bool temp;
-//   Expression *validValConstant = createExpression(&validVal, nc, wasCreated);
-//   assertTrue_1(validValConstant);
-//   assertTrue_1(wasCreated);
-//   assertTrue_1(validValConstant->valueType() == BOOLEAN_ARRAY_TYPE);
-//   assertTrue_1(validValConstant->getValuePointer(aryTemp));
-//   assertTrue_1(aryTemp != NULL);
-//   assertTrue_1(aryTemp->size() == validValVector.size());
-//   assertTrue_1(aryTemp->getElement(0, temp));
-//   assertTrue_1(!temp);
-//   assertTrue_1(aryTemp->getElement(1, temp));
-//   assertTrue_1(temp);
-//   assertTrue_1(!aryTemp->getElement(2, temp));
-//   assertTrue_1(aryTemp->getElement(3, temp));
-//   assertTrue_1(temp);
-//   assertTrue_1(aryTemp->getElement(4, temp));
-//   assertTrue_1(!temp);
-//   assertTrue_1(aryTemp->getElement(5, temp));
-//   assertTrue_1(!temp);
-//   assertTrue_1(aryTemp->getElement(6, temp));
-//   assertTrue_1(temp);
+  bool temp;
+  Expression *validValConstant = createExpression(validXml, nc, wasCreated);
+  assertTrue_1(validValConstant);
+  assertTrue_1(wasCreated);
+  assertTrue_1(validValConstant->valueType() == BOOLEAN_ARRAY_TYPE);
+  assertTrue_1(validValConstant->getValuePointer(aryTemp));
+  assertTrue_1(aryTemp != NULL);
+  assertTrue_1(aryTemp->size() == 7);
+  assertTrue_1(aryTemp->getElement(0, temp));
+  assertTrue_1(!temp);
+  assertTrue_1(aryTemp->getElement(1, temp));
+  assertTrue_1(temp);
+  assertTrue_1(!aryTemp->getElement(2, temp));
+  assertTrue_1(aryTemp->getElement(3, temp));
+  assertTrue_1(temp);
+  assertTrue_1(aryTemp->getElement(4, temp));
+  assertTrue_1(!temp);
+  assertTrue_1(aryTemp->getElement(5, temp));
+  assertTrue_1(temp);
+  assertTrue_1(aryTemp->getElement(6, temp));
+  assertTrue_1(!temp);
 
-//   try {
-//     Expression *parseErrConstant = createExpression(&parseErrVal, nc, wasCreated);
-//     assertTrue_2(ALWAYS_FAIL, "Failed to detect bogus input");
-//   }
-//   catch (ParserException const & /* exc */) {
-//     std::cout << "Caught expected exception" << std::endl;
-//   }
+  // Test bogus element content
+  xml_node elementContentErrorXml = doc.append_copy(emptyXml);
+  xml_node errorElement = elementContentErrorXml.append_child("BooleanValue");
+  errorElement.append_child(node_pcdata);
+  errorElement.first_child().set_value("bOgUs");
 
-//   return true;
-// }
+  try {
+    Expression *elementContentErrorConstant = createExpression(elementContentErrorXml, nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect bad element value");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  // Test bogus element type
+  xml_node elementTypeErrorXml = doc.append_copy(emptyXml);
+  xml_node typeErrorElement = elementTypeErrorXml.append_child("IntegerValue");
+  typeErrorElement.append_child(node_pcdata);
+  typeErrorElement.first_child().set_value("0");
+
+  try {
+    Expression *elementTypeErrorConstant = createExpression(elementTypeErrorXml, nc, wasCreated);
+    assertTrue_2(ALWAYS_FAIL, "Failed to detect bad element type");
+  }
+  catch (ParserException const & /* exc */) {
+    std::cout << "Caught expected exception" << std::endl;
+  }
+
+  return true;
+}
 
 // static bool integerArrayConstantXmlParserTest()
 // {
@@ -696,7 +699,7 @@ bool constantXmlParserTest()
   runTest(realConstantXmlParserTest);
   runTest(stringConstantXmlParserTest);
 
-  // runTest(booleanArrayConstantXmlParserTest);
+  runTest(booleanArrayConstantXmlParserTest);
   // runTest(integerArrayConstantXmlParserTest);
   // runTest(realArrayConstantXmlParserTest);
   // runTest(stringArrayConstantXmlParserTest);

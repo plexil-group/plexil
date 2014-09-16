@@ -128,16 +128,12 @@ namespace PLEXIL
   protected:
     Expression *create(PlexilArrayValue const *expr) const;
 
-    Expression *create(pugi::xml_node const &expr) const;
-
   private:
     // Default, copy, assign all prohibited
     ConcreteExpressionFactory();
     ConcreteExpressionFactory(const ConcreteExpressionFactory &);
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
-
-  // *** TODO: Need an untyped factory class for scalar variable declarations ***
 
   template <typename T>
   class ConcreteExpressionFactory<UserVariable<T> > : public ExpressionFactory
@@ -170,8 +166,6 @@ namespace PLEXIL
     ConcreteExpressionFactory(const ConcreteExpressionFactory &);
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
-
-  // *** TODO: Need a general factory for ArrayVariable declarations and another for ary var references ***
 
   template <typename T>
   class ConcreteExpressionFactory<ArrayVariable<T> > : public ExpressionFactory

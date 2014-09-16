@@ -24,8 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef PLEXIL_ARRAY_VARIABLE_FACTORY_HH
-#define PLEXIL_ARRAY_VARIABLE_FACTORY_HH
+#ifndef PLEXIL_ARRAY_LITERAL_FACTORY_HH
+#define PLEXIL_ARRAY_LITERAL_FACTORY_HH
 
 #include "ExpressionFactory.hh"
 
@@ -35,11 +35,11 @@ namespace PLEXIL
   // *** DELETE ME ***
   class PlexilExpr; 
 
-  class ArrayVariableFactory : public ExpressionFactory
+  class ArrayLiteralFactory : public ExpressionFactory
   {
   public:
-    ArrayVariableFactory(std::string const &name);
-    ~ArrayVariableFactory();
+    ArrayLiteralFactory(std::string const &name);
+    ~ArrayLiteralFactory();
 
     // *** DELETE ME ***
     Expression *allocate(PlexilExpr const *expr,
@@ -52,12 +52,11 @@ namespace PLEXIL
 
   private:
     // Default, copy, assign all prohibited
-    ArrayVariableFactory();
-    ArrayVariableFactory(ArrayVariableFactory const &);
-    ArrayVariableFactory & operator=(ArrayVariableFactory const &);
+    ArrayLiteralFactory();
+    ArrayLiteralFactory(ArrayLiteralFactory const &);
+    ArrayLiteralFactory & operator=(ArrayLiteralFactory const &);
   };
 
 } // namespace PLEXIL
 
-#endif // PLEXIL_ARRAY_VARIABLE_FACTORY_HH
-
+#endif // PLEXIL_ARRAY_LITERAL_FACTORY_HH

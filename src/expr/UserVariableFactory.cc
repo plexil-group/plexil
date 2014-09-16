@@ -49,7 +49,7 @@ namespace PLEXIL
   // *** DELETE ME ***
   Expression *UserVariableFactory::allocate(PlexilExpr const * /* expr */,
                                             NodeConnector * /* node */,
-                                            bool & /* wasCreated */)
+                                            bool & /* wasCreated */) const
   {
     assertTrue_2(ALWAYS_FAIL, "Nothing should ever call this method!");
     return NULL;
@@ -57,7 +57,7 @@ namespace PLEXIL
 
   Expression *UserVariableFactory::allocate(pugi::xml_node const &expr,
                                             NodeConnector *node,
-                                            bool &wasCreated)
+                                            bool &wasCreated) const
   {
     checkHasChildElement(expr);
     pugi::xml_node nameElt = expr.first_child();

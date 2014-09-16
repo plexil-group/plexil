@@ -44,11 +44,11 @@ namespace PLEXIL
     // *** DELETE ME ***
     Expression *allocate(PlexilExpr const *expr,
                          NodeConnector *node,
-                         bool &wasCreated);
+                         bool &wasCreated) const;
 
     Expression *allocate(pugi::xml_node const &expr,
                          NodeConnector *node,
-                         bool &wasCreated);
+                         bool &wasCreated) const;
 
   private:
     // Default, copy, assign all prohibited

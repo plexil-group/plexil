@@ -181,6 +181,7 @@ namespace PLEXIL
 
   //
   // Factories for array constants
+  // *** TO BE DELETED ***
   //
 
   template <typename T>
@@ -217,74 +218,8 @@ namespace PLEXIL
                                                                             NodeConnector * /* node */,
                                                                             bool &wasCreated) const
   {
-    // confirm that we have an array value
-    checkTag(ARRAY_VAL_TAG, expr);
-
-    // confirm that we have an element type
-    checkAttr(TYPE_TAG, expr);
-
-    // Defer rest to create()
-    wasCreated = true;
-    return this->create(expr);
-  }
-
-  // *** FIXME: guts should be used by array variable initial value parser too,
-  // probably need to refactor into function
-
-  template <typename T>
-  Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::create(pugi::xml_node const &val) const
-  {
-    const char* valueType = val.attribute(TYPE_TAG).value();
-    ValueType valtyp = parseValueType(valueType);
-    checkParserExceptionWithLocation(valtyp != UNKNOWN_TYPE,
-                                     val, // should be attribute
-                                     "Unknown array element Type value \"" << valueType << "\"");
-
-    // gather elements
-    std::vector<T> values;
-
-    pugi::xml_node thisElement = val.first_child();
-    size_t i = 0;
-    std::vector<size_t> unknowns;
-    while (thisElement) {
-      checkTagSuffix(VAL_TAG, thisElement);
-      // Check type
-      const char* thisElementTag = thisElement.name();
-      checkParserExceptionWithLocation(0 == strcmp(thisElementTag, valueType),
-                                       thisElement,
-                                       "Element type mismatch: element type " << thisElementTag
-                                       << " in array value of type \"" << valueType);
-
-      // Get array element value
-      const char* thisElementValue = thisElement.first_child().value();
-      if (*thisElementValue) {
-        T temp;
-        if (parseValue<T>(thisElementValue, temp)) // will throw if format error
-          values.push_back(temp);
-        else {
-          unknowns.push_back(i);
-          values.push_back(T()); // push a placeholder for unknown
-        }
-      }
-      else {
-        // parse error - empty array element not of type string
-        checkParserExceptionWithLocation(valueType == STRING_STR,
-                                         thisElement,
-                                         "ArrayValue parsing error: Empty " << valueType << " element value in array value");
-        values.push_back(T()); // empty
-      }
-      thisElement = thisElement.next_sibling();
-      ++i;
-    }
-
-    // Handle unknowns here
-    ArrayImpl<T> initVals(values);
-    for (std::vector<size_t>::const_iterator it = unknowns.begin();
-         it != unknowns.end();
-         ++it)
-      initVals.setElementUnknown(*it);
-
-    return new Constant<ArrayImpl<T> >(initVals);
+    assertTrue_2(ALWAYS_FAIL, "Nothing should ever call this method!");
+    return NULL;
   }
 
   //
