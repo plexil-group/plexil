@@ -389,7 +389,7 @@ static bool realConstantXmlParserTest()
   pugi::xml_node bogusXml = doc.append_child();
   bogusXml.set_name("RealValue");
   pugi::xml_node bogusText = bogusXml.append_child(node_pcdata);
-  bogusText.set_value("0");
+  bogusText.set_value("bogus");
 
   try {
     Expression *bogusConstant = createExpression(bogusXml, nc, wasCreated);
@@ -421,8 +421,8 @@ static bool stringConstantXmlParserTest()
   assertTrue_1(temp.empty());
 
   xml_node s2Xml = doc.append_child();
-  emptyXml.set_name("StringValue");
-  xml_node s2Text = emptyXml.append_child(node_pcdata);
+  s2Xml.set_name("StringValue");
+  xml_node s2Text = s2Xml.append_child(node_pcdata);
   s2Text.set_value("foo");
 
   Expression *s2Constant = createExpression(s2Xml, nc, wasCreated);
