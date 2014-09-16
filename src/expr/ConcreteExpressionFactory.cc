@@ -152,7 +152,7 @@ namespace PLEXIL
   Expression *ConcreteExpressionFactory<Constant<T> >::create(pugi::xml_node const &tmpl) const
   {
     T value;
-    bool known = parseValue<T>(tmpl.value(), value);
+    bool known = parseValue<T>(tmpl.first_child().value(), value);
     if (known)
       return new Constant<T>(value);
     else
@@ -176,7 +176,7 @@ namespace PLEXIL
                                      tmpl,
                                      "createExpression: Internal error: Constant expression is not a String");
 
-    return new Constant<std::string>(tmpl.value());
+    return new Constant<std::string>(tmpl.first_child().value());
   }
 
   //
