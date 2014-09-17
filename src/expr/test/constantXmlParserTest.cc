@@ -27,7 +27,6 @@
 #include "ArrayImpl.hh"
 #include "ExpressionFactory.hh"
 #include "ExpressionFactories.hh"
-#include "NodeConnector.hh"
 #include "TestSupport.hh"
 #include "TrivialNodeConnector.hh"
 
@@ -39,7 +38,6 @@ using pugi::xml_attribute;
 using pugi::xml_document;
 using pugi::xml_node;
 using pugi::node_pcdata;
-
 
 // Global variable for convenience
 static NodeConnector *nc = NULL;

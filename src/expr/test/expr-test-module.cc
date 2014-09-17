@@ -35,24 +35,27 @@ extern bool aliasTest();
 extern bool arithmeticTest();
 extern bool arrayConstantTest();
 extern bool arrayOperatorsTest();
-extern bool arrayReferenceFactoryTest();
 extern bool arrayReferenceTest();
 extern bool arrayTest();
 extern bool arrayVariableTest();
 extern bool booleanOperatorsTest();
 extern bool comparisonsTest();
-extern bool constantFactoryTest();
 extern bool constantsTest();
 extern bool functionsTest();
-extern bool functionFactoryTest();
 extern bool listenerTest();
 extern bool stringTest();
 extern bool valueTest();
-extern bool variableFactoryTest();
 extern bool variablesTest();
+
+// Old PlexilPlan parser tests
+extern bool arrayReferenceFactoryTest();
+extern bool constantFactoryTest();
+extern bool functionFactoryTest();
+extern bool variableFactoryTest();
 
 // New XML parser tests
 extern bool constantXmlParserTest();
+extern bool variableXmlParserTest();
 
 static void runExprTests()
 {
@@ -64,20 +67,23 @@ static void runExprTests()
   runTestSuite(arrayConstantTest);
   runTestSuite(arrayVariableTest);
   runTestSuite(arrayReferenceTest);
-  runTestSuite(constantFactoryTest);
-  runTestSuite(variableFactoryTest);
-  runTestSuite(arrayReferenceFactoryTest);
   runTestSuite(aliasTest);
   runTestSuite(functionsTest);
-  runTestSuite(functionFactoryTest);
   runTestSuite(comparisonsTest);
   runTestSuite(booleanOperatorsTest);
   runTestSuite(arithmeticTest);
   runTestSuite(stringTest);
   runTestSuite(arrayOperatorsTest);
 
+  // Old PlexilPlan parser tests
+  runTestSuite(constantFactoryTest);
+  runTestSuite(variableFactoryTest);
+  runTestSuite(arrayReferenceFactoryTest);
+  runTestSuite(functionFactoryTest);
+
   // New XML parser tests
   runTestSuite(constantXmlParserTest);
+  runTestSuite(variableXmlParserTest);
 
   std::cout << "Finished" << std::endl;
 }

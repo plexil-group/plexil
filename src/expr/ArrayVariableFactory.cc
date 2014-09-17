@@ -87,16 +87,16 @@ namespace PLEXIL
     char const *sizeStr = sizeElt.first_child().value();
     // Syntactic check
     checkParserExceptionWithLocation(isInteger(sizeStr),
-                                     sizeElt.first_child(),
+                                     sizeElt,
                                      "createExpression: MaxSize value \"" << sizeStr << "\" is not an integer");
 
     char *end;
     long size = strtol(sizeStr, &end, 10);
-    checkParserExceptionWithLocation(*end,
-                                     sizeElt.first_child(),
+    checkParserExceptionWithLocation(!*end,
+                                     sizeElt,
                                      "createExpression: MaxSize value \"" << sizeStr << "\" is not an integer");
-    checkParserExceptionWithLocation(size < 0 || size > INT32_MAX,
-                                     sizeElt.first_child(),
+    checkParserExceptionWithLocation(size >= 0 && size < INT32_MAX,
+                                     sizeElt,
                                      "createExpression: MaxSize value " << sizeStr << " is not a non-negative integer");
     Expression *sizeExp = new Constant<int32_t>((int32_t) size);
 
