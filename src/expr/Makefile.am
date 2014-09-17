@@ -63,7 +63,7 @@ if MODULE_TESTS_OPT
  test/stringTest.cc test/TrivialListener.cc test/TrivialNodeConnector.cc \
  test/valueTest.cc test/variableFactoryTest.cc test/variablesTest.cc \
  test/constantXmlParserTest.cc test/variableXmlParserTest.cc \
- test/arrayReferenceXmlParserTest.cc \
+ test/arrayReferenceXmlParserTest.cc test/functionXmlParserTest.cc \
  test/expr-test-module.cc
   test_expr_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils
   test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la \

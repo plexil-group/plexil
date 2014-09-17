@@ -27,6 +27,9 @@
 #include "ArithmeticFunctionFactory.hh"
 
 #include "Error.hh"
+#include "parser-utils.hh"
+
+#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -90,19 +93,19 @@ namespace PLEXIL
                                                   bool & wasCreated) const
   {
     PlexilOp const *op = dynamic_cast<PlexilOp const *>(expr);
-    checkParserException(op, "createExpression: Not a PlexilOp");
+    checkParserException(op, "Not a PlexilOp");
 
     std::vector<PlexilExpr *> const &args = op->subExprs();
     // Have to have at least one arg to check types on
     checkParserException(args.size() > 0,
-                         "createExpression: Can't create arithmetic expression of no arguments");
+                         "Can't create arithmetic expression of no arguments");
     ExprVec *exprVec = constructExprVec(args, node);
     ValueType type = this->commonType(exprVec);
     checkParserException(type != UNKNOWN_TYPE,
-                         "createExpression: type inconsistency or indeterminacy in arithmetic expression");
+                         "Type inconsistency or indeterminacy in arithmetic expression");
     Operator const *oper = this->selectOperator(type);
     checkParserException(oper->checkArgCount(args.size()),
-                         "createExpression: Wrong number of operands for operator "
+                         "Wrong number of operands for operator "
                          << oper->getName());
 
     wasCreated = true;
@@ -114,14 +117,17 @@ namespace PLEXIL
                                                   bool & wasCreated) const
   {
     // Get subexpressions
+    checkHasChildElement(expr);
     ExprVec *exprVec = this->constructExprVec(expr, node);
     ValueType type = this->commonType(exprVec);
-    checkParserException(type != UNKNOWN_TYPE,
-                         "createExpression: type inconsistency or indeterminacy in arithmetic expression");
+    checkParserExceptionWithLocation(type != UNKNOWN_TYPE,
+                                     expr,
+                                     "Type inconsistency or indeterminacy in arithmetic expression");
     Operator const *oper = this->selectOperator(type);
-    checkParserException(oper->checkArgCount(exprVec->size()),
-                         "createExpression: Wrong number of operands for operator "
-                         << oper->getName());
+    checkParserExceptionWithLocation(oper->checkArgCount(exprVec->size()),
+                                     expr,
+                                     "Wrong number of operands for operator "
+                                     << oper->getName());
 
     wasCreated = true;
     return new Function(oper, exprVec);

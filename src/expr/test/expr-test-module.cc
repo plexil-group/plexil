@@ -57,6 +57,7 @@ extern bool variableFactoryTest();
 extern bool arrayReferenceXmlParserTest();
 extern bool constantXmlParserTest();
 extern bool variableXmlParserTest();
+extern bool functionXmlParserTest();
 
 static void runExprTests()
 {
@@ -86,6 +87,7 @@ static void runExprTests()
   runTestSuite(constantXmlParserTest);
   runTestSuite(variableXmlParserTest);
   runTestSuite(arrayReferenceXmlParserTest);
+  runTestSuite(functionXmlParserTest);
 
   std::cout << "Finished" << std::endl;
 }
