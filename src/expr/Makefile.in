@@ -204,7 +204,8 @@ am__test_expr_module_tests_SOURCES_DIST = test/aliasTest.cc \
 	test/TrivialListener.cc test/TrivialNodeConnector.cc \
 	test/valueTest.cc test/variableFactoryTest.cc \
 	test/variablesTest.cc test/constantXmlParserTest.cc \
-	test/variableXmlParserTest.cc test/expr-test-module.cc
+	test/variableXmlParserTest.cc \
+	test/arrayReferenceXmlParserTest.cc test/expr-test-module.cc
 am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@am_test_expr_module_tests_OBJECTS = test/test_expr_module_tests-aliasTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arithmeticTest.$(OBJEXT) \
@@ -230,6 +231,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-variablesTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-constantXmlParserTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-variableXmlParserTest.$(OBJEXT) \
+@MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayReferenceXmlParserTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-expr-test-module.$(OBJEXT)
 test_expr_module_tests_OBJECTS = $(am_test_expr_module_tests_OBJECTS)
 @MODULE_TESTS_OPT_TRUE@test_expr_module_tests_DEPENDENCIES =  \
@@ -465,6 +467,7 @@ libPlexilExpr_la_SOURCES = Alias.cc ArithmeticFunctionFactory.cc \
 @MODULE_TESTS_OPT_TRUE@ test/stringTest.cc test/TrivialListener.cc test/TrivialNodeConnector.cc \
 @MODULE_TESTS_OPT_TRUE@ test/valueTest.cc test/variableFactoryTest.cc test/variablesTest.cc \
 @MODULE_TESTS_OPT_TRUE@ test/constantXmlParserTest.cc test/variableXmlParserTest.cc \
+@MODULE_TESTS_OPT_TRUE@ test/arrayReferenceXmlParserTest.cc \
 @MODULE_TESTS_OPT_TRUE@ test/expr-test-module.cc
 
 @MODULE_TESTS_OPT_TRUE@test_expr_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils
@@ -646,6 +649,8 @@ test/test_expr_module_tests-constantXmlParserTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-variableXmlParserTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+test/test_expr_module_tests-arrayReferenceXmlParserTest.$(OBJEXT):  \
+	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-expr-test-module.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 
@@ -707,6 +712,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayOperatorsTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayReferenceFactoryTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayReferenceTest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayReferenceXmlParserTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayVariableTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-booleanOperatorsTest.Po@am__quote@
@@ -1349,6 +1355,20 @@ test/test_expr_module_tests-variableXmlParserTest.obj: test/variableXmlParserTes
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/variableXmlParserTest.cc' object='test/test_expr_module_tests-variableXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-variableXmlParserTest.obj `if test -f 'test/variableXmlParserTest.cc'; then $(CYGPATH_W) 'test/variableXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/variableXmlParserTest.cc'; fi`
+
+test/test_expr_module_tests-arrayReferenceXmlParserTest.o: test/arrayReferenceXmlParserTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-arrayReferenceXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-arrayReferenceXmlParserTest.Tpo -c -o test/test_expr_module_tests-arrayReferenceXmlParserTest.o `test -f 'test/arrayReferenceXmlParserTest.cc' || echo '$(srcdir)/'`test/arrayReferenceXmlParserTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-arrayReferenceXmlParserTest.Tpo test/$(DEPDIR)/test_expr_module_tests-arrayReferenceXmlParserTest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/arrayReferenceXmlParserTest.cc' object='test/test_expr_module_tests-arrayReferenceXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-arrayReferenceXmlParserTest.o `test -f 'test/arrayReferenceXmlParserTest.cc' || echo '$(srcdir)/'`test/arrayReferenceXmlParserTest.cc
+
+test/test_expr_module_tests-arrayReferenceXmlParserTest.obj: test/arrayReferenceXmlParserTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-arrayReferenceXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-arrayReferenceXmlParserTest.Tpo -c -o test/test_expr_module_tests-arrayReferenceXmlParserTest.obj `if test -f 'test/arrayReferenceXmlParserTest.cc'; then $(CYGPATH_W) 'test/arrayReferenceXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayReferenceXmlParserTest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-arrayReferenceXmlParserTest.Tpo test/$(DEPDIR)/test_expr_module_tests-arrayReferenceXmlParserTest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/arrayReferenceXmlParserTest.cc' object='test/test_expr_module_tests-arrayReferenceXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-arrayReferenceXmlParserTest.obj `if test -f 'test/arrayReferenceXmlParserTest.cc'; then $(CYGPATH_W) 'test/arrayReferenceXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayReferenceXmlParserTest.cc'; fi`
 
 test/test_expr_module_tests-expr-test-module.o: test/expr-test-module.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-expr-test-module.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-expr-test-module.Tpo -c -o test/test_expr_module_tests-expr-test-module.o `test -f 'test/expr-test-module.cc' || echo '$(srcdir)/'`test/expr-test-module.cc

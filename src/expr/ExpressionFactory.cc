@@ -27,10 +27,13 @@
 #include "ExpressionFactory.hh"
 
 #include "ArrayReference.hh"
+#include "ConcreteExpressionFactory.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "expression-schema.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
+#include "parser-utils.hh"
 #include "PlexilExpr.hh"
 #include "pugixml.hpp"
 
@@ -169,10 +172,9 @@ namespace PLEXIL
       return (new MutableArrayReference(array, index, aryCreated, idxCreated))->asAssignable();
     }
     checkParserException(ALWAYS_FAIL,
-                         "createAssignable: Not a valid expression for assignment destination");
+                         "Not a valid expression for assignment destination");
   }
 
-  // Delegate to expression factory.
   Assignable *createAssignable(pugi::xml_node const &expr,
                                NodeConnector *node,
                                bool& wasCreated)
@@ -180,11 +182,21 @@ namespace PLEXIL
   {
     checkParserExceptionWithLocation(expr.type() == pugi::node_element,
                                      expr,
-                                     "createAssignable: argument is not an XML element");
+                                     "Not an XML element");
     assertTrue_2(node, "createAssignable: Internal error: Null node argument");
-    Expression *resultExpr = createExpression(expr, node, wasCreated);
-    checkParserException(resultExpr->isAssignable(),
-                         "createAssignable: Not a valid expression for assignment destination");
+    Expression *resultExpr = NULL;
+    if (testTagSuffix(VAR_TAG, expr))
+      resultExpr = createExpression(expr, node, wasCreated);
+    else if (testTag(ARRAYELEMENT_TAG, expr))
+      resultExpr = createMutableArrayReference(expr, node, wasCreated);
+    else
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr,
+                                       "Invalid Assignment or InOut alias target");
+    assertTrue_2(resultExpr, "createAssignable: Internal error: Null expression")
+    checkParserExceptionWithLocation(resultExpr->isAssignable(),
+                                     expr,
+                                     "Expression is not assignable");
     return resultExpr->asAssignable();
   }
 

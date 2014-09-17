@@ -54,7 +54,7 @@ namespace PLEXIL
                                                                 bool &wasCreated) const
   {
     PlexilValue const *tmpl = dynamic_cast<PlexilValue const *>(expr);
-    checkParserException(tmpl, "createExpression: Expression is not a PlexilValue");
+    checkParserException(tmpl, "Expression is not a PlexilValue");
 
     wasCreated = true;
     return this->create(tmpl);
@@ -92,7 +92,7 @@ namespace PLEXIL
                                                                    bool &wasCreated) const
   {
     PlexilValue const *tmpl = dynamic_cast<PlexilValue const *>(expr);
-    checkParserException(tmpl, "createExpression: Expression is not a PlexilValue");
+    checkParserException(tmpl, "Expression is not a PlexilValue");
     bool value;
     bool known = parseValue(tmpl->value(), value);
     // if we got here, there was no parsing exception
@@ -164,7 +164,7 @@ namespace PLEXIL
   template <>
   Expression *ConcreteExpressionFactory<Constant<std::string> >::create(PlexilValue const *tmpl) const
   {
-    checkParserException(tmpl->type() == STRING_TYPE, "createExpression: Internal error: Constant expression is not a String");
+    checkParserException(tmpl->type() == STRING_TYPE, "Internal error: Constant expression is not a String");
     return new Constant<std::string>(tmpl->value());
   }
 
@@ -174,7 +174,7 @@ namespace PLEXIL
     const char* tag = tmpl.name();
     checkParserExceptionWithLocation(STRING_TYPE == parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG)),
                                      tmpl,
-                                     "createExpression: Internal error: Constant expression is not a String");
+                                     "Internal error: Constant expression is not a String");
 
     return new Constant<std::string>(tmpl.first_child().value());
   }
@@ -190,7 +190,7 @@ namespace PLEXIL
                                                                             bool &wasCreated) const
   {
     PlexilArrayValue const *val = dynamic_cast<PlexilArrayValue const *>(expr);
-    checkParserException(val, "createExpression: Not an array value");
+    checkParserException(val, "Not an array value");
 
     wasCreated = true;
     return this->create(val);
@@ -236,11 +236,11 @@ namespace PLEXIL
     if (varRef) {
       // Variable reference - look it up
       checkParserException(node,
-                           "createExpression: Variable reference with null node"); // ??
+                           "Variable reference with null node"); // ??
       Expression *result = node->findVariable(varRef);
-      checkParserException(result, "createExpression: Can't find variable named " << varRef->varName());
+      checkParserException(result, "Can't find variable named " << varRef->varName());
       checkParserException(result->valueType() == varRef->type(),
-                           "createExpression: Variable " << varRef->varName()
+                           "Variable " << varRef->varName()
                            << " is type " << valueTypeName(result->valueType())
                            << ", but reference is for type " << valueTypeName(varRef->type()));
       wasCreated = false;
@@ -252,7 +252,7 @@ namespace PLEXIL
       wasCreated = true;
       return this->create(var, node);
     }
-    checkParserException(false, "createExpression: Expression is neither a variable definition nor a variable reference");
+    checkParserException(false, "Expression is neither a variable definition nor a variable reference");
     return NULL;
   }
 
@@ -274,15 +274,15 @@ namespace PLEXIL
                                      "Unknown variable type \"" << tag << "\"");
     checkParserExceptionWithLocation(node,
                                      expr,
-                                     "createExpression: Internal error: Variable reference with null node");
+                                     "Internal error: Variable reference with null node");
     const char *varName = expr.first_child().value();
     Expression *result = node->findVariable(std::string(varName));
     checkParserExceptionWithLocation(result,
                                      expr,
-                                     "createExpression: Can't find variable named " << varName);
+                                     "Can't find variable named " << varName);
     checkParserExceptionWithLocation(result->valueType() == typ,
                                      expr,
-                                     "createExpression: Variable " << varName
+                                     "Variable " << varName
                                      << " is type " << valueTypeName(result->valueType())
                                      << ", but reference is for type " << valueTypeName(typ));
     wasCreated = false;
@@ -314,11 +314,11 @@ namespace PLEXIL
     PlexilVarRef const *varRef = dynamic_cast<PlexilVarRef const *>(expr);
     if (varRef) {
       // Variable reference - look it up
-      checkParserException(node, "createExpression: Internal error: Can't find array variable reference with null node"); // ??
+      checkParserException(node, "Internal error: Can't find array variable reference with null node"); // ??
       Expression *result = node->findVariable(varRef);
-      checkParserException(result, "createExpression: Can't find array variable named " << varRef->varName());
+      checkParserException(result, "Can't find array variable named " << varRef->varName());
       checkParserException(result->valueType() == varRef->type(),
-                           "createExpression: Variable " << varRef->varName()
+                           "Variable " << varRef->varName()
                            << " is type " << valueTypeName(result->valueType())
                            << ", but reference is for type " << valueTypeName(varRef->type()));
       wasCreated = false;
@@ -331,7 +331,7 @@ namespace PLEXIL
       return this->create(var, node);
     }
     checkParserException(false,
-                         "createExpression: Expression is neither a variable reference nor an array variable declaration");
+                         "Expression is neither a variable reference nor an array variable declaration");
     return NULL;
   }
 
@@ -369,20 +369,67 @@ namespace PLEXIL
   {
     PlexilArrayElement const * ary = 
       dynamic_cast<PlexilArrayElement const *>(expr);
-    checkParserException(ary != NULL, "createExpression: Expression is not a PlexilArrayElement");
+    checkParserException(ary != NULL, "Expression is not a PlexilArrayElement");
 
     bool garbageArray;
     Expression *array = createExpression(ary->array(), node, garbageArray);
-    checkParserException(array, "createExpression: Array expression not found for array reference");
+    checkParserException(array, "Array expression not found for array reference");
     checkParserException(isArrayType(array->valueType()),
-                         "createExpression: Array expression in array reference is not an array");
+                         "Array expression in array reference is not an array");
     
     bool garbageIndex;
     Expression *index = createExpression(ary->index(), node, garbageIndex);
-    checkParserException(index, "createExpression: Index expression not found for array reference");
+    checkParserException(index, "Index expression not found for array reference");
 
     wasCreated = true;
     return new ArrayReference(array, index, garbageArray, garbageIndex);
+  }
+
+  // Common subroutine
+  static void parseArrayElement(pugi::xml_node const &expr,
+                                NodeConnector *node,
+                                Expression *&arrayExpr,
+                                Expression *&indexExpr,
+                                bool &arrayCreated,
+                                bool &indexCreated)
+  {
+    // Syntax checks
+    checkHasChildElement(expr);
+    pugi::xml_node nameXml = expr.first_child();
+    checkParserExceptionWithLocation(nameXml && testTag(NAME_TAG, nameXml),
+                                     expr,
+                                     "ArrayElement has no Name element");
+    checkNotEmpty(nameXml);
+    pugi::xml_node indexXml = nameXml.next_sibling();
+    checkParserExceptionWithLocation(indexXml && testTag(INDEX_TAG, indexXml),
+                                     expr,
+                                     "ArrayElement has no Index element");
+    checkHasChildElement(indexXml);
+    indexXml = indexXml.first_child();
+    checkParserExceptionWithLocation(indexXml.type() == pugi::node_element,
+                                     indexXml,
+                                     "ArrayElement Index is not an element");
+
+    // Checks on array
+    const char *arrayName = nameXml.first_child().value();
+    arrayExpr = node->findVariable(std::string(arrayName));
+    checkParserExceptionWithLocation(arrayExpr,
+                                     nameXml,
+                                     "No array variable named \""
+                                     << arrayName << "\" accessible from node "
+                                     << node->getNodeId());
+    checkParserExceptionWithLocation(isArrayType(arrayExpr->valueType()),
+                                     nameXml,
+                                     "Variable \"" << arrayName
+                                     << "\" is not an array variable");
+
+    // Checks on index
+    indexExpr = createExpression(indexXml, node, indexCreated);
+    assertTrue_1(indexExpr);
+    ValueType indexType = indexExpr->valueType();
+    checkParserExceptionWithLocation(indexType == INTEGER_TYPE || indexType == UNKNOWN_TYPE,
+                                     indexXml,
+                                     "Array index expression is not numeric");
   }
 
   Expression *
@@ -390,48 +437,30 @@ namespace PLEXIL
                                                       NodeConnector *node,
                                                       bool & wasCreated) const
   {
-    // Syntax checks
-    checkHasChildElement(expr);
-    pugi::xml_node nameXml = expr.first_child();
-    checkParserExceptionWithLocation(nameXml && testTag(NAME_TAG, nameXml),
-                                     expr,
-                                     "createExpression: ArrayElement has no Name element");
-    checkNotEmpty(nameXml);
-    pugi::xml_node indexXml = nameXml.next_sibling();
-    checkParserExceptionWithLocation(indexXml && testTag(INDEX_TAG, indexXml),
-                                     expr,
-                                     "createExpression: ArrayElement has no Index element");
-    checkHasChildElement(indexXml);
-    indexXml = indexXml.first_child();
-    checkParserExceptionWithLocation(indexXml.type() == pugi::node_element,
-                                     indexXml,
-                                     "createExpression: ArrayElement Index is not an element");
-
-    // Checks on array
+    Expression *arrayExpr = NULL;
+    Expression *indexExpr = NULL;
     bool arrayCreated = false;
-    const char *arrayName = nameXml.first_child().value();
-    Expression *arrayVar = node->findVariable(std::string(arrayName));
-    checkParserExceptionWithLocation(arrayVar,
-                                     nameXml,
-                                     "createExpression: No array variable named \""
-                                     << arrayName << "\" accessible from node "
-                                     << node->getNodeId());
-    checkParserExceptionWithLocation(isArrayType(arrayVar->valueType()),
-                                     nameXml,
-                                     "createExpression: Variable \"" << arrayName
-                                     << "\" is not an array variable");
-
-    // Checks on index
     bool indexCreated = false;
-    Expression *indexExpr = createExpression(indexXml, node, indexCreated);
-    assertTrue_1(indexExpr);
-    ValueType indexType = indexExpr->valueType();
-    checkParserExceptionWithLocation(indexType == INTEGER_TYPE || indexType == UNKNOWN_TYPE,
-                                     indexXml,
-                                     "createExpression: Array index expression is not numeric");
+    
+    parseArrayElement(expr, node, arrayExpr, indexExpr, arrayCreated, indexCreated);
 
     wasCreated = true;
-    return new ArrayReference(arrayVar, indexExpr, arrayCreated, indexCreated);
+    return new ArrayReference(arrayExpr, indexExpr, arrayCreated, indexCreated);
+  }
+
+  Expression *createMutableArrayReference(pugi::xml_node const &expr,
+                                          NodeConnector *node,
+                                          bool & wasCreated)
+  {
+    Expression *arrayExpr = NULL;
+    Expression *indexExpr = NULL;
+    bool arrayCreated = false;
+    bool indexCreated = false;
+    
+    parseArrayElement(expr, node, arrayExpr, indexExpr, arrayCreated, indexCreated);
+
+    wasCreated = true;
+    return new MutableArrayReference(arrayExpr, indexExpr, arrayCreated, indexCreated);
   }
 
   // Generic variable references
@@ -441,17 +470,17 @@ namespace PLEXIL
                                      bool & wasCreated) const
   {
     PlexilVarRef const *varRef = dynamic_cast<PlexilVarRef const *>(expr);
-    checkParserException(varRef, "createExpression: Expression is not a variable reference");
+    checkParserException(varRef, "Expression is not a variable reference");
     // Look it up
     wasCreated = false;
     checkParserException(node,
-                         "createExpression: Variable reference with null node"); // ??
+                         "Variable reference with null node"); // ??
     Expression *result = node->findVariable(varRef);
-    checkParserException(result, "createExpression: Can't find variable named " << varRef->varName());
+    checkParserException(result, "Can't find variable named " << varRef->varName());
     // FIXME: add more type checking later
     if (varRef->type() == ARRAY_TYPE) {
       checkParserException(isArrayType(result->valueType()),
-                           "createExpression: Variable " << varRef->varName()
+                           "Variable " << varRef->varName()
                            << " is type " << valueTypeName(result->valueType())
                            << ", but reference is for array type");
     }
@@ -465,31 +494,31 @@ namespace PLEXIL
   {
     checkParserExceptionWithLocation(testTagSuffix(VAR_TAG, expr),
                                      expr,
-                                     "createExpression: Internal error: not a variable reference");
+                                     "Internal error: not a variable reference");
     assertTrue_1(node); // internal error
     checkNotEmpty(expr);
     ValueType typ = parseValueTypePrefix(expr.name() , strlen(expr.name()) - strlen(VAR_TAG));
     checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                      expr,
-                                     "createExpression: Unknown variable reference type " << expr.name());
+                                     "Unknown variable reference type " << expr.name());
     char const *varName = expr.first_child().value();
     // Look it up
     std::string const varRef(varName);
     Expression *result = node->findVariable(varRef);
     checkParserExceptionWithLocation(result,
                                      expr,
-                                     "createExpression: Can't find variable named " << varName);
+                                     "Can't find variable named " << varName);
     if (typ == ARRAY_TYPE) {
       checkParserExceptionWithLocation(isArrayType(result->valueType()),
                                        expr,
-                                       "createExpression: Variable " << varName
+                                       "Variable " << varName
                                        << " has invalid type " << valueTypeName(result->valueType())
                                        << " for a " << expr.name());
     }
     else {
       checkParserExceptionWithLocation(typ == result->valueType(),
                                        expr,
-                                       "createExpression: Variable " << varName
+                                       "Variable " << varName
                                        << " has invalid type " << valueTypeName(result->valueType())
                                        << " for a " << expr.name());
     }

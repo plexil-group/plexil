@@ -226,6 +226,11 @@ namespace PLEXIL
     ConcreteExpressionFactory &operator=(ConcreteExpressionFactory const &);
   };
 
+  // Special case for ArrayElement as assignment target or InOut alias
+  Expression *createMutableArrayReference(pugi::xml_node const &expr,
+                                          NodeConnector *node,
+                                          bool & wasCreated);
+
   class VariableReferenceFactory : public ExpressionFactory
   {
   public:
