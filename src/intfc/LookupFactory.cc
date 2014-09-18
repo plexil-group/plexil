@@ -94,12 +94,19 @@ namespace PLEXIL
       checkHasChildElement(expr);
       pugi::xml_node stateNameXml = expr.first_child();
       checkTag(NAME_TAG, stateNameXml);
+      checkHasChildElement(stateNameXml);
       pugi::xml_node argsXml = stateNameXml.next_sibling();
       pugi::xml_node tolXml;
       if (argsXml) {
         // Tolerance tag is supposed to come between name and args, sigh
         if (0 == strcmp(TOLERANCE_TAG, argsXml.name())) {
           tolXml = argsXml;
+          if (0 == strcmp(LOOKUPNOW_TAG, expr.name())) {
+            checkParserExceptionWithLocation(tolXml,
+                                             tolXml,
+                                             "LookupNow may not have a Tolerance element");
+          }
+          checkHasChildElement(tolXml);
           argsXml = tolXml.next_sibling();
         }
       }
@@ -107,18 +114,8 @@ namespace PLEXIL
         checkTag(ARGS_TAG, argsXml);
       }
 
-      // Sanity check this element's name
-      if (0 == strcmp(LOOKUPNOW_TAG, expr.name())) {
-        checkParserExceptionWithLocation(tolXml,
-                                         tolXml,
-                                         "createExpression: LookupNow may not have a Tolerance element");
-      }
-      else
-        assertTrue_2(0 == strcmp(LOOKUPCHANGE_TAG, expr.name()),
-                     "createExpression: internal error: element is neither LookupNow nor LookupOnChange");
-
       bool stateNameGarbage = false;
-      Expression *stateName = createExpression(stateNameXml, node, stateNameGarbage);
+      Expression *stateName = createExpression(stateNameXml.first_child(), node, stateNameGarbage);
       ValueType stateNameType = stateName->valueType();
       checkParserException(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
                            "createExpression: Lookup name must be a string expression");
@@ -130,11 +127,12 @@ namespace PLEXIL
         bool garbage = false;
         params.push_back(createExpression(arg, node, garbage));
         paramsGarbage.push_back(garbage);
+        arg = arg.next_sibling();
       }
       wasCreated = true;
       if (tolXml) {
         bool tolGarbage = false;
-        Expression *tol = createExpression(tolXml, node, tolGarbage);
+        Expression *tol = createExpression(tolXml.first_child(), node, tolGarbage);
         ValueType tolType = tol->valueType();
         checkParserException(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
                              "createExpression: LookupOnChange tolerance expression must be numeric");

@@ -174,13 +174,14 @@ PROGRAMS = $(bin_PROGRAMS)
 am__test_intfc_module_tests_SOURCES_DIST =  \
 	../expr/test/FactoryTestNodeConnector.cc \
 	../expr/test/TrivialListener.cc test/lookupFactoryTest.cc \
-	test/lookupsTest.cc test/stateTest.cc \
-	test/intfc-test-module.cc
+	test/lookupsTest.cc test/lookupXmlParserTest.cc \
+	test/stateTest.cc test/intfc-test-module.cc
 am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@am_test_intfc_module_tests_OBJECTS = ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	../expr/test/test_intfc_module_tests-TrivialListener.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-lookupFactoryTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-lookupsTest.$(OBJEXT) \
+@MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-lookupXmlParserTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-stateTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-intfc-test-module.$(OBJEXT)
 test_intfc_module_tests_OBJECTS =  \
@@ -400,7 +401,7 @@ libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = 
 @MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_SOURCES = ../expr/test/FactoryTestNodeConnector.cc \
 @MODULE_TESTS_OPT_TRUE@ ../expr/test/TrivialListener.cc \
-@MODULE_TESTS_OPT_TRUE@ test/lookupFactoryTest.cc test/lookupsTest.cc test/stateTest.cc \
+@MODULE_TESTS_OPT_TRUE@ test/lookupFactoryTest.cc test/lookupsTest.cc test/lookupXmlParserTest.cc test/stateTest.cc \
 @MODULE_TESTS_OPT_TRUE@ test/intfc-test-module.cc
 
 @MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils \
@@ -552,6 +553,8 @@ test/test_intfc_module_tests-lookupFactoryTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_intfc_module_tests-lookupsTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+test/test_intfc_module_tests-lookupXmlParserTest.$(OBJEXT):  \
+	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_intfc_module_tests-stateTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_intfc_module_tests-intfc-test-module.$(OBJEXT):  \
@@ -588,6 +591,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-resource-tags.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-lookupFactoryTest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-lookupXmlParserTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-lookupsTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-stateTest.Po@am__quote@
 
@@ -775,6 +779,20 @@ test/test_intfc_module_tests-lookupsTest.obj: test/lookupsTest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/lookupsTest.cc' object='test/test_intfc_module_tests-lookupsTest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-lookupsTest.obj `if test -f 'test/lookupsTest.cc'; then $(CYGPATH_W) 'test/lookupsTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupsTest.cc'; fi`
+
+test/test_intfc_module_tests-lookupXmlParserTest.o: test/lookupXmlParserTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-lookupXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-lookupXmlParserTest.Tpo -c -o test/test_intfc_module_tests-lookupXmlParserTest.o `test -f 'test/lookupXmlParserTest.cc' || echo '$(srcdir)/'`test/lookupXmlParserTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_intfc_module_tests-lookupXmlParserTest.Tpo test/$(DEPDIR)/test_intfc_module_tests-lookupXmlParserTest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/lookupXmlParserTest.cc' object='test/test_intfc_module_tests-lookupXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-lookupXmlParserTest.o `test -f 'test/lookupXmlParserTest.cc' || echo '$(srcdir)/'`test/lookupXmlParserTest.cc
+
+test/test_intfc_module_tests-lookupXmlParserTest.obj: test/lookupXmlParserTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-lookupXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-lookupXmlParserTest.Tpo -c -o test/test_intfc_module_tests-lookupXmlParserTest.obj `if test -f 'test/lookupXmlParserTest.cc'; then $(CYGPATH_W) 'test/lookupXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupXmlParserTest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_intfc_module_tests-lookupXmlParserTest.Tpo test/$(DEPDIR)/test_intfc_module_tests-lookupXmlParserTest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/lookupXmlParserTest.cc' object='test/test_intfc_module_tests-lookupXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-lookupXmlParserTest.obj `if test -f 'test/lookupXmlParserTest.cc'; then $(CYGPATH_W) 'test/lookupXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupXmlParserTest.cc'; fi`
 
 test/test_intfc_module_tests-stateTest.o: test/stateTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-stateTest.o -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-stateTest.Tpo -c -o test/test_intfc_module_tests-stateTest.o `test -f 'test/stateTest.cc' || echo '$(srcdir)/'`test/stateTest.cc
