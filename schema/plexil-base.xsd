@@ -329,6 +329,7 @@ element.  It is used as an included schema only.
     </xsd:complexType>
   </xsd:element>
 
+  <!-- FIXME: make these tags less verbose -->
   <xsd:element name="Resource">
     <xsd:complexType>
       <xsd:all>
@@ -413,9 +414,7 @@ element.  It is used as an included schema only.
         <xsd:element name="Type" type="AtomicTypeValues"/>
         <xsd:element name="MaxSize" type="xsd:nonNegativeInteger"/>
         <xsd:element name="InitialValue" minOccurs="0">
-          <xsd:complexType>
-            <xsd:group ref="Value" maxOccurs="unbounded"/>
-          </xsd:complexType>
+          <xsd:element ref ="ArrayValue"/>
         </xsd:element>
       </xsd:sequence>
       <xsd:attributeGroup ref="SourceLocators"/>
@@ -450,7 +449,7 @@ element.  It is used as an included schema only.
 		<xsd:group ref="NumericExpression"/>
 		<xsd:group ref="StringExpression"/>
 		<xsd:element ref="ArrayVariable"/>
-        <!-- <xsd:element ref="ArrayValue"/>  NOTE: NOT YET SUPPORTED (in development as of 5/7/10) -->
+        <xsd:element ref="ArrayValue"/>
       </xsd:choice>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
@@ -479,7 +478,6 @@ element.  It is used as an included schema only.
   </xsd:element>
 
   <xsd:element name="LibraryNodeCall">
-    <!-- TODO: maybe call this InlineNode -->
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="NodeId"/>
@@ -961,6 +959,7 @@ element.  It is used as an included schema only.
   <xsd:element name="ArrayElement">
     <xsd:complexType>
       <xsd:sequence>
+        <!-- FIXME: Make this take array expressions -->
         <xsd:element name="Name" type="xsd:NCName"/>
         <xsd:element name="Index">
           <xsd:complexType>
