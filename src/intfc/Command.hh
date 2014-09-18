@@ -90,14 +90,15 @@ namespace PLEXIL
     // Delegates to m_abortComplete
     void acknowledgeAbort(bool ack);
 
+    // Public only for testing
+    void fixValues();
+    void fixResourceValues();
+
   private:
     // Deliberately not implemented
     Command();
     Command(const Command&);
     Command& operator=(const Command&);
-
-    void fixValues();
-    void fixResourceValues();
 
     CommandHandleVariable m_ack;
     BooleanVariable m_abortComplete;

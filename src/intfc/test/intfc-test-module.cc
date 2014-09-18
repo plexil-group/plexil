@@ -32,6 +32,7 @@
 #include <fstream>
 #include <iostream>
 
+extern bool commandXmlParserTest();
 extern bool lookupFactoryTest();
 extern bool lookupsTest();
 extern bool lookupXmlParserTest();
@@ -39,6 +40,7 @@ extern bool stateTest();
 
 void runTests()
 {
+  runTestSuite(commandXmlParserTest);
   runTestSuite(stateTest);
   runTestSuite(lookupsTest);
   runTestSuite(lookupFactoryTest);

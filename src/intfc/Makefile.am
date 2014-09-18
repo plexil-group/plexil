@@ -47,8 +47,8 @@ if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
   noinst_HEADERS =
   test_intfc_module_tests_SOURCES = ../expr/test/FactoryTestNodeConnector.cc \
- ../expr/test/TrivialListener.cc \
- test/lookupFactoryTest.cc test/lookupsTest.cc test/lookupXmlParserTest.cc test/stateTest.cc \
+ ../expr/test/TrivialListener.cc ../expr/test/TrivialNodeConnector.cc \
+ test/commandXmlParserTest.cc test/lookupFactoryTest.cc test/lookupsTest.cc test/lookupXmlParserTest.cc test/stateTest.cc \
  test/intfc-test-module.cc
   test_intfc_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils \
  -I../expr -I../expr/test

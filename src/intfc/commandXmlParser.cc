@@ -94,8 +94,9 @@ namespace PLEXIL
 
     // Required command name expression
     checkTag(NAME_TAG, temp);
+    checkHasChildElement(temp);
     bool nameIsGarbage = false;
-    nameExpr = createExpression(temp, node, nameIsGarbage);
+    nameExpr = createExpression(temp.first_child(), node, nameIsGarbage);
     if (nameIsGarbage)
       garbage.push_back(nameExpr);
     ValueType nameType = nameExpr->valueType();
