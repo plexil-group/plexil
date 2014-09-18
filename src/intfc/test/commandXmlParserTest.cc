@@ -35,11 +35,8 @@
 
 #include "pugixml.hpp"
 
-#include <cstring>
-
 using namespace PLEXIL;
 
-using pugi::xml_attribute;
 using pugi::xml_document;
 using pugi::xml_node;
 using pugi::node_pcdata;

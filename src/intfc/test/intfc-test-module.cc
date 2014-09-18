@@ -37,14 +37,16 @@ extern bool lookupFactoryTest();
 extern bool lookupsTest();
 extern bool lookupXmlParserTest();
 extern bool stateTest();
+extern bool updateXmlParserTest();
 
 void runTests()
 {
-  runTestSuite(commandXmlParserTest);
   runTestSuite(stateTest);
   runTestSuite(lookupsTest);
   runTestSuite(lookupFactoryTest);
   runTestSuite(lookupXmlParserTest);
+  runTestSuite(commandXmlParserTest);
+  runTestSuite(updateXmlParserTest);
 
   runFinalizers();
 

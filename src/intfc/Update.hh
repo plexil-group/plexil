@@ -65,13 +65,14 @@ namespace PLEXIL
     void execute();
     void acknowledge(bool ack);
 
+    // Made public for parser unit test
+    void fixValues();
+
   private:
     // Deliberately unimplemented
     Update();
     Update(const Update&);
     Update& operator=(const Update&);
-
-    void fixValues();
 
     NodeConnector *m_source;
     BooleanVariable m_ack;
