@@ -41,11 +41,18 @@ namespace PLEXIL
   class Update 
   {
   public:
+    typedef std::map<std::string, Expression *> PairExpressionMap;
+    typedef std::map<std::string, Value> PairValueMap;
+
+    // *** TO BE DELETED ***
     Update(NodeConnector *node,
            PlexilUpdate const *updateProto = NULL);
-    ~Update();
 
-    typedef std::map<std::string, Value> PairValueMap;
+    Update(NodeConnector *node,
+           PairExpressionMap const &pairs,
+           std::vector<Expression *> const &garbage);
+
+    ~Update();
 
     Expression *getAck() {return &m_ack;}
     const PairValueMap& getPairs() const {return m_valuePairs;}
@@ -58,8 +65,6 @@ namespace PLEXIL
     void execute();
     void acknowledge(bool ack);
 
-  protected:
-
   private:
     // Deliberately unimplemented
     Update();
@@ -71,7 +76,6 @@ namespace PLEXIL
     NodeConnector *m_source;
     BooleanVariable m_ack;
     std::vector<Expression *> m_garbage;
-    typedef std::map<std::string, Expression *> PairExpressionMap;
     PairExpressionMap m_pairs;
     PairValueMap m_valuePairs;
   };

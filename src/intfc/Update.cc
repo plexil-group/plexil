@@ -34,6 +34,7 @@
 
 namespace PLEXIL
 {
+  // *** TO BE DELETED ***
   Update::Update(NodeConnector *node,
                  PlexilUpdate const *updateProto)
     : m_source(node),
@@ -63,6 +64,18 @@ namespace PLEXIL
         m_pairs[it->first] = valueExpr;
       }
     }
+  }
+
+  Update::Update(NodeConnector *node,
+           PairExpressionMap const &pairs,
+           std::vector<Expression *> const &garbage)
+    : m_source(node),
+      m_ack(),
+      m_garbage(garbage),
+      m_pairs(pairs)
+  {
+    // Make ack variable pretty
+    m_ack.setName(node->getNodeId() + " ack");
   }
 
   Update::~Update() 
