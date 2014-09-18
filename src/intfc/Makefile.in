@@ -163,8 +163,10 @@ am_libPlexilIntfc_la_OBJECTS = libPlexilIntfc_la-CachedValueImpl.lo \
 	libPlexilIntfc_la-State.lo \
 	libPlexilIntfc_la-StateCacheEntry.lo \
 	libPlexilIntfc_la-StateCacheMap.lo libPlexilIntfc_la-Update.lo \
+	libPlexilIntfc_la-commandXmlParser.lo \
 	libPlexilIntfc_la-interface-schema.lo \
-	libPlexilIntfc_la-resource-tags.lo
+	libPlexilIntfc_la-resource-tags.lo \
+	libPlexilIntfc_la-updateXmlParser.lo
 libPlexilIntfc_la_OBJECTS = $(am_libPlexilIntfc_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -390,13 +392,14 @@ include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  CommandHandleVariable.hh ExternalInterface.hh \
  InputQueue.hh Lookup.hh PlexilLookup.hh PlexilUpdate.hh QueueEntry.hh \
  ResourceArbiterInterface.hh State.hh StateCacheEntry.hh \
- StateCacheMap.hh Update.hh interface-schema.hh resource-tags.hh
+ StateCacheMap.hh Update.hh commandXmlParser.hh interface-schema.hh \
+ resource-tags.hh updateXmlParser.hh
 
 libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
  CommandHandleVariable.cc ExternalInterface.cc Lookup.cc LookupFactory.cc \
  PlexilLookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc \
- interface-schema.cc resource-tags.cc
+ commandXmlParser.cc interface-schema.cc resource-tags.cc updateXmlParser.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = 
 @MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_SOURCES = ../expr/test/FactoryTestNodeConnector.cc \
@@ -587,8 +590,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-StateCacheEntry.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-StateCacheMap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-Update.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-commandXmlParser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-interface-schema.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-resource-tags.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-updateXmlParser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-lookupFactoryTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-lookupXmlParserTest.Po@am__quote@
@@ -710,6 +715,13 @@ libPlexilIntfc_la-Update.lo: Update.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-Update.lo `test -f 'Update.cc' || echo '$(srcdir)/'`Update.cc
 
+libPlexilIntfc_la-commandXmlParser.lo: commandXmlParser.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-commandXmlParser.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-commandXmlParser.Tpo -c -o libPlexilIntfc_la-commandXmlParser.lo `test -f 'commandXmlParser.cc' || echo '$(srcdir)/'`commandXmlParser.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-commandXmlParser.Tpo $(DEPDIR)/libPlexilIntfc_la-commandXmlParser.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='commandXmlParser.cc' object='libPlexilIntfc_la-commandXmlParser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-commandXmlParser.lo `test -f 'commandXmlParser.cc' || echo '$(srcdir)/'`commandXmlParser.cc
+
 libPlexilIntfc_la-interface-schema.lo: interface-schema.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-interface-schema.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-interface-schema.Tpo -c -o libPlexilIntfc_la-interface-schema.lo `test -f 'interface-schema.cc' || echo '$(srcdir)/'`interface-schema.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-interface-schema.Tpo $(DEPDIR)/libPlexilIntfc_la-interface-schema.Plo
@@ -723,6 +735,13 @@ libPlexilIntfc_la-resource-tags.lo: resource-tags.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='resource-tags.cc' object='libPlexilIntfc_la-resource-tags.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-resource-tags.lo `test -f 'resource-tags.cc' || echo '$(srcdir)/'`resource-tags.cc
+
+libPlexilIntfc_la-updateXmlParser.lo: updateXmlParser.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-updateXmlParser.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-updateXmlParser.Tpo -c -o libPlexilIntfc_la-updateXmlParser.lo `test -f 'updateXmlParser.cc' || echo '$(srcdir)/'`updateXmlParser.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-updateXmlParser.Tpo $(DEPDIR)/libPlexilIntfc_la-updateXmlParser.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='updateXmlParser.cc' object='libPlexilIntfc_la-updateXmlParser.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-updateXmlParser.lo `test -f 'updateXmlParser.cc' || echo '$(srcdir)/'`updateXmlParser.cc
 
 ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.o: ../expr/test/FactoryTestNodeConnector.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.o -MD -MP -MF ../expr/test/$(DEPDIR)/test_intfc_module_tests-FactoryTestNodeConnector.Tpo -c -o ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.o `test -f '../expr/test/FactoryTestNodeConnector.cc' || echo '$(srcdir)/'`../expr/test/FactoryTestNodeConnector.cc

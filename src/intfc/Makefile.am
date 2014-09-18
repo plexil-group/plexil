@@ -34,13 +34,14 @@ include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  CommandHandleVariable.hh ExternalInterface.hh \
  InputQueue.hh Lookup.hh PlexilLookup.hh PlexilUpdate.hh QueueEntry.hh \
  ResourceArbiterInterface.hh State.hh StateCacheEntry.hh \
- StateCacheMap.hh Update.hh interface-schema.hh resource-tags.hh
+ StateCacheMap.hh Update.hh commandXmlParser.hh interface-schema.hh \
+ resource-tags.hh updateXmlParser.hh
 
 libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
  CommandHandleVariable.cc ExternalInterface.cc Lookup.cc LookupFactory.cc \
  PlexilLookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc \
- interface-schema.cc resource-tags.cc
+ commandXmlParser.cc interface-schema.cc resource-tags.cc updateXmlParser.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
