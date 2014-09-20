@@ -66,6 +66,8 @@ namespace PLEXIL
   extern char const *EXIT_CONDITION_TAG;
   extern char const *SKIP_CONDITION_TAG;
 
+  extern char const *CONDITION_SUFFIX;
+
   extern char const *DECL_ARRAY_TAG;
 
   extern char const *NODETYPE_ATTR;

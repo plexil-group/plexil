@@ -38,6 +38,7 @@ namespace PLEXIL
   {
   public:
 
+    // *** TO BE DELETED ***
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
      * @param node The PlexilNodeId for this node and all of its children.
@@ -45,6 +46,13 @@ namespace PLEXIL
      */
     AssignmentNode(PlexilNode const *node,
                    Node *parent = NULL);
+
+    /**
+     * @brief The constructor.
+     * @param nodeId The name of this node.
+     * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
+     */
+    AssignmentNode(char const *nodeId, Node *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -60,6 +68,15 @@ namespace PLEXIL
     virtual ~AssignmentNode();
 
     /**
+     * @brief Gets the type of this node.
+     * @return The type of this node.
+     */
+    virtual PlexilNodeType getType() const
+    {
+      return NodeType_Assignment;
+    }
+
+    /**
      * @brief Accessor for the assigned variable.
      */
     Assignable *getAssignmentVariable() const;
@@ -69,6 +86,23 @@ namespace PLEXIL
      * @return the priority of this node.
      */
     double getPriority() const {return m_priority;}
+
+    /**
+     * @brief Set the node's priority.
+     * @param prio The priority.
+     * @note Should only be used by plan parser and unit tests.
+     */
+    void setPriority(double prio)
+    {
+      m_priority = prio;
+    }
+
+    /**
+     * @brief Set the assignment.
+     * @param assn The assignment object.
+     * @note Intended for use by the plan parser and unit tests only.
+     */
+    void setAssignment(Assignment *assn);
     
   protected:
 

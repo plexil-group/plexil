@@ -37,6 +37,7 @@
 namespace PLEXIL
 {
 
+  // *** TO BE DELETED ***
   AssignmentNode::AssignmentNode(PlexilNode const *nodeProto, 
                                  Node *parent)
     : Node(nodeProto, parent),
@@ -45,6 +46,13 @@ namespace PLEXIL
     checkError(nodeProto->nodeType() == NodeType_Assignment,
                "Invalid node type \"" << nodeTypeString(nodeProto->nodeType())
                << "\" for an AssignmentNode");
+  }
+
+  AssignmentNode::AssignmentNode(char const *nodeId, 
+                                 Node *parent)
+    : Node(nodeId, parent),
+      m_priority(0.0) // *** FIXME
+  {
   }
 
   // Used only by module test
@@ -94,6 +102,12 @@ namespace PLEXIL
     checkError(dynamic_cast<PlexilAssignmentBody const *>(node->body()),
                "Node is an assignment node but doesn't have an assignment body.");
     createAssignment((PlexilAssignmentBody const *) node->body());
+  }
+
+  void AssignmentNode::setAssignment(Assignment *assn)
+  {
+    assertTrue_1(assn);
+    m_assignment = assn;
 
     // Set action-complete condition
     Expression *ack = m_assignment->getAck();
@@ -106,6 +120,7 @@ namespace PLEXIL
     m_garbageConditions[abortCompleteIdx] = false;
   }
 
+  // *** TO BE DELETED ***
   void AssignmentNode::createAssignment(PlexilAssignmentBody const *body) 
   {
     //we still only support one variable on the LHS
@@ -117,8 +132,7 @@ namespace PLEXIL
     Assignable *dest = createAssignable(destExpr, this, deleteLhs);
     bool deleteRhs = false;
     Expression *rhs = createExpression(body->RHS(), this, deleteRhs);
-    m_assignment =
-      new Assignment(dest, rhs, deleteLhs, deleteRhs, m_nodeId);
+    setAssignment(new Assignment(dest, rhs, deleteLhs, deleteRhs, m_nodeId));
   }
 
   // Unit test variant of above

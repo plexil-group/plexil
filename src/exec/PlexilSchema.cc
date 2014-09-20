@@ -60,6 +60,8 @@ namespace PLEXIL
   char const *EXIT_CONDITION_TAG = "ExitCondition";
   char const *SKIP_CONDITION_TAG = "SkipCondition";
 
+  char const *CONDITION_SUFFIX = "Condition";
+
   char const *DECL_ARRAY_TAG = "DeclareArray";
 
   char const *NODETYPE_ATTR = "NodeType";

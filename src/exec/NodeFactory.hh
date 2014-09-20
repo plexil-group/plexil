@@ -43,10 +43,19 @@ namespace PLEXIL
   class NodeFactory
   {
   public:
+
+    // *** TO BE DELETED ***
     /**
      * @brief Primary factory method.
      */
     static Node *createNode(PlexilNode const *nodeProto, 
+                            Node *parent = NULL);
+
+    /**
+     * @brief New primary factory method.
+     */
+    static Node *createNode(char const *name,
+                            char const *type,
                             Node *parent = NULL);
 
     /**

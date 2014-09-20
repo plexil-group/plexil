@@ -36,12 +36,20 @@ namespace PLEXIL
   {
   public:
 
+    // *** TO BE DELETED ***
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
     ListNode(PlexilNode const *node, Node *parent = NULL);
+
+    /**
+     * @brief The constructor.
+     * @param nodeId The name of this node.
+     * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
+     */
+    ListNode(char const *nodeId, Node *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -55,6 +63,15 @@ namespace PLEXIL
      * @brief Destructor.  Cleans up this entire part of the node tree.
      */
     virtual ~ListNode();
+
+    /**
+     * @brief Gets the type of this node.
+     * @return The type of this node.
+     */
+    virtual PlexilNodeType getType() const
+    {
+      return NodeType_NodeList;
+    }
 
     virtual const std::vector<Node *>& getChildren() const { return m_children; }
 

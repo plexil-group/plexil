@@ -82,6 +82,7 @@ namespace PLEXIL
   };
 
 
+  // *** TO BE DELETED ***
   /**
    * @brief The constructor.  Will construct all conditions and child nodes.
    * @param node The PlexilNodeId for this node and all of its children.
@@ -95,6 +96,12 @@ namespace PLEXIL
     checkError(nodeProto->nodeType() == NodeType_Command,
                "Invalid node type \"" << nodeTypeString(nodeProto->nodeType())
                << "\" for a CommandNode");
+  }
+
+  CommandNode::CommandNode(char const *nodeId, Node *parent)
+    : Node(nodeId, parent),
+      m_command(NULL)
+  {
   }
 
   /**
@@ -173,6 +180,12 @@ namespace PLEXIL
     checkError(dynamic_cast<PlexilCommandBody const *>(node->body()),
                "Node is a command node but doesn't have a command body.");
     createCommand((PlexilCommandBody const *)node->body());
+  }
+
+  void CommandNode::setCommand(Command *cmd)
+  {
+    assertTrue_1(cmd);
+    m_command = cmd;
     m_variablesByName[COMMAND_HANDLE()] = m_command->getAck();
 
     // Construct action-complete condition
@@ -586,7 +599,7 @@ namespace PLEXIL
 
     debugMsg("Node:createCommand",
              "Creating command for node '" << m_nodeId << "'");
-    m_command = new Command(nameExpr, args, garbage, dest, resourceList, getNodeId());
+    setCommand(new Command(nameExpr, args, garbage, dest, resourceList, getNodeId()));
   }
 
   // Unit test variant of above

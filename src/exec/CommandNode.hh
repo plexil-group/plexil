@@ -36,12 +36,21 @@ namespace PLEXIL
   class CommandNode : public Node
   {
   public:
+
+    // *** TO BE DELETED ***
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
     CommandNode(PlexilNode const *node, Node *parent = NULL);
+
+    /**
+     * @brief The constructor.
+     * @param nodeId The name of this node.
+     * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
+     */
+    CommandNode(char const *nodeId, Node *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -56,6 +65,15 @@ namespace PLEXIL
      */
     virtual ~CommandNode();
 
+    /**
+     * @brief Gets the type of this node.
+     * @return The type of this node.
+     */
+    virtual PlexilNodeType getType() const
+    {
+      return NodeType_Command;
+    }
+
     // Called from the transition handler
     virtual void abort();
 
@@ -64,6 +82,13 @@ namespace PLEXIL
      */
     Command const *getCommand() const { return m_command; }
     Command *getCommand() { return m_command; }
+
+    /**
+     * @brief Set the command.
+     * @param cmd The command.
+     * @note Should only be used by plan parser and unit test.
+     */
+    void setCommand(Command *cmd);
 
   protected:
 

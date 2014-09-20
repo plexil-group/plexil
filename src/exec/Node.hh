@@ -77,18 +77,52 @@ namespace PLEXIL {
 
     static const std::vector<std::string>& ALL_CONDITIONS();
 
+    // N.B.: These need to match the order of ALL_CONDITIONS()
+    enum ConditionIndex {
+      // Conditions on parent
+      // N.B. Ancestor end/exit/invariant MUST come before
+      // end/exit/invariant, respectively, because the former depend
+      // on the latter and must be cleaned up first.
+      ancestorExitIdx = 0,
+      ancestorInvariantIdx,
+      ancestorEndIdx,
+      // User specified conditions
+      skipIdx,
+      startIdx,
+      preIdx,
+      exitIdx,
+      invariantIdx,
+      endIdx,
+      postIdx,
+      repeatIdx,
+      // For all but Empty nodes
+      actionCompleteIdx,
+      // For all but Empty and Update nodes
+      abortCompleteIdx,
+
+      conditionIndexMax
+    };
+
     //in-built variable names
     DECLARE_STATIC_CLASS_CONST(std::string, STATE, "state");
     DECLARE_STATIC_CLASS_CONST(std::string, OUTCOME, "outcome");
     DECLARE_STATIC_CLASS_CONST(std::string, FAILURE_TYPE, "failure_type");
     DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_HANDLE, "command_handle");
 
+    // *** TO BE DELETED ***
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
     Node(PlexilNode const *node, Node *parent = NULL);
+
+    /**
+     * @brief The constructor.
+     * @param nodeId The name of this node.
+     * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
+     */
+    Node(char const *nodeId, Node *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -254,8 +288,12 @@ namespace PLEXIL {
     /**
      * @brief Gets the type of this node.
      * @return The type of this node.
+     * @note Empty node method.
      */
-    PlexilNodeType getType() const {return m_nodeType;}
+    virtual PlexilNodeType getType() const
+    {
+      return NodeType_Empty;
+    }
 
     virtual Node const *findChild(const std::string& childName) const;
     virtual Node *findChild(const std::string& childName);
@@ -321,6 +359,14 @@ namespace PLEXIL {
     // NodeFactory::createNode for the module test needs this to be public.
     void activateInternalVariables();
 
+    // Should be used only by plan parsers
+    void addVariable(char const *name, Expression *var);
+    void addUserCondition(ConditionIndex which, Expression *cond, bool isGarbage);
+    void finalizeConditions();
+
+    static ConditionIndex getConditionIndex(const std::string& cName);
+    static const std::string& getConditionName(size_t idx);
+
   protected:
     friend class LibraryCallNode;
     friend class ListNode;
@@ -332,40 +378,11 @@ namespace PLEXIL {
     friend class OutcomeVariable;
     friend class StateVariable;
 
-    // N.B.: These need to match the order of ALL_CONDITIONS()
-    enum ConditionIndex {
-      // Conditions on parent
-      // N.B. Ancestor end/exit/invariant MUST come before
-      // end/exit/invariant, respectively, because the former depend
-      // on the latter and must be cleaned up first.
-      ancestorExitIdx = 0,
-      ancestorInvariantIdx,
-      ancestorEndIdx,
-      // User specified conditions
-      skipIdx,
-      startIdx,
-      preIdx,
-      exitIdx,
-      invariantIdx,
-      endIdx,
-      postIdx,
-      repeatIdx,
-      // For all but Empty nodes
-      actionCompleteIdx,
-      // For all but Empty and Update nodes
-      abortCompleteIdx,
-
-      conditionIndexMax
-    };
-
     // Abstracts out the issue of where the condition comes from.
     Expression *getCondition(size_t idx);
     Expression const *getCondition(size_t idx) const;
 
     void removeConditionListener(size_t idx);
-
-    static size_t getConditionIndex(const std::string& cName);
-    static const std::string& getConditionName(size_t idx);
 
     void commonInit();
 
@@ -522,7 +539,6 @@ namespace PLEXIL {
     // Housekeeping details
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */
     bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_checkConditionsPending;
-    PlexilNodeType m_nodeType; /*!< The node type. */
 
   private:
 

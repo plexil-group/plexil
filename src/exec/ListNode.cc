@@ -199,6 +199,7 @@ namespace PLEXIL
     AllWaitingOrFinished &operator=(AllWaitingOrFinished const &);
   };
 
+  // *** TO BE DELETED ***
   /**
    * @brief The constructor.  Will construct all conditions and child nodes.
    * @param node The PlexilNodeId for this node and all of its children.
@@ -221,6 +222,11 @@ namespace PLEXIL
                  "list body.");
       createChildNodes((PlexilListBody const *) node->body()); // constructs default end condition
     }
+  }
+
+  ListNode::ListNode(char const *nodeId, Node *parent)
+    : Node(nodeId, parent)
+  {
   }
 
   /**

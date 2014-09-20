@@ -37,6 +37,8 @@
 
 namespace PLEXIL
 {
+
+  // *** TO BE DELETED ***
   /**
    * @brief The constructor.  Will construct all conditions and child nodes.
    * @param node The PlexilNodeId for this node and all of its children.
@@ -49,6 +51,11 @@ namespace PLEXIL
     checkError(node->nodeType() == NodeType_Update,
                "Invalid node type \"" << nodeTypeString(node->nodeType())
                << "\" for an UpdateNode");
+  }
+
+  UpdateNode::UpdateNode(char const *nodeId, Node *parent)
+    : Node(nodeId, parent)
+  {
   }
 
   /**
@@ -118,6 +125,12 @@ namespace PLEXIL
     assertTrue_2(dynamic_cast<PlexilUpdateBody const *>(node->body()),
                  "Node is an update node but doesn't have an update body.");
     createUpdate((PlexilUpdateBody const *) node->body());
+  }
+
+  void UpdateNode::setUpdate(Update *upd)
+  {
+    assertTrue_1(upd);
+    m_update = upd;
 
     // Create action-complete condition
     Expression *actionComplete = m_update->getAck();
@@ -127,7 +140,7 @@ namespace PLEXIL
 
   void UpdateNode::createUpdate(PlexilUpdateBody const *body) 
   {
-    m_update = new Update(this, body->update());
+    setUpdate(new Update(this, body->update()));
   }
 
   void UpdateNode::createConditionWrappers()

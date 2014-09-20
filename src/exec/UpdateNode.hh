@@ -37,12 +37,20 @@ namespace PLEXIL
   {
   public:
 
+    // *** TO BE DELETED ***
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
     UpdateNode(PlexilNode const *node, Node *parent = NULL);
+
+    /**
+     * @brief The constructor.
+     * @param nodeId The name of this node.
+     * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
+     */
+    UpdateNode(char const *nodeId, Node *parent = NULL);
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
@@ -58,12 +66,28 @@ namespace PLEXIL
     virtual ~UpdateNode();
 
     /**
+     * @brief Gets the type of this node.
+     * @return The type of this node.
+     */
+    virtual PlexilNodeType getType() const
+    {
+      return NodeType_Update;
+    }
+
+    /**
      * @brief Get the node's update structure.
      */
     Update *getUpdate()
     {
       return m_update; 
     }
+
+    /**
+     * @brief Set the update.
+     * @param upd The update.
+     * @note Should only be used by plan parser and unit tests.
+     */
+    void setUpdate(Update *upd);
 
   protected:
 

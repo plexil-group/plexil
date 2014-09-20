@@ -106,12 +106,12 @@ namespace PLEXIL {
     s_allConditions = NULL;
   }
 
-  size_t Node::getConditionIndex(const std::string& cName) {
+  Node::ConditionIndex Node::getConditionIndex(const std::string& cName)
+  {
     const std::vector<std::string>& allConds = ALL_CONDITIONS();
-    for (size_t i = 0; i < conditionIndexMax; ++i) {
+    for (size_t i = 0; i < conditionIndexMax; ++i)
       if (allConds[i] == cName)
-        return i;
-    }
+        return (ConditionIndex) i;
     assertTrueMsg(ALWAYS_FAIL,
                   cName << " is not a valid condition name");
     return conditionIndexMax; // make compiler happy
@@ -122,6 +122,7 @@ namespace PLEXIL {
     return ALL_CONDITIONS()[idx];
   }
 
+  // *** TO BE DELETED ***
   Node::Node(PlexilNode const *node, Node *parent)
     : NodeConnector(),
       m_parent(parent),
@@ -143,9 +144,7 @@ namespace PLEXIL {
       m_postInitCalled(false),
       m_cleanedConditions(false),
       m_cleanedVars(false),
-      m_checkConditionsPending(false),      
-      m_nodeType(node->nodeType())
-
+      m_checkConditionsPending(false)
   {
     debugMsg("Node:node", "Creating node \"" << node->nodeId() << "\"");
 
@@ -156,6 +155,34 @@ namespace PLEXIL {
 
     // get interface variables, if any
     getVarsFromInterface(node->interface());
+  }
+
+  // New constructor
+  Node::Node(char const *nodeId, Node *parent)
+    : NodeConnector(),
+      m_parent(parent),
+      m_listener(*this),
+      m_nodeId(nodeId),
+      m_sortedVariableNames(new std::vector<std::string>()),
+      m_conditions(),
+      m_stateVariable(*this),
+      m_outcomeVariable(*this),
+      m_failureTypeVariable(*this),
+      m_traceIdx(0),
+      m_state(INACTIVE_STATE),
+      m_nextState(NO_NODE_STATE),
+      m_outcome(NO_OUTCOME),
+      m_nextOutcome(NO_OUTCOME),
+      m_failureType(NO_FAILURE),
+      m_nextFailureType(NO_FAILURE),
+      m_garbageConditions(),
+      m_postInitCalled(false),
+      m_cleanedConditions(false),
+      m_cleanedVars(false),
+      m_checkConditionsPending(false)
+  {
+    debugMsg("Node:node", " Constructor for \"" << m_nodeId << "\"");
+    commonInit();
   }
 
   // Used only by module test
@@ -183,8 +210,7 @@ namespace PLEXIL {
       m_postInitCalled(false), 
       m_cleanedConditions(false), 
       m_cleanedVars(false),
-      m_checkConditionsPending(false),
-      m_nodeType(parseNodeType(type))
+      m_checkConditionsPending(false)
   {
     commonInit();
 
@@ -200,6 +226,7 @@ namespace PLEXIL {
         getCondition(i)->addListener(&m_listener);
     }
 
+    PlexilNodeType nodeType = parseNodeType(type);
     // Activate the conditions required by the provided state
     switch (m_state) {
 
@@ -223,14 +250,14 @@ namespace PLEXIL {
       break;
 
     case FAILING_STATE:
-      assertTrueMsg(m_nodeType != NodeType_Empty,
-                    "Node module test constructor: FAILING state invalid for " << m_nodeType << " nodes");
+      assertTrueMsg(nodeType != NodeType_Empty,
+                    "Node module test constructor: FAILING state invalid for Empty nodes");
       // Defer to subclass
       break;
 
     case FINISHING_STATE:
-      assertTrueMsg(m_nodeType != NodeType_Empty,
-                    "Node module test constructor: FINISHING state invalid for " << m_nodeType << " nodes");
+      assertTrueMsg(nodeType != NodeType_Empty,
+                    "Node module test constructor: FINISHING state invalid for Empty nodes");
       // Defer to subclass
       break;
 
@@ -260,6 +287,16 @@ namespace PLEXIL {
     logTransition(g_interface->currentTime(), (NodeState) m_state);
   }
 
+  void Node::addVariable(char const *name, Expression *var)
+  {
+    std::string const nameStr(name);
+    checkParserException(m_variablesByName.find(name) == m_variablesByName.end(),
+                         "Node \"" << m_nodeId << "\" already has a variable named \"" << name << "\"");
+    m_localVariables.push_back(var);
+    m_variablesByName[nameStr] = var;
+  }
+
+  // *** TO BE DELETED ***
   void Node::createDeclaredVars(const std::vector<PlexilVar *>& vars) {
     for (std::vector<PlexilVar *>::const_iterator it = vars.begin(); it != vars.end(); ++it) {
       PlexilVar const *var = *it;
@@ -271,7 +308,7 @@ namespace PLEXIL {
                     "Node \"" << m_nodeId << "\" already has a variable named \"" << name << "\"");
       bool dummy; // we always expect variables to be constructed here
       Expression *varId =
-        createExpression(var, this, dummy);
+        createExpression(var, static_cast<NodeConnector *>(this), dummy);
       assertTrue_1(varId->getName() == name);
       m_variablesByName[varId->getName()] = varId;
       m_localVariables.push_back(varId);
@@ -350,7 +387,7 @@ namespace PLEXIL {
       // Try to avoid constructing alias var
       if (!parentIsLibCall && expr->isAssignable()) {
         // Construct const wrapper
-        expr = new Alias(this, varRef->varName(), expr, false);
+        expr = new Alias(static_cast<NodeConnector *>(this), varRef->varName(), expr, false);
         debugMsg("Node::getInVariable",
                  " Node \"" << m_nodeId
                  << "\": Constructed const alias wrapper for \"" << varRef->varName()
@@ -373,7 +410,7 @@ namespace PLEXIL {
           else {
             // construct constant local "variable" with default value
             bool wasConstructed = false;
-            expr = createExpression(defaultVal, this, wasConstructed);
+            expr = createExpression(defaultVal, static_cast<NodeConnector *>(this), wasConstructed);
             if (wasConstructed)
               m_localVariables.push_back(expr);
           }
@@ -425,7 +462,7 @@ namespace PLEXIL {
             PlexilExpr *tempVar = new PlexilVar("InOut_Default", // TODO? gensym
                                                 defaultVal->type(), 
                                                 const_cast<PlexilExpr *>(defaultVal));  // *** KLUDGE ***
-            expr = createExpression(tempVar, this, wasConstructed);
+            expr = createExpression(tempVar, static_cast<NodeConnector *>(this), wasConstructed);
             if (wasConstructed)
               m_localVariables.push_back(expr);
           }
@@ -458,17 +495,23 @@ namespace PLEXIL {
     specializedPostInitLate(node);
   }
 
+  // *** TO BE DELETED ***
   void Node::createConditions(const std::vector<std::pair<PlexilExpr *, std::string> >& conds) 
   {
     // Add user-specified conditions
     for (std::vector<std::pair <PlexilExpr *, std::string> >::const_iterator it = conds.begin(); 
          it != conds.end(); 
          ++it) {
-      size_t condIdx = getConditionIndex(it->second);
+      ConditionIndex condIdx = getConditionIndex(it->second);
       m_conditions[condIdx] = 
-        createExpression(it->first, this, m_garbageConditions[condIdx]);
+        createExpression(it->first, static_cast<NodeConnector *>(this), m_garbageConditions[condIdx]);
     }
 
+    finalizeConditions();
+  }
+
+  void Node::finalizeConditions()
+  {
     // Create conditions that may wrap user-defined conditions
     createConditionWrappers();
 
@@ -506,6 +549,16 @@ namespace PLEXIL {
       if (ancestorCond)
         ancestorCond->addListener(&m_listener);
     }
+  }
+
+  void Node::addUserCondition(ConditionIndex which, Expression *cond, bool isGarbage)
+  {
+    assertTrue_2(which >= skipIdx && which <= repeatIdx,
+                 "Invalid condition index for user condition");
+    checkParserException(!m_conditions[which],
+                         "Duplicate " << getConditionName(which) << " for Node \"" << m_nodeId << "\"");
+    m_conditions[which] = cond;
+    m_garbageConditions[which] = isGarbage;
   }
 
   // Default method
@@ -1221,8 +1274,8 @@ namespace PLEXIL {
   // Empty node method
   void Node::transitionFromExecuting()
   {
-    checkError(m_nodeType == NodeType_Empty,
-               "Expected empty node, got " << nodeTypeString(m_nodeType));
+    checkError(this->getType() == NodeType_Empty,
+               "Expected empty node, got " << nodeTypeString(this->getType()));
 
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -1893,7 +1946,7 @@ namespace PLEXIL {
     // legacy message for unit test
     debugMsg("PlexilExec:handleNeedsExecution",
              "Storing action for node '" << m_nodeId <<
-             "' of type '" << nodeTypeString(m_nodeType) << 
+             "' of type '" << nodeTypeString(this->getType()) << 
              "' to be executed.");
 
     specializedHandleExecution();

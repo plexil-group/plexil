@@ -37,6 +37,7 @@
 namespace PLEXIL
 {
 
+  // *** TO BE DELETED ***
   /**
    * @brief The constructor.  Will construct all conditions and child nodes.
    * @param node The PlexilNodeId for this node and all of its children.
@@ -59,6 +60,11 @@ namespace PLEXIL
                   "Node " << m_nodeId << " is a library node call but doesn't have a " <<
                   "library node call body.");
     createLibraryNode(body); // constructs default end condition
+  }
+
+  LibraryCallNode::LibraryCallNode(char const *nodeId, Node *parent)
+    : ListNode(nodeId, parent)
+  {
   }
 
   /**
