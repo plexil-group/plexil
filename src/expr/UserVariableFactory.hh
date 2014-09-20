@@ -28,6 +28,7 @@
 #define PLEXIL_USER_VARIABLE_FACTORY_HH
 
 #include "ExpressionFactory.hh"
+#include "ParserException.hh"
 
 namespace PLEXIL
 {
@@ -48,7 +49,8 @@ namespace PLEXIL
 
     Expression *allocate(pugi::xml_node const &expr,
                          NodeConnector *node,
-                         bool &wasCreated) const;
+                         bool &wasCreated) const
+    throw(ParserException);
 
   private:
     // Default, copy, assign all prohibited

@@ -58,6 +58,7 @@ namespace PLEXIL
   Expression *UserVariableFactory::allocate(pugi::xml_node const &expr,
                                             NodeConnector *node,
                                             bool &wasCreated) const
+    throw(ParserException)
   {
     checkHasChildElement(expr);
     pugi::xml_node nameElt = expr.first_child();
