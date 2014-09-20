@@ -80,21 +80,21 @@ namespace PLEXIL
       checkParserExceptionWithLocation(0 == strcmp(ASSIGNMENT_TAG, tag),
                                        bodyXml,
                                        "Invalid body element \"" << tag << "\" in Assignment node");
-      // TODO
+      // TODO: more checks?
       return;
 
     case NodeType_Command:
       checkParserExceptionWithLocation(0 == strcmp(COMMAND_TAG, tag),
                                        bodyXml,
                                        "Illegal body element \"" << tag << "\" in Command node");
-      // TODO
+      // TODO: more checks?
       return;
 
     case NodeType_Update:
       checkParserExceptionWithLocation(0 == strcmp(UPDATE_TAG, tag),
                                        bodyXml,
                                        "Illegal body element \"" << tag << "\" in Update node");
-      // TODO
+      // TODO: more checks?
       return;
 
     case NodeType_List:
@@ -264,7 +264,7 @@ namespace PLEXIL
       if (iface)
         parseInterface(node, iface);
 
-      // TODO: create body (if not empty node)
+      // TODO: Construct body for NodeList, LibraryNodeCall nodes
 
     }
     catch (std::exception const & exc) {
@@ -278,28 +278,31 @@ namespace PLEXIL
   // We only need to worry about conditions
   static void postInitNode(Node *node, xml_node const &xml)
   {
-    // create conditions
-    xml_node cond = xml.first_child();
-    while (cond) {
-      if (testTagSuffix(CONDITION_SUFFIX, cond)) {
-        checkHasChildElement(cond);
+    // Do late parsing
+    xml_node elt = xml.first_child();
+    while (elt) {
+      if (testTag(NODEBODY_TAG, elt)) {
+        // TODO: construct body for Assignment, Command, Update nodes
+
+      }
+      else if (testTagSuffix(CONDITION_SUFFIX, elt)) {
+        checkHasChildElement(elt);
         // Check that condition name is valid, get index
-        Node::ConditionIndex which = Node::getConditionIndex(std::string(cond.name()));
+        Node::ConditionIndex which = Node::getConditionIndex(std::string(elt.name()));
         checkParserExceptionWithLocation(which >= Node::skip_idx && which <= Node::repeatIdx,
                                          "Node " << node->getNodeId()
-                                         << ": Illegal condition name \"" << cond.name() << "\"");
+                                         << ": Illegal condition name \"" << elt.name() << "\"");
         bool garbage;
-        Expression *cond = createExpression(cond.first_child(),
-                                            node,
-                                            garbage);
+        Expression *cond = createExpression(elt.first_child(), node, garbage);
         checkParserExceptionWithLocation(cond->valueType() == BOOLEAN_TYPE || cond->valueType() == UNKNOWN_TYPE,
                                          cond.first_child(),
                                          "Node " << node->getNodeId() << ": Expression for "
-                                         << cond.name() << " is not Boolean");
+                                         << elt.name() << " is not Boolean");
         node->addUserCondition(which, cond, garbage);
       }
-      cond = cond.next_sibling();
+      elt = elt.next_sibling();
     }
+    // else ignore
 
     // finalize conditions
     node->finalizeConditions();
