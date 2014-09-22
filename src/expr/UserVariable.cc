@@ -102,34 +102,30 @@ namespace PLEXIL {
 
   template <typename T>
   UserVariable<T>::UserVariable(NodeConnector *node,
-                                const std::string &name,
-                                Expression *initializer,
-                                bool initializerIsGarbage)
+                                const std::string &name)
     : NotifierImpl(),
       ExpressionImpl<T>(),
     AssignableImpl<T>(),
-    m_initializer(initializer),
+    m_initializer(NULL),
     m_node(node),
     m_name(name),
     m_known(false),
     m_savedKnown(false),
-    m_initializerIsGarbage(initializerIsGarbage)
+    m_initializerIsGarbage(false)
   {
   }
 
   UserVariable<std::string>::UserVariable(NodeConnector *node,
-                                          const std::string &name,
-                                          Expression *initializer,
-                                          bool initializerIsGarbage)
+                                          const std::string &name)
     : NotifierImpl(),
       ExpressionImpl<std::string>(),
     AssignableImpl<std::string>(),
-    m_initializer(initializer),
+    m_initializer(NULL),
     m_node(node),
     m_name(name),
     m_known(false),
     m_savedKnown(false),
-    m_initializerIsGarbage(initializerIsGarbage)
+    m_initializerIsGarbage(false)
   {
   }
     
@@ -423,6 +419,38 @@ namespace PLEXIL {
     return Assignable::asAssignable();
   }
 
+  template <typename T>
+  void UserVariable<T>::setInitializer(Expression *expr, bool garbage)
+  {
+    assertTrue_2(!m_initializer, "setInitializer() called on a variable that already has an initializer");
+    assertTrue_2(expr->valueType() == this->valueType() || expr->valueType() == UNKNOWN_TYPE,
+                 "Initializer type differs from variable's");
+    m_initializer = expr;
+    m_initializerIsGarbage = garbage;
+  }
+
+  template <>
+  void UserVariable<double>::setInitializer(Expression *expr, bool garbage)
+  {
+    assertTrue_2(!m_initializer, "setInitializer() called on a variable that already has an initializer");
+    assertTrue_2(expr->valueType() == REAL_TYPE
+                 || expr->valueType() == INTEGER_TYPE
+                 || expr->valueType() == UNKNOWN_TYPE,
+                 "Initializer type differs from variable's");
+    m_initializer = expr;
+    m_initializerIsGarbage = garbage;
+  }
+
+  void UserVariable<std::string>::setInitializer(Expression *expr, bool garbage)
+  {
+    assertTrue_2(!m_initializer, "setInitializer() called on a variable that already has an initializer");
+    assertTrue_2(expr->valueType() == STRING_TYPE || expr->valueType() == UNKNOWN_TYPE,
+                 "Initializer type differs from variable's");
+    m_initializer = expr;
+    m_initializerIsGarbage = garbage;
+  }
+
+
   //
   // Explicit instantiations
   //
@@ -431,6 +459,5 @@ namespace PLEXIL {
   // template class UserVariable<uint16_t>;
   template class UserVariable<int32_t>;
   template class UserVariable<double>;
-  //template class UserVariable<std::string>;
 
 } // namespace PLEXIL

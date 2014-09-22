@@ -25,6 +25,7 @@
 */
 
 #include "Debug.hh"
+#include "Error.hh"
 #include "TestSupport.hh"
 #include "lifecycle-utils.h"
 
@@ -61,6 +62,8 @@ extern bool functionXmlParserTest();
 
 static void runExprTests()
 {
+  Error::doThrowExceptions();
+
   runTestSuite(listenerTest);
   runTestSuite(constantsTest);
   runTestSuite(variablesTest);

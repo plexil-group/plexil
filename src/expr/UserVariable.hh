@@ -65,9 +65,7 @@ namespace PLEXIL {
      * @param name The name of this variable in the parent node.
      */
     UserVariable(NodeConnector *node,
-                 const std::string &name = "",
-                 Expression *initializer = NULL,
-                 bool initializerIsGarbage = false);
+                 const std::string &name = "");
     
     /**
      * @brief Destructor.
@@ -81,6 +79,10 @@ namespace PLEXIL {
     const char *exprName() const;
 
     bool isKnown() const;
+
+    //
+    // Assignable and AssignableImpl API
+    //
 
     /**
      * @brief Get the expression's value.
@@ -119,6 +121,13 @@ namespace PLEXIL {
 
     Assignable *getBaseVariable();
     Assignable const *getBaseVariable() const;
+
+    /**
+     * @brief Set the expression from which this object gets its initial value.
+     * @param expr Pointer to an Expression.
+     * @param garbage True if the expression should be deleted with this object, false otherwise.
+     */
+    void setInitializer(Expression *expr, bool garbage);
 
     void handleActivate();
 
@@ -170,9 +179,7 @@ namespace PLEXIL {
      * @param name The name of this variable in the parent node.
      */
     UserVariable(NodeConnector *node,
-                 const std::string &name = "",
-                 Expression *initializer = NULL,
-                 bool initializerIsGarbage = false);
+                 const std::string &name = "");
     
     /**
      * @brief Destructor.
@@ -240,6 +247,13 @@ namespace PLEXIL {
 
     Assignable *getBaseVariable();
     Assignable const *getBaseVariable() const;
+
+    /**
+     * @brief Set the expression from which this object gets its initial value.
+     * @param expr Pointer to an Expression.
+     * @param garbage True if the expression should be deleted with this object, false otherwise.
+     */
+    void setInitializer(Expression *expr, bool garbage);
 
     void handleActivate();
 

@@ -55,6 +55,9 @@ namespace PLEXIL
     return NULL;
   }
 
+
+  // N.B. Construction of initializer expression happens later.
+
   Expression *UserVariableFactory::allocate(pugi::xml_node const &expr,
                                             NodeConnector *node,
                                             bool &wasCreated) const
@@ -77,46 +80,21 @@ namespace PLEXIL
                                      "createExpression: Type " << typeElt.first_child().value()
                                      << " is invalid for DeclareVariable");
 
-    pugi::xml_node initializerElt = typeElt.next_sibling();
-    Expression *initializer = NULL;
-    bool initializerIsGarbage = false;
-    if (initializerElt) {
-      initializer = createExpression(initializerElt.first_child(),
-                                     node,
-                                     initializerIsGarbage);
-      checkParserExceptionWithLocation(initializer->valueType() == typ
-                                       || (typ == REAL_TYPE && initializer->valueType() == INTEGER_TYPE),
-                                       initializerElt,
-                                       "createExpression: Initializer expression type differs from variable type");
-    }
-
     wasCreated = true;
     switch (typ) {
     case BOOLEAN_TYPE:
-      return new BooleanVariable(node,
-                                 name,
-                                 initializer,
-                                 initializerIsGarbage);
+      return new BooleanVariable(node, name);
 
     case INTEGER_TYPE:
-      return new IntegerVariable(node,
-                                 name,
-                                 initializer,
-                                 initializerIsGarbage);
+      return new IntegerVariable(node, name);
 
     case DATE_TYPE: // FIXME
     case DURATION_TYPE: // FIXME
     case REAL_TYPE:
-      return new RealVariable(node,
-                              name,
-                              initializer,
-                              initializerIsGarbage);
+      return new RealVariable(node, name);
 
     case STRING_TYPE:
-      return new StringVariable(node,
-                                name,
-                                initializer,
-                                initializerIsGarbage);
+      return new StringVariable(node, name);
 
     default:
       assertTrue_2(ALWAYS_FAIL,

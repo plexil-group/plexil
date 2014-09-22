@@ -275,14 +275,20 @@ static bool testArrayVariableReferenceFactory()
   vs[3] = std::string("three");
 
   BooleanArrayConstant bc(vb);
+  BooleanArrayVariable bav(nc, "bul", NULL, false);
+  bav.setInitializer(&bc, false);
+
   IntegerArrayConstant ic(vi);
+  IntegerArrayVariable iav(nc, "int", NULL, false);
+  iav.setInitializer(&ic, false);
+
   RealArrayConstant    dc(vd);
+  RealArrayVariable    dav(nc, "dbl", NULL, false);
+  dav.setInitializer(&dc, false);
+
   StringArrayConstant  sc(vs);
-  
-  BooleanArrayVariable bav(nc, "bul", NULL, &bc, false, false);
-  IntegerArrayVariable iav(nc, "int", NULL, &ic, false, false);
-  RealArrayVariable    dav(nc, "dbl", NULL, &dc, false, false);
-  StringArrayVariable  sav(nc, "str", NULL, &sc, false, false);
+  StringArrayVariable  sav(nc, "str", NULL, false);
+  sav.setInitializer(&sc, false);
 
   // Associate arrays with names
   realNc->storeVariable("bul", &bav);
@@ -484,14 +490,20 @@ static bool testArrayAliasReferenceFactory()
   vs[3] = std::string("three");
 
   BooleanArrayConstant bc(vb);
+  BooleanArrayVariable bav(nc, "rbul", NULL, false);
+  bav.setInitializer(&bc, false);
+
   IntegerArrayConstant ic(vi);
+  IntegerArrayVariable iav(nc, "rint", NULL, false);
+  iav.setInitializer(&ic, false);
+
   RealArrayConstant    dc(vd);
+  RealArrayVariable    dav(nc, "rdbl", NULL, false);
+  dav.setInitializer(&dc, false);
+
   StringArrayConstant  sc(vs);
-  
-  BooleanArrayVariable bav(nc, "rbul", NULL, &bc, false, false);
-  IntegerArrayVariable iav(nc, "rint", NULL, &ic, false, false);
-  RealArrayVariable    dav(nc, "rdbl", NULL, &dc, false, false);
-  StringArrayVariable  sav(nc, "rstr", NULL, &sc, false, false);
+  StringArrayVariable  sav(nc, "rstr", NULL, false);
+  sav.setInitializer(&sc, false);
 
   Alias abav(nc, "bul", &bav, false);
   Alias aiav(nc, "int", &iav, false);
@@ -712,14 +724,20 @@ static bool testMutableArrayReferenceFactory()
   vs[3] = std::string("three");
 
   BooleanArrayConstant bc(vb);
+  BooleanArrayVariable bav(nc, "bul", NULL, false);
+  bav.setInitializer(&bc, false);
+
   IntegerArrayConstant ic(vi);
+  IntegerArrayVariable iav(nc, "int", NULL, false);
+  iav.setInitializer(&ic, false);
+
   RealArrayConstant    dc(vd);
+  RealArrayVariable    dav(nc, "dbl", NULL, false);
+  dav.setInitializer(&dc, false);
+
   StringArrayConstant  sc(vs);
-  
-  BooleanArrayVariable bav(nc, "bul", NULL, &bc, false, false);
-  IntegerArrayVariable iav(nc, "int", NULL, &ic, false, false);
-  RealArrayVariable    dav(nc, "dbl", NULL, &dc, false, false);
-  StringArrayVariable  sav(nc, "str", NULL, &sc, false, false);
+  StringArrayVariable  sav(nc, "str", NULL, false);
+  sav.setInitializer(&sc, false);
 
   // Associate arrays with names
   realNc->storeVariable("bul", &bav);
@@ -982,14 +1000,20 @@ static bool testMutableArrayAliasReferenceFactory()
   vs[3] = std::string("three");
 
   BooleanArrayConstant bc(vb);
+  BooleanArrayVariable bav(nc, "rbul", NULL, false);
+  bav.setInitializer(&bc, false);
+
   IntegerArrayConstant ic(vi);
+  IntegerArrayVariable iav(nc, "rint", NULL, false);
+  iav.setInitializer(&ic, false);
+
   RealArrayConstant    dc(vd);
+  RealArrayVariable    dav(nc, "rdbl", NULL, false);
+  dav.setInitializer(&dc, false);
+
   StringArrayConstant  sc(vs);
-  
-  BooleanArrayVariable bav(nc, "rbul", NULL, &bc, false, false);
-  IntegerArrayVariable iav(nc, "rint", NULL, &ic, false, false);
-  RealArrayVariable    dav(nc, "rdbl", NULL, &dc, false, false);
-  StringArrayVariable  sav(nc, "rstr", NULL, &sc, false, false);
+  StringArrayVariable  sav(nc, "rstr", NULL, false);
+  sav.setInitializer(&sc, false);
 
   InOutAlias abav(nc, "bul", &bav, false);
   InOutAlias aiav(nc, "int", &iav, false);

@@ -25,6 +25,7 @@
 */
 
 #include "UserVariable.hh"
+#include "Constant.hh"
 #include "TestSupport.hh"
 #include "TrivialListener.hh"
 
@@ -338,7 +339,146 @@ static bool testInitialValue()
 // on an inactive to active transition.
 static bool testInitializers()
 {
-  // TODO
+  BooleanVariable vb;
+  BooleanConstant cb(false);
+  vb.setInitializer(&cb, false);
+
+  IntegerVariable vi;
+  IntegerConstant ci(69);
+  vi.setInitializer(&ci, false);
+
+  RealVariable vd;
+  RealConstant cd(1.414);
+  vd.setInitializer(&cd, false);
+
+  StringVariable vs;
+  StringConstant cs("yo");
+  vs.setInitializer(&cs, false);
+
+  // Test that they are assignable and not constant
+  assertTrue_1(vb.isAssignable());
+  assertTrue_1(vi.isAssignable());
+  assertTrue_1(vd.isAssignable());
+  assertTrue_1(vs.isAssignable());
+
+  assertTrue_1(!vb.isConstant());
+  assertTrue_1(!vi.isConstant());
+  assertTrue_1(!vd.isConstant());
+  assertTrue_1(!vs.isConstant());
+
+  // Test that they are created inactive
+  assertTrue_1(!vb.isActive());
+  assertTrue_1(!vi.isActive());
+  assertTrue_1(!vd.isActive());
+  assertTrue_1(!vs.isActive());
+
+  // Test that they are unknown while inactive
+  assertTrue_1(!vb.isKnown());
+  assertTrue_1(!vi.isKnown());
+  assertTrue_1(!vd.isKnown());
+  assertTrue_1(!vs.isKnown());
+
+  // Activate and confirm they are known
+  vb.activate();
+  vi.activate();
+  vd.activate();
+  vs.activate();
+
+  assertTrue_1(vb.isKnown());
+  assertTrue_1(vi.isKnown());
+  assertTrue_1(vd.isKnown());
+  assertTrue_1(vs.isKnown());
+
+  // Check values
+  double food;
+  std::string foos;
+  int32_t fooi;
+  bool foob;
+    
+  assertTrue_1(vb.getValue(foob));
+  assertTrue_1(foob == false);
+  assertTrue_1(vi.getValue(fooi));
+  assertTrue_1(fooi == 69);
+  assertTrue_1(vd.getValue(food));
+  assertTrue_1(food == 1.414);
+  assertTrue_1(vs.getValue(foos));
+  assertTrue_1(foos == std::string("yo"));
+  // Numeric conversion
+  assertTrue_1(vi.getValue(food));
+  assertTrue_1(food == 69);
+
+  // Set unknown
+  vb.setUnknown();
+  vi.setUnknown();
+  vd.setUnknown();
+  vs.setUnknown();
+
+  // Confirm that they are now unknown
+  assertTrue_1(!vb.isKnown());
+  assertTrue_1(!vi.isKnown());
+  assertTrue_1(!vd.isKnown());
+  assertTrue_1(!vs.isKnown());
+
+  assertTrue_1(!vb.getValue(foob));
+  assertTrue_1(!vi.getValue(fooi));
+  assertTrue_1(!vd.getValue(food));
+  assertTrue_1(!vs.getValue(foos));
+
+  // Reset and confirm unknown
+  vb.deactivate();
+  vi.deactivate();
+  vd.deactivate();
+  vs.deactivate();
+
+  vb.reset();
+  vi.reset();
+  vd.reset();
+  vs.reset();
+
+  assertTrue_1(!vb.isKnown());
+  assertTrue_1(!vi.isKnown());
+  assertTrue_1(!vd.isKnown());
+  assertTrue_1(!vs.isKnown());
+
+  // Activate and check that initial value is restored
+  vb.activate();
+  vi.activate();
+  vd.activate();
+  vs.activate();
+
+  assertTrue_1(vb.isKnown());
+  assertTrue_1(vi.isKnown());
+  assertTrue_1(vd.isKnown());
+  assertTrue_1(vs.isKnown());
+
+  assertTrue_1(vb.getValue(foob));
+  assertTrue_1(foob == false);
+  assertTrue_1(vi.getValue(fooi));
+  assertTrue_1(fooi == 69);
+  assertTrue_1(vd.getValue(food));
+  assertTrue_1(food == 1.414);
+  assertTrue_1(vs.getValue(foos));
+  assertTrue_1(foos == std::string("yo"));
+
+  // Set values and check
+  vb.setValue(true);
+  vi.setValue((int32_t) 42);
+  vd.setValue(2.718);
+  vs.setValue(std::string("mama"));
+
+  assertTrue_1(vb.isKnown());
+  assertTrue_1(vi.isKnown());
+  assertTrue_1(vd.isKnown());
+  assertTrue_1(vs.isKnown());
+  assertTrue_1(vb.getValue(foob));
+  assertTrue_1(foob == true);
+  assertTrue_1(vi.getValue(fooi));
+  assertTrue_1(fooi == 42);
+  assertTrue_1(vd.getValue(food));
+  assertTrue_1(food == 2.718);
+  assertTrue_1(vs.getValue(foos));
+  assertTrue_1(foos == std::string("mama"));
+
   return true;
 }
 

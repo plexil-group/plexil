@@ -162,6 +162,14 @@ namespace PLEXIL {
      */
     virtual Assignable *getBaseVariable() = 0;
     virtual Assignable const *getBaseVariable() const = 0;
+
+    /**
+     * @brief Set the expression from which this object gets its initial value.
+     * @param expr Pointer to an Expression.
+     * @param garbage True if the expression should be deleted with this object, false otherwise.
+     * @note Default method gives an error.
+     */
+    virtual void setInitializer(Expression *expr, bool garbage);
   };
 
 } // namespace PLEXIL

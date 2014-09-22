@@ -160,4 +160,15 @@ namespace PLEXIL {
     return NULL;
   }
 
+  /**
+   * @brief Set the expression from which this object gets its initial value.
+   * @param expr Pointer to an Expression.
+   * @param garbage True if the expression should be deleted with this object, false otherwise.
+   * @note Default method.
+   */
+  void Assignable::setInitializer(Expression *expr, bool garbage)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setInitializer() called on object that doesn't have an initializer");
+  }
+
 } // namespace PLEXIL

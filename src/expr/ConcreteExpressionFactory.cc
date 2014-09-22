@@ -295,11 +295,13 @@ namespace PLEXIL
                                                       NodeConnector *node) const
   {
     bool garbage = false;
-    Expression *initexp = NULL;
+    Assignable *result = new UserVariable<T>(node, var->varName());
     PlexilExpr const *initval = var->value(); 
-    if (initval)
-      initexp = createExpression(initval, node, garbage);
-    return new UserVariable<T>(node, var->varName(), initexp, garbage);
+    if (initval) {
+      Expression *initexp = createExpression(initval, node, garbage);
+      result->setInitializer(initexp, garbage);
+    }
+    return static_cast<Expression *>(result);
   }
 
   //
@@ -343,10 +345,13 @@ namespace PLEXIL
     bool garbage = false;
     Expression *sizeexp = new IntegerConstant(var->maxSize());
     Expression *initexp = NULL;
+    Assignable *result = new ArrayVariable<T>(node, var->varName(), sizeexp, true);
     PlexilExpr const *initval = var->value(); 
-    if (initval)
-      initexp = createExpression(initval, node, garbage);
-    return new ArrayVariable<T>(node, var->varName(), sizeexp, initexp, true, garbage);
+    if (initval) {
+      Expression *initexp = createExpression(initval, node, garbage);
+      result->setInitializer(initexp, garbage);
+    }
+    return static_cast<Expression *>(result);
   }
 
   template <typename T>

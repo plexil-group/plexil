@@ -58,6 +58,8 @@ namespace PLEXIL
     return NULL;
   }
 
+  // N.B. Construction of initializer expression happens later.
+
   Expression *ArrayVariableFactory::allocate(pugi::xml_node const &expr,
                                             NodeConnector *node,
                                             bool &wasCreated) const
@@ -100,44 +102,19 @@ namespace PLEXIL
                                      "createExpression: MaxSize value " << sizeStr << " is not a non-negative integer");
     Expression *sizeExp = new Constant<int32_t>((int32_t) size);
 
-    pugi::xml_node initializerElt = sizeElt.next_sibling();
-    Expression *initializer = NULL;
-    bool initializerIsGarbage = false;
-    if (initializerElt) {
-      checkHasChildElement(initializerElt);
-      initializer = createExpression(initializerElt.first_child(),
-                                     node,
-                                     initializerIsGarbage);
-      checkParserExceptionWithLocation(initializer->valueType() == arrayType(typ),
-                                       initializerElt.first_child(),
-                                       "createExpression: Array variable initializer type differs from variable's");
-      // If constant (and it should be), check size
-      if (initializer->isConstant()) {
-        Array const *initval = NULL;
-        if (initializer->getValuePointer(initval))
-          checkParserExceptionWithLocation(initval->size() <= size,
-                                           initializerElt.first_child(),
-                                           "createExpression: Array variable initial value is larger than array");
-      }
-    }
-
     wasCreated = true;
     switch (typ) {
     case BOOLEAN_TYPE:
       return new BooleanArrayVariable(node,
                                       name,
                                       sizeExp,
-                                      initializer,
-                                      true,
-                                      initializerIsGarbage);
+                                      true);
 
     case INTEGER_TYPE:
       return new IntegerArrayVariable(node,
                                       name,
                                       sizeExp,
-                                      initializer,
-                                      true,
-                                      initializerIsGarbage);
+                                      true);
 
     case DATE_TYPE: // FIXME
     case DURATION_TYPE: // FIXME
@@ -145,17 +122,13 @@ namespace PLEXIL
       return new RealArrayVariable(node,
                                    name,
                                    sizeExp,
-                                   initializer,
-                                   true,
-                                   initializerIsGarbage);
+                                   true);
 
     case STRING_TYPE:
       return new StringArrayVariable(node,
                                      name,
                                      sizeExp,
-                                     initializer,
-                                     true,
-                                     initializerIsGarbage);
+                                     true);
 
     default:
       assertTrue_2(ALWAYS_FAIL,

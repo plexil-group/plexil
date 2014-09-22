@@ -65,9 +65,7 @@ namespace PLEXIL
     ArrayVariable(NodeConnector *node,
                   const std::string &name = "",
                   Expression *size = NULL,
-                  Expression *initializer = NULL,
-                  bool sizeIsGarbage = false,
-                  bool initializerIsGarbage = false);
+                  bool sizeIsGarbage = false);
 
     virtual ~ArrayVariable();
 
@@ -122,6 +120,13 @@ namespace PLEXIL
 
     Assignable *getBaseVariable();
     Assignable const *getBaseVariable() const;
+
+    /**
+     * @brief Set the expression from which this object gets its initial value.
+     * @param expr Pointer to an Expression.
+     * @param garbage True if the expression should be deleted with this object, false otherwise.
+     */
+    void setInitializer(Expression *expr, bool garbage);
 
     void handleActivate();
 

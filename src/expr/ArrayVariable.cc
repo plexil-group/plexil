@@ -67,21 +67,19 @@ namespace PLEXIL
   ArrayVariable<T>::ArrayVariable(NodeConnector *node,
                                   const std::string &name,
                                   Expression *size,
-                                  Expression *initializer,
-                                  bool sizeIsGarbage,
-                                  bool initializerIsGarbage)
+                                  bool sizeIsGarbage)
     : NotifierImpl(),
       ExpressionImpl<ArrayImpl<T> >(),
       AssignableImpl<ArrayImpl<T> >(),
       m_size(size),
-      m_initializer(initializer),
+      m_initializer(NULL),
       m_node(node),
       m_name(name),
       m_maxSize(0),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(sizeIsGarbage),
-      m_initializerIsGarbage(initializerIsGarbage)
+      m_initializerIsGarbage(false)
   {
   }
 
@@ -261,6 +259,21 @@ namespace PLEXIL
   Assignable const *ArrayVariable<T>::getBaseVariable() const
   {
     return Assignable::asAssignable();
+  }
+
+  template <typename T>
+  void ArrayVariable<T>::setInitializer(Expression *expr, bool garbage)
+  {
+    assertTrue_2(!m_initializer, "setInitializer() called on an array variable that already has an initializer");
+    assertTrue_2(expr->valueType() == this->valueType() || expr->valueType() == UNKNOWN_TYPE,
+                 "Array variable initializer type differs from variable's");
+    int32_t size;
+    ArrayImpl<T> const *temp;
+    if (m_size && m_size->getValue(size) && expr->getValuePointer(temp))
+      assertTrue_2(size >= temp->size(),
+                   "Array variable initial value is larger than declared array size");
+    m_initializer = expr;
+    m_initializerIsGarbage = garbage;
   }
 
   template <typename T>
