@@ -77,7 +77,7 @@ namespace PLEXIL
 
     // check for empty value
     if (typ != STRING_TYPE)
-      checkParserExceptionWithLocation(expr.first_child() && *(expr.first_child().value()),
+      checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
                                        expr,
                                        "Empty value is not valid for \"" << tag << "\"");
 
@@ -121,12 +121,12 @@ namespace PLEXIL
                                      "Internal error: Boolean constant factory invoked on \"" << tag << "\"");
 
     // check for empty value
-    checkParserExceptionWithLocation(expr.first_child() && *(expr.first_child().value()),
+    checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
                                      expr,
                                      "Empty value is not valid for \"" << tag << "\"");
 
     bool value;
-    bool known = parseValue(expr.first_child().value(), value);
+    bool known = parseValue(expr.child_value(), value);
     // if we got here, there was no parsing exception
     wasCreated = false;
     if (!known)
@@ -152,7 +152,7 @@ namespace PLEXIL
   Expression *ConcreteExpressionFactory<Constant<T> >::create(pugi::xml_node const &tmpl) const
   {
     T value;
-    bool known = parseValue<T>(tmpl.first_child().value(), value);
+    bool known = parseValue<T>(tmpl.child_value(), value);
     if (known)
       return new Constant<T>(value);
     else
@@ -176,7 +176,7 @@ namespace PLEXIL
                                      tmpl,
                                      "Internal error: Constant expression is not a String");
 
-    return new Constant<std::string>(tmpl.first_child().value());
+    return new Constant<std::string>(tmpl.child_value());
   }
 
   //
@@ -275,7 +275,7 @@ namespace PLEXIL
     checkParserExceptionWithLocation(node,
                                      expr,
                                      "Internal error: Variable reference with null node");
-    const char *varName = expr.first_child().value();
+    const char *varName = expr.child_value();
     Expression *result = node->findVariable(std::string(varName));
     checkParserExceptionWithLocation(result,
                                      expr,
@@ -416,7 +416,7 @@ namespace PLEXIL
                                      "ArrayElement Index is not an element");
 
     // Checks on array
-    const char *arrayName = nameXml.first_child().value();
+    const char *arrayName = nameXml.child_value();
     arrayExpr = node->findVariable(std::string(arrayName));
     checkParserExceptionWithLocation(arrayExpr,
                                      nameXml,
@@ -506,7 +506,7 @@ namespace PLEXIL
     checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                      expr,
                                      "Unknown variable reference type " << expr.name());
-    char const *varName = expr.first_child().value();
+    char const *varName = expr.child_value();
     // Look it up
     std::string const varRef(varName);
     Expression *result = node->findVariable(varRef);

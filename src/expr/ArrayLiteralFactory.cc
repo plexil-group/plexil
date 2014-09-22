@@ -78,7 +78,7 @@ namespace PLEXIL
 
       // Get array element value
       checkNotEmpty(thisElement);
-      const char* thisElementValue = thisElement.first_child().value();
+      const char* thisElementValue = thisElement.child_value();
       T temp;
       if (parseValue<T>(thisElementValue, temp)) // will throw if format error
         values.push_back(temp);
@@ -118,7 +118,7 @@ namespace PLEXIL
                                        thisElement,
                                        "Type mismatch: element " << thisElementTag
                                        << " in array value of type \"" << eltTypeName);
-      values.push_back(std::string(thisElement.first_child().value()));
+      values.push_back(std::string(thisElement.child_value()));
       thisElement = thisElement.next_sibling();
       ++i;
     }

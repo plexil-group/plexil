@@ -213,7 +213,7 @@ namespace PLEXIL
   {
     checkNotEmpty(expr);
     wasCreated = false;
-    switch (parseNodeState(expr.first_child().value())) {
+    switch (parseNodeState(expr.child_value())) {
     case INACTIVE_STATE:
       return INACTIVE_CONSTANT();
 
@@ -238,7 +238,7 @@ namespace PLEXIL
     default:
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        expr.first_child(),
-                                       "createExpression: Invalid NodeStateValue \"" << expr.first_child().value() << "\"");
+                                       "createExpression: Invalid NodeStateValue \"" << expr.child_value() << "\"");
       return NULL;
     }
   }
@@ -278,7 +278,7 @@ namespace PLEXIL
   {
     checkNotEmpty(expr);
     wasCreated = false;
-    switch (parseNodeOutcome(expr.first_child().value())) {
+    switch (parseNodeOutcome(expr.child_value())) {
     case SUCCESS_OUTCOME:
       return SUCCESS_CONSTANT();
 
@@ -294,7 +294,7 @@ namespace PLEXIL
     default:
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        expr.first_child(),
-                                       "createExpression: Invalid NodeOutcomeValue \"" << expr.first_child().value() << "\"");
+                                       "createExpression: Invalid NodeOutcomeValue \"" << expr.child_value() << "\"");
       return NULL;
     }
   }
@@ -340,7 +340,7 @@ namespace PLEXIL
   {
     checkNotEmpty(expr);
     wasCreated = false;
-    switch (parseFailureType(expr.first_child().value())) {
+    switch (parseFailureType(expr.child_value())) {
     case PRE_CONDITION_FAILED:
       return PRE_CONDITION_FAILED_CONSTANT();
 
@@ -362,7 +362,7 @@ namespace PLEXIL
     default:
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        expr.first_child(),
-                                       "createExpression: Invalid FailureTypeValue \"" << expr.first_child().value() << "\"");
+                                       "createExpression: Invalid FailureTypeValue \"" << expr.child_value() << "\"");
       return NULL;
     }
   }
@@ -408,7 +408,7 @@ namespace PLEXIL
   {
     checkNotEmpty(expr);
     wasCreated = false;
-    switch (parseCommandHandleValue(expr.first_child().value())) {
+    switch (parseCommandHandleValue(expr.child_value())) {
     case COMMAND_SENT_TO_SYSTEM:
       return COMMAND_SENT_TO_SYSTEM_CONSTANT();
 
@@ -430,7 +430,7 @@ namespace PLEXIL
     default:
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        expr.first_child(),
-                                       "createExpression: Invalid CommandHandleValue \"" << expr.first_child().value() << "\"");
+                                       "createExpression: Invalid CommandHandleValue \"" << expr.child_value() << "\"");
       return NULL;
     }
   }

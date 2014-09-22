@@ -68,17 +68,17 @@ namespace PLEXIL
     pugi::xml_node nameElt = expr.first_child();
     checkTag(NAME_TAG, nameElt);
     checkNotEmpty(nameElt);
-    std::string const name(nameElt.first_child().value());
+    std::string const name(nameElt.child_value());
 
     pugi::xml_node typeElt = nameElt.next_sibling();
     checkParserExceptionWithLocation(typeElt,
                                      expr,
                                      "createExpression: DeclareVariable missing Type element");
     checkTag(TYPE_TAG, typeElt);
-    ValueType typ = parseValueType(typeElt.first_child().value());
+    ValueType typ = parseValueType(typeElt.child_value());
     checkParserExceptionWithLocation(isScalarType(typ),
                                      typeElt,
-                                     "createExpression: Type " << typeElt.first_child().value()
+                                     "createExpression: Type " << typeElt.child_value()
                                      << " is invalid for DeclareVariable");
     pugi::xml_node sizeElt = typeElt.next_sibling();
     checkParserExceptionWithLocation(typeElt,
@@ -86,7 +86,7 @@ namespace PLEXIL
                                      "createExpression: DeclareArray missing MaxSize element");
     checkTag(MAX_SIZE_TAG, sizeElt);
     checkNotEmpty(sizeElt);
-    char const *sizeStr = sizeElt.first_child().value();
+    char const *sizeStr = sizeElt.child_value();
     // Syntactic check
     checkParserExceptionWithLocation(isInteger(sizeStr),
                                      sizeElt,
