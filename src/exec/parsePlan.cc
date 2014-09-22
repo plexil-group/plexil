@@ -146,7 +146,8 @@ namespace PLEXIL
                                          "Illegal element \"" << tag << "\" in Node");
         checkParserExceptionWithLocation(!id,
                                          temp, 
-                                         "Dupliicate " << tag << " element in Node");
+                                         "Duplicate " << tag << " element in Node");
+        checkNotEmpty(temp);
         id = temp;
         break;
 
@@ -160,14 +161,17 @@ namespace PLEXIL
         if (0 == strcmp(BODY_TAG, tag)) {
           checkParserExceptionWithLocation(!body,
                                            temp, 
-                                           "Dupliicate " << tag << " element in Node");
+                                           "Duplicate " << tag << " element in Node");
           body = temp;
           break;
         }
         else if (0 == strcmp(PRIORITY_TAG, tag)) {
           checkParserExceptionWithLocation(!prio,
                                            temp, 
-                                           "Dupliicate " << tag << " element in Node");
+                                           "Duplicate " << tag << " element in Node");
+          checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
+                                           temp,
+                                           "Only Assignment nodes may have a Priority");
           prio = temp;
           break;
         }
@@ -182,7 +186,7 @@ namespace PLEXIL
                                          "Illegal element \"" << tag << "\" in Node");
         checkParserExceptionWithLocation(!iface,
                                          temp, 
-                                         "Dupliicate " << tag << " element in Node");
+                                         "Duplicate " << tag << " element in Node");
         iface = temp;
         break;
 
@@ -231,7 +235,7 @@ namespace PLEXIL
                                          "Illegal element \"" << tag << "\" in Node");
         checkParserExceptionWithLocation(!varDecls,
                                          temp, 
-                                         "Dupliicate " << tag << " element in Node");
+                                         "Duplicate " << tag << " element in Node");
         varDecls = temp;
         break;
 
@@ -248,24 +252,86 @@ namespace PLEXIL
     checkParserExceptionWithLocation(id,
                                      xml,
                                      "Node has no " << NODEID_TAG << " element");
-    checkNotEmpty(id);
     char const *name = id.first_child().value();
 
-    // TODO: check for duplicate conditions (?)
+    // Superficial checks of node body before we construct node
+    if (nodeBody) {
+      checkParserExceptionWithLocation(nodeType != NodeType_Empty,
+                                       nodeBody,
+                                       "Empty Node \"" << name << "\" may not have a NodeBody element");
+      checkHasChildElement(nodeBody);
+      nodeBody = nodeBody.first_child(); // strip away NodeBody wrapper
+      char const *bodyName = nodeBody.name();
+      switch (nodeType) {
+      case NodeType_Assignment:
+        checkParserExceptionWithLocation(0 == strcmp(ASSIGNMENT_TAG, bodyName),
+                                         nodeBody,
+                                         "Assignment Node \"" << name << " missing Assignment body");
+        break;
+
+      case NodeType_Command:
+        checkParserExceptionWithLocation(0 == strcmp(COMMAND_TAG, bodyName),
+                                         nodeBody,
+                                         "Command Node \"" << name << " missing Command body");
+        break;
+
+      case NodeType_LibraryNodeCall:
+        checkParserExceptionWithLocation(0 == strcmp(LIBRARYNODECALL_TAG, bodyName),
+                                         nodeBody,
+                                         "LibraryNodeCall Node \"" << name << " missing LibraryNodeCall body");
+        break;
+
+      case NodeType_NodeList:
+        checkParserExceptionWithLocation(0 == strcmp(NODELIST_TAG, bodyName),
+                                         nodeBody,
+                                         "NodeList Node \"" << name << " missing NodeList body");
+        checkHasChildElement(nodeBody);
+        break;
+
+      case NodeType_Update:
+        checkParserExceptionWithLocation(0 == strcmp(UPDATE_TAG, bodyName),
+                                         nodeBody,
+                                         "Update Node \"" << name << " missing Update body");
+        break;
+
+      default: // appease compiler
+        break;
+      }
+    }
+    else {
+      checkParserExceptionWithLocation(nodeType == NodeType_Empty,
+                                       xml,
+                                       "Node \"" << name << "\" has no NodeBody element");
+    }
 
     Node *result = NodeFactory::createNode(nodeType, name, parent);
 
     try {
       // Populate local variables
+      // *** TODO: separate construction of variable from initializer,
+      // move construction of initializer to post-init phase in most cases
       if (varDecls)
         parseVariableDeclarations(node, varDecls);
 
       // Get interface variables
+      // *** TODO: separate alias linking from construction of default initializer,
+      // move construction of initializer to post-init phase in most cases
       if (iface)
         parseInterface(node, iface);
 
-      // TODO: Construct body for NodeList, LibraryNodeCall nodes
+      // Construct body for NodeList, LibraryNodeCall nodes
+      switch (nodeType) {
+      case NodeType_NodeList:
+        constructChildNodes(node, body);
+        break;
 
+      case NodeType_LibraryNodeCall:
+        // TODO
+        break;
+
+      default:
+        break;
+      }
     }
     catch (std::exception const & exc) {
       delete result;
@@ -275,17 +341,19 @@ namespace PLEXIL
   }
 
   // XML has already been checked for gross errors
-  // We only need to worry about conditions
+  // *** FIXME: make only one pass through XML ***
   static void postInitNode(Node *node, xml_node const &xml)
   {
-    // Do late parsing
+    // TODO: construct body for Assignment, Command, Update nodes
+
+    // *** TODO: move construction of variable and alias default initializers to here ***
+    // It is only here after all child nodes and node bodies have been constructed
+    // that all variables which could be referenced are accessible.
+
+    // Instantiate user conditions
     xml_node elt = xml.first_child();
     while (elt) {
-      if (testTag(NODEBODY_TAG, elt)) {
-        // TODO: construct body for Assignment, Command, Update nodes
-
-      }
-      else if (testTagSuffix(CONDITION_SUFFIX, elt)) {
+      if (testTagSuffix(CONDITION_SUFFIX, elt)) {
         checkHasChildElement(elt);
         // Check that condition name is valid, get index
         Node::ConditionIndex which = Node::getConditionIndex(std::string(elt.name()));
@@ -302,16 +370,26 @@ namespace PLEXIL
       }
       elt = elt.next_sibling();
     }
-    // else ignore
 
     // finalize conditions
     node->finalizeConditions();
 
-    // recurse on children (?)
+    // recurse on children
+    if (node->getType() == NodeType_NodeList || node->getType == NodeType_LibraryNodeCall) {
+      // TODO: step through XML for kids too
+      // FIXME: const issues
+      std::vector<Node *> const kids = node->getChildren();
+      for (std::vector<Node *>::iterator kid = kids.begin();
+           kid != kids.end();
+           ++kid) {
+        // TODO
+      }
+    }
   }
 
   static void postInitPlan(Node *node, xml_node const &xml)
   {
+    // TODO
   }
 
   Node *parsePlan(xml_node const &xml)
