@@ -73,7 +73,20 @@ namespace PLEXIL
       return NodeType_NodeList;
     }
 
-    virtual const std::vector<Node *>& getChildren() const { return m_children; }
+    virtual const std::vector<Node *>& getChildren() const
+    {
+      return m_children; 
+    }
+
+    /**
+     * @brief Add a child to this node.
+     * @param node The child.
+     * @note Intended for use by the plan parser and unit tests.
+     */
+    void addChild(Node *node)
+    {
+      m_children.push_back(node);
+    }
 
     /**
      * @brief Sets the state variable to the new state.
