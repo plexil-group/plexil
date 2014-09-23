@@ -30,19 +30,23 @@
 #include <cctype>
 #include <cstring>
 
+using pugi::node_element;
+using pugi::node_pcdata;
+using pugi::xml_node;
+
 namespace PLEXIL
 {
   //
   // Internal error checking/reporting utilities
   //
 
-  bool testTag(const char* t, const pugi::xml_node& e) {
-    return e.type() == pugi::node_element && 0 == strcmp(t, e.name());
+  bool testTag(const char* t, const xml_node& e) {
+    return e.type() == node_element && 0 == strcmp(t, e.name());
   }
 
-  bool testTagPrefix(const char* prefix, const pugi::xml_node& e)
+  bool testTagPrefix(const char* prefix, const xml_node& e)
   {
-    if (e.type() != pugi::node_element)
+    if (e.type() != node_element)
       return false;
     const char* valueStr = e.name();
     const size_t prefixLen = strlen(prefix);
@@ -52,9 +56,9 @@ namespace PLEXIL
     return 0 == strncmp(prefix, valueStr, prefixLen);
   }
 
-  bool testTagSuffix(const char* suffix, const pugi::xml_node& e)
+  bool testTagSuffix(const char* suffix, const xml_node& e)
   {
-    if (e.type() != pugi::node_element)
+    if (e.type() != node_element)
       return false;
     const char* valueStr = e.name();
     const size_t valueLen = strlen(valueStr);
@@ -64,24 +68,27 @@ namespace PLEXIL
     return 0 == strncmp(suffix, &(valueStr[valueLen - suffixLen]), suffixLen);
   }
 
-  bool hasChildElement(const pugi::xml_node& e) 
+  bool hasChildElement(const xml_node& e) 
   {
-    return e && e.first_child() && e.first_child().type() == pugi::node_element;
+    if (!e)
+      return false;
+    xml_node temp = e.first_child();
+    return temp && temp.type() == node_element;
   }
 
-  void checkTag(const char* t, const pugi::xml_node& e) {
+  void checkTag(const char* t, const xml_node& e) {
     checkParserExceptionWithLocation(testTag(t, e),
                                      e,
                                      "XML parsing error: Expected <" << t << "> element, but got <" << e.name() << "> instead.");
   }
 
-  void checkAttr(const char* t, const pugi::xml_node& e) {
-    checkParserExceptionWithLocation(e && e.type() == pugi::node_element && e.attribute(t),
+  void checkAttr(const char* t, const xml_node& e) {
+    checkParserExceptionWithLocation(e && e.type() == node_element && e.attribute(t),
                                      e,
                                      "XML parsing error: Expected an attribute named '" << t << "' in element <" << e.name() << ">");
   }
 
-  void checkTagSuffix(const char* t, const pugi::xml_node& e) 
+  void checkTagSuffix(const char* t, const xml_node& e) 
   {
     checkParserExceptionWithLocation(testTagSuffix(t, e),
                                      e,
@@ -89,16 +96,18 @@ namespace PLEXIL
   }
 
   // N.B. presumes e is not empty
-  void checkNotEmpty(const pugi::xml_node& e) {
-    checkParserExceptionWithLocation(e.first_child()
-                                     && e.first_child().type() == pugi::node_pcdata
-                                     && *(e.first_child().value()),
+  void checkNotEmpty(const xml_node& e) 
+  {
+    xml_node temp = e.first_child();
+    checkParserExceptionWithLocation(temp
+                                     && temp.type() == node_pcdata
+                                     && *(temp.value()),
                                      e,
                                      "XML parsing error: Expected a non-empty text child of <" << e.name() << ">");
   }
 
   // N.B. presumes e is not empty
-  void checkHasChildElement(const pugi::xml_node& e) {
+  void checkHasChildElement(const xml_node& e) {
     checkParserExceptionWithLocation(hasChildElement(e),
                                      e,
                                      "XML parsing error: Expected a child element of <" << e.name() << ">");
