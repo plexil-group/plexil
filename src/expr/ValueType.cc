@@ -319,6 +319,33 @@ namespace PLEXIL
     return (ValueType) (elTy + ARRAY_TYPE);
   }
 
+  bool areTypesCompatible(ValueType dest, ValueType src)
+  {
+    if (src == UNKNOWN_TYPE) // e.g. undeclared or computed lookups, commands
+      return true;
+
+    if (dest == src)
+      return true; // same type is always compatible
+
+    switch (dest) {
+      // Date and duration can receive real or integer
+    case DATE_TYPE:
+    case DURATION_TYPE:
+      return src == REAL_TYPE || src == INTEGER_TYPE;
+
+      // Real can receive integer, date, duration
+    case REAL_TYPE:
+      return src == INTEGER_TYPE || src == DATE_TYPE || src == DURATION_TYPE;
+
+      // Generic array can receive any array
+    case ARRAY_TYPE:
+      return isArrayType(src);
+
+    default: // unknown, unimplemented, or unsupported
+      return false;
+    }
+  }
+
   ValueType parseValueTypePrefix(char const *str, size_t prefixLen)
   {
     switch (prefixLen) {

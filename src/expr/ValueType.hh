@@ -96,8 +96,8 @@ namespace PLEXIL
 
   // Utility functions
   const std::string &valueTypeName(ValueType ty);
-  const std::string &typeNameAsValue(ValueType ty);
-  const std::string &typeNameAsVariable(ValueType ty);
+  const std::string &typeNameAsValue(ValueType ty);    // FIXME: still needed?
+  const std::string &typeNameAsVariable(ValueType ty); // FIXME: still needed?
 
   extern bool isUserType(ValueType ty);
   extern bool isInternalType(ValueType ty);
@@ -114,6 +114,9 @@ namespace PLEXIL
 
   extern ValueType parseValueType(const std::string &typeStr);
   extern ValueType parseValueType(char const *typeStr);
+
+  // Returns true if dest type can receive src type, false otherwise.
+  extern bool areTypesCompatible(ValueType dest, ValueType src);
 
   template <typename T>
   void printValue(ArrayImpl<T> const &val, std::ostream &s);
