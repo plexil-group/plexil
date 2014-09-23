@@ -335,12 +335,12 @@ namespace PLEXIL
     // read in the initiial values and parameters
     if (type.rfind("array") == std::string::npos) {
       // Not an array
-      return parseOneValue(type, resXml.first_child().value());
+      return parseOneValue(type, resXml.child_value());
     }
     else {
       std::vector<Value> values;
       while (!resXml.empty()) {
-        values.push_back(parseOneValue(type, resXml.first_child().value()));
+        values.push_back(parseOneValue(type, resXml.child_value()));
         resXml = resXml.next_sibling();
       }
       return Value(values);
@@ -363,7 +363,7 @@ namespace PLEXIL
                || strcmp(param.attribute("type").value(), "string") == 0,
                "Empty Param child in <" << param.parent().name() << "> element.");
     std::string type(param.attribute("type").value());
-    std::string val(param.first_child().value());
+    std::string val(param.child_value());
     if (val == "UNKNOWN") {
       // Create a typed unknown
       ValueType t = UNKNOWN_TYPE;
@@ -400,7 +400,7 @@ namespace PLEXIL
       return Value("");
     }
     else {
-      return Value(param.first_child().value());
+      return Value(param.child_value());
     }
   }
 
@@ -416,12 +416,12 @@ namespace PLEXIL
                "No <Value> element in <"  << stateXml.name() << "> element");
     if (type.rfind("array") == std::string::npos) {
       // Not an array
-      return parseOneValue(type, valXml.first_child().value());
+      return parseOneValue(type, valXml.child_value());
     }
     else {
       std::vector<Value> values;
       while (!valXml.empty()) {
-        values.push_back(parseOneValue(type, valXml.first_child().value()));
+        values.push_back(parseOneValue(type, valXml.child_value()));
         valXml = valXml.next_sibling();
       }
       return Value(values);
