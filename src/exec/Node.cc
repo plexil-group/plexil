@@ -287,13 +287,14 @@ namespace PLEXIL {
     logTransition(g_interface->currentTime(), (NodeState) m_state);
   }
 
-  void Node::addVariable(char const *name, Expression *var)
+  bool Node::addVariable(char const *name, Expression *var)
   {
     std::string const nameStr(name);
-    checkParserException(m_variablesByName.find(name) == m_variablesByName.end(),
-                         "Node \"" << m_nodeId << "\" already has a variable named \"" << name << "\"");
+    if (m_variablesByName.find(name) != m_variablesByName.end())
+      return false; // duplicate
     m_localVariables.push_back(var);
     m_variablesByName[nameStr] = var;
+    return true;
   }
 
   // *** TO BE DELETED ***
@@ -740,10 +741,16 @@ namespace PLEXIL {
     return getCondition(getConditionIndex(name));
   }
 
-  // Default method.
-  const std::vector<Node *>& Node::getChildren() const
+  // Default methods.
+  std::vector<Node *>& Node::getChildren()
   {
     static std::vector<Node *> sl_emptyNodeVec;
+    return sl_emptyNodeVec;
+  }
+
+  const std::vector<Node *>& Node::getChildren() const
+  {
+    static const std::vector<Node *> sl_emptyNodeVec;
     return sl_emptyNodeVec;
   }
 

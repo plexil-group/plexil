@@ -73,6 +73,11 @@ namespace PLEXIL
       return NodeType_NodeList;
     }
 
+    virtual std::vector<Node *>& getChildren()
+    {
+      return m_children;
+    }
+
     virtual const std::vector<Node *>& getChildren() const
     {
       return m_children; 

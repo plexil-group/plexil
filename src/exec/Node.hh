@@ -268,7 +268,7 @@ namespace PLEXIL {
     //Isaac - get local variables
     const std::vector<Expression *> & getLocalVariables() { return m_localVariables; }
 
-    //Isaac - get children
+    virtual std::vector<Node *>& getChildren();
     virtual const std::vector<Node *>& getChildren() const;
 
     /**
@@ -366,7 +366,8 @@ namespace PLEXIL {
     void activateInternalVariables();
 
     // Should be used only by plan parsers
-    void addVariable(char const *name, Expression *var);
+    // Returns true if successful, false if name is a duplicate
+    bool addVariable(char const *name, Expression *var);
     void addUserCondition(ConditionIndex which, Expression *cond, bool isGarbage);
     void finalizeConditions();
 
