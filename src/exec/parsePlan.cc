@@ -24,12 +24,20 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Assignable.hh"
+#include "Assignment.hh"
+#include "AssignmentNode.hh"
+#include "CommandNode.hh"
+#include "commandXmlParser.hh"
 #include "Expression.hh"
 #include "ExpressionFactory.hh"
-#include "Node.hh"
-#include "ParserException.hh"
+#include "ListNode.hh"
+#include "LibraryCallNode.hh"
+//#include "Node.hh" // redundant
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
+#include "UpdateNode.hh"
+#include "updateXmlParser.hh"
 
 #include "pugixml.hpp"
 
@@ -43,80 +51,77 @@ using pugi::node_pcdata;
 
 namespace PLEXIL
 {
-  static void parseGlobalDeclarations(pugi::xml_node declXml)
+  static void parseGlobalDeclarations(xml_node declXml)
   {
     // NYI
   }
 
-  static void parseVariableDeclarations(Node *node, pugi::xml_node decls)
+  static void parseVariableDeclarations(Node *node, xml_node decls)
   {
     xml_node decl = decls.first_child();
     while (decl) {
-      // TODO
+      checkHasChildElement(decl);
+      Expression *var = createExpression(decl, node);
+      checkParserExceptionWithLocation(node->addVariable(decl.child_value("Name"), var),
+                                       decl.child("Name"),
+                                       "Node " << node->getNodeId()
+                                       << ": Duplicate variable name "
+                                       << decl.child_value("Name"));
+      decl = decl.next_sibling();
     }
   }
 
-  static coid parseInterface(Node *node, pugi::xml_node iface)
+  // First pass parsing of In interfaces
+  static void parseIn(Node *node, xml_node inXml)
   {
     // TODO
   }
 
-  static void parseNodeBody(Node *node, pugi::xml_node bodyXml)
+  // First pass parsing of InOut interfaces
+  static void parseInOut(Node *node, xml_node inOutXml)
   {
-    PlexilNodeType typ = node->getType();
-    if (typ == NodeType_Empty) {
-      checkParserExceptionWithLocation(!bodyXml,
-                                       bodyXml,
-                                       "Empty node with a NodeBody element");
-      return;
-    }
+    // TODO
+  }
 
-    checkHasChildElement(bodyXml);
-    bodyXml = bodyXml.first_child(); // strip away NodeBody noise
-    char const *tag = bodyXml.name();
-
-    switch (typ) {
-    case NodeType_Assignment:
-      checkParserExceptionWithLocation(0 == strcmp(ASSIGNMENT_TAG, tag),
-                                       bodyXml,
-                                       "Invalid body element \"" << tag << "\" in Assignment node");
-      // TODO: more checks?
-      return;
-
-    case NodeType_Command:
-      checkParserExceptionWithLocation(0 == strcmp(COMMAND_TAG, tag),
-                                       bodyXml,
-                                       "Illegal body element \"" << tag << "\" in Command node");
-      // TODO: more checks?
-      return;
-
-    case NodeType_Update:
-      checkParserExceptionWithLocation(0 == strcmp(UPDATE_TAG, tag),
-                                       bodyXml,
-                                       "Illegal body element \"" << tag << "\" in Update node");
-      // TODO: more checks?
-      return;
-
-    case NodeType_List:
-      checkParserExceptionWithLocation(0 == strcmp(NODELIST_TAG, tag),
-                                       bodyXml,
-                                       "Illegal body element \"" << tag << "\" in NodeList node");
-      // TODO: Create children
-      return;
-
-    case NodeType_LibraryNodeCall:
-      checkParserExceptionWithLocation(0 == strcmp(LIBRARYNODECALL_TAG, tag),
-                                       bodyXml,
-                                       "Illegal body element \"" << tag << "\" in LibraryNodeCall node");
-      // TODO: Insert library expansion
-      return;
-
-    default:
-      assertTrue_2(ALWAYS_FAIL, "parseNodeBody: Internal error: Unknown node type");
+  // First pass
+  static void parseInterface(Node *node, xml_node iface)
+  {
+    xml_node elt = iface.first_child();
+    while (elt) {
+      if (0 == strcmp(IN_TAG, elt.name()))
+        parseIn(node, elt);
+      else if (0 == strcmp(INOUT_TAG, elt_name()))
+        parseInOut(node, elt);
+      else
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         elt,
+                                         "Node " << node->getNodeId()
+                                         << ": Illegal " << elt.name() << " element inside " << INTERFACE_TAG);
+      elt = elt.next_sibling();
     }
   }
 
-  static Node *parseNode(pugi::xml_node xml, Node *parent)
+  static Assignment *assignmentXmlParser(xml_node assn, Node *node)
+  {
+    checkHasChildElement(assn);
+    xml_node varXml = assn.first_child();
+    checkNotEmpty(varXml);
+    bool varGarbage, rhsGarbage;
+    Assignable *var = createAssignable(assn.first_child(), node, varGarbage);
+    xml_node rhsXml = varXml.next_sibling();
+    checkTagSuffix("RHS", rhsXml);
+    checkHasChildElement(rhsXml);
+    rhsXml = rhsXml.first_child();
+    bool rhsGarbage;
+    Expression *rhs = createExpression(rhsXml, node, rhsGarbage);
+    checkParserExceptionWithLocation(areTypesCompatible(var->valueType(), rhs->valueType()),
+                                     rhsXml,
+                                     "Assignment Node " << node->getNodeId()
+                                     << ": Expression type mismatch with assignment variable");
+    return new Assignment(var, rhs, varGarbage, rhsGarbage, node->getNodeId());
+  }
+
+  static Node *parseNode(xml_node xml, Node *parent)
   {
     xml_attribute const typeAttr = xml.attribute(NODETYPE_ATTR);
     checkParserExceptionWithLocation(typeAttr,
@@ -360,41 +365,19 @@ namespace PLEXIL
         break;
 
       case 9: // Interface
-        if (0 == strcmp(INTERFACE_TAG, tag))
-          iface = temp;
+        iface = temp;
         break;
 
       case 12: // EndCondition, PreCondition
-        if (0 == strcmp(END_CONDITION_TAG, tag)
-            || 0 == strcmp(PRE_CONDITION_TAG, tag))
-          conditions.push_back(temp);
-        break;
-
       case 13: // ExitCondition, PostCondition, SkipCondition
-        if (0 == strcmp(EXIT_CONDITION_TAG, tag)
-            || 0 == strcmp(POST_CONDITION_TAG, tag)
-            || 0 == strcmp(SKIP_CONDITION_TAG, tag))
-          conditions.push_back(temp);
-        break;
-
       case 14: // StartCondition
-        if (0 == strcmp(START_CONDITION_TAG, tag))
-          conditions.push_back(temp);
-        break;
-
       case 15: // RepeatCondition
-        if (0 == strcmp(REPEAT_CONDITION_TAG, tag))
-          conditions.push_back(temp);
-        break;
-
       case 18: // InvariantCondition
-        if (0 == strcmp(INVARIANT_CONDITION_TAG, tag))
-          conditions.push_back(temp);
+        conditions.push_back(temp);
         break;
 
       case 20: // VariableDeclarations
-        if (0 == strcmp(VAR_DECLS_TAG, tag))
-          varDecls = temp;
+        varDecls = temp;
         break;
 
       case 6: // NodeId
@@ -410,15 +393,15 @@ namespace PLEXIL
     if (body)
       switch (node->getType()) {
       case NodeType_Assignment:
-        parseAssignment(node, body);
+        ((AssignmentNode *)node)->setAssignment(assignmentXmlParser(body, node));
         break;
 
       case NodeType_Command:
-        parseCommand(node, body);
+        ((CommandNode *)node)->setCommand(commandXmlParser(body, node));
         break;
 
       case NodeType_Update:
-        parseUpdate(node, body);
+        ((UpdateNode *)node)->setUpdate(updateXmlParser(body, node));
         break;
 
       default: // ignore
@@ -438,11 +421,17 @@ namespace PLEXIL
           assertTrueMsg(var,
                         "postInitNode: Internal error: variable " << varName
                         << " not found in node " << node->getNodeId());
+          // FIXME: is this needed/possible?
           checkParserExceptionWithLocation(var->isAssignable(),
                                            initXml,
                                            "This variable may not take an initializer");
           bool garbage;
           Expression *init = createExpression(initXml, node, garbage);
+          checkParserExceptionWithLocation(areTypesCompatible(var->valueType(), init->valueType()),
+                                           initXml,
+                                           "Node " << node->getNodeId()
+                                           << ": Initialization type mismatch for variable "
+                                           << varName);
           var->asAssignable()->setInitializer(init, garbage);
         }
       }
@@ -478,12 +467,12 @@ namespace PLEXIL
 
     // recurse on children
     if (node->getType() == NodeType_NodeList || node->getType == NodeType_LibraryNodeCall) {
-      std::vector<Node *> const kids = node->getChildren();  // FIXME: const issues
-      for (std::vector<Node *>::iterator kid = kids.begin();
-           kid != kids.end();
-           ++kid) {
-        // TODO
-      }
+      std::vector<Node *> kids = node->getChildren();
+      for (std::vector<Node *>::iterator kid = kids.begin(),
+             xml_node kidXml = body.first_child();
+           kid != kids.end() && kidXml;
+           ++kid, kidXml = kidXml.next_sibling())
+        postInitNode(kid, kidXml);
     }
   }
 
@@ -506,4 +495,5 @@ namespace PLEXIL
     postInitNode(result, xml);
     return result;
   }
-}
+
+} // namespace PLEXIL
