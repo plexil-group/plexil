@@ -136,7 +136,9 @@ namespace PLEXIL
 
     xml_node temp = xml.first_child();
     while (temp) {
-      // TODO: check that temp is an element
+      checkParserExceptionWithLocation(temp.type() == node_element,
+                                       temp,
+                                       "Non-element found at top level of node");
       char const *tag = temp.name();
       size_t taglen = strlen(tag);
       switch (taglen) {
@@ -252,7 +254,7 @@ namespace PLEXIL
     checkParserExceptionWithLocation(id,
                                      xml,
                                      "Node has no " << NODEID_TAG << " element");
-    char const *name = id.first_child().value();
+    char const *name = id.child_value();
 
     // Superficial checks of node body before we construct node
     if (nodeBody) {
@@ -308,8 +310,6 @@ namespace PLEXIL
 
     try {
       // Populate local variables
-      // *** TODO: separate construction of variable from initializer,
-      // move construction of initializer to post-init phase in most cases
       if (varDecls)
         parseVariableDeclarations(node, varDecls);
 
@@ -341,34 +341,136 @@ namespace PLEXIL
   }
 
   // XML has already been checked for gross errors
-  // *** FIXME: make only one pass through XML ***
   static void postInitNode(Node *node, xml_node const &xml)
   {
-    // TODO: construct body for Assignment, Command, Update nodes
+    // Where to put the things we parse on the second pass
+    xml_node iface;
+    xml_node varDecls;
+    xml_node body;
+    std::vector<xml_node> conditions;
 
-    // *** TODO: move construction of variable and alias default initializers to here ***
+    xml_node temp = xml.first_child();
+    while (temp) {
+      char const *tag = temp.name();
+      size_t taglen = strlen(tag);
+      switch (taglen) {
+      case 8: // NodeBody, Priority
+        if (0 == strcmp(BODY_TAG, tag))
+          body = temp.first_child(); // strip off <NodeBody> element
+        break;
+
+      case 9: // Interface
+        if (0 == strcmp(INTERFACE_TAG, tag))
+          iface = temp;
+        break;
+
+      case 12: // EndCondition, PreCondition
+        if (0 == strcmp(END_CONDITION_TAG, tag)
+            || 0 == strcmp(PRE_CONDITION_TAG, tag))
+          conditions.push_back(temp);
+        break;
+
+      case 13: // ExitCondition, PostCondition, SkipCondition
+        if (0 == strcmp(EXIT_CONDITION_TAG, tag)
+            || 0 == strcmp(POST_CONDITION_TAG, tag)
+            || 0 == strcmp(SKIP_CONDITION_TAG, tag))
+          conditions.push_back(temp);
+        break;
+
+      case 14: // StartCondition
+        if (0 == strcmp(START_CONDITION_TAG, tag))
+          conditions.push_back(temp);
+        break;
+
+      case 15: // RepeatCondition
+        if (0 == strcmp(REPEAT_CONDITION_TAG, tag))
+          conditions.push_back(temp);
+        break;
+
+      case 18: // InvariantCondition
+        if (0 == strcmp(INVARIANT_CONDITION_TAG, tag))
+          conditions.push_back(temp);
+        break;
+
+      case 20: // VariableDeclarations
+        if (0 == strcmp(VAR_DECLS_TAG, tag))
+          varDecls = temp;
+        break;
+
+      case 6: // NodeId
+      case 7: // Comment
+      default:
+        break;
+      }
+
+      temp = temp.next_sibling();
+    }
+
+    // Construct body for Assignment, Command, Update nodes
+    if (body)
+      switch (node->getType()) {
+      case NodeType_Assignment:
+        parseAssignment(node, body);
+        break;
+
+      case NodeType_Command:
+        parseCommand(node, body);
+        break;
+
+      case NodeType_Update:
+        parseUpdate(node, body);
+        break;
+
+      default: // ignore
+        break;
+      }
+
+    // Construct variable initializers here
     // It is only here after all child nodes and node bodies have been constructed
     // that all variables which could be referenced are accessible.
+    if (varDecls) {
+      xml_node decl = varDecls.first_child();
+      while (decl) {
+        xml_node initXml = decl.child("InitialValue");
+        if (initXml) {
+          char const *varName = decl.child_value("Name");
+          Expression *var = node.findLocalVariable(std::string(varName));
+          assertTrueMsg(var,
+                        "postInitNode: Internal error: variable " << varName
+                        << " not found in node " << node->getNodeId());
+          checkParserExceptionWithLocation(var->isAssignable(),
+                                           initXml,
+                                           "This variable may not take an initializer");
+          bool garbage;
+          Expression *init = createExpression(initXml, node, garbage);
+          var->asAssignable()->setInitializer(init, garbage);
+        }
+      }
+    }
+
+    // TODO: Construct alias default initializers here, if required
+    if (iface) {
+      // TODO
+    }
 
     // Instantiate user conditions
-    xml_node elt = xml.first_child();
-    while (elt) {
-      if (testTagSuffix(CONDITION_SUFFIX, elt)) {
-        checkHasChildElement(elt);
-        // Check that condition name is valid, get index
-        Node::ConditionIndex which = Node::getConditionIndex(std::string(elt.name()));
-        checkParserExceptionWithLocation(which >= Node::skip_idx && which <= Node::repeatIdx,
-                                         "Node " << node->getNodeId()
-                                         << ": Illegal condition name \"" << elt.name() << "\"");
-        bool garbage;
-        Expression *cond = createExpression(elt.first_child(), node, garbage);
-        checkParserExceptionWithLocation(cond->valueType() == BOOLEAN_TYPE || cond->valueType() == UNKNOWN_TYPE,
-                                         cond.first_child(),
-                                         "Node " << node->getNodeId() << ": Expression for "
-                                         << elt.name() << " is not Boolean");
-        node->addUserCondition(which, cond, garbage);
-      }
-      elt = elt.next_sibling();
+    for (std::vector<xml_node>::const_iterator it = conditions.begin();
+         it != conditions.end();
+         ++it) {
+      xml_node elt = *it;
+      checkHasChildElement(elt);
+      // Check that condition name is valid, get index
+      Node::ConditionIndex which = Node::getConditionIndex(std::string(elt.name()));
+      checkParserExceptionWithLocation(which >= Node::skip_idx && which <= Node::repeatIdx,
+                                       "Node " << node->getNodeId()
+                                       << ": Illegal condition name \"" << elt.name() << "\"");
+      bool garbage;
+      Expression *cond = createExpression(elt.first_child(), node, garbage);
+      checkParserExceptionWithLocation(cond->valueType() == BOOLEAN_TYPE || cond->valueType() == UNKNOWN_TYPE,
+                                       cond.first_child(),
+                                       "Node " << node->getNodeId() << ": Expression for "
+                                       << elt.name() << " is not Boolean");
+      node->addUserCondition(which, cond, garbage);
     }
 
     // finalize conditions
@@ -376,20 +478,13 @@ namespace PLEXIL
 
     // recurse on children
     if (node->getType() == NodeType_NodeList || node->getType == NodeType_LibraryNodeCall) {
-      // TODO: step through XML for kids too
-      // FIXME: const issues
-      std::vector<Node *> const kids = node->getChildren();
+      std::vector<Node *> const kids = node->getChildren();  // FIXME: const issues
       for (std::vector<Node *>::iterator kid = kids.begin();
            kid != kids.end();
            ++kid) {
         // TODO
       }
     }
-  }
-
-  static void postInitPlan(Node *node, xml_node const &xml)
-  {
-    // TODO
   }
 
   Node *parsePlan(xml_node const &xml)
@@ -408,7 +503,7 @@ namespace PLEXIL
 
     checkTag(NODE_TAG, elt);
     Node *result = parseNode(xml, NULL);
-    postInitPlan(result, xml);
+    postInitNode(result, xml);
     return result;
   }
 }
