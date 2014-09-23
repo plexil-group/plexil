@@ -64,7 +64,7 @@ namespace PLEXIL
     }
 
     checkNotEmpty(nodeRef);
-    const char *name = nodeRef.first_child().value();
+    const char *name = nodeRef.child_value();
     if (0 == strcmp(dirValue, CHILD_VAL)) {
       result = node->findChild(std::string(name));
       checkParserExceptionWithLocation(result,
@@ -110,7 +110,7 @@ namespace PLEXIL
   {
     // search for node ID
     checkNotEmpty(nodeRef);
-    std::string const nameStr(nodeRef.first_child().value());
+    std::string const nameStr(nodeRef.child_value());
     Node *result = findLocalNodeId(nameStr, node);
     if (result)
       return result;
@@ -362,18 +362,18 @@ namespace PLEXIL
                                        expr,
                                        "createExpression: NodeTimepointValue has no NodeStateValue element");
       checkNotEmpty(stateName);
-      NodeState state = parseNodeState(stateName.first_child().value());
+      NodeState state = parseNodeState(stateName.child_value());
       checkParserExceptionWithLocation(state != NO_NODE_STATE,
                                        stateName,
                                        "createExpression: Invalid NodeStateValue \""
-                                       << stateName.first_child().value()
+                                       << stateName.child_value()
                                        << "\"");
       pugi::xml_node which = stateName.next_sibling();
       checkParserExceptionWithLocation(which && testTag(TIMEPOINT_TAG, which),
                                        expr,
                                        "createExpression: NodeTimepointValue has no Timepoint element");
       checkNotEmpty(which);
-      char const *whichStr = which.first_child().value();
+      char const *whichStr = which.child_value();
       bool isEnd;
       if (0 == strcmp(START_VAL, whichStr))
         isEnd = false;
