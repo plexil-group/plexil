@@ -37,8 +37,23 @@ using pugi::xml_node;
 namespace PLEXIL
 {
   //
-  // Internal error checking/reporting utilities
+  // Internal parsing utilities
   //
+
+  bool testPrefix(char const *prefix, char const *str)
+  {
+    return 0 == strncmp(prefix, str, strlen(prefix));
+  }
+
+  bool testSuffix(char const* suffix, char const *str)
+  {
+    size_t const valueLen = strlen(str);
+    size_t const suffixLen = strlen(suffix);
+    int offset = valueLen - suffixLen;
+    if (offset < 0)
+      return false;
+    return 0 == strncmp(suffix, &(str[offset]), suffixLen);
+  }
 
   bool testTag(const char* t, const xml_node& e) {
     return e.type() == node_element && 0 == strcmp(t, e.name());
@@ -48,24 +63,14 @@ namespace PLEXIL
   {
     if (e.type() != node_element)
       return false;
-    const char* valueStr = e.name();
-    const size_t prefixLen = strlen(prefix);
-    // I don't believe this is really an optimization.
-    // if (strlen(valueStr) < prefixLen)
-    //   return false;
-    return 0 == strncmp(prefix, valueStr, prefixLen);
+    return testPrefix(prefix, e.name());
   }
 
   bool testTagSuffix(const char* suffix, const xml_node& e)
   {
     if (e.type() != node_element)
       return false;
-    const char* valueStr = e.name();
-    const size_t valueLen = strlen(valueStr);
-    const size_t suffixLen = strlen(suffix);
-    if (valueLen < suffixLen)
-      return false;
-    return 0 == strncmp(suffix, &(valueStr[valueLen - suffixLen]), suffixLen);
+    return testSuffix(suffix, e.name());
   }
 
   bool hasChildElement(const xml_node& e) 

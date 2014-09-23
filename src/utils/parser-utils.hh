@@ -38,6 +38,8 @@ namespace pugi
 
 namespace PLEXIL
 {
+  extern bool testPrefix(char const *prefix, char const *str);
+  extern bool testSuffix(char const *suffix, char const *str);
   extern bool testTag(const char* t, const pugi::xml_node& e);
   extern bool testTagPrefix(const char* prefix, const pugi::xml_node& e);
   extern bool testTagSuffix(const char* suffix, const pugi::xml_node& e);
