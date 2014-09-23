@@ -151,6 +151,12 @@ namespace PLEXIL {
      */
     virtual Expression *findVariable(const std::string& name, bool recursive = false);
 
+    /**
+     * @brief Find the named variable in this node's declared variables.
+     * @note Used by plan parser.
+     */
+    Expression *findLocalVariable(std::string const &name);
+
     Node *findNodeRef(PlexilNodeRef const *nodeRef);
 
     // create conditions, assignments, and commands.

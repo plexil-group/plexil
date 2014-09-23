@@ -1687,6 +1687,20 @@ namespace PLEXIL {
     return findVariable(ref->varName());
   }
 
+  Expression *Node::findLocalVariable(std::string const &name)
+  {
+    VariableMap::const_iterator it = m_variablesByName.find(name);
+    if (it != m_variablesByName.end()) {
+      debugMsg("Node:findLocalVariable",
+               " " << m_nodeId << " Returning " << it->second->toString());
+      return it ->second;
+    }
+    else {
+      debugMsg("Node:findLocalVariable", " " << m_nodeId << " " << name << " not found");
+      return NULL;
+    }
+  }
+
   Node *Node::findNodeRef(PlexilNodeRef const *nodeRef)
   {
     if (!nodeRef)
