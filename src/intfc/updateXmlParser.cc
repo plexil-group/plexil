@@ -50,7 +50,7 @@ namespace PLEXIL
       checkTag(PAIR_TAG, pr);
       checkTag(NAME_TAG, pr.first_child());
       checkNotEmpty(pr.first_child());
-      std::string pairName(pr.first_child().first_child().value());
+      std::string pairName(pr.first_child().child_value());
       checkParserExceptionWithLocation(pairs.find(pairName) == pairs.end(),
                                        pr,
                                        "Duplicate pairs with name \"" << pairName << "\"")
