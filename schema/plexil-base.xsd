@@ -481,7 +481,6 @@ element.  It is used as an included schema only.
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element ref="NodeId"/>
-        <xsd:element name="RenameNodeId" type="xsd:NCName" minOccurs="0"/>
         <xsd:element ref="Alias" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
       <xsd:attributeGroup ref="SourceLocators"/>
