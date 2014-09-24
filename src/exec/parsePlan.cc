@@ -71,13 +71,80 @@ namespace PLEXIL
     }
   }
 
-  // First pass parsing of In interfaces
-  static void parseIn(Node *node, xml_node inXml)
+  // For Interface specs; may have other uses.
+  static ValueType getVarDeclType(xml_node decl)
   {
-    // TODO
+    xml_node typeElt = decl.child(TYPE_TAG);
+    checkParserExceptionWithLocation(typeElt,
+                                     decl,
+                                     "Variable declaration lacks " << TYPE_TAG << " element");
+    checkNotEmpty(typeElt);
+    ValueType typ = parseValueType(typeElt.child_value());
+    checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+                                     typeElt,
+                                     "Unknown variable type name " << typeElt.child_value());
+    checkParserExceptionWithLocation(isScalarType(typ),
+                                     typeElt,
+                                     "Invalid type name " << typeElt.child_value() << " for " << decl.name());
+    if (testTag(DECL_ARRAY_TAG, decl))
+      typ = arrayType(typ);
+    else 
+      checkParserExceptionWithLocation(testTag(DECL_VAR_TAG, decl),
+                                       decl,
+                                       "Only " << DECL_VAR_TAG << " and " << DECL_ARRAY_TAG << " are valid in this context");
+    return typ;
   }
 
-  // First pass parsing of InOut interfaces
+  static Expression *getInterfaceVar(Node *node, char const *name)
+  {
+    assertTrue_1(node && name);
+    Node *parent = node->getParent();
+    if (!parent)
+      return NULL;
+    if (parent->getType() == NodeType_LibraryNodeCall) {
+      // TODO
+    }
+    return parent->findVariable(std::string(name));
+  }
+
+  static char const *getVarDeclName(xml_node decl)
+  {
+    checkHasChildElement(inXml);
+    xml_node nameXml = inXml.first_child();
+    checkTag(NAME_TAG, nameXml);
+    char const *name = nameXml.child_value();
+    checkParserExceptionWithLocation(*name,
+                                     nameXml,
+                                     "Empty " << NAME_TAG << " element in " << inXml.name());
+    return name;
+  }
+
+  // First pass parsing of one In interface
+  // Default values are ignored in this pass
+  static void parseIn(Node *node, xml_node inXml, bool parentIsLibCall)
+  {
+    char const *name = getVarDeclName(inXml);
+    ValueType declType = getVarDeclType(inXml);
+    Expression *var = getInterfaceVar(node, name);
+    if (!var) {
+      if (parentIsLibCall) {
+        // TODO
+      }
+      else {
+        // TODO
+      }
+    }
+    if (expr->isAssignable() && !parentIsLibCall) {
+      expr = new Alias(static_cast<NodeConnector *>(node), std::string(name), expr, false);
+      checkParserExceptionWithLocation(node->addVariable(name, expr),
+                                       inXml.child(NAME_TAG),
+                                       "Variable name " << name << " is already in use");
+    }
+    // else already properly accessible
+  }
+
+  // First pass parsing of one InOut interface
+  // Default values are ignored in this pass
   static void parseInOut(Node *node, xml_node inOutXml)
   {
     // TODO
@@ -88,10 +155,20 @@ namespace PLEXIL
   {
     xml_node elt = iface.first_child();
     while (elt) {
-      if (0 == strcmp(IN_TAG, elt.name()))
-        parseIn(node, elt);
-      else if (0 == strcmp(INOUT_TAG, elt_name()))
-        parseInOut(node, elt);
+      if (0 == strcmp(IN_TAG, elt.name())) {
+        xml_node decl = elt.first_child();
+        while (decl) {
+          parseIn(node, decl);
+          decl = decl.next_sibling();
+        }
+      }
+      else if (0 == strcmp(INOUT_TAG, elt_name())) {
+        xml_node decl = elt.first_child();
+        while (decl) {
+          parseInOut(node, decl);
+          decl = decl.next_sibling();
+        }
+      }
       else
         checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          elt,
