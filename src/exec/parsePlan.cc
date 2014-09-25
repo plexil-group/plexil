@@ -121,74 +121,67 @@ namespace PLEXIL
     return name;
   }
 
-  // First pass checking of one In or InOut interface in a library call
-  static void checkInterfaceDecl(Node *node, xml_node inXml)
-    throw (ParserException)
-  {
-    getVarDeclName(inXml); // for effect
-    getVarDeclType(inXml); // for effect
-  }
+  //
+  // N.B. There is a limited amount of checking we can do on interface variables in the first pass.
+  // LibraryNodeCall aliases can't be expanded because some of the variables they can reference
+  // (e.g. child node internal vars) may not exist yet. Same with default values.
+  //
+  // We do know which variables or aliases have been declared above us, so those references can 
+  // be name-checked.
+  //
 
-  // First pass parsing of one In interface
-  // Default values are ignored in this pass
-  static void parseInDecl(Node *node, xml_node inXml)
+  // First pass checking of one In interface variable
+  static void checkInDecl(Node *node, xml_node inXml, bool isCall)
     throw (ParserException)
   {
     char const *name = getVarDeclName(inXml);
+    checkParserExceptionWithLocation(!node->findLocalVariable(std::string(name)),
+                                     inXml,
+                                     "In interface variable " << name
+                                     << " shadows another variable of same name in this node");
     getVarDeclType(inXml); // for effect
-    Expression *var = getInterfaceVar(node, name);
-    if (var) {
-      if (var->isAssignable()) {
-        checkParserExceptionWithLocation(!node->findLocalVariable(std::string(name)),
-                                         inXml,
-                                         "In declaration: Variable name " << name << " is already defined in this node");
-        var = new Alias(static_cast<NodeConnector *>(node), std::string(name), expr, false);
-        assertTrueMsg(node->addVariable(name, var),
-                      "Internal error adding alias for In variable " << name);
-      }
-    }
-    else { // no such var and not a library call
-      checkParserExceptionWithLocation(!inXml.child(INITIALVAL_TAG),
-                                       inXml,
-                                       "In declaration: No variable named " << name
-                                       << " accessible, and declaration has no InitialValue");
-      // Initial value available - create a variable for it
-      bool dummy;
-      var = (Expression *)createAssignable(inXml, node, dummy);
-      assertTrueMsg(node->addVariable(name, var),
-                    "Internal error adding defaulted In variable " << name);
-    }
+    bool found = false;
+    if (isCall)
+      found = ((LibraryCallNode *)parent)->hasAlias(name);
+    else
+      found = getInterfaceVar(node, name);
+    checkParserExceptionWithLocation(found || inXml.child(INITIALVAL_TAG),
+                                     inXml,
+                                     "No In interface variable named " << name
+                                     << " is accessible, and declaration has no InitialValue");
   }
 
-  // First pass parsing of one InOut interface
-  // Default values are ignored in this pass
-  static void parseInOutDecl(Node *node, xml_node inOutXml)
+  // First pass checking of one InOut interface
+  static void checkInOutDecl(Node *node, xml_node inOutXml, bool isCall)
     throw (ParserException)
   {
-    char const *name = getVarDeclName(inOutXml);
+    std::string const name(getVarDeclName(inOutXml));
+    checkParserExceptionWithLocation(!node->findLocalVariable(name),
+                                     inXml,
+                                     "InOut interface variable " << name
+                                     << " shadows another variable of same name in this node");
     getVarDeclType(inOutXml); // for effect
-    Expression *var = getInterfaceVar(node, name);
-    if (parentIsLibCall) {
-      // TODO: Get corresponding alias from caller
+
+    // N.B. If a call, we can only tell if alias name exists. 
+    // We cannot yet determine whether the alias is assignable, or its type.
+    bool found = false;
+    if (isCall) {
+      found = node->getParent()->hasAlias(name);
     }
-    else if (var) {
-      checkParserExceptionWithLocation(var->isAssignable(),
-                                       inOutXml,
-                                       "InOut declaration: Variable " << name << " is read-only");
+    else {
+      Expression *var = getInterfaceVar(node, name);
+      found = var;
+      if (var) {
+        checkParserExceptionWithLocation(var->isAssignable(),
+                                         inOutXml,
+                                         "InOut interface variable " << name << " is read-only");
+      }
     }
-    else { // no such var and not a library call
-      checkParserExceptionWithLocation(!inOutXml.child(INITIALVAL_TAG),
-                                       inOutXml,
-                                       "InOut declaration: No variable named " << name
-                                       << " accessible, and declaration has no InitialValue");
-      // Initial value available - create a variable for it
-      bool dummy;
-      var = (Expression *)createAssignable(inOutXml,
-                                           static_cast<NodeConnector *>(node),
-                                           dummy);
-      assertTrueMsg(node->addVariable(name, var),
-                    "Internal error adding defaulted InOut variable " << name);
-    }
+
+    checkParserExceptionWithLocation(found || inOutXml.child(INITIALVAL_TAG),
+                                     inOutXml,
+                                     "No InOut interface variable named " << name
+                                     << " is accessible, and declaration has no InitialValue");
   }
 
   // First pass
@@ -204,20 +197,14 @@ namespace PLEXIL
       if (0 == strcmp(IN_TAG, elt.name())) {
         xml_node decl = elt.first_child();
         while (decl) {
-          if (isCall)
-            checkInterfaceDecl(node, decl);
-          else
-            parseInDecl(node, decl);
+          checkInDecl(node, decl, isCall);
           decl = decl.next_sibling();
         }
       }
       else if (0 == strcmp(INOUT_TAG, elt_name())) {
         xml_node decl = elt.first_child();
         while (decl) {
-          if (isCall)
-            checkInterfaceDecl(node, decl);
-          else
-            parseInOutDecl(node, decl);
+          checkInOutDecl(node, decl, isCall);
           decl = decl.next_sibling();
         }
       }
@@ -500,22 +487,33 @@ namespace PLEXIL
       if (varDecls)
         parseVariableDeclarations(node, varDecls);
 
-      // Get interface variables
-      // *** TODO: construct defaulted initial values in post-init phase
+      // Check interface variables
       if (iface)
         parseInterface(node, iface);
 
-      // Construct body for NodeList, LibraryNodeCall nodes
+      // Construct body including all associated variables
       switch (nodeType) {
-      case NodeType_NodeList:
-        constructChildNodes(node, body);
+      case NodeType_Assignment:
+        constructAssignment(node, body);
+        break;
+
+      case NodeType_Command:
+        constructCommand(node, body);
         break;
 
       case NodeType_LibraryNodeCall:
         constructLibraryCall(node, body);
         break;
 
+      case NodeType_NodeList:
+        constructChildNodes(node, body);
+        break;
+
+      case NodeType_Update:
+        constructUpdate(node, body);
+
       default:
+        assertTrue_2(ALWAYS_FAIL, "Internal error: bad node type");
         break;
       }
     }
@@ -533,24 +531,28 @@ namespace PLEXIL
   // Finish populating the node and its children.
   // 
 
-  static void linkAndInitializeInVar(Node *node, xml_node inXml, bool isCall)
+  static void linkInVar(Node *node, xml_node inXml, bool isCall)
     throw (ParserException)
   {
     std::string const name(getVarDeclName(inXml));
+    // Find the variable, if it exists
+    // If a library call, should be in caller's alias list.
+    // If not, should have been declared by an ancestor.
+    // We checked for local name conflicts on the first pass.
+    Expression *exp = node->findVariable();
     ValueType typ = getVarDeclType(inXml);
-    Expression *exp = NULL;
-    Node *parent = node->getParent();
-    if (isCall) {
-      assertTrue_2(parent, "Internal error: Library node has no parent?!")
-      exp = parent->findVariable(name, true);
-    }
-    else {
-      // Parent may not exist
-      if (parent)
-        exp = parent->findVariable(name);
-    }
     if (exp) {
-      // TODO
+      checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
+                                       inXml,
+                                       "In interface variable " << name
+                                       << ": Type " << valueTypeName(typ)
+                                       << " expected, but expression of type "
+                                       << valueTypeName(exp->valueType()) << " was provided");
+      if (exp->isAssignable()) 
+        // Construct read-only alias.
+        // Ancestor owns the aliased expression, so we can't delete it.
+        assertTrue_1(node->addLocalVariable(name, new Alias(node, name, exp, false)));
+      // else nothing to do
     }
     else {
       // No such variable/alias - use default initial value
@@ -565,24 +567,50 @@ namespace PLEXIL
                                        "In variable " << name
                                        << " has default InitialValue of incompatible type "
                                        << valueTypeName(initExp->valueType()));
-      if (isCall) {
-        // Variable hasn't been created yet
-        bool dummy;
-        var = createAssignable(inXml, node, dummy);
-      }
-      else {
-        // Variable created in first pass
-        var = node->findLocalVariable(name);
-      assertTrue_2(var, "Internal error: dummy variable for missing In variable not found");
-      var->setInitializer(initExp, garbage);
-      exp = (Expression *) var;
+      assertTrue_1(node->addLocalVariable(name, new Alias(node, name, exp, garbage)));
     }
-    
   }
 
-  static void linkAndInitializeInOutVar(Node *node, xml_node inOutXml, bool isCall)
+  static void linkInOutVar(Node *node, xml_node inOutXml, bool isCall)
     throw (ParserException)
   {
+    std::string const name(getVarDeclName(inOutXml));
+    ValueType typ = getVarDeclType(inOutXml);
+    // Find the variable, if it exists
+    // If a library call, should be in caller's alias list.
+    // If not, should have been declared by an ancestor.
+    // We checked for local name conflicts on the first pass.
+    Expression *exp = node->findVariable();
+    if (exp) {
+      checkParserExceptionWithlocation(exp->isAssignable(),
+                                       inOutXml,
+                                       "InOut interface variable " << name
+                                       << " is read-only");
+      checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
+                                       inOutXml,
+                                       "InOut interface variable " << name
+                                       << ": Type " << valueTypeName(typ)
+                                       << " expected, but expression of type "
+                                       << valueTypeName(exp->valueType()) << " was provided");
+    }
+    else {
+      // No such variable/alias - use default initial value
+      xml_node initXml = inOutXml.child(INITIALVAL_TAG);
+      checkParserExceptionWithLocation(initXml,
+                                       inOutXml,
+                                       "InOut variable " << name << " not found and no default InitialValue provided");
+      bool garbage;
+      Expression *initExp = createExpression(initXml, node, garbage);
+      checkParserExceptionWithLocation(areTypesCompatible(typ, initExp->valueType()),
+                                       initXml,
+                                       "InOut variable " << name
+                                       << " has default InitialValue of incompatible type "
+                                       << valueTypeName(initExp->valueType()));
+      bool dummy;
+      Assignable var = createAssignable(inOutXml, node, dummy);
+      assertTrue_1(node->addLocalVariable(name, var));
+      var->setInitializer(initExp, garbage);
+    }
   }
 
   static void linkAndInitializeInterfaceVars(Node *node, xml_node iface)
@@ -594,9 +622,9 @@ namespace PLEXIL
     while (temp) {
       checkHasChildElement(temp);
       if (0 == strcmp(IN_TAG, temp.name()))
-        linkAndInitializeInVar(node, temp, isCall);
+        linkInVar(node, temp, isCall);
       else if (0 == strcmp(INOUT_TAG, temp.name()))
-        linkAndInitializeInOutVar(node, temp, isCall);
+        linkInOutVar(node, temp, isCall);
       else
         assertTrueMsg(ALWAYS_FAIL,
                       "Internal error: Found " << temp.name() << " element in Interface during second pass");
