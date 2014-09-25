@@ -55,12 +55,16 @@ namespace PLEXIL
     friend class CommandHandleVariable;
 
   public:
+    // *** TO BE DELETED ***
     Command(Expression *nameExpr, 
             std::vector<Expression *> const &args, 
             std::vector<Expression *> const &garbage,
             Assignable *dest,
             ResourceList const &resource,
             std::string const &nodeName);
+    // New version
+    Command(std::string const &nodeName,
+            ResourceList const &resource);
     ~Command();
 
     Expression *getDest();
@@ -72,6 +76,11 @@ namespace PLEXIL
     const ResourceValuesList &getResourceValues() const;
     CommandHandleValue getCommandHandle() const {return (CommandHandleValue) m_commandHandle;}
     bool isActive() const { return m_active; }
+
+    // Interface to plan parser
+    void setDestination(Assignable *dest, bool isGarbage);
+    void setNameExpr(Expression *nameExpr, bool isGarbage);
+    void addArgument(Expression *arg, bool isGarbage);
 
     // Interface to CommandNode
     void activate();

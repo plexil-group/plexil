@@ -44,7 +44,6 @@ namespace PLEXIL
       m_name(name),
       m_garbage(garbage)
   {
-    assertTrue_2(original, "Alias constructor: Null expression");
     m_exp->addListener(this);
   }
 
@@ -53,6 +52,22 @@ namespace PLEXIL
     m_exp->removeListener(this);
     if (m_garbage)
       delete m_exp;
+  }
+
+  /**
+   * @brief Set the expression to which the Alias points.
+   * @param exp The target expression.
+   * @param garbage Whether the expression should be deleted with the Alias.
+   * @return False if the Alias already has a target expression, true otherwise.
+   */
+  bool Alias::setTarget(Expression *exp, bool garbage)
+  {
+    assertTrue_1(exp);
+    if (m_exp)
+      return false;
+    m_exp = exp;
+    m_garbage = garbage;
+    return true;
   }
 
   const char *Alias::exprName() const
@@ -182,9 +197,9 @@ namespace PLEXIL
       return m_exp->toValue();
   }
 
-  // No-op because the variable should already be active.
   void Alias::handleActivate()
   {
+    assertTrue_1(m_exp);
   }
 
   void Alias::handleDeactivate()
@@ -201,14 +216,30 @@ namespace PLEXIL
                          bool garbage)
     : Alias(node, name, original, garbage),
       Assignable(),
-      m_target(original->asAssignable())
+      m_target(NULL)
   {
-    assertTrue_2(original->isAssignable(),
-                 "InOutAlias constructor: target expression is not assignable");
+    if (original && original->isAssignable())
+      m_target = original->asAssignable();
   }
 
   InOutAlias::~InOutAlias()
   {
+  }
+
+  /**
+   * @brief Set the expression to which the InOutAlias points.
+   * @param exp The target expression.
+   * @param garbage Whether the expression should be deleted with the Alias.
+   * @return False if the InOutAlias already has a target expression or the new target is not
+   *         assignable, true otherwise.
+   */
+  bool InOutAlias::setTarget(Expression *exp, bool garbage)
+  {
+    if (!Alias::setTarget(exp, garbage))
+      return false;
+    if (exp->isAssignable())
+      m_target = exp->asAssignable();
+    return true;
   }
 
   const char *InOutAlias::exprName() const
@@ -218,7 +249,8 @@ namespace PLEXIL
   
   bool InOutAlias::isAssignable() const
   {
-    return m_target->isAssignable();
+    assertTrue_2(m_exp, "InOutAlias: isAssignable when no expression");
+    return m_exp->isAssignable();
   }
 
   void InOutAlias::reset()
@@ -229,119 +261,132 @@ namespace PLEXIL
   void InOutAlias::setUnknown()
   {
     assertTrue_2(isActive(), "InOutAlias: setUnknown while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setUnknown with read-only target");
     m_target->setUnknown();
   }
 
   void InOutAlias::setValue(const double &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(val);
   }
 
   void InOutAlias::setValue(const int32_t &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(val);
   }
 
   void InOutAlias::setValue(const uint16_t &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(val);
   }
 
   void InOutAlias::setValue(const bool &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(val);
   }
 
   void InOutAlias::setValue(const std::string &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(val);
   }
 
   void InOutAlias::setValue(const char *val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(val);
   }
 
   void InOutAlias::setValue(BooleanArray const &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(val);
   }
 
   void InOutAlias::setValue(IntegerArray const &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(val);
   }
 
   void InOutAlias::setValue(RealArray const &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(val);
   }
 
   void InOutAlias::setValue(StringArray const &val)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(val);
   }
 
   void InOutAlias::setValue(Expression const *valex)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(valex);
   }
 
   void InOutAlias::setValue(Value const &value)
   {
     assertTrue_2(isActive(), "InOutAlias: setValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: setValue with read-only target");
     m_target->setValue(value);
   }
 
   bool InOutAlias::getMutableValuePointer(std::string *& ptr)
   {
-    if (!isActive())
+    if (!isActive() || !isAssignable())
       return false;
     return m_target->getMutableValuePointer(ptr);
   }
 
   bool InOutAlias::getMutableValuePointer(Array *& ptr)
   {
-    if (!isActive())
+    if (!isActive() || !isAssignable())
       return false;
     return m_target->getMutableValuePointer(ptr);
   }
 
   bool InOutAlias::getMutableValuePointer(BooleanArray *& ptr)
   {
-    if (!isActive())
+    if (!isActive() || !isAssignable())
       return false;
     return m_target->getMutableValuePointer(ptr);
   }
 
   bool InOutAlias::getMutableValuePointer(IntegerArray *& ptr)
   {
-    if (!isActive())
+    if (!isActive() || !isAssignable())
       return false;
     return m_target->getMutableValuePointer(ptr);
   }
 
   bool InOutAlias::getMutableValuePointer(RealArray *& ptr)
   {
-    if (!isActive())
+    if (!isActive() || !isAssignable())
       return false;
     return m_target->getMutableValuePointer(ptr);
   }
 
   bool InOutAlias::getMutableValuePointer(StringArray *& ptr)
   {
-    if (!isActive())
+    if (!isActive() || !isAssignable())
       return false;
     return m_target->getMutableValuePointer(ptr);
   }
@@ -349,12 +394,14 @@ namespace PLEXIL
   void InOutAlias::saveCurrentValue()
   {
     assertTrue_2(isActive(), "InOutAlias: saveCurrentValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: saveCurrentValue with read-only target");
     m_target->saveCurrentValue();
   }
 
   void InOutAlias::restoreSavedValue()
   {
     assertTrue_2(isActive(), "InOutAlias: restoreSavedValue while inactive");
+    assertTrue_2(isAssignable(), "InOutAlias: saveCurrentValue with read-only target");
     m_target->restoreSavedValue();
   }
 
@@ -375,11 +422,15 @@ namespace PLEXIL
 
   Assignable *InOutAlias::getBaseVariable()
   {
+    if (!isAssignable())
+      return NULL;
     return m_target->getBaseVariable();
   }
 
   Assignable const *InOutAlias::getBaseVariable() const
   {
+    if (!isAssignable())
+      return NULL;
     return m_target->getBaseVariable();
   }
 

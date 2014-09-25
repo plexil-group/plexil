@@ -32,6 +32,7 @@
 namespace PLEXIL
 {
 
+  // *** TO BE DELETED ***
   Command::Command(Expression *nameExpr, 
                    std::vector<Expression *> const &args,
                    std::vector<Expression *> const &garbage,
@@ -54,12 +55,56 @@ namespace PLEXIL
     m_abortComplete.setName(nodeName + " abortComplete");
   }
 
+  // New version
+  Command::Command(std::string const &nodeName,
+                   const ResourceList &resource)
+    : m_ack(*this),
+      m_abortComplete(),
+      m_nameExpr(NULL),
+      m_dest(NULL),
+      m_garbage(),
+      m_args(),
+      m_resourceList(resource),
+      m_commandHandle(NO_COMMAND_HANDLE),
+      m_fixed(false),
+      m_resourceFixed(false),
+      m_active(false)
+  {
+    m_ack.setName(nodeName + " commandHandle");
+    m_abortComplete.setName(nodeName + " abortComplete");
+  }
+
   Command::~Command() {
     for (std::vector<Expression *>::const_iterator it = m_garbage.begin();
          it != m_garbage.end();
          ++it) {
       delete (*it);
     }
+  }
+
+  void Command::setDestination(Assignable *dest, bool isGarbage)
+  {
+    assertTrue_1(dest);
+    m_dest = dest;
+    if (isGarbage)
+      m_garbage.push_back(dest);
+  }
+
+  void Command::setNameExpr(Expression *nameExpr, bool isGarbage)
+  {
+    assertTrue_1(!m_nameExpr);
+    assertTrue_1(nameExpr);
+    m_nameExpr = nameExpr;
+    if (isGarbage)
+      m_garbage.push_back(nameExpr);
+  }
+
+  void Command::addArgument(Expression *arg, bool isGarbage)
+  {
+    assertTrue_1(arg);
+    m_args.push_back(arg);
+    if (isGarbage)
+      m_garbage.push_back(arg);
   }
 
   State const &Command::getCommand() const
@@ -135,6 +180,7 @@ namespace PLEXIL
   void Command::activate()
   {
     assertTrue_1(!m_active);
+    assertTrue_1(m_nameExpr);
     m_nameExpr->activate();
     m_ack.activate();
     m_abortComplete.activate();

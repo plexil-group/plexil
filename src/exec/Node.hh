@@ -144,6 +144,7 @@ namespace PLEXIL {
     /**
      * @brief Looks up a variable by reference.
      */
+    // *** TO BE DELETED ***
     Expression *findVariable(const PlexilVarRef* ref);
 
     /**
@@ -152,15 +153,18 @@ namespace PLEXIL {
     virtual Expression *findVariable(const std::string& name, bool recursive = false);
 
     /**
-     * @brief Find the named variable in this node's declared variables.
-     * @note Used by plan parser.
+     * @brief Find the named variable in this node, ignoring its ancestors.
+     * @param name Name of the variable.
+     * @return The variable, or NULL if not found.
      */
     Expression *findLocalVariable(std::string const &name);
 
+    // *** TO BE DELETED ***
     Node *findNodeRef(PlexilNodeRef const *nodeRef);
 
     // create conditions, assignments, and commands.
     // We have to do this late because they could refer to internal variables of other nodes.
+    // *** TO BE DELETED ***
     void postInit(PlexilNode const *node);
 
     // Make the node active.
@@ -365,10 +369,38 @@ namespace PLEXIL {
     // NodeFactory::createNode for the module test needs this to be public.
     void activateInternalVariables();
 
-    // Should be used only by plan parsers
-    // Returns true if successful, false if name is a duplicate
+    //
+    // Utilities for plan parsers
+    //
+
+    /**
+     * @brief Add a named "variable" to the node.
+     * @param name The name
+     * @param var The expression to associate with the name.
+     * @return true if successful, false if name is a duplicate
+     */
     bool addVariable(char const *name, Expression *var);
+
+    /**
+     * @brief Add a named "variable" to the node, to be deleted with the node.
+     * @param name The name
+     * @param var The expression to associate with the name.
+     *            It will be deleted when the node is deleted.
+     * @return true if successful, false if name is a duplicate
+     */
+    bool addLocalVariable(char const *name, Expression *var);
+
+    /**
+     * @brief Add a condition expression to the node.
+     * @param which The index of the condition.
+     * @param cond The expression.
+     * @param isGarbage True if the expression should be deleted with the node.
+     */
     void addUserCondition(ConditionIndex which, Expression *cond, bool isGarbage);
+
+    /**
+     * @brief Construct any internal conditions now that the node is complete.
+     */
     void finalizeConditions();
 
     static ConditionIndex getConditionIndex(const std::string& cName);
@@ -551,12 +583,17 @@ namespace PLEXIL {
 
     void logTransition(double time, NodeState newState);
 
+    // *** TO BE DELETED ***
     void createConditions(const std::vector<std::pair<PlexilExpr *, std::string> >& conds);
 
+    // *** TO BE DELETED ***
     void createDeclaredVars(const std::vector<PlexilVar *>& vars);
 
+    // *** TO BE DELETED ***
     void getVarsFromInterface(PlexilInterface const *intf);
+    // *** TO BE DELETED ***
     Expression *getInVariable(PlexilVarRef const *varRef, bool parentIsLibCall);
+    // *** TO BE DELETED ***
     Assignable *getInOutVariable(PlexilVarRef const *varRef, bool parentIsLibCall);
 
     // These 3 should only be called from transition().

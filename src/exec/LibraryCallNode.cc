@@ -263,23 +263,15 @@ namespace PLEXIL
     } // for
   }
 
-  // For 1st pass of XML parser.
-  bool LibraryCallNode::addAlias(std::string const &name)
+  // For plan parser.
+  bool LibraryCallNode::addAlias(std::string const &name, Expression *exp, bool isGarbage)
   {
     if (m_aliasVariables.find(name) != m_aliasVariables.end())
       return false; // alias by same name already exists
-    m_aliasVariables[name] = NULL;
-    return true;
-  }
-
-  // For 2nd pass of XML parser.
-  void LibraryCallNode::setAlias(std::string const &name, Expression *exp)
-  {
-    assertTrueMsg(m_aliasVariables.find(name) != m_aliasVariables.end(),
-                  "setAlias: Internal error: no alias named " << name);
-    assertTrueMsg(m_aliasVariables[name],
-                  "setAlias: " << name << " already set");
     m_aliasVariables[name] = exp;
+    if (isGarbage)
+      m_localVariables.push_back(exp);
+    return true;
   }
 
   Expression *LibraryCallNode::findVariable(const std::string& name, bool recursive)

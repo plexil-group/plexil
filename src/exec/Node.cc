@@ -292,8 +292,15 @@ namespace PLEXIL {
     std::string const nameStr(name);
     if (m_variablesByName.find(name) != m_variablesByName.end())
       return false; // duplicate
-    m_localVariables.push_back(var);
     m_variablesByName[nameStr] = var;
+    return true;
+  }
+
+  bool Node::addLocalVariable(char const *name, Expression *var)
+  {
+    if (!addVariable(name, var))
+      return false;
+    m_localVariables.push_back(var);
     return true;
   }
 

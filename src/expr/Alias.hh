@@ -46,9 +46,17 @@ namespace PLEXIL
   public:
     Alias(NodeConnector *node, // *** is this needed?? ***
           const std::string &name,
-          Expression *original,
+          Expression *original = NULL,
           bool garbage = false);
     virtual ~Alias();
+
+    /**
+     * @brief Set the expression to which the Alias points.
+     * @param exp The target expression.
+     * @param garbage Whether the expression should be deleted with the Alias.
+     * @return False if the Alias already has a target expression, true otherwise.
+     */
+    virtual bool setTarget(Expression *exp, bool garbage = false);
 
     //
     // Expression API
@@ -57,7 +65,7 @@ namespace PLEXIL
     const char *exprName() const;
     const ValueType valueType() const;
     bool isKnown() const;
-    bool isAssignable() const;
+    virtual bool isAssignable() const;
     bool isConstant() const;
     Expression *getBaseExpression();
     Expression const *getBaseExpression() const;
@@ -103,15 +111,15 @@ namespace PLEXIL
     //
     void handleActivate();
     void handleDeactivate();
+
+    // The expression being aliased.
+    Expression *m_exp;
   
   private:
     // Disallow default, copy, assign
     Alias();
     Alias(const Alias &);
     Alias &operator=(const Alias &);
-
-    // The expression being aliased.
-    Expression *m_exp;
 
   protected:
     // Parent node
@@ -133,12 +141,21 @@ namespace PLEXIL
   public:
     InOutAlias(NodeConnector *node,
                const std::string &name,
-               Expression *original,
+               Expression *original = NULL,
                bool garbage = false);
     virtual ~InOutAlias();
 
+    /**
+     * @brief Set the expression to which the InOutAlias points.
+     * @param exp The target expression.
+     * @param garbage Whether the expression should be deleted with the Alias.
+     * @return False if the InOutAlias already has a target expression or the new target is not
+     *         assignable, true otherwise.
+     */
+    virtual bool setTarget(Expression *exp, bool garbage = false);
+
     const char *exprName() const;
-    bool isAssignable() const;
+    virtual bool isAssignable() const;
 
     //
     // Assignable API

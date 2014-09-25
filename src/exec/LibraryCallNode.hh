@@ -75,11 +75,8 @@ namespace PLEXIL
 
     virtual Expression *findVariable(const std::string& name, bool recursive = false);
 
-    // For 1st pass of plan parser
-    bool addAlias(std::string const &name);
-
-    // For 2nd pass of plan parser
-    void setAlias(std::string const &name, Expression *exp);
+    // For plan parser
+    bool addAlias(std::string const &name, Expression *exp, bool isGarbage);
 
   protected:
 
