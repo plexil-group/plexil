@@ -37,12 +37,12 @@
 namespace PLEXIL
 {
 
-  // *** TO BE DELETED ***
   /**
    * @brief The constructor.  Will construct all conditions and child nodes.
    * @param node The PlexilNodeId for this node and all of its children.
    * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
    */
+  // *** TO BE DELETED ***
   LibraryCallNode::LibraryCallNode(PlexilNode const *nodeProto, 
                                    Node *parent)
     : ListNode(nodeProto, parent)
@@ -92,6 +92,8 @@ namespace PLEXIL
     cleanUpVars(); // flush alias vars
   }
 
+
+  // *** TO BE DELETED ***
   void LibraryCallNode::createLibraryNode(PlexilLibNodeCallBody const *body)
   {
     // get node body
@@ -132,6 +134,7 @@ namespace PLEXIL
     m_children.push_back(NodeFactory::createNode(body->libNode(), this));
   }
 
+  // *** TO BE DELETED ***
   void LibraryCallNode::createInAliases(const std::vector<PlexilVarRef*>& interfaceVars,
                                         PlexilAliasMap& aliases)
   {
@@ -189,6 +192,7 @@ namespace PLEXIL
     } // for
   }
 
+  // *** TO BE DELETED ***
   void LibraryCallNode::createInOutAliases(const std::vector<PlexilVarRef*>& interfaceVars,
                                            PlexilAliasMap& aliases)
   {
@@ -259,14 +263,34 @@ namespace PLEXIL
     } // for
   }
 
+  // For 1st pass of XML parser.
+  bool LibraryCallNode::addAlias(std::string const &name)
+  {
+    if (m_aliasVariables.find(name) != m_aliasVariables.end())
+      return false; // alias by same name already exists
+    m_aliasVariables[name] = NULL;
+    return true;
+  }
+
+  // For 2nd pass of XML parser.
+  void LibraryCallNode::setAlias(std::string const &name, Expression *exp)
+  {
+    assertTrueMsg(m_aliasVariables.find(name) != m_aliasVariables.end(),
+                  "setAlias: Internal error: no alias named " << name);
+    assertTrueMsg(m_aliasVariables[name],
+                  "setAlias: " << name << " already set");
+    m_aliasVariables[name] = exp;
+  }
+
   Expression *LibraryCallNode::findVariable(const std::string& name, bool recursive)
   {
     if (recursive) {
       // Check alias map only
-      if (m_aliasVariables.find(name) != m_aliasVariables.end())
-        return m_aliasVariables[name];
-      else
+      VariableMap::iterator it = m_aliasVariables.find(name);
+      if (it == m_aliasVariables.end())
         return NULL;
+      else
+        return it->second;
     }
     else {
       return Node::findVariable(name, false);
@@ -274,6 +298,7 @@ namespace PLEXIL
   }
 
   // Specific behaviors for derived classes
+  // *** TO BE DELETED ***
   void LibraryCallNode::specializedPostInitLate(PlexilNode const *node)
   {
     // Get node body

@@ -36,12 +36,12 @@ namespace PLEXIL
   {
   public:
 
-    // *** TO BE DELETED ***
     /**
      * @brief The constructor.  Will construct all conditions and child nodes.
      * @param node The PlexilNodeId for this node and all of its children.
      * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
      */
+    // *** TO BE DELETED ***
     LibraryCallNode(PlexilNode const *node, Node *parent = NULL);
 
     /**
@@ -75,18 +75,28 @@ namespace PLEXIL
 
     virtual Expression *findVariable(const std::string& name, bool recursive = false);
 
+    // For 1st pass of plan parser
+    bool addAlias(std::string const &name);
+
+    // For 2nd pass of plan parser
+    void setAlias(std::string const &name, Expression *exp);
+
   protected:
 
     // Specific behaviors for derived classes
+    // *** TO BE DELETED ***
     virtual void specializedPostInitLate(PlexilNode const *node);
 
   private:
 
+    // *** TO BE DELETED ***
     void createLibraryNode(PlexilLibNodeCallBody const *body);
 
+    // *** TO BE DELETED ***
     void createInAliases(const std::vector<PlexilVarRef*>& interfaceVars,
                          PlexilAliasMap& aliases);
 
+    // *** TO BE DELETED ***
     void createInOutAliases(const std::vector<PlexilVarRef*>& interfaceVars,
                             PlexilAliasMap& aliases);
 
