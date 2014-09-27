@@ -37,7 +37,7 @@ using pugi::node_pcdata;
 namespace PLEXIL
 {
   // First pass
-  static void parseAlias(LibraryCallNode *node, xml_node aliasXml)
+  static void checkAlias(LibraryCallNode *node, xml_node aliasXml)
     throw (ParserException)
   {
     checkTag(ALIAS_TAG, aliasXml);
@@ -53,12 +53,6 @@ namespace PLEXIL
     checkParserExceptionWithLocation(temp.type() == node_element && temp.first_child(),
                                      temp,
                                      "Alias " << name << " has malformed value expression in LibraryNodeCall node");
-    // Add the alias so callee can find it, but don't set its value yet
-    checkParserExceptionWithLocation(node->addAlias(nameXml.child_value(),
-                                                    new InOutAlias(node, name),
-                                                    true),
-                                     aliasXml,
-                                     "Duplicate alias name " << name << " in LibraryNodeCall node");
   }
 
 
@@ -77,9 +71,9 @@ namespace PLEXIL
                                      "Empty NodeId in LibraryNodeCall node");
     temp = temp.next_sibling();
 
-    // Allocate (but don't initialize) aliases
+    // Check (but don't populate) aliases
     while (temp) {
-      parseAlias(node, temp);
+      checkAlias(node, temp);
       temp = temp.next_sibling();
     }
 
@@ -98,11 +92,13 @@ namespace PLEXIL
     // Construct the actual alias expression
     xml_node nameXml = aliasXml.first_child();
     std::string name(nameXml.child_value());
+    // Add the alias
+    checkParserExceptionWithLocation(!node->findAlias(name, true),
+                                     aliasXml,
+                                     "Duplicate alias name " << name << " in LibraryNodeCall node");
     bool isGarbage = false;
     Expression *exp = createExpression(nameXml.next_sibling(), node, isGarbage);
-    InOutAlias *alias = node->findVariable(name, true);
-    assertTrueMsg(alias, "Alias not found for " << name);
-    alias->setTarget(exp, isGarbage);
+    node->addAlias(name, exp, isGarbage);
   }
 
   // Second pass

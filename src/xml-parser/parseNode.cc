@@ -24,16 +24,17 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "parseLibraryCall.hh"
-
 #include "Assignable.hh"
-#include "Assignment.hh"
-#include "AssignmentNode.hh"
-#include "CommandNode.hh"
 #include "commandXmlParser.hh"
 #include "ExpressionFactory.hh"
+#include "Node.hh"
+#include "parseAssignment.hh"
+#include "parseLibraryCall.hh"
+#include "updateXmlParser.hh"
 
 #include "pugixml.hpp"
+
+#include <cstdlib> // for strtoul()
 
 using pugi::xml_attribute;
 using pugi::xml_node;
@@ -111,10 +112,6 @@ namespace PLEXIL
   // N.B. There is a limited amount of checking we can do on interface variables in the first pass.
   // LibraryNodeCall aliases can't be expanded because some of the variables they can reference
   // (e.g. child node internal vars) may not exist yet. Same with default values.
-  //
-  // We do know which variables or aliases have been declared above us, so those references can 
-  // be name-checked.
-  //
 
   // First pass checking of one In interface variable
   static void checkInDecl(Node *node, xml_node inXml, bool isCall)
@@ -126,15 +123,6 @@ namespace PLEXIL
                                      "In interface variable " << name
                                      << " shadows another variable of same name in this node");
     getVarDeclType(inXml); // for effect
-    bool found = false;
-    if (isCall)
-      found = ((LibraryCallNode *)parent)->hasAlias(name);
-    else
-      found = getInterfaceVar(node, name);
-    checkParserExceptionWithLocation(found || inXml.child(INITIALVAL_TAG),
-                                     inXml,
-                                     "No In interface variable named " << name
-                                     << " is accessible, and declaration has no InitialValue");
   }
 
   // First pass checking of one InOut interface
@@ -147,27 +135,6 @@ namespace PLEXIL
                                      "InOut interface variable " << name
                                      << " shadows another variable of same name in this node");
     getVarDeclType(inOutXml); // for effect
-
-    // N.B. If a call, we can only tell if alias name exists. 
-    // We cannot yet determine whether the alias is assignable, or its type.
-    bool found = false;
-    if (isCall) {
-      found = node->getParent()->hasAlias(name);
-    }
-    else {
-      Expression *var = getInterfaceVar(node, name);
-      found = var;
-      if (var) {
-        checkParserExceptionWithLocation(var->isAssignable(),
-                                         inOutXml,
-                                         "InOut interface variable " << name << " is read-only");
-      }
-    }
-
-    checkParserExceptionWithLocation(found || inOutXml.child(INITIALVAL_TAG),
-                                     inOutXml,
-                                     "No InOut interface variable named " << name
-                                     << " is accessible, and declaration has no InitialValue");
   }
 
   // First pass
@@ -261,7 +228,8 @@ namespace PLEXIL
                                            "Duplicate " << tag << " element in Node");
           checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
                                            temp,
-                                           "Only Assignment nodes may have a Priority");
+                                           "Only Assignment nodes may have a Priority element");
+          checkNotEmpty(temp);
           prio = temp;
           break;
         }
@@ -351,48 +319,11 @@ namespace PLEXIL
                                        "Empty Node \"" << name << "\" may not have a NodeBody element");
       checkHasChildElement(nodeBody);
       nodeBody = nodeBody.first_child(); // strip away NodeBody wrapper
-      char const *bodyName = nodeBody.name();
-      switch (nodeType) {
-      case NodeType_Assignment:
-        checkParserExceptionWithLocation(0 == strcmp(ASSIGNMENT_TAG, bodyName),
-                                         nodeBody,
-                                         "Assignment Node \"" << name << " missing Assignment body");
-        break;
-
-      case NodeType_Command:
-        checkParserExceptionWithLocation(0 == strcmp(COMMAND_TAG, bodyName),
-                                         nodeBody,
-                                         "Command Node \"" << name << " missing Command body");
-        break;
-
-      case NodeType_LibraryNodeCall:
-        checkParserExceptionWithLocation(0 == strcmp(LIBRARYNODECALL_TAG, bodyName),
-                                         nodeBody,
-                                         "LibraryNodeCall Node \"" << name << " missing LibraryNodeCall body");
-        break;
-
-      case NodeType_NodeList:
-        checkParserExceptionWithLocation(0 == strcmp(NODELIST_TAG, bodyName),
-                                         nodeBody,
-                                         "NodeList Node \"" << name << " missing NodeList body");
-        checkHasChildElement(nodeBody);
-        break;
-
-      case NodeType_Update:
-        checkParserExceptionWithLocation(0 == strcmp(UPDATE_TAG, bodyName),
-                                         nodeBody,
-                                         "Update Node \"" << name << " missing Update body");
-        break;
-
-      default: // appease compiler
-        break;
-      }
     }
-    else {
+    else
       checkParserExceptionWithLocation(nodeType == NodeType_Empty,
                                        xml,
                                        "Node \"" << name << "\" has no NodeBody element");
-    }
 
     Node *result = NodeFactory::createNode(nodeType, name, parent);
 
@@ -408,6 +339,8 @@ namespace PLEXIL
       // Construct body including all associated variables
       switch (nodeType) {
       case NodeType_Assignment:
+        if (prio) 
+          parsePriority(node, prio);
         constructAssignment(node, body);
         break;
 
@@ -442,6 +375,9 @@ namespace PLEXIL
   // Second pass
   //
   // The node is partially built and some XML checking has been done.
+  // All nodes and their declared and internal variables have been constructed,
+  // but aliases and interface variables may not have been.
+  // Expressions (including LHS variable references) have NOT been constructed.
   // Finish populating the node and its children.
   // 
 
@@ -452,8 +388,7 @@ namespace PLEXIL
     // Find the variable, if it exists
     // If a library call, should be in caller's alias list.
     // If not, should have been declared by an ancestor.
-    // We checked for local name conflicts on the first pass.
-    Expression *exp = node->findVariable();
+    Expression *exp = node->findVariable(name);
     ValueType typ = getVarDeclType(inXml);
     if (exp) {
       checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
@@ -465,8 +400,11 @@ namespace PLEXIL
       if (exp->isAssignable()) 
         // Construct read-only alias.
         // Ancestor owns the aliased expression, so we can't delete it.
-        assertTrue_1(node->addLocalVariable(name, new Alias(node, name, exp, false)));
-      // else nothing to do
+        checkParserExceptionWithLocation(node->addLocalVariable(name, new Alias(node, name, exp, false)),
+                                         inXml,
+                                         "In interface variable " << name
+                                         << " shadows existing local variable of same name");
+      // else nothing to do - "variable" already accessible and read-only
     }
     else {
       // No such variable/alias - use default initial value
@@ -475,13 +413,21 @@ namespace PLEXIL
                                        inXml,
                                        "In variable " << name << " not found and no default InitialValue provided");
       bool garbage;
-      Expression *initExp = createExpression(initXml, node, garbage);
+      exp = createExpression(initXml, node, garbage);
       checkParserExceptionWithLocation(areTypesCompatible(typ, initExp->valueType()),
                                        initXml,
-                                       "In variable " << name
-                                       << " has default InitialValue of incompatible type "
+                                       "In interface variable " << name
+                                       << " has type " << valueTypeName(typ)
+                                       << " but default InitialValue is of incompatible type "
                                        << valueTypeName(initExp->valueType()));
-      assertTrue_1(node->addLocalVariable(name, new Alias(node, name, exp, garbage)));
+      // If exp is writable or is not something we can delete, 
+      // wrap it in an Alias
+      if (exp->isAssignable() || !garbage)
+        exp = new Alias(node, name, exp, garbage);
+      checkParserExceptionWithLocation(node->addLocalVariable(name, exp),
+                                       inXml,
+                                       "In interface variable " << name
+                                       << " shadows local variable of same name");
     }
   }
 
@@ -493,19 +439,18 @@ namespace PLEXIL
     // Find the variable, if it exists
     // If a library call, should be in caller's alias list.
     // If not, should have been declared by an ancestor.
-    // We checked for local name conflicts on the first pass.
     Expression *exp = node->findVariable();
     if (exp) {
-      checkParserExceptionWithlocation(exp->isAssignable(),
-                                       inOutXml,
-                                       "InOut interface variable " << name
-                                       << " is read-only");
       checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
                                        inOutXml,
                                        "InOut interface variable " << name
                                        << ": Type " << valueTypeName(typ)
                                        << " expected, but expression of type "
                                        << valueTypeName(exp->valueType()) << " was provided");
+      checkParserExceptionWithlocation(exp->isAssignable(),
+                                       inOutXml,
+                                       "InOut interface variable " << name
+                                       << " is read-only");
     }
     else {
       // No such variable/alias - use default initial value
@@ -518,11 +463,16 @@ namespace PLEXIL
       checkParserExceptionWithLocation(areTypesCompatible(typ, initExp->valueType()),
                                        initXml,
                                        "InOut variable " << name
-                                       << " has default InitialValue of incompatible type "
+                                       << " has type " << valueTypeName(typ)
+                                       << " but default InitialValue is of incompatible type "
                                        << valueTypeName(initExp->valueType()));
-      bool dummy;
-      Assignable var = createAssignable(inOutXml, node, dummy);
-      assertTrue_1(node->addLocalVariable(name, var));
+      bool garbage;
+      Assignable var = createAssignable(inOutXml, node, garbage);
+      assertTrue_1(garbage); // better be something we can delete!
+      checkParserExceptionWithLocation(node->addLocalVariable(name, var),
+                                       inOutXml,
+                                       "InOut interface variable " << name
+                                       << " shadows local variable of same name");
       var->setInitializer(initExp, garbage);
     }
   }
@@ -590,26 +540,6 @@ namespace PLEXIL
       temp = temp.next_sibling();
     }
 
-    // Construct body for Assignment, Command, Update nodes
-    // *** FIXME: move body construction up to parseNode, finalize bodies further down instead ***
-    if (body)
-      switch (node->getType()) {
-      case NodeType_Assignment:
-        ((AssignmentNode *)node)->setAssignment(parseAssignment(body, node));
-        break;
-
-      case NodeType_Command:
-        ((CommandNode *)node)->setCommand(commandXmlParser(body, node));
-        break;
-
-      case NodeType_Update:
-        ((UpdateNode *)node)->setUpdate(updateXmlParser(body, node));
-        break;
-
-      default: // ignore
-        break;
-      }
-
     // Construct variable initializers here
     // It is only here after all child nodes and node bodies have been constructed
     // that all variables which could be referenced are accessible.
@@ -667,13 +597,20 @@ namespace PLEXIL
     // finalize conditions
     node->finalizeConditions();
 
-    // recurse on children
+    // finalize node bodies
     switch (node->getType()) {
-    case NodeType_LibraryNodeCall:
-      // FIXME
-      finalizeLibraryCall(node, xml);
+    case NodeType_Assignment:
+      finalizeAssignment(node, body);
+      break;
 
-      // fall through to...
+    case NodeType_Command:
+      finalizeCommand(node, body);
+      break;
+
+    case NodeType_LibraryNodeCall:
+      finalizeLibraryCall(node, xml);
+      // fall through to NodeList case
+
     case NodeType_NodeList:
       std::vector<Node *> kids = node->getChildren();
       for (std::vector<Node *>::iterator kid = kids.begin(),
@@ -683,7 +620,12 @@ namespace PLEXIL
         finalizeNode(kid, kidXml);
       break;
 
+    case NodeType_Update:
+      finalizeUpdate(node, body);
+      break;
+
     default:
+      assertTrue_2(ALWAYS_FAIL, "Bad NodeType");
       break;
     }
   }

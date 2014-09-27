@@ -24,8 +24,12 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef PLEXIL_COMMAND_XML_PARSER
+#define PLEXIL_COMMAND_XML_PARSER
+
 #include "ParserException.hh"
 
+// Forward declaration
 namespace pugi
 {
   class xml_node;
@@ -33,15 +37,15 @@ namespace pugi
 
 namespace PLEXIL
 {
-  class Assignment;
+  // Forward declarations
   class Node;
 
-  extern void parsePriority(Node *node, pugi::xml_node prio)
+  extern void constructCommand(Node *node, pugi::xml_node const &cmd)
     throw (ParserException);
 
-  extern void constructAssignment(Node *node, pugi::xml_node assn)
+  extern void finalizeCommand(Node *node, pugi::xml_node const &cmd)
     throw (ParserException);
 
-  extern void finalizeAssignment(Node *node, pugi::xml_node assn)
-    throw (ParserException);
-}
+} // namespace PLEXIL
+
+#endif // PLEXIL_COMMAND_XML_PARSER

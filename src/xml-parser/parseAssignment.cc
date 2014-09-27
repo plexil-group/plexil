@@ -25,6 +25,7 @@
 */
 
 #include "Assignable.hh"
+#include "AssignmentNode.hh"
 #include "ExpressionFactory.hh"
 
 #include "pugixml.hpp"
@@ -32,30 +33,67 @@
 namespace PLEXIL
 {
 
-  Assignment *parseAssignment(xml_node assn, Node *node)
-    throw (ParserException)
+  // First pass
+  void parsePriority(Node *node, xml_node prio)
+  throw (ParserException)
+  {
+    char const *prioString = prio.child_value();
+    char *endptr = NULL;
+    unsigned long prioValue = strtoul(prioString, &endptr, 10);
+    checkParserExceptionWithLocation(endptr != prioString && !*endptr,
+                                     prio,
+                                     "Priority element does not contain a non-negative integer");
+    checkParserExceptionWithLocation(!errno,
+                                     prio,
+                                     "Priority element contains negative or out-of-range integer");
+    checkParserExceptionWithLocation(prioValue < INT32_MAX,
+                                     prio,
+                                     "Priority element contains out-of-range integer");
+    AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);
+    assertTrue_2(anode, "parsePriority: Not an AssignmentNode");
+    anode->setPriority((int32_t) prioValue);
+  }
+
+  // First pass
+  void constructAssignment(Node *node, xml_node assn)
+  throw (ParserException)
   {
     checkHasChildElement(assn);
     xml_node varXml = assn.first_child();
-    checkNotEmpty(varXml);
-    bool varGarbage, rhsGarbage;
-    Assignable *var = createAssignable(assn.first_child(), node, varGarbage);
+    // TODO: check that varXml is a variable reference or ArrayElement
     xml_node rhsXml = varXml.next_sibling();
+    checkParserExceptionWithLocation(rhsXml,
+                                     assn,
+                                     "Assignment Node " << node->getNodeId()
+                                     << ": Assignment missing value expression");
     checkTagSuffix("RHS", rhsXml);
     checkHasChildElement(rhsXml);
     rhsXml = rhsXml.first_child();
-    bool rhsGarbage;
-    Expression *rhs = createExpression(rhsXml, node, rhsGarbage);
-    checkParserExceptionWithLocation(areTypesCompatible(var->valueType(), rhs->valueType()),
-                                     rhsXml,
-                                     "Assignment Node " << node->getNodeId()
-                                     << ": Expression type mismatch with assignment variable");
-    return new Assignment(var, rhs, varGarbage, rhsGarbage, node->getNodeId());
+    AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);
+    assertTrue_2(anode, "constructAssignment: Not an AssignmentNode");
+    anode->setAssignment(new Assignment(node->getNodeId()));
   }
 
-  void finalizeAssignment(Assignment *assn, xml_node xml)
+  // Second pass
+  void finalizeAssignment(Node *node, xml_node assn)
+  throw (ParserException)
   {
-    // TODO
+    AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);
+    assertTrue_2(anode, "finalizeAssignment: Not an AssignmentNode");
+    Assignment *assign = anode->getAssignment();
+    assertTrue_2(anode, "finalizeAssignment: AssignmentNode without an Assignment");
+    xml_node temp = assn.first_child();
+    bool varGarbage = false;
+    Assignable *var = createExpression(temp, node, varGarbage);
+    temp = temp.next_sibling().first_child();
+    bool rhsGarbage;
+    Expression *rhs = createExpression(temp, node, rhsGarbage);
+    checkParserExceptionWithLocation(areTypesCompatible(var->valueType(), rhs->valueType()),
+                                     temp,
+                                     "Assignment Node " << node->getNodeId()
+                                     << ": Expression type mismatch with assignment variable");
+    assign->setVariable(var, varGarbage);
+    assign->setExpression(rhs, rhsGarbage);
   }
 
 } // namespace PLEXIL
