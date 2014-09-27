@@ -66,13 +66,11 @@ namespace PLEXIL
     }
   }
 
-  Update::Update(NodeConnector *node,
-           PairExpressionMap const &pairs,
-           std::vector<Expression *> const &garbage)
+  Update::Update(NodeConnector *node)
     : m_source(node),
       m_ack(),
-      m_garbage(garbage),
-      m_pairs(pairs)
+      m_garbage(),
+      m_pairs()
   {
     // Make ack variable pretty
     m_ack.setName(node->getNodeId() + " ack");
@@ -87,6 +85,16 @@ namespace PLEXIL
          ++it)
       delete (*it);
     m_garbage.clear();
+  }
+
+  bool Update::addPair(std::string const &name, Expression *exp, bool garbage)
+  {
+    if (m_pairs.find(name) != m_pairs.end())
+      return false;
+    m_pairs[name] = exp;
+    if (garbage)
+      m_garbage.push_back(exp);
+    return true;
   }
 
   void Update::fixValues()

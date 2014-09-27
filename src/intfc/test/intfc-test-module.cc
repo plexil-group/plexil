@@ -32,21 +32,15 @@
 #include <fstream>
 #include <iostream>
 
-extern bool commandXmlParserTest();
 extern bool lookupFactoryTest();
 extern bool lookupsTest();
-extern bool lookupXmlParserTest();
 extern bool stateTest();
-extern bool updateXmlParserTest();
 
 void runTests()
 {
   runTestSuite(stateTest);
   runTestSuite(lookupsTest);
   runTestSuite(lookupFactoryTest);
-  runTestSuite(lookupXmlParserTest);
-  runTestSuite(commandXmlParserTest);
-  runTestSuite(updateXmlParserTest);
 
   runFinalizers();
 
@@ -63,7 +57,6 @@ int main(int argc, char *argv[]) {
   }
   
   std::ifstream config(debugConfig.c_str());
-  
   if (config.good()) {
      readDebugConfigStream(config);
      std::cout << "Reading configuration file: " << debugConfig.c_str() << "\n";

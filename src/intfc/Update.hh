@@ -46,13 +46,15 @@ namespace PLEXIL
 
     // *** TO BE DELETED ***
     Update(NodeConnector *node,
-           PlexilUpdate const *updateProto = NULL);
+           PlexilUpdate const *updateProto);
 
-    Update(NodeConnector *node,
-           PairExpressionMap const &pairs,
-           std::vector<Expression *> const &garbage);
+    Update(NodeConnector *node);
 
     ~Update();
+
+    // For plan parser's use
+    // Return true if OK, false if name is a duplicate
+    bool addPair(std::string const &name, Expression *exp, bool garbage);
 
     Expression *getAck() {return &m_ack;}
     const PairValueMap& getPairs() const {return m_valuePairs;}
