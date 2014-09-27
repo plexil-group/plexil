@@ -51,7 +51,7 @@ namespace PLEXIL
   AssignmentNode::AssignmentNode(char const *nodeId, 
                                  Node *parent)
     : Node(nodeId, parent),
-      m_priority(0.0) // *** FIXME
+      m_priority(WORST_PRIORITY)
   {
   }
 

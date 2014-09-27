@@ -51,12 +51,42 @@ namespace PLEXIL
     m_abortComplete.setName(nodeId + " abortComplete");
   }
 
+  Assignment::Assignment(const std::string &nodeId)
+    : m_ack(),
+      m_abortComplete(),
+      m_rhs(NULL),
+      m_dest(NULL),
+      m_value(),
+      m_deleteLhs(false),
+      m_deleteRhs(false)
+  {
+    // Make ack variable pretty
+    m_ack.setName(nodeId + " ack");
+    m_abortComplete.setName(nodeId + " abortComplete");
+  }
+
   Assignment::~Assignment() 
   {
     if (m_deleteLhs)
       delete m_dest;
     if (m_deleteRhs)
       delete m_rhs;
+  }
+
+  void Assignment::setVariable(Assignable *lhs, bool garbage)
+  {
+    assertTrue_1(lhs);
+    assertTrue_2(!m_dest, "setVariable() on an Assignment with a variable");
+    m_dest = lhs;
+    m_deleteLhs = garbage;
+  }
+
+  void Assignment::setExpression(Expression *rhs, bool garbage)
+  {
+    assertTrue_1(rhs);
+    assertTrue_2(!m_rhs, "setExpression() on an Assignment with an expression");
+    m_rhs = rhs;
+    m_deleteRhs = garbage;
   }
 
   void Assignment::fixValue() 
@@ -67,6 +97,8 @@ namespace PLEXIL
 
   void Assignment::activate() 
   {
+    assertTrue_2(m_dest && m_rhs,
+                 "Attempt to activate uninitialized Assignment");
     m_rhs->activate();
     m_dest->activate();
   }

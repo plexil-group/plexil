@@ -41,10 +41,19 @@ namespace PLEXIL
                const bool deleteLhs, 
                const bool deleteRhs,
                const std::string &nodeId);
+
+    // For use by plan parser
+    Assignment(std::string const &nodeId);
+
     ~Assignment();
+
     Expression *getDest() {return m_dest;}
     Expression *getAck() {return &m_ack;}
     Expression *getAbortComplete() {return &m_abortComplete;}
+
+    // For use by plan parser
+    void setVariable(Assignable *lhs, bool garbage);
+    void setExpression(Expression *rhs, bool garbage);
 
     void activate();
     void deactivate();

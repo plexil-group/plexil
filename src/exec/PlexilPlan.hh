@@ -66,7 +66,7 @@ namespace PLEXIL
 
     const std::string& nodeId() const {return m_nodeId;}
     PlexilNodeType nodeType() const {return m_nodeType;}
-    double priority() const {return m_priority;}
+    int32_t priority() const {return m_priority;}
     const PlexilInterface *interface() const {return m_intf;}
     const std::vector<PlexilVar *>& declarations() const {return m_declarations;}
     const std::vector<std::pair <PlexilExpr *, std::string> >& conditions() const {return m_conditions;}
@@ -103,9 +103,6 @@ namespace PLEXIL
     // Internal methods
     bool link(const std::map<std::string, PlexilNode *>& libraries, PlexilNodeSet& seen);
 
-    // 8 byte alignment
-    double m_priority;
-
     // 4 byte alignment on 32 bit, 8 on 64
     PlexilInterface *m_intf;
     PlexilNodeBody *m_nodeBody;
@@ -117,6 +114,7 @@ namespace PLEXIL
     std::vector<std::pair<PlexilExpr *, std::string> > m_conditions;
 
     // 4 byte alignment on 32 and 64 (?)
+    int32_t m_priority;
     int m_lineNo;
     int m_colNo;
     PlexilNodeType m_nodeType;

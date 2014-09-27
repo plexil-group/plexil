@@ -588,7 +588,7 @@ namespace PLEXIL
       const char* priority = priorityXml.first_child().value();
       if (*priority) {
         std::istringstream str(priority);
-        double value;
+        int32_t value;
         str >> value;
         retval->setPriority(value);
       }

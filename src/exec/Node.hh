@@ -194,7 +194,7 @@ namespace PLEXIL {
      * @return the priority of this node.
      * @note Default method; only assignment nodes care about priority.
      */
-    virtual double getPriority() const {return WORST_PRIORITY;}
+    virtual int32_t getPriority() const {return WORST_PRIORITY;}
 
     /**
      * @brief Gets the destination state of this node, were it to transition, based on the values of various conditions.

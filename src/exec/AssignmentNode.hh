@@ -85,17 +85,20 @@ namespace PLEXIL
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
      * @return the priority of this node.
      */
-    double getPriority() const {return m_priority;}
+    int32_t getPriority() const {return m_priority;}
 
     /**
      * @brief Set the node's priority.
      * @param prio The priority.
      * @note Should only be used by plan parser and unit tests.
      */
-    void setPriority(double prio)
+    void setPriority(int32_t prio)
     {
       m_priority = prio;
     }
+
+    // Intended for plan parser only
+    Assignment *getAssignment() { return m_assignment; }
 
     /**
      * @brief Set the assignment.
@@ -133,7 +136,7 @@ namespace PLEXIL
     void abort();
 
     Assignment *m_assignment;
-    double m_priority; /*<! The priority of this node. */
+    int32_t m_priority; /*<! The priority of this node. */
   };
 
 }
