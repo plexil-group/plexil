@@ -54,12 +54,6 @@ extern bool constantFactoryTest();
 extern bool functionFactoryTest();
 extern bool variableFactoryTest();
 
-// New XML parser tests
-extern bool arrayReferenceXmlParserTest();
-extern bool constantXmlParserTest();
-extern bool variableXmlParserTest();
-extern bool functionXmlParserTest();
-
 static void runExprTests()
 {
   Error::doThrowExceptions();
@@ -86,12 +80,6 @@ static void runExprTests()
   runTestSuite(arrayReferenceFactoryTest);
   runTestSuite(functionFactoryTest);
 
-  // New XML parser tests
-  runTestSuite(constantXmlParserTest);
-  runTestSuite(variableXmlParserTest);
-  runTestSuite(arrayReferenceXmlParserTest);
-  runTestSuite(functionXmlParserTest);
-
   std::cout << "Finished" << std::endl;
 }
 
@@ -108,10 +96,10 @@ int main(int argc, char *argv[])
   
   if (config.good()) {
      readDebugConfigStream(config);
-     std::cout << "Reading configuration file: " << debugConfig.c_str() << "\n";
+     std::cout << "Reading configuration file " << debugConfig.c_str() << "\n";
   }
   else
-     std::cout << "Unable to read configuration file: " << debugConfig.c_str() << "\n";
+     std::cout << "Warning: unable to read configuration file " << debugConfig.c_str() << "\n";
   
   runExprTests();
 
