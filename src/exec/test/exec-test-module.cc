@@ -35,6 +35,7 @@
 #include "NodeFactory.hh"
 #include "PlexilPlan.hh"
 #include "TestSupport.hh"
+#include "test/TransitionExternalInterface.hh"
 #include "lifecycle-utils.h"
 
 #include <iostream>
@@ -65,33 +66,6 @@ public:
   void setExecListenerHub(ExecListenerHub * /* hub */) {}
   void deleteFinishedPlans() {}
   bool allPlansFinished() const { return true; }
-};
-
-class TransitionExternalInterface : public ExternalInterface
-{
-public:
-  TransitionExternalInterface()
-    : ExternalInterface()
-  {
-  }
-
-  ~TransitionExternalInterface()
-  {
-  }
-
-  void lookupNow(State const & /* state */, StateCacheEntry & /* entry */) {}
-  void subscribe(State const & /* state */) {}
-  void unsubscribe(State const & /* state */) {}
-  void setThresholds(State const & /* state */, double /* hi */, double /* lo */) {}
-  void setThresholds(State const & /* state */, int32_t /* hi */, int32_t /* lo */) {}
-  double currentTime() {return 0.0;}
-
-protected:
-  void executeCommand(Command * /* cmd */) {}
-  void reportCommandArbitrationFailure(Command * /* cmd */) {}
-  void invokeAbort(Command * /* cmd */) {}
-  void executeUpdate(Update * /* update */) {}
-
 };
 
 static bool inactiveDestTest() 
