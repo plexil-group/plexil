@@ -42,7 +42,8 @@ if MODULE_TESTS_OPT
    ../expr/test/FactoryTestNodeConnector.cc ../expr/test/TrivialNodeConnector.cc \
    test/constantXmlParserTest.cc test/variableXmlParserTest.cc \
    test/arrayReferenceXmlParserTest.cc test/functionXmlParserTest.cc \
-   test/commandXmlParserTest.cc test/lookupXmlParserTest.cc test/updateXmlParserTest.cc
+   test/commandXmlParserTest.cc test/lookupXmlParserTest.cc \
+   test/updateXmlParserTest.cc test/nodeXmlParserTest.cc
   test_parser_module_tests_LDADD = libPlexilXmlParser.la ../exec/libPlexilExec.la \
    ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \
    ../third-party/pugixml/src/libpugixml.la

@@ -172,7 +172,8 @@ am__test_parser_module_tests_SOURCES_DIST =  \
 	test/constantXmlParserTest.cc test/variableXmlParserTest.cc \
 	test/arrayReferenceXmlParserTest.cc \
 	test/functionXmlParserTest.cc test/commandXmlParserTest.cc \
-	test/lookupXmlParserTest.cc test/updateXmlParserTest.cc
+	test/lookupXmlParserTest.cc test/updateXmlParserTest.cc \
+	test/nodeXmlParserTest.cc
 am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@am_test_parser_module_tests_OBJECTS = test/test_parser_module_tests-parser-test-module.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	../expr/test/test_parser_module_tests-FactoryTestNodeConnector.$(OBJEXT) \
@@ -183,7 +184,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-functionXmlParserTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-commandXmlParserTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-lookupXmlParserTest.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-updateXmlParserTest.$(OBJEXT)
+@MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-updateXmlParserTest.$(OBJEXT) \
+@MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-nodeXmlParserTest.$(OBJEXT)
 test_parser_module_tests_OBJECTS =  \
 	$(am_test_parser_module_tests_OBJECTS)
 @MODULE_TESTS_OPT_TRUE@test_parser_module_tests_DEPENDENCIES =  \
@@ -397,7 +399,8 @@ libPlexilXmlParser_la_SOURCES = commandXmlParser.cc parseAssignment.cc \
 @MODULE_TESTS_OPT_TRUE@   ../expr/test/FactoryTestNodeConnector.cc ../expr/test/TrivialNodeConnector.cc \
 @MODULE_TESTS_OPT_TRUE@   test/constantXmlParserTest.cc test/variableXmlParserTest.cc \
 @MODULE_TESTS_OPT_TRUE@   test/arrayReferenceXmlParserTest.cc test/functionXmlParserTest.cc \
-@MODULE_TESTS_OPT_TRUE@   test/commandXmlParserTest.cc test/lookupXmlParserTest.cc test/updateXmlParserTest.cc
+@MODULE_TESTS_OPT_TRUE@   test/commandXmlParserTest.cc test/lookupXmlParserTest.cc \
+@MODULE_TESTS_OPT_TRUE@   test/updateXmlParserTest.cc test/nodeXmlParserTest.cc
 
 @MODULE_TESTS_OPT_TRUE@test_parser_module_tests_LDADD = libPlexilXmlParser.la ../exec/libPlexilExec.la \
 @MODULE_TESTS_OPT_TRUE@   ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \
@@ -561,6 +564,8 @@ test/test_parser_module_tests-lookupXmlParserTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_parser_module_tests-updateXmlParserTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+test/test_parser_module_tests-nodeXmlParserTest.$(OBJEXT):  \
+	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 
 test/parser-module-tests$(EXEEXT): $(test_parser_module_tests_OBJECTS) $(test_parser_module_tests_DEPENDENCIES) $(EXTRA_test_parser_module_tests_DEPENDENCIES) test/$(am__dirstamp)
 	@rm -f test/parser-module-tests$(EXEEXT)
@@ -587,6 +592,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-constantXmlParserTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-functionXmlParserTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-lookupXmlParserTest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-parser-test-module.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-updateXmlParserTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-variableXmlParserTest.Po@am__quote@
@@ -796,6 +802,20 @@ test/test_parser_module_tests-updateXmlParserTest.obj: test/updateXmlParserTest.
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/updateXmlParserTest.cc' object='test/test_parser_module_tests-updateXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-updateXmlParserTest.obj `if test -f 'test/updateXmlParserTest.cc'; then $(CYGPATH_W) 'test/updateXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/updateXmlParserTest.cc'; fi`
+
+test/test_parser_module_tests-nodeXmlParserTest.o: test/nodeXmlParserTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-nodeXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Tpo -c -o test/test_parser_module_tests-nodeXmlParserTest.o `test -f 'test/nodeXmlParserTest.cc' || echo '$(srcdir)/'`test/nodeXmlParserTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/nodeXmlParserTest.cc' object='test/test_parser_module_tests-nodeXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-nodeXmlParserTest.o `test -f 'test/nodeXmlParserTest.cc' || echo '$(srcdir)/'`test/nodeXmlParserTest.cc
+
+test/test_parser_module_tests-nodeXmlParserTest.obj: test/nodeXmlParserTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-nodeXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Tpo -c -o test/test_parser_module_tests-nodeXmlParserTest.obj `if test -f 'test/nodeXmlParserTest.cc'; then $(CYGPATH_W) 'test/nodeXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/nodeXmlParserTest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/nodeXmlParserTest.cc' object='test/test_parser_module_tests-nodeXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-nodeXmlParserTest.obj `if test -f 'test/nodeXmlParserTest.cc'; then $(CYGPATH_W) 'test/nodeXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/nodeXmlParserTest.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

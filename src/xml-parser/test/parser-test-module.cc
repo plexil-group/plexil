@@ -39,6 +39,7 @@ extern bool functionXmlParserTest();
 extern bool commandXmlParserTest();
 extern bool lookupXmlParserTest();
 extern bool updateXmlParserTest();
+extern bool nodeXmlParserTest();
 
 void runTests()
 {
@@ -53,7 +54,8 @@ void runTests()
   runTestSuite(lookupXmlParserTest);
   runTestSuite(updateXmlParserTest);
 
-  // TODO: Nodes
+  // Nodes
+  runTestSuite(nodeXmlParserTest);
 
   runFinalizers();
 
