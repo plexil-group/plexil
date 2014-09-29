@@ -73,6 +73,7 @@ namespace PLEXIL
   /**
    * @brief Primary factory method.
    */
+  // *** TO BE DELETED ***
   Node *NodeFactory::createNode(PlexilNode const *nodeProto, 
                                 Node *parent)
   {
@@ -86,6 +87,22 @@ namespace PLEXIL
     checkError(factory != NULL, 
                "No NodeFactory registered for node type " << nodeTypeString(nodeType));
     Node *result = factory->create(nodeProto, parent);
+    // common post process here
+    return result;
+  }
+
+  Node *NodeFactory::createNode(char const *name, 
+                                PlexilNodeType nodeType,
+                                Node *parent)
+  {
+    assertTrueMsg(nodeType > NodeType_uninitialized
+                  && nodeType < NodeType_error,
+                  "Invalid node type value " << nodeType);
+    ensureNodeFactoriesRegistered();
+    NodeFactory* factory = factoryMap()[nodeType];
+    checkError(factory != NULL, 
+               "No NodeFactory registered for node type " << nodeTypeString(nodeType));
+    Node *result = factory->create(name, parent);
     // common post process here
     return result;
   }
@@ -112,6 +129,7 @@ namespace PLEXIL
     return result;
   }
 
+  // *** TO BE DELETED ***
   template<class NODE_TYPE>
   Node *ConcreteNodeFactory<NODE_TYPE>::create(PlexilNode const *nodeProto, 
                                                Node *parent) const
@@ -122,6 +140,13 @@ namespace PLEXIL
                << " invoked on node type "
                << nodeTypeString(nodeProto->nodeType()));
     return new NODE_TYPE(nodeProto, parent);
+  }
+
+  template<class NODE_TYPE>
+  Node *ConcreteNodeFactory<NODE_TYPE>::create(char const *name, 
+                                               Node *parent) const
+  {
+    return new NODE_TYPE(name, parent);
   }
 
   template<class NODE_TYPE>

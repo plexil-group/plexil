@@ -93,6 +93,9 @@ namespace PLEXIL
       m_children.push_back(node);
     }
 
+    virtual Node *findChild(const std::string& childName);
+    virtual Node const *findChild(const std::string& childName) const;
+
     /**
      * @brief Sets the state variable to the new state.
      * @param newValue The new node state.
@@ -101,9 +104,6 @@ namespace PLEXIL
     virtual void setState(NodeState newValue, double tym); // FIXME
 
   protected:
-
-    virtual Node *findChild(const std::string& childName);
-    virtual Node const *findChild(const std::string& childName) const;
 
     // Specific behaviors for derived classes
     virtual void specializedPostInitLate(PlexilNode const *node);

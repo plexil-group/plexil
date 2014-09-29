@@ -33,6 +33,7 @@
 namespace PLEXIL
 {
   extern char const *PLEXIL_PLAN_TAG;
+  extern char const *GLOBAL_DECLARATIONS_TAG;
   extern char const *NODE_TAG;
   extern char const *NODEID_TAG;
   extern char const *PRIORITY_TAG;
@@ -55,6 +56,7 @@ namespace PLEXIL
   extern char const *STATEVAL_TAG;
   extern char const *TIMEPOINT_TAG;
   extern char const *COND_TAG;
+  extern char const *COMMENT_TAG;
 
   // condition names
   extern char const *START_CONDITION_TAG;

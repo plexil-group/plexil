@@ -55,7 +55,7 @@ namespace PLEXIL
      * @brief New primary factory method.
      */
     static Node *createNode(char const *name,
-                            char const *type,
+                            PlexilNodeType type,
                             Node *parent = NULL);
 
     /**
@@ -77,7 +77,11 @@ namespace PLEXIL
     /**
      * @brief Primary factory method.
      */
+    // *** TO BE DELETED ***
     virtual Node *create(PlexilNode const *node, 
+                         Node *parent = NULL) const = 0;
+
+    virtual Node *create(char const *name, 
                          Node *parent = NULL) const = 0;
 
     /**
@@ -119,7 +123,11 @@ namespace PLEXIL
     ConcreteNodeFactory(const ConcreteNodeFactory&);
     ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
 
+    // *** TO BE DELETED ***
     Node *create(PlexilNode const *nodeProto, 
+                 Node *parent) const;
+
+    Node *create(char const *name,
                  Node *parent) const;
 
     /**

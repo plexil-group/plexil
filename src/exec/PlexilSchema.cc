@@ -27,6 +27,7 @@
 namespace PLEXIL
 {
   char const *PLEXIL_PLAN_TAG = "PlexilPlan";
+  char const *GLOBAL_DECLARATIONS_TAG = "GlobalDeclarations";
   char const *NODE_TAG = "Node";
   char const *NODEID_TAG = "NodeId";
   char const *PRIORITY_TAG = "Priority";
@@ -49,6 +50,7 @@ namespace PLEXIL
   char const *STATEVAL_TAG = "NodeStateValue";
   char const *TIMEPOINT_TAG = "Timepoint";
   char const *COND_TAG = "Condition";
+  char const *COMMENT_TAG = "Comment";
 
   // condition names
   char const *START_CONDITION_TAG = "StartCondition";
