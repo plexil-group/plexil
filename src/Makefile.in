@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -178,10 +178,11 @@ ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
 DIST_SUBDIRS = third-party/pugixml/src utils expr intfc exec \
-	app-framework interfaces/PlanDebugListener third-party/ipc \
-	interfaces/IpcUtils interfaces/IpcAdapter interfaces/Sockets \
-	interfaces/LuvListener apps/StandAloneSimulator apps/TestExec \
-	interfaces/UdpAdapter universal-exec interfaces/GanttListener
+	xml-parser app-framework interfaces/PlanDebugListener \
+	third-party/ipc interfaces/IpcUtils interfaces/IpcAdapter \
+	interfaces/Sockets interfaces/LuvListener \
+	apps/StandAloneSimulator apps/TestExec interfaces/UdpAdapter \
+	universal-exec interfaces/GanttListener
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -358,7 +359,8 @@ ACLOCAL_AMFLAGS = -I m4
 @UDP_OPT_TRUE@MAYBE_UDP_SUBDIRS = interfaces/UdpAdapter
 @UNIVERSAL_EXEC_OPT_TRUE@MAYBE_UNIVERSAL_EXEC_SUBDIRS = universal-exec
 @VIEWER_OPT_TRUE@MAYBE_VIEWER_SUBDIRS = interfaces/Sockets interfaces/LuvListener
-SUBDIRS = third-party/pugixml/src utils expr intfc exec app-framework interfaces/PlanDebugListener \
+SUBDIRS = third-party/pugixml/src utils expr intfc exec xml-parser app-framework \
+ interfaces/PlanDebugListener \
  $(MAYBE_IPC_SUBDIRS) $(MAYBE_VIEWER_SUBDIRS) $(MAYBE_SAS_SUBDIRS) \
  $(MAYBE_TEST_EXEC_SUBDIRS) $(MAYBE_UDP_SUBDIRS) $(MAYBE_UNIVERSAL_EXEC_SUBDIRS) \
  $(MAYBE_GANTT_SUBDIRS)

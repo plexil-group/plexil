@@ -18659,7 +18659,7 @@ done
 
 fi
 
-ac_config_files="$ac_config_files Makefile third-party/pugixml/src/Makefile utils/Makefile expr/Makefile intfc/Makefile exec/Makefile app-framework/Makefile apps/TestExec/Makefile interfaces/GanttListener/Makefile interfaces/LuvListener/Makefile interfaces/PlanDebugListener/Makefile interfaces/Sockets/Makefile interfaces/UdpAdapter/Makefile universal-exec/Makefile"
+ac_config_files="$ac_config_files Makefile third-party/pugixml/src/Makefile utils/Makefile expr/Makefile intfc/Makefile exec/Makefile xml-parser/Makefile app-framework/Makefile apps/TestExec/Makefile interfaces/GanttListener/Makefile interfaces/LuvListener/Makefile interfaces/PlanDebugListener/Makefile interfaces/Sockets/Makefile interfaces/UdpAdapter/Makefile universal-exec/Makefile"
 
 
 if test "x$enable_ipc" = "xyes"; then :
@@ -19842,6 +19842,7 @@ do
     "expr/Makefile") CONFIG_FILES="$CONFIG_FILES expr/Makefile" ;;
     "intfc/Makefile") CONFIG_FILES="$CONFIG_FILES intfc/Makefile" ;;
     "exec/Makefile") CONFIG_FILES="$CONFIG_FILES exec/Makefile" ;;
+    "xml-parser/Makefile") CONFIG_FILES="$CONFIG_FILES xml-parser/Makefile" ;;
     "app-framework/Makefile") CONFIG_FILES="$CONFIG_FILES app-framework/Makefile" ;;
     "apps/TestExec/Makefile") CONFIG_FILES="$CONFIG_FILES apps/TestExec/Makefile" ;;
     "interfaces/GanttListener/Makefile") CONFIG_FILES="$CONFIG_FILES interfaces/GanttListener/Makefile" ;;

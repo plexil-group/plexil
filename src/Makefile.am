@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -53,7 +53,8 @@ if VIEWER_OPT
   MAYBE_VIEWER_SUBDIRS = interfaces/Sockets interfaces/LuvListener
 endif
 
-SUBDIRS = third-party/pugixml/src utils expr intfc exec app-framework interfaces/PlanDebugListener \
+SUBDIRS = third-party/pugixml/src utils expr intfc exec xml-parser app-framework \
+ interfaces/PlanDebugListener \
  $(MAYBE_IPC_SUBDIRS) $(MAYBE_VIEWER_SUBDIRS) $(MAYBE_SAS_SUBDIRS) \
  $(MAYBE_TEST_EXEC_SUBDIRS) $(MAYBE_UDP_SUBDIRS) $(MAYBE_UNIVERSAL_EXEC_SUBDIRS) \
  $(MAYBE_GANTT_SUBDIRS)

@@ -204,6 +204,7 @@ AC_CONFIG_FILES([Makefile
                  expr/Makefile
                  intfc/Makefile
                  exec/Makefile
+                 xml-parser/Makefile
                  app-framework/Makefile
                  apps/TestExec/Makefile
                  interfaces/GanttListener/Makefile
