@@ -27,8 +27,13 @@
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "LibraryCallNode.hh"
+#include "parseNode.hh"
+#include "parsePlan.hh" // for getLibraryNode
 #include "ParserException.hh"
 #include "parser-utils.hh"
+#include "PlexilSchema.hh"
+
+#include "pugixml.hpp"
 
 using pugi::xml_node;
 using pugi::node_element;
@@ -36,7 +41,11 @@ using pugi::node_pcdata;
 
 namespace PLEXIL
 {
+
+  //
   // First pass
+  //
+
   static void checkAlias(LibraryCallNode *node, xml_node aliasXml)
     throw (ParserException)
   {
@@ -55,12 +64,11 @@ namespace PLEXIL
                                      "Alias " << name << " has malformed value expression in LibraryNodeCall node");
   }
 
-
-  // First pass
+  // *** TODO: Invalidate library node if parser error expanding call ***
   void constructLibraryCall(Node *node, xml_node callXml)
     throw (ParserException)
   {
-    LibraryCallNode callNode = dynamic_cast<LibraryCallNode *>(node);
+    LibraryCallNode *callNode = dynamic_cast<LibraryCallNode *>(node);
     assertTrue_2(callNode,
                  "constructLibraryCall: Not a LibraryCallNode");
     xml_node temp = callXml.first_child();
@@ -73,16 +81,16 @@ namespace PLEXIL
 
     // Check (but don't populate) aliases
     while (temp) {
-      checkAlias(node, temp);
+      checkAlias(callNode, temp);
       temp = temp.next_sibling();
     }
 
     // Construct call
-    xml_node template = getLibraryNode(name);
-    checkParserExceptionWithLocation(template,
+    xml_node templ = getLibraryNode(name);
+    checkParserExceptionWithLocation(templ,
                                      callXml,
                                      "Library node " << name << " not found");
-    callNode->addChild(parseNode(template, callNode));
+    callNode->addChild(parseNode(templ, callNode));
   }
 
   // Second pass
@@ -93,7 +101,7 @@ namespace PLEXIL
     xml_node nameXml = aliasXml.first_child();
     std::string name(nameXml.child_value());
     // Add the alias
-    checkParserExceptionWithLocation(!node->findAlias(name, true),
+    checkParserExceptionWithLocation(!node->findVariable(name, true),
                                      aliasXml,
                                      "Duplicate alias name " << name << " in LibraryNodeCall node");
     bool isGarbage = false;
@@ -105,12 +113,12 @@ namespace PLEXIL
   void finalizeLibraryCall(Node *node, xml_node callXml)
     throw (ParserException)
   {
-    LibraryCallNode callNode = dynamic_cast<LibraryCallNode *>(node);
+    LibraryCallNode *callNode = dynamic_cast<LibraryCallNode *>(node);
     assertTrue_2(callNode, "Internal error: Used to be a LibraryCallNode, but not now");
     xml_node temp = callXml.first_child().next_sibling(); // skip NodeId
     // Initialize aliases
     while (temp) {
-      finalizeAlias(node, temp);
+      finalizeAlias(callNode, temp);
       temp = temp.next_sibling();
     }
   }

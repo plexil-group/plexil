@@ -24,61 +24,59 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Node.hh"
-#include "parseNode.hh"
-#include "parser-utils.hh"
-#include "PlexilSchema.hh"
-
-#include "pugixml.hpp"
-
-using pugi::xml_document;
-using pugi::xml_node;
+#include "Debug.hh"
+#include "lifecycle-utils.h"
+#include "TestSupport.hh"
 
 #include <cstring>
+#include <fstream>
+#include <iostream>
 
-namespace PLEXIL
+extern bool arrayReferenceXmlParserTest();
+extern bool constantXmlParserTest();
+extern bool variableXmlParserTest();
+extern bool functionXmlParserTest();
+extern bool commandXmlParserTest();
+extern bool lookupXmlParserTest();
+extern bool updateXmlParserTest();
+
+void runTests()
 {
+  // Expressions
+  runTestSuite(constantXmlParserTest);
+  runTestSuite(variableXmlParserTest);
+  runTestSuite(arrayReferenceXmlParserTest);
+  runTestSuite(functionXmlParserTest);
 
-  // Place to store library nodes
-  static std::map<std::string, xml_node> libraryMap;
+  // External interface
+  runTestSuite(commandXmlParserTest);
+  runTestSuite(lookupXmlParserTest);
+  runTestSuite(updateXmlParserTest);
 
-  void addLibraryNode(std::string const &name, xml_node const &xml)
-  {
-    libraryMap[name] = xml;
+  // TODO: Nodes
+
+  runFinalizers();
+
+  std::cout << "Finished" << std::endl;
+}
+
+int main(int argc, char *argv[]) {
+
+  std::string debugConfig("Debug.cfg");
+  
+  for (int i = 1; i < argc; ++i) {
+      if (strcmp(argv[i], "-d") == 0)
+          debugConfig = std::string(argv[++i]);
   }
-
-  xml_node getLibraryNode(std::string const &name)
-  {
-    std::map<std::string, xml_node>::iterator it = libraryMap.find(name);
-    if (it == libraryMap.end())
-      return xml_node();
-    else
-      return it->second;
+  
+  std::ifstream config(debugConfig.c_str());
+  if (config.good()) {
+     readDebugConfigStream(config);
+     std::cout << "Reading configuration file " << debugConfig.c_str() << "\n";
   }
-
-  static void parseGlobalDeclarations(xml_node declXml)
-  {
-    // TODO
-  }
-
-  Node *parsePlan(xml_node const &xml)
-    throw(ParserException)
-  {
-    checkTag(PLEXIL_PLAN_TAG, xml);
-    checkHasChildElement(xml);
-
-    xml_node elt = xml.first_child();
-
-    // Handle global declarations
-    if (testTag(GLOBAL_DECLARATIONS_TAG, elt)) {
-      parseGlobalDeclarations(elt);
-      elt = elt.next_sibling();
-    }
-
-    checkTag(NODE_TAG, elt);
-    Node *result = parseNode(xml, NULL);
-    finalizeNode(result, xml);
-    return result;
-  }
-
-} // namespace PLEXIL
+  else
+     std::cout << "Warning: unable to read configuration file " << debugConfig.c_str() << "\n";
+  
+  runTests();
+  return 0;
+}

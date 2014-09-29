@@ -24,6 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef PLEXIL_PARSE_LIBRARY_CALL_HH
+#define PLEXIL_PARSE_LIBRARY_CALL_HH
+
 #include "ParserException.hh"
 
 namespace pugi
@@ -33,10 +36,12 @@ namespace pugi
 
 namespace PLEXIL
 {
-  extern void constructLibraryCall(Node *node, xml_node callXml)
+  extern void constructLibraryCall(Node *node, pugi::xml_node callXml)
     throw (ParserException);
 
-  extern void finalizeLibraryCall(Node *node, xml_node callXml)
-    throw (ParserException)
+  extern void finalizeLibraryCall(Node *node, pugi::xml_node callXml)
+    throw (ParserException);
 
 } // namespace PLEXIL
+
+#endif // PLEXIL_PARSE_LIBRARY_CALL_HH

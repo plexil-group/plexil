@@ -38,12 +38,12 @@ namespace pugi
 namespace PLEXIL
 {
   // Forward declarations
-  class Node;
+  class NodeConnector;
 
-  extern void constructCommand(Node *node, pugi::xml_node const &cmd)
+  extern Command *constructCommand(NodeConnector *node, pugi::xml_node const &cmdXml)
     throw (ParserException);
 
-  extern void finalizeCommand(Node *node, pugi::xml_node const &cmd)
+  extern void finalizeCommand(Command *cmd, NodeConnector *node, pugi::xml_node const &cmdXml)
     throw (ParserException);
 
 } // namespace PLEXIL

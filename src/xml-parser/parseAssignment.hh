@@ -24,6 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef PLEXIL_PARSE_ASSIGNMENT_HH
+#define PLEXIL_PARSE_ASSIGNMENT_HH
+
 #include "ParserException.hh"
 
 namespace pugi
@@ -45,3 +48,5 @@ namespace PLEXIL
   extern void finalizeAssignment(Node *node, pugi::xml_node assn)
     throw (ParserException);
 }
+
+#endif // PLEXIL_PARSE_ASSIGNMENT_HH

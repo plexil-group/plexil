@@ -27,9 +27,9 @@
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "interface-schema.hh"
+#include "NodeConnector.hh"
 #include "parser-utils.hh"
 #include "Update.hh"
-#include "UpdateNode.hh"
 
 #include "pugixml.hpp"
 
@@ -39,11 +39,11 @@ using pugi::xml_node;
 namespace PLEXIL
 {
 
-  void constructUpdate(Node *node, pugi::xml_node const &upd)
+  Update *constructUpdate(NodeConnector *node, pugi::xml_node const &updXml)
     throw (ParserException)
   {
-    checkTag(UPDATE_TAG, upd);
-    xml_node pr = upd.first_child();
+    checkTag(UPDATE_TAG, updXml);
+    xml_node pr = updXml.first_child();
     while (pr) {
       checkTag(PAIR_TAG, pr);
       xml_node temp = pr.first_child();
@@ -56,19 +56,13 @@ namespace PLEXIL
       pr = pr.next_sibling();
     }
 
-    UpdateNode unode = dynamic_cast<UpdateNode *>(node);
-    assertTrue_2(unode, "Not an UpdateNode");
-    unode->setUpdate(new Update(node));
+    return new Update(node);
   }
 
-  void finalizeUpdate(Node *node, pugi::xml_node const &upd)
+  void finalizeUpdate(Update *update, NodeConnector *node, pugi::xml_node const &updXml)
     throw (ParserException)
   {
-    UpdateNode unode = dynamic_cast<UpdateNode *>(node);
-    assertTrue_2(unode, "Not an UpdateNode");
-    Update *update = unode->getUpdate();
-
-    xml_node pr = upd.first_child();
+    xml_node pr = updXml.first_child();
     while (pr) {
       checkTag(PAIR_TAG, pr);
       xml_node temp = pr.first_child();

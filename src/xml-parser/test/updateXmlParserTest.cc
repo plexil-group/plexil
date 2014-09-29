@@ -27,7 +27,7 @@
 #include "ExpressionFactory.hh"
 #include "ExpressionFactories.hh"
 #include "TestSupport.hh"
-#include "TrivialNodeConnector.hh"
+#include "test/TrivialNodeConnector.hh"
 #include "Update.hh"
 #include "updateXmlParser.hh"
 
@@ -48,8 +48,9 @@ static bool testUpdateParserBasics()
 
   // Empty
   xml_node emptyUpdateXml = doc.append_child("Update");
-  Update *emptyUpdate = updateXmlParser(emptyUpdateXml, &conn);
+  Update *emptyUpdate = constructUpdate(&conn, emptyUpdateXml);
   assertTrue_1(emptyUpdate);
+  finalizeUpdate(emptyUpdate, &conn, emptyUpdateXml);
   emptyUpdate->fixValues();
   assertTrue_1(emptyUpdate->getPairs().empty());
 
@@ -58,8 +59,10 @@ static bool testUpdateParserBasics()
   xml_node simplePair = simpleXml.append_child("Pair");
   simplePair.append_child("Name").append_child(node_pcdata).set_value("foo");
   simplePair.append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-  Update *simple = updateXmlParser(simpleXml, &conn);
+
+  Update *simple = constructUpdate(&conn, simpleXml);
   assertTrue_1(simple);
+  finalizeUpdate(simple, &conn, simpleXml);
   simple->fixValues();
   std::map<std::string, Value> const &simplePairs = simple->getPairs();
   assertTrue_1(simplePairs.size() == 1);
@@ -82,7 +85,7 @@ static bool testUpdateParserErrorHandling()
   mtNamePair.append_child("Name");
   mtNamePair.append_child("IntegerValue").append_child(node_pcdata).set_value("0");
   try {
-    Update *mtName = updateXmlParser(mtNameXml, &conn);
+    Update *mtName = constructUpdate(&conn, mtNameXml);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect empty Name element");
   }
   catch (ParserException const & /* exc */) {
@@ -94,7 +97,7 @@ static bool testUpdateParserErrorHandling()
   xml_node missingNamePair = missingNameXml.append_child("Pair");
   missingNamePair.append_child("IntegerValue").append_child(node_pcdata).set_value("0");
   try {
-    Update *missingName = updateXmlParser(missingNameXml, &conn);
+    Update *missingName = constructUpdate(&conn, missingNameXml);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect missing value expression");
   }
   catch (ParserException const & /* exc */) {
@@ -106,7 +109,7 @@ static bool testUpdateParserErrorHandling()
   xml_node missingValuePair = missingValueXml.append_child("Pair");
   missingValuePair.append_child("Name").append_child(node_pcdata).set_value("foo");
   try {
-    Update *missingValue = updateXmlParser(missingValueXml, &conn);
+    Update *missingValue = constructUpdate(&conn, missingValueXml);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect missing value expression");
   }
   catch (ParserException const & /* exc */) {
@@ -120,7 +123,8 @@ static bool testUpdateParserErrorHandling()
   duplicatePair.append_child("IntegerValue").append_child(node_pcdata).set_value("0");
   duplicateXml.append_copy(duplicatePair);
   try {
-    Update *duplicate = updateXmlParser(duplicateXml, &conn);
+    Update *duplicate = constructUpdate(&conn, duplicateXml);
+    finalizeUpdate(duplicate, &conn, duplicateXml);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect duplicate pair name");
   }
   catch (ParserException const & /* exc */) {

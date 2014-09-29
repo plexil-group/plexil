@@ -41,7 +41,7 @@ namespace PLEXIL
    * @param parent The node which is the parent of the returned value.
    * @return The node represented by the XML, with all its children and variables populated.
    */
-  extern Node *parseNode(pugi::xml_node xml, Node *parent)
+  extern Node *parseNode(pugi::xml_node const &xml, Node *parent)
     throw (ParserException);
 
   /**
@@ -49,7 +49,7 @@ namespace PLEXIL
    * @param node The node to finalize.
    * @param xml The DOM representation of the node's XML.
    */
-  extern void finalizeNode(Node *node, pugi::xml_node xml)
+  extern void finalizeNode(Node *node, pugi::xml_node const &xml)
     throw (ParserException);
 
 } // namespace PLEXIL

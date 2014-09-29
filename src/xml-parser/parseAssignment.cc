@@ -25,10 +25,18 @@
 */
 
 #include "Assignable.hh"
+#include "Assignment.hh"
 #include "AssignmentNode.hh"
+#include "Error.hh"
 #include "ExpressionFactory.hh"
+#include "parser-utils.hh"
 
 #include "pugixml.hpp"
+
+#include <cerrno>
+#include <cstdlib> // for strtoul()
+
+using pugi::xml_node;
 
 namespace PLEXIL
 {
@@ -84,7 +92,12 @@ namespace PLEXIL
     assertTrue_2(anode, "finalizeAssignment: AssignmentNode without an Assignment");
     xml_node temp = assn.first_child();
     bool varGarbage = false;
-    Assignable *var = createExpression(temp, node, varGarbage);
+    Expression *exp = createExpression(temp, node, varGarbage);
+    Assignable *var = exp->asAssignable();
+    checkParserExceptionWithLocation(var,
+                                     temp,
+                                     "Assignment Node " << node->getNodeId()
+                                     << ": Destination expression is read-only");
     temp = temp.next_sibling().first_child();
     bool rhsGarbage;
     Expression *rhs = createExpression(temp, node, rhsGarbage);

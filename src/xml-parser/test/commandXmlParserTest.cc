@@ -28,9 +28,9 @@
 #include "ExpressionFactories.hh"
 #include "Command.hh"
 #include "commandXmlParser.hh"
-#include "FactoryTestNodeConnector.hh"
+#include "test/FactoryTestNodeConnector.hh"
 #include "TestSupport.hh"
-#include "TrivialNodeConnector.hh"
+#include "test/TrivialNodeConnector.hh"
 #include "UserVariable.hh"
 
 #include "pugixml.hpp"
@@ -53,8 +53,11 @@ static bool testCommandParserBasics()
   // Minimum case
   xml_node simpleXml = doc.append_child("Command");
   simpleXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("foo");
-  Command *simple = commandXmlParser(simpleXml, &conn);
+  
+  Command *simple = constructCommand(&conn, simpleXml);
   assertTrue_1(simple);
+
+  finalizeCommand(simple, &conn, simpleXml);
   assertTrue_1(!simple->getDest());
   simple->activate();
   simple->fixValues();
@@ -68,8 +71,9 @@ static bool testCommandParserBasics()
   xml_node emptyXml = doc.append_child("Command");
   emptyXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("empty");
   emptyXml.append_child("Arguments");
-  Command *empty = commandXmlParser(emptyXml, &conn);
+  Command *empty = constructCommand(&conn, emptyXml);
   assertTrue_1(empty);
+  finalizeCommand(empty, &conn, emptyXml);
   assertTrue_1(!empty->getDest());
   empty->activate();
   empty->fixValues();
@@ -83,8 +87,9 @@ static bool testCommandParserBasics()
   xml_node arghXml = doc.append_child("Command");
   arghXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("argh");
   arghXml.append_child("Arguments").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-  Command *argh = commandXmlParser(arghXml, &conn);
+  Command *argh = constructCommand(&conn, arghXml);
   assertTrue_1(argh);
+  finalizeCommand(argh, &conn, arghXml);
   assertTrue_1(!argh->getDest());
   argh->activate();
   argh->fixValues();
@@ -99,8 +104,9 @@ static bool testCommandParserBasics()
   xml_node resultantXml = doc.append_child("Command");
   resultantXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
   resultantXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resultant");
-  Command *resultant = commandXmlParser(resultantXml, &conn);
+  Command *resultant = constructCommand(&conn, resultantXml);
   assertTrue_1(resultant);
+  finalizeCommand(resultant, &conn, resultantXml);
   assertTrue_1(resultant->getDest() == &flagVar);
   resultant->activate();
   resultant->fixValues();
@@ -114,8 +120,9 @@ static bool testCommandParserBasics()
   xml_node resourcelessXml = doc.append_child("Command");
   resourcelessXml.append_child("ResourceList");
   resourcelessXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resourceless");
-  Command *resourceless = commandXmlParser(resourcelessXml, &conn);
+  Command *resourceless = constructCommand(&conn, resourcelessXml);
   assertTrue_1(resourceless);
+  finalizeCommand(resourceless, &conn, resourcelessXml);
   assertTrue_1(!resourceless->getDest());
   resourceless->activate();
   resourceless->fixValues();
@@ -132,8 +139,9 @@ static bool testCommandParserBasics()
   resource.append_child("ResourceName").append_child("StringValue").append_child(node_pcdata).set_value("a");
   resource.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
   resourcefulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resourceful");
-  Command *resourceful = commandXmlParser(resourcefulXml, &conn);
+  Command *resourceful = constructCommand(&conn, resourcefulXml);
   assertTrue_1(resourceful);
+  finalizeCommand(resourceful, &conn, resourcefulXml);
   assertTrue_1(!resourceful->getDest());
   resourceful->activate();
   resourceful->fixValues();
@@ -157,8 +165,10 @@ static bool testCommandParserBasics()
   remorse.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("1");
   remorsefulXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
   remorsefulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("remorseful");
-  Command *remorseful = commandXmlParser(remorsefulXml, &conn);
+
+  Command *remorseful = constructCommand(&conn, remorsefulXml);
   assertTrue_1(remorseful);
+  finalizeCommand(remorseful, &conn, remorsefulXml);
   assertTrue_1(remorseful->getDest() == &flagVar);
   remorseful->activate();
   remorseful->fixValues();
@@ -183,8 +193,9 @@ static bool testCommandParserBasics()
   regretfulXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
   regretfulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("regretful");
   regretfulXml.append_child("Arguments").append_child("BooleanValue").append_child(node_pcdata).set_value("true");
-  Command *regretful = commandXmlParser(regretfulXml, &conn);
+  Command *regretful = constructCommand(&conn, regretfulXml);
   assertTrue_1(regretful);
+  finalizeCommand(regretful, &conn, regretfulXml);
   assertTrue_1(regretful->getDest() == &flagVar);
   regretful->activate();
   regretful->fixValues();
@@ -214,7 +225,7 @@ static bool testCommandParserErrorHandling()
 
   xml_node mtCmd = doc.append_child("Command");
   try {
-    Command *mtCmdCmd = commandXmlParser(mtCmd, &conn);
+    Command *mtCmdCmd = constructCommand(&conn, mtCmd);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect empty Command element");
   }
   catch (ParserException const & /* exc */) {
@@ -225,7 +236,7 @@ static bool testCommandParserErrorHandling()
   xml_node mtName = doc.append_child("Command");
   mtName.append_child("Name");
   try {
-    Command *mtNameCmd = commandXmlParser(mtName, &conn);
+    Command *mtNameCmd = constructCommand(&conn, mtName);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect empty Name element");
   }
   catch (ParserException const & /* exc */) {
@@ -236,7 +247,8 @@ static bool testCommandParserErrorHandling()
   xml_node wrongTypeName = doc.append_child("Command");
   wrongTypeName.append_child("Name").append_child("RealValue").append_child(node_pcdata).set_value("3.14");
   try {
-    Command *wrongTypeNameCmd = commandXmlParser(wrongTypeName, &conn);
+    Command *wrongTypeNameCmd = constructCommand(&conn, wrongTypeName);
+    finalizeCommand(wrongTypeNameCmd, &conn, wrongTypeName);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect non-string Name value");
   }
   catch (ParserException const & /* exc */) {
@@ -248,7 +260,8 @@ static bool testCommandParserErrorHandling()
   invalidReturn.append_child("StringValue").append_child(node_pcdata).set_value("illegal");
   invalidReturn.append_child("Name").append_child(node_pcdata).set_value("legal");
   try {
-    Command *invalidReturnCmd = commandXmlParser(invalidReturn, &conn);
+    Command *invalidReturnCmd = constructCommand(&conn, invalidReturn);
+    finalizeCommand(invalidReturnCmd, &conn, invalidReturn);
     assertTrue_2(ALWAYS_FAIL, "Failed to detect invalid return expression");
   }
   catch (ParserException const & /* exc */) {

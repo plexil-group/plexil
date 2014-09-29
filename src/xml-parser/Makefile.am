@@ -32,16 +32,20 @@ libPlexilXmlParser_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
 
 include_HEADERS = parsePlan.hh
 
-libPlexilXmlParser_la_SOURCES = parseLibraryCall.cc parsePlan.cc
+libPlexilXmlParser_la_SOURCES = commandXmlParser.cc parseAssignment.cc \
+ parseLibraryCall.cc parseNode.cc parsePlan.cc updateXmlParser.cc
 
-# *** TODO ***
-# if MODULE_TESTS_OPT
-#   bin_PROGRAMS = test/parser-module-tests
-#   noinst_HEADERS =
-#   test_parser_module_tests_SOURCES = test/parser-test-module.cc
-#   test_parser_module_tests_LDADD = libPlexilXmlParser.la ../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la \
-#  ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \
-#  ../third-party/pugixml/src/libpugixml.la
-#   test_parser_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
-#  -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
-# endif
+if MODULE_TESTS_OPT
+  bin_PROGRAMS = test/parser-module-tests
+  noinst_HEADERS =
+  test_parser_module_tests_SOURCES = test/parser-test-module.cc \
+   ../expr/test/FactoryTestNodeConnector.cc ../expr/test/TrivialNodeConnector.cc \
+   test/constantXmlParserTest.cc test/variableXmlParserTest.cc \
+   test/arrayReferenceXmlParserTest.cc test/functionXmlParserTest.cc \
+   test/commandXmlParserTest.cc test/lookupXmlParserTest.cc test/updateXmlParserTest.cc
+  test_parser_module_tests_LDADD = libPlexilXmlParser.la ../exec/libPlexilExec.la \
+   ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \
+   ../third-party/pugixml/src/libpugixml.la
+  test_parser_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
+   -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
+endif
