@@ -63,8 +63,7 @@ namespace PLEXIL
             ResourceList const &resource,
             std::string const &nodeName);
     // New version
-    Command(std::string const &nodeName,
-            ResourceList const &resource);
+    Command(std::string const &nodeName);
     ~Command();
 
     Expression *getDest();
@@ -81,6 +80,8 @@ namespace PLEXIL
     void setDestination(Assignable *dest, bool isGarbage);
     void setNameExpr(Expression *nameExpr, bool isGarbage);
     void addArgument(Expression *arg, bool isGarbage);
+    ResourceList &getResourceList();
+    void addGarbageExpression(Expression *exp);
 
     // Interface to CommandNode
     void activate();

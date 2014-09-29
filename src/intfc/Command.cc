@@ -56,15 +56,14 @@ namespace PLEXIL
   }
 
   // New version
-  Command::Command(std::string const &nodeName,
-                   const ResourceList &resource)
+  Command::Command(std::string const &nodeName)
     : m_ack(*this),
       m_abortComplete(),
       m_nameExpr(NULL),
       m_dest(NULL),
       m_garbage(),
       m_args(),
-      m_resourceList(resource),
+      m_resourceList(),
       m_commandHandle(NO_COMMAND_HANDLE),
       m_fixed(false),
       m_resourceFixed(false),
@@ -97,6 +96,16 @@ namespace PLEXIL
     m_nameExpr = nameExpr;
     if (isGarbage)
       m_garbage.push_back(nameExpr);
+  }
+
+  ResourceList &Command::getResourceList()
+  {
+    return m_resourceList;
+  }
+
+  void Command::addGarbageExpression(Expression *exp)
+  {
+    m_garbage.push_back(exp);
   }
 
   void Command::addArgument(Expression *arg, bool isGarbage)
