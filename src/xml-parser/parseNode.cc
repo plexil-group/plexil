@@ -69,7 +69,7 @@ namespace PLEXIL
                                          << name);
       }
       // Variables are always created here, no need for "garbage" flag.
-      node->addVariable(name, createExpression(decl, node));
+      node->addLocalVariable(name, createExpression(decl, node));
       decl = decl.next_sibling();
     }
   }
@@ -401,9 +401,13 @@ namespace PLEXIL
       }
           break;
 
-        default:
-          assertTrue_2(ALWAYS_FAIL, "Internal error: bad node type");
-          break;
+      case NodeType_Empty:
+        // nothing to do
+        break;
+
+      default:
+        assertTrue_2(ALWAYS_FAIL, "Internal error: bad node type");
+        break;
       }
     }
     catch (std::exception const & exc) {
@@ -585,8 +589,9 @@ namespace PLEXIL
     // It is only here after all child nodes and node bodies have been constructed
     // that all variables which could be referenced are accessible.
     if (varDecls) {
-      xml_node decl = varDecls.first_child();
-      while (decl) {
+      for (xml_node decl = varDecls.first_child();
+           decl;
+           decl = decl.next_sibling()) {
         xml_node initXml = decl.child("InitialValue");
         if (initXml) {
           char const *varName = decl.child_value("Name");
@@ -598,6 +603,8 @@ namespace PLEXIL
           checkParserExceptionWithLocation(var->isAssignable(),
                                            initXml,
                                            "This variable may not take an initializer");
+          checkHasChildElement(initXml);
+          initXml = initXml.first_child();
           bool garbage;
           Expression *init = createExpression(initXml, node, garbage);
           checkParserExceptionWithLocation(areTypesCompatible(var->valueType(), init->valueType()),
@@ -648,7 +655,7 @@ namespace PLEXIL
     case NodeType_Command: {
       CommandNode *cnode = dynamic_cast<CommandNode *>(node);
       assertTrue_2(cnode, "Node is not a CommandNode");
-      finalizeCommand(node, cnode->getCommand(), body);
+      finalizeCommand(cnode->getCommand(), node, body);
     }
       break;
 
@@ -673,6 +680,10 @@ namespace PLEXIL
       assertTrue_2(unode, "Not an UpdateNode");
       finalizeUpdate(unode->getUpdate(), node, body);
     }
+      break;
+
+    case NodeType_Empty:
+      // nothing to do
       break;
 
     default:
