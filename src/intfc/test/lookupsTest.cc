@@ -31,7 +31,7 @@
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 #include "TestSupport.hh"
-#include "TrivialListener.hh"
+#include "test/TrivialListener.hh"
 #include "UserVariable.hh"
 
 #include <map>

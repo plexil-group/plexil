@@ -30,7 +30,7 @@
 #include "NodeConnector.hh"
 #include "PlexilExpr.hh"
 #include "TestSupport.hh"
-#include "TrivialNodeConnector.hh"
+#include "test/TrivialNodeConnector.hh"
 
 using namespace PLEXIL;
 

@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "TrivialListener.hh"
+#include "test/TrivialListener.hh"
 
 TrivialListener::TrivialListener(bool &changed)
   : PLEXIL::ExpressionListener(),

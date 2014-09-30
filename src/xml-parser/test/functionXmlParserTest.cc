@@ -26,7 +26,6 @@
 
 #include "ArrayImpl.hh"
 #include "ExpressionFactory.hh"
-#include "ExpressionFactories.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "TestSupport.hh"
@@ -506,8 +505,6 @@ static bool arithmeticFunctionXmlParserTest()
 
 bool functionXmlParserTest()
 {
-  // Initialize factories
-  registerBasicExpressionFactories();
   // Initialize infrastructure
   nc = new TrivialNodeConnector();
 

@@ -31,7 +31,7 @@
 #include "Constant.hh"
 #include "ExpressionFactories.hh"
 #include "ExpressionFactory.hh"
-#include "FactoryTestNodeConnector.hh"
+#include "test/FactoryTestNodeConnector.hh"
 #include "PlexilExpr.hh"
 #include "TestSupport.hh"
 #include "UserVariable.hh"

@@ -26,7 +26,7 @@
 
 #include "ExpressionFactory.hh"
 #include "ExpressionFactories.hh"
-#include "FactoryTestNodeConnector.hh"
+#include "test/FactoryTestNodeConnector.hh"
 #include "Lookup.hh"
 #include "LookupFactory.hh"
 #include "PlexilLookup.hh"

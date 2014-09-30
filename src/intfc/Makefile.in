@@ -406,7 +406,7 @@ libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
 @MODULE_TESTS_OPT_TRUE@ test/intfc-test-module.cc
 
 @MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils \
-@MODULE_TESTS_OPT_TRUE@ -I../expr -I../expr/test
+@MODULE_TESTS_OPT_TRUE@ -I../expr
 
 @MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_LDADD = libPlexilIntfc.la ../expr/libPlexilExpr.la \
 @MODULE_TESTS_OPT_TRUE@ ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la

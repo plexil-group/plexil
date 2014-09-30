@@ -32,7 +32,7 @@
 #include "Error.hh"
 #include "NotifierImpl.hh"
 #include "TestSupport.hh"
-#include "TrivialListener.hh"
+#include "test/TrivialListener.hh"
 #include "Value.hh"
 
 class PropagatingListener : public PLEXIL::ExpressionListener

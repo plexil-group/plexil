@@ -27,7 +27,7 @@
 #include "ArrayImpl.hh"
 #include "ExpressionFactory.hh"
 #include "ExpressionFactories.hh"
-#include "FactoryTestNodeConnector.hh"
+#include "test/FactoryTestNodeConnector.hh"
 #include "PlexilExpr.hh"
 #include "TestSupport.hh"
 

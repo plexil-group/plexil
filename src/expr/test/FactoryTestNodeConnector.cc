@@ -24,13 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "FactoryTestNodeConnector.hh"
+#include "test/FactoryTestNodeConnector.hh"
 
 #include "PlexilExpr.hh"
 #include "Expression.hh"
-
-// *** TEMP DEBUG ***
-#include <iostream>
 
 namespace PLEXIL
 {
@@ -43,9 +40,6 @@ namespace PLEXIL
   {
     TestVariableMap::iterator it = m_variableMap.begin();
     while (it != m_variableMap.end()) {
-      // *** TEMP DEBUG ***
-      std::cout << "Deleting " << it->first << std::endl;
-      // *** END TEMP DEBUG ***
       delete it->second;
       m_variableMap.erase(it);
       it = m_variableMap.begin();

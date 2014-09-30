@@ -50,7 +50,7 @@ if MODULE_TESTS_OPT
  test/lookupsTest.cc test/stateTest.cc test/lookupFactoryTest.cc \
  test/intfc-test-module.cc
   test_intfc_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils \
- -I../expr -I../expr/test
+ -I../expr
   test_intfc_module_tests_LDADD = libPlexilIntfc.la ../expr/libPlexilExpr.la \
  ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
 endif

@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "TrivialNodeConnector.hh"
+#include "test/TrivialNodeConnector.hh"
 
 TrivialNodeConnector::TrivialNodeConnector()
   : NodeConnector()
