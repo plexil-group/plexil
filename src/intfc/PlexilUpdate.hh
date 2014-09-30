@@ -29,7 +29,6 @@
 
 #include "PlexilExpr.hh"
 
-#include <string>
 #include <vector>
 #include <utility>
 

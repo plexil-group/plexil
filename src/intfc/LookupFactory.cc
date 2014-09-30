@@ -87,7 +87,7 @@ namespace PLEXIL
                           params, paramsGarbage);
     }
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool & wasCreated) const
     {
