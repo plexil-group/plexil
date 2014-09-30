@@ -25,6 +25,7 @@
 */
 
 #include "Debug.hh"
+#include "ExpressionFactories.hh"
 #include "lifecycle-utils.h"
 #include "TestSupport.hh"
 
@@ -43,6 +44,12 @@ extern bool nodeXmlParserTest();
 
 void runTests()
 {
+  // Initialize factories
+  PLEXIL::registerBasicExpressionFactories();
+
+  // Initialize infrastructure
+  Error::doThrowExceptions();
+
   // Expressions
   runTestSuite(constantXmlParserTest);
   runTestSuite(variableXmlParserTest);

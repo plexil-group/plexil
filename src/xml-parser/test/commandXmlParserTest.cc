@@ -25,7 +25,6 @@
 */
 
 #include "ExpressionFactory.hh"
-#include "ExpressionFactories.hh"
 #include "Command.hh"
 #include "commandXmlParser.hh"
 #include "test/FactoryTestNodeConnector.hh"
@@ -44,8 +43,8 @@ using pugi::node_pcdata;
 static bool testCommandParserBasics()
 {
   FactoryTestNodeConnector conn;
-  BooleanVariable flagVar(&conn, "flag");
-  conn.storeVariable("flag", &flagVar);
+  Assignable *flagVar = new BooleanVariable(&conn, "flag");
+  conn.storeVariable("flag", flagVar);
 
   xml_document doc;
   doc.set_name("testCommandParserBasics");
@@ -107,7 +106,7 @@ static bool testCommandParserBasics()
   Command *resultant = constructCommand(&conn, resultantXml);
   assertTrue_1(resultant);
   finalizeCommand(resultant, &conn, resultantXml);
-  assertTrue_1(resultant->getDest() == &flagVar);
+  assertTrue_1(resultant->getDest() == flagVar);
   resultant->activate();
   resultant->fixValues();
   assertTrue_1(resultant->getName() == "resultant");
@@ -169,7 +168,7 @@ static bool testCommandParserBasics()
   Command *remorseful = constructCommand(&conn, remorsefulXml);
   assertTrue_1(remorseful);
   finalizeCommand(remorseful, &conn, remorsefulXml);
-  assertTrue_1(remorseful->getDest() == &flagVar);
+  assertTrue_1(remorseful->getDest() == flagVar);
   remorseful->activate();
   remorseful->fixValues();
   assertTrue_1(remorseful->getName() == "remorseful");
@@ -196,7 +195,7 @@ static bool testCommandParserBasics()
   Command *regretful = constructCommand(&conn, regretfulXml);
   assertTrue_1(regretful);
   finalizeCommand(regretful, &conn, regretfulXml);
-  assertTrue_1(regretful->getDest() == &flagVar);
+  assertTrue_1(regretful->getDest() == flagVar);
   regretful->activate();
   regretful->fixValues();
   assertTrue_1(regretful->getName() == "regretful");
@@ -273,8 +272,6 @@ static bool testCommandParserErrorHandling()
 
 bool commandXmlParserTest()
 {
-  registerBasicExpressionFactories();
-
   runTest(testCommandParserBasics);
   runTest(testCommandParserErrorHandling);
 

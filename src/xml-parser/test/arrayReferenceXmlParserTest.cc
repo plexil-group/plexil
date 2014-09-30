@@ -29,7 +29,6 @@
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "Constant.hh"
-#include "ExpressionFactories.hh"
 #include "ExpressionFactory.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "TestSupport.hh"
@@ -1073,36 +1072,32 @@ static bool testMutableArrayAliasReferenceXmlParser()
   vs[2] = std::string("two");
   vs[3] = std::string("three");
 
-  BooleanArrayConstant bc(vb);
-  BooleanArrayVariable bav(nc, "bul", NULL, false);
-  bav.setInitializer(&bc, false);
+  Assignable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
+  bav->setInitializer(new BooleanArrayConstant(vb), false);
 
-  IntegerArrayConstant ic(vi);
-  IntegerArrayVariable iav(nc, "int", NULL, false);
-  iav.setInitializer(&ic, false);
+  Assignable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
+  iav->setInitializer(new IntegerArrayConstant(vi), true);
 
-  RealArrayConstant    dc(vd);
-  RealArrayVariable    dav(nc, "dbl", NULL, false);
-  dav.setInitializer(&dc, false);
+  Assignable *dav = new RealArrayVariable(nc, "dbl", NULL, false);
+  dav->setInitializer(new RealArrayConstant(vd), true);
 
-  StringArrayConstant  sc(vs);
-  StringArrayVariable  sav(nc, "str", NULL, false);
-  sav.setInitializer(&sc, false);
+  Assignable *sav = new StringArrayVariable(nc, "str", NULL, false);
+  sav->setInitializer(new StringArrayConstant(vs), true);
 
-  InOutAlias abav(nc, "bul", &bav, false);
-  InOutAlias aiav(nc, "int", &iav, false);
-  InOutAlias adav(nc, "dbl", &dav, false);
-  InOutAlias asav(nc, "str", &sav, false);
+  Assignable *abav = new InOutAlias(nc, "bul", bav, true);
+  Assignable *aiav = new InOutAlias(nc, "int", iav, true);
+  Assignable *adav = new InOutAlias(nc, "dbl", dav, true);
+  Assignable *asav = new InOutAlias(nc, "str", sav, true);
 
   // Associate aliases with names
-  realNc->storeVariable("bul", &abav);
-  realNc->storeVariable("int", &aiav);
-  realNc->storeVariable("dbl", &adav);
-  realNc->storeVariable("str", &asav);
+  realNc->storeVariable("bul", abav);
+  realNc->storeVariable("int", aiav);
+  realNc->storeVariable("dbl", adav);
+  realNc->storeVariable("str", asav);
 
   // Store array index too
-  IntegerVariable iv;
-  realNc->storeVariable("i", &iv);
+  Assignable *iv = new IntegerVariable();
+  realNc->storeVariable("i", iv);
 
   bool wasCreated = false;
 
@@ -1200,10 +1195,10 @@ static bool testMutableArrayAliasReferenceXmlParser()
   assertTrue_1(!sari->isKnown());
 
   // Activate arrays (NOT aliases) and try again
-  bav.activate();
-  iav.activate();
-  dav.activate();
-  sav.activate();
+  bav->activate();
+  iav->activate();
+  dav->activate();
+  sav->activate();
   assertTrue_1(!bar0->isKnown());
   assertTrue_1(!bari->isKnown());
   assertTrue_1(!iar0->isKnown());
@@ -1228,16 +1223,16 @@ static bool testMutableArrayAliasReferenceXmlParser()
   assertTrue_1(!pb);
 
   bari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vb.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(bari->getValue(pb));
     assertTrue_1(pb == vb[i]);
   }
   bari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check integer
   iar0->activate();
@@ -1245,16 +1240,16 @@ static bool testMutableArrayAliasReferenceXmlParser()
   assertTrue_1(pi == 0);
 
   iari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vi.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(iari->getValue(pi));
     assertTrue_1(pi == vi[i]);
   }
   iari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check double
   dar0->activate();
@@ -1262,16 +1257,16 @@ static bool testMutableArrayAliasReferenceXmlParser()
   assertTrue_1(pd == 0);
 
   dari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vd.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(dari->getValue(pd));
     assertTrue_1(pd == vd[i]);
   }
   dari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check string
   sar0->activate();
@@ -1279,10 +1274,10 @@ static bool testMutableArrayAliasReferenceXmlParser()
   assertTrue_1(ps == "zero");
 
   sari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vs.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(sari->getValue(ps));
     assertTrue_1(ps == vs[i]);
@@ -1293,8 +1288,8 @@ static bool testMutableArrayAliasReferenceXmlParser()
   // Boolean
   bari->activate();
   for (int32_t i = 0; i < vb.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(bari->getValue(pb));
     assertTrue_1(pb == vb[i]);
@@ -1306,8 +1301,8 @@ static bool testMutableArrayAliasReferenceXmlParser()
   // Integer
   iari->activate();
   for (int32_t i = 0; i < vi.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(iari->getValue(pi));
     assertTrue_1(pi == vi[i]);
@@ -1320,8 +1315,8 @@ static bool testMutableArrayAliasReferenceXmlParser()
   // Real
   dari->activate();
   for (int32_t i = 0; i < vd.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(dari->getValue(pd));
     assertTrue_1(pd == vd[i]);
@@ -1334,8 +1329,8 @@ static bool testMutableArrayAliasReferenceXmlParser()
   // String
   sari->activate();
   for (int32_t i = 0; i < vs.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(sari->getValue(ps));
     assertTrue_1(ps == vs[i]);
@@ -1361,8 +1356,6 @@ static bool testMutableArrayAliasReferenceXmlParser()
 
 bool arrayReferenceXmlParserTest()
 {
-  // Initialize factories
-  registerBasicExpressionFactories();
   // Initialize infrastructure
   realNc = new FactoryTestNodeConnector();
   nc = realNc;

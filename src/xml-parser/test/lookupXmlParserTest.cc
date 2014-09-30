@@ -25,7 +25,6 @@
 */
 
 #include "ExpressionFactory.hh"
-#include "ExpressionFactories.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "Lookup.hh"
 #include "LookupFactory.hh"
@@ -88,7 +87,6 @@ static bool testBasics()
 
 bool lookupXmlParserTest()
 {
-  registerBasicExpressionFactories();
   registerLookupFactories();
 
   runTest(testBasics);

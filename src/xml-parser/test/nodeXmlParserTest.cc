@@ -25,7 +25,6 @@
 */
 
 #include "ExpressionFactory.hh"
-#include "ExpressionFactories.hh"
 #include "Node.hh"
 #include "parseNode.hh"
 #include "TestSupport.hh"
@@ -370,9 +369,6 @@ bool emptyNodeXmlParserTest()
 
 bool nodeXmlParserTest()
 {
-  registerBasicExpressionFactories();
-  Error::doThrowExceptions();
-
   TransitionExternalInterface tif;
   g_interface = &tif;
 

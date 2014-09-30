@@ -27,7 +27,6 @@
 #include "ArrayImpl.hh"
 #include "Assignable.hh"
 #include "ExpressionFactory.hh"
-#include "ExpressionFactories.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "TestSupport.hh"
 
@@ -40,12 +39,11 @@ using pugi::xml_document;
 using pugi::xml_node;
 using pugi::node_pcdata;
 
-// Global variables for convenience
-static NodeConnector *nc = NULL;
-static FactoryTestNodeConnector *realNc = NULL;
-
 static bool booleanVariableXmlParserTest()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   bool wasCreated;
   bool temp;
 
@@ -65,7 +63,7 @@ static bool booleanVariableXmlParserTest()
   bExp->activate();
   assertTrue_1(!bExp->isKnown());
   assertTrue_1(!bExp->getValue(temp));
-  realNc->storeVariable("b", bExp);
+  realNc.storeVariable("b", bExp);
 
   // initialized
   xml_node fXml = doc.append_copy(bXml);
@@ -85,7 +83,7 @@ static bool booleanVariableXmlParserTest()
   assertTrue_1(fExp->isKnown());
   assertTrue_1(fExp->getValue(temp));
   assertTrue_1(!temp);
-  realNc->storeVariable("f", fExp);
+  realNc.storeVariable("f", fExp);
 
   xml_node tXml = doc.append_copy(bXml);
   tXml.first_child().first_child().set_value("t");
@@ -104,7 +102,7 @@ static bool booleanVariableXmlParserTest()
   assertTrue_1(tExp->isKnown());
   assertTrue_1(tExp->getValue(temp));
   assertTrue_1(temp);
-  realNc->storeVariable("t", tExp);
+  realNc.storeVariable("t", tExp);
 
   xml_node uXml = doc.append_copy(bXml);
   uXml.first_child().first_child().set_value("u");
@@ -178,6 +176,9 @@ static bool booleanVariableXmlParserTest()
 
 static bool integerVariableXmlParserTest()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   bool wasCreated;
   int32_t temp;
 
@@ -197,7 +198,7 @@ static bool integerVariableXmlParserTest()
   iExp->activate();
   assertTrue_1(!iExp->isKnown());
   assertTrue_1(!iExp->getValue(temp));
-  realNc->storeVariable("i", iExp);
+  realNc.storeVariable("i", iExp);
 
   // initialized
   xml_node zeroXml = doc.append_copy(iXml);
@@ -217,7 +218,7 @@ static bool integerVariableXmlParserTest()
   assertTrue_1(zeroExp->isKnown());
   assertTrue_1(zeroExp->getValue(temp));
   assertTrue_1(temp == 0);
-  realNc->storeVariable("z", zeroExp);
+  realNc.storeVariable("z", zeroExp);
 
   xml_node tXml = doc.append_copy(iXml);
   tXml.first_child().first_child().set_value("t");
@@ -236,7 +237,7 @@ static bool integerVariableXmlParserTest()
   assertTrue_1(tExp->isKnown());
   assertTrue_1(tExp->getValue(temp));
   assertTrue_1(temp == (int32_t) -2000000000);
-  realNc->storeVariable("t", tExp);
+  realNc.storeVariable("t", tExp);
 
   xml_node hXml = doc.append_copy(iXml);
   hXml.first_child().first_child().set_value("h");
@@ -255,7 +256,7 @@ static bool integerVariableXmlParserTest()
   assertTrue_1(hExp->isKnown());
   assertTrue_1(hExp->getValue(temp));
   assertTrue_1(temp == 0xBADF00D);
-  realNc->storeVariable("t", hExp);
+  realNc.storeVariable("t", hExp);
 
   xml_node uXml = doc.append_copy(iXml);
   uXml.first_child().first_child().set_value("u");
@@ -325,6 +326,9 @@ static bool integerVariableXmlParserTest()
 
 static bool realVariableXmlParserTest()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   bool wasCreated;
   double temp;
 
@@ -344,7 +348,7 @@ static bool realVariableXmlParserTest()
   iExp->activate();
   assertTrue_1(!iExp->isKnown());
   assertTrue_1(!iExp->getValue(temp));
-  realNc->storeVariable("i", iExp);
+  realNc.storeVariable("i", iExp);
 
   // initialized
   xml_node zeroXml = doc.append_copy(iXml);
@@ -364,7 +368,7 @@ static bool realVariableXmlParserTest()
   assertTrue_1(zeroExp->isKnown());
   assertTrue_1(zeroExp->getValue(temp));
   assertTrue_1(temp == 0);
-  realNc->storeVariable("z", zeroExp);
+  realNc.storeVariable("z", zeroExp);
 
   xml_node tXml = doc.append_copy(iXml);
   tXml.first_child().first_child().set_value("t");
@@ -383,7 +387,7 @@ static bool realVariableXmlParserTest()
   assertTrue_1(tExp->isKnown());
   assertTrue_1(tExp->getValue(temp));
   assertTrue_1(temp == -20000000000.0);
-  realNc->storeVariable("t", tExp);
+  realNc.storeVariable("t", tExp);
 
   xml_node piXml = doc.append_copy(iXml);
   piXml.first_child().first_child().set_value("pi");
@@ -402,7 +406,7 @@ static bool realVariableXmlParserTest()
   assertTrue_1(piExp->isKnown());
   assertTrue_1(piExp->getValue(temp));
   assertTrue_1(temp == 3.1415);
-  realNc->storeVariable("pi", piExp);
+  realNc.storeVariable("pi", piExp);
 
   xml_node uXml = doc.append_copy(iXml);
   uXml.first_child().first_child().set_value("u");
@@ -475,6 +479,9 @@ static bool realVariableXmlParserTest()
 
 static bool stringVariableXmlParserTest()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   bool wasCreated;
   std::string const *temp = NULL;
 
@@ -495,7 +502,7 @@ static bool stringVariableXmlParserTest()
   assertTrue_1(!unkExp->isKnown());
   assertTrue_1(!unkExp->getValuePointer(temp));
   assertTrue_1(temp == NULL);
-  realNc->storeVariable("unk", unkExp);
+  realNc.storeVariable("unk", unkExp);
 
   // initialized empty
   xml_node mtXml = doc.append_copy(unkXml);
@@ -515,7 +522,7 @@ static bool stringVariableXmlParserTest()
   assertTrue_1(mtExp->getValuePointer(temp));
   assertTrue_1(temp);
   assertTrue_1(temp->empty());
-  realNc->storeVariable("mt", mtExp);
+  realNc.storeVariable("mt", mtExp);
 
   // initialized to literal
   xml_node fooXml = doc.append_copy(unkXml);
@@ -537,7 +544,7 @@ static bool stringVariableXmlParserTest()
   assertTrue_1(temp);
   assertTrue_1(!temp->empty());
   assertTrue_1(*temp == "Foo!");
-  realNc->storeVariable("foo", fooExp);
+  realNc.storeVariable("foo", fooExp);
 
   // initialized to var ref
   xml_node barXml = doc.append_copy(unkXml);
@@ -558,7 +565,7 @@ static bool stringVariableXmlParserTest()
   assertTrue_1(temp);
   assertTrue_1(!temp->empty());
   assertTrue_1(*temp == "Foo!");
-  realNc->storeVariable("bar", barExp);
+  realNc.storeVariable("bar", barExp);
 
   xml_node bogusTypeXml = doc.append_copy(unkXml);
   bogusTypeXml.first_child().first_child().set_value("bogusType");
@@ -615,6 +622,9 @@ static bool stringVariableXmlParserTest()
 
 static bool booleanArrayVariableXmlParserTest()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   bool wasCreated, temp;
   BooleanArray const *aryTemp = NULL;
 
@@ -636,7 +646,7 @@ static bool booleanArrayVariableXmlParserTest()
   assertTrue_1(aryTemp);
   assertTrue_1(aryTemp->size() == 2);
   assertTrue_1(!aryTemp->anyElementsKnown());
-  realNc->storeVariable("ba1", ba1Exp);
+  realNc.storeVariable("ba1", ba1Exp);
 
   xml_node ba2Xml = doc.append_child("DeclareArray");
   ba2Xml.append_child("Name").append_child(node_pcdata).set_value("ba2");
@@ -680,7 +690,7 @@ static bool booleanArrayVariableXmlParserTest()
   assertTrue_1(!temp);
   assertTrue_1(aryTemp->getElement(6, temp));
   assertTrue_1(temp);
-  realNc->storeVariable("ba2", ba2Exp);
+  realNc.storeVariable("ba2", ba2Exp);
 
   // Variable refs
   
@@ -719,6 +729,9 @@ static bool booleanArrayVariableXmlParserTest()
 
 static bool integerArrayVariableXmlParserTest()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   bool wasCreated;
   IntegerArray const *aryTemp = NULL;
 
@@ -744,7 +757,7 @@ static bool integerArrayVariableXmlParserTest()
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
   assertTrue_1(aryTemp != NULL);
   assertTrue_1(aryTemp->size() == 0);
-  realNc->storeVariable("empty", emptyExp);
+  realNc.storeVariable("empty", emptyExp);
 
   int32_t temp;
 
@@ -784,7 +797,7 @@ static bool integerArrayVariableXmlParserTest()
   assertTrue_1(temp == 987654321);
   assertTrue_1(aryTemp->getElement(5, temp));
   assertTrue_1(temp == 0x69);
-  realNc->storeVariable("valid", validValExp);
+  realNc.storeVariable("valid", validValExp);
 
   xml_node tooLongValueXml = doc.append_child("DeclareArray");
   tooLongValueXml.append_child("Name").append_child(node_pcdata).set_value("tooLongValue");
@@ -847,6 +860,9 @@ static bool integerArrayVariableXmlParserTest()
 
 static bool realArrayVariableXmlParserTest()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   bool wasCreated;
   RealArray const *aryTemp = NULL;
   double temp;
@@ -873,7 +889,7 @@ static bool realArrayVariableXmlParserTest()
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
   assertTrue_1(aryTemp != NULL);
   assertTrue_1(aryTemp->size() == 0);
-  realNc->storeVariable("emmty", emptyExp);
+  realNc.storeVariable("emmty", emptyExp);
 
   xml_node validXml = doc.append_child("DeclareArray");
   validXml.append_child("Name").append_child(node_pcdata).set_value("vallid");
@@ -911,7 +927,7 @@ static bool realArrayVariableXmlParserTest()
   assertTrue_1(temp == 1e-100);
   assertTrue_1(aryTemp->getElement(5, temp));
   assertTrue_1(temp == 6.0221413e+23);
-  realNc->storeVariable("vallid", validVarExp);
+  realNc.storeVariable("vallid", validVarExp);
 
   // Variable reference tests
 
@@ -949,6 +965,9 @@ static bool realArrayVariableXmlParserTest()
 
 static bool stringArrayVariableXmlParserTest()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   bool wasCreated;
   StringArray const *aryTemp = NULL;
   std::string const *temp;
@@ -975,7 +994,7 @@ static bool stringArrayVariableXmlParserTest()
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
   assertTrue_1(aryTemp != NULL);
   assertTrue_1(aryTemp->size() == 0);
-  realNc->storeVariable("mty", emptyExp);
+  realNc.storeVariable("mty", emptyExp);
 
   xml_node validValXml = doc.append_child("DeclareArray");
   validValXml.append_child("Name").append_child(node_pcdata).set_value("vlaid");
@@ -1014,7 +1033,7 @@ static bool stringArrayVariableXmlParserTest()
   assertTrue_1(*temp == "1e-100");
   assertTrue_1(aryTemp->getElementPointer(5, temp));
   assertTrue_1(*temp == "6.0221413e+23");
-  realNc->storeVariable("vlaid", emptyExp);
+  realNc.storeVariable("vlaid", validValExp);
 
   // Variable reference tests
 
@@ -1053,13 +1072,6 @@ static bool stringArrayVariableXmlParserTest()
 
 bool variableXmlParserTest()
 {
-  // Initialize factories
-  registerBasicExpressionFactories();
-  // Initialize infrastructure
-  realNc = new FactoryTestNodeConnector();
-  nc = realNc;
-  Error::doThrowExceptions();
-
   runTest(booleanVariableXmlParserTest);
   runTest(integerVariableXmlParserTest);
   runTest(realVariableXmlParserTest);
@@ -1070,7 +1082,5 @@ bool variableXmlParserTest()
   runTest(realArrayVariableXmlParserTest);
   runTest(stringArrayVariableXmlParserTest);
 
-  nc = NULL;
-  delete realNc;
   return true;
 }
