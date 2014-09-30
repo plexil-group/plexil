@@ -51,7 +51,7 @@ namespace PLEXIL
     TestExternalInterface();
     ~TestExternalInterface();
 
-    void run(const pugi::xml_node& input)
+    void run(pugi::xml_node const input)
     throw(ParserException);
 
     void lookupNow(State const &state, StateCacheEntry &cacheEntry);
@@ -79,14 +79,14 @@ namespace PLEXIL
     typedef std::map<State, Command *> StateCommandMap;
     typedef std::map<State, Value>        StateMap;
 
-    void handleInitialState(const pugi::xml_node& input);
-    void handleState(const pugi::xml_node& elt);
-    void handleCommand(const pugi::xml_node& elt);
-    void handleCommandAck(const pugi::xml_node& elt);
-    void handleCommandAbort(const pugi::xml_node& elt);
-    void handleUpdateAck(const pugi::xml_node& elt);
-    void handleSendPlan(const pugi::xml_node& elt);
-    void handleSimultaneous(const pugi::xml_node& elt);
+    void handleInitialState(pugi::xml_node const input);
+    void handleState(pugi::xml_node const elt);
+    void handleCommand(pugi::xml_node const elt);
+    void handleCommandAck(pugi::xml_node const elt);
+    void handleCommandAbort(pugi::xml_node const elt);
+    void handleUpdateAck(pugi::xml_node const elt);
+    void handleSendPlan(pugi::xml_node const elt);
+    void handleSimultaneous(pugi::xml_node const elt);
 
     std::map<std::string, Update *> m_waitingUpdates;
     StateCommandMap m_executingCommands; //map from state to the command objects

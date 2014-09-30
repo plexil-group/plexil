@@ -51,15 +51,15 @@ namespace PLEXIL
   // Forward declarations for local functions
   static std::string getText(const State& c);
   static std::string getText(const State& c, const Value& v);
-  static State parseCommand(const pugi::xml_node& cmd);
+  static State parseCommand(pugi::xml_node const cmd);
   static Value parseOneValue(const std::string& type,
                              const std::string& valStr);
-  static Value parseParam(const pugi::xml_node& param);
-  static void parseParams(const pugi::xml_node& root,
+  static Value parseParam(pugi::xml_node const param);
+  static void parseParams(pugi::xml_node const root,
                           std::vector<Value>& dest);
-  static Value parseResult(const pugi::xml_node& valXml);
-  static State parseState(const pugi::xml_node& elt);
-  static Value parseStateValue(const pugi::xml_node& stateXml);
+  static Value parseResult(pugi::xml_node const valXml);
+  static State parseState(pugi::xml_node const elt);
+  static Value parseStateValue(pugi::xml_node const stateXml);
 
 
   TestExternalInterface::TestExternalInterface()
@@ -71,7 +71,7 @@ namespace PLEXIL
   {
   }
 
-  void TestExternalInterface::run(const pugi::xml_node& input)
+  void TestExternalInterface::run(pugi::xml_node const input)
     throw(ParserException)
   {
     checkError(g_exec, "Attempted to run a script without an executive.");
@@ -143,7 +143,7 @@ namespace PLEXIL
     }
   }
 
-  void TestExternalInterface::handleInitialState(const pugi::xml_node& input)
+  void TestExternalInterface::handleInitialState(pugi::xml_node const input)
   {
     pugi::xml_node initialState = input.child("InitialState");
     if (initialState) {
@@ -163,7 +163,7 @@ namespace PLEXIL
     g_exec->step(currentTime());
   }
 
-  void TestExternalInterface::handleState(const pugi::xml_node& elt)
+  void TestExternalInterface::handleState(pugi::xml_node const elt)
   {
     State st = parseState(elt);
     Value value = parseStateValue(elt);
@@ -174,7 +174,7 @@ namespace PLEXIL
     StateCacheMap::instance().ensureStateCacheEntry(st)->update(value);
   }
 
-  void TestExternalInterface::handleCommand(const pugi::xml_node& elt)
+  void TestExternalInterface::handleCommand(pugi::xml_node const elt)
   {
     State command = parseCommand(elt);
     Value value = parseResult(elt);
@@ -188,7 +188,7 @@ namespace PLEXIL
     m_executingCommands.erase(it);
   }
 
-  void TestExternalInterface::handleCommandAck(const pugi::xml_node& elt)
+  void TestExternalInterface::handleCommandAck(pugi::xml_node const elt)
   {
     State command = parseCommand(elt);
     // Ack should be string value
@@ -206,7 +206,7 @@ namespace PLEXIL
     this->commandHandleReturn(it->second, handle);
   }
 
-  void TestExternalInterface::handleCommandAbort(const pugi::xml_node& elt)
+  void TestExternalInterface::handleCommandAbort(pugi::xml_node const elt)
   {
     State command = parseCommand(elt);
     Value value = parseResult(elt);
@@ -222,7 +222,7 @@ namespace PLEXIL
     m_abortingCommands.erase(it);
   }
 
-  void TestExternalInterface::handleUpdateAck(const pugi::xml_node& elt)
+  void TestExternalInterface::handleUpdateAck(pugi::xml_node const elt)
   {
     std::string name(elt.attribute("name").value());
     debugMsg("Test:testOutput", "Sending update ACK " << name);
@@ -233,7 +233,7 @@ namespace PLEXIL
     m_waitingUpdates.erase(it);
   }
 
-  void TestExternalInterface::handleSendPlan(const pugi::xml_node& elt)
+  void TestExternalInterface::handleSendPlan(pugi::xml_node const elt)
   {
     const char* filename = elt.attribute("file").value();
     checkError(strlen(filename) > 0,
@@ -252,7 +252,7 @@ namespace PLEXIL
     g_exec->addPlan(root);
   }
 
-  void TestExternalInterface::handleSimultaneous(const pugi::xml_node& elt)
+  void TestExternalInterface::handleSimultaneous(pugi::xml_node const elt)
   {
     debugMsg("Test:testOutput", "Processing simultaneous event(s)");
     pugi::xml_node item = elt.first_child();
@@ -296,7 +296,7 @@ namespace PLEXIL
   // Script parsing utilities
   //
 
-  static State parseStateInternal(const pugi::xml_node& elt)
+  static State parseStateInternal(pugi::xml_node const elt)
   {
     checkError(!elt.attribute("name").empty(),
                "No name attribute in " << elt.name() << " element.");
@@ -306,7 +306,7 @@ namespace PLEXIL
     return State(name, parms);
   }
 
-  static State parseState(const pugi::xml_node& elt)
+  static State parseState(pugi::xml_node const elt)
   {
     checkError(strcmp(elt.name(), "State") == 0,
                "Expected <State> element. Found '" << elt.name() << "'");
@@ -314,7 +314,7 @@ namespace PLEXIL
   }
 
   // Parses all command-like elements: Command, CommandAck, CommandAbort.
-  static State parseCommand(const pugi::xml_node& cmd)
+  static State parseCommand(pugi::xml_node const cmd)
   {
     checkError(strcmp(cmd.name(), "Command") == 0 ||
                strcmp(cmd.name(), "CommandAck") == 0 ||
@@ -323,7 +323,7 @@ namespace PLEXIL
     return parseStateInternal(cmd);
   }
 
-  static Value parseResult(const pugi::xml_node& cmd)
+  static Value parseResult(pugi::xml_node const cmd)
   {
     pugi::xml_node resXml = cmd.child("Result");
     checkError(!resXml.empty(), "No Result child in <" << cmd.name() << "> element.");
@@ -347,7 +347,7 @@ namespace PLEXIL
     }
   }
 
-  static void parseParams(const pugi::xml_node& root, 
+  static void parseParams(pugi::xml_node const root, 
                           std::vector<Value>& dest)
   {
     pugi::xml_node param = root.child("Param");
@@ -357,7 +357,7 @@ namespace PLEXIL
     }
   }
 
-  static Value parseParam(const pugi::xml_node& param)
+  static Value parseParam(pugi::xml_node const param)
   {
     checkError(!param.first_child().empty()
                || strcmp(param.attribute("type").value(), "string") == 0,
@@ -404,7 +404,7 @@ namespace PLEXIL
     }
   }
 
-  static Value parseStateValue(const pugi::xml_node& stateXml)
+  static Value parseStateValue(pugi::xml_node const stateXml)
   {
     // read in values
     std::string type(stateXml.attribute("type").value());
