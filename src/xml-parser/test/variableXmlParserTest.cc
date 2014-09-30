@@ -656,8 +656,9 @@ static bool booleanArrayVariableXmlParserTest()
   assertTrue_1(wasCreated);
   assertTrue_1(ba2Exp);
   assertTrue_1(ba2Exp->valueType() == BOOLEAN_ARRAY_TYPE);
-  Expression *ba2Init = createExpression(ba2Xml, nc, wasCreated);
+  Expression *ba2Init = createExpression(initvals, nc, wasCreated);
   assertTrue_1(ba2Init);
+  assertTrue_1(ba2Init->isKnown());
   ba2Exp->asAssignable()->setInitializer(ba2Init, wasCreated);
   ba2Exp->activate();
   assertTrue_1(ba2Exp->isKnown());
@@ -728,13 +729,14 @@ static bool integerArrayVariableXmlParserTest()
   emptyXml.append_child("Name").append_child(node_pcdata).set_value("empty");
   emptyXml.append_child("Type").append_child(node_pcdata).set_value("Integer");
   emptyXml.append_child("MaxSize").append_child(node_pcdata).set_value("2");
-  emptyXml.append_child("InitialValue").append_child("ArrayValue").append_attribute("Type").set_value("Integer");
+  xml_node emptyInitXml = emptyXml.append_child("InitialValue").append_child("ArrayValue");
+  emptyInitXml.append_attribute("Type").set_value("Integer");
 
   Expression *emptyExp = createExpression(emptyXml, nc, wasCreated);
   assertTrue_1(emptyExp);
   assertTrue_1(wasCreated);
   assertTrue_1(emptyExp->valueType() == INTEGER_ARRAY_TYPE);
-  Expression *emptyInit = createExpression(emptyXml, nc, wasCreated);
+  Expression *emptyInit = createExpression(emptyInitXml, nc, wasCreated);
   assertTrue_1(emptyInit);
   emptyExp->asAssignable()->setInitializer(emptyInit, wasCreated);
   emptyExp->activate();
@@ -763,7 +765,7 @@ static bool integerArrayVariableXmlParserTest()
   assertTrue_1(validValExp);
   assertTrue_1(wasCreated);
   assertTrue_1(validValExp->valueType() == INTEGER_ARRAY_TYPE);
-  Expression *validValInit = createExpression(validXml, nc, wasCreated);
+  Expression *validValInit = createExpression(validContents, nc, wasCreated);
   assertTrue_1(validValInit);
   validValExp->asAssignable()->setInitializer(validValInit, wasCreated);
   validValExp->activate();
@@ -856,13 +858,14 @@ static bool realArrayVariableXmlParserTest()
   emptyXml.append_child("Name").append_child(node_pcdata).set_value("empty");
   emptyXml.append_child("Type").append_child(node_pcdata).set_value("Real");
   emptyXml.append_child("MaxSize").append_child(node_pcdata).set_value("0");
-  emptyXml.append_child("InitialValue").append_child("ArrayValue").append_attribute("Type").set_value("Real");
+  xml_node emptyInitXml = emptyXml.append_child("InitialValue").append_child("ArrayValue");
+  emptyInitXml.append_attribute("Type").set_value("Real");
 
   Expression *emptyExp = createExpression(emptyXml, nc, wasCreated);
   assertTrue_1(emptyExp);
   assertTrue_1(wasCreated);
   assertTrue_1(emptyExp->valueType() == REAL_ARRAY_TYPE);
-  Expression *emptyInit = createExpression(emptyXml, nc, wasCreated);
+  Expression *emptyInit = createExpression(emptyInitXml, nc, wasCreated);
   assertTrue_1(emptyInit);
   emptyExp->asAssignable()->setInitializer(emptyInit, wasCreated);
   emptyExp->activate();
@@ -889,7 +892,7 @@ static bool realArrayVariableXmlParserTest()
   assertTrue_1(validVarExp);
   assertTrue_1(wasCreated);
   assertTrue_1(validVarExp->valueType() == REAL_ARRAY_TYPE);
-  Expression *validVarInit = createExpression(validXml, nc, wasCreated);
+  Expression *validVarInit = createExpression(validXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(validVarInit);
   validVarExp->asAssignable()->setInitializer(validVarInit, wasCreated);
   validVarExp->activate();
@@ -957,13 +960,14 @@ static bool stringArrayVariableXmlParserTest()
   emptyXml.append_child("Name").append_child(node_pcdata).set_value("mty");
   emptyXml.append_child("Type").append_child(node_pcdata).set_value("String");
   emptyXml.append_child("MaxSize").append_child(node_pcdata).set_value("0");
-  emptyXml.append_child("InitialValue").append_child("ArrayValue").append_attribute("Type").set_value("String");
+  xml_node emptyInitXml = emptyXml.append_child("InitialValue").append_child("ArrayValue");
+  emptyInitXml.append_attribute("Type").set_value("String");
 
   Expression *emptyExp = createExpression(emptyXml, nc, wasCreated);
   assertTrue_1(emptyExp);
   assertTrue_1(wasCreated);
   assertTrue_1(emptyExp->valueType() == STRING_ARRAY_TYPE);
-  Expression *emptyInit = createExpression(emptyXml, nc, wasCreated);
+  Expression *emptyInit = createExpression(emptyInitXml, nc, wasCreated);
   assertTrue_1(emptyInit);
   emptyExp->asAssignable()->setInitializer(emptyInit, wasCreated);
   emptyExp->activate();
@@ -990,7 +994,7 @@ static bool stringArrayVariableXmlParserTest()
   assertTrue_1(validValExp);
   assertTrue_1(wasCreated);
   assertTrue_1(validValExp->valueType() == STRING_ARRAY_TYPE);
-  Expression *validValInit = createExpression(validValXml, nc, wasCreated);
+  Expression *validValInit = createExpression(contentsElt, nc, wasCreated);
   assertTrue_1(validValInit);
   validValExp->asAssignable()->setInitializer(validValInit, wasCreated);
   validValExp->activate();
