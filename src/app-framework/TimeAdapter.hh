@@ -73,7 +73,7 @@ namespace PLEXIL
      * @note The instance maintains a shared pointer to the XML element.
      */
     TimeAdapter(AdapterExecInterface& execInterface, 
-                const pugi::xml_node& xml);
+                pugi::xml_node const xml);
 
     /**
      * @brief Destructor.

@@ -47,7 +47,7 @@ namespace PLEXIL
   }
 
   InterfaceAdapter::InterfaceAdapter(AdapterExecInterface& execInterface, 
-                                     const pugi::xml_node& xml)
+                                     pugi::xml_node const xml)
     : m_execInterface(execInterface),
       m_xml(xml)
   {

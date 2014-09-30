@@ -52,7 +52,7 @@ namespace PLEXIL
      * @note The instance maintains a shared pointer to the XML element.
      */
     DarwinTimeAdapter(AdapterExecInterface& execInterface, 
-                      const pugi::xml_node& xml);
+                      pugi::xml_node const xml);
 
     /**
      * @brief Destructor.

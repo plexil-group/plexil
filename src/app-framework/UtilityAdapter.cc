@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@
 namespace PLEXIL {
 
 UtilityAdapter::UtilityAdapter(AdapterExecInterface& execInterface,
-                               const pugi::xml_node& configXml) :
+                               pugi::xml_node const configXml) :
     InterfaceAdapter(execInterface, configXml)
 {
   debugMsg("UtilityAdapter", " created.");

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,10 @@
 #ifndef EXEC_LISTENER_FACTORY_H
 #define EXEC_LISTENER_FACTORY_H
 
+#include "pugixml.hpp"
+
 #include <map>
 #include <string>
-
-// Forward reference
-namespace pugi
-{
-  class xml_node;
-}
 
 namespace PLEXIL
 {
@@ -59,7 +55,7 @@ namespace PLEXIL
      * @return The new ExecListener.
      */
 
-    static ExecListener *createInstance(const pugi::xml_node& xml);
+    static ExecListener *createInstance(pugi::xml_node const xml);
 
     /**
      * @brief Creates a new ExecListener instance with the type associated with the name and
@@ -70,7 +66,7 @@ namespace PLEXIL
      */
 
     static ExecListener *createInstance(std::string const &name, 
-                                        const pugi::xml_node& xml);
+                                        pugi::xml_node const xml);
 
     /**
      * @brief Checks whether or not the given ExecListenerFactory is registered.
@@ -104,7 +100,7 @@ namespace PLEXIL
      * @param xml The configuration XML for the instantiated listener.
      * @return The new ExecListener.
      */
-    virtual ExecListener *create(const pugi::xml_node& xml) const = 0;
+    virtual ExecListener *create(pugi::xml_node const xml) const = 0;
 
     ExecListenerFactory(std::string const &name)
       : m_name(name)
@@ -151,7 +147,7 @@ namespace PLEXIL
      * @return The new ExecListener.
      */
 
-    ExecListener *create(const pugi::xml_node& xml) const
+    ExecListener *create(pugi::xml_node const xml) const
     {
       return new ListenerType(xml);
     }

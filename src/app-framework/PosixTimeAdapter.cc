@@ -60,7 +60,7 @@ namespace PLEXIL
    * @note The instance maintains a shared pointer to the XML.
    */
   PosixTimeAdapter::PosixTimeAdapter(AdapterExecInterface& execInterface, 
-                                     const pugi::xml_node& xml)
+                                     pugi::xml_node const xml)
     : TimeAdapter(execInterface, xml)
   {
   }

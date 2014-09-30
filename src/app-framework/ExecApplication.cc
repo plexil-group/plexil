@@ -103,7 +103,7 @@ namespace PLEXIL
    * @note The caller must ensure that all adapter and listener factories
    *       have been created and registered before this call.
    */
-  bool ExecApplication::initialize(const pugi::xml_node& configXml)
+  bool ExecApplication::initialize(pugi::xml_node const configXml)
   {
     condDebugMsg(configXml.empty(), "ExecApplication:initialize", " configuration is NULL");
     condDebugMsg(!configXml.empty(), "ExecApplication:initialize",

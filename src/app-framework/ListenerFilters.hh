@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ namespace PLEXIL
   class NodeStateFilter : public ExecListenerFilter
   {
   public:
-    NodeStateFilter(const pugi::xml_node& xml);
+    NodeStateFilter(pugi::xml_node const xml);
 
     virtual ~NodeStateFilter();
 

@@ -255,7 +255,7 @@ namespace PLEXIL
      * @param planXml The TinyXML representation of the new plan.
      * @return True if parsing successful, false otherwise.
      */
-    bool handleAddPlan(const pugi::xml_node& planXml)
+    bool handleAddPlan(pugi::xml_node const planXml)
       throw(ParserException);
 
     /**
@@ -263,12 +263,14 @@ namespace PLEXIL
      * @param planStruct The PlexilNode representation of the new plan.
      * @return True if all referenced libraries were found, false otherwise.
      */
+    // *** TO BE DELETED ***
     bool handleAddPlan(PlexilNode *planStruct);
 
     /**
      * @brief Notify the executive of a new library node.
      * @param planStruct The PlexilNode representation of the new library node.
      */
+    // *** TO BE DELETED ***
     void handleAddLibrary(PlexilNode *planStruct);
 
     /**

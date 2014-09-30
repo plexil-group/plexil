@@ -35,7 +35,7 @@
 
 namespace PLEXIL
 {
-  NodeStateFilter::NodeStateFilter(const pugi::xml_node& xml)
+  NodeStateFilter::NodeStateFilter(pugi::xml_node const xml)
     : ExecListenerFilter(xml)
   {
     bool hasStates = false;

@@ -115,7 +115,7 @@ namespace PLEXIL {
    * @param configXml The XML element used for interface configuration.
    * @return true if successful, false otherwise.
    */
-  bool AdapterConfiguration::constructInterfaces(const pugi::xml_node& configXml)
+  bool AdapterConfiguration::constructInterfaces(pugi::xml_node const configXml)
   {
     if (configXml.empty()) {
       debugMsg("AdapterConfiguration:constructInterfaces",

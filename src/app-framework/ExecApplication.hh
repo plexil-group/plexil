@@ -103,7 +103,7 @@ namespace PLEXIL
      * @note The caller must ensure that all adapter and listener factories
      *       have been created and registered before this call.
      */
-    virtual bool initialize(const pugi::xml_node& configXml);
+    virtual bool initialize(pugi::xml_node const configXml);
 
     /**
      * @brief Start all the interfaces prior to execution.

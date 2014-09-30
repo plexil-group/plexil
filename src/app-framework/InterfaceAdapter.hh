@@ -79,7 +79,7 @@ namespace PLEXIL
      * @note The instance maintains a shared reference to the XML.
      */
     InterfaceAdapter(AdapterExecInterface& execInterface, 
-                     const pugi::xml_node& xml);
+                     pugi::xml_node const xml);
 
     /**
      * @brief Destructor.
@@ -186,7 +186,7 @@ namespace PLEXIL
     /**
      * @brief Get the configuration XML for this instance.
      */
-    const pugi::xml_node& getXml()
+    pugi::xml_node const getXml()
     {
       return m_xml;
     }

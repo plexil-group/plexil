@@ -573,7 +573,7 @@ namespace PLEXIL
    * @return False if the plan references unloaded libraries, true otherwise.
    */
   bool
-  InterfaceManager::handleAddPlan(const pugi::xml_node& planXml)
+  InterfaceManager::handleAddPlan(pugi::xml_node const planXml)
     throw(ParserException)
   {
     assertTrue_1(m_inputQueue);

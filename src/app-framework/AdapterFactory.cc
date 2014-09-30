@@ -34,7 +34,6 @@
 #include "Error.hh"
 #include "InterfaceSchema.hh"
 #include "lifecycle-utils.h"
-#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -48,7 +47,7 @@ namespace PLEXIL
    */
 
   InterfaceAdapter *
-  AdapterFactory::createInstance(const pugi::xml_node& xml,
+  AdapterFactory::createInstance(pugi::xml_node const xml,
                                  AdapterExecInterface& execInterface)
   {
     // Can't do anything without the spec
@@ -80,7 +79,7 @@ namespace PLEXIL
 
   InterfaceAdapter *
   AdapterFactory::createInstance(std::string const& name,
-                                 const pugi::xml_node& xml,
+                                 pugi::xml_node const xml,
                                  AdapterExecInterface& execInterface)
   {
     bool dummy;
@@ -100,7 +99,7 @@ namespace PLEXIL
 
   InterfaceAdapter *
   AdapterFactory::createInstance(std::string const& name,
-                                 const pugi::xml_node& xml,
+                                 pugi::xml_node const xml,
                                  AdapterExecInterface& execInterface,
                                  bool& wasCreated)
   {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,10 @@
 #ifndef ADAPTER_FACTORY_H
 #define ADAPTER_FACTORY_H
 
+#include "pugixml.hpp"
+
 #include <map>
 #include <string>
-
-// Forward reference
-namespace pugi
-{
-  class xml_node;
-}
 
 namespace PLEXIL
 {
@@ -61,7 +57,7 @@ namespace PLEXIL
      * @return The new InterfaceAdapter.  May not be unique.
      */
 
-    static InterfaceAdapter *createInstance(const pugi::xml_node& xml,
+    static InterfaceAdapter *createInstance(pugi::xml_node const xml,
                                             AdapterExecInterface& execInterface);
 
 
@@ -75,7 +71,7 @@ namespace PLEXIL
      */
 
     static InterfaceAdapter *createInstance(std::string const& name, 
-                                            const pugi::xml_node& xml,
+                                            pugi::xml_node const xml,
                                             AdapterExecInterface& execInterface);
 
     /**
@@ -90,7 +86,7 @@ namespace PLEXIL
      */
 
     static InterfaceAdapter *createInstance(std::string const& name,
-                                            const pugi::xml_node& xml,
+                                            pugi::xml_node const xml,
                                             AdapterExecInterface& execInterface,
                                             bool& wasCreated);
 
@@ -128,7 +124,7 @@ namespace PLEXIL
      *                   variable will be set to true if new object created, false otherwise.
      * @return The new InterfaceAdapter.
      */
-    virtual InterfaceAdapter *create(const pugi::xml_node& xml,
+    virtual InterfaceAdapter *create(pugi::xml_node const xml,
                                      AdapterExecInterface& execInterface,
                                      bool& wasCreated) const = 0;
 
@@ -180,7 +176,7 @@ namespace PLEXIL
      * @return The new InterfaceAdapter.
      */
 
-    InterfaceAdapter *create(const pugi::xml_node& xml,
+    InterfaceAdapter *create(pugi::xml_node const xml,
                              AdapterExecInterface& execInterface,
                              bool& wasCreated) const
     {

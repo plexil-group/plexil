@@ -46,7 +46,7 @@ namespace PLEXIL
    * @brief Constructor w/ configuration XML.
    */
   DummyAdapter::DummyAdapter(AdapterExecInterface& execInterface,
-                             const pugi::xml_node& xml)
+                             pugi::xml_node const xml)
     : InterfaceAdapter(execInterface, xml)
   {
   }

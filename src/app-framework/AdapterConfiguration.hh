@@ -63,7 +63,7 @@ namespace PLEXIL {
      * @param configXml The XML element used for interface configuration.
      * @return true if successful, false otherwise.
      */
-    bool constructInterfaces(const pugi::xml_node& configXml);
+    bool constructInterfaces(pugi::xml_node const configXml);
 
     /**
      * @brief Performs basic initialization of the interface and all adapters.
