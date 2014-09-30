@@ -54,7 +54,7 @@ namespace PLEXIL
      * @brief Constructor from configuration XML
      * @param xml Pointer to the (shared) configuration XML describing this listener.
      */
-    ExecListener(pugi::xml_node const &xml);
+    ExecListener(pugi::xml_node const xml);
 
     /**
      * @brief Destructor.

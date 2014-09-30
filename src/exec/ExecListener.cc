@@ -49,7 +49,7 @@ namespace PLEXIL
   /**
    * @brief Constructor from configuration XML.
    */
-  ExecListener::ExecListener(const pugi::xml_node& xml)
+  ExecListener::ExecListener(pugi::xml_node const xml)
     : ExecListenerBase(xml),
       m_filter()
   {

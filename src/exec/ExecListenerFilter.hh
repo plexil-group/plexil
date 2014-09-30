@@ -50,7 +50,7 @@ namespace PLEXIL
     /**
      * @brief Constructor from configuration XML.
      */
-    ExecListenerFilter(const pugi::xml_node& xml);
+    ExecListenerFilter(pugi::xml_node const xml);
 
     /**
      * @brief Destructor.
@@ -61,7 +61,7 @@ namespace PLEXIL
      * @brief Get the configuration XML of this instance.
      * @return A const reference to the XML element.
      */
-    const pugi::xml_node& getXml() const
+    pugi::xml_node const getXml() const
     {
       return m_xml;
     }

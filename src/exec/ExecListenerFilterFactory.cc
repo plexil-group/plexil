@@ -32,7 +32,6 @@
 #include "Error.hh"
 #include "InterfaceSchema.hh"
 #include "lifecycle-utils.h"
-#include "pugixml.hpp"
 
 namespace PLEXIL
 {
@@ -44,7 +43,7 @@ namespace PLEXIL
    */
 
   ExecListenerFilter * 
-  ExecListenerFilterFactory::createInstance(const pugi::xml_node& xml)
+  ExecListenerFilterFactory::createInstance(pugi::xml_node const xml)
   {
     // Can't do anything without the spec
     assertTrueMsg(!xml.empty(),
@@ -77,7 +76,7 @@ namespace PLEXIL
 
   ExecListenerFilter *
   ExecListenerFilterFactory::createInstance(std::string const &name,
-                                            pugi::xml_node const &xml)
+                                            pugi::xml_node const xml)
   {
     FactoryMap::const_iterator it = factoryMap().find(name);
 #ifdef HAVE_DLFCN_H

@@ -60,7 +60,7 @@ namespace PLEXIL
      * @brief Constructor from configuration XML
      * @param xml Reference to the (shared) configuration XML describing this listener.
      */
-	ExecListenerBase(pugi::xml_node const &xml)
+	ExecListenerBase(pugi::xml_node const xml)
 	  : m_xml(xml)
 	{
 	}
@@ -69,7 +69,7 @@ namespace PLEXIL
 	{
 	}
 
-	pugi::xml_node const &getXml() const
+	pugi::xml_node const getXml() const
 	{
 	  return m_xml;
 	}

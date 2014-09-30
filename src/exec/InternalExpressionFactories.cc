@@ -172,7 +172,7 @@ namespace PLEXIL
       return target->getStateVariable();
     }
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const
     {
@@ -214,7 +214,7 @@ namespace PLEXIL
       return target->getOutcomeVariable();
     }
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const
     {
@@ -256,7 +256,7 @@ namespace PLEXIL
       return target->getFailureTypeVariable();
     }
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const
     {
@@ -302,7 +302,7 @@ namespace PLEXIL
       return cmd->getAck();
     }
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const
     {
@@ -350,7 +350,7 @@ namespace PLEXIL
       return create(var, node);
     }
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const
     {

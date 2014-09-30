@@ -89,7 +89,7 @@ namespace PLEXIL
     throw(ParserException);
 
     // Presumes XML is a PlexilPlan or Node element.
-    static PlexilNode *parse(pugi::xml_node xml)
+    static PlexilNode *parse(pugi::xml_node const xml)
       throw(ParserException);
 
   private:

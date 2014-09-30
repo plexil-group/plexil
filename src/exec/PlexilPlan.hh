@@ -35,9 +35,7 @@
 #include "PlexilUpdate.hh"
 #include "ValueType.hh"
 
-#include <vector>
 #include <map>
-#include <string>
 
 #define isType(p,type) (dynamic_cast<type*>(p) != NULL)
 

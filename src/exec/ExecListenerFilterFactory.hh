@@ -27,14 +27,10 @@
 #ifndef EXEC_LISTENER_FILTER_FACTORY_H
 #define EXEC_LISTENER_FILTER_FACTORY_H
 
+#include "pugixml.hpp"
+
 #include <map>
 #include <string>
-
-// Forward reference
-namespace pugi
-{
-  class xml_node;
-}
 
 namespace PLEXIL
 {
@@ -59,7 +55,7 @@ namespace PLEXIL
      * @return The new ExecListenerFilter.
      */
 
-    static ExecListenerFilter *createInstance(const pugi::xml_node& xml);
+    static ExecListenerFilter *createInstance(pugi::xml_node const xml);
 
     /**
      * @brief Creates a new ExecListenerFilter instance with the type associated with the name and
@@ -70,7 +66,7 @@ namespace PLEXIL
      */
 
     static ExecListenerFilter *createInstance(std::string const &name, 
-                                              pugi::xml_node const &xml);
+                                              pugi::xml_node const xml);
 
     /**
      * @brief Deallocate all factories
@@ -96,7 +92,7 @@ namespace PLEXIL
      * @param xml The configuration XML for the instantiated filter
      * @return The Id for the new ExecListenerFilter.
      */
-    virtual ExecListenerFilter *create(pugi::xml_node const &xml) const = 0;
+    virtual ExecListenerFilter *create(pugi::xml_node const xml) const = 0;
 
     ExecListenerFilterFactory(std::string const &name)
       : m_name(name)
@@ -146,7 +142,7 @@ namespace PLEXIL
      * @return The new ExecListenerFilter.
      */
 
-    ExecListenerFilter *create(pugi::xml_node const &xml) const
+    ExecListenerFilter *create(pugi::xml_node const xml) const
     {
       return new FilterType(xml);
     }
