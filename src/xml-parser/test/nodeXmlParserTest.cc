@@ -491,6 +491,38 @@ static bool listNodeXmlParserTest()
     delete varAccessList;
   }
 
+  {
+    xml_node nodeRefTestXml = doc.append_copy(basicListXml);
+    nodeRefTestXml.child("NodeId").first_child().set_value("nodeRefTest");
+    xml_node eq = nodeRefTestXml.append_child("ExitCondition").append_child("EQInternal");
+    eq.append_child("NodeOutcomeVariable").append_child("NodeId").append_child(node_pcdata).set_value("nodeRefTestKid");
+    eq.append_child("NodeOutcomeValue").append_child(node_pcdata).set_value("FAILURE");
+    xml_node nodeRefTestKid = nodeRefTestXml.child("NodeBody").child("NodeList").append_child("Node");
+    nodeRefTestKid.append_attribute("NodeType").set_value("Empty");
+    nodeRefTestKid.append_child("NodeId").append_child(node_pcdata).set_value("nodeRefTestKid");
+    xml_node neq = nodeRefTestKid.append_child("InvariantCondition").append_child("NEInternal");
+    neq.append_child("NodeStateVariable").append_child("NodeId").append_child(node_pcdata).set_value("nodeRefTest");
+    neq.append_child("NodeStateValue").append_child(node_pcdata).set_value("EXECUTING");
+    Node *nodeRefTest = parseNode(nodeRefTestXml, NULL);
+    assertTrue_1(nodeRefTest);
+    assertTrue_1(nodeRefTest->getType() == NodeType_NodeList);
+    assertTrue_1(nodeRefTest->getNodeId() == "nodeRefTest");
+    assertTrue_1(!nodeRefTest->getChildren().empty());
+    assertTrue_1(nodeRefTest->getChildren().size() == 1);
+    Node *kid = nodeRefTest->getChildren().front();
+    assertTrue_1(kid->getType() == NodeType_Empty); 
+    assertTrue_1(kid->getNodeId() == "nodeRefTestKid");
+    assertTrue_1(kid->getChildren().empty());
+    finalizeNode(nodeRefTest, nodeRefTestXml);
+    assertTrue_1(nodeRefTest->getLocalVariables().empty());
+    assertTrue_1(kid->getLocalVariables().empty());
+    assertTrue_1(nodeRefTest->getExitCondition());
+    assertTrue_1(nodeRefTest->getExitCondition()->valueType() == BOOLEAN_TYPE);
+    assertTrue_1(kid->getInvariantCondition());
+    assertTrue_1(kid->getInvariantCondition()->valueType() == BOOLEAN_TYPE);
+    delete nodeRefTest;
+  }
+
   return true;
 }
 
