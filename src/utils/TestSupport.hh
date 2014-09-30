@@ -30,18 +30,19 @@
 #include "Error.hh"
 
 #define runTest(test) {	\
+  bool result = false; \
   try { \
   std::cout << "   " << #test << " "; \
-  bool result = test(); \
+  result = test(); \
+  } \
+  catch (Error &err){ \
+    err.print(std::cout); std::cout << std::endl; \
+  } \
   if (result) \
     std::cout << " PASSED." << std::endl; \
   else  { \
-    std::cout << "      " << " FAILED TO PASS UNIT TEST." << std::endl; \
+    std::cout << "***** TEST" << #test << " FAILED *****" << std::endl; \
     throw Error::GeneralUnknownError(); \
-  } \
-  } \
-  catch (Error &err){ \
-   err.print(std::cout); \
   } \
   }
 
