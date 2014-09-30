@@ -26,6 +26,7 @@
 
 #include "Debug.hh"
 #include "ExpressionFactories.hh"
+#include "InternalExpressionFactories.hh"
 #include "lifecycle-utils.h"
 #include "TestSupport.hh"
 
@@ -46,6 +47,7 @@ void runTests()
 {
   // Initialize factories
   PLEXIL::registerBasicExpressionFactories();
+  PLEXIL::registerInternalExpressionFactories();
 
   // Initialize infrastructure
   Error::doThrowExceptions();
