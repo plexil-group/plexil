@@ -41,7 +41,7 @@
   if (result) \
     std::cout << " PASSED." << std::endl; \
   else  { \
-    std::cout << "***** TEST" << #test << " FAILED *****" << std::endl; \
+    std::cout << "***** TEST " << #test << " FAILED *****" << std::endl; \
     throw Error::GeneralUnknownError(); \
   } \
   }
