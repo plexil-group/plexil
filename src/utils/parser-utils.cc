@@ -55,25 +55,25 @@ namespace PLEXIL
     return 0 == strncmp(suffix, &(str[offset]), suffixLen);
   }
 
-  bool testTag(const char* t, const xml_node& e) {
+  bool testTag(const char* t, xml_node const e) {
     return e.type() == node_element && 0 == strcmp(t, e.name());
   }
 
-  bool testTagPrefix(const char* prefix, const xml_node& e)
+  bool testTagPrefix(const char* prefix, xml_node const e)
   {
     if (e.type() != node_element)
       return false;
     return testPrefix(prefix, e.name());
   }
 
-  bool testTagSuffix(const char* suffix, const xml_node& e)
+  bool testTagSuffix(const char* suffix, xml_node const e)
   {
     if (e.type() != node_element)
       return false;
     return testSuffix(suffix, e.name());
   }
 
-  bool hasChildElement(const xml_node& e) 
+  bool hasChildElement(xml_node const e) 
   {
     if (!e)
       return false;
@@ -81,19 +81,19 @@ namespace PLEXIL
     return temp && temp.type() == node_element;
   }
 
-  void checkTag(const char* t, const xml_node& e) {
+  void checkTag(const char* t, xml_node const e) {
     checkParserExceptionWithLocation(testTag(t, e),
                                      e,
                                      "XML parsing error: Expected <" << t << "> element, but got <" << e.name() << "> instead.");
   }
 
-  void checkAttr(const char* t, const xml_node& e) {
+  void checkAttr(const char* t, xml_node const e) {
     checkParserExceptionWithLocation(e && e.type() == node_element && e.attribute(t),
                                      e,
                                      "XML parsing error: Expected an attribute named '" << t << "' in element <" << e.name() << ">");
   }
 
-  void checkTagSuffix(const char* t, const xml_node& e) 
+  void checkTagSuffix(const char* t, xml_node const e) 
   {
     checkParserExceptionWithLocation(testTagSuffix(t, e),
                                      e,
@@ -101,7 +101,7 @@ namespace PLEXIL
   }
 
   // N.B. presumes e is not empty
-  void checkNotEmpty(const xml_node& e) 
+  void checkNotEmpty(xml_node const e) 
   {
     xml_node temp = e.first_child();
     checkParserExceptionWithLocation(temp
@@ -112,7 +112,7 @@ namespace PLEXIL
   }
 
   // N.B. presumes e is not empty
-  void checkHasChildElement(const xml_node& e) {
+  void checkHasChildElement(xml_node const e) {
     checkParserExceptionWithLocation(hasChildElement(e),
                                      e,
                                      "XML parsing error: Expected a child element of <" << e.name() << ">");

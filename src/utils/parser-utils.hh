@@ -40,15 +40,15 @@ namespace PLEXIL
 {
   extern bool testPrefix(char const *prefix, char const *str);
   extern bool testSuffix(char const *suffix, char const *str);
-  extern bool testTag(const char* t, const pugi::xml_node& e);
-  extern bool testTagPrefix(const char* prefix, const pugi::xml_node& e);
-  extern bool testTagSuffix(const char* suffix, const pugi::xml_node& e);
-  extern bool hasChildElement(const pugi::xml_node& e);
-  extern void checkTag(const char* t, const pugi::xml_node& e);
-  extern void checkAttr(const char* t, const pugi::xml_node& e);
-  extern void checkTagSuffix(const char* t, const pugi::xml_node& e);
-  extern void checkNotEmpty(const pugi::xml_node& e);
-  extern void checkHasChildElement(const pugi::xml_node& e);
+  extern bool testTag(const char* t, pugi::xml_node const e);
+  extern bool testTagPrefix(const char* prefix, pugi::xml_node const e);
+  extern bool testTagSuffix(const char* suffix, pugi::xml_node const e);
+  extern bool hasChildElement(pugi::xml_node const e);
+  extern void checkTag(const char* t, pugi::xml_node const e);
+  extern void checkAttr(const char* t, pugi::xml_node const e);
+  extern void checkTagSuffix(const char* t, pugi::xml_node const e);
+  extern void checkNotEmpty(pugi::xml_node const e);
+  extern void checkHasChildElement(pugi::xml_node const e);
   extern bool isBoolean(const char* initval);
   extern bool isInteger(const char* initval);
   extern bool isDouble(const char* initval);
