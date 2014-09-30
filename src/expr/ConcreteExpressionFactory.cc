@@ -36,6 +36,8 @@
 #include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilExpr.hh"
+#include "UserVariable.hh"
+
 #include "pugixml.hpp"
 
 #include <sstream>

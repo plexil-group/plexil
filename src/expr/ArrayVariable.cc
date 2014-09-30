@@ -265,8 +265,9 @@ namespace PLEXIL
   void ArrayVariable<T>::setInitializer(Expression *expr, bool garbage)
   {
     assertTrue_2(!m_initializer, "setInitializer() called on an array variable that already has an initializer");
-    assertTrue_2(expr->valueType() == this->valueType() || expr->valueType() == UNKNOWN_TYPE,
-                 "Array variable initializer type differs from variable's");
+    assertTrueMsg(expr->valueType() == this->valueType() || expr->valueType() == UNKNOWN_TYPE,
+                  "Array variable type, " << valueTypeName(this->valueType())
+                  << ", differs from initializer's type, " << valueTypeName(expr->valueType()));
     int32_t size;
     ArrayImpl<T> const *temp;
     if (m_size && m_size->getValue(size) && expr->getValuePointer(temp))

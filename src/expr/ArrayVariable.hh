@@ -27,7 +27,8 @@
 #ifndef PLEXIL_ARRAY_VARIABLE_HH
 #define PLEXIL_ARRAY_VARIABLE_HH
 
-#include "UserVariable.hh"
+#include "AssignableImpl.hh"
+#include "ExpressionImpl.hh"
 
 namespace PLEXIL
 {

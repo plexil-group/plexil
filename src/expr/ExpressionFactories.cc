@@ -37,6 +37,7 @@
 #include "FunctionFactory.hh"
 #include "NodeConstantExpressions.hh"
 #include "StringOperators.hh"
+#include "UserVariable.hh"
 #include "UserVariableFactory.hh"
 #include "lifecycle-utils.h"
 

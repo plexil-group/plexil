@@ -30,7 +30,8 @@
 #include "ArrayVariable.hh"
 #include "Function.hh"
 #include "TestSupport.hh"
-#include "TrivialListener.hh"
+#include "test/TrivialListener.hh"
+#include "UserVariable.hh"
 
 using namespace PLEXIL;
 

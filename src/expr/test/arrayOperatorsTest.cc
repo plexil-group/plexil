@@ -31,6 +31,7 @@
 #include "Error.hh"
 #include "Function.hh"
 #include "TestSupport.hh"
+#include "UserVariable.hh"
 
 using namespace PLEXIL;
 
