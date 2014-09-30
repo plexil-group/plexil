@@ -828,7 +828,7 @@ static bool stringArrayVariableFactoryTest()
   assertTrue_1(*temp == "1e-100");
   assertTrue_1(aryTemp->getElementPointer(5, temp));
   assertTrue_1(*temp == "6.0221413e+23");
-  realNc->storeVariable("vlaid", emptyExp);
+  realNc->storeVariable("vlaid", validValExp);
 
   // Variable reference tests
   PlexilVarRef emptyRef("mty", STRING_ARRAY_TYPE);

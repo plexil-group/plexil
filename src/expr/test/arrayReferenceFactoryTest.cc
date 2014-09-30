@@ -40,12 +40,11 @@
 
 using namespace PLEXIL;
 
-// Global variables for convenience
-static NodeConnector *nc = NULL;
-static FactoryTestNodeConnector *realNc = NULL;
-
 static bool testArrayConstantReferenceFactory()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   // Set up test data
   std::vector<bool>        vb(2);
   std::vector<int32_t>     vi(4);
@@ -69,21 +68,16 @@ static bool testArrayConstantReferenceFactory()
   vs[1] = std::string("one");
   vs[2] = std::string("two");
   vs[3] = std::string("three");
-
-  BooleanArrayConstant bc(vb);
-  IntegerArrayConstant ic(vi);
-  RealArrayConstant    dc(vd);
-  StringArrayConstant  sc(vs);
   
   // Associate arrays with names
-  realNc->storeVariable("bul", &bc);
-  realNc->storeVariable("int", &ic);
-  realNc->storeVariable("dbl", &dc);
-  realNc->storeVariable("str", &sc);
+  realNc.storeVariable("bul", new BooleanArrayConstant(vb));
+  realNc.storeVariable("int", new IntegerArrayConstant(vi));
+  realNc.storeVariable("dbl", new RealArrayConstant(vd));
+  realNc.storeVariable("str", new StringArrayConstant(vs));
 
   // Store array index too
-  IntegerVariable iv;
-  realNc->storeVariable("i", &iv);
+  Assignable *iv = new IntegerVariable();
+  realNc.storeVariable("i", iv);
 
   // Construct reference templates
   PlexilArrayElement bart0(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
@@ -176,16 +170,16 @@ static bool testArrayConstantReferenceFactory()
   assertTrue_1(!pb);
 
   bari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vb.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(bari->getValue(pb));
     assertTrue_1(pb == vb[i]);
   }
   bari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check integer
   iar0->activate();
@@ -193,16 +187,16 @@ static bool testArrayConstantReferenceFactory()
   assertTrue_1(pi == 0);
 
   iari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vi.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(iari->getValue(pi));
     assertTrue_1(pi == vi[i]);
   }
   iari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check double
   dar0->activate();
@@ -210,16 +204,16 @@ static bool testArrayConstantReferenceFactory()
   assertTrue_1(pd == 0);
 
   dari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vd.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(dari->getValue(pd));
     assertTrue_1(pd == vd[i]);
   }
   dari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check string
   sar0->activate();
@@ -227,10 +221,10 @@ static bool testArrayConstantReferenceFactory()
   assertTrue_1(ps == "zero");
 
   sari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vs.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(sari->getValue(ps));
     assertTrue_1(ps == vs[i]);
@@ -250,6 +244,9 @@ static bool testArrayConstantReferenceFactory()
 
 static bool testArrayVariableReferenceFactory()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   // Set up test data
   std::vector<bool>        vb(2);
   std::vector<int32_t>     vi(4);
@@ -274,31 +271,27 @@ static bool testArrayVariableReferenceFactory()
   vs[2] = std::string("two");
   vs[3] = std::string("three");
 
-  BooleanArrayConstant bc(vb);
-  BooleanArrayVariable bav(nc, "bul", NULL, false);
-  bav.setInitializer(&bc, false);
+  Assignable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
+  bav->setInitializer(new BooleanArrayConstant(vb), true);
 
-  IntegerArrayConstant ic(vi);
-  IntegerArrayVariable iav(nc, "int", NULL, false);
-  iav.setInitializer(&ic, false);
+  Assignable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
+  iav->setInitializer(new IntegerArrayConstant(vi), true);
 
-  RealArrayConstant    dc(vd);
-  RealArrayVariable    dav(nc, "dbl", NULL, false);
-  dav.setInitializer(&dc, false);
+  Assignable *dav = new RealArrayVariable(nc, "dbl", NULL, false);
+  dav->setInitializer(new RealArrayConstant(vd), true);
 
-  StringArrayConstant  sc(vs);
-  StringArrayVariable  sav(nc, "str", NULL, false);
-  sav.setInitializer(&sc, false);
+  Assignable *sav = new StringArrayVariable(nc, "str", NULL, false);
+  sav->setInitializer(new StringArrayConstant(vs), true);
 
   // Associate arrays with names
-  realNc->storeVariable("bul", &bav);
-  realNc->storeVariable("int", &iav);
-  realNc->storeVariable("dbl", &dav);
-  realNc->storeVariable("str", &sav);
+  realNc.storeVariable("bul", bav);
+  realNc.storeVariable("int", iav);
+  realNc.storeVariable("dbl", dav);
+  realNc.storeVariable("str", sav);
 
   // Store array index too
-  IntegerVariable iv;
-  realNc->storeVariable("i", &iv);
+  Assignable *iv = new IntegerVariable();
+  realNc.storeVariable("i", iv);
 
   // Construct reference templates
   PlexilArrayElement bart0(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
@@ -391,16 +384,16 @@ static bool testArrayVariableReferenceFactory()
   assertTrue_1(!pb);
 
   bari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vb.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(bari->getValue(pb));
     assertTrue_1(pb == vb[i]);
   }
   bari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check integer
   iar0->activate();
@@ -408,16 +401,16 @@ static bool testArrayVariableReferenceFactory()
   assertTrue_1(pi == 0);
 
   iari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vi.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(iari->getValue(pi));
     assertTrue_1(pi == vi[i]);
   }
   iari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check double
   dar0->activate();
@@ -425,16 +418,16 @@ static bool testArrayVariableReferenceFactory()
   assertTrue_1(pd == 0);
 
   dari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vd.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(dari->getValue(pd));
     assertTrue_1(pd == vd[i]);
   }
   dari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check string
   sar0->activate();
@@ -442,10 +435,10 @@ static bool testArrayVariableReferenceFactory()
   assertTrue_1(ps == "zero");
 
   sari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vs.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(sari->getValue(ps));
     assertTrue_1(ps == vs[i]);
@@ -465,6 +458,9 @@ static bool testArrayVariableReferenceFactory()
 
 static bool testArrayAliasReferenceFactory()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   // Set up test data
   std::vector<bool>        vb(2);
   std::vector<int32_t>     vi(4);
@@ -489,36 +485,32 @@ static bool testArrayAliasReferenceFactory()
   vs[2] = std::string("two");
   vs[3] = std::string("three");
 
-  BooleanArrayConstant bc(vb);
-  BooleanArrayVariable bav(nc, "rbul", NULL, false);
-  bav.setInitializer(&bc, false);
+  Assignable *bav = new BooleanArrayVariable(nc, "rbul", NULL, false);
+  bav->setInitializer(new BooleanArrayConstant(vb), true);
 
-  IntegerArrayConstant ic(vi);
-  IntegerArrayVariable iav(nc, "rint", NULL, false);
-  iav.setInitializer(&ic, false);
+  Assignable *iav = new IntegerArrayVariable(nc, "rint", NULL, false);
+  iav->setInitializer(new IntegerArrayConstant(vi), true);
 
-  RealArrayConstant    dc(vd);
-  RealArrayVariable    dav(nc, "rdbl", NULL, false);
-  dav.setInitializer(&dc, false);
+  Assignable *dav = new RealArrayVariable(nc, "rdbl", NULL, false);
+  dav->setInitializer(new RealArrayConstant(vd), true);
 
-  StringArrayConstant  sc(vs);
-  StringArrayVariable  sav(nc, "rstr", NULL, false);
-  sav.setInitializer(&sc, false);
+  Assignable *sav = new StringArrayVariable(nc, "rstr", NULL, false);
+  sav->setInitializer(new StringArrayConstant(vs), true);
 
-  Alias abav(nc, "bul", &bav, false);
-  Alias aiav(nc, "int", &iav, false);
-  Alias adav(nc, "dbl", &dav, false);
-  Alias asav(nc, "str", &sav, false);
+  Expression *abav = new Alias(nc, "bul", bav, true);
+  Expression *aiav = new Alias(nc, "int", iav, true);
+  Expression *adav = new Alias(nc, "dbl", dav, true);
+  Expression *asav = new Alias(nc, "str", sav, true);
 
   // Associate aliases with names
-  realNc->storeVariable("bul", &abav);
-  realNc->storeVariable("int", &aiav);
-  realNc->storeVariable("dbl", &adav);
-  realNc->storeVariable("str", &asav);
+  realNc.storeVariable("bul", abav);
+  realNc.storeVariable("int", aiav);
+  realNc.storeVariable("dbl", adav);
+  realNc.storeVariable("str", asav);
 
   // Store array index too
-  IntegerVariable iv;
-  realNc->storeVariable("i", &iv);
+  Assignable *iv = new IntegerVariable();
+  realNc.storeVariable("i", iv);
 
   // Construct reference templates
   PlexilArrayElement bart0(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
@@ -599,10 +591,10 @@ static bool testArrayAliasReferenceFactory()
   assertTrue_1(!sari->isKnown());
 
   // Activate arrays (NOT aliases) and try again
-  bav.activate();
-  iav.activate();
-  dav.activate();
-  sav.activate();
+  bav->activate();
+  iav->activate();
+  dav->activate();
+  sav->activate();
   assertTrue_1(!bar0->isKnown());
   assertTrue_1(!bari->isKnown());
   assertTrue_1(!iar0->isKnown());
@@ -625,16 +617,16 @@ static bool testArrayAliasReferenceFactory()
   assertTrue_1(!pb);
 
   bari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vb.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(bari->getValue(pb));
     assertTrue_1(pb == vb[i]);
   }
   bari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check integer
   iar0->activate();
@@ -642,16 +634,16 @@ static bool testArrayAliasReferenceFactory()
   assertTrue_1(pi == 0);
 
   iari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vi.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(iari->getValue(pi));
     assertTrue_1(pi == vi[i]);
   }
   iari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check double
   dar0->activate();
@@ -659,16 +651,16 @@ static bool testArrayAliasReferenceFactory()
   assertTrue_1(pd == 0);
 
   dari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vd.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(dari->getValue(pd));
     assertTrue_1(pd == vd[i]);
   }
   dari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check string
   sar0->activate();
@@ -676,10 +668,10 @@ static bool testArrayAliasReferenceFactory()
   assertTrue_1(ps == "zero");
 
   sari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vs.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(sari->getValue(ps));
     assertTrue_1(ps == vs[i]);
@@ -699,6 +691,9 @@ static bool testArrayAliasReferenceFactory()
 
 static bool testMutableArrayReferenceFactory()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   // Set up test data
   std::vector<bool>        vb(2);
   std::vector<int32_t>     vi(4);
@@ -723,31 +718,27 @@ static bool testMutableArrayReferenceFactory()
   vs[2] = std::string("two");
   vs[3] = std::string("three");
 
-  BooleanArrayConstant bc(vb);
-  BooleanArrayVariable bav(nc, "bul", NULL, false);
-  bav.setInitializer(&bc, false);
+  Assignable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
+  bav->setInitializer(new BooleanArrayConstant(vb), true);
 
-  IntegerArrayConstant ic(vi);
-  IntegerArrayVariable iav(nc, "int", NULL, false);
-  iav.setInitializer(&ic, false);
+  Assignable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
+  iav->setInitializer(new IntegerArrayConstant(vi), true);
 
-  RealArrayConstant    dc(vd);
-  RealArrayVariable    dav(nc, "dbl", NULL, false);
-  dav.setInitializer(&dc, false);
+  Assignable *dav = new RealArrayVariable(nc, "dbl", NULL, false);
+  dav->setInitializer(new RealArrayConstant(vd), true);
 
-  StringArrayConstant  sc(vs);
-  StringArrayVariable  sav(nc, "str", NULL, false);
-  sav.setInitializer(&sc, false);
+  Assignable *sav = new StringArrayVariable(nc, "str", NULL, false);
+  sav->setInitializer(new StringArrayConstant(vs), true);
 
   // Associate arrays with names
-  realNc->storeVariable("bul", &bav);
-  realNc->storeVariable("int", &iav);
-  realNc->storeVariable("dbl", &dav);
-  realNc->storeVariable("str", &sav);
+  realNc.storeVariable("bul", bav);
+  realNc.storeVariable("int", iav);
+  realNc.storeVariable("dbl", dav);
+  realNc.storeVariable("str", sav);
 
   // Store array index too
-  IntegerVariable iv;
-  realNc->storeVariable("i", &iv);
+  Assignable *iv = new IntegerVariable();
+  realNc.storeVariable("i", iv);
 
   // Construct reference templates
   PlexilArrayElement bart0(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
@@ -842,16 +833,16 @@ static bool testMutableArrayReferenceFactory()
   assertTrue_1(!pb);
 
   bari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vb.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(bari->getValue(pb));
     assertTrue_1(pb == vb[i]);
   }
   bari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check integer
   iar0->activate();
@@ -859,16 +850,16 @@ static bool testMutableArrayReferenceFactory()
   assertTrue_1(pi == 0);
 
   iari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vi.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(iari->getValue(pi));
     assertTrue_1(pi == vi[i]);
   }
   iari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check double
   dar0->activate();
@@ -876,16 +867,16 @@ static bool testMutableArrayReferenceFactory()
   assertTrue_1(pd == 0);
 
   dari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vd.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(dari->getValue(pd));
     assertTrue_1(pd == vd[i]);
   }
   dari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check string
   sar0->activate();
@@ -893,10 +884,10 @@ static bool testMutableArrayReferenceFactory()
   assertTrue_1(ps == "zero");
 
   sari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vs.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(sari->getValue(ps));
     assertTrue_1(ps == vs[i]);
@@ -907,8 +898,8 @@ static bool testMutableArrayReferenceFactory()
   // Boolean
   bari->activate();
   for (int32_t i = 0; i < vb.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(bari->getValue(pb));
     assertTrue_1(pb == vb[i]);
@@ -920,8 +911,8 @@ static bool testMutableArrayReferenceFactory()
   // Integer
   iari->activate();
   for (int32_t i = 0; i < vi.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(iari->getValue(pi));
     assertTrue_1(pi == vi[i]);
@@ -934,8 +925,8 @@ static bool testMutableArrayReferenceFactory()
   // Real
   dari->activate();
   for (int32_t i = 0; i < vd.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(dari->getValue(pd));
     assertTrue_1(pd == vd[i]);
@@ -948,8 +939,8 @@ static bool testMutableArrayReferenceFactory()
   // String
   sari->activate();
   for (int32_t i = 0; i < vs.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(sari->getValue(ps));
     assertTrue_1(ps == vs[i]);
@@ -975,6 +966,9 @@ static bool testMutableArrayReferenceFactory()
 
 static bool testMutableArrayAliasReferenceFactory()
 {
+  FactoryTestNodeConnector realNc;
+  NodeConnector *nc = &realNc;
+
   // Set up test data
   std::vector<bool>        vb(2);
   std::vector<int32_t>     vi(4);
@@ -999,36 +993,32 @@ static bool testMutableArrayAliasReferenceFactory()
   vs[2] = std::string("two");
   vs[3] = std::string("three");
 
-  BooleanArrayConstant bc(vb);
-  BooleanArrayVariable bav(nc, "rbul", NULL, false);
-  bav.setInitializer(&bc, false);
+  Assignable *bav = new BooleanArrayVariable(nc, "rbul", NULL, false);
+  bav->setInitializer(new BooleanArrayConstant(vb), true);
 
-  IntegerArrayConstant ic(vi);
-  IntegerArrayVariable iav(nc, "rint", NULL, false);
-  iav.setInitializer(&ic, false);
+  Assignable *iav = new IntegerArrayVariable(nc, "rint", NULL, false);
+  iav->setInitializer(new IntegerArrayConstant(vi), false);
 
-  RealArrayConstant    dc(vd);
-  RealArrayVariable    dav(nc, "rdbl", NULL, false);
-  dav.setInitializer(&dc, false);
+  Assignable *dav = new RealArrayVariable(nc, "rdbl", NULL, false);
+  dav->setInitializer(new RealArrayConstant(vd), true);
 
-  StringArrayConstant  sc(vs);
-  StringArrayVariable  sav(nc, "rstr", NULL, false);
-  sav.setInitializer(&sc, false);
+  Assignable *sav = new StringArrayVariable(nc, "rstr", NULL, false);
+  sav->setInitializer(new StringArrayConstant(vs), true);
 
-  InOutAlias abav(nc, "bul", &bav, false);
-  InOutAlias aiav(nc, "int", &iav, false);
-  InOutAlias adav(nc, "dbl", &dav, false);
-  InOutAlias asav(nc, "str", &sav, false);
+  Expression *abav = new InOutAlias(nc, "bul", bav, true);
+  Expression *aiav = new InOutAlias(nc, "int", iav, true);
+  Expression *adav = new InOutAlias(nc, "dbl", dav, true);
+  Expression *asav = new InOutAlias(nc, "str", sav, true);
 
   // Associate aliases with names
-  realNc->storeVariable("bul", &abav);
-  realNc->storeVariable("int", &aiav);
-  realNc->storeVariable("dbl", &adav);
-  realNc->storeVariable("str", &asav);
+  realNc.storeVariable("bul", abav);
+  realNc.storeVariable("int", aiav);
+  realNc.storeVariable("dbl", adav);
+  realNc.storeVariable("str", asav);
 
   // Store array index too
-  IntegerVariable iv;
-  realNc->storeVariable("i", &iv);
+  Assignable *iv = new IntegerVariable();
+  realNc.storeVariable("i", iv);
 
   // Construct reference templates
   PlexilArrayElement bart0(new PlexilVarRef("bul", BOOLEAN_ARRAY_TYPE),
@@ -1109,10 +1099,10 @@ static bool testMutableArrayAliasReferenceFactory()
   assertTrue_1(!sari->isKnown());
 
   // Activate arrays (NOT aliases) and try again
-  bav.activate();
-  iav.activate();
-  dav.activate();
-  sav.activate();
+  bav->activate();
+  iav->activate();
+  dav->activate();
+  sav->activate();
   assertTrue_1(!bar0->isKnown());
   assertTrue_1(!bari->isKnown());
   assertTrue_1(!iar0->isKnown());
@@ -1137,16 +1127,16 @@ static bool testMutableArrayAliasReferenceFactory()
   assertTrue_1(!pb);
 
   bari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vb.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(bari->getValue(pb));
     assertTrue_1(pb == vb[i]);
   }
   bari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check integer
   iar0->activate();
@@ -1154,16 +1144,16 @@ static bool testMutableArrayAliasReferenceFactory()
   assertTrue_1(pi == 0);
 
   iari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vi.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(iari->getValue(pi));
     assertTrue_1(pi == vi[i]);
   }
   iari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check double
   dar0->activate();
@@ -1171,16 +1161,16 @@ static bool testMutableArrayAliasReferenceFactory()
   assertTrue_1(pd == 0);
 
   dari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vd.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(dari->getValue(pd));
     assertTrue_1(pd == vd[i]);
   }
   dari->deactivate();
-  assertTrue_1(!iv.isActive());
+  assertTrue_1(!iv->isActive());
 
   // Check string
   sar0->activate();
@@ -1188,10 +1178,10 @@ static bool testMutableArrayAliasReferenceFactory()
   assertTrue_1(ps == "zero");
 
   sari->activate();
-  assertTrue_1(iv.isActive());
+  assertTrue_1(iv->isActive());
   for (int32_t i = 0; i < vs.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(sari->getValue(ps));
     assertTrue_1(ps == vs[i]);
@@ -1202,8 +1192,8 @@ static bool testMutableArrayAliasReferenceFactory()
   // Boolean
   bari->activate();
   for (int32_t i = 0; i < vb.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(bari->getValue(pb));
     assertTrue_1(pb == vb[i]);
@@ -1215,8 +1205,8 @@ static bool testMutableArrayAliasReferenceFactory()
   // Integer
   iari->activate();
   for (int32_t i = 0; i < vi.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(iari->getValue(pi));
     assertTrue_1(pi == vi[i]);
@@ -1229,8 +1219,8 @@ static bool testMutableArrayAliasReferenceFactory()
   // Real
   dari->activate();
   for (int32_t i = 0; i < vd.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(dari->getValue(pd));
     assertTrue_1(pd == vd[i]);
@@ -1243,8 +1233,8 @@ static bool testMutableArrayAliasReferenceFactory()
   // String
   sari->activate();
   for (int32_t i = 0; i < vs.size(); ++i) {
-    iv.setValue(i);
-    assertTrue_1(iv.getValue(n));
+    iv->setValue(i);
+    assertTrue_1(iv->getValue(n));
     assertTrue_1(n == i);
     assertTrue_1(sari->getValue(ps));
     assertTrue_1(ps == vs[i]);
@@ -1272,9 +1262,6 @@ bool arrayReferenceFactoryTest()
 {
   // Initialize factories
   registerBasicExpressionFactories();
-  // Initialize infrastructure
-  realNc = new FactoryTestNodeConnector();
-  nc = realNc;
 
   runTest(testArrayConstantReferenceFactory);
   runTest(testArrayVariableReferenceFactory);
@@ -1283,7 +1270,5 @@ bool arrayReferenceFactoryTest()
   runTest(testMutableArrayReferenceFactory);
   runTest(testMutableArrayAliasReferenceFactory);
 
-  nc = NULL;
-  delete realNc;
   return true;
 }
