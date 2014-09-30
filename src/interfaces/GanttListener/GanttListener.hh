@@ -42,7 +42,7 @@ namespace PLEXIL
    {
    public:
       GanttListener();
-      GanttListener(const pugi::xml_node& xml);
+      GanttListener(pugi::xml_node const xml);
       virtual ~GanttListener();
       // Capture and report about useful node state transitions.
       virtual void implementNotifyNodeTransition (NodeState prevState,

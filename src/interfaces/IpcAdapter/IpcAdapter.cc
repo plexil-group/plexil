@@ -70,7 +70,7 @@ namespace PLEXIL
    * @param execInterface Reference to the parent AdapterExecInterface object.
    * @param xml A const reference to the XML element describing this adapter
    */
-  IpcAdapter::IpcAdapter(AdapterExecInterface& execInterface, const pugi::xml_node& xml) :
+  IpcAdapter::IpcAdapter(AdapterExecInterface& execInterface, pugi::xml_node const xml) :
     InterfaceAdapter(execInterface, xml),
     m_ipcFacade(),
     m_messageQueues(execInterface),
@@ -107,7 +107,7 @@ namespace PLEXIL
     const char* serverName = "";
     pugi::xml_attribute acceptDuplicates;
 
-    const pugi::xml_node& xml = this->getXml();
+    pugi::xml_node const xml = this->getXml();
     if (!xml.empty()) {
       taskName = xml.attribute("TaskName").value();
       serverName = xml.attribute("Server").value();
@@ -596,7 +596,7 @@ namespace PLEXIL
     debugMsg("IpcAdapter:executeCommand", " command \"" << name << "\" sent.");
   }
 
-  void IpcAdapter::parseExternalLookups(const pugi::xml_node& external) 
+  void IpcAdapter::parseExternalLookups(pugi::xml_node const external) 
   {
     if (external != NULL) {
 

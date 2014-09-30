@@ -79,7 +79,7 @@ namespace PLEXIL
     /**
      * @brief Constructor from configuration XML.
      */
-    LuvListener(const pugi::xml_node& xml);
+    LuvListener(pugi::xml_node const xml);
 
 	//* Constructor from TestExec.
 	LuvListener(const std::string& host, 

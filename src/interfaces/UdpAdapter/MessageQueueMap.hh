@@ -36,7 +36,6 @@
 #include "ExecListener.hh"
 #include "AdapterExecInterface.hh"
 #include <map>
-#include <vector>
 
 namespace PLEXIL 
 {

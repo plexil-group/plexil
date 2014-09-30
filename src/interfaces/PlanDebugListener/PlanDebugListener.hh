@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ namespace PLEXIL
   public:
 
     PlanDebugListener();
-    PlanDebugListener(const pugi::xml_node& xml);
+    PlanDebugListener(pugi::xml_node const xml);
     virtual ~PlanDebugListener();
 
     // These methods have no special function.

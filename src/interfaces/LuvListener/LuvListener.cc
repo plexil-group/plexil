@@ -41,7 +41,7 @@ namespace PLEXIL
   /**
    * @brief Constructor from configuration XML.
    */
-  LuvListener::LuvListener(const pugi::xml_node& xml)
+  LuvListener::LuvListener(pugi::xml_node const xml)
 	: ExecListener(xml),
 	  m_socket(NULL),
 	  m_host(LUV_DEFAULT_HOSTNAME()),
@@ -80,7 +80,7 @@ namespace PLEXIL
   bool LuvListener::initialize()
   {
     // parse XML to find host, port, blocking flag
-    const pugi::xml_node& xml = this->getXml();
+    pugi::xml_node const xml = this->getXml();
 	if (xml.empty())
 	  // Have to presume that things were constructed correctly
 	  return true;

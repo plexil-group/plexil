@@ -29,7 +29,6 @@
 #include "Node.hh"
 #include "PlexilPlan.hh"
 #include "PlexilToXml.hh"
-#include "pugixml.hpp"
 
 #include <iostream>
 

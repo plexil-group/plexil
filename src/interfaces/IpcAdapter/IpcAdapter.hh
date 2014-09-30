@@ -77,7 +77,7 @@ namespace PLEXIL
      * @param xml A const reference to the XML element describing this adapter
      * @note The instance maintains a shared pointer to the XML.
      */
-    IpcAdapter(AdapterExecInterface& execInterface, const pugi::xml_node& xml);
+    IpcAdapter(AdapterExecInterface& execInterface, pugi::xml_node const xml);
 
     /**
      * @brief Destructor.
@@ -220,7 +220,7 @@ namespace PLEXIL
      * @brief Parses external lookups from xml and puts them in the lookup map.
      * If external is NULL, does nothing.
      */
-    void parseExternalLookups(const pugi::xml_node& external);
+    void parseExternalLookups(pugi::xml_node const external);
 
     /**
      * @brief Handler function as seen by adapter.

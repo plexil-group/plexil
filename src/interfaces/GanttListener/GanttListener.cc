@@ -85,7 +85,7 @@ namespace PLEXIL
       initializeMembers();
    }
 
-   GanttListener::GanttListener(const pugi::xml_node& xml) : ExecListener(xml)
+   GanttListener::GanttListener(pugi::xml_node const xml) : ExecListener(xml)
    {  
       initializeMembers(); 
    }

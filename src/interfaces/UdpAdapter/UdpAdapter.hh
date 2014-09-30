@@ -81,7 +81,7 @@ namespace PLEXIL
 
     // Constructor/Destructor
     UdpAdapter(AdapterExecInterface& execInterface);
-    UdpAdapter(AdapterExecInterface& execInterface, const pugi::xml_node& xml);
+    UdpAdapter(AdapterExecInterface& execInterface, pugi::xml_node const xml);
     virtual ~UdpAdapter();
 
     // InterfaceAdapter API
@@ -131,7 +131,7 @@ namespace PLEXIL
     //
     // XML Support
     //
-    void parseXmlMessageDefinitions(const pugi::xml_node& xml);
+    void parseXmlMessageDefinitions(pugi::xml_node const xml);
     void printMessageDefinitions();
     int buildUdpBuffer(unsigned char* buffer,
                        const UdpMessage& msg,

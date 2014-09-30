@@ -56,7 +56,7 @@ namespace PLEXIL
   }
 
   // Constructor
-  UdpAdapter::UdpAdapter(AdapterExecInterface& execInterface, const pugi::xml_node& xml)
+  UdpAdapter::UdpAdapter(AdapterExecInterface& execInterface, pugi::xml_node const xml)
     : InterfaceAdapter(execInterface, xml),
       m_messageQueues(execInterface),
       m_debug(false)
@@ -76,7 +76,7 @@ namespace PLEXIL
   {
     debugMsg("UdpAdapter:initialize", " called");
     // Parse the message definitions in the XML configuration
-    const pugi::xml_node& xml = this->getXml();
+    pugi::xml_node const xml = this->getXml();
     // parse the XML message definitions
     parseXmlMessageDefinitions(xml); // also calls registerCommandInterface for each message
     if (m_debug) printMessageDefinitions();
@@ -404,7 +404,7 @@ namespace PLEXIL
   // XML Support
   //
 
-  void UdpAdapter::parseXmlMessageDefinitions(const pugi::xml_node& xml)
+  void UdpAdapter::parseXmlMessageDefinitions(pugi::xml_node const xml)
   // Parse and verify the given Adapter configuration
   {
     m_messages.clear();         // clear the old messages (if any)

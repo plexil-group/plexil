@@ -33,7 +33,6 @@
 #include "pugixml.hpp" // for pugi::format_raw
 
 #include <iosfwd>
-#include <string>
 
 namespace PLEXIL {
 
