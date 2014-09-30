@@ -63,7 +63,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Expression *ConcreteExpressionFactory<Constant<T> >::allocate(pugi::xml_node const &expr,
+  Expression *ConcreteExpressionFactory<Constant<T> >::allocate(pugi::xml_node const expr,
                                                                 NodeConnector * /* node */,
                                                                 bool &wasCreated) const
   {
@@ -108,7 +108,7 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *ConcreteExpressionFactory<Constant<bool> >::allocate(pugi::xml_node const &expr,
+  Expression *ConcreteExpressionFactory<Constant<bool> >::allocate(pugi::xml_node const expr,
                                                                    NodeConnector * /* node */,
                                                                    bool &wasCreated) const
   {
@@ -151,7 +151,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Expression *ConcreteExpressionFactory<Constant<T> >::create(pugi::xml_node const &tmpl) const
+  Expression *ConcreteExpressionFactory<Constant<T> >::create(pugi::xml_node const tmpl) const
   {
     T value;
     bool known = parseValue<T>(tmpl.child_value(), value);
@@ -171,7 +171,7 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *ConcreteExpressionFactory<Constant<std::string> >::create(pugi::xml_node const &tmpl) const
+  Expression *ConcreteExpressionFactory<Constant<std::string> >::create(pugi::xml_node const tmpl) const
   {
     const char* tag = tmpl.name();
     checkParserExceptionWithLocation(STRING_TYPE == parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG)),
@@ -216,7 +216,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::allocate(pugi::xml_node const &expr,
+  Expression *ConcreteExpressionFactory<Constant<ArrayImpl<T> > >::allocate(pugi::xml_node const expr,
                                                                             NodeConnector * /* node */,
                                                                             bool &wasCreated) const
   {
@@ -262,7 +262,7 @@ namespace PLEXIL
 
   template <typename T>
   Expression *
-  ConcreteExpressionFactory<UserVariable<T> >::allocate(pugi::xml_node const &expr,
+  ConcreteExpressionFactory<UserVariable<T> >::allocate(pugi::xml_node const expr,
                                                         NodeConnector *node,
                                                         bool &wasCreated) const
   {
@@ -357,7 +357,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Expression *ConcreteExpressionFactory<ArrayVariable<T> >::allocate(pugi::xml_node const &expr,
+  Expression *ConcreteExpressionFactory<ArrayVariable<T> >::allocate(pugi::xml_node const expr,
                                                                      NodeConnector *node,
                                                                      bool &wasCreated) const
   {
@@ -393,7 +393,7 @@ namespace PLEXIL
   }
 
   // Common subroutine
-  static void parseArrayElement(pugi::xml_node const &expr,
+  static void parseArrayElement(pugi::xml_node const expr,
                                 NodeConnector *node,
                                 Expression *&arrayExpr,
                                 Expression *&indexExpr,
@@ -440,7 +440,7 @@ namespace PLEXIL
   }
 
   Expression *
-  ConcreteExpressionFactory<ArrayReference>::allocate(pugi::xml_node const &expr,
+  ConcreteExpressionFactory<ArrayReference>::allocate(pugi::xml_node const expr,
                                                       NodeConnector *node,
                                                       bool & wasCreated) const
   {
@@ -455,7 +455,7 @@ namespace PLEXIL
     return new ArrayReference(arrayExpr, indexExpr, arrayCreated, indexCreated);
   }
 
-  Expression *createMutableArrayReference(pugi::xml_node const &expr,
+  Expression *createMutableArrayReference(pugi::xml_node const expr,
                                           NodeConnector *node,
                                           bool & wasCreated)
   {
@@ -495,7 +495,7 @@ namespace PLEXIL
   }
 
   Expression *
-  VariableReferenceFactory::allocate(pugi::xml_node const &expr,
+  VariableReferenceFactory::allocate(pugi::xml_node const expr,
                                      NodeConnector *node,
                                      bool & wasCreated) const
   {

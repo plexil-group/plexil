@@ -112,7 +112,7 @@ namespace PLEXIL
     return new Function(oper, exprVec);
   }
 
-  Expression *ArithmeticFunctionFactory::allocate(pugi::xml_node const &expr,
+  Expression *ArithmeticFunctionFactory::allocate(pugi::xml_node const expr,
                                                   NodeConnector *node,
                                                   bool & wasCreated) const
   {

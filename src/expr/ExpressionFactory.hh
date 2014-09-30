@@ -59,7 +59,7 @@ namespace PLEXIL
                                  NodeConnector *node,
                                  bool & wasCreated) const = 0;
 
-    virtual Expression *allocate(pugi::xml_node const &expr,
+    virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
                                  bool & wasCreated) const = 0;
 
@@ -88,7 +88,7 @@ namespace PLEXIL
                                       NodeConnector *node = NULL)
     throw (ParserException);
 
-  extern Expression *createExpression(pugi::xml_node const &expr,
+  extern Expression *createExpression(pugi::xml_node const expr,
                                       NodeConnector *node = NULL)
     throw (ParserException);
 
@@ -107,7 +107,7 @@ namespace PLEXIL
                                       bool& wasCreated)
     throw (ParserException);
 
-  extern Expression *createExpression(pugi::xml_node const &expr,
+  extern Expression *createExpression(pugi::xml_node const expr,
                                       NodeConnector *node,
                                       bool& wasCreated)
     throw (ParserException);
@@ -118,7 +118,7 @@ namespace PLEXIL
                                       bool& wasCreated)
     throw (ParserException);
 
-  extern Assignable *createAssignable(pugi::xml_node const &expr,
+  extern Assignable *createAssignable(pugi::xml_node const expr,
                                       NodeConnector *node,
                                       bool& wasCreated)
     throw (ParserException);

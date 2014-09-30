@@ -29,7 +29,6 @@
 
 #include "ArrayFwd.hh"
 
-#include <string>
 #include <vector>
 
 namespace PLEXIL

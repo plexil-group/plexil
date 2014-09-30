@@ -46,7 +46,7 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const;
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool & wasCreated) const;
 
@@ -56,7 +56,7 @@ namespace PLEXIL
     ExprVec *constructExprVec(std::vector<PlexilExpr *> const &subexprs,
                               NodeConnector *node) const;
 
-    ExprVec *constructExprVec(pugi::xml_node const &expr,
+    ExprVec *constructExprVec(pugi::xml_node const expr,
                               NodeConnector *node) const;
 
     // Delegated to derived class

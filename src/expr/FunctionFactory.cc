@@ -56,7 +56,7 @@ namespace PLEXIL
     return new Function(oper, exprVec);
   }
 
-  Expression *FunctionFactory::allocate(pugi::xml_node const &expr,
+  Expression *FunctionFactory::allocate(pugi::xml_node const expr,
                                         NodeConnector *node,
                                         bool &wasCreated) const
   {
@@ -88,7 +88,7 @@ namespace PLEXIL
   }
 
   ExprVec *
-  FunctionFactory::constructExprVec(pugi::xml_node const &expr,
+  FunctionFactory::constructExprVec(pugi::xml_node const expr,
                                     NodeConnector *node) const
   {
     std::vector<Expression *> exprs;

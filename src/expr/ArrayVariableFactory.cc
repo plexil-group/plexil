@@ -60,7 +60,7 @@ namespace PLEXIL
 
   // N.B. Construction of initializer expression happens later.
 
-  Expression *ArrayVariableFactory::allocate(pugi::xml_node const &expr,
+  Expression *ArrayVariableFactory::allocate(pugi::xml_node const expr,
                                             NodeConnector *node,
                                             bool &wasCreated) const
   {

@@ -207,7 +207,7 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(pugi::xml_node const &expr,
+  Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(pugi::xml_node const expr,
                                                                           NodeConnector *node,
                                                                           bool &wasCreated) const
   {
@@ -272,7 +272,7 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(pugi::xml_node const &expr,
+  Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(pugi::xml_node const expr,
                                                                             NodeConnector *node,
                                                                             bool &wasCreated) const
   {
@@ -334,7 +334,7 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(pugi::xml_node const &expr,
+  Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(pugi::xml_node const expr,
                                                                             NodeConnector *node,
                                                                             bool &wasCreated) const
   {
@@ -402,7 +402,7 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(pugi::xml_node const &expr,
+  Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(pugi::xml_node const expr,
                                                                               NodeConnector *node,
                                                                               bool &wasCreated) const
   {

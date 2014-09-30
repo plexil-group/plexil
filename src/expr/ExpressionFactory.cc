@@ -83,7 +83,7 @@ namespace PLEXIL
     return createExpression(expr, node, dummy);
   }
 
-  Expression *createExpression(pugi::xml_node const &expr,
+  Expression *createExpression(pugi::xml_node const expr,
                                NodeConnector *node)
     throw (ParserException)
   {
@@ -109,7 +109,7 @@ namespace PLEXIL
     return retval;
   }
 
-  Expression *createExpression(pugi::xml_node const &expr,
+  Expression *createExpression(pugi::xml_node const expr,
                                NodeConnector *node,
                                bool& wasCreated)
     throw (ParserException)
@@ -175,7 +175,7 @@ namespace PLEXIL
                          "Not a valid expression for assignment destination");
   }
 
-  Assignable *createAssignable(pugi::xml_node const &expr,
+  Assignable *createAssignable(pugi::xml_node const expr,
                                NodeConnector *node,
                                bool& wasCreated)
     throw (ParserException)

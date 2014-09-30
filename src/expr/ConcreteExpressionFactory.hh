@@ -58,7 +58,7 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const = 0;
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const = 0;
 
@@ -86,14 +86,14 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const;
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
 
   protected:
     Expression *create(PlexilValue const *expr) const;
 
-    Expression *create(pugi::xml_node const &expr) const;
+    Expression *create(pugi::xml_node const expr) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -121,7 +121,7 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const;
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
 
@@ -152,7 +152,7 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const;
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
 
@@ -184,7 +184,7 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const;
 
-    Expression *allocate(pugi::xml_node const &expr,
+    Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
 
@@ -215,7 +215,7 @@ namespace PLEXIL
                                  NodeConnector *node,
                                  bool & wasCreated) const;
 
-    virtual Expression *allocate(pugi::xml_node const &expr,
+    virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
                                  bool & wasCreated) const;
 
@@ -227,7 +227,7 @@ namespace PLEXIL
   };
 
   // Special case for ArrayElement as assignment target or InOut alias
-  Expression *createMutableArrayReference(pugi::xml_node const &expr,
+  Expression *createMutableArrayReference(pugi::xml_node const expr,
                                           NodeConnector *node,
                                           bool & wasCreated);
 
@@ -247,7 +247,7 @@ namespace PLEXIL
                                  NodeConnector *node,
                                  bool & wasCreated) const;
 
-    virtual Expression *allocate(pugi::xml_node const &expr,
+    virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
                                  bool & wasCreated) const;
 

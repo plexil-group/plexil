@@ -57,7 +57,7 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Expression *createArrayLiteral(char const *eltTypeName, pugi::xml_node const &expr)
+  Expression *createArrayLiteral(char const *eltTypeName, pugi::xml_node const expr)
   {
     // gather elements
     std::vector<T> values;
@@ -101,7 +101,7 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *createArrayLiteral<std::string>(char const *eltTypeName, pugi::xml_node const &expr)
+  Expression *createArrayLiteral<std::string>(char const *eltTypeName, pugi::xml_node const expr)
   {
     // gather elements
     std::vector<std::string> values;
@@ -125,7 +125,7 @@ namespace PLEXIL
     return new Constant<ArrayImpl<std::string> >(ArrayImpl<std::string>(values));
   }
 
-  Expression *ArrayLiteralFactory::allocate(pugi::xml_node const &expr,
+  Expression *ArrayLiteralFactory::allocate(pugi::xml_node const expr,
                                             NodeConnector * /* node */,
                                             bool &wasCreated) const
   {

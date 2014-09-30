@@ -30,8 +30,6 @@
 #include "ArrayFwd.hh"
 #include "ValueType.hh"
 
-#include <string>
-
 namespace PLEXIL
 {
   // Forward references

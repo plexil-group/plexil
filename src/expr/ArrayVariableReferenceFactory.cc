@@ -52,7 +52,7 @@ namespace PLEXIL
     return NULL;
   }
 
-  Expression *ArrayVariableReferenceFactory::allocate(pugi::xml_node const &expr,
+  Expression *ArrayVariableReferenceFactory::allocate(pugi::xml_node const expr,
                                                       NodeConnector *node,
                                                       bool & wasCreated) const
   {
