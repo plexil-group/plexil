@@ -24,11 +24,13 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Assignment.hh"
+#include "AssignmentNode.hh"
 #include "ExpressionFactory.hh"
-#include "test/FactoryTestNodeConnector.hh"
 #include "Node.hh"
 #include "parseNode.hh"
 #include "TestSupport.hh"
+#include "test/FactoryTestNodeConnector.hh"
 #include "test/TransitionExternalInterface.hh"
 
 #include "pugixml.hpp"
@@ -531,10 +533,100 @@ static bool assignmentNodeXmlParserTest()
   xml_document doc;
   doc.set_name("assignmentNodeXmlParserTest");
 
-  xml_node basicAssnXml = doc.append_child("Node");
-  basicAssnXml.append_attribute("NodeType").set_value("Assignment");
-  basicAssnXml.append_child("NodeId").append_child(node_pcdata).set_value("basicAssn");
-  xml_node assn = basicAssnXml.append_child("NodeBody").append_child("Assignment");
+  {
+    xml_node listNodeXml = doc.append_child("Node");
+    listNodeXml.append_attribute("NodeType").set_value("NodeList");
+    listNodeXml.append_child("NodeId").append_child(node_pcdata).set_value("listNode");
+    xml_node listNodeDecls = listNodeXml.append_child("VariableDeclarations");
+    xml_node decl0 = listNodeDecls.append_child("DeclareVariable");
+    decl0.append_child("Name").append_child(node_pcdata).set_value("foo");
+    decl0.append_child("Type").append_child(node_pcdata).set_value("Integer");
+    xml_node listNodeList = listNodeXml.append_child("NodeBody").append_child("NodeList");
+
+    xml_node basicAssnXml = listNodeList.append_child("Node");
+    basicAssnXml.append_attribute("NodeType").set_value("Assignment");
+    basicAssnXml.append_child("NodeId").append_child(node_pcdata).set_value("basicAssn");
+    xml_node assnXml = basicAssnXml.append_child("NodeBody").append_child("Assignment");
+    assnXml.append_child("IntegerVariable").append_child(node_pcdata).set_value("foo");
+    assnXml.append_child("NumericRHS").append_child("IntegerValue").append_child(node_pcdata).set_value("2");
+
+    Node *listNode = parseNode(listNodeXml, NULL);
+    assertTrue_1(listNode);
+    assertTrue_1(listNode->getType() == NodeType_NodeList);
+    assertTrue_1(!listNode->getChildren().empty());
+    assertTrue_1(listNode->getChildren().size() == 1);
+    assertTrue_1(!listNode->getLocalVariables().empty());
+    assertTrue_1(listNode->getLocalVariables().size() == 1);
+
+    Node *basicAssn = listNode->getChildren().front();
+    assertTrue_1(basicAssn);
+    assertTrue_1(basicAssn->getType() == NodeType_Assignment);
+    assertTrue_1(basicAssn->getChildren().empty());
+    assertTrue_1(basicAssn->getLocalVariables().empty());
+
+    finalizeNode(listNode, listNodeXml);
+    AssignmentNode *anode = dynamic_cast<AssignmentNode *>(basicAssn);
+    assertTrue_1(anode);
+    Assignment *assn = anode->getAssignment();
+    assertTrue_1(assn);
+
+    Assignable *fooVar = listNode->findLocalVariable("foo")->asAssignable();
+    assertTrue_1(fooVar);
+    assertTrue_1(fooVar->valueType() == INTEGER_TYPE);
+    assertTrue_1(assn->getDest() == fooVar);
+
+    delete listNode;
+  }
+
+
+  {
+    xml_node listNode2Xml = doc.append_child("Node");
+    listNode2Xml.append_attribute("NodeType").set_value("NodeList");
+    listNode2Xml.append_child("NodeId").append_child(node_pcdata).set_value("listNode2");
+    xml_node listNode2Decls = listNode2Xml.append_child("VariableDeclarations");
+    xml_node decl1 = listNode2Decls.append_child("DeclareArray");
+    decl1.append_child("Name").append_child(node_pcdata).set_value("bar");
+    decl1.append_child("Type").append_child(node_pcdata).set_value("Integer");
+    decl1.append_child("MaxSize").append_child(node_pcdata).set_value("2");
+    xml_node listNode2List = listNode2Xml.append_child("NodeBody").append_child("NodeList");
+
+    xml_node arrayAssnXml = listNode2List.append_child("Node");
+    arrayAssnXml.append_attribute("NodeType").set_value("Assignment");
+    arrayAssnXml.append_child("NodeId").append_child(node_pcdata).set_value("arrayAssn");
+    xml_node assnXml = arrayAssnXml.append_child("NodeBody").append_child("Assignment");
+    assnXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bar");
+    xml_node arrayXml = assnXml.append_child("ArrayRHS").append_child("ArrayValue");
+    arrayXml.append_attribute("Type").set_value("Integer");
+    arrayXml.append_child("IntegerValue").append_child(node_pcdata).set_value("2");
+    arrayXml.append_child("IntegerValue").append_child(node_pcdata).set_value("3");
+
+    Node *listNode2 = parseNode(listNode2Xml, NULL);
+    assertTrue_1(listNode2);
+    assertTrue_1(listNode2->getType() == NodeType_NodeList);
+    assertTrue_1(!listNode2->getChildren().empty());
+    assertTrue_1(listNode2->getChildren().size() == 1);
+    assertTrue_1(!listNode2->getLocalVariables().empty());
+    assertTrue_1(listNode2->getLocalVariables().size() == 1);
+
+    Node *arrayAssn = listNode2->getChildren().front();
+    assertTrue_1(arrayAssn);
+    assertTrue_1(arrayAssn->getType() == NodeType_Assignment);
+    assertTrue_1(arrayAssn->getChildren().empty());
+    assertTrue_1(arrayAssn->getLocalVariables().empty());
+
+    finalizeNode(listNode2, listNode2Xml);
+    AssignmentNode *aanode = dynamic_cast<AssignmentNode *>(arrayAssn);
+    assertTrue_1(aanode);
+    Assignment *aassn = aanode->getAssignment();
+    assertTrue_1(aassn);
+
+    Assignable *barVar = listNode2->findLocalVariable("bar")->asAssignable();
+    assertTrue_1(barVar);
+    assertTrue_1(barVar->valueType() == INTEGER_ARRAY_TYPE);
+    assertTrue_1(aassn->getDest() == barVar);
+
+    delete listNode2;
+  }
 
   return true;
 }
