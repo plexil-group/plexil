@@ -25,6 +25,7 @@
 */
 
 #include "ExpressionFactory.hh"
+#include "test/FactoryTestNodeConnector.hh"
 #include "Node.hh"
 #include "parseNode.hh"
 #include "TestSupport.hh"
@@ -52,8 +53,8 @@ bool emptyNodeXmlParserTest()
     Node *minimalNode = parseNode(minimal, NULL);
     assertTrue_1(minimalNode);
     assertTrue_1(minimalNode->getType() == NodeType_Empty);
-    finalizeNode(minimalNode, minimal);
     assertTrue_1(minimalNode->getChildren().empty());
+    finalizeNode(minimalNode, minimal);
     assertTrue_1(minimalNode->getLocalVariables().empty());
     delete minimalNode;
   }
@@ -66,8 +67,8 @@ bool emptyNodeXmlParserTest()
     Node *commentNode = parseNode(comment, NULL);
     assertTrue_1(commentNode);
     assertTrue_1(commentNode->getType() == NodeType_Empty);
-    finalizeNode(commentNode, comment);
     assertTrue_1(commentNode->getChildren().empty());
+    finalizeNode(commentNode, comment);
     assertTrue_1(commentNode->getLocalVariables().empty());
     delete commentNode;
   }
@@ -84,8 +85,8 @@ bool emptyNodeXmlParserTest()
     Node *preCondNode = parseNode(preCond, NULL);
     assertTrue_1(preCondNode);
     assertTrue_1(preCondNode->getType() == NodeType_Empty);
-    finalizeNode(preCondNode, preCond);
     assertTrue_1(preCondNode->getChildren().empty());
+    finalizeNode(preCondNode, preCond);
     assertTrue_1(preCondNode->getLocalVariables().empty());
     Expression *sc = preCondNode->getPreCondition();
     assertTrue_1(sc);
@@ -105,8 +106,8 @@ bool emptyNodeXmlParserTest()
     Node *endCondNode = parseNode(endCond, NULL);
     assertTrue_1(endCondNode);
     assertTrue_1(endCondNode->getType() == NodeType_Empty);
-    finalizeNode(endCondNode, endCond);
     assertTrue_1(endCondNode->getChildren().empty());
+    finalizeNode(endCondNode, endCond);
     assertTrue_1(endCondNode->getLocalVariables().empty());
     Expression *sc = endCondNode->getEndCondition();
     assertTrue_1(sc);
@@ -126,8 +127,8 @@ bool emptyNodeXmlParserTest()
     Node *exitCondNode = parseNode(exitCond, NULL);
     assertTrue_1(exitCondNode);
     assertTrue_1(exitCondNode->getType() == NodeType_Empty);
-    finalizeNode(exitCondNode, exitCond);
     assertTrue_1(exitCondNode->getChildren().empty());
+    finalizeNode(exitCondNode, exitCond);
     assertTrue_1(exitCondNode->getLocalVariables().empty());
     Expression *sc = exitCondNode->getExitCondition();
     assertTrue_1(sc);
@@ -147,8 +148,8 @@ bool emptyNodeXmlParserTest()
     Node *postCondNode = parseNode(postCond, NULL);
     assertTrue_1(postCondNode);
     assertTrue_1(postCondNode->getType() == NodeType_Empty);
-    finalizeNode(postCondNode, postCond);
     assertTrue_1(postCondNode->getChildren().empty());
+    finalizeNode(postCondNode, postCond);
     assertTrue_1(postCondNode->getLocalVariables().empty());
     Expression *sc = postCondNode->getPostCondition();
     assertTrue_1(sc);
@@ -168,8 +169,8 @@ bool emptyNodeXmlParserTest()
     Node *skipCondNode = parseNode(skipCond, NULL);
     assertTrue_1(skipCondNode);
     assertTrue_1(skipCondNode->getType() == NodeType_Empty);
-    finalizeNode(skipCondNode, skipCond);
     assertTrue_1(skipCondNode->getChildren().empty());
+    finalizeNode(skipCondNode, skipCond);
     assertTrue_1(skipCondNode->getLocalVariables().empty());
     Expression *sc = skipCondNode->getSkipCondition();
     assertTrue_1(sc);
@@ -189,8 +190,8 @@ bool emptyNodeXmlParserTest()
     Node *startCondNode = parseNode(startCond, NULL);
     assertTrue_1(startCondNode);
     assertTrue_1(startCondNode->getType() == NodeType_Empty);
-    finalizeNode(startCondNode, startCond);
     assertTrue_1(startCondNode->getChildren().empty());
+    finalizeNode(startCondNode, startCond);
     assertTrue_1(startCondNode->getLocalVariables().empty());
     Expression *sc = startCondNode->getStartCondition();
     assertTrue_1(sc);
@@ -210,8 +211,8 @@ bool emptyNodeXmlParserTest()
     Node *repeatCondNode = parseNode(repeatCond, NULL);
     assertTrue_1(repeatCondNode);
     assertTrue_1(repeatCondNode->getType() == NodeType_Empty);
-    finalizeNode(repeatCondNode, repeatCond);
     assertTrue_1(repeatCondNode->getChildren().empty());
+    finalizeNode(repeatCondNode, repeatCond);
     assertTrue_1(repeatCondNode->getLocalVariables().empty());
     Expression *sc = repeatCondNode->getRepeatCondition();
     assertTrue_1(sc);
@@ -231,8 +232,8 @@ bool emptyNodeXmlParserTest()
     Node *invariantCondNode = parseNode(invariantCond, NULL);
     assertTrue_1(invariantCondNode);
     assertTrue_1(invariantCondNode->getType() == NodeType_Empty);
-    finalizeNode(invariantCondNode, invariantCond);
     assertTrue_1(invariantCondNode->getChildren().empty());
+    finalizeNode(invariantCondNode, invariantCond);
     assertTrue_1(invariantCondNode->getLocalVariables().empty());
     Expression *sc = invariantCondNode->getInvariantCondition();
     assertTrue_1(sc);
@@ -254,8 +255,8 @@ bool emptyNodeXmlParserTest()
     Node *simpleVarDeclNode = parseNode(simpleVarDecl, NULL);
     assertTrue_1(simpleVarDeclNode);
     assertTrue_1(simpleVarDeclNode->getType() == NodeType_Empty);
-    finalizeNode(simpleVarDeclNode, simpleVarDecl);
     assertTrue_1(simpleVarDeclNode->getChildren().empty());
+    finalizeNode(simpleVarDeclNode, simpleVarDecl);
     assertTrue_1(!simpleVarDeclNode->getLocalVariables().empty());
     Expression *simpleVar = simpleVarDeclNode->findLocalVariable("b");
     assertTrue_1(simpleVar);
@@ -280,8 +281,8 @@ bool emptyNodeXmlParserTest()
     Node *initedVarDeclNode = parseNode(initedVarDecl, NULL);
     assertTrue_1(initedVarDeclNode);
     assertTrue_1(initedVarDeclNode->getType() == NodeType_Empty);
-    finalizeNode(initedVarDeclNode, initedVarDecl);
     assertTrue_1(initedVarDeclNode->getChildren().empty());
+    finalizeNode(initedVarDeclNode, initedVarDecl);
     assertTrue_1(!initedVarDeclNode->getLocalVariables().empty());
     Expression *initedVar = initedVarDeclNode->findLocalVariable("b");
     assertTrue_1(initedVar);
@@ -310,8 +311,8 @@ bool emptyNodeXmlParserTest()
     Node *simpleArrayVarDeclNode = parseNode(simpleArrayVarDecl, NULL);
     assertTrue_1(simpleArrayVarDeclNode);
     assertTrue_1(simpleArrayVarDeclNode->getType() == NodeType_Empty);
-    finalizeNode(simpleArrayVarDeclNode, simpleArrayVarDecl);
     assertTrue_1(simpleArrayVarDeclNode->getChildren().empty());
+    finalizeNode(simpleArrayVarDeclNode, simpleArrayVarDecl);
     assertTrue_1(!simpleArrayVarDeclNode->getLocalVariables().empty());
     Expression *simpleArrayVar = simpleArrayVarDeclNode->findLocalVariable("ba");
     assertTrue_1(simpleArrayVar);
@@ -339,8 +340,8 @@ bool emptyNodeXmlParserTest()
     Node *initedArrayVarDeclNode = parseNode(initedArrayVarDecl, NULL);
     assertTrue_1(initedArrayVarDeclNode);
     assertTrue_1(initedArrayVarDeclNode->getType() == NodeType_Empty);
-    finalizeNode(initedArrayVarDeclNode, initedArrayVarDecl);
     assertTrue_1(initedArrayVarDeclNode->getChildren().empty());
+    finalizeNode(initedArrayVarDeclNode, initedArrayVarDecl);
     assertTrue_1(!initedArrayVarDeclNode->getLocalVariables().empty());
     Expression *initedArrayVar = initedArrayVarDeclNode->findLocalVariable("iba");
     assertTrue_1(initedArrayVar);
@@ -367,12 +368,195 @@ bool emptyNodeXmlParserTest()
   return true;
 }
 
+static bool listNodeXmlParserTest()
+{
+  xml_document doc;
+  doc.set_name("listNodeXmlParserTest");
+
+  xml_node basicListXml = doc.append_child("Node");
+  basicListXml.append_attribute("NodeType").set_value("NodeList");
+  basicListXml.append_child("NodeId").append_child(node_pcdata).set_value("basicList");
+  xml_node list = basicListXml.append_child("NodeBody").append_child("NodeList");
+
+  {
+    Node *emptyList = parseNode(basicListXml, NULL);
+    assertTrue_1(emptyList);
+    assertTrue_1(emptyList->getType() == NodeType_NodeList);
+    assertTrue_1(emptyList->getNodeId() == "basicList");
+    finalizeNode(emptyList, basicListXml);
+    assertTrue_1(emptyList->getChildren().empty());
+    assertTrue_1(emptyList->getLocalVariables().empty());
+    delete emptyList;
+  }
+
+  {
+    xml_node oneListXml = doc.append_copy(basicListXml);
+    oneListXml.child("NodeId").first_child().set_value("oneList");
+    xml_node oneListKid = oneListXml.child("NodeBody").child("NodeList").append_child("Node");
+    oneListKid.append_attribute("NodeType").set_value("Empty");
+    oneListKid.append_child("NodeId").append_child(node_pcdata).set_value("oneListKid");
+    Node *oneList = parseNode(oneListXml, NULL);
+    assertTrue_1(oneList);
+    assertTrue_1(oneList->getType() == NodeType_NodeList);
+    assertTrue_1(oneList->getNodeId() == "oneList");
+    assertTrue_1(!oneList->getChildren().empty());
+    assertTrue_1(oneList->getChildren().size() == 1);
+    Node *kid = oneList->getChildren().front();
+    assertTrue_1(kid->getType() == NodeType_Empty); 
+    assertTrue_1(kid->getNodeId() == "oneListKid");
+    assertTrue_1(kid->getChildren().empty());
+    finalizeNode(oneList, oneListXml);
+    assertTrue_1(oneList->getLocalVariables().empty());
+    assertTrue_1(kid->getLocalVariables().empty());
+    delete oneList;
+  }
+
+  {
+    xml_node anotherListXml = doc.append_copy(basicListXml);
+    anotherListXml.child("NodeId").first_child().set_value("anotherList");
+    xml_node theList = anotherListXml.child("NodeBody").child("NodeList");
+    xml_node anotherListKid = theList.append_child("Node");
+    anotherListKid.append_attribute("NodeType").set_value("Empty");
+    anotherListKid.append_child("NodeId").append_child(node_pcdata).set_value("anotherListKid0");
+    xml_node yaListKid = theList.append_child("Node");
+    yaListKid.append_attribute("NodeType").set_value("Empty");
+    yaListKid.append_child("NodeId").append_child(node_pcdata).set_value("anotherListKid1");
+    Node *anotherList = parseNode(anotherListXml, NULL);
+    assertTrue_1(anotherList);
+    assertTrue_1(anotherList->getType() == NodeType_NodeList);
+    assertTrue_1(anotherList->getNodeId() == "anotherList");
+    assertTrue_1(!anotherList->getChildren().empty());
+    assertTrue_1(anotherList->getChildren().size() == 2);
+    Node *kid0 = anotherList->getChildren().at(0);
+    assertTrue_1(kid0->getType() == NodeType_Empty);
+    assertTrue_1(kid0->getNodeId() == "anotherListKid0");
+    assertTrue_1(kid0->getChildren().empty());
+    Node *kid1 = anotherList->getChildren().at(1);
+    assertTrue_1(kid1->getType() == NodeType_Empty);
+    assertTrue_1(kid1->getNodeId() == "anotherListKid1");
+    assertTrue_1(kid1->getChildren().empty());
+    finalizeNode(anotherList, anotherListXml);
+    assertTrue_1(anotherList->getLocalVariables().empty());
+    assertTrue_1(kid0->getLocalVariables().empty());
+    assertTrue_1(kid1->getLocalVariables().empty());
+    delete anotherList;
+  }
+
+  {
+    xml_node varAccessListXml = doc.append_copy(basicListXml);
+    varAccessListXml.child("NodeId").first_child().set_value("varAccessList");
+    xml_node rootDecls = varAccessListXml.append_child("VariableDeclarations");
+    xml_node decl0 = rootDecls.append_child("DeclareVariable");
+    decl0.append_child("Name").append_child(node_pcdata).set_value("foo");
+    decl0.append_child("Type").append_child(node_pcdata).set_value("Integer");
+    decl0.append_child("InitialValue").append_child("IntegerValue").append_child(node_pcdata).set_value("42");
+    xml_node varAccessListKid = varAccessListXml.child("NodeBody").child("NodeList").append_child("Node");
+    varAccessListKid.append_attribute("NodeType").set_value("Empty");
+    varAccessListKid.append_child("NodeId").append_child(node_pcdata).set_value("varAccessListKid");
+    xml_node kidDecls = varAccessListKid.append_child("VariableDeclarations");
+    xml_node decl1 = kidDecls.append_child("DeclareVariable");
+    decl1.append_child("Name").append_child(node_pcdata).set_value("bar");
+    decl1.append_child("Type").append_child(node_pcdata).set_value("Integer");
+    decl1.append_child("InitialValue").append_child("IntegerVariable").append_child(node_pcdata).set_value("foo");
+
+    Node *varAccessList = parseNode(varAccessListXml, NULL);
+    assertTrue_1(varAccessList);
+    assertTrue_1(varAccessList->getType() == NodeType_NodeList);
+    assertTrue_1(varAccessList->getNodeId() == "varAccessList");
+    assertTrue_1(!varAccessList->getChildren().empty());
+    assertTrue_1(varAccessList->getChildren().size() == 1);
+    Node *kid = varAccessList->getChildren().front();
+    assertTrue_1(kid->getType() == NodeType_Empty); 
+    assertTrue_1(kid->getNodeId() == "varAccessListKid");
+    assertTrue_1(kid->getChildren().empty());
+    finalizeNode(varAccessList, varAccessListXml);
+    assertTrue_1(!varAccessList->getLocalVariables().empty());
+    assertTrue_1(varAccessList->getLocalVariables().size() == 1);
+    Assignable *rootVar = varAccessList->getLocalVariables().front()->asAssignable();
+    assertTrue_1(rootVar);
+    assertTrue_1(rootVar->valueType() == INTEGER_TYPE);
+    assertTrue_1(rootVar->getNode() == varAccessList);
+    assertTrue_1(rootVar == varAccessList->findVariable("foo"));
+    assertTrue_1(!varAccessList->findVariable("bar", true));
+
+    assertTrue_1(!kid->getLocalVariables().empty());
+    assertTrue_1(kid->getLocalVariables().size() == 1);
+    Assignable *kidVar = kid->getLocalVariables().front()->asAssignable();
+    assertTrue_1(kidVar);
+    assertTrue_1(kidVar->valueType() == INTEGER_TYPE);
+    assertTrue_1(kidVar->getNode() == kid);
+    assertTrue_1(rootVar == kid->findVariable("foo"));
+    assertTrue_1(kidVar == kid->findVariable("bar"));
+
+    delete varAccessList;
+  }
+
+  return true;
+}
+
+static bool assignmentNodeXmlParserTest()
+{
+  xml_document doc;
+  doc.set_name("assignmentNodeXmlParserTest");
+
+  xml_node basicAssnXml = doc.append_child("Node");
+  basicAssnXml.append_attribute("NodeType").set_value("Assignment");
+  basicAssnXml.append_child("NodeId").append_child(node_pcdata).set_value("basicAssn");
+  xml_node assn = basicAssnXml.append_child("NodeBody").append_child("Assignment");
+
+  return true;
+}
+
+static bool commandNodeXmlParserTest()
+{
+  xml_document doc;
+  doc.set_name("commandNodeXmlParserTest");
+
+  xml_node basicCmdXml = doc.append_child("Node");
+  basicCmdXml.append_attribute("NodeType").set_value("Command");
+  basicCmdXml.append_child("NodeId").append_child(node_pcdata).set_value("basicCmd");
+  xml_node cmd = basicCmdXml.append_child("NodeBody").append_child("Command");
+
+  return true;
+}
+
+static bool updateNodeXmlParserTest()
+{
+  xml_document doc;
+  doc.set_name("updateNodeXmlParserTest");
+
+  xml_node basicUpdXml = doc.append_child("Node");
+  basicUpdXml.append_attribute("NodeType").set_value("Update");
+  basicUpdXml.append_child("NodeId").append_child(node_pcdata).set_value("basicUpd");
+  xml_node upd = basicUpdXml.append_child("NodeBody").append_child("Update");
+
+  return true;
+}
+
+static bool libraryCallNodeXmlParserTest()
+{
+  xml_document doc;
+  doc.set_name("libraryCallNodeXmlParserTest");
+
+  xml_node basicLibCallXml = doc.append_child("Node");
+  basicLibCallXml.append_attribute("NodeType").set_value("LibraryNodeCall");
+  basicLibCallXml.append_child("NodeId").append_child(node_pcdata).set_value("basicLibCall");
+  xml_node libCall = basicLibCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
+
+  return true;
+}
+
 bool nodeXmlParserTest()
 {
   TransitionExternalInterface tif;
   g_interface = &tif;
 
   runTest(emptyNodeXmlParserTest);
+  runTest(listNodeXmlParserTest);
+  runTest(assignmentNodeXmlParserTest);
+  runTest(commandNodeXmlParserTest);
+  runTest(updateNodeXmlParserTest);
+  runTest(libraryCallNodeXmlParserTest);
 
   g_interface = NULL;
   return true;
