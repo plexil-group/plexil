@@ -1677,14 +1677,16 @@ namespace PLEXIL {
       Expression *result = m_parent->findVariable(name, true);
       if (result) {
         // Found it - cache for later reuse
-        m_variablesByName[name] = result;
+        // TODO: determine if this really speeds things up when loading large plans
+        if (!recursive)
+          m_variablesByName[name] = result;
         return result;
       }
-      // Not found 
-      else if (recursive)
-        return NULL; // so that error happens at approriate level
-      // else fall through to failure
     }
+
+    // Not found in ancestors either
+    if (recursive)
+      return NULL; // so that error happens at approriate level
 
     // FIXME: push this check up into XML parser
     checkError(ALWAYS_FAIL,
