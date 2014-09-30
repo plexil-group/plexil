@@ -39,11 +39,11 @@ namespace PLEXIL
 {
   class Node;
 
-  extern void addLibraryNode(std::string const &name, pugi::xml_node const &xml);
+  extern void addLibraryNode(std::string const &name, pugi::xml_node const xml);
 
   extern pugi::xml_node getLibraryNode(std::string const &name);
 
-  extern Node *parsePlan(pugi::xml_node const &xml)
+  extern Node *parsePlan(pugi::xml_node const xml)
     throw(ParserException);
 
 }

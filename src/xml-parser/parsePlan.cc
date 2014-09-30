@@ -42,7 +42,7 @@ namespace PLEXIL
   // Place to store library nodes
   static std::map<std::string, xml_node> libraryMap;
 
-  void addLibraryNode(std::string const &name, xml_node const &xml)
+  void addLibraryNode(std::string const &name, xml_node const xml)
   {
     libraryMap[name] = xml;
   }
@@ -61,7 +61,7 @@ namespace PLEXIL
     // TODO
   }
 
-  Node *parsePlan(xml_node const &xml)
+  Node *parsePlan(xml_node const xml)
     throw(ParserException)
   {
     checkTag(PLEXIL_PLAN_TAG, xml);

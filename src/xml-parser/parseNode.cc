@@ -55,7 +55,7 @@ namespace PLEXIL
   // First pass
   //
 
-  static void parseVariableDeclarations(Node *node, xml_node const &decls)
+  static void parseVariableDeclarations(Node *node, xml_node const decls)
   {
     xml_node decl = decls.first_child();
     while (decl) {
@@ -75,7 +75,7 @@ namespace PLEXIL
   }
 
   // For Interface specs; may have other uses.
-  static ValueType getVarDeclType(xml_node const &decl)
+  static ValueType getVarDeclType(xml_node const decl)
   {
     xml_node typeElt = decl.child(TYPE_TAG);
     checkParserExceptionWithLocation(typeElt,
@@ -108,7 +108,7 @@ namespace PLEXIL
                                 (parent->getType() == NodeType_LibraryNodeCall));
   }
 
-  static char const *getVarDeclName(xml_node const &decl)
+  static char const *getVarDeclName(xml_node const decl)
   {
     checkHasChildElement(decl);
     xml_node nameXml = decl.first_child();
@@ -126,7 +126,7 @@ namespace PLEXIL
   // (e.g. child node internal vars) may not exist yet. Same with default values.
 
   // First pass checking of one In interface variable
-  static void checkInDecl(Node *node, xml_node const &inXml, bool isCall)
+  static void checkInDecl(Node *node, xml_node const inXml, bool isCall)
     throw (ParserException)
   {
     char const *name = getVarDeclName(inXml);
@@ -138,7 +138,7 @@ namespace PLEXIL
   }
 
   // First pass checking of one InOut interface
-  static void checkInOutDecl(Node *node, xml_node const &inOutXml, bool isCall)
+  static void checkInOutDecl(Node *node, xml_node const inOutXml, bool isCall)
     throw (ParserException)
   {
     std::string const name(getVarDeclName(inOutXml));
@@ -150,7 +150,7 @@ namespace PLEXIL
   }
 
   // First pass
-  static void parseInterface(Node *node, xml_node const &iface)
+  static void parseInterface(Node *node, xml_node const iface)
     throw (ParserException)
   {
     // Figure out if this is a library node expansion
@@ -182,7 +182,7 @@ namespace PLEXIL
     }
   }
 
-  void constructChildNodes(Node *node, xml_node const &kidsXml)
+  void constructChildNodes(Node *node, xml_node const kidsXml)
   throw (ParserException)
   {
     ListNode *lnode = dynamic_cast<ListNode *>(node);
@@ -205,7 +205,7 @@ namespace PLEXIL
     }
   }
 
-  Node *parseNode(xml_node const &xml, Node *parent)
+  Node *parseNode(xml_node const xml, Node *parent)
     throw (ParserException)
   {
     xml_attribute const typeAttr = xml.attribute(NODETYPE_ATTR);
@@ -427,7 +427,7 @@ namespace PLEXIL
   // Finish populating the node and its children.
   // 
 
-  static void linkInVar(Node *node, xml_node const &inXml, bool isCall)
+  static void linkInVar(Node *node, xml_node const inXml, bool isCall)
     throw (ParserException)
   {
     std::string const name(getVarDeclName(inXml));
@@ -477,7 +477,7 @@ namespace PLEXIL
     }
   }
 
-  static void linkInOutVar(Node *node, xml_node const &inOutXml, bool isCall)
+  static void linkInOutVar(Node *node, xml_node const inOutXml, bool isCall)
     throw (ParserException)
   {
     std::string const name(getVarDeclName(inOutXml));
@@ -522,7 +522,7 @@ namespace PLEXIL
     }
   }
 
-  static void linkAndInitializeInterfaceVars(Node *node, xml_node const &iface)
+  static void linkAndInitializeInterfaceVars(Node *node, xml_node const iface)
     throw (ParserException)
   {
     Node *parent = node->getParent();
@@ -541,7 +541,7 @@ namespace PLEXIL
     }
   }
 
-  void finalizeNode(Node *node, xml_node const &xml)
+  void finalizeNode(Node *node, xml_node const xml)
     throw (ParserException)
   {
     // Where to put the things we parse on the second pass

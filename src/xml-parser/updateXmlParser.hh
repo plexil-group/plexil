@@ -41,10 +41,10 @@ namespace PLEXIL
   class NodeConnector;
   class Update;
 
-  extern Update *constructUpdate(NodeConnector *node, pugi::xml_node const &updXml)
+  extern Update *constructUpdate(NodeConnector *node, pugi::xml_node const updXml)
     throw (ParserException);
 
-  extern void finalizeUpdate(Update *upd, NodeConnector *node, pugi::xml_node const &updXml)
+  extern void finalizeUpdate(Update *upd, NodeConnector *node, pugi::xml_node const updXml)
     throw (ParserException);
 
 } // namespace PLEXIL

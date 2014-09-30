@@ -40,10 +40,10 @@ namespace PLEXIL
   // Forward declarations
   class NodeConnector;
 
-  extern Command *constructCommand(NodeConnector *node, pugi::xml_node const &cmdXml)
+  extern Command *constructCommand(NodeConnector *node, pugi::xml_node const cmdXml)
     throw (ParserException);
 
-  extern void finalizeCommand(Command *cmd, NodeConnector *node, pugi::xml_node const &cmdXml)
+  extern void finalizeCommand(Command *cmd, NodeConnector *node, pugi::xml_node const cmdXml)
     throw (ParserException);
 
 } // namespace PLEXIL

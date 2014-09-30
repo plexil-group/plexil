@@ -39,7 +39,7 @@ using pugi::xml_node;
 namespace PLEXIL
 {
   // First pass
-  Command *constructCommand(NodeConnector *node, xml_node const &cmdXml)
+  Command *constructCommand(NodeConnector *node, xml_node const cmdXml)
     throw (ParserException)
   {
     checkHasChildElement(cmdXml);
@@ -84,7 +84,7 @@ namespace PLEXIL
     return new Command(node->getNodeId());
   }
 
-  void finalizeResourceList(NodeConnector *node, Command *cmd, xml_node const &rlist)
+  void finalizeResourceList(NodeConnector *node, Command *cmd, xml_node const rlist)
   throw (ParserException)
   {
     ResourceList &resources = cmd->getResourceList();
@@ -171,7 +171,7 @@ namespace PLEXIL
     }
   }
 
-  void finalizeCommand(Command *cmd, NodeConnector *node, xml_node const &cmdXml)
+  void finalizeCommand(Command *cmd, NodeConnector *node, xml_node const cmdXml)
     throw (ParserException)
   {
     xml_node temp = cmdXml.first_child();

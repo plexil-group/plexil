@@ -39,7 +39,7 @@ using pugi::xml_node;
 namespace PLEXIL
 {
 
-  Update *constructUpdate(NodeConnector *node, pugi::xml_node const &updXml)
+  Update *constructUpdate(NodeConnector *node, pugi::xml_node const updXml)
     throw (ParserException)
   {
     checkTag(UPDATE_TAG, updXml);
@@ -59,7 +59,7 @@ namespace PLEXIL
     return new Update(node);
   }
 
-  void finalizeUpdate(Update *update, NodeConnector *node, pugi::xml_node const &updXml)
+  void finalizeUpdate(Update *update, NodeConnector *node, pugi::xml_node const updXml)
     throw (ParserException)
   {
     xml_node pr = updXml.first_child();
