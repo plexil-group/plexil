@@ -581,6 +581,55 @@ static bool assignmentNodeXmlParserTest()
     delete listNode;
   }
 
+
+  // Scalar assignment w/ priority
+  {
+    xml_node listNode1Xml = doc.append_child("Node");
+    listNode1Xml.append_attribute("NodeType").set_value("NodeList");
+    listNode1Xml.append_child("NodeId").append_child(node_pcdata).set_value("listNode1");
+    xml_node listNode1Decls = listNode1Xml.append_child("VariableDeclarations");
+    xml_node decl0 = listNode1Decls.append_child("DeclareVariable");
+    decl0.append_child("Name").append_child(node_pcdata).set_value("foo");
+    decl0.append_child("Type").append_child(node_pcdata).set_value("Integer");
+    xml_node listNode1List = listNode1Xml.append_child("NodeBody").append_child("NodeList");
+
+    xml_node basicAssnXml = listNode1List.append_child("Node");
+    basicAssnXml.append_attribute("NodeType").set_value("Assignment");
+    basicAssnXml.append_child("NodeId").append_child(node_pcdata).set_value("basicAssn");
+    basicAssnXml.append_child("Priority").append_child(node_pcdata).set_value("69");
+    xml_node assnXml = basicAssnXml.append_child("NodeBody").append_child("Assignment");
+    assnXml.append_child("IntegerVariable").append_child(node_pcdata).set_value("foo");
+    assnXml.append_child("NumericRHS").append_child("IntegerValue").append_child(node_pcdata).set_value("2");
+
+    Node *listNode1 = parseNode(listNode1Xml, NULL);
+    assertTrue_1(listNode1);
+    assertTrue_1(listNode1->getType() == NodeType_NodeList);
+    assertTrue_1(!listNode1->getChildren().empty());
+    assertTrue_1(listNode1->getChildren().size() == 1);
+    assertTrue_1(!listNode1->getLocalVariables().empty());
+    assertTrue_1(listNode1->getLocalVariables().size() == 1);
+
+    Node *basicAssn = listNode1->getChildren().front();
+    assertTrue_1(basicAssn);
+    assertTrue_1(basicAssn->getType() == NodeType_Assignment);
+    assertTrue_1(basicAssn->getChildren().empty());
+    assertTrue_1(basicAssn->getLocalVariables().empty());
+
+    finalizeNode(listNode1, listNode1Xml);
+    AssignmentNode *anode = dynamic_cast<AssignmentNode *>(basicAssn);
+    assertTrue_1(anode);
+    assertTrue_1(anode->getPriority() == 69);
+    Assignment *assn = anode->getAssignment();
+    assertTrue_1(assn);
+
+    Assignable *fooVar = listNode1->findLocalVariable("foo")->asAssignable();
+    assertTrue_1(fooVar);
+    assertTrue_1(fooVar->valueType() == INTEGER_TYPE);
+    assertTrue_1(assn->getDest() == fooVar);
+
+    delete listNode1;
+  }
+
   // Array assignment
   {
     xml_node listNode2Xml = doc.append_child("Node");
