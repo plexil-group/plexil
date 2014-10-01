@@ -92,8 +92,7 @@ namespace PLEXIL
     assertTrue_2(anode, "finalizeAssignment: AssignmentNode without an Assignment");
     xml_node temp = assn.first_child();
     bool varGarbage = false;
-    Expression *exp = createExpression(temp, node, varGarbage);
-    Assignable *var = exp->asAssignable();
+    Assignable *var = createAssignable(temp, node, varGarbage);
     checkParserExceptionWithLocation(var,
                                      temp,
                                      "Assignment Node " << node->getNodeId()
