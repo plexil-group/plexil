@@ -26,6 +26,8 @@
 
 #include "Assignment.hh"
 #include "AssignmentNode.hh"
+#include "Command.hh"
+#include "CommandNode.hh"
 #include "ExpressionFactory.hh"
 #include "Node.hh"
 #include "parseNode.hh"
@@ -688,10 +690,35 @@ static bool commandNodeXmlParserTest()
   xml_document doc;
   doc.set_name("commandNodeXmlParserTest");
 
-  xml_node basicCmdXml = doc.append_child("Node");
-  basicCmdXml.append_attribute("NodeType").set_value("Command");
-  basicCmdXml.append_child("NodeId").append_child(node_pcdata).set_value("basicCmd");
-  xml_node cmd = basicCmdXml.append_child("NodeBody").append_child("Command");
+  {
+    xml_node basicCmdXml = doc.append_child("Node");
+    basicCmdXml.append_attribute("NodeType").set_value("Command");
+    basicCmdXml.append_child("NodeId").append_child(node_pcdata).set_value("basicCmd");
+    xml_node cmdXml = basicCmdXml.append_child("NodeBody").append_child("Command");
+    cmdXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("foo");
+
+    Node *basicCmd = parseNode(basicCmdXml, NULL);
+    assertTrue_1(basicCmd);
+    assertTrue_1(basicCmd->getType() == NodeType_Command);
+    assertTrue_1(basicCmd->getNodeId() == "basicCmd");
+    assertTrue_1(basicCmd->getChildren().empty());
+    assertTrue_1(basicCmd->getLocalVariables().empty());
+    CommandNode *cnode = dynamic_cast<CommandNode *>(basicCmd);
+    assertTrue_1(cnode);
+    Command *cmd = cnode->getCommand();
+    assertTrue_1(cmd);
+    
+    finalizeNode(basicCmd, basicCmdXml);
+    assertTrue_1(!cmd->isActive());
+    cmd->activate();
+    cmd->fixValues();
+    assertTrue(cmd->getName() == "foo");
+    assertTrue(cmd->getArgValues().empty());
+    cmd->fixResourceValues();
+    assertTrue(cmd->getResourceValues().empty());
+
+    delete basicCmd;
+  }
 
   return true;
 }
