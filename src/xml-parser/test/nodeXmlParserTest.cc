@@ -533,6 +533,7 @@ static bool assignmentNodeXmlParserTest()
   xml_document doc;
   doc.set_name("assignmentNodeXmlParserTest");
 
+  // Scalar assignment
   {
     xml_node listNodeXml = doc.append_child("Node");
     listNodeXml.append_attribute("NodeType").set_value("NodeList");
@@ -578,7 +579,7 @@ static bool assignmentNodeXmlParserTest()
     delete listNode;
   }
 
-
+  // Array assignment
   {
     xml_node listNode2Xml = doc.append_child("Node");
     listNode2Xml.append_attribute("NodeType").set_value("NodeList");
@@ -626,6 +627,57 @@ static bool assignmentNodeXmlParserTest()
     assertTrue_1(aassn->getDest() == barVar);
 
     delete listNode2;
+  }
+
+  // Array element assignment
+  {
+    xml_node listNode3Xml = doc.append_child("Node");
+    listNode3Xml.append_attribute("NodeType").set_value("NodeList");
+    listNode3Xml.append_child("NodeId").append_child(node_pcdata).set_value("listNode3");
+    xml_node listNode3Decls = listNode3Xml.append_child("VariableDeclarations");
+    xml_node decl1 = listNode3Decls.append_child("DeclareArray");
+    decl1.append_child("Name").append_child(node_pcdata).set_value("baz");
+    decl1.append_child("Type").append_child(node_pcdata).set_value("Integer");
+    decl1.append_child("MaxSize").append_child(node_pcdata).set_value("2");
+    xml_node listNode3List = listNode3Xml.append_child("NodeBody").append_child("NodeList");
+
+    xml_node arrayAssnXml = listNode3List.append_child("Node");
+    arrayAssnXml.append_attribute("NodeType").set_value("Assignment");
+    arrayAssnXml.append_child("NodeId").append_child(node_pcdata).set_value("arrayAssn");
+    xml_node assnXml = arrayAssnXml.append_child("NodeBody").append_child("Assignment");
+    xml_node elemXml = assnXml.append_child("ArrayElement");
+    elemXml.append_child("Name").append_child(node_pcdata).set_value("baz");
+    elemXml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+    assnXml.append_child("NumericRHS").append_child("IntegerValue").append_child(node_pcdata).set_value("3");
+
+    Node *listNode3 = parseNode(listNode3Xml, NULL);
+    assertTrue_1(listNode3);
+    assertTrue_1(listNode3->getType() == NodeType_NodeList);
+    assertTrue_1(!listNode3->getChildren().empty());
+    assertTrue_1(listNode3->getChildren().size() == 1);
+    assertTrue_1(!listNode3->getLocalVariables().empty());
+    assertTrue_1(listNode3->getLocalVariables().size() == 1);
+
+    Node *arrayAssn = listNode3->getChildren().front();
+    assertTrue_1(arrayAssn);
+    assertTrue_1(arrayAssn->getType() == NodeType_Assignment);
+    assertTrue_1(arrayAssn->getChildren().empty());
+    assertTrue_1(arrayAssn->getLocalVariables().empty());
+
+    finalizeNode(listNode3, listNode3Xml);
+    AssignmentNode *aanode = dynamic_cast<AssignmentNode *>(arrayAssn);
+    assertTrue_1(aanode);
+    Assignment *aassn = aanode->getAssignment();
+    assertTrue_1(aassn);
+
+    Assignable *bazVar = listNode3->findLocalVariable("baz")->asAssignable();
+    assertTrue_1(bazVar);
+    assertTrue_1(bazVar->valueType() == INTEGER_ARRAY_TYPE);
+    assertTrue_1(aassn->getDest()->valueType() == INTEGER_TYPE);
+    assertTrue_1(aassn->getDest() != bazVar);
+    assertTrue_1(aassn->getDest()->asAssignable()->getBaseVariable() == bazVar);
+
+    delete listNode3;
   }
 
   return true;
