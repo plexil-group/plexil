@@ -581,7 +581,6 @@ static bool assignmentNodeXmlParserTest()
     delete listNode;
   }
 
-
   // Scalar assignment w/ priority
   {
     xml_node listNode1Xml = doc.append_child("Node");
@@ -739,6 +738,7 @@ static bool commandNodeXmlParserTest()
   xml_document doc;
   doc.set_name("commandNodeXmlParserTest");
 
+  // Simple
   {
     xml_node basicCmdXml = doc.append_child("Node");
     basicCmdXml.append_attribute("NodeType").set_value("Command");
@@ -761,12 +761,234 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(!cmd->isActive());
     cmd->activate();
     cmd->fixValues();
-    assertTrue(cmd->getName() == "foo");
-    assertTrue(cmd->getArgValues().empty());
+    assertTrue_1(cmd->getName() == "foo");
+    assertTrue_1(cmd->getArgValues().empty());
+    assertTrue_1(!cmd->getDest());
     cmd->fixResourceValues();
-    assertTrue(cmd->getResourceValues().empty());
+    assertTrue_1(cmd->getResourceValues().empty());
 
     delete basicCmd;
+  }
+
+  // With resources
+  {
+    xml_node cmdWithResourcesXml = doc.append_child("Node");
+    cmdWithResourcesXml.append_attribute("NodeType").set_value("Command");
+    cmdWithResourcesXml.append_child("NodeId").append_child(node_pcdata).set_value("cmdWithResources");
+    xml_node cmdXml = cmdWithResourcesXml.append_child("NodeBody").append_child("Command");
+
+    xml_node resListXml = cmdXml.append_child("ResourceList");
+    xml_node res1Xml = resListXml.append_child("Resource");
+    res1Xml.append_child("ResourceName").append_child("StringValue").append_child(node_pcdata).set_value("Resource1");
+    res1Xml.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("1024");
+    xml_node res2Xml = resListXml.append_child("Resource");
+    res2Xml.append_child("ResourceName").append_child("StringValue").append_child(node_pcdata).set_value("Resource2");
+    res2Xml.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("127");
+    res2Xml.append_child("ResourceLowerBound").append_child("IntegerValue").append_child(node_pcdata).set_value("1");
+    res2Xml.append_child("ResourceUpperBound").append_child("IntegerValue").append_child(node_pcdata).set_value("10");
+    res2Xml.append_child("ResourceReleaseAtTermination").append_child("BooleanValue").append_child(node_pcdata).set_value("false");
+
+    cmdXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("goo");
+
+    Node *cmdWithResources = parseNode(cmdWithResourcesXml, NULL);
+    assertTrue_1(cmdWithResources);
+    assertTrue_1(cmdWithResources->getType() == NodeType_Command);
+    assertTrue_1(cmdWithResources->getNodeId() == "cmdWithResources");
+    assertTrue_1(cmdWithResources->getChildren().empty());
+    assertTrue_1(cmdWithResources->getLocalVariables().empty());
+    CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithResources);
+    assertTrue_1(cnode);
+    Command *cmd = cnode->getCommand();
+    assertTrue_1(cmd);
+    
+    finalizeNode(cmdWithResources, cmdWithResourcesXml);
+    assertTrue_1(!cmd->isActive());
+    cmd->activate();
+    cmd->fixValues();
+    assertTrue_1(cmd->getName() == "goo");
+    assertTrue_1(cmd->getArgValues().empty());
+    assertTrue_1(!cmd->getDest());
+
+    cmd->fixResourceValues();
+    ResourceValuesList res = cmd->getResourceValues();
+    assertTrue_1(!res.empty());
+    ResourceValues &res1 = res[0];
+    assertTrue_1(res1.find("ResourceLowerBound") == res1.end());
+    assertTrue_1(res1.find("ResourceUpperBound") == res1.end());
+    assertTrue_1(res1.find("ResourceReleaseAtTermination") == res1.end());
+    assertTrue_1(res1["ResourceName"] == Value("Resource1"));
+    assertTrue_1(res1["ResourcePriority"] == Value((int32_t) 1024));
+    ResourceValues &res2 = res[1];
+    assertTrue_1(res2["ResourceName"] == Value("Resource2"));
+    assertTrue_1(res2["ResourcePriority"] == Value((int32_t) 127));
+    assertTrue_1(res2["ResourceLowerBound"] == Value((int32_t) 1));
+    assertTrue_1(res2["ResourceUpperBound"] == Value((int32_t) 10));
+    assertTrue_1(res2["ResourceReleaseAtTermination"] == Value(false));
+
+    delete cmdWithResources;
+  }
+
+  // With parameters
+  {
+    xml_node cmdWithArgsXml = doc.append_child("Node");
+    cmdWithArgsXml.append_attribute("NodeType").set_value("Command");
+    cmdWithArgsXml.append_child("NodeId").append_child(node_pcdata).set_value("cmdWithArgs");
+    xml_node cmdXml = cmdWithArgsXml.append_child("NodeBody").append_child("Command");
+    cmdXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("hoo");
+    xml_node argsXml = cmdXml.append_child("Arguments");
+    argsXml.append_child("BooleanValue").append_child(node_pcdata).set_value("true");
+    argsXml.append_child("IntegerValue").append_child(node_pcdata).set_value("5");
+    argsXml.append_child("RealValue").append_child(node_pcdata).set_value("3.14");
+    argsXml.append_child("StringValue").append_child(node_pcdata).set_value("hi there");
+
+    Node *cmdWithArgs = parseNode(cmdWithArgsXml, NULL);
+    assertTrue_1(cmdWithArgs);
+    assertTrue_1(cmdWithArgs->getType() == NodeType_Command);
+    assertTrue_1(cmdWithArgs->getNodeId() == "cmdWithArgs");
+    assertTrue_1(cmdWithArgs->getChildren().empty());
+    assertTrue_1(cmdWithArgs->getLocalVariables().empty());
+    CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithArgs);
+    assertTrue_1(cnode);
+    Command *cmd = cnode->getCommand();
+    assertTrue_1(cmd);
+    
+    finalizeNode(cmdWithArgs, cmdWithArgsXml);
+    assertTrue_1(!cmd->isActive());
+    cmd->activate();
+    cmd->fixValues();
+    assertTrue_1(cmd->getName() == "hoo");
+    assertTrue_1(!cmd->getDest());
+
+    std::vector<Value> const &args = cmd->getArgValues();
+    assertTrue_1(!args.empty());
+    assertTrue_1(args.size() == 4);
+    assertTrue_1(args[0] == Value(true));
+    assertTrue_1(args[1] == Value((int32_t) 5));
+    assertTrue_1(args[2] == Value(3.14));
+    assertTrue_1(args[3] == Value("hi there"));
+
+    cmd->fixResourceValues();
+    assertTrue_1(cmd->getResourceValues().empty());
+
+    delete cmdWithArgs;
+  }
+
+  // With return value
+  {
+    xml_node listNodeXml = doc.append_child("Node");
+    listNodeXml.append_attribute("NodeType").set_value("NodeList");
+    listNodeXml.append_child("NodeId").append_child(node_pcdata).set_value("listNode");
+    xml_node listNodeDecls = listNodeXml.append_child("VariableDeclarations");
+    xml_node decl0 = listNodeDecls.append_child("DeclareVariable");
+    decl0.append_child("Name").append_child(node_pcdata).set_value("foo");
+    decl0.append_child("Type").append_child(node_pcdata).set_value("Integer");
+    xml_node listNodeList = listNodeXml.append_child("NodeBody").append_child("NodeList");
+
+    xml_node cmdWithReturnXml = listNodeList.append_child("Node");
+    cmdWithReturnXml.append_attribute("NodeType").set_value("Command");
+    cmdWithReturnXml.append_child("NodeId").append_child(node_pcdata).set_value("cmdWithReturn");
+    xml_node cmdXml = cmdWithReturnXml.append_child("NodeBody").append_child("Command");
+    cmdXml.append_child("IntegerVariable").append_child(node_pcdata).set_value("foo");
+    cmdXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("bar");
+    Node *listNode = parseNode(listNodeXml, NULL);
+    assertTrue_1(listNode);
+    assertTrue_1(listNode->getType() == NodeType_NodeList);
+    assertTrue_1(!listNode->getChildren().empty());
+    assertTrue_1(listNode->getChildren().size() == 1);
+    assertTrue_1(!listNode->getLocalVariables().empty());
+    assertTrue_1(listNode->getLocalVariables().size() == 1);
+
+    Node *cmdWithReturn = listNode->getChildren().front();
+    assertTrue_1(cmdWithReturn);
+    assertTrue_1(cmdWithReturn->getType() == NodeType_Command);
+    assertTrue_1(cmdWithReturn->getNodeId() == "cmdWithReturn");
+    assertTrue_1(cmdWithReturn->getChildren().empty());
+    assertTrue_1(cmdWithReturn->getLocalVariables().empty());
+    CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithReturn);
+    assertTrue_1(cnode);
+    Command *cmd = cnode->getCommand();
+    assertTrue_1(cmd);
+    
+    finalizeNode(listNode, listNodeXml);
+    assertTrue_1(!cmd->isActive());
+    cmd->activate();
+    cmd->fixValues();
+    assertTrue_1(cmd->getName() == "bar");
+    assertTrue_1(cmd->getArgValues().empty());
+    Expression *dest = cmd->getDest();
+    assertTrue_1(dest);
+    assertTrue_1(dest->valueType() == INTEGER_TYPE);
+    assertTrue_1(dest->isAssignable());
+    cmd->fixResourceValues();
+    assertTrue_1(cmd->getResourceValues().empty());
+
+    delete listNode;
+  }
+
+  // With return value and parameters
+  {
+    xml_node listNodeXml = doc.append_child("Node");
+    listNodeXml.append_attribute("NodeType").set_value("NodeList");
+    listNodeXml.append_child("NodeId").append_child(node_pcdata).set_value("listNode");
+    xml_node listNodeDecls = listNodeXml.append_child("VariableDeclarations");
+    xml_node decl0 = listNodeDecls.append_child("DeclareVariable");
+    decl0.append_child("Name").append_child(node_pcdata).set_value("foo");
+    decl0.append_child("Type").append_child(node_pcdata).set_value("Integer");
+    xml_node listNodeList = listNodeXml.append_child("NodeBody").append_child("NodeList");
+
+    xml_node cmdWithReturnXml = listNodeList.append_child("Node");
+    cmdWithReturnXml.append_attribute("NodeType").set_value("Command");
+    cmdWithReturnXml.append_child("NodeId").append_child(node_pcdata).set_value("cmdWithReturn");
+    xml_node cmdXml = cmdWithReturnXml.append_child("NodeBody").append_child("Command");
+    cmdXml.append_child("IntegerVariable").append_child(node_pcdata).set_value("foo");
+    cmdXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("bar");
+    xml_node argsXml = cmdXml.append_child("Arguments");
+    argsXml.append_child("BooleanValue").append_child(node_pcdata).set_value("true");
+    argsXml.append_child("IntegerValue").append_child(node_pcdata).set_value("5");
+    argsXml.append_child("RealValue").append_child(node_pcdata).set_value("3.14");
+    argsXml.append_child("StringValue").append_child(node_pcdata).set_value("hi there");
+
+    Node *listNode = parseNode(listNodeXml, NULL);
+    assertTrue_1(listNode);
+    assertTrue_1(listNode->getType() == NodeType_NodeList);
+    assertTrue_1(!listNode->getChildren().empty());
+    assertTrue_1(listNode->getChildren().size() == 1);
+    assertTrue_1(!listNode->getLocalVariables().empty());
+    assertTrue_1(listNode->getLocalVariables().size() == 1);
+
+    Node *cmdWithReturn = listNode->getChildren().front();
+    assertTrue_1(cmdWithReturn);
+    assertTrue_1(cmdWithReturn->getType() == NodeType_Command);
+    assertTrue_1(cmdWithReturn->getNodeId() == "cmdWithReturn");
+    assertTrue_1(cmdWithReturn->getChildren().empty());
+    assertTrue_1(cmdWithReturn->getLocalVariables().empty());
+    CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithReturn);
+    assertTrue_1(cnode);
+    Command *cmd = cnode->getCommand();
+    assertTrue_1(cmd);
+    
+    finalizeNode(listNode, listNodeXml);
+    assertTrue_1(!cmd->isActive());
+    cmd->activate();
+    cmd->fixValues();
+    assertTrue_1(cmd->getName() == "bar");
+    Expression *dest = cmd->getDest();
+    assertTrue_1(dest);
+    assertTrue_1(dest->valueType() == INTEGER_TYPE);
+    assertTrue_1(dest->isAssignable());
+
+    std::vector<Value> const &args = cmd->getArgValues();
+    assertTrue_1(!args.empty());
+    assertTrue_1(args.size() == 4);
+    assertTrue_1(args[0] == Value(true));
+    assertTrue_1(args[1] == Value((int32_t) 5));
+    assertTrue_1(args[2] == Value(3.14));
+    assertTrue_1(args[3] == Value("hi there"));
+
+    cmd->fixResourceValues();
+    assertTrue_1(cmd->getResourceValues().empty());
+
+    delete listNode;
   }
 
   return true;
