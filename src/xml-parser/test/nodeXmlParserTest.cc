@@ -32,6 +32,8 @@
 #include "Node.hh"
 #include "parseNode.hh"
 #include "TestSupport.hh"
+#include "Update.hh"
+#include "UpdateNode.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "test/TransitionExternalInterface.hh"
 
@@ -1118,13 +1120,137 @@ static bool commandNodeXmlParserTest()
   return true;
 }
 
+// Local fn for Update node test
+// Must append value representation to its result
+static xml_node makePair(xml_node parent, char const *name)
+{
+  xml_node result = parent.append_child("Pair");
+  makePcdataElement(result, "Name", name);
+  return result;
+}
+
 static bool updateNodeXmlParserTest()
 {
   xml_document doc;
   doc.set_name("updateNodeXmlParserTest");
 
-  xml_node basicUpdXml = makeNode(doc, "basicUpd", "Update");
-  xml_node upd = basicUpdXml.append_child("NodeBody").append_child("Update");
+  // Empty update
+  {
+    xml_node emptyUpdXml = makeNode(doc, "emptyUpd", "Update");
+    emptyUpdXml.append_child("NodeBody").append_child("Update");
+
+    Node *emptyUpd = parseNode(emptyUpdXml, NULL);
+    assertTrue_1(emptyUpd);
+    assertTrue_1(emptyUpd->getNodeId() == "emptyUpd");
+    assertTrue_1(emptyUpd->getType() == NodeType_Update);
+    UpdateNode *unode = dynamic_cast<UpdateNode *>(emptyUpd);
+    assertTrue_1(unode);
+
+    finalizeNode(emptyUpd, emptyUpdXml);
+    Update *upd = unode->getUpdate();
+    assertTrue_1(upd);
+    upd->activate();
+    upd->fixValues();
+    assertTrue_1(upd->getPairs().empty()); 
+
+    delete emptyUpd;
+  }
+
+  // Update with literal values
+  {
+    xml_node literalUpdXml = makeNode(doc, "literalUpd", "Update");
+    xml_node updXml = literalUpdXml.append_child("NodeBody").append_child("Update");
+    makePcdataElement(makePair(updXml, "foo"), "BooleanValue", "true");
+    makePcdataElement(makePair(updXml, "bar"), "IntegerValue", "216");
+    makePcdataElement(makePair(updXml, "baz"), "RealValue", "2.718");
+    makePcdataElement(makePair(updXml, "bletch"), "StringValue", "bletch");
+
+    Node *literalUpd = parseNode(literalUpdXml, NULL);
+    assertTrue_1(literalUpd);
+    assertTrue_1(literalUpd->getNodeId() == "literalUpd");
+    assertTrue_1(literalUpd->getType() == NodeType_Update);
+    UpdateNode *unode = dynamic_cast<UpdateNode *>(literalUpd);
+    assertTrue_1(unode);
+
+    finalizeNode(literalUpd, literalUpdXml);
+    Update *upd = unode->getUpdate();
+    assertTrue_1(upd);
+    upd->activate();
+    upd->fixValues();
+    Update::PairValueMap pairs = upd->getPairs();
+    assertTrue_1(!pairs.empty());
+    assertTrue_1(pairs["foo"] == Value(true));
+    assertTrue_1(pairs["bar"] == Value((int32_t) 216));
+    assertTrue_1(pairs["baz"] == Value(2.718));
+    assertTrue_1(pairs["bletch"] == Value("bletch"));
+
+    delete literalUpd;
+  }
+
+  // Update with expression values
+  {
+    xml_node listNodeXml = makeNode(doc, "listNode", "NodeList");
+    xml_node decls = listNodeXml.append_child("VariableDeclarations");
+    makePcdataElement(makeDeclareVariable(decls, "i", "Integer").append_child("InitialValue"),
+                      "IntegerValue",
+                      "42");
+    xml_node ainit = 
+      makeDeclareArray(decls, "a", "Integer", "2").append_child("InitialValue").append_child("ArrayValue");
+    ainit.append_attribute("Type").set_value("Integer");
+    makePcdataElement(ainit, "IntegerValue", "3");
+    makePcdataElement(ainit, "IntegerValue", "6");
+    xml_node listBodyXml = listNodeXml.append_child("NodeBody").append_child("NodeList");
+
+    xml_node exprUpdXml = makeNode(listBodyXml, "exprUpd", "Update");
+    xml_node updXml = exprUpdXml.append_child("NodeBody").append_child("Update");
+    makePcdataElement(makePair(updXml, "bar"), "IntegerVariable", "i");
+    xml_node aeXml = makePair(updXml, "baz").append_child("ArrayElement");
+    makePcdataElement(aeXml, "Name", "a");
+    makePcdataElement(aeXml.append_child("Index"), "IntegerValue", "1");
+    makePcdataElement(makePair(updXml, "bletch"), "StringValue", "bletch");
+
+    Node *listNode = parseNode(listNodeXml, NULL);
+    assertTrue_1(listNode);
+    assertTrue_1(listNode->getNodeId() == "listNode");
+    assertTrue_1(listNode->getType() == NodeType_NodeList);
+    std::vector<Node *> const &nodeList = listNode->getChildren();
+    assertTrue_1(!nodeList.empty());
+    assertTrue_1(nodeList.size() == 1);
+    std::vector<Expression *> vars = listNode->getLocalVariables();
+    assertTrue_1(!vars.empty());
+    assertTrue_1(vars.size() == 2);
+    Expression *ivar = listNode->findLocalVariable("i");
+    assertTrue_1(ivar);
+    assertTrue_1(ivar->valueType() == INTEGER_TYPE);
+    Expression *avar = listNode->findLocalVariable("a");
+    assertTrue_1(avar);
+    assertTrue_1(avar->valueType() == INTEGER_ARRAY_TYPE);
+
+    Node *exprUpd = nodeList.front();
+    assertTrue_1(exprUpd);
+    assertTrue_1(exprUpd->getNodeId() == "exprUpd");
+    assertTrue_1(exprUpd->getType() == NodeType_Update);
+    UpdateNode *unode = dynamic_cast<UpdateNode *>(exprUpd);
+    assertTrue_1(unode);
+
+    finalizeNode(listNode, listNodeXml);
+    Update *upd = unode->getUpdate();
+    assertTrue_1(upd);
+
+    ivar->activate();
+    avar->activate();
+    upd->activate();
+    upd->fixValues();
+    Update::PairValueMap pairs = upd->getPairs();
+    assertTrue_1(!pairs.empty());
+    assertTrue_1(pairs["bar"].valueType() == INTEGER_TYPE);
+    assertTrue_1(pairs["bar"] == Value((int32_t) 42));
+    assertTrue_1(pairs["baz"].valueType() == INTEGER_TYPE);
+    assertTrue_1(pairs["baz"] == Value((int32_t) 6));
+    assertTrue_1(pairs["bletch"] == Value("bletch"));
+
+    delete listNode;
+  }
 
   return true;
 }
