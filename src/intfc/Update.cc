@@ -89,6 +89,7 @@ namespace PLEXIL
 
   bool Update::addPair(std::string const &name, Expression *exp, bool garbage)
   {
+    debugMsg("Update:addPair", " name = \"" << name << "\", exp = " << *exp);
     if (m_pairs.find(name) != m_pairs.end())
       return false;
     m_pairs[name] = exp;
@@ -103,7 +104,8 @@ namespace PLEXIL
       check_error_1(it->second);
       m_valuePairs[it->first] = it->second->toValue();
       debugMsg("Update:fixValues",
-               " fixing pair '" << it->first << "', " << it->second->toValue());
+               " fixing pair \"" << it->first << "\", "
+               << *it->second << " = " << it->second->toValue());
     }
   }
 
