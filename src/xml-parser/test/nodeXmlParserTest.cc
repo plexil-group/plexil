@@ -31,6 +31,7 @@
 #include "ExpressionFactory.hh"
 #include "Node.hh"
 #include "parseNode.hh"
+#include "parsePlan.hh"
 #include "TestSupport.hh"
 #include "Update.hh"
 #include "UpdateNode.hh"
@@ -1260,8 +1261,122 @@ static bool libraryCallNodeXmlParserTest()
   xml_document doc;
   doc.set_name("libraryCallNodeXmlParserTest");
 
-  xml_node basicLibCallXml = makeNode(doc, "basicLibCall", "LibraryNodeCall");
-  xml_node libCall = basicLibCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
+  //
+  // Construct some nodes to call
+  //
+  
+  // Simple
+
+  xml_node dummyXml = makeNode(doc, "dummy", "Empty");
+  addLibraryNode("dummy", dummyXml);
+
+  // With In variable, no default
+  xml_node withInVarXml = makeNode(doc, "withInVar", "Empty");
+  makeDeclareVariable(withInVarXml.append_child("Interface").append_child("In"),
+                      "inInt",
+                      "Integer");
+  addLibraryNode("withInVar", withInVarXml);
+  
+  // In variable with default
+  xml_node defaultedInVarXml = makeNode(doc, "defaultedInVar", "Empty");
+  xml_node defaultedInDecl = makeDeclareVariable(defaultedInVarXml.append_child("Interface").append_child("In"), 
+                                                 "defInInt",
+                                                 "Integer");
+  makePcdataElement(defaultedInDecl.append_child("InitialValue"), "IntegerValue", "5");
+  addLibraryNode("defaultedInVar", defaultedInVarXml);
+  
+  // With InOut variable
+
+  // With defaulted InOut variable
+
+  //
+  // Call tests
+  //
+
+  // Call with no aliases or interface variables
+  {
+    xml_node basicLibCallXml = makeNode(doc, "basicLibCall", "LibraryNodeCall");
+    xml_node libCall = basicLibCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
+    makePcdataElement(libCall, "NodeId", "dummy");
+
+    Node *basicLibCall = parseNode(basicLibCallXml, NULL);
+    assertTrue_1(basicLibCall);
+    assertTrue_1(basicLibCall->getNodeId() == "basicLibCall");
+    assertTrue_1(basicLibCall->getType() == NodeType_LibraryNodeCall);
+
+    finalizeNode(basicLibCall, basicLibCallXml);
+    assertTrue_1(!basicLibCall->getChildren().empty());
+    assertTrue_1(basicLibCall->getChildren().size() == 1);
+    Node *dummy = basicLibCall->getChildren().front();
+    assertTrue_1(dummy->getNodeId() == "dummy");
+    assertTrue_1(dummy->getType() == NodeType_Empty);
+    assertTrue_1(dummy->getChildren().empty());
+
+    delete basicLibCall;
+  }
+
+  // Call with defaulted In variable
+  {
+    xml_node defaultedInCallXml = makeNode(doc, "defaultedInCall", "LibraryNodeCall");
+    xml_node libCall = defaultedInCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
+    makePcdataElement(libCall, "NodeId", "defaultedInVar");
+
+    Node *defaultedInCall = parseNode(defaultedInCallXml, NULL);
+    assertTrue_1(defaultedInCall);
+    assertTrue_1(defaultedInCall->getNodeId() == "defaultedInCall");
+    assertTrue_1(defaultedInCall->getType() == NodeType_LibraryNodeCall);
+
+    finalizeNode(defaultedInCall, defaultedInCallXml);
+    assertTrue_1(!defaultedInCall->getChildren().empty());
+    assertTrue_1(defaultedInCall->getChildren().size() == 1);
+    Node *dummy = defaultedInCall->getChildren().front();
+    assertTrue_1(dummy->getNodeId() == "defaultedInVar");
+    assertTrue_1(dummy->getType() == NodeType_Empty);
+    assertTrue_1(dummy->getChildren().empty());
+    assertTrue_1(!dummy->getLocalVariables().empty());
+    Expression *divar = dummy->findVariable("defInInt", true);
+    assertTrue_1(divar);
+    assertTrue_1(divar->valueType() == INTEGER_TYPE);
+    divar->activate();
+    int32_t dival;
+    assertTrue_1(divar->getValue(dival));
+    assertTrue_1(dival == 5);
+
+    delete defaultedInCall;
+  }
+
+  // Call with supplied In variable
+  {
+    xml_node inCallXml = makeNode(doc, "inCall", "LibraryNodeCall");
+    xml_node libCall = inCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
+    makePcdataElement(libCall, "NodeId", "withInVar");
+    xml_node alias0 = libCall.append_child("Alias");
+    makePcdataElement(alias0, "NodeParameter", "inInt");
+    makePcdataElement(alias0, "IntegerValue", "3");
+
+    Node *inCall = parseNode(inCallXml, NULL);
+    assertTrue_1(inCall);
+    assertTrue_1(inCall->getNodeId() == "inCall");
+    assertTrue_1(inCall->getType() == NodeType_LibraryNodeCall);
+
+    finalizeNode(inCall, inCallXml);
+    assertTrue_1(!inCall->getChildren().empty());
+    assertTrue_1(inCall->getChildren().size() == 1);
+    Node *dummy = inCall->getChildren().front();
+    assertTrue_1(dummy->getNodeId() == "withInVar");
+    assertTrue_1(dummy->getType() == NodeType_Empty);
+    assertTrue_1(dummy->getChildren().empty());
+    assertTrue_1(dummy->getLocalVariables().empty());
+    Expression *ivar = dummy->findVariable("inInt", true);
+    assertTrue_1(ivar);
+    assertTrue_1(ivar->valueType() == INTEGER_TYPE);
+    ivar->activate();
+    int32_t ival;
+    assertTrue_1(ivar->getValue(ival));
+    assertTrue_1(ival == 3);
+
+    delete inCall;
+  }
 
   return true;
 }
