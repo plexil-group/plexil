@@ -1286,8 +1286,26 @@ static bool libraryCallNodeXmlParserTest()
   addLibraryNode("defaultedInVar", defaultedInVarXml);
   
   // With InOut variable
+  xml_node inOutVarXml = makeNode(doc, "inOutVar", "Assignment");
+  makeDeclareVariable(inOutVarXml.append_child("Interface").append_child("InOut"),
+                      "inOutInt",
+                      "Integer");
+  xml_node inOutBody = inOutVarXml.append_child("NodeBody").append_child("Assignment");
+  makePcdataElement(inOutBody, "IntegerVariable", "inOutInt");
+  makePcdataElement(inOutBody.append_child("NumericRHS"), "IntegerValue", "-2");
+  addLibraryNode("inOutVar", inOutVarXml);
 
   // With defaulted InOut variable
+  xml_node defInOutVarXml = makeNode(doc, "defInOutVar", "Assignment");
+  xml_node defInOutDecl = 
+    makeDeclareVariable(defInOutVarXml.append_child("Interface").append_child("InOut"),
+                        "defInOutInt",
+                        "Integer");
+  makePcdataElement(defInOutDecl.append_child("InitialValue"), "IntegerValue", "33");
+  xml_node defInOutBody = defInOutVarXml.append_child("NodeBody").append_child("Assignment");
+  makePcdataElement(defInOutBody, "IntegerVariable", "defInOutInt");
+  makePcdataElement(defInOutBody.append_child("NumericRHS"), "IntegerValue", "-99");
+  addLibraryNode("defInOutVar", defInOutVarXml);
 
   //
   // Call tests
@@ -1376,6 +1394,163 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(ival == 3);
 
     delete inCall;
+  }
+
+  // Call with alias supplied to In variable with default
+  {
+    xml_node nondefaultedInCallXml = makeNode(doc, "nondefaultedInCall", "LibraryNodeCall");
+    xml_node libCall = nondefaultedInCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
+    makePcdataElement(libCall, "NodeId", "defaultedInVar");
+    xml_node alias0 = libCall.append_child("Alias");
+    makePcdataElement(alias0, "NodeParameter", "defInInt");
+    makePcdataElement(alias0, "IntegerValue", "19");
+
+    Node *nondefaultedInCall = parseNode(nondefaultedInCallXml, NULL);
+    assertTrue_1(nondefaultedInCall);
+    assertTrue_1(nondefaultedInCall->getNodeId() == "nondefaultedInCall");
+    assertTrue_1(nondefaultedInCall->getType() == NodeType_LibraryNodeCall);
+
+    finalizeNode(nondefaultedInCall, nondefaultedInCallXml);
+    assertTrue_1(!nondefaultedInCall->getChildren().empty());
+    assertTrue_1(nondefaultedInCall->getChildren().size() == 1);
+    Node *dummy = nondefaultedInCall->getChildren().front();
+    assertTrue_1(dummy->getNodeId() == "defaultedInVar");
+    assertTrue_1(dummy->getType() == NodeType_Empty);
+    assertTrue_1(dummy->getChildren().empty());
+    assertTrue_1(dummy->getLocalVariables().empty());
+    Expression *divar = dummy->findVariable("defInInt", true);
+    assertTrue_1(divar);
+    assertTrue_1(divar->valueType() == INTEGER_TYPE);
+    divar->activate();
+    int32_t dival;
+    assertTrue_1(divar->getValue(dival));
+    assertTrue_1(dival == 19);
+
+    delete nondefaultedInCall;
+  }
+
+  // Call with supplied InOut variable
+  {
+    xml_node inOutCallXml = makeNode(doc, "inOutCall", "LibraryNodeCall");
+    xml_node libCall = inOutCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
+    makePcdataElement(libCall, "NodeId", "inOutVar");
+    xml_node aliasedVarDecl = 
+      makeDeclareVariable(inOutCallXml.append_child("VariableDeclarations"), "aliasedInOut", "Integer");
+    makePcdataElement(aliasedVarDecl.append_child("InitialValue"), "IntegerValue", "42");
+    xml_node alias0 = libCall.append_child("Alias");
+    makePcdataElement(alias0, "NodeParameter", "inOutInt");
+    makePcdataElement(alias0, "IntegerVariable", "aliasedInOut");
+
+    Node *inOutCall = parseNode(inOutCallXml, NULL);
+    assertTrue_1(inOutCall);
+    assertTrue_1(inOutCall->getNodeId() == "inOutCall");
+    assertTrue_1(inOutCall->getType() == NodeType_LibraryNodeCall);
+
+    finalizeNode(inOutCall, inOutCallXml);
+    assertTrue_1(!inOutCall->getChildren().empty());
+    assertTrue_1(inOutCall->getChildren().size() == 1);
+    Expression *avar = inOutCall->findLocalVariable("aliasedInOut");
+    assertTrue_1(avar);
+    assertTrue_1(avar->valueType() == INTEGER_TYPE);
+
+    Node *dummy = inOutCall->getChildren().front();
+    assertTrue_1(dummy->getNodeId() == "inOutVar");
+    assertTrue_1(dummy->getType() == NodeType_Assignment);
+    assertTrue_1(dummy->getChildren().empty());
+    assertTrue_1(dummy->getLocalVariables().empty());
+    Expression *ivar = dummy->findVariable("inOutInt", true);
+    assertTrue_1(ivar);
+    assertTrue_1(ivar->valueType() == INTEGER_TYPE);
+    avar->activate();
+    int32_t ival = 0;
+    assertTrue_1(avar->getValue(ival));
+    assertTrue_1(ival == 42);
+
+    ival = 0;
+    ivar->activate();
+    assertTrue_1(ivar->getValue(ival));
+    assertTrue_1(ival == 42);
+
+    delete inOutCall;
+  }
+
+  // Call with defaulted InOut variable
+  {
+    xml_node defInOutCallXml = makeNode(doc, "defInOutCall", "LibraryNodeCall");
+    xml_node libCall = defInOutCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
+    makePcdataElement(libCall, "NodeId", "defInOutVar");
+
+    Node *defInOutCall = parseNode(defInOutCallXml, NULL);
+    assertTrue_1(defInOutCall);
+    assertTrue_1(defInOutCall->getNodeId() == "defInOutCall");
+    assertTrue_1(defInOutCall->getType() == NodeType_LibraryNodeCall);
+
+    finalizeNode(defInOutCall, defInOutCallXml);
+    assertTrue_1(!defInOutCall->getChildren().empty());
+    assertTrue_1(defInOutCall->getChildren().size() == 1);
+    assertTrue_1(defInOutCall->getLocalVariables().empty());
+
+    Node *dummy = defInOutCall->getChildren().front();
+    assertTrue_1(dummy->getNodeId() == "defInOutVar");
+    assertTrue_1(dummy->getType() == NodeType_Assignment);
+    assertTrue_1(dummy->getChildren().empty());
+    assertTrue_1(!dummy->getLocalVariables().empty());
+    Expression *ivar = dummy->findVariable("defInOutInt", true);
+    assertTrue_1(ivar);
+    assertTrue_1(ivar->valueType() == INTEGER_TYPE);
+    int32_t ival = 0;
+    ivar->activate();
+    assertTrue_1(ivar->getValue(ival));
+    assertTrue_1(ival == 33);
+
+    delete defInOutCall;
+  }
+
+  // Call with alias for defaulted InOut variable
+  {
+    xml_node nonDefInOutCallXml = makeNode(doc, "nonDefInOutCall", "LibraryNodeCall");
+    xml_node aliasedVarDecl = 
+      makeDeclareVariable(nonDefInOutCallXml.append_child("VariableDeclarations"), "aliasedInOut", "Integer");
+    makePcdataElement(aliasedVarDecl.append_child("InitialValue"), "IntegerValue", "42");
+    xml_node libCall = nonDefInOutCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
+    makePcdataElement(libCall, "NodeId", "defInOutVar");
+    xml_node alias0 = libCall.append_child("Alias");
+    makePcdataElement(alias0, "NodeParameter", "defInOutInt");
+    makePcdataElement(alias0, "IntegerVariable", "aliasedInOut");
+
+    Node *nonDefInOutCall = parseNode(nonDefInOutCallXml, NULL);
+    assertTrue_1(nonDefInOutCall);
+    assertTrue_1(nonDefInOutCall->getNodeId() == "nonDefInOutCall");
+    assertTrue_1(nonDefInOutCall->getType() == NodeType_LibraryNodeCall);
+
+    finalizeNode(nonDefInOutCall, nonDefInOutCallXml);
+    assertTrue_1(!nonDefInOutCall->getChildren().empty());
+    assertTrue_1(nonDefInOutCall->getChildren().size() == 1);
+    assertTrue_1(!nonDefInOutCall->getLocalVariables().empty());
+    Expression *avar = nonDefInOutCall->findLocalVariable("aliasedInOut");
+    assertTrue_1(avar);
+    assertTrue_1(avar->valueType() == INTEGER_TYPE);
+
+    Node *dummy = nonDefInOutCall->getChildren().front();
+    assertTrue_1(dummy->getNodeId() == "defInOutVar");
+    assertTrue_1(dummy->getType() == NodeType_Assignment);
+    assertTrue_1(dummy->getChildren().empty());
+    assertTrue_1(dummy->getLocalVariables().empty());
+    Expression *ivar = dummy->findVariable("defInOutInt", true);
+    assertTrue_1(ivar);
+    assertTrue_1(ivar->valueType() == INTEGER_TYPE);
+
+    int32_t ival = 0;
+    avar->activate();
+    assertTrue_1(avar->getValue(ival));
+    assertTrue_1(ival == 42);
+
+    ival = 0;
+    ivar->activate();
+    assertTrue_1(ivar->getValue(ival));
+    assertTrue_1(ival == 42);
+
+    delete nonDefInOutCall;
   }
 
   return true;
