@@ -521,7 +521,7 @@ namespace PLEXIL
                                        inOutXml,
                                        "InOut variable " << name << " not found and no default InitialValue provided");
       bool garbage;
-      Expression *initExp = createExpression(initXml, node, garbage);
+      Expression *initExp = createExpression(initXml.first_child(), node, garbage);
       checkParserExceptionWithLocation(areTypesCompatible(typ, initExp->valueType()),
                                        initXml,
                                        "InOut variable " << name
