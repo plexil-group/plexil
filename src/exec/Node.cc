@@ -1671,9 +1671,7 @@ namespace PLEXIL {
     }
 
     // Not found locally - try ancestors if possible
-    // Stop at library call nodes, as interfaces there are explicit
-    if (m_parent
-        && m_parent->getType() != NodeType_LibraryNodeCall) {
+    if (m_parent) {
       Expression *result = m_parent->findVariable(name, true);
       if (result) {
         // Found it - cache for later reuse

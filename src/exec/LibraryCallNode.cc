@@ -279,10 +279,16 @@ namespace PLEXIL
     if (recursive) {
       // Check alias map only
       VariableMap::iterator it = m_aliasVariables.find(name);
-      if (it == m_aliasVariables.end())
+      if (it == m_aliasVariables.end()) {
+        debugMsg("Node:findVariable",
+                 " alias " << name << " not found in LibraryNodeCall " << this->m_nodeId);
         return NULL;
-      else
+      }
+      else {
+        debugMsg("Node:findVariable",
+                 " found " << *it->second << " for alias " << name << " in LibraryNodeCall " << this->m_nodeId);
         return it->second;
+      }
     }
     else {
       return Node::findVariable(name, false);
