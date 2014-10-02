@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "LibraryCallNode.hh"
@@ -100,6 +101,10 @@ namespace PLEXIL
     // Construct the actual alias expression
     xml_node nameXml = aliasXml.first_child();
     std::string name(nameXml.child_value());
+
+    debugMsg("finalizeAlias",
+             " caller " << node->getNodeId() << ", constructing alias " << name);
+             
     // Add the alias
     checkParserExceptionWithLocation(!node->findVariable(name, true),
                                      aliasXml,
@@ -113,14 +118,26 @@ namespace PLEXIL
   void finalizeLibraryCall(Node *node, xml_node callXml)
     throw (ParserException)
   {
+    debugMsg("finalizeLibraryCall", " caller " << node->getNodeId());
     LibraryCallNode *callNode = dynamic_cast<LibraryCallNode *>(node);
     assertTrue_2(callNode, "Internal error: Used to be a LibraryCallNode, but not now");
-    xml_node temp = callXml.first_child().next_sibling(); // skip NodeId
+    xml_node temp = callXml.first_child();
+    char const *calleeName = temp.child_value();
+    temp = temp.next_sibling();
     // Initialize aliases
     while (temp) {
+      debugMsg("finalizeLibraryCall", " finalizing alias");
       finalizeAlias(callNode, temp);
       temp = temp.next_sibling();
     }
+    // Descend into called node
+    assertTrue_2(!node->getChildren().empty(),
+                 "Internal error: LibraryNodeCall node missing called node");
+    Node *callee = node->getChildren().front();
+    xml_node calleeXml = getLibraryNode(std::string(calleeName));
+    assertTrue_2(calleeXml,
+                 "Internal error: LibraryNodeCall can't find XML for called node");
+    finalizeNode(callee, calleeXml);
   }
 
 } // namespace PLEXIL

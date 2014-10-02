@@ -30,6 +30,7 @@
 #include "Assignable.hh"
 #include "CommandNode.hh"
 #include "commandXmlParser.hh"
+#include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "ListNode.hh"
@@ -431,35 +432,48 @@ namespace PLEXIL
     throw (ParserException)
   {
     std::string const name(getVarDeclName(inXml));
+
+    debugMsg("linkInVar",
+             " node " << node->getNodeId() << ", In variable " << name);
     // Find the variable, if it exists
     // If a library call, should be in caller's alias list.
     // If not, should have been declared by an ancestor.
-    Expression *exp = node->findVariable(name);
+    Expression *exp = node->findVariable(name, true);
     ValueType typ = getVarDeclType(inXml);
     if (exp) {
+      debugMsg("linkInVar", " found ancestor variable");
       checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
                                        inXml,
                                        "In interface variable " << name
                                        << ": Type " << valueTypeName(typ)
                                        << " expected, but expression of type "
                                        << valueTypeName(exp->valueType()) << " was provided");
-      if (exp->isAssignable()) 
+      if (exp->isAssignable()) {
         // Construct read-only alias.
+        debugMsg("linkInVar",
+                 " constructing read-only alias for ancestor variable " << name);
+
         // Ancestor owns the aliased expression, so we can't delete it.
         checkParserExceptionWithLocation(node->addLocalVariable(name.c_str(), new Alias(node, name, exp, false)),
                                          inXml,
                                          "In interface variable " << name
                                          << " shadows existing local variable of same name");
-      // else nothing to do - "variable" already accessible and read-only
+        
+        // else nothing to do - "variable" already accessible and read-only
+      }
     }
     else {
+      debugMsg("linkInVar", " no ancestor variable found");
+
       // No such variable/alias - use default initial value
       xml_node initXml = inXml.child(INITIALVAL_TAG);
       checkParserExceptionWithLocation(initXml,
                                        inXml,
                                        "In variable " << name << " not found and no default InitialValue provided");
+
+      debugMsg("linkInVar", " constructing default value");
       bool garbage;
-      exp = createExpression(initXml, node, garbage);
+      exp = createExpression(initXml.first_child(), node, garbage);
       checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
                                        initXml,
                                        "In interface variable " << name
@@ -468,8 +482,10 @@ namespace PLEXIL
                                        << valueTypeName(exp->valueType()));
       // If exp is writable or is not something we can delete, 
       // wrap it in an Alias
-      if (exp->isAssignable() || !garbage)
+      if (exp->isAssignable() || !garbage) {
+        debugMsg("linkInVar", " constructing read-only alias for default value");
         exp = new Alias(node, name, exp, garbage);
+      }
       checkParserExceptionWithLocation(node->addLocalVariable(name.c_str(), exp),
                                        inXml,
                                        "In interface variable " << name
@@ -485,7 +501,7 @@ namespace PLEXIL
     // Find the variable, if it exists
     // If a library call, should be in caller's alias list.
     // If not, should have been declared by an ancestor.
-    Expression *exp = node->findVariable(name);
+    Expression *exp = node->findVariable(name, true);
     if (exp) {
       checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
                                        inOutXml,
@@ -525,15 +541,26 @@ namespace PLEXIL
   static void linkAndInitializeInterfaceVars(Node *node, xml_node const iface)
     throw (ParserException)
   {
+    debugMsg("linkAndInitializeInterface", " node " << node->getNodeId());
     Node *parent = node->getParent();
     bool isCall = (parent && parent->getType() == NodeType_LibraryNodeCall);
     xml_node temp = iface.first_child();
     while (temp) {
       checkHasChildElement(temp);
-      if (0 == strcmp(IN_TAG, temp.name()))
-        linkInVar(node, temp, isCall);
-      else if (0 == strcmp(INOUT_TAG, temp.name()))
-        linkInOutVar(node, temp, isCall);
+      if (0 == strcmp(IN_TAG, temp.name())) {
+        xml_node decl = temp.first_child();
+        while (decl) {
+          linkInVar(node, decl, isCall);
+          decl = decl.next_sibling();
+        }
+      }
+      else if (0 == strcmp(INOUT_TAG, temp.name())) {
+        xml_node decl = temp.first_child();
+        while (decl) {
+          linkInOutVar(node, decl, isCall);
+          decl = decl.next_sibling();
+        }
+      }
       else
         assertTrueMsg(ALWAYS_FAIL,
                       "Internal error: Found " << temp.name() << " element in Interface during second pass");
@@ -544,6 +571,8 @@ namespace PLEXIL
   void finalizeNode(Node *node, xml_node const xml)
     throw (ParserException)
   {
+    debugMsg("finalizeNode", " node " << node->getNodeId());
+
     // Where to put the things we parse on the second pass
     xml_node iface;
     xml_node varDecls;
@@ -554,6 +583,9 @@ namespace PLEXIL
     while (temp) {
       char const *tag = temp.name();
       size_t taglen = strlen(tag);
+
+      debugMsg("finalizeNode",
+               " node " << node->getNodeId() << ": processing tag " << tag);
       switch (taglen) {
       case 8: // NodeBody, Priority
         if (0 == strcmp(BODY_TAG, tag))
@@ -618,9 +650,10 @@ namespace PLEXIL
     }
 
     // Link aliases and construct interface default initializers
-    if (iface)
-      // TODO
+    if (iface) {
+      debugMsg("finalizeNode", " linking interface variables of " << node->getNodeId());
       linkAndInitializeInterfaceVars(node, iface);
+    }
 
     // Instantiate user conditions
     for (std::vector<xml_node>::const_iterator it = conditions.begin();
@@ -660,8 +693,8 @@ namespace PLEXIL
       break;
 
     case NodeType_LibraryNodeCall:
-      finalizeLibraryCall(node, xml);
-      // fall through to NodeList case
+      finalizeLibraryCall(node, body);
+      break;
 
     case NodeType_NodeList: {
       std::vector<Node *> kids = node->getChildren();
