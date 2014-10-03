@@ -83,12 +83,21 @@ namespace PLEXIL
      * @param Intermediate representation of the plan's root node.
      * @return True if succesful, false otherwise.
      */
+    // *** TO BE DELETED ***
     bool addPlan(PlexilNode *plan);
+
+    /**
+     * @brief Prepare the given plan for execution.
+     * @param The plan's root node.
+     * @return True if succesful, false otherwise.
+     */
+    bool addPlan(Node *root);
 
     /**
      * @brief Add the given plan as a library node.
      * @param Intermediate representation of the plan's root node.
      */
+    // *** TO BE DELETED ***
     void addLibraryNode(PlexilNode *plan);
 
     /**

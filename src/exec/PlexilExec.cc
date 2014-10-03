@@ -171,13 +171,18 @@ namespace PLEXIL
     if (!wasThrowEnabled)
       Error::doNotThrowExceptions();
 
-    // after this point any failures are likely to be fatal!
+    bool result = addPlan(root);
+    if (result)
+      m_listener->notifyOfAddPlan(plan);
+    return result;
+  }
+
+  bool PlexilExec::addPlan(Node *root)
+  {
     m_plan.push_back(root);
     root->activate();
     debugMsg("PlexilExec:addPlan",
              "Added plan: " << std::endl << root->toString());
-    if (m_listener)
-      m_listener->notifyOfAddPlan(plan);
     root->conditionChanged(); // redundant?
     return true;
   }

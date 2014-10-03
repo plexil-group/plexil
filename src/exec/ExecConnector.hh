@@ -70,12 +70,21 @@ namespace PLEXIL
      * @param plan The intermediate representation of the plan.
      * @return True if succesful, false otherwise.
      */
+    // *** TO BE DELETED ***
     virtual bool addPlan(PlexilNode *plan) = 0;
+
+    /**
+     * @brief Add the plan under the node named by the parent.
+     * @param root The internal representation of the plan.
+     * @return True if succesful, false otherwise.
+     */
+    virtual bool addPlan(Node *root) = 0;
 
     /**
      * @brief Add the node to the known libraries.
      * @param plan The intermediate representation of the node.
      */
+    // *** TO BE DELETED ***
     virtual void addLibraryNode(PlexilNode *lib) = 0;
 
     /**
