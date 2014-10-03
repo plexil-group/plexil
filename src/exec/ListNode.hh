@@ -36,14 +36,6 @@ namespace PLEXIL
   {
   public:
 
-    // *** TO BE DELETED ***
-    /**
-     * @brief The constructor.  Will construct all conditions and child nodes.
-     * @param node The PlexilNodeId for this node and all of its children.
-     * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
-     */
-    ListNode(PlexilNode const *node, Node *parent = NULL);
-
     /**
      * @brief The constructor.
      * @param nodeId The name of this node.
@@ -106,7 +98,6 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    virtual void specializedPostInitLate(PlexilNode const *node);
     virtual void createConditionWrappers();
     virtual void specializedActivate();
 
@@ -131,11 +122,6 @@ namespace PLEXIL
 
     // Node state limit, shared with LibraryCallNode
     virtual NodeState nodeStateMax() const { return FINISHING_STATE; }
-
-  private:
-
-    void createChildNodes(PlexilListBody const *body);
-
   };
 
 }

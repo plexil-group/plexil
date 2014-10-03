@@ -25,10 +25,10 @@
 */
 
 #include "LuvFormat.hh"
+
 #include "Assignable.hh"
+#include "Error.hh"
 #include "Node.hh"
-#include "PlexilPlan.hh"
-#include "PlexilToXml.hh"
 
 #include <iostream>
 
@@ -208,13 +208,9 @@ namespace PLEXIL {
    * @param plan The intermediate representation of the new plan.
    */
   void LuvFormat::formatPlan(std::ostream& s, 
-                             PlexilNode const *plan) {
+                             pugi::xml_node const plan) {
+    assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
     // create a PLEXIL Plan wrapper and stick the plan in it
-    simpleStartTag(s, PLEXIL_PLAN_TAG());
-    pugi::xml_document* planXml = toXml(plan);
-    planXml->save(s, " ", PUGI_FORMAT_OPTIONS());
-    delete planXml;
-    endTag(s, PLEXIL_PLAN_TAG());
   }
 
   /**
@@ -223,12 +219,13 @@ namespace PLEXIL {
    * @param plan The intermediate representation of the library node.
    */
   void LuvFormat::formatLibrary(std::ostream& s, 
-                                PlexilNode const *libNode) {
+                                pugi::xml_node const libNode) {
     // create a PLEXIL Library wrapper and stick the library node in it
+    assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
     simpleStartTag(s, PLEXIL_LIBRARY_TAG());
-    pugi::xml_document* libXml = toXml(libNode);
-    libXml->save(s, " ", PUGI_FORMAT_OPTIONS());
-    delete libXml;
+    // pugi::xml_document* libXml = toXml(libNode);
+    // libXml->save(s, " ", PUGI_FORMAT_OPTIONS());
+    // delete libXml;
     endTag(s, PLEXIL_LIBRARY_TAG());
   }
 

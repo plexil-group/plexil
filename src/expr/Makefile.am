@@ -46,7 +46,7 @@ libPlexilExpr_la_SOURCES = Alias.cc ArithmeticFunctionFactory.cc \
  ConcreteExpressionFactory.cc Constant.cc Expression.cc ExpressionConstants.cc \
  ExpressionFactories.cc ExpressionFactory.cc ExpressionImpl.cc \
  ExpressionListener.cc ExprVec.cc Function.cc FunctionFactory.cc \
- NodeConstants.cc NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc PlexilExpr.cc StringOperators.cc \
+ NodeConstants.cc NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc StringOperators.cc \
  UserVariable.cc UserVariableFactory.cc Value.cc ValueType.cc expression-schema.cc
 
 if MODULE_TESTS_OPT
@@ -55,13 +55,12 @@ if MODULE_TESTS_OPT
  test/FactoryTestNodeConnector.hh
   test_expr_module_tests_SOURCES = test/aliasTest.cc test/arithmeticTest.cc \
  test/arrayConstantTest.cc test/arrayOperatorsTest.cc \
- test/arrayReferenceFactoryTest.cc test/arrayReferenceTest.cc test/arrayTest.cc \
+ test/arrayReferenceTest.cc test/arrayTest.cc \
  test/arrayVariableTest.cc test/booleanOperatorsTest.cc test/comparisonsTest.cc \
- test/constantFactoryTest.cc test/constantsTest.cc \
- test/FactoryTestNodeConnector.cc test/functionFactoryTest.cc \
- test/functionsTest.cc test/listenerTest.cc \
+ test/constantsTest.cc \
+ test/FactoryTestNodeConnector.cc test/functionsTest.cc test/listenerTest.cc \
  test/stringTest.cc test/TrivialListener.cc test/TrivialNodeConnector.cc \
- test/valueTest.cc test/variableFactoryTest.cc test/variablesTest.cc \
+ test/valueTest.cc test/variablesTest.cc \
  test/expr-test-module.cc
   test_expr_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils
   test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la \

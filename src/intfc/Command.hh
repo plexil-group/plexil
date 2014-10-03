@@ -55,14 +55,7 @@ namespace PLEXIL
     friend class CommandHandleVariable;
 
   public:
-    // *** TO BE DELETED ***
-    Command(Expression *nameExpr, 
-            std::vector<Expression *> const &args, 
-            std::vector<Expression *> const &garbage,
-            Assignable *dest,
-            ResourceList const &resource,
-            std::string const &nodeName);
-    // New version
+
     Command(std::string const &nodeName);
     ~Command();
 

@@ -112,11 +112,6 @@ namespace PLEXIL
       REGISTER_EXPRESSION(IntegerConstant, IntegerValue);
       REGISTER_EXPRESSION(RealConstant, RealValue);
       REGISTER_EXPRESSION(StringConstant, StringValue);
-      // Old style array constants - to be deleted
-      REGISTER_EXPRESSION(BooleanArrayConstant, BooleanArrayValue);
-      REGISTER_EXPRESSION(IntegerArrayConstant, IntegerArrayValue);
-      REGISTER_EXPRESSION(RealArrayConstant, RealArrayValue);
-      REGISTER_EXPRESSION(StringArrayConstant, StringArrayValue);
       // New style array constants
       new ArrayLiteralFactory("ArrayValue"); // for effect
 
@@ -126,18 +121,12 @@ namespace PLEXIL
       REGISTER_NAMED_CONSTANT_FACTORY(FailureTypeConstant, NodeFailureValue);
       REGISTER_NAMED_CONSTANT_FACTORY(CommandHandleConstant, NodeCommandHandleValue);
 
-      // Variables
+      // Variable references
       REGISTER_EXPRESSION(BooleanVariable, BooleanVariable);
       REGISTER_EXPRESSION(IntegerVariable, IntegerVariable);
       REGISTER_EXPRESSION(RealVariable, RealVariable);
       REGISTER_EXPRESSION(StringVariable, StringVariable);
-      // Old style array variables - to be deleted
-      REGISTER_EXPRESSION(BooleanArrayVariable, BooleanArrayVariable);
-      REGISTER_EXPRESSION(IntegerArrayVariable, IntegerArrayVariable);
-      REGISTER_EXPRESSION(RealArrayVariable, RealArrayVariable);
-      REGISTER_EXPRESSION(StringArrayVariable, StringArrayVariable);
-
-      // New style variable references
+      // New style
       new VariableReferenceFactory("ArrayVariable"); // for effect
 
       // New style variable declarations

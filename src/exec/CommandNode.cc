@@ -81,23 +81,6 @@ namespace PLEXIL
     CommandHandleInterruptible &operator=(const CommandHandleInterruptible &);
   };
 
-
-  // *** TO BE DELETED ***
-  /**
-   * @brief The constructor.  Will construct all conditions and child nodes.
-   * @param node The PlexilNodeId for this node and all of its children.
-   * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
-   */
-  CommandNode::CommandNode(PlexilNode const *nodeProto,
-                           Node *parent)
-    : Node(nodeProto, parent),
-      m_command(NULL)
-  {
-    checkError(nodeProto->nodeType() == NodeType_Command,
-               "Invalid node type \"" << nodeTypeString(nodeProto->nodeType())
-               << "\" for a CommandNode");
-  }
-
   CommandNode::CommandNode(char const *nodeId, Node *parent)
     : Node(nodeId, parent),
       m_command(NULL)
@@ -170,16 +153,6 @@ namespace PLEXIL
       delete m_command;
       m_command = NULL;
     }
-  }
-
-  // Specific behaviors for derived classes
-  void CommandNode::specializedPostInit(PlexilNode const *node)
-  {
-    debugMsg("Node:postInit", "Creating command for node '" << m_nodeId << "'");
-    // XML parser should have checked for this
-    checkError(dynamic_cast<PlexilCommandBody const *>(node->body()),
-               "Node is a command node but doesn't have a command body.");
-    createCommand((PlexilCommandBody const *)node->body());
   }
 
   void CommandNode::setCommand(Command *cmd)
@@ -541,68 +514,7 @@ namespace PLEXIL
     m_command->reset();
   }
 
-  void CommandNode::createCommand(const PlexilCommandBody* command) 
-  {
-    checkError(command->state()->nameExpr(),
-               "Attempt to create command with null name expression");
-
-    PlexilState const *state = command->state();
-    std::vector<Expression *> garbage;
-    bool wasCreated = false;
-    Expression *nameExpr = createExpression(state->nameExpr(), 
-                                            this,
-                                            wasCreated);
-    if (wasCreated)
-      garbage.push_back(nameExpr);
-
-    std::vector<Expression *> args;
-    for (std::vector<PlexilExpr *>::const_iterator it = state->args().begin();
-         it != state->args().end(); 
-         ++it) {
-      Expression *argExpr =
-        createExpression(*it, this, wasCreated);
-      check_error_1(argExpr);
-      args.push_back(argExpr);
-      if (wasCreated)
-        garbage.push_back(argExpr);
-    }
-    
-    Assignable *dest = NULL;
-    if (!command->dest().empty()) {
-      PlexilExpr const *destExpr = command->dest()[0];
-      bool destCreated;
-      dest = createAssignable(destExpr, this, destCreated);
-      if (destCreated)
-        garbage.push_back(dest);
-    }
-
-    // Resource
-    ResourceList resourceList;
-    const std::vector<PlexilResource *>& plexilResourceList = command->getResource();
-    for(std::vector<PlexilResource *>::const_iterator resListItr = plexilResourceList.begin();
-        resListItr != plexilResourceList.end(); ++resListItr) {
-      ResourceMap resourceMap;
-
-      const PlexilResourceMap& resources = (*resListItr)->getResourceMap();
-      for (PlexilResourceMap::const_iterator resItr = resources.begin();
-           resItr != resources.end();
-           ++resItr) {
-        bool wasCreated = false;
-        Expression *resExpr = createExpression(resItr->second, this, wasCreated);
-        check_error_1(resExpr);
-        resourceMap[resItr->first] = resExpr;
-        if (wasCreated)
-          garbage.push_back(resExpr);
-      }
-      resourceList.push_back(resourceMap);
-    }
-
-    debugMsg("Node:createCommand",
-             "Creating command for node '" << m_nodeId << "'");
-    setCommand(new Command(nameExpr, args, garbage, dest, resourceList, getNodeId()));
-  }
-
-  // Unit test variant of above
+  // Unit test utility
   void CommandNode::createDummyCommand() 
   {
     static StringConstant sl_dummyCmdName("dummy");
@@ -613,8 +525,8 @@ namespace PLEXIL
     // No destination variable
     // No resource
     ResourceList resourceList;
-    m_command = 
-      new Command(&sl_dummyCmdName, args, garbage, NULL, resourceList, getNodeId());
+    m_command = new Command(this->getNodeId());
+    m_command->setNameExpr(&sl_dummyCmdName, false);
   }
 
   void CommandNode::printCommandHandle(std::ostream& stream, const unsigned int indent) const

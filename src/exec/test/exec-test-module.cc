@@ -33,7 +33,6 @@
 #include "ExternalInterface.hh"
 #include "Node.hh"
 #include "NodeFactory.hh"
-#include "PlexilPlan.hh"
 #include "TestSupport.hh"
 #include "test/TransitionExternalInterface.hh"
 #include "lifecycle-utils.h"
@@ -58,10 +57,7 @@ public:
   void enqueueAssignment(Assignment * /* assign */) {}
   void enqueueAssignmentForRetraction(Assignment * /* assign */) {}
   void markRootNodeFinished(Node * /* node */) {}
-  bool addPlan(PlexilNode * /* plan */) { return false; }
   bool addPlan(Node * /* root */) { return false; }
-  void addLibraryNode(PlexilNode * /* lib */) {}
-  PlexilNode const *getLibrary(std::string const & /* name */) const { return NULL; }
   void step(double /* startTime */) {}
   bool needsStep() const {return false;}
   void setExecListenerHub(ExecListenerHub * /* hub */) {}

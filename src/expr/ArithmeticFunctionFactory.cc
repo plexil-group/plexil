@@ -88,30 +88,6 @@ namespace PLEXIL
   {
   }
 
-  Expression *ArithmeticFunctionFactory::allocate(PlexilExpr const *expr,
-                                                  NodeConnector *node,
-                                                  bool & wasCreated) const
-  {
-    PlexilOp const *op = dynamic_cast<PlexilOp const *>(expr);
-    checkParserException(op, "Not a PlexilOp");
-
-    std::vector<PlexilExpr *> const &args = op->subExprs();
-    // Have to have at least one arg to check types on
-    checkParserException(args.size() > 0,
-                         "Can't create arithmetic expression of no arguments");
-    ExprVec *exprVec = constructExprVec(args, node);
-    ValueType type = this->commonType(exprVec);
-    checkParserException(type != UNKNOWN_TYPE,
-                         "Type inconsistency or indeterminacy in arithmetic expression");
-    Operator const *oper = this->selectOperator(type);
-    checkParserException(oper->checkArgCount(args.size()),
-                         "Wrong number of operands for operator "
-                         << oper->getName());
-
-    wasCreated = true;
-    return new Function(oper, exprVec);
-  }
-
   Expression *ArithmeticFunctionFactory::allocate(pugi::xml_node const expr,
                                                   NodeConnector *node,
                                                   bool & wasCreated) const

@@ -29,7 +29,6 @@
 
 #include "ExpressionFactory.hh"
 #include "NodeConnector.hh"
-#include "PlexilExpr.hh"
 
 namespace PLEXIL
 {
@@ -53,10 +52,6 @@ namespace PLEXIL
     ~ConcreteExpressionFactory()
     {
     }
-
-    Expression *allocate(PlexilExpr const *expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const = 0;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -82,51 +77,12 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(PlexilExpr const *expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
-
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
 
   protected:
-    Expression *create(PlexilValue const *expr) const;
-
     Expression *create(pugi::xml_node const expr) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-
-  // Specialization for array constants
-
-  template <typename T>
-  class ConcreteExpressionFactory<Constant<ArrayImpl<T> > > : public ExpressionFactory
-  {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
-
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    Expression *allocate(PlexilExpr const *expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
-
-  protected:
-    Expression *create(PlexilArrayValue const *expr) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -148,49 +104,9 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(PlexilExpr const *expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
-
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const;
-
-  protected:
-    Expression *create(PlexilVar const *expr,
-                       NodeConnector *node) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-
-  template <typename T>
-  class ConcreteExpressionFactory<ArrayVariable<T> > : public ExpressionFactory
-  {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
-
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    Expression *allocate(PlexilExpr const *expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
-
-  protected:
-    Expression *create(PlexilArrayVar const *expr,
-                       NodeConnector *node) const;
 
   private:
     // Default, copy, assign all prohibited
@@ -210,10 +126,6 @@ namespace PLEXIL
     ~ConcreteExpressionFactory()
     {
     }
-
-    virtual Expression *allocate(PlexilExpr const *expr,
-                                 NodeConnector *node,
-                                 bool & wasCreated) const;
 
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
@@ -242,10 +154,6 @@ namespace PLEXIL
     ~VariableReferenceFactory()
     {
     }
-
-    virtual Expression *allocate(PlexilExpr const *expr,
-                                 NodeConnector *node,
-                                 bool & wasCreated) const;
 
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,

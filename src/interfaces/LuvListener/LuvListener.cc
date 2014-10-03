@@ -26,9 +26,11 @@
 
 #include "LuvListener.hh"
 #include "LuvFormat.hh"
+
+#include "Debug.hh"
+#include "Error.hh"
 #include "Expression.hh"
 #include "Node.hh"
-#include "Debug.hh"
 
 #include "ClientSocket.h"
 #include "SocketException.h"
@@ -222,15 +224,16 @@ namespace PLEXIL
    * @param parent The name of the parent node under which this plan will be inserted.
    */
   void
-  LuvListener::implementNotifyAddPlan(PlexilNode const *plan) const 
+  LuvListener::implementNotifyAddPlan(pugi::xml_node const plan) const 
   {
-	if (m_socket != NULL) {
-	  sendPlanInfo();
+    assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
+	// if (m_socket != NULL) {
+	//   sendPlanInfo();
 
-	  std::ostringstream s;
-	  LuvFormat::formatPlan(s, plan);
-	  sendMessage(s.str());
-	}
+	//   std::ostringstream s;
+	//   LuvFormat::formatPlan(s, plan);
+	//   sendMessage(s.str());
+	// }
   }
 
 
@@ -240,15 +243,16 @@ namespace PLEXIL
    * @note The default method is deprecated and will go away in a future release.
    */
   void
-  LuvListener::implementNotifyAddLibrary(PlexilNode const *libNode) const 
+  LuvListener::implementNotifyAddLibrary(pugi::xml_node const libNode) const 
   {
-	if (m_socket != NULL) {
-	  sendPlanInfo();
+    assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
+	// if (m_socket != NULL) {
+	//   sendPlanInfo();
 
-	  std::ostringstream s;
-	  LuvFormat::formatLibrary(s, libNode);
-	  sendMessage(s.str());
-	}
+	//   std::ostringstream s;
+	//   LuvFormat::formatLibrary(s, libNode);
+	//   sendMessage(s.str());
+	// }
   }
 
 

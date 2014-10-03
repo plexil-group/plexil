@@ -32,7 +32,6 @@
 #include <fstream>
 #include <iostream>
 
-extern bool lookupFactoryTest();
 extern bool lookupsTest();
 extern bool stateTest();
 
@@ -40,7 +39,6 @@ void runTests()
 {
   runTestSuite(stateTest);
   runTestSuite(lookupsTest);
-  runTestSuite(lookupFactoryTest);
 
   runFinalizers();
 

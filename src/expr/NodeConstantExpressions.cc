@@ -28,7 +28,7 @@
 
 #include "Error.hh"
 #include "parser-utils.hh"
-#include "PlexilExpr.hh"
+
 #include "pugixml.hpp"
 
 #define DEFINE_EXPRESSION_CONSTANT(TYPE, NAME, VALUE)\
@@ -170,43 +170,6 @@ namespace PLEXIL
   //
 
   template <>
-  Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(PlexilExpr const *expr,
-                                                                          NodeConnector *node,
-                                                                          bool &wasCreated) const
-  {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>(expr);
-    checkParserException(valex, "createExpression: not a PlexilValue");
-    checkParserException(valex->type() == NODE_STATE_TYPE, "createExpression: not a NodeStateValue");
-    wasCreated = false;
-    switch (parseNodeState(valex->value())) {
-    case INACTIVE_STATE:
-      return INACTIVE_CONSTANT();
-
-    case WAITING_STATE:
-      return WAITING_CONSTANT();
-
-    case EXECUTING_STATE:
-      return EXECUTING_CONSTANT();
-
-    case ITERATION_ENDED_STATE:
-      return ITERATION_ENDED_CONSTANT();
-
-    case FINISHED_STATE:
-      return FINISHED_CONSTANT();
-
-    case FAILING_STATE:
-      return FAILING_CONSTANT();
-
-    case FINISHING_STATE:
-      return FINISHING_CONSTANT();
-
-    default:
-      checkParserException(ALWAYS_FAIL, "createExpression: Invalid NodeStateValue \"" << valex->value() << "\"");
-      return NULL;
-    }
-  }
-
-  template <>
   Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(pugi::xml_node const expr,
                                                                           NodeConnector *node,
                                                                           bool &wasCreated) const
@@ -244,34 +207,6 @@ namespace PLEXIL
   }
 
   template <>
-  Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(PlexilExpr const *expr,
-                                                                            NodeConnector *node,
-                                                                            bool &wasCreated) const
-  {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>(expr);
-    checkParserException(valex, "createExpression: not a PlexilValue");
-    checkParserException(valex->type() == OUTCOME_TYPE, "createExpression: not a NodeOutcomeValue");
-    wasCreated = false;
-    switch (parseNodeOutcome(valex->value())) {
-    case SUCCESS_OUTCOME:
-      return SUCCESS_CONSTANT();
-
-    case FAILURE_OUTCOME:
-      return FAILURE_CONSTANT();
-
-    case SKIPPED_OUTCOME:
-      return SKIPPED_CONSTANT();
-
-    case INTERRUPTED_OUTCOME:
-      return INTERRUPTED_CONSTANT();
-
-    default:
-      checkParserException(ALWAYS_FAIL, "createExpression: Invalid NodeOutcomeValue \"" << valex->value() << "\"");
-      return NULL;
-    }
-  }
-
-  template <>
   Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(pugi::xml_node const expr,
                                                                             NodeConnector *node,
                                                                             bool &wasCreated) const
@@ -295,40 +230,6 @@ namespace PLEXIL
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        expr.first_child(),
                                        "createExpression: Invalid NodeOutcomeValue \"" << expr.child_value() << "\"");
-      return NULL;
-    }
-  }
-
-  template <>
-  Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(PlexilExpr const *expr,
-                                                                            NodeConnector *node,
-                                                                            bool &wasCreated) const
-  {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>(expr);
-    checkParserException(valex, "createExpression: not a PlexilValue");
-    checkParserException(valex->type() == FAILURE_TYPE, "createExpression: not a FailureTypeValue");
-    wasCreated = false;
-    switch (parseFailureType(valex->value())) {
-    case PRE_CONDITION_FAILED:
-      return PRE_CONDITION_FAILED_CONSTANT();
-
-    case POST_CONDITION_FAILED:
-      return POST_CONDITION_FAILED_CONSTANT();
-
-    case INVARIANT_CONDITION_FAILED:
-      return INVARIANT_CONDITION_FAILED_CONSTANT();
-
-    case PARENT_FAILED:
-      return PARENT_FAILED_CONSTANT();
-
-    case EXITED:
-      return EXITED_CONSTANT();
-
-    case PARENT_EXITED:
-      return PARENT_EXITED_CONSTANT();
-
-    default:
-      checkParserException(ALWAYS_FAIL, "createExpression: Invalid FailureTypeValue \"" << valex->value() << "\"");
       return NULL;
     }
   }
@@ -363,40 +264,6 @@ namespace PLEXIL
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        expr.first_child(),
                                        "createExpression: Invalid FailureTypeValue \"" << expr.child_value() << "\"");
-      return NULL;
-    }
-  }
-
-  template <>
-  Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(PlexilExpr const *expr,
-                                                                              NodeConnector *node,
-                                                                              bool &wasCreated) const
-  {
-    PlexilValue const *valex = dynamic_cast<PlexilValue const *>(expr);
-    checkParserException(valex, "createExpression: not a PlexilValue");
-    checkParserException(valex->type() == COMMAND_HANDLE_TYPE, "createExpression: not a CommandHandleValue");
-    wasCreated = false;
-    switch (parseCommandHandleValue(valex->value())) {
-    case COMMAND_SENT_TO_SYSTEM:
-      return COMMAND_SENT_TO_SYSTEM_CONSTANT();
-
-    case COMMAND_ACCEPTED:
-      return COMMAND_ACCEPTED_CONSTANT();
-
-    case COMMAND_RCVD_BY_SYSTEM:
-      return COMMAND_RCVD_BY_SYSTEM_CONSTANT();
-
-    case COMMAND_FAILED:
-      return COMMAND_FAILED_CONSTANT();
-
-    case COMMAND_DENIED:
-      return COMMAND_DENIED_CONSTANT();
-
-    case COMMAND_SUCCESS:
-      return COMMAND_SUCCESS_CONSTANT();
-
-    default:
-      checkParserException(ALWAYS_FAIL, "createExpression: Invalid CommandHandleValue \"" << valex->value() << "\"");
       return NULL;
     }
   }

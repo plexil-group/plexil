@@ -180,7 +180,6 @@ am_libPlexilExpr_la_OBJECTS = libPlexilExpr_la-Alias.lo \
 	libPlexilExpr_la-NodeConstantExpressions.lo \
 	libPlexilExpr_la-NotifierImpl.lo \
 	libPlexilExpr_la-OperatorImpl.lo \
-	libPlexilExpr_la-PlexilExpr.lo \
 	libPlexilExpr_la-StringOperators.lo \
 	libPlexilExpr_la-UserVariable.lo \
 	libPlexilExpr_la-UserVariableFactory.lo \
@@ -194,38 +193,32 @@ am__v_lt_1 =
 PROGRAMS = $(bin_PROGRAMS)
 am__test_expr_module_tests_SOURCES_DIST = test/aliasTest.cc \
 	test/arithmeticTest.cc test/arrayConstantTest.cc \
-	test/arrayOperatorsTest.cc test/arrayReferenceFactoryTest.cc \
-	test/arrayReferenceTest.cc test/arrayTest.cc \
-	test/arrayVariableTest.cc test/booleanOperatorsTest.cc \
-	test/comparisonsTest.cc test/constantFactoryTest.cc \
+	test/arrayOperatorsTest.cc test/arrayReferenceTest.cc \
+	test/arrayTest.cc test/arrayVariableTest.cc \
+	test/booleanOperatorsTest.cc test/comparisonsTest.cc \
 	test/constantsTest.cc test/FactoryTestNodeConnector.cc \
-	test/functionFactoryTest.cc test/functionsTest.cc \
-	test/listenerTest.cc test/stringTest.cc \
+	test/functionsTest.cc test/listenerTest.cc test/stringTest.cc \
 	test/TrivialListener.cc test/TrivialNodeConnector.cc \
-	test/valueTest.cc test/variableFactoryTest.cc \
-	test/variablesTest.cc test/expr-test-module.cc
+	test/valueTest.cc test/variablesTest.cc \
+	test/expr-test-module.cc
 am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@am_test_expr_module_tests_OBJECTS = test/test_expr_module_tests-aliasTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arithmeticTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayConstantTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayOperatorsTest.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayReferenceFactoryTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayReferenceTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayVariableTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-booleanOperatorsTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-comparisonsTest.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-constantFactoryTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-constantsTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-FactoryTestNodeConnector.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-functionFactoryTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-functionsTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-listenerTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-stringTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-TrivialListener.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-TrivialNodeConnector.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-valueTest.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-variableFactoryTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-variablesTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-expr-test-module.$(OBJEXT)
 test_expr_module_tests_OBJECTS = $(am_test_expr_module_tests_OBJECTS)
@@ -446,7 +439,7 @@ libPlexilExpr_la_SOURCES = Alias.cc ArithmeticFunctionFactory.cc \
  ConcreteExpressionFactory.cc Constant.cc Expression.cc ExpressionConstants.cc \
  ExpressionFactories.cc ExpressionFactory.cc ExpressionImpl.cc \
  ExpressionListener.cc ExprVec.cc Function.cc FunctionFactory.cc \
- NodeConstants.cc NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc PlexilExpr.cc StringOperators.cc \
+ NodeConstants.cc NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc StringOperators.cc \
  UserVariable.cc UserVariableFactory.cc Value.cc ValueType.cc expression-schema.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/TrivialListener.hh test/TrivialNodeConnector.hh \
@@ -454,13 +447,12 @@ libPlexilExpr_la_SOURCES = Alias.cc ArithmeticFunctionFactory.cc \
 
 @MODULE_TESTS_OPT_TRUE@test_expr_module_tests_SOURCES = test/aliasTest.cc test/arithmeticTest.cc \
 @MODULE_TESTS_OPT_TRUE@ test/arrayConstantTest.cc test/arrayOperatorsTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/arrayReferenceFactoryTest.cc test/arrayReferenceTest.cc test/arrayTest.cc \
+@MODULE_TESTS_OPT_TRUE@ test/arrayReferenceTest.cc test/arrayTest.cc \
 @MODULE_TESTS_OPT_TRUE@ test/arrayVariableTest.cc test/booleanOperatorsTest.cc test/comparisonsTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/constantFactoryTest.cc test/constantsTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/FactoryTestNodeConnector.cc test/functionFactoryTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/functionsTest.cc test/listenerTest.cc \
+@MODULE_TESTS_OPT_TRUE@ test/constantsTest.cc \
+@MODULE_TESTS_OPT_TRUE@ test/FactoryTestNodeConnector.cc test/functionsTest.cc test/listenerTest.cc \
 @MODULE_TESTS_OPT_TRUE@ test/stringTest.cc test/TrivialListener.cc test/TrivialNodeConnector.cc \
-@MODULE_TESTS_OPT_TRUE@ test/valueTest.cc test/variableFactoryTest.cc test/variablesTest.cc \
+@MODULE_TESTS_OPT_TRUE@ test/valueTest.cc test/variablesTest.cc \
 @MODULE_TESTS_OPT_TRUE@ test/expr-test-module.cc
 
 @MODULE_TESTS_OPT_TRUE@test_expr_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils
@@ -602,8 +594,6 @@ test/test_expr_module_tests-arrayConstantTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-arrayOperatorsTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
-test/test_expr_module_tests-arrayReferenceFactoryTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-arrayReferenceTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-arrayTest.$(OBJEXT): test/$(am__dirstamp) \
@@ -614,13 +604,9 @@ test/test_expr_module_tests-booleanOperatorsTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-comparisonsTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
-test/test_expr_module_tests-constantFactoryTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-constantsTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-FactoryTestNodeConnector.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
-test/test_expr_module_tests-functionFactoryTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-functionsTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
@@ -634,8 +620,6 @@ test/test_expr_module_tests-TrivialNodeConnector.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-valueTest.$(OBJEXT): test/$(am__dirstamp) \
 	test/$(DEPDIR)/$(am__dirstamp)
-test/test_expr_module_tests-variableFactoryTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-variablesTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-expr-test-module.$(OBJEXT):  \
@@ -683,7 +667,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-NodeConstants.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-NotifierImpl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-OperatorImpl.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-PlexilExpr.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-StringOperators.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-UserVariable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-UserVariableFactory.Plo@am__quote@
@@ -697,21 +680,17 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arithmeticTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayConstantTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayOperatorsTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayReferenceFactoryTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayReferenceTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayVariableTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-booleanOperatorsTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-comparisonsTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-constantFactoryTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-constantsTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-expr-test-module.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-functionFactoryTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-functionsTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-listenerTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-stringTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-valueTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-variableFactoryTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-variablesTest.Po@am__quote@
 
 .cc.o:
@@ -955,13 +934,6 @@ libPlexilExpr_la-OperatorImpl.lo: OperatorImpl.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-OperatorImpl.lo `test -f 'OperatorImpl.cc' || echo '$(srcdir)/'`OperatorImpl.cc
 
-libPlexilExpr_la-PlexilExpr.lo: PlexilExpr.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-PlexilExpr.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-PlexilExpr.Tpo -c -o libPlexilExpr_la-PlexilExpr.lo `test -f 'PlexilExpr.cc' || echo '$(srcdir)/'`PlexilExpr.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-PlexilExpr.Tpo $(DEPDIR)/libPlexilExpr_la-PlexilExpr.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilExpr.cc' object='libPlexilExpr_la-PlexilExpr.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-PlexilExpr.lo `test -f 'PlexilExpr.cc' || echo '$(srcdir)/'`PlexilExpr.cc
-
 libPlexilExpr_la-StringOperators.lo: StringOperators.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-StringOperators.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-StringOperators.Tpo -c -o libPlexilExpr_la-StringOperators.lo `test -f 'StringOperators.cc' || echo '$(srcdir)/'`StringOperators.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-StringOperators.Tpo $(DEPDIR)/libPlexilExpr_la-StringOperators.Plo
@@ -1060,20 +1032,6 @@ test/test_expr_module_tests-arrayOperatorsTest.obj: test/arrayOperatorsTest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-arrayOperatorsTest.obj `if test -f 'test/arrayOperatorsTest.cc'; then $(CYGPATH_W) 'test/arrayOperatorsTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayOperatorsTest.cc'; fi`
 
-test/test_expr_module_tests-arrayReferenceFactoryTest.o: test/arrayReferenceFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-arrayReferenceFactoryTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-arrayReferenceFactoryTest.Tpo -c -o test/test_expr_module_tests-arrayReferenceFactoryTest.o `test -f 'test/arrayReferenceFactoryTest.cc' || echo '$(srcdir)/'`test/arrayReferenceFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-arrayReferenceFactoryTest.Tpo test/$(DEPDIR)/test_expr_module_tests-arrayReferenceFactoryTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/arrayReferenceFactoryTest.cc' object='test/test_expr_module_tests-arrayReferenceFactoryTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-arrayReferenceFactoryTest.o `test -f 'test/arrayReferenceFactoryTest.cc' || echo '$(srcdir)/'`test/arrayReferenceFactoryTest.cc
-
-test/test_expr_module_tests-arrayReferenceFactoryTest.obj: test/arrayReferenceFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-arrayReferenceFactoryTest.obj -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-arrayReferenceFactoryTest.Tpo -c -o test/test_expr_module_tests-arrayReferenceFactoryTest.obj `if test -f 'test/arrayReferenceFactoryTest.cc'; then $(CYGPATH_W) 'test/arrayReferenceFactoryTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayReferenceFactoryTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-arrayReferenceFactoryTest.Tpo test/$(DEPDIR)/test_expr_module_tests-arrayReferenceFactoryTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/arrayReferenceFactoryTest.cc' object='test/test_expr_module_tests-arrayReferenceFactoryTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-arrayReferenceFactoryTest.obj `if test -f 'test/arrayReferenceFactoryTest.cc'; then $(CYGPATH_W) 'test/arrayReferenceFactoryTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayReferenceFactoryTest.cc'; fi`
-
 test/test_expr_module_tests-arrayReferenceTest.o: test/arrayReferenceTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-arrayReferenceTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-arrayReferenceTest.Tpo -c -o test/test_expr_module_tests-arrayReferenceTest.o `test -f 'test/arrayReferenceTest.cc' || echo '$(srcdir)/'`test/arrayReferenceTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-arrayReferenceTest.Tpo test/$(DEPDIR)/test_expr_module_tests-arrayReferenceTest.Po
@@ -1144,20 +1102,6 @@ test/test_expr_module_tests-comparisonsTest.obj: test/comparisonsTest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-comparisonsTest.obj `if test -f 'test/comparisonsTest.cc'; then $(CYGPATH_W) 'test/comparisonsTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/comparisonsTest.cc'; fi`
 
-test/test_expr_module_tests-constantFactoryTest.o: test/constantFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-constantFactoryTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-constantFactoryTest.Tpo -c -o test/test_expr_module_tests-constantFactoryTest.o `test -f 'test/constantFactoryTest.cc' || echo '$(srcdir)/'`test/constantFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-constantFactoryTest.Tpo test/$(DEPDIR)/test_expr_module_tests-constantFactoryTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/constantFactoryTest.cc' object='test/test_expr_module_tests-constantFactoryTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-constantFactoryTest.o `test -f 'test/constantFactoryTest.cc' || echo '$(srcdir)/'`test/constantFactoryTest.cc
-
-test/test_expr_module_tests-constantFactoryTest.obj: test/constantFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-constantFactoryTest.obj -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-constantFactoryTest.Tpo -c -o test/test_expr_module_tests-constantFactoryTest.obj `if test -f 'test/constantFactoryTest.cc'; then $(CYGPATH_W) 'test/constantFactoryTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/constantFactoryTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-constantFactoryTest.Tpo test/$(DEPDIR)/test_expr_module_tests-constantFactoryTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/constantFactoryTest.cc' object='test/test_expr_module_tests-constantFactoryTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-constantFactoryTest.obj `if test -f 'test/constantFactoryTest.cc'; then $(CYGPATH_W) 'test/constantFactoryTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/constantFactoryTest.cc'; fi`
-
 test/test_expr_module_tests-constantsTest.o: test/constantsTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-constantsTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-constantsTest.Tpo -c -o test/test_expr_module_tests-constantsTest.o `test -f 'test/constantsTest.cc' || echo '$(srcdir)/'`test/constantsTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-constantsTest.Tpo test/$(DEPDIR)/test_expr_module_tests-constantsTest.Po
@@ -1185,20 +1129,6 @@ test/test_expr_module_tests-FactoryTestNodeConnector.obj: test/FactoryTestNodeCo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/FactoryTestNodeConnector.cc' object='test/test_expr_module_tests-FactoryTestNodeConnector.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-FactoryTestNodeConnector.obj `if test -f 'test/FactoryTestNodeConnector.cc'; then $(CYGPATH_W) 'test/FactoryTestNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/FactoryTestNodeConnector.cc'; fi`
-
-test/test_expr_module_tests-functionFactoryTest.o: test/functionFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-functionFactoryTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-functionFactoryTest.Tpo -c -o test/test_expr_module_tests-functionFactoryTest.o `test -f 'test/functionFactoryTest.cc' || echo '$(srcdir)/'`test/functionFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-functionFactoryTest.Tpo test/$(DEPDIR)/test_expr_module_tests-functionFactoryTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/functionFactoryTest.cc' object='test/test_expr_module_tests-functionFactoryTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-functionFactoryTest.o `test -f 'test/functionFactoryTest.cc' || echo '$(srcdir)/'`test/functionFactoryTest.cc
-
-test/test_expr_module_tests-functionFactoryTest.obj: test/functionFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-functionFactoryTest.obj -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-functionFactoryTest.Tpo -c -o test/test_expr_module_tests-functionFactoryTest.obj `if test -f 'test/functionFactoryTest.cc'; then $(CYGPATH_W) 'test/functionFactoryTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/functionFactoryTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-functionFactoryTest.Tpo test/$(DEPDIR)/test_expr_module_tests-functionFactoryTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/functionFactoryTest.cc' object='test/test_expr_module_tests-functionFactoryTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-functionFactoryTest.obj `if test -f 'test/functionFactoryTest.cc'; then $(CYGPATH_W) 'test/functionFactoryTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/functionFactoryTest.cc'; fi`
 
 test/test_expr_module_tests-functionsTest.o: test/functionsTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-functionsTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-functionsTest.Tpo -c -o test/test_expr_module_tests-functionsTest.o `test -f 'test/functionsTest.cc' || echo '$(srcdir)/'`test/functionsTest.cc
@@ -1283,20 +1213,6 @@ test/test_expr_module_tests-valueTest.obj: test/valueTest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/valueTest.cc' object='test/test_expr_module_tests-valueTest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-valueTest.obj `if test -f 'test/valueTest.cc'; then $(CYGPATH_W) 'test/valueTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/valueTest.cc'; fi`
-
-test/test_expr_module_tests-variableFactoryTest.o: test/variableFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-variableFactoryTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-variableFactoryTest.Tpo -c -o test/test_expr_module_tests-variableFactoryTest.o `test -f 'test/variableFactoryTest.cc' || echo '$(srcdir)/'`test/variableFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-variableFactoryTest.Tpo test/$(DEPDIR)/test_expr_module_tests-variableFactoryTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/variableFactoryTest.cc' object='test/test_expr_module_tests-variableFactoryTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-variableFactoryTest.o `test -f 'test/variableFactoryTest.cc' || echo '$(srcdir)/'`test/variableFactoryTest.cc
-
-test/test_expr_module_tests-variableFactoryTest.obj: test/variableFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-variableFactoryTest.obj -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-variableFactoryTest.Tpo -c -o test/test_expr_module_tests-variableFactoryTest.obj `if test -f 'test/variableFactoryTest.cc'; then $(CYGPATH_W) 'test/variableFactoryTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/variableFactoryTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-variableFactoryTest.Tpo test/$(DEPDIR)/test_expr_module_tests-variableFactoryTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/variableFactoryTest.cc' object='test/test_expr_module_tests-variableFactoryTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-variableFactoryTest.obj `if test -f 'test/variableFactoryTest.cc'; then $(CYGPATH_W) 'test/variableFactoryTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/variableFactoryTest.cc'; fi`
 
 test/test_expr_module_tests-variablesTest.o: test/variablesTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-variablesTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-variablesTest.Tpo -c -o test/test_expr_module_tests-variablesTest.o `test -f 'test/variablesTest.cc' || echo '$(srcdir)/'`test/variablesTest.cc

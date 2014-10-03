@@ -35,7 +35,6 @@ namespace PLEXIL
   // Forward references
   class Expression;
   class Node;
-  class PlexilNode;
   class Value;
 
   //* Abstract base class for defining transition event filters
@@ -82,7 +81,7 @@ namespace PLEXIL
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */
-    virtual bool reportAddPlan(PlexilNode const *plan);
+    virtual bool reportAddPlan(pugi::xml_node const plan);
 
     /**
      * @brief Determine whether this AddLibraryNode event should be reported.
@@ -90,7 +89,7 @@ namespace PLEXIL
      * @return true to notify on this event, false to ignore it.
      * @note The default method simply returns true.
      */
-    virtual bool reportAddLibrary(PlexilNode const *plan);
+    virtual bool reportAddLibrary(pugi::xml_node const plan);
 
     /**
      * @brief Determine whether this variable assignment should be reported.

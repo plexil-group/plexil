@@ -36,7 +36,6 @@ namespace PLEXIL
   class ExecListenerHub;
   class ExternalInterface;
   class Node;
-  class PlexilNode;
 
   /**
    * @brief Abstract class representing the key API of the PlexilExec. Facilitates testing.
@@ -63,34 +62,12 @@ namespace PLEXIL
      */
     virtual void markRootNodeFinished(Node *node) = 0;
 
-    // Needed by TestExternalInterface
-
-    /**
-     * @brief Add the plan under the node named by the parent.
-     * @param plan The intermediate representation of the plan.
-     * @return True if succesful, false otherwise.
-     */
-    // *** TO BE DELETED ***
-    virtual bool addPlan(PlexilNode *plan) = 0;
-
     /**
      * @brief Add the plan under the node named by the parent.
      * @param root The internal representation of the plan.
      * @return True if succesful, false otherwise.
      */
     virtual bool addPlan(Node *root) = 0;
-
-    /**
-     * @brief Add the node to the known libraries.
-     * @param plan The intermediate representation of the node.
-     */
-    // *** TO BE DELETED ***
-    virtual void addLibraryNode(PlexilNode *lib) = 0;
-
-    /**
-     * @brief Get the named library.
-     */
-    virtual PlexilNode const *getLibrary(std::string const &name) const = 0;
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.

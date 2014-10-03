@@ -44,10 +44,6 @@ namespace PLEXIL
     typedef std::map<std::string, Expression *> PairExpressionMap;
     typedef std::map<std::string, Value> PairValueMap;
 
-    // *** TO BE DELETED ***
-    Update(NodeConnector *node,
-           PlexilUpdate const *updateProto);
-
     Update(NodeConnector *node);
 
     ~Update();

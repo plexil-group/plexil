@@ -38,11 +38,6 @@ namespace PLEXIL
     ArrayVariableReferenceFactory(const std::string& name);
     virtual ~ArrayVariableReferenceFactory();
 
-    // To be deprecated.
-    Expression *allocate(PlexilExpr const *expr,
-                         NodeConnector *node,
-                         bool & wasCreated) const;
-
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool & wasCreated) const;

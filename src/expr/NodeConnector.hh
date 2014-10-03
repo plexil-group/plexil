@@ -33,10 +33,6 @@ namespace PLEXIL
 {
   // Forward references
   class Expression;
-
-  class PlexilVarRef;
-  class PlexilNodeRef;
-
   class Node;
 
   /**
@@ -50,9 +46,7 @@ namespace PLEXIL
     NodeConnector() {}
     virtual ~NodeConnector() {}
 
-    virtual Expression *findVariable(const PlexilVarRef* ref) = 0;
     virtual Expression *findVariable(const std::string &name, bool recursive = false) = 0;
-    virtual Node *findNodeRef(PlexilNodeRef const *nodeRef) = 0;
     virtual std::string const &getNodeId() const = 0;
     virtual Node const *findChild(const std::string& childName) const = 0;
     virtual Node *findChild(const std::string& childName) = 0;

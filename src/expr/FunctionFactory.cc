@@ -38,24 +38,6 @@ namespace PLEXIL
   {
   }
 
-  Expression *FunctionFactory::allocate(PlexilExpr const *expr,
-                                        NodeConnector *node,
-                                        bool &wasCreated) const
-  {
-    PlexilOp const *op = dynamic_cast<PlexilOp const *>(expr);
-    checkParserException(op != NULL, "createExpression: Expression is not a PlexilOp");
-
-    std::vector<PlexilExpr *> const &args = op->subExprs();
-    ExprVec *exprVec = constructExprVec(args, node);
-    Operator const *oper = this->getOperator();
-    checkParserException(oper->checkArgCount(args.size()),
-                         "createExpression: Wrong number of operands for operator "
-                         << oper->getName());
-
-    wasCreated = true;
-    return new Function(oper, exprVec);
-  }
-
   Expression *FunctionFactory::allocate(pugi::xml_node const expr,
                                         NodeConnector *node,
                                         bool &wasCreated) const
@@ -68,23 +50,6 @@ namespace PLEXIL
 
     wasCreated = true;
     return new Function(oper, exprVec);
-  }
-
-  ExprVec *
-  FunctionFactory::constructExprVec(std::vector<PlexilExpr *> const &subexprs,
-                                    NodeConnector *node) const
-  {
-    // Get the argument expressions
-    size_t nargs = subexprs.size();
-    std::vector<bool> garbage(nargs, false);
-    std::vector<Expression *> exprs(nargs);
-    for (size_t i = 0; i < nargs; ++i) {
-      bool isGarbage;
-      exprs[i] = createExpression(subexprs[i], node, isGarbage);
-      garbage[i] = isGarbage;
-    }
-
-    return makeExprVec(exprs, garbage);
   }
 
   ExprVec *

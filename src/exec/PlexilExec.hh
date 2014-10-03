@@ -29,9 +29,9 @@
 
 #include "ExecConnector.hh"
 #include "generic_hash_map.hh"
-#include "PlexilPlan.hh"
 
 #include <list>
+#include <map>
 #include <queue>
 #include <set>
 
@@ -60,31 +60,9 @@ namespace PLEXIL
      */
     ~PlexilExec();
 
-    /**
-     * @brief Queries whether the named library node is loaded.
-     * @param nodeName The name of the library node.
-     * @return True if the node is already defined, false otherwise.
-     */
-    bool hasLibrary(const std::string& nodeName) const;
-
-    /**
-     * @brief Retrieves the named library node if it is present.
-     * @param nodeName The name of the library node.
-     * @return The library node, or NULL if not found.
-     */
-    PlexilNode const *getLibrary(const std::string& nodeName) const;
-
     //
     // API to ExternalInterface
     //
-
-    /**
-     * @brief Prepare the given plan for execution.
-     * @param Intermediate representation of the plan's root node.
-     * @return True if succesful, false otherwise.
-     */
-    // *** TO BE DELETED ***
-    bool addPlan(PlexilNode *plan);
 
     /**
      * @brief Prepare the given plan for execution.
@@ -92,13 +70,6 @@ namespace PLEXIL
      * @return True if succesful, false otherwise.
      */
     bool addPlan(Node *root);
-
-    /**
-     * @brief Add the given plan as a library node.
-     * @param Intermediate representation of the plan's root node.
-     */
-    // *** TO BE DELETED ***
-    void addLibraryNode(PlexilNode *plan);
 
     /**
      * @brief Begins a single "macro step" i.e. the entire quiescence cycle.
@@ -229,7 +200,6 @@ namespace PLEXIL
                                                The sets are ordered by priority, but the order is dominated by FAILING nodes.
                                                Essentially, at each quiescence cycle, the first node in each set that isn't already
                                                in state FAILING gets added to the end of the queue. */
-    std::map<std::string, PlexilNode *> m_libraries;
     unsigned int m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };

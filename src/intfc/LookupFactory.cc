@@ -32,7 +32,6 @@
 #include "Lookup.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
-#include "PlexilLookup.hh"
 #include "pugixml.hpp"
 
 namespace PLEXIL
@@ -47,44 +46,6 @@ namespace PLEXIL
     }
     virtual ~LookupFactory()
     {
-    }
-
-    Expression *allocate(PlexilExpr const *expr,
-                         NodeConnector *node,
-                         bool & wasCreated) const
-    {
-      PlexilLookup const *lkup = (PlexilLookup const *) expr;
-      checkParserException(lkup, "createExpression: Expression is not a PlexilLookup");
-      PlexilState const *stateSpec = lkup->state();
-      checkParserException(stateSpec, "createExpression: PlexilLookup missing a State specification");
-      bool stateNameGarbage = false;
-      Expression *stateName = createExpression(stateSpec->nameExpr(), node, stateNameGarbage);
-      ValueType stateNameType = stateName->valueType();
-      checkParserException(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
-                           "createExpression: Lookup name must be a string expression");
-      std::vector<PlexilExpr *> const &args = stateSpec->args();
-      size_t nargs = args.size();
-      std::vector<Expression* > params(nargs, NULL);
-      std::vector<bool> paramsGarbage(nargs, false);
-      for (size_t i = 0; i < nargs; ++i) {
-        bool garbage = false;
-        params[i] = createExpression(args[i], node, garbage);
-        paramsGarbage[i] = garbage;
-      }
-      wasCreated = true;
-      if (lkup->tolerance()) {
-        bool tolGarbage = false;
-        Expression *tol = createExpression(lkup->tolerance(), node, tolGarbage);
-        ValueType tolType = tol->valueType();
-        checkParserException(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
-                             "createExpression: LookupOnChange tolerance expression must be numeric");
-        return new LookupOnChange(stateName, stateNameGarbage,
-                                  params, paramsGarbage,
-                                  tol, tolGarbage);
-      }
-      else
-        return new Lookup(stateName, stateNameGarbage,
-                          params, paramsGarbage);
     }
 
     Expression *allocate(pugi::xml_node const expr,

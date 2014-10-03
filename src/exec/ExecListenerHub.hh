@@ -70,13 +70,13 @@ namespace PLEXIL
      * @brief Notify that a plan has been received by the Exec.
      * @param plan The intermediate representation of the plan.
      */
-     void notifyOfAddPlan(PlexilNode const *plan) const;
+    void notifyOfAddPlan(pugi::xml_node const plan) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      */
-    void notifyOfAddLibrary(PlexilNode const *libNode) const;
+    void notifyOfAddLibrary(pugi::xml_node const libNode) const;
 
     /**
      * @brief Notify that a variable assignment has been performed.

@@ -27,7 +27,6 @@
 #include "ExternalInterface.hh"
 #include "Constant.hh"
 #include "Lookup.hh"
-#include "PlexilLookup.hh"
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 #include "TestSupport.hh"

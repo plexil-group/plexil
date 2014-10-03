@@ -34,7 +34,6 @@
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
-#include "PlexilExpr.hh"
 #include "pugixml.hpp"
 
 #include <map>
@@ -75,38 +74,12 @@ namespace PLEXIL
     return m_name;
   }
 
-  Expression *createExpression(PlexilExpr const *expr,
-                               NodeConnector *node)
-    throw (ParserException)
-  {
-    bool dummy;
-    return createExpression(expr, node, dummy);
-  }
-
   Expression *createExpression(pugi::xml_node const expr,
                                NodeConnector *node)
     throw (ParserException)
   {
     bool dummy;
     return createExpression(expr, node, dummy);
-  }
-
-  Expression *createExpression(PlexilExpr const *expr,
-                               NodeConnector *node,
-                               bool& wasCreated)
-    throw (ParserException)
-  {
-    const std::string& name = expr->name();
-    // Delegate to factory
-    debugMsg("createExpression", " name=" << name);
-    std::map<std::string, ExpressionFactory*>::const_iterator it =
-      expressionFactoryMap().find(name);
-    checkParserException(it != expressionFactoryMap().end(),
-                         "createExpression: No factory registered for name \"" << name << "\".");
-    Expression *retval = it->second->allocate(expr, node, wasCreated);
-    debugMsg("createExpression",
-             " Created " << (wasCreated ? "" : "reference to ") << retval->toString());
-    return retval;
   }
 
   Expression *createExpression(pugi::xml_node const expr,
@@ -133,47 +106,6 @@ namespace PLEXIL
   //
   // createAssignable
   //
-
-  Assignable *createAssignable(PlexilExpr const *expr,
-                               NodeConnector *node,
-                               bool& wasCreated)
-    throw (ParserException)
-  {
-    assertTrue_2(node, "createAssignable: Internal error: Null node argument");
-    PlexilVarRef const *ref = dynamic_cast<PlexilVarRef const *>(expr);
-    if (ref) {
-      // Variable reference - always returns existing
-      wasCreated = false;
-      Expression *result = node->findVariable(ref);
-      checkParserException(result,
-                           "createAssignable: Variable \"" << ref->varName() << "\" not found");
-      checkParserException(result->isAssignable(),
-                           "createAssignable: Variable \"" << ref->varName() << "\" is not assignable");
-      return result->asAssignable();
-    }
-    PlexilArrayElement const *elt = dynamic_cast<PlexilArrayElement const *>(expr);
-    if (elt) {
-      // Get array expression (usually variable reference)
-      bool aryCreated, idxCreated;
-      Expression *array = createExpression(elt->array(), node, aryCreated);
-      // *** FIXME: is UNKNOWN_TYPE (e.g. undeclared Lookup) OK? ***
-      checkParserException(isArrayType(array->valueType()),
-                           "createAssignable: Array reference to non-array expression");
-      checkParserException(array->isAssignable(),
-                           "createAssignable: Array reference to read-only expression");
-
-      // Get index expression
-      Expression *index = createExpression(elt->index(), node, idxCreated);
-      checkParserException(index->valueType() == INTEGER_TYPE,
-                           "createAssignable: Array reference index expression not Integer");
-
-      // Always constructs (this may change in future)
-      wasCreated = true;
-      return (new MutableArrayReference(array, index, aryCreated, idxCreated))->asAssignable();
-    }
-    checkParserException(ALWAYS_FAIL,
-                         "Not a valid expression for assignment destination");
-  }
 
   Assignable *createAssignable(pugi::xml_node const expr,
                                NodeConnector *node,

@@ -43,15 +43,6 @@ namespace PLEXIL
   {
   }
 
-    // To be deprecated.
-  Expression *ArrayVariableReferenceFactory::allocate(PlexilExpr const *expr,
-                                                      NodeConnector *node,
-                                                      bool & wasCreated) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "Nothing should ever call this method!");
-    return NULL;
-  }
-
   Expression *ArrayVariableReferenceFactory::allocate(pugi::xml_node const expr,
                                                       NodeConnector *node,
                                                       bool & wasCreated) const

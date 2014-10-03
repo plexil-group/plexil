@@ -35,18 +35,8 @@ TrivialNodeConnector::~TrivialNodeConnector()
 {
 }
 
-Expression *TrivialNodeConnector::findVariable(const PlexilVarRef* /* ref */)
-{
-  return NULL;
-}
-
 Expression *TrivialNodeConnector::findVariable(const std::string & /* name */,
                                                bool /* recursive */)
-{
-  return NULL;
-}
-
-Node *TrivialNodeConnector::findNodeRef(PlexilNodeRef const * /* nodeRef */)
 {
   return NULL;
 }

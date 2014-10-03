@@ -26,7 +26,6 @@
 
 #include "test/FactoryTestNodeConnector.hh"
 
-#include "PlexilExpr.hh"
 #include "Expression.hh"
 
 namespace PLEXIL
@@ -47,11 +46,6 @@ namespace PLEXIL
     m_variableMap.clear();
   }
 
-  Expression *FactoryTestNodeConnector::findVariable(const PlexilVarRef* ref)
-  {
-    return this->findVariable(ref->varName(), false);
-  }
-
   Expression *FactoryTestNodeConnector::findVariable(const std::string & name,
                                                      bool ignored)
   {
@@ -60,11 +54,6 @@ namespace PLEXIL
       return it->second;
     else
       return NULL;
-  }
-
-  Node *FactoryTestNodeConnector::findNodeRef(PlexilNodeRef const * /* nodeRef */)
-  {
-    return NULL;
   }
 
   std::string const &FactoryTestNodeConnector::getNodeId() const

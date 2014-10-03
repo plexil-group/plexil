@@ -32,13 +32,13 @@ libPlexilIntfc_la_CPPFLAGS = -I@top_srcdir@/expr -I@top_srcdir@/utils \
 
 include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  CommandHandleVariable.hh ExternalInterface.hh \
- InputQueue.hh Lookup.hh PlexilLookup.hh PlexilUpdate.hh QueueEntry.hh \
+ InputQueue.hh Lookup.hh QueueEntry.hh \
  ResourceArbiterInterface.hh State.hh StateCacheEntry.hh \
  StateCacheMap.hh Update.hh interface-schema.hh resource-tags.hh
 
 libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
  CommandHandleVariable.cc ExternalInterface.cc Lookup.cc LookupFactory.cc \
- PlexilLookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
+ QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc \
  interface-schema.cc resource-tags.cc
 
@@ -47,8 +47,7 @@ if MODULE_TESTS_OPT
   noinst_HEADERS =
   test_intfc_module_tests_SOURCES = ../expr/test/FactoryTestNodeConnector.cc \
  ../expr/test/TrivialListener.cc ../expr/test/TrivialNodeConnector.cc \
- test/lookupsTest.cc test/stateTest.cc test/lookupFactoryTest.cc \
- test/intfc-test-module.cc
+ test/lookupsTest.cc test/stateTest.cc test/intfc-test-module.cc
   test_intfc_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils \
  -I../expr
   test_intfc_module_tests_LDADD = libPlexilIntfc.la ../expr/libPlexilExpr.la \

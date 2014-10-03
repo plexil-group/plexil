@@ -29,7 +29,6 @@
 
 #include "NodeConstants.hh"
 #include "PlexilNodeType.hh"
-#include "PlexilPlan.hh"
 
 namespace PLEXIL
 {
@@ -44,15 +43,8 @@ namespace PLEXIL
   {
   public:
 
-    // *** TO BE DELETED ***
     /**
      * @brief Primary factory method.
-     */
-    static Node *createNode(PlexilNode const *nodeProto, 
-                            Node *parent = NULL);
-
-    /**
-     * @brief New primary factory method.
      */
     static Node *createNode(char const *name,
                             PlexilNodeType type,
@@ -77,10 +69,6 @@ namespace PLEXIL
     /**
      * @brief Primary factory method.
      */
-    // *** TO BE DELETED ***
-    virtual Node *create(PlexilNode const *node, 
-                         Node *parent = NULL) const = 0;
-
     virtual Node *create(char const *name, 
                          Node *parent = NULL) const = 0;
 
@@ -122,10 +110,6 @@ namespace PLEXIL
     ConcreteNodeFactory();
     ConcreteNodeFactory(const ConcreteNodeFactory&);
     ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
-
-    // *** TO BE DELETED ***
-    Node *create(PlexilNode const *nodeProto, 
-                 Node *parent) const;
 
     Node *create(char const *name,
                  Node *parent) const;

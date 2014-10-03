@@ -38,21 +38,6 @@
 namespace PLEXIL
 {
 
-  // *** TO BE DELETED ***
-  /**
-   * @brief The constructor.  Will construct all conditions and child nodes.
-   * @param node The PlexilNodeId for this node and all of its children.
-   * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
-   */
-  UpdateNode::UpdateNode(PlexilNode const *node, 
-                         Node *parent)
-    : Node(node, parent)
-  {
-    checkError(node->nodeType() == NodeType_Update,
-               "Invalid node type \"" << nodeTypeString(node->nodeType())
-               << "\" for an UpdateNode");
-  }
-
   UpdateNode::UpdateNode(char const *nodeId, Node *parent)
     : Node(nodeId, parent)
   {
@@ -117,16 +102,6 @@ namespace PLEXIL
     }
   }
 
-  // Specific behaviors for derived classes
-  void UpdateNode::specializedPostInit(PlexilNode const *node)
-  {
-    debugMsg("Node:postInit", "Creating update for node '" << m_nodeId << "'");
-    // XML parser should have checked for this
-    assertTrue_2(dynamic_cast<PlexilUpdateBody const *>(node->body()),
-                 "Node is an update node but doesn't have an update body.");
-    createUpdate((PlexilUpdateBody const *) node->body());
-  }
-
   void UpdateNode::setUpdate(Update *upd)
   {
     assertTrue_1(upd);
@@ -136,11 +111,6 @@ namespace PLEXIL
     Expression *actionComplete = m_update->getAck();
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = false;
-  }
-
-  void UpdateNode::createUpdate(PlexilUpdateBody const *body) 
-  {
-    setUpdate(new Update(this, body->update()));
   }
 
   void UpdateNode::createConditionWrappers()

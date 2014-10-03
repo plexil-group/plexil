@@ -45,12 +45,8 @@ namespace PLEXIL
 
     ~FactoryTestNodeConnector();
 
-    Expression *findVariable(const PlexilVarRef* ref);
-
     Expression *findVariable(const std::string & name,
                                      bool ignored = false);
-
-    Node *findNodeRef(PlexilNodeRef const * /* nodeRef */);
 
     std::string const &getNodeId() const;
 

@@ -37,7 +37,6 @@
 #include "NodeVariables.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
-#include "PlexilPlan.hh"
 #include "PlexilSchema.hh"
 #include "pugixml.hpp"
 
@@ -160,18 +159,6 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(PlexilExpr const * expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const
-    {
-      PlexilStateVar const *var = dynamic_cast<PlexilStateVar const *>(expr);
-      checkParserException(var, "createExpression: not a PlexilStateVar");
-      Node *target = node->findNodeRef(var->ref());
-      checkParserException(target, "createExpression: Can't find node for StateVariable");
-      wasCreated = false;
-      return target->getStateVariable();
-    }
-
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const
@@ -200,18 +187,6 @@ namespace PLEXIL
 
     ~ConcreteExpressionFactory()
     {
-    }
-
-    Expression *allocate(PlexilExpr const * expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const
-    {
-      PlexilOutcomeVar const *var = dynamic_cast<PlexilOutcomeVar const *>(expr);
-      checkParserException(var, "createExpression: not a PlexilOutcomeVar");
-      Node *target = node->findNodeRef(var->ref());
-      checkParserException(target, "createExpression: Can't find node for OutcomeVariable");
-      wasCreated = false;
-      return target->getOutcomeVariable();
     }
 
     Expression *allocate(pugi::xml_node const expr,
@@ -244,18 +219,6 @@ namespace PLEXIL
     {
     }
 
-    Expression *allocate(PlexilExpr const * expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const
-    {
-      PlexilFailureVar const *var = dynamic_cast<PlexilFailureVar const *>(expr);
-      checkParserException(var, "createExpression: not a PlexilFailureVar");
-      Node *target = node->findNodeRef(var->ref());
-      checkParserException(target, "createExpression: Can't find node for FailureTypeVariable");
-      wasCreated = false;
-      return target->getFailureTypeVariable();
-    }
-
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool &wasCreated) const
@@ -284,22 +247,6 @@ namespace PLEXIL
 
     ~ConcreteExpressionFactory()
     {
-    }
-
-    Expression *allocate(PlexilExpr const * expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const
-    {
-      PlexilCommandHandleVar const *var = dynamic_cast<PlexilCommandHandleVar const *>(expr);
-      checkParserException(var, "createExpression: not a PlexilCommandHandleVar");
-      Node *target = node->findNodeRef(var->ref());
-      checkParserException(target, "createExpression: Can't find node for CommandHandleVariable");
-      CommandNode *cnode = dynamic_cast<CommandNode *>(target);
-      checkParserException(cnode, "createExpression: Node for CommandHandleVariable not a Command node");
-      Command *cmd = cnode->getCommand();
-      checkParserException(cmd, "createExpression: Internal error: Command node has no Command");
-      wasCreated = false;
-      return cmd->getAck();
     }
 
     Expression *allocate(pugi::xml_node const expr,
@@ -338,16 +285,6 @@ namespace PLEXIL
 
     ~ConcreteExpressionFactory()
     {
-    }
-
-    Expression *allocate(PlexilExpr const * expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const
-    {
-      PlexilTimepointVar const *var = dynamic_cast<PlexilTimepointVar const *>(expr);
-      checkParserException(var, "createExpression: not a PlexilTimepointVar");
-      wasCreated = true;
-      return create(var, node);
     }
 
     Expression *allocate(pugi::xml_node const expr,
@@ -389,18 +326,6 @@ namespace PLEXIL
     }
 
   private:
-    Expression *create(PlexilTimepointVar const *var,
-                       NodeConnector *node) const
-    {
-      Node *refNode = node->findNodeRef(var->ref());
-      checkParserException(refNode, "createExpression: Timepoint node reference not found");
-      NodeState state = parseNodeState(var->state());
-      checkParserException(isNodeStateValid(state), "createExpression: Invalid NodeState value \"" << var->state() << "\"");
-      return new NodeTimepointValue(refNode,
-                                    state,
-                                    ("END" == var->timepoint()));
-    }
-
     // Default, copy, assign all prohibited
     ConcreteExpressionFactory();
     ConcreteExpressionFactory(const ConcreteExpressionFactory &);

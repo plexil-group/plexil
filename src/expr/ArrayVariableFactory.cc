@@ -48,16 +48,6 @@ namespace PLEXIL
   {
   }
 
-
-  // *** DELETE ME ***
-  Expression *ArrayVariableFactory::allocate(PlexilExpr const * /* expr */,
-                                            NodeConnector * /* node */,
-                                            bool & /* wasCreated */) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "Nothing should ever call this method!");
-    return NULL;
-  }
-
   // N.B. Construction of initializer expression happens later.
 
   Expression *ArrayVariableFactory::allocate(pugi::xml_node const expr,

@@ -74,12 +74,6 @@ static void runExprTests()
   runTestSuite(stringTest);
   runTestSuite(arrayOperatorsTest);
 
-  // Old PlexilPlan parser tests
-  runTestSuite(constantFactoryTest);
-  runTestSuite(variableFactoryTest);
-  runTestSuite(arrayReferenceFactoryTest);
-  runTestSuite(functionFactoryTest);
-
   std::cout << "Finished" << std::endl;
 }
 

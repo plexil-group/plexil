@@ -35,7 +35,6 @@
 #include "InterfaceManager.hh"
 #include "PlexilExec.hh"
 #include "PlexilSchema.hh"
-#include "PlexilXmlParser.hh"
 #include "pugixml.hpp"
 
 #include <cstring>

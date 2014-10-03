@@ -106,7 +106,7 @@ namespace PLEXIL
    * @param parent The name of the parent node under which this plan will be inserted.
    */
   void
-  ExecListener::notifyOfAddPlan(PlexilNode const *plan) const
+  ExecListener::notifyOfAddPlan(pugi::xml_node const plan) const
   {
     if (!m_filter
         || m_filter->reportAddPlan(plan))
@@ -118,7 +118,7 @@ namespace PLEXIL
    * @param libNode The intermediate representation of the plan.
    */
   void 
-  ExecListener::notifyOfAddLibrary(PlexilNode const *libNode) const
+  ExecListener::notifyOfAddLibrary(pugi::xml_node const libNode) const
   {
     if (!m_filter
         || m_filter->reportAddLibrary(libNode))
@@ -248,7 +248,7 @@ namespace PLEXIL
    * @param parent The name of the parent node under which this plan will be inserted.
    * @note The default method does nothing.
    */
-  void ExecListener::implementNotifyAddPlan(PlexilNode const * /* plan */) const
+  void ExecListener::implementNotifyAddPlan(pugi::xml_node const /* plan */) const
   {
     debugMsg("ExecListener:implementNotifyAddPlan", " default method called");
   }
@@ -258,7 +258,7 @@ namespace PLEXIL
    * @param libNode The intermediate representation of the plan.
    * @note The default method does nothing.
    */
-  void ExecListener::implementNotifyAddLibrary(PlexilNode const * /* libNode */) const
+  void ExecListener::implementNotifyAddLibrary(pugi::xml_node const /* libNode */) const
   {
     debugMsg("ExecListener:implementNotifyAddLibrary", " default method called");
   }

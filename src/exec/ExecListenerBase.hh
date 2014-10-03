@@ -38,7 +38,6 @@ namespace PLEXIL
   class Expression;
   class Node;
   struct NodeTransition;
-  class PlexilNode;
   class Value;
 
   /**
@@ -89,13 +88,13 @@ namespace PLEXIL
      * @brief Notify that a plan has been received by the Exec.
      * @param plan The intermediate representation of the plan.
      */
-    virtual void notifyOfAddPlan(PlexilNode const *plan) const = 0;
+    virtual void notifyOfAddPlan(pugi::xml_node const plan) const = 0;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      */
-    virtual void notifyOfAddLibrary(PlexilNode const *libNode) const = 0;
+    virtual void notifyOfAddLibrary(pugi::xml_node const libNode) const = 0;
 
     /**
      * @brief Notify that a variable assignment has been performed.

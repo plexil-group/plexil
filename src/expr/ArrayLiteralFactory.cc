@@ -47,15 +47,6 @@ namespace PLEXIL
   {
   }
 
-  // *** DELETE ME ***
-  Expression *ArrayLiteralFactory::allocate(PlexilExpr const * /* expr */,
-                                            NodeConnector * /* node */,
-                                            bool & /* wasCreated */) const
-  {
-    assertTrue_2(ALWAYS_FAIL, "Nothing should ever call this method!");
-    return NULL;
-  }
-
   template <typename T>
   Expression *createArrayLiteral(char const *eltTypeName, pugi::xml_node const expr)
   {

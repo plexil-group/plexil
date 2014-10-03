@@ -32,29 +32,6 @@
 namespace PLEXIL
 {
 
-  // *** TO BE DELETED ***
-  Command::Command(Expression *nameExpr, 
-                   std::vector<Expression *> const &args,
-                   std::vector<Expression *> const &garbage,
-                   Assignable *dest,
-                   const ResourceList &resource,
-                   std::string const &nodeName)
-    : m_ack(*this),
-      m_abortComplete(),
-      m_nameExpr(nameExpr),
-      m_dest(dest),
-      m_garbage(garbage),
-      m_args(args),
-      m_resourceList(resource),
-      m_commandHandle(NO_COMMAND_HANDLE),
-      m_fixed(false),
-      m_resourceFixed(false),
-      m_active(false)
-  {
-    m_ack.setName(nodeName + " commandHandle");
-    m_abortComplete.setName(nodeName + " abortComplete");
-  }
-
   // New version
   Command::Command(std::string const &nodeName)
     : m_ack(*this),

@@ -37,17 +37,6 @@
 namespace PLEXIL
 {
 
-  // *** TO BE DELETED ***
-  AssignmentNode::AssignmentNode(PlexilNode const *nodeProto, 
-                                 Node *parent)
-    : Node(nodeProto, parent),
-      m_priority(nodeProto->priority())
-  {
-    checkError(nodeProto->nodeType() == NodeType_Assignment,
-               "Invalid node type \"" << nodeTypeString(nodeProto->nodeType())
-               << "\" for an AssignmentNode");
-  }
-
   AssignmentNode::AssignmentNode(char const *nodeId, 
                                  Node *parent)
     : Node(nodeId, parent),
@@ -94,16 +83,6 @@ namespace PLEXIL
     cleanUpNodeBody();
   }
 
-  void AssignmentNode::specializedPostInit(PlexilNode const *node)
-  {
-    debugMsg("Node:postInit",
-             "Creating assignment for node '" << m_nodeId << "'");
-    // XML parser should have checked for this
-    checkError(dynamic_cast<PlexilAssignmentBody const *>(node->body()),
-               "Node is an assignment node but doesn't have an assignment body.");
-    createAssignment((PlexilAssignmentBody const *) node->body());
-  }
-
   void AssignmentNode::setAssignment(Assignment *assn)
   {
     assertTrue_1(assn);
@@ -118,21 +97,6 @@ namespace PLEXIL
     Expression *abortComplete = m_assignment->getAbortComplete();
     m_conditions[abortCompleteIdx] = abortComplete;
     m_garbageConditions[abortCompleteIdx] = false;
-  }
-
-  // *** TO BE DELETED ***
-  void AssignmentNode::createAssignment(PlexilAssignmentBody const *body) 
-  {
-    //we still only support one variable on the LHS
-    // FIXME: push this check up into XML parser
-    checkError(body->dest().size() >= 1,
-               "Need at least one destination variable in assignment.");
-    PlexilExpr const *destExpr = (body->dest())[0];
-    bool deleteLhs = false;
-    Assignable *dest = createAssignable(destExpr, this, deleteLhs);
-    bool deleteRhs = false;
-    Expression *rhs = createExpression(body->RHS(), this, deleteRhs);
-    setAssignment(new Assignment(dest, rhs, deleteLhs, deleteRhs, m_nodeId));
   }
 
   // Unit test variant of above

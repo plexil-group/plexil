@@ -27,11 +27,11 @@
 #ifndef _H_Node
 #define _H_Node
 
+#include "ConstantMacros.hh"
 #include "Expression.hh"
 #include "NodeConnector.hh"
 #include "NodeVariables.hh"
 #include "PlexilNodeType.hh"
-#include "PlexilPlan.hh"
 #include "generic_hash_map.hh"
 
 // Take care of annoying VxWorks macro
@@ -109,14 +109,6 @@ namespace PLEXIL {
     DECLARE_STATIC_CLASS_CONST(std::string, FAILURE_TYPE, "failure_type");
     DECLARE_STATIC_CLASS_CONST(std::string, COMMAND_HANDLE, "command_handle");
 
-    // *** TO BE DELETED ***
-    /**
-     * @brief The constructor.  Will construct all conditions and child nodes.
-     * @param node The PlexilNodeId for this node and all of its children.
-     * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
-     */
-    Node(PlexilNode const *node, Node *parent = NULL);
-
     /**
      * @brief The constructor.
      * @param nodeId The name of this node.
@@ -142,12 +134,6 @@ namespace PLEXIL {
     //
 
     /**
-     * @brief Looks up a variable by reference.
-     */
-    // *** TO BE DELETED ***
-    Expression *findVariable(const PlexilVarRef* ref);
-
-    /**
      * @brief Looks up a variable by name.
      */
     virtual Expression *findVariable(const std::string& name, bool recursive = false);
@@ -158,14 +144,6 @@ namespace PLEXIL {
      * @return The variable, or NULL if not found.
      */
     Expression *findLocalVariable(std::string const &name);
-
-    // *** TO BE DELETED ***
-    Node *findNodeRef(PlexilNodeRef const *nodeRef);
-
-    // create conditions, assignments, and commands.
-    // We have to do this late because they could refer to internal variables of other nodes.
-    // *** TO BE DELETED ***
-    void postInit(PlexilNode const *node);
 
     // Make the node active.
     void activate();
@@ -466,8 +444,6 @@ namespace PLEXIL {
     void deactivateAbortCompleteCondition();
 
     // Specific behaviors for derived classes
-    virtual void specializedPostInit(PlexilNode const *node);
-    virtual void specializedPostInitLate(PlexilNode const *node);
     virtual void createConditionWrappers();
     virtual void specializedActivate();
     virtual void specializedHandleExecution();
@@ -582,19 +558,6 @@ namespace PLEXIL {
   private:
 
     void logTransition(double time, NodeState newState);
-
-    // *** TO BE DELETED ***
-    void createConditions(const std::vector<std::pair<PlexilExpr *, std::string> >& conds);
-
-    // *** TO BE DELETED ***
-    void createDeclaredVars(const std::vector<PlexilVar *>& vars);
-
-    // *** TO BE DELETED ***
-    void getVarsFromInterface(PlexilInterface const *intf);
-    // *** TO BE DELETED ***
-    Expression *getInVariable(PlexilVarRef const *varRef, bool parentIsLibCall);
-    // *** TO BE DELETED ***
-    Assignable *getInOutVariable(PlexilVarRef const *varRef, bool parentIsLibCall);
 
     // These 3 should only be called from transition().
     void setNodeOutcome(NodeOutcome o);

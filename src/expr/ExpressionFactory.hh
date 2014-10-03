@@ -41,7 +41,6 @@ namespace PLEXIL
   // Forward declarations
   class Assignable;
   class NodeConnector;
-  class PlexilExpr;
 
   /**
    * @class ExpressionFactory
@@ -53,11 +52,6 @@ namespace PLEXIL
   public:
     ExpressionFactory(const std::string& name);
     virtual ~ExpressionFactory();
-
-    // To be deprecated.
-    virtual Expression *allocate(PlexilExpr const *expr,
-                                 NodeConnector *node,
-                                 bool & wasCreated) const = 0;
 
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
@@ -83,11 +77,6 @@ namespace PLEXIL
    * @note Convenience wrapper.
    */
 
-  // Used in AssignmentNode, CommandNode
-  extern Expression *createExpression(PlexilExpr const *expr,
-                                      NodeConnector *node = NULL)
-    throw (ParserException);
-
   extern Expression *createExpression(pugi::xml_node const expr,
                                       NodeConnector *node = NULL)
     throw (ParserException);
@@ -95,29 +84,19 @@ namespace PLEXIL
   /**
    * @brief Creates a new Expression instance with the type associated with the
    *        given expression prototype.
-   * @param expr The PlexilExpr to be passed to the Expression constructor.
+   * @param expr The expression spec.
    * @param node Node for name lookup.
    * @return Pointer to the new Expression. May not be unique.
    * @param wasCreated Reference to a boolean variable;
    *                   variable will be set to true if new object created, false otherwise.
    */
   // Used in AssignmentNode, CommandNode, LibraryCallNode, Node::createConditions
-  extern Expression *createExpression(PlexilExpr const *expr,
-                                      NodeConnector *node,
-                                      bool& wasCreated)
-    throw (ParserException);
-
   extern Expression *createExpression(pugi::xml_node const expr,
                                       NodeConnector *node,
                                       bool& wasCreated)
     throw (ParserException);
 
   // Used in AssignmentNode, CommandNode
-  extern Assignable *createAssignable(PlexilExpr const *expr,
-                                      NodeConnector *node,
-                                      bool& wasCreated)
-    throw (ParserException);
-
   extern Assignable *createAssignable(pugi::xml_node const expr,
                                       NodeConnector *node,
                                       bool& wasCreated)

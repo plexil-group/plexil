@@ -33,19 +33,11 @@
 namespace PLEXIL
 {
 
-  // *** DELETE ME ***
-  class PlexilExpr; 
-
   class UserVariableFactory : public ExpressionFactory
   {
   public:
     UserVariableFactory(std::string const &name);
     ~UserVariableFactory();
-
-    // *** DELETE ME ***
-    Expression *allocate(PlexilExpr const *expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,

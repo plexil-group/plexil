@@ -93,6 +93,7 @@ namespace PLEXIL
     }
     assertTrue_2(doc, "addLibraryNode: Null document");
     assertTrue_2(!name.empty(), "addLibraryNode: Empty name");
+    // *** TODO: handle global decls ***
     // *** TODO: Check library is well formed ***
     libraryMap[name] = doc;
   }
@@ -146,7 +147,6 @@ namespace PLEXIL
                                      nodeIdXml,
                                      "loadLibraryNode: Requested " << nodeName
                                      << " but file contains " << nodeId);
-    // *** TODO: handle global decls ***
     addLibraryNode(nodeName, doc);
     return theNode;
   }

@@ -157,7 +157,6 @@ am_libPlexilIntfc_la_OBJECTS = libPlexilIntfc_la-CachedValueImpl.lo \
 	libPlexilIntfc_la-CommandHandleVariable.lo \
 	libPlexilIntfc_la-ExternalInterface.lo \
 	libPlexilIntfc_la-Lookup.lo libPlexilIntfc_la-LookupFactory.lo \
-	libPlexilIntfc_la-PlexilLookup.lo \
 	libPlexilIntfc_la-QueueEntry.lo \
 	libPlexilIntfc_la-ResourceArbiterInterface.lo \
 	libPlexilIntfc_la-State.lo \
@@ -175,15 +174,13 @@ am__test_intfc_module_tests_SOURCES_DIST =  \
 	../expr/test/FactoryTestNodeConnector.cc \
 	../expr/test/TrivialListener.cc \
 	../expr/test/TrivialNodeConnector.cc test/lookupsTest.cc \
-	test/stateTest.cc test/lookupFactoryTest.cc \
-	test/intfc-test-module.cc
+	test/stateTest.cc test/intfc-test-module.cc
 am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@am_test_intfc_module_tests_OBJECTS = ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	../expr/test/test_intfc_module_tests-TrivialListener.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	../expr/test/test_intfc_module_tests-TrivialNodeConnector.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-lookupsTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-stateTest.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-lookupFactoryTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-intfc-test-module.$(OBJEXT)
 test_intfc_module_tests_OBJECTS =  \
 	$(am_test_intfc_module_tests_OBJECTS)
@@ -389,21 +386,20 @@ libPlexilIntfc_la_CPPFLAGS = -I@top_srcdir@/expr -I@top_srcdir@/utils \
 
 include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  CommandHandleVariable.hh ExternalInterface.hh \
- InputQueue.hh Lookup.hh PlexilLookup.hh PlexilUpdate.hh QueueEntry.hh \
+ InputQueue.hh Lookup.hh QueueEntry.hh \
  ResourceArbiterInterface.hh State.hh StateCacheEntry.hh \
  StateCacheMap.hh Update.hh interface-schema.hh resource-tags.hh
 
 libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
  CommandHandleVariable.cc ExternalInterface.cc Lookup.cc LookupFactory.cc \
- PlexilLookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
+ QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc \
  interface-schema.cc resource-tags.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = 
 @MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_SOURCES = ../expr/test/FactoryTestNodeConnector.cc \
 @MODULE_TESTS_OPT_TRUE@ ../expr/test/TrivialListener.cc ../expr/test/TrivialNodeConnector.cc \
-@MODULE_TESTS_OPT_TRUE@ test/lookupsTest.cc test/stateTest.cc test/lookupFactoryTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/intfc-test-module.cc
+@MODULE_TESTS_OPT_TRUE@ test/lookupsTest.cc test/stateTest.cc test/intfc-test-module.cc
 
 @MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils \
 @MODULE_TESTS_OPT_TRUE@ -I../expr
@@ -557,8 +553,6 @@ test/test_intfc_module_tests-lookupsTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_intfc_module_tests-stateTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
-test/test_intfc_module_tests-lookupFactoryTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_intfc_module_tests-intfc-test-module.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 
@@ -583,7 +577,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-ExternalInterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-Lookup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-LookupFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-PlexilLookup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-QueueEntry.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-ResourceArbiterInterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-State.Plo@am__quote@
@@ -593,7 +586,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-interface-schema.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-resource-tags.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-lookupFactoryTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-lookupsTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-stateTest.Po@am__quote@
 
@@ -662,13 +654,6 @@ libPlexilIntfc_la-LookupFactory.lo: LookupFactory.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='LookupFactory.cc' object='libPlexilIntfc_la-LookupFactory.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-LookupFactory.lo `test -f 'LookupFactory.cc' || echo '$(srcdir)/'`LookupFactory.cc
-
-libPlexilIntfc_la-PlexilLookup.lo: PlexilLookup.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-PlexilLookup.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-PlexilLookup.Tpo -c -o libPlexilIntfc_la-PlexilLookup.lo `test -f 'PlexilLookup.cc' || echo '$(srcdir)/'`PlexilLookup.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-PlexilLookup.Tpo $(DEPDIR)/libPlexilIntfc_la-PlexilLookup.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilLookup.cc' object='libPlexilIntfc_la-PlexilLookup.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-PlexilLookup.lo `test -f 'PlexilLookup.cc' || echo '$(srcdir)/'`PlexilLookup.cc
 
 libPlexilIntfc_la-QueueEntry.lo: QueueEntry.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-QueueEntry.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-QueueEntry.Tpo -c -o libPlexilIntfc_la-QueueEntry.lo `test -f 'QueueEntry.cc' || echo '$(srcdir)/'`QueueEntry.cc
@@ -795,20 +780,6 @@ test/test_intfc_module_tests-stateTest.obj: test/stateTest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/stateTest.cc' object='test/test_intfc_module_tests-stateTest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-stateTest.obj `if test -f 'test/stateTest.cc'; then $(CYGPATH_W) 'test/stateTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/stateTest.cc'; fi`
-
-test/test_intfc_module_tests-lookupFactoryTest.o: test/lookupFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-lookupFactoryTest.o -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-lookupFactoryTest.Tpo -c -o test/test_intfc_module_tests-lookupFactoryTest.o `test -f 'test/lookupFactoryTest.cc' || echo '$(srcdir)/'`test/lookupFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_intfc_module_tests-lookupFactoryTest.Tpo test/$(DEPDIR)/test_intfc_module_tests-lookupFactoryTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/lookupFactoryTest.cc' object='test/test_intfc_module_tests-lookupFactoryTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-lookupFactoryTest.o `test -f 'test/lookupFactoryTest.cc' || echo '$(srcdir)/'`test/lookupFactoryTest.cc
-
-test/test_intfc_module_tests-lookupFactoryTest.obj: test/lookupFactoryTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-lookupFactoryTest.obj -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-lookupFactoryTest.Tpo -c -o test/test_intfc_module_tests-lookupFactoryTest.obj `if test -f 'test/lookupFactoryTest.cc'; then $(CYGPATH_W) 'test/lookupFactoryTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupFactoryTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_intfc_module_tests-lookupFactoryTest.Tpo test/$(DEPDIR)/test_intfc_module_tests-lookupFactoryTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/lookupFactoryTest.cc' object='test/test_intfc_module_tests-lookupFactoryTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-lookupFactoryTest.obj `if test -f 'test/lookupFactoryTest.cc'; then $(CYGPATH_W) 'test/lookupFactoryTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupFactoryTest.cc'; fi`
 
 test/test_intfc_module_tests-intfc-test-module.o: test/intfc-test-module.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-intfc-test-module.o -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Tpo -c -o test/test_intfc_module_tests-intfc-test-module.o `test -f 'test/intfc-test-module.cc' || echo '$(srcdir)/'`test/intfc-test-module.cc

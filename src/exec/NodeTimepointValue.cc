@@ -28,7 +28,6 @@
 
 #include "ConcreteExpressionFactory.hh"
 #include "Node.hh"
-#include "PlexilPlan.hh"
 
 #include <iomanip> // for std::setprecision()
 

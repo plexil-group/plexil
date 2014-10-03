@@ -30,41 +30,9 @@
 #include "ExpressionFactory.hh"
 #include "ExternalInterface.hh"
 #include "NodeConnector.hh"
-#include "PlexilUpdate.hh"
 
 namespace PLEXIL
 {
-  // *** TO BE DELETED ***
-  Update::Update(NodeConnector *node,
-                 PlexilUpdate const *updateProto)
-    : m_source(node),
-      m_ack(),
-      m_garbage(),
-      m_pairs()
-  {
-    // Make ack variable pretty
-    m_ack.setName(node->getNodeId() + " ack");
-
-    if (updateProto) {
-      for (std::vector<std::pair<std::string, PlexilExpr *> >::const_iterator it =
-             updateProto->pairs().begin();
-           it != updateProto->pairs().end();
-           ++it) {
-        debugMsg("Node:createUpdate", "Adding pair '" << it->first);
-        // FIXME: move error check to parser if not already there
-        assertTrueMsg(m_pairs.find(it->first) == m_pairs.end(),
-                      "Update constructor: Duplicate pairs with name \"" << it->first << "\"");
-        PlexilExpr const *foo = it->second;
-        bool wasCreated = false;
-        Expression *valueExpr = 
-          createExpression(foo, m_source, wasCreated);
-        check_error_1(valueExpr);
-        if (wasCreated)
-          m_garbage.push_back(valueExpr);
-        m_pairs[it->first] = valueExpr;
-      }
-    }
-  }
 
   Update::Update(NodeConnector *node)
     : m_source(node),

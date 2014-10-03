@@ -104,14 +104,14 @@ namespace PLEXIL
      * @param plan The intermediate representation of the plan.
      * @param parent The name of the parent node under which this plan will be inserted.
      */
-    void implementNotifyAddPlan(PlexilNode const *plan) const;
+    void implementNotifyAddPlan(pugi::xml_node const plan) const;
 
     /**
      * @brief Notify that a library node has been received by the Exec.
      * @param libNode The intermediate representation of the plan.
      * @note The default method is deprecated and will go away in a future release.
      */
-    void implementNotifyAddLibrary(PlexilNode const *libNode) const;
+    void implementNotifyAddLibrary(pugi::xml_node const libNode) const;
 
     /**
      * @brief Notify that a variable assignment has been performed.

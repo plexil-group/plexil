@@ -199,31 +199,6 @@ namespace PLEXIL
     AllWaitingOrFinished &operator=(AllWaitingOrFinished const &);
   };
 
-  // *** TO BE DELETED ***
-  /**
-   * @brief The constructor.  Will construct all conditions and child nodes.
-   * @param node The PlexilNodeId for this node and all of its children.
-   * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
-   */
-  ListNode::ListNode(PlexilNode const *node, 
-                     Node *parent)
-    : Node(node, parent)
-  {
-    checkError(node->nodeType() == NodeType_NodeList || node->nodeType() == NodeType_LibraryNodeCall,
-               "Invalid node type \"" << nodeTypeString(node->nodeType())
-               << "\" for a ListNode");
-
-    // Instantiate child nodes, if any
-    if (node->nodeType() == NodeType_NodeList) {
-      debugMsg("Node:node", "Creating child nodes.");
-      // XML parser should have checked for this
-      checkError(dynamic_cast<PlexilListBody const *>(node->body()),
-                 "Node " << m_nodeId << " is a list node but doesn't have a " <<
-                 "list body.");
-      createChildNodes((PlexilListBody const *) node->body()); // constructs default end condition
-    }
-  }
-
   ListNode::ListNode(char const *nodeId, Node *parent)
     : Node(nodeId, parent)
   {
@@ -271,47 +246,6 @@ namespace PLEXIL
     default:
       break;
     }
-  }
-
-  // Uncomment this to troubleshoot plan loading problems.
-  //#define ADD_PLAN_DEBUG
-
-  void ListNode::createChildNodes(PlexilListBody const *body) 
-  {
-#ifndef ADD_PLAN_DEBUG
-    try {
-#endif
-      for (std::vector<PlexilNode *>::const_iterator it = body->children().begin();
-           it != body->children().end(); 
-           ++it)
-        m_children.push_back(NodeFactory::createNode(*it, this));
-#ifndef ADD_PLAN_DEBUG
-    }
-    catch (const Error& e) {
-      debugMsg("Node:node", " Error creating child nodes: " << e);
-      // Clean up 
-      while (!m_children.empty()) {
-        delete m_children.back();
-        m_children.pop_back();
-      }
-      // Rethrow so that outer error handler can deal with this as well
-      throw;
-    }
-#endif
-  }
-
-  void ListNode::specializedPostInitLate(PlexilNode const *node)
-  {
-    //call postInit on all children
-    PlexilListBody const *body = dynamic_cast<PlexilListBody const *>(node->body());
-    assertTrue_1(body);
-    std::vector<Node *>::iterator it = m_children.begin();
-    std::vector<PlexilNode *>::const_iterator pit = body->children().begin();   
-    while (it != m_children.end() && pit != body->children().end()) {
-      (*it++)->postInit(*pit++);
-    }
-    checkError(it == m_children.end() && pit == body->children().end(),
-               "Node:postInit: mismatch between PlexilNode and list node children");
   }
 
   // Create the ancestor end, ancestor exit, and ancestor invariant conditions required by children

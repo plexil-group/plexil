@@ -38,15 +38,6 @@ namespace PLEXIL
   {
   public:
 
-    // *** TO BE DELETED ***
-    /**
-     * @brief The constructor.  Will construct all conditions and child nodes.
-     * @param node The PlexilNodeId for this node and all of its children.
-     * @param parent The parent of this node (used for the ancestor conditions and variable lookup).
-     */
-    AssignmentNode(PlexilNode const *node,
-                   Node *parent = NULL);
-
     /**
      * @brief The constructor.
      * @param nodeId The name of this node.
@@ -110,7 +101,6 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
-    virtual void specializedPostInit(PlexilNode const *node); // *** TO BE DELETED ***
     virtual void specializedHandleExecution();
     virtual void specializedDeactivateExecutable();
     virtual void specializedReset();
@@ -131,7 +121,6 @@ namespace PLEXIL
 
   private:
 
-    void createAssignment(const PlexilAssignmentBody* body);
     void createDummyAssignment(); // unit test variant
     void abort();
 

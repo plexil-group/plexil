@@ -30,7 +30,6 @@
 #include "ExpressionFactory.hh"
 #include "ExprVec.hh"
 #include "Function.hh"
-#include "PlexilExpr.hh"
 
 namespace PLEXIL
 {
@@ -42,10 +41,6 @@ namespace PLEXIL
     FunctionFactory(std::string const &name);
     virtual ~FunctionFactory();
 
-    Expression *allocate(PlexilExpr const *expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
-
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
                          bool & wasCreated) const;
@@ -53,9 +48,6 @@ namespace PLEXIL
   protected:
 
     // Base class provides this to derived
-    ExprVec *constructExprVec(std::vector<PlexilExpr *> const &subexprs,
-                              NodeConnector *node) const;
-
     ExprVec *constructExprVec(pugi::xml_node const expr,
                               NodeConnector *node) const;
 
