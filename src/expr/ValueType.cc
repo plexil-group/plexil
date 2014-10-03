@@ -478,9 +478,6 @@ namespace PLEXIL
   {
     assertTrue_1(s);
     switch (strlen(s)) {
-    case 0:
-      return false;
-      
     case 1:
       if (*s == '0') {
         result = false;
@@ -490,27 +487,30 @@ namespace PLEXIL
         result = true;
         return true;
       }
-      return false;
+      break;
 
     case 4:
       if (0 == stricmp(s, "true")) {
         result = true;
         return true;
       }
-      return false;
-
+      break;
+ 
     case 5:
       if (0 == stricmp(s, "false")) {
         result = false;
         return true;
       }
-      // fall thru to...
+      break;
 
     default:
-      checkParserException(0 == strcmp(s, "UNKNOWN"),
-                           "parseValue: \"" << s << "\" is not a valid Boolean value");
-      return false;
+      if (0 == strcmp(s, "UNKNOWN"))
+        return false;
+      break;
     }
+    // No match
+    checkParserException(ALWAYS_FAIL,
+                         "parseValue: \"" << s << "\" is not a valid Boolean value");
   }
 
   template <>

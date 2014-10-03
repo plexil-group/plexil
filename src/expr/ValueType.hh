@@ -96,7 +96,7 @@ namespace PLEXIL
 
   // Utility functions
   const std::string &valueTypeName(ValueType ty);
-  const std::string &typeNameAsValue(ValueType ty);    // FIXME: still needed?
+  const std::string &typeNameAsValue(ValueType ty);
   const std::string &typeNameAsVariable(ValueType ty); // FIXME: still needed?
 
   extern bool isUserType(ValueType ty);
