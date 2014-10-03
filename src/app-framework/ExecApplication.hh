@@ -183,13 +183,20 @@ namespace PLEXIL
      * @brief Add a library as an XML document.
      * @return true if successful, false otherwise.
      */
-    virtual bool addLibrary(const pugi::xml_document* libXml);
+    virtual bool addLibrary(pugi::xml_document* libXml);
+
+    /**
+     * @brief Load the named library from the library path.
+     * @param name The name of the library.
+     * @return true if successful, false otherwise.
+     */
+    virtual bool loadLibrary(std::string const &name);
 
     /**
      * @brief Add a plan as an XML document.
      * @return true if successful, false otherwise.
      */
-    virtual bool addPlan(const pugi::xml_document* planXml);
+    virtual bool addPlan(pugi::xml_document* planXml);
 
     /**
      * @brief Notify the executive and wait for all queue entries to be processed.

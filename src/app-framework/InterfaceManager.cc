@@ -42,10 +42,11 @@
 #include "InputQueue.hh"
 #include "InterfaceAdapter.hh"
 #include "Node.hh"
+#include "parsePlan.hh"
+#include "parser-utils.hh"
+#include "planLibrary.hh"
 #include "PlexilExec.hh"
-#include "PlexilPlan.hh"
 #include "PlexilSchema.hh"
-#include "PlexilXmlParser.hh"
 #include "QueueEntry.hh"
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
@@ -267,28 +268,14 @@ namespace PLEXIL
         // Plan -- add the plan
         assertTrue_1(entry->plan);
         {
-          PlexilNode *pid = entry->plan;
+          Node *pid = entry->plan;
           assertTrue_1(pid);
           debugMsg("InterfaceManager:processQueue",
-                   " adding plan " << entry->plan->nodeId());
+                   " adding plan " << entry->plan->getNodeId());
           g_exec->addPlan(pid);
-          delete pid;
         }
         entry->plan = NULL;
         needsStep = true;
-        break;
-
-      case Q_ADD_LIBRARY:
-        // Library -- add the library
-        assertTrue_1(entry->plan);
-        {
-          PlexilNode *pid = entry->plan;
-          assertTrue_1(pid);
-          debugMsg("InterfaceManager:processQueue",
-                   " adding library " << entry->plan->nodeId());
-          g_exec->addLibraryNode(pid);
-        }
-        // no need to step here
         break;
 
       default:
@@ -570,123 +557,87 @@ namespace PLEXIL
   /**
    * @brief Notify the executive of a new plan.
    * @param planXml The XML representation of the new plan.
-   * @return False if the plan references unloaded libraries, true otherwise.
    */
-  bool
+  void
   InterfaceManager::handleAddPlan(pugi::xml_node const planXml)
-    throw(ParserException)
+    throw (ParserException)
   {
     assertTrue_1(m_inputQueue);
-    debugMsg("InterfaceManager:handleAddPlan", " (XML) entered");
+    debugMsg("InterfaceManager:handleAddPlan", " entered");
 
     // check that the plan actually *has* a Node element!
     // Assumes we are starting from the PlexilPlan element.
-    checkParserException(!planXml.first_child().empty()
-                         && *(planXml.first_child().name()) != '\0'
-                         && planXml.child("Node") != NULL,
-                         "<" << planXml.name() << "> is not a valid Plexil XML plan");
+    checkParserException(planXml && hasChildElement(planXml),
+                         "Plan is empty or malformed");
+    checkParserExceptionWithLocation(testTag(PLEXIL_PLAN_TAG, planXml),
+                                     planXml,
+                                     "Not a PLEXIL Plan");
 
     // parse the plan
-    PlexilNode *root =
-      PlexilXmlParser::parse(planXml.child(NODE_TAG)); // can also throw ParserException
+    Node *root = parsePlan(planXml); // can also throw ParserException
 
-    return this->handleAddPlan(root);
-  }
-
-  /**
-   * @brief Notify the executive of a new plan.
-   * @param planStruct The PlexilNode representation of the new plan.
-   * @return False if the plan references unloaded libraries, true otherwise.
-   */
-  bool
-  InterfaceManager::handleAddPlan(PlexilNode *planStruct)
-  {
-    assertTrue_1(m_inputQueue);
-
-    // Check for null
-    if (!planStruct) {
-      debugMsg("InterfaceManager:handleAddPlan", 
-               " failed; PlexilNodeId is null");
-      return false;
-    }
-
-    debugMsg("InterfaceManager:handleAddPlan", " entered");
-
-    // Check whether plan is a library w/o a caller
-    PlexilInterface const *interface = planStruct->interface();
-    if (interface) {
-      debugMsg("InterfaceManager:handleAddPlan", 
-               " for " << planStruct->nodeId() << " failed; root node may not have interface variables");
-      return false;
-    }
-
-    // Determine if there are any unloaded libraries
-    bool result = true;
-
-    // Check whether all libraries for this plan are loaded
-    // and try to load those that aren't
-    std::vector<std::string> libs = planStruct->getLibraryReferences();
-    // N.B. libs is likely growing during this operation, 
-    // so we can't use a traditional iterator.
-    for (unsigned int i = 0; i < libs.size(); i++) {
-      // COPY the string because its location may change out from under us!
-      const std::string libname(libs[i]);
-      PlexilNode const *libroot = g_exec->getLibrary(libname);
-      if (!libroot) {
-        // Try to load the library
-        PlexilNode *loadroot =
-          PlexilXmlParser::findLibraryNode(libname,
-                                           g_configuration->getLibraryPath());
-        if (!loadroot) {
-          debugMsg("InterfaceManager:handleAddPlan", 
-                   " Plan references unloaded library node \"" << libname << "\"");
-          delete planStruct;
-          return false;
-        }
-        
-        // add the library node
-        handleAddLibrary(loadroot);
-        libroot = loadroot;
-      }
-
-      // Make note of any dependencies in the library itself
-      libroot->getLibraryReferences(libs);
-    }
-
-    if (result) {
-      QueueEntry *entry = m_inputQueue->allocate();
-      assertTrue_1(entry);
-      entry->initForAddPlan(planStruct);
-      m_inputQueue->put(entry);
-      debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
-    }
-    return result;
+    QueueEntry *entry = m_inputQueue->allocate();
+    assertTrue_1(entry);
+    entry->initForAddPlan(root);
+    m_inputQueue->put(entry);
+    debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
   }
 
   /**
    * @brief Notify the executive of a new library node.
-   * @param planStruct The PlexilNode representation of the new node.
+   * @param doc The XML document containing the library node.
    */
   void
-  InterfaceManager::handleAddLibrary(PlexilNode *planStruct)
+  InterfaceManager::handleAddLibrary(pugi::xml_document *doc)
+    throw (ParserException)
   {
     assertTrue_1(m_inputQueue);
-    checkError(planStruct,
-               "InterfaceManager::handleAddLibrary: Null plan");
-    QueueEntry *entry = m_inputQueue->allocate();
-    assertTrue_1(entry);
-    entry->initForAddLibrary(planStruct);
-    m_inputQueue->put(entry);
-    debugMsg("InterfaceManager:handleAddLibrary", " library node enqueued");
+    checkError(doc,
+               "InterfaceManager::handleAddLibrary: Null plan document");
+    
+    // Parse just far enough to extract name
+    pugi::xml_node plan = doc->document_element();
+    pugi::xml_node node;
+    checkParserExceptionWithLocation(testTag(PLEXIL_PLAN_TAG, plan)
+                                     && (node = plan.child(NODE_TAG)),
+                                     plan,
+                                     "handleAddLibrary: Input is not a PLEXIL plan");
+    pugi::xml_node nodeIdElt = node.child(NODEID_TAG);
+    checkParserExceptionWithLocation(nodeIdElt,
+                                     node,
+                                     "handleAddLibrary: Root node lacks " << NODEID_TAG << " element");
+    checkParserExceptionWithLocation(*nodeIdElt.child_value(),
+                                     nodeIdElt,
+                                     "handleAddLibrary: " << NODEID_TAG << " element is empty");
+    std::string name = nodeIdElt.child_value();
+    addLibraryNode(name, doc);
+
+    debugMsg("InterfaceManager:handleAddLibrary", " library node " << name << " added");
   }
+
+  /**
+   * @brief Load the named library from the library path.
+   * @param libname Name of the library node.
+   * @return True if successful, false if not found.
+   */
+  bool
+  InterfaceManager::handleLoadLibrary(std::string const &libName)
+      throw (ParserException) 
+  {
+    if (loadLibraryNode(libName))
+      return true;
+    return getLibraryNode(libName, false);
+  }
+
 
   /**
    * @brief Determine whether the named library is loaded.
    * @return True if loaded, false otherwise.
    */
   bool
-  InterfaceManager::isLibraryLoaded(const std::string &libName) const {
-    return NULL != g_exec->getLibrary(libName);
+  InterfaceManager::isLibraryLoaded(const std::string &libName) const
+  {
+    return getLibraryNode(libName, false);
   }
 
   /**

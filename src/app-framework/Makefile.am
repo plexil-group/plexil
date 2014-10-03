@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,8 +25,9 @@
 
 lib_LTLIBRARIES = libPlexilAppFramework.la
 
-libPlexilAppFramework_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
- -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
+libPlexilAppFramework_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc \
+ -I@top_srcdir@/exec -I@top_srcdir@/xml-parser
 
 if DEBUG_LISTENER_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
@@ -54,4 +55,8 @@ include_HEADERS += TimeAdapter.hh PosixTimeAdapter.hh DarwinTimeAdapter.hh
 libPlexilAppFramework_la_SOURCES += TimeAdapter.cc PosixTimeAdapter.cc DarwinTimeAdapter.cc
 endif
 
-# TODO: libraries to link against (?)
+# Libraries to link against
+libPlexilAppFramework_la_LIBADD = ../xml-parser/libPlexilXmlParser.la \
+ ../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
+ ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
+

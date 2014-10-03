@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -154,7 +154,11 @@ am__uninstall_files_from_dir = { \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
-libPlexilAppFramework_la_LIBADD =
+libPlexilAppFramework_la_DEPENDENCIES =  \
+	../xml-parser/libPlexilXmlParser.la ../exec/libPlexilExec.la \
+	../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
+	../utils/libPlexilUtils.la \
+	../third-party/pugixml/src/libpugixml.la
 am__libPlexilAppFramework_la_SOURCES_DIST = AdapterConfiguration.cc \
 	AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc \
 	ExecApplication.cc ExecListenerFactory.cc InterfaceAdapter.cc \
@@ -382,7 +386,7 @@ lib_LTLIBRARIES = libPlexilAppFramework.la
 libPlexilAppFramework_la_CPPFLAGS =  \
 	-I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
 	-I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec \
-	$(am__append_1) $(am__append_2)
+	-I@top_srcdir@/xml-parser $(am__append_1) $(am__append_2)
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
 	AdapterFactory.hh DummyAdapter.hh ExecApplication.hh \
 	ExecListenerFactory.hh InterfaceAdapter.hh InterfaceManager.hh \
@@ -393,6 +397,12 @@ libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
 	ExecApplication.cc ExecListenerFactory.cc InterfaceAdapter.cc \
 	InterfaceManager.cc ListenerFilters.cc SerializedInputQueue.cc \
 	SimpleInputQueue.cc UtilityAdapter.cc $(am__append_4)
+
+# Libraries to link against
+libPlexilAppFramework_la_LIBADD = ../xml-parser/libPlexilXmlParser.la \
+ ../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
+ ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
+
 all: all-am
 
 .SUFFIXES:
@@ -849,8 +859,6 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 	tags tags-am uninstall uninstall-am uninstall-includeHEADERS \
 	uninstall-libLTLIBRARIES
 
-
-# TODO: libraries to link against (?)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

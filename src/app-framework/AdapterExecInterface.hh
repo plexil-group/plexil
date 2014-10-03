@@ -36,6 +36,7 @@
 namespace pugi
 {
   class xml_node;
+  class xml_document;
 }
 
 namespace PLEXIL
@@ -45,7 +46,6 @@ namespace PLEXIL
   class State;
   class Update;
   class Value;
-  class PlexilNode;
 
   /**
    * @brief An abstract base class representing the InterfaceManager API
@@ -103,23 +103,17 @@ namespace PLEXIL
      * @brief Notify the executive of a new plan.
      * @param planXml The TinyXML representation of the new plan.
      */
-    virtual bool handleAddPlan(pugi::xml_node const planXml)
-      throw(ParserException)
+    virtual void handleAddPlan(pugi::xml_node const planXml)
+      throw (ParserException)
       = 0;
 
     /**
-     * @brief Notify the executive of a new plan.
-     * @param planStruct The PlexilNode representation of the new plan.
-     */
-    // *** TO BE DELETED ***
-    virtual bool handleAddPlan(PlexilNode *planStruct) = 0;
-
-    /**
      * @brief Notify the executive of a new library node.
-     * @param planStruct The PlexilNode representation of the new library node.
+     * @param planXml The XML document containing the new library node
      */
-    // *** TO BE DELETED ***
-    virtual void handleAddLibrary(PlexilNode *planStruct) = 0;
+    virtual void handleAddLibrary(pugi::xml_document *planXml)
+      throw (ParserException)
+      = 0;
 
     /**
      * @brief Notify the executive that it should run one cycle.  This should be sent after

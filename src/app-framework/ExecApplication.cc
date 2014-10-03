@@ -383,64 +383,70 @@ namespace PLEXIL
    * @brief Add a library as an XML document.
    * @return true if successful, false otherwise.
    */
-  bool ExecApplication::addLibrary(const pugi::xml_document* libraryXml)
+  bool ExecApplication::addLibrary(pugi::xml_document* libraryXml)
   {
     if (m_state != APP_RUNNING && m_state != APP_READY)
       return false;
 
-    // grab the library itself from the document
-    pugi::xml_node plexilXml = libraryXml->document_element();
-    if (plexilXml.empty() || 0 != strcmp(plexilXml.name(), PLEXIL_PLAN_TAG)) {
-      std::cerr << "Error parsing library from XML: No \"PlexilPlan\" tag found" << std::endl;
+    // Delegate to InterfaceManager
+    try {
+      g_manager->handleAddLibrary(libraryXml);
+    }
+    catch (const ParserException& e) {
+      std::cerr << "ExecApplication::addLibrary: Plan parser error:\n" << e.what() << std::endl;
       return false;
     }
 
-    // parse XML into node structure
-    PlexilNode *root;
-    try {
-      root = PlexilXmlParser::parse(plexilXml.child("Node"));
-    }
-    catch (const ParserException& e)
-      {
-        std::cerr << "Error parsing library from XML: \n" << e.what() << std::endl;
-        return false;
-      }
-
-    g_manager->handleAddLibrary(root);
     debugMsg("ExecApplication:addLibrary", " Library added");
-#ifdef PLEXIL_WITH_THREADS
-    notifyAndWaitForCompletion();
-#endif
     return true;
+  }
+
+  /**
+   * @brief Load the named library from the library path.
+   * @param name The name of the library.
+   * @return true if successful, false otherwise.
+   */
+  bool ExecApplication::loadLibrary(std::string const &name)
+  {
+    if (m_state != APP_RUNNING && m_state != APP_READY)
+      return false;
+
+    bool result = false;
+
+    // Delegate to InterfaceManager
+    try {
+      result = g_manager->handleLoadLibrary(name);
+    }
+    catch (const ParserException& e) {
+      std::cerr << "ExecApplication::loadLibrary: Error:\n" << e.what() << std::endl;
+      return false;
+    }
+
+    if (result) {
+      debugMsg("ExecApplication:loadLibrary", " Library " << name << " loaded");
+    }
+    else {
+      debugMsg("ExecApplication:loadLibrary", " Library " << name << " not found");
+    }
+    return result;
   }
 
   /**
    * @brief Add a plan as an XML document.
    * @return true if successful, false otherwise.
    */
-  bool ExecApplication::addPlan(const pugi::xml_document* planXml)
+  bool ExecApplication::addPlan(pugi::xml_document* planXml)
   {
     if (m_state != APP_RUNNING && m_state != APP_READY)
       return false;
 
-    // grab the plan itself from the document
-    pugi::xml_node plexilXml = planXml->document_element();
-    if (plexilXml.empty() || 0 != strcmp(plexilXml.name(), PLEXIL_PLAN_TAG)) {
-      std::cerr << "Error parsing plan from XML: No \"PlexilPlan\" tag found" << std::endl;
-      return false;
+    // Delegate to InterfaceManager
+    try {
+      g_manager->handleAddPlan(planXml->document_element());
     }
-
-    // parse XML into node structure
-    {
-      PlexilNode *root;
-      try {
-        root = PlexilXmlParser::parse(plexilXml.child("Node"));
-      }
-      catch (const ParserException& e) {
-        std::cerr << "Error parsing plan from XML: \n" << e.what() << std::endl;
-        return false;
-      }
-      g_manager->handleAddPlan(root);
+    catch (const ParserException& e) {
+      std::cerr << "ExecApplication::addPlan: Plan parser error: \n" << e.what() << std::endl;
+      return false;
     }
     debugMsg("ExecApplication:addPlan", " Plan added, stepping exec\n");
     g_manager->notifyOfExternalEvent();

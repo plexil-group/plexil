@@ -36,6 +36,7 @@
 namespace pugi
 {
   class xml_node;
+  class xml_document;
 }
 
 namespace PLEXIL 
@@ -50,8 +51,6 @@ namespace PLEXIL
   class AdapterConfiguration;
 
   class InputQueue;
-
-  class PlexilNode;
 
   /**
    * @brief A concrete derived class implementing the APIs of the
@@ -253,25 +252,24 @@ namespace PLEXIL
     /**
      * @brief Notify the executive of a new plan.
      * @param planXml The TinyXML representation of the new plan.
-     * @return True if parsing successful, false otherwise.
      */
-    bool handleAddPlan(pugi::xml_node const planXml)
-      throw(ParserException);
-
-    /**
-     * @brief Notify the executive of a new plan.
-     * @param planStruct The PlexilNode representation of the new plan.
-     * @return True if all referenced libraries were found, false otherwise.
-     */
-    // *** TO BE DELETED ***
-    bool handleAddPlan(PlexilNode *planStruct);
+    void handleAddPlan(pugi::xml_node const planXml)
+      throw (ParserException);
 
     /**
      * @brief Notify the executive of a new library node.
-     * @param planStruct The PlexilNode representation of the new library node.
+     * @param planXml The XML document containing the new library node.
      */
-    // *** TO BE DELETED ***
-    void handleAddLibrary(PlexilNode *planStruct);
+    void handleAddLibrary(pugi::xml_document *planXml)
+      throw (ParserException);
+
+    /**
+     * @brief Load the named library from the library path.
+     * @param libname Name of the library node.
+     * @return True if successful, false if not found.
+     */
+    bool handleLoadLibrary(std::string const &libName)
+      throw (ParserException);
 
     /**
      * @brief Determine whether the named library is loaded.
