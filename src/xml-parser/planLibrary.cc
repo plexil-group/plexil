@@ -84,6 +84,7 @@ namespace PLEXIL
   }
 
   void addLibraryNode(string const &name, xml_document *doc)
+    throw (ParserException)
   {
     static bool sl_inited = false;
     if (!sl_inited) {
@@ -91,6 +92,8 @@ namespace PLEXIL
       sl_inited = true;
     }
     assertTrue_2(doc, "addLibraryNode: Null document");
+    assertTrue_2(!name.empty(), "addLibraryNode: Empty name");
+    // *** TODO: Check library is well formed ***
     libraryMap[name] = doc;
   }
 
@@ -113,9 +116,24 @@ namespace PLEXIL
     return NULL;
   }
 
+  // name could be node name, file name w/ or w/o directory, w/ w/o .plx
   xml_node loadLibraryNode(string const &name)
   {
-    xml_document *doc = loadLibraryFile(name + ".plx");
+    
+    string nodeName = name;
+    string fname = name;
+    size_t pos = name.rfind(".plx");
+    if (pos == string::npos)
+      fname += ".plx";
+    else
+      nodeName = name.substr(0, pos);
+    pos = nodeName.find_last_of("/\\");
+    if (pos != string::npos)
+      nodeName = nodeName.substr(++pos);
+    // *** TEMP DEBUG ***
+    std::cout << "loadLibraryNode(\"" << name << "\") - node " << nodeName << ", file " << fname << std::endl;
+
+    xml_document *doc = loadLibraryFile(fname);
     if (!doc)
       return xml_node();
     xml_node theNode = doc->document_element().child(NODE_TAG);
@@ -124,12 +142,12 @@ namespace PLEXIL
                                      doc->document_element(),
                                      "No " << NODEID_TAG << " element in library node, or not a PLEXIL plan");
     char const *nodeId = nodeIdXml.child_value();
-    checkParserExceptionWithLocation(name == nodeId,
+    checkParserExceptionWithLocation(nodeName == nodeId,
                                      nodeIdXml,
-                                     "loadLibraryNode: Requested " << name
+                                     "loadLibraryNode: Requested " << nodeName
                                      << " but file contains " << nodeId);
     // *** TODO: handle global decls ***
-    addLibraryNode(name, doc);
+    addLibraryNode(nodeName, doc);
     return theNode;
   }
 

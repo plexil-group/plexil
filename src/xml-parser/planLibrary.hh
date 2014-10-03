@@ -30,6 +30,8 @@
 #include <string>
 #include <vector>
 
+#include "ParserException.hh"
+
 #include "pugixml.hpp"
 
 namespace PLEXIL
@@ -42,7 +44,8 @@ namespace PLEXIL
 
   extern pugi::xml_node getLibraryNode(std::string const &name,
                                        bool loadIfNotFound = true);
-  extern void addLibraryNode(std::string const &name, pugi::xml_document *doc);
+  extern void addLibraryNode(std::string const &name, pugi::xml_document *doc)
+    throw (ParserException);
   extern pugi::xml_document *loadLibraryFile(std::string const &filename);
   extern pugi::xml_node loadLibraryNode(std::string const &nodeName);
 
