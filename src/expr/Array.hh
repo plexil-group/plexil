@@ -82,6 +82,9 @@ namespace PLEXIL
     void setElementUnknown(size_t index);
     virtual void setElementValue(size_t index, Value const &value) = 0;
 
+    // Set all elements unknown
+    virtual void reset();
+
     // Typed accessors
     virtual bool getElement(size_t index, bool &result) const = 0;
     virtual bool getElement(size_t index, int32_t &result) const = 0;

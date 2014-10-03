@@ -85,6 +85,11 @@ namespace PLEXIL
     m_known[index] = false;
   }
 
+  void Array::reset()
+  {
+    m_known = std::vector<bool>(m_known.size(), false);
+  }
+
   bool Array::operator==(Array const &other) const
   {
     return m_known == other.m_known;
