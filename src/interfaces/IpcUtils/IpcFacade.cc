@@ -350,7 +350,7 @@ namespace PLEXIL
       const PlexilStringArrayMsg* param = reinterpret_cast<const PlexilStringArrayMsg*> (msg);
       StringArray array(param->arraySize);
       for (size_t j = 0; j < param->arraySize; j++)
-        array.setElement(j, param->stringArray[j]);
+        array.setElement(j, std::string(param->stringArray[j]));
       return Value(array);
     }
 
