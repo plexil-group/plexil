@@ -81,26 +81,27 @@ namespace PLEXIL
                                      "createExpression: Type " << typeElt.child_value()
                                      << " is invalid for DeclareVariable");
     pugi::xml_node sizeElt = typeElt.next_sibling();
-    checkParserExceptionWithLocation(typeElt,
-                                     expr,
-                                     "createExpression: DeclareArray missing MaxSize element");
-    checkTag(MAX_SIZE_TAG, sizeElt);
-    checkNotEmpty(sizeElt);
-    char const *sizeStr = sizeElt.child_value();
-    // Syntactic check
-    checkParserExceptionWithLocation(isInteger(sizeStr),
-                                     sizeElt,
-                                     "createExpression: MaxSize value \"" << sizeStr << "\" is not an integer");
+    Expression *sizeExp = NULL;
+    bool sizeIsGarbage = false;
+    if (testTag(MAX_SIZE_TAG, sizeElt)) {
+      checkNotEmpty(sizeElt);
+      char const *sizeStr = sizeElt.child_value();
+      // Syntactic check
+      checkParserExceptionWithLocation(isInteger(sizeStr),
+                                       sizeElt,
+                                       "createExpression: MaxSize value \"" << sizeStr << "\" is not an integer");
 
-    char *end;
-    long size = strtol(sizeStr, &end, 10);
-    checkParserExceptionWithLocation(!*end,
-                                     sizeElt,
-                                     "createExpression: MaxSize value \"" << sizeStr << "\" is not an integer");
-    checkParserExceptionWithLocation(size >= 0 && size < INT32_MAX,
-                                     sizeElt,
-                                     "createExpression: MaxSize value " << sizeStr << " is not a non-negative integer");
-    Expression *sizeExp = new Constant<int32_t>((int32_t) size);
+      char *end;
+      long size = strtol(sizeStr, &end, 10);
+      checkParserExceptionWithLocation(!*end,
+                                       sizeElt,
+                                       "createExpression: MaxSize value \"" << sizeStr << "\" is not an integer");
+      checkParserExceptionWithLocation(size >= 0 && size < INT32_MAX,
+                                       sizeElt,
+                                       "createExpression: MaxSize value " << sizeStr << " is not a non-negative integer");
+      sizeExp = new Constant<int32_t>((int32_t) size);
+      sizeIsGarbage = true;
+    }
 
     wasCreated = true;
     switch (typ) {
@@ -108,13 +109,13 @@ namespace PLEXIL
       return new BooleanArrayVariable(node,
                                       name,
                                       sizeExp,
-                                      true);
+                                      sizeIsGarbage);
 
     case INTEGER_TYPE:
       return new IntegerArrayVariable(node,
                                       name,
                                       sizeExp,
-                                      true);
+                                      sizeIsGarbage);
 
     case DATE_TYPE: // FIXME
     case DURATION_TYPE: // FIXME
@@ -122,13 +123,13 @@ namespace PLEXIL
       return new RealArrayVariable(node,
                                    name,
                                    sizeExp,
-                                   true);
+                                   sizeIsGarbage);
 
     case STRING_TYPE:
       return new StringArrayVariable(node,
                                      name,
                                      sizeExp,
-                                     true);
+                                     sizeIsGarbage);
 
     default:
       assertTrue_2(ALWAYS_FAIL,
