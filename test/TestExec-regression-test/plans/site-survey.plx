@@ -458,7 +458,7 @@
                                         <NodeId>Get_heading_tolerance</NodeId>
                                         <NodeBody>
                                           <Assignment>
-                                            <IntegerVariable>waypt_heading_tolerance</IntegerVariable>
+                                            <RealVariable>waypt_heading_tolerance</RealVariable>
                                             <NumericRHS>
                                               <LookupNow>
                                                 <Name>
@@ -518,7 +518,7 @@
                                         <NodeId>Get_timeout</NodeId>
                                         <NodeBody>
                                           <Assignment>
-                                            <IntegerVariable>waypt_timeout</IntegerVariable>
+                                            <RealVariable>waypt_timeout</RealVariable>
                                             <NumericRHS>
                                               <LookupNow>
                                                 <Name>

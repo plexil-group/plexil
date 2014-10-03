@@ -1,4 +1,4 @@
-;;; Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+;;; Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 ;;;  All rights reserved.
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
@@ -99,7 +99,7 @@
                           (assignment-node "Get_tolerance"
                             (assignment (realvar "waypt_tolerance") (lookup-now "tolerance")))
                           (assignment-node "Get_heading_tolerance"
-                            (assignment (intvar "waypt_heading_tolerance") (lookup-now "headingTolerance")))
+                            (assignment (realvar "waypt_heading_tolerance") (lookup-now "headingTolerance")))
                           (assignment-node "Get_hinted_speed"
                             (assignment (realvar "waypt_hinted_speed") (lookup-now "hintedSpeed")))
                           (assignment-node "Get_task_type"
@@ -107,7 +107,7 @@
                           (assignment-node "Get_task_id"
                             (assignment (intvar "waypt_id") (lookup-now "task_id")))
                           (assignment-node "Get_timeout"
-                            (assignment (intvar "waypt_timeout") (lookup-now "timeout")))))
+                            (assignment (realvar "waypt_timeout") (lookup-now "timeout")))))
                       (assignment-node "Cmd_Resest1"
                         (assignment (intvar "cmd_return_val") -1000))
                       (list-node "DriveAndAcquire"
