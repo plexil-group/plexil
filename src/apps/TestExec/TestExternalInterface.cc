@@ -32,10 +32,10 @@
 #include "Node.hh"
 #include "NodeConstants.hh"
 #include "PlexilExec.hh"
-#include "PlexilXmlParser.hh"
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
 #include "Update.hh"
+#include "parsePlan.hh"
 #include "plan-utils.hh"
 #include "pugixml.hpp"
 #include "stricmp.h"
@@ -241,15 +241,21 @@ namespace PLEXIL
 
     pugi::xml_document* doc = new pugi::xml_document();
     pugi::xml_parse_result parseResult = doc->load_file(filename);
-    checkError(parseResult.status == pugi::status_ok, 
-               "Error parsing plan file " << elt.attribute("file").value()
-               << ": " << parseResult.description());
+    assertTrueMsg(parseResult.status == pugi::status_ok, 
+                  "Error parsing plan file " << elt.attribute("file").value()
+                  << ": " << parseResult.description());
 
     debugMsg("Test:testOutput",
              "Sending plan from file " << elt.attribute("file").value());
-    PlexilNode *root =
-      PlexilXmlParser::parse(doc->document_element().child("PlexilPlan").child("Node"));
-    g_exec->addPlan(root);
+    Node *root = NULL;
+    try {
+      root = parsePlan(doc->document_element().child("PlexilPlan"));
+    }
+    catch (ParserException const &e) {
+      std::cerr << "Error parsing plan XML: \n" << e.what() << std::endl;
+    }
+    if (root)
+      g_exec->addPlan(root);
   }
 
   void TestExternalInterface::handleSimultaneous(pugi::xml_node const elt)

@@ -34,8 +34,12 @@
 #include "Expressions.hh"
 #include "Logging.hh"
 #include "Node.hh"
+#include "parseNode.hh"
+#include "parsePlan.hh"
+#include "parser-utils.hh"
+#include "planLibrary.hh"
 #include "PlexilExec.hh"
-#include "PlexilXmlParser.hh"
+#include "PlexilSchema.hh"
 #include "TestExternalInterface.hh"
 
 #if HAVE_DEBUG_LISTENER
@@ -207,6 +211,7 @@ int ExecTestRunner::run(int argc, char** argv)
     readDebugConfigStream(config);
 
   initializeExpressions();
+  setLibraryPaths(libraryPaths);
 
   // create the exec
 
@@ -241,100 +246,65 @@ int ExecTestRunner::run(int argc, char** argv)
 #endif
 
   // if specified on command line, load libraries
-
   for (vector<string>::const_iterator libraryName = libraryNames.begin(); 
        libraryName != libraryNames.end();
        ++libraryName) {
-    pugi::xml_document libraryXml;
-    pugi::xml_parse_result parseResult =
-      libraryXml.load_file(libraryName->c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
-    if (parseResult.status != pugi::status_ok) {
-      warn("XML error parsing library file '" << *libraryName
-           << "' (offset " << parseResult.offset
-           << "):\n" << parseResult.description());
-      delete g_exec;
-      g_exec = NULL;
-      g_interface = NULL;
-      return 1;
-    }
-
-    PlexilNode *libnode;
+    std::string fname = *libraryName;
+    if (fname.rfind(".plx") == std::string::npos)
+      fname += ".plx";
+    
+    pugi::xml_node libraryNode;
     try {
-      libnode =
-        PlexilXmlParser::parse(libraryXml.document_element().child("PlexilPlan").child("Node"));
-    } 
-    catch (ParserException& e) {
-      warn("XML error parsing library '" << *libraryName << "':\n" << e.what());
+      libraryNode = loadLibraryNode(fname);
+      if (!libraryNode) {
+        warn("Unable to find file for library " << *libraryName);
+        delete g_exec;
+        g_exec = NULL;
+        g_interface = NULL;
+        return 1;
+      }
+    }
+    catch (ParserException const &e) {
+      warn("Error while reading library " << *libraryName << ": \n" << e.what());
       delete g_exec;
       g_exec = NULL;
       g_interface = NULL;
       return 1;
     }
-
-    g_exec->addLibraryNode(libnode);
   }
 
   // Load the plan
   {
-    pugi::xml_document plan;
-    pugi::xml_parse_result parseResult =
-      plan.load_file(planName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
-    if (parseResult.status != pugi::status_ok) {
-      warn("XML error parsing plan file '" << planName
-           << "' (offset " << parseResult.offset
-           << "):\n" << parseResult.description());
+    pugi::xml_document *planDoc;
+    try {
+      planDoc = loadXmlFile(planName);
+      if (!planDoc)
+        warn("Error: plan file " << planName << " not found or not readable");
+    }
+    catch (ParserException const &e) {
+      warn("Error loading plan file '" << planName
+           << "):\n" << e.what());
+    }
+
+    if (!planDoc) {
       delete g_exec;
       g_exec = NULL;
       g_interface = NULL;
       return 1;
     }
 
-    PlexilNode *root;
+    Node *root = NULL;
     try {
-      root =
-        PlexilXmlParser::parse(plan.document_element().child("Node"));
+      root = parsePlan(planDoc->document_element());
+      delete planDoc;
     }
     catch (ParserException& e) {
-      warn("XML error parsing plan '" << planName << "':\n" << e.what());
+      warn("Error parsing plan '" << planName << "':\n" << e.what());
+      delete planDoc;
       delete g_exec;
       g_exec = NULL;
       g_interface = NULL;
       return 1;
-    }
-
-    {
-      // Check whether all libraries for this plan are loaded
-      // and try to load those that aren't
-      vector<string> libs = root->getLibraryReferences();
-      // N.B. libs is likely growing during this operation, 
-      // so we can't use a traditional iterator.
-      for (unsigned int i = 0; i < libs.size(); i++) {
-        // COPY the string because its location may change out from under us!
-        const std::string libname(libs[i]);
-
-        PlexilNode const *libroot = g_exec->getLibrary(libname);
-        if (!libroot) {
-          // Try to load the library
-          PlexilNode *loadroot = PlexilXmlParser::findLibraryNode(libname, libraryPaths);
-          if (!loadroot) {
-            warn("Adding plan " << planName
-                 << " failed because library " << libname
-                 << " could not be loaded");
-            delete root;
-            delete g_exec;
-            g_exec = NULL;
-            g_interface = NULL;
-            return 1;
-          }
-
-          // add the library node
-          g_exec->addLibraryNode(loadroot);
-          libroot = loadroot;
-        }
-
-        // Make note of any dependencies in the library itself
-        libroot->getLibraryReferences(libs);
-      }
     }
 
     if (!g_exec->addPlan(root)) {
@@ -345,32 +315,34 @@ int ExecTestRunner::run(int argc, char** argv)
       g_interface = NULL;
       return 1;
     }
-    delete root;
   }
 
   // load script
-
   {
-    pugi::xml_document script;
-    {
-      pugi::xml_parse_result parseResult = script.load_file(scriptName.c_str(), PlexilXmlParser::PUGI_PARSE_OPTIONS());
-      if (parseResult.status != pugi::status_ok) {
-        checkParserException(false,
-                             "(offset " << parseResult.offset
-                             << ") XML error parsing script '" << scriptName << "': "
-                             << parseResult.description());
-        delete g_exec;
-        g_exec = NULL;
-        g_interface = NULL;
-        return 1;
-      }
+    pugi::xml_document *scriptDoc;
+    try {
+      scriptDoc = loadXmlFile(scriptName);
+      if (!scriptDoc)
+        warn("Error: script file " << scriptName << " not found or not readable");
     }
-    // execute plan
+    catch (ParserException const &e) {
+      warn("Error parsing script " << scriptName << ":\n"
+           << e.what());
+    }
+    if (!scriptDoc) {
+      delete g_exec;
+      g_exec = NULL;
+      g_interface = NULL;
+      return 1;
+    }
 
+    // execute plan
     clock_t time = clock();
-    pugi::xml_node scriptElement = script.child("PLEXILScript");
-    if (scriptElement.empty()) {
-      warn("File '" << scriptName << "' is not a valid PLEXIL simulator script");
+    pugi::xml_node scriptElement = scriptDoc->document_element();
+    if (scriptElement.empty()
+        || !testTag("PLEXILScript", scriptElement)) {
+      warn("File " << scriptName << " is not a valid PLEXIL simulator script");
+      delete scriptDoc;
       delete g_exec;
       g_exec = NULL;
       g_interface = NULL;
@@ -378,6 +350,7 @@ int ExecTestRunner::run(int argc, char** argv)
     }
     intf.run(scriptElement);
     debugMsg("Time", "Time spent in execution: " << clock() - time);
+    delete scriptDoc;
   }
 
   // clean up
