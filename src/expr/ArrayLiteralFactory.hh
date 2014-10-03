@@ -35,6 +35,9 @@ namespace PLEXIL
   // *** DELETE ME ***
   class PlexilExpr; 
 
+  template <typename T>
+  Expression *createArrayLiteral(char const *eltTypeName, pugi::xml_node const expr);
+
   class ArrayLiteralFactory : public ExpressionFactory
   {
   public:
