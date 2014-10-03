@@ -37,7 +37,7 @@ extern "C" {
 
 /*
  * The lc_operator type is a pointer to a function which takes a void * argument
- * and returns an int status; 0 = success, nonzero = failure.
+ * and returns void.
  */
 typedef void (*lc_operator)() ;
 
