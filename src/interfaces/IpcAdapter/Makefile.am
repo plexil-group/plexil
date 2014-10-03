@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,10 +29,11 @@ include_HEADERS = IpcAdapter.hh MessageQueueMap.hh
 
 libIpcAdapter_la_SOURCES = IpcAdapter.cc initIpcAdapter.cc MessageQueueMap.cc
 
-libIpcAdapter_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src/ \
- -I@top_srcdir@/third-party/ipc/src \
- -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec \
- -I@top_srcdir@/app-framework -I@top_srcdir@/interfaces/IpcUtils
+libIpcAdapter_la_CPPFLAGS = -I@top_srcdir@/third-party/ipc/src \
+ -I@top_srcdir@/third-party/pugixml/src/ -I@top_srcdir@/utils \
+ -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec \
+ -I@top_srcdir@/xml-parser -I@top_srcdir@/app-framework \
+ -I@top_srcdir@/interfaces/IpcUtils
 
 libIpcAdapter_la_LIBADD = ../IpcUtils/libIpcUtils.la
 

@@ -33,10 +33,11 @@
 #include "Command.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "PlexilXmlParser.hh"
+#include "parsePlan.hh"
 #include "State.hh"
 #include "StateCacheEntry.hh"
 #include "ThreadSpawn.hh"
+
 #include "pugixml.hpp"
 
 #include <cstdlib>
@@ -672,16 +673,23 @@ namespace PLEXIL
       assertTrueMsg(stringMsg->stringValue != NULL,
                     "IpcAdapter::enqueueMessage: AddPlan message contains null plan string");
 
-      // parse XML into node structure
+      // parse into XML document
       try {
-        PlexilNode *root = PlexilXmlParser::parse(std::string(stringMsg->stringValue), false);
-        m_execInterface.handleAddPlan(root);
-        // Always notify immediately when adding a plan
-        m_execInterface.notifyOfExternalEvent();
+        pugi::xml_document doc;
+        pugi::xml_parse_result result = doc.load(stringMsg->stringValue);
+        if (result.status == pugi::status_ok) {
+          m_execInterface.handleAddPlan(doc.document_element());
+          // Always notify immediately when adding a plan
+          m_execInterface.notifyOfExternalEvent();
+        }
+        else {
+          std::cerr << "Error parsing plan XML:\n" << result.description() << std::endl;
+        }
       } catch (const ParserException& e) {
         std::cerr << "Error parsing plan: \n" << e.what() << std::endl;
       }
     }
+      break;
 
       // AddPlanFile is a PlexilStringValueMsg
     case PlexilMsgType_AddPlanFile: {
@@ -689,12 +697,17 @@ namespace PLEXIL
       assertTrueMsg(stringMsg->stringValue != NULL,
                     "IpcAdapter::enqueueMessage: AddPlanFile message contains null file name");
 
-      // parse XML into node structure
+      // parse into XML document
       try {
-        PlexilNode *root = PlexilXmlParser::parse(std::string(stringMsg->stringValue), true);
-        m_execInterface.handleAddPlan(root);
-        // Always notify immediately when adding a plan
-        m_execInterface.notifyOfExternalEvent();
+        pugi::xml_document *doc = loadXmlFile(stringMsg->stringValue);
+        if (doc) {
+          m_execInterface.handleAddPlan(doc->document_element());
+          // Always notify immediately when adding a plan
+          m_execInterface.notifyOfExternalEvent();
+        }
+        else {
+          std::cerr << "Error parsing plan from file: file " << stringMsg->stringValue << " not found" << std::endl;
+        }
       } catch (const ParserException& e) {
         std::cerr << "Error parsing plan from file: \n" << e.what() << std::endl;
       }
@@ -709,8 +722,14 @@ namespace PLEXIL
 
       // parse XML into node structure
       try {
-        PlexilNode *root = PlexilXmlParser::parse(std::string(stringMsg->stringValue), false);
-        m_execInterface.handleAddLibrary(root);
+        pugi::xml_document *doc = new pugi::xml_document;
+        pugi::xml_parse_result result = doc->load(stringMsg->stringValue);
+        if (result.status == pugi::status_ok)
+          m_execInterface.handleAddLibrary(doc);
+        else {
+          delete doc;
+          std::cerr << "Error parsing plan XML:\n" << result.description() << std::endl;
+        }
       } catch (const ParserException& e) {
         std::cerr << "Error parsing library node: \n" << e.what() << std::endl;
       }
@@ -725,8 +744,12 @@ namespace PLEXIL
 
       // parse XML into node structure
       try {
-        PlexilNode *root = PlexilXmlParser::parse(std::string(stringMsg->stringValue), true);
-        m_execInterface.handleAddLibrary(root);
+        pugi::xml_document *doc = loadXmlFile(stringMsg->stringValue);
+        if (doc)
+          m_execInterface.handleAddLibrary(doc);
+        else {
+          std::cerr << "Error parsing plan from file: file " << stringMsg->stringValue << " not found" << std::endl;
+        }
       } catch (const ParserException& e) {
         std::cerr << "Error parsing library file: \n" << e.what() << std::endl;
       }
