@@ -31,6 +31,7 @@ universalExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
  -I@top_srcdir@/exec -I@top_srcdir@/app-framework
 
 universalExec_LDADD = ../app-framework/libPlexilAppFramework.la \
+ ../xml-parser/libPlexilXmlParser.la \
  ../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
  ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
 

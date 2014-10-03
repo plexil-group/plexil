@@ -31,7 +31,6 @@
 #include "AdapterFactory.hh"
 #include "Debug.hh"
 #include "Node.hh"
-#include "PlexilPlan.hh"
 #include "lifecycle-utils.h"
 
 #if HAVE_LUV_LISTENER
@@ -242,16 +241,8 @@ int main_internal(int argc, char** argv)
        libraryName != libraryNames.end();
        ++libraryName) {
 	std::cout << "Loading library node from file '" << *libraryName << "'" << std::endl;
-	pugi::xml_document libraryXml;
-	pugi::xml_parse_result parseResult = libraryXml.load_file(libraryName->c_str());
-    if (parseResult.status != pugi::status_ok) {
-      std::cout << "XML error parsing library " << *libraryName
-				<< " (offset " << parseResult.offset << "): "
-                << parseResult.description() << std::endl;
-	  error = true;
-    }
-	else if (!_app.addLibrary(&libraryXml)) {
-      std::cout << "ERROR: unable to add library " << *libraryName << std::endl;
+    if (!_app.loadLibrary(*libraryName)) {
+      std::cout << "ERROR: unable to load library " << *libraryName << std::endl;
 	  error = true;
     }
   }
