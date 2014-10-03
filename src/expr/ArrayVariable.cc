@@ -130,22 +130,26 @@ namespace PLEXIL
   template <typename T>
   void ArrayVariable<T>::handleActivate()
   {
+    // Ensure maxSize spec is evaluated before initializer.
+    if (m_size) {
+      int32_t specSize;
+      if (m_size->getValue(specSize)) {
+        assertTrue_2(specSize >= 0, "Array initialization: Negative array size illegal");
+        m_maxSize = (size_t) specSize;
+      }
+    }
     if (m_initializer) {
       ArrayImpl<T> const *valuePtr;
       if (m_initializer->getValuePointer(valuePtr)) {
-        // Choose the greater of the spec'd size or the length of the initializer
+        // If there is a max size, enforce it.
+        // Else use the length of the initializer
         size_t size = valuePtr->size();
         if (m_size) {
-          int32_t specSize;
-          if (m_size->getValue(specSize)) {
-            assertTrue_2(specSize >= 0, "Array initialization: Negative array size illegal");
-            m_maxSize = (size_t) specSize;
-            if (size < m_maxSize)
-              size = m_maxSize;
-          }
+          assertTrueMsg(size <= m_maxSize, "Array initialization: Initial value is larger than max size");
         }
-        m_value.resize(size);
         m_value = *valuePtr;
+        if (m_size && size < m_maxSize)
+          m_value.resize(m_maxSize);
         m_known = true;
       }
     }
@@ -170,7 +174,7 @@ namespace PLEXIL
   void ArrayVariable<T>::printSpecialized(std::ostream &s) const
   {
     s << m_name << ' ';
-    if (m_maxSize)
+    if (m_size)
       s << "size = " << m_maxSize << ' ';
   }
 
@@ -179,7 +183,7 @@ namespace PLEXIL
   {
     bool changed = !m_known || value != m_value;
     size_t newSize = value.size();
-    assertTrue_2(!m_maxSize || newSize <= m_maxSize,
+    assertTrue_2(!m_size || newSize <= m_maxSize,
                  "ArrayVariable::setValue: New value is bigger than array declared size");
     m_value = value;
     m_known = true;
@@ -205,6 +209,8 @@ namespace PLEXIL
   {
     assertTrue_2(!this->isActive(), "ArrayVariable: reset while active");
     m_savedKnown = m_known = false;
+    m_value.reset();
+    m_savedValue.reset();
   }
 
   template <typename T>
@@ -280,13 +286,9 @@ namespace PLEXIL
   template <typename T>
   void ArrayVariable<T>::reserve()
   {
-    if (m_size) {
-      int32_t size;
-      if (m_size->getValue(size)) {
-        assertTrue_2(size >= 0, "Array initialization: Negative array size illegal");
-        m_value.resize(size);
-        m_known = true; // array is known, not its contents
-      }
+    if (m_size && m_maxSize) {
+      m_value.resize(m_maxSize);
+      m_known = true; // array is known, not its contents
     }
   }
   
