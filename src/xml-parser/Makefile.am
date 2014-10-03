@@ -30,10 +30,11 @@ lib_LTLIBRARIES = libPlexilXmlParser.la
 libPlexilXmlParser_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
  -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
 
-include_HEADERS = parsePlan.hh
+# Publicly available header files
+include_HEADERS = parseNode.hh parsePlan.hh planLibrary.hh
 
 libPlexilXmlParser_la_SOURCES = commandXmlParser.cc parseAssignment.cc \
- parseLibraryCall.cc parseNode.cc parsePlan.cc updateXmlParser.cc
+ parseLibraryCall.cc parseNode.cc parsePlan.cc planLibrary.cc updateXmlParser.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/parser-module-tests
