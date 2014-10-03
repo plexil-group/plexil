@@ -47,6 +47,7 @@ namespace PLEXIL
   {
     char const *prioString = prio.child_value();
     char *endptr = NULL;
+    errno = 0;
     unsigned long prioValue = strtoul(prioString, &endptr, 10);
     checkParserExceptionWithLocation(endptr != prioString && !*endptr,
                                      prio,

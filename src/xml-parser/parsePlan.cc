@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Debug.hh"
 #include "Node.hh"
 #include "parseNode.hh"
 #include "parser-utils.hh"
@@ -33,27 +34,27 @@
 
 using pugi::xml_document;
 using pugi::xml_node;
-
-#include <cstring>
+using pugi::xml_parse_result;
 
 namespace PLEXIL
 {
+  // Initialize globals
+  unsigned int const PUGI_PARSE_OPTIONS = pugi::parse_default | pugi::parse_ws_pcdata_single;
 
-  // Place to store library nodes
-  static std::map<std::string, xml_node> libraryMap;
-
-  void addLibraryNode(std::string const &name, xml_node const xml)
+  // Load a file and extract the top-level XML element from it.
+  xml_document *loadXmlFile(std::string const &filename)
+    throw (ParserException)
   {
-    libraryMap[name] = xml;
-  }
-
-  xml_node getLibraryNode(std::string const &name)
-  {
-    std::map<std::string, xml_node>::iterator it = libraryMap.find(name);
-    if (it == libraryMap.end())
-      return xml_node();
-    else
-      return it->second;
+    xml_document *doc = new xml_document;
+    xml_parse_result parseResult = doc->load_file(filename.c_str(), PUGI_PARSE_OPTIONS);
+    if (parseResult.status == pugi::status_file_not_found) {
+      delete doc;
+      return NULL;
+    }
+    checkParserException(parseResult.status == pugi::status_ok,
+                         "Error reading XML file " << filename
+                         << ": " << parseResult.description());
+    return doc;
   }
 
   static void parseGlobalDeclarations(xml_node declXml)
@@ -76,8 +77,8 @@ namespace PLEXIL
     }
 
     checkTag(NODE_TAG, elt);
-    Node *result = parseNode(xml, NULL);
-    finalizeNode(result, xml);
+    Node *result = parseNode(elt, NULL);
+    finalizeNode(result, elt);
     return result;
   }
 

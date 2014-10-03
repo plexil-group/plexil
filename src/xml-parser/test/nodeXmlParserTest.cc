@@ -31,7 +31,7 @@
 #include "ExpressionFactory.hh"
 #include "Node.hh"
 #include "parseNode.hh"
-#include "parsePlan.hh"
+#include "planLibrary.hh"
 #include "TestSupport.hh"
 #include "Update.hh"
 #include "UpdateNode.hh"
@@ -1258,45 +1258,47 @@ static bool updateNodeXmlParserTest()
 
 static bool libraryCallNodeXmlParserTest()
 {
-  xml_document doc;
-  doc.set_name("libraryCallNodeXmlParserTest");
 
   //
   // Construct some nodes to call
   //
   
   // Simple
-
-  xml_node dummyXml = makeNode(doc, "dummy", "Empty");
-  addLibraryNode("dummy", dummyXml);
+  xml_document *dummyDoc = new xml_document;
+  xml_node dummyXml = makeNode(dummyDoc->append_child("PlexilPlan"), "dummy", "Empty");
+  addLibraryNode("dummy", dummyDoc);
 
   // With In variable, no default
-  xml_node withInVarXml = makeNode(doc, "withInVar", "Empty");
+  xml_document *withInDoc = new xml_document;
+  xml_node withInVarXml = makeNode(withInDoc->append_child("PlexilPlan"), "withInVar", "Empty");
   makeDeclareVariable(withInVarXml.append_child("Interface").append_child("In"),
                       "inInt",
                       "Integer");
-  addLibraryNode("withInVar", withInVarXml);
+  addLibraryNode("withInVar", withInDoc);
   
   // In variable with default
-  xml_node defaultedInVarXml = makeNode(doc, "defaultedInVar", "Empty");
+  xml_document *defaultedInDoc = new xml_document;
+  xml_node defaultedInVarXml = makeNode(defaultedInDoc->append_child("PlexilPlan"), "defaultedInVar", "Empty");
   xml_node defaultedInDecl = makeDeclareVariable(defaultedInVarXml.append_child("Interface").append_child("In"), 
                                                  "defInInt",
                                                  "Integer");
   makePcdataElement(defaultedInDecl.append_child("InitialValue"), "IntegerValue", "5");
-  addLibraryNode("defaultedInVar", defaultedInVarXml);
+  addLibraryNode("defaultedInVar", defaultedInDoc);
   
   // With InOut variable
-  xml_node inOutVarXml = makeNode(doc, "inOutVar", "Assignment");
+  xml_document *inOutDoc = new xml_document;
+  xml_node inOutVarXml = makeNode(inOutDoc->append_child("PlexilPlan"), "inOutVar", "Assignment");
   makeDeclareVariable(inOutVarXml.append_child("Interface").append_child("InOut"),
                       "inOutInt",
                       "Integer");
   xml_node inOutBody = inOutVarXml.append_child("NodeBody").append_child("Assignment");
   makePcdataElement(inOutBody, "IntegerVariable", "inOutInt");
   makePcdataElement(inOutBody.append_child("NumericRHS"), "IntegerValue", "-2");
-  addLibraryNode("inOutVar", inOutVarXml);
+  addLibraryNode("inOutVar", inOutDoc);
 
   // With defaulted InOut variable
-  xml_node defInOutVarXml = makeNode(doc, "defInOutVar", "Assignment");
+  xml_document *defInOutDoc = new xml_document;
+  xml_node defInOutVarXml = makeNode(defInOutDoc->append_child("PlexilPlan"), "defInOutVar", "Assignment");
   xml_node defInOutDecl = 
     makeDeclareVariable(defInOutVarXml.append_child("Interface").append_child("InOut"),
                         "defInOutInt",
@@ -1305,11 +1307,13 @@ static bool libraryCallNodeXmlParserTest()
   xml_node defInOutBody = defInOutVarXml.append_child("NodeBody").append_child("Assignment");
   makePcdataElement(defInOutBody, "IntegerVariable", "defInOutInt");
   makePcdataElement(defInOutBody.append_child("NumericRHS"), "IntegerValue", "-99");
-  addLibraryNode("defInOutVar", defInOutVarXml);
+  addLibraryNode("defInOutVar", defInOutDoc);
 
   //
   // Call tests
   //
+
+  xml_document doc;
 
   // Call with no aliases or interface variables
   {

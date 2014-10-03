@@ -158,6 +158,7 @@ am_libPlexilXmlParser_la_OBJECTS =  \
 	libPlexilXmlParser_la-parseLibraryCall.lo \
 	libPlexilXmlParser_la-parseNode.lo \
 	libPlexilXmlParser_la-parsePlan.lo \
+	libPlexilXmlParser_la-planLibrary.lo \
 	libPlexilXmlParser_la-updateXmlParser.lo
 libPlexilXmlParser_la_OBJECTS = $(am_libPlexilXmlParser_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -390,9 +391,11 @@ lib_LTLIBRARIES = libPlexilXmlParser.la
 libPlexilXmlParser_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
  -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
 
-include_HEADERS = parsePlan.hh
+
+# Publicly available header files
+include_HEADERS = parseNode.hh parsePlan.hh planLibrary.hh
 libPlexilXmlParser_la_SOURCES = commandXmlParser.cc parseAssignment.cc \
- parseLibraryCall.cc parseNode.cc parsePlan.cc updateXmlParser.cc
+ parseLibraryCall.cc parseNode.cc parsePlan.cc planLibrary.cc updateXmlParser.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = 
 @MODULE_TESTS_OPT_TRUE@test_parser_module_tests_SOURCES = test/parser-test-module.cc \
@@ -586,6 +589,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parseLibraryCall.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parseNode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parsePlan.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-planLibrary.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-updateXmlParser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-arrayReferenceXmlParserTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-commandXmlParserTest.Po@am__quote@
@@ -655,6 +659,13 @@ libPlexilXmlParser_la-parsePlan.lo: parsePlan.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parsePlan.cc' object='libPlexilXmlParser_la-parsePlan.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parsePlan.lo `test -f 'parsePlan.cc' || echo '$(srcdir)/'`parsePlan.cc
+
+libPlexilXmlParser_la-planLibrary.lo: planLibrary.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-planLibrary.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-planLibrary.Tpo -c -o libPlexilXmlParser_la-planLibrary.lo `test -f 'planLibrary.cc' || echo '$(srcdir)/'`planLibrary.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-planLibrary.Tpo $(DEPDIR)/libPlexilXmlParser_la-planLibrary.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='planLibrary.cc' object='libPlexilXmlParser_la-planLibrary.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-planLibrary.lo `test -f 'planLibrary.cc' || echo '$(srcdir)/'`planLibrary.cc
 
 libPlexilXmlParser_la-updateXmlParser.lo: updateXmlParser.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-updateXmlParser.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-updateXmlParser.Tpo -c -o libPlexilXmlParser_la-updateXmlParser.lo `test -f 'updateXmlParser.cc' || echo '$(srcdir)/'`updateXmlParser.cc

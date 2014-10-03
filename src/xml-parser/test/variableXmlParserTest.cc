@@ -756,7 +756,7 @@ static bool integerArrayVariableXmlParserTest()
   assertTrue_1(emptyExp->isKnown());
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
   assertTrue_1(aryTemp != NULL);
-  assertTrue_1(aryTemp->size() == 0);
+  assertTrue_1(aryTemp->size() == 2);
   realNc.storeVariable("empty", emptyExp);
 
   int32_t temp;

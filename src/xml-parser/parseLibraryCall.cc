@@ -29,9 +29,9 @@
 #include "ExpressionFactory.hh"
 #include "LibraryCallNode.hh"
 #include "parseNode.hh"
-#include "parsePlan.hh" // for getLibraryNode
 #include "ParserException.hh"
 #include "parser-utils.hh"
+#include "planLibrary.hh"
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"

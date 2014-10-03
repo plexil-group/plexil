@@ -32,6 +32,7 @@
 // Forward declaration
 namespace pugi
 {
+  class xml_document;
   class xml_node;
 }
 
@@ -39,13 +40,13 @@ namespace PLEXIL
 {
   class Node;
 
-  extern void addLibraryNode(std::string const &name, pugi::xml_node const xml);
+  extern unsigned int const PUGI_PARSE_OPTIONS;
 
-  extern pugi::xml_node getLibraryNode(std::string const &name);
+  extern pugi::xml_document *loadXmlFile(std::string const &filename)
+    throw (ParserException);
 
   extern Node *parsePlan(pugi::xml_node const xml)
-    throw(ParserException);
-
+    throw (ParserException);
 }
 
 #endif // PLEXIL_NEW_XML_PARSER

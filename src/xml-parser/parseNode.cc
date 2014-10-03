@@ -27,6 +27,7 @@
 #include "parseNode.hh"
 
 #include "Alias.hh"
+#include "ArrayLiteralFactory.hh"
 #include "Assignable.hh"
 #include "CommandNode.hh"
 #include "commandXmlParser.hh"
@@ -61,10 +62,10 @@ namespace PLEXIL
     xml_node decl = decls.first_child();
     while (decl) {
       checkHasChildElement(decl);
-      char const *name = decl.child_value("Name");
+      char const *name = decl.child_value(NAME_TAG);
       if (node->findLocalVariable(std::string(name))) {
         checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         decl.child("Name"),
+                                         decl.child(NAME_TAG),
                                          "Node " << node->getNodeId()
                                          << ": Duplicate variable name "
                                          << name);
@@ -568,6 +569,67 @@ namespace PLEXIL
     }
   }
 
+  void parseVariableInitializer(Node *node, xml_node const decl)
+  throw (ParserException)
+  {
+    xml_node initXml = decl.child(INITIALVAL_TAG);
+    if (initXml) {
+      char const *varName = decl.child_value(NAME_TAG);
+      Expression *var = node->findLocalVariable(std::string(varName));
+      assertTrueMsg(var,
+                    "finalizeNode: Internal error: variable " << varName
+                    << " not found in node " << node->getNodeId());
+      // FIXME: is this needed/possible?
+      checkParserExceptionWithLocation(var->isAssignable(),
+                                       initXml,
+                                       "This variable may not take an initializer");
+      checkHasChildElement(initXml);
+      bool garbage;
+      Expression *init;
+      ValueType varType = var->valueType();
+      if (isArrayType(varType)
+          && testTag(typeNameAsValue(arrayElementType(varType)).c_str(), initXml.first_child())) {
+        // Handle old style initializer
+        garbage = true; // always constructed
+        switch (varType) {
+        case BOOLEAN_ARRAY_TYPE:
+          init = createArrayLiteral<bool>("Boolean", initXml);
+          break;
+
+        case INTEGER_ARRAY_TYPE:
+          init = createArrayLiteral<int32_t>("Integer", initXml);
+          break;
+
+        case REAL_ARRAY_TYPE:
+          init = createArrayLiteral<double>("Real", initXml);
+          break;
+
+        case STRING_ARRAY_TYPE:
+          init = createArrayLiteral<std::string>("String", initXml);
+          break;
+
+        default:
+          checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                           initXml,
+                                           "Can't parse initial value for unimplemented or illegal type " << valueTypeName(varType));
+          break;
+        }
+      }
+      else {
+        // Simply parse whatever's inside the <InitialValue>
+        initXml = initXml.first_child();
+        init = createExpression(initXml, node, garbage);
+      }
+      checkParserExceptionWithLocation(areTypesCompatible(var->valueType(), init->valueType()),
+                                       initXml,
+                                       "Node " << node->getNodeId()
+                                       << ": Initialization type mismatch for variable "
+                                       << varName << ", variable is " << valueTypeName(varType)
+                                       << ", initializer is " << valueTypeName(init->valueType()));
+      var->asAssignable()->setInitializer(init, garbage);
+    }
+  }
+
   void finalizeNode(Node *node, xml_node const xml)
     throw (ParserException)
   {
@@ -623,30 +685,8 @@ namespace PLEXIL
     if (varDecls) {
       for (xml_node decl = varDecls.first_child();
            decl;
-           decl = decl.next_sibling()) {
-        xml_node initXml = decl.child("InitialValue");
-        if (initXml) {
-          char const *varName = decl.child_value("Name");
-          Expression *var = node->findLocalVariable(std::string(varName));
-          assertTrueMsg(var,
-                        "finalizeNode: Internal error: variable " << varName
-                        << " not found in node " << node->getNodeId());
-          // FIXME: is this needed/possible?
-          checkParserExceptionWithLocation(var->isAssignable(),
-                                           initXml,
-                                           "This variable may not take an initializer");
-          checkHasChildElement(initXml);
-          initXml = initXml.first_child();
-          bool garbage;
-          Expression *init = createExpression(initXml, node, garbage);
-          checkParserExceptionWithLocation(areTypesCompatible(var->valueType(), init->valueType()),
-                                           initXml,
-                                           "Node " << node->getNodeId()
-                                           << ": Initialization type mismatch for variable "
-                                           << varName);
-          var->asAssignable()->setInitializer(init, garbage);
-        }
-      }
+           decl = decl.next_sibling()) 
+        parseVariableInitializer(node, decl);
     }
 
     // Link aliases and construct interface default initializers
