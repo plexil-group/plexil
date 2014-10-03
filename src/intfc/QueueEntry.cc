@@ -76,16 +76,10 @@ namespace PLEXIL
     type = Q_UPDATE_ACK;
   }
 
-  void QueueEntry::initForAddPlan(PlexilNode *p)
+  void QueueEntry::initForAddPlan(Node *p)
   {
     plan = p;
     type = Q_ADD_PLAN;
-  }
-
-  void QueueEntry::initForAddLibrary(PlexilNode *p)
-  {
-    plan = p;
-    type = Q_ADD_LIBRARY;
   }
 
   void QueueEntry::initForMark(unsigned int seq)

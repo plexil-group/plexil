@@ -33,7 +33,7 @@ namespace PLEXIL
 {
   // Forward declarations
   class Command;
-  class PlexilNode;
+  class Node;
   class State;
   class Update;
 
@@ -45,7 +45,7 @@ namespace PLEXIL
     Q_COMMAND_ABORT,
     Q_UPDATE_ACK,
     Q_ADD_PLAN,
-    Q_ADD_LIBRARY,
+    // Q_ADD_LIBRARY, // no longer supported
     Q_MARK,
 
     Q_INVALID
@@ -58,7 +58,7 @@ namespace PLEXIL
       Command *command;
       Update *update;
       State *state;
-      PlexilNode *plan;
+      Node *plan;
       unsigned int sequence;
     };
     Value value;
@@ -74,8 +74,7 @@ namespace PLEXIL
 
     void initForUpdateAck(Update *upd, bool ack);
 
-    void initForAddPlan(PlexilNode *p);
-    void initForAddLibrary(PlexilNode *p);
+    void initForAddPlan(Node *p);
 
     void initForMark(unsigned int seq);
 
