@@ -169,14 +169,10 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 PROGRAMS = $(bin_PROGRAMS)
 am__test_intfc_module_tests_SOURCES_DIST =  \
-	../expr/test/FactoryTestNodeConnector.cc \
-	../expr/test/TrivialListener.cc \
-	../expr/test/TrivialNodeConnector.cc test/lookupsTest.cc \
+	../expr/test/TrivialListener.cc test/lookupsTest.cc \
 	test/stateTest.cc test/intfc-test-module.cc
 am__dirstamp = $(am__leading_dot)dirstamp
-@MODULE_TESTS_OPT_TRUE@am_test_intfc_module_tests_OBJECTS = ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	../expr/test/test_intfc_module_tests-TrivialListener.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	../expr/test/test_intfc_module_tests-TrivialNodeConnector.$(OBJEXT) \
+@MODULE_TESTS_OPT_TRUE@am_test_intfc_module_tests_OBJECTS = ../expr/test/test_intfc_module_tests-TrivialListener.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-lookupsTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-stateTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_intfc_module_tests-intfc-test-module.$(OBJEXT)
@@ -392,8 +388,7 @@ libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
  resource-tags.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = 
-@MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_SOURCES = ../expr/test/FactoryTestNodeConnector.cc \
-@MODULE_TESTS_OPT_TRUE@ ../expr/test/TrivialListener.cc ../expr/test/TrivialNodeConnector.cc \
+@MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_SOURCES = ../expr/test/TrivialListener.cc \
 @MODULE_TESTS_OPT_TRUE@ test/lookupsTest.cc test/stateTest.cc test/intfc-test-module.cc
 
 @MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_CPPFLAGS = -I../utils -I../expr
@@ -527,13 +522,7 @@ clean-binPROGRAMS:
 ../expr/test/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) ../expr/test/$(DEPDIR)
 	@: > ../expr/test/$(DEPDIR)/$(am__dirstamp)
-../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.$(OBJEXT):  \
-	../expr/test/$(am__dirstamp) \
-	../expr/test/$(DEPDIR)/$(am__dirstamp)
 ../expr/test/test_intfc_module_tests-TrivialListener.$(OBJEXT):  \
-	../expr/test/$(am__dirstamp) \
-	../expr/test/$(DEPDIR)/$(am__dirstamp)
-../expr/test/test_intfc_module_tests-TrivialNodeConnector.$(OBJEXT):  \
 	../expr/test/$(am__dirstamp) \
 	../expr/test/$(DEPDIR)/$(am__dirstamp)
 test/$(am__dirstamp):
@@ -561,9 +550,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@../expr/test/$(DEPDIR)/test_intfc_module_tests-FactoryTestNodeConnector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialNodeConnector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-CachedValueImpl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-Command.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-CommandHandleVariable.Plo@am__quote@
@@ -688,20 +675,6 @@ libPlexilIntfc_la-resource-tags.lo: resource-tags.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-resource-tags.lo `test -f 'resource-tags.cc' || echo '$(srcdir)/'`resource-tags.cc
 
-../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.o: ../expr/test/FactoryTestNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.o -MD -MP -MF ../expr/test/$(DEPDIR)/test_intfc_module_tests-FactoryTestNodeConnector.Tpo -c -o ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.o `test -f '../expr/test/FactoryTestNodeConnector.cc' || echo '$(srcdir)/'`../expr/test/FactoryTestNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_intfc_module_tests-FactoryTestNodeConnector.Tpo ../expr/test/$(DEPDIR)/test_intfc_module_tests-FactoryTestNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/FactoryTestNodeConnector.cc' object='../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.o `test -f '../expr/test/FactoryTestNodeConnector.cc' || echo '$(srcdir)/'`../expr/test/FactoryTestNodeConnector.cc
-
-../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.obj: ../expr/test/FactoryTestNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.obj -MD -MP -MF ../expr/test/$(DEPDIR)/test_intfc_module_tests-FactoryTestNodeConnector.Tpo -c -o ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.obj `if test -f '../expr/test/FactoryTestNodeConnector.cc'; then $(CYGPATH_W) '../expr/test/FactoryTestNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/FactoryTestNodeConnector.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_intfc_module_tests-FactoryTestNodeConnector.Tpo ../expr/test/$(DEPDIR)/test_intfc_module_tests-FactoryTestNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/FactoryTestNodeConnector.cc' object='../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_intfc_module_tests-FactoryTestNodeConnector.obj `if test -f '../expr/test/FactoryTestNodeConnector.cc'; then $(CYGPATH_W) '../expr/test/FactoryTestNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/FactoryTestNodeConnector.cc'; fi`
-
 ../expr/test/test_intfc_module_tests-TrivialListener.o: ../expr/test/TrivialListener.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_intfc_module_tests-TrivialListener.o -MD -MP -MF ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Tpo -c -o ../expr/test/test_intfc_module_tests-TrivialListener.o `test -f '../expr/test/TrivialListener.cc' || echo '$(srcdir)/'`../expr/test/TrivialListener.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Tpo ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Po
@@ -715,20 +688,6 @@ libPlexilIntfc_la-resource-tags.lo: resource-tags.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/TrivialListener.cc' object='../expr/test/test_intfc_module_tests-TrivialListener.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_intfc_module_tests-TrivialListener.obj `if test -f '../expr/test/TrivialListener.cc'; then $(CYGPATH_W) '../expr/test/TrivialListener.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/TrivialListener.cc'; fi`
-
-../expr/test/test_intfc_module_tests-TrivialNodeConnector.o: ../expr/test/TrivialNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_intfc_module_tests-TrivialNodeConnector.o -MD -MP -MF ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialNodeConnector.Tpo -c -o ../expr/test/test_intfc_module_tests-TrivialNodeConnector.o `test -f '../expr/test/TrivialNodeConnector.cc' || echo '$(srcdir)/'`../expr/test/TrivialNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialNodeConnector.Tpo ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/TrivialNodeConnector.cc' object='../expr/test/test_intfc_module_tests-TrivialNodeConnector.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_intfc_module_tests-TrivialNodeConnector.o `test -f '../expr/test/TrivialNodeConnector.cc' || echo '$(srcdir)/'`../expr/test/TrivialNodeConnector.cc
-
-../expr/test/test_intfc_module_tests-TrivialNodeConnector.obj: ../expr/test/TrivialNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_intfc_module_tests-TrivialNodeConnector.obj -MD -MP -MF ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialNodeConnector.Tpo -c -o ../expr/test/test_intfc_module_tests-TrivialNodeConnector.obj `if test -f '../expr/test/TrivialNodeConnector.cc'; then $(CYGPATH_W) '../expr/test/TrivialNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/TrivialNodeConnector.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialNodeConnector.Tpo ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/TrivialNodeConnector.cc' object='../expr/test/test_intfc_module_tests-TrivialNodeConnector.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_intfc_module_tests-TrivialNodeConnector.obj `if test -f '../expr/test/TrivialNodeConnector.cc'; then $(CYGPATH_W) '../expr/test/TrivialNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/TrivialNodeConnector.cc'; fi`
 
 test/test_intfc_module_tests-lookupsTest.o: test/lookupsTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-lookupsTest.o -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-lookupsTest.Tpo -c -o test/test_intfc_module_tests-lookupsTest.o `test -f 'test/lookupsTest.cc' || echo '$(srcdir)/'`test/lookupsTest.cc

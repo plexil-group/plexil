@@ -46,7 +46,7 @@ if MODULE_TESTS_OPT
   bin_PROGRAMS = test/parser-module-tests
   noinst_HEADERS =
   test_parser_module_tests_SOURCES = test/parser-test-module.cc \
-   ../expr/test/FactoryTestNodeConnector.cc ../expr/test/TrivialNodeConnector.cc \
+   test/FactoryTestNodeConnector.cc test/TrivialNodeConnector.cc \
    test/constantXmlParserTest.cc test/variableXmlParserTest.cc \
    test/arrayReferenceXmlParserTest.cc test/functionXmlParserTest.cc \
    test/commandXmlParserTest.cc test/lookupXmlParserTest.cc \

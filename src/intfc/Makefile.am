@@ -44,8 +44,7 @@ libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
   noinst_HEADERS =
-  test_intfc_module_tests_SOURCES = ../expr/test/FactoryTestNodeConnector.cc \
- ../expr/test/TrivialListener.cc ../expr/test/TrivialNodeConnector.cc \
+  test_intfc_module_tests_SOURCES = ../expr/test/TrivialListener.cc \
  test/lookupsTest.cc test/stateTest.cc test/intfc-test-module.cc
   test_intfc_module_tests_CPPFLAGS = -I../utils -I../expr
   test_intfc_module_tests_LDADD = libPlexilIntfc.la ../expr/libPlexilExpr.la \

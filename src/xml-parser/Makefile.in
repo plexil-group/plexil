@@ -180,18 +180,17 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 PROGRAMS = $(bin_PROGRAMS)
 am__test_parser_module_tests_SOURCES_DIST =  \
-	test/parser-test-module.cc \
-	../expr/test/FactoryTestNodeConnector.cc \
-	../expr/test/TrivialNodeConnector.cc \
-	test/constantXmlParserTest.cc test/variableXmlParserTest.cc \
+	test/parser-test-module.cc test/FactoryTestNodeConnector.cc \
+	test/TrivialNodeConnector.cc test/constantXmlParserTest.cc \
+	test/variableXmlParserTest.cc \
 	test/arrayReferenceXmlParserTest.cc \
 	test/functionXmlParserTest.cc test/commandXmlParserTest.cc \
 	test/lookupXmlParserTest.cc test/updateXmlParserTest.cc \
 	test/nodeXmlParserTest.cc
 am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@am_test_parser_module_tests_OBJECTS = test/test_parser_module_tests-parser-test-module.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	../expr/test/test_parser_module_tests-FactoryTestNodeConnector.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	../expr/test/test_parser_module_tests-TrivialNodeConnector.$(OBJEXT) \
+@MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-FactoryTestNodeConnector.$(OBJEXT) \
+@MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-TrivialNodeConnector.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-constantXmlParserTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-variableXmlParserTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_parser_module_tests-arrayReferenceXmlParserTest.$(OBJEXT) \
@@ -419,7 +418,7 @@ libPlexilXmlParser_la_SOURCES = ArithmeticFunctionFactory.cc \
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = 
 @MODULE_TESTS_OPT_TRUE@test_parser_module_tests_SOURCES = test/parser-test-module.cc \
-@MODULE_TESTS_OPT_TRUE@   ../expr/test/FactoryTestNodeConnector.cc ../expr/test/TrivialNodeConnector.cc \
+@MODULE_TESTS_OPT_TRUE@   test/FactoryTestNodeConnector.cc test/TrivialNodeConnector.cc \
 @MODULE_TESTS_OPT_TRUE@   test/constantXmlParserTest.cc test/variableXmlParserTest.cc \
 @MODULE_TESTS_OPT_TRUE@   test/arrayReferenceXmlParserTest.cc test/functionXmlParserTest.cc \
 @MODULE_TESTS_OPT_TRUE@   test/commandXmlParserTest.cc test/lookupXmlParserTest.cc \
@@ -561,18 +560,10 @@ test/$(DEPDIR)/$(am__dirstamp):
 	@: > test/$(DEPDIR)/$(am__dirstamp)
 test/test_parser_module_tests-parser-test-module.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
-../expr/test/$(am__dirstamp):
-	@$(MKDIR_P) ../expr/test
-	@: > ../expr/test/$(am__dirstamp)
-../expr/test/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ../expr/test/$(DEPDIR)
-	@: > ../expr/test/$(DEPDIR)/$(am__dirstamp)
-../expr/test/test_parser_module_tests-FactoryTestNodeConnector.$(OBJEXT):  \
-	../expr/test/$(am__dirstamp) \
-	../expr/test/$(DEPDIR)/$(am__dirstamp)
-../expr/test/test_parser_module_tests-TrivialNodeConnector.$(OBJEXT):  \
-	../expr/test/$(am__dirstamp) \
-	../expr/test/$(DEPDIR)/$(am__dirstamp)
+test/test_parser_module_tests-FactoryTestNodeConnector.$(OBJEXT):  \
+	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+test/test_parser_module_tests-TrivialNodeConnector.$(OBJEXT):  \
+	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_parser_module_tests-constantXmlParserTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_parser_module_tests-variableXmlParserTest.$(OBJEXT):  \
@@ -596,14 +587,11 @@ test/parser-module-tests$(EXEEXT): $(test_parser_module_tests_OBJECTS) $(test_pa
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f ../expr/test/*.$(OBJEXT)
 	-rm -f test/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@../expr/test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@../expr/test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArithmeticFunctionFactory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArrayLiteralFactory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArrayVariableFactory.Plo@am__quote@
@@ -624,6 +612,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parser-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-planLibrary.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-updateXmlParser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-arrayReferenceXmlParserTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-commandXmlParserTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-constantXmlParserTest.Po@am__quote@
@@ -812,33 +802,33 @@ test/test_parser_module_tests-parser-test-module.obj: test/parser-test-module.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-parser-test-module.obj `if test -f 'test/parser-test-module.cc'; then $(CYGPATH_W) 'test/parser-test-module.cc'; else $(CYGPATH_W) '$(srcdir)/test/parser-test-module.cc'; fi`
 
-../expr/test/test_parser_module_tests-FactoryTestNodeConnector.o: ../expr/test/FactoryTestNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_parser_module_tests-FactoryTestNodeConnector.o -MD -MP -MF ../expr/test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo -c -o ../expr/test/test_parser_module_tests-FactoryTestNodeConnector.o `test -f '../expr/test/FactoryTestNodeConnector.cc' || echo '$(srcdir)/'`../expr/test/FactoryTestNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo ../expr/test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/FactoryTestNodeConnector.cc' object='../expr/test/test_parser_module_tests-FactoryTestNodeConnector.o' libtool=no @AMDEPBACKSLASH@
+test/test_parser_module_tests-FactoryTestNodeConnector.o: test/FactoryTestNodeConnector.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-FactoryTestNodeConnector.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo -c -o test/test_parser_module_tests-FactoryTestNodeConnector.o `test -f 'test/FactoryTestNodeConnector.cc' || echo '$(srcdir)/'`test/FactoryTestNodeConnector.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/FactoryTestNodeConnector.cc' object='test/test_parser_module_tests-FactoryTestNodeConnector.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_parser_module_tests-FactoryTestNodeConnector.o `test -f '../expr/test/FactoryTestNodeConnector.cc' || echo '$(srcdir)/'`../expr/test/FactoryTestNodeConnector.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-FactoryTestNodeConnector.o `test -f 'test/FactoryTestNodeConnector.cc' || echo '$(srcdir)/'`test/FactoryTestNodeConnector.cc
 
-../expr/test/test_parser_module_tests-FactoryTestNodeConnector.obj: ../expr/test/FactoryTestNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_parser_module_tests-FactoryTestNodeConnector.obj -MD -MP -MF ../expr/test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo -c -o ../expr/test/test_parser_module_tests-FactoryTestNodeConnector.obj `if test -f '../expr/test/FactoryTestNodeConnector.cc'; then $(CYGPATH_W) '../expr/test/FactoryTestNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/FactoryTestNodeConnector.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo ../expr/test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/FactoryTestNodeConnector.cc' object='../expr/test/test_parser_module_tests-FactoryTestNodeConnector.obj' libtool=no @AMDEPBACKSLASH@
+test/test_parser_module_tests-FactoryTestNodeConnector.obj: test/FactoryTestNodeConnector.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-FactoryTestNodeConnector.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo -c -o test/test_parser_module_tests-FactoryTestNodeConnector.obj `if test -f 'test/FactoryTestNodeConnector.cc'; then $(CYGPATH_W) 'test/FactoryTestNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/FactoryTestNodeConnector.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/FactoryTestNodeConnector.cc' object='test/test_parser_module_tests-FactoryTestNodeConnector.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_parser_module_tests-FactoryTestNodeConnector.obj `if test -f '../expr/test/FactoryTestNodeConnector.cc'; then $(CYGPATH_W) '../expr/test/FactoryTestNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/FactoryTestNodeConnector.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-FactoryTestNodeConnector.obj `if test -f 'test/FactoryTestNodeConnector.cc'; then $(CYGPATH_W) 'test/FactoryTestNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/FactoryTestNodeConnector.cc'; fi`
 
-../expr/test/test_parser_module_tests-TrivialNodeConnector.o: ../expr/test/TrivialNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_parser_module_tests-TrivialNodeConnector.o -MD -MP -MF ../expr/test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo -c -o ../expr/test/test_parser_module_tests-TrivialNodeConnector.o `test -f '../expr/test/TrivialNodeConnector.cc' || echo '$(srcdir)/'`../expr/test/TrivialNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo ../expr/test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/TrivialNodeConnector.cc' object='../expr/test/test_parser_module_tests-TrivialNodeConnector.o' libtool=no @AMDEPBACKSLASH@
+test/test_parser_module_tests-TrivialNodeConnector.o: test/TrivialNodeConnector.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-TrivialNodeConnector.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo -c -o test/test_parser_module_tests-TrivialNodeConnector.o `test -f 'test/TrivialNodeConnector.cc' || echo '$(srcdir)/'`test/TrivialNodeConnector.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/TrivialNodeConnector.cc' object='test/test_parser_module_tests-TrivialNodeConnector.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_parser_module_tests-TrivialNodeConnector.o `test -f '../expr/test/TrivialNodeConnector.cc' || echo '$(srcdir)/'`../expr/test/TrivialNodeConnector.cc
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-TrivialNodeConnector.o `test -f 'test/TrivialNodeConnector.cc' || echo '$(srcdir)/'`test/TrivialNodeConnector.cc
 
-../expr/test/test_parser_module_tests-TrivialNodeConnector.obj: ../expr/test/TrivialNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_parser_module_tests-TrivialNodeConnector.obj -MD -MP -MF ../expr/test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo -c -o ../expr/test/test_parser_module_tests-TrivialNodeConnector.obj `if test -f '../expr/test/TrivialNodeConnector.cc'; then $(CYGPATH_W) '../expr/test/TrivialNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/TrivialNodeConnector.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo ../expr/test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/TrivialNodeConnector.cc' object='../expr/test/test_parser_module_tests-TrivialNodeConnector.obj' libtool=no @AMDEPBACKSLASH@
+test/test_parser_module_tests-TrivialNodeConnector.obj: test/TrivialNodeConnector.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-TrivialNodeConnector.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo -c -o test/test_parser_module_tests-TrivialNodeConnector.obj `if test -f 'test/TrivialNodeConnector.cc'; then $(CYGPATH_W) 'test/TrivialNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/TrivialNodeConnector.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/TrivialNodeConnector.cc' object='test/test_parser_module_tests-TrivialNodeConnector.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_parser_module_tests-TrivialNodeConnector.obj `if test -f '../expr/test/TrivialNodeConnector.cc'; then $(CYGPATH_W) '../expr/test/TrivialNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/TrivialNodeConnector.cc'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-TrivialNodeConnector.obj `if test -f 'test/TrivialNodeConnector.cc'; then $(CYGPATH_W) 'test/TrivialNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/TrivialNodeConnector.cc'; fi`
 
 test/test_parser_module_tests-constantXmlParserTest.o: test/constantXmlParserTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-constantXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-constantXmlParserTest.Tpo -c -o test/test_parser_module_tests-constantXmlParserTest.o `test -f 'test/constantXmlParserTest.cc' || echo '$(srcdir)/'`test/constantXmlParserTest.cc
@@ -1097,8 +1087,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ../expr/test/$(DEPDIR)/$(am__dirstamp)
-	-rm -f ../expr/test/$(am__dirstamp)
 	-rm -f test/$(DEPDIR)/$(am__dirstamp)
 	-rm -f test/$(am__dirstamp)
 
@@ -1111,7 +1099,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
 	clean-libtool mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ../expr/test/$(DEPDIR) ./$(DEPDIR) test/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1157,7 +1145,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ../expr/test/$(DEPDIR) ./$(DEPDIR) test/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
