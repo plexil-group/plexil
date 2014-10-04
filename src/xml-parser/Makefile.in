@@ -153,13 +153,25 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libPlexilXmlParser_la_LIBADD =
 am_libPlexilXmlParser_la_OBJECTS =  \
+	libPlexilXmlParser_la-ArithmeticFunctionFactory.lo \
+	libPlexilXmlParser_la-ArrayLiteralFactory.lo \
+	libPlexilXmlParser_la-ArrayVariableFactory.lo \
+	libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo \
+	libPlexilXmlParser_la-ConcreteExpressionFactory.lo \
 	libPlexilXmlParser_la-commandXmlParser.lo \
+	libPlexilXmlParser_la-ExpressionFactories.lo \
+	libPlexilXmlParser_la-ExpressionFactory.lo \
+	libPlexilXmlParser_la-Expressions.lo \
+	libPlexilXmlParser_la-FunctionFactory.lo \
+	libPlexilXmlParser_la-InternalExpressionFactories.lo \
+	libPlexilXmlParser_la-LookupFactory.lo \
 	libPlexilXmlParser_la-parseAssignment.lo \
 	libPlexilXmlParser_la-parseLibraryCall.lo \
 	libPlexilXmlParser_la-parseNode.lo \
 	libPlexilXmlParser_la-parsePlan.lo \
 	libPlexilXmlParser_la-planLibrary.lo \
-	libPlexilXmlParser_la-updateXmlParser.lo
+	libPlexilXmlParser_la-updateXmlParser.lo \
+	libPlexilXmlParser_la-UserVariableFactory.lo
 libPlexilXmlParser_la_OBJECTS = $(am_libPlexilXmlParser_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -393,9 +405,16 @@ libPlexilXmlParser_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
 
 
 # Publicly available header files
-include_HEADERS = parseNode.hh parsePlan.hh planLibrary.hh
-libPlexilXmlParser_la_SOURCES = commandXmlParser.cc parseAssignment.cc \
- parseLibraryCall.cc parseNode.cc parsePlan.cc planLibrary.cc updateXmlParser.cc
+include_HEADERS = ExpressionFactories.hh ExpressionFactory.hh Expressions.hh \
+ parseNode.hh parsePlan.hh planLibrary.hh
+
+libPlexilXmlParser_la_SOURCES = ArithmeticFunctionFactory.cc \
+ ArrayLiteralFactory.cc ArrayVariableFactory.cc ArrayVariableReferenceFactory.cc \
+ ConcreteExpressionFactory.cc commandXmlParser.cc \
+ ExpressionFactories.cc ExpressionFactory.cc Expressions.cc \
+ FunctionFactory.cc InternalExpressionFactories.cc LookupFactory.cc parseAssignment.cc \
+ parseLibraryCall.cc parseNode.cc parsePlan.cc planLibrary.cc updateXmlParser.cc \
+ UserVariableFactory.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = 
 @MODULE_TESTS_OPT_TRUE@test_parser_module_tests_SOURCES = test/parser-test-module.cc \
@@ -584,6 +603,18 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@../expr/test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@../expr/test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArithmeticFunctionFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArrayLiteralFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArrayVariableFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArrayVariableReferenceFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ConcreteExpressionFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ExpressionFactories.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ExpressionFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-Expressions.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-FunctionFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-InternalExpressionFactories.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-LookupFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-UserVariableFactory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-commandXmlParser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parseAssignment.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parseLibraryCall.Plo@am__quote@
@@ -625,12 +656,89 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
+libPlexilXmlParser_la-ArithmeticFunctionFactory.lo: ArithmeticFunctionFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ArithmeticFunctionFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ArithmeticFunctionFactory.Tpo -c -o libPlexilXmlParser_la-ArithmeticFunctionFactory.lo `test -f 'ArithmeticFunctionFactory.cc' || echo '$(srcdir)/'`ArithmeticFunctionFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ArithmeticFunctionFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ArithmeticFunctionFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArithmeticFunctionFactory.cc' object='libPlexilXmlParser_la-ArithmeticFunctionFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArithmeticFunctionFactory.lo `test -f 'ArithmeticFunctionFactory.cc' || echo '$(srcdir)/'`ArithmeticFunctionFactory.cc
+
+libPlexilXmlParser_la-ArrayLiteralFactory.lo: ArrayLiteralFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ArrayLiteralFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ArrayLiteralFactory.Tpo -c -o libPlexilXmlParser_la-ArrayLiteralFactory.lo `test -f 'ArrayLiteralFactory.cc' || echo '$(srcdir)/'`ArrayLiteralFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ArrayLiteralFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ArrayLiteralFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayLiteralFactory.cc' object='libPlexilXmlParser_la-ArrayLiteralFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArrayLiteralFactory.lo `test -f 'ArrayLiteralFactory.cc' || echo '$(srcdir)/'`ArrayLiteralFactory.cc
+
+libPlexilXmlParser_la-ArrayVariableFactory.lo: ArrayVariableFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ArrayVariableFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableFactory.Tpo -c -o libPlexilXmlParser_la-ArrayVariableFactory.lo `test -f 'ArrayVariableFactory.cc' || echo '$(srcdir)/'`ArrayVariableFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayVariableFactory.cc' object='libPlexilXmlParser_la-ArrayVariableFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArrayVariableFactory.lo `test -f 'ArrayVariableFactory.cc' || echo '$(srcdir)/'`ArrayVariableFactory.cc
+
+libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo: ArrayVariableReferenceFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableReferenceFactory.Tpo -c -o libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo `test -f 'ArrayVariableReferenceFactory.cc' || echo '$(srcdir)/'`ArrayVariableReferenceFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableReferenceFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableReferenceFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayVariableReferenceFactory.cc' object='libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo `test -f 'ArrayVariableReferenceFactory.cc' || echo '$(srcdir)/'`ArrayVariableReferenceFactory.cc
+
+libPlexilXmlParser_la-ConcreteExpressionFactory.lo: ConcreteExpressionFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ConcreteExpressionFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ConcreteExpressionFactory.Tpo -c -o libPlexilXmlParser_la-ConcreteExpressionFactory.lo `test -f 'ConcreteExpressionFactory.cc' || echo '$(srcdir)/'`ConcreteExpressionFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ConcreteExpressionFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ConcreteExpressionFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ConcreteExpressionFactory.cc' object='libPlexilXmlParser_la-ConcreteExpressionFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ConcreteExpressionFactory.lo `test -f 'ConcreteExpressionFactory.cc' || echo '$(srcdir)/'`ConcreteExpressionFactory.cc
+
 libPlexilXmlParser_la-commandXmlParser.lo: commandXmlParser.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-commandXmlParser.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-commandXmlParser.Tpo -c -o libPlexilXmlParser_la-commandXmlParser.lo `test -f 'commandXmlParser.cc' || echo '$(srcdir)/'`commandXmlParser.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-commandXmlParser.Tpo $(DEPDIR)/libPlexilXmlParser_la-commandXmlParser.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='commandXmlParser.cc' object='libPlexilXmlParser_la-commandXmlParser.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-commandXmlParser.lo `test -f 'commandXmlParser.cc' || echo '$(srcdir)/'`commandXmlParser.cc
+
+libPlexilXmlParser_la-ExpressionFactories.lo: ExpressionFactories.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ExpressionFactories.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ExpressionFactories.Tpo -c -o libPlexilXmlParser_la-ExpressionFactories.lo `test -f 'ExpressionFactories.cc' || echo '$(srcdir)/'`ExpressionFactories.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ExpressionFactories.Tpo $(DEPDIR)/libPlexilXmlParser_la-ExpressionFactories.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExpressionFactories.cc' object='libPlexilXmlParser_la-ExpressionFactories.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ExpressionFactories.lo `test -f 'ExpressionFactories.cc' || echo '$(srcdir)/'`ExpressionFactories.cc
+
+libPlexilXmlParser_la-ExpressionFactory.lo: ExpressionFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ExpressionFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ExpressionFactory.Tpo -c -o libPlexilXmlParser_la-ExpressionFactory.lo `test -f 'ExpressionFactory.cc' || echo '$(srcdir)/'`ExpressionFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ExpressionFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ExpressionFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExpressionFactory.cc' object='libPlexilXmlParser_la-ExpressionFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ExpressionFactory.lo `test -f 'ExpressionFactory.cc' || echo '$(srcdir)/'`ExpressionFactory.cc
+
+libPlexilXmlParser_la-Expressions.lo: Expressions.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-Expressions.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-Expressions.Tpo -c -o libPlexilXmlParser_la-Expressions.lo `test -f 'Expressions.cc' || echo '$(srcdir)/'`Expressions.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-Expressions.Tpo $(DEPDIR)/libPlexilXmlParser_la-Expressions.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Expressions.cc' object='libPlexilXmlParser_la-Expressions.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-Expressions.lo `test -f 'Expressions.cc' || echo '$(srcdir)/'`Expressions.cc
+
+libPlexilXmlParser_la-FunctionFactory.lo: FunctionFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-FunctionFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-FunctionFactory.Tpo -c -o libPlexilXmlParser_la-FunctionFactory.lo `test -f 'FunctionFactory.cc' || echo '$(srcdir)/'`FunctionFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-FunctionFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-FunctionFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='FunctionFactory.cc' object='libPlexilXmlParser_la-FunctionFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-FunctionFactory.lo `test -f 'FunctionFactory.cc' || echo '$(srcdir)/'`FunctionFactory.cc
+
+libPlexilXmlParser_la-InternalExpressionFactories.lo: InternalExpressionFactories.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-InternalExpressionFactories.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-InternalExpressionFactories.Tpo -c -o libPlexilXmlParser_la-InternalExpressionFactories.lo `test -f 'InternalExpressionFactories.cc' || echo '$(srcdir)/'`InternalExpressionFactories.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-InternalExpressionFactories.Tpo $(DEPDIR)/libPlexilXmlParser_la-InternalExpressionFactories.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='InternalExpressionFactories.cc' object='libPlexilXmlParser_la-InternalExpressionFactories.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-InternalExpressionFactories.lo `test -f 'InternalExpressionFactories.cc' || echo '$(srcdir)/'`InternalExpressionFactories.cc
+
+libPlexilXmlParser_la-LookupFactory.lo: LookupFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-LookupFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-LookupFactory.Tpo -c -o libPlexilXmlParser_la-LookupFactory.lo `test -f 'LookupFactory.cc' || echo '$(srcdir)/'`LookupFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-LookupFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-LookupFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='LookupFactory.cc' object='libPlexilXmlParser_la-LookupFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-LookupFactory.lo `test -f 'LookupFactory.cc' || echo '$(srcdir)/'`LookupFactory.cc
 
 libPlexilXmlParser_la-parseAssignment.lo: parseAssignment.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-parseAssignment.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-parseAssignment.Tpo -c -o libPlexilXmlParser_la-parseAssignment.lo `test -f 'parseAssignment.cc' || echo '$(srcdir)/'`parseAssignment.cc
@@ -673,6 +781,13 @@ libPlexilXmlParser_la-updateXmlParser.lo: updateXmlParser.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='updateXmlParser.cc' object='libPlexilXmlParser_la-updateXmlParser.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-updateXmlParser.lo `test -f 'updateXmlParser.cc' || echo '$(srcdir)/'`updateXmlParser.cc
+
+libPlexilXmlParser_la-UserVariableFactory.lo: UserVariableFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-UserVariableFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-UserVariableFactory.Tpo -c -o libPlexilXmlParser_la-UserVariableFactory.lo `test -f 'UserVariableFactory.cc' || echo '$(srcdir)/'`UserVariableFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-UserVariableFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-UserVariableFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='UserVariableFactory.cc' object='libPlexilXmlParser_la-UserVariableFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-UserVariableFactory.lo `test -f 'UserVariableFactory.cc' || echo '$(srcdir)/'`UserVariableFactory.cc
 
 test/test_parser_module_tests-parser-test-module.o: test/parser-test-module.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-parser-test-module.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-parser-test-module.Tpo -c -o test/test_parser_module_tests-parser-test-module.o `test -f 'test/parser-test-module.cc' || echo '$(srcdir)/'`test/parser-test-module.cc

@@ -332,10 +332,191 @@ namespace PLEXIL
     ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
   };
 
+  //
+  // Specialized expression factories for above
+  //
+
+  template <class C>
+  class NamedConstantExpressionFactory : public ExpressionFactory
+  {
+  public:
+    NamedConstantExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
+    {
+    }
+
+    ~NamedConstantExpressionFactory()
+    {
+    }
+
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    NamedConstantExpressionFactory();
+    NamedConstantExpressionFactory(const NamedConstantExpressionFactory &);
+    NamedConstantExpressionFactory &operator=(const NamedConstantExpressionFactory &);
+  };
+
+  //
+  // Factory methods
+  //
+
+  template <>
+  Expression *NamedConstantExpressionFactory<NodeStateConstant>::allocate(pugi::xml_node const expr,
+                                                                          NodeConnector *node,
+                                                                          bool &wasCreated) const
+  {
+    checkNotEmpty(expr);
+    wasCreated = false;
+    switch (parseNodeState(expr.child_value())) {
+    case INACTIVE_STATE:
+      return INACTIVE_CONSTANT();
+
+    case WAITING_STATE:
+      return WAITING_CONSTANT();
+
+    case EXECUTING_STATE:
+      return EXECUTING_CONSTANT();
+
+    case ITERATION_ENDED_STATE:
+      return ITERATION_ENDED_CONSTANT();
+
+    case FINISHED_STATE:
+      return FINISHED_CONSTANT();
+
+    case FAILING_STATE:
+      return FAILING_CONSTANT();
+
+    case FINISHING_STATE:
+      return FINISHING_CONSTANT();
+
+    default:
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr.first_child(),
+                                       "createExpression: Invalid NodeStateValue \"" << expr.child_value() << "\"");
+      return NULL;
+    }
+  }
+
+  template <>
+  Expression *NamedConstantExpressionFactory<NodeOutcomeConstant>::allocate(pugi::xml_node const expr,
+                                                                            NodeConnector *node,
+                                                                            bool &wasCreated) const
+  {
+    checkNotEmpty(expr);
+    wasCreated = false;
+    switch (parseNodeOutcome(expr.child_value())) {
+    case SUCCESS_OUTCOME:
+      return SUCCESS_CONSTANT();
+
+    case FAILURE_OUTCOME:
+      return FAILURE_CONSTANT();
+
+    case SKIPPED_OUTCOME:
+      return SKIPPED_CONSTANT();
+
+    case INTERRUPTED_OUTCOME:
+      return INTERRUPTED_CONSTANT();
+
+    default:
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr.first_child(),
+                                       "createExpression: Invalid NodeOutcomeValue \"" << expr.child_value() << "\"");
+      return NULL;
+    }
+  }
+
+  template <>
+  Expression *NamedConstantExpressionFactory<FailureTypeConstant>::allocate(pugi::xml_node const expr,
+                                                                            NodeConnector *node,
+                                                                            bool &wasCreated) const
+  {
+    checkNotEmpty(expr);
+    wasCreated = false;
+    switch (parseFailureType(expr.child_value())) {
+    case PRE_CONDITION_FAILED:
+      return PRE_CONDITION_FAILED_CONSTANT();
+
+    case POST_CONDITION_FAILED:
+      return POST_CONDITION_FAILED_CONSTANT();
+
+    case INVARIANT_CONDITION_FAILED:
+      return INVARIANT_CONDITION_FAILED_CONSTANT();
+
+    case PARENT_FAILED:
+      return PARENT_FAILED_CONSTANT();
+
+    case EXITED:
+      return EXITED_CONSTANT();
+
+    case PARENT_EXITED:
+      return PARENT_EXITED_CONSTANT();
+
+    default:
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr.first_child(),
+                                       "createExpression: Invalid FailureTypeValue \"" << expr.child_value() << "\"");
+      return NULL;
+    }
+  }
+
+  template <>
+  Expression *NamedConstantExpressionFactory<CommandHandleConstant>::allocate(pugi::xml_node const expr,
+                                                                              NodeConnector *node,
+                                                                              bool &wasCreated) const
+  {
+    checkNotEmpty(expr);
+    wasCreated = false;
+    switch (parseCommandHandleValue(expr.child_value())) {
+    case COMMAND_SENT_TO_SYSTEM:
+      return COMMAND_SENT_TO_SYSTEM_CONSTANT();
+
+    case COMMAND_ACCEPTED:
+      return COMMAND_ACCEPTED_CONSTANT();
+
+    case COMMAND_RCVD_BY_SYSTEM:
+      return COMMAND_RCVD_BY_SYSTEM_CONSTANT();
+
+    case COMMAND_FAILED:
+      return COMMAND_FAILED_CONSTANT();
+
+    case COMMAND_DENIED:
+      return COMMAND_DENIED_CONSTANT();
+
+    case COMMAND_SUCCESS:
+      return COMMAND_SUCCESS_CONSTANT();
+
+    default:
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr.first_child(),
+                                       "createExpression: Invalid CommandHandleValue \"" << expr.child_value() << "\"");
+      return NULL;
+    }
+  }
+
+// Convenience macros
+#define ENSURE_NAMED_CONSTANT_FACTORY(CLASS) template class PLEXIL::NamedConstantExpressionFactory<CLASS >;
+#define REGISTER_NAMED_CONSTANT_FACTORY(CLASS,NAME) {new PLEXIL::NamedConstantExpressionFactory<CLASS >(#NAME);}
+
+  // Named constants
+  ENSURE_NAMED_CONSTANT_FACTORY(NodeStateConstant);
+  ENSURE_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant);
+  ENSURE_NAMED_CONSTANT_FACTORY(FailureTypeConstant);
+  ENSURE_NAMED_CONSTANT_FACTORY(CommandHandleConstant);
+
   void registerInternalExpressionFactories()
   {
     static bool sl_inited = false;
     if (!sl_inited) {
+      // Named constants
+      REGISTER_NAMED_CONSTANT_FACTORY(NodeStateConstant, NodeStateValue);
+      REGISTER_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant, NodeOutcomeValue);
+      REGISTER_NAMED_CONSTANT_FACTORY(FailureTypeConstant, NodeFailureValue);
+      REGISTER_NAMED_CONSTANT_FACTORY(CommandHandleConstant, NodeCommandHandleValue);
+
       REGISTER_EXPRESSION(StateVariable, NodeStateVariable);
       REGISTER_EXPRESSION(OutcomeVariable, NodeOutcomeVariable);
       REGISTER_EXPRESSION(FailureVariable, NodeFailureVariable);

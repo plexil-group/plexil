@@ -95,12 +95,6 @@ namespace PLEXIL
   ENSURE_FUNCTION_FACTORY(SquareRoot<double>);
   ENSURE_FUNCTION_FACTORY(RealToInteger);
 
-  // Named constants
-  ENSURE_NAMED_CONSTANT_FACTORY(NodeStateConstant);
-  ENSURE_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant);
-  ENSURE_NAMED_CONSTANT_FACTORY(FailureTypeConstant);
-  ENSURE_NAMED_CONSTANT_FACTORY(CommandHandleConstant);
-
   void registerBasicExpressionFactories()
   {
     static bool sl_inited = false;
@@ -114,12 +108,6 @@ namespace PLEXIL
       REGISTER_EXPRESSION(StringConstant, StringValue);
       // New style array constants
       new ArrayLiteralFactory("ArrayValue"); // for effect
-
-      // Named constants
-      REGISTER_NAMED_CONSTANT_FACTORY(NodeStateConstant, NodeStateValue);
-      REGISTER_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant, NodeOutcomeValue);
-      REGISTER_NAMED_CONSTANT_FACTORY(FailureTypeConstant, NodeFailureValue);
-      REGISTER_NAMED_CONSTANT_FACTORY(CommandHandleConstant, NodeCommandHandleValue);
 
       // Variable references
       REGISTER_EXPRESSION(BooleanVariable, BooleanVariable);

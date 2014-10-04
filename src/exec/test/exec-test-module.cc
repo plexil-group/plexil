@@ -28,8 +28,6 @@
 #include "ExecConnector.hh"
 #include "Expression.hh"
 #include "ExpressionConstants.hh" // FALSE_EXP(), TRUE_EXP()
-#include "ExpressionFactory.hh"
-#include "Expressions.hh"
 #include "ExternalInterface.hh"
 #include "Node.hh"
 #include "NodeFactory.hh"

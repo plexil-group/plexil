@@ -37,7 +37,7 @@ include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  StateCacheMap.hh Update.hh interface-schema.hh resource-tags.hh
 
 libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
- CommandHandleVariable.cc ExternalInterface.cc Lookup.cc LookupFactory.cc \
+ CommandHandleVariable.cc ExternalInterface.cc Lookup.cc \
  QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc \
  interface-schema.cc resource-tags.cc

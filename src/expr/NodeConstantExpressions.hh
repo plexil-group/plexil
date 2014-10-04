@@ -30,7 +30,6 @@
 #include "Constant.hh"
 
 #include "CommandHandle.hh"
-#include "ExpressionFactory.hh"
 #include "NodeConstants.hh"
 
 namespace PLEXIL
@@ -123,38 +122,6 @@ namespace PLEXIL
   extern Expression *COMMAND_DENIED_CONSTANT();
   extern Expression *COMMAND_SUCCESS_CONSTANT();
 
-  //
-  // Specialized expression factories for above
-  //
-
-  template <class C>
-  class NamedConstantExpressionFactory : public ExpressionFactory
-  {
-  public:
-    NamedConstantExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
-
-    ~NamedConstantExpressionFactory()
-    {
-    }
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    NamedConstantExpressionFactory();
-    NamedConstantExpressionFactory(const NamedConstantExpressionFactory &);
-    NamedConstantExpressionFactory &operator=(const NamedConstantExpressionFactory &);
-  };
-
 } // namespace PLEXIL
-
-// Convenience macros
-#define ENSURE_NAMED_CONSTANT_FACTORY(CLASS) template class PLEXIL::NamedConstantExpressionFactory<CLASS >;
-#define REGISTER_NAMED_CONSTANT_FACTORY(CLASS,NAME) {new PLEXIL::NamedConstantExpressionFactory<CLASS >(#NAME);}
 
 #endif // PLEXIL_NODE_CONSTANT_EXPRESSIONS_HH

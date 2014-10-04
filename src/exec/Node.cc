@@ -31,12 +31,9 @@
 #include "Error.hh"
 #include "ExecConnector.hh"
 #include "ExpressionConstants.hh"
-#include "ExpressionFactory.hh"
 #include "ExternalInterface.hh"
 #include "NodeConstants.hh"
-#include "NodeFactory.hh"
 #include "PlexilExec.hh"
-#include "UserVariable.hh"
 #include "lifecycle-utils.h"
 
 #include <algorithm> // for std::sort

@@ -161,9 +161,7 @@ am_libPlexilExec_la_OBJECTS = libPlexilExec_la-Assignment.lo \
 	libPlexilExec_la-ExecListenerFilter.lo \
 	libPlexilExec_la-ExecListenerFilterFactory.lo \
 	libPlexilExec_la-ExecListenerHub.lo \
-	libPlexilExec_la-Expressions.lo \
 	libPlexilExec_la-InterfaceSchema.lo \
-	libPlexilExec_la-InternalExpressionFactories.lo \
 	libPlexilExec_la-LibraryCallNode.lo \
 	libPlexilExec_la-ListNode.lo libPlexilExec_la-Node.lo \
 	libPlexilExec_la-NodeFactory.lo \
@@ -390,15 +388,15 @@ libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecListener.hh ExecListenerBase.hh \
  ExecListenerFilter.hh ExecListenerFilterFactory.hh ExecListenerHub.hh \
- Expressions.hh InterfaceSchema.hh InternalExpressionFactories.hh \
+ InterfaceSchema.hh \
  LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh NodeTimepointValue.hh \
  NodeVariables.hh PlexilExec.hh PlexilNodeType.hh \
  PlexilResource.hh PlexilSchema.hh UpdateNode.hh plan-utils.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  ExecConnector.cc ExecListener.cc ExecListenerFilter.cc \
- ExecListenerFilterFactory.cc ExecListenerHub.cc Expressions.cc \
- InterfaceSchema.cc InternalExpressionFactories.cc LibraryCallNode.cc \
+ ExecListenerFilterFactory.cc ExecListenerHub.cc \
+ InterfaceSchema.cc LibraryCallNode.cc \
  ListNode.cc Node.cc NodeFactory.cc NodeTimepointValue.cc NodeVariables.cc \
  PlexilExec.cc PlexilNodeType.cc PlexilSchema.cc UpdateNode.cc plan-utils.cc
 
@@ -562,9 +560,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-ExecListenerFilter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-ExecListenerFilterFactory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-ExecListenerHub.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-Expressions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-InterfaceSchema.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-InternalExpressionFactories.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-LibraryCallNode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-ListNode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-Node.Plo@am__quote@
@@ -659,26 +655,12 @@ libPlexilExec_la-ExecListenerHub.lo: ExecListenerHub.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-ExecListenerHub.lo `test -f 'ExecListenerHub.cc' || echo '$(srcdir)/'`ExecListenerHub.cc
 
-libPlexilExec_la-Expressions.lo: Expressions.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-Expressions.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-Expressions.Tpo -c -o libPlexilExec_la-Expressions.lo `test -f 'Expressions.cc' || echo '$(srcdir)/'`Expressions.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExec_la-Expressions.Tpo $(DEPDIR)/libPlexilExec_la-Expressions.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Expressions.cc' object='libPlexilExec_la-Expressions.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-Expressions.lo `test -f 'Expressions.cc' || echo '$(srcdir)/'`Expressions.cc
-
 libPlexilExec_la-InterfaceSchema.lo: InterfaceSchema.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-InterfaceSchema.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-InterfaceSchema.Tpo -c -o libPlexilExec_la-InterfaceSchema.lo `test -f 'InterfaceSchema.cc' || echo '$(srcdir)/'`InterfaceSchema.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExec_la-InterfaceSchema.Tpo $(DEPDIR)/libPlexilExec_la-InterfaceSchema.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='InterfaceSchema.cc' object='libPlexilExec_la-InterfaceSchema.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-InterfaceSchema.lo `test -f 'InterfaceSchema.cc' || echo '$(srcdir)/'`InterfaceSchema.cc
-
-libPlexilExec_la-InternalExpressionFactories.lo: InternalExpressionFactories.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-InternalExpressionFactories.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-InternalExpressionFactories.Tpo -c -o libPlexilExec_la-InternalExpressionFactories.lo `test -f 'InternalExpressionFactories.cc' || echo '$(srcdir)/'`InternalExpressionFactories.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExec_la-InternalExpressionFactories.Tpo $(DEPDIR)/libPlexilExec_la-InternalExpressionFactories.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='InternalExpressionFactories.cc' object='libPlexilExec_la-InternalExpressionFactories.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-InternalExpressionFactories.lo `test -f 'InternalExpressionFactories.cc' || echo '$(srcdir)/'`InternalExpressionFactories.cc
 
 libPlexilExec_la-LibraryCallNode.lo: LibraryCallNode.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-LibraryCallNode.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-LibraryCallNode.Tpo -c -o libPlexilExec_la-LibraryCallNode.lo `test -f 'LibraryCallNode.cc' || echo '$(srcdir)/'`LibraryCallNode.cc

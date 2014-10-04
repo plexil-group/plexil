@@ -33,15 +33,15 @@ libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecListener.hh ExecListenerBase.hh \
  ExecListenerFilter.hh ExecListenerFilterFactory.hh ExecListenerHub.hh \
- Expressions.hh InterfaceSchema.hh InternalExpressionFactories.hh \
+ InterfaceSchema.hh \
  LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh NodeTimepointValue.hh \
  NodeVariables.hh PlexilExec.hh PlexilNodeType.hh \
  PlexilResource.hh PlexilSchema.hh UpdateNode.hh plan-utils.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  ExecConnector.cc ExecListener.cc ExecListenerFilter.cc \
- ExecListenerFilterFactory.cc ExecListenerHub.cc Expressions.cc \
- InterfaceSchema.cc InternalExpressionFactories.cc LibraryCallNode.cc \
+ ExecListenerFilterFactory.cc ExecListenerHub.cc \
+ InterfaceSchema.cc LibraryCallNode.cc \
  ListNode.cc Node.cc NodeFactory.cc NodeTimepointValue.cc NodeVariables.cc \
  PlexilExec.cc PlexilNodeType.cc PlexilSchema.cc UpdateNode.cc plan-utils.cc
 

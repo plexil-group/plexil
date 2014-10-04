@@ -31,7 +31,6 @@
 #include "Constant.hh"
 
 #include "ArrayImpl.hh"
-#include "ConcreteExpressionFactory.hh"
 
 namespace PLEXIL
 {

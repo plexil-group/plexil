@@ -26,13 +26,9 @@
 
 #include "LibraryCallNode.hh"
 
-#include "Alias.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecConnector.hh"
-#include "ExpressionFactory.hh"
-#include "NodeFactory.hh"
-#include "UserVariable.hh"
 
 namespace PLEXIL
 {

@@ -32,22 +32,22 @@ libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils \
 
 include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
  ArrayReference.hh ArrayVariable.hh Assignable.hh AssignableImpl.hh \
- CommandHandle.hh ConcreteExpressionFactory.hh Constant.hh Expression.hh ExpressionConstants.hh \
- ExpressionFactories.hh ExpressionFactory.hh ExpressionImpl.hh \
- ExpressionListener.hh ExprVec.hh Function.hh FunctionFactory.hh \
+ CommandHandle.hh Constant.hh Expression.hh ExpressionConstants.hh \
+ ExpressionImpl.hh \
+ ExpressionListener.hh ExprVec.hh Function.hh \
  NodeConnector.hh NodeConstants.hh NotifierImpl.hh Operator.hh UserVariable.hh Value.hh \
  ValueType.hh expression-schema.hh
 
-libPlexilExpr_la_SOURCES = Alias.cc ArithmeticFunctionFactory.cc \
- ArithmeticOperators.cc Array.cc ArrayImpl.cc ArrayLiteralFactory.cc \
- ArrayReference.cc ArrayVariable.cc ArrayVariableFactory.cc ArrayOperators.cc \
- ArrayVariableReferenceFactory.cc Assignable.cc \
+libPlexilExpr_la_SOURCES = Alias.cc \
+ ArithmeticOperators.cc Array.cc ArrayImpl.cc \
+ ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
+ Assignable.cc \
  AssignableImpl.cc BooleanOperators.cc CommandHandle.cc Comparisons.cc \
- ConcreteExpressionFactory.cc Constant.cc Expression.cc ExpressionConstants.cc \
- ExpressionFactories.cc ExpressionFactory.cc ExpressionImpl.cc \
- ExpressionListener.cc ExprVec.cc Function.cc FunctionFactory.cc \
+ Constant.cc Expression.cc ExpressionConstants.cc \
+ ExpressionImpl.cc \
+ ExpressionListener.cc ExprVec.cc Function.cc \
  NodeConstants.cc NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc StringOperators.cc \
- UserVariable.cc UserVariableFactory.cc Value.cc ValueType.cc expression-schema.cc
+ UserVariable.cc Value.cc ValueType.cc expression-schema.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests

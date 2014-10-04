@@ -31,7 +31,6 @@
 #include "Error.hh"
 #include "ExecConnector.hh"
 #include "Function.hh"
-#include "NodeFactory.hh"
 #include "Operator.hh"
 #include "UserVariable.hh"
 

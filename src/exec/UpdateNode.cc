@@ -30,7 +30,6 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
-#include "ExpressionFactory.hh"
 #include "ExternalInterface.hh"
 #include "Function.hh"
 #include "Update.hh"

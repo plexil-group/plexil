@@ -26,7 +26,6 @@
 
 #include "NodeTimepointValue.hh"
 
-#include "ConcreteExpressionFactory.hh"
 #include "Node.hh"
 
 #include <iomanip> // for std::setprecision()

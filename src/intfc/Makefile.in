@@ -156,8 +156,7 @@ am_libPlexilIntfc_la_OBJECTS = libPlexilIntfc_la-CachedValueImpl.lo \
 	libPlexilIntfc_la-Command.lo \
 	libPlexilIntfc_la-CommandHandleVariable.lo \
 	libPlexilIntfc_la-ExternalInterface.lo \
-	libPlexilIntfc_la-Lookup.lo libPlexilIntfc_la-LookupFactory.lo \
-	libPlexilIntfc_la-QueueEntry.lo \
+	libPlexilIntfc_la-Lookup.lo libPlexilIntfc_la-QueueEntry.lo \
 	libPlexilIntfc_la-ResourceArbiterInterface.lo \
 	libPlexilIntfc_la-State.lo \
 	libPlexilIntfc_la-StateCacheEntry.lo \
@@ -391,7 +390,7 @@ include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  StateCacheMap.hh Update.hh interface-schema.hh resource-tags.hh
 
 libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
- CommandHandleVariable.cc ExternalInterface.cc Lookup.cc LookupFactory.cc \
+ CommandHandleVariable.cc ExternalInterface.cc Lookup.cc \
  QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCacheMap.cc Update.cc \
  interface-schema.cc resource-tags.cc
@@ -576,7 +575,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-CommandHandleVariable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-ExternalInterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-Lookup.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-LookupFactory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-QueueEntry.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-ResourceArbiterInterface.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-State.Plo@am__quote@
@@ -647,13 +645,6 @@ libPlexilIntfc_la-Lookup.lo: Lookup.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Lookup.cc' object='libPlexilIntfc_la-Lookup.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-Lookup.lo `test -f 'Lookup.cc' || echo '$(srcdir)/'`Lookup.cc
-
-libPlexilIntfc_la-LookupFactory.lo: LookupFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-LookupFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-LookupFactory.Tpo -c -o libPlexilIntfc_la-LookupFactory.lo `test -f 'LookupFactory.cc' || echo '$(srcdir)/'`LookupFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-LookupFactory.Tpo $(DEPDIR)/libPlexilIntfc_la-LookupFactory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='LookupFactory.cc' object='libPlexilIntfc_la-LookupFactory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-LookupFactory.lo `test -f 'LookupFactory.cc' || echo '$(srcdir)/'`LookupFactory.cc
 
 libPlexilIntfc_la-QueueEntry.lo: QueueEntry.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-QueueEntry.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-QueueEntry.Tpo -c -o libPlexilIntfc_la-QueueEntry.lo `test -f 'QueueEntry.cc' || echo '$(srcdir)/'`QueueEntry.cc
