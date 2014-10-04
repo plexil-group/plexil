@@ -50,7 +50,8 @@ namespace PLEXIL
   static vector<string> librarySearchPaths;
 
   // Place to store library nodes
-  static map<string, xml_document *> libraryMap;
+  typedef map<string, xml_document *> LibraryMap;
+  static LibraryMap libraryMap;
 
   vector<string> const &getLibraryPaths()
   {
@@ -74,7 +75,7 @@ namespace PLEXIL
 
   static void cleanLibraryMap()
   {
-    map<string, xml_document *>::iterator it = libraryMap.begin();
+    LibraryMap::iterator it = libraryMap.begin();
     while (it != libraryMap.end()) {
       xml_document *temp = it->second;
       libraryMap.erase(it);
@@ -95,6 +96,13 @@ namespace PLEXIL
     assertTrue_2(!name.empty(), "addLibraryNode: Empty name");
     // *** TODO: handle global decls ***
     // *** TODO: Check library is well formed ***
+
+    // If there is an existing entry, delete its document.
+    LibraryMap::iterator it = libraryMap.find(name);
+    if (it != libraryMap.end())
+      delete it->second;
+
+    // Insert it
     libraryMap[name] = doc;
   }
 
@@ -153,7 +161,7 @@ namespace PLEXIL
 
   xml_node getLibraryNode(string const &name, bool loadIfNotFound)
   {
-    map<string, xml_document *>::iterator it = libraryMap.find(name);
+    LibraryMap::iterator it = libraryMap.find(name);
     if (it != libraryMap.end())
       return it->second->document_element().child(NODE_TAG);
     else if (loadIfNotFound)
