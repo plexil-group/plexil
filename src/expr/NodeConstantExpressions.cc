@@ -27,9 +27,6 @@
 #include "NodeConstantExpressions.hh"
 
 #include "Error.hh"
-#include "parser-utils.hh"
-
-#include "pugixml.hpp"
 
 #define DEFINE_EXPRESSION_CONSTANT(TYPE, NAME, VALUE)\
   Expression *NAME() { static TYPE sl_ ## NAME(VALUE); return &sl_ ## NAME; }
