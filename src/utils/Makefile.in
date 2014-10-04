@@ -167,10 +167,10 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libPlexilUtils_la_LIBADD =
 am__libPlexilUtils_la_SOURCES_DIST = Debug.cc Error.cc \
 	hash-functions.c Logging.cc ParserException.cc \
-	lifecycle-utils.c parser-utils.cc stricmp.c timespec-utils.cc \
-	timeval-utils.cc JNIHelper.cc JNIUtils.cc \
-	RecursiveThreadMutex.cc ThreadMutex.cc ThreadSemaphore.cc \
-	ThreadSpawn.cc DynamicLoader.cc
+	lifecycle-utils.c stricmp.c timespec-utils.cc timeval-utils.cc \
+	JNIHelper.cc JNIUtils.cc RecursiveThreadMutex.cc \
+	ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc \
+	DynamicLoader.cc
 @JNI_OPT_TRUE@am__objects_1 = libPlexilUtils_la-JNIHelper.lo \
 @JNI_OPT_TRUE@	libPlexilUtils_la-JNIUtils.lo
 @THREADS_OPT_TRUE@am__objects_2 =  \
@@ -185,7 +185,7 @@ am_libPlexilUtils_la_OBJECTS = libPlexilUtils_la-Debug.lo \
 	libPlexilUtils_la-Logging.lo \
 	libPlexilUtils_la-ParserException.lo \
 	libPlexilUtils_la-lifecycle-utils.lo \
-	libPlexilUtils_la-parser-utils.lo libPlexilUtils_la-stricmp.lo \
+	libPlexilUtils_la-stricmp.lo \
 	libPlexilUtils_la-timespec-utils.lo \
 	libPlexilUtils_la-timeval-utils.lo $(am__objects_1) \
 	$(am__objects_2) $(am__objects_3)
@@ -199,16 +199,16 @@ am__test_utils_module_tests_SOURCES_DIST = test/TestData.cc \
 	test/util-test-module.cc test/module-tests.cc \
 	test/jni-adapter.cc
 am__dirstamp = $(am__leading_dot)dirstamp
-@JNI_OPT_TRUE@@MODULE_TESTS_OPT_TRUE@am__objects_4 = test/test_utils_module_tests-jni-adapter.$(OBJEXT)
-@MODULE_TESTS_OPT_TRUE@am_test_utils_module_tests_OBJECTS = test/test_utils_module_tests-TestData.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	test/test_utils_module_tests-util-test-module.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	test/test_utils_module_tests-module-tests.$(OBJEXT) \
+@JNI_OPT_TRUE@@MODULE_TESTS_OPT_TRUE@am__objects_4 = test/jni-adapter.$(OBJEXT)
+@MODULE_TESTS_OPT_TRUE@am_test_utils_module_tests_OBJECTS =  \
+@MODULE_TESTS_OPT_TRUE@	test/TestData.$(OBJEXT) \
+@MODULE_TESTS_OPT_TRUE@	test/util-test-module.$(OBJEXT) \
+@MODULE_TESTS_OPT_TRUE@	test/module-tests.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	$(am__objects_4)
 test_utils_module_tests_OBJECTS =  \
 	$(am_test_utils_module_tests_OBJECTS)
 @MODULE_TESTS_OPT_TRUE@test_utils_module_tests_DEPENDENCIES =  \
-@MODULE_TESTS_OPT_TRUE@	libPlexilUtils.la \
-@MODULE_TESTS_OPT_TRUE@	../third-party/pugixml/src/libpugixml.la
+@MODULE_TESTS_OPT_TRUE@	libPlexilUtils.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -273,11 +273,11 @@ am__can_run_installinfo = \
 am__include_HEADERS_DIST = ConstantMacros.hh Debug.hh \
 	Dinkum_hash_map.hh Error.hh GNU_hash_map.hh Logging.hh \
 	ParserException.hh TestSupport.hh generic_hash_map.hh \
-	hash-functions.h lifecycle-utils.h parser-utils.hh stricmp.h \
-	timespec-utils.hh timeval-utils.hh utils_main_page.hh \
-	JNIHelper.hh JNIUtils.hh ScopedOstreamRedirect.hh \
-	RecursiveThreadMutex.hh ThreadMutex.hh ThreadSemaphore.hh \
-	ThreadSpawn.hh DynamicLoader.hh
+	hash-functions.h lifecycle-utils.h stricmp.h timespec-utils.hh \
+	timeval-utils.hh utils_main_page.hh JNIHelper.hh JNIUtils.hh \
+	ScopedOstreamRedirect.hh RecursiveThreadMutex.hh \
+	ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh \
+	DynamicLoader.hh
 am__noinst_HEADERS_DIST = test/TestData.hh test/util-test-module.hh \
 	test/jni-adapter.hh
 HEADERS = $(include_HEADERS) $(noinst_HEADERS)
@@ -429,17 +429,17 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilUtils.la
-libPlexilUtils_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src
+libPlexilUtils_la_CPPFLAGS = 
 include_HEADERS = ConstantMacros.hh Debug.hh Dinkum_hash_map.hh \
 	Error.hh GNU_hash_map.hh Logging.hh ParserException.hh \
 	TestSupport.hh generic_hash_map.hh hash-functions.h \
-	lifecycle-utils.h parser-utils.hh stricmp.h timespec-utils.hh \
-	timeval-utils.hh utils_main_page.hh $(am__append_1) \
-	$(am__append_3) $(am__append_5)
+	lifecycle-utils.h stricmp.h timespec-utils.hh timeval-utils.hh \
+	utils_main_page.hh $(am__append_1) $(am__append_3) \
+	$(am__append_5)
 libPlexilUtils_la_SOURCES = Debug.cc Error.cc hash-functions.c \
-	Logging.cc ParserException.cc lifecycle-utils.c \
-	parser-utils.cc stricmp.c timespec-utils.cc timeval-utils.cc \
-	$(am__append_2) $(am__append_4) $(am__append_6)
+	Logging.cc ParserException.cc lifecycle-utils.c stricmp.c \
+	timespec-utils.cc timeval-utils.cc $(am__append_2) \
+	$(am__append_4) $(am__append_6)
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/TestData.hh \
 @MODULE_TESTS_OPT_TRUE@	test/util-test-module.hh \
 @MODULE_TESTS_OPT_TRUE@	$(am__append_7)
@@ -447,8 +447,7 @@ libPlexilUtils_la_SOURCES = Debug.cc Error.cc hash-functions.c \
 @MODULE_TESTS_OPT_TRUE@	test/TestData.cc \
 @MODULE_TESTS_OPT_TRUE@	test/util-test-module.cc \
 @MODULE_TESTS_OPT_TRUE@	test/module-tests.cc $(am__append_8)
-@MODULE_TESTS_OPT_TRUE@test_utils_module_tests_CPPFLAGS = -I../third-party/pugixml/src
-@MODULE_TESTS_OPT_TRUE@test_utils_module_tests_LDADD = libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
+@MODULE_TESTS_OPT_TRUE@test_utils_module_tests_LDADD = libPlexilUtils.la
 all: all-am
 
 .SUFFIXES:
@@ -576,14 +575,14 @@ test/$(am__dirstamp):
 test/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) test/$(DEPDIR)
 	@: > test/$(DEPDIR)/$(am__dirstamp)
-test/test_utils_module_tests-TestData.$(OBJEXT): test/$(am__dirstamp) \
+test/TestData.$(OBJEXT): test/$(am__dirstamp) \
 	test/$(DEPDIR)/$(am__dirstamp)
-test/test_utils_module_tests-util-test-module.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
-test/test_utils_module_tests-module-tests.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
-test/test_utils_module_tests-jni-adapter.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+test/util-test-module.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/module-tests.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/jni-adapter.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
 
 test/utils-module-tests$(EXEEXT): $(test_utils_module_tests_OBJECTS) $(test_utils_module_tests_DEPENDENCIES) $(EXTRA_test_utils_module_tests_DEPENDENCIES) test/$(am__dirstamp)
 	@rm -f test/utils-module-tests$(EXEEXT)
@@ -609,14 +608,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-ThreadSpawn.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-hash-functions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-lifecycle-utils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-parser-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-stricmp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-timespec-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-timeval-utils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_utils_module_tests-TestData.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_utils_module_tests-jni-adapter.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_utils_module_tests-module-tests.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_utils_module_tests-util-test-module.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/TestData.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/jni-adapter.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/module-tests.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/util-test-module.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -715,13 +713,6 @@ libPlexilUtils_la-ParserException.lo: ParserException.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-ParserException.lo `test -f 'ParserException.cc' || echo '$(srcdir)/'`ParserException.cc
 
-libPlexilUtils_la-parser-utils.lo: parser-utils.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilUtils_la-parser-utils.lo -MD -MP -MF $(DEPDIR)/libPlexilUtils_la-parser-utils.Tpo -c -o libPlexilUtils_la-parser-utils.lo `test -f 'parser-utils.cc' || echo '$(srcdir)/'`parser-utils.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilUtils_la-parser-utils.Tpo $(DEPDIR)/libPlexilUtils_la-parser-utils.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parser-utils.cc' object='libPlexilUtils_la-parser-utils.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-parser-utils.lo `test -f 'parser-utils.cc' || echo '$(srcdir)/'`parser-utils.cc
-
 libPlexilUtils_la-timespec-utils.lo: timespec-utils.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilUtils_la-timespec-utils.lo -MD -MP -MF $(DEPDIR)/libPlexilUtils_la-timespec-utils.Tpo -c -o libPlexilUtils_la-timespec-utils.lo `test -f 'timespec-utils.cc' || echo '$(srcdir)/'`timespec-utils.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilUtils_la-timespec-utils.Tpo $(DEPDIR)/libPlexilUtils_la-timespec-utils.Plo
@@ -784,62 +775,6 @@ libPlexilUtils_la-DynamicLoader.lo: DynamicLoader.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='DynamicLoader.cc' object='libPlexilUtils_la-DynamicLoader.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-DynamicLoader.lo `test -f 'DynamicLoader.cc' || echo '$(srcdir)/'`DynamicLoader.cc
-
-test/test_utils_module_tests-TestData.o: test/TestData.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_utils_module_tests-TestData.o -MD -MP -MF test/$(DEPDIR)/test_utils_module_tests-TestData.Tpo -c -o test/test_utils_module_tests-TestData.o `test -f 'test/TestData.cc' || echo '$(srcdir)/'`test/TestData.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_utils_module_tests-TestData.Tpo test/$(DEPDIR)/test_utils_module_tests-TestData.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/TestData.cc' object='test/test_utils_module_tests-TestData.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_utils_module_tests-TestData.o `test -f 'test/TestData.cc' || echo '$(srcdir)/'`test/TestData.cc
-
-test/test_utils_module_tests-TestData.obj: test/TestData.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_utils_module_tests-TestData.obj -MD -MP -MF test/$(DEPDIR)/test_utils_module_tests-TestData.Tpo -c -o test/test_utils_module_tests-TestData.obj `if test -f 'test/TestData.cc'; then $(CYGPATH_W) 'test/TestData.cc'; else $(CYGPATH_W) '$(srcdir)/test/TestData.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_utils_module_tests-TestData.Tpo test/$(DEPDIR)/test_utils_module_tests-TestData.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/TestData.cc' object='test/test_utils_module_tests-TestData.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_utils_module_tests-TestData.obj `if test -f 'test/TestData.cc'; then $(CYGPATH_W) 'test/TestData.cc'; else $(CYGPATH_W) '$(srcdir)/test/TestData.cc'; fi`
-
-test/test_utils_module_tests-util-test-module.o: test/util-test-module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_utils_module_tests-util-test-module.o -MD -MP -MF test/$(DEPDIR)/test_utils_module_tests-util-test-module.Tpo -c -o test/test_utils_module_tests-util-test-module.o `test -f 'test/util-test-module.cc' || echo '$(srcdir)/'`test/util-test-module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_utils_module_tests-util-test-module.Tpo test/$(DEPDIR)/test_utils_module_tests-util-test-module.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/util-test-module.cc' object='test/test_utils_module_tests-util-test-module.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_utils_module_tests-util-test-module.o `test -f 'test/util-test-module.cc' || echo '$(srcdir)/'`test/util-test-module.cc
-
-test/test_utils_module_tests-util-test-module.obj: test/util-test-module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_utils_module_tests-util-test-module.obj -MD -MP -MF test/$(DEPDIR)/test_utils_module_tests-util-test-module.Tpo -c -o test/test_utils_module_tests-util-test-module.obj `if test -f 'test/util-test-module.cc'; then $(CYGPATH_W) 'test/util-test-module.cc'; else $(CYGPATH_W) '$(srcdir)/test/util-test-module.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_utils_module_tests-util-test-module.Tpo test/$(DEPDIR)/test_utils_module_tests-util-test-module.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/util-test-module.cc' object='test/test_utils_module_tests-util-test-module.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_utils_module_tests-util-test-module.obj `if test -f 'test/util-test-module.cc'; then $(CYGPATH_W) 'test/util-test-module.cc'; else $(CYGPATH_W) '$(srcdir)/test/util-test-module.cc'; fi`
-
-test/test_utils_module_tests-module-tests.o: test/module-tests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_utils_module_tests-module-tests.o -MD -MP -MF test/$(DEPDIR)/test_utils_module_tests-module-tests.Tpo -c -o test/test_utils_module_tests-module-tests.o `test -f 'test/module-tests.cc' || echo '$(srcdir)/'`test/module-tests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_utils_module_tests-module-tests.Tpo test/$(DEPDIR)/test_utils_module_tests-module-tests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/module-tests.cc' object='test/test_utils_module_tests-module-tests.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_utils_module_tests-module-tests.o `test -f 'test/module-tests.cc' || echo '$(srcdir)/'`test/module-tests.cc
-
-test/test_utils_module_tests-module-tests.obj: test/module-tests.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_utils_module_tests-module-tests.obj -MD -MP -MF test/$(DEPDIR)/test_utils_module_tests-module-tests.Tpo -c -o test/test_utils_module_tests-module-tests.obj `if test -f 'test/module-tests.cc'; then $(CYGPATH_W) 'test/module-tests.cc'; else $(CYGPATH_W) '$(srcdir)/test/module-tests.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_utils_module_tests-module-tests.Tpo test/$(DEPDIR)/test_utils_module_tests-module-tests.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/module-tests.cc' object='test/test_utils_module_tests-module-tests.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_utils_module_tests-module-tests.obj `if test -f 'test/module-tests.cc'; then $(CYGPATH_W) 'test/module-tests.cc'; else $(CYGPATH_W) '$(srcdir)/test/module-tests.cc'; fi`
-
-test/test_utils_module_tests-jni-adapter.o: test/jni-adapter.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_utils_module_tests-jni-adapter.o -MD -MP -MF test/$(DEPDIR)/test_utils_module_tests-jni-adapter.Tpo -c -o test/test_utils_module_tests-jni-adapter.o `test -f 'test/jni-adapter.cc' || echo '$(srcdir)/'`test/jni-adapter.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_utils_module_tests-jni-adapter.Tpo test/$(DEPDIR)/test_utils_module_tests-jni-adapter.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/jni-adapter.cc' object='test/test_utils_module_tests-jni-adapter.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_utils_module_tests-jni-adapter.o `test -f 'test/jni-adapter.cc' || echo '$(srcdir)/'`test/jni-adapter.cc
-
-test/test_utils_module_tests-jni-adapter.obj: test/jni-adapter.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_utils_module_tests-jni-adapter.obj -MD -MP -MF test/$(DEPDIR)/test_utils_module_tests-jni-adapter.Tpo -c -o test/test_utils_module_tests-jni-adapter.obj `if test -f 'test/jni-adapter.cc'; then $(CYGPATH_W) 'test/jni-adapter.cc'; else $(CYGPATH_W) '$(srcdir)/test/jni-adapter.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_utils_module_tests-jni-adapter.Tpo test/$(DEPDIR)/test_utils_module_tests-jni-adapter.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/jni-adapter.cc' object='test/test_utils_module_tests-jni-adapter.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_utils_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_utils_module_tests-jni-adapter.obj `if test -f 'test/jni-adapter.cc'; then $(CYGPATH_W) 'test/jni-adapter.cc'; else $(CYGPATH_W) '$(srcdir)/test/jni-adapter.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

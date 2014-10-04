@@ -215,8 +215,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 test_expr_module_tests_OBJECTS = $(am_test_expr_module_tests_OBJECTS)
 @MODULE_TESTS_OPT_TRUE@test_expr_module_tests_DEPENDENCIES =  \
 @MODULE_TESTS_OPT_TRUE@	libPlexilExpr.la \
-@MODULE_TESTS_OPT_TRUE@	../utils/libPlexilUtils.la \
-@MODULE_TESTS_OPT_TRUE@	../third-party/pugixml/src/libpugixml.la
+@MODULE_TESTS_OPT_TRUE@	../utils/libPlexilUtils.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -411,9 +410,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilExpr.la
-libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils \
- -I@top_srcdir@/third-party/pugixml/src
-
+libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils
 include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
  ArrayReference.hh ArrayVariable.hh Assignable.hh AssignableImpl.hh \
  CommandHandle.hh Constant.hh Expression.hh ExpressionConstants.hh \
@@ -447,9 +444,7 @@ libPlexilExpr_la_SOURCES = Alias.cc \
 @MODULE_TESTS_OPT_TRUE@ test/expr-test-module.cc
 
 @MODULE_TESTS_OPT_TRUE@test_expr_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils
-@MODULE_TESTS_OPT_TRUE@test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la \
-@MODULE_TESTS_OPT_TRUE@ ../third-party/pugixml/src/libpugixml.la
-
+@MODULE_TESTS_OPT_TRUE@test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la
 all: all-am
 
 .SUFFIXES:

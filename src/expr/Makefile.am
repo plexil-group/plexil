@@ -27,8 +27,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilExpr.la
 
-libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils \
- -I@top_srcdir@/third-party/pugixml/src
+libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils
 
 include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
  ArrayReference.hh ArrayVariable.hh Assignable.hh AssignableImpl.hh \
@@ -63,6 +62,5 @@ if MODULE_TESTS_OPT
  test/valueTest.cc test/variablesTest.cc \
  test/expr-test-module.cc
   test_expr_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils
-  test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la \
- ../third-party/pugixml/src/libpugixml.la
+  test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la
 endif

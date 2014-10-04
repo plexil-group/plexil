@@ -186,8 +186,7 @@ test_intfc_module_tests_OBJECTS =  \
 @MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_DEPENDENCIES =  \
 @MODULE_TESTS_OPT_TRUE@	libPlexilIntfc.la \
 @MODULE_TESTS_OPT_TRUE@	../expr/libPlexilExpr.la \
-@MODULE_TESTS_OPT_TRUE@	../utils/libPlexilUtils.la \
-@MODULE_TESTS_OPT_TRUE@	../third-party/pugixml/src/libpugixml.la
+@MODULE_TESTS_OPT_TRUE@	../utils/libPlexilUtils.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -380,9 +379,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilIntfc.la
-libPlexilIntfc_la_CPPFLAGS = -I@top_srcdir@/expr -I@top_srcdir@/utils \
- -I@top_srcdir@/third-party/pugixml/src
-
+libPlexilIntfc_la_CPPFLAGS = -I@top_srcdir@/expr -I@top_srcdir@/utils
 include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
  CommandHandleVariable.hh ExternalInterface.hh \
  InputQueue.hh Lookup.hh QueueEntry.hh \
@@ -400,11 +397,9 @@ libPlexilIntfc_la_SOURCES = CachedValueImpl.cc Command.cc \
 @MODULE_TESTS_OPT_TRUE@ ../expr/test/TrivialListener.cc ../expr/test/TrivialNodeConnector.cc \
 @MODULE_TESTS_OPT_TRUE@ test/lookupsTest.cc test/stateTest.cc test/intfc-test-module.cc
 
-@MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils \
-@MODULE_TESTS_OPT_TRUE@ -I../expr
-
+@MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_CPPFLAGS = -I../utils -I../expr
 @MODULE_TESTS_OPT_TRUE@test_intfc_module_tests_LDADD = libPlexilIntfc.la ../expr/libPlexilExpr.la \
-@MODULE_TESTS_OPT_TRUE@ ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
+@MODULE_TESTS_OPT_TRUE@ ../utils/libPlexilUtils.la
 
 all: all-am
 
