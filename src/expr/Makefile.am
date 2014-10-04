@@ -35,7 +35,7 @@ include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
  ExpressionImpl.hh \
  ExpressionListener.hh ExprVec.hh Function.hh \
  NodeConnector.hh NodeConstants.hh NotifierImpl.hh Operator.hh UserVariable.hh Value.hh \
- ValueType.hh expression-schema.hh
+ ValueType.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \
  ArithmeticOperators.cc Array.cc ArrayImpl.cc \
@@ -46,7 +46,7 @@ libPlexilExpr_la_SOURCES = Alias.cc \
  ExpressionImpl.cc \
  ExpressionListener.cc ExprVec.cc Function.cc \
  NodeConstants.cc NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc StringOperators.cc \
- UserVariable.cc Value.cc ValueType.cc expression-schema.cc
+ UserVariable.cc Value.cc ValueType.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests

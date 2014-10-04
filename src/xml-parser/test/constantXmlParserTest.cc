@@ -26,7 +26,6 @@
 
 #include "ArrayImpl.hh"
 #include "ExpressionFactory.hh"
-#include "ExpressionFactories.hh"
 #include "TestSupport.hh"
 #include "test/TrivialNodeConnector.hh"
 
@@ -764,8 +763,6 @@ static bool stringArrayConstantXmlParserTest()
 
 bool constantXmlParserTest()
 {
-  // Initialize factories
-  registerBasicExpressionFactories();
   // Initialize infrastructure
   TrivialNodeConnector conn;
   nc = &conn;

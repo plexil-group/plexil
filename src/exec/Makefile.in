@@ -169,7 +169,6 @@ am_libPlexilExec_la_OBJECTS = libPlexilExec_la-Assignment.lo \
 	libPlexilExec_la-NodeVariables.lo \
 	libPlexilExec_la-PlexilExec.lo \
 	libPlexilExec_la-PlexilNodeType.lo \
-	libPlexilExec_la-PlexilSchema.lo \
 	libPlexilExec_la-UpdateNode.lo libPlexilExec_la-plan-utils.lo
 libPlexilExec_la_OBJECTS = $(am_libPlexilExec_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -391,14 +390,14 @@ include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  InterfaceSchema.hh \
  LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh NodeTimepointValue.hh \
  NodeVariables.hh PlexilExec.hh PlexilNodeType.hh \
- PlexilResource.hh PlexilSchema.hh UpdateNode.hh plan-utils.hh
+ PlexilResource.hh UpdateNode.hh plan-utils.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  ExecConnector.cc ExecListener.cc ExecListenerFilter.cc \
  ExecListenerFilterFactory.cc ExecListenerHub.cc \
  InterfaceSchema.cc LibraryCallNode.cc \
  ListNode.cc Node.cc NodeFactory.cc NodeTimepointValue.cc NodeVariables.cc \
- PlexilExec.cc PlexilNodeType.cc PlexilSchema.cc UpdateNode.cc plan-utils.cc
+ PlexilExec.cc PlexilNodeType.cc UpdateNode.cc plan-utils.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = $(am__append_1)
 @MODULE_TESTS_OPT_TRUE@test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
@@ -569,7 +568,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-NodeVariables.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-PlexilExec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-PlexilNodeType.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-PlexilSchema.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-UpdateNode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-plan-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_exec_module_tests-exec-test-module.Po@am__quote@
@@ -717,13 +715,6 @@ libPlexilExec_la-PlexilNodeType.lo: PlexilNodeType.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilNodeType.cc' object='libPlexilExec_la-PlexilNodeType.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-PlexilNodeType.lo `test -f 'PlexilNodeType.cc' || echo '$(srcdir)/'`PlexilNodeType.cc
-
-libPlexilExec_la-PlexilSchema.lo: PlexilSchema.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-PlexilSchema.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-PlexilSchema.Tpo -c -o libPlexilExec_la-PlexilSchema.lo `test -f 'PlexilSchema.cc' || echo '$(srcdir)/'`PlexilSchema.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExec_la-PlexilSchema.Tpo $(DEPDIR)/libPlexilExec_la-PlexilSchema.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilSchema.cc' object='libPlexilExec_la-PlexilSchema.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-PlexilSchema.lo `test -f 'PlexilSchema.cc' || echo '$(srcdir)/'`PlexilSchema.cc
 
 libPlexilExec_la-UpdateNode.lo: UpdateNode.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-UpdateNode.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-UpdateNode.Tpo -c -o libPlexilExec_la-UpdateNode.lo `test -f 'UpdateNode.cc' || echo '$(srcdir)/'`UpdateNode.cc

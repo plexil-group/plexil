@@ -27,7 +27,6 @@
 #include "ExpressionFactory.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "Lookup.hh"
-#include "LookupFactory.hh"
 #include "TestSupport.hh"
 
 #include "pugixml.hpp"
@@ -87,9 +86,6 @@ static bool testBasics()
 
 bool lookupXmlParserTest()
 {
-  registerLookupFactories();
-
   runTest(testBasics);
-
   return true;
 }

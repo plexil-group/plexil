@@ -115,7 +115,6 @@ namespace PLEXIL
 } // namespace PLEXIL
 
 // Convenience macros
-#define ENSURE_ARITHMETIC_FUNCTION_FACTORY(CLASS) template class PLEXIL::ArithmeticFunctionFactoryImpl<CLASS>;
 #define REGISTER_ARITHMETIC_FUNCTION(CLASS,NAME) {new PLEXIL::ArithmeticFunctionFactoryImpl<CLASS>(#NAME);}
 
 #endif // PLEXIL_ARITHMETIC_FUNCTION_FACTORY_HH

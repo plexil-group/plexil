@@ -30,10 +30,11 @@
 #include "ConcreteExpressionFactory.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "expression-schema.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
+#include "PlexilSchema.hh"
+
 #include "pugixml.hpp"
 
 #include <map>
@@ -117,7 +118,7 @@ namespace PLEXIL
                                      "Not an XML element");
     assertTrue_2(node, "createAssignable: Internal error: Null node argument");
     Expression *resultExpr = NULL;
-    if (testTagSuffix(VAR_TAG, expr))
+    if (testTagSuffix(VAR_SUFFIX, expr))
       resultExpr = createExpression(expr, node, wasCreated);
     else if (testTag(ARRAYELEMENT_TAG, expr))
       resultExpr = createMutableArrayReference(expr, node, wasCreated);

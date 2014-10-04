@@ -28,8 +28,8 @@
 #include "CommandNode.hh"
 #include "Error.hh"
 #include "ExpressionFactory.hh"
-#include "interface-schema.hh"
 #include "parser-utils.hh"
+#include "PlexilSchema.hh"
 #include "resource-tags.hh"
 
 #include "pugixml.hpp"

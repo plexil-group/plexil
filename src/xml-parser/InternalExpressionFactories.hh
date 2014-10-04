@@ -27,10 +27,165 @@
 #ifndef PLEXIL_INTERNAL_EXPRESSION_FACTORIES_HH
 #define PLEXIL_INTERNAL_EXPRESSION_FACTORIES_HH
 
+#include "CommandHandleVariable.hh"
+#include "ConcreteExpressionFactory.hh"
+#include "NodeTimepointValue.hh"
+#include "NodeVariables.hh"
+
 namespace PLEXIL
 {
 
-  extern void registerInternalExpressionFactories();
+  //
+  // Declaration of templates for internal variable/reference factories
+  //
+
+  template <>
+  class ConcreteExpressionFactory<StateVariable> : public ExpressionFactory
+  {
+  public:
+    ConcreteExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
+    {
+    }
+
+    ~ConcreteExpressionFactory()
+    {
+    }
+
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory();
+    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
+    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
+  };
+
+  template <>
+  class ConcreteExpressionFactory<OutcomeVariable> : public ExpressionFactory
+  {
+  public:
+    ConcreteExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
+    {
+    }
+
+    ~ConcreteExpressionFactory()
+    {
+    }
+
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory();
+    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
+    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
+  };
+
+  template <>
+  class ConcreteExpressionFactory<FailureVariable> : public ExpressionFactory
+  {
+  public:
+    ConcreteExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
+    {
+    }
+
+    ~ConcreteExpressionFactory()
+    {
+    }
+
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory();
+    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
+    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
+  };
+
+  template <>
+  class ConcreteExpressionFactory<CommandHandleVariable> : public ExpressionFactory
+  {
+  public:
+    ConcreteExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
+    {
+    }
+
+    ~ConcreteExpressionFactory()
+    {
+    }
+
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory();
+    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
+    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
+  };
+
+  template <>
+  class ConcreteExpressionFactory<NodeTimepointValue> : public ExpressionFactory
+  {
+  public:
+    ConcreteExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
+    {
+    }
+
+    ~ConcreteExpressionFactory()
+    {
+    }
+
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory();
+    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
+    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
+  };
+
+  //
+  // Specialization of ExpressionFactory for node internal constants
+  //
+
+  template <class C>
+  class NamedConstantExpressionFactory : public ExpressionFactory
+  {
+  public:
+    NamedConstantExpressionFactory(const std::string& name)
+      : ExpressionFactory(name) 
+    {
+    }
+
+    ~NamedConstantExpressionFactory()
+    {
+    }
+
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool &wasCreated) const;
+
+  private:
+    // Default, copy, assign all prohibited
+    NamedConstantExpressionFactory();
+    NamedConstantExpressionFactory(const NamedConstantExpressionFactory &);
+    NamedConstantExpressionFactory &operator=(const NamedConstantExpressionFactory &);
+  };
 
 } // namespace PLEXIL
 

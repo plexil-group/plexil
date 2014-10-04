@@ -29,9 +29,9 @@
 #include "ArrayVariable.hh"
 #include "Constant.hh"
 #include "Error.hh"
-#include "expression-schema.hh"
 #include "NodeConnector.hh"
 #include "parser-utils.hh"
+#include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 

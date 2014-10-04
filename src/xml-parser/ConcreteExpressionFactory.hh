@@ -168,8 +168,4 @@ namespace PLEXIL
 
 } // namespace PLEXIL
 
-// Convenience macros
-#define ENSURE_EXPRESSION_FACTORY(CLASS) template class PLEXIL::ConcreteExpressionFactory<CLASS >;
-#define REGISTER_EXPRESSION(CLASS,NAME) {new PLEXIL::ConcreteExpressionFactory<CLASS >(#NAME);}
-
 #endif // PLEXIL_CONCRETE_EXPRESSION_FACTORY_HH

@@ -31,16 +31,16 @@ libPlexilXmlParser_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
  -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
 
 # Publicly available header files
-include_HEADERS = ExpressionFactories.hh ExpressionFactory.hh Expressions.hh \
- parseNode.hh parsePlan.hh parser-utils.hh planLibrary.hh
+include_HEADERS = ExpressionFactory.hh Expressions.hh parseNode.hh parsePlan.hh \
+ parser-utils.hh planLibrary.hh PlexilSchema.hh
 
 libPlexilXmlParser_la_SOURCES = ArithmeticFunctionFactory.cc \
  ArrayLiteralFactory.cc ArrayVariableFactory.cc ArrayVariableReferenceFactory.cc \
- ConcreteExpressionFactory.cc commandXmlParser.cc \
- ExpressionFactories.cc ExpressionFactory.cc Expressions.cc \
- FunctionFactory.cc InternalExpressionFactories.cc LookupFactory.cc parseAssignment.cc \
- parseLibraryCall.cc parseNode.cc parsePlan.cc parser-utils.cc planLibrary.cc \
- updateXmlParser.cc UserVariableFactory.cc
+ ConcreteExpressionFactory.cc commandXmlParser.cc ExpressionFactory.cc \
+ Expressions.cc FunctionFactory.cc InternalExpressionFactories.cc \
+ LookupFactory.cc parseAssignment.cc parseLibraryCall.cc parseNode.cc \
+ parsePlan.cc parser-utils.cc planLibrary.cc PlexilSchema.cc updateXmlParser.cc \
+ UserVariableFactory.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/parser-module-tests

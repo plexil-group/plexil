@@ -25,6 +25,11 @@
 */
 
 #include "FunctionFactory.hh"
+
+#include "ArithmeticOperators.hh"
+#include "BooleanOperators.hh"
+#include "Comparisons.hh"
+
 #include "pugixml.hpp"
 
 namespace PLEXIL
@@ -68,5 +73,36 @@ namespace PLEXIL
 
     return makeExprVec(exprs, garbage);
   }
+
+  //
+  // Concrete instantiations of class templates
+  //
+
+  // Convenience macros
+#define ENSURE_FUNCTION_FACTORY(CLASS) template class PLEXIL::FunctionFactoryImpl<CLASS>;
+
+  // Comparisons
+  ENSURE_FUNCTION_FACTORY(Equal<bool>);
+  ENSURE_FUNCTION_FACTORY(Equal<std::string>);
+  ENSURE_FUNCTION_FACTORY(Equal<uint16_t>);
+
+  ENSURE_FUNCTION_FACTORY(NotEqual<bool>);
+  ENSURE_FUNCTION_FACTORY(NotEqual<std::string>);
+  ENSURE_FUNCTION_FACTORY(NotEqual<uint16_t>);
+
+  // Not currently in the schema
+  // ENSURE_FUNCTION_FACTORY(GreaterThan<std::string>);
+  // ENSURE_FUNCTION_FACTORY(GreaterEqual<std::string>);
+  // ENSURE_FUNCTION_FACTORY(LessThan<std::string>);
+  // ENSURE_FUNCTION_FACTORY(LessEqual<std::string>);
+
+  // Boolean operators
+  ENSURE_FUNCTION_FACTORY(BooleanNot);
+  ENSURE_FUNCTION_FACTORY(BooleanOr);
+  ENSURE_FUNCTION_FACTORY(BooleanAnd);
+  ENSURE_FUNCTION_FACTORY(BooleanXor);
+  ENSURE_FUNCTION_FACTORY(SquareRoot<double>);
+  ENSURE_FUNCTION_FACTORY(RealToInteger);
+
 
 } // namespace PLEXIL

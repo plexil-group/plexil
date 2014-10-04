@@ -92,6 +92,9 @@ namespace PLEXIL
   extern char const *NODE_FAILURE_STR;
   extern char const *NODE_COMMAND_HANDLE_STR;
 
+  extern char const *VAL_SUFFIX;
+  extern char const *VAR_SUFFIX;
+
   extern char const *UNKNOWN_STR;
 
   // Utility functions

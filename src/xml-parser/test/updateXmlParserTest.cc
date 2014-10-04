@@ -25,7 +25,6 @@
 */
 
 #include "ExpressionFactory.hh"
-#include "ExpressionFactories.hh"
 #include "TestSupport.hh"
 #include "test/TrivialNodeConnector.hh"
 #include "Update.hh"

@@ -29,28 +29,30 @@ namespace PLEXIL
   char const *PLEXIL_PLAN_TAG = "PlexilPlan";
   char const *GLOBAL_DECLARATIONS_TAG = "GlobalDeclarations";
   char const *NODE_TAG = "Node";
+  char const *NODETYPE_ATTR = "NodeType";
   char const *NODEID_TAG = "NodeId";
+  char const *COMMENT_TAG = "Comment";
   char const *PRIORITY_TAG = "Priority";
-  char const *INTERFACE_TAG = "Interface";
+
   char const *VAR_DECLS_TAG = "VariableDeclarations";
   char const *DECL_VAR_TAG = "DeclareVariable";
+  char const *NAME_TAG = "Name";
+  char const *TYPE_TAG = "Type";
+  char const *INITIALVAL_TAG = "InitialValue";
+  char const *DECL_ARRAY_TAG = "DeclareArray";
+  char const *MAX_SIZE_TAG = "MaxSize";
+
+  char const *INTERFACE_TAG = "Interface";
   char const *IN_TAG = "In";
   char const *INOUT_TAG = "InOut";
-  char const *MAXSIZE_TAG = "MaxSize";
-  char const *INITIALVAL_TAG = "InitialValue";
-  char const *ASSN_TAG = "Assignment";
+
   char const *BODY_TAG = "NodeBody";
+  char const *ASSN_TAG = "Assignment";
   char const *RHS_TAG = "RHS";
-  char const *NODELIST_TAG = "NodeList";
   char const *LIBRARYNODECALL_TAG = "LibraryNodeCall";
   char const *ALIAS_TAG = "Alias";
   char const *NODE_PARAMETER_TAG = "NodeParameter";
-  char const *INDEX_TAG = "Index";
-  char const *NODEREF_TAG = "NodeRef";
-  char const *STATEVAL_TAG = "NodeStateValue";
-  char const *TIMEPOINT_TAG = "Timepoint";
-  char const *COND_TAG = "Condition";
-  char const *COMMENT_TAG = "Comment";
+  char const *NODELIST_TAG = "NodeList";
 
   // condition names
   char const *START_CONDITION_TAG = "StartCondition";
@@ -62,19 +64,30 @@ namespace PLEXIL
   char const *EXIT_CONDITION_TAG = "ExitCondition";
   char const *SKIP_CONDITION_TAG = "SkipCondition";
 
-  char const *CONDITION_SUFFIX = "Condition";
-
-  char const *DECL_ARRAY_TAG = "DeclareArray";
-
-  char const *NODETYPE_ATTR = "NodeType";
+  char const *NODEREF_TAG = "NodeRef";
   char const *DIR_ATTR = "dir";
-
   char const *PARENT_VAL = "parent";
   char const *CHILD_VAL = "child";
   char const *SIBLING_VAL = "sibling";
   char const *SELF_VAL = "self";
 
+  char const *STATEVAL_TAG = "NodeStateValue";
+
+  char const *TIMEPOINT_TAG = "Timepoint";
   char const *START_VAL = "START";
   char const *END_VAL = "END";
+
+  char const *ARGS_TAG = "Arguments";
+  char const *CMD_TAG = "Command";
+  char const *LOOKUPNOW_TAG = "LookupNow";
+  char const *LOOKUPCHANGE_TAG = "LookupOnChange";
+  char const *PAIR_TAG = "Pair";
+  char const *TOLERANCE_TAG = "Tolerance";
+  char const *UPDATE_TAG = "Update";
+
+  char const *ARRAYELEMENT_TAG = "ArrayElement";
+  char const *INDEX_TAG = "Index";
+
+  char const *ARRAY_VAL_TAG = "ArrayValue";
 
 }

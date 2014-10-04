@@ -26,6 +26,8 @@
 
 #include "ArithmeticFunctionFactory.hh"
 
+#include "ArithmeticOperators.hh"
+#include "Comparisons.hh"
 #include "Error.hh"
 #include "parser-utils.hh"
 
@@ -108,5 +110,34 @@ namespace PLEXIL
     wasCreated = true;
     return new Function(oper, exprVec);
   }
+
+  // Convenience macro
+#define ENSURE_ARITHMETIC_FUNCTION_FACTORY(CLASS) template class PLEXIL::ArithmeticFunctionFactoryImpl<CLASS>;
+
+  // Comparisons
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Equal);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(NotEqual);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(GreaterThan);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(GreaterEqual);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(LessThan);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(LessEqual);
+
+  // Arithmetic operators
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Addition);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Subtraction);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Multiplication);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Division);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Modulo);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Minimum);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Maximum);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(AbsoluteValue);
+
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Ceiling);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Floor);
+  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
+#if !defined(__VXWORKS__)
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Round);
+  ENSURE_ARITHMETIC_FUNCTION_FACTORY(Truncate);
+#endif // !defined(__VXWORKS__)
 
 } // namespace PLEXIL

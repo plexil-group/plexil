@@ -28,9 +28,9 @@
 
 #include "Constant.hh"
 #include "Error.hh"
-#include "expression-schema.hh"
 #include "NodeConnector.hh"
 #include "parser-utils.hh"
+#include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 
@@ -57,12 +57,12 @@ namespace PLEXIL
     size_t i = 0;
     std::vector<size_t> unknowns;
     while (thisElement) {
-      checkTagSuffix(VAL_TAG, thisElement);
+      checkTagSuffix(VAL_SUFFIX, thisElement);
       // Check type
       const char* thisElementTag = thisElement.name();
       checkParserExceptionWithLocation(0 == strncmp(thisElementTag, 
                                                     eltTypeName, 
-                                                    strlen(thisElementTag) - strlen(VAL_TAG)),
+                                                    strlen(thisElementTag) - strlen(VAL_SUFFIX)),
                                        thisElement,
                                        "Type mismatch: element " << thisElementTag
                                        << " in array value of type " << eltTypeName);
@@ -100,12 +100,12 @@ namespace PLEXIL
     pugi::xml_node thisElement = expr.first_child();
     size_t i = 0;
     while (thisElement) {
-      checkTagSuffix(VAL_TAG, thisElement);
+      checkTagSuffix(VAL_SUFFIX, thisElement);
       // Check type
       const char* thisElementTag = thisElement.name();
       checkParserExceptionWithLocation(0 == strncmp(thisElementTag, 
                                                     eltTypeName, 
-                                                    strlen(thisElementTag) - strlen(VAL_TAG)),
+                                                    strlen(thisElementTag) - strlen(VAL_SUFFIX)),
                                        thisElement,
                                        "Type mismatch: element " << thisElementTag
                                        << " in array value of type \"" << eltTypeName);

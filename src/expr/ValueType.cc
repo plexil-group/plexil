@@ -31,7 +31,6 @@
 #include "ArrayImpl.hh"
 #include "CommandHandle.hh"
 #include "Error.hh"
-#include "expression-schema.hh"
 #include "NodeConstants.hh"
 #include "stricmp.h"
 
@@ -60,6 +59,10 @@ namespace PLEXIL
   char const *NODE_OUTCOME_STR = "NodeOutcome";
   char const *NODE_FAILURE_STR = "NodeFailure";
   char const *NODE_COMMAND_HANDLE_STR = "NodeCommandHandle";
+
+  char const *VAL_SUFFIX = "Value";
+  char const *VAR_SUFFIX = "Variable";
+
   char const *UNKNOWN_STR = "UNKNOWN";
 
   const std::string &valueTypeName(ValueType ty)
@@ -131,7 +134,7 @@ namespace PLEXIL
 
   const std::string &typeNameAsValue(ValueType ty)
   {
-    static std::string const sl_val = VAL_TAG;
+    static std::string const sl_val = VAL_SUFFIX;
 
     switch (ty) {
     case BOOLEAN_TYPE:
@@ -199,7 +202,7 @@ namespace PLEXIL
 
   const std::string &typeNameAsVariable(ValueType ty)
   {
-    static std::string const sl_var = VAR_TAG;
+    static std::string const sl_var = VAR_SUFFIX;
 
     switch (ty) {
     case BOOLEAN_TYPE:

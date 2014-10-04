@@ -27,17 +27,14 @@
 #include "InternalExpressionFactories.hh"
 
 #include "Command.hh"
-#include "CommandHandleVariable.hh"
 #include "CommandNode.hh"
-#include "ConcreteExpressionFactory.hh"
 #include "Error.hh"
 #include "Node.hh"
 #include "NodeConstantExpressions.hh"
-#include "NodeTimepointValue.hh"
-#include "NodeVariables.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
+
 #include "pugixml.hpp"
 
 namespace PLEXIL
@@ -145,223 +142,99 @@ namespace PLEXIL
                                        "createExpression: Invalid node reference");
   }
   
-  // Specialization for internal variables
-  template <>
-  class ConcreteExpressionFactory<StateVariable> : public ExpressionFactory
+  //
+  // Specializations for internal variables
+  //
+
+  Expression *ConcreteExpressionFactory<StateVariable>::allocate(pugi::xml_node const expr,
+                                                                 NodeConnector *node,
+                                                                 bool &wasCreated) const
   {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
+    checkHasChildElement(expr);
+    Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+    wasCreated = false;
+    return refNode->getStateVariable();
+  }
 
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const
-    {
-      checkHasChildElement(expr);
-      Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
-      wasCreated = false;
-      return refNode->getStateVariable();
-    }
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-
-  template <>
-  class ConcreteExpressionFactory<OutcomeVariable> : public ExpressionFactory
+  Expression *ConcreteExpressionFactory<OutcomeVariable>::allocate(pugi::xml_node const expr,
+                                                                   NodeConnector *node,
+                                                                   bool &wasCreated) const
   {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
+    checkHasChildElement(expr);
+    Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+    wasCreated = false;
+    return refNode->getOutcomeVariable();
+  }
 
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const
-    {
-      checkHasChildElement(expr);
-      Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
-      wasCreated = false;
-      return refNode->getOutcomeVariable();
-    }
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-
-  template <>
-  class ConcreteExpressionFactory<FailureVariable> : public ExpressionFactory
+  Expression *ConcreteExpressionFactory<FailureVariable>::allocate(pugi::xml_node const expr,
+                                                                   NodeConnector *node,
+                                                                   bool &wasCreated) const
   {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
+    checkHasChildElement(expr);
+    Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
+    wasCreated = false;
+    return refNode->getFailureTypeVariable();
+  }
 
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const
-    {
-      checkHasChildElement(expr);
-      Node *refNode = parseNodeReference(expr.first_child(), node); // can throw ParserException
-      wasCreated = false;
-      return refNode->getFailureTypeVariable();
-    }
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-
-  template <>
-  class ConcreteExpressionFactory<CommandHandleVariable> : public ExpressionFactory
+  Expression *ConcreteExpressionFactory<CommandHandleVariable>::allocate(pugi::xml_node const expr,
+                                                                         NodeConnector *node,
+                                                                         bool &wasCreated) const
   {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
-
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const
-    {
-      checkHasChildElement(expr);
-      pugi::xml_node nodeRef = expr.first_child();
-      Node *refNode = parseNodeReference(nodeRef, node); // can throw ParserException
-      checkParserExceptionWithLocation(refNode->getType() == NodeType_Command,
-                                       expr.first_child(),
-                                       "createExpression: Node " << refNode->getNodeId()
-                                       << " is not a Command node");
-      CommandNode *cnode = dynamic_cast<CommandNode *>(refNode);
-      assertTrue_1(cnode);
-      wasCreated = false;
-      return cnode->getCommand()->getAck();
-    }
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
+    checkHasChildElement(expr);
+    pugi::xml_node nodeRef = expr.first_child();
+    Node *refNode = parseNodeReference(nodeRef, node); // can throw ParserException
+    checkParserExceptionWithLocation(refNode->getType() == NodeType_Command,
+                                     expr.first_child(),
+                                     "createExpression: Node " << refNode->getNodeId()
+                                     << " is not a Command node");
+    CommandNode *cnode = dynamic_cast<CommandNode *>(refNode);
+    assertTrue_1(cnode);
+    wasCreated = false;
+    return cnode->getCommand()->getAck();
+  }
   
   // Specialization for node timepoint references
-  template <>
-  class ConcreteExpressionFactory<NodeTimepointValue> : public ExpressionFactory
+
+  Expression *ConcreteExpressionFactory<NodeTimepointValue>::allocate(pugi::xml_node const expr,
+                                                                      NodeConnector *node,
+                                                                      bool &wasCreated) const
   {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
-
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const
-    {
-      checkHasChildElement(expr);
-      pugi::xml_node nodeRef = expr.first_child();
-      Node *refNode = parseNodeReference(nodeRef, node); // can throw ParserException
-      pugi::xml_node stateName = nodeRef.next_sibling();
-      checkParserExceptionWithLocation(stateName && testTag(STATEVAL_TAG, stateName),
-                                       expr,
-                                       "createExpression: NodeTimepointValue has no NodeStateValue element");
-      checkNotEmpty(stateName);
-      NodeState state = parseNodeState(stateName.child_value());
-      checkParserExceptionWithLocation(state != NO_NODE_STATE,
-                                       stateName,
-                                       "createExpression: Invalid NodeStateValue \""
-                                       << stateName.child_value()
-                                       << "\"");
-      pugi::xml_node which = stateName.next_sibling();
-      checkParserExceptionWithLocation(which && testTag(TIMEPOINT_TAG, which),
-                                       expr,
-                                       "createExpression: NodeTimepointValue has no Timepoint element");
-      checkNotEmpty(which);
-      char const *whichStr = which.child_value();
-      bool isEnd;
-      if (0 == strcmp(START_VAL, whichStr))
-        isEnd = false;
-      else if (0 == strcmp(END_VAL, whichStr))
-        isEnd = true;
-      else
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         which,
-                                         "createExpression: Invalid Timepoint value \""
-                                         << whichStr << "\"");
-      wasCreated = true;
-      return new NodeTimepointValue(refNode, state, isEnd);
-    }
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
+    checkHasChildElement(expr);
+    pugi::xml_node nodeRef = expr.first_child();
+    Node *refNode = parseNodeReference(nodeRef, node); // can throw ParserException
+    pugi::xml_node stateName = nodeRef.next_sibling();
+    checkParserExceptionWithLocation(stateName && testTag(STATEVAL_TAG, stateName),
+                                     expr,
+                                     "createExpression: NodeTimepointValue has no NodeStateValue element");
+    checkNotEmpty(stateName);
+    NodeState state = parseNodeState(stateName.child_value());
+    checkParserExceptionWithLocation(state != NO_NODE_STATE,
+                                     stateName,
+                                     "createExpression: Invalid NodeStateValue \""
+                                     << stateName.child_value()
+                                     << "\"");
+    pugi::xml_node which = stateName.next_sibling();
+    checkParserExceptionWithLocation(which && testTag(TIMEPOINT_TAG, which),
+                                     expr,
+                                     "createExpression: NodeTimepointValue has no Timepoint element");
+    checkNotEmpty(which);
+    char const *whichStr = which.child_value();
+    bool isEnd;
+    if (0 == strcmp(START_VAL, whichStr))
+      isEnd = false;
+    else if (0 == strcmp(END_VAL, whichStr))
+      isEnd = true;
+    else
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       which,
+                                       "createExpression: Invalid Timepoint value \""
+                                       << whichStr << "\"");
+    wasCreated = true;
+    return new NodeTimepointValue(refNode, state, isEnd);
+  }
 
   //
-  // Specialized expression factories for above
-  //
-
-  template <class C>
-  class NamedConstantExpressionFactory : public ExpressionFactory
-  {
-  public:
-    NamedConstantExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
-
-    ~NamedConstantExpressionFactory()
-    {
-    }
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    NamedConstantExpressionFactory();
-    NamedConstantExpressionFactory(const NamedConstantExpressionFactory &);
-    NamedConstantExpressionFactory &operator=(const NamedConstantExpressionFactory &);
-  };
-
-  //
-  // Factory methods
+  // Named constant methods
   //
 
   template <>
@@ -499,32 +372,11 @@ namespace PLEXIL
 
 // Convenience macros
 #define ENSURE_NAMED_CONSTANT_FACTORY(CLASS) template class PLEXIL::NamedConstantExpressionFactory<CLASS >;
-#define REGISTER_NAMED_CONSTANT_FACTORY(CLASS,NAME) {new PLEXIL::NamedConstantExpressionFactory<CLASS >(#NAME);}
 
   // Named constants
   ENSURE_NAMED_CONSTANT_FACTORY(NodeStateConstant);
   ENSURE_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant);
   ENSURE_NAMED_CONSTANT_FACTORY(FailureTypeConstant);
   ENSURE_NAMED_CONSTANT_FACTORY(CommandHandleConstant);
-
-  void registerInternalExpressionFactories()
-  {
-    static bool sl_inited = false;
-    if (!sl_inited) {
-      // Named constants
-      REGISTER_NAMED_CONSTANT_FACTORY(NodeStateConstant, NodeStateValue);
-      REGISTER_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant, NodeOutcomeValue);
-      REGISTER_NAMED_CONSTANT_FACTORY(FailureTypeConstant, NodeFailureValue);
-      REGISTER_NAMED_CONSTANT_FACTORY(CommandHandleConstant, NodeCommandHandleValue);
-
-      REGISTER_EXPRESSION(StateVariable, NodeStateVariable);
-      REGISTER_EXPRESSION(OutcomeVariable, NodeOutcomeVariable);
-      REGISTER_EXPRESSION(FailureVariable, NodeFailureVariable);
-      REGISTER_EXPRESSION(CommandHandleVariable, NodeCommandHandleVariable);
-      REGISTER_EXPRESSION(NodeTimepointValue, NodeTimepointValue);
-
-      sl_inited = true;
-    }
-  }
 
 } // namespace PLEXIL

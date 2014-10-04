@@ -31,15 +31,18 @@
 #include "Constant.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
-#include "expression-schema.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
+#include "PlexilSchema.hh"
 #include "UserVariable.hh"
 
 #include "pugixml.hpp"
 
 #include <sstream>
+
+// Local convenience macros
+#define ENSURE_EXPRESSION_FACTORY(CLASS) template class PLEXIL::ConcreteExpressionFactory<CLASS >;
 
 namespace PLEXIL
 {
@@ -55,11 +58,11 @@ namespace PLEXIL
                                                                 bool &wasCreated) const
   {
     // confirm that we have a value element
-    checkTagSuffix(VAL_TAG, expr);
+    checkTagSuffix(VAL_SUFFIX, expr);
 
     // establish value type
     const char* tag = expr.name();
-    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG));
+    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_SUFFIX));
     checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                      expr,
                                      "Unrecognized value type \"" << tag << "\"");
@@ -81,11 +84,11 @@ namespace PLEXIL
                                                                    bool &wasCreated) const
   {
     // confirm that we have a value element
-    checkTagSuffix(VAL_TAG, expr);
+    checkTagSuffix(VAL_SUFFIX, expr);
 
     // establish value type
     const char* tag = expr.name();
-    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG));
+    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_SUFFIX));
     checkParserExceptionWithLocation(typ == BOOLEAN_TYPE,
                                      expr,
                                      "Internal error: Boolean constant factory invoked on \"" << tag << "\"");
@@ -124,7 +127,7 @@ namespace PLEXIL
   Expression *ConcreteExpressionFactory<Constant<std::string> >::create(pugi::xml_node const tmpl) const
   {
     const char* tag = tmpl.name();
-    checkParserExceptionWithLocation(STRING_TYPE == parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_TAG)),
+    checkParserExceptionWithLocation(STRING_TYPE == parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_SUFFIX)),
                                      tmpl,
                                      "Internal error: Constant expression is not a String");
 
@@ -142,10 +145,10 @@ namespace PLEXIL
                                                         bool &wasCreated) const
   {
     // Variable reference - look it up
-    checkTagSuffix(VAR_TAG, expr);
+    checkTagSuffix(VAR_SUFFIX, expr);
     checkNotEmpty(expr);
     const char* tag = expr.name();
-    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAR_TAG));
+    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAR_SUFFIX));
     checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                      expr,
                                      "Unknown variable type \"" << tag << "\"");
@@ -254,12 +257,12 @@ namespace PLEXIL
                                      NodeConnector *node,
                                      bool & wasCreated) const
   {
-    checkParserExceptionWithLocation(testTagSuffix(VAR_TAG, expr),
+    checkParserExceptionWithLocation(testTagSuffix(VAR_SUFFIX, expr),
                                      expr,
                                      "Internal error: not a variable reference");
     assertTrue_1(node); // internal error
     checkNotEmpty(expr);
-    ValueType typ = parseValueTypePrefix(expr.name() , strlen(expr.name()) - strlen(VAR_TAG));
+    ValueType typ = parseValueTypePrefix(expr.name() , strlen(expr.name()) - strlen(VAR_SUFFIX));
     checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                      expr,
                                      "Unknown variable reference type " << expr.name());
@@ -306,9 +309,6 @@ namespace PLEXIL
   ENSURE_EXPRESSION_FACTORY(IntegerArrayVariable);
   ENSURE_EXPRESSION_FACTORY(RealArrayVariable);
   ENSURE_EXPRESSION_FACTORY(StringArrayVariable);
-
-  // Redundant with above
-  // ENSURE_EXPRESSION_FACTORY(ArrayReference);
 
 } // namespace PLEXIL
 

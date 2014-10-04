@@ -27,36 +27,35 @@
 #ifndef PLEXIL_SCHEMA_HH
 #define PLEXIL_SCHEMA_HH
 
-#include "expression-schema.hh"
-#include "interface-schema.hh"
-
 namespace PLEXIL
 {
   extern char const *PLEXIL_PLAN_TAG;
   extern char const *GLOBAL_DECLARATIONS_TAG;
   extern char const *NODE_TAG;
+  extern char const *NODETYPE_ATTR;
   extern char const *NODEID_TAG;
+  extern char const *COMMENT_TAG;
   extern char const *PRIORITY_TAG;
-  extern char const *INTERFACE_TAG;
+
   extern char const *VAR_DECLS_TAG;
   extern char const *DECL_VAR_TAG;
+  extern char const *NAME_TAG;
+  extern char const *TYPE_TAG;
+  extern char const *INITIALVAL_TAG;
+  extern char const *DECL_ARRAY_TAG;
+  extern char const *MAX_SIZE_TAG;
+
+  extern char const *INTERFACE_TAG;
   extern char const *IN_TAG;
   extern char const *INOUT_TAG;
-  extern char const *MAXSIZE_TAG;
-  extern char const *INITIALVAL_TAG;
-  extern char const *ASSN_TAG;
+
   extern char const *BODY_TAG;
+  extern char const *ASSN_TAG;
   extern char const *RHS_TAG;
-  extern char const *NODELIST_TAG;
   extern char const *LIBRARYNODECALL_TAG;
   extern char const *ALIAS_TAG;
   extern char const *NODE_PARAMETER_TAG;
-  extern char const *INDEX_TAG;
-  extern char const *NODEREF_TAG;
-  extern char const *STATEVAL_TAG;
-  extern char const *TIMEPOINT_TAG;
-  extern char const *COND_TAG;
-  extern char const *COMMENT_TAG;
+  extern char const *NODELIST_TAG;
 
   // condition names
   extern char const *START_CONDITION_TAG;
@@ -68,20 +67,32 @@ namespace PLEXIL
   extern char const *EXIT_CONDITION_TAG;
   extern char const *SKIP_CONDITION_TAG;
 
-  extern char const *CONDITION_SUFFIX;
-
-  extern char const *DECL_ARRAY_TAG;
-
-  extern char const *NODETYPE_ATTR;
+  extern char const *NODEREF_TAG;
   extern char const *DIR_ATTR;
-
   extern char const *PARENT_VAL;
   extern char const *CHILD_VAL;
   extern char const *SIBLING_VAL;
   extern char const *SELF_VAL;
 
+  extern char const *STATEVAL_TAG;
+
+  extern char const *TIMEPOINT_TAG;
   extern char const *START_VAL;
   extern char const *END_VAL;
+
+  // Interface tags
+  extern char const *ARGS_TAG;
+  extern char const *CMD_TAG;
+  extern char const *LOOKUPNOW_TAG;
+  extern char const *LOOKUPCHANGE_TAG;
+  extern char const *PAIR_TAG;
+  extern char const *TOLERANCE_TAG;
+  extern char const *UPDATE_TAG;
+
+  extern char const *ARRAYELEMENT_TAG;
+  extern char const *INDEX_TAG;
+
+  extern char const *ARRAY_VAL_TAG;
 
 } // namespace PLEXIL
 

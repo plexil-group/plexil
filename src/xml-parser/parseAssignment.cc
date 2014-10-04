@@ -30,6 +30,7 @@
 #include "Error.hh"
 #include "ExpressionFactory.hh"
 #include "parser-utils.hh"
+#include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 
@@ -75,7 +76,7 @@ namespace PLEXIL
                                      assn,
                                      "Assignment Node " << node->getNodeId()
                                      << ": Assignment missing value expression");
-    checkTagSuffix("RHS", rhsXml);
+    checkTagSuffix(RHS_TAG, rhsXml);
     checkHasChildElement(rhsXml);
     rhsXml = rhsXml.first_child();
     AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);
