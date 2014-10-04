@@ -154,6 +154,9 @@ namespace PLEXIL
     }
   }
 
-
+  // Explicit instantiations
+  template Expression *createArrayLiteral<bool>(char const *eltTypeName, pugi::xml_node const expr);
+  template Expression *createArrayLiteral<int32_t>(char const *eltTypeName, pugi::xml_node const expr);
+  template Expression *createArrayLiteral<double>(char const *eltTypeName, pugi::xml_node const expr);
 
 } // namespace PLEXIL
