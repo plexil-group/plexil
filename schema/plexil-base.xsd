@@ -414,15 +414,17 @@ element.  It is used as an included schema only.
         <xsd:element name="Type" type="AtomicTypeValues"/>
         <xsd:element name="MaxSize" type="xsd:nonNegativeInteger" minOccurs="0"/>
         <xsd:element name="InitialValue" minOccurs="0">
-          <xsd:choice>
-            <!-- these for backward compatibility -->
-            <xsd:element ref="BooleanValue" maxOccurs="unbounded"/>
-            <xsd:element ref="IntegerValue" maxOccurs="unbounded"/>
-            <xsd:element ref="RealValue" maxOccurs="unbounded"/>
-            <xsd:element ref="StringValue" maxOccurs="unbounded"/>
-            <!-- preferred new style -->
-            <xsd:element ref ="ArrayValue"/>
-          </xsd:choice>
+          <xsd:complexType>
+            <xsd:choice>
+              <!-- these for backward compatibility -->
+              <xsd:element ref="BooleanValue" maxOccurs="unbounded"/>
+              <xsd:element ref="IntegerValue" maxOccurs="unbounded"/>
+              <xsd:element ref="RealValue" maxOccurs="unbounded"/>
+              <xsd:element ref="StringValue" maxOccurs="unbounded"/>
+              <!-- preferred new style -->
+              <xsd:element ref ="ArrayValue"/>
+            </xsd:choice>
+          </xsd:complexType>
         </xsd:element>
       </xsd:sequence>
       <xsd:attributeGroup ref="SourceLocators"/>
