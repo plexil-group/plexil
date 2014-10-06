@@ -84,7 +84,6 @@ UncheckedSequence
         HandleTimeout:
         UncheckedSequence
         {
-            Priority 1;        // high number := low priority
             StartCondition Lookup(time, 1) > run_start_time + timeout;
             ReportTimeout:
             {
@@ -92,13 +91,13 @@ UncheckedSequence
             }
             SignalTimeout:
             {
-                Assignment: continue = false;
+                Priority 1;        // high number := low priority
+                continue = false;
             }
         }
         HandleQuitMessage:
         UncheckedSequence
         {
-            Priority 0;        // low number := high priority
             OnCommand "quit_msg" (String junk)
             {
                 ReportQuitReceived:
@@ -107,7 +106,8 @@ UncheckedSequence
                 }
                 SignalQuit:
                 {
-                    Assignment: continue = false;
+                    Priority 0;        // low number := high priority
+                    continue = false;
                 }
             }
         }
