@@ -24,46 +24,38 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_ExecListener
-#define _H_ExecListener
+#ifndef EXEC_LISTENER_HUB_HH
+#define EXEC_LISTENER_HUB_HH
 
-#include "ExecListenerBase.hh"
-#include "NodeConstants.hh"
+#include "PlexilListener.hh"
 
 namespace PLEXIL
 {
-  // Forward references
-  class ExecListenerFilter;
-
-  class Node;
-
   /**
-   * @brief A base class for implementing notifications to external agents about exec state changes.
-   * @note Provides event filtering hooks.
+   * @brief A central dispatcher for multiple exec listeners.
    */
-  class ExecListener : public ExecListenerBase
+  class ExecListenerHub : public PlexilListener
   {
   public:
+    ExecListenerHub();
+    virtual ~ExecListenerHub();
+
+    //
+    // Interface management API
+    // 
 
     /**
-     * @brief Default constructor.
+     * @brief Adds an Exec listener for publication of plan events.
      */
-    ExecListener();
+    void addListener(PlexilListener *listener);
 
     /**
-     * @brief Constructor from configuration XML
-     * @param xml Pointer to the (shared) configuration XML describing this listener.
+     * @brief Removes an Exec listener.
      */
-    ExecListener(pugi::xml_node const xml);
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~ExecListener();
+    void removeListener(PlexilListener *listener);
 
     //
     // API to Exec
-    // See ExecListenerBase.hh
     //
 
     /**
@@ -96,7 +88,7 @@ namespace PLEXIL
                             Value const &value) const;
 
     //
-    // API to be implemented by derived classes
+    // API to InterfaceManager
     //
 
     /**
@@ -104,103 +96,44 @@ namespace PLEXIL
      * @return true if successful, false otherwise.
      * @note Default method provided as a convenience for backward compatibility.
      */
-    virtual bool initialize();
+    bool initialize();
 
     /**
      * @brief Perform listener-specific startup.
      * @return true if successful, false otherwise.
      * @note Default method provided as a convenience for backward compatibility.
      */
-    virtual bool start();
+    bool start();
 
     /**
      * @brief Perform listener-specific actions to stop.
      * @return true if successful, false otherwise.
      * @note Default method provided as a convenience for backward compatibility.
      */
-    virtual bool stop();
+    bool stop();
 
     /**
      * @brief Perform listener-specific actions to reset to initialized state.
      * @return true if successful, false otherwise.
      * @note Default method provided as a convenience for backward compatibility.
      */
-    virtual bool reset();
+    bool reset();
 
     /**
      * @brief Perform listener-specific actions to shut down.
      * @return true if successful, false otherwise.
      * @note Default method provided as a convenience for backward compatibility.
      */
-    virtual bool shutdown();
-
-    /**
-     * @brief Set the filter of this instance.
-     * @param fltr Smart pointer to the filter.
-     */
-    void setFilter(ExecListenerFilter *fltr);
-
-  protected:
-
-    //
-    // API to be implemented by subclasses
-    //
-
-    /**
-     * @brief Notify that nodes have changed state.
-     * @param Vector of node state transition info.
-     * @note Current states are accessible via the node.
-     * @note ExecListener provides a default method for backward commpatibility.
-     *       Derived classes may implement their own method.
-     */
-    virtual void implementNotifyNodeTransitions(std::vector<NodeTransition> const & /* transitions */) const;
-
-    /**
-     * @brief Notify that a node has changed state.
-     * @param prevState The old state.
-     * @param node The node that has transitioned.
-     * @note The current state is accessible via the node.
-     * @note The default method does nothing.
-     * @note Derived classes may implement methods for this, or for implementNotifyNodeTransitions() for batching purposes.
-     */
-    virtual void implementNotifyNodeTransition(NodeState /* prevState */,
-                                               Node * /* node */) const;
-
-    /**
-     * @brief Notify that a plan has been received by the Exec.
-     * @param plan The intermediate representation of the plan.
-     * @note The default method does nothing.
-     */
-    virtual void implementNotifyAddPlan(pugi::xml_node const /* plan */) const;
-
-    /**
-     * @brief Notify that a library node has been received by the Exec.
-     * @param libNode The intermediate representation of the plan.
-     * @note The default method does nothing.
-     */
-    virtual void implementNotifyAddLibrary(pugi::xml_node const /* libNode */) const;
-
-    /**
-     * @brief Notify that a variable assignment has been performed.
-     * @param dest The Expression being assigned to.
-     * @param destName A string naming the destination.
-     * @param value The value (in internal Exec representation) being assigned.
-     */
-    virtual void implementNotifyAssignment(Expression const * /* dest */,
-                                           std::string const & /* destName */,
-                                           Value const & /* value */) const;
-
-    //
-    // Member variables for derived classes to use
-    //
-
-    /**
-     * @brief This instance's filter.
-     */
-    ExecListenerFilter *m_filter;
+    bool shutdown();
 
   private:
+    // Deliberately unimplemented
+    ExecListenerHub(const ExecListenerHub&);
+    ExecListenerHub& operator=(const ExecListenerHub&);
+
+    std::vector<PlexilListener *> m_listeners;
   };
+
 }
 
-#endif // _H_ExecListener
+#endif // EXEC_LISTENER_HUB_HH

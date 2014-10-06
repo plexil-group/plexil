@@ -40,7 +40,7 @@
 namespace PLEXIL {
 
   // forward references
-  class ExecListener;
+  class PlexilListener;
   class ExecListenerHub;
   class InterfaceAdapter;
   class InputQueue;
@@ -103,9 +103,9 @@ namespace PLEXIL {
 
     /**
      * @brief Add an externally constructed ExecListener.
-     * @param listener The ExecListener ID.
+     * @param listener Pointer to the listener
      */
-    void addExecListener(ExecListener *listener);
+    void addExecListener(PlexilListener *listener);
 
     //
     // API to interface adapters

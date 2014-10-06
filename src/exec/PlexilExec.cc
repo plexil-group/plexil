@@ -29,7 +29,7 @@
 #include "Assignment.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExecListenerHub.hh"
+#include "ExecListenerBase.hh"
 #include "Expression.hh"
 #include "ExternalInterface.hh"
 #include "Node.hh"
@@ -535,21 +535,5 @@ namespace PLEXIL
       retval << (*it)->getNodeId() << " ";
     }
     return retval.str();
-  }
-
-  // Convenience method for backward compatibility
-  void PlexilExec::addListener(ExecListenerBase *listener) 
-  {
-    check_error_1(m_listener);
-    check_error_1(listener);
-    m_listener->addListener(listener);
-  }
-
-  // Convenience method for backward compatibility
-  void PlexilExec::removeListener(ExecListenerBase *listener) 
-  {
-    check_error_1(m_listener);
-    check_error_1(listener);
-    m_listener->removeListener(listener);
   }
 }

@@ -30,6 +30,8 @@
 #include "Error.hh"
 #include "NodeTransition.hh"
 
+#include "pugixml.hpp"
+
 #include <algorithm> // for std::find
 
 namespace PLEXIL
@@ -41,7 +43,7 @@ namespace PLEXIL
 
   ExecListenerHub::~ExecListenerHub()
   {
-    for (std::vector<ExecListenerBase *>::iterator it = m_listeners.begin();
+    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       delete *it;
@@ -51,7 +53,7 @@ namespace PLEXIL
   /**
    * @brief Adds an Exec listener for publication of plan events.
    */
-  void ExecListenerHub::addListener(ExecListenerBase *listener)
+  void ExecListenerHub::addListener(PlexilListener *listener)
   {
     check_error_1(listener);
     if (std::find(m_listeners.begin(), m_listeners.end(), listener) != m_listeners.end())
@@ -62,9 +64,9 @@ namespace PLEXIL
   /**
    * @brief Removes an Exec listener.
    */
-  void ExecListenerHub::removeListener(ExecListenerBase *listener)
+  void ExecListenerHub::removeListener(PlexilListener *listener)
   {
-    std::vector<ExecListenerBase *>::iterator it = 
+    std::vector<PlexilListener *>::iterator it = 
       std::find(m_listeners.begin(), m_listeners.end(), listener);
     if (it != m_listeners.end())
       m_listeners.erase(it);
@@ -81,7 +83,7 @@ namespace PLEXIL
    */
   void ExecListenerHub::notifyOfTransitions(const std::vector<NodeTransition>& transitions) const
   {
-    for (std::vector<ExecListenerBase *>::const_iterator it = m_listeners.begin();
+    for (std::vector<PlexilListener *>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       (*it)->notifyOfTransitions(transitions);
@@ -93,7 +95,7 @@ namespace PLEXIL
    */
   void ExecListenerHub::notifyOfAddPlan(pugi::xml_node const plan) const
   {
-    for (std::vector<ExecListenerBase *>::const_iterator it = m_listeners.begin();
+    for (std::vector<PlexilListener *>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       (*it)->notifyOfAddPlan(plan);
@@ -105,7 +107,7 @@ namespace PLEXIL
    */
   void ExecListenerHub::notifyOfAddLibrary(pugi::xml_node const libNode) const
   {
-    for (std::vector<ExecListenerBase *>::const_iterator it = m_listeners.begin();
+    for (std::vector<PlexilListener *>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       (*it)->notifyOfAddLibrary(libNode);
@@ -121,7 +123,7 @@ namespace PLEXIL
                                            std::string const &destName,
                                            Value const &value) const
   {
-    for (std::vector<ExecListenerBase *>::const_iterator it = m_listeners.begin();
+    for (std::vector<PlexilListener *>::const_iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       (*it)->notifyOfAssignment(dest, destName, value);
@@ -139,7 +141,7 @@ namespace PLEXIL
   bool ExecListenerHub::initialize()
   {
     bool success = true;
-    for (std::vector<ExecListenerBase *>::iterator it = m_listeners.begin();
+    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
          ++it) {
       success = (*it)->initialize();
@@ -159,7 +161,7 @@ namespace PLEXIL
   bool ExecListenerHub::start()
   {
     bool success = true;
-    for (std::vector<ExecListenerBase *>::iterator it = m_listeners.begin();
+    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
          success && it != m_listeners.end(); // stop at first failure
          ++it)
       success = (*it)->start();
@@ -174,7 +176,7 @@ namespace PLEXIL
   bool ExecListenerHub::stop()
   {
     bool success = true;
-    for (std::vector<ExecListenerBase *>::iterator it = m_listeners.begin();
+    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       success = (*it)->stop() && success;
@@ -189,7 +191,7 @@ namespace PLEXIL
   bool ExecListenerHub::reset()
   {
     bool success = true;
-    for (std::vector<ExecListenerBase *>::iterator it = m_listeners.begin();
+    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
          success && it != m_listeners.end();
          ++it)
       success = (*it)->reset();
@@ -204,7 +206,7 @@ namespace PLEXIL
   bool ExecListenerHub::shutdown()
   {
     bool success = true;
-    for (std::vector<ExecListenerBase *>::iterator it = m_listeners.begin();
+    for (std::vector<PlexilListener *>::iterator it = m_listeners.begin();
          it != m_listeners.end();
          ++it)
       success = (*it)->shutdown() && success;

@@ -161,10 +161,12 @@ libPlexilAppFramework_la_DEPENDENCIES =  \
 	../third-party/pugixml/src/libpugixml.la
 am__libPlexilAppFramework_la_SOURCES_DIST = AdapterConfiguration.cc \
 	AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc \
-	ExecApplication.cc ExecListenerFactory.cc InterfaceAdapter.cc \
-	InterfaceManager.cc ListenerFilters.cc SerializedInputQueue.cc \
-	SimpleInputQueue.cc UtilityAdapter.cc TimeAdapter.cc \
-	PosixTimeAdapter.cc DarwinTimeAdapter.cc
+	ExecApplication.cc ExecListener.cc ExecListenerFactory.cc \
+	ExecListenerFilter.cc ExecListenerFilterFactory.cc \
+	ExecListenerHub.cc InterfaceAdapter.cc InterfaceManager.cc \
+	ListenerFilters.cc SerializedInputQueue.cc SimpleInputQueue.cc \
+	UtilityAdapter.cc TimeAdapter.cc PosixTimeAdapter.cc \
+	DarwinTimeAdapter.cc
 @UNIX_TIME_OPT_TRUE@am__objects_1 =  \
 @UNIX_TIME_OPT_TRUE@	libPlexilAppFramework_la-TimeAdapter.lo \
 @UNIX_TIME_OPT_TRUE@	libPlexilAppFramework_la-PosixTimeAdapter.lo \
@@ -175,7 +177,11 @@ am_libPlexilAppFramework_la_OBJECTS =  \
 	libPlexilAppFramework_la-AdapterFactory.lo \
 	libPlexilAppFramework_la-DummyAdapter.lo \
 	libPlexilAppFramework_la-ExecApplication.lo \
+	libPlexilAppFramework_la-ExecListener.lo \
 	libPlexilAppFramework_la-ExecListenerFactory.lo \
+	libPlexilAppFramework_la-ExecListenerFilter.lo \
+	libPlexilAppFramework_la-ExecListenerFilterFactory.lo \
+	libPlexilAppFramework_la-ExecListenerHub.lo \
 	libPlexilAppFramework_la-InterfaceAdapter.lo \
 	libPlexilAppFramework_la-InterfaceManager.lo \
 	libPlexilAppFramework_la-ListenerFilters.lo \
@@ -231,8 +237,10 @@ am__can_run_installinfo = \
   esac
 am__include_HEADERS_DIST = AdapterConfiguration.hh \
 	AdapterExecInterface.hh AdapterFactory.hh DummyAdapter.hh \
-	ExecApplication.hh ExecListenerFactory.hh InterfaceAdapter.hh \
-	InterfaceManager.hh ListenerFilters.hh SerializedInputQueue.hh \
+	ExecApplication.hh ExecListener.hh ExecListenerFactory.hh \
+	ExecListenerFilter.hh ExecListenerFilterFactory.hh \
+	ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh \
+	ListenerFilters.hh PlexilListener.hh SerializedInputQueue.hh \
 	SimpleInputQueue.hh UtilityAdapter.hh TimeAdapter.hh \
 	PosixTimeAdapter.hh DarwinTimeAdapter.hh
 HEADERS = $(include_HEADERS)
@@ -389,14 +397,18 @@ libPlexilAppFramework_la_CPPFLAGS =  \
 	-I@top_srcdir@/xml-parser $(am__append_1) $(am__append_2)
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
 	AdapterFactory.hh DummyAdapter.hh ExecApplication.hh \
-	ExecListenerFactory.hh InterfaceAdapter.hh InterfaceManager.hh \
-	ListenerFilters.hh SerializedInputQueue.hh SimpleInputQueue.hh \
+	ExecListener.hh ExecListenerFactory.hh ExecListenerFilter.hh \
+	ExecListenerFilterFactory.hh ExecListenerHub.hh \
+	InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh \
+	PlexilListener.hh SerializedInputQueue.hh SimpleInputQueue.hh \
 	UtilityAdapter.hh $(am__append_3)
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
 	AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc \
-	ExecApplication.cc ExecListenerFactory.cc InterfaceAdapter.cc \
-	InterfaceManager.cc ListenerFilters.cc SerializedInputQueue.cc \
-	SimpleInputQueue.cc UtilityAdapter.cc $(am__append_4)
+	ExecApplication.cc ExecListener.cc ExecListenerFactory.cc \
+	ExecListenerFilter.cc ExecListenerFilterFactory.cc \
+	ExecListenerHub.cc InterfaceAdapter.cc InterfaceManager.cc \
+	ListenerFilters.cc SerializedInputQueue.cc SimpleInputQueue.cc \
+	UtilityAdapter.cc $(am__append_4)
 
 # Libraries to link against
 libPlexilAppFramework_la_LIBADD = ../xml-parser/libPlexilXmlParser.la \
@@ -488,7 +500,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-DarwinTimeAdapter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-DummyAdapter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-ExecApplication.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-ExecListener.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-ExecListenerFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-ExecListenerFilter.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-ExecListenerFilterFactory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-ExecListenerHub.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-InterfaceAdapter.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-InterfaceManager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilAppFramework_la-ListenerFilters.Plo@am__quote@
@@ -554,12 +570,40 @@ libPlexilAppFramework_la-ExecApplication.lo: ExecApplication.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilAppFramework_la-ExecApplication.lo `test -f 'ExecApplication.cc' || echo '$(srcdir)/'`ExecApplication.cc
 
+libPlexilAppFramework_la-ExecListener.lo: ExecListener.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilAppFramework_la-ExecListener.lo -MD -MP -MF $(DEPDIR)/libPlexilAppFramework_la-ExecListener.Tpo -c -o libPlexilAppFramework_la-ExecListener.lo `test -f 'ExecListener.cc' || echo '$(srcdir)/'`ExecListener.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilAppFramework_la-ExecListener.Tpo $(DEPDIR)/libPlexilAppFramework_la-ExecListener.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExecListener.cc' object='libPlexilAppFramework_la-ExecListener.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilAppFramework_la-ExecListener.lo `test -f 'ExecListener.cc' || echo '$(srcdir)/'`ExecListener.cc
+
 libPlexilAppFramework_la-ExecListenerFactory.lo: ExecListenerFactory.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilAppFramework_la-ExecListenerFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilAppFramework_la-ExecListenerFactory.Tpo -c -o libPlexilAppFramework_la-ExecListenerFactory.lo `test -f 'ExecListenerFactory.cc' || echo '$(srcdir)/'`ExecListenerFactory.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilAppFramework_la-ExecListenerFactory.Tpo $(DEPDIR)/libPlexilAppFramework_la-ExecListenerFactory.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExecListenerFactory.cc' object='libPlexilAppFramework_la-ExecListenerFactory.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilAppFramework_la-ExecListenerFactory.lo `test -f 'ExecListenerFactory.cc' || echo '$(srcdir)/'`ExecListenerFactory.cc
+
+libPlexilAppFramework_la-ExecListenerFilter.lo: ExecListenerFilter.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilAppFramework_la-ExecListenerFilter.lo -MD -MP -MF $(DEPDIR)/libPlexilAppFramework_la-ExecListenerFilter.Tpo -c -o libPlexilAppFramework_la-ExecListenerFilter.lo `test -f 'ExecListenerFilter.cc' || echo '$(srcdir)/'`ExecListenerFilter.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilAppFramework_la-ExecListenerFilter.Tpo $(DEPDIR)/libPlexilAppFramework_la-ExecListenerFilter.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExecListenerFilter.cc' object='libPlexilAppFramework_la-ExecListenerFilter.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilAppFramework_la-ExecListenerFilter.lo `test -f 'ExecListenerFilter.cc' || echo '$(srcdir)/'`ExecListenerFilter.cc
+
+libPlexilAppFramework_la-ExecListenerFilterFactory.lo: ExecListenerFilterFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilAppFramework_la-ExecListenerFilterFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilAppFramework_la-ExecListenerFilterFactory.Tpo -c -o libPlexilAppFramework_la-ExecListenerFilterFactory.lo `test -f 'ExecListenerFilterFactory.cc' || echo '$(srcdir)/'`ExecListenerFilterFactory.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilAppFramework_la-ExecListenerFilterFactory.Tpo $(DEPDIR)/libPlexilAppFramework_la-ExecListenerFilterFactory.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExecListenerFilterFactory.cc' object='libPlexilAppFramework_la-ExecListenerFilterFactory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilAppFramework_la-ExecListenerFilterFactory.lo `test -f 'ExecListenerFilterFactory.cc' || echo '$(srcdir)/'`ExecListenerFilterFactory.cc
+
+libPlexilAppFramework_la-ExecListenerHub.lo: ExecListenerHub.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilAppFramework_la-ExecListenerHub.lo -MD -MP -MF $(DEPDIR)/libPlexilAppFramework_la-ExecListenerHub.Tpo -c -o libPlexilAppFramework_la-ExecListenerHub.lo `test -f 'ExecListenerHub.cc' || echo '$(srcdir)/'`ExecListenerHub.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilAppFramework_la-ExecListenerHub.Tpo $(DEPDIR)/libPlexilAppFramework_la-ExecListenerHub.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExecListenerHub.cc' object='libPlexilAppFramework_la-ExecListenerHub.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilAppFramework_la-ExecListenerHub.lo `test -f 'ExecListenerHub.cc' || echo '$(srcdir)/'`ExecListenerHub.cc
 
 libPlexilAppFramework_la-InterfaceAdapter.lo: InterfaceAdapter.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilAppFramework_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilAppFramework_la-InterfaceAdapter.lo -MD -MP -MF $(DEPDIR)/libPlexilAppFramework_la-InterfaceAdapter.Tpo -c -o libPlexilAppFramework_la-InterfaceAdapter.lo `test -f 'InterfaceAdapter.cc' || echo '$(srcdir)/'`InterfaceAdapter.cc

@@ -32,7 +32,7 @@ TestExec_LDADD =
 
 TestExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
  -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec \
- -I@top_srcdir@/xml-parser
+ -I@top_srcdir@/xml-parser -I@top_srcdir@/app-framework
 
 if JNI_OPT
   noinst_HEADERS += jni-interface.hh
@@ -51,7 +51,8 @@ if VIEWER_OPT
    -I@top_srcdir@/interfaces/Sockets
 endif
 
-TestExec_LDADD += ../../xml-parser/libPlexilXmlParser.la \
+TestExec_LDADD += ../../app-framework/libPlexilAppFramework.la \
+ ../../xml-parser/libPlexilXmlParser.la \
  ../../exec/libPlexilExec.la ../../intfc/libPlexilIntfc.la \
  ../../expr/libPlexilExpr.la ../../utils/libPlexilUtils.la \
  ../../third-party/pugixml/src/libpugixml.la

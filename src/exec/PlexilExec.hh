@@ -40,7 +40,6 @@ namespace PLEXIL
   // Forward references
   class Assignable;
   class ExecListenerBase;
-  class ExecListenerHub;
 
   struct NodeConflictComparator;
 
@@ -82,24 +81,12 @@ namespace PLEXIL
     bool needsStep() const;
 
     /**
-     * @brief Set the ExecListenerHub instance.
+     * @brief Set the ExecListener instance.
      */
-    void setExecListenerHub(ExecListenerHub *hub)
+    void setExecListener(ExecListenerBase *l)
     {
-      m_listener = hub;
+      m_listener = l;
     }
-
-    /**
-     * @brief Adds an ExecListener for publication of node transition events.
-     * @note Convenience method for backward compatibility.
-     */
-    void addListener(ExecListenerBase *listener);
-
-    /**
-     * @brief Removes an ExecListener.
-     * @note Convenience method for backward compatibility.
-     */
-    void removeListener(ExecListenerBase *listener);
 
     /**
      * @brief Queries whether all plans are finished.
@@ -187,7 +174,7 @@ namespace PLEXIL
      */
     void performAssignments();
 
-    ExecListenerHub *m_listener;
+    ExecListenerBase *m_listener;
     std::list<Node *> m_plan; /*<! The root of the plan.*/
     std::vector<Node *> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
     std::queue<Node *> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */

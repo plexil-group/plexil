@@ -31,17 +31,13 @@ libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
  -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc
 
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
- ExecConnector.hh ExecListener.hh ExecListenerBase.hh \
- ExecListenerFilter.hh ExecListenerFilterFactory.hh ExecListenerHub.hh \
- InterfaceSchema.hh \
+ ExecConnector.hh ExecListenerBase.hh InterfaceSchema.hh \
  LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh NodeTimepointValue.hh \
  NodeVariables.hh PlexilExec.hh PlexilNodeType.hh \
  PlexilResource.hh UpdateNode.hh plan-utils.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
- ExecConnector.cc ExecListener.cc ExecListenerFilter.cc \
- ExecListenerFilterFactory.cc ExecListenerHub.cc \
- InterfaceSchema.cc LibraryCallNode.cc \
+ ExecConnector.cc InterfaceSchema.cc LibraryCallNode.cc \
  ListNode.cc Node.cc NodeFactory.cc NodeTimepointValue.cc NodeVariables.cc \
  PlexilExec.cc PlexilNodeType.cc UpdateNode.cc plan-utils.cc
 
@@ -50,10 +46,9 @@ if MODULE_TESTS_OPT
   noinst_HEADERS =
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
   test_exec_module_tests_LDADD = libPlexilExec.la ../intfc/libPlexilIntfc.la \
- ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \
- ../third-party/pugixml/src/libpugixml.la
-  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc
+ ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la
+  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/expr \
+ -I@top_srcdir@/intfc
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
 	test_exec_module_tests_SOURCES += test/jni-adapter.cc

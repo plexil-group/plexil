@@ -27,8 +27,6 @@
 #ifndef EXEC_LISTENER_BASE_HH
 #define EXEC_LISTENER_BASE_HH
 
-#include "pugixml.hpp"
-
 #include <vector>
 
 namespace PLEXIL
@@ -51,26 +49,11 @@ namespace PLEXIL
      * @brief Default constructor.
      */
 	ExecListenerBase()
-	  : m_xml()
-	{
-	}
-
-    /**
-     * @brief Constructor from configuration XML
-     * @param xml Reference to the (shared) configuration XML describing this listener.
-     */
-	ExecListenerBase(pugi::xml_node const xml)
-	  : m_xml(xml)
 	{
 	}
 
 	virtual ~ExecListenerBase()
 	{
-	}
-
-	pugi::xml_node const getXml() const
-	{
-	  return m_xml;
 	}
 
 	//
@@ -85,18 +68,6 @@ namespace PLEXIL
 	virtual void notifyOfTransitions(std::vector<NodeTransition> const &transitions) const = 0;
 
     /**
-     * @brief Notify that a plan has been received by the Exec.
-     * @param plan The intermediate representation of the plan.
-     */
-    virtual void notifyOfAddPlan(pugi::xml_node const plan) const = 0;
-
-    /**
-     * @brief Notify that a library node has been received by the Exec.
-     * @param libNode The intermediate representation of the plan.
-     */
-    virtual void notifyOfAddLibrary(pugi::xml_node const libNode) const = 0;
-
-    /**
      * @brief Notify that a variable assignment has been performed.
      * @param dest The Expression being assigned to.
      * @param destName A string naming the destination.
@@ -105,45 +76,6 @@ namespace PLEXIL
     virtual void notifyOfAssignment(Expression const *dest,
                                     std::string const &destName,
                                     Value const &value) const = 0;
-
-	//
-	// Interface management API
-	//
-
-    /**
-     * @brief Perform listener-specific initialization.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool initialize() = 0;
-
-    /**
-     * @brief Perform listener-specific startup.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool start() = 0;
-
-    /**
-     * @brief Perform listener-specific actions to stop.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool stop() = 0;
-
-    /**
-     * @brief Perform listener-specific actions to reset to initialized state.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool reset() = 0;
-
-    /**
-     * @brief Perform listener-specific actions to shut down.
-     * @return true if successful, false otherwise.
-     */
-    virtual bool shutdown() = 0;
-
-  protected:
-	pugi::xml_node const m_xml;
-
-  private:
   };
 
 }

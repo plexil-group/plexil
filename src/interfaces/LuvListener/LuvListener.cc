@@ -226,16 +226,13 @@ namespace PLEXIL
   void
   LuvListener::implementNotifyAddPlan(pugi::xml_node const plan) const 
   {
-    assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
-	// if (m_socket != NULL) {
-	//   sendPlanInfo();
-
-	//   std::ostringstream s;
-	//   LuvFormat::formatPlan(s, plan);
-	//   sendMessage(s.str());
-	// }
+	if (m_socket != NULL) {
+      sendPlanInfo();
+      std::ostringstream s;
+      LuvFormat::formatPlan(s, plan);
+      sendMessage(s.str());
+	}
   }
-
 
   /**
    * @brief Notify that a library node has been received by the Exec.
@@ -245,16 +242,13 @@ namespace PLEXIL
   void
   LuvListener::implementNotifyAddLibrary(pugi::xml_node const libNode) const 
   {
-    assertTrue_2(ALWAYS_FAIL, "Not yet implemented");
-	// if (m_socket != NULL) {
-	//   sendPlanInfo();
-
-	//   std::ostringstream s;
-	//   LuvFormat::formatLibrary(s, libNode);
-	//   sendMessage(s.str());
-	// }
+	if (m_socket != NULL) {
+	  sendPlanInfo();
+      std::ostringstream s;
+      LuvFormat::formatLibrary(s, libNode);
+      sendMessage(s.str());
+	}
   }
-
 
   /**
    * @brief Notify that a variable assignment has been performed.

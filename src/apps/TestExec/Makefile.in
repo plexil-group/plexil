@@ -139,6 +139,7 @@ am_TestExec_OBJECTS = TestExec-exec-test-runner.$(OBJEXT) \
 	TestExec-TestExternalInterface.$(OBJEXT) $(am__objects_1)
 TestExec_OBJECTS = $(am_TestExec_OBJECTS)
 TestExec_DEPENDENCIES = $(am__append_3) $(am__append_5) \
+	../../app-framework/libPlexilAppFramework.la \
 	../../xml-parser/libPlexilXmlParser.la \
 	../../exec/libPlexilExec.la ../../intfc/libPlexilIntfc.la \
 	../../expr/libPlexilExpr.la ../../utils/libPlexilUtils.la \
@@ -344,14 +345,15 @@ TestExec_SOURCES = exec-test-runner.cc ExecTestRunner.cc \
 
 # Try to get right library ordering
 TestExec_LDADD = $(am__append_3) $(am__append_5) \
+	../../app-framework/libPlexilAppFramework.la \
 	../../xml-parser/libPlexilXmlParser.la \
 	../../exec/libPlexilExec.la ../../intfc/libPlexilIntfc.la \
 	../../expr/libPlexilExpr.la ../../utils/libPlexilUtils.la \
 	../../third-party/pugixml/src/libpugixml.la
 TestExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
 	-I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc \
-	-I@top_srcdir@/exec -I@top_srcdir@/xml-parser $(am__append_4) \
-	$(am__append_6)
+	-I@top_srcdir@/exec -I@top_srcdir@/xml-parser \
+	-I@top_srcdir@/app-framework $(am__append_4) $(am__append_6)
 all: all-am
 
 .SUFFIXES:

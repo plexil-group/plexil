@@ -24,10 +24,14 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <iomanip> // for setprecision
 #include "PlanDebugListener.hh"
-#include "Node.hh"
+
 #include "Debug.hh"
+#include "Node.hh"
+
+#include "pugixml.hpp"
+
+#include <iomanip> // for setprecision
 
 namespace PLEXIL
 {

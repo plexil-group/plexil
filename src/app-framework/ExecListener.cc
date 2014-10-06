@@ -41,7 +41,7 @@ namespace PLEXIL
    * @brief Default constructor.
    */
   ExecListener::ExecListener()
-    : ExecListenerBase(),
+    : PlexilListener(),
       m_filter()
   {
   }
@@ -50,7 +50,7 @@ namespace PLEXIL
    * @brief Constructor from configuration XML.
    */
   ExecListener::ExecListener(pugi::xml_node const xml)
-    : ExecListenerBase(xml),
+    : PlexilListener(),
       m_filter()
   {
     if (!xml.empty()) {
@@ -275,4 +275,5 @@ namespace PLEXIL
   {
     debugMsg("ExecListener:implementNotifyAssignment", " default method called");
   }
+
 }

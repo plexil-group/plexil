@@ -219,7 +219,7 @@ int ExecTestRunner::run(int argc, char** argv)
   g_interface = &intf;
   g_exec = new PlexilExec();
   ExecListenerHub hub;
-  g_exec->setExecListenerHub(&hub);
+  g_exec->setExecListener(&hub);
 
 
 #if HAVE_DEBUG_LISTENER
@@ -296,6 +296,7 @@ int ExecTestRunner::run(int argc, char** argv)
     Node *root = NULL;
     try {
       root = parsePlan(planDoc->document_element());
+      hub.notifyOfAddPlan(planDoc->document_element());
       delete planDoc;
     }
     catch (ParserException& e) {

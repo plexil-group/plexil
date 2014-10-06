@@ -58,7 +58,7 @@ public:
   bool addPlan(Node * /* root */) { return false; }
   void step(double /* startTime */) {}
   bool needsStep() const {return false;}
-  void setExecListenerHub(ExecListenerHub * /* hub */) {}
+  void setExecListener(ExecListenerBase * /* l */) {}
   void deleteFinishedPlans() {}
   bool allPlansFinished() const { return true; }
 };

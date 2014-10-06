@@ -33,7 +33,7 @@ namespace PLEXIL
 {
   // Forward references
   class Assignment;
-  class ExecListenerHub;
+  class ExecListenerBase;
   class ExternalInterface;
   class Node;
 
@@ -80,9 +80,9 @@ namespace PLEXIL
     virtual bool needsStep() const = 0;
 
     /**
-     * @brief Set the ExecListenerHub instance.
+     * @brief Set the ExecListener instance.
      */
-    virtual void setExecListenerHub(ExecListenerHub *hub) = 0;
+    virtual void setExecListener(ExecListenerBase * l) = 0;
 
     // Needed by ExecApplication
 
