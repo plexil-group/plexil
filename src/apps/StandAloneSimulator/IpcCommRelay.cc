@@ -28,7 +28,6 @@
 #include "ResponseMessage.hh"
 #include "GenericResponse.hh"
 #include "Simulator.hh"
-#include "Expression.hh"
 #include "Value.hh"
 
 #include "Debug.hh"

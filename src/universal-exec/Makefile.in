@@ -127,13 +127,11 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_universalExec_OBJECTS = universalExec-UniversalExec.$(OBJEXT)
 universalExec_OBJECTS = $(am_universalExec_OBJECTS)
-universalExec_DEPENDENCIES =  \
+universalExec_DEPENDENCIES = ../third-party/pugixml/src/libpugixml.la \
 	../app-framework/libPlexilAppFramework.la \
-	../xml-parser/libPlexilXmlParser.la ../exec/libPlexilExec.la \
-	../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
-	../utils/libPlexilUtils.la \
-	../third-party/pugixml/src/libpugixml.la $(am__append_1) \
-	$(am__append_3)
+	../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la \
+	../expr/libPlexilExpr.la ../value/libPlexilValue.la \
+	../utils/libPlexilUtils.la $(am__append_1) $(am__append_3)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -327,15 +325,14 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 universalExec_SOURCES = UniversalExec.cc
 universalExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
-	-I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc \
-	-I@top_srcdir@/exec -I@top_srcdir@/app-framework \
-	$(am__append_2)
-universalExec_LDADD = ../app-framework/libPlexilAppFramework.la \
-	../xml-parser/libPlexilXmlParser.la ../exec/libPlexilExec.la \
-	../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
-	../utils/libPlexilUtils.la \
-	../third-party/pugixml/src/libpugixml.la $(am__append_1) \
-	$(am__append_3)
+	-I@top_srcdir@/app-framework -I@top_srcdir@/exec \
+	-I@top_srcdir@/intfc -I@top_srcdir@/expr -I@top_srcdir@/value \
+	-I@top_srcdir@/utils $(am__append_2)
+universalExec_LDADD = ../third-party/pugixml/src/libpugixml.la \
+	../app-framework/libPlexilAppFramework.la \
+	../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la \
+	../expr/libPlexilExpr.la ../value/libPlexilValue.la \
+	../utils/libPlexilUtils.la $(am__append_1) $(am__append_3)
 all: all-am
 
 .SUFFIXES:

@@ -28,10 +28,10 @@ lib_LTLIBRARIES = libIpcUtils.la
 include_HEADERS = IpcFacade.hh ipc-data-formats.h
 
 libIpcUtils_la_SOURCES = IpcFacade.cc
-libIpcUtils_la_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/expr \
+libIpcUtils_la_CPPFLAGS = -I@top_srcdir@/value -I@top_srcdir@/utils \
  -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/third-party/ooid/kashmir 
 
-libIpcUtils_la_LIBADD = ../../expr/libPlexilExpr.la ../../utils/libPlexilUtils.la
+libIpcUtils_la_LIBADD = ../../value/libPlexilValue.la ../../utils/libPlexilUtils.la
 
 libIpcUtils_la_LDFLAGS = -L../../../lib -lipc
 

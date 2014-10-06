@@ -203,11 +203,12 @@ test_parser_module_tests_OBJECTS =  \
 	$(am_test_parser_module_tests_OBJECTS)
 @MODULE_TESTS_OPT_TRUE@test_parser_module_tests_DEPENDENCIES =  \
 @MODULE_TESTS_OPT_TRUE@	libPlexilXmlParser.la \
+@MODULE_TESTS_OPT_TRUE@	../third-party/pugixml/src/libpugixml.la \
 @MODULE_TESTS_OPT_TRUE@	../exec/libPlexilExec.la \
 @MODULE_TESTS_OPT_TRUE@	../intfc/libPlexilIntfc.la \
 @MODULE_TESTS_OPT_TRUE@	../expr/libPlexilExpr.la \
-@MODULE_TESTS_OPT_TRUE@	../utils/libPlexilUtils.la \
-@MODULE_TESTS_OPT_TRUE@	../third-party/pugixml/src/libpugixml.la
+@MODULE_TESTS_OPT_TRUE@	../value/libPlexilValue.la \
+@MODULE_TESTS_OPT_TRUE@	../utils/libPlexilUtils.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -401,7 +402,8 @@ top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilXmlParser.la
 libPlexilXmlParser_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
+ -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
 
 
 # Publicly available header files
@@ -424,12 +426,14 @@ libPlexilXmlParser_la_SOURCES = ArithmeticFunctionFactory.cc \
 @MODULE_TESTS_OPT_TRUE@   test/commandXmlParserTest.cc test/lookupXmlParserTest.cc \
 @MODULE_TESTS_OPT_TRUE@   test/updateXmlParserTest.cc test/nodeXmlParserTest.cc
 
-@MODULE_TESTS_OPT_TRUE@test_parser_module_tests_LDADD = libPlexilXmlParser.la ../exec/libPlexilExec.la \
-@MODULE_TESTS_OPT_TRUE@   ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \
-@MODULE_TESTS_OPT_TRUE@   ../third-party/pugixml/src/libpugixml.la
+@MODULE_TESTS_OPT_TRUE@test_parser_module_tests_LDADD = libPlexilXmlParser.la \
+@MODULE_TESTS_OPT_TRUE@   ../third-party/pugixml/src/libpugixml.la ../exec/libPlexilExec.la \
+@MODULE_TESTS_OPT_TRUE@   ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../value/libPlexilValue.la \
+@MODULE_TESTS_OPT_TRUE@   ../utils/libPlexilUtils.la
 
 @MODULE_TESTS_OPT_TRUE@test_parser_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
-@MODULE_TESTS_OPT_TRUE@   -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
+@MODULE_TESTS_OPT_TRUE@ -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+@MODULE_TESTS_OPT_TRUE@ -I@top_srcdir@/value -I@top_srcdir@/utils
 
 all: all-am
 

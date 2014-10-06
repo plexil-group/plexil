@@ -182,6 +182,7 @@ test_exec_module_tests_OBJECTS = $(am_test_exec_module_tests_OBJECTS)
 @MODULE_TESTS_OPT_TRUE@	libPlexilExec.la \
 @MODULE_TESTS_OPT_TRUE@	../intfc/libPlexilIntfc.la \
 @MODULE_TESTS_OPT_TRUE@	../expr/libPlexilExpr.la \
+@MODULE_TESTS_OPT_TRUE@	../value/libPlexilValue.la \
 @MODULE_TESTS_OPT_TRUE@	../utils/libPlexilUtils.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -376,8 +377,8 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilExec.la
-libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc
+libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
 
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecListenerBase.hh InterfaceSchema.hh \
@@ -393,10 +394,10 @@ libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = $(am__append_1)
 @MODULE_TESTS_OPT_TRUE@test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
 @MODULE_TESTS_OPT_TRUE@test_exec_module_tests_LDADD = libPlexilExec.la ../intfc/libPlexilIntfc.la \
-@MODULE_TESTS_OPT_TRUE@ ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la
+@MODULE_TESTS_OPT_TRUE@ ../expr/libPlexilExpr.la ../value/libPlexilValue.la ../utils/libPlexilUtils.la
 
-@MODULE_TESTS_OPT_TRUE@test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/expr \
-@MODULE_TESTS_OPT_TRUE@ -I@top_srcdir@/intfc
+@MODULE_TESTS_OPT_TRUE@test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+@MODULE_TESTS_OPT_TRUE@ -I@top_srcdir@/value -I@top_srcdir@/utils
 
 all: all-am
 

@@ -27,13 +27,14 @@ bin_PROGRAMS = universalExec
 universalExec_SOURCES = UniversalExec.cc
 
 universalExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc \
- -I@top_srcdir@/exec -I@top_srcdir@/app-framework
+ -I@top_srcdir@/app-framework \
+ -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
 
-universalExec_LDADD = ../app-framework/libPlexilAppFramework.la \
- ../xml-parser/libPlexilXmlParser.la \
+universalExec_LDADD = ../third-party/pugixml/src/libpugixml.la \
+ ../app-framework/libPlexilAppFramework.la \
  ../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
- ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
+ ../value/libPlexilValue.la ../utils/libPlexilUtils.la
 
 if DEBUG_LISTENER_OPT
   universalExec_LDADD += ../interfaces/PlanDebugListener/libPlanDebugListener.la

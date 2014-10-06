@@ -27,37 +27,31 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilExpr.la
 
-libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils
+libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/value -I@top_srcdir@/utils
 
-include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
- ArrayReference.hh ArrayVariable.hh Assignable.hh AssignableImpl.hh \
- CommandHandle.hh Constant.hh Expression.hh ExpressionConstants.hh \
- ExpressionImpl.hh \
- ExpressionListener.hh ExprVec.hh Function.hh \
- NodeConnector.hh NodeConstants.hh NotifierImpl.hh Operator.hh UserVariable.hh Value.hh \
- ValueType.hh
+include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh Assignable.hh \
+ AssignableImpl.hh Constant.hh Expression.hh \
+ ExpressionConstants.hh ExpressionImpl.hh ExpressionListener.hh ExprVec.hh \
+ Function.hh NodeConnector.hh NotifierImpl.hh Operator.hh UserVariable.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \
- ArithmeticOperators.cc Array.cc ArrayImpl.cc \
- ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
- Assignable.cc \
- AssignableImpl.cc BooleanOperators.cc CommandHandle.cc Comparisons.cc \
- Constant.cc Expression.cc ExpressionConstants.cc \
- ExpressionImpl.cc \
- ExpressionListener.cc ExprVec.cc Function.cc \
- NodeConstants.cc NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc StringOperators.cc \
- UserVariable.cc Value.cc ValueType.cc
+ ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
+ Assignable.cc AssignableImpl.cc BooleanOperators.cc \
+ Comparisons.cc Constant.cc Expression.cc ExpressionConstants.cc \
+ ExpressionImpl.cc ExpressionListener.cc ExprVec.cc Function.cc \
+ NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc StringOperators.cc \
+ UserVariable.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
   noinst_HEADERS = test/TrivialListener.hh
   test_expr_module_tests_SOURCES = test/aliasTest.cc test/arithmeticTest.cc \
  test/arrayConstantTest.cc test/arrayOperatorsTest.cc \
- test/arrayReferenceTest.cc test/arrayTest.cc \
- test/arrayVariableTest.cc test/booleanOperatorsTest.cc test/comparisonsTest.cc \
- test/constantsTest.cc test/functionsTest.cc test/listenerTest.cc \
- test/stringTest.cc test/TrivialListener.cc test/valueTest.cc test/variablesTest.cc \
- test/expr-test-module.cc
-  test_expr_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils
-  test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la
+ test/arrayReferenceTest.cc test/arrayVariableTest.cc \
+ test/booleanOperatorsTest.cc test/comparisonsTest.cc test/constantsTest.cc \
+ test/functionsTest.cc test/listenerTest.cc test/stringTest.cc \
+ test/TrivialListener.cc test/variablesTest.cc test/expr-test-module.cc
+  test_expr_module_tests_CPPFLAGS = -I../value -I../utils
+  test_expr_module_tests_LDADD = libPlexilExpr.la \
+ ../value/libPlexilValue.la ../utils/libPlexilUtils.la
 endif

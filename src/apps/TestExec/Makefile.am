@@ -30,9 +30,10 @@ TestExec_SOURCES = exec-test-runner.cc ExecTestRunner.cc TestExternalInterface.c
 # Try to get right library ordering
 TestExec_LDADD =
 
-TestExec_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
- -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec \
- -I@top_srcdir@/xml-parser -I@top_srcdir@/app-framework
+TestExec_CPPFLAGS = -I@top_srcdir@/app-framework \
+ -I@top_srcdir@/xml-parser -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
 
 if JNI_OPT
   noinst_HEADERS += jni-interface.hh
@@ -53,7 +54,8 @@ endif
 
 TestExec_LDADD += ../../app-framework/libPlexilAppFramework.la \
  ../../xml-parser/libPlexilXmlParser.la \
+ ../../third-party/pugixml/src/libpugixml.la \
  ../../exec/libPlexilExec.la ../../intfc/libPlexilIntfc.la \
- ../../expr/libPlexilExpr.la ../../utils/libPlexilUtils.la \
- ../../third-party/pugixml/src/libpugixml.la
+ ../../expr/libPlexilExpr.la ../../value/libPlexilValue.la \
+ ../../utils/libPlexilUtils.la
 

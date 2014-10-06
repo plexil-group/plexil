@@ -154,27 +154,23 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libPlexilExpr_la_LIBADD =
 am_libPlexilExpr_la_OBJECTS = libPlexilExpr_la-Alias.lo \
 	libPlexilExpr_la-ArithmeticOperators.lo \
-	libPlexilExpr_la-Array.lo libPlexilExpr_la-ArrayImpl.lo \
 	libPlexilExpr_la-ArrayReference.lo \
 	libPlexilExpr_la-ArrayVariable.lo \
 	libPlexilExpr_la-ArrayOperators.lo \
 	libPlexilExpr_la-Assignable.lo \
 	libPlexilExpr_la-AssignableImpl.lo \
 	libPlexilExpr_la-BooleanOperators.lo \
-	libPlexilExpr_la-CommandHandle.lo \
 	libPlexilExpr_la-Comparisons.lo libPlexilExpr_la-Constant.lo \
 	libPlexilExpr_la-Expression.lo \
 	libPlexilExpr_la-ExpressionConstants.lo \
 	libPlexilExpr_la-ExpressionImpl.lo \
 	libPlexilExpr_la-ExpressionListener.lo \
 	libPlexilExpr_la-ExprVec.lo libPlexilExpr_la-Function.lo \
-	libPlexilExpr_la-NodeConstants.lo \
 	libPlexilExpr_la-NodeConstantExpressions.lo \
 	libPlexilExpr_la-NotifierImpl.lo \
 	libPlexilExpr_la-OperatorImpl.lo \
 	libPlexilExpr_la-StringOperators.lo \
-	libPlexilExpr_la-UserVariable.lo libPlexilExpr_la-Value.lo \
-	libPlexilExpr_la-ValueType.lo
+	libPlexilExpr_la-UserVariable.lo
 libPlexilExpr_la_OBJECTS = $(am_libPlexilExpr_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -184,19 +180,17 @@ PROGRAMS = $(bin_PROGRAMS)
 am__test_expr_module_tests_SOURCES_DIST = test/aliasTest.cc \
 	test/arithmeticTest.cc test/arrayConstantTest.cc \
 	test/arrayOperatorsTest.cc test/arrayReferenceTest.cc \
-	test/arrayTest.cc test/arrayVariableTest.cc \
-	test/booleanOperatorsTest.cc test/comparisonsTest.cc \
-	test/constantsTest.cc test/functionsTest.cc \
-	test/listenerTest.cc test/stringTest.cc \
-	test/TrivialListener.cc test/valueTest.cc \
-	test/variablesTest.cc test/expr-test-module.cc
+	test/arrayVariableTest.cc test/booleanOperatorsTest.cc \
+	test/comparisonsTest.cc test/constantsTest.cc \
+	test/functionsTest.cc test/listenerTest.cc test/stringTest.cc \
+	test/TrivialListener.cc test/variablesTest.cc \
+	test/expr-test-module.cc
 am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@am_test_expr_module_tests_OBJECTS = test/test_expr_module_tests-aliasTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arithmeticTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayConstantTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayOperatorsTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayReferenceTest.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-arrayVariableTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-booleanOperatorsTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-comparisonsTest.$(OBJEXT) \
@@ -205,12 +199,12 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-listenerTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-stringTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-TrivialListener.$(OBJEXT) \
-@MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-valueTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-variablesTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_expr_module_tests-expr-test-module.$(OBJEXT)
 test_expr_module_tests_OBJECTS = $(am_test_expr_module_tests_OBJECTS)
 @MODULE_TESTS_OPT_TRUE@test_expr_module_tests_DEPENDENCIES =  \
 @MODULE_TESTS_OPT_TRUE@	libPlexilExpr.la \
+@MODULE_TESTS_OPT_TRUE@	../value/libPlexilValue.la \
 @MODULE_TESTS_OPT_TRUE@	../utils/libPlexilUtils.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -405,37 +399,32 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilExpr.la
-libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/utils
-include_HEADERS = Alias.hh Array.hh ArrayImpl.hh \
- ArrayReference.hh ArrayVariable.hh Assignable.hh AssignableImpl.hh \
- CommandHandle.hh Constant.hh Expression.hh ExpressionConstants.hh \
- ExpressionImpl.hh \
- ExpressionListener.hh ExprVec.hh Function.hh \
- NodeConnector.hh NodeConstants.hh NotifierImpl.hh Operator.hh UserVariable.hh Value.hh \
- ValueType.hh
+libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/value -I@top_srcdir@/utils
+include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh Assignable.hh \
+ AssignableImpl.hh Constant.hh Expression.hh \
+ ExpressionConstants.hh ExpressionImpl.hh ExpressionListener.hh ExprVec.hh \
+ Function.hh NodeConnector.hh NotifierImpl.hh Operator.hh UserVariable.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \
- ArithmeticOperators.cc Array.cc ArrayImpl.cc \
- ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
- Assignable.cc \
- AssignableImpl.cc BooleanOperators.cc CommandHandle.cc Comparisons.cc \
- Constant.cc Expression.cc ExpressionConstants.cc \
- ExpressionImpl.cc \
- ExpressionListener.cc ExprVec.cc Function.cc \
- NodeConstants.cc NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc StringOperators.cc \
- UserVariable.cc Value.cc ValueType.cc
+ ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
+ Assignable.cc AssignableImpl.cc BooleanOperators.cc \
+ Comparisons.cc Constant.cc Expression.cc ExpressionConstants.cc \
+ ExpressionImpl.cc ExpressionListener.cc ExprVec.cc Function.cc \
+ NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc StringOperators.cc \
+ UserVariable.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/TrivialListener.hh
 @MODULE_TESTS_OPT_TRUE@test_expr_module_tests_SOURCES = test/aliasTest.cc test/arithmeticTest.cc \
 @MODULE_TESTS_OPT_TRUE@ test/arrayConstantTest.cc test/arrayOperatorsTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/arrayReferenceTest.cc test/arrayTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/arrayVariableTest.cc test/booleanOperatorsTest.cc test/comparisonsTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/constantsTest.cc test/functionsTest.cc test/listenerTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/stringTest.cc test/TrivialListener.cc test/valueTest.cc test/variablesTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/expr-test-module.cc
+@MODULE_TESTS_OPT_TRUE@ test/arrayReferenceTest.cc test/arrayVariableTest.cc \
+@MODULE_TESTS_OPT_TRUE@ test/booleanOperatorsTest.cc test/comparisonsTest.cc test/constantsTest.cc \
+@MODULE_TESTS_OPT_TRUE@ test/functionsTest.cc test/listenerTest.cc test/stringTest.cc \
+@MODULE_TESTS_OPT_TRUE@ test/TrivialListener.cc test/variablesTest.cc test/expr-test-module.cc
 
-@MODULE_TESTS_OPT_TRUE@test_expr_module_tests_CPPFLAGS = -I../third-party/pugixml/src -I../utils
-@MODULE_TESTS_OPT_TRUE@test_expr_module_tests_LDADD = libPlexilExpr.la  ../utils/libPlexilUtils.la
+@MODULE_TESTS_OPT_TRUE@test_expr_module_tests_CPPFLAGS = -I../value -I../utils
+@MODULE_TESTS_OPT_TRUE@test_expr_module_tests_LDADD = libPlexilExpr.la \
+@MODULE_TESTS_OPT_TRUE@ ../value/libPlexilValue.la ../utils/libPlexilUtils.la
+
 all: all-am
 
 .SUFFIXES:
@@ -573,8 +562,6 @@ test/test_expr_module_tests-arrayOperatorsTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-arrayReferenceTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
-test/test_expr_module_tests-arrayTest.$(OBJEXT): test/$(am__dirstamp) \
-	test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-arrayVariableTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-booleanOperatorsTest.$(OBJEXT):  \
@@ -591,8 +578,6 @@ test/test_expr_module_tests-stringTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-TrivialListener.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
-test/test_expr_module_tests-valueTest.$(OBJEXT): test/$(am__dirstamp) \
-	test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-variablesTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_expr_module_tests-expr-test-module.$(OBJEXT):  \
@@ -611,15 +596,12 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-Alias.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArithmeticOperators.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-Array.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayImpl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayOperators.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayReference.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ArrayVariable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-Assignable.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-AssignableImpl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-BooleanOperators.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-CommandHandle.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-Comparisons.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-Constant.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ExprVec.Plo@am__quote@
@@ -629,20 +611,16 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ExpressionListener.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-Function.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-NodeConstantExpressions.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-NodeConstants.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-NotifierImpl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-OperatorImpl.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-StringOperators.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-UserVariable.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-Value.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExpr_la-ValueType.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-TrivialListener.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-aliasTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arithmeticTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayConstantTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayOperatorsTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayReferenceTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-arrayVariableTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-booleanOperatorsTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-comparisonsTest.Po@am__quote@
@@ -651,7 +629,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-functionsTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-listenerTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-stringTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-valueTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_expr_module_tests-variablesTest.Po@am__quote@
 
 .cc.o:
@@ -691,20 +668,6 @@ libPlexilExpr_la-ArithmeticOperators.lo: ArithmeticOperators.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArithmeticOperators.cc' object='libPlexilExpr_la-ArithmeticOperators.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArithmeticOperators.lo `test -f 'ArithmeticOperators.cc' || echo '$(srcdir)/'`ArithmeticOperators.cc
-
-libPlexilExpr_la-Array.lo: Array.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-Array.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-Array.Tpo -c -o libPlexilExpr_la-Array.lo `test -f 'Array.cc' || echo '$(srcdir)/'`Array.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-Array.Tpo $(DEPDIR)/libPlexilExpr_la-Array.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Array.cc' object='libPlexilExpr_la-Array.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-Array.lo `test -f 'Array.cc' || echo '$(srcdir)/'`Array.cc
-
-libPlexilExpr_la-ArrayImpl.lo: ArrayImpl.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArrayImpl.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArrayImpl.Tpo -c -o libPlexilExpr_la-ArrayImpl.lo `test -f 'ArrayImpl.cc' || echo '$(srcdir)/'`ArrayImpl.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-ArrayImpl.Tpo $(DEPDIR)/libPlexilExpr_la-ArrayImpl.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayImpl.cc' object='libPlexilExpr_la-ArrayImpl.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ArrayImpl.lo `test -f 'ArrayImpl.cc' || echo '$(srcdir)/'`ArrayImpl.cc
 
 libPlexilExpr_la-ArrayReference.lo: ArrayReference.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ArrayReference.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ArrayReference.Tpo -c -o libPlexilExpr_la-ArrayReference.lo `test -f 'ArrayReference.cc' || echo '$(srcdir)/'`ArrayReference.cc
@@ -747,13 +710,6 @@ libPlexilExpr_la-BooleanOperators.lo: BooleanOperators.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='BooleanOperators.cc' object='libPlexilExpr_la-BooleanOperators.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-BooleanOperators.lo `test -f 'BooleanOperators.cc' || echo '$(srcdir)/'`BooleanOperators.cc
-
-libPlexilExpr_la-CommandHandle.lo: CommandHandle.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-CommandHandle.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-CommandHandle.Tpo -c -o libPlexilExpr_la-CommandHandle.lo `test -f 'CommandHandle.cc' || echo '$(srcdir)/'`CommandHandle.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-CommandHandle.Tpo $(DEPDIR)/libPlexilExpr_la-CommandHandle.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CommandHandle.cc' object='libPlexilExpr_la-CommandHandle.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-CommandHandle.lo `test -f 'CommandHandle.cc' || echo '$(srcdir)/'`CommandHandle.cc
 
 libPlexilExpr_la-Comparisons.lo: Comparisons.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-Comparisons.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-Comparisons.Tpo -c -o libPlexilExpr_la-Comparisons.lo `test -f 'Comparisons.cc' || echo '$(srcdir)/'`Comparisons.cc
@@ -811,13 +767,6 @@ libPlexilExpr_la-Function.lo: Function.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-Function.lo `test -f 'Function.cc' || echo '$(srcdir)/'`Function.cc
 
-libPlexilExpr_la-NodeConstants.lo: NodeConstants.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-NodeConstants.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-NodeConstants.Tpo -c -o libPlexilExpr_la-NodeConstants.lo `test -f 'NodeConstants.cc' || echo '$(srcdir)/'`NodeConstants.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-NodeConstants.Tpo $(DEPDIR)/libPlexilExpr_la-NodeConstants.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='NodeConstants.cc' object='libPlexilExpr_la-NodeConstants.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-NodeConstants.lo `test -f 'NodeConstants.cc' || echo '$(srcdir)/'`NodeConstants.cc
-
 libPlexilExpr_la-NodeConstantExpressions.lo: NodeConstantExpressions.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-NodeConstantExpressions.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-NodeConstantExpressions.Tpo -c -o libPlexilExpr_la-NodeConstantExpressions.lo `test -f 'NodeConstantExpressions.cc' || echo '$(srcdir)/'`NodeConstantExpressions.cc
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-NodeConstantExpressions.Tpo $(DEPDIR)/libPlexilExpr_la-NodeConstantExpressions.Plo
@@ -852,20 +801,6 @@ libPlexilExpr_la-UserVariable.lo: UserVariable.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='UserVariable.cc' object='libPlexilExpr_la-UserVariable.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-UserVariable.lo `test -f 'UserVariable.cc' || echo '$(srcdir)/'`UserVariable.cc
-
-libPlexilExpr_la-Value.lo: Value.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-Value.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-Value.Tpo -c -o libPlexilExpr_la-Value.lo `test -f 'Value.cc' || echo '$(srcdir)/'`Value.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-Value.Tpo $(DEPDIR)/libPlexilExpr_la-Value.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Value.cc' object='libPlexilExpr_la-Value.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-Value.lo `test -f 'Value.cc' || echo '$(srcdir)/'`Value.cc
-
-libPlexilExpr_la-ValueType.lo: ValueType.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExpr_la-ValueType.lo -MD -MP -MF $(DEPDIR)/libPlexilExpr_la-ValueType.Tpo -c -o libPlexilExpr_la-ValueType.lo `test -f 'ValueType.cc' || echo '$(srcdir)/'`ValueType.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExpr_la-ValueType.Tpo $(DEPDIR)/libPlexilExpr_la-ValueType.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ValueType.cc' object='libPlexilExpr_la-ValueType.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ValueType.lo `test -f 'ValueType.cc' || echo '$(srcdir)/'`ValueType.cc
 
 test/test_expr_module_tests-aliasTest.o: test/aliasTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-aliasTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-aliasTest.Tpo -c -o test/test_expr_module_tests-aliasTest.o `test -f 'test/aliasTest.cc' || echo '$(srcdir)/'`test/aliasTest.cc
@@ -936,20 +871,6 @@ test/test_expr_module_tests-arrayReferenceTest.obj: test/arrayReferenceTest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/arrayReferenceTest.cc' object='test/test_expr_module_tests-arrayReferenceTest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-arrayReferenceTest.obj `if test -f 'test/arrayReferenceTest.cc'; then $(CYGPATH_W) 'test/arrayReferenceTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayReferenceTest.cc'; fi`
-
-test/test_expr_module_tests-arrayTest.o: test/arrayTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-arrayTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-arrayTest.Tpo -c -o test/test_expr_module_tests-arrayTest.o `test -f 'test/arrayTest.cc' || echo '$(srcdir)/'`test/arrayTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-arrayTest.Tpo test/$(DEPDIR)/test_expr_module_tests-arrayTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/arrayTest.cc' object='test/test_expr_module_tests-arrayTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-arrayTest.o `test -f 'test/arrayTest.cc' || echo '$(srcdir)/'`test/arrayTest.cc
-
-test/test_expr_module_tests-arrayTest.obj: test/arrayTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-arrayTest.obj -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-arrayTest.Tpo -c -o test/test_expr_module_tests-arrayTest.obj `if test -f 'test/arrayTest.cc'; then $(CYGPATH_W) 'test/arrayTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-arrayTest.Tpo test/$(DEPDIR)/test_expr_module_tests-arrayTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/arrayTest.cc' object='test/test_expr_module_tests-arrayTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-arrayTest.obj `if test -f 'test/arrayTest.cc'; then $(CYGPATH_W) 'test/arrayTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayTest.cc'; fi`
 
 test/test_expr_module_tests-arrayVariableTest.o: test/arrayVariableTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-arrayVariableTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-arrayVariableTest.Tpo -c -o test/test_expr_module_tests-arrayVariableTest.o `test -f 'test/arrayVariableTest.cc' || echo '$(srcdir)/'`test/arrayVariableTest.cc
@@ -1062,20 +983,6 @@ test/test_expr_module_tests-TrivialListener.obj: test/TrivialListener.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/TrivialListener.cc' object='test/test_expr_module_tests-TrivialListener.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-TrivialListener.obj `if test -f 'test/TrivialListener.cc'; then $(CYGPATH_W) 'test/TrivialListener.cc'; else $(CYGPATH_W) '$(srcdir)/test/TrivialListener.cc'; fi`
-
-test/test_expr_module_tests-valueTest.o: test/valueTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-valueTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-valueTest.Tpo -c -o test/test_expr_module_tests-valueTest.o `test -f 'test/valueTest.cc' || echo '$(srcdir)/'`test/valueTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-valueTest.Tpo test/$(DEPDIR)/test_expr_module_tests-valueTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/valueTest.cc' object='test/test_expr_module_tests-valueTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-valueTest.o `test -f 'test/valueTest.cc' || echo '$(srcdir)/'`test/valueTest.cc
-
-test/test_expr_module_tests-valueTest.obj: test/valueTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-valueTest.obj -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-valueTest.Tpo -c -o test/test_expr_module_tests-valueTest.obj `if test -f 'test/valueTest.cc'; then $(CYGPATH_W) 'test/valueTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/valueTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_expr_module_tests-valueTest.Tpo test/$(DEPDIR)/test_expr_module_tests-valueTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/valueTest.cc' object='test/test_expr_module_tests-valueTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_expr_module_tests-valueTest.obj `if test -f 'test/valueTest.cc'; then $(CYGPATH_W) 'test/valueTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/valueTest.cc'; fi`
 
 test/test_expr_module_tests-variablesTest.o: test/variablesTest.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_expr_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_expr_module_tests-variablesTest.o -MD -MP -MF test/$(DEPDIR)/test_expr_module_tests-variablesTest.Tpo -c -o test/test_expr_module_tests-variablesTest.o `test -f 'test/variablesTest.cc' || echo '$(srcdir)/'`test/variablesTest.cc

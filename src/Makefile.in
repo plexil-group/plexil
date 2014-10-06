@@ -177,7 +177,7 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = third-party/pugixml/src utils expr intfc exec \
+DIST_SUBDIRS = utils value expr intfc exec third-party/pugixml/src \
 	xml-parser app-framework interfaces/PlanDebugListener \
 	third-party/ipc interfaces/IpcUtils interfaces/IpcAdapter \
 	interfaces/Sockets interfaces/LuvListener \
@@ -359,7 +359,8 @@ ACLOCAL_AMFLAGS = -I m4
 @UDP_OPT_TRUE@MAYBE_UDP_SUBDIRS = interfaces/UdpAdapter
 @UNIVERSAL_EXEC_OPT_TRUE@MAYBE_UNIVERSAL_EXEC_SUBDIRS = universal-exec
 @VIEWER_OPT_TRUE@MAYBE_VIEWER_SUBDIRS = interfaces/Sockets interfaces/LuvListener
-SUBDIRS = third-party/pugixml/src utils expr intfc exec xml-parser app-framework \
+SUBDIRS = utils value expr intfc exec \
+ third-party/pugixml/src xml-parser app-framework \
  interfaces/PlanDebugListener \
  $(MAYBE_IPC_SUBDIRS) $(MAYBE_VIEWER_SUBDIRS) $(MAYBE_SAS_SUBDIRS) \
  $(MAYBE_TEST_EXEC_SUBDIRS) $(MAYBE_UDP_SUBDIRS) $(MAYBE_UNIVERSAL_EXEC_SUBDIRS) \

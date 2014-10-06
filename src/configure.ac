@@ -199,11 +199,12 @@ AC_CHECK_FUNCS([bzero dup2 gethostbyaddr gethostname mkdir select strdup strpbrk
 ])
 
 AC_CONFIG_FILES([Makefile
-                 third-party/pugixml/src/Makefile
                  utils/Makefile
+                 value/Makefile
                  expr/Makefile
                  intfc/Makefile
                  exec/Makefile
+                 third-party/pugixml/src/Makefile
                  xml-parser/Makefile
                  app-framework/Makefile
                  apps/TestExec/Makefile

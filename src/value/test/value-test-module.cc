@@ -32,37 +32,15 @@
 #include <cstring> // for strcmp()
 #include <fstream>
 
-extern bool aliasTest();
-extern bool arithmeticTest();
-extern bool arrayConstantTest();
-extern bool arrayOperatorsTest();
-extern bool arrayReferenceTest();
-extern bool arrayVariableTest();
-extern bool booleanOperatorsTest();
-extern bool comparisonsTest();
-extern bool constantsTest();
-extern bool functionsTest();
-extern bool listenerTest();
-extern bool stringTest();
-extern bool variablesTest();
+extern bool arrayTest();
+extern bool valueTest();
 
 static void runExprTests()
 {
   Error::doThrowExceptions();
 
-  runTestSuite(listenerTest);
-  runTestSuite(constantsTest);
-  runTestSuite(variablesTest);
-  runTestSuite(arrayConstantTest);
-  runTestSuite(arrayVariableTest);
-  runTestSuite(arrayReferenceTest);
-  runTestSuite(aliasTest);
-  runTestSuite(functionsTest);
-  runTestSuite(comparisonsTest);
-  runTestSuite(booleanOperatorsTest);
-  runTestSuite(arithmeticTest);
-  runTestSuite(stringTest);
-  runTestSuite(arrayOperatorsTest);
+  runTestSuite(arrayTest);
+  runTestSuite(valueTest);
 
   std::cout << "Finished" << std::endl;
 }

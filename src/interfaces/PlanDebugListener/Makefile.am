@@ -26,8 +26,9 @@
 lib_LTLIBRARIES = libPlanDebugListener.la
 
 libPlanDebugListener_la_CPPFLAGS = -I@top_srcdir@/app-framework \
- -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
- -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
+ -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
 
 include_HEADERS = PlanDebugListener.hh
 

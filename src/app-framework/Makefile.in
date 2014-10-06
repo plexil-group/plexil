@@ -155,10 +155,11 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libPlexilAppFramework_la_DEPENDENCIES =  \
-	../xml-parser/libPlexilXmlParser.la ../exec/libPlexilExec.la \
-	../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
-	../utils/libPlexilUtils.la \
-	../third-party/pugixml/src/libpugixml.la
+	../xml-parser/libPlexilXmlParser.la \
+	../third-party/pugixml/src/libpugixml.la \
+	../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la \
+	../expr/libPlexilExpr.la ../value/libPlexilValue.la \
+	../utils/libPlexilUtils.la
 am__libPlexilAppFramework_la_SOURCES_DIST = AdapterConfiguration.cc \
 	AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc \
 	ExecApplication.cc ExecListener.cc ExecListenerFactory.cc \
@@ -391,10 +392,10 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 lib_LTLIBRARIES = libPlexilAppFramework.la
-libPlexilAppFramework_la_CPPFLAGS =  \
-	-I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/utils \
-	-I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec \
-	-I@top_srcdir@/xml-parser $(am__append_1) $(am__append_2)
+libPlexilAppFramework_la_CPPFLAGS = -I@top_srcdir@/xml-parser \
+	-I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/exec \
+	-I@top_srcdir@/intfc -I@top_srcdir@/expr -I@top_srcdir@/value \
+	-I@top_srcdir@/utils $(am__append_1) $(am__append_2)
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
 	AdapterFactory.hh DummyAdapter.hh ExecApplication.hh \
 	ExecListener.hh ExecListenerFactory.hh ExecListenerFilter.hh \
@@ -412,8 +413,9 @@ libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
 
 # Libraries to link against
 libPlexilAppFramework_la_LIBADD = ../xml-parser/libPlexilXmlParser.la \
- ../exec/libPlexilExec.la ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
- ../utils/libPlexilUtils.la ../third-party/pugixml/src/libpugixml.la
+ ../third-party/pugixml/src/libpugixml.la ../exec/libPlexilExec.la \
+ ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la \
+ ../value/libPlexilValue.la ../utils/libPlexilUtils.la
 
 all: all-am
 

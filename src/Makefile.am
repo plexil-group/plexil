@@ -53,7 +53,8 @@ if VIEWER_OPT
   MAYBE_VIEWER_SUBDIRS = interfaces/Sockets interfaces/LuvListener
 endif
 
-SUBDIRS = third-party/pugixml/src utils expr intfc exec xml-parser app-framework \
+SUBDIRS = utils value expr intfc exec \
+ third-party/pugixml/src xml-parser app-framework \
  interfaces/PlanDebugListener \
  $(MAYBE_IPC_SUBDIRS) $(MAYBE_VIEWER_SUBDIRS) $(MAYBE_SAS_SUBDIRS) \
  $(MAYBE_TEST_EXEC_SUBDIRS) $(MAYBE_UDP_SUBDIRS) $(MAYBE_UNIVERSAL_EXEC_SUBDIRS) \

@@ -27,8 +27,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilExec.la
 
-libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc
+libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
 
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecListenerBase.hh InterfaceSchema.hh \
@@ -46,9 +46,9 @@ if MODULE_TESTS_OPT
   noinst_HEADERS =
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
   test_exec_module_tests_LDADD = libPlexilExec.la ../intfc/libPlexilIntfc.la \
- ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la
-  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/utils -I@top_srcdir@/expr \
- -I@top_srcdir@/intfc
+ ../expr/libPlexilExpr.la ../value/libPlexilValue.la ../utils/libPlexilUtils.la
+  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
 	test_exec_module_tests_SOURCES += test/jni-adapter.cc

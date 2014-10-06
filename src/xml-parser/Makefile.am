@@ -28,7 +28,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilXmlParser.la
 
 libPlexilXmlParser_la_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
+ -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
 
 # Publicly available header files
 include_HEADERS = ExpressionFactory.hh Expressions.hh parseNode.hh parsePlan.hh \
@@ -51,9 +52,11 @@ if MODULE_TESTS_OPT
    test/arrayReferenceXmlParserTest.cc test/functionXmlParserTest.cc \
    test/commandXmlParserTest.cc test/lookupXmlParserTest.cc \
    test/updateXmlParserTest.cc test/nodeXmlParserTest.cc
-  test_parser_module_tests_LDADD = libPlexilXmlParser.la ../exec/libPlexilExec.la \
-   ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../utils/libPlexilUtils.la \
-   ../third-party/pugixml/src/libpugixml.la
+  test_parser_module_tests_LDADD = libPlexilXmlParser.la \
+   ../third-party/pugixml/src/libpugixml.la ../exec/libPlexilExec.la \
+   ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../value/libPlexilValue.la \
+   ../utils/libPlexilUtils.la
   test_parser_module_tests_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
-   -I@top_srcdir@/utils -I@top_srcdir@/expr -I@top_srcdir@/intfc -I@top_srcdir@/exec
+ -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
 endif
