@@ -36,6 +36,7 @@
 
 #include <cerrno>
 #include <cstdlib> // for strtoul()
+#include <limits>
 
 using pugi::xml_node;
 
@@ -56,7 +57,7 @@ namespace PLEXIL
     checkParserExceptionWithLocation(!errno,
                                      prio,
                                      "Priority element contains negative or out-of-range integer");
-    checkParserExceptionWithLocation(prioValue < INT32_MAX,
+    checkParserExceptionWithLocation(prioValue < std::numeric_limits<int32_t>::max(),
                                      prio,
                                      "Priority element contains out-of-range integer");
     AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);

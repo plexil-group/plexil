@@ -36,6 +36,7 @@
 #include "pugixml.hpp"
 
 #include <cstdlib>
+#include <limits>
 
 namespace PLEXIL
 {
@@ -86,7 +87,8 @@ namespace PLEXIL
       checkParserExceptionWithLocation(!*end,
                                        sizeElt,
                                        "createExpression: MaxSize value \"" << sizeStr << "\" is not an integer");
-      checkParserExceptionWithLocation(size >= 0 && size < INT32_MAX,
+      checkParserExceptionWithLocation(size >= 0
+				       && size < std::numeric_limits<int32_t>::max(),
                                        sizeElt,
                                        "createExpression: MaxSize value " << sizeStr << " is not a non-negative integer");
       sizeExp = new Constant<int32_t>((int32_t) size);
