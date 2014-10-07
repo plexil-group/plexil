@@ -43,7 +43,7 @@ namespace PLEXIL {
 
   // NOTE: this used to be 100000000, which somehow gets printed as
   // scientific notation in XML and doesn't parse correctly.  
-  const double WORST_PRIORITY = 100000;
+  const int32_t WORST_PRIORITY = 100000;
 
   /**
    * @brief The class representing a Node in the plan--either a list of sub-Nodes, an assignment, or a command execution.
