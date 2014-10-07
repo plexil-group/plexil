@@ -98,14 +98,20 @@ namespace PLEXIL
     checkHasChildElement(expr);
     ExprVec *exprVec = this->constructExprVec(expr, node);
     ValueType type = this->commonType(exprVec);
-    checkParserExceptionWithLocation(type != UNKNOWN_TYPE,
-                                     expr,
-                                     "Type inconsistency or indeterminacy in arithmetic expression");
+    if (type == UNKNOWN_TYPE) {
+      delete exprVec;
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr,
+                                       "Type inconsistency or indeterminacy in arithmetic expression");
+    }
     Operator const *oper = this->selectOperator(type);
-    checkParserExceptionWithLocation(oper->checkArgCount(exprVec->size()),
-                                     expr,
-                                     "Wrong number of operands for operator "
-                                     << oper->getName());
+    if (!oper->checkArgCount(exprVec->size())) {
+      delete exprVec;
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr,
+                                       "Wrong number of operands for operator "
+                                       << oper->getName());
+    }
 
     wasCreated = true;
     return new Function(oper, exprVec);

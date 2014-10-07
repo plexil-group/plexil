@@ -49,9 +49,13 @@ namespace PLEXIL
   {
     ExprVec *exprVec = constructExprVec(expr, node);
     Operator const *oper = this->getOperator();
-    checkParserException(oper->checkArgCount(exprVec->size()),
-                         "createExpression: Wrong number of operands for operator "
-                         << oper->getName());
+    if (!oper->checkArgCount(exprVec->size())) {
+      delete exprVec;
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr,
+                                       "createExpression: Wrong number of operands for operator "
+                                       << oper->getName());
+    }
 
     wasCreated = true;
     return new Function(oper, exprVec);
@@ -64,11 +68,18 @@ namespace PLEXIL
     std::vector<Expression *> exprs;
     std::vector<bool> garbage;
     pugi::xml_node subexp = expr.first_child();
-    while (subexp) {
-      bool created;
-      exprs.push_back(createExpression(subexp, node, created));
-      garbage.push_back(created);
-      subexp = subexp.next_sibling();
+    try {
+      while (subexp) {
+        bool created;
+        exprs.push_back(createExpression(subexp, node, created));
+        garbage.push_back(created);
+        subexp = subexp.next_sibling();
+      }
+    }
+    catch (ParserException &e) {
+      for (size_t i = 0; i < exprs.size(); ++i)
+        if (garbage[i])
+          delete exprs[i];
     }
 
     return makeExprVec(exprs, garbage);

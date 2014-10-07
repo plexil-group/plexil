@@ -70,9 +70,13 @@ namespace PLEXIL
       temp = temp.next_sibling();
       bool wasCreated;
       Expression *exp = createExpression(temp, node, wasCreated);
-      checkParserExceptionWithLocation(update->addPair(pairName, exp, wasCreated),
-                                       pr,
-                                       "Duplicate Update pair name " << pairName);
+      if (!update->addPair(pairName, exp, wasCreated)) {
+        if (wasCreated)
+          delete exp;
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         pr,
+                                         "Duplicate Update pair name " << pairName);
+      }
       pr = pr.next_sibling();
     }
   }
