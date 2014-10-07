@@ -78,7 +78,13 @@ namespace PLEXIL
 
     checkTag(NODE_TAG, elt);
     Node *result = parseNode(elt, NULL);
-    finalizeNode(result, elt);
+    try {
+      finalizeNode(result, elt);
+    }
+    catch (ParserException &e) {
+      delete result;
+      throw;
+    }
     return result;
   }
 

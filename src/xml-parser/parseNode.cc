@@ -195,14 +195,21 @@ namespace PLEXIL
       Node *kid = parseNode(kidXml, node);
       // Check name is not a duplicate
       std::string const &kidId = kid->getNodeId();
-      checkParserExceptionWithLocation(node->getNodeId() != kidId,
-                                       kidXml,
-                                       "List Node " << node->getNodeId() << " cannot have a child node with the same NodeId");
-      checkParserExceptionWithLocation(!node->findChild(kidId),
-                                       kidXml,
-                                       "List Node " << node->getNodeId()
-                                       << " cannot have multiple child nodes with the same NodeId "
-                                       << kidId);
+      if (node->getNodeId() == kidId) {
+        delete kid;
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         kidXml,
+                                         "List Node " << node->getNodeId()
+                                         << " cannot have a child node with the same NodeId");
+      }
+      if (node->findChild(kidId)) {
+        delete kid;
+        checkParserExceptionWithLocation(!node->findChild(kidId),
+                                         kidXml,
+                                         "List Node " << node->getNodeId()
+                                         << " cannot have multiple child nodes with the same NodeId "
+                                         << kidId);
+      }
       lnode->addChild(kid);
     }
   }
@@ -455,10 +462,14 @@ namespace PLEXIL
                  " constructing read-only alias for ancestor variable " << name);
 
         // Ancestor owns the aliased expression, so we can't delete it.
-        checkParserExceptionWithLocation(node->addLocalVariable(name.c_str(), new Alias(node, name, exp, false)),
-                                         inXml,
-                                         "In interface variable " << name
-                                         << " shadows existing local variable of same name");
+        Expression *alias = new Alias(node, name, exp, false);
+        if (!node->addLocalVariable(name.c_str(), alias)) {
+          delete alias;
+          checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                           inXml,
+                                           "In interface variable " << name
+                                           << " shadows existing local variable of same name");
+        }
         
         // else nothing to do - "variable" already accessible and read-only
       }
@@ -475,22 +486,30 @@ namespace PLEXIL
       debugMsg("linkInVar", " constructing default value");
       bool garbage;
       exp = createExpression(initXml.first_child(), node, garbage);
-      checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
-                                       initXml,
-                                       "In interface variable " << name
-                                       << " has type " << valueTypeName(typ)
-                                       << " but default InitialValue is of incompatible type "
-                                       << valueTypeName(exp->valueType()));
+      if (!areTypesCompatible(typ, exp->valueType())) {
+        ValueType expType = exp->valueType();
+        if (garbage)
+          delete exp;
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         initXml,
+                                         "In interface variable " << name
+                                         << " has type " << valueTypeName(typ)
+                                         << " but default InitialValue is of incompatible type "
+                                         << valueTypeName(expType));
+      }
       // If exp is writable or is not something we can delete, 
       // wrap it in an Alias
       if (exp->isAssignable() || !garbage) {
         debugMsg("linkInVar", " constructing read-only alias for default value");
         exp = new Alias(node, name, exp, garbage);
       }
-      checkParserExceptionWithLocation(node->addLocalVariable(name.c_str(), exp),
-                                       inXml,
-                                       "In interface variable " << name
-                                       << " shadows local variable of same name");
+      if (!node->addLocalVariable(name.c_str(), exp)) {
+        delete exp;
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         inXml,
+                                         "In interface variable " << name
+                                         << " shadows local variable of same name");
+      }
     }
   }
 
@@ -523,18 +542,26 @@ namespace PLEXIL
                                        "InOut variable " << name << " not found and no default InitialValue provided");
       bool garbage;
       Expression *initExp = createExpression(initXml.first_child(), node, garbage);
-      checkParserExceptionWithLocation(areTypesCompatible(typ, initExp->valueType()),
-                                       initXml,
-                                       "InOut variable " << name
-                                       << " has type " << valueTypeName(typ)
-                                       << " but default InitialValue is of incompatible type "
-                                       << valueTypeName(initExp->valueType()));
+      ValueType initExpType = initExp->valueType(); 
+      if (!areTypesCompatible(typ, initExpType)) {
+        if (garbage)
+          delete initExp;
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         initXml,
+                                         "InOut variable " << name
+                                         << " has type " << valueTypeName(typ)
+                                         << " but default InitialValue is of incompatible type "
+                                         << valueTypeName(initExpType));
+      }
       Assignable *var = createAssignable(inOutXml, node, garbage);
       assertTrue_1(garbage); // better be something we can delete!
-      checkParserExceptionWithLocation(node->addLocalVariable(name.c_str(), var),
-                                       inOutXml,
-                                       "InOut interface variable " << name
-                                       << " shadows local variable of same name");
+      if (!node->addLocalVariable(name.c_str(), var)) {
+        delete var;
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         inOutXml,
+                                         "InOut interface variable " << name
+                                         << " shadows local variable of same name");
+      }
       var->setInitializer(initExp, garbage);
     }
   }
@@ -620,12 +647,17 @@ namespace PLEXIL
         initXml = initXml.first_child();
         init = createExpression(initXml, node, garbage);
       }
-      checkParserExceptionWithLocation(areTypesCompatible(var->valueType(), init->valueType()),
-                                       initXml,
-                                       "Node " << node->getNodeId()
-                                       << ": Initialization type mismatch for variable "
-                                       << varName << ", variable is " << valueTypeName(varType)
-                                       << ", initializer is " << valueTypeName(init->valueType()));
+      ValueType initType = init->valueType();
+      if (!areTypesCompatible(var->valueType(), init->valueType())) {
+        if (garbage)
+          delete init;
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         initXml,
+                                         "Node " << node->getNodeId()
+                                         << ": Initialization type mismatch for variable "
+                                         << varName << ", variable is " << valueTypeName(varType)
+                                         << ", initializer is " << valueTypeName(init->valueType()));
+      }
       var->asAssignable()->setInitializer(init, garbage);
     }
   }
@@ -709,10 +741,15 @@ namespace PLEXIL
                                        << ": Illegal condition name \"" << elt.name() << "\"");
       bool garbage;
       Expression *cond = createExpression(elt.first_child(), node, garbage);
-      checkParserExceptionWithLocation(cond->valueType() == BOOLEAN_TYPE || cond->valueType() == UNKNOWN_TYPE,
-                                       elt.first_child(),
-                                       "Node " << node->getNodeId() << ": Expression for "
-                                       << elt.name() << " is not Boolean");
+      ValueType condType = cond->valueType();
+      if (condType != BOOLEAN_TYPE && condType != UNKNOWN_TYPE) {
+        if (garbage)
+          delete cond;
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         elt.first_child(),
+                                         "Node " << node->getNodeId() << ": Expression for "
+                                         << elt.name() << " is not Boolean");
+      }
       node->addUserCondition(which, cond, garbage);
     }
 

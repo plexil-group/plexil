@@ -80,6 +80,7 @@ namespace PLEXIL
       for (size_t i = 0; i < exprs.size(); ++i)
         if (garbage[i])
           delete exprs[i];
+      throw;
     }
 
     return makeExprVec(exprs, garbage);
