@@ -66,7 +66,6 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include <map>
 
 // Helper macro for telling compiler that error handler won't return
 #ifdef __GNUC__
