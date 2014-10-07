@@ -47,11 +47,14 @@ static bool testUpdateParserBasics()
 
   // Empty
   xml_node emptyUpdateXml = doc.append_child("Update");
-  Update *emptyUpdate = constructUpdate(&conn, emptyUpdateXml);
-  assertTrue_1(emptyUpdate);
-  finalizeUpdate(emptyUpdate, &conn, emptyUpdateXml);
-  emptyUpdate->fixValues();
-  assertTrue_1(emptyUpdate->getPairs().empty());
+  {
+    Update *emptyUpdate = constructUpdate(&conn, emptyUpdateXml);
+    assertTrue_1(emptyUpdate);
+    finalizeUpdate(emptyUpdate, &conn, emptyUpdateXml);
+    emptyUpdate->fixValues();
+    assertTrue_1(emptyUpdate->getPairs().empty());
+    delete emptyUpdate;
+  }
 
   // Simple
   xml_node simpleXml = doc.append_child("Update");
@@ -59,15 +62,18 @@ static bool testUpdateParserBasics()
   simplePair.append_child("Name").append_child(node_pcdata).set_value("foo");
   simplePair.append_child("IntegerValue").append_child(node_pcdata).set_value("0");
 
-  Update *simple = constructUpdate(&conn, simpleXml);
-  assertTrue_1(simple);
-  finalizeUpdate(simple, &conn, simpleXml);
-  simple->fixValues();
-  std::map<std::string, Value> const &simplePairs = simple->getPairs();
-  assertTrue_1(simplePairs.size() == 1);
-  assertTrue_1(simplePairs.begin() != simplePairs.end());
-  assertTrue_1(simplePairs.begin()->first == "foo");
-  assertTrue_1(simplePairs.begin()->second == Value((int32_t) 0));
+  {
+    Update *simple = constructUpdate(&conn, simpleXml);
+    assertTrue_1(simple);
+    finalizeUpdate(simple, &conn, simpleXml);
+    simple->fixValues();
+    std::map<std::string, Value> const &simplePairs = simple->getPairs();
+    assertTrue_1(simplePairs.size() == 1);
+    assertTrue_1(simplePairs.begin() != simplePairs.end());
+    assertTrue_1(simplePairs.begin()->first == "foo");
+    assertTrue_1(simplePairs.begin()->second == Value((int32_t) 0));
+    delete simple;
+  }
 
   return true;
 }
@@ -121,13 +127,16 @@ static bool testUpdateParserErrorHandling()
   duplicatePair.append_child("Name").append_child(node_pcdata).set_value("foo");
   duplicatePair.append_child("IntegerValue").append_child(node_pcdata).set_value("0");
   duplicateXml.append_copy(duplicatePair);
-  try {
+  {
     Update *duplicate = constructUpdate(&conn, duplicateXml);
-    finalizeUpdate(duplicate, &conn, duplicateXml);
-    assertTrue_2(ALWAYS_FAIL, "Failed to detect duplicate pair name");
-  }
-  catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected exception" << std::endl;
+    try {
+      finalizeUpdate(duplicate, &conn, duplicateXml);
+      assertTrue_2(ALWAYS_FAIL, "Failed to detect duplicate pair name");
+    }
+    catch (ParserException const & /* exc */) {
+      std::cout << "Caught expected exception" << std::endl;
+    }
+    delete duplicate;
   }
 
   return true;

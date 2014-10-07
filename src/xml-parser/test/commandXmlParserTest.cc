@@ -50,167 +50,191 @@ static bool testCommandParserBasics()
   doc.set_name("testCommandParserBasics");
 
   // Minimum case
-  xml_node simpleXml = doc.append_child("Command");
-  simpleXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("foo");
+  {
+    xml_node simpleXml = doc.append_child("Command");
+    simpleXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("foo");
   
-  Command *simple = constructCommand(&conn, simpleXml);
-  assertTrue_1(simple);
+    Command *simple = constructCommand(&conn, simpleXml);
+    assertTrue_1(simple);
 
-  finalizeCommand(simple, &conn, simpleXml);
-  assertTrue_1(!simple->getDest());
-  simple->activate();
-  simple->fixValues();
-  assertTrue_1(simple->getName() == "foo");
-  assertTrue_1(simple->getArgValues().empty());
-  assertTrue_1(simple->getCommand() == State("foo"));
-  simple->fixResourceValues();
-  assertTrue_1(simple->getResourceValues().empty());
+    finalizeCommand(simple, &conn, simpleXml);
+    assertTrue_1(!simple->getDest());
+    simple->activate();
+    simple->fixValues();
+    assertTrue_1(simple->getName() == "foo");
+    assertTrue_1(simple->getArgValues().empty());
+    assertTrue_1(simple->getCommand() == State("foo"));
+    simple->fixResourceValues();
+    assertTrue_1(simple->getResourceValues().empty());
+    delete simple;
+  }
 
   // Empty arglist
-  xml_node emptyXml = doc.append_child("Command");
-  emptyXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("empty");
-  emptyXml.append_child("Arguments");
-  Command *empty = constructCommand(&conn, emptyXml);
-  assertTrue_1(empty);
-  finalizeCommand(empty, &conn, emptyXml);
-  assertTrue_1(!empty->getDest());
-  empty->activate();
-  empty->fixValues();
-  assertTrue_1(empty->getName() == "empty");
-  assertTrue_1(empty->getArgValues().empty());
-  assertTrue_1(empty->getCommand() == State("empty"));
-  empty->fixResourceValues();
-  assertTrue_1(empty->getResourceValues().empty());
+  {
+    xml_node emptyXml = doc.append_child("Command");
+    emptyXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("empty");
+    emptyXml.append_child("Arguments");
+    Command *empty = constructCommand(&conn, emptyXml);
+    assertTrue_1(empty);
+    finalizeCommand(empty, &conn, emptyXml);
+    assertTrue_1(!empty->getDest());
+    empty->activate();
+    empty->fixValues();
+    assertTrue_1(empty->getName() == "empty");
+    assertTrue_1(empty->getArgValues().empty());
+    assertTrue_1(empty->getCommand() == State("empty"));
+    empty->fixResourceValues();
+    assertTrue_1(empty->getResourceValues().empty());
+    delete empty;
+  }
 
   // Arguments
-  xml_node arghXml = doc.append_child("Command");
-  arghXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("argh");
-  arghXml.append_child("Arguments").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-  Command *argh = constructCommand(&conn, arghXml);
-  assertTrue_1(argh);
-  finalizeCommand(argh, &conn, arghXml);
-  assertTrue_1(!argh->getDest());
-  argh->activate();
-  argh->fixValues();
-  assertTrue_1(argh->getName() == "argh");
-  assertTrue_1(argh->getArgValues().size() == 1);
-  std::vector<Value> arghArgs(1, Value((int32_t) 0));
-  assertTrue_1(argh->getCommand() == State("argh", arghArgs));
-  argh->fixResourceValues();
-  assertTrue_1(argh->getResourceValues().empty());
+  {
+    xml_node arghXml = doc.append_child("Command");
+    arghXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("argh");
+    arghXml.append_child("Arguments").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+    Command *argh = constructCommand(&conn, arghXml);
+    assertTrue_1(argh);
+    finalizeCommand(argh, &conn, arghXml);
+    assertTrue_1(!argh->getDest());
+    argh->activate();
+    argh->fixValues();
+    assertTrue_1(argh->getName() == "argh");
+    assertTrue_1(argh->getArgValues().size() == 1);
+    std::vector<Value> arghArgs(1, Value((int32_t) 0));
+    assertTrue_1(argh->getCommand() == State("argh", arghArgs));
+    argh->fixResourceValues();
+    assertTrue_1(argh->getResourceValues().empty());
+    delete argh;
+  }
 
   // Return value
-  xml_node resultantXml = doc.append_child("Command");
-  resultantXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
-  resultantXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resultant");
-  Command *resultant = constructCommand(&conn, resultantXml);
-  assertTrue_1(resultant);
-  finalizeCommand(resultant, &conn, resultantXml);
-  assertTrue_1(resultant->getDest() == flagVar);
-  resultant->activate();
-  resultant->fixValues();
-  assertTrue_1(resultant->getName() == "resultant");
-  assertTrue_1(resultant->getArgValues().empty());
-  assertTrue_1(resultant->getCommand() == State("resultant"));
-  resultant->fixResourceValues();
-  assertTrue_1(resultant->getResourceValues().empty());
+  {
+    xml_node resultantXml = doc.append_child("Command");
+    resultantXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
+    resultantXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resultant");
+    Command *resultant = constructCommand(&conn, resultantXml);
+    assertTrue_1(resultant);
+    finalizeCommand(resultant, &conn, resultantXml);
+    assertTrue_1(resultant->getDest() == flagVar);
+    resultant->activate();
+    resultant->fixValues();
+    assertTrue_1(resultant->getName() == "resultant");
+    assertTrue_1(resultant->getArgValues().empty());
+    assertTrue_1(resultant->getCommand() == State("resultant"));
+    resultant->fixResourceValues();
+    assertTrue_1(resultant->getResourceValues().empty());
+    delete resultant;
+  }
 
   // Empty resource
-  xml_node resourcelessXml = doc.append_child("Command");
-  resourcelessXml.append_child("ResourceList");
-  resourcelessXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resourceless");
-  Command *resourceless = constructCommand(&conn, resourcelessXml);
-  assertTrue_1(resourceless);
-  finalizeCommand(resourceless, &conn, resourcelessXml);
-  assertTrue_1(!resourceless->getDest());
-  resourceless->activate();
-  resourceless->fixValues();
-  assertTrue_1(resourceless->getName() == "resourceless");
-  assertTrue_1(resourceless->getArgValues().empty());
-  assertTrue_1(resourceless->getCommand() == State("resourceless"));
-  resourceless->fixResourceValues();
-  assertTrue_1(resourceless->getResourceValues().empty());
+  {
+    xml_node resourcelessXml = doc.append_child("Command");
+    resourcelessXml.append_child("ResourceList");
+    resourcelessXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resourceless");
+    Command *resourceless = constructCommand(&conn, resourcelessXml);
+    assertTrue_1(resourceless);
+    finalizeCommand(resourceless, &conn, resourcelessXml);
+    assertTrue_1(!resourceless->getDest());
+    resourceless->activate();
+    resourceless->fixValues();
+    assertTrue_1(resourceless->getName() == "resourceless");
+    assertTrue_1(resourceless->getArgValues().empty());
+    assertTrue_1(resourceless->getCommand() == State("resourceless"));
+    resourceless->fixResourceValues();
+    assertTrue_1(resourceless->getResourceValues().empty());
+    delete resourceless;
+  }
 
   // Non-empty resource
-  xml_node resourcefulXml = doc.append_child("Command");
-  xml_node resourcefulList = resourcefulXml.append_child("ResourceList");
-  xml_node resource = resourcefulList.append_child("Resource");
-  resource.append_child("ResourceName").append_child("StringValue").append_child(node_pcdata).set_value("a");
-  resource.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-  resourcefulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resourceful");
-  Command *resourceful = constructCommand(&conn, resourcefulXml);
-  assertTrue_1(resourceful);
-  finalizeCommand(resourceful, &conn, resourcefulXml);
-  assertTrue_1(!resourceful->getDest());
-  resourceful->activate();
-  resourceful->fixValues();
-  assertTrue_1(resourceful->getName() == "resourceful");
-  assertTrue_1(resourceful->getArgValues().empty());
-  assertTrue_1(resourceful->getCommand() == State("resourceful"));
-  resourceful->fixResourceValues();
-  ResourceValuesList const &rlist = resourceful->getResourceValues();
-  assertTrue_1(rlist.size() == 1);
-  ResourceValues const &rmap = rlist.front();
-  assertTrue_1(rmap.find("ResourceName") != rmap.end());
-  assertTrue_1(rmap.find("ResourceName")->second == "a");
-  assertTrue_1(rmap.find("ResourcePriority") != rmap.end());
-  assertTrue_1(rmap.find("ResourcePriority")->second == Value((int32_t) 0));
+  {
+    xml_node resourcefulXml = doc.append_child("Command");
+    xml_node resourcefulList = resourcefulXml.append_child("ResourceList");
+    xml_node resource = resourcefulList.append_child("Resource");
+    resource.append_child("ResourceName").append_child("StringValue").append_child(node_pcdata).set_value("a");
+    resource.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+    resourcefulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("resourceful");
+    Command *resourceful = constructCommand(&conn, resourcefulXml);
+    assertTrue_1(resourceful);
+    finalizeCommand(resourceful, &conn, resourcefulXml);
+    assertTrue_1(!resourceful->getDest());
+    resourceful->activate();
+    resourceful->fixValues();
+    assertTrue_1(resourceful->getName() == "resourceful");
+    assertTrue_1(resourceful->getArgValues().empty());
+    assertTrue_1(resourceful->getCommand() == State("resourceful"));
+    resourceful->fixResourceValues();
+    ResourceValuesList const &rlist = resourceful->getResourceValues();
+    assertTrue_1(rlist.size() == 1);
+    ResourceValues const &rmap = rlist.front();
+    assertTrue_1(rmap.find("ResourceName") != rmap.end());
+    assertTrue_1(rmap.find("ResourceName")->second == "a");
+    assertTrue_1(rmap.find("ResourcePriority") != rmap.end());
+    assertTrue_1(rmap.find("ResourcePriority")->second == Value((int32_t) 0));
+    delete resourceful;
+  }
 
   // Non-empty resource with return value
-  xml_node remorsefulXml = doc.append_child("Command");
-  xml_node remorsefulList = remorsefulXml.append_child("ResourceList");
-  xml_node remorse = remorsefulList.append_child("Resource");
-  remorse.append_child("ResourceName").append_child("StringValue").append_child(node_pcdata).set_value("a");
-  remorse.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("1");
-  remorsefulXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
-  remorsefulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("remorseful");
+  {
+    xml_node remorsefulXml = doc.append_child("Command");
+    xml_node remorsefulList = remorsefulXml.append_child("ResourceList");
+    xml_node remorse = remorsefulList.append_child("Resource");
+    remorse.append_child("ResourceName").append_child("StringValue").append_child(node_pcdata).set_value("a");
+    remorse.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("1");
+    remorsefulXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
+    remorsefulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("remorseful");
 
-  Command *remorseful = constructCommand(&conn, remorsefulXml);
-  assertTrue_1(remorseful);
-  finalizeCommand(remorseful, &conn, remorsefulXml);
-  assertTrue_1(remorseful->getDest() == flagVar);
-  remorseful->activate();
-  remorseful->fixValues();
-  assertTrue_1(remorseful->getName() == "remorseful");
-  assertTrue_1(remorseful->getArgValues().empty());
-  assertTrue_1(remorseful->getCommand() == State("remorseful"));
-  remorseful->fixResourceValues();
-  ResourceValuesList const &slist = remorseful->getResourceValues();
-  assertTrue_1(slist.size() == 1);
-  ResourceValues const &smap = slist.front();
-  assertTrue_1(smap.find("ResourceName") != smap.end());
-  assertTrue_1(smap.find("ResourceName")->second == "a");
-  assertTrue_1(smap.find("ResourcePriority") != smap.end());
-  assertTrue_1(smap.find("ResourcePriority")->second == Value((int32_t) 1));
+    Command *remorseful = constructCommand(&conn, remorsefulXml);
+    assertTrue_1(remorseful);
+    finalizeCommand(remorseful, &conn, remorsefulXml);
+    assertTrue_1(remorseful->getDest() == flagVar);
+    remorseful->activate();
+    remorseful->fixValues();
+    assertTrue_1(remorseful->getName() == "remorseful");
+    assertTrue_1(remorseful->getArgValues().empty());
+    assertTrue_1(remorseful->getCommand() == State("remorseful"));
+    remorseful->fixResourceValues();
+    ResourceValuesList const &slist = remorseful->getResourceValues();
+    assertTrue_1(slist.size() == 1);
+    ResourceValues const &smap = slist.front();
+    assertTrue_1(smap.find("ResourceName") != smap.end());
+    assertTrue_1(smap.find("ResourceName")->second == "a");
+    assertTrue_1(smap.find("ResourcePriority") != smap.end());
+    assertTrue_1(smap.find("ResourcePriority")->second == Value((int32_t) 1));
+    delete remorseful;
+  }
 
   // Kitchen sink
-  xml_node regretfulXml = doc.append_child("Command");
-  xml_node regretfulList = regretfulXml.append_child("ResourceList");
-  xml_node regret = regretfulList.append_child("Resource");
-  regret.append_child("ResourceName").append_child("StringValue").append_child(node_pcdata).set_value("b");
-  regret.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("2");
-  regretfulXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
-  regretfulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("regretful");
-  regretfulXml.append_child("Arguments").append_child("BooleanValue").append_child(node_pcdata).set_value("true");
-  Command *regretful = constructCommand(&conn, regretfulXml);
-  assertTrue_1(regretful);
-  finalizeCommand(regretful, &conn, regretfulXml);
-  assertTrue_1(regretful->getDest() == flagVar);
-  regretful->activate();
-  regretful->fixValues();
-  assertTrue_1(regretful->getName() == "regretful");
-  assertTrue_1(regretful->getArgValues().size() == 1);
-  assertTrue_1(regretful->getArgValues().front() == Value(true));
-  std::vector<Value> rful(1, Value(true));
-  assertTrue_1(regretful->getCommand() == State("regretful", rful));
-  regretful->fixResourceValues();
-  ResourceValuesList const &tlist = regretful->getResourceValues();
-  assertTrue_1(tlist.size() == 1);
-  ResourceValues const &tmap = tlist.front();
-  assertTrue_1(tmap.find("ResourceName") != tmap.end());
-  assertTrue_1(tmap.find("ResourceName")->second == "b");
-  assertTrue_1(tmap.find("ResourcePriority") != tmap.end());
-  assertTrue_1(tmap.find("ResourcePriority")->second == Value((int32_t) 2));
+  {
+    xml_node regretfulXml = doc.append_child("Command");
+    xml_node regretfulList = regretfulXml.append_child("ResourceList");
+    xml_node regret = regretfulList.append_child("Resource");
+    regret.append_child("ResourceName").append_child("StringValue").append_child(node_pcdata).set_value("b");
+    regret.append_child("ResourcePriority").append_child("IntegerValue").append_child(node_pcdata).set_value("2");
+    regretfulXml.append_child("BooleanVariable").append_child(node_pcdata).set_value("flag");
+    regretfulXml.append_child("Name").append_child("StringValue").append_child(node_pcdata).set_value("regretful");
+    regretfulXml.append_child("Arguments").append_child("BooleanValue").append_child(node_pcdata).set_value("true");
+    Command *regretful = constructCommand(&conn, regretfulXml);
+    assertTrue_1(regretful);
+    finalizeCommand(regretful, &conn, regretfulXml);
+    assertTrue_1(regretful->getDest() == flagVar);
+    regretful->activate();
+    regretful->fixValues();
+    assertTrue_1(regretful->getName() == "regretful");
+    assertTrue_1(regretful->getArgValues().size() == 1);
+    assertTrue_1(regretful->getArgValues().front() == Value(true));
+    std::vector<Value> rful(1, Value(true));
+    assertTrue_1(regretful->getCommand() == State("regretful", rful));
+    regretful->fixResourceValues();
+    ResourceValuesList const &tlist = regretful->getResourceValues();
+    assertTrue_1(tlist.size() == 1);
+    ResourceValues const &tmap = tlist.front();
+    assertTrue_1(tmap.find("ResourceName") != tmap.end());
+    assertTrue_1(tmap.find("ResourceName")->second == "b");
+    assertTrue_1(tmap.find("ResourcePriority") != tmap.end());
+    assertTrue_1(tmap.find("ResourcePriority")->second == Value((int32_t) 2));
+    delete regretful;
+  }
 
   return true;
 }
@@ -245,26 +269,34 @@ static bool testCommandParserErrorHandling()
   // Name is not a string
   xml_node wrongTypeName = doc.append_child("Command");
   wrongTypeName.append_child("Name").append_child("RealValue").append_child(node_pcdata).set_value("3.14");
-  try {
+  {
     Command *wrongTypeNameCmd = constructCommand(&conn, wrongTypeName);
-    finalizeCommand(wrongTypeNameCmd, &conn, wrongTypeName);
-    assertTrue_2(ALWAYS_FAIL, "Failed to detect non-string Name value");
-  }
-  catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected exception" << std::endl;
+    try {
+      finalizeCommand(wrongTypeNameCmd, &conn, wrongTypeName);
+      assertTrue_2(ALWAYS_FAIL, "Failed to detect non-string Name value");
+    }
+    catch (ParserException const & /* exc */) {
+      std::cout << "Caught expected exception" << std::endl;
+    }
+    delete wrongTypeNameCmd;
   }
 
   // Invalid return expression
   xml_node invalidReturn = doc.append_child("Command");
   invalidReturn.append_child("StringValue").append_child(node_pcdata).set_value("illegal");
   invalidReturn.append_child("Name").append_child(node_pcdata).set_value("legal");
-  try {
-    Command *invalidReturnCmd = constructCommand(&conn, invalidReturn);
-    finalizeCommand(invalidReturnCmd, &conn, invalidReturn);
-    assertTrue_2(ALWAYS_FAIL, "Failed to detect invalid return expression");
-  }
-  catch (ParserException const & /* exc */) {
-    std::cout << "Caught expected exception" << std::endl;
+  // Do it this way because we may not detect error in first pass
+  {
+    Command *invalidReturnCmd = NULL;
+    try {
+      invalidReturnCmd = constructCommand(&conn, invalidReturn);
+      finalizeCommand(invalidReturnCmd, &conn, invalidReturn);
+      assertTrue_2(ALWAYS_FAIL, "Failed to detect invalid return expression");
+    }
+    catch (ParserException const & /* exc */) {
+      std::cout << "Caught expected exception" << std::endl;
+    }
+    delete invalidReturnCmd;
   }
 
   return true;

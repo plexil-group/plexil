@@ -1073,7 +1073,7 @@ static bool testMutableArrayAliasReferenceXmlParser()
   vs[3] = std::string("three");
 
   Assignable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
-  bav->setInitializer(new BooleanArrayConstant(vb), false);
+  bav->setInitializer(new BooleanArrayConstant(vb), true);
 
   Assignable *iav = new IntegerArrayVariable(nc, "int", NULL, false);
   iav->setInitializer(new IntegerArrayConstant(vi), true);

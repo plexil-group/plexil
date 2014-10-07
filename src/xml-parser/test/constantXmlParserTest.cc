@@ -124,49 +124,65 @@ static bool integerConstantXmlParserTest()
   pugi::xml_node zeroText = zeroXml.append_child(node_pcdata);
   zeroText.set_value("0");
 
-  Expression *zeroConstant = createExpression(zeroXml, nc, wasCreated);
-  assertTrue_1(zeroConstant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(!zeroConstant->isAssignable());
-  assertTrue_1(zeroConstant->valueType() == INTEGER_TYPE);
-  assertTrue_1(zeroConstant->getValue(temp));
-  assertTrue_1(temp == 0);
+  {
+    Expression *zeroConstant = createExpression(zeroXml, nc, wasCreated);
+    assertTrue_1(zeroConstant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!zeroConstant->isAssignable());
+    assertTrue_1(zeroConstant->valueType() == INTEGER_TYPE);
+    assertTrue_1(zeroConstant->getValue(temp));
+    assertTrue_1(temp == 0);
+    if (wasCreated)
+      delete zeroConstant;
+  }
 
   pugi::xml_node oneXml = doc.append_child("IntegerValue");
   pugi::xml_node oneText = oneXml.append_child(node_pcdata);
   oneText.set_value("1");
 
-  Expression *oneConstant = createExpression(oneXml, nc, wasCreated);
-  assertTrue_1(oneConstant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(!oneConstant->isAssignable());
-  assertTrue_1(oneConstant->valueType() == INTEGER_TYPE);
-  assertTrue_1(oneConstant->getValue(temp));
-  assertTrue_1(temp == 1);
+  {
+    Expression *oneConstant = createExpression(oneXml, nc, wasCreated);
+    assertTrue_1(oneConstant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!oneConstant->isAssignable());
+    assertTrue_1(oneConstant->valueType() == INTEGER_TYPE);
+    assertTrue_1(oneConstant->getValue(temp));
+    assertTrue_1(temp == 1);
+    if (wasCreated)
+      delete oneConstant;
+  }
 
   pugi::xml_node minusOneXml = doc.append_child("IntegerValue");
   pugi::xml_node minusOneText = minusOneXml.append_child(node_pcdata);
   minusOneText.set_value("-1");
 
-  Expression *minusOneConstant = createExpression(minusOneXml, nc, wasCreated);
-  assertTrue_1(minusOneConstant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(!minusOneConstant->isAssignable());
-  assertTrue_1(minusOneConstant->valueType() == INTEGER_TYPE);
-  assertTrue_1(minusOneConstant->getValue(temp));
-  assertTrue_1(temp == -1);
+  {
+    Expression *minusOneConstant = createExpression(minusOneXml, nc, wasCreated);
+    assertTrue_1(minusOneConstant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!minusOneConstant->isAssignable());
+    assertTrue_1(minusOneConstant->valueType() == INTEGER_TYPE);
+    assertTrue_1(minusOneConstant->getValue(temp));
+    assertTrue_1(temp == -1);
+    if (wasCreated)
+      delete minusOneConstant;
+  }
 
   pugi::xml_node hexXml = doc.append_child("IntegerValue");
   pugi::xml_node hexText = hexXml.append_child(node_pcdata);
   hexText.set_value("0x42");
 
-  Expression *hexConstant = createExpression(hexXml, nc, wasCreated);
-  assertTrue_1(hexConstant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(!hexConstant->isAssignable());
-  assertTrue_1(hexConstant->valueType() == INTEGER_TYPE);
-  assertTrue_1(hexConstant->getValue(temp));
-  assertTrue_1(temp == 0x42); // = 66 decimal
+  {
+    Expression *hexConstant = createExpression(hexXml, nc, wasCreated);
+    assertTrue_1(hexConstant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!hexConstant->isAssignable());
+    assertTrue_1(hexConstant->valueType() == INTEGER_TYPE);
+    assertTrue_1(hexConstant->getValue(temp));
+    assertTrue_1(temp == 0x42); // = 66 decimal
+    if (wasCreated)
+      delete hexConstant;
+  }
 
   pugi::xml_node hexWithJunkXml = doc.append_child("IntegerValue");
   pugi::xml_node hexWithJunkText = hexWithJunkXml.append_child(node_pcdata);
@@ -254,61 +270,81 @@ static bool realConstantXmlParserTest()
   pugi::xml_node zeroText = zeroXml.append_child(node_pcdata);
   zeroText.set_value("0");
 
-  Expression *zeroConstant = createExpression(zeroXml, nc, wasCreated);
-  assertTrue_1(zeroConstant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(!zeroConstant->isAssignable());
-  assertTrue_1(zeroConstant->valueType() == REAL_TYPE);
-  assertTrue_1(zeroConstant->getValue(temp));
-  assertTrue_1(temp == 0);
+  {
+    Expression *zeroConstant = createExpression(zeroXml, nc, wasCreated);
+    assertTrue_1(zeroConstant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!zeroConstant->isAssignable());
+    assertTrue_1(zeroConstant->valueType() == REAL_TYPE);
+    assertTrue_1(zeroConstant->getValue(temp));
+    assertTrue_1(temp == 0);
+    if (wasCreated)
+      delete zeroConstant;
+  }
 
   pugi::xml_node minusZeroXml = doc.append_child("RealValue");
   pugi::xml_node minusZeroText = minusZeroXml.append_child(node_pcdata);
   minusZeroText.set_value("-0");
 
-  Expression *minusZeroConstant = createExpression(minusZeroXml, nc, wasCreated);
-  assertTrue_1(minusZeroConstant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(!minusZeroConstant->isAssignable());
-  assertTrue_1(minusZeroConstant->valueType() == REAL_TYPE);
-  assertTrue_1(minusZeroConstant->getValue(temp));
-  assertTrue_1(temp == 0);
+  {
+    Expression *minusZeroConstant = createExpression(minusZeroXml, nc, wasCreated);
+    assertTrue_1(minusZeroConstant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!minusZeroConstant->isAssignable());
+    assertTrue_1(minusZeroConstant->valueType() == REAL_TYPE);
+    assertTrue_1(minusZeroConstant->getValue(temp));
+    assertTrue_1(temp == 0);
+    if (wasCreated)
+      delete minusZeroConstant;
+  }
 
   pugi::xml_node oneXml = doc.append_child("RealValue");
   pugi::xml_node oneText = oneXml.append_child(node_pcdata);
   oneText.set_value("1");
 
-  Expression *oneConstant = createExpression(oneXml, nc, wasCreated);
-  assertTrue_1(oneConstant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(!oneConstant->isAssignable());
-  assertTrue_1(oneConstant->valueType() == REAL_TYPE);
-  assertTrue_1(oneConstant->getValue(temp));
-  assertTrue_1(temp == 1);
+  {
+    Expression *oneConstant = createExpression(oneXml, nc, wasCreated);
+    assertTrue_1(oneConstant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!oneConstant->isAssignable());
+    assertTrue_1(oneConstant->valueType() == REAL_TYPE);
+    assertTrue_1(oneConstant->getValue(temp));
+    assertTrue_1(temp == 1);
+    if (wasCreated)
+      delete oneConstant;
+  }
 
   pugi::xml_node minusOneXml = doc.append_child("RealValue");
   pugi::xml_node minusOneText = minusOneXml.append_child(node_pcdata);
   minusOneText.set_value("-1");
 
-  Expression *minusOneConstant = createExpression(minusOneXml, nc, wasCreated);
-  assertTrue_1(minusOneConstant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(!minusOneConstant->isAssignable());
-  assertTrue_1(minusOneConstant->valueType() == REAL_TYPE);
-  assertTrue_1(minusOneConstant->getValue(temp));
-  assertTrue_1(temp == -1);
+  {
+    Expression *minusOneConstant = createExpression(minusOneXml, nc, wasCreated);
+    assertTrue_1(minusOneConstant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!minusOneConstant->isAssignable());
+    assertTrue_1(minusOneConstant->valueType() == REAL_TYPE);
+    assertTrue_1(minusOneConstant->getValue(temp));
+    assertTrue_1(temp == -1);
+    if (wasCreated)
+      delete minusOneConstant;
+  }
 
   pugi::xml_node piXml = doc.append_child("RealValue");
   pugi::xml_node piText = piXml.append_child(node_pcdata);
   piText.set_value("3.14");
 
-  Expression *piConstant = createExpression(piXml, nc, wasCreated);
-  assertTrue_1(piConstant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(!piConstant->isAssignable());
-  assertTrue_1(piConstant->valueType() == REAL_TYPE);
-  assertTrue_1(piConstant->getValue(temp));
-  assertTrue_1(temp == 3.14);
+  {
+    Expression *piConstant = createExpression(piXml, nc, wasCreated);
+    assertTrue_1(piConstant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!piConstant->isAssignable());
+    assertTrue_1(piConstant->valueType() == REAL_TYPE);
+    assertTrue_1(piConstant->getValue(temp));
+    assertTrue_1(temp == 3.14);
+    if (wasCreated)
+      delete piConstant;
+  }
 
   pugi::xml_node piWithJunkXml = doc.append_child("RealValue");
   pugi::xml_node piWithJunkText = piWithJunkXml.append_child(node_pcdata);
@@ -326,13 +362,17 @@ static bool realConstantXmlParserTest()
   pugi::xml_node expNotationText = expNotationXml.append_child(node_pcdata);
   expNotationText.set_value("1e-100");
 
-  Expression *expNotationConstant = createExpression(expNotationXml, nc, wasCreated);
-  assertTrue_1(expNotationConstant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(!expNotationConstant->isAssignable());
-  assertTrue_1(expNotationConstant->valueType() == REAL_TYPE);
-  assertTrue_1(expNotationConstant->getValue(temp));
-  assertTrue_1(temp == 1e-100);
+  {
+    Expression *expNotationConstant = createExpression(expNotationXml, nc, wasCreated);
+    assertTrue_1(expNotationConstant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!expNotationConstant->isAssignable());
+    assertTrue_1(expNotationConstant->valueType() == REAL_TYPE);
+    assertTrue_1(expNotationConstant->getValue(temp));
+    assertTrue_1(temp == 1e-100);
+    if (wasCreated)
+      delete expNotationConstant;
+  }
 
   // Overflow not detected on VxWorks/PPC
 #if !defined(__VXWORKS__)
@@ -386,21 +426,27 @@ static bool stringConstantXmlParserTest()
   xml_node emptyXml = doc.append_child("StringValue");
   emptyXml.append_child(node_pcdata);
 
-  Expression *s1Constant = createExpression(emptyXml, nc, wasCreated);
-  assertTrue_1(s1Constant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(s1Constant->getValue(temp));
-  assertTrue_1(temp.empty());
+  {
+    Expression *s1Constant = createExpression(emptyXml, nc, wasCreated);
+    assertTrue_1(s1Constant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(s1Constant->getValue(temp));
+    assertTrue_1(temp.empty());
+    delete s1Constant;
+  }
 
   xml_node s2Xml = doc.append_child("StringValue");
   xml_node s2Text = s2Xml.append_child(node_pcdata);
   s2Text.set_value("foo");
 
-  Expression *s2Constant = createExpression(s2Xml, nc, wasCreated);
-  assertTrue_1(s2Constant);
-  assertTrue_1(wasCreated); // was created - may not be true in future
-  assertTrue_1(s2Constant->getValue(temp));
-  assertTrue_1(temp == "foo");
+  {
+    Expression *s2Constant = createExpression(s2Xml, nc, wasCreated);
+    assertTrue_1(s2Constant);
+    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(s2Constant->getValue(temp));
+    assertTrue_1(temp == "foo");
+    delete s2Constant;
+  }
 
   return true;
 }
@@ -443,26 +489,29 @@ static bool booleanArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("FALSE");
 
   bool temp;
-  Expression *validValConstant = createExpression(validXml, nc, wasCreated);
-  assertTrue_1(validValConstant);
-  assertTrue_1(wasCreated);
-  assertTrue_1(validValConstant->valueType() == BOOLEAN_ARRAY_TYPE);
-  assertTrue_1(validValConstant->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
-  assertTrue_1(aryTemp->size() == 7);
-  assertTrue_1(aryTemp->getElement(0, temp));
-  assertTrue_1(!temp);
-  assertTrue_1(aryTemp->getElement(1, temp));
-  assertTrue_1(temp);
-  assertTrue_1(!aryTemp->getElement(2, temp));
-  assertTrue_1(aryTemp->getElement(3, temp));
-  assertTrue_1(temp);
-  assertTrue_1(aryTemp->getElement(4, temp));
-  assertTrue_1(!temp);
-  assertTrue_1(aryTemp->getElement(5, temp));
-  assertTrue_1(temp);
-  assertTrue_1(aryTemp->getElement(6, temp));
-  assertTrue_1(!temp);
+  {
+    Expression *validValConstant = createExpression(validXml, nc, wasCreated);
+    assertTrue_1(validValConstant);
+    assertTrue_1(wasCreated);
+    assertTrue_1(validValConstant->valueType() == BOOLEAN_ARRAY_TYPE);
+    assertTrue_1(validValConstant->getValuePointer(aryTemp));
+    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp->size() == 7);
+    assertTrue_1(aryTemp->getElement(0, temp));
+    assertTrue_1(!temp);
+    assertTrue_1(aryTemp->getElement(1, temp));
+    assertTrue_1(temp);
+    assertTrue_1(!aryTemp->getElement(2, temp));
+    assertTrue_1(aryTemp->getElement(3, temp));
+    assertTrue_1(temp);
+    assertTrue_1(aryTemp->getElement(4, temp));
+    assertTrue_1(!temp);
+    assertTrue_1(aryTemp->getElement(5, temp));
+    assertTrue_1(temp);
+    assertTrue_1(aryTemp->getElement(6, temp));
+    assertTrue_1(!temp);
+    delete validValConstant;
+  }
 
   // Test bogus element content
   xml_node elementContentErrorXml = doc.append_copy(emptyXml);
@@ -507,13 +556,17 @@ static bool integerArrayConstantXmlParserTest()
   xml_attribute typeAttr = emptyXml.append_attribute("Type");
   typeAttr.set_value("Integer");
 
-  Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
-  assertTrue_1(emptyConstant);
-  assertTrue_1(wasCreated);
-  assertTrue_1(emptyConstant->valueType() == INTEGER_ARRAY_TYPE);
-  assertTrue_1(emptyConstant->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
-  assertTrue_1(aryTemp->size() == 0);
+  {
+    Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    assertTrue_1(emptyConstant);
+    assertTrue_1(wasCreated); // may not be true in future
+    assertTrue_1(emptyConstant->valueType() == INTEGER_ARRAY_TYPE);
+    assertTrue_1(emptyConstant->getValuePointer(aryTemp));
+    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp->size() == 0);
+    if (wasCreated)
+      delete emptyConstant;
+  }
 
   xml_node validXml = doc.append_copy(emptyXml);
   xml_node elementTemp = validXml.append_child("IntegerValue");
@@ -531,24 +584,27 @@ static bool integerArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("0x69");
 
   int32_t temp;
-  Expression *validValConstant = createExpression(validXml, nc, wasCreated);
-  assertTrue_1(validValConstant);
-  assertTrue_1(wasCreated);
-  assertTrue_1(validValConstant->valueType() == INTEGER_ARRAY_TYPE);
-  assertTrue_1(validValConstant->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
-  assertTrue_1(aryTemp->size() == 6);
-  assertTrue_1(aryTemp->getElement(0, temp));
-  assertTrue_1(temp == 0);
-  assertTrue_1(aryTemp->getElement(1, temp));
-  assertTrue_1(temp == 1);
-  assertTrue_1(!aryTemp->getElement(2, temp));
-  assertTrue_1(aryTemp->getElement(3, temp));
-  assertTrue_1(temp == -123456789);
-  assertTrue_1(aryTemp->getElement(4, temp));
-  assertTrue_1(temp == 987654321);
-  assertTrue_1(aryTemp->getElement(5, temp));
-  assertTrue_1(temp == 0x69);
+  {
+    Expression *validValConstant = createExpression(validXml, nc, wasCreated);
+    assertTrue_1(validValConstant);
+    assertTrue_1(wasCreated);
+    assertTrue_1(validValConstant->valueType() == INTEGER_ARRAY_TYPE);
+    assertTrue_1(validValConstant->getValuePointer(aryTemp));
+    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp->size() == 6);
+    assertTrue_1(aryTemp->getElement(0, temp));
+    assertTrue_1(temp == 0);
+    assertTrue_1(aryTemp->getElement(1, temp));
+    assertTrue_1(temp == 1);
+    assertTrue_1(!aryTemp->getElement(2, temp));
+    assertTrue_1(aryTemp->getElement(3, temp));
+    assertTrue_1(temp == -123456789);
+    assertTrue_1(aryTemp->getElement(4, temp));
+    assertTrue_1(temp == 987654321);
+    assertTrue_1(aryTemp->getElement(5, temp));
+    assertTrue_1(temp == 0x69);
+    delete validValConstant;
+  }
 
   xml_node bogusValueXml = doc.append_copy(emptyXml);
   elementTemp = bogusValueXml.append_child("IntegerValue");
@@ -604,13 +660,17 @@ static bool realArrayConstantXmlParserTest()
   xml_attribute typeAttr = emptyXml.append_attribute("Type");
   typeAttr.set_value("Real");
 
-  Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
-  assertTrue_1(emptyConstant);
-  assertTrue_1(wasCreated);
-  assertTrue_1(emptyConstant->valueType() == REAL_ARRAY_TYPE);
-  assertTrue_1(emptyConstant->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
-  assertTrue_1(aryTemp->size() == 0);
+  {
+    Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    assertTrue_1(emptyConstant);
+    assertTrue_1(wasCreated); // may not be true in future
+    assertTrue_1(emptyConstant->valueType() == REAL_ARRAY_TYPE);
+    assertTrue_1(emptyConstant->getValuePointer(aryTemp));
+    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp->size() == 0);
+    if (wasCreated)
+      delete emptyConstant;
+  }
 
   xml_node validXml = doc.append_copy(emptyXml);
   xml_node elementTemp = validXml.append_child("RealValue");
@@ -627,24 +687,27 @@ static bool realArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("6.0221413e+23");
 
   double temp;
-  Expression *validValConstant = createExpression(validXml, nc, wasCreated);
-  assertTrue_1(validValConstant);
-  assertTrue_1(wasCreated);
-  assertTrue_1(validValConstant->valueType() == REAL_ARRAY_TYPE);
-  assertTrue_1(validValConstant->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
-  assertTrue_1(aryTemp->size() == 6);
-  assertTrue_1(aryTemp->getElement(0, temp));
-  assertTrue_1(temp == 0);
-  assertTrue_1(aryTemp->getElement(1, temp));
-  assertTrue_1(temp == 1);
-  assertTrue_1(!aryTemp->getElement(2, temp));
-  assertTrue_1(aryTemp->getElement(3, temp));
-  assertTrue_1(temp == 3.14);
-  assertTrue_1(aryTemp->getElement(4, temp));
-  assertTrue_1(temp == 1e-100);
-  assertTrue_1(aryTemp->getElement(5, temp));
-  assertTrue_1(temp == 6.0221413e+23);
+  {
+    Expression *validValConstant = createExpression(validXml, nc, wasCreated);
+    assertTrue_1(validValConstant);
+    assertTrue_1(wasCreated);
+    assertTrue_1(validValConstant->valueType() == REAL_ARRAY_TYPE);
+    assertTrue_1(validValConstant->getValuePointer(aryTemp));
+    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp->size() == 6);
+    assertTrue_1(aryTemp->getElement(0, temp));
+    assertTrue_1(temp == 0);
+    assertTrue_1(aryTemp->getElement(1, temp));
+    assertTrue_1(temp == 1);
+    assertTrue_1(!aryTemp->getElement(2, temp));
+    assertTrue_1(aryTemp->getElement(3, temp));
+    assertTrue_1(temp == 3.14);
+    assertTrue_1(aryTemp->getElement(4, temp));
+    assertTrue_1(temp == 1e-100);
+    assertTrue_1(aryTemp->getElement(5, temp));
+    assertTrue_1(temp == 6.0221413e+23);
+    delete validValConstant;
+  }
 
   xml_node bogusValueXml = doc.append_copy(emptyXml);
   elementTemp = bogusValueXml.append_child("RealValue");
@@ -699,13 +762,17 @@ static bool stringArrayConstantXmlParserTest()
   xml_attribute typeAttr = emptyXml.append_attribute("Type");
   typeAttr.set_value("String");
 
-  Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
-  assertTrue_1(emptyConstant);
-  assertTrue_1(wasCreated);
-  assertTrue_1(emptyConstant->valueType() == STRING_ARRAY_TYPE);
-  assertTrue_1(emptyConstant->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
-  assertTrue_1(aryTemp->size() == 0);
+  {
+    Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    assertTrue_1(emptyConstant);
+    assertTrue_1(wasCreated); // may not be true in future
+    assertTrue_1(emptyConstant->valueType() == STRING_ARRAY_TYPE);
+    assertTrue_1(emptyConstant->getValuePointer(aryTemp));
+    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp->size() == 0);
+    if (wasCreated)
+      delete emptyConstant;
+  }
 
   xml_node validXml = doc.append_copy(emptyXml);
   xml_node elementTemp = validXml.append_child("StringValue");
@@ -724,27 +791,30 @@ static bool stringArrayConstantXmlParserTest()
   elementTemp.first_child().set_value("6.0221413e+23");
 
   std::string const *temp;
-  Expression *validValConstant = createExpression(validXml, nc, wasCreated);
-  assertTrue_1(validValConstant);
-  assertTrue_1(wasCreated);
-  assertTrue_1(validValConstant->valueType() == STRING_ARRAY_TYPE);
-  assertTrue_1(validValConstant->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
-  assertTrue_1(aryTemp->size() == 7);
-  assertTrue_1(aryTemp->getElementPointer(0, temp));
-  assertTrue_1(temp->empty());
-  assertTrue_1(aryTemp->getElementPointer(1, temp));
-  assertTrue_1(*temp == "0");
-  assertTrue_1(aryTemp->getElementPointer(2, temp));
-  assertTrue_1(*temp == "1");
-  assertTrue_1(aryTemp->getElementPointer(3, temp));
-  assertTrue_1(*temp == "UNKNOWN");
-  assertTrue_1(aryTemp->getElementPointer(4, temp));
-  assertTrue_1(*temp == "3.14");
-  assertTrue_1(aryTemp->getElementPointer(5, temp));
-  assertTrue_1(*temp == "1e-100");
-  assertTrue_1(aryTemp->getElementPointer(6, temp));
-  assertTrue_1(*temp == "6.0221413e+23");
+  {
+    Expression *validValConstant = createExpression(validXml, nc, wasCreated);
+    assertTrue_1(validValConstant);
+    assertTrue_1(wasCreated);
+    assertTrue_1(validValConstant->valueType() == STRING_ARRAY_TYPE);
+    assertTrue_1(validValConstant->getValuePointer(aryTemp));
+    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp->size() == 7);
+    assertTrue_1(aryTemp->getElementPointer(0, temp));
+    assertTrue_1(temp->empty());
+    assertTrue_1(aryTemp->getElementPointer(1, temp));
+    assertTrue_1(*temp == "0");
+    assertTrue_1(aryTemp->getElementPointer(2, temp));
+    assertTrue_1(*temp == "1");
+    assertTrue_1(aryTemp->getElementPointer(3, temp));
+    assertTrue_1(*temp == "UNKNOWN");
+    assertTrue_1(aryTemp->getElementPointer(4, temp));
+    assertTrue_1(*temp == "3.14");
+    assertTrue_1(aryTemp->getElementPointer(5, temp));
+    assertTrue_1(*temp == "1e-100");
+    assertTrue_1(aryTemp->getElementPointer(6, temp));
+    assertTrue_1(*temp == "6.0221413e+23");
+    delete validValConstant;
+  }
 
   xml_node bogusTypeXml = doc.append_copy(emptyXml);
   elementTemp = bogusTypeXml.append_child("BooleanValue");

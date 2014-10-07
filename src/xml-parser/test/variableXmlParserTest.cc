@@ -125,19 +125,23 @@ static bool booleanVariableXmlParserTest()
   bogusTypeXml.first_child().first_child().set_value("bogusType");
   tempText = bogusTypeXml.append_child("InitialValue").append_child("StringValue").append_child(node_pcdata);
   tempText.set_value("12345");
-  Expression *bogusTypeExp = createExpression(bogusTypeXml, nc, wasCreated);
-  assertTrue_1(bogusTypeExp);
-  assertTrue_1(wasCreated);
-  assertTrue_1(bogusTypeExp->isAssignable());
-  assertTrue_1(bogusTypeExp->valueType() == BOOLEAN_TYPE);
-  Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue_1(bogusTypeInit);
-  try {
-    bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
-    assertTrue_2(false, "Failed to detect initial value of wrong type");
-  }
-  catch (Error const & /*exc*/) {
-    std::cout << "Caught expected exception" << std::endl;
+  {
+    Expression *bogusTypeExp = createExpression(bogusTypeXml, nc, wasCreated);
+    assertTrue_1(bogusTypeExp);
+    assertTrue_1(wasCreated);
+    assertTrue_1(bogusTypeExp->isAssignable());
+    assertTrue_1(bogusTypeExp->valueType() == BOOLEAN_TYPE);
+    Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
+    assertTrue_1(bogusTypeInit);
+    try {
+      bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
+      assertTrue_2(false, "Failed to detect initial value of wrong type");
+    }
+    catch (Error const & /*exc*/) {
+      std::cout << "Caught expected exception" << std::endl;
+    }
+    delete bogusTypeInit;
+    delete bogusTypeExp;
   }
 
   // Variable references
@@ -263,33 +267,40 @@ static bool integerVariableXmlParserTest()
   tempText = uXml.append_child("InitialValue").append_child("IntegerValue").append_child(node_pcdata);
   tempText.set_value("UNKNOWN");
 
-  Expression *uExp = createExpression(uXml, nc, wasCreated);
-  assertTrue_1(uExp);
-  assertTrue_1(wasCreated);
-  assertTrue_1(uExp->isAssignable());
-  assertTrue_1(uExp->valueType() == INTEGER_TYPE);
-  Expression *uInit = createExpression(uXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue(uInit);
-  uExp->asAssignable()->setInitializer(uInit, wasCreated);
-  uExp->activate();
-  assertTrue_1(!uExp->isKnown());
-  assertTrue_1(!uExp->getValue(temp));
+  {
+    Expression *uExp = createExpression(uXml, nc, wasCreated);
+    assertTrue_1(uExp);
+    assertTrue_1(wasCreated);
+    assertTrue_1(uExp->isAssignable());
+    assertTrue_1(uExp->valueType() == INTEGER_TYPE);
+    Expression *uInit = createExpression(uXml.child("InitialValue").first_child(), nc, wasCreated);
+    assertTrue(uInit);
+    uExp->asAssignable()->setInitializer(uInit, wasCreated);
+    uExp->activate();
+    assertTrue_1(!uExp->isKnown());
+    assertTrue_1(!uExp->getValue(temp));
+    delete uExp;
+  }
 
   xml_node bogusTypeXml = doc.append_copy(iXml);
   bogusTypeXml.first_child().first_child().set_value("bogusType");
   tempText = bogusTypeXml.append_child("InitialValue").append_child("StringValue").append_child(node_pcdata);
   tempText.set_value("12345");
-  Expression *bogusTypeExp = createExpression(bogusTypeXml, nc, wasCreated);
-  assertTrue_1(bogusTypeExp);
-  assertTrue_1(wasCreated);
-  Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue_1(bogusTypeInit);
-  try {
-    bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
-    assertTrue_2(false, "Failed to detect initial value of wrong type");
-  }
-  catch (Error const & /*exc*/) {
-    std::cout << "Caught expected exception" << std::endl;
+  {
+    Expression *bogusTypeExp = createExpression(bogusTypeXml, nc, wasCreated);
+    assertTrue_1(bogusTypeExp);
+    assertTrue_1(wasCreated);
+    Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
+    assertTrue_1(bogusTypeInit);
+    try {
+      bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
+      assertTrue_2(false, "Failed to detect initial value of wrong type");
+    }
+    catch (Error const & /*exc*/) {
+      std::cout << "Caught expected exception" << std::endl;
+    }
+    delete bogusTypeInit;
+    delete bogusTypeExp;
   }
 
   // Variable references
@@ -413,35 +424,42 @@ static bool realVariableXmlParserTest()
   tempText = uXml.append_child("InitialValue").append_child("RealValue").append_child(node_pcdata);
   tempText.set_value("UNKNOWN");
 
-  Expression *uExp = createExpression(uXml, nc, wasCreated);
-  assertTrue_1(uExp);
-  assertTrue_1(wasCreated);
-  assertTrue_1(uExp->isAssignable());
-  assertTrue_1(uExp->valueType() == REAL_TYPE);
-  Expression *uInit = createExpression(uXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue_1(uInit);
-  uExp->asAssignable()->setInitializer(uInit, wasCreated);
-  uExp->activate();
-  assertTrue_1(!uExp->isKnown());
-  assertTrue_1(!uExp->getValue(temp));
+  {
+    Expression *uExp = createExpression(uXml, nc, wasCreated);
+    assertTrue_1(uExp);
+    assertTrue_1(wasCreated);
+    assertTrue_1(uExp->isAssignable());
+    assertTrue_1(uExp->valueType() == REAL_TYPE);
+    Expression *uInit = createExpression(uXml.child("InitialValue").first_child(), nc, wasCreated);
+    assertTrue_1(uInit);
+    uExp->asAssignable()->setInitializer(uInit, wasCreated);
+    uExp->activate();
+    assertTrue_1(!uExp->isKnown());
+    assertTrue_1(!uExp->getValue(temp));
+    delete uExp;
+  }
 
   xml_node bogusTypeXml = doc.append_copy(iXml);
   bogusTypeXml.first_child().first_child().set_value("bogusType");
   tempText = bogusTypeXml.append_child("InitialValue").append_child("StringValue").append_child(node_pcdata);
   tempText.set_value("12345");
-  Expression *bogusTypeExp = createExpression(bogusTypeXml, nc, wasCreated);
-  assertTrue_1(bogusTypeExp);
-  assertTrue_1(wasCreated);
-  assertTrue_1(bogusTypeExp->isAssignable());
-  assertTrue_1(bogusTypeExp->valueType() == REAL_TYPE);
-  Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue_1(bogusTypeInit);
-  try {
-    bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
-    assertTrue_2(false, "Failed to detect initial value of wrong type");
-  }
-  catch (Error const & /*exc*/) {
-    std::cout << "Caught expected exception" << std::endl;
+  {
+    Expression *bogusTypeExp = createExpression(bogusTypeXml, nc, wasCreated);
+    assertTrue_1(bogusTypeExp);
+    assertTrue_1(wasCreated);
+    assertTrue_1(bogusTypeExp->isAssignable());
+    assertTrue_1(bogusTypeExp->valueType() == REAL_TYPE);
+    Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
+    assertTrue_1(bogusTypeInit);
+    try {
+      bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
+      assertTrue_2(false, "Failed to detect initial value of wrong type");
+    }
+    catch (Error const & /*exc*/) {
+      std::cout << "Caught expected exception" << std::endl;
+    }
+    delete bogusTypeInit;
+    delete bogusTypeExp;
   }
 
   // Variable references
@@ -570,19 +588,23 @@ static bool stringVariableXmlParserTest()
   xml_node bogusTypeXml = doc.append_copy(unkXml);
   bogusTypeXml.first_child().first_child().set_value("bogusType");
   bogusTypeXml.append_child("InitialValue").append_child("IntegerValue").append_child(node_pcdata).set_value("12345");
-  Expression *bogusTypeExp = createExpression(bogusTypeXml, nc, wasCreated);
-  assertTrue_1(bogusTypeExp);
-  assertTrue_1(wasCreated);
-  assertTrue_1(bogusTypeExp->isAssignable());
-  assertTrue_1(bogusTypeExp->valueType() == STRING_TYPE);
-  Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue_1(bogusTypeInit);
-  try {
-    bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
-    assertTrue_2(false, "Failed to detect invalid initial value");
-  }
-  catch (Error const & /*exc*/) {
-    std::cout << "Caught expected exception" << std::endl;
+  {
+    Expression *bogusTypeExp = createExpression(bogusTypeXml, nc, wasCreated);
+    assertTrue_1(bogusTypeExp);
+    assertTrue_1(wasCreated);
+    assertTrue_1(bogusTypeExp->isAssignable());
+    assertTrue_1(bogusTypeExp->valueType() == STRING_TYPE);
+    Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
+    assertTrue_1(bogusTypeInit);
+    try {
+      bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
+      assertTrue_2(false, "Failed to detect invalid initial value");
+    }
+    catch (Error const & /*exc*/) {
+      std::cout << "Caught expected exception" << std::endl;
+    }
+    delete bogusTypeInit;
+    delete bogusTypeExp;
   }
 
   // Variable references
@@ -808,19 +830,23 @@ static bool integerArrayVariableXmlParserTest()
   tooLongContents.append_child("IntegerValue").append_child(node_pcdata).set_value("1");
   tooLongContents.append_child("IntegerValue").append_child(node_pcdata).set_value("2");
 
-  Expression *tooLongValueExp = createExpression(tooLongValueXml, nc, wasCreated);
-  assertTrue_1(tooLongValueExp);
-  assertTrue_1(wasCreated);
-  assertTrue_1(tooLongValueExp->valueType() == INTEGER_ARRAY_TYPE);
-  assertTrue_1(tooLongValueExp->isAssignable());
-  Expression *tooLongValueInit = createExpression(tooLongValueXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue_1(tooLongValueInit);
-  try {
-    tooLongValueExp->asAssignable()->setInitializer(tooLongValueInit, wasCreated);
-    assertTrue_2(ALWAYS_FAIL, "Failed to detect oversized initial value");
-  }
-  catch (Error const & /* exc */) {
-    std::cout << "Caught expected error" << std::endl;
+  {
+    Expression *tooLongValueExp = createExpression(tooLongValueXml, nc, wasCreated);
+    assertTrue_1(tooLongValueExp);
+    assertTrue_1(wasCreated);
+    assertTrue_1(tooLongValueExp->valueType() == INTEGER_ARRAY_TYPE);
+    assertTrue_1(tooLongValueExp->isAssignable());
+    Expression *tooLongValueInit = createExpression(tooLongValueXml.child("InitialValue").first_child(), nc, wasCreated);
+    assertTrue_1(tooLongValueInit);
+    try {
+      tooLongValueExp->asAssignable()->setInitializer(tooLongValueInit, wasCreated);
+      assertTrue_2(ALWAYS_FAIL, "Failed to detect oversized initial value");
+    }
+    catch (Error const & /* exc */) {
+      std::cout << "Caught expected error" << std::endl;
+    }
+    delete tooLongValueInit;
+    delete tooLongValueExp;
   }
 
   // Variable reference tests
