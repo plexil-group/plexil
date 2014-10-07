@@ -81,7 +81,7 @@ namespace PLEXIL
     virtual const char *what() const throw();
 
   private:
-    const char * m_what;
+    std::string m_what;
     std::string m_file; /**<The source file in which the error was detected (__FILE__). */
 	int m_offset; /**< The character offset of the error */
   };

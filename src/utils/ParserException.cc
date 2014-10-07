@@ -42,20 +42,18 @@ namespace PLEXIL
   }
 
   // Must copy the message as it may be stack or dynamically allocated.
-  // *** N.B. This is an obvious source of memory leaks.
   ParserException::ParserException(const char * msg, const char * file, const int& offset)
     throw()
-    : std::exception(), m_what(new char[strlen(msg) + 1]), m_file(file), m_offset(offset)
+    : std::exception(), m_what(msg), m_file(file), m_offset(offset)
   {
-    strcpy(const_cast<char*>(m_what), msg);
-    Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what);
+    Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what.c_str());
   }
 
   ParserException::ParserException(const ParserException& other, const char * file, const int& offset)
     throw()
     : std::exception(other), m_what(other.m_what), m_file(file), m_offset(offset)
   {
-    Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what);
+    Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what.c_str());
   }
   
   ParserException& ParserException::operator=(const ParserException& other)
@@ -75,7 +73,7 @@ namespace PLEXIL
   const char* ParserException::what() const
     throw()
   {
-    return m_what;
+    return m_what.c_str();
   }
 
 }
