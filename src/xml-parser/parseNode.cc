@@ -57,12 +57,23 @@ namespace PLEXIL
   // First pass
   //
 
+  static char const *getVarDeclName(xml_node const decl)
+  {
+    checkHasChildElement(decl);
+    xml_node nameXml = decl.first_child();
+    checkTag(NAME_TAG, nameXml);
+    char const *name = nameXml.child_value();
+    checkParserExceptionWithLocation(*name,
+                                     nameXml,
+                                     "Empty " << NAME_TAG << " element in " << decl.name());
+    return name;
+  }
+
   static void parseVariableDeclarations(Node *node, xml_node const decls)
   {
-    xml_node decl = decls.first_child();
-    while (decl) {
+    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
       checkHasChildElement(decl);
-      char const *name = decl.child_value(NAME_TAG);
+      char const *name = getVarDeclName(decl);
       if (node->findLocalVariable(std::string(name))) {
         checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          decl.child(NAME_TAG),
@@ -72,7 +83,6 @@ namespace PLEXIL
       }
       // Variables are always created here, no need for "garbage" flag.
       node->addLocalVariable(name, createExpression(decl, node));
-      decl = decl.next_sibling();
     }
   }
 
@@ -108,18 +118,6 @@ namespace PLEXIL
       return NULL;
     return parent->findVariable(std::string(name),
                                 (parent->getType() == NodeType_LibraryNodeCall));
-  }
-
-  static char const *getVarDeclName(xml_node const decl)
-  {
-    checkHasChildElement(decl);
-    xml_node nameXml = decl.first_child();
-    checkTag(NAME_TAG, nameXml);
-    char const *name = nameXml.child_value();
-    checkParserExceptionWithLocation(*name,
-                                     nameXml,
-                                     "Empty " << NAME_TAG << " element in " << decl.name());
-    return name;
   }
 
   //
@@ -217,25 +215,27 @@ namespace PLEXIL
   Node *parseNode(xml_node const xml, Node *parent)
     throw (ParserException)
   {
-    xml_attribute const typeAttr = xml.attribute(NODETYPE_ATTR);
-    checkParserExceptionWithLocation(typeAttr,
-                                     xml,
-                                     "Node has no " << NODETYPE_ATTR << " attribute");
-    PlexilNodeType nodeType = parseNodeType(typeAttr.value());
-    checkParserExceptionWithLocation(nodeType >= NodeType_NodeList && nodeType <= NodeType_LibraryNodeCall,
-                                     xml, // should be attribute
-                                     "Invalid node type \"" << typeAttr.value() << "\"");
-    debugMsg("parseNode", " of type " << typeAttr.value());
+    PlexilNodeType nodeType;
+    {
+      xml_attribute const typeAttr = xml.attribute(NODETYPE_ATTR);
+      checkParserExceptionWithLocation(typeAttr,
+                                       xml,
+                                       "Node has no " << NODETYPE_ATTR << " attribute");
+      nodeType = parseNodeType(typeAttr.value());
+      checkParserExceptionWithLocation(nodeType >= NodeType_NodeList && nodeType <= NodeType_LibraryNodeCall,
+                                       xml, // should be attribute
+                                       "Invalid node type \"" << typeAttr.value() << "\"");
+      debugMsg("parseNode", " of type " << typeAttr.value());
+    }
 
     // Where to put the things we parse on the first pass
-    xml_node id;
+    char const *name = NULL;
     xml_node prio;
     xml_node iface;
     xml_node varDecls;
     xml_node body;
 
-    xml_node temp = xml.first_child();
-    while (temp) {
+    for (xml_node temp = xml.first_child(); temp; temp = temp.next_sibling()) {
       checkParserExceptionWithLocation(temp.type() == node_element,
                                        temp,
                                        "Non-element found at top level of node");
@@ -246,11 +246,11 @@ namespace PLEXIL
         checkParserExceptionWithLocation(0 == strcmp(NODEID_TAG, tag),
                                          temp, 
                                          "Illegal element \"" << tag << "\" in Node");
-        checkParserExceptionWithLocation(!id,
+        checkParserExceptionWithLocation(!name,
                                          temp, 
                                          "Duplicate " << tag << " element in Node");
         checkNotEmpty(temp);
-        id = temp;
+        name = temp.child_value();
         break;
 
       case 7: // Comment
@@ -268,12 +268,12 @@ namespace PLEXIL
           break;
         }
         else if (0 == strcmp(PRIORITY_TAG, tag)) {
-          checkParserExceptionWithLocation(!prio,
-                                           temp, 
-                                           "Duplicate " << tag << " element in Node");
           checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
                                            temp,
                                            "Only Assignment nodes may have a Priority element");
+          checkParserExceptionWithLocation(!prio,
+                                           temp, 
+                                           "Duplicate " << tag << " element in Node");
           checkNotEmpty(temp);
           prio = temp;
           break;
@@ -348,14 +348,11 @@ namespace PLEXIL
                                          "Illegal element \"" << tag << "\" in Node");
         break;
       }
-
-      temp = temp.next_sibling();
     }
 
-    checkParserExceptionWithLocation(id,
+    checkParserExceptionWithLocation(name,
                                      xml,
                                      "Node has no " << NODEID_TAG << " element");
-    char const *name = id.child_value();
 
     // Superficial checks of node body before we construct node
     if (body) {
@@ -578,27 +575,19 @@ namespace PLEXIL
     debugMsg("linkAndInitializeInterface", " node " << node->getNodeId());
     Node *parent = node->getParent();
     bool isCall = (parent && parent->getType() == NodeType_LibraryNodeCall);
-    xml_node temp = iface.first_child();
-    while (temp) {
+    for (xml_node temp = iface.first_child(); temp; temp = temp.next_sibling()) {
       checkHasChildElement(temp);
       if (0 == strcmp(IN_TAG, temp.name())) {
-        xml_node decl = temp.first_child();
-        while (decl) {
+        for (xml_node decl = temp.first_child(); decl; decl = decl.next_sibling())
           linkInVar(node, decl, isCall);
-          decl = decl.next_sibling();
-        }
       }
       else if (0 == strcmp(INOUT_TAG, temp.name())) {
-        xml_node decl = temp.first_child();
-        while (decl) {
+        for (xml_node decl = temp.first_child(); decl; decl = decl.next_sibling())
           linkInOutVar(node, decl, isCall);
-          decl = decl.next_sibling();
-        }
       }
       else
         assertTrueMsg(ALWAYS_FAIL,
                       "Internal error: Found " << temp.name() << " element in Interface during second pass");
-      temp = temp.next_sibling();
     }
   }
 
@@ -617,9 +606,9 @@ namespace PLEXIL
                                        initXml,
                                        "This variable may not take an initializer");
       checkHasChildElement(initXml);
-      bool garbage;
       Expression *init;
       ValueType varType = var->valueType();
+      bool garbage;
       if (isArrayType(varType)
           && testTag(typeNameAsValue(arrayElementType(varType)).c_str(), initXml.first_child())) {
         // Handle old style initializer
@@ -644,7 +633,8 @@ namespace PLEXIL
         default:
           checkParserExceptionWithLocation(ALWAYS_FAIL,
                                            initXml,
-                                           "Can't parse initial value for unimplemented or illegal type " << valueTypeName(varType));
+                                           "Can't parse initial value for unimplemented or illegal type "
+                                           << valueTypeName(varType));
           break;
         }
       }
@@ -654,7 +644,7 @@ namespace PLEXIL
         init = createExpression(initXml, node, garbage);
       }
       ValueType initType = init->valueType();
-      if (!areTypesCompatible(var->valueType(), init->valueType())) {
+      if (!areTypesCompatible(varType, initType)) {
         if (garbage)
           delete init;
         checkParserExceptionWithLocation(ALWAYS_FAIL,
@@ -662,7 +652,7 @@ namespace PLEXIL
                                          "Node " << node->getNodeId()
                                          << ": Initialization type mismatch for variable "
                                          << varName << ", variable is " << valueTypeName(varType)
-                                         << ", initializer is " << valueTypeName(init->valueType()));
+                                         << ", initializer is " << valueTypeName(initType));
       }
       var->asAssignable()->setInitializer(init, garbage);
     }
@@ -675,12 +665,10 @@ namespace PLEXIL
 
     // Where to put the things we parse on the second pass
     xml_node iface;
-    xml_node varDecls;
     xml_node body;
     std::vector<xml_node> conditions;
 
-    xml_node temp = xml.first_child();
-    while (temp) {
+    for (xml_node temp = xml.first_child(); temp; temp = temp.next_sibling()) {
       char const *tag = temp.name();
       size_t taglen = strlen(tag);
 
@@ -705,7 +693,12 @@ namespace PLEXIL
         break;
 
       case 20: // VariableDeclarations
-        varDecls = temp;
+        // It is only here after all child nodes and node bodies have been constructed
+        // that all variables which could be referenced are accessible.
+        for (xml_node decl = temp.first_child();
+             decl;
+             decl = decl.next_sibling()) 
+          parseVariableInitializer(node, decl);
         break;
 
       case 6: // NodeId
@@ -713,18 +706,6 @@ namespace PLEXIL
       default:
         break;
       }
-
-      temp = temp.next_sibling();
-    }
-
-    // Construct variable initializers here
-    // It is only here after all child nodes and node bodies have been constructed
-    // that all variables which could be referenced are accessible.
-    if (varDecls) {
-      for (xml_node decl = varDecls.first_child();
-           decl;
-           decl = decl.next_sibling()) 
-        parseVariableInitializer(node, decl);
     }
 
     // Link aliases and construct interface default initializers
