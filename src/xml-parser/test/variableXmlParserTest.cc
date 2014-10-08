@@ -109,17 +109,20 @@ static bool booleanVariableXmlParserTest()
   tempText = uXml.append_child("InitialValue").append_child("BooleanValue").append_child(node_pcdata);
   tempText.set_value("UNKNOWN");
 
-  Expression *uExp = createExpression(uXml, nc, wasCreated);
-  assertTrue_1(uExp);
-  assertTrue_1(wasCreated);
-  assertTrue_1(uExp->isAssignable());
-  assertTrue_1(uExp->valueType() == BOOLEAN_TYPE);
-  Expression *uInit = createExpression(uXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue_1(uInit);
-  uExp->asAssignable()->setInitializer(uInit, wasCreated);
-  uExp->activate();
-  assertTrue_1(!uExp->isKnown());
-  assertTrue_1(!uExp->getValue(temp));
+  {
+    Expression *uExp = createExpression(uXml, nc, wasCreated);
+    assertTrue_1(uExp);
+    assertTrue_1(wasCreated);
+    assertTrue_1(uExp->isAssignable());
+    assertTrue_1(uExp->valueType() == BOOLEAN_TYPE);
+    Expression *uInit = createExpression(uXml.child("InitialValue").first_child(), nc, wasCreated);
+    assertTrue_1(uInit);
+    uExp->asAssignable()->setInitializer(uInit, wasCreated);
+    uExp->activate();
+    assertTrue_1(!uExp->isKnown());
+    assertTrue_1(!uExp->getValue(temp));
+    delete uExp;
+  }
 
   xml_node bogusTypeXml = doc.append_copy(bXml);
   bogusTypeXml.first_child().first_child().set_value("bogusType");
@@ -260,7 +263,7 @@ static bool integerVariableXmlParserTest()
   assertTrue_1(hExp->isKnown());
   assertTrue_1(hExp->getValue(temp));
   assertTrue_1(temp == 0xBADF00D);
-  realNc.storeVariable("t", hExp);
+  realNc.storeVariable("h", hExp);
 
   xml_node uXml = doc.append_copy(iXml);
   uXml.first_child().first_child().set_value("u");
