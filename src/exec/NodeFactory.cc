@@ -28,6 +28,7 @@
 
 #include "AssignmentNode.hh"
 #include "CommandNode.hh"
+#include "Debug.hh"
 #include "Error.hh"
 #include "LibraryCallNode.hh"
 #include "ListNode.hh"
@@ -36,38 +37,48 @@
 
 namespace PLEXIL
 {
+  static NodeFactory* s_nodeFactories[NodeType_error];
+
+  static void purgeNodeFactories()
+  {
+    NodeFactory* tmp;
+    for (size_t i = 0; i < NodeType_error; ++i)
+      if ((tmp = s_nodeFactories[i]))
+        delete tmp;
+  }
+
+  static void initializeNodeFactories()
+  {
+    addFinalizer(&purgeNodeFactories);
+    // Ensure entire map is correctly initialized
+    s_nodeFactories[NodeType_uninitialized] = NULL;
+    s_nodeFactories[NodeType_NodeList] = new ConcreteNodeFactory<ListNode>(NodeType_NodeList);
+    s_nodeFactories[NodeType_Command] = new ConcreteNodeFactory<CommandNode>(NodeType_Command);
+    s_nodeFactories[NodeType_Assignment] = new ConcreteNodeFactory<AssignmentNode>(NodeType_Assignment);
+    s_nodeFactories[NodeType_Update] = new ConcreteNodeFactory<UpdateNode>(NodeType_Update);
+    s_nodeFactories[NodeType_Empty] = new ConcreteNodeFactory<Node>(NodeType_Empty);
+    s_nodeFactories[NodeType_LibraryNodeCall] = new ConcreteNodeFactory<LibraryCallNode>(NodeType_LibraryNodeCall);
+  }
+
+  static NodeFactory* getNodeFactory(PlexilNodeType nodeType)
+  {
+    static bool s_inited = false;
+    if (!s_inited) {
+      initializeNodeFactories();
+      s_inited = true;
+    }
+    return s_nodeFactories[nodeType];
+  }
+
   NodeFactory::NodeFactory(PlexilNodeType nodeType)
     : m_nodeType(nodeType)
   {
-    checkError(factoryMap()[nodeType] == NULL,
-               "A NodeFactory is already registered for node type " << nodeTypeString(nodeType));
-    factoryMap()[nodeType] = this;
   }
 
   NodeFactory::~NodeFactory()
   {
-    factoryMap()[m_nodeType] = NULL;
-  }
-
-  NodeFactory** NodeFactory::factoryMap()
-  {
-    static NodeFactory* sl_factories[NodeType_error];
-    static bool sl_inited = false;
-    if (!sl_inited) {
-      addFinalizer(&purge);
-      sl_inited = true;
-    }
-    return sl_factories;
-  }
-
-  void NodeFactory::purge()
-  {
-    NodeFactory* tmp;
-    for (size_t i = 0; i < NodeType_error; ++i)
-      if ((tmp = factoryMap()[i])) {
-        factoryMap()[i] = NULL;
-        delete tmp;
-      }
+    // Clear our entry in table
+    s_nodeFactories[m_nodeType] = NULL;
   }
 
   /**
@@ -77,14 +88,14 @@ namespace PLEXIL
                                 PlexilNodeType nodeType,
                                 Node *parent)
   {
-    assertTrueMsg(nodeType > NodeType_uninitialized
-                  && nodeType < NodeType_error,
-                  "Invalid node type value " << nodeType);
-    ensureNodeFactoriesRegistered();
-    NodeFactory* factory = factoryMap()[nodeType];
-    checkError(factory != NULL, 
-               "No NodeFactory registered for node type " << nodeTypeString(nodeType));
+    assertTrue_2((nodeType > NodeType_uninitialized)
+		 && (nodeType < NodeType_error),
+		 "createNode: Invalid node type value");
+    NodeFactory* factory = getNodeFactory(nodeType);
+    assertTrue_2(factory != NULL, "Internal error: no node factory for valid node type");
+    std::cout << "Constructing node " << name << " of type " << nodeTypeString(nodeType) << std::endl;
     Node *result = factory->create(name, parent);
+    std::cout << "Constructed node " << name << std::endl;
     // common post process here
     return result;
   }
@@ -101,8 +112,7 @@ namespace PLEXIL
     checkError(nodeType > NodeType_uninitialized
                && nodeType < NodeType_error,
                "Invalid node type string " << type);
-    ensureNodeFactoriesRegistered();
-    NodeFactory* factory = factoryMap()[nodeType];
+    NodeFactory* factory = getNodeFactory(nodeType);
     checkError(factory != NULL, 
                "No NodeFactory registered for node type " << type);
     Node *result = factory->create(type, name, state, parent);
@@ -115,6 +125,7 @@ namespace PLEXIL
   Node *ConcreteNodeFactory<NODE_TYPE>::create(char const *name, 
                                                Node *parent) const
   {
+    std::cout << "ConcreteNodeFactory::create " << nodeTypeString(m_nodeType) << std::endl;
     return new NODE_TYPE(name, parent);
   }
 
@@ -129,23 +140,6 @@ namespace PLEXIL
                "Factory for node type " << nodeTypeString(m_nodeType)
                << " invoked on node type " << type);
     return new NODE_TYPE(type, name, state, parent);
-  }
-
-#define REGISTER_NODE_FACTORY(CLASS,NODE_TYPE) { new PLEXIL::ConcreteNodeFactory<CLASS>(NODE_TYPE); }
-
-  void NodeFactory::ensureNodeFactoriesRegistered()
-  {
-    static bool sl_registered = false;
-    if (sl_registered)
-      return;
-
-    REGISTER_NODE_FACTORY(ListNode, NodeType_NodeList);
-    REGISTER_NODE_FACTORY(CommandNode, NodeType_Command);
-    REGISTER_NODE_FACTORY(AssignmentNode, NodeType_Assignment);
-    REGISTER_NODE_FACTORY(UpdateNode, NodeType_Update);
-    REGISTER_NODE_FACTORY(Node, NodeType_Empty);
-    REGISTER_NODE_FACTORY(LibraryCallNode, NodeType_LibraryNodeCall);
-    sl_registered = true;
   }
 
 }

@@ -42,6 +42,7 @@ namespace PLEXIL
   class NodeFactory
   {
   public:
+    virtual ~NodeFactory();
 
     /**
      * @brief Primary factory method.
@@ -58,16 +59,13 @@ namespace PLEXIL
                             NodeState state,
                             Node *parent = NULL);
 
-    static void ensureNodeFactoriesRegistered();
-
-    static void purge();
-
   protected:
+
+    // Base class constructor only available to derived classes.
     NodeFactory(PlexilNodeType nodeType);
-    virtual ~NodeFactory();
 
     /**
-     * @brief Primary factory method.
+     * @brief Primary factory method delegated to derived classes.
      */
     virtual Node *create(char const *name, 
                          Node *parent = NULL) const = 0;
@@ -88,8 +86,6 @@ namespace PLEXIL
     NodeFactory();
     NodeFactory(const NodeFactory&);
     NodeFactory& operator=(const NodeFactory&);
-
-    static NodeFactory** factoryMap(); // reference to array of pointers was just too hard!
   };
 
   template<class NODE_TYPE>
@@ -111,8 +107,7 @@ namespace PLEXIL
     ConcreteNodeFactory(const ConcreteNodeFactory&);
     ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
 
-    Node *create(char const *name,
-                 Node *parent) const;
+    Node *create(char const *name, Node *parent) const;
 
     /**
      * @brief Alternate constructor.  Used only by Exec test module.
