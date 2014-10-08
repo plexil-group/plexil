@@ -225,6 +225,7 @@ namespace PLEXIL
     checkParserExceptionWithLocation(nodeType >= NodeType_NodeList && nodeType <= NodeType_LibraryNodeCall,
                                      xml, // should be attribute
                                      "Invalid node type \"" << typeAttr.value() << "\"");
+    debugMsg("parseNode", " of type " << typeAttr.value());
 
     // Where to put the things we parse on the first pass
     xml_node id;
@@ -370,17 +371,21 @@ namespace PLEXIL
                                        "Node \"" << name << "\" has no NodeBody element");
 
     Node *node = NodeFactory::createNode(name, nodeType, parent);
+    debugMsg("parseNode", " Node " << name  << " created");
 
     try {
       // Populate local variables
-      if (varDecls)
+      if (varDecls) {
         parseVariableDeclarations(node, varDecls);
+      }
 
       // Check interface variables
-      if (iface)
+      if (iface) {
         parseInterface(node, iface);
+      }
 
       // Construct body including all associated variables
+      debugMsg("parseNode", " constructing body");
       switch (nodeType) {
       case NodeType_Assignment:
         if (prio) 
@@ -423,6 +428,7 @@ namespace PLEXIL
       delete node;
       throw;
     }
+    debugMsg("parseNode", " done.");
     return node;
   }
 
