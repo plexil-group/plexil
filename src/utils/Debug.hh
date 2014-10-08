@@ -377,13 +377,12 @@ public:
 
   static bool isGood();
 
-  DebugMessage *next() { return m_next; }
+  DebugMessage *nextMsg() { return m_next; }
 
 private:
 
   /**
    * @brief Pointer to next (previous) message in list.
-   * @note Public so purgePatternsAndMessages can dink with it.
    */
   DebugMessage *m_next;
 

@@ -67,14 +67,18 @@ static DebugPattern *enabledPatterns = NULL;
 
 static void purgePatternsAndMessages()
 {
-  while (enabledPatterns) {
-    DebugPattern *pat = enabledPatterns;
-    enabledPatterns = pat->m_next;
+  DebugPattern *nextPat = enabledPatterns;
+  enabledPatterns = NULL;
+  while (nextPat) {
+    DebugPattern *pat = nextPat;
+    nextPat = pat->m_next;
     delete pat;
   }
-  while (allMsgs) {
-    DebugMessage *msg = allMsgs;
-    allMsgs = msg->next();
+  DebugMessage *nextMessage = allMsgs;
+  allMsgs = NULL;
+  while (nextMessage) {
+    DebugMessage *msg = nextMessage;
+    nextMessage = msg->nextMsg();
     delete msg;
   }
 }
@@ -118,10 +122,17 @@ DebugMessage::DebugMessage(char const *file,
 DebugMessage *DebugMessage::addMsg(char const *file,
                                    char const *marker) 
 {
-  ensureDebugInited();
   check_error_3(file && *file && marker && *marker,
                 "debug messages must have non-empty file and marker",
                 DebugErr::DebugMessageError());
+  ensureDebugInited();
+
+  // *** TEMP DEBUG ***
+  assertTrueMsg(file,
+		"DebugMessage::addMsg: null file, marker = \"" << marker << '\"');
+  assertTrueMsg(marker,
+		"DebugMessage::addMsg: null marker, file = \"" << file << '\"');
+
   DebugMessage *msg = findMsg(file, marker);
   if (!msg) {
     msg = new DebugMessage(file, marker);
@@ -131,6 +142,9 @@ DebugMessage *DebugMessage::addMsg(char const *file,
     allMsgs = msg;
     DebugPattern const *pat = enabledPatterns;
     while (pat) {
+      // *** TEMP DEBUG ***
+      assertTrue_2(pat->m_file && pat->m_pattern,
+		   "addMsg: bad DebugPattern; either file or pattern is NULL");
       if (msg->matches(*pat)) {
         msg->enable();
         break;
@@ -194,9 +208,14 @@ void DebugMessage::print(std::ostream &os) const
 inline static bool markerMatches(char const *marker,
                                  char const *pattern) 
 {
-  if (!pattern || !*pattern)
+  assertTrue_2(marker, "markerMatches: Null marker");
+  if (!*marker)
     return true;
-  return (NULL != strstr(marker, pattern));
+  assertTrue_2(pattern, "markerMatches: Null pattern");
+  if (!*pattern)
+    return true;
+  char *result = strstr(marker, pattern);
+  return result != NULL;
 }
 
 /**
@@ -225,6 +244,9 @@ void DebugMessage::findMatchingMsgs(char const *file,
                                     char const *pattern,
                                     std::vector<DebugMessage*> &matches) 
 {
+  // *** TEMP DEBUG ***
+  assertTrue_2(file, "findMatchingMsgs: null file");
+  assertTrue_2(pattern, "findMatchingMsgs: null pattern");
   DebugPattern const dp(file, pattern);
   DebugMessage *next = allMsgs;
   while (next) {
@@ -250,14 +272,19 @@ void DebugMessage::enableAll() {
 
 static char *copyString(char const *orig)
 {
+  assertTrue_2(orig, "copyString: null string");
   char *result = NULL;
-  if (orig && *orig) {
+  if (*orig) {
     size_t len = strlen(orig);
     result = new char[len + 1];
+    check_error(result, "no memory for copyString",
+                DebugErr::DebugMemoryError());
     strcpy(result, orig);
   }
   else {
     result = new char[1];
+    check_error(result, "no memory for copyString",
+                DebugErr::DebugMemoryError());
     *result = '\0';
   }
   return result;
@@ -266,13 +293,23 @@ static char *copyString(char const *orig)
 void DebugMessage::enableMatchingMsgs(char const *file,
                                       char const *pattern)
 {
-  if ((!file || !*file) && (!pattern || !*pattern)) {
+  assertTrue_2(file, "enableMatchingMsgs: null file");
+  assertTrue_2(pattern, "enableMatchingMsgs: null pattern");
+
+  if (!*file && !*pattern) {
     enableAll();
     return;
   }
-  
   DebugPattern* dp = 
     new DebugPattern(copyString(file), copyString(pattern), true);
+  check_error(dp, "no memory for new debug pattern",
+	      DebugErr::DebugMemoryError());
+  // *** TEMP DEBUG ***
+  assertTrue_2(dp->m_file,
+	       "enableMatchingMsgs: DebugPattern with null file");
+  assertTrue_2(dp->m_pattern,
+	       "enableMatchingMsgs: DebugPattern with null pattern");
+
   dp->m_next = enabledPatterns;
   enabledPatterns = dp;
 
