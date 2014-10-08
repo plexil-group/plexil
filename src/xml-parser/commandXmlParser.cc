@@ -195,9 +195,13 @@ namespace PLEXIL
     bool nameIsGarbage = false;
     Expression *nameExpr = createExpression(temp.first_child(), node, nameIsGarbage);
     ValueType nameType = nameExpr->valueType();
-    checkParserExceptionWithLocation(nameType == STRING_TYPE || nameType == UNKNOWN_TYPE,
-                                     temp,
-                                     "Command Name must be a String expression");
+    if (nameType != STRING_TYPE && nameType != UNKNOWN_TYPE) {
+      if (nameIsGarbage)
+        delete nameExpr;
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       temp,
+                                       "Command Name must be a String expression");
+    }
     cmd->setNameExpr(nameExpr, nameIsGarbage);
 
     // Optional arguments
