@@ -47,7 +47,6 @@ static bool testCommandParserBasics()
   conn.storeVariable("flag", flagVar);
 
   xml_document doc;
-  doc.set_name("testCommandParserBasics");
 
   // Minimum case
   {
@@ -244,7 +243,6 @@ static bool testCommandParserErrorHandling()
   TrivialNodeConnector conn;
 
   xml_document doc;
-  doc.set_name("testCommandParserErrorHandling");
 
   xml_node mtCmd = doc.append_child("Command");
   try {

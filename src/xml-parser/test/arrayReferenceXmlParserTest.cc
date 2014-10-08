@@ -91,7 +91,6 @@ static bool testArrayConstantReferenceXmlParser()
   realNc->storeVariable("i", &iv);
 
   xml_document doc;
-  doc.set_name("testArrayConstantReferenceXmlParser");
 
   bool wasCreated = false;
   
@@ -325,7 +324,6 @@ static bool testArrayVariableReferenceXmlParser()
   bool wasCreated = false;
 
   xml_document doc;
-  doc.set_name("testArrayVariableReferenceXmlParser");
   
   xml_node bart0Xml = doc.append_child("ArrayElement");
   bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
@@ -562,7 +560,6 @@ static bool testArrayAliasReferenceXmlParser()
   bool wasCreated = false;
 
   xml_document doc;
-  doc.set_name("testArrayAliasReferenceXmlParser");
   
   xml_node bart0Xml = doc.append_child("ArrayElement");
   bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
@@ -808,7 +805,6 @@ static bool testMutableArrayReferenceXmlParser()
   bool wasCreated = false;
 
   xml_document doc;
-  doc.set_name("testMutableArrayReferenceXmlParser");
   
   xml_node bart0Xml = doc.append_child("ArrayElement");
   bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
@@ -1102,7 +1098,6 @@ static bool testMutableArrayAliasReferenceXmlParser()
   bool wasCreated = false;
 
   xml_document doc;
-  doc.set_name("testMutableArrayAliasReferenceXmlParser");
   
   xml_node bart0Xml = doc.append_child("ArrayElement");
   bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");

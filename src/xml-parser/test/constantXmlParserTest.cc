@@ -44,7 +44,6 @@ static NodeConnector *nc = NULL;
 static bool booleanConstantXmlParserTest()
 {
   xml_document doc;
-  doc.set_name("booleanConstantXmlParserTest");
 
   bool wasCreated;
   bool temp;
@@ -115,7 +114,6 @@ static bool booleanConstantXmlParserTest()
 static bool integerConstantXmlParserTest()
 {
   xml_document doc;
-  doc.set_name("integerConstantXmlParserTest");
 
   bool wasCreated;
   int32_t temp;
@@ -261,7 +259,6 @@ static bool integerConstantXmlParserTest()
 static bool realConstantXmlParserTest()
 {
   xml_document doc;
-  doc.set_name("realConstantXmlParserTest");
 
   bool wasCreated;
   double temp;
@@ -418,7 +415,6 @@ static bool realConstantXmlParserTest()
 static bool stringConstantXmlParserTest()
 {
   xml_document doc;
-  doc.set_name("stringConstantXmlParserTest");
 
   bool wasCreated;
   std::string temp;
@@ -454,7 +450,6 @@ static bool stringConstantXmlParserTest()
 static bool booleanArrayConstantXmlParserTest()
 {
   xml_document doc;
-  doc.set_name("booleanArrayConstantXmlParserTest");
 
   bool wasCreated;
   BooleanArray const *aryTemp = NULL;
@@ -550,7 +545,6 @@ static bool integerArrayConstantXmlParserTest()
   IntegerArray const *aryTemp = NULL;
 
   xml_document doc;
-  doc.set_name("integerArrayConstantXmlParserTest");
 
   xml_node emptyXml = doc.append_child("ArrayValue");
   xml_attribute typeAttr = emptyXml.append_attribute("Type");
@@ -654,7 +648,6 @@ static bool realArrayConstantXmlParserTest()
   RealArray const *aryTemp = NULL;
 
   xml_document doc;
-  doc.set_name("realArrayConstantXmlParserTest");
 
   xml_node emptyXml = doc.append_child("ArrayValue");
   xml_attribute typeAttr = emptyXml.append_attribute("Type");
@@ -756,7 +749,6 @@ static bool stringArrayConstantXmlParserTest()
   StringArray const *aryTemp = NULL;
 
   xml_document doc;
-  doc.set_name("stringArrayConstantXmlParserTest");
 
   xml_node emptyXml = doc.append_child("ArrayValue");
   xml_attribute typeAttr = emptyXml.append_attribute("Type");

@@ -43,7 +43,6 @@ static bool testUpdateParserBasics()
 {
   TrivialNodeConnector conn;
   xml_document doc;
-  doc.set_name("testUpdateParserBasics");
 
   // Empty
   xml_node emptyUpdateXml = doc.append_child("Update");
@@ -82,7 +81,6 @@ static bool testUpdateParserErrorHandling()
 {
   TrivialNodeConnector conn;
   xml_document doc;
-  doc.set_name("testUpdateParserErrorHandling");
 
   // Empty name
   xml_node mtNameXml = doc.append_child("Update");

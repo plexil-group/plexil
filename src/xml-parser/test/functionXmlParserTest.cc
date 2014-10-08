@@ -49,7 +49,6 @@ static bool isKnownXmlParserTest()
   bool wasCreated, temp;
 
   xml_document doc;
-  doc.set_name("isKnownXmlParserTest");
 
   xml_node knownXml = doc.append_child("IsKnown");
 
@@ -95,7 +94,6 @@ static bool stringFunctionXmlParserTest()
   int32_t itemp;
 
   xml_document doc;
-  doc.set_name("stringFunctionXmlParserTest");
 
   // StringLength
   xml_node lenXml = doc.append_child("STRLEN");
@@ -205,7 +203,6 @@ static bool booleanFunctionXmlParserTest()
   bool wasCreated, temp;
 
   xml_document doc;
-  doc.set_name("booleanFunctionXmlParserTest");
 
   xml_node notOpXml = doc.append_child("NOT");
 
@@ -410,7 +407,6 @@ static bool arithmeticFunctionXmlParserTest()
   double rtemp;
 
   xml_document doc;
-  doc.set_name("arithmeticFunctionXmlParserTest");
 
   xml_node sqrtOpXml = doc.append_child("SQRT");
 

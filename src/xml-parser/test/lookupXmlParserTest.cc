@@ -46,7 +46,6 @@ static bool testBasics()
   bool wasCreated = false;
 
   xml_document doc;
-  doc.set_name("testBasics");
 
   // Basics
   {
