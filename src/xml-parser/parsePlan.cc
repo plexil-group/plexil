@@ -51,9 +51,13 @@ namespace PLEXIL
       delete doc;
       return NULL;
     }
-    checkParserException(parseResult.status == pugi::status_ok,
-                         "Error reading XML file " << filename
-                         << ": " << parseResult.description());
+    if (parseResult.status != pugi::status_ok) {
+      delete doc;
+      doc = NULL;
+      checkParserException(false,
+                           "Error reading XML file " << filename
+                           << ": " << parseResult.description());
+    }
     return doc;
   }
 
