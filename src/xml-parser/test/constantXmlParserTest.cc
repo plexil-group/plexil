@@ -458,13 +458,17 @@ static bool booleanArrayConstantXmlParserTest()
   xml_attribute typeAttr = emptyXml.append_attribute("Type");
   typeAttr.set_value("Boolean");
 
-  Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
-  assertTrue_1(emptyConstant);
-  assertTrue_1(wasCreated);
-  assertTrue_1(emptyConstant->valueType() == BOOLEAN_ARRAY_TYPE);
-  assertTrue_1(emptyConstant->getValuePointer(aryTemp));
-  assertTrue_1(aryTemp != NULL);
-  assertTrue_1(aryTemp->size() == 0);
+  {
+    Expression *emptyConstant = createExpression(emptyXml, nc, wasCreated);
+    assertTrue_1(emptyConstant);
+    assertTrue_1(wasCreated); // may not be true in future
+    assertTrue_1(emptyConstant->valueType() == BOOLEAN_ARRAY_TYPE);
+    assertTrue_1(emptyConstant->getValuePointer(aryTemp));
+    assertTrue_1(aryTemp != NULL);
+    assertTrue_1(aryTemp->size() == 0);
+    if (wasCreated)
+      delete emptyConstant;
+  }
 
   xml_node validXml = doc.append_copy(emptyXml);
   xml_node elementTemp = validXml.append_child("BooleanValue");
