@@ -93,9 +93,7 @@ namespace PLEXIL
 		 "createNode: Invalid node type value");
     NodeFactory* factory = getNodeFactory(nodeType);
     assertTrue_2(factory != NULL, "Internal error: no node factory for valid node type");
-    std::cout << "Constructing node " << name << " of type " << nodeTypeString(nodeType) << std::endl;
     Node *result = factory->create(name, parent);
-    std::cout << "Constructed node " << name << std::endl;
     // common post process here
     return result;
   }
@@ -125,7 +123,6 @@ namespace PLEXIL
   Node *ConcreteNodeFactory<NODE_TYPE>::create(char const *name, 
                                                Node *parent) const
   {
-    std::cout << "ConcreteNodeFactory::create " << nodeTypeString(m_nodeType) << std::endl;
     return new NODE_TYPE(name, parent);
   }
 
