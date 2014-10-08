@@ -86,6 +86,7 @@ namespace PLEXIL
   {
     TestVariableMap::iterator it = m_variableMap.find(name);
     if (it != m_variableMap.end()) {
+      delete it->second;
       it->second = var; // replace existing
     }
     else 
