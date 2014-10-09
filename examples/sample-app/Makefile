@@ -34,10 +34,10 @@ SRC = subscriber.cc sample_system.cc SampleAdapter.cc
 INC = subscriber.hh sample_system.hh SampleAdapter.hh
 
 INC_DIRS += $(PLEXIL_HOME)/src/third-party/pugixml/src $(PLEXIL_HOME)/src/utils \
- $(PLEXIL_HOME)/src/expr $(PLEXIL_HOME)/src/intfc $(PLEXIL_HOME)/src/exec \
- $(PLEXIL_HOME)/src/app-framework
+ $(PLEXIL_HOME)/src/value $(PLEXIL_HOME)/src/expr $(PLEXIL_HOME)/src/intfc \
+ $(PLEXIL_HOME)/src/exec $(PLEXIL_HOME)/src/app-framework
 
-LIBS		+= dl pugixml PlexilAppFramework PlexilExec PlexilIntfc PlexilExpr PlexilUtils
+LIBS += dl pugixml PlexilAppFramework PlexilExec PlexilIntfc PlexilExpr PlexilValue PlexilUtils
 
 LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
 
