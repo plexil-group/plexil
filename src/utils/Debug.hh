@@ -248,11 +248,7 @@ struct DebugMessage
    * @brief Destroy a DebugMessage.
    * @note Should only be called by purgePatternsAndMessages().
    */
-  ~DebugMessage() 
-  {
-    delete file;
-    delete marker;
-  }
+  ~DebugMessage();
 
   /**
     @brief Print the data members of the debug message in a format

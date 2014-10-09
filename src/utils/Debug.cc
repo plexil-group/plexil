@@ -170,6 +170,24 @@ DebugMessage::DebugMessage(char const *f,
 {
 }
 
+DebugMessage::~DebugMessage() 
+{
+  delete file;
+  delete marker;
+}
+
+void DebugMessage::print(std::ostream &os) const
+{
+  try {
+    os.exceptions(std::ostream::badbit);
+    os << file << ':' << marker << ' ';
+  }
+  catch (std::ios_base::failure& exc) {
+    checkError(ALWAYS_FAIL, exc.what());
+    throw;
+  }
+}
+
 //
 // Utility functions
 //
@@ -408,18 +426,6 @@ DebugMessage *addDebugMessage(char const *file, char const *marker)
   result->next = allMsgs;
   allMsgs = result;
   return result;
-}
-
-void DebugMessage::print(std::ostream &os) const
-{
-  try {
-    os.exceptions(std::ostream::badbit);
-    os << file << ':' << marker << ' ';
-  }
-  catch (std::ios_base::failure& exc) {
-    checkError(ALWAYS_FAIL, exc.what());
-    throw;
-  }
 }
 
 std::ostream& operator<<(std::ostream &os, const DebugMessage &dm)
