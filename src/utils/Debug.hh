@@ -49,6 +49,8 @@
 
 #include "plexil-config.h"
 
+#include <iostream>
+
 #ifdef NO_DEBUG_MESSAGE_SUPPORT
 
 #define debugMsg(marker, data)
@@ -58,13 +60,37 @@
 #define initDebug()
 #define SHOW(thing)
 #define MARK
-#define readDebugConfigStream(instream) (true)
-#define setDebugOutputStream(outstream)
+
+// Dummies
+inline bool setDebugOutputStream(std::ostream & /* os */)
+{
+  return true;
+}
+
+inline bool readDebugConfigStream(std::istream & /* is */)
+{
+  return true;
+}
+
+inline bool allDebugMessagesEnabled()
+{
+  return false;
+}
+
+inline void enableAllDebugMessages() 
+{
+}
+
+inline void disableAllDebugMessages()
+{
+}
+
+inline void enableMatchingDebugMessages(char const * /* file */,
+                                        char const * /* marker */)
+{
+}
 
 #else
-
-#include <iostream>
-#include <vector>
 
 /**
    @brief The SHOW() macro is intended as a convenience debugging tool
@@ -73,7 +99,7 @@
    and line number where it occurs in the code.
  */
 
-#define SHOW(thing) (std::cout << __FILE__ << "(" << __LINE__ << ") " << #thing << ": " << (thing) << std::endl << std::flush)
+#define SHOW(thing) (std::cout << __FILE__ << "(" << __LINE__ << ") " << #thing << ": " << (thing) << std::endl)
 
 /**
    @brief The MARK macro is intended as a convenience debugging tool
@@ -81,7 +107,7 @@
    the file and line number where it occurs in the code.
  */
 
-#define MARK std::cout << __FILE__ << "(" << __LINE__ << ") MARK" << std::endl << std::flush
+#define MARK (std::cout << __FILE__ << "(" << __LINE__ << ") MARK" << std::endl)
 
 /**
   @brief Use the debugMsg() macro to create a debug message that
@@ -116,9 +142,9 @@
 #define condDebugMsg(cond, marker, data) { \
   static DebugMessage *dmPtr = NULL; \
   if (!dmPtr) \
-     dmPtr = DebugMessage::addMsg(__FILE__, marker); \
-  if (dmPtr->isEnabled() && (cond)) { \
-    DebugMessage::getStream() << "[" << marker << "]" << data << std::endl; \
+     dmPtr = addDebugMessage(__FILE__, marker); \
+  if (dmPtr->enabled && (cond)) { \
+    getDebugOutputStream() << "[" << marker << "]" << data << std::endl; \
   } \
 }
 
@@ -147,220 +173,85 @@
   @see DebugMessage
 */
 #define condDebugStmt(cond, marker, stmt) { \
-  static DebugMessage *dmPtr = DebugMessage::addMsg(__FILE__, marker); \
-  if (dmPtr->isEnabled() && (cond)) { \
+  static DebugMessage *dmPtr = NULL; \
+  if (!dmPtr) \
+     dmPtr = addDebugMessage(__FILE__, marker); \
+  if (dmPtr->enabled && (cond)) { \
     stmt ; \
   } \
 }
 
-/**
- * @brief Load the debug configuration from the given stream
- * @param instream The input stream.
- * @return True if successful, false if error.
- */
-#define readDebugConfigStream(instream) (DebugMessage::readConfigFile(instream))
+//
+// Public API
+// 
+
+// These are needed for initialization, so must be available
+// whether or not debugging is defined to be on.
+
+extern bool setDebugOutputStream(std::ostream &os);
+extern bool readDebugConfigStream(std::istream &is);
+extern bool allDebugMessagesEnabled();
+extern void enableAllDebugMessages();
+extern void disableAllDebugMessages();
+extern void enableMatchingDebugMessages(char const *file,
+                                        char const *marker);
+
+// Forward references
+struct DebugMessage;
+
+//
+// Internal to macros
+//
+extern std::ostream &getDebugOutputStream();
+
+extern DebugMessage *addDebugMessage(char const *file,
+                                     char const *marker);
 
 /**
- * @brief Direct debug output to the given stream.
- * @param outstream The output stream.
+ * @struct DebugMessage
+ * @brief Represents one debug marker in a source file.
  */
-#define setDebugOutputStream(outstream) { DebugMessage::setStream(outstream); }
 
-/**
- * @class DebugPattern Debug.hh
- * @brief Used to store the "patterns" of presently enabled debug messages.
- * @see DebugMessage::enableMatchingMsgs
- */
-class DebugPattern
+struct DebugMessage 
 {
-public:
+  /**
+   * @brief Pointer to next (previous) message in list.
+   */
+  DebugMessage *next;
 
   /**
-   * @brief Destructor.
-   */
-  inline ~DebugPattern() 
-  {
-    if (m_garbage) {
-      delete m_file;
-      delete m_pattern;
-    }
-  }
+    @brief File given when this instance was created.
+  */
+  char const *file;
 
   /**
-   * @brief Constructor with data.
-   * @note Should be the only constructor called explicitly.
-   */
-  inline DebugPattern(char const *f, char const *m, bool garbage = false)
-    : m_next(NULL), 
-      m_file(f),
-      m_pattern(m),
-      m_garbage(garbage)
-  {
-  }
-
-  DebugPattern *m_next;
+    @brief Marker given when this instance was created.
+  */
+  char const *marker;
 
   /**
-   * @brief The source file(s) that match the pattern.
-   */
-  char const *m_file;
-
-  /**
-   * @brief The markers that match the pattern.
-   * @note Markers refer to those of class DebugMessage.
-   * @see class DebugMessage
-   */
-  char const *m_pattern;
-
-  /**
-   * @brief True if the file and pattern should be deleted, false otherwise.
-   */
-  bool m_garbage;
-
-  bool operator==(DebugPattern const &other) const;
-
-private:
-  // Not implemented
-  DebugPattern();
-  DebugPattern(DebugPattern const &);
-  DebugPattern &operator=(DebugPattern const &);
-};
-
-/**
-  @class DebugMessage Debug.hh
-  @brief Implements support for debugMsg() macro, which should be used
-  to create all instances.
-*/
-class DebugMessage 
-{
-
-private:
-
-  /**
-   * @brief Are all debug messages enabled?
-   * @note Individual ones could be even when this is false.
-   */
-  static bool& allEnabled() {
-    static bool s_allEnabled = false;
-    return(s_allEnabled);
-  }
+    @brief Whether this instance is 'enabled' or not.
+  */
+  bool enabled;
 
   /**
    * @brief Construct a DebugMessage.
    * @param file File containing the debug message instance.
-   * @param line Line on which it is declared/created.
    * @param marker Name for the particular instance (not required to be unique within the process).
-   * @param enabled Whether the instance is enabled at creation.
    * @note Only constructor that should be used.
    * @note Should only be called from static member functions.
    */
-  DebugMessage(char const *file,
-               char const *marker,
-               bool enabled = DebugMessage::allEnabled());
-      
-  /**
-    @brief Enable matching debug messages, including those created later.
-    @param file
-    @param marker
-    @par Errors thrown:
-    @li If a message would be enabled but no debug stream has been set.
-    @see DebugMessage::setStream
-  */
-  static void enableMatchingMsgs(char const *file,
-                                 char const *marker);
-
-public:
+  DebugMessage(char const *f,
+               char const *m);
 
   /**
    * @brief Destroy a DebugMessage.
    * @note Should only be called by purgePatternsAndMessages().
    */
-  inline virtual ~DebugMessage() 
+  ~DebugMessage() 
   {
-  }
-
-  /**
-    @brief Create a new DebugMessage.  Should only be called from the
-    debugMsg() macro and readConfigFile().
-    @param file
-    @param marker
-    @par Errors thrown:
-    @li If no debug stream has been assigned.
-    @see DebugMessage::enable
-    @see DebugMessage::setStream
-  */
-  static DebugMessage *addMsg(char const *file,
-                              char const *marker);
-
-  /**
-    @brief Find any matching DebugMessage.
-    @param file
-    @param pattern
-  */
-  static DebugMessage *findMsg(char const *file,
-                               char const *pattern);
-
-  /**
-    @brief Find all matching DebugMessages and appends them to matches parameter
-    without emptying it first.
-    @param file
-    @param pattern
-    @param matches
-  */
-  static void findMatchingMsgs(char const *file,
-                               char const *pattern,
-                               std::vector<DebugMessage*>& matches);
-
-  /**
-    @brief Enable all debug messages, including ones not yet created.
-    @par Errors thrown:
-    @li If no debug stream has been assigned.
-    @see DebugMessage::setStream
-  */
-  static void enableAll();
-
-  /**
-    @brief Assign a stream to which all debug messages will be sent.
-    @param os
-   */
-  static void setStream(std::ostream& os);
-
-  /**
-   * @brief Return the stream being used for debug messages.
-   * @note Doesn't seem to have any external callers.
-   */
-  static std::ostream& getStream();
-
-  /**
-    @brief Read a list of debug message enablements from the
-    stream argument.
-    @param is
-    @par Errors thrown:
-    @li If the stream is not good.
-    @li If setStream() has not been called
-    and some existing debug messages should be enabled.
-   */
-  static bool readConfigFile(std::istream& is);
-
-  /**
-    @brief Return whether the debug message is currently enabled.
-   */
-  inline bool isEnabled() const {
-    return(m_enabled);
-  }
-
-  /**
-    @brief Enable the debug message.
-    @par Errors thrown:
-    @li If the stream has not been set.
-   */
-  void enable();
-
-  /**
-    @brief Disable the debug message.
-   */
-  inline void disable() {
-    m_enabled = false;
+    delete file;
+    delete marker;
   }
 
   /**
@@ -368,66 +259,16 @@ public:
     that Emacs can use to display the corresponding source code.
     @param os
    */
-  void print(std::ostream &os = getStream()) const;
-
-  /**
-     @brief Whether the message is matched by the pattern.
-  */
-  bool matches(const DebugPattern& pattern) const;
-
-  static bool isGood();
-
-  DebugMessage *nextMsg() { return m_next; }
+  void print(std::ostream &os) const;
 
 private:
-
-  /**
-   * @brief Pointer to next (previous) message in list.
-   */
-  DebugMessage *m_next;
-
-  /**
-    @brief File given when this instance was created.
-  */
-  char const *m_file;
-
-  /**
-    @brief Marker given when this instance was created.
-  */
-  char const *m_marker;
-
-  /**
-    @brief Whether this instance is 'enabled' or not.
-  */
-  bool m_enabled;
-
-  /**
-    @brief Should not be used.
-  */
+  // Not implemented
   DebugMessage();
-
-  /**
-    @brief Should not be used.
-  */
   DebugMessage(const DebugMessage&);
-
-  /**
-    @brief Should not be used.
-  */
   DebugMessage& operator=(const DebugMessage&);
-
-  /**
-    @brief Should not be used.
-  */
-  bool operator==(const DebugMessage&) const;
-
 };
 
-inline std::ostream& operator<<(std::ostream& os, const DebugMessage& dm)
-{
-  dm.print(os);
-  return(os);
-}
+std::ostream &operator<<(std::ostream &os, const DebugMessage &dm);
 
 #endif /* NO_DEBUG_MESSAGE_SUPPORT */
 
