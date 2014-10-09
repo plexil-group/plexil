@@ -160,11 +160,13 @@ private:
   DebugPattern &operator=(DebugPattern const &);
 };
 
+// Take advantage of the fact that the DebugMessage constructor will usually be called 
+// with literal strings, so we don't have to manage the storage.
 
 DebugMessage::DebugMessage(char const *f,
                            char const *m)
-  : file(copyDebugString(f)), 
-    marker(copyDebugString(m)),
+  : file(f), 
+    marker(m),
     next(NULL),
     enabled(false)
 {
@@ -172,8 +174,6 @@ DebugMessage::DebugMessage(char const *f,
 
 DebugMessage::~DebugMessage() 
 {
-  delete file;
-  delete marker;
 }
 
 void DebugMessage::print(std::ostream &os) const
