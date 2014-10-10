@@ -200,15 +200,17 @@ namespace PLEXIL
                                          "List Node " << node->getNodeId()
                                          << " cannot have a child node with the same NodeId");
       }
-      if (node->findChild(kidId)) {
+      else if (node->findChild(kidId)) {
         delete kid;
-        checkParserExceptionWithLocation(!node->findChild(kidId),
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          kidXml,
                                          "List Node " << node->getNodeId()
                                          << " cannot have multiple child nodes with the same NodeId "
                                          << kidId);
       }
-      lnode->addChild(kid);
+      else {
+        lnode->addChild(kid);
+      }
     }
   }
 
