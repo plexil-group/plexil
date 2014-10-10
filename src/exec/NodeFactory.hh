@@ -88,38 +88,6 @@ namespace PLEXIL
     NodeFactory& operator=(const NodeFactory&);
   };
 
-  template<class NODE_TYPE>
-  class ConcreteNodeFactory : public NodeFactory
-  {
-  public:
-    ConcreteNodeFactory(PlexilNodeType nodeType)
-    : NodeFactory(nodeType)
-    {
-    }
-
-    virtual ~ConcreteNodeFactory()
-    {
-    }
-
-  private:
-    // Deliberately unimplemented
-    ConcreteNodeFactory();
-    ConcreteNodeFactory(const ConcreteNodeFactory&);
-    ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
-
-    Node *create(char const *name, Node *parent) const;
-
-    /**
-     * @brief Alternate constructor.  Used only by Exec test module.
-     */
-
-    Node *create(const std::string& type,
-                 const std::string& name, 
-                 NodeState state,
-                 Node *parent) const;
-
-  };
-
 }
 
 #endif // NODE_FACTORY_HH

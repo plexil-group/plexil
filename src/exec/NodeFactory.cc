@@ -37,6 +37,52 @@
 
 namespace PLEXIL
 {
+  // NodeFactory implementation class
+
+  template<class NODE_TYPE>
+  class ConcreteNodeFactory : public NodeFactory
+  {
+  public:
+    ConcreteNodeFactory(PlexilNodeType nodeType)
+      : NodeFactory(nodeType)
+    {
+      debugMsg("ConcreteNodeFactory", " constructor for " << nodeTypeString(nodeType));
+    }
+
+    virtual ~ConcreteNodeFactory()
+    {
+    }
+
+
+  private:
+    // Deliberately unimplemented
+    ConcreteNodeFactory();
+    ConcreteNodeFactory(const ConcreteNodeFactory&);
+    ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
+
+    Node *create(char const *name, Node *parent) const
+    {
+      return new NODE_TYPE(name, parent);
+    }
+
+    /**
+     * @brief Alternate constructor.  Used only by Exec test module.
+     */
+
+    Node *create(const std::string& type,
+                 const std::string& name, 
+                 NodeState state,
+                 Node *parent) const
+    {
+      // Shouldn't happen
+      checkError(parseNodeType(type) == m_nodeType,
+		 "Factory for node type " << nodeTypeString(m_nodeType)
+		 << " invoked on node type " << type);
+      return new NODE_TYPE(type, name, state, parent);
+    }
+
+  };
+
   static NodeFactory* s_nodeFactories[NodeType_error];
 
   static void purgeNodeFactories()
@@ -58,9 +104,10 @@ namespace PLEXIL
     s_nodeFactories[NodeType_Update] = new ConcreteNodeFactory<UpdateNode>(NodeType_Update);
     s_nodeFactories[NodeType_Empty] = new ConcreteNodeFactory<Node>(NodeType_Empty);
     s_nodeFactories[NodeType_LibraryNodeCall] = new ConcreteNodeFactory<LibraryCallNode>(NodeType_LibraryNodeCall);
+    debugMsg("NodeFactory", " initialized");
   }
 
-  static NodeFactory* getNodeFactory(PlexilNodeType nodeType)
+  static NodeFactory const *getNodeFactory(PlexilNodeType nodeType)
   {
     static bool s_inited = false;
     if (!s_inited) {
@@ -73,6 +120,7 @@ namespace PLEXIL
   NodeFactory::NodeFactory(PlexilNodeType nodeType)
     : m_nodeType(nodeType)
   {
+    debugMsg("NodeFactory", " base class constructor");
   }
 
   NodeFactory::~NodeFactory()
@@ -91,9 +139,10 @@ namespace PLEXIL
     assertTrue_2((nodeType > NodeType_uninitialized)
 		 && (nodeType < NodeType_error),
 		 "createNode: Invalid node type value");
-    NodeFactory* factory = getNodeFactory(nodeType);
+    NodeFactory const *factory = getNodeFactory(nodeType);
     assertTrue_2(factory != NULL, "Internal error: no node factory for valid node type");
     Node *result = factory->create(name, parent);
+    debugMsg("NodeFactory", " created node " << name);
     // common post process here
     return result;
   }
@@ -110,33 +159,13 @@ namespace PLEXIL
     checkError(nodeType > NodeType_uninitialized
                && nodeType < NodeType_error,
                "Invalid node type string " << type);
-    NodeFactory* factory = getNodeFactory(nodeType);
+    NodeFactory const *factory = getNodeFactory(nodeType);
     checkError(factory != NULL, 
                "No NodeFactory registered for node type " << type);
     Node *result = factory->create(type, name, state, parent);
     // common post process here
     result->activateInternalVariables();
     return result;
-  }
-
-  template<class NODE_TYPE>
-  Node *ConcreteNodeFactory<NODE_TYPE>::create(char const *name, 
-                                               Node *parent) const
-  {
-    return new NODE_TYPE(name, parent);
-  }
-
-  template<class NODE_TYPE>
-  Node *ConcreteNodeFactory<NODE_TYPE>::create(const std::string& type,
-                                               const std::string& name, 
-                                               NodeState state,
-                                               Node *parent) const
-  {
-    // Shouldn't happen
-    checkError(parseNodeType(type) == m_nodeType,
-               "Factory for node type " << nodeTypeString(m_nodeType)
-               << " invoked on node type " << type);
-    return new NODE_TYPE(type, name, state, parent);
   }
 
 }
