@@ -447,7 +447,7 @@ static bool testArrayVariableReferenceXmlParser()
 
     StringArrayConstant *sc = new StringArrayConstant(vs);
     StringArrayVariable *sav = new StringArrayVariable(nc, "str", NULL, false);
-    sav->setInitializer(sc, false);
+    sav->setInitializer(sc, true);
     realNc->storeVariable("str", sav);
 
     // Store array index too
