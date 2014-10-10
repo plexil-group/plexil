@@ -166,9 +166,9 @@ private:
 
 DebugMessage::DebugMessage(char const *f,
                            char const *m)
-  : file(f), 
+  : next(NULL),
+    file(f), 
     marker(m),
-    next(NULL),
     enabled(false)
 {
 }
