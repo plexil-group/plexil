@@ -255,7 +255,7 @@ namespace PLEXIL
     status = sendUdpMessage(udp_buffer, msg->second, m_debug);
     debugMsg("UdpAdapter:executeDefaultCommand", " sendUdpMessage returned " << status << " (bytes sent)");
     // Clean up some (one hopes)
-    delete udp_buffer;
+    delete[] udp_buffer;
     // Do the internal Plexil Boiler Plate (as per example in IpcAdapter.cc)
     m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
     m_execInterface.notifyOfExternalEvent();
