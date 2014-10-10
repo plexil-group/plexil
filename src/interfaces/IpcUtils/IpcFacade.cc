@@ -727,9 +727,8 @@ namespace PLEXIL
     size_t nParams = args.size();
     // Construct parameter messages
     PlexilMsgBase* paramMsgs[nParams];
-    unsigned int i = 0;
-    for (std::vector<Value>::const_iterator it = args.begin(); it != args.end(); it++, i++) {
-      PlexilMsgBase* paramMsg = constructPlexilValueMsg(*it);
+    for (size_t i = 0; i < nParams; ++i) {
+      PlexilMsgBase* paramMsg = constructPlexilValueMsg(args[i]);
       // Fill in common fields
       paramMsg->count = i;
       paramMsg->serial = serial;
