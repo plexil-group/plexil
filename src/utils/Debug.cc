@@ -218,13 +218,14 @@ static void debugCleanup()
 
 static void ensureDebugInited()
 {
-  if (!debugInited) {
-    addFinalizer(&debugCleanup);
-    debugStream = &std::cout;
-    allMsgs = NULL;
-    enabledPatterns = NULL;
-    debugInited = true;
-  }
+  if (debugInited)
+    return;
+  addFinalizer(&debugCleanup);
+  debugStream = &std::cout;
+  allMsgs = NULL;
+  enabledPatterns = NULL;
+  allEnabled = false;
+  debugInited = true;
 }
 
 /**
@@ -383,6 +384,7 @@ DebugMessage *addDebugMessage(char const *file, char const *marker)
                "addDebugMessage: Null or empty marker string",
                DebugErr::DebugInternalError());
 
+  ensureDebugInited();
   DebugMessage *result = findDebugMessage(file, marker);
   if (result)
     return result;
