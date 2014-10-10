@@ -110,16 +110,6 @@ namespace PLEXIL
     return typ;
   }
 
-  static Expression *getInterfaceVar(Node *node, char const *name)
-  {
-    assertTrue_1(node && name);
-    Node *parent = node->getParent();
-    if (!parent)
-      return NULL;
-    return parent->findVariable(std::string(name),
-                                (parent->getType() == NodeType_LibraryNodeCall));
-  }
-
   //
   // N.B. There is a limited amount of checking we can do on interface variables in the first pass.
   // LibraryNodeCall aliases can't be expanded because some of the variables they can reference
