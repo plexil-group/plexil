@@ -62,7 +62,7 @@ namespace PLEXIL
   protected:
 
     // Base class constructor only available to derived classes.
-    NodeFactory(PlexilNodeType nodeType);
+    NodeFactory();
 
     /**
      * @brief Primary factory method delegated to derived classes.
@@ -73,17 +73,13 @@ namespace PLEXIL
     /**
      * @brief Alternate factory method.  Used only by Exec test module.
      */
-
     virtual Node *create(const std::string& type,
                          const std::string& name,
                          NodeState state,
                          Node *parent = NULL) const = 0;
 
-    PlexilNodeType m_nodeType;
-
   private:
     // Deliberately unimplemented
-    NodeFactory();
     NodeFactory(const NodeFactory&);
     NodeFactory& operator=(const NodeFactory&);
   };

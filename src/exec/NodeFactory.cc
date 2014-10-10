@@ -43,10 +43,9 @@ namespace PLEXIL
   class ConcreteNodeFactory : public NodeFactory
   {
   public:
-    ConcreteNodeFactory(PlexilNodeType nodeType)
-      : NodeFactory(nodeType)
+    ConcreteNodeFactory()
+      : NodeFactory()
     {
-      debugMsg("ConcreteNodeFactory", " constructor for " << nodeTypeString(nodeType));
     }
 
     virtual ~ConcreteNodeFactory()
@@ -56,7 +55,6 @@ namespace PLEXIL
 
   private:
     // Deliberately unimplemented
-    ConcreteNodeFactory();
     ConcreteNodeFactory(const ConcreteNodeFactory&);
     ConcreteNodeFactory& operator=(const ConcreteNodeFactory&);
 
@@ -74,10 +72,6 @@ namespace PLEXIL
                  NodeState state,
                  Node *parent) const
     {
-      // Shouldn't happen
-      checkError(parseNodeType(type) == m_nodeType,
-		 "Factory for node type " << nodeTypeString(m_nodeType)
-		 << " invoked on node type " << type);
       return new NODE_TYPE(type, name, state, parent);
     }
 
@@ -98,12 +92,12 @@ namespace PLEXIL
     addFinalizer(&purgeNodeFactories);
     // Ensure entire map is correctly initialized
     s_nodeFactories[NodeType_uninitialized] = NULL;
-    s_nodeFactories[NodeType_NodeList] = new ConcreteNodeFactory<ListNode>(NodeType_NodeList);
-    s_nodeFactories[NodeType_Command] = new ConcreteNodeFactory<CommandNode>(NodeType_Command);
-    s_nodeFactories[NodeType_Assignment] = new ConcreteNodeFactory<AssignmentNode>(NodeType_Assignment);
-    s_nodeFactories[NodeType_Update] = new ConcreteNodeFactory<UpdateNode>(NodeType_Update);
-    s_nodeFactories[NodeType_Empty] = new ConcreteNodeFactory<Node>(NodeType_Empty);
-    s_nodeFactories[NodeType_LibraryNodeCall] = new ConcreteNodeFactory<LibraryCallNode>(NodeType_LibraryNodeCall);
+    s_nodeFactories[NodeType_NodeList] = new ConcreteNodeFactory<ListNode>();
+    s_nodeFactories[NodeType_Command] = new ConcreteNodeFactory<CommandNode>();
+    s_nodeFactories[NodeType_Assignment] = new ConcreteNodeFactory<AssignmentNode>();
+    s_nodeFactories[NodeType_Update] = new ConcreteNodeFactory<UpdateNode>();
+    s_nodeFactories[NodeType_Empty] = new ConcreteNodeFactory<Node>();
+    s_nodeFactories[NodeType_LibraryNodeCall] = new ConcreteNodeFactory<LibraryCallNode>();
     debugMsg("NodeFactory", " initialized");
   }
 
@@ -117,16 +111,12 @@ namespace PLEXIL
     return s_nodeFactories[nodeType];
   }
 
-  NodeFactory::NodeFactory(PlexilNodeType nodeType)
-    : m_nodeType(nodeType)
+  NodeFactory::NodeFactory()
   {
-    debugMsg("NodeFactory", " base class constructor");
   }
 
   NodeFactory::~NodeFactory()
   {
-    // Clear our entry in table
-    s_nodeFactories[m_nodeType] = NULL;
   }
 
   /**
