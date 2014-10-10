@@ -60,7 +60,6 @@ using std::string;
 // Forward references
 //
 struct DebugPattern;
-static char *copyDebugString(char const *orig);
 
 //
 // Implementation variables
@@ -118,14 +117,14 @@ struct DebugPattern
   /**
    * @brief The source file substring the DebugMessage must match.
    */
-  char const *file;
+  char *file;
 
   /**
    * @brief The marker substring the DebugMessage must match.
    * @note Markers refer to those of class DebugMessage.
    * @see class DebugMessage
    */
-  char const *pattern;
+  char *pattern;
 
   /**
    * @brief Link to next DebugPattern in the list.
@@ -134,13 +133,15 @@ struct DebugPattern
 
   /**
    * @brief Constructor with data.
-   * @note Should be the only constructor called explicitly.
    */
   DebugPattern(char const *f, char const *m, bool garbage = false)
-    : file(copyDebugString(f)),
-      pattern(copyDebugString(m)),
+    : file(strdup(f)),
+      pattern(strdup(m)),
       next(NULL)
   {
+    assertTrue_3(file && pattern,
+                 "DebugPattern constructor: not enough memory to copy argument strings",
+                 DebugErr::DebugMemoryError());
   }
 
   /**
@@ -148,8 +149,8 @@ struct DebugPattern
    */
   ~DebugPattern() 
   {
-    delete file;
-    delete pattern;
+    free(file);
+    free(pattern);
   }
 
 private:
@@ -253,30 +254,6 @@ static DebugMessage *findDebugMessage(char const *file, char const *marker)
     if (!strcmp(m->file, file) && !strcmp(m->marker, marker))
       return m;
   return NULL;
-}
-
-static char *copyDebugString(char const *orig)
-{
-  assertTrue_3(orig,
-               "copyDebugString: null string",
-               DebugErr::DebugInternalError());
-  char *result = NULL;
-  if (*orig) {
-    size_t len = strlen(orig);
-    result = new char[len + 1];
-    assertTrue_3(result,
-                 "no memory for copyDebugString",
-                 DebugErr::DebugMemoryError());
-    strcpy(result, orig);
-  }
-  else {
-    result = new char[1];
-    assertTrue_3(result,
-                 "no memory for copyDebugString",
-                 DebugErr::DebugMemoryError());
-    *result = '\0';
-  }
-  return result;
 }
 
 //
