@@ -24,7 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ParserException.hh"
+#include "parser-utils.hh" // for checkParserExceptionWithLocation macro
+
 #include "pugixml.hpp"
 
 #include <cctype>
@@ -81,19 +82,24 @@ namespace PLEXIL
     return temp && temp.type() == node_element;
   }
 
-  void checkTag(const char* t, xml_node const e) {
+  void checkTag(const char* t, xml_node const e)
+    throw (ParserException)
+  {
     checkParserExceptionWithLocation(testTag(t, e),
                                      e,
                                      "XML parsing error: Expected <" << t << "> element, but got <" << e.name() << "> instead.");
   }
 
-  void checkAttr(const char* t, xml_node const e) {
+  void checkAttr(const char* t, xml_node const e)
+    throw (ParserException)
+  {
     checkParserExceptionWithLocation(e && e.type() == node_element && e.attribute(t),
                                      e,
                                      "XML parsing error: Expected an attribute named '" << t << "' in element <" << e.name() << ">");
   }
 
-  void checkTagSuffix(const char* t, xml_node const e) 
+  void checkTagSuffix(const char* t, xml_node const e)
+    throw (ParserException)
   {
     checkParserExceptionWithLocation(testTagSuffix(t, e),
                                      e,
@@ -101,7 +107,8 @@ namespace PLEXIL
   }
 
   // N.B. presumes e is not empty
-  void checkNotEmpty(xml_node const e) 
+  void checkNotEmpty(xml_node const e)
+    throw (ParserException)
   {
     xml_node temp = e.first_child();
     checkParserExceptionWithLocation(temp
@@ -112,7 +119,9 @@ namespace PLEXIL
   }
 
   // N.B. presumes e is not empty
-  void checkHasChildElement(xml_node const e) {
+  void checkHasChildElement(xml_node const e)
+    throw (ParserException)
+  {
     checkParserExceptionWithLocation(hasChildElement(e),
                                      e,
                                      "XML parsing error: Expected a child element of <" << e.name() << ">");
