@@ -29,7 +29,6 @@
 
 #include "Array.hh"
 #include "ExpressionListener.hh" 
-#include "ValueType.hh"
 
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
