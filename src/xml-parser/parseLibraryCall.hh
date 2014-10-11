@@ -36,6 +36,8 @@ namespace pugi
 
 namespace PLEXIL
 {
+  class Node;
+
   extern void constructLibraryCall(Node *node, pugi::xml_node callXml)
     throw (ParserException);
 
