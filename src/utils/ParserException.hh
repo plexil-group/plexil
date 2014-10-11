@@ -45,22 +45,6 @@
     } \
 }
 
-/**
- * @def checkParserExceptionWithLocation
- * @brief If the condition is false, throw a ParserException
- * @param cond The condition to test; if false, throw the exception
- * @param loc A pugi::xml_node with the location of the exception
- * @param msg An expression which writes the required message to a stream
- */
-#define checkParserExceptionWithLocation(cond, loc, msg) {	\
-  if (!(cond)) { \
-      std::ostringstream whatstr; \
-      whatstr << msg; \
-	  pugi::xml_node _my_errorDoc = loc.root();							\
-      throw PLEXIL::ParserException(whatstr.str().c_str(), (_my_errorDoc.empty() ? "" : _my_errorDoc.name()), loc.offset_debug()); \
-    } \
-}
-
 namespace PLEXIL
 {
 

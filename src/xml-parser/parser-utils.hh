@@ -27,6 +27,8 @@
 #ifndef PLEXIL_PARSER_UTILS_HH
 #define PLEXIL_PARSER_UTILS_HH
 
+#include "ParserException.hh"
+
 //
 // General purpose xml parsing utilities
 //
@@ -44,14 +46,35 @@ namespace PLEXIL
   extern bool testTagPrefix(const char* prefix, pugi::xml_node const e);
   extern bool testTagSuffix(const char* suffix, pugi::xml_node const e);
   extern bool hasChildElement(pugi::xml_node const e);
-  extern void checkTag(const char* t, pugi::xml_node const e);
-  extern void checkAttr(const char* t, pugi::xml_node const e);
-  extern void checkTagSuffix(const char* t, pugi::xml_node const e);
-  extern void checkNotEmpty(pugi::xml_node const e);
-  extern void checkHasChildElement(pugi::xml_node const e);
+  extern void checkTag(const char* t, pugi::xml_node const e)
+    throw (ParserException);
+  extern void checkAttr(const char* t, pugi::xml_node const e)
+    throw (ParserException);
+  extern void checkTagSuffix(const char* t, pugi::xml_node const e)
+    throw (ParserException);
+  extern void checkNotEmpty(pugi::xml_node const e)
+    throw (ParserException);
+  extern void checkHasChildElement(pugi::xml_node const e)
+    throw (ParserException);
   extern bool isBoolean(const char* initval);
   extern bool isInteger(const char* initval);
   extern bool isDouble(const char* initval);
 } // namespace PLEXIL
+
+/**
+ * @def checkParserExceptionWithLocation
+ * @brief If the condition is false, throw a ParserException
+ * @param cond The condition to test; if false, throw the exception
+ * @param loc A pugi::xml_node with the location of the exception
+ * @param msg An expression which writes the required message to a stream
+ */
+#define checkParserExceptionWithLocation(cond, loc, msg) { \
+  if (!(cond)) { \
+      std::ostringstream whatstr; \
+      whatstr << msg; \
+      pugi::xml_node _my_errorDoc = loc.root(); \
+      throw PLEXIL::ParserException(whatstr.str().c_str(), (_my_errorDoc.empty() ? "" : _my_errorDoc.name()), loc.offset_debug()); \
+    } \
+}
 
 #endif // PLEXIL_PARSER_UTILS_HH
