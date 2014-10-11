@@ -380,7 +380,7 @@ DebugMessage *addDebugMessage(char const *file, char const *marker)
   assertTrue_3(file && *file,
                "addDebugMessage: Null or empty file string",
                DebugErr::DebugInternalError());
-  assertTrue_3(marker && *file,
+  assertTrue_3(marker && *marker,
                "addDebugMessage: Null or empty marker string",
                DebugErr::DebugInternalError());
 
