@@ -24,6 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef PLEXIL_PARSE_NODE_HH
+#define PLEXIL_PARSE_NODE_HH
+
 #include "ParserException.hh"
 
 namespace pugi
@@ -53,3 +56,5 @@ namespace PLEXIL
     throw (ParserException);
 
 } // namespace PLEXIL
+
+#endif // PLEXIL_PARSE_NODE_HH
