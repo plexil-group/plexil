@@ -28,12 +28,10 @@
 
 #include "Alias.hh"
 #include "ArrayLiteralFactory.hh"
-#include "Assignable.hh"
 #include "CommandNode.hh"
 #include "commandXmlParser.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExpressionFactory.hh"
 #include "ListNode.hh"
 #include "NodeFactory.hh"
 #include "parseAssignment.hh"
@@ -232,8 +230,8 @@ namespace PLEXIL
                                        temp,
                                        "Non-element found at top level of node");
       char const *tag = temp.name();
-      size_t taglen = strlen(tag);
-      switch (taglen) {
+      debugMsg("parseNode", " parsing element " << tag);
+      switch (strlen(tag)) {
       case 6: // NodeId
         checkParserExceptionWithLocation(0 == strcmp(NODEID_TAG, tag),
                                          temp, 
@@ -359,17 +357,20 @@ namespace PLEXIL
                                        xml,
                                        "Node \"" << name << "\" has no NodeBody element");
 
+    debugMsg("parseNode", " constructing node");
     Node *node = NodeFactory::createNode(name, nodeType, parent);
     debugMsg("parseNode", " Node " << name  << " created");
 
     try {
       // Populate local variables
       if (varDecls) {
+	debugMsg("parseNode", " parsing variable declarations");
         parseVariableDeclarations(node, varDecls);
       }
 
       // Check interface variables
       if (iface) {
+	debugMsg("parseNode", " parsing interface declarations");
         parseInterface(node, iface);
       }
 
@@ -414,6 +415,7 @@ namespace PLEXIL
       }
     }
     catch (std::exception const & exc) {
+      debugMsg("parseNode", " recovering from parse error, deleting node");
       delete node;
       throw;
     }
