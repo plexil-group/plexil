@@ -38,6 +38,7 @@ namespace pugi
 namespace PLEXIL
 {
   // Forward declarations
+  class Command;
   class NodeConnector;
 
   extern Command *constructCommand(NodeConnector *node, pugi::xml_node const cmdXml)
