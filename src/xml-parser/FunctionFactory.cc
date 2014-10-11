@@ -29,6 +29,7 @@
 #include "ArithmeticOperators.hh"
 #include "BooleanOperators.hh"
 #include "Comparisons.hh"
+#include "parser-utils.hh"
 
 #include "pugixml.hpp"
 
