@@ -162,17 +162,12 @@ private:
       // These are tests of check_error() and should therefore not be changed
       //   to assertTrue() despite the usual rule for test programs.
       // --wedgingt@email.arc.nasa.gov 2005 Feb 9
-      check_error(Error::printingErrors(), "not printing errors by default!");
-      check_error(Error::displayWarnings(), "display warnings off by default!");
       check_error_2(Error::printingErrors(), "not printing errors by default!");
       check_error_2(Error::displayWarnings(), "display warnings off by default!");
-      check_error(var == 1);
       check_error_1(var == 1);
-      check_error(var == 1, "check_error(var == 1)");
-      check_error(var == 1, Error("check_error(var == 1)"));
-      check_error_2(var == 1, "check_error(var == 1)");
-      check_error_2(var == 1, Error("check_error(var == 1)"));
-      checkError(var ==1, "Can add " << 1.09 << " and " << 2.81 << " to get " << 1.09 +2.81);
+      check_error_2(var == 1, "check_error_2(var == 1)");
+      check_error_2(var == 1, Error("check_error_2(var == 1)"));
+      checkError(var == 1, "Can add " << 1.09 << " and " << 2.81 << " to get " << 1.09 +2.81);
       std::cout << std::endl;
       Error::setStream(std::cout);
       warn("Warning messages working");
@@ -188,8 +183,8 @@ private:
     /* Do not print errors that we are provoking on purpose to ensure they are noticed. */
     try {
       Error::doNotDisplayErrors();
-      check_error(var == 2);
-      __y__("check_error(var == 2) did not throw an exception");
+      check_error_1(var == 2);
+      __y__("check_error_1(var == 2) did not throw an exception");
       success = false;
     } 
     catch (Error &e) {
@@ -198,28 +193,28 @@ private:
     }
     try {
       Error::doNotDisplayErrors();
-      check_error(var == 2, "check_error(var == 2)");
-      __y__("check_error(var == 2, blah) did not throw an exception");
+      check_error_2(var == 2, "check_error_2(var == 2)");
+      __y__("check_error_2(var == 2, blah) did not throw an exception");
       success = false;
     } 
     catch (Error &e) {
       Error::doDisplayErrors();
-      __z__(e, Error("var == 2", "check_error(var == 2)", __FILE__, __LINE__ - 5), success);
+      __z__(e, Error("var == 2", "check_error_2(var == 2)", __FILE__, __LINE__ - 5), success);
     }
     try {
       Error::doNotDisplayErrors();
-      check_error(var == 2, Error("check_error(var == 2)"));
-      __y__("check_error(var == 2, Error(blah)) did not throw an exception");
+      check_error_2(var == 2, Error("check_error_1(var == 2)"));
+      __y__("check_error_2(var == 2, Error(blah)) did not throw an exception");
       success = false;
     } 
     catch (Error &e) {
       Error::doDisplayErrors();
-      __z__(e, Error("var == 2", "check_error(var == 2)", __FILE__, __LINE__ - 5), success);
+      __z__(e, Error("var == 2", "check_error_1(var == 2)", __FILE__, __LINE__ - 5), success);
     }
     try {
       Error::doNotDisplayErrors();
-      check_error(var == 2, "check_error(var == 2)", TestError::BadThing());
-      __y__("check_error(var == 2, TestError::BadThing()) did not throw an exception");
+      check_error_3(var == 2, "check_error_3(var == 2)", TestError::BadThing());
+      __y__("check_error_3(var == 2, TestError::BadThing()) did not throw an exception");
       success = false;
     }
     catch (Error &e) {
@@ -227,7 +222,7 @@ private:
       //!!Should, perhaps, be:
       //__z__(e, Error(TestError::BadThing(), __FILE__, __LINE__ - 7), success);
       // ... but is actually:
-      __z__(e, Error("var == 2", "check_error(var == 2)", __FILE__, __LINE__ - 9), success);
+      __z__(e, Error("var == 2", "check_error_3(var == 2)", __FILE__, __LINE__ - 9), success);
     }
 #endif
     return(success);

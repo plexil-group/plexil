@@ -56,6 +56,16 @@ bool Error::s_throw = false;
 bool Error::s_printErrors = true;
 bool Error::s_printWarnings = true;
 
+Error::Error(const Error& err)
+  : m_condition(err.m_condition), m_msg(err.m_msg), m_file(err.m_file), m_line(err.m_line) 
+{
+}
+
+Error::Error(const std::string& msg)
+  : m_msg(msg), m_type("Error"), m_line(0) 
+{
+}
+
 Error::Error(const std::string& condition, const std::string& file, const int& line)
   : m_condition(condition), m_file(file), m_type("Error"), m_line(line) {
   if (s_os == 0)
@@ -71,7 +81,7 @@ Error::Error(const std::string& condition, const std::string& msg,
 
 Error::Error(const std::string& condition, const Error& exception,
              const std::string& file, const int& line)
-  : m_condition(condition), m_msg(exception.getMsg()), m_file(file), m_type("Error"), m_line(line) {
+  : m_condition(condition), m_msg(exception.m_msg), m_file(file), m_type("Error"), m_line(line) {
   if (s_os == 0)
     s_os = &(std::cerr);
 }
@@ -83,18 +93,46 @@ Error::Error(const std::string& condition, const std::string& msg, const std::st
     s_os = &(std::cerr);
 }
 
+Error::~Error() 
+{
+}
+
+Error& Error::operator=(const Error& err) 
+{
+  m_condition = err.m_condition;
+  m_msg = err.m_msg;
+  m_file = err.m_file;
+  m_type = err.m_type;
+  m_line = err.m_line;
+  return(*this);
+}
+
+/**
+   @brief Compare two Errors.
+*/
+bool Error::operator==(const Error& err) const 
+{
+  return(m_condition == err.m_condition &&
+         m_msg == err.m_msg &&
+         m_file == err.m_file &&
+         m_line == err.m_line);
+}
+
+/**
+   @brief Return true iff (if and only if) the two Errors
+   "match": are the same except for possibly the line numbers.
+*/
+bool Error::matches(const Error& err) const {
+  return(m_condition == err.m_condition &&
+         m_msg == err.m_msg &&
+         m_file == err.m_file);
+}
+
 void Error::handleAssert() {
   Logging::handle_message(Logging::LOG_ERROR, m_file.c_str(), m_line, m_msg.c_str());
   if (throwEnabled())
     throw *this;
   assert(false); // Need the stack to work backwards and look at state in the debugger
-}
-
-void Error::setCause(const std::string& condition, const std::string& file, const int& line) {
-  m_condition = condition;
-  m_file = file;
-  m_line = line;
-  display();
 }
 
 void Error::display() {
@@ -123,7 +161,103 @@ void Error::print(std::ostream& os) const {
   os << m_file << "\", " << m_line << ")";
 }
 
-Error::~Error() {
+//
+// Static member functions
+// 
+
+/**
+   @brief Return true if printing warnings and false if not.
+*/
+bool Error::displayWarnings()
+{
+  return s_printWarnings;
+}
+
+/**
+ * Indicate that warnings should be printed when detected.
+ */
+void Error::doDisplayWarnings()
+{
+  s_printWarnings = true;
+}
+
+/**
+ * Indicate that warnings should not be printed.
+ */
+void Error::doNotDisplayWarnings()
+{
+  s_printWarnings = false;
+}
+
+/**
+ * Indicate that errors should throw exceptions rather than
+ * complaining and aborting.
+ */
+void Error::doThrowExceptions()
+{
+  s_throw = true;
+}
+
+/**
+ * Indicate that errors should complain and abort rather than throw
+ * exceptions.
+ */
+void Error::doNotThrowExceptions()
+{
+  s_throw = false;
+}
+
+
+/**
+ * Are errors set to throw exceptions?
+ * @return true if so; false if errors will complain and abort.
+ */
+bool Error::throwEnabled()
+{
+  return s_throw;
+}
+
+
+/**
+   @brief Return whether all error information should be printed when detected.
+*/
+bool Error::printingErrors() {
+  return(s_printErrors);
+}
+
+/**
+   @brief Indicate that error information should be printed at detection.
+*/
+void Error::doDisplayErrors() {
+  s_printErrors = true;
+}
+
+/**
+   @brief Indicate that nothing should be printed when an error is detected.
+*/
+void Error::doNotDisplayErrors() {
+  s_printErrors = false;
+}
+
+/**
+   @brief Return the output stream to which error information should be sent.
+*/
+std::ostream& Error::getStream() {
+  if (s_os == 0)
+    s_os = &(std::cerr);
+  return(*s_os);
+}
+
+/**
+   @brief Indicate where output related to errors should be directed.
+*/
+void Error::setStream(std::ostream& os) {
+  s_os = &os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Error& err) {
+  err.print(os);
+  return(os);
 }
 
 #endif /* _NO_ERROR_EXCEPTIONS_ */

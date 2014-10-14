@@ -623,7 +623,7 @@ namespace PLEXIL
    * @param command The command string to send
    */
   uint32_t IpcFacade::publishMessage(std::string const &command) {
-    assertTrue(m_isStarted, "publishMessage called before started");
+    assertTrue_2(m_isStarted, "publishMessage called before started");
     struct PlexilStringValueMsg packet = { { PlexilMsgType_Message, 0, getSerialNumber(), m_myUID.c_str() }, command.c_str() };
     return IPC_publishData(STRING_VALUE_MSG, (void *) &packet);
   }
@@ -633,7 +633,7 @@ namespace PLEXIL
   }
 
   uint32_t IpcFacade::sendCommand(std::string const &command, std::string const &dest, std::vector<Value> const &argsToDeliver) {
-    assertTrue(m_isStarted, "publishCommand called before started");
+    assertTrue_2(m_isStarted, "publishCommand called before started");
     uint32_t serial = getSerialNumber();
     struct PlexilStringValueMsg cmdPacket = { { PlexilMsgType_Command, argsToDeliver.size(), serial, m_myUID.c_str() }, command.c_str() };
     IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest).c_str(), (void *) &cmdPacket);
@@ -668,7 +668,7 @@ namespace PLEXIL
                                           std::string const &request_uid,
                                           Value const &arg)
   {
-    assertTrue(m_isStarted, "publishReturnValues called before started");
+    assertTrue_2(m_isStarted, "publishReturnValues called before started");
     uint32_t serial = getSerialNumber();
     struct PlexilReturnValuesMsg packet = { { PlexilMsgType_ReturnValues, 1, serial, m_myUID.c_str() }, request_serial, request_uid.c_str() };
     IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(RETURN_VALUE_MSG, request_uid).c_str(), (void *) &packet);

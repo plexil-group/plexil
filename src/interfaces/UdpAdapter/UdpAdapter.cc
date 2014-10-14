@@ -61,7 +61,7 @@ namespace PLEXIL
       m_messageQueues(execInterface),
       m_debug(false)
   {
-    assertTrue(!xml.empty(), "XML config file not found in UdpAdapter::UdpAdapter constructor");
+    assertTrue_2(!xml.empty(), "XML config file not found in UdpAdapter::UdpAdapter constructor");
     debugMsg("UdpAdapter:UdpAdapter", " Using " << xml.attribute("AdapterType").value());
   }
 

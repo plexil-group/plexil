@@ -184,7 +184,7 @@ void DebugMessage::print(std::ostream &os) const
     os << file << ':' << marker << ' ';
   }
   catch (std::ios_base::failure& exc) {
-    checkError(ALWAYS_FAIL, exc.what());
+    check_error_2(ALWAYS_FAIL, exc.what());
     throw;
   }
 }

@@ -140,17 +140,6 @@
 #define FOURTH_ARG(arg1, arg2, arg3, arg4, ...) arg4
 
 /**
- * @def assertTrue
- * @brief Test a condition and create an error if false.
- * @deprecated Not fully portable C++; use assertTrue_1, _2, _3 instead.
- */
-#define assertTrue(...) \
- FOURTH_ARG(__VA_ARGS__, \
-            assertTrue_3(__VA_ARGS__), \
-            assertTrue_2(__VA_ARGS__), \
-            assertTrue_1(__VA_ARGS__))
-
-/**
  * @def assertTrueMsg
  * @brief Test a condition and create an error if false.
  * @param cond Expression that yields a true/false result.
@@ -166,14 +155,10 @@
 
 #ifdef PLEXIL_FAST
 
-/**
- * @def check_error
- * Check whether an error has occurred and create an error instance if so.
- * @param cond The condition to verify; if false, an error has occurred.
- * @param optarg Other values to pass to the class Error constructor when creating the error instance.
- * @note When PLEXIL_FAST is defined, these are ignored.
- */
-#define check_error(...)
+#define check_error_1(cond)
+#define check_error_2(cond, msg)
+#define check_error_1(cond, msg1, msg2)
+
 #define checkError(cond, msg)
 
 /**
@@ -226,21 +211,6 @@
   } \
 }
 
-
-/**
- * @def check_error
- * @brief If the condition is false, throw an exceptino.
- * @param cond The condition to test.
- * @deprecated Not fully portable C++; use check_error_1, _2, _3 instead.
- * @see assertTrue, ALWAYS_FAIL
-*/
-
-#define check_error(...) \
- FOURTH_ARG(__VA_ARGS__, \
-            check_error_3(__VA_ARGS__), \
-            check_error_2(__VA_ARGS__), \
-            check_error_1(__VA_ARGS__))
-
 #define checkError(cond, msg) { \
   if (!(cond)) { \
     std::ostringstream sstr; \
@@ -261,7 +231,8 @@
    @class Error
    @brief Used whenever a C++ exception is thrown.
 */
-class Error {
+class Error 
+{
 public:
 
   /**
@@ -295,119 +266,42 @@ public:
      @note Never prints anything, unlike the other constructors.
      @see Error::setCause()
   */
-  inline Error(const std::string& msg)
-    : m_msg(msg), m_type("Error"), m_line(0) {
-  }
+  Error(const std::string& msg);
 
   /**
      @brief Copy constructor.
   */
-  inline Error(const Error& err)
-  : m_condition(err.m_condition), m_msg(err.m_msg), m_file(err.m_file), m_line(err.m_line) {
-  }
+  Error(const Error& err);
 
   /**
      @brief Assignment operator.
   */
-  Error& operator=(const Error& err) {
-    m_condition = err.m_condition;
-    m_msg = err.m_msg;
-    m_file = err.m_file;
-    m_type = err.m_type;
-    m_line = err.m_line;
-    return(*this);
-  }
-
-  /**
-     @brief Modify the Error's information as requested.
-
-     @note Appears to not work reliably with g++ v2.95.2 or v3.2.2 just
-     before throwing the same Error.
-  */
-  void setCause(const std::string& condition, const std::string& file, const int& line);
-
-  /**
-     @brief Modify the Error's additional message as requested.
-  */
-  inline void setMsg(const std::string& msg) {
-    m_msg = msg;
-  }
-
-  /**
-     @brief Get the Error's message.
-  */
-  inline const std::string& getMsg() const { return m_msg; }
-
-  /**
-     @brief Set the Error's type.
-  */
-  inline void setType(const std::string& type) {
-    m_type = type;
-  }
-
-  /**
-     @brief Get the Error's type.
-  */
-  inline const std::string& getType() const {
-    return(m_type);
-  }
-
-  /**
-     @brief Set the Error's file.
-  */
-  inline void setFile(const std::string& file) {
-    m_file = file;
-  }
-
-  /**
-     @brief Get the Error's file.
-  */
-  inline const std::string& getFile() const {
-    return(m_file);
-  }
-
-
-  /**
-     @brief Get the Error's line.
-  */
-  inline const int& getLine() const { return m_line; }
+  Error& operator=(const Error& err);
 
   /**
      @brief Return whether all error information should be printed when detected.
   */
-  inline static bool& printingErrors() {
-    return(s_printErrors);
-  }
+  static bool printingErrors();
 
   /**
      @brief Indicate that error information should be printed at detection.
   */
-  inline static void doDisplayErrors() {
-    s_printErrors = true;
-  }
+  static void doDisplayErrors();
 
   /**
      @brief Indicate that nothing should be printed when an error is detected.
   */
-  inline static void doNotDisplayErrors() {
-    s_printErrors = false;
-  }
+  static void doNotDisplayErrors();
 
   /**
      @brief Return the output stream to which error information should be sent.
   */
-  inline static std::ostream& getStream() {
-    if (s_os == 0)
-      s_os = &(std::cerr);
-    return(*s_os);
-  }
+  static std::ostream& getStream();
 
   /**
      @brief Indicate where output related to errors should be directed.
   */
-  inline static void setStream(std::ostream& os) {
-    s_os = &os;
-  }
+  static void setStream(std::ostream& os);
 
   /**
    * Display in "error format" (for Emacs, e.g.) on the stream (getStream()).
@@ -422,22 +316,13 @@ public:
   /**
      @brief Compare two Errors.
   */
-  inline bool operator==(const Error& err) const {
-    return(m_condition == err.m_condition &&
-           m_msg == err.m_msg &&
-           m_file == err.m_file &&
-           m_line == err.m_line);
-  }
+  bool operator==(const Error& err) const;
 
   /**
      @brief Return true iff (if and only if) the two Errors
      "match": are the same except for possibly the line numbers.
   */
-  inline bool matches(const Error& err) const {
-    return(m_condition == err.m_condition &&
-           m_msg == err.m_msg &&
-           m_file == err.m_file);
-  }
+  bool matches(const Error& err) const;
 
   /**
    * The Error destructor.
@@ -456,47 +341,35 @@ public:
   /**
      @brief Return true if printing warnings and false if not.
   */
-  inline static bool& displayWarnings() {
-    return(s_printWarnings);
-  }
+  static bool displayWarnings();
 
   /**
    * Indicate that warnings should be printed when detected.
    */
-  inline static void doDisplayWarnings() {
-    s_printWarnings = true;
-  }
+  static void doDisplayWarnings();
 
   /**
    * Indicate that warnings should not be printed.
    */
-  inline static void doNotDisplayWarnings() {
-    s_printWarnings = false;
-  }
+  static void doNotDisplayWarnings();
 
   /**
    * Indicate that errors should throw exceptions rather than
    * complaining and aborting.
    */
-  inline static void doThrowExceptions() {
-    s_throw = true;
-  }
+  static void doThrowExceptions();
 
   /**
    * Indicate that errors should complain and abort rather than throw
    * exceptions.
    */
-  inline static void doNotThrowExceptions() {
-    s_throw = false;
-  }
+  static void doNotThrowExceptions();
 
   /**
    * Are errors set to throw exceptions?
    * @return true if so; false if errors will complain and abort.
    */
-  inline static bool throwEnabled() {
-    return(s_throw);
-  }
+  static bool throwEnabled();
 
   DECLARE_ERROR(GeneralMemoryError);
   DECLARE_ERROR(GeneralUnknownError);
@@ -522,9 +395,6 @@ private:
   Error(); /**<The zero argument constructor should not be used. */
 };
 
-inline std::ostream& operator<<(std::ostream& os, const Error& err) {
-  err.print(os);
-  return(os);
-}
+std::ostream& operator<<(std::ostream& os, const Error& err);
 
 #endif /* _H_Error */

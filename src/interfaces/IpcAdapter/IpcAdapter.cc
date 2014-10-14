@@ -422,7 +422,7 @@ namespace PLEXIL
     args.front().getValuePointer(theMessage);
     debugMsg("IpcAdapter:executeCommand",
              " SendMessage(\"" << *theMessage << "\")");
-    assertTrue(m_ipcFacade.publishMessage(*theMessage) != IpcFacade::ERROR_SERIAL(), "Message publish failed");
+    assertTrue_2(m_ipcFacade.publishMessage(*theMessage) != IpcFacade::ERROR_SERIAL(), "Message publish failed");
     // store ack
     m_execInterface.handleCommandAck(command, COMMAND_SUCCESS);
     m_execInterface.notifyOfExternalEvent();

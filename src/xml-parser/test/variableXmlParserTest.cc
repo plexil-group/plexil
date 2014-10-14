@@ -219,7 +219,7 @@ static bool integerVariableXmlParserTest()
   assertTrue_1(zeroExp->isAssignable());
   assertTrue_1(zeroExp->valueType() == INTEGER_TYPE);
   Expression *zeroInit = createExpression(zeroXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue(zeroInit);
+  assertTrue_1(zeroInit);
   zeroExp->asAssignable()->setInitializer(zeroInit, wasCreated);
   zeroExp->activate();
   assertTrue_1(zeroExp->isKnown());
@@ -238,7 +238,7 @@ static bool integerVariableXmlParserTest()
   assertTrue_1(tExp->isAssignable());
   assertTrue_1(tExp->valueType() == INTEGER_TYPE);
   Expression *tInit = createExpression(tXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue(tInit);
+  assertTrue_1(tInit);
   tExp->asAssignable()->setInitializer(tInit, wasCreated);
   tExp->activate();
   assertTrue_1(tExp->isKnown());
@@ -257,7 +257,7 @@ static bool integerVariableXmlParserTest()
   assertTrue_1(hExp->isAssignable());
   assertTrue_1(hExp->valueType() == INTEGER_TYPE);
   Expression *hInit = createExpression(hXml.child("InitialValue").first_child(), nc, wasCreated);
-  assertTrue(hInit);
+  assertTrue_1(hInit);
   hExp->asAssignable()->setInitializer(hInit, wasCreated);
   hExp->activate();
   assertTrue_1(hExp->isKnown());
@@ -277,7 +277,7 @@ static bool integerVariableXmlParserTest()
     assertTrue_1(uExp->isAssignable());
     assertTrue_1(uExp->valueType() == INTEGER_TYPE);
     Expression *uInit = createExpression(uXml.child("InitialValue").first_child(), nc, wasCreated);
-    assertTrue(uInit);
+    assertTrue_1(uInit);
     uExp->asAssignable()->setInitializer(uInit, wasCreated);
     uExp->activate();
     assertTrue_1(!uExp->isKnown());

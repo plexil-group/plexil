@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -82,7 +82,7 @@ void Simulator::stop()
 	// we tried the gentle approach already -
 	// take more drastic action
 	if (m_SimulatorThread == pthread_self()) {
-	  assertTrue(ALWAYS_FAIL, "Simulator:stop: Emergency stop!");
+	  assertTrue_2(ALWAYS_FAIL, "Simulator:stop: Emergency stop!");
 	}
 	else {
 	  int pthread_errno = pthread_cancel(m_SimulatorThread);
@@ -155,8 +155,8 @@ void Simulator::simulatorTopLevel()
   if (m_SimulatorThread == (pthread_t) 0)
 	m_SimulatorThread = pthread_self();
   
-  assertTrue(m_SimulatorThread == pthread_self(),
-			 "Internal error: simulatorTopLevel running in thread other than m_SimulatorThread");
+  assertTrue_2(m_SimulatorThread == pthread_self(),
+               "Internal error: simulatorTopLevel running in thread other than m_SimulatorThread");
 
   m_Started = true;
 
