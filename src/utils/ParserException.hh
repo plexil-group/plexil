@@ -55,9 +55,6 @@ namespace PLEXIL
 
     ParserException(const char* msg, const char* filename, const int& offset = 0) throw();
 
-	// *** where is this used??
-    ParserException(const ParserException&, const char* filename, const int& offset = 0) throw();
-
     ParserException& operator=(const ParserException&) throw();
 
     virtual ~ParserException() throw();

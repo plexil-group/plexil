@@ -48,13 +48,6 @@ namespace PLEXIL
   {
     Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what.c_str());
   }
-
-  ParserException::ParserException(const ParserException& other, const char * file, const int& offset)
-    throw()
-    : std::exception(other), m_what(other.m_what), m_file(file), m_offset(offset)
-  {
-    Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what.c_str());
-  }
   
   ParserException& ParserException::operator=(const ParserException& other)
     throw()
