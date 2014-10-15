@@ -28,7 +28,6 @@
 #define _H_PlexilExec
 
 #include "ExecConnector.hh"
-#include "generic_hash_map.hh"
 
 #include <list>
 #include <map>

@@ -33,7 +33,6 @@
 #include "NodeVariables.hh"
 #include "PlexilNodeType.hh"
 #include "SimpleMap.hh"
-#include "generic_hash_map.hh"
 
 // Take care of annoying VxWorks macro
 #undef UPDATE
