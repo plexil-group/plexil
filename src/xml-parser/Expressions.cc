@@ -57,104 +57,113 @@ namespace PLEXIL
     if (!sl_inited) {
       addFinalizer(&purgeExpressionFactories);
 
-      // Constants
-      REGISTER_EXPRESSION(BooleanConstant, BooleanValue);
-      REGISTER_EXPRESSION(IntegerConstant, IntegerValue);
-      REGISTER_EXPRESSION(RealConstant, RealValue);
-      REGISTER_EXPRESSION(StringConstant, StringValue);
-      // New style array constants
-      new ArrayLiteralFactory("ArrayValue"); // for effect
+      //
+      // IMPORTANT! Please sort these in alpha order by expression name,
+      // as it affects the speed of factory map initialization.
+      // Remember, upper case precedes lower case in ASCII order.
+      //
 
-      // Variable references
-      REGISTER_EXPRESSION(BooleanVariable, BooleanVariable);
-      REGISTER_EXPRESSION(IntegerVariable, IntegerVariable);
-      REGISTER_EXPRESSION(RealVariable, RealVariable);
-      REGISTER_EXPRESSION(StringVariable, StringVariable);
-      // New style
+      REGISTER_ARITHMETIC_FUNCTION(AbsoluteValue, ABS);
+      REGISTER_ARITHMETIC_FUNCTION(Addition, ADD);
+
+      REGISTER_FUNCTION(AllElementsKnown, ALL_KNOWN);
+
+      REGISTER_FUNCTION(BooleanAnd, AND);
+
+      REGISTER_FUNCTION(AnyElementsKnown, ANY_KNOWN);
+
+      REGISTER_EXPRESSION(ArrayReference, ArrayElement);
+      new ArrayLiteralFactory("ArrayValue"); // for effect
       new VariableReferenceFactory("ArrayVariable"); // for effect
 
-      // New style variable declarations
-      new UserVariableFactory("DeclareVariable"); // for effect
-      new ArrayVariableFactory("DeclareArray"); // for effect
+      REGISTER_EXPRESSION(BooleanConstant, BooleanValue);
+      REGISTER_EXPRESSION(BooleanVariable, BooleanVariable);
 
-      // Comparisons
+      REGISTER_ARITHMETIC_FUNCTION(Ceiling, CEIL);
+
+      REGISTER_FUNCTION(StringConcat, Concat);
+
+      REGISTER_ARITHMETIC_FUNCTION(Division, DIV);
+
+      new ArrayVariableFactory("DeclareArray"); // for effect
+      new UserVariableFactory("DeclareVariable"); // for effect
+
+      REGISTER_FUNCTION(Equal<bool>, EQBoolean);
+      REGISTER_FUNCTION(Equal<uint16_t>, EQInternal);
+      REGISTER_ARITHMETIC_FUNCTION(Equal, EQNumeric);
+      REGISTER_FUNCTION(Equal<std::string>, EQString);
+
+      REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR);
+
+      REGISTER_ARITHMETIC_FUNCTION(GreaterEqual, GE);
+      REGISTER_ARITHMETIC_FUNCTION(GreaterThan, GT);
+
+      REGISTER_EXPRESSION(IntegerConstant, IntegerValue);
+      REGISTER_EXPRESSION(IntegerVariable, IntegerVariable);
+
       REGISTER_FUNCTION(IsKnown, IsKnown);
 
-      REGISTER_ARITHMETIC_FUNCTION(Equal, EQNumeric);
-      REGISTER_FUNCTION(Equal<bool>, EQBoolean);
-      REGISTER_FUNCTION(Equal<std::string>, EQString);
-      REGISTER_FUNCTION(Equal<uint16_t>, EQInternal);
-
-      REGISTER_ARITHMETIC_FUNCTION(NotEqual, NENumeric);
-      REGISTER_FUNCTION(NotEqual<bool>, NEBoolean);
-      REGISTER_FUNCTION(NotEqual<std::string>, NEString);
-      REGISTER_FUNCTION(NotEqual<uint16_t>, NEInternal);
-
-      REGISTER_ARITHMETIC_FUNCTION(GreaterThan, GT);
-      REGISTER_ARITHMETIC_FUNCTION(GreaterEqual, GE);
-      REGISTER_ARITHMETIC_FUNCTION(LessThan, LT);
       REGISTER_ARITHMETIC_FUNCTION(LessEqual, LE);
+      REGISTER_ARITHMETIC_FUNCTION(LessThan, LT);
 
-      // Not currently in the schema
-      // REGISTER_FUNCTION(GreaterThan<std::string>, GTString);
-      // REGISTER_FUNCTION(GreaterEqual<std::string>, GEString);
-      // REGISTER_FUNCTION(LessThan<std::string>, LTString);
-      // REGISTER_FUNCTION(LessEqual<std::string>, LEString);
+      new LookupFactory("LookupNow"); // for effect
+      new LookupFactory("LookupOnChange");  // for effect
 
-      // Arithmetic operations
-      REGISTER_ARITHMETIC_FUNCTION(Addition, ADD);
-      REGISTER_ARITHMETIC_FUNCTION(Subtraction, SUB);
-      REGISTER_ARITHMETIC_FUNCTION(Multiplication, MUL);
-      REGISTER_ARITHMETIC_FUNCTION(Division, DIV);
-      REGISTER_ARITHMETIC_FUNCTION(Modulo, MOD);
       REGISTER_ARITHMETIC_FUNCTION(Maximum, MAX);
       REGISTER_ARITHMETIC_FUNCTION(Minimum, MIN);
-      REGISTER_ARITHMETIC_FUNCTION(AbsoluteValue, ABS);
+      REGISTER_ARITHMETIC_FUNCTION(Modulo, MOD);
+      REGISTER_ARITHMETIC_FUNCTION(Multiplication, MUL);
 
-      REGISTER_FUNCTION(SquareRoot<double>, SQRT);
+      REGISTER_FUNCTION(NotEqual<bool>, NEBoolean);
+      REGISTER_FUNCTION(NotEqual<uint16_t>, NEInternal);
+      REGISTER_ARITHMETIC_FUNCTION(NotEqual, NENumeric);
+      REGISTER_FUNCTION(NotEqual<std::string>, NEString);
+
+      REGISTER_FUNCTION(BooleanNot, NOT);
+
+      REGISTER_NAMED_CONSTANT_FACTORY(CommandHandleConstant, NodeCommandHandleValue);
+      REGISTER_EXPRESSION(CommandHandleVariable, NodeCommandHandleVariable);
+
+      REGISTER_NAMED_CONSTANT_FACTORY(FailureTypeConstant, NodeFailureValue);
+      REGISTER_EXPRESSION(FailureVariable, NodeFailureVariable);
+
+      REGISTER_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant, NodeOutcomeValue);
+      REGISTER_EXPRESSION(OutcomeVariable, NodeOutcomeVariable);
+
+      REGISTER_NAMED_CONSTANT_FACTORY(NodeStateConstant, NodeStateValue);
+      REGISTER_EXPRESSION(StateVariable, NodeStateVariable);
+
+      REGISTER_EXPRESSION(NodeTimepointValue, NodeTimepointValue);
+
+      REGISTER_FUNCTION(BooleanOr, OR);
+
       REGISTER_FUNCTION(RealToInteger, REAL_TO_INT);
 
-      // Not currently in the schema
-      REGISTER_ARITHMETIC_FUNCTION(Ceiling, CEIL);
-      REGISTER_ARITHMETIC_FUNCTION(Floor, FLOOR);
-  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round() or trunc()
+  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have round()
 #if !defined(__VXWORKS__)
       REGISTER_ARITHMETIC_FUNCTION(Round, ROUND);
+#endif // !defined(__VXWORKS__)
+
+      REGISTER_EXPRESSION(RealConstant, RealValue);
+      REGISTER_EXPRESSION(RealVariable, RealVariable);
+
+      REGISTER_FUNCTION(ArrayLength, SIZE);
+
+      REGISTER_FUNCTION(SquareRoot<double>, SQRT);
+
+      REGISTER_FUNCTION(StringLength, STRLEN);
+
+      REGISTER_ARITHMETIC_FUNCTION(Subtraction, SUB);
+
+      REGISTER_EXPRESSION(StringConstant, StringValue);
+      REGISTER_EXPRESSION(StringVariable, StringVariable);
+
+  // Believe it or not, VxWorks 6.8 for PowerPC doesn't have trunc()
+#if !defined(__VXWORKS__)
       REGISTER_ARITHMETIC_FUNCTION(Truncate, TRUNC);
 #endif // !defined(__VXWORKS__)
 
-      // Boolean operations
-      REGISTER_FUNCTION(BooleanNot, NOT);
-      REGISTER_FUNCTION(BooleanAnd, AND);
-      REGISTER_FUNCTION(BooleanOr, OR);
       REGISTER_FUNCTION(BooleanXor, XOR);
-
-      // String operations
-      REGISTER_FUNCTION(StringConcat, Concat);
-      REGISTER_FUNCTION(StringLength, STRLEN);
-
-      // Array operations
-      REGISTER_FUNCTION(ArrayLength, SIZE);
-      REGISTER_FUNCTION(AllElementsKnown, ALL_KNOWN);
-      REGISTER_FUNCTION(AnyElementsKnown, ANY_KNOWN);
-      REGISTER_EXPRESSION(ArrayReference, ArrayElement);
-
-      // Lookups
-      new LookupFactory("LookupNow");
-      new LookupFactory("LookupOnChange"); 
-
-      // Node internal constants
-      REGISTER_NAMED_CONSTANT_FACTORY(NodeStateConstant, NodeStateValue);
-      REGISTER_NAMED_CONSTANT_FACTORY(NodeOutcomeConstant, NodeOutcomeValue);
-      REGISTER_NAMED_CONSTANT_FACTORY(FailureTypeConstant, NodeFailureValue);
-      REGISTER_NAMED_CONSTANT_FACTORY(CommandHandleConstant, NodeCommandHandleValue);
-
-      // Node internal variables
-      REGISTER_EXPRESSION(StateVariable, NodeStateVariable);
-      REGISTER_EXPRESSION(OutcomeVariable, NodeOutcomeVariable);
-      REGISTER_EXPRESSION(FailureVariable, NodeFailureVariable);
-      REGISTER_EXPRESSION(CommandHandleVariable, NodeCommandHandleVariable);
-      REGISTER_EXPRESSION(NodeTimepointValue, NodeTimepointValue);
 
       sl_inited = true;
     }

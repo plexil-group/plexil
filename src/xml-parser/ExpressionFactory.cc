@@ -34,28 +34,27 @@
 #include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
+#include "SimpleMap.hh"
 
 #include "pugixml.hpp"
-
-#include <map>
 
 namespace PLEXIL
 {
 
-  static std::map<std::string, ExpressionFactory*>& expressionFactoryMap()
-  {
-    static std::map<std::string, ExpressionFactory*> sl_map;
-    return sl_map;
-  }
+  // Revise this when we have the actual number.
+  // See purgeExpressionFactories() below and Expressions.cc in this directory.
+  static size_t const EST_N_EXPR_FACTORIES = 60;
+
+  static SimpleMap<std::string, ExpressionFactory *> s_expressionFactoryMap(EST_N_EXPR_FACTORIES);
 
   static void registerExpressionFactory(const std::string& name,
                                         ExpressionFactory* factory) 
   {
     check_error_1(factory != NULL);
-    checkError(expressionFactoryMap().find(name) == expressionFactoryMap().end(),
+    checkError(s_expressionFactoryMap.find(name) == s_expressionFactoryMap.end(),
                "Error:  Attempted to register a factory for name \"" << name <<
                "\" twice.");
-    expressionFactoryMap()[name] = factory;
+    s_expressionFactoryMap[name] = factory;
     debugMsg("ExpressionFactory:registerFactory",
              "Registered factory for name \"" << name << "\"");
   }
@@ -94,9 +93,9 @@ namespace PLEXIL
     std::string const name = expr.name();
     // Delegate to factory
     debugMsg("createExpression", " name = " << name);
-    std::map<std::string, ExpressionFactory*>::const_iterator it =
-      expressionFactoryMap().find(name);
-    checkParserException(it != expressionFactoryMap().end(),
+    SimpleMap<std::string, ExpressionFactory*>::const_iterator it =
+      s_expressionFactoryMap.find(name);
+    checkParserException(it != s_expressionFactoryMap.end(),
                          "createExpression: No factory registered for name \"" << name << "\".");
     Expression *retval = it->second->allocate(expr, node, wasCreated);
     debugMsg("createExpression",
@@ -135,15 +134,18 @@ namespace PLEXIL
 
   void purgeExpressionFactories()
   {
-    for (std::map<std::string, ExpressionFactory*>::iterator it =
-           expressionFactoryMap().begin();
-         it != expressionFactoryMap().end();
+    // Uncomment this to get a better estimate of factory map size.
+    // std::cout << "ExpressionFactory map has " << s_expressionFactoryMap.size() << " entries" << std::endl;
+
+    for (SimpleMap<std::string, ExpressionFactory*>::iterator it =
+           s_expressionFactoryMap.begin();
+         it != s_expressionFactoryMap.end();
          ++it) {
       ExpressionFactory* tmp = it->second;
       it->second = NULL;
       delete tmp;
     }
-    expressionFactoryMap().clear();
+    s_expressionFactoryMap.clear();
   }
 
 }
