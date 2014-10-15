@@ -1178,7 +1178,7 @@ static bool updateNodeXmlParserTest()
     assertTrue_1(upd);
     upd->activate();
     upd->fixValues();
-    Update::PairValueMap pairs = upd->getPairs();
+    Update::PairValueMap const &pairs = upd->getPairs();
     assertTrue_1(!pairs.empty());
     assertTrue_1(pairs["foo"] == Value(true));
     assertTrue_1(pairs["bar"] == Value((int32_t) 216));
@@ -1242,7 +1242,7 @@ static bool updateNodeXmlParserTest()
     avar->activate();
     upd->activate();
     upd->fixValues();
-    Update::PairValueMap pairs = upd->getPairs();
+    Update::PairValueMap const &pairs = upd->getPairs();
     assertTrue_1(!pairs.empty());
     assertTrue_1(pairs["bar"].valueType() == INTEGER_TYPE);
     assertTrue_1(pairs["bar"] == Value((int32_t) 42));

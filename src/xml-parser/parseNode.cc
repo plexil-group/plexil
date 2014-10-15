@@ -69,6 +69,8 @@ namespace PLEXIL
 
   static void parseVariableDeclarations(Node *node, xml_node const decls)
   {
+    // First pass: check and count the declarations
+    size_t n = 0;
     for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
       checkHasChildElement(decl);
       char const *name = getVarDeclName(decl);
@@ -79,8 +81,12 @@ namespace PLEXIL
                                          << ": Duplicate variable name "
                                          << name);
       }
+      ++n;
+    }
+    node->growVariableMap(n);
+    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
       // Variables are always created here, no need for "garbage" flag.
-      node->addLocalVariable(name, createExpression(decl, node));
+      node->addLocalVariable(getVarDeclName(decl), createExpression(decl, node));
     }
   }
 
@@ -145,8 +151,8 @@ namespace PLEXIL
     Node *parent = node->getParent();
     bool isCall = (parent && parent->getType() == NodeType_LibraryNodeCall);
     
-    xml_node elt = iface.first_child();
-    while (elt) {
+    size_t n = 0;
+    for (xml_node elt = iface.first_child(); elt; elt = elt.next_sibling()) {
       if (0 == strcmp(IN_TAG, elt.name())) {
         xml_node decl = elt.first_child();
         while (decl) {
@@ -166,8 +172,9 @@ namespace PLEXIL
                                          elt,
                                          "Node " << node->getNodeId()
                                          << ": Illegal " << elt.name() << " element inside " << INTERFACE_TAG);
-      elt = elt.next_sibling();
     }
+    if (n)
+      node->growVariableMap(n);
   }
 
   void constructChildNodes(Node *node, xml_node const kidsXml)
