@@ -1415,10 +1415,11 @@ namespace PLEXIL {
     if (m_parent) {
       Expression *result = m_parent->findVariable(name, true);
       if (result) {
-        // Found it - cache for later reuse
+        // Found it
+        // Cache for later reuse
         // TODO: determine if this really speeds things up when loading large plans
-        if (!recursive)
-          m_variablesByName[name] = result;
+        // if (!recursive)
+        //   m_variablesByName[name] = result;
         return result;
       }
     }
@@ -1764,7 +1765,7 @@ namespace PLEXIL {
          it != m_variablesByName.end();
          ++it) {
       stream << indentStr << " " << it->first << ": " <<
-        it->second << '\n';
+        *(it->second) << '\n';
     }
   }
 
