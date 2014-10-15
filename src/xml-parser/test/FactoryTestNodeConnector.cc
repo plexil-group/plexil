@@ -37,11 +37,12 @@ namespace PLEXIL
 
   FactoryTestNodeConnector::~FactoryTestNodeConnector()
   {
-    TestVariableMap::iterator it = m_variableMap.begin();
-    while (it != m_variableMap.end()) {
-      delete it->second;
-      m_variableMap.erase(it);
-      it = m_variableMap.begin();
+    for (TestVariableMap::iterator it = m_variableMap.begin();
+         it != m_variableMap.end();
+         ++it) {
+      Expression *tmp = it->second;
+      it->second = NULL;
+      delete tmp;
     }
     m_variableMap.clear();
   }
@@ -90,7 +91,7 @@ namespace PLEXIL
       it->second = var; // replace existing
     }
     else 
-      m_variableMap.insert(std::pair<std::string, Expression *>(name, var));
+      m_variableMap.insert(name, var);
   }
 
 } // namespace PLEXIL

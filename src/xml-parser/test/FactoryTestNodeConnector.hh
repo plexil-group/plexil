@@ -29,7 +29,7 @@
 
 #include "NodeConnector.hh"
 
-#include <map>
+#include "SimpleMap.hh"
 
 namespace PLEXIL
 {
@@ -46,7 +46,7 @@ namespace PLEXIL
     ~FactoryTestNodeConnector();
 
     Expression *findVariable(const std::string & name,
-                                     bool ignored = false);
+                             bool ignored = false);
 
     std::string const &getNodeId() const;
 
@@ -59,7 +59,7 @@ namespace PLEXIL
     void storeVariable(const std::string & name, Expression *var);
 
   private:
-    typedef std::map<std::string, Expression *> TestVariableMap;
+    typedef SimpleMap<std::string, Expression *> TestVariableMap;
 
     TestVariableMap m_variableMap;
   };
