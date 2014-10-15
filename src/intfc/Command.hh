@@ -32,23 +32,41 @@
 #include "UserVariable.hh"
 #include "Value.hh"
 
-#include <map>
-
 namespace PLEXIL
 {
-  // TODO:
-  // - Move type names to common file shared with ResourceArbitrationInterface
-  // - replace ResourceMap and ResourceValues with structs or classes
+  //
+  // Used only in Command class, but exposed to parser
+  //
 
-  // FIXME: conflicts with same name in ResourceArbiterInterface
-  typedef std::map<std::string, Expression *> ResourceMap;
-  typedef std::vector<ResourceMap> ResourceList;
+  struct ResourceSpec
+  {
+    void activate();
+    void deactivate();
 
-  // Shared with ResourceArbiterInterface.hh
-  typedef std::map<std::string, Value> ResourceValues;
+    Expression *nameExp;
+    Expression *priorityExp;
+    Expression *lowerBoundExp;
+    Expression *upperBoundExp;
+    Expression *releaseAtTermExp;
+  };
 
-  typedef std::vector<ResourceValues> ResourceValuesList;
+  typedef std::vector<ResourceSpec> ResourceList;
 
+  /**
+   * @brief A structure to represent actual resource values after fixing.
+   *        Used by Command and ResourceArbiterInterface.
+   */
+
+  struct ResourceValue
+  {
+    double lowerBound;
+    double upperBound;
+    std::string name;
+    int32_t priority;
+    bool releaseAtTermination;
+  };
+
+  typedef std::vector<ResourceValue> ResourceValueList;
 
   class Command 
   {
@@ -65,7 +83,7 @@ namespace PLEXIL
     State const &getCommand() const;
     std::string const &getName() const;
     std::vector<Value> const &getArgValues() const;
-    const ResourceValuesList &getResourceValues() const;
+    const ResourceValueList &getResourceValues() const;
     CommandHandleValue getCommandHandle() const {return (CommandHandleValue) m_commandHandle;}
     bool isActive() const { return m_active; }
 
@@ -111,7 +129,7 @@ namespace PLEXIL
     std::vector<Expression *> m_garbage;
     std::vector<Expression *> m_args;
     ResourceList m_resourceList;
-    ResourceValuesList m_resourceValuesList;
+    ResourceValueList m_resourceValueList;
     uint16_t m_commandHandle; // accessed by CommandHandleVariable
     bool m_fixed, m_resourceFixed, m_active;
   };

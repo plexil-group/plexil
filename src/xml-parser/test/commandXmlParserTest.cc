@@ -163,13 +163,11 @@ static bool testCommandParserBasics()
     assertTrue_1(resourceful->getArgValues().empty());
     assertTrue_1(resourceful->getCommand() == State("resourceful"));
     resourceful->fixResourceValues();
-    ResourceValuesList const &rlist = resourceful->getResourceValues();
+    ResourceValueList const &rlist = resourceful->getResourceValues();
     assertTrue_1(rlist.size() == 1);
-    ResourceValues const &rmap = rlist.front();
-    assertTrue_1(rmap.find("ResourceName") != rmap.end());
-    assertTrue_1(rmap.find("ResourceName")->second == "a");
-    assertTrue_1(rmap.find("ResourcePriority") != rmap.end());
-    assertTrue_1(rmap.find("ResourcePriority")->second == Value((int32_t) 0));
+    ResourceValue const &rmap = rlist.front();
+    assertTrue_1(rmap.name == "a");
+    assertTrue_1(rmap.priority == 0);
     delete resourceful;
   }
 
@@ -193,13 +191,11 @@ static bool testCommandParserBasics()
     assertTrue_1(remorseful->getArgValues().empty());
     assertTrue_1(remorseful->getCommand() == State("remorseful"));
     remorseful->fixResourceValues();
-    ResourceValuesList const &slist = remorseful->getResourceValues();
+    ResourceValueList const &slist = remorseful->getResourceValues();
     assertTrue_1(slist.size() == 1);
-    ResourceValues const &smap = slist.front();
-    assertTrue_1(smap.find("ResourceName") != smap.end());
-    assertTrue_1(smap.find("ResourceName")->second == "a");
-    assertTrue_1(smap.find("ResourcePriority") != smap.end());
-    assertTrue_1(smap.find("ResourcePriority")->second == Value((int32_t) 1));
+    ResourceValue const &smap = slist.front();
+    assertTrue_1(smap.name == "a");
+    assertTrue_1(smap.priority == 1);
     delete remorseful;
   }
 
@@ -225,13 +221,11 @@ static bool testCommandParserBasics()
     std::vector<Value> rful(1, Value(true));
     assertTrue_1(regretful->getCommand() == State("regretful", rful));
     regretful->fixResourceValues();
-    ResourceValuesList const &tlist = regretful->getResourceValues();
+    ResourceValueList const &tlist = regretful->getResourceValues();
     assertTrue_1(tlist.size() == 1);
-    ResourceValues const &tmap = tlist.front();
-    assertTrue_1(tmap.find("ResourceName") != tmap.end());
-    assertTrue_1(tmap.find("ResourceName")->second == "b");
-    assertTrue_1(tmap.find("ResourcePriority") != tmap.end());
-    assertTrue_1(tmap.find("ResourcePriority")->second == Value((int32_t) 2));
+    ResourceValue const &tmap = tlist.front();
+    assertTrue_1(tmap.name == "b");
+    assertTrue_1(tmap.priority == 2);
     delete regretful;
   }
 

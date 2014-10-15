@@ -27,24 +27,33 @@
 #ifndef _H_ResourceArbiterInterface
 #define _H_ResourceArbiterInterface
 
-#include "Value.hh"
+// For int32_t
+#include "plexil-config.h"
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
 
 #include <map>
 #include <set>
+#include <string>
 #include <vector>
 
-namespace PLEXIL {
-
+namespace PLEXIL 
+{
   class Command;
-
-  // Shared with Command.hh
-  typedef std::map<std::string, Value> ResourceValues;
 
   struct ChildResourceNode
   {
-    ChildResourceNode(const double _weight, const std::string& _name,
-                      const bool _release=true)
-      : weight(_weight), name(_name), release(_release){}
+    ChildResourceNode(const double _weight,
+                      const std::string& _name,
+                      const bool _release = true)
+      : weight(_weight),
+        name(_name),
+        release(_release)
+    {}
+
     double weight;
     std::string name;
     bool release;
@@ -52,12 +61,18 @@ namespace PLEXIL {
 
   struct ResourceNode 
   {
-    ResourceNode() : maxConsumableValue(0.0), maxRenewableValue(0.0){}
+    ResourceNode()
+      : maxConsumableValue(0.0), maxRenewableValue(0.0)
+    {}
+
     ResourceNode(const double _maxConsumableValue, 
                  const double _maxRenewableValue,
                  const std::vector<ChildResourceNode>& _children)
       : maxConsumableValue(_maxConsumableValue),
-        maxRenewableValue(_maxRenewableValue), children(_children) {}
+        maxRenewableValue(_maxRenewableValue),
+        children(_children)
+    {}
+
     double maxConsumableValue;
     double maxRenewableValue;
     std::vector<ChildResourceNode> children;
@@ -86,11 +101,12 @@ namespace PLEXIL {
     typedef std::set<ChildResourceNode, ResourceComparator> ResourceMapEntry;
     typedef std::map<std::string, ResourceMapEntry> ResourceMap;
     typedef std::map<std::string, CommandSet> ResourceCommandMap;
+    typedef std::multimap<int32_t, Command *> CommandPriorityMap;
 
     std::map<std::string, double> m_lockedRes;
     ResourceMap m_cmdResMap;
     std::map<std::string, ResourceNode> m_resourceHierarchy;
-    std::multimap<int, Command *> m_prioritySortedCommands;
+    CommandPriorityMap m_prioritySortedCommands;
     ResourceCommandMap m_resCmdMap;
     bool m_resourceFileRead;
 

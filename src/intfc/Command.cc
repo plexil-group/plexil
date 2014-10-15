@@ -32,6 +32,34 @@
 namespace PLEXIL
 {
 
+  //
+  // ResourceSpec member functions
+  //
+
+  void ResourceSpec::activate()
+  {
+    nameExp->activate();
+    priorityExp->activate();
+    if (lowerBoundExp)
+      lowerBoundExp->activate();
+    if (upperBoundExp)
+      upperBoundExp->activate();
+    if (releaseAtTermExp)
+      releaseAtTermExp->activate();
+  }
+
+  void ResourceSpec::deactivate()
+  {
+    nameExp->deactivate();
+    priorityExp->deactivate();
+    if (lowerBoundExp)
+      lowerBoundExp->deactivate();
+    if (upperBoundExp)
+      upperBoundExp->deactivate();
+    if (releaseAtTermExp)
+      releaseAtTermExp->deactivate();
+  }
+
   // New version
   Command::Command(std::string const &nodeName)
     : m_ack(*this),
@@ -50,7 +78,8 @@ namespace PLEXIL
     m_abortComplete.setName(nodeName + " abortComplete");
   }
 
-  Command::~Command() {
+  Command::~Command() 
+  {
     for (std::vector<Expression *>::const_iterator it = m_garbage.begin();
          it != m_garbage.end();
          ++it) {
@@ -111,10 +140,10 @@ namespace PLEXIL
     return m_command.parameters();
   }
 
-  const ResourceValuesList &Command::getResourceValues() const
+  const ResourceValueList &Command::getResourceValues() const
   {
     assertTrue_1(m_resourceFixed);
-    return m_resourceValuesList;
+    return m_resourceValueList;
   }
 
   Expression *Command::getDest()
@@ -145,20 +174,38 @@ namespace PLEXIL
   void Command::fixResourceValues()
   {
     assertTrue_1(m_active && !m_resourceFixed);
-    m_resourceValuesList.clear();
-    for(ResourceList::const_iterator resListIter = m_resourceList.begin();
-        resListIter != m_resourceList.end();
-        ++resListIter)
-      {
-        ResourceValues resValues;
-        for(ResourceMap::const_iterator resIter = resListIter->begin();
-            resIter != resListIter->end();
-            ++resIter) {
-          Expression *expr = resIter->second;
-          resValues[resIter->first] = expr->toValue();
-        }
-        m_resourceValuesList.push_back(resValues);
+    m_resourceValueList.clear();
+    size_t n = m_resourceList.size();
+    m_resourceValueList.resize(n);
+    for (size_t i = 0; i < n; ++i) {
+      ResourceSpec const &spec = m_resourceList[i];
+      ResourceValue &resValue = m_resourceValueList[i];
+      assertTrue_2(spec.nameExp->getValue(resValue.name),
+                   "Resource name expression has unknown or invalid value");
+      assertTrue_2(spec.priorityExp->getValue(resValue.priority),
+                   "Resource priority expression has unknown or invalid value");
+
+      if (spec.lowerBoundExp) {
+        assertTrue_2(spec.lowerBoundExp->getValue(resValue.lowerBound),
+                     "Resource lower bound expression has unknown or invalid value");
       }
+      else
+        resValue.lowerBound = 1.0;
+
+      if (spec.upperBoundExp) {
+        assertTrue_2(spec.upperBoundExp->getValue(resValue.upperBound),
+                     "Resource upper bound expression has unknown or invalid value");
+      }
+      else 
+        resValue.upperBound = 1.0;
+
+      if (spec.releaseAtTermExp) {
+        assertTrue_2(spec.releaseAtTermExp->getValue(resValue.releaseAtTermination),
+                     "Resource lower bound expression has unknown or invalid value");
+      }
+      else
+        resValue.releaseAtTermination = true;
+    }
     m_resourceFixed = true;
   }
 
@@ -174,14 +221,10 @@ namespace PLEXIL
       m_dest->activate();
     for (std::vector<Expression *>::iterator it = m_args.begin(); it != m_args.end(); ++it)
       (*it)->activate();
-    for (ResourceList::const_iterator resListIter = m_resourceList.begin();
+    for (ResourceList::iterator resListIter = m_resourceList.begin();
          resListIter != m_resourceList.end();
-         ++resListIter) {
-      for (ResourceMap::const_iterator resIter = resListIter->begin();
-           resIter != resListIter->end();
-           ++resIter)
-        resIter->second->activate();
-    }
+         ++resListIter)
+      resListIter->activate();
     m_active = true;
   }
 
@@ -232,14 +275,10 @@ namespace PLEXIL
     m_active = false;
     if (m_commandHandle != COMMAND_DENIED)
       g_interface->getResourceArbiter()->releaseResourcesForCommand(m_command.name());
-    for (ResourceList::const_iterator resListIter = m_resourceList.begin();
+    for (ResourceList::iterator resListIter = m_resourceList.begin();
          resListIter != m_resourceList.end();
-         ++resListIter) {
-      for (ResourceMap::const_iterator resIter = resListIter->begin();
-           resIter != resListIter->end();
-           ++resIter)
-        resIter->second->deactivate();
-    }
+         ++resListIter)
+      resListIter->deactivate();
     for (std::vector<Expression *>::iterator it = m_args.begin(); it != m_args.end(); ++it)
       (*it)->deactivate();
     if (m_dest)

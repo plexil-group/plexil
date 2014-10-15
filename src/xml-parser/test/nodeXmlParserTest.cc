@@ -799,20 +799,20 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(!cmd->getDest());
 
     cmd->fixResourceValues();
-    ResourceValuesList res = cmd->getResourceValues();
+    ResourceValueList res = cmd->getResourceValues();
     assertTrue_1(!res.empty());
-    ResourceValues &res1 = res[0];
-    assertTrue_1(res1.find("ResourceLowerBound") == res1.end());
-    assertTrue_1(res1.find("ResourceUpperBound") == res1.end());
-    assertTrue_1(res1.find("ResourceReleaseAtTermination") == res1.end());
-    assertTrue_1(res1["ResourceName"] == Value("Resource1"));
-    assertTrue_1(res1["ResourcePriority"] == Value((int32_t) 1024));
-    ResourceValues &res2 = res[1];
-    assertTrue_1(res2["ResourceName"] == Value("Resource2"));
-    assertTrue_1(res2["ResourcePriority"] == Value((int32_t) 127));
-    assertTrue_1(res2["ResourceLowerBound"] == Value((int32_t) 1));
-    assertTrue_1(res2["ResourceUpperBound"] == Value((int32_t) 10));
-    assertTrue_1(res2["ResourceReleaseAtTermination"] == Value(false));
+    ResourceValue &res1 = res[0];
+    assertTrue_1(res1.lowerBound == 1.0);
+    assertTrue_1(res1.upperBound == 1.0);
+    assertTrue_1(res1.releaseAtTermination);
+    assertTrue_1(res1.name == "Resource1");
+    assertTrue_1(res1.priority == 1024);
+    ResourceValue &res2 = res[1];
+    assertTrue_1(res2.name == Value("Resource2"));
+    assertTrue_1(res2.priority == 127);
+    assertTrue_1(res2.lowerBound == 1.0);
+    assertTrue_1(res2.upperBound == 10.0);
+    assertTrue_1(!res2.releaseAtTermination);
 
     delete cmdWithResources;
   }
@@ -1016,20 +1016,20 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(dest->isAssignable());
 
     cmd->fixResourceValues();
-    ResourceValuesList res = cmd->getResourceValues();
+    ResourceValueList res = cmd->getResourceValues();
     assertTrue_1(!res.empty());
-    ResourceValues &res1 = res[0];
-    assertTrue_1(res1.find("ResourceLowerBound") == res1.end());
-    assertTrue_1(res1.find("ResourceUpperBound") == res1.end());
-    assertTrue_1(res1.find("ResourceReleaseAtTermination") == res1.end());
-    assertTrue_1(res1["ResourceName"] == Value("Resource1"));
-    assertTrue_1(res1["ResourcePriority"] == Value((int32_t) 1024));
-    ResourceValues &res2 = res[1];
-    assertTrue_1(res2["ResourceName"] == Value("Resource2"));
-    assertTrue_1(res2["ResourcePriority"] == Value((int32_t) 127));
-    assertTrue_1(res2["ResourceLowerBound"] == Value((int32_t) 1));
-    assertTrue_1(res2["ResourceUpperBound"] == Value((int32_t) 10));
-    assertTrue_1(res2["ResourceReleaseAtTermination"] == Value(false));
+    ResourceValue &res1 = res[0];
+    assertTrue_1(res1.lowerBound == 1.0);
+    assertTrue_1(res1.upperBound == 1.0);
+    assertTrue_1(res1.releaseAtTermination);
+    assertTrue_1(res1.name == "Resource1");
+    assertTrue_1(res1.priority == 1024);
+    ResourceValue &res2 = res[1];
+    assertTrue_1(res2.name == "Resource2");
+    assertTrue_1(res2.priority == 127);
+    assertTrue_1(res2.lowerBound == 1.0);
+    assertTrue_1(res2.upperBound == 10.0);
+    assertTrue_1(!res2.releaseAtTermination);
 
     delete listNode;
   }
@@ -1100,20 +1100,20 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(args[3] == Value("hi there"));
 
     cmd->fixResourceValues();
-    ResourceValuesList res = cmd->getResourceValues();
+    ResourceValueList res = cmd->getResourceValues();
     assertTrue_1(!res.empty());
-    ResourceValues &res1 = res[0];
-    assertTrue_1(res1.find("ResourceLowerBound") == res1.end());
-    assertTrue_1(res1.find("ResourceUpperBound") == res1.end());
-    assertTrue_1(res1.find("ResourceReleaseAtTermination") == res1.end());
-    assertTrue_1(res1["ResourceName"] == Value("Resource1"));
-    assertTrue_1(res1["ResourcePriority"] == Value((int32_t) 1024));
-    ResourceValues &res2 = res[1];
-    assertTrue_1(res2["ResourceName"] == Value("Resource2"));
-    assertTrue_1(res2["ResourcePriority"] == Value((int32_t) 127));
-    assertTrue_1(res2["ResourceLowerBound"] == Value((int32_t) 1));
-    assertTrue_1(res2["ResourceUpperBound"] == Value((int32_t) 10));
-    assertTrue_1(res2["ResourceReleaseAtTermination"] == Value(false));
+    ResourceValue &res1 = res[0];
+    assertTrue_1(res1.lowerBound == 1.0);
+    assertTrue_1(res1.upperBound == 1.0);
+    assertTrue_1(res1.releaseAtTermination);
+    assertTrue_1(res1.name == "Resource1");
+    assertTrue_1(res1.priority == 1024);
+    ResourceValue &res2 = res[1];
+    assertTrue_1(res2.name == "Resource2");
+    assertTrue_1(res2.priority == 127);
+    assertTrue_1(res2.lowerBound == 1.0);
+    assertTrue_1(res2.upperBound == 10.0);
+    assertTrue_1(!res2.releaseAtTermination);
 
     delete listNode;
   }
