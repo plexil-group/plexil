@@ -124,7 +124,6 @@ namespace PLEXIL {
       m_parent(parent),
       m_listener(*this),
       m_nodeId(nodeId),
-      m_sortedVariableNames(new std::vector<std::string>()),
       m_conditions(),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
@@ -155,7 +154,6 @@ namespace PLEXIL {
       m_parent(parent),
       m_listener(*this),
       m_nodeId(name),
-      m_sortedVariableNames(new std::vector<std::string>()),
       m_conditions(),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
@@ -240,12 +238,20 @@ namespace PLEXIL {
   void Node::commonInit() {
     debugMsg("Node:node", "Registering internal variables...");
     // Register state/outcome/failure variables
-    m_variablesByName[STATE()] = &m_stateVariable;
-    m_variablesByName[OUTCOME()] = &m_outcomeVariable;
-    m_variablesByName[FAILURE_TYPE()] = &m_failureTypeVariable;
+    // N.B. I think these are only needed by LuvListener, GanttListener et al.
+    // m_variablesByName[FAILURE_TYPE()] = &m_failureTypeVariable;
+    // m_variablesByName[OUTCOME()] = &m_outcomeVariable;
+    // m_variablesByName[STATE()] = &m_stateVariable;
 
     // Initialize transition trace
     logTransition(g_interface->currentTime(), (NodeState) m_state);
+  }
+
+  void Node::growVariableMap(size_t increment)
+  {
+    if (!increment)
+      return;
+    m_variablesByName.grow(increment);
   }
 
   bool Node::addVariable(char const *name, Expression *var)
@@ -333,8 +339,6 @@ namespace PLEXIL {
 
     // Now safe to delete variables
     cleanUpVars();
-
-    delete m_sortedVariableNames;
   }
 
   void Node::cleanUpConditions() 
@@ -1756,32 +1760,11 @@ namespace PLEXIL {
   void Node::printVariables(std::ostream& stream, const unsigned int indent) const
   {
     std::string indentStr(indent, ' ');
-    ensureSortedVariableNames(); // for effect
-    for (std::vector<std::string>::const_iterator it = m_sortedVariableNames->begin();
-         it != m_sortedVariableNames->end();
+    for (VariableMap::const_iterator it = m_variablesByName.begin();
+         it != m_variablesByName.end();
          ++it) {
-      stream << indentStr << " " << *it << ": " <<
-        *(getInternalVariable(*it)) << '\n';
-    }
-  }
-
-  void Node::ensureSortedVariableNames() const
-  {
-    checkError(m_sortedVariableNames != NULL,
-               "Internal error: m_sortedVariableNames is null!");
-    if (m_sortedVariableNames->empty()) {
-      // Collect the variable names
-      for (VariableMap::const_iterator it = m_variablesByName.begin();
-           it != m_variablesByName.end();
-           ++it) {
-        std::vector<Expression *>::const_iterator vit = 
-          std::find(m_localVariables.begin(), m_localVariables.end(), it->second);
-        if (vit != m_localVariables.end())
-          m_sortedVariableNames->push_back(it->first);
-      }
-      // Sort the names
-      std::sort(m_sortedVariableNames->begin(),
-                m_sortedVariableNames->end());
+      stream << indentStr << " " << it->first << ": " <<
+        it->second << '\n';
     }
   }
 

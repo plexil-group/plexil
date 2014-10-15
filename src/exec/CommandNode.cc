@@ -158,7 +158,8 @@ namespace PLEXIL
   {
     assertTrue_1(cmd);
     m_command = cmd;
-    m_variablesByName[COMMAND_HANDLE()] = m_command->getAck();
+    // Should no longer be needed
+    // m_variablesByName[COMMAND_HANDLE()] = m_command->getAck();
 
     // Construct action-complete condition
     Expression *actionComplete =

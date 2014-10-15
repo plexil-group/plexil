@@ -32,6 +32,7 @@
 #include "NodeConnector.hh"
 #include "NodeVariables.hh"
 #include "PlexilNodeType.hh"
+#include "SimpleMap.hh"
 #include "generic_hash_map.hh"
 
 // Take care of annoying VxWorks macro
@@ -39,7 +40,7 @@
 
 namespace PLEXIL {
 
-  typedef PLEXIL_HASH_MAP(std::string, Expression *) VariableMap;
+  typedef SimpleMap<std::string, Expression *> VariableMap;
 
   // NOTE: this used to be 100000000, which somehow gets printed as
   // scientific notation in XML and doesn't parse correctly.  
@@ -352,6 +353,13 @@ namespace PLEXIL {
     //
 
     /**
+     * @brief Reserve more space in the variable map.
+     * @param increment The additional number of entries to reserve.
+     * @note This is an optimization. Parsers will work fine without it.
+     */
+    void growVariableMap(size_t increment);
+
+    /**
      * @brief Add a named "variable" to the node.
      * @param name The name
      * @param var The expression to associate with the name.
@@ -530,7 +538,6 @@ namespace PLEXIL {
  
     // Expressions
     VariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
-    std::vector<std::string>* m_sortedVariableNames; /*!< Convenience for printing. */
     std::vector<Expression *> m_localVariables; /*!< Variables created in this node. */
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
     StateVariable m_stateVariable;
@@ -575,7 +582,6 @@ namespace PLEXIL {
     //
 
     void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
-    void ensureSortedVariableNames() const;
 
     // Cleanup
     static void purgeAllConditions();
