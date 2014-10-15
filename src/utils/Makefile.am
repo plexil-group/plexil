@@ -30,7 +30,7 @@ lib_LTLIBRARIES = libPlexilUtils.la
 libPlexilUtils_la_CPPFLAGS =
 
 include_HEADERS = ConstantMacros.hh Debug.hh Dinkum_hash_map.hh Error.hh \
- GNU_hash_map.hh Logging.hh ParserException.hh TestSupport.hh \
+ GNU_hash_map.hh Logging.hh ParserException.hh SimpleMap.hh TestSupport.hh \
  generic_hash_map.hh hash-functions.h lifecycle-utils.h stricmp.h \
  timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
