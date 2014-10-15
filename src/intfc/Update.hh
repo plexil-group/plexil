@@ -30,7 +30,7 @@
 #include "UserVariable.hh"
 #include "Value.hh"
 
-#include <map>
+#include "SimpleMap.hh"
 
 namespace PLEXIL
 {
@@ -41,14 +41,15 @@ namespace PLEXIL
   class Update 
   {
   public:
-    typedef std::map<std::string, Expression *> PairExpressionMap;
-    typedef std::map<std::string, Value> PairValueMap;
+    typedef SimpleMap<std::string, Expression *> PairExpressionMap;
+    typedef SimpleMap<std::string, Value> PairValueMap;
 
     Update(NodeConnector *node);
 
     ~Update();
 
     // For plan parser's use
+    void reservePairs(size_t n);
     // Return true if OK, false if name is a duplicate
     bool addPair(std::string const &name, Expression *exp, bool garbage);
 

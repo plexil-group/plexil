@@ -43,8 +43,8 @@ namespace PLEXIL
     throw (ParserException)
   {
     checkTag(UPDATE_TAG, updXml);
-    xml_node pr = updXml.first_child();
-    while (pr) {
+    size_t n = 0;
+    for (xml_node pr = updXml.first_child(); pr; pr = pr.next_sibling()) {
       checkTag(PAIR_TAG, pr);
       xml_node temp = pr.first_child();
       checkTag(NAME_TAG, temp);
@@ -53,10 +53,10 @@ namespace PLEXIL
       checkParserExceptionWithLocation(temp && temp.type() == node_element,
                                        pr,
                                        "Update pair without a value expression");
-      pr = pr.next_sibling();
     }
-
-    return new Update(node);
+    Update *result = new Update(node);
+    result->reservePairs(n);
+    return result;
   }
 
   void finalizeUpdate(Update *update, NodeConnector *node, pugi::xml_node const updXml)

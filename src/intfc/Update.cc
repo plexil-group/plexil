@@ -54,6 +54,12 @@ namespace PLEXIL
     m_garbage.clear();
   }
 
+  void Update::reservePairs(size_t n)
+  {
+    m_pairs.grow(n);
+    m_valuePairs.grow(n);
+  }
+
   bool Update::addPair(std::string const &name, Expression *exp, bool garbage)
   {
     debugMsg("Update:addPair", " name = \"" << name << "\", exp = " << *exp);

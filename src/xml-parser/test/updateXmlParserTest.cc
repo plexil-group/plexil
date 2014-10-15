@@ -66,7 +66,7 @@ static bool testUpdateParserBasics()
     assertTrue_1(simple);
     finalizeUpdate(simple, &conn, simpleXml);
     simple->fixValues();
-    std::map<std::string, Value> const &simplePairs = simple->getPairs();
+    Update::PairValueMap const &simplePairs = simple->getPairs();
     assertTrue_1(simplePairs.size() == 1);
     assertTrue_1(simplePairs.begin() != simplePairs.end());
     assertTrue_1(simplePairs.begin()->first == "foo");
