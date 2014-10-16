@@ -38,6 +38,8 @@
 
 #include "pugixml.hpp"
 
+#include <cstring>
+
 namespace PLEXIL
 {
 
@@ -45,10 +47,34 @@ namespace PLEXIL
   // See purgeExpressionFactories() below and Expressions.cc in this directory.
   static size_t const EST_N_EXPR_FACTORIES = 60;
 
-  static SimpleMap<std::string, ExpressionFactory *> s_expressionFactoryMap(EST_N_EXPR_FACTORIES);
+  // Specialized comparator for expression factory lookups
+  struct ExpressionFactoryComparator
+  {
+    typedef std::pair<char const *, ExpressionFactory *> MapEntry;
 
-  static void registerExpressionFactory(const std::string& name,
-                                        ExpressionFactory* factory) 
+    bool operator()(MapEntry const &a, MapEntry const &b) const
+    {
+      return (strcmp(a.first, b.first) < 0);
+    }
+
+    bool operator()(MapEntry const &a, char const * const &b) const
+    {
+      return (strcmp(a.first, b) < 0);
+    }
+
+    bool equal(char const * const &a, char const * const &b) const
+    {
+      return !strcmp(a, b);
+    }
+  };
+
+  typedef SimpleMap<char const *, ExpressionFactory *, ExpressionFactoryComparator>
+  ExpressionFactoryMap;
+
+  static ExpressionFactoryMap s_expressionFactoryMap(EST_N_EXPR_FACTORIES);
+
+  static void registerExpressionFactory(char const *name,
+                                        ExpressionFactory *factory) 
   {
     check_error_1(factory != NULL);
     checkError(s_expressionFactoryMap.find(name) == s_expressionFactoryMap.end(),
@@ -62,7 +88,7 @@ namespace PLEXIL
   ExpressionFactory::ExpressionFactory(const std::string& name)
     : m_name(name)
   {
-    registerExpressionFactory(m_name, this);
+    registerExpressionFactory(m_name.c_str(), this);
   }
 
   ExpressionFactory::~ExpressionFactory()
@@ -90,11 +116,10 @@ namespace PLEXIL
     checkParserExceptionWithLocation(expr.type() == pugi::node_element,
                                      expr,
                                      "createExpression: argument is not an XML element");
-    std::string const name = expr.name();
+    char const *name = expr.name();
     // Delegate to factory
     debugMsg("createExpression", " name = " << name);
-    SimpleMap<std::string, ExpressionFactory*>::const_iterator it =
-      s_expressionFactoryMap.find(name);
+    ExpressionFactoryMap::const_iterator it = s_expressionFactoryMap.find(name);
     checkParserException(it != s_expressionFactoryMap.end(),
                          "createExpression: No factory registered for name \"" << name << "\".");
     Expression *retval = it->second->allocate(expr, node, wasCreated);
@@ -137,8 +162,7 @@ namespace PLEXIL
     // Uncomment this to get a better estimate of factory map size.
     // std::cout << "ExpressionFactory map has " << s_expressionFactoryMap.size() << " entries" << std::endl;
 
-    for (SimpleMap<std::string, ExpressionFactory*>::iterator it =
-           s_expressionFactoryMap.begin();
+    for (ExpressionFactoryMap::iterator it = s_expressionFactoryMap.begin();
          it != s_expressionFactoryMap.end();
          ++it) {
       ExpressionFactory* tmp = it->second;
