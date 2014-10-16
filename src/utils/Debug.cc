@@ -52,6 +52,7 @@
 
 #include <fstream>
 
+#include <cstdlib> // for free()
 #include <cstring>
 
 using std::string;
@@ -241,7 +242,7 @@ static bool markerMatches(char const *marker, char const *pattern)
   assertTrue_3(pattern, "markerMatches: Null pattern", DebugErr::DebugInternalError());
   if (!*pattern)
     return true;
-  char *result = strstr(marker, pattern);
+  char const *result = strstr(marker, pattern);
   return result != NULL;
 }
 
