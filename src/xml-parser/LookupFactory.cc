@@ -32,6 +32,8 @@
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 
+#include <cstring>
+
 namespace PLEXIL
 {
 

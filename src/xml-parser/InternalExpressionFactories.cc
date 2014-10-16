@@ -37,6 +37,8 @@
 
 #include "pugixml.hpp"
 
+#include <cstring>
+
 namespace PLEXIL
 {
   // Utility routines

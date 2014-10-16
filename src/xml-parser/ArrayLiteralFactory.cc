@@ -35,6 +35,7 @@
 #include "pugixml.hpp"
 
 #include <cstdlib>
+#include <cstring>
 
 namespace PLEXIL
 {

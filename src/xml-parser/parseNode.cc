@@ -44,6 +44,7 @@
 #include "pugixml.hpp"
 
 #include <cstdlib> // for strtoul()
+#include <cstring>
 
 using pugi::xml_attribute;
 using pugi::xml_node;

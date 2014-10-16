@@ -41,6 +41,8 @@
 
 #include <sstream>
 
+#include <cstring>
+
 // Local convenience macros
 #define ENSURE_EXPRESSION_FACTORY(CLASS) template class PLEXIL::ConcreteExpressionFactory<CLASS >;
 
