@@ -89,6 +89,12 @@ namespace PLEXIL
     virtual Node const *findChild(const std::string& childName) const;
 
     /**
+     * @brief Reserve space for the given number of children.
+     * @note For use by parsers. An optional optimization.
+     */
+    void reserveChildren(size_t n);
+
+    /**
      * @brief Sets the state variable to the new state.
      * @param newValue The new node state.
      * @note This method notifies the children of a change in the parent node's state.

@@ -182,6 +182,16 @@ namespace PLEXIL
   {
     ListNode *lnode = dynamic_cast<ListNode *>(node);
     assertTrue_2(lnode, "Not a ListNode");
+
+    // Count children so we can reserve right # of spots for them.
+    size_t nKids = 0;
+    for (xml_node kidXml = kidsXml.first_child();
+         kidXml;
+         kidXml = kidXml.next_sibling())
+      ++nKids;
+    lnode->reserveChildren(nKids);
+
+    // Construct the children.
     for (xml_node kidXml = kidsXml.first_child();
          kidXml;
          kidXml = kidXml.next_sibling()) {
@@ -371,13 +381,13 @@ namespace PLEXIL
     try {
       // Populate local variables
       if (varDecls) {
-	debugMsg("parseNode", " parsing variable declarations");
+        debugMsg("parseNode", " parsing variable declarations");
         parseVariableDeclarations(node, varDecls);
       }
 
       // Check interface variables
       if (iface) {
-	debugMsg("parseNode", " parsing interface declarations");
+        debugMsg("parseNode", " parsing interface declarations");
         parseInterface(node, iface);
       }
 
@@ -762,7 +772,7 @@ namespace PLEXIL
       break;
 
     case NodeType_NodeList: {
-      std::vector<Node *> kids = node->getChildren();
+      std::vector<Node *> &kids = node->getChildren();
       std::vector<Node *>::iterator kid = kids.begin();
       xml_node kidXml = body.first_child();
       while (kid != kids.end() && kidXml) {

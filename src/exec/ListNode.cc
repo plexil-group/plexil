@@ -423,6 +423,11 @@ namespace PLEXIL
     return *it;
   }
 
+  void ListNode::reserveChildren(size_t n)
+  {
+    m_children.reserve(n);
+  }
+
   /**
    * @brief Sets the state variable to the new state.
    * @param newValue The new node state.
