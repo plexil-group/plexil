@@ -30,6 +30,8 @@
 #include <set>
 #include <vector>
 
+#include <cstddef> // size_t
+
 namespace PLEXIL
 {
   // Forward references

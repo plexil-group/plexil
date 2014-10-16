@@ -27,6 +27,7 @@
 #ifndef EXEC_LISTENER_BASE_HH
 #define EXEC_LISTENER_BASE_HH
 
+#include <string>
 #include <vector>
 
 namespace PLEXIL
