@@ -34,14 +34,44 @@
 namespace PLEXIL
 {
   /**
+   * @class SimpleMapComparator
+   * @brief A templatized comparator class for SimpleMap
+   */
+  template <typename KEY_TYPE, typename VALUE_TYPE>
+  struct SimpleMapComparator
+  {
+    typedef std::pair<KEY_TYPE, VALUE_TYPE> MapEntry;
+
+    //* Compare entry a less than entry b
+    bool operator()(MapEntry const &a, MapEntry const &b) const
+    {
+      return a.first < b.first;
+    }
+
+    //* Compare entry a less than key b
+    bool operator()(MapEntry const &a, KEY_TYPE const &b) const
+    {
+      return a.first < b;
+    }
+
+    //* Compare key a equal to key b
+    bool equal(KEY_TYPE const &a, KEY_TYPE const &b) const
+    {
+      return a == b;
+    }
+  };
+
+  /**
    * @class SimpleMap
    * @brief A key-value mapping stored as a vector, sorted by key value.
    */
-  template <typename KEY, typename VALUE>
+  template <typename KEY_TYPE,
+            typename VALUE_TYPE,
+            class COMPARATOR = SimpleMapComparator<KEY_TYPE, VALUE_TYPE> >
   class SimpleMap
   {
   public:
-    typedef std::pair<KEY, VALUE> MapEntry;
+    typedef std::pair<KEY_TYPE, VALUE_TYPE> MapEntry;
     typedef std::vector<MapEntry> MapVector;
 
     typedef typename MapVector::const_iterator const_iterator;
@@ -56,7 +86,8 @@ namespace PLEXIL
       m_vector.reserve(initialCapacity);
     }
 
-    ~SimpleMap()
+    // Virtual to allow for derived classes.
+    virtual ~SimpleMap()
     {
     }
 
@@ -70,55 +101,57 @@ namespace PLEXIL
       m_vector.reserve(desired);
     }
 
-    bool insert(KEY const &index, VALUE const &val)
+    bool insert(KEY_TYPE const &index, VALUE_TYPE const &val)
     {
       typename MapVector::iterator it = 
-        std::lower_bound(m_vector.begin(), m_vector.end(), index, SimpleMapCompare());
+        std::lower_bound(m_vector.begin(), m_vector.end(), index, COMPARATOR());
       if (it != m_vector.end() && it->first == index)
         return false; // duplicate
       m_vector.insert(it, MapEntry(index, val));
       return true;
     }
 
-    VALUE &operator[](KEY const &index)
+    VALUE_TYPE &operator[](KEY_TYPE const &index)
     {
       typename MapVector::iterator it = 
-        std::lower_bound(m_vector.begin(), m_vector.end(), index, SimpleMapCompare());
+        std::lower_bound(m_vector.begin(), m_vector.end(), index, COMPARATOR());
       if (it == m_vector.end() || it->first != index)
-        it = m_vector.insert(it, MapEntry(index, VALUE()));
+        it = m_vector.insert(it, MapEntry(index, VALUE_TYPE()));
       return it->second;
     }
 
-    VALUE const &operator[](KEY const &index) const
+    VALUE_TYPE const &operator[](KEY_TYPE const &index) const
     {
       typename MapVector::const_iterator it = 
-        std::lower_bound(m_vector.begin(), m_vector.end(), index, SimpleMapCompare());
+        std::lower_bound(m_vector.begin(), m_vector.end(), index, COMPARATOR());
       if (it == m_vector.end() || it->first != index) {
-        static VALUE const sl_empty;
+        static VALUE_TYPE const sl_empty;
         return sl_empty;
       }
       return it->second;
     }
 
-    const_iterator find(KEY const &index) const
+    const_iterator find(KEY_TYPE const &index) const
     {
+      static COMPARATOR s_comp;
       typename MapVector::const_iterator it = 
-        std::lower_bound(m_vector.begin(), m_vector.end(), index, SimpleMapCompare());
+        std::lower_bound(m_vector.begin(), m_vector.end(), index, s_comp);
       if (it == m_vector.end())
         return it;
-      else if (it->first == index)
+      else if (s_comp.equal(it->first, index))
         return it;
       else
         return m_vector.end();
     }
 
-    iterator find(KEY const &index)
+    iterator find(KEY_TYPE const &index)
     {
+      static COMPARATOR s_comp;
       typename MapVector::iterator it = 
-        std::lower_bound(m_vector.begin(), m_vector.end(), index, SimpleMapCompare());
+        std::lower_bound(m_vector.begin(), m_vector.end(), index, s_comp);
       if (it == m_vector.end())
         return it;
-      else if (it->first == index)
+      else if (s_comp.equal(it->first, index))
         return it;
       else
         return m_vector.end();
@@ -163,21 +196,6 @@ namespace PLEXIL
     // Not implemented
     SimpleMap(SimpleMap const &);
     SimpleMap &operator=(SimpleMap const &);
-
-    // Utility class
-    class SimpleMapCompare
-    {
-    public:
-      bool operator()(SimpleMap::MapEntry const &a, SimpleMap::MapEntry const &b) const
-      {
-        return a.first < b.first;
-      }
-
-      bool operator()(SimpleMap::MapEntry const &a, KEY const &b) const
-      {
-        return a.first < b;
-      }
-    };
 
     MapVector m_vector;
   };
