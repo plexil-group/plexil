@@ -32,6 +32,8 @@
 
 #include <iostream>
 
+#include <cstddef> // size_t
+
 namespace PLEXIL {
 
   //
@@ -104,9 +106,113 @@ namespace PLEXIL {
    * @param node The node whose conditions are being extracted.
    */
   void formatConditions(std::ostream& s, 
-                        pugi::xml_node const plan)
+                        Node const *node)
   {
-    plan.print(s, "", pugi::format_raw);
+    simpleStartTag(s, LuvFormat::CONDITIONS_TAG());
+
+    const std::vector<std::string>& allConditions = node->ALL_CONDITIONS();
+    for (size_t i = 0; i < allConditions.size(); ++i) {
+      Expression const *cond = node->getCondition(i);
+      if (cond) {
+        simpleTextElement(s, 
+                          allConditions[i].c_str(), 
+                          cond->valueString().c_str());
+      }
+    }
+
+    endTag(s, LuvFormat::CONDITIONS_TAG());
+  }
+
+  /**
+   * @brief Construct the PlanInfo header XML.
+   * @param s The stream to write the XML to.
+   * @param block Whether the viewer should block.
+   */
+  void LuvFormat::formatPlanInfo(std::ostream& s, 
+                                 bool block) {
+    simpleStartTag(s, PLAN_INFO_TAG());
+    simpleTextElement(s, 
+                      VIEWER_BLOCKS_TAG(),
+                      (block ? TRUE_STR() : FALSE_STR()));
+    endTag(s, PLAN_INFO_TAG());
+  }
+
+  /**
+   * @brief Construct the node state transition XML.
+   * @param s The stream to write the XML to.
+   * @param prevState The state from which the node is transitioning.
+   * @param node The node.
+   */
+  void LuvFormat::formatTransition(std::ostream& s, 
+                                   NodeState /* prevState */,
+                                   Node* node) {
+
+    simpleStartTag(s, NODE_STATE_UPDATE_TAG());
+
+    // add state
+    simpleTextElement(s, NODE_STATE_TAG(), node->getStateName().c_str());
+
+    // add outcome
+    simpleTextElement(s, NODE_OUTCOME_TAG(), outcomeName(node->getOutcome()).c_str());
+
+    // add failure type
+    simpleTextElement(s, NODE_FAILURE_TYPE_TAG(), failureTypeName(node->getFailureType()).c_str());
+      
+    // add the condition states
+    formatConditions(s, node);
+
+    // add the path
+    formatNodePath(s, node);
+
+    endTag(s, NODE_STATE_UPDATE_TAG());
+  }
+
+  /**
+   * @brief Construct the assignment XML.
+   * @param s The stream to write the XML to.
+   * @param dest The expression being assigned to.
+   * @param destName The variable name of the expression.
+   * @param value The internal representation of the new value.
+   */
+  void LuvFormat::formatAssignment(std::ostream &s, 
+                                   Expression const *dest,
+                                   std::string const &destName,
+                                   Value const &value) {
+    simpleStartTag(s, ASSIGNMENT_TAG());
+
+    // format variable name
+    simpleStartTag(s, VARIABLE_TAG());
+
+    // get path to node, if any
+    Assignable const *destVar = dest->asAssignable();
+    Node const *node = NULL;
+    if ((node = dynamic_cast<Node const *>(destVar->getNode())))
+      formatNodePath(s, node);
+
+    // get variable name
+    // *** TODO: enhance for array reference ***
+    simpleTextElement(s, VARIABLE_NAME_TAG(), destName.c_str());
+    endTag(s, VARIABLE_TAG());
+
+    // format variable value
+    simpleTextElement(s, 
+                      VARIABLE_VALUE_TAG(), 
+                      value.valueToString().c_str());
+    
+    endTag(s, ASSIGNMENT_TAG());
+  }
+
+  /**
+   * @brief Format the message representing a new plan.
+   * @param s The stream to write the XML to.
+   * @param plan The XML DOM representation of the new plan.
+   */
+  void LuvFormat::formatPlan(std::ostream& s, 
+                             pugi::xml_node const plan) {
+    // create a PLEXIL Plan wrapper and stick the plan in it
+    simpleStartTag(s, PLEXIL_PLAN_TAG());
+    plan.print(s, "", PUGI_FORMAT_OPTIONS());
+    endTag(s, PLEXIL_PLAN_TAG());
   }
 
   /**
@@ -119,7 +225,7 @@ namespace PLEXIL {
   {
     // create a PLEXIL Library wrapper and stick the library node in it
     simpleStartTag(s, PLEXIL_LIBRARY_TAG());
-    libNode.print(s, "", pugi::format_raw);
+    libNode.print(s, "", PUGI_FORMAT_OPTIONS());
     endTag(s, PLEXIL_LIBRARY_TAG());
   }
 

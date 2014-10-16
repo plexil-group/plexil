@@ -109,8 +109,7 @@ namespace PLEXIL {
     /**
      * @brief Construct the message representing a new plan.
      * @param s The stream to write the XML to.
-     * @param plan The intermediate representation of the new plan.
-     * @param parent The node ID of the parent (currently ignored).
+     * @param plan The XML DOM representation of the new plan.
      */
     static void formatPlan(std::ostream &s,
                            pugi::xml_node const plan);
