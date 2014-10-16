@@ -341,8 +341,8 @@ namespace PLEXIL {
     bool isActionCompleteConditionActive()            { return m_conditions[actionCompleteIdx]->isActive(); }
     bool isAbortCompleteConditionActive()             { return m_conditions[abortCompleteIdx]->isActive(); }
 
-    // Should only be used by LuvListener.
-    Expression *getCondition(const std::string& name);
+    // Used internally, also by LuvListener. Non-const variant is protected.
+    Expression const *getCondition(size_t idx) const;
 
     // NodeFactory::createNode for the module test needs this to be public.
     void activateInternalVariables();
@@ -404,7 +404,6 @@ namespace PLEXIL {
 
     // Abstracts out the issue of where the condition comes from.
     Expression *getCondition(size_t idx);
-    Expression const *getCondition(size_t idx) const;
 
     void removeConditionListener(size_t idx);
 

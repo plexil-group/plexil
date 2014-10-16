@@ -484,11 +484,6 @@ namespace PLEXIL {
     }
   }
 
-  Expression *Node::getCondition(const std::string& name) 
-  {
-    return getCondition(getConditionIndex(name));
-  }
-
   // Default methods.
   std::vector<Node *>& Node::getChildren()
   {
