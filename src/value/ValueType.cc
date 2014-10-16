@@ -37,6 +37,7 @@
 #include <cerrno>
 #include <cmath>   // for HUGE_VAL
 #include <cstdlib> // for strtod(), strtol()
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <sstream>
