@@ -39,7 +39,6 @@
 
 #include <algorithm> // for find(), transform
 #include <iterator> // for back_insert_iterator
-#include <map>
 #include <functional>
 #include <time.h>
 
@@ -52,9 +51,7 @@ namespace PLEXIL
   struct NodeConflictComparator {
     bool operator() (Node const *x, Node const *y) const
     {
-      check_error_1(x->getType() == NodeType_Assignment);
-      check_error_1(y->getType() == NodeType_Assignment);
-      return (x->getPriority() < y->getPriority() ? true : false);
+      return (x->getPriority() < y->getPriority());
     }
   };
 
@@ -243,47 +240,29 @@ namespace PLEXIL
   {
     Assignable *lhs = node->getAssignmentVariable();
     assertTrue_1(lhs && lhs->isAssignable());
-    Assignable const *exp = lhs->asAssignable();
+    Assignable *exp = lhs->asAssignable();
     assertTrue_1(exp != NULL);
     exp = exp->getBaseVariable();
     assertTrue_1(exp != NULL);
 
     VariableConflictMap::iterator conflict = m_resourceConflicts.find(exp);
     if (conflict == m_resourceConflicts.end())
-      return;
+      return; // variable not in conflict map
 
     // Remove node from the conflict set.
-    // If there are multiple nodes with the same priority, find() may not point us at the one we want
-    VariableConflictSet& conflictSet = conflict->second;
-    VariableConflictSet::iterator conflictIt = conflictSet.find(node);
-    if (conflictIt == conflictSet.end())
-      return; // already removed
+    conflict->second.remove(node);
 
-    if ((*conflictIt) != node) {
-      bool found = false;
-      ++conflictIt;
-      while (conflictIt != conflictSet.end()
-             && (*conflictIt)->getPriority() == node->getPriority()) {
-        if (*conflictIt == node) {
-          found = true;
-          break;
-        }
-      }
-      if (!found)
-        return;
-    }
-    // Found it, delete it
-    conflictSet.erase(conflictIt);
-
+    // If deleted node was only one, remove entry from map.
     if (conflict->second.empty())
       m_resourceConflicts.erase(exp);
   }
 
   // Assumes node is a valid ID and points to an Assignment node whose next state is EXECUTING
-  void PlexilExec::addToResourceContention(Node *node) {
+  void PlexilExec::addToResourceContention(Node *node)
+  {
     Assignable *lhs = node->getAssignmentVariable();
     assertTrue_1(lhs && lhs->isAssignable());
-    Assignable const *exp = lhs->asAssignable();
+    Assignable *exp = lhs->asAssignable();
     assertTrue_1(exp != NULL);
     exp = exp->getBaseVariable();
     assertTrue_1(exp != NULL);
@@ -291,35 +270,15 @@ namespace PLEXIL
     debugMsg("PlexilExec:addToResourceContention",
              "Adding node '" << node->getNodeId() << "' to resource contention.");
     VariableConflictMap::iterator resourceIt = m_resourceConflicts.find(exp);
-    if (resourceIt == m_resourceConflicts.end()) {
-      // No conflict set for this variable, so create one with this node
-      std::pair<VariableConflictMap::iterator, bool> insertResult =
-        m_resourceConflicts.insert(std::make_pair(exp, VariableConflictSet()));
-      insertResult.first->second.insert(node);
+    if (resourceIt != m_resourceConflicts.end()) {
+      resourceIt->second.push(node);
       return;
     }
 
-    VariableConflictSet& conflictSet = resourceIt->second;
-
-    // Check to prevent redundant insertion
-    VariableConflictSet::iterator conflictSetIter;
-    if ((conflictSetIter = conflictSet.find(node)) != conflictSet.end()) {
-      // Check only nodes with the same priority
-      size_t count = conflictSet.count(node);
-      debugMsg("PlexilExec:addToResourceContention",
-               "There are " << count << " similar items in the set.");
-      for (size_t i = 0; i < count; ++i, ++conflictSetIter) {
-        if (node == *conflictSetIter) {
-          debugMsg("PlexilExec:addToResourceContention",
-                   "Skipping node '" << node->getNodeId() <<
-                   "' because it's already in the set.");
-          return;
-        }
-      }
-    }
-
-    // OK to insert
-    conflictSet.insert(node);
+    // No conflict set for this variable, so create one with this node
+    std::pair<VariableConflictMap::iterator, bool> insertResult =
+      m_resourceConflicts.insert(std::make_pair(exp, VariableConflictSet()));
+    insertResult.first->second.push(node);
   }
 
   void PlexilExec::step(double startTime) 
@@ -452,14 +411,12 @@ namespace PLEXIL
    * @brief Resolve conflicts for this variable.
    * @note Subroutine of resolveResourceConflicts() above.
    */
-  void PlexilExec::resolveVariableConflicts(Assignable const *var,
-                                            const VariableConflictSet& conflictSet)
+  void PlexilExec::resolveVariableConflicts(Assignable *var, VariableConflictSet &conflictSet)
   {
     checkError(!conflictSet.empty(),
                "Resource conflict set for " << var->toString() << " is empty.");
 
     // Ignore any variables pending retraction
-    // Grumble... Why doesnt std:;vector<T> have a find() member fn?
     for (std::vector<Assignable *>::const_iterator vit = m_variablesToRetract.begin();
          vit != m_variablesToRetract.end();
          ++vit) {
@@ -474,14 +431,15 @@ namespace PLEXIL
     //we only have to look at all the nodes with the highest priority
     Node *nodeToExecute = NULL;
     NodeState destState = NO_NODE_STATE;
-    VariableConflictSet::const_iterator conflictIt = conflictSet.begin(); 
-    size_t count = conflictSet.count(*conflictIt); // # of nodes with same priority as top
+    size_t count = conflictSet.front_count(); // # of nodes with same priority as top
     if (count == 1) {
       // Usual case (we hope) - make it simple
-      nodeToExecute = *conflictIt;
+      nodeToExecute = conflictSet.front();
       destState = nodeToExecute->getNextState();
     }
+
     else {
+      VariableConflictSet::iterator conflictIt = conflictSet.begin(); 
       // Look at the destination states of all the nodes with equal priority
       for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
         Node *node = *conflictIt;

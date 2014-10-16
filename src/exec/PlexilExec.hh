@@ -28,11 +28,11 @@
 #define _H_PlexilExec
 
 #include "ExecConnector.hh"
+#include "VariableConflictSet.hh"
 
 #include <list>
 #include <map>
 #include <queue>
-#include <set>
 
 namespace PLEXIL 
 {
@@ -135,10 +135,6 @@ namespace PLEXIL
     PlexilExec(PlexilExec const &);
     PlexilExec &operator=(PlexilExec const &);
 
-    // Private types
-    typedef std::multiset<Node *, NodeConflictComparator> VariableConflictSet;
-    typedef std::map<Assignable const *, VariableConflictSet> VariableConflictMap;
-
     /**
      * @brief Resolve conflicts among potentially executing assignment variables.
      */
@@ -147,8 +143,7 @@ namespace PLEXIL
     /**
      * @brief Resolve conflicts for this variable.
      */
-    void resolveVariableConflicts(Assignable const *var,
-                                  const VariableConflictSet& conflictSet);
+    void resolveVariableConflicts(Assignable *var, VariableConflictSet &conflictSet);
 
     /**
      * @brief Adds a node to consideration for resource contention.  The node must be an assignment node and it must be eligible to transition to EXECUTING.
@@ -172,6 +167,8 @@ namespace PLEXIL
      * @brief Batch-perform internal assignments queued up from a quiescence step.
      */
     void performAssignments();
+
+    typedef std::map<Assignable *, VariableConflictSet> VariableConflictMap;
 
     ExecListenerBase *m_listener;
     std::list<Node *> m_plan; /*<! The root of the plan.*/

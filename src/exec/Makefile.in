@@ -165,7 +165,9 @@ am_libPlexilExec_la_OBJECTS = libPlexilExec_la-Assignment.lo \
 	libPlexilExec_la-NodeVariables.lo \
 	libPlexilExec_la-PlexilExec.lo \
 	libPlexilExec_la-PlexilNodeType.lo \
-	libPlexilExec_la-UpdateNode.lo libPlexilExec_la-plan-utils.lo
+	libPlexilExec_la-UpdateNode.lo \
+	libPlexilExec_la-VariableConflictSet.lo \
+	libPlexilExec_la-plan-utils.lo
 libPlexilExec_la_OBJECTS = $(am_libPlexilExec_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -384,12 +386,13 @@ include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecListenerBase.hh InterfaceSchema.hh \
  LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh NodeTimepointValue.hh \
  NodeVariables.hh PlexilExec.hh PlexilNodeType.hh \
- UpdateNode.hh plan-utils.hh
+ UpdateNode.hh VariableConflictSet.hh plan-utils.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  ExecConnector.cc InterfaceSchema.cc LibraryCallNode.cc \
  ListNode.cc Node.cc NodeFactory.cc NodeTimepointValue.cc NodeVariables.cc \
- PlexilExec.cc PlexilNodeType.cc UpdateNode.cc plan-utils.cc
+ PlexilExec.cc PlexilNodeType.cc UpdateNode.cc VariableConflictSet.cc \
+ plan-utils.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = $(am__append_1)
 @MODULE_TESTS_OPT_TRUE@test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
@@ -556,6 +559,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-PlexilExec.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-PlexilNodeType.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-UpdateNode.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-VariableConflictSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilExec_la-plan-utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_exec_module_tests-exec-test-module.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_exec_module_tests-module-tests.Po@am__quote@
@@ -681,6 +685,13 @@ libPlexilExec_la-UpdateNode.lo: UpdateNode.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='UpdateNode.cc' object='libPlexilExec_la-UpdateNode.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-UpdateNode.lo `test -f 'UpdateNode.cc' || echo '$(srcdir)/'`UpdateNode.cc
+
+libPlexilExec_la-VariableConflictSet.lo: VariableConflictSet.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-VariableConflictSet.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-VariableConflictSet.Tpo -c -o libPlexilExec_la-VariableConflictSet.lo `test -f 'VariableConflictSet.cc' || echo '$(srcdir)/'`VariableConflictSet.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilExec_la-VariableConflictSet.Tpo $(DEPDIR)/libPlexilExec_la-VariableConflictSet.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='VariableConflictSet.cc' object='libPlexilExec_la-VariableConflictSet.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExec_la-VariableConflictSet.lo `test -f 'VariableConflictSet.cc' || echo '$(srcdir)/'`VariableConflictSet.cc
 
 libPlexilExec_la-plan-utils.lo: plan-utils.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExec_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilExec_la-plan-utils.lo -MD -MP -MF $(DEPDIR)/libPlexilExec_la-plan-utils.Tpo -c -o libPlexilExec_la-plan-utils.lo `test -f 'plan-utils.cc' || echo '$(srcdir)/'`plan-utils.cc
