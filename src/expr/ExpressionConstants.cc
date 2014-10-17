@@ -55,7 +55,7 @@ namespace PLEXIL
 
   Expression *INT_ZERO_EXP()
   {
-    static IntegerConstant sl_int_zero(0);
+    static IntegerConstant sl_int_zero((int32_t) 0);
     return &sl_int_zero;
   }
 
