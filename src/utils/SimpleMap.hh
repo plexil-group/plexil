@@ -107,7 +107,7 @@ namespace PLEXIL
         std::lower_bound(m_vector.begin(), m_vector.end(), index, COMPARATOR());
       if (it != m_vector.end() && it->first == index)
         return false; // duplicate
-      m_vector.insert(it, MapEntry(index, val));
+      this->insertEntry(it, index, val);
       return true;
     }
 
@@ -116,7 +116,7 @@ namespace PLEXIL
       typename MapVector::iterator it = 
         std::lower_bound(m_vector.begin(), m_vector.end(), index, COMPARATOR());
       if (it == m_vector.end() || it->first != index)
-        it = m_vector.insert(it, MapEntry(index, VALUE_TYPE()));
+        it = this->insertEntry(it, index, VALUE_TYPE());
       return it->second;
     }
 
@@ -177,7 +177,7 @@ namespace PLEXIL
       return m_vector.end();
     }
 
-    void clear()
+    virtual void clear()
     {
       m_vector.clear();
     }
@@ -192,12 +192,25 @@ namespace PLEXIL
       return m_vector.size();
     }
 
+  protected:
+
+    //
+    // Extension API provided for implementors of derived classes
+    //
+
+    // Returns iterator to the new entry
+    virtual iterator insertEntry(iterator it, KEY_TYPE const &k, VALUE_TYPE const &v)
+    {
+      return m_vector.insert(it, MapEntry(k, v));
+    }
+    
+    MapVector m_vector;
+
   private:
     // Not implemented
     SimpleMap(SimpleMap const &);
     SimpleMap &operator=(SimpleMap const &);
 
-    MapVector m_vector;
   };
 
 } // namespace PLEXIL
