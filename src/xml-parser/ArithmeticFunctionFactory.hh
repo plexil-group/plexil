@@ -94,7 +94,7 @@ namespace PLEXIL
         checkParserException(false,
                              "createExpression: invalid or unimplemented type "
                              << valueTypeName(type)
-                             << " for operator " << this->getName());
+                             << " for operator " << this->m_name);
         return NULL;
       }
     }

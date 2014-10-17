@@ -57,15 +57,14 @@ namespace PLEXIL
                                  NodeConnector *node,
                                  bool & wasCreated) const = 0;
 
-    const std::string& getName() const; // needed?
-
   private:
     // Default, copy, assign all prohibited
     ExpressionFactory();
     ExpressionFactory(const ExpressionFactory &);
     ExpressionFactory &operator=(const ExpressionFactory &);
 
-    const std::string m_name; /*!< Name used for lookup */
+  protected:
+    const std::string m_name; /*!< Name used for lookup and error reporting */
   };
 
   /**

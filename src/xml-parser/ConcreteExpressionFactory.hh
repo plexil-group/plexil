@@ -81,9 +81,6 @@ namespace PLEXIL
                          NodeConnector *node,
                          bool &wasCreated) const;
 
-  protected:
-    Expression *create(pugi::xml_node const expr) const;
-
   private:
     // Default, copy, assign all prohibited
     ConcreteExpressionFactory();

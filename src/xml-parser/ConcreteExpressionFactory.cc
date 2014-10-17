@@ -29,6 +29,7 @@
 #include "ArrayReference.hh"
 #include "ArrayVariable.hh"
 #include "Constant.hh"
+#include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
 #include "NodeConnector.hh"
@@ -53,30 +54,22 @@ namespace PLEXIL
   // Factories for scalar constants
   //
 
-  // N.B. For all but string types, the value string may not be empty.
+  // General case. For all but string types, the value string may not be empty.
   template <typename T>
   Expression *ConcreteExpressionFactory<Constant<T> >::allocate(pugi::xml_node const expr,
                                                                 NodeConnector * /* node */,
                                                                 bool &wasCreated) const
   {
-    // confirm that we have a value element
-    checkTagSuffix(VAL_SUFFIX, expr);
-
-    // establish value type
-    const char* tag = expr.name();
-    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_SUFFIX));
-    checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+    checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
                                      expr,
-                                     "Unrecognized value type \"" << tag << "\"");
-
-    // check for empty value
-    if (typ != STRING_TYPE)
-      checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
-                                       expr,
-                                       "Empty value is not valid for \"" << tag << "\"");
+                                     "Empty value is not valid for \"" << expr.name() << "\"");
 
     wasCreated = true;
-    return this->create(expr);
+    T value;
+    if (parseValue(expr.child_value(), value))
+      return new Constant<T>(value);
+    else 
+      return new Constant<T>();
   }
 
   // Since there are exactly 3 possible Boolean constants, return references to them.
@@ -85,20 +78,9 @@ namespace PLEXIL
                                                                    NodeConnector * /* node */,
                                                                    bool &wasCreated) const
   {
-    // confirm that we have a value element
-    checkTagSuffix(VAL_SUFFIX, expr);
-
-    // establish value type
-    const char* tag = expr.name();
-    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_SUFFIX));
-    checkParserExceptionWithLocation(typ == BOOLEAN_TYPE,
-                                     expr,
-                                     "Internal error: Boolean constant factory invoked on \"" << tag << "\"");
-
-    // check for empty value
     checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
                                      expr,
-                                     "Empty value is not valid for \"" << tag << "\"");
+                                     "Empty value is not valid for \"" << expr.name() << "\"");
 
     bool value;
     bool known = parseValue(expr.child_value(), value);
@@ -112,28 +94,52 @@ namespace PLEXIL
       return FALSE_EXP();
   }
 
-  template <typename T>
-  Expression *ConcreteExpressionFactory<Constant<T> >::create(pugi::xml_node const tmpl) const
-  {
-    T value;
-    bool known = parseValue<T>(tmpl.child_value(), value);
-    if (known)
-      return new Constant<T>(value);
-    else
-      return new Constant<T>();
-  }
-  
-  // String is different
-
+  // Look for common Integer values, e.g. 1, 0, -1
   template <>
-  Expression *ConcreteExpressionFactory<Constant<std::string> >::create(pugi::xml_node const tmpl) const
+  Expression *ConcreteExpressionFactory<Constant<int32_t> >::allocate(pugi::xml_node const expr,
+                                                                      NodeConnector * /* node */,
+                                                                      bool &wasCreated) const
   {
-    const char* tag = tmpl.name();
-    checkParserExceptionWithLocation(STRING_TYPE == parseValueTypePrefix(tag, strlen(tag) - strlen(VAL_SUFFIX)),
-                                     tmpl,
-                                     "Internal error: Constant expression is not a String");
+    // check for empty value
+    checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
+                                     expr,
+                                     "Empty value is not valid for \"" << expr.name() << "\"");
 
-    return new Constant<std::string>(tmpl.child_value());
+    int32_t value;
+    if (!parseValue<int32_t>(expr.child_value(), value)) {
+      // Unknown
+      wasCreated = true;
+      return new Constant<int32_t>();
+    }
+
+    // Known
+    switch (value) {
+    case 1:
+      wasCreated = false;
+      return INT_ONE_EXP();
+
+    case 0:
+      wasCreated = false;
+      return INT_ZERO_EXP();
+
+    case -1:
+      wasCreated = false;
+      return INT_MINUS_ONE_EXP();
+
+    default:
+      wasCreated = true;
+      return new Constant<int32_t>(value);
+    }
+  }
+
+  // String can be empty, don't care about contents
+  template <>
+  Expression *ConcreteExpressionFactory<Constant<std::string> >::allocate(pugi::xml_node const expr,
+                                                                          NodeConnector * /* node */,
+                                                                          bool &wasCreated) const
+  {
+    wasCreated = true;
+    return new Constant<std::string>(expr.child_value());
   }
 
   //
@@ -147,7 +153,6 @@ namespace PLEXIL
                                                         bool &wasCreated) const
   {
     // Variable reference - look it up
-    checkTagSuffix(VAR_SUFFIX, expr);
     checkNotEmpty(expr);
     const char* tag = expr.name();
     ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAR_SUFFIX));

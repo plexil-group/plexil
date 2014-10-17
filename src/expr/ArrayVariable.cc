@@ -65,7 +65,7 @@ namespace PLEXIL
 
   template <typename T>
   ArrayVariable<T>::ArrayVariable(NodeConnector *node,
-                                  const std::string &name,
+                                  char const *name,
                                   Expression *size,
                                   bool sizeIsGarbage)
     : NotifierImpl(),

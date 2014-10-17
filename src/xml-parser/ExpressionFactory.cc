@@ -95,11 +95,6 @@ namespace PLEXIL
   {
   }
 
-  const std::string& ExpressionFactory::getName() const
-  {
-    return m_name;
-  }
-
   Expression *createExpression(pugi::xml_node const expr,
                                NodeConnector *node)
     throw (ParserException)
@@ -113,10 +108,8 @@ namespace PLEXIL
                                bool& wasCreated)
     throw (ParserException)
   {
-    checkParserExceptionWithLocation(expr.type() == pugi::node_element,
-                                     expr,
-                                     "createExpression: argument is not an XML element");
     char const *name = expr.name();
+    checkParserException(*name, "createExpression: Not an XML element");
     // Delegate to factory
     debugMsg("createExpression", " name = " << name);
     ExpressionFactoryMap::const_iterator it = s_expressionFactoryMap.find(name);
@@ -137,23 +130,26 @@ namespace PLEXIL
                                bool& wasCreated)
     throw (ParserException)
   {
-    checkParserExceptionWithLocation(expr.type() == pugi::node_element,
-                                     expr,
-                                     "Not an XML element");
     assertTrue_2(node, "createAssignable: Internal error: Null node argument");
+    char const *name = expr.name();
+    checkParserException(*name, "createAssignable: Not an XML element");
     Expression *resultExpr = NULL;
-    if (testTagSuffix(VAR_SUFFIX, expr))
+    if (testSuffix(VAR_SUFFIX, name))
       resultExpr = createExpression(expr, node, wasCreated);
-    else if (testTag(ARRAYELEMENT_TAG, expr))
+    else if (!strcmp(ARRAYELEMENT_TAG, name))
       resultExpr = createMutableArrayReference(expr, node, wasCreated);
     else
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        expr,
                                        "Invalid Assignment or InOut alias target");
-    assertTrue_2(resultExpr, "createAssignable: Internal error: Null expression")
-    checkParserExceptionWithLocation(resultExpr->isAssignable(),
-                                     expr,
-                                     "Expression is not assignable");
+    assertTrue_2(resultExpr, "createAssignable: Internal error: Null expression");
+    if (!resultExpr->isAssignable()) {
+      if (wasCreated)
+        delete resultExpr;
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       expr,
+                                       "Expression is not assignable");
+    }
     return resultExpr->asAssignable();
   }
 

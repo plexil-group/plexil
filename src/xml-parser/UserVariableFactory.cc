@@ -52,11 +52,12 @@ namespace PLEXIL
                                             bool &wasCreated) const
     throw(ParserException)
   {
-    checkHasChildElement(expr);
     pugi::xml_node nameElt = expr.first_child();
     checkTag(NAME_TAG, nameElt);
-    checkNotEmpty(nameElt);
-    std::string const name(nameElt.child_value());
+    char const *name = nameElt.child_value();
+    checkParserExceptionWithLocation(*name,
+                                     nameElt,
+                                     "createExpression: DeclareVariable with empty or malformed Name element");
 
     pugi::xml_node typeElt = nameElt.next_sibling();
     checkParserExceptionWithLocation(typeElt,

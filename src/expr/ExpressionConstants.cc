@@ -47,5 +47,23 @@ namespace PLEXIL
     return &sl_unknown;
   }
 
+  Expression *INT_ONE_EXP()
+  {
+    static IntegerConstant sl_int_one(1);
+    return &sl_int_one;
+  }
+
+  Expression *INT_ZERO_EXP()
+  {
+    static IntegerConstant sl_int_zero(0);
+    return &sl_int_zero;
+  }
+
+  Expression *INT_MINUS_ONE_EXP()
+  {
+    static IntegerConstant sl_int_minus_one(-1);
+    return &sl_int_minus_one;
+  }
+
 } // namespace PLEXIL
 

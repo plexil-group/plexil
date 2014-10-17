@@ -386,7 +386,7 @@ namespace PLEXIL {
      */
     void finalizeConditions();
 
-    static ConditionIndex getConditionIndex(const std::string& cName);
+    static ConditionIndex getConditionIndex(char const *cName);
     static const std::string& getConditionName(size_t idx);
 
   protected:

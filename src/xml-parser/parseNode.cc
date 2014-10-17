@@ -58,7 +58,6 @@ namespace PLEXIL
 
   static char const *getVarDeclName(xml_node const decl)
   {
-    checkHasChildElement(decl);
     xml_node nameXml = decl.first_child();
     checkTag(NAME_TAG, nameXml);
     char const *name = nameXml.child_value();
@@ -70,12 +69,10 @@ namespace PLEXIL
 
   static void parseVariableDeclarations(Node *node, xml_node const decls)
   {
-    // First pass: check and count the declarations
+    // First pass: just count the declarations
     size_t n = 0;
-    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
-      checkHasChildElement(decl);
+    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling())
       ++n;
-    }
     node->growVariableMap(n);
     for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
       // Variables are always created here, no need for "garbage" flag.
@@ -159,6 +156,7 @@ namespace PLEXIL
         xml_node decl = elt.first_child();
         while (decl) {
           checkInDecl(node, decl, isCall);
+          ++n;
           decl = decl.next_sibling();
         }
       }
@@ -166,6 +164,7 @@ namespace PLEXIL
         xml_node decl = elt.first_child();
         while (decl) {
           checkInOutDecl(node, decl, isCall);
+          ++n;
           decl = decl.next_sibling();
         }
       }
@@ -245,10 +244,10 @@ namespace PLEXIL
     xml_node body;
 
     for (xml_node temp = xml.first_child(); temp; temp = temp.next_sibling()) {
-      checkParserExceptionWithLocation(temp.type() == node_element,
-                                       temp,
-                                       "Non-element found at top level of node");
       char const *tag = temp.name();
+      checkParserExceptionWithLocation(*tag,
+                                       xml,
+                                       "Non-element found at top level of node");
       debugMsg("parseNode", " parsing element " << tag);
       switch (strlen(tag)) {
       case 6: // NodeId
@@ -368,7 +367,6 @@ namespace PLEXIL
       checkParserExceptionWithLocation(nodeType != NodeType_Empty,
                                        body,
                                        "Empty Node \"" << name << "\" may not have a NodeBody element");
-      checkHasChildElement(body);
       body = body.first_child(); // strip away NodeBody wrapper
     }
     else
@@ -676,130 +674,96 @@ namespace PLEXIL
   {
     debugMsg("finalizeNode", " node " << node->getNodeId());
 
-    // Where to put the things we parse on the second pass
-    xml_node iface;
-    xml_node body;
-    std::vector<xml_node> conditions;
-
-    for (xml_node temp = xml.first_child(); temp; temp = temp.next_sibling()) {
-      char const *tag = temp.name();
-      size_t taglen = strlen(tag);
-
-      debugMsg("finalizeNode",
-               " node " << node->getNodeId() << ": processing tag " << tag);
-      switch (taglen) {
-      case 8: // NodeBody, Priority
-        if (0 == strcmp(BODY_TAG, tag))
-          body = temp.first_child(); // strip off <NodeBody> element
-        break;
-
-      case 9: // Interface
-        iface = temp;
-        break;
-
-      case 12: // EndCondition, PreCondition
-      case 13: // ExitCondition, PostCondition, SkipCondition
-      case 14: // StartCondition
-      case 15: // RepeatCondition
-      case 18: // InvariantCondition
-        conditions.push_back(temp);
-        break;
-
-      case 20: // VariableDeclarations
-        // It is only here after all child nodes and node bodies have been constructed
-        // that all variables which could be referenced are accessible.
-        for (xml_node decl = temp.first_child();
-             decl;
-             decl = decl.next_sibling()) 
-          parseVariableInitializer(node, decl);
-        break;
-
-      case 6: // NodeId
-      case 7: // Comment
-      default:
-        break;
-      }
+    // Process variable declarations, if any
+    xml_node temp = xml.child(VAR_DECLS_TAG);
+    if (temp) {
+      debugMsg("finalizeNode", " constructing variable initializers");
+      for (xml_node decl = temp.first_child();
+           decl;
+           decl = decl.next_sibling()) 
+        parseVariableInitializer(node, decl);
     }
 
-    // Link aliases and construct interface default initializers
-    if (iface) {
-      debugMsg("finalizeNode", " linking interface variables of " << node->getNodeId());
-      linkAndInitializeInterfaceVars(node, iface);
+    // Interface, if any
+    temp = xml.child(INTERFACE_TAG);
+    if (temp) {
+      debugMsg("finalizeNode", " linking interface variables");
+      linkAndInitializeInterfaceVars(node, temp);
     }
 
-    // Instantiate user conditions
-    for (std::vector<xml_node>::const_iterator it = conditions.begin();
-         it != conditions.end();
-         ++it) {
-      xml_node elt = *it;
-      checkHasChildElement(elt);
-      // Check that condition name is valid, get index
-      Node::ConditionIndex which = Node::getConditionIndex(std::string(elt.name()));
-      checkParserExceptionWithLocation(which >= Node::skipIdx && which <= Node::repeatIdx,
-                                       elt,
-                                       "Node " << node->getNodeId()
-                                       << ": Illegal condition name \"" << elt.name() << "\"");
-      bool garbage;
-      Expression *cond = createExpression(elt.first_child(), node, garbage);
-      ValueType condType = cond->valueType();
-      if (condType != BOOLEAN_TYPE && condType != UNKNOWN_TYPE) {
-        if (garbage)
-          delete cond;
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         elt.first_child(),
-                                         "Node " << node->getNodeId() << ": Expression for "
-                                         << elt.name() << " is not Boolean");
+    // Process conditions
+    for (xml_node elt = xml.first_child(); elt; elt = elt.next_sibling()) {
+      char const *tag = elt.name();
+      if (testSuffix(CONDITION_SUFFIX, tag)) {
+        debugMsg("finalizeNode", " processing condition " << tag);
+        // Check that condition name is valid, get index
+        Node::ConditionIndex which = Node::getConditionIndex(tag);
+        assertTrueMsg(which >= Node::skipIdx && which <= Node::repeatIdx,
+                      "Internal error: Invalid condition name \"" << tag << "\"");
+        bool garbage;
+        Expression *cond = createExpression(elt.first_child(), node, garbage);
+        ValueType condType = cond->valueType();
+        if (condType != BOOLEAN_TYPE && condType != UNKNOWN_TYPE) {
+          if (garbage)
+            delete cond;
+          checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                           elt.first_child(),
+                                           "Node " << node->getNodeId() << ": "
+                                           << tag << " expression is not Boolean");
+        }
+        node->addUserCondition(which, cond, garbage);
       }
-      node->addUserCondition(which, cond, garbage);
     }
 
     // finalize conditions
     node->finalizeConditions();
 
-    // finalize node bodies
-    switch (node->getType()) {
-    case NodeType_Assignment:
-      finalizeAssignment(node, body);
-      break;
+    temp = xml.child(BODY_TAG);
+    if (temp) {
+      temp = temp.first_child();
+      debugMsg("finalizeNode", " processing node body");
 
-    case NodeType_Command: {
-      CommandNode *cnode = dynamic_cast<CommandNode *>(node);
-      assertTrue_2(cnode, "Node is not a CommandNode");
-      finalizeCommand(cnode->getCommand(), node, body);
-    }
-      break;
+      // finalize node bodies
+      switch (node->getType()) {
+      case NodeType_Assignment:
+        finalizeAssignment(node, temp);
+        break;
 
-    case NodeType_LibraryNodeCall:
-      finalizeLibraryCall(node, body);
-      break;
+      case NodeType_Command: {
+        CommandNode *cnode = dynamic_cast<CommandNode *>(node);
+        assertTrue_2(cnode, "Node is not a CommandNode");
+        finalizeCommand(cnode->getCommand(), node, temp);
+      }
+        break;
 
-    case NodeType_NodeList: {
-      std::vector<Node *> &kids = node->getChildren();
-      std::vector<Node *>::iterator kid = kids.begin();
-      xml_node kidXml = body.first_child();
-      while (kid != kids.end() && kidXml) {
-        finalizeNode(*kid, kidXml);
-        ++kid;
-        kidXml = kidXml.next_sibling();
+      case NodeType_LibraryNodeCall:
+        finalizeLibraryCall(node, temp);
+        break;
+
+      case NodeType_NodeList: {
+        std::vector<Node *> &kids = node->getChildren();
+        std::vector<Node *>::iterator kid = kids.begin();
+        xml_node kidXml = temp.first_child();
+        while (kid != kids.end() && kidXml) {
+          finalizeNode(*kid, kidXml);
+          ++kid;
+          kidXml = kidXml.next_sibling();
+        }
+      }
+        break;
+
+      case NodeType_Update: {
+        UpdateNode *unode = dynamic_cast<UpdateNode *>(node);
+        assertTrue_2(unode, "Not an UpdateNode");
+        finalizeUpdate(unode->getUpdate(), node, temp);
+      }
+        break;
+
+      default:
+        break;
       }
     }
-      break;
-
-    case NodeType_Update: {
-      UpdateNode *unode = dynamic_cast<UpdateNode *>(node);
-      assertTrue_2(unode, "Not an UpdateNode");
-      finalizeUpdate(unode->getUpdate(), node, body);
-    }
-      break;
-
-    case NodeType_Empty:
-      // nothing to do
-      break;
-
-    default:
-      assertTrue_2(ALWAYS_FAIL, "Bad NodeType");
-      break;
-    }
+    debugMsg("finalizeNode", " for " << node->getNodeId() << " complete.");
   }
 
 } // namespace PLEXIL

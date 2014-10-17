@@ -31,9 +31,15 @@ namespace PLEXIL
 {
   class Expression;
 
+  // Boolean
   extern Expression *FALSE_EXP();
   extern Expression *TRUE_EXP();
   extern Expression *UNKNOWN_BOOLEAN_EXP();
+
+  // Integer
+  extern Expression *INT_ONE_EXP();
+  extern Expression *INT_ZERO_EXP();
+  extern Expression *INT_MINUS_ONE_EXP();
 
   // more as required
 } // namespace PLEXIL

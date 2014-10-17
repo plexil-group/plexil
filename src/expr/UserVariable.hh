@@ -65,7 +65,7 @@ namespace PLEXIL {
      * @param name The name of this variable in the parent node.
      */
     UserVariable(NodeConnector *node,
-                 const std::string &name = "");
+                 char const *name = "");
     
     /**
      * @brief Destructor.
@@ -179,7 +179,7 @@ namespace PLEXIL {
      * @param name The name of this variable in the parent node.
      */
     UserVariable(NodeConnector *node,
-                 const std::string &name = "");
+                 char const *name = "");
     
     /**
      * @brief Destructor.

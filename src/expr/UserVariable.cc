@@ -102,7 +102,7 @@ namespace PLEXIL {
 
   template <typename T>
   UserVariable<T>::UserVariable(NodeConnector *node,
-                                const std::string &name)
+                                char const *name)
     : NotifierImpl(),
       ExpressionImpl<T>(),
     AssignableImpl<T>(),
@@ -116,7 +116,7 @@ namespace PLEXIL {
   }
 
   UserVariable<std::string>::UserVariable(NodeConnector *node,
-                                          const std::string &name)
+                                          char const *name)
     : NotifierImpl(),
       ExpressionImpl<std::string>(),
     AssignableImpl<std::string>(),

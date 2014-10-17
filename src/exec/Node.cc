@@ -103,15 +103,13 @@ namespace PLEXIL {
     s_allConditions = NULL;
   }
 
-  Node::ConditionIndex Node::getConditionIndex(const std::string& cName)
+  Node::ConditionIndex Node::getConditionIndex(char const *cName)
   {
     const std::vector<std::string>& allConds = ALL_CONDITIONS();
     for (size_t i = 0; i < conditionIndexMax; ++i)
       if (allConds[i] == cName)
         return (ConditionIndex) i;
-    assertTrueMsg(ALWAYS_FAIL,
-                  cName << " is not a valid condition name");
-    return conditionIndexMax; // make compiler happy
+    return conditionIndexMax;
   }
 
   const std::string& Node::getConditionName(size_t idx)

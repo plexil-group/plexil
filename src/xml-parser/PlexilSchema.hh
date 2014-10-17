@@ -58,6 +58,7 @@ namespace PLEXIL
   extern char const *NODELIST_TAG;
 
   // condition names
+  extern char const *CONDITION_SUFFIX;
   extern char const *START_CONDITION_TAG;
   extern char const *REPEAT_CONDITION_TAG;
   extern char const *PRE_CONDITION_TAG;

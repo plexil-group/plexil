@@ -43,41 +43,39 @@ namespace PLEXIL
 
   bool testPrefix(char const *prefix, char const *str)
   {
-    return 0 == strncmp(prefix, str, strlen(prefix));
+    return str == strstr(str, prefix);
   }
 
   bool testSuffix(char const* suffix, char const *str)
   {
-    size_t const valueLen = strlen(str);
-    size_t const suffixLen = strlen(suffix);
-    int offset = valueLen - suffixLen;
-    if (offset < 0)
+    char const *tail = strstr(str, suffix);
+    if (!tail)
       return false;
-    return 0 == strncmp(suffix, &(str[offset]), suffixLen);
+    return !strcmp(tail, suffix);
   }
 
+  //
+  // The following take advantage of the fact that only xml_nodes of 
+  // types node_element, node_pi and node_declaration have a non-empty name()...
+  // and by default, node_pi and node_declaration aren't loaded during the parse.
+  //
+
   bool testTag(const char* t, xml_node const e) {
-    return e.type() == node_element && 0 == strcmp(t, e.name());
+    return 0 == strcmp(t, e.name());
   }
 
   bool testTagPrefix(const char* prefix, xml_node const e)
   {
-    if (e.type() != node_element)
-      return false;
     return testPrefix(prefix, e.name());
   }
 
   bool testTagSuffix(const char* suffix, xml_node const e)
   {
-    if (e.type() != node_element)
-      return false;
     return testSuffix(suffix, e.name());
   }
 
   bool hasChildElement(xml_node const e) 
   {
-    if (!e)
-      return false;
     xml_node temp = e.first_child();
     return temp && temp.type() == node_element;
   }

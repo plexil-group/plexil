@@ -55,6 +55,7 @@ namespace PLEXIL
   char const *NODELIST_TAG = "NodeList";
 
   // condition names
+  char const *CONDITION_SUFFIX = "Condition";
   char const *START_CONDITION_TAG = "StartCondition";
   char const *REPEAT_CONDITION_TAG = "RepeatCondition";
   char const *PRE_CONDITION_TAG = "PreCondition";

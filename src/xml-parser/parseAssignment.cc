@@ -69,17 +69,13 @@ namespace PLEXIL
   void constructAssignment(Node *node, xml_node assn)
   throw (ParserException)
   {
-    checkHasChildElement(assn);
     xml_node varXml = assn.first_child();
-    // TODO: check that varXml is a variable reference or ArrayElement
     xml_node rhsXml = varXml.next_sibling();
     checkParserExceptionWithLocation(rhsXml,
                                      assn,
                                      "Assignment Node " << node->getNodeId()
-                                     << ": Assignment missing value expression");
+                                     << ": Malformed Assignment element");
     checkTagSuffix(RHS_TAG, rhsXml);
-    checkHasChildElement(rhsXml);
-    rhsXml = rhsXml.first_child();
     AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);
     assertTrue_2(anode, "constructAssignment: Not an AssignmentNode");
     anode->setAssignment(new Assignment(node->getNodeId()));
@@ -96,17 +92,29 @@ namespace PLEXIL
     xml_node temp = assn.first_child();
     bool varGarbage = false;
     Assignable *var = createAssignable(temp, node, varGarbage);
-    checkParserExceptionWithLocation(var,
-                                     temp,
-                                     "Assignment Node " << node->getNodeId()
-                                     << ": Destination expression is read-only");
+    assertTrue_2(var, "finalizeAssignment: Internal error: null LHS expression");
     temp = temp.next_sibling().first_child();
     bool rhsGarbage;
-    Expression *rhs = createExpression(temp, node, rhsGarbage);
-    checkParserExceptionWithLocation(areTypesCompatible(var->valueType(), rhs->valueType()),
-                                     temp,
-                                     "Assignment Node " << node->getNodeId()
-                                     << ": Expression type mismatch with assignment variable");
+    Expression *rhs = NULL;
+    try {
+      rhs = createExpression(temp, node, rhsGarbage);
+    }
+    catch (ParserException &e) {
+      if (varGarbage)
+        delete var;
+      throw;
+    }
+    assertTrue_2(rhs, "finalizeAssignment: Internal error: null RHS expression");
+    if (!areTypesCompatible(var->valueType(), rhs->valueType())) {
+      if (varGarbage)
+        delete var;
+      if (rhsGarbage)
+        delete rhs;
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       temp,
+                                       "Assignment Node " << node->getNodeId()
+                                       << ": Expression type mismatch with assignment variable");
+    }
     assign->setVariable(var, varGarbage);
     assign->setExpression(rhs, rhsGarbage);
   }

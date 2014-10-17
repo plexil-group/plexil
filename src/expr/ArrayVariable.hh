@@ -64,7 +64,7 @@ namespace PLEXIL
      * @param name The name of this variable in the parent node.
      */
     ArrayVariable(NodeConnector *node,
-                  const std::string &name = "",
+                  char const *name = "",
                   Expression *size = NULL,
                   bool sizeIsGarbage = false);
 

@@ -55,27 +55,27 @@ namespace PLEXIL
                                             NodeConnector *node,
                                             bool &wasCreated) const
   {
-    checkHasChildElement(expr);
     pugi::xml_node nameElt = expr.first_child();
     checkTag(NAME_TAG, nameElt);
-    checkNotEmpty(nameElt);
-    std::string const name(nameElt.child_value());
+    char const *name = nameElt.child_value();
+    checkParserExceptionWithLocation(*name,
+                                     expr,
+                                     "createExpression: DeclareArray with empty or malformed Name element");
 
     pugi::xml_node typeElt = nameElt.next_sibling();
     checkParserExceptionWithLocation(typeElt,
                                      expr,
-                                     "createExpression: DeclareVariable missing Type element");
+                                     "createExpression: DeclareArray missing Type element");
     checkTag(TYPE_TAG, typeElt);
     ValueType typ = parseValueType(typeElt.child_value());
     checkParserExceptionWithLocation(isScalarType(typ),
                                      typeElt,
                                      "createExpression: Type " << typeElt.child_value()
-                                     << " is invalid for DeclareVariable");
+                                     << " is invalid for DeclareArray");
     pugi::xml_node sizeElt = typeElt.next_sibling();
     Expression *sizeExp = NULL;
     bool sizeIsGarbage = false;
     if (testTag(MAX_SIZE_TAG, sizeElt)) {
-      checkNotEmpty(sizeElt);
       char const *sizeStr = sizeElt.child_value();
       // Syntactic check
       checkParserExceptionWithLocation(isInteger(sizeStr),

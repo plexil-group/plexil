@@ -125,7 +125,7 @@ static bool integerConstantXmlParserTest()
   {
     Expression *zeroConstant = createExpression(zeroXml, nc, wasCreated);
     assertTrue_1(zeroConstant);
-    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!wasCreated);
     assertTrue_1(!zeroConstant->isAssignable());
     assertTrue_1(zeroConstant->valueType() == INTEGER_TYPE);
     assertTrue_1(zeroConstant->getValue(temp));
@@ -141,7 +141,7 @@ static bool integerConstantXmlParserTest()
   {
     Expression *oneConstant = createExpression(oneXml, nc, wasCreated);
     assertTrue_1(oneConstant);
-    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!wasCreated);
     assertTrue_1(!oneConstant->isAssignable());
     assertTrue_1(oneConstant->valueType() == INTEGER_TYPE);
     assertTrue_1(oneConstant->getValue(temp));
@@ -157,7 +157,7 @@ static bool integerConstantXmlParserTest()
   {
     Expression *minusOneConstant = createExpression(minusOneXml, nc, wasCreated);
     assertTrue_1(minusOneConstant);
-    assertTrue_1(wasCreated); // was created - may not be true in future
+    assertTrue_1(!wasCreated);
     assertTrue_1(!minusOneConstant->isAssignable());
     assertTrue_1(minusOneConstant->valueType() == INTEGER_TYPE);
     assertTrue_1(minusOneConstant->getValue(temp));
