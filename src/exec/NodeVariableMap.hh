@@ -66,6 +66,8 @@ namespace PLEXIL
 
     void setParentMap(NodeVariableMap *parentMap);
 
+    void optimizeParentMap();
+    
     virtual void clear();
 
     Expression *findVariable(char const *name);

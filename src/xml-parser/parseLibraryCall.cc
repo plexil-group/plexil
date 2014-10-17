@@ -65,25 +65,28 @@ namespace PLEXIL
                                      "Alias " << name << " has malformed value expression in LibraryNodeCall node");
   }
 
-  // *** TODO: Invalidate library node if parser error expanding call ***
   void constructLibraryCall(Node *node, xml_node callXml)
     throw (ParserException)
   {
     LibraryCallNode *callNode = dynamic_cast<LibraryCallNode *>(node);
-    assertTrue_2(callNode,
-                 "constructLibraryCall: Not a LibraryCallNode");
+    assertTrue_2(callNode, "constructLibraryCall: Not a LibraryCallNode");
     xml_node temp = callXml.first_child();
     checkTag(NODEID_TAG, temp);
     char const *name = temp.child_value();
     checkParserExceptionWithLocation(*name,
                                      temp,
                                      "Empty NodeId in LibraryNodeCall node");
-    temp = temp.next_sibling();
 
-    // Check (but don't populate) aliases
-    while (temp) {
+    // Check, preallocate, but don't populate, aliases
+    size_t nAliases = 0;
+    while ((temp = temp.next_sibling())) {
       checkAlias(callNode, temp);
-      temp = temp.next_sibling();
+      ++nAliases;
+    }
+    if (nAliases) {
+      NodeVariableMap *map = callNode->getChildVariableMap();
+      assertTrue_2(map, "Internal error: no alias map for LibraryNodeCall node");
+      map->grow(nAliases);
     }
 
     // Construct call

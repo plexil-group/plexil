@@ -192,6 +192,11 @@ namespace PLEXIL
       return m_vector.size();
     }
 
+    size_t capacity() const
+    {
+      return m_vector.capacity();
+    }
+
   protected:
 
     //

@@ -67,10 +67,7 @@ namespace PLEXIL
 
     // For plan parser
     bool addAlias(char const *name, Expression *exp, bool isGarbage);
-
-  protected:
-
-    // For initialization purposes.
+    // For parser and initialization purposes.
     virtual NodeVariableMap *getChildVariableMap();
 
   private:

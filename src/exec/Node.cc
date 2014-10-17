@@ -247,13 +247,6 @@ namespace PLEXIL {
     return NULL;
   }
 
-  void Node::growVariableMap(size_t increment)
-  {
-    if (!increment)
-      return;
-    m_variablesByName.grow(increment);
-  }
-
   bool Node::addVariable(char const *name, Expression *var)
   {
     if (m_variablesByName.find(name) != m_variablesByName.end())

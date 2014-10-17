@@ -56,6 +56,17 @@ namespace PLEXIL
   // First pass
   //
 
+  // Early first pass
+  // Preallocate symbol table space for variables
+  // Don't do any parsing, just count
+  static size_t estimateVariableSpace(xml_node const decls)
+  {
+    size_t n = 0;
+    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling())
+      ++n;
+    return n;
+  }
+
   static char const *getVarDeclName(xml_node const decl)
   {
     xml_node nameXml = decl.first_child();
@@ -69,11 +80,6 @@ namespace PLEXIL
 
   static void parseVariableDeclarations(Node *node, xml_node const decls)
   {
-    // First pass: just count the declarations
-    size_t n = 0;
-    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling())
-      ++n;
-    node->growVariableMap(n);
     for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
       // Variables are always created here, no need for "garbage" flag.
       char const *name = getVarDeclName(decl);
@@ -87,6 +93,18 @@ namespace PLEXIL
                                          << name);
       }
     }
+  }
+
+  // Early first pass
+  // Estimate symbol table space for interface variables
+  // Don't do any parsing, just count - overestimating is better than under
+  static size_t estimateInterfaceSpace(xml_node const iface)
+  {
+    size_t n = 0;
+    for (xml_node elt = iface.first_child(); elt; elt = elt.next_sibling())
+      for (xml_node decl = elt.first_child(); decl; decl = decl.next_sibling())
+        ++n;
+    return n;
   }
 
   // For Interface specs; may have other uses.
@@ -149,33 +167,22 @@ namespace PLEXIL
     // Figure out if this is a library node expansion
     Node *parent = node->getParent();
     bool isCall = (parent && parent->getType() == NodeType_LibraryNodeCall);
-    
-    size_t n = 0;
     for (xml_node elt = iface.first_child(); elt; elt = elt.next_sibling()) {
-      if (0 == strcmp(IN_TAG, elt.name())) {
-        xml_node decl = elt.first_child();
-        while (decl) {
+      char const *name = elt.name();
+      if (0 == strcmp(IN_TAG, name)) {
+        for (xml_node decl = elt.first_child(); decl; decl = decl.next_sibling())
           checkInDecl(node, decl, isCall);
-          ++n;
-          decl = decl.next_sibling();
-        }
       }
-      else if (0 == strcmp(INOUT_TAG, elt.name())) {
-        xml_node decl = elt.first_child();
-        while (decl) {
+      else if (0 == strcmp(INOUT_TAG, name)) {
+        for (xml_node decl = elt.first_child(); decl; decl = decl.next_sibling())
           checkInOutDecl(node, decl, isCall);
-          ++n;
-          decl = decl.next_sibling();
-        }
       }
       else
         checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          elt,
                                          "Node " << node->getNodeId()
-                                         << ": Illegal " << elt.name() << " element inside " << INTERFACE_TAG);
+                                         << ": Illegal " << name << " element inside " << INTERFACE_TAG);
     }
-    if (n)
-      node->growVariableMap(n);
   }
 
   void constructChildNodes(Node *node, xml_node const kidsXml)
@@ -238,6 +245,7 @@ namespace PLEXIL
 
     // Where to put the things we parse on the first pass
     char const *name = NULL;
+    size_t nVariables = 0;
     xml_node prio;
     xml_node iface;
     xml_node varDecls;
@@ -298,6 +306,7 @@ namespace PLEXIL
         checkParserExceptionWithLocation(!iface,
                                          temp, 
                                          "Duplicate " << tag << " element in Node");
+        nVariables += estimateInterfaceSpace(temp);
         iface = temp;
         break;
 
@@ -347,6 +356,7 @@ namespace PLEXIL
         checkParserExceptionWithLocation(!varDecls,
                                          temp, 
                                          "Duplicate " << tag << " element in Node");
+        nVariables += estimateVariableSpace(temp);
         varDecls = temp;
         break;
 
@@ -377,6 +387,18 @@ namespace PLEXIL
     debugMsg("parseNode", " constructing node");
     Node *node = NodeFactory::createNode(name, nodeType, parent);
     debugMsg("parseNode", " Node " << name  << " created");
+
+    // Symbol table optimization part 1
+    // By now we have an upper bound on how many entries are required.
+    // Reserve space for them. 
+    // This saves us from reallocating and copying the whole table as it grows.
+    if (nVariables)
+      node->getVariableMap().grow(nVariables);
+
+    // Symbol table optimization part 2
+    // Our parent (if any) has already had its capacity established (see above).
+    // If it has no local variables or interfaces, skip over it when searching.
+    node->getVariableMap().optimizeParentMap();
 
     try {
       // Populate local variables

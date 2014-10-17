@@ -94,6 +94,9 @@ namespace PLEXIL
      */
     void reserveChildren(size_t n);
 
+    // For initialization and parsing.
+    virtual NodeVariableMap *getChildVariableMap();
+
     /**
      * @brief Sets the state variable to the new state.
      * @param newValue The new node state.
@@ -102,9 +105,6 @@ namespace PLEXIL
     virtual void setState(NodeState newValue, double tym); // FIXME
 
   protected:
-
-    // Specific behaviors for derived classes
-    virtual NodeVariableMap *getChildVariableMap();
 
     virtual void createConditionWrappers();
     virtual void specializedActivate();

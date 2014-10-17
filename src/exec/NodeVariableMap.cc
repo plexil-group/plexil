@@ -49,6 +49,13 @@ namespace PLEXIL
     m_parentMap = parent;
   }
 
+  // Empty ancestor maps can be skipped over.
+  void NodeVariableMap::optimizeParentMap()
+  {
+    if (m_parentMap && !m_parentMap->capacity())
+      m_parentMap = m_parentMap->m_parentMap;
+  }
+
   void NodeVariableMap::clear()
   {
     // Delete all the key strings we've copied

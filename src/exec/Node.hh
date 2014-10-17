@@ -242,11 +242,12 @@ namespace PLEXIL {
     //Isaac
     double getCurrentStateEndTime() const;
 
-    //Isaac - get local variables
-    const NodeVariableMap& getLocalVariablesByName() { return m_variablesByName; }
-    
-    //Isaac - get local variables
+    // Used by GanttListener, plan parser
+    NodeVariableMap& getVariableMap() { return m_variablesByName; }
     const std::vector<Expression *> & getLocalVariables() { return m_localVariables; }
+
+    // For plan parser and initialization purposes.
+    virtual NodeVariableMap *getChildVariableMap();
 
     virtual std::vector<Node *>& getChildren();
     virtual const std::vector<Node *>& getChildren() const;
@@ -350,13 +351,6 @@ namespace PLEXIL {
     //
 
     /**
-     * @brief Reserve more space in the variable map.
-     * @param increment The additional number of entries to reserve.
-     * @note This is an optimization. Parsers will work fine without it.
-     */
-    void growVariableMap(size_t increment);
-
-    /**
      * @brief Add a named "variable" to the node.
      * @param name The name
      * @param var The expression to associate with the name.
@@ -406,9 +400,6 @@ namespace PLEXIL {
     void removeConditionListener(size_t idx);
 
     void commonInit();
-
-    // For initialization purposes.
-    virtual NodeVariableMap *getChildVariableMap();
 
     // Called from the transition handler
     void execute();

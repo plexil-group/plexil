@@ -285,7 +285,7 @@ namespace PLEXIL
    static string getLocalVarInExecStateFromMap(Node *nodeId, 
                                                vector<string>& myLocalVariableMapValues)
    {
-      NodeVariableMap const &tempLocalVariablesMap = nodeId->getLocalVariablesByName();
+      NodeVariableMap const &tempLocalVariablesMap = nodeId->getVariableMap();
       if (tempLocalVariablesMap.empty())
       {
          return std::string();
@@ -446,7 +446,7 @@ namespace PLEXIL
 
    void GanttListener::getFinalLocalVar(Node *nodeId)
    {
-      NodeVariableMap const &tempLocalVariableMapAfter = nodeId->getLocalVariablesByName();
+      NodeVariableMap const &tempLocalVariableMapAfter = nodeId->getVariableMap();
       vector<string> prevLocalVarsVector = m_nodes[m_index].localvarsvector;
       vector<string> thisLocalVarsVectorKeys;
       vector<string> thisLocalVarsVectorValues;
