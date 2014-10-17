@@ -45,8 +45,7 @@ namespace PLEXIL
 
     ~FactoryTestNodeConnector();
 
-    Expression *findVariable(const std::string & name,
-                             bool ignored = false);
+    Expression *findVariable(char const *name);
 
     std::string const &getNodeId() const;
 

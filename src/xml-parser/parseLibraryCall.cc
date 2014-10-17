@@ -100,18 +100,21 @@ namespace PLEXIL
   {
     // Construct the actual alias expression
     xml_node nameXml = aliasXml.first_child();
-    std::string name(nameXml.child_value());
+    char const *name = nameXml.child_value();
 
     debugMsg("finalizeAlias",
              " caller " << node->getNodeId() << ", constructing alias " << name);
              
     // Add the alias
-    checkParserExceptionWithLocation(!node->findVariable(name, true),
-                                     aliasXml,
-                                     "Duplicate alias name " << name << " in LibraryNodeCall node");
     bool isGarbage = false;
     Expression *exp = createExpression(nameXml.next_sibling(), node, isGarbage);
-    node->addAlias(name, exp, isGarbage);
+    if (!node->addAlias(name, exp, isGarbage)) {
+      if (isGarbage)
+        delete exp;
+      checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                       aliasXml,
+                                       "Duplicate alias name " << name << " in LibraryNodeCall node");
+    }
   }
 
   // Second pass

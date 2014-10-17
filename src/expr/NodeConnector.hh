@@ -46,7 +46,7 @@ namespace PLEXIL
     NodeConnector() {}
     virtual ~NodeConnector() {}
 
-    virtual Expression *findVariable(const std::string &name, bool recursive = false) = 0;
+    virtual Expression *findVariable(char const *name) = 0;
     virtual std::string const &getNodeId() const = 0;
     virtual Node const *findChild(const std::string& childName) const = 0;
     virtual Node *findChild(const std::string& childName) = 0;

@@ -74,20 +74,21 @@ namespace PLEXIL
     size_t n = 0;
     for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
       checkHasChildElement(decl);
+      ++n;
+    }
+    node->growVariableMap(n);
+    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
+      // Variables are always created here, no need for "garbage" flag.
       char const *name = getVarDeclName(decl);
-      if (node->findLocalVariable(std::string(name))) {
+      Expression *exp = createExpression(decl, node);
+      if (!node->addLocalVariable(name, exp)) {
+        delete exp;
         checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          decl.child(NAME_TAG),
                                          "Node " << node->getNodeId()
                                          << ": Duplicate variable name "
                                          << name);
       }
-      ++n;
-    }
-    node->growVariableMap(n);
-    for (xml_node decl = decls.first_child(); decl; decl = decl.next_sibling()) {
-      // Variables are always created here, no need for "garbage" flag.
-      node->addLocalVariable(getVarDeclName(decl), createExpression(decl, node));
     }
   }
 
@@ -125,7 +126,7 @@ namespace PLEXIL
     throw (ParserException)
   {
     char const *name = getVarDeclName(inXml);
-    checkParserExceptionWithLocation(!node->findLocalVariable(std::string(name)),
+    checkParserExceptionWithLocation(!node->findLocalVariable(name),
                                      inXml,
                                      "In interface variable " << name
                                      << " shadows another variable of same name in this node");
@@ -136,7 +137,7 @@ namespace PLEXIL
   static void checkInOutDecl(Node *node, xml_node const inOutXml, bool isCall)
     throw (ParserException)
   {
-    std::string const name(getVarDeclName(inOutXml));
+    char const *name = getVarDeclName(inOutXml);
     checkParserExceptionWithLocation(!node->findLocalVariable(name),
                                      inOutXml,
                                      "InOut interface variable " << name
@@ -454,14 +455,14 @@ namespace PLEXIL
   static void linkInVar(Node *node, xml_node const inXml, bool isCall)
     throw (ParserException)
   {
-    std::string const name(getVarDeclName(inXml));
+    char const *name = getVarDeclName(inXml);
 
     debugMsg("linkInVar",
              " node " << node->getNodeId() << ", In variable " << name);
     // Find the variable, if it exists
     // If a library call, should be in caller's alias list.
     // If not, should have been declared by an ancestor.
-    Expression *exp = node->findVariable(name, true);
+    Expression *exp = node->findVariable(name);
     ValueType typ = getVarDeclType(inXml);
     if (exp) {
       debugMsg("linkInVar", " found ancestor variable");
@@ -478,7 +479,7 @@ namespace PLEXIL
 
         // Ancestor owns the aliased expression, so we can't delete it.
         Expression *alias = new Alias(node, name, exp, false);
-        if (!node->addLocalVariable(name.c_str(), alias)) {
+        if (!node->addLocalVariable(name, alias)) {
           delete alias;
           checkParserExceptionWithLocation(ALWAYS_FAIL,
                                            inXml,
@@ -518,7 +519,7 @@ namespace PLEXIL
         debugMsg("linkInVar", " constructing read-only alias for default value");
         exp = new Alias(node, name, exp, garbage);
       }
-      if (!node->addLocalVariable(name.c_str(), exp)) {
+      if (!node->addLocalVariable(name, exp)) {
         delete exp;
         checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          inXml,
@@ -531,12 +532,12 @@ namespace PLEXIL
   static void linkInOutVar(Node *node, xml_node const inOutXml, bool isCall)
     throw (ParserException)
   {
-    std::string const name(getVarDeclName(inOutXml));
+    char const *name = getVarDeclName(inOutXml);
     ValueType typ = getVarDeclType(inOutXml);
     // Find the variable, if it exists
     // If a library call, should be in caller's alias list.
     // If not, should have been declared by an ancestor.
-    Expression *exp = node->findVariable(name, true);
+    Expression *exp = node->findVariable(name);
     if (exp) {
       checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
                                        inOutXml,
@@ -570,7 +571,7 @@ namespace PLEXIL
       }
       Assignable *var = createAssignable(inOutXml, node, garbage);
       assertTrue_1(garbage); // better be something we can delete!
-      if (!node->addLocalVariable(name.c_str(), var)) {
+      if (!node->addLocalVariable(name, var)) {
         delete var;
         checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          inOutXml,
@@ -609,7 +610,7 @@ namespace PLEXIL
     xml_node initXml = decl.child(INITIALVAL_TAG);
     if (initXml) {
       char const *varName = decl.child_value(NAME_TAG);
-      Expression *var = node->findLocalVariable(std::string(varName));
+      Expression *var = node->findLocalVariable(varName);
       assertTrueMsg(var,
                     "finalizeNode: Internal error: variable " << varName
                     << " not found in node " << node->getNodeId());

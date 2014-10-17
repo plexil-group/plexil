@@ -65,13 +65,16 @@ namespace PLEXIL
       return NodeType_LibraryNodeCall;
     }
 
-    virtual Expression *findVariable(const std::string& name, bool recursive = false);
-
     // For plan parser
-    bool addAlias(std::string const &name, Expression *exp, bool isGarbage);
+    bool addAlias(char const *name, Expression *exp, bool isGarbage);
+
+  protected:
+
+    // For initialization purposes.
+    virtual NodeVariableMap *getChildVariableMap();
 
   private:
-    VariableMap m_aliasVariables;
+    NodeVariableMap m_aliasVariables;
   };
 
 }

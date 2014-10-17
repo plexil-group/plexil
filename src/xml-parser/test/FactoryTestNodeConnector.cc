@@ -47,10 +47,9 @@ namespace PLEXIL
     m_variableMap.clear();
   }
 
-  Expression *FactoryTestNodeConnector::findVariable(const std::string & name,
-                                                     bool ignored)
+  Expression *FactoryTestNodeConnector::findVariable(char const *name)
   {
-    TestVariableMap::const_iterator it = m_variableMap.find(name);
+    TestVariableMap::const_iterator it = m_variableMap.find(std::string(name));
     if (it != m_variableMap.end())
       return it->second;
     else

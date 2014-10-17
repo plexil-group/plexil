@@ -104,6 +104,8 @@ namespace PLEXIL
   protected:
 
     // Specific behaviors for derived classes
+    virtual NodeVariableMap *getChildVariableMap();
+
     virtual void createConditionWrappers();
     virtual void specializedActivate();
 

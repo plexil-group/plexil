@@ -64,7 +64,7 @@ namespace PLEXIL
   }
 
   // For plan parser.
-  bool LibraryCallNode::addAlias(std::string const &name, Expression *exp, bool isGarbage)
+  bool LibraryCallNode::addAlias(char const *name, Expression *exp, bool isGarbage)
   {
     if (m_aliasVariables.find(name) != m_aliasVariables.end())
       return false; // alias by same name already exists
@@ -74,25 +74,9 @@ namespace PLEXIL
     return true;
   }
 
-  Expression *LibraryCallNode::findVariable(const std::string& name, bool recursive)
+  NodeVariableMap *LibraryCallNode::getChildVariableMap()
   {
-    if (recursive) {
-      // Check alias map only
-      VariableMap::iterator it = m_aliasVariables.find(name);
-      if (it == m_aliasVariables.end()) {
-        debugMsg("Node:findVariable",
-                 " alias " << name << " not found in LibraryNodeCall " << this->m_nodeId);
-        return NULL;
-      }
-      else {
-        debugMsg("Node:findVariable",
-                 " found " << *it->second << " for alias " << name << " in LibraryNodeCall " << this->m_nodeId);
-        return it->second;
-      }
-    }
-    else {
-      return Node::findVariable(name, false);
-    }
+    return &m_aliasVariables;
   }
 
 }

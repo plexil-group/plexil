@@ -494,7 +494,7 @@ static bool listNodeXmlParserTest()
     assertTrue_1(rootVar->valueType() == INTEGER_TYPE);
     assertTrue_1(rootVar->getNode() == varAccessList);
     assertTrue_1(rootVar == varAccessList->findVariable("foo"));
-    assertTrue_1(!varAccessList->findVariable("bar", true));
+    assertTrue_1(!varAccessList->findVariable("bar"));
 
     assertTrue_1(!kid->getLocalVariables().empty());
     assertTrue_1(kid->getLocalVariables().size() == 1);
@@ -1356,7 +1356,7 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getType() == NodeType_Empty);
     assertTrue_1(dummy->getChildren().empty());
     assertTrue_1(!dummy->getLocalVariables().empty());
-    Expression *divar = dummy->findVariable("defInInt", true);
+    Expression *divar = dummy->findVariable("defInInt");
     assertTrue_1(divar);
     assertTrue_1(divar->valueType() == INTEGER_TYPE);
     divar->activate();
@@ -1389,7 +1389,7 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getType() == NodeType_Empty);
     assertTrue_1(dummy->getChildren().empty());
     assertTrue_1(dummy->getLocalVariables().empty());
-    Expression *ivar = dummy->findVariable("inInt", true);
+    Expression *ivar = dummy->findVariable("inInt");
     assertTrue_1(ivar);
     assertTrue_1(ivar->valueType() == INTEGER_TYPE);
     ivar->activate();
@@ -1422,7 +1422,7 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getType() == NodeType_Empty);
     assertTrue_1(dummy->getChildren().empty());
     assertTrue_1(dummy->getLocalVariables().empty());
-    Expression *divar = dummy->findVariable("defInInt", true);
+    Expression *divar = dummy->findVariable("defInInt");
     assertTrue_1(divar);
     assertTrue_1(divar->valueType() == INTEGER_TYPE);
     divar->activate();
@@ -1462,7 +1462,7 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getType() == NodeType_Assignment);
     assertTrue_1(dummy->getChildren().empty());
     assertTrue_1(dummy->getLocalVariables().empty());
-    Expression *ivar = dummy->findVariable("inOutInt", true);
+    Expression *ivar = dummy->findVariable("inOutInt");
     assertTrue_1(ivar);
     assertTrue_1(ivar->valueType() == INTEGER_TYPE);
     avar->activate();
@@ -1499,7 +1499,7 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getType() == NodeType_Assignment);
     assertTrue_1(dummy->getChildren().empty());
     assertTrue_1(!dummy->getLocalVariables().empty());
-    Expression *ivar = dummy->findVariable("defInOutInt", true);
+    Expression *ivar = dummy->findVariable("defInOutInt");
     assertTrue_1(ivar);
     assertTrue_1(ivar->valueType() == INTEGER_TYPE);
     int32_t ival = 0;
@@ -1540,7 +1540,7 @@ static bool libraryCallNodeXmlParserTest()
     assertTrue_1(dummy->getType() == NodeType_Assignment);
     assertTrue_1(dummy->getChildren().empty());
     assertTrue_1(dummy->getLocalVariables().empty());
-    Expression *ivar = dummy->findVariable("defInOutInt", true);
+    Expression *ivar = dummy->findVariable("defInOutInt");
     assertTrue_1(ivar);
     assertTrue_1(ivar->valueType() == INTEGER_TYPE);
 

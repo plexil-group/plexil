@@ -247,6 +247,11 @@ namespace PLEXIL
     }
   }
 
+  NodeVariableMap *ListNode::getChildVariableMap()
+  {
+    return &m_variablesByName;
+  }
+
   // Create the ancestor end, ancestor exit, and ancestor invariant conditions required by children
   // This method is called after all user-spec'd conditions have been instantiated
   void ListNode::createConditionWrappers()

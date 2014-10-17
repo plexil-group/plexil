@@ -35,8 +35,7 @@ TrivialNodeConnector::~TrivialNodeConnector()
 {
 }
 
-Expression *TrivialNodeConnector::findVariable(const std::string & /* name */,
-                                               bool /* recursive */)
+Expression *TrivialNodeConnector::findVariable(char const * /* name */)
 {
   return NULL;
 }

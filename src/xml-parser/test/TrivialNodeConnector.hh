@@ -39,8 +39,7 @@ public:
   TrivialNodeConnector();
   ~TrivialNodeConnector();
 
-  Expression *findVariable(const std::string & /* name */,
-                           bool /* recursive */ = false);
+  Expression *findVariable(char const * /* name */);
   std::string const &getNodeId() const;
   Node const *findChild(const std::string& childName) const;
   Node *findChild(const std::string& childName);

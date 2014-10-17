@@ -158,7 +158,7 @@ namespace PLEXIL
                                      expr,
                                      "Internal error: Variable reference with null node");
     const char *varName = expr.child_value();
-    Expression *result = node->findVariable(std::string(varName));
+    Expression *result = node->findVariable(varName);
     checkParserExceptionWithLocation(result,
                                      expr,
                                      "Can't find variable named " << varName);
@@ -202,7 +202,7 @@ namespace PLEXIL
 
     // Checks on array
     const char *arrayName = nameXml.child_value();
-    arrayExpr = node->findVariable(std::string(arrayName));
+    arrayExpr = node->findVariable(arrayName);
     checkParserExceptionWithLocation(arrayExpr,
                                      nameXml,
                                      "No array variable named \""
@@ -269,9 +269,7 @@ namespace PLEXIL
                                      expr,
                                      "Unknown variable reference type " << expr.name());
     char const *varName = expr.child_value();
-    // Look it up
-    std::string const varRef(varName);
-    Expression *result = node->findVariable(varRef);
+    Expression *result = node->findVariable(varName);
     checkParserExceptionWithLocation(result,
                                      expr,
                                      "Can't find variable named " << varName);

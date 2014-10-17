@@ -139,8 +139,6 @@ namespace PLEXIL
     pos = nodeName.find_last_of("/\\");
     if (pos != string::npos)
       nodeName = nodeName.substr(++pos);
-    // *** TEMP DEBUG ***
-    std::cout << "loadLibraryNode(\"" << name << "\") - node " << nodeName << ", file " << fname << std::endl;
 
     xml_document *doc = loadLibraryFile(fname);
     if (!doc)

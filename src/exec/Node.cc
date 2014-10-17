@@ -236,15 +236,17 @@ namespace PLEXIL {
 
   // N.B.: called from base class constructor
   void Node::commonInit() {
-    debugMsg("Node:node", "Registering internal variables...");
-    // Register state/outcome/failure variables
-    // N.B. I think these are only needed by LuvListener, GanttListener et al.
-    // m_variablesByName[FAILURE_TYPE()] = &m_failureTypeVariable;
-    // m_variablesByName[OUTCOME()] = &m_outcomeVariable;
-    // m_variablesByName[STATE()] = &m_stateVariable;
+    debugMsg("Node:node", " common initialization");
+    if (m_parent)
+      m_variablesByName.setParentMap(m_parent->getChildVariableMap());
 
     // Initialize transition trace
     logTransition(g_interface->currentTime(), (NodeState) m_state);
+  }
+
+  NodeVariableMap *Node::getChildVariableMap()
+  {
+    return NULL;
   }
 
   void Node::growVariableMap(size_t increment)
@@ -256,10 +258,9 @@ namespace PLEXIL {
 
   bool Node::addVariable(char const *name, Expression *var)
   {
-    std::string const nameStr(name);
     if (m_variablesByName.find(name) != m_variablesByName.end())
       return false; // duplicate
-    m_variablesByName[nameStr] = var;
+    m_variablesByName[name] = var;
     return true;
   }
 
@@ -1251,22 +1252,6 @@ namespace PLEXIL {
   // *** END NODE STATE LOGIC ***
   // ***
 
-  Expression *Node::getInternalVariable(const std::string& name)
-  {
-    VariableMap::const_iterator it = m_variablesByName.find(name);
-    checkError(it != m_variablesByName.end(),
-               "No variable named " << name << " in " << m_nodeId);
-    return it->second;
-  }
-
-  Expression const *Node::getInternalVariable(const std::string& name) const
-  {
-    VariableMap::const_iterator it = m_variablesByName.find(name);
-    checkError(it != m_variablesByName.end(),
-               "No variable named " << name << " in " << m_nodeId);
-    return it->second;
-  }
-
   std::string const &Node::getStateName() const {
     return nodeStateName(m_state);
   }
@@ -1393,50 +1378,28 @@ namespace PLEXIL {
     return (FailureType) m_failureType;
   }
 
-  // Searches ancestors when required
-  Expression *Node::findVariable(const std::string& name, bool recursive)
+  // Searches ancestors' maps when required
+  Expression *Node::findVariable(char const *name)
   {
     debugMsg("Node:findVariable",
              " for node '" << m_nodeId
              << "', searching by name for \"" << name << "\"");
-    VariableMap::const_iterator it = m_variablesByName.find(name);
-    if (it != m_variablesByName.end()) {
+    Expression *result = m_variablesByName.findVariable(name);
+    if (result) {
       debugMsg("Node:findVariable",
-               " Returning " << it->second->toString());
-      return it ->second;
+               " Returning " << result->toString());
+      return result;
     }
-
-    // Not found locally - try ancestors if possible
-    if (m_parent) {
-      Expression *result = m_parent->findVariable(name, true);
-      if (result) {
-        // Found it
-        // Cache for later reuse
-        // TODO: determine if this really speeds things up when loading large plans
-        // if (!recursive)
-        //   m_variablesByName[name] = result;
-        return result;
-      }
-    }
-
-    // Not found in ancestors either
-    if (recursive)
-      return NULL; // so that error happens at approriate level
-
-    // FIXME: push this check up into XML parser
-    checkError(ALWAYS_FAIL,
-               "No variable named \"" << name << "\" accessible from node " <<
-               m_nodeId);
     return NULL;
   }
 
-  Expression *Node::findLocalVariable(std::string const &name)
+  Expression *Node::findLocalVariable(char const *name)
   {
-    VariableMap::const_iterator it = m_variablesByName.find(name);
+    NodeVariableMap::const_iterator it = m_variablesByName.find(name);
     if (it != m_variablesByName.end()) {
       debugMsg("Node:findLocalVariable",
                " " << m_nodeId << " Returning " << it->second->toString());
-      return it ->second;
+      return it->second;
     }
     else {
       debugMsg("Node:findLocalVariable", " " << m_nodeId << " " << name << " not found");
@@ -1756,7 +1719,7 @@ namespace PLEXIL {
   void Node::printVariables(std::ostream& stream, const unsigned int indent) const
   {
     std::string indentStr(indent, ' ');
-    for (VariableMap::const_iterator it = m_variablesByName.begin();
+    for (NodeVariableMap::const_iterator it = m_variablesByName.begin();
          it != m_variablesByName.end();
          ++it) {
       stream << indentStr << " " << it->first << ": " <<

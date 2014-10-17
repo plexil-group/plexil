@@ -48,7 +48,7 @@ namespace PLEXIL
                                                       bool & wasCreated) const
   {
     checkNotEmpty(expr);
-    std::string const varName(expr.child_value());
+    char const *varName = expr.child_value();
     Expression *result = node->findVariable(varName);
     checkParserExceptionWithLocation(result,
                                      expr,

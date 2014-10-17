@@ -32,17 +32,15 @@
 #include "NodeConnector.hh"
 #include "NodeVariables.hh"
 #include "PlexilNodeType.hh"
-#include "SimpleMap.hh"
+#include "NodeVariableMap.hh"
 
 // Take care of annoying VxWorks macro
 #undef UPDATE
 
 namespace PLEXIL {
 
-  typedef SimpleMap<std::string, Expression *> VariableMap;
-
   // NOTE: this used to be 100000000, which somehow gets printed as
-  // scientific notation in XML and doesn't parse correctly.  
+  // scientific notation in XML and doesn't parse correctly.
   const int32_t WORST_PRIORITY = 100000;
 
   /**
@@ -136,14 +134,14 @@ namespace PLEXIL {
     /**
      * @brief Looks up a variable by name.
      */
-    virtual Expression *findVariable(const std::string& name, bool recursive = false);
+    Expression *findVariable(char const *name);
 
     /**
      * @brief Find the named variable in this node, ignoring its ancestors.
      * @param name Name of the variable.
      * @return The variable, or NULL if not found.
      */
-    Expression *findLocalVariable(std::string const &name);
+    Expression *findLocalVariable(char const *name);
 
     // Make the node active.
     void activate();
@@ -245,7 +243,7 @@ namespace PLEXIL {
     double getCurrentStateEndTime() const;
 
     //Isaac - get local variables
-    const VariableMap& getLocalVariablesByName() { return m_variablesByName; }
+    const NodeVariableMap& getLocalVariablesByName() { return m_variablesByName; }
     
     //Isaac - get local variables
     const std::vector<Expression *> & getLocalVariables() { return m_localVariables; }
@@ -409,6 +407,9 @@ namespace PLEXIL {
 
     void commonInit();
 
+    // For initialization purposes.
+    virtual NodeVariableMap *getChildVariableMap();
+
     // Called from the transition handler
     void execute();
     void reset();
@@ -535,7 +536,7 @@ namespace PLEXIL {
     std::string m_nodeId;  /*!< the NodeId from the xml.*/
  
     // Expressions
-    VariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
+    NodeVariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
     std::vector<Expression *> m_localVariables; /*!< Variables created in this node. */
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
     StateVariable m_stateVariable;
@@ -571,9 +572,6 @@ namespace PLEXIL {
 
     void activateLocalVariables();
     void deactivateLocalVariables();
-
-    Expression *getInternalVariable(const std::string& name);
-    Expression const *getInternalVariable(const std::string& name) const;
 
     //
     // Internal versions
