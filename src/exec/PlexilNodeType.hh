@@ -55,7 +55,7 @@ namespace PLEXIL
 
   std::string const &nodeTypeString(PlexilNodeType nodeType);
 
-  PlexilNodeType parseNodeType(std::string const &typeName);
+  PlexilNodeType parseNodeType(char const *typeName);
   
 } // namespace PLEXIL
 

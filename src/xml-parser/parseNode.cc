@@ -257,33 +257,66 @@ namespace PLEXIL
                                        xml,
                                        "Non-element found at top level of node");
       debugMsg("parseNode", " parsing element " << tag);
-      switch (strlen(tag)) {
-      case 6: // NodeId
-        checkParserExceptionWithLocation(0 == strcmp(NODEID_TAG, tag),
-                                         temp, 
-                                         "Illegal element \"" << tag << "\" in Node");
-        checkParserExceptionWithLocation(!name,
-                                         temp, 
-                                         "Duplicate " << tag << " element in Node");
-        checkNotEmpty(temp);
-        name = temp.child_value();
-        break;
-
-      case 7: // Comment
-        checkParserExceptionWithLocation(0 == strcmp(COMMENT_TAG, tag),
+      switch (*tag) {
+      case 'C': // Comment
+        checkParserExceptionWithLocation(!strcmp(COMMENT_TAG, tag),
                                          temp, 
                                          "Illegal element \"" << tag << "\" in Node");
         break;
 
-      case 8: // NodeBody, Priority
-        if (0 == strcmp(BODY_TAG, tag)) {
+      case 'E': // EndCondition, ExitCondition
+        if (!strcmp(END_CONDITION_TAG, tag)
+            || !strcmp(EXIT_CONDITION_TAG, tag))
+          break;
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         temp,
+                                         "Illegal element \"" << tag << "\" in Node");
+        break;
+
+      case 'I': // Interface, InvariantCondition
+        if (!strcmp(INVARIANT_CONDITION_TAG, tag))
+          break;
+        if (!strcmp(INTERFACE_TAG, tag)) {
+          checkParserExceptionWithLocation(!iface,
+                                           temp, 
+                                           "Duplicate " << tag << " element in Node");
+          nVariables += estimateInterfaceSpace(temp);
+          iface = temp;
+          break;
+        }
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         temp, 
+                                         "Illegal element \"" << tag << "\" in Node");
+        break;
+
+
+      case 'N': // NodeId, NodeBody
+        if (!strcmp(NODEID_TAG, tag)) {
+          checkParserExceptionWithLocation(!name,
+                                           temp, 
+                                           "Duplicate " << tag << " element in Node");
+          checkNotEmpty(temp);
+          name = temp.child_value();
+          break;
+        }
+        if (!strcmp(BODY_TAG, tag)) {
           checkParserExceptionWithLocation(!body,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
           body = temp;
           break;
         }
-        else if (0 == strcmp(PRIORITY_TAG, tag)) {
+        checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                         temp,
+                                         "Illegal element \"" << tag << "\" in Node");
+        break;
+
+
+      case 'P': // PostCondition, Priority, PreCondition
+        if (!strcmp(POST_CONDITION_TAG, tag)
+            || !strcmp(PRE_CONDITION_TAG, tag))
+          break;
+        if (0 == strcmp(PRIORITY_TAG, tag)) {
           checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
                                            temp,
                                            "Only Assignment nodes may have a Priority element");
@@ -299,66 +332,31 @@ namespace PLEXIL
                                          "Illegal element \"" << tag << "\" in Node");
         break;
 
-      case 9: // Interface
-        checkParserExceptionWithLocation(0 == strcmp(INTERFACE_TAG, tag),
+      case 'R': // RepeatCondition
+        checkParserExceptionWithLocation(!strcmp(REPEAT_CONDITION_TAG, tag),
                                          temp, 
                                          "Illegal element \"" << tag << "\" in Node");
-        checkParserExceptionWithLocation(!iface,
-                                         temp, 
-                                         "Duplicate " << tag << " element in Node");
-        nVariables += estimateInterfaceSpace(temp);
-        iface = temp;
         break;
 
-      case 12: // EndCondition, PreCondition
-        if (0 == strcmp(END_CONDITION_TAG, tag)
-            || 0 == strcmp(PRE_CONDITION_TAG, tag)) {
+      case 'S': // SkipCondition, StartCondition
+        if (!strcmp(START_CONDITION_TAG, tag)
+            || !strcmp(SKIP_CONDITION_TAG, tag))
           break;
-        }
         checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          temp,
                                          "Illegal element \"" << tag << "\" in Node");
         break;
 
-      case 13: // ExitCondition, PostCondition, SkipCondition
-        if (0 == strcmp(EXIT_CONDITION_TAG, tag)
-            || 0 == strcmp(POST_CONDITION_TAG, tag)
-            || 0 == strcmp(SKIP_CONDITION_TAG, tag)) {
+      case 'V': // VariableDeclarations
+        if (!strcmp(VAR_DECLS_TAG, tag)) {
+          checkParserExceptionWithLocation(!varDecls,
+                                           temp, 
+                                           "Duplicate " << tag << " element in Node");
+          nVariables += estimateVariableSpace(temp);
+          varDecls = temp;
           break;
         }
-        checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                         temp,
-                                         "Illegal element \"" << tag << "\" in Node");
-        break;
-
-      case 14: // StartCondition
-        checkParserExceptionWithLocation(0 == strcmp(START_CONDITION_TAG, tag),
-                                         temp, 
-                                         "Illegal element \"" << tag << "\" in Node");
-        break;
-
-      case 15: // RepeatCondition
-        checkParserExceptionWithLocation(0 == strcmp(REPEAT_CONDITION_TAG, tag),
-                                         temp, 
-                                         "Illegal element \"" << tag << "\" in Node");
-        break;
-
-      case 18: // InvariantCondition
-        checkParserExceptionWithLocation(0 == strcmp(INVARIANT_CONDITION_TAG, tag),
-                                         temp, 
-                                         "Illegal element \"" << tag << "\" in Node");
-        break;
-
-      case 20: // VariableDeclarations
-        checkParserExceptionWithLocation(0 == strcmp(VAR_DECLS_TAG, tag),
-                                         temp, 
-                                         "Illegal element \"" << tag << "\" in Node");
-        checkParserExceptionWithLocation(!varDecls,
-                                         temp, 
-                                         "Duplicate " << tag << " element in Node");
-        nVariables += estimateVariableSpace(temp);
-        varDecls = temp;
-        break;
+        // else fall thru to parser error
 
       default:
         checkParserExceptionWithLocation(ALWAYS_FAIL,

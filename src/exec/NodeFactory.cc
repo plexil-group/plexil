@@ -145,7 +145,7 @@ namespace PLEXIL
                                 NodeState state,
                                 Node *parent)
   {
-    PlexilNodeType nodeType = parseNodeType(type);
+    PlexilNodeType nodeType = parseNodeType(type.c_str());
     checkError(nodeType > NodeType_uninitialized
                && nodeType < NodeType_error,
                "Invalid node type string " << type);

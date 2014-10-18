@@ -425,11 +425,6 @@ namespace PLEXIL
     }
   }
 
-  ValueType parseValueTypePrefix(const std::string & str, size_t prefixLen)
-  {
-    return parseValueTypePrefix(str.c_str(), prefixLen);
-  }
-
   ValueType parseValueType(char const *typeStr)
   {
     return parseValueTypePrefix(typeStr, strlen(typeStr));

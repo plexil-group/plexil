@@ -112,8 +112,7 @@ namespace PLEXIL
   extern ValueType arrayElementType(ValueType ty);
   extern ValueType arrayType(ValueType elTy);
 
-  extern ValueType parseValueTypePrefix(const std::string &str, size_t prefixLen);
-  extern ValueType parseValueTypePrefix(char const &str, size_t prefixLen);
+  extern ValueType parseValueTypePrefix(char const *str, size_t prefixLen);
 
   extern ValueType parseValueType(const std::string &typeStr);
   extern ValueType parseValueType(char const *typeStr);

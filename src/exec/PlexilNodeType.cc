@@ -27,6 +27,8 @@
 #include "PlexilNodeType.hh"
 #include "Error.hh"
 
+#include <cstring>
+
 namespace PLEXIL
 {
   std::string const ASSIGNMENT = "Assignment";
@@ -36,42 +38,42 @@ namespace PLEXIL
   std::string const LIST = "NodeList";
   std::string const UPDATE = "Update";
 
-  PlexilNodeType parseNodeType(const std::string & typeName)
+  PlexilNodeType parseNodeType(char const *typeName)
   {
-    switch (typeName.size()) {
-    case 5:
-      if (typeName == EMPTY)
-        return NodeType_Empty;
-      else 
-        return NodeType_error;
-
-    case 6:
-      if (typeName == UPDATE)
-        return NodeType_Update;
-      else 
-        return NodeType_error;
-
-    case 7:
-      if (typeName == COMMAND)
-        return NodeType_Command;
-      else 
-        return NodeType_error;
-
-    case 8:
-      if (typeName == LIST)
-        return NodeType_NodeList;
-      else 
-        return NodeType_error;
-
-    case 10:
-      if (typeName == ASSIGNMENT)
+    switch (*typeName) {
+    case 'A':
+      if (ASSIGNMENT == typeName)
         return NodeType_Assignment;
       else 
         return NodeType_error;
 
-    case 15:
-      if (typeName == LIBRARYNODECALL)
+    case 'C':
+      if (COMMAND == typeName)
+        return NodeType_Command;
+      else 
+        return NodeType_error;
+
+    case 'E':
+      if (EMPTY == typeName)
+        return NodeType_Empty;
+      else 
+        return NodeType_error;
+
+    case 'L':
+      if (LIBRARYNODECALL == typeName)
         return NodeType_LibraryNodeCall;
+      else 
+        return NodeType_error;
+
+    case 'N':
+      if (LIST == typeName)
+        return NodeType_NodeList;
+      else 
+        return NodeType_error;
+
+    case 'U':
+      if (UPDATE == typeName)
+        return NodeType_Update;
       // fall thru to...
 
     default:

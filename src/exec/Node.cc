@@ -183,7 +183,7 @@ namespace PLEXIL {
         getCondition(i)->addListener(&m_listener);
     }
 
-    PlexilNodeType nodeType = parseNodeType(type);
+    PlexilNodeType nodeType = parseNodeType(type.c_str());
     // Activate the conditions required by the provided state
     switch (m_state) {
 
