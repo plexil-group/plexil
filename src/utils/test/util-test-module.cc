@@ -52,6 +52,7 @@
 #include "lifecycle-utils.h"
 #include "stricmp.h"
 #include "TestData.hh"
+#include "TestSupport.hh"
 #include "ThreadMutex.hh"
 #include "timespec-utils.hh"
 #include "timeval-utils.hh"
@@ -80,6 +81,10 @@
 #include <sys950Lib.h>
 #endif
 
+// Tests not in this source file
+
+extern bool SimpleMapTest();
+
 /**
  * @def assertFalse
  * @brief Test a condition and create an error if true.
@@ -100,35 +105,6 @@
 #define handle_error(cond, msg) {         \
   Error(#cond, #msg, __FILE__, __LINE__);        \
 }
-
-#define runTest(test) { \
-  try { \
-    std::cout << "      " << #test; \
-    bool result = test(); \
-    if (result) \
-      std::cout << " PASSED." << std::endl; \
-    else { \
-      std::cout << " UNIT TEST FAILED." << std::endl; \
-      throw Error::GeneralUnknownError(); \
-    } \
-  } \
-  catch (Error &err) { \
-    err.print(std::cout); \
-  } \
-}
-
-#define runTestSuite(test) { \
-  try{ \
-  std::cout << #test << "***************" << std::endl; \
-  if (test()) \
-    std::cout << #test << " PASSED." << std::endl; \
-  else \
-    std::cout << #test << " FAILED." << std::endl; \
-  }\
-  catch (Error &err){\
-   err.print(std::cout);\
-  }\
-  }
 
 using namespace PLEXIL;
 
@@ -564,6 +540,8 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(MutexTest::test);
 #endif
   runTestSuite(StricmpTests::test);
+
+  runTestSuite(SimpleMapTest);
 
   // Do cleanup
   runFinalizers();

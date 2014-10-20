@@ -47,28 +47,7 @@ namespace PLEXIL
   // See purgeExpressionFactories() below and Expressions.cc in this directory.
   static size_t const EST_N_EXPR_FACTORIES = 60;
 
-  // Specialized comparator for expression factory lookups
-  struct ExpressionFactoryComparator
-  {
-    typedef std::pair<char const *, ExpressionFactory *> MapEntry;
-
-    bool operator()(MapEntry const &a, MapEntry const &b) const
-    {
-      return (strcmp(a.first, b.first) < 0);
-    }
-
-    bool operator()(MapEntry const &a, char const * const &b) const
-    {
-      return (strcmp(a.first, b) < 0);
-    }
-
-    bool equal(char const * const &a, char const * const &b) const
-    {
-      return !strcmp(a, b);
-    }
-  };
-
-  typedef SimpleMap<char const *, ExpressionFactory *, ExpressionFactoryComparator>
+  typedef SimpleMap<char const *, ExpressionFactory *, CStringComparator>
   ExpressionFactoryMap;
 
   static ExpressionFactoryMap s_expressionFactoryMap(EST_N_EXPR_FACTORIES);

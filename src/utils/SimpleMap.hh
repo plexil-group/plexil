@@ -34,24 +34,17 @@
 namespace PLEXIL
 {
   /**
-   * @class SimpleMapComparator
-   * @brief A templatized comparator class for SimpleMap
+   * @class SimpleKeyComparator
+   * @brief A templatized comparator class for sorting and inserting in SimpleMap.
+   * Any class used as a key comparator must implement this API.
    */
-  template <typename KEY_TYPE, typename VALUE_TYPE>
-  struct SimpleMapComparator
+  template <typename KEY_TYPE>
+  struct SimpleKeyComparator
   {
-    typedef std::pair<KEY_TYPE, VALUE_TYPE> MapEntry;
-
-    //* Compare entry a less than entry b
-    bool operator()(MapEntry const &a, MapEntry const &b) const
+    //* Compare key a less than key b
+    bool operator()(KEY_TYPE const &a, KEY_TYPE const &b) const
     {
-      return a.first < b.first;
-    }
-
-    //* Compare entry a less than key b
-    bool operator()(MapEntry const &a, KEY_TYPE const &b) const
-    {
-      return a.first < b;
+      return a < b;
     }
 
     //* Compare key a equal to key b
@@ -62,20 +55,47 @@ namespace PLEXIL
   };
 
   /**
+   * @class SimpleIndexComparator
+   * @brief A templatized comparator class for lookups in SimpleMap.
+   * Any class used as an index comparator must implement this API.
+   */
+  template <typename KEY_TYPE, typename INDEX_TYPE>
+  struct SimpleIndexComparator
+  {
+    //* Compare entry a less than index
+    bool operator()(KEY_TYPE const &a, INDEX_TYPE const &b) const
+    {
+      return a < b;
+    }
+
+    //* Compare entry a equal to index
+    bool equal(KEY_TYPE const &a, INDEX_TYPE const &b) const
+    {
+      return a == b;
+    }
+
+    //* Compare entry a "equal" to index (e.g. b begins with prefix a)
+    bool match(KEY_TYPE const &a, INDEX_TYPE const &b) const
+    {
+      return a == b;
+    }
+  };
+
+  /**
    * @class SimpleMap
-   * @brief A key-value mapping stored as a vector, sorted by key value.
+   * @brief A key-value mapping sorted by key value.
    */
   template <typename KEY_TYPE,
             typename VALUE_TYPE,
-            class COMPARATOR = SimpleMapComparator<KEY_TYPE, VALUE_TYPE> >
+            class KEY_COMP = SimpleKeyComparator<KEY_TYPE> >
   class SimpleMap
   {
   public:
-    typedef std::pair<KEY_TYPE, VALUE_TYPE> MapEntry;
-    typedef std::vector<MapEntry> MapVector;
+    typedef std::pair<KEY_TYPE, VALUE_TYPE> MAP_ENTRY_TYPE;
+    typedef std::vector<MAP_ENTRY_TYPE> MAP_STORE_TYPE;
 
-    typedef typename MapVector::const_iterator const_iterator;
-    typedef typename MapVector::iterator iterator;
+    typedef typename MAP_STORE_TYPE::const_iterator const_iterator;
+    typedef typename MAP_STORE_TYPE::iterator iterator;
 
     SimpleMap()
     {
@@ -83,7 +103,7 @@ namespace PLEXIL
 
     SimpleMap(size_t initialCapacity)
     {
-      m_vector.reserve(initialCapacity);
+      m_store.reserve(initialCapacity);
     }
 
     // Virtual to allow for derived classes.
@@ -97,104 +117,149 @@ namespace PLEXIL
      */
     void grow(size_t n)
     {
-      size_t desired = m_vector.size() + n;
-      m_vector.reserve(desired);
+      size_t desired = m_store.size() + n;
+      m_store.reserve(desired);
     }
 
     bool insert(KEY_TYPE const &index, VALUE_TYPE const &val)
     {
-      typename MapVector::iterator it = 
-        std::lower_bound(m_vector.begin(), m_vector.end(), index, COMPARATOR());
-      if (it != m_vector.end() && it->first == index)
+      static EntryComparator s_comp;
+      typename MAP_STORE_TYPE::iterator it = 
+        std::lower_bound(m_store.begin(), m_store.end(), index, s_comp);
+      if (it != m_store.end() && s_comp.equal(*it, index))
         return false; // duplicate
       this->insertEntry(it, index, val);
       return true;
     }
 
+    const_iterator find(KEY_TYPE const &index) const
+    {
+      static EntryComparator s_comp;
+      typename MAP_STORE_TYPE::const_iterator it = 
+        std::lower_bound(m_store.begin(), m_store.end(), index, s_comp);
+      if (it == m_store.end() || s_comp.equal(*it, index))
+        return it;
+      else
+        return m_store.end();
+    }
+
+    iterator find(KEY_TYPE const &index)
+    {
+      static EntryComparator s_comp;
+      typename MAP_STORE_TYPE::iterator it = 
+        std::lower_bound(m_store.begin(), m_store.end(), index, s_comp);
+      if (it == m_store.end() || s_comp.equal(*it, index))
+        return it;
+      else
+        return m_store.end();
+    }
+
     VALUE_TYPE &operator[](KEY_TYPE const &index)
     {
-      typename MapVector::iterator it = 
-        std::lower_bound(m_vector.begin(), m_vector.end(), index, COMPARATOR());
-      if (it == m_vector.end() || it->first != index)
+      static EntryComparator s_comp;
+      typename MAP_STORE_TYPE::iterator it = 
+        std::lower_bound(m_store.begin(), m_store.end(), index, s_comp);
+      if (it == m_store.end() || !s_comp.equal(*it, index))
         it = this->insertEntry(it, index, VALUE_TYPE());
       return it->second;
     }
 
     VALUE_TYPE const &operator[](KEY_TYPE const &index) const
     {
-      typename MapVector::const_iterator it = 
-        std::lower_bound(m_vector.begin(), m_vector.end(), index, COMPARATOR());
-      if (it == m_vector.end() || it->first != index) {
+      static EntryComparator s_comp;
+      typename MAP_STORE_TYPE::const_iterator it = 
+        std::lower_bound(m_store.begin(), m_store.end(), index, s_comp);
+      if (it == m_store.end() || !s_comp.equal(*it, index)) {
         static VALUE_TYPE const sl_empty;
         return sl_empty;
       }
       return it->second;
     }
 
-    const_iterator find(KEY_TYPE const &index) const
+    //
+    // Support for map lookups using non-key-type indices
+    // Insertion is not possible with these template members
+    //
+
+    // Return the entry exactly equal to the index.
+    template <typename INDEX_TYPE, class INDEX_COMP>
+    iterator find(INDEX_TYPE const &index)
     {
-      static COMPARATOR s_comp;
-      typename MapVector::const_iterator it = 
-        std::lower_bound(m_vector.begin(), m_vector.end(), index, s_comp);
-      if (it == m_vector.end())
-        return it;
-      else if (s_comp.equal(it->first, index))
+      static IndexComparator<INDEX_TYPE, INDEX_COMP> s_comp;
+      typename MAP_STORE_TYPE::iterator it = 
+        std::lower_bound(m_store.begin(), m_store.end(), index, s_comp);
+      if (it == m_store.end() || s_comp.equal(*it, index))
         return it;
       else
-        return m_vector.end();
+        return m_store.end();
     }
 
-    iterator find(KEY_TYPE const &index)
+    // Return the FIRST entry in sort order "matching" the index.
+    template <typename INDEX_TYPE, class INDEX_COMP>
+    const_iterator findFirst(INDEX_TYPE const &index)
     {
-      static COMPARATOR s_comp;
-      typename MapVector::iterator it = 
-        std::lower_bound(m_vector.begin(), m_vector.end(), index, s_comp);
-      if (it == m_vector.end())
-        return it;
-      else if (s_comp.equal(it->first, index))
-        return it;
-      else
-        return m_vector.end();
+      static IndexComparator<INDEX_TYPE, INDEX_COMP> s_comp;
+      typename MAP_STORE_TYPE::const_iterator it = 
+        std::lower_bound(m_store.begin(), m_store.end(), index, s_comp);
+      if (it == m_store.end() || !s_comp.match(*it, index))
+        return m_store.end(); // not found
+      return it;
+    }
+
+    // Return the LAST entry in sort order matching the index.
+    template <typename INDEX_TYPE, class INDEX_COMP>
+    const_iterator findLast(INDEX_TYPE const &index)
+    {
+      static IndexComparator<INDEX_TYPE, INDEX_COMP> s_comp;
+      typename MAP_STORE_TYPE::const_iterator it = 
+        std::lower_bound(m_store.begin(), m_store.end(), index, s_comp);
+      if (it == m_store.end() || !s_comp.match(*it, index))
+        return m_store.end(); // no match
+      // See if there is a match to an entry with a greater key.
+      const_iterator scanit = it;
+      while (s_comp.match(*(++scanit), index))
+        it = scanit;
+      return it;
     }
 
     const_iterator begin() const
     {
-      return m_vector.begin();
+      return m_store.begin();
     }
 
     iterator begin()
     {
-      return m_vector.begin();
+      return m_store.begin();
     }
 
     const_iterator end() const
     {
-      return m_vector.end();
+      return m_store.end();
     }
 
     iterator end()
     {
-      return m_vector.end();
+      return m_store.end();
     }
 
     virtual void clear()
     {
-      m_vector.clear();
+      m_store.clear();
     }
 
     bool empty() const
     {
-      return m_vector.empty();
+      return m_store.empty();
     }
 
     size_t size() const
     {
-      return m_vector.size();
+      return m_store.size();
     }
 
     size_t capacity() const
     {
-      return m_vector.capacity();
+      return m_store.capacity();
     }
 
   protected:
@@ -206,16 +271,60 @@ namespace PLEXIL
     // Returns iterator to the new entry
     virtual iterator insertEntry(iterator it, KEY_TYPE const &k, VALUE_TYPE const &v)
     {
-      return m_vector.insert(it, MapEntry(k, v));
+      return m_store.insert(it, MAP_ENTRY_TYPE(k, v));
     }
     
-    MapVector m_vector;
+    MAP_STORE_TYPE m_store;
 
   private:
     // Not implemented
     SimpleMap(SimpleMap const &);
     SimpleMap &operator=(SimpleMap const &);
 
+    struct EntryComparator
+    {
+      bool operator() (MAP_ENTRY_TYPE const &a, MAP_ENTRY_TYPE const &b)
+      {
+        return KEY_COMP()(a.first, b.first);
+      }
+
+      bool operator() (MAP_ENTRY_TYPE const &a, KEY_TYPE const &b)
+      {
+        return KEY_COMP()(a.first, b);
+      }
+
+      bool equal(MAP_ENTRY_TYPE const &a, KEY_TYPE const &b)
+      {
+        return KEY_COMP().equal(a.first, b);
+      }
+    };
+
+    template <typename INDEX_TYPE, class INDEX_COMP>
+    struct IndexComparator
+    {
+      bool operator() (MAP_ENTRY_TYPE const &a, INDEX_TYPE const &b)
+      {
+        return INDEX_COMP()(a.first, b);
+      }
+
+      bool equal(MAP_ENTRY_TYPE const &a, INDEX_TYPE const &b)
+      {
+        return INDEX_COMP().equal(a.first, b);
+      }
+
+      bool match(MAP_ENTRY_TYPE const &a, INDEX_TYPE const &b)
+      {
+        return INDEX_COMP().match(a.first, b);
+      }
+    };
+    
+  };
+
+  // Used in several tables in the Exec
+  struct CStringComparator
+  {
+    bool operator()(char const * const &a, char const * const &b) const;
+    bool equal(char const * const &a, char const * const &b) const;
   };
 
 } // namespace PLEXIL

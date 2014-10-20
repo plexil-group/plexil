@@ -29,36 +29,13 @@
 
 #include "SimpleMap.hh"
 
-#include <cstring>
-
 namespace PLEXIL
 {
   // Forward references
   class Expression;
 
-  // Internal comparator class
-  struct VariableComp
-  {
-    typedef std::pair<char const *, Expression *> MapEntry;
-
-    bool operator()(MapEntry const &a, MapEntry const &b) const
-    {
-      return (strcmp(a.first, b.first) < 0);
-    }
-
-    bool operator()(MapEntry const &a, char const * const &b) const
-    {
-      return (strcmp(a.first, b) < 0);
-    }
-
-    bool equal(char const * const &a, char const * const &b) const
-    {
-      return !strcmp(a, b);
-    }
-  };
-
   class NodeVariableMap :
-    public SimpleMap<char const *, Expression *, VariableComp> // *** FIXME: s/b private?
+    public SimpleMap<char const *, Expression *, CStringComparator>
   {
   public:
     NodeVariableMap(NodeVariableMap *parentMap = NULL);

@@ -31,7 +31,7 @@
 
 namespace PLEXIL
 {
-  typedef SimpleMap<char const *, Expression *, VariableComp> BaseMap;
+  typedef SimpleMap<char const *, Expression *, CStringComparator> BaseMap;
 
   NodeVariableMap::NodeVariableMap(NodeVariableMap *parentMap)
     : BaseMap(),
@@ -59,8 +59,8 @@ namespace PLEXIL
   void NodeVariableMap::clear()
   {
     // Delete all the key strings we've copied
-    for (MapVector::iterator it = BaseMap::m_vector.begin();
-         it != BaseMap::m_vector.end();
+    for (MAP_STORE_TYPE::iterator it = BaseMap::m_store.begin();
+         it != BaseMap::m_store.end();
          ++it) {
       free(const_cast<char *>(it->first));
       it->first = NULL;
@@ -89,7 +89,7 @@ namespace PLEXIL
                                char const * const &k,
                                Expression * const &v)
   {
-    return BaseMap::m_vector.insert(it, BaseMap::MapEntry(strdup(k), v));
+    return BaseMap::m_store.insert(it, BaseMap::MAP_ENTRY_TYPE(strdup(k), v));
   }
 
 

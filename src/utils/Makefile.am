@@ -34,7 +34,7 @@ include_HEADERS = ConstantMacros.hh Debug.hh Error.hh Logging.hh \
  timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
 libPlexilUtils_la_SOURCES = Debug.cc Error.cc Logging.cc \
- ParserException.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
+ ParserException.cc SimpleMap.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
  timeval-utils.cc
 
 if JNI_OPT
@@ -57,7 +57,7 @@ endif
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/utils-module-tests
   noinst_HEADERS = test/TestData.hh test/util-test-module.hh
-  test_utils_module_tests_SOURCES = test/TestData.cc test/util-test-module.cc test/module-tests.cc
+  test_utils_module_tests_SOURCES = test/SimpleMapTest.cc test/TestData.cc test/util-test-module.cc test/module-tests.cc
   test_utils_module_tests_LDADD = libPlexilUtils.la
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
