@@ -402,30 +402,24 @@ namespace PLEXIL
       (*it)->cleanUpNodeBody();
   }
 
-  class NodeIdEq {
-  public:
-    NodeIdEq(const std::string& name) : m_name(name) {}
-    bool operator()(Node *node) {return node->getNodeId() == m_name;}
-  private:
-    std::string m_name;
-  };
-
   Node const *ListNode::findChild(const std::string& childName) const
   {
-    std::vector<Node *>::const_iterator it =
-      std::find_if(m_children.begin(), m_children.end(), NodeIdEq(childName));
-    if (it == m_children.end())
-      return NULL;
-    return *it;
+    for (std::vector<Node *>::const_iterator it = m_children.begin();
+         it != m_children.end();
+         ++it)
+      if (childName == (*it)->getNodeId())
+        return *it;
+    return NULL;
   }
 
   Node *ListNode::findChild(const std::string& childName)
   {
-    std::vector<Node *>::const_iterator it =
-      std::find_if(m_children.begin(), m_children.end(), NodeIdEq(childName));
-    if (it == m_children.end())
-      return NULL;
-    return *it;
+    for (std::vector<Node *>::const_iterator it = m_children.begin();
+         it != m_children.end();
+         ++it)
+      if (childName == (*it)->getNodeId())
+        return *it;
+    return NULL;
   }
 
   void ListNode::reserveChildren(size_t n)
