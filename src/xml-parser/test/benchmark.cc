@@ -24,10 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <cstring>
+#include "plexil-config.h"
 
 #include "Debug.hh"
 #include "Error.hh"
@@ -37,6 +34,31 @@
 #include "parsePlan.hh"
 #include "pugixml.hpp"
 #include "test/TransitionExternalInterface.hh"
+
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <cstring>
+
+#include <unistd.h>
+
+#if defined(HAVE_SETITIMER) && (!defined(_POSIX_TIMERS) || (((_POSIX_TIMERS - 200112L) < 0L) && !defined(PLEXIL_ANDROID)))
+// Darwin (a.k.a Mac OS X)
+#include <sys/time.h> // for gettimeofday, itimerval
+#include "timeval-utils.hh"
+
+#define TIME_STRUCT struct timeval
+#define GET_WALL_TIME(timestruct) do { gettimeofday(timestruct, NULL); } while (0)
+#define REPORT_TIME(start, finish) do { \
+  struct timeval interval = finish - start; \
+  std::cout << "Time elapsed " << interval.tv_sec << '.' \
+            << std::setfill('0') << std::setw(6) << interval.tv_usec << std::endl; \
+  } while (0)
+
+#else
+// *** TODO ***
+#endif
 
 void loadPlanBenchmark(std::string const &planFile)
 {
@@ -108,6 +130,8 @@ int main(int argc, char *argv[])
   
   std::cout << "Loading plan file " << planFile << ' ' << n << " times..." << std::endl;
 
+  TIME_STRUCT start, finish;
+
   try {
     // Initialize infrastructure
     Error::doThrowExceptions();
@@ -115,12 +139,15 @@ int main(int argc, char *argv[])
     PLEXIL::TransitionExternalInterface intfc;
     PLEXIL::g_interface = &intfc;
 
-    // TODO: time before & after
+    GET_WALL_TIME(&start);
     for (unsigned int i = 0; i < n; ++i)
       loadPlanBenchmark(planFile);
+    GET_WALL_TIME(&finish);
 
     PLEXIL::g_interface = NULL;
     runFinalizers();
+
+    REPORT_TIME(start, finish);
   }
   catch (PLEXIL::ParserException const &e) {
     std::cerr << "Aborting benchmark due to parser exception:\n" << e.what() << std::endl;
