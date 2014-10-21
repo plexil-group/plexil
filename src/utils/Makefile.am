@@ -30,11 +30,11 @@ lib_LTLIBRARIES = libPlexilUtils.la
 libPlexilUtils_la_CPPFLAGS =
 
 include_HEADERS = ConstantMacros.hh Debug.hh Error.hh Logging.hh \
- ParserException.hh SimpleMap.hh TestSupport.hh lifecycle-utils.h stricmp.h \
- timespec-utils.hh timeval-utils.hh utils_main_page.hh
+ ParserException.hh SimpleMap.hh TestSupport.hh lifecycle-utils.h map-utils.hh \
+ stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
 libPlexilUtils_la_SOURCES = Debug.cc Error.cc Logging.cc \
- ParserException.cc SimpleMap.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
+ ParserException.cc lifecycle-utils.c stricmp.c timespec-utils.cc \
  timeval-utils.cc
 
 if JNI_OPT

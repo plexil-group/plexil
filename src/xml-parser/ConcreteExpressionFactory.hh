@@ -35,7 +35,6 @@ namespace PLEXIL
   // Forward references
   template <typename T> class ArrayVariable;
   template <typename T> class Constant;
-  template <typename T> class UserVariable;
 
   class ArrayReference;
   class MutableArrayReference;
@@ -66,30 +65,6 @@ namespace PLEXIL
 
   template <typename T>
   class ConcreteExpressionFactory<Constant<T> > : public ExpressionFactory
-  {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
-
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-
-  template <typename T>
-  class ConcreteExpressionFactory<UserVariable<T> > : public ExpressionFactory
   {
   public:
     ConcreteExpressionFactory(const std::string& name)

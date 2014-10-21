@@ -164,10 +164,12 @@ am__v_lt_0 = --silent
 am__v_lt_1 = 
 PROGRAMS = $(bin_PROGRAMS)
 am__test_value_module_tests_SOURCES_DIST = test/arrayTest.cc \
-	test/valueTest.cc test/value-test-module.cc
+	test/valueTest.cc test/valueTypeTest.cc \
+	test/value-test-module.cc
 am__dirstamp = $(am__leading_dot)dirstamp
 @MODULE_TESTS_OPT_TRUE@am_test_value_module_tests_OBJECTS = test/test_value_module_tests-arrayTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_value_module_tests-valueTest.$(OBJEXT) \
+@MODULE_TESTS_OPT_TRUE@	test/test_value_module_tests-valueTypeTest.$(OBJEXT) \
 @MODULE_TESTS_OPT_TRUE@	test/test_value_module_tests-value-test-module.$(OBJEXT)
 test_value_module_tests_OBJECTS =  \
 	$(am_test_value_module_tests_OBJECTS)
@@ -375,7 +377,7 @@ libPlexilValue_la_SOURCES = Array.cc ArrayImpl.cc CommandHandle.cc \
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = 
 @MODULE_TESTS_OPT_TRUE@test_value_module_tests_SOURCES = test/arrayTest.cc test/valueTest.cc \
-@MODULE_TESTS_OPT_TRUE@ test/value-test-module.cc
+@MODULE_TESTS_OPT_TRUE@ test/valueTypeTest.cc test/value-test-module.cc
 
 @MODULE_TESTS_OPT_TRUE@test_value_module_tests_CPPFLAGS = -I../utils
 @MODULE_TESTS_OPT_TRUE@test_value_module_tests_LDADD = libPlexilValue.la  ../utils/libPlexilUtils.la
@@ -510,6 +512,8 @@ test/test_value_module_tests-arrayTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_value_module_tests-valueTest.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+test/test_value_module_tests-valueTypeTest.$(OBJEXT):  \
+	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 test/test_value_module_tests-value-test-module.$(OBJEXT):  \
 	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
 
@@ -533,6 +537,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_value_module_tests-arrayTest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_value_module_tests-value-test-module.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_value_module_tests-valueTest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_value_module_tests-valueTypeTest.Po@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -627,6 +632,20 @@ test/test_value_module_tests-valueTest.obj: test/valueTest.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/valueTest.cc' object='test/test_value_module_tests-valueTest.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_value_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_value_module_tests-valueTest.obj `if test -f 'test/valueTest.cc'; then $(CYGPATH_W) 'test/valueTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/valueTest.cc'; fi`
+
+test/test_value_module_tests-valueTypeTest.o: test/valueTypeTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_value_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_value_module_tests-valueTypeTest.o -MD -MP -MF test/$(DEPDIR)/test_value_module_tests-valueTypeTest.Tpo -c -o test/test_value_module_tests-valueTypeTest.o `test -f 'test/valueTypeTest.cc' || echo '$(srcdir)/'`test/valueTypeTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_value_module_tests-valueTypeTest.Tpo test/$(DEPDIR)/test_value_module_tests-valueTypeTest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/valueTypeTest.cc' object='test/test_value_module_tests-valueTypeTest.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_value_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_value_module_tests-valueTypeTest.o `test -f 'test/valueTypeTest.cc' || echo '$(srcdir)/'`test/valueTypeTest.cc
+
+test/test_value_module_tests-valueTypeTest.obj: test/valueTypeTest.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_value_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_value_module_tests-valueTypeTest.obj -MD -MP -MF test/$(DEPDIR)/test_value_module_tests-valueTypeTest.Tpo -c -o test/test_value_module_tests-valueTypeTest.obj `if test -f 'test/valueTypeTest.cc'; then $(CYGPATH_W) 'test/valueTypeTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/valueTypeTest.cc'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_value_module_tests-valueTypeTest.Tpo test/$(DEPDIR)/test_value_module_tests-valueTypeTest.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/valueTypeTest.cc' object='test/test_value_module_tests-valueTypeTest.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_value_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_value_module_tests-valueTypeTest.obj `if test -f 'test/valueTypeTest.cc'; then $(CYGPATH_W) 'test/valueTypeTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/valueTypeTest.cc'; fi`
 
 test/test_value_module_tests-value-test-module.o: test/value-test-module.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_value_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_value_module_tests-value-test-module.o -MD -MP -MF test/$(DEPDIR)/test_value_module_tests-value-test-module.Tpo -c -o test/test_value_module_tests-value-test-module.o `test -f 'test/value-test-module.cc' || echo '$(srcdir)/'`test/value-test-module.cc

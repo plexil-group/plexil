@@ -67,9 +67,7 @@ namespace PLEXIL
       REGISTER_ARITHMETIC_FUNCTION(Addition, ADD);
 
       REGISTER_FUNCTION(AllElementsKnown, ALL_KNOWN);
-
       REGISTER_FUNCTION(BooleanAnd, AND);
-
       REGISTER_FUNCTION(AnyElementsKnown, ANY_KNOWN);
 
       REGISTER_EXPRESSION(ArrayReference, ArrayElement);
@@ -77,10 +75,9 @@ namespace PLEXIL
       new VariableReferenceFactory("ArrayVariable"); // for effect
 
       REGISTER_EXPRESSION(BooleanConstant, BooleanValue);
-      REGISTER_EXPRESSION(BooleanVariable, BooleanVariable);
+      new VariableReferenceFactory("BooleanVariable"); // for effect
 
       REGISTER_ARITHMETIC_FUNCTION(Ceiling, CEIL);
-
       REGISTER_FUNCTION(StringConcat, Concat);
 
       REGISTER_ARITHMETIC_FUNCTION(Division, DIV);
@@ -99,7 +96,7 @@ namespace PLEXIL
       REGISTER_ARITHMETIC_FUNCTION(GreaterThan, GT);
 
       REGISTER_EXPRESSION(IntegerConstant, IntegerValue);
-      REGISTER_EXPRESSION(IntegerVariable, IntegerVariable);
+      new VariableReferenceFactory("IntegerVariable"); // for effect
 
       REGISTER_FUNCTION(IsKnown, IsKnown);
 
@@ -145,7 +142,7 @@ namespace PLEXIL
 #endif // !defined(__VXWORKS__)
 
       REGISTER_EXPRESSION(RealConstant, RealValue);
-      REGISTER_EXPRESSION(RealVariable, RealVariable);
+      new VariableReferenceFactory("RealVariable"); // for effect
 
       REGISTER_FUNCTION(ArrayLength, SIZE);
 
@@ -156,7 +153,7 @@ namespace PLEXIL
       REGISTER_ARITHMETIC_FUNCTION(Subtraction, SUB);
 
       REGISTER_EXPRESSION(StringConstant, StringValue);
-      REGISTER_EXPRESSION(StringVariable, StringVariable);
+      new VariableReferenceFactory("StringVariable"); // for effect
 
   // Believe it or not, VxWorks 6.8 for PowerPC doesn't have trunc()
 #if !defined(__VXWORKS__)

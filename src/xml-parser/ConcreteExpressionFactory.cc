@@ -143,40 +143,6 @@ namespace PLEXIL
   }
 
   //
-  // Factories for scalar variables
-  //
-
-  template <typename T>
-  Expression *
-  ConcreteExpressionFactory<UserVariable<T> >::allocate(pugi::xml_node const expr,
-                                                        NodeConnector *node,
-                                                        bool &wasCreated) const
-  {
-    // Variable reference - look it up
-    checkNotEmpty(expr);
-    const char* tag = expr.name();
-    ValueType typ = parseValueTypePrefix(tag, strlen(tag) - strlen(VAR_SUFFIX));
-    checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
-                                     expr,
-                                     "Unknown variable type \"" << tag << "\"");
-    checkParserExceptionWithLocation(node,
-                                     expr,
-                                     "Internal error: Variable reference with null node");
-    const char *varName = expr.child_value();
-    Expression *result = node->findVariable(varName);
-    checkParserExceptionWithLocation(result,
-                                     expr,
-                                     "Can't find variable named " << varName);
-    checkParserExceptionWithLocation(result->valueType() == typ,
-                                     expr,
-                                     "Variable " << varName
-                                     << " is type " << valueTypeName(result->valueType())
-                                     << ", but reference is for type " << valueTypeName(typ));
-    wasCreated = false;
-    return result;
-  }
-
-  //
   // Array references
   //
 
@@ -264,15 +230,17 @@ namespace PLEXIL
                                      NodeConnector *node,
                                      bool & wasCreated) const
   {
-    checkParserExceptionWithLocation(testTagSuffix(VAR_SUFFIX, expr),
-                                     expr,
-                                     "Internal error: not a variable reference");
     assertTrue_1(node); // internal error
     checkNotEmpty(expr);
-    ValueType typ = parseValueTypePrefix(expr.name() , strlen(expr.name()) - strlen(VAR_SUFFIX));
+    char const *tag = expr.name();
+    ValueType typ;
+    size_t n = scanValueTypePrefix(tag, typ);
     checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
                                      expr,
-                                     "Unknown variable reference type " << expr.name());
+                                     "Invalid variable reference tag " << tag);
+    checkParserExceptionWithLocation(!strcmp(VAR_SUFFIX, &tag[n]),
+                                     expr,
+                                     "Internal error: not a variable reference");
     char const *varName = expr.child_value();
     Expression *result = node->findVariable(varName);
     checkParserExceptionWithLocation(result,

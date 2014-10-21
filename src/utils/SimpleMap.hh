@@ -217,7 +217,7 @@ namespace PLEXIL
         return m_store.end(); // no match
       // See if there is a match to an entry with a greater key.
       const_iterator scanit = it;
-      while (s_comp.match(*(++scanit), index))
+      while (++scanit != m_store.end() && s_comp.match(*scanit, index))
         it = scanit;
       return it;
     }
@@ -281,6 +281,8 @@ namespace PLEXIL
     SimpleMap(SimpleMap const &);
     SimpleMap &operator=(SimpleMap const &);
 
+    // Wrap a used-defined comparator class for map entries
+
     struct EntryComparator
     {
       bool operator() (MAP_ENTRY_TYPE const &a, MAP_ENTRY_TYPE const &b)
@@ -299,6 +301,8 @@ namespace PLEXIL
       }
     };
 
+    // Wrap a used-defined comparator class for comparing map entries to indices
+
     template <typename INDEX_TYPE, class INDEX_COMP>
     struct IndexComparator
     {
@@ -307,24 +311,19 @@ namespace PLEXIL
         return INDEX_COMP()(a.first, b);
       }
 
+      // Only used in SimpleMap::find().
       bool equal(MAP_ENTRY_TYPE const &a, INDEX_TYPE const &b)
       {
         return INDEX_COMP().equal(a.first, b);
       }
 
+      // Only used in SimpleMap::findFirst() and SimpleMap::findLast().
       bool match(MAP_ENTRY_TYPE const &a, INDEX_TYPE const &b)
       {
         return INDEX_COMP().match(a.first, b);
       }
     };
     
-  };
-
-  // Used in several tables in the Exec
-  struct CStringComparator
-  {
-    bool operator()(char const * const &a, char const * const &b) const;
-    bool equal(char const * const &a, char const * const &b) const;
   };
 
 } // namespace PLEXIL

@@ -31,7 +31,9 @@
 #include "ArrayImpl.hh"
 #include "CommandHandle.hh"
 #include "Error.hh"
+#include "map-utils.hh"
 #include "NodeConstants.hh"
+#include "SimpleMap.hh"
 #include "stricmp.h"
 
 #include <cerrno>
@@ -200,80 +202,6 @@ namespace PLEXIL
       return sl_val;
     }
   }
-
-  const std::string &typeNameAsVariable(ValueType ty)
-  {
-    static std::string const sl_var = VAR_SUFFIX;
-
-    switch (ty) {
-    case BOOLEAN_TYPE:
-      static std::string const sl_boolvar = BOOLEAN_STR + sl_var;
-      return sl_boolvar;
-
-    case INTEGER_TYPE:
-      static std::string const sl_intvar = INTEGER_STR + sl_var;
-      return sl_intvar;
-
-    case REAL_TYPE:
-      static std::string const sl_realvar = REAL_STR + sl_var;
-      return sl_realvar;
-      
-    case STRING_TYPE:
-      static std::string const sl_stringvar = STRING_STR + sl_var;
-      return sl_stringvar;
-
-    case DATE_TYPE:
-      static std::string const sl_datevar = DATE_STR + sl_var;
-      return sl_datevar;
-
-    case DURATION_TYPE:
-      static std::string const sl_durvar = DURATION_STR + sl_var;
-      return sl_durvar;
-
-      // Array types
-
-      // generic (for array reference)
-    case ARRAY_TYPE:
-      static std::string const sl_arrvar = ARRAY_STR + sl_var;
-      return sl_arrvar;
-
-    case BOOLEAN_ARRAY_TYPE:
-      static std::string const sl_boolarrvar = BOOLEAN_ARRAY_STR + sl_var;
-      return sl_boolarrvar;
-
-    case INTEGER_ARRAY_TYPE:
-      static std::string const sl_intarrvar = INTEGER_ARRAY_STR + sl_var;
-      return sl_intarrvar;
-
-    case REAL_ARRAY_TYPE:
-      static std::string const sl_realarrvar = REAL_ARRAY_STR + sl_var;
-      return sl_realarrvar;
-
-    case STRING_ARRAY_TYPE:
-      static std::string const sl_stringarrvar = STRING_ARRAY_STR + sl_var;
-      return sl_stringarrvar;
-
-      // Internal types
-    case NODE_STATE_TYPE:
-      static std::string const sl_nsvar = NODE_STATE_STR + sl_var;
-      return sl_nsvar;
-
-    case OUTCOME_TYPE:
-      static std::string const sl_outcomevar = NODE_OUTCOME_STR + sl_var;
-      return sl_outcomevar;
-
-    case FAILURE_TYPE:
-      static std::string const sl_failvar = NODE_FAILURE_STR + sl_var;
-      return sl_failvar;
-
-    case COMMAND_HANDLE_TYPE:
-      static std::string const sl_handlevar = NODE_COMMAND_HANDLE_STR + sl_var;
-      return sl_handlevar;
-
-    default:
-      return sl_var;
-    }
-  }
   
   bool isUserType(ValueType ty)
   {
@@ -350,89 +278,72 @@ namespace PLEXIL
     }
   }
 
-  ValueType parseValueTypePrefix(char const *str, size_t prefixLen)
+  //
+  // ValueType parsing
+  //
+
+  typedef SimpleMap<std::string, ValueType> NameTypeTable;
+
+  // Size argument to constructor should be at least as big as # of entries in table
+  static NameTypeTable s_nameTypeTable(15);
+
+  static void initNameTypeTable()
   {
-    switch (prefixLen) {
-    case 4: 
-      if (0 == strncmp(REAL_STR, str, prefixLen))
-        return PLEXIL::REAL_TYPE;
-      else if (0 == strncmp(DATE_STR, str, prefixLen))
-        return PLEXIL::DATE_TYPE;
-      else 
-        return PLEXIL::UNKNOWN_TYPE;
+    if (s_nameTypeTable.empty()) {
+      s_nameTypeTable.insert(BOOLEAN_STR, BOOLEAN_TYPE);
+      s_nameTypeTable.insert(INTEGER_STR, INTEGER_TYPE);
+      s_nameTypeTable.insert(REAL_STR, REAL_TYPE);
+      s_nameTypeTable.insert(STRING_STR, STRING_TYPE);
+      s_nameTypeTable.insert(DATE_STR, DATE_TYPE);
+      s_nameTypeTable.insert(DURATION_STR, DURATION_TYPE);
 
-    case 5:
-      if (0 == strncmp(ARRAY_STR, str, prefixLen))
-        return PLEXIL::ARRAY_TYPE;
-      else
-        return PLEXIL::UNKNOWN_TYPE;
+      s_nameTypeTable.insert(ARRAY_STR, ARRAY_TYPE);
+      s_nameTypeTable.insert(BOOLEAN_ARRAY_STR, BOOLEAN_ARRAY_TYPE);
+      s_nameTypeTable.insert(INTEGER_ARRAY_STR, INTEGER_ARRAY_TYPE);
+      s_nameTypeTable.insert(REAL_ARRAY_STR, REAL_ARRAY_TYPE);
+      s_nameTypeTable.insert(STRING_ARRAY_STR, STRING_ARRAY_TYPE);
 
-    case 6:
-      if (0 == strncmp(STRING_STR, str, prefixLen))
-        return PLEXIL::STRING_TYPE;
-      else
-        return PLEXIL::UNKNOWN_TYPE;
-
-    case 7:
-      if (0 == strncmp(INTEGER_STR, str, prefixLen))
-        return PLEXIL::INTEGER_TYPE;
-      else if (0 == strncmp(BOOLEAN_STR, str, prefixLen))
-        return PLEXIL::BOOLEAN_TYPE;
-      else
-        return PLEXIL::UNKNOWN_TYPE;
-
-    case 8:
-      if (0 == strncmp(DURATION_STR, str, prefixLen))
-        return PLEXIL::DURATION_TYPE;
-      else
-        return PLEXIL::UNKNOWN_TYPE;
-
-    case 9:
-      if (0 == strncmp(REAL_ARRAY_STR, str, prefixLen))
-        return PLEXIL::REAL_ARRAY_TYPE;
-      else if (0 == strncmp(NODE_STATE_STR, str, prefixLen))
-        return PLEXIL::NODE_STATE_TYPE;
-      else
-        return PLEXIL::UNKNOWN_TYPE;
-
-    case 11:
-      if (0 == strncmp(NODE_OUTCOME_STR, str, prefixLen))
-        return PLEXIL::OUTCOME_TYPE;
-      else if (0 == strncmp(NODE_FAILURE_STR, str, prefixLen))
-        return PLEXIL::FAILURE_TYPE;
-      else if (0 == strncmp(STRING_ARRAY_STR, str, prefixLen))
-        return PLEXIL::STRING_ARRAY_TYPE;
-      else
-        return PLEXIL::UNKNOWN_TYPE;
-
-    case 12:
-      if (0 == strncmp(BOOLEAN_ARRAY_STR, str, prefixLen))
-        return PLEXIL::BOOLEAN_ARRAY_TYPE;
-      else if (0 == strncmp(INTEGER_ARRAY_STR, str, prefixLen))
-        return PLEXIL::INTEGER_ARRAY_TYPE;
-      else
-        return PLEXIL::UNKNOWN_TYPE;
-
-    case 17:
-      if (0 == strncmp(NODE_COMMAND_HANDLE_STR, str, prefixLen))
-        return PLEXIL::COMMAND_HANDLE_TYPE;
-      else
-        return PLEXIL::UNKNOWN_TYPE;
-      
-      // default case
-    default:
-      return PLEXIL::UNKNOWN_TYPE;
+      s_nameTypeTable.insert(NODE_STATE_STR, NODE_STATE_TYPE);
+      s_nameTypeTable.insert(NODE_OUTCOME_STR, OUTCOME_TYPE);
+      s_nameTypeTable.insert(NODE_FAILURE_STR, FAILURE_TYPE);
+      s_nameTypeTable.insert(NODE_COMMAND_HANDLE_STR, COMMAND_HANDLE_TYPE);
     }
   }
 
   ValueType parseValueType(char const *typeStr)
   {
-    return parseValueTypePrefix(typeStr, strlen(typeStr));
+    if (!typeStr)
+      return UNKNOWN_TYPE;
+    initNameTypeTable();
+    NameTypeTable::const_iterator it = 
+      s_nameTypeTable.find<char const *, CStringComparator>(typeStr);
+    if (it == s_nameTypeTable.end())
+      return UNKNOWN_TYPE;
+    else
+      return it->second;
   }
 
   ValueType parseValueType(const std::string& typeStr)
   {
-    return parseValueTypePrefix(typeStr.c_str(), typeStr.length());
+    initNameTypeTable();
+    NameTypeTable::const_iterator it = s_nameTypeTable.find(typeStr);
+    if (it == s_nameTypeTable.end())
+      return UNKNOWN_TYPE;
+    else
+      return it->second;
+  }
+
+  size_t scanValueTypePrefix(char const *typeStr, ValueType &result)
+  {
+    if (!typeStr)
+      return 0;
+    initNameTypeTable();
+    NameTypeTable::const_iterator it = 
+      s_nameTypeTable.findLast<char const *, StringPrefixComparator>(typeStr);
+    if (it == s_nameTypeTable.end())
+      return 0; // failure
+    result = it->second;
+    return it->first.size();
   }
 
   template <typename T>

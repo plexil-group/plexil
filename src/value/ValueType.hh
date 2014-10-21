@@ -99,8 +99,8 @@ namespace PLEXIL
 
   // Utility functions
   const std::string &valueTypeName(ValueType ty);
+  // still used by XML parser for array initialization
   const std::string &typeNameAsValue(ValueType ty);
-  const std::string &typeNameAsVariable(ValueType ty); // FIXME: still needed?
 
   extern bool isUserType(ValueType ty);
   extern bool isInternalType(ValueType ty);
@@ -112,10 +112,17 @@ namespace PLEXIL
   extern ValueType arrayElementType(ValueType ty);
   extern ValueType arrayType(ValueType elTy);
 
-  extern ValueType parseValueTypePrefix(char const *str, size_t prefixLen);
-
-  extern ValueType parseValueType(const std::string &typeStr);
+  // Find the type whose name exactly matches the given string.
   extern ValueType parseValueType(char const *typeStr);
+  extern ValueType parseValueType(const std::string &typeStr);
+
+  /**
+   * @brief Find the longest type name contained as a prefix in the given string.
+   * @param str The string to scan.
+   * @param result Reference to the place to put the ValueType.
+   * @return Length of the scanned prefix. If 0, no valid type prefix was found.
+   */
+  extern size_t scanValueTypePrefix(char const *str, ValueType &result);
 
   // Returns true if dest type can receive src type, false otherwise.
   extern bool areTypesCompatible(ValueType dest, ValueType src);

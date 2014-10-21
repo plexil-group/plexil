@@ -166,7 +166,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libPlexilUtils_la_LIBADD =
 am__libPlexilUtils_la_SOURCES_DIST = Debug.cc Error.cc Logging.cc \
-	ParserException.cc SimpleMap.cc lifecycle-utils.c stricmp.c \
+	ParserException.cc lifecycle-utils.c stricmp.c \
 	timespec-utils.cc timeval-utils.cc JNIHelper.cc JNIUtils.cc \
 	RecursiveThreadMutex.cc ThreadMutex.cc ThreadSemaphore.cc \
 	ThreadSpawn.cc DynamicLoader.cc
@@ -182,7 +182,6 @@ am__libPlexilUtils_la_SOURCES_DIST = Debug.cc Error.cc Logging.cc \
 am_libPlexilUtils_la_OBJECTS = libPlexilUtils_la-Debug.lo \
 	libPlexilUtils_la-Error.lo libPlexilUtils_la-Logging.lo \
 	libPlexilUtils_la-ParserException.lo \
-	libPlexilUtils_la-SimpleMap.lo \
 	libPlexilUtils_la-lifecycle-utils.lo \
 	libPlexilUtils_la-stricmp.lo \
 	libPlexilUtils_la-timespec-utils.lo \
@@ -272,8 +271,8 @@ am__can_run_installinfo = \
   esac
 am__include_HEADERS_DIST = ConstantMacros.hh Debug.hh Error.hh \
 	Logging.hh ParserException.hh SimpleMap.hh TestSupport.hh \
-	lifecycle-utils.h stricmp.h timespec-utils.hh timeval-utils.hh \
-	utils_main_page.hh JNIHelper.hh JNIUtils.hh \
+	lifecycle-utils.h map-utils.hh stricmp.h timespec-utils.hh \
+	timeval-utils.hh utils_main_page.hh JNIHelper.hh JNIUtils.hh \
 	ScopedOstreamRedirect.hh RecursiveThreadMutex.hh \
 	ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh \
 	DynamicLoader.hh
@@ -431,11 +430,11 @@ lib_LTLIBRARIES = libPlexilUtils.la
 libPlexilUtils_la_CPPFLAGS = 
 include_HEADERS = ConstantMacros.hh Debug.hh Error.hh Logging.hh \
 	ParserException.hh SimpleMap.hh TestSupport.hh \
-	lifecycle-utils.h stricmp.h timespec-utils.hh timeval-utils.hh \
-	utils_main_page.hh $(am__append_1) $(am__append_3) \
-	$(am__append_5)
+	lifecycle-utils.h map-utils.hh stricmp.h timespec-utils.hh \
+	timeval-utils.hh utils_main_page.hh $(am__append_1) \
+	$(am__append_3) $(am__append_5)
 libPlexilUtils_la_SOURCES = Debug.cc Error.cc Logging.cc \
-	ParserException.cc SimpleMap.cc lifecycle-utils.c stricmp.c \
+	ParserException.cc lifecycle-utils.c stricmp.c \
 	timespec-utils.cc timeval-utils.cc $(am__append_2) \
 	$(am__append_4) $(am__append_6)
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/TestData.hh \
@@ -603,7 +602,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-Logging.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-ParserException.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-RecursiveThreadMutex.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-SimpleMap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-ThreadMutex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-ThreadSemaphore.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilUtils_la-ThreadSpawn.Plo@am__quote@
@@ -706,13 +704,6 @@ libPlexilUtils_la-ParserException.lo: ParserException.cc
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ParserException.cc' object='libPlexilUtils_la-ParserException.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-ParserException.lo `test -f 'ParserException.cc' || echo '$(srcdir)/'`ParserException.cc
-
-libPlexilUtils_la-SimpleMap.lo: SimpleMap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilUtils_la-SimpleMap.lo -MD -MP -MF $(DEPDIR)/libPlexilUtils_la-SimpleMap.Tpo -c -o libPlexilUtils_la-SimpleMap.lo `test -f 'SimpleMap.cc' || echo '$(srcdir)/'`SimpleMap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilUtils_la-SimpleMap.Tpo $(DEPDIR)/libPlexilUtils_la-SimpleMap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='SimpleMap.cc' object='libPlexilUtils_la-SimpleMap.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilUtils_la-SimpleMap.lo `test -f 'SimpleMap.cc' || echo '$(srcdir)/'`SimpleMap.cc
 
 libPlexilUtils_la-timespec-utils.lo: timespec-utils.cc
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilUtils_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilUtils_la-timespec-utils.lo -MD -MP -MF $(DEPDIR)/libPlexilUtils_la-timespec-utils.Tpo -c -o libPlexilUtils_la-timespec-utils.lo `test -f 'timespec-utils.cc' || echo '$(srcdir)/'`timespec-utils.cc

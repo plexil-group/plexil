@@ -28,6 +28,7 @@
 #define PLEXIL_NODE_VARIABLE_MAP_HH
 
 #include "SimpleMap.hh"
+#include "map-utils.hh"
 
 namespace PLEXIL
 {

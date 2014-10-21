@@ -30,6 +30,7 @@
 #include "ConcreteExpressionFactory.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "map-utils.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"

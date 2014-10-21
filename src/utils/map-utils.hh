@@ -24,51 +24,58 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Debug.hh"
-#include "Error.hh"
-#include "TestSupport.hh"
-#include "lifecycle-utils.h"
+#ifndef PLEXIL_MAP_UTILS_HH
+#define PLEXIL_MAP_UTILS_HH
 
-#include <cstring> // for strcmp()
-#include <fstream>
+#include <cstring>
+#include <string>
 
-extern bool valueTypeTest();
-extern bool arrayTest();
-extern bool valueTest();
+//
+// Comparator classes for use with SimpleMap class template
+//
 
-static void runExprTests()
+namespace PLEXIL
 {
-  Error::doThrowExceptions();
 
-  runTestSuite(valueTypeTest);
-  runTestSuite(arrayTest);
-  runTestSuite(valueTest);
+  // For exact matches in tables keying on char * or std::string
+  // Use this when you don't want to create temporary std::string instances
+  struct CStringComparator
+  {
+    bool operator()(char const * const &a, char const * const &b) const
+    {
+      return (strcmp(a, b) < 0);
+    }
 
-  std::cout << "Finished" << std::endl;
-}
+    bool operator()(std::string const &a, char const * const &b) const
+    {
+      return a < b;
+    }
 
-int main(int argc, char *argv[])
-{
-  std::string debugConfig("Debug.cfg");
-  
-  for (int i = 1; i < argc; ++i) {
-      if (strcmp(argv[i], "-d") == 0)
-          debugConfig = std::string(argv[++i]);
-  }
-  
-  std::ifstream config(debugConfig.c_str());
-  
-  if (config.good()) {
-     readDebugConfigStream(config);
-     std::cout << "Reading configuration file " << debugConfig.c_str() << "\n";
-  }
-  else
-     std::cout << "Warning: unable to read configuration file " << debugConfig.c_str() << "\n";
-  
-  runExprTests();
+    bool equal(char const * const &a, char const * const &b) const
+    {
+      return !strcmp(a, b);
+    }
 
-  // clean up
-  runFinalizers();
+    bool equal(std::string const &a, char const * const &b) const
+    {
+      return a == b;
+    }
+  };
 
-  return 0;
-}
+  // For prefix matches in tables keyed by std::string and accessed by char *
+  struct StringPrefixComparator
+  {
+    bool operator()(std::string const &a, char const * const &b) const
+    {
+      return (strncmp(a.c_str(), b, a.size()) < 0);
+    }
+
+    bool match(std::string const &a, char const * const &b) const
+    {
+      return !strncmp(a.c_str(), b, a.size());
+    }
+  };
+
+} // namespace PLEXIL
+
+#endif // PLEXIL_MAP_UTILS_HH
