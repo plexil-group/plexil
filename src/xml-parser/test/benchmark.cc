@@ -43,8 +43,7 @@
 
 #include <unistd.h>
 
-#if defined(HAVE_SETITIMER) && (!defined(_POSIX_TIMERS) || (((_POSIX_TIMERS - 200112L) < 0L) && !defined(PLEXIL_ANDROID)))
-// Darwin (a.k.a Mac OS X)
+#if defined(HAVE_GETTIMEOFDAY)
 #include <sys/time.h> // for gettimeofday, itimerval
 #include "timeval-utils.hh"
 

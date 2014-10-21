@@ -27,6 +27,8 @@
 #include "TestSupport.hh"
 #include "ValueType.hh"
 
+#include <cstring>
+
 using namespace PLEXIL;
 
 // String constants for parser testing
