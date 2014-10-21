@@ -48,9 +48,11 @@ namespace PLEXIL
       checkTag(PAIR_TAG, pr);
       xml_node temp = pr.first_child();
       checkTag(NAME_TAG, temp);
-      checkNotEmpty(temp);
+      checkParserExceptionWithLocation(*(temp.child_value()),
+                                       temp,
+                                       "Update " << NAME_TAG << " element empty or malformed");
       temp = temp.next_sibling();
-      checkParserExceptionWithLocation(temp && temp.type() == node_element,
+      checkParserExceptionWithLocation(temp,
                                        pr,
                                        "Update pair without a value expression");
     }
