@@ -231,17 +231,15 @@ namespace PLEXIL
                                      bool & wasCreated) const
   {
     assertTrue_1(node); // internal error
-    checkNotEmpty(expr);
     char const *tag = expr.name();
     ValueType typ;
-    size_t n = scanValueTypePrefix(tag, typ);
-    checkParserExceptionWithLocation(typ != UNKNOWN_TYPE,
+    checkParserExceptionWithLocation(scanValueTypePrefix(tag, typ),
                                      expr,
                                      "Invalid variable reference tag " << tag);
-    checkParserExceptionWithLocation(!strcmp(VAR_SUFFIX, &tag[n]),
-                                     expr,
-                                     "Internal error: not a variable reference");
     char const *varName = expr.child_value();
+    checkParserExceptionWithLocation(*varName,
+                                     expr,
+                                     "Empty or malformed " << tag << " element");
     Expression *result = node->findVariable(varName);
     checkParserExceptionWithLocation(result,
                                      expr,
