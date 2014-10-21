@@ -53,8 +53,10 @@ namespace PLEXIL
     checkTag(ALIAS_TAG, aliasXml);
     xml_node nameXml = aliasXml.first_child();
     checkTag(NODE_PARAMETER_TAG, nameXml);
-    checkNotEmpty(nameXml);
-    std::string name(nameXml.child_value());
+    char const *name = nameXml.child_value();
+    checkParserExceptionWithLocation(*name,
+                                     nameXml,
+                                     "Alias element is empty or malformed");
     // Basic checks to see that we have something that could be an expression
     xml_node temp = nameXml.next_sibling();
     checkParserExceptionWithLocation(temp,
@@ -126,7 +128,7 @@ namespace PLEXIL
   {
     debugMsg("finalizeLibraryCall", " caller " << node->getNodeId());
     LibraryCallNode *callNode = dynamic_cast<LibraryCallNode *>(node);
-    assertTrue_2(callNode, "Internal error: Used to be a LibraryCallNode, but not now");
+    assertTrue_2(callNode, "Not a LibraryCallNode");
     xml_node temp = callXml.first_child();
     char const *calleeName = temp.child_value();
     temp = temp.next_sibling();
@@ -140,7 +142,7 @@ namespace PLEXIL
     assertTrue_2(!node->getChildren().empty(),
                  "Internal error: LibraryNodeCall node missing called node");
     Node *callee = node->getChildren().front();
-    xml_node calleeXml = getLibraryNode(std::string(calleeName));
+    xml_node calleeXml = getLibraryNode(calleeName);
     assertTrue_2(calleeXml,
                  "Internal error: LibraryNodeCall can't find XML for called node");
     finalizeNode(callee, calleeXml);

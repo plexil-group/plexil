@@ -606,10 +606,10 @@ namespace PLEXIL
     checkParserExceptionWithLocation(nodeIdElt,
                                      node,
                                      "handleAddLibrary: Root node lacks " << NODEID_TAG << " element");
-    checkParserExceptionWithLocation(*nodeIdElt.child_value(),
+    const char *name = nodeIdElt.child_value();
+    checkParserExceptionWithLocation(*name,
                                      nodeIdElt,
                                      "handleAddLibrary: " << NODEID_TAG << " element is empty");
-    std::string name = nodeIdElt.child_value();
     addLibraryNode(name, doc);
 
     debugMsg("InterfaceManager:handleAddLibrary", " library node " << name << " added");
@@ -624,9 +624,9 @@ namespace PLEXIL
   InterfaceManager::handleLoadLibrary(std::string const &libName)
       throw (ParserException) 
   {
-    if (loadLibraryNode(libName))
+    if (loadLibraryNode(libName.c_str()))
       return true;
-    return getLibraryNode(libName, false);
+    return getLibraryNode(libName.c_str(), false);
   }
 
 
@@ -637,7 +637,7 @@ namespace PLEXIL
   bool
   InterfaceManager::isLibraryLoaded(const std::string &libName) const
   {
-    return getLibraryNode(libName, false);
+    return getLibraryNode(libName.c_str(), false);
   }
 
   /**

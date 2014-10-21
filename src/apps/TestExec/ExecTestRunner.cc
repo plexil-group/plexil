@@ -255,7 +255,7 @@ int ExecTestRunner::run(int argc, char** argv)
     
     pugi::xml_node libraryNode;
     try {
-      libraryNode = loadLibraryNode(fname);
+      libraryNode = loadLibraryNode(fname.c_str());
       if (!libraryNode) {
         warn("Unable to find file for library " << *libraryName);
         delete g_exec;

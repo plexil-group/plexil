@@ -28,15 +28,14 @@
 
 #include "Error.hh"
 #include "lifecycle-utils.h"
+#include "map-utils.hh"
 #include "parsePlan.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
-
-#include <map>
+#include "SimpleMap.hh"
 
 using pugi::xml_document;
 using pugi::xml_node;
-using std::map;
 using std::string;
 using std::vector;
 
@@ -50,7 +49,7 @@ namespace PLEXIL
   static vector<string> librarySearchPaths;
 
   // Place to store library nodes
-  typedef map<string, xml_document *> LibraryMap;
+  typedef SimpleMap<string, xml_document *> LibraryMap;
   static LibraryMap libraryMap;
 
   vector<string> const &getLibraryPaths()
@@ -75,16 +74,14 @@ namespace PLEXIL
 
   static void cleanLibraryMap()
   {
-    LibraryMap::iterator it = libraryMap.begin();
-    while (it != libraryMap.end()) {
+    for (LibraryMap::iterator it = libraryMap.begin(); it != libraryMap.end(); ++it) {
       xml_document *temp = it->second;
-      libraryMap.erase(it);
+      it->second = NULL;
       delete temp;
-      it = libraryMap.begin();
     }
   }
 
-  void addLibraryNode(string const &name, xml_document *doc)
+  void addLibraryNode(char const *name, xml_document *doc)
     throw (ParserException)
   {
     static bool sl_inited = false;
@@ -93,12 +90,12 @@ namespace PLEXIL
       sl_inited = true;
     }
     assertTrue_2(doc, "addLibraryNode: Null document");
-    assertTrue_2(!name.empty(), "addLibraryNode: Empty name");
+    assertTrue_2(*name, "addLibraryNode: Empty name");
     // *** TODO: handle global decls ***
     // *** TODO: Check library is well formed ***
 
     // If there is an existing entry, delete its document.
-    LibraryMap::iterator it = libraryMap.find(name);
+    LibraryMap::iterator it = libraryMap.find<char const *, CStringComparator>(name);
     if (it != libraryMap.end())
       delete it->second;
 
@@ -126,16 +123,15 @@ namespace PLEXIL
   }
 
   // name could be node name, file name w/ or w/o directory, w/ w/o .plx
-  xml_node loadLibraryNode(string const &name)
+  xml_node loadLibraryNode(char const *name)
   {
-    
     string nodeName = name;
     string fname = name;
-    size_t pos = name.rfind(".plx");
+    size_t pos = fname.rfind(".plx");
     if (pos == string::npos)
       fname += ".plx";
     else
-      nodeName = name.substr(0, pos);
+      nodeName = nodeName.substr(0, pos);
     pos = nodeName.find_last_of("/\\");
     if (pos != string::npos)
       nodeName = nodeName.substr(++pos);
@@ -153,13 +149,13 @@ namespace PLEXIL
                                      nodeIdXml,
                                      "loadLibraryNode: Requested " << nodeName
                                      << " but file contains " << nodeId);
-    addLibraryNode(nodeName, doc);
+    addLibraryNode(nodeName.c_str(), doc);
     return theNode;
   }
 
-  xml_node getLibraryNode(string const &name, bool loadIfNotFound)
+  xml_node getLibraryNode(char const *name, bool loadIfNotFound)
   {
-    LibraryMap::iterator it = libraryMap.find(name);
+    LibraryMap::iterator it = libraryMap.find<char const *, CStringComparator>(name);
     if (it != libraryMap.end())
       return it->second->document_element().child(NODE_TAG);
     else if (loadIfNotFound)

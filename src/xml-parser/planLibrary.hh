@@ -42,12 +42,12 @@ namespace PLEXIL
   extern void prependLibraryPath(std::string const &dirname);
   extern void setLibraryPaths(std::vector<std::string> const &paths);
 
-  extern pugi::xml_node getLibraryNode(std::string const &name,
+  extern pugi::xml_node getLibraryNode(char const *name,
                                        bool loadIfNotFound = true);
-  extern void addLibraryNode(std::string const &name, pugi::xml_document *doc)
+  extern void addLibraryNode(char const *name, pugi::xml_document *doc)
     throw (ParserException);
   extern pugi::xml_document *loadLibraryFile(std::string const &filename);
-  extern pugi::xml_node loadLibraryNode(std::string const &nodeName);
+  extern pugi::xml_node loadLibraryNode(char const *nodeName);
 
 } // namespace PLEXIL
 
