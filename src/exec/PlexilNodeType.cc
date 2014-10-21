@@ -27,8 +27,6 @@
 #include "PlexilNodeType.hh"
 #include "Error.hh"
 
-#include <cstring>
-
 namespace PLEXIL
 {
   std::string const ASSIGNMENT = "Assignment";
@@ -38,79 +36,31 @@ namespace PLEXIL
   std::string const LIST = "NodeList";
   std::string const UPDATE = "Update";
 
+  // Must be kept in same order as PlexilNodeType enum
+  static std::string const NODE_TYPE_NAMES[] =
+    {"", // 0 == invalid
+     LIST,
+     COMMAND,
+     ASSIGNMENT,
+     UPDATE,
+     EMPTY,
+     LIBRARYNODECALL
+    };
+
+  // Simple linear search
   PlexilNodeType parseNodeType(char const *typeName)
   {
-    switch (*typeName) {
-    case 'A':
-      if (ASSIGNMENT == typeName)
-        return NodeType_Assignment;
-      else 
-        return NodeType_error;
-
-    case 'C':
-      if (COMMAND == typeName)
-        return NodeType_Command;
-      else 
-        return NodeType_error;
-
-    case 'E':
-      if (EMPTY == typeName)
-        return NodeType_Empty;
-      else 
-        return NodeType_error;
-
-    case 'L':
-      if (LIBRARYNODECALL == typeName)
-        return NodeType_LibraryNodeCall;
-      else 
-        return NodeType_error;
-
-    case 'N':
-      if (LIST == typeName)
-        return NodeType_NodeList;
-      else 
-        return NodeType_error;
-
-    case 'U':
-      if (UPDATE == typeName)
-        return NodeType_Update;
-      // fall thru to...
-
-    default:
-      return NodeType_error;
-    }
+    for (size_t t = NodeType_NodeList; t < NodeType_error; ++t)
+      if (NODE_TYPE_NAMES[t] == typeName)
+        return (PlexilNodeType) t;
+    return NodeType_error;
   }
 
   const std::string& nodeTypeString(PlexilNodeType nodeType)
   {
-    static const std::string sl_errorReturn = "Invalid Node Type";
-    switch (nodeType) {
-    case NodeType_NodeList:
-      return LIST;
-      break;
-    case NodeType_Command:
-      return COMMAND;
-      break;
-    case NodeType_Assignment:
-      return ASSIGNMENT;
-      break;
-    case NodeType_Update:
-      return UPDATE;
-      break;
-    case NodeType_Empty:
-      return EMPTY;
-      break;
-    case NodeType_LibraryNodeCall:
-      return LIBRARYNODECALL;
-      break;
-
-      // fall thru case
-    default:
-      checkError(ALWAYS_FAIL,
-                 "Invalid node type " << nodeType);
-      return sl_errorReturn;
-      break;
-    }
+    assertTrue_2(nodeType > NodeType_uninitialized && nodeType < NodeType_error,
+                 "nodeTypeString: Illegal node type");
+    return NODE_TYPE_NAMES[nodeType];
   }
 
 } // namespace PLEXIL
