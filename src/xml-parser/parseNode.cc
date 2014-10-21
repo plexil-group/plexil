@@ -295,8 +295,10 @@ namespace PLEXIL
           checkParserExceptionWithLocation(!name,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
-          checkNotEmpty(temp);
           name = temp.child_value();
+          checkParserExceptionWithLocation(*name,
+                                           temp, 
+                                           "Empty " << tag << " element in Node");
           break;
         }
         if (!strcmp(BODY_TAG, tag)) {
