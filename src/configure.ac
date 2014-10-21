@@ -168,7 +168,7 @@ AC_FUNC_SELECT_ARGTYPES
 AC_TYPE_SIGNAL
 AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
-AC_CHECK_FUNCS([ctime_r floor localtime_r memmove memset modf pow setitimer socket sqrt])
+AC_CHECK_FUNCS([clock_gettime ctime_r floor gettimeofday localtime_r memmove memset modf pow setitimer socket sqrt])
 AC_CHECK_FUNCS([strchr strcspn strspn strstr strtol strtoll strtoul strtoull])
 # Used by UdpAdapter (and IPC)
 AC_CHECK_FUNCS([gethostbyname inet_ntoa])
