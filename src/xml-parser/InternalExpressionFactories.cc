@@ -107,8 +107,10 @@ namespace PLEXIL
   static Node *parseNodeId(pugi::xml_node nodeRef, NodeConnector *node)
   {
     // search for node ID
-    checkNotEmpty(nodeRef);
     std::string const nameStr(nodeRef.child_value());
+    checkParserExceptionWithLocation(!nameStr.empty(),
+                                     nodeRef,
+                                     "Empty or invalid " << nodeRef.name() << " element");
     Node *result = findLocalNodeId(nameStr, node);
     if (result)
       return result;
@@ -130,10 +132,10 @@ namespace PLEXIL
 
   static Node *parseNodeReference(pugi::xml_node nodeRef, NodeConnector *node)
   {
-    checkParserExceptionWithLocation(nodeRef.type() == pugi::node_element,
-                                     nodeRef,
-                                     "createExpression: Node reference is not an element");
     const char* tag = nodeRef.name();
+    checkParserExceptionWithLocation(*tag,
+                                     nodeRef.parent(),
+                                     "createExpression: Node reference is not an element");
     if (0 == strcmp(tag, NODEREF_TAG))
       return parseNodeRef(nodeRef, node);
     else if (0 == strcmp(tag, NODEID_TAG))
