@@ -47,7 +47,13 @@ namespace PLEXIL
   void parsePriority(Node *node, xml_node prio)
   throw (ParserException)
   {
+    AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);
+    assertTrue_2(anode, "parsePriority: Not an AssignmentNode");
+
     char const *prioString = prio.child_value();
+    checkParserExceptionWithLocation(*prioString,
+                                     prio,
+                                     "Priority element is empty");
     char *endptr = NULL;
     errno = 0;
     unsigned long prioValue = strtoul(prioString, &endptr, 10);
@@ -60,8 +66,6 @@ namespace PLEXIL
     checkParserExceptionWithLocation(prioValue < std::numeric_limits<int32_t>::max(),
                                      prio,
                                      "Priority element contains out-of-range integer");
-    AssignmentNode *anode = dynamic_cast<AssignmentNode *>(node);
-    assertTrue_2(anode, "parsePriority: Not an AssignmentNode");
     anode->setPriority((int32_t) prioValue);
   }
 
