@@ -46,12 +46,12 @@ std::string const &TrivialNodeConnector::getNodeId() const
   return sl_empty;
 }
 
-Node const *TrivialNodeConnector::findChild(const std::string& childName) const
+Node const *TrivialNodeConnector::findChild(char const * /* childName */) const
 {
   return NULL;
 }
 
-Node *TrivialNodeConnector::findChild(const std::string& childName)
+Node *TrivialNodeConnector::findChild(char const * /* childName */)
 {
   return NULL;
 }

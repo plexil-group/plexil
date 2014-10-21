@@ -402,22 +402,22 @@ namespace PLEXIL
       (*it)->cleanUpNodeBody();
   }
 
-  Node const *ListNode::findChild(const std::string& childName) const
+  Node const *ListNode::findChild(char const *childName) const
   {
     for (std::vector<Node *>::const_iterator it = m_children.begin();
          it != m_children.end();
          ++it)
-      if (childName == (*it)->getNodeId())
+      if ((*it)->getNodeId() == childName)
         return *it;
     return NULL;
   }
 
-  Node *ListNode::findChild(const std::string& childName)
+  Node *ListNode::findChild(char const *childName)
   {
     for (std::vector<Node *>::const_iterator it = m_children.begin();
          it != m_children.end();
          ++it)
-      if (childName == (*it)->getNodeId())
+      if ((*it)->getNodeId() == childName)
         return *it;
     return NULL;
   }

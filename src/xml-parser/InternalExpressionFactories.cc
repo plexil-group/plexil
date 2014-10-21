@@ -48,7 +48,7 @@ namespace PLEXIL
     checkAttr(DIR_ATTR, nodeRef);
     const char* dirValue = nodeRef.attribute(DIR_ATTR).value();
 
-    if (0 == strcmp(dirValue, SELF_VAL))
+    if (!strcmp(dirValue, SELF_VAL))
       return dynamic_cast<Node *>(node);
 
     Node *result = NULL;
@@ -61,23 +61,25 @@ namespace PLEXIL
       return result;
     }
 
-    checkNotEmpty(nodeRef);
     const char *name = nodeRef.child_value();
-    if (0 == strcmp(dirValue, CHILD_VAL)) {
-      result = node->findChild(std::string(name));
+    checkParserExceptionWithLocation(*name,
+                                     nodeRef,
+                                     "createExpression: Empty node name");
+    if (!strcmp(dirValue, CHILD_VAL)) {
+      result = node->findChild(name);
       checkParserExceptionWithLocation(result,
                                        nodeRef,
                                        "createExpression: No child node named " << name 
                                        << " in node " << node->getNodeId());
       return result;
     }
-    if (0 == strcmp(dirValue, SIBLING_VAL)) {
+    if (!strcmp(dirValue, SIBLING_VAL)) {
       Node *parent = node->getParent();
       checkParserExceptionWithLocation(parent,
                                        nodeRef,
                                        "createExpression: Sibling node reference from root node "
                                        << node->getNodeId());
-      result = parent->findChild(std::string(name));
+      result = parent->findChild(name);
       checkParserExceptionWithLocation(result,
                                        nodeRef,
                                        "createExpression: No sibling node named " << name 
@@ -92,13 +94,13 @@ namespace PLEXIL
     }
   }
 
-  static Node *findLocalNodeId(std::string const &nameStr, NodeConnector *node)
+  static Node *findLocalNodeId(char const *name, NodeConnector *node)
   {
     // search for node ID
-    if (nameStr == node->getNodeId())
+    if (node->getNodeId() == name)
       return dynamic_cast<Node *>(node);
     // Check children, if any
-    Node *result = node->findChild(nameStr);
+    Node *result = node->findChild(name);
     if (result)
       return result;
     return NULL;
@@ -107,17 +109,17 @@ namespace PLEXIL
   static Node *parseNodeId(pugi::xml_node nodeRef, NodeConnector *node)
   {
     // search for node ID
-    std::string const nameStr(nodeRef.child_value());
-    checkParserExceptionWithLocation(!nameStr.empty(),
+    char const *name = nodeRef.child_value();
+    checkParserExceptionWithLocation(*name,
                                      nodeRef,
                                      "Empty or invalid " << nodeRef.name() << " element");
-    Node *result = findLocalNodeId(nameStr, node);
+    Node *result = findLocalNodeId(name, node);
     if (result)
       return result;
 
     Node *parent = node->getParent();
     while (parent) {
-      result = findLocalNodeId(nameStr, parent);
+      result = findLocalNodeId(name, parent);
       if (result)
         return result;
       parent = parent->getParent();
@@ -125,7 +127,7 @@ namespace PLEXIL
     checkParserExceptionWithLocation(ALWAYS_FAIL,
                                      nodeRef.first_child(),
                                      "createExpression: No node named "
-                                     << nameStr
+                                     << name
                                      << " reachable from node " << node->getNodeId());
     return NULL;
   }

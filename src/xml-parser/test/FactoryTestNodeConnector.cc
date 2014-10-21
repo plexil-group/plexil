@@ -62,12 +62,12 @@ namespace PLEXIL
     return sl_empty;
   }
 
-  Node const *FactoryTestNodeConnector::findChild(const std::string& childName) const
+  Node const *FactoryTestNodeConnector::findChild(char const * /* childName */) const
   {
     return NULL;
   }
    
-  Node *FactoryTestNodeConnector::findChild(const std::string& childName)
+  Node *FactoryTestNodeConnector::findChild(char const * /* childName */)
   {
     return NULL;
   }

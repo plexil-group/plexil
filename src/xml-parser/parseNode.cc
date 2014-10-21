@@ -213,7 +213,7 @@ namespace PLEXIL
                                          "List Node " << node->getNodeId()
                                          << " cannot have a child node with the same NodeId");
       }
-      else if (node->findChild(kidId)) {
+      else if (node->findChild(kidId.c_str())) {
         delete kid;
         checkParserExceptionWithLocation(ALWAYS_FAIL,
                                          kidXml,
@@ -318,14 +318,13 @@ namespace PLEXIL
         if (!strcmp(POST_CONDITION_TAG, tag)
             || !strcmp(PRE_CONDITION_TAG, tag))
           break;
-        if (0 == strcmp(PRIORITY_TAG, tag)) {
+        if (!strcmp(PRIORITY_TAG, tag)) {
           checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
                                            temp,
                                            "Only Assignment nodes may have a Priority element");
           checkParserExceptionWithLocation(!prio,
                                            temp, 
                                            "Duplicate " << tag << " element in Node");
-          checkNotEmpty(temp);
           prio = temp;
           break;
         }

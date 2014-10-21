@@ -1397,12 +1397,12 @@ namespace PLEXIL {
   }
 
   // Default methods
-  Node const *Node::findChild(const std::string& /* childName */) const
+  Node const *Node::findChild(char const * /* childName */) const
   {
     return NULL;
   }
 
-  Node *Node::findChild(const std::string& /* childName */)
+  Node *Node::findChild(char const * /* childName */)
   {
     return NULL;
   }

@@ -85,8 +85,8 @@ namespace PLEXIL
       m_children.push_back(node);
     }
 
-    virtual Node *findChild(const std::string& childName);
-    virtual Node const *findChild(const std::string& childName) const;
+    virtual Node *findChild(char const *childName);
+    virtual Node const *findChild(char const *childName) const;
 
     /**
      * @brief Reserve space for the given number of children.

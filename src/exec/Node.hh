@@ -282,8 +282,8 @@ namespace PLEXIL {
       return NodeType_Empty;
     }
 
-    virtual Node const *findChild(const std::string& childName) const;
-    virtual Node *findChild(const std::string& childName);
+    virtual Node const *findChild(char const *childName) const;
+    virtual Node *findChild(char const *childName);
 
     /**
      * @brief Notifies the node that one of its conditions has changed.

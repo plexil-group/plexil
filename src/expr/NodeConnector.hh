@@ -48,8 +48,8 @@ namespace PLEXIL
 
     virtual Expression *findVariable(char const *name) = 0;
     virtual std::string const &getNodeId() const = 0;
-    virtual Node const *findChild(const std::string& childName) const = 0;
-    virtual Node *findChild(const std::string& childName) = 0;
+    virtual Node const *findChild(char const * childName) const = 0;
+    virtual Node *findChild(char const * childName) = 0;
     virtual Node *getParent() = 0;
     virtual Node const *getParent() const = 0;
 
