@@ -34,6 +34,8 @@
 #include "ExternalInterface.hh"
 #include "NodeConstants.hh"
 #include "PlexilExec.hh"
+#include "SimpleMap.hh"
+#include "map-utils.hh"
 #include "lifecycle-utils.h"
 
 #include <algorithm> // for std::sort
@@ -60,61 +62,57 @@ namespace PLEXIL {
     m_node.conditionChanged();
   }
 
-  // Initialize class static variables
-  std::vector<std::string>* Node::s_allConditions = NULL;
+  // Initialize static variable
+  static std::vector<std::string> s_allConditions;
 
-  const std::vector<std::string>& Node::ALL_CONDITIONS() {
-    static bool sl_inited = false;
-    if (!sl_inited) {
-      s_allConditions = new std::vector<std::string>();
-      addFinalizer(&purgeAllConditions);
-      s_allConditions->reserve(conditionIndexMax);
+  static void initAllConditions()
+  {
+    check_error_1(s_allConditions.empty()); // cheap sanity check
+    s_allConditions.reserve(Node::conditionIndexMax);
 
-      // *** N.B.: Order MUST agree with enum ConditionIndex!
-      // Conditions on parent
-      s_allConditions->push_back(ANCESTOR_EXIT_CONDITION());
-      s_allConditions->push_back(ANCESTOR_INVARIANT_CONDITION());
-      s_allConditions->push_back(ANCESTOR_END_CONDITION());
-      // User specified conditions
-      s_allConditions->push_back(SKIP_CONDITION());
-      s_allConditions->push_back(START_CONDITION());
-      s_allConditions->push_back(PRE_CONDITION());
-      s_allConditions->push_back(EXIT_CONDITION());
-      s_allConditions->push_back(INVARIANT_CONDITION());
-      s_allConditions->push_back(END_CONDITION());
-      s_allConditions->push_back(POST_CONDITION());
-      s_allConditions->push_back(REPEAT_CONDITION());
-      // For all but Empty nodes
-      s_allConditions->push_back(ACTION_COMPLETE());
-      // For all but Empty and Update nodes
-      s_allConditions->push_back(ABORT_COMPLETE());
-      sl_inited = true;
+    // *** N.B.: Order MUST agree with enum ConditionIndex!
+    // Conditions on parent
+    s_allConditions.push_back(Node::ANCESTOR_EXIT_CONDITION());
+    s_allConditions.push_back(Node::ANCESTOR_INVARIANT_CONDITION());
+    s_allConditions.push_back(Node::ANCESTOR_END_CONDITION());
+    // User specified conditions
+    s_allConditions.push_back(Node::SKIP_CONDITION());
+    s_allConditions.push_back(Node::START_CONDITION());
+    s_allConditions.push_back(Node::PRE_CONDITION());
+    s_allConditions.push_back(Node::EXIT_CONDITION());
+    s_allConditions.push_back(Node::INVARIANT_CONDITION());
+    s_allConditions.push_back(Node::END_CONDITION());
+    s_allConditions.push_back(Node::POST_CONDITION());
+    s_allConditions.push_back(Node::REPEAT_CONDITION());
+    // For all but Empty nodes
+    s_allConditions.push_back(Node::ACTION_COMPLETE());
+    // For all but Empty and Update nodes
+    s_allConditions.push_back(Node::ABORT_COMPLETE());
 
-      // inexpensive sanity check
-      assertTrue_2(s_allConditions->size() == conditionIndexMax,
-                   "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
-    }
-    return *s_allConditions;
+    // inexpensive sanity check
+    assertTrue_2(s_allConditions.size() == Node::conditionIndexMax,
+                 "INTERNAL ERROR: Inconsistency between conditionIndex enum and ALL_CONDITIONS");
   }
 
-  void Node::purgeAllConditions()
+  const std::vector<std::string>& Node::ALL_CONDITIONS()
   {
-    delete s_allConditions;
-    s_allConditions = NULL;
-  }
-
-  Node::ConditionIndex Node::getConditionIndex(char const *cName)
-  {
-    const std::vector<std::string>& allConds = ALL_CONDITIONS();
-    for (size_t i = 0; i < conditionIndexMax; ++i)
-      if (allConds[i] == cName)
-        return (ConditionIndex) i;
-    return conditionIndexMax;
+    if (s_allConditions.empty())
+      initAllConditions();
+    return s_allConditions;
   }
 
   const std::string& Node::getConditionName(size_t idx)
   {
     return ALL_CONDITIONS()[idx];
+  }
+  
+  Node::ConditionIndex Node::getConditionIndex(char const *cName)
+  {
+    std::vector<std::string> const &allConds = Node::ALL_CONDITIONS();
+    for (size_t i = 0; i < allConds.size(); ++i)
+      if (allConds[i] == cName)
+        return (Node::ConditionIndex) i;
+    return conditionIndexMax;
   }
 
   Node::Node(char const *nodeId, Node *parent)

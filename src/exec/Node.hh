@@ -569,12 +569,6 @@ namespace PLEXIL {
     //
 
     void printVariables(std::ostream& stream, const unsigned int indent = 0) const;
-
-    // Cleanup
-    static void purgeAllConditions();
-
-    // Storage for static "constants"
-    static std::vector<std::string>* s_allConditions;
   };
 
   std::ostream& operator<<(std::ostream& strm, const Node& node);
