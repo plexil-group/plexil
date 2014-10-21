@@ -94,9 +94,14 @@ namespace PLEXIL
                                                   NodeConnector *node,
                                                   bool & wasCreated) const
   {
-    // Get subexpressions
-    checkHasChildElement(expr);
-    ExprVec *exprVec = this->constructExprVec(expr, node);
+    // Count subexpressions
+    size_t n = 0;
+    for (pugi::xml_node subexp = expr.first_child(); subexp; subexp = subexp.next_sibling())
+      ++n;
+    checkParserExceptionWithLocation(n,
+                                     expr,
+                                     "Arithmetic function " << expr.name() << " has no arguments");
+    ExprVec *exprVec = this->constructExprVec(expr, node, n);
     ValueType type = this->commonType(exprVec);
     if (type == UNKNOWN_TYPE) {
       delete exprVec;

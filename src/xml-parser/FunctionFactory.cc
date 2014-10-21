@@ -48,15 +48,16 @@ namespace PLEXIL
                                         NodeConnector *node,
                                         bool &wasCreated) const
   {
-    ExprVec *exprVec = constructExprVec(expr, node);
+    size_t n = 0;
+    for (pugi::xml_node subexp = expr.first_child(); subexp; subexp = subexp.next_sibling())
+      ++n;
     Operator const *oper = this->getOperator();
-    if (!oper->checkArgCount(exprVec->size())) {
-      delete exprVec;
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       expr,
-                                       "createExpression: Wrong number of operands for operator "
-                                       << oper->getName());
-    }
+    checkParserExceptionWithLocation(oper->checkArgCount(n),
+                                     expr,
+                                     "Wrong number of operands for operator "
+                                     << oper->getName());
+
+    ExprVec *exprVec = constructExprVec(expr, node, n);
 
     wasCreated = true;
     return new Function(oper, exprVec);
@@ -64,10 +65,13 @@ namespace PLEXIL
 
   ExprVec *
   FunctionFactory::constructExprVec(pugi::xml_node const expr,
-                                    NodeConnector *node) const
+                                    NodeConnector *node,
+                                    size_t nargs) const
   {
     std::vector<Expression *> exprs;
+    exprs.reserve(nargs);
     std::vector<bool> garbage;
+    garbage.reserve(nargs);
     pugi::xml_node subexp = expr.first_child();
     try {
       while (subexp) {

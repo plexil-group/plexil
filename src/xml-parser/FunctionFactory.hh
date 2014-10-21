@@ -49,7 +49,8 @@ namespace PLEXIL
 
     // Base class provides this to derived
     ExprVec *constructExprVec(pugi::xml_node const expr,
-                              NodeConnector *node) const;
+                              NodeConnector *node,
+                              size_t nargs) const;
 
     // Delegated to derived class
     virtual Operator const *getOperator() const = 0;
