@@ -104,12 +104,6 @@ namespace PLEXIL
   class NullExprVec : public ExprVec
   {
   public:
-    NullExprVec(std::vector<Expression *> const &exps,
-                std::vector<bool> const &garb)
-    {
-      assertTrue_1(exps.empty() && garb.empty());
-    }
-
     NullExprVec()
     {
     }
@@ -180,17 +174,6 @@ namespace PLEXIL
   class FixedExprVec : public ExprVec
   {
   public:
-    FixedExprVec(std::vector<Expression *> const &exps,
-                 std::vector<bool> const &garb)
-      : ExprVec()
-    {
-      check_error_1(exps.size() == N && garb.size() == N);
-      for (size_t i = 0; i < N; ++i)
-        exprs[i] = exps[i];
-      for (size_t i = 0; i < N; ++i)
-        garbage[i] = garb[i];
-    }
-
     FixedExprVec()
       : ExprVec()
     {
@@ -319,16 +302,6 @@ namespace PLEXIL
   // One-arg variants
 
   template <>
-  FixedExprVec<1>::FixedExprVec(std::vector<Expression *> const &exps,
-                              std::vector<bool> const &garb)
-    : ExprVec()
-  {
-    check_error_1(exps.size() == 1 && garb.size() == 1);
-    exprs[0] = exps[0];
-    garbage[0] = garb[0];
-  }
-
-  template <>
   FixedExprVec<1>::FixedExprVec()
     : ExprVec()
   {
@@ -432,18 +405,6 @@ namespace PLEXIL
   //
   // Two-arg variants
   //
-
-  template <>
-  FixedExprVec<2>::FixedExprVec(std::vector<Expression *> const &exps,
-                                std::vector<bool> const &garb)
-    : ExprVec()
-  {
-    check_error_1(exps.size() == 2 && garb.size() == 2);
-    exprs[0] = exps[0];
-    exprs[1] = exps[1];
-    garbage[0] = garb[0];
-    garbage[1] = garb[1];
-  }
 
   template <>
   FixedExprVec<2>::FixedExprVec()
@@ -566,15 +527,6 @@ namespace PLEXIL
   class GeneralExprVec : public ExprVec
   {
   public:
-    GeneralExprVec(std::vector<Expression *> const &exps,
-                   std::vector<bool> const &garb)
-      : ExprVec(),
-        exprs(exps),
-        garbage(garb)
-    {
-      check_error_1(exps.size() == garb.size());
-    }
-
     GeneralExprVec(size_t n)
       : ExprVec(),
         exprs(n, NULL),
@@ -651,34 +603,16 @@ namespace PLEXIL
   // Factory function
   //
 
-  // A crude but effective factory for ExprVec instances
   ExprVec *makeExprVec(std::vector<Expression *> const &exprs,
                        std::vector<bool> const &garbage)
   {
-    checkParserException(exprs.size() == garbage.size(),
+    size_t n = exprs.size();
+    checkParserException(n == garbage.size(),
                          "makeExprVec: expression and garbage vectors of different lengths");
-    switch (exprs.size()) {
-    case 0:
-      return static_cast<ExprVec *>(new NullExprVec(exprs, garbage));
-    case 1:
-      return static_cast<ExprVec *>(new FixedExprVec<1>(exprs, garbage));
-    case 2:
-      return static_cast<ExprVec *>(new FixedExprVec<2>(exprs, garbage));
-    case 3:
-      return static_cast<ExprVec *>(new FixedExprVec<3>(exprs, garbage));
-    case 4:
-      return static_cast<ExprVec *>(new FixedExprVec<4>(exprs, garbage));
-    case 5:
-      return static_cast<ExprVec *>(new FixedExprVec<5>(exprs, garbage));
-    case 6:
-      return static_cast<ExprVec *>(new FixedExprVec<6>(exprs, garbage));
-    case 7:
-      return static_cast<ExprVec *>(new FixedExprVec<7>(exprs, garbage));
-    case 8:
-      return static_cast<ExprVec *>(new FixedExprVec<8>(exprs, garbage));
-    default: // anything greater than 8
-      return static_cast<ExprVec *>(new GeneralExprVec(exprs, garbage));
-    }
+    ExprVec *result = makeExprVec(n);
+    for (size_t i = 0; i < n; ++i)
+      result->setArgument(i, exprs[i], garbage[i]);
+    return result;
   }
   
   ExprVec *makeExprVec(size_t n)
