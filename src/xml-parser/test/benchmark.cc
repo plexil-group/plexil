@@ -43,7 +43,7 @@
 
 #include <unistd.h>
 
-#if defined(HAVE_GETTIMEOFDAY)
+#if defined(HAVE_GETTIMEOFDAY) && !defined(__VXWORKS__)
 #include <sys/time.h> // for gettimeofday, itimerval
 #include "timeval-utils.hh"
 
@@ -56,7 +56,10 @@
   } while (0)
 
 #else
-// *** TODO ***
+// dummies
+#define TIME_STRUCT int
+#define GET_WALL_TIME(timestruct) do {} while (0)
+#define REPORT_TIME(start, finish) do {} while (0)
 #endif
 
 void loadPlanBenchmark(std::string const &planFile)
