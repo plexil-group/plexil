@@ -142,8 +142,6 @@ AC_CHECK_LIB([m], [sqrt])
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([arpa/inet.h dlfcn.h float.h limits.h netdb.h netinet/in.h stddef.h stdint.h sys/socket.h sys/time.h unistd.h wchar.h])
-# Hash table implementations
-AC_CHECK_HEADERS([unordered_map tr1/unordered_map ext/hash_map backward/hash_map hash_map])
 
 AM_CONDITIONAL([PLEXIL_DLFCN_H], [test "x$ac_cv_header_dlfcn_h" = "xyes"])
 
