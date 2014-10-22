@@ -30,6 +30,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecConnector.hh"
+#include "ExprVec.hh"
 #include "Function.hh"
 #include "Operator.hh"
 #include "UserVariable.hh"
@@ -252,21 +253,24 @@ namespace PLEXIL
     return &m_variablesByName;
   }
 
+    // Used in createConditionWrappers()
+  ExprVec *ListNode::newStateVarExprVec() const
+  {
+    size_t nkids = m_children.size();
+    ExprVec *result = makeExprVec(nkids);
+    for (size_t i = 0; i < nkids; ++i)
+      result->setArgument(i, m_children[i]->getStateVariable(), false);
+    return result;
+  }
+
   // Create the ancestor end, ancestor exit, and ancestor invariant conditions required by children
   // This method is called after all user-spec'd conditions have been instantiated
   void ListNode::createConditionWrappers()
   {
-    std::vector<Expression *> stateVars;
-    size_t nkids = m_children.size();
-    stateVars.reserve(nkids);
-    for (size_t i = 0; i < nkids; ++i)
-      stateVars.push_back(m_children[i]->getStateVariable());
-    std::vector<bool> notGarbage(nkids, false);
-
     // Not really a "wrapper", but this is best place to add it.
     Expression *cond =
       new Function(AllWaitingOrFinished::instance(),
-                   makeExprVec(stateVars, notGarbage));
+                   newStateVarExprVec());
     m_conditions[actionCompleteIdx] = cond;
     m_garbageConditions[actionCompleteIdx] = true;
 
@@ -320,8 +324,7 @@ namespace PLEXIL
       else {
         // No user-spec'd end condition - build one
         m_conditions[endIdx] =
-          new Function(AllFinished::instance(),
-                       makeExprVec(stateVars, notGarbage));
+          new Function(AllFinished::instance(), newStateVarExprVec());
         m_garbageConditions[endIdx] = true;
         // *** N.B. ***
         // Normally ancestor-end is our end condition ORed with parent's ancestor-end.
@@ -345,8 +348,7 @@ namespace PLEXIL
       else {
         // No user-spec'd end condition - build one
         m_conditions[endIdx] =           
-          new Function(AllFinished::instance(),
-                       makeExprVec(stateVars, notGarbage));
+          new Function(AllFinished::instance(), newStateVarExprVec());
         m_garbageConditions[endIdx] = true;
         // *** N.B. ***
         // Normally for root nodes, ancestor-end is same as end. 

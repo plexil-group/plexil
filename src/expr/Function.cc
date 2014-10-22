@@ -47,10 +47,10 @@ namespace PLEXIL
                      bool garbage)
     : NotifierImpl(),
       m_op(op),
-      m_exprVec(makeExprVec(std::vector<Expression *>(1, expr),
-                            std::vector<bool>(1, garbage))),
+      m_exprVec(makeExprVec(1)),
       m_valueCache(op->allocateCache())
   {
+    m_exprVec->setArgument(0, expr, garbage);
     m_exprVec->addListener(this);
   }
 
@@ -59,18 +59,11 @@ namespace PLEXIL
                      bool garbage1, bool garbage2)
     : NotifierImpl(),
       m_op(op),
+      m_exprVec(makeExprVec(2)),
       m_valueCache(op->allocateCache())
   {
-    std::vector<Expression *> exprs;
-    exprs.push_back(expr1);
-    exprs.push_back(expr2);
-
-    std::vector<bool> garbage;
-    garbage.push_back(garbage1);
-    garbage.push_back(garbage2);
-
-    m_exprVec = makeExprVec(exprs, garbage);
-
+    m_exprVec->setArgument(0, expr1, garbage1);
+    m_exprVec->setArgument(1, expr2, garbage2);
     m_exprVec->addListener(this);
   }
 

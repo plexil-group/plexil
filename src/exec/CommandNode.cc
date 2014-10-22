@@ -163,9 +163,7 @@ namespace PLEXIL
 
     // Construct action-complete condition
     Expression *actionComplete =
-      new Function(IsKnown::instance(),
-                   makeExprVec(std::vector<Expression *>(1, m_command->getAck()),
-                               std::vector<bool>(1, false)));
+      new Function(IsKnown::instance(), m_command->getAck(), false);
     m_conditions[actionCompleteIdx] = actionComplete;
     m_garbageConditions[actionCompleteIdx] = true;
 

@@ -31,6 +31,8 @@
 
 namespace PLEXIL
 {
+  // forward reference
+  class ExprVec;
 
   class ListNode : public Node
   {
@@ -124,6 +126,9 @@ namespace PLEXIL
     virtual void transitionToExecuting();
     virtual void transitionToFinishing();
     virtual void transitionToFailing();
+
+    // Used in createConditionWrappers()
+    ExprVec *newStateVarExprVec() const;
 
     // Shared with derived class LibraryCallNode
     std::vector<Node *> m_children; /*<! Vector of child nodes. */

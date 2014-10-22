@@ -68,27 +68,24 @@ namespace PLEXIL
                                     NodeConnector *node,
                                     size_t nargs) const
   {
-    std::vector<Expression *> exprs;
-    exprs.reserve(nargs);
-    std::vector<bool> garbage;
-    garbage.reserve(nargs);
-    pugi::xml_node subexp = expr.first_child();
+    ExprVec *result = makeExprVec(nargs);
+    
+    size_t i = 0;
     try {
-      while (subexp) {
+      for (pugi::xml_node subexp = expr.first_child();
+           subexp && i < nargs;
+           subexp = subexp.next_sibling(), ++i) {
         bool created;
-        exprs.push_back(createExpression(subexp, node, created));
-        garbage.push_back(created);
-        subexp = subexp.next_sibling();
+        Expression *arg = createExpression(subexp, node, created);
+        result->setArgument(i, arg, created);
       }
     }
-    catch (ParserException &e) {
-      for (size_t i = 0; i < exprs.size(); ++i)
-        if (garbage[i])
-          delete exprs[i];
+    catch (ParserException & /* e */) {
+      delete result;
       throw;
     }
 
-    return makeExprVec(exprs, garbage);
+    return result;
   }
 
   //

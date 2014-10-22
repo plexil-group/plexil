@@ -46,11 +46,12 @@ namespace PLEXIL
   class ExprVec
   {
   public:
-    ExprVec() {}
-    virtual ~ExprVec() {}
+    virtual ~ExprVec();
+
     virtual size_t size() const = 0;
     virtual Expression const *operator[](size_t n) const = 0;
     virtual Expression *operator[](size_t n) = 0;
+    virtual void setArgument(size_t i, Expression *exp, bool garbage) = 0;
 
     // These are in critical path of exec inner loop, 
     // so should be optimized for each representation
@@ -77,6 +78,9 @@ namespace PLEXIL
   // Factory function
   extern ExprVec *makeExprVec(std::vector<Expression *> const &exprs,
                               std::vector<bool> const &garbage);
+
+  // Alternate form
+  extern ExprVec *makeExprVec(size_t nargs);
 
 } // namespace PLEXIL
 

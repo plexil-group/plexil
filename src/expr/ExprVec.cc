@@ -35,6 +35,9 @@ namespace PLEXIL
   //
   // ExprVec base class methods
   //
+  ExprVec::~ExprVec()
+  {
+  }
 
   void ExprVec::addListener(ExpressionListener * ptr)
   {
@@ -107,6 +110,10 @@ namespace PLEXIL
       assertTrue_1(exps.empty() && garb.empty());
     }
 
+    NullExprVec()
+    {
+    }
+
     ~NullExprVec()
     {
     }
@@ -124,6 +131,11 @@ namespace PLEXIL
     Expression *operator[](size_t /* n */)
     {
       return NULL;
+    }
+
+    void setArgument(size_t /* n */, Expression * /* exp */, bool /* garbage */)
+    {
+      assertTrue_2(ALWAYS_FAIL, "setArgument(): no arguments to set in NullExprVec");
     }
 
     void activate()
@@ -169,14 +181,30 @@ namespace PLEXIL
   {
   public:
     FixedExprVec(std::vector<Expression *> const &exps,
-                std::vector<bool> const &garb)
-    : ExprVec()
+                 std::vector<bool> const &garb)
+      : ExprVec()
     {
       check_error_1(exps.size() == N && garb.size() == N);
       for (size_t i = 0; i < N; ++i)
         exprs[i] = exps[i];
       for (size_t i = 0; i < N; ++i)
         garbage[i] = garb[i];
+    }
+
+    FixedExprVec()
+      : ExprVec()
+    {
+      for (size_t i = 0; i < N; ++i)
+        exprs[i] = NULL;
+      for (size_t i = 0; i < N; ++i)
+        garbage[i] = false;
+    }
+
+    void setArgument(size_t i, Expression *exp, bool isGarbage)
+    {
+      assertTrue_2(i < N, "setArgument(): too many args");
+      exprs[i] = exp;
+      garbage[i] = isGarbage;
     }
 
     ~FixedExprVec()
@@ -301,6 +329,14 @@ namespace PLEXIL
   }
 
   template <>
+  FixedExprVec<1>::FixedExprVec()
+    : ExprVec()
+  {
+    exprs[0] = NULL;
+    garbage[0] = false;
+  }
+
+  template <>
   FixedExprVec<1>::~FixedExprVec()
   {
     if (garbage[0])
@@ -407,6 +443,16 @@ namespace PLEXIL
     exprs[1] = exps[1];
     garbage[0] = garb[0];
     garbage[1] = garb[1];
+  }
+
+  template <>
+  FixedExprVec<2>::FixedExprVec()
+    : ExprVec()
+  {
+    exprs[0] = NULL;
+    exprs[1] = NULL;
+    garbage[0] = false;
+    garbage[1] = false;
   }
 
   template <>
@@ -529,6 +575,13 @@ namespace PLEXIL
       check_error_1(exps.size() == garb.size());
     }
 
+    GeneralExprVec(size_t n)
+      : ExprVec(),
+        exprs(n, NULL),
+        garbage(n, false)
+    {
+    }
+
     ~GeneralExprVec()
     {
       size_t n = exprs.size();
@@ -552,6 +605,13 @@ namespace PLEXIL
     {
       check_error_1(n < exprs.size());
       return exprs[n]; 
+    }
+
+    void setArgument(size_t i, Expression *exp, bool isGarbage)
+    {
+      assertTrue_2(i < exprs.size(), "setArgument(): too many args");
+      exprs[i] = exp;
+      garbage[i] = isGarbage;
     }
 
     void activate()
@@ -579,6 +639,7 @@ namespace PLEXIL
 
   private:
     // Not implemented
+    GeneralExprVec();
     GeneralExprVec(const GeneralExprVec &);
     GeneralExprVec &operator=(const GeneralExprVec &);
 
@@ -617,6 +678,32 @@ namespace PLEXIL
       return static_cast<ExprVec *>(new FixedExprVec<8>(exprs, garbage));
     default: // anything greater than 8
       return static_cast<ExprVec *>(new GeneralExprVec(exprs, garbage));
+    }
+  }
+  
+  ExprVec *makeExprVec(size_t n)
+  {
+    switch (n) {
+    case 0:
+      return static_cast<ExprVec *>(new NullExprVec());
+    case 1:
+      return static_cast<ExprVec *>(new FixedExprVec<1>());
+    case 2:
+      return static_cast<ExprVec *>(new FixedExprVec<2>());
+    case 3:
+      return static_cast<ExprVec *>(new FixedExprVec<3>());
+    case 4:
+      return static_cast<ExprVec *>(new FixedExprVec<4>());
+    case 5:
+      return static_cast<ExprVec *>(new FixedExprVec<5>());
+    case 6:
+      return static_cast<ExprVec *>(new FixedExprVec<6>());
+    case 7:
+      return static_cast<ExprVec *>(new FixedExprVec<7>());
+    case 8:
+      return static_cast<ExprVec *>(new FixedExprVec<8>());
+    default: // anything greater than 8
+      return static_cast<ExprVec *>(new GeneralExprVec(n));
     }
   }
 
