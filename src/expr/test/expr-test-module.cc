@@ -43,6 +43,7 @@ extern bool comparisonsTest();
 extern bool constantsTest();
 extern bool functionsTest();
 extern bool listenerTest();
+extern bool simpleBooleanVariableTest();
 extern bool stringTest();
 extern bool variablesTest();
 
@@ -52,6 +53,7 @@ static void runExprTests()
 
   runTestSuite(listenerTest);
   runTestSuite(constantsTest);
+  runTestSuite(simpleBooleanVariableTest);
   runTestSuite(variablesTest);
   runTestSuite(arrayConstantTest);
   runTestSuite(arrayVariableTest);

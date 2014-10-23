@@ -86,13 +86,11 @@ namespace PLEXIL
     m_assignment = assn;
 
     // Set action-complete condition
-    Expression *ack = m_assignment->getAck();
-    m_conditions[actionCompleteIdx] = ack;
+    m_conditions[actionCompleteIdx] = m_assignment->getAck();
     m_garbageConditions[actionCompleteIdx] = false;
 
     // Set abort-complete condition
-    Expression *abortComplete = m_assignment->getAbortComplete();
-    m_conditions[abortCompleteIdx] = abortComplete;
+    m_conditions[abortCompleteIdx] = m_assignment->getAbortComplete();
     m_garbageConditions[abortCompleteIdx] = false;
   }
 
@@ -140,7 +138,7 @@ namespace PLEXIL
     bool temp;
     if (!cond->getValue(temp) || !temp) {
       debugMsg("Node:getDestState",
-               " '" << m_nodeId << "' destination: no state. Assignment node and assignment-complete false or unknown.");
+               " '" << m_nodeId << "' destination: no state. Assignment node and assignment-complete false.");
       return false;
     }
 
@@ -271,7 +269,7 @@ namespace PLEXIL
     if (!cond->getValue(temp) || !temp) {
       debugMsg("Node:getDestState",
                " '" << m_nodeId
-               << "' destination: no state. Assignment node and abort complete false or unknown.");
+               << "' destination: no state. Assignment node and abort complete false.");
       return false;
     }
 

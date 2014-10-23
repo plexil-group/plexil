@@ -29,7 +29,7 @@
 
 #include "CommandHandleVariable.hh"
 #include "State.hh"
-#include "UserVariable.hh"
+#include "SimpleBooleanVariable.hh"
 #include "Value.hh"
 
 namespace PLEXIL
@@ -122,7 +122,7 @@ namespace PLEXIL
     Command& operator=(const Command&);
 
     CommandHandleVariable m_ack;
-    BooleanVariable m_abortComplete;
+    SimpleBooleanVariable m_abortComplete;
     State m_command;
     Expression *m_nameExpr;
     Assignable *m_dest;

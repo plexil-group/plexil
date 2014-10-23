@@ -117,7 +117,7 @@ bin_PROGRAMS = TestExec$(EXEEXT)
 
 subdir = apps/TestExec
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(am__noinst_HEADERS_DIST) README
+	$(am__noinst_HEADERS_DIST) README
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -162,9 +162,8 @@ am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
-depcomp = $(SHELL) $(top_srcdir)/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
+depcomp =
+am__depfiles_maybe =
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -370,9 +369,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu apps/TestExec/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu --ignore-deps apps/TestExec/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu apps/TestExec/Makefile
+	  $(AUTOMAKE) --gnu --ignore-deps apps/TestExec/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -451,87 +450,38 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TestExec-ExecTestRunner.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TestExec-TestExternalInterface.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TestExec-exec-test-runner.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TestExec-jni-interface.Po@am__quote@
-
 .cc.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ $<
 
 .cc.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cc.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+	$(AM_V_CXX)$(LTCXXCOMPILE) -c -o $@ $<
 
 TestExec-exec-test-runner.o: exec-test-runner.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TestExec-exec-test-runner.o -MD -MP -MF $(DEPDIR)/TestExec-exec-test-runner.Tpo -c -o TestExec-exec-test-runner.o `test -f 'exec-test-runner.cc' || echo '$(srcdir)/'`exec-test-runner.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TestExec-exec-test-runner.Tpo $(DEPDIR)/TestExec-exec-test-runner.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='exec-test-runner.cc' object='TestExec-exec-test-runner.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-exec-test-runner.o `test -f 'exec-test-runner.cc' || echo '$(srcdir)/'`exec-test-runner.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-exec-test-runner.o `test -f 'exec-test-runner.cc' || echo '$(srcdir)/'`exec-test-runner.cc
 
 TestExec-exec-test-runner.obj: exec-test-runner.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TestExec-exec-test-runner.obj -MD -MP -MF $(DEPDIR)/TestExec-exec-test-runner.Tpo -c -o TestExec-exec-test-runner.obj `if test -f 'exec-test-runner.cc'; then $(CYGPATH_W) 'exec-test-runner.cc'; else $(CYGPATH_W) '$(srcdir)/exec-test-runner.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TestExec-exec-test-runner.Tpo $(DEPDIR)/TestExec-exec-test-runner.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='exec-test-runner.cc' object='TestExec-exec-test-runner.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-exec-test-runner.obj `if test -f 'exec-test-runner.cc'; then $(CYGPATH_W) 'exec-test-runner.cc'; else $(CYGPATH_W) '$(srcdir)/exec-test-runner.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-exec-test-runner.obj `if test -f 'exec-test-runner.cc'; then $(CYGPATH_W) 'exec-test-runner.cc'; else $(CYGPATH_W) '$(srcdir)/exec-test-runner.cc'; fi`
 
 TestExec-ExecTestRunner.o: ExecTestRunner.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TestExec-ExecTestRunner.o -MD -MP -MF $(DEPDIR)/TestExec-ExecTestRunner.Tpo -c -o TestExec-ExecTestRunner.o `test -f 'ExecTestRunner.cc' || echo '$(srcdir)/'`ExecTestRunner.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TestExec-ExecTestRunner.Tpo $(DEPDIR)/TestExec-ExecTestRunner.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExecTestRunner.cc' object='TestExec-ExecTestRunner.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-ExecTestRunner.o `test -f 'ExecTestRunner.cc' || echo '$(srcdir)/'`ExecTestRunner.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-ExecTestRunner.o `test -f 'ExecTestRunner.cc' || echo '$(srcdir)/'`ExecTestRunner.cc
 
 TestExec-ExecTestRunner.obj: ExecTestRunner.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TestExec-ExecTestRunner.obj -MD -MP -MF $(DEPDIR)/TestExec-ExecTestRunner.Tpo -c -o TestExec-ExecTestRunner.obj `if test -f 'ExecTestRunner.cc'; then $(CYGPATH_W) 'ExecTestRunner.cc'; else $(CYGPATH_W) '$(srcdir)/ExecTestRunner.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TestExec-ExecTestRunner.Tpo $(DEPDIR)/TestExec-ExecTestRunner.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExecTestRunner.cc' object='TestExec-ExecTestRunner.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-ExecTestRunner.obj `if test -f 'ExecTestRunner.cc'; then $(CYGPATH_W) 'ExecTestRunner.cc'; else $(CYGPATH_W) '$(srcdir)/ExecTestRunner.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-ExecTestRunner.obj `if test -f 'ExecTestRunner.cc'; then $(CYGPATH_W) 'ExecTestRunner.cc'; else $(CYGPATH_W) '$(srcdir)/ExecTestRunner.cc'; fi`
 
 TestExec-TestExternalInterface.o: TestExternalInterface.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TestExec-TestExternalInterface.o -MD -MP -MF $(DEPDIR)/TestExec-TestExternalInterface.Tpo -c -o TestExec-TestExternalInterface.o `test -f 'TestExternalInterface.cc' || echo '$(srcdir)/'`TestExternalInterface.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TestExec-TestExternalInterface.Tpo $(DEPDIR)/TestExec-TestExternalInterface.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='TestExternalInterface.cc' object='TestExec-TestExternalInterface.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-TestExternalInterface.o `test -f 'TestExternalInterface.cc' || echo '$(srcdir)/'`TestExternalInterface.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-TestExternalInterface.o `test -f 'TestExternalInterface.cc' || echo '$(srcdir)/'`TestExternalInterface.cc
 
 TestExec-TestExternalInterface.obj: TestExternalInterface.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TestExec-TestExternalInterface.obj -MD -MP -MF $(DEPDIR)/TestExec-TestExternalInterface.Tpo -c -o TestExec-TestExternalInterface.obj `if test -f 'TestExternalInterface.cc'; then $(CYGPATH_W) 'TestExternalInterface.cc'; else $(CYGPATH_W) '$(srcdir)/TestExternalInterface.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TestExec-TestExternalInterface.Tpo $(DEPDIR)/TestExec-TestExternalInterface.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='TestExternalInterface.cc' object='TestExec-TestExternalInterface.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-TestExternalInterface.obj `if test -f 'TestExternalInterface.cc'; then $(CYGPATH_W) 'TestExternalInterface.cc'; else $(CYGPATH_W) '$(srcdir)/TestExternalInterface.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-TestExternalInterface.obj `if test -f 'TestExternalInterface.cc'; then $(CYGPATH_W) 'TestExternalInterface.cc'; else $(CYGPATH_W) '$(srcdir)/TestExternalInterface.cc'; fi`
 
 TestExec-jni-interface.o: jni-interface.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TestExec-jni-interface.o -MD -MP -MF $(DEPDIR)/TestExec-jni-interface.Tpo -c -o TestExec-jni-interface.o `test -f 'jni-interface.cc' || echo '$(srcdir)/'`jni-interface.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TestExec-jni-interface.Tpo $(DEPDIR)/TestExec-jni-interface.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='jni-interface.cc' object='TestExec-jni-interface.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-jni-interface.o `test -f 'jni-interface.cc' || echo '$(srcdir)/'`jni-interface.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-jni-interface.o `test -f 'jni-interface.cc' || echo '$(srcdir)/'`jni-interface.cc
 
 TestExec-jni-interface.obj: jni-interface.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT TestExec-jni-interface.obj -MD -MP -MF $(DEPDIR)/TestExec-jni-interface.Tpo -c -o TestExec-jni-interface.obj `if test -f 'jni-interface.cc'; then $(CYGPATH_W) 'jni-interface.cc'; else $(CYGPATH_W) '$(srcdir)/jni-interface.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/TestExec-jni-interface.Tpo $(DEPDIR)/TestExec-jni-interface.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='jni-interface.cc' object='TestExec-jni-interface.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-jni-interface.obj `if test -f 'jni-interface.cc'; then $(CYGPATH_W) 'jni-interface.cc'; else $(CYGPATH_W) '$(srcdir)/jni-interface.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(TestExec_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o TestExec-jni-interface.obj `if test -f 'jni-interface.cc'; then $(CYGPATH_W) 'jni-interface.cc'; else $(CYGPATH_W) '$(srcdir)/jni-interface.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -663,7 +613,6 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -709,7 +658,6 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

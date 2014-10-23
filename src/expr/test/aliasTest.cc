@@ -1033,6 +1033,7 @@ static bool testAliasToFunction()
   return true;
 }
 
+// *** TODO Split into multiple smaller functions ***
 static bool testAliasPropagation()
 {
   std::vector<int32_t> vi(4);

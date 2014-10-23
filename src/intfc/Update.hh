@@ -27,7 +27,7 @@
 #ifndef PLEXIL_UPDATE_HH
 #define PLEXIL_UPDATE_HH
 
-#include "UserVariable.hh"
+#include "SimpleBooleanVariable.hh"
 #include "Value.hh"
 
 #include "SimpleMap.hh"
@@ -74,7 +74,7 @@ namespace PLEXIL
     Update& operator=(const Update&);
 
     NodeConnector *m_source;
-    BooleanVariable m_ack;
+    SimpleBooleanVariable m_ack;
     std::vector<Expression *> m_garbage;
     PairExpressionMap m_pairs;
     PairValueMap m_valuePairs;

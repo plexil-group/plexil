@@ -106,9 +106,8 @@ namespace PLEXIL
     assertTrue_1(upd);
     m_update = upd;
 
-    // Create action-complete condition
-    Expression *actionComplete = m_update->getAck();
-    m_conditions[actionCompleteIdx] = actionComplete;
+    // Get action-complete condition
+    m_conditions[actionCompleteIdx] = m_update->getAck();
     m_garbageConditions[actionCompleteIdx] = false;
   }
 

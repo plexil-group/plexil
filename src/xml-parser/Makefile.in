@@ -110,7 +110,7 @@ host_triplet = @host@
 @MODULE_TESTS_OPT_TRUE@	test/benchmark$(EXEEXT)
 subdir = xml-parser
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(include_HEADERS) $(noinst_HEADERS)
+	$(include_HEADERS) $(noinst_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -234,9 +234,8 @@ am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
-depcomp = $(SHELL) $(top_srcdir)/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
+depcomp =
+am__depfiles_maybe =
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -471,9 +470,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu xml-parser/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu --ignore-deps xml-parser/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu xml-parser/Makefile
+	  $(AUTOMAKE) --gnu --ignore-deps xml-parser/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -582,37 +581,33 @@ clean-binPROGRAMS:
 test/$(am__dirstamp):
 	@$(MKDIR_P) test
 	@: > test/$(am__dirstamp)
-test/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) test/$(DEPDIR)
-	@: > test/$(DEPDIR)/$(am__dirstamp)
-test/test_benchmark-benchmark.$(OBJEXT): test/$(am__dirstamp) \
-	test/$(DEPDIR)/$(am__dirstamp)
+test/test_benchmark-benchmark.$(OBJEXT): test/$(am__dirstamp)
 
 test/benchmark$(EXEEXT): $(test_benchmark_OBJECTS) $(test_benchmark_DEPENDENCIES) $(EXTRA_test_benchmark_DEPENDENCIES) test/$(am__dirstamp)
 	@rm -f test/benchmark$(EXEEXT)
 	$(AM_V_CXXLD)$(CXXLINK) $(test_benchmark_OBJECTS) $(test_benchmark_LDADD) $(LIBS)
 test/test_parser_module_tests-parser-test-module.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_parser_module_tests-FactoryTestNodeConnector.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_parser_module_tests-TrivialNodeConnector.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_parser_module_tests-constantXmlParserTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_parser_module_tests-variableXmlParserTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_parser_module_tests-arrayReferenceXmlParserTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_parser_module_tests-functionXmlParserTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_parser_module_tests-commandXmlParserTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_parser_module_tests-lookupXmlParserTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_parser_module_tests-updateXmlParserTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_parser_module_tests-nodeXmlParserTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 
 test/parser-module-tests$(EXEEXT): $(test_parser_module_tests_OBJECTS) $(test_parser_module_tests_DEPENDENCIES) $(EXTRA_test_parser_module_tests_DEPENDENCIES) test/$(am__dirstamp)
 	@rm -f test/parser-module-tests$(EXEEXT)
@@ -625,370 +620,146 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArithmeticFunctionFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArrayLiteralFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArrayVariableFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ArrayVariableReferenceFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ConcreteExpressionFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-ExpressionFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-Expressions.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-FunctionFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-InternalExpressionFactories.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-LookupFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-PlexilSchema.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-UserVariableFactory.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-commandXmlParser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parseAssignment.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parseLibraryCall.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parseNode.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parsePlan.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-parser-utils.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-planLibrary.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilXmlParser_la-updateXmlParser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_benchmark-benchmark.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-arrayReferenceXmlParserTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-commandXmlParserTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-constantXmlParserTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-functionXmlParserTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-lookupXmlParserTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-parser-test-module.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-updateXmlParserTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_parser_module_tests-variableXmlParserTest.Po@am__quote@
-
 .cc.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ $<
 
 .cc.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cc.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
-@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+	$(AM_V_CXX)$(LTCXXCOMPILE) -c -o $@ $<
 
 libPlexilXmlParser_la-ArithmeticFunctionFactory.lo: ArithmeticFunctionFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ArithmeticFunctionFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ArithmeticFunctionFactory.Tpo -c -o libPlexilXmlParser_la-ArithmeticFunctionFactory.lo `test -f 'ArithmeticFunctionFactory.cc' || echo '$(srcdir)/'`ArithmeticFunctionFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ArithmeticFunctionFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ArithmeticFunctionFactory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArithmeticFunctionFactory.cc' object='libPlexilXmlParser_la-ArithmeticFunctionFactory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArithmeticFunctionFactory.lo `test -f 'ArithmeticFunctionFactory.cc' || echo '$(srcdir)/'`ArithmeticFunctionFactory.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArithmeticFunctionFactory.lo `test -f 'ArithmeticFunctionFactory.cc' || echo '$(srcdir)/'`ArithmeticFunctionFactory.cc
 
 libPlexilXmlParser_la-ArrayLiteralFactory.lo: ArrayLiteralFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ArrayLiteralFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ArrayLiteralFactory.Tpo -c -o libPlexilXmlParser_la-ArrayLiteralFactory.lo `test -f 'ArrayLiteralFactory.cc' || echo '$(srcdir)/'`ArrayLiteralFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ArrayLiteralFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ArrayLiteralFactory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayLiteralFactory.cc' object='libPlexilXmlParser_la-ArrayLiteralFactory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArrayLiteralFactory.lo `test -f 'ArrayLiteralFactory.cc' || echo '$(srcdir)/'`ArrayLiteralFactory.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArrayLiteralFactory.lo `test -f 'ArrayLiteralFactory.cc' || echo '$(srcdir)/'`ArrayLiteralFactory.cc
 
 libPlexilXmlParser_la-ArrayVariableFactory.lo: ArrayVariableFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ArrayVariableFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableFactory.Tpo -c -o libPlexilXmlParser_la-ArrayVariableFactory.lo `test -f 'ArrayVariableFactory.cc' || echo '$(srcdir)/'`ArrayVariableFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableFactory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayVariableFactory.cc' object='libPlexilXmlParser_la-ArrayVariableFactory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArrayVariableFactory.lo `test -f 'ArrayVariableFactory.cc' || echo '$(srcdir)/'`ArrayVariableFactory.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArrayVariableFactory.lo `test -f 'ArrayVariableFactory.cc' || echo '$(srcdir)/'`ArrayVariableFactory.cc
 
 libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo: ArrayVariableReferenceFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableReferenceFactory.Tpo -c -o libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo `test -f 'ArrayVariableReferenceFactory.cc' || echo '$(srcdir)/'`ArrayVariableReferenceFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableReferenceFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ArrayVariableReferenceFactory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ArrayVariableReferenceFactory.cc' object='libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo `test -f 'ArrayVariableReferenceFactory.cc' || echo '$(srcdir)/'`ArrayVariableReferenceFactory.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ArrayVariableReferenceFactory.lo `test -f 'ArrayVariableReferenceFactory.cc' || echo '$(srcdir)/'`ArrayVariableReferenceFactory.cc
 
 libPlexilXmlParser_la-ConcreteExpressionFactory.lo: ConcreteExpressionFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ConcreteExpressionFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ConcreteExpressionFactory.Tpo -c -o libPlexilXmlParser_la-ConcreteExpressionFactory.lo `test -f 'ConcreteExpressionFactory.cc' || echo '$(srcdir)/'`ConcreteExpressionFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ConcreteExpressionFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ConcreteExpressionFactory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ConcreteExpressionFactory.cc' object='libPlexilXmlParser_la-ConcreteExpressionFactory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ConcreteExpressionFactory.lo `test -f 'ConcreteExpressionFactory.cc' || echo '$(srcdir)/'`ConcreteExpressionFactory.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ConcreteExpressionFactory.lo `test -f 'ConcreteExpressionFactory.cc' || echo '$(srcdir)/'`ConcreteExpressionFactory.cc
 
 libPlexilXmlParser_la-commandXmlParser.lo: commandXmlParser.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-commandXmlParser.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-commandXmlParser.Tpo -c -o libPlexilXmlParser_la-commandXmlParser.lo `test -f 'commandXmlParser.cc' || echo '$(srcdir)/'`commandXmlParser.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-commandXmlParser.Tpo $(DEPDIR)/libPlexilXmlParser_la-commandXmlParser.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='commandXmlParser.cc' object='libPlexilXmlParser_la-commandXmlParser.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-commandXmlParser.lo `test -f 'commandXmlParser.cc' || echo '$(srcdir)/'`commandXmlParser.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-commandXmlParser.lo `test -f 'commandXmlParser.cc' || echo '$(srcdir)/'`commandXmlParser.cc
 
 libPlexilXmlParser_la-ExpressionFactory.lo: ExpressionFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-ExpressionFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-ExpressionFactory.Tpo -c -o libPlexilXmlParser_la-ExpressionFactory.lo `test -f 'ExpressionFactory.cc' || echo '$(srcdir)/'`ExpressionFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-ExpressionFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-ExpressionFactory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExpressionFactory.cc' object='libPlexilXmlParser_la-ExpressionFactory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ExpressionFactory.lo `test -f 'ExpressionFactory.cc' || echo '$(srcdir)/'`ExpressionFactory.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-ExpressionFactory.lo `test -f 'ExpressionFactory.cc' || echo '$(srcdir)/'`ExpressionFactory.cc
 
 libPlexilXmlParser_la-Expressions.lo: Expressions.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-Expressions.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-Expressions.Tpo -c -o libPlexilXmlParser_la-Expressions.lo `test -f 'Expressions.cc' || echo '$(srcdir)/'`Expressions.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-Expressions.Tpo $(DEPDIR)/libPlexilXmlParser_la-Expressions.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Expressions.cc' object='libPlexilXmlParser_la-Expressions.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-Expressions.lo `test -f 'Expressions.cc' || echo '$(srcdir)/'`Expressions.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-Expressions.lo `test -f 'Expressions.cc' || echo '$(srcdir)/'`Expressions.cc
 
 libPlexilXmlParser_la-FunctionFactory.lo: FunctionFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-FunctionFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-FunctionFactory.Tpo -c -o libPlexilXmlParser_la-FunctionFactory.lo `test -f 'FunctionFactory.cc' || echo '$(srcdir)/'`FunctionFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-FunctionFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-FunctionFactory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='FunctionFactory.cc' object='libPlexilXmlParser_la-FunctionFactory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-FunctionFactory.lo `test -f 'FunctionFactory.cc' || echo '$(srcdir)/'`FunctionFactory.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-FunctionFactory.lo `test -f 'FunctionFactory.cc' || echo '$(srcdir)/'`FunctionFactory.cc
 
 libPlexilXmlParser_la-InternalExpressionFactories.lo: InternalExpressionFactories.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-InternalExpressionFactories.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-InternalExpressionFactories.Tpo -c -o libPlexilXmlParser_la-InternalExpressionFactories.lo `test -f 'InternalExpressionFactories.cc' || echo '$(srcdir)/'`InternalExpressionFactories.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-InternalExpressionFactories.Tpo $(DEPDIR)/libPlexilXmlParser_la-InternalExpressionFactories.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='InternalExpressionFactories.cc' object='libPlexilXmlParser_la-InternalExpressionFactories.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-InternalExpressionFactories.lo `test -f 'InternalExpressionFactories.cc' || echo '$(srcdir)/'`InternalExpressionFactories.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-InternalExpressionFactories.lo `test -f 'InternalExpressionFactories.cc' || echo '$(srcdir)/'`InternalExpressionFactories.cc
 
 libPlexilXmlParser_la-LookupFactory.lo: LookupFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-LookupFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-LookupFactory.Tpo -c -o libPlexilXmlParser_la-LookupFactory.lo `test -f 'LookupFactory.cc' || echo '$(srcdir)/'`LookupFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-LookupFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-LookupFactory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='LookupFactory.cc' object='libPlexilXmlParser_la-LookupFactory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-LookupFactory.lo `test -f 'LookupFactory.cc' || echo '$(srcdir)/'`LookupFactory.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-LookupFactory.lo `test -f 'LookupFactory.cc' || echo '$(srcdir)/'`LookupFactory.cc
 
 libPlexilXmlParser_la-parseAssignment.lo: parseAssignment.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-parseAssignment.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-parseAssignment.Tpo -c -o libPlexilXmlParser_la-parseAssignment.lo `test -f 'parseAssignment.cc' || echo '$(srcdir)/'`parseAssignment.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-parseAssignment.Tpo $(DEPDIR)/libPlexilXmlParser_la-parseAssignment.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parseAssignment.cc' object='libPlexilXmlParser_la-parseAssignment.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parseAssignment.lo `test -f 'parseAssignment.cc' || echo '$(srcdir)/'`parseAssignment.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parseAssignment.lo `test -f 'parseAssignment.cc' || echo '$(srcdir)/'`parseAssignment.cc
 
 libPlexilXmlParser_la-parseLibraryCall.lo: parseLibraryCall.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-parseLibraryCall.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-parseLibraryCall.Tpo -c -o libPlexilXmlParser_la-parseLibraryCall.lo `test -f 'parseLibraryCall.cc' || echo '$(srcdir)/'`parseLibraryCall.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-parseLibraryCall.Tpo $(DEPDIR)/libPlexilXmlParser_la-parseLibraryCall.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parseLibraryCall.cc' object='libPlexilXmlParser_la-parseLibraryCall.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parseLibraryCall.lo `test -f 'parseLibraryCall.cc' || echo '$(srcdir)/'`parseLibraryCall.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parseLibraryCall.lo `test -f 'parseLibraryCall.cc' || echo '$(srcdir)/'`parseLibraryCall.cc
 
 libPlexilXmlParser_la-parseNode.lo: parseNode.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-parseNode.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-parseNode.Tpo -c -o libPlexilXmlParser_la-parseNode.lo `test -f 'parseNode.cc' || echo '$(srcdir)/'`parseNode.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-parseNode.Tpo $(DEPDIR)/libPlexilXmlParser_la-parseNode.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parseNode.cc' object='libPlexilXmlParser_la-parseNode.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parseNode.lo `test -f 'parseNode.cc' || echo '$(srcdir)/'`parseNode.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parseNode.lo `test -f 'parseNode.cc' || echo '$(srcdir)/'`parseNode.cc
 
 libPlexilXmlParser_la-parsePlan.lo: parsePlan.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-parsePlan.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-parsePlan.Tpo -c -o libPlexilXmlParser_la-parsePlan.lo `test -f 'parsePlan.cc' || echo '$(srcdir)/'`parsePlan.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-parsePlan.Tpo $(DEPDIR)/libPlexilXmlParser_la-parsePlan.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parsePlan.cc' object='libPlexilXmlParser_la-parsePlan.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parsePlan.lo `test -f 'parsePlan.cc' || echo '$(srcdir)/'`parsePlan.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parsePlan.lo `test -f 'parsePlan.cc' || echo '$(srcdir)/'`parsePlan.cc
 
 libPlexilXmlParser_la-parser-utils.lo: parser-utils.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-parser-utils.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-parser-utils.Tpo -c -o libPlexilXmlParser_la-parser-utils.lo `test -f 'parser-utils.cc' || echo '$(srcdir)/'`parser-utils.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-parser-utils.Tpo $(DEPDIR)/libPlexilXmlParser_la-parser-utils.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='parser-utils.cc' object='libPlexilXmlParser_la-parser-utils.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parser-utils.lo `test -f 'parser-utils.cc' || echo '$(srcdir)/'`parser-utils.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-parser-utils.lo `test -f 'parser-utils.cc' || echo '$(srcdir)/'`parser-utils.cc
 
 libPlexilXmlParser_la-planLibrary.lo: planLibrary.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-planLibrary.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-planLibrary.Tpo -c -o libPlexilXmlParser_la-planLibrary.lo `test -f 'planLibrary.cc' || echo '$(srcdir)/'`planLibrary.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-planLibrary.Tpo $(DEPDIR)/libPlexilXmlParser_la-planLibrary.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='planLibrary.cc' object='libPlexilXmlParser_la-planLibrary.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-planLibrary.lo `test -f 'planLibrary.cc' || echo '$(srcdir)/'`planLibrary.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-planLibrary.lo `test -f 'planLibrary.cc' || echo '$(srcdir)/'`planLibrary.cc
 
 libPlexilXmlParser_la-PlexilSchema.lo: PlexilSchema.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-PlexilSchema.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-PlexilSchema.Tpo -c -o libPlexilXmlParser_la-PlexilSchema.lo `test -f 'PlexilSchema.cc' || echo '$(srcdir)/'`PlexilSchema.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-PlexilSchema.Tpo $(DEPDIR)/libPlexilXmlParser_la-PlexilSchema.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='PlexilSchema.cc' object='libPlexilXmlParser_la-PlexilSchema.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-PlexilSchema.lo `test -f 'PlexilSchema.cc' || echo '$(srcdir)/'`PlexilSchema.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-PlexilSchema.lo `test -f 'PlexilSchema.cc' || echo '$(srcdir)/'`PlexilSchema.cc
 
 libPlexilXmlParser_la-updateXmlParser.lo: updateXmlParser.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-updateXmlParser.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-updateXmlParser.Tpo -c -o libPlexilXmlParser_la-updateXmlParser.lo `test -f 'updateXmlParser.cc' || echo '$(srcdir)/'`updateXmlParser.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-updateXmlParser.Tpo $(DEPDIR)/libPlexilXmlParser_la-updateXmlParser.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='updateXmlParser.cc' object='libPlexilXmlParser_la-updateXmlParser.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-updateXmlParser.lo `test -f 'updateXmlParser.cc' || echo '$(srcdir)/'`updateXmlParser.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-updateXmlParser.lo `test -f 'updateXmlParser.cc' || echo '$(srcdir)/'`updateXmlParser.cc
 
 libPlexilXmlParser_la-UserVariableFactory.lo: UserVariableFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilXmlParser_la-UserVariableFactory.lo -MD -MP -MF $(DEPDIR)/libPlexilXmlParser_la-UserVariableFactory.Tpo -c -o libPlexilXmlParser_la-UserVariableFactory.lo `test -f 'UserVariableFactory.cc' || echo '$(srcdir)/'`UserVariableFactory.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilXmlParser_la-UserVariableFactory.Tpo $(DEPDIR)/libPlexilXmlParser_la-UserVariableFactory.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='UserVariableFactory.cc' object='libPlexilXmlParser_la-UserVariableFactory.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-UserVariableFactory.lo `test -f 'UserVariableFactory.cc' || echo '$(srcdir)/'`UserVariableFactory.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilXmlParser_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilXmlParser_la-UserVariableFactory.lo `test -f 'UserVariableFactory.cc' || echo '$(srcdir)/'`UserVariableFactory.cc
 
 test/test_benchmark-benchmark.o: test/benchmark.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_benchmark_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_benchmark-benchmark.o -MD -MP -MF test/$(DEPDIR)/test_benchmark-benchmark.Tpo -c -o test/test_benchmark-benchmark.o `test -f 'test/benchmark.cc' || echo '$(srcdir)/'`test/benchmark.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_benchmark-benchmark.Tpo test/$(DEPDIR)/test_benchmark-benchmark.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/benchmark.cc' object='test/test_benchmark-benchmark.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_benchmark_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_benchmark-benchmark.o `test -f 'test/benchmark.cc' || echo '$(srcdir)/'`test/benchmark.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_benchmark_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_benchmark-benchmark.o `test -f 'test/benchmark.cc' || echo '$(srcdir)/'`test/benchmark.cc
 
 test/test_benchmark-benchmark.obj: test/benchmark.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_benchmark_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_benchmark-benchmark.obj -MD -MP -MF test/$(DEPDIR)/test_benchmark-benchmark.Tpo -c -o test/test_benchmark-benchmark.obj `if test -f 'test/benchmark.cc'; then $(CYGPATH_W) 'test/benchmark.cc'; else $(CYGPATH_W) '$(srcdir)/test/benchmark.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_benchmark-benchmark.Tpo test/$(DEPDIR)/test_benchmark-benchmark.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/benchmark.cc' object='test/test_benchmark-benchmark.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_benchmark_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_benchmark-benchmark.obj `if test -f 'test/benchmark.cc'; then $(CYGPATH_W) 'test/benchmark.cc'; else $(CYGPATH_W) '$(srcdir)/test/benchmark.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_benchmark_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_benchmark-benchmark.obj `if test -f 'test/benchmark.cc'; then $(CYGPATH_W) 'test/benchmark.cc'; else $(CYGPATH_W) '$(srcdir)/test/benchmark.cc'; fi`
 
 test/test_parser_module_tests-parser-test-module.o: test/parser-test-module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-parser-test-module.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-parser-test-module.Tpo -c -o test/test_parser_module_tests-parser-test-module.o `test -f 'test/parser-test-module.cc' || echo '$(srcdir)/'`test/parser-test-module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-parser-test-module.Tpo test/$(DEPDIR)/test_parser_module_tests-parser-test-module.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/parser-test-module.cc' object='test/test_parser_module_tests-parser-test-module.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-parser-test-module.o `test -f 'test/parser-test-module.cc' || echo '$(srcdir)/'`test/parser-test-module.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-parser-test-module.o `test -f 'test/parser-test-module.cc' || echo '$(srcdir)/'`test/parser-test-module.cc
 
 test/test_parser_module_tests-parser-test-module.obj: test/parser-test-module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-parser-test-module.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-parser-test-module.Tpo -c -o test/test_parser_module_tests-parser-test-module.obj `if test -f 'test/parser-test-module.cc'; then $(CYGPATH_W) 'test/parser-test-module.cc'; else $(CYGPATH_W) '$(srcdir)/test/parser-test-module.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-parser-test-module.Tpo test/$(DEPDIR)/test_parser_module_tests-parser-test-module.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/parser-test-module.cc' object='test/test_parser_module_tests-parser-test-module.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-parser-test-module.obj `if test -f 'test/parser-test-module.cc'; then $(CYGPATH_W) 'test/parser-test-module.cc'; else $(CYGPATH_W) '$(srcdir)/test/parser-test-module.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-parser-test-module.obj `if test -f 'test/parser-test-module.cc'; then $(CYGPATH_W) 'test/parser-test-module.cc'; else $(CYGPATH_W) '$(srcdir)/test/parser-test-module.cc'; fi`
 
 test/test_parser_module_tests-FactoryTestNodeConnector.o: test/FactoryTestNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-FactoryTestNodeConnector.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo -c -o test/test_parser_module_tests-FactoryTestNodeConnector.o `test -f 'test/FactoryTestNodeConnector.cc' || echo '$(srcdir)/'`test/FactoryTestNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/FactoryTestNodeConnector.cc' object='test/test_parser_module_tests-FactoryTestNodeConnector.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-FactoryTestNodeConnector.o `test -f 'test/FactoryTestNodeConnector.cc' || echo '$(srcdir)/'`test/FactoryTestNodeConnector.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-FactoryTestNodeConnector.o `test -f 'test/FactoryTestNodeConnector.cc' || echo '$(srcdir)/'`test/FactoryTestNodeConnector.cc
 
 test/test_parser_module_tests-FactoryTestNodeConnector.obj: test/FactoryTestNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-FactoryTestNodeConnector.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo -c -o test/test_parser_module_tests-FactoryTestNodeConnector.obj `if test -f 'test/FactoryTestNodeConnector.cc'; then $(CYGPATH_W) 'test/FactoryTestNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/FactoryTestNodeConnector.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Tpo test/$(DEPDIR)/test_parser_module_tests-FactoryTestNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/FactoryTestNodeConnector.cc' object='test/test_parser_module_tests-FactoryTestNodeConnector.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-FactoryTestNodeConnector.obj `if test -f 'test/FactoryTestNodeConnector.cc'; then $(CYGPATH_W) 'test/FactoryTestNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/FactoryTestNodeConnector.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-FactoryTestNodeConnector.obj `if test -f 'test/FactoryTestNodeConnector.cc'; then $(CYGPATH_W) 'test/FactoryTestNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/FactoryTestNodeConnector.cc'; fi`
 
 test/test_parser_module_tests-TrivialNodeConnector.o: test/TrivialNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-TrivialNodeConnector.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo -c -o test/test_parser_module_tests-TrivialNodeConnector.o `test -f 'test/TrivialNodeConnector.cc' || echo '$(srcdir)/'`test/TrivialNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/TrivialNodeConnector.cc' object='test/test_parser_module_tests-TrivialNodeConnector.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-TrivialNodeConnector.o `test -f 'test/TrivialNodeConnector.cc' || echo '$(srcdir)/'`test/TrivialNodeConnector.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-TrivialNodeConnector.o `test -f 'test/TrivialNodeConnector.cc' || echo '$(srcdir)/'`test/TrivialNodeConnector.cc
 
 test/test_parser_module_tests-TrivialNodeConnector.obj: test/TrivialNodeConnector.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-TrivialNodeConnector.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo -c -o test/test_parser_module_tests-TrivialNodeConnector.obj `if test -f 'test/TrivialNodeConnector.cc'; then $(CYGPATH_W) 'test/TrivialNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/TrivialNodeConnector.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Tpo test/$(DEPDIR)/test_parser_module_tests-TrivialNodeConnector.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/TrivialNodeConnector.cc' object='test/test_parser_module_tests-TrivialNodeConnector.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-TrivialNodeConnector.obj `if test -f 'test/TrivialNodeConnector.cc'; then $(CYGPATH_W) 'test/TrivialNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/TrivialNodeConnector.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-TrivialNodeConnector.obj `if test -f 'test/TrivialNodeConnector.cc'; then $(CYGPATH_W) 'test/TrivialNodeConnector.cc'; else $(CYGPATH_W) '$(srcdir)/test/TrivialNodeConnector.cc'; fi`
 
 test/test_parser_module_tests-constantXmlParserTest.o: test/constantXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-constantXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-constantXmlParserTest.Tpo -c -o test/test_parser_module_tests-constantXmlParserTest.o `test -f 'test/constantXmlParserTest.cc' || echo '$(srcdir)/'`test/constantXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-constantXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-constantXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/constantXmlParserTest.cc' object='test/test_parser_module_tests-constantXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-constantXmlParserTest.o `test -f 'test/constantXmlParserTest.cc' || echo '$(srcdir)/'`test/constantXmlParserTest.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-constantXmlParserTest.o `test -f 'test/constantXmlParserTest.cc' || echo '$(srcdir)/'`test/constantXmlParserTest.cc
 
 test/test_parser_module_tests-constantXmlParserTest.obj: test/constantXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-constantXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-constantXmlParserTest.Tpo -c -o test/test_parser_module_tests-constantXmlParserTest.obj `if test -f 'test/constantXmlParserTest.cc'; then $(CYGPATH_W) 'test/constantXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/constantXmlParserTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-constantXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-constantXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/constantXmlParserTest.cc' object='test/test_parser_module_tests-constantXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-constantXmlParserTest.obj `if test -f 'test/constantXmlParserTest.cc'; then $(CYGPATH_W) 'test/constantXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/constantXmlParserTest.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-constantXmlParserTest.obj `if test -f 'test/constantXmlParserTest.cc'; then $(CYGPATH_W) 'test/constantXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/constantXmlParserTest.cc'; fi`
 
 test/test_parser_module_tests-variableXmlParserTest.o: test/variableXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-variableXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-variableXmlParserTest.Tpo -c -o test/test_parser_module_tests-variableXmlParserTest.o `test -f 'test/variableXmlParserTest.cc' || echo '$(srcdir)/'`test/variableXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-variableXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-variableXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/variableXmlParserTest.cc' object='test/test_parser_module_tests-variableXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-variableXmlParserTest.o `test -f 'test/variableXmlParserTest.cc' || echo '$(srcdir)/'`test/variableXmlParserTest.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-variableXmlParserTest.o `test -f 'test/variableXmlParserTest.cc' || echo '$(srcdir)/'`test/variableXmlParserTest.cc
 
 test/test_parser_module_tests-variableXmlParserTest.obj: test/variableXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-variableXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-variableXmlParserTest.Tpo -c -o test/test_parser_module_tests-variableXmlParserTest.obj `if test -f 'test/variableXmlParserTest.cc'; then $(CYGPATH_W) 'test/variableXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/variableXmlParserTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-variableXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-variableXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/variableXmlParserTest.cc' object='test/test_parser_module_tests-variableXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-variableXmlParserTest.obj `if test -f 'test/variableXmlParserTest.cc'; then $(CYGPATH_W) 'test/variableXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/variableXmlParserTest.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-variableXmlParserTest.obj `if test -f 'test/variableXmlParserTest.cc'; then $(CYGPATH_W) 'test/variableXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/variableXmlParserTest.cc'; fi`
 
 test/test_parser_module_tests-arrayReferenceXmlParserTest.o: test/arrayReferenceXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-arrayReferenceXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-arrayReferenceXmlParserTest.Tpo -c -o test/test_parser_module_tests-arrayReferenceXmlParserTest.o `test -f 'test/arrayReferenceXmlParserTest.cc' || echo '$(srcdir)/'`test/arrayReferenceXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-arrayReferenceXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-arrayReferenceXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/arrayReferenceXmlParserTest.cc' object='test/test_parser_module_tests-arrayReferenceXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-arrayReferenceXmlParserTest.o `test -f 'test/arrayReferenceXmlParserTest.cc' || echo '$(srcdir)/'`test/arrayReferenceXmlParserTest.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-arrayReferenceXmlParserTest.o `test -f 'test/arrayReferenceXmlParserTest.cc' || echo '$(srcdir)/'`test/arrayReferenceXmlParserTest.cc
 
 test/test_parser_module_tests-arrayReferenceXmlParserTest.obj: test/arrayReferenceXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-arrayReferenceXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-arrayReferenceXmlParserTest.Tpo -c -o test/test_parser_module_tests-arrayReferenceXmlParserTest.obj `if test -f 'test/arrayReferenceXmlParserTest.cc'; then $(CYGPATH_W) 'test/arrayReferenceXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayReferenceXmlParserTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-arrayReferenceXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-arrayReferenceXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/arrayReferenceXmlParserTest.cc' object='test/test_parser_module_tests-arrayReferenceXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-arrayReferenceXmlParserTest.obj `if test -f 'test/arrayReferenceXmlParserTest.cc'; then $(CYGPATH_W) 'test/arrayReferenceXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayReferenceXmlParserTest.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-arrayReferenceXmlParserTest.obj `if test -f 'test/arrayReferenceXmlParserTest.cc'; then $(CYGPATH_W) 'test/arrayReferenceXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/arrayReferenceXmlParserTest.cc'; fi`
 
 test/test_parser_module_tests-functionXmlParserTest.o: test/functionXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-functionXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-functionXmlParserTest.Tpo -c -o test/test_parser_module_tests-functionXmlParserTest.o `test -f 'test/functionXmlParserTest.cc' || echo '$(srcdir)/'`test/functionXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-functionXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-functionXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/functionXmlParserTest.cc' object='test/test_parser_module_tests-functionXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-functionXmlParserTest.o `test -f 'test/functionXmlParserTest.cc' || echo '$(srcdir)/'`test/functionXmlParserTest.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-functionXmlParserTest.o `test -f 'test/functionXmlParserTest.cc' || echo '$(srcdir)/'`test/functionXmlParserTest.cc
 
 test/test_parser_module_tests-functionXmlParserTest.obj: test/functionXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-functionXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-functionXmlParserTest.Tpo -c -o test/test_parser_module_tests-functionXmlParserTest.obj `if test -f 'test/functionXmlParserTest.cc'; then $(CYGPATH_W) 'test/functionXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/functionXmlParserTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-functionXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-functionXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/functionXmlParserTest.cc' object='test/test_parser_module_tests-functionXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-functionXmlParserTest.obj `if test -f 'test/functionXmlParserTest.cc'; then $(CYGPATH_W) 'test/functionXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/functionXmlParserTest.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-functionXmlParserTest.obj `if test -f 'test/functionXmlParserTest.cc'; then $(CYGPATH_W) 'test/functionXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/functionXmlParserTest.cc'; fi`
 
 test/test_parser_module_tests-commandXmlParserTest.o: test/commandXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-commandXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-commandXmlParserTest.Tpo -c -o test/test_parser_module_tests-commandXmlParserTest.o `test -f 'test/commandXmlParserTest.cc' || echo '$(srcdir)/'`test/commandXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-commandXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-commandXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/commandXmlParserTest.cc' object='test/test_parser_module_tests-commandXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-commandXmlParserTest.o `test -f 'test/commandXmlParserTest.cc' || echo '$(srcdir)/'`test/commandXmlParserTest.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-commandXmlParserTest.o `test -f 'test/commandXmlParserTest.cc' || echo '$(srcdir)/'`test/commandXmlParserTest.cc
 
 test/test_parser_module_tests-commandXmlParserTest.obj: test/commandXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-commandXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-commandXmlParserTest.Tpo -c -o test/test_parser_module_tests-commandXmlParserTest.obj `if test -f 'test/commandXmlParserTest.cc'; then $(CYGPATH_W) 'test/commandXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/commandXmlParserTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-commandXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-commandXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/commandXmlParserTest.cc' object='test/test_parser_module_tests-commandXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-commandXmlParserTest.obj `if test -f 'test/commandXmlParserTest.cc'; then $(CYGPATH_W) 'test/commandXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/commandXmlParserTest.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-commandXmlParserTest.obj `if test -f 'test/commandXmlParserTest.cc'; then $(CYGPATH_W) 'test/commandXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/commandXmlParserTest.cc'; fi`
 
 test/test_parser_module_tests-lookupXmlParserTest.o: test/lookupXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-lookupXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-lookupXmlParserTest.Tpo -c -o test/test_parser_module_tests-lookupXmlParserTest.o `test -f 'test/lookupXmlParserTest.cc' || echo '$(srcdir)/'`test/lookupXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-lookupXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-lookupXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/lookupXmlParserTest.cc' object='test/test_parser_module_tests-lookupXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-lookupXmlParserTest.o `test -f 'test/lookupXmlParserTest.cc' || echo '$(srcdir)/'`test/lookupXmlParserTest.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-lookupXmlParserTest.o `test -f 'test/lookupXmlParserTest.cc' || echo '$(srcdir)/'`test/lookupXmlParserTest.cc
 
 test/test_parser_module_tests-lookupXmlParserTest.obj: test/lookupXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-lookupXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-lookupXmlParserTest.Tpo -c -o test/test_parser_module_tests-lookupXmlParserTest.obj `if test -f 'test/lookupXmlParserTest.cc'; then $(CYGPATH_W) 'test/lookupXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupXmlParserTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-lookupXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-lookupXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/lookupXmlParserTest.cc' object='test/test_parser_module_tests-lookupXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-lookupXmlParserTest.obj `if test -f 'test/lookupXmlParserTest.cc'; then $(CYGPATH_W) 'test/lookupXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupXmlParserTest.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-lookupXmlParserTest.obj `if test -f 'test/lookupXmlParserTest.cc'; then $(CYGPATH_W) 'test/lookupXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupXmlParserTest.cc'; fi`
 
 test/test_parser_module_tests-updateXmlParserTest.o: test/updateXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-updateXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-updateXmlParserTest.Tpo -c -o test/test_parser_module_tests-updateXmlParserTest.o `test -f 'test/updateXmlParserTest.cc' || echo '$(srcdir)/'`test/updateXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-updateXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-updateXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/updateXmlParserTest.cc' object='test/test_parser_module_tests-updateXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-updateXmlParserTest.o `test -f 'test/updateXmlParserTest.cc' || echo '$(srcdir)/'`test/updateXmlParserTest.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-updateXmlParserTest.o `test -f 'test/updateXmlParserTest.cc' || echo '$(srcdir)/'`test/updateXmlParserTest.cc
 
 test/test_parser_module_tests-updateXmlParserTest.obj: test/updateXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-updateXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-updateXmlParserTest.Tpo -c -o test/test_parser_module_tests-updateXmlParserTest.obj `if test -f 'test/updateXmlParserTest.cc'; then $(CYGPATH_W) 'test/updateXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/updateXmlParserTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-updateXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-updateXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/updateXmlParserTest.cc' object='test/test_parser_module_tests-updateXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-updateXmlParserTest.obj `if test -f 'test/updateXmlParserTest.cc'; then $(CYGPATH_W) 'test/updateXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/updateXmlParserTest.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-updateXmlParserTest.obj `if test -f 'test/updateXmlParserTest.cc'; then $(CYGPATH_W) 'test/updateXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/updateXmlParserTest.cc'; fi`
 
 test/test_parser_module_tests-nodeXmlParserTest.o: test/nodeXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-nodeXmlParserTest.o -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Tpo -c -o test/test_parser_module_tests-nodeXmlParserTest.o `test -f 'test/nodeXmlParserTest.cc' || echo '$(srcdir)/'`test/nodeXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/nodeXmlParserTest.cc' object='test/test_parser_module_tests-nodeXmlParserTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-nodeXmlParserTest.o `test -f 'test/nodeXmlParserTest.cc' || echo '$(srcdir)/'`test/nodeXmlParserTest.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-nodeXmlParserTest.o `test -f 'test/nodeXmlParserTest.cc' || echo '$(srcdir)/'`test/nodeXmlParserTest.cc
 
 test/test_parser_module_tests-nodeXmlParserTest.obj: test/nodeXmlParserTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_parser_module_tests-nodeXmlParserTest.obj -MD -MP -MF test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Tpo -c -o test/test_parser_module_tests-nodeXmlParserTest.obj `if test -f 'test/nodeXmlParserTest.cc'; then $(CYGPATH_W) 'test/nodeXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/nodeXmlParserTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Tpo test/$(DEPDIR)/test_parser_module_tests-nodeXmlParserTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/nodeXmlParserTest.cc' object='test/test_parser_module_tests-nodeXmlParserTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-nodeXmlParserTest.obj `if test -f 'test/nodeXmlParserTest.cc'; then $(CYGPATH_W) 'test/nodeXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/nodeXmlParserTest.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_parser_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_parser_module_tests-nodeXmlParserTest.obj `if test -f 'test/nodeXmlParserTest.cc'; then $(CYGPATH_W) 'test/nodeXmlParserTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/nodeXmlParserTest.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1135,7 +906,6 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f test/$(DEPDIR)/$(am__dirstamp)
 	-rm -f test/$(am__dirstamp)
 
 maintainer-clean-generic:
@@ -1147,7 +917,6 @@ clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
 	clean-libtool mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -1193,7 +962,6 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

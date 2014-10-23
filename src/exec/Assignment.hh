@@ -27,7 +27,7 @@
 #ifndef PLEXIL_ASSIGNMENT_HH
 #define PLEXIL_ASSIGNMENT_HH
 
-#include "UserVariable.hh"
+#include "SimpleBooleanVariable.hh"
 #include "Value.hh"
 
 namespace PLEXIL
@@ -68,8 +68,8 @@ namespace PLEXIL
     Assignment(const Assignment&);
     Assignment& operator=(const Assignment&);
 
-    BooleanVariable m_ack;
-    BooleanVariable m_abortComplete;
+    SimpleBooleanVariable m_ack;
+    SimpleBooleanVariable m_abortComplete;
     Expression *m_rhs;
     Assignable *m_dest;
     Value m_value; // TODO: templatize by assignable type?

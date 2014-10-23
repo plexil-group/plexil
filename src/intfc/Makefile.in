@@ -109,7 +109,7 @@ host_triplet = @host@
 @MODULE_TESTS_OPT_TRUE@	test/intfc-module-tests$(EXEEXT)
 subdir = intfc
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
-	$(top_srcdir)/depcomp $(include_HEADERS) $(noinst_HEADERS)
+	$(include_HEADERS) $(noinst_HEADERS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -196,9 +196,8 @@ am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
 am__v_at_1 = 
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
-depcomp = $(SHELL) $(top_srcdir)/depcomp
-am__depfiles_maybe = depfiles
-am__mv = mv -f
+depcomp =
+am__depfiles_maybe =
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
@@ -412,9 +411,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu intfc/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu --ignore-deps intfc/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu intfc/Makefile
+	  $(AUTOMAKE) --gnu --ignore-deps intfc/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -523,24 +522,17 @@ clean-binPROGRAMS:
 ../expr/test/$(am__dirstamp):
 	@$(MKDIR_P) ../expr/test
 	@: > ../expr/test/$(am__dirstamp)
-../expr/test/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) ../expr/test/$(DEPDIR)
-	@: > ../expr/test/$(DEPDIR)/$(am__dirstamp)
 ../expr/test/test_intfc_module_tests-TrivialListener.$(OBJEXT):  \
-	../expr/test/$(am__dirstamp) \
-	../expr/test/$(DEPDIR)/$(am__dirstamp)
+	../expr/test/$(am__dirstamp)
 test/$(am__dirstamp):
 	@$(MKDIR_P) test
 	@: > test/$(am__dirstamp)
-test/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) test/$(DEPDIR)
-	@: > test/$(DEPDIR)/$(am__dirstamp)
 test/test_intfc_module_tests-lookupsTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_intfc_module_tests-stateTest.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 test/test_intfc_module_tests-intfc-test-module.$(OBJEXT):  \
-	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+	test/$(am__dirstamp)
 
 test/intfc-module-tests$(EXEEXT): $(test_intfc_module_tests_OBJECTS) $(test_intfc_module_tests_DEPENDENCIES) $(EXTRA_test_intfc_module_tests_DEPENDENCIES) test/$(am__dirstamp)
 	@rm -f test/intfc-module-tests$(EXEEXT)
@@ -554,186 +546,74 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-CachedValueImpl.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-Command.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-CommandHandleVariable.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-ExternalInterface.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-Lookup.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-QueueEntry.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-ResourceArbiterInterface.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-State.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-StateCacheEntry.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-StateCacheMap.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-Update.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libPlexilIntfc_la-resource-tags.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-lookupsTest.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@test/$(DEPDIR)/test_intfc_module_tests-stateTest.Po@am__quote@
-
 .cc.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ $<
 
 .cc.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
-@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+	$(AM_V_CXX)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 .cc.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
-@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
-@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+	$(AM_V_CXX)$(LTCXXCOMPILE) -c -o $@ $<
 
 libPlexilIntfc_la-CachedValueImpl.lo: CachedValueImpl.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-CachedValueImpl.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-CachedValueImpl.Tpo -c -o libPlexilIntfc_la-CachedValueImpl.lo `test -f 'CachedValueImpl.cc' || echo '$(srcdir)/'`CachedValueImpl.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-CachedValueImpl.Tpo $(DEPDIR)/libPlexilIntfc_la-CachedValueImpl.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CachedValueImpl.cc' object='libPlexilIntfc_la-CachedValueImpl.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-CachedValueImpl.lo `test -f 'CachedValueImpl.cc' || echo '$(srcdir)/'`CachedValueImpl.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-CachedValueImpl.lo `test -f 'CachedValueImpl.cc' || echo '$(srcdir)/'`CachedValueImpl.cc
 
 libPlexilIntfc_la-Command.lo: Command.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-Command.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-Command.Tpo -c -o libPlexilIntfc_la-Command.lo `test -f 'Command.cc' || echo '$(srcdir)/'`Command.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-Command.Tpo $(DEPDIR)/libPlexilIntfc_la-Command.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Command.cc' object='libPlexilIntfc_la-Command.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-Command.lo `test -f 'Command.cc' || echo '$(srcdir)/'`Command.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-Command.lo `test -f 'Command.cc' || echo '$(srcdir)/'`Command.cc
 
 libPlexilIntfc_la-CommandHandleVariable.lo: CommandHandleVariable.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-CommandHandleVariable.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-CommandHandleVariable.Tpo -c -o libPlexilIntfc_la-CommandHandleVariable.lo `test -f 'CommandHandleVariable.cc' || echo '$(srcdir)/'`CommandHandleVariable.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-CommandHandleVariable.Tpo $(DEPDIR)/libPlexilIntfc_la-CommandHandleVariable.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CommandHandleVariable.cc' object='libPlexilIntfc_la-CommandHandleVariable.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-CommandHandleVariable.lo `test -f 'CommandHandleVariable.cc' || echo '$(srcdir)/'`CommandHandleVariable.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-CommandHandleVariable.lo `test -f 'CommandHandleVariable.cc' || echo '$(srcdir)/'`CommandHandleVariable.cc
 
 libPlexilIntfc_la-ExternalInterface.lo: ExternalInterface.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-ExternalInterface.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-ExternalInterface.Tpo -c -o libPlexilIntfc_la-ExternalInterface.lo `test -f 'ExternalInterface.cc' || echo '$(srcdir)/'`ExternalInterface.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-ExternalInterface.Tpo $(DEPDIR)/libPlexilIntfc_la-ExternalInterface.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ExternalInterface.cc' object='libPlexilIntfc_la-ExternalInterface.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-ExternalInterface.lo `test -f 'ExternalInterface.cc' || echo '$(srcdir)/'`ExternalInterface.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-ExternalInterface.lo `test -f 'ExternalInterface.cc' || echo '$(srcdir)/'`ExternalInterface.cc
 
 libPlexilIntfc_la-Lookup.lo: Lookup.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-Lookup.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-Lookup.Tpo -c -o libPlexilIntfc_la-Lookup.lo `test -f 'Lookup.cc' || echo '$(srcdir)/'`Lookup.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-Lookup.Tpo $(DEPDIR)/libPlexilIntfc_la-Lookup.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Lookup.cc' object='libPlexilIntfc_la-Lookup.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-Lookup.lo `test -f 'Lookup.cc' || echo '$(srcdir)/'`Lookup.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-Lookup.lo `test -f 'Lookup.cc' || echo '$(srcdir)/'`Lookup.cc
 
 libPlexilIntfc_la-QueueEntry.lo: QueueEntry.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-QueueEntry.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-QueueEntry.Tpo -c -o libPlexilIntfc_la-QueueEntry.lo `test -f 'QueueEntry.cc' || echo '$(srcdir)/'`QueueEntry.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-QueueEntry.Tpo $(DEPDIR)/libPlexilIntfc_la-QueueEntry.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='QueueEntry.cc' object='libPlexilIntfc_la-QueueEntry.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-QueueEntry.lo `test -f 'QueueEntry.cc' || echo '$(srcdir)/'`QueueEntry.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-QueueEntry.lo `test -f 'QueueEntry.cc' || echo '$(srcdir)/'`QueueEntry.cc
 
 libPlexilIntfc_la-ResourceArbiterInterface.lo: ResourceArbiterInterface.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-ResourceArbiterInterface.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-ResourceArbiterInterface.Tpo -c -o libPlexilIntfc_la-ResourceArbiterInterface.lo `test -f 'ResourceArbiterInterface.cc' || echo '$(srcdir)/'`ResourceArbiterInterface.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-ResourceArbiterInterface.Tpo $(DEPDIR)/libPlexilIntfc_la-ResourceArbiterInterface.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='ResourceArbiterInterface.cc' object='libPlexilIntfc_la-ResourceArbiterInterface.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-ResourceArbiterInterface.lo `test -f 'ResourceArbiterInterface.cc' || echo '$(srcdir)/'`ResourceArbiterInterface.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-ResourceArbiterInterface.lo `test -f 'ResourceArbiterInterface.cc' || echo '$(srcdir)/'`ResourceArbiterInterface.cc
 
 libPlexilIntfc_la-State.lo: State.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-State.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-State.Tpo -c -o libPlexilIntfc_la-State.lo `test -f 'State.cc' || echo '$(srcdir)/'`State.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-State.Tpo $(DEPDIR)/libPlexilIntfc_la-State.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='State.cc' object='libPlexilIntfc_la-State.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-State.lo `test -f 'State.cc' || echo '$(srcdir)/'`State.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-State.lo `test -f 'State.cc' || echo '$(srcdir)/'`State.cc
 
 libPlexilIntfc_la-StateCacheEntry.lo: StateCacheEntry.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-StateCacheEntry.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-StateCacheEntry.Tpo -c -o libPlexilIntfc_la-StateCacheEntry.lo `test -f 'StateCacheEntry.cc' || echo '$(srcdir)/'`StateCacheEntry.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-StateCacheEntry.Tpo $(DEPDIR)/libPlexilIntfc_la-StateCacheEntry.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='StateCacheEntry.cc' object='libPlexilIntfc_la-StateCacheEntry.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-StateCacheEntry.lo `test -f 'StateCacheEntry.cc' || echo '$(srcdir)/'`StateCacheEntry.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-StateCacheEntry.lo `test -f 'StateCacheEntry.cc' || echo '$(srcdir)/'`StateCacheEntry.cc
 
 libPlexilIntfc_la-StateCacheMap.lo: StateCacheMap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-StateCacheMap.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-StateCacheMap.Tpo -c -o libPlexilIntfc_la-StateCacheMap.lo `test -f 'StateCacheMap.cc' || echo '$(srcdir)/'`StateCacheMap.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-StateCacheMap.Tpo $(DEPDIR)/libPlexilIntfc_la-StateCacheMap.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='StateCacheMap.cc' object='libPlexilIntfc_la-StateCacheMap.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-StateCacheMap.lo `test -f 'StateCacheMap.cc' || echo '$(srcdir)/'`StateCacheMap.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-StateCacheMap.lo `test -f 'StateCacheMap.cc' || echo '$(srcdir)/'`StateCacheMap.cc
 
 libPlexilIntfc_la-Update.lo: Update.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-Update.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-Update.Tpo -c -o libPlexilIntfc_la-Update.lo `test -f 'Update.cc' || echo '$(srcdir)/'`Update.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-Update.Tpo $(DEPDIR)/libPlexilIntfc_la-Update.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Update.cc' object='libPlexilIntfc_la-Update.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-Update.lo `test -f 'Update.cc' || echo '$(srcdir)/'`Update.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-Update.lo `test -f 'Update.cc' || echo '$(srcdir)/'`Update.cc
 
 libPlexilIntfc_la-resource-tags.lo: resource-tags.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libPlexilIntfc_la-resource-tags.lo -MD -MP -MF $(DEPDIR)/libPlexilIntfc_la-resource-tags.Tpo -c -o libPlexilIntfc_la-resource-tags.lo `test -f 'resource-tags.cc' || echo '$(srcdir)/'`resource-tags.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libPlexilIntfc_la-resource-tags.Tpo $(DEPDIR)/libPlexilIntfc_la-resource-tags.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='resource-tags.cc' object='libPlexilIntfc_la-resource-tags.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-resource-tags.lo `test -f 'resource-tags.cc' || echo '$(srcdir)/'`resource-tags.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilIntfc_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilIntfc_la-resource-tags.lo `test -f 'resource-tags.cc' || echo '$(srcdir)/'`resource-tags.cc
 
 ../expr/test/test_intfc_module_tests-TrivialListener.o: ../expr/test/TrivialListener.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_intfc_module_tests-TrivialListener.o -MD -MP -MF ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Tpo -c -o ../expr/test/test_intfc_module_tests-TrivialListener.o `test -f '../expr/test/TrivialListener.cc' || echo '$(srcdir)/'`../expr/test/TrivialListener.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Tpo ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/TrivialListener.cc' object='../expr/test/test_intfc_module_tests-TrivialListener.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_intfc_module_tests-TrivialListener.o `test -f '../expr/test/TrivialListener.cc' || echo '$(srcdir)/'`../expr/test/TrivialListener.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_intfc_module_tests-TrivialListener.o `test -f '../expr/test/TrivialListener.cc' || echo '$(srcdir)/'`../expr/test/TrivialListener.cc
 
 ../expr/test/test_intfc_module_tests-TrivialListener.obj: ../expr/test/TrivialListener.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT ../expr/test/test_intfc_module_tests-TrivialListener.obj -MD -MP -MF ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Tpo -c -o ../expr/test/test_intfc_module_tests-TrivialListener.obj `if test -f '../expr/test/TrivialListener.cc'; then $(CYGPATH_W) '../expr/test/TrivialListener.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/TrivialListener.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Tpo ../expr/test/$(DEPDIR)/test_intfc_module_tests-TrivialListener.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='../expr/test/TrivialListener.cc' object='../expr/test/test_intfc_module_tests-TrivialListener.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_intfc_module_tests-TrivialListener.obj `if test -f '../expr/test/TrivialListener.cc'; then $(CYGPATH_W) '../expr/test/TrivialListener.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/TrivialListener.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o ../expr/test/test_intfc_module_tests-TrivialListener.obj `if test -f '../expr/test/TrivialListener.cc'; then $(CYGPATH_W) '../expr/test/TrivialListener.cc'; else $(CYGPATH_W) '$(srcdir)/../expr/test/TrivialListener.cc'; fi`
 
 test/test_intfc_module_tests-lookupsTest.o: test/lookupsTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-lookupsTest.o -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-lookupsTest.Tpo -c -o test/test_intfc_module_tests-lookupsTest.o `test -f 'test/lookupsTest.cc' || echo '$(srcdir)/'`test/lookupsTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_intfc_module_tests-lookupsTest.Tpo test/$(DEPDIR)/test_intfc_module_tests-lookupsTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/lookupsTest.cc' object='test/test_intfc_module_tests-lookupsTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-lookupsTest.o `test -f 'test/lookupsTest.cc' || echo '$(srcdir)/'`test/lookupsTest.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-lookupsTest.o `test -f 'test/lookupsTest.cc' || echo '$(srcdir)/'`test/lookupsTest.cc
 
 test/test_intfc_module_tests-lookupsTest.obj: test/lookupsTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-lookupsTest.obj -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-lookupsTest.Tpo -c -o test/test_intfc_module_tests-lookupsTest.obj `if test -f 'test/lookupsTest.cc'; then $(CYGPATH_W) 'test/lookupsTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupsTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_intfc_module_tests-lookupsTest.Tpo test/$(DEPDIR)/test_intfc_module_tests-lookupsTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/lookupsTest.cc' object='test/test_intfc_module_tests-lookupsTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-lookupsTest.obj `if test -f 'test/lookupsTest.cc'; then $(CYGPATH_W) 'test/lookupsTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupsTest.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-lookupsTest.obj `if test -f 'test/lookupsTest.cc'; then $(CYGPATH_W) 'test/lookupsTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/lookupsTest.cc'; fi`
 
 test/test_intfc_module_tests-stateTest.o: test/stateTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-stateTest.o -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-stateTest.Tpo -c -o test/test_intfc_module_tests-stateTest.o `test -f 'test/stateTest.cc' || echo '$(srcdir)/'`test/stateTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_intfc_module_tests-stateTest.Tpo test/$(DEPDIR)/test_intfc_module_tests-stateTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/stateTest.cc' object='test/test_intfc_module_tests-stateTest.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-stateTest.o `test -f 'test/stateTest.cc' || echo '$(srcdir)/'`test/stateTest.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-stateTest.o `test -f 'test/stateTest.cc' || echo '$(srcdir)/'`test/stateTest.cc
 
 test/test_intfc_module_tests-stateTest.obj: test/stateTest.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-stateTest.obj -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-stateTest.Tpo -c -o test/test_intfc_module_tests-stateTest.obj `if test -f 'test/stateTest.cc'; then $(CYGPATH_W) 'test/stateTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/stateTest.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_intfc_module_tests-stateTest.Tpo test/$(DEPDIR)/test_intfc_module_tests-stateTest.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/stateTest.cc' object='test/test_intfc_module_tests-stateTest.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-stateTest.obj `if test -f 'test/stateTest.cc'; then $(CYGPATH_W) 'test/stateTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/stateTest.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-stateTest.obj `if test -f 'test/stateTest.cc'; then $(CYGPATH_W) 'test/stateTest.cc'; else $(CYGPATH_W) '$(srcdir)/test/stateTest.cc'; fi`
 
 test/test_intfc_module_tests-intfc-test-module.o: test/intfc-test-module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-intfc-test-module.o -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Tpo -c -o test/test_intfc_module_tests-intfc-test-module.o `test -f 'test/intfc-test-module.cc' || echo '$(srcdir)/'`test/intfc-test-module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Tpo test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/intfc-test-module.cc' object='test/test_intfc_module_tests-intfc-test-module.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-intfc-test-module.o `test -f 'test/intfc-test-module.cc' || echo '$(srcdir)/'`test/intfc-test-module.cc
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-intfc-test-module.o `test -f 'test/intfc-test-module.cc' || echo '$(srcdir)/'`test/intfc-test-module.cc
 
 test/test_intfc_module_tests-intfc-test-module.obj: test/intfc-test-module.cc
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT test/test_intfc_module_tests-intfc-test-module.obj -MD -MP -MF test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Tpo -c -o test/test_intfc_module_tests-intfc-test-module.obj `if test -f 'test/intfc-test-module.cc'; then $(CYGPATH_W) 'test/intfc-test-module.cc'; else $(CYGPATH_W) '$(srcdir)/test/intfc-test-module.cc'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Tpo test/$(DEPDIR)/test_intfc_module_tests-intfc-test-module.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='test/intfc-test-module.cc' object='test/test_intfc_module_tests-intfc-test-module.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-intfc-test-module.obj `if test -f 'test/intfc-test-module.cc'; then $(CYGPATH_W) 'test/intfc-test-module.cc'; else $(CYGPATH_W) '$(srcdir)/test/intfc-test-module.cc'; fi`
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_intfc_module_tests_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o test/test_intfc_module_tests-intfc-test-module.obj `if test -f 'test/intfc-test-module.cc'; then $(CYGPATH_W) 'test/intfc-test-module.cc'; else $(CYGPATH_W) '$(srcdir)/test/intfc-test-module.cc'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -880,9 +760,7 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f ../expr/test/$(DEPDIR)/$(am__dirstamp)
 	-rm -f ../expr/test/$(am__dirstamp)
-	-rm -f test/$(DEPDIR)/$(am__dirstamp)
 	-rm -f test/$(am__dirstamp)
 
 maintainer-clean-generic:
@@ -894,7 +772,6 @@ clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
 	clean-libtool mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ../expr/test/$(DEPDIR) ./$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -940,7 +817,6 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ../expr/test/$(DEPDIR) ./$(DEPDIR) test/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

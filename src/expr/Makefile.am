@@ -32,15 +32,16 @@ libPlexilExpr_la_CPPFLAGS = -I@top_srcdir@/value -I@top_srcdir@/utils
 include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh Assignable.hh \
  AssignableImpl.hh Constant.hh Expression.hh \
  ExpressionConstants.hh ExpressionImpl.hh ExpressionListener.hh ExprVec.hh \
- Function.hh NodeConnector.hh NotifierImpl.hh Operator.hh UserVariable.hh
+ Function.hh NodeConnector.hh NotifierImpl.hh Operator.hh \
+ SimpleBooleanVariable.hh UserVariable.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \
  ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
  Assignable.cc AssignableImpl.cc BooleanOperators.cc \
  Comparisons.cc Constant.cc Expression.cc ExpressionConstants.cc \
  ExpressionImpl.cc ExpressionListener.cc ExprVec.cc Function.cc \
- NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc StringOperators.cc \
- UserVariable.cc
+ NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc \
+ SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
@@ -49,8 +50,9 @@ if MODULE_TESTS_OPT
  test/arrayConstantTest.cc test/arrayOperatorsTest.cc \
  test/arrayReferenceTest.cc test/arrayVariableTest.cc \
  test/booleanOperatorsTest.cc test/comparisonsTest.cc test/constantsTest.cc \
- test/functionsTest.cc test/listenerTest.cc test/stringTest.cc \
- test/TrivialListener.cc test/variablesTest.cc test/expr-test-module.cc
+ test/functionsTest.cc test/listenerTest.cc test/simpleBooleanVariableTest.cc \
+ test/stringTest.cc test/TrivialListener.cc test/variablesTest.cc \
+ test/expr-test-module.cc
   test_expr_module_tests_CPPFLAGS = -I../value -I../utils
   test_expr_module_tests_LDADD = libPlexilExpr.la \
  ../value/libPlexilValue.la ../utils/libPlexilUtils.la
