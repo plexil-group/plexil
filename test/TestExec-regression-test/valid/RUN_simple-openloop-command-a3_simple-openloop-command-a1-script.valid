@@ -38,19 +38,19 @@ SimpleDrive{
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7faf09c09b30 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fc709c06f20 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7faf09c099d0 [a](0) (StateVariable NodeState Drive 0x7faf09c096a0 [a](EXECUTING)))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7faf09c09910 [i](UNKNOWN) (StateVariable NodeState Drive 0x7faf09c096a0 [a](EXECUTING)))
+ EndCondition: (AllChildrenFinished Boolean 0x7fc709c071d0 [a](0) (StateVariable NodeState Drive 0x7fc709c06e00 [a](EXECUTING)))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fc709c07110 [i](UNKNOWN) (StateVariable NodeState Drive 0x7fc709c06e00 [a](EXECUTING)))
   Drive{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7faf09c0a120 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7faf09c09b30 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x106abb6b8 [a](COMMAND_DENIED)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7faf09c09d20 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7faf09c09b30 [a](UNKNOWN)))
-   AbortCompleteCondition: (Variable Boolean Drive abortComplete 0x7faf09c09b70 [a](UNKNOWN))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7faf09c09b30 [a](UNKNOWN))
+   PostCondition: (EQ Boolean 0x7fc709c07610 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fc709c06f20 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x10d169828 [a](COMMAND_DENIED)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fc709c06270 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fc709c06f20 [a](UNKNOWN)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fc709c06f60 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc709c06f20 [a](UNKNOWN))
   }
 }
 
@@ -105,7 +105,7 @@ SimpleDrive{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7faf09c09b30 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc709c06f20 [i](UNKNOWN))
   }
 }
 

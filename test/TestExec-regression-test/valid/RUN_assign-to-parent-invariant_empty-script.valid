@@ -40,21 +40,21 @@ Parent{
 [PlexilExec:notifyNodeConditionChanged] for node Child
 [PlexilExec:handleNeedsExecution]Storing action for node 'Child' of type 'Assignment' to be executed.
 [PlexilExec:performAssignments] performing 1 assignments and 0 retractions
-[Test:testOutput]Assigning (Variable Boolean step_failed 0x7ff132409620 [a](0)) to 1
+[Test:testOutput]Assigning (Variable Boolean step_failed 0x7fe3bac06cb0 [a](0)) to 1
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 Parent{
  State: EXECUTING (0)
- InvariantCondition: (EQ Boolean 0x7ff132409e30 [a](0) (Variable Boolean step_failed 0x7ff132409620 [a](1)) (Constant Boolean 0x10db2d408 [a](0)))
- EndCondition: (EQ Boolean 0x7ff132409ed0 [a](0) (StateVariable NodeState Child 0x7ff1324097f0 [a](EXECUTING)) (NodeStateValue NodeState 0x10db2d520 [a](FINISHED)))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ff132409f30 [i](UNKNOWN) (StateVariable NodeState Child 0x7ff1324097f0 [a](EXECUTING)))
- step_failed: (Variable Boolean step_failed 0x7ff132409620 [a](1))
+ InvariantCondition: (EQ Boolean 0x7fe3bac07410 [a](0) (Variable Boolean step_failed 0x7fe3bac06cb0 [a](1)) (Constant Boolean 0x104f65590 [a](0)))
+ EndCondition: (EQ Boolean 0x7fe3bac074b0 [a](0) (StateVariable NodeState Child 0x7fe3bac06e30 [a](EXECUTING)) (NodeStateValue NodeState 0x104f65690 [a](FINISHED)))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe3bac07510 [i](UNKNOWN) (StateVariable NodeState Child 0x7fe3bac06e30 [a](EXECUTING)))
+ step_failed: (Variable Boolean step_failed 0x7fe3bac06cb0 [a](1))
   Child{
    State: EXECUTING (0)
-   AncestorInvariantCondition: (EQ Boolean 0x7ff132409e30 [a](0) (Variable Boolean step_failed 0x7ff132409620 [a](1)) (Constant Boolean 0x10db2d408 [a](0)))
-   AncestorEndCondition: (EQ Boolean 0x7ff132409ed0 [a](0) (StateVariable NodeState Child 0x7ff1324097f0 [a](EXECUTING)) (NodeStateValue NodeState 0x10db2d520 [a](FINISHED)))
-   ActionCompleteCondition: (Variable Boolean Child ack 0x7ff13240a020 [a](1))
-   AbortCompleteCondition: (Variable Boolean Child abortComplete 0x7ff13240a078 [i](UNKNOWN))
+   AncestorInvariantCondition: (EQ Boolean 0x7fe3bac07410 [a](0) (Variable Boolean step_failed 0x7fe3bac06cb0 [a](1)) (Constant Boolean 0x104f65590 [a](0)))
+   AncestorEndCondition: (EQ Boolean 0x7fe3bac074b0 [a](0) (StateVariable NodeState Child 0x7fe3bac06e30 [a](EXECUTING)) (NodeStateValue NodeState 0x104f65690 [a](FINISHED)))
+   ActionCompleteCondition: (InternalVariable Boolean Child ack 0x7fe3bac06fb0 [a](1))
+   AbortCompleteCondition: (InternalVariable Boolean Child abortComplete 0x7fe3bac07000 [i](UNKNOWN))
   }
 }
 
@@ -73,21 +73,21 @@ Parent{
 [PlexilExec:notifyNodeConditionChanged] for node Parent
 [PlexilExec:notifyNodeConditionChanged] for node Child
 [PlexilExec:performAssignments] performing 0 assignments and 1 retractions
-[Test:testOutput]Restoring previous value of (Variable Boolean step_failed 0x7ff132409620 [a](1))
+[Test:testOutput]Restoring previous value of (Variable Boolean step_failed 0x7fe3bac06cb0 [a](1))
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
 Parent{
  State: FAILING (0)
- InvariantCondition: (EQ Boolean 0x7ff132409e30 [a](1) (Variable Boolean step_failed 0x7ff132409620 [a](0)) (Constant Boolean 0x10db2d408 [a](0)))
- EndCondition: (EQ Boolean 0x7ff132409ed0 [a](0) (StateVariable NodeState Child 0x7ff1324097f0 [a](FAILING)) (NodeStateValue NodeState 0x10db2d520 [a](FINISHED)))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7ff132409f30 [a](0) (StateVariable NodeState Child 0x7ff1324097f0 [a](FAILING)))
- step_failed: (Variable Boolean step_failed 0x7ff132409620 [a](0))
+ InvariantCondition: (EQ Boolean 0x7fe3bac07410 [a](1) (Variable Boolean step_failed 0x7fe3bac06cb0 [a](0)) (Constant Boolean 0x104f65590 [a](0)))
+ EndCondition: (EQ Boolean 0x7fe3bac074b0 [a](0) (StateVariable NodeState Child 0x7fe3bac06e30 [a](FAILING)) (NodeStateValue NodeState 0x104f65690 [a](FINISHED)))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe3bac07510 [a](0) (StateVariable NodeState Child 0x7fe3bac06e30 [a](FAILING)))
+ step_failed: (Variable Boolean step_failed 0x7fe3bac06cb0 [a](0))
   Child{
    State: FAILING (0)
-   AncestorInvariantCondition: (EQ Boolean 0x7ff132409e30 [a](1) (Variable Boolean step_failed 0x7ff132409620 [a](0)) (Constant Boolean 0x10db2d408 [a](0)))
-   AncestorEndCondition: (EQ Boolean 0x7ff132409ed0 [a](0) (StateVariable NodeState Child 0x7ff1324097f0 [a](FAILING)) (NodeStateValue NodeState 0x10db2d520 [a](FINISHED)))
-   ActionCompleteCondition: (Variable Boolean Child ack 0x7ff13240a020 [i](UNKNOWN))
-   AbortCompleteCondition: (Variable Boolean Child abortComplete 0x7ff13240a078 [a](1))
+   AncestorInvariantCondition: (EQ Boolean 0x7fe3bac07410 [a](1) (Variable Boolean step_failed 0x7fe3bac06cb0 [a](0)) (Constant Boolean 0x104f65590 [a](0)))
+   AncestorEndCondition: (EQ Boolean 0x7fe3bac074b0 [a](0) (StateVariable NodeState Child 0x7fe3bac06e30 [a](FAILING)) (NodeStateValue NodeState 0x104f65690 [a](FINISHED)))
+   ActionCompleteCondition: (InternalVariable Boolean Child ack 0x7fe3bac06fb0 [i](UNKNOWN))
+   AbortCompleteCondition: (InternalVariable Boolean Child abortComplete 0x7fe3bac07000 [a](1))
   }
 }
 
@@ -119,7 +119,7 @@ Parent{
  State: FINISHED (0)
  Outcome: FAILURE
  Failure type: INVARIANT_CONDITION_FAILED
- step_failed: (Variable Boolean step_failed 0x7ff132409620 [i](UNKNOWN))
+ step_failed: (Variable Boolean step_failed 0x7fe3bac06cb0 [i](UNKNOWN))
   Child{
    State: FINISHED (0)
    Outcome: FAILURE
