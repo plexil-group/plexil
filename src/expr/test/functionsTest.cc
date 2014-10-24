@@ -65,427 +65,432 @@ public:
   }
 };
 
+Passthrough<bool> ptb;
+Passthrough<int32_t> pti;
+Passthrough<double> ptd;
+Passthrough<std::string> pts;
+
+// TODO - test propagation of changes through variable and fn
 static bool testUnaryBasics()
 {
-  BooleanConstant treu(true);
-  IntegerConstant fortytwo(42);
-  RealConstant pie(3.14);
-  StringConstant fou("Foo");
+  {
+    BooleanConstant treu(true);
+    ExprVec *vecb = makeExprVec(1);
+    vecb->setArgument(0, &treu, false);
+    Function boule(&ptb, vecb);
+    assertTrue_1(!boule.isKnown());
+    boule.activate();
+    bool tempb;
+    assertTrue_1(boule.getValue(tempb));
+    assertTrue_1(tempb == true);
+  }
 
-  Passthrough<bool> ptb;
-  Passthrough<int32_t> pti;
-  Passthrough<double> ptd;
-  Passthrough<std::string> pts;
+  {
+    IntegerConstant fortytwo(42);
+    {
+      ExprVec *veci = makeExprVec(1);
+      veci->setArgument(0, &fortytwo, false);
+      Function inty(&pti, veci);
+      assertTrue_1(!inty.isKnown());
+      inty.activate();
+      int32_t tempi;
+      assertTrue_1(inty.getValue(tempi));
+      assertTrue_1(tempi == 42);
+    }
 
-  std::vector<bool> garbage1(1, false);
-  std::vector<Expression *> vecb(1, &treu);
-  std::vector<Expression *> veci(1, &fortytwo);
-  std::vector<Expression *> vecd(1, &pie);
-  std::vector<Expression *> vecs(1, &fou);
+    {
+      ExprVec *vecdi = makeExprVec(1);
+      vecdi->setArgument(0, &fortytwo, false);
+      Function intd(&ptd, vecdi);
+      assertTrue_1(!intd.isKnown());
+      intd.activate();
+      double tempdi;
+      assertTrue_1(intd.getValue(tempdi));
+      assertTrue_1(tempdi == 42.0);
+    }
+  }
 
-  Function boule(&ptb, makeExprVec(vecb, garbage1));
-  Function inty(&pti, makeExprVec(veci, garbage1));
-  Function dub(&ptd, makeExprVec(vecd, garbage1));
-  Function intd(&ptd, makeExprVec(veci, garbage1));
-  Function str(&pts, makeExprVec(vecs, garbage1));
+  {
+    RealConstant pie(3.14);
+    ExprVec *vecd = makeExprVec(1);
+    vecd->setArgument(0, &pie, false);
+    Function dub(&ptd, vecd);
+    assertTrue_1(!dub.isKnown());
+    dub.activate();
+    double tempd;
+    assertTrue_1(dub.getValue(tempd));
+    assertTrue_1(tempd == 3.14);
+  }
 
-  // Test that all are unknown when inactive
-  assertTrue_1(!boule.isKnown());
-  assertTrue_1(!inty.isKnown());
-  assertTrue_1(!dub.isKnown());
-  assertTrue_1(!intd.isKnown());
-  assertTrue_1(!str.isKnown());
-
-  // Activate and check values
-  boule.activate();
-  inty.activate();
-  dub.activate();
-  intd.activate();
-  str.activate();
-
-  bool tempb;
-  int32_t tempi;
-  double tempd, tempdi;
-  std::string temps;
-  assertTrue_1(boule.getValue(tempb));
-  assertTrue_1(inty.getValue(tempi));
-  assertTrue_1(dub.getValue(tempd));
-  assertTrue_1(intd.getValue(tempdi));
-  assertTrue_1(str.getValue(temps));
-
-  assertTrue_1(tempb == true);
-  assertTrue_1(tempi == 42);
-  assertTrue_1(tempd == 3.14);
-  assertTrue_1(tempdi == 42);
-  assertTrue_1(temps == std::string("Foo"));
-
-  // TODO - test propagation of changes through variable and fn
+  {
+    StringConstant fou("Foo");
+    ExprVec *vecs = makeExprVec(1);
+    vecs->setArgument(0, &fou, false);
+    Function str(&pts, vecs);
+    assertTrue_1(!str.isKnown());
+    str.activate();
+    std::string temps;
+    assertTrue_1(str.getValue(temps));
+    assertTrue_1(temps == std::string("Foo"));
+  }
 
   return true;
 }
  
 static bool testUnaryPropagation()
 {
-  BooleanVariable treu(true);
-  IntegerVariable fortytwo(42);
-  RealVariable pie(3.14);
-  StringVariable fou("Foo");
+  {
+    BooleanVariable treu(true);
+    ExprVec *vecb = makeExprVec(1);
+    vecb->setArgument(0, &treu, false);
+    Function boule(&ptb, vecb);
+    bool bchanged = false;
+    TrivialListener bl(bchanged);
+    boule.addListener(&bl);
 
-  Passthrough<bool> ptb;
-  Passthrough<int32_t> pti;
-  Passthrough<double> ptd;
-  Passthrough<std::string> pts;
+    treu.setValue(false);
+    assertTrue_1(!bchanged);
+    boule.activate();
+    assertTrue_1(treu.isActive());
 
-  std::vector<bool> garbage1(1, false);
-  std::vector<Expression *> vecb(1, &treu);
-  std::vector<Expression *> veci(1, &fortytwo);
-  std::vector<Expression *> vecd(1, &pie);
-  std::vector<Expression *> vecs(1, &fou);
+    treu.setValue(false);
+    bool boolv;
+    assertTrue_1(boule.getValue(boolv));
+    assertTrue_1(!boolv);
 
-  Function boule(&ptb, makeExprVec(vecb, garbage1));
-  Function inty(&pti, makeExprVec(veci, garbage1));
-  Function dub(&ptd, makeExprVec(vecd, garbage1));
-  Function intd(&ptd, makeExprVec(veci, garbage1));
-  Function str(&pts, makeExprVec(vecs, garbage1));
+    treu.setUnknown();
+    assertTrue_1(bchanged);
 
-  bool bchanged = false;
-  bool ichanged = false;
-  bool rchanged = false;
-  bool r2changed = false;
-  bool schanged = false;
+    boule.removeListener(&bl);
+  }
 
-  TrivialListener bl(bchanged);
-  TrivialListener il(ichanged);
-  TrivialListener rl(rchanged);
-  TrivialListener rl2(r2changed);
-  TrivialListener sl(schanged);
+  {
+    IntegerVariable fortytwo(42);
 
-  boule.addListener(&bl);
-  inty.addListener(&il);
-  dub.addListener(&rl);
-  intd.addListener(&rl2);
-  str.addListener(&sl);
+    {
+      ExprVec *veci = makeExprVec(1);
+      veci->setArgument(0, &fortytwo, false);
+      Function inty(&pti, veci);
+      bool ichanged = false;
+      TrivialListener il(ichanged);
+      inty.addListener(&il);
 
-  // Check propagation doesn't happen when inactive
-  treu.setValue(false);
-  fortytwo.setValue((int32_t) 43);
-  pie.setValue(2.718);
-  fou.setValue(std::string("fu"));
+      fortytwo.setValue((int32_t) 43);
+      assertTrue_1(!ichanged);
+      inty.activate();
+      assertTrue_1(fortytwo.isActive());
 
-  assertTrue_1(!bchanged);
-  assertTrue_1(!ichanged);
-  assertTrue_1(!rchanged);
-  assertTrue_1(!r2changed);
-  assertTrue_1(!schanged);
+      fortytwo.setValue((int32_t) 43);
+      int32_t intv;
+      assertTrue_1(inty.getValue(intv));
+      assertTrue_1(intv == 43);
 
-  // Check that variables get activated when functions do
-  boule.activate();
-  assertTrue_1(treu.isActive());
-  inty.activate();
-  assertTrue_1(fortytwo.isActive());
-  dub.activate();
-  assertTrue_1(pie.isActive());
-  // inty and intd share the same variable
-  inty.deactivate();
-  intd.activate();
-  assertTrue_1(fortytwo.isActive());
-  str.activate();
-  assertTrue_1(fou.isActive());
-  // reactivate inty
-  inty.activate();
+      fortytwo.setUnknown();
+      assertTrue_1(ichanged);
 
-  // Assign again (activation reinitialized variable values)
-  treu.setValue(false);
-  fortytwo.setValue((int32_t) 43);
-  pie.setValue(2.718);
-  fou.setValue(std::string("fu"));
+      inty.removeListener(&il);
+      fortytwo.deactivate();
+    }
 
-  bool boolv;
-  int32_t intv;
-  double dubv;
-  std::string strv;
+    {
+      ExprVec *vecdi = makeExprVec(1);
+      vecdi->setArgument(0, &fortytwo, false);
+      Function intd(&ptd, vecdi);
+      bool r2changed = false;
+      TrivialListener rl2(r2changed);
+      intd.addListener(&rl2);
 
-  // Check function values
-  assertTrue_1(boule.getValue(boolv));
-  assertTrue_1(!boolv);
-  assertTrue_1(inty.getValue(intv));
-  assertTrue_1(intv == 43);
-  assertTrue_1(intd.getValue(dubv));
-  assertTrue_1(dubv == 43);
-  assertTrue_1(dub.getValue(dubv));
-  assertTrue_1(dubv == 2.718);
-  assertTrue_1(str.getValue(strv));
-  assertTrue_1(strv == std::string("fu"));
+      fortytwo.setValue((int32_t) 43);
+      assertTrue_1(!r2changed);
+      intd.activate();
+      assertTrue_1(fortytwo.isActive());
 
-  // Check propagation does happen when active
-  treu.setUnknown();
-  fortytwo.setUnknown();
-  pie.setUnknown();
-  fou.setUnknown();
+      fortytwo.setValue((int32_t) 43);
+      double dubv;
+      assertTrue_1(intd.getValue(dubv));
+      assertTrue_1(dubv == 43);
 
-  assertTrue_1(bchanged);
-  assertTrue_1(ichanged);
-  assertTrue_1(rchanged);
-  assertTrue_1(r2changed);
-  assertTrue_1(schanged);
+      fortytwo.setUnknown();
+      assertTrue_1(r2changed);
+      intd.removeListener(&rl2);
+    }
+  }
 
-  // Clean up
-  boule.removeListener(&bl);
-  inty.removeListener(&il);
-  dub.removeListener(&rl);
-  intd.removeListener(&rl2);
-  str.removeListener(&sl);
+  {
+    RealVariable pie(3.14);
+    ExprVec *vecd = makeExprVec(1);
+    vecd->setArgument(0, &pie, false);
+    Function dub(&ptd, vecd);
+    bool rchanged = false;
+    TrivialListener rl(rchanged);
+    dub.addListener(&rl);
+
+    pie.setValue(2.718);
+    assertTrue_1(!rchanged);
+    dub.activate();
+    assertTrue_1(pie.isActive());
+
+    pie.setValue(2.718);
+    double dubv;
+    assertTrue_1(dub.getValue(dubv));
+    assertTrue_1(dubv == 2.718);
+
+    pie.setUnknown();
+    assertTrue_1(rchanged);
+
+    dub.removeListener(&rl);
+  }
+
+  {
+    StringVariable fou("Foo");
+    ExprVec *vecs = makeExprVec(1);
+    vecs->setArgument(0, &fou, false);
+    Function str(&pts, vecs);
+    bool schanged = false;
+    TrivialListener sl(schanged);
+    str.addListener(&sl);
+
+    fou.setValue(std::string("fu"));
+    assertTrue_1(!schanged);
+    str.activate();
+    assertTrue_1(fou.isActive());
+
+    fou.setValue(std::string("fu"));
+    std::string strv;
+    assertTrue_1(str.getValue(strv));
+    assertTrue_1(strv == std::string("fu"));
+
+    fou.setUnknown();
+    assertTrue_1(schanged);
+
+    str.removeListener(&sl);
+  }
 
   return true;
 }
 
 static bool testBinaryBasics()
 {
-  Addition<int32_t> intAdd;
-  Addition<double> realAdd;
+  {
+    Addition<int32_t> intAdd;
+    IntegerVariable won(1);
+    IntegerConstant too(2);
+    ExprVec *vi = makeExprVec(2);
+    vi->setArgument(0, &won, false);
+    vi->setArgument(1, &too, false);
+    Function intFn(&intAdd, vi);
+    int32_t itemp;
+    bool ichanged = false;
+    TrivialListener il(ichanged);
+    intFn.addListener(&il);
 
-  IntegerVariable won(1);
-  IntegerConstant too(2);
+    assertTrue_1(!intFn.isActive());
+    assertTrue_1(!won.isActive());
+    assertTrue_1(!won.isKnown());
+    assertTrue_1(!won.getValue(itemp));
+    assertTrue_1(!intFn.isKnown());
+    assertTrue_1(!intFn.getValue(itemp));
+
+    intFn.activate();
+    assertTrue_1(intFn.isActive());
+    assertTrue_1(won.isActive());
+    assertTrue_1(won.isKnown());
+    assertTrue_1(intFn.isKnown());
+    assertTrue_1(won.getValue(itemp));
+    assertTrue_1(itemp == 1);
+    assertTrue_1(intFn.getValue(itemp));
+    assertTrue_1(itemp == 3);
+    assertTrue_1(ichanged);
+
+    ichanged = false;
+    won.setUnknown();
+    assertTrue_1(!won.isKnown());
+    assertTrue_1(!won.getValue(itemp));
+    assertTrue_1(!intFn.isKnown());
+    assertTrue_1(!intFn.getValue(itemp));
+    assertTrue_1(ichanged);
+
+    ichanged = false;
+    won.deactivate();
+    won.reset();
+    won.activate();
+    assertTrue_1(won.isKnown());
+    assertTrue_1(won.getValue(itemp));
+    assertTrue_1(itemp == 1);
+    assertTrue_1(intFn.getValue(itemp));
+    assertTrue_1(itemp == 3);
+    assertTrue_1(ichanged);
+    intFn.removeListener(&il);
+  }
+
+  {
+  Addition<double> realAdd;
   RealVariable tree(3);
   RealConstant fore(4);
-
-  std::vector<bool> garbage2(2, false);
-  std::vector<Expression *> vi, vr;
-
-  vi.push_back(&won);
-  vi.push_back(&too);
-
+  std::vector<Expression *> vr;
   vr.push_back(&tree);
   vr.push_back(&fore);
-
-  Function intFn(&intAdd, makeExprVec(vi, garbage2));
+  std::vector<bool> garbage2(2, false);
   Function realFn(&realAdd, makeExprVec(vr, garbage2));
-
-  int32_t itemp;
   double rtemp;
-
-  bool ichanged = false;
   bool rchanged = false;
-
-  TrivialListener il(ichanged);
   TrivialListener rl(rchanged);
-
-  intFn.addListener(&il);
   realFn.addListener(&rl);
 
-  // Check that variables and functions are inactive when created
-  assertTrue_1(!intFn.isActive());
   assertTrue_1(!realFn.isActive());
-  assertTrue_1(!won.isActive());
   assertTrue_1(!tree.isActive());
-
-  // Check that values are unknown when inactive
-  assertTrue_1(!won.isKnown());
-  assertTrue_1(!won.getValue(itemp));
   assertTrue_1(!tree.isKnown());
   assertTrue_1(!tree.getValue(rtemp));
-  assertTrue_1(!intFn.isKnown());
-  assertTrue_1(!intFn.getValue(itemp));
   assertTrue_1(!realFn.isKnown());
   assertTrue_1(!realFn.getValue(rtemp));
 
-  // Activate expressions, check that both they and their arguments are now active
-  intFn.activate();
   realFn.activate();
-  assertTrue_1(intFn.isActive());
   assertTrue_1(realFn.isActive());
-  assertTrue_1(won.isActive());
   assertTrue_1(tree.isActive());
 
-  // Check that values are known and reasonable
-  assertTrue_1(won.isKnown());
   assertTrue_1(tree.isKnown());
-  assertTrue_1(intFn.isKnown());
   assertTrue_1(realFn.isKnown());
-  assertTrue_1(won.getValue(itemp));
   assertTrue_1(tree.getValue(rtemp));
-  assertTrue_1(itemp == 1);
   assertTrue_1(rtemp == 3);
-  assertTrue_1(intFn.getValue(itemp));
   assertTrue_1(realFn.getValue(rtemp));
-  assertTrue_1(itemp == 3);
   assertTrue_1(rtemp == 7);
-
-  // Notifications should have happened upon activation
-  assertTrue_1(ichanged);
   assertTrue_1(rchanged);
 
-  // Set the variables unknown and check that they and epxressions are now unknown
-  ichanged = rchanged = false;
-  won.setUnknown();
+  rchanged = false;
   tree.setUnknown();
-  assertTrue_1(!won.isKnown());
-  assertTrue_1(!won.getValue(itemp));
   assertTrue_1(!tree.isKnown());
   assertTrue_1(!tree.getValue(rtemp));
-  assertTrue_1(!intFn.isKnown());
-  assertTrue_1(!intFn.getValue(itemp));
   assertTrue_1(!realFn.isKnown());
   assertTrue_1(!realFn.getValue(rtemp));
-
-  // Check that notifications have occurred, and clear them
-  assertTrue_1(ichanged);
   assertTrue_1(rchanged);
-  ichanged = rchanged = false;
 
-  // Reset variables, check that values are known and reasonable
-  won.deactivate();
+  rchanged = false;
   tree.deactivate();
-  won.reset();
   tree.reset();
-  won.activate();
   tree.activate();
-  assertTrue_1(won.isKnown());
   assertTrue_1(tree.isKnown());
-  assertTrue_1(intFn.isKnown());
-  assertTrue_1(realFn.isKnown());
-  assertTrue_1(won.getValue(itemp));
+    assertTrue_1(realFn.isKnown());
   assertTrue_1(tree.getValue(rtemp));
-  assertTrue_1(itemp == 1);
   assertTrue_1(rtemp == 3);
-  assertTrue_1(intFn.getValue(itemp));
   assertTrue_1(realFn.getValue(rtemp));
-  assertTrue_1(itemp == 3);
   assertTrue_1(rtemp == 7);
-
-  // Check that notifications have occurred
-  assertTrue_1(ichanged);
   assertTrue_1(rchanged);
 
-  // Clean up
-  intFn.removeListener(&il);
   realFn.removeListener(&rl);
-
+  }
+  
   return true;
 }
 
 static bool testNaryBasics()
 {
-  Addition<int32_t> intAdd;
-  Addition<double> realAdd;
-
-  IntegerVariable won(1);
-  IntegerConstant too(2);
-  IntegerVariable tree(3);
-
-  RealConstant fore(4);
-  RealVariable fivefive(5.5);
-  RealVariable sixfive(6.5);
-
-  std::vector<Expression *> exprs;
   const std::vector<bool> garbage(3, false);
 
-  exprs.push_back(&won);
-  exprs.push_back(&too);
-  exprs.push_back(&tree);
+  {
+    Addition<int32_t> intAdd;
+    IntegerVariable won(1);
+    IntegerConstant too(2);
+    IntegerVariable tree(3);
+    std::vector<Expression *> exprs;
+    exprs.push_back(&won);
+    exprs.push_back(&too);
+    exprs.push_back(&tree);
+    Function intFn(&intAdd, makeExprVec(exprs, garbage));
+    int32_t itemp;
+    bool ichanged = false;
+    TrivialListener il(ichanged);
+    intFn.addListener(&il);
 
-  Function intFn(&intAdd, makeExprVec(exprs, garbage));
+    assertTrue_1(!intFn.isActive());
+    assertTrue_1(!won.isActive());
+    assertTrue_1(!tree.isActive());
+    assertTrue_1(!intFn.isKnown());
+    assertTrue_1(!intFn.getValue(itemp));
 
-  exprs.clear();
-  exprs.push_back(&fore);
-  exprs.push_back(&fivefive);
-  exprs.push_back(&sixfive);
+    intFn.activate();
+    assertTrue_1(intFn.isActive());
+    assertTrue_1(won.isActive());
+    assertTrue_1(tree.isActive());
+    assertTrue_1(intFn.isKnown());
+    assertTrue_1(intFn.getValue(itemp));
+    assertTrue_1(itemp == 6);
+    assertTrue_1(ichanged);
 
-  Function realFn(&realAdd, makeExprVec(exprs, garbage));
+    ichanged = false;
+    tree.setUnknown();
+    assertTrue_1(!tree.isKnown());
+    assertTrue_1(!tree.getValue(itemp));
+    assertTrue_1(!intFn.isKnown());
+    assertTrue_1(!intFn.getValue(itemp));
+    assertTrue_1(ichanged);
+    ichanged = false;
 
-  int32_t itemp;
-  double rtemp;
+    tree.deactivate();
+    tree.reset();
+    tree.activate();
+    assertTrue_1(tree.isKnown());
+    assertTrue_1(intFn.isKnown());
+    assertTrue_1(tree.getValue(itemp));
+    assertTrue_1(itemp == 3);
+    assertTrue_1(intFn.getValue(itemp));
+    assertTrue_1(itemp == 6);
+    assertTrue_1(ichanged);
+    intFn.removeListener(&il);
+  }
 
-  bool ichanged = false;
-  bool rchanged = false;
+  {
+    Addition<double> realAdd;
+    RealConstant fore(4);
+    RealVariable fivefive(5.5);
+    RealVariable sixfive(6.5);
+    std::vector<Expression *> exprs;
+    exprs.push_back(&fore);
+    exprs.push_back(&fivefive);
+    exprs.push_back(&sixfive);
+    Function realFn(&realAdd, makeExprVec(exprs, garbage));
+    double rtemp;
+    bool rchanged = false;
+    TrivialListener rl(rchanged);
+    realFn.addListener(&rl);
 
-  TrivialListener il(ichanged);
-  TrivialListener rl(rchanged);
+    assertTrue_1(!realFn.isActive());
+    assertTrue_1(!fivefive.isActive());
+    assertTrue_1(!sixfive.isActive());
+    assertTrue_1(!realFn.isKnown());
+    assertTrue_1(!realFn.getValue(rtemp));
 
-  intFn.addListener(&il);
-  realFn.addListener(&rl);
+    realFn.activate();
+    assertTrue_1(realFn.isActive());
+    assertTrue_1(fivefive.isActive());
+    assertTrue_1(sixfive.isActive());
+    assertTrue_1(realFn.isKnown());
+    assertTrue_1(realFn.getValue(rtemp));
+    assertTrue_1(rtemp == 16);
+    assertTrue_1(rchanged);
 
-  // Check that variables and functions are inactive when created
-  assertTrue_1(!intFn.isActive());
-  assertTrue_1(!realFn.isActive());
-  assertTrue_1(!won.isActive());
-  assertTrue_1(!tree.isActive());
-  assertTrue_1(!fivefive.isActive());
-  assertTrue_1(!sixfive.isActive());
+    rchanged = false;
+    fivefive.setUnknown();
+    assertTrue_1(!fivefive.isKnown());
+    assertTrue_1(!fivefive.getValue(rtemp));
+    assertTrue_1(!realFn.isKnown());
+    assertTrue_1(!realFn.getValue(rtemp));
+    assertTrue_1(rchanged);
+    rchanged = false;
 
-  // Check that values are unknown when inactive
-  assertTrue_1(!intFn.isKnown());
-  assertTrue_1(!intFn.getValue(itemp));
-  assertTrue_1(!realFn.isKnown());
-  assertTrue_1(!realFn.getValue(rtemp));
+    // Reset variables, check that values are known and reasonable
+    fivefive.deactivate();
+    fivefive.reset();
+    fivefive.activate();
+    assertTrue_1(fivefive.isKnown());
+    assertTrue_1(realFn.isKnown());
+    assertTrue_1(fivefive.getValue(rtemp));
+    assertTrue_1(rtemp == 5.5);
+    assertTrue_1(realFn.getValue(rtemp));
+    assertTrue_1(rtemp == 16);
+    assertTrue_1(rchanged);
 
-  // Activate expressions, check that both they and their arguments are now active
-  intFn.activate();
-  realFn.activate();
-  assertTrue_1(intFn.isActive());
-  assertTrue_1(realFn.isActive());
-  assertTrue_1(won.isActive());
-  assertTrue_1(tree.isActive());
-  assertTrue_1(fivefive.isActive());
-  assertTrue_1(sixfive.isActive());
-
-  // Check that values are known and reasonable
-  assertTrue_1(intFn.isKnown());
-  assertTrue_1(realFn.isKnown());
-  assertTrue_1(intFn.getValue(itemp));
-  assertTrue_1(realFn.getValue(rtemp));
-  assertTrue_1(itemp == 6);
-  assertTrue_1(rtemp == 16);
-
-  // notifications should have happened upon activation
-  assertTrue_1(ichanged);
-  assertTrue_1(rchanged);
-
-  // Set the variables unknown and check that they and epxressions are now unknown
-  ichanged = rchanged = false;
-  tree.setUnknown();
-  fivefive.setUnknown();
-  assertTrue_1(!tree.isKnown());
-  assertTrue_1(!tree.getValue(itemp));
-  assertTrue_1(!fivefive.isKnown());
-  assertTrue_1(!fivefive.getValue(rtemp));
-  assertTrue_1(!intFn.isKnown());
-  assertTrue_1(!intFn.getValue(itemp));
-  assertTrue_1(!realFn.isKnown());
-  assertTrue_1(!realFn.getValue(rtemp));
-
-  // Check that notifications have occurred, and clear them
-  assertTrue_1(ichanged);
-  assertTrue_1(rchanged);
-  ichanged = rchanged = false;
-
-  // Reset variables, check that values are known and reasonable
-  tree.deactivate();
-  fivefive.deactivate();
-  tree.reset();
-  fivefive.reset();
-  tree.activate();
-  fivefive.activate();
-  assertTrue_1(tree.isKnown());
-  assertTrue_1(fivefive.isKnown());
-  assertTrue_1(intFn.isKnown());
-  assertTrue_1(realFn.isKnown());
-  assertTrue_1(tree.getValue(itemp));
-  assertTrue_1(fivefive.getValue(rtemp));
-  assertTrue_1(itemp == 3);
-  assertTrue_1(rtemp == 5.5);
-  assertTrue_1(intFn.getValue(itemp));
-  assertTrue_1(realFn.getValue(rtemp));
-  assertTrue_1(itemp == 6);
-  assertTrue_1(rtemp == 16);
-
-  // Check that notifications have occurred
-  assertTrue_1(ichanged);
-  assertTrue_1(rchanged);
-
-  // Clean up
-  intFn.removeListener(&il);
-  realFn.removeListener(&rl);
+    realFn.removeListener(&rl);
+  }
 
   return true;
 }
