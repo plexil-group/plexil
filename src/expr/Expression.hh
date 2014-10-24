@@ -60,7 +60,7 @@ namespace PLEXIL
    * @class Expression
    * @brief Abstract base class for expressions.
    */
-  class Expression : public ExpressionListener
+  class Expression : public virtual ExpressionListener
   {
   public:
     virtual ~Expression();
@@ -258,15 +258,6 @@ namespace PLEXIL
      * @return The Value instance.
      */
     virtual Value toValue() const = 0;
-
-  protected:
-    // Only derived classes can call the constructor.
-    Expression();
-
-  private:
-    // Deliberately not implemented.
-    Expression(const Expression &);
-    Expression &operator=(const Expression &);
   };
 
   // Stream-style print operator

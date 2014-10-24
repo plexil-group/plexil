@@ -162,9 +162,8 @@ am_libPlexilExpr_la_OBJECTS = libPlexilExpr_la-Alias.lo \
 	libPlexilExpr_la-Comparisons.lo libPlexilExpr_la-Constant.lo \
 	libPlexilExpr_la-Expression.lo \
 	libPlexilExpr_la-ExpressionConstants.lo \
-	libPlexilExpr_la-ExpressionImpl.lo \
-	libPlexilExpr_la-ExpressionListener.lo \
-	libPlexilExpr_la-ExprVec.lo libPlexilExpr_la-Function.lo \
+	libPlexilExpr_la-ExpressionImpl.lo libPlexilExpr_la-ExprVec.lo \
+	libPlexilExpr_la-Function.lo \
 	libPlexilExpr_la-NodeConstantExpressions.lo \
 	libPlexilExpr_la-NotifierImpl.lo \
 	libPlexilExpr_la-OperatorImpl.lo \
@@ -411,7 +410,7 @@ libPlexilExpr_la_SOURCES = Alias.cc \
  ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
  Assignable.cc AssignableImpl.cc BooleanOperators.cc \
  Comparisons.cc Constant.cc Expression.cc ExpressionConstants.cc \
- ExpressionImpl.cc ExpressionListener.cc ExprVec.cc Function.cc \
+ ExpressionImpl.cc ExprVec.cc Function.cc \
  NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc \
  SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc
 
@@ -642,9 +641,6 @@ libPlexilExpr_la-ExpressionConstants.lo: ExpressionConstants.cc
 
 libPlexilExpr_la-ExpressionImpl.lo: ExpressionImpl.cc
 	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ExpressionImpl.lo `test -f 'ExpressionImpl.cc' || echo '$(srcdir)/'`ExpressionImpl.cc
-
-libPlexilExpr_la-ExpressionListener.lo: ExpressionListener.cc
-	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ExpressionListener.lo `test -f 'ExpressionListener.cc' || echo '$(srcdir)/'`ExpressionListener.cc
 
 libPlexilExpr_la-ExprVec.lo: ExprVec.cc
 	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-ExprVec.lo `test -f 'ExprVec.cc' || echo '$(srcdir)/'`ExprVec.cc

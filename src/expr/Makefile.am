@@ -39,7 +39,7 @@ libPlexilExpr_la_SOURCES = Alias.cc \
  ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
  Assignable.cc AssignableImpl.cc BooleanOperators.cc \
  Comparisons.cc Constant.cc Expression.cc ExpressionConstants.cc \
- ExpressionImpl.cc ExpressionListener.cc ExprVec.cc Function.cc \
+ ExpressionImpl.cc ExprVec.cc Function.cc \
  NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc \
  SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc
 

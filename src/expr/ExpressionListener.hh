@@ -43,11 +43,7 @@ namespace PLEXIL
   {
   public:
 
-    /**
-     * @brief Constructor for listener for events on Expressions.
-     */
-    ExpressionListener();
-    virtual ~ExpressionListener();
+    virtual ~ExpressionListener() {}
 
     /**
      * @brief Virtual function for notification that an expression's value has changed.
@@ -55,12 +51,6 @@ namespace PLEXIL
      *            (e.g. an array reference modifying its array)
      */
     virtual void notifyChanged(Expression const *src) = 0;
-
-  private:
-
-    // Not implemented
-    ExpressionListener(const ExpressionListener &);
-    ExpressionListener &operator=(const ExpressionListener &);
   };
 
 }

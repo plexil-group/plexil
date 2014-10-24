@@ -27,17 +27,11 @@
 #include "Expression.hh"
 
 #include "Error.hh"
-//#include "Node.hh"
 
 #include <iostream>
 #include <sstream>
 
 namespace PLEXIL {
-
-  Expression::Expression()
-    : ExpressionListener()
-  {
-  }
 
   Expression::~Expression()
   {
