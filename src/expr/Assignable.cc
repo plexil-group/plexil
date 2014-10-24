@@ -33,11 +33,6 @@ namespace PLEXIL {
   // Assignable
   //
 
-  Assignable::Assignable()
-    : Expression()
-  {
-  }
-
   Assignable::~Assignable()
   {
   }
@@ -55,93 +50,6 @@ namespace PLEXIL {
   Assignable const *Assignable::asAssignable() const
   {
     return this;
-  }
-
-  //
-  // getMutableValuePointer() default methods
-  //
-  bool Assignable::getMutableValuePointer(std::string *& /* ptr */)
-  {
-    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
-    return false;
-  }
-
-  bool Assignable::getMutableValuePointer(BooleanArray *& /* ptr */)
-  {
-    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
-    return false;
-  }
-
-  bool Assignable::getMutableValuePointer(IntegerArray *& /* ptr */)
-  {
-    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
-    return false;
-  }
-
-  bool Assignable::getMutableValuePointer(RealArray *& /* ptr */)
-  {
-    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
-    return false;
-  }
-
-  bool Assignable::getMutableValuePointer(StringArray *& /* ptr */)
-  {
-    check_error_2(ALWAYS_FAIL, "getMutableValuePointer: Value type error");
-    return false;
-  }
-
-  //
-  // setValue() default methods
-  //
-
-  void Assignable::setValue(double const & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue: Real is not a valid type for this expression");
-  }
-
-  void Assignable::setValue(int32_t const & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue: Integer is not a valid type for this expression");
-  }
-
-  void Assignable::setValue(uint16_t const & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue: Internal value is not a valid type for this expression");
-  }
-
-  void Assignable::setValue(bool const & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue: Boolean is not a valid type for this expression");
-  }
-
-  void Assignable::setValue(std::string const & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue: String is not a valid type for this expression");
-  }
-
-  void Assignable::setValue(char const * /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue: Character string is not a valid type for this expression");
-  }
-
-  void Assignable::setValue(BooleanArray const & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue: BooleanArray is not a valid type for this expression");
-  }
-
-  void Assignable::setValue(IntegerArray const & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue: IntegerArray is not a valid type for this expression");
-  }
-
-  void Assignable::setValue(RealArray const & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue: RealArray is not a valid type for this expression");
-  }
-
-  void Assignable::setValue(StringArray const & /* val */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setValue: String is not a valid type for this expression");
   }
 
   /**

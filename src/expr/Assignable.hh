@@ -46,11 +46,6 @@ namespace PLEXIL {
   public:
 
     /**
-     * @brief Default constructor.
-     */
-    Assignable();
-
-    /**
      * @brief Destructor.
      */
     virtual ~Assignable();
@@ -92,8 +87,6 @@ namespace PLEXIL {
      * @brief Set the value for this expression.
      * @param val The new value for this expression.
      * @note May cause change notifications to occur.
-     * @note Each default method reports a type error.
-     * @deprecated These are being replaced with the setValue(Expression const *) method below.
      */
     virtual void setValue(double const &val) = 0;
     virtual void setValue(int32_t const &val) = 0;
@@ -125,7 +118,6 @@ namespace PLEXIL {
      * @brief Retrieve a writable ponter to the value.
      * @param valuePtr Reference to the pointer variable
      * @return True if the value is known, false if unknown or invalid.
-     * @note Default method returns false and reports a type error.
      */
     virtual bool getMutableValuePointer(std::string *&ptr) = 0;
     virtual bool getMutableValuePointer(Array *&ptr) = 0;
@@ -167,7 +159,7 @@ namespace PLEXIL {
      * @brief Set the expression from which this object gets its initial value.
      * @param expr Pointer to an Expression.
      * @param garbage True if the expression should be deleted with this object, false otherwise.
-     * @note Default method gives an error.
+     * @note Default method throws an exception.
      */
     virtual void setInitializer(Expression *expr, bool garbage);
   };
