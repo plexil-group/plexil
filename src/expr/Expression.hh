@@ -60,7 +60,7 @@ namespace PLEXIL
    * @class Expression
    * @brief Abstract base class for expressions.
    */
-  class Expression : public virtual ExpressionListener
+  class Expression : public ExpressionListener
   {
   public:
     virtual ~Expression();
