@@ -32,11 +32,20 @@
 
 namespace PLEXIL
 {
+  static char const *timepointName[NO_NODE_STATE][2] =
+    {{"INACTIVE.START", "INACTIVE.END"},
+     {"WAITING.START", "WAITING.END"},
+     {"EXECUTING.START", "EXECUTING.END"},
+     {"ITERATION_ENDED.START", "ITERATION_ENDED.END"},
+     {"FINISHED.START", "FINISHED.END"},
+     {"FAILING.START", "FAILING.END"},
+     {"FINISHING.START", "FINISHING.END"}};
+      
+
   NodeTimepointValue::NodeTimepointValue(Node *node,
                                          NodeState state,
                                          bool isEnd)
-    : m_name(nodeStateName(state) + (isEnd ? ".END" : ".START")), // FIXME: use table lookup, don't generate
-      m_node(node),
+    : m_node(node),
       m_state(state),
       m_end(isEnd)
   {
@@ -48,12 +57,12 @@ namespace PLEXIL
     m_node->getStateVariable()->removeListener(this);
   }
 
-  std::string const &NodeTimepointValue::getName() const
+  char const *NodeTimepointValue::getName() const
   {
-    return m_name;
+    return timepointName[m_state][m_end ? 1 : 0];
   }
    
-  const char *NodeTimepointValue::exprName() const
+  char const *NodeTimepointValue::exprName() const
   {
     return "NodeTimepointValue";
   }

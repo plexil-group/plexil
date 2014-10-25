@@ -44,8 +44,8 @@ namespace PLEXIL
                        bool isEnd);
     ~NodeTimepointValue();
 
-    std::string const &getName() const;
-    const char *exprName() const;
+    char const *getName() const;
+    char const *exprName() const;
     ValueType const valueType() const;
     bool isKnown() const;
 
@@ -64,7 +64,6 @@ namespace PLEXIL
     NodeTimepointValue(NodeTimepointValue const &);
     NodeTimepointValue &operator=(NodeTimepointValue const &);
 
-    std::string const m_name;
     Node *m_node;
     NodeState m_state;
     bool m_end;
