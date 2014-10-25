@@ -38,9 +38,9 @@ namespace PLEXIL {
   }
 
   // Default method.
-  std::string const &Expression::getName() const
+  char const *Expression::getName() const
   {
-    static std::string const sl_empty;
+    static char const *sl_empty = "";
     return sl_empty;
   }
 

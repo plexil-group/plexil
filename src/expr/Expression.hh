@@ -74,13 +74,13 @@ namespace PLEXIL
      * @return Const reference to string.
      * @note Default method returns empty string.
      */
-    virtual std::string const &getName() const;
+    virtual char const *getName() const;
 
     /**
      * @brief Return a print name for the expression type.
      * @return A constant character string.
      */
-    virtual const char *exprName() const = 0;
+    virtual char const *exprName() const = 0;
 
     /**
      * @brief Return the value type.

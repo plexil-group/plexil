@@ -28,6 +28,8 @@
 
 #include "Error.hh"
 
+#include <cstring> // strdup()
+
 namespace PLEXIL
 {
 
@@ -35,13 +37,14 @@ namespace PLEXIL
     : NotifierImpl(),
       ExpressionImpl<bool>(),
     AssignableImpl<bool>(),
-    m_name(),
+    m_name(NULL),
     m_value(false)
   {
   }
 
   SimpleBooleanVariable::~SimpleBooleanVariable()
   {
+    delete m_name;
   }
 
   char const *SimpleBooleanVariable::exprName() const
@@ -49,14 +52,19 @@ namespace PLEXIL
     return "InternalVariable";
   }
 
-  std::string const &SimpleBooleanVariable::getName() const
+  char const *SimpleBooleanVariable::getName() const
   {
-    return m_name;
+    if (m_name)
+      return m_name;
+    static char const *sl_dummy = "";
+    return sl_dummy;
   }
 
   void SimpleBooleanVariable::setName(std::string const &name)
   {
-    m_name = name;
+    if (m_name)
+      delete m_name;
+    m_name = strdup(name.c_str());
   }
 
   void SimpleBooleanVariable::printSpecialized(std::ostream &s) const

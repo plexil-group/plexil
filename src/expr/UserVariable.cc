@@ -33,8 +33,9 @@
 #include "Constant.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
-//#include "NodeConnector.hh"
 #include "Value.hh"
+
+#include <cstring> // strdup()
 
 namespace PLEXIL {
 
@@ -44,7 +45,7 @@ namespace PLEXIL {
       ExpressionImpl<T>(),
     AssignableImpl<T>(),
     m_initializer(NULL),
-    m_name("anonymous"),
+    m_name(NULL),
     m_known(false),
     m_savedKnown(false)
   {
@@ -55,7 +56,7 @@ namespace PLEXIL {
       ExpressionImpl<std::string>(),
     AssignableImpl<std::string>(),
     m_initializer(NULL),
-    m_name("anonymous"),
+    m_name(NULL),
     m_known(false),
     m_savedKnown(false)
   {
@@ -67,7 +68,7 @@ namespace PLEXIL {
     ExpressionImpl<T>(),
     AssignableImpl<T>(),
     m_initializer(new Constant<T>(initVal)),
-    m_name("anonymous"),
+    m_name(NULL),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(true)
@@ -79,7 +80,7 @@ namespace PLEXIL {
     ExpressionImpl<std::string>(),
     AssignableImpl<std::string>(),
     m_initializer(new Constant<std::string>(initVal)),
-    m_name("anonymous"),
+    m_name(NULL),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(true)
@@ -93,7 +94,7 @@ namespace PLEXIL {
     ExpressionImpl<bool>(),
     AssignableImpl<bool>(),
     m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
-    m_name("anonymous"),
+    m_name(NULL),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(false)
@@ -108,7 +109,7 @@ namespace PLEXIL {
     AssignableImpl<T>(),
     m_initializer(NULL),
     m_node(node),
-    m_name(name),
+    m_name(strdup(name)),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(false)
@@ -122,7 +123,7 @@ namespace PLEXIL {
     AssignableImpl<std::string>(),
     m_initializer(NULL),
     m_node(node),
-    m_name(name),
+    m_name(strdup(name)),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(false)
@@ -138,17 +139,36 @@ namespace PLEXIL {
   {
     if (m_initializerIsGarbage)
       delete (Expression *) m_initializer;
+    delete m_name;
   }
 
   UserVariable<std::string>::~UserVariable()
   {
     if (m_initializerIsGarbage)
       delete (Expression *) m_initializer;
+    delete m_name;
   }
 
   //
   // Essential Expression API
   //
+
+  template <typename T>
+  char const *UserVariable<T>::getName() const
+  {
+    if (m_name)
+      return m_name;
+    static char const *sl_anon = "anonymous";
+    return sl_anon;
+  }
+
+  char const *UserVariable<std::string>::getName() const
+  {
+    if (m_name)
+      return m_name;
+    static char const *sl_anon = "anonymous";
+    return sl_anon;
+  }
 
   template <typename T>
   const char *UserVariable<T>::exprName() const
@@ -354,25 +374,18 @@ namespace PLEXIL {
   }
 
   template <typename T>
-  const std::string &UserVariable<T>::getName() const
-  {
-    return m_name;
-  }
-
-  const std::string &UserVariable<std::string>::getName() const
-  {
-    return m_name;
-  }
-
-  template <typename T>
   void UserVariable<T>::setName(const std::string &name)
   {
-    m_name = name;
+    if (m_name)
+      delete m_name;
+    m_name = strdup(name.c_str());
   }
 
   void UserVariable<std::string>::setName(const std::string &name)
   {
-    m_name = name;
+    if (m_name)
+      delete m_name;
+    m_name = strdup(name.c_str());
   }
 
   template <typename T>

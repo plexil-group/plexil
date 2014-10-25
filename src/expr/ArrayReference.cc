@@ -59,18 +59,18 @@ namespace PLEXIL
       delete m_index;
   }
 
-  const std::string &ArrayReference::getName() const
+  char const *ArrayReference::getName() const
   {
     Expression const *base = getBaseExpression();
     if (base) {
       // TODO: add array subscript 
       return base->getName();
     }
-    static const std::string sl_dummy;
+    static char const *sl_dummy = "";
     return sl_dummy;
   }
 
-  const char *ArrayReference::exprName() const
+  char const *ArrayReference::exprName() const
   {
     return "ArrayReference";
   }

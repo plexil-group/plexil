@@ -45,7 +45,7 @@ namespace PLEXIL
   {
   public:
     Alias(NodeConnector *node, // *** is this needed?? ***
-          const std::string &name,
+          char const *name,
           Expression *original = NULL,
           bool garbage = false);
     virtual ~Alias();
@@ -62,7 +62,8 @@ namespace PLEXIL
     // Expression API
     //
 
-    const char *exprName() const;
+    char const *getName() const;
+    char const *exprName() const;
     const ValueType valueType() const;
     bool isKnown() const;
     virtual bool isAssignable() const;
@@ -125,7 +126,7 @@ namespace PLEXIL
     // Parent node
     NodeConnector *m_node;
     // Name in the parent node
-    const std::string m_name;
+    char const *m_name;
 
   private:
     bool m_garbage;
@@ -140,7 +141,7 @@ namespace PLEXIL
   {
   public:
     InOutAlias(NodeConnector *node,
-               const std::string &name,
+               char const *name,
                Expression *original = NULL,
                bool garbage = false);
     virtual ~InOutAlias();
@@ -230,11 +231,6 @@ namespace PLEXIL
      * @note Used to implement recovery from failed Assignment nodes.
      */
     void restoreSavedValue();
-
-    /**
-     * @brief Get the name of this variable, as declared in the node that owns it.
-     */
-    const std::string& getName() const;
 
     /**
      * @brief Get the node that owns this expression.

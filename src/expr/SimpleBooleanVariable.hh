@@ -55,8 +55,8 @@ namespace PLEXIL {
     // Essential Expression API
     //
 
-    virtual const char *exprName() const;
-    virtual const std::string& getName() const;
+    virtual char const *getName() const;
+    virtual char const *exprName() const;
     void setName(std::string const &name);
     void printSpecialized(std::ostream &s) const;
 
@@ -107,7 +107,7 @@ namespace PLEXIL {
     // FIXME: is this actually needed?
     NodeConnector *m_node;
 
-    std::string m_name;
+    char const *m_name;
 
     bool m_value;
   };

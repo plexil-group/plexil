@@ -38,7 +38,7 @@ namespace PLEXIL
       AssignableImpl<ArrayImpl<T> >(),
       m_size(NULL),
       m_initializer(NULL),
-      m_name("anonymous"),
+      m_name(NULL),
       m_maxSize(0),
       m_known(false),
       m_savedKnown(false),
@@ -54,7 +54,7 @@ namespace PLEXIL
       AssignableImpl<ArrayImpl<T> >(),
       m_size(NULL),
       m_initializer(new Constant<ArrayImpl<T> >(initVal)),
-      m_name("anonymous"),
+      m_name(NULL),
       m_maxSize(0),
       m_known(false),
       m_savedKnown(false),
@@ -74,7 +74,7 @@ namespace PLEXIL
       m_size(size),
       m_initializer(NULL),
       m_node(node),
-      m_name(name),
+      m_name(strdup(name)),
       m_maxSize(0),
       m_known(false),
       m_savedKnown(false),
@@ -90,10 +90,20 @@ namespace PLEXIL
       delete (Expression *) m_initializer;
     if (m_sizeIsGarbage)
       delete (Expression *) m_size;
+    delete m_name;
   }
   //
   // Essential Expression API
   //
+
+  template <typename T>
+  char const *ArrayVariable<T>::getName() const
+  {
+    if (m_name)
+      return m_name;
+    static char const *sl_anon = "anonymous";
+    return sl_anon;
+  }
 
   template <typename T>
   const char *ArrayVariable<T>::exprName() const
@@ -232,15 +242,11 @@ namespace PLEXIL
   }
 
   template <typename T>
-  const std::string &ArrayVariable<T>::getName() const
-  {
-    return m_name;
-  }
-
-  template <typename T>
   void ArrayVariable<T>::setName(const std::string &name)
   {
-    m_name = name;
+    if (m_name)
+      delete m_name;
+    m_name = strdup(name.c_str());
   }
 
   template <typename T>

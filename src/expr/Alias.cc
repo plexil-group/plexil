@@ -28,6 +28,8 @@
 #include "Error.hh"
 #include "Value.hh"
 
+#include <cstring> // for strdup()
+
 namespace PLEXIL
 {
   //
@@ -35,13 +37,13 @@ namespace PLEXIL
   //
 
   Alias::Alias(NodeConnector *node,
-               const std::string &name,
+               char const *name,
                Expression *original,
                bool garbage)
     : NotifierImpl(),
       m_exp(original),
       m_node(node),
-      m_name(name),
+      m_name(strdup(name)),
       m_garbage(garbage)
   {
     m_exp->addListener(this);
@@ -52,6 +54,7 @@ namespace PLEXIL
     m_exp->removeListener(this);
     if (m_garbage)
       delete m_exp;
+    delete m_name;
   }
 
   /**
@@ -70,7 +73,12 @@ namespace PLEXIL
     return true;
   }
 
-  const char *Alias::exprName() const
+  char const *Alias::getName() const
+  {
+    return m_name;
+  }
+
+  char const *Alias::exprName() const
   {
     return "InAlias";
   }
@@ -211,7 +219,7 @@ namespace PLEXIL
   //
 
   InOutAlias::InOutAlias(NodeConnector *node,
-                         const std::string &name,
+                         char const *name,
                          Expression *original,
                          bool garbage)
     : Alias(node, name, original, garbage),
@@ -403,11 +411,6 @@ namespace PLEXIL
     assertTrue_2(isActive(), "InOutAlias: restoreSavedValue while inactive");
     assertTrue_2(isAssignable(), "InOutAlias: saveCurrentValue with read-only target");
     m_target->restoreSavedValue();
-  }
-
-  const std::string& InOutAlias::getName() const
-  {
-    return m_name;
   }
 
   NodeConnector const *InOutAlias::getNode() const

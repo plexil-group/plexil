@@ -76,7 +76,9 @@ namespace PLEXIL {
     // Essential Expression API
     //
 
-    const char *exprName() const;
+    char const *getName() const;
+
+    char const *exprName() const;
 
     bool isKnown() const;
 
@@ -112,8 +114,6 @@ namespace PLEXIL {
 
     void restoreSavedValue();
 
-    const std::string& getName() const;
-
     void setName(const std::string &);
 
     NodeConnector *getNode();
@@ -142,7 +142,7 @@ namespace PLEXIL {
     // Only used by LuvListener at present. Eliminate?
     NodeConnector *m_node;
 
-    std::string m_name;
+    char const *m_name;
 
     T m_value;
     T m_savedValue;   // for undoing assignment 
@@ -190,7 +190,9 @@ namespace PLEXIL {
     // Essential Expression API
     //
 
-    const char *exprName() const;
+    char const *getName() const;
+
+    char const *exprName() const;
 
     bool isKnown() const;
 
@@ -238,8 +240,6 @@ namespace PLEXIL {
 
     void restoreSavedValue();
 
-    const std::string& getName() const;
-
     void setName(const std::string &);
 
     NodeConnector *getNode();
@@ -268,7 +268,7 @@ namespace PLEXIL {
     // Only used by LuvListener at present. Eliminate?
     NodeConnector *m_node;
 
-    std::string m_name;
+    char const *m_name;
 
     std::string m_value;
     std::string m_savedValue;   // for undoing assignment 

@@ -50,8 +50,8 @@ namespace PLEXIL {
     // Essential Expression API
     //
 
-    const std::string &getName() const;
-    const char *exprName() const;
+    char const *getName() const;
+    char const *exprName() const;
     const ValueType valueType() const;
     bool isKnown() const;
     bool isConstant() const;
