@@ -30,23 +30,6 @@
 namespace PLEXIL
 {
   template <typename T>
-  AssignableImpl<T>::AssignableImpl()
-    : AssignableShim<AssignableImpl<T> >()
-  {
-  }
-
-  AssignableImpl<std::string>::AssignableImpl()
-    : AssignableShim<AssignableImpl<std::string> >()
-  {
-  }
-
-  template <typename T>
-  AssignableImpl<ArrayImpl<T> >::AssignableImpl()
-    : AssignableShim<AssignableImpl<ArrayImpl<T> > >()
-  {
-  }
-
-  template <typename T>
   AssignableImpl<T>::~AssignableImpl()
   {
   }

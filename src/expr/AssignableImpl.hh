@@ -41,11 +41,6 @@ namespace PLEXIL
   class AssignableShim : public Assignable
   {
   public:
-    AssignableShim()
-      : Assignable()
-    {
-    }
-
     virtual ~AssignableShim()
     {
     }
@@ -140,11 +135,6 @@ namespace PLEXIL
     {
       return static_cast<IMPL *>(this)->getMutableValuePointerImpl(ptr);
     }
-
-  private:
-    // No need for copy, assign
-    AssignableShim(AssignableShim<IMPL> const &);
-    AssignableShim &operator=(AssignableShim<IMPL> const &);
   };
 
   /**
@@ -157,7 +147,6 @@ namespace PLEXIL
   class AssignableImpl : public AssignableShim<AssignableImpl<T> >
   {
   public:
-    AssignableImpl();
     virtual ~AssignableImpl();
 
     // To be defined by derived classes.
@@ -177,11 +166,6 @@ namespace PLEXIL
     // Error for scalar types
     template <typename U>
     bool getMutableValuePointerImpl(U *& ptr);
-
-  private:
-    // No need for copy, assign
-    AssignableImpl(AssignableImpl const &);
-    AssignableImpl &operator=(AssignableImpl const &);
   };
 
   // Special case for string
@@ -189,7 +173,6 @@ namespace PLEXIL
   class AssignableImpl<std::string> : public AssignableShim<AssignableImpl<std::string> >
   {
   public:
-    AssignableImpl();
     virtual ~AssignableImpl();
 
     // To be defined by derived classes.
@@ -212,11 +195,6 @@ namespace PLEXIL
     // Type mismatch
     template <typename U>
     bool getMutableValuePointerImpl(U *& ptr);
-
-  private:
-    // No need for copy, assign
-    AssignableImpl(AssignableImpl const &);
-    AssignableImpl &operator=(AssignableImpl const &);
   };
 
   // Array variant
@@ -224,7 +202,6 @@ namespace PLEXIL
   class AssignableImpl<ArrayImpl<T> > : public AssignableShim<AssignableImpl<ArrayImpl<T> > >
   {
   public:
-    AssignableImpl();
     virtual ~AssignableImpl();
 
     // To be defined by derived classes.
@@ -250,11 +227,6 @@ namespace PLEXIL
     // Type mismatch
     template <typename U>
     bool getMutableValuePointerImpl(U *& ptr);
-
-  private:
-    // No need for copy, assign
-    AssignableImpl(AssignableImpl const &);
-    AssignableImpl &operator=(AssignableImpl const &);
   };
 
 } // namespace PLEXIL
