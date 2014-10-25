@@ -31,904 +31,939 @@ using namespace PLEXIL;
 
 static bool testConstructors()
 {
-  // Default constructor
-  BooleanArray        emptyBool;
-  IntegerArray     emptyInt;
-  RealArray      emptyReal;
-  StringArray emptyString;
+  // BooleanArray
+  {
+    BooleanArray        emptyBool;
+    assertTrue_1(emptyBool.size()   == 0);
 
-  assertTrue_1(emptyBool.size()   == 0);
-  assertTrue_1(emptyInt.size()    == 0);
-  assertTrue_1(emptyReal.size()   == 0);
-  assertTrue_1(emptyString.size() == 0);
-  // not much else we can do with them in this state!
+    bool btemp;
 
-  // Sized constructor
-  BooleanArray        sizedBool(2);
-  IntegerArray     sizedInt(2);
-  RealArray      sizedReal(2);
-  StringArray sizedString(2);
+    {
+      BooleanArray sizedBool(2);
+      assertTrue_1(sizedBool.size()   == 2);
+      assertTrue_1(!sizedBool.elementKnown(0));
+      assertTrue_1(!sizedBool.elementKnown(1));
 
-  assertTrue_1(sizedBool.size()   == 2);
-  assertTrue_1(sizedInt.size()    == 2);
-  assertTrue_1(sizedReal.size()   == 2);
-  assertTrue_1(sizedString.size() == 2);
+      assertTrue_1(!sizedBool.getElement(0, btemp));
+      assertTrue_1(!sizedBool.getElement(1, btemp));
+    }
 
-  assertTrue_1(!sizedBool.elementKnown(0));
-  assertTrue_1(!sizedBool.elementKnown(1));
-  assertTrue_1(!sizedInt.elementKnown(0));
-  assertTrue_1(!sizedInt.elementKnown(1));
-  assertTrue_1(!sizedReal.elementKnown(0));
-  assertTrue_1(!sizedReal.elementKnown(1));
-  assertTrue_1(!sizedString.elementKnown(0));
-  assertTrue_1(!sizedString.elementKnown(1));
+    {
+      BooleanArray sizedInitedBool(2, true);
+      assertTrue_1(sizedInitedBool.size()   == 2);
+      assertTrue_1(sizedInitedBool.getElement(0, btemp));
+      assertTrue_1(btemp);
+      assertTrue_1(sizedInitedBool.getElement(1, btemp));
+      assertTrue_1(btemp);
+    }
 
-  bool btemp;
-  int32_t itemp;
-  double dtemp;
-  std::string stemp;
-  assertTrue_1(!sizedBool.getElement(0, btemp));
-  assertTrue_1(!sizedBool.getElement(1, btemp));
-  assertTrue_1(!sizedInt.getElement(0, itemp));
-  assertTrue_1(!sizedInt.getElement(1, itemp));
-  assertTrue_1(!sizedReal.getElement(0, dtemp));
-  assertTrue_1(!sizedReal.getElement(1, dtemp));
-  assertTrue_1(!sizedString.getElement(0, stemp));
-  assertTrue_1(!sizedString.getElement(1, stemp));
+    std::vector<bool> bv(2);
+    bv[0] = false;
+    bv[1] = true;
+    BooleanArray        initedBool(bv);
+    assertTrue_1(initedBool.size()   == 2);
+    assertTrue_1(initedBool.elementKnown(0));
+    assertTrue_1(initedBool.elementKnown(1));
+    assertTrue_1(initedBool.getElement(0, btemp));
+    assertTrue_1(btemp == bv[0]);
+    assertTrue_1(initedBool.getElement(1, btemp));
+    assertTrue_1(btemp == bv[1]);
 
-  // Sized constructor with initial value
-  BooleanArray sizedInitedBool(2, true);
-  IntegerArray sizedInitedInt(2, 42);
-  RealArray    sizedInitedReal(2, 2.5);
-  StringArray  sizedInitedString(2, "foo");
+    BooleanArray        copyBool(initedBool);
+    assertTrue_1(copyBool.size()   == 2);
+    assertTrue_1(copyBool.elementKnown(0));
+    assertTrue_1(copyBool.elementKnown(1));
+    assertTrue_1(copyBool.getElement(0, btemp));
+    assertTrue_1(btemp == bv[0]);
+    assertTrue_1(copyBool.getElement(1, btemp));
+    assertTrue_1(btemp == bv[1]);
 
-  assertTrue_1(sizedInitedBool.size()   == 2);
-  assertTrue_1(sizedInitedInt.size()    == 2);
-  assertTrue_1(sizedInitedReal.size()   == 2);
-  assertTrue_1(sizedInitedString.size() == 2);
+    emptyBool   = copyBool;
+    assertTrue_1(emptyBool.size()   == 2);
+    assertTrue_1(emptyBool.elementKnown(0));
+    assertTrue_1(emptyBool.elementKnown(1));
+    assertTrue_1(emptyBool.getElement(0, btemp));
+    assertTrue_1(btemp == bv[0]);
+    assertTrue_1(emptyBool.getElement(1, btemp));
+    assertTrue_1(btemp == bv[1]);
+  }
 
-  assertTrue_1(sizedInitedBool.getElement(0, btemp));
-  assertTrue_1(btemp);
-  assertTrue_1(sizedInitedBool.getElement(1, btemp));
-  assertTrue_1(btemp);
-  assertTrue_1(sizedInitedInt.getElement(0, itemp));
-  assertTrue_1(itemp == 42);
-  assertTrue_1(sizedInitedInt.getElement(1, itemp));
-  assertTrue_1(itemp == 42);
-  assertTrue_1(sizedInitedReal.getElement(0, dtemp));
-  assertTrue_1(dtemp == 2.5);
-  assertTrue_1(sizedInitedReal.getElement(1, dtemp));
-  assertTrue_1(dtemp == 2.5);
-  assertTrue_1(sizedInitedString.getElement(0, stemp));
-  assertTrue_1(stemp == "foo");
-  assertTrue_1(sizedInitedString.getElement(1, stemp));
-  assertTrue_1(stemp == "foo");
+  // Integer array
+  {
+    IntegerArray     emptyInt;
+    assertTrue_1(emptyInt.size()    == 0);
 
-  // Constructor from vector
-  std::vector<bool>        bv(2);
-  std::vector<int32_t>     iv(2);
-  std::vector<double>      dv(2);
-  std::vector<std::string> sv(2);
+    int32_t itemp;
 
-  bv[0] = false;
-  bv[1] = true;
+    {
+      IntegerArray     sizedInt(2);
+      assertTrue_1(sizedInt.size()    == 2);
+      assertTrue_1(!sizedInt.elementKnown(0));
+      assertTrue_1(!sizedInt.elementKnown(1));
+      assertTrue_1(!sizedInt.getElement(0, itemp));
+      assertTrue_1(!sizedInt.getElement(1, itemp));
+    }
 
-  iv[0] = 42;
-  iv[1] = 6;
+    IntegerArray sizedInitedInt(2, 42);
+    assertTrue_1(sizedInitedInt.size()    == 2);
+    assertTrue_1(sizedInitedInt.getElement(0, itemp));
+    assertTrue_1(itemp == 42);
+    assertTrue_1(sizedInitedInt.getElement(1, itemp));
+    assertTrue_1(itemp == 42);
 
-  dv[0] = 3.14;
-  dv[1] = 4.5;
+    std::vector<int32_t>     iv(2);
+    iv[0] = 42;
+    iv[1] = 6;
+    IntegerArray     initedInt(iv);
+    assertTrue_1(initedInt.size()    == 2);
+    assertTrue_1(initedInt.elementKnown(0));
+    assertTrue_1(initedInt.elementKnown(1));
+    assertTrue_1(initedInt.getElement(0, itemp));
+    assertTrue_1(itemp == iv[0]);
+    assertTrue_1(initedInt.getElement(1, itemp));
+    assertTrue_1(itemp == iv[1]);
 
-  sv[0] = std::string("yo ");
-  sv[1] = std::string("mama");
+    IntegerArray     copyInt(initedInt);
+    assertTrue_1(copyInt.size()    == 2);
+    assertTrue_1(copyInt.elementKnown(0));
+    assertTrue_1(copyInt.elementKnown(1));
+    assertTrue_1(copyInt.getElement(0, itemp));
+    assertTrue_1(itemp == iv[0]);
+    assertTrue_1(copyInt.getElement(1, itemp));
+    assertTrue_1(itemp == iv[1]);
 
-  BooleanArray        initedBool(bv);
-  IntegerArray     initedInt(iv);
-  RealArray      initedReal(dv);
-  StringArray initedString(sv);
+    emptyInt    = copyInt;
+    assertTrue_1(emptyInt.size()    == 2);
+    assertTrue_1(emptyInt.elementKnown(0));
+    assertTrue_1(emptyInt.elementKnown(1));
+    assertTrue_1(emptyInt.getElement(0, itemp));
+    assertTrue_1(itemp == iv[0]);
+    assertTrue_1(emptyInt.getElement(1, itemp));
+    assertTrue_1(itemp == iv[1]);
 
-  assertTrue_1(initedBool.size()   == 2);
-  assertTrue_1(initedInt.size()    == 2);
-  assertTrue_1(initedReal.size()   == 2);
-  assertTrue_1(initedString.size() == 2);
+  }
 
-  assertTrue_1(initedBool.elementKnown(0));
-  assertTrue_1(initedBool.elementKnown(1));
-  assertTrue_1(initedInt.elementKnown(0));
-  assertTrue_1(initedInt.elementKnown(1));
-  assertTrue_1(initedReal.elementKnown(0));
-  assertTrue_1(initedReal.elementKnown(1));
-  assertTrue_1(initedString.elementKnown(0));
-  assertTrue_1(initedString.elementKnown(1));
+  // Real array
+  {
+    RealArray      emptyReal;
+    assertTrue_1(emptyReal.size()   == 0);
 
-  assertTrue_1(initedBool.getElement(0, btemp));
-  assertTrue_1(btemp == bv[0]);
-  assertTrue_1(initedBool.getElement(1, btemp));
-  assertTrue_1(btemp == bv[1]);
-  assertTrue_1(initedInt.getElement(0, itemp));
-  assertTrue_1(itemp == iv[0]);
-  assertTrue_1(initedInt.getElement(1, itemp));
-  assertTrue_1(itemp == iv[1]);
-  assertTrue_1(initedReal.getElement(0, dtemp));
-  assertTrue_1(dtemp == dv[0]);
-  assertTrue_1(initedReal.getElement(1, dtemp));
-  assertTrue_1(dtemp == dv[1]);
-  assertTrue_1(initedString.getElement(0, stemp));
-  assertTrue_1(stemp == sv[0]);
-  assertTrue_1(initedString.getElement(1, stemp));
-  assertTrue_1(stemp == sv[1]);
+    double dtemp;
 
-  BooleanArray        copyBool(initedBool);
-  IntegerArray     copyInt(initedInt);
-  RealArray      copyReal(initedReal);
-  StringArray copyString(initedString);
+    {
+      RealArray      sizedReal(2);
+      assertTrue_1(sizedReal.size()   == 2);
+      assertTrue_1(!sizedReal.elementKnown(0));
+      assertTrue_1(!sizedReal.elementKnown(1));
+      assertTrue_1(!sizedReal.getElement(0, dtemp));
+      assertTrue_1(!sizedReal.getElement(1, dtemp));
+    }
 
-  assertTrue_1(copyBool.size()   == 2);
-  assertTrue_1(copyInt.size()    == 2);
-  assertTrue_1(copyReal.size()   == 2);
-  assertTrue_1(copyString.size() == 2);
+    RealArray    sizedInitedReal(2, 2.5);
+    assertTrue_1(sizedInitedReal.size()   == 2);
+    assertTrue_1(sizedInitedReal.getElement(0, dtemp));
+    assertTrue_1(dtemp == 2.5);
+    assertTrue_1(sizedInitedReal.getElement(1, dtemp));
+    assertTrue_1(dtemp == 2.5);
 
-  assertTrue_1(copyBool.elementKnown(0));
-  assertTrue_1(copyBool.elementKnown(1));
-  assertTrue_1(copyInt.elementKnown(0));
-  assertTrue_1(copyInt.elementKnown(1));
-  assertTrue_1(copyReal.elementKnown(0));
-  assertTrue_1(copyReal.elementKnown(1));
-  assertTrue_1(copyString.elementKnown(0));
-  assertTrue_1(copyString.elementKnown(1));
+    std::vector<double>      dv(2);
+    dv[0] = 3.14;
+    dv[1] = 4.5;
+    RealArray      initedReal(dv);
+    assertTrue_1(initedReal.size()   == 2);
+    assertTrue_1(initedReal.elementKnown(0));
+    assertTrue_1(initedReal.elementKnown(1));
+    assertTrue_1(initedReal.getElement(0, dtemp));
+    assertTrue_1(dtemp == dv[0]);
+    assertTrue_1(initedReal.getElement(1, dtemp));
+    assertTrue_1(dtemp == dv[1]);
 
-  assertTrue_1(copyBool.getElement(0, btemp));
-  assertTrue_1(btemp == bv[0]);
-  assertTrue_1(copyBool.getElement(1, btemp));
-  assertTrue_1(btemp == bv[1]);
-  assertTrue_1(copyInt.getElement(0, itemp));
-  assertTrue_1(itemp == iv[0]);
-  assertTrue_1(copyInt.getElement(1, itemp));
-  assertTrue_1(itemp == iv[1]);
-  assertTrue_1(copyReal.getElement(0, dtemp));
-  assertTrue_1(dtemp == dv[0]);
-  assertTrue_1(copyReal.getElement(1, dtemp));
-  assertTrue_1(dtemp == dv[1]);
-  assertTrue_1(copyString.getElement(0, stemp));
-  assertTrue_1(stemp == sv[0]);
-  assertTrue_1(copyString.getElement(1, stemp));
-  assertTrue_1(stemp == sv[1]);
+    RealArray      copyReal(initedReal);
+    assertTrue_1(copyReal.size()   == 2);
+    assertTrue_1(copyReal.elementKnown(0));
+    assertTrue_1(copyReal.elementKnown(1));
+    assertTrue_1(copyReal.getElement(0, dtemp));
+    assertTrue_1(dtemp == dv[0]);
+    assertTrue_1(copyReal.getElement(1, dtemp));
+    assertTrue_1(dtemp == dv[1]);
 
-  // Test assignment operator
-  emptyBool   = copyBool;
-  emptyInt    = copyInt;
-  emptyReal   = copyReal;
-  emptyString = copyString;
+    emptyReal   = copyReal;
+    assertTrue_1(emptyReal.size()   == 2);
+    assertTrue_1(emptyReal.elementKnown(0));
+    assertTrue_1(emptyReal.elementKnown(1));
+    assertTrue_1(emptyReal.getElement(0, dtemp));
+    assertTrue_1(dtemp == dv[0]);
+    assertTrue_1(emptyReal.getElement(1, dtemp));
+    assertTrue_1(dtemp == dv[1]);
 
-  assertTrue_1(emptyBool.size()   == 2);
-  assertTrue_1(emptyInt.size()    == 2);
-  assertTrue_1(emptyReal.size()   == 2);
-  assertTrue_1(emptyString.size() == 2);
+  }
 
-  assertTrue_1(emptyBool.elementKnown(0));
-  assertTrue_1(emptyBool.elementKnown(1));
-  assertTrue_1(emptyInt.elementKnown(0));
-  assertTrue_1(emptyInt.elementKnown(1));
-  assertTrue_1(emptyReal.elementKnown(0));
-  assertTrue_1(emptyReal.elementKnown(1));
-  assertTrue_1(emptyString.elementKnown(0));
-  assertTrue_1(emptyString.elementKnown(1));
+  {
+    StringArray emptyString;
+    assertTrue_1(emptyString.size() == 0);
 
-  assertTrue_1(emptyBool.getElement(0, btemp));
-  assertTrue_1(btemp == bv[0]);
-  assertTrue_1(emptyBool.getElement(1, btemp));
-  assertTrue_1(btemp == bv[1]);
-  assertTrue_1(emptyInt.getElement(0, itemp));
-  assertTrue_1(itemp == iv[0]);
-  assertTrue_1(emptyInt.getElement(1, itemp));
-  assertTrue_1(itemp == iv[1]);
-  assertTrue_1(emptyReal.getElement(0, dtemp));
-  assertTrue_1(dtemp == dv[0]);
-  assertTrue_1(emptyReal.getElement(1, dtemp));
-  assertTrue_1(dtemp == dv[1]);
-  assertTrue_1(emptyString.getElement(0, stemp));
-  assertTrue_1(stemp == sv[0]);
-  assertTrue_1(emptyString.getElement(1, stemp));
-  assertTrue_1(stemp == sv[1]);
+    std::string stemp;
+
+    {
+      StringArray sizedString(2);
+      assertTrue_1(sizedString.size() == 2);
+      assertTrue_1(!sizedString.elementKnown(0));
+      assertTrue_1(!sizedString.elementKnown(1));
+      assertTrue_1(!sizedString.getElement(0, stemp));
+      assertTrue_1(!sizedString.getElement(1, stemp));
+    }
+
+    StringArray  sizedInitedString(2, "foo");
+    assertTrue_1(sizedInitedString.size() == 2);
+    assertTrue_1(sizedInitedString.getElement(0, stemp));
+    assertTrue_1(stemp == "foo");
+    assertTrue_1(sizedInitedString.getElement(1, stemp));
+    assertTrue_1(stemp == "foo");
+
+    std::vector<std::string> sv(2);
+    sv[0] = std::string("yo ");
+    sv[1] = std::string("mama");
+    StringArray initedString(sv);
+    assertTrue_1(initedString.size() == 2);
+    assertTrue_1(initedString.elementKnown(0));
+    assertTrue_1(initedString.elementKnown(1));
+    assertTrue_1(initedString.getElement(0, stemp));
+    assertTrue_1(stemp == sv[0]);
+    assertTrue_1(initedString.getElement(1, stemp));
+    assertTrue_1(stemp == sv[1]);
+
+    StringArray copyString(initedString);
+    assertTrue_1(copyString.size() == 2);
+    assertTrue_1(copyString.elementKnown(0));
+    assertTrue_1(copyString.elementKnown(1));
+    assertTrue_1(copyString.getElement(0, stemp));
+    assertTrue_1(stemp == sv[0]);
+    assertTrue_1(copyString.getElement(1, stemp));
+    assertTrue_1(stemp == sv[1]);
+
+    // Test assignment operator
+    emptyString = copyString;
+    assertTrue_1(emptyString.size() == 2);
+    assertTrue_1(emptyString.elementKnown(0));
+    assertTrue_1(emptyString.elementKnown(1));
+    assertTrue_1(emptyString.getElement(0, stemp));
+    assertTrue_1(stemp == sv[0]);
+    assertTrue_1(emptyString.getElement(1, stemp));
+    assertTrue_1(stemp == sv[1]);
+  }
 
   return true;
 }
 
 bool testResize()
 {
-  // Empty
-  BooleanArray        emptyBool;
-  IntegerArray     emptyInt;
-  RealArray      emptyReal;
-  StringArray emptyString;
+  {
+    BooleanArray        emptyBool;
+    assertTrue_1(emptyBool.size()   == 0);
 
-  assertTrue_1(emptyBool.size()   == 0);
-  assertTrue_1(emptyInt.size()    == 0);
-  assertTrue_1(emptyReal.size()   == 0);
-  assertTrue_1(emptyString.size() == 0);
+    BooleanArray        sizedBool(2);
+    assertTrue_1(sizedBool.size()   == 2);
+    assertTrue_1(sizedBool   != emptyBool);
 
-  // Sized but uninitialized
-  BooleanArray        sizedBool(2);
-  IntegerArray     sizedInt(2);
-  RealArray      sizedReal(2);
-  StringArray sizedString(2);
+    emptyBool.resize(2);
+    assertTrue_1(emptyBool.size()   == 2);
+    assertTrue_1(!emptyBool.elementKnown(0));
+    assertTrue_1(!emptyBool.elementKnown(1));
 
-  assertTrue_1(sizedBool.size()   == 2);
-  assertTrue_1(sizedInt.size()    == 2);
-  assertTrue_1(sizedReal.size()   == 2);
-  assertTrue_1(sizedString.size() == 2);
+    bool btemp;
 
-  assertTrue_1(sizedBool   != emptyBool);
-  assertTrue_1(sizedInt    != emptyInt);
-  assertTrue_1(sizedReal   != emptyReal);
-  assertTrue_1(sizedString != emptyString);
+    assertTrue_1(!emptyBool.getElement(0, btemp));
+    assertTrue_1(!emptyBool.getElement(1, btemp));
+    assertTrue_1(sizedBool   == emptyBool);
 
-  emptyBool.resize(2);
-  emptyInt.resize(2);
-  emptyReal.resize(2);
-  emptyString.resize(2);
+    emptyBool.resize(1);
+    assertTrue_1(emptyBool.size()   == 2);
 
-  assertTrue_1(emptyBool.size()   == 2);
-  assertTrue_1(emptyInt.size()    == 2);
-  assertTrue_1(emptyReal.size()   == 2);
-  assertTrue_1(emptyString.size() == 2);
+    std::vector<bool>        bv(2);
+    bv[0] = false;
+    bv[1] = true;
+    BooleanArray        initedBool(bv);
+    assertTrue_1(initedBool.size()   == 2);
+    assertTrue_1(initedBool.elementKnown(0));
+    assertTrue_1(initedBool.elementKnown(1));
+    assertTrue_1(initedBool.getElement(0, btemp));
+    assertTrue_1(btemp == bv[0]);
+    assertTrue_1(initedBool.getElement(1, btemp));
+    assertTrue_1(btemp == bv[1]);
 
-  assertTrue_1(!emptyBool.elementKnown(0));
-  assertTrue_1(!emptyBool.elementKnown(1));
-  assertTrue_1(!emptyInt.elementKnown(0));
-  assertTrue_1(!emptyInt.elementKnown(1));
-  assertTrue_1(!emptyReal.elementKnown(0));
-  assertTrue_1(!emptyReal.elementKnown(1));
-  assertTrue_1(!emptyString.elementKnown(0));
-  assertTrue_1(!emptyString.elementKnown(1));
+    initedBool.resize(4);
+    assertTrue_1(initedBool.size()   == 4);
+    assertTrue_1(initedBool.elementKnown(0));
+    assertTrue_1(initedBool.elementKnown(1));
+    assertTrue_1(initedBool.getElement(0, btemp));
+    assertTrue_1(btemp == bv[0]);
+    assertTrue_1(initedBool.getElement(1, btemp));
+    assertTrue_1(btemp == bv[1]);
+    assertTrue_1(!initedBool.elementKnown(2));
+    assertTrue_1(!initedBool.elementKnown(3));
+    assertTrue_1(!initedBool.getElement(2, btemp));
+    assertTrue_1(!initedBool.getElement(3, btemp));
 
-  bool btemp;
-  int32_t itemp;
-  double dtemp;
-  std::string stemp;
-  assertTrue_1(!emptyBool.getElement(0, btemp));
-  assertTrue_1(!emptyBool.getElement(1, btemp));
-  assertTrue_1(!emptyInt.getElement(0, itemp));
-  assertTrue_1(!emptyInt.getElement(1, itemp));
-  assertTrue_1(!emptyReal.getElement(0, dtemp));
-  assertTrue_1(!emptyReal.getElement(1, dtemp));
-  assertTrue_1(!emptyString.getElement(0, stemp));
-  assertTrue_1(!emptyString.getElement(1, stemp));
+    initedBool.resize(2);
+    assertTrue_1(initedBool.size()   == 4);
+    assertTrue_1(initedBool.elementKnown(0));
+    assertTrue_1(initedBool.elementKnown(1));
+    assertTrue_1(initedBool.getElement(0, btemp));
+    assertTrue_1(btemp == bv[0]);
+    assertTrue_1(initedBool.getElement(1, btemp));
+    assertTrue_1(btemp == bv[1]);
+    assertTrue_1(!initedBool.elementKnown(2));
+    assertTrue_1(!initedBool.elementKnown(3));
+    assertTrue_1(!initedBool.getElement(2, btemp));
+    assertTrue_1(!initedBool.getElement(3, btemp));
+  }
 
-  assertTrue_1(sizedBool   == emptyBool);
-  assertTrue_1(sizedInt    == emptyInt);
-  assertTrue_1(sizedReal   == emptyReal);
-  assertTrue_1(sizedString == emptyString);
+  {
+    IntegerArray     emptyInt;
+    assertTrue_1(emptyInt.size()    == 0);
 
-  // Resize downward
-  emptyBool.resize(1);
-  emptyInt.resize(1);
-  emptyReal.resize(1);
-  emptyString.resize(1);
+    IntegerArray     sizedInt(2);
+    assertTrue_1(sizedInt.size()    == 2);
+    assertTrue_1(sizedInt    != emptyInt);
 
-  // Size should not change
-  assertTrue_1(emptyBool.size()   == 2);
-  assertTrue_1(emptyInt.size()    == 2);
-  assertTrue_1(emptyReal.size()   == 2);
-  assertTrue_1(emptyString.size() == 2);
-  
+    emptyInt.resize(2);
+    assertTrue_1(emptyInt.size()    == 2);
+    assertTrue_1(!emptyInt.elementKnown(0));
+    assertTrue_1(!emptyInt.elementKnown(1));
 
-  // Initialized
-  std::vector<bool>        bv(2);
-  std::vector<int32_t>     iv(2);
-  std::vector<double>      dv(2);
-  std::vector<std::string> sv(2);
+    int32_t itemp;
+    assertTrue_1(!emptyInt.getElement(0, itemp));
+    assertTrue_1(!emptyInt.getElement(1, itemp));
+    assertTrue_1(sizedInt    == emptyInt);
 
-  bv[0] = false;
-  bv[1] = true;
+    emptyInt.resize(1);
+    assertTrue_1(emptyInt.size()    == 2);
 
-  iv[0] = 42;
-  iv[1] = 6;
+    std::vector<int32_t>     iv(2);
+    iv[0] = 42;
+    iv[1] = 6;
+    IntegerArray     initedInt(iv);
+    assertTrue_1(initedInt.size()    == 2);
+    assertTrue_1(initedInt.elementKnown(0));
+    assertTrue_1(initedInt.elementKnown(1));
+    assertTrue_1(initedInt.getElement(0, itemp));
+    assertTrue_1(itemp == iv[0]);
+    assertTrue_1(initedInt.getElement(1, itemp));
+    assertTrue_1(itemp == iv[1]);
 
-  dv[0] = 3.14;
-  dv[1] = 4.5;
+    initedInt.resize(4);
+    assertTrue_1(initedInt.size()    == 4);
+    assertTrue_1(initedInt.elementKnown(0));
+    assertTrue_1(initedInt.elementKnown(1));
+    assertTrue_1(initedInt.getElement(0, itemp));
+    assertTrue_1(itemp == iv[0]);
+    assertTrue_1(initedInt.getElement(1, itemp));
+    assertTrue_1(itemp == iv[1]);
+    assertTrue_1(!initedInt.elementKnown(2));
+    assertTrue_1(!initedInt.elementKnown(3));
+    assertTrue_1(!initedInt.getElement(2, itemp));
+    assertTrue_1(!initedInt.getElement(3, itemp));
 
-  sv[0] = std::string("yo ");
-  sv[1] = std::string("mama");
+    initedInt.resize(2);
+    assertTrue_1(initedInt.size()    == 4);
+    assertTrue_1(initedInt.elementKnown(0));
+    assertTrue_1(initedInt.elementKnown(1));
+    assertTrue_1(initedInt.getElement(0, itemp));
+    assertTrue_1(itemp == iv[0]);
+    assertTrue_1(initedInt.getElement(1, itemp));
+    assertTrue_1(itemp == iv[1]);
+    assertTrue_1(!initedInt.elementKnown(2));
+    assertTrue_1(!initedInt.elementKnown(3));
+    assertTrue_1(!initedInt.getElement(2, itemp));
+    assertTrue_1(!initedInt.getElement(3, itemp));
+  }
 
-  BooleanArray        initedBool(bv);
-  IntegerArray     initedInt(iv);
-  RealArray      initedReal(dv);
-  StringArray initedString(sv);
+  {
+    RealArray      emptyReal;
+    assertTrue_1(emptyReal.size()   == 0);
 
-  // Verify initial contents
-  assertTrue_1(initedBool.size()   == 2);
-  assertTrue_1(initedInt.size()    == 2);
-  assertTrue_1(initedReal.size()   == 2);
-  assertTrue_1(initedString.size() == 2);
+    RealArray      sizedReal(2);
+    assertTrue_1(sizedReal.size()   == 2);
+    assertTrue_1(sizedReal   != emptyReal);
 
-  assertTrue_1(initedBool.elementKnown(0));
-  assertTrue_1(initedBool.elementKnown(1));
-  assertTrue_1(initedInt.elementKnown(0));
-  assertTrue_1(initedInt.elementKnown(1));
-  assertTrue_1(initedReal.elementKnown(0));
-  assertTrue_1(initedReal.elementKnown(1));
-  assertTrue_1(initedString.elementKnown(0));
-  assertTrue_1(initedString.elementKnown(1));
+    emptyReal.resize(2);
+    assertTrue_1(emptyReal.size()   == 2);
+    assertTrue_1(!emptyReal.elementKnown(0));
+    assertTrue_1(!emptyReal.elementKnown(1));
 
-  assertTrue_1(initedBool.getElement(0, btemp));
-  assertTrue_1(btemp == bv[0]);
-  assertTrue_1(initedBool.getElement(1, btemp));
-  assertTrue_1(btemp == bv[1]);
-  assertTrue_1(initedInt.getElement(0, itemp));
-  assertTrue_1(itemp == iv[0]);
-  assertTrue_1(initedInt.getElement(1, itemp));
-  assertTrue_1(itemp == iv[1]);
-  assertTrue_1(initedReal.getElement(0, dtemp));
-  assertTrue_1(dtemp == dv[0]);
-  assertTrue_1(initedReal.getElement(1, dtemp));
-  assertTrue_1(dtemp == dv[1]);
-  assertTrue_1(initedString.getElement(0, stemp));
-  assertTrue_1(stemp == sv[0]);
-  assertTrue_1(initedString.getElement(1, stemp));
-  assertTrue_1(stemp == sv[1]);
+    double dtemp;
 
-  initedBool.resize(4);
-  initedInt.resize(4);
-  initedReal.resize(4);
-  initedString.resize(4);
+    assertTrue_1(!emptyReal.getElement(0, dtemp));
+    assertTrue_1(!emptyReal.getElement(1, dtemp));
+    assertTrue_1(sizedReal   == emptyReal);
 
-  // Check length
-  assertTrue_1(initedBool.size()   == 4);
-  assertTrue_1(initedInt.size()    == 4);
-  assertTrue_1(initedReal.size()   == 4);
-  assertTrue_1(initedString.size() == 4);
+    emptyReal.resize(1);
+    assertTrue_1(emptyReal.size()   == 2);
+    std::vector<double>      dv(2);
+    dv[0] = 3.14;
+    dv[1] = 4.5;
 
-  // Check that previous contents were not disturbed
-  assertTrue_1(initedBool.elementKnown(0));
-  assertTrue_1(initedBool.elementKnown(1));
-  assertTrue_1(initedInt.elementKnown(0));
-  assertTrue_1(initedInt.elementKnown(1));
-  assertTrue_1(initedReal.elementKnown(0));
-  assertTrue_1(initedReal.elementKnown(1));
-  assertTrue_1(initedString.elementKnown(0));
-  assertTrue_1(initedString.elementKnown(1));
+    RealArray      initedReal(dv);
+    assertTrue_1(initedReal.size()   == 2);
+    assertTrue_1(initedReal.elementKnown(0));
+    assertTrue_1(initedReal.elementKnown(1));
+    assertTrue_1(initedReal.getElement(0, dtemp));
+    assertTrue_1(dtemp == dv[0]);
+    assertTrue_1(initedReal.getElement(1, dtemp));
+    assertTrue_1(dtemp == dv[1]);
 
-  assertTrue_1(initedBool.getElement(0, btemp));
-  assertTrue_1(btemp == bv[0]);
-  assertTrue_1(initedBool.getElement(1, btemp));
-  assertTrue_1(btemp == bv[1]);
-  assertTrue_1(initedInt.getElement(0, itemp));
-  assertTrue_1(itemp == iv[0]);
-  assertTrue_1(initedInt.getElement(1, itemp));
-  assertTrue_1(itemp == iv[1]);
-  assertTrue_1(initedReal.getElement(0, dtemp));
-  assertTrue_1(dtemp == dv[0]);
-  assertTrue_1(initedReal.getElement(1, dtemp));
-  assertTrue_1(dtemp == dv[1]);
-  assertTrue_1(initedString.getElement(0, stemp));
-  assertTrue_1(stemp == sv[0]);
-  assertTrue_1(initedString.getElement(1, stemp));
-  assertTrue_1(stemp == sv[1]);
+    initedReal.resize(4);
+    assertTrue_1(initedReal.size()   == 4);
+    assertTrue_1(initedReal.elementKnown(0));
+    assertTrue_1(initedReal.elementKnown(1));
+    assertTrue_1(initedReal.getElement(0, dtemp));
+    assertTrue_1(dtemp == dv[0]);
+    assertTrue_1(initedReal.getElement(1, dtemp));
+    assertTrue_1(dtemp == dv[1]);
+    assertTrue_1(!initedReal.elementKnown(2));
+    assertTrue_1(!initedReal.elementKnown(3));
+    assertTrue_1(!initedReal.getElement(2, dtemp));
+    assertTrue_1(!initedReal.getElement(3, dtemp));
 
-  // Check that new contents are unknown
-  assertTrue_1(!initedBool.elementKnown(2));
-  assertTrue_1(!initedBool.elementKnown(3));
-  assertTrue_1(!initedInt.elementKnown(2));
-  assertTrue_1(!initedInt.elementKnown(3));
-  assertTrue_1(!initedReal.elementKnown(2));
-  assertTrue_1(!initedReal.elementKnown(3));
-  assertTrue_1(!initedString.elementKnown(2));
-  assertTrue_1(!initedString.elementKnown(3));
+    initedReal.resize(2);
+    assertTrue_1(initedReal.size()   == 4);
+    assertTrue_1(initedReal.elementKnown(0));
+    assertTrue_1(initedReal.elementKnown(1));
+    assertTrue_1(initedReal.getElement(0, dtemp));
+    assertTrue_1(dtemp == dv[0]);
+    assertTrue_1(initedReal.getElement(1, dtemp));
+    assertTrue_1(dtemp == dv[1]);
+    assertTrue_1(!initedReal.elementKnown(2));
+    assertTrue_1(!initedReal.elementKnown(3));
+    assertTrue_1(!initedReal.getElement(2, dtemp));
+    assertTrue_1(!initedReal.getElement(3, dtemp));
 
-  assertTrue_1(!initedBool.getElement(2, btemp));
-  assertTrue_1(!initedBool.getElement(3, btemp));
-  assertTrue_1(!initedInt.getElement(2, itemp));
-  assertTrue_1(!initedInt.getElement(3, itemp));
-  assertTrue_1(!initedReal.getElement(2, dtemp));
-  assertTrue_1(!initedReal.getElement(3, dtemp));
-  assertTrue_1(!initedString.getElement(2, stemp));
-  assertTrue_1(!initedString.getElement(3, stemp));
+  }
 
-  // Resize back to 2
-  initedBool.resize(2);
-  initedInt.resize(2);
-  initedReal.resize(2);
-  initedString.resize(2);
+  {
+    StringArray emptyString;
+    assertTrue_1(emptyString.size() == 0);
 
-  // Length should not change
-  assertTrue_1(initedBool.size()   == 4);
-  assertTrue_1(initedInt.size()    == 4);
-  assertTrue_1(initedReal.size()   == 4);
-  assertTrue_1(initedString.size() == 4);
+    StringArray sizedString(2);
+    assertTrue_1(sizedString.size() == 2);
+    assertTrue_1(sizedString != emptyString);
 
-  // Nor contents
-  assertTrue_1(initedBool.elementKnown(0));
-  assertTrue_1(initedBool.elementKnown(1));
-  assertTrue_1(initedInt.elementKnown(0));
-  assertTrue_1(initedInt.elementKnown(1));
-  assertTrue_1(initedReal.elementKnown(0));
-  assertTrue_1(initedReal.elementKnown(1));
-  assertTrue_1(initedString.elementKnown(0));
-  assertTrue_1(initedString.elementKnown(1));
+    emptyString.resize(2);
+    assertTrue_1(emptyString.size() == 2);
+    assertTrue_1(!emptyString.elementKnown(0));
+    assertTrue_1(!emptyString.elementKnown(1));
 
-  assertTrue_1(initedBool.getElement(0, btemp));
-  assertTrue_1(btemp == bv[0]);
-  assertTrue_1(initedBool.getElement(1, btemp));
-  assertTrue_1(btemp == bv[1]);
-  assertTrue_1(initedInt.getElement(0, itemp));
-  assertTrue_1(itemp == iv[0]);
-  assertTrue_1(initedInt.getElement(1, itemp));
-  assertTrue_1(itemp == iv[1]);
-  assertTrue_1(initedReal.getElement(0, dtemp));
-  assertTrue_1(dtemp == dv[0]);
-  assertTrue_1(initedReal.getElement(1, dtemp));
-  assertTrue_1(dtemp == dv[1]);
-  assertTrue_1(initedString.getElement(0, stemp));
-  assertTrue_1(stemp == sv[0]);
-  assertTrue_1(initedString.getElement(1, stemp));
-  assertTrue_1(stemp == sv[1]);
+    std::string stemp;
 
-  assertTrue_1(!initedBool.elementKnown(2));
-  assertTrue_1(!initedBool.elementKnown(3));
-  assertTrue_1(!initedInt.elementKnown(2));
-  assertTrue_1(!initedInt.elementKnown(3));
-  assertTrue_1(!initedReal.elementKnown(2));
-  assertTrue_1(!initedReal.elementKnown(3));
-  assertTrue_1(!initedString.elementKnown(2));
-  assertTrue_1(!initedString.elementKnown(3));
+    assertTrue_1(!emptyString.getElement(0, stemp));
+    assertTrue_1(!emptyString.getElement(1, stemp));
+    assertTrue_1(sizedString == emptyString);
 
-  assertTrue_1(!initedBool.getElement(2, btemp));
-  assertTrue_1(!initedBool.getElement(3, btemp));
-  assertTrue_1(!initedInt.getElement(2, itemp));
-  assertTrue_1(!initedInt.getElement(3, itemp));
-  assertTrue_1(!initedReal.getElement(2, dtemp));
-  assertTrue_1(!initedReal.getElement(3, dtemp));
-  assertTrue_1(!initedString.getElement(2, stemp));
-  assertTrue_1(!initedString.getElement(3, stemp));
+    emptyString.resize(1);
+    assertTrue_1(emptyString.size() == 2);
 
+    std::vector<std::string> sv(2);
+    sv[0] = std::string("yo ");
+    sv[1] = std::string("mama");
+    StringArray initedString(sv);
+
+    assertTrue_1(initedString.size() == 2);
+    assertTrue_1(initedString.elementKnown(0));
+    assertTrue_1(initedString.elementKnown(1));
+    assertTrue_1(initedString.getElement(0, stemp));
+    assertTrue_1(stemp == sv[0]);
+    assertTrue_1(initedString.getElement(1, stemp));
+    assertTrue_1(stemp == sv[1]);
+
+    initedString.resize(4);
+    assertTrue_1(initedString.size() == 4);
+    assertTrue_1(initedString.elementKnown(0));
+    assertTrue_1(initedString.elementKnown(1));
+    assertTrue_1(initedString.getElement(0, stemp));
+    assertTrue_1(stemp == sv[0]);
+    assertTrue_1(initedString.getElement(1, stemp));
+    assertTrue_1(stemp == sv[1]);
+    assertTrue_1(!initedString.elementKnown(2));
+    assertTrue_1(!initedString.elementKnown(3));
+    assertTrue_1(!initedString.getElement(2, stemp));
+    assertTrue_1(!initedString.getElement(3, stemp));
+
+    initedString.resize(2);
+    assertTrue_1(initedString.size() == 4);
+    assertTrue_1(initedString.elementKnown(0));
+    assertTrue_1(initedString.elementKnown(1));
+    assertTrue_1(initedString.getElement(0, stemp));
+    assertTrue_1(stemp == sv[0]);
+    assertTrue_1(initedString.getElement(1, stemp));
+    assertTrue_1(stemp == sv[1]);
+    assertTrue_1(!initedString.elementKnown(2));
+    assertTrue_1(!initedString.elementKnown(3));
+    assertTrue_1(!initedString.getElement(2, stemp));
+    assertTrue_1(!initedString.getElement(3, stemp));
+  }
   return true;
 }
 
 static bool testSetters()
 {
-  // Sized but uninitialized
-  BooleanArray        sizedBool(2);
-  IntegerArray     sizedInt(2);
-  RealArray      sizedReal(2);
-  StringArray sizedString(2);
+  {
+    BooleanArray        sizedBool(2);
+    assertTrue_1(sizedBool.size()   == 2);
+    assertTrue_1(!sizedBool.elementKnown(0));
+    assertTrue_1(!sizedBool.elementKnown(1));
 
-  assertTrue_1(sizedBool.size()   == 2);
-  assertTrue_1(sizedInt.size()    == 2);
-  assertTrue_1(sizedReal.size()   == 2);
-  assertTrue_1(sizedString.size() == 2);
+    bool btemp;
 
-  assertTrue_1(!sizedBool.elementKnown(0));
-  assertTrue_1(!sizedBool.elementKnown(1));
-  assertTrue_1(!sizedInt.elementKnown(0));
-  assertTrue_1(!sizedInt.elementKnown(1));
-  assertTrue_1(!sizedReal.elementKnown(0));
-  assertTrue_1(!sizedReal.elementKnown(1));
-  assertTrue_1(!sizedString.elementKnown(0));
-  assertTrue_1(!sizedString.elementKnown(1));
+    assertTrue_1(!sizedBool.getElement(0, btemp));
+    assertTrue_1(!sizedBool.getElement(1, btemp));
 
-  bool btemp;
-  int32_t itemp;
-  double dtemp;
-  std::string stemp;
+    bool bval = true;
 
-  assertTrue_1(!sizedBool.getElement(0, btemp));
-  assertTrue_1(!sizedBool.getElement(1, btemp));
-  assertTrue_1(!sizedInt.getElement(0, itemp));
-  assertTrue_1(!sizedInt.getElement(1, itemp));
-  assertTrue_1(!sizedReal.getElement(0, dtemp));
-  assertTrue_1(!sizedReal.getElement(1, dtemp));
-  assertTrue_1(!sizedString.getElement(0, stemp));
-  assertTrue_1(!sizedString.getElement(1, stemp));
+    sizedBool.setElement(0, bval);
+    assertTrue_1(sizedBool.size()   == 2);
+    assertTrue_1(sizedBool.elementKnown(0));
+    assertTrue_1(!sizedBool.elementKnown(1));
+    assertTrue_1(sizedBool.getElement(0, btemp));
+    assertTrue_1(btemp == bval);
+    assertTrue_1(!sizedBool.getElement(1, btemp));
 
-  bool bval = true;
-  int32_t ival = 69;
-  double dval = 2.718;
-  std::string sval("yahoo!");
+    sizedBool.setElement(1, bval);
+    assertTrue_1(sizedBool.size()   == 2);
+    assertTrue_1(sizedBool.elementKnown(0));
+    assertTrue_1(sizedBool.elementKnown(1));
+    assertTrue_1(sizedBool.getElement(0, btemp));
+    assertTrue_1(btemp == bval);
+    assertTrue_1(sizedBool.getElement(1, btemp));
+    assertTrue_1(btemp == bval);
 
-  sizedBool.setElement(0, bval);
-  sizedInt.setElement(0, ival);
-  sizedReal.setElement(0, dval);
-  sizedString.setElement(0, sval);
+    sizedBool.setElementUnknown(0);
+    assertTrue_1(sizedBool.size()   == 2);
+    assertTrue_1(!sizedBool.elementKnown(0));
+    assertTrue_1(sizedBool.elementKnown(1));
+    assertTrue_1(!sizedBool.getElement(0, btemp));
+    assertTrue_1(sizedBool.getElement(1, btemp));
+    assertTrue_1(btemp == bval);
 
-  assertTrue_1(sizedBool.size()   == 2);
-  assertTrue_1(sizedInt.size()    == 2);
-  assertTrue_1(sizedReal.size()   == 2);
-  assertTrue_1(sizedString.size() == 2);
+    sizedBool.setElementUnknown(1);
+    assertTrue_1(sizedBool.size()   == 2);
+    assertTrue_1(!sizedBool.elementKnown(0));
+    assertTrue_1(!sizedBool.elementKnown(1));
+    assertTrue_1(!sizedBool.getElement(0, btemp));
+    assertTrue_1(!sizedBool.getElement(1, btemp));
+  }
+  
+  {
+    IntegerArray     sizedInt(2);
+    assertTrue_1(sizedInt.size()    == 2);
+    assertTrue_1(!sizedInt.elementKnown(0));
+    assertTrue_1(!sizedInt.elementKnown(1));
 
-  assertTrue_1(sizedBool.elementKnown(0));
-  assertTrue_1(!sizedBool.elementKnown(1));
-  assertTrue_1(sizedInt.elementKnown(0));
-  assertTrue_1(!sizedInt.elementKnown(1));
-  assertTrue_1(sizedReal.elementKnown(0));
-  assertTrue_1(!sizedReal.elementKnown(1));
-  assertTrue_1(sizedString.elementKnown(0));
-  assertTrue_1(!sizedString.elementKnown(1));
+    int32_t itemp;
 
-  assertTrue_1(sizedBool.getElement(0, btemp));
-  assertTrue_1(btemp == bval);
-  assertTrue_1(!sizedBool.getElement(1, btemp));
-  assertTrue_1(sizedInt.getElement(0, itemp));
-  assertTrue_1(itemp == ival);
-  assertTrue_1(!sizedInt.getElement(1, itemp));
-  assertTrue_1(sizedReal.getElement(0, dtemp));
-  assertTrue_1(dtemp == dval);
-  assertTrue_1(!sizedReal.getElement(1, dtemp));
-  assertTrue_1(sizedString.getElement(0, stemp));
-  assertTrue_1(stemp == sval);
-  assertTrue_1(!sizedString.getElement(1, stemp));
+    assertTrue_1(!sizedInt.getElement(0, itemp));
+    assertTrue_1(!sizedInt.getElement(1, itemp));
 
-  sizedBool.setElement(1, bval);
-  sizedInt.setElement(1, ival);
-  sizedReal.setElement(1, dval);
-  sizedString.setElement(1, sval);
+    int32_t ival = 69;
 
-  assertTrue_1(sizedBool.size()   == 2);
-  assertTrue_1(sizedInt.size()    == 2);
-  assertTrue_1(sizedReal.size()   == 2);
-  assertTrue_1(sizedString.size() == 2);
+    sizedInt.setElement(0, ival);
+    assertTrue_1(sizedInt.size()    == 2);
+    assertTrue_1(sizedInt.elementKnown(0));
+    assertTrue_1(!sizedInt.elementKnown(1));
+    assertTrue_1(sizedInt.getElement(0, itemp));
+    assertTrue_1(itemp == ival);
+    assertTrue_1(!sizedInt.getElement(1, itemp));
 
-  assertTrue_1(sizedBool.elementKnown(0));
-  assertTrue_1(sizedBool.elementKnown(1));
-  assertTrue_1(sizedInt.elementKnown(0));
-  assertTrue_1(sizedInt.elementKnown(1));
-  assertTrue_1(sizedReal.elementKnown(0));
-  assertTrue_1(sizedReal.elementKnown(1));
-  assertTrue_1(sizedString.elementKnown(0));
-  assertTrue_1(sizedString.elementKnown(1));
+    sizedInt.setElement(1, ival);
+    assertTrue_1(sizedInt.size()    == 2);
+    assertTrue_1(sizedInt.elementKnown(0));
+    assertTrue_1(sizedInt.elementKnown(1));
+    assertTrue_1(sizedInt.getElement(0, itemp));
+    assertTrue_1(itemp == ival);
+    assertTrue_1(sizedInt.getElement(1, itemp));
+    assertTrue_1(itemp == ival);
 
-  assertTrue_1(sizedBool.getElement(0, btemp));
-  assertTrue_1(btemp == bval);
-  assertTrue_1(sizedBool.getElement(1, btemp));
-  assertTrue_1(btemp == bval);
-  assertTrue_1(sizedInt.getElement(0, itemp));
-  assertTrue_1(itemp == ival);
-  assertTrue_1(sizedInt.getElement(1, itemp));
-  assertTrue_1(itemp == ival);
-  assertTrue_1(sizedReal.getElement(0, dtemp));
-  assertTrue_1(dtemp == dval);
-  assertTrue_1(sizedReal.getElement(1, dtemp));
-  assertTrue_1(dtemp == dval);
-  assertTrue_1(sizedString.getElement(0, stemp));
-  assertTrue_1(stemp == sval);
-  assertTrue_1(sizedString.getElement(1, stemp));
-  assertTrue_1(stemp == sval);
+    sizedInt.setElementUnknown(0);
+    assertTrue_1(sizedInt.size()    == 2);
+    assertTrue_1(!sizedInt.elementKnown(0));
+    assertTrue_1(sizedInt.elementKnown(1));
+    assertTrue_1(!sizedInt.getElement(0, itemp));
+    assertTrue_1(sizedInt.getElement(1, itemp));
+    assertTrue_1(itemp == ival);
 
-  sizedBool.setElementUnknown(0);
-  sizedInt.setElementUnknown(0);
-  sizedReal.setElementUnknown(0);
-  sizedString.setElementUnknown(0);
+    sizedInt.setElementUnknown(1);
+    assertTrue_1(sizedInt.size()    == 2);
+    assertTrue_1(!sizedInt.elementKnown(0));
+    assertTrue_1(!sizedInt.elementKnown(1));
+    assertTrue_1(!sizedInt.getElement(0, itemp));
+    assertTrue_1(!sizedInt.getElement(1, itemp));
+  }
 
-  assertTrue_1(sizedBool.size()   == 2);
-  assertTrue_1(sizedInt.size()    == 2);
-  assertTrue_1(sizedReal.size()   == 2);
-  assertTrue_1(sizedString.size() == 2);
+  {
+    RealArray      sizedReal(2);
+    assertTrue_1(sizedReal.size()   == 2);
+    assertTrue_1(!sizedReal.elementKnown(0));
+    assertTrue_1(!sizedReal.elementKnown(1));
 
-  assertTrue_1(!sizedBool.elementKnown(0));
-  assertTrue_1(sizedBool.elementKnown(1));
-  assertTrue_1(!sizedInt.elementKnown(0));
-  assertTrue_1(sizedInt.elementKnown(1));
-  assertTrue_1(!sizedReal.elementKnown(0));
-  assertTrue_1(sizedReal.elementKnown(1));
-  assertTrue_1(!sizedString.elementKnown(0));
-  assertTrue_1(sizedString.elementKnown(1));
+    double dtemp;
 
-  assertTrue_1(!sizedBool.getElement(0, btemp));
-  assertTrue_1(sizedBool.getElement(1, btemp));
-  assertTrue_1(btemp == bval);
-  assertTrue_1(!sizedInt.getElement(0, itemp));
-  assertTrue_1(sizedInt.getElement(1, itemp));
-  assertTrue_1(itemp == ival);
-  assertTrue_1(!sizedReal.getElement(0, dtemp));
-  assertTrue_1(sizedReal.getElement(1, dtemp));
-  assertTrue_1(dtemp == dval);
-  assertTrue_1(!sizedString.getElement(0, stemp));
-  assertTrue_1(sizedString.getElement(1, stemp));
-  assertTrue_1(stemp == sval);
+    assertTrue_1(!sizedReal.getElement(0, dtemp));
+    assertTrue_1(!sizedReal.getElement(1, dtemp));
 
-  sizedBool.setElementUnknown(1);
-  sizedInt.setElementUnknown(1);
-  sizedReal.setElementUnknown(1);
-  sizedString.setElementUnknown(1);
+    double dval = 2.718;
 
-  assertTrue_1(sizedBool.size()   == 2);
-  assertTrue_1(sizedInt.size()    == 2);
-  assertTrue_1(sizedReal.size()   == 2);
-  assertTrue_1(sizedString.size() == 2);
+    sizedReal.setElement(0, dval);
+    assertTrue_1(sizedReal.size()   == 2);
+    assertTrue_1(sizedReal.elementKnown(0));
+    assertTrue_1(!sizedReal.elementKnown(1));
+    assertTrue_1(sizedReal.getElement(0, dtemp));
+    assertTrue_1(dtemp == dval);
+    assertTrue_1(!sizedReal.getElement(1, dtemp));
 
-  assertTrue_1(!sizedBool.elementKnown(0));
-  assertTrue_1(!sizedBool.elementKnown(1));
-  assertTrue_1(!sizedInt.elementKnown(0));
-  assertTrue_1(!sizedInt.elementKnown(1));
-  assertTrue_1(!sizedReal.elementKnown(0));
-  assertTrue_1(!sizedReal.elementKnown(1));
-  assertTrue_1(!sizedString.elementKnown(0));
-  assertTrue_1(!sizedString.elementKnown(1));
+    sizedReal.setElement(1, dval);
+    assertTrue_1(sizedReal.size()   == 2);
+    assertTrue_1(sizedReal.elementKnown(0));
+    assertTrue_1(sizedReal.elementKnown(1));
+    assertTrue_1(sizedReal.getElement(0, dtemp));
+    assertTrue_1(dtemp == dval);
+    assertTrue_1(sizedReal.getElement(1, dtemp));
+    assertTrue_1(dtemp == dval);
 
-  assertTrue_1(!sizedBool.getElement(0, btemp));
-  assertTrue_1(!sizedBool.getElement(1, btemp));
-  assertTrue_1(!sizedInt.getElement(0, itemp));
-  assertTrue_1(!sizedInt.getElement(1, itemp));
-  assertTrue_1(!sizedReal.getElement(0, dtemp));
-  assertTrue_1(!sizedReal.getElement(1, dtemp));
-  assertTrue_1(!sizedString.getElement(0, stemp));
-  assertTrue_1(!sizedString.getElement(1, stemp));
+    sizedReal.setElementUnknown(0);
+    assertTrue_1(sizedReal.size()   == 2);
+    assertTrue_1(!sizedReal.elementKnown(0));
+    assertTrue_1(sizedReal.elementKnown(1));
+    assertTrue_1(!sizedReal.getElement(0, dtemp));
+    assertTrue_1(sizedReal.getElement(1, dtemp));
+    assertTrue_1(dtemp == dval);
 
+    sizedReal.setElementUnknown(1);
+    assertTrue_1(sizedReal.size()   == 2);
+    assertTrue_1(!sizedReal.elementKnown(0));
+    assertTrue_1(!sizedReal.elementKnown(1));
+    assertTrue_1(!sizedReal.getElement(0, dtemp));
+    assertTrue_1(!sizedReal.getElement(1, dtemp));
+  }
+
+  {
+    StringArray sizedString(2);
+    assertTrue_1(sizedString.size() == 2);
+    assertTrue_1(!sizedString.elementKnown(0));
+    assertTrue_1(!sizedString.elementKnown(1));
+
+    std::string stemp;
+
+    assertTrue_1(!sizedString.getElement(0, stemp));
+    assertTrue_1(!sizedString.getElement(1, stemp));
+
+    std::string sval("yahoo!");
+    sizedString.setElement(0, sval);
+    assertTrue_1(sizedString.size() == 2);
+    assertTrue_1(sizedString.elementKnown(0));
+    assertTrue_1(!sizedString.elementKnown(1));
+    assertTrue_1(sizedString.getElement(0, stemp));
+    assertTrue_1(stemp == sval);
+    assertTrue_1(!sizedString.getElement(1, stemp));
+
+    sizedString.setElement(1, sval);
+    assertTrue_1(sizedString.size() == 2);
+    assertTrue_1(sizedString.elementKnown(0));
+    assertTrue_1(sizedString.elementKnown(1));
+    assertTrue_1(sizedString.getElement(0, stemp));
+    assertTrue_1(stemp == sval);
+    assertTrue_1(sizedString.getElement(1, stemp));
+    assertTrue_1(stemp == sval);
+
+    sizedString.setElementUnknown(0);
+    assertTrue_1(sizedString.size() == 2);
+    assertTrue_1(!sizedString.elementKnown(0));
+    assertTrue_1(sizedString.elementKnown(1));
+    assertTrue_1(!sizedString.getElement(0, stemp));
+    assertTrue_1(sizedString.getElement(1, stemp));
+    assertTrue_1(stemp == sval);
+
+    sizedString.setElementUnknown(1);
+    assertTrue_1(sizedString.size() == 2);
+    assertTrue_1(!sizedString.elementKnown(0));
+    assertTrue_1(!sizedString.elementKnown(1));
+    assertTrue_1(!sizedString.getElement(0, stemp));
+    assertTrue_1(!sizedString.getElement(1, stemp));
+  }
   return true;
 }
 
 static bool testEquality()
 {
-  // Empty
-  BooleanArray emptyBool;
-  IntegerArray emptyInt;
-  RealArray emptyReal;
-  StringArray emptyString;
+  {
+    BooleanArray emptyBool;
+    assertTrue_1(emptyBool == emptyBool);
+    assertTrue_1(!(emptyBool != emptyBool));
 
-  assertTrue_1(emptyBool == emptyBool);
-  assertTrue_1(emptyInt == emptyInt);
-  assertTrue_1(emptyReal == emptyReal);
-  assertTrue_1(emptyString == emptyString);
+    BooleanArray sizedBool(2);
+    assertTrue_1(sizedBool == sizedBool);
+    assertTrue_1(!(sizedBool != sizedBool));
+    assertTrue_1(emptyBool != sizedBool);
 
-  assertTrue_1(!(emptyBool != emptyBool));
-  assertTrue_1(!(emptyInt != emptyInt));
-  assertTrue_1(!(emptyReal != emptyReal));
-  assertTrue_1(!(emptyString != emptyString));
+    std::vector<bool>        bv(2);
+    bv[0] = false;
+    bv[1] = true;
+    BooleanArray initedBool(bv);
+    assertTrue_1(initedBool == initedBool);
+    assertTrue_1(!(initedBool != initedBool));
+    assertTrue_1(emptyBool != initedBool);
+    assertTrue_1(initedBool != sizedBool);
 
-  // Sized but unknown
-  BooleanArray sizedBool(2);
-  IntegerArray sizedInt(2);
-  RealArray sizedReal(2);
-  StringArray sizedString(2);
+    BooleanArray copyBool(initedBool);
+    assertTrue_1(copyBool == copyBool);
+    assertTrue_1(!(copyBool != copyBool));
+    assertTrue_1(copyBool   == initedBool);
+    assertTrue_1(copyBool   != emptyBool);
+    assertTrue_1(copyBool   != sizedBool);
 
-  assertTrue_1(sizedBool == sizedBool);
-  assertTrue_1(sizedInt == sizedInt);
-  assertTrue_1(sizedReal == sizedReal);
-  assertTrue_1(sizedString == sizedString);
+    emptyBool   = copyBool;
+    assertTrue_1(emptyBool == emptyBool);
+    assertTrue_1(!(emptyBool != emptyBool));
+    assertTrue_1(emptyBool   != sizedBool);
+    assertTrue_1(emptyBool   == initedBool);
+    assertTrue_1(emptyBool   == copyBool);
+  }
 
-  assertTrue_1(!(sizedBool != sizedBool));
-  assertTrue_1(!(sizedInt != sizedInt));
-  assertTrue_1(!(sizedReal != sizedReal));
-  assertTrue_1(!(sizedString != sizedString));
+  {
+    IntegerArray emptyInt;
+    assertTrue_1(emptyInt == emptyInt);
+    assertTrue_1(!(emptyInt != emptyInt));
 
-  assertTrue_1(emptyBool != sizedBool);
-  assertTrue_1(emptyInt != sizedInt);
-  assertTrue_1(emptyReal != sizedReal);
-  assertTrue_1(emptyString != sizedString);
+    IntegerArray sizedInt(2);
+    assertTrue_1(sizedInt == sizedInt);
+    assertTrue_1(!(sizedInt != sizedInt));
+    assertTrue_1(emptyInt != sizedInt);
 
-  // Constructor from vector
-  std::vector<bool>        bv(2);
-  std::vector<int32_t>     iv(2);
-  std::vector<double>      dv(2);
-  std::vector<std::string> sv(2);
+    std::vector<int32_t>     iv(2);
+    iv[0] = 42;
+    iv[1] = 6;
+    IntegerArray initedInt(iv);
+    assertTrue_1(initedInt == initedInt);
+    assertTrue_1(!(initedInt != initedInt));
+    assertTrue_1(emptyInt != initedInt);
+    assertTrue_1(initedInt != sizedInt);
 
-  bv[0] = false;
-  bv[1] = true;
+    IntegerArray copyInt(initedInt);
+    assertTrue_1(copyInt == copyInt);
+    assertTrue_1(!(copyInt != copyInt));
+    assertTrue_1(copyInt    == initedInt);
+    assertTrue_1(copyInt    != emptyInt);
+    assertTrue_1(copyInt    != sizedInt);
 
-  iv[0] = 42;
-  iv[1] = 6;
+    emptyInt    = copyInt;
+    assertTrue_1(emptyInt == emptyInt);
+    assertTrue_1(!(emptyInt != emptyInt));
+    assertTrue_1(emptyInt    != sizedInt);
+    assertTrue_1(emptyInt    == initedInt);
+    assertTrue_1(emptyInt    == copyInt);
+  }
 
-  dv[0] = 3.14;
-  dv[1] = 4.5;
+  {
+    RealArray emptyReal;
+    assertTrue_1(emptyReal == emptyReal);
+    assertTrue_1(!(emptyReal != emptyReal));
 
-  sv[0] = std::string("yo ");
-  sv[1] = std::string("mama");
+    RealArray sizedReal(2);
+    assertTrue_1(sizedReal == sizedReal);
+    assertTrue_1(!(sizedReal != sizedReal));
+    assertTrue_1(emptyReal != sizedReal);
 
-  BooleanArray initedBool(bv);
-  IntegerArray initedInt(iv);
-  RealArray initedReal(dv);
-  StringArray initedString(sv);
+    std::vector<double>      dv(2);
+    dv[0] = 3.14;
+    dv[1] = 4.5;
+    RealArray initedReal(dv);
+    assertTrue_1(initedReal == initedReal);
+    assertTrue_1(!(initedReal != initedReal));
+    assertTrue_1(emptyReal != initedReal);
+    assertTrue_1(initedReal != sizedReal);
 
-  assertTrue_1(initedBool == initedBool);
-  assertTrue_1(initedInt == initedInt);
-  assertTrue_1(initedReal == initedReal);
-  assertTrue_1(initedString == initedString);
+    RealArray copyReal(initedReal);
+    assertTrue_1(copyReal == copyReal);
+    assertTrue_1(!(copyReal != copyReal));
+    assertTrue_1(copyReal   == initedReal);
+    assertTrue_1(copyReal   != emptyReal);
+    assertTrue_1(copyReal   != sizedReal);
 
-  assertTrue_1(!(initedBool != initedBool));
-  assertTrue_1(!(initedInt != initedInt));
-  assertTrue_1(!(initedReal != initedReal));
-  assertTrue_1(!(initedString != initedString));
+    emptyReal   = copyReal;
+    assertTrue_1(emptyReal == emptyReal);
+    assertTrue_1(!(emptyReal != emptyReal));
+    assertTrue_1(emptyReal   != sizedReal);
+    assertTrue_1(emptyReal   == initedReal);
+    assertTrue_1(emptyReal   == copyReal);
+  }
 
-  assertTrue_1(emptyBool != initedBool);
-  assertTrue_1(emptyInt != initedInt);
-  assertTrue_1(emptyReal != initedReal);
-  assertTrue_1(emptyString != initedString);
+  {
+    StringArray emptyString;
+    assertTrue_1(emptyString == emptyString);
+    assertTrue_1(!(emptyString != emptyString));
 
-  assertTrue_1(initedBool != sizedBool);
-  assertTrue_1(initedInt != sizedInt);
-  assertTrue_1(initedReal != sizedReal);
-  assertTrue_1(initedString != sizedString);
+    StringArray sizedString(2);
+    assertTrue_1(sizedString == sizedString);
+    assertTrue_1(!(sizedString != sizedString));
+    assertTrue_1(emptyString != sizedString);
 
-  BooleanArray copyBool(initedBool);
-  IntegerArray copyInt(initedInt);
-  RealArray copyReal(initedReal);
-  StringArray copyString(initedString);
+    std::vector<std::string> sv(2);
+    sv[0] = std::string("yo ");
+    sv[1] = std::string("mama");
+    StringArray initedString(sv);
+    assertTrue_1(initedString == initedString);
+    assertTrue_1(!(initedString != initedString));
+    assertTrue_1(emptyString != initedString);
+    assertTrue_1(initedString != sizedString);
 
-  assertTrue_1(copyBool == copyBool);
-  assertTrue_1(copyInt == copyInt);
-  assertTrue_1(copyReal == copyReal);
-  assertTrue_1(copyString == copyString);
+    StringArray copyString(initedString);
+    assertTrue_1(copyString == copyString);
+    assertTrue_1(!(copyString != copyString));
+    assertTrue_1(copyString == initedString);
+    assertTrue_1(copyString != emptyString);
+    assertTrue_1(copyString != sizedString);
 
-  assertTrue_1(!(copyBool != copyBool));
-  assertTrue_1(!(copyInt != copyInt));
-  assertTrue_1(!(copyReal != copyReal));
-  assertTrue_1(!(copyString != copyString));
-
-  assertTrue_1(copyBool   == initedBool);
-  assertTrue_1(copyInt    == initedInt);
-  assertTrue_1(copyReal   == initedReal);
-  assertTrue_1(copyString == initedString);
-
-  assertTrue_1(copyBool   != emptyBool);
-  assertTrue_1(copyInt    != emptyInt);
-  assertTrue_1(copyReal   != emptyReal);
-  assertTrue_1(copyString != emptyString);
-
-  assertTrue_1(copyBool   != sizedBool);
-  assertTrue_1(copyInt    != sizedInt);
-  assertTrue_1(copyReal   != sizedReal);
-  assertTrue_1(copyString != sizedString);
-
-  // After assignment
-  emptyBool   = copyBool;
-  emptyInt    = copyInt;
-  emptyReal   = copyReal;
-  emptyString = copyString;
-
-  assertTrue_1(emptyBool == emptyBool);
-  assertTrue_1(emptyInt == emptyInt);
-  assertTrue_1(emptyReal == emptyReal);
-  assertTrue_1(emptyString == emptyString);
-
-  assertTrue_1(!(emptyBool != emptyBool));
-  assertTrue_1(!(emptyInt != emptyInt));
-  assertTrue_1(!(emptyReal != emptyReal));
-  assertTrue_1(!(emptyString != emptyString));
-
-  assertTrue_1(emptyBool   != sizedBool);
-  assertTrue_1(emptyInt    != sizedInt);
-  assertTrue_1(emptyReal   != sizedReal);
-  assertTrue_1(emptyString != sizedString);
-
-  assertTrue_1(emptyBool   == initedBool);
-  assertTrue_1(emptyInt    == initedInt);
-  assertTrue_1(emptyReal   == initedReal);
-  assertTrue_1(emptyString == initedString);
-
-  assertTrue_1(emptyBool   == copyBool);
-  assertTrue_1(emptyInt    == copyInt);
-  assertTrue_1(emptyReal   == copyReal);
-  assertTrue_1(emptyString == copyString);
-
+    emptyString = copyString;
+    assertTrue_1(emptyString == emptyString);
+    assertTrue_1(!(emptyString != emptyString));
+    assertTrue_1(emptyString != sizedString);
+    assertTrue_1(emptyString == initedString);
+    assertTrue_1(emptyString == copyString);
+  }
   return true;
 }
 
 static bool testLessThan()
 {
-  // Arrays
-  BooleanArray emptyBool;
-  assertTrue_1(!(emptyBool < emptyBool));
+  {
+    BooleanArray emptyBool;
+    assertTrue_1(!(emptyBool < emptyBool));
 
-  BooleanArray sizedBool(2);
-  assertTrue_1(!(sizedBool < sizedBool));
-  assertTrue_1(emptyBool < sizedBool);
-  assertTrue_1(!(sizedBool < emptyBool));
+    BooleanArray sizedBool(2);
+    assertTrue_1(!(sizedBool < sizedBool));
+    assertTrue_1(emptyBool < sizedBool);
+    assertTrue_1(!(sizedBool < emptyBool));
 
-  std::vector<bool> bv(2);
-  bv[0] = false;
-  bv[1] = true;
-  BooleanArray initedBool(bv);
-  assertTrue_1(!(initedBool < initedBool));
-  assertTrue_1(emptyBool < initedBool);
-  assertTrue_1(!(initedBool < emptyBool));
-  assertTrue_1(sizedBool < initedBool);
-  assertTrue_1(!(initedBool < sizedBool));
+    std::vector<bool> bv(2);
+    bv[0] = false;
+    bv[1] = true;
+    BooleanArray initedBool(bv);
+    assertTrue_1(!(initedBool < initedBool));
+    assertTrue_1(emptyBool < initedBool);
+    assertTrue_1(!(initedBool < emptyBool));
+    assertTrue_1(sizedBool < initedBool);
+    assertTrue_1(!(initedBool < sizedBool));
 
-  std::vector<bool> bv2(2);
-  bv2[0] = false;
-  bv2[1] = false;
-  BooleanArray initedBool2(bv2);
-  assertTrue_1(!(initedBool2 < initedBool2));
-  assertTrue_1(emptyBool < initedBool2);
-  assertTrue_1(!(initedBool2 < emptyBool));
-  assertTrue_1(sizedBool < initedBool2);
-  assertTrue_1(!(initedBool2 < sizedBool));
-  // Same size, contents determine the victor
-  assertTrue_1(!(initedBool < initedBool2));
-  assertTrue_1(initedBool2 < initedBool);
+    std::vector<bool> bv2(2);
+    bv2[0] = false;
+    bv2[1] = false;
+    BooleanArray initedBool2(bv2);
+    assertTrue_1(!(initedBool2 < initedBool2));
+    assertTrue_1(emptyBool < initedBool2);
+    assertTrue_1(!(initedBool2 < emptyBool));
+    assertTrue_1(sizedBool < initedBool2);
+    assertTrue_1(!(initedBool2 < sizedBool));
+    // Same size, contents determine the victor
+    assertTrue_1(!(initedBool < initedBool2));
+    assertTrue_1(initedBool2 < initedBool);
+  }
 
-  IntegerArray emptyInt;
-  assertTrue_1(!(emptyInt < emptyInt));
+  {
+    IntegerArray emptyInt;
+    assertTrue_1(!(emptyInt < emptyInt));
 
-  IntegerArray sizedInt(2);
-  assertTrue_1(!(sizedInt < sizedInt));
-  assertTrue_1(emptyInt < sizedInt);
-  assertTrue_1(!(sizedInt < emptyInt));
+    IntegerArray sizedInt(2);
+    assertTrue_1(!(sizedInt < sizedInt));
+    assertTrue_1(emptyInt < sizedInt);
+    assertTrue_1(!(sizedInt < emptyInt));
 
-  std::vector<int32_t> iv(2);
-  iv[0] = 42;
-  iv[1] = 6;
-  IntegerArray initedInt(iv);
-  assertTrue_1(!(initedInt < initedInt));
-  assertTrue_1(emptyInt < initedInt);
-  assertTrue_1(!(initedInt < emptyInt));
-  assertTrue_1(sizedInt < initedInt);
-  assertTrue_1(!(initedInt < sizedInt));
+    std::vector<int32_t> iv(2);
+    iv[0] = 42;
+    iv[1] = 6;
+    IntegerArray initedInt(iv);
+    assertTrue_1(!(initedInt < initedInt));
+    assertTrue_1(emptyInt < initedInt);
+    assertTrue_1(!(initedInt < emptyInt));
+    assertTrue_1(sizedInt < initedInt);
+    assertTrue_1(!(initedInt < sizedInt));
 
-  std::vector<int32_t> iv2(2);
-  iv2[0] = 42;
-  iv2[1] = 7;
-  IntegerArray initedInt2(iv2);
-  assertTrue_1(!(initedInt2 < initedInt2));
-  assertTrue_1(emptyInt < initedInt2);
-  assertTrue_1(!(initedInt2 < emptyInt));
-  assertTrue_1(sizedInt < initedInt2);
-  assertTrue_1(!(initedInt2 < sizedInt));
-  // Same size, contents determine the victor
-  assertTrue_1(initedInt < initedInt2);
-  assertTrue_1(!(initedInt2 < initedInt));
+    std::vector<int32_t> iv2(2);
+    iv2[0] = 42;
+    iv2[1] = 7;
+    IntegerArray initedInt2(iv2);
+    assertTrue_1(!(initedInt2 < initedInt2));
+    assertTrue_1(emptyInt < initedInt2);
+    assertTrue_1(!(initedInt2 < emptyInt));
+    assertTrue_1(sizedInt < initedInt2);
+    assertTrue_1(!(initedInt2 < sizedInt));
+    // Same size, contents determine the victor
+    assertTrue_1(initedInt < initedInt2);
+    assertTrue_1(!(initedInt2 < initedInt));
+  }
 
-  RealArray emptyReal;
-  assertTrue_1(!(emptyReal < emptyReal));
+  {
+    RealArray emptyReal;
+    assertTrue_1(!(emptyReal < emptyReal));
 
-  RealArray sizedReal(2);
-  assertTrue_1(!(sizedReal < sizedReal));
-  assertTrue_1(emptyReal < sizedReal);
-  assertTrue_1(!(sizedReal < emptyReal));
+    RealArray sizedReal(2);
+    assertTrue_1(!(sizedReal < sizedReal));
+    assertTrue_1(emptyReal < sizedReal);
+    assertTrue_1(!(sizedReal < emptyReal));
 
-  std::vector<double> dv(2);
-  dv[0] = 3.14;
-  dv[1] = 4.5;
-  RealArray initedReal(dv);
-  assertTrue_1(!(initedReal < initedReal));
-  assertTrue_1(emptyReal < initedReal);
-  assertTrue_1(!(initedReal < emptyReal));
-  assertTrue_1(sizedReal < initedReal);
-  assertTrue_1(!(initedReal < sizedReal));
+    std::vector<double> dv(2);
+    dv[0] = 3.14;
+    dv[1] = 4.5;
+    RealArray initedReal(dv);
+    assertTrue_1(!(initedReal < initedReal));
+    assertTrue_1(emptyReal < initedReal);
+    assertTrue_1(!(initedReal < emptyReal));
+    assertTrue_1(sizedReal < initedReal);
+    assertTrue_1(!(initedReal < sizedReal));
 
-  std::vector<double> dv2(2);
-  dv2[0] = 3.14;
-  dv2[1] = 4.6;
-  RealArray initedReal2(dv2);
-  assertTrue_1(!(initedReal2 < initedReal2));
-  assertTrue_1(emptyReal < initedReal2);
-  assertTrue_1(!(initedReal2 < emptyReal));
-  assertTrue_1(sizedReal < initedReal2);
-  assertTrue_1(!(initedReal2 < sizedReal));
-  // Same size, contents determine the victor
-  assertTrue_1(initedReal < initedReal2);
-  assertTrue_1(!(initedReal2 < initedReal));
+    std::vector<double> dv2(2);
+    dv2[0] = 3.14;
+    dv2[1] = 4.6;
+    RealArray initedReal2(dv2);
+    assertTrue_1(!(initedReal2 < initedReal2));
+    assertTrue_1(emptyReal < initedReal2);
+    assertTrue_1(!(initedReal2 < emptyReal));
+    assertTrue_1(sizedReal < initedReal2);
+    assertTrue_1(!(initedReal2 < sizedReal));
+    // Same size, contents determine the victor
+    assertTrue_1(initedReal < initedReal2);
+    assertTrue_1(!(initedReal2 < initedReal));
+  }
 
-  StringArray emptyString;
-  assertTrue_1(!(emptyString < emptyString));
+  {
+    StringArray emptyString;
+    assertTrue_1(!(emptyString < emptyString));
 
-  StringArray sizedString(2);
-  assertTrue_1(!(sizedString < sizedString));
-  assertTrue_1(emptyString < sizedString);
-  assertTrue_1(!(sizedString < emptyString));
+    StringArray sizedString(2);
+    assertTrue_1(!(sizedString < sizedString));
+    assertTrue_1(emptyString < sizedString);
+    assertTrue_1(!(sizedString < emptyString));
 
-  std::vector<std::string> sv(2);
-  sv[0] = std::string("yo ");
-  sv[1] = std::string("mama");
-  StringArray initedString(sv);
-  assertTrue_1(!(initedString < initedString));
-  assertTrue_1(emptyString < initedString);
-  assertTrue_1(!(initedString < emptyString));
-  assertTrue_1(sizedString < initedString);
-  assertTrue_1(!(initedString < sizedString));
+    std::vector<std::string> sv(2);
+    sv[0] = std::string("yo ");
+    sv[1] = std::string("mama");
+    StringArray initedString(sv);
+    assertTrue_1(!(initedString < initedString));
+    assertTrue_1(emptyString < initedString);
+    assertTrue_1(!(initedString < emptyString));
+    assertTrue_1(sizedString < initedString);
+    assertTrue_1(!(initedString < sizedString));
 
-  std::vector<std::string> sv2(2);
-  sv2[0] = std::string("yo ");
-  sv2[1] = std::string("mamb");
-  StringArray initedString2(sv2);
-  assertTrue_1(!(initedString2 < initedString2));
-  assertTrue_1(emptyString < initedString2);
-  assertTrue_1(!(initedString2 < emptyString));
-  assertTrue_1(sizedString < initedString2);
-  assertTrue_1(!(initedString2 < sizedString));
-  // Same size, contents determine the victor
-  assertTrue_1(initedString < initedString2);
-  assertTrue_1(!(initedString2 < initedString));
+    std::vector<std::string> sv2(2);
+    sv2[0] = std::string("yo ");
+    sv2[1] = std::string("mamb");
+    StringArray initedString2(sv2);
+    assertTrue_1(!(initedString2 < initedString2));
+    assertTrue_1(emptyString < initedString2);
+    assertTrue_1(!(initedString2 < emptyString));
+    assertTrue_1(sizedString < initedString2);
+    assertTrue_1(!(initedString2 < sizedString));
+    // Same size, contents determine the victor
+    assertTrue_1(initedString < initedString2);
+    assertTrue_1(!(initedString2 < initedString));
+  }
 
   return true;
 }

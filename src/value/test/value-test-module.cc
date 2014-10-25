@@ -36,7 +36,7 @@ extern bool valueTypeTest();
 extern bool arrayTest();
 extern bool valueTest();
 
-static void runExprTests()
+static void runValueTests()
 {
   Error::doThrowExceptions();
 
@@ -49,23 +49,25 @@ static void runExprTests()
 
 int main(int argc, char *argv[])
 {
-  std::string debugConfig("Debug.cfg");
+  {
+    std::string debugConfig("Debug.cfg");
   
-  for (int i = 1; i < argc; ++i) {
+    for (int i = 1; i < argc; ++i) {
       if (strcmp(argv[i], "-d") == 0)
-          debugConfig = std::string(argv[++i]);
+	debugConfig = std::string(argv[++i]);
+    }
+  
+    std::ifstream config(debugConfig.c_str());
+  
+    if (config.good()) {
+      readDebugConfigStream(config);
+      std::cout << "Reading configuration file " << debugConfig.c_str() << "\n";
+    }
+    else
+      std::cout << "Warning: unable to read configuration file " << debugConfig.c_str() << "\n";
   }
   
-  std::ifstream config(debugConfig.c_str());
-  
-  if (config.good()) {
-     readDebugConfigStream(config);
-     std::cout << "Reading configuration file " << debugConfig.c_str() << "\n";
-  }
-  else
-     std::cout << "Warning: unable to read configuration file " << debugConfig.c_str() << "\n";
-  
-  runExprTests();
+  runValueTests();
 
   // clean up
   runFinalizers();
