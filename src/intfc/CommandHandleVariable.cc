@@ -28,6 +28,8 @@
 
 #include "Command.hh"
 
+#include <cstring>
+
 namespace PLEXIL
 {
 
@@ -38,22 +40,29 @@ namespace PLEXIL
   CommandHandleVariable::CommandHandleVariable(Command const &cmd)
     : NotifierImpl(),
       ExpressionImpl<uint16_t>(),
-      m_command(cmd)
+    m_command(cmd),
+    m_name(NULL)
   {
   }
 
   CommandHandleVariable::~CommandHandleVariable()
   {
+    delete m_name;
+  }
+
+  char const *CommandHandleVariable::getName() const
+  {
+    if (m_name)
+      return m_name;
+    static char const *sl_dummy = "";
+    return sl_dummy;
   }
 
   void CommandHandleVariable::setName(std::string const &name)
   {
-    m_name = name;
-  }
-
-  const std::string& CommandHandleVariable::getName() const
-  {
-    return m_name;
+    if (m_name)
+      delete m_name;
+    m_name = strdup(name.c_str());
   }
 
   bool CommandHandleVariable::isKnown() const

@@ -49,7 +49,9 @@ namespace PLEXIL
      */
     ~CommandHandleVariable();
 
-    const char *exprName() const
+    char const *getName() const;
+
+    char const *exprName() const
     {
       return "CommandHandleVariable";
     }
@@ -80,8 +82,6 @@ namespace PLEXIL
 
     void setName(const std::string &);
 
-    const std::string& getName() const;
-
   private:
 
     // Not implemented
@@ -90,7 +90,7 @@ namespace PLEXIL
     CommandHandleVariable &operator=(const CommandHandleVariable &);
 
     Command const & m_command;
-    std::string m_name;
+    char const *m_name;
   };
 
 } // namespace PLEXIL
