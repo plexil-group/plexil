@@ -166,17 +166,9 @@ namespace PLEXIL {
 
     /**
      * @brief Get the conflict set of nodes assigning to this object.
-     * @return Pointer to conflict set, if any.
-     * @note Default method returns NULL.
+     * @return Reference to conflict set.
      */
-    virtual VariableConflictSet *getConflictSet();
-
-    /**
-     * @brief Set the conflict set of nodes assigning to this object.
-     * @param set Pointer to conflict set.
-     * @note Default method throws an exception.
-     */
-    virtual void setConflictSet(VariableConflictSet *set);
+    virtual VariableConflictSet &getConflictSet();
   };
 
 } // namespace PLEXIL

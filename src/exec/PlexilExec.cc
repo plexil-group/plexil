@@ -245,18 +245,13 @@ namespace PLEXIL
     exp = exp->getBaseVariable();
     assertTrue_1(exp != NULL);
 
-    VariableConflictSet *conflictNodes = exp->getConflictSet();
-    if (!conflictNodes)
-      return; // variable has no conflict set
-
-    // Remove node from the conflict set.
-    conflictNodes->remove(node);
+    // Remove node from the variable's conflict set.
+    VariableConflictSet &conflictNodes = exp->getConflictSet();
+    conflictNodes.remove(node);
 
     // If deleted node was only one in conflict set,
-    // delete conflict set and remove variable from variable set.
-    if (conflictNodes->empty()) {
-      exp->setConflictSet(NULL);
-      delete conflictNodes;
+    // remove variable from variable set.
+    if (conflictNodes.empty()) {
       std::vector<Assignable *>::iterator varIt =
         std::find(m_resourceConflicts.begin(), m_resourceConflicts.end(), exp);
       if (varIt != m_resourceConflicts.end())
@@ -276,16 +271,11 @@ namespace PLEXIL
 
     debugMsg("PlexilExec:addToResourceContention",
              "Adding node '" << node->getNodeId() << "' to resource contention.");
-    VariableConflictSet *conflictNodes = exp->getConflictSet();
-    if (!conflictNodes) {
-      // No conflict set for this variable, so create one
-      conflictNodes = new VariableConflictSet();
-      exp->setConflictSet(conflictNodes);
-      // and add variable to list of conflicts
+    VariableConflictSet &conflictNodes = exp->getConflictSet();
+    if (conflictNodes.empty())
+      // add variable to list of conflicts
       m_resourceConflicts.push_back(exp);
-    }
-
-    conflictNodes->push(node);
+    conflictNodes.push(node);
   }
 
   void PlexilExec::step(double startTime) 
@@ -422,8 +412,8 @@ namespace PLEXIL
    */
   void PlexilExec::resolveVariableConflicts(Assignable *var)
   {
-    VariableConflictSet *conflictNodes = var->getConflictSet();
-    checkError(!conflictNodes->empty(),
+    VariableConflictSet &conflictNodes = var->getConflictSet();
+    checkError(!conflictNodes.empty(),
                "Resource conflict set for " << var->toString() << " is empty.");
 
     // Ignore any variables pending retraction
@@ -441,15 +431,15 @@ namespace PLEXIL
     //we only have to look at all the nodes with the highest priority
     Node *nodeToExecute = NULL;
     NodeState destState = NO_NODE_STATE;
-    size_t count = conflictNodes->front_count(); // # of nodes with same priority as top
+    size_t count = conflictNodes.front_count(); // # of nodes with same priority as top
     if (count == 1) {
       // Usual case (we hope) - make it simple
-      nodeToExecute = dynamic_cast<Node *>(conflictNodes->front());
+      nodeToExecute = dynamic_cast<Node *>(conflictNodes.front());
       destState = nodeToExecute->getNextState();
     }
 
     else {
-      VariableConflictSet::iterator conflictIt = conflictNodes->begin(); 
+      VariableConflictSet::iterator conflictIt = conflictNodes.begin(); 
       // Look at the destination states of all the nodes with equal priority
       for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
         Node *node = dynamic_cast<Node *>(*conflictIt);

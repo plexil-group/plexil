@@ -27,7 +27,6 @@
 #include "ArrayVariable.hh"
 #include "Constant.hh"
 #include "Error.hh"
-#include "VariableConflictSet.hh"
 
 namespace PLEXIL
 {
@@ -37,7 +36,6 @@ namespace PLEXIL
     : NotifierImpl(),
       ExpressionImpl<ArrayImpl<T> >(),
       AssignableImpl<ArrayImpl<T> >(),
-      m_conflicts(NULL),
       m_size(NULL),
       m_initializer(NULL),
       m_name(NULL),
@@ -54,7 +52,6 @@ namespace PLEXIL
     : NotifierImpl(),
       ExpressionImpl<ArrayImpl<T> >(),
       AssignableImpl<ArrayImpl<T> >(),
-      m_conflicts(NULL),
       m_size(NULL),
       m_initializer(new Constant<ArrayImpl<T> >(initVal)),
       m_name(NULL),
@@ -74,7 +71,6 @@ namespace PLEXIL
     : NotifierImpl(),
       ExpressionImpl<ArrayImpl<T> >(),
       AssignableImpl<ArrayImpl<T> >(),
-      m_conflicts(NULL),
       m_size(size),
       m_initializer(NULL),
       m_node(node),
@@ -90,12 +86,11 @@ namespace PLEXIL
   template <typename T>
   ArrayVariable<T>::~ArrayVariable()
   {
-    delete m_conflicts;
+    delete m_name;
     if (m_initializerIsGarbage)
       delete m_initializer;
     if (m_sizeIsGarbage)
       delete m_size;
-    delete m_name;
   }
   //
   // Essential Expression API
@@ -295,15 +290,9 @@ namespace PLEXIL
   }
 
   template <typename T>
-  VariableConflictSet *ArrayVariable<T>::getConflictSet()
+  VariableConflictSet &ArrayVariable<T>::getConflictSet()
   {
     return m_conflicts;
-  }
-
-  template <typename T>
-  void ArrayVariable<T>::setConflictSet(VariableConflictSet *set)
-  {
-    m_conflicts = set;
   }
 
   template <typename T>

@@ -29,6 +29,7 @@
 
 #include "AssignableImpl.hh"
 #include "ExpressionImpl.hh"
+#include "VariableConflictSet.hh"
 
 namespace PLEXIL
 {
@@ -129,8 +130,7 @@ namespace PLEXIL
      */
     void setInitializer(Expression *expr, bool garbage);
 
-    VariableConflictSet *getConflictSet();
-    void setConflictSet(VariableConflictSet *set);
+    VariableConflictSet &getConflictSet();
 
     void handleActivate();
 
@@ -145,7 +145,7 @@ namespace PLEXIL
      */
     void reserve();
 
-    VariableConflictSet *m_conflicts;
+    VariableConflictSet m_conflicts;
     Expression *m_size;
     Expression *m_initializer;
     

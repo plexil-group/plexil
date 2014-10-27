@@ -29,8 +29,10 @@
 
 #include "AssignableImpl.hh"
 #include "ExpressionImpl.hh"
+#include "VariableConflictSet.hh"
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
 
   /**
    * @class UserVariable
@@ -131,17 +133,10 @@ namespace PLEXIL {
 
     /**
      * @brief Get the conflict set of nodes assigning to this object.
-     * @return Pointer to conflict set, if any.
+     * @return Reference to conflict set, if any.
      * @note Default method returns NULL.
      */
-    virtual VariableConflictSet *getConflictSet();
-
-    /**
-     * @brief Set the conflict set of nodes assigning to this object.
-     * @param set Pointer to conflict set.
-     * @note Default method throws an exception.
-     */
-    virtual void setConflictSet(VariableConflictSet *set);
+    virtual VariableConflictSet &getConflictSet();
 
     void handleActivate();
 
@@ -151,7 +146,7 @@ namespace PLEXIL {
 
   private:
 
-    VariableConflictSet *m_conflicts;
+    VariableConflictSet m_conflicts;
     Expression *m_initializer;
     
     // Only used by LuvListener at present. Eliminate?
@@ -275,14 +270,7 @@ namespace PLEXIL {
      * @return Pointer to conflict set, if any.
      * @note Default method returns NULL.
      */
-    virtual VariableConflictSet *getConflictSet();
-
-    /**
-     * @brief Set the conflict set of nodes assigning to this object.
-     * @param set Pointer to conflict set.
-     * @note Default method throws an exception.
-     */
-    virtual void setConflictSet(VariableConflictSet *set);
+    virtual VariableConflictSet &getConflictSet();
 
     void handleActivate();
 
@@ -292,7 +280,7 @@ namespace PLEXIL {
 
   private:
 
-    VariableConflictSet *m_conflicts;
+    VariableConflictSet m_conflicts;
     Expression *m_initializer;
     
     // Only used by LuvListener at present. Eliminate?

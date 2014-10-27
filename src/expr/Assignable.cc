@@ -26,6 +26,7 @@
 
 #include "Assignable.hh"
 #include "Error.hh"
+#include "VariableConflictSet.hh"
 
 namespace PLEXIL {
 
@@ -85,19 +86,11 @@ namespace PLEXIL {
    * @return Pointer to conflict set, if any.
    * @note Default method.
    */
-  VariableConflictSet *Assignable::getConflictSet()
+  VariableConflictSet &Assignable::getConflictSet()
   {
-    return NULL;
-  }
-
-  /**
-   * @brief Set the conflict set of nodes assigning to this object.
-   * @param set Pointer to conflict set.
-   * @note Default method.
-   */
-  void Assignable::setConflictSet(VariableConflictSet * /* set */)
-  {
-    assertTrue_2(ALWAYS_FAIL, "setConflictSet() not implemented for this object");
+    assertTrue_2(ALWAYS_FAIL, "getConflictSet() called on object that doesn't have a conflict set");
+    static VariableConflictSet sl_emptySet;
+    return sl_emptySet;
   }
 
 } // namespace PLEXIL
