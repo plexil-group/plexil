@@ -258,7 +258,7 @@ fi
 if [ "$has_xterm" = "" ] && [ "$no_ipc" != "yes" ];
 then
     echo " "
-    if [ "$ipc_running" = "" ] ;
+    if [ "$ipc_running" = "" ] && [ "$run_ipc_in_background" = "no" ] ;
     then
         echo "ipc (central) must already be running for this script to work without xterm..."
         echo " "
