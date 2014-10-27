@@ -49,6 +49,8 @@ namespace PLEXIL
   // Constructor
   UdpAdapter::UdpAdapter(AdapterExecInterface& execInterface)
     : InterfaceAdapter(execInterface),
+      m_default_local_port(0),
+      m_default_peer_port(0),
       m_messageQueues(execInterface),
       m_debug(true)
   {
@@ -58,6 +60,8 @@ namespace PLEXIL
   // Constructor
   UdpAdapter::UdpAdapter(AdapterExecInterface& execInterface, pugi::xml_node const xml)
     : InterfaceAdapter(execInterface, xml),
+      m_default_local_port(0),
+      m_default_peer_port(0),
       m_messageQueues(execInterface),
       m_debug(false)
   {
@@ -251,8 +255,7 @@ namespace PLEXIL
     // Walk the parameters and encode them in the buffer to be sent out
     buildUdpBuffer(udp_buffer, msg->second, args, false, m_debug);
     // Send the buffer to the given host:port
-    int status = -1;
-    status = sendUdpMessage(udp_buffer, msg->second, m_debug);
+    int status = sendUdpMessage(udp_buffer, msg->second, m_debug);
     debugMsg("UdpAdapter:executeDefaultCommand", " sendUdpMessage returned " << status << " (bytes sent)");
     // Clean up some (one hopes)
     delete[] udp_buffer;
@@ -277,8 +280,7 @@ namespace PLEXIL
     std::string command = formatMessageName(msgName, RECEIVE_COMMAND_COMMAND());
     m_messageQueues.addRecipient(command, cmd);
     // Set up the thread on which the message may/will eventually be received
-    int status = -1;
-    status = startUdpMessageReceiver(msgName, cmd);
+    int status = startUdpMessageReceiver(msgName, cmd);
     debugMsg("UdpAdapter:executeReceiveCommandCommand", " message handler for \"" << command << "\" registered");
     m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
     m_execInterface.notifyOfExternalEvent();

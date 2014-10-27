@@ -40,28 +40,12 @@ namespace PLEXIL {
   // Local utilities
   //
 
-  inline void simpleStartTag(std::ostream& s, const char* val) {
+  static inline void simpleStartTag(std::ostream& s, const char* val) {
     s << '<' << val << ">";
   }
 
-  inline void openStartTag(std::ostream& s, const char* val) {
-    s << '<' << val << ' ';
-  }
-
-  inline void closeTag(std::ostream& s) {
-    s << ">";
-  }
-
-  inline void attribute(std::ostream& s, const char* name, const char* val) {
-    s << name << "=\"" << val << "\" ";
-  }
-
-  inline void endTag(std::ostream& s, const char* val) {
+  static inline void endTag(std::ostream& s, const char* val) {
     s << "</" << val << "> ";
-  }
-
-  inline void emptyElement(std::ostream& s, const char* val) {
-    s << '<' << val << " /> ";
   }
 
   /**

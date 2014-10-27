@@ -603,13 +603,10 @@ namespace PLEXIL
 
       //process external lookups
       pugi::xml_node lookup = external.child("Lookup");
-      const char* name = "";
-      const char* type = "";
-      const char* def = "";
       while (lookup != 0) {
-        name = lookup.attribute("name").value();
-        type = lookup.attribute("type").value();
-        def = lookup.attribute("value").value();
+        const char *name = lookup.attribute("name").value();
+        const char *type = lookup.attribute("type").value();
+        const char *def = lookup.attribute("value").value();
         debugMsg("IpcAdapter:parseExternalLookups",
                  "External Lookup: name=\"" << name
                  << "\" type=\"" <<type
@@ -669,7 +666,7 @@ namespace PLEXIL
 
       // AddPlan is a PlexilStringValueMsg
     case PlexilMsgType_AddPlan: {
-      const PlexilStringValueMsg* stringMsg = (const PlexilStringValueMsg*) msgData;
+      const PlexilStringValueMsg* stringMsg = reinterpret_cast<const PlexilStringValueMsg*>(msgData);
       assertTrueMsg(stringMsg->stringValue != NULL,
                     "IpcAdapter::enqueueMessage: AddPlan message contains null plan string");
 
@@ -693,7 +690,7 @@ namespace PLEXIL
 
       // AddPlanFile is a PlexilStringValueMsg
     case PlexilMsgType_AddPlanFile: {
-      const PlexilStringValueMsg* stringMsg = (const PlexilStringValueMsg*) msgData;
+      const PlexilStringValueMsg* stringMsg = reinterpret_cast<const PlexilStringValueMsg*>(msgData);
       assertTrueMsg(stringMsg->stringValue != NULL,
                     "IpcAdapter::enqueueMessage: AddPlanFile message contains null file name");
 
@@ -716,7 +713,7 @@ namespace PLEXIL
 
       // AddLibrary is a PlexilStringValueMsg
     case PlexilMsgType_AddLibrary: {
-      const PlexilStringValueMsg* stringMsg = (const PlexilStringValueMsg*) msgData;
+      const PlexilStringValueMsg* stringMsg = reinterpret_cast<const PlexilStringValueMsg*>(msgData);
       assertTrueMsg(stringMsg->stringValue != NULL,
                     "IpcAdapter::enqueueMessage: AddLibrary message contains null library node string");
 
@@ -738,7 +735,7 @@ namespace PLEXIL
 
       // AddLibraryFile is a PlexilStringValueMsg
     case PlexilMsgType_AddLibraryFile: {
-      const PlexilStringValueMsg* stringMsg = (const PlexilStringValueMsg*) msgData;
+      const PlexilStringValueMsg* stringMsg = reinterpret_cast<const PlexilStringValueMsg*>(msgData);
       assertTrueMsg(stringMsg->stringValue != NULL,
                     "IpcAdapter::enqueueMessage: AddLibraryFile message contains null file name");
 
@@ -780,7 +777,7 @@ namespace PLEXIL
   void IpcAdapter::handleCommandSequence(const std::vector<const PlexilMsgBase*>& msgs) {
     //only support one parameter, the id
     //TODO: support more parameters
-    const PlexilStringValueMsg* header = (const PlexilStringValueMsg*) msgs[0];
+    const PlexilStringValueMsg* header = reinterpret_cast<const PlexilStringValueMsg*>(msgs[0]);
     std::ostringstream uid;
     uid << ((int) header->header.serial) << SERIAL_UID_SEPERATOR() << header->header.senderUID;
     std::string uid_lbl(uid.str());
@@ -789,7 +786,7 @@ namespace PLEXIL
     const std::string& msg(formatMessageName(header->stringValue, RECEIVE_COMMAND_COMMAND()));
     m_messageQueues.addMessage(msg, uid_lbl);
     int i = 0;
-    for (std::vector<const PlexilMsgBase*>::const_iterator it = ++msgs.begin(); it != msgs.end(); it++, i++) {
+    for (std::vector<const PlexilMsgBase*>::const_iterator it = ++msgs.begin(); it != msgs.end(); ++it, ++i) {
       std::string const paramLbl(formatMessageName(uid_lbl, GET_PARAMETER_COMMAND(), i));
       m_messageQueues.addMessage(paramLbl, getPlexilMsgValue(*it));
     }
@@ -801,7 +798,7 @@ namespace PLEXIL
 
   void IpcAdapter::handleTelemetryValuesSequence(const std::vector<const PlexilMsgBase*>& msgs) 
   {
-    const PlexilStringValueMsg* tv = (const PlexilStringValueMsg*) msgs[0];
+    const PlexilStringValueMsg* tv = reinterpret_cast<const PlexilStringValueMsg*>(msgs[0]);
     State state(tv->stringValue);
 
     debugMsg("IpcAdapter:handleTelemetryValuesSequence",
@@ -968,7 +965,7 @@ namespace PLEXIL
     case PlexilMsgType_Message:
       debugMsg("IpcAdapter:handleIpcMessage", " processing as message")
         ;
-      m_adapter.handleMessageMessage((const PlexilStringValueMsg*) (msgs.front()));
+      m_adapter.handleMessageMessage(reinterpret_cast<const PlexilStringValueMsg*>(msgs.front()));
       break;
 
       // Not implemented yet
