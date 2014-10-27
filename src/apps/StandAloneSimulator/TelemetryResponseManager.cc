@@ -33,7 +33,7 @@
 
 TelemetryResponseManager::TelemetryResponseManager(const std::string& id)
   : ResponseMessageManager(id),
-    m_lastResponse(NULL)
+    m_LastResponse(NULL)
 {
   debugMsg("TelemetryResponseManager:constructor", " " << id);
   // Counter starts from 0 for telemetry
