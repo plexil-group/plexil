@@ -260,6 +260,9 @@ namespace PLEXIL
     
   Value &Value::operator=(Value const &other)
   {
+    if (this == &other)
+      return *this; // assigning to self, nothing to do
+
     cleanup();
     m_type = other.m_type;
     m_known = other.m_known;

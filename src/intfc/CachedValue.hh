@@ -40,8 +40,8 @@ namespace PLEXIL
   class CachedValue
   {
   public:
-    CachedValue() {}
-    CachedValue(CachedValue const &) {}
+    CachedValue() : m_timestamp(0) {}
+    CachedValue(CachedValue const &) : m_timestamp(0) {}
     virtual ~CachedValue() {}
 
     unsigned int getTimestamp() const
@@ -122,10 +122,6 @@ namespace PLEXIL
   extern CachedValue *CachedValueFactory(ValueType vtype);
 
   extern CachedValue *cloneCachedValue(CachedValue const * orig);
-
-  // "Constant"
-  // See CachedValueImpl.cc
-  extern CachedValue *VOID_CACHED_VALUE();
 
 }
 

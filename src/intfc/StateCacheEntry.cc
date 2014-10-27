@@ -93,8 +93,10 @@ namespace PLEXIL
       for (std::vector<Lookup *>::iterator it = m_lookups.begin();
            it != m_lookups.end();
            ++it) {
-        if (l == *it) 
+        if (l == *it) {
           m_lookups.erase(it);
+          break;
+        }
       }
     }
 

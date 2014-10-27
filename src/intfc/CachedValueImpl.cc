@@ -225,12 +225,6 @@ namespace PLEXIL
     return true;
   }
 
-  CachedValue *VOID_CACHED_VALUE()
-  {
-    static VoidCachedValue sl_value;
-    return &sl_value;
-  }
-
   //
   // Typed implementation
   //

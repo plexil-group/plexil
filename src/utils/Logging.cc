@@ -107,8 +107,6 @@ void Logging::print_to_log(const char * fullmsg)
 
 void Logging::set_log_file_name(const char * fname) 
 {
-  static bool sl_allocated = false;
-
   if (!fname) {
     ensure_log_file_name();
     return;
@@ -117,6 +115,7 @@ void Logging::set_log_file_name(const char * fname)
   // Ensure buffer is large enough
   size_t len = strlen(fname) + 1;
   if (!FILE_NAME || (FILE_NAME_LEN < len)) {
+    static bool sl_allocated = false;
     char *oldFileName = FILE_NAME;
     FILE_NAME_LEN = len;
     FILE_NAME = (char *) new char[len];
@@ -226,15 +225,12 @@ static void print_stack()
 {
 #ifdef HAVE_EXECINFO_H
   void *trace[16];
-  char **messages = (char **) NULL;
-  int i, trace_size = 0;
-
-  trace_size = backtrace(trace, 16);
-  messages = backtrace_symbols(trace, trace_size);
+  int trace_size = backtrace(trace, 16);
+  char **messages = backtrace_symbols(trace, trace_size);
   Error::getStream() << "Execution path:\n";
   if (Logging::ENABLE_LOGGING)
     Logging::print_to_log("Execution path:");
-  for (i = 0; i < trace_size; ++i) {
+  for (int i = 0; i < trace_size; ++i) {
     Error::getStream() << messages[i] << "\n";
     if (Logging::ENABLE_LOGGING)
       Logging::print_to_log(messages[i]);

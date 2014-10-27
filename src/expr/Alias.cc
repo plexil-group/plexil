@@ -28,7 +28,8 @@
 #include "Error.hh"
 #include "Value.hh"
 
-#include <cstring> // for strdup()
+#include <cstdlib> // free()
+#include <cstring> // strdup()
 
 namespace PLEXIL
 {
@@ -54,7 +55,7 @@ namespace PLEXIL
     m_exp->removeListener(this);
     if (m_garbage)
       delete m_exp;
-    delete m_name;
+    free((void *)m_name);
   }
 
   /**

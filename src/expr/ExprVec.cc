@@ -194,7 +194,7 @@ namespace PLEXIL
     {
       for (size_t i = 0; i < N; ++i)
         if (garbage[i])
-          delete (Expression *) exprs[i];
+          delete exprs[i];
     }
 
     size_t size() const 
@@ -313,7 +313,7 @@ namespace PLEXIL
   FixedExprVec<1>::~FixedExprVec()
   {
     if (garbage[0])
-      delete (Expression *) exprs[0];
+      delete exprs[0];
   }
 
   template <>
@@ -420,9 +420,9 @@ namespace PLEXIL
   FixedExprVec<2>::~FixedExprVec()
   {
     if (garbage[0])
-      delete (Expression *) exprs[0];
+      delete exprs[0];
     if (garbage[1])
-      delete (Expression *) exprs[1];
+      delete exprs[1];
   }
 
   template <>
@@ -539,7 +539,7 @@ namespace PLEXIL
       size_t n = exprs.size();
       for (size_t i = 0; i < n; ++i)
         if (garbage[i])
-          delete (Expression *) exprs[i];
+          delete exprs[i];
     }
 
     size_t size() const

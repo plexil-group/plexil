@@ -87,9 +87,9 @@ namespace PLEXIL
   ArrayVariable<T>::~ArrayVariable()
   {
     if (m_initializerIsGarbage)
-      delete (Expression *) m_initializer;
+      delete m_initializer;
     if (m_sizeIsGarbage)
-      delete (Expression *) m_size;
+      delete m_size;
     delete m_name;
   }
   //

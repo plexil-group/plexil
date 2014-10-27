@@ -73,14 +73,15 @@ namespace PLEXIL
 
   bool BooleanOr::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
-    bool temp, known;
+    bool temp;
     if (argA->getValue(temp)) {
       if (temp) {
         result = true;
         return true;
       }
+      bool known = argB->getValue(temp);
       // A known but false
-      if ((known = argB->getValue(temp)))
+      if (known)
         result = temp;
       return known;
     }
@@ -136,7 +137,7 @@ namespace PLEXIL
 
   bool BooleanAnd::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
-    bool temp, known;
+    bool temp;
     if (argA->getValue(temp)) {
       // A known
       if (!temp) {
@@ -144,7 +145,8 @@ namespace PLEXIL
         return true;
       }
       // A known and true
-      if ((known = (argB->getValue(temp))))
+      bool known = argB->getValue(temp);
+      if (known)
         result = temp;
       return known;
     }

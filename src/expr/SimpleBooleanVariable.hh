@@ -104,11 +104,7 @@ namespace PLEXIL {
     SimpleBooleanVariable(SimpleBooleanVariable const &);
     SimpleBooleanVariable &operator=(SimpleBooleanVariable const &);
 
-    // FIXME: is this actually needed?
-    NodeConnector *m_node;
-
     char const *m_name;
-
     bool m_value;
   };
 
