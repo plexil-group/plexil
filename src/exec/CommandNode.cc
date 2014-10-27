@@ -518,8 +518,6 @@ namespace PLEXIL
     static StringConstant sl_dummyCmdName("dummy");
 
     // Empty arglist
-    std::vector<Expression *> args;
-    std::vector<Expression *> garbage;
     // No destination variable
     // No resource
     ResourceList resourceList;

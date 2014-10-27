@@ -141,7 +141,7 @@ namespace PLEXIL
                       "PlexilExec::deleteFinishedPlan: Node \"" << node->getNodeId()
                       << "\" not found on active root node list");
         // Now safe to delete
-        delete (Node*) node;
+        delete node;
       }
       m_finishedRootNodes.clear();
       m_finishedRootNodesDeleted = true;

@@ -352,36 +352,13 @@ namespace PLEXIL {
       if (m_garbageConditions[i]) {
         debugMsg("Node:cleanUpConds",
                  "<" << m_nodeId << "> Removing condition " << getConditionName(i));
-        delete (Expression*) m_conditions[i];
+        delete m_conditions[i];
       }
       m_conditions[i] = NULL;
       m_garbageConditions[i] = false;
     }
 
     m_cleanedConditions = true;
-  }
-
-  void Node::removeConditionListener(size_t condIdx)
-  {
-    switch (condIdx) {
-
-       // These conditions don't have listeners
-    case postIdx:
-    case preIdx:
-      return;
-
-      // These conditions are owned by the parent
-    case ancestorEndIdx:
-    case ancestorExitIdx:
-    case ancestorInvariantIdx:
-      assertTrue_2(ALWAYS_FAIL, "removeConditionListener called on parent condition");
-      break;
-
-    default:
-      if (m_conditions[condIdx])
-        m_conditions[condIdx]->removeListener(&m_listener);
-      break;
-    }
   }
 
   // Default method.
@@ -1308,37 +1285,11 @@ namespace PLEXIL {
     return true;
   }
 
-  bool Node::getStateTransitionTimePointer(NodeState state,
-                                           bool isEnd,
-                                           double const *&ptr) const
-  {
-    if (!m_traceIdx)
-      return false; // buffer is empty
-    size_t i = 0;
-    // Find the entry for that state (i.e. start time)
-    for (; i < m_traceIdx; ++i)
-      if (m_transitionStates[i] == state)
-        break;
-    if (i == m_traceIdx)
-      return false; // state not found
-    if (isEnd) {
-      if (++i == m_traceIdx)
-        return false; // current state, hasn't ended yet
-    }
-    ptr = &(m_transitionTimes[i]);
-    return true;
-  }
-
   double Node::getCurrentStateStartTime() const
   {
     if (!m_traceIdx)
       return -DBL_MAX; // buffer empty
     return m_transitionTimes[m_traceIdx - 1];
-  }
-
-  double Node::getCurrentStateEndTime() const
-  {
-    return DBL_MAX;
   }
 
   void Node::setNodeOutcome(NodeOutcome o)

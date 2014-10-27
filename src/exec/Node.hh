@@ -224,23 +224,10 @@ namespace PLEXIL {
     bool getStateTransitionTime(NodeState state, bool isEnd, double &result) const; // FIXME
 
     /**
-     * @brief Get a const pointer to the time of the named transition.
-     * @param state The state.
-     * @param isEnd True if requesting end time of state, false for start.
-     * @param ptr Place to store the pointer to the time.
-     * @return True if requested time is known, false otherwise.
-     * @note If unknown, ptr is not modified.
-     */
-    bool getStateTransitionTimePointer(NodeState state, bool isEnd, double const *&ptr) const; // FIXME
-
-    /**
      * @brief Gets the time at which this node entered its current state.
      * @return Time value as a double.
      */
     double getCurrentStateStartTime() const;
-
-    //Isaac
-    double getCurrentStateEndTime() const;
 
     // Used by GanttListener, plan parser
     NodeVariableMap& getVariableMap() { return m_variablesByName; }
@@ -396,8 +383,6 @@ namespace PLEXIL {
 
     // Abstracts out the issue of where the condition comes from.
     Expression *getCondition(size_t idx);
-
-    void removeConditionListener(size_t idx);
 
     void commonInit();
 

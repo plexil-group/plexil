@@ -37,6 +37,7 @@ namespace PLEXIL
   AssignmentNode::AssignmentNode(char const *nodeId, 
                                  Node *parent)
     : Node(nodeId, parent),
+      m_assignment(NULL),
       m_priority(WORST_PRIORITY)
   {
   }
@@ -46,7 +47,9 @@ namespace PLEXIL
                                  const std::string &name, 
                                  NodeState state,
                                  Node *parent)
-    : Node(type, name, state, parent)
+    : Node(type, name, state, parent),
+      m_assignment(NULL),
+      m_priority(WORST_PRIORITY)
   {
     checkError(type == ASSIGNMENT,
                "Invalid node type \"" << type << "\" for an AssignmentNode");

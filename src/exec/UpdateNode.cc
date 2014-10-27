@@ -38,7 +38,8 @@ namespace PLEXIL
 {
 
   UpdateNode::UpdateNode(char const *nodeId, Node *parent)
-    : Node(nodeId, parent)
+    : Node(nodeId, parent),
+      m_update(NULL)
   {
   }
 
@@ -49,7 +50,8 @@ namespace PLEXIL
                          const std::string& name, 
                          NodeState state,
                          Node *parent)
-    : Node(type, name, state, parent)
+    : Node(type, name, state, parent),
+      m_update(NULL)
   {
     checkError(type == UPDATE,
                "Invalid node type \"" << type << "\" for an UpdateNode");
