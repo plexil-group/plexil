@@ -404,9 +404,8 @@ static bool testScalarEquality()
   return true;
 }
 
-static bool testArrayEquality()
+static bool testBooleanArrayEquality()
 {
-  // Arrays
   Value *bav = NULL;
   {
     BooleanArray *emptyBool = new BooleanArray;
@@ -455,6 +454,54 @@ static bool testArrayEquality()
   assertTrue_1(!(*ibav == *sbav));
   assertTrue_1(*ibav != *sbav);
 
+  Value *tempv = new Value;
+
+  *tempv = *bav;
+  assertTrue_1(*tempv == *bav);
+  assertTrue_1(!(*tempv != *bav));
+  assertTrue_1(*bav == *tempv);
+  assertTrue_1(!(*bav != *tempv));
+
+  *tempv = *sbav;
+  assertTrue_1(*tempv == *sbav);
+  assertTrue_1(!(*tempv != *sbav));
+  assertTrue_1(*sbav == *tempv);
+  assertTrue_1(!(*sbav != *tempv));
+
+  *tempv = *ibav;
+  assertTrue_1(*tempv == *ibav);
+  assertTrue_1(!(*tempv != *ibav));
+  assertTrue_1(*ibav == *tempv);
+  assertTrue_1(!(*ibav != *tempv));
+
+  delete tempv;
+
+  Value *unkv = new Value;
+  assertTrue_1(!(*unkv == *bav));
+  assertTrue_1(*unkv != *bav);
+  assertTrue_1(!(*bav == *unkv));
+  assertTrue_1(*bav != *unkv);
+
+  assertTrue_1(!(*unkv == *ibav));
+  assertTrue_1(*unkv != *ibav);
+  assertTrue_1(!(*ibav == *unkv));
+  assertTrue_1(*ibav != *unkv);
+
+  assertTrue_1(!(*unkv == *sbav));
+  assertTrue_1(*unkv != *sbav);
+  assertTrue_1(!(*sbav == *unkv));
+  assertTrue_1(*sbav != *unkv);
+
+  delete unkv;
+  delete ibav;
+  delete sbav;
+  delete bav;
+
+  return true;
+}
+
+static bool testIntegerArrayEquality()
+{
   Value *iav = NULL;
   {
     IntegerArray *emptyInt = new IntegerArray;
@@ -503,6 +550,55 @@ static bool testArrayEquality()
   assertTrue_1(!(*iiav == *siav));
   assertTrue_1(*iiav != *siav);
 
+  Value *tempv = new Value;
+
+  *tempv = *iav;
+  assertTrue_1(*tempv == *iav);
+  assertTrue_1(!(*tempv != *iav));
+  assertTrue_1(*iav == *tempv);
+  assertTrue_1(!(*iav != *tempv));
+
+  *tempv = *siav;
+  assertTrue_1(*tempv == *siav);
+  assertTrue_1(!(*tempv != *siav));
+  assertTrue_1(*siav == *tempv);
+  assertTrue_1(!(*siav != *tempv));
+
+  *tempv = *iiav;
+  assertTrue_1(*tempv == *iiav);
+  assertTrue_1(!(*tempv != *iiav));
+  assertTrue_1(*iiav == *tempv);
+  assertTrue_1(!(*iiav != *tempv));
+
+  delete tempv;
+
+  Value *unkv = new Value;
+
+  assertTrue_1(!(*unkv == *iav));
+  assertTrue_1(*unkv != *iav);
+  assertTrue_1(!(*iav == *unkv));
+  assertTrue_1(*iav != *unkv);
+
+  assertTrue_1(!(*unkv == *iiav));
+  assertTrue_1(*unkv != *iiav);
+  assertTrue_1(!(*iiav == *unkv));
+  assertTrue_1(*iiav != *unkv);
+
+  assertTrue_1(!(*unkv == *siav));
+  assertTrue_1(*unkv != *siav);
+  assertTrue_1(!(*siav == *unkv));
+  assertTrue_1(*siav != *unkv);
+
+  delete unkv;
+  delete iiav;
+  delete siav;
+  delete iav;
+
+  return true;
+}
+
+static bool testRealArrayEquality()
+{
   Value *rav = NULL;
   {
     RealArray *emptyReal = new RealArray;
@@ -551,6 +647,55 @@ static bool testArrayEquality()
   assertTrue_1(!(*irav == *srav));
   assertTrue_1(*irav != *srav);
 
+  Value *tempv = new Value;
+
+  *tempv = *rav;
+  assertTrue_1(*tempv == *rav);
+  assertTrue_1(!(*tempv != *rav));
+  assertTrue_1(*rav == *tempv);
+  assertTrue_1(!(*rav != *tempv));
+
+  *tempv = *srav;
+  assertTrue_1(*tempv == *srav);
+  assertTrue_1(!(*tempv != *srav));
+  assertTrue_1(*srav == *tempv);
+  assertTrue_1(!(*srav != *tempv));
+
+  *tempv = *irav;
+  assertTrue_1(*tempv == *irav);
+  assertTrue_1(!(*tempv != *irav));
+  assertTrue_1(*irav == *tempv);
+  assertTrue_1(!(*irav != *tempv));
+
+  delete tempv;
+
+  Value *unkv = new Value;
+
+  assertTrue_1(!(*unkv == *rav));
+  assertTrue_1(*unkv != *rav);
+  assertTrue_1(!(*rav == *unkv));
+  assertTrue_1(*rav != *unkv);
+
+  assertTrue_1(!(*unkv == irav));
+  assertTrue_1(*unkv != irav);
+  assertTrue_1(!(*irav == *unkv));
+  assertTrue_1(*irav != *unkv);
+
+  assertTrue_1(!(*unkv == *srav));
+  assertTrue_1(*unkv != *srav);
+  assertTrue_1(!(*srav == *unkv));
+  assertTrue_1(*srav != *unkv);
+
+  delete unkv;
+  delete irav;
+  delete srav;
+  delete rav;
+
+  return true;
+}
+
+static bool testStringArrayEquality()
+{
   Value *sav = NULL;
   {
     StringArray *emptyString = new StringArray;
@@ -599,206 +744,129 @@ static bool testArrayEquality()
   assertTrue_1(!(*isav == *ssav));
   assertTrue_1(*isav != *ssav);
 
-  // Via assignment
-  {
-    Value *tempv = new Value;
-    *tempv = *bav;
-    assertTrue_1(*tempv == *bav);
-    assertTrue_1(!(*tempv != *bav));
-    assertTrue_1(*bav == *tempv);
-    assertTrue_1(!(*bav != *tempv));
+  Value *tempv = new Value;
 
-    *tempv = *sbav;
-    assertTrue_1(*tempv == *sbav);
-    assertTrue_1(!(*tempv != *sbav));
-    assertTrue_1(*sbav == *tempv);
-    assertTrue_1(!(*sbav != *tempv));
+  *tempv = *sav;
+  assertTrue_1(*tempv == *sav);
+  assertTrue_1(!(*tempv != *sav));
+  assertTrue_1(*sav == *tempv);
+  assertTrue_1(!(*sav != *tempv));
 
-    *tempv = *ibav;
-    assertTrue_1(*tempv == *ibav);
-    assertTrue_1(!(*tempv != *ibav));
-    assertTrue_1(*ibav == *tempv);
-    assertTrue_1(!(*ibav != *tempv));
+  *tempv = *ssav;
+  assertTrue_1(*tempv == *ssav);
+  assertTrue_1(!(*tempv != *ssav));
+  assertTrue_1(*ssav == *tempv);
+  assertTrue_1(!(*ssav != *tempv));
 
-    *tempv = *iav;
-    assertTrue_1(*tempv == *iav);
-    assertTrue_1(!(*tempv != *iav));
-    assertTrue_1(*iav == *tempv);
-    assertTrue_1(!(*iav != *tempv));
+  *tempv = *isav;
+  assertTrue_1(*tempv == *isav);
+  assertTrue_1(!(*tempv != *isav));
+  assertTrue_1(*isav == *tempv);
+  assertTrue_1(!(*isav != *tempv));
 
-    *tempv = *siav;
-    assertTrue_1(*tempv == *siav);
-    assertTrue_1(!(*tempv != *siav));
-    assertTrue_1(*siav == *tempv);
-    assertTrue_1(!(*siav != *tempv));
+  delete tempv;
 
-    *tempv = *iiav;
-    assertTrue_1(*tempv == *iiav);
-    assertTrue_1(!(*tempv != *iiav));
-    assertTrue_1(*iiav == *tempv);
-    assertTrue_1(!(*iiav != *tempv));
-
-    *tempv = *rav;
-    assertTrue_1(*tempv == *rav);
-    assertTrue_1(!(*tempv != *rav));
-    assertTrue_1(*rav == *tempv);
-    assertTrue_1(!(*rav != *tempv));
-
-    *tempv = *srav;
-    assertTrue_1(*tempv == *srav);
-    assertTrue_1(!(*tempv != *srav));
-    assertTrue_1(*srav == *tempv);
-    assertTrue_1(!(*srav != *tempv));
-
-    *tempv = *irav;
-    assertTrue_1(*tempv == *irav);
-    assertTrue_1(!(*tempv != *irav));
-    assertTrue_1(*irav == *tempv);
-    assertTrue_1(!(*irav != *tempv));
-
-    *tempv = *sav;
-    assertTrue_1(*tempv == *sav);
-    assertTrue_1(!(*tempv != *sav));
-    assertTrue_1(*sav == *tempv);
-    assertTrue_1(!(*sav != *tempv));
-
-    *tempv = *ssav;
-    assertTrue_1(*tempv == *ssav);
-    assertTrue_1(!(*tempv != *ssav));
-    assertTrue_1(*ssav == *tempv);
-    assertTrue_1(!(*ssav != *tempv));
-
-    *tempv = *isav;
-    assertTrue_1(*tempv == *isav);
-    assertTrue_1(!(*tempv != *isav));
-    assertTrue_1(*isav == *tempv);
-    assertTrue_1(!(*isav != *tempv));
-
-    delete tempv;
-  }
-
-  // Cross array type
-  assertTrue_1(!(*bav == *iav));
-  assertTrue_1(*bav != *iav);
-  assertTrue_1(!(*iav == *bav));
-  assertTrue_1(*iav != *bav);
-
-  assertTrue_1(!(*bav == rav));
-  assertTrue_1(*bav != rav);
-  assertTrue_1(!(rav == *bav));
-  assertTrue_1(rav != *bav);
-
-  assertTrue_1(!(*bav == *sav));
-  assertTrue_1(*bav != *sav);
-  assertTrue_1(!(*sav == *bav));
-  assertTrue_1(*sav != *bav);
-
-  assertTrue_1(!(*iav == *rav));
-  assertTrue_1(*iav != *rav);
-  assertTrue_1(!(*rav == *iav));
-  assertTrue_1(*rav != *iav);
-
-  assertTrue_1(!(*iav == *sav));
-  assertTrue_1(*iav != *sav);
-  assertTrue_1(!(*sav == *iav));
-  assertTrue_1(*sav != *iav);
-
-  assertTrue_1(!(*rav == *sav));
-  assertTrue_1(*rav != *sav);
-  assertTrue_1(!(*sav == *rav));
-  assertTrue_1(*sav != *rav);
-
-  // Array to unknown
   Value *unkv = new Value;
-  assertTrue_1(!(*unkv == *bav));
-  assertTrue_1(*unkv != *bav);
-  assertTrue_1(!(*bav == *unkv));
-  assertTrue_1(*bav != *unkv);
-
-  delete bav;
-
-  assertTrue_1(!(*unkv == *ibav));
-  assertTrue_1(*unkv != *ibav);
-  assertTrue_1(!(*ibav == *unkv));
-  assertTrue_1(*ibav != *unkv);
-
-  delete ibav;
-
-  assertTrue_1(!(*unkv == *sbav));
-  assertTrue_1(*unkv != *sbav);
-  assertTrue_1(!(*sbav == *unkv));
-  assertTrue_1(*sbav != *unkv);
-
-  delete sbav;
-
-  assertTrue_1(!(*unkv == *iav));
-  assertTrue_1(*unkv != *iav);
-  assertTrue_1(!(*iav == *unkv));
-  assertTrue_1(*iav != *unkv);
-
-  delete iav;
-
-  assertTrue_1(!(*unkv == *iiav));
-  assertTrue_1(*unkv != *iiav);
-  assertTrue_1(!(*iiav == *unkv));
-  assertTrue_1(*iiav != *unkv);
-
-  delete iiav;
-
-  assertTrue_1(!(*unkv == *siav));
-  assertTrue_1(*unkv != *siav);
-  assertTrue_1(!(*siav == *unkv));
-  assertTrue_1(*siav != *unkv);
-
-  delete siav;
-
-  assertTrue_1(!(*unkv == *rav));
-  assertTrue_1(*unkv != *rav);
-  assertTrue_1(!(*rav == *unkv));
-  assertTrue_1(*rav != *unkv);
-
-  delete rav;
-
-  assertTrue_1(!(*unkv == irav));
-  assertTrue_1(*unkv != irav);
-  assertTrue_1(!(*irav == *unkv));
-  assertTrue_1(*irav != *unkv);
-
-  delete irav;
-
-  assertTrue_1(!(*unkv == *srav));
-  assertTrue_1(*unkv != *srav);
-  assertTrue_1(!(*srav == *unkv));
-  assertTrue_1(*srav != *unkv);
-
-  delete srav;
 
   assertTrue_1(!(*unkv == *sav));
   assertTrue_1(*unkv != *sav);
   assertTrue_1(!(*sav == *unkv));
   assertTrue_1(*sav != *unkv);
 
-  delete sav;
-
   assertTrue_1(!(*unkv == *isav));
   assertTrue_1(*unkv != *isav);
   assertTrue_1(!(*isav == *unkv));
   assertTrue_1(*isav != *unkv);
-
-  delete isav;
 
   assertTrue_1(!(*unkv == *ssav));
   assertTrue_1(*unkv != *ssav);
   assertTrue_1(!(*ssav == *unkv));
   assertTrue_1(*ssav != *unkv);
 
-  delete ssav;
   delete unkv;
+  delete isav;
+  delete ssav;
+  delete sav;
+ 
+  return true;
+}
+
+// Cross-type testing of array equality
+static bool testEmptyArrayEquality()
+{
+  Value *sav = NULL;
+  {
+    StringArray *emptyString = new StringArray;
+    sav = new Value(*emptyString);
+    delete emptyString;
+  }
+
+  Value *rav = NULL;
+  {
+    RealArray *emptyReal = new RealArray;
+    rav = new Value(*emptyReal);
+    delete emptyReal;
+  }
+
+  {
+    Value *iav = NULL;
+    {
+      IntegerArray *emptyInt = new IntegerArray;
+      iav = new Value(*emptyInt);
+      delete emptyInt;
+    }
+
+    {
+      Value *bav = NULL;
+      {
+	BooleanArray *emptyBool = new BooleanArray;
+	bav = new Value(*emptyBool);
+	delete emptyBool;
+      }
+
+      assertTrue_1(!(*bav == *iav));
+      assertTrue_1(*bav != *iav);
+      assertTrue_1(!(*iav == *bav));
+      assertTrue_1(*iav != *bav);
+
+      assertTrue_1(!(*bav == rav));
+      assertTrue_1(*bav != rav);
+      assertTrue_1(!(rav == *bav));
+      assertTrue_1(rav != *bav);
+
+      assertTrue_1(!(*bav == *sav));
+      assertTrue_1(*bav != *sav);
+      assertTrue_1(!(*sav == *bav));
+      assertTrue_1(*sav != *bav);
+
+      delete bav;
+    }
+
+    assertTrue_1(!(*iav == *rav));
+    assertTrue_1(*iav != *rav);
+    assertTrue_1(!(*rav == *iav));
+    assertTrue_1(*rav != *iav);
+
+    assertTrue_1(!(*iav == *sav));
+    assertTrue_1(*iav != *sav);
+    assertTrue_1(!(*sav == *iav));
+    assertTrue_1(*sav != *iav);
+
+    delete iav;
+  }
+
+  assertTrue_1(!(*rav == *sav));
+  assertTrue_1(*rav != *sav);
+  assertTrue_1(!(*sav == *rav));
+  assertTrue_1(*sav != *rav);
+
+  delete rav;
+  delete sav;
 
   return true;
 }
 
-static bool testScalarArrayEquality()
+static bool testScalarBooleanArrayEquality()
 {
   // Boolean arrays
   Value *bav = NULL;
@@ -823,7 +891,99 @@ static bool testScalarArrayEquality()
     delete initedBool;
   }
 
-  // Integer arrays
+  {
+    Value *boolv = new Value(true);
+
+    assertTrue_1(!(*boolv == *bav));
+    assertTrue_1(*boolv != *bav);
+    assertTrue_1(!(*bav == *boolv));
+    assertTrue_1(*bav != *boolv);
+
+    assertTrue_1(!(*boolv == *ibav));
+    assertTrue_1(*boolv != *ibav);
+    assertTrue_1(!(*ibav == *boolv));
+    assertTrue_1(*ibav != *boolv);
+
+    assertTrue_1(!(*boolv == *sbav));
+    assertTrue_1(*boolv != *sbav);
+    assertTrue_1(!(*sbav == *boolv));
+    assertTrue_1(*sbav != *boolv);
+
+    delete boolv;
+  }
+
+  {
+    Value *intv = new Value((int32_t) 42);
+
+    assertTrue_1(!(*intv == *bav));
+    assertTrue_1(*intv != *bav);
+    assertTrue_1(!(*bav == *intv));
+    assertTrue_1(*bav != *intv);
+
+    assertTrue_1(!(*intv == *ibav));
+    assertTrue_1(*intv != *ibav);
+    assertTrue_1(!(*ibav == *intv));
+    assertTrue_1(*ibav != *intv);
+
+    assertTrue_1(!(*intv == *sbav));
+    assertTrue_1(*intv != *sbav);
+    assertTrue_1(!(*sbav == *intv));
+    assertTrue_1(*sbav != *intv);
+
+    delete intv;
+  }
+
+  {
+    Value *realv = new Value(2.5);
+
+    assertTrue_1(!(*realv == *bav));
+    assertTrue_1(*realv != *bav);
+    assertTrue_1(!(*bav == *realv));
+    assertTrue_1(*bav != *realv);
+
+    assertTrue_1(!(*realv == *ibav));
+    assertTrue_1(*realv != *ibav);
+    assertTrue_1(!(*ibav == *realv));
+    assertTrue_1(*ibav != *realv);
+
+    assertTrue_1(!(*realv == *sbav));
+    assertTrue_1(*realv != *sbav);
+    assertTrue_1(!(*sbav == *realv));
+    assertTrue_1(*sbav != *realv);
+
+    delete realv;
+  }
+
+  {
+    Value *stringv = new Value("Foo");;
+
+    assertTrue_1(!(*stringv == *bav));
+    assertTrue_1(*stringv != *bav);
+    assertTrue_1(!(*bav == *stringv));
+    assertTrue_1(*bav != *stringv);
+
+    assertTrue_1(!(*stringv == *ibav));
+    assertTrue_1(*stringv != *ibav);
+    assertTrue_1(!(*ibav == *stringv));
+    assertTrue_1(*ibav != *stringv);
+
+    assertTrue_1(!(*stringv == *sbav));
+    assertTrue_1(*stringv != *sbav);
+    assertTrue_1(!(*sbav == *stringv));
+    assertTrue_1(*sbav != *stringv);
+
+    delete stringv;
+  }
+
+  delete ibav;
+  delete sbav;
+  delete bav;
+
+  return true;
+}
+
+static bool testScalarIntegerArrayEquality()
+{
   Value *iav = NULL;
   {
     IntegerArray *emptyInt = new IntegerArray;
@@ -846,7 +1006,99 @@ static bool testScalarArrayEquality()
     delete initedInt;
   }
 
-  // Real arrays
+  {
+    Value *boolv = new Value(true);
+
+    assertTrue_1(!(*boolv == *iav));
+    assertTrue_1(*boolv != *iav);
+    assertTrue_1(!(*iav == *boolv));
+    assertTrue_1(*iav != *boolv);
+
+    assertTrue_1(!(*boolv == *iiav));
+    assertTrue_1(*boolv != *iiav);
+    assertTrue_1(!(*iiav == *boolv));
+    assertTrue_1(*iiav != *boolv);
+
+    assertTrue_1(!(*boolv == *siav));
+    assertTrue_1(*boolv != *siav);
+    assertTrue_1(!(*siav == *boolv));
+    assertTrue_1(*siav != *boolv);
+
+    delete boolv;
+  }
+
+  {
+    Value *intv = new Value((int32_t) 42);
+
+    assertTrue_1(!(*intv == *iav));
+    assertTrue_1(*intv != *iav);
+    assertTrue_1(!(*iav == *intv));
+    assertTrue_1(*iav != *intv);
+
+    assertTrue_1(!(*intv == *iiav));
+    assertTrue_1(*intv != *iiav);
+    assertTrue_1(!(*iiav == *intv));
+    assertTrue_1(*iiav != *intv);
+
+    assertTrue_1(!(*intv == *siav));
+    assertTrue_1(*intv != *siav);
+    assertTrue_1(!(*siav == *intv));
+    assertTrue_1(*siav != *intv);
+
+    delete intv;
+  }
+
+  {
+    Value *realv = new Value(2.5);
+
+    assertTrue_1(!(*realv == *iav));
+    assertTrue_1(*realv != *iav);
+    assertTrue_1(!(*iav == *realv));
+    assertTrue_1(*iav != *realv);
+
+    assertTrue_1(!(*realv == *iiav));
+    assertTrue_1(*realv != *iiav);
+    assertTrue_1(!(*iiav == *realv));
+    assertTrue_1(*iiav != *realv);
+
+    assertTrue_1(!(*realv == *siav));
+    assertTrue_1(*realv != *siav);
+    assertTrue_1(!(*siav == *realv));
+    assertTrue_1(*siav != *realv);
+
+    delete realv;
+  }
+
+  {
+    Value *stringv = new Value("Foo");;
+
+    assertTrue_1(!(*stringv == *iav));
+    assertTrue_1(*stringv != *iav);
+    assertTrue_1(!(*iav == *stringv));
+    assertTrue_1(*iav != *stringv);
+
+    assertTrue_1(!(*stringv == *iiav));
+    assertTrue_1(*stringv != *iiav);
+    assertTrue_1(!(*iiav == *stringv));
+    assertTrue_1(*iiav != *stringv);
+
+    assertTrue_1(!(*stringv == *siav));
+    assertTrue_1(*stringv != *siav);
+    assertTrue_1(!(*siav == *stringv));
+    assertTrue_1(*siav != *stringv);
+
+    delete stringv;
+  }
+
+  delete iiav;
+  delete siav;
+  delete iav;
+
+  return true;
+}
+
+static bool testScalarRealArrayEquality()
+{
   Value *rav = NULL;
   {
     RealArray *emptyReal = new RealArray;
@@ -869,7 +1121,99 @@ static bool testScalarArrayEquality()
     delete initedReal;
   }
 
-  // String arrays
+  {
+    Value *boolv = new Value(true);
+
+    assertTrue_1(!(*boolv == *rav));
+    assertTrue_1(*boolv != *rav);
+    assertTrue_1(!(*rav == *boolv));
+    assertTrue_1(*rav != *boolv);
+
+    assertTrue_1(!(*boolv == *irav));
+    assertTrue_1(*boolv != *irav);
+    assertTrue_1(!(*irav == *boolv));
+    assertTrue_1(*irav != *boolv);
+
+    assertTrue_1(!(*boolv == *srav));
+    assertTrue_1(*boolv != *srav);
+    assertTrue_1(!(*srav == *boolv));
+    assertTrue_1(*srav != *boolv);
+
+    delete boolv;
+  }
+
+  {
+    Value *intv = new Value((int32_t) 42);
+
+    assertTrue_1(!(*intv == *rav));
+    assertTrue_1(*intv != *rav);
+    assertTrue_1(!(*rav == *intv));
+    assertTrue_1(*rav != *intv);
+
+    assertTrue_1(!(*intv == *irav));
+    assertTrue_1(*intv != *irav);
+    assertTrue_1(!(*irav == *intv));
+    assertTrue_1(*irav != *intv);
+
+    assertTrue_1(!(*intv == *srav));
+    assertTrue_1(*intv != *srav);
+    assertTrue_1(!(*srav == *intv));
+    assertTrue_1(*srav != *intv);
+
+    delete intv;
+  }
+
+  {
+    Value *realv = new Value(2.5);
+
+    assertTrue_1(!(*realv == *rav));
+    assertTrue_1(*realv != *rav);
+    assertTrue_1(!(*rav == *realv));
+    assertTrue_1(*rav != *realv);
+
+    assertTrue_1(!(*realv == *irav));
+    assertTrue_1(*realv != *irav);
+    assertTrue_1(!(*irav == *realv));
+    assertTrue_1(*irav != *realv);
+
+    assertTrue_1(!(*realv == *srav));
+    assertTrue_1(*realv != *srav);
+    assertTrue_1(!(*srav == *realv));
+    assertTrue_1(*srav != *realv);
+
+    delete realv;
+  }
+
+  {
+    Value *stringv = new Value("Foo");;
+
+    assertTrue_1(!(*stringv == *rav));
+    assertTrue_1(*stringv != *rav);
+    assertTrue_1(!(*rav == *stringv));
+    assertTrue_1(*rav != *stringv);
+
+    assertTrue_1(!(*stringv == *irav));
+    assertTrue_1(*stringv != *irav);
+    assertTrue_1(!(*irav == *stringv));
+    assertTrue_1(*irav != *stringv);
+
+    assertTrue_1(!(*stringv == *srav));
+    assertTrue_1(*stringv != *srav);
+    assertTrue_1(!(*srav == *stringv));
+    assertTrue_1(*srav != *stringv);
+
+    delete stringv;
+  }
+
+  delete irav;
+  delete srav;
+  delete rav;
+
+  return true;
+}
+
+static bool testScalarStringArrayEquality()
+{
   Value *sav = NULL;
   {
     StringArray *emptyString = new StringArray;
@@ -892,55 +1236,8 @@ static bool testScalarArrayEquality()
     delete initedString;
   }
 
-  // Begin tests
   {
     Value *boolv = new Value(true);
-
-    // Array to Boolean
-    assertTrue_1(!(*boolv == *bav));
-    assertTrue_1(*boolv != *bav);
-    assertTrue_1(!(*bav == *boolv));
-    assertTrue_1(*bav != *boolv);
-
-    assertTrue_1(!(*boolv == *ibav));
-    assertTrue_1(*boolv != *ibav);
-    assertTrue_1(!(*ibav == *boolv));
-    assertTrue_1(*ibav != *boolv);
-
-    assertTrue_1(!(*boolv == *sbav));
-    assertTrue_1(*boolv != *sbav);
-    assertTrue_1(!(*sbav == *boolv));
-    assertTrue_1(*sbav != *boolv);
-
-    assertTrue_1(!(*boolv == *iav));
-    assertTrue_1(*boolv != *iav);
-    assertTrue_1(!(*iav == *boolv));
-    assertTrue_1(*iav != *boolv);
-
-    assertTrue_1(!(*boolv == *iiav));
-    assertTrue_1(*boolv != *iiav);
-    assertTrue_1(!(*iiav == *boolv));
-    assertTrue_1(*iiav != *boolv);
-
-    assertTrue_1(!(*boolv == *siav));
-    assertTrue_1(*boolv != *siav);
-    assertTrue_1(!(*siav == *boolv));
-    assertTrue_1(*siav != *boolv);
-
-    assertTrue_1(!(*boolv == *rav));
-    assertTrue_1(*boolv != *rav);
-    assertTrue_1(!(*rav == *boolv));
-    assertTrue_1(*rav != *boolv);
-
-    assertTrue_1(!(*boolv == *irav));
-    assertTrue_1(*boolv != *irav);
-    assertTrue_1(!(*irav == *boolv));
-    assertTrue_1(*irav != *boolv);
-
-    assertTrue_1(!(*boolv == *srav));
-    assertTrue_1(*boolv != *srav);
-    assertTrue_1(!(*srav == *boolv));
-    assertTrue_1(*srav != *boolv);
 
     assertTrue_1(!(*boolv == *sav));
     assertTrue_1(*boolv != *sav);
@@ -960,53 +1257,8 @@ static bool testScalarArrayEquality()
     delete boolv;
   }
 
-  // Array to Integer
   {
     Value *intv = new Value((int32_t) 42);
-    assertTrue_1(!(*intv == *bav));
-    assertTrue_1(*intv != *bav);
-    assertTrue_1(!(*bav == *intv));
-    assertTrue_1(*bav != *intv);
-
-    assertTrue_1(!(*intv == *ibav));
-    assertTrue_1(*intv != *ibav);
-    assertTrue_1(!(*ibav == *intv));
-    assertTrue_1(*ibav != *intv);
-
-    assertTrue_1(!(*intv == *sbav));
-    assertTrue_1(*intv != *sbav);
-    assertTrue_1(!(*sbav == *intv));
-    assertTrue_1(*sbav != *intv);
-
-    assertTrue_1(!(*intv == *iav));
-    assertTrue_1(*intv != *iav);
-    assertTrue_1(!(*iav == *intv));
-    assertTrue_1(*iav != *intv);
-
-    assertTrue_1(!(*intv == *iiav));
-    assertTrue_1(*intv != *iiav);
-    assertTrue_1(!(*iiav == *intv));
-    assertTrue_1(*iiav != *intv);
-
-    assertTrue_1(!(*intv == *siav));
-    assertTrue_1(*intv != *siav);
-    assertTrue_1(!(*siav == *intv));
-    assertTrue_1(*siav != *intv);
-
-    assertTrue_1(!(*intv == *rav));
-    assertTrue_1(*intv != *rav);
-    assertTrue_1(!(*rav == *intv));
-    assertTrue_1(*rav != *intv);
-
-    assertTrue_1(!(*intv == *irav));
-    assertTrue_1(*intv != *irav);
-    assertTrue_1(!(*irav == *intv));
-    assertTrue_1(*irav != *intv);
-
-    assertTrue_1(!(*intv == *srav));
-    assertTrue_1(*intv != *srav);
-    assertTrue_1(!(*srav == *intv));
-    assertTrue_1(*srav != *intv);
 
     assertTrue_1(!(*intv == *sav));
     assertTrue_1(*intv != *sav);
@@ -1026,54 +1278,8 @@ static bool testScalarArrayEquality()
     delete intv;
   }
 
-  // Array to Real
   {
     Value *realv = new Value(2.5);
-
-    assertTrue_1(!(*realv == *bav));
-    assertTrue_1(*realv != *bav);
-    assertTrue_1(!(*bav == *realv));
-    assertTrue_1(*bav != *realv);
-
-    assertTrue_1(!(*realv == *ibav));
-    assertTrue_1(*realv != *ibav);
-    assertTrue_1(!(*ibav == *realv));
-    assertTrue_1(*ibav != *realv);
-
-    assertTrue_1(!(*realv == *sbav));
-    assertTrue_1(*realv != *sbav);
-    assertTrue_1(!(*sbav == *realv));
-    assertTrue_1(*sbav != *realv);
-
-    assertTrue_1(!(*realv == *iav));
-    assertTrue_1(*realv != *iav);
-    assertTrue_1(!(*iav == *realv));
-    assertTrue_1(*iav != *realv);
-
-    assertTrue_1(!(*realv == *iiav));
-    assertTrue_1(*realv != *iiav);
-    assertTrue_1(!(*iiav == *realv));
-    assertTrue_1(*iiav != *realv);
-
-    assertTrue_1(!(*realv == *siav));
-    assertTrue_1(*realv != *siav);
-    assertTrue_1(!(*siav == *realv));
-    assertTrue_1(*siav != *realv);
-
-    assertTrue_1(!(*realv == *rav));
-    assertTrue_1(*realv != *rav);
-    assertTrue_1(!(*rav == *realv));
-    assertTrue_1(*rav != *realv);
-
-    assertTrue_1(!(*realv == *irav));
-    assertTrue_1(*realv != *irav);
-    assertTrue_1(!(*irav == *realv));
-    assertTrue_1(*irav != *realv);
-
-    assertTrue_1(!(*realv == *srav));
-    assertTrue_1(*realv != *srav);
-    assertTrue_1(!(*srav == *realv));
-    assertTrue_1(*srav != *realv);
 
     assertTrue_1(!(*realv == *sav));
     assertTrue_1(*realv != *sav);
@@ -1092,55 +1298,9 @@ static bool testScalarArrayEquality()
 
     delete realv;
   }
-
-  // Array to String
+  
   {
     Value *stringv = new Value("Foo");;
-
-    assertTrue_1(!(*stringv == *bav));
-    assertTrue_1(*stringv != *bav);
-    assertTrue_1(!(*bav == *stringv));
-    assertTrue_1(*bav != *stringv);
-
-    assertTrue_1(!(*stringv == *ibav));
-    assertTrue_1(*stringv != *ibav);
-    assertTrue_1(!(*ibav == *stringv));
-    assertTrue_1(*ibav != *stringv);
-
-    assertTrue_1(!(*stringv == *sbav));
-    assertTrue_1(*stringv != *sbav);
-    assertTrue_1(!(*sbav == *stringv));
-    assertTrue_1(*sbav != *stringv);
-
-    assertTrue_1(!(*stringv == *iav));
-    assertTrue_1(*stringv != *iav);
-    assertTrue_1(!(*iav == *stringv));
-    assertTrue_1(*iav != *stringv);
-
-    assertTrue_1(!(*stringv == *iiav));
-    assertTrue_1(*stringv != *iiav);
-    assertTrue_1(!(*iiav == *stringv));
-    assertTrue_1(*iiav != *stringv);
-
-    assertTrue_1(!(*stringv == *siav));
-    assertTrue_1(*stringv != *siav);
-    assertTrue_1(!(*siav == *stringv));
-    assertTrue_1(*siav != *stringv);
-
-    assertTrue_1(!(*stringv == *rav));
-    assertTrue_1(*stringv != *rav);
-    assertTrue_1(!(*rav == *stringv));
-    assertTrue_1(*rav != *stringv);
-
-    assertTrue_1(!(*stringv == *irav));
-    assertTrue_1(*stringv != *irav);
-    assertTrue_1(!(*irav == *stringv));
-    assertTrue_1(*irav != *stringv);
-
-    assertTrue_1(!(*stringv == *srav));
-    assertTrue_1(*stringv != *srav);
-    assertTrue_1(!(*srav == *stringv));
-    assertTrue_1(*srav != *stringv);
 
     assertTrue_1(!(*stringv == *sav));
     assertTrue_1(*stringv != *sav);
@@ -1159,18 +1319,6 @@ static bool testScalarArrayEquality()
 
     delete stringv;
   }
-
-  delete ibav;
-  delete sbav;
-  delete bav;
-
-  delete iiav;
-  delete siav;
-  delete iav;
-
-  delete irav;
-  delete srav;
-  delete rav;
 
   delete isav;
   delete ssav;
@@ -1768,8 +1916,15 @@ bool valueTest()
 {
   runTest(testConstructorsAndAccessors);
   runTest(testScalarEquality);
-  runTest(testArrayEquality);
-  runTest(testScalarArrayEquality);
+  runTest(testBooleanArrayEquality);
+  runTest(testIntegerArrayEquality);
+  runTest(testRealArrayEquality);
+  runTest(testStringArrayEquality);
+  runTest(testEmptyArrayEquality);
+  runTest(testScalarBooleanArrayEquality);
+  runTest(testScalarIntegerArrayEquality);
+  runTest(testScalarRealArrayEquality);
+  runTest(testScalarStringArrayEquality);
   runTest(testScalarLessThan);
   runTest(testBooleanArrayLessThan);
   runTest(testIntegerArrayLessThan);
