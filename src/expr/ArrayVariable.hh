@@ -129,6 +129,9 @@ namespace PLEXIL
      */
     void setInitializer(Expression *expr, bool garbage);
 
+    VariableConflictSet *getConflictSet();
+    void setConflictSet(VariableConflictSet *set);
+
     void handleActivate();
 
     void handleDeactivate();
@@ -142,6 +145,7 @@ namespace PLEXIL
      */
     void reserve();
 
+    VariableConflictSet *m_conflicts;
     Expression *m_size;
     Expression *m_initializer;
     

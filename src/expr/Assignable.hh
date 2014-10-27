@@ -34,6 +34,7 @@ namespace PLEXIL {
   // Forward declarations
   class NodeConnector;
   class Value;
+  class VariableConflictSet;
 
   /**
    * @class Assignable
@@ -162,6 +163,20 @@ namespace PLEXIL {
      * @note Default method throws an exception.
      */
     virtual void setInitializer(Expression *expr, bool garbage);
+
+    /**
+     * @brief Get the conflict set of nodes assigning to this object.
+     * @return Pointer to conflict set, if any.
+     * @note Default method returns NULL.
+     */
+    virtual VariableConflictSet *getConflictSet();
+
+    /**
+     * @brief Set the conflict set of nodes assigning to this object.
+     * @param set Pointer to conflict set.
+     * @note Default method throws an exception.
+     */
+    virtual void setConflictSet(VariableConflictSet *set);
   };
 
 } // namespace PLEXIL

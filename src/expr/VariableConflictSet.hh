@@ -35,7 +35,7 @@
 namespace PLEXIL
 {
   // Forward references
-  class Node;
+  class NodeConnector;
 
   /**
    * @class VariableConflictSet
@@ -46,8 +46,8 @@ namespace PLEXIL
   class VariableConflictSet
   {
   public:
-    typedef std::vector<Node *>::const_iterator const_iterator;
-    typedef std::vector<Node *>::iterator iterator;
+    typedef std::vector<NodeConnector *>::const_iterator const_iterator;
+    typedef std::vector<NodeConnector *>::iterator iterator;
 
     VariableConflictSet();
     ~VariableConflictSet();
@@ -55,12 +55,12 @@ namespace PLEXIL
     size_t size() const; // self-explanatory
     bool empty() const;  // self-explanatory
 
-    void push(Node *);          // insert unique in (weakly) sorted order
-    Node *front();              // access the element with lowest priority which was inserted first
-    Node const *front() const;  // access the element with lowest priority which was inserted first
-    void pop();                 // delete the front element
-    void remove(Node *);        // delete the indicated element (no error if not there)
-    size_t front_count() const; // how many have same priority as front element
+    void push(NodeConnector *);          // insert unique in (weakly) sorted order
+    NodeConnector *front();              // access the element with lowest priority which was inserted first
+    NodeConnector const *front() const;  // access the element with lowest priority which was inserted first
+    void pop();                          // delete the front element
+    void remove(NodeConnector *);        // delete the indicated element (no error if not there)
+    size_t front_count() const;          // how many have same priority as front element
 
     const_iterator begin() const;
     iterator begin();
@@ -69,7 +69,7 @@ namespace PLEXIL
     iterator end();
 
   private:
-    std::vector<Node *> m_nodes;
+    std::vector<NodeConnector *> m_nodes;
   };
 
 } // namespace PLEXIL

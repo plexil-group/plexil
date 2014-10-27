@@ -169,6 +169,7 @@ am_libPlexilExpr_la_OBJECTS = libPlexilExpr_la-Alias.lo \
 	libPlexilExpr_la-OperatorImpl.lo \
 	libPlexilExpr_la-SimpleBooleanVariable.lo \
 	libPlexilExpr_la-StringOperators.lo \
+	libPlexilExpr_la-VariableConflictSet.lo \
 	libPlexilExpr_la-UserVariable.lo
 libPlexilExpr_la_OBJECTS = $(am_libPlexilExpr_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -404,7 +405,7 @@ include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh Assignable.hh \
  AssignableImpl.hh Constant.hh Expression.hh \
  ExpressionConstants.hh ExpressionImpl.hh ExpressionListener.hh ExprVec.hh \
  Function.hh NodeConnector.hh NotifierImpl.hh Operator.hh \
- SimpleBooleanVariable.hh UserVariable.hh
+ SimpleBooleanVariable.hh VariableConflictSet.hh UserVariable.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \
  ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
@@ -412,7 +413,8 @@ libPlexilExpr_la_SOURCES = Alias.cc \
  Comparisons.cc Constant.cc Expression.cc ExpressionConstants.cc \
  ExpressionImpl.cc ExprVec.cc Function.cc \
  NodeConstantExpressions.cc NotifierImpl.cc OperatorImpl.cc \
- SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc
+ SimpleBooleanVariable.cc StringOperators.cc VariableConflictSet.cc \
+ UserVariable.cc
 
 @MODULE_TESTS_OPT_TRUE@noinst_HEADERS = test/TrivialListener.hh
 @MODULE_TESTS_OPT_TRUE@test_expr_module_tests_SOURCES = test/aliasTest.cc test/arithmeticTest.cc \
@@ -662,6 +664,9 @@ libPlexilExpr_la-SimpleBooleanVariable.lo: SimpleBooleanVariable.cc
 
 libPlexilExpr_la-StringOperators.lo: StringOperators.cc
 	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-StringOperators.lo `test -f 'StringOperators.cc' || echo '$(srcdir)/'`StringOperators.cc
+
+libPlexilExpr_la-VariableConflictSet.lo: VariableConflictSet.cc
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-VariableConflictSet.lo `test -f 'VariableConflictSet.cc' || echo '$(srcdir)/'`VariableConflictSet.cc
 
 libPlexilExpr_la-UserVariable.lo: UserVariable.cc
 	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libPlexilExpr_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libPlexilExpr_la-UserVariable.lo `test -f 'UserVariable.cc' || echo '$(srcdir)/'`UserVariable.cc

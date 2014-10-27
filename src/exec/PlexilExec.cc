@@ -245,16 +245,23 @@ namespace PLEXIL
     exp = exp->getBaseVariable();
     assertTrue_1(exp != NULL);
 
-    VariableConflictMap::iterator conflict = m_resourceConflicts.find(exp);
-    if (conflict == m_resourceConflicts.end())
-      return; // variable not in conflict map
+    VariableConflictSet *conflictNodes = exp->getConflictSet();
+    if (!conflictNodes)
+      return; // variable has no conflict set
 
     // Remove node from the conflict set.
-    conflict->second.remove(node);
+    conflictNodes->remove(node);
 
-    // If deleted node was only one, remove entry from map.
-    if (conflict->second.empty())
-      m_resourceConflicts.erase(exp);
+    // If deleted node was only one in conflict set,
+    // delete conflict set and remove variable from variable set.
+    if (conflictNodes->empty()) {
+      exp->setConflictSet(NULL);
+      delete conflictNodes;
+      std::vector<Assignable *>::iterator varIt =
+        std::find(m_resourceConflicts.begin(), m_resourceConflicts.end(), exp);
+      if (varIt != m_resourceConflicts.end())
+        m_resourceConflicts.erase(varIt);
+    }
   }
 
   // Assumes node is a valid ID and points to an Assignment node whose next state is EXECUTING
@@ -269,16 +276,16 @@ namespace PLEXIL
 
     debugMsg("PlexilExec:addToResourceContention",
              "Adding node '" << node->getNodeId() << "' to resource contention.");
-    VariableConflictMap::iterator resourceIt = m_resourceConflicts.find(exp);
-    if (resourceIt != m_resourceConflicts.end()) {
-      resourceIt->second.push(node);
-      return;
+    VariableConflictSet *conflictNodes = exp->getConflictSet();
+    if (!conflictNodes) {
+      // No conflict set for this variable, so create one
+      conflictNodes = new VariableConflictSet();
+      exp->setConflictSet(conflictNodes);
+      // and add variable to list of conflicts
+      m_resourceConflicts.push_back(exp);
     }
 
-    // No conflict set for this variable, so create one with this node
-    std::pair<VariableConflictMap::iterator, bool> insertResult =
-      m_resourceConflicts.insert(std::make_pair(exp, VariableConflictSet()));
-    insertResult.first->second.push(node);
+    conflictNodes->push(node);
   }
 
   void PlexilExec::step(double startTime) 
@@ -403,17 +410,20 @@ namespace PLEXIL
 
   void PlexilExec::resolveResourceConflicts()
   {
-    for (VariableConflictMap::iterator it = m_resourceConflicts.begin(); it != m_resourceConflicts.end(); ++it)
-      resolveVariableConflicts(it->first, it->second);
+    for (std::vector<Assignable *>::iterator it = m_resourceConflicts.begin();
+         it != m_resourceConflicts.end();
+         ++it)
+      resolveVariableConflicts(*it);
   }
 
   /**
    * @brief Resolve conflicts for this variable.
    * @note Subroutine of resolveResourceConflicts() above.
    */
-  void PlexilExec::resolveVariableConflicts(Assignable *var, VariableConflictSet &conflictSet)
+  void PlexilExec::resolveVariableConflicts(Assignable *var)
   {
-    checkError(!conflictSet.empty(),
+    VariableConflictSet *conflictNodes = var->getConflictSet();
+    checkError(!conflictNodes->empty(),
                "Resource conflict set for " << var->toString() << " is empty.");
 
     // Ignore any variables pending retraction
@@ -431,18 +441,18 @@ namespace PLEXIL
     //we only have to look at all the nodes with the highest priority
     Node *nodeToExecute = NULL;
     NodeState destState = NO_NODE_STATE;
-    size_t count = conflictSet.front_count(); // # of nodes with same priority as top
+    size_t count = conflictNodes->front_count(); // # of nodes with same priority as top
     if (count == 1) {
       // Usual case (we hope) - make it simple
-      nodeToExecute = conflictSet.front();
+      nodeToExecute = dynamic_cast<Node *>(conflictNodes->front());
       destState = nodeToExecute->getNextState();
     }
 
     else {
-      VariableConflictSet::iterator conflictIt = conflictSet.begin(); 
+      VariableConflictSet::iterator conflictIt = conflictNodes->begin(); 
       // Look at the destination states of all the nodes with equal priority
       for (size_t i = 0, conflictCounter = 0; i < count; ++i, ++conflictIt) {
-        Node *node = *conflictIt;
+        Node *node = dynamic_cast<Node *>(*conflictIt);
         NodeState dest = node->getNextState();
 
         // Found one that is scheduled for execution

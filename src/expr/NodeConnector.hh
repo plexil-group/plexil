@@ -35,6 +35,10 @@ namespace PLEXIL
   class Expression;
   class Node;
 
+  // NOTE: this used to be 100000000, which somehow gets printed as
+  // scientific notation in XML and doesn't parse correctly.
+  const int32_t WORST_PRIORITY = 100000;
+
   /**
    * @class NodeConnector
    * @brief Represents the part of the Node API needed by the expression subsystem.
@@ -43,7 +47,7 @@ namespace PLEXIL
   class NodeConnector 
   {
   public:
-    NodeConnector() {}
+
     virtual ~NodeConnector() {}
 
     virtual Expression *findVariable(char const *name) = 0;
@@ -52,8 +56,7 @@ namespace PLEXIL
     virtual Node *findChild(char const * childName) = 0;
     virtual Node *getParent() = 0;
     virtual Node const *getParent() const = 0;
-
-  protected:
+    virtual int32_t getPriority() const = 0;
   };
 
 } // namespace PLEXIL

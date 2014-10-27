@@ -45,6 +45,7 @@ public:
   Node *findChild(char const * /* childName */);
   Node *getParent();
   Node const *getParent() const;
+  int32_t getPriority() const;
 };
 
 #endif // PLEXIL_TRIVIAL_NODE_CONNECTOR_HH

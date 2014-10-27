@@ -34,13 +34,13 @@ include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecConnector.hh ExecListenerBase.hh InterfaceSchema.hh \
  LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh NodeTimepointValue.hh \
  NodeVariableMap.hh NodeVariables.hh PlexilExec.hh PlexilNodeType.hh \
- UpdateNode.hh VariableConflictSet.hh plan-utils.hh
+ UpdateNode.hh plan-utils.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  ExecConnector.cc InterfaceSchema.cc LibraryCallNode.cc \
  ListNode.cc Node.cc NodeFactory.cc NodeTimepointValue.cc NodeVariableMap.cc \
  NodeVariables.cc PlexilExec.cc PlexilNodeType.cc UpdateNode.cc \
- VariableConflictSet.cc plan-utils.cc
+ plan-utils.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests

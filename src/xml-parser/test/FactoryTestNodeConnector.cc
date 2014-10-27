@@ -82,6 +82,11 @@ namespace PLEXIL
     return NULL;
   }
 
+  int32_t FactoryTestNodeConnector::getPriority() const
+  {
+    return WORST_PRIORITY;
+  }
+
   void FactoryTestNodeConnector::storeVariable(const std::string & name, Expression *var)
   {
     TestVariableMap::iterator it = m_variableMap.find(name);

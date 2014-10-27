@@ -74,9 +74,30 @@ namespace PLEXIL {
    * @param garbage True if the expression should be deleted with this object, false otherwise.
    * @note Default method.
    */
-  void Assignable::setInitializer(Expression *expr, bool garbage)
+  void Assignable::setInitializer(Expression * /* expr */, bool /* garbage */)
   {
     assertTrue_2(ALWAYS_FAIL, "setInitializer() called on object that doesn't have an initializer");
+  }
+
+
+  /**
+   * @brief Get the conflict set of nodes assigning to this object.
+   * @return Pointer to conflict set, if any.
+   * @note Default method.
+   */
+  VariableConflictSet *Assignable::getConflictSet()
+  {
+    return NULL;
+  }
+
+  /**
+   * @brief Set the conflict set of nodes assigning to this object.
+   * @param set Pointer to conflict set.
+   * @note Default method.
+   */
+  void Assignable::setConflictSet(VariableConflictSet * /* set */)
+  {
+    assertTrue_2(ALWAYS_FAIL, "setConflictSet() not implemented for this object");
   }
 
 } // namespace PLEXIL

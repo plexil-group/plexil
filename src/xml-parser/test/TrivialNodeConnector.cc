@@ -65,3 +65,8 @@ Node const *TrivialNodeConnector::getParent() const
 {
   return NULL;
 }
+
+int32_t TrivialNodeConnector::getPriority() const
+{
+  return PLEXIL::WORST_PRIORITY;
+}

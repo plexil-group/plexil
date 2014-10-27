@@ -34,6 +34,7 @@
 #include "Error.hh"
 #include "ExpressionConstants.hh"
 #include "Value.hh"
+#include "VariableConflictSet.hh"
 
 #include <cstring> // strdup()
 
@@ -44,7 +45,9 @@ namespace PLEXIL {
     : NotifierImpl(),
       ExpressionImpl<T>(),
     AssignableImpl<T>(),
+    m_conflicts(NULL),
     m_initializer(NULL),
+    m_node(NULL),
     m_name(NULL),
     m_known(false),
     m_savedKnown(false)
@@ -55,7 +58,9 @@ namespace PLEXIL {
     : NotifierImpl(),
       ExpressionImpl<std::string>(),
     AssignableImpl<std::string>(),
+    m_conflicts(NULL),
     m_initializer(NULL),
+    m_node(NULL),
     m_name(NULL),
     m_known(false),
     m_savedKnown(false)
@@ -67,7 +72,9 @@ namespace PLEXIL {
   : NotifierImpl(),
     ExpressionImpl<T>(),
     AssignableImpl<T>(),
+    m_conflicts(NULL),
     m_initializer(new Constant<T>(initVal)),
+    m_node(NULL),
     m_name(NULL),
     m_known(false),
     m_savedKnown(false),
@@ -79,7 +86,9 @@ namespace PLEXIL {
   : NotifierImpl(),
     ExpressionImpl<std::string>(),
     AssignableImpl<std::string>(),
+    m_conflicts(NULL),
     m_initializer(new Constant<std::string>(initVal)),
+    m_node(NULL),
     m_name(NULL),
     m_known(false),
     m_savedKnown(false),
@@ -93,7 +102,9 @@ namespace PLEXIL {
   : NotifierImpl(),
     ExpressionImpl<bool>(),
     AssignableImpl<bool>(),
+    m_conflicts(NULL),
     m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
+    m_node(NULL),
     m_name(NULL),
     m_known(false),
     m_savedKnown(false),
@@ -107,6 +118,7 @@ namespace PLEXIL {
     : NotifierImpl(),
       ExpressionImpl<T>(),
     AssignableImpl<T>(),
+    m_conflicts(NULL),
     m_initializer(NULL),
     m_node(node),
     m_name(strdup(name)),
@@ -121,6 +133,7 @@ namespace PLEXIL {
     : NotifierImpl(),
       ExpressionImpl<std::string>(),
     AssignableImpl<std::string>(),
+    m_conflicts(NULL),
     m_initializer(NULL),
     m_node(node),
     m_name(strdup(name)),
@@ -137,6 +150,7 @@ namespace PLEXIL {
   template <typename T>
   UserVariable<T>::~UserVariable()
   {
+    delete m_conflicts;
     if (m_initializerIsGarbage)
       delete m_initializer;
     delete m_name;
@@ -144,6 +158,7 @@ namespace PLEXIL {
 
   UserVariable<std::string>::~UserVariable()
   {
+    delete m_conflicts;
     if (m_initializerIsGarbage)
       delete m_initializer;
     delete m_name;
@@ -463,7 +478,28 @@ namespace PLEXIL {
     m_initializerIsGarbage = garbage;
   }
 
+  template <typename T>
+  VariableConflictSet *UserVariable<T>::getConflictSet()
+  {
+    return m_conflicts;
+  }
 
+  VariableConflictSet *UserVariable<std::string>::getConflictSet()
+  {
+    return m_conflicts;
+  }
+
+  template <typename T>
+  void UserVariable<T>::setConflictSet(VariableConflictSet *set)
+  {
+    m_conflicts = set;
+  }
+
+  void UserVariable<std::string>::setConflictSet(VariableConflictSet *set)
+  {
+    m_conflicts = set;
+  }
+  
   //
   // Explicit instantiations
   //

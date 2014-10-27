@@ -53,6 +53,7 @@ namespace PLEXIL
     Node *findChild(char const *childName);
     Node *getParent();
     Node const *getParent() const;
+    int32_t getPriority() const;
 
     // Test setup
     void storeVariable(const std::string & name, Expression *var);

@@ -26,7 +26,7 @@
 
 #include "VariableConflictSet.hh"
 
-#include "Node.hh"
+#include "NodeConnector.hh"
 
 namespace PLEXIL
 {
@@ -50,7 +50,7 @@ namespace PLEXIL
     return m_nodes.empty();
   }
 
-  void VariableConflictSet::push(Node *node)
+  void VariableConflictSet::push(NodeConnector *node)
   {
     // Most common case first
     if (m_nodes.empty()) {
@@ -58,7 +58,7 @@ namespace PLEXIL
       return;
     }
     int32_t prio = node->getPriority();
-    for (std::vector<Node *>::iterator it = m_nodes.begin(); it != m_nodes.end(); ++it) {
+    for (std::vector<NodeConnector *>::iterator it = m_nodes.begin(); it != m_nodes.end(); ++it) {
       if (node == *it)
         return;
       if (prio < (*it)->getPriority()) {
@@ -70,14 +70,14 @@ namespace PLEXIL
     m_nodes.push_back(node);
   }
 
-  Node const *VariableConflictSet::front() const
+  NodeConnector const *VariableConflictSet::front() const
   {
     if (m_nodes.empty())
       return NULL;
     return m_nodes.front();
   }
 
-  Node *VariableConflictSet::front()
+  NodeConnector *VariableConflictSet::front()
   {
     if (m_nodes.empty())
       return NULL;
@@ -91,9 +91,9 @@ namespace PLEXIL
     m_nodes.erase(m_nodes.begin());
   }
 
-  void VariableConflictSet::remove(Node *node)
+  void VariableConflictSet::remove(NodeConnector *node)
   {
-    std::vector<Node *>::iterator it = 
+    std::vector<NodeConnector *>::iterator it = 
       std::find(m_nodes.begin(), m_nodes.end(), node);
     if (it != m_nodes.end())
       m_nodes.erase(it);

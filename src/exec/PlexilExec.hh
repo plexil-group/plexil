@@ -143,7 +143,7 @@ namespace PLEXIL
     /**
      * @brief Resolve conflicts for this variable.
      */
-    void resolveVariableConflicts(Assignable *var, VariableConflictSet &conflictSet);
+    void resolveVariableConflicts(Assignable *var);
 
     /**
      * @brief Adds a node to consideration for resource contention.  The node must be an assignment node and it must be eligible to transition to EXECUTING.
@@ -168,8 +168,6 @@ namespace PLEXIL
      */
     void performAssignments();
 
-    typedef std::map<Assignable *, VariableConflictSet> VariableConflictMap;
-
     ExecListenerBase *m_listener;
     std::list<Node *> m_plan; /*<! The root of the plan.*/
     std::vector<Node *> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
@@ -178,11 +176,7 @@ namespace PLEXIL
     std::vector<Assignment *> m_assignmentsToExecute;
     std::vector<Assignment *> m_assignmentsToRetract;
     std::vector<Assignable *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
-    VariableConflictMap m_resourceConflicts; /*<! A map from variables to sets of nodes which is used to resolve resource contention.
-                                               The nodes in the sets are assignment nodes which can assign values to the variable.
-                                               The sets are ordered by priority, but the order is dominated by FAILING nodes.
-                                               Essentially, at each quiescence cycle, the first node in each set that isn't already
-                                               in state FAILING gets added to the end of the queue. */
+    std::vector<Assignable *> m_resourceConflicts; /*<! List of variables to consider for resource contention. */
     unsigned int m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };
