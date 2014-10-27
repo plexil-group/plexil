@@ -952,7 +952,6 @@ static bool testArrayRefAliasPropagation()
   assertTrue_1(arefChanged);
   assertTrue_1(!aryChanged);
   assertTrue_1(!atreeChanged);
-  refChanged = arefChanged = false;
 
   // Clean up
   ary->removeListener(aryListener);
