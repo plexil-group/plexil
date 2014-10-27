@@ -28,6 +28,9 @@
 #include "Constant.hh"
 #include "Error.hh"
 
+#include <cstdlib> // free()
+#include <cstring> // strdup()
+
 namespace PLEXIL
 {
 
@@ -86,7 +89,7 @@ namespace PLEXIL
   template <typename T>
   ArrayVariable<T>::~ArrayVariable()
   {
-    delete m_name;
+    free((void *) m_name);
     if (m_initializerIsGarbage)
       delete m_initializer;
     if (m_sizeIsGarbage)

@@ -35,7 +35,7 @@
 #include "ExpressionConstants.hh"
 #include "Value.hh"
 
-#include <cstddef> // free()
+#include <cstdlib> // free()
 #include <cstring> // strdup()
 
 namespace PLEXIL {

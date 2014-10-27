@@ -28,6 +28,8 @@
 
 #include "NodeConnector.hh"
 
+#include <algorithm> // std::find()
+
 namespace PLEXIL
 {
 

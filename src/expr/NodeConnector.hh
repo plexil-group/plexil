@@ -27,7 +27,15 @@
 #ifndef NODE_CONNECTOR_HH
 #define NODE_CONNECTOR_HH
 
+#include "plexil-config.h"
+
 #include <string>
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#elif defined(__VXWORKS__)
+#include <vxWorks.h>
+#endif
 
 namespace PLEXIL
 {
