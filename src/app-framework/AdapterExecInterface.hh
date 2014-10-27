@@ -158,8 +158,6 @@ namespace PLEXIL
     
     static std::string getText(const State& c);
 
-    static Value stringToValue(const char * rawValue);
-
   protected:
 
     /**

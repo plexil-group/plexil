@@ -145,7 +145,7 @@ namespace PLEXIL {
                  << "\"");
         InterfaceAdapter *adapter = 
           AdapterFactory::createInstance(element,
-                                         *(AdapterExecInterface *)g_manager);
+                                         *static_cast<AdapterExecInterface *>(g_manager));
         if (!adapter) {
           debugMsg("AdapterConfiguration:constructInterfaces",
                    " failed to construct adapter type \""
@@ -756,15 +756,6 @@ namespace PLEXIL {
   bool AdapterConfiguration::deleteAdapter(InterfaceAdapter *intf) {
     int res = m_adapters.erase(intf);
     return res != 0;
-  }
-
-  /**
-   * @brief Removes the adapter and deletes it from the manager iff nothing refers to it.
-   */
-  void AdapterConfiguration::deleteIfUnknown(InterfaceAdapter *intf) {
-    if (!isKnown(intf)) {
-      deleteAdapter(intf);
-    }
   }
 
   // Initialize global variable

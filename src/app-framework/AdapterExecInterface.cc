@@ -71,48 +71,4 @@ namespace PLEXIL
     return retval.str();
   }
 
-  Value AdapterExecInterface::stringToValue(const char * rawValue)
-  {
-    // null / empty check first
-    if (rawValue == 0) {
-      debugMsg("ExternalInterface:stringToValue",
-               " raw value is null pointer");
-      return Value();
-    }
-    else if (strlen(rawValue) == 0) {
-      debugMsg("ExternalInterface:stringToValue",
-               " raw value is empty string");
-      return Value();
-    }
-
-    debugMsg("ExternalInterface:stringToValue", " input string = \"" << rawValue << "\"");
-
-    if (*rawValue != '\0') {
-      // try converting to integer first
-      char * endptr;
-      long longResult = strtol(rawValue, &endptr, 10);
-      if (*endptr == '\0') {
-        // string is valid integer
-        debugMsg("ExternalInterface:stringToValue", " result is integer " << longResult);
-        return Value((double) longResult);
-      }
-
-      debugMsg("ExternalInterface:stringToValue", " result is not valid integer");
-
-      // string is not valid integer --
-      // try converting to double
-      double doubleResult = strtod(rawValue, &endptr);
-      if (*endptr == '\0') {
-        // string is valid double
-        debugMsg("ExternalInterface:stringToValue", " result is double " << doubleResult);
-        return Value(doubleResult);
-      }
-
-      debugMsg("ExternalInterface:stringToValue", " result is not valid double");
-    }
-
-    // if all else fails, must be a string
-    return Value(rawValue);
-  }
-
 }

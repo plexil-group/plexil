@@ -291,16 +291,15 @@ namespace PLEXIL {
 
   private:
 
+    // Not implemented
+    AdapterConfiguration(AdapterConfiguration const &);
+    AdapterConfiguration &operator=(AdapterConfiguration const &);
+
     /**
      * @brief Deletes the given adapter from the interface manager
      * @return true if the given adapter existed and was deleted. False if not found
      */
     bool deleteAdapter(InterfaceAdapter *intf);
-
-    /**
-     * @brief Removes the adapter and deletes it from the manager iff nothing refers to it.
-     */
-    void deleteIfUnknown(InterfaceAdapter *intf);
 
     //* Default InterfaceAdapters
     InterfaceAdapter *m_defaultInterface;
