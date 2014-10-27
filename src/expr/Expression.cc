@@ -31,7 +31,20 @@
 #include <iostream>
 #include <sstream>
 
-namespace PLEXIL {
+namespace PLEXIL 
+{
+  Expression::Expression()
+  {
+  }
+
+  Expression::Expression(Expression const &)
+  {
+  }
+
+  Expression &Expression::operator=(Expression const &)
+  {
+    return *this;
+  }
 
   Expression::~Expression()
   {

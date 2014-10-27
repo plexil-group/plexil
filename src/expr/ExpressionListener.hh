@@ -43,6 +43,11 @@ namespace PLEXIL
   {
   public:
 
+    ExpressionListener() {}
+    ExpressionListener(ExpressionListener const &) {}
+    ExpressionListener &operator=(ExpressionListener const &) 
+    { return *this; }
+
     virtual ~ExpressionListener() {}
 
     /**

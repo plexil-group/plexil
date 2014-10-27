@@ -63,6 +63,10 @@ namespace PLEXIL
   class Expression : public ExpressionListener
   {
   public:
+    Expression();
+    Expression(Expression const &);
+    Expression &operator=(Expression const &);
+
     virtual ~Expression();
 
     //
