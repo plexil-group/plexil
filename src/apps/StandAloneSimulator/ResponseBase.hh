@@ -40,7 +40,8 @@ class ResponseBase
 {
 public:
   ResponseBase() 
-    : m_Manager(NULL) 
+    : m_Manager(NULL),
+      m_NumberOfResponses(0)
   {
   }
 

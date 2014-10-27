@@ -34,7 +34,7 @@ class ResponseMessage;
 class CommRelayBase
 {
 public:
-  CommRelayBase(const std::string& id) : m_Identifier(id) {}
+  CommRelayBase(const std::string& id) : m_Identifier(id), m_simulator(NULL) {}
   virtual ~CommRelayBase(){}
   void registerSimulator(Simulator* sim)
   {

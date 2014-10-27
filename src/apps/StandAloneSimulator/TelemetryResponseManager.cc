@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,8 @@
 #include "Error.hh"
 
 TelemetryResponseManager::TelemetryResponseManager(const std::string& id)
-  : ResponseMessageManager(id)
+  : ResponseMessageManager(id),
+    m_lastResponse(NULL)
 {
   debugMsg("TelemetryResponseManager:constructor", " " << id);
   // Counter starts from 0 for telemetry
@@ -69,19 +70,18 @@ void TelemetryResponseManager::scheduleInitialEvents(Simulator* sim)
   debugMsg("TelemetryResponseManager:scheduleInitialEvents", " entered");
   // Set the default (time zero) response as the current value.
   m_LastResponse = m_DefaultResponse;
-  IndexResponseMap::const_iterator it = m_CmdIdToResponse.begin();
-  while (it != m_CmdIdToResponse.end())
-    {
-      const ResponseBase* base = it->second;
-      checkError(base != NULL,
-		 "TelemetryResponseManager: event list entry is null!");
-      const timeval& delay = base->getDelay();
-      ResponseMessage* msg = new ResponseMessage(base, NULL, MSG_TELEMETRY);
-      debugMsg("TelemetryResponseManager:scheduleInitialEvents",
-	       " scheduling telemetry message for \"" << m_Identifier << "\" at " << delay.tv_sec);
-      sim->scheduleMessage(delay, msg);
-      it++;
-    }
+  for (IndexResponseMap::const_iterator it = m_CmdIdToResponse.begin();
+       it != m_CmdIdToResponse.end();
+       ++it) {
+    const ResponseBase* base = it->second;
+    checkError(base != NULL,
+               "TelemetryResponseManager: event list entry is null!");
+    const timeval& delay = base->getDelay();
+    ResponseMessage* msg = new ResponseMessage(base, NULL, MSG_TELEMETRY);
+    debugMsg("TelemetryResponseManager:scheduleInitialEvents",
+             " scheduling telemetry message for \"" << m_Identifier << "\" at " << delay.tv_sec);
+    sim->scheduleMessage(delay, msg);
+  }
 }
 
 /**
