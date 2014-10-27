@@ -138,14 +138,14 @@ namespace PLEXIL {
   UserVariable<T>::~UserVariable()
   {
     if (m_initializerIsGarbage)
-      delete (Expression *) m_initializer;
+      delete m_initializer;
     delete m_name;
   }
 
   UserVariable<std::string>::~UserVariable()
   {
     if (m_initializerIsGarbage)
-      delete (Expression *) m_initializer;
+      delete m_initializer;
     delete m_name;
   }
 
