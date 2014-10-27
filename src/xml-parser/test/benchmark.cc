@@ -99,12 +99,13 @@ int main(int argc, char *argv[])
       return 0;
     }
     else if (!strcmp(argv[i], "-n")) {
-      n = atoi(argv[++i]);
-      if (n <= 0) {
+      int nspec = atoi(argv[++i]);
+      if (nspec <= 0) {
         std::cerr << "-n option value out of range or invalid" << std::endl;
         usage();
         return 1;
       }
+      n = (unsigned int) nspec;
     }
     else {
       if (!planFile.empty()) {

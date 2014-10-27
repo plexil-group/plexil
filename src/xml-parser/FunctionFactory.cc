@@ -70,8 +70,8 @@ namespace PLEXIL
   {
     ExprVec *result = makeExprVec(nargs);
     
-    size_t i = 0;
     try {
+      size_t i = 0;
       for (pugi::xml_node subexp = expr.first_child();
            subexp && i < nargs;
            subexp = subexp.next_sibling(), ++i) {
