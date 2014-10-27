@@ -797,7 +797,6 @@ static bool testVariableAliasPropagation()
   tree->notifyChanged(&dummy);
   assertTrue_1(treeChanged);
   assertTrue_1(atreeChanged);
-  treeChanged = atreeChanged = false;
 
   // Clean up
   tree->removeListener(treeListener);
@@ -851,7 +850,6 @@ static bool testArrayAliasPropagation()
   ary->notifyChanged(&dummy);
   assertTrue_1(aryChanged);
   assertTrue_1(aaryChanged);
-  aryChanged = aaryChanged = false;
 
   // Clean up
   ary->removeListener(aryListener);
