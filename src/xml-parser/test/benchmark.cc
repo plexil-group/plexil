@@ -32,6 +32,7 @@
 #include "Node.hh"
 #include "lifecycle-utils.h"
 #include "parsePlan.hh"
+#include "planLibrary.hh"
 #include "pugixml.hpp"
 #include "test/TransitionExternalInterface.hh"
 
@@ -79,6 +80,7 @@ void usage()
 {
   std::cout << "Usage: benchmark [options] <plan file>\n"
             << " Options:\n"
+            << "  -L <dir>         Add <dir> to library path\n"
             << "  -h               Display this message and exit\n"
             << "  -d <debug file>  Use debug-file as debug message config (default Debug.cfg)\n"
             << "  -n <number>      Number of times to load the plan (default 1)\n"
@@ -97,6 +99,9 @@ int main(int argc, char *argv[])
     else if (!strcmp(argv[i], "-h")) {
       usage();
       return 0;
+    }
+    else if (!strcmp(argv[i], "-L")) {
+      PLEXIL::appendLibraryPath(argv[++i]);
     }
     else if (!strcmp(argv[i], "-n")) {
       int nspec = atoi(argv[++i]);
