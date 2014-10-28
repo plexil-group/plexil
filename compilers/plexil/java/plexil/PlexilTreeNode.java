@@ -195,7 +195,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
             String fname = CompilerState.getCompilerState().getSourceFileName();
             if (fname != null)
                 m_xml.setAttribute("FileName", fname);
-            m_xml.setAttribute("LineNo", String.valueOf(this.getLine()));
+            m_xml.setAttribute("LineNo", String.valueOf(1 + this.getLine()));
             m_xml.setAttribute("ColNo", String.valueOf(this.getCharPositionInLine()));
         }
     }
