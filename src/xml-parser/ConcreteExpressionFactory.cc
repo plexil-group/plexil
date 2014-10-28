@@ -252,7 +252,12 @@ namespace PLEXIL
                                        << " for a " << expr.name());
     }
     else {
-      checkParserExceptionWithLocation(typ == result->valueType(),
+      bool match = (typ == result->valueType());
+      if (!match
+          && typ == REAL_TYPE
+          && result->valueType() == INTEGER_TYPE)
+        match = true; // expecting real, but given an integer expression
+      checkParserExceptionWithLocation(match,
                                        expr,
                                        "Variable " << varName
                                        << " has invalid type " << valueTypeName(result->valueType())
