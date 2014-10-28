@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -192,7 +192,9 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     protected void addSourceLocatorAttributes()
     {
         if (m_xml != null) {
-            // TODO: add FileName attribute
+            String fname = CompilerState.getCompilerState().getSourceFileName();
+            if (fname != null)
+                m_xml.setAttribute("FileName", fname);
             m_xml.setAttribute("LineNo", String.valueOf(this.getLine()));
             m_xml.setAttribute("ColNo", String.valueOf(this.getCharPositionInLine()));
         }

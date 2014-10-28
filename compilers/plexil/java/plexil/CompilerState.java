@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,7 @@ public class CompilerState
 {
     String[] m_args; //* arguments passed to Compiler.main()
 
+    protected String m_sourceFileName = null;
     protected File m_infile = null; //* as supplied, may be null
     protected File m_outfile = null;
 
@@ -88,6 +89,11 @@ public class CompilerState
                 System.exit(-1);
             }
         }
+    }
+
+    public String getSourceFileName()
+    { 
+        return m_sourceFileName; 
     }
 
     // Singleton accessor is required because some methods which
@@ -145,7 +151,8 @@ public class CompilerState
 		}
 
         // whatever's left must be the source file name(s)
-        m_infile = new File(m_args[i]);
+        m_sourceFileName = m_args[i];
+        m_infile = new File(m_sourceFileName);
         return true;
     }
 
