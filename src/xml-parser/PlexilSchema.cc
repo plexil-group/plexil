@@ -27,6 +27,10 @@
 namespace PLEXIL
 {
   char const *PLEXIL_PLAN_TAG = "PlexilPlan";
+  char const *FILE_NAME_ATTR = "FileName";
+  char const *LINE_NO_ATTR = "LineNo";
+  char const *COL_NO_ATTR = "ColNo";
+
   char const *GLOBAL_DECLARATIONS_TAG = "GlobalDeclarations";
   char const *NODE_TAG = "Node";
   char const *NODETYPE_ATTR = "NodeType";

@@ -42,6 +42,7 @@ public:
   static void set_log_file_name(const char * file);
   static void print_to_log(const char * fullmsg); 
   static void print_to_log(char** run_command, int num);                
+  static void handle_message(int msg_type, const char * msg);
   static void handle_message(int msg_type, const char * file, int offset, const char * msg);
   static void handle_message(int msg_type, const char * file, int line, int col, const char * msg);
 

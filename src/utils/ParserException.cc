@@ -37,16 +37,46 @@ namespace PLEXIL
     throw ()
     : std::exception(), 
       m_what("Unspecified parser exception"),
-      m_offset(0)
+      m_file(),
+      m_line(0),
+      m_char(0)
   {
   }
 
   // Must copy the message as it may be stack or dynamically allocated.
-  ParserException::ParserException(const char * msg, const char * file, const int& offset)
+  ParserException::ParserException(const char * msg)
     throw()
-    : std::exception(), m_what(msg), m_file(file), m_offset(offset)
+    : std::exception(),
+      m_what(msg),
+      m_file(),
+      m_line(0),
+      m_char(0)
+  {
+    Logging::handle_message(Logging::LOG_ERROR, m_what.c_str());
+  }
+  
+  // Used to report (e.g.) pugixml errors.
+  ParserException::ParserException(const char * msg, const char * file, int offset)
+    throw()
+    : std::exception(),
+      m_what(msg),
+      m_file(file),
+      m_line(0),
+      m_char(offset)
   {
     Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what.c_str());
+  }
+  
+  // When we have complete information about the location.
+  ParserException::ParserException(const char * msg, const char * file, int line, int col)
+    throw()
+    : std::exception(),
+      m_what(msg),
+      m_file(file),
+      m_line(line),
+      m_char(col)
+  {
+    Logging::handle_message(Logging::LOG_ERROR, file, line, col, m_what.c_str());
   }
   
   ParserException& ParserException::operator=(const ParserException& other)
@@ -54,7 +84,9 @@ namespace PLEXIL
   {
     this->std::exception::operator=(other);
     m_what = other.m_what;
-    m_offset = other.m_offset;
+    m_file = other.m_file;
+    m_line = other.m_line;
+    m_char = other.m_char;
     return *this;
   }
 

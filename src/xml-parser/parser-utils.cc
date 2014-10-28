@@ -26,6 +26,7 @@
 
 #include "parser-utils.hh" // for checkParserExceptionWithLocation macro
 
+#include "PlexilSchema.hh"
 #include "pugixml.hpp"
 
 #include <cctype>
@@ -33,6 +34,7 @@
 
 using pugi::node_element;
 using pugi::node_pcdata;
+using pugi::xml_attribute;
 using pugi::xml_node;
 
 namespace PLEXIL
@@ -226,6 +228,44 @@ namespace PLEXIL
 
     // FIXME: add range check?
     return true;
+  }
+
+  static bool findSourceLocation(xml_node here, char const *&filename, int &line, int &col)
+  {
+    xml_attribute fname, lineno, colno;
+    do {
+      fname = here.attribute(FILE_NAME_ATTR);
+      lineno = here.attribute(LINE_NO_ATTR);
+      colno = here.attribute(COL_NO_ATTR);
+      if (fname || lineno || colno) {
+        filename = fname.value();
+        line = lineno.as_int();
+        col = colno.as_int();
+        return true;
+      }
+      here = here.parent();
+    } while (here);
+
+    // got to root and found nothing
+    filename = NULL;
+    line = 0;
+    col = 0;
+    return false;
+  }
+
+  bool reportParserException(std::string const &msg, xml_node location)
+    throw (ParserException)
+  {
+    char const *sourcefile = NULL;
+    int line = 0, col = 0;
+    if (findSourceLocation(location, sourcefile, line, col))
+      throw ParserException(msg.c_str(), sourcefile, line, col);
+    else {
+      std::ostringstream msgWithXml;
+      msgWithXml << msg << "\n In\n";
+      location.print(msgWithXml, " ");
+      throw ParserException(msgWithXml.str().c_str());
+    }
   }
 
 } // namespace PLEXIL

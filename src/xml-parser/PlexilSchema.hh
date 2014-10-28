@@ -30,6 +30,10 @@
 namespace PLEXIL
 {
   extern char const *PLEXIL_PLAN_TAG;
+  extern char const *FILE_NAME_ATTR;
+  extern char const *LINE_NO_ATTR;
+  extern char const *COL_NO_ATTR;
+
   extern char const *GLOBAL_DECLARATIONS_TAG;
   extern char const *NODE_TAG;
   extern char const *NODETYPE_ATTR;

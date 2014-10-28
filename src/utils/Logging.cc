@@ -61,6 +61,13 @@ static void print_stack();
 static void ensure_log_file_name();
 static void purge();
 
+void Logging::handle_message(int msg_type, const char * msg) 
+{
+  std::ostringstream msgbuf;
+  msgbuf << msg_type_name(msg_type) << ": " << msg;
+  print_message(msg_type, msgbuf.str().c_str());
+}
+
 void Logging::handle_message(int msg_type, const char * file, int offset, const char * msg) 
 {
   std::ostringstream msgbuf;

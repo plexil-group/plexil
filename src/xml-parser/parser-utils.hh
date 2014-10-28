@@ -59,6 +59,10 @@ namespace PLEXIL
   extern bool isBoolean(const char* initval);
   extern bool isInteger(const char* initval);
   extern bool isDouble(const char* initval);
+  // Helper for checkParserExceptionWithLocation
+  extern bool reportParserException(std::string const &msg, pugi::xml_node location)
+    throw (ParserException);
+
 } // namespace PLEXIL
 
 /**
@@ -72,8 +76,7 @@ namespace PLEXIL
   if (!(cond)) { \
       std::ostringstream whatstr; \
       whatstr << msg; \
-      pugi::xml_node _my_errorDoc = loc.root(); \
-      throw PLEXIL::ParserException(whatstr.str().c_str(), (_my_errorDoc.empty() ? "" : _my_errorDoc.name()), loc.offset_debug()); \
+      reportParserException(whatstr.str().c_str(), loc); \
     } \
 }
 
