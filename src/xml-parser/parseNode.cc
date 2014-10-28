@@ -667,7 +667,7 @@ namespace PLEXIL
                                            initXml,
                                            "Can't parse initial value for unimplemented or illegal type "
                                            << valueTypeName(varType));
-          break;
+          return;
         }
       }
       else {
