@@ -91,6 +91,7 @@ namespace PLEXIL
                                        nodeRef,
                                        "XML parsing error: Invalid value for " << DIR_ATTR << " attibute \""
                                        << dirValue << "\"");
+      return NULL;
     }
   }
 
@@ -142,10 +143,10 @@ namespace PLEXIL
       return parseNodeRef(nodeRef, node);
     else if (0 == strcmp(tag, NODEID_TAG))
       return parseNodeId(nodeRef, node);
-    else 
-      checkParserExceptionWithLocation(ALWAYS_FAIL,
-                                       nodeRef,
-                                       "createExpression: Invalid node reference");
+    checkParserExceptionWithLocation(ALWAYS_FAIL,
+                                     nodeRef,
+                                     "createExpression: Invalid node reference");
+    return NULL;
   }
   
   //
@@ -230,11 +231,13 @@ namespace PLEXIL
       isEnd = false;
     else if (0 == strcmp(END_VAL, whichStr))
       isEnd = true;
-    else
+    else {
       checkParserExceptionWithLocation(ALWAYS_FAIL,
                                        which,
                                        "createExpression: Invalid Timepoint value \""
                                        << whichStr << "\"");
+      return NULL;
+    }
     wasCreated = true;
     return new NodeTimepointValue(refNode, state, isEnd);
   }
