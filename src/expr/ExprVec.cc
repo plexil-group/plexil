@@ -30,8 +30,6 @@
 #include "Operator.hh"
 #include "ParserException.hh"
 
-#include <cstring> // memset()
-
 namespace PLEXIL
 {
   //
@@ -532,11 +530,9 @@ namespace PLEXIL
     GeneralExprVec(size_t n)
       : ExprVec(),
         m_size(n),
-        exprs(new Expression*[n]),
-        garbage(new bool[n])
+        exprs(new Expression*[n]()),
+        garbage(new bool[n]())
     {
-      memset((void *)exprs, 0, n * sizeof(Expression*));
-      memset((void *)garbage, 0, n);
     }
 
     ~GeneralExprVec()
