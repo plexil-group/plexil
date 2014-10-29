@@ -502,18 +502,25 @@ namespace PLEXIL {
     //
     // Common state
     //
-    Node *m_parent; /*!< The parent of this node.*/
-    // Listener for the various condition expressions.
-    ConditionChangeListener m_listener;
-    std::string m_nodeId;  /*!< the NodeId from the xml.*/
- 
-    // Expressions
-    NodeVariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
-    std::vector<Expression *> m_localVariables; /*!< Variables created in this node. */
+    bool m_checkConditionsPending; /*!< True if some condition has had a notification. */
+    uint8_t m_state;               /*!< The current state of the node. */
+    uint8_t m_outcome;             /*!< The current outcome. */
+    uint8_t m_failureType;         /*!< The current failure. */
+    bool m_pad; // for 4 byte alignment
+    uint8_t m_nextState;           /*!< The state returned by getDestState() the last time checkConditions() was called. */
+    uint8_t m_nextOutcome;         /*!< The pending outcome. */
+    uint8_t m_nextFailureType;     /*!< The pending failure. */
+
+    Node *m_parent;                              /*!< The parent of this node.*/
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
+    ConditionChangeListener m_listener;          /*!< Notifies the node when a condition's inputs have changed. */
+ 
+    std::vector<Expression *> m_localVariables; /*!< Variables created in this node. */
     StateVariable m_stateVariable;
     OutcomeVariable m_outcomeVariable;
     FailureVariable m_failureTypeVariable;
+    NodeVariableMap m_variablesByName; /*!< Locally declared variables or references to variables gotten through an interface. */
+    std::string m_nodeId;  /*!< the NodeId from the xml.*/
 
     // Node transition history trace
     // Records the state and the time it was entered
@@ -521,17 +528,9 @@ namespace PLEXIL {
     uint16_t m_transitionStates[NODE_STATE_MAX]; /*!< The sequence of states since activation. */
     uint16_t m_traceIdx; /*!< The index of the next entry into the transition history tables. */
 
-    // Current state
-    uint16_t m_state; /*!< The current state of the node. */
-    uint16_t m_nextState; /*!< The state returned by getDestState() the last time checkConditions() was called. */
-    uint16_t m_outcome;
-    uint16_t m_nextOutcome;
-    uint16_t m_failureType;
-    uint16_t m_nextFailureType;
-
     // Housekeeping details
     bool m_garbageConditions[conditionIndexMax]; /*!< Flags for conditions to delete. */
-    bool m_postInitCalled, m_cleanedConditions, m_cleanedVars, m_checkConditionsPending;
+    bool m_cleanedConditions, m_cleanedVars;
 
   private:
 
@@ -541,9 +540,6 @@ namespace PLEXIL {
     void setNodeOutcome(NodeOutcome o);
     void transitionFrom();
     void transitionTo(double tym); // FIXME
-
-    void activateLocalVariables();
-    void deactivateLocalVariables();
 
     //
     // Internal versions

@@ -46,8 +46,8 @@ namespace PLEXIL {
       ExpressionImpl<T>(),
     AssignableImpl<T>(),
     m_initializer(NULL),
-    m_node(NULL),
     m_name(NULL),
+    m_node(NULL),
     m_known(false),
     m_savedKnown(false)
   {
@@ -58,8 +58,8 @@ namespace PLEXIL {
       ExpressionImpl<std::string>(),
     AssignableImpl<std::string>(),
     m_initializer(NULL),
-    m_node(NULL),
     m_name(NULL),
+    m_node(NULL),
     m_known(false),
     m_savedKnown(false)
   {
@@ -71,8 +71,8 @@ namespace PLEXIL {
     ExpressionImpl<T>(),
     AssignableImpl<T>(),
     m_initializer(new Constant<T>(initVal)),
-    m_node(NULL),
     m_name(NULL),
+    m_node(NULL),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(true)
@@ -84,8 +84,8 @@ namespace PLEXIL {
     ExpressionImpl<std::string>(),
     AssignableImpl<std::string>(),
     m_initializer(new Constant<std::string>(initVal)),
-    m_node(NULL),
     m_name(NULL),
+    m_node(NULL),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(true)
@@ -99,8 +99,8 @@ namespace PLEXIL {
     ExpressionImpl<bool>(),
     AssignableImpl<bool>(),
     m_initializer(initVal ? TRUE_EXP() : FALSE_EXP()),
-    m_node(NULL),
     m_name(NULL),
+    m_node(NULL),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(false)
@@ -114,8 +114,8 @@ namespace PLEXIL {
       ExpressionImpl<T>(),
     AssignableImpl<T>(),
     m_initializer(NULL),
-    m_node(node),
     m_name(strdup(name)),
+    m_node(node),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(false)
@@ -128,8 +128,8 @@ namespace PLEXIL {
       ExpressionImpl<std::string>(),
     AssignableImpl<std::string>(),
     m_initializer(NULL),
-    m_node(node),
     m_name(strdup(name)),
+    m_node(node),
     m_known(false),
     m_savedKnown(false),
     m_initializerIsGarbage(false)

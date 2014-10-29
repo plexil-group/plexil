@@ -30,6 +30,7 @@
 #include "Expression.hh"
 
 #include <vector>
+#include <cstddef> // size_t
 
 namespace PLEXIL {
 
@@ -131,8 +132,8 @@ namespace PLEXIL {
     NotifierImpl &operator=(const NotifierImpl &);
 
     // Essential member variables
+    size_t m_activeCount; // align to word size
     std::vector<ExpressionListener *> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
-    unsigned int m_activeCount;
   };
 
 } // namespace PLEXIL

@@ -146,16 +146,17 @@ namespace PLEXIL
 
   private:
 
-    VariableConflictSet m_conflicts;
-    Expression *m_initializer;
-    
-    // Only used by LuvListener at present. Eliminate?
-    NodeConnector *m_node;
-
-    char const *m_name;
-
+    // N.B. Ordering is suboptimal for bool because of required padding;
+    // fine for int32_t and double
     T m_value;
     T m_savedValue;   // for undoing assignment 
+
+    Expression *m_initializer;
+    char const *m_name;
+    VariableConflictSet m_conflicts;
+
+    // Only used by LuvListener at present. Eliminate?
+    NodeConnector *m_node;
 
     bool m_known;
     bool m_savedKnown;
@@ -280,16 +281,15 @@ namespace PLEXIL
 
   private:
 
-    VariableConflictSet m_conflicts;
-    Expression *m_initializer;
-    
-    // Only used by LuvListener at present. Eliminate?
-    NodeConnector *m_node;
-
-    char const *m_name;
-
     std::string m_value;
     std::string m_savedValue;   // for undoing assignment 
+
+    Expression *m_initializer;
+    char const *m_name;
+    VariableConflictSet m_conflicts;
+
+    // Only used by LuvListener at present. Eliminate?
+    NodeConnector *m_node;
 
     bool m_known;
     bool m_savedKnown;

@@ -170,7 +170,6 @@ namespace PLEXIL
              "Considering node '" << node->getNodeId() << "' for state transition.");
     if (node->getType() == NodeType_Assignment) {
       // Node can be in contention in either EXECUTING or FAILING 
-      NodeState current = node->getState();
       switch (destState) {
 
       case EXECUTING_STATE: {
@@ -197,14 +196,18 @@ namespace PLEXIL
         // before it could execute.
       case ITERATION_ENDED_STATE:
       case FINISHED_STATE:
-        if (current == EXECUTING_STATE
-            || current == FAILING_STATE
-            || current == WAITING_STATE) {
+        switch (node->getState()) {
+        case EXECUTING_STATE:
+        case FAILING_STATE:
+        case WAITING_STATE:
           debugMsg("PlexilExec:handleConditionsChanged",
                    "Node '" << node->getNodeId() <<
                    "' is an assignment node that is no longer possibly executing.  " <<
                    "Removing it from resource contention.");
           removeFromResourceContention(node);
+          // fall thru to...
+        default:
+          break;
         }
         break;
 
@@ -239,11 +242,11 @@ namespace PLEXIL
   void PlexilExec::removeFromResourceContention(Node *node) 
   {
     Assignable *lhs = node->getAssignmentVariable();
-    assertTrue_1(lhs && lhs->isAssignable());
+    assertTrue_1(lhs);
     Assignable *exp = lhs->asAssignable();
-    assertTrue_1(exp != NULL);
+    assertTrue_1(exp);
     exp = exp->getBaseVariable();
-    assertTrue_1(exp != NULL);
+    assertTrue_1(exp);
 
     // Remove node from the variable's conflict set.
     VariableConflictSet &conflictNodes = exp->getConflictSet();
@@ -263,11 +266,11 @@ namespace PLEXIL
   void PlexilExec::addToResourceContention(Node *node)
   {
     Assignable *lhs = node->getAssignmentVariable();
-    assertTrue_1(lhs && lhs->isAssignable());
+    assertTrue_1(lhs);
     Assignable *exp = lhs->asAssignable();
-    assertTrue_1(exp != NULL);
+    assertTrue_1(exp);
     exp = exp->getBaseVariable();
-    assertTrue_1(exp != NULL);
+    assertTrue_1(exp);
 
     debugMsg("PlexilExec:addToResourceContention",
              "Adding node '" << node->getNodeId() << "' to resource contention.");

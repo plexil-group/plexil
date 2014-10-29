@@ -39,8 +39,8 @@ namespace PLEXIL {
 
   NotifierImpl::NotifierImpl()
     : Expression(),
-      m_outgoingListeners(),
-      m_activeCount(0)
+      m_activeCount(0),
+      m_outgoingListeners()
   {
   }
 

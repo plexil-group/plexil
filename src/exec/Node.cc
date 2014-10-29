@@ -117,25 +117,24 @@ namespace PLEXIL {
 
   Node::Node(char const *nodeId, Node *parent)
     : NodeConnector(),
+      m_checkConditionsPending(false),
+      m_state(INACTIVE_STATE),
+      m_outcome(NO_OUTCOME),
+      m_failureType(NO_FAILURE),
+      m_nextState(NO_NODE_STATE),
+      m_nextOutcome(NO_OUTCOME),
+      m_nextFailureType(NO_FAILURE),
       m_parent(parent),
-      m_listener(*this),
-      m_nodeId(nodeId),
       m_conditions(),
+      m_listener(*this),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
+      m_nodeId(nodeId),
       m_traceIdx(0),
-      m_state(INACTIVE_STATE),
-      m_nextState(NO_NODE_STATE),
-      m_outcome(NO_OUTCOME),
-      m_nextOutcome(NO_OUTCOME),
-      m_failureType(NO_FAILURE),
-      m_nextFailureType(NO_FAILURE),
       m_garbageConditions(),
-      m_postInitCalled(false),
       m_cleanedConditions(false),
-      m_cleanedVars(false),
-      m_checkConditionsPending(false)
+      m_cleanedVars(false)
   {
     debugMsg("Node:node", " Constructor for \"" << m_nodeId << "\"");
     commonInit();
@@ -147,25 +146,24 @@ namespace PLEXIL {
              NodeState state,
              Node *parent)
     : NodeConnector(),
+      m_checkConditionsPending(false),
+      m_state(state),
+      m_outcome(NO_OUTCOME),
+      m_failureType(NO_FAILURE),
+      m_nextState(NO_NODE_STATE),
+      m_nextOutcome(NO_OUTCOME),
+      m_nextFailureType(NO_FAILURE),
       m_parent(parent),
-      m_listener(*this),
-      m_nodeId(name),
       m_conditions(),
+      m_listener(*this),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
+      m_nodeId(name),
       m_traceIdx(0),
-      m_state(state),
-      m_nextState(NO_NODE_STATE),
-      m_outcome(NO_OUTCOME),
-      m_nextOutcome(NO_OUTCOME),
-      m_failureType(NO_FAILURE),
-      m_nextFailureType(NO_FAILURE),
       m_garbageConditions(),
-      m_postInitCalled(false), 
       m_cleanedConditions(false), 
-      m_cleanedVars(false),
-      m_checkConditionsPending(false)
+      m_cleanedVars(false)
   {
     commonInit();
 
@@ -471,9 +469,9 @@ namespace PLEXIL {
   {
     if (m_checkConditionsPending)
       return; // already in the queue
+    m_checkConditionsPending = true;
     debugMsg("Node:conditionChanged", " for node " << m_nodeId);
     g_exec->notifyNodeConditionChanged(this);
-    m_checkConditionsPending = true;
   }
 
   /**
@@ -482,12 +480,12 @@ namespace PLEXIL {
   void Node::checkConditions() {
     debugMsg("Node:checkConditions",
              "Checking condition change for node " << m_nodeId);
+    m_checkConditionsPending = false;
     if (getDestState()) {
       debugMsg("Node:checkConditions",
                "Can (possibly) transition to " << nodeStateName(m_nextState));
       g_exec->handleConditionsChanged(this, (NodeState) m_nextState);
     }
-    m_checkConditionsPending = false;
   }
 
   /**
@@ -1229,17 +1227,16 @@ namespace PLEXIL {
   // Some transition handlers call this twice.
   void Node::setState(NodeState newValue, double tym) // FIXME
   {
-    checkError(newValue <= nodeStateMax(),
-               "Attempted to set an invalid NodeState value for this node");
     if (newValue == m_state)
       return;
+    checkError(newValue <= nodeStateMax(),
+               "Attempted to set an invalid NodeState value for this node");
     m_state = newValue;
-    if (newValue == FINISHED_STATE && !m_parent) {
+    logTransition(tym, newValue);
+    if (m_state == FINISHED_STATE && !m_parent)
       // Mark this node as ready to be deleted -
       // with no parent, it cannot be reset.
       g_exec->markRootNodeFinished(this);
-    }
-    logTransition(tym, newValue);
     m_stateVariable.changed();
   }
 
@@ -1373,8 +1370,6 @@ namespace PLEXIL {
   // User conditions
   void Node::activatePreSkipStartConditions()
   {
-    debugMsg("Node:activatePreSkipStartConditions",
-             "Activating PreCondition, SkipCondition, and StartCondition in node \"" << m_nodeId << "\"");
     Expression *temp;
     if ((temp = m_conditions[skipIdx]))
       temp->activate();
@@ -1386,40 +1381,30 @@ namespace PLEXIL {
 
   void Node::activateEndCondition()
   {
-    debugMsg("Node:activateEndCondition",
-             "Activating EndCondition in node \"" << m_nodeId << "\"");
     if (m_conditions[endIdx])
       m_conditions[endIdx]->activate();
   }
 
   void Node::activateExitCondition()
   {
-    debugMsg("Node:activateExitCondition",
-             "Activating ExitCondition in node \"" << m_nodeId << "\"");
     if (m_conditions[exitIdx])
       m_conditions[exitIdx]->activate();
   }
 
   void Node::activateInvariantCondition()
   {
-    debugMsg("Node:activateInvariantCondition",
-             "Activating InvariantCondition in node \"" << m_nodeId << "\"");
     if (m_conditions[invariantIdx])
       m_conditions[invariantIdx]->activate();
   }
 
   void Node::activatePostCondition()
   {
-    debugMsg("Node:activatePostCondition",
-             "Activating PostCondition in node \"" << m_nodeId << "\"");
     if (m_conditions[postIdx])
       m_conditions[postIdx]->activate();
   }
 
   void Node::activateRepeatCondition()
   {
-    debugMsg("Node:activateRepeatCondition",
-             "Activating RepeatCondition in node \"" << m_nodeId << "\"");
     if (m_conditions[repeatIdx])
       m_conditions[repeatIdx]->activate();
   }
@@ -1429,8 +1414,6 @@ namespace PLEXIL {
   {
     checkError(m_conditions[actionCompleteIdx],
                "No ActionCompleteCondition exists in node \"" << m_nodeId << "\"");
-    debugMsg("Node:activateActionCompleteCondition",
-             "Activating ActionCompleteCondition in node \"" << m_nodeId << "\"");
     m_conditions[actionCompleteIdx]->activate();
   }
 
@@ -1438,8 +1421,6 @@ namespace PLEXIL {
   {
     checkError(m_conditions[abortCompleteIdx],
                "No AbortCompleteCondition exists in node \"" << m_nodeId << "\"");
-    debugMsg("Node:activateAbortCompleteCondition",
-             "Activating AbortCompleteCondition in node \"" << m_nodeId << "\"");
     m_conditions[abortCompleteIdx]->activate();
   }
 
@@ -1454,8 +1435,6 @@ namespace PLEXIL {
   // User conditions
   void Node::deactivatePreSkipStartConditions()
   {
-    debugMsg("Node:deactivatePreSkipStartConditions",
-             "Deactivating PreCondition, SkipCondition, and StartCondition in node \"" << m_nodeId << "\"");
     Expression *temp;
     if ((temp = m_conditions[skipIdx]))
       temp->deactivate();
@@ -1467,40 +1446,30 @@ namespace PLEXIL {
 
   void Node::deactivateEndCondition()
   {
-    debugMsg("Node:deactivateEndCondition",
-             "Deactivating EndCondition in node \"" << m_nodeId << "\"");
     if (m_conditions[endIdx])
       m_conditions[endIdx]->deactivate();
   }
 
   void Node::deactivateExitCondition()
   {
-    debugMsg("Node:deactivateExitCondition",
-             "Deactivating ExitCondition in node \"" << m_nodeId << "\"");
     if ((m_conditions[exitIdx]))
       m_conditions[exitIdx]->deactivate();
   }
 
   void Node::deactivateInvariantCondition()
   {
-    debugMsg("Node:deactivateInvariantCondition",
-             "Deactivating InvariantCondition in node \"" << m_nodeId << "\"");
     if ((m_conditions[invariantIdx]))
       m_conditions[invariantIdx]->deactivate();
   }
 
   void Node::deactivatePostCondition()
   {
-    debugMsg("Node:deactivatePostCondition",
-             "Deactivating PostCondition in node \"" << m_nodeId << "\"");
     if ((m_conditions[postIdx]))
       m_conditions[postIdx]->deactivate();
   }
 
   void Node::deactivateRepeatCondition()
   {
-    debugMsg("Node:deactivateRepeatCondition",
-             "Deactivating RepeatCondition in node \"" << m_nodeId << "\"");
     if (m_conditions[repeatIdx])
       m_conditions[repeatIdx]->deactivate();
   }
@@ -1510,8 +1479,6 @@ namespace PLEXIL {
   {
     checkError(m_conditions[actionCompleteIdx],
                "No ActionCompleteCondition exists in node \"" << m_nodeId << "\"");
-    debugMsg("Node:deactivateActionCompleteCondition",
-             "Deactivating ActionCompleteCondition in node \"" << m_nodeId << "\"");
     m_conditions[actionCompleteIdx]->deactivate();
   }
 
@@ -1519,8 +1486,6 @@ namespace PLEXIL {
   {
     checkError(m_conditions[abortCompleteIdx],
                "No AbortCompleteCondition exists in node \"" << m_nodeId << "\"");
-    debugMsg("Node:deactivateAbortCompleteCondition",
-             "Deactivating AbortCompleteCondition in node \"" << m_nodeId << "\"");
     m_conditions[abortCompleteIdx]->deactivate();
   }
 
@@ -1532,7 +1497,11 @@ namespace PLEXIL {
                getStateName() << "'");
     debugMsg("Node:execute", "Executing node " << m_nodeId);
 
-    activateLocalVariables();
+    // Activate local variables
+    for (std::vector<Expression *>::iterator vit = m_localVariables.begin();
+         vit != m_localVariables.end();
+         ++vit)
+      (*vit)->activate();
 
     // legacy message for unit test
     debugMsg("PlexilExec:handleNeedsExecution",
@@ -1579,28 +1548,16 @@ namespace PLEXIL {
   void Node::deactivateExecutable() 
   {
     specializedDeactivateExecutable();
-    deactivateLocalVariables();
+    // Deactivate local variables
+    for (std::vector<Expression *>::iterator vit = m_localVariables.begin();
+         vit != m_localVariables.end();
+         ++vit)
+      (*vit)->deactivate();
   }
 
   // Default method
   void Node::specializedDeactivateExecutable()
   {
-  }
-
-  void Node::activateLocalVariables()
-  {
-    for (std::vector<Expression *>::iterator vit = m_localVariables.begin();
-         vit != m_localVariables.end();
-         ++vit)
-      (*vit)->activate();
-  }
-
-  void Node::deactivateLocalVariables()
-  {
-    for (std::vector<Expression *>::iterator vit = m_localVariables.begin();
-         vit != m_localVariables.end();
-         ++vit)
-      (*vit)->deactivate();
   }
 
   std::string Node::toString(const unsigned int indent)

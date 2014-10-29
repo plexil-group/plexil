@@ -145,19 +145,18 @@ namespace PLEXIL
      */
     void reserve();
 
-    VariableConflictSet m_conflicts;
-    Expression *m_size;
-    Expression *m_initializer;
-    
-    // Only used by LuvListener at present. Eliminate?
-    NodeConnector *m_node;
-
-    char const *m_name;
-
     ArrayImpl<T> m_value;
     ArrayImpl<T> m_savedValue;   // for undoing assignment 
 
+    Expression *m_size;
+    Expression *m_initializer;
+    char const *m_name;
     size_t m_maxSize;
+
+    VariableConflictSet m_conflicts;
+    
+    // Only used by LuvListener at present. Eliminate?
+    NodeConnector *m_node;
 
     bool m_known;
     bool m_savedKnown;
