@@ -522,68 +522,69 @@ namespace PLEXIL
 
   /**
    * @class GeneralExprVec
-   * @brief Concrete variable-length variant of ExprVec which uses std::vector instead of arrays.
+   * @brief Concrete variable-length variant of ExprVec which uses dynamically allocated arrays.
    */
   class GeneralExprVec : public ExprVec
   {
   public:
     GeneralExprVec(size_t n)
       : ExprVec(),
-        exprs(n, NULL),
-        garbage(n, false)
+        m_size(n),
+        exprs(new Expression*[n]),
+        garbage(new bool[n])
     {
+      bzero((void *)exprs, n * sizeof(Expression*));
+      bzero((void *)garbage, n);
     }
 
     ~GeneralExprVec()
     {
-      size_t n = exprs.size();
-      for (size_t i = 0; i < n; ++i)
+      for (size_t i = 0; i < m_size; ++i)
         if (garbage[i])
           delete exprs[i];
+      delete[] garbage;
+      delete[] exprs;
     }
 
     size_t size() const
     {
-      return exprs.size(); 
+      return m_size; 
     }
 
     Expression const *operator[](size_t n) const
     {
-      check_error_1(n < exprs.size());
+      check_error_1(n < m_size);
       return exprs[n]; 
     }
 
     Expression *operator[](size_t n)
     {
-      check_error_1(n < exprs.size());
+      check_error_1(n < m_size);
       return exprs[n]; 
     }
 
     void setArgument(size_t i, Expression *exp, bool isGarbage)
     {
-      assertTrue_2(i < exprs.size(), "setArgument(): too many args");
+      assertTrue_2(i < m_size, "setArgument(): too many args");
       exprs[i] = exp;
       garbage[i] = isGarbage;
     }
 
     void activate()
     {
-      size_t n = exprs.size();
-      for (size_t i = 0; i < n; ++i)
+      for (size_t i = 0; i < m_size; ++i)
         exprs[i]->activate();
     }
       
     void deactivate()
     {
-      size_t n = exprs.size();
-      for (size_t i = 0; i < n; ++i)
+      for (size_t i = 0; i < m_size; ++i)
         exprs[i]->deactivate();
     }
 
     void print(std::ostream & s) const
     {
-      size_t n = exprs.size();
-      for (size_t i = 0; i < n; ++i) {
+      for (size_t i = 0; i < m_size; ++i) {
         s << ' ';
         exprs[i]->print(s);
       }
@@ -595,8 +596,9 @@ namespace PLEXIL
     GeneralExprVec(const GeneralExprVec &);
     GeneralExprVec &operator=(const GeneralExprVec &);
 
-    std::vector<Expression *> exprs;
-    std::vector<bool> garbage;
+    size_t m_size;
+    Expression **exprs;
+    bool *garbage;
   };
 
   //
@@ -628,15 +630,7 @@ namespace PLEXIL
       return static_cast<ExprVec *>(new FixedExprVec<3>());
     case 4:
       return static_cast<ExprVec *>(new FixedExprVec<4>());
-    case 5:
-      return static_cast<ExprVec *>(new FixedExprVec<5>());
-    case 6:
-      return static_cast<ExprVec *>(new FixedExprVec<6>());
-    case 7:
-      return static_cast<ExprVec *>(new FixedExprVec<7>());
-    case 8:
-      return static_cast<ExprVec *>(new FixedExprVec<8>());
-    default: // anything greater than 8
+    default: // anything greater than 4
       return static_cast<ExprVec *>(new GeneralExprVec(n));
     }
   }
@@ -645,9 +639,5 @@ namespace PLEXIL
   template class FixedExprVec<2>;
   template class FixedExprVec<3>;
   template class FixedExprVec<4>;
-  template class FixedExprVec<5>;
-  template class FixedExprVec<6>;
-  template class FixedExprVec<7>;
-  template class FixedExprVec<8>;
 
 } // namespace PLEXIL
