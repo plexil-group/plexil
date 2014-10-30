@@ -36,6 +36,7 @@ namespace PLEXIL
 
   // Forward references
   class CachedValue;
+  class ExprVec;
   class StateCacheEntry;
   class ThresholdCache; // local to LookupOnChange
 
@@ -66,8 +67,8 @@ namespace PLEXIL
   public:
     Lookup(Expression *stateName,
            bool stateNameIsGarbage,
-           std::vector<Expression*> const &params,
-           std::vector<bool> const &paramsAreGarbage);
+           ExprVec *paramVec = NULL);
+
     virtual ~Lookup();
 
     // Standard Expression API
@@ -143,9 +144,8 @@ namespace PLEXIL
     
     // Member variables shared with implementation classes
     State m_cachedState;
-    std::vector<Expression *> m_params;
-    std::vector<bool> m_garbage;
     Expression *m_stateName;
+    ExprVec *m_paramVec;
     StateCacheEntry* m_entry; // TODO opportunity to use refcounted ptr?
     bool m_known;
     bool m_stateKnown;
@@ -160,10 +160,10 @@ namespace PLEXIL
   public:
     LookupOnChange(Expression *stateName,
                    bool stateNameIsGarbage,
-                   std::vector<Expression *> const &params,
-                   std::vector<bool> const &paramsAreGarbage,
                    Expression *tolerance,
-                   bool toleranceIsGarbage = false);
+                   bool toleranceIsGarbage = false,
+                   ExprVec *paramVec = NULL);
+
     ~LookupOnChange();
 
     const char *exprName() const;

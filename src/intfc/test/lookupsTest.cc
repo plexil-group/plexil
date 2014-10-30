@@ -24,6 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "ExprVec.hh"
 #include "ExternalInterface.hh"
 #include "Constant.hh"
 #include "Lookup.hh"
@@ -189,8 +190,6 @@ static TestInterface *theInterface = NULL;
 static bool testLookupNow() 
 {
   StringConstant test1("test1");
-  std::vector<Expression *> const emptyArglist;
-  std::vector<bool> const emptyGarbageList;
 
   StringConstant test2("test2");
   std::vector<Expression *> test2Args(1, new StringConstant("high"));
@@ -200,10 +199,10 @@ static bool testLookupNow()
 
   StringVariable test4("test1");
 
-  Expression *l1 = new Lookup(&test1, false, emptyArglist, emptyGarbageList);
-  Expression *l2 = new Lookup(&test2, false, test2Args, test2garbage);
-  Expression *l3 = new Lookup(&test2, false, test3Args, test2garbage);
-  Expression *l4 = new Lookup(&test4, false, emptyArglist, emptyGarbageList);
+  Expression *l1 = new Lookup(&test1, false);
+  Expression *l2 = new Lookup(&test2, false, makeExprVec(test2Args, test2garbage));
+  Expression *l3 = new Lookup(&test2, false, makeExprVec(test3Args, test2garbage));
+  Expression *l4 = new Lookup(&test4, false);
 
   bool l1changed = false;
   bool l2changed = false;
@@ -299,15 +298,10 @@ static bool testLookupOnChange()
   theInterface->watch("changeWithToleranceTest", &watchVar);
 
   RealVariable tolerance(0.5);
-  std::vector<Expression *> const emptyArglist;
-  std::vector<bool> const emptyGarbageList;
-
   double temp;
 
-  Lookup l1(&changeTest, false,
-            emptyArglist, emptyGarbageList);
+  Lookup l1(&changeTest, false);
   LookupOnChange l2(&changeWithToleranceTest, false,
-                    emptyArglist, emptyGarbageList,
                     &tolerance, false);
 
   bool changeNotified = false;

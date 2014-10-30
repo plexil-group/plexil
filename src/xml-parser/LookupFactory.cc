@@ -27,6 +27,7 @@
 #include "LookupFactory.hh"
 
 #include "Error.hh"
+#include "ExprVec.hh"
 #include "Lookup.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
@@ -76,14 +77,20 @@ namespace PLEXIL
     checkParserException(stateNameType == STRING_TYPE || stateNameType == UNKNOWN_TYPE,
                          "createExpression: Lookup name must be a string expression");
 
-    std::vector<Expression* > params;
-    std::vector<bool> paramsGarbage;
-    pugi::xml_node arg = argsXml.first_child();
-    while (arg) {
-      bool garbage = false;
-      params.push_back(createExpression(arg, node, garbage));
-      paramsGarbage.push_back(garbage);
-      arg = arg.next_sibling();
+    // Count args, then build ExprVec of appropriate size
+    ExprVec *argVec = NULL;
+    size_t nargs = 0;
+    pugi::xml_node arg;
+    for (arg = argsXml.first_child(); arg; arg = arg.next_sibling())
+      ++nargs;
+    if (nargs) {
+      argVec = makeExprVec(nargs);
+      size_t i = 0;
+      for (arg = argsXml.first_child(); arg; arg = arg.next_sibling(), ++i) {
+        bool garbage = false;
+        Expression *expr = createExpression(arg, node, garbage);
+        argVec->setArgument(i, expr, garbage);
+      }
     }
     wasCreated = true;
     if (tolXml) {
@@ -93,12 +100,11 @@ namespace PLEXIL
       checkParserException(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
                            "createExpression: LookupOnChange tolerance expression must be numeric");
       return new LookupOnChange(stateName, stateNameGarbage,
-                                params, paramsGarbage,
-                                tol, tolGarbage);
+                                tol, tolGarbage,
+                                argVec);
     }
     else
-      return new Lookup(stateName, stateNameGarbage,
-                        params, paramsGarbage);
+      return new Lookup(stateName, stateNameGarbage, argVec);
   }
 
 } // namespace PLEXIL

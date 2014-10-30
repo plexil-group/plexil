@@ -30,6 +30,7 @@
 #include "CachedValue.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "ExprVec.hh"
 #include "ExternalInterface.hh" // for timestamp access
 #include "StateCacheEntry.hh"
 #include "StateCacheMap.hh"
@@ -40,11 +41,9 @@ namespace PLEXIL
 {
   Lookup::Lookup(Expression *stateName,
                  bool stateNameIsGarbage,
-                 std::vector<Expression *> const &params,
-                 std::vector<bool> const &paramsAreGarbage)
-    : m_params(params),
-      m_garbage(paramsAreGarbage),
-      m_stateName(stateName),
+                 ExprVec *paramVec)
+    : m_stateName(stateName),
+      m_paramVec(paramVec),
       m_entry(NULL),
       m_known(false),
       m_stateKnown(false),
@@ -54,12 +53,8 @@ namespace PLEXIL
     assertTrue_2(stateName, "Lookup constructor: Null state name expression");
     if (!m_stateName->isConstant())
       m_stateName->addListener(this);
-    assertTrue_2(params.size() == paramsAreGarbage.size(),
-                 "Lookup constructor: Parameter vector and garbage vector differ in length");
-    for (size_t i = 0; i < params.size(); ++i) {
-      if (!m_params[i]->isConstant())
-        m_params[i]->addListener(this);
-    }
+    if (m_paramVec)
+      m_paramVec->addListener(this);
     // TODO: If all expressions are constants, can cache state now
   }
 
@@ -69,11 +64,9 @@ namespace PLEXIL
       m_entry->unregisterLookup(this);
       m_entry = NULL;
     }
-    for (size_t i = 0; i < m_params.size(); ++i) {
-      if (!m_params[i]->isConstant())
-        m_params[i]->removeListener(this);
-      if (m_garbage[i])
-        delete m_params[i];
+    if (m_paramVec) {
+      m_paramVec->removeListener(this);
+      delete m_paramVec;
     }
     if (!m_stateName->isConstant())
       m_stateName->removeListener(this);
@@ -108,8 +101,8 @@ namespace PLEXIL
   {
     // Activate all subexpressions
     m_stateName->activate();
-    for (size_t i = 0; i < m_params.size(); ++i)
-      m_params[i]->activate();
+    if (m_paramVec)
+      m_paramVec->activate();
 
     // Compute current state and cache it
     m_stateKnown = getState(m_cachedState);
@@ -128,8 +121,8 @@ namespace PLEXIL
   {
     // Dectivate all subexpressions
     m_stateName->deactivate();
-    for (size_t i = 0; i < m_params.size(); ++i)
-      m_params[i]->deactivate();
+    if (m_paramVec)
+      m_paramVec->deactivate();
 
     if (m_stateKnown)
       m_entry->unregisterLookup(this);
@@ -185,11 +178,16 @@ namespace PLEXIL
     std::string name;
     if (!m_stateName->getValue(name))
       return false;
-    std::vector<Value> args(m_params.size());
-    for (size_t i = 0; i < m_params.size(); ++i)
-      if (!(args[i] = m_params[i]->toValue()).isKnown())
-        return false;
-    result = State(name, args);
+    if (m_paramVec) {
+      size_t n = m_paramVec->size();
+      std::vector<Value> args(n);
+      for (size_t i = 0; i < n; ++i)
+        if (!(args[i] = (*m_paramVec)[i]->toValue()).isKnown())
+          return false;
+      result = State(name, args);
+    }
+    else
+      result = State(name, std::vector<Value>(0));
     return true;
   }
 
@@ -461,11 +459,10 @@ namespace PLEXIL
 
   LookupOnChange::LookupOnChange(Expression *stateName,
                                  bool stateNameIsGarbage,
-                                 std::vector<Expression *> const &params,
-                                 std::vector<bool> const &paramsAreGarbage,
                                  Expression *tolerance,
-                                 bool toleranceIsGarbage)
-    : Lookup(stateName, stateNameIsGarbage, params, paramsAreGarbage),
+                                 bool toleranceIsGarbage,
+                                 ExprVec *paramVec)
+    : Lookup(stateName, stateNameIsGarbage, paramVec),
       m_thresholds(NULL),
       m_cachedValue(NULL),
       m_tolerance(tolerance),
