@@ -50,10 +50,8 @@ namespace PLEXIL
                                       NodeConnector *node,
                                       bool & wasCreated) const
   {
-    checkHasChildElement(expr);
     pugi::xml_node stateNameXml = expr.first_child();
     checkTag(NAME_TAG, stateNameXml);
-    checkHasChildElement(stateNameXml);
     pugi::xml_node argsXml = stateNameXml.next_sibling();
     pugi::xml_node tolXml;
     if (argsXml) {
@@ -65,7 +63,6 @@ namespace PLEXIL
                                            tolXml,
                                            "LookupNow may not have a Tolerance element");
         }
-        checkHasChildElement(tolXml);
         argsXml = tolXml.next_sibling();
       }
     }
