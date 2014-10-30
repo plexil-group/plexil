@@ -28,6 +28,7 @@
 #include "CommandNode.hh"
 #include "Error.hh"
 #include "ExpressionFactory.hh"
+#include "ExprVec.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 #include "resource-tags.hh"
@@ -228,12 +229,19 @@ namespace PLEXIL
     // Optional arguments
     temp = temp.next_sibling();
     if (temp) {
-      xml_node arg = temp.first_child();
-      while (arg) {
-        bool wasCreated = false;
-        Expression *thisArg = createExpression(arg, node, wasCreated);
-        cmd->addArgument(thisArg, wasCreated);
-        arg = arg.next_sibling();
+      size_t n = 0;
+      xml_node arg;
+      for (arg = temp.first_child(); arg; arg = arg.next_sibling())
+        ++n;
+      if (n) {
+        ExprVec *argVec = makeExprVec(n);
+        size_t i = 0;
+        for (arg = temp.first_child(); arg; arg = arg.next_sibling(), ++i) {
+          bool wasCreated = false;
+          Expression *thisArg = createExpression(arg, node, wasCreated);
+          argVec->setArgument(i, thisArg, wasCreated);
+        }
+        cmd->setArgumentVector(argVec);
       }
     }
   }

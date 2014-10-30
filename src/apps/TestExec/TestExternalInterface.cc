@@ -306,10 +306,16 @@ namespace PLEXIL
   {
     checkError(!elt.attribute("name").empty(),
                "No name attribute in " << elt.name() << " element.");
-    std::string name(elt.attribute("name").value());
+    State result(elt.attribute("name").value());
     std::vector<Value> parms;
     parseParams(elt, parms);
-    return State(name, parms);
+    size_t n = parms.size();
+    if (n) {
+      result.setParameterCount(n);
+      for (size_t i = 0; i < n; ++i)
+        result.setParameter(i, parms[i]);
+    }
+    return result;
   }
 
   static State parseState(pugi::xml_node const elt)

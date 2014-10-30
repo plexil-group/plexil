@@ -178,16 +178,17 @@ namespace PLEXIL
     std::string name;
     if (!m_stateName->getValue(name))
       return false;
+    result.setName(name);
     if (m_paramVec) {
       size_t n = m_paramVec->size();
-      std::vector<Value> args(n);
-      for (size_t i = 0; i < n; ++i)
-        if (!(args[i] = (*m_paramVec)[i]->toValue()).isKnown())
+      result.setParameterCount(n);
+      for (size_t i = 0; i < n; ++i) {
+        Value temp = (*m_paramVec)[i]->toValue();
+        if (!temp.isKnown())
           return false;
-      result = State(name, args);
+        result.setParameter(i, temp);
+      }
     }
-    else
-      result = State(name, std::vector<Value>(0));
     return true;
   }
 

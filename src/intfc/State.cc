@@ -26,6 +26,8 @@
 
 #include "State.hh"
 
+#include "Error.hh" // assertTrue_2 macro
+
 #include <ostream>
 #include <sstream>
 
@@ -42,19 +44,15 @@ namespace PLEXIL
   {
   }
 
-  State::State(char const *name)
-    : m_name(name)
-  {
-  }
-
-  State::State(std::string const &name)
-    : m_name(name)
-  {
-  }
-
-  State::State(std::string const &name, std::vector<Value> const &params)
+  State::State(char const *name, size_t n)
     : m_name(name),
-      m_parameters(params)
+      m_parameters(n)
+  {
+  }
+
+  State::State(std::string const &name, size_t n)
+    : m_name(name),
+      m_parameters(n)
   {
   }
 
@@ -106,6 +104,22 @@ namespace PLEXIL
     // FIXME: This should be a global constant
     static Value const sl_unknown;
     return sl_unknown;
+  }
+
+  void State::setName(std::string const &name)
+  {
+    m_name = name;
+  }
+
+  void State::setParameterCount(size_t n)
+  {
+    m_parameters.resize(n);
+  }
+
+  void State::setParameter(size_t i, Value const &val)
+  {
+    assertTrue_2(i < m_parameters.size(), "State::setParameter: index out of range");
+    m_parameters[i] = val;
   }
 
   void State::print(std::ostream &s) const

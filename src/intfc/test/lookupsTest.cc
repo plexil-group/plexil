@@ -148,7 +148,7 @@ protected:
   {
     std::multimap<Expression const *, std::string>::const_iterator it = m_exprsToStateName.find(expression);
     while (it != m_exprsToStateName.end() && it->first == expression) {
-      State st(it->second, std::vector<Value>());
+      State st(it->second);
       StateCacheMap::instance().ensureStateCacheEntry(st)->update(expression->toValue());
       ++it;
     }

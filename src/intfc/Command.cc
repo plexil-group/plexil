@@ -26,6 +26,7 @@
 
 #include "Command.hh"
 #include "Error.hh"
+#include "ExprVec.hh"
 #include "ExternalInterface.hh"
 #include "ResourceArbiterInterface.hh"
 
@@ -60,15 +61,16 @@ namespace PLEXIL
       releaseAtTermExp->deactivate();
   }
 
-  // New version
   Command::Command(std::string const &nodeName)
     : m_ack(*this),
       m_abortComplete(),
+      m_command(),
+      m_garbage(),
+      m_resourceList(),
+      m_resourceValueList(),
       m_nameExpr(NULL),
       m_dest(NULL),
-      m_garbage(),
-      m_args(),
-      m_resourceList(),
+      m_argVec(NULL),
       m_commandHandle(NO_COMMAND_HANDLE),
       m_fixed(false),
       m_resourceFixed(false),
@@ -82,9 +84,10 @@ namespace PLEXIL
   {
     for (std::vector<Expression *>::const_iterator it = m_garbage.begin();
          it != m_garbage.end();
-         ++it) {
+         ++it)
       delete (*it);
-    }
+    if (m_argVec)
+      delete m_argVec;
   }
 
   void Command::setDestination(Assignable *dest, bool isGarbage)
@@ -114,12 +117,11 @@ namespace PLEXIL
     m_garbage.push_back(exp);
   }
 
-  void Command::addArgument(Expression *arg, bool isGarbage)
+  void Command::setArgumentVector(ExprVec *vec)
   {
-    assertTrue_1(arg);
-    m_args.push_back(arg);
-    if (isGarbage)
-      m_garbage.push_back(arg);
+    if (m_argVec)
+      delete m_argVec;
+    m_argVec = vec;
   }
 
   State const &Command::getCommand() const
@@ -159,15 +161,15 @@ namespace PLEXIL
     assertTrue_1(m_active && !m_fixed);
     std::string const *name;
     m_nameExpr->getValuePointer(name);
+    m_command.setName(*name);
+    
+    if (m_argVec) {
+      size_t n = m_argVec->size();
+      m_command.setParameterCount(n);
+      for (size_t i = 0; i < n; ++i)
+        m_command.setParameter(i, (*m_argVec)[i]->toValue());
+    }
 
-    std::vector<Value> vals;
-    vals.reserve(m_args.size());
-    for (std::vector<Expression *>::const_iterator it = m_args.begin();
-         it != m_args.end();
-         ++it)
-      vals.push_back((*it)->toValue());
-
-    m_command = State(*name, vals);
     m_fixed = true;
   }
 
@@ -219,8 +221,8 @@ namespace PLEXIL
     m_abortComplete.activate();
     if (m_dest)
       m_dest->activate();
-    for (std::vector<Expression *>::iterator it = m_args.begin(); it != m_args.end(); ++it)
-      (*it)->activate();
+    if (m_argVec)
+      m_argVec->activate();
     for (ResourceList::iterator resListIter = m_resourceList.begin();
          resListIter != m_resourceList.end();
          ++resListIter)
@@ -279,8 +281,8 @@ namespace PLEXIL
          resListIter != m_resourceList.end();
          ++resListIter)
       resListIter->deactivate();
-    for (std::vector<Expression *>::iterator it = m_args.begin(); it != m_args.end(); ++it)
-      (*it)->deactivate();
+    if (m_argVec)
+      m_argVec->deactivate();
     if (m_dest)
       m_dest->deactivate();
     m_abortComplete.deactivate();

@@ -34,6 +34,9 @@
 
 namespace PLEXIL
 {
+  // Forward reference
+  class ExprVec;
+
   //
   // Used only in Command class, but exposed to parser
   //
@@ -90,7 +93,7 @@ namespace PLEXIL
     // Interface to plan parser
     void setDestination(Assignable *dest, bool isGarbage);
     void setNameExpr(Expression *nameExpr, bool isGarbage);
-    void addArgument(Expression *arg, bool isGarbage);
+    void setArgumentVector(ExprVec *vec);
     ResourceList &getResourceList();
     void addGarbageExpression(Expression *exp);
 
@@ -124,12 +127,12 @@ namespace PLEXIL
     CommandHandleVariable m_ack;
     SimpleBooleanVariable m_abortComplete;
     State m_command;
-    Expression *m_nameExpr;
-    Assignable *m_dest;
     std::vector<Expression *> m_garbage;
-    std::vector<Expression *> m_args;
     ResourceList m_resourceList;
     ResourceValueList m_resourceValueList;
+    Expression *m_nameExpr;
+    Assignable *m_dest;
+    ExprVec *m_argVec;
     uint16_t m_commandHandle; // accessed by CommandHandleVariable
     bool m_fixed, m_resourceFixed, m_active;
   };

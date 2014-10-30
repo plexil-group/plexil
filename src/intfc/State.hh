@@ -41,10 +41,8 @@ namespace PLEXIL
   public:
     State();
     State(State const &orig);
-    State(char const *name); // convenience
-    State(std::string const &name);
-    State(std::string const &name, 
-          std::vector<Value> const &params);
+    State(char const *name, size_t n = 0);
+    State(std::string const &name, size_t n = 0);
 
     ~State();
 
@@ -56,6 +54,10 @@ namespace PLEXIL
     bool isParameterKnown(size_t n) const;
     ValueType parameterType(size_t n) const;
     Value const &parameter(size_t n) const;
+
+    void setName(std::string const &name);
+    void setParameterCount(size_t n);
+    void setParameter(size_t i, Value const &val);
 
     void print(std::ostream &s) const;
     std::string toString() const;

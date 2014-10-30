@@ -48,18 +48,18 @@ static bool testConstructorsAndAccessors()
   assertTrue_1(named.parameterCount() == 0);
   assertTrue_1(named.name() == foo);
 
-  // Set up parameter vector
+  // Set up parameters
   Value too((int32_t) 2);
   Value roo(3.5);
   std::string soo("Soo");
   Value sue(soo);
-  std::vector<Value> v(3);
-  v[0] = too;
-  v[1] = roo;
-  v[2] = sue;
 
   // Name and params
-  State test1(foo, v);
+  State test1(foo, 3);
+  test1.setParameter(0, too);
+  test1.setParameter(1, roo);
+  test1.setParameter(2, sue);
+
   assertTrue_1(!test1.name().empty());
   assertTrue_1(test1.name() == foo);
   assertTrue_1(!test1.parameters().empty());
@@ -114,18 +114,18 @@ static bool testAssignment()
   assertTrue_1(temp.parameters().empty());
   assertTrue_1(temp.parameterCount() == 0);
 
-  // Set up parameter vector
+  // Set up parameters
   Value too((int32_t) 2);
   Value roo(3.5);
   std::string soo("Soo");
   Value sue(soo);
-  std::vector<Value> v(3);
-  v[0] = too;
-  v[1] = roo;
-  v[2] = sue;
 
   // Name and params
-  State test1(foo, v);
+  State test1(foo, 3);
+  test1.setParameter(0, too);
+  test1.setParameter(1, roo);
+  test1.setParameter(2, sue);
+
   temp = test1;
 
   assertTrue_1(!temp.name().empty());
@@ -193,13 +193,13 @@ static bool testEquality()
   Value roo(3.5);
   std::string soo("Soo");
   Value sue(soo);
-  std::vector<Value> v(3);
-  v[0] = too;
-  v[1] = roo;
-  v[2] = sue;
 
   // Name and params
-  State test1(foo, v);
+  State test1(foo, 3);
+  test1.setParameter(0, too);
+  test1.setParameter(1, roo);
+  test1.setParameter(2, soo);
+
   assertTrue_1(test1 == test1);
   assertTrue_1(!(test1 != test1));
   assertTrue_1(!(test1 == mt));
@@ -244,10 +244,10 @@ static bool testEquality()
   assertTrue_1(!(clone1 != test1));
   assertTrue_1(!(test1 != clone1));
 
-  std::vector<Value> v2(v);
-  std::string sop("Sop");
-  v2[2] = sop;
-  State test2(foo, v2);
+  State test2(test1);
+  Value sop("Sop");
+  test2.setParameter(2, sop);
+
   assertTrue_1(test2 == test2);
   assertTrue_1(!(test2 != test2));
   assertTrue_1(!(test2 == mt));
@@ -301,18 +301,16 @@ static bool testLessThan()
   assertTrue_1(!(named3 < named2));
   assertTrue_1(named2 < named3);
 
-  // Set up parameter vector
+  // Set up parameters
   Value too((int32_t) 2);
   Value roo(3.5);
   std::string soo("Soo");
   Value sue(soo);
-  std::vector<Value> v(3);
-  v[0] = too;
-  v[1] = roo;
-  v[2] = sue;
+  State test1(foo, 3);
+  test1.setParameter(0, too);
+  test1.setParameter(1, roo);
+  test1.setParameter(2, sue);
 
-  // Name and params
-  State test1(foo, v);
   assertTrue_1(!(test1 < test1));
   assertTrue_1(!(test1 < mt));
   assertTrue_1(mt < test1);
@@ -323,10 +321,10 @@ static bool testLessThan()
   assertTrue_1(test1 < named3);
   assertTrue_1(!(named3 < test1));
 
-  std::vector<Value> v2(v);
-  std::string sop("Sop");
-  v2[2] = sop;
-  State test2(foo, v2);
+  State test2(test1);
+  Value sop("Sop");
+  test2.setParameter(2, sop);
+
   assertTrue_1(!(test2 < test2));
   assertTrue_1(!(test2 < mt));
   assertTrue_1(mt < test2);

@@ -100,8 +100,9 @@ static bool testCommandParserBasics()
     argh->fixValues();
     assertTrue_1(argh->getName() == "argh");
     assertTrue_1(argh->getArgValues().size() == 1);
-    std::vector<Value> arghArgs(1, Value((int32_t) 0));
-    assertTrue_1(argh->getCommand() == State("argh", arghArgs));
+    State arghState = State("argh", 1);
+    arghState.setParameter(0, Value((int32_t) 0));
+    assertTrue_1(argh->getCommand() == arghState);
     argh->fixResourceValues();
     assertTrue_1(argh->getResourceValues().empty());
     delete argh;
@@ -218,8 +219,9 @@ static bool testCommandParserBasics()
     assertTrue_1(regretful->getName() == "regretful");
     assertTrue_1(regretful->getArgValues().size() == 1);
     assertTrue_1(regretful->getArgValues().front() == Value(true));
-    std::vector<Value> rful(1, Value(true));
-    assertTrue_1(regretful->getCommand() == State("regretful", rful));
+    State regretCmd = State("regretful", 1);
+    regretCmd.setParameter(0, Value(true));
+    assertTrue_1(regretful->getCommand() == regretCmd);
     regretful->fixResourceValues();
     ResourceValueList const &tlist = regretful->getResourceValues();
     assertTrue_1(tlist.size() == 1);
