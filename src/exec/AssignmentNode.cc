@@ -30,6 +30,7 @@
 #include "Error.hh"
 #include "ExecConnector.hh"
 #include "ExpressionConstants.hh"
+#include "UserVariable.hh"
 
 namespace PLEXIL
 {

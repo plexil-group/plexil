@@ -24,9 +24,9 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Assignable.hh"
 #include "Debug.hh"
 #include "ExecConnector.hh"
-#include "Expression.hh"
 #include "ExpressionConstants.hh" // FALSE_EXP(), TRUE_EXP()
 #include "ExternalInterface.hh"
 #include "Node.hh"

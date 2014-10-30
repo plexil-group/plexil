@@ -32,6 +32,9 @@
 
 namespace PLEXIL
 {
+  // Forward reference
+  class Command;
+
   class CommandNode : public Node
   {
   public:
