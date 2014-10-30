@@ -154,7 +154,6 @@ namespace PLEXIL
                "No NodeFactory registered for node type " << type);
     Node *result = factory->create(type, name, state, parent);
     // common post process here
-    result->activateInternalVariables();
     return result;
   }
 

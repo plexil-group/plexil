@@ -326,9 +326,6 @@ namespace PLEXIL {
     // Used internally, also by LuvListener. Non-const variant is protected.
     Expression const *getCondition(size_t idx) const;
 
-    // NodeFactory::createNode for the module test needs this to be public.
-    void activateInternalVariables();
-
     //
     // Utilities for plan parsers
     //

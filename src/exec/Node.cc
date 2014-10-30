@@ -35,8 +35,9 @@
 #include "NodeConstants.hh"
 #include "PlexilExec.hh"
 #include "SimpleMap.hh"
-#include "map-utils.hh"
+#include "UserVariable.hh"
 #include "lifecycle-utils.h"
+#include "map-utils.hh"
 
 #include <algorithm> // for std::sort
 #include <cfloat>    // for DBL_MAX
@@ -392,22 +393,11 @@ namespace PLEXIL {
   // Make the node (and its children, if any) active.
   void Node::activate()
   {
-    // Activate internal variables
-    activateInternalVariables();
-
     // Activate conditions needed for INACTIVE state
     transitionToInactive();
 
     // Other initializations as required by node type
     specializedActivate();
-  }
-
-  void Node::activateInternalVariables()
-  {
-    // Activate internal variables
-    m_stateVariable.activate();
-    m_outcomeVariable.activate();
-    m_failureTypeVariable.activate();
   }
 
   // Default method
