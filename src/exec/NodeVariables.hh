@@ -32,15 +32,13 @@
 //
 
 #include "NodeConstants.hh"
-//#include "ExpressionImpl.hh"
-//#include "NotifierImpl.hh"
-#include "UserVariable.hh" // includes both of the above
+#include "ExpressionImpl.hh"
+#include "NotifierImpl.hh"
+//#include "UserVariable.hh" // includes both of the above
 
 namespace PLEXIL {
 
   // Forward references
-  class Command;
-
   class Node;
 
   class StateVariable : public NotifierImpl, public ExpressionImpl<uint16_t>
@@ -149,6 +147,15 @@ namespace PLEXIL {
 
     void printSpecialized(std::ostream &s) const;
 
+    // Notifier API
+    inline bool isActive() const
+    {
+      return true;
+    }
+
+    void activate() {}
+    void deactivate() {}
+
     // For convenience of Node
     void changed();
 
@@ -202,6 +209,15 @@ namespace PLEXIL {
     void printValue(std::ostream& s) const;
 
     void printSpecialized(std::ostream &s) const;
+
+    // Notifier API
+    inline bool isActive() const
+    {
+      return true;
+    }
+
+    void activate() {}
+    void deactivate() {}
 
     // For convenience of Node
     void changed();
