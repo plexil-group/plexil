@@ -65,6 +65,8 @@ namespace PLEXIL
   TestExternalInterface::TestExternalInterface()
     : ExternalInterface()
   {
+    // Set a default time of 0
+    m_states.insert(std::pair<State, Value>(State::timeState(), Value(0.0)));
   }
 
   TestExternalInterface::~TestExternalInterface()
