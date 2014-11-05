@@ -51,11 +51,11 @@ using pugi::node_pcdata;
 // Local utility functions
 //
 
-static xml_node makePcdataElement(xml_node parent, char const *name, char const *value)
+static void makePcdataElement(xml_node parent, char const *name, char const *value)
 {
   xml_node result = parent.append_child(name);
-  result.append_child(node_pcdata).set_value(value);
-  return result;
+  assertTrue_1(result);
+  assertTrue_1(result.append_child(node_pcdata).set_value(value));
 }
 
 static xml_node makeNode(xml_node parent,
@@ -63,7 +63,8 @@ static xml_node makeNode(xml_node parent,
                          char const *nodeType)
 {
   xml_node result = parent.append_child("Node");
-  result.append_attribute("NodeType").set_value(nodeType);
+  assertTrue_1(result);
+  assertTrue_1(result.append_attribute("NodeType").set_value(nodeType));
   makePcdataElement(result, "NodeId", nodeId);
   return result;
 }
@@ -73,6 +74,7 @@ static xml_node makeDeclareVariable(xml_node varDeclsNode,
                                     char const *varType)
 {
   xml_node decl = varDeclsNode.append_child("DeclareVariable");
+  assertTrue_1(decl);
   makePcdataElement(decl, "Name", varName);
   makePcdataElement(decl, "Type", varType);
   return decl;
@@ -84,19 +86,21 @@ static xml_node makeDeclareArray(xml_node varDeclsNode,
                                  char const *maxSize)
 {
   xml_node decl = varDeclsNode.append_child("DeclareArray");
+  assertTrue_1(decl);
   makePcdataElement(decl, "Name", varName);
   makePcdataElement(decl, "Type", eltType);
   makePcdataElement(decl, "MaxSize", maxSize);
   return decl;
 }
 
-bool emptyNodeXmlParserTest()
+static xml_document *doc = NULL;
+
+static bool emptyNodeXmlParserTest()
 {
-  xml_document doc;
-  doc.set_name("emptyNodeXmlParserTest");
+  assertTrue_1(doc);
 
   {
-    xml_node minimal = makeNode(doc, "minimal", "Empty");
+    xml_node minimal = makeNode(*doc, "minimal", "Empty");
     Node *minimalNode = parseNode(minimal, NULL);
     assertTrue_1(minimalNode);
     assertTrue_1(minimalNode->getType() == NodeType_Empty);
@@ -107,7 +111,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node comment = makeNode(doc, "comment", "Empty");
+    xml_node comment = makeNode(*doc, "comment", "Empty");
     makePcdataElement(comment, "Comment", "This is a comment");
     Node *commentNode = parseNode(comment, NULL);
     assertTrue_1(commentNode);
@@ -123,7 +127,7 @@ bool emptyNodeXmlParserTest()
   //
 
   {
-    xml_node preCond = makeNode(doc, "preCond", "Empty");
+    xml_node preCond = makeNode(*doc, "preCond", "Empty");
     makePcdataElement(preCond.append_child("PreCondition"), "BooleanValue", "true");
 
     Node *preCondNode = parseNode(preCond, NULL);
@@ -143,7 +147,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node endCond = makeNode(doc, "endCond", "Empty");
+    xml_node endCond = makeNode(*doc, "endCond", "Empty");
     makePcdataElement(endCond.append_child("EndCondition"), "BooleanValue", "true");
 
     Node *endCondNode = parseNode(endCond, NULL);
@@ -163,7 +167,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node exitCond = makeNode(doc, "exitCond", "Empty");
+    xml_node exitCond = makeNode(*doc, "exitCond", "Empty");
     makePcdataElement(exitCond.append_child("ExitCondition"), "BooleanValue", "true");
 
     Node *exitCondNode = parseNode(exitCond, NULL);
@@ -183,7 +187,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node postCond = makeNode(doc, "postCond", "Empty");
+    xml_node postCond = makeNode(*doc, "postCond", "Empty");
     makePcdataElement(postCond.append_child("PostCondition"), "BooleanValue", "true");
 
     Node *postCondNode = parseNode(postCond, NULL);
@@ -203,7 +207,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node skipCond = makeNode(doc, "skipCond", "Empty");
+    xml_node skipCond = makeNode(*doc, "skipCond", "Empty");
     makePcdataElement(skipCond.append_child("SkipCondition"), "BooleanValue", "true");
 
     Node *skipCondNode = parseNode(skipCond, NULL);
@@ -223,7 +227,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node startCond = makeNode(doc, "startCond", "Empty");
+    xml_node startCond = makeNode(*doc, "startCond", "Empty");
     makePcdataElement(startCond.append_child("StartCondition"), "BooleanValue", "true");
 
     Node *startCondNode = parseNode(startCond, NULL);
@@ -243,7 +247,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node repeatCond = makeNode(doc, "repeatCond", "Empty");
+    xml_node repeatCond = makeNode(*doc, "repeatCond", "Empty");
     makePcdataElement(repeatCond.append_child("RepeatCondition"), "BooleanValue", "true");
 
     Node *repeatCondNode = parseNode(repeatCond, NULL);
@@ -263,7 +267,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node invariantCond = makeNode(doc, "invariantCond", "Empty");
+    xml_node invariantCond = makeNode(*doc, "invariantCond", "Empty");
     makePcdataElement(invariantCond.append_child("InvariantCondition"), "BooleanValue", "true");
 
     Node *invariantCondNode = parseNode(invariantCond, NULL);
@@ -283,7 +287,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node simpleVarDecl = makeNode(doc, "simpleVarDecl", "Empty");
+    xml_node simpleVarDecl = makeNode(*doc, "simpleVarDecl", "Empty");
     xml_node decls = simpleVarDecl.append_child("VariableDeclarations");
     makeDeclareVariable(decls, "b", "Boolean");
 
@@ -306,7 +310,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node initedVarDecl = makeNode(doc, "initedVarDecl", "Empty");
+    xml_node initedVarDecl = makeNode(*doc, "initedVarDecl", "Empty");
     xml_node decls = initedVarDecl.append_child("VariableDeclarations");
     xml_node initedDecl = makeDeclareVariable(decls, "b", "Boolean");
     makePcdataElement(initedDecl.append_child("InitialValue"), "BooleanValue", "false");
@@ -334,7 +338,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node simpleArrayVarDecl = makeNode(doc, "simpleArrayVarDecl", "Empty");
+    xml_node simpleArrayVarDecl = makeNode(*doc, "simpleArrayVarDecl", "Empty");
     xml_node decls = simpleArrayVarDecl.append_child("VariableDeclarations");
     xml_node simpleArrayDecl = makeDeclareArray(decls, "ba", "Boolean", "1");
 
@@ -357,7 +361,7 @@ bool emptyNodeXmlParserTest()
   }
 
   {
-    xml_node initedArrayVarDecl = makeNode(doc, "initedArrayVarDecl", "Empty");
+    xml_node initedArrayVarDecl = makeNode(*doc, "initedArrayVarDecl", "Empty");
     xml_node decls = initedArrayVarDecl.append_child("VariableDeclarations");
     xml_node initedArrayDecl = makeDeclareArray(decls, "iba", "Boolean", "1");
     xml_node initXml = initedArrayDecl.append_child("InitialValue").append_child("ArrayValue");
@@ -397,11 +401,10 @@ bool emptyNodeXmlParserTest()
 
 static bool listNodeXmlParserTest()
 {
-  xml_document doc;
-  doc.set_name("listNodeXmlParserTest");
-
-  xml_node basicListXml = makeNode(doc, "basicList", "NodeList");
+  assertTrue_1(doc);
+  xml_node basicListXml = makeNode(*doc, "basicList", "NodeList");
   xml_node list = basicListXml.append_child("NodeBody").append_child("NodeList");
+  assertTrue_1(list);
 
   {
     Node *emptyList = parseNode(basicListXml, NULL);
@@ -415,8 +418,9 @@ static bool listNodeXmlParserTest()
   }
 
   {
-    xml_node oneListXml = doc.append_copy(basicListXml);
-    oneListXml.child("NodeId").first_child().set_value("oneList");
+    xml_node oneListXml = doc->append_copy(basicListXml);
+    assertTrue_1(oneListXml);
+    assertTrue_1(oneListXml.child("NodeId").first_child().set_value("oneList"));
     xml_node oneListKid = makeNode(oneListXml.child("NodeBody").child("NodeList"),
                                    "oneListKid", "Empty");
 
@@ -437,9 +441,11 @@ static bool listNodeXmlParserTest()
   }
 
   {
-    xml_node anotherListXml = doc.append_copy(basicListXml);
-    anotherListXml.child("NodeId").first_child().set_value("anotherList");
+    xml_node anotherListXml = doc->append_copy(basicListXml);
+    assertTrue_1(anotherListXml);
+    assertTrue_1(anotherListXml.child("NodeId").first_child().set_value("anotherList"));
     xml_node theList = anotherListXml.child("NodeBody").child("NodeList");
+    assertTrue_1(theList);
     xml_node anotherListKid = makeNode(theList, "anotherListKid0", "Empty");
     xml_node yaListKid = makeNode(theList, "anotherListKid1", "Empty");
 
@@ -465,15 +471,20 @@ static bool listNodeXmlParserTest()
   }
 
   {
-    xml_node varAccessListXml = doc.append_copy(basicListXml);
-    varAccessListXml.child("NodeId").first_child().set_value("varAccessList");
+    xml_node varAccessListXml = doc->append_copy(basicListXml);
+    assertTrue_1(varAccessListXml);
+    assertTrue_1(varAccessListXml.child("NodeId").first_child().set_value("varAccessList"));
     xml_node rootDecls = varAccessListXml.append_child("VariableDeclarations");
+    assertTrue_1(rootDecls);
     xml_node decl0 = makeDeclareVariable(rootDecls, "foo", "Integer");
     makePcdataElement(decl0.append_child("InitialValue"), "IntegerValue", "42");
     xml_node varAccessListKid = makeNode(varAccessListXml.child("NodeBody").child("NodeList"),
                                          "varAccessListKid", "Empty");
+    assertTrue_1(varAccessListKid);
     xml_node kidDecls = varAccessListKid.append_child("VariableDeclarations");
+    assertTrue_1(kidDecls);
     xml_node decl1 = makeDeclareVariable(kidDecls, "bar", "Integer");
+    assertTrue_1(decl1);
     makePcdataElement(decl1.append_child("InitialValue"), "IntegerVariable", "foo");
 
     Node *varAccessList = parseNode(varAccessListXml, NULL);
@@ -509,15 +520,18 @@ static bool listNodeXmlParserTest()
   }
 
   {
-    xml_node nodeRefTestXml = doc.append_copy(basicListXml);
-    nodeRefTestXml.child("NodeId").first_child().set_value("nodeRefTest");
+    xml_node nodeRefTestXml = doc->append_copy(basicListXml);
+    assertTrue_1(nodeRefTestXml);
+    assertTrue_1(nodeRefTestXml.child("NodeId").first_child().set_value("nodeRefTest"));
     xml_node eq = nodeRefTestXml.append_child("ExitCondition").append_child("EQInternal");
+    assertTrue_1(eq);
     makePcdataElement(eq.append_child("NodeOutcomeVariable"), "NodeId", "nodeRefTestKid");
     makePcdataElement(eq, "NodeOutcomeValue", "FAILURE");
     xml_node nodeRefTestKid = makeNode(nodeRefTestXml.child("NodeBody").child("NodeList"),
                                        "nodeRefTestKid",
                                        "Empty");
     xml_node neq = nodeRefTestKid.append_child("InvariantCondition").append_child("NEInternal");
+    assertTrue_1(neq);
     makePcdataElement(neq.append_child("NodeStateVariable"), "NodeId", "nodeRefTest");
     makePcdataElement(neq, "NodeStateValue", "EXECUTING");
     Node *nodeRefTest = parseNode(nodeRefTestXml, NULL);
@@ -545,12 +559,11 @@ static bool listNodeXmlParserTest()
 
 static bool assignmentNodeXmlParserTest()
 {
-  xml_document doc;
-  doc.set_name("assignmentNodeXmlParserTest");
+  assertTrue_1(doc);
 
   // Scalar assignment
   {
-    xml_node listNodeXml = makeNode(doc, "listNode", "NodeList");
+    xml_node listNodeXml = makeNode(*doc, "listNode", "NodeList");
     xml_node listNodeDecls = listNodeXml.append_child("VariableDeclarations");
     xml_node decl0 = makeDeclareVariable(listNodeDecls, "foo", "Integer");
     xml_node listNodeList = listNodeXml.append_child("NodeBody").append_child("NodeList");
@@ -590,7 +603,7 @@ static bool assignmentNodeXmlParserTest()
 
   // Scalar assignment w/ priority
   {
-    xml_node listNode1Xml = makeNode(doc, "listNode1", "NodeList");
+    xml_node listNode1Xml = makeNode(*doc, "listNode1", "NodeList");
     xml_node listNode1Decls = listNode1Xml.append_child("VariableDeclarations");
     xml_node decl0 = makeDeclareVariable(listNode1Decls, "foo", "Integer");
     xml_node listNode1List = listNode1Xml.append_child("NodeBody").append_child("NodeList");
@@ -632,7 +645,7 @@ static bool assignmentNodeXmlParserTest()
 
   // Array assignment
   {
-    xml_node listNode2Xml = makeNode(doc, "listNode2", "NodeList");
+    xml_node listNode2Xml = makeNode(*doc, "listNode2", "NodeList");
     xml_node listNode2Decls = listNode2Xml.append_child("VariableDeclarations");
     xml_node decl1 = makeDeclareArray(listNode2Decls, "bar", "Integer", "2");
     xml_node listNode2List = listNode2Xml.append_child("NodeBody").append_child("NodeList");
@@ -675,7 +688,7 @@ static bool assignmentNodeXmlParserTest()
 
   // Array element assignment
   {
-    xml_node listNode3Xml = makeNode(doc, "listNode3", "NodeList");
+    xml_node listNode3Xml = makeNode(*doc, "listNode3", "NodeList");
     xml_node listNode3Decls = listNode3Xml.append_child("VariableDeclarations");
     xml_node decl1 = makeDeclareArray(listNode3Decls, "baz", "Integer", "2");
     xml_node listNode3List = listNode3Xml.append_child("NodeBody").append_child("NodeList");
@@ -725,6 +738,7 @@ static bool assignmentNodeXmlParserTest()
 static xml_node makeLiteralResource(xml_node resList, char const *name, char const *priority)
 {
   xml_node result = resList.append_child("Resource");
+  assertTrue_1(result);
   makePcdataElement(result.append_child("ResourceName"), "StringValue", name);
   makePcdataElement(result.append_child("ResourcePriority"), "IntegerValue", priority);
   return result;
@@ -732,12 +746,11 @@ static xml_node makeLiteralResource(xml_node resList, char const *name, char con
 
 static bool commandNodeXmlParserTest()
 {
-  xml_document doc;
-  doc.set_name("commandNodeXmlParserTest");
+  assertTrue_1(doc);
 
   // Simple
   {
-    xml_node basicCmdXml = makeNode(doc, "basicCmd", "Command");
+    xml_node basicCmdXml = makeNode(*doc, "basicCmd", "Command");
     xml_node cmdXml = basicCmdXml.append_child("NodeBody").append_child("Command");
     makePcdataElement(cmdXml.append_child("Name"),"StringValue", "foo");
 
@@ -767,7 +780,7 @@ static bool commandNodeXmlParserTest()
 
   // With resources
   {
-    xml_node cmdWithResourcesXml = makeNode(doc, "cmdWithResources", "Command");
+    xml_node cmdWithResourcesXml = makeNode(*doc, "cmdWithResources", "Command");
     xml_node cmdXml = cmdWithResourcesXml.append_child("NodeBody").append_child("Command");
 
     xml_node resListXml = cmdXml.append_child("ResourceList");
@@ -819,7 +832,7 @@ static bool commandNodeXmlParserTest()
 
   // With parameters
   {
-    xml_node cmdWithArgsXml = makeNode(doc, "cmdWithArgs", "Command");
+    xml_node cmdWithArgsXml = makeNode(*doc, "cmdWithArgs", "Command");
     xml_node cmdXml = cmdWithArgsXml.append_child("NodeBody").append_child("Command");
     makePcdataElement(cmdXml.append_child("Name"), "StringValue", "hoo");
     xml_node argsXml = cmdXml.append_child("Arguments");
@@ -862,7 +875,7 @@ static bool commandNodeXmlParserTest()
 
   // With return value
   {
-    xml_node listNodeXml = makeNode(doc, "listNode", "NodeList");
+    xml_node listNodeXml = makeNode(*doc, "listNode", "NodeList");
     xml_node listNodeDecls = listNodeXml.append_child("VariableDeclarations");
     xml_node decl0 = makeDeclareVariable(listNodeDecls, "foo", "Integer");
     xml_node listNodeList = listNodeXml.append_child("NodeBody").append_child("NodeList");
@@ -908,7 +921,7 @@ static bool commandNodeXmlParserTest()
 
   // With return value and parameters
   {
-    xml_node listNodeXml = makeNode(doc, "listNode", "NodeList");
+    xml_node listNodeXml = makeNode(*doc, "listNode", "NodeList");
     xml_node listNodeDecls = listNodeXml.append_child("VariableDeclarations");
     xml_node decl0 = makeDeclareVariable(listNodeDecls, "foo", "Integer");
     xml_node listNodeList = listNodeXml.append_child("NodeBody").append_child("NodeList");
@@ -968,7 +981,7 @@ static bool commandNodeXmlParserTest()
 
   // With resource and return value
   {
-    xml_node listNodeXml = makeNode(doc, "listNode", "NodeList");
+    xml_node listNodeXml = makeNode(*doc, "listNode", "NodeList");
     xml_node listNodeDecls = listNodeXml.append_child("VariableDeclarations");
     xml_node decl0 = makeDeclareVariable(listNodeDecls, "foo", "Integer");
     xml_node listNodeList = listNodeXml.append_child("NodeBody").append_child("NodeList");
@@ -1036,7 +1049,7 @@ static bool commandNodeXmlParserTest()
 
   // With kitchen sink
   {
-    xml_node listNodeXml = makeNode(doc, "listNode", "NodeList");
+    xml_node listNodeXml = makeNode(*doc, "listNode", "NodeList");
     xml_node listNodeDecls = listNodeXml.append_child("VariableDeclarations");
     xml_node decl0 = makeDeclareVariable(listNodeDecls, "foo", "Integer");
     xml_node listNodeList = listNodeXml.append_child("NodeBody").append_child("NodeList");
@@ -1126,18 +1139,18 @@ static bool commandNodeXmlParserTest()
 static xml_node makePair(xml_node parent, char const *name)
 {
   xml_node result = parent.append_child("Pair");
+  assertTrue_1(result);
   makePcdataElement(result, "Name", name);
   return result;
 }
 
 static bool updateNodeXmlParserTest()
 {
-  xml_document doc;
-  doc.set_name("updateNodeXmlParserTest");
+  assertTrue_1(doc);
 
   // Empty update
   {
-    xml_node emptyUpdXml = makeNode(doc, "emptyUpd", "Update");
+    xml_node emptyUpdXml = makeNode(*doc, "emptyUpd", "Update");
     emptyUpdXml.append_child("NodeBody").append_child("Update");
 
     Node *emptyUpd = parseNode(emptyUpdXml, NULL);
@@ -1159,7 +1172,7 @@ static bool updateNodeXmlParserTest()
 
   // Update with literal values
   {
-    xml_node literalUpdXml = makeNode(doc, "literalUpd", "Update");
+    xml_node literalUpdXml = makeNode(*doc, "literalUpd", "Update");
     xml_node updXml = literalUpdXml.append_child("NodeBody").append_child("Update");
     makePcdataElement(makePair(updXml, "foo"), "BooleanValue", "true");
     makePcdataElement(makePair(updXml, "bar"), "IntegerValue", "216");
@@ -1190,7 +1203,7 @@ static bool updateNodeXmlParserTest()
 
   // Update with expression values
   {
-    xml_node listNodeXml = makeNode(doc, "listNode", "NodeList");
+    xml_node listNodeXml = makeNode(*doc, "listNode", "NodeList");
     xml_node decls = listNodeXml.append_child("VariableDeclarations");
     makePcdataElement(makeDeclareVariable(decls, "i", "Integer").append_child("InitialValue"),
                       "IntegerValue",
@@ -1258,6 +1271,7 @@ static bool updateNodeXmlParserTest()
 
 static bool libraryCallNodeXmlParserTest()
 {
+  assertTrue_1(doc);
 
   //
   // Construct some nodes to call
@@ -1313,11 +1327,9 @@ static bool libraryCallNodeXmlParserTest()
   // Call tests
   //
 
-  xml_document doc;
-
   // Call with no aliases or interface variables
   {
-    xml_node basicLibCallXml = makeNode(doc, "basicLibCall", "LibraryNodeCall");
+    xml_node basicLibCallXml = makeNode(*doc, "basicLibCall", "LibraryNodeCall");
     xml_node libCall = basicLibCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "dummy");
 
@@ -1339,7 +1351,7 @@ static bool libraryCallNodeXmlParserTest()
 
   // Call with defaulted In variable
   {
-    xml_node defaultedInCallXml = makeNode(doc, "defaultedInCall", "LibraryNodeCall");
+    xml_node defaultedInCallXml = makeNode(*doc, "defaultedInCall", "LibraryNodeCall");
     xml_node libCall = defaultedInCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "defaultedInVar");
 
@@ -1369,7 +1381,7 @@ static bool libraryCallNodeXmlParserTest()
 
   // Call with supplied In variable
   {
-    xml_node inCallXml = makeNode(doc, "inCall", "LibraryNodeCall");
+    xml_node inCallXml = makeNode(*doc, "inCall", "LibraryNodeCall");
     xml_node libCall = inCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "withInVar");
     xml_node alias0 = libCall.append_child("Alias");
@@ -1402,7 +1414,7 @@ static bool libraryCallNodeXmlParserTest()
 
   // Call with alias supplied to In variable with default
   {
-    xml_node nondefaultedInCallXml = makeNode(doc, "nondefaultedInCall", "LibraryNodeCall");
+    xml_node nondefaultedInCallXml = makeNode(*doc, "nondefaultedInCall", "LibraryNodeCall");
     xml_node libCall = nondefaultedInCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "defaultedInVar");
     xml_node alias0 = libCall.append_child("Alias");
@@ -1435,7 +1447,7 @@ static bool libraryCallNodeXmlParserTest()
 
   // Call with supplied InOut variable
   {
-    xml_node inOutCallXml = makeNode(doc, "inOutCall", "LibraryNodeCall");
+    xml_node inOutCallXml = makeNode(*doc, "inOutCall", "LibraryNodeCall");
     xml_node libCall = inOutCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "inOutVar");
     xml_node aliasedVarDecl = 
@@ -1480,7 +1492,7 @@ static bool libraryCallNodeXmlParserTest()
 
   // Call with defaulted InOut variable
   {
-    xml_node defInOutCallXml = makeNode(doc, "defInOutCall", "LibraryNodeCall");
+    xml_node defInOutCallXml = makeNode(*doc, "defInOutCall", "LibraryNodeCall");
     xml_node libCall = defInOutCallXml.append_child("NodeBody").append_child("LibraryNodeCall");
     makePcdataElement(libCall, "NodeId", "defInOutVar");
 
@@ -1512,7 +1524,7 @@ static bool libraryCallNodeXmlParserTest()
 
   // Call with alias for defaulted InOut variable
   {
-    xml_node nonDefInOutCallXml = makeNode(doc, "nonDefInOutCall", "LibraryNodeCall");
+    xml_node nonDefInOutCallXml = makeNode(*doc, "nonDefInOutCall", "LibraryNodeCall");
     xml_node aliasedVarDecl = 
       makeDeclareVariable(nonDefInOutCallXml.append_child("VariableDeclarations"), "aliasedInOut", "Integer");
     makePcdataElement(aliasedVarDecl.append_child("InitialValue"), "IntegerValue", "42");
@@ -1562,8 +1574,8 @@ static bool libraryCallNodeXmlParserTest()
 
 bool nodeXmlParserTest()
 {
-  TransitionExternalInterface tif;
-  g_interface = &tif;
+  doc = new xml_document();
+  g_interface = new TransitionExternalInterface;
 
   runTest(emptyNodeXmlParserTest);
   runTest(listNodeXmlParserTest);
@@ -1572,6 +1584,9 @@ bool nodeXmlParserTest()
   runTest(updateNodeXmlParserTest);
   runTest(libraryCallNodeXmlParserTest);
 
+  delete g_interface;
   g_interface = NULL;
+  delete doc;
+  doc = NULL;
   return true;
 }
