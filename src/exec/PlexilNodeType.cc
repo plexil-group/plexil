@@ -37,21 +37,25 @@ namespace PLEXIL
   std::string const UPDATE = "Update";
 
   // Must be kept in same order as PlexilNodeType enum
-  static std::string const NODE_TYPE_NAMES[] =
-    {"", // 0 == invalid
-     LIST,
-     COMMAND,
-     ASSIGNMENT,
-     UPDATE,
-     EMPTY,
-     LIBRARYNODECALL
-    };
+  static std::string const &NODE_TYPE_NAME(size_t t)
+  {
+    static std::string sl_names[] =
+      {"", // 0 == invalid
+       LIST,
+       COMMAND,
+       ASSIGNMENT,
+       UPDATE,
+       EMPTY,
+       LIBRARYNODECALL
+      };
+    return sl_names[t];
+  }
 
   // Simple linear search
   PlexilNodeType parseNodeType(char const *typeName)
   {
     for (size_t t = NodeType_NodeList; t < NodeType_error; ++t)
-      if (NODE_TYPE_NAMES[t] == typeName)
+      if (NODE_TYPE_NAME(t) == typeName)
         return (PlexilNodeType) t;
     return NodeType_error;
   }
@@ -60,7 +64,7 @@ namespace PLEXIL
   {
     assertTrue_2(nodeType > NodeType_uninitialized && nodeType < NodeType_error,
                  "nodeTypeString: Illegal node type");
-    return NODE_TYPE_NAMES[nodeType];
+    return NODE_TYPE_NAME(nodeType);
   }
 
 } // namespace PLEXIL
