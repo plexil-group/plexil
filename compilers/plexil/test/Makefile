@@ -65,7 +65,7 @@ VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)
 
 default: test
 
-all: setup valid-tests syntax-error-tests semantic-error-tests xml-validate
+all: setup valid-tests syntax-error-tests semantic-error-tests
 
 setup:
 	@-$(RM) tempRegressionResults
@@ -132,21 +132,6 @@ semantic-error-tests: output
 		if [ $$? -eq 0 ] ; then semantic_failure=1 ; echo $$f.ple: failed to detect expected semantic error ; fi ; \
 	done ; \
 	exit $${semantic_failure}
-
-xml-validate: output
-	@ validation_failure=0 ; \
-	for f in $(TESTS) ; do \
-		input=input/$$f.ple ; output=output/$$f.epx ; \
-		../PlexilCompiler --epx-only -o $${output} $${input} > /dev/null 2>&1 ; \
-		if [ -r $${output} ] ; then \
-			xmllint --noout --schema ../../../schema/extended-plexil.xsd $${output} > /dev/null 2>&1 ; \
-			if [ $$? -ne 0 ] ; then validation_failure=1 ; echo $${output}: validation failed ; fi ; \
-		else \
-			echo $${input}: compilation failed ; \
-			validation_failure=1 ; \
-		fi ; \
-	done ; \
-	exit $${validation_failure}
 
 output:
 	-mkdir -p output
