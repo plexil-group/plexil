@@ -417,10 +417,7 @@ element.  It is used as an included schema only.
           <xsd:complexType>
             <xsd:choice>
               <!-- these for backward compatibility -->
-              <xsd:element ref="BooleanValue" maxOccurs="unbounded"/>
-              <xsd:element ref="IntegerValue" maxOccurs="unbounded"/>
-              <xsd:element ref="RealValue" maxOccurs="unbounded"/>
-              <xsd:element ref="StringValue" maxOccurs="unbounded"/>
+              <xsd:group ref="Value" maxOccurs="unbounded"/>
               <!-- preferred new style -->
               <xsd:element ref ="ArrayValue"/>
             </xsd:choice>

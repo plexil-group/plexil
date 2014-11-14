@@ -546,13 +546,7 @@ DeclareArray =
       element Name { NCName },
       element Type { AtomicTypeValues },
       element MaxSize { nonNegativeInteger }?,
-      element InitialValue {
-        BooleanValue+
-        | IntegerValue+
-        | RealValue+
-        | StringValue+
-        | ArrayValue
-      }?
+      element InitialValue { Value+ | ArrayValue }?
     }
 IterationSucceeded =
   notAllowed

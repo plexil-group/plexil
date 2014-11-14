@@ -900,16 +900,7 @@
                     <element name="InitialValue">
                         <choice>
                             <oneOrMore>
-                                <ref name="BooleanValue"/>
-                            </oneOrMore>
-                            <oneOrMore>
-                                <ref name="IntegerValue"/>
-                            </oneOrMore>
-                            <oneOrMore>
-                                <ref name="RealValue"/>
-                            </oneOrMore>
-                            <oneOrMore>
-                                <ref name="StringValue"/>
+                                <ref name="Value"/>
                             </oneOrMore>
                             <ref name="ArrayValue"/>
                         </choice>

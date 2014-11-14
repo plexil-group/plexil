@@ -284,9 +284,7 @@
 
   <xsl:template match="If">
     <Node NodeType="NodeList" epx="If">
-      <xsl:call-template name="translate-nose-clauses">
-        <xsl:with-param name="declare-test" select="'true'" />
-      </xsl:call-template>
+      <xsl:call-template name="translate-nose-clauses"/>
       <xsl:call-template name="if-body" />
     </Node>
   </xsl:template>
@@ -295,104 +293,139 @@
     <Node NodeType="NodeList" epx="If">
       <xsl:call-template name="translate-nose-clauses">
         <xsl:with-param name="mode" select="'ordered'" />
-        <xsl:with-param name="declare-test" select="'true'" />
       </xsl:call-template>
       <xsl:call-template name="if-body" />
     </Node>
   </xsl:template>
 
   <xsl:template name="if-body">
-    <xsl:variable name="setup-node-id" select="tr:prefix('IfSetup')" />
+    <xsl:variable name="test-node-id" select="tr:prefix('IfTest')" />
     <xsl:variable name="true-node-id" select="tr:prefix('IfThenCase')" />
-    <xsl:variable name="false-node-id" select="tr:prefix('IfElseCase')" />
+    <xsl:variable name="false-node-id"
+                  select="tr:prefix('IfElseCase')" />
+    <xsl:variable name="test-true-cond">
+      <xsl:call-template name="node-succeeded">
+        <xsl:with-param name="id" select="$test-node-id" />
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="test-false-cond">
+      <AND>
+        <xsl:call-template name="node-finished">
+          <xsl:with-param name="id" select="$test-node-id" />
+        </xsl:call-template>
+        <xsl:call-template name="node-postcondition-failed">
+          <xsl:with-param name="id" select="$test-node-id" />
+        </xsl:call-template>
+      </AND>
+    </xsl:variable>
     <NodeBody>
       <NodeList>
-        <xsl:call-template name="retest">
-          <xsl:with-param name="id" select="$setup-node-id" />
-        </xsl:call-template>
-        <Node NodeType="NodeList" epx="aux">
+        <Node NodeType="Empty" epx="aux">
           <NodeId>
-            <xsl:value-of select="tr:prefix('IfBody')" />
+            <xsl:value-of select="$test-node-id" />
           </NodeId>
-          <StartCondition>
-            <xsl:call-template name="node-finished">
-              <xsl:with-param name="id" select="$setup-node-id" />
-            </xsl:call-template>
-          </StartCondition>
-          <NodeBody>
-            <NodeList>
-              <Node NodeType="NodeList" epx="Then">
-                <NodeId>
-                  <xsl:value-of select="$true-node-id" />
-                </NodeId>
-                <StartCondition>
-                  <BooleanVariable>
-                    <xsl:value-of select="tr:prefix('test')" />
-                  </BooleanVariable>
-                </StartCondition>
-                <SkipCondition>
-                  <xsl:call-template name= "variable-unknown-or-false">
-                    <xsl:with-param name= "var" select= "tr:prefix('test')"/>
-                  </xsl:call-template>
-                </SkipCondition>
-                <NodeBody>
-                  <NodeList>
-                    <xsl:apply-templates select="Then/*" />
-                  </NodeList>
-                </NodeBody>
-              </Node>
-              <xsl:if test="Else">
-                <Node NodeType="NodeList" epx="Else">
-                  <NodeId>
-                    <xsl:value-of select="$false-node-id" />
-                  </NodeId>
-                  <StartCondition>
-                    <xsl:call-template name= "variable-unknown-or-false">
-                      <xsl:with-param name= "var" select= "tr:prefix('test')"/>
-                    </xsl:call-template>
-                  </StartCondition>
-                  <SkipCondition>
-                    <BooleanVariable>
-                      <xsl:value-of select="tr:prefix('test')" />
-                    </BooleanVariable>
-                  </SkipCondition>
-                  <NodeBody>
-                    <NodeList>
-                      <xsl:apply-templates select="Else/*" />
-                    </NodeList>
-                  </NodeBody>
-                </Node>
-              </xsl:if>
-            </NodeList>
-          </NodeBody>
+          <PostCondition>
+            <xsl:apply-templates select="Condition/*" />
+          </PostCondition>
         </Node>
+        <xsl:for-each select="Then">
+          <xsl:call-template name="if-clause-body">
+            <xsl:with-param name="clause-name" select="name(.)" />
+            <xsl:with-param name="start-condition" select="$test-true-cond"/>
+            <xsl:with-param name="skip-condition" select="$test-false-cond"/>
+          </xsl:call-template>
+        </xsl:for-each>
+        <xsl:for-each select="Else">
+          <xsl:call-template name="if-clause-body">
+            <xsl:with-param name="clause-name" select="name(.)" />
+            <xsl:with-param name="start-condition" select="$test-false-cond"/>
+            <xsl:with-param name="skip-condition" select="$test-true-cond"/>
+          </xsl:call-template>
+        </xsl:for-each>
+        <!-- <Node NodeType="NodeList" epx="Then">  -->
+        <!--   <NodeId>  -->
+        <!--     <xsl:value-of select="$true-node-id" />  -->
+        <!--   </NodeId>  -->
+        <!--   <StartCondition>  -->
+        <!--     <xsl:copy-of select="$test-true-cond" />  -->
+        <!--   </StartCondition>  -->
+        <!--   <SkipCondition>  -->
+        <!--     <xsl:copy-of select="$test-false-cond" />  -->
+        <!--   </SkipCondition>  -->
+        <!--   <NodeBody>  -->
+        <!--     <NodeList>  -->
+        <!--       <xsl:apply-templates select="Then/*" />  -->
+        <!--     </NodeList>  -->
+        <!--   </NodeBody>  -->
+        <!-- </Node>  -->
+        <!-- <xsl:if test="Else">  -->
+        <!--   <Node NodeType="NodeList" epx="Else">  -->
+        <!--     <NodeId>  -->
+        <!--       <xsl:value-of select="$false-node-id" />  -->
+        <!--     </NodeId>  -->
+        <!--     <StartCondition>  -->
+        <!--       <xsl:copy-of select="$test-false-cond" />  -->
+        <!--     </StartCondition>  -->
+        <!--     <SkipCondition>  -->
+        <!--       <xsl:copy-of select="$test-true-cond" />  -->
+        <!--     </SkipCondition>  -->
+        <!--     <NodeBody>  -->
+        <!--       <NodeList>  -->
+        <!--         <xsl:apply-templates select="Else/*" />  -->
+        <!--       </NodeList>  -->
+        <!--     </NodeBody>  -->
+        <!--   </Node>  -->
+        <!-- </xsl:if>  -->
       </NodeList>
     </NodeBody>
   </xsl:template>
 
-  <xsl:template name= "variable-unknown-or-false">
-    <xsl:param name= "var"/>
-    <OR>
-      <NOT>
-        <IsKnown>
-          <BooleanVariable>
-            <xsl:value-of select="$var" />
-          </BooleanVariable>
-        </IsKnown>
-      </NOT>
-      <NOT>
-        <BooleanVariable>
-          <xsl:value-of select="$var" />
-        </BooleanVariable>
-      </NOT>
-    </OR>
+  <xsl:template name="if-clause-body">
+    <xsl:param name="clause-name" required="yes" />
+    <xsl:param name="start-condition" required="yes" />
+    <xsl:param name="skip-condition" required="yes" />
+    <xsl:variable name="expanded-clause">
+      <xsl:apply-templates />
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="$expanded-clause/Node/StartCondition|$expanded-clause/Node/SkipCondition">
+        <!-- must create wrapper node -->
+        <Node NodeType="NodeList" epx="{$clause-name}">
+          <NodeId><xsl:value-of select="tr:prefix($clause-name)" /></NodeId>
+          <StartCondition>
+            <xsl:copy-of select="$start-condition" />
+          </StartCondition>
+          <SkipCondition>
+            <xsl:copy-of select="$skip-condition" />
+          </SkipCondition>
+          <NodeBody>
+            <NodeList>
+              <xsl:copy-of select="$expanded-clause/Node" />
+            </NodeList>
+          </NodeBody>
+        </Node>
+      </xsl:when>
+      <xsl:otherwise>
+        <!-- copy existing node and add conditions -->
+        <Node NodeType="{$expanded-clause/Node/@NodeType}" epx="{$clause-name}">
+          <xsl:call-template name="standard-preamble">
+            <xsl:with-param name="context" select="$expanded-clause/Node" />
+          </xsl:call-template>
+          <StartCondition>
+            <xsl:copy-of select="$start-condition" />
+          </StartCondition>
+          <SkipCondition>
+            <xsl:copy-of select="$skip-condition" />
+          </SkipCondition>
+          <xsl:copy-of select="$expanded-clause/Node/NodeBody" />
+        </Node>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template match="While">
     <Node NodeType="NodeList" epx="While">
-      <xsl:call-template name="translate-nose-clauses">
-        <xsl:with-param name="declare-test" select="'true'" />
-      </xsl:call-template>
+      <xsl:call-template name="translate-nose-clauses" />
       <xsl:call-template name="while-body" />
     </Node>
   </xsl:template>
@@ -401,16 +434,13 @@
     <Node NodeType="NodeList" epx="While">
       <xsl:call-template name="translate-nose-clauses">
         <xsl:with-param name="mode" select="'ordered'" />
-        <xsl:with-param name="declare-test" select="'true'" />
       </xsl:call-template>
       <xsl:call-template name="while-body" />
     </Node>
   </xsl:template>
 
-  <xsl:template name="while-body">
-    <xsl:variable name="setup-id" select="tr:prefix('WhileSetup')" />
-    <xsl:variable name="retest-id" select="tr:prefix('WhileRetest')" />
-    <xsl:variable name="true-node-id" select="tr:prefix('WhileTrue')" />
+  <xsl:template name="while-body"> 
+    <xsl:variable name="test-id" select="tr:prefix('WhileTest')" />
     <xsl:variable name="action-node-id" select="tr:prefix('WhileAction')" />
     <NodeBody>
       <NodeList>
@@ -418,55 +448,43 @@
           <NodeId>
             <xsl:value-of select="tr:prefix('WhileBody')" />
           </NodeId>
+          <RepeatCondition>
+            <xsl:call-template name="node-succeeded">
+              <xsl:with-param name="id" select="$test-id" />
+            </xsl:call-template>
+          </RepeatCondition>
           <NodeBody>
             <NodeList>
-              <xsl:call-template name="retest">
-                <xsl:with-param name="id" select="$setup-id" />
-              </xsl:call-template>
+              <Node NodeType="Empty" epx="aux">
+                <NodeId>
+                  <xsl:value-of select="$test-id" />
+                </NodeId>
+                <PostCondition>
+                  <xsl:apply-templates select="Condition/*" />
+                </PostCondition>
+              </Node>
               <Node NodeType="NodeList" epx="aux">
                 <NodeId>
-                  <xsl:value-of select="$true-node-id" />
+                  <xsl:value-of select="$action-node-id" />
                 </NodeId>
                 <StartCondition>
-                  <AND>
-                    <xsl:call-template name="node-finished">
-                      <xsl:with-param name="id" select="$setup-id" />
-                    </xsl:call-template>
-                    <BooleanVariable>
-                      <xsl:value-of select="tr:prefix('test')" />
-                    </BooleanVariable>
-                  </AND>
+                  <xsl:call-template name="node-succeeded">
+                    <xsl:with-param name="id" select="$test-id" />
+                  </xsl:call-template>
                 </StartCondition>
                 <SkipCondition>
-                  <NOT>
-                    <BooleanVariable>
-                      <xsl:value-of select="tr:prefix('test')" />
-                    </BooleanVariable>
-                  </NOT>
+                  <AND>
+                    <xsl:call-template name="node-finished">
+                      <xsl:with-param name="id" select="$test-id" />
+                    </xsl:call-template>
+                    <xsl:call-template name="node-postcondition-failed">
+                      <xsl:with-param name="id" select="$test-id" />
+                    </xsl:call-template>
+                  </AND>
                 </SkipCondition>
-                <RepeatCondition>
-                  <BooleanVariable>
-                    <xsl:value-of select="tr:prefix('test')" />
-                  </BooleanVariable>
-                </RepeatCondition>
                 <NodeBody>
                   <NodeList>
-                    <Node NodeType="NodeList" epx="aux">
-                      <NodeId>
-                        <xsl:value-of select="$action-node-id" />
-                      </NodeId>
-                      <NodeBody>
-                        <NodeList>
-                          <xsl:apply-templates
-                            select="Action/*" />
-                        </NodeList>
-                      </NodeBody>
-                    </Node>
-                    <xsl:call-template name="retest">
-                      <xsl:with-param name="id" select="$retest-id" />
-                      <xsl:with-param name="predecessor"
-                        select="$action-node-id" />
-                    </xsl:call-template>
+                    <xsl:apply-templates select="Action/*" />
                   </NodeList>
                 </NodeBody>
               </Node>
@@ -476,39 +494,6 @@
       </NodeList>
     </NodeBody>
   </xsl:template>
-
-
-  <xsl:template name="retest">
-    <!--
-      Assigns to the (predeclared) variable 'test' the value of the
-      element 'Condition'. This node is reused in several forms.
-    -->
-    <xsl:param name="id" />
-    <xsl:param name="predecessor" />
-    <Node NodeType="Assignment" epx="aux">
-      <NodeId>
-        <xsl:value-of select="$id" />
-      </NodeId>
-      <xsl:if test="$predecessor">
-        <StartCondition>
-          <xsl:call-template name="node-finished">
-            <xsl:with-param name="id" select="$predecessor" />
-          </xsl:call-template>
-        </StartCondition>
-      </xsl:if>
-      <NodeBody>
-        <Assignment>
-          <BooleanVariable>
-            <xsl:value-of select="tr:prefix('test')" />
-          </BooleanVariable>
-          <BooleanRHS>
-            <xsl:apply-templates select="Condition/*" />
-          </BooleanRHS>
-        </Assignment>
-      </NodeBody>
-    </Node>
-  </xsl:template>
-
 
   <xsl:template match="For">
     <Node NodeType="NodeList" epx="For">
@@ -956,20 +941,23 @@
     </Node>
   </xsl:template>
 
-  <xsl:template name= "standard-preamble">
-    <xsl:call-template name="basic-clauses"/>
-    <xsl:apply-templates select="StartCondition"/>
-    <xsl:apply-templates select="RepeatCondition"/>
-    <xsl:apply-templates select="PreCondition"/>
-    <xsl:apply-templates select="PostCondition"/>
-    <xsl:apply-templates select="InvariantCondition"/>
-    <xsl:apply-templates select="ExitCondition"/>
-    <xsl:apply-templates select="EndCondition"/>
-    <xsl:apply-templates select="SkipCondition"/>
-    <xsl:apply-templates select="VariableDeclarations"/>
+  <xsl:template name="standard-preamble">
+    <xsl:param name="context" select="." />
+    <xsl:call-template name="basic-clauses">
+      <xsl:with-param name="context" select="$context" />
+    </xsl:call-template>
+    <xsl:apply-templates select="$context/StartCondition"/>
+    <xsl:apply-templates select="$context/RepeatCondition"/>
+    <xsl:apply-templates select="$context/PreCondition"/>
+    <xsl:apply-templates select="$context/PostCondition"/>
+    <xsl:apply-templates select="$context/InvariantCondition"/>
+    <xsl:apply-templates select="$context/ExitCondition"/>
+    <xsl:apply-templates select="$context/EndCondition"/>
+    <xsl:apply-templates select="$context/SkipCondition"/>
+    <xsl:apply-templates select="$context/VariableDeclarations"/>
   </xsl:template>
 
-  <xsl:template name= "standard-preamble-ordered">
+  <xsl:template name="standard-preamble-ordered">
     <xsl:call-template name="basic-clauses"/>
     <xsl:call-template name="ordered-start-condition"/>
     <xsl:apply-templates select="RepeatCondition"/>
@@ -991,7 +979,6 @@
   -->
   <xsl:template name="translate-nose-clauses">
     <xsl:param name="mode" />
-    <xsl:param name="declare-test" />
     <xsl:param name="declare-for" />
     <xsl:param name="success-invariant" />
     <xsl:param name="try-clauses" />
@@ -1005,16 +992,6 @@
     <!-- Conditionally include the variable declarations -->
     <xsl:if test="$skip-variable-declarations != 'true'">
       <xsl:choose>
-        <xsl:when test="$declare-test">
-          <!-- declare a "test" variable in addition to existing -->
-          <VariableDeclarations>
-            <xsl:apply-templates select="VariableDeclarations/*"/>
-            <xsl:call-template name="declare-variable">
-              <xsl:with-param name="name" select="tr:prefix('test')" />
-              <xsl:with-param name="type" select="'Boolean'" />
-            </xsl:call-template>
-          </VariableDeclarations>
-        </xsl:when>
         <xsl:when test="$declare-for">
           <!-- declare the for loop's variable -->
           <VariableDeclarations>
@@ -1114,18 +1091,21 @@
   </xsl:template>
 
 
-  <xsl:template name= "basic-clauses">
+  <xsl:template name="basic-clauses">
+    <xsl:param name="context" select="." />
     <!-- Copy attributes first -->
-    <xsl:copy-of select="@FileName" />
-    <xsl:copy-of select="@LineNo" />
-    <xsl:copy-of select="@ColNo" />
+    <xsl:copy-of select="$context/@FileName" />
+    <xsl:copy-of select="$context/@LineNo" />
+    <xsl:copy-of select="$context/@ColNo" />
     <!-- Then handle NodeId -->
-    <xsl:call-template name="insert-node-id" />
+    <xsl:call-template name="insert-node-id">
+      <xsl:with-param name="node" select="$context" />
+    </xsl:call-template>
     <!-- Copy clauses that don't need translation -->
-    <xsl:copy-of select="Comment" />
-    <xsl:copy-of select="Priority" />
-    <xsl:copy-of select="Permissions" />
-    <xsl:apply-templates select="Interface"/>
+    <xsl:copy-of select="$context/Comment" />
+    <xsl:copy-of select="$context/Priority" />
+    <xsl:copy-of select="$context/Permissions" />
+    <xsl:apply-templates select="$context/Interface"/>
   </xsl:template>
 
   <xsl:template match="Interface">
@@ -1210,7 +1190,6 @@
     </xsl:choose>
   </xsl:template>
 
-
   <xsl:template name="insert-node-id">
     <xsl:param name="node" select="." />
     <!-- Supply missing NodeId or copy existing one -->
@@ -1225,7 +1204,6 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
-
 
   <xsl:template name="declare-variable">
     <xsl:param name="name" />
