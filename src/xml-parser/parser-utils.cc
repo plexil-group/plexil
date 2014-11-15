@@ -232,25 +232,42 @@ namespace PLEXIL
 
   static bool findSourceLocation(xml_node here, char const *&filename, int &line, int &col)
   {
-    xml_attribute fname, lineno, colno;
-    do {
-      fname = here.attribute(FILE_NAME_ATTR);
-      lineno = here.attribute(LINE_NO_ATTR);
-      colno = here.attribute(COL_NO_ATTR);
-      if (fname || lineno || colno) {
-        filename = fname.value();
-        line = lineno.as_int();
-        col = colno.as_int();
-        return true;
+    // File name is now only on PlexilPlan node
+    filename = NULL;
+    pugi::xml_node planNode = here.root().child(PLEXIL_PLAN_TAG); // should be PlexilPlan node
+    if (planNode) {
+      xml_attribute fileAttr = planNode.attribute(FILE_NAME_ATTR);
+      if (fileAttr) {
+        filename = fileAttr.value();
+      }
+    }
+    // else input is bad or pugi is broken, but ignore for our purposes
+
+    bool lineSeen = false, colSeen = false;
+    while (here && !(lineSeen && colSeen)) {
+      if (!lineSeen) {
+        xml_attribute lineno = here.attribute(LINE_NO_ATTR);
+        if (lineno) {
+          line = lineno.as_int();
+          lineSeen = true;
+        }
+      }
+      if (!colSeen) {
+        xml_attribute colno = here.attribute(COL_NO_ATTR);
+        if (colno) {
+          col = colno.as_int();
+          colSeen = true;
+        }
       }
       here = here.parent();
-    } while (here);
+    }
 
     // got to root and found nothing
-    filename = NULL;
-    line = 0;
-    col = 0;
-    return false;
+    if (!lineSeen)
+      line = 0;
+    if (!colSeen)
+      col = 0;
+    return (lineSeen || colSeen);
   }
 
   bool reportParserException(std::string const &msg, xml_node location)
