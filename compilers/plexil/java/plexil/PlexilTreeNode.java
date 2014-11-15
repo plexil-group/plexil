@@ -173,7 +173,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     protected void constructXMLBase()
     {
         m_xml = new XMLElement(this.getXMLElementName());
-        addSourceLocatorAttributes();
+        this.addSourceLocatorAttributes();
     }
 
     /**
@@ -192,9 +192,6 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     protected void addSourceLocatorAttributes()
     {
         if (m_xml != null) {
-            String fname = CompilerState.getCompilerState().getSourceFileName();
-            if (fname != null)
-                m_xml.setAttribute("FileName", fname);
             m_xml.setAttribute("LineNo", String.valueOf(1 + this.getLine()));
             m_xml.setAttribute("ColNo", String.valueOf(this.getCharPositionInLine()));
         }

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -70,5 +70,21 @@ public class PlexilPlanNode extends PlexilTreeNode
     {
         return "PlexilPlan";
     }
+
+
+    /**
+     * @brief Add new source locator attributes to m_xml, or replace the existing ones.
+     */
+    protected void addSourceLocatorAttributes()
+    {
+        super.addSourceLocatorAttributes();
+        if (m_xml != null) {
+            String fname = CompilerState.getCompilerState().getSourceFileName();
+            if (fname != null)
+                m_xml.setAttribute("FileName", fname);
+        }
+    }
+
+
 
 }
