@@ -71,14 +71,24 @@ void Logging::handle_message(int msg_type, const char * msg)
 void Logging::handle_message(int msg_type, const char * file, int offset, const char * msg) 
 {
   std::ostringstream msgbuf;
-  msgbuf << msg_type_name(msg_type) << ": " << file << ":" << offset << ": " << msg;
+  msgbuf << msg_type_name(msg_type);
+  if (file)
+    msgbuf << ": " << file;
+  msgbuf << ":" << offset;
+  if (msg)
+    msgbuf << ": " << msg;
   print_message(msg_type, msgbuf.str().c_str());
 }
 
 void Logging::handle_message(int msg_type, const char * file, int line, int col, const char * msg) 
 {
   std::ostringstream msgbuf;
-  msgbuf << msg_type_name(msg_type) << ": " << file << ":" << line << ":" << col << ": " << msg;
+  msgbuf << msg_type_name(msg_type);
+  if (file)
+    msgbuf << ": " << file;
+  msgbuf << ":" << line << ":" << col;
+  if (msg)
+    msgbuf << ": " << msg;
   print_message(msg_type, msgbuf.str().c_str());
 }
 

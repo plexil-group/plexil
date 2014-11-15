@@ -47,11 +47,15 @@ namespace PLEXIL
   ParserException::ParserException(const char * msg)
     throw()
     : std::exception(),
-      m_what(msg),
+      m_what(),
       m_file(),
       m_line(0),
       m_char(0)
   {
+    if (msg)
+      m_what = msg;
+    else
+      m_what = "Message not specified";
     Logging::handle_message(Logging::LOG_ERROR, m_what.c_str());
   }
   
@@ -59,11 +63,17 @@ namespace PLEXIL
   ParserException::ParserException(const char * msg, const char * file, int offset)
     throw()
     : std::exception(),
-      m_what(msg),
-      m_file(file),
+      m_what(),
+      m_file(),
       m_line(0),
       m_char(offset)
   {
+    if (msg)
+      m_what = msg;
+    else
+      m_what = "Message not specified";
+    if (file)
+      m_file = file;
     Logging::handle_message(Logging::LOG_ERROR, file, offset, m_what.c_str());
   }
   
@@ -71,11 +81,17 @@ namespace PLEXIL
   ParserException::ParserException(const char * msg, const char * file, int line, int col)
     throw()
     : std::exception(),
-      m_what(msg),
-      m_file(file),
+      m_what(),
+      m_file(),
       m_line(line),
       m_char(col)
   {
+    if (msg)
+      m_what = msg;
+    else
+      m_what = "Message not specified";
+    if (file)
+      m_file = file;
     Logging::handle_message(Logging::LOG_ERROR, file, line, col, m_what.c_str());
   }
   
