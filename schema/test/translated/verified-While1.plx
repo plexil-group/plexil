@@ -11,85 +11,49 @@
                <BooleanValue>true</BooleanValue>
             </InitialValue>
          </DeclareVariable>
-         <DeclareVariable>
-            <Name>ep2cp_test</Name>
-            <Type>Boolean</Type>
-         </DeclareVariable>
       </VariableDeclarations>
+      <RepeatCondition>
+         <EQInternal>
+            <NodeOutcomeVariable>
+               <NodeRef dir="child">ep2cp_WhileTest</NodeRef>
+            </NodeOutcomeVariable>
+            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+         </EQInternal>
+      </RepeatCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="aux">
-               <NodeId>ep2cp_WhileBody</NodeId>
-               <NodeBody>
-                  <NodeList>
-                     <Node NodeType="Assignment" epx="aux">
-                        <NodeId>ep2cp_WhileSetup</NodeId>
-                        <NodeBody>
-                           <Assignment>
-                              <BooleanVariable>ep2cp_test</BooleanVariable>
-                              <BooleanRHS>
-                                 <BooleanVariable>foo</BooleanVariable>
-                              </BooleanRHS>
-                           </Assignment>
-                        </NodeBody>
-                     </Node>
-                     <Node NodeType="NodeList" epx="aux">
-                        <NodeId>ep2cp_WhileTrue</NodeId>
-                        <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_WhileSetup</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                              <BooleanVariable>ep2cp_test</BooleanVariable>
-                           </AND>
-                        </StartCondition>
-                        <SkipCondition>
-                           <NOT>
-                              <BooleanVariable>ep2cp_test</BooleanVariable>
-                           </NOT>
-                        </SkipCondition>
-                        <RepeatCondition>
-                           <BooleanVariable>ep2cp_test</BooleanVariable>
-                        </RepeatCondition>
-                        <NodeBody>
-                           <NodeList>
-                              <Node NodeType="NodeList" epx="aux">
-                                 <NodeId>ep2cp_WhileAction</NodeId>
-                                 <NodeBody>
-                                    <NodeList>
-                                       <Node NodeType="Empty">
-                                          <NodeId>One</NodeId>
-                                       </Node>
-                                    </NodeList>
-                                 </NodeBody>
-                              </Node>
-                              <Node NodeType="Assignment" epx="aux">
-                                 <NodeId>ep2cp_WhileRetest</NodeId>
-                                 <StartCondition>
-                                    <EQInternal>
-                                       <NodeStateVariable>
-                                          <NodeId>ep2cp_WhileAction</NodeId>
-                                       </NodeStateVariable>
-                                       <NodeStateValue>FINISHED</NodeStateValue>
-                                    </EQInternal>
-                                 </StartCondition>
-                                 <NodeBody>
-                                    <Assignment>
-                                       <BooleanVariable>ep2cp_test</BooleanVariable>
-                                       <BooleanRHS>
-                                          <BooleanVariable>foo</BooleanVariable>
-                                       </BooleanRHS>
-                                    </Assignment>
-                                 </NodeBody>
-                              </Node>
-                           </NodeList>
-                        </NodeBody>
-                     </Node>
-                  </NodeList>
-               </NodeBody>
+            <Node NodeType="Empty" epx="Condition">
+               <NodeId>ep2cp_WhileTest</NodeId>
+               <PostCondition>
+                  <BooleanVariable>foo</BooleanVariable>
+               </PostCondition>
+            </Node>
+            <Node NodeType="Empty" epx="Action">
+               <NodeId>One</NodeId>
+               <StartCondition>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                  </EQInternal>
+               </StartCondition>
+               <SkipCondition>
+                  <AND>
+                     <EQInternal>
+                        <NodeStateVariable>
+                           <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                        </NodeStateVariable>
+                        <NodeStateValue>FINISHED</NodeStateValue>
+                     </EQInternal>
+                     <EQInternal>
+                        <NodeFailureVariable>
+                           <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                        </NodeFailureVariable>
+                        <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
+                     </EQInternal>
+                  </AND>
+               </SkipCondition>
             </Node>
          </NodeList>
       </NodeBody>

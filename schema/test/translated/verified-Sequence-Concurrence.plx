@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
+            xmlns:tr="extended-plexil-translator"
+            FileName="Plan.ple">
    <Node NodeType="NodeList" FileName="Plan.ple" LineNo="2" ColNo="1">
       <NodeId>Interface</NodeId>
       <VariableDeclarations>

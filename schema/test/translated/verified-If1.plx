@@ -11,88 +11,68 @@
                <BooleanValue>true</BooleanValue>
             </InitialValue>
          </DeclareVariable>
-         <DeclareVariable>
-            <Name>ep2cp_test</Name>
-            <Type>Boolean</Type>
-         </DeclareVariable>
       </VariableDeclarations>
       <NodeBody>
          <NodeList>
-            <Node NodeType="Assignment" epx="aux">
-               <NodeId>ep2cp_IfSetup</NodeId>
-               <NodeBody>
-                  <Assignment>
-                     <BooleanVariable>ep2cp_test</BooleanVariable>
-                     <BooleanRHS>
-                        <BooleanVariable>foo</BooleanVariable>
-                     </BooleanRHS>
-                  </Assignment>
-               </NodeBody>
+            <Node NodeType="Empty" epx="Condition">
+               <NodeId>ep2cp_IfTest</NodeId>
+               <PostCondition>
+                  <BooleanVariable>foo</BooleanVariable>
+               </PostCondition>
             </Node>
-            <Node NodeType="NodeList" epx="aux">
-               <NodeId>ep2cp_IfBody</NodeId>
+            <Node NodeType="Empty" epx="Then">
+               <NodeId>One</NodeId>
                <StartCondition>
                   <EQInternal>
-                     <NodeStateVariable>
-                        <NodeId>ep2cp_IfSetup</NodeId>
-                     </NodeStateVariable>
-                     <NodeStateValue>FINISHED</NodeStateValue>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                   </EQInternal>
                </StartCondition>
-               <NodeBody>
-                  <NodeList>
-                     <Node NodeType="NodeList" epx="Then">
-                        <NodeId>ep2cp_IfThenCase</NodeId>
-                        <StartCondition>
-                           <BooleanVariable>ep2cp_test</BooleanVariable>
-                        </StartCondition>
-                        <SkipCondition>
-                           <OR>
-                              <NOT>
-                                 <IsKnown>
-                                    <BooleanVariable>ep2cp_test</BooleanVariable>
-                                 </IsKnown>
-                              </NOT>
-                              <NOT>
-                                 <BooleanVariable>ep2cp_test</BooleanVariable>
-                              </NOT>
-                           </OR>
-                        </SkipCondition>
-                        <NodeBody>
-                           <NodeList>
-                              <Node NodeType="Empty">
-                                 <NodeId>One</NodeId>
-                              </Node>
-                           </NodeList>
-                        </NodeBody>
-                     </Node>
-                     <Node NodeType="NodeList" epx="Else">
-                        <NodeId>ep2cp_IfElseCase</NodeId>
-                        <StartCondition>
-                           <OR>
-                              <NOT>
-                                 <IsKnown>
-                                    <BooleanVariable>ep2cp_test</BooleanVariable>
-                                 </IsKnown>
-                              </NOT>
-                              <NOT>
-                                 <BooleanVariable>ep2cp_test</BooleanVariable>
-                              </NOT>
-                           </OR>
-                        </StartCondition>
-                        <SkipCondition>
-                           <BooleanVariable>ep2cp_test</BooleanVariable>
-                        </SkipCondition>
-                        <NodeBody>
-                           <NodeList>
-                              <Node NodeType="Empty">
-                                 <NodeId>Two</NodeId>
-                              </Node>
-                           </NodeList>
-                        </NodeBody>
-                     </Node>
-                  </NodeList>
-               </NodeBody>
+               <SkipCondition>
+                  <AND>
+                     <EQInternal>
+                        <NodeStateVariable>
+                           <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+                        </NodeStateVariable>
+                        <NodeStateValue>FINISHED</NodeStateValue>
+                     </EQInternal>
+                     <EQInternal>
+                        <NodeFailureVariable>
+                           <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+                        </NodeFailureVariable>
+                        <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
+                     </EQInternal>
+                  </AND>
+               </SkipCondition>
+            </Node>
+            <Node NodeType="Empty" epx="Else">
+               <NodeId>Two</NodeId>
+               <StartCondition>
+                  <AND>
+                     <EQInternal>
+                        <NodeStateVariable>
+                           <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+                        </NodeStateVariable>
+                        <NodeStateValue>FINISHED</NodeStateValue>
+                     </EQInternal>
+                     <EQInternal>
+                        <NodeFailureVariable>
+                           <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+                        </NodeFailureVariable>
+                        <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
+                     </EQInternal>
+                  </AND>
+               </StartCondition>
+               <SkipCondition>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                  </EQInternal>
+               </SkipCondition>
             </Node>
          </NodeList>
       </NodeBody>
