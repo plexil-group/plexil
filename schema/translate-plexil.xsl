@@ -62,6 +62,7 @@
   <!-- Entry point -->
   <xsl:template match="PlexilPlan">
     <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+      <xsl:copy-of select="@FileName" />
       <!-- 0 or 1 expected -->
       <xsl:copy-of select="GlobalDeclarations"/>
       <!-- 1 expected -->
@@ -440,54 +441,66 @@
   </xsl:template>
 
   <xsl:template name="while-body"> 
+    <xsl:choose>
+      <xsl:when test="RepeatCondition">
+        <NodeBody>
+          <NodeList>
+            <Node NodeType="NodeList" epx="aux">
+              <NodeId>
+                <xsl:value-of select="tr:prefix('WhileBody')" />
+              </NodeId>
+              <xsl:call-template name="while-body-1" />
+            </Node>
+          </NodeList>
+        </NodeBody>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="while-body-1" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="while-body-1"> 
     <xsl:variable name="test-id" select="tr:prefix('WhileTest')" />
-    <xsl:variable name="action-node-id" select="tr:prefix('WhileAction')" />
+    <xsl:variable name="action-node-id"
+                  select="tr:prefix('WhileAction')" />
+    <RepeatCondition>
+      <xsl:call-template name="node-succeeded">
+        <xsl:with-param name="id" select="$test-id" />
+      </xsl:call-template>
+    </RepeatCondition>
     <NodeBody>
       <NodeList>
+        <Node NodeType="Empty" epx="Condition">
+          <NodeId>
+            <xsl:value-of select="$test-id" />
+          </NodeId>
+          <PostCondition>
+            <xsl:apply-templates select="Condition/*" />
+          </PostCondition>
+        </Node>
         <Node NodeType="NodeList" epx="aux">
           <NodeId>
-            <xsl:value-of select="tr:prefix('WhileBody')" />
+            <xsl:value-of select="$action-node-id" />
           </NodeId>
-          <RepeatCondition>
+          <StartCondition>
             <xsl:call-template name="node-succeeded">
               <xsl:with-param name="id" select="$test-id" />
             </xsl:call-template>
-          </RepeatCondition>
+          </StartCondition>
+          <SkipCondition>
+            <AND>
+              <xsl:call-template name="node-finished">
+                <xsl:with-param name="id" select="$test-id" />
+              </xsl:call-template>
+              <xsl:call-template name="node-postcondition-failed">
+                <xsl:with-param name="id" select="$test-id" />
+              </xsl:call-template>
+            </AND>
+          </SkipCondition>
           <NodeBody>
             <NodeList>
-              <Node NodeType="Empty" epx="aux">
-                <NodeId>
-                  <xsl:value-of select="$test-id" />
-                </NodeId>
-                <PostCondition>
-                  <xsl:apply-templates select="Condition/*" />
-                </PostCondition>
-              </Node>
-              <Node NodeType="NodeList" epx="aux">
-                <NodeId>
-                  <xsl:value-of select="$action-node-id" />
-                </NodeId>
-                <StartCondition>
-                  <xsl:call-template name="node-succeeded">
-                    <xsl:with-param name="id" select="$test-id" />
-                  </xsl:call-template>
-                </StartCondition>
-                <SkipCondition>
-                  <AND>
-                    <xsl:call-template name="node-finished">
-                      <xsl:with-param name="id" select="$test-id" />
-                    </xsl:call-template>
-                    <xsl:call-template name="node-postcondition-failed">
-                      <xsl:with-param name="id" select="$test-id" />
-                    </xsl:call-template>
-                  </AND>
-                </SkipCondition>
-                <NodeBody>
-                  <NodeList>
-                    <xsl:apply-templates select="Action/*" />
-                  </NodeList>
-                </NodeBody>
-              </Node>
+              <xsl:apply-templates select="Action/*" />
             </NodeList>
           </NodeBody>
         </Node>
