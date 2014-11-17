@@ -413,7 +413,8 @@
 
   <xsl:template name="while-body"> 
     <xsl:choose>
-      <xsl:when test="RepeatCondition">
+      <xsl:when test="VariableDeclarations|RepeatCondition|StartCondition">
+        <!-- must create outer wrapper node -->
         <NodeBody>
           <NodeList>
             <Node NodeType="NodeList" epx="aux">
