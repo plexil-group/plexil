@@ -10,24 +10,22 @@
          </DeclareVariable>
       </VariableDeclarations>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>ep2cp_CmdWait</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>ep2cp_MsgAction_</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+         <NOT>
+            <OR>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>ep2cp_CmdWait</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>ep2cp_MsgAction_</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
@@ -53,14 +51,12 @@
             <Node NodeType="NodeList">
                <NodeId>ep2cp_MsgAction_</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>ep2cp_CmdWait</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>ep2cp_CmdWait</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <NodeBody>
                   <NodeList>

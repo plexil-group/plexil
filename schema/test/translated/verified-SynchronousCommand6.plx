@@ -12,24 +12,22 @@
          </DeclareArray>
       </VariableDeclarations>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>A</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>B</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+         <NOT>
+            <OR>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>A</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>B</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>

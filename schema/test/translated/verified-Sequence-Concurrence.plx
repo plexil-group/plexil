@@ -32,24 +32,22 @@
                   <Node NodeType="NodeList" epx="Sequence" FileName="Plan.ple" LineNo="7" ColNo="22">
                <NodeId>One</NodeId>
                <InvariantCondition>
-                  <AND>
-                     <NOT>
-                        <OR>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>DoFirst</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>DoSecond</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                        </OR>
-                     </NOT>
-                  </AND>
+                  <NOT>
+                     <OR>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>DoFirst</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>DoSecond</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                     </OR>
+                  </NOT>
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
@@ -70,14 +68,12 @@
                      <Node NodeType="Assignment" FileName="Plan.ple" LineNo="9" ColNo="35">
                         <NodeId>DoSecond</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>DoFirst</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>DoFirst</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <NodeBody>
                               <Assignment>

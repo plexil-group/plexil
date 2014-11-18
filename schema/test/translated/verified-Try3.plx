@@ -3,24 +3,6 @@
             xmlns:tr="extended-plexil-translator">
    <Node NodeType="NodeList" epx="Try">
       <NodeId>ep2cp_Try_d1e3</NodeId>
-      <PostCondition>
-         <AND>
-            <OR>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>One</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-               </EQInternal>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>Two</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-               </EQInternal>
-            </OR>
-         </AND>
-      </PostCondition>
       <EndCondition>
          <OR>
             <EQInternal>
@@ -51,6 +33,22 @@
             </AND>
          </OR>
       </EndCondition>
+      <PostCondition>
+         <OR>
+            <EQInternal>
+               <NodeOutcomeVariable>
+                  <NodeId>One</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+            </EQInternal>
+            <EQInternal>
+               <NodeOutcomeVariable>
+                  <NodeId>Two</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+            </EQInternal>
+         </OR>
+      </PostCondition>
       <NodeBody>
          <NodeList>
             <Node NodeType="Empty">
@@ -59,14 +57,12 @@
             <Node NodeType="Empty">
                <NodeId>Two</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>One</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>One</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
             </Node>
          </NodeList>

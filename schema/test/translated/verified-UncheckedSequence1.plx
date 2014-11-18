@@ -34,14 +34,12 @@
             <Node NodeType="Assignment">
                <NodeId>Two</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>One</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>One</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <PostCondition>
                   <EQNumeric>

@@ -12,30 +12,6 @@
             </InitialValue>
          </DeclareVariable>
       </VariableDeclarations>
-      <PostCondition>
-         <AND>
-            <OR>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>One</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-               </EQInternal>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>ep2cp_Try_d1e29</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-               </EQInternal>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>Three</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-               </EQInternal>
-            </OR>
-         </AND>
-      </PostCondition>
       <EndCondition>
          <OR>
             <EQInternal>
@@ -78,6 +54,28 @@
             </AND>
          </OR>
       </EndCondition>
+      <PostCondition>
+         <OR>
+            <EQInternal>
+               <NodeOutcomeVariable>
+                  <NodeId>One</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+            </EQInternal>
+            <EQInternal>
+               <NodeOutcomeVariable>
+                  <NodeId>ep2cp_Try_d1e29</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+            </EQInternal>
+            <EQInternal>
+               <NodeOutcomeVariable>
+                  <NodeId>Three</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+            </EQInternal>
+         </OR>
+      </PostCondition>
       <NodeBody>
          <NodeList>
             <Node NodeType="Empty">
@@ -100,35 +98,13 @@
                   </AND>
                </StartCondition>
                <PostCondition>
-                  <AND>
-                     <OR>
-                        <EQInternal>
-                           <NodeOutcomeVariable>
-                              <NodeId>Two</NodeId>
-                           </NodeOutcomeVariable>
-                           <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                        </EQInternal>
-                     </OR>
-                  </AND>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeId>Two</NodeId>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                  </EQInternal>
                </PostCondition>
-               <EndCondition>
-                  <OR>
-                     <EQInternal>
-                        <NodeOutcomeVariable>
-                           <NodeId>Two</NodeId>
-                        </NodeOutcomeVariable>
-                        <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                     </EQInternal>
-                     <AND>
-                        <EQInternal>
-                           <NodeStateVariable>
-                              <NodeId>Two</NodeId>
-                           </NodeStateVariable>
-                           <NodeStateValue>FINISHED</NodeStateValue>
-                        </EQInternal>
-                     </AND>
-                  </OR>
-               </EndCondition>
                <NodeBody>
                   <NodeList>
                      <Node NodeType="Empty">
@@ -140,14 +116,12 @@
             <Node NodeType="Empty">
                <NodeId>Three</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>ep2cp_Try_d1e29</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>ep2cp_Try_d1e29</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
             </Node>
          </NodeList>

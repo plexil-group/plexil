@@ -30,54 +30,52 @@
                   </DeclareVariable>
                </VariableDeclarations>
                <InvariantCondition>
-                  <AND>
-                     <NOT>
-                        <OR>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdWait</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdAction_recv_test</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdReturn</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                        </OR>
-                     </NOT>
-                  </AND>
+                  <NOT>
+                     <OR>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdWait</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdAction_recv_test</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdReturn</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                     </OR>
+                  </NOT>
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
@@ -103,14 +101,12 @@
                      <Node NodeType="Command">
                         <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdWait</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdWait</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <EndCondition>
                            <IsKnown>
@@ -133,14 +129,12 @@
                      <Node NodeType="Command">
                         <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <EndCondition>
                            <IsKnown>
@@ -163,14 +157,12 @@
                      <Node NodeType="Command">
                         <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <EndCondition>
                            <IsKnown>
@@ -193,14 +185,12 @@
                      <Node NodeType="Command">
                         <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <EndCondition>
                            <IsKnown>
@@ -223,14 +213,12 @@
                      <Node NodeType="NodeList">
                         <NodeId>ep2cp_CmdAction_recv_test</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <NodeBody>
                            <NodeList>
@@ -258,14 +246,12 @@
                      <Node NodeType="Command">
                         <NodeId>ep2cp_CmdReturn</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdAction_recv_test</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdAction_recv_test</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <NodeBody>
                            <Command>
@@ -306,59 +292,57 @@
                      <Type>String</Type>
                   </DeclareVariable>
                </VariableDeclarations>
-               <InvariantCondition>
-                  <AND>
-                     <NOT>
-                        <OR>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdWait</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdAction_recv_test</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>ep2cp_CmdReturn</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                        </OR>
-                     </NOT>
-                  </AND>
-               </InvariantCondition>
                <SkipCondition>
                   <BooleanValue>true</BooleanValue>
                </SkipCondition>
+               <InvariantCondition>
+                  <NOT>
+                     <OR>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdWait</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdAction_recv_test</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeId>ep2cp_CmdReturn</NodeId>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                     </OR>
+                  </NOT>
+               </InvariantCondition>
                <NodeBody>
                   <NodeList>
                      <Node NodeType="Command">
@@ -383,14 +367,12 @@
                      <Node NodeType="Command">
                         <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdWait</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdWait</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <EndCondition>
                            <IsKnown>
@@ -413,14 +395,12 @@
                      <Node NodeType="Command">
                         <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdGetParam_arg1</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <EndCondition>
                            <IsKnown>
@@ -443,14 +423,12 @@
                      <Node NodeType="Command">
                         <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdGetParam_arg2</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <EndCondition>
                            <IsKnown>
@@ -473,14 +451,12 @@
                      <Node NodeType="Command">
                         <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdGetParam_arg3</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <EndCondition>
                            <IsKnown>
@@ -503,14 +479,12 @@
                      <Node NodeType="NodeList">
                         <NodeId>ep2cp_CmdAction_recv_test</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdGetParam_arg4</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <NodeBody>
                            <NodeList>
@@ -538,14 +512,12 @@
                      <Node NodeType="Command">
                         <NodeId>ep2cp_CmdReturn</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ep2cp_CmdAction_recv_test</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeId>ep2cp_CmdAction_recv_test</NodeId>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <NodeBody>
                            <Command>

@@ -13,24 +13,22 @@
          </DeclareVariable>
       </VariableDeclarations>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>One</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Two</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+         <NOT>
+            <OR>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>One</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>Two</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
@@ -54,14 +52,12 @@
             <Node NodeType="Assignment">
                <NodeId>Two</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>One</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>One</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <PostCondition>
                   <EQNumeric>

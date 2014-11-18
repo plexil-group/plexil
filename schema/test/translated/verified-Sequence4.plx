@@ -13,30 +13,28 @@
          </DeclareVariable>
       </VariableDeclarations>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>One</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>ep2cp_Sequence_d1e29</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Three</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+         <NOT>
+            <OR>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>One</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>ep2cp_Sequence_d1e29</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>Three</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
@@ -60,18 +58,14 @@
                   </AND>
                </StartCondition>
                <InvariantCondition>
-                  <AND>
-                     <NOT>
-                        <OR>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>Two</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                        </OR>
-                     </NOT>
-                  </AND>
+                  <NOT>
+                     <EQInternal>
+                        <NodeOutcomeVariable>
+                           <NodeId>Two</NodeId>
+                        </NodeOutcomeVariable>
+                        <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                     </EQInternal>
+                  </NOT>
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
@@ -84,14 +78,12 @@
             <Node NodeType="Empty">
                <NodeId>Three</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>ep2cp_Sequence_d1e29</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>ep2cp_Sequence_d1e29</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
             </Node>
          </NodeList>

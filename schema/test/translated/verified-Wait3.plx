@@ -13,97 +13,89 @@
          </DeclareVariable>
       </VariableDeclarations>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Wait1</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Wait2</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+         <NOT>
+            <OR>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>Wait1</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>Wait2</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
             <Node NodeType="Empty" epx="Wait" FileName="foo.ple" LineNo="104" ColNo="1">
                <NodeId>Wait1</NodeId>
                <EndCondition>
-                  <OR>
-                     <GE>
-                        <LookupOnChange>
-                           <Name>
-                              <StringValue>time</StringValue>
-                           </Name>
-                           <Tolerance>
-                              <RealValue>0.2</RealValue>
-                           </Tolerance>
-                        </LookupOnChange>
+                  <GE>
+                     <LookupOnChange>
+                        <Name>
+                           <StringValue>time</StringValue>
+                        </Name>
+                        <Tolerance>
+                           <RealValue>0.2</RealValue>
+                        </Tolerance>
+                     </LookupOnChange>
+                     <ADD>
                         <ADD>
-                           <ADD>
-                              <RealValue>23.9</RealValue>
-                              <RealVariable>x</RealVariable>
-                           </ADD>
-                           <NodeTimepointValue>
-                              <NodeId>Wait1</NodeId>
-                              <NodeStateValue>EXECUTING</NodeStateValue>
-                              <Timepoint>START</Timepoint>
-                           </NodeTimepointValue>
+                           <RealValue>23.9</RealValue>
+                           <RealVariable>x</RealVariable>
                         </ADD>
-                     </GE>
-                  </OR>
+                        <NodeTimepointValue>
+                           <NodeId>Wait1</NodeId>
+                           <NodeStateValue>EXECUTING</NodeStateValue>
+                           <Timepoint>START</Timepoint>
+                        </NodeTimepointValue>
+                     </ADD>
+                  </GE>
                </EndCondition>
             </Node>
             <Node NodeType="Empty" epx="Wait" FileName="foo.ple" LineNo="108" ColNo="1">
                <NodeId>Wait2</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>Wait1</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>Wait1</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <EndCondition>
-                  <OR>
-                     <GE>
-                        <LookupOnChange>
-                           <Name>
-                              <StringValue>time</StringValue>
-                           </Name>
-                           <Tolerance>
-                              <RealValue>1.0</RealValue>
-                           </Tolerance>
-                        </LookupOnChange>
-                        <ADD>
-                           <ABS>
-                              <SUB>
-                                 <LookupOnChange>
-                                    <Name>
-                                       <StringValue>x</StringValue>
-                                    </Name>
-                                 </LookupOnChange>
-                                 <RealValue>23.0</RealValue>
-                              </SUB>
-                           </ABS>
-                           <NodeTimepointValue>
-                              <NodeId>Wait2</NodeId>
-                              <NodeStateValue>EXECUTING</NodeStateValue>
-                              <Timepoint>START</Timepoint>
-                           </NodeTimepointValue>
-                        </ADD>
-                     </GE>
-                  </OR>
+                  <GE>
+                     <LookupOnChange>
+                        <Name>
+                           <StringValue>time</StringValue>
+                        </Name>
+                        <Tolerance>
+                           <RealValue>1.0</RealValue>
+                        </Tolerance>
+                     </LookupOnChange>
+                     <ADD>
+                        <ABS>
+                           <SUB>
+                              <LookupOnChange>
+                                 <Name>
+                                    <StringValue>x</StringValue>
+                                 </Name>
+                              </LookupOnChange>
+                              <RealValue>23.0</RealValue>
+                           </SUB>
+                        </ABS>
+                        <NodeTimepointValue>
+                           <NodeId>Wait2</NodeId>
+                           <NodeStateValue>EXECUTING</NodeStateValue>
+                           <Timepoint>START</Timepoint>
+                        </NodeTimepointValue>
+                     </ADD>
+                  </GE>
                </EndCondition>
             </Node>
          </NodeList>
