@@ -566,9 +566,11 @@
   </xsl:template>
 
   <xsl:template name="for-body">
-    <xsl:variable name="setup-node-id" select="tr:prefix('ForSetup')" />
     <xsl:variable name="loop-node-id" select="tr:prefix('ForLoop')" />
     <xsl:variable name="do-node-id" select="tr:prefix('ForDo')" />
+    <xsl:variable name="expanded-action">
+      <xsl:apply-templates select="Action/*" />
+    </xsl:variable>
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="aux">
@@ -580,23 +582,14 @@
           </RepeatCondition>
           <NodeBody>
             <NodeList>
-              <Node NodeType="NodeList" epx="aux">
-                <NodeId>
-                  <xsl:value-of select="$do-node-id" />
-                </NodeId>
-                <NodeBody>
-                  <NodeList>
-                    <xsl:apply-templates select="Action/*" />
-                  </NodeList>
-                </NodeBody>
-              </Node>
-              <Node NodeType="Assignment" epx="aux">
+              <xsl:copy-of select="$expanded-action" />
+              <Node NodeType="Assignment" epx="LoopVariableUpdate">
                 <NodeId>
                   <xsl:value-of select="tr:prefix('ForLoopUpdater')" />
                 </NodeId>
                 <StartCondition>
                   <xsl:call-template name="node-finished">
-                    <xsl:with-param name="id" select="$do-node-id" />
+                    <xsl:with-param name="id" select="$expanded-action/Node/NodeId" />
                   </xsl:call-template>
                 </StartCondition>
                 <NodeBody>

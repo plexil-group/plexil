@@ -22,9 +22,14 @@
       </ADD>
     </LoopVariableUpdate>
     <Action>
-      <Node NodeType="Empty">
-        <NodeId>One</NodeId>
-      </Node>
+      <Concurrence>
+        <Node NodeType="Empty">
+          <NodeId>One</NodeId>
+        </Node>
+        <Node NodeType="Empty">
+          <NodeId>Three</NodeId>
+        </Node>
+      </Concurrence>
     </Action>
   </For>
 </PlexilPlan>

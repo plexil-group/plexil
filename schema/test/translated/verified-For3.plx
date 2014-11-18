@@ -24,22 +24,25 @@
                </RepeatCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="NodeList" epx="aux">
-                        <NodeId>ep2cp_ForDo</NodeId>
+                     <Node NodeType="NodeList" epx="Concurrence">
+                        <NodeId>ep2cp_Concurrence_d1e49</NodeId>
                         <NodeBody>
                            <NodeList>
                               <Node NodeType="Empty">
                                  <NodeId>One</NodeId>
                               </Node>
+                              <Node NodeType="Empty">
+                                 <NodeId>Three</NodeId>
+                              </Node>
                            </NodeList>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" epx="aux">
+                     <Node NodeType="Assignment" epx="LoopVariableUpdate">
                         <NodeId>ep2cp_ForLoopUpdater</NodeId>
                         <StartCondition>
                            <EQInternal>
                               <NodeStateVariable>
-                                 <NodeId>ep2cp_ForDo</NodeId>
+                                 <NodeId>ep2cp_Concurrence_d1e49</NodeId>
                               </NodeStateVariable>
                               <NodeStateValue>FINISHED</NodeStateValue>
                            </EQInternal>

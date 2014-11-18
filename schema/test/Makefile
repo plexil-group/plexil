@@ -12,8 +12,10 @@ REST =  UncheckedSequence1 UncheckedSequence2 \
 	UncheckedSequence3 UncheckedSequence4 \
 	Sequence1 Sequence2 Sequence3 Sequence4 \
 	Concurrence1 Concurrence2 Concurrence3 Concurrence4 Concurrence5 \
-	Try1 Try2 Try3 Try4 If1 If2 If3  If4 If5 \
-	While1 While2 While3 For1 For2 For3 \
+    If1 If2 If3 If4 If5 \
+	While1 While2 While3 \
+    For1 For2 For3 For4 \
+	Try1 Try2 Try3 Try4 \
 	NodeCheck1 MessageReceived1 Sequence-Concurrence OnMessage OnCommand \
 	OnCommandSequence OnCommandStartCondition OnCommandSkipCondition \
 	Lookup1 Lookup2 Wait1 Wait2 Wait3 Interface

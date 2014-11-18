@@ -31,15 +31,51 @@
                </RepeatCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Empty">
-                        <NodeId>Two</NodeId>
+                     <Node NodeType="NodeList" epx="Sequence">
+                        <NodeId>ep2cp_Sequence_d1e71</NodeId>
+                        <InvariantCondition>
+                           <NOT>
+                              <OR>
+                                 <EQInternal>
+                                    <NodeOutcomeVariable>
+                                       <NodeId>Two</NodeId>
+                                    </NodeOutcomeVariable>
+                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                 </EQInternal>
+                                 <EQInternal>
+                                    <NodeOutcomeVariable>
+                                       <NodeId>Four</NodeId>
+                                    </NodeOutcomeVariable>
+                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                 </EQInternal>
+                              </OR>
+                           </NOT>
+                        </InvariantCondition>
+                        <NodeBody>
+                           <NodeList>
+                              <Node NodeType="Empty">
+                                 <NodeId>Two</NodeId>
+                              </Node>
+                              <Node NodeType="Empty">
+                                 <NodeId>Four</NodeId>
+                                 <StartCondition>
+                                    <EQInternal>
+                                       <NodeStateVariable>
+                                          <NodeId>Two</NodeId>
+                                       </NodeStateVariable>
+                                       <NodeStateValue>FINISHED</NodeStateValue>
+                                    </EQInternal>
+                                 </StartCondition>
+                              </Node>
+                           </NodeList>
+                        </NodeBody>
                      </Node>
                      <Node NodeType="Assignment" epx="LoopVariableUpdate">
                         <NodeId>ep2cp_ForLoopUpdater</NodeId>
                         <StartCondition>
                            <EQInternal>
                               <NodeStateVariable>
-                                 <NodeId>Two</NodeId>
+                                 <NodeId>ep2cp_Sequence_d1e71</NodeId>
                               </NodeStateVariable>
                               <NodeStateValue>FINISHED</NodeStateValue>
                            </EQInternal>
