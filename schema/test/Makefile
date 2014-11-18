@@ -13,8 +13,8 @@ REST =  UncheckedSequence1 UncheckedSequence2 \
 	Sequence1 Sequence2 Sequence3 Sequence4 \
 	Concurrence1 Concurrence2 Concurrence3 Concurrence4 Concurrence5 \
     If1 If2 If3 If4 If5 \
-	While1 While2 While3 \
-    For1 For2 For3 For4 \
+	While1 While2 While3 While4 \
+    For1 For2 For3 For4 For5 \
 	Try1 Try2 Try3 Try4 \
 	NodeCheck1 MessageReceived1 Sequence-Concurrence OnMessage OnCommand \
 	OnCommandSequence OnCommandStartCondition OnCommandSkipCondition \
@@ -32,6 +32,7 @@ test:
 	@ echo Translating Extended Plexil tests...
 	@ for i in $(TESTS); do \
 	        eplexil $$i.epx translated/$$i.plx ; \
+		xmllint --noout --schema ../core-plexil.xsd translated/$$i.plx ; \
 		diff translated/$$i.plx translated/verified-$$i.plx \
 		  > $(DIFF) ; \
 		diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \

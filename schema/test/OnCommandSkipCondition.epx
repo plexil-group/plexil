@@ -24,7 +24,7 @@
       <Name>
         <StringValue>recv_test</StringValue>
       </Name>
-      <Node>
+      <Node NodeType="Command">
         <NodeId>Recv1__CHILD__1</NodeId>
         <NodeBody>
           <Command>
@@ -68,7 +68,7 @@
       <Name>
         <StringValue>recv_test</StringValue>
       </Name>
-      <Node>
+      <Node NodeType="Command">
         <NodeId>Recv2__CHILD__1</NodeId>
         <NodeBody>
           <Command>
