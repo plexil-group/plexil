@@ -55,7 +55,7 @@
                     (start-condition (= false (boolvar "is_paused")))
                     (post-condition (= 0 (intvar "ret_val")))
                     (end-condition (is-known (intvar "ret_val")))
-                    (command-with-return "get_next_inspection_point" (intvar "ret_val")))
+                    (command-with-return (intvar "ret_val") "get_next_inspection_point"))
                   (assignment-node "SetWaypointRequestFailed"
                     (start-condition (failed "RequestNextWaypt"))
                     (assignment (stringvar "cmd_name") "get_next_inspection_point"))
@@ -132,7 +132,8 @@
                                       ;; 6 - EOutOfRange 
                                       (invariant-condition (or (= -1000 (intvar "cmd_return_val")) (= 0 (intvar "cmd_return_val")) (= 2 (intvar "cmd_return_val")) (= 3 (intvar "cmd_return_val"))))
                                       (end-condition (or (!= -1000 (intvar "cmd_return_val")) (= true (boolvar "is_aborted"))))
-                                      (command-with-return "move_to_waypoint" (intvar "cmd_return_val") 
+                                      (command-with-return (intvar "cmd_return_val")
+                                                           "move_to_waypoint" 
                                                            (stringvar "waypt_name") 
                                                            (stringvar "waypt_frame") 
                                                            (realvar "waypt_x") 
@@ -165,7 +166,7 @@
                                             (post-condition (= 0 (intvar "cmd_return_val")))
                                             (invariant-condition (or (= -1000 (intvar "cmd_return_val")) (= 0 (intvar "cmd_return_val")) (= 3 (intvar "cmd_return_val")) (= 2 (intvar "cmd_return_val"))))
                                             (end-condition (or (!= -1000 (intvar "cmd_return_val")) (= true (boolvar "is_aborted"))))
-                                            (command-with-return "acquire" (intvar "cmd_return_val")))
+                                            (command-with-return (intvar "cmd_return_val") "acquire"))
 
                                           (assignment-node "SetNameToAcquire"
                                             (assignment (stringvar "cmd_name") "acquire"))
@@ -207,6 +208,3 @@
         (update (pair "taskId" (intvar "waypt_id")) (pair "result" -2))
         )
       )))
-
-
-

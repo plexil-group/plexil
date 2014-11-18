@@ -1,10 +1,14 @@
 (plexil-plan
-  (label "root"
-    (let ((integer "x"))
-      (sequence
-        (assign (intvar "x") 1)
-        (let ((integer "y")
-              (string "s"))
-          (assign (intvar "x") (+ (intvar "x") 4))
-          (assign (stringvar "s") "foo"))))))
-
+ (list-node "root"
+            (variables (integer "x"))
+            (list
+             (sequence
+              (assignment-node
+               (assignment (intvar "x") 1))
+              (list-node
+               (variables (integer "y") (string "s"))
+               (list
+                (assignment-node
+                 (assignment (intvar "y") (+ (intvar "x") 4)))
+                (assignment-node
+                 (assignment (stringvar "s") "foo"))))))))

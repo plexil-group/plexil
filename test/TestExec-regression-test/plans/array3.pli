@@ -10,17 +10,7 @@
     (list
       (command-node "Two"
         (postcondition (= (array-element "a2" 0) "hello"))
-        (command-with-return "get-a2" (arrayvar "a2")))
+        (command-with-return (arrayvar "a2") "get-a2"))
       (command-node "Three"
         (postcondition (array-element "a3" 3))
-        (command-with-return "get-a3" (arrayvar "a3"))))))
-
-
-
-                                   
-          
-          
-
-              
-              
-    
+        (command-with-return (arrayvar "a3") "get-a3")))))

@@ -1,6 +1,6 @@
 (plexil-plan
   (list-node "tests"
-    (end-condition (node-finished "ConjunctTest1"))
+    (end-condition (finished "ConjunctTest1"))
     (list
       (command-node "ConjunctTest1"
         (precondition (and (= (lookup-on-change "A" "is") 1)
@@ -8,5 +8,3 @@
                            (= (lookup-on-change "C" "is") 3)
                            ))
         (command "Execute1")))))
-
-

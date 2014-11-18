@@ -4,8 +4,4 @@
     (variables (string "result-string"))
     (list
       (command-node "StringCommand"
-        (command-with-return "get-string" (stringvar "result-string"))))))
-
-
-
-        
+        (command-with-return (stringvar "result-string") "get-string")))))

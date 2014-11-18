@@ -1,8 +1,9 @@
 (plexil-plan
   (command-node "Root"
     (variables (real "p"))
-    (command-with-return "store"
+    (command-with-return
       (realvar "p")
+      "store"
       (resources
         (resource "Memory" 2.3
                   (resource-lower-bound 10.0)
