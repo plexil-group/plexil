@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="1" ColNo="0">
-      <CommandDeclaration LineNo="1" ColNo="0">
+            xmlns:tr="extended-plexil-translator"
+            FileName="SafeDrive.ple">
+   <GlobalDeclarations LineNo="2" ColNo="0">
+      <CommandDeclaration LineNo="2" ColNo="0">
          <Name>Drive</Name>
          <Parameter>
             <Type>Integer</Type>
          </Parameter>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="2" ColNo="0">
+      <CommandDeclaration LineNo="3" ColNo="0">
          <Name>TakePicture</Name>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="3" ColNo="0">
+      <CommandDeclaration LineNo="4" ColNo="0">
          <Name>pprint</Name>
       </CommandDeclaration>
-      <StateDeclaration LineNo="4" ColNo="8">
+      <StateDeclaration LineNo="5" ColNo="8">
          <Name>WheelStuck</Name>
          <Return>
             <Name>_return_0</Name>
@@ -22,7 +23,7 @@
          </Return>
       </StateDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" LineNo="8" ColNo="2">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="9" ColNo="2">
       <NodeId>SafeDrive</NodeId>
       <VariableDeclarations>
          <DeclareVariable LineNo="8" ColNo="2">
@@ -33,20 +34,6 @@
             </InitialValue>
          </DeclareVariable>
       </VariableDeclarations>
-      <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>while__0</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
-      </InvariantCondition>
       <EndCondition>
          <OR>
             <LookupOnChange>
@@ -60,225 +47,185 @@
             </EQNumeric>
          </OR>
       </EndCondition>
+      <InvariantCondition>
+         <NOT>
+            <EQInternal>
+               <NodeOutcomeVariable>
+                  <NodeId>while__0</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+            </EQInternal>
+         </NOT>
+      </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="While" LineNo="11" ColNo="2">
+            <Node NodeType="NodeList" epx="While" LineNo="12" ColNo="2">
                <NodeId>while__0</NodeId>
-               <VariableDeclarations>
-                  <DeclareVariable>
-                     <Name>ep2cp_test</Name>
-                     <Type>Boolean</Type>
-                  </DeclareVariable>
-               </VariableDeclarations>
+               <RepeatCondition>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="child">ep2cp_WhileTest</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                  </EQInternal>
+               </RepeatCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="NodeList" epx="aux">
-                        <NodeId>ep2cp_WhileBody</NodeId>
+                     <Node NodeType="Empty" epx="Condition">
+                        <NodeId>ep2cp_WhileTest</NodeId>
+                        <PostCondition>
+                           <NOT>
+                              <LookupOnChange>
+                                 <Name>
+                                    <StringValue>WheelStuck</StringValue>
+                                 </Name>
+                              </LookupOnChange>
+                           </NOT>
+                        </PostCondition>
+                     </Node>
+                     <Node NodeType="NodeList" epx="Action" LineNo="14" ColNo="4">
+                        <NodeId>BLOCK__1</NodeId>
+                        <InvariantCondition>
+                           <NOT>
+                              <OR>
+                                 <EQInternal>
+                                    <NodeOutcomeVariable>
+                                       <NodeId>OneMeter</NodeId>
+                                    </NodeOutcomeVariable>
+                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                 </EQInternal>
+                                 <EQInternal>
+                                    <NodeOutcomeVariable>
+                                       <NodeId>TakePic</NodeId>
+                                    </NodeOutcomeVariable>
+                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                 </EQInternal>
+                                 <EQInternal>
+                                    <NodeOutcomeVariable>
+                                       <NodeId>Counter</NodeId>
+                                    </NodeOutcomeVariable>
+                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                 </EQInternal>
+                                 <EQInternal>
+                                    <NodeOutcomeVariable>
+                                       <NodeId>Print</NodeId>
+                                    </NodeOutcomeVariable>
+                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                 </EQInternal>
+                              </OR>
+                           </NOT>
+                        </InvariantCondition>
+                        <StartCondition>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                           </EQInternal>
+                        </StartCondition>
+                        <SkipCondition>
+                           <AND>
+                              <EQInternal>
+                                 <NodeStateVariable>
+                                    <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                                 </NodeStateVariable>
+                                 <NodeStateValue>FINISHED</NodeStateValue>
+                              </EQInternal>
+                              <EQInternal>
+                                 <NodeFailureVariable>
+                                    <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                                 </NodeFailureVariable>
+                                 <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
+                              </EQInternal>
+                           </AND>
+                        </SkipCondition>
                         <NodeBody>
                            <NodeList>
-                              <Node NodeType="Assignment" epx="aux">
-                                 <NodeId>ep2cp_WhileSetup</NodeId>
+                              <Node NodeType="Command" LineNo="13" ColNo="16">
+                                 <NodeId>OneMeter</NodeId>
                                  <NodeBody>
-                                    <Assignment>
-                                       <BooleanVariable>ep2cp_test</BooleanVariable>
-                                       <BooleanRHS>
-                                          <NOT>
-                                             <LookupOnChange>
-                                                <Name>
-                                                   <StringValue>WheelStuck</StringValue>
-                                                </Name>
-                                             </LookupOnChange>
-                                          </NOT>
-                                       </BooleanRHS>
-                                    </Assignment>
+                                    <Command>
+                                       <Name>
+                                          <StringValue>Drive</StringValue>
+                                       </Name>
+                                       <Arguments LineNo="14" ColNo="22">
+                                          <IntegerValue>1</IntegerValue>
+                                       </Arguments>
+                                    </Command>
                                  </NodeBody>
                               </Node>
-                              <Node NodeType="NodeList" epx="aux">
-                                 <NodeId>ep2cp_WhileTrue</NodeId>
+                              <Node NodeType="Command" LineNo="16" ColNo="6">
+                                 <NodeId>TakePic</NodeId>
                                  <StartCondition>
                                     <AND>
                                        <EQInternal>
                                           <NodeStateVariable>
-                                             <NodeId>ep2cp_WhileSetup</NodeId>
+                                             <NodeId>OneMeter</NodeId>
                                           </NodeStateVariable>
                                           <NodeStateValue>FINISHED</NodeStateValue>
                                        </EQInternal>
-                                       <BooleanVariable>ep2cp_test</BooleanVariable>
+                                       <LT>
+                                          <IntegerVariable>pictures</IntegerVariable>
+                                          <IntegerValue>10</IntegerValue>
+                                       </LT>
                                     </AND>
                                  </StartCondition>
-                                 <SkipCondition>
-                                    <NOT>
-                                       <BooleanVariable>ep2cp_test</BooleanVariable>
-                                    </NOT>
-                                 </SkipCondition>
-                                 <RepeatCondition>
-                                    <BooleanVariable>ep2cp_test</BooleanVariable>
-                                 </RepeatCondition>
                                  <NodeBody>
-                                    <NodeList>
-                                       <Node NodeType="NodeList" epx="aux">
-                                          <NodeId>ep2cp_WhileAction</NodeId>
-                                          <NodeBody>
-                                             <NodeList>
-                                                <Node NodeType="NodeList" epx="Sequence" LineNo="13" ColNo="4">
-                                                   <NodeId>BLOCK__1</NodeId>
-                                                   <InvariantCondition>
-                                                      <AND>
-                                                         <NOT>
-                                                            <OR>
-                                                               <EQInternal>
-                                                                  <NodeOutcomeVariable>
-                                                                     <NodeId>OneMeter</NodeId>
-                                                                  </NodeOutcomeVariable>
-                                                                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                               </EQInternal>
-                                                               <EQInternal>
-                                                                  <NodeOutcomeVariable>
-                                                                     <NodeId>TakePic</NodeId>
-                                                                  </NodeOutcomeVariable>
-                                                                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                               </EQInternal>
-                                                               <EQInternal>
-                                                                  <NodeOutcomeVariable>
-                                                                     <NodeId>Counter</NodeId>
-                                                                  </NodeOutcomeVariable>
-                                                                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                               </EQInternal>
-                                                               <EQInternal>
-                                                                  <NodeOutcomeVariable>
-                                                                     <NodeId>Print</NodeId>
-                                                                  </NodeOutcomeVariable>
-                                                                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                               </EQInternal>
-                                                            </OR>
-                                                         </NOT>
-                                                      </AND>
-                                                   </InvariantCondition>
-                                                   <NodeBody>
-                                                      <NodeList>
-                                                         <Node NodeType="Command" LineNo="13" ColNo="16">
-                                                            <NodeId>OneMeter</NodeId>
-                                                            <NodeBody>
-                                                               <Command>
-                                                                  <Name>
-                                                                     <StringValue>Drive</StringValue>
-                                                                  </Name>
-                                                                  <Arguments LineNo="13" ColNo="22">
-                                                                     <IntegerValue>1</IntegerValue>
-                                                                  </Arguments>
-                                                               </Command>
-                                                            </NodeBody>
-                                                         </Node>
-                                                         <Node NodeType="Command" LineNo="16" ColNo="6">
-                                                            <NodeId>TakePic</NodeId>
-                                                            <StartCondition>
-                                                               <AND>
-                                                                  <EQInternal>
-                                                                     <NodeStateVariable>
-                                                                        <NodeId>OneMeter</NodeId>
-                                                                     </NodeStateVariable>
-                                                                     <NodeStateValue>FINISHED</NodeStateValue>
-                                                                  </EQInternal>
-                                                                  <LT>
-                                                                     <IntegerVariable>pictures</IntegerVariable>
-                                                                     <IntegerValue>10</IntegerValue>
-                                                                  </LT>
-                                                               </AND>
-                                                            </StartCondition>
-                                                            <NodeBody>
-                                                               <Command>
-                                                                  <Name>
-                                                                     <StringValue>TakePicture</StringValue>
-                                                                  </Name>
-                                                               </Command>
-                                                            </NodeBody>
-                                                         </Node>
-                                                         <Node NodeType="Assignment" LineNo="20" ColNo="6">
-                                                            <NodeId>Counter</NodeId>
-                                                            <StartCondition>
-                                                               <AND>
-                                                                  <EQInternal>
-                                                                     <NodeStateVariable>
-                                                                        <NodeId>TakePic</NodeId>
-                                                                     </NodeStateVariable>
-                                                                     <NodeStateValue>FINISHED</NodeStateValue>
-                                                                  </EQInternal>
-                                                               </AND>
-                                                            </StartCondition>
-                                                            <PreCondition>
-                                                               <LT>
-                                                                  <IntegerVariable>pictures</IntegerVariable>
-                                                                  <IntegerValue>10</IntegerValue>
-                                                               </LT>
-                                                            </PreCondition>
-                                                            <NodeBody>
-                                                               <Assignment>
-                                                                  <IntegerVariable>pictures</IntegerVariable>
-                                                                  <NumericRHS>
-                                                                     <ADD LineNo="20" ColNo="26">
-                                                                        <IntegerVariable>pictures</IntegerVariable>
-                                                                        <IntegerValue>1</IntegerValue>
-                                                                     </ADD>
-                                                                  </NumericRHS>
-                                                               </Assignment>
-                                                            </NodeBody>
-                                                         </Node>
-                                                         <Node NodeType="Command" LineNo="22" ColNo="13">
-                                                            <NodeId>Print</NodeId>
-                                                            <StartCondition>
-                                                               <AND>
-                                                                  <EQInternal>
-                                                                     <NodeStateVariable>
-                                                                        <NodeId>Counter</NodeId>
-                                                                     </NodeStateVariable>
-                                                                     <NodeStateValue>FINISHED</NodeStateValue>
-                                                                  </EQInternal>
-                                                               </AND>
-                                                            </StartCondition>
-                                                            <NodeBody>
-                                                               <Command>
-                                                                  <Name>
-                                                                     <StringValue>pprint</StringValue>
-                                                                  </Name>
-                                                                  <Arguments LineNo="22" ColNo="21">
-                                                                     <StringValue>Pictures taken:</StringValue>
-                                                                     <IntegerVariable>pictures</IntegerVariable>
-                                                                  </Arguments>
-                                                               </Command>
-                                                            </NodeBody>
-                                                         </Node>
-                                                      </NodeList>
-                                                   </NodeBody>
-                                                </Node>
-                                             </NodeList>
-                                          </NodeBody>
-                                       </Node>
-                                       <Node NodeType="Assignment" epx="aux">
-                                          <NodeId>ep2cp_WhileRetest</NodeId>
-                                          <StartCondition>
-                                             <EQInternal>
-                                                <NodeStateVariable>
-                                                   <NodeId>ep2cp_WhileAction</NodeId>
-                                                </NodeStateVariable>
-                                                <NodeStateValue>FINISHED</NodeStateValue>
-                                             </EQInternal>
-                                          </StartCondition>
-                                          <NodeBody>
-                                             <Assignment>
-                                                <BooleanVariable>ep2cp_test</BooleanVariable>
-                                                <BooleanRHS>
-                                                   <NOT>
-                                                      <LookupOnChange>
-                                                         <Name>
-                                                            <StringValue>WheelStuck</StringValue>
-                                                         </Name>
-                                                      </LookupOnChange>
-                                                   </NOT>
-                                                </BooleanRHS>
-                                             </Assignment>
-                                          </NodeBody>
-                                       </Node>
-                                    </NodeList>
+                                    <Command>
+                                       <Name>
+                                          <StringValue>TakePicture</StringValue>
+                                       </Name>
+                                    </Command>
+                                 </NodeBody>
+                              </Node>
+                              <Node NodeType="Assignment" LineNo="21" ColNo="6">
+                                 <NodeId>Counter</NodeId>
+                                 <StartCondition>
+                                    <EQInternal>
+                                       <NodeStateVariable>
+                                          <NodeId>TakePic</NodeId>
+                                       </NodeStateVariable>
+                                       <NodeStateValue>FINISHED</NodeStateValue>
+                                    </EQInternal>
+                                 </StartCondition>
+                                 <PreCondition>
+                                    <LT>
+                                       <IntegerVariable>pictures</IntegerVariable>
+                                       <IntegerValue>10</IntegerValue>
+                                    </LT>
+                                 </PreCondition>
+                                 <NodeBody>
+                                    <Assignment>
+                                       <IntegerVariable>pictures</IntegerVariable>
+                                       <NumericRHS>
+                                          <ADD LineNo="21" ColNo="26">
+                                             <IntegerVariable>pictures</IntegerVariable>
+                                             <IntegerValue>1</IntegerValue>
+                                          </ADD>
+                                       </NumericRHS>
+                                    </Assignment>
+                                 </NodeBody>
+                              </Node>
+                              <Node NodeType="Command" LineNo="22" ColNo="13">
+                                 <NodeId>Print</NodeId>
+                                 <StartCondition>
+                                    <EQInternal>
+                                       <NodeStateVariable>
+                                          <NodeId>Counter</NodeId>
+                                       </NodeStateVariable>
+                                       <NodeStateValue>FINISHED</NodeStateValue>
+                                    </EQInternal>
+                                 </StartCondition>
+                                 <NodeBody>
+                                    <Command>
+                                       <Name>
+                                          <StringValue>pprint</StringValue>
+                                       </Name>
+                                       <Arguments LineNo="23" ColNo="21">
+                                          <StringValue>Pictures taken:</StringValue>
+                                          <IntegerVariable>pictures</IntegerVariable>
+                                       </Arguments>
+                                    </Command>
                                  </NodeBody>
                               </Node>
                            </NodeList>

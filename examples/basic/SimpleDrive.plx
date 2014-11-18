@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="1" ColNo="8">
-      <StateDeclaration LineNo="1" ColNo="8">
+            xmlns:tr="extended-plexil-translator"
+            FileName="SimpleDrive.ple">
+   <GlobalDeclarations LineNo="2" ColNo="8">
+      <StateDeclaration LineNo="2" ColNo="8">
          <Name>At</Name>
          <Return>
             <Name>_return_0</Name>
@@ -12,17 +13,17 @@
             <Type>String</Type>
          </Parameter>
       </StateDeclaration>
-      <CommandDeclaration LineNo="2" ColNo="0">
+      <CommandDeclaration LineNo="3" ColNo="0">
          <Name>drive</Name>
          <Parameter>
             <Type>Real</Type>
          </Parameter>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="3" ColNo="0">
+      <CommandDeclaration LineNo="4" ColNo="0">
          <Name>takeSample</Name>
       </CommandDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" LineNo="7" ColNo="2">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="8" ColNo="2">
       <NodeId>SimpleDrive</NodeId>
       <PostCondition>
          <EQInternal>
@@ -33,24 +34,22 @@
          </EQInternal>
       </PostCondition>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Drive</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>TakeSample</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+         <NOT>
+            <OR>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>Drive</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>TakeSample</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
@@ -95,7 +94,7 @@
                      <Name>
                         <StringValue>drive</StringValue>
                      </Name>
-                     <Arguments LineNo="12" ColNo="10">
+                     <Arguments LineNo="13" ColNo="10">
                         <RealValue>1.0</RealValue>
                      </Arguments>
                   </Command>
@@ -104,14 +103,12 @@
             <Node NodeType="Command" LineNo="16" ColNo="4">
                <NodeId>TakeSample</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>Drive</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>Drive</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <InvariantCondition>
                   <LookupNow>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <Node NodeType="Assignment" LineNo="5" ColNo="2">
+            xmlns:tr="extended-plexil-translator"
+            FileName="SimpleAssignment.ple">
+   <Node NodeType="Assignment" LineNo="6" ColNo="2">
       <NodeId>SimpleAssignment</NodeId>
       <VariableDeclarations>
          <DeclareVariable LineNo="3" ColNo="2">

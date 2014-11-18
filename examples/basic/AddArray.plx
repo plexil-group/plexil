@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <Node NodeType="NodeList" epx="Sequence" LineNo="2" ColNo="2">
+            xmlns:tr="extended-plexil-translator"
+            FileName="AddArray.ple">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="3" ColNo="2">
       <NodeId>Root</NodeId>
       <VariableDeclarations>
          <DeclareArray LineNo="2" ColNo="2">
@@ -24,219 +25,168 @@
          </DeclareVariable>
       </VariableDeclarations>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>while__0</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+         <NOT>
+            <EQInternal>
+               <NodeOutcomeVariable>
+                  <NodeId>while__0</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+            </EQInternal>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="While" LineNo="4" ColNo="2">
+            <Node NodeType="NodeList" epx="While" LineNo="5" ColNo="2">
                <NodeId>while__0</NodeId>
-               <VariableDeclarations>
-                  <DeclareVariable>
-                     <Name>ep2cp_test</Name>
-                     <Type>Boolean</Type>
-                  </DeclareVariable>
-               </VariableDeclarations>
+               <RepeatCondition>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="child">ep2cp_WhileTest</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                  </EQInternal>
+               </RepeatCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="NodeList" epx="aux">
-                        <NodeId>ep2cp_WhileBody</NodeId>
+                     <Node NodeType="Empty" epx="Condition">
+                        <NodeId>ep2cp_WhileTest</NodeId>
+                        <PostCondition>
+                           <LT>
+                              <RealVariable>temp</RealVariable>
+                              <RealValue>3.0</RealValue>
+                           </LT>
+                        </PostCondition>
+                     </Node>
+                     <Node NodeType="NodeList" epx="Action" LineNo="7" ColNo="4">
+                        <NodeId>BLOCK__1</NodeId>
+                        <InvariantCondition>
+                           <NOT>
+                              <OR>
+                                 <EQInternal>
+                                    <NodeOutcomeVariable>
+                                       <NodeId>SimpleAssignment</NodeId>
+                                    </NodeOutcomeVariable>
+                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                 </EQInternal>
+                                 <EQInternal>
+                                    <NodeOutcomeVariable>
+                                       <NodeId>SimpleArrayAssignment</NodeId>
+                                    </NodeOutcomeVariable>
+                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                 </EQInternal>
+                                 <EQInternal>
+                                    <NodeOutcomeVariable>
+                                       <NodeId>SimpleArrayAssignment2</NodeId>
+                                    </NodeOutcomeVariable>
+                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                 </EQInternal>
+                              </OR>
+                           </NOT>
+                        </InvariantCondition>
+                        <StartCondition>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                           </EQInternal>
+                        </StartCondition>
+                        <SkipCondition>
+                           <AND>
+                              <EQInternal>
+                                 <NodeStateVariable>
+                                    <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                                 </NodeStateVariable>
+                                 <NodeStateValue>FINISHED</NodeStateValue>
+                              </EQInternal>
+                              <EQInternal>
+                                 <NodeFailureVariable>
+                                    <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>
+                                 </NodeFailureVariable>
+                                 <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
+                              </EQInternal>
+                           </AND>
+                        </SkipCondition>
                         <NodeBody>
                            <NodeList>
-                              <Node NodeType="Assignment" epx="aux">
-                                 <NodeId>ep2cp_WhileSetup</NodeId>
+                              <Node NodeType="Assignment" LineNo="7" ColNo="24">
+                                 <NodeId>SimpleAssignment</NodeId>
                                  <NodeBody>
                                     <Assignment>
-                                       <BooleanVariable>ep2cp_test</BooleanVariable>
-                                       <BooleanRHS>
-                                          <LT>
-                                             <RealVariable>temp</RealVariable>
-                                             <RealValue>3.0</RealValue>
-                                          </LT>
-                                       </BooleanRHS>
+                                       <RealVariable>temp</RealVariable>
+                                       <NumericRHS>
+                                          <ArrayElement>
+                                             <Name>foo</Name>
+                                             <Index>
+                                                <IntegerValue>1</IntegerValue>
+                                             </Index>
+                                          </ArrayElement>
+                                       </NumericRHS>
                                     </Assignment>
                                  </NodeBody>
                               </Node>
-                              <Node NodeType="NodeList" epx="aux">
-                                 <NodeId>ep2cp_WhileTrue</NodeId>
+                              <Node NodeType="Assignment" LineNo="8" ColNo="29">
+                                 <NodeId>SimpleArrayAssignment</NodeId>
                                  <StartCondition>
-                                    <AND>
-                                       <EQInternal>
-                                          <NodeStateVariable>
-                                             <NodeId>ep2cp_WhileSetup</NodeId>
-                                          </NodeStateVariable>
-                                          <NodeStateValue>FINISHED</NodeStateValue>
-                                       </EQInternal>
-                                       <BooleanVariable>ep2cp_test</BooleanVariable>
-                                    </AND>
+                                    <EQInternal>
+                                       <NodeStateVariable>
+                                          <NodeId>SimpleAssignment</NodeId>
+                                       </NodeStateVariable>
+                                       <NodeStateValue>FINISHED</NodeStateValue>
+                                    </EQInternal>
                                  </StartCondition>
-                                 <SkipCondition>
-                                    <NOT>
-                                       <BooleanVariable>ep2cp_test</BooleanVariable>
-                                    </NOT>
-                                 </SkipCondition>
-                                 <RepeatCondition>
-                                    <BooleanVariable>ep2cp_test</BooleanVariable>
-                                 </RepeatCondition>
                                  <NodeBody>
-                                    <NodeList>
-                                       <Node NodeType="NodeList" epx="aux">
-                                          <NodeId>ep2cp_WhileAction</NodeId>
-                                          <NodeBody>
-                                             <NodeList>
-                                                <Node NodeType="NodeList" epx="Sequence" LineNo="6" ColNo="4">
-                                                   <NodeId>BLOCK__1</NodeId>
-                                                   <InvariantCondition>
-                                                      <AND>
-                                                         <NOT>
-                                                            <OR>
-                                                               <EQInternal>
-                                                                  <NodeOutcomeVariable>
-                                                                     <NodeId>SimpleAssignment</NodeId>
-                                                                  </NodeOutcomeVariable>
-                                                                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                               </EQInternal>
-                                                               <EQInternal>
-                                                                  <NodeOutcomeVariable>
-                                                                     <NodeId>SimpleArrayAssignment</NodeId>
-                                                                  </NodeOutcomeVariable>
-                                                                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                               </EQInternal>
-                                                               <EQInternal>
-                                                                  <NodeOutcomeVariable>
-                                                                     <NodeId>SimpleArrayAssignment2</NodeId>
-                                                                  </NodeOutcomeVariable>
-                                                                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                               </EQInternal>
-                                                            </OR>
-                                                         </NOT>
-                                                      </AND>
-                                                   </InvariantCondition>
-                                                   <NodeBody>
-                                                      <NodeList>
-                                                         <Node NodeType="Assignment" LineNo="6" ColNo="24">
-                                                            <NodeId>SimpleAssignment</NodeId>
-                                                            <NodeBody>
-                                                               <Assignment>
-                                                                  <RealVariable>temp</RealVariable>
-                                                                  <NumericRHS>
-                                                                     <ArrayElement>
-                                                                        <Name>foo</Name>
-                                                                        <Index>
-                                                                           <IntegerValue>1</IntegerValue>
-                                                                        </Index>
-                                                                     </ArrayElement>
-                                                                  </NumericRHS>
-                                                               </Assignment>
-                                                            </NodeBody>
-                                                         </Node>
-                                                         <Node NodeType="Assignment" LineNo="7" ColNo="29">
-                                                            <NodeId>SimpleArrayAssignment</NodeId>
-                                                            <StartCondition>
-                                                               <AND>
-                                                                  <EQInternal>
-                                                                     <NodeStateVariable>
-                                                                        <NodeId>SimpleAssignment</NodeId>
-                                                                     </NodeStateVariable>
-                                                                     <NodeStateValue>FINISHED</NodeStateValue>
-                                                                  </EQInternal>
-                                                               </AND>
-                                                            </StartCondition>
-                                                            <NodeBody>
-                                                               <Assignment>
-                                                                  <ArrayElement>
-                                                                     <Name>foo</Name>
-                                                                     <Index>
-                                                                        <IntegerValue>1</IntegerValue>
-                                                                     </Index>
-                                                                  </ArrayElement>
-                                                                  <NumericRHS>
-                                                                     <ADD LineNo="7" ColNo="45">
-                                                                        <ArrayElement>
-                                                                           <Name>foo</Name>
-                                                                           <Index>
-                                                                              <IntegerValue>1</IntegerValue>
-                                                                           </Index>
-                                                                        </ArrayElement>
-                                                                        <RealValue>1.0</RealValue>
-                                                                     </ADD>
-                                                                  </NumericRHS>
-                                                               </Assignment>
-                                                            </NodeBody>
-                                                         </Node>
-                                                         <Node NodeType="Assignment" LineNo="8" ColNo="30">
-                                                            <NodeId>SimpleArrayAssignment2</NodeId>
-                                                            <StartCondition>
-                                                               <AND>
-                                                                  <EQInternal>
-                                                                     <NodeStateVariable>
-                                                                        <NodeId>SimpleArrayAssignment</NodeId>
-                                                                     </NodeStateVariable>
-                                                                     <NodeStateValue>FINISHED</NodeStateValue>
-                                                                  </EQInternal>
-                                                               </AND>
-                                                            </StartCondition>
-                                                            <NodeBody>
-                                                               <Assignment>
-                                                                  <ArrayElement>
-                                                                     <Name>foo</Name>
-                                                                     <Index>
-                                                                        <IntegerValue>2</IntegerValue>
-                                                                     </Index>
-                                                                  </ArrayElement>
-                                                                  <NumericRHS>
-                                                                     <ADD LineNo="8" ColNo="46">
-                                                                        <ArrayElement>
-                                                                           <Name>foo</Name>
-                                                                           <Index>
-                                                                              <IntegerValue>2</IntegerValue>
-                                                                           </Index>
-                                                                        </ArrayElement>
-                                                                        <RealValue>2.0</RealValue>
-                                                                     </ADD>
-                                                                  </NumericRHS>
-                                                               </Assignment>
-                                                            </NodeBody>
-                                                         </Node>
-                                                      </NodeList>
-                                                   </NodeBody>
-                                                </Node>
-                                             </NodeList>
-                                          </NodeBody>
-                                       </Node>
-                                       <Node NodeType="Assignment" epx="aux">
-                                          <NodeId>ep2cp_WhileRetest</NodeId>
-                                          <StartCondition>
-                                             <EQInternal>
-                                                <NodeStateVariable>
-                                                   <NodeId>ep2cp_WhileAction</NodeId>
-                                                </NodeStateVariable>
-                                                <NodeStateValue>FINISHED</NodeStateValue>
-                                             </EQInternal>
-                                          </StartCondition>
-                                          <NodeBody>
-                                             <Assignment>
-                                                <BooleanVariable>ep2cp_test</BooleanVariable>
-                                                <BooleanRHS>
-                                                   <LT>
-                                                      <RealVariable>temp</RealVariable>
-                                                      <RealValue>3.0</RealValue>
-                                                   </LT>
-                                                </BooleanRHS>
-                                             </Assignment>
-                                          </NodeBody>
-                                       </Node>
-                                    </NodeList>
+                                    <Assignment>
+                                       <ArrayElement>
+                                          <Name>foo</Name>
+                                          <Index>
+                                             <IntegerValue>1</IntegerValue>
+                                          </Index>
+                                       </ArrayElement>
+                                       <NumericRHS>
+                                          <ADD LineNo="8" ColNo="45">
+                                             <ArrayElement>
+                                                <Name>foo</Name>
+                                                <Index>
+                                                   <IntegerValue>1</IntegerValue>
+                                                </Index>
+                                             </ArrayElement>
+                                             <RealValue>1.0</RealValue>
+                                          </ADD>
+                                       </NumericRHS>
+                                    </Assignment>
+                                 </NodeBody>
+                              </Node>
+                              <Node NodeType="Assignment" LineNo="9" ColNo="30">
+                                 <NodeId>SimpleArrayAssignment2</NodeId>
+                                 <StartCondition>
+                                    <EQInternal>
+                                       <NodeStateVariable>
+                                          <NodeId>SimpleArrayAssignment</NodeId>
+                                       </NodeStateVariable>
+                                       <NodeStateValue>FINISHED</NodeStateValue>
+                                    </EQInternal>
+                                 </StartCondition>
+                                 <NodeBody>
+                                    <Assignment>
+                                       <ArrayElement>
+                                          <Name>foo</Name>
+                                          <Index>
+                                             <IntegerValue>2</IntegerValue>
+                                          </Index>
+                                       </ArrayElement>
+                                       <NumericRHS>
+                                          <ADD LineNo="9" ColNo="46">
+                                             <ArrayElement>
+                                                <Name>foo</Name>
+                                                <Index>
+                                                   <IntegerValue>2</IntegerValue>
+                                                </Index>
+                                             </ArrayElement>
+                                             <RealValue>2.0</RealValue>
+                                          </ADD>
+                                       </NumericRHS>
+                                    </Assignment>
                                  </NodeBody>
                               </Node>
                            </NodeList>

@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="1" ColNo="5">
-      <StateDeclaration LineNo="1" ColNo="5">
+            xmlns:tr="extended-plexil-translator"
+            FileName="CruiseControl.ple">
+   <GlobalDeclarations LineNo="2" ColNo="5">
+      <StateDeclaration LineNo="2" ColNo="5">
          <Name>ActualSpeed</Name>
          <Return>
             <Name>_return_0</Name>
             <Type>Real</Type>
          </Return>
       </StateDeclaration>
-      <StateDeclaration LineNo="2" ColNo="8">
+      <StateDeclaration LineNo="3" ColNo="8">
          <Name>CancelPressed</Name>
          <Return>
             <Name>_return_0</Name>
             <Type>Boolean</Type>
          </Return>
       </StateDeclaration>
-      <StateDeclaration LineNo="3" ColNo="8">
+      <StateDeclaration LineNo="4" ColNo="8">
          <Name>SetPressed</Name>
          <Return>
             <Name>_return_0</Name>
@@ -24,7 +25,7 @@
          </Return>
       </StateDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Concurrence" LineNo="5" ColNo="15">
+   <Node NodeType="NodeList" epx="Concurrence" LineNo="6" ColNo="15">
       <NodeId>CruiseControl</NodeId>
       <VariableDeclarations>
          <DeclareVariable LineNo="6" ColNo="2">
@@ -48,7 +49,7 @@
       </VariableDeclarations>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="Concurrence" LineNo="9" ColNo="7">
+            <Node NodeType="NodeList" epx="Concurrence" LineNo="10" ColNo="7">
                <NodeId>SET</NodeId>
                <StartCondition>
                   <LookupOnChange>
@@ -59,7 +60,7 @@
                </StartCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Assignment" LineNo="11" ColNo="17">
+                     <Node NodeType="Assignment" LineNo="12" ColNo="17">
                         <NodeId>SetCruiseOn</NodeId>
                         <NodeBody>
                            <Assignment>
@@ -70,7 +71,7 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="12" ColNo="20">
+                     <Node NodeType="Assignment" LineNo="13" ColNo="20">
                         <NodeId>SetTargetSpeed</NodeId>
                         <NodeBody>
                            <Assignment>
@@ -88,7 +89,7 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="18" ColNo="4">
+            <Node NodeType="Assignment" LineNo="19" ColNo="4">
                <NodeId>CANCEL</NodeId>
                <StartCondition>
                   <LookupOnChange>
@@ -109,23 +110,23 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="Empty" LineNo="0" ColNo="0">
+            <Node NodeType="Empty" LineNo="1" ColNo="0">
                <NodeId>RESUME</NodeId>
             </Node>
-            <Node NodeType="Empty" LineNo="0" ColNo="0">
+            <Node NodeType="Empty" LineNo="1" ColNo="0">
                <NodeId>ACCEL</NodeId>
             </Node>
-            <Node NodeType="Empty" LineNo="0" ColNo="0">
+            <Node NodeType="Empty" LineNo="1" ColNo="0">
                <NodeId>DECEL</NodeId>
             </Node>
-            <Node NodeType="NodeList" epx="Concurrence" LineNo="25" ColNo="29">
+            <Node NodeType="NodeList" epx="Concurrence" LineNo="26" ColNo="29">
                <NodeId>ControlSpeedAutomatically</NodeId>
-               <StartCondition>
-                  <BooleanVariable>cruiseOn</BooleanVariable>
-               </StartCondition>
                <RepeatCondition>
                   <BooleanVariable>cruiseOn</BooleanVariable>
                </RepeatCondition>
+               <StartCondition>
+                  <BooleanVariable>cruiseOn</BooleanVariable>
+               </StartCondition>
                <EndCondition>
                   <NOT>
                      <BooleanVariable>cruiseOn</BooleanVariable>
@@ -133,7 +134,7 @@
                </EndCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Assignment" LineNo="31" ColNo="6">
+                     <Node NodeType="Assignment" LineNo="32" ColNo="6">
                         <NodeId>IncreaseThrottle</NodeId>
                         <StartCondition>
                            <LT>
@@ -149,7 +150,7 @@
                            <Assignment>
                               <RealVariable>throttlePos</RealVariable>
                               <NumericRHS>
-                                 <ADD LineNo="31" ColNo="32">
+                                 <ADD LineNo="32" ColNo="32">
                                     <RealVariable>throttlePos</RealVariable>
                                     <RealValue>0.1</RealValue>
                                  </ADD>
@@ -157,7 +158,7 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="35" ColNo="6">
+                     <Node NodeType="Assignment" LineNo="36" ColNo="6">
                         <NodeId>DecreaseThrottle</NodeId>
                         <StartCondition>
                            <GT>
@@ -173,7 +174,7 @@
                            <Assignment>
                               <RealVariable>throttlePos</RealVariable>
                               <NumericRHS>
-                                 <SUB LineNo="35" ColNo="32">
+                                 <SUB LineNo="36" ColNo="32">
                                     <RealVariable>throttlePos</RealVariable>
                                     <RealValue>0.1</RealValue>
                                  </SUB>

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="5" ColNo="5">
-      <StateDeclaration LineNo="5" ColNo="5">
+            xmlns:tr="extended-plexil-translator"
+            FileName="Gantt1.ple">
+   <GlobalDeclarations LineNo="6" ColNo="5">
+      <StateDeclaration LineNo="6" ColNo="5">
          <Name>time</Name>
          <Return>
             <Name>_return_0</Name>
@@ -10,7 +11,7 @@
          </Return>
       </StateDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" LineNo="9" ColNo="2">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="10" ColNo="2">
       <NodeId>Gantt1</NodeId>
       <VariableDeclarations>
          <DeclareVariable LineNo="9" ColNo="2">
@@ -36,40 +37,38 @@
          </DeclareVariable>
       </VariableDeclarations>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Activity1</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Activity2</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Activity3</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Activity6</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+         <NOT>
+            <OR>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>Activity1</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>Activity2</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>Activity3</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeId>Activity6</NodeId>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="Assignment" LineNo="14" ColNo="4">
+            <Node NodeType="Assignment" LineNo="15" ColNo="4">
                <NodeId>Activity1</NodeId>
                <NodeBody>
                   <Assignment>
@@ -80,17 +79,15 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="20" ColNo="4">
+            <Node NodeType="Assignment" LineNo="21" ColNo="4">
                <NodeId>Activity2</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>Activity1</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>Activity1</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <EndCondition>
                   <GE>
@@ -102,7 +99,7 @@
                            <RealVariable>thresh</RealVariable>
                         </Tolerance>
                      </LookupOnChange>
-                     <ADD LineNo="19" ColNo="56">
+                     <ADD LineNo="20" ColNo="56">
                         <NodeTimepointValue>
                            <NodeId>Activity1</NodeId>
                            <NodeStateValue>FINISHED</NodeStateValue>
@@ -121,17 +118,15 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="Concurrence" LineNo="23" ColNo="14">
+            <Node NodeType="NodeList" epx="Concurrence" LineNo="24" ColNo="14">
                <NodeId>Activity3</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>Activity2</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>Activity2</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <EndCondition>
                   <GE>
@@ -143,7 +138,7 @@
                            <RealVariable>thresh</RealVariable>
                         </Tolerance>
                      </LookupOnChange>
-                     <ADD LineNo="25" ColNo="56">
+                     <ADD LineNo="26" ColNo="56">
                         <NodeTimepointValue>
                            <NodeId>Activity2</NodeId>
                            <NodeStateValue>FINISHED</NodeStateValue>
@@ -155,7 +150,7 @@
                </EndCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Assignment" LineNo="29" ColNo="6">
+                     <Node NodeType="Assignment" LineNo="30" ColNo="6">
                         <NodeId>Activity4</NodeId>
                         <EndCondition>
                            <GE>
@@ -167,7 +162,7 @@
                                     <RealVariable>thresh</RealVariable>
                                  </Tolerance>
                               </LookupOnChange>
-                              <ADD LineNo="28" ColNo="59">
+                              <ADD LineNo="29" ColNo="59">
                                  <NodeTimepointValue>
                                     <NodeId>Activity3</NodeId>
                                     <NodeStateValue>EXECUTING</NodeStateValue>
@@ -186,7 +181,7 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="35" ColNo="6">
+                     <Node NodeType="Assignment" LineNo="36" ColNo="6">
                         <NodeId>Activity5</NodeId>
                         <EndCondition>
                            <GE>
@@ -198,7 +193,7 @@
                                     <RealVariable>thresh</RealVariable>
                                  </Tolerance>
                               </LookupOnChange>
-                              <ADD LineNo="34" ColNo="59">
+                              <ADD LineNo="35" ColNo="59">
                                  <NodeTimepointValue>
                                     <NodeId>Activity4</NodeId>
                                     <NodeStateValue>EXECUTING</NodeStateValue>
@@ -220,17 +215,15 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="42" ColNo="4">
+            <Node NodeType="Assignment" LineNo="43" ColNo="4">
                <NodeId>Activity6</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>Activity3</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeId>Activity3</NodeId>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <EndCondition>
                   <GE>
@@ -242,7 +235,7 @@
                            <RealVariable>thresh</RealVariable>
                         </Tolerance>
                      </LookupOnChange>
-                     <ADD LineNo="41" ColNo="56">
+                     <ADD LineNo="42" ColNo="56">
                         <NodeTimepointValue>
                            <NodeId>Activity3</NodeId>
                            <NodeStateValue>FINISHED</NodeStateValue>
