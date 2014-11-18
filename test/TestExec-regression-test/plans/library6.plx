@@ -4,18 +4,18 @@
    <Node NodeType="Assignment">
       <NodeId>library6</NodeId>
       <Interface>
-         <InOut>
-            <DeclareVariable>
-               <Name>x</Name>
-               <Type>String</Type>
-            </DeclareVariable>
-         </InOut>
          <In>
             <DeclareVariable>
                <Name>y</Name>
                <Type>String</Type>
             </DeclareVariable>
          </In>
+         <InOut>
+            <DeclareVariable>
+               <Name>x</Name>
+               <Type>String</Type>
+            </DeclareVariable>
+         </InOut>
       </Interface>
       <NodeBody>
          <Assignment>
