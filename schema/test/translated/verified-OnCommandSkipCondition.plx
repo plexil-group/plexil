@@ -222,7 +222,7 @@
                         </StartCondition>
                         <NodeBody>
                            <NodeList>
-                              <Node>
+                              <Node NodeType="Command">
                                  <NodeId>Recv1__CHILD__1</NodeId>
                                  <NodeBody>
                                     <Command>
@@ -488,7 +488,7 @@
                         </StartCondition>
                         <NodeBody>
                            <NodeList>
-                              <Node>
+                              <Node NodeType="Command">
                                  <NodeId>Recv2__CHILD__1</NodeId>
                                  <NodeBody>
                                     <Command>
