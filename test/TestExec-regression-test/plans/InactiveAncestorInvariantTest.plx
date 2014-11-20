@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <Node NodeType="NodeList" epx="Concurrence" LineNo="2" ColNo="0">
+            xmlns:tr="extended-plexil-translator"
+            FileName="InactiveAncestorInvariantTest.ple">
+   <Node NodeType="NodeList" epx="Concurrence" LineNo="3" ColNo="0">
       <NodeId>InactiveAncestorInvariantTest</NodeId>
       <InvariantCondition>
          <NEInternal>
@@ -13,25 +14,29 @@
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="Sequence" LineNo="9" ColNo="2">
+            <Node NodeType="NodeList" epx="Sequence" LineNo="10" ColNo="2">
                <NodeId>TheParent</NodeId>
                <InvariantCondition>
-                  <AND>
-                     <NOT>
-                        <OR>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>TheChild</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                        </OR>
-                     </NOT>
-                  </AND>
+                  <NOT>
+                     <AND>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeRef dir="child">TheChild</NodeRef>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeStateVariable>
+                              <NodeRef dir="child">TheChild</NodeRef>
+                           </NodeStateVariable>
+                           <NodeStateValue>FINISHED</NodeStateValue>
+                        </EQInternal>
+                     </AND>
+                  </NOT>
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Empty" LineNo="0" ColNo="0">
+                     <Node NodeType="Empty" LineNo="1" ColNo="0">
                         <NodeId>TheChild</NodeId>
                      </Node>
                   </NodeList>

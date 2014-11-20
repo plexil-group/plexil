@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <Node NodeType="NodeList" epx="Sequence" LineNo="3" ColNo="2">
+            xmlns:tr="extended-plexil-translator"
+            FileName="array-assignment-w-failure.ple">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="4" ColNo="2">
       <NodeId>ArrayAssignmentWithFailure</NodeId>
       <VariableDeclarations>
          <DeclareVariable LineNo="3" ColNo="2">
@@ -58,44 +59,74 @@
          </AND>
       </PostCondition>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
+         <NOT>
+            <OR>
+               <AND>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>Concurrence__0</NodeId>
+                        <NodeRef dir="child">Concurrence__0</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
                   <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">Concurrence__0</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>Concurrence__3</NodeId>
+                        <NodeRef dir="child">Concurrence__3</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
                   <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">Concurrence__3</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>ASSIGNMENT__7</NodeId>
+                        <NodeRef dir="child">ASSIGNMENT__7</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
                   <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">ASSIGNMENT__7</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>Concurrence__8</NodeId>
+                        <NodeRef dir="child">Concurrence__8</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">Concurrence__8</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="Concurrence" LineNo="11" ColNo="2">
+            <Node NodeType="NodeList" epx="Concurrence" LineNo="12" ColNo="2">
                <NodeId>Concurrence__0</NodeId>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Assignment" LineNo="13" ColNo="4">
+                     <Node NodeType="Assignment" LineNo="14" ColNo="4">
                         <NodeId>ASSIGNMENT__1</NodeId>
                         <NodeBody>
                            <Assignment>
@@ -111,7 +142,7 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="14" ColNo="4">
+                     <Node NodeType="Assignment" LineNo="15" ColNo="4">
                         <NodeId>ASSIGNMENT__2</NodeId>
                         <NodeBody>
                            <Assignment>
@@ -130,21 +161,19 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="Concurrence" LineNo="17" ColNo="2">
+            <Node NodeType="NodeList" epx="Concurrence" LineNo="19" ColNo="2">
                <NodeId>Concurrence__3</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>Concurrence__0</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="sibling">Concurrence__0</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Assignment" LineNo="22" ColNo="6">
+                     <Node NodeType="Assignment" LineNo="24" ColNo="6">
                         <NodeId>SpoiledAssignment1</NodeId>
                         <InvariantCondition>
                            <NOT>
@@ -165,7 +194,7 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="27" ColNo="6">
+                     <Node NodeType="Assignment" LineNo="29" ColNo="6">
                         <NodeId>SpoiledAssignment2</NodeId>
                         <InvariantCondition>
                            <NOT>
@@ -186,7 +215,7 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="29" ColNo="4">
+                     <Node NodeType="Assignment" LineNo="31" ColNo="4">
                         <NodeId>ASSIGNMENT__6</NodeId>
                         <NodeBody>
                            <Assignment>
@@ -200,17 +229,15 @@
                   </NodeList>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="32" ColNo="2">
+            <Node NodeType="Assignment" LineNo="34" ColNo="2">
                <NodeId>ASSIGNMENT__7</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>Concurrence__3</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="sibling">Concurrence__3</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <NodeBody>
                   <Assignment>
@@ -221,21 +248,19 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="NodeList" epx="Concurrence" LineNo="34" ColNo="2">
+            <Node NodeType="NodeList" epx="Concurrence" LineNo="36" ColNo="2">
                <NodeId>Concurrence__8</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>ASSIGNMENT__7</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="sibling">ASSIGNMENT__7</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Assignment" LineNo="39" ColNo="6">
+                     <Node NodeType="Assignment" LineNo="41" ColNo="6">
                         <NodeId>SpoiledAssignment3</NodeId>
                         <InvariantCondition>
                            <NOT>
@@ -255,7 +280,7 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="44" ColNo="6">
+                     <Node NodeType="Assignment" LineNo="46" ColNo="6">
                         <NodeId>SpoiledAssignment4</NodeId>
                         <InvariantCondition>
                            <NOT>
@@ -275,7 +300,7 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="46" ColNo="4">
+                     <Node NodeType="Assignment" LineNo="48" ColNo="4">
                         <NodeId>ASSIGNMENT__11</NodeId>
                         <NodeBody>
                            <Assignment>

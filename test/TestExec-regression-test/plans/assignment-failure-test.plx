@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <Node NodeType="NodeList" epx="Concurrence" LineNo="2" ColNo="0">
+            xmlns:tr="extended-plexil-translator"
+            FileName="assignment-failure-test.ple">
+   <Node NodeType="NodeList" epx="Concurrence" LineNo="3" ColNo="0">
       <NodeId>AssignmentFailureTest</NodeId>
       <VariableDeclarations>
          <DeclareVariable LineNo="4" ColNo="2">
@@ -63,7 +64,7 @@
       </EndCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="Assignment" LineNo="17" ColNo="4">
+            <Node NodeType="Assignment" LineNo="18" ColNo="4">
                <NodeId>BoolFail</NodeId>
                <InvariantCondition>
                   <NOT>
@@ -79,7 +80,7 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="23" ColNo="4">
+            <Node NodeType="Assignment" LineNo="24" ColNo="4">
                <NodeId>IntFail</NodeId>
                <InvariantCondition>
                   <NOT>
@@ -95,7 +96,7 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="29" ColNo="4">
+            <Node NodeType="Assignment" LineNo="30" ColNo="4">
                <NodeId>RealFail</NodeId>
                <InvariantCondition>
                   <NOT>
@@ -111,7 +112,7 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="35" ColNo="4">
+            <Node NodeType="Assignment" LineNo="36" ColNo="4">
                <NodeId>StringFail</NodeId>
                <InvariantCondition>
                   <NOT>
@@ -127,7 +128,7 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="41" ColNo="4">
+            <Node NodeType="Assignment" LineNo="42" ColNo="4">
                <NodeId>ArrayFail</NodeId>
                <InvariantCondition>
                   <NOT>
@@ -146,7 +147,7 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="47" ColNo="4">
+            <Node NodeType="Assignment" LineNo="48" ColNo="4">
                <NodeId>StringArrayFail</NodeId>
                <InvariantCondition>
                   <NOT>
@@ -165,7 +166,7 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="51" ColNo="2">
+            <Node NodeType="Assignment" LineNo="52" ColNo="2">
                <NodeId>theSpoiler</NodeId>
                <NodeBody>
                   <Assignment>

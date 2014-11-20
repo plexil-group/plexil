@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="1" ColNo="0">
-      <LibraryNodeDeclaration LineNo="1" ColNo="0">
+            xmlns:tr="extended-plexil-translator"
+            FileName="libcall.ple">
+   <GlobalDeclarations LineNo="2" ColNo="0">
+      <LibraryNodeDeclaration LineNo="2" ColNo="0">
          <Name>LibTest1</Name>
-         <Interface LineNo="1" ColNo="24">
+         <Interface LineNo="2" ColNo="24">
             <In>
                <DeclareVariable LineNo="1" ColNo="24">
                   <Name>lb</Name>
@@ -25,9 +26,9 @@
             </In>
          </Interface>
       </LibraryNodeDeclaration>
-      <LibraryNodeDeclaration LineNo="3" ColNo="0">
+      <LibraryNodeDeclaration LineNo="4" ColNo="0">
          <Name>LibTest2</Name>
-         <Interface LineNo="3" ColNo="24">
+         <Interface LineNo="4" ColNo="24">
             <In>
                <DeclareVariable LineNo="3" ColNo="24">
                   <Name>y</Name>
@@ -41,7 +42,7 @@
          </Interface>
       </LibraryNodeDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" LineNo="7" ColNo="2">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="8" ColNo="2">
       <NodeId>List</NodeId>
       <VariableDeclarations>
          <DeclareVariable LineNo="7" ColNo="2">
@@ -74,24 +75,38 @@
          </DeclareVariable>
       </VariableDeclarations>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
+         <NOT>
+            <OR>
+               <AND>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>CallLibTest1</NodeId>
+                        <NodeRef dir="child">CallLibTest1</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
                   <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">CallLibTest1</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>CallLibTest2</NodeId>
+                        <NodeRef dir="child">CallLibTest2</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">CallLibTest2</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
@@ -130,14 +145,12 @@
             <Node NodeType="LibraryNodeCall">
                <NodeId>CallLibTest2</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>CallLibTest1</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="sibling">CallLibTest1</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <NodeBody>
                   <LibraryNodeCall>

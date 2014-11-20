@@ -12,9 +12,6 @@
             </InitialValue>
          </DeclareVariable>
       </VariableDeclarations>
-      <StartCondition>
-         <BooleanValue>1</BooleanValue>
-      </StartCondition>
       <EndCondition>
          <EQInternal>
             <NodeStateVariable>
@@ -23,6 +20,9 @@
             <NodeStateValue>FINISHED</NodeStateValue>
          </EQInternal>
       </EndCondition>
+      <StartCondition>
+         <BooleanValue>1</BooleanValue>
+      </StartCondition>
       <NodeBody>
          <NodeList>
             <Node NodeType="Assignment">

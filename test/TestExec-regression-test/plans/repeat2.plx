@@ -1,34 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="1" ColNo="8">
-      <StateDeclaration LineNo="1" ColNo="8">
+            xmlns:tr="extended-plexil-translator"
+            FileName="repeat2.ple">
+   <GlobalDeclarations LineNo="2" ColNo="8">
+      <StateDeclaration LineNo="2" ColNo="8">
          <Name>x</Name>
          <Return>
             <Name>_return_0</Name>
             <Type>Integer</Type>
          </Return>
       </StateDeclaration>
-      <CommandDeclaration LineNo="2" ColNo="0">
+      <CommandDeclaration LineNo="3" ColNo="0">
          <Name>foo</Name>
       </CommandDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" LineNo="6" ColNo="2">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="7" ColNo="2">
       <NodeId>Wrapper0</NodeId>
-      <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Wrapper1</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
-      </InvariantCondition>
       <EndCondition>
          <NENumeric>
             <LookupOnChange>
@@ -39,41 +26,67 @@
             <IntegerValue>0</IntegerValue>
          </NENumeric>
       </EndCondition>
+      <InvariantCondition>
+         <NOT>
+            <AND>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeRef dir="child">Wrapper1</NodeRef>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeStateVariable>
+                     <NodeRef dir="child">Wrapper1</NodeRef>
+                  </NodeStateVariable>
+                  <NodeStateValue>FINISHED</NodeStateValue>
+               </EQInternal>
+            </AND>
+         </NOT>
+      </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="Sequence" LineNo="9" ColNo="4">
+            <Node NodeType="NodeList" epx="Sequence" LineNo="10" ColNo="4">
                <NodeId>Wrapper1</NodeId>
                <InvariantCondition>
-                  <AND>
-                     <NOT>
-                        <OR>
-                           <EQInternal>
-                              <NodeOutcomeVariable>
-                                 <NodeId>Wrapper2</NodeId>
-                              </NodeOutcomeVariable>
-                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                           </EQInternal>
-                        </OR>
-                     </NOT>
-                  </AND>
+                  <NOT>
+                     <AND>
+                        <EQInternal>
+                           <NodeOutcomeVariable>
+                              <NodeRef dir="child">Wrapper2</NodeRef>
+                           </NodeOutcomeVariable>
+                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                        </EQInternal>
+                        <EQInternal>
+                           <NodeStateVariable>
+                              <NodeRef dir="child">Wrapper2</NodeRef>
+                           </NodeStateVariable>
+                           <NodeStateValue>FINISHED</NodeStateValue>
+                        </EQInternal>
+                     </AND>
+                  </NOT>
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="NodeList" epx="Sequence" LineNo="10" ColNo="6">
+                     <Node NodeType="NodeList" epx="Sequence" LineNo="11" ColNo="6">
                         <NodeId>Wrapper2</NodeId>
                         <InvariantCondition>
-                           <AND>
-                              <NOT>
-                                 <OR>
-                                    <EQInternal>
-                                       <NodeOutcomeVariable>
-                                          <NodeId>FooCall</NodeId>
-                                       </NodeOutcomeVariable>
-                                       <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                    </EQInternal>
-                                 </OR>
-                              </NOT>
-                           </AND>
+                           <NOT>
+                              <AND>
+                                 <EQInternal>
+                                    <NodeOutcomeVariable>
+                                       <NodeRef dir="child">FooCall</NodeRef>
+                                    </NodeOutcomeVariable>
+                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                 </EQInternal>
+                                 <EQInternal>
+                                    <NodeStateVariable>
+                                       <NodeRef dir="child">FooCall</NodeRef>
+                                    </NodeStateVariable>
+                                    <NodeStateValue>FINISHED</NodeStateValue>
+                                 </EQInternal>
+                              </AND>
+                           </NOT>
                         </InvariantCondition>
                         <NodeBody>
                            <NodeList>

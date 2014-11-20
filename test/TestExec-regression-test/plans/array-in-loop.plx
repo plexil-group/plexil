@@ -51,45 +51,39 @@
                                  </VariableDeclarations>
                                  <EndCondition>
                                     <OR>
-                                       <EQInternal>
-                                          <NodeOutcomeVariable>
-                                             <NodeId>BUG</NodeId>
-                                          </NodeOutcomeVariable>
-                                          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                                       </EQInternal>
-                                       <EQInternal>
-                                          <NodeOutcomeVariable>
-                                             <NodeId>plexilisp_Name_1</NodeId>
-                                          </NodeOutcomeVariable>
-                                          <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-                                       </EQInternal>
                                        <AND>
                                           <EQInternal>
-                                             <NodeStateVariable>
-                                                <NodeId>BUG</NodeId>
-                                             </NodeStateVariable>
-                                             <NodeStateValue>FINISHED</NodeStateValue>
+                                             <NodeOutcomeVariable>
+                                                <NodeRef dir="child">BUG</NodeRef>
+                                             </NodeOutcomeVariable>
+                                             <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                                           </EQInternal>
                                           <EQInternal>
                                              <NodeStateVariable>
-                                                <NodeId>plexilisp_Name_1</NodeId>
+                                                <NodeRef dir="child">BUG</NodeRef>
                                              </NodeStateVariable>
                                              <NodeStateValue>FINISHED</NodeStateValue>
                                           </EQInternal>
                                        </AND>
+                                       <EQInternal>
+                                          <NodeStateVariable>
+                                             <NodeRef dir="child">plexilisp_Name_1</NodeRef>
+                                          </NodeStateVariable>
+                                          <NodeStateValue>FINISHED</NodeStateValue>
+                                       </EQInternal>
                                     </OR>
                                  </EndCondition>
                                  <PostCondition>
                                     <OR>
                                        <EQInternal>
                                           <NodeOutcomeVariable>
-                                             <NodeId>BUG</NodeId>
+                                             <NodeRef dir="child">BUG</NodeRef>
                                           </NodeOutcomeVariable>
                                           <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                                        </EQInternal>
                                        <EQInternal>
                                           <NodeOutcomeVariable>
-                                             <NodeId>plexilisp_Name_1</NodeId>
+                                             <NodeRef dir="child">plexilisp_Name_1</NodeRef>
                                           </NodeOutcomeVariable>
                                           <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                                        </EQInternal>
@@ -130,7 +124,7 @@
                                           <StartCondition>
                                              <EQInternal>
                                                 <NodeStateVariable>
-                                                   <NodeId>BUG</NodeId>
+                                                   <NodeRef dir="sibling">BUG</NodeRef>
                                                 </NodeStateVariable>
                                                 <NodeStateValue>FINISHED</NodeStateValue>
                                              </EQInternal>

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="1" ColNo="0">
-      <LibraryNodeDeclaration LineNo="1" ColNo="0">
+            xmlns:tr="extended-plexil-translator"
+            FileName="lib2.ple">
+   <GlobalDeclarations LineNo="2" ColNo="0">
+      <LibraryNodeDeclaration LineNo="2" ColNo="0">
          <Name>LibTest1</Name>
-         <Interface LineNo="1" ColNo="24">
+         <Interface LineNo="2" ColNo="24">
             <In>
                <DeclareVariable LineNo="1" ColNo="24">
                   <Name>lb</Name>
@@ -25,9 +26,9 @@
             </In>
          </Interface>
       </LibraryNodeDeclaration>
-      <LibraryNodeDeclaration LineNo="5" ColNo="0">
+      <LibraryNodeDeclaration LineNo="6" ColNo="0">
          <Name>LibTest2</Name>
-         <Interface LineNo="5" ColNo="24">
+         <Interface LineNo="6" ColNo="24">
             <In>
                <DeclareVariable LineNo="5" ColNo="24">
                   <Name>y</Name>
@@ -40,7 +41,7 @@
             </In>
          </Interface>
       </LibraryNodeDeclaration>
-      <CommandDeclaration LineNo="6" ColNo="0">
+      <CommandDeclaration LineNo="7" ColNo="0">
          <Name>bar</Name>
          <Parameter>
             <Type>Real</Type>
@@ -50,7 +51,7 @@
          </Parameter>
       </CommandDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" LineNo="10" ColNo="2">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="11" ColNo="2">
       <NodeId>LibTest2</NodeId>
       <Interface>
          <In>
@@ -65,24 +66,38 @@
          </In>
       </Interface>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
+         <NOT>
+            <OR>
+               <AND>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>BarCall2</NodeId>
+                        <NodeRef dir="child">BarCall2</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
                   <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">BarCall2</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>Call2LibTest1</NodeId>
+                        <NodeRef dir="child">Call2LibTest1</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">Call2LibTest1</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
@@ -93,7 +108,7 @@
                      <Name>
                         <StringValue>bar</StringValue>
                      </Name>
-                     <Arguments LineNo="13" ColNo="16">
+                     <Arguments LineNo="14" ColNo="16">
                         <RealVariable>y</RealVariable>
                         <RealVariable>z</RealVariable>
                      </Arguments>
@@ -103,14 +118,12 @@
             <Node NodeType="LibraryNodeCall">
                <NodeId>Call2LibTest1</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>BarCall2</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="sibling">BarCall2</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <NodeBody>
                   <LibraryNodeCall>

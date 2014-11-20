@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="1" ColNo="0">
-      <LibraryNodeDeclaration LineNo="1" ColNo="0">
+            xmlns:tr="extended-plexil-translator"
+            FileName="lib1.ple">
+   <GlobalDeclarations LineNo="2" ColNo="0">
+      <LibraryNodeDeclaration LineNo="2" ColNo="0">
          <Name>LibTest1</Name>
-         <Interface LineNo="1" ColNo="24">
+         <Interface LineNo="2" ColNo="24">
             <In>
                <DeclareVariable LineNo="1" ColNo="24">
                   <Name>lb</Name>
@@ -25,9 +26,9 @@
             </In>
          </Interface>
       </LibraryNodeDeclaration>
-      <LibraryNodeDeclaration LineNo="5" ColNo="0">
+      <LibraryNodeDeclaration LineNo="6" ColNo="0">
          <Name>LibTest2</Name>
-         <Interface LineNo="5" ColNo="24">
+         <Interface LineNo="6" ColNo="24">
             <In>
                <DeclareVariable LineNo="5" ColNo="24">
                   <Name>y</Name>
@@ -40,7 +41,7 @@
             </In>
          </Interface>
       </LibraryNodeDeclaration>
-      <CommandDeclaration LineNo="6" ColNo="0">
+      <CommandDeclaration LineNo="7" ColNo="0">
          <Name>foo</Name>
          <Parameter>
             <Type>Boolean</Type>
@@ -83,7 +84,7 @@
             <Name>
                <StringValue>foo</StringValue>
             </Name>
-            <Arguments LineNo="14" ColNo="8">
+            <Arguments LineNo="15" ColNo="8">
                <BooleanVariable>lb</BooleanVariable>
                <IntegerVariable>li</IntegerVariable>
                <RealVariable>lr</RealVariable>

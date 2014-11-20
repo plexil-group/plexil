@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <Node NodeType="NodeList" epx="Sequence" LineNo="3" ColNo="3">
+            xmlns:tr="extended-plexil-translator"
+            FileName="AncestorReferenceTest.ple">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="4" ColNo="3">
       <NodeId>AncestorReferenceTest</NodeId>
       <VariableDeclarations>
          <DeclareVariable LineNo="3" ColNo="3">
@@ -14,46 +15,64 @@
          </DeclareVariable>
       </VariableDeclarations>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
-                  <EQInternal>
-                     <NodeOutcomeVariable>
-                        <NodeId>Sub</NodeId>
-                     </NodeOutcomeVariable>
-                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                  </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+         <NOT>
+            <AND>
+               <EQInternal>
+                  <NodeOutcomeVariable>
+                     <NodeRef dir="child">Sub</NodeRef>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+               </EQInternal>
+               <EQInternal>
+                  <NodeStateVariable>
+                     <NodeRef dir="child">Sub</NodeRef>
+                  </NodeStateVariable>
+                  <NodeStateValue>FINISHED</NodeStateValue>
+               </EQInternal>
+            </AND>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="NodeList" epx="Sequence" LineNo="6" ColNo="7">
+            <Node NodeType="NodeList" epx="Sequence" LineNo="7" ColNo="7">
                <NodeId>Sub</NodeId>
                <InvariantCondition>
-                  <AND>
-                     <NOT>
-                        <OR>
+                  <NOT>
+                     <OR>
+                        <AND>
                            <EQInternal>
                               <NodeOutcomeVariable>
-                                 <NodeId>ASSIGNMENT__0</NodeId>
+                                 <NodeRef dir="child">ASSIGNMENT__0</NodeRef>
                               </NodeOutcomeVariable>
                               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                            </EQInternal>
                            <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeRef dir="child">ASSIGNMENT__0</NodeRef>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
+                        </AND>
+                        <AND>
+                           <EQInternal>
                               <NodeOutcomeVariable>
-                                 <NodeId>ASSIGNMENT__1</NodeId>
+                                 <NodeRef dir="child">ASSIGNMENT__1</NodeRef>
                               </NodeOutcomeVariable>
                               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                            </EQInternal>
-                        </OR>
-                     </NOT>
-                  </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeRef dir="child">ASSIGNMENT__1</NodeRef>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
+                        </AND>
+                     </OR>
+                  </NOT>
                </InvariantCondition>
                <NodeBody>
                   <NodeList>
-                     <Node NodeType="Assignment" LineNo="6" ColNo="7">
+                     <Node NodeType="Assignment" LineNo="7" ColNo="7">
                         <NodeId>ASSIGNMENT__0</NodeId>
                         <NodeBody>
                            <Assignment>
@@ -68,17 +87,15 @@
                            </Assignment>
                         </NodeBody>
                      </Node>
-                     <Node NodeType="Assignment" LineNo="7" ColNo="7">
+                     <Node NodeType="Assignment" LineNo="8" ColNo="7">
                         <NodeId>ASSIGNMENT__1</NodeId>
                         <StartCondition>
-                           <AND>
-                              <EQInternal>
-                                 <NodeStateVariable>
-                                    <NodeId>ASSIGNMENT__0</NodeId>
-                                 </NodeStateVariable>
-                                 <NodeStateValue>FINISHED</NodeStateValue>
-                              </EQInternal>
-                           </AND>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeRef dir="sibling">ASSIGNMENT__0</NodeRef>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
                         </StartCondition>
                         <NodeBody>
                            <Assignment>

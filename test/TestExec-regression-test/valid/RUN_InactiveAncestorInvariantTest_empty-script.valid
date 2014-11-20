@@ -53,8 +53,8 @@ InactiveAncestorInvariantTest{
 [PlexilExec:step][1:4] State change queue: InactiveAncestorInvariantTest TheChild TheParent 
 [PlexilExec:step][1:4:0] Transitioning node InactiveAncestorInvariantTest from EXECUTING to FAILING
 [PlexilExec:step][1:4:1] Transitioning node TheChild from INACTIVE to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node TheParent
 [PlexilExec:notifyNodeConditionChanged] for node TheChild
+[PlexilExec:notifyNodeConditionChanged] for node TheParent
 [PlexilExec:step][1:4:2] Transitioning node TheParent from EXECUTING to FAILING
 [PlexilExec:notifyNodeConditionChanged] for node InactiveAncestorInvariantTest
 [PlexilExec:handleConditionsChanged]Node TheParent had a relevant condition change.

@@ -16,18 +16,34 @@
                <InvariantCondition>
                   <NOT>
                      <OR>
-                        <EQInternal>
-                           <NodeOutcomeVariable>
-                              <NodeId>plexilisp_Name_1</NodeId>
-                           </NodeOutcomeVariable>
-                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                        </EQInternal>
-                        <EQInternal>
-                           <NodeOutcomeVariable>
-                              <NodeId>plexilisp_Name_4</NodeId>
-                           </NodeOutcomeVariable>
-                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                        </EQInternal>
+                        <AND>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeRef dir="child">plexilisp_Name_1</NodeRef>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                           </EQInternal>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeRef dir="child">plexilisp_Name_1</NodeRef>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
+                        </AND>
+                        <AND>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeRef dir="child">plexilisp_Name_4</NodeRef>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                           </EQInternal>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeRef dir="child">plexilisp_Name_4</NodeRef>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
+                        </AND>
                      </OR>
                   </NOT>
                </InvariantCondition>
@@ -59,7 +75,7 @@
                         <StartCondition>
                            <EQInternal>
                               <NodeStateVariable>
-                                 <NodeId>plexilisp_Name_1</NodeId>
+                                 <NodeRef dir="sibling">plexilisp_Name_1</NodeRef>
                               </NodeStateVariable>
                               <NodeStateValue>FINISHED</NodeStateValue>
                            </EQInternal>

@@ -43,6 +43,9 @@
             <!-- Node Two executes on each successful iteration of node One -->
         <Node NodeType="Empty">
                <NodeId>Two</NodeId>
+               <RepeatCondition>
+                  <BooleanValue>1</BooleanValue>
+               </RepeatCondition>
                <StartCondition>
                   <AND>
                      <EQInternal>
@@ -59,9 +62,6 @@
                      </EQInternal>
                   </AND>
                </StartCondition>
-               <RepeatCondition>
-                  <BooleanValue>1</BooleanValue>
-               </RepeatCondition>
             </Node>
          </NodeList>
       </NodeBody>

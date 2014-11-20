@@ -647,24 +647,48 @@
                                                                               <InvariantCondition>
                                                                                  <NOT>
                                                                                     <OR>
-                                                                                       <EQInternal>
-                                                                                          <NodeOutcomeVariable>
-                                                                                             <NodeId>DriveToWaypoint</NodeId>
-                                                                                          </NodeOutcomeVariable>
-                                                                                          <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                                                       </EQInternal>
-                                                                                       <EQInternal>
-                                                                                          <NodeOutcomeVariable>
-                                                                                             <NodeId>SetNameToDrive</NodeId>
-                                                                                          </NodeOutcomeVariable>
-                                                                                          <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                                                       </EQInternal>
-                                                                                       <EQInternal>
-                                                                                          <NodeOutcomeVariable>
-                                                                                             <NodeId>WrapperNode</NodeId>
-                                                                                          </NodeOutcomeVariable>
-                                                                                          <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                                                       </EQInternal>
+                                                                                       <AND>
+                                                                                          <EQInternal>
+                                                                                             <NodeOutcomeVariable>
+                                                                                                <NodeRef dir="child">DriveToWaypoint</NodeRef>
+                                                                                             </NodeOutcomeVariable>
+                                                                                             <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                                                                          </EQInternal>
+                                                                                          <EQInternal>
+                                                                                             <NodeStateVariable>
+                                                                                                <NodeRef dir="child">DriveToWaypoint</NodeRef>
+                                                                                             </NodeStateVariable>
+                                                                                             <NodeStateValue>FINISHED</NodeStateValue>
+                                                                                          </EQInternal>
+                                                                                       </AND>
+                                                                                       <AND>
+                                                                                          <EQInternal>
+                                                                                             <NodeOutcomeVariable>
+                                                                                                <NodeRef dir="child">SetNameToDrive</NodeRef>
+                                                                                             </NodeOutcomeVariable>
+                                                                                             <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                                                                          </EQInternal>
+                                                                                          <EQInternal>
+                                                                                             <NodeStateVariable>
+                                                                                                <NodeRef dir="child">SetNameToDrive</NodeRef>
+                                                                                             </NodeStateVariable>
+                                                                                             <NodeStateValue>FINISHED</NodeStateValue>
+                                                                                          </EQInternal>
+                                                                                       </AND>
+                                                                                       <AND>
+                                                                                          <EQInternal>
+                                                                                             <NodeOutcomeVariable>
+                                                                                                <NodeRef dir="child">WrapperNode</NodeRef>
+                                                                                             </NodeOutcomeVariable>
+                                                                                             <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                                                                          </EQInternal>
+                                                                                          <EQInternal>
+                                                                                             <NodeStateVariable>
+                                                                                                <NodeRef dir="child">WrapperNode</NodeRef>
+                                                                                             </NodeStateVariable>
+                                                                                             <NodeStateValue>FINISHED</NodeStateValue>
+                                                                                          </EQInternal>
+                                                                                       </AND>
                                                                                     </OR>
                                                                                  </NOT>
                                                                               </InvariantCondition>
@@ -736,7 +760,7 @@
                                                                                        <StartCondition>
                                                                                           <EQInternal>
                                                                                              <NodeStateVariable>
-                                                                                                <NodeId>DriveToWaypoint</NodeId>
+                                                                                                <NodeRef dir="sibling">DriveToWaypoint</NodeRef>
                                                                                              </NodeStateVariable>
                                                                                              <NodeStateValue>FINISHED</NodeStateValue>
                                                                                           </EQInternal>
@@ -755,7 +779,7 @@
                                                                                        <StartCondition>
                                                                                           <EQInternal>
                                                                                              <NodeStateVariable>
-                                                                                                <NodeId>SetNameToDrive</NodeId>
+                                                                                                <NodeRef dir="sibling">SetNameToDrive</NodeRef>
                                                                                              </NodeStateVariable>
                                                                                              <NodeStateValue>FINISHED</NodeStateValue>
                                                                                           </EQInternal>
@@ -798,24 +822,48 @@
                                                                                                          <InvariantCondition>
                                                                                                             <NOT>
                                                                                                                <OR>
-                                                                                                                  <EQInternal>
-                                                                                                                     <NodeOutcomeVariable>
-                                                                                                                        <NodeId>Cmd_Resest2</NodeId>
-                                                                                                                     </NodeOutcomeVariable>
-                                                                                                                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                                                                                  </EQInternal>
-                                                                                                                  <EQInternal>
-                                                                                                                     <NodeOutcomeVariable>
-                                                                                                                        <NodeId>TakeSample</NodeId>
-                                                                                                                     </NodeOutcomeVariable>
-                                                                                                                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                                                                                  </EQInternal>
-                                                                                                                  <EQInternal>
-                                                                                                                     <NodeOutcomeVariable>
-                                                                                                                        <NodeId>SetNameToAcquire</NodeId>
-                                                                                                                     </NodeOutcomeVariable>
-                                                                                                                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                                                                                                  </EQInternal>
+                                                                                                                  <AND>
+                                                                                                                     <EQInternal>
+                                                                                                                        <NodeOutcomeVariable>
+                                                                                                                           <NodeRef dir="child">Cmd_Resest2</NodeRef>
+                                                                                                                        </NodeOutcomeVariable>
+                                                                                                                        <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                                                                                                     </EQInternal>
+                                                                                                                     <EQInternal>
+                                                                                                                        <NodeStateVariable>
+                                                                                                                           <NodeRef dir="child">Cmd_Resest2</NodeRef>
+                                                                                                                        </NodeStateVariable>
+                                                                                                                        <NodeStateValue>FINISHED</NodeStateValue>
+                                                                                                                     </EQInternal>
+                                                                                                                  </AND>
+                                                                                                                  <AND>
+                                                                                                                     <EQInternal>
+                                                                                                                        <NodeOutcomeVariable>
+                                                                                                                           <NodeRef dir="child">TakeSample</NodeRef>
+                                                                                                                        </NodeOutcomeVariable>
+                                                                                                                        <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                                                                                                     </EQInternal>
+                                                                                                                     <EQInternal>
+                                                                                                                        <NodeStateVariable>
+                                                                                                                           <NodeRef dir="child">TakeSample</NodeRef>
+                                                                                                                        </NodeStateVariable>
+                                                                                                                        <NodeStateValue>FINISHED</NodeStateValue>
+                                                                                                                     </EQInternal>
+                                                                                                                  </AND>
+                                                                                                                  <AND>
+                                                                                                                     <EQInternal>
+                                                                                                                        <NodeOutcomeVariable>
+                                                                                                                           <NodeRef dir="child">SetNameToAcquire</NodeRef>
+                                                                                                                        </NodeOutcomeVariable>
+                                                                                                                        <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                                                                                                     </EQInternal>
+                                                                                                                     <EQInternal>
+                                                                                                                        <NodeStateVariable>
+                                                                                                                           <NodeRef dir="child">SetNameToAcquire</NodeRef>
+                                                                                                                        </NodeStateVariable>
+                                                                                                                        <NodeStateValue>FINISHED</NodeStateValue>
+                                                                                                                     </EQInternal>
+                                                                                                                  </AND>
                                                                                                                </OR>
                                                                                                             </NOT>
                                                                                                          </InvariantCondition>
@@ -861,7 +909,7 @@
                                                                                                                   <StartCondition>
                                                                                                                      <EQInternal>
                                                                                                                         <NodeStateVariable>
-                                                                                                                           <NodeId>Cmd_Resest2</NodeId>
+                                                                                                                           <NodeRef dir="sibling">Cmd_Resest2</NodeRef>
                                                                                                                         </NodeStateVariable>
                                                                                                                         <NodeStateValue>FINISHED</NodeStateValue>
                                                                                                                      </EQInternal>
@@ -918,7 +966,7 @@
                                                                                                                   <StartCondition>
                                                                                                                      <EQInternal>
                                                                                                                         <NodeStateVariable>
-                                                                                                                           <NodeId>TakeSample</NodeId>
+                                                                                                                           <NodeRef dir="sibling">TakeSample</NodeRef>
                                                                                                                         </NodeStateVariable>
                                                                                                                         <NodeStateValue>FINISHED</NodeStateValue>
                                                                                                                      </EQInternal>

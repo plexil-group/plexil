@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <Node NodeType="NodeList" epx="Concurrence" LineNo="2" ColNo="0">
+            xmlns:tr="extended-plexil-translator"
+            FileName="assign-failure-with-conflict.ple">
+   <Node NodeType="NodeList" epx="Concurrence" LineNo="3" ColNo="0">
       <NodeId>AssignFailureWithConflict</NodeId>
       <VariableDeclarations>
          <DeclareVariable LineNo="4" ColNo="2">
@@ -27,7 +28,7 @@
       </PostCondition>
       <NodeBody>
          <NodeList>
-            <Node NodeType="Assignment" LineNo="12" ColNo="4">
+            <Node NodeType="Assignment" LineNo="13" ColNo="4">
                <NodeId>theFailure</NodeId>
                <Priority>2</Priority>
                <InvariantCondition>
@@ -39,7 +40,7 @@
                   <Assignment>
                      <IntegerVariable>n</IntegerVariable>
                      <NumericRHS>
-                        <ADD LineNo="12" ColNo="10">
+                        <ADD LineNo="13" ColNo="10">
                            <IntegerVariable>n</IntegerVariable>
                            <IntegerValue>1</IntegerValue>
                         </ADD>
@@ -47,7 +48,7 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="16" ColNo="2">
+            <Node NodeType="Assignment" LineNo="17" ColNo="2">
                <NodeId>theSpoiler</NodeId>
                <NodeBody>
                   <Assignment>
@@ -58,7 +59,7 @@
                   </Assignment>
                </NodeBody>
             </Node>
-            <Node NodeType="Assignment" LineNo="22" ColNo="4">
+            <Node NodeType="Assignment" LineNo="23" ColNo="4">
                <NodeId>theConflict</NodeId>
                <Priority>1</Priority>
                <StartCondition>

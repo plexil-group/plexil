@@ -15,15 +15,15 @@
          <NodeList>
             <Node NodeType="Empty">
                <NodeId>SkipMe</NodeId>
-               <SkipCondition>
-                  <BooleanValue>1</BooleanValue>
-               </SkipCondition>
                <PostCondition>
                   <EQNumeric>
                      <IntegerValue>1</IntegerValue>
                      <IntegerValue>2</IntegerValue>
                   </EQNumeric>
                </PostCondition>
+               <SkipCondition>
+                  <BooleanValue>1</BooleanValue>
+               </SkipCondition>
             </Node>
          </NodeList>
       </NodeBody>
