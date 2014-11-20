@@ -23,7 +23,7 @@
                   <AND>
                      <EQInternal>
                         <NodeStateVariable>
-                           <NodeId>One</NodeId>
+                           <NodeRef dir="sibling">One</NodeRef>
                         </NodeStateVariable>
                         <NodeStateValue>FINISHED</NodeStateValue>
                      </EQInternal>
@@ -46,7 +46,7 @@
                <StartCondition>
                   <EQInternal>
                      <NodeStateVariable>
-                        <NodeId>ep2cp_UncheckedSequence_d1e29</NodeId>
+                        <NodeRef dir="sibling">ep2cp_UncheckedSequence_d1e29</NodeRef>
                      </NodeStateVariable>
                      <NodeStateValue>FINISHED</NodeStateValue>
                   </EQInternal>

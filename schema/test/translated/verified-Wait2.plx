@@ -15,18 +15,34 @@
       <InvariantCondition>
          <NOT>
             <OR>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>Wait1</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-               </EQInternal>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>Wait2</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-               </EQInternal>
+               <AND>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="child">Wait1</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                  </EQInternal>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">Wait1</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="child">Wait2</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                  </EQInternal>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">Wait2</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
             </OR>
          </NOT>
       </InvariantCondition>
@@ -60,7 +76,7 @@
                <StartCondition>
                   <EQInternal>
                      <NodeStateVariable>
-                        <NodeId>Wait1</NodeId>
+                        <NodeRef dir="sibling">Wait1</NodeRef>
                      </NodeStateVariable>
                      <NodeStateValue>FINISHED</NodeStateValue>
                   </EQInternal>

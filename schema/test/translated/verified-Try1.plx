@@ -14,45 +14,39 @@
       </VariableDeclarations>
       <EndCondition>
          <OR>
-            <EQInternal>
-               <NodeOutcomeVariable>
-                  <NodeId>One</NodeId>
-               </NodeOutcomeVariable>
-               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-            </EQInternal>
-            <EQInternal>
-               <NodeOutcomeVariable>
-                  <NodeId>Two</NodeId>
-               </NodeOutcomeVariable>
-               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
-            </EQInternal>
             <AND>
                <EQInternal>
-                  <NodeStateVariable>
-                     <NodeId>One</NodeId>
-                  </NodeStateVariable>
-                  <NodeStateValue>FINISHED</NodeStateValue>
+                  <NodeOutcomeVariable>
+                     <NodeRef dir="child">One</NodeRef>
+                  </NodeOutcomeVariable>
+                  <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                </EQInternal>
                <EQInternal>
                   <NodeStateVariable>
-                     <NodeId>Two</NodeId>
+                     <NodeRef dir="child">One</NodeRef>
                   </NodeStateVariable>
                   <NodeStateValue>FINISHED</NodeStateValue>
                </EQInternal>
             </AND>
+            <EQInternal>
+               <NodeStateVariable>
+                  <NodeRef dir="child">Two</NodeRef>
+               </NodeStateVariable>
+               <NodeStateValue>FINISHED</NodeStateValue>
+            </EQInternal>
          </OR>
       </EndCondition>
       <PostCondition>
          <OR>
             <EQInternal>
                <NodeOutcomeVariable>
-                  <NodeId>One</NodeId>
+                  <NodeRef dir="child">One</NodeRef>
                </NodeOutcomeVariable>
                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
             </EQInternal>
             <EQInternal>
                <NodeOutcomeVariable>
-                  <NodeId>Two</NodeId>
+                  <NodeRef dir="child">Two</NodeRef>
                </NodeOutcomeVariable>
                <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
             </EQInternal>
@@ -82,7 +76,7 @@
                <StartCondition>
                   <EQInternal>
                      <NodeStateVariable>
-                        <NodeId>One</NodeId>
+                        <NodeRef dir="sibling">One</NodeRef>
                      </NodeStateVariable>
                      <NodeStateValue>FINISHED</NodeStateValue>
                   </EQInternal>

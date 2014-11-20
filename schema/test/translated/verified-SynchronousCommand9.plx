@@ -6,18 +6,34 @@
       <InvariantCondition>
          <NOT>
             <OR>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>A</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-               </EQInternal>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>B</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-               </EQInternal>
+               <AND>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="child">A</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                  </EQInternal>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">A</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="child">B</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                  </EQInternal>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">B</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
             </OR>
          </NOT>
       </InvariantCondition>

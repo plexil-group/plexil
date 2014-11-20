@@ -12,18 +12,34 @@
       <InvariantCondition>
          <NOT>
             <OR>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>ep2cp_CmdWait</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-               </EQInternal>
-               <EQInternal>
-                  <NodeOutcomeVariable>
-                     <NodeId>ep2cp_MsgAction_</NodeId>
-                  </NodeOutcomeVariable>
-                  <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-               </EQInternal>
+               <AND>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                  </EQInternal>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">ep2cp_CmdWait</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="child">ep2cp_MsgAction_</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                  </EQInternal>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">ep2cp_MsgAction_</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
             </OR>
          </NOT>
       </InvariantCondition>
@@ -53,7 +69,7 @@
                <StartCondition>
                   <EQInternal>
                      <NodeStateVariable>
-                        <NodeId>ep2cp_CmdWait</NodeId>
+                        <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>
                      </NodeStateVariable>
                      <NodeStateValue>FINISHED</NodeStateValue>
                   </EQInternal>

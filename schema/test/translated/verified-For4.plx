@@ -36,18 +36,34 @@
                         <InvariantCondition>
                            <NOT>
                               <OR>
-                                 <EQInternal>
-                                    <NodeOutcomeVariable>
-                                       <NodeId>Two</NodeId>
-                                    </NodeOutcomeVariable>
-                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                 </EQInternal>
-                                 <EQInternal>
-                                    <NodeOutcomeVariable>
-                                       <NodeId>Four</NodeId>
-                                    </NodeOutcomeVariable>
-                                    <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                                 </EQInternal>
+                                 <AND>
+                                    <EQInternal>
+                                       <NodeOutcomeVariable>
+                                          <NodeRef dir="child">Two</NodeRef>
+                                       </NodeOutcomeVariable>
+                                       <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                    </EQInternal>
+                                    <EQInternal>
+                                       <NodeStateVariable>
+                                          <NodeRef dir="child">Two</NodeRef>
+                                       </NodeStateVariable>
+                                       <NodeStateValue>FINISHED</NodeStateValue>
+                                    </EQInternal>
+                                 </AND>
+                                 <AND>
+                                    <EQInternal>
+                                       <NodeOutcomeVariable>
+                                          <NodeRef dir="child">Four</NodeRef>
+                                       </NodeOutcomeVariable>
+                                       <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                                    </EQInternal>
+                                    <EQInternal>
+                                       <NodeStateVariable>
+                                          <NodeRef dir="child">Four</NodeRef>
+                                       </NodeStateVariable>
+                                       <NodeStateValue>FINISHED</NodeStateValue>
+                                    </EQInternal>
+                                 </AND>
                               </OR>
                            </NOT>
                         </InvariantCondition>
@@ -61,7 +77,7 @@
                                  <StartCondition>
                                     <EQInternal>
                                        <NodeStateVariable>
-                                          <NodeId>Two</NodeId>
+                                          <NodeRef dir="sibling">Two</NodeRef>
                                        </NodeStateVariable>
                                        <NodeStateValue>FINISHED</NodeStateValue>
                                     </EQInternal>

@@ -34,18 +34,34 @@
                <InvariantCondition>
                   <NOT>
                      <OR>
-                        <EQInternal>
-                           <NodeOutcomeVariable>
-                              <NodeId>DoFirst</NodeId>
-                           </NodeOutcomeVariable>
-                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                        </EQInternal>
-                        <EQInternal>
-                           <NodeOutcomeVariable>
-                              <NodeId>DoSecond</NodeId>
-                           </NodeOutcomeVariable>
-                           <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
-                        </EQInternal>
+                        <AND>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeRef dir="child">DoFirst</NodeRef>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                           </EQInternal>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeRef dir="child">DoFirst</NodeRef>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
+                        </AND>
+                        <AND>
+                           <EQInternal>
+                              <NodeOutcomeVariable>
+                                 <NodeRef dir="child">DoSecond</NodeRef>
+                              </NodeOutcomeVariable>
+                              <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+                           </EQInternal>
+                           <EQInternal>
+                              <NodeStateVariable>
+                                 <NodeRef dir="child">DoSecond</NodeRef>
+                              </NodeStateVariable>
+                              <NodeStateValue>FINISHED</NodeStateValue>
+                           </EQInternal>
+                        </AND>
                      </OR>
                   </NOT>
                </InvariantCondition>
@@ -70,7 +86,7 @@
                         <StartCondition>
                            <EQInternal>
                               <NodeStateVariable>
-                                 <NodeId>DoFirst</NodeId>
+                                 <NodeRef dir="sibling">DoFirst</NodeRef>
                               </NodeStateVariable>
                               <NodeStateValue>FINISHED</NodeStateValue>
                            </EQInternal>
