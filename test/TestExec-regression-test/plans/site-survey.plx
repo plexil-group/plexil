@@ -625,20 +625,12 @@
                                                                         </EQInternal>
                                                                      </StartCondition>
                                                                      <SkipCondition>
-                                                                        <AND>
-                                                                           <EQInternal>
-                                                                              <NodeStateVariable>
-                                                                                 <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-                                                                              </NodeStateVariable>
-                                                                              <NodeStateValue>FINISHED</NodeStateValue>
-                                                                           </EQInternal>
-                                                                           <EQInternal>
-                                                                              <NodeFailureVariable>
-                                                                                 <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-                                                                              </NodeFailureVariable>
-                                                                              <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-                                                                           </EQInternal>
-                                                                        </AND>
+                                                                        <EQInternal>
+                                                                           <NodeFailureVariable>
+                                                                              <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+                                                                           </NodeFailureVariable>
+                                                                           <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
+                                                                        </EQInternal>
                                                                      </SkipCondition>
                                                                      <NodeBody>
                                                                         <NodeList>
@@ -876,20 +868,12 @@
                                                                                                             </EQInternal>
                                                                                                          </StartCondition>
                                                                                                          <SkipCondition>
-                                                                                                            <AND>
-                                                                                                               <EQInternal>
-                                                                                                                  <NodeStateVariable>
-                                                                                                                     <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-                                                                                                                  </NodeStateVariable>
-                                                                                                                  <NodeStateValue>FINISHED</NodeStateValue>
-                                                                                                               </EQInternal>
-                                                                                                               <EQInternal>
-                                                                                                                  <NodeFailureVariable>
-                                                                                                                     <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-                                                                                                                  </NodeFailureVariable>
-                                                                                                                  <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-                                                                                                               </EQInternal>
-                                                                                                            </AND>
+                                                                                                            <EQInternal>
+                                                                                                               <NodeFailureVariable>
+                                                                                                                  <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+                                                                                                               </NodeFailureVariable>
+                                                                                                               <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
+                                                                                                            </EQInternal>
                                                                                                          </SkipCondition>
                                                                                                          <NodeBody>
                                                                                                             <NodeList>
@@ -1130,20 +1114,12 @@
                                                                </EQInternal>
                                                             </StartCondition>
                                                             <SkipCondition>
-                                                               <AND>
-                                                                  <EQInternal>
-                                                                     <NodeStateVariable>
-                                                                        <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-                                                                     </NodeStateVariable>
-                                                                     <NodeStateValue>FINISHED</NodeStateValue>
-                                                                  </EQInternal>
-                                                                  <EQInternal>
-                                                                     <NodeFailureVariable>
-                                                                        <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-                                                                     </NodeFailureVariable>
-                                                                     <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-                                                                  </EQInternal>
-                                                               </AND>
+                                                               <EQInternal>
+                                                                  <NodeFailureVariable>
+                                                                     <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+                                                                  </NodeFailureVariable>
+                                                                  <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
+                                                               </EQInternal>
                                                             </SkipCondition>
                                                             <NodeBody>
                                                                <Assignment>
