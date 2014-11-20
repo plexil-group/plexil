@@ -42,7 +42,7 @@
                         <StartCondition>
                            <EQInternal>
                               <NodeStateVariable>
-                                 <NodeId>ep2cp_Concurrence_d1e49</NodeId>
+                                 <NodeRef dir="sibling">ep2cp_Concurrence_d1e49</NodeRef>
                               </NodeStateVariable>
                               <NodeStateValue>FINISHED</NodeStateValue>
                            </EQInternal>

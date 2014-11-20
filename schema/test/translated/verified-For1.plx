@@ -39,7 +39,7 @@
                         <StartCondition>
                            <EQInternal>
                               <NodeStateVariable>
-                                 <NodeId>Two</NodeId>
+                                 <NodeRef dir="sibling">Two</NodeRef>
                               </NodeStateVariable>
                               <NodeStateValue>FINISHED</NodeStateValue>
                            </EQInternal>

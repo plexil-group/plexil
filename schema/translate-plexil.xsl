@@ -411,14 +411,9 @@
       </xsl:call-template>
     </xsl:variable>
     <xsl:variable name="test-false-cond">
-      <AND>
-        <xsl:call-template name="noderef-finished">
-          <xsl:with-param name="ref" select="$test-node-ref" />
-        </xsl:call-template>
-        <xsl:call-template name="noderef-postcondition-failed">
-          <xsl:with-param name="ref" select="$test-node-ref" />
-        </xsl:call-template>
-      </AND>
+      <xsl:call-template name="noderef-postcondition-failed">
+        <xsl:with-param name="ref" select="$test-node-ref" />
+      </xsl:call-template>
     </xsl:variable>
     <NodeBody>
       <NodeList>
@@ -665,8 +660,13 @@
                   <xsl:value-of select="tr:prefix('ForLoopUpdater')" />
                 </NodeId>
                 <StartCondition>
-                  <xsl:call-template name="node-finished">
-                    <xsl:with-param name="id" select="$expanded-action/Node/NodeId" />
+                  <xsl:call-template name="noderef-finished">
+                    <xsl:with-param name="ref">
+                      <NodeRef dir="sibling">
+                        <xsl:value-of
+                            select="$expanded-action/Node/NodeId" />
+                      </NodeRef>
+                    </xsl:with-param>
                   </xsl:call-template>
                 </StartCondition>
                 <NodeBody>
@@ -955,8 +955,12 @@
                     <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
                   </NodeId>
                   <StartCondition>
-                    <xsl:call-template name="node-finished">
-                      <xsl:with-param name="id" select="tr:prefix('SynchronousCommandCommand')"/>
+                    <xsl:call-template name="noderef-finished">
+                      <xsl:with-param name="ref">
+                        <NodeRef dir="sibling">
+                          <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
+                        </NodeRef>
+                      </xsl:with-param>
                     </xsl:call-template>
                   </StartCondition>
                   <NodeBody>

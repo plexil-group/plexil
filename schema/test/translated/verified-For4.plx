@@ -91,7 +91,7 @@
                         <StartCondition>
                            <EQInternal>
                               <NodeStateVariable>
-                                 <NodeId>ep2cp_Sequence_d1e71</NodeId>
+                                 <NodeRef dir="sibling">ep2cp_Sequence_d1e71</NodeRef>
                               </NodeStateVariable>
                               <NodeStateValue>FINISHED</NodeStateValue>
                            </EQInternal>

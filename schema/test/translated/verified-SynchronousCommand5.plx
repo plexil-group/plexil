@@ -63,7 +63,7 @@
                                  <StartCondition>
                                     <EQInternal>
                                        <NodeStateVariable>
-                                          <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
+                                          <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>
                                        </NodeStateVariable>
                                        <NodeStateValue>FINISHED</NodeStateValue>
                                     </EQInternal>
