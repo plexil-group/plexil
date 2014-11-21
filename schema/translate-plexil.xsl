@@ -1069,29 +1069,16 @@
   </xsl:template>
 
   <xsl:template name="standard-preamble">
-    <xsl:param name="mode" />
     <xsl:param name="context" select="." />
+    <xsl:param name="mode" />
     <xsl:call-template name="basic-clauses">
       <xsl:with-param name="context" select="$context" />
     </xsl:call-template>
     <xsl:apply-templates select="$context/VariableDeclarations" />
-    <xsl:choose>
-      <xsl:when test="$mode = 'ordered'">
-        <xsl:call-template name="ordered-start-condition" />
-        <xsl:call-template name="ordered-skip-condition" />
-        <xsl:apply-templates
-            select="$context/PreCondition|$context/PostCondition|
-                    $context/InvariantCondition|$context/ExitCondition|
-                    $context/RepeatCondition" />
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:apply-templates
-            select="$context/StartCondition|$context/SkipCondition|
-                    $context/PreCondition|$context/PostCondition|
-                    $context/InvariantCondition|$context/ExitCondition|
-                    $context/EndCondition|$context/RepeatCondition" />
-      </xsl:otherwise>
-    </xsl:choose>
+    <xsl:call-template name="translate-conditions">
+      <xsl:with-param name="context" select="$context" />
+      <xsl:with-param name="mode" select="$mode" />
+    </xsl:call-template>
   </xsl:template>
 
 
@@ -1114,14 +1101,14 @@
   </xsl:template>
 
   <xsl:template name="copy-source-locator-attributes">
-    <xsl:param name="context" select="." />
+    <xsl:param name="context" />
     <xsl:copy-of select="$context/@FileName" />
     <xsl:copy-of select="$context/@LineNo" />
     <xsl:copy-of select="$context/@ColNo" />
   </xsl:template>
 
   <xsl:template name="handle-common-clauses">
-    <xsl:param name="context" select="." />
+    <xsl:param name="context" />
     <xsl:copy-of select="$context/Comment" />
     <xsl:copy-of select="$context/Priority" />
     <xsl:copy-of select="$context/Permissions" />
@@ -1129,42 +1116,52 @@
   </xsl:template>
 
   <xsl:template name="translate-conditions">
+    <xsl:param name="context" select="." />
     <xsl:param name="mode" />
     <xsl:choose>
       <xsl:when test="$mode = 'ordered'">
-        <xsl:call-template name="ordered-start-condition" />
-        <xsl:call-template name="ordered-skip-condition" />
+        <xsl:call-template name="ordered-start-condition">
+          <xsl:with-param name="context" select="$context" />
+        </xsl:call-template>
+        <xsl:call-template name="ordered-skip-condition">
+          <xsl:with-param name="context" select="$context" />
+        </xsl:call-template>
         <xsl:apply-templates
-            select="RepeatCondition|PreCondition|ExitCondition|
-                    InvariantCondition|EndCondition|PostCondition" />
+            select="$context/RepeatCondition|$context/PreCondition|
+                    $context/ExitCondition|$context/InvariantCondition|
+                    $context/EndCondition|$context/PostCondition" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:apply-templates
-            select="StartCondition|SkipCondition|
-                    RepeatCondition|PreCondition|ExitCondition|
-                    InvariantCondition|EndCondition|PostCondition" />
+            select="$context/StartCondition|$context/SkipCondition|
+                    $context/RepeatCondition|$context/PreCondition|
+                    $context/ExitCondition|$context/InvariantCondition|
+                    $context/EndCondition|$context/PostCondition" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
   <xsl:template name="ordered-start-condition">
+    <xsl:param name="context" select="." />
     <xsl:choose>
       <xsl:when
-          test="preceding-sibling::Node|preceding-sibling::Sequence|
-                preceding-sibling::UncheckedSequence|preceding-sibling::If|
-                preceding-sibling::While|preceding-sibling::For|
-                preceding-sibling::Try|preceding-sibling::Concurrence|
-                preceding-sibling::OnCommand|preceding-sibling::OnMessage|
-                preceding-sibling::SynchronousCommand|preceding-sibling::Wait">
+          test="$context/preceding-sibling::Node|$context/preceding-sibling::Sequence|
+                $context/preceding-sibling::UncheckedSequence|$context/preceding-sibling::If|
+                $context/preceding-sibling::While|$context/preceding-sibling::For|
+                $context/preceding-sibling::Try|$context/preceding-sibling::Concurrence|
+                $context/preceding-sibling::OnCommand|$context/preceding-sibling::OnMessage|
+                $context/preceding-sibling::SynchronousCommand|$context/preceding-sibling::Wait">
         <xsl:variable name="start-test">
-          <xsl:call-template name="ordered-start-test" />
+          <xsl:call-template name="ordered-start-test">
+            <xsl:with-param name="context" select="$context" />
+          </xsl:call-template>
         </xsl:variable>
         <StartCondition>
           <xsl:choose>
-            <xsl:when test="StartCondition">
+            <xsl:when test="$context/StartCondition">
               <AND>
                 <xsl:copy-of select="$start-test" />
-                <xsl:apply-templates select="StartCondition/*" />
+                <xsl:apply-templates select="$context/StartCondition/*" />
               </AND>
             </xsl:when>
             <xsl:when test="count($start-test/*) gt 1">
@@ -1179,18 +1176,19 @@
         </StartCondition>
       </xsl:when>
       <xsl:otherwise>
-        <xsl:apply-templates select="StartCondition" />
+        <xsl:apply-templates select="$context/StartCondition" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
   <xsl:template name="ordered-start-test">
+    <xsl:param name="context"/>
     <xsl:call-template name="noderef-finished">
       <xsl:with-param name="ref">
         <NodeRef dir="sibling">
           <xsl:call-template name="node-id">
             <xsl:with-param name="context"
-                            select="preceding-sibling::*[1]" />
+                            select="$context/preceding-sibling::*[1]" />
           </xsl:call-template>
         </NodeRef>
       </xsl:with-param>
@@ -1198,36 +1196,40 @@
   </xsl:template>
   
   <xsl:template name="ordered-skip-condition">
+    <xsl:param name="context" select="." />
     <xsl:if test="SkipCondition">
       <xsl:choose>
         <xsl:when
-            test="preceding-sibling::Node|preceding-sibling::Sequence|
-                  preceding-sibling::UncheckedSequence|preceding-sibling::If|
-                  preceding-sibling::While|preceding-sibling::For|
-                  preceding-sibling::Try|preceding-sibling::Concurrence|
-                  preceding-sibling::OnCommand|preceding-sibling::OnMessage|
-                  preceding-sibling::SynchronousCommand|preceding-sibling::Wait">
+            test="$context/preceding-sibling::Node|$context/preceding-sibling::Sequence|
+                  $context/preceding-sibling::UncheckedSequence|$context/preceding-sibling::If|
+                  $context/preceding-sibling::While|$context/preceding-sibling::For|
+                  $context/preceding-sibling::Try|$context/preceding-sibling::Concurrence|
+                  $context/preceding-sibling::OnCommand|$context/preceding-sibling::OnMessage|
+                  $context/preceding-sibling::SynchronousCommand|$context/preceding-sibling::Wait">
           <SkipCondition>
             <AND>
-              <xsl:call-template name="ordered-skip-test" />
-              <xsl:apply-templates select="SkipCondition/*" />
+              <xsl:call-template name="ordered-skip-test">
+                <xsl:with-param name="context" select="$context" />
+              </xsl:call-template>
+              <xsl:apply-templates select="$context/SkipCondition/*" />
             </AND>
           </SkipCondition>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:apply-templates select="SkipCondition" />
+          <xsl:apply-templates select="$context/SkipCondition" />
         </xsl:otherwise>
       </xsl:choose>
     </xsl:if>
   </xsl:template>
 
   <xsl:template name="ordered-skip-test">
+    <xsl:param name="context" />
     <xsl:call-template name="noderef-finished">
       <xsl:with-param name="ref">
         <NodeRef dir="sibling">
           <xsl:call-template name="node-id">
             <xsl:with-param name="context"
-                            select="preceding-sibling::*[1]" />
+                            select="$context/preceding-sibling::*[1]" />
           </xsl:call-template>
         </NodeRef>
       </xsl:with-param>
