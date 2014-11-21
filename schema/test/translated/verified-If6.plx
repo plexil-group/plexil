@@ -53,14 +53,12 @@
                   </EQInternal>
                </StartCondition>
                <SkipCondition>
-                  <NOT>
-                     <EQInternal>
-                        <NodeFailureVariable>
-                           <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
-                        </NodeFailureVariable>
-                        <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
-                     </EQInternal>
-                  </NOT>
+                  <EQInternal>
+                     <NodeOutcomeVariable>
+                        <NodeRef dir="sibling">ep2cp_IfTest</NodeRef>
+                     </NodeOutcomeVariable>
+                     <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+                  </EQInternal>
                </SkipCondition>
                <PostCondition>
                   <EQNumeric>
@@ -95,20 +93,26 @@
                <StartCondition>
                   <EQInternal>
                      <NodeFailureVariable>
-                        <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
+                        <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
                      </NodeFailureVariable>
                      <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
                   </EQInternal>
                </StartCondition>
                <SkipCondition>
-                  <NOT>
+                  <OR>
                      <EQInternal>
-                        <NodeFailureVariable>
-                           <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
-                        </NodeFailureVariable>
-                        <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
+                        <NodeOutcomeVariable>
+                           <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
+                        </NodeOutcomeVariable>
+                        <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
                      </EQInternal>
-                  </NOT>
+                     <EQInternal>
+                        <NodeOutcomeVariable>
+                           <NodeRef dir="sibling">ep2cp_ElseIf-1</NodeRef>
+                        </NodeOutcomeVariable>
+                        <NodeOutcomeValue>SKIPPED</NodeOutcomeValue>
+                     </EQInternal>
+                  </OR>
                </SkipCondition>
                <PostCondition>
                   <EQNumeric>
@@ -143,7 +147,7 @@
                <StartCondition>
                   <EQInternal>
                      <NodeFailureVariable>
-                        <NodeRef dir="sibling">ep2cp_ElseIf-3</NodeRef>
+                        <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
                      </NodeFailureVariable>
                      <NodeFailureValue>POST_CONDITION_FAILED</NodeFailureValue>
                   </EQInternal>
@@ -151,7 +155,7 @@
                <SkipCondition>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeRef dir="sibling">ep2cp_ElseIf-3</NodeRef>
+                        <NodeRef dir="sibling">ep2cp_ElseIf-2</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>SKIPPED</NodeOutcomeValue>
                   </EQInternal>

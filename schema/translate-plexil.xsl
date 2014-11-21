@@ -439,7 +439,7 @@
     <xsl:param name="element" select="." />
     <xsl:value-of select="tr:prefix('ElseIf-')" />
     <xsl:value-of
-        select="count(preceding-sibling::ElseIf)
+        select="count($element/preceding-sibling::ElseIf)
                 + 1" />
   </xsl:template>
 
@@ -460,14 +460,10 @@
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xsl:variable name="preceding-test-node-failed">
-      <xsl:call-template name="noderef-postcondition-failed">
-        <xsl:with-param name="ref">
-          <NodeRef dir="sibling">
-            <xsl:value-of select="$preceding-test-node-id" />
-          </NodeRef>
-        </xsl:with-param>
-      </xsl:call-template>
+    <xsl:variable name="preceding-test-ref">
+      <NodeRef dir="sibling">
+        <xsl:value-of select="$preceding-test-node-id" />
+      </NodeRef>
     </xsl:variable>
     <xsl:variable name="test-node-succeeded">
       <xsl:call-template name="noderef-succeeded">
@@ -483,12 +479,28 @@
         <xsl:value-of select="$test-node-id" />
       </NodeId>
       <StartCondition>
-        <xsl:copy-of select="$preceding-test-node-failed"/>
+        <xsl:call-template name="noderef-postcondition-failed">
+          <xsl:with-param name="ref" select="$preceding-test-ref" />
+        </xsl:call-template>
       </StartCondition>
       <SkipCondition>
-        <NOT>
-          <xsl:copy-of select="$preceding-test-node-failed"/>
-        </NOT>
+        <xsl:choose>
+          <xsl:when test="preceding-sibling::ElseIf">
+            <OR>
+              <xsl:call-template name="noderef-succeeded">
+                <xsl:with-param name="ref" select="$preceding-test-ref" />
+              </xsl:call-template>
+              <xsl:call-template name="noderef-skipped">
+                <xsl:with-param name="ref" select="$preceding-test-ref" />
+              </xsl:call-template>
+            </OR>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="noderef-succeeded">
+              <xsl:with-param name="ref" select="$preceding-test-ref" />
+            </xsl:call-template>
+          </xsl:otherwise>
+        </xsl:choose>
       </SkipCondition>
       <PostCondition>
         <xsl:apply-templates select="Condition/*" />
