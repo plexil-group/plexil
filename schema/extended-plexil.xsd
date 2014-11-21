@@ -272,7 +272,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
 
   <!-- Conditionals and loops -->
 
-  <!-- A classic if-then-else with optional else. -->
+  <!-- If statement with optional ElseIf and Else. -->
   <xsd:element name="If">
     <xsd:complexType>
       <xsd:sequence>
@@ -285,6 +285,22 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:element name="Then">
           <xsd:complexType>
             <xsd:group ref="Action"/>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="ElseIf" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="Condition">
+                <xsd:complexType>
+                  <xsd:group ref="BooleanExpression"/>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="Then">
+                <xsd:complexType>
+                  <xsd:group ref="Action"/>
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="Else" minOccurs="0">

@@ -35,11 +35,6 @@
 
   <xsl:output method="xml" indent="yes"/>
 
-  <!-- To Do incorporate into run-te (?) add checks for all node
-       states?  add all node failure types to transition diagrams
-       Implementation:  copy comments (hard) use copy-of in local
-       variables -->
-
   <!-- This is the "overriding copy idiom", from "XSLT Cookbook" by
        Sal Mangano.  It is the identity transform, covering all
        elements that are not explicitly handled elsewhere. -->
@@ -396,10 +391,9 @@
   </xsl:template>
 
   <xsl:template name="if-body">
-    <xsl:variable name="test-node-id" select="tr:prefix('IfTest')" />
-    <xsl:variable name="true-node-id" select="tr:prefix('IfThenCase')" />
-    <xsl:variable name="false-node-id"
-                  select="tr:prefix('IfElseCase')" />
+    <xsl:variable name="test-node-id">
+      <xsl:value-of select="tr:prefix('IfTest')" />
+    </xsl:variable>
     <xsl:variable name="test-node-ref">
       <NodeRef dir="sibling">
         <xsl:value-of select="$test-node-id" />
@@ -427,24 +421,144 @@
         </Node>
         <xsl:for-each select="Then">
           <xsl:call-template name="if-clause-body">
-            <xsl:with-param name="clause-name" select="name(.)" />
             <xsl:with-param name="start-condition" select="$test-true-cond"/>
             <xsl:with-param name="skip-condition" select="$test-false-cond"/>
           </xsl:call-template>
         </xsl:for-each>
+        <xsl:for-each select="ElseIf">
+          <xsl:call-template name="elseif-clause" />
+        </xsl:for-each>
         <xsl:for-each select="Else">
-          <xsl:call-template name="if-clause-body">
-            <xsl:with-param name="clause-name" select="name(.)" />
-            <xsl:with-param name="start-condition" select="$test-false-cond"/>
-            <xsl:with-param name="skip-condition" select="$test-true-cond"/>
-          </xsl:call-template>
+          <xsl:call-template name="else-clause" />
         </xsl:for-each>
       </NodeList>
     </NodeBody>
   </xsl:template>
 
+  <xsl:template name="elseif-test-node-id">
+    <xsl:param name="element" select="." />
+    <xsl:value-of select="tr:prefix('ElseIf-')" />
+    <xsl:value-of
+        select="count(preceding-sibling::ElseIf)
+                + 1" />
+  </xsl:template>
+
+  <xsl:template name="elseif-clause">
+    <xsl:variable name="test-node-id">
+      <xsl:call-template name="elseif-test-node-id" />
+    </xsl:variable>
+    <xsl:variable name="preceding-test-node-id">
+      <xsl:choose>
+        <xsl:when test="preceding-sibling::ElseIf">
+          <xsl:call-template name="elseif-test-node-id">
+            <xsl:with-param name="element"
+                            select="preceding-sibling::ElseIf[1]" />
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="tr:prefix('IfTest')"/>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+    <xsl:variable name="preceding-test-node-failed">
+      <xsl:call-template name="noderef-postcondition-failed">
+        <xsl:with-param name="ref">
+          <NodeRef dir="sibling">
+            <xsl:value-of select="$preceding-test-node-id" />
+          </NodeRef>
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="test-node-succeeded">
+      <xsl:call-template name="noderef-succeeded">
+        <xsl:with-param name="ref">
+          <NodeRef dir="sibling">
+            <xsl:value-of select="$test-node-id" />
+          </NodeRef>
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:variable>
+    <Node NodeType="Empty" epx="ElseIf">
+      <NodeId>
+        <xsl:value-of select="$test-node-id" />
+      </NodeId>
+      <StartCondition>
+        <xsl:copy-of select="$preceding-test-node-failed"/>
+      </StartCondition>
+      <SkipCondition>
+        <NOT>
+          <xsl:copy-of select="$preceding-test-node-failed"/>
+        </NOT>
+      </SkipCondition>
+      <PostCondition>
+        <xsl:apply-templates select="Condition/*" />
+      </PostCondition>
+    </Node>
+    <xsl:for-each select="Then">
+      <xsl:call-template name="if-clause-body">
+        <xsl:with-param name="start-condition"
+                        select="$test-node-succeeded" />
+        <xsl:with-param name="skip-condition">
+          <NOT>
+            <xsl:copy-of select="$test-node-succeeded" />
+          </NOT>
+        </xsl:with-param>
+      </xsl:call-template>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template name="else-clause">
+    <xsl:choose>
+      <xsl:when test="preceding-sibling::ElseIf">
+        <xsl:variable name="preceding-test-ref">
+          <NodeRef dir="sibling">
+            <xsl:call-template name="elseif-test-node-id" >
+              <xsl:with-param name="element"
+                              select="preceding-sibling::ElseIf[1]" />
+            </xsl:call-template>
+          </NodeRef>
+        </xsl:variable>
+        <xsl:call-template name="if-clause-body">
+          <xsl:with-param name="start-condition">
+            <xsl:call-template
+                name="noderef-postcondition-failed">
+              <xsl:with-param name="ref"
+                              select="$preceding-test-ref" />
+            </xsl:call-template>
+          </xsl:with-param>
+          <xsl:with-param name="skip-condition">
+            <xsl:call-template name="noderef-skipped">
+              <xsl:with-param name="ref"
+                              select="$preceding-test-ref" />
+            </xsl:call-template>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:variable name="if-test-node-ref">
+          <NodeRef dir="sibling">
+            <xsl:value-of select="tr:prefix('IfTest')" />
+          </NodeRef>
+        </xsl:variable>
+        <xsl:call-template name="if-clause-body">
+          <xsl:with-param name="start-condition">
+            <xsl:call-template name="noderef-postcondition-failed">
+              <xsl:with-param name="ref"
+                              select="$if-test-node-ref" />
+            </xsl:call-template>
+          </xsl:with-param>
+          <xsl:with-param name="skip-condition">
+            <xsl:call-template name="noderef-succeeded">
+              <xsl:with-param name="ref"
+                              select="$if-test-node-ref" />
+            </xsl:call-template>
+          </xsl:with-param>
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template name="if-clause-body">
-    <xsl:param name="clause-name" required="yes" />
     <xsl:param name="start-condition" required="yes" />
     <xsl:param name="skip-condition" required="yes" />
     <xsl:variable name="expanded-clause">
@@ -453,8 +567,8 @@
     <xsl:choose>
       <xsl:when test="$expanded-clause/Node/StartCondition|$expanded-clause/Node/SkipCondition">
         <!-- must create wrapper node -->
-        <Node NodeType="NodeList" epx="{$clause-name}">
-          <NodeId><xsl:value-of select="tr:prefix($clause-name)" /></NodeId>
+        <Node NodeType="NodeList" epx="{name(.)}">
+          <NodeId><xsl:value-of select="tr:prefix(name(.))" /></NodeId>
           <StartCondition>
             <xsl:copy-of select="$start-condition" />
           </StartCondition>
@@ -470,7 +584,7 @@
       </xsl:when>
       <xsl:otherwise>
         <!-- copy existing node and add conditions -->
-        <Node NodeType="{$expanded-clause/Node/@NodeType}" epx="{$clause-name}">
+        <Node NodeType="{$expanded-clause/Node/@NodeType}" epx="{name(.)}">
           <xsl:call-template name="standard-preamble">
             <xsl:with-param name="context" select="$expanded-clause/Node" />
           </xsl:call-template>
@@ -1862,6 +1976,14 @@
     <xsl:call-template name="noderef-outcome-check">
       <xsl:with-param name="ref" select="$ref" />
       <xsl:with-param name="outcome" select="'SUCCESS'" />
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="noderef-skipped">
+    <xsl:param name="ref" required="yes" />
+    <xsl:call-template name="noderef-outcome-check">
+      <xsl:with-param name="ref" select="$ref" />
+      <xsl:with-param name="outcome" select="'SKIPPED'" />
     </xsl:call-template>
   </xsl:template>
 
