@@ -1,6 +1,6 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <GlobalDeclarations LineNo="1" ColNo="0">
-        <CommandDeclaration LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/on-command2.ple">
+    <GlobalDeclarations LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="2" ColNo="0">
             <Name>Foo</Name>
             <Parameter>
                 <Name>x</Name>
@@ -8,9 +8,9 @@
             </Parameter>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <Sequence LineNo="4" ColNo="2">
+    <Sequence LineNo="5" ColNo="2">
         <NodeId>Root</NodeId>
-        <OnCommand LineNo="4" ColNo="2">
+        <OnCommand LineNo="5" ColNo="2">
             <NodeId>OnCommand__0</NodeId>
             <VariableDeclarations>
                 <DeclareVariable LineNo="4" ColNo="19">
@@ -28,7 +28,7 @@
                         <Name>
                             <StringValue>Foo</StringValue>
                         </Name>
-                        <Arguments LineNo="5" ColNo="9">
+                        <Arguments LineNo="6" ColNo="9">
                             <IntegerVariable>y</IntegerVariable>
                         </Arguments>
                     </Command>

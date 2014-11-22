@@ -1,6 +1,6 @@
-<PlexilPlan LineNo="1" ColNo="8">
-    <GlobalDeclarations LineNo="1" ColNo="8">
-        <CommandDeclaration LineNo="1" ColNo="8">
+<PlexilPlan LineNo="2" ColNo="8" FileName="input/command3.ple">
+    <GlobalDeclarations LineNo="2" ColNo="8">
+        <CommandDeclaration LineNo="2" ColNo="8">
             <Name>get_speed</Name>
             <Return>
                 <Name>_return_0</Name>

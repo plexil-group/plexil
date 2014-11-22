@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <Sequence LineNo="3" ColNo="2">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/array-complex.ple">
+    <Sequence LineNo="4" ColNo="2">
         <NodeId>ArrayComplex</NodeId>
         <VariableDeclarations>
             <DeclareArray LineNo="3" ColNo="2">
@@ -19,7 +19,7 @@
                 <MaxSize>30</MaxSize>
             </DeclareArray>
         </VariableDeclarations>
-        <For LineNo="6" ColNo="2">
+        <For LineNo="7" ColNo="2">
             <NodeId>for__0</NodeId>
             <LoopVariable>
                 <DeclareVariable LineNo="6" ColNo="7">
@@ -31,19 +31,19 @@
                 </DeclareVariable>
             </LoopVariable>
             <Condition>
-                <LT LineNo="6" ColNo="24">
+                <LT LineNo="7" ColNo="24">
                     <IntegerVariable>i</IntegerVariable>
                     <IntegerValue>30</IntegerValue>
                 </LT>
             </Condition>
             <LoopVariableUpdate>
-                <ADD LineNo="6" ColNo="32">
+                <ADD LineNo="7" ColNo="32">
                     <IntegerVariable>i</IntegerVariable>
                     <IntegerValue>1</IntegerValue>
                 </ADD>
             </LoopVariableUpdate>
             <Action>
-                <Node LineNo="7" ColNo="4" NodeType="Assignment">
+                <Node LineNo="8" ColNo="4" NodeType="Assignment">
                     <NodeId>BLOCK__1</NodeId>
                     <NodeBody>
                         <Assignment>
@@ -61,7 +61,7 @@
                 </Node>
             </Action>
         </For>
-        <For LineNo="10" ColNo="2">
+        <For LineNo="11" ColNo="2">
             <NodeId>for__3</NodeId>
             <LoopVariable>
                 <DeclareVariable LineNo="10" ColNo="7">
@@ -73,21 +73,21 @@
                 </DeclareVariable>
             </LoopVariable>
             <Condition>
-                <LT LineNo="10" ColNo="23">
+                <LT LineNo="11" ColNo="23">
                     <RealVariable>i</RealVariable>
                     <RealValue>10.0</RealValue>
                 </LT>
             </Condition>
             <LoopVariableUpdate>
-                <ADD LineNo="10" ColNo="33">
+                <ADD LineNo="11" ColNo="33">
                     <RealVariable>i</RealVariable>
                     <IntegerValue>1</IntegerValue>
                 </ADD>
             </LoopVariableUpdate>
             <Action>
-                <Sequence LineNo="11" ColNo="4">
+                <Sequence LineNo="12" ColNo="4">
                     <NodeId>BLOCK__4</NodeId>
-                    <Node LineNo="11" ColNo="4" NodeType="Assignment">
+                    <Node LineNo="12" ColNo="4" NodeType="Assignment">
                         <NodeId>ASSIGNMENT__5</NodeId>
                         <NodeBody>
                             <Assignment>
@@ -98,7 +98,7 @@
                                     </Index>
                                 </ArrayElement>
                                 <NumericRHS>
-                                    <ADD LineNo="11" ColNo="20">
+                                    <ADD LineNo="12" ColNo="20">
                                         <ArrayElement>
                                             <Name>foo</Name>
                                             <Index>
@@ -111,7 +111,7 @@
                             </Assignment>
                         </NodeBody>
                     </Node>
-                    <Node LineNo="12" ColNo="4" NodeType="Assignment">
+                    <Node LineNo="13" ColNo="4" NodeType="Assignment">
                         <NodeId>ASSIGNMENT__6</NodeId>
                         <NodeBody>
                             <Assignment>
@@ -122,7 +122,7 @@
                                     </Index>
                                 </ArrayElement>
                                 <NumericRHS>
-                                    <ADD LineNo="12" ColNo="20">
+                                    <ADD LineNo="13" ColNo="20">
                                         <ArrayElement>
                                             <Name>bar</Name>
                                             <Index>
@@ -135,7 +135,7 @@
                             </Assignment>
                         </NodeBody>
                     </Node>
-                    <Node LineNo="13" ColNo="4" NodeType="Assignment">
+                    <Node LineNo="14" ColNo="4" NodeType="Assignment">
                         <NodeId>ASSIGNMENT__7</NodeId>
                         <NodeBody>
                             <Assignment>
@@ -146,7 +146,7 @@
                                     </Index>
                                 </ArrayElement>
                                 <NumericRHS>
-                                    <ADD LineNo="13" ColNo="20">
+                                    <ADD LineNo="14" ColNo="20">
                                         <ArrayElement>
                                             <Name>foo</Name>
                                             <Index>
@@ -159,7 +159,7 @@
                             </Assignment>
                         </NodeBody>
                     </Node>
-                    <Node LineNo="14" ColNo="4" NodeType="Assignment">
+                    <Node LineNo="15" ColNo="4" NodeType="Assignment">
                         <NodeId>ASSIGNMENT__8</NodeId>
                         <NodeBody>
                             <Assignment>
@@ -170,7 +170,7 @@
                                     </Index>
                                 </ArrayElement>
                                 <NumericRHS>
-                                    <ADD LineNo="14" ColNo="22">
+                                    <ADD LineNo="15" ColNo="22">
                                         <ArrayElement>
                                             <Name>bar</Name>
                                             <Index>

@@ -1,8 +1,8 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <GlobalDeclarations LineNo="1" ColNo="0">
-        <LibraryNodeDeclaration LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/LibraryCallWithArray.ple">
+    <GlobalDeclarations LineNo="2" ColNo="0">
+        <LibraryNodeDeclaration LineNo="2" ColNo="0">
             <Name>MungArray</Name>
-            <Interface LineNo="1" ColNo="24">
+            <Interface LineNo="2" ColNo="24">
                 <In>
                     <DeclareArray LineNo="1" ColNo="24">
                         <Name>ary</Name>

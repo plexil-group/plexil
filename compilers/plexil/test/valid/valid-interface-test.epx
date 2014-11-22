@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <Sequence LineNo="3" ColNo="2">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/interface-test.ple">
+    <Sequence LineNo="4" ColNo="2">
         <NodeId>root</NodeId>
         <Interface>
             <In>
@@ -51,7 +51,7 @@
                 </DeclareArray>
             </InOut>
         </Interface>
-        <Node LineNo="13" ColNo="1" NodeType="Assignment">
+        <Node LineNo="14" ColNo="1" NodeType="Assignment">
             <NodeId>BLOCK__0</NodeId>
             <Interface>
                 <In>
@@ -69,7 +69,7 @@
                 <Assignment>
                     <RealVariable>r2</RealVariable>
                     <NumericRHS>
-                        <ADD LineNo="13" ColNo="9">
+                        <ADD LineNo="14" ColNo="9">
                             <RealVariable>r1</RealVariable>
                             <IntegerVariable>i1</IntegerVariable>
                         </ADD>

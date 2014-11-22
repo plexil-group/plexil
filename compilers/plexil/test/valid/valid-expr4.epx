@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="7" ColNo="2">
-    <Sequence LineNo="7" ColNo="2">
+<PlexilPlan LineNo="8" ColNo="2" FileName="input/expr4.ple">
+    <Sequence LineNo="8" ColNo="2">
         <NodeId>BLOCK__0</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="7" ColNo="2">
@@ -45,51 +45,37 @@
                 </InitialValue>
             </DeclareVariable>
         </VariableDeclarations>
-        <PostCondition LineNo="14" ColNo="2">
-            <AND LineNo="14" ColNo="40">
-                <AND LineNo="14" ColNo="30">
-                    <AND LineNo="14" ColNo="17">
-                        <EQNumeric LineNo="14" ColNo="9">
+        <PostCondition LineNo="15" ColNo="2">
+            <AND LineNo="15" ColNo="40">
+                <AND LineNo="15" ColNo="30">
+                    <AND LineNo="15" ColNo="17">
+                        <EQNumeric LineNo="15" ColNo="9">
                             <RealVariable>t</RealVariable>
                             <RealValue>-1.1</RealValue>
                         </EQNumeric>
-                        <EQNumeric LineNo="14" ColNo="22">
+                        <EQNumeric LineNo="15" ColNo="22">
                             <RealVariable>s</RealVariable>
                             <RealValue>-0.0</RealValue>
                         </EQNumeric>
                     </AND>
-                    <LT LineNo="14" ColNo="35">
+                    <LT LineNo="15" ColNo="35">
                         <IntegerVariable>j</IntegerVariable>
                         <IntegerValue>-0</IntegerValue>
                     </LT>
                 </AND>
-                <EQNumeric LineNo="14" ColNo="45">
+                <EQNumeric LineNo="15" ColNo="45">
                     <IntegerVariable>k</IntegerVariable>
                     <IntegerValue>-1</IntegerValue>
                 </EQNumeric>
             </AND>
         </PostCondition>
-        <Node LineNo="17" ColNo="2" NodeType="Assignment">
+        <Node LineNo="18" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__1</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="17" ColNo="8">
-                            <IntegerValue>3</IntegerValue>
-                            <IntegerValue>2</IntegerValue>
-                        </ADD>
-                    </NumericRHS>
-                </Assignment>
-            </NodeBody>
-        </Node>
-        <Node LineNo="18" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__2</NodeId>
-            <NodeBody>
-                <Assignment>
-                    <IntegerVariable>i</IntegerVariable>
-                    <NumericRHS>
-                        <ADD LineNo="18" ColNo="7">
+                        <ADD LineNo="18" ColNo="8">
                             <IntegerValue>3</IntegerValue>
                             <IntegerValue>2</IntegerValue>
                         </ADD>
@@ -98,7 +84,7 @@
             </NodeBody>
         </Node>
         <Node LineNo="19" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__3</NodeId>
+            <NodeId>ASSIGNMENT__2</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
@@ -112,12 +98,12 @@
             </NodeBody>
         </Node>
         <Node LineNo="20" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__4</NodeId>
+            <NodeId>ASSIGNMENT__3</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="20" ColNo="8">
+                        <ADD LineNo="20" ColNo="7">
                             <IntegerValue>3</IntegerValue>
                             <IntegerValue>2</IntegerValue>
                         </ADD>
@@ -125,27 +111,27 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="23" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__5</NodeId>
+        <Node LineNo="21" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__4</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="23" ColNo="8">
+                        <ADD LineNo="21" ColNo="8">
                             <IntegerValue>3</IntegerValue>
-                            <IntegerVariable>i</IntegerVariable>
+                            <IntegerValue>2</IntegerValue>
                         </ADD>
                     </NumericRHS>
                 </Assignment>
             </NodeBody>
         </Node>
         <Node LineNo="24" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__6</NodeId>
+            <NodeId>ASSIGNMENT__5</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="24" ColNo="7">
+                        <ADD LineNo="24" ColNo="8">
                             <IntegerValue>3</IntegerValue>
                             <IntegerVariable>i</IntegerVariable>
                         </ADD>
@@ -154,7 +140,7 @@
             </NodeBody>
         </Node>
         <Node LineNo="25" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__7</NodeId>
+            <NodeId>ASSIGNMENT__6</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
@@ -168,12 +154,12 @@
             </NodeBody>
         </Node>
         <Node LineNo="26" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__8</NodeId>
+            <NodeId>ASSIGNMENT__7</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="26" ColNo="8">
+                        <ADD LineNo="26" ColNo="7">
                             <IntegerValue>3</IntegerValue>
                             <IntegerVariable>i</IntegerVariable>
                         </ADD>
@@ -181,27 +167,27 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="29" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__9</NodeId>
+        <Node LineNo="27" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__8</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="29" ColNo="8">
-                            <IntegerVariable>j</IntegerVariable>
-                            <IntegerValue>2</IntegerValue>
+                        <ADD LineNo="27" ColNo="8">
+                            <IntegerValue>3</IntegerValue>
+                            <IntegerVariable>i</IntegerVariable>
                         </ADD>
                     </NumericRHS>
                 </Assignment>
             </NodeBody>
         </Node>
         <Node LineNo="30" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__10</NodeId>
+            <NodeId>ASSIGNMENT__9</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="30" ColNo="7">
+                        <ADD LineNo="30" ColNo="8">
                             <IntegerVariable>j</IntegerVariable>
                             <IntegerValue>2</IntegerValue>
                         </ADD>
@@ -210,7 +196,7 @@
             </NodeBody>
         </Node>
         <Node LineNo="31" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__11</NodeId>
+            <NodeId>ASSIGNMENT__10</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
@@ -224,12 +210,12 @@
             </NodeBody>
         </Node>
         <Node LineNo="32" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__12</NodeId>
+            <NodeId>ASSIGNMENT__11</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="32" ColNo="8">
+                        <ADD LineNo="32" ColNo="7">
                             <IntegerVariable>j</IntegerVariable>
                             <IntegerValue>2</IntegerValue>
                         </ADD>
@@ -237,27 +223,27 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="35" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__13</NodeId>
+        <Node LineNo="33" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__12</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="35" ColNo="8">
+                        <ADD LineNo="33" ColNo="8">
                             <IntegerVariable>j</IntegerVariable>
-                            <IntegerVariable>i</IntegerVariable>
+                            <IntegerValue>2</IntegerValue>
                         </ADD>
                     </NumericRHS>
                 </Assignment>
             </NodeBody>
         </Node>
         <Node LineNo="36" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__14</NodeId>
+            <NodeId>ASSIGNMENT__13</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="36" ColNo="7">
+                        <ADD LineNo="36" ColNo="8">
                             <IntegerVariable>j</IntegerVariable>
                             <IntegerVariable>i</IntegerVariable>
                         </ADD>
@@ -266,7 +252,7 @@
             </NodeBody>
         </Node>
         <Node LineNo="37" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__15</NodeId>
+            <NodeId>ASSIGNMENT__14</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
@@ -280,12 +266,12 @@
             </NodeBody>
         </Node>
         <Node LineNo="38" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__16</NodeId>
+            <NodeId>ASSIGNMENT__15</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="38" ColNo="8">
+                        <ADD LineNo="38" ColNo="7">
                             <IntegerVariable>j</IntegerVariable>
                             <IntegerVariable>i</IntegerVariable>
                         </ADD>
@@ -293,27 +279,27 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="41" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__17</NodeId>
+        <Node LineNo="39" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__16</NodeId>
             <NodeBody>
                 <Assignment>
-                    <IntegerVariable>j</IntegerVariable>
+                    <IntegerVariable>i</IntegerVariable>
                     <NumericRHS>
-                        <SUB LineNo="41" ColNo="7">
+                        <ADD LineNo="39" ColNo="8">
+                            <IntegerVariable>j</IntegerVariable>
                             <IntegerVariable>i</IntegerVariable>
-                            <IntegerValue>2</IntegerValue>
-                        </SUB>
+                        </ADD>
                     </NumericRHS>
                 </Assignment>
             </NodeBody>
         </Node>
         <Node LineNo="42" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__18</NodeId>
+            <NodeId>ASSIGNMENT__17</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>j</IntegerVariable>
                     <NumericRHS>
-                        <SUB LineNo="42" ColNo="8">
+                        <SUB LineNo="42" ColNo="7">
                             <IntegerVariable>i</IntegerVariable>
                             <IntegerValue>2</IntegerValue>
                         </SUB>
@@ -322,7 +308,7 @@
             </NodeBody>
         </Node>
         <Node LineNo="43" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__19</NodeId>
+            <NodeId>ASSIGNMENT__18</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>j</IntegerVariable>
@@ -336,12 +322,12 @@
             </NodeBody>
         </Node>
         <Node LineNo="44" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__20</NodeId>
+            <NodeId>ASSIGNMENT__19</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>j</IntegerVariable>
                     <NumericRHS>
-                        <SUB LineNo="44" ColNo="7">
+                        <SUB LineNo="44" ColNo="8">
                             <IntegerVariable>i</IntegerVariable>
                             <IntegerValue>2</IntegerValue>
                         </SUB>
@@ -349,7 +335,21 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="47" ColNo="2" NodeType="Assignment">
+        <Node LineNo="45" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__20</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <IntegerVariable>j</IntegerVariable>
+                    <NumericRHS>
+                        <SUB LineNo="45" ColNo="7">
+                            <IntegerVariable>i</IntegerVariable>
+                            <IntegerValue>2</IntegerValue>
+                        </SUB>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="48" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__21</NodeId>
             <NodeBody>
                 <Assignment>
@@ -360,7 +360,7 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="48" ColNo="2" NodeType="Assignment">
+        <Node LineNo="49" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__22</NodeId>
             <NodeBody>
                 <Assignment>
@@ -371,27 +371,13 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="51" ColNo="2" NodeType="Assignment">
+        <Node LineNo="52" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__23</NodeId>
             <NodeBody>
                 <Assignment>
                     <RealVariable>r</RealVariable>
                     <NumericRHS>
-                        <SUB LineNo="51" ColNo="10">
-                            <RealValue>1.0</RealValue>
-                            <RealValue>0.0</RealValue>
-                        </SUB>
-                    </NumericRHS>
-                </Assignment>
-            </NodeBody>
-        </Node>
-        <Node LineNo="52" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__24</NodeId>
-            <NodeBody>
-                <Assignment>
-                    <RealVariable>r</RealVariable>
-                    <NumericRHS>
-                        <SUB LineNo="52" ColNo="9">
+                        <SUB LineNo="52" ColNo="10">
                             <RealValue>1.0</RealValue>
                             <RealValue>0.0</RealValue>
                         </SUB>
@@ -400,7 +386,7 @@
             </NodeBody>
         </Node>
         <Node LineNo="53" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__25</NodeId>
+            <NodeId>ASSIGNMENT__24</NodeId>
             <NodeBody>
                 <Assignment>
                     <RealVariable>r</RealVariable>
@@ -414,12 +400,12 @@
             </NodeBody>
         </Node>
         <Node LineNo="54" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__26</NodeId>
+            <NodeId>ASSIGNMENT__25</NodeId>
             <NodeBody>
                 <Assignment>
                     <RealVariable>r</RealVariable>
                     <NumericRHS>
-                        <SUB LineNo="54" ColNo="10">
+                        <SUB LineNo="54" ColNo="9">
                             <RealValue>1.0</RealValue>
                             <RealValue>0.0</RealValue>
                         </SUB>
@@ -427,27 +413,27 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="57" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__27</NodeId>
+        <Node LineNo="55" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__26</NodeId>
             <NodeBody>
                 <Assignment>
                     <RealVariable>r</RealVariable>
                     <NumericRHS>
-                        <ADD LineNo="57" ColNo="10">
+                        <SUB LineNo="55" ColNo="10">
                             <RealValue>1.0</RealValue>
                             <RealValue>0.0</RealValue>
-                        </ADD>
+                        </SUB>
                     </NumericRHS>
                 </Assignment>
             </NodeBody>
         </Node>
         <Node LineNo="58" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__28</NodeId>
+            <NodeId>ASSIGNMENT__27</NodeId>
             <NodeBody>
                 <Assignment>
                     <RealVariable>r</RealVariable>
                     <NumericRHS>
-                        <ADD LineNo="58" ColNo="9">
+                        <ADD LineNo="58" ColNo="10">
                             <RealValue>1.0</RealValue>
                             <RealValue>0.0</RealValue>
                         </ADD>
@@ -456,7 +442,7 @@
             </NodeBody>
         </Node>
         <Node LineNo="59" ColNo="2" NodeType="Assignment">
-            <NodeId>ASSIGNMENT__29</NodeId>
+            <NodeId>ASSIGNMENT__28</NodeId>
             <NodeBody>
                 <Assignment>
                     <RealVariable>r</RealVariable>
@@ -470,12 +456,26 @@
             </NodeBody>
         </Node>
         <Node LineNo="60" ColNo="2" NodeType="Assignment">
+            <NodeId>ASSIGNMENT__29</NodeId>
+            <NodeBody>
+                <Assignment>
+                    <RealVariable>r</RealVariable>
+                    <NumericRHS>
+                        <ADD LineNo="60" ColNo="9">
+                            <RealValue>1.0</RealValue>
+                            <RealValue>0.0</RealValue>
+                        </ADD>
+                    </NumericRHS>
+                </Assignment>
+            </NodeBody>
+        </Node>
+        <Node LineNo="61" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__30</NodeId>
             <NodeBody>
                 <Assignment>
                     <RealVariable>r</RealVariable>
                     <NumericRHS>
-                        <ADD LineNo="60" ColNo="10">
+                        <ADD LineNo="61" ColNo="10">
                             <RealValue>1.0</RealValue>
                             <RealValue>0.0</RealValue>
                         </ADD>

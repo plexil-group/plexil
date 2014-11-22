@@ -1,20 +1,20 @@
-<PlexilPlan LineNo="1" ColNo="8">
-    <GlobalDeclarations LineNo="1" ColNo="8">
-        <CommandDeclaration LineNo="1" ColNo="8">
+<PlexilPlan LineNo="2" ColNo="8" FileName="input/Resource1.ple">
+    <GlobalDeclarations LineNo="2" ColNo="8">
+        <CommandDeclaration LineNo="2" ColNo="8">
             <Name>c1</Name>
             <Return>
                 <Name>_return_0</Name>
                 <Type>Integer</Type>
             </Return>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="2" ColNo="8">
+        <CommandDeclaration LineNo="3" ColNo="8">
             <Name>c2</Name>
             <Return>
                 <Name>_return_0</Name>
                 <Type>Integer</Type>
             </Return>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="3" ColNo="8">
+        <CommandDeclaration LineNo="4" ColNo="8">
             <Name>c3</Name>
             <Return>
                 <Name>_return_0</Name>
@@ -22,7 +22,7 @@
             </Return>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <Concurrence LineNo="5" ColNo="12">
+    <Concurrence LineNo="6" ColNo="12">
         <NodeId>SimpleTask</NodeId>
         <Node LineNo="13" ColNo="18" NodeType="Command">
             <NodeId>C1</NodeId>
@@ -35,14 +35,14 @@
                     </InitialValue>
                 </DeclareVariable>
             </VariableDeclarations>
-            <EndCondition LineNo="9" ColNo="4">
-                <EQNumeric LineNo="9" ColNo="29">
+            <EndCondition LineNo="10" ColNo="4">
+                <EQNumeric LineNo="10" ColNo="29">
                     <IntegerVariable>returnValue</IntegerVariable>
                     <IntegerValue>10</IntegerValue>
                 </EQNumeric>
             </EndCondition>
-            <PostCondition LineNo="10" ColNo="4">
-                <EQInternal LineNo="10" ColNo="36">
+            <PostCondition LineNo="11" ColNo="4">
+                <EQInternal LineNo="11" ColNo="36">
                     <NodeCommandHandleVariable>
                         <NodeId>C1</NodeId>
                     </NodeCommandHandleVariable>
@@ -52,7 +52,7 @@
             <NodeBody>
                 <Command>
                     <ResourceList>
-                        <Resource LineNo="11" ColNo="4">
+                        <Resource LineNo="12" ColNo="4">
                             <ResourceName>
                                 <StringValue>sys_memory</StringValue>
                             </ResourceName>
@@ -60,7 +60,7 @@
                                 <IntegerValue>20</IntegerValue>
                             </ResourcePriority>
                         </Resource>
-                        <Resource LineNo="12" ColNo="4">
+                        <Resource LineNo="13" ColNo="4">
                             <ResourceName>
                                 <StringValue>arm</StringValue>
                             </ResourceName>
@@ -94,24 +94,24 @@
                     </InitialValue>
                 </DeclareVariable>
             </VariableDeclarations>
-            <RepeatCondition LineNo="19" ColNo="4">
-                <EQInternal LineNo="19" ColNo="38">
+            <RepeatCondition LineNo="20" ColNo="4">
+                <EQInternal LineNo="20" ColNo="38">
                     <NodeCommandHandleVariable>
                         <NodeId>C2</NodeId>
                     </NodeCommandHandleVariable>
                     <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
                 </EQInternal>
             </RepeatCondition>
-            <PostCondition LineNo="20" ColNo="4">
-                <EQInternal LineNo="20" ColNo="36">
+            <PostCondition LineNo="21" ColNo="4">
+                <EQInternal LineNo="21" ColNo="36">
                     <NodeCommandHandleVariable>
                         <NodeId>C2</NodeId>
                     </NodeCommandHandleVariable>
                     <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
                 </EQInternal>
             </PostCondition>
-            <EndCondition LineNo="21" ColNo="4">
-                <EQNumeric LineNo="21" ColNo="29">
+            <EndCondition LineNo="22" ColNo="4">
+                <EQNumeric LineNo="22" ColNo="29">
                     <IntegerVariable>returnValue</IntegerVariable>
                     <IntegerValue>10</IntegerValue>
                 </EQNumeric>
@@ -119,7 +119,7 @@
             <NodeBody>
                 <Command>
                     <ResourceList>
-                        <Resource LineNo="22" ColNo="4">
+                        <Resource LineNo="23" ColNo="4">
                             <ResourceName>
                                 <StringValue>sys_memory</StringValue>
                             </ResourceName>
@@ -153,16 +153,16 @@
                     </InitialValue>
                 </DeclareVariable>
             </VariableDeclarations>
-            <PostCondition LineNo="28" ColNo="4">
-                <EQInternal LineNo="28" ColNo="36">
+            <PostCondition LineNo="29" ColNo="4">
+                <EQInternal LineNo="29" ColNo="36">
                     <NodeCommandHandleVariable>
                         <NodeId>C3</NodeId>
                     </NodeCommandHandleVariable>
                     <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
                 </EQInternal>
             </PostCondition>
-            <EndCondition LineNo="29" ColNo="4">
-                <EQNumeric LineNo="29" ColNo="29">
+            <EndCondition LineNo="30" ColNo="4">
+                <EQNumeric LineNo="30" ColNo="29">
                     <IntegerVariable>returnValue</IntegerVariable>
                     <IntegerValue>10</IntegerValue>
                 </EQNumeric>
@@ -170,7 +170,7 @@
             <NodeBody>
                 <Command>
                     <ResourceList>
-                        <Resource LineNo="30" ColNo="4">
+                        <Resource LineNo="31" ColNo="4">
                             <ResourceName>
                                 <StringValue>vision_system</StringValue>
                             </ResourceName>

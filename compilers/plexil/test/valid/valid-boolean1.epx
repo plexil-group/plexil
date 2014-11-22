@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <Node NodeType="Empty" LineNo="3" ColNo="4">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/boolean1.ple">
+    <Node NodeType="Empty" LineNo="4" ColNo="4">
         <NodeId>Root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="3" ColNo="4">
@@ -7,8 +7,8 @@
                 <Type>Integer</Type>
             </DeclareVariable>
         </VariableDeclarations>
-        <StartCondition LineNo="4" ColNo="4">
-            <EQNumeric LineNo="4" ColNo="20">
+        <StartCondition LineNo="5" ColNo="4">
+            <EQNumeric LineNo="5" ColNo="20">
                 <IntegerVariable>x</IntegerVariable>
                 <IntegerVariable>x</IntegerVariable>
             </EQNumeric>

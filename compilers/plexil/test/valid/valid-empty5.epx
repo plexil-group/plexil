@@ -1,9 +1,9 @@
-<PlexilPlan LineNo="1" ColNo="2">
-    <Node NodeType="Empty" LineNo="3" ColNo="4">
+<PlexilPlan LineNo="2" ColNo="2" FileName="input/empty5.ple">
+    <Node NodeType="Empty" LineNo="4" ColNo="4">
         <NodeId>VerifyTemp</NodeId>
-        <PostCondition LineNo="3" ColNo="4">
-            <GT LineNo="3" ColNo="45">
-                <Lookup LineNo="3" ColNo="18">
+        <PostCondition LineNo="4" ColNo="4">
+            <GT LineNo="4" ColNo="45">
+                <Lookup LineNo="4" ColNo="18">
                     <Name>
                         <StringValue>engine_temperature</StringValue>
                     </Name>

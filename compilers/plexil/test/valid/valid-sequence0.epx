@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="4" ColNo="2">
-    <Sequence LineNo="4" ColNo="2">
+<PlexilPlan LineNo="5" ColNo="2" FileName="input/sequence0.ple">
+    <Sequence LineNo="5" ColNo="2">
         <NodeId>BLOCK__0</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="4" ColNo="2">
@@ -7,7 +7,7 @@
                 <Type>Integer</Type>
             </DeclareVariable>
         </VariableDeclarations>
-        <Node LineNo="5" ColNo="2" NodeType="Assignment">
+        <Node LineNo="6" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__1</NodeId>
             <NodeBody>
                 <Assignment>
@@ -18,7 +18,7 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="6" ColNo="2" NodeType="Assignment">
+        <Node LineNo="7" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__2</NodeId>
             <NodeBody>
                 <Assignment>

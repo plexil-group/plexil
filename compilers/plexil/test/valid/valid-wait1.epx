@@ -1,8 +1,8 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <Wait LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/wait1.ple">
+    <Wait LineNo="2" ColNo="0">
         <NodeId>Wait__0</NodeId>
         <Units>
-            <SUB LineNo="1" ColNo="10">
+            <SUB LineNo="2" ColNo="10">
                 <RealValue>1.0</RealValue>
                 <RealValue>0.0</RealValue>
             </SUB>

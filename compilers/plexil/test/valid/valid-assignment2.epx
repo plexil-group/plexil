@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <Node LineNo="7" ColNo="2" NodeType="Assignment">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/assignment2.ple">
+    <Node LineNo="8" ColNo="2" NodeType="Assignment">
         <NodeId>CopyEntry</NodeId>
         <VariableDeclarations>
             <DeclareArray LineNo="3" ColNo="2">

@@ -1,6 +1,6 @@
-<PlexilPlan LineNo="1" ColNo="5">
-    <GlobalDeclarations LineNo="1" ColNo="5">
-        <CommandDeclaration LineNo="1" ColNo="5">
+<PlexilPlan LineNo="2" ColNo="5" FileName="input/RoboSimSimple2.ple">
+    <GlobalDeclarations LineNo="2" ColNo="5">
+        <CommandDeclaration LineNo="2" ColNo="5">
             <Name>Move</Name>
             <Return>
                 <Name>_return_0</Name>
@@ -13,7 +13,7 @@
                 <Type>Integer</Type>
             </Parameter>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="2" ColNo="8">
+        <CommandDeclaration LineNo="3" ColNo="8">
             <Name>QueryEnergySensor</Name>
             <Return>
                 <Name>_return_0</Name>
@@ -25,7 +25,7 @@
             </Parameter>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <Sequence LineNo="6" ColNo="4">
+    <Sequence LineNo="7" ColNo="4">
         <NodeId>RootNode</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="6" ColNo="4">
@@ -43,7 +43,7 @@
                 </InitialValue>
             </DeclareVariable>
         </VariableDeclarations>
-        <Sequence LineNo="10" ColNo="8">
+        <Sequence LineNo="11" ColNo="8">
             <NodeId>Move</NodeId>
             <VariableDeclarations>
                 <DeclareVariable LineNo="10" ColNo="8">
@@ -51,21 +51,21 @@
                     <Type>Real</Type>
                 </DeclareVariable>
             </VariableDeclarations>
-            <SynchronousCommand LineNo="11" ColNo="8">
+            <SynchronousCommand LineNo="12" ColNo="8">
                 <NodeId>SynchronousCommand__0</NodeId>
                 <Command>
                     <RealVariable>res</RealVariable>
                     <Name>
                         <StringValue>Move</StringValue>
                     </Name>
-                    <Arguments LineNo="11" ColNo="38">
+                    <Arguments LineNo="12" ColNo="38">
                         <StringVariable>RobotName</StringVariable>
                         <IntegerVariable>randNumber</IntegerVariable>
                     </Arguments>
                 </Command>
             </SynchronousCommand>
         </Sequence>
-        <Sequence LineNo="15" ColNo="8">
+        <Sequence LineNo="16" ColNo="8">
             <NodeId>QueryEnergySensor</NodeId>
             <VariableDeclarations>
                 <DeclareArray LineNo="15" ColNo="8">
@@ -74,14 +74,14 @@
                     <MaxSize>5</MaxSize>
                 </DeclareArray>
             </VariableDeclarations>
-            <SynchronousCommand LineNo="16" ColNo="8">
+            <SynchronousCommand LineNo="17" ColNo="8">
                 <NodeId>SynchronousCommand__1</NodeId>
                 <Command>
                     <ArrayVariable>energy</ArrayVariable>
                     <Name>
                         <StringValue>QueryEnergySensor</StringValue>
                     </Name>
-                    <Arguments LineNo="16" ColNo="54">
+                    <Arguments LineNo="17" ColNo="54">
                         <StringVariable>RobotName</StringVariable>
                     </Arguments>
                 </Command>

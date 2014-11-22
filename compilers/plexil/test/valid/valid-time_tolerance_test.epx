@@ -1,20 +1,20 @@
-<PlexilPlan LineNo="1" ColNo="5">
-    <GlobalDeclarations LineNo="1" ColNo="5">
-        <StateDeclaration LineNo="1" ColNo="5">
+<PlexilPlan LineNo="2" ColNo="5" FileName="input/time_tolerance_test.ple">
+    <GlobalDeclarations LineNo="2" ColNo="5">
+        <StateDeclaration LineNo="2" ColNo="5">
             <Name>time</Name>
             <Return>
                 <Name>_return_0</Name>
                 <Type>Date</Type>
             </Return>
         </StateDeclaration>
-        <StateDeclaration LineNo="2" ColNo="5">
+        <StateDeclaration LineNo="3" ColNo="5">
             <Name>start</Name>
             <Return>
                 <Name>_return_0</Name>
                 <Type>Date</Type>
             </Return>
         </StateDeclaration>
-        <StateDeclaration LineNo="3" ColNo="9">
+        <StateDeclaration LineNo="4" ColNo="9">
             <Name>duration</Name>
             <Return>
                 <Name>_return_0</Name>
@@ -22,27 +22,10 @@
             </Return>
         </StateDeclaration>
     </GlobalDeclarations>
-    <Node NodeType="Empty" LineNo="7" ColNo="4">
+    <Node NodeType="Empty" LineNo="8" ColNo="4">
         <NodeId>time_tolerance_test</NodeId>
-        <StartCondition LineNo="7" ColNo="4">
-            <GE LineNo="7" ColNo="41">
-                <Lookup LineNo="7" ColNo="10">
-                    <Name>
-                        <StringValue>time</StringValue>
-                    </Name>
-                    <Tolerance>
-                        <DurationValue>PT1S</DurationValue>
-                    </Tolerance>
-                </Lookup>
-                <Lookup LineNo="7" ColNo="44">
-                    <Name>
-                        <StringValue>start</StringValue>
-                    </Name>
-                </Lookup>
-            </GE>
-        </StartCondition>
-        <EndCondition LineNo="8" ColNo="4">
-            <LE LineNo="8" ColNo="41">
+        <StartCondition LineNo="8" ColNo="4">
+            <GE LineNo="8" ColNo="41">
                 <Lookup LineNo="8" ColNo="10">
                     <Name>
                         <StringValue>time</StringValue>
@@ -51,13 +34,30 @@
                         <DurationValue>PT1S</DurationValue>
                     </Tolerance>
                 </Lookup>
-                <ADD LineNo="8" ColNo="65">
+                <Lookup LineNo="8" ColNo="44">
+                    <Name>
+                        <StringValue>start</StringValue>
+                    </Name>
+                </Lookup>
+            </GE>
+        </StartCondition>
+        <EndCondition LineNo="9" ColNo="4">
+            <LE LineNo="9" ColNo="41">
+                <Lookup LineNo="9" ColNo="10">
+                    <Name>
+                        <StringValue>time</StringValue>
+                    </Name>
+                    <Tolerance>
+                        <DurationValue>PT1S</DurationValue>
+                    </Tolerance>
+                </Lookup>
+                <ADD LineNo="9" ColNo="65">
                     <NodeTimepointValue>
                         <NodeRef dir="self"/>
                         <NodeStateValue>EXECUTING</NodeStateValue>
                         <Timepoint>START</Timepoint>
                     </NodeTimepointValue>
-                    <Lookup LineNo="8" ColNo="67">
+                    <Lookup LineNo="9" ColNo="67">
                         <Name>
                             <StringValue>duration</StringValue>
                         </Name>

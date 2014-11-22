@@ -1,6 +1,6 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <GlobalDeclarations LineNo="1" ColNo="0">
-        <CommandDeclaration LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/command2.ple">
+    <GlobalDeclarations LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="2" ColNo="0">
             <Name>set_waypoint</Name>
             <Parameter>
                 <Type>Real</Type>
@@ -34,7 +34,7 @@
                 <Name>
                     <StringValue>set_waypoint</StringValue>
                 </Name>
-                <Arguments LineNo="5" ColNo="16">
+                <Arguments LineNo="6" ColNo="16">
                     <RealVariable>x</RealVariable>
                     <RealVariable>y</RealVariable>
                     <RealVariable>z</RealVariable>

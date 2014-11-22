@@ -1,16 +1,16 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <Concurrence LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/iterationSucceeded1.ple">
+    <Concurrence LineNo="2" ColNo="0">
         <NodeId>Concurrence__0</NodeId>
-        <Node NodeType="Empty" LineNo="3" ColNo="7">
+        <Node NodeType="Empty" LineNo="4" ColNo="7">
             <NodeId>A</NodeId>
-            <RepeatCondition LineNo="3" ColNo="7">
+            <RepeatCondition LineNo="4" ColNo="7">
                 <BooleanValue>true</BooleanValue>
             </RepeatCondition>
         </Node>
-        <Node NodeType="Empty" LineNo="4" ColNo="7">
+        <Node NodeType="Empty" LineNo="5" ColNo="7">
             <NodeId>B</NodeId>
-            <StartCondition LineNo="4" ColNo="7">
-                <IterationSucceeded LineNo="4" ColNo="13">
+            <StartCondition LineNo="5" ColNo="7">
+                <IterationSucceeded LineNo="5" ColNo="13">
                     <NodeId>A</NodeId>
                 </IterationSucceeded>
             </StartCondition>

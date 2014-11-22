@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="3" ColNo="0">
-    <Concurrence LineNo="3" ColNo="10">
+<PlexilPlan LineNo="4" ColNo="0" FileName="input/Exchange.ple">
+    <Concurrence LineNo="4" ColNo="10">
         <NodeId>Exchange</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="4" ColNo="2">
@@ -17,24 +17,24 @@
                 </InitialValue>
             </DeclareVariable>
         </VariableDeclarations>
-        <InvariantCondition LineNo="5" ColNo="2">
-            <EQNumeric LineNo="5" ColNo="18">
-                <ADD LineNo="5" ColNo="14">
+        <InvariantCondition LineNo="6" ColNo="2">
+            <EQNumeric LineNo="6" ColNo="18">
+                <ADD LineNo="6" ColNo="14">
                     <IntegerVariable>x</IntegerVariable>
                     <IntegerVariable>y</IntegerVariable>
                 </ADD>
                 <IntegerValue>3</IntegerValue>
             </EQNumeric>
         </InvariantCondition>
-        <PostCondition LineNo="6" ColNo="2">
-            <NOT LineNo="6" ColNo="7">
-                <EQNumeric LineNo="6" ColNo="11">
+        <PostCondition LineNo="7" ColNo="2">
+            <NOT LineNo="7" ColNo="7">
+                <EQNumeric LineNo="7" ColNo="11">
                     <IntegerVariable>x</IntegerVariable>
                     <IntegerVariable>y</IntegerVariable>
                 </EQNumeric>
             </NOT>
         </PostCondition>
-        <Node LineNo="7" ColNo="5" NodeType="Assignment">
+        <Node LineNo="8" ColNo="5" NodeType="Assignment">
             <NodeId>X</NodeId>
             <NodeBody>
                 <Assignment>
@@ -45,7 +45,7 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="8" ColNo="5" NodeType="Assignment">
+        <Node LineNo="9" ColNo="5" NodeType="Assignment">
             <NodeId>Y</NodeId>
             <NodeBody>
                 <Assignment>

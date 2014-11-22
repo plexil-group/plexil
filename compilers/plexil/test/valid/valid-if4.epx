@@ -1,4 +1,4 @@
-<PlexilPlan LineNo="2" ColNo="0" FileName="input/if2.ple">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/if4.ple">
     <GlobalDeclarations LineNo="2" ColNo="0">
         <CommandDeclaration LineNo="2" ColNo="0">
             <Name>foo</Name>
@@ -60,17 +60,25 @@
                 </Node>
             </Then>
         </ElseIf>
-        <Else>
-            <Node LineNo="12" ColNo="7" NodeType="Command">
-                <NodeId>COMMAND__3</NodeId>
-                <NodeBody>
-                    <Command>
-                        <Name>
-                            <StringValue>baz</StringValue>
-                        </Name>
-                    </Command>
-                </NodeBody>
-            </Node>
-        </Else>
+        <ElseIf>
+            <Condition>
+                <EQNumeric LineNo="13" ColNo="11">
+                    <IntegerValue>3</IntegerValue>
+                    <IntegerValue>3</IntegerValue>
+                </EQNumeric>
+            </Condition>
+            <Then>
+                <Node LineNo="12" ColNo="16" NodeType="Command">
+                    <NodeId>COMMAND__3</NodeId>
+                    <NodeBody>
+                        <Command>
+                            <Name>
+                                <StringValue>baz</StringValue>
+                            </Name>
+                        </Command>
+                    </NodeBody>
+                </Node>
+            </Then>
+        </ElseIf>
     </If>
 </PlexilPlan>

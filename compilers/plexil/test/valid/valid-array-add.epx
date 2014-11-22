@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="2" ColNo="2">
-    <Sequence LineNo="2" ColNo="2">
+<PlexilPlan LineNo="3" ColNo="2" FileName="input/array-add.ple">
+    <Sequence LineNo="3" ColNo="2">
         <NodeId>BLOCK__0</NodeId>
         <VariableDeclarations>
             <DeclareArray LineNo="2" ColNo="2">
@@ -21,18 +21,18 @@
                 </InitialValue>
             </DeclareVariable>
         </VariableDeclarations>
-        <While LineNo="4" ColNo="2">
+        <While LineNo="5" ColNo="2">
             <NodeId>while__1</NodeId>
             <Condition>
-                <LT LineNo="4" ColNo="14">
+                <LT LineNo="5" ColNo="14">
                     <RealVariable>temp</RealVariable>
                     <RealValue>3.0</RealValue>
                 </LT>
             </Condition>
             <Action>
-                <Sequence LineNo="5" ColNo="4">
+                <Sequence LineNo="6" ColNo="4">
                     <NodeId>BLOCK__2</NodeId>
-                    <Node LineNo="5" ColNo="4" NodeType="Assignment">
+                    <Node LineNo="6" ColNo="4" NodeType="Assignment">
                         <NodeId>ASSIGNMENT__3</NodeId>
                         <NodeBody>
                             <Assignment>
@@ -48,7 +48,7 @@
                             </Assignment>
                         </NodeBody>
                     </Node>
-                    <Node LineNo="6" ColNo="4" NodeType="Assignment">
+                    <Node LineNo="7" ColNo="4" NodeType="Assignment">
                         <NodeId>ASSIGNMENT__4</NodeId>
                         <NodeBody>
                             <Assignment>
@@ -59,7 +59,7 @@
                                     </Index>
                                 </ArrayElement>
                                 <NumericRHS>
-                                    <ADD LineNo="6" ColNo="20">
+                                    <ADD LineNo="7" ColNo="20">
                                         <ArrayElement>
                                             <Name>foo</Name>
                                             <Index>
@@ -72,7 +72,7 @@
                             </Assignment>
                         </NodeBody>
                     </Node>
-                    <Node LineNo="7" ColNo="4" NodeType="Assignment">
+                    <Node LineNo="8" ColNo="4" NodeType="Assignment">
                         <NodeId>ASSIGNMENT__5</NodeId>
                         <NodeBody>
                             <Assignment>
@@ -83,7 +83,7 @@
                                     </Index>
                                 </ArrayElement>
                                 <NumericRHS>
-                                    <ADD LineNo="7" ColNo="20">
+                                    <ADD LineNo="8" ColNo="20">
                                         <ArrayElement>
                                             <Name>foo</Name>
                                             <Index>

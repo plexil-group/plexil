@@ -1,18 +1,18 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <GlobalDeclarations LineNo="1" ColNo="0">
-        <CommandDeclaration LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/SafeDrive.ple">
+    <GlobalDeclarations LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="2" ColNo="0">
             <Name>Drive</Name>
             <Parameter>
                 <Type>Integer</Type>
             </Parameter>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="3" ColNo="0">
             <Name>TakePicture</Name>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="3" ColNo="0">
+        <CommandDeclaration LineNo="4" ColNo="0">
             <Name>pprint</Name>
         </CommandDeclaration>
-        <StateDeclaration LineNo="4" ColNo="8">
+        <StateDeclaration LineNo="5" ColNo="8">
             <Name>WheelStuck</Name>
             <Return>
                 <Name>_return_0</Name>
@@ -20,7 +20,7 @@
             </Return>
         </StateDeclaration>
     </GlobalDeclarations>
-    <Sequence LineNo="8" ColNo="2">
+    <Sequence LineNo="9" ColNo="2">
         <NodeId>SafeDrive</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="8" ColNo="2">
@@ -31,24 +31,24 @@
                 </InitialValue>
             </DeclareVariable>
         </VariableDeclarations>
-        <EndCondition LineNo="9" ColNo="2">
-            <OR LineNo="9" ColNo="34">
-                <Lookup LineNo="9" ColNo="15">
+        <EndCondition LineNo="10" ColNo="2">
+            <OR LineNo="10" ColNo="34">
+                <Lookup LineNo="10" ColNo="15">
                     <Name>
                         <StringValue>WheelStuck</StringValue>
                     </Name>
                 </Lookup>
-                <EQNumeric LineNo="9" ColNo="46">
+                <EQNumeric LineNo="10" ColNo="46">
                     <IntegerVariable>pictures</IntegerVariable>
                     <IntegerValue>10</IntegerValue>
                 </EQNumeric>
             </OR>
         </EndCondition>
-        <While LineNo="11" ColNo="2">
+        <While LineNo="12" ColNo="2">
             <NodeId>while__0</NodeId>
             <Condition>
-                <NOT LineNo="11" ColNo="9">
-                    <Lookup LineNo="11" ColNo="11">
+                <NOT LineNo="12" ColNo="9">
+                    <Lookup LineNo="12" ColNo="11">
                         <Name>
                             <StringValue>WheelStuck</StringValue>
                         </Name>
@@ -56,7 +56,7 @@
                 </NOT>
             </Condition>
             <Action>
-                <Sequence LineNo="13" ColNo="4">
+                <Sequence LineNo="14" ColNo="4">
                     <NodeId>BLOCK__1</NodeId>
                     <Node LineNo="13" ColNo="16" NodeType="Command">
                         <NodeId>OneMeter</NodeId>
@@ -65,7 +65,7 @@
                                 <Name>
                                     <StringValue>Drive</StringValue>
                                 </Name>
-                                <Arguments LineNo="13" ColNo="22">
+                                <Arguments LineNo="14" ColNo="22">
                                     <IntegerValue>1</IntegerValue>
                                 </Arguments>
                             </Command>
@@ -73,8 +73,8 @@
                     </Node>
                     <Node LineNo="16" ColNo="6" NodeType="Command">
                         <NodeId>TakePic</NodeId>
-                        <StartCondition LineNo="15" ColNo="6">
-                            <LT LineNo="15" ColNo="30">
+                        <StartCondition LineNo="16" ColNo="6">
+                            <LT LineNo="16" ColNo="30">
                                 <IntegerVariable>pictures</IntegerVariable>
                                 <IntegerValue>10</IntegerValue>
                             </LT>
@@ -87,10 +87,10 @@
                             </Command>
                         </NodeBody>
                     </Node>
-                    <Node LineNo="20" ColNo="6" NodeType="Assignment">
+                    <Node LineNo="21" ColNo="6" NodeType="Assignment">
                         <NodeId>Counter</NodeId>
-                        <PreCondition LineNo="19" ColNo="6">
-                            <LT LineNo="19" ColNo="28">
+                        <PreCondition LineNo="20" ColNo="6">
+                            <LT LineNo="20" ColNo="28">
                                 <IntegerVariable>pictures</IntegerVariable>
                                 <IntegerValue>10</IntegerValue>
                             </LT>
@@ -99,7 +99,7 @@
                             <Assignment>
                                 <IntegerVariable>pictures</IntegerVariable>
                                 <NumericRHS>
-                                    <ADD LineNo="20" ColNo="26">
+                                    <ADD LineNo="21" ColNo="26">
                                         <IntegerVariable>pictures</IntegerVariable>
                                         <IntegerValue>1</IntegerValue>
                                     </ADD>
@@ -114,7 +114,7 @@
                                 <Name>
                                     <StringValue>pprint</StringValue>
                                 </Name>
-                                <Arguments LineNo="22" ColNo="21">
+                                <Arguments LineNo="23" ColNo="21">
                                     <StringValue>Pictures taken:</StringValue>
                                     <IntegerVariable>pictures</IntegerVariable>
                                 </Arguments>

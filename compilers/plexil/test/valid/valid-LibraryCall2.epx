@@ -1,8 +1,8 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <GlobalDeclarations LineNo="1" ColNo="0">
-        <LibraryNodeDeclaration LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/LibraryCall2.ple">
+    <GlobalDeclarations LineNo="2" ColNo="0">
+        <LibraryNodeDeclaration LineNo="2" ColNo="0">
             <Name>Increment</Name>
-            <Interface LineNo="1" ColNo="25">
+            <Interface LineNo="2" ColNo="25">
                 <In>
                     <DeclareVariable LineNo="1" ColNo="25">
                         <Name>x</Name>
@@ -17,9 +17,9 @@
                 </InOut>
             </Interface>
         </LibraryNodeDeclaration>
-        <LibraryNodeDeclaration LineNo="2" ColNo="0">
+        <LibraryNodeDeclaration LineNo="3" ColNo="0">
             <Name>Decrement</Name>
-            <Interface LineNo="2" ColNo="25">
+            <Interface LineNo="3" ColNo="25">
                 <In>
                     <DeclareVariable LineNo="2" ColNo="25">
                         <Name>x</Name>
@@ -34,11 +34,11 @@
                 </InOut>
             </Interface>
         </LibraryNodeDeclaration>
-        <CommandDeclaration LineNo="3" ColNo="0">
+        <CommandDeclaration LineNo="4" ColNo="0">
             <Name>pprint</Name>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <Sequence LineNo="7" ColNo="2">
+    <Sequence LineNo="8" ColNo="2">
         <NodeId>LibraryCallTest</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="7" ColNo="2">
@@ -46,8 +46,8 @@
                 <Type>Integer</Type>
             </DeclareVariable>
         </VariableDeclarations>
-        <PostCondition LineNo="8" ColNo="2">
-            <EQNumeric LineNo="8" ColNo="23">
+        <PostCondition LineNo="9" ColNo="2">
+            <EQNumeric LineNo="9" ColNo="23">
                 <IntegerVariable>result</IntegerVariable>
                 <IntegerValue>1</IntegerValue>
             </EQNumeric>
@@ -75,7 +75,7 @@
                     <Name>
                         <StringValue>pprint</StringValue>
                     </Name>
-                    <Arguments LineNo="10" ColNo="10">
+                    <Arguments LineNo="11" ColNo="10">
                         <StringValue>Increment(1) =</StringValue>
                         <IntegerVariable>result</IntegerVariable>
                     </Arguments>
@@ -105,7 +105,7 @@
                     <Name>
                         <StringValue>pprint</StringValue>
                     </Name>
-                    <Arguments LineNo="12" ColNo="10">
+                    <Arguments LineNo="13" ColNo="10">
                         <StringValue>Decrement(2) =</StringValue>
                         <IntegerVariable>result</IntegerVariable>
                     </Arguments>

@@ -1,15 +1,15 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <GlobalDeclarations LineNo="1" ColNo="0">
-        <CommandDeclaration LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/sync-cmd-test.ple">
+    <GlobalDeclarations LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="2" ColNo="0">
             <Name>A</Name>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="3" ColNo="0">
             <Name>B</Name>
             <Parameter>
                 <Type>Integer</Type>
             </Parameter>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="3" ColNo="8">
+        <CommandDeclaration LineNo="4" ColNo="8">
             <Name>C</Name>
             <Return>
                 <Name>_return_0</Name>
@@ -17,7 +17,7 @@
             </Return>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <Sequence LineNo="7" ColNo="2">
+    <Sequence LineNo="8" ColNo="2">
         <NodeId>root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="7" ColNo="2">
@@ -25,7 +25,7 @@
                 <Type>Integer</Type>
             </DeclareVariable>
         </VariableDeclarations>
-        <SynchronousCommand LineNo="9" ColNo="2">
+        <SynchronousCommand LineNo="10" ColNo="2">
             <NodeId>SynchronousCommand__0</NodeId>
             <Command>
                 <Name>
@@ -33,7 +33,7 @@
                 </Name>
             </Command>
         </SynchronousCommand>
-        <SynchronousCommand LineNo="10" ColNo="2">
+        <SynchronousCommand LineNo="11" ColNo="2">
             <NodeId>SynchronousCommand__1</NodeId>
             <Timeout>
                 <RealValue>2</RealValue>
@@ -42,12 +42,12 @@
                 <Name>
                     <StringValue>B</StringValue>
                 </Name>
-                <Arguments LineNo="10" ColNo="23">
+                <Arguments LineNo="11" ColNo="23">
                     <IntegerValue>1</IntegerValue>
                 </Arguments>
             </Command>
         </SynchronousCommand>
-        <SynchronousCommand LineNo="11" ColNo="2">
+        <SynchronousCommand LineNo="12" ColNo="2">
             <NodeId>SynchronousCommand__2</NodeId>
             <Command>
                 <IntegerVariable>i</IntegerVariable>
@@ -56,7 +56,7 @@
                 </Name>
             </Command>
         </SynchronousCommand>
-        <SynchronousCommand LineNo="12" ColNo="2">
+        <SynchronousCommand LineNo="13" ColNo="2">
             <NodeId>SynchronousCommand__3</NodeId>
             <Timeout>
                 <RealValue>2</RealValue>

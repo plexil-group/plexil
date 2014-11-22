@@ -1,16 +1,16 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <GlobalDeclarations LineNo="1" ColNo="0">
-        <CommandDeclaration LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/on-command1.ple">
+    <GlobalDeclarations LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="2" ColNo="0">
             <Name>HaltAndCatchFire</Name>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="3" ColNo="0">
             <Name>ExecuteProgrammerImmediate</Name>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="3" ColNo="0">
+        <CommandDeclaration LineNo="4" ColNo="0">
             <Name>SendReturnValues</Name>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <Concurrence LineNo="6" ColNo="0">
+    <Concurrence LineNo="7" ColNo="0">
         <NodeId>root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="9" ColNo="2">
@@ -21,7 +21,7 @@
                 </InitialValue>
             </DeclareVariable>
         </VariableDeclarations>
-        <OnCommand LineNo="10" ColNo="2">
+        <OnCommand LineNo="11" ColNo="2">
             <NodeId>OnCommand__0</NodeId>
             <Name>
                 <StringVariable>hcfName</StringVariable>
@@ -37,7 +37,7 @@
                 </NodeBody>
             </Node>
         </OnCommand>
-        <OnCommand LineNo="12" ColNo="2">
+        <OnCommand LineNo="13" ColNo="2">
             <NodeId>OnCommand__2</NodeId>
             <Name>
                 <StringValue>EPI</StringValue>
@@ -53,7 +53,7 @@
                 </NodeBody>
             </Node>
         </OnCommand>
-        <OnCommand LineNo="13" ColNo="2">
+        <OnCommand LineNo="14" ColNo="2">
             <NodeId>OnCommand__4</NodeId>
             <Name>
                 <StringValue>Three</StringValue>
@@ -65,14 +65,14 @@
                         <Name>
                             <StringValue>SendReturnValues</StringValue>
                         </Name>
-                        <Arguments LineNo="13" ColNo="50">
+                        <Arguments LineNo="14" ColNo="50">
                             <IntegerValue>3</IntegerValue>
                         </Arguments>
                     </Command>
                 </NodeBody>
             </Node>
         </OnCommand>
-        <OnCommand LineNo="14" ColNo="2">
+        <OnCommand LineNo="15" ColNo="2">
             <NodeId>OnCommand__6</NodeId>
             <VariableDeclarations>
                 <DeclareVariable LineNo="14" ColNo="19">
@@ -94,8 +94,8 @@
                         <Name>
                             <StringValue>SendReturnValues</StringValue>
                         </Name>
-                        <Arguments LineNo="15" ColNo="36">
-                            <ADD LineNo="15" ColNo="36">
+                        <Arguments LineNo="16" ColNo="36">
+                            <ADD LineNo="16" ColNo="36">
                                 <IntegerVariable>number1</IntegerVariable>
                                 <IntegerVariable>number2</IntegerVariable>
                             </ADD>

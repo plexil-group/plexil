@@ -1,16 +1,16 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <GlobalDeclarations LineNo="1" ColNo="0">
-        <CommandDeclaration LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/on-message1.ple">
+    <GlobalDeclarations LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="2" ColNo="0">
             <Name>HaltAndCatchFire</Name>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="3" ColNo="0">
             <Name>ExecuteProgrammerImmediate</Name>
             <Parameter>
                 <Type>String</Type>
             </Parameter>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <Concurrence LineNo="5" ColNo="0">
+    <Concurrence LineNo="6" ColNo="0">
         <NodeId>root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="7" ColNo="4">
@@ -21,7 +21,7 @@
                 </InitialValue>
             </DeclareVariable>
         </VariableDeclarations>
-        <OnMessage LineNo="9" ColNo="4">
+        <OnMessage LineNo="10" ColNo="4">
             <NodeId>OnMessage__0</NodeId>
             <Message>
                 <StringVariable>hcfName</StringVariable>
@@ -37,7 +37,7 @@
                 </NodeBody>
             </Node>
         </OnMessage>
-        <OnMessage LineNo="10" ColNo="4">
+        <OnMessage LineNo="11" ColNo="4">
             <NodeId>OnMessage__2</NodeId>
             <Message>
                 <StringValue>EPI</StringValue>
@@ -49,7 +49,7 @@
                         <Name>
                             <StringValue>ExecuteProgrammerImmediate</StringValue>
                         </Name>
-                        <Arguments LineNo="10" ColNo="48">
+                        <Arguments LineNo="11" ColNo="48">
                             <StringVariable>hcfName</StringVariable>
                         </Arguments>
                     </Command>

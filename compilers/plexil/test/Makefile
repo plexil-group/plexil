@@ -29,18 +29,18 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
               command0 command1 command2 command3 command4 ComputedCommandName \
               sequence0 sequence1 sequence2 sequence3 \
               assignment0 assignment1 assignment2 \
-              comment1 concurrence0 concurrence1 concurrence1 concurrence2 concurrence3 \
+              comment1 concurrence0 concurrence1 concurrence2 concurrence3 \
               Fibs Fib PrintFib FibTest LibraryCall1 LibraryCall2 LibraryCall3 \
-              array-copy CopyReals on-command1 on-command2 isKnown1 for1 for2 \
+              CopyReals on-command1 on-command2 isKnown1 for1 for2 \
               on-message1 on-message2 concat1 nodeState1 nodeState2 \
               nodeOutcome1 command-handle1 interface-test interface-test1 \
               DriveToSchool SafeDrive CruiseControl sync-cmd-test sync-cmd-test1 \
               simpleIf simpleIfThenElse simpleAssignment while1 AddArray \
               Decrement Increment Sum RoboSimSimple2 SimpleDrive \
-              array-add array-complex array-copy  basic-wait-test boolean1 \
+              array-add array-complex array-copy basic-wait-test boolean1 \
               duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
               library-call1 library-node1 LibraryCallWithArray literal-format-test \
-              if2 if3 test-recv test-send \
+              if2 if3 if4 test-recv test-send \
               lookup2 LookupWithComputedStateName \
               maxTest minTest mod1 expr1 expr3 expr4 \
               try1 update1 update2 update3 \

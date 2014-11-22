@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="1" ColNo="2">
-    <Node NodeType="Empty" LineNo="3" ColNo="4">
+<PlexilPlan LineNo="2" ColNo="2" FileName="input/empty4.ple">
+    <Node NodeType="Empty" LineNo="4" ColNo="4">
         <NodeId>DoNothing1</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="3" ColNo="4">

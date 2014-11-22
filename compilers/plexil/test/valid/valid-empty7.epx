@@ -1,9 +1,9 @@
-<PlexilPlan LineNo="4" ColNo="0">
-    <Node NodeType="Empty" LineNo="6" ColNo="2">
+<PlexilPlan LineNo="5" ColNo="0" FileName="input/empty7.ple">
+    <Node NodeType="Empty" LineNo="7" ColNo="2">
         <NodeId>VerifyTemp</NodeId>
-        <PostCondition LineNo="6" ColNo="2">
-            <GE LineNo="6" ColNo="29">
-                <Lookup LineNo="6" ColNo="16">
+        <PostCondition LineNo="7" ColNo="2">
+            <GE LineNo="7" ColNo="29">
+                <Lookup LineNo="7" ColNo="16">
                     <Name>
                         <StringValue>time</StringValue>
                     </Name>

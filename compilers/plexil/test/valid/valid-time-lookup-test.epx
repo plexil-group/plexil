@@ -1,6 +1,6 @@
-<PlexilPlan LineNo="1" ColNo="5">
-    <GlobalDeclarations LineNo="1" ColNo="5">
-        <StateDeclaration LineNo="1" ColNo="5">
+<PlexilPlan LineNo="2" ColNo="5" FileName="input/time-lookup-test.ple">
+    <GlobalDeclarations LineNo="2" ColNo="5">
+        <StateDeclaration LineNo="2" ColNo="5">
             <Name>time</Name>
             <Return>
                 <Name>_return_0</Name>
@@ -8,11 +8,11 @@
             </Return>
         </StateDeclaration>
     </GlobalDeclarations>
-    <Node NodeType="Empty" LineNo="5" ColNo="2">
+    <Node NodeType="Empty" LineNo="6" ColNo="2">
         <NodeId>time_lookup_test</NodeId>
-        <EndCondition LineNo="5" ColNo="2">
-            <GE LineNo="5" ColNo="32">
-                <Lookup LineNo="5" ColNo="15">
+        <EndCondition LineNo="6" ColNo="2">
+            <GE LineNo="6" ColNo="32">
+                <Lookup LineNo="6" ColNo="15">
                     <Name>
                         <StringValue>time</StringValue>
                     </Name>
@@ -20,7 +20,7 @@
                         <RealValue>1</RealValue>
                     </Tolerance>
                 </Lookup>
-                <ADD LineNo="5" ColNo="69">
+                <ADD LineNo="6" ColNo="69">
                     <NodeTimepointValue>
                         <NodeId>time_lookup_test</NodeId>
                         <NodeStateValue>EXECUTING</NodeStateValue>
@@ -30,8 +30,8 @@
                 </ADD>
             </GE>
         </EndCondition>
-        <PostCondition LineNo="6" ColNo="2">
-            <IsKnown LineNo="6" ColNo="16">
+        <PostCondition LineNo="7" ColNo="2">
+            <IsKnown LineNo="7" ColNo="16">
                 <NodeTimepointValue>
                     <NodeRef dir="self"/>
                     <NodeStateValue>EXECUTING</NodeStateValue>

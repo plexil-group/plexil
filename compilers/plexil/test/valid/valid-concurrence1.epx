@@ -1,6 +1,6 @@
-<PlexilPlan LineNo="1" ColNo="8">
-    <GlobalDeclarations LineNo="1" ColNo="8">
-        <CommandDeclaration LineNo="1" ColNo="8">
+<PlexilPlan LineNo="2" ColNo="8" FileName="input/concurrence1.ple">
+    <GlobalDeclarations LineNo="2" ColNo="8">
+        <CommandDeclaration LineNo="2" ColNo="8">
             <Name>DoIt</Name>
             <Return>
                 <Name>_return_0</Name>
@@ -10,21 +10,21 @@
                 <Type>Integer</Type>
             </Parameter>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="2" ColNo="8">
+        <CommandDeclaration LineNo="3" ColNo="8">
             <Name>GetX</Name>
             <Return>
                 <Name>_return_0</Name>
                 <Type>Integer</Type>
             </Return>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="3" ColNo="0">
+        <CommandDeclaration LineNo="4" ColNo="0">
             <Name>inform</Name>
             <Parameter>
                 <Type>String</Type>
             </Parameter>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <Concurrence LineNo="5" ColNo="6">
+    <Concurrence LineNo="6" ColNo="6">
         <NodeId>Root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="7" ColNo="2">
@@ -39,7 +39,7 @@
                     <Name>
                         <StringValue>inform</StringValue>
                     </Name>
-                    <Arguments LineNo="10" ColNo="11">
+                    <Arguments LineNo="11" ColNo="11">
                         <StringValue>Plan executing...</StringValue>
                     </Arguments>
                 </Command>
@@ -56,7 +56,7 @@
                 </Command>
             </NodeBody>
         </Node>
-        <Sequence LineNo="20" ColNo="4">
+        <Sequence LineNo="21" ColNo="4">
             <NodeId>Commence</NodeId>
             <VariableDeclarations>
                 <DeclareVariable LineNo="20" ColNo="4">
@@ -64,17 +64,17 @@
                     <Type>Boolean</Type>
                 </DeclareVariable>
             </VariableDeclarations>
-            <PostCondition LineNo="23" ColNo="4">
+            <PostCondition LineNo="24" ColNo="4">
                 <BooleanVariable>result</BooleanVariable>
             </PostCondition>
-            <SynchronousCommand LineNo="24" ColNo="4">
+            <SynchronousCommand LineNo="25" ColNo="4">
                 <NodeId>SynchronousCommand__2</NodeId>
                 <Command>
                     <BooleanVariable>result</BooleanVariable>
                     <Name>
                         <StringValue>DoIt</StringValue>
                     </Name>
-                    <Arguments LineNo="24" ColNo="37">
+                    <Arguments LineNo="25" ColNo="37">
                         <IntegerVariable>x</IntegerVariable>
                     </Arguments>
                 </Command>
@@ -87,7 +87,7 @@
                     <Name>
                         <StringValue>inform</StringValue>
                     </Name>
-                    <Arguments LineNo="30" ColNo="11">
+                    <Arguments LineNo="31" ColNo="11">
                         <StringValue>Operation succeeded!</StringValue>
                     </Arguments>
                 </Command>
@@ -100,7 +100,7 @@
                     <Name>
                         <StringValue>inform</StringValue>
                     </Name>
-                    <Arguments LineNo="36" ColNo="11">
+                    <Arguments LineNo="37" ColNo="11">
                         <StringValue>Operation failed!</StringValue>
                     </Arguments>
                 </Command>

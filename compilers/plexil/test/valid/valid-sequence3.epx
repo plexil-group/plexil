@@ -1,13 +1,13 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <GlobalDeclarations LineNo="1" ColNo="0">
-        <CommandDeclaration LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/sequence3.ple">
+    <GlobalDeclarations LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="2" ColNo="0">
             <Name>C</Name>
             <Parameter>
                 <Type>String</Type>
             </Parameter>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <UncheckedSequence LineNo="3" ColNo="6">
+    <UncheckedSequence LineNo="4" ColNo="6">
         <NodeId>Root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="4" ColNo="2">
@@ -15,7 +15,7 @@
                 <Type>String</Type>
             </DeclareVariable>
         </VariableDeclarations>
-        <Node LineNo="5" ColNo="2" NodeType="Assignment">
+        <Node LineNo="6" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__0</NodeId>
             <NodeBody>
                 <Assignment>
@@ -33,13 +33,13 @@
                     <Name>
                         <StringValue>C</StringValue>
                     </Name>
-                    <Arguments LineNo="6" ColNo="5">
+                    <Arguments LineNo="7" ColNo="5">
                         <StringVariable>s</StringVariable>
                     </Arguments>
                 </Command>
             </NodeBody>
         </Node>
-        <Node LineNo="7" ColNo="2" NodeType="Assignment">
+        <Node LineNo="8" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__2</NodeId>
             <NodeBody>
                 <Assignment>
@@ -57,7 +57,7 @@
                     <Name>
                         <StringValue>C</StringValue>
                     </Name>
-                    <Arguments LineNo="8" ColNo="5">
+                    <Arguments LineNo="9" ColNo="5">
                         <StringVariable>s</StringVariable>
                     </Arguments>
                 </Command>

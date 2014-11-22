@@ -1,6 +1,6 @@
-<PlexilPlan LineNo="1" ColNo="8">
-    <GlobalDeclarations LineNo="1" ColNo="8">
-        <CommandDeclaration LineNo="1" ColNo="8">
+<PlexilPlan LineNo="2" ColNo="8" FileName="input/resource0.ple">
+    <GlobalDeclarations LineNo="2" ColNo="8">
+        <CommandDeclaration LineNo="2" ColNo="8">
             <Name>c1</Name>
             <Return>
                 <Name>_return_0</Name>
@@ -19,8 +19,8 @@
                 </InitialValue>
             </DeclareVariable>
         </VariableDeclarations>
-        <EndCondition LineNo="5" ColNo="2">
-            <EQNumeric LineNo="5" ColNo="27">
+        <EndCondition LineNo="6" ColNo="2">
+            <EQNumeric LineNo="6" ColNo="27">
                 <IntegerVariable>returnValue</IntegerVariable>
                 <IntegerValue>10</IntegerValue>
             </EQNumeric>
@@ -28,7 +28,7 @@
         <NodeBody>
             <Command>
                 <ResourceList>
-                    <Resource LineNo="6" ColNo="2">
+                    <Resource LineNo="7" ColNo="2">
                         <ResourceName>
                             <StringValue>arm</StringValue>
                         </ResourceName>

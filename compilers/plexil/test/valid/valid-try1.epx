@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <Try LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/try1.ple">
+    <Try LineNo="2" ColNo="0">
         <NodeId>Try__0</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="3" ColNo="2">
@@ -7,19 +7,19 @@
                 <Type>Integer</Type>
             </DeclareVariable>
         </VariableDeclarations>
-        <Node NodeType="Empty" LineNo="5" ColNo="7">
+        <Node NodeType="Empty" LineNo="6" ColNo="7">
             <NodeId>A</NodeId>
-            <PreCondition LineNo="5" ColNo="7">
+            <PreCondition LineNo="6" ColNo="7">
                 <BooleanValue>false</BooleanValue>
             </PreCondition>
         </Node>
-        <Node NodeType="Empty" LineNo="6" ColNo="7">
+        <Node NodeType="Empty" LineNo="7" ColNo="7">
             <NodeId>B</NodeId>
-            <PostCondition LineNo="6" ColNo="7">
+            <PostCondition LineNo="7" ColNo="7">
                 <BooleanValue>false</BooleanValue>
             </PostCondition>
         </Node>
-        <Node LineNo="7" ColNo="5" NodeType="Assignment">
+        <Node LineNo="8" ColNo="5" NodeType="Assignment">
             <NodeId>C</NodeId>
             <NodeBody>
                 <Assignment>

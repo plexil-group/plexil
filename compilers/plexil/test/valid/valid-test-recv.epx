@@ -1,23 +1,23 @@
-<PlexilPlan LineNo="1" ColNo="5">
-    <GlobalDeclarations LineNo="1" ColNo="5">
-        <StateDeclaration LineNo="1" ColNo="5">
+<PlexilPlan LineNo="2" ColNo="5" FileName="input/test-recv.ple">
+    <GlobalDeclarations LineNo="2" ColNo="5">
+        <StateDeclaration LineNo="2" ColNo="5">
             <Name>time</Name>
             <Return>
                 <Name>_return_0</Name>
                 <Type>Real</Type>
             </Return>
         </StateDeclaration>
-        <CommandDeclaration LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="3" ColNo="0">
             <Name>print</Name>
         </CommandDeclaration>
-        <CommandDeclaration LineNo="3" ColNo="0">
+        <CommandDeclaration LineNo="4" ColNo="0">
             <Name>ack_msg</Name>
             <Parameter>
                 <Type>String</Type>
             </Parameter>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <UncheckedSequence LineNo="5" ColNo="6">
+    <UncheckedSequence LineNo="6" ColNo="6">
         <NodeId>root</NodeId>
         <VariableDeclarations>
             <DeclareVariable LineNo="6" ColNo="2">
@@ -46,13 +46,13 @@
                 </InitialValue>
             </DeclareVariable>
         </VariableDeclarations>
-        <Node LineNo="12" ColNo="19" NodeType="Assignment">
+        <Node LineNo="13" ColNo="19" NodeType="Assignment">
             <NodeId>RecordStartTime</NodeId>
             <NodeBody>
                 <Assignment>
                     <RealVariable>run_start_time</RealVariable>
                     <NumericRHS>
-                        <Lookup LineNo="12" ColNo="36">
+                        <Lookup LineNo="13" ColNo="36">
                             <Name>
                                 <StringValue>time</StringValue>
                             </Name>
@@ -61,22 +61,22 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Concurrence LineNo="13" ColNo="27">
+        <Concurrence LineNo="14" ColNo="27">
             <NodeId>WaitForTimeoutOrCommand</NodeId>
-            <InvariantCondition LineNo="14" ColNo="4">
-                <EQBoolean LineNo="14" ColNo="32">
+            <InvariantCondition LineNo="15" ColNo="4">
+                <EQBoolean LineNo="15" ColNo="32">
                     <BooleanVariable>continue</BooleanVariable>
                     <BooleanValue>true</BooleanValue>
                 </EQBoolean>
             </InvariantCondition>
-            <Sequence LineNo="16" ColNo="6">
+            <Sequence LineNo="17" ColNo="6">
                 <NodeId>HandleCommand</NodeId>
-                <RepeatCondition LineNo="16" ColNo="6">
+                <RepeatCondition LineNo="17" ColNo="6">
                     <BooleanVariable>continue</BooleanVariable>
                 </RepeatCondition>
-                <Sequence LineNo="19" ColNo="8">
+                <Sequence LineNo="20" ColNo="8">
                     <NodeId>ReceiveCommand</NodeId>
-                    <OnCommand LineNo="19" ColNo="8">
+                    <OnCommand LineNo="20" ColNo="8">
                         <NodeId>OnCommand__0</NodeId>
                         <VariableDeclarations>
                             <DeclareVariable LineNo="19" ColNo="34">
@@ -107,7 +107,7 @@
                         <Name>
                             <StringValue>test_udp_msg</StringValue>
                         </Name>
-                        <Sequence LineNo="21" ColNo="10">
+                        <Sequence LineNo="22" ColNo="10">
                             <NodeId>BLOCK__1</NodeId>
                             <Node LineNo="21" ColNo="25" NodeType="Command">
                                 <NodeId>ReportCommand</NodeId>
@@ -116,7 +116,7 @@
                                         <Name>
                                             <StringValue>print</StringValue>
                                         </Name>
-                                        <Arguments LineNo="21" ColNo="32">
+                                        <Arguments LineNo="22" ColNo="32">
                                             <StringValue>
 test-recv: received arg1==</StringValue>
                                             <StringVariable>arg1</StringVariable>
@@ -139,7 +139,7 @@ test-recv: received arg1==</StringValue>
                                     </Command>
                                 </NodeBody>
                             </Node>
-                            <Node LineNo="23" ColNo="30" NodeType="Assignment">
+                            <Node LineNo="24" ColNo="30" NodeType="Assignment">
                                 <NodeId>CheckForAckRequest</NodeId>
                                 <NodeBody>
                                     <Assignment>
@@ -152,10 +152,10 @@ test-recv: received arg1==</StringValue>
                             </Node>
                         </Sequence>
                     </OnCommand>
-                    <Sequence LineNo="28" ColNo="10">
+                    <Sequence LineNo="29" ColNo="10">
                         <NodeId>SendCommandAck</NodeId>
-                        <SkipCondition LineNo="28" ColNo="10">
-                            <NEBoolean LineNo="28" ColNo="33">
+                        <SkipCondition LineNo="29" ColNo="10">
+                            <NEBoolean LineNo="29" ColNo="33">
                                 <BooleanVariable>send_ack</BooleanVariable>
                                 <BooleanValue>true</BooleanValue>
                             </NEBoolean>
@@ -167,7 +167,7 @@ test-recv: received arg1==</StringValue>
                                     <Name>
                                         <StringValue>print</StringValue>
                                     </Name>
-                                    <Arguments LineNo="29" ColNo="35">
+                                    <Arguments LineNo="30" ColNo="35">
                                         <StringValue>
 test-recv: sending ack
 
@@ -183,18 +183,18 @@ test-recv: sending ack
                                     <Name>
                                         <StringValue>ack_msg</StringValue>
                                     </Name>
-                                    <Arguments LineNo="30" ColNo="28">
+                                    <Arguments LineNo="31" ColNo="28">
                                         <StringValue>ack</StringValue>
                                     </Arguments>
                                 </Command>
                             </NodeBody>
                         </Node>
                     </Sequence>
-                    <UncheckedSequence LineNo="33" ColNo="23">
+                    <UncheckedSequence LineNo="34" ColNo="23">
                         <NodeId>HandleTimeout</NodeId>
-                        <StartCondition LineNo="35" ColNo="10">
-                            <GT LineNo="35" ColNo="41">
-                                <Lookup LineNo="35" ColNo="25">
+                        <StartCondition LineNo="36" ColNo="10">
+                            <GT LineNo="36" ColNo="41">
+                                <Lookup LineNo="36" ColNo="25">
                                     <Name>
                                         <StringValue>time</StringValue>
                                     </Name>
@@ -202,7 +202,7 @@ test-recv: sending ack
                                         <RealValue>1</RealValue>
                                     </Tolerance>
                                 </Lookup>
-                                <ADD LineNo="35" ColNo="58">
+                                <ADD LineNo="36" ColNo="58">
                                     <RealVariable>run_start_time</RealVariable>
                                     <IntegerVariable>timeout</IntegerVariable>
                                 </ADD>
@@ -216,7 +216,7 @@ test-recv: sending ack
                                     <Name>
                                         <StringValue>print</StringValue>
                                     </Name>
-                                    <Arguments LineNo="36" ColNo="32">
+                                    <Arguments LineNo="37" ColNo="32">
                                         <StringValue>
 test-recv: timed out after </StringValue>
                                         <IntegerVariable>timeout</IntegerVariable>
@@ -227,7 +227,7 @@ test-recv: timed out after </StringValue>
                                 </Command>
                             </NodeBody>
                         </Node>
-                        <Node LineNo="37" ColNo="25" NodeType="Assignment">
+                        <Node LineNo="38" ColNo="25" NodeType="Assignment">
                             <NodeId>SignalTimeout</NodeId>
                             <NodeBody>
                                 <Assignment>
@@ -239,10 +239,10 @@ test-recv: timed out after </StringValue>
                             </NodeBody>
                         </Node>
                     </UncheckedSequence>
-                    <UncheckedSequence LineNo="40" ColNo="27">
+                    <UncheckedSequence LineNo="41" ColNo="27">
                         <NodeId>HandleQuitMessage</NodeId>
                         <Priority>0</Priority>
-                        <OnCommand LineNo="42" ColNo="10">
+                        <OnCommand LineNo="43" ColNo="10">
                             <NodeId>OnCommand__2</NodeId>
                             <VariableDeclarations>
                                 <DeclareVariable LineNo="42" ColNo="32">
@@ -253,7 +253,7 @@ test-recv: timed out after </StringValue>
                             <Name>
                                 <StringValue>quit_msg</StringValue>
                             </Name>
-                            <Sequence LineNo="43" ColNo="12">
+                            <Sequence LineNo="44" ColNo="12">
                                 <NodeId>BLOCK__3</NodeId>
                                 <Node LineNo="43" ColNo="32" NodeType="Command">
                                     <NodeId>ReportQuitReceived</NodeId>
@@ -262,7 +262,7 @@ test-recv: timed out after </StringValue>
                                             <Name>
                                                 <StringValue>print</StringValue>
                                             </Name>
-                                            <Arguments LineNo="43" ColNo="39">
+                                            <Arguments LineNo="44" ColNo="39">
                                                 <StringValue>
 test-recv: received quit command
 
@@ -271,7 +271,7 @@ test-recv: received quit command
                                         </Command>
                                     </NodeBody>
                                 </Node>
-                                <Node LineNo="44" ColNo="24" NodeType="Assignment">
+                                <Node LineNo="45" ColNo="24" NodeType="Assignment">
                                     <NodeId>SignalQuit</NodeId>
                                     <NodeBody>
                                         <Assignment>

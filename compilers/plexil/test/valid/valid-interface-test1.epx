@@ -1,5 +1,5 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <Sequence LineNo="3" ColNo="2">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/interface-test1.ple">
+    <Sequence LineNo="4" ColNo="2">
         <NodeId>Test</NodeId>
         <Interface>
             <In>
@@ -25,13 +25,13 @@
                 <Type>Integer</Type>
             </DeclareVariable>
         </VariableDeclarations>
-        <Node LineNo="8" ColNo="2" NodeType="Assignment">
+        <Node LineNo="9" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__0</NodeId>
             <NodeBody>
                 <Assignment>
                     <IntegerVariable>z</IntegerVariable>
                     <NumericRHS>
-                        <ADD LineNo="8" ColNo="8">
+                        <ADD LineNo="9" ColNo="8">
                             <IntegerVariable>x</IntegerVariable>
                             <IntegerVariable>y</IntegerVariable>
                         </ADD>
@@ -39,7 +39,7 @@
                 </Assignment>
             </NodeBody>
         </Node>
-        <Node LineNo="9" ColNo="2" NodeType="Assignment">
+        <Node LineNo="10" ColNo="2" NodeType="Assignment">
             <NodeId>ASSIGNMENT__1</NodeId>
             <NodeBody>
                 <Assignment>

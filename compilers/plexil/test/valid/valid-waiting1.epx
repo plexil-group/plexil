@@ -1,14 +1,14 @@
-<PlexilPlan LineNo="2" ColNo="2">
-    <Sequence LineNo="2" ColNo="2">
+<PlexilPlan LineNo="3" ColNo="2" FileName="input/waiting1.ple">
+    <Sequence LineNo="3" ColNo="2">
         <NodeId>BLOCK__0</NodeId>
-        <EndCondition LineNo="2" ColNo="2">
-            <Waiting LineNo="2" ColNo="6">
+        <EndCondition LineNo="3" ColNo="2">
+            <Waiting LineNo="3" ColNo="6">
                 <NodeId>A</NodeId>
             </Waiting>
         </EndCondition>
-        <Node NodeType="Empty" LineNo="3" ColNo="7">
+        <Node NodeType="Empty" LineNo="4" ColNo="7">
             <NodeId>A</NodeId>
-            <StartCondition LineNo="3" ColNo="7">
+            <StartCondition LineNo="4" ColNo="7">
                 <BooleanValue>false</BooleanValue>
             </StartCondition>
         </Node>

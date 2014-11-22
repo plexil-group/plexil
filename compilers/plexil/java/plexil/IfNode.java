@@ -170,36 +170,28 @@ public class IfNode extends PlexilTreeNode
         consequent.addChild(getChild(1).getXML());
         m_xml.addChild(consequent);
 
-        IXMLElement parent = m_xml;
         int nkids = getChildCount();
-        for (int i = 2; i < nkids; i += 2) {
-            // Generate an Else
-            IXMLElement elseClause = new XMLElement("Else");
-            parent.addChild(elseClause);
-
-            // Handle ElseIf
+        if (nkids == 2)
+            return;
+        
+        int i = 2;
+        for (; i < nkids; i += 2) {
             if (nkids - i > 1) {
-                // Elseif test & clause
-                // Construct new IF
-                IXMLElement elseifNode = new XMLElement("If");
-                elseClause.addChild(elseifNode);
-
-                // Insert elseif-condition
-                condition = new XMLElement("Condition");
-                condition.addChild(getChild(i).getXML());
-                elseifNode.addChild(condition);
-
-                // Insert then clause
-                consequent = new XMLElement("Then");
-                consequent.addChild(getChild(i + 1).getXML());
-                elseifNode.addChild(consequent);
-
-                // prepare for next iteration
-                parent = elseifNode;
+                // Insert ElseIf clause(s)
+                IXMLElement elseIfClause = new XMLElement("ElseIf");
+                IXMLElement elseIfCondition = new XMLElement("Condition");
+                elseIfCondition.addChild(getChild(i).getXML());
+                elseIfClause.addChild(elseIfCondition);
+                IXMLElement elseIfConsequent = new XMLElement("Then");
+                elseIfConsequent.addChild(getChild(i + 1).getXML());
+                elseIfClause.addChild(elseIfConsequent);
+                m_xml.addChild(elseIfClause);
             }
-            // Handle final else, if any
             else {
+                // insert final Else clause
+                IXMLElement elseClause = new XMLElement("Else");
                 elseClause.addChild(getChild(i).getXML());
+                m_xml.addChild(elseClause);
             }
         }
     }

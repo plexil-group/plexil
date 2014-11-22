@@ -1,6 +1,6 @@
-<PlexilPlan LineNo="1" ColNo="5">
-    <GlobalDeclarations LineNo="1" ColNo="5">
-        <StateDeclaration LineNo="1" ColNo="5">
+<PlexilPlan LineNo="2" ColNo="5" FileName="input/tolerance1.ple">
+    <GlobalDeclarations LineNo="2" ColNo="5">
+        <StateDeclaration LineNo="2" ColNo="5">
             <Name>temp</Name>
             <Return>
                 <Name>_return_0</Name>
@@ -8,11 +8,11 @@
             </Return>
         </StateDeclaration>
     </GlobalDeclarations>
-    <Node NodeType="Empty" LineNo="4" ColNo="2">
+    <Node NodeType="Empty" LineNo="5" ColNo="2">
         <NodeId>BLOCK__0</NodeId>
-        <StartCondition LineNo="4" ColNo="2">
-            <GT LineNo="4" ColNo="28">
-                <Lookup LineNo="4" ColNo="9">
+        <StartCondition LineNo="5" ColNo="2">
+            <GT LineNo="5" ColNo="28">
+                <Lookup LineNo="5" ColNo="9">
                     <Name>
                         <StringValue>temp</StringValue>
                     </Name>

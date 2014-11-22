@@ -1,21 +1,21 @@
-<PlexilPlan LineNo="1" ColNo="8">
-    <GlobalDeclarations LineNo="1" ColNo="8">
-        <StateDeclaration LineNo="1" ColNo="8">
+<PlexilPlan LineNo="2" ColNo="8" FileName="input/while1.ple">
+    <GlobalDeclarations LineNo="2" ColNo="8">
+        <StateDeclaration LineNo="2" ColNo="8">
             <Name>WheelStuck</Name>
             <Return>
                 <Name>_return_0</Name>
                 <Type>Boolean</Type>
             </Return>
         </StateDeclaration>
-        <CommandDeclaration LineNo="2" ColNo="0">
+        <CommandDeclaration LineNo="3" ColNo="0">
             <Name>driveOneMeter</Name>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <While LineNo="4" ColNo="0">
+    <While LineNo="5" ColNo="0">
         <NodeId>while__0</NodeId>
         <Condition>
-            <NOT LineNo="4" ColNo="7">
-                <Lookup LineNo="4" ColNo="9">
+            <NOT LineNo="5" ColNo="7">
+                <Lookup LineNo="5" ColNo="9">
                     <Name>
                         <StringValue>WheelStuck</StringValue>
                     </Name>

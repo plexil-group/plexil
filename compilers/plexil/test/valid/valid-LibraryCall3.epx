@@ -1,14 +1,14 @@
-<PlexilPlan LineNo="1" ColNo="0">
-    <GlobalDeclarations LineNo="1" ColNo="0">
-        <LibraryNodeDeclaration LineNo="1" ColNo="0">
+<PlexilPlan LineNo="2" ColNo="0" FileName="input/LibraryCall3.ple">
+    <GlobalDeclarations LineNo="2" ColNo="0">
+        <LibraryNodeDeclaration LineNo="2" ColNo="0">
             <Name>Phase1</Name>
         </LibraryNodeDeclaration>
-        <LibraryNodeDeclaration LineNo="2" ColNo="0">
+        <LibraryNodeDeclaration LineNo="3" ColNo="0">
             <Name>Phase2</Name>
         </LibraryNodeDeclaration>
-        <LibraryNodeDeclaration LineNo="3" ColNo="0">
+        <LibraryNodeDeclaration LineNo="4" ColNo="0">
             <Name>Phase3</Name>
-            <Interface LineNo="3" ColNo="22">
+            <Interface LineNo="4" ColNo="22">
                 <In>
                     <DeclareVariable LineNo="3" ColNo="22">
                         <Name>x</Name>
@@ -18,7 +18,7 @@
             </Interface>
         </LibraryNodeDeclaration>
     </GlobalDeclarations>
-    <Sequence LineNo="7" ColNo="4">
+    <Sequence LineNo="8" ColNo="4">
         <NodeId>Root</NodeId>
         <Node NodeType="LibraryNodeCall">
             <NodeId>CallPhase1</NodeId>
