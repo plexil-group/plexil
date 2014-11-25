@@ -305,18 +305,20 @@ public class BlockNode extends PlexilTreeNode
 
     private boolean isSimpleNode()
     {
-        if (m_body.size() != 1) {
+        if (m_body.size() != 1)
             return false;
-        }
 
-        PlexilTreeNode action = m_body.firstElement();
-        // this should NEVER fail!
-        if (action.getType() != PlexilLexer.ACTION) {
+        PlexilTreeNode child = m_body.firstElement();
+        if (child.getChildCount() != 1)
             return false;
-        }
-        if (action.getChildCount() != 1) {
+
+        ActionNode action = (ActionNode) child;
+        // this should never fail, in theory
+        if (action == null)
             return false;
-        }
+        if (action.hasNodeId())
+            return false; // separate node ID on child
+
         int bodyType = action.getChild(0).getType();
         switch (bodyType) {
         case PlexilLexer.ASSIGNMENT:
