@@ -49,6 +49,11 @@ public class ActionNode extends PlexilTreeNode
 		m_nodeId = n.m_nodeId;
 	}
 
+    public boolean hasNodeId()
+    {
+        return this.getChild(0).getType() == PlexilLexer.NCNAME;
+    }
+
     public String getNodeId()
     {
         return m_nodeId; 
