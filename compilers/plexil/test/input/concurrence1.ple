@@ -18,21 +18,20 @@ Root: Concurrence
   Commence:
   {
     Boolean result;
-// BUG
-//    StartCondition Init.state == FINISHED;
+    StartCondition Init.state == FINISHED;
     PostCondition result;
     SynchronousCommand result = DoIt(x);
   }
 
   InformSuccess:
   {
-//    StartCondition Commence.outcome == SUCCESS;
+    StartCondition Commence.outcome == SUCCESS;
     inform("Operation succeeded!");
   }
 
   InformFailure:
   {
-//    StartCondition Commence.outcome == FAILURE;
+    StartCondition Commence.outcome == FAILURE;
     inform("Operation failed!");
   }
 }
