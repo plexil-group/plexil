@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@ PLEXIL_HOME			?= ../..
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 # Program defaults
-# *** TEMPORARY - should move into makeinclude/platform-*.make ***
 JAVA	?= java
 JAVAC	?= javac
 JAR		?= jar
@@ -55,7 +54,7 @@ PLEXILC_JAR		:= $(PLEXIL_HOME)/jars/PlexilCompiler.jar
 DIRT			+= $(PARSER_JAVA) $(PARSER_CLASSES) $(JAVA_CLASSES)
 
 # Invoking ANTLR 3
-ANTLR3_TOOL_JAR	:= $(THIRD_PARTY_JAR_DIR)/antlr-3.4-complete-no-antlrv2.jar
+ANTLR3_TOOL_JAR	:= $(THIRD_PARTY_JAR_DIR)/antlr-3.5.2-complete-no-st3.jar
 ANTLR_OPTS		:= -fo $(PARSER_JAVA_SRC_DIR)
 ANTLR			:= $(JAVA) -jar $(ANTLR3_TOOL_JAR)
 
