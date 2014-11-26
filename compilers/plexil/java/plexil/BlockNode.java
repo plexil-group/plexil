@@ -210,6 +210,10 @@ public class BlockNode extends PlexilTreeNode
         // Construct basic XML
         // If body is 1 simple action, use its XML as a base
         if (isSimpleNode()) {
+            // System.out.println("BlockNode.constructXML collapsing:");
+            // System.out.println(this.toStringTree());
+            // System.out.println(" to:");
+            // System.out.println(m_body.firstElement().getChild(0).toStringTree());
             m_xml = m_body.firstElement().getChild(0).getXML();
         }
         else {

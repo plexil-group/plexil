@@ -97,19 +97,16 @@
                                 </ADD>
                             </LoopVariableUpdate>
                             <Action>
-                                <Sequence LineNo="30" ColNo="12">
-                                    <NodeId>BLOCK__2</NodeId>
-                                    <Node LineNo="29" ColNo="32" NodeType="Command">
-                                        <NodeId>PressAccelerator</NodeId>
-                                        <NodeBody>
-                                            <Command>
-                                                <Name>
-                                                    <StringValue>depress_accelerator</StringValue>
-                                                </Name>
-                                            </Command>
-                                        </NodeBody>
-                                    </Node>
-                                </Sequence>
+                                <Node LineNo="29" ColNo="32" NodeType="Command">
+                                    <NodeId>PressAccelerator</NodeId>
+                                    <NodeBody>
+                                        <Command>
+                                            <Name>
+                                                <StringValue>depress_accelerator</StringValue>
+                                            </Name>
+                                        </Command>
+                                    </NodeBody>
+                                </Node>
                             </Action>
                         </For>
                     </Sequence>

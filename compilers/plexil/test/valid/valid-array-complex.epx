@@ -44,7 +44,7 @@
             </LoopVariableUpdate>
             <Action>
                 <Node LineNo="8" ColNo="4" NodeType="Assignment">
-                    <NodeId>BLOCK__1</NodeId>
+                    <NodeId>ASSIGNMENT__2</NodeId>
                     <NodeBody>
                         <Assignment>
                             <ArrayElement>

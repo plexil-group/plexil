@@ -5,7 +5,7 @@
         </CommandDeclaration>
     </GlobalDeclarations>
     <Node LineNo="3" ColNo="2" NodeType="Command">
-        <NodeId>BLOCK__0</NodeId>
+        <NodeId>COMMAND__1</NodeId>
         <NodeBody>
             <Command>
                 <Name>

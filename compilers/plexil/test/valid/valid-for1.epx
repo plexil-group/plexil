@@ -4,47 +4,44 @@
             <Name>pprint</Name>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <Sequence LineNo="8" ColNo="2">
+    <For LineNo="8" ColNo="2">
         <NodeId>Root</NodeId>
-        <For LineNo="8" ColNo="2">
-            <NodeId>for__0</NodeId>
-            <LoopVariable>
-                <DeclareVariable LineNo="7" ColNo="7">
-                    <Name>i</Name>
-                    <Type>Integer</Type>
-                    <InitialValue>
-                        <IntegerValue>0</IntegerValue>
-                    </InitialValue>
-                </DeclareVariable>
-            </LoopVariable>
-            <Condition>
-                <LE LineNo="8" ColNo="24">
-                    <IntegerVariable>i</IntegerVariable>
-                    <IntegerValue>5</IntegerValue>
-                </LE>
-            </Condition>
-            <LoopVariableUpdate>
-                <ADD LineNo="8" ColNo="32">
-                    <IntegerVariable>i</IntegerVariable>
-                    <IntegerValue>1</IntegerValue>
-                </ADD>
-            </LoopVariableUpdate>
-            <Action>
-                <Node LineNo="7" ColNo="37" NodeType="Command">
-                    <NodeId>COMMAND__1</NodeId>
-                    <NodeBody>
-                        <Command>
-                            <Name>
-                                <StringValue>pprint</StringValue>
-                            </Name>
-                            <Arguments LineNo="8" ColNo="45">
-                                <StringValue>i: </StringValue>
-                                <IntegerVariable>i</IntegerVariable>
-                            </Arguments>
-                        </Command>
-                    </NodeBody>
-                </Node>
-            </Action>
-        </For>
-    </Sequence>
+        <LoopVariable>
+            <DeclareVariable LineNo="7" ColNo="7">
+                <Name>i</Name>
+                <Type>Integer</Type>
+                <InitialValue>
+                    <IntegerValue>0</IntegerValue>
+                </InitialValue>
+            </DeclareVariable>
+        </LoopVariable>
+        <Condition>
+            <LE LineNo="8" ColNo="24">
+                <IntegerVariable>i</IntegerVariable>
+                <IntegerValue>5</IntegerValue>
+            </LE>
+        </Condition>
+        <LoopVariableUpdate>
+            <ADD LineNo="8" ColNo="32">
+                <IntegerVariable>i</IntegerVariable>
+                <IntegerValue>1</IntegerValue>
+            </ADD>
+        </LoopVariableUpdate>
+        <Action>
+            <Node LineNo="7" ColNo="37" NodeType="Command">
+                <NodeId>COMMAND__1</NodeId>
+                <NodeBody>
+                    <Command>
+                        <Name>
+                            <StringValue>pprint</StringValue>
+                        </Name>
+                        <Arguments LineNo="8" ColNo="45">
+                            <StringValue>i: </StringValue>
+                            <IntegerVariable>i</IntegerVariable>
+                        </Arguments>
+                    </Command>
+                </NodeBody>
+            </Node>
+        </Action>
+    </For>
 </PlexilPlan>

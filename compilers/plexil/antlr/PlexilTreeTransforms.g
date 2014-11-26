@@ -81,7 +81,9 @@ topdown:
 
 bottomup:
         exitContext
-    |   associativeReduction ;
+    |   associativeReduction
+    |   flattenTrivialBlocks
+    ;
 
 //
 // Top-down transforms
@@ -121,6 +123,15 @@ associativeReduction:
 //    -> ^($op2 $rest $arg3)
 //    ;
 
+flattenTrivialBlocks:
+        ^(ACTION ^(BLOCK innerUnnamed=unnamedAction))
+        -> $innerUnnamed
+    |   ^(ACTION ^(BLOCK innerNamed=namedAction))
+        -> $innerNamed
+    |   ^(ACTION outerId=NCNAME ^(BLOCK ^(ACTION body=.)))
+        -> ^(ACTION $outerId $body)
+    ;
+
 //
 // Recognizer rules
 //
@@ -144,3 +155,29 @@ associativeOp:
     |   MAX_KYWD
     |   MIN_KYWD
     ;
+
+namedAction:
+        ^(ACTION NCNAME .)
+ ;
+
+unnamedAction:
+        ^(ACTION .)
+ ;
+
+condition:
+        ^(conditionKywd .)
+ ;
+
+
+conditionKywd:
+        END_CONDITION_KYWD
+    |   EXIT_CONDITION_KYWD
+    |   INVARIANT_CONDITION_KYWD
+    |   POST_CONDITION_KYWD
+    |   PRE_CONDITION_KYWD
+    |   REPEAT_CONDITION_KYWD
+    |   SKIP_CONDITION_KYWD
+    |   START_CONDITION_KYWD
+    ;
+
+        

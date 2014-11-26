@@ -135,8 +135,8 @@ public class Compiler
         PlexilTreeTransforms treeRewriter = new PlexilTreeTransforms(treeStream, state.sharedState);
         treeRewriter.setTreeAdaptor(adaptor);
         
-        // try {
-            Object rewriteResult = treeRewriter.downup(plan1, false); // , true) for debugging
+        try {
+            Object rewriteResult = treeRewriter.downup(plan1, false); // true for debugging, false for production
             if (state.maxErrorSeverity() > 0)
                 return null; // errors already reported
             PlexilTreeNode rewritePlan = (PlexilTreeNode) rewriteResult;
@@ -144,11 +144,11 @@ public class Compiler
                 return null; // TODO: error message
             }
             return rewritePlan;
-        // }
-        // catch (Throwable x) {
-        //     System.err.println("Second pass error: " + x);
-        // }
-        //return null;
+        }
+        catch (Throwable x) {
+            System.err.println("Second pass error: " + x);
+        }
+        return null;
     }
 
     // Generate Extended Plexil output

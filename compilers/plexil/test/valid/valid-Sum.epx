@@ -47,7 +47,7 @@
             </LoopVariableUpdate>
             <Action>
                 <Node LineNo="10" ColNo="4" NodeType="Assignment">
-                    <NodeId>BLOCK__1</NodeId>
+                    <NodeId>ASSIGNMENT__2</NodeId>
                     <NodeBody>
                         <Assignment>
                             <IntegerVariable>sum</IntegerVariable>

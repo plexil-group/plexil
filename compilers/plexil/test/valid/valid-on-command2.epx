@@ -8,32 +8,29 @@
             </Parameter>
         </CommandDeclaration>
     </GlobalDeclarations>
-    <Sequence LineNo="5" ColNo="2">
+    <OnCommand LineNo="5" ColNo="2">
         <NodeId>Root</NodeId>
-        <OnCommand LineNo="5" ColNo="2">
-            <NodeId>OnCommand__0</NodeId>
-            <VariableDeclarations>
-                <DeclareVariable LineNo="4" ColNo="19">
-                    <Name>y</Name>
-                    <Type>Integer</Type>
-                </DeclareVariable>
-            </VariableDeclarations>
-            <Name>
-                <StringValue>Bar</StringValue>
-            </Name>
-            <Node LineNo="5" ColNo="4" NodeType="Command">
-                <NodeId>COMMAND__1</NodeId>
-                <NodeBody>
-                    <Command>
-                        <Name>
-                            <StringValue>Foo</StringValue>
-                        </Name>
-                        <Arguments LineNo="6" ColNo="9">
-                            <IntegerVariable>y</IntegerVariable>
-                        </Arguments>
-                    </Command>
-                </NodeBody>
-            </Node>
-        </OnCommand>
-    </Sequence>
+        <VariableDeclarations>
+            <DeclareVariable LineNo="4" ColNo="19">
+                <Name>y</Name>
+                <Type>Integer</Type>
+            </DeclareVariable>
+        </VariableDeclarations>
+        <Name>
+            <StringValue>Bar</StringValue>
+        </Name>
+        <Node LineNo="5" ColNo="4" NodeType="Command">
+            <NodeId>COMMAND__1</NodeId>
+            <NodeBody>
+                <Command>
+                    <Name>
+                        <StringValue>Foo</StringValue>
+                    </Name>
+                    <Arguments LineNo="6" ColNo="9">
+                        <IntegerVariable>y</IntegerVariable>
+                    </Arguments>
+                </Command>
+            </NodeBody>
+        </Node>
+    </OnCommand>
 </PlexilPlan>

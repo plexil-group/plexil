@@ -1,6 +1,6 @@
 <PlexilPlan LineNo="3" ColNo="2" FileName="input/update3.ple">
     <Node LineNo="3" ColNo="2" NodeType="Update">
-        <NodeId>BLOCK__0</NodeId>
+        <NodeId>Update__1</NodeId>
         <NodeBody>
             <Update>
                 <Pair>
