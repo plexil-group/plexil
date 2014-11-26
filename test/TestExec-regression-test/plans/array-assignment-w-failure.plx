@@ -35,18 +35,16 @@
       </VariableDeclarations>
       <PostCondition>
          <AND>
-            <AND>
-               <BooleanVariable>spoil</BooleanVariable>
-               <EQNumeric>
-                  <ArrayElement>
-                     <Name>ary</Name>
-                     <Index>
-                        <IntegerValue>1</IntegerValue>
-                     </Index>
-                  </ArrayElement>
-                  <RealValue>42.0</RealValue>
-               </EQNumeric>
-            </AND>
+            <BooleanVariable>spoil</BooleanVariable>
+            <EQNumeric>
+               <ArrayElement>
+                  <Name>ary</Name>
+                  <Index>
+                     <IntegerValue>1</IntegerValue>
+                  </Index>
+               </ArrayElement>
+               <RealValue>42.0</RealValue>
+            </EQNumeric>
             <EQString>
                <ArrayElement>
                   <Name>sa</Name>
