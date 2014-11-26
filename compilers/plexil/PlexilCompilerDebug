@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,6 @@ fi
 . ${PLEXIL_HOME}/scripts/plexil-setup.sh
 
 JARS_DIR=${PLEXIL_HOME}/jars
-ANTLR_RUNTIME_JAR=antlr-3.4-complete-no-antlrv2.jar
+ANTLR_RUNTIME_JAR=antlr-3.5.2-complete-no-st3.jar
 
 jdb -classpath $JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler $@
