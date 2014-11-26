@@ -47,22 +47,18 @@
         </VariableDeclarations>
         <PostCondition LineNo="15" ColNo="2">
             <AND LineNo="15" ColNo="40">
-                <AND LineNo="15" ColNo="30">
-                    <AND LineNo="15" ColNo="17">
-                        <EQNumeric LineNo="15" ColNo="9">
-                            <RealVariable>t</RealVariable>
-                            <RealValue>-1.1</RealValue>
-                        </EQNumeric>
-                        <EQNumeric LineNo="15" ColNo="22">
-                            <RealVariable>s</RealVariable>
-                            <RealValue>-0.0</RealValue>
-                        </EQNumeric>
-                    </AND>
-                    <LT LineNo="15" ColNo="35">
-                        <IntegerVariable>j</IntegerVariable>
-                        <IntegerValue>-0</IntegerValue>
-                    </LT>
-                </AND>
+                <EQNumeric LineNo="15" ColNo="9">
+                    <RealVariable>t</RealVariable>
+                    <RealValue>-1.1</RealValue>
+                </EQNumeric>
+                <EQNumeric LineNo="15" ColNo="22">
+                    <RealVariable>s</RealVariable>
+                    <RealValue>-0.0</RealValue>
+                </EQNumeric>
+                <LT LineNo="15" ColNo="35">
+                    <IntegerVariable>j</IntegerVariable>
+                    <IntegerValue>-0</IntegerValue>
+                </LT>
                 <EQNumeric LineNo="15" ColNo="45">
                     <IntegerVariable>k</IntegerVariable>
                     <IntegerValue>-1</IntegerValue>

@@ -41,10 +41,10 @@ CLASSES_DIR			:= classes
 THIRD_PARTY_JAR_DIR	:= $(PLEXIL_HOME)/jars
 
 # Files
-PARSER_SRCS		:= $(PARSER_SRC_DIR)/Plexil.g $(PARSER_SRC_DIR)/PlexilTree.g
+PARSER_SRCS		:= $(PARSER_SRC_DIR)/Plexil.g $(PARSER_SRC_DIR)/PlexilTreeTransforms.g
 PARSER_JAVA		:= $(PARSER_JAVA_SRC_DIR)/PlexilLexer.java \
                    $(PARSER_JAVA_SRC_DIR)/PlexilParser.java \
-                   $(PARSER_JAVA_SRC_DIR)/PlexilTree.java
+                   $(PARSER_JAVA_SRC_DIR)/PlexilTreeTransforms.java
 PARSER_CLASSES	:= $(PARSER_JAVA:$(PARSER_JAVA_SRC_DIR)/%.java=$(CLASSES_DIR)/plexil/%.class)
 JAVA_SRCS		:= $(wildcard $(JAVA_SRC_DIR)/*.java)
 JAVA_CLASSES	:= $(JAVA_SRCS:$(JAVA_SRC_DIR)/%.java=$(CLASSES_DIR)/plexil/%.class)
@@ -86,7 +86,7 @@ $(CLASSES_DIR):
 $(PARSER_JAVA_SRC_DIR)/PlexilLexer.java $(PARSER_JAVA_SRC_DIR)/PlexilParser.java: $(PARSER_SRC_DIR)/Plexil.g
 	$(ANTLR) $(ANTLR_OPTS) $<
 
-$(PARSER_JAVA_SRC_DIR)/PlexilTree.java: $(PARSER_SRC_DIR)/PlexilTree.g
+$(PARSER_JAVA_SRC_DIR)/PlexilTreeTransforms.java: $(PARSER_SRC_DIR)/PlexilTreeTransforms.g $(PARSER_SRC_DIR)/Plexil.g
 	$(ANTLR) $(ANTLR_OPTS) $<
 
 $(JAVA_CLASSES): $(CLASSES_DIR)/plexil/%.class : $(JAVA_SRC_DIR)/%.java | $(PARSER_JAVA) $(JAVA_SRCS)

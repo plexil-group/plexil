@@ -345,13 +345,9 @@
                     <DurationVariable>dur1</DurationVariable>
                     <NumericRHS>
                         <ADD LineNo="67" ColNo="42">
-                            <ADD LineNo="67" ColNo="21">
-                                <ADD LineNo="67" ColNo="14">
-                                    <DurationVariable>dur1</DurationVariable>
-                                    <DurationVariable>dur2</DurationVariable>
-                                </ADD>
-                                <DurationValue>PT0.5S</DurationValue>
-                            </ADD>
+                            <DurationVariable>dur1</DurationVariable>
+                            <DurationVariable>dur2</DurationVariable>
+                            <DurationValue>PT0.5S</DurationValue>
                             <DurationVariable>dur2</DurationVariable>
                         </ADD>
                     </NumericRHS>
@@ -365,10 +361,8 @@
                     <DateVariable>dat1</DateVariable>
                     <NumericRHS>
                         <ADD LineNo="68" ColNo="21">
-                            <ADD LineNo="68" ColNo="14">
-                                <DateVariable>dat1</DateVariable>
-                                <DurationVariable>dur1</DurationVariable>
-                            </ADD>
+                            <DateVariable>dat1</DateVariable>
+                            <DurationVariable>dur1</DurationVariable>
                             <DurationValue>PT0.5S</DurationValue>
                         </ADD>
                     </NumericRHS>
@@ -410,10 +404,8 @@
                     <DurationVariable>dur2</DurationVariable>
                     <NumericRHS>
                         <SUB LineNo="74" ColNo="21">
-                            <SUB LineNo="74" ColNo="14">
-                                <DateVariable>dat1</DateVariable>
-                                <DateVariable>dat2</DateVariable>
-                            </SUB>
+                            <DateVariable>dat1</DateVariable>
+                            <DateVariable>dat2</DateVariable>
                             <DurationVariable>dur1</DurationVariable>
                         </SUB>
                     </NumericRHS>
@@ -427,10 +419,8 @@
                     <DurationVariable>dur1</DurationVariable>
                     <NumericRHS>
                         <SUB LineNo="75" ColNo="21">
-                            <SUB LineNo="75" ColNo="14">
-                                <DurationVariable>dur1</DurationVariable>
-                                <DurationVariable>dur2</DurationVariable>
-                            </SUB>
+                            <DurationVariable>dur1</DurationVariable>
+                            <DurationVariable>dur2</DurationVariable>
                             <DurationVariable>dur1</DurationVariable>
                         </SUB>
                     </NumericRHS>
@@ -444,10 +434,8 @@
                     <DateVariable>dat1</DateVariable>
                     <NumericRHS>
                         <SUB LineNo="76" ColNo="21">
-                            <SUB LineNo="76" ColNo="14">
-                                <DateVariable>dat1</DateVariable>
-                                <DurationVariable>dur1</DurationVariable>
-                            </SUB>
+                            <DateVariable>dat1</DateVariable>
+                            <DurationVariable>dur1</DurationVariable>
                             <DurationVariable>dur2</DurationVariable>
                         </SUB>
                     </NumericRHS>

@@ -65,10 +65,8 @@
         <InvariantCondition LineNo="9" ColNo="2">
             <GT LineNo="9" ColNo="22">
                 <ADD LineNo="9" ColNo="18">
-                    <ADD LineNo="9" ColNo="14">
-                        <IntegerVariable>i</IntegerVariable>
-                        <IntegerVariable>j</IntegerVariable>
-                    </ADD>
+                    <IntegerVariable>i</IntegerVariable>
+                    <IntegerVariable>j</IntegerVariable>
                     <RealVariable>r</RealVariable>
                 </ADD>
                 <IntegerValue>2</IntegerValue>

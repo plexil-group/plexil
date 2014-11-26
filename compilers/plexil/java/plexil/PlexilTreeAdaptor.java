@@ -40,7 +40,26 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         if (payload == null)
             return new PlexilTreeNode(payload);
 
-        switch (payload.getType()) {
+        return this.create(payload.getType(), payload);
+    }
+
+    public Object create(int tokenType, String text)
+    {
+        return this.create(tokenType,
+                           this.createToken(tokenType, text));
+    }
+
+    public Object create(int tokenType, Token fromToken, String text)
+    {
+        Token t = this.createToken(fromToken);
+        t.setType(tokenType);
+        t.setText(text);
+        return this.create(tokenType, t);
+    }
+
+    public Object create(int tokenType, Token payload)
+    {
+        switch (tokenType) {
             // Arithmetic operators
         case PlexilLexer.ABS_KYWD:
         case PlexilLexer.ASTERISK:

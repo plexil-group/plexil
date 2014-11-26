@@ -58,16 +58,8 @@ public class Compiler
             System.exit(0);
         }
 
-        // Pass 2: Tree parse & transformations
-        // *** DISABLED until something useful is done in this pass ***
-        // PlexilTreeNode plan2 = pass2(plan1, state);
-        // if (state.debug) {
-        // 	System.err.println("Pass 2 output:");
-        // 	System.err.println(plan2.toStringTree());
-        // }
-
-        // Pass 3: semantic checks
-        if (!pass3(plan1, state)) {
+        // Pass 2: semantic checks
+        if (!pass2(plan1, state)) {
             for (Diagnostic d : state.getDiagnostics()) {
                 System.err.println(d.toString());
             }
@@ -80,15 +72,22 @@ public class Compiler
             System.exit(0);
         }
 
+        // Pass 3: Tree parse & transformations
+        PlexilTreeNode plan2 = pass3(plan1, state);
+        if (state.debug) {
+        	System.err.println("Pass 3 output:");
+        	System.err.println(plan2.toStringTree());
+        }
+
         // Pass 4: generate Extended Plexil XML
-        if (!pass4(plan1, state)) {
+        if (!pass4(plan2, state)) {
             System.out.println("Internal error: XML generation failed. Compilation aborted.");
             System.exit(-1);
         }
 
         // Pass 5: translate Extended Plexil to Core Plexil
         if (!state.epxOnly) {
-            if (!pass5(plan1, state)) {
+            if (!pass5(plan2, state)) {
                 System.out.println("Internal error: translation from Extended Plexil XML failed. Compilation aborted.");
                 System.exit(-1);
             }
@@ -97,6 +96,7 @@ public class Compiler
         System.exit(0);
     }
 
+    // Parse the plan
     public static PlexilTreeNode pass1(CompilerState state)
     {
         PlexilLexer lexer = new PlexilLexer(state.getInputStream(), state.sharedState);
@@ -108,10 +108,9 @@ public class Compiler
         try {
             PlexilParser.plexilPlan_return planReturn = 
                 parser.plexilPlan();
-            if (state.maxErrorSeverity() <= 0)
-                return (PlexilTreeNode) planReturn.getTree();
-            else
+            if (state.maxErrorSeverity() > 0)
                 return null;
+            return (PlexilTreeNode) planReturn.getTree();
         }
         catch (RecognitionException x) {
             System.out.println("First pass error: " + x);
@@ -119,24 +118,8 @@ public class Compiler
         return null;
     }
 
-    public static PlexilTreeNode pass2(PlexilTreeNode plan1, CompilerState state)
-    {
-        CommonTreeNodeStream treeStream = new CommonTreeNodeStream(plan1);
-        PlexilTree treeParser = new PlexilTree(treeStream, state.sharedState);
-        treeParser.setTreeAdaptor(new PlexilTreeAdaptor());
-
-        try {
-            PlexilTree.plexilPlan_return planReturn = 
-                treeParser.plexilPlan();
-            return (PlexilTreeNode) planReturn.getTree();
-        }
-        catch (RecognitionException x) {
-            System.err.println("Second pass error: " + x);
-        }
-        return null;
-    }
-
-    public static boolean pass3(PlexilTreeNode plan, CompilerState state)
+    // Perform checks on the plan
+    public static boolean pass2(PlexilTreeNode plan, CompilerState state)
     {
         GlobalContext gcontext = GlobalContext.getGlobalContext();
         plan.earlyCheck(gcontext, state);
@@ -144,6 +127,31 @@ public class Compiler
         return state.maxErrorSeverity() <= 0;
     }
 
+    // Transform the plan prior to output generation
+    public static PlexilTreeNode pass3(PlexilTreeNode plan1, CompilerState state)
+    {
+        TreeAdaptor adaptor = new PlexilTreeAdaptor();
+        TreeNodeStream treeStream = new CommonTreeNodeStream(adaptor, plan1);
+        PlexilTreeTransforms treeRewriter = new PlexilTreeTransforms(treeStream, state.sharedState);
+        treeRewriter.setTreeAdaptor(adaptor);
+        
+        // try {
+            Object rewriteResult = treeRewriter.downup(plan1, false); // , true) for debugging
+            if (state.maxErrorSeverity() > 0)
+                return null; // errors already reported
+            PlexilTreeNode rewritePlan = (PlexilTreeNode) rewriteResult;
+            if (rewritePlan == null) {
+                return null; // TODO: error message
+            }
+            return rewritePlan;
+        // }
+        // catch (Throwable x) {
+        //     System.err.println("Second pass error: " + x);
+        // }
+        //return null;
+    }
+
+    // Generate Extended Plexil output
     public static boolean pass4(PlexilTreeNode plan, CompilerState state)
     {
         IXMLElement planXML = null;
@@ -163,6 +171,7 @@ public class Compiler
         }
     }
 
+    // Expand the Extended Plexil into Core Plexil
     public static boolean pass5(PlexilTreeNode plan, CompilerState state)
     {
         File epxFile = state.getEpxFile();
