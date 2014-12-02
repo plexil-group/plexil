@@ -986,7 +986,7 @@ element.  It is used as an included schema only.
 
   <xsd:element name="SUB">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="unbounded"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
