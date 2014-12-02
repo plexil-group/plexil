@@ -142,7 +142,6 @@ NodeTimepointValue =
 IterationEnded =
   notAllowed
   | element IterationEnded { node-reference }
-NCName = xsd:NCName
 MAX =
   notAllowed
   | element MAX { SourceLocators, NumericExpression, NumericExpression }
@@ -321,7 +320,6 @@ ExitCondition =
 PostCondition =
   notAllowed
   | element PostCondition { SourceLocators, BooleanExpression }
-nonNegativeInteger = xsd:nonNegativeInteger
 InvariantFailed =
   notAllowed
   | element InvariantFailed { node-reference }
@@ -373,6 +371,7 @@ Node =
        & NodeBody?)
     }
 NodeState = NodeStateVariable | NodeStateValue
+NCName = xsd:NCName
 FLOOR =
   notAllowed
   | element FLOOR { SourceLocators, NumericExpression }
@@ -415,11 +414,20 @@ If =
       NodeClauses+,
       element Condition { BooleanExpression },
       element Then { Action },
+      element ElseIf {
+        element Condition { BooleanExpression },
+        element Then { Action }
+      }*,
       element Else { Action }?
     }
 SUB =
   notAllowed
-  | element SUB { SourceLocators, NumericExpression, NumericExpression }
+  | element SUB {
+      SourceLocators,
+      NumericExpression,
+      NumericExpression,
+      NumericExpression*
+    }
 OnCommand =
   notAllowed
   | element OnCommand { SourceLocators, NodeClauses+, Name, Action? }
@@ -435,6 +443,7 @@ EQString =
       SourceLocators, StringExpression, StringExpression
     }
 NodeFailure = NodeFailureVariable | NodeFailureValue
+nonNegativeInteger = xsd:nonNegativeInteger
 DateValue =
   notAllowed
   | element DateValue { xsd:string }
@@ -539,6 +548,7 @@ LookupOnChange =
 DIV =
   notAllowed
   | element DIV { SourceLocators, NumericExpression, NumericExpression }
+\string = xsd:string
 DeclareArray =
   notAllowed
   | element DeclareArray {
@@ -588,7 +598,6 @@ StringValue =
 IntegerVariable =
   notAllowed
   | element IntegerVariable { NCName }
-\string = xsd:string
 StringRHS =
   notAllowed
   | element StringRHS { SourceLocators, StringExpression }

@@ -301,7 +301,12 @@ Interface =
   | element Interface { SourceLocators, (In? & InOut?) }
 SUB =
   notAllowed
-  | element SUB { SourceLocators, NumericExpression, NumericExpression }
+  | element SUB {
+      SourceLocators,
+      NumericExpression,
+      NumericExpression,
+      NumericExpression*
+    }
 ROUND =
   notAllowed
   | element ROUND { SourceLocators, NumericExpression }

@@ -161,9 +161,6 @@
             </element>
         </choice>
     </define>
-    <define name="NCName">
-        <data type="NCName"/>
-    </define>
     <define name="MAX">
         <choice>
             <notAllowed/>
@@ -512,9 +509,6 @@
             </element>
         </choice>
     </define>
-    <define name="nonNegativeInteger">
-        <data type="nonNegativeInteger"/>
-    </define>
     <define name="InvariantFailed">
         <choice>
             <notAllowed/>
@@ -663,6 +657,9 @@
             <ref name="NodeStateValue"/>
         </choice>
     </define>
+    <define name="NCName">
+        <data type="NCName"/>
+    </define>
     <define name="FLOOR">
         <choice>
             <notAllowed/>
@@ -761,6 +758,16 @@
                 <element name="Then">
                     <ref name="Action"/>
                 </element>
+                <zeroOrMore>
+                    <element name="ElseIf">
+                        <element name="Condition">
+                            <ref name="BooleanExpression"/>
+                        </element>
+                        <element name="Then">
+                            <ref name="Action"/>
+                        </element>
+                    </element>
+                </zeroOrMore>
                 <optional>
                     <element name="Else">
                         <ref name="Action"/>
@@ -776,6 +783,9 @@
                 <ref name="SourceLocators"/>
                 <ref name="NumericExpression"/>
                 <ref name="NumericExpression"/>
+                <zeroOrMore>
+                    <ref name="NumericExpression"/>
+                </zeroOrMore>
             </element>
         </choice>
     </define>
@@ -826,6 +836,9 @@
             <ref name="NodeFailureVariable"/>
             <ref name="NodeFailureValue"/>
         </choice>
+    </define>
+    <define name="nonNegativeInteger">
+        <data type="nonNegativeInteger"/>
     </define>
     <define name="DateValue">
         <choice>
@@ -1115,6 +1128,9 @@
             </element>
         </choice>
     </define>
+    <define name="string">
+        <data type="string"/>
+    </define>
     <define name="DeclareArray">
         <choice>
             <notAllowed/>
@@ -1239,9 +1255,6 @@
                 <ref name="NCName"/>
             </element>
         </choice>
-    </define>
-    <define name="string">
-        <data type="string"/>
     </define>
     <define name="StringRHS">
         <choice>

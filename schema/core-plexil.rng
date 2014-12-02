@@ -597,6 +597,9 @@
                 <ref name="SourceLocators"/>
                 <ref name="NumericExpression"/>
                 <ref name="NumericExpression"/>
+                <zeroOrMore>
+                    <ref name="NumericExpression"/>
+                </zeroOrMore>
             </element>
         </choice>
     </define>
