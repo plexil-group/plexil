@@ -1,6 +1,6 @@
 # Makefile for Plexil compiler test suite
 
-# Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
               sequence0 sequence1 sequence2 sequence3 \
               assignment0 assignment1 assignment2 \
               comment1 concurrence0 concurrence1 concurrence2 concurrence3 \
-              Fibs Fib PrintFib FibTest LibraryCall1 LibraryCall2 LibraryCall3 \
+              Fibs Fib PrintFib FibTest \
               CopyReals on-command1 on-command2 isKnown1 for1 for2 \
               on-message1 on-message2 concat1 nodeState1 nodeState2 \
               nodeOutcome1 command-handle1 interface-test interface-test1 \
@@ -39,7 +39,9 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
               Decrement Increment Sum RoboSimSimple2 SimpleDrive \
               array-add array-complex array-copy basic-wait-test boolean1 \
               duplicate-node-name ifWithClauseIds DriveToTarget Exchange \
-              library-call1 library-node1 LibraryCallWithArray literal-format-test \
+              LibraryCall1 LibraryCall2 LibraryCall3 LibraryCall4 \
+              library-call1 LibraryCallWithArray \
+              library-node1 literal-format-test \
               if2 if3 if4 test-recv test-send \
               lookup2 LookupWithComputedStateName \
               maxTest minTest mod1 expr1 expr3 expr4 \
@@ -52,8 +54,8 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
 
 SYNTAX_ERROR_TESTS   = array-library-call
 
-SEMANTIC_ERROR_TESTS = on-message3 duplicateLookupDecl1 expr5 expr2 lookup1
-#SEMANTIC_ERROR_TESTS = on-message3 duplicateLookupDecl1 expr5 expr2 lookup1 lookupTypo
+SEMANTIC_ERROR_TESTS = on-message3 duplicateLookupDecl1 expr5 expr2 lookup1 \
+          LibraryCall5 LibraryCall6
 
 TESTS	         := $(SMALL_TESTS)
 
@@ -63,41 +65,45 @@ VALID_TESTS	:= $(TESTS)
 
 VALID_TEST_FILES := $(VALID_TESTS:%=input/%.ple)
 
-default: test
+EPX_SCHEMA := $(PLEXIL_HOME)/schema/extended-plexil.xsd
 
-all: setup valid-tests syntax-error-tests semantic-error-tests
+all: test syntax-error-tests semantic-error-tests
 
 setup:
-	@-$(RM) tempRegressionResults
-
-valid-tests: $(VALID_TEST_FILES) output | setup
-	@ failure=0 ; \
-	touch tempRegressionResults ; \
-	echo '--- Begin valid-file tests ---' >> tempRegressionResults ; \
-	for f in $(VALID_TEST_FILES) ; do \
-		./validate $$f 2>> tempRegressionResults ; \
-		if [ $$? -ne 0 ] ; then failure=1 ; echo $$f: validation failed ; fi; \
-	done ; \
-	exit $${failure}
+	@-$(RM) tempRegressionResults ; touch tempRegressionResults
 
 # Temporary file
 DIFF = /tmp/plexil-$$$$
 
-test: output
+test: | setup output
 	@ echo Translating Standard Plexil tests...
-	@ $(RM) -f output/*.epx
-	@ for i in $(TESTS); do \
-	        ../PlexilCompiler --epx-only -o output/$$i.epx input/$$i.ple ; \
-		diff output/$$i.epx valid/valid-$$i.epx \
-		  > $(DIFF) ; \
+	@ failure=0;\
+	echo '--- Begin validation tests ---' ; \
+	for i in $(TESTS); do \
+		../PlexilCompiler --epx-only -o output/$$i.epx input/$$i.ple ; \
+		xmllint --noout --schema $(EPX_SCHEMA) output/$$i.epx 2>>tempRegressionResults 1>&2 ; \
+		if [ $$? -ne 0 ] ; then \
+			echo "*** Validation of $$i.epx failed" >> tempRegressionResults ; \
+			echo "*** Validation of $$i.epx failed" ; \
+			failure=1 ; \
+		fi ; \
+		diff output/$$i.epx valid/valid-$$i.epx > $(DIFF) ; \
 		diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \
 		if [ $$diffsize -eq 0 ] ; then \
-		  echo "     Verified $$i.epx" ; \
+		  echo "Verified $$i.epx" >> tempRegressionResults ; \
+		  echo "Verified $$i.epx" ; \
 		else \
-		  echo WARNING: $$i.epx does not verify! ; \
+			cat diff >> tempRegressionResults ; \
+			echo "*** Verification of $$i.epx failed ***" >> tempRegressionResults ; \
+			echo "*** Verification of $$i.epx failed ***" ; \
+			failure=1 ; \
 		fi ; \
-	  done
-	@ echo Finished.
+	done ; \
+    if [ $${failure} -ne 0 ] ; then \
+		echo '*** Validation tests failed ***' ; \
+		exit $${failure} ; \
+	fi ; \
+	echo '--- Validation tests complete ---'
 
 # For developers: Check the current output agains the benchmarks.
 checkall:
@@ -111,31 +117,42 @@ passall:
 		./pass $$i ; \
 	  done
 
-syntax-error-tests: output
+syntax-error-tests: | setup output
 	@ syntactic_failure=0; \
-	touch tempRegressionResults ; \
-	echo '--- Begin syntax error tests ---' >> tempRegressionResults ; \
+	echo '--- Begin syntax checking tests ---' ; \
+	echo '--- Begin syntax checking tests ---' >> tempRegressionResults ; \
 	for f in $(SYNTAX_ERROR_TESTS) ; do \
 		echo $$f >> tempRegressionResults ; \
 		../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
 		if [ $$? -eq 0 ] ; then syntactic_failure=1 ; echo $$f.ple: failed to detect expected syntax error ; fi ; \
 	done ; \
-	exit $${syntactic_failure}
+	if [ $${syntactic_failure} -ne 0 ] ; then \
+		echo '*** Syntax checking tests failed ***' ; \
+		exit $${syntactic_failure} ; \
+	fi ; \
+	echo '--- Syntax error tests passed ---'
 
-semantic-error-tests: output
+semantic-error-tests: | setup output
 	@ semantic_failure=0; \
-	touch tempRegressionResults ; \
-	echo '--- Begin semantic error tests ---' >> tempRegressionResults ; \
+	echo '--- Begin semantic checking tests ---' ; \
+	echo '--- Begin semantic checking tests ---' >> tempRegressionResults ; \
 	for f in $(SEMANTIC_ERROR_TESTS) ; do \
 		echo $$f >> tempRegressionResults ; \
 		../PlexilCompiler --epx-only -o output/$$f.epx input/$$f.ple 1>> tempRegressionResults 2>&1 ; \
 		if [ $$? -eq 0 ] ; then semantic_failure=1 ; echo $$f.ple: failed to detect expected semantic error ; fi ; \
 	done ; \
-	exit $${semantic_failure}
+	if [ $${semantic_failure} -ne 0 ] ; then \
+		echo '*** Semantic checking tests failed ***' ; \
+		exit $${semantic_failure} ; \
+	fi ; \
+	echo '--- Semantic checking tests passed ---'
 
 output:
-	-mkdir -p output
+	@mkdir -p output
+	@$(RM) -f output/*.epx
 
 clean:
 #	-$(RM) -r output
 	-$(RM) tempRegressionResults input/*.epx input/*.plx output/*.epx
+
+.PHONY: setup output
