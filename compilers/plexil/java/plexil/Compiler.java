@@ -136,7 +136,7 @@ public class Compiler
         treeRewriter.setTreeAdaptor(adaptor);
         
         try {
-            Object rewriteResult = treeRewriter.downup(plan1, false); // true for debugging, false for production
+            Object rewriteResult = treeRewriter.downup(plan1, state.debug);
             if (state.maxErrorSeverity() > 0)
                 return null; // errors already reported
             PlexilTreeNode rewritePlan = (PlexilTreeNode) rewriteResult;

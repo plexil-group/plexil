@@ -59,7 +59,6 @@ LOWER_BOUND_KYWD = 'LowerBound';
 RELEASE_AT_TERM_KYWD = 'ReleaseAtTermination';
 
 PRIORITY_KYWD = 'Priority';
-PERMISSIONS_KYWD = 'Permissions';
 
 // Interface declarations
 IN_KYWD = 'In';
@@ -545,8 +544,7 @@ nodeDeclaration :
 nodeAttribute :
     nodeCondition
   | priority
-  | resource
-  | permissions ;
+  | resource ;
 
 nodeCondition
 @init { m_paraphrases.push("in condition"); }
@@ -584,11 +582,6 @@ priority
 @init { m_paraphrases.push("in priority"); }
 @after { m_paraphrases.pop(); }
  : PRIORITY_KYWD<PriorityNode>^ INT SEMICOLON! ;
-
-permissions
-@init { m_paraphrases.push("in permissions"); }
-@after { m_paraphrases.pop(); }
- : PERMISSIONS_KYWD^ STRING SEMICOLON! ;
 
 interfaceDeclaration : in | inOut ;
 

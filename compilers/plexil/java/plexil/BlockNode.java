@@ -191,7 +191,6 @@ public class BlockNode extends PlexilTreeNode
                     break;
 
                 case PlexilLexer.PRIORITY_KYWD:
-                case PlexilLexer.PERMISSIONS_KYWD:
                     m_attributes.add(child);
                     break;
 

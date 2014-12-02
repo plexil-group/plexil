@@ -268,7 +268,6 @@ typeName :
 
 nodeAttribute :
     nodeCondition
-  | permissions
   | priority
   | resource
  ;
@@ -285,10 +284,6 @@ conditionKywd :
   | REPEAT_CONDITION_KYWD
   | SKIP_CONDITION_KYWD
   | START_CONDITION_KYWD
- ;
-
-permissions : 
-    ^(PERMISSIONS_KYWD STRING)
  ;
 
 priority : 
