@@ -28,23 +28,29 @@ DIFF = /tmp/plexil-$$$$
 
 default: test
 
-translated:
+output:
 	@ mkdir -p $@
 
-test: translated
-	@ echo Translating Extended Plexil tests...
-	@ for i in $(TESTS); do \
-	        eplexil $$i.epx translated/$$i.plx ; \
-		xmllint --noout --schema ../core-plexil.xsd translated/$$i.plx ; \
-		diff translated/$$i.plx verified/verified-$$i.plx \
+test: output
+	@ test_failed=0; \
+	for i in $(TESTS); do \
+		eplexil input/$$i.epx output/$$i.plx ; \
+		if [ $$? -ne 0 ] ; then \
+			test_failed=1 ; \
+			echo "*** Translation of input/$$i.epx failed ***" ;\
+			exit 1 ; \
+		fi ; \
+		xmllint --noout --schema ../core-plexil.xsd output/$$i.plx ; \
+		if [ $$? -ne 0 ] ; then test_failed=1 ; fi ; \
+		diff output/$$i.plx verified/verified-$$i.plx \
 		  > $(DIFF) ; \
 		diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \
-		if [ $$diffsize -eq 0 ] ; then \
-		  echo "     Verified $$i.plx" ; \
-		else \
-		  echo WARNING: $$i.plx does not verify! ; \
+		if [ $$diffsize -ne 0 ] ; then \
+			test_failed=1 ; \
+			echo "*** output/$$i.plx failed verification ***" ; \
 		fi ; \
-	  done
+	done ; \
+	if [ $$test_failed -ne 0 ] ; then echo 'Test(s) failed.' ; exit 1 ; fi 
 	@ echo Finished.
 
 # For developers: Check the current output against the benchmarks.
@@ -61,4 +67,6 @@ passall:
 
 # For developers: Clean out the generated files.
 clean:
-	@ $(RM) -rf translated
+	@ $(RM) -rf output
+
+.PHONY: test clean
