@@ -114,17 +114,10 @@ public class LibraryCallNode extends PlexilTreeNode
 
                     used.add(paramName);
                     if (param.isAssignable()) {
-                        if (alias.getType() == PlexilLexer.CONST_ALIAS) {
+                        if (!valueExp.isAssignable()) {
                             state.addDiagnostic(alias,
                                                 "Library action parameter \"" + paramName
-                                                + "\" is declared InOut, so must be aliased to a variable",
-                                                Severity.ERROR);
-                        }
-                        else if (!valueExp.isAssignable()) {
-                            state.addDiagnostic(alias,
-                                                "Library action parameter \"" + paramName
-                                                + "\" is declared InOut, but is aliased to In variable \""
-                                                + valueExp.getText() + "\"",
+                                                + "\" is declared InOut, but is aliased to a read-only expression",
                                                 Severity.ERROR);
                         }
                     }

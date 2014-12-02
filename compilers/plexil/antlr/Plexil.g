@@ -223,6 +223,7 @@ DOUBLE;
 PLEXIL; // top node of parse tree
 
 ACTION;
+ALIAS;
 ALIASES;
 ARGUMENT_LIST;
 ARRAY_TYPE;
@@ -234,7 +235,6 @@ BLOCK;
 BOOLEAN_COMPARISON;
 COMMAND;
 CONCAT;
-CONST_ALIAS;
 DATE_LITERAL;
 DURATION_LITERAL;
 GLOBAL_DECLARATIONS;
@@ -244,7 +244,6 @@ PARAMETERS;
 SEQUENCE; // used in tree parser
 STATE_NAME;
 STRING_COMPARISON;
-VARIABLE_ALIAS;
 VARIABLE_DECLARATION;
 VARIABLE_DECLARATIONS;
 NEG_INT;
@@ -773,21 +772,10 @@ aliasSpecs :
   -> ^(ALIASES aliasSpec*)
   ;
 
-// must disambiguate
-aliasSpec : 
-  ( (NCNAME EQUALS NCNAME) )=> varAlias
-  | constAlias
+aliasSpec :
+  NCNAME EQUALS expression
+        -> ^(ALIAS NCNAME expression)
  ;
-
-constAlias : 
-    nodeParameterName EQUALS literalValue
-	-> ^(CONST_ALIAS nodeParameterName literalValue)
-  ;
-
-varAlias : 
-    nodeParameterName EQUALS variable
-    -> ^(VARIABLE_ALIAS nodeParameterName variable)
-  ;
 
 nodeParameterName : NCNAME ;
 
