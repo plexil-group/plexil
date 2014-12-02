@@ -1,1 +1,1 @@
-cp translated/$1.plx translated/verified-$1.plx
+cp translated/$1.plx verified/verified-$1.plx

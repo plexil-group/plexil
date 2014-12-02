@@ -28,12 +28,15 @@ DIFF = /tmp/plexil-$$$$
 
 default: test
 
-test:
+translated:
+	@ mkdir -p $@
+
+test: translated
 	@ echo Translating Extended Plexil tests...
 	@ for i in $(TESTS); do \
 	        eplexil $$i.epx translated/$$i.plx ; \
 		xmllint --noout --schema ../core-plexil.xsd translated/$$i.plx ; \
-		diff translated/$$i.plx translated/verified-$$i.plx \
+		diff translated/$$i.plx verified/verified-$$i.plx \
 		  > $(DIFF) ; \
 		diffsize=`wc $(DIFF) | awk '{print $$1}'` ; \
 		if [ $$diffsize -eq 0 ] ; then \
@@ -58,6 +61,4 @@ passall:
 
 # For developers: Clean out the generated files.
 clean:
-	@for test in $(TESTS); do \
-		$(RM) translated/$$test.plx ; \
-	done
+	@ $(RM) -rf translated
