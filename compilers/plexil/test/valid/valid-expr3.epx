@@ -70,10 +70,7 @@
                                 </ADD>
                                 <IntegerVariable>j</IntegerVariable>
                             </SUB>
-                            <MUL LineNo="10" ColNo="31">
-                                <RealValue>1.0</RealValue>
-                                <IntegerVariable>i</IntegerVariable>
-                            </MUL>
+                            <IntegerVariable>i</IntegerVariable>
                         </ADD>
                     </NumericRHS>
                 </Assignment>

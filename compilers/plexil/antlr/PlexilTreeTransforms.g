@@ -81,8 +81,12 @@ topdown:
 
 bottomup:
         exitContext
-    |   associativeReduction
+    |   leftAssociativeReduction
+    |   rightAssociativeReduction
+    |   identityElision
+    |   trivialReduction    
     |   flattenTrivialBlocks
+    |   flattenTrivialConcurrences
     ;
 
 //
@@ -108,20 +112,61 @@ exitContext:
             // System.out.println("Restore context " + m_context.getNodeName()); // DEBUG
         } ;
 
-// Combine binary ops where appropriate
-associativeReduction:
-        ^(AND_KYWD ^(AND_KYWD (args+=.)+) argn=.) -> ^(AND_KYWD ($args)+ $argn)
-    |   ^(OR_KYWD ^(OR_KYWD (args+=.)+) argn=.)   -> ^(OR_KYWD ($args)+ $argn)
-    |   ^(PLUS ^(PLUS (args+=.)+) argn=.)         -> ^(PLUS ($args)+ $argn)
-    |   ^(MINUS ^(MINUS (args+=.)+) argn=.)       -> ^(MINUS ($args)+ $argn)
-    |   ^(ASTERISK ^(ASTERISK (args+=.)+) argn=.) -> ^(ASTERISK ($args)+ $argn)
-    |   ^(MAX_KYWD ^(MAX_KYWD (args+=.)+) argn=.) -> ^(MAX_KYWD ($args)+ $argn)
-    |   ^(MIN_KYWD ^(MIN_KYWD (args+=.)+) argn=.) -> ^(MIN_KYWD ($args)+ $argn)
+//
+// Expression simplification
+//
+
+// Combine instances of same binary operator when appropriate
+
+leftAssociativeReduction:
+        ^(AND_KYWD ^(AND_KYWD (args+=.)+) args+=.) -> ^(AND_KYWD $args+)
+    |   ^(OR_KYWD ^(OR_KYWD (args+=.)+) args+=.)   -> ^(OR_KYWD $args+)
+    |   ^(PLUS ^(PLUS (args+=.)+) args+=.)         -> ^(PLUS $args+)
+    |   ^(MINUS ^(MINUS args+=. (args+=.)+) args+=.)       -> ^(MINUS $args+)
+    |   ^(ASTERISK ^(ASTERISK (args+=.)+) args+=.) -> ^(ASTERISK $args+)
+    |   ^(SLASH ^(SLASH args+=. (args+=.)+) args+=.) -> ^(ASTERISK $args+)
+    |   ^(MAX_KYWD ^(MAX_KYWD (args+=.)+) args+=.) -> ^(MAX_KYWD $args+)
+    |   ^(MIN_KYWD ^(MIN_KYWD (args+=.)+) args+=.) -> ^(MIN_KYWD $args+)
     ;
 
-//        ^(op1=associativeOp ^(op2=associativeOp (rest+=.)+) arg3=. {$op1.start.getType() == $op2.start.getType()}? )
-//    -> ^($op2 $rest $arg3)
-//    ;
+rightAssociativeReduction:
+        ^(AND_KYWD (args+=.)+ ^(AND_KYWD (args+=.)+) ) -> ^(AND_KYWD $args+)
+    |   ^(OR_KYWD (args+=.)+ ^(OR_KYWD (args+=.)+))   -> ^(OR_KYWD $args+)
+    |   ^(PLUS (args+=.)+ ^(PLUS (args+=.)+))         -> ^(PLUS $args+)
+    |   ^(ASTERISK (args+=.)+ ^(ASTERISK (args+=.)+)) -> ^(ASTERISK $args+)
+    |   ^(MAX_KYWD (args+=.)+ ^(MAX_KYWD (args+=.)+)) -> ^(MAX_KYWD $args+)
+    |   ^(MIN_KYWD (args+=.)+ ^(MIN_KYWD (args+=.)+)) -> ^(MIN_KYWD $args+)
+    ;
+
+trivialReduction:
+        ^(AND_KYWD arg=.) -> $arg
+    |   ^(OR_KYWD arg=.) -> $arg
+    |   ^(PLUS arg=.) -> $arg
+    |   ^(MINUS arg=.) -> $arg
+    |   ^(ASTERISK arg=.) -> $arg
+    |   ^(SLASH arg=.) -> $arg
+    |   ^(MAX_KYWD arg=.) -> $arg
+    |   ^(MIN_KYWD arg=.) -> $arg
+    ;
+
+//
+// Constant propagation
+//
+
+identityElision:
+        ^(AND_KYWD (args+=.)* TRUE_KYWD (args+=.)*) -> ^(AND_KYWD $args*)
+    |   ^(OR_KYWD (args+=.)* FALSE_KYWD (args+=.)*) -> ^(OR_KYWD $args*)
+    |   ^(PLUS (args+=.)* i=INT (args+=.)* {Integer.valueOf($i.text) == 0}?) -> ^(PLUS $args*)
+    |   ^(PLUS (args+=.)* d=DOUBLE (args+=.)* {Double.valueOf($d.text) == 0}?) -> ^(PLUS $args*)
+    |   ^(MINUS (args+=.)+ i=INT (args+=.)* {Integer.valueOf($i.text) == 0}?) -> ^(MINUS $args*)
+    |   ^(MINUS (args+=.)+ d=DOUBLE (args+=.)* {Double.valueOf($d.text) == 0}?) -> ^(MINUS $args*)
+    |   ^(ASTERISK (args+=.)* i=INT (args+=.)* {Integer.valueOf($i.text) == 1}?) -> ^(ASTERISK $args*)
+    |   ^(ASTERISK (args+=.)* d=DOUBLE (args+=.)* {Double.valueOf($d.text) == 1}?) -> ^(ASTERISK $args*)
+    |   ^(SLASH (args+=.)+ i=INT (args+=.)* {Integer.valueOf($i.text) == 1}?) -> ^(SLASH $args*)
+    |   ^(SLASH (args+=.)+ d=DOUBLE (args+=.)* {Double.valueOf($d.text) == 1}?) -> ^(SLASH $args*)
+    ;
+
+// Block flattening
 
 flattenTrivialBlocks:
         ^(ACTION ^(BLOCK innerUnnamed=unnamedAction))
@@ -129,6 +174,15 @@ flattenTrivialBlocks:
     |   ^(ACTION ^(BLOCK innerNamed=namedAction))
         -> $innerNamed
     |   ^(ACTION outerId=NCNAME ^(BLOCK ^(ACTION body=.)))
+        -> ^(ACTION $outerId $body)
+    ;
+
+flattenTrivialConcurrences:
+        ^(ACTION ^(CONCURRENCE_KYWD innerUnnamed=unnamedAction))
+        -> $innerUnnamed
+    |   ^(ACTION ^(CONCURRENCE_KYWD innerNamed=namedAction))
+        -> $innerNamed
+    |   ^(ACTION outerId=NCNAME ^(CONCURRENCE_KYWD ^(ACTION body=.)))
         -> ^(ACTION $outerId $body)
     ;
 
