@@ -98,6 +98,9 @@ public class ArithmeticOperatorNode extends ExpressionNode
         case PlexilLexer.TRUNC_KYWD:
             m_dataType = checkIntConversions(state); break;
 
+        case PlexilLexer.STRLEN_KYWD:
+            m_dataType = checkStringLength(state); break;
+
         default:
             m_dataType = PlexilDataType.ERROR_TYPE;
         }
@@ -334,6 +337,20 @@ public class ArithmeticOperatorNode extends ExpressionNode
         }
     }
 
+    private PlexilDataType checkStringLength(CompilerState state)
+    {
+        // StringLength has exactly one child, which must be a string-valued expression
+        PlexilDataType argType = ((ExpressionNode) this.getChild(0)).getDataType();
+        if (argType != PlexilDataType.STRING_TYPE) {
+            state.addDiagnostic(this.getChild(0),
+                                "Invalid argument to StringLength function",
+                                Severity.ERROR);
+            return PlexilDataType.ERROR_TYPE;
+        }
+        else
+            return PlexilDataType.INTEGER_TYPE;
+    }
+
     //
     // XML construction
     //
@@ -390,6 +407,9 @@ public class ArithmeticOperatorNode extends ExpressionNode
 
         case PlexilLexer.SQRT_KYWD:
             return "SQRT";
+
+        case PlexilLexer.STRLEN_KYWD:
+            return "STRLEN";
 
         case PlexilLexer.TRUNC_KYWD:
             return "TRUNC";

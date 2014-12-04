@@ -144,6 +144,9 @@ ROUND_KYWD = 'round';
 TRUNC_KYWD = 'trunc';
 REAL_TO_INT_KYWD = 'real_to_int';
 
+// String functions
+STRLEN_KYWD = 'strlen';
+
 // NodeRef directions
 CHILD_KYWD = 'Child';
 PARENT_KYWD = 'Parent';
@@ -950,6 +953,7 @@ oneArgFn :
   | ROUND_KYWD
   | TRUNC_KYWD
   | REAL_TO_INT_KYWD
+  | STRLEN_KYWD
  ;
 
 twoArgFn :

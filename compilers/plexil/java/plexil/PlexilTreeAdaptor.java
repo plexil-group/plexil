@@ -75,6 +75,7 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.ROUND_KYWD:
         case PlexilLexer.SLASH:
         case PlexilLexer.SQRT_KYWD:
+        case PlexilLexer.STRLEN_KYWD:
         case PlexilLexer.TRUNC_KYWD:
             return new ArithmeticOperatorNode(payload);
 
