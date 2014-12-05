@@ -455,8 +455,7 @@ element.  It is used as an included schema only.
 		<xsd:group ref="BooleanExpression"/>
 		<xsd:group ref="NumericExpression"/>
 		<xsd:group ref="StringExpression"/>
-		<xsd:element ref="ArrayVariable"/>
-        <xsd:element ref="ArrayValue"/>
+		<xsd:group ref="ArrayExpression"/>
       </xsd:choice>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
@@ -506,7 +505,7 @@ element.  It is used as an included schema only.
 		  <xsd:group ref="LogicalOperator"/>
 		  <xsd:group ref="Equality"/>
 		  <xsd:group ref="NumericComparison"/>
-		  <xsd:element ref="IsKnown"/>
+		  <xsd:group ref="KnownTest"/>
 		  <!-- xsd:group ref="NumericExpression"/ -->
 		  <xsd:group ref="ArithmeticOperator"/>
 		  <xsd:element ref="NodeTimepointValue"/>
@@ -561,6 +560,17 @@ element.  It is used as an included schema only.
     </xsd:complexType>
   </xsd:element>
 
+  <xsd:group name="ArrayExpression">
+    <xsd:complexType>
+      <xsd:choice>
+        <xsd:element ref="ArrayValue"/>
+        <xsd:element ref="ArrayVariable"/>
+        <xsd:group ref="Lookup"/>
+        <!-- more to come -->
+      </xsd:choice>
+    </xsd:complexType>
+  </xsd:group>
+
   <xsd:element name="BooleanRHS">
     <xsd:complexType>
       <xsd:group ref="BooleanExpression"/>
@@ -591,9 +601,7 @@ element.  It is used as an included schema only.
 
   <xsd:element name="ArrayRHS">
     <xsd:complexType>
-      <xsd:sequence>
-        <xsd:element ref="ArrayVariable"/>
-      </xsd:sequence>
+      <xsd:group ref="ArrayExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -620,7 +628,7 @@ element.  It is used as an included schema only.
 	  <xsd:group ref="Equality"/>
 	  <xsd:group ref="NumericComparison"/>
       <xsd:group ref="LookupGroup"/>
-      <xsd:element ref="IsKnown"/>
+      <xsd:group ref="KnownTest"/>
       <xsd:element ref="BooleanVariable"/>
       <xsd:element ref="BooleanValue"/>
       <xsd:element ref="ArrayElement"/>
@@ -670,6 +678,30 @@ element.  It is used as an included schema only.
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
+
+  <xsd:element name="ALL_KNOWN">
+    <xsd:complexType>
+      <xsd:group ref="ArrayExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ANY_KNOWN">
+    <xsd:complexType>
+      <xsd:group ref="ArrayExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:group name="KnownTest">
+    <xsd:complexType>
+      <xsd:choice>
+        <xsd:element ref="IsKnown"/>
+        <xsd:element ref="ALL_KNOWN"/>
+        <xsd:element ref="ANY_KNOWN"/>
+      </xsd:choice>
+    </xsd:complexType>
+  </xsd:group>
 
   <xsd:element name="OR">
     <xsd:complexType>
@@ -959,13 +991,14 @@ element.  It is used as an included schema only.
       <xsd:element ref="ROUND"/>
       <xsd:element ref="TRUNC"/>
       <xsd:element ref="REAL_TO_INT"/>
+      <xsd:element ref="STRLEN"/>
     </xsd:choice>
   </xsd:group>
 
   <xsd:element name="ArrayElement">
     <xsd:complexType>
       <xsd:sequence>
-        <!-- FIXME: Make this take array expressions -->
+        <!-- FIXME: generalize to array expression -->
         <xsd:element name="Name" type="xsd:NCName"/>
         <xsd:element name="Index">
           <xsd:complexType>
@@ -1071,6 +1104,13 @@ element.  It is used as an included schema only.
   <xsd:element name="REAL_TO_INT">
     <xsd:complexType>
       <xsd:group ref="NumericExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="STRLEN">
+    <xsd:complexType>
+      <xsd:group ref="StringExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
