@@ -156,12 +156,11 @@ namespace PLEXIL
   {
     // Syntax checks
     checkHasChildElement(expr);
-    pugi::xml_node nameXml = expr.first_child();
-    checkParserExceptionWithLocation(nameXml && testTag(NAME_TAG, nameXml),
+    pugi::xml_node arrayXml = expr.first_child();
+    checkParserExceptionWithLocation(arrayXml && arrayXml.type() == pugi::node_element,
                                      expr,
-                                     "ArrayElement has no Name element");
-    checkNotEmpty(nameXml);
-    pugi::xml_node indexXml = nameXml.next_sibling();
+                                     "Ill-formed ArrayElement expression");
+    pugi::xml_node indexXml = arrayXml.next_sibling();
     checkParserExceptionWithLocation(indexXml && testTag(INDEX_TAG, indexXml),
                                      expr,
                                      "ArrayElement has no Index element");
@@ -172,17 +171,28 @@ namespace PLEXIL
                                      "ArrayElement Index is not an element");
 
     // Checks on array
-    const char *arrayName = nameXml.child_value();
-    arrayExpr = node->findVariable(arrayName);
-    checkParserExceptionWithLocation(arrayExpr,
-                                     nameXml,
-                                     "No array variable named \""
-                                     << arrayName << "\" accessible from node "
-                                     << node->getNodeId());
-    checkParserExceptionWithLocation(isArrayType(arrayExpr->valueType()),
-                                     nameXml,
-                                     "Variable \"" << arrayName
-                                     << "\" is not an array variable");
+    if (testTag(NAME_TAG, arrayXml)) {
+      checkNotEmpty(arrayXml);
+      const char *arrayName = arrayXml.child_value();
+      arrayExpr = node->findVariable(arrayName);
+      checkParserExceptionWithLocation(arrayExpr,
+                                       arrayXml,
+                                       "No array variable named \""
+                                       << arrayName << "\" accessible from node "
+                                       << node->getNodeId());
+      checkParserExceptionWithLocation(isArrayType(arrayExpr->valueType()),
+                                       arrayXml,
+                                       "Variable \"" << arrayName
+                                       << "\" is not an array variable");
+    }
+    else {
+      arrayExpr = createExpression(arrayXml, node, arrayCreated);
+      // Have to allow for UNKNOWN (e.g. lookups)
+      ValueType exprType = arrayExpr->valueType();
+      checkParserExceptionWithLocation(isArrayType(exprType) || exprType == UNKNOWN_TYPE,
+                                       arrayXml,
+                                       "Array expression is not an array");
+    }
 
     // Checks on index
     indexExpr = createExpression(indexXml, node, indexCreated);

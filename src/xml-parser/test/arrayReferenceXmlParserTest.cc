@@ -64,48 +64,112 @@ static bool testArrayConstantReferenceXmlParser()
     vb[1] = true;
     BooleanArrayConstant *bc = new BooleanArrayConstant(vb);
     realNc->storeVariable("bul", bc);
-  
-    xml_node bart0Xml = doc.append_child("ArrayElement");
-    bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
-    bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
 
-    Expression *bar0 = createExpression(bart0Xml, nc, wasCreated);
-    assertTrue_1(bar0);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
-    assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
-    assertTrue_1(!bar0->isKnown());
-  
-    xml_node bartiXml = doc.append_child("ArrayElement");
-    bartiXml.append_child("Name").append_child(node_pcdata).set_value("bul");
-    bartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+    bool pb;
 
-    Expression *bari = createExpression(bartiXml, nc, wasCreated);
-    assertTrue_1(bari);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
-    assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
-    assertTrue_1(!bari->isKnown());
+    {
+      xml_node bart0Xml = doc.append_child("ArrayElement");
+      bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
+      bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
 
-    bool        pb;
-    bar0->activate();
-    assertTrue_1(bar0->getValue(pb));
-    assertTrue_1(!pb);
+      Expression *bar0 = createExpression(bart0Xml, nc, wasCreated);
+      assertTrue_1(bar0);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
+      assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
+      assertTrue_1(!bar0->isKnown());
 
-    bari->activate();
-    assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vb.size(); ++i) {
-      iv->setValue(i);
-      assertTrue_1(iv->getValue(n));
-      assertTrue_1(n == i);
-      assertTrue_1(bari->getValue(pb));
-      assertTrue_1(pb == vb[i]);
+      bar0->activate();
+      assertTrue_1(bar0->getValue(pb));
+      assertTrue_1(!pb);
+
+      bar0->deactivate();
+      delete bar0;
     }
-    bari->deactivate();
-    assertTrue_1(!iv->isActive());
 
-    delete bar0;
-    delete bari;
+    {
+      xml_node bartv0Xml = doc.append_child("ArrayElement");
+      bartv0Xml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bul");
+      bartv0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+
+      Expression *barv0 = createExpression(bartv0Xml, nc, wasCreated);
+      assertTrue_1(barv0);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", barv0->exprName()));
+      assertTrue_1(barv0->valueType() == BOOLEAN_TYPE);
+      assertTrue_1(!barv0->isKnown());
+
+      barv0->activate();
+      assertTrue_1(barv0->getValue(pb));
+      assertTrue_1(!pb);
+
+      barv0->deactivate();
+      delete barv0;
+    }
+
+    {
+
+      xml_node barliXml = doc.append_child("ArrayElement");
+      xml_node arrayXml = barliXml.append_child("ArrayValue");
+      arrayXml.append_attribute("Type").set_value("Boolean");
+      arrayXml.append_child("BooleanValue").append_child(node_pcdata).set_value("false");
+      arrayXml.append_child("BooleanValue").append_child(node_pcdata).set_value("true");
+      barliXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+
+      Expression *barl = createExpression(barliXml, nc, wasCreated);
+      assertTrue_1(barl);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", barl->exprName()));
+      assertTrue_1(barl->valueType() == BOOLEAN_TYPE);
+      assertTrue_1(!barl->isKnown());
+
+      barl->activate();
+      assertTrue_1(iv->isActive());
+
+      iv->setValue(0);
+      assertTrue_1(iv->getValue(n));
+      assertTrue_1(n == 0);
+      assertTrue_1(barl->getValue(pb));
+      assertTrue_1(pb == false);
+
+      iv->setValue(1);
+      assertTrue_1(iv->getValue(n));
+      assertTrue_1(n == 1);
+      assertTrue_1(barl->getValue(pb));
+      assertTrue_1(pb == true);
+      
+      barl->deactivate();
+      assertTrue_1(!iv->isActive());
+
+      delete barl;
+    }
+
+    {
+      xml_node bartviXml = doc.append_child("ArrayElement");
+      bartviXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bul");
+      bartviXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+
+      Expression *barvi = createExpression(bartviXml, nc, wasCreated);
+      assertTrue_1(barvi);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", barvi->exprName()));
+      assertTrue_1(barvi->valueType() == BOOLEAN_TYPE);
+      assertTrue_1(!barvi->isKnown());
+
+      barvi->activate();
+      assertTrue_1(iv->isActive());
+      for (int32_t i = 0; i < vb.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(barvi->getValue(pb));
+        assertTrue_1(pb == vb[i]);
+      }
+      barvi->deactivate();
+      assertTrue_1(!iv->isActive());
+
+      delete barvi;
+    }
   }
 
   // Integer array
@@ -119,47 +183,54 @@ static bool testArrayConstantReferenceXmlParser()
     IntegerArrayConstant *ic = new IntegerArrayConstant(vi);
     realNc->storeVariable("int", ic);
 
-    xml_node iart0Xml = doc.append_child("ArrayElement");
-    iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
-    iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-
-    Expression *iar0 = createExpression(iart0Xml, nc, wasCreated);
-    assertTrue_1(iar0);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
-    assertTrue_1(iar0->valueType() == INTEGER_TYPE);
-    assertTrue_1(!iar0->isKnown());
-  
-    xml_node iartiXml = doc.append_child("ArrayElement");
-    iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
-    iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-
-    Expression *iari = createExpression(iartiXml, nc, wasCreated);
-    assertTrue_1(iari);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
-    assertTrue_1(iari->valueType() == INTEGER_TYPE);
-    assertTrue_1(!iari->isKnown());
-
     int32_t pi;
-    iar0->activate();
-    assertTrue_1(iar0->getValue(pi));
-    assertTrue_1(pi == 0);
 
-    iari->activate();
-    assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vi.size(); ++i) {
-      iv->setValue(i);
-      assertTrue_1(iv->getValue(n));
-      assertTrue_1(n == i);
-      assertTrue_1(iari->getValue(pi));
-      assertTrue_1(pi == vi[i]);
+    {
+      xml_node iart0Xml = doc.append_child("ArrayElement");
+      iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
+      iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+
+      Expression *iar0 = createExpression(iart0Xml, nc, wasCreated);
+      assertTrue_1(iar0);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
+      assertTrue_1(iar0->valueType() == INTEGER_TYPE);
+      assertTrue_1(!iar0->isKnown());
+
+      iar0->activate();
+      assertTrue_1(iar0->getValue(pi));
+      assertTrue_1(pi == 0);
+
+      iar0->deactivate();
+      delete iar0;
     }
-    iari->deactivate();
-    assertTrue_1(!iv->isActive());
 
-    delete iar0;
-    delete iari;
+    {
+      xml_node iartiXml = doc.append_child("ArrayElement");
+      iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
+      iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+
+      Expression *iari = createExpression(iartiXml, nc, wasCreated);
+      assertTrue_1(iari);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
+      assertTrue_1(iari->valueType() == INTEGER_TYPE);
+      assertTrue_1(!iari->isKnown());
+
+      iari->activate();
+      assertTrue_1(iv->isActive());
+      for (int32_t i = 0; i < vi.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(iari->getValue(pi));
+        assertTrue_1(pi == vi[i]);
+      }
+      iari->deactivate();
+      assertTrue_1(!iv->isActive());
+
+      delete iari;
+    }
   }
 
   // Real array
@@ -739,7 +810,7 @@ static bool testMutableArrayReferenceXmlParser()
   xml_document doc;
   int32_t n;
   bool wasCreated = false;
-  
+
   // Boolean array
   {
     std::vector<bool> vb(2);
@@ -749,58 +820,107 @@ static bool testMutableArrayReferenceXmlParser()
     BooleanArrayVariable *bav = new BooleanArrayVariable(nc, "bul", NULL, false);
     bav->setInitializer(bc, true);
     realNc->storeVariable("bul", bav);
-    xml_node bart0Xml = doc.append_child("ArrayElement");
-    bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
-    bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Assignable *bar0 = createAssignable(bart0Xml, nc, wasCreated);
-    assertTrue_1(bar0);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
-    assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
-    assertTrue_1(!bar0->isKnown());
 
-    xml_node bartiXml = doc.append_child("ArrayElement");
-    bartiXml.append_child("Name").append_child(node_pcdata).set_value("bul");
-    bartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Assignable *bari = createAssignable(bartiXml, nc, wasCreated);
-    assertTrue_1(bari);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
-    assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
-    assertTrue_1(!bari->isKnown());
+    bool pb;
 
-    bool        pb;
-    bar0->activate();
-    assertTrue_1(bar0->getValue(pb));
-    assertTrue_1(!pb);
+    {
+      xml_node bart0Xml = doc.append_child("ArrayElement");
+      bart0Xml.append_child("Name").append_child(node_pcdata).set_value("bul");
+      bart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+      Assignable *bar0 = createAssignable(bart0Xml, nc, wasCreated);
+      assertTrue_1(bar0);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", bar0->exprName()));
+      assertTrue_1(bar0->valueType() == BOOLEAN_TYPE);
+      assertTrue_1(!bar0->isKnown());
 
-    bari->activate();
-    assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vb.size(); ++i) {
-      iv->setValue(i);
-      assertTrue_1(iv->getValue(n));
-      assertTrue_1(n == i);
-      assertTrue_1(bari->getValue(pb));
-      assertTrue_1(pb == vb[i]);
-    }
-    bari->deactivate();
-    assertTrue_1(!iv->isActive());
-
-    bari->activate();
-    for (int32_t i = 0; i < vb.size(); ++i) {
-      iv->setValue(i);
-      assertTrue_1(iv->getValue(n));
-      assertTrue_1(n == i);
-      assertTrue_1(bari->getValue(pb));
-      assertTrue_1(pb == vb[i]);
-      bari->setValue(!pb);
-      assertTrue_1(bari->getValue(pb));
-      assertTrue_1(pb == !vb[i]);
-    }
-    bari->deactivate();
+      bar0->activate();
+      assertTrue_1(bar0->getValue(pb));
+      assertTrue_1(!pb);
   
-    delete bar0;
-    delete bari;
+      bar0->deactivate();
+      delete bar0;
+    }
+
+    {
+      xml_node bartiXml = doc.append_child("ArrayElement");
+      bartiXml.append_child("Name").append_child(node_pcdata).set_value("bul");
+      bartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Assignable *bari = createAssignable(bartiXml, nc, wasCreated);
+      assertTrue_1(bari);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", bari->exprName()));
+      assertTrue_1(bari->valueType() == BOOLEAN_TYPE);
+      assertTrue_1(!bari->isKnown());
+
+      bari->activate();
+      assertTrue_1(iv->isActive());
+      for (int32_t i = 0; i < vb.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(bari->getValue(pb));
+        assertTrue_1(pb == vb[i]);
+      }
+      bari->deactivate();
+      assertTrue_1(!iv->isActive());
+
+      bari->activate();
+      for (int32_t i = 0; i < vb.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(bari->getValue(pb));
+        assertTrue_1(pb == vb[i]);
+        bari->setValue(!pb);
+        assertTrue_1(bari->getValue(pb));
+        assertTrue_1(pb == !vb[i]);
+      }
+
+      bari->deactivate();
+      delete bari;
+    }
+
+    bav->reset();
+
+    {
+      xml_node bartvXml = doc.append_child("ArrayElement");
+      bartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("bul");
+      bartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Assignable *barv = createAssignable(bartvXml, nc, wasCreated);
+      assertTrue_1(barv);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", barv->exprName()));
+      assertTrue_1(barv->valueType() == BOOLEAN_TYPE);
+      assertTrue_1(!barv->isKnown());
+
+      barv->activate();
+      assertTrue_1(iv->isActive());
+      for (int32_t i = 0; i < vb.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(barv->getValue(pb));
+        assertTrue_1(pb == vb[i]);
+      }
+      barv->deactivate();
+      assertTrue_1(!iv->isActive());
+
+      barv->activate();
+      for (int32_t i = 0; i < vb.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(barv->getValue(pb));
+        assertTrue_1(pb == vb[i]);
+        barv->setValue(!pb);
+        assertTrue_1(barv->getValue(pb));
+        assertTrue_1(pb == !vb[i]);
+      }
+
+      barv->deactivate();
+      delete barv;
+    }
   }
 
   // Integer array
@@ -815,59 +935,108 @@ static bool testMutableArrayReferenceXmlParser()
     iav->setInitializer(ic, true);
     realNc->storeVariable("int", iav);
 
-    xml_node iart0Xml = doc.append_child("ArrayElement");
-    iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
-    iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Assignable *iar0 = createAssignable(iart0Xml, nc, wasCreated);
-    assertTrue_1(iar0);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
-    assertTrue_1(iar0->valueType() == INTEGER_TYPE);
-    assertTrue_1(!iar0->isKnown());
-  
-    xml_node iartiXml = doc.append_child("ArrayElement");
-    iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
-    iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Assignable *iari = createAssignable(iartiXml, nc, wasCreated);
-    assertTrue_1(iari);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
-    assertTrue_1(iari->valueType() == INTEGER_TYPE);
-    assertTrue_1(!iari->isKnown());
-
     int32_t pi;
-    iar0->activate();
-    assertTrue_1(iar0->getValue(pi));
-    assertTrue_1(pi == 0);
 
-    iari->activate();
-    assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vi.size(); ++i) {
-      iv->setValue(i);
-      assertTrue_1(iv->getValue(n));
-      assertTrue_1(n == i);
-      assertTrue_1(iari->getValue(pi));
-      assertTrue_1(pi == vi[i]);
+    {
+      xml_node iart0Xml = doc.append_child("ArrayElement");
+      iart0Xml.append_child("Name").append_child(node_pcdata).set_value("int");
+      iart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+      Assignable *iar0 = createAssignable(iart0Xml, nc, wasCreated);
+      assertTrue_1(iar0);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", iar0->exprName()));
+      assertTrue_1(iar0->valueType() == INTEGER_TYPE);
+      assertTrue_1(!iar0->isKnown());
+
+      iar0->activate();
+      assertTrue_1(iar0->getValue(pi));
+      assertTrue_1(pi == 0);
+
+      iar0->deactivate();
+      delete iar0;
     }
-    iari->deactivate();
-    assertTrue_1(!iv->isActive());
 
-    iari->activate();
-    for (int32_t i = 0; i < vi.size(); ++i) {
-      iv->setValue(i);
-      assertTrue_1(iv->getValue(n));
-      assertTrue_1(n == i);
-      assertTrue_1(iari->getValue(pi));
-      assertTrue_1(pi == vi[i]);
-      iari->setValue(-pi);
-      pi = 0;
-      assertTrue_1(iari->getValue(pi));
-      assertTrue_1(pi == -vi[i]);
+    {
+      xml_node iartiXml = doc.append_child("ArrayElement");
+      iartiXml.append_child("Name").append_child(node_pcdata).set_value("int");
+      iartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Assignable *iari = createAssignable(iartiXml, nc, wasCreated);
+      assertTrue_1(iari);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", iari->exprName()));
+      assertTrue_1(iari->valueType() == INTEGER_TYPE);
+      assertTrue_1(!iari->isKnown());
+
+      iari->activate();
+      assertTrue_1(iv->isActive());
+      for (int32_t i = 0; i < vi.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(iari->getValue(pi));
+        assertTrue_1(pi == vi[i]);
+      }
+      iari->deactivate();
+      assertTrue_1(!iv->isActive());
+
+      iari->activate();
+      for (int32_t i = 0; i < vi.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(iari->getValue(pi));
+        assertTrue_1(pi == vi[i]);
+        iari->setValue(-pi);
+        pi = 0;
+        assertTrue_1(iari->getValue(pi));
+        assertTrue_1(pi == -vi[i]);
+      }
+      iari->deactivate();
+
+      delete iari;
     }
-    iari->deactivate();
 
-    delete iar0;
-    delete iari;
+    iav->reset();
+
+    {
+      xml_node iartvXml = doc.append_child("ArrayElement");
+      iartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("int");
+      iartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Assignable *iarv = createAssignable(iartvXml, nc, wasCreated);
+      assertTrue_1(iarv);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", iarv->exprName()));
+      assertTrue_1(iarv->valueType() == INTEGER_TYPE);
+      assertTrue_1(!iarv->isKnown());
+
+      iarv->activate();
+      assertTrue_1(iv->isActive());
+      for (int32_t i = 0; i < vi.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(iarv->getValue(pi));
+        assertTrue_1(pi == vi[i]);
+      }
+      iarv->deactivate();
+      assertTrue_1(!iv->isActive());
+
+      iarv->activate();
+      for (int32_t i = 0; i < vi.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(iarv->getValue(pi));
+        assertTrue_1(pi == vi[i]);
+        iarv->setValue(-pi);
+        pi = 0;
+        assertTrue_1(iarv->getValue(pi));
+        assertTrue_1(pi == -vi[i]);
+      }
+      iarv->deactivate();
+
+      delete iarv;
+    }
   }
 
   // Real array
@@ -882,59 +1051,106 @@ static bool testMutableArrayReferenceXmlParser()
     dav->setInitializer(dc, true);
     realNc->storeVariable("dbl", dav);
 
-    xml_node dart0Xml = doc.append_child("ArrayElement");
-    dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
-    dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Assignable *dar0 = createAssignable(dart0Xml, nc, wasCreated);
-    assertTrue_1(dar0);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
-    assertTrue_1(dar0->valueType() == REAL_TYPE);
-    assertTrue_1(!dar0->isKnown());
-
-    xml_node dartiXml = doc.append_child("ArrayElement");
-    dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
-    dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Assignable *dari = createAssignable(dartiXml, nc, wasCreated);
-    assertTrue_1(dari);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
-    assertTrue_1(dari->valueType() == REAL_TYPE);
-    assertTrue_1(!dari->isKnown());
-
     double pd;
-    dar0->activate();
-    assertTrue_1(dar0->getValue(pd));
-    assertTrue_1(pd == 0);
 
-    dari->activate();
-    assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vd.size(); ++i) {
-      iv->setValue(i);
-      assertTrue_1(iv->getValue(n));
-      assertTrue_1(n == i);
-      assertTrue_1(dari->getValue(pd));
-      assertTrue_1(pd == vd[i]);
+    {
+      xml_node dart0Xml = doc.append_child("ArrayElement");
+      dart0Xml.append_child("Name").append_child(node_pcdata).set_value("dbl");
+      dart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+      Assignable *dar0 = createAssignable(dart0Xml, nc, wasCreated);
+      assertTrue_1(dar0);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", dar0->exprName()));
+      assertTrue_1(dar0->valueType() == REAL_TYPE);
+      assertTrue_1(!dar0->isKnown());
+
+      dar0->activate();
+      assertTrue_1(dar0->getValue(pd));
+      assertTrue_1(pd == 0);
+
+      dar0->deactivate();
+      delete dar0;
     }
-    dari->deactivate();
-    assertTrue_1(!iv->isActive());
 
-    dari->activate();
-    for (int32_t i = 0; i < vd.size(); ++i) {
-      iv->setValue(i);
-      assertTrue_1(iv->getValue(n));
-      assertTrue_1(n == i);
-      assertTrue_1(dari->getValue(pd));
-      assertTrue_1(pd == vd[i]);
-      dari->setValue(-pd);
-      pd = 0;
-      assertTrue_1(dari->getValue(pd));
-      assertTrue_1(pd == -vd[i]);
+    {
+      xml_node dartiXml = doc.append_child("ArrayElement");
+      dartiXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
+      dartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Assignable *dari = createAssignable(dartiXml, nc, wasCreated);
+      assertTrue_1(dari);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", dari->exprName()));
+      assertTrue_1(dari->valueType() == REAL_TYPE);
+      assertTrue_1(!dari->isKnown());
+
+      dari->activate();
+      assertTrue_1(iv->isActive());
+      for (int32_t i = 0; i < vd.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(dari->getValue(pd));
+        assertTrue_1(pd == vd[i]);
+      }
+      dari->deactivate();
+      assertTrue_1(!iv->isActive());
+
+      dari->activate();
+      for (int32_t i = 0; i < vd.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(dari->getValue(pd));
+        assertTrue_1(pd == vd[i]);
+        dari->setValue(-pd);
+        pd = 0;
+        assertTrue_1(dari->getValue(pd));
+        assertTrue_1(pd == -vd[i]);
+      }
+      dari->deactivate();
+
+      delete dari;
     }
-    dari->deactivate();
 
-    delete dar0;
-    delete dari;
+    {
+      xml_node dartvXml = doc.append_child("ArrayElement");
+      dartvXml.append_child("Name").append_child(node_pcdata).set_value("dbl");
+      dartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Assignable *darv = createAssignable(dartvXml, nc, wasCreated);
+      assertTrue_1(darv);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", darv->exprName()));
+      assertTrue_1(darv->valueType() == REAL_TYPE);
+      assertTrue_1(!darv->isKnown());
+
+      darv->activate();
+      assertTrue_1(iv->isActive());
+      for (int32_t i = 0; i < vd.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(darv->getValue(pd));
+        assertTrue_1(pd == vd[i]);
+      }
+      darv->deactivate();
+      assertTrue_1(!iv->isActive());
+
+      darv->activate();
+      for (int32_t i = 0; i < vd.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(darv->getValue(pd));
+        assertTrue_1(pd == vd[i]);
+        darv->setValue(-pd);
+        pd = 0;
+        assertTrue_1(darv->getValue(pd));
+        assertTrue_1(pd == -vd[i]);
+      }
+      darv->deactivate();
+
+      delete darv;
+    }
   }
 
   // String array
@@ -949,59 +1165,106 @@ static bool testMutableArrayReferenceXmlParser()
     sav->setInitializer(sc, true);
     realNc->storeVariable("str", sav);
 
-    xml_node sart0Xml = doc.append_child("ArrayElement");
-    sart0Xml.append_child("Name").append_child(node_pcdata).set_value("str");
-    sart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
-    Assignable *sar0 = createAssignable(sart0Xml, nc, wasCreated);
-    assertTrue_1(sar0);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
-    assertTrue_1(sar0->valueType() == STRING_TYPE);
-    assertTrue_1(!sar0->isKnown());
-  
-    xml_node sartiXml = doc.append_child("ArrayElement");
-    sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
-    sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
-    Assignable *sari = createAssignable(sartiXml, nc, wasCreated);
-    assertTrue_1(sari);
-    assertTrue_1(wasCreated);
-    assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
-    assertTrue_1(sari->valueType() == STRING_TYPE);
-    assertTrue_1(!sari->isKnown());
-
     std::string ps;
-    sar0->activate();
-    assertTrue_1(sar0->getValue(ps));
-    assertTrue_1(ps == "zero");
 
-    sari->activate();
-    assertTrue_1(iv->isActive());
-    for (int32_t i = 0; i < vs.size(); ++i) {
-      iv->setValue(i);
-      assertTrue_1(iv->getValue(n));
-      assertTrue_1(n == i);
-      assertTrue_1(sari->getValue(ps));
-      assertTrue_1(ps == vs[i]);
+    {
+      xml_node sart0Xml = doc.append_child("ArrayElement");
+      sart0Xml.append_child("Name").append_child(node_pcdata).set_value("str");
+      sart0Xml.append_child("Index").append_child("IntegerValue").append_child(node_pcdata).set_value("0");
+      Assignable *sar0 = createAssignable(sart0Xml, nc, wasCreated);
+      assertTrue_1(sar0);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", sar0->exprName()));
+      assertTrue_1(sar0->valueType() == STRING_TYPE);
+      assertTrue_1(!sar0->isKnown());
+
+      sar0->activate();
+      assertTrue_1(sar0->getValue(ps));
+      assertTrue_1(ps == "zero");
+
+      sar0->deactivate();
+      delete sar0;
     }
 
-    sari->activate();
-    for (int32_t i = 0; i < vs.size(); ++i) {
-      iv->setValue(i);
-      assertTrue_1(iv->getValue(n));
-      assertTrue_1(n == i);
-      assertTrue_1(sari->getValue(ps));
-      assertTrue_1(ps == vs[i]);
-      ps.push_back('x');
-      sari->setValue(ps);
-      ps.clear();
-      assertTrue_1(sari->getValue(ps));
-      assertTrue_1(ps != vs[i]);
-      assertTrue_1(ps.substr(0, ps.size() -1) == vs[i]);
-    }
-    sari->deactivate();
+    {
+      xml_node sartiXml = doc.append_child("ArrayElement");
+      sartiXml.append_child("Name").append_child(node_pcdata).set_value("str");
+      sartiXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Assignable *sari = createAssignable(sartiXml, nc, wasCreated);
+      assertTrue_1(sari);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", sari->exprName()));
+      assertTrue_1(sari->valueType() == STRING_TYPE);
+      assertTrue_1(!sari->isKnown());
 
-    delete sar0;
-    delete sari;
+      sari->activate();
+      assertTrue_1(iv->isActive());
+      for (int32_t i = 0; i < vs.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(sari->getValue(ps));
+        assertTrue_1(ps == vs[i]);
+      }
+
+      for (int32_t i = 0; i < vs.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(sari->getValue(ps));
+        assertTrue_1(ps == vs[i]);
+        ps.push_back('x');
+        sari->setValue(ps);
+        ps.clear();
+        assertTrue_1(sari->getValue(ps));
+        assertTrue_1(ps != vs[i]);
+        assertTrue_1(ps.substr(0, ps.size() -1) == vs[i]);
+      }
+
+      sari->deactivate();
+      delete sari;
+    }
+
+    sav->reset();
+
+    {
+      xml_node sartvXml = doc.append_child("ArrayElement");
+      sartvXml.append_child("ArrayVariable").append_child(node_pcdata).set_value("str");
+      sartvXml.append_child("Index").append_child("IntegerVariable").append_child(node_pcdata).set_value("i");
+      Assignable *sarv = createAssignable(sartvXml, nc, wasCreated);
+      assertTrue_1(sarv);
+      assertTrue_1(wasCreated);
+      assertTrue_1(!strcmp("ArrayReference", sarv->exprName()));
+      assertTrue_1(sarv->valueType() == STRING_TYPE);
+      assertTrue_1(!sarv->isKnown());
+
+      sarv->activate();
+      assertTrue_1(iv->isActive());
+      for (int32_t i = 0; i < vs.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(sarv->getValue(ps));
+        assertTrue_1(ps == vs[i]);
+      }
+
+      for (int32_t i = 0; i < vs.size(); ++i) {
+        iv->setValue(i);
+        assertTrue_1(iv->getValue(n));
+        assertTrue_1(n == i);
+        assertTrue_1(sarv->getValue(ps));
+        assertTrue_1(ps == vs[i]);
+        ps.push_back('x');
+        sarv->setValue(ps);
+        ps.clear();
+        assertTrue_1(sarv->getValue(ps));
+        assertTrue_1(ps != vs[i]);
+        assertTrue_1(ps.substr(0, ps.size() -1) == vs[i]);
+      }
+
+      sarv->deactivate();
+      delete sarv;
+    }
   }
 
   return true;
