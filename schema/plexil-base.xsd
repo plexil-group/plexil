@@ -561,14 +561,12 @@ element.  It is used as an included schema only.
   </xsd:element>
 
   <xsd:group name="ArrayExpression">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:element ref="ArrayValue"/>
-        <xsd:element ref="ArrayVariable"/>
-        <xsd:group ref="Lookup"/>
-        <!-- more to come -->
-      </xsd:choice>
-    </xsd:complexType>
+    <xsd:choice>
+      <xsd:element ref="ArrayValue"/>
+      <xsd:element ref="ArrayVariable"/>
+      <xsd:group ref="LookupGroup"/>
+      <!-- more to come -->
+    </xsd:choice>
   </xsd:group>
 
   <xsd:element name="BooleanRHS">
@@ -694,13 +692,11 @@ element.  It is used as an included schema only.
   </xsd:element>
 
   <xsd:group name="KnownTest">
-    <xsd:complexType>
-      <xsd:choice>
-        <xsd:element ref="IsKnown"/>
-        <xsd:element ref="ALL_KNOWN"/>
-        <xsd:element ref="ANY_KNOWN"/>
-      </xsd:choice>
-    </xsd:complexType>
+    <xsd:choice>
+      <xsd:element ref="IsKnown"/>
+      <xsd:element ref="ALL_KNOWN"/>
+      <xsd:element ref="ANY_KNOWN"/>
+    </xsd:choice>
   </xsd:group>
 
   <xsd:element name="OR">
