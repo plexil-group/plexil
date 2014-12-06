@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,27 +54,12 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xsd:group>
     <xsd:group name="BooleanExpression">
       <xsd:choice>
-        <xsd:element ref="OR"/>
-        <xsd:element ref="XOR"/>
-        <xsd:element ref="AND"/>
-        <xsd:element ref="NOT"/>
-        <xsd:element ref="IsKnown"/>
-        <xsd:element ref="GT"/>
-        <xsd:element ref="GE"/>
-        <xsd:element ref="LT"/>
-        <xsd:element ref="LE"/>
-        <xsd:element ref="EQBoolean"/>
-        <xsd:element ref="EQNumeric"/>
-        <xsd:element ref="EQInternal"/>
-        <xsd:element ref="EQString"/>
-        <xsd:element ref="NEBoolean"/>
-        <xsd:element ref="NENumeric"/>
-        <xsd:element ref="NEInternal"/>
-        <xsd:element ref="NEString"/>
+	    <xsd:group ref="LogicalOperator"/>
+	    <xsd:group ref="Equality"/>
+	    <xsd:group ref="NumericComparison"/>
+        <xsd:group ref="KnownTest"/>
         <xsd:element ref="BooleanVariable"/>
         <xsd:element ref="BooleanValue"/>
-        <xsd:group ref="LookupGroup"/>
-        <xsd:element ref="ArrayElement"/>
         <xsd:element ref="Finished"/>
         <xsd:element ref="IterationEnded"/>
         <xsd:element ref="Executing"/>
@@ -122,19 +107,6 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:element ref="DurationValue"/>
       </xsd:choice>
     </xsd:group>
-    <xsd:group name="StringExpression">
-      <xsd:choice>
-        <xsd:element ref="StringVariable"/>
-        <xsd:element ref="StringValue"/>
-        <xsd:element ref="DateVariable"/>
-        <xsd:element ref="DateValue"/>
-        <xsd:element ref="DurationVariable"/>
-        <xsd:element ref="DurationValue"/>
-        <xsd:group ref="StringOperator"/>
-        <xsd:group ref="LookupGroup"/>
-        <xsd:element ref="ArrayElement"/>
-      </xsd:choice>
-    </xsd:group>
     <xsd:group name="NumericExpression">
       <xsd:choice>
         <xsd:group ref="ArithmeticOperator"/>
@@ -146,29 +118,17 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:element ref="DateValue"/>
         <xsd:element ref="DurationVariable"/>
         <xsd:element ref="DurationValue"/>
-        <xsd:group ref="LookupGroup"/>
         <xsd:element ref="NodeTimepointValue"/>
         <!-- read operations for arrays-->
         <xsd:element name="ArraySize" type="xsd:NCName"/>
         <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
-        <xsd:element ref="ArrayElement"/>
-      </xsd:choice>
-    </xsd:group>
-    <xsd:group name="ToleranceGroup">
-      <xsd:choice>
-        <xsd:element ref="IntegerValue"/>
-        <xsd:element ref="IntegerVariable"/>
-        <xsd:element ref="RealValue"/>
-        <xsd:element ref="RealVariable"/>
-        <xsd:element ref="DurationValue"/>
-        <xsd:element ref="DurationVariable"/>
       </xsd:choice>
     </xsd:group>
   </xsd:redefine>
 
   <xsd:element name="Name">
     <xsd:complexType>
-      <xsd:group ref="StringExpression"/>
+      <xsd:group ref="GeneralizedStringExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -279,7 +239,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element name="Condition">
           <xsd:complexType>
-            <xsd:group ref="BooleanExpression"/>
+            <xsd:group ref="GeneralizedBooleanExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="Then">
@@ -292,7 +252,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
             <xsd:sequence>
               <xsd:element name="Condition">
                 <xsd:complexType>
-                  <xsd:group ref="BooleanExpression"/>
+                  <xsd:group ref="GeneralizedBooleanExpression"/>
                 </xsd:complexType>
               </xsd:element>
               <xsd:element name="Then">
@@ -320,7 +280,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element name="Condition">
           <xsd:complexType>
-            <xsd:group ref="BooleanExpression"/>
+            <xsd:group ref="GeneralizedBooleanExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="Action">
@@ -351,12 +311,12 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         </xsd:element>
         <xsd:element name= "Condition">
           <xsd:complexType>
-            <xsd:group ref="BooleanExpression"/>
+            <xsd:group ref="GeneralizedBooleanExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name= "LoopVariableUpdate">
           <xsd:complexType>
-            <xsd:group ref="NumericExpression"/>
+            <xsd:group ref="GeneralizedNumericExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name= "Action">
@@ -392,7 +352,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
   <!-- Deprecated -->
   <xsd:element name="MessageReceived">
     <xsd:complexType>
-      <xsd:group ref="StringExpression"/>
+      <xsd:group ref="GeneralizedStringExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -414,7 +374,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element name="Message">
           <xsd:complexType>
-            <xsd:group ref="StringExpression"/>
+            <xsd:group ref="GeneralizedStringExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:group ref="Action" minOccurs="0" maxOccurs="1"/>
@@ -433,7 +393,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element name="Units">
           <xsd:complexType>
-            <xsd:group ref="NumericExpression"/>
+            <xsd:group ref="GeneralizedNumericExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element ref="Tolerance" minOccurs="0"/>
@@ -450,7 +410,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:group ref="NodeClauses" minOccurs="0" maxOccurs="unbounded"/>
         <xsd:element name= "Timeout" minOccurs= "0">
           <xsd:complexType>
-            <xsd:group ref="NumericExpression"/>
+            <xsd:group ref="GeneralizedNumericExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element ref="Tolerance" minOccurs="0"/>

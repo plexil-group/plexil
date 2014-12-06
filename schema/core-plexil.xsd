@@ -33,7 +33,7 @@
   <xsd:include schemaLocation='plexil-base.xsd' />
   <xsd:element name="Name">
     <xsd:complexType>
-      <xsd:group ref="StringExpression"/>
+      <xsd:group ref="GeneralizedStringExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>

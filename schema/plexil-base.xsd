@@ -236,56 +236,56 @@ element.  It is used as an included schema only.
 
   <xsd:element name="StartCondition">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression"/>
+      <xsd:group ref="GeneralizedBooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="RepeatCondition">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression"/>
+      <xsd:group ref="GeneralizedBooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="PreCondition">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression"/>
+      <xsd:group ref="GeneralizedBooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="PostCondition">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression"/>
+      <xsd:group ref="GeneralizedBooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="InvariantCondition">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression"/>
+      <xsd:group ref="GeneralizedBooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="EndCondition">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression"/>
+      <xsd:group ref="GeneralizedBooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="ExitCondition">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression"/>
+      <xsd:group ref="GeneralizedBooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="SkipCondition">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression"/>
+      <xsd:group ref="GeneralizedBooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -335,27 +335,27 @@ element.  It is used as an included schema only.
       <xsd:all>
         <xsd:element name="ResourceName">
           <xsd:complexType>
-            <xsd:group ref="StringExpression"/>
+            <xsd:group ref="GeneralizedStringExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="ResourcePriority">
           <xsd:complexType>
-            <xsd:group ref="NumericExpression"/>
+            <xsd:group ref="GeneralizedNumericExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="ResourceLowerBound" minOccurs="0">
           <xsd:complexType>
-            <xsd:group ref="NumericExpression"/>
+            <xsd:group ref="GeneralizedNumericExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="ResourceUpperBound" minOccurs="0">
           <xsd:complexType>
-            <xsd:group ref="NumericExpression"/>
+            <xsd:group ref="GeneralizedNumericExpression"/>
           </xsd:complexType>
         </xsd:element>
         <xsd:element name="ResourceReleaseAtTermination" minOccurs="0">
           <xsd:complexType>
-            <xsd:group ref="BooleanExpression"/>
+            <xsd:group ref="GeneralizedBooleanExpression"/>
           </xsd:complexType>
         </xsd:element>
       </xsd:all>
@@ -449,14 +449,21 @@ element.  It is used as an included schema only.
     </xsd:complexType>
   </xsd:element>
 
+  <!-- Expression of any type -->
+  <xsd:group name="Expression">
+    <xsd:choice>
+	  <xsd:group ref="BooleanExpression"/>
+	  <xsd:group ref="NumericExpression"/>
+	  <xsd:group ref="StringExpression"/>
+	  <xsd:group ref="ArrayExpression"/>
+      <xsd:group ref="LookupGroup"/>
+      <xsd:element ref="ArrayElement"/>
+    </xsd:choice>
+  </xsd:group>
+
   <xsd:element name="Arguments">
     <xsd:complexType>
-      <xsd:choice maxOccurs="unbounded">
-		<xsd:group ref="BooleanExpression"/>
-		<xsd:group ref="NumericExpression"/>
-		<xsd:group ref="StringExpression"/>
-		<xsd:group ref="ArrayExpression"/>
-      </xsd:choice>
+      <xsd:group ref="Expression" maxOccurs="unbounded"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -474,11 +481,7 @@ element.  It is used as an included schema only.
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element name="Name" type="xsd:NCName"/>
-        <xsd:choice>
-          <xsd:group ref="Value"/>
-          <xsd:group ref="DeclaredVariable"/>
-          <xsd:element ref="LookupNow"/>
-        </xsd:choice>
+        <xsd:group ref="Expression"/>
       </xsd:sequence>
     </xsd:complexType>
   </xsd:element>
@@ -497,23 +500,7 @@ element.  It is used as an included schema only.
     <xsd:complexType>
       <xsd:sequence>
         <xsd:element name="NodeParameter" type="xsd:NCName"/>
-        <xsd:choice>
-          <xsd:group ref="Value"/>
-          <xsd:group ref="DeclaredVariable"/>
-		  <xsd:group ref="LookupGroup"/>
-		  <!-- xsd:group ref="BooleanExpression"/ -->
-		  <xsd:group ref="LogicalOperator"/>
-		  <xsd:group ref="Equality"/>
-		  <xsd:group ref="NumericComparison"/>
-		  <xsd:group ref="KnownTest"/>
-		  <!-- xsd:group ref="NumericExpression"/ -->
-		  <xsd:group ref="ArithmeticOperator"/>
-		  <xsd:element ref="NodeTimepointValue"/>
-		  <xsd:element name="ArraySize" type="xsd:NCName"/>
-		  <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
-		  <!-- xsd:group ref="StringExpression"/ -->
-		  <xsd:group ref="StringOperator"/>
-        </xsd:choice>
+        <xsd:group ref="Expression"/>
       </xsd:sequence>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
@@ -560,46 +547,46 @@ element.  It is used as an included schema only.
     </xsd:complexType>
   </xsd:element>
 
+  <xsd:group name="GeneralizedArrayExpression">
+    <xsd:choice>
+      <xsd:group ref="ArrayExpression"/>
+      <xsd:group ref="LookupGroup"/>
+    </xsd:choice>
+  </xsd:group>
+
   <xsd:group name="ArrayExpression">
     <xsd:choice>
       <xsd:element ref="ArrayValue"/>
       <xsd:element ref="ArrayVariable"/>
-      <xsd:group ref="LookupGroup"/>
-      <!-- more to come -->
     </xsd:choice>
   </xsd:group>
 
   <xsd:element name="BooleanRHS">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression"/>
+      <xsd:group ref="GeneralizedBooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="NumericRHS">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression"/>
+      <xsd:choice>
+        <xsd:group ref="GeneralizedNumericExpression"/>
+      </xsd:choice>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="StringRHS">
     <xsd:complexType>
-      <xsd:group ref="StringExpression"/>
-      <xsd:attributeGroup ref="SourceLocators"/>
-    </xsd:complexType>
-  </xsd:element>
-
-  <xsd:element name="LookupRHS">
-    <xsd:complexType>
-      <xsd:group ref="LookupGroup"/>
+      <xsd:group ref="GeneralizedStringExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="ArrayRHS">
     <xsd:complexType>
-      <xsd:group ref="ArrayExpression"/>
+      <xsd:group ref="GeneralizedArrayExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -611,25 +598,30 @@ element.  It is used as an included schema only.
         <xsd:element ref="BooleanRHS"/>
         <xsd:element ref="NumericRHS"/>
         <xsd:element ref="StringRHS"/>
-        <xsd:element ref="LookupRHS"/>
         <xsd:element ref="ArrayRHS"/>
       </xsd:choice>
     </xsd:sequence>
     <xsd:attributeGroup ref="SourceLocators"/>
   </xsd:complexType>
 
-  <xsd:element name="Assignment" type= "assignment"/>
+  <xsd:element name="Assignment" type="assignment"/>
+
+  <xsd:group name="GeneralizedBooleanExpression">
+    <xsd:choice>
+      <xsd:group ref="BooleanExpression"/>
+      <xsd:group ref="LookupGroup"/>
+      <xsd:element ref="ArrayElement"/>
+    </xsd:choice>
+  </xsd:group>
 
   <xsd:group name="BooleanExpression">
     <xsd:choice>
 	  <xsd:group ref="LogicalOperator"/>
 	  <xsd:group ref="Equality"/>
 	  <xsd:group ref="NumericComparison"/>
-      <xsd:group ref="LookupGroup"/>
       <xsd:group ref="KnownTest"/>
       <xsd:element ref="BooleanVariable"/>
       <xsd:element ref="BooleanValue"/>
-      <xsd:element ref="ArrayElement"/>
     </xsd:choice>
   </xsd:group>
 
@@ -667,11 +659,10 @@ element.  It is used as an included schema only.
   <xsd:element name="IsKnown">
     <xsd:complexType>
       <xsd:choice>
-        <xsd:group ref="DeclaredVariable"/>
-        <xsd:group ref="LookupGroup"/>
+        <xsd:group ref="Expression"/>
         <xsd:element ref="NodeStateVariable"/>
         <xsd:element ref="NodeOutcomeVariable"/>
-        <xsd:element ref="NodeTimepointValue"/>
+        <xsd:element ref="NodeCommandHandleVariable"/>
       </xsd:choice>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
@@ -679,14 +670,14 @@ element.  It is used as an included schema only.
 
   <xsd:element name="ALL_KNOWN">
     <xsd:complexType>
-      <xsd:group ref="ArrayExpression"/>
+      <xsd:group ref="GeneralizedArrayExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="ANY_KNOWN">
     <xsd:complexType>
-      <xsd:group ref="ArrayExpression"/>
+      <xsd:group ref="GeneralizedArrayExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -701,72 +692,79 @@ element.  It is used as an included schema only.
 
   <xsd:element name="OR">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:group ref="GeneralizedBooleanExpression"
+                 minOccurs="0" maxOccurs="unbounded"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="XOR">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:group ref="GeneralizedBooleanExpression"
+                 minOccurs="0" maxOccurs="unbounded"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="AND">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:group ref="GeneralizedBooleanExpression"
+                 minOccurs="0" maxOccurs="unbounded"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="NOT">
     <xsd:complexType>
-      <xsd:sequence>
-        <xsd:group ref="BooleanExpression"/>
-      </xsd:sequence>
+      <xsd:group ref="GeneralizedBooleanExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="GT">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="GE">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="LT">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="LE">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="EQBoolean">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedBooleanExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="EQNumeric">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -785,21 +783,24 @@ element.  It is used as an included schema only.
 
   <xsd:element name="EQString">
     <xsd:complexType>
-      <xsd:group ref="StringExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedStringExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="NEBoolean">
     <xsd:complexType>
-      <xsd:group ref="BooleanExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedBooleanExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="NENumeric">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -818,7 +819,8 @@ element.  It is used as an included schema only.
 
   <xsd:element name="NEString">
     <xsd:complexType>
-      <xsd:group ref="StringExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedStringExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -932,13 +934,19 @@ element.  It is used as an included schema only.
     </xsd:simpleType>
   </xsd:element>
 
+  <xsd:group name="GeneralizedStringExpression">
+    <xsd:choice>
+      <xsd:group ref="StringExpression"/>
+      <xsd:group ref="LookupGroup"/>
+      <xsd:element ref="ArrayElement"/>
+    </xsd:choice>
+  </xsd:group>
+
   <xsd:group name="StringExpression">
     <xsd:choice>
       <xsd:element ref="StringVariable"/>
       <xsd:element ref="StringValue"/>
       <xsd:group ref="StringOperator"/>
-      <xsd:group ref="LookupGroup"/>
-      <xsd:element ref="ArrayElement"/>
     </xsd:choice>
   </xsd:group>
 
@@ -950,10 +958,18 @@ element.  It is used as an included schema only.
 
   <xsd:element name="Concat">
     <xsd:complexType>
-      <xsd:group ref="StringExpression" minOccurs="0" maxOccurs="unbounded"/>
+      <xsd:group ref="GeneralizedStringExpression" minOccurs="0" maxOccurs="unbounded"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
+
+  <xsd:group name="GeneralizedNumericExpression">
+    <xsd:choice>
+      <xsd:group ref="NumericExpression"/>
+      <xsd:group ref="LookupGroup"/>
+      <xsd:element ref="ArrayElement"/>
+    </xsd:choice>
+  </xsd:group>
 
   <xsd:group name="NumericExpression">
     <xsd:choice>
@@ -962,12 +978,10 @@ element.  It is used as an included schema only.
       <xsd:element ref="RealVariable"/>
       <xsd:element ref="IntegerValue"/>
       <xsd:element ref="RealValue"/>
-      <xsd:group ref="LookupGroup"/>
       <xsd:element ref="NodeTimepointValue"/>
       <!-- read operations for arrays-->
       <xsd:element name="ArraySize" type="xsd:NCName"/>
       <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
-      <xsd:element ref="ArrayElement"/>
     </xsd:choice>
   </xsd:group>
 
@@ -998,7 +1012,7 @@ element.  It is used as an included schema only.
         <xsd:element name="Name" type="xsd:NCName"/>
         <xsd:element name="Index">
           <xsd:complexType>
-            <xsd:group ref="NumericExpression"/>
+            <xsd:group ref="GeneralizedNumericExpression"/>
           </xsd:complexType>
         </xsd:element>
       </xsd:sequence>
@@ -1008,105 +1022,112 @@ element.  It is used as an included schema only.
 
   <xsd:element name="ADD">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="unbounded"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="unbounded"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="SUB">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="unbounded"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="unbounded"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="MUL">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="unbounded"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="unbounded"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="DIV">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="MOD">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="MAX">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="MIN">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression" minOccurs="2" maxOccurs="2"/>
+      <xsd:group ref="GeneralizedNumericExpression"
+                 minOccurs="2" maxOccurs="2"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="SQRT">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression"/>
+      <xsd:group ref="GeneralizedNumericExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="ABS">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression"/>
+      <xsd:group ref="GeneralizedNumericExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="CEIL">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression"/>
+      <xsd:group ref="GeneralizedNumericExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="FLOOR">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression"/>
+      <xsd:group ref="GeneralizedNumericExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="ROUND">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression"/>
+      <xsd:group ref="GeneralizedNumericExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="TRUNC">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression"/>
+      <xsd:group ref="GeneralizedNumericExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="REAL_TO_INT">
     <xsd:complexType>
-      <xsd:group ref="NumericExpression"/>
+      <xsd:group ref="GeneralizedNumericExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
 
   <xsd:element name="STRLEN">
     <xsd:complexType>
-      <xsd:group ref="StringExpression"/>
+      <xsd:group ref="GeneralizedStringExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
@@ -1141,17 +1162,8 @@ element.  It is used as an included schema only.
 
   <xsd:element name="Tolerance">
     <xsd:complexType>
-      <xsd:group ref="ToleranceGroup"/>
+      <xsd:group ref="GeneralizedNumericExpression"/>
     </xsd:complexType>
   </xsd:element>
-
-  <xsd:group name="ToleranceGroup">
-    <xsd:choice>
-      <xsd:element ref="IntegerValue"/>
-      <xsd:element ref="IntegerVariable"/>
-      <xsd:element ref="RealValue"/>
-      <xsd:element ref="RealVariable"/>
-    </xsd:choice>
-  </xsd:group>
 
 </xsd:schema>
