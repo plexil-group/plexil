@@ -126,13 +126,13 @@ static bool testArrayConstantReferenceXmlParser()
       barl->activate();
       assertTrue_1(iv->isActive());
 
-      iv->setValue(0);
+      iv->setValue((int32_t) 0);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == 0);
       assertTrue_1(barl->getValue(pb));
       assertTrue_1(pb == false);
 
-      iv->setValue(1);
+      iv->setValue((int32_t) 1);
       assertTrue_1(iv->getValue(n));
       assertTrue_1(n == 1);
       assertTrue_1(barl->getValue(pb));
