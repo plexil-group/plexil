@@ -39,6 +39,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecApplication.hh"
+#include "ExecListenerHub.hh"
 #include "InputQueue.hh"
 #include "InterfaceAdapter.hh"
 #include "Node.hh"
@@ -580,6 +581,8 @@ namespace PLEXIL
     assertTrue_1(entry);
     entry->initForAddPlan(root);
     m_inputQueue->put(entry);
+    if (g_configuration->getListenerHub())
+      g_configuration->getListenerHub()->notifyOfAddPlan(planXml);
     debugMsg("InterfaceManager:handleAddPlan", " plan enqueued for loading");
   }
 
@@ -594,7 +597,7 @@ namespace PLEXIL
     assertTrue_1(m_inputQueue);
     checkError(doc,
                "InterfaceManager::handleAddLibrary: Null plan document");
-    
+
     // Parse just far enough to extract name
     pugi::xml_node plan = doc->document_element();
     pugi::xml_node node;
@@ -611,7 +614,8 @@ namespace PLEXIL
                                      nodeIdElt,
                                      "handleAddLibrary: " << NODEID_TAG << " element is empty");
     addLibraryNode(name, doc);
-
+    if (g_configuration->getListenerHub())
+      g_configuration->getListenerHub()->notifyOfAddLibrary(node);
     debugMsg("InterfaceManager:handleAddLibrary", " library node " << name << " added");
   }
 
