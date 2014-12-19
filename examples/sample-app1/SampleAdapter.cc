@@ -125,28 +125,41 @@ static void propagate (const State& state, const vector<Value>& value)
   Adapter->propagateValueChange (state, value);
 }
 
+static State createState (const string& state_name, const vector<Value>& value)
+{
+  State state(state_name, value.size());
+  if (value.size() > 0)
+  {
+    for(size_t i=0; i<value.size();i++)
+    {
+      state.setParameter(i, value[i]);
+    }
+  }
+  return state;
+}
+
 static void receiveInt (const string& state_name, int val)
 {
-  propagate (State (state_name, EmptyArgs),
+  propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receiveFloat (const string& state_name, float val)
 {
-  propagate (State (state_name, EmptyArgs),
+  propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receiveString (const string& state_name, const string& val)
 {
-  propagate (State (state_name, EmptyArgs),
+  propagate (createState(state_name, EmptyArgs),
              vector<Value> (1, val));
 }
 
 static void receiveBoolString (const string& state_name, bool val, const string& arg)
 {
-  State state (state_name, vector<Value> (1, arg));
-  propagate (state, vector<Value> (1, val));
+  propagate (createState(state_name, vector<Value> (1, arg)),
+             vector<Value> (1, val));
 }
 
 static void receiveBoolIntInt (const string& state_name, bool val, int arg1, int arg2)
@@ -154,8 +167,7 @@ static void receiveBoolIntInt (const string& state_name, bool val, int arg1, int
   vector<Value> vec;
   vec.push_back (arg1);
   vec.push_back (arg2);
-  State state (state_name, vec);
-  propagate (state, vector<Value> (1, val));
+  propagate (createState(state_name, vec), vector<Value> (1, val));
 }
 
 
