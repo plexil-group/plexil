@@ -49,26 +49,26 @@
 <!--           <NodeBody> -->
 <!--             <Assignment> -->
 <!--               <BooleanVariable>continue</BooleanVariable> -->
-<!--               <LookupRHS> -->
+<!--               <BooleanRHS> -->
 <!--                 <LookupNow> -->
 <!--                   <Name> -->
 <!--                     <StringValue>continue</StringValue> -->
 <!--                   </Name> -->
 <!--                 </LookupNow> -->
-<!--               </LookupRHS> -->
+<!--               </BooleanRHS> -->
 <!--             </Assignment> -->
 <!--           </NodeBody> -->
 
 <!--           <NodeBody> -->
 <!--             <Assignment> -->
 <!--               <ArrayVariable>a4</ArrayVariable> -->
-<!--               <LookupRHS> -->
+<!--               <BooleanRHS> -->
 <!--                 <LookupNow> -->
 <!--                   <Name> -->
 <!--                     <StringValue>a5</StringValue> -->
 <!--                   </Name> -->
 <!--                 </LookupNow> -->
-<!--               </LookupRHS> -->
+<!--               </BooleanRHS> -->
 <!--             </Assignment> -->
 <!--           </NodeBody> -->
   </Node>
