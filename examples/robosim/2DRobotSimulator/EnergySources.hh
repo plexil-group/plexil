@@ -28,6 +28,7 @@
 #define ENERGY_SOURCES_HH
 
 #include <iostream>
+#include <vector>
 
 #include "ThreadMutex.hh"
 

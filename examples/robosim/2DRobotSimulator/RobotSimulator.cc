@@ -248,7 +248,7 @@ int main(int argc, char** argv)
 
   std::ifstream config(debugConfig.c_str());
   if (config.good())
-    DebugMessage::readConfigFile(config);
+    readDebugConfigStream(config);
 
   ipcAdapter = new IpcRobotAdapter(centralhost);
 
