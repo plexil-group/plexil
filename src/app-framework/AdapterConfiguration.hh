@@ -323,7 +323,6 @@ namespace PLEXIL {
     std::set<InterfaceAdapter *> m_adapters;
 
     //* List of directory names for plan file search paths
-    std::vector<std::string> m_libraryPath;
     std::vector<std::string> m_planPath;
   };
 

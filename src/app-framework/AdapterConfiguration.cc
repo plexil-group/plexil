@@ -36,6 +36,7 @@
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
 #include "ListenerFilters.hh"
+#include "planLibrary.hh"
 #ifdef PLEXIL_WITH_THREADS
 #include "SerializedInputQueue.hh"
 #else
@@ -178,7 +179,7 @@ namespace PLEXIL {
           for (std::vector<std::string>::const_iterator it = path->begin();
                it != path->end();
                ++it)
-            m_libraryPath.push_back(*it);
+            appendLibraryPath(*it);
           delete path;
         }
       }
@@ -370,7 +371,7 @@ namespace PLEXIL {
    */
   const std::vector<std::string>& AdapterConfiguration::getLibraryPath() const
   {
-    return m_libraryPath;
+    return getLibraryPaths();
   }
 
   /**
@@ -388,7 +389,7 @@ namespace PLEXIL {
    */
   void AdapterConfiguration::addLibraryPath(const std::string &libdir)
   {
-    m_libraryPath.push_back(libdir);
+    appendLibraryPath(libdir);
   }
 
   /**
@@ -399,9 +400,8 @@ namespace PLEXIL {
   {
     for (std::vector<std::string>::const_iterator it = libdirs.begin();
          it != libdirs.end();
-         ++it) {
-      m_libraryPath.push_back(*it);
-    }
+         ++it)
+      appendLibraryPath(*it);
   }
 
   /**
