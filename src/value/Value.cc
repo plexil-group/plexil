@@ -595,7 +595,7 @@ namespace PLEXIL
   void Value::print(std::ostream &s) const
   {
     if (!m_known) {
-      s << "<UNKNOWN>"; 
+      s << "[unknown_value]"; 
       return;
     }
     switch (m_type) {
@@ -648,7 +648,7 @@ namespace PLEXIL
       break;
 
     default:
-      s << "<INVALID_TYPE>";
+      s << "[invalid_type]";
       break;
     }
   }
