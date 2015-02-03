@@ -1,21 +1,16 @@
 This directory contains an example PLEXIL application consisting of two
-communicating executives.  One executive (whose plan is simulator.ple) acts as a
-simulator.  Another executive sends either commands or lookups (command.ple and
-lookup.ple, respectively) to this simulator executive.  Specifically, the
-simulator.ple plan simulates an external system that can process one integer
-lookup (x), one command (MoveRight(Integer dx)), and one message (Quit).
+communicating executives.  One executive (whose plan is Simulator.ple) acts as a
+simulator.  Another executive (specified by Robot.ple) sends commands and
+lookups to the simulator executive.
+
+Specifically, the Simulator.ple plan simulates an external system that can
+process one integer lookup (X), one command (MoveRight(Integer dx)), and one
+message (Quit).
 
 To run this example, first compile the plans:
 
-  plexilc simulator.ple
-  plexilc command.ple
-  plexilc lookup.ple
-
-Alternatively, compile the the Plexilisp versions of the plans:
-
-  plexilisp simulator.pli
-  plexilisp command.pli
-  plexilisp lookup.pli
+  plexilc Simulator.ple
+  plexilc Robot.ple
 
 Then start the IPC publish/subscribe server used for inter-executive
 communication:
@@ -24,14 +19,10 @@ communication:
 
 Next, start the simulator executive:
 
-  plexilexec -p simulator.plx -c simulator-config.xml 
+  plexilexec -p Simulator.plx -c simulator-config.xml 
 
-Finally, start an executive using either the command or lookup plans:
+Finally, start the "robot" executive:
 
-  plexilexec -p command.plx -c command-config.xml 
+  plexilexec -p Robot.plx -c command-config.xml 
 
-or 
-
-  plexilexec -p lookup.plx -c command-config.xml 
-
-Note that both use the same interface configuration file.
+Note that the plans use different interface configuration files.
