@@ -36,18 +36,27 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 
 include makeinclude/standard-defs.make
 
+#
+# Locations for GNU autotools
+#
+
+# TODO? test for existence
+AUTOCONF := autoconf
+AUTOMAKE := automake
+AUTORECONF := autoreconf
+LIBTOOLIZE := libtoolize
+
+# Primary target
 plexil-default: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim robosim sample pv
 
-robosim: ipc utils
-	$(MAKE) -C examples/robosim
-
-sample: universalExec
-	$(MAKE) -C examples/sample-app
+#
+# Standalone targets
+#
 
 checker:
 	(cd checker && ant jar)
 
-pv: LuvListener
+pv:
 	(cd viewers/pv && ant jar)
 
 plexil-compiler:
@@ -57,6 +66,17 @@ plexilscript:
 	(cd compilers/plexilscript && ant install)
 
 #
+# Targets which depend on the Automake targets below
+#
+
+robosim: ipc utils
+	$(MAKE) -C examples/robosim
+
+sample: universalExec
+	$(MAKE) -C examples/sample-app
+	$(MAKE) -C examples/sample-app1
+
+#
 # Targets under the Automake build system
 #
 # Dependencies may be too messy to capture here
@@ -64,7 +84,7 @@ plexilscript:
 
 app-framework: lib/libPlexilAppFramework.$(SUFSHARE)
 
-exec-core: pugixml utils lib/libPlexilExec.$(SUFSHARE) lib/libPlexilIntfc.$(SUFSHARE) lib/libPlexilExpr.$(SUFSHARE)
+exec-core: lib/libPlexilExec.$(SUFSHARE)
 
 GanttListener: lib/libGanttListener.$(SUFSHARE)
 
@@ -92,6 +112,8 @@ universalExec: bin/universalExec
 
 utils: lib/libPlexilUtils.$(SUFSHARE)
 
+value: lib/libPlexilValue.$(SUFSHARE)
+
 bin/central lib/libIpc.a : most
 bin/simulator : most
 bin/TestExec : most
@@ -108,6 +130,7 @@ lib/libPlexilExpr.$(SUFSHARE) : most
 lib/libPlexilIntfc.$(SUFSHARE) : most
 lib/libPlexilSockets.$(SUFSHARE) : most
 lib/libPlexilUtils.$(SUFSHARE) : most
+lib/libPlexilValue.$(SUFSHARE) : most
 lib/libpugixml.$(SUFSHARE) : most
 lib/libUdpAdapter.$(SUFSHARE) : most
 
@@ -119,8 +142,15 @@ most-build: src/Makefile
 most-install: most-build src/Makefile
 	$(MAKE) -C src install
 
-src/Makefile: src/configure src/Makefile.am
+src/Makefile: src/configure
 	cd ./src && ./configure --prefix=$(PLEXIL_HOME) --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+
+#
+# Bootstrapping autobuild files
+#
+
+src/configure: src/configure.ac src/Makefile.am
+	cd ./src && $(AUTORECONF) -f -i
 
 #
 # End Automake targets
@@ -133,9 +163,22 @@ clean:
 	-$(MAKE) -C src $@
 	(cd checker && ant $@)
 	(cd compilers/plexilscript && ant $@)
+	(cd jars && $(RM) -f plexilscript.jar)	
 	(cd viewers/pv && ant $@)
 	-$(RM) lib/lib* bin/*
 	@ echo Done.
+
+# Clean up after autotools
+squeaky-clean: | clean
+	(cd src && $(RM) -f */Makefile */Makefile.in)
+	(cd src/apps && $(RM) -f */Makefile */Makefile.in)
+	(cd src/interfaces && $(RM) -f */Makefile */Makefile.in)
+	(cd src/third-party/ipc && $(RM) Makefile Makefile.in)
+	(cd src/third-party/pugixml/src && $(RM) Makefile Makefile.in)
+	(cd src && $(RM) -f Makefile Makefile.in configure config.guess config.sub \
+ cppcheck.sh install-sh libtool)
+
+# *** TODO: release target(s) ***
 
 # Convenience targets
 
@@ -156,4 +199,4 @@ alltags:
 
 .PHONY: app-framework exec-core GanttListener ipc IpcAdapter IpcUtils 
 
-.PHONY: alltags clean ctags jtags most most-build most-install plexil-default tags
+.PHONY: alltags clean ctags jtags most most-build most-install plexil-default squeaky-clean tags
