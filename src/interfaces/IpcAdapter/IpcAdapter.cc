@@ -799,10 +799,16 @@ namespace PLEXIL
   void IpcAdapter::handleTelemetryValuesSequence(const std::vector<const PlexilMsgBase*>& msgs) 
   {
     const PlexilStringValueMsg* tv = reinterpret_cast<const PlexilStringValueMsg*>(msgs[0]);
-    State state(tv->stringValue);
-
+    // Chop off sender UID
+    char const *stateName = strchr(tv->stringValue, TRANSACTION_ID_SEPARATOR_CHAR);
+    if (!stateName || !*(++stateName)) {
+      debugMsg("IpcAdapter:handleTelemetryValuesSequence",
+               " separator character or state name missing, ignoring");
+      return;
+    }
+    State state(stateName);
     debugMsg("IpcAdapter:handleTelemetryValuesSequence",
-             " state \"" << tv->stringValue << "\" found, processing");
+             " state \"" << stateName << "\" found, processing");
     size_t nValues = msgs[0]->count;
     checkError(nValues == 1,
                "Telemetry values message only supports 1 value, but received " << nValues);
