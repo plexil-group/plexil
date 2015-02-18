@@ -1,7 +1,7 @@
 <?xml version = "1.0"?>
 
 <project name = "Luv"
-         default = "compile" 
+         default = "jar"
          basedir = ".">
 
   <!-- application specific build variables (change these) -->
