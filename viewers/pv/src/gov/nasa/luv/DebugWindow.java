@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,60 +51,58 @@ public class DebugWindow extends JFrame
        */
       public DebugWindow()
       {
-         init();
+          init();
+          addWindowListener(new WindowAdapter() {
+                  public void windowClosing(WindowEvent winEvt) {
+                      // TODO: Perhaps ask user if they want to save any unsaved files first.
+                  }
+              });
          
-         addWindowListener(new WindowAdapter() {
-		public void windowClosing(WindowEvent winEvt) {
-		    // Perhaps ask user if they want to save any unsaved files first.
-		    LuvActionHandler.luvDebugWindowAction.actionPerformed(null);   
-		}
-	    });
+          // output stream to direct all text into the the debug text area
+          DualOutputStream dos = new DualOutputStream(null); 
          
-         // output stream to direct all text into the the debug text area
-         DualOutputStream dos = new DualOutputStream(null); 
+          // print stream that uses the directed output stream
+          PrintStream ps = new PrintStream(dos);
          
-         // print stream that uses the directed output stream
-         PrintStream ps = new PrintStream(dos);
-         
-         // redirect all system output into the debug text area
-         System.setErr(ps);
-         System.setOut(ps);
+          // redirect all system output into the debug text area
+          System.setErr(ps);
+          System.setOut(ps);
       }
       
       private void init() 
       {
-         debugArea = new javax.swing.JTextArea();
-         debugArea.setEditable(false);
-         debugArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+          debugArea = new javax.swing.JTextArea();
+          debugArea.setEditable(false);
+          debugArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
          
-         Action clearAction = 
-	    new AbstractAction("Clear Output")
-	    {
+          Action clearAction = 
+              new AbstractAction("Clear Output")
+              {
                   public void actionPerformed(ActionEvent actionEvent)
                   {
-                     clearDebugArea();
+                      clearDebugArea();
                   }
-	    };
+              };
             
-         clearAll = new JButton(clearAction);
-         toolBar = new javax.swing.JToolBar();
-         toolBar.setFloatable(false);      
-         toolBar.add(clearAll);
+          clearAll = new JButton(clearAction);
+          toolBar = new javax.swing.JToolBar();
+          toolBar.setFloatable(false);      
+          toolBar.add(clearAll);
 
-         debugScrollPane = new javax.swing.JScrollPane();
-         debugScrollPane.setViewportView(debugArea);
+          debugScrollPane = new javax.swing.JScrollPane();
+          debugScrollPane.setViewportView(debugArea);
          
-         outer = new javax.swing.JPanel();
-         outer.setLayout(new java.awt.BorderLayout());
-         outer.add(debugScrollPane, java.awt.BorderLayout.CENTER);
+          outer = new javax.swing.JPanel();
+          outer.setLayout(new java.awt.BorderLayout());
+          outer.add(debugScrollPane, java.awt.BorderLayout.CENTER);
          
-         getContentPane().add(outer, java.awt.BorderLayout.CENTER);
-         getContentPane().add(toolBar, java.awt.BorderLayout.NORTH);
+          getContentPane().add(outer, java.awt.BorderLayout.CENTER);
+          getContentPane().add(toolBar, java.awt.BorderLayout.NORTH);
          
-         setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_DBWIN_SIZE));
-         setTitle("Debug Window");                
-         setLocation(Luv.getLuv().getProperties().getPoint(PROP_DBWIN_LOC));
-	 pack();
+          setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_DBWIN_SIZE));
+          setTitle("Debug Window");                
+          setLocation(Luv.getLuv().getProperties().getPoint(PROP_DBWIN_LOC));
+          pack();
       }
 
       // append a string to the debug window

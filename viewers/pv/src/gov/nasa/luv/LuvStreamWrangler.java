@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -76,11 +76,11 @@ public class LuvStreamWrangler implements StreamWrangler {
                     Luv.getLuv().getStatusMessageHandler().displayErrorMessage(f, "ERROR: exception occurred while closing Universal Executive input stream");
                 }
 
-                Luv.getLuv().getLuvStateHandler().finishedExecutionState();
+                Luv.getLuv().finishedExecutionState();
 
                 break;
             } catch (Exception e) {
-                Luv.getLuv().getLuvStateHandler().finishedExecutionState();
+                Luv.getLuv().finishedExecutionState();
                 break;
             }
 

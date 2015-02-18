@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -65,70 +65,65 @@ public class FileHandler
     /**
      * Constructs a FileHandler.
      */
-    public FileHandler() 
-    {
-        init();
-    }
-    
-    private void init()
+    public FileHandler(String[] cmdLineArgs) 
     {
         doNotLoadScript = false;
         stopSearchForMissingLibs  = false; 
         
         dirChooser = new JFileChooser()
-	{
-	    {
-		setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	    }
-	};
+            {
+                {
+                    setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                }
+            };
         
         fileChooser = new JFileChooser()
-	{
-	    {
-		// XML file filter                  
-		addChoosableFileFilter(new FileFilter()
-		    {
-			// accept file?                          
-			public boolean accept(File f) 
-			{
-			    // allow browse directories                             
-			    if (f.isDirectory())
-				return true;
-                              
-			    // allow files with correct extention                              
-			    String extension = getExtension(f);
-			    Boolean correctExtension = false;
-			    if (extension != null)
+            {
+                {
+                    // XML file filter                  
+                    addChoosableFileFilter(new FileFilter()
+                        {
+                            // accept file?                          
+                            public boolean accept(File f) 
                             {
-                                for (String ext: FILE_EXTENSIONS)
-                                    if (extension.equals(ext))
-                                        correctExtension = true;
+                                // allow browse directories                             
+                                if (f.isDirectory())
+                                    return true;
+                              
+                                // allow files with correct extention                              
+                                String extension = getExtension(f);
+                                Boolean correctExtension = false;
+                                if (extension != null)
+                                    {
+                                        for (String ext: FILE_EXTENSIONS)
+                                            if (extension.equals(ext))
+                                                correctExtension = true;
+                                    }
+                              
+                                return correctExtension;
                             }
-                              
-			    return correctExtension;
-			}
 
-			// get file extension                        
-			public String getExtension(File f)
-			{
-			    String ext = null;
-			    String s = f.getName();
-			    int i = s.lastIndexOf('.');
+                            // get file extension                        
+                            public String getExtension(File f)
+                            {
+                                String ext = null;
+                                String s = f.getName();
+                                int i = s.lastIndexOf('.');
                               
-			    if (i > 0 && i < s.length() - 1)
-				ext = s.substring(i+1).toLowerCase();
+                                if (i > 0 && i < s.length() - 1)
+                                    ext = s.substring(i+1).toLowerCase();
                               
-			    return ext;
-			}
+                                return ext;
+                            }
 
-			// return descriton                          
-			public String getDescription()
-			{
-			    return "XML / PLX / PLS";
-			}
-		    });
-	    }
-	};
+                            // return descriton                          
+                            public String getDescription()
+                            {
+                                return "XML / PLX / PLS";
+                            }
+                        });
+                }
+            };
     }
     
     /**
@@ -164,7 +159,7 @@ public class FileHandler
             
         if (!library.exists()) {
         	//algorithm to use user defined libraries
-        	for(File testName : Luv.getLuv().getLibLoad().getLibraryList())
+        	for (File testName : Luv.getLuv().getLibraryLoader().getLibraryList())
         	{
         		String libraryTestName = testName.getName();
         		if(!library.exists())
@@ -689,7 +684,7 @@ public class FileHandler
                     return null;
             case 2:
                 doNotLoadScript = true;
-                Luv.getLuv().getLuvStateHandler().readyState();
+                Luv.getLuv().readyState();
                 return null;                    
         }
         

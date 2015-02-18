@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,6 +45,23 @@ import static gov.nasa.luv.Constants.*;
 
 public class Model extends Properties
 {
+    //
+    // Private constants
+    //
+
+    /** A collection of all the possible Plexil Plan node types. */
+    public static HashMap<String, String> NODE_TYPES =
+        new HashMap<String, String>() {
+            {
+                put(NODELIST,        "List Node");
+                put(COMMAND,         "Command Node");
+                put(ASSN,            "Assignment Node");
+                put(EMPTY,           "Empty Node");
+                put(UPDATE,          "Update Node");
+                put(LIBRARYNODECALL, "Library Node");
+            }
+        };
+
     private static Model TheRootModel;
     private static boolean found;   
     private Model foundChild;    
@@ -143,18 +160,16 @@ public class Model extends Properties
         setProperty(SKIP_CONDITION, node.getProperty(SKIP_CONDITION));
         setProperty(START_CONDITION, node.getProperty(START_CONDITION));
         setProperty(END_CONDITION, node.getProperty(END_CONDITION));
+        setProperty(EXIT_CONDITION, node.getProperty(EXIT_CONDITION));
         setProperty(INVARIANT_CONDITION, node.getProperty(INVARIANT_CONDITION));
         setProperty(PRE_CONDITION, node.getProperty(PRE_CONDITION));
         setProperty(POST_CONDITION, node.getProperty(POST_CONDITION));
         setProperty(REPEAT_CONDITION, node.getProperty(REPEAT_CONDITION));
         setProperty(ANCESTOR_INVARIANT_CONDITION, node.getProperty(ANCESTOR_INVARIANT_CONDITION));
         setProperty(ANCESTOR_END_CONDITION, node.getProperty(ANCESTOR_END_CONDITION));
-        setProperty(PARENT_EXECUTING_CONDITION, node.getProperty(PARENT_EXECUTING_CONDITION));
-        setProperty(PARENT_FINISHED_CONDITION, node.getProperty(PARENT_FINISHED_CONDITION));
-        setProperty(CHILDREN_WAITING_OR_FINISHED, node.getProperty(CHILDREN_WAITING_OR_FINISHED));
+        setProperty(ANCESTOR_EXIT_CONDITION, node.getProperty(ANCESTOR_EXIT_CONDITION));
+        setProperty(ACTION_COMPLETE, node.getProperty(ACTION_COMPLETE));
         setProperty(ABORT_COMPLETE, node.getProperty(ABORT_COMPLETE));
-        setProperty(PARENT_WAITING_CONDITION, node.getProperty(PARENT_WAITING_CONDITION));
-        setProperty(COMMAND_HANDLE_RECEIVED_CONDITION, node.getProperty(COMMAND_HANDLE_RECEIVED_CONDITION));
     }
     
     private void init()
@@ -864,18 +879,16 @@ public class Model extends Properties
         setProperty(SKIP_CONDITION, UNKNOWN);                     
         setProperty(START_CONDITION, UNKNOWN);               
         setProperty(END_CONDITION, UNKNOWN); 
-        setProperty(INVARIANT_CONDITION, UNKNOWN); 
-        setProperty(PRE_CONDITION, UNKNOWN); 
-        setProperty(POST_CONDITION, UNKNOWN); 
-        setProperty(REPEAT_CONDITION, UNKNOWN); 
-        setProperty(ANCESTOR_INVARIANT_CONDITION, UNKNOWN); 
-        setProperty(ANCESTOR_END_CONDITION, UNKNOWN);        
-        setProperty(PARENT_EXECUTING_CONDITION, UNKNOWN);    
-        setProperty(PARENT_FINISHED_CONDITION, UNKNOWN);    
-        setProperty(CHILDREN_WAITING_OR_FINISHED, UNKNOWN); 
-        setProperty(ABORT_COMPLETE, UNKNOWN);           
-        setProperty(PARENT_WAITING_CONDITION, UNKNOWN);         
-        setProperty(COMMAND_HANDLE_RECEIVED_CONDITION, UNKNOWN); 
+        setProperty(EXIT_CONDITION, UNKNOWN);
+        setProperty(INVARIANT_CONDITION, UNKNOWN);
+        setProperty(PRE_CONDITION, UNKNOWN);
+        setProperty(POST_CONDITION, UNKNOWN);
+        setProperty(REPEAT_CONDITION, UNKNOWN);
+        setProperty(ANCESTOR_INVARIANT_CONDITION, UNKNOWN);
+        setProperty(ANCESTOR_END_CONDITION, UNKNOWN);
+        setProperty(ANCESTOR_EXIT_CONDITION, UNKNOWN);
+        setProperty(ACTION_COMPLETE, UNKNOWN);
+        setProperty(ABORT_COMPLETE, UNKNOWN);
     }
             
     /**

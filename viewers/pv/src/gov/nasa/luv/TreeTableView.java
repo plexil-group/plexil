@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -55,6 +55,28 @@ import treetable.JTreeTable;
 
 public class TreeTableView extends JTreeTable 
 {
+    //
+    // Local constants
+    //
+
+    /** Represents index of Name column in the Luv application. */     
+    private static final int NAME_COL_NUM         = 0;
+    /** Represents index of State column in the Luv application. */   
+    private static final int STATE_COL_NUM        = 1;
+    /** Represents index of Outcome column in the Luv application. */   
+    private static final int OUTCOME_COL_NUM      = 2;
+    /** Represents index of Failure Type column in the Luv application. */   
+    private static final int FAILURE_TYPE_COL_NUM = 3;
+
+    /** Represents column name for the Name column in the Luv application. */   
+    private static final String NAME_COL_NAME         = "Name";
+    /** Represents column name for the State column in the Luv application. */
+    private static final String STATE_COL_NAME        = "State";
+    /** Represents column name for the Outcome column in the Luv application. */
+    private static final String OUTCOME_COL_NAME      = "Outcome";
+    /** Represents column name for the Failure Type column in the Luv application. */
+    private static final String FAILURE_TYPE_COL_NAME = "Failure Type";      
+
     // most recent tree view created stored in case it's needed to set 
     // expansion state of the items in the new tree
     private static TreeTableView currentView;
@@ -501,10 +523,11 @@ public class TreeTableView extends JTreeTable
         	Model node = ((Wrapper)nodePath.getLastPathComponent()).model;
                     	
         	//MODEL_STATE
-            if (node.getProperty(PARENT_WAITING_CONDITION)==WAITING)
-            {
-                tree.expandRow(i);
-            }        	            
+            // *** FIXME ***
+            // if (node.getProperty(PARENT_WAITING_CONDITION)==WAITING)
+            // {
+            //     tree.expandRow(i);
+            // }        	            
         }                 
     }
     

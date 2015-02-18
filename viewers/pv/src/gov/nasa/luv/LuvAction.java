@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,81 +37,86 @@ import static gov.nasa.luv.Constants.*;
 
 public abstract class LuvAction extends AbstractAction
 {
-      KeyStroke accelerator;
+    private KeyStroke accelerator;
 
-      /**
-       * Constructs a LuvAction with a given name, shortcut key and
-       * description.  This version assumes no accelerator key.
-       *
-       * @param name        name of this action
-       * @param description description of this action
-       */
+    /**
+     * Constructs a LuvAction with a given name, shortcut key and
+     * description.  This version assumes no accelerator key.
+     *
+     * @param name        name of this action
+     * @param description description of this action
+     */
       
-      public LuvAction(String name, String description)
-      {
-         this(name, description, NO_ACCELERATOR);
-      }
+    public LuvAction(String name, String description)
+    {
+        init(name, description, NO_ACCELERATOR, 0);
+    }
 
-      /**
-       * Constructs a LuvAction with a given name, shortcut key and
-       * description.  This version assumes no key modifiers for
-       * shortcut.
-       *
-       * @param name        name of this action
-       * @param description description of this action
-       * @param keyCode     identifies key for this action
-       */
+    /**
+     * Constructs a LuvAction with a given name, shortcut key and
+     * description.  This version assumes no key modifiers for
+     * shortcut.
+     *
+     * @param name        name of this action
+     * @param description description of this action
+     * @param keyCode     identifies key for this action
+     */
       
-      public LuvAction(String name, String description, int keyCode)
-      {
-         this(name, description, keyCode, 0);
-      }
+    public LuvAction(String name, String description, int keyCode)
+    {
+        init(name, description, keyCode, 0);
+    }
       
-      /**
-       * Constructs a LuvAction with a given name, shortcut key
-       * and description.
-       *
-       * @param name        name of this action
-       * @param description description of this action
-       * @param keyCode     identifies shortcut key for this action
-       * @param modifiers   modifiers for shortcut (SHIFT, META, etc.)
-       */
+    /**
+     * Constructs a LuvAction with a given name, shortcut key
+     * and description.
+     *
+     * @param name        name of this action
+     * @param description description of this action
+     * @param keyCode     identifies shortcut key for this action
+     * @param modifiers   modifiers for shortcut (SHIFT, META, etc.)
+     */
       
-      public LuvAction(String name, String description,
-                       int keyCode, int modifiers)
-      {
-         putValue(NAME, name);
-         putValue(SHORT_DESCRIPTION, description);
-         if (keyCode != NO_ACCELERATOR)
+    public LuvAction(String name, String description,
+                     int keyCode, int modifiers)
+    {
+        init(name, description, keyCode, modifiers);
+    }
+
+    private void init(String name, String description,
+                      int keyCode, int modifiers)
+    {
+        putValue(NAME, name);
+        putValue(SHORT_DESCRIPTION, description);
+        if (keyCode != NO_ACCELERATOR)
             putValue(ACCELERATOR_KEY, accelerator = 
                      KeyStroke.getKeyStroke(keyCode, modifiers));
-      }
+    }
 
-      /** Gets text name of the accelerator key for this action. 
-       *
-       * @return some random description of the accelerator key
-       */
-
-      public String getAcceleratorDescription()
-      {
-         // if there is no accelerator indicate this
-         if (accelerator == null)
+    /** Gets text name of the accelerator key for this action. 
+     *
+     * @return some random description of the accelerator key
+     */
+    public String getAcceleratorDescription()
+    {
+        // if there is no accelerator indicate this
+        if (accelerator == null)
             return "<no key>";
 
-         // get and clean up the key name
-         String key = accelerator.toString();
-         key = key.replaceAll("pressed", "").trim();
-         key = key.replaceAll("  ", " ");
-         key = key.replaceAll(" ", "-");
-         return key;
-      }
+        // get and clean up the key name
+        String key = accelerator.toString();
+        key = key.replaceAll("pressed", "").trim();
+        key = key.replaceAll("  ", " ");
+        key = key.replaceAll(" ", "-");
+        return key;
+    }
 
-      /**
-       * Called when the given action is to be executed. This
-       * function must be implemented by the subclass.
-       *
-       * @param  e action event 
-       */
+    /**
+     * Called when the given action is to be executed. This
+     * function must be implemented by the subclass.
+     *
+     * @param  e action event 
+     */
       
-      abstract public void actionPerformed(ActionEvent e);
+    abstract public void actionPerformed(ActionEvent e);
 }

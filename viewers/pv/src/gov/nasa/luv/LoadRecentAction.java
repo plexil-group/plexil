@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -295,7 +295,7 @@ public class LoadRecentAction extends LuvAction
         {
            try 
            {
-               Luv.getLuv().getLuvStateHandler().stopExecutionState();
+               Luv.getLuv().stopExecutionState();
                Luv.getLuv().getStatusMessageHandler().displayInfoMessage("Stopping execution and loading a recent plan");
            }
            catch (IOException ex) 
@@ -308,7 +308,7 @@ public class LoadRecentAction extends LuvAction
         {
             Luv.getLuv().getFileHandler().loadRecentRun(recentIndex);
            
-            Luv.getLuv().getLuvStateHandler().loadRecentRunState();
+            Luv.getLuv().loadRecentRunState();
         } 
         catch (IOException ex) 
         {

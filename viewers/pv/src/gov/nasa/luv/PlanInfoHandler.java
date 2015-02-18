@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,12 +53,11 @@ public class PlanInfoHandler extends AbstractDispatchableHandler
          String text = getTweenerText();
 
          // if this is blocking status, set that property in model
-         if (localName.equals(VIEWER_BLOCKS)) 
-         {
+         if (localName.equals(VIEWER_BLOCKS)) {
              Luv.getLuv().setBreaksAllowed(Boolean.valueOf(text));
-	     // tell viewer to get ready
+             // tell viewer to get ready
              Luv.getLuv().setIsExecuting(true);
-	     Luv.getLuv().getLuvStateHandler().readyState();	     
-	 }
+             Luv.getLuv().readyState();	     
+         }
       }
 }

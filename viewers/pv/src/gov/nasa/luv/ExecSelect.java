@@ -1,3 +1,29 @@
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package gov.nasa.luv;
 
 import static gov.nasa.luv.Constants.FILE_EXTENSIONS;
@@ -52,9 +78,8 @@ public class ExecSelect extends JPanel {
 	private PlexilFilter planFilter, configFilter, scriptFilter;
 	private JFileChooser dirChooser;
 	private int mode, modeTemp;
-	private ExecAction action;	
 	private AppSettings execSet, testSet, simSet, backExec, backTest, backSim;
-	public static final int RECENT_LIB = 1, RECENT_PLAN = 2, RECENT_SUPP = 3;
+	private static final int RECENT_LIB = 1, RECENT_PLAN = 2, RECENT_SUPP = 3;
 		
 	public JButton getSaveBut() {
 		return saveBut;
@@ -83,7 +108,6 @@ public class ExecSelect extends JPanel {
 		buttonList = new ArrayList<JButton>();
 		recentDirMap = new HashMap<JButton, Integer>();
 		extMap = new HashMap<JButton, PlexilFilter>();		
-		action = new ExecAction();
 		execSet = new AppSettings("plexilExec", "config");
 		execSet.setFilter(new PlexilFilter(""));
 		testSet = new AppSettings("testExec", "script");
@@ -109,32 +133,48 @@ public class ExecSelect extends JPanel {
 		execGroup.add(plexilSim);
 		plexilSim.addActionListener(new ExecChooserListener());		
 		
-		planBut = new JButton(action.choosePlanAction);
+		planBut =
+            new JButton(new LuvAction("Plan",
+                                      "Choose a plexil plan file.",
+                                      VK_O,
+                                      META_MASK) {
+                    public void actionPerformed(ActionEvent e) {
+                        openFile(e);
+                    }
+                }
+                        );
 		planBut.addActionListener(new ButtonFileListener());
 		planLab = new JLabel("");
 		libBut = new JButton("Libraries");
-		libBut.addActionListener(new ActionListener() {
-               
-            public void actionPerformed(ActionEvent e)
-            {                
-            	try{
-                LibraryLoader lib = new LibraryLoader("Library");
-                lib.removeAllNodes();
-                lib.selectLibraries();
-                lib.open();
-            	}catch(IOException ex)
-            	{
-            		ex.printStackTrace();
-            	}
-            	
-            }
-        });   
-		configBut = new JButton(action.chooseConfigAction);
+		libBut.addActionListener(Luv.getLuv().getLibraryLoader().getSelectLibraryListener());
+
+		configBut =
+            new JButton(new LuvAction("Config",
+                                      "Choose a Config file.",
+                                      VK_E,
+                                      META_MASK) {
+
+                    public void actionPerformed(ActionEvent e) {
+                        openFile(e);
+                    }
+                }
+                        );
 		configBut.addActionListener(new ButtonFileListener());
 		configBut.setEnabled(false);
 		configLab = new JLabel("");
 		configBut.setVisible(false);
-		scriptBut = new JButton(action.chooseScriptAction);
+
+		scriptBut =
+            new JButton(new LuvAction("Script",
+                                      "Choose a script file.",
+                                      VK_E,
+                                      META_MASK) {
+
+                    public void actionPerformed(ActionEvent e) {
+                        openFile(e);                    
+                    }
+                }
+                        );
 		scriptBut.addActionListener(new ButtonFileListener());
 		scriptLab = new JLabel("");	
 		
@@ -380,7 +420,7 @@ public class ExecSelect extends JPanel {
 
         if (Luv.getLuv().getIsExecuting()) {
             try {
-                Luv.getLuv().getLuvStateHandler().stopExecutionState();
+                Luv.getLuv().stopExecutionState();
                 Luv.getLuv().getStatusMessageHandler().displayInfoMessage("Stopping execution and reloading plan");
             } catch (IOException ex) {
                 Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
@@ -392,12 +432,10 @@ public class ExecSelect extends JPanel {
         
         plan = new File(plannm);
         if (plan.exists()) {
-            Luv.getLuv().getFileHandler().loadPlan(plan);
-            Luv.getLuv().getStatusMessageHandler().showStatus("Plan \"" + Luv.getLuv().getCurrentPlan().getAbsolutePlanName() + "\" loaded", 1000);
-            Luv.getLuv().getLuvStateHandler().openPlanState();
+            Luv.getLuv().loadPlan(plan);
         } else {
             Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: trying to reload an UNKNOWN plan");
-            Luv.getLuv().getLuvStateHandler().reloadPlanState();
+            Luv.getLuv().reloadPlanState();
         }
         Luv.getLuv().setNewPlan(false);                
         
@@ -608,7 +646,7 @@ public class ExecSelect extends JPanel {
 			File plan = null, supp = null;
 			if (Luv.getLuv().getIsExecuting()) {
 	            try {
-	                Luv.getLuv().getLuvStateHandler().stopExecutionState();
+	                Luv.getLuv().stopExecutionState();
 	                Luv.getLuv().getStatusMessageHandler().displayInfoMessage("Stopping execution and loading plan");
 	            } catch (IOException ex) {
 	                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
@@ -621,10 +659,8 @@ public class ExecSelect extends JPanel {
 						Luv.getLuv().setNewPlan(true);
 						PlexilPlanHandler.resetRowNumber();
 						plan = new File(ExecSelect.getExecSel().getSettings().getPlanLocation());
-						Luv.getLuv().getFileHandler().loadPlan(plan);									            
-						Luv.getLuv().getLuvStateHandler().openPlanState();						
-						Luv.getLuv().getStatusMessageHandler().showStatus("Plan \"" + Luv.getLuv().getCurrentPlan().getAbsolutePlanName() + "\" loaded", 1000);
-						Luv.getLuv().getLuvStateHandler().readyState();
+						Luv.getLuv().loadPlan(plan);
+						Luv.getLuv().readyState();
 						Luv.getLuv().setNewPlan(false);
 						Luv.getLuv().setProperty(lookupRecent(RECENT_PLAN), plan.getParent());
 				}
@@ -782,42 +818,6 @@ public class ExecSelect extends JPanel {
 		{
 		    return descr;
 		}
-	}
-	/** Action to load a plan for Execution. */
-	class ExecAction {
-	    public LuvAction choosePlanAction =
-            new LuvAction("Plan",
-            "Choose a plexil plan file.",
-            VK_O,
-            META_MASK) {
-
-                public void actionPerformed(ActionEvent e) {
-                	openFile(e);
-                }
-            };
-    /** Action to load a script for Execution. */
-    public LuvAction chooseScriptAction =    	
-            new LuvAction("Script",
-            "Choose a script file.",
-            VK_E,
-            META_MASK) {
-
-                public void actionPerformed(ActionEvent e) {
-                	openFile(e);                    
-                }
-            };
-    
-    /** Action to load a config for Execution. */
-    public LuvAction chooseConfigAction =    	
-        new LuvAction("Config",
-                "Choose a Config file.",
-                VK_E,
-                META_MASK) {
-
-                    public void actionPerformed(ActionEvent e) {
-                    	openFile(e);
-                    }
-                };   
 	}
 	
 	/*

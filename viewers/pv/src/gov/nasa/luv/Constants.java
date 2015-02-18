@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -306,7 +306,6 @@ public class Constants
       public static final String    COMMAND_ICO_NAME  = "NODE_COMMAND.gif";
       public static final String    ASSN_ICO_NAME     = "NODE_ASSN.gif";
       public static final String    EMPTY_ICO_NAME    = "NODE_EMPTY.gif";
-      public static final String    FUNCALL_ICO_NAME  = "NODE_FUNCTION.gif";
       public static final String    UPDATE_ICO_NAME   = "NODE_UPDATE.gif";
       public static final String    LIBCALL_ICO_NAME  = "NODE_LIB_CALL.gif";    
   
@@ -317,7 +316,6 @@ public class Constants
             add(COMMAND,         COMMAND_ICO_NAME);
             add(ASSN,            ASSN_ICO_NAME);
             add(EMPTY,           EMPTY_ICO_NAME);
-            add(FUNCCALL,        FUNCALL_ICO_NAME);
             add(UPDATE,          UPDATE_ICO_NAME);
             add(LIBRARYNODECALL, LIBCALL_ICO_NAME);
             add(START_LOGO,      START_SCREEN_ICO);
@@ -384,24 +382,6 @@ public class Constants
       {         
          return new ImageIcon(Toolkit.getDefaultToolkit().getImage(ClassLoader.getSystemResource(ICONS_DIR + name)));
       }
-
-      /** Represents index of Name column in the Luv application. */     
-      public static final int NAME_COL_NUM         = 0;
-      /** Represents index of State column in the Luv application. */   
-      public static final int STATE_COL_NUM        = 1;
-      /** Represents index of Outcome column in the Luv application. */   
-      public static final int OUTCOME_COL_NUM      = 2;
-      /** Represents index of Failure Type column in the Luv application. */   
-      public static final int FAILURE_TYPE_COL_NUM = 3;
-      
-      /** Represents column name for the Name column in the Luv application. */   
-      public static final String NAME_COL_NAME         = "Name";
-      /** Represents column name for the State column in the Luv application. */
-      public static final String STATE_COL_NAME        = "State";
-      /** Represents column name for the Outcome column in the Luv application. */
-      public static final String OUTCOME_COL_NAME      = "Outcome";
-      /** Represents column name for the Failure Type column in the Luv application. */
-      public static final String FAILURE_TYPE_COL_NAME = "Failure Type";      
       
       /** While displayed in the State column, it indicates that the Plexil node is in an INACTIVE state. */
       public static final String INACTIVE         = "INACTIVE";
@@ -418,18 +398,6 @@ public class Constants
       /** While displayed in the State column, it indicates that the Plexil node is in an ITERATION_ENDED state. */
       public static final String ITERATION_ENDED  = "ITERATION_ENDED";
 
-      /** A collection of all the possible Plexil node states. */
-      public static final String[] NODE_STATES = 
-      {
-         INACTIVE,
-         WAITING,
-         EXECUTING,
-         FINISHING,
-         FINISHED,
-         FAILING,
-         ITERATION_ENDED,
-      };
-
       /** While displayed in the Outcome column, it indicates that the Plexil node outcome was UNKNOWN. */
       public static final String UNKNOWN = "UNKNOWN";
        /** While displayed in the Outcome column, it indicates that the Plexil node outcome was a SUCCESS. */
@@ -438,39 +406,18 @@ public class Constants
       public static final String FAILURE = "FAILURE";
        /** While displayed in the Outcome column, it indicates that the Plexil node outcome was SKIPPED. */
       public static final String SKIPPED = "SKIPPED";
+    public static final String INTERRUPTED = "INTERRUPTED";
 
-      /** A collection of all the possible Plexil node outcomes. */
-      public static final String[] NODE_OUTCOMES = 
-      {
-         UNKNOWN,
-         SUCCESS,
-         FAILURE,
-         SKIPPED,
-      };
-
-      /** While displayed in the Failure Type column, it indicates that the Plexil node failed due to an INFINITE_LOOP. */
-      public static final String INFINITE_LOOP = "INFINITE_LOOP";
-      /** While displayed in the Failure Type column, it indicates that the Plexil node failed due to an PRE_CONDITION_FALSE. */
-      public static final String PRE_CONDITION_FALSE = "PRE_CONDITION_FALSE";
-      /** While displayed in the Failure Type column, it indicates that the Plexil node failed due to an POST_CONDITION_FALSE. */
-      public static final String POST_CONDITION_FALSE = "POST_CONDITION_FALSE";
-      /** While displayed in the Failure Type column, it indicates that the Plexil node failed due to an INVARIANT_CONDITION_FALSE. */
-      public static final String INVARIANT_CONDITION_FALSE = "INVARIANT_CONDITION_FALSE";
-      /** While displayed in the Failure Type column, it indicates that the Plexil node failed due to an ANCESTOR_INVARIANT_CONDITION_FALSE. */
-      public static final String ANCESTOR_INVARIANT_CONDITION_FALSE = "ANCESTOR_INVARIANT_CONDITION_FALSE";
+      /** While displayed in the Failure Type column, it indicates that the Plexil node failed due to an PRE_CONDITION_FAILED. */
+      public static final String PRE_CONDITION_FAILED = "PRE_CONDITION_FAILED";
+      /** While displayed in the Failure Type column, it indicates that the Plexil node failed due to an POST_CONDITION_FAILED. */
+      public static final String POST_CONDITION_FAILED = "POST_CONDITION_FAILED";
+      /** While displayed in the Failure Type column, it indicates that the Plexil node failed due to an INVARIANT_CONDITION_FAILED. */
+      public static final String INVARIANT_CONDITION_FAILED = "INVARIANT_CONDITION_FAILED";
       /** While displayed in the Failure Type column, it indicates that the Plexil node failed due to an PARENT_FAILED. */
       public static final String PARENT_FAILED = "PARENT_FAILED";
-
-      /** A collection of all the possible Plexil node failure types. */
-      public static final String[] NODE_FAILURE_TYPES = 
-      {
-         INFINITE_LOOP,
-         PRE_CONDITION_FALSE,
-         POST_CONDITION_FALSE,
-         INVARIANT_CONDITION_FALSE,
-         ANCESTOR_INVARIANT_CONDITION_FALSE,
-         PARENT_FAILED,
-      };
+    public static final String EXITED = "EXITED";
+    public static final String PARENT_EXITED = "PARENT_EXITED";
       
       /** Indicates that a Plexil node has a breakpoint set on it. */
       public static final String MODEL_ENABLED_BREAKPOINTS = "model.breakpoint.enabled";
@@ -496,24 +443,25 @@ public class Constants
             put(INACTIVE,        Color.LIGHT_GRAY);
             put(WAITING,         Color.RED); 
             put(EXECUTING,       Color.GREEN.darker());
-            put(FINISHING,       new Color(128, 128, 255));
+            put(ITERATION_ENDED, Color.BLUE.darker());
             put(FINISHED,        Color.GRAY);
             put(FAILING,         new Color(255, 128, 128));
-            put(ITERATION_ENDED, Color.BLUE.darker());
+            put(FINISHING,       new Color(128, 128, 255));
 
             // node outcome
             put(UNKNOWN,         new Color(255, 255, 255, 0));
             put(SUCCESS,         Color.GREEN.darker());
             put(FAILURE,         Color.RED);
             put(SKIPPED,         Color.BLUE.darker());
+            put(INTERRUPTED,     Color.RED.darker());
 
             // node failure types
-            put(INFINITE_LOOP,                      Color.RED.darker());
-            put(PRE_CONDITION_FALSE,                Color.RED.darker());
-            put(POST_CONDITION_FALSE,               Color.RED.darker());
-            put(INVARIANT_CONDITION_FALSE,          Color.RED.darker());
-            put(ANCESTOR_INVARIANT_CONDITION_FALSE, Color.RED.darker());
+            put(PRE_CONDITION_FAILED,               Color.RED.darker());
+            put(POST_CONDITION_FAILED,              Color.RED.darker());
+            put(INVARIANT_CONDITION_FAILED,         Color.RED.darker());
             put(PARENT_FAILED,                      Color.RED.darker());
+            put(EXITED,                             Color.RED.darker());
+            put(PARENT_EXITED,                      Color.RED.darker());
 
             // model colors
             put(MODEL_ENABLED_BREAKPOINTS,          Color.RED);
@@ -571,42 +519,9 @@ public class Constants
       /** Contains the contents of an empty Plexil script. */
       public static final String EMPTY_SCRIPT = "<PLEXILScript><Script></Script></PLEXILScript>";          
       
-      /** Represents index of the Executive Select under the File menu in the Luv application. */
-      public static final int EXEC_SELECT_ITEM      		= 0;
-      /** Represents index of the Reload item under the File menu in the Luv application. */
-      public static final int RELOAD_MENU_ITEM              = 1;
-      /** Represents index of the Exit item under the File menu in the Luv application. */ 
-      public static final int EXIT_MENU_ITEM                = 3;    
-      
-      /** Represents index of the Pause/Resume item under the Run menu in the Luv application. */ 
-      public static final int PAUSE_RESUME_MENU_ITEM        = 0;
-      /** Represents index of the Step item under the Run menu in the Luv application. */
-      public static final int STEP_MENU_ITEM                = 1;
-      /** Represents index of the Break item under the Run menu in the Luv application. */
-      public static final int BREAK_MENU_ITEM               = 2;
-      /** Represents index of the Remove Breaks item under the Run menu in the Luv application. */
-      public static final int REMOVE_BREAKS_MENU_ITEM       = 3;      
-      /** Represents index of the Execute item under the Run menu in the Luv application. */
-      public static final int EXECUTE_MENU_ITEM             = 5;
-      
-      /** Represents index of the Expand All item under the View menu in the Luv application. */
-      public static final int EXPAND_MENU_ITEM              = 0;
-      /** Represents index of the Collapse All item under the View menu in the Luv application. */
-      public static final int COLLAPSE_MENU_ITEM            = 1;
-      /** Represents index of the Hide Or Show... item under the View menu in the Luv application. */
-      public static final int HIDE_OR_SHOW_NODES_MENU_ITEM  = 2;
-      /** Represents index of the Find... item under the View menu in the Luv application. */
-      public static final int FIND_MENU_ITEM                = 3;
-      
-      public static final int EPX_VIEW_MENU_ITEM            = 5;
-
-      public static final int VIEW_SOURCE_MENU_ITEM         = 7;
-
       ////////////////////////// Plexil plan XML tags ////////////////////////
       ///////////////// Scanned for in the PlexilPlanHandler //////////////////
       
-      /** Represents the XML tag in the Plexil Plan marking the Model Name information. */
-      public static final String MODEL_NAME         = "ModelName";
       /** Represents the XML tag in the Plexil Plan marking the Model Type information. */
       public static final String MODEL_TYPE         = "ModelType";
       /** Represents the XML tag in the Plexil Plan marking the Model State information. */
@@ -615,26 +530,12 @@ public class Constants
       public static final String MODEL_OUTCOME      = "ModelOutcome";
       /** Represents the XML tag in the Plexil Plan marking the Model Failure Type information. */
       public static final String MODEL_FAILURE_TYPE = "ModelFailureType";
-      /** Represents the XML tag in the Plexil Plan marking the Model Library Call ID information. */
-      public static final String MODEL_LIBRARY_CALL_ID = "ModelLibraryCallId";
       /** Represents the XML tag indicating the loaded file is a Plexil Plan. */
       public static final String PLEXIL_PLAN       = "PlexilPlan";
       /** Represents the XML tag indicating the loaded file is a Plexil Library. */
       public static final String PLEXIL_LIBRARY    = "PlexilLibrary";
-      /** Represents the XML tag indicating the loaded file is a Plexil Script. */
-      public static final String PLEXIL_SCRIPT     = "PLEXILScript";
-      /** Represents the XML tag indicating the loaded file is a Plexil Library. */
-      public static final String LIBRARY           = "Library";   
       /** Represents the XML tag in the Plexil Plan indicating that a Node State Update is occurring. */
       public static final String NODE_STATE_UPDATE = "NodeStateUpdate";
-      /** Represents the XML tag in the Plexil Plan indicating that a variable assignment is occurring. */
-      public static final String ASSIGNMENT = "Assignment";
-      /** Represents the XML tag in the Plexil Plan marking the Plan Info section. */
-      public static final String PLAN_INFO     = "PlanInfo";
-      /** Represents the XML tag in the Plexil Plan marking the Plexil Plan file name information. */
-      public static final String PLAN_FILENAME = "PlanFilename";
-      /** Represents the XML tag in the Plexil Plan marking the Plexil Script file name information. */
-      public static final String SCRIPT_FILENAME = "ScriptFilename";
       /** Represents the XML tag in the Plexil Plan marking the User Blocking or No Blocking information. */
       public static final String VIEWER_BLOCKS = "ViewerBlocks";
       
@@ -645,6 +546,8 @@ public class Constants
       public static final String START_CONDITION = "StartCondition";
       /** Represents the XML tag in the Plexil Plan marking the EndCondition information. */
       public static final String END_CONDITION = "EndCondition";
+      /** Represents the XML tag in the Plexil Plan marking the ExitCondition information. */
+      public static final String EXIT_CONDITION = "ExitCondition";
       /** Represents the XML tag in the Plexil Plan marking the InvariantCondition information. */
       public static final String INVARIANT_CONDITION = "InvariantCondition";
       /** Represents the XML tag in the Plexil Plan marking the PreCondition information. */
@@ -657,18 +560,12 @@ public class Constants
       public static final String ANCESTOR_INVARIANT_CONDITION = "AncestorInvariantCondition";
       /** Represents the XML tag in the Plexil Plan marking the AncestorEndCondition information. */
       public static final String ANCESTOR_END_CONDITION = "AncestorEndCondition";
-      /** Represents the XML tag in the Plexil Plan marking the ParentExecutingCondition information. */
-      public static final String PARENT_EXECUTING_CONDITION = "ParentExecutingCondition";
-      /** Represents the XML tag in the Plexil Plan marking the ParentFinishedCondition information. */
-      public static final String PARENT_FINISHED_CONDITION = "ParentFinishedCondition";
-      /** Represents the XML tag in the Plexil Plan marking the AllChildrenWaitingOrFinishedCondition information. */
-      public static final String CHILDREN_WAITING_OR_FINISHED = "AllChildrenWaitingOrFinishedCondition";
+      /** Represents the XML tag in the Plexil Plan marking the AncestorExitCondition information. */
+      public static final String ANCESTOR_EXIT_CONDITION = "AncestorExitCondition";
+      /** Represents the XML tag in the Plexil Plan marking the ActionComplete information. */
+      public static final String ACTION_COMPLETE = "ActionCompleteCondition";
       /** Represents the XML tag in the Plexil Plan marking the AbortCompleteCondition information. */
       public static final String ABORT_COMPLETE = "AbortCompleteCondition";
-      /** Represents the XML tag in the Plexil Plan marking the ParentWaitingCondition information. */
-      public static final String PARENT_WAITING_CONDITION = "ParentWaitingCondition";
-      /** Represents the XML tag in the Plexil Plan marking the CommandHandleReceivedCondition information. */
-      public static final String COMMAND_HANDLE_RECEIVED_CONDITION = "CommandHandleReceivedCondition";
 
       /**
        * Returns the matching integer of the specified condition name.
@@ -677,42 +574,38 @@ public class Constants
        */
       public static int getConditionNum(String condition)
       {
-          if (condition.equals(SKIP_CONDITION))                         return 0;    
-          else if (condition.equals(START_CONDITION))                   return 1;                
-          else if (condition.equals(END_CONDITION))                     return 2;   
-          else if (condition.equals(INVARIANT_CONDITION))               return 3; 
-          else if (condition.equals(PRE_CONDITION))                     return 4; 
-          else if (condition.equals(POST_CONDITION))                    return 5;
-          else if (condition.equals(REPEAT_CONDITION))                  return 6;
-          else if (condition.equals(ANCESTOR_INVARIANT_CONDITION))      return 7;
-          else if (condition.equals(ANCESTOR_END_CONDITION))            return 8;           
-          else if (condition.equals(PARENT_EXECUTING_CONDITION))        return 9;   
-          else if (condition.equals(PARENT_FINISHED_CONDITION))         return 10;       
-          else if (condition.equals(CHILDREN_WAITING_OR_FINISHED))      return 11;
+          if (condition.equals(ANCESTOR_EXIT_CONDITION))                return 0;
+          else if (condition.equals(ANCESTOR_INVARIANT_CONDITION))      return 1;
+          else if (condition.equals(ANCESTOR_END_CONDITION))            return 2;           
+          else if (condition.equals(SKIP_CONDITION))                    return 3;
+          else if (condition.equals(START_CONDITION))                   return 4;                
+          else if (condition.equals(PRE_CONDITION))                     return 5;
+          else if (condition.equals(EXIT_CONDITION))                    return 6;
+          else if (condition.equals(INVARIANT_CONDITION))               return 7;
+          else if (condition.equals(END_CONDITION))                     return 8;
+          else if (condition.equals(POST_CONDITION))                    return 9;
+          else if (condition.equals(REPEAT_CONDITION))                  return 10;
+          else if (condition.equals(ACTION_COMPLETE))                   return 11;
           else if (condition.equals(ABORT_COMPLETE))                    return 12;                  
-          else if (condition.equals(PARENT_WAITING_CONDITION))          return 13;        
-          else if (condition.equals(COMMAND_HANDLE_RECEIVED_CONDITION)) return 14;
           else                                                          return -1; //error
       }
 
       /** A collection of all the possible Plexil Plan conditions. */
       public static final String[] ALL_CONDITIONS = 
       {
-         SKIP_CONDITION,
-         START_CONDITION,
-         END_CONDITION,
-         INVARIANT_CONDITION,
-         PRE_CONDITION,
-         POST_CONDITION,
-         REPEAT_CONDITION,
+         ANCESTOR_EXIT_CONDITION,
          ANCESTOR_INVARIANT_CONDITION,
          ANCESTOR_END_CONDITION,
-         PARENT_EXECUTING_CONDITION,
-         PARENT_FINISHED_CONDITION,
-         CHILDREN_WAITING_OR_FINISHED,
-         ABORT_COMPLETE,
-         PARENT_WAITING_CONDITION,
-         COMMAND_HANDLE_RECEIVED_CONDITION,
+         SKIP_CONDITION,
+         START_CONDITION,
+         PRE_CONDITION,
+         EXIT_CONDITION,
+         INVARIANT_CONDITION,
+         END_CONDITION,
+         POST_CONDITION,
+         REPEAT_CONDITION,
+         ACTION_COMPLETE,
+         ABORT_COMPLETE
       };
 
       /** Represents the Node XML tag in the Plexil Plan. */
@@ -727,8 +620,6 @@ public class Constants
       public static final String INTERFACE = "Interface";
       /** Represents the VariableDeclarations XML tag in the Plexil Plan. */
       public static final String VAR_DECLS = "VariableDeclarations";
-      /** Represents the DeclareVariable XML tag in the Plexil Plan. */
-      public static final String DECL_VAR = "DeclareVariable";
       /** Represents the Variable XML tag in the Assignment xml. */
       public static final String VARIABLE_NAME = "VariableName";
       /** Represents the Variable Value XML tag in the Assignment xml. */
@@ -749,18 +640,6 @@ public class Constants
       public static final String EMPTY = "Empty";
       /** Represents the NodeBody XML tag in the Plexil Plan. */
       public static final String NODE_BODY = "NodeBody";
-      /** Represents the RHS XML tag in the Plexil Plan. */
-      public static final String RHS = "RHS";
-      /** Represents the NumericRHS XML tag in the Plexil Plan. */
-      public static final String NUMERIC_RHS = "NumericRHS";
-      /** Represents the StringRHS XML tag in the Plexil Plan. */
-      public static final String STRING_RHS = "StringRHS";
-      /** Represents the BooleanRHS XML tag in the Plexil Plan. */
-      public static final String BOOLEAN_RHS = "BooleanRHS";
-      /** Represents the LookupRHS XML tag in the Plexil Plan. */
-      public static final String LOOKUP_RHS = "LookupRHS";
-      /** Represents the ArrayRHS XML tag in the Plexil Plan. */
-      public static final String ARRAY_RHS = "ArrayRHS";
       /** Represents the TimeRHS XML tag in the Plexil Plan. */
       public static final String TIME_RHS = "TimeRHS";
       /** Represents the NodeList XML tag in the Plexil Plan. */
@@ -773,8 +652,6 @@ public class Constants
       public static final String NODE_PARAMETER = "NodeParameter";
       /** Represents the Command XML tag in the Plexil Plan. */
       public static final String COMMAND = "Command";
-      /** Represents the FunctionCall XML tag in the Plexil Plan. */
-      public static final String FUNCCALL = "FunctionCall";
       /** Represents the Name XML tag in the Plexil Plan. */
       public static final String NAME = "Name";
       /** Represents the Index XML tag in the Plexil Plan. */
@@ -783,14 +660,6 @@ public class Constants
       public static final String ARGS = "Arguments";
       /** Represents the Lookup XML tag in the Plexil Plan. */
       public static final String LOOKUP = "Lookup";
-      /** Represents the LookupNow XML tag in the Plexil Plan. */
-      public static final String LOOKUPNOW = "LookupNow";
-      /** Represents the LookupOnChange XML tag in the Plexil Plan. */
-      public static final String LOOKUPCHANGE = "LookupOnChange";
-      /** Represents the LookupWithFrequency XML tag in the Plexil Plan. */
-      public static final String LOOKUPFREQ = "LookupWithFrequency";
-      /** Represents the Frequency XML tag in the Plexil Plan. */
-      public static final String FREQ = "Frequency";
       /** Represents the High XML tag in the Plexil Plan. */
       public static final String HIGH = "High";
       /** Represents the Low XML tag in the Plexil Plan. */
@@ -815,18 +684,6 @@ public class Constants
       public static final String ARRAY_VAR = "ArrayVariable";      
       /** Represents the ResourceList XML tag in the Plexil Plan. */
       public static final String RESOURCE_LIST = "ResourceList";
-      /** Represents the Resource XML tag in the Plexil Plan. */
-      public static final String RESOURCE = "Resource";
-      /** Represents the ResourceName XML tag in the Plexil Plan. */
-      public static final String RESOURCE_NAME = "ResourceName";
-      /** Represents the ResourcePriority XML tag in the Plexil Plan. */
-      public static final String RESOURCE_PRIORITY = "ResourcePriority";
-      /** Represents the ResourceLowerBound XML tag in the Plexil Plan. */
-      public static final String RESOURCE_LOWER_BOUND = "ResourceLowerBound";
-      /** Represents the ResourceUpperBound XML tag in the Plexil Plan. */
-      public static final String RESOURCE_UPPER_BOUND = "ResourceUpperBound";
-      /** Represents the ResourceReleaseAtTermination XML tag in the Plexil Plan. */
-      public static final String RESOURCE_RELEASE_AT_TERM = "ResourceReleaseAtTermination";
       /** Represents the AND operator XML tag in the Plexil Plan. */
       public static final String AND = "AND";
       /** Represents the OR operator XML tag in the Plexil Plan. */
@@ -839,50 +696,6 @@ public class Constants
       public static final String CONCAT = "Concat";
       /** Represents the IsKnown XML tag in the Plexil Plan. */
       public static final String IS_KNOWN = "IsKnown";
-      /** Represents the EQ (equals) XML tag in the Plexil Plan. */
-      public static final String EQ = "EQ";
-      /** Represents the EQNumeric (numeric equals) XML tag in the Plexil Plan. */
-      public static final String EQ_NUMERIC = "EQNumeric";
-      /** Represents the EQString (string equals) XML tag in the Plexil Plan. */
-      public static final String EQ_STRING = "EQString";
-      /** Represents the EQBoolean (boolean equals) XML tag in the Plexil Plan. */
-      public static final String EQ_BOOLEAN = "EQBoolean";
-      /** Represents the EQBoolean (boolean equals) XML tag in the Plexil Plan. */
-      public static final String EQ_TIME ="EQTime";
-      /** Represents the EQInternal (internal equals) XML tag in the Plexil Plan. */
-      public static final String EQ_INTERNAL = "EQInternal";
-      /** Represents the NE (not equals) XML tag in the Plexil Plan. */
-      public static final String NE = "NE";
-      /** Represents the NENumeric (numeric not equals) XML tag in the Plexil Plan. */
-      public static final String NE_NUMERIC = "NENumeric";
-      /** Represents the NEString (string not equals) XML tag in the Plexil Plan. */
-      public static final String NE_STRING = "NEString";
-      /** Represents the NEBoolean (boolean not equals) XML tag in the Plexil Plan. */
-      public static final String NE_BOOLEAN = "NEBoolean";
-      /** Represents the NEInternal (internal not equals) XML tag in the Plexil Plan. */
-      public static final String NE_INTERNAL = "NEInternal";
-      /** Represents the LT (less than) operator XML tag in the Plexil Plan. */
-      public static final String LT = "LT";
-      /** Represents the LE (less than or equal) operator XML tag in the Plexil Plan. */
-      public static final String LE = "LE";
-      /** Represents the GT (greater than) operator XML tag in the Plexil Plan. */
-      public static final String GT = "GT";
-      /** Represents the GE (greater than or equal) operator XML tag in the Plexil Plan. */
-      public static final String GE = "GE";
-      /** Represents the ADD (addition) operator XML tag in the Plexil Plan. */
-      public static final String ADD = "ADD";
-      /** Represents the SUB (subtraction) operator XML tag in the Plexil Plan. */
-      public static final String SUB = "SUB";
-      /** Represents the MUL (multiplication) operator XML tag in the Plexil Plan. */
-      public static final String MUL = "MUL";
-      /** Represents the DIV (division) operator XML tag in the Plexil Plan. */
-      public static final String DIV = "DIV";
-      /** Represents the SQRT (square root) operator XML tag in the Plexil Plan. */
-      public static final String SQRT = "SQRT";
-      /** Represents the ABS (absolute) operator XML tag in the Plexil Plan. */
-      public static final String ABS = "ABS";
-      /** Represents the XML tag marking an array declaration indicator in the Plexil Plan. */
-      public static final String DECL_ARRAY = "DeclareArray";
       /** Represents the XML tag marking an array element value in the Plexil Plan. */
       public static final String ARRAYELEMENT = "ArrayElement";
 
@@ -953,20 +766,6 @@ public class Constants
       public static final String ELSE_UNCHKD_SEQ  = "ElseUncheckedSequence";
       public static final String ELSE_CONCURRENCE = "ElseConcurrence";
 
-      /** A collection of all the possible Plexil Plan node types. */
-      public static HashMap<String, String> NODE_TYPES = new HashMap<String, String>()
-      {
-	  {
-	      put(NODELIST,        "List Node");
-	      put(COMMAND,         "Command Node");
-	      put(ASSN,            "Assignment Node");
-	      put(EMPTY,           "Empty Node");
-	      put(FUNCCALL,        "Function Call Node");
-	      put(UPDATE,          "Update Node");
-	      put(LIBRARYNODECALL, "Library Node");
-	  }
-      };
-
       /** Represents the Integer Value XML tag in the Plexil Plan. */
       public static final String INT_VAL = "IntegerValue";
       /** Represents the Real Value XML tag in the Plexil Plan. */
@@ -977,144 +776,7 @@ public class Constants
       public static final String BOOL_VAL = "BooleanValue";
       /** Represents the Time Value XML tag in the Plexil Plan. */
       public static final String TIME_VAL = "TimeValue";
-      /** Represents the Node Outcome Value XML tag in the Plexil Plan. */
-      public static final String NODE_OUTCOME_VAL = NODE_OUTCOME + "Value";
-      /** Represents the Node Failure Value XML tag in the Plexil Plan. */
-      public static final String NODE_FAILURE_VAL = NODE_FAILURE + "Value";
-      /** Represents the Node State Value XML tag in the Plexil Plan. */
-      public static final String NODE_STATE_VAL = NODE_STATE + "Value";
-      /** Represents the Node Timepoint Value XML tag in the Plexil Plan. */
-      public static final String NODE_TIMEPOINT_VAL = NODE_TIMEPOINT + "Value";
-      /** Represents the Node Command Handle Value XML tag in the Plexil Plan. */
-      public static final String NODE_CMD_HANDLE_VAL = NODE_CMD_HANDLE + "Value";
       /** Represents the Assignment Value XML tag in the Plexil Plan. */
       public static final String ASSN_VAL = ASSN + "Value";          
 
-      /** A collection of all the possible Plexil Plan node types which expand to children. */
-      public static final String[] CHILD_TAGS =
-      {
-         NODE,
-         LIBRARYNODECALL
-      };
-      
-      /** A collection of all the possible XML tags that represent Plexil Plan properties. */
-      public static final String[] PROPERTY_TAGS = 
-      {
-         MODEL_NAME,
-         MODEL_TYPE,
-         MODEL_STATE,
-         MODEL_OUTCOME,
-         MODEL_FAILURE_TYPE,
-         MODEL_LIBRARY_CALL_ID,
-
-         VIEWER_BLOCKS,
-         PLAN_FILENAME,
-         SCRIPT_FILENAME,
-
-         PLEXIL_PLAN,
-         PLEXIL_SCRIPT,
-         LIBRARY,
-
-         NODETYPE_ATTR,
-         NODE_ID,
-         NODE_BODY,
-         NODELIST,
-         NAME,
-         TYPE,
-         MAXSIZE,
-         INDEX,
-         INT_VAL,
-         REAL_VAL,
-         STRING_VAL,
-         BOOL_VAL,
-         DECL_VAR,
-         DECL_ARRAY,
-         ARRAYELEMENT,
-      };
-
-      /** A collection of all the possible XML tags that represent Node State values. */   
-      public static final String[] NODE_STATE_TAGS =
-      {
-          NODE_OUTCOME_VAL, 
-          NODE_FAILURE_VAL, 
-          NODE_STATE_VAL,  
-          NODE_CMD_HANDLE_VAL,
-      };
-    
-      /** A collection of all the possible XML tags that represent Returns. */  
-      public static final String[] RETURN_TAGS =
-      {
-          RHS,
-          NUMERIC_RHS, 
-          STRING_RHS, 
-          TIME_RHS,
-          BOOLEAN_RHS,
-          LOOKUP_RHS,
-          ARRAY_RHS,
-      };
-    
-      /** A collection of all the possible XML tags that represent Resource information. */  
-      public static final String[] RESOURCE_TAGS =
-      {
-          RESOURCE_NAME,
-          RESOURCE_PRIORITY, 
-          RESOURCE_LOWER_BOUND, 
-          RESOURCE_UPPER_BOUND,
-          RESOURCE_RELEASE_AT_TERM,
-      };
-    
-      /** A collection of all the possible XML tags that represent mathematic operators. */  
-      public static final String[] MATH_TAGS =
-      {
-          ADD,
-          SUB, 
-          MUL, 
-          DIV,
-          SQRT,
-          ABS
-      };
-    
-      /** A collection of all the possible XML tags that represent Plexil Plan Lookups. */  
-      public static final String[] LOOKUP_TAGS =
-      {
-          LOOKUPNOW,
-          LOOKUPCHANGE, 
-          LOOKUPFREQ,
-      };
-    
-      /** A collection of all the possible XML tags that represent comparison operators. */  
-      public static final String[] COMPARISON_TAGS =
-      {
-          LT,
-          GT,
-          LE,
-          GE, 
-          EQ, 
-          EQ_NUMERIC,
-          EQ_STRING, 
-          EQ_BOOLEAN,
-          EQ_TIME,
-          EQ_INTERNAL,
-          NE,
-          NE_NUMERIC,
-          NE_STRING,
-          NE_BOOLEAN, 
-          NE_INTERNAL,
-      };
-      
-      /** A collection of all the possible XML tags that represent Node Actions (Assignement, Command, etc). */  
-      public static final String[] ACTION_TAGS = 
-      {
-         ASSN,
-         COMMAND,
-         FUNCCALL,
-         UPDATE,
-      };
-      
-      /** A collection of all the possible XML tags that represent variable declarationsZo. */  
-      public static final String[] VARIABLE_DECL_TAGS =
-      {
-	 DECL_VAR,
-         DECL_ARRAY,
-      };     
 }

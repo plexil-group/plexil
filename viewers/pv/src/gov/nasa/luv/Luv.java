@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,25 +25,33 @@
  */
 package gov.nasa.luv;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JMenu;
-import javax.swing.JSeparator;
 import java.awt.Container;
 import java.awt.Color;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Set;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JMenuBar;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JMenu;
+import javax.swing.JSeparator;
 import static gov.nasa.luv.Constants.*;
-import static java.lang.System.*;
 import static java.awt.BorderLayout.*;
+import static java.awt.event.KeyEvent.*;
+import static java.lang.System.*;
 
 /**
  * The Luv class is the starting point of the Luv application and creates a 
@@ -51,30 +59,64 @@ import static java.awt.BorderLayout.*;
  */
 public class Luv extends JFrame {
 
+    //
+    // Local constants
+    //
+
+    /** Represents index of the Executive Select under the File menu in the Luv application. */
+    private static final int EXEC_SELECT_ITEM      		= 0;
+    /** Represents index of the Reload item under the File menu in the Luv application. */
+    private static final int RELOAD_MENU_ITEM              = 1;
+    /** Represents index of the Exit item under the File menu in the Luv application. */ 
+    private static final int EXIT_MENU_ITEM                = 3;    
+
+    /** Represents index of the Pause/Resume item under the Run menu in the Luv application. */ 
+    private static final int PAUSE_RESUME_MENU_ITEM        = 0;
+    /** Represents index of the Step item under the Run menu in the Luv application. */
+    private static final int STEP_MENU_ITEM                = 1;
+    /** Represents index of the Break item under the Run menu in the Luv application. */
+    private static final int BREAK_MENU_ITEM               = 2;
+    /** Represents index of the Remove Breaks item under the Run menu in the Luv application. */
+    private static final int REMOVE_BREAKS_MENU_ITEM       = 3;      
+    /** Represents index of the Execute item under the Run menu in the Luv application. */
+    private static final int EXECUTE_MENU_ITEM             = 5;
+      
+    /** Represents index of the Expand All item under the View menu in the Luv application. */
+    private static final int EXPAND_MENU_ITEM              = 0;
+    /** Represents index of the Collapse All item under the View menu in the Luv application. */
+    private static final int COLLAPSE_MENU_ITEM            = 1;
+    /** Represents index of the Hide Or Show... item under the View menu in the Luv application. */
+    private static final int HIDE_OR_SHOW_NODES_MENU_ITEM  = 2;
+    /** Represents index of the Find... item under the View menu in the Luv application. */
+    private static final int FIND_MENU_ITEM                = 3;
+    
+    private static final int EPX_VIEW_MENU_ITEM            = 5;
+    
+    private static final int VIEW_SOURCE_MENU_ITEM         = 7;
+
     // boolean variables to help determine Luv state	
-    private static boolean allowBreaks;
-    private static int appMode;
-    private static boolean checkPlan;
-    private static boolean planPaused;
-    private static boolean planStep;
-    private static boolean isExecuting;
-    private static boolean extendedViewOn;
+    private boolean allowBreaks;
+    private int appMode;
+    private boolean checkPlan;
+    private boolean planPaused;
+    private boolean planStep;
+    private boolean isExecuting;
+    private boolean extendedViewOn;
     private boolean newPlan;
     private boolean shouldHighlight;
 
-    // class instances to manage Luv features
-    private static FileHandler fileHandler;
-    private static StatusMessageHandler statusMessageHandler;
-    private static LuvBreakPointHandler luvBreakPointHandler;
-    private static ExecutionHandler executionHandler;
-    private static ViewHandler viewHandler;
-    private static LuvStateHandler luvStateHandler;
-    private static HideOrShowWindow hideOrShowWindow;
+    // instances to manage Luv features
+    private FileHandler fileHandler;
+    private StatusMessageHandler statusMessageHandler;
+    private LuvBreakPointHandler luvBreakPointHandler;
+    private ExecutionHandler executionHandler;
+    private ViewHandler viewHandler;
+    private HideOrShowWindow hideOrShowWindow;
     private DebugWindow debugWindow;
     private CreateCFGFileWindow createCFGFileWindow;
     private SourceWindow sourceWindow;
     private LuvPortGUI portGui;
-    private LibraryLoader libLoad;
+    private LibraryLoader libraryLoader;
     private ExecSelect execSelect;
     private RegexModelFilter regexFilter;
     private int luvPort;
@@ -93,6 +135,14 @@ public class Luv extends JFrame {
     private JMenu runMenu;
     private JMenu viewMenu;
     private JMenu debugMenu;
+
+    // UI action listeners
+    private LuvAction allowBreaksAction;
+    private LuvAction execAction;
+    private LuvAction extendedViewAction;
+    private LuvAction luvGetDebugWindowAction;
+    private LuvAction pauseAction;
+    private LuvAction stepAction;
 
     // the current model/plan
     private Model currentPlan;
@@ -115,7 +165,6 @@ public class Luv extends JFrame {
     private static void runApp(String[] args) {
         // In MacOS, don't use system menu bar
         System.setProperty("apple.laf.useScreenMenuBar", "false");
-             
         try {
             new Luv(args);
         } catch (Exception e) {
@@ -130,16 +179,13 @@ public class Luv extends JFrame {
      * Universal Executive.  Assigns port argument in to socket server and
      * creates a port temp file with the relevant port in use.
      */
-    public Luv(String[] args) throws IOException {
-        init();
-
+    public Luv(String[] args) throws IOException
+    {
+        init(args);
         viewHandler.showModelInViewer(currentPlan);
-
         constructFrame(getContentPane());
-        
-        luvStateHandler.startState();        
-        
-        handlePort(args);        	    
+        startState();
+        handlePort(args);
     }
     
     /** Manages initial port configuration for viewer.
@@ -223,7 +269,7 @@ public class Luv extends JFrame {
     	return port;    	
     }
 
-    private void init()
+    private void init(String[] cmdLineArgs)
     {
         theLuv = this;
         Runtime.getRuntime().addShutdownHook(new MyShutdownHook());
@@ -281,38 +327,26 @@ public class Luv extends JFrame {
         newPlan = false;
         shouldHighlight = true;        
         
-        fileHandler = new FileHandler();
+        fileHandler = new FileHandler(cmdLineArgs);
         statusMessageHandler = new StatusMessageHandler();
         luvBreakPointHandler = new LuvBreakPointHandler();
         executionHandler = new ExecutionHandler();
-        luvStateHandler = new LuvStateHandler();
         viewHandler = new ViewHandler();
-        hideOrShowWindow = new HideOrShowWindow();
+        hideOrShowWindow = null; // create on demand
         debugWindow = new DebugWindow();
+
+        libraryLoader = new LibraryLoader("Libraries", cmdLineArgs);
         execSelect = new ExecSelect();
         portGui = new LuvPortGUI();    
 
-	//Gantt Viewer
-	openGanttViewer = new OpenGanttViewer();
+        //Gantt Viewer
+        openGanttViewer = new OpenGanttViewer();
 
         createCFGFileWindow = new CreateCFGFileWindow();
         sourceWindow = new SourceWindow();
         regexFilter = new RegexModelFilter(true);
-        fileMenu = new JMenu("File");
         recentRunMenu = new JMenu("Recent Runs");
-        runMenu = new JMenu("Run");
-        viewMenu = new JMenu("View");
-        debugMenu = new JMenu("Debug");
         execSelect.loadFromPersistence();
-        
-        
-        try {
-            libLoad = new LibraryLoader("Libraries");
-        }
-        catch (FileNotFoundException e)
-            {
-        	e.printStackTrace();
-            }        
     }
 
     private void constructFrame (Container frame)
@@ -387,6 +421,13 @@ public class Luv extends JFrame {
         setVisible(true);
     }
 
+    public void loadPlan(File plan)
+    {
+        fileHandler.loadPlan(plan);
+        openPlanState();
+        statusMessageHandler.showStatus("Plan \"" + currentPlan.getAbsolutePlanName() + "\" loaded", 1000);
+    }
+
     /** Handles the Plexil plan being loaded into the Luv application. 
      *  Called from PlexilPlanHandler.endElement(), which will be invoked 
      *  by both Luv (directly) and the Universal Executive (via the Luv listener stream).
@@ -417,10 +458,10 @@ public class Luv extends JFrame {
             viewHandler.showModelInViewer(currentPlan);
         }
 
-        luvStateHandler.preExecutionState();
+        preExecutionState();
 
         if (isExecuting) {
-            luvStateHandler.executionState();
+            executionState();
             LoadRecentAction.addRunToRecentRunList();
         }
 
@@ -428,7 +469,7 @@ public class Luv extends JFrame {
 
         // Determine if the Luv Viewer should pause before executing.
         if (isExecuting && allowBreaks) {
-            luvStateHandler.pausedState();
+            pausedState();
             runMenu.setEnabled(true);
         }
     }
@@ -440,9 +481,9 @@ public class Luv extends JFrame {
     public void blockViewer() {
         if (shouldBlock()) {
             statusMessageHandler.showStatus("Plan execution is paused. " +
-                    LuvActionHandler.pauseAction.getAcceleratorDescription() +
+                    pauseAction.getAcceleratorDescription() +
                     " to resume, or " +
-                    LuvActionHandler.stepAction.getAcceleratorDescription() +
+                    stepAction.getAcceleratorDescription() +
                     " to step",
                     Color.RED);
 
@@ -515,15 +556,13 @@ public class Luv extends JFrame {
         return statusMessageHandler;
     }
 
-    /** Returns the current instance of the Luv LuvStateHandler.
-     *  @return the current instance of the Luv LuvStateHandler */
-    public LuvStateHandler getLuvStateHandler() {
-        return luvStateHandler;
-    }
-
     /** Returns the current instance of the Luv HideOrShowWindow.
      *  @return the current instance of the Luv HideOrShowWindow */
-    public HideOrShowWindow getHideOrShowWindow() {
+    public HideOrShowWindow getHideOrShowWindow()
+    {
+        if (hideOrShowWindow == null)
+            hideOrShowWindow =
+                new HideOrShowWindow(properties.getProperty(PROP_HIDE_SHOW_LIST, UNKNOWN));
         return hideOrShowWindow;
     }
 
@@ -539,10 +578,10 @@ public class Luv extends JFrame {
         return portGui;
     }
     
-    /** Returns the current instance of the Listener Port GUI.
-     *  @return the current instance of the Listener Port GUI */
-    public LibraryLoader getLibLoad() {
-        return libLoad;
+    /** Returns the current instance of the Library Loader GUI.
+     *  @return the current instance of the Library Loader GUI */
+    public LibraryLoader getLibraryLoader() {
+        return libraryLoader;
     }
     
     /** Returns the current instance of the Executive GUI.
@@ -675,13 +714,12 @@ public class Luv extends JFrame {
     }
 
     /** Sets the flag that indicates whether or not the current Plexil plan is 
-     *  executing. Updates items under the Run menu accordingly.
+     *  executing.
      *  @param value sets the flag that indicates whether the current Plexil 
      *  plan is executing or not
      */
     public void setIsExecuting(boolean value) {
         isExecuting = value;
-        updateBlockingMenuItems();
     }
 
     /** Sets the flag that indicates whether or not the current Plexil plan is 
@@ -691,15 +729,6 @@ public class Luv extends JFrame {
      */
     public void setIsPaused(boolean value) {
         planPaused = value;
-    }
-
-    /** Sets the flag that indicates whether or not the current Plexil plan is 
-     *  stepping. 
-     *  @param value sets the flag that indicates whether the current Plexil 
-     *  plan is stepping or not
-     */
-    public void setIsStepped(boolean value) {
-        planStep = value;
     }
 
     /** Sets the flag that indicates whether a new Plexil plan has been loaded. 
@@ -784,40 +813,284 @@ public class Luv extends JFrame {
         }
     }
 
-    private void createMenuBar(JMenuBar menuBar) {
+    private void createMenuBar(JMenuBar menuBar)
+    {
+        fileMenu = new JMenu("File");
         menuBar.add(fileMenu);        
         LoadRecentAction.updateRecentMenu();
-        fileMenu.add(LuvActionHandler.ExecSelect);
-        fileMenu.add(LuvActionHandler.reloadAction);
+        fileMenu.add(new LuvAction("Configuration",
+                                   "Window to Change Executive.",
+                                   VK_E,
+                                   META_MASK) {
+
+                // *** FIXME!! ***
+                public void actionPerformed(ActionEvent e) {
+                    JComponent newContentPane = execSelect; 
+                    newContentPane.setOpaque(true);    			
+                    execSelect.getFrame().setContentPane(newContentPane);
+                    execSelect.loadExecSelect();
+                    execSelect.getFrame().pack();    			
+                    execSelect.getFrame().setVisible(true);
+                    execSelect.backupNames();
+                }
+            }
+                     );
+        fileMenu.add(new LuvAction("Reload",
+                                   "Reload currently loaded files.",
+                                   VK_R,
+                                   META_MASK) {
+
+                public void actionPerformed(ActionEvent e) {
+                    execSelect.reload();
+                }
+            }
+                     );
         fileMenu.add(new JSeparator());
-        fileMenu.add(LuvActionHandler.exitAction);
+        fileMenu.add(new LuvAction("Exit", "Terminate this program.", VK_ESCAPE) {
+                public void actionPerformed(ActionEvent e) {                  
+                    System.exit(0);                    
+                }
+            }
+            );
 
+        runMenu = new JMenu("Run");
         menuBar.add(runMenu);
-        runMenu.add(LuvActionHandler.pauseAction);
-        runMenu.add(LuvActionHandler.stepAction);
-        runMenu.add(LuvActionHandler.allowBreaksAction);
-        runMenu.add(LuvActionHandler.removeAllBreaksAction);                
+        pauseAction = new LuvAction("Pause/Resume plan",
+                      "Pause or resume an executing plan, if it is blocking.",
+                      VK_ENTER) {
+                public void actionPerformed(ActionEvent e) {
+                    if (getIsExecuting()) {
+                        setIsPaused(!planPaused);
+                        statusMessageHandler.showStatus((planPaused ? "Pause" : "Resume") + " requested",
+                                                        Color.BLACK,
+                                                        1000);
+                        if (planPaused)
+                            pausedState();
+                        else
+                            executionState();
+                    }
+                }
+            };
+        runMenu.add(pauseAction);
+        stepAction = new LuvAction("Step",
+                                   "Step a plan, pausing it if is not paused.",
+                                   VK_SPACE) {
+
+                public void actionPerformed(ActionEvent e) {
+                    if (getIsExecuting()) {
+                        if (!planPaused) {
+                            pausedState();
+                            statusMessageHandler.showStatus("Pause requested", Color.BLACK, 1000);
+                        } else {
+                            stepState();
+                            statusMessageHandler.showStatus("Step plan", Color.BLACK, 1000);
+                        }
+                    }
+                }
+            };
+        runMenu.add(stepAction);
+        allowBreaksAction = new LuvAction("Enable Breaks",
+                                          "Select this to enable or disable breakpoints.",
+                                          VK_F5) {
+
+                public void actionPerformed(ActionEvent e) {
+                    if (!getIsExecuting()) {
+                        setBreaksAllowed(!allowBreaks);
+                        if (allowBreaks) {
+                            enabledBreakingState();
+                            statusMessageHandler.showStatus("Enabled breaks", Color.GREEN.darker(), 1000);
+                        } else {
+                            disabledBreakingState();
+                            statusMessageHandler.showStatus("Disabled breaks", Color.RED, 1000);
+                        }
+                    }
+                }
+            };
+        runMenu.add(allowBreaksAction);
+        runMenu.add(new LuvAction("Remove All Breakpoints",
+                                  "Remove all breakpoints from this plan.") {
+
+                public void actionPerformed(ActionEvent e) {
+                    luvBreakPointHandler.removeAllBreakPoints();
+                    statusMessageHandler.showStatus("All breakpoints have been removed", 1000);
+                }
+            }
+                    );                
         runMenu.add(new JSeparator());
-        runMenu.add(LuvActionHandler.execAction);
+        execAction = new LuvAction("Execute Plan",
+                                   "Execute currently loaded plan.",
+                                   VK_F6) {
 
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        if (!isExecuting) {
+                            if (!executionHandler.runExec()) {
+                                statusMessageHandler.showStatus("Stopped execution", Color.lightGray, 1000);
+                                readyState();
+                            }
+                        } else {
+                            stopExecutionState();
+                        }
+                    } catch (IOException ex) {
+                        statusMessageHandler.displayErrorMessage(ex, "ERROR: exception occurred while executing plan");
+                    }
+                }
+            };
+        runMenu.add(execAction);
+
+        viewMenu = new JMenu("View");
         menuBar.add(viewMenu);
-        viewMenu.add(LuvActionHandler.expandAll);
-        viewMenu.add(LuvActionHandler.collapseAll);
-        viewMenu.add(LuvActionHandler.hideOrShowNodes);
-        viewMenu.add(LuvActionHandler.findNode);
-        viewMenu.add(new JSeparator());
-        viewMenu.add(LuvActionHandler.extendedViewAction);
-        viewMenu.add(new JSeparator());
-        viewMenu.add(LuvActionHandler.viewSourceAction);
-	//to accomodate Gantt Viewer 8/15/11
-	viewMenu.add(new JSeparator());
-	viewMenu.add(LuvActionHandler.luvGanttViewerAction);        
+        viewMenu.add(new LuvAction("Expand All",
+                                   "Expand all tree nodes.",
+                                   VK_EQUALS) {
 
+                public void actionPerformed(ActionEvent e) {
+                    TreeTableView.getCurrent().expandAllNodes();
+                    viewHandler.refreshRegexView();
+                }
+            }
+                     );
+        viewMenu.add(new LuvAction("Collapse All",
+                                   "Collapse all tree nodes.",
+                                   VK_MINUS) {
+
+                public void actionPerformed(ActionEvent e) {
+                    TreeTableView.getCurrent().collapseAllNodes();
+                    viewHandler.refreshRegexView();
+                }
+            }
+                     );
+        viewMenu.add(new LuvAction("Hide/Show Nodes...",
+                                   "Hide or Show specific nodes by full or partial name.",
+                                   VK_H,
+                                   META_MASK) {
+
+                public void actionPerformed(ActionEvent e) {
+                    getHideOrShowWindow().open();
+                }
+            }
+                     );
+        viewMenu.add(new LuvAction("Find...",
+                                   "Find node by name.",
+                                   VK_F,
+                                   META_MASK) {
+                public void actionPerformed(ActionEvent e) {
+                    FindWindow.open(properties.getProperty(PROP_SEARCH_LIST, UNKNOWN));
+                }
+            }
+                     );
+        viewMenu.add(new JSeparator());
+        extendedViewAction = new LuvAction("Switch to Core Plexil View",
+                                   "Switches between Normal or Core Plexil views. Normal is the default.",
+                                   VK_F8) {
+                public void actionPerformed(ActionEvent e) {
+                    if (extendedViewOn) {
+                        extendedViewAction.putValue(NAME, "Switch to Normal Plexil View");
+                        getRegexModelFilter().corePlexilView();
+                        viewHandler.refreshRegexView();
+                    } else {
+                        extendedViewAction.putValue(NAME, "Switch to Core Plexil View");
+                        getRegexModelFilter().extendedPlexilView();
+                        viewHandler.refreshRegexView(); 
+                    }
+                    setExtendedViewOn(!extendedViewOn);
+                }
+            };
+        viewMenu.add(extendedViewAction);
+        viewMenu.add(new JSeparator());
+        viewMenu.add(new LuvAction("View Source Files",
+                                   "Displays Source Files.",
+                                   VK_F9) {
+
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        sourceWindow.open(currentPlan);
+                    } catch (FileNotFoundException ex) {
+                        statusMessageHandler.displayErrorMessage(ex, "ERROR: exception occurred while opening source window");
+                    }
+                }
+            }
+                     );
+        viewMenu.add(new JSeparator());
+        viewMenu.add(new LuvAction("Show Gantt Viewer",
+                                   "Show viewer window with timeline/Gantt views of a plan post-execution.",
+                                   VK_V,
+                                   META_MASK) {
+                public void actionPerformed(ActionEvent e) {	
+                    openGanttViewer.openURL();
+                }
+            }
+                     );
+
+        debugMenu = new JMenu("Debug");
         menuBar.add(debugMenu);
-        debugMenu.add(LuvActionHandler.luvDebugWindowAction);
-        debugMenu.add(LuvActionHandler.luvServerAction);
-        debugMenu.add(LuvActionHandler.createDebugCFGFileAction);
-        debugMenu.add(LuvActionHandler.aboutWindowAction);   
+        luvGetDebugWindowAction = new LuvAction("Show Debug Window",
+                                    "Show window with status and debugging information.",
+                                    VK_D,
+                                    META_MASK) {
+                public void actionPerformed(ActionEvent e) {
+                    debugWindow.setVisible(!debugWindow.isVisible());
+                    if (debugWindow.isVisible()) {
+                        luvGetDebugWindowAction.putValue(NAME, "Hide Debug Window");
+                    } else {
+                        luvGetDebugWindowAction.putValue(NAME, "Show Debug Window");
+                    }
+                }
+            };
+        debugMenu.add(luvGetDebugWindowAction);
+        debugMenu.add(new LuvAction("Change Server port",
+                                    "Change viewer server listening port.",
+                                    VK_S,
+                                    META_MASK) {
+
+                // *** FIXME ***
+                public void actionPerformed(ActionEvent e) {
+                    JComponent newContentPane = portGui; 
+                    newContentPane.setOpaque(true);    			
+                    portGui.getFrame().setContentPane(newContentPane);
+                    portGui.getFrame().pack();
+                    portGui.refresh();
+                    portGui.getFrame().setVisible(true);
+                    if(portGui.isEmpty())
+                        statusMessageHandler.displayErrorMessage(null, "ERROR: No ports avaliable.  Close an open instance and try again");
+                }
+            }
+                      );
+        debugMenu.add(new LuvAction("Create Debug Configuration File...",
+                                    "Create and Customize a debug configuration file.",
+                                    VK_G,
+                                    META_MASK) {
+
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        createCFGFileWindow.open();
+                    } catch (FileNotFoundException ex) {
+                        statusMessageHandler.displayErrorMessage(ex, "ERROR: exception occurred while opening CFG Debug window");
+                    }
+                }
+            }
+                      );
+        debugMenu.add(new LuvAction("About Plexil Viewer Window",
+                                    "Show window with Plexil Viewer about information.") {
+
+                public void actionPerformed(ActionEvent e) {
+                    String info =
+                        "Application:   PLEXIL " + Constants.PLEXIL_VERSION + " " + Constants.PLEXIL_COPYRIGHT +
+                        "Website:   "+ Constants.PLEXIL_WEBSITE + "\n" +
+                        "Java:        " + System.getProperty("java.version") + "; " + System.getProperty("java.vm.name") + " " + System.getProperty("java.vm.version") + "\n" +
+                        "System:    " + System.getProperty("os.name") + " version " + System.getProperty("os.version") + " running on " + System.getProperty("os.arch") + "\n" +
+                        "Userdir:    " + System.getProperty("user.dir") + "\n";
+
+                    ImageIcon icon = getIcon(ABOUT_LOGO);
+
+                    JOptionPane.showMessageDialog(theLuv,
+                                                  info,
+                                                  "About Plexil Viewer",
+                                                  JOptionPane.INFORMATION_MESSAGE,
+                                                  icon);
+                }
+            }
+                      );   
     }
 
     /** Sets the title of the Luv application. */
@@ -865,4 +1138,336 @@ public class Luv extends JFrame {
     public String getProperty(String key) {
         return properties.getProperty(key, UNKNOWN);
     }
+
+    //
+    // State management
+    //
+
+	/**
+	 * Sets the Luv application to a Start State, this occurs as when the Luv
+	 * application opens for the first time.
+     * @note Should only be called from within this class.
+	 */
+	private void startState()
+    {
+		disableAllMenus();
+		allowBreaks = false;
+		isExecuting = false;
+		planPaused = false;
+        updateBlockingMenuItems();
+
+		Model.getRoot().clear();
+
+		viewHandler.clearCurrentView();
+		statusMessageHandler.clearStatusMessageQ();
+		luvBreakPointHandler.removeAllBreakPoints();
+
+		// reset all menu items
+
+		execSelect.getSaveBut().setEnabled(true);
+		fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
+		fileMenu.setEnabled(true);
+
+		updateBlockingMenuItems();
+		allowBreaksAction.putValue(NAME, "Enable Breaks");
+		runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
+		runMenu.getItem(EXEC_SELECT_ITEM).setEnabled(true);
+		runMenu.setEnabled(true);
+
+		viewMenu.setEnabled(true);
+		debugMenu.setEnabled(true);
+	}
+
+	/**
+	 * Sets the Luv application to a Ready State.
+	 */
+	public void readyState()
+    {
+		// set only certain luv viewer variables
+		planPaused = false;
+		planStep = false;
+		fileHandler.setStopSearchForMissingLibs(false);
+
+		PlexilPlanHandler.resetRowNumber();
+
+		setTitle();
+
+		luvBreakPointHandler.clearBreakPoint();
+
+		// set certain menu items
+
+		execAction.putValue(NAME, "Execute Plan");
+
+		execSelect.getSaveBut().setEnabled(true);
+		fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+		fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
+		fileMenu.setEnabled(true);
+
+		updateBlockingMenuItems();
+
+		if (isExecuting)
+			runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+		else
+			runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+
+		runMenu.setEnabled(true);
+
+		if (viewMenu.getMenuComponentCount() > 0) {		
+			viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(true);
+			viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(true);
+			viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM).setEnabled(true);
+			viewMenu.getItem(FIND_MENU_ITEM).setEnabled(true);
+			viewMenu.getItem(EPX_VIEW_MENU_ITEM).setEnabled(true);
+			viewMenu.setEnabled(true);
+		} else
+			viewMenu.setEnabled(false);
+
+		debugMenu.setEnabled(true);
+	}
+
+	/**
+	 * Sets the Luv application to a Finished Execution State and occurs when
+	 * EOF on the LuvListener stream is received.
+	 */
+	public void finishedExecutionState() {
+		isExecuting = false;
+		planPaused = false;
+		planStep = false;
+		fileHandler.setStopSearchForMissingLibs(false);
+
+		// set certain menu items
+
+		execAction.putValue(NAME, "Execute Plan");
+
+		execSelect.getSaveBut().setEnabled(true);
+		fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+		fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
+		fileMenu.setEnabled(true);
+
+		updateBlockingMenuItems();
+
+		runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+		runMenu.setEnabled(true);
+
+		if (viewMenu.getMenuComponentCount() > 0) {			
+			viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(
+					true);
+			viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(
+					true);
+			viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM)
+					.setEnabled(true);
+			viewMenu.getItem(FIND_MENU_ITEM).setEnabled(true);
+			viewMenu.getItem(EPX_VIEW_MENU_ITEM).setEnabled(
+					true);
+			viewMenu.setEnabled(true);
+		} else
+			viewMenu.setEnabled(false);
+
+		debugMenu.setEnabled(true);
+
+		statusMessageHandler.showStatus("Execution stopped", Color.BLUE);
+		statusMessageHandler.showChangeOnPort("Listening on port " + getPort());
+	}
+
+	/**
+	 * Sets the Luv application to a Pre Execution State and occurs just before
+	 * the loaded Plexil Plan is about to execute.
+	 */
+	public void preExecutionState()
+    {
+		shouldHighlight = false;
+		currentPlan.resetMainAttributesOfAllNodes();
+
+		execSelect.getSaveBut().setEnabled(false);
+		fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
+		runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
+		runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(
+				false);
+		runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+	}
+
+	/**
+	 * Sets the Luv application to an Execution State and occurs while the
+	 * loaded Plexil Plan is executing.
+	 */
+	public void executionState()
+    {
+		isExecuting = true;
+		
+		statusMessageHandler.showIdlePortMessage();
+		statusMessageHandler.showStatus("Executing...",
+				Color.GREEN.darker());
+
+		execAction.putValue(NAME, "Stop Execution");
+
+		execSelect.getSaveBut().setEnabled(true);
+		fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
+		runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
+
+		if (allowBreaks)
+			enabledBreakingState();
+		else
+			disabledBreakingState();
+
+		updateBlockingMenuItems();
+	}
+
+	/**
+	 * Sets the Luv application to a Stopped Execution State and occurs when the
+	 * user manually stops the execution of a Plexil Plan.
+	 */
+	public void stopExecutionState() throws IOException {
+		executionHandler.killUEProcess();
+
+		planPaused = false;
+		planStep = false;
+	}
+
+	/**
+	 * Sets the Luv application to an Open Plan State and occurs when a new
+	 * Plexil Plan is newly opened in the Luv application.
+	 */
+	public void openPlanState()
+    {
+		luvBreakPointHandler.removeAllBreakPoints();
+		currentPlan.resetMainAttributesOfAllNodes();
+		currentPlan.addScriptName(UNKNOWN);
+		NodeInfoWindow.closeNodeInfoWindow();
+		readyState();
+	}
+
+	/**
+	 * Sets the Luv application to an Load Recent Run State and occurs when a
+	 * reccently loaded Plexil Plan is newly opened in the Luv application from
+	 * the recently run menu.
+	 */
+	public void loadRecentRunState()
+    {
+		luvBreakPointHandler.removeAllBreakPoints();
+
+		currentPlan.resetMainAttributesOfAllNodes();
+
+		NodeInfoWindow.closeNodeInfoWindow();
+
+		readyState();
+	}
+
+	/**
+	 * Sets the Luv application to an Reload Plan State and occurs when a
+	 * currently loaded Plexil Plan is refreshed in the Luv application.
+	 */
+	public void reloadPlanState()
+    {
+		if (isExecuting && executionHandler.isAlive())
+			try {
+				stopExecutionState();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		currentPlan.resetMainAttributesOfAllNodes();
+
+		readyState();
+	}
+
+	/**
+	 * Sets the Luv application to an Paused State and occurs when the Luv
+	 * application has breaks enabled and is at the beginning of executing a
+	 * Plexil Plan or the user manually pauses a currently running Plexil Plan.
+	 */
+	public void pausedState()
+    {
+		planPaused = true;
+		planStep = false;
+		updateBlockingMenuItems();
+	}
+
+	/**
+	 * Sets the Luv application to an Step State and occurs when the Luv
+	 * application has breaks enabled and the user manually steps through a
+	 * currently running Plexil Plan.
+	 */
+	public void stepState()
+    {
+		planPaused = false;
+		planStep = true;
+		updateBlockingMenuItems();
+	}
+
+	//
+	// Sub-states
+	//
+
+	/**
+	 * Sets the Luv application to an Disabled Breaking State and occurs when
+	 * the Luv application has breaks disabled.
+	 */
+	public void disabledBreakingState()
+    {
+		allowBreaks = false;
+
+		allowBreaksAction.putValue(NAME, "Enable Breaks");
+
+		setForeground(lookupColor(MODEL_DISABLED_BREAKPOINTS));
+
+		Set<LuvBreakPoint> breakPoints =
+            luvBreakPointHandler.getBreakPointMap().keySet();
+
+		for (BreakPoint bp : breakPoints)
+			bp.setEnabled(allowBreaks);
+
+		viewHandler.refreshView();
+
+		updateBlockingMenuItems();
+	}
+
+	/**
+	 * Sets the Luv application to an Enabled Breaking State and occurs when the
+	 * Luv application has breaks enabled.
+	 */
+	public void enabledBreakingState()
+    {
+		allowBreaks = true;
+		allowBreaksAction.putValue(NAME, "Disable Breaks");
+		setForeground(lookupColor(MODEL_ENABLED_BREAKPOINTS));
+
+		Set<LuvBreakPoint> breakPoints =
+            luvBreakPointHandler.getBreakPointMap().keySet();
+
+		for (LuvBreakPoint bp : breakPoints)
+			if (!bp.getReserveBreakStatus())
+				bp.setEnabled(allowBreaks);
+
+		viewHandler.refreshView();
+
+		updateBlockingMenuItems();
+	}
+
+    // Utility used in startState()
+	private void disableAllMenus()
+    {
+		execSelect.getSaveBut().setEnabled(false);
+		fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
+		fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(false);
+		fileMenu.setEnabled(false);
+
+		runMenu.getItem(PAUSE_RESUME_MENU_ITEM).setEnabled(false);
+		runMenu.getItem(STEP_MENU_ITEM).setEnabled(false);
+		runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
+		runMenu.getItem(REMOVE_BREAKS_MENU_ITEM).setEnabled(false);		
+		runMenu.getItem(EXEC_SELECT_ITEM).setEnabled(false);
+		runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(false);
+		runMenu.setEnabled(false);
+
+		if (viewMenu.getMenuComponentCount() > 0) {			
+			viewMenu.getItem(EXPAND_MENU_ITEM).setEnabled(false);
+			viewMenu.getItem(COLLAPSE_MENU_ITEM).setEnabled(false);
+			viewMenu.getItem(HIDE_OR_SHOW_NODES_MENU_ITEM) .setEnabled(false);
+			viewMenu.getItem(FIND_MENU_ITEM) .setEnabled(false);
+			viewMenu.getItem(EPX_VIEW_MENU_ITEM).setEnabled(false);
+		}
+		viewMenu.setEnabled(false);
+		debugMenu.setEnabled(false);
+	}
+
 }
