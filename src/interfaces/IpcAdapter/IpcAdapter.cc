@@ -604,48 +604,33 @@ namespace PLEXIL
       //process external lookups
       pugi::xml_node lookup = external.child("Lookup");
       while (lookup != 0) {
-        const char *name = lookup.attribute("name").value();
-        const char *type = lookup.attribute("type").value();
-        const char *def = lookup.attribute("value").value();
+        const pugi::xml_attribute nameAttr = lookup.attribute("name");
+        assertTrueMsg(!nameAttr.empty() && nameAttr.value(),
+                      "IpcAdapter:parseExternalLookups: Lookup element attribute 'name' missing or empty");
+        const pugi::xml_attribute typeAttr = lookup.attribute("type");
+        assertTrueMsg(!typeAttr.empty() && typeAttr.value(),
+                      "IpcAdapter:parseExternalLookups: Lookup element attribute 'type' missing or empty");
+        const pugi::xml_attribute defAttr = lookup.attribute("value");
+        assertTrueMsg(!defAttr.empty() && defAttr.value(),
+                      "IpcAdapter:parseExternalLookups: Lookup element attribute 'value' missing or empty");
         debugMsg("IpcAdapter:parseExternalLookups",
-                 "External Lookup: name=\"" << name
-                 << "\" type=\"" <<type
-                 << "\" default=\"" << def << "\"");
-        assertTrueMsg(*name != '\0',
-                      "IpcAdapter:parseExternalLookups: Lookup element attribute 'name' missing");
-        assertTrueMsg(*type != '\0',
-                      "IpcAdapter:parseExternalLookups: Lookup element attribute 'type' missing");
-        assertTrueMsg(*def != '\0',
-                      "IpcAdapter:parseExternalLookups: Lookup element attribute 'value' missing");
-        std::string const nameString(name);
+                 "External Lookup: name=\"" << nameAttr.value()
+                 << "\" type=\"" << typeAttr.value()
+                 << "\" default=\"" << defAttr.value() << "\"");
+        std::string const nameString(nameAttr.value());
+        const char *type = typeAttr.value();
         g_configuration->registerLookupInterface(nameString, this);
         if (strcmp(type, "String") == 0)
-          m_externalLookups[nameString] = Value(def);
-        else if (strcmp(type, "Real") == 0) {
-          char *end = 0;
-          double d = strtod(def, &end);
-          assertTrueMsg(*end == '\0',
-                        "IpcAdapter:parseExternalLookups: \"" << def
-                        << "\" is not valid for type " << type);
-          m_externalLookups[nameString] = Value(d);
-        }
-        else if (strcmp(type, "Integer") == 0) {
-          char *end = NULL;
-          int32_t i = (int32_t) strtol(def, &end, 10);
-          assertTrueMsg(*end == '\0',
-                        "IpcAdapter:parseExternalLookups: \"" << def
-                        << "\" is not valid for type " << type);
-          m_externalLookups[nameString] = Value(i);
-        }
-        else if (strcmp(type, "Boolean") == 0) {
-          char *end = NULL;
-          bool b = (0 != strtol(def, &end, 10));
-          assertTrueMsg(*end == '\0',
-                        "IpcAdapter:parseExternalLookups: \"" << def
-                        << "\" is not valid for type " << type);
-          m_externalLookups[nameString] = Value(b);
-        }
-        else 
+          m_externalLookups[nameString] = Value(defAttr.value());
+        // FIXME: pugixml attribute routines don't have out-of-band error signaling
+        else if (strcmp(type, "Real") == 0)
+          m_externalLookups[nameString] = Value(defAttr.as_double());
+        // FIXME: pugixml relies on compiler definition of int type
+        else if (strcmp(type, "Integer") == 0)
+          m_externalLookups[nameString] = Value((int32_t) defAttr.as_int());
+        else if (strcmp(type, "Boolean") == 0)
+          m_externalLookups[nameString] = Value(defAttr.as_bool());
+        else
           assertTrueMsg(ALWAYS_FAIL,
                         "IpcAdapter: invalid or unimplemented lookup value type " << type);
         lookup = lookup.next_sibling("Lookup");
