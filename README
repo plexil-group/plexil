@@ -15,20 +15,20 @@ The instructions supercede those found on PLEXIL's Sourceforge wiki (4/15/14).
 How to build PLEXIL
 -------------------
 
-If you have obtained PLEXIL a binary distribution, there is nothing to build.
+If you have obtained PLEXIL as a binary distribution, there is nothing to build.
 If you have checked it out as source code, follow these steps.
 
 1. Setup your Unix environment.  The following two environment variable settings
 are needed for building and running PLEXIL, so best to put them in your shell
 init file.  This example uses the Bash shell, and assumes you've filed PLEXIL as
-~/plexil-3.
+~/plexil-4.
  
-   export PLEXIL_HOME=~/work/plexil-3
+   export PLEXIL_HOME=~/work/plexil-4
    export PATH=$PLEXIL_HOME/scripts:$PATH
 
 1. In a Unix shell, change to the build directory
 
-  cd ~/plexil-3/src
+  cd ~/plexil-4/src
 
 2. Configure for the build.  This example includes all the optional PLEXIL
 components (recommended) and has binaries installed in the PLEXIL installation
