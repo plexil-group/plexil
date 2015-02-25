@@ -22,7 +22,7 @@ Clock:
       Start started;
       Repeat true;
 
-      Wait (Duration("PT2S"));
+      Wait (Duration("PT1S"));
       Time = Time + 1;
       UpdateLookup ("Time", Time);
       pprint ("Clock: incremented time to ", Time);
