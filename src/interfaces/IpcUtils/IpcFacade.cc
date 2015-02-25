@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -304,7 +304,7 @@ namespace PLEXIL
 
     case PlexilMsgType_BooleanValue: {
       const PlexilBooleanValueMsg* param = reinterpret_cast<const PlexilBooleanValueMsg*> (msg);
-      return Value(param->boolValue);
+      return Value((bool) param->boolValue);
     }
 
     case PlexilMsgType_IntegerValue: {
@@ -326,7 +326,7 @@ namespace PLEXIL
       const PlexilBooleanArrayMsg* param = reinterpret_cast<const PlexilBooleanArrayMsg*> (msg);
       BooleanArray array(param->arraySize);
       for (size_t j = 0; j < param->arraySize; j++)
-        array.setElement(j, param->boolArray[j]);
+        array.setElement(j, (bool) param->boolArray[j]);
       return Value(array);
     }
 
