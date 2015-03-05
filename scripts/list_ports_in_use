@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+
+osname=`uname`
+if [ "Darwin" = "$osname" ]
+then
+    # FIXME: sensitive to changes in output format
+    netstat -anfinet | grep '^\(tcp\|udp\)' | cut -c22-44 \
+        | grep -v '\*\.\*' \
+        | sed -e 's/\*\.//g' \
+        | sed -E -e 's/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.//g'
+    netstat -anfinet6 | grep '^\(tcp\|udp\)' | cut -c22-44 \
+        | grep -v '\*\.\*' \
+        | sed -e 's/\*\.//g' \
+        | sed -E -e 's/[0-9a-f:]*\.//g'
+elif [ "Linux" = "$osname" ]
+then
+    netstat -an -Ainet -Ainet6 > $active_ports
+else
+    echo "Error: Don't know how to get active port list on $osname"
+    exit 1
+fi
