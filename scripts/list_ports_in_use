@@ -11,7 +11,7 @@ then
     netstat -anfinet6 | grep '^\(tcp\|udp\)' | cut -c22-44 \
         | grep -v '\*\.\*' \
         | sed -e 's/\*\.//g' \
-        | sed -E -e 's/^[0-9a-f:]*\.//g'
+        | sed -E -e 's/^[0-9a-f:]*(%lo0)?\.//g'
 elif [ "Linux" = "$osname" ]
 then
     netstat -anAinet | grep '^\(tcp\|udp\)' | cut -c21-48 \
