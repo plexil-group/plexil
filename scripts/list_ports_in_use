@@ -14,11 +14,11 @@ then
         | sed -E -e 's/^[0-9a-f:]*(%lo0)?\.//g'
 elif [ "Linux" = "$osname" ]
 then
-    netstat -anAinet | grep '^\(tcp\|udp\)' | cut -c21-48 \
-        | sed -E -e 's/^[0-9\.]*://g'
+    netstat -anAinet | grep '^\(tc\|ud\)p' \
+        | sed -e 's/^.*\:\([0-9]\+\) .*$/\1/g'
     # FIXME: the below not tested yet
-    netstat -anAinet6 | grep '^\(tcp\|udp\)' | cut -c21-48 \
-        | sed -E -e 's/^[0-9a-fA-F:]*://g'
+    netstat -anAinet6 | grep '^\(tc\|ud\)p6' \
+        | sed -e 's/^.*\:\([0-9]\+\) .*$/\1/g'
 else
     echo "Error: Don't know how to get active port list on $osname"
     exit 1
