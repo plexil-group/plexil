@@ -25,6 +25,18 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+if [ -z "$PLEXIL_HOME" ]
+then
+    echo Error: Please set environment variable PLEXIL_HOME
+    echo to the full pathname of your root 'plexil' directory.
+    exit 2
+fi
+
+if ( echo $PATH | grep -q -v "\<$PLEXIL_HOME/scripts\>" )
+then
+    PATH=$PATH:$PLEXIL_HOME/scripts
+fi
+
 # Select a port range that is not assigned to any particular service.
 # See https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml
 MIN_PORT=49001
