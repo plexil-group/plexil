@@ -31,6 +31,10 @@
 #include <fstream>
 #include <cmath>
 
+extern "C" {
+#include <unistd.h>
+}
+
 #include "IpcRobotAdapter.hh"
 #include "MyOpenGL.hh"
 #include "Macros.hh"
