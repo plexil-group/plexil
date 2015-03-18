@@ -39,7 +39,8 @@ fi
 
 # Select a port range that is not assigned to any particular service.
 # See https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml
-MIN_PORT=49001
+#MIN_PORT=49001
+MIN_PORT=49100
 MAX_PORT=49150
 
 # List open Internet sockets to temp file
