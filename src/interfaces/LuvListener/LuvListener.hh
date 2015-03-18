@@ -61,7 +61,7 @@ namespace PLEXIL
 
     // Defaults
     DECLARE_STATIC_CLASS_CONST(char*, LUV_DEFAULT_HOSTNAME, "localhost");
-    DECLARE_STATIC_CLASS_CONST(unsigned int, LUV_DEFAULT_PORT, 65400);
+    DECLARE_STATIC_CLASS_CONST(unsigned int, LUV_DEFAULT_PORT, 49100);
 
     // Configuration XML
     DECLARE_STATIC_CLASS_CONST(char*, LUV_HOSTNAME_ATTR, "HostName");

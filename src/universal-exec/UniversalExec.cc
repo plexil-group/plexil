@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -139,8 +139,7 @@ int main_internal(int argc, char** argv)
 	  }
       std::istringstream buffer(argv[i]);
       buffer >> luvPort;
-      SHOW(luvPort);
-    } 
+    }
     else if (strcmp(argv[i], "-b") == 0)
       luvBlock = true;
 #endif
@@ -193,6 +192,11 @@ int main_internal(int argc, char** argv)
   // if a luv view is to be attached,
   // add dummy element for LuvListener
   if (luvRequest) {
+
+    // *** DEBUG ONLY ***
+    SHOW(luvPort);
+    // *** END DEBUG ONLY ***
+
 	pugi::xml_document* luvConfig = 
 	  PLEXIL::LuvListener::constructConfigurationXml(luvBlock,
 													 luvHost.c_str(), 

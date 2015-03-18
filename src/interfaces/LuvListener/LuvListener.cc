@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,11 +46,27 @@ namespace PLEXIL
   LuvListener::LuvListener(pugi::xml_node const xml)
 	: ExecListener(xml),
 	  m_socket(NULL),
-	  m_host(LUV_DEFAULT_HOSTNAME()),
-	  m_port(LUV_DEFAULT_PORT()),
+	  m_host(NULL),
+	  m_port(0),
 	  m_block(false),
 	  m_ignoreConnectFailure(true)
   {
+    // Parse XML
+    char const *hostname = xml.attribute(LUV_HOSTNAME_ATTR()).value();
+    if (hostname && *hostname)
+      m_host = hostname;
+    else
+      m_host = LUV_DEFAULT_HOSTNAME();
+
+    pugi::xml_attribute portattr = xml.attribute(LUV_PORT_ATTR());
+    if (portattr)
+      m_port = portattr.as_uint(0);
+    if (!m_port)
+      m_port = LUV_DEFAULT_PORT();
+    
+    pugi::xml_attribute blockattr = xml.attribute(LUV_BLOCKING_ATTR());
+    if (blockattr)
+      m_block = blockattr.as_bool(false);
   }
 
   //* Constructor from TestExec.
