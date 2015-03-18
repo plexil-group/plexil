@@ -168,7 +168,7 @@ help_text=" Options:\n\
  -ch | -check \n\
 \t 	Runs the PLEXIL static checker prior to executing plan \n\
  -a | -nochecks \n\
-\t  Runs the exec with the supplied options, without checking them, and without the Viewer. \n\
+\t  Runs the exec with the supplied options, without checking them, and without starting the Viewer. \n\
 \t  Intended for use by the Plexil Viewer or other scripts."
 
 if [ $PLEXIL_EXECUTABLE ]
@@ -292,13 +292,13 @@ then
     fi
     if [ -n "$port_in" ]
     then
-        port_cmd="-p $port_in"
+        port_cmd="-n $port_in"
     fi
     echo "RUN_UE_PID$$"
+    # *** debug only ***
+    echo $prog $plan_cmd $config_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $viewer $port_cmd $block $quiet
+    # *** end debug only ***
     exec $prog $plan_cmd $config_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $viewer $port_cmd $block $quiet
-    # *** debug use only ***
-    #echo $prog $plan_cmd $config_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $viewer $port_cmd $block $quiet
-    #exit 0
 fi
 
 if [ -n "$block" ]
@@ -344,7 +344,7 @@ then
     else
 	    config_nm=$default_config
     fi
-    warn "Using default configuration file $current_config"
+    warn "Using default configuration file $config_nm"
 fi
 config_cmd="-c $config_nm"
 
@@ -398,7 +398,7 @@ fi
 
 if [ -n "$port_in" ]
 then
-    port_cmd="-p $port_in"
+    port_cmd="-n $port_in"
 fi
      
 # Run default debug
@@ -424,9 +424,11 @@ fi
 
 if [ -n "$viewer" ]
 then
-    #echo "plexil $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $viewer $host_cmd $port_cmd $block"
-    exec plexil $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $viewer $host_cmd $port_cmd $block
+    # Launch the viewer, which will in turn invoke this script again with the automate flag
+    echo "plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $host_cmd $port_cmd $block"
+    exec plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $host_cmd $port_cmd $block
 else
-    #echo "$prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $viewer $host_cmd $port_cmd $block"
-    exec $prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $viewer $host_cmd $port_cmd $block
+    # User doesn't want viewer
+    echo "$prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $block"
+    exec $prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $block
 fi
