@@ -193,10 +193,7 @@ namespace PLEXIL {
    */
   void LuvFormat::formatPlan(std::ostream& s, 
                              pugi::xml_node const plan) {
-    // create a PLEXIL Plan wrapper and stick the plan in it
-    simpleStartTag(s, PLEXIL_PLAN_TAG());
     plan.print(s, "", PUGI_FORMAT_OPTIONS());
-    endTag(s, PLEXIL_PLAN_TAG());
   }
 
   /**
