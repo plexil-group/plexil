@@ -50,12 +50,11 @@ fi
 
 . $PLEXIL_HOME/scripts/plexil-setup.sh
 
-#Validate file
 validate_file()
 {
     if [ -z $1 ]
     then
-        echo "Internal error: missing filename in call to valid()"
+        echo "Internal error: missing filename in call to validate_file()"
         exit 3
     fi
     if [ -n "$quiet" ]
@@ -279,7 +278,7 @@ done
 
 if [ -n "$automate" ]
 then
-    # Just Do It - presume the Viewer knows what it's doing.
+    # Just Do It - presume caller knows what it's doing.
     # We do not expect a local Viewer to use the -h option.
     if [ -n "$plan_nm" ] && [ -n "$check" ]
     then
@@ -295,9 +294,8 @@ then
         port_cmd="-n $port_in"
     fi
     echo "RUN_UE_PID$$"
-    # *** debug only ***
-    echo $prog $plan_cmd $config_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $viewer $port_cmd $block $quiet
-    # *** end debug only ***
+
+    #echo $prog $plan_cmd $config_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $viewer $port_cmd $block $quiet
     exec $prog $plan_cmd $config_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $viewer $port_cmd $block $quiet
 fi
 
@@ -417,7 +415,7 @@ fi
 echo
 
 # Print summary if desired
-if [ -z "$quiet" ] 
+if [ -z "$quiet" ] && [ -z "$viewer" ]
 then
     summarize
 fi
@@ -425,10 +423,10 @@ fi
 if [ -n "$viewer" ]
 then
     # Launch the viewer, which will in turn invoke this script again with the automate flag
-    echo "plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $host_cmd $port_cmd $block"
+    #echo "plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $host_cmd $port_cmd $block"
     exec plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $host_cmd $port_cmd $block
 else
     # User doesn't want viewer
-    echo "$prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $block"
+    #echo "$prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $block"
     exec $prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $block
 fi
