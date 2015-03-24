@@ -189,19 +189,20 @@ int main_internal(int argc, char** argv)
   }
 
 #if HAVE_LUV_LISTENER
-  // if a luv view is to be attached,
-  // add dummy element for LuvListener
+  // if a luv viewer is to be attached,
+  // command line arguments must override config file
   if (luvRequest) {
-
-    // *** DEBUG ONLY ***
-    SHOW(luvPort);
-    // *** END DEBUG ONLY ***
+    pugi::xml_node existing =
+      configElt.find_child_by_attribute(InterfaceSchema::LISTENER_TAG(),
+                                        InterfaceSchema::LISTENER_TYPE_ATTR(),
+                                        "LuvListener");
+    if (existing)
+      configElt.remove_child(existing);
 
 	pugi::xml_document* luvConfig = 
 	  PLEXIL::LuvListener::constructConfigurationXml(luvBlock,
 													 luvHost.c_str(), 
 													 luvPort);	
-	// FIXME: add null check?
 	configElt.append_copy(luvConfig->document_element());
 	delete luvConfig;
   }
