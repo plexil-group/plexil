@@ -71,7 +71,7 @@ then
     exit 2
 fi
 
-if ( list_ports_in_use | fgrep -q "\<$1\>" )
+if ( list_ports_in_use | grep -q "\<$1\>" )
 then
     if [ -z "$quiet" ]
     then
