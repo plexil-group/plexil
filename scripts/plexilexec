@@ -54,22 +54,21 @@ validate_file()
 {
     if [ -z $1 ]
     then
-        echo "Internal error: missing filename in call to validate_file()"
-        exit 3
-    fi
-    if [ -n "$quiet" ]
+        echo "Error: missing filename for $2 option"
+        usage
+        exit 2
+    elif [ ! -e $1 ]
     then
-        return
-    fi
-    if [ ! -e $1 ]
-    then
-        echo "Warning: $1 does not exist"
+        echo "Error: $1 does not exist"
+        exit 1
     elif [ -d $1 ]
     then
-        echo "Warning: $1 is a directory"
+        echo "Error: $1 is a directory"
+        exit 1
     elif [ ! -r $1 ]
     then
-        echo "Warning: $1 cannot be read"
+        echo "Error: $1 cannot be read"
+        exit 1
     fi
 }
 
@@ -158,12 +157,12 @@ help_text=" Options:\n\
 \t 	Minimize output \n\
  -v | -viewer \n\
 \t 	Starts the Plexil Viewer \n\
- -h | -hostname <name> \n\
-\t 	Port number to use for Viewer \n\
  -b | -blocking \n\
-\t 	Name of remote host where Viewer is running \n\
- -n | -port <number> \n\
 \t 	Enables breakpoints in Viewer \n\
+ -h | -hostname <name> \n\
+\t 	Name of remote host where Viewer is running\n\
+ -n | -port <number> \n\
+\t 	Port number to use for Viewer \n\
  -ch | -check \n\
 \t 	Runs the PLEXIL static checker prior to executing plan \n\
  -a | -nochecks \n\
@@ -173,9 +172,12 @@ help_text=" Options:\n\
 if [ $PLEXIL_EXECUTABLE ]
 then
     prog=$PLEXIL_EXECUTABLE
-elif [ -f $PLEXIL_HOME/bin/universalExec ]
+elif [ -f $PLEXIL_HOME/bin/universalExec ] && [ -x $PLEXIL_HOME/bin/universalExec ]
 then
     prog=$PLEXIL_HOME/bin/universalExec
+elif [ -f $PLEXIL_HOME/bin/universalExec/universalExec ] && [ -x $PLEXIL_HOME/bin/universalExec/universalExec ]
+then
+    prog=$PLEXIL_HOME/bin/universalExec/universalExec
 else
     echo "Error: Plexil executable not found, aborting"
     exit 1
@@ -188,7 +190,6 @@ default_config_path="${PLEXIL_HOME}/examples" #default config location
 default_config_name="dummy-config.xml"
 default_config="${default_config_path}/${default_config_name}" 
 
-platform=`uname`
 no_plan=0 #assume plan required
 quiet="" #quiet default
 plan_nm="" #plan name
@@ -197,7 +198,7 @@ config_nm="" #interface config name
 config_cmd="" #interface config command
 libraries="" #library files
 library_dirs="" #library files
-debug_file="" #debug file
+debug_cmd="" #debug cmd
 check="" #run static checker
 
 if [ ! $1 ]
@@ -208,6 +209,7 @@ fi
 
 while [ -n "$1" ]
 do
+    save=$1
     case $1 in
         
 	    -a | -nochecks )
@@ -225,8 +227,8 @@ do
 
 	    -d | -debug )
             shift
-	        validate_file $1
-	        debug_file="-d $1";;
+	        validate_file "$1" $save
+            debug_cmd="-d $1";;
 
 	    -h | -hostname )
             shift
@@ -239,9 +241,15 @@ do
 
 	    -L | -libraryPath )
             shift
-            if [ ! -r "$1" ] || [ ! -d "$1" ]
+            if [ -z "$1" ]
             then
-                echo "Warning: $1 is not a readable directory. Ignoring."
+                echo "Error: missing directory name for $save option"
+                usage
+                exit 2
+            elif [ ! -r "$1" ] || [ ! -d "$1" ]
+            then
+                echo "Error: $1 is not a readable directory."
+                exit 1
             else
                 library_dirs="$library_dirs$1 "
 	            lib_dirs_cmd="$lib_dirs_cmd-L $1 "
@@ -249,7 +257,7 @@ do
 
 	    -l | -library )
             shift
-	        validate_file $1	
+	        validate_file "$1" $save
             libraries="$libraries$1 "
 	        lib_cmd="$lib_cmd-l $1 ";;
 
@@ -259,6 +267,7 @@ do
 
 	    -p | -plan )
 	        shift
+            validate_file "$1" $save
 	        plan_nm=$1	
 	        plan_cmd="-p $plan_nm";;
 
@@ -306,17 +315,6 @@ then
         warn "Warning: $block specified but Viewer not in use. Ignoring."
         block=""
     fi
-fi
-
-# Check if plan name valid
-if [ -n "$plan_nm" ] && [ ! -f "$plan_nm" ]
-then
-    echo Error: Plan file $plan_nm does not exist.
-    exit 1
-elif [ ! -r "$plan_nm" ]
-then
-    echo Error: Plan file $plan_nm is not readable.
-    exit 1
 fi
 
 # Check the supplied config
@@ -400,9 +398,9 @@ then
 fi
      
 # Run default debug
-if [ -z "$debug_file" ] && [ -z "$quiet" ]
+if [ -z "$debug_cmd" ] && [ -z "$quiet" ] && [ -r "Debug.cfg" ]
 then
-    debug_file="-d Debug.cfg"
+    debug_cmd="-d Debug.cfg"
 fi
 
 # Check plan for errors
@@ -423,10 +421,10 @@ fi
 if [ -n "$viewer" ]
 then
     # Launch the viewer, which will in turn invoke this script again with the automate flag
-    #echo "plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $host_cmd $port_cmd $block"
-    exec plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $host_cmd $port_cmd $block
+    #echo "plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $block"
+    exec plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $block
 else
     # User doesn't want viewer
-    #echo "$prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $block"
-    exec $prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_file $block
+    #echo "$prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block"
+    exec $prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block
 fi
