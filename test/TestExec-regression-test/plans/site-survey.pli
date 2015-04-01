@@ -1,4 +1,4 @@
-;;; Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+;;; Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 ;;;  All rights reserved.
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,37 @@
 ;;; USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (plexil-plan
+ (global-declarations
+  (command-declaration "get_next_inspection_point" (return "integer"))
+  (command-declaration "move_to_waypoint"
+                       (return "integer")
+                       (parameter "string")
+                       (parameter "string")
+                       (parameter "real")
+                       (parameter "real")
+                       (parameter "real")
+                       (parameter "real")
+                       (parameter "real")
+                       (parameter "real")
+                       (parameter "real")
+                       (parameter "real"))
+  (command-declaration "acquire" (return "integer"))
+  (state-declaration "name" (return "string"))
+  (state-declaration "frame" (return "string"))
+  (state-declaration "waypoint_x" (return "real"))
+  (state-declaration "waypoint_y" (return "real"))
+  (state-declaration "waypoint_z" (return "real"))
+  (state-declaration "waypoint_a" (return "real"))
+  (state-declaration "isDirectional" (return "real"))
+  (state-declaration "tolerance" (return "real"))
+  (state-declaration "headingTolerance" (return "real"))
+  (state-declaration "hintedSpeed" (return "real"))
+  (state-declaration "inspect_waypoint" (return "integer"))
+  (state-declaration "task_id" (return "integer"))
+  (state-declaration "timeout" (return "real"))
+  (state-declaration "plan_paused" (return "boolean"))
+  (state-declaration "abort_plan" (return "boolean"))
+  )
   (list-node "SiteSurveyWithEOF"
     (end-condition (or (finished "SignalEndOfPlan") (finished "SendAbortUpdate") (= true (boolvar "abort_due_to_exception"))))
     (variables (integer "task_type")
