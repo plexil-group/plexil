@@ -7,7 +7,9 @@
       </CommandDeclaration>
       <StateDeclaration>
          <Name>Goal</Name>
-         <Return Type="Boolean"/>
+         <Return>
+            <Type>Boolean</Type>
+         </Return>
       </StateDeclaration>
   </GlobalDeclarations>
    <Node NodeType="Command">
