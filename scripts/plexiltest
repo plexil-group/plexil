@@ -59,11 +59,11 @@ validate_file()
 
 validNum()
 {
-    if [ -z "$1"]
+    if [ -z "$1" ]
     then
         echo "Error: Missing parameter for $2 option"
         exit 2
-    elif (( ! "$1" > 0 ))
+    elif (( $1 <= 0 ))
     then    	
   	    echo "Error: $1 is not a legal parameter for $2"
 	    exit 2
@@ -332,13 +332,15 @@ then
         fi
     elif [ -z "$port_in" ]
     then
-        echo "Error: Viewer host $host_in specified, but no port was supplied. Exiting."
+        echo "Error: Viewer host $host_in specified, but no port was supplied."
+        usage
         exit 1
     fi
     # TODO: Bounds check port number
 elif [ -n "$host_in" ]
 then
-    echo "Error: -h (remove Viewer host) and -v (local Viewer) may not be combined. Exiting."
+    echo "Error: -h (remove Viewer host) and -v (local Viewer) may not be combined."
+    usage
     exit 1
 else
     # Local Viewer requested
@@ -348,7 +350,7 @@ else
         port_in=`find_open_port`
         if [ -z "$port_in" ]
         then
-            echo "Unable to find an open local port for Viewer communications."
+            echo "Unable to find an open local port for Viewer communications. Exiting."
             exit 1
         fi
         port_cmd="-n $port_in"
