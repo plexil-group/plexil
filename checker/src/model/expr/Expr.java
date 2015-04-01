@@ -60,18 +60,37 @@ public abstract class Expr {
 	public static Expr Alias(Expr l, Expr r) { return new BinaryExpr(ExprElement.Alias, l, r); }
 	public static Expr Alias(ExprType t, Expr l, Expr r) { return new BinaryExpr(ExprElement.Alias, l, r, t); }
 	
-    public enum ExprType { Num, Bool, Str, NodeState, NodeOutcome, NodeTimepointValue, A;  // A is generic, should match any other
-		public boolean equals(Var.VarType vt)
-		{
-			if ( this.equals(A) ||
-				(this.equals(ExprType.Bool) && vt.equals(Var.VarType.B)) ||
-				(this.equals(ExprType.Str) && vt.equals(Var.VarType.S)) ||
-				(this.equals(ExprType.Num) && vt.equals(Var.VarType.I)) ||
-				(this.equals(ExprType.Num) && vt.equals(Var.VarType.R)) )
-				return true;
-			return false;
+    public enum ExprType {
+        Num,
+        Bool,
+        Str,
+        NodeState,
+        NodeOutcome,
+        NodeFailureValue,
+        NodeTimepointValue,
+        A;  // A is generic, should match any other
+		
+        public boolean equals(Var.VarType vt) {
+			if (this.equals(A))
+                return true;
+            switch (vt) {
+            case B:
+                return this.equals(ExprType.Bool);
+
+            case S:
+                return this.equals(ExprType.Str);
+
+                // *** FIXME *** No longer true 
+            case I:
+            case R:
+                return this.equals(ExprType.Num);
+
+            default:
+                return false;
+            }
 		}
-	};
+	}
+
 	public enum ExprElement {
 		Const, Var, Lookup, ArrayElem, Alias,
 		Plus, Minus, Mult, Div, Sqrt, Abs,
