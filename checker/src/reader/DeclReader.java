@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,7 @@ import java.util.Vector;
 
 public class DeclReader {
 	public static final String DeclarationRootText = "GlobalDeclarations";
-	public static final String CommandDeclText = "Command";
-	public static final String FunctionDeclText = "FunctionDeclaration";
+	public static final String CommandDeclText = "CommandDeclaration";
 	public static final String LookupDeclText = "StateDeclaration";
 	public static final String LibraryNodeDeclText = "LibraryNodeDeclaration";
 	public static final String NameDeclarationText = "Name";
@@ -71,20 +70,18 @@ public class DeclReader {
 		VarList params = new VarList();
 		VarList rets = new VarList();
 		
-		if (xml.getName().equals(CommandDeclText))
+        String tag = xml.getName();
+		if (tag.equals(CommandDeclText))
 			declType = CallType.Command;
-		if (xml.getName().equals(FunctionDeclText))
-			declType = CallType.Function;
-		if (xml.getName().equals(LookupDeclText))
+		else if (tag.equals(LookupDeclText))
 			declType = CallType.Lookup;
-		if (xml.getName().equals(LibraryNodeDeclText))
+		else if (tag.equals(LibraryNodeDeclText))
 			declType = CallType.LibraryCall;
 		
 		if (!xml.hasChildren())
 			return null;
 		
-		for (IXMLElement child : getChildren(xml))
-		{
+		for (IXMLElement child : getChildren(xml)) {
 			String text = child.getName();
 			if (text.equals(ParameterDeclarationText))
 				params.add(convertXmlToVar(child));
