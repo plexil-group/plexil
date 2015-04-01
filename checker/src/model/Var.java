@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ public class Var
 	public VarType getType() { return type; }
 	public Expr.ExprType getTypeAsExprType() { return type.toExprType(); }
 	public VarMod getMod() { return mod; }
+    public void setMod(VarMod m) { mod = m; }
 
 	public Var (VarType t) { id = ""; type = t; mod = VarMod.None;}
 	public Var (String i, VarType t) { id = i; type = t; mod = VarMod.None;}

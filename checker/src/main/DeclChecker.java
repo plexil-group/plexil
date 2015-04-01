@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -77,11 +77,11 @@ public class DeclChecker {
         for(Node n : nodes)
             {
                 Action a = n.getAction();
-                // Make sure we have a declarable type (i.e. Command, Function, etc)
-                if (a == null ||
-                    a.getType() == ActionType.Assignment ||
-                    a.getType() == ActionType.Update ||
-                    a.getType() == ActionType.Empty)
+                // Make sure we have a declarable type (i.e. Command, Lookup, etc)
+                if (a == null)
+                    continue;
+                if (a.getType() != ActionType.Command &&
+                    a.getType() != ActionType.Lookup)
                     continue;
             
                 // Add a warning if action ID is not statically determined
@@ -177,10 +177,12 @@ public class DeclChecker {
             {
                 // Now we have a list of Var references from node n
                 LeafExpr le = (LeafExpr)e;
-                if (le.getType().equals(ExprType.NodeState) ||
-                    le.getType().equals(ExprType.NodeTimepointValue) ||
-                    le.getType().equals(ExprType.NodeOutcome))
-                    {
+                ExprType leType = le.getType();
+                if (leType.equals(ExprType.NodeState) ||
+                    leType.equals(ExprType.NodeTimepointValue) ||
+                    leType.equals(ExprType.NodeOutcome) ||
+                    leType.equals(ExprType.NodeFailureType) ||
+                    leType.equals(ExprType.NodeCommandHandle)) {
                         // Ignore Const type, check Var type that node actually exists
                         if (le.getElem().equals(ExprElement.Var))
                             {
@@ -209,7 +211,7 @@ public class DeclChecker {
             
                 // Check that variable is used properly
                 boolean isIDMatch = v.getID().equals(le.getID());
-                boolean isTypeMatch = v.getType().equals(le.getType());
+                boolean isTypeMatch = v.getType().equals(leType);
                 if (isIDMatch && !isTypeMatch)
                     errors.add(variableMismatchMessage(v,le, message));
             
@@ -236,8 +238,10 @@ public class DeclChecker {
                 if (le.getType() != null)
                     if (le.getType().equals(ExprType.NodeState) ||
                         le.getType().equals(ExprType.NodeTimepointValue) ||
-                        le.getType().equals(ExprType.NodeOutcome))
-                        continue; // NodeState/Outcome should not exist for lookups
+                        le.getType().equals(ExprType.NodeOutcome) ||
+                        le.getType().equals(ExprType.NodeFailureType) ||
+                        le.getType().equals(ExprType.NodeCommandHandle))
+                        continue; // NodeState/Outcome et al should not exist for lookups
             
                 if (le.getAction() == null)
                     continue;
@@ -269,17 +273,25 @@ public class DeclChecker {
     private Log compareCalls(Action a, GlobalDecl d, Node n)
     {
         // Compare action type
-        if (a.getType() == ActionType.Command && d.getType() != CallType.Command)
-            return declarationMismatchMessage(a, n, d);
-        
-        if (a.getType() == ActionType.Function && d.getType() != CallType.Function)
-            return declarationMismatchMessage(a, n, d);
+        switch (a.getType()) {
+        case Command:
+            if (d.getType() != CallType.Command)
+                return declarationMismatchMessage(a, n, d);
+            break;
 
-        if (a.getType() == ActionType.LibraryCall && d.getType() != CallType.LibraryCall)
-            return declarationMismatchMessage(a, n, d);
+        case LibraryCall:
+            if (d.getType() != CallType.LibraryCall)
+                return declarationMismatchMessage(a, n, d);
+            break;
         
-        if (a.getType() == ActionType.Lookup && d.getType() != CallType.Lookup)
-            return declarationMismatchMessage(a, n, d);
+        case Lookup:
+            if (d.getType() != CallType.Lookup)
+                return declarationMismatchMessage(a, n, d);
+            break;
+
+        default:
+            break;
+        }
         
         // Compare arguments
         ExprList aArgs = a.getArgs();
@@ -288,11 +300,10 @@ public class DeclChecker {
         if (aArgs.size() != dArgs.size())
             return declarationMismatchMessage(a, n, d);
         
-        for (int i = 0; i < aArgs.size(); i++)
-            {
-                if (!aArgs.elementAt(i).getType().equals(dArgs.elementAt(i).getType()))
-                    return declarationMismatchMessage(a, n, d);
-            }
+        for (int i = 0; i < aArgs.size(); i++) {
+            if (!aArgs.elementAt(i).getType().equals(dArgs.elementAt(i).getType()))
+                return declarationMismatchMessage(a, n, d);
+        }
         
         // Compare return values
         ExprList aRets = a.getArgs();
@@ -301,11 +312,10 @@ public class DeclChecker {
         if (aRets.size() > dRets.size())
             return declarationMismatchMessage(a, n, d);
         
-        for (int i = 0; i < aRets.size(); i++)
-            {
-                if (!aRets.elementAt(i).getType().equals(dRets.elementAt(i).getType()))
-                    return declarationMismatchMessage(a, n, d);
-            }
+        for (int i = 0; i < aRets.size(); i++) {
+            if (!aRets.elementAt(i).getType().equals(dRets.elementAt(i).getType()))
+                return declarationMismatchMessage(a, n, d);
+        }
 
         return null;
     }

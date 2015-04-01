@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@ package reader;
 
 import net.n3.nanoxml.*;
 import model.*;
+import model.Var.VarMod;
 import model.Var.VarType;
 import model.Action.ActionType;
 import model.expr.*;
@@ -41,11 +42,13 @@ public class PlanReader {
 	public static final String ArgumentCallText = "Arguments";
 	public static final String ReturnCallText = "Returns";
 	public static final String AliasCallText = "Alias";
+    public static final String InterfaceText = "Interface";
+    public static final String InText = "In";
+    public static final String InOutText = "InOut";
 	public static final String VarListDeclarationText = "VariableDeclarations";
 	public static final String VarDeclarationText = "DeclareVariable";
 	public static final String ArrayDeclarationText = "DeclareArray";
 	public static final String CommandCallText = "Command";
-	public static final String FunctionCallText = "Function";
 	public static final String LibraryNodeCallText = "LibraryNodeCall";
 	public static final String LookupCallText = "Lookup";
 	public static final String AssignmentText = "Assignment";
@@ -118,9 +121,11 @@ public class PlanReader {
 			String compText = component.getName();
 			if (compText.equals(NodeIdText))
 				n.setID(component.getContent());
+            else if (compText.equals(InterfaceText))
+                n.addVarDefs(buildInterfaceList(component));
 			else if (compText.equals(VarListDeclarationText))
-				n.setVarDefs(buildVarDefList(component));
-			else if (compText.contains(ConditionText))
+				n.addVarDefs(buildVarDefList(component));
+			else if (compText.endsWith(ConditionText))
 				n.addCondition(buildCondition(component));
 			else if (compText.equals(NodeBodyText))
 				n.setAction(buildAction(component.getChildAtIndex(0)));
@@ -132,43 +137,63 @@ public class PlanReader {
 	
 	public Condition buildCondition(IXMLElement xml)
 	{
-		if (xml == null || !xml.getName().contains(ConditionText))
+		if (xml == null || !xml.getName().endsWith(ConditionText))
 			return null;
 		
 		Condition.ConditionType type = Condition.ConditionType.Start;
 		String text = xml.getName();
 		if (text.equals(StartCondText))
 			type = Condition.ConditionType.Start;
-		if (text.equals(EndCondText))
+		else if (text.equals(EndCondText))
 			type = Condition.ConditionType.End;
-		if (text.equals(PreCondText))
+		else if (text.equals(PreCondText))
 			type = Condition.ConditionType.Pre;
-		if (text.equals(PostCondText))
+		else if (text.equals(PostCondText))
 			type = Condition.ConditionType.Post;
-		if (text.equals(InvarCondText))
+		else if (text.equals(InvarCondText))
 			type = Condition.ConditionType.Invar;
-		if (text.equals(RepeatCondText))
+		else if (text.equals(RepeatCondText))
 			type = Condition.ConditionType.Repeat;
-		if (text.equals(SkipCondText))
+		else if (text.equals(SkipCondText))
 			type = Condition.ConditionType.Skip;
 		
 		return new Condition(type, exprReader.xmlToExpr(xml.getChildAtIndex(0)));	
 	}
 
+    private VarList buildInterfaceList(IXMLElement xml) {
+        VarList result = new VarList();
+        for (IXMLElement io : getChildren(xml)) {
+            String ioTag = io.getName();
+            if (ioTag.equals(InText)) {
+                for (IXMLElement var : getChildren(io)) {
+                    Var v = buildVarDef(var);
+                    if (v != null) {
+                        v.setMod(VarMod.In);
+                        result.add(v);
+                    }
+                }
+            }
+            else if (ioTag.equals(InOutText)) {
+                for (IXMLElement var : getChildren(io)) {
+                    Var v = buildVarDef(var);
+                    if (v != null) {
+                        v.setMod(VarMod.InOut);
+                        result.add(v);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
 	public VarList buildVarDefList(IXMLElement xml)
 	{
 		VarList list = new VarList();
-		
-		if (xml == null || !xml.getName().equals(VarListDeclarationText))
-			return list;
-
-		for (IXMLElement var : getChildren(xml))
-		{
+		for (IXMLElement var : getChildren(xml)) {
 			Var v = buildVarDef(var);
 			if (v != null)
 				list.add(v);
 		}
-		
 		return list;
 	}
 	
@@ -209,21 +234,22 @@ public class PlanReader {
 		if (xml.getName().equals(NodeListText))
 			return new Action(ActionType.Empty);
 
-		ActionType nodeType = ActionType.Command;
 		Expr id = new LeafExpr("", Expr.ExprElement.Const, Expr.ExprType.Str);
 		ExprList args = new ExprList();
 		Expr ret = null;
 		
-		if (xml.getName().equals(CommandCallText))
+		ActionType nodeType = ActionType.Command;
+        String tag = xml.getName();
+		if (tag.equals(CommandCallText))
 			nodeType = ActionType.Command;
-		if (xml.getName().equals(FunctionCallText))
-			nodeType = ActionType.Function;
-		if (xml.getName().equals(LibraryNodeCallText))
+		else if (tag.equals(LibraryNodeCallText))
 			nodeType = ActionType.LibraryCall;
-		if (xml.getName().startsWith(LookupCallText))
+		else if (tag.startsWith(LookupCallText))
 			nodeType = ActionType.Lookup;
-		// TODO: Add Update stuff
-		
+        else if (tag.equals(UpdateText))
+            nodeType = ActionType.Update;
+
+
 		for (IXMLElement childNode : getChildren(xml))
 		{
 			String childText = childNode.getName();
@@ -259,18 +285,16 @@ public class PlanReader {
 	}
 	
 	// Assignments work a bit differently than other actions.
-	public Action buildAssignment(IXMLElement xml)
-	{
+	public Action buildAssignment(IXMLElement xml) {
 		if (xml == null)
 			return null;
 		
 		// Don't create anything unless this is an assignment
-		if (!xml.getName().contains(AssignmentText))
+		if (!xml.getName().equals(AssignmentText))
 			return null;
-		
+
 		// Assignments don't have a specific 'name' like commands
 		Expr id = new LeafExpr("", Expr.ExprElement.Const);
-		
 		Expr lhs = exprReader.xmlToExpr(xml.getChildAtIndex(0));
 		ExprList rhs = new ExprList(exprReader.xmlToExpr(xml.getChildAtIndex(1)));
 		

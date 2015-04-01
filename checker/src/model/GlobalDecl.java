@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 package model;
 
 public class GlobalDecl {
-	public enum CallType {Command, Function, Lookup, LibraryCall};
+	public enum CallType {Command, Lookup, LibraryCall};
 	
 	private CallType type;
 	private String id;

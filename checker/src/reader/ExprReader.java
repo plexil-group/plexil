@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,8 @@ public class ExprReader {
 	{
 		exprList.put("NodeStateValue", ExprElement.Const);
 		exprList.put("NodeOutcomeValue", ExprElement.Const);
+		exprList.put("NodeFailureValue", ExprElement.Const);
+		exprList.put("NodeCommandHandleValue", ExprElement.Const);
 		exprList.put("NodeTimepointValue", ExprElement.Const);
 		exprList.put("BooleanValue", ExprElement.Const);
 		exprList.put("StringValue", ExprElement.Const);
@@ -46,6 +48,8 @@ public class ExprReader {
 		exprList.put("RealValue", ExprElement.Const);
 		exprList.put("NodeStateVariable", ExprElement.Var);
 		exprList.put("NodeOutcomeVariable", ExprElement.Var);
+		exprList.put("NodeFailureVariable", ExprElement.Var);
+		exprList.put("NodeCommandHandleVariable", ExprElement.Var);
 		exprList.put("BooleanVariable", ExprElement.Var);
 		exprList.put("StringVariable", ExprElement.Var);
 		exprList.put("IntegerVariable", ExprElement.Var);
@@ -53,12 +57,21 @@ public class ExprReader {
 		exprList.put("LookupNow", ExprElement.Lookup);
 		exprList.put("LookupOnChange", ExprElement.Lookup);
 		exprList.put("Concat", ExprElement.Concat);
+		exprList.put("STRLEN", ExprElement.Strlen);
 		exprList.put("ADD", ExprElement.Plus);
 		exprList.put("SUB",  ExprElement.Minus);
 		exprList.put("MUL",  ExprElement.Mult);
 		exprList.put("DIV", ExprElement.Div);
+        exprList.put("MOD", ExprElement.Mod);
+        exprList.put("MAX", ExprElement.Max);
+        exprList.put("MIN", ExprElement.Min);
 		exprList.put("SQRT", ExprElement.Sqrt);
 		exprList.put("ABS", ExprElement.Abs);
+		exprList.put("CEIL", ExprElement.Ceil);
+		exprList.put("FLOOR", ExprElement.Floor);
+		exprList.put("ROUND", ExprElement.Round);
+		exprList.put("TRUNC", ExprElement.Trunc);
+		exprList.put("REAL_TO_INT", ExprElement.RealToInt);
 		exprList.put("EQInternal", ExprElement.Eq);
 		exprList.put("EQBoolean", ExprElement.Eq);
 		exprList.put("EQString", ExprElement.Eq);
@@ -97,17 +110,24 @@ public class ExprReader {
 		}
 		
 		ExprType childType = null;
-		if (name.contains("Boolean"))
+		if (name.startsWith("Boolean"))
 			childType = ExprType.Bool;
-		if (name.contains("String"))
+		else if (name.startsWith("String"))
 			childType = ExprType.Str;
-		if (name.contains("Numeric") || name.contains("Integer") || name.contains("Real"))
+        // *** FIXME ***
+		else if (name.startsWith("Numeric")
+                 || name.startsWith("Integer")
+                 || name.startsWith("Real"))
 			childType = ExprType.Num;
-		if (name.contains("Internal") || name.contains("NodeState"))
+		else if (name.startsWith("NodeState"))
 			childType = ExprType.NodeState;
-		if (name.contains("NodeOutcome"))
+		else if (name.equals("NodeTimepointValue"))
+			childType = ExprType.NodeTimepointValue;
+		else if (name.startsWith("NodeOutcome"))
 			childType = ExprType.NodeOutcome;
-		if (name.contains("NodeTimepointValue"))
+		else if (name.startsWith("NodeFailure"))
+			childType = ExprType.NodeFailureType;
+		else if (name.startsWith("NodeCommandHandle"))
 			childType = ExprType.NodeTimepointValue;
 		
 		// I wanted to handle special cases in switch default clause,
@@ -117,7 +137,7 @@ public class ExprReader {
 		if (elem == null)
 		{
 			// TODO: Fix this area.
-			if (name.contains("RHS"))
+			if (name.endsWith("RHS"))
 			{
 				left.setType(childType);
 				return left;
@@ -131,8 +151,10 @@ public class ExprReader {
 		case Var:
 			if (elem.equals(ExprElement.Var) && 
 				(childType.equals(ExprType.NodeState) || 
-                                 childType.equals(ExprType.NodeTimepointValue) || 
-				 childType.equals(ExprType.NodeOutcome)) )
+                 childType.equals(ExprType.NodeTimepointValue) || 
+				 childType.equals(ExprType.NodeOutcome) ||
+                 childType.equals(ExprType.NodeFailureType) ||
+                 childType.equals(ExprType.NodeCommandHandle)))
 				return new LeafExpr(xml.getChildAtIndex(0).getContent(), elem, childType);
 			return new LeafExpr(xml.getContent(), elem, childType);
 		case Lookup:

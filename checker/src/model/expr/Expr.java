@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,13 +36,15 @@ public abstract class Expr {
 	// Unary
 	public static Expr Sqrt(Expr l)  { return new UnaryExpr(ExprElement.Sqrt, l); }
 	public static Expr Abs(Expr l)  { return new UnaryExpr(ExprElement.Abs, l); }
+	public static Expr Ceil(Expr l)  { return new UnaryExpr(ExprElement.Ceil, l); }
+	public static Expr Floor(Expr l)  { return new UnaryExpr(ExprElement.Floor, l); }
+	public static Expr Round(Expr l)  { return new UnaryExpr(ExprElement.Round, l); }
+	public static Expr Trunc(Expr l)  { return new UnaryExpr(ExprElement.Trunc, l); }
+	public static Expr RealToInt(Expr l)  { return new UnaryExpr(ExprElement.RealToInt, l); }
+	public static Expr Strlen(Expr l)  { return new UnaryExpr(ExprElement.Strlen, l); }
 	public static Expr Not(Expr l)  { return new UnaryExpr(ExprElement.Not, l); }
 	public static Expr IsKnown(Expr l)  { return new UnaryExpr(ExprElement.IsKnown, l); }
 	// Binary
-	public static Expr Plus(Expr l, Expr r) { return new BinaryExpr(ExprElement.Plus, l, r); }
-	public static Expr Minus(Expr l, Expr r) { return new BinaryExpr(ExprElement.Minus, l, r); }
-	public static Expr Mult(Expr l, Expr r) { return new BinaryExpr(ExprElement.Mult, l, r); }
-	public static Expr Div(Expr l, Expr r) { return new BinaryExpr(ExprElement.Div, l, r); }
 	public static Expr Eq(Expr l, Expr r) { return new BinaryExpr(ExprElement.Eq, l, r); }
 	public static Expr Eq(ExprType t, Expr l, Expr r) { return new BinaryExpr(ExprElement.Eq, l, r, t); }
 	public static Expr NEq(Expr l, Expr r) { return new BinaryExpr(ExprElement.NEq, l, r); }
@@ -51,14 +53,28 @@ public abstract class Expr {
 	public static Expr GT(Expr l, Expr r) { return new BinaryExpr(ExprElement.GT, l, r); }
 	public static Expr LEq(Expr l, Expr r) { return new BinaryExpr(ExprElement.LEq, l, r); }
 	public static Expr GEq(Expr l, Expr r) { return new BinaryExpr(ExprElement.GEq, l, r); }
-	public static Expr Or(Expr l, Expr r) { return new BinaryExpr(ExprElement.Or, l, r); }
-	public static Expr And(Expr l, Expr r) { return new BinaryExpr(ExprElement.And, l, r); }
-	public static Expr Xor(Expr l, Expr r) { return new BinaryExpr(ExprElement.XOr, l, r); }
-	public static Expr Concat(Expr l, Expr r) { return new BinaryExpr(ExprElement.Concat, l, r); }
 	public static Expr ArrayElem(Expr l, Expr r) { return new BinaryExpr(ExprElement.ArrayElem, l, r); }
 	public static Expr ArrayElem(ExprType t, Expr l, Expr r) { return new BinaryExpr(ExprElement.ArrayElem, l, r, t); }
 	public static Expr Alias(Expr l, Expr r) { return new BinaryExpr(ExprElement.Alias, l, r); }
 	public static Expr Alias(ExprType t, Expr l, Expr r) { return new BinaryExpr(ExprElement.Alias, l, r, t); }
+
+    // N-ary *** FIXME ***
+
+    // N > 0
+	public static Expr Concat(Expr l, Expr r) { return new BinaryExpr(ExprElement.Concat, l, r); }
+
+    // N > 1
+	public static Expr Plus(Expr l, Expr r) { return new BinaryExpr(ExprElement.Plus, l, r); }
+	public static Expr Minus(Expr l, Expr r) { return new BinaryExpr(ExprElement.Minus, l, r); }
+	public static Expr Mult(Expr l, Expr r) { return new BinaryExpr(ExprElement.Mult, l, r); }
+	public static Expr Div(Expr l, Expr r) { return new BinaryExpr(ExprElement.Div, l, r); }
+	public static Expr Mod(Expr l, Expr r) { return new BinaryExpr(ExprElement.Mod, l, r); }
+	public static Expr Max(Expr l, Expr r) { return new BinaryExpr(ExprElement.Max, l, r); }
+	public static Expr Min(Expr l, Expr r) { return new BinaryExpr(ExprElement.Min, l, r); }
+	public static Expr Or(Expr l, Expr r) { return new BinaryExpr(ExprElement.Or, l, r); }
+	public static Expr And(Expr l, Expr r) { return new BinaryExpr(ExprElement.And, l, r); }
+	public static Expr Xor(Expr l, Expr r) { return new BinaryExpr(ExprElement.XOr, l, r); }
+
 	
     public enum ExprType {
         Num,
@@ -66,8 +82,9 @@ public abstract class Expr {
         Str,
         NodeState,
         NodeOutcome,
-        NodeFailureValue,
+        NodeFailureType,
         NodeTimepointValue,
+        NodeCommandHandle,
         A;  // A is generic, should match any other
 		
         public boolean equals(Var.VarType vt) {
@@ -93,9 +110,10 @@ public abstract class Expr {
 
 	public enum ExprElement {
 		Const, Var, Lookup, ArrayElem, Alias,
-		Plus, Minus, Mult, Div, Sqrt, Abs,
+		Plus, Minus, Mult, Div, Mod, Max, Min,
+        Sqrt, Abs, Ceil, Floor, Round, Trunc, RealToInt,
 		Eq, NEq, LT, GT, LEq, GEq, Not, Or, And, XOr, IsKnown,
-		Concat
+		Concat, Strlen
 		};
 
 	protected Expr leftChild;

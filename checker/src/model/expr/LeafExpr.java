@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -71,21 +71,25 @@ public class LeafExpr extends Expr {
 	
 	public ExprType getTypeByElem(Plan p)
 	{
+        ExprType t = getType();
+
 		switch(getElem())
 		{
 		case Var:
-			if (getType().equals(ExprType.NodeState) ||
-                            getType().equals(ExprType.NodeTimepointValue) ||
-                            getType().equals(ExprType.NodeOutcome))
-				return getType();
-			for (Var v : p.getVars())
-			{
+			if (t.equals(ExprType.NodeState) ||
+                t.equals(ExprType.NodeTimepointValue) ||
+                t.equals(ExprType.NodeOutcome) ||
+                t.equals(ExprType.NodeFailureType) ||
+                t.equals(ExprType.NodeCommandHandle))
+				return t;
+			for (Var v : p.getVars()) {
 				if (v.getID().equals(id))
 					return v.getTypeAsExprType();
 			}
 			break;
+
 		case Const:
-			return getType();
+			return t;
 		}
 		return ExprType.A;
 	}

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -67,6 +67,9 @@ public class Node {
 	public void addVarDef(Var v) {
 		this.varDefs.add(v);
 	}
+	public void addVarDefs(VarList v) {
+		this.varDefs.addAll(v);
+	}
 	public ConditionList getConditions() {
 		return conditions;
 	}
@@ -94,18 +97,15 @@ public class Node {
 		if (name == null || children == null)
 			return false;
 		for (Node child : children)
-		{
 			if (child.isNamed(name))
 				return true;
-		}
 		return false;
 	}
 	
 	public Var findVarInScope(String id)
 	{
 		VarList vs = getVarDefs();
-		for (int i = 0; i < vs.size(); i++)
-		{
+		for (int i = 0; i < vs.size(); i++) {
 			Var v = vs.elementAt(i);
 			if (v.getID().equals(id))
 				return v;
