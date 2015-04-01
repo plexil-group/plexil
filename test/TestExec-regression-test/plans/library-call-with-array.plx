@@ -4,6 +4,13 @@
       <LibraryNodeDeclaration>
          <Name>library-node-with-array</Name>
          <Interface>
+           <InOut>
+             <DeclareArray>
+               <Name>states</Name>
+               <Type>Real</Type>
+               <MaxSize>4</MaxSize>
+             </DeclareArray>
+           </InOut>
 		 </Interface>
       </LibraryNodeDeclaration>
   </GlobalDeclarations>
