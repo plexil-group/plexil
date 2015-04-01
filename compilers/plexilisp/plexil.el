@@ -1,4 +1,4 @@
-;;; Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+;;; Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 ;;;  All rights reserved.
 ;;;
 ;;; Redistribution and use in source and binary forms, with or without
@@ -457,7 +457,7 @@
 (defun plexil-type-declaration (name type)
   ;; string * string -> xml
   "Constructs a Return or Parameter element."
-  (xml name nil (list (cons "Type" (capitalize type)))))
+  (xml name (xml "Type" (capitalize type))))
 
 (defun plexil-external-call-declaration (type name args)
   ;; string * string * list(xml) -> xml
