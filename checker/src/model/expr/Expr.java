@@ -58,6 +58,11 @@ public abstract class Expr {
         return false;
     }
 
+    // Default method.
+    public boolean isAssignable() {
+        return false;
+    }
+
     /**
      * @brief Check the expression for type and other errors.
      * @param n The node providing the variable binding context.

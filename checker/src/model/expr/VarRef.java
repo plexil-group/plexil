@@ -68,6 +68,7 @@ public class VarRef
         return decl;
     }
 
+    @Override
     public boolean isAssignable() {
         if (decl == null)
             return true; // no way to tell, so assume yes

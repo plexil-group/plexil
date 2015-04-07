@@ -54,6 +54,11 @@ public class ArrayElement
         return aryType.arrayElementType();
     }
 
+    @Override
+    public boolean isAssignable() {
+        return array.isAssignable();
+    }
+
     public String toString() {
         StringBuilder s = new StringBuilder("(ArrayElement ");
         s.append(array.toString());

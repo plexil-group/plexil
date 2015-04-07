@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,17 +30,23 @@ import java.util.Vector;
 
 public class VarList extends Vector<Var>
 {
-	public String toTypeString()
-	{
-		String result = "[";
-		
+	public Var findId(String id) {
 		for (Var v : this)
-		{
-			if (!result.endsWith("["))
-				result += ", ";
-			result += v.toTypeString();
-		}
-		
-		return result + "]";
+			if (v.getID().equals(id))
+				return v;
+		return null;
+	}
+
+	public String toTypeString() {
+		StringBuilder result = new StringBuilder("[");
+		boolean firstItem = true;
+		for (Var v : this) {
+            if (!firstItem)
+                result.append(", ");
+            result.append(v.toTypeString());
+            firstItem = false;
+        }
+		result.append("]");
+        return result.toString();
 	}
 }

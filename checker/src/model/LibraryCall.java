@@ -26,12 +26,15 @@
 
 package model;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 import main.Log;
 import model.expr.Expr;
 import model.expr.ExprList;
 import model.expr.ExprType;
+import model.Var.VarMod;
 
 public class LibraryCall
     extends Action {
@@ -92,12 +95,47 @@ public class LibraryCall
     }
 
     public void check(Node node, GlobalDeclList decls, Vector<Log> errors) {
+        // check that name has a definition
+        if (decl == null)
+            errors.add(Log.warning("LibraryNode " + name + " is not declared"));
+
+        Set<String> aliasNames = new HashSet<String>(aliases.size());
+        for (Alias a : aliases) {
+            String name = a.getVarName();
+            if (aliasNames.contains(name))
+                errors.add(Log.error("In library call node " + node.getID()
+                                     + ": multiple aliases named " + name));
+            else
+                aliasNames.add(name);
+
+            ExprType atype = a.getExpr().check(node,
+                                               decls,
+                                               "library call node " + node.getID(),
+                                               errors);
+            if (decl != null) {
+                Var formal = decl.getArgs().findId(a.getVarName());
+                if (formal == null)
+                    errors.add(Log.error("LibraryNode " + decl.getID()
+                                         + " has no interface variable named " + name));
+                else {
+                    Expr.checkType(a.getExpr(),
+                                   atype,
+                                   formal.getType(),
+                                   "library call node " + node.getID(),
+                                   null,
+                                   errors);
+                    if (formal.getMod() == VarMod.InOut
+                        && !a.getExpr().isAssignable())
+                        errors.add(Log.error("In library call node " + node.getID()
+                                             + ": LibraryNode " + decl.getID()
+                                             + " interface variable " + name
+                                             + " is declared InOut, but its alias in the call is not assignable"));
+                }
+            }
+        }
+
+        // Check that all formal parameters were supplied
         // TODO
-        // check that name is a declared library node (could do at parse time)
-        // check alias names
-        // check alias expressions
-        // check alias type consistency
-        // check alias in/out consistency
     }
 
     @Override
