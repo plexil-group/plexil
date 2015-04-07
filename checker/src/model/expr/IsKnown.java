@@ -24,25 +24,39 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package model;
+package model.expr;
 
 import java.util.Vector;
 
 import main.Log;
+import model.GlobalDeclList;
+import model.Node;
 
-public abstract class Action {
-	
-	public enum ActionType {Command, LibraryCall, Assignment, Update};
+public class IsKnown
+    extends GeneralExpr {
 
-	private ActionType type;
-	
-	public ActionType getType() { return type; }
-	
-	public Action(ActionType t) {
-		type = t;
-	}
+    public IsKnown(Expr arg) {
+        super("IsKnown");
+        addSubExpr(arg);
+    }
 
-    abstract public void check(Node node, GlobalDeclList decls, Vector<Log> errors);
-	
-	abstract public String toString();
+    public ExprType getType() {
+        return ExprType.Bool;
+    }
+
+    /**
+     * @brief Check the expression for type and other errors.
+     * @param n The node providing the variable binding context.
+     * @param decls The plan's global declarations.
+     * @param contextMsg String to append to any error messages generated.
+     * @param errors (in/out parameter) Collection of errors recorded.
+     */
+    public ExprType check(Node n,
+                          GlobalDeclList decls,
+                          String contextMsg,
+                          Vector<Log> errors) {
+        subexprs.get(0).check(n, decls, contextMsg, errors);
+        return ExprType.Bool;
+    }
+
 }

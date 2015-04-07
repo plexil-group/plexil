@@ -24,25 +24,42 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package model;
+package model.expr;
+
 
 import java.util.Vector;
 
 import main.Log;
+import model.expr.NodeVarRef.NodeRefDir;
+import model.GlobalDeclList;
+import model.Node;
 
-public abstract class Action {
-	
-	public enum ActionType {Command, LibraryCall, Assignment, Update};
+public class NodeTimepointRef
+    extends NodeVarRef {
 
-	private ActionType type;
-	
-	public ActionType getType() { return type; }
-	
-	public Action(ActionType t) {
-		type = t;
-	}
+    // We don't have to do anything with these, yet.
+    // Assume parser takes care of them.
+    private String stateName;
+    private String startOrEnd;
 
-    abstract public void check(Node node, GlobalDeclList decls, Vector<Log> errors);
-	
-	abstract public String toString();
+    public NodeTimepointRef(String nodeId, NodeRefDir dir, String state, String which) {
+        super(ExprType.NodeTimepointValue, nodeId, dir);
+        stateName = state;
+        startOrEnd = which;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder("(");
+        s.append(typeAsExprName());
+        s.append(" ");
+        s.append(nodeRefToString());
+        s.append(" ");
+        s.append(stateName);
+        s.append(" ");
+        s.append(startOrEnd);
+        s.append(")");
+        return s.toString();
+    }
+
 }

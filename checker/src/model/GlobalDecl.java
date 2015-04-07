@@ -26,6 +26,11 @@
 
 package model;
 
+import java.util.Vector;
+
+import main.Log;
+import model.expr.ExprList;
+
 public class GlobalDecl {
 	public enum CallType {Command, Lookup, LibraryCall};
 	
@@ -38,6 +43,12 @@ public class GlobalDecl {
 	public String   getID()   { return id; }
 	public VarList  getArgs() { return arguments; }
 	public VarList  getRets() { return returns; }
+
+    public Var getReturn() {
+        if (returns.isEmpty())
+            return null;
+        return returns.get(0);
+    }
 	
 	public GlobalDecl(CallType d)
 	{
@@ -89,8 +100,7 @@ public class GlobalDecl {
 	}
 	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return type.toString() + " " + id.toString() + "(" + arguments.toTypeString() + ")";
 	}
 

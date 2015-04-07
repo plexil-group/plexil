@@ -26,82 +26,49 @@
 
 package model;
 
-import model.expr.*;
+import model.expr.Expr;
+import model.expr.ExprType;
 
 public class Var
 {
+	public enum VarMod {None, In, InOut};
+
 	private String id;
-	private VarType type; 
+	private ExprType type; 
 	private VarMod mod;
+    private Expr init;
 	
 	public String getID() { return id; }
-	public VarType getType() { return type; }
-	public Expr.ExprType getTypeAsExprType() { return type.toExprType(); }
+	public ExprType getType() { return type; }
 	public VarMod getMod() { return mod; }
     public void setMod(VarMod m) { mod = m; }
+    public Expr getInitializer() { return init; }
+    public void setInitializer(Expr i) { init = i; }
 
-	public Var (VarType t) { id = ""; type = t; mod = VarMod.None;}
-	public Var (String i, VarType t) { id = i; type = t; mod = VarMod.None;}
-	public Var (VarType t, VarMod m) { id = ""; type = t; mod = m;}
-	public Var (String i, VarType t, VarMod m) { id = i; type = t; mod = m;}
+    // Only used in arglist parsing
+	public Var(ExprType t) {
+        id = "";
+        type = t;
+        mod = VarMod.None;
+        init = null;
+    }
 
-	public enum VarType {I, R, S, B;
-		public boolean equals(Expr.ExprType et)
-		{
-			if (et.equals(Expr.ExprType.A))
-				return true;
-			switch(this)
-			{
-			case I:
-			case R:
-				if (et.equals(Expr.ExprType.Num))
-					return true;
-			case B:
-				if (et.equals(Expr.ExprType.Bool))
-					return true;
-			case S:
-				if (et.equals(Expr.ExprType.Str))
-					return true;
-			}
-			return false;
-		}
-		public Expr.ExprType toExprType()
-		{
-			switch(this)
-			{
-			case I:
-			case R:
-				return Expr.ExprType.Num;
-			case B:
-				return Expr.ExprType.Bool;
-			case S:
-				return Expr.ExprType.Str;
-			default:
-				return null;
-			}
-		}
-		@Override
-		public String toString()
-		{
-			switch(this)
-			{
-			case I:
-				return "Int";
-			case R:
-				return "Real";
-			case B:
-				return "Bool";
-			case S:
-				return "Str";
-			}
-			return "";
-		}
-	};
-	public enum VarMod {None, In, InOut};
+	public Var(String i, ExprType t) {
+        id = i;
+        type = t;
+        mod = VarMod.None;
+        init = null;
+    }
+
+	public Var(String i, ExprType t, VarMod m) {
+        id = i;
+        type = t;
+        mod = m;
+        init = null;
+    }
 	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		String result = id;
 		if (!id.equals(""))
 			result += " :: ";
@@ -112,8 +79,7 @@ public class Var
 		return result + type.toString();
 	}
 
-	public String toTypeString()
-	{
+	public String toTypeString() {
 		return type.toString();
 	}
 }

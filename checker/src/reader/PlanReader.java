@@ -26,20 +26,24 @@
 
 package reader;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Vector;
+
 import net.n3.nanoxml.*;
+
 import model.*;
-import model.Var.VarMod;
-import model.Var.VarType;
 import model.Action.ActionType;
 import model.expr.*;
-import java.util.Vector;
+import model.GlobalDecl.CallType;
+import model.Var.VarMod;
 
 public class PlanReader {
 	public static final String NodeRootText = "Node";
 	public static final String NodeIdText = "NodeId";
-	public static final String ActionNameText = "Name";
+	public static final String NameText = "Name";
 	public static final String NodeBodyText = "NodeBody";
-	public static final String ArgumentCallText = "Arguments";
+	public static final String ArgumentsText = "Arguments";
 	public static final String ReturnCallText = "Returns";
 	public static final String AliasCallText = "Alias";
     public static final String InterfaceText = "Interface";
@@ -66,98 +70,88 @@ public class PlanReader {
 	public static final String SkipCondText = "SkipCondition";
 
 	private ExprReader exprReader = new ExprReader();
-	
-	public Plan buildPlan(IXMLElement xml)
-	{
-		return buildPlan(xml, null);
-	}
-	
-	private Plan buildPlan(IXMLElement xml, Node parent)
-	{
-		Plan plan = new Plan();
-		
-		if (xml == null)
-			return plan;
 
-		// If we are currently looking at a node, extract it
-		if (xml.getName().equals(NodeRootText))
-		{
-			Node currentNode = xmlToNode(xml);
-			
-			// Attach to parent node
-			if (parent != null)
-			{
-				currentNode.setParent(parent);
-				parent.addChild(currentNode);
-			}
-
-			plan.addNode(currentNode);
-			
-			// Set up children of this node
-			for (IXMLElement child : getChildren(xml))
-				plan.combineWith(buildPlan(child, currentNode));
-		}
-		else
-		{
-			// We were not looking at a node, so continue drilling down
-			for (IXMLElement child : getChildren(xml))
-				plan.combineWith(buildPlan(child, parent));
-		}
-		
-		return plan;
-		
-	}
-	
-	public Node xmlToNode(IXMLElement xml)
-	{
+	public Node xmlToNode(IXMLElement xml, GlobalDeclList decls, Node parent) {
 		// Need a valid node IXMLElement
 		if (xml == null || !xml.getName().equals(NodeRootText))
 			return null;
 
 		Node n = new Node();
+        n.setParent(parent);
 
-		for (IXMLElement component : getChildren(xml))
-		{
+		for (IXMLElement component : getChildren(xml)) {
 			String compText = component.getName();
-			if (compText.equals(NodeIdText))
-				n.setID(component.getContent());
-            else if (compText.equals(InterfaceText))
+            switch (compText) {
+            case "NodeId":
+                n.setID(component.getContent());
+                break;
+
+            case "Interface":
                 n.addVarDefs(buildInterfaceList(component));
-			else if (compText.equals(VarListDeclarationText))
-				n.addVarDefs(buildVarDefList(component));
-			else if (compText.endsWith(ConditionText))
-				n.addCondition(buildCondition(component));
-			else if (compText.equals(NodeBodyText))
-				n.setAction(buildAction(component.getChildAtIndex(0)));
-			// TODO: No other options, right?
+                break;
+
+            case "VariableDeclarations":
+                n.addVarDefs(buildVarDefList(component));
+                break;
+
+            case "NodeBody":
+                parseNodeBody(component.getChildAtIndex(0), decls, n); // for effect
+                break;
+
+            default:
+                if (compText.endsWith(ConditionText))
+                    n.addCondition(buildCondition(component, decls, n));
+                // Priority, Comment ignored
+                break;
+            }
 		}
 		
 		return n;
 	}
 	
-	public Condition buildCondition(IXMLElement xml)
+    private Condition buildCondition(IXMLElement xml, GlobalDeclList decls, Node node)
 	{
-		if (xml == null || !xml.getName().endsWith(ConditionText))
-			return null;
-		
-		Condition.ConditionType type = Condition.ConditionType.Start;
-		String text = xml.getName();
-		if (text.equals(StartCondText))
+		Condition.ConditionType type = null;
+        switch (xml.getName()) {
+        case "StartCondition":
 			type = Condition.ConditionType.Start;
-		else if (text.equals(EndCondText))
+            break;
+
+        case "EndCondition":
 			type = Condition.ConditionType.End;
-		else if (text.equals(PreCondText))
+            break;
+            
+        case "PreCondition":
 			type = Condition.ConditionType.Pre;
-		else if (text.equals(PostCondText))
+            break;
+            
+        case "PostCondition":
 			type = Condition.ConditionType.Post;
-		else if (text.equals(InvarCondText))
+            break;
+
+        case "InvariantCondition":
 			type = Condition.ConditionType.Invar;
-		else if (text.equals(RepeatCondText))
+            break;
+            
+        case "RepeatCondition":
 			type = Condition.ConditionType.Repeat;
-		else if (text.equals(SkipCondText))
+            break;
+            
+        case "SkipCondition":
 			type = Condition.ConditionType.Skip;
+            break;
+
+        case "ExitCondition":
+            type = Condition.ConditionType.Exit;
+            break;
+
+        default:
+            System.out.println("Reader error: in node " + node.getID()
+                               + ", unknown condition name " + xml.getName());
+            return null;
+        }
 		
-		return new Condition(type, exprReader.xmlToExpr(xml.getChildAtIndex(0)));	
+		return new Condition(type, exprReader.xmlToExpr(xml.getChildAtIndex(0), decls, node));
 	}
 
     private VarList buildInterfaceList(IXMLElement xml) {
@@ -186,7 +180,7 @@ public class PlanReader {
         return result;
     }
 
-	public VarList buildVarDefList(IXMLElement xml)
+	private VarList buildVarDefList(IXMLElement xml)
 	{
 		VarList list = new VarList();
 		for (IXMLElement var : getChildren(xml)) {
@@ -197,113 +191,257 @@ public class PlanReader {
 		return list;
 	}
 	
-	public Var buildVarDef(IXMLElement xml)
-	{
-		if (xml == null)
-			return null;
-		if (!xml.getName().equals(VarDeclarationText) && !xml.getName().equals(ArrayDeclarationText))
-			return null;
-		
+    private Var buildVarDef(IXMLElement xml) {
+        String tag = xml.getName(); 
 		String name = xml.getChildAtIndex(0).getContent();
-		String type = xml.getChildAtIndex(1).getContent();
-		VarType varType;
-		
-		if (type.equals("Boolean"))
-			varType = VarType.B;
-		else if (type.equals("Integer"))
-			varType = VarType.I;
-		else if (type.equals("Real"))
-			varType = VarType.R;
-		else //if (type.equals("String"))
-			varType = VarType.S;
-		
-		if (xml.getName().equals(VarDeclarationText))
+		String typeName = xml.getChildAtIndex(1).getContent();
+		ExprType varType = ExprType.typeForName(typeName);
+		if (tag.equals(VarDeclarationText))
 			return new Var(name, varType);
 		
+        // Must be an array declaration
 		String arraySize = xml.getChildAtIndex(2).getContent();
-			return new VarArray(name, varType, Integer.parseInt(arraySize));
+        return new VarArray(name, varType.arrayType(), Integer.parseInt(arraySize));
 	}
 	
-	public Action buildAction(IXMLElement xml)
-	{
+	private void parseNodeBody(IXMLElement xml, GlobalDeclList decls, Node node) {
 		if (xml == null)
-			return new Action(ActionType.Empty);
-		
-		if (xml.getName().equals(AssignmentText))
-			return buildAssignment(xml);
-		if (xml.getName().equals(NodeListText))
-			return new Action(ActionType.Empty);
+			return; // empty node
 
-		Expr id = new LeafExpr("", Expr.ExprElement.Const, Expr.ExprType.Str);
-		ExprList args = new ExprList();
-		Expr ret = null;
-		
-		ActionType nodeType = ActionType.Command;
-        String tag = xml.getName();
-		if (tag.equals(CommandCallText))
-			nodeType = ActionType.Command;
-		else if (tag.equals(LibraryNodeCallText))
-			nodeType = ActionType.LibraryCall;
-		else if (tag.startsWith(LookupCallText))
-			nodeType = ActionType.Lookup;
-        else if (tag.equals(UpdateText))
-            nodeType = ActionType.Update;
+        String action = xml.getName();
+        switch (action) {
+        case "Assignment":
+			parseAssignment(xml, decls, node);
+            return;
 
+        case "Command":
+            parseCommand(xml, decls, node);
+            return;
 
-		for (IXMLElement childNode : getChildren(xml))
-		{
-			String childText = childNode.getName();
-			if (childText.equals(ArgumentCallText))
-			{
-				for (IXMLElement child : getChildren(childNode))
-				{
-					args.add(exprReader.xmlToExpr(child));
-				}
-			}
-			else if (childText.equals(ActionNameText) || childText.equals(NodeIdText))
-			{
-				IXMLElement nameNode = childNode;
-				if (childNode.hasChildren())
-					nameNode = childNode.getChildAtIndex(0);
-				
-				if (nameNode.getContent() == null)
-					id = exprReader.xmlToExpr(nameNode);
-				else
-					id = new LeafExpr(nameNode.getContent(), Expr.ExprElement.Const, Expr.ExprType.Str);
-			}
-			else if (childText.equals(AliasCallText))
-			{
-				args.add(exprReader.xmlToExpr(childNode));
-			}
-			else
-			{
-				ret = exprReader.xmlToExpr(childNode);
-			}
-		}
+        case "LibraryNodeCall":
+            parseLibraryCall(xml, decls, node);
+            return;
 
-		return new Action(nodeType, id, args, ret);
-	}
+        case "NodeList":
+            parseNodeList(xml, decls, node);
+            return;
+
+        case "Update":
+            parseUpdate(xml, decls, node);
+            return;
+
+        default:
+            System.out.println("Reader error: invalid NodeBody element " + action);
+            return;
+        }
+    }
 	
-	// Assignments work a bit differently than other actions.
-	public Action buildAssignment(IXMLElement xml) {
-		if (xml == null)
-			return null;
-		
-		// Don't create anything unless this is an assignment
-		if (!xml.getName().equals(AssignmentText))
-			return null;
+	public void parseAssignment(IXMLElement xml, GlobalDeclList decls, Node node) {
+        if (xml.getChildrenCount() != 2) {
+            System.out.println("Reader error: ill-formed " + xml.getName());
+            return;
+        }
+        Expr lhs = parseLHS(xml.getChildAtIndex(0), decls, node);
+        // Just check that the RHS is one of these keywords
+        IXMLElement rhsXml = xml.getChildAtIndex(1);
+        if (rhsXml.getChildrenCount() != 1) {
+            System.out.println("Reader error: ill-formed Assignment value expression");
+            return;
+        }
 
-		// Assignments don't have a specific 'name' like commands
-		Expr id = new LeafExpr("", Expr.ExprElement.Const);
-		Expr lhs = exprReader.xmlToExpr(xml.getChildAtIndex(0));
-		ExprList rhs = new ExprList(exprReader.xmlToExpr(xml.getChildAtIndex(1)));
-		
-		return new Action(ActionType.Assignment, id, rhs, lhs);
+        switch (rhsXml.getName()) {
+        case "ArrayRHS":
+        case "BooleanRHS":
+        case "NumericRHS":
+        case "StringRHS":
+            break;
+
+        default:
+            System.out.println("Reader error: invalid element " + rhsXml.getName()
+                               + " in right hand side of Assignment");
+            return;
+        }
+
+		Expr rhs = exprReader.xmlToExpr(xml.getChildAtIndex(1), decls, node);
+		node.setAction(new Assignment(lhs, rhs));
 	}
+
+    @SuppressWarnings("unchecked")
+	public void parseCommand(IXMLElement xml, GlobalDeclList decls, Node node) {
+        int i = 0;
+        IXMLElement child = xml.getChildAtIndex(i);
+        Expr lhs = null;
+        if ("ResourceList".equals(child.getName())) {
+            // TODO: parse ResourceList
+            ++i;
+            child = xml.getChildAtIndex(i);
+        }
+        if (!"Name".equals(child.getName())) {
+            // Parse optional result variable
+            lhs = parseLHS(child, decls, node);
+            ++i;
+            child = xml.getChildAtIndex(i);
+        }
+        if (!"Name".equals(child.getName())) {
+            System.out.println("Reader error: in Command, found " + child.getName()
+                               + " element where Name was expected");
+            return;
+        }
+        if (child.isLeaf()) {
+            System.out.println("Reader error: in Command, ill-formed " + child.getName()
+                               + " element");
+            return;
+        }
+        Expr nameExp = exprReader.xmlToExpr(child.getChildAtIndex(0), decls, node);
+        GlobalDecl cmdDecl = null;
+        if (nameExp instanceof LiteralExpr
+            && nameExp.getType() == ExprType.Str) {
+            String staticID = ((LiteralExpr) nameExp).getValueString(); // unchecked cast
+            cmdDecl = decls.findCallById(staticID);
+            if (cmdDecl != null && cmdDecl.getType() != CallType.Command) {
+                System.out.println("Reader warning: in Command node " + node.getID()
+                                   + ", command name " + staticID + " is declared as a "
+                                   + cmdDecl.getType().toString());
+            }
+        }
+
+        Command result = new Command(nameExp, lhs, cmdDecl);
+
+        // Optional parameters
+        ++i;
+        if (i < xml.getChildrenCount()) {
+            IXMLElement argsXml = xml.getChildAtIndex(i);
+            if ("Arguments".equals(argsXml.getName()))
+                for (Object o : argsXml.getChildren()) {
+                    IXMLElement argXml = (IXMLElement) o; // unchecked cast
+                    result.addArgument(exprReader.xmlToExpr(argXml, decls, node));
+                }
+            else
+                System.out.println("Reader error: in " + xml.getName()
+                                   + ", found " + argsXml.getName()
+                                   + " element where Arguments expected");
+        }
+
+        node.setAction(result);
+    }
+
+    public Expr parseLHS(IXMLElement xml, GlobalDeclList decls, Node node) {
+        Expr result = exprReader.xmlToExpr(xml, decls, node);
+        if (result instanceof VarRef
+            || result instanceof ArrayElement)
+            return result;
+        System.out.println("Reader error: " + xml.getName()
+                           + " is invalid in left hand side of "
+                           + xml.getParent().getName());
+        return null;
+    }
+
+	public void parseLibraryCall(IXMLElement xml, GlobalDeclList decls, Node node) {
+        if (xml.isLeaf()) {
+            System.out.println("Reader error: ill-formed " + xml.getName() + " element");
+            return;
+        }
+        IXMLElement nameXml = xml.getChildAtIndex(0);
+        if (!"NodeId".equals(nameXml.getName())) {
+            System.out.println("Reader error: in LibraryNodeCall, found "
+                               + nameXml.getName() + " element where NodeId expected");
+            return;
+        }
+        if (!nameXml.isLeaf()) {
+            System.out.println("Reader error: in LibraryNodeCall, ill-formed "
+                               + nameXml.getName() + " element");
+            return;
+        }
+        String nodeId = nameXml.getContent();
+        // N.B. declaration may be null, not worrying about that here
+        LibraryCall result = new LibraryCall(nodeId, decls.findCallById(nodeId));
+
+        // parse aliases
+        for (int i = 1; i < xml.getChildrenCount(); ++i) {
+            IXMLElement a = xml.getChildAtIndex(i);
+            if (!"Alias".equals(a.getName())) {
+                System.out.println("Reader error: in LibraryNodeCall, found "
+                                   + a.getName() + " element where Alias expected");
+                return;
+            }
+            if (a.getChildrenCount() != 2) {
+                System.out.println("Reader error: in LibraryNodeCall, ill-formed "
+                                   + a.getName() + " element");
+                return;
+            }
+
+            IXMLElement parmNameXml = a.getChildAtIndex(0);
+            if (!"NodeParameter".equals(parmNameXml.getName())) {
+                System.out.println("Reader error: in LibraryNodeCall Alias, found "
+                                   + parmNameXml.getName()
+                                   + " element where NodeParameter expected");
+                return;
+            }
+            if (!parmNameXml.isLeaf()) {
+                System.out.println("Reader error: in LibraryNodeCall, ill-formed "
+                                   + parmNameXml.getName() + " element");
+                return;
+            }
+            String aliasName = parmNameXml.getContent();
+            
+            result.addAlias(aliasName,
+                            exprReader.xmlToExpr(a.getChildAtIndex(1), decls, node));
+        }
+        node.setAction(result);
+    }
+
+    public void parseNodeList(IXMLElement xml, GlobalDeclList decls, Node node) {
+        // TODO: add duplicate node ID check
+        for (IXMLElement childXml : getChildren(xml)) {
+            Node child = xmlToNode(childXml, decls, node);
+            if (child != null)
+                node.addChild(child);
+        }
+    }
+
+	public void parseUpdate(IXMLElement xml, GlobalDeclList decls, Node node) {
+        Update result = new Update();
+        Set<String> names = new HashSet<String>(xml.getChildrenCount());
+        for (IXMLElement pair : getChildren(xml)) {
+            if (!"Pair".equals(pair.getName())) {
+                System.out.println("Reader error: in Update, found \"" + pair.getName()
+                                   + "\" element where Pair expected");
+                return;
+            }
+            if (pair.getChildrenCount() != 2) {
+                System.out.println("Reader error: ill-formed Pair");
+                return;
+            }
+
+            // Name
+            IXMLElement nameXml =  pair.getChildAtIndex(0);
+            if (!"Name".equals(nameXml.getName())) {
+                System.out.println("Reader error: in Pair, found " + nameXml.getName()
+                                   + " element where Name expected");
+                return;
+            }
+            if (!nameXml.isLeaf()) {
+                System.out.println("Reader error: in Pair, ill-formed Name element");
+                return;
+            }
+            String name = nameXml.getContent();
+            if (names.contains(name))
+                System.out.println("Reader warning: in Update, multiple Pairs with same name "
+                                   + name);
+            else
+                names.add(name);
+
+            // expr
+            Expr e = exprReader.xmlToExpr(pair.getChildAtIndex(1), decls, node);
+            if (e != null)
+                result.addArgument(e);
+        }
+        node.setAction(result);
+    }
 	
 	// IXMLElement.getChildren() only returns Vector. Having a typed vector is nicer, so we type cast here.
 	@SuppressWarnings("unchecked")
-	private Vector<IXMLElement> getChildren(IXMLElement elem)
+	private static Vector<IXMLElement> getChildren(IXMLElement elem)
 	{
 		Vector<IXMLElement> children = elem.getChildren();
 		return children;

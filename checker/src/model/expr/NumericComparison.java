@@ -24,25 +24,47 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package model;
+package model.expr;
 
 import java.util.Vector;
-
 import main.Log;
+import model.GlobalDeclList;
+import model.Node;
 
-public abstract class Action {
-	
-	public enum ActionType {Command, LibraryCall, Assignment, Update};
+public class NumericComparison
+    extends GeneralExpr {
 
-	private ActionType type;
-	
-	public ActionType getType() { return type; }
-	
-	public Action(ActionType t) {
-		type = t;
-	}
+    public NumericComparison(String op, Expr left, Expr right) {
+        super(op);
+        addSubExpr(left);
+        addSubExpr(right);
+    }
 
-    abstract public void check(Node node, GlobalDeclList decls, Vector<Log> errors);
-	
-	abstract public String toString();
+    public ExprType getType() {
+        return ExprType.Bool;
+    }
+
+    /**
+     * @brief Check the expression for type and other errors.
+     * @param n The node providing the variable binding context.
+     * @param decls The plan's global declarations.
+     * @param contextMsg String to append to any error messages generated.
+     * @param errors (in/out parameter) Collection of errors recorded.
+     */
+    public ExprType check(Node n,
+                          GlobalDeclList decls,
+                          String contextMsg,
+                          Vector<Log> errors) {
+        Expr le = subexprs.get(0);
+        Expr re = subexprs.get(1);
+
+        ExprType lt = le.check(n, decls, contextMsg, errors);
+        ExprType rt = re.check(n, decls, contextMsg, errors);
+
+        checkNumericType(le, lt, operator, contextMsg, errors);
+        checkNumericType(re, rt, operator, contextMsg, errors);
+
+        return ExprType.Bool;
+    }
+
 }

@@ -29,20 +29,44 @@ package model;
 import java.util.Vector;
 
 import main.Log;
+import model.expr.Expr;
+import model.expr.ExprList;
+import model.expr.ExprType;
 
-public abstract class Action {
-	
-	public enum ActionType {Command, LibraryCall, Assignment, Update};
+public class Assignment
+    extends Action {
 
-	private ActionType type;
-	
-	public ActionType getType() { return type; }
-	
-	public Action(ActionType t) {
-		type = t;
-	}
+    private Expr lhs;
+    private Expr rhs;
 
-    abstract public void check(Node node, GlobalDeclList decls, Vector<Log> errors);
-	
-	abstract public String toString();
+    public Assignment(Expr varExp, Expr valueExpr) {
+        super(ActionType.Assignment);
+        lhs = varExp;
+        rhs = valueExpr;
+    }
+
+    public Expr getLHS() {
+        return lhs;
+    }
+
+    public Expr getRHS() {
+        return rhs;
+    }
+
+    public void check(Node node, GlobalDeclList decls, Vector<Log> errors) {
+        // TODO
+        // check LHS, get its type
+        // check RHS, get its type
+        // check that types are consistent
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("Assignment ");
+        s.append(lhs.toString());
+        s.append(" = ");
+        s.append(rhs.toString());
+        return s.toString();
+    }
 }

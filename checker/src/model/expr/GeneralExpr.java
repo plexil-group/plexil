@@ -24,25 +24,46 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package model;
+package model.expr;
 
-import java.util.Vector;
+public abstract class GeneralExpr
+    extends Expr {
 
-import main.Log;
+    protected String operator;
+    protected ExprList subexprs;
 
-public abstract class Action {
-	
-	public enum ActionType {Command, LibraryCall, Assignment, Update};
+    public GeneralExpr(String op) { // *** s/b protected? ***
+        super();
+        operator = op;
+        subexprs = new ExprList();
+    }
 
-	private ActionType type;
-	
-	public ActionType getType() { return type; }
-	
-	public Action(ActionType t) {
-		type = t;
-	}
+    // Specific to GeneralExpr
 
-    abstract public void check(Node node, GlobalDeclList decls, Vector<Log> errors);
-	
-	abstract public String toString();
+    public void addSubExpr(Expr e) {
+        if (e != null) {
+            subexprs.add(e);
+            e.setParent(this);
+        }
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public String toString() {
+        StringBuilder s = new StringBuilder("(");
+        s.append(operator);
+        int n = subexprs.size();
+        if (n != 0) {
+            s.append(" ");
+            s.append(Integer.toString(n));
+            s.append(" subexpression");
+            if (n > 1)
+                s.append("s");
+        }
+        s.append(")");
+        return s.toString();
+    }
+
 }

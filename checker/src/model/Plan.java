@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,106 +26,49 @@
 
 package model;
 
+//
+// A Plan has exactly two attributes: a root node and a list of declarations.
+//
+
 public class Plan {
-	private NodeList nodes;
+	private Node node;
 	private GlobalDeclList decls;
-	private VarList vars;
 	
-	public Plan()
-	{
-		nodes = new NodeList();
+	public Plan() {
+		node = null;
 		decls = new GlobalDeclList();
-		vars = new VarList();
 	}
 
-	public NodeList getNodes() {
-		return nodes;
+	public Node getNode() {
+		return node;
 	}
-	public void setNodes(NodeList nodes) {
-		this.nodes = nodes;
+
+	public void setNode(Node n) {
+		node = n;
 	}
+
 	public GlobalDeclList getDecls() {
 		return decls;
 	}
-	public void setDecls(GlobalDeclList decls) {
-		this.decls = decls;
+
+	public void setDecls(GlobalDeclList l) {
+		decls = l;
 	}
-	public VarList getVars() {
-		return vars;
-	}
-	public void setVars(VarList vars) {
-		this.vars = vars;
-	}
-	
-	public void addNode(Node n)
-	{
-		if (n == null)
-			return;
-		nodes.add(n);
-		if (n.getVarDefs() != null)
-			vars.addAll(n.getVarDefs());
-	}
+
 	public void addDecl(GlobalDecl d)
 	{
 		if (d == null)
 			return;
 		decls.add(d);
 	}
-	public void addVar(Var v)
-	{
-		if (v == null)
-			return;
-		vars.add(v);
-	}
 	
-	public void combineWith(Plan p)
-	{
-		if (p == null)
-			return;
-		
-		if (p.getNodes() != null)
-			nodes.addAll(p.getNodes());
-		if (p.getDecls() != null)
-			decls.addAll(p.getDecls());
-		if (p.getVars() != null)
-			vars.addAll(p.getVars());
-	}
-	
-	public Var findVar(String id)
-	{
-		for (Var v : vars)
-		{
-			if (v.getID().equals(id))
-				return v;
-		}
-		return null;
-	}
-	
-	public Var findVarInScope(String id, Node n)
-	{
-		if (n == null)
-			return null;
-		
-		return n.findVarInScope(id);
-	}
-
-	public Node findNode(String id)
-	{
-		for (Node n : nodes)
-		{
-			if (n.getID().equals(id))
-				return n;
-		}
-		return null;
-	}
-	
+    // FIXME? Separate sets for cmd, lkup?
 	public GlobalDecl findDecl(String id)
 	{
 		for (GlobalDecl c : decls)
-		{
 			if (c.getID().equals(id))
 				return c;
-		}
+
 		return null;
 	}
 }

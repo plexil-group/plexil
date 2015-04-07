@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,16 +26,18 @@
 
 package model;
 
+import model.expr.ExprType;
+
 public class VarArray extends Var {
 
 	private int maxSize;
 
 	public int getMaxSize() { return maxSize; }
 
-	public VarArray (VarType t, int i) { super(t); maxSize = i; }
-	public VarArray (String id, VarType t, int i) { super(id,t); maxSize = i; }
-	public VarArray (VarType t, VarMod m, int i) { super(t,m); maxSize = i; }
-	public VarArray (String id, VarType t, VarMod m, int i) { super(id,t,m); maxSize = i; }
+	public VarArray(ExprType t, int i) { super(t); maxSize = i; }
+	public VarArray(String id, ExprType t, int i) { super(id,t); maxSize = i; }
+	// public VarArray(ExprType t, VarMod m, int i) { super(null, t,m); maxSize = i; }
+	public VarArray(String id, ExprType t, VarMod m, int i) { super(id,t,m); maxSize = i; }
 	
 	@Override
 	public String toString()

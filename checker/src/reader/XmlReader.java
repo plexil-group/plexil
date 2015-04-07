@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,60 +31,43 @@ import model.*;
 import java.util.Vector;
 
 public class XmlReader {
-	public static final String MainRootText = "PlexilPlan";
-	public static final String NodeRootText = "Node";
-	
-	private IXMLElement declXml = null;
-	private IXMLElement nodeXml = null;
+
 	private Plan plan = null;
 	
 	public GlobalDeclList getDecls() { return plan.getDecls(); }
 	public Plan getPlan() { return plan; }
 
-	public void readPlan(IXMLElement p)
-	{
-		if (!p.getName().equals(MainRootText))
-		{
-			System.out.println("Not a Plexil root node. Exiting.");
+	@SuppressWarnings("unchecked")
+	public void readPlan(IXMLElement p) {
+		if (!p.getName().equals("PlexilPlan")) {
+			System.out.println("XML document node is not a PlexilPlan. Exiting.");
 			return;
 		}
-		
-		splitXml(p);
-		
-		PlanReader pr = new PlanReader();
-		plan = pr.buildPlan(nodeXml);
 
-		DeclReader dr = new DeclReader();
-		plan.setDecls(dr.extractCalls(declXml));
+        plan = new Plan();
 
-		return;
+		Vector<IXMLElement> elts = p.getChildren();
+        IXMLElement elt = elts.get(0);
 
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void splitXml(IXMLElement p)
-	{
-		Vector<IXMLElement> nodes = p.getChildren();
-		for (IXMLElement currentNode : nodes)
-		{
-			String text = currentNode.getName();
-			if(text.equals(DeclReader.DeclarationRootText))
-				declXml = currentNode;
-			if(text.equals(PlanReader.NodeRootText))
-				nodeXml = currentNode;
-		}
-	}
-	
-	public void printDeclXml()
-	{
-		System.out.println("Declarations:");
-		printNodeTree(declXml);
-	}
+        GlobalDeclList decls = null;
 
-	public void printNodeXml()
-	{
-		System.out.println("Nodes:");
-		printNodeTree(nodeXml);
+        // Global declarations are optional
+        if ("GlobalDeclarations".equals(elt.getName())) {
+            decls = (new DeclReader()).xmlToDecls(elt);
+            plan.setDecls(decls);
+            elt = elts.get(1);
+        }
+        else
+            decls = new GlobalDeclList();
+
+        if (!"Node".equals(elt.getName())) {
+			System.out.println("PlexilPlan node has no root Node. Exiting.");
+			return;
+        }
+
+        Node root = (new PlanReader()).xmlToNode(elt, decls, null);
+        if (root != null)
+            plan.setNode(root);
 	}
 	
 	public void printDeclCalls()
@@ -95,8 +78,9 @@ public class XmlReader {
 
 	public void printNodeCalls()
 	{
-		for (Node node : plan.getNodes())
-			node.print();
+        if (plan.getNode() == null)
+            return;
+        plan.getNode().print();
 	}
 
 	private void printNodeTree(IXMLElement node)

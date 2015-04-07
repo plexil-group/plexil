@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -63,32 +63,38 @@ public class DeclMain {
 			XmlReader parse = new XmlReader();
 			parse.readPlan(xml);
 			
-			if (printDebug)
-			{
-				parse.printNodeCalls();
-				System.out.println();
+			if (printDebug) {
 				parse.printDeclCalls();
+				System.out.println();
+				parse.printNodeCalls();
 			}
-			
-			System.out.println();
 			
 			DeclChecker d = new DeclChecker();
 			Vector<Log> errors = d.checkPlan(parse.getPlan());
+                int nerrors = 0;
+                int nwarnings = 0;
 			
-			if (!errors.isEmpty())
-			{
-				boolean hasError = false;
-				for (Log l : errors)
-				{
-					if (l == null)
-						continue;
+			if (!errors.isEmpty()) {
+				for (Log l : errors) {
 					System.out.println(l.toString());
 					if (l.getSeverity().equals(Log.Severity.Error))
-						hasError = true;
+                        ++nerrors;
+                    else
+                        ++nwarnings;
 				}
-				if (hasError)
-					System.exit(1);
 			}
+            if (nerrors > 0)
+                System.out.print(Integer.toString(nerrors) + " error"
+                                 + (nerrors == 1 ? "" : "s")
+                                 + (nwarnings > 0 ? ", " : ""));
+            if (nwarnings > 0)
+                System.out.print(Integer.toString(nwarnings) + " warning"
+                                 + (nwarnings == 1 ? "" : "s"));
+            if (nerrors > 0 || nwarnings > 0)
+                System.out.println();
+
+            if (nerrors > 0)
+                System.exit(1);
 		}
 		catch (Exception e)
 		{

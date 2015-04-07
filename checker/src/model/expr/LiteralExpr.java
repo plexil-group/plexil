@@ -24,25 +24,74 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-package model;
+package model.expr;
 
 import java.util.Vector;
 
 import main.Log;
+import model.GlobalDeclList;
+import model.Node;
 
-public abstract class Action {
-	
-	public enum ActionType {Command, LibraryCall, Assignment, Update};
+public class LiteralExpr
+    extends Expr {
 
-	private ActionType type;
+    protected ExprType type;
+	protected String valueString;
+
+	public LiteralExpr(ExprType t) {
+        super();
+        type = t;
+        valueString = null;
+	}
 	
-	public ActionType getType() { return type; }
-	
-	public Action(ActionType t) {
-		type = t;
+	public LiteralExpr(ExprType t, String v) {
+        super();
+        type = t;
+        valueString = v;
 	}
 
-    abstract public void check(Node node, GlobalDeclList decls, Vector<Log> errors);
-	
-	abstract public String toString();
+    public ExprType getType() {
+        return type;
+    }
+
+    @Override
+    public boolean isConstant() {
+        return true;
+    }
+
+    public String getValueString() {
+        return valueString;
+    }
+
+    // May be overridden by derived classes.
+    public String valueToString() {
+        if (valueString == null)
+            return "";
+        return valueString;
+    }
+
+	public String toString() {
+        StringBuilder s = new StringBuilder("(Const ");
+		s.append(type.toString());
+        s.append(" ");
+        s.append(this.valueToString());
+        s.append(")");
+        return s.toString();
+	}
+
+    /**
+     * @brief Check the expression for type and other errors.
+     * @param n The node providing the variable binding context.
+     * @param decls The plan's global declarations.
+     * @param contextMsg String to append to any error messages generated.
+     * @param errors (in/out parameter) Collection of errors recorded.
+     */
+    public ExprType check(Node n,
+                          GlobalDeclList decls,
+                          String contextMsg,
+                          Vector<Log> errors) {
+        // *** TODO ***
+        return type;
+    }
+
 }

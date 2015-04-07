@@ -26,6 +26,10 @@
 
 package main;
 
+import model.Action;
+import model.GlobalDecl;
+import model.Node;
+
 /**
  *
  * @author straussp
@@ -55,10 +59,31 @@ public class Log {
 		return new Log(message, Severity.Error);
 	}
 	
+	public static Log error(String message, String extra)
+	{
+        if (extra == null || extra.isEmpty())
+            return error(message);
+        return error(message + " " + extra);
+	}
+	
 	public static Log warning(String message)
 	{
 		return new Log(message, Severity.Warning);
 	}
+	
+	public static Log warning(String message, String extra)
+	{
+        if (extra == null || extra.isEmpty())
+            return warning(message);
+        return warning(message + " in " + extra);
+	}
+
+    // Utilities for checking
+    public static Log declarationMismatchMessage(Action a, Node n, GlobalDecl d) {
+        return error(a.toString() + " in " + n.getID()
+                     + " does not match "+ d.toString());
+    }
+
 	
 	@Override
 	public String toString()

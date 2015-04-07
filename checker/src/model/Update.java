@@ -29,20 +29,42 @@ package model;
 import java.util.Vector;
 
 import main.Log;
+import model.expr.Expr;
+import model.expr.ExprList;
+import model.expr.ExprType;
 
-public abstract class Action {
-	
-	public enum ActionType {Command, LibraryCall, Assignment, Update};
+public class Update
+    extends Action {
 
-	private ActionType type;
-	
-	public ActionType getType() { return type; }
-	
-	public Action(ActionType t) {
-		type = t;
-	}
+    private ExprList arglist;
 
-    abstract public void check(Node node, GlobalDeclList decls, Vector<Log> errors);
-	
-	abstract public String toString();
+    public Update() {
+        super(ActionType.Update);
+        arglist = new ExprList();
+    }
+
+    public ExprList getArgs() {
+        return arglist;
+    }
+
+    public void addArgument(Expr e) {
+        if (arglist == null)
+            arglist = new ExprList();
+        arglist.add(e);
+    }
+
+    public void check(Node node, GlobalDeclList decls, Vector<Log> errors) {
+        // check arglist
+        for (Expr arg : arglist)
+            arg.check(node, decls, "Update", errors);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        s.append("Update, ");
+        s.append(Integer.toString(arglist.size()));
+        s.append(" args");
+        return s.toString();
+    }
 }

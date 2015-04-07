@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,14 +28,26 @@ package model;
 
 import model.expr.Expr;
 
-public class Condition
-{
-	public enum ConditionType {Start, End, Pre, Post, Repeat, Invar, Skip}
+public class Condition {
+
+	public enum ConditionType {
+        Start,
+        End,
+        Pre,
+        Post,
+        Repeat,
+        Invar,
+        Skip,
+        Exit
+    }
 
 	private ConditionType type;
 	private Expr expr;
 	
-	public Condition(ConditionType t, Expr e) { type = t; expr = e; }
+	public Condition(ConditionType t, Expr e) {
+        type = t;
+        expr = e;
+    }
 
 	public ConditionType getType() { return type; }
 	public Expr getExpr() { return expr; }

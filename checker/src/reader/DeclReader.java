@@ -26,19 +26,20 @@
 
 package reader;
 
-import model.*;
-import model.GlobalDecl.CallType;
-import model.Var.VarType;
-import model.Var.VarMod;
-import net.n3.nanoxml.*;
-
 import java.util.Vector;
 
+import net.n3.nanoxml.*;
+
+import model.expr.Expr;
+import model.expr.ExprType;
+import model.GlobalDecl;
+import model.GlobalDecl.CallType;
+import model.GlobalDeclList;
+import model.Var;
+import model.Var.VarMod;
+import model.VarList;
+
 public class DeclReader {
-	public static final String DeclarationRootText = "GlobalDeclarations";
-	public static final String CommandDeclText = "CommandDeclaration";
-	public static final String LookupDeclText = "StateDeclaration";
-	public static final String LibraryNodeDeclText = "LibraryNodeDeclaration";
 	public static final String NameDeclarationText = "Name";
 	public static final String TypeDeclarationText = "Type";
 	public static final String ParameterDeclarationText = "Parameter";
@@ -47,15 +48,12 @@ public class DeclReader {
 	public static final String InDeclarationText = "In";
 	public static final String InOutDeclarationText = "InOut";
 
-	public GlobalDeclList extractCalls(IXMLElement xml) {
+	public GlobalDeclList xmlToDecls(IXMLElement declXml) {
 		GlobalDeclList decls = new GlobalDeclList();
-		
-		IXMLElement declXml = findXmlByTerm(xml, DeclarationRootText);
 		if (declXml == null)
 			return decls;
 		
-		for (IXMLElement child : getChildren(declXml))
-		{
+		for (IXMLElement child : getChildren(declXml)) {
 			GlobalDecl d = convertXmlToDec(child);
 			if (d != null)
 				decls.add(d);
@@ -63,55 +61,157 @@ public class DeclReader {
 		return decls;
 	}
 
-	private GlobalDecl convertXmlToDec(IXMLElement xml)
-	{
-		CallType declType = CallType.Command;
-		String id = "";
+	private GlobalDecl convertXmlToDec(IXMLElement xml) {
+        String tag = xml.getName();
+		if (xml.isLeaf()) {
+            System.out.println("Reader error: Empty " + tag + " declaration");
+			return null;
+        }
+
+        switch (tag) {
+		case "CommandDeclaration":
+            return parseCommandDec(xml);
+
+        case "StateDeclaration":
+            return parseStateDec(xml);
+            
+        case "LibraryNodeDeclaration":
+            return parseLibraryDec(xml);
+
+        default:
+            System.out.println("Reader error: unknown declaration type " + tag);
+            return null;
+        }
+	}
+
+	private GlobalDecl parseCommandDec(IXMLElement xml) {
+		String id = null;
 		VarList params = new VarList();
 		VarList rets = new VarList();
-		
-        String tag = xml.getName();
-		if (tag.equals(CommandDeclText))
-			declType = CallType.Command;
-		else if (tag.equals(LookupDeclText))
-			declType = CallType.Lookup;
-		else if (tag.equals(LibraryNodeDeclText))
-			declType = CallType.LibraryCall;
-		
-		if (!xml.hasChildren())
-			return null;
-		
 		for (IXMLElement child : getChildren(xml)) {
 			String text = child.getName();
-			if (text.equals(ParameterDeclarationText))
-				params.add(convertXmlToVar(child));
-			else if (text.equals(ReturnDeclarationText))
-				rets.add(convertXmlToVar(child));
-			else if (text.equals(NameDeclarationText))
-				id = child.getContent();
-			else if (text.equals(InterfaceDeclarationText))
-				params.addAll(convertXmlToInterfaceVars(child));
+            switch (text) {
+            case "Parameter":
+                params.add(convertXmlToParam(child));
+                break;
+                
+            case "Return":
+                rets.add(convertXmlToParam(child));
+                break;
+
+            case "Name":
+                id = child.getContent();
+                break;
+
+            case "ResourceList":
+                // TODO
+                break;
+
+            default:
+                System.out.println("Reader error: illegal element " + text
+                                   + " in " + xml.getName());
+                break;
+            }
 		}
 
-		return new GlobalDecl(declType, id, params, rets);
-	}
+        // check that we have a name
+        if (id == null) {
+            System.out.println("DeclReader.convertXmlToLibraryDec: required Name element missing in "
+                               + xml.getName() + " declaration");
+            return null;
+        }
+
+		return new GlobalDecl(CallType.Command, id, params, rets);
+    }
+
+	private GlobalDecl parseStateDec(IXMLElement xml) {
+		String id = null;
+		VarList params = new VarList();
+		VarList rets = new VarList();
+		for (IXMLElement child : getChildren(xml)) {
+			String text = child.getName();
+            switch (text) {
+            case "Parameter":
+                params.add(convertXmlToParam(child));
+                break;
+                
+            case "Return":
+                rets.add(convertXmlToParam(child));
+                break;
+
+            case "Name":
+                id = child.getContent();
+                break;
+
+            default:
+                System.out.println("Reader error: illegal element " + text
+                                   + " in " + xml.getName());
+                break;
+            }
+		}
+
+        // check that we have a name
+        if (id == null) {
+            System.out.println("DeclReader.convertXmlToLibraryDec: required Name element missing in "
+                               + xml.getName() + " declaration");
+            return null;
+        }
+
+		return new GlobalDecl(CallType.Lookup, id, params, rets);
+    }
+
+	private GlobalDecl parseLibraryDec(IXMLElement xml) {
+		String id = null;
+		VarList params = new VarList();
+		for (IXMLElement child : getChildren(xml)) {
+			String text = child.getName();
+            switch (text) {
+            case "Name":
+                id = child.getContent();
+                break;
+                
+            case "Interface":
+                params.addAll(convertXmlToInterfaceVars(child));
+                break;
+
+            default:
+                System.out.println("Reader error: illegal element " + text
+                                   + " in " + xml.getName());
+                break;
+            }
+		}
+
+        // check that we have a name
+        if (id == null) {
+            System.out.println("Reader error: required Name element missing in "
+                               + xml.getName());
+            return null;
+        }
+
+        return new GlobalDecl(CallType.LibraryCall, id, params, null);
+    }
 	
-	private Var convertXmlToVar(IXMLElement xml)
-	{
+	private Var convertXmlToParam(IXMLElement xml) {
 		if (xml == null)
 			return null;
-		
-		VarType type = null;
-		
+
 		IXMLElement typeElt = xml.getFirstChildNamed(TypeDeclarationText);
-		if (typeElt != null) {
-			type = stringToVarType(typeElt.getContent());
+		if (typeElt == null) {
+            System.out.println("Reader error: required Type element missing in parameter declaration");
+            return null;
 		}
 
+		ExprType type = ExprType.typeForName(typeElt.getContent());
+        if (type == null) {
+            System.out.println("Reader error: invalid type name " + typeElt.getContent()
+                               + " in parameter declaration");
+            return null;
+        }
+
 		IXMLElement nameElt = xml.getFirstChildNamed(NameDeclarationText);
-		if (nameElt != null)
-			return new Var(nameElt.getContent(), type, VarMod.None);
-		return new Var(type, VarMod.None);
+		if (nameElt == null)
+            return new Var(type);
+        return new Var(nameElt.getContent(), type);
 	}
 	
 	public IXMLElement findXmlByTerm(IXMLElement xml, String term)
@@ -137,8 +237,7 @@ public class DeclReader {
 			return null;
 		
 		VarList list = new VarList();
-		for (IXMLElement varXml : getChildren(xml))
-		{
+		for (IXMLElement varXml : getChildren(xml)) {
 			if (varXml.getName() == null)
 				continue;
 			
@@ -148,51 +247,30 @@ public class DeclReader {
 			else if (varXml.getName().equals(InOutDeclarationText))
 				mod = VarMod.InOut;
 			
-			// If there is no delcaration, there's no Var to create
+			// If there is no declaration, there's no Var to create
 			if (!varXml.hasChildren() || !varXml.getChildAtIndex(0).hasChildren())
 				continue;
 			
 			String name = null;
-			VarType type = null;
+			ExprType type = null;
 			// Skip over an XML level that holds DeclareVariable, hence .getChildAtIndex(0)
-			for (IXMLElement child : getChildren(varXml.getChildAtIndex(0)))
-			{
-				if (child.getName().equals(NameDeclarationText))
-					name = child.getContent();
-				if (child.getName().equals(TypeDeclarationText))
-				{
-					String typeStr = child.getContent();
-					if (typeStr != null) {
-						type = stringToVarType(typeStr);
-						// *** TEMPORARY ***
-						if (type == null) {
-							System.out.println(" In \"" + child.toString() + "\"");
-						}
-					}
-				}
-			}
+			for (IXMLElement child : getChildren(varXml.getChildAtIndex(0))) {
+                if (child.getName().equals(NameDeclarationText))
+                    name = child.getContent();
+                if (child.getName().equals(TypeDeclarationText)) {
+                    String typeStr = child.getContent();
+                    if (typeStr != null)
+                        type = ExprType.typeForName(typeStr);
+                }
+            }
 			
 			if (name != null)
 				list.add(new Var(name, type, mod));
-			else
-				list.add(new Var(type, mod));
+			else 
+                System.out.println("Reader error: unnamed " + type.toString()
+                                   + " parameter in " + varXml.getName() + " Interface declaration");
 		}
 		return list;
-	}
-
-	private VarType stringToVarType(String s)
-	{
-		if (s.equals("B") || s.equals("Boolean"))
-			return VarType.B;
-		if (s.equals("I") || s.equals("Integer"))
-			return VarType.I;
-		if (s.equals("R") || s.equals("Real"))
-			return VarType.R;
-		if (s.equals("S") || s.equals("String"))
-			return VarType.S;
-
-		System.out.println("Could not determine type of variable " + s);
-		return null;
 	}
 	
 	// IXMLElement.getChildren() only returns Vector. Having a typed vector is nicer, so we type cast here.
@@ -202,4 +280,5 @@ public class DeclReader {
 		Vector<IXMLElement> children = elem.getChildren();
 		return children;
 	}
+
 }
