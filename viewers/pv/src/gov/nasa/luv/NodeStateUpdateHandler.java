@@ -37,7 +37,7 @@ import static gov.nasa.luv.Constants.*;
 
 public class NodeStateUpdateHandler extends AbstractDispatchableHandler
 {
-    private Model current;
+    private Node current;
     private String state;
     private String outcome;
     private String failureType;
@@ -46,10 +46,9 @@ public class NodeStateUpdateHandler extends AbstractDispatchableHandler
     /**
      * Constructs a NodeStateUpdateHandler.
      */
-    public NodeStateUpdateHandler()
-    {
-	super();
-	current = Model.getRoot();
+    public NodeStateUpdateHandler() {
+        super();
+        current = Model.getRoot();
         conditions = new HashMap<String, String>();
     }
 
@@ -61,74 +60,63 @@ public class NodeStateUpdateHandler extends AbstractDispatchableHandler
      */
     public void endElement(String uri, String localName, String qName)
     {
-	// get text between tags
-	String text = getTweenerText();
+        // get text between tags
+        String text = getTweenerText();
 
-	// if this is the id of a path element, move down model tree
-	if (localName.equals(NODE_ID)) 
-        {
-	    Model candidate;
-            if ((candidate = current.findChildByName(text)) != null) 
-            {
+        // if this is the id of a path element, move down model tree
+        if (localName.equals(NODE_ID)) {
+            Node candidate;
+            if ((candidate = current.findChildByName(text)) != null) {
                 current = candidate;
-	    }
-	}
+            }
+        }
 
-	// if this is the node state, record the state
-	else if (localName.equals(NODE_STATE))
+        // if this is the node state, record the state
+        else if (localName.equals(NODE_STATE))
             state = text;
 
-	// if this is the node outcome, record the outcome
-	else if (localName.equals(NODE_OUTCOME))
+        // if this is the node outcome, record the outcome
+        else if (localName.equals(NODE_OUTCOME))
             outcome = text;
 
-	// if this is the node failure type, record the failure type
-	else if (localName.equals(NODE_FAILURE_TYPE))
+        // if this is the node failure type, record the failure type
+        else if (localName.equals(NODE_FAILURE_TYPE))
             failureType = text;        
 
-	// if this is the node state update, update the node state
-	else if (localName.equals(NODE_STATE_UPDATE)) 
-        {
-            if (!current.getProperty(MODEL_STATE, UNKNOWN).equals(state))
-                current.setProperty(MODEL_STATE, state);
+        // if this is the node state update, update the node state
+        else if (localName.equals(NODE_STATE_UPDATE)) {
+            if (!state.equals(current.getState()))
+                current.setState(state);
             
-            if (!outcome.equals(UNKNOWN) || !current.getProperty(MODEL_OUTCOME, UNKNOWN).equals(UNKNOWN))
-                current.setProperty(MODEL_OUTCOME, outcome);
+            if (!outcome.equals(UNKNOWN) || current.getOutcome() != null)
+                current.setOutcome(outcome);
             
-            if (!failureType.equals(UNKNOWN) || !current.getProperty(MODEL_FAILURE_TYPE, UNKNOWN).equals(UNKNOWN))
-                current.setProperty(MODEL_FAILURE_TYPE, failureType);
+            if (!failureType.equals(UNKNOWN) || current.getFailureType() != null)
+                current.setFailureType(failureType);
           
-            if (current.hasConditions())
-            {
-                for (Map.Entry<String, String> condition: conditions.entrySet())
-                {
+            if (current.hasConditions()) {
+                for (Map.Entry<String, String> condition: conditions.entrySet()) {
                     if (current.hasCondition(condition.getKey()))
                         current.setProperty(condition.getKey(), condition.getValue());
                 }
             }
-	}
-
-	// if this is one of the conditions, record it      
-	else
-        {
-            for (String condition: ALL_CONDITIONS)
-		if (localName.equals(condition))
-		    conditions.put(condition, text);
         }
+
+        // if this is one of the conditions, record it
+        else if (localName.endsWith("Condition"))
+            conditions.put(localName, text);
     }
 
     /**
      * Handles the end of the state update document.
      */
-    public void endDocument()
-    {
-	// Reset to root of model
-	current = Model.getRoot();
+    public void endDocument() {
+        // Reset to root of model
+        current = Model.getRoot();
 
-	// pause if single stepping
-	if (Luv.getLuv().getPlanStep()) 
-        {
-	    Luv.getLuv().pausedState();
-	}
+        // pause if single stepping
+        if (Luv.getLuv().getPlanStep()) {
+            Luv.getLuv().pausedState();
+        }
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,16 +29,16 @@ package gov.nasa.luv;
 import java.util.Vector;
 
 /** 
- * The AbstractModelFilter class is an abstract class that provides methods for
- * filtering a Plexil Model. 
+ * The AbstractNodeFilter class is an abstract class that provides methods for
+ * filtering a Plexil Node. 
  */
 
-public abstract class AbstractModelFilter
+public abstract class AbstractNodeFilter
 {
       /** active filters */
       
-      static Vector<AbstractModelFilter> filters = new 
-         Vector<AbstractModelFilter>();
+      static Vector<AbstractNodeFilter> filters = new 
+         Vector<AbstractNodeFilter>();
 
       /** filter event listeners */
 
@@ -49,13 +49,13 @@ public abstract class AbstractModelFilter
       private boolean enabled;
       
       /** 
-       * Constructs an AbstractModelFilter with the specified flag to enable
+       * Constructs an AbstractNodeFilter with the specified flag to enable
        * or disable filtering.
        *
        * @param enabled set enabled state of this filter
        */
       
-      public AbstractModelFilter(boolean enabled)
+      public AbstractNodeFilter(boolean enabled)
       {
          this.enabled = enabled;
          addFilter(this);
@@ -102,7 +102,7 @@ public abstract class AbstractModelFilter
        * @param filter filter to add
        */
       
-      public static void addFilter(AbstractModelFilter filter)
+      public static void addFilter(AbstractNodeFilter filter)
       {
          filters.add(filter);
       }
@@ -113,7 +113,7 @@ public abstract class AbstractModelFilter
        * @param filter filter to remove
        */
       
-      public static void removeFilter(AbstractModelFilter filter)
+      public static void removeFilter(AbstractNodeFilter filter)
       {
          filters.remove(filter);
       }
@@ -130,32 +130,32 @@ public abstract class AbstractModelFilter
       }
       
       /** 
-       * Determines if the specified Plexil Model is filtered by any of the filters
+       * Determines if the specified Plexil Node is filtered by any of the filters
        * in the set of all filters.
        *
-       * @param model model to test
+       * @param node node to test
        * 
-       * @return filtered state of the Plexil Model
+       * @return filtered state of the Plexil Node
        */
 
-      public static boolean isModelFiltered(Model model)
+      public static boolean isNodeFiltered(Node node)
       {
-         for (AbstractModelFilter filter: filters)
-            if (filter.isEnabled() && filter.isFiltered(model))
+         for (AbstractNodeFilter filter: filters)
+            if (filter.isEnabled() && filter.isFiltered(node))
                return true;
 
          return false;
       }
       
       /**
-       * Tells whether the specified Plexil Model is filtered.
+       * Tells whether the specified Plexil Node is filtered.
        * 
-       * @param model model to test
+       * @param node node to test
        *
-       * @return filtered state of the Plexil Model
+       * @return filtered state of the Plexil Node
        */
       
-      public abstract boolean isFiltered(Model model);
+      public abstract boolean isFiltered(Node node);
       
       /** 
        * The Listener class is an abstract class that provides methods for 
@@ -170,7 +170,7 @@ public abstract class AbstractModelFilter
              * @param filter enabled filter
              */
             
-            public abstract void filterChanged(AbstractModelFilter filter);
+            public abstract void filterChanged(AbstractNodeFilter filter);
       }
 
       /** 
@@ -182,6 +182,6 @@ public abstract class AbstractModelFilter
       {
             /** {@inheritDoc} */
 
-            @Override public void filterChanged(AbstractModelFilter filter) {}
+            @Override public void filterChanged(AbstractNodeFilter filter) {}
       }
 }

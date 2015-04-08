@@ -65,8 +65,9 @@ public class DebugWindow extends JFrame
           PrintStream ps = new PrintStream(dos);
          
           // redirect all system output into the debug text area
-          System.setErr(ps);
-          System.setOut(ps);
+          // Comment these out for debugging
+          // System.setErr(ps);
+          // System.setOut(ps);
       }
       
       private void init() 
@@ -99,9 +100,9 @@ public class DebugWindow extends JFrame
           getContentPane().add(outer, java.awt.BorderLayout.CENTER);
           getContentPane().add(toolBar, java.awt.BorderLayout.NORTH);
          
-          setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_DBWIN_SIZE));
+          setPreferredSize(Luv.getLuv().getSettings().getDimension(PROP_DBWIN_SIZE));
           setTitle("Debug Window");                
-          setLocation(Luv.getLuv().getProperties().getPoint(PROP_DBWIN_LOC));
+          setLocation(Luv.getLuv().getSettings().getPoint(PROP_DBWIN_LOC));
           pack();
       }
 
@@ -140,53 +141,52 @@ public class DebugWindow extends JFrame
          }
       }
       
-      /**
-       * The DualOutputStream class creates an output stream to fork data out 
-       * to a file (the Debug Log File) and to the debugging window.
-       */
-      public class DualOutputStream extends OutputStream
-      {
-            // send output to both debug window and log file
-            FileOutputStream logStream;
+    /**
+     * The DualOutputStream class creates an output stream to fork data out 
+     * to a file (the Debug Log File) and to the debugging window.
+     */
+    
+    private class DualOutputStream extends OutputStream {
+        // send output to both debug window and log file
+        FileOutputStream logStream;
             
-            /**
-             * Constructs a DualOutputStream with the specified debug log file name.
-             * @param logFilename name of the debug log file that is output to
-             */
-            public DualOutputStream (String logFilename)
-            {
-               super();
-               try 
-               {
-                  if (logFilename != null)
-                     logStream = new FileOutputStream(logFilename);
-               }
-               catch (FileNotFoundException ex) 
-               {
-               }
+        /**
+         * Constructs a DualOutputStream with the specified debug log file name.
+         * @param logFilename name of the debug log file that is output to
+         */
+        public DualOutputStream (String logFilename) {
+            super();
+            try {
+                if (logFilename != null)
+                    logStream = new FileOutputStream(logFilename);
             }
+            catch (FileNotFoundException ex) {
+            }
+        }
             
-            public void write(byte[] b) 
-               throws IOException
-            {
-               if (this.logStream != null)
-                  this.logStream.write(b);
-               append(new String(b));
-            }
-            public void write(byte[] b, int off, int len) 
-               throws IOException
-            {
-               if (this.logStream != null) 
-                  this.logStream.write(b, off, len);
-               append(new String(b, off, len));
-            }
-            public void write(int b) 
-               throws IOException
-            {
-               if (this.logStream != null) 
-                  this.logStream.write(b);
-               byte[] ba = {(byte)b}; 
-               append(new String(ba));
-            }
-      }   
+        public void write(byte[] b) 
+            throws IOException
+        {
+            if (this.logStream != null)
+                this.logStream.write(b);
+            append(new String(b));
+        }
+
+        public void write(byte[] b, int off, int len) 
+            throws IOException
+        {
+            if (this.logStream != null) 
+                this.logStream.write(b, off, len);
+            append(new String(b, off, len));
+        }
+        
+        public void write(int b) 
+            throws IOException
+        {
+            if (this.logStream != null) 
+                this.logStream.write(b);
+            byte[] ba = {(byte)b}; 
+            append(new String(ba));
+        }
+    }   
 }

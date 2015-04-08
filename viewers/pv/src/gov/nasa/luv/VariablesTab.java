@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 package gov.nasa.luv;
 
 import static java.awt.BorderLayout.SOUTH;
-import gov.nasa.luv.Model.ChangeAdapter;
+import gov.nasa.luv.Node.ChangeAdapter;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -50,14 +50,14 @@ import treetable.JTreeTable;
 import treetable.TreeTableModel;
 
 /** 
- * The VariablesTab class provides methods for displaying a Plexil Model's local 
+ * The VariablesTab class provides methods for displaying a Plexil Node's local 
  * variable information. 
  */
 
 public class VariablesTab extends JPanel 
 { 
     private static VariablesTab variablesPane;
-    private Model model;   
+    private Node node;   
     private int rows;
     private String info[][];
     private JTable table;   
@@ -68,16 +68,16 @@ public class VariablesTab extends JPanel
     public VariablesTab() {}
     
     /** 
-     * Constructs a VariablesTab with the specified Plexil Model.
+     * Constructs a VariablesTab with the specified Plexil Node.
      *
-     * @param model model on which the VariablesTab represents
+     * @param node node on which the VariablesTab represents
      */
     
-    public VariablesTab(Model model) 
+    public VariablesTab(Node node) 
     {       
         super(new BorderLayout());
-        this.model = model;
-        treeTable = new VariableTreeTable(model);///
+        this.node = node;
+        treeTable = new VariableTreeTable(node);///
 
         String[] columnNames = {"In/InOut",
                                 "Name",
@@ -119,8 +119,8 @@ public class VariablesTab extends JPanel
         
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane);
-        model.addChangeListener(new ChangeAdapter() {
-        	public void variableAssigned(Model model, String variableName) {
+        node.addChangeListener(new ChangeAdapter() {
+        	public void variableAssigned(Node node, String variableName) {
         		refreshTable();
         	}
         });
@@ -163,7 +163,7 @@ public class VariablesTab extends JPanel
     private void refreshTable() {
         int row = 0;
         int col = 0;
-        for (Variable original : model.getVariableList())
+        for (Variable original : node.getVariableList())
         {
             if (original != null)
             {
@@ -194,14 +194,14 @@ public class VariablesTab extends JPanel
     }
     
     /** 
-     * Creates an instance of a VariablesTab with the specified model. 
+     * Creates an instance of a VariablesTab with the specified node. 
      *
-     * @param model the model on which to create an VariablesTab
+     * @param node the node on which to create an VariablesTab
      */
 
-    public static void open(Model model) 
+    public static void open(Node node) 
     {       
-        variablesPane = new VariablesTab(model);
+        variablesPane = new VariablesTab(node);
     }        
     	    
 }    

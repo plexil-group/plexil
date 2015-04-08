@@ -26,16 +26,12 @@
 
 package gov.nasa.luv;
 
-import static gov.nasa.luv.Constants.PLEXIL_EXEC;
-import static gov.nasa.luv.Constants.PLEXIL_SIM;
-import static gov.nasa.luv.Constants.PLEXIL_TEST;
+import static gov.nasa.luv.Constants.AppType.*;
 import static gov.nasa.luv.Constants.PROP_CFGWIN_LOC;
 import static gov.nasa.luv.Constants.PROP_CFGWIN_SIZE;
 
-import gov.nasa.luv.ExecSelect.AppSettings;
-import gov.nasa.luv.ExecSelect.PlexilFilter;
-
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -49,11 +45,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Collection;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -77,9 +75,14 @@ import javax.swing.tree.TreeSelectionModel;
 @version 1.0 12/23/10
 */
 
-public class LibraryLoader extends JFrame implements ItemListener {
-    private static boolean error;
+public class LibraryLoader
+    extends JFrame
+    implements ItemListener {
+
+    private static String topMessage = null; // *** FIXME ***
+    private static boolean error; // *** FIXME ***
     private JPanel topSection;
+    private FileListPanel pathList;
     private JScrollPane checkBoxList;
     private JScrollPane previewArea;
     private JPanel buttonPane;
@@ -92,15 +95,11 @@ public class LibraryLoader extends JFrame implements ItemListener {
     private Vector<String> libraryNames;
 
     /** Construct a LibraryLoader. 
-     *
-     * @param title the title of this LibraryLoader
-     * @param cmdLineArgs the parameters given at the command line
      */
-    public LibraryLoader(String title, String[] cmdLineArgs)
-    {
-        super(title);
+    public LibraryLoader() {
+        super("Libraries");
         error = false;
-        parseCommandLineOptions(cmdLineArgs);
+        createPathList();
         createCheckList();
 
         if (!error) {
@@ -108,59 +107,46 @@ public class LibraryLoader extends JFrame implements ItemListener {
             createTopSection();
             createButtons();
 
-            getContentPane().add(topSection, BorderLayout.NORTH);
-            getContentPane().add(checkBoxList, BorderLayout.WEST);
-            getContentPane().add(dyn_tree, BorderLayout.WEST);
-            getContentPane().add(previewArea, BorderLayout.EAST);
-            getContentPane().add(buttonPane, BorderLayout.SOUTH);
+            Container pane = getContentPane();
+            pane.add(topSection, BorderLayout.NORTH);
+            pane.add(pathList, BorderLayout.WEST);
+            pane.add(checkBoxList, BorderLayout.CENTER);
+            pane.add(dyn_tree, BorderLayout.CENTER);
+            pane.add(previewArea, BorderLayout.EAST);
+            pane.add(buttonPane, BorderLayout.SOUTH);
         }
     }
 
-    /*
-     *
-     */
-    private void parseCommandLineOptions(String[] cmdLineArgs)
-    {
-        libraryPath = new Vector<File>();
-        libraryNames = new Vector<String>();
-        libraryFiles = new Vector<File>();
-        for (int i = 0; i < cmdLineArgs.length; ++i) {
-            if (cmdLineArgs[i].equals("-L")) {
-                // Process library path entry
-                if ((++i) >= cmdLineArgs.length) {
-                    // throw command parse error fatal exception
-                }
-                libraryPath.add(new File(cmdLineArgs[i]));
-            }
-            else if (cmdLineArgs[i].equals("-l")) {
-                // Process library name
-                if ((++i) >= cmdLineArgs.length) {
-                    // throw command parse error fatal exception
-                }
-                libraryNames.add(cmdLineArgs[i]);
-            }
+    private void createPathList() {
+        pathList = new FileListPanel();
+        pathList.setPreferredSize(new Dimension(450, 50)); // *** FIXME ***
+
+        Settings s = Luv.getLuv().getSettings();
+        Collection<File> dirs = s.getLibDirs();
+        if (!dirs.isEmpty()) {
+            pathList.setFiles(dirs);
         }
-        // TODO: verify that library file exists
+        else if (s.getPlanLocation() != null) {
+            pathList.addFile(s.getPlanLocation().getParentFile());
+        }
+        // else { // choose a sane default
+        // }
     }
 
     /*
      * Initializes checklist and tree
      */
-    private void createCheckList()
-    {
+    private void createCheckList() {
         nodes = new ArrayList<CheckNode>();
         dyn_tree = new DynamicTree();
-
-        // TODO: Bypass setting default if user specs library dirs on cmd line
-        File defaultPath = new File(Constants.PLEXIL_HOME
-                                    + System.getProperty("file.separator")
-                                    + "examples"
-                                    + System.getProperty("file.separator"));
-        addLibrary(defaultPath);
                 
         // place check boxes into check box tree        
         checkBoxList = new JScrollPane(dyn_tree);
         checkBoxList.setPreferredSize(new Dimension(450, 50));
+
+        // TODO: Bypass setting default if user specs library dirs on cmd line
+        // File defaultPath = Constants.PLEXIL_EXAMPLES_DIR;
+        // addLibrary(defaultPath);
     }
 
     /*
@@ -193,13 +179,114 @@ public class LibraryLoader extends JFrame implements ItemListener {
      */
     private void createButtons() {
         JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(new ButtonActionListener());
+        cancelButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    setVisible(false);
+                }
+            }
+            );
+        JButton dirButton = new JButton("Add Directory");
+        dirButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) { 
+                    File dflt = pathList.getLast();
+                    if (dflt == null) {
+                        File planLoc = Luv.getLuv().getSettings().getPlanLocation();
+                        if (planLoc != null) {
+                            dflt = planLoc.getParentFile();
+                        }
+                        else {
+                            dflt = new File(System.getenv("PWD")); // *** use homedir instead? ***
+                        }
+                    }
+                    
+                    JFileChooser dc = new JFileChooser(dflt);
+                    dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    FileFilter df =
+                        new FileFilter() {
+                            public boolean accept(File f) {
+                                return f.isDirectory();
+                            }
+                            public String getDescription() {
+                                return "Select a directory";
+                            }
+                        };
+                    if (dc.showDialog(null, "Choose This Directory") ==
+                        JFileChooser.APPROVE_OPTION) {
+                        File dir = dc.getSelectedFile();
+                        pathList.addFile(dir);
+                        Luv.getLuv().getStatusMessageHandler().showStatus("Added Library Directory" + dir.getAbsolutePath());
+                    }
+                }
+            }
+            );
+
         JButton libButton = new JButton("Add Library");
-        libButton.addActionListener(new ButtonActionListener());
+        libButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) { 
+                    JFileChooser fc = new JFileChooser(Constants.PLEXIL_HOME); // *** FIXME ***
+                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    FileFilter pf = Luv.getLuv().getExecSelectDialog().getPlanFileFilter();
+                    if (pf != null)
+                        fc.addChoosableFileFilter(pf);
+                    int returnVal = fc.showDialog(null, "Choose File");
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        File file = fc.getSelectedFile();
+                        addLibrary(file);
+                        Luv.getLuv().getStatusMessageHandler().showStatus("Added Library " + file.getAbsolutePath());
+                    }            	            	            	
+                }
+            }
+            );
+        
+        JButton clearDirsButton = new JButton("Clear Directories");
+        clearDirsButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    // verify that the user wants to clear Libraries
+                    Object[] options = {"Yes", "No"};
+                    int clear =
+                        JOptionPane.showOptionDialog(Luv.getLuv(),
+                                                     "Are you sure you want to clear all Library directories?",
+                                                     "Clear Path",
+                                                     JOptionPane.YES_NO_CANCEL_OPTION,
+                                                     JOptionPane.WARNING_MESSAGE,
+                                                     null,
+                                                     options,
+                                                     options[0]);
+
+                    if (clear == 0) {
+                        pathList.clearFiles();
+                    }
+                }
+            }
+            );
+
         JButton clearButton = new JButton("Clear Libraries");
-        clearButton.addActionListener(new ButtonActionListener());
+        clearButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                }
+            }
+            );
+        
         JButton createCFGButton = new JButton("OK");
-        createCFGButton.addActionListener(new ButtonActionListener());
+        createCFGButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    getPreview().setText("");
+                    ArrayList<File> parentSelected = new ArrayList<File>();
+                    Iterator<CheckNode> it = nodes.iterator();
+                    while (it.hasNext()) {
+                        CheckNode node = it.next();
+                        //if (node.isSelected()) {
+                        if (node.getUserObject() instanceof File) {
+                            File selected = (File)node.getUserObject();
+                            parentSelected.add(selected.getAbsoluteFile());
+                            getPreview().append(selected.getAbsolutePath() + "\n");
+                        }
+                        //}
+                    }//end while
+                    setVisible(false);
+                }
+            }
+            );
 
         // Panel to hold buttons and file location message
         buttonPane = new JPanel();
@@ -208,7 +295,11 @@ public class LibraryLoader extends JFrame implements ItemListener {
         buttonPane.add(Box.createHorizontalGlue());
         buttonPane.add(cancelButton);
         buttonPane.add(Box.createHorizontalStrut(3));
+        buttonPane.add(dirButton);
+        buttonPane.add(Box.createHorizontalStrut(3));
         buttonPane.add(libButton);
+        buttonPane.add(Box.createHorizontalStrut(3));
+        buttonPane.add(clearDirsButton);
         buttonPane.add(Box.createHorizontalStrut(3));
         buttonPane.add(clearButton);
         buttonPane.add(Box.createHorizontalStrut(3));
@@ -219,8 +310,7 @@ public class LibraryLoader extends JFrame implements ItemListener {
     /*
      * Adds library file
      */
-    private void addLibrary(File lib)
-    {
+    private void addLibrary(File lib) {
     	if (lib != null) {
             CheckNode node = new CheckNode(lib); 
             if (nodes.size() > 0)
@@ -233,56 +323,40 @@ public class LibraryLoader extends JFrame implements ItemListener {
     /*
      * Removes all check nodes
      */
-    public void removeAllNodes()
-    {
+    public void removeAllNodes() {
     	dyn_tree.clear();
         getPreview().setText(null);
         nodes.removeAll(nodes);
-        nodes.add(new CheckNode(new File(Constants.PLEXIL_HOME+System.getProperty("file.separator")+"examples"+System.getProperty("file.separator"))));
+        nodes.add(new CheckNode(Constants.PLEXIL_EXAMPLES_DIR));
     }
 
-    private class SelectLibraryListener implements ActionListener
-    {
-        SelectLibraryListener()
-        {
-        }
-        
-        public void actionPerformed(ActionEvent e)
-        {
-            try {
-                removeAllNodes();
-                selectLibraries();
-                open();
-            }
-            catch(IOException ex) {
-                ex.printStackTrace();
-            }
+    // Called by ExecSelectDialog
+    // *** FIXME ***
+    public void openDialog() {
+        try {
+            removeAllNodes();
+            selectLibraries();
+            open();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
-    public ActionListener getSelectLibraryListener()
-    {
-        return new SelectLibraryListener();
-    }
-
-    /*
-     * Acquires all library directories from persistent state and loads them
-     */
-    private void selectLibraries() throws FileNotFoundException
-    {
-        ArrayList<String> libArr = Luv.getLuv().getExecSelect().getSettings().getLibArray();
+    // *** FIXME ***
+    private void selectLibraries() throws FileNotFoundException {
         ArrayList<String> uniqArr = new ArrayList<String>();
-        boolean dup = false;
-        
-        for (int i = 0; i<libArr.size();i++)
-        	if (!libArr.get(i).equals("")) {
-                for (int j=0; j<uniqArr.size(); j++) {
-                    if (uniqArr.get(j).equals(libArr.get(i)))
+        for (String lib: Luv.getLuv().getSettings().getLibs())
+        	if (!lib.isEmpty()) { // FIXME: why isn't this an error?
+                boolean dup = false;
+                for (String loaded : uniqArr)
+                    if (loaded.equals(lib)) {
                         dup = true;
-                }        		
+                        break;
+                    }
                 if (!dup) {
-                    addLibrary(new File(libArr.get(i)));
-                    uniqArr.add(libArr.get(i));
+                    // *** FIXME ***
+                    addLibrary(new File(lib));
+                    uniqArr.add(lib);
                 }
             }
     }
@@ -309,15 +383,16 @@ public class LibraryLoader extends JFrame implements ItemListener {
     /*
      * Allows for future message handling to user
      */
-    private String getTopMessage() {
-        StringBuffer sb = new StringBuffer();
-
-        sb.append("<html><p align=left>");
-        sb.append("<br></br>");
-        sb.append("<br></br>");       
-        sb.append("</p></html>");
-
-        return sb.toString();
+    private static String getTopMessage() {
+        if (topMessage == null) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<html><p align=left>");
+            sb.append("<br></br>");
+            sb.append("<br></br>");       
+            sb.append("</p></html>");
+            topMessage = sb.toString();
+        }
+        return topMessage;
     }
     
     /*
@@ -333,90 +408,20 @@ public class LibraryLoader extends JFrame implements ItemListener {
     public ArrayList<File> getLibraryList() {
     	File selected = null;    	
     	ArrayList<File> list = new ArrayList<File>();
-    	for(CheckNode node : nodes)
-    	{
-    		selected = (File)node.getUserObject();
-    		//if(node.isSelected)
-    			list.add(selected);
-    	}
+    	for(CheckNode node : nodes) {
+            selected = (File)node.getUserObject();
+            //if(node.isSelected)
+            list.add(selected);
+        }
     	return list;
     }
 
-    /*
-     * Button class for add, cancel, select, clear
-     */
-    class ButtonActionListener implements ActionListener {    	
-
-        ButtonActionListener() {
-        }
-
-        public void actionPerformed(ActionEvent ev) {
-            if (ev.getActionCommand().equals("Cancel")) {
-                setVisible(false);
-            } else if (ev.getActionCommand().equals("Add Library")) {            	
-            	JFileChooser fc = new JFileChooser(Constants.PLEXIL_HOME);//new File(Luv.getLuv().getProperty(LoadRecentAction.defineRecentLib(LoadRecentAction.RECENT_DIR)))
-            	ExecSelect.PlexilFilter pf = Luv.getLuv().getExecSelect().new PlexilFilter("PLX");
-            	if(pf != null)
-        		{				
-        			fc.addChoosableFileFilter(pf);
-        		}	            	
-            	int returnVal = fc.showDialog(null, "Choose File");
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File file = fc.getSelectedFile();
-                    addLibrary(file);
-                    Luv.getLuv().getStatusMessageHandler().showStatus("Added Library " + file.getAbsolutePath());                   
-                }            	            	            	
-            } else if (ev.getActionCommand().equals("Clear Libraries")) {
-                // verify that the user wants to clear Libraries
-                Object[] options = {"Yes", "No"};
-
-                int clear =
-                        JOptionPane.showOptionDialog(Luv.getLuv(),
-                        "Are you sure you want to clear all Libraries?",
-                        "Clear Libraries",
-                        JOptionPane.YES_NO_CANCEL_OPTION,
-                        JOptionPane.WARNING_MESSAGE,
-                        null,
-                        options,
-                        options[0]);
-
-                if (clear == 0) {
-                    // clear text preview area
-                	Luv.getLuv().getLibraryLoader().removeAllNodes();                    
-                    
-                }
-            } else if (ev.getActionCommand().equals("OK")) {
-            	Luv.getLuv().getLibraryLoader().getPreview().setText("");
-                ArrayList<File> parentSelected = new ArrayList<File>();
-                
-                Iterator<CheckNode> it = Luv.getLuv().getLibraryLoader().nodes.iterator();
-
-                while (it.hasNext()) {
-                    CheckNode node = it.next();
-
-                    //if (node.isSelected()) {
-                                                
-                        if(node.getUserObject() instanceof File)
-                        {
-                        	File selected = (File)node.getUserObject();
-                        	parentSelected.add(selected.getAbsoluteFile());
-                        	Luv.getLuv().getLibraryLoader().getPreview().append(selected.getAbsolutePath() + "\n");                        	
-                        }                        
-                    //}                
-                }//end while
-                setVisible(false);
-            }
-        }
-
-    }
-
     /** Displays the LibraryLoader.  */
-    public void open() throws FileNotFoundException
-    {
+    public void open() throws FileNotFoundException {
         setVisible(false);
         if (!error) {
-            setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_CFGWIN_SIZE));
-            setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
+            setPreferredSize(Luv.getLuv().getSettings().getDimension(PROP_CFGWIN_SIZE));
+            setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
             pack();
             setVisible(true);
         }
@@ -426,36 +431,5 @@ public class LibraryLoader extends JFrame implements ItemListener {
     public void itemStateChanged(ItemEvent e) {
         setPreviewOfLibraries();
     }
-    
-    /*
-     * Custom node selection handler
-     */
-    public class NodeSelectionListener extends MouseAdapter {
 
-        JTree tree;
-
-        NodeSelectionListener(JTree tree) {
-            this.tree = tree;
-        }
-
-        public void mouseClicked(MouseEvent e) {
-            int x = e.getX();
-            int y = e.getY();
-            int row = tree.getRowForLocation(x, y);
-            TreePath path = tree.getPathForRow(row);
-
-            if (path != null) {
-                CheckNode node = (CheckNode) path.getLastPathComponent();
-                boolean isSelected = !(node.isSelected());
-                node.setSelected(isSelected);
-
-                ((DefaultTreeModel) tree.getModel()).nodeChanged(node);
-
-                if (row == 0) {
-                    tree.revalidate();
-                    tree.repaint();
-                }
-            }
-        }
-    }
 }

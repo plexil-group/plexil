@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,17 +23,47 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package gov.nasa.luv;
 
-/**
- * The StreamWranglerFactory interface creates StreamWranglers.
- *
- */
-public interface StreamWranglerFactory {
+import javax.swing.JTree;
 
-    /**
-     * Creates and returns a StreamWrangler.
-     * @return a StreamWrangler
-     */
-    public StreamWrangler createStreamWrangler();
+/**
+ * This class was modeled after the CheckNodeTreeExample, CheckNode, CheckRenerer
+ * classes from Tame Swing examplescreated by Nobuo Tamemasa.
+ *
+ * http://devdaily.com/java/swing/tame/
+ * 
+@author Nobuo Tamemasa
+@version 1.0 01/11/99
+*/
+
+public class NodeSelectionListener
+    extends java.awt.event.MouseAdapter {
+
+    JTree tree;
+
+    NodeSelectionListener(JTree tree) {
+        this.tree = tree;
+    }
+
+    public void mouseClicked(java.awt.event.MouseEvent e) {
+        int x = e.getX();
+        int y = e.getY();
+        int row = tree.getRowForLocation(x, y);
+        javax.swing.tree.TreePath path = tree.getPathForRow(row);
+
+        if (path != null) {
+            CheckNode node = (CheckNode) path.getLastPathComponent();
+            boolean isSelected = !(node.isSelected());
+            node.setSelected(isSelected);
+
+            ((javax.swing.tree.DefaultTreeModel) tree.getModel()).nodeChanged(node);
+
+            if (row == 0) {
+                tree.revalidate();
+                tree.repaint();
+            }
+        }
+    }
 }

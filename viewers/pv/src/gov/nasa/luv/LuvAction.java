@@ -49,7 +49,8 @@ public abstract class LuvAction extends AbstractAction
       
     public LuvAction(String name, String description)
     {
-        init(name, description, NO_ACCELERATOR, 0);
+        super(name);
+        putValue(SHORT_DESCRIPTION, description);
     }
 
     /**
@@ -64,7 +65,10 @@ public abstract class LuvAction extends AbstractAction
       
     public LuvAction(String name, String description, int keyCode)
     {
-        init(name, description, keyCode, 0);
+        super(name);
+        putValue(SHORT_DESCRIPTION, description);
+        accelerator = KeyStroke.getKeyStroke(keyCode, 0);
+        putValue(ACCELERATOR_KEY, accelerator);
     }
       
     /**
@@ -80,17 +84,10 @@ public abstract class LuvAction extends AbstractAction
     public LuvAction(String name, String description,
                      int keyCode, int modifiers)
     {
-        init(name, description, keyCode, modifiers);
-    }
-
-    private void init(String name, String description,
-                      int keyCode, int modifiers)
-    {
-        putValue(NAME, name);
+        super(name);
         putValue(SHORT_DESCRIPTION, description);
-        if (keyCode != NO_ACCELERATOR)
-            putValue(ACCELERATOR_KEY, accelerator = 
-                     KeyStroke.getKeyStroke(keyCode, modifiers));
+        accelerator = KeyStroke.getKeyStroke(keyCode, modifiers);
+        putValue(ACCELERATOR_KEY, accelerator);
     }
 
     /** Gets text name of the accelerator key for this action. 

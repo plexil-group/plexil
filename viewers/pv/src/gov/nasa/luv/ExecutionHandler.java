@@ -25,18 +25,22 @@
 */
 
 package gov.nasa.luv;
+
+import static gov.nasa.luv.Constants.AppType.*;
 import static gov.nasa.luv.Constants.DEBUG_CFG_FILE;
-import static gov.nasa.luv.Constants.PLEXIL_EXEC;
-import static gov.nasa.luv.Constants.UE_TEST_EXEC;
-import static gov.nasa.luv.Constants.UE_EXEC;
+import static gov.nasa.luv.Constants.RUN_SIMULATOR;
 import static gov.nasa.luv.Constants.RUN_TEST_EXEC;
 import static gov.nasa.luv.Constants.RUN_UE_EXEC;
-import static gov.nasa.luv.Constants.UE_SCRIPT;
-import static gov.nasa.luv.Constants.TE_SCRIPT;
-import static gov.nasa.luv.Constants.RUN_SIMULATOR;
 import static gov.nasa.luv.Constants.SIM_SCRIPT;
+import static gov.nasa.luv.Constants.TE_SCRIPT;
+import static gov.nasa.luv.Constants.UE_EXEC;
+import static gov.nasa.luv.Constants.UE_SCRIPT;
+import static gov.nasa.luv.Constants.UE_TEST_EXEC;
 import static gov.nasa.luv.Constants.UNKNOWN;
+
 import gov.nasa.luv.Luv;
+import gov.nasa.luv.CommandGenerator;
+import gov.nasa.luv.CommandGenerationException;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -115,161 +119,135 @@ public class ExecutionHandler
     }
       
     /**
-     * This methods returns a concrete CommandGenerator. By default, this method returns a standard UE command
-     * generator. If a value for "ALT_EXECUTIVE" system variable is given when LUV is started, a different executive command
-     * generator will be used (will be used the class name given on such variable).
+     * This methods returns a concrete CommandGenerator for the selected mode.
+     * If the environment variable ALT_EXECUTIVE is set, returns an instance of the
+     * class named to generate the command.
      * @return a plexil command generator.
      */
+    // *** FIXME: don't construct a new instance for each call! ***
     @SuppressWarnings("unchecked")
-        private CommandGenerator getPlexilExecutive() throws CommandGenerationException
+    private CommandGenerator getCommandGenerator() throws CommandGenerationException
     {
-        String alternativeExecutive=System.getenv("ALT_EXECUTIVE");
-        CommandGenerator exec = null;
-        if (alternativeExecutive == null) {
-            switch (Luv.getLuv().getAppMode()) {
-            case	Constants.PLEXIL_EXEC:
-                exec = new PlexilUniversalExecutiveCommandGenerator();
-                break;
-            case	Constants.PLEXIL_TEST:
-                exec = new PlexilTestExecutiveCommandGenerator();
-                break;
-            case	Constants.PLEXIL_SIM:
-                exec = new PlexilSimulatorCommandGenerator();
-                break;    					
-            }    		  
-            return exec;
-        }
-        else {
+        String alternativeExecutive = System.getenv("ALT_EXECUTIVE");
+        if (alternativeExecutive != null) {
+            Class ecgClass;
             try {    			
-				Class ecgClass = Class.forName(alternativeExecutive);
-				Constructor ecgClCons = ecgClass.getConstructor(new Class[]{});
-				Object o = ecgClCons.newInstance(new Object[]{});
-				if (o instanceof CommandGenerator) {
-					return (CommandGenerator)o;
-				}
-				else {
-					throw new CommandGenerationException("The class given with the ALT_EXECUTIVE system variable:"+alternativeExecutive+", must be an CommandGenerator subclass.");
-				}
-			} catch (ClassNotFoundException e) {
-				throw new CommandGenerationException("The class given with the ALT_EXECUTIVE system variable:"+alternativeExecutive+", doesn't exist.");
-			} catch (SecurityException e) {
-				throw new CommandGenerationException("Error when trying to create an instance of the given ALT_EXECUTIVE system variable:"+alternativeExecutive+".");
-			} catch (NoSuchMethodException e) {
-				throw new CommandGenerationException("Error when trying to create an instance of the given ALT_EXECUTIVE system variable:"+alternativeExecutive+".");
-			} catch (IllegalArgumentException e) {
-				throw new CommandGenerationException("Error when trying to create an instance of the given ALT_EXECUTIVE system variable:"+alternativeExecutive+".");
-			} catch (InstantiationException e) {
-				throw new CommandGenerationException("Error when trying to create an instance of the given ALT_EXECUTIVE system variable:"+alternativeExecutive+".");
-			} catch (IllegalAccessException e) {
-				throw new CommandGenerationException("Error when trying to create an instance of the given ALT_EXECUTIVE system variable:"+alternativeExecutive+".");
-			} catch (InvocationTargetException e) {
-				throw new CommandGenerationException("Error when trying to create an instance of the given ALT_EXECUTIVE system variable:"+alternativeExecutive+".");
+				ecgClass = Class.forName(alternativeExecutive);
+            } catch (ClassNotFoundException e) {
+				throw new CommandGenerationException("The class named by the ALT_EXECUTIVE system variable, "
+                                                     + alternativeExecutive + ", doesn't exist.");
 			}
-        }    	  
+            Constructor ecgClCons;
+            try {
+				ecgClCons = ecgClass.getConstructor(new Class[]{});
+			} catch (SecurityException e) {
+				throw new CommandGenerationException("Error trying to get constructor for user-defined command generator "
+                                                     + alternativeExecutive + ":",
+                                                     e);
+			} catch (NoSuchMethodException e) {
+				throw new CommandGenerationException("Error trying to get constructor for user-defined command generator "
+                                                     + alternativeExecutive + ":",
+                                                     e);
+            }
+            Object o;
+            try {
+                // N.B. IllegalArgumentException shouldn't happen here.
+                o = ecgClCons.newInstance(new Object[]{});
+			} catch (IllegalArgumentException e) {
+				throw new CommandGenerationException("Error trying to create instance of user-defined command generator "
+                                                     + alternativeExecutive + ":",
+                                                     e);
+			} catch (InstantiationException e) {
+				throw new CommandGenerationException("Error trying to create instance of user-defined command generator "
+                                                     + alternativeExecutive + ":",
+                                                     e);
+			} catch (IllegalAccessException e) {
+				throw new CommandGenerationException("Error trying to create instance of user-defined command generator "
+                                                     + alternativeExecutive + ":",
+                                                     e);
+			} catch (InvocationTargetException e) {
+				throw new CommandGenerationException("Error trying to create instance of user-defined command generator "
+                                                     + alternativeExecutive + ":",
+                                                     e);
+			}
+            if (o instanceof CommandGenerator)
+                return (CommandGenerator) o;
+            else
+                throw new CommandGenerationException("The class named by the ALT_EXECUTIVE system variable, "
+                                                     + alternativeExecutive
+                                                     + ", is not a subclass of gov.nasa.luv.CommandGenerator.");
+        } else {
+            switch (Luv.getLuv().getAppMode()) {
+            case PLEXIL_EXEC:
+                return new PlexilUniversalExecutiveCommandGenerator();
+
+            case PLEXIL_TEST:
+                return new PlexilTestExecutiveCommandGenerator();
+
+            case PLEXIL_SIM:
+                return new PlexilSimulatorCommandGenerator();
+
+            case EXTERNAL_APP:
+                return null;
+            }
+        }
+        return null; // make f'n compiler happy
     }
       
       
       
     /** Creates the command to execute the Universal Executive.
      * 
-     *  @return the command to execute the Universal Executive or an error message if the command could not be created.
+     *  @return the command to execute or an error message if the command could not be created.
      */      
     private List<String> createCommand()
         throws IOException, CommandGenerationException
     {
+        if (Luv.getLuv().getAppMode() == EXTERNAL_APP)
+            return null;
+
         CommandGenerator pe;
         try {
-            pe = getPlexilExecutive();
+            pe = getCommandGenerator();
         }
         catch (CommandGenerationException e) {
             throw e;
         }
 
-        Model currentPlan = Luv.getLuv().getCurrentPlan();
+        // *** FIXME: Move logic to concrete CommandGenerator derivations ***
 
-        pe.setCurrentPlan(currentPlan);
+        // // get libraries
+        // if (!currentPlan.getMissingLibraries().isEmpty()) {
+        //     // try to find libraries
+        //     for (String libName : currentPlan.getMissingLibraries()) {
+        //         Model lib = Luv.getLuv().getCurrentPlan().findLibraryNode(libName, true);
+        //         if (lib == null) {
+        //             throw new CommandGenerationException("ERROR: library \"" + libName + "\" not found.");
+        //         }
+        //         else {
+        //             currentPlan.linkLibrary(lib);
+        //         }
+        //     }
+        // }
 
-        // get plan
-        if (currentPlan != null && 
-            currentPlan.getAbsolutePlanName() != null &&
-            !currentPlan.getAbsolutePlanName().equals(UNKNOWN)) {
-            if (!new File(currentPlan.getAbsolutePlanName()).exists()) {
-                throw new CommandGenerationException("ERROR: unable to identify plan.");
-            }
-        }
-        else
-            throw new CommandGenerationException("ERROR: unable to identify plan.");
-    	  
-        // get supp
-        String supp = Luv.getLuv().getExecSelect().getSettings().getSuppName();
-        if (currentPlan != null)
-            switch(Luv.getLuv().getExecSelect().getMode()) {
-            case Constants.PLEXIL_TEST: 
-                if (currentPlan.getAbsoluteScriptName() != null &&
-                    !currentPlan.getAbsoluteScriptName().equals(UNKNOWN)) {
-                    if (new File(currentPlan.getAbsoluteScriptName()).exists()) {
-                        pe.setScriptPath(currentPlan.getAbsoluteScriptName()); 
-                    }
-                    else if (Luv.getLuv().getFileHandler().searchForScript() != null) {
-                        pe.setScriptPath(currentPlan.getAbsoluteScriptName());
-                    }				  
-                    else
-                        throw new CommandGenerationException("ERROR: unable to identify " + supp);
-                }
-                else if (Luv.getLuv().getFileHandler().searchForScript() != null) {
-                    pe.setScriptPath(currentPlan.getAbsoluteScriptName());
-                }			  	  
-                else
-                    throw new CommandGenerationException("ERROR: unable to identify " + supp);
-	    		break;
-
-            case Constants.PLEXIL_SIM:
-            case Constants.PLEXIL_EXEC:
-                if (currentPlan.getAbsoluteScriptName() != null &&
-                    !currentPlan.getAbsoluteScriptName().equals(UNKNOWN)) {
-                    if (new File(currentPlan.getAbsoluteScriptName()).exists()) {
-                        pe.setScriptPath(currentPlan.getAbsoluteScriptName()); 
-                    }
-                } 
-                else if (Luv.getLuv().getFileHandler().searchForConfig() != null) {
-                    pe.setScriptPath(currentPlan.getAbsoluteScriptName());
-                }
-                else
-                    throw new CommandGenerationException("ERROR: unable to identify " + supp);
-                break;
-            }
-
-        // get libraries
-        if (!currentPlan.getMissingLibraries().isEmpty()) {
-            // try to find libraries
-            for (String libName : currentPlan.getMissingLibraries()) {
-                Model lib = Luv.getLuv().getCurrentPlan().findLibraryNode(libName, true);
-                if (lib == null) {
-                    throw new CommandGenerationException("ERROR: library \"" + libName + "\" not found.");
-                }
-                else {
-                    currentPlan.linkLibrary(lib);
-                }
-            }
-        }
-
-        if (!currentPlan.getLibraryNames().isEmpty()) {
-            Set<String> libFiles = new LinkedHashSet<String>();
-            for (String libFile : currentPlan.getLibraryNames()) {
-                // double check that library still exists
-                if (new File(libFile).exists())
-                    libFiles.add(libFile);
-                else 
-                    throw new CommandGenerationException("ERROR: library file " + libFile + " does not exist.");
-            }
-            pe.setLibFiles(libFiles);
-        }       
+        // if (!currentPlan.getLibraryNames().isEmpty()) {
+        //     Set<String> libFiles = new LinkedHashSet<String>();
+        //     for (String libFile : currentPlan.getLibraryNames()) {
+        //         // double check that library still exists
+        //         if (new File(libFile).exists())
+        //             libFiles.add(libFile);
+        //         else 
+        //             throw new CommandGenerationException("ERROR: library file " + libFile + " does not exist.");
+        //     }
+        //     pe.setLibFiles(libFiles);
+        // }       
+        // *** END FIXME ***
 
         try {
-            return pe.generateCommand();
+            return pe.generateCommand(Luv.getLuv().getSettings());
         }
         catch (CommandGenerationException e) {
-            throw e;
+            throw e; // *** where is this handled? ***
         }
     }
       
@@ -381,131 +359,84 @@ public class ExecutionHandler
         }
     }
 
-    private class CommandGenerationException extends Exception {
-
-        public CommandGenerationException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public CommandGenerationException(String message) {
-            super(message);
-        }
-
-        public CommandGenerationException(Throwable cause) {
-            super(cause);
-        }
-
-    }
-
-    /**
-     * 
-     * @author Hector Fabio Cadavid Rengifo. hector.cadavid@escuelaing.edu.co
-     *
-     */
-    private abstract class CommandGenerator {
-	
-        private String scriptPath;
-
-        private boolean breaksAllowed;
-	
-        private Model currentPlan;
-	
-        private Set<String> libFiles;
-	
-        public Set<String> getLibFiles() {
-            return libFiles;
-        }
-
-        public void setLibFiles(Set<String> libFiles) {
-            this.libFiles = libFiles;
-        }
-
-        public Model getCurrentPlan() {
-            return currentPlan;
-        }
-
-        public void setCurrentPlan(Model currentPlan) {
-            this.currentPlan = currentPlan;
-        }
-
-        public boolean isBreaksAllowed() {
-            return breaksAllowed;
-        }
-
-        public void setBreaksAllowed(boolean breaksAllowed) {
-            this.breaksAllowed = breaksAllowed;
-        }
-
-        public String getScriptPath() {
-            return scriptPath;
-        }
-
-        public void setScriptPath(String scriptPath) {
-            this.scriptPath = scriptPath;
-        }
-
-        public abstract List<String> generateCommand()
-            throws CommandGenerationException;
-	
-    }
-
-    private class PlexilUniversalExecutiveCommandGenerator extends CommandGenerator
-    {
+    private class PlexilUniversalExecutiveCommandGenerator
+        extends CommandGeneratorBase
+        implements CommandGenerator {
 
         @Override
-            public List<String> generateCommand() 
-        {
+        public List<String> generateCommand(Settings s) {
+            // TODO: Check that required files exist: plan, config, 
+
             Vector<String> command = new Vector<String>();
   
             System.out.println("Using Universal Executive...");
 
             //viewer
             command.add(RUN_UE_EXEC);
-            command.add("-v");  	  
+            command.add("-v");
             //port
             command.add("-n");
-            command.add(Integer.toString(Luv.getLuv().getPort()));
-            //breaks
-            if (Luv.getLuv().breaksAllowed())
+            command.add(Integer.toString(s.getPort()));
+            //blocking
+            if (s.blocksExec())
                 command.add("-b");
             //automation to allow PID capture	  
             command.add("-a");
+
             //debug file		   
-            command.add("-d");
-            command.add(DEBUG_CFG_FILE);
+            File debug = s.getDebugLocation();
+            if (debug != null && debug.exists()) {
+                command.add("-d");
+                command.add(debug.toString());
+            }
+
             //Check Plan file	  
-            if (Luv.getLuv().checkPlan())
+            if (s.checkPlan())
                 command.add("-check");
 	  
             // get plan
-
-            Model currentPlan = this.getCurrentPlan();
             command.add("-p");
-            command.add(currentPlan.getAbsolutePlanName());
+            command.add(s.getPlanLocation().toString());
 	  	  
-            if (this.getScriptPath() != null) {
+            if (s.getConfigLocation() != null) {
                 command.add("-c");
-                command.add(this.getScriptPath());
+                command.add(s.getConfigLocation().toString());
             }
-	  
-            if (this.getLibFiles() != null){
-                for (String lf : this.getLibFiles()) {
+
+            if (s.getLibDirs() != null) {
+                for (File ld : s.getLibDirs()) {
+                    command.add("-L");
+                    command.add(ld.toString());
+                }
+            }
+		  
+            if (s.getLibs() != null) {
+                for (String lf: s.getLibs()) {
                     command.add("-l");
                     command.add(lf);
                 }
             }	  
+
+            // *** TEMP DEBUG ***
+            // for (String c : command) {
+            //     System.out.print(c);
+            //     System.out.print(" ");
+            // }
+            // System.out.println("");
 
             return command;
         }
 
     }
 
-    class PlexilTestExecutiveCommandGenerator extends CommandGenerator
-    {
+    class PlexilTestExecutiveCommandGenerator
+        extends CommandGeneratorBase
+        implements CommandGenerator {
 
         @Override
-            public List<String> generateCommand() 
+        public List<String> generateCommand(Settings s) 
         {
+            // TODO: Check that required files exist
             Vector<String> command = new Vector<String>();
 		  
             System.out.println("Using Test Executive...");
@@ -516,7 +447,7 @@ public class ExecutionHandler
 
             //port
             command.add("-n");
-            command.add(Integer.toString(Luv.getLuv().getPort()));
+            command.add(Integer.toString(s.getPort()));
 
             //breaks
             if (Luv.getLuv().breaksAllowed())
@@ -526,23 +457,31 @@ public class ExecutionHandler
             command.add("-a");
 
             //debug file		   
-            command.add("-d");
-            command.add(DEBUG_CFG_FILE);	  	  
+            File debug = s.getDebugLocation();
+            if (debug != null && debug.exists()) {
+                command.add("-d");
+                command.add(debug.toString());
+            }
 
             //Check Plan file	  
             if (Luv.getLuv().checkPlan())
                 command.add("-check");
 		  
             // get plan
-            Model currentPlan=this.getCurrentPlan();
-		  
             command.add("-p");
-            command.add(currentPlan.getAbsolutePlanName());
+            command.add(s.getPlanLocation().toString());
             command.add("-s");
-            command.add(this.getScriptPath());
-		  
-            if (this.getLibFiles() != null) {
-                for (String lf:this.getLibFiles()) {
+            command.add(s.getScriptLocation().toString());
+
+            if (s.getLibDirs() != null) {
+                for (File ld : s.getLibDirs()) {
+                    command.add("-L");
+                    command.add(ld.toString());
+                }
+            }
+
+            if (s.getLibs() != null) {
+                for (String lf: s.getLibs()) {
                     command.add("-l");
                     command.add(lf);
                 }
@@ -553,11 +492,14 @@ public class ExecutionHandler
 
     }
 
-    class PlexilSimulatorCommandGenerator extends CommandGenerator 
-    {
+    class PlexilSimulatorCommandGenerator
+        extends CommandGeneratorBase
+        implements CommandGenerator {
+
         @Override
-            public List<String> generateCommand() 
-        {
+        public List<String> generateCommand(Settings s) {
+            // TODO: Check that required files exist
+
             Vector<String> command = new Vector<String>();	 
   
             System.out.println("Using PlexilSim...");
@@ -567,29 +509,48 @@ public class ExecutionHandler
             command.add("-v");
             //port
             command.add("-n");
-            command.add(Integer.toString(Luv.getLuv().getPort()));
+            command.add(Integer.toString(s.getPort()));
             //breaks
             if (Luv.getLuv().breaksAllowed())
                 command.add("-b");
+
             //debug file		   
-            command.add("-d");
-            command.add(DEBUG_CFG_FILE);
+            // FIXME: sim can have debug file too!
+            File debug = s.getDebugLocation();
+            if (debug != null && debug.exists()) {
+                command.add("-d");
+                command.add(debug.toString());
+            }
+
             //Check Plan file	  
             if (Luv.getLuv().checkPlan())
                 command.add("-check");	  
 	  
             // get plan
-            Model currentPlan = this.getCurrentPlan();
             command.add("-p");
-            command.add(currentPlan.getAbsolutePlanName());
-	  	  
-            if (this.getScriptPath() != null) {
-                command.add("-s");
-                command.add(this.getScriptPath());
+            command.add(s.getPlanLocation().toString());
+
+            File c = s.getConfigLocation();
+            if (c != null && c.exists()) {
+                command.add("-c");
+                command.add(c.toString());
             }
-	  
-            if (this.getLibFiles() != null) {
-                for (String lf : this.getLibFiles()) {
+	  	  
+            // FIXME: check for non-empty script!
+            if (s.getScriptLocation() != null) {
+                command.add("-s");
+                command.add(s.getScriptLocation().toString());
+            }
+
+            if (s.getLibDirs() != null) {
+                for (File ld : s.getLibDirs()) {
+                    command.add("-L");
+                    command.add(ld.toString());
+                }
+            }
+
+            if (s.getLibs() != null) {
+                for (String lf : s.getLibs()) {
                     command.add("-l");
                     command.add(lf);
                 }

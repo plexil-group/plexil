@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -89,8 +89,8 @@ public class ViewHandler
      */
     public void clearCurrentView()
     {
-	currentModel = null;
-	currentView = null;
+        currentModel = null;
+        currentView = null;
     }
 
     /**
@@ -98,22 +98,21 @@ public class ViewHandler
      * 
      * @param view the specified Container
      */
-    private void setView(Container view)
-    {
-	currentView = ((TreeTableView)view);
+    private void setView(Container view) {
+        currentView = ((TreeTableView)view);
 
-	// clear out the view panel and put the new view in there
-	viewPanel.removeAll();
-	viewPanel.setLayout(new BorderLayout());
-	JScrollPane sp = new JScrollPane(view);
-	sp.setBackground(Luv.getLuv().getProperties().getColor(PROP_WIN_BCLR));
-	viewPanel.add(sp, CENTER);
+        // clear out the view panel and put the new view in there
+        viewPanel.removeAll();
+        viewPanel.setLayout(new BorderLayout());
+        JScrollPane sp = new JScrollPane(view);
+        sp.setBackground(Luv.getLuv().getSettings().getColor(PROP_WIN_BCLR));
+        viewPanel.add(sp, CENTER);
 
-	Luv.getLuv().setLocation(Luv.getLuv().getLocation());
+        Luv.getLuv().setLocation(Luv.getLuv().getLocation());
         Luv.getLuv().setPreferredSize(Luv.getLuv().getSize());
 
-	Luv.getLuv().pack();
-	Luv.getLuv().repaint();
+        Luv.getLuv().pack();
+        Luv.getLuv().repaint();
     }
     
     /**
@@ -130,19 +129,13 @@ public class ViewHandler
      * 
      * @param model the Plexil Model
      */
-    public void showModelInViewer(Model model)
-    {
-	// create a new instance of the view only if necessary
-	if (model == null || model == currentModel) 
-        {
-	    // no change required
-	}
-	else 
-        { 
-            currentModel = model;
-	    setView(new TreeTableView(model));
-            Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);
-	}
+    public void showModelInViewer(Model model) {
+        // create a new instance of the view only if necessary
+        if (model == null || model == currentModel) 
+            return; 
+        currentModel = model;
+        setView(new TreeTableView(model));
+        Luv.getLuv().getLuvBreakPointHandler().mapBreakPointsToNewModel(currentModel);
     }
     
     /**

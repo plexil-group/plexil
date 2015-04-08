@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,14 +37,14 @@ import java.util.HashMap;
 import static gov.nasa.luv.Constants.*;
 
 /** 
- * The ConditionsTab class provides methods for displaying Plexil Model condition 
+ * The ConditionsTab class provides methods for displaying Plexil Node condition 
  * information.
  */
 
 public class ConditionsTab extends JPanel 
 {
     private static ConditionsTab conditionsPane;
-    private Model model;    
+    private Node node;    
     private int rows;    
     private String info[][];    
     private JTable table;     
@@ -52,16 +52,16 @@ public class ConditionsTab extends JPanel
     public ConditionsTab() {}
     
     /** 
-     * Constructs a ConditionsTab with the specified Plexil Model.
+     * Constructs a ConditionsTab with the specified Plexil Node.
      *
-     * @param model Plexil Model on which the ConditionsTab represents
+     * @param node Plexil Node on which the ConditionsTab represents
      */
     
-    public ConditionsTab(Model model) 
+    public ConditionsTab(Node node) 
     {       
         super(new GridLayout(1,0));
         
-        this.model = model;
+        this.node = node;
         rows = 1000;
         info = new String[rows][3];
         
@@ -69,7 +69,7 @@ public class ConditionsTab extends JPanel
                                 "Value",
                                 "Expression"};             
                 
-        HashMap<Integer, ArrayList> nodeConditions = model.getConditionMap();
+        HashMap<Integer, ArrayList> nodeConditions = node.getConditionMap();
         int row = 0;
         int col = 0;
         if (nodeConditions != null)
@@ -95,11 +95,11 @@ public class ConditionsTab extends JPanel
                     col = 0;
                 }
 
-                // add model listener
-                this.model.addChangeListener(new Model.ChangeAdapter()
+                // add node listener
+                this.node.addChangeListener(new Node.ChangeAdapter()
                    {
                          @Override 
-                         public void propertyChange(Model model, String property)
+                         public void propertyChange(Node node, String property)
                          {
                             if (property.equals(condition))
                             {
@@ -142,16 +142,16 @@ public class ConditionsTab extends JPanel
     
     private String getConditionValue(String condition)
     {
-        if (model.getProperty(condition) == null)
+        if (node.getProperty(condition) == null)
             return UNKNOWN;
-        else if (model.getProperty(condition).equals("0"))
+        else if (node.getProperty(condition).equals("0"))
             return "FALSE";
-        else if (model.getProperty(condition).equals("1"))
+        else if (node.getProperty(condition).equals("1"))
             return "TRUE";
-        else if (model.getProperty(condition).equals("inf"))
+        else if (node.getProperty(condition).equals("inf"))
             return "inf";
         else
-            return model.getProperty(condition);
+            return node.getProperty(condition);
     }
     
     /** 
@@ -212,13 +212,13 @@ public class ConditionsTab extends JPanel
     }
     
      /** 
-     * Creates an instance of a ConditionsTab with the specified Plexil Model. 
+     * Creates an instance of a ConditionsTab with the specified Plexil Node. 
      *
-     * @param model the model on which to create an ConditionsTab
+     * @param node the node on which to create an ConditionsTab
      */
 
-    public static void open(Model model) 
+    public static void open(Node node) 
     {       
-        conditionsPane = new ConditionsTab(model);
+        conditionsPane = new ConditionsTab(node);
     }
 }

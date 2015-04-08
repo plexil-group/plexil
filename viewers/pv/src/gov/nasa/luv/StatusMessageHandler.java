@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -261,24 +261,26 @@ public class StatusMessageHandler
          }.start();
     }
     
-    public void showIdlePortMessage()
-    {    	
-    	if(Luv.getLuv().getIsExecuting() && (Luv.getLuv().getCurrentPlan() == null || Luv.getLuv().getCurrentPlan().getPlanName().equals(UNKNOWN)))
-    	{
+    // Exactly one caller, in class Luv.
+    public void showIdlePortMessage() {    	
+    	if (Luv.getLuv().getIsExecuting()
+            && (Luv.getLuv().getCurrentPlan() == null
+                || Luv.getLuv().getCurrentPlan().getPlanName().equals(UNKNOWN))) {
     		idleMessage = true;
-	    	showChangeOnPort("Connected", Color.GREEN, DEFAULT_WAIT);
+            if (!message.isEmpty())
+                PortStatusMessageHandlerQ.add(new StatusMessageHandler(message, Color.GREEN, idleMessage, DEFAULT_WAIT));
     	}
     }
 
+    // TODO: reduce number of versions
+    
     /**
      * Displays the specified message to the port status bar and not the Debug Window.
      * 
      * @param message the message to be displayed
      */
-    public void showChangeOnPort(String message)
-    {
-    	idleMessage = false;
-    	showChangeOnPort(message, Color.BLACK, DEFAULT_WAIT);
+    public void showChangeOnPort(String message) {
+    	showChangeOnPort(message, Color.BLACK);
     }
 
     /**
@@ -288,40 +290,11 @@ public class StatusMessageHandler
      * @param message the message to display
      * @param color the color the message will display in the port status bar
      */
-    public void showChangeOnPort(String message, Color color)
-    {
+    public void showChangeOnPort(String message, Color color) {
     	idleMessage = false;
-    	showChangeOnPort(message, color, DEFAULT_WAIT);
+        if (!message.isEmpty())
+        	PortStatusMessageHandlerQ.add(new StatusMessageHandler(message, color, DEFAULT_WAIT));
     }
-    
-    /**
-     * Adds the specified message and time to status bar and debug Window with default
-     * color. (Color and time only apply to status bar, not Debug Window)
-     * 
-     * @param message the message to display
-     * @param autoClearTime the amount of time the message will display
-     */
-    public void showChangeOnPort(String message, long autoClearTime)
-    {
-    	idleMessage = false;
-    	showChangeOnPort(message, Color.BLACK, autoClearTime);
-    }    
-    
-    /**
-     * Adds the specified message, color and time to port status bar and debug Window.
-     * (Color and time only apply to port status bar, not Debug Window)
-     * 
-     * @param message the message to display
-     * @param color the color the message will display in the port status bar
-     * @param autoClearTime the amount of time the message will display
-     */
-    public void showChangeOnPort(String message, Color color, final long autoClearTime)
-    {
-        if (message.length() > 0 && idleMessage)
-        	PortStatusMessageHandlerQ.add(new StatusMessageHandler(message, color, idleMessage, autoClearTime));
-        else if (message.length() > 0)	
-        	PortStatusMessageHandlerQ.add(new StatusMessageHandler(message, color, autoClearTime));
-    }    
     
     /**
      * Displays the specified message to the status bar and not the Debug Window.
@@ -392,14 +365,14 @@ public class StatusMessageHandler
      */
     public void displayErrorMessage(Exception e, String errorMessage)
     {
-        if (e != null)
-        {
+        if (e != null) {
             JOptionPane.showMessageDialog(Luv.getLuv(), 
                                           errorMessage + ".\nPlease see Debug Window.", 
                                           "Error", 
                                           JOptionPane.ERROR_MESSAGE);
-  
             out.println(errorMessage + "\n" + e.getMessage());
+            e.printStackTrace(out);
+            // TODO: make debug window visible?
         }
         else
         {

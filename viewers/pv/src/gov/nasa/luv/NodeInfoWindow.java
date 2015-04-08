@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import static gov.nasa.luv.Constants.*;
 
 /** 
  * Teh NodeInfoWindow class holds the ConditionsTab, VariablesTab and ActionTab 
- * Plexil Model might contain. 
+ * Plexil Node might contain. 
  */
 
 public class NodeInfoWindow extends JPanel
@@ -48,20 +48,20 @@ public class NodeInfoWindow extends JPanel
     public NodeInfoWindow(){}
     
     /** 
-     * Constructs a NodeInfoWindow with the specified Plexil Model. 
+     * Constructs a NodeInfoWindow with the specified Plexil Node. 
      *
-     * @param model the Plexil Model on which the NodeInfoWindow displays information
+     * @param node the Plexil Node on which the NodeInfoWindow displays information
      */
     
-    public NodeInfoWindow(Model model) 
+    public NodeInfoWindow(Node node) 
     {
         super(new GridLayout(1, 1));
         
         tabbedPane = new JTabbedPane();
 
-        addConditionsTab(model);
-        addVariablesTab(model);
-        addActionTab(model, model.getProperty(NODETYPE_ATTR));
+        addConditionsTab(node);
+        addVariablesTab(node);
+        addActionTab(node, node.getProperty(NODETYPE_ATTR));
         
         add(tabbedPane);
 
@@ -93,14 +93,14 @@ public class NodeInfoWindow extends JPanel
     }
     
     /** 
-     * Adds a ConditionsTab to this NodeInfoWindow for the specified Plexil Model. 
+     * Adds a ConditionsTab to this NodeInfoWindow for the specified Plexil Node. 
      *
-     * @param model the Plexil Model on which the NodeInfoWindow gathers condition information
+     * @param node the Plexil Node on which the NodeInfoWindow gathers condition information
      */
     
-    private void addConditionsTab(Model model)
+    private void addConditionsTab(Node node)
     {
-        if (model.hasConditions())
+        if (node.hasConditions())
         {
            JComponent panel = ConditionsTab.getCurrentConditionsTab();
            panel.setPreferredSize(new Dimension(900, 300));
@@ -109,14 +109,14 @@ public class NodeInfoWindow extends JPanel
     }
     
     /** 
-     * Adds a VariablesTab to this NodeInfoWindow for the specified Plexil Model. 
+     * Adds a VariablesTab to this NodeInfoWindow for the specified Plexil Node. 
      *
-     * @param model the Plexil Model on which the NodeInfoWindow gathers local variable information
+     * @param node the Plexil Node on which the NodeInfoWindow gathers local variable information
      */
     
-    private void addVariablesTab(Model model)
+    private void addVariablesTab(Node node)
     {
-        if (model.hasVariables())
+        if (node.hasVariables())
         {
            JComponent panel = VariablesTab.getCurrentVariablesTab();
            panel.setPreferredSize(new Dimension(900, 300));
@@ -125,15 +125,15 @@ public class NodeInfoWindow extends JPanel
     }
     
     /** 
-     * Adds a ActionTab to this NodeInfoWindow for the specified Plexil Model and action type. 
+     * Adds a ActionTab to this NodeInfoWindow for the specified Plexil Node and action type. 
      *
-     * @param model the Plexil Model on which the NodeInfoWindow gathers action information
-     * @param actioType the type of action this Plexil Model represents
+     * @param node the Plexil Node on which the NodeInfoWindow gathers action information
+     * @param actioType the type of action this Plexil Node represents
      */
         
-    private void addActionTab(Model model, String actionType)
+    private void addActionTab(Node node, String actionType)
     {
-        if (model.hasAction())
+        if (node.hasAction())
         {
            JComponent panel = ActionTab.getCurrentActionTab();
            panel.setPreferredSize(new Dimension(900, 300));
@@ -142,18 +142,18 @@ public class NodeInfoWindow extends JPanel
     }
     
     /** 
-     * Creates an instance of an NodeInfoWindow for the specified Plexil Model. 
+     * Creates an instance of an NodeInfoWindow for the specified Plexil Node. 
      *
-     * @param model the model on which to create a NodeInfoWindow
+     * @param node the node on which to create a NodeInfoWindow
      */
     
-    public static void open(Model model) 
+    public static void open(Node node) 
     {
-        frame = new JFrame(model.getModelName() + " Information Window");
+        frame = new JFrame(node.getNodeName() + " Information Window");
         
-        frame.add(new NodeInfoWindow(model), BorderLayout.CENTER);
-        frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_NODEINFOWIN_SIZE));
-        frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_NODEINFOWIN_LOC));
+        frame.add(new NodeInfoWindow(node), BorderLayout.CENTER);
+        frame.setSize(Luv.getLuv().getSettings().getDimension(PROP_NODEINFOWIN_SIZE));
+        frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_NODEINFOWIN_LOC));
         
         frame.pack();
         frame.setVisible(true);

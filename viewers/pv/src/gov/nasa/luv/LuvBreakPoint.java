@@ -32,66 +32,98 @@ package gov.nasa.luv;
  * are expected to provide the conditions underwich the break is eligible to fire. 
  */
 
-public abstract class LuvBreakPoint extends AbstractBreakPoint
-{
+public class LuvBreakPoint
+    extends Node.ChangeAdapter {
+
+    private Node.PropertyChangeFilter filter;
+
+    /** enabled state of this breakpoint jsdhcb */
+    private boolean enabled = true;
+
     private boolean breakStatus = false;
+
+    // The following are protected for the convenience of derived classes.
+
+    /** the node on which the break point operates */
+    protected Node node;
     
     /** Old value, use to test for changes. */
-    public String oldValue = "";
-
-    /** Target model property to watch. */
-    private String targetProperty;
-
-    /** Storage for reason for current break point occurrance. */
-    public String reason = "NO break has occurred yet. This should NEVER be seen!";
+    protected String oldValue = "";
 
     /** 
-     * Constructs a Luv specific break point with the specified Plexil model
-     * and target property.
+     * Constructs a Luv specific break point with the specified Plexil node.
      *
-     * @param model the model on which the break point operates
-     * @param targetProperty the model property on whgich to watch for
+     * @param node the node on which the break point operates
      */
-    public LuvBreakPoint(Model model, String targetProperty)
-    {
-       super(model);
-       this.targetProperty = targetProperty;
-       oldValue = model.getProperty(targetProperty);
-       Luv.getLuv().getLuvBreakPointHandler().addBreakPoint(this, model);
+    public LuvBreakPoint(Node node, Node.PropertyChangeFilter f) {
+        filter = f;
+        setNode(node);
+    }
+
+    /** {@inheritDoc} */
+      
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     /** {@inheritDoc} */
 
-    public void onBreak()
-    {
-       Luv.getLuv().pausedState();
-       Luv.getLuv().getLuvBreakPointHandler().setBreakPoint(this);
-       oldValue = model.getProperty(targetProperty);
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public String toString() {
+        return node.getNodeName() + filter.getDescription();
+    }
+
+    /** detatch from node */
+    // N.B. this is initiated from GUI on node
+    public void unregister() {
+        if (node != null)
+            node.removeBreakPoint(this);
+        node = null;
     }
 
     /** {@inheritDoc} */
 
-    public String getReason()
-    {
-       return reason;
+    public Node getNode() {
+        return node;
+    }
+
+    /** {@inheritDoc} */
+    public void onBreak() {
+        Luv.getLuv().pausedState();
+        Luv.getLuv().getLuvBreakPointHandler().setActiveBreakPoint(this);
     }
 
     /** {@inheritDoc} */
 
-    public void setModel(Model model)
-    {
-       super.setModel(model);
-       if (targetProperty != null)
-          oldValue = model.getProperty(targetProperty);
+    public void setNode(Node n) {
+        // unregister from previous node, if any
+        unregister();
+
+        // assign the new node
+        node = n;
+        node.addBreakPoint(this);
     }
     
-    public void reserveBreakStatus(boolean value)
-    {
+    public void reserveBreakStatus(boolean value) {
         breakStatus = value;
     }
 
-    public boolean getReserveBreakStatus()
-    {
+    public boolean getReserveBreakStatus() {
         return breakStatus;
     }
+
+    //
+    // Node.ChangeListener API
+    //
+
+    public void propertyChange(Node node, String property) {
+        if (!enabled)
+            return;
+        if (filter.eventMatches(node, property))
+            onBreak();
+    }
+
 }

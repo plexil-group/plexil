@@ -76,7 +76,7 @@ public class ArrayVariable extends Variable {
 		int length = 0;
 		String arrayValue = "#(";
 		Iterator<Variable> it = list.iterator();
-		while(it.hasNext() && length < Luv.getLuv().getProperties().getInteger(PROP_ARRAY_MAX_CHARS))
+		while(it.hasNext() && length < Luv.getLuv().getSettings().getInteger(PROP_ARRAY_MAX_CHARS))
 		{			
 			arrayValue+=it.next().getValue();
 			if(it.hasNext())
@@ -85,7 +85,7 @@ public class ArrayVariable extends Variable {
 			}
 			length = arrayValue.length();
 		}
-		if(length >= Luv.getLuv().getProperties().getInteger(PROP_ARRAY_MAX_CHARS))
+		if (length >= Luv.getLuv().getSettings().getInteger(PROP_ARRAY_MAX_CHARS))
 			arrayValue+="...";
 		arrayValue+=")";
 		setValue(arrayValue);

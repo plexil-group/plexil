@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import static gov.nasa.luv.Constants.*;
 
 /** 
- * The ActionTab class provides methods for displaying Plexil Model Actions, 
+ * The ActionTab class provides methods for displaying Plexil Node Actions, 
  * such as, Assignment, Command, FunctionCall, LibraryCall or Update. 
  */
 
@@ -45,12 +45,12 @@ public class ActionTab extends JPanel
     private static ActionTab actionPane;
     
     /** 
-     * Constructs an ActionTab with the specified Plexil Model.
+     * Constructs an ActionTab with the specified Plexil Node.
      *
-     * @param model Plexil Model on which the ActionTab represents
+     * @param node Plexil Node on which the ActionTab represents
      */
        
-    public ActionTab(Model model) 
+    public ActionTab(Node node) 
     {       
         super(new GridLayout(1,0));
         
@@ -59,7 +59,7 @@ public class ActionTab extends JPanel
         String[] columnNames = {"Expression",};       
         String[][] info = new String[1000][1];  
         
-        ArrayList<String> actionList = model.getActionList();     
+        ArrayList<String> actionList = node.getActionList();     
         int row = 0;
         for (String action : actionList)
         {
@@ -122,13 +122,13 @@ public class ActionTab extends JPanel
     }
     
     /** 
-     * Creates an instance of an ActionTab with the specified Plexil Model. 
+     * Creates an instance of an ActionTab with the specified Plexil Node. 
      *
-     * @param model the model on which to create an ActionTab
+     * @param node the node on which to create an ActionTab
      */
 
-    public static void open(Model model) 
+    public static void open(Node node) 
     {       
-        actionPane = new ActionTab(model);
+        actionPane = new ActionTab(node);
     }
 }

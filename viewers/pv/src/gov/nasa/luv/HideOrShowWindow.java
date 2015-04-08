@@ -28,9 +28,14 @@ package gov.nasa.luv;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
+
+
 import static gov.nasa.luv.Constants.*;
+
+
 
 /** 
  * The HideOrShowWindow class is an interface for the user to identify the nodes 
@@ -55,30 +60,27 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
      * 
      * @param regexList the list of currently hidden elements and clan be empty
      */
-    public HideOrShowWindow(String regexList) 
-    {
+    public HideOrShowWindow(List<String> regexList) {
         super(new BorderLayout());
         init(regexList);
     }
 
-    private void init(String regexList)
-    {
+    private void init(List<String> regexList) {
         createIntructionSection();
         createScrollListSection(regexList);
         createCheckBoxList();
         createHideShowButtonSection();
     }
     
-    private void createIntructionSection()
-    {     
+    private void createIntructionSection() {
         String instructionText = "<html>Type the full or partial name of the nodes you want to hide." +
-                "<br>Use (<b>*</b>) wildcard as a prefix and/or suffix to select multiple nodes." +
-                "<br>" + 
-                "<br>For example:" +
-                "<br>Type <b>Child</b> to hide node <b>Child</b> only" +
-                "<br>Type <b>Child*</b> to hide nodes Child<b>1</b>, Child<b>2</b>, and Child<b>3</b>" +
-                "<br>Type <b>*Child</b> to hide nodes <b>a</b>Child, <b>b</b>Child, and <b>c</b>Child" +
-                "<br>Type <b>*Child*</b> to hide nodes <b>a</b>Child<b>1</b>, <b>b</b>Child<b>2</b>, and <b>c</b>Child<b>3</b>";
+            "<br>Use (<b>*</b>) wildcard as a prefix and/or suffix to select multiple nodes." +
+            "<br>" + 
+            "<br>For example:" +
+            "<br>Type <b>Child</b> to hide node <b>Child</b> only" +
+            "<br>Type <b>Child*</b> to hide nodes Child<b>1</b>, Child<b>2</b>, and Child<b>3</b>" +
+            "<br>Type <b>*Child</b> to hide nodes <b>a</b>Child, <b>b</b>Child, and <b>c</b>Child" +
+            "<br>Type <b>*Child*</b> to hide nodes <b>a</b>Child<b>1</b>, <b>b</b>Child<b>2</b>, and <b>c</b>Child<b>3</b>";
         
         JLabel instructions = new JLabel(instructionText);
         instructions.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -87,17 +89,11 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
         add(instructionsPane, BorderLayout.NORTH);
     }
     
-    private void createScrollListSection(String regexList)
-    {
+    private void createScrollListSection(List<String> regexList) {
         listModel = new DefaultListModel<String>();
-        if (!regexList.equals(UNKNOWN) && !regexList.equals(""))
-        {
-            String [] array = regexList.split(", ");
-            for (int i = 0; i < array.length; i++)
-            {
-                listModel.insertElementAt(array[i], i);
-            }
-        }
+        if (regexList != null)
+            for (String s : regexList)
+                listModel.addElement(s);
         list = new JList<String>(listModel);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.setSelectedIndex(0);
@@ -463,12 +459,8 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
 
     private static boolean isBoxChecked(String type)
     {
-        if (Luv.getLuv().getProperty(type).equals("SHOW"))
-            return true;
-        else if (Luv.getLuv().getProperty(type).equals(UNKNOWN))
-            return true;
-        else
-            return false;
+        String prop = Luv.getLuv().getSettings().get(type);
+        return (prop == null || prop.equals("SHOW"));
     }
 
     /**
@@ -497,7 +489,8 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             { 
                 showButton.setEnabled(true);
                 String regex = (String) listModel.remove(index);
-                Luv.getLuv().getRegexModelFilter().removeRegex(regex);
+                // *** FIXME ***
+                Luv.getLuv().getRegexNodeFilter().removeRegex(regex);
             
                 //Select an index.
                 if (index == listModel.getSize()) 
@@ -556,7 +549,7 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
                 return;
             }
 
-            Luv.getLuv().getRegexModelFilter().addRegex(regex);
+            Luv.getLuv().getRegexNodeFilter().addRegex(regex);
 
             int index = list.getSelectedIndex(); //get selected index
             if (index == -1) 
@@ -662,8 +655,8 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
     {
         frame = new JFrame("Hide/Show Nodes");
         frame.add(this, BorderLayout.CENTER);
-        frame.setSize(Luv.getLuv().getProperties().getDimension(PROP_HIDESHOWWIN_SIZE));
-        frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_HIDESHOWWIN_LOC));
+        frame.setSize(Luv.getLuv().getSettings().getDimension(PROP_HIDESHOWWIN_SIZE));
+        frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_HIDESHOWWIN_LOC));
         frame.pack();
     }
 

@@ -24,108 +24,109 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+//
+// *** FIXME: Add ability to type port number ***
+//
+
 package gov.nasa.luv;
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import java.util.*;
-import static gov.nasa.luv.Constants.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.util.Vector;
 
-public class LuvPortGUI extends JPanel implements ActionListener {
-	
+public class LuvPortGUI
+    extends JPanel
+    implements ActionListener {
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private JFrame frame;
-	private static LuvPortGUI thePortGui;
-	private Integer pick = 0;
-	private Vector<Integer> portList;
+	private DefaultComboBoxModel<Integer> comboBoxModel;
+    private JComboBox<Integer> portComboBox;
 	
-	public LuvPortGUI() {
-		thePortGui = this;
-		portList = new Vector<Integer>();
-		refresh();
-		JLabel userPrompt = new JLabel("Select a port:");
-		JButton cancelButton = new JButton("Cancel");
-		JComboBox<Integer> portComboBox = new JComboBox<Integer>(portList);
+	public LuvPortGUI()
+    {
+        comboBoxModel = new DefaultComboBoxModel<Integer>();
+		portComboBox = new JComboBox<Integer>(); // create empty
 		portComboBox.addActionListener(this);
-		cancelButton.addActionListener(new ButtonListener());
 		
 		JPanel patternPanel = new JPanel();
 		patternPanel.setLayout(new BoxLayout(patternPanel, BoxLayout.PAGE_AXIS));
-		patternPanel.add(userPrompt);
+		patternPanel.add(new JLabel("Select a port:"));
 		patternPanel.add(Box.createRigidArea(new Dimension(0,10)));
 		portComboBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 		patternPanel.add(portComboBox);
 		patternPanel.add(Box.createRigidArea(new Dimension(0,10)));
+
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    frame.setVisible(false);
+                }
+            }
+            );
 		patternPanel.add(cancelButton);
 		patternPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		add(patternPanel);		
 		setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        setOpaque(true);
 		frame = new JFrame("Server Port");
-		
+        frame.setContentPane(this);
 	}
 	
-	public static LuvPortGUI getLuvPortGUI()
-	{
-		return thePortGui;
-	}
-	
-	class ButtonListener implements ActionListener {
-		ButtonListener(){			
-		}
-		
-		public void actionPerformed(ActionEvent e){
-			if (e.getActionCommand().equals("Cancel"))
-				frame.setVisible(false);
-		}
-	}
-	
+    // FIXME: spin off in separate object?
 	public void actionPerformed(ActionEvent e) {
-        JComboBox cb = (JComboBox)e.getSource();
-        Integer newSelection = (Integer)cb.getSelectedItem();
-        if(!LuvTempFile.checkPort(newSelection))
-            {
-                setPick(newSelection);
-                frame.setVisible(false);
-                Luv.getLuv().changePort(getPick()+"");	        
-            } else {
-        	frame.setVisible(false);
-        	Luv.getLuv().getStatusMessageHandler().displayInfoMessage("Port: " + newSelection + " in Use, try again");
-        	Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Still on port " + Luv.getLuv().getPort(), Color.BLUE);
+        int newSelection = getSelectedPort();
+        int curr = Luv.getLuv().getSettings().getPort();
+        if (newSelection == curr) {
+            frame.setVisible(false);
+        } else if (LuvSocketServer.portFree(newSelection)) {
+            frame.setVisible(false);
+            Luv.getLuv().changePort(newSelection);
+        } else {
+        	Luv.getLuv().getStatusMessageHandler().displayInfoMessage("Port " + newSelection + " in use, please pick another");
+        	Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Still on port " + curr, Color.BLUE);
         	refresh();
         }
     }	
 	
-	public void setPick(Integer pick_in)
-	{
-		this.pick = pick_in;
+	public int getSelectedPort() {
+        if (comboBoxModel == null)
+            return 0;
+        Integer sel = (Integer) comboBoxModel.getSelectedItem();
+        return sel.intValue();
 	}
 	
-	public Integer getPick()
+    private void selectCurrentPort() {
+        int deflt = Luv.getLuv().getSettings().getPort();
+		if (Constants.PORT_MIN <= deflt && deflt <= Constants.PORT_MAX)
+            comboBoxModel.setSelectedItem(new Integer(deflt));
+    }
+
+    public void refresh() {
+        comboBoxModel = new DefaultComboBoxModel<Integer>(LuvSocketServer.getPortList());
+        portComboBox.setModel(comboBoxModel);
+        selectCurrentPort();
+    }
+
+	public void activate()
 	{
-		return this.pick;
-	}
-	
-	public JFrame getFrame()
-	{
-		return frame;
+        Luv.getLuv().getStatusMessageHandler().showStatus("Finding open ports");
+        refresh();
+        frame.pack();
+        frame.setVisible(true);
+        Luv.getLuv().getStatusMessageHandler().showStatus("Select a port");
 	}
 
-	public void refresh()
-	{
-		portList.clear();
-		for (int i = PORT_MIN; i < PORT_MAX + 1; i++)
-			if (!LuvTempFile.checkPort(i))
-				portList.add(i);
-		if (!portList.isEmpty())
-			pick = portList.firstElement();
-	}
-	
-	public boolean isEmpty()
-	{
-		return portList.isEmpty();
-	}
 }

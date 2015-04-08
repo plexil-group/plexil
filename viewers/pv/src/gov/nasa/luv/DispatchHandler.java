@@ -32,13 +32,15 @@ import org.xml.sax.SAXException;
 import java.util.HashMap;
 import static gov.nasa.luv.Constants.*;
 
-/** 
- * The DispatchHandler class dispatches XML messages to the correct handler from 
- * the set of provided handlers in the handler map.
+/**
+ * @class DispatchHandler
+ * @brief The DispatchHandler class dispatches XML messages to the correct handler from 
+ * the set of provided handlers in the handler map. It is used to process the data stream
+ * from the PLEXIL Exec.
  */
 
-public class DispatchHandler extends DefaultHandler
-{
+public class DispatchHandler
+    extends DefaultHandler {
     //
     // Local constants
     //
@@ -47,12 +49,10 @@ public class DispatchHandler extends DefaultHandler
     private static final String PLAN_INFO     = "PlanInfo";
 
     /** table of messages handlers */
-      
     static HashMap<String, AbstractDispatchableHandler> handlerMap = 
         new HashMap<String, AbstractDispatchableHandler>();
       
     /** The currently selected handler */
-      
     AbstractDispatchableHandler currentHandler;
             
     /** 
@@ -60,17 +60,27 @@ public class DispatchHandler extends DefaultHandler
      * model.
      */
       
-    public DispatchHandler()
-    {
+    public DispatchHandler() {
         // add each type of handler to the table of possible handlers
         registerHandler(PLAN_INFO, new PlanInfoHandler());
         registerHandler(NODE_STATE_UPDATE, new NodeStateUpdateHandler());
         registerHandler(ASSN, new AssignmentHandler());
+        
+        AbstractDispatchableHandler planHandler =
+            new PlexilPlanHandler(new PlexilPlanHandler.PlanReceiver() {
+                    public void newPlan(Model m) {
+                        Luv.getLuv().newPlanFromExec(m);
+                    }
 
-        // Use same handler for plans & libraries
-        AbstractDispatchableHandler planHandler = new PlexilPlanHandler();
+                    public void newLibrary(Model m) {
+                        Luv.getLuv().getFileHandler().handleNewLibrary(m);
+                    }
+                }
+                );
         registerHandler(PLEXIL_PLAN, planHandler);
         registerHandler(PLEXIL_LIBRARY, planHandler);
+
+        currentHandler = null;
     }
 
     /** 
@@ -81,17 +91,14 @@ public class DispatchHandler extends DefaultHandler
      */
 
     public static void registerHandler(String key,
-                                       AbstractDispatchableHandler handler)
-    {
+                                       AbstractDispatchableHandler handler) {
         handlerMap.put(key, handler);
     }
 
     /** Handles the start of a document event. */
 
-    public void startDocument()
-    {
-        // at the start of the document ensuer that handler is nulled out
-
+    public void startDocument() {
+        // at the start of the document ensure that handler is nulled out
         currentHandler = null;
     }
 
@@ -101,73 +108,57 @@ public class DispatchHandler extends DefaultHandler
 
     public void startElement(String uri, String localName, 
                              String qName, Attributes attributes) 
-        throws SAXException
-    {
+        throws SAXException {
         // if no handler has been identified, find one now!
-
-        if (currentHandler == null)
-            {
-                currentHandler = handlerMap.get(localName);
-            
-                if (currentHandler == null)
-                    {
-                        Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: unhandled XML tag: <" + localName + ">");
-
-                        throw(new Error("ERROR: unhandled XML tag: <" + localName + ">."));
-                    }
-            
-                // signal start of document (because we didn't know who to
-                // send the event to before)
-
-                currentHandler.startDocument();
+        if (currentHandler == null) {
+            currentHandler = handlerMap.get(localName);
+            if (currentHandler == null) {
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: unhandled XML tag: <" + localName + ">");
+                throw(new Error("ERROR: unhandled XML tag: <" + localName + ">."));
             }
+            
+            // signal start of document (because we didn't know who to
+            // send the event to before)
+            currentHandler.startDocument();
+
+        }
          
         // using the current handler dispatch the startElement action
-
         currentHandler.startElement(uri, localName, qName, attributes);
     }
 
-    /** Dispatches the characters action. */
+    /** Handles escapes in character data. */
       
     @SuppressWarnings("static-access")
     public void characters(char[] ch, int start, int length)
-        throws SAXException
-    {
+        throws SAXException {
         String test = "";
-        if (ch.length > 1)
-            {
-                if (start + length < ch.length)
-                    {
-                        test = test.valueOf(ch, start + length, 1);
-                  
-                        if (test.equals("&"))
-                            {
-                                test = test.valueOf(ch, start + length, 6);
-                      
-                                if (test.equals("&#x1d;") || test.equals("&#x1D;") || test.equals("&#x04;"))
-                                    {
-                                        ch[start + length] = '&';
-                                        ch[start + length + 1] = 'a';
-                                        ch[start + length + 2] = 'm';
-                                        ch[start + length + 3] = 'p';
-                                        ch[start + length + 4] = ';';
-                                        ch[start + length + 5] = ch[start + length - 1];
-                                    }
-                                else 
-                                    {
-                                        test = test.valueOf(ch, start + length, 5);
-                                        if (test.equals("&#x4;") || test.equals("&#x0;"))
-                                            {
-                                                ch[start + length] = '&';
-                                                ch[start + length + 1] = 'a';
-                                                ch[start + length + 2] = 'm';
-                                                ch[start + length + 3] = 'p';
-                                                ch[start + length + 4] = ';';
-                                            }
-                                    }
-                            }
+        if (ch.length > 1) {
+            if (start + length < ch.length) {
+                test = test.valueOf(ch, start + length, 1);
+                if (test.equals("&")) {
+                    test = test.valueOf(ch, start + length, 6);
+                    if (test.equals("&#x1d;") || test.equals("&#x1D;") || test.equals("&#x04;")) {
+                        ch[start + length] = '&';
+                        ch[start + length + 1] = 'a';
+                        ch[start + length + 2] = 'm';
+                        ch[start + length + 3] = 'p';
+                        ch[start + length + 4] = ';';
+                        ch[start + length + 5] = ch[start + length - 1];
                     }
+                    else {
+                        test = test.valueOf(ch, start + length, 5);
+                        if (test.equals("&#x4;") || test.equals("&#x0;")) {
+                            ch[start + length] = '&';
+                            ch[start + length + 1] = 'a';
+                            ch[start + length + 2] = 'm';
+                            ch[start + length + 3] = 'p';
+                            ch[start + length + 4] = ';';
+                        }
+                    }
+                }
             }
+        }
         else if (ch[0] == '&')
             ch[0] = ' ';
           
@@ -177,26 +168,17 @@ public class DispatchHandler extends DefaultHandler
     /** Dispatches the endElement action. */
       
     public void endElement(String uri, String localName, String qName)
-        throws SAXException
-    {
+        throws SAXException {
         currentHandler.endElement(uri, localName, qName);
     }
 
     /** Dispatches end of document event. */
 
     public void endDocument()
-        throws SAXException
-    {
+        throws SAXException {
         currentHandler.endDocument();
-    }
-
-    /** Gets the selected handler.
-     *
-     * @return the handler selected to parse last message
-     */
-
-    public AbstractDispatchableHandler getHandler()
-    {
-        return currentHandler;
+        // at the end of the document ensure that handler is nulled out
+        // (belt & suspenders)
+        currentHandler = null;
     }
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -176,7 +176,7 @@ public class SourceWindow extends JFrame
         }
 
         frame = new SourceWindow(model);   
-        frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
+        frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
         frame.pack();
         
         if(frame.loaded)
@@ -193,7 +193,7 @@ public class SourceWindow extends JFrame
     	{
     	frame.setVisible(false);    	
     	frame = new SourceWindow(Luv.getLuv().getCurrentPlan());
-    	frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_CFGWIN_LOC));
+    	frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
     	frame.pack();
     	if(frame.loaded)
         	frame.setVisible(true);

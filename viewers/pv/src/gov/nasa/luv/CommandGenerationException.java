@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,67 +26,17 @@
 
 package gov.nasa.luv;
 
-/**
- * The BreakPoint interface provides methods for supporting breakpoints in 
- * the Plexil Plan. 
- */
+public class CommandGenerationException
+    extends Exception {
+    public CommandGenerationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-public interface BreakPoint
-{
-      /** 
-       * Tests if conditions are correct for a break to occur. This
-       * expected to only be called when state of the underlying system
-       * has changed.
-       *
-       * @return true if a break should occur
-       */
+    public CommandGenerationException(String message) {
+        super(message);
+    }
 
-      public boolean isBreak();
-
-      /** Signals that a break has occurred. */
-
-      public void onBreak();
-
-      /** 
-       * Sets enabled state of this breakpoint.
-       *
-       * @param enabled true if this breakpoint is enabled
-       */
-      public void setEnabled(boolean enabled);
-
-      /** 
-       * Gets enabled state of this breakpoint.
-       *
-       * @return true if break point is enabled
-       */
-
-      public boolean isEnabled();
-
-      /** 
-       * Returns the reason the break occurred. 
-       *
-       * @return the reason the break occurred
-       */
-
-      public String getReason();
-
-      /**
-       * Sets the specified break point model.
-       * 
-       * @param model the model to test for breaks
-       */
-
-      public void setModel(Model model);
-
-      /** 
-       * Gets the break point model.
-       * 
-       * @return the model to test for breaks
-       */
-
-      public Model getModel();
-
-      /** Disconnects breakpoint from any world events. */
-
-      public void unregister();
- }
+    public CommandGenerationException(Throwable cause) {
+        super(cause);
+    }
+}

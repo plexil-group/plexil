@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,21 +23,54 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package gov.nasa.luv;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.Enumeration;
 
 /**
- * The StreamWrangler interface wrangles input and output streams.
- */
-public interface StreamWrangler {
+ * This class was modeled after the CheckNodeTreeExample, CheckNode, CheckRenerer
+ * classes from Tame Swing examplescreated by Nobuo Tamemasa.
+ *
+ * http://devdaily.com/java/swing/tame/
+ * 
+@author Nobuo Tamemasa
+@version 1.0 01/11/99
+*/
 
-    /**
-     * Wrangles the specified Input and Output streams.
-     *
-     * @param in the InputStream
-     * @param out the OutputStream
-     */
-    public void wrangle(InputStream in, OutputStream out);
+class CheckNode
+    extends javax.swing.tree.DefaultMutableTreeNode {
+
+    protected boolean isSelected;
+
+    public CheckNode() {
+        this(null);
+    }
+
+    public CheckNode(Object userObject) {
+        this(userObject, true, false);
+    }
+
+    public CheckNode(Object userObject,
+                     boolean allowsChildren,
+                     boolean isSelected) {
+        super(userObject, allowsChildren);
+    }
+
+    public void setSelected(boolean isSelected) {
+        this.isSelected = isSelected;
+
+        if (children != null) {
+            java.util.Enumeration e = children.elements();
+            while (e.hasMoreElements()) {
+                CheckNode node = (CheckNode) e.nextElement();
+                node.setSelected(isSelected);
+            }
+        }
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
 }
+

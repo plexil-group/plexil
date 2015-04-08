@@ -37,16 +37,21 @@ import static gov.nasa.luv.Constants.*;
   * action information to be available for display in the Luv applcaition.
   */
 
-public class PlexilPlanHandler extends AbstractDispatchableHandler
-{
+public class PlexilPlanHandler
+    extends AbstractDispatchableHandler {
+
+    // Clients are expected to implement this class to receive the plan or library
+    // when loading is complete.
+
+    public interface PlanReceiver {
+        public void newPlan(Model m);
+        public void newLibrary(Model m);
+    }
+
     //
     // Local constants
     //
           
-    /** Represents the XML tag in the Plexil Plan marking the Model Name information. */
-    private static final String MODEL_NAME         = "ModelName";
-    /** Represents the XML tag in the Plexil Plan marking the Model Library Call ID information. */
-    private static final String MODEL_LIBRARY_CALL_ID = "ModelLibraryCallId";
     /** Represents the XML tag indicating the loaded file is a Plexil Script. */
     private static final String PLEXIL_SCRIPT     = "PLEXILScript";
     /** Represents the XML tag indicating the loaded file is a Plexil Library. */
@@ -64,12 +69,11 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
     /** A collection of all the possible XML tags that represent Plexil Plan properties. */
     private static final String[] PROPERTY_TAGS = 
     {
-        MODEL_NAME,
-        MODEL_TYPE,
-        MODEL_STATE,
-        MODEL_OUTCOME,
-        MODEL_FAILURE_TYPE,
-        MODEL_LIBRARY_CALL_ID,
+        NODE_ID,
+        NODE_TYPE,
+        NODE_STATE,
+        NODE_OUTCOME,
+        NODE_FAILURE_TYPE,
 
         VIEWER_BLOCKS,
         PLAN_FILENAME,
@@ -267,6 +271,11 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
     };
 
     private static int row_number;   
+
+    //
+    // Instance variables
+    //
+
     // variables and flags for collecting condition, local variable 
     // and action information
     private Stack<String> nodeInfoHolder;
@@ -276,25 +285,23 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
     // flags for library information
     private boolean libraryNodeCall;
     private boolean loadingLibrary;
-    private Stack<Model> nodeHolder;
+    private Stack<Node> nodeHolder;
     private Model topLevelNode;              
 
+    private PlanReceiver receiver;
+    
     /**
      * Constructs a PlexilPlanHandler.
      */
-    public PlexilPlanHandler()
+    public PlexilPlanHandler(PlanReceiver r)
     {
         super();
         
         row_number = 0;
         nodeInfoHolder = new Stack<String>();    
-        recordIN = recordINOUT = false;
-        properName = false; 
-        libraryNodeCall = false;
-        loadingLibrary = false;
-        nodeHolder = new Stack<Model>();
-        topLevelNode = null;
+        nodeHolder = new Stack<Node>();
         nodeHolder.push(Model.getRoot());
+        receiver = r;
     }
     
     /**
@@ -309,6 +316,11 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
     /** {@inheritDoc} */
     public void startDocument()
     {
+        recordIN = recordINOUT = false;
+        properName = false; 
+        libraryNodeCall = false;
+        loadingLibrary = false;
+        topLevelNode = null;
     }
 
     /**
@@ -320,97 +332,29 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
      * @param qName
      * @param attributes
      */
-    public void startElement(String uri, String tagName, String qName, Attributes attributes)
-    {    
+    public void startElement(String uri, String tagName, String qName, Attributes attributes) {    
         // get the current node in the stack
-        Model node = nodeHolder.peek();
+        Node node = nodeHolder.peek();
 
         // error if loaded a script instead of plan
-        if (tagName.equals(PLEXIL_SCRIPT))
-            {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: loaded script instead of plan");           
-            }
+        if (tagName.equals(PLEXIL_SCRIPT)) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, "ERROR: loaded script instead of plan");           
+        }
 
         // if this SHOULD be a child node, make that happen
-        if (tagName.equals(NODE)) 
-            {
-                Model child = new Model(tagName, row_number++);
-
-                // if there is a parent, add child to it
-                // *** There should ALWAYS be a parent!
-                node.addChild(child);
-
-                // if the parent is the root node, save this as a (the?) top level node
-                if (node.isRoot())
-                    {
-                        topLevelNode = child;
-                    }
-
-                // this child is now the current node
-                node = child;
-
-                // add attributes for this child
-                // NODETYPE_ATTR identify which icon should be used when displaying plan
-                // AUX is nodes that should be hidden if in EPX view
-                for (int i = 0; i < attributes.getLength(); ++i)
-                    {
-                        if (attributes.getQName(i).equals(EPX)) {
-                            // save plexil core view icon
-                            if (child.getProperty(NODETYPE_ATTR).contains(THEN) ||
-                                child.getProperty(NODETYPE_ATTR).contains(ELSE))
-                                child.setProperty(NODETYPE_ATTR_PLX, child.getProperty(NODETYPE_ATTR).substring(THEN.length()));
-                            else
-                                child.setProperty(NODETYPE_ATTR_PLX, child.getProperty(NODETYPE_ATTR));
-
-                            // insert epx view icon
-                            if (attributes.getValue(i).equals(THEN))
-                                child.setProperty(NODETYPE_ATTR, AUX_THEN);
-                            else if (attributes.getValue(i).equals(ELSE))
-                                child.setProperty(NODETYPE_ATTR, AUX_ELSE);
-                            else if (child.getParent().getProperty(NODETYPE_ATTR) != null &&
-                                     child.getParent().getProperty(NODETYPE_ATTR).equals(AUX_THEN)) 
-                                child.setProperty(NODETYPE_ATTR, THEN + attributes.getValue(i));                    
-                            else if (child.getParent().getProperty(NODETYPE_ATTR) != null &&
-                                     child.getParent().getProperty(NODETYPE_ATTR).equals(AUX_ELSE)) 
-                                child.setProperty(NODETYPE_ATTR, ELSE + attributes.getValue(i));
-                            else 
-                                child.setProperty(NODETYPE_ATTR, attributes.getValue(i));
-                    
-                        }
-                        else
-                            {
-                                if (child.getParent().getProperty(NODETYPE_ATTR) != null &&
-                                    child.getParent().getProperty(NODETYPE_ATTR).equals(AUX_THEN)) {
-                                    child.setProperty(attributes.getQName(i), THEN + attributes.getValue(i));
-                                    child.setProperty(NODETYPE_ATTR_PLX, attributes.getValue(i));
-                                }
-                                else if (child.getParent().getProperty(NODETYPE_ATTR) != null &&
-                                         child.getParent().getProperty(NODETYPE_ATTR).equals(AUX_ELSE)) {
-                                    child.setProperty(attributes.getQName(i), ELSE + attributes.getValue(i));
-                                    child.setProperty(NODETYPE_ATTR_PLX, attributes.getValue(i));
-                                }
-                                else if (attributes.getQName(i).equals(NODETYPE_ATTR)) {
-                                    child.setProperty(attributes.getQName(i), attributes.getValue(i));   
-                                    child.setProperty(NODETYPE_ATTR_PLX, attributes.getValue(i));
-                                }
-                                else
-                                    child.setProperty(attributes.getQName(i), attributes.getValue(i));                
-                            }
-                    }
-            
-            }
+        else if (tagName.equals(NODE)) {
+            node = startNode(node, tagName, attributes);
+        }
 
         // starting to load a library def'n?
-        else if (tagName.equals(PLEXIL_LIBRARY)) 
-            {  
-                loadingLibrary = true;
-            }
+        else if (tagName.equals(PLEXIL_LIBRARY)) {
+            loadingLibrary = true;
+        }
 
         // if it's not a property we can ignore it
-        else if (!isProperty(tagName)) 
-            {
-                node = null;
-            }
+        else if (!isProperty(tagName)) {
+            node = null;
+        }
 
         // catch condition, local variable and action information
         catchStartTag(tagName);
@@ -427,35 +371,29 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
      * @param tagName
      * @param qName
      */
-    public void endElement(String uri, String tagName, String qName)
-    {
-        Model topNode = nodeHolder.peek();
+    public void endElement(String uri, String tagName, String qName) {
+        Node topNode = nodeHolder.peek();
 
         // get tweener text and put it in its place
         String text = getTweenerText();
 
-        try 
-            {
-                // catch condition, local variable and action information
-                catchTweenerText(tagName, text);
-            } 
-        catch (InterruptedIOException ex) 
-            {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while locating library");
-            }
+        try {
+            // catch condition, local variable and action information
+            catchTweenerText(tagName, text);
+        } 
+        catch (InterruptedIOException ex) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while locating library");
+        }
 
         // catch condition, local variable and action information
         catchEndTag(tagName);
 
-        // assign model name and path to the appropriate model
-        if (topNode != null && text != null) 
-            {
-                topNode.setProperty(tagName, text);
-                if (tagName.equals(NODE_ID)) 
-                    {
-                        topNode.setModelName(text);
-                    }
-            }
+        // assign node name and path to the appropriate node
+        if (topNode != null && text != null) {
+            topNode.setProperty(tagName, text);
+            if (tagName.equals(NODE_ID))
+                topNode.setNodeName(text);
+        }
 
         // if node, assign the main attributes for display in luv viewer
         // name, type, state and outcome
@@ -464,34 +402,97 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
 
         // pop the node off the stack
         nodeHolder.pop();        
-
-        // Make sure Luv instance is notified if this was plan or library
-        if (tagName.equals(PLEXIL_PLAN))
-            Luv.getLuv().handleNewPlan(topLevelNode);
     }
 
     /** {@inheritDoc} */
-    public void endDocument()
-    {       
+    public void endDocument() {       
+        // Notify client that plan or library is complete when appropriate
+        if (receiver != null) {
+            if (loadingLibrary)
+                receiver.newLibrary(topLevelNode);
+            else 
+                receiver.newPlan(topLevelNode);
+        }
     }
 
+    private Node startNode(Node node, String tagName, Attributes attributes) {
+        if (node == Model.getRoot()) {
+            // Starting a new plan
+            topLevelNode = new Model(tagName, row_number++);
+            node.addChild(topLevelNode);
+            node = topLevelNode;
+        }
+        else {
+            Node child = new Node(tagName, row_number++);
+            node.addChild(child);
+            node = child;
+        }
+
+        // add attributes for this node
+        // NODETYPE_ATTR identify which icon should be used when displaying plan
+        // AUX is nodes that should be hidden if in EPX view
+        for (int i = 0; i < attributes.getLength(); ++i) {
+            String qname = attributes.getQName(i);
+            String value = attributes.getValue(i);
+            if (qname.equals(EPX)) {
+                // save plexil core view icon
+                String nodeType = node.getProperty(NODETYPE_ATTR);
+                if (nodeType.contains(THEN) || nodeType.contains(ELSE))
+                    node.setProperty(NODETYPE_ATTR_PLX, nodeType.substring(THEN.length())); // ???
+                else
+                    node.setProperty(NODETYPE_ATTR_PLX, nodeType);
+
+                // insert epx view icon
+                if (value.equals(THEN))
+                    node.setProperty(NODETYPE_ATTR, AUX_THEN);
+                else if (value.equals(ELSE))
+                    node.setProperty(NODETYPE_ATTR, AUX_ELSE);
+                else if (node.getParent().getProperty(NODETYPE_ATTR) != null &&
+                         node.getParent().getProperty(NODETYPE_ATTR).equals(AUX_THEN)) 
+                    node.setProperty(NODETYPE_ATTR, THEN + value);                    
+                else if (node.getParent().getProperty(NODETYPE_ATTR) != null &&
+                         node.getParent().getProperty(NODETYPE_ATTR).equals(AUX_ELSE)) 
+                    node.setProperty(NODETYPE_ATTR, ELSE + value);
+                else 
+                    node.setProperty(NODETYPE_ATTR, value);
+                    
+            }
+            else {
+                String parentType = node.getParent().getProperty(NODETYPE_ATTR);
+                if (parentType != null &&
+                    parentType.equals(AUX_THEN)) {
+                    node.setProperty(qname, THEN + value);
+                    node.setProperty(NODETYPE_ATTR_PLX, value);
+                }
+                else if (parentType != null &&
+                         parentType.equals(AUX_ELSE)) {
+                    node.setProperty(qname, ELSE + value);
+                    node.setProperty(NODETYPE_ATTR_PLX, value);
+                }
+                else if (qname.equals(NODETYPE_ATTR)) {
+                    node.setProperty(qname, value);   
+                    node.setProperty(NODETYPE_ATTR_PLX, value);
+                }
+                else
+                    node.setProperty(qname, value);                
+            }
+        }
+        return node;
+    }
+    
     /**
      * If the start tag refers to a library, condition, local variable or action
      * this class will know how to store any following information. 
      * @param tagName the definition of an XML tag
      */
-    private void catchStartTag(String tagName)
-    {
-        if (tagName.equals(LIBRARYNODECALL))
-            {
-                libraryNodeCall = true;  
-                nodeInfoHolder.clear();
-            }
-        else if (isCondition(tagName) || isAction(tagName) || isVariableDeclaration(tagName))
-            {           
-                nodeInfoHolder.clear();
-            }
-
+    private void catchStartTag(String tagName) {
+        if (tagName.equals(LIBRARYNODECALL)) {
+            libraryNodeCall = true;  
+            nodeInfoHolder.clear();
+        }
+        else if (isCondition(tagName) || isAction(tagName) || isVariableDeclaration(tagName)) {
+            nodeInfoHolder.clear();
+        }
         recordStartTag(tagName);
     }
 
@@ -505,38 +506,31 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
      */
     private void catchTweenerText(String tagName, String text) throws InterruptedIOException
     {
-        if (text != null) 
-            {            
-                if (libraryNodeCall) 
-                    {
-                        currentNode().setLibraryName(text);
-                        currentNode().setUnresolvedLibraryCall(true);
-                        boolean askAboutMissingLibs = !loadingLibrary && !Luv.getLuv().getFileHandler().getStopSearchForMissingLibs();
-                        Model library = Luv.getLuv().getCurrentPlan().findLibraryNode(text, askAboutMissingLibs); 
+        if (text != null) {            
+            if (libraryNodeCall) {
+                currentNode().setLibraryName(text);
+                currentNode().setUnresolvedLibraryCall(true);
+                FileHandler fh = Luv.getLuv().getFileHandler();
+                boolean askAboutMissingLibs = !loadingLibrary && !fh.getStopSearchForMissingLibs();
+                Model library = fh.searchForLibrary(text, askAboutMissingLibs); // checks if file has been updated
 
-                        if (library == null) 
-                            {
-                                topLevelNode.addMissingLibrary(text);
-                            }
-                        else 
-                            {
-                                row_number = currentNode().getRowNumber();
-                                library.setRowNumber(++row_number);
-                                row_number++;
-                                currentNode().linkLibrary(library);
-                            }
-
-                        libraryNodeCall = false;                
-                    }
-            
-                // if data is a string object and not a proper name, surround with quotes
-                if (tagName.equals(STRING_VAL) && !properName && !text.equals(UNKNOWN))
-                    {
-                        text = "\"" + text + "\"";
-                    }
-
-                nodeInfoHolder.push(text);
+                if (library == null) 
+                    topLevelNode.addMissingLibrary(text);
+                else {
+                    row_number = currentNode().getRowNumber();
+                    library.setRowNumber(++row_number);
+                    row_number++;
+                    currentNode().linkLibrary(library);
+                }
+                libraryNodeCall = false;                
             }
+            
+            // if data is a string object and not a proper name, surround with quotes
+            if (tagName.equals(STRING_VAL) && !properName && !text.equals(UNKNOWN))
+                text = "\"" + text + "\"";
+
+            nodeInfoHolder.push(text);
+        }
     }
 
     /**
@@ -544,8 +538,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
      * 
      * @param tagName the XML tag
      */
-    private void catchEndTag(String tagName)
-    {  
+    private void catchEndTag(String tagName) {  
         recordEndTag(tagName);
     }
 
@@ -557,37 +550,30 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
      */
     private void recordStartTag(String tagName)
     {
-        if (tagName.equals(ARGS) || tagName.equals(AND) || tagName.equals(OR) || tagName.equals(CONCAT))
-            {
-                nodeInfoHolder.push(tagName);
-            }       
-        else if (isLookup(tagName))
-            {
-                nodeInfoHolder.push(tagName);
-                nodeInfoHolder.push(ARGS);
-            }
-        else if (tagName.equals(RESOURCE))
-            {
-                saveActionInfoToNode(tagName);
-            }
-        else if (isVariableDeclaration(tagName))
-            {
-                if (recordIN)           nodeInfoHolder.push("In");
-                else if (recordINOUT)   nodeInfoHolder.push("InOut");
-                else                    nodeInfoHolder.push("--");
-            }
-        else if (tagName.equals(NAME))
-            {
-                properName = true;
-            }
-        else if (tagName.equals(IN))
-            {
-                recordIN = true; 
-            }
-        else if (tagName.equals(INOUT))
-            {
-                recordINOUT = true;
-            }       
+        if (tagName.equals(ARGS) || tagName.equals(AND) || tagName.equals(OR) || tagName.equals(CONCAT)) {
+            nodeInfoHolder.push(tagName);
+        }       
+        else if (isLookup(tagName)) {
+            nodeInfoHolder.push(tagName);
+            nodeInfoHolder.push(ARGS);
+        }
+        else if (tagName.equals(RESOURCE)) {
+            saveActionInfoToNode(tagName);
+        }
+        else if (isVariableDeclaration(tagName)) {
+            if (recordIN)           nodeInfoHolder.push("In");
+            else if (recordINOUT)   nodeInfoHolder.push("InOut");
+            else                    nodeInfoHolder.push("--");
+        }
+        else if (tagName.equals(NAME)) {
+            properName = true;
+        }
+        else if (tagName.equals(IN)) {
+            recordIN = true; 
+        }
+        else if (tagName.equals(INOUT)) {
+            recordINOUT = true;
+        }       
     }
 
     /**
@@ -596,166 +582,139 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
      * 
      * @param tagName the XML tag
      */
-    private void recordEndTag(String tagName)
-    {
+    private void recordEndTag(String tagName) {
         // complete condition info is ready to be saved to node
-        if (isCondition(tagName))
-            {
-                saveConditionInfoToNode(tagName);
-            }
+        if (isCondition(tagName)) {
+            saveConditionInfoToNode(tagName);
+        }
         
         // complete action info is ready to be saved to node
-        else if (isAction(tagName) || isResource(tagName) || tagName.equals(LIBRARYNODECALL)) 
-            {     
-                saveActionInfoToNode(tagName);
-            }
+        else if (isAction(tagName) || isResource(tagName) || tagName.equals(LIBRARYNODECALL)) {
+            saveActionInfoToNode(tagName);
+        }
         
         // complete local variable info is ready to be saved to node
-        else if (isVariableDeclaration(tagName))
-            {
-                saveLocalVariableInfoToNode();
-            }  
+        else if (isVariableDeclaration(tagName)) {
+            saveLocalVariableInfoToNode();
+        }  
         
         // more data still needs to be collected before it can be saved to node
-        else if (tagName.equals(ALIAS) || isReturnValue(tagName) || tagName.equals(PAIR) || isComparisonOperator(tagName) || isMathOperator(tagName))
-            {
-                if (nodeInfoHolder.size() > 1)
-                    {
-                        String second = nodeInfoHolder.pop();
-                        String first = nodeInfoHolder.pop();
-                        first += SEPARATOR + convertTagNameToLiteral(tagName) + SEPARATOR + second;
-                        nodeInfoHolder.push(first);
-                    }
+        else if (tagName.equals(ALIAS)
+                 || isReturnValue(tagName)
+                 || tagName.equals(PAIR)
+                 || isComparisonOperator(tagName)
+                 || isMathOperator(tagName)) {
+                if (nodeInfoHolder.size() > 1) {
+                    String second = nodeInfoHolder.pop();
+                    String first = nodeInfoHolder.pop();
+                    first += SEPARATOR + convertTagNameToLiteral(tagName) + SEPARATOR + second;
+                    nodeInfoHolder.push(first);
+                }
             }
-        else if (tagName.equals(CONCAT) || tagName.equals(AND) || tagName.equals(OR))
-            {
-                String elements = "";
+        else if (tagName.equals(CONCAT) || tagName.equals(AND) || tagName.equals(OR)) {
+            String elements = "";
 
-                while (!nodeInfoHolder.isEmpty()) 
-                    {
-                        if (!nodeInfoHolder.peek().equals(tagName))
-                            {
-                                if (elements.equals(""))
-                                    elements = nodeInfoHolder.pop() + SEPARATOR;
-                                else
-                                    elements = nodeInfoHolder.pop() + SEPARATOR + convertTagNameToLiteral(tagName) + SEPARATOR + elements;
-                            }
-                        else
-                            {
-                                nodeInfoHolder.pop();
-                                break;
-                            }
-                    }
+            while (!nodeInfoHolder.isEmpty()) {
+                if (!nodeInfoHolder.peek().equals(tagName)) {
+                    if (elements.equals(""))
+                        elements = nodeInfoHolder.pop() + SEPARATOR;
+                    else
+                        elements = nodeInfoHolder.pop() + SEPARATOR + convertTagNameToLiteral(tagName) + SEPARATOR + elements;
+                }
+                else {
+                    nodeInfoHolder.pop();
+                    break;
+                }
+            }
 
-                if (!elements.equals(""))
-                    {
-                        nodeInfoHolder.push(elements);
-                    }
+            if (!elements.equals("")) {
+                nodeInfoHolder.push(elements);
             }
-        else if (tagName.equals(NOT) || tagName.equals(IS_KNOWN))
-            {
-                String complete = convertTagNameToLiteral(tagName) + SEPARATOR + "(" + SEPARATOR + nodeInfoHolder.pop() + SEPARATOR + ")";
-                nodeInfoHolder.push(complete);
+        }
+        else if (tagName.equals(NOT) || tagName.equals(IS_KNOWN)) {
+            String complete = convertTagNameToLiteral(tagName) + SEPARATOR + "(" + SEPARATOR + nodeInfoHolder.pop() + SEPARATOR + ")";
+            nodeInfoHolder.push(complete);
+        }
+        else if (isNodeState(tagName)) {
+            if (nodeInfoHolder.size() > 1) {
+                String value = nodeInfoHolder.pop();
+                String state = nodeInfoHolder.pop() + convertTagNameToLiteral(tagName);
+                nodeInfoHolder.push(state);
+                nodeInfoHolder.push(value);
             }
-        else if (isNodeState(tagName))
-            {
-                if (nodeInfoHolder.size() > 1)
-                    {
-                        String value = nodeInfoHolder.pop();
-                        String state = nodeInfoHolder.pop() + convertTagNameToLiteral(tagName);
-                        nodeInfoHolder.push(state);
-                        nodeInfoHolder.push(value);
-                    }
-            }  
-        else if (tagName.equals(ARRAYELEMENT))
-            {
-                if (nodeInfoHolder.size() > 1)
-                    {
-                        String index = "[" + nodeInfoHolder.pop() + "]";
-                        String arrayName = nodeInfoHolder.pop() + index;
-                        nodeInfoHolder.push(arrayName);
-                    }          
-            } 
-        else if (tagName.equals(TYPE))
-            {
-                nodeInfoHolder.push(INITIALVAL);
+        }  
+        else if (tagName.equals(ARRAYELEMENT)) {
+            if (nodeInfoHolder.size() > 1) {
+                String index = "[" + nodeInfoHolder.pop() + "]";
+                String arrayName = nodeInfoHolder.pop() + index;
+                nodeInfoHolder.push(arrayName);
+            }          
+        } 
+        else if (tagName.equals(TYPE)) {
+            nodeInfoHolder.push(INITIALVAL);
+        }
+        else if (tagName.equals(MAXSIZE)) {
+            if (nodeInfoHolder.size() > 1) {
+                String maxsize = "[" + nodeInfoHolder.pop() + "]";
+                String initVal = nodeInfoHolder.pop();
+                String type = nodeInfoHolder.pop();
+                String arrayName = nodeInfoHolder.pop() + maxsize;
+                nodeInfoHolder.push(arrayName);
+                nodeInfoHolder.push(type);
+                nodeInfoHolder.push(initVal);
             }
-        else if (tagName.equals(MAXSIZE))
-            {
-                if (nodeInfoHolder.size() > 1)
-                    {
-                        String maxsize = "[" + nodeInfoHolder.pop() + "]";
-                        String initVal = nodeInfoHolder.pop();
-                        String type = nodeInfoHolder.pop();
-                        String arrayName = nodeInfoHolder.pop() + maxsize;
-                        nodeInfoHolder.push(arrayName);
-                        nodeInfoHolder.push(type);
-                        nodeInfoHolder.push(initVal);
-                    }
-            }
-        else if (tagName.equals(TIME_VAL))
-            {
-                if (nodeInfoHolder.size() > 1)
-                    {
-                        String second = nodeInfoHolder.pop();
-                        String first = nodeInfoHolder.pop();
-                        first = "[" + SEPARATOR + first + "," + SEPARATOR + second + SEPARATOR + "]";
-                        nodeInfoHolder.push(first);
-                    }           
-            }
-        else if (tagName.equals(ARGS) || isLookup(tagName))
-            {
-                String arguments = "";
+        }
+        else if (tagName.equals(TIME_VAL)) {
+            if (nodeInfoHolder.size() > 1) {
+                String second = nodeInfoHolder.pop();
+                String first = nodeInfoHolder.pop();
+                first = "[" + SEPARATOR + first + "," + SEPARATOR + second + SEPARATOR + "]";
+                nodeInfoHolder.push(first);
+            }           
+        }
+        else if (tagName.equals(ARGS) || isLookup(tagName)) {
+            String arguments = "";
 
-                while (!nodeInfoHolder.isEmpty()) 
-                    {
-                        if (!nodeInfoHolder.peek().equals(ARGS))
-                            {
-                                if (arguments.equals(""))
-                                    arguments = nodeInfoHolder.pop() + SEPARATOR;
-                                else
-                                    arguments = nodeInfoHolder.pop() + "," + SEPARATOR + arguments;
-                            }
-                        else
-                            {
-                                nodeInfoHolder.pop();
-                                break;
-                            }
-                    }
+            while (!nodeInfoHolder.isEmpty()) {
+                if (!nodeInfoHolder.peek().equals(ARGS)) {
+                    if (arguments.equals(""))
+                        arguments = nodeInfoHolder.pop() + SEPARATOR;
+                    else
+                        arguments = nodeInfoHolder.pop() + "," + SEPARATOR + arguments;
+                }
+                else {
+                    nodeInfoHolder.pop();
+                    break;
+                }
+            }
 
-                if (!arguments.equals(""))
-                    {
-                        arguments = nodeInfoHolder.pop() + SEPARATOR + "(" + SEPARATOR + arguments + ")";
-                        nodeInfoHolder.push(arguments);
-                    }
+            if (!arguments.equals("")) {
+                arguments = nodeInfoHolder.pop() + SEPARATOR + "(" + SEPARATOR + arguments + ")";
+                nodeInfoHolder.push(arguments);
             }
-        else if (tagName.equals(TIMEPOINT))
-            {
-                if (nodeInfoHolder.size() > 2)
-                    {
-                        String timepoint = nodeInfoHolder.pop();
-                        String state = nodeInfoHolder.pop();
-                        String nodeid = nodeInfoHolder.pop();
-                        nodeid += "." + state + "." + timepoint;
-                        nodeInfoHolder.push(nodeid);
-                    }
+        }
+        else if (tagName.equals(TIMEPOINT)) {
+            if (nodeInfoHolder.size() > 2) {
+                String timepoint = nodeInfoHolder.pop();
+                String state = nodeInfoHolder.pop();
+                String nodeid = nodeInfoHolder.pop();
+                nodeid += "." + state + "." + timepoint;
+                nodeInfoHolder.push(nodeid);
             }
-        else if (tagName.equals(NAME))
-            {
-                properName = false;
-            }
-        else if (tagName.equals(IN))
-            {
-                recordIN = false;
-            }
-        else if (tagName.equals(INOUT))
-            {
-                recordINOUT = false;
-            }
+        }
+        else if (tagName.equals(NAME)) {
+            properName = false;
+        }
+        else if (tagName.equals(IN)) {
+            recordIN = false;
+        }
+        else if (tagName.equals(INOUT)) {
+            recordINOUT = false;
+        }
     } 
     
     /**
-     * Sends the completed condition information to the current Plexil Model and
+     * Sends the completed condition information to the current Plexil Node and
      * clears the holder for any future information.
      * 
      * @param tagName the XML tag that indicates the end of the condition information was reached
@@ -772,7 +731,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
     }
     
     /**
-     * Sends the completed action information to the current Plexil Model and
+     * Sends the completed action information to the current Plexil Node and
      * clears the holder for any future information.
      * 
      * @param tagName the XML tag that indicates the end of the action information was reached
@@ -843,7 +802,7 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
     }
     
     /**
-     * Sends the completed local variable information to the current Plexil Model and
+     * Sends the completed local variable information to the current Plexil Node and
      * clears the holder for any future information.
      * 
      * @param tagName the XML tag that indicates the end of the local variable information was reached
@@ -893,10 +852,10 @@ public class PlexilPlanHandler extends AbstractDispatchableHandler
     }
 
     /**
-     * Returns the current Model being processed.
-     * @return the current Model
+     * Returns the current Node being processed.
+     * @return the current Node
      */
-    private Model currentNode()
+    private Node currentNode()
     {
         int i = nodeHolder.size() - 1;
         while (nodeHolder.elementAt(i) == null)

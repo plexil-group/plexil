@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,8 +35,9 @@ import org.xml.sax.Attributes;
  * Plexil Plan is executing and a local variable changes.
  */
 
-public class AssignmentHandler extends AbstractDispatchableHandler {
-	private Model current;
+public class AssignmentHandler
+    extends AbstractDispatchableHandler {
+	private Node current;
 	private String vName;
 	private String value;
 
@@ -45,7 +46,7 @@ public class AssignmentHandler extends AbstractDispatchableHandler {
 	 */
 	public AssignmentHandler() {
 		super();
-		current = Model.getRoot();
+		current = null;
 	}
 
 	/**
@@ -62,8 +63,8 @@ public class AssignmentHandler extends AbstractDispatchableHandler {
 		String text = getTweenerText();
 		// get text between tags
 		if (Constants.NODE_ID.equals(qName)) {
-			Model candidate = null;
-			if ((candidate = current.findChildByName(text)) != null) {
+			Node candidate = Model.getRoot().findChildByName(text);
+			if (candidate != null) {
 				current = candidate;
 			}
 		} else if (Constants.VARIABLE_NAME.equals(qName)) {
@@ -78,10 +79,9 @@ public class AssignmentHandler extends AbstractDispatchableHandler {
 	 */
 	public void endDocument() {
 		// set the variable to the given value
-		if (vName != null) {
+		if (vName != null && current != null) {
 			current.setVariable(vName, value);
 		}
-		// Reset to root of model
-		current = Model.getRoot();
+		current = null;
 	}
 }

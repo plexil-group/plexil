@@ -26,35 +26,14 @@
 
 package gov.nasa.luv;
 
-import static gov.nasa.luv.Constants.*;
+import java.util.List;
+import gov.nasa.luv.Settings;
 
-/**
- * The PlanInfoHandler class handles the Plexil Plan Info section within a XML Plexil Plan file.
+/*
+ * Command line generation interface
  */
 
-public class PlanInfoHandler extends AbstractDispatchableHandler
-{
-      /** Constructs a PlanInfoHandler. */
-      public PlanInfoHandler()
-      {
-         super();
-      }
-
-      /**
-       * Handles the end of an XML element.
-       * 
-       * @param uri N/A
-       * @param localName the name of the XML tag
-       * @param qName N/A
-       */
-      @Override public void endElement(String uri, String localName, String qName)
-      {
-         // get text between tags
-         String text = getTweenerText();
-
-         // if this is blocking status, set that property in model
-         if (localName.equals(VIEWER_BLOCKS)) {
-             Luv.getLuv().setBreaksAllowed(Boolean.valueOf(text));
-         }
-      }
+public interface CommandGenerator {
+    public List<String> generateCommand(Settings s)
+        throws CommandGenerationException;
 }

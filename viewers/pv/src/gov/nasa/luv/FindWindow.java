@@ -149,17 +149,12 @@ public class FindWindow extends JPanel implements KeyListener
     
     private void setSearchList(String list)
     {
-        String [] getList;
-        
-        if (!list.equals(UNKNOWN) && !list.equals(""))
-        {
+        if (list != null && !list.isEmpty()) {
+            String[] getList;
             getList = list.split(", ");
             searchList = new String[getList.length + 1];
-            
             for (int i = 0; i < getList.length; i++)
-            {
                 searchList[i] = getList[i];
-            }
         }      
     }
     
@@ -184,34 +179,37 @@ public class FindWindow extends JPanel implements KeyListener
     
     private String getMessageToUser() 
     {
-        StringBuffer sb = new StringBuffer();
-        if (!searchSet) return "No search set";
-        
+        if (!searchSet)
+            return "No search set";
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html><p align=left>");
+
         String name = (String) searchListHolder.getSelectedItem(); 
-        
-        if (!foundMatch)
-        {
-            sb.append("<html><p align=left>");
-            sb.append("No matching nodes were found for <b>" + name + "</b>");
-            sb.append("</p></html>");
+        if (!foundMatch) {
+            sb.append("No matching nodes were found for <b>");
+            sb.append(name);
+            sb.append("</b>");
         }   
-        else
-        {
-            sb.append("<html><p align=left>");
+        else {
             sb.append("<b>" + foundNodes.size() + "</b>");
-            if (foundNodes.size() > 1)
-            {
-                sb.append(" matches found for <b>" + name + "</b>");
+            if (foundNodes.size() > 1) {
+                sb.append(" matches found for <b>");
+                sb.append(name);
+                sb.append("</b>");
                 int match = next + 1;
-                sb.append("<br>Match: " + match + "</br>");
+                sb.append("<br>Match: ");
+                sb.append(Integer.toString(match));
+                sb.append("</br>");
             }
-            else 
-            {
-                sb.append(" match found for <b>" + name + "</b>");
+            else {
+                sb.append(" match found for <b>");
+                sb.append(name);
+                sb.append("</b>");
             }         
-            
-            sb.append("</p></html>");
         }
+
+        sb.append("</p></html>");
 
         return sb.toString();
     }
@@ -263,26 +261,24 @@ public class FindWindow extends JPanel implements KeyListener
         
         saveSearchWord(text);
         leftHalf.remove(entryPanel);
-        leftHalf.add(createEntryField(Luv.getLuv().getProperties().getProperty(PROP_SEARCH_LIST, UNKNOWN)));
+        leftHalf.add(createEntryField(Luv.getLuv().getSettings().get(PROP_SEARCH_LIST)));
         foundNodes.clear();
         next = 0;
         TreeTableView.getCurrent().restartSearch();
         previousSearch = text;  
         foundMatch = false;
      
-        findMatchInModel(Luv.getLuv().getCurrentPlan(), search, both, startsWith, endsWith);
+        findMatchInNode(Luv.getLuv().getCurrentPlan(), search, both, startsWith, endsWith);
     }
     
     private void saveSearchWord(String searchWord)
     {
-        String list = Luv.getLuv().getProperties().getProperty(PROP_SEARCH_LIST, UNKNOWN);
+        String list = Luv.getLuv().getSettings().get(PROP_SEARCH_LIST);
         
-        if (!list.equals(UNKNOWN))
-        {
+        if (list != null) {
             String [] array = list.split(", ");
             list = searchWord;
-            for (int i = 0; i < array.length; i++)
-            {
+            for (int i = 0; i < array.length; i++) {
                 if (i < 10 && !array[i].equals(searchWord) && !array[i].equals(""))
                     list += ", " + array[i];
             }
@@ -290,7 +286,7 @@ public class FindWindow extends JPanel implements KeyListener
         else
             list = searchWord;
         
-        Luv.getLuv().getProperties().setProperty(PROP_SEARCH_LIST, list);
+        Luv.getLuv().getSettings().set(PROP_SEARCH_LIST, list);
     }
     
     private void showUserNextNode()
@@ -315,37 +311,33 @@ public class FindWindow extends JPanel implements KeyListener
         next++;
     }
     
-    private void findMatchInModel(Model model, String search, boolean both, boolean startsWith, boolean endsWith)
+    private void findMatchInNode(Node node, String search, boolean both, boolean startsWith, boolean endsWith)
     {
-       if (model.isRoot() || model.getParent().isRoot())
-       {
-           if ((both        && model.getModelName().contains(search))     ||
-               (startsWith  && model.getModelName().startsWith(search))   ||
-               (endsWith    && model.getModelName().endsWith(search))     ||
-               (model.getModelName().equals(search)))
-           {
-               Stack<String> node_path = model.pathToNode(model); 
+       if (node.isRoot() || node.getParent().isRoot()) {
+           if ((both        && node.getNodeName().contains(search))     ||
+               (startsWith  && node.getNodeName().startsWith(search))   ||
+               (endsWith    && node.getNodeName().endsWith(search))     ||
+               (node.getNodeName().equals(search))) {
+               Stack<String> node_path = node.pathToNode(node); 
                foundMatch = true;
                foundNodes.add(node_path);
            }
        }
             
-       for (Model child: model.getChildren())
-       {
-            if (!AbstractModelFilter.isModelFiltered(child))
-            {
-                if ((both        && child.getModelName().contains(search))     ||
-                    (startsWith  && child.getModelName().startsWith(search))   ||
-                    (endsWith    && child.getModelName().endsWith(search))     ||
-                    (child.getModelName().equals(search)))
-                {
-                    Stack<String> node_path = child.pathToNode(child);    
-                    foundMatch = true;
-                    foundNodes.add(node_path);                    
-                }
-            }
+       for (Node child: node.getChildren()) {
+           if (!AbstractNodeFilter.isNodeFiltered(child)) {
+               if ((both        && child.getNodeName().contains(search))     ||
+                   (startsWith  && child.getNodeName().startsWith(search))   ||
+                   (endsWith    && child.getNodeName().endsWith(search))     ||
+                   (child.getNodeName().equals(search)))
+                   {
+                       Stack<String> node_path = child.pathToNode(child);    
+                       foundMatch = true;
+                       foundNodes.add(node_path);                    
+                   }
+           }
             
-            findMatchInModel(child, search, both, startsWith, endsWith);       
+           findMatchInNode(child, search, both, startsWith, endsWith);       
        }
     }
     
@@ -390,8 +382,8 @@ public class FindWindow extends JPanel implements KeyListener
      
         frame.add(new FindWindow(list));
         
-        frame.setPreferredSize(Luv.getLuv().getProperties().getDimension(PROP_FINDWIN_SIZE));
-        frame.setLocation(Luv.getLuv().getProperties().getPoint(PROP_FINDWIN_LOC));
+        frame.setPreferredSize(Luv.getLuv().getSettings().getDimension(PROP_FINDWIN_SIZE));
+        frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_FINDWIN_LOC));
         
         frame.pack();
         

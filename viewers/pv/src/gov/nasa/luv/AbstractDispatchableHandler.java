@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,17 +36,15 @@ import org.xml.sax.helpers.DefaultHandler;
 public abstract class AbstractDispatchableHandler extends DefaultHandler
 {
       /** buffer which holds text between xml tags */
-
-      StringBuffer tweenerBuffer;
+      StringBuilder tweenerBuffer;
       
       /**
        * Constructs an AbstractDispatchableHandler by calling the parent 
        * DefaultHandler class default constructor. 
        */
 
-      public AbstractDispatchableHandler()
-      {
-	  super();
+      public AbstractDispatchableHandler() {
+          super();
       }
 
       /** Handles data between XML element tags.
@@ -56,14 +54,12 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
        * @param length number of data characters in buffer
        */
 
-      public void characters(char[] ch, int start, int length)
-      {
-         if (length >= 0)
-         {
-            if (tweenerBuffer == null)
-               tweenerBuffer = new StringBuffer();
-            tweenerBuffer.append(ch, start, length);
-         }
+      public void characters(char[] ch, int start, int length) {
+          if (length > 0) {
+              if (tweenerBuffer == null)
+                  tweenerBuffer = new StringBuilder();
+              tweenerBuffer.append(ch, start, length);
+          }
       }
       
       /** 
@@ -76,24 +72,17 @@ public abstract class AbstractDispatchableHandler extends DefaultHandler
        * @return the collected text or null if no such text exists
        */
 
-      public String getTweenerText()
-      {
-         String text = null;
-
-         // if there is some text between tags (after trimming leading
-         // and trailing white space), record that
-
-         if (tweenerBuffer != null)
-         {
-            text = tweenerBuffer.toString().trim();
-            if (text.length() == 0)
-               text = null;
-            tweenerBuffer = null;
-         }
-
-         // return trimmed text or null
-
-         return text;
+      public String getTweenerText() {
+          if (tweenerBuffer == null)
+              return null;
+          
+          // if there is some text between tags (after trimming leading
+          // and trailing white space), record that
+          String text = tweenerBuffer.toString().trim();
+          if (text.isEmpty())
+              text = null;
+          tweenerBuffer = null;
+          return text;
       }
 
 }
