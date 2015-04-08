@@ -69,7 +69,7 @@ public class PlanReader {
 	public static final String InvarCondText = "InvariantCondition";
 	public static final String SkipCondText = "SkipCondition";
 
-	private ExprReader exprReader = new ExprReader();
+	private ExprReader exprReader = XmlReader.getExprReader();
 
 	public Node xmlToNode(IXMLElement xml, GlobalDeclList decls, Node parent) {
 		// Need a valid node IXMLElement
@@ -154,7 +154,7 @@ public class PlanReader {
 		return new Condition(type, exprReader.xmlToExpr(xml.getChildAtIndex(0), decls, node));
 	}
 
-    private VarList buildInterfaceList(IXMLElement xml) {
+    public VarList buildInterfaceList(IXMLElement xml) {
         VarList result = new VarList();
         for (IXMLElement io : getChildren(xml)) {
             String ioTag = io.getName();
@@ -196,12 +196,17 @@ public class PlanReader {
 		String name = xml.getChildAtIndex(0).getContent();
 		String typeName = xml.getChildAtIndex(1).getContent();
 		ExprType varType = ExprType.typeForName(typeName);
+        if (varType == null) {
+            System.out.println("Reader error: " + typeName + " is not a valid Type name in " + tag);
+            return null;
+        }
+
 		if (tag.equals(VarDeclarationText))
 			return new Var(name, varType);
 		
         // Must be an array declaration
 		String arraySize = xml.getChildAtIndex(2).getContent();
-        return new VarArray(name, varType.arrayType(), Integer.parseInt(arraySize));
+        return new VarArray(name, varType, Integer.parseUnsignedInt(arraySize));
 	}
 	
 	private void parseNodeBody(IXMLElement xml, GlobalDeclList decls, Node node) {

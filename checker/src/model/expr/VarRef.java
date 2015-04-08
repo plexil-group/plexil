@@ -43,9 +43,13 @@ public class VarRef
 
     public VarRef(ExprType t, String name, Var dec) {
         super();
-        type = t;
         id = name;
         decl = dec;
+        if (t == ExprType.GenericArray
+            && dec != null
+            && dec.getType().isArrayType())
+            t = dec.getType(); // believe array declaration
+        type = t; // believe reference
     }
 
     // For node variable references only
@@ -101,12 +105,13 @@ public class VarRef
         }
         else {
             if (type == ExprType.GenericArray) {
-                if (!decl.getType().isArrayType()) {
+                if (decl.getType().isArrayType())
+                    type = decl.getType();
+                else
                     errors.add(Log.error("Variable " + id
                                          + " is declared " + decl.getType()
                                          + ", but reference is " + type,
                                          contextMsg));
-                }
             }
             else if (decl.getType() != type) {
                 errors.add(Log.error("Variable " + id

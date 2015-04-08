@@ -33,9 +33,32 @@ import java.util.Vector;
 public class XmlReader {
 
 	private Plan plan = null;
+
+    private static DeclReader declReader = null;
+    private static ExprReader exprReader = null;
+    private static PlanReader planReader = null;
+
+    public static DeclReader getDeclReader() {
+        if (declReader == null)
+            declReader = new DeclReader();
+        return declReader;
+    }
+
+    public static ExprReader getExprReader() {
+        if (exprReader == null)
+            exprReader = new ExprReader();
+        return exprReader;
+    }
+
+    public static PlanReader getPlanReader() {
+        if (planReader == null)
+            planReader = new PlanReader();
+        return planReader;
+    }
+
 	
-	public GlobalDeclList getDecls() { return plan.getDecls(); }
 	public Plan getPlan() { return plan; }
+	public GlobalDeclList getDecls() { return plan.getDecls(); }
 
 	@SuppressWarnings("unchecked")
 	public void readPlan(IXMLElement p) {
@@ -53,7 +76,7 @@ public class XmlReader {
 
         // Global declarations are optional
         if ("GlobalDeclarations".equals(elt.getName())) {
-            decls = (new DeclReader()).xmlToDecls(elt);
+            decls = getDeclReader().xmlToDecls(elt);
             plan.setDecls(decls);
             elt = elts.get(1);
         }
@@ -65,7 +88,7 @@ public class XmlReader {
 			return;
         }
 
-        Node root = (new PlanReader()).xmlToNode(elt, decls, null);
+        Node root = getPlanReader().xmlToNode(elt, decls, null);
         if (root != null)
             plan.setNode(root);
 	}

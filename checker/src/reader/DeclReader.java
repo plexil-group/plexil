@@ -37,13 +37,13 @@ import model.GlobalDecl.CallType;
 import model.GlobalDeclList;
 import model.Var;
 import model.Var.VarMod;
+import model.VarArray;
 import model.VarList;
 
 public class DeclReader {
 	public static final String NameDeclarationText = "Name";
 	public static final String TypeDeclarationText = "Type";
 	public static final String ParameterDeclarationText = "Parameter";
-	public static final String ReturnDeclarationText = "Return";
 	public static final String InterfaceDeclarationText = "Interface";
 	public static final String InDeclarationText = "In";
 	public static final String InOutDeclarationText = "InOut";
@@ -194,24 +194,63 @@ public class DeclReader {
 	private Var convertXmlToParam(IXMLElement xml) {
 		if (xml == null)
 			return null;
+        String typename = null;
+        String name = null;
+        String sizeSpec = null;
+        for (IXMLElement child : getChildren(xml)) {
+            switch (child.getName()) {
+            case "Name":
+                name = child.getContent();
+                break;
 
-		IXMLElement typeElt = xml.getFirstChildNamed(TypeDeclarationText);
-		if (typeElt == null) {
+            case "Type":
+                typename = child.getContent();
+                break;
+
+            case "MaxSize": // Signifies an array
+                sizeSpec = child.getContent();
+                break;
+
+            default:
+                System.out.println("Reader error: Unexpected element " + child.getName()
+                                   + " in parameter declaration");
+                return null;
+            }
+        }
+
+		if (typename == null) {
             System.out.println("Reader error: required Type element missing in parameter declaration");
             return null;
 		}
 
-		ExprType type = ExprType.typeForName(typeElt.getContent());
+		ExprType type = ExprType.typeForName(typename);
         if (type == null) {
-            System.out.println("Reader error: invalid type name " + typeElt.getContent()
+            System.out.println("Reader error: invalid type name " + typename
                                + " in parameter declaration");
             return null;
         }
 
-		IXMLElement nameElt = xml.getFirstChildNamed(NameDeclarationText);
-		if (nameElt == null)
+        if (sizeSpec != null) {
+            // This is an array declaration
+            int maxSize = -1;
+            try {
+                maxSize = Integer.parseUnsignedInt(sizeSpec);
+            }
+            catch (NumberFormatException e) {
+                System.out.println("Reader error: MaxSize " + sizeSpec
+                                   + " is not an unsigned integer in parameter declaration");
+                return null;
+            }
+
+            if (name != null)
+                return new VarArray(name, type, maxSize);
+            else
+                return new VarArray(type, maxSize);
+        }
+        else if (name != null)
+            return new Var(name, type);
+        else
             return new Var(type);
-        return new Var(nameElt.getContent(), type);
 	}
 	
 	public IXMLElement findXmlByTerm(IXMLElement xml, String term)
@@ -235,42 +274,7 @@ public class DeclReader {
 	{
 		if (xml == null)
 			return null;
-		
-		VarList list = new VarList();
-		for (IXMLElement varXml : getChildren(xml)) {
-			if (varXml.getName() == null)
-				continue;
-			
-			VarMod mod = VarMod.None;
-			if (varXml.getName().equals(InDeclarationText))
-				mod = VarMod.In;
-			else if (varXml.getName().equals(InOutDeclarationText))
-				mod = VarMod.InOut;
-			
-			// If there is no declaration, there's no Var to create
-			if (!varXml.hasChildren() || !varXml.getChildAtIndex(0).hasChildren())
-				continue;
-			
-			String name = null;
-			ExprType type = null;
-			// Skip over an XML level that holds DeclareVariable, hence .getChildAtIndex(0)
-			for (IXMLElement child : getChildren(varXml.getChildAtIndex(0))) {
-                if (child.getName().equals(NameDeclarationText))
-                    name = child.getContent();
-                if (child.getName().equals(TypeDeclarationText)) {
-                    String typeStr = child.getContent();
-                    if (typeStr != null)
-                        type = ExprType.typeForName(typeStr);
-                }
-            }
-			
-			if (name != null)
-				list.add(new Var(name, type, mod));
-			else 
-                System.out.println("Reader error: unnamed " + type.toString()
-                                   + " parameter in " + varXml.getName() + " Interface declaration");
-		}
-		return list;
+		return XmlReader.getPlanReader().buildInterfaceList(xml);
 	}
 	
 	// IXMLElement.getChildren() only returns Vector. Having a typed vector is nicer, so we type cast here.

@@ -34,7 +34,7 @@ public class Var
 	public enum VarMod {None, In, InOut};
 
 	private String id;
-	private ExprType type; 
+	protected ExprType type; // needed by VarArray
 	private VarMod mod;
     private Expr init;
 	

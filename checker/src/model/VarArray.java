@@ -34,8 +34,13 @@ public class VarArray extends Var {
 
 	public int getMaxSize() { return maxSize; }
 
+    @Override
+    public ExprType getType() {
+        return type.arrayType();
+    }
+
 	public VarArray(ExprType t, int i) { super(t); maxSize = i; }
-	public VarArray(String id, ExprType t, int i) { super(id,t); maxSize = i; }
+	public VarArray(String id, ExprType t, int i) { super(id, t); maxSize = i; }
 	// public VarArray(ExprType t, VarMod m, int i) { super(null, t,m); maxSize = i; }
 	public VarArray(String id, ExprType t, VarMod m, int i) { super(id,t,m); maxSize = i; }
 	
