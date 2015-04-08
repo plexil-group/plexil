@@ -2,6 +2,20 @@
 <!-- test plan -->
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/core-plexil.xsd">
+  <GlobalDeclarations>
+    <StateDeclaration>
+      <Name>Event_5520</Name>
+      <Return>
+        <Type>Boolean</Type>
+      </Return>
+    </StateDeclaration>
+    <StateDeclaration>
+      <Name>three_min_timer</Name>
+      <Return>
+        <Type>Boolean</Type>
+      </Return>
+    </StateDeclaration>
+  </GlobalDeclarations>
  <Node NodeType="NodeList">
    <NodeId>Procedure_5_350</NodeId>
    <StartCondition>  <!-- Have received C&W message 5520 -->

@@ -1,43 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- The priority ordering is as follows: -->
 <PlexilPlan>
-<Node NodeType="NodeList">
-  <NodeId>SimpleTask</NodeId>
-  <NodeBody>
-    <NodeList>
-      <Node NodeType="Command">
-        <NodeId>C1</NodeId>
-        <EndCondition>
-          <EQNumeric>
-            <IntegerValue>10</IntegerValue>
-            <IntegerVariable>returnValue</IntegerVariable>
-          </EQNumeric>
-        </EndCondition>
-        <PostCondition>
-          <EQInternal>
-            <NodeCommandHandleVariable>
-              <NodeId>C1</NodeId>
-            </NodeCommandHandleVariable>
-            <NodeCommandHandleValue>COMMAND_SENT_TO_SYSTEM</NodeCommandHandleValue>
-          </EQInternal>
-        </PostCondition>
-        <VariableDeclarations>
-          <DeclareVariable>
-            <Name>returnValue</Name>
-            <Type>Integer</Type>
-            <InitialValue>
-              <IntegerValue>-1</IntegerValue>
-            </InitialValue>
-          </DeclareVariable>
-          <DeclareVariable>
-            <Name>mem_priority</Name>
-            <Type>Integer</Type>
-            <InitialValue>
+  <GlobalDeclarations>
+    <CommandDeclaration>
+      <Name>c1</Name>
+      <Return>
+        <Type>Integer</Type>
+      </Return>
+      <Parameter>
+        <Type>Integer</Type>
+      </Parameter>
+    </CommandDeclaration>
+    <CommandDeclaration>
+      <Name>c2</Name>
+      <Return>
+        <Type>Integer</Type>
+      </Return>
+    </CommandDeclaration>
+    <CommandDeclaration>
+      <Name>c3</Name>
+      <Return>
+        <Type>Integer</Type>
+      </Return>
+    </CommandDeclaration>
+  </GlobalDeclarations>
+  <Node NodeType="NodeList">
+    <NodeId>SimpleTask</NodeId>
+    <NodeBody>
+      <NodeList>
+        <Node NodeType="Command">
+          <NodeId>C1</NodeId>
+          <EndCondition>
+            <EQNumeric>
               <IntegerValue>10</IntegerValue>
-            </InitialValue>
-          </DeclareVariable>
-        </VariableDeclarations>
-        <NodeBody>
+              <IntegerVariable>returnValue</IntegerVariable>
+            </EQNumeric>
+          </EndCondition>
+          <PostCondition>
+            <EQInternal>
+              <NodeCommandHandleVariable>
+                <NodeId>C1</NodeId>
+              </NodeCommandHandleVariable>
+              <NodeCommandHandleValue>COMMAND_SENT_TO_SYSTEM</NodeCommandHandleValue>
+            </EQInternal>
+          </PostCondition>
+          <VariableDeclarations>
+            <DeclareVariable>
+              <Name>returnValue</Name>
+              <Type>Integer</Type>
+              <InitialValue>
+                <IntegerValue>-1</IntegerValue>
+              </InitialValue>
+            </DeclareVariable>
+            <DeclareVariable>
+              <Name>mem_priority</Name>
+              <Type>Integer</Type>
+              <InitialValue>
+                <IntegerValue>10</IntegerValue>
+              </InitialValue>
+            </DeclareVariable>
+          </VariableDeclarations>
+          <NodeBody>
             <Command>
               <ResourceList>
                 <Resource>
@@ -57,32 +80,32 @@
               </ResourceList>
               <IntegerVariable>returnValue</IntegerVariable>
               <Name><StringValue>c1</StringValue></Name>
-                <Arguments>
-                   <IntegerValue>20</IntegerValue>
-                </Arguments>
+              <Arguments>
+                <IntegerValue>20</IntegerValue>
+              </Arguments>
             </Command>
-        </NodeBody>
-      </Node>
-      <Node NodeType="Command">
-        <NodeId>C2</NodeId>
-        <VariableDeclarations>
-          <DeclareVariable>
-            <Name>mem_priority2</Name>
-            <Type>Integer</Type>
-            <InitialValue>
-              <IntegerValue>20</IntegerValue>
-            </InitialValue>
-          </DeclareVariable>
-        </VariableDeclarations>
-        <PostCondition>
-          <EQInternal>
-            <NodeCommandHandleVariable>
-              <NodeId>C2</NodeId>
-            </NodeCommandHandleVariable>
-            <NodeCommandHandleValue>COMMAND_SENT_TO_SYSTEM</NodeCommandHandleValue>
-          </EQInternal>
-        </PostCondition>
-        <NodeBody>
+          </NodeBody>
+        </Node>
+        <Node NodeType="Command">
+          <NodeId>C2</NodeId>
+          <VariableDeclarations>
+            <DeclareVariable>
+              <Name>mem_priority2</Name>
+              <Type>Integer</Type>
+              <InitialValue>
+                <IntegerValue>20</IntegerValue>
+              </InitialValue>
+            </DeclareVariable>
+          </VariableDeclarations>
+          <PostCondition>
+            <EQInternal>
+              <NodeCommandHandleVariable>
+                <NodeId>C2</NodeId>
+              </NodeCommandHandleVariable>
+              <NodeCommandHandleValue>COMMAND_SENT_TO_SYSTEM</NodeCommandHandleValue>
+            </EQInternal>
+          </PostCondition>
+          <NodeBody>
             <Command>
               <ResourceList>
                 <Resource>
@@ -102,19 +125,19 @@
               </ResourceList>
               <Name><StringValue>c2</StringValue></Name>
             </Command>
-        </NodeBody>
-      </Node>
-      <Node NodeType="Command">
-        <NodeId>C3</NodeId>
-        <PostCondition>
-          <EQInternal>
-            <NodeCommandHandleVariable>
-              <NodeId>C3</NodeId>
-            </NodeCommandHandleVariable>
-            <NodeCommandHandleValue>COMMAND_SENT_TO_SYSTEM</NodeCommandHandleValue>
-          </EQInternal>
-        </PostCondition>
-        <NodeBody>
+          </NodeBody>
+        </Node>
+        <Node NodeType="Command">
+          <NodeId>C3</NodeId>
+          <PostCondition>
+            <EQInternal>
+              <NodeCommandHandleVariable>
+                <NodeId>C3</NodeId>
+              </NodeCommandHandleVariable>
+              <NodeCommandHandleValue>COMMAND_SENT_TO_SYSTEM</NodeCommandHandleValue>
+            </EQInternal>
+          </PostCondition>
+          <NodeBody>
             <Command>
               <ResourceList>
                 <Resource>
@@ -134,9 +157,9 @@
               </ResourceList>
               <Name><StringValue>c3</StringValue></Name>
             </Command>
-        </NodeBody>
-      </Node>
-    </NodeList>
-  </NodeBody>
-</Node>
+          </NodeBody>
+        </Node>
+      </NodeList>
+    </NodeBody>
+  </Node>
 </PlexilPlan>

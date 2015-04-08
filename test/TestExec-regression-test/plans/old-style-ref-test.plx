@@ -1,4 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan>
+    <GlobalDeclarations>
+      <StateDeclaration>
+        <Name>time</Name>
+        <Return>
+          <Type>Real</Type>
+        </Return>
+      </StateDeclaration>
+    </GlobalDeclarations>
   <Node NodeType="NodeList">
     <NodeId>Parent</NodeId>
     <EndCondition>
