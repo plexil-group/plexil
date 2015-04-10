@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -72,6 +72,15 @@ if [ ! $1 ]
 then
   echo "Usage: checkDecls [-d] file.plx"
   exit 2
+fi
+
+# First validate against Core Plexil schema
+xmllint --noout --schema $PLEXIL_HOME/schema/core-plexil.xsd $1
+result=$?
+if [ $result -ne 0 ]
+then
+    echo Validation of $1 against PLEXIL schema failed.
+    exit 1
 fi
 
 # Run the program
