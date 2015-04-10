@@ -404,7 +404,7 @@ then
 fi
 
 # Check plan for errors
-if [ -n "$check" ]
+if [ -z "$viewer" ] && [ -n "$check" ]
 then
     checker
 fi
