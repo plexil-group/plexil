@@ -112,8 +112,6 @@ public class Settings {
     private ArrayList<File> libDirs;
     private ArrayList<String> libs;
 
-    // *** TODO: others? ***
-
     public Settings() {
         m_properties = new java.util.Properties(getDefaultDefaults());
         libDirs = new ArrayList<File>();
@@ -289,22 +287,18 @@ public class Settings {
 
         if (planSupplied) {
             plan = plan.getAbsoluteFile();
-            // TODO: check
             setPlanLocation(plan);
         }
         if (configSupplied) {
             config = config.getAbsoluteFile();
-            // TODO: check
             setConfigLocation(config);
         }
         if (debugSupplied) {
             debug = debug.getAbsoluteFile();
-            // TODO: check
             setDebugLocation(debug);
         }
         if (scriptSupplied) {
             script = script.getAbsoluteFile();
-            // TODO: check
             setScriptLocation(script);
         }
 

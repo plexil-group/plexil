@@ -278,9 +278,11 @@ public class FileHandler
         return null;
     }
 
-    public void loadConfig(File cfg)
-    {
-        // *** TODO ***
+    public void loadConfig(File cfg) {
+        if (cfg != null) {
+            if (Luv.getLuv().getCurrentPlan() != null)
+                Luv.getLuv().getCurrentPlan().setConfigFile(cfg.getAbsoluteFile());
+        }
     }
       
     /** Loads a Plexil script from the disk.
@@ -290,7 +292,7 @@ public class FileHandler
     public void loadScript(File script) {          
         if (script != null) {
             if (Luv.getLuv().getCurrentPlan() != null)
-                Luv.getLuv().getCurrentPlan().addScriptName(script.getAbsolutePath());
+                Luv.getLuv().getCurrentPlan().setScriptFile(script.getAbsoluteFile());
         }
     }
       
@@ -298,7 +300,7 @@ public class FileHandler
     public Model readPlan(File file) {
         try {
             Model result = parseXml(new FileInputStream(file));
-            result.setPlanName(file.getAbsolutePath());
+            result.setPlanFile(file.getAbsoluteFile());
             return result;
         } catch(Exception e) {
             Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: while loading: " + file.getName());
@@ -416,7 +418,7 @@ public class FileHandler
             File scriptFile = new File(path, DEFAULT_SCRIPT_NAME);
             if (Luv.getLuv().getAppMode() == PLEXIL_TEST) {	                
                 writeEmptyPlexilTestScript(scriptFile);
-                Luv.getLuv().getSettings().setScriptLocation(scriptFile); // FIXME
+                Luv.getLuv().getSettings().setScriptLocation(scriptFile);
                 return scriptFile;
             } else if (Luv.getLuv().getAppMode() == PLEXIL_SIM) {
                 return script;

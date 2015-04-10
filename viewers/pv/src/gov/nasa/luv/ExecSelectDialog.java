@@ -185,10 +185,12 @@ public class ExecSelectDialog extends JPanel {
 		defaultConfigBut = new JButton("Use Default");
 		defaultConfigBut.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    // FIXME - Only relevant to UE
-                    settings.setConfigLocation(new File(Constants.DEFAULT_CONFIG_PATH, Constants.DEFAULT_CONFIG_NAME));
-                    updateLabel(configLab, settings.getConfigLocation());
-                    theLuv.getStatusMessageHandler().showStatus("Default Config");
+                    AppType mode = settings.getAppMode();
+                    if (mode == PLEXIL_EXEC || mode == PLEXIL_SIM) {
+                        settings.setConfigLocation(new File(Constants.DEFAULT_CONFIG_PATH, Constants.DEFAULT_CONFIG_NAME));
+                        updateLabel(configLab, settings.getConfigLocation());
+                        theLuv.getStatusMessageHandler().showStatus("Default Config");
+                    }
                 }
             }
             );
@@ -234,6 +236,7 @@ public class ExecSelectDialog extends JPanel {
                 }
             }
             );
+
 		cancelBut = new JButton("Cancel");
 		cancelBut.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -329,10 +332,14 @@ public class ExecSelectDialog extends JPanel {
     public FileFilter getPlanFileFilter() {
         return planFilter;
     }
-	
-	public JButton getSaveBut() {
-		return saveBut;
-	}
+
+    public void enableSaveButton() {
+        saveBut.setEnabled(true);
+    }
+
+    public void disableSaveButton() {
+        saveBut.setEnabled(false);
+    }
 
 	public JButton getDefaultScriptBut() {
 		return defaultScriptBut;
@@ -345,7 +352,7 @@ public class ExecSelectDialog extends JPanel {
 	}
 	
     // Refreshes the dialog display on update
-	private void refresh() {
+    public void refresh() {
         Settings s = settings;
         setMode(s.getAppMode());
         updateButtonVisibility();
@@ -475,74 +482,6 @@ public class ExecSelectDialog extends JPanel {
             label.setToolTipText(filename.toString());
         }
     }
-
-	/*
-	 * exposed method for reloading plan and supplement set from file menu
-	 */
-	public void reload() {		
-        if (theLuv.getIsExecuting()) {
-            // *** FIXME: delegate to Luv instance ***
-            try {
-                theLuv.stopExecutionState();
-                theLuv.getStatusMessageHandler().displayInfoMessage("Stopping execution and reloading plan");
-            } catch (IOException ex) {
-                theLuv.getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
-            }
-        }        
-                
-		refresh();
-
-		File plan = settings.getPlanLocation();
-        if (plan == null)
-        	return;
-        
-        if (plan.exists()) {
-            theLuv.loadPlan(plan);
-        } else {
-            theLuv.getStatusMessageHandler().displayErrorMessage(null,
-                                                                 "ERROR: While reloading plan: unable to find plan file "
-                                                                 + plan.toString());
-            theLuv.reloadPlanState(); // *** FIXME ***
-        }
-        
-        AppType mode = settings.getAppMode();
-        if (mode == PLEXIL_SIM || mode == PLEXIL_TEST) {
-            File script = settings.getScriptLocation();
-            // *** FIXME ***
-            if (script == null)
-                return;
-        
-            if (script.exists()) {
-                theLuv.getFileHandler().loadScript(script);
-                theLuv.getStatusMessageHandler().showStatus("Script \""
-                                                            + theLuv.getCurrentPlan().getAbsoluteScriptName()
-                                                            + "\" loaded",
-                                                            1000);
-            }
-        }
-
-        if (mode == PLEXIL_SIM || mode == PLEXIL_EXEC) {
-            File config = settings.getConfigLocation();
-            // *** FIXME ***
-            if (config == null)
-                return;
-        
-            if (config.exists()) {
-                theLuv.getFileHandler().loadConfig(config);
-                theLuv.getStatusMessageHandler().showStatus("Config "
-                                                            + theLuv.getCurrentPlan().getAbsoluteConfigName()
-                                                            + " loaded",
-                                                            1000);
-            }
-        }
-
-        theLuv.setTitle();
-		try {
-			theLuv.getSourceWindow().refresh();
-		} catch (IOException ex){
-			theLuv.getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while refreshing source window");
-		}
-	}
 	
 	/*
 	 * Changes configuration mode
@@ -589,37 +528,29 @@ public class ExecSelectDialog extends JPanel {
             if (settings.getPlanLocation() != null) {	
                 theLuv.loadPlan(settings.getPlanLocation());
                 theLuv.readyState();
-            }
-            AppType mode = settings.getAppMode();
-            if (mode == PLEXIL_EXEC || mode == PLEXIL_SIM) {
-                File config = settings.getConfigLocation();
-                if (config != null) {
-                    theLuv.getStatusMessageHandler().showStatus("Config \""
-                                                                + theLuv.getCurrentPlan().getAbsoluteConfigName() // FIXME
-                                                                + "\" loaded", 1000);
+                AppType mode = settings.getAppMode();
+                if (mode == PLEXIL_EXEC || mode == PLEXIL_SIM) {
+                    File config = settings.getConfigLocation();
+                    if (config != null) {
+                        theLuv.getCurrentPlan().setConfigFile(config);
+                        theLuv.getStatusMessageHandler().showStatus("Configuration file \""
+                                                                    + config.toString()
+                                                                    + "\" loaded", 1000);
+                    }
                 }
-            }
-            if (mode == PLEXIL_SIM || mode == PLEXIL_TEST) {
-                File script = settings.getScriptLocation();
-                if (script != null) {
-                    theLuv.getStatusMessageHandler().showStatus("Script \""
-                                                                + theLuv.getCurrentPlan().getAbsoluteScriptName() // FIXME
-                                                                + "\" loaded", 1000);
-                    // FIXME: why is this done twice?
-                    theLuv.setTitle();
-                    try {
-                        theLuv.getSourceWindow().refresh();
-                    } catch (IOException ex) {
-                        theLuv.getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while opening source window");
-                    }					
+                if (mode == PLEXIL_SIM || mode == PLEXIL_TEST) {
+                    File script = settings.getScriptLocation();
+                    if (script != null) {
+                        theLuv.getCurrentPlan().setScriptFile(script);
+                        theLuv.getStatusMessageHandler().showStatus("Script \""
+                                                                    + script.toString()
+                                                                    + "\" loaded", 1000);
+                    }
                 }
+                if (theLuv.getSourceWindow() != null)
+                    theLuv.getSourceWindow().refresh();
             }
             theLuv.setTitle();
-            try {
-                theLuv.getSourceWindow().refresh();
-            } catch (IOException ex) {
-                theLuv.getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while opening source window");
-            }					
         }
     }
 	

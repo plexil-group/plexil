@@ -66,8 +66,8 @@ public class DebugWindow extends JFrame
          
           // redirect all system output into the debug text area
           // Comment these out for debugging
-          // System.setErr(ps);
-          // System.setOut(ps);
+          System.setErr(ps);
+          System.setOut(ps);
       }
       
       private void init() 
@@ -129,16 +129,13 @@ public class DebugWindow extends JFrame
       }
       
       // clear the debugging window of all text
-      private void clearDebugArea()
-      {
-         try 
-         {
-	    Document doc = debugArea.getDocument();
-	    doc.remove(0, doc.getLength());
-         }
-         catch (BadLocationException ex) 
-         {
-         }
+      private void clearDebugArea() {
+          try {
+              Document doc = debugArea.getDocument();
+              doc.remove(0, doc.getLength());
+          }
+          catch (BadLocationException ex) {
+          }
       }
       
     /**

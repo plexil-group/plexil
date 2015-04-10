@@ -669,15 +669,17 @@ public class TreeTableView extends JTreeTable
                         ((AbstractTableModel)view.getModel()).fireTableDataChanged();
                     }
                 });
-            addNodesToTree(node);
+            addChildrenToTree(node);
         }
 
-        private void addNodesToTree(Node node) {
+        private void addChildrenToTree(Node node) {
+            if (!node.hasChildren())
+                return;
             for (Node child: node.getChildren()) {
                 if (!AbstractNodeFilter.isNodeFiltered(child))
                     children.add(new Wrapper(child));
                 else
-                    addNodesToTree(child);
+                    addChildrenToTree(child);
             }
         }
 

@@ -489,15 +489,13 @@ public class HideOrShowWindow extends JPanel implements ListSelectionListener
             { 
                 showButton.setEnabled(true);
                 String regex = (String) listModel.remove(index);
-                // *** FIXME ***
+                // *** FIXME: there MUST be a better way to do this! ***
                 Luv.getLuv().getRegexNodeFilter().removeRegex(regex);
             
                 //Select an index.
                 if (index == listModel.getSize()) 
-                {
                     //removed item in last position
                     index--;
-                }
 
                 list.setSelectedIndex(index);
                 list.ensureIndexIsVisible(index);

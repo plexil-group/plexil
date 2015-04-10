@@ -311,34 +311,34 @@ public class FindWindow extends JPanel implements KeyListener
         next++;
     }
     
-    private void findMatchInNode(Node node, String search, boolean both, boolean startsWith, boolean endsWith)
-    {
-       if (node.isRoot() || node.getParent().isRoot()) {
-           if ((both        && node.getNodeName().contains(search))     ||
-               (startsWith  && node.getNodeName().startsWith(search))   ||
-               (endsWith    && node.getNodeName().endsWith(search))     ||
-               (node.getNodeName().equals(search))) {
-               Stack<String> node_path = node.pathToNode(node); 
-               foundMatch = true;
-               foundNodes.add(node_path);
-           }
-       }
+    private void findMatchInNode(Node node, String search, boolean both, boolean startsWith, boolean endsWith) {
+        if (node.isRoot() || node.getParent().isRoot()) {
+            if ((both        && node.getNodeName().contains(search))     ||
+                (startsWith  && node.getNodeName().startsWith(search))   ||
+                (endsWith    && node.getNodeName().endsWith(search))     ||
+                (node.getNodeName().equals(search))) {
+                Stack<String> node_path = node.pathToNode(node); 
+                foundMatch = true;
+                foundNodes.add(node_path);
+            }
+        }
             
-       for (Node child: node.getChildren()) {
-           if (!AbstractNodeFilter.isNodeFiltered(child)) {
-               if ((both        && child.getNodeName().contains(search))     ||
-                   (startsWith  && child.getNodeName().startsWith(search))   ||
-                   (endsWith    && child.getNodeName().endsWith(search))     ||
-                   (child.getNodeName().equals(search)))
-                   {
-                       Stack<String> node_path = child.pathToNode(child);    
-                       foundMatch = true;
-                       foundNodes.add(node_path);                    
-                   }
-           }
+        if (node.hasChildren())
+            for (Node child: node.getChildren()) {
+                if (!AbstractNodeFilter.isNodeFiltered(child)) {
+                    if ((both        && child.getNodeName().contains(search))     ||
+                        (startsWith  && child.getNodeName().startsWith(search))   ||
+                        (endsWith    && child.getNodeName().endsWith(search))     ||
+                        (child.getNodeName().equals(search)))
+                        {
+                            Stack<String> node_path = child.pathToNode(child);    
+                            foundMatch = true;
+                            foundNodes.add(node_path);                    
+                        }
+                }
             
-           findMatchInNode(child, search, both, startsWith, endsWith);       
-       }
+                findMatchInNode(child, search, both, startsWith, endsWith);       
+            }
     }
     
     /** {@inheritDoc} */

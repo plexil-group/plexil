@@ -27,6 +27,7 @@
 package gov.nasa.luv;
 
 import java.awt.Color;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,9 +60,11 @@ public class Node
     protected String state;
     protected String outcome;
     protected String failureType;
-    protected String libraryName; // FIXME: make property?
+
+    /** Library name for a LibraryNodeCall. */
+    protected String libraryName;
     protected Node parent;
-    private Vector<Node> children;
+    protected Vector<Node> children;
     private HashMap<Integer, ArrayList> conditionMap;
     private ArrayList<Variable> variableList;
     private ArrayList<String> actionList;
@@ -80,7 +83,12 @@ public class Node
         failureType = null;
         libraryName = null;
         parent = null;
-        children = new Vector<Node>();
+        if (typ == null // special global root node
+            || NODELIST.equals(typ) 
+            || LIBRARYNODECALL.equals(typ))
+            children = new Vector<Node>();
+        else
+            children = null;
         conditionMap = new HashMap<Integer, ArrayList>();
         variableList = new ArrayList<Variable>();
         actionList = new ArrayList<String>();
@@ -113,10 +121,10 @@ public class Node
         unresolvedLibraryCall = orig.unresolvedLibraryCall;
 
         // Recurse over children
-        // TODO: figure out if this is the right thing for library call nodes!
-        children = new Vector<Node>();
-        for (Node n : orig.children) {
-            addChild(n.clone());
+        if (orig.children != null) {
+            children = new Vector<Node>(orig.children.size());
+            for (Node n : orig.children)
+                addChild(n.clone());
         }
     }
 
@@ -245,11 +253,18 @@ public class Node
     /**
      * Returns the specified child of this Node.
      * @param i the index of the child for this Node
-     * @return the child (FIXME: or null??)
+     * @return the child or null
      */
     public Node getChild(int i)
     {
+        if (children == null)
+            return null;
         return children.get(i);
+    }
+
+    public boolean hasChildren() {
+        return children != null
+            && !children.isEmpty();
     }
 
     public boolean isRoot() {
@@ -478,6 +493,7 @@ public class Node
      * Removes the specified Node child from this Node.
      * @param child the Node child
      * @return whether or the child was removed
+     * @note Only called on the model root.
      */
     public boolean removeChild(Node child)
     {
@@ -494,29 +510,17 @@ public class Node
         }
         return removed;
     }
-    
-    /**
-     * Clears this Node of all children and properties.
-     */
-    public void removeChildren()
-    {
-	for (Node child: children)
-            child.parent = null;
-	children.clear();
-    }
 
     /**
      * Returns the Node pathway starting from the specified Node to the root Node.
      * @param node the node to return the pathway for
      * @return the pathway
      */
-    public Stack<String> pathToNode(Node node)
-    {
+    public Stack<String> pathToNode(Node node) {
         Stack<String> node_path = new Stack<String>();
         while (!node.isRoot()) {
-            if (!AbstractNodeFilter.isNodeFiltered(node)) {
+            if (!AbstractNodeFilter.isNodeFiltered(node))
                 node_path.push(node.getNodeName());
-            }
             node = node.getParent();
         }
         return node_path;
@@ -543,6 +547,17 @@ public class Node
                                + " other = " + other.nodeName);
             return false;
         }
+        if (children == null) {
+            if (other.children != null) {
+                System.out.println("Not equivalent because other has children, this doesn't");
+                return false;
+            }
+            return true;
+        }
+        if (children != null && other.children == null) {
+            System.out.println("Not equivalent because this has children, other doesn't");
+            return false;
+        }
         if (children.size() != other.children.size()) {
             System.out.println("Not equivalent because number of children differs");
             return false;
@@ -562,6 +577,8 @@ public class Node
      * @return the matching Node
      */
     public Node findChildByName(String name) {
+        if (children == null)
+            return null;
         for (Node child : children)
             if (child.nodeName.equals(name))
                 return child;
@@ -574,6 +591,8 @@ public class Node
      * @return the matching Node
      */
     public Node findChildByRowNumber(int row) {
+        if (children == null)
+            return null;
         // Simple depth-first search
         for (Node child : children) {
             if (child.row_number == row)
@@ -606,6 +625,8 @@ public class Node
      */
     public void reset() {
         setMainAttributesOfNode();
+        if (children == null)
+            return;
         for (Node child : children)
             child.reset();
     }
@@ -659,7 +680,7 @@ public class Node
         }
         s.append(")");
 
-        if (!children.isEmpty()) {
+        if (children != null && !children.isEmpty()) {
             Node lastChild = children.lastElement();
             s.append("[");
             for (Node child: children) {
@@ -685,7 +706,7 @@ public class Node
             unresolvedLibraryCall = false;
             Model topLevelNode = topLevelNode();
             if (topLevelNode != null) {
-                topLevelNode.addLibraryName(library.getPlanName());
+                topLevelNode.addLibraryFile(library.getPlanFile());
                 Model.getRoot().missingLibraryFound(library.getNodeName());
                 return true;
             }
@@ -748,11 +769,11 @@ public class Node
 
         public void planChanged(Model model);
 
-        public void planNameAdded(Model model, String planName);
+        public void planFileAdded(Model model, File planName);
             
-        public void scriptNameAdded(Model model, String scriptName);
+        public void scriptFileAdded(Model model, File scriptName);
 
-        public void libraryNameAdded(Model model, String libraryName);
+        public void libraryFileAdded(Model model, File libName);
 	
         public void variableAssigned(Node node, String variableName);
     }
@@ -761,17 +782,17 @@ public class Node
      * The ChangeAdapter class is signaled when the Plexil Model is changed in some way.
      */
     public static class ChangeAdapter implements ChangeListener {
-        public void propertyChange(Node node, String property){}
+        public void propertyChange(Node node, String property) {}
 
-        public void planChanged(Model model){}
+        public void planChanged(Model model) {}
 
-        public void planNameAdded(Model model, String planName){}
-            
-        public void scriptNameAdded(Model model, String scriptName){}
+        public void planFileAdded(Model model, File planName) {}
 
-        public void libraryNameAdded(Model model, String libraryName){}
+        public void scriptFileAdded(Model model, File scriptName) {}
+
+        public void libraryFileAdded(Model model, File libName) {}
 	
-        public void variableAssigned(Node node, String variableName){}
+        public void variableAssigned(Node node, String variableName) {}
     }
 
     public static interface PropertyChangeFilter {

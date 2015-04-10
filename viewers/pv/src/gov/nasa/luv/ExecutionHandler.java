@@ -214,35 +214,6 @@ public class ExecutionHandler
             throw e;
         }
 
-        // *** FIXME: Move logic to concrete CommandGenerator derivations ***
-
-        // // get libraries
-        // if (!currentPlan.getMissingLibraries().isEmpty()) {
-        //     // try to find libraries
-        //     for (String libName : currentPlan.getMissingLibraries()) {
-        //         Model lib = Luv.getLuv().getCurrentPlan().findLibraryNode(libName, true);
-        //         if (lib == null) {
-        //             throw new CommandGenerationException("ERROR: library \"" + libName + "\" not found.");
-        //         }
-        //         else {
-        //             currentPlan.linkLibrary(lib);
-        //         }
-        //     }
-        // }
-
-        // if (!currentPlan.getLibraryNames().isEmpty()) {
-        //     Set<String> libFiles = new LinkedHashSet<String>();
-        //     for (String libFile : currentPlan.getLibraryNames()) {
-        //         // double check that library still exists
-        //         if (new File(libFile).exists())
-        //             libFiles.add(libFile);
-        //         else 
-        //             throw new CommandGenerationException("ERROR: library file " + libFile + " does not exist.");
-        //     }
-        //     pe.setLibFiles(libFiles);
-        // }       
-        // *** END FIXME ***
-
         try {
             return pe.generateCommand(Luv.getLuv().getSettings());
         }
@@ -417,13 +388,6 @@ public class ExecutionHandler
                 }
             }	  
 
-            // *** TEMP DEBUG ***
-            // for (String c : command) {
-            //     System.out.print(c);
-            //     System.out.print(" ");
-            // }
-            // System.out.println("");
-
             return command;
         }
 
@@ -515,7 +479,7 @@ public class ExecutionHandler
                 command.add("-b");
 
             //debug file		   
-            // FIXME: sim can have debug file too!
+            // TODO: sim can have debug file too!
             File debug = s.getDebugLocation();
             if (debug != null && debug.exists()) {
                 command.add("-d");
@@ -531,15 +495,15 @@ public class ExecutionHandler
             command.add(s.getPlanLocation().toString());
 
             File c = s.getConfigLocation();
-            if (c != null && c.exists()) {
+            if (c != null && c.isFile() && c.canRead()) {
                 command.add("-c");
                 command.add(c.toString());
             }
 	  	  
-            // FIXME: check for non-empty script!
-            if (s.getScriptLocation() != null) {
+            File scr = s.getScriptLocation();
+            if (scr != null && scr.isFile() && scr.canRead()) {
                 command.add("-s");
-                command.add(s.getScriptLocation().toString());
+                command.add(scr.toString());
             }
 
             if (s.getLibDirs() != null) {

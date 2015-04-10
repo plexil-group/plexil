@@ -196,12 +196,12 @@ public class LuvSocketServer {
                         Luv.getLuv().getStatusMessageHandler().displayErrorMessage(f, "ERROR: exception occurred while closing Universal Executive input stream");
                     }
 
-                    Luv.getLuv().finishedExecutionState(); // *** FIXME ***
+                    Luv.getLuv().finishedExecutionState(); // FIXME: tell Luv what (EOF), not how
                     break;
                 } catch (Exception e) {
                     Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: while parsing input stream");
                     e.printStackTrace();
-                    Luv.getLuv().finishedExecutionState(); // *** FIXME ***
+                    Luv.getLuv().finishedExecutionState(); // FIXME: tell Luv what (comm error), not how
                     quit = true;
                     break;
                 }

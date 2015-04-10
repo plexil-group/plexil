@@ -361,7 +361,7 @@ public class Luv extends JFrame {
         if (m != null)
             handleNewPlan(m);
         openPlanState();
-        statusMessageHandler.showStatus("Plan " + currentPlan.getAbsolutePlanName() + " loaded", 1000);
+        statusMessageHandler.showStatus("Plan " + currentPlan.getPlanFile().toString() + " loaded", 1000);
     }
 
     /** Handles the Plexil plan being loaded into the Luv application. 
@@ -540,9 +540,13 @@ public class Luv extends JFrame {
         return createCFGFileWindow;
     }
 
-    /** Returns the current instance of the Luv SourceWindow.
-     *  @return the current instance of the Luv SourceWindow */
+    /** Returns the current instance of the Luv SourceWindow or null. */
     public SourceWindow getSourceWindow() {
+        return sourceWindow;
+    }
+
+    /** Returns the existing SourceWindow, or constructs one if none exists. */
+    public SourceWindow ensureSourceWindow() {
         if (sourceWindow == null)
             sourceWindow = new SourceWindow();
         return sourceWindow;
@@ -713,7 +717,7 @@ public class Luv extends JFrame {
                                    META_MASK) {
 
                 public void actionPerformed(ActionEvent e) {
-                    getExecSelectDialog().reload();
+                    reload();
                 }
             }
                      );
@@ -880,11 +884,7 @@ public class Luv extends JFrame {
                                    VK_F9) {
 
                 public void actionPerformed(ActionEvent e) {
-                    try {
-                        getSourceWindow().open(currentPlan);
-                    } catch (FileNotFoundException ex) {
-                        statusMessageHandler.displayErrorMessage(ex, "ERROR: exception occurred while opening source window");
-                    }
+                    ensureSourceWindow().open(currentPlan);
                 }
             }
                      );
@@ -1003,9 +1003,6 @@ public class Luv extends JFrame {
 	 */
 	private void startState()
     {
-        // *** TEMP DEBUG ***
-        System.out.println("startState");
-
 		disableAllMenus();
         setBreaksAllowed(false); // ??
 		isExecuting = false;
@@ -1020,9 +1017,8 @@ public class Luv extends JFrame {
 
 		// reset all menu items
 
-        // FIXME: delegate to ExecSelectDialog instance
 		if (execSelect != null)
-            execSelect.getSaveBut().setEnabled(true);
+            execSelect.enableSaveButton();
 
 		fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
 		fileMenu.setEnabled(true);
@@ -1042,9 +1038,6 @@ public class Luv extends JFrame {
 	 */
 	public void readyState()
     {
-        // *** TEMP DEBUG ***
-        System.out.println("readyState");
-
 		// set only certain luv viewer variables
 		planPaused = false;
 		planStep = false;
@@ -1061,9 +1054,8 @@ public class Luv extends JFrame {
 
 		execAction.putValue(NAME, "Execute Plan");
 
-        // FIXME: delegate to ExecSelectDialog instance
         if (execSelect != null)
-            execSelect.getSaveBut().setEnabled(true);
+            execSelect.enableSaveButton();
 
 		fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
 		fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
@@ -1096,9 +1088,6 @@ public class Luv extends JFrame {
 	 * EOF on the LuvListener stream is received.
 	 */
 	public void finishedExecutionState() {
-        // *** TEMP DEBUG ***
-        System.out.println("finishedExecutionState");
-
 		isExecuting = false;
 		planPaused = false;
 		planStep = false;
@@ -1108,9 +1097,8 @@ public class Luv extends JFrame {
 
 		execAction.putValue(NAME, "Execute Plan");
 
-        // FIXME: delegate to ExecSelectDialog instance
         if (execSelect != null)
-            execSelect.getSaveBut().setEnabled(true);
+            execSelect.enableSaveButton();
 
 		fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
 		fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(true);
@@ -1146,15 +1134,11 @@ public class Luv extends JFrame {
 	 * the loaded Plexil Plan is about to execute.
 	 */
 	public void preExecutionState() {
-        // *** TEMP DEBUG ***
-        System.out.println("preExecutionState");
-
 		shouldHighlight = false;
 		currentPlan.reset();
 
-        // FIXME: delegate to ExecSelectDialog instance
         if (execSelect != null)
-            execSelect.getSaveBut().setEnabled(false);
+            execSelect.disableSaveButton();
 
 		fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
 		runMenu.getItem(BREAK_MENU_ITEM).setEnabled(false);
@@ -1168,9 +1152,6 @@ public class Luv extends JFrame {
 	 * loaded Plexil Plan is executing.
 	 */
 	public void executionState() {
-        // *** TEMP DEBUG ***
-        System.out.println("executionState");
-
 		isExecuting = true;
 		
 		statusMessageHandler.showIdlePortMessage();
@@ -1179,9 +1160,8 @@ public class Luv extends JFrame {
 
 		execAction.putValue(NAME, "Stop Execution");
 
-        // FIXME: delegate to ExecSelectDialog instance
         if (execSelect != null)
-            execSelect.getSaveBut().setEnabled(true);
+            execSelect.enableSaveButton();
 
 		fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(true);
 		runMenu.getItem(EXECUTE_MENU_ITEM).setEnabled(true);
@@ -1199,9 +1179,6 @@ public class Luv extends JFrame {
 	 * user manually stops the execution of a Plexil Plan.
 	 */
 	public void stopExecutionState() throws IOException {
-        // *** TEMP DEBUG ***
-        System.out.println("stopExecutionState");
-
 		executionHandler.killUEProcess();
 
 		planPaused = false;
@@ -1213,12 +1190,8 @@ public class Luv extends JFrame {
 	 * Plexil Plan is newly opened in the Luv application.
 	 */
 	public void openPlanState() {
-        // *** TEMP DEBUG ***
-        System.out.println("openPlanState");
-
 		luvBreakPointHandler.removeAllBreakPoints();
 		currentPlan.reset();
-		currentPlan.addScriptName(UNKNOWN);
 		NodeInfoWindow.closeNodeInfoWindow();
 		readyState();
 	}
@@ -1228,9 +1201,6 @@ public class Luv extends JFrame {
 	 * currently loaded Plexil Plan is refreshed in the Luv application.
 	 */
 	public void reloadPlanState() {
-        // *** TEMP DEBUG ***
-        System.out.println("reloadPlanState");
-	
         if (isExecuting && executionHandler.isAlive())
 			try {
 				stopExecutionState();
@@ -1249,9 +1219,6 @@ public class Luv extends JFrame {
 	 * Plexil Plan or the user manually pauses a currently running Plexil Plan.
 	 */
 	public void pausedState() {
-        // *** TEMP DEBUG ***
-        System.out.println("pausedState");
-
 		planPaused = true;
 		planStep = false;
 		updateBlockingMenuItems();
@@ -1263,9 +1230,6 @@ public class Luv extends JFrame {
 	 * currently running Plexil Plan.
 	 */
 	public void stepState() {
-        // *** TEMP DEBUG ***
-        System.out.println("stepState");
-
 		planPaused = false;
 		planStep = true;
 		updateBlockingMenuItems();
@@ -1280,18 +1244,12 @@ public class Luv extends JFrame {
 	 * the Luv application has breaks disabled.
 	 */
 	public void disabledBreakingState() {
-        // *** TEMP DEBUG ***
-        System.out.println("disabledBreakingState");
-
 		settings.setBlocksExec(false);
 		allowBreaksAction.putValue(NAME, "Enable Breaks");
 		setForeground(lookupColor(NODE_DISABLED_BREAKPOINTS));
 
-		for (LuvBreakPoint bp : luvBreakPointHandler.getBreakPointSet())
-			bp.setEnabled(false);
-
+		luvBreakPointHandler.disableAllBreakPoints();
 		viewHandler.refreshView();
-
 		updateBlockingMenuItems();
 	}
 
@@ -1300,17 +1258,11 @@ public class Luv extends JFrame {
 	 * Luv application has breaks enabled.
 	 */
 	public void enabledBreakingState() {
-        // *** TEMP DEBUG ***
-        System.out.println("enabledBreakingState");
-
 		settings.setBlocksExec(true);
 		allowBreaksAction.putValue(NAME, "Disable Breaks");
 		setForeground(lookupColor(NODE_ENABLED_BREAKPOINTS));
 
-		for (LuvBreakPoint bp : luvBreakPointHandler.getBreakPointSet())
-			if (!bp.getReserveBreakStatus())
-				bp.setEnabled(true);
-
+        luvBreakPointHandler.enableAllBreakPoints();
 		viewHandler.refreshView();
 		updateBlockingMenuItems();
 	}
@@ -1318,9 +1270,8 @@ public class Luv extends JFrame {
     // Utility used in startState()
 	private void disableAllMenus()
     {
-        // FIXME: delegate to ExecSelectDialog instance
         if (execSelect != null)
-            execSelect.getSaveBut().setEnabled(false);
+            execSelect.disableSaveButton();
 
 		fileMenu.getItem(RELOAD_MENU_ITEM).setEnabled(false);
 		fileMenu.getItem(EXIT_MENU_ITEM).setEnabled(false);
@@ -1344,7 +1295,61 @@ public class Luv extends JFrame {
 		viewMenu.setEnabled(false);
 		debugMenu.setEnabled(false);
 	}
-    
+
+    public void reload() {		
+        if (isExecuting) {
+            try {
+                stopExecutionState();
+                statusMessageHandler.displayInfoMessage("Stopping execution and reloading plan");
+            } catch (IOException ex) {
+                statusMessageHandler.displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
+            }
+        }        
+                
+        if (execSelect != null)
+            execSelect.refresh();
+
+        File plan = settings.getPlanLocation();
+        if (plan == null)
+            return;
+        
+        if (plan.exists()) {
+            loadPlan(plan);
+        } else {
+            statusMessageHandler.displayErrorMessage(null,
+                                                     "ERROR: While reloading plan: unable to find plan file "
+                                                     + plan.toString());
+            reloadPlanState(); // *** FIXME ***
+        }
+        
+        AppType mode = settings.getAppMode();
+        if (mode == AppType.PLEXIL_SIM || mode == AppType.PLEXIL_TEST) {
+            File script = settings.getScriptLocation();
+            if (script != null && script.isFile() && script.canRead()) {
+                fileHandler.loadScript(script);
+                statusMessageHandler.showStatus("Script \""
+                                                + currentPlan.getScriptFile().toString()
+                                                + "\" loaded",
+                                                1000);
+            }
+        }
+
+        if (mode == AppType.PLEXIL_SIM || mode == AppType.PLEXIL_EXEC) {
+            File config = settings.getConfigLocation();
+            if (config == null && config.isFile() && config.canRead()) {
+                fileHandler.loadConfig(config);
+                statusMessageHandler.showStatus("Config "
+                                                + theLuv.getCurrentPlan().getConfigFile().toString()
+                                                + " loaded",
+                                                1000);
+            }
+        }
+
+        setTitle();
+        if (sourceWindow != null)
+            sourceWindow.refresh();
+    }
+
     /* 
      * Clean up at exit
      */

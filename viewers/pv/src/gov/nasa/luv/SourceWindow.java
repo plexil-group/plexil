@@ -29,13 +29,28 @@ package gov.nasa.luv;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.ListModel;
+import javax.swing.SwingConstants;
+
+import static javax.swing.ScrollPaneConstants.*;
+
 import static gov.nasa.luv.Constants.*;
 
 
@@ -45,160 +60,126 @@ import static gov.nasa.luv.Constants.*;
 public class SourceWindow extends JFrame 
 {
     private static SourceWindow frame;
-    private JPanel planPanel;
-    private JPanel scriptPanel;
-    private int rows;
-    private String planlines[][];
-    private String scriptlines[][];
-    private boolean loaded = false;
+    private JComponent planPanel = null;
+    private JLabel planLabel = null;
+    private JScrollPane planScroller = null;
+    private JList<String> planList = null;
+    private JComponent scriptPanel = null;
+    private JLabel scriptLabel = null;
+    private JScrollPane scriptScroller = null;
+    private JList<String> scriptList = null;
 
     public SourceWindow() {
-    }
-
-    /** Construct an SourceWindow.
-     *
-     * @param model the model source for this SourceWindow
-     */
-    public SourceWindow(Model model) throws FileNotFoundException {
         super("Source Window");
-        
-        if(model != null)
-        {
-        	if(loadPlanSource(model.getAbsolutePlanName()))
-        	{
-        		getContentPane().add(planPanel, BorderLayout.WEST);
-        		loaded = true;
-        	}
-        	if(loadScriptSource(model.getAbsoluteScriptName()))
-		        {   
-			        getContentPane().add(new JSeparator(SwingConstants.VERTICAL));
-			        getContentPane().add(scriptPanel, BorderLayout.EAST);
-			        loaded = true;
-        		}
-        }
+        constructWindow();
     }
 
-    private boolean loadPlanSource(String filename) {
-    	boolean success = false;
-        planPanel = new JPanel(new GridLayout(1,0));
-        rows = 10000;
-        planlines = new String[rows][1];
-        String[] columnNames = null;
-        if(filename != null && !filename.equals("UNKNOWN"))
-        {
-	        columnNames = filename.split("  ");
-	
-	        try  {
-	            FileInputStream fstream = new FileInputStream(filename);
-	            DataInputStream in = new DataInputStream(fstream);
-	            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-	            String line;
-	            int row = 0;
-	
-	            while ((line = br.readLine()) != null && row < rows)
-	            {
-	                planlines[row][0] = line;
-	                row++;
-	            }
-	
-	            in.close();
-	        } catch (Exception e) {
-	            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while opening plan");
-	        }        
-
-        JTable source = new JTable(planlines, columnNames);        
-        source.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);        
-        source.getColumnModel().getColumn(0).setPreferredWidth(1000);
-        source.setShowGrid(false);
-        source.setGridColor(Color.GRAY);
-        JScrollPane scrollPane = new JScrollPane(source);        
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);        
-        
-        planPanel.add(scrollPane);
-        planPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));        
-        source.setOpaque(true);
-        success = true;
-        }
-        return success;
+    private void constructWindow() {
+        constructPlanPanel();
+        constructScriptPanel();
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                                          planPanel,
+                                          scriptPanel);
+        split.setResizeWeight(0.5);
+        getContentPane().add(split, BorderLayout.CENTER);
+        setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
     }
-    
-    private boolean loadScriptSource(String filename) {
-    	boolean success = false;
-        scriptPanel = new JPanel(new GridLayout(1,0));
-        rows = 10000;
-        scriptlines = new String[rows][1];
-        String[] columnNames = null;
-        if(filename != null && !filename.equals("UNKNOWN"))
-        {
-	        columnNames = filename.split("  ");
-	
-	        try  {
-	            FileInputStream fstream = new FileInputStream(filename);
-	            DataInputStream in = new DataInputStream(fstream);
-	            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-	            String line;
-	            int row = 0;
-	
-	            while ((line = br.readLine()) != null && row < rows)
-	            {
-	                scriptlines[row][0] = line;
-	                row++;
-	            }
-	
-	            in.close();
-	        } catch (Exception e) {
-	            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while opening script");
-	        }        
 
-        JTable source = new JTable(scriptlines, columnNames);
-        source.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        source.getColumnModel().getColumn(0).setPreferredWidth(1000);
-        source.setShowGrid(false);
-        source.setGridColor(Color.GRAY);
-        JScrollPane scrollPane = new JScrollPane(source);
-        scrollPane.setAutoscrolls(true);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+    private void constructPlanPanel() {
+        planPanel = Box.createVerticalBox();
+        planLabel = new JLabel("");
+        planLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+        planPanel.add(planLabel);
+        planScroller = new JScrollPane(VERTICAL_SCROLLBAR_AS_NEEDED,
+                                       HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        planList = new JList<String>();
+        planList.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
+        planScroller.setViewportView(planList);
+        planPanel.add(planScroller);
+        planPanel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        planPanel.setPreferredSize(new Dimension(400, 500));
+        planPanel.setMinimumSize(new Dimension(100, 50));
+    }
 
-        scriptPanel.add(scrollPane);
-        scriptPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        source.setOpaque(true);
-        success = true;
-        }
-        return success;
+    private void constructScriptPanel() {
+        scriptPanel = Box.createVerticalBox();
+        scriptLabel = new JLabel("");
+        scriptLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+        scriptPanel.add(scriptLabel);
+        scriptScroller = new JScrollPane(VERTICAL_SCROLLBAR_AS_NEEDED,
+                                         HORIZONTAL_SCROLLBAR_ALWAYS);
+        scriptList = new JList<String>();
+        scriptList.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 10));
+        scriptScroller.setViewportView(scriptList);
+        scriptPanel.add(scriptScroller);
+        scriptPanel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        scriptPanel.setPreferredSize(new Dimension(400, 500));
+        scriptPanel.setMinimumSize(new Dimension(100, 50));
+    }
+
+    // Presumes f is a readable plain file.
+    private ListModel<String> loadFileModel(File f) {
+        DefaultListModel<String> result = new DefaultListModel<String>();
+        try {
+            FileInputStream fstream = new FileInputStream(f);
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String line;
+
+            while ((line = br.readLine()) != null)
+                result.addElement(line);
+	
+            in.close();
+        } catch (Exception e) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e,
+                                                                       "ERROR: source window unable to load " + f.toString());
+            return null;
+        }        
+
+        return result;
     }
 
     /**
-     * Creates an instance of an SourceWindow for the specified Plexil Model.
+     * Displays the specified Plexil Model in the source window.
      */
-    public void open(Model model) throws FileNotFoundException {
-        if (frame != null && frame.isVisible()) {
-            frame.setVisible(false);
-        }
+    public void open(Model model) {
+        if (isVisible())
+            setVisible(false);
 
-        frame = new SourceWindow(model);   
-        frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
-        frame.pack();
-        
-        if(frame.loaded)
-        	frame.setVisible(true);
+        boolean loaded = false;
+        if (model != null) {
+            File plan = model.getPlanFile();
+            if (plan != null && plan.isFile() && plan.canRead()) {
+                ListModel<String> planModel = loadFileModel(plan);
+                if (planModel != null) {
+                    planList.setModel(planModel);
+                    planLabel.setText(plan.toString());
+                    loaded = true;
+                }
+            }
+            File script = model.getScriptFile();
+            if (script != null && script.isFile() && script.canRead()) {
+                ListModel<String> scriptModel = loadFileModel(script);
+                if (scriptModel != null) {
+                    scriptList.setModel(scriptModel);
+                    scriptLabel.setText(script.toString());
+                    loaded = true;
+                }
+            }
+        }
+        if (loaded) {
+            pack();
+        	setVisible(true);
+        }
         else
-        	Luv.getLuv().getStatusMessageHandler().showStatus("No Data avaliable", Color.RED, 10000);
+        	Luv.getLuv().getStatusMessageHandler().showStatus("No Data available", Color.RED, 10000);
     }
     
     /**
-     * Creates an instance of an SourceWindow for the current Plexil Model.
+     * Updates the current contents of the SourceWindow.
      */
-    public void refresh() throws FileNotFoundException {
-    	if(frame != null && frame.isVisible())
-    	{
-    	frame.setVisible(false);    	
-    	frame = new SourceWindow(Luv.getLuv().getCurrentPlan());
-    	frame.setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
-    	frame.pack();
-    	if(frame.loaded)
-        	frame.setVisible(true);
-        else
-        	Luv.getLuv().getStatusMessageHandler().showStatus("No Data avaliable", Color.RED, 10000);
-    	}
+
+    public void refresh() {
+        open(Luv.getLuv().getCurrentPlan());
     }
 }

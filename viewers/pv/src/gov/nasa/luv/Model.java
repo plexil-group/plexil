@@ -54,12 +54,10 @@ public class Model
     //
 
     private static Model TheRootModel;
-    // *** FIXME: use File instead? ***
-    private String planName;    
-    private String scriptName;
-    private String configName;
-    private LinkedHashSet<String> libraryFiles;
-    // *** END FIXME ***
+    private File planFile;
+    private File scriptFile;
+    private File configFile;
+    private LinkedHashSet<File> libraryFiles;
     private LinkedHashSet<String> missingLibraryNodes; // set of library node names
     
     /**
@@ -92,9 +90,10 @@ public class Model
     }
 
     private void commonInit() {
-        planName = null;
-        scriptName = UNKNOWN;
-        libraryFiles = new LinkedHashSet<String>();
+        planFile = null;
+        scriptFile = null;
+        configFile = null;
+        libraryFiles = new LinkedHashSet<File>();
         missingLibraryNodes = new LinkedHashSet<String>();
     }
 
@@ -105,33 +104,31 @@ public class Model
      */
     public Model(Model orig) {
         super(orig);
-        planName = orig.planName;
-        scriptName = orig.scriptName;
-        configName = orig.configName;
-        libraryFiles = orig.libraryFiles; // TODO: confirm
+        planFile = orig.planFile;
+        scriptFile = orig.scriptFile;
+        configFile = orig.configFile;
+        libraryFiles = orig.libraryFiles;
         missingLibraryNodes =
-            new LinkedHashSet<String>(orig.missingLibraryNodes); // TODO: confirm
+            new LinkedHashSet<String>(orig.missingLibraryNodes);
     }
 
     public Model clone() {
         return new Model(this);
     }
 
-    // *** FIXME - use File instead of String? ***
     /** Returns the full path of the Plexil Plan of this Plexil Model/node.
      *  @return the full path of the Plexil Plan of this Plexil Model/node */
-    public String                       getAbsolutePlanName()       { return planName; }
+    public File                       getPlanFile()       { return planFile; }
     /** Returns the full path of the Plexil Script of this Plexil Model/node.
      *  @return the full path of the Plexil Script of this Plexil Model/node */
-    public String                       getAbsoluteScriptName()     { return scriptName; }
+    public File                       getScriptFile()     { return scriptFile; }
     /** Returns the full path of the Plexil config file of this Plexil Model/node.
      *  @return the full path of the Plexil config file of this Plexil Model/node */
-    public String                       getAbsoluteConfigName()     { return scriptName; }
-    // *** END FIXME ***
+    public File                       getConfigFile()     { return scriptFile; }
 
     /** Returns the Set of Library Names for this Plexil Model/node.
      *  @return the Set of Library Names for this Plexil Model/node */
-    public Set<String>                  getLibraryNames()           { return libraryFiles; }
+    public Set<File>                  getLibraryFiles()           { return libraryFiles; }
     /** Returns the Set of missing Libraries for this Plexil Model/node.
      *  @return the Set of missing Libraries for this Plexil Model/node */
     public Set<String>                  getMissingLibraries()       { return missingLibraryNodes; }
@@ -140,13 +137,11 @@ public class Model
      * Returns the Plexil Plan name without the path.
      * @return the Plexil Plan name
      */
-    // *** FIXME ***
     public String getPlanName()
     {
-        if (planName == null)
+        if (planFile == null)
             return null;
-        return planName.substring(planName.lastIndexOf("/") + 1, 
-                                  planName.length());
+        return planFile.getName();
     }
     
     /**
@@ -155,11 +150,9 @@ public class Model
      */
     public String getScriptName()
     {
-        if (!scriptName.equals(UNKNOWN))
-            return scriptName.substring(scriptName.lastIndexOf("/") + 1, 
-                                        scriptName.length());
-        else
-            return scriptName;
+        if (scriptFile == null)
+            return null;
+        return scriptFile.getName();
     }
     
     /**
@@ -179,34 +172,38 @@ public class Model
 
     /**
      * Specifies the Plexil Plan name for this Model.
-     * @param planName the Plexil Plan name
+     * @param planFile the Plexil Plan name
      */
-    public void setPlanName(String name) {
-        planName = name;
+    public void setPlanFile(File name) {
+        planFile = name;
         for (ChangeListener l : changeListeners)
-            l.planNameAdded(this, name);
+            l.planFileAdded(this, name);
     }
       
     /**
      * Specifies the Plexil Script name for this Model.
-     * @param scriptName the Plexil Plan name
+     * @param scriptFile the Plexil Plan name
      */
-    public void addScriptName(String name)
+    public void setScriptFile(File f)
     {
-        scriptName = name;
+        scriptFile = f;
         for (ChangeListener l : changeListeners)
-            l.scriptNameAdded(this, name);
+            l.scriptFileAdded(this, f);
+    }
+
+    public void setConfigFile(File f) {
+        configFile = f;
     }
 
     /**
      * Specifies the Plexil Library name for this Model.
      * @param libraryName the Plexil Library name
      */
-    public void addLibraryName(String libraryName)
+    public void addLibraryFile(File f)
     {
-        if (libraryFiles.add(libraryName)) {
+        if (libraryFiles.add(f)) {
             for (ChangeListener l : changeListeners)
-                l.libraryNameAdded(this, libraryName);
+                l.libraryFileAdded(this, f);
         }
     }
 

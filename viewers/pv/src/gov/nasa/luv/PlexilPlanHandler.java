@@ -416,14 +416,15 @@ public class PlexilPlanHandler
     }
 
     private Node startNode(Node node, String tagName, Attributes attributes) {
+        String nodeTypeAttr = attributes.getValue(NODETYPE_ATTR);
         if (node == Model.getRoot()) {
             // Starting a new plan
-            topLevelNode = new Model(tagName, row_number++);
+            topLevelNode = new Model(nodeTypeAttr, row_number++);
             node.addChild(topLevelNode);
             node = topLevelNode;
         }
         else {
-            Node child = new Node(tagName, row_number++);
+            Node child = new Node(nodeTypeAttr, row_number++);
             node.addChild(child);
             node = child;
         }

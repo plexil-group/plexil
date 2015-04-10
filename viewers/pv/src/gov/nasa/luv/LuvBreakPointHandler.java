@@ -100,6 +100,23 @@ public class LuvBreakPointHandler
     }
 
     /**
+     * Disable all breakpoints.
+     */
+    public void disableAllBreakPoints() {
+		for (LuvBreakPoint bp : getBreakPointSet())
+			bp.setEnabled(false);
+    }
+
+    /**
+     * Enable all breakpoints.
+     */
+    public void enableAllBreakPoints() {
+		for (LuvBreakPoint bp : getBreakPointSet())
+			if (!bp.getReserveBreakStatus())
+				bp.setEnabled(true);
+    }
+
+    /**
      * Adds the specified LuvBreakPoint to the full list of LuvBreakPoints.
      * @param breakPoint the LuvBreakPoint to be added
      */
@@ -142,9 +159,6 @@ public class LuvBreakPointHandler
      * @param node the new Plexil node the current LuvBreakPoints will be mapped to
      */
     public void mapBreakPointsToNewModel(Model model) {
-        // *** TEMP DEBUG ***
-        System.out.println("mapBreakPointsToNewModel called");
-
 	    for (Map.Entry<LuvBreakPoint, Integer> pair: breakPointMap.entrySet()) {
             LuvBreakPoint bp = pair.getKey();
             int row_number = pair.getValue();
