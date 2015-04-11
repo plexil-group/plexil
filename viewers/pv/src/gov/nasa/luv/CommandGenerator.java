@@ -36,4 +36,10 @@ import gov.nasa.luv.Settings;
 public interface CommandGenerator {
     public List<String> generateCommand(Settings s)
         throws CommandGenerationException;
+
+    public boolean checkFiles(Settings s)
+        throws CommandGenerationException;
+
+    public boolean checkPlanFile(Settings s)
+        throws CommandGenerationException;
 }

@@ -63,6 +63,8 @@ public class ExecutionHandler
 {
     private Process execProcess;
     private Thread execMonitorThread;
+
+    private static File CHECKER_PROG = new File(Constants.PLEXIL_SCRIPTS_DIR, "checkPlexil");
       
     public ExecutionHandler()
     {
@@ -82,12 +84,77 @@ public class ExecutionHandler
  
     public boolean runExec()
     {
-        List<String> cmd;
+        CommandGenerator g = null;
         try {
-            cmd = createCommand();
+            g = getCommandGenerator();
+        }
+        catch (CommandGenerationException c) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
+                                                                       "Error in Exec command generation: "
+                                                                       + c.getMessage());
+            return false;
         }
         catch (Exception e) {
             Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error constructing PLEXIL Exec command line");
+            return false;
+        }
+
+        if (g == null) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
+                                                                       "Error in Exec command generation: "
+                                                                       + "Couldn't find command generator");
+            return false;
+        }
+
+        Settings s = Luv.getLuv().getSettings();
+        try {
+            g.checkPlanFile(s);
+        }
+        catch (CommandGenerationException c) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
+                                                                       "Error locating PLEXIL plan: "
+                                                                       + c.getMessage());
+            return false;
+        }
+        catch (Exception e) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error locating PLEXIL plan");
+            return false;
+        }
+
+        if (s.checkPlan())
+            try {
+                File p = s.getPlanLocation();
+                String[] cmd = {CHECKER_PROG.toString(), p.toString()};
+                Luv.getLuv().getStatusMessageHandler().showStatus("Checking plan file " + p.toString());
+                if (0 != Runtime.getRuntime().exec(cmd).waitFor()) {
+                    Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
+                                                                               "Plan " + p.toString() + " failed static checks");
+                    return false;
+                }
+            }
+            catch (Exception e) {
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error checking PLEXIL plan");
+                return false;
+            }
+
+        List<String> cmd;
+        try {
+            cmd = createCommand(g, s);
+        }
+        catch (CommandGenerationException c) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
+                                                                       "Error constructing PLEXIL Exec command line: "
+                                                                       + c.getMessage());
+            return false;
+        }
+        catch (Exception e) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "Error constructing PLEXIL Exec command line");
+            return false;
+        }
+
+        if (cmd == null) {
+            Luv.getLuv().getStatusMessageHandler().displayInfoMessage("Sorry",
+                                                                      "Application mode doesn't support execution from Viewer");
             return false;
         }
 
@@ -126,7 +193,8 @@ public class ExecutionHandler
      */
     // *** FIXME: don't construct a new instance for each call! ***
     @SuppressWarnings("unchecked")
-    private CommandGenerator getCommandGenerator() throws CommandGenerationException
+    private CommandGenerator getCommandGenerator()
+        throws CommandGenerationException
     {
         String alternativeExecutive = System.getenv("ALT_EXECUTIVE");
         if (alternativeExecutive != null) {
@@ -200,26 +268,16 @@ public class ExecutionHandler
      * 
      *  @return the command to execute or an error message if the command could not be created.
      */      
-    private List<String> createCommand()
+    private List<String> createCommand(CommandGenerator g, Settings s)
         throws IOException, CommandGenerationException
     {
         if (Luv.getLuv().getAppMode() == EXTERNAL_APP)
             return null;
 
-        CommandGenerator pe;
-        try {
-            pe = getCommandGenerator();
-        }
-        catch (CommandGenerationException e) {
-            throw e;
-        }
+        if (!g.checkFiles(s)) // can throw, exception has reason
+            throw new CommandGenerationException("Can't run exec: Some file is not accessible");
 
-        try {
-            return pe.generateCommand(Luv.getLuv().getSettings());
-        }
-        catch (CommandGenerationException e) {
-            throw e; // *** where is this handled? ***
-        }
+        return g.generateCommand(s); // can throw
     }
       
     /** Kills the currently running instance of the Universal Executive. */
@@ -334,10 +392,13 @@ public class ExecutionHandler
         extends CommandGeneratorBase
         implements CommandGenerator {
 
-        @Override
-        public List<String> generateCommand(Settings s) {
-            // TODO: Check that required files exist: plan, config, 
+        public boolean checkFiles(Settings s)
+            throws CommandGenerationException {
+            return checkPlanFile(s)
+                && checkConfigFile(s);
+        }
 
+        public List<String> generateCommand(Settings s) {
             Vector<String> command = new Vector<String>();
   
             System.out.println("Using Universal Executive...");
@@ -360,10 +421,6 @@ public class ExecutionHandler
                 command.add("-d");
                 command.add(debug.toString());
             }
-
-            //Check Plan file	  
-            if (s.checkPlan())
-                command.add("-check");
 	  
             // get plan
             command.add("-p");
@@ -397,10 +454,14 @@ public class ExecutionHandler
         extends CommandGeneratorBase
         implements CommandGenerator {
 
-        @Override
+        public boolean checkFiles(Settings s)
+            throws CommandGenerationException {
+            return checkPlanFile(s)
+                && checkScriptFile(s);
+        }
+
         public List<String> generateCommand(Settings s) 
         {
-            // TODO: Check that required files exist
             Vector<String> command = new Vector<String>();
 		  
             System.out.println("Using Test Executive...");
@@ -426,10 +487,6 @@ public class ExecutionHandler
                 command.add("-d");
                 command.add(debug.toString());
             }
-
-            //Check Plan file	  
-            if (Luv.getLuv().checkPlan())
-                command.add("-check");
 		  
             // get plan
             command.add("-p");
@@ -460,10 +517,14 @@ public class ExecutionHandler
         extends CommandGeneratorBase
         implements CommandGenerator {
 
-        @Override
-        public List<String> generateCommand(Settings s) {
-            // TODO: Check that required files exist
+        public boolean checkFiles(Settings s)
+            throws CommandGenerationException {
+            return checkPlanFile(s)
+                && checkConfigFile(s)
+                && checkScriptFile(s);
+        }
 
+        public List<String> generateCommand(Settings s) {
             Vector<String> command = new Vector<String>();	 
   
             System.out.println("Using PlexilSim...");
@@ -485,10 +546,6 @@ public class ExecutionHandler
                 command.add("-d");
                 command.add(debug.toString());
             }
-
-            //Check Plan file	  
-            if (Luv.getLuv().checkPlan())
-                command.add("-check");	  
 	  
             // get plan
             command.add("-p");

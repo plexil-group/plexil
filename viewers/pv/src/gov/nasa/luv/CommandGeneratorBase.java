@@ -37,11 +37,21 @@ public class CommandGeneratorBase {
         File p = s.getPlanLocation();
         if (p == null)
             throw new CommandGenerationException("Plan not set");
-        if (!p.getAbsoluteFile().exists())
-            throw new CommandGenerationException("Specified plan file "
-                                                 + p.getAbsoluteFile().toString()
-                                                 + " does not exist");
         return p.getAbsoluteFile().toString();
+    }
+
+    public boolean checkPlanFile(Settings s)
+        throws CommandGenerationException {
+        File p = s.getPlanLocation();
+        if (p == null)
+            throw new CommandGenerationException("No plan file specified");
+        if (!p.exists())
+            throw new CommandGenerationException("Plan file " + p.toString() + " not found");
+        if (!p.isFile())
+            throw new CommandGenerationException("Plan file " + p.toString() + " is not a plain file");
+        if (!p.canRead())
+            throw new CommandGenerationException("Plan file " + p.toString() + " is not readable");
+        return true;
     }
 
     protected String getScript(Settings s)
@@ -49,11 +59,21 @@ public class CommandGeneratorBase {
         File f = s.getScriptLocation();
         if (f == null)
             throw new CommandGenerationException("Script not set");
-        if (!f.getAbsoluteFile().exists())
-            throw new CommandGenerationException("Specified script file "
-                                                 + f.getAbsoluteFile().toString()
-                                                 + " does not exist");
         return f.getAbsoluteFile().toString();
+    }
+
+    protected boolean checkScriptFile(Settings s)
+        throws CommandGenerationException {
+        File scr = s.getScriptLocation();
+        if (scr == null)
+            throw new CommandGenerationException("No script file specified");
+        if (!scr.exists())
+            throw new CommandGenerationException("Script file " + scr.toString() + " not found");
+        if (!scr.isFile())
+            throw new CommandGenerationException("Script file " + scr.toString() + " is not a plain file");
+        if (!scr.canRead())
+            throw new CommandGenerationException("Script file " + scr.toString() + " is not readable");
+        return true;
     }
 
     protected String getConfig(Settings s)
@@ -61,11 +81,21 @@ public class CommandGeneratorBase {
         File f = s.getConfigLocation();
         if (f == null)
             throw new CommandGenerationException("Config not set");
-        if (!f.getAbsoluteFile().exists())
-            throw new CommandGenerationException("Specified config file "
-                                                 + f.getAbsoluteFile().toString()
-                                                 + " does not exist");
         return f.getAbsoluteFile().toString();
+    }
+
+    protected boolean checkConfigFile(Settings s)
+        throws CommandGenerationException {
+        File c = s.getConfigLocation();
+        if (c == null)
+            throw new CommandGenerationException("No config file specified");
+        if (!c.exists())
+            throw new CommandGenerationException("Config file " + c.toString() + " not found");
+        if (!c.isFile())
+            throw new CommandGenerationException("Config file " + c.toString() + " is not a plain file");
+        if (!c.canRead())
+            throw new CommandGenerationException("Config file " + c.toString() + " is not readable");
+        return true;
     }
 
     protected Collection<File> getLibraryDirs(Settings s)

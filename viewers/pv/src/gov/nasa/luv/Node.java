@@ -108,13 +108,13 @@ public class Node
         failureType = orig.failureType;
         libraryName = orig.libraryName;
         // parent will be supplied by caller
-        conditionMap = orig.conditionMap; // TODO: verify
+        conditionMap = orig.conditionMap;
         variableList = new ArrayList<Variable>();
         for (Variable v : orig.variableList) {
             variableList.add(v.clone());
         }
 
-        actionList = orig.actionList; // TODO: verify
+        actionList = orig.actionList;
         breakPoints = new Vector<LuvBreakPoint>();
         changeListeners = new Vector<ChangeListener>();
         row_number = orig.row_number;

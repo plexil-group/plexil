@@ -363,8 +363,7 @@ public class StatusMessageHandler
      * @param e the exception that triggered the error message, can be null
      * @param errorMessage the message to be displayed with the error
      */
-    public void displayErrorMessage(Exception e, String errorMessage)
-    {
+    public void displayErrorMessage(Exception e, String errorMessage) {
         if (e != null) {
             JOptionPane.showMessageDialog(Luv.getLuv(), 
                                           errorMessage + ".\nPlease see Debug Window.", 
@@ -372,10 +371,11 @@ public class StatusMessageHandler
                                           JOptionPane.ERROR_MESSAGE);
             out.println(errorMessage + "\n" + e.getMessage());
             e.printStackTrace(out);
-            // TODO: make debug window visible?
+            // make debug window visible
+            Luv.getLuv().getDebugWindow().setVisible(true);
+            Luv.getLuv().getDebugWindow().toFront();
         }
-        else
-        {
+        else {
             JOptionPane.showMessageDialog(Luv.getLuv(), 
                                           errorMessage, 
                                           "Error", 
@@ -388,15 +388,35 @@ public class StatusMessageHandler
     /**
      * Displays a consistently formatted error information or message in a Dialog Box.
      * 
+     * @param msg the message to be displayed 
+     */
+    public void displayWarningMessage(String msg, String title)
+    {
+        JOptionPane.showMessageDialog(Luv.getLuv(),
+                                      msg,
+                                      title,
+                                      JOptionPane.WARNING_MESSAGE);
+        out.println("WARN: " + msg);
+    }
+    
+    /**
+     * Displays a consistently formatted error information or message in a Dialog Box.
+     * 
      * @param infoMessage the message to be displayed 
      */
-    public void displayInfoMessage(String infoMessage)
+    public void displayInfoMessage(String infoMessage, String title)
     {
         JOptionPane.showMessageDialog(Luv.getLuv(),
                                       infoMessage,
-                                      "Stopping Execution",
+                                      title,
                                       JOptionPane.INFORMATION_MESSAGE);
         out.println("INFO: " + infoMessage);
+    }
+
+    // Backwards compatible version
+    public void displayInfoMessage(String infoMessage)
+    {
+        displayInfoMessage(infoMessage, "Stopping Execution");
     }
 
     /**

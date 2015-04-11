@@ -70,7 +70,7 @@ public class ExecSelectDialog extends JPanel {
 	private JRadioButton externalApp, plexilExec, plexilTest, plexilSim;
 	private JLabel planLab, configLab, scriptLab;	
 	private JPanel patternPanel;
-	private PlexilFilter planFilter, configFilter, simScriptFilter, teScriptFilter;
+	private PlexilFilter planFilter, configFilter, teScriptFilter;
 	private JFileChooser dirChooser;
 
 	public ExecSelectDialog(Luv luv) {
@@ -206,7 +206,7 @@ public class ExecSelectDialog extends JPanel {
                         File s = openFile(e,
                                           (settings.getAppMode() == PLEXIL_TEST)
                                           ? teScriptFilter
-                                          : simScriptFilter,
+                                          : null,
                                           settings.getScriptLocation());
                         if (s != null) {
                             settings.setScriptLocation(s);
@@ -254,8 +254,6 @@ public class ExecSelectDialog extends JPanel {
 
 		planFilter = new PlexilFilter("PLX");
 		configFilter = new PlexilFilter("XML");
-        // FIXME
-        simScriptFilter = new PlexilFilter("xml / plx / psx / txt / pst / pls");
 		teScriptFilter = new PlexilFilter("PSX");
 	}
 
@@ -511,7 +509,6 @@ public class ExecSelectDialog extends JPanel {
     // Called by save button listener
     private void saveSettings() {
         if (theLuv.getIsExecuting()) {
-            // *** FIXME: delegate to Luv instance ***
             try {
                 theLuv.stopExecutionState();
                 theLuv.getStatusMessageHandler().displayInfoMessage("Stopping execution and loading plan");

@@ -256,17 +256,22 @@ public class FileHandler
         }
     }
 
-    private int chooseConfig()
-    {
-        int option = -1;
-        // *** TODO ***
-        return option;
+    private File chooseConfig() {
+        try {
+            File defaultDir = Luv.getLuv().getSettings().getPlanLocation().getParentFile();
+            fileChooser.setCurrentDirectory(defaultDir);
+            if (fileChooser.showDialog(dirChooser, "Open Config") == APPROVE_OPTION)
+                return fileChooser.getSelectedFile().getAbsoluteFile();
+        } catch(Exception e) {
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while choosing config file");
+        }
+        return null;
     }
           
-    /** Selects and loads a Plexl library from the disk. This operates on the global model.
+    /** Selects and loads a Plexil library from the disk. This operates on the global model.
      * @return the Plexil library path or null if not found
-     */       
-    public File chooseLibrary() {
+     */
+    private File chooseLibrary() {
         try {
             File defaultDir = Luv.getLuv().getSettings().getPlanLocation().getParentFile();
             fileChooser.setCurrentDirectory(defaultDir);

@@ -27,7 +27,6 @@
 //
 // TODO:
 //  - use default properties (see Properties javadoc)
-//  - hang command generation off Settings object
 //
 
 package gov.nasa.luv;
@@ -194,14 +193,18 @@ public class Settings {
                     block = true;
                     blockSupplied = true;
                 }
-                else if (opt.equals("-c") || opt.equals("-config"))
+                else if (opt.equals("-c") || opt.equals("-config")) {
                     config = new File(opts[++i]);
+                    configSupplied = true;
+                }
                 else if (opt.equals("-ch") || opt.equals("-check")) {
                     check = true;
                     checkSupplied = true;
                 }
-                else if (opt.equals("-d") || opt.equals("-debug"))
+                else if (opt.equals("-d") || opt.equals("-debug")) {
                     debug = new File(opts[++i]);
+                    debugSupplied = true;
+                }
                 else if (opt.equals("-E") || opt.equals("-external")) {
                     specdMode = EXTERNAL_APP;
                     modeSupplied = true;
@@ -346,7 +349,6 @@ public class Settings {
             loadSavedSettings(m_file);
     }
 
-    // TODO: handle IO errors (e.g. permissions failure, no such directory)
     public void save() {
         saveToProperties();
         if (m_file != null)
