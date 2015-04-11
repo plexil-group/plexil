@@ -430,8 +430,8 @@ fi
 if [ -n "$viewer" ]
 then
     # Launch the viewer, which will in turn invoke this script again with the automate flag
-    #echo "plexil -plexilexec $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $block"
-    exec plexil -plexiltest $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $block
+    #echo "plexil -plexiltest $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block"
+    exec plexil -plexiltest $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block
 else
     # User doesn't want viewer
     #echo "$prog $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block"
