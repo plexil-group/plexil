@@ -33,13 +33,15 @@ import static gov.nasa.luv.Constants.PROP_CFGWIN_SIZE;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -53,6 +55,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -61,9 +64,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
+import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import static java.awt.GridBagConstraints.*;
 
 /**
  * This class was modeled after the CheckNodeTreeExample, CheckNode, CheckRenerer
@@ -79,13 +85,7 @@ public class LibraryLoader
     extends JFrame
     implements ItemListener {
 
-    private static String topMessage = null; // *** FIXME ***
-    private static boolean error; // *** FIXME ***
-    private JPanel topSection;
     private FileListPanel pathList;
-    private JScrollPane checkBoxList;
-    private JScrollPane previewArea;
-    private JPanel buttonPane;
     private ArrayList<CheckNode> nodes;
     private JTextArea preview;
     private JTree main_tree;
@@ -93,33 +93,40 @@ public class LibraryLoader
     private Vector<File> libraryPath;
     private Vector<File> libraryFiles;
     private Vector<String> libraryNames;
+    private GridBagLayout layout;
 
     /** Construct a LibraryLoader. 
      */
     public LibraryLoader() {
         super("Libraries");
-        error = false;
-        createPathList();
-        createCheckList();
 
-        if (!error) {
-            createPreviewArea();
-            createTopSection();
-            createButtons();
+        layout = new GridBagLayout();
+        Container pane = getContentPane();
+        pane.setLayout(layout);
 
-            Container pane = getContentPane();
-            pane.add(topSection, BorderLayout.NORTH);
-            pane.add(pathList, BorderLayout.WEST);
-            pane.add(checkBoxList, BorderLayout.CENTER);
-            pane.add(dyn_tree, BorderLayout.CENTER);
-            pane.add(previewArea, BorderLayout.EAST);
-            pane.add(buttonPane, BorderLayout.SOUTH);
-        }
+        createPathListSection();
+        createCheckListSection();
+        createPreviewSection();
     }
 
-    private void createPathList() {
+    private void createPathListSection() {
+        JLabel pathHeading = new JLabel("Library Search Path", SwingConstants.CENTER);
+        GridBagConstraints headingConstraints = new GridBagConstraints();
+        headingConstraints.gridx = 0;
+        headingConstraints.gridy = 0;
+        headingConstraints.fill = HORIZONTAL;
+        layout.setConstraints(pathHeading, headingConstraints);
+        add(pathHeading);
+
         pathList = new FileListPanel();
-        pathList.setPreferredSize(new Dimension(450, 50)); // *** FIXME ***
+        GridBagConstraints listConstraints = new GridBagConstraints();
+        listConstraints.gridx = 0;
+        listConstraints.gridy = 1;
+        listConstraints.weightx = 1.0;
+        listConstraints.weighty = 1.0;
+        listConstraints.fill = BOTH;
+        layout.setConstraints(pathList, listConstraints);
+        add(pathList);
 
         Settings s = Luv.getLuv().getSettings();
         Collection<File> dirs = s.getLibDirs();
@@ -131,72 +138,17 @@ public class LibraryLoader
         }
         // else { // choose a sane default
         // }
-    }
 
-    /*
-     * Initializes checklist and tree
-     */
-    private void createCheckList() {
-        nodes = new ArrayList<CheckNode>();
-        dyn_tree = new DynamicTree();
-                
-        // place check boxes into check box tree        
-        checkBoxList = new JScrollPane(dyn_tree);
-        checkBoxList.setPreferredSize(new Dimension(450, 50));
-
-        // TODO: Bypass setting default if user specs library dirs on cmd line
-        // File defaultPath = Constants.PLEXIL_EXAMPLES_DIR;
-        // addLibrary(defaultPath);
-    }
-
-    /*
-     * Builds display window for loaded libraries
-     */
-    private void createPreviewArea() {
-        preview = new JTextArea();
-        preview.setPreferredSize(new Dimension(435, 50));
-        setPreviewOfLibraries();
-        preview.setEditable(false);
-        previewArea = new JScrollPane(preview);
-    }
-
-    /*
-     * Message to User Section
-     */
-    private void createTopSection() {
-        JLabel topMessage = new JLabel();
-        topMessage.setText(getTopMessage());
-        topMessage.setFont(topMessage.getFont().deriveFont(Font.PLAIN, 12.0f));
-        
-        topSection = new JPanel();
-        topSection.setLayout(new BoxLayout(topSection, BoxLayout.PAGE_AXIS));
-        topSection.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        topSection.add(topMessage);
-    }
-
-    /*
-     * Button Initialization
-     */
-    private void createButtons() {
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ev) {
-                    setVisible(false);
-                }
-            }
-            );
         JButton dirButton = new JButton("Add Directory");
         dirButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) { 
                     File dflt = pathList.getLast();
                     if (dflt == null) {
                         File planLoc = Luv.getLuv().getSettings().getPlanLocation();
-                        if (planLoc != null) {
+                        if (planLoc != null)
                             dflt = planLoc.getParentFile();
-                        }
-                        else {
+                        else
                             dflt = new File(System.getenv("PWD")); // *** use homedir instead? ***
-                        }
                     }
                     
                     JFileChooser dc = new JFileChooser(dflt);
@@ -220,6 +172,66 @@ public class LibraryLoader
             }
             );
 
+        JButton clearDirsButton = new JButton("Clear Directories");
+        clearDirsButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    // verify that the user wants to clear Libraries
+                    Object[] options = {"Yes", "No"};
+                    int clear =
+                        JOptionPane.showOptionDialog(Luv.getLuv(),
+                                                     "Are you sure you want to clear all Library directories?",
+                                                     "Clear Path",
+                                                     JOptionPane.YES_NO_CANCEL_OPTION,
+                                                     JOptionPane.WARNING_MESSAGE,
+                                                     null,
+                                                     options,
+                                                     options[0]);
+
+                    if (clear == 0)
+                        pathList.clearFiles();
+                }
+            }
+            );
+
+        JPanel buttonPane = new JPanel();
+        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+        buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        buttonPane.add(Box.createHorizontalGlue());
+        buttonPane.add(dirButton);
+        buttonPane.add(Box.createHorizontalStrut(3));
+        buttonPane.add(clearDirsButton);
+        buttonPane.add(Box.createHorizontalGlue());
+        GridBagConstraints buttonConstraints = new GridBagConstraints();
+        buttonConstraints.gridx = 0;
+        buttonConstraints.gridy = 2;
+        buttonConstraints.fill = HORIZONTAL;
+        layout.setConstraints(buttonPane, buttonConstraints);
+        add(buttonPane);
+    }
+
+    /*
+     * Initializes checklist and tree
+     */
+    private void createCheckListSection() {
+        JLabel heading = new JLabel("Libraries", SwingConstants.CENTER);
+        GridBagConstraints headingConstraints = new GridBagConstraints();
+        headingConstraints.gridx = 1;
+        headingConstraints.gridy = 0;
+        headingConstraints.fill = HORIZONTAL;
+        layout.setConstraints(heading, headingConstraints);
+        add(heading);
+
+        nodes = new ArrayList<CheckNode>();
+        dyn_tree = new DynamicTree();
+        GridBagConstraints treeConstraints = new GridBagConstraints();
+        treeConstraints.gridx = 1;
+        treeConstraints.gridy = 1;
+        treeConstraints.weightx = 1.0;
+        treeConstraints.weighty = 1.0;
+        treeConstraints.fill = BOTH;
+        layout.setConstraints(dyn_tree, treeConstraints);
+        add(dyn_tree);
+
         JButton libButton = new JButton("Add Library");
         libButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) { 
@@ -238,39 +250,72 @@ public class LibraryLoader
             }
             );
         
-        JButton clearDirsButton = new JButton("Clear Directories");
-        clearDirsButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ev) {
-                    // verify that the user wants to clear Libraries
-                    Object[] options = {"Yes", "No"};
-                    int clear =
-                        JOptionPane.showOptionDialog(Luv.getLuv(),
-                                                     "Are you sure you want to clear all Library directories?",
-                                                     "Clear Path",
-                                                     JOptionPane.YES_NO_CANCEL_OPTION,
-                                                     JOptionPane.WARNING_MESSAGE,
-                                                     null,
-                                                     options,
-                                                     options[0]);
-
-                    if (clear == 0) {
-                        pathList.clearFiles();
-                    }
-                }
-            }
-            );
-
         JButton clearButton = new JButton("Clear Libraries");
         clearButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) {
+                    // *** TODO ***
                 }
             }
             );
-        
+
+        JPanel buttonPane = new JPanel();
+        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
+        buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        buttonPane.add(Box.createHorizontalGlue());
+        buttonPane.add(libButton);
+        buttonPane.add(Box.createHorizontalStrut(3));
+        buttonPane.add(clearButton);
+        buttonPane.add(Box.createHorizontalGlue());
+
+        GridBagConstraints buttonConstraints = new GridBagConstraints();
+        buttonConstraints.gridx = 1;
+        buttonConstraints.gridy = 2;
+        buttonConstraints.fill = HORIZONTAL;
+        layout.setConstraints(buttonPane, buttonConstraints);
+        add(buttonPane);
+
+        // TODO: Bypass setting default if user specs library dirs on cmd line
+        // File defaultPath = Constants.PLEXIL_EXAMPLES_DIR;
+        // addLibrary(defaultPath);
+    }
+
+    /*
+     * Builds display window for loaded libraries
+     */
+    private void createPreviewSection() {
+        JLabel heading = new JLabel("Preview", SwingConstants.CENTER);
+        GridBagConstraints headingConstraints = new GridBagConstraints();
+        headingConstraints.gridx = 2;
+        headingConstraints.gridy = 0;
+        headingConstraints.fill = HORIZONTAL;
+        layout.setConstraints(heading, headingConstraints);
+        add(heading);
+
+        preview = new JTextArea();
+        setPreviewOfLibraries();
+        preview.setEditable(false);
+        JScrollPane previewArea = new JScrollPane(preview);
+        GridBagConstraints previewConstraints = new GridBagConstraints();
+        previewConstraints.gridx = 2;
+        previewConstraints.gridy = 1;
+        previewConstraints.weightx = 1.0;
+        previewConstraints.weighty = 1.0;
+        previewConstraints.fill = BOTH;
+        layout.setConstraints(previewArea, previewConstraints);
+        add(previewArea);
+
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    setVisible(false);
+                }
+            }
+            );
+
         JButton createCFGButton = new JButton("OK");
         createCFGButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) {
-                    getPreview().setText("");
+                    preview.setText("");
                     ArrayList<File> parentSelected = new ArrayList<File>();
                     Iterator<CheckNode> it = nodes.iterator();
                     while (it.hasNext()) {
@@ -279,7 +324,7 @@ public class LibraryLoader
                         if (node.getUserObject() instanceof File) {
                             File selected = (File)node.getUserObject();
                             parentSelected.add(selected.getAbsoluteFile());
-                            getPreview().append(selected.getAbsolutePath() + "\n");
+                            preview.append(selected.getAbsolutePath() + "\n");
                         }
                         //}
                     }//end while
@@ -289,22 +334,21 @@ public class LibraryLoader
             );
 
         // Panel to hold buttons and file location message
-        buttonPane = new JPanel();
+        JPanel buttonPane = new JPanel();
         buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
         buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         buttonPane.add(Box.createHorizontalGlue());
         buttonPane.add(cancelButton);
         buttonPane.add(Box.createHorizontalStrut(3));
-        buttonPane.add(dirButton);
-        buttonPane.add(Box.createHorizontalStrut(3));
-        buttonPane.add(libButton);
-        buttonPane.add(Box.createHorizontalStrut(3));
-        buttonPane.add(clearDirsButton);
-        buttonPane.add(Box.createHorizontalStrut(3));
-        buttonPane.add(clearButton);
-        buttonPane.add(Box.createHorizontalStrut(3));
         buttonPane.add(createCFGButton);
-        buttonPane.add(Box.createRigidArea(new Dimension(10, 0)));
+        buttonPane.add(Box.createHorizontalGlue());
+
+        GridBagConstraints buttonConstraints = new GridBagConstraints();
+        buttonConstraints.gridx = 2;
+        buttonConstraints.gridy = 2;
+        buttonConstraints.fill = HORIZONTAL;
+        layout.setConstraints(buttonPane, buttonConstraints);
+        add(buttonPane);
     }
     
     /*
@@ -325,7 +369,7 @@ public class LibraryLoader
      */
     public void removeAllNodes() {
     	dyn_tree.clear();
-        getPreview().setText(null);
+        preview.setText(null);
         nodes.removeAll(nodes);
         nodes.add(new CheckNode(Constants.PLEXIL_EXAMPLES_DIR));
     }
@@ -379,26 +423,11 @@ public class LibraryLoader
             }
         }
     }
-
-    /*
-     * Allows for future message handling to user
-     */
-    private static String getTopMessage() {
-        if (topMessage == null) {
-            StringBuilder sb = new StringBuilder();
-            sb.append("<html><p align=left>");
-            sb.append("<br></br>");
-            sb.append("<br></br>");       
-            sb.append("</p></html>");
-            topMessage = sb.toString();
-        }
-        return topMessage;
-    }
     
     /*
      * Expose preview window
      */
-    public JTextArea getPreview(){
+    public JTextArea getPreview() {
     	return preview;
     }
     
@@ -419,12 +448,10 @@ public class LibraryLoader
     /** Displays the LibraryLoader.  */
     public void open() throws FileNotFoundException {
         setVisible(false);
-        if (!error) {
-            setPreferredSize(Luv.getLuv().getSettings().getDimension(PROP_CFGWIN_SIZE));
-            setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
-            pack();
-            setVisible(true);
-        }
+        setPreferredSize(Luv.getLuv().getSettings().getDimension(PROP_CFGWIN_SIZE));
+        setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
+        pack();
+        setVisible(true);
     }
 
     /** {@inheritDoc} */

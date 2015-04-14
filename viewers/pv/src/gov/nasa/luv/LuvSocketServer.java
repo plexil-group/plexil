@@ -47,7 +47,7 @@ import static gov.nasa.luv.Constants.END_OF_MESSAGE;
 public class LuvSocketServer {
 
     private boolean exitRequested;
-    private Thread serverThread;
+    private static Thread serverThread;
 
     /**
      * Constructs a server which listens on the specified port and StreamWranglerFactory.
@@ -66,23 +66,42 @@ public class LuvSocketServer {
         }
 
         if (!portFree(port)) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
-                                                                       "ERROR: port " + port + " is in use, please try another.");
-            return;
+            if (Luv.getLuv().getSettings().getPortSupplied()) {
+                // User chose this port
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null,
+                                                                           "ERROR: port " + port + " is in use, please try another.");
+                Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Unable to listen on port " + port);
+                return;
+            }
+            // Used default, choose another
+            else {
+                Vector<Integer> ports = getPortList();
+                Luv.getLuv().getStatusMessageHandler().displayWarningMessage("Port " + port
+                                                                             + " is unavailable, using port " + ports.firstElement()
+                                                                             + " instead.",
+                                                                             "Port unavailable");
+                port = ports.firstElement();
+                Luv.getLuv().getSettings().setPort(port);
+            }
         }
 
+        final int thePort = port; // work around compiler error
         // create a thread which listens for events
         serverThread = new Thread() {
                 public void run() {
-                    acceptConnections(port);
+                    acceptConnections(thePort);
                 }
             };
         serverThread.start();
+        Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Listening on port " + port);
     }
     
     public void stopServer() {
         if (serverThread == null)
             return; // nothing to do
+
+        Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Stopping service on port "
+                                                                + Luv.getLuv().getSettings().getPort());
         Thread.State s = serverThread.getState();
         if (s != Thread.State.TERMINATED) {
             exitRequested = true;
@@ -254,11 +273,12 @@ public class LuvSocketServer {
         Vector<Integer> portList = new Vector<Integer>(Constants.PORT_MAX - Constants.PORT_MIN + 1);
         int deflt = Luv.getLuv().getSettings().getPort(); // current setting
 		for (Integer i = Constants.PORT_MIN; i <= Constants.PORT_MAX; i++)
-			if (i == deflt || !inUse.contains(i))
+			if (!inUse.contains(i)
+                || (serverThread != null && i == deflt))
 				portList.add(Integer.valueOf(i));
         return portList;
     }
-    
+
     /** Return true if port free, false otherwise */
     public static boolean portFree(int port) {
         String[] cmd = {"port_in_use", "-q", ""};

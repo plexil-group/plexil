@@ -542,6 +542,10 @@ public class Settings {
         return portSupplied;
     }
 
+    public void setPortSupplied(boolean newval) {
+        portSupplied = newval;
+    }
+
     public int getPort() {
         return getInteger(PROP_NET_SERVER_PORT);
     }

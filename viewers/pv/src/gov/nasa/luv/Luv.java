@@ -171,8 +171,7 @@ public class Luv extends JFrame {
      * Constructs Luv and initializes the many features of the Luv application
      * such as creating the main viewing window, putting Luv in a 'start state'
      * and initializing a SocketServer to start listening for events from the 
-     * Universal Executive.  Assigns port argument in to socket server and
-     * creates a port temp file with the relevant port in use.
+     * Universal Executive. Starts socket server with requested port.
      */
     public Luv(String[] args) throws IOException
     {
@@ -182,7 +181,7 @@ public class Luv extends JFrame {
 
         viewHandler.showModelInViewer(currentPlan);
         constructFrame(getContentPane());
-        startServer(settings.getPort());
+        luvServer.startServer(settings.getPort());
 
         startState();
 
@@ -237,26 +236,16 @@ public class Luv extends JFrame {
 
         currentPlan = new Model();
     }
-
-    private void startServer(int port) {
-        luvServer.startServer(port);
-        if (luvServer.isGood())
-            statusMessageHandler.showChangeOnPort("Listening on port " + port);
-        else
-            statusMessageHandler.showChangeOnPort("Unable to listen on port " + port);
-    }
         
     private void stopServer() {
-        if (luvServer.isGood()) {
-            statusMessageHandler.showChangeOnPort("Stopping service on port " + settings.getPort());
+        if (luvServer.isGood())
             luvServer.stopServer();
-        }
     }
 
     /** 
      * Redefines port argument based upon string argument.
-     * Restarts listening server with new port. Sets
-     * up new port temp file.
+     * Restarts listening server with new port. 
+     * Sets port in settings.
      */
     public void changePort(int newPort) {
         if (luvServer != null && LuvSocketServer.portFree(newPort)) {
@@ -271,11 +260,12 @@ public class Luv extends JFrame {
 
             // Launch new
             try {
-                startServer(newPort);
+                luvServer.startServer(newPort);
             } catch (Exception e) {
                 statusMessageHandler.displayErrorMessage(e, "Error occured while starting server on port " + newPort);
             }
             settings.setPort(newPort);
+            settings.setPortSupplied(true); // because this code only called as a result of user action
             settings.save();
         }
     }
