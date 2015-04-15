@@ -154,7 +154,7 @@ public class LibraryLoader
                         // Confirm that the user wants to clear Libraries
                         Object[] options = {"OK", "Cancel"};
                         int del =
-                            JOptionPane.showOptionDialog(Luv.getLuv().getLibraryLoader(),
+                            JOptionPane.showOptionDialog(LibraryLoader.this,
                                                          "Remove " + pathList.getSelection().toString() + " from path?",
                                                          "Confirm Remove From Path",
                                                          JOptionPane.OK_CANCEL_OPTION,
@@ -178,7 +178,7 @@ public class LibraryLoader
                 public void actionPerformed(ActionEvent ev) {
                     Object[] options = {"OK", "Cancel"};
                     int clear =
-                        JOptionPane.showOptionDialog(Luv.getLuv().getLibraryLoader(),
+                        JOptionPane.showOptionDialog(LibraryLoader.this,
                                                      "Are you sure you want to clear all Library directories?",
                                                      "Clear Path",
                                                      JOptionPane.OK_CANCEL_OPTION,
@@ -261,7 +261,7 @@ public class LibraryLoader
                         // Confirm that the user wants to clear Libraries
                         Object[] options = {"OK", "Cancel"};
                         int del =
-                            JOptionPane.showOptionDialog(Luv.getLuv().getLibraryLoader(),
+                            JOptionPane.showOptionDialog(LibraryLoader.this,
                                                          "Remove library" + libList.getSelection().toString() + "?",
                                                          "Confirm Remove Library",
                                                          JOptionPane.OK_CANCEL_OPTION,
@@ -285,7 +285,7 @@ public class LibraryLoader
                 public void actionPerformed(ActionEvent ev) {
                     Object[] options = {"OK", "Cancel"};
                     int clear =
-                        JOptionPane.showOptionDialog(Luv.getLuv().getLibraryLoader(),
+                        JOptionPane.showOptionDialog(LibraryLoader.this,
                                                      "Are you sure you want to clear all libraries?",
                                                      "Confirm Clear Libraries",
                                                      JOptionPane.OK_CANCEL_OPTION,

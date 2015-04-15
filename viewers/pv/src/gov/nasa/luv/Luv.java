@@ -1290,7 +1290,8 @@ public class Luv extends JFrame {
         if (isExecuting) {
             try {
                 stopExecutionState();
-                statusMessageHandler.displayInfoMessage("Stopping execution and reloading plan");
+                statusMessageHandler.displayInfoMessage("Stopping execution and reloading plan",
+                                                        "Stopping execution");
             } catch (IOException ex) {
                 statusMessageHandler.displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
             }

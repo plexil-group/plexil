@@ -135,10 +135,11 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                 scanner.close();
             }
         } catch (FileNotFoundException ex) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex,
-                    "ERROR: " + COMPLETE_FLAG_LIST +
-                    " not found.\nYou need to run the python script: " +
-                    PYTHON_SCRIPT + " and try again");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(this,
+                                                                       ex,
+                                                                       "ERROR: " + COMPLETE_FLAG_LIST +
+                                                                       " not found.\nYou need to run the python script: " +
+                                                                       PYTHON_SCRIPT + " and try again");
 
             error = true;
         }
@@ -238,8 +239,10 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                     lines.add(line);
                 }
             } catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e,
-                        "ERROR: exception occurred while reading " + DEBUG_CFG_FILE);
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(this,
+                                                                           e,
+                                                                           "ERROR: exception occurred while reading "
+                                                                           + DEBUG_CFG_FILE);
             } finally {
                 scanner.close();
             }
@@ -383,7 +386,7 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                 Object[] options = {"Yes", "No"};
 
                 int clear =
-                        JOptionPane.showOptionDialog(Luv.getLuv(),
+                        JOptionPane.showOptionDialog(CreateCFGFileWindow.this,
                         "Are you sure you want to clear the Debug CFG file?",
                         "Clear CFG file",
                         JOptionPane.YES_NO_CANCEL_OPTION,
@@ -430,7 +433,9 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                 p.println(preview.getText());
                 p.close();
             } catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while writing to " + DEBUG_CFG_FILE);
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(CreateCFGFileWindow.this,
+                                                                           e,
+                                                                           "ERROR: exception occurred while writing to " + DEBUG_CFG_FILE);
             }
         }
     }
@@ -467,7 +472,9 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                     p.close();
                 }
             } catch (Exception e) {
-                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e, "ERROR: exception occurred while enabling/disabling " + DEBUG_CFG_FILE);
+                Luv.getLuv().getStatusMessageHandler().displayErrorMessage(this,
+                                                                           e,
+                                                                           "ERROR: exception occurred while enabling/disabling " + DEBUG_CFG_FILE);
             } finally {
                 scanner.close();
             }
@@ -500,7 +507,9 @@ public class CreateCFGFileWindow extends JFrame implements ItemListener {
                 frame.setPreviewOfCFGFile();
             }
         } catch (FileNotFoundException ex) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(ex, "ERROR: " + DEBUG_CFG_FILE + " not found");
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(this,
+                                                                       ex,
+                                                                       "ERROR: " + DEBUG_CFG_FILE + " not found");
         }
     }
 }

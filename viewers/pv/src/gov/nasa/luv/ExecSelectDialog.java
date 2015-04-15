@@ -359,7 +359,8 @@ public class ExecSelectDialog extends JPanel {
 		File plan = s.getPlanLocation();
         if (plan != null) {
             if (!plan.exists()) {
-                theLuv.getStatusMessageHandler().displayErrorMessage(null,
+                theLuv.getStatusMessageHandler().displayErrorMessage(this,
+                                                                     null,
                                                                      "ERROR: unable to find plan file "
                                                                      + plan.toString());
                 s.setPlanLocation(null);
@@ -373,7 +374,8 @@ public class ExecSelectDialog extends JPanel {
             File script = s.getScriptLocation();
             if (script != null) {
                 if (!script.exists()) {
-                    theLuv.getStatusMessageHandler().displayErrorMessage(null,
+                    theLuv.getStatusMessageHandler().displayErrorMessage(this,
+                                                                         null,
                                                                          "ERROR: simulation script file not found: "
                                                                          + script.toString());
                     s.setScriptLocation(null);
@@ -389,7 +391,8 @@ public class ExecSelectDialog extends JPanel {
             File config = s.getConfigLocation();
             if (config != null) {
                 if (!config.exists()) {
-                    theLuv.getStatusMessageHandler().displayErrorMessage(null,
+                    theLuv.getStatusMessageHandler().displayErrorMessage(this,
+                                                                         null,
                                                                          "ERROR: simulation config file not found: "
                                                                          + config.toString());
                     s.setConfigLocation(null);
@@ -511,9 +514,13 @@ public class ExecSelectDialog extends JPanel {
         if (theLuv.getIsExecuting()) {
             try {
                 theLuv.stopExecutionState();
-                theLuv.getStatusMessageHandler().displayInfoMessage("Stopping execution and loading plan");
+                theLuv.getStatusMessageHandler().displayInfoMessage(this,
+                                                                    "Stopping execution and loading plan",
+                                                                    "Stopping execution");
             } catch (IOException ex) {
-                theLuv.getStatusMessageHandler().displayErrorMessage(ex, "ERROR: exception occurred while reloading plan");
+                theLuv.getStatusMessageHandler().displayErrorMessage(this,
+                                                                     ex,
+                                                                     "ERROR: exception occurred while reloading plan");
             }
         }
 

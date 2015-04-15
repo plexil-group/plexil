@@ -27,6 +27,7 @@
 package gov.nasa.luv;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.util.LinkedList;
 import javax.swing.JLabel;
@@ -364,8 +365,20 @@ public class StatusMessageHandler
      * @param errorMessage the message to be displayed with the error
      */
     public void displayErrorMessage(Exception e, String errorMessage) {
+        displayErrorMessage(Luv.getLuv(), e, errorMessage);
+    }
+      
+    /**
+     * Displays a consistently formatted error message in a Dialog Box and 
+     * again to the Debug Window.
+     * 
+     * @param c The display component reporting the error.
+     * @param e the exception that triggered the error message, can be null
+     * @param errorMessage the message to be displayed with the error
+     */
+    public void displayErrorMessage(Component c, Exception e, String errorMessage) {
         if (e != null) {
-            JOptionPane.showMessageDialog(Luv.getLuv(), 
+            JOptionPane.showMessageDialog(c, 
                                           errorMessage + ".\nPlease see Debug Window.", 
                                           "Error", 
                                           JOptionPane.ERROR_MESSAGE);
@@ -376,7 +389,7 @@ public class StatusMessageHandler
             Luv.getLuv().getDebugWindow().toFront();
         }
         else {
-            JOptionPane.showMessageDialog(Luv.getLuv(), 
+            JOptionPane.showMessageDialog(c,
                                           errorMessage, 
                                           "Error", 
                                           JOptionPane.ERROR_MESSAGE);
@@ -402,21 +415,43 @@ public class StatusMessageHandler
     /**
      * Displays a consistently formatted error information or message in a Dialog Box.
      * 
-     * @param infoMessage the message to be displayed 
+     * @param component the component to return focus to when the dialog is dismissed
+     * @param msg the message to be displayed 
+     * @param title Title to display on the warning dialog.
      */
-    public void displayInfoMessage(String infoMessage, String title)
+    public void displayWarningMessage(Component component, String msg, String title)
     {
-        JOptionPane.showMessageDialog(Luv.getLuv(),
+        JOptionPane.showMessageDialog(component,
+                                      msg,
+                                      title,
+                                      JOptionPane.WARNING_MESSAGE);
+        out.println("WARN: " + msg);
+    }
+    
+    /**
+     * Displays a consistently formatted error information or message in a Dialog Box.
+     * 
+     * @param c The UI component displaying the message.
+     * @param infoMessage The message to be displayed.
+     * @param title The title to use on the info dialog.
+     */
+    public void displayInfoMessage(Component c, String infoMessage, String title)
+    {
+        JOptionPane.showMessageDialog(c,
                                       infoMessage,
                                       title,
                                       JOptionPane.INFORMATION_MESSAGE);
         out.println("INFO: " + infoMessage);
     }
 
-    // Backwards compatible version
-    public void displayInfoMessage(String infoMessage)
-    {
-        displayInfoMessage(infoMessage, "Stopping Execution");
+    /**
+     * Displays a consistently formatted error information or message in a Dialog Box.
+     * 
+     * @param infoMessage The message to be displayed.
+     * @param title The title to use on the info dialog.
+     */
+    public void displayInfoMessage(String infoMessage, String title) {
+        displayInfoMessage(Luv.getLuv(), infoMessage, title);
     }
 
     /**

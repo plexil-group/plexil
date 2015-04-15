@@ -312,7 +312,7 @@ public class TreeTableView extends JTreeTable
         }
         else
             Luv.getLuv().getStatusMessageHandler().displayErrorMessage(null, 
-                    "Error: Invalid number of columns in viewer." );
+                                                                       "Error: Invalid number of columns in viewer." );
     }
 
     /**

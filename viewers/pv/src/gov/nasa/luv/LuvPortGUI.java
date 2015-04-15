@@ -95,8 +95,9 @@ public class LuvPortGUI
             frame.setVisible(false);
             Luv.getLuv().changePort(newSelection);
         } else {
-        	Luv.getLuv().getStatusMessageHandler().displayWarningMessage("Port " + newSelection + " in use, please pick another",
-                                                                      "Port in use");
+        	Luv.getLuv().getStatusMessageHandler().displayWarningMessage(this,
+                                                                         "Port " + newSelection + " in use, please pick another",
+                                                                         "Port " + newSelection + " in use");
         	Luv.getLuv().getStatusMessageHandler().showChangeOnPort("Still on port " + curr, Color.BLUE);
         	refresh();
         }

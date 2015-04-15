@@ -131,7 +131,8 @@ public class SourceWindow extends JFrame
 	
             in.close();
         } catch (Exception e) {
-            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(e,
+            Luv.getLuv().getStatusMessageHandler().displayErrorMessage(this,
+                                                                       e,
                                                                        "ERROR: source window unable to load " + f.toString());
             return null;
         }        
