@@ -26,10 +26,6 @@
 
 package gov.nasa.luv;
 
-import javax.swing.JOptionPane;
-
-import org.xml.sax.Attributes;
-
 /**
  * The AttributeUpdateHandler class provides mothods for handling when the
  * Plexil Plan is executing and a local variable changes.

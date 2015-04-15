@@ -51,7 +51,7 @@ import javax.swing.TransferHandler;
 import static java.awt.Color.*;
 import static java.awt.datatransfer.DataFlavor.*;
 import static javax.swing.ScrollPaneConstants.*;
-import static javax.swing.ListSelectionModel.*;
+import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 import static javax.swing.TransferHandler.*;
 
 /**
@@ -104,13 +104,29 @@ public class FileListPanel
         model.addElement(f);
     }
 
+    // N.B. getSelectedIndex() returns -1 when no selection
+    public void insertAfterSelection(File f) {
+        int selected = fileListView.getSelectedIndex() + 1;
+        if (selected < model.getSize())
+            model.add(selected, f);
+        else
+            model.addElement(f);
+    }
+
+    public void removeSelection() {
+        int selected = fileListView.getSelectedIndex();
+        if (selected < 0)
+            return; // nothing selected
+        model.remove(selected);
+    }
+    
     public void clearFiles() {
         model.clear();
     }
 
-    public List<File> getFiles() {
+    public ArrayList<File> getFiles() {
         int n = model.getSize();
-        List<File> result = new ArrayList<File>(n);
+        ArrayList<File> result = new ArrayList<File>(n);
         for (int i = 0; i < n; ++i)
             result.add(model.getElementAt(i));
         return result;
@@ -132,6 +148,18 @@ public class FileListPanel
         if (model.isEmpty())
             return null;
         return (File) model.get(model.getSize() - 1);
+    }
+
+    public File getSelection() {
+        return fileListView.getSelectedValue();
+    }
+
+    public int getSelectionIndex() {
+        return fileListView.getSelectedIndex();
+    }
+
+    public void setSelection(File f) {
+        fileListView.setSelectedValue(f, true);
     }
 
     private class CellRenderer

@@ -35,8 +35,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Font;
@@ -63,11 +61,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTree;
 import javax.swing.SwingConstants;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 
 import static java.awt.GridBagConstraints.*;
 
@@ -82,73 +76,50 @@ import static java.awt.GridBagConstraints.*;
 */
 
 public class LibraryLoader
-    extends JFrame
-    implements ItemListener {
+    extends JFrame {
 
     private FileListPanel pathList;
-    private ArrayList<CheckNode> nodes;
-    private JTextArea preview;
-    private JTree main_tree;
-    private DynamicTree dyn_tree;
+    private FileListPanel libList;
     private Vector<File> libraryPath;
     private Vector<File> libraryFiles;
-    private Vector<String> libraryNames;
     private GridBagLayout layout;
 
     /** Construct a LibraryLoader. 
      */
     public LibraryLoader() {
-        super("Libraries");
+        super("Plan Libraries");
 
         layout = new GridBagLayout();
         Container pane = getContentPane();
         pane.setLayout(layout);
 
         createPathListSection();
-        createCheckListSection();
-        createPreviewSection();
+        createLibListSection();
+        createButtonSection();
+
+        setPreferredSize(Luv.getLuv().getSettings().getDimension(PROP_CFGWIN_SIZE));
+        setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
+        pack();
     }
 
     private void createPathListSection() {
-        JLabel pathHeading = new JLabel("Library Search Path", SwingConstants.CENTER);
-        GridBagConstraints headingConstraints = new GridBagConstraints();
-        headingConstraints.gridx = 0;
-        headingConstraints.gridy = 0;
-        headingConstraints.fill = HORIZONTAL;
-        layout.setConstraints(pathHeading, headingConstraints);
-        add(pathHeading);
+        Box heading = Box.createHorizontalBox();
+        heading.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        pathList = new FileListPanel();
-        GridBagConstraints listConstraints = new GridBagConstraints();
-        listConstraints.gridx = 0;
-        listConstraints.gridy = 1;
-        listConstraints.weightx = 1.0;
-        listConstraints.weighty = 1.0;
-        listConstraints.fill = BOTH;
-        layout.setConstraints(pathList, listConstraints);
-        add(pathList);
-
-        Settings s = Luv.getLuv().getSettings();
-        Collection<File> dirs = s.getLibDirs();
-        if (!dirs.isEmpty()) {
-            pathList.setFiles(dirs);
-        }
-        else if (s.getPlanLocation() != null) {
-            pathList.addFile(s.getPlanLocation().getParentFile());
-        }
-        // else { // choose a sane default
-        // }
-
-        JButton dirButton = new JButton("Add Directory");
+        JLabel label = new JLabel("Library Search Path", SwingConstants.LEFT);
+        heading.add(label);
+        heading.add(Box.createHorizontalGlue());
+        JButton dirButton = new JButton("Add");
+        dirButton.setToolTipText("Insert directory after selection, or at top if none selected");
         dirButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) { 
-                    File dflt = pathList.getLast();
+                    File dflt = pathList.getSelection();
                     if (dflt == null) {
                         File planLoc = Luv.getLuv().getSettings().getPlanLocation();
                         if (planLoc != null)
                             dflt = planLoc.getParentFile();
                         else
-                            dflt = new File(System.getenv("PWD")); // *** use homedir instead? ***
+                            dflt = new File(System.getenv("HOME"));
                     }
                     
                     JFileChooser dc = new JFileChooser(dflt);
@@ -165,55 +136,171 @@ public class LibraryLoader
                     if (dc.showDialog(null, "Choose This Directory") ==
                         JFileChooser.APPROVE_OPTION) {
                         File dir = dc.getSelectedFile();
-                        pathList.addFile(dir);
-                        Luv.getLuv().getStatusMessageHandler().showStatus("Added Library Directory" + dir.getAbsolutePath());
+                        pathList.insertAfterSelection(dir);
+                        pathList.setSelection(dir);
+                        Luv.getLuv().getStatusMessageHandler().showStatus("Added Library Directory " + dir.getAbsolutePath());
                     }
                 }
             }
             );
+        heading.add(dirButton);
+        heading.add(Box.createHorizontalStrut(3));
 
-        JButton clearDirsButton = new JButton("Clear Directories");
+        JButton removeButton = new JButton("Remove");
+        removeButton.setToolTipText("Remove selection from search path");
+        removeButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    if (pathList.getSelectionIndex() >= 0) {
+                        // Confirm that the user wants to clear Libraries
+                        Object[] options = {"OK", "Cancel"};
+                        int del =
+                            JOptionPane.showOptionDialog(Luv.getLuv().getLibraryLoader(),
+                                                         "Remove " + pathList.getSelection().toString() + " from path?",
+                                                         "Confirm Remove From Path",
+                                                         JOptionPane.OK_CANCEL_OPTION,
+                                                         JOptionPane.WARNING_MESSAGE,
+                                                         null,
+                                                         options,
+                                                         options[1]);
+
+                        if (del == 0)
+                            pathList.removeSelection();
+                    }
+                }
+            }
+            );
+        heading.add(removeButton);
+        heading.add(Box.createHorizontalStrut(3));
+
+        JButton clearDirsButton = new JButton("Clear");
+        clearDirsButton.setToolTipText("Clear library search path");
         clearDirsButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) {
-                    // verify that the user wants to clear Libraries
-                    Object[] options = {"Yes", "No"};
+                    Object[] options = {"OK", "Cancel"};
                     int clear =
-                        JOptionPane.showOptionDialog(Luv.getLuv(),
+                        JOptionPane.showOptionDialog(Luv.getLuv().getLibraryLoader(),
                                                      "Are you sure you want to clear all Library directories?",
                                                      "Clear Path",
-                                                     JOptionPane.YES_NO_CANCEL_OPTION,
+                                                     JOptionPane.OK_CANCEL_OPTION,
                                                      JOptionPane.WARNING_MESSAGE,
                                                      null,
                                                      options,
-                                                     options[0]);
+                                                     options[1]);
 
                     if (clear == 0)
                         pathList.clearFiles();
                 }
             }
             );
+        heading.add(clearDirsButton);
 
-        JPanel buttonPane = new JPanel();
-        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-        buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        buttonPane.add(Box.createHorizontalGlue());
-        buttonPane.add(dirButton);
-        buttonPane.add(Box.createHorizontalStrut(3));
-        buttonPane.add(clearDirsButton);
-        buttonPane.add(Box.createHorizontalGlue());
-        GridBagConstraints buttonConstraints = new GridBagConstraints();
-        buttonConstraints.gridx = 0;
-        buttonConstraints.gridy = 2;
-        buttonConstraints.fill = HORIZONTAL;
-        layout.setConstraints(buttonPane, buttonConstraints);
-        add(buttonPane);
+        GridBagConstraints headingConstraints = new GridBagConstraints();
+        headingConstraints.gridx = 0;
+        headingConstraints.gridy = 0;
+        headingConstraints.fill = HORIZONTAL;
+        layout.setConstraints(heading, headingConstraints);
+        add(heading);
+
+        pathList = new FileListPanel();
+        GridBagConstraints listConstraints = new GridBagConstraints();
+        listConstraints.gridx = 0;
+        listConstraints.gridy = 1;
+        listConstraints.weightx = 1.0;
+        listConstraints.weighty = 1.0;
+        listConstraints.fill = BOTH;
+        layout.setConstraints(pathList, listConstraints);
+        add(pathList);
     }
 
     /*
      * Initializes checklist and tree
      */
-    private void createCheckListSection() {
-        JLabel heading = new JLabel("Libraries", SwingConstants.CENTER);
+    private void createLibListSection() {
+        Box heading = Box.createHorizontalBox();
+        heading.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JLabel label = new JLabel("Libraries", SwingConstants.LEFT);
+        heading.add(label);
+        heading.add(Box.createHorizontalGlue());
+
+        JButton libButton = new JButton("Add");
+        libButton.setToolTipText("Insert library after selection, or at top if none selected");
+        libButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) { 
+                    File dflt = libList.getSelection();
+                    if (dflt == null) {
+                        File planLoc = Luv.getLuv().getSettings().getPlanLocation();
+                        if (planLoc != null)
+                            dflt = planLoc.getParentFile();
+                        else
+                            dflt = new File(System.getenv("HOME"));
+                    }
+                    JFileChooser fc = new JFileChooser(dflt);
+                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                    FileFilter pf = Luv.getLuv().getExecSelectDialog().getPlanFileFilter();
+                    if (pf != null)
+                        fc.addChoosableFileFilter(pf);
+                    int returnVal = fc.showDialog(null, "Choose Library File");
+                    if (returnVal == JFileChooser.APPROVE_OPTION) {
+                        File lib = fc.getSelectedFile();
+                        libList.insertAfterSelection(lib);
+                        libList.setSelection(lib);
+                        Luv.getLuv().getStatusMessageHandler().showStatus("Added Library File " + lib.getAbsolutePath());
+                    }            	            	            	
+                }
+            }
+            );
+        heading.add(libButton);
+        heading.add(Box.createHorizontalStrut(3));
+
+        JButton removeButton = new JButton("Remove");
+        removeButton.setToolTipText("Remove selected library");
+        removeButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    if (libList.getSelectionIndex() >= 0) {
+                        // Confirm that the user wants to clear Libraries
+                        Object[] options = {"OK", "Cancel"};
+                        int del =
+                            JOptionPane.showOptionDialog(Luv.getLuv().getLibraryLoader(),
+                                                         "Remove library" + libList.getSelection().toString() + "?",
+                                                         "Confirm Remove Library",
+                                                         JOptionPane.OK_CANCEL_OPTION,
+                                                         JOptionPane.WARNING_MESSAGE,
+                                                         null,
+                                                         options,
+                                                         options[1]);
+
+                        if (del == 0)
+                            libList.removeSelection();
+                    }
+                }
+            }
+            );
+        heading.add(removeButton);
+        heading.add(Box.createHorizontalStrut(3));
+        
+        JButton clearButton = new JButton("Clear");
+        clearButton.setToolTipText("Clear libraries");
+        clearButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent ev) {
+                    Object[] options = {"OK", "Cancel"};
+                    int clear =
+                        JOptionPane.showOptionDialog(Luv.getLuv().getLibraryLoader(),
+                                                     "Are you sure you want to clear all libraries?",
+                                                     "Confirm Clear Libraries",
+                                                     JOptionPane.OK_CANCEL_OPTION,
+                                                     JOptionPane.WARNING_MESSAGE,
+                                                     null,
+                                                     options,
+                                                     options[1]);
+
+                    if (clear == 0)
+                        libList.clearFiles();
+                }
+            }
+            );
+        heading.add(clearButton);
+
         GridBagConstraints headingConstraints = new GridBagConstraints();
         headingConstraints.gridx = 1;
         headingConstraints.gridy = 0;
@@ -221,89 +308,18 @@ public class LibraryLoader
         layout.setConstraints(heading, headingConstraints);
         add(heading);
 
-        nodes = new ArrayList<CheckNode>();
-        dyn_tree = new DynamicTree();
-        GridBagConstraints treeConstraints = new GridBagConstraints();
-        treeConstraints.gridx = 1;
-        treeConstraints.gridy = 1;
-        treeConstraints.weightx = 1.0;
-        treeConstraints.weighty = 1.0;
-        treeConstraints.fill = BOTH;
-        layout.setConstraints(dyn_tree, treeConstraints);
-        add(dyn_tree);
-
-        JButton libButton = new JButton("Add Library");
-        libButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ev) { 
-                    JFileChooser fc = new JFileChooser(Constants.PLEXIL_HOME); // *** FIXME ***
-                    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-                    FileFilter pf = Luv.getLuv().getExecSelectDialog().getPlanFileFilter();
-                    if (pf != null)
-                        fc.addChoosableFileFilter(pf);
-                    int returnVal = fc.showDialog(null, "Choose File");
-                    if (returnVal == JFileChooser.APPROVE_OPTION) {
-                        File file = fc.getSelectedFile();
-                        addLibrary(file);
-                        Luv.getLuv().getStatusMessageHandler().showStatus("Added Library " + file.getAbsolutePath());
-                    }            	            	            	
-                }
-            }
-            );
-        
-        JButton clearButton = new JButton("Clear Libraries");
-        clearButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ev) {
-                    // *** TODO ***
-                }
-            }
-            );
-
-        JPanel buttonPane = new JPanel();
-        buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.LINE_AXIS));
-        buttonPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        buttonPane.add(Box.createHorizontalGlue());
-        buttonPane.add(libButton);
-        buttonPane.add(Box.createHorizontalStrut(3));
-        buttonPane.add(clearButton);
-        buttonPane.add(Box.createHorizontalGlue());
-
-        GridBagConstraints buttonConstraints = new GridBagConstraints();
-        buttonConstraints.gridx = 1;
-        buttonConstraints.gridy = 2;
-        buttonConstraints.fill = HORIZONTAL;
-        layout.setConstraints(buttonPane, buttonConstraints);
-        add(buttonPane);
-
-        // TODO: Bypass setting default if user specs library dirs on cmd line
-        // File defaultPath = Constants.PLEXIL_EXAMPLES_DIR;
-        // addLibrary(defaultPath);
+        libList = new FileListPanel();
+        GridBagConstraints libConstraints = new GridBagConstraints();
+        libConstraints.gridx = 1;
+        libConstraints.gridy = 1;
+        libConstraints.weightx = 1.0;
+        libConstraints.weighty = 1.0;
+        libConstraints.fill = BOTH;
+        layout.setConstraints(libList, libConstraints);
+        add(libList);
     }
 
-    /*
-     * Builds display window for loaded libraries
-     */
-    private void createPreviewSection() {
-        JLabel heading = new JLabel("Preview", SwingConstants.CENTER);
-        GridBagConstraints headingConstraints = new GridBagConstraints();
-        headingConstraints.gridx = 2;
-        headingConstraints.gridy = 0;
-        headingConstraints.fill = HORIZONTAL;
-        layout.setConstraints(heading, headingConstraints);
-        add(heading);
-
-        preview = new JTextArea();
-        setPreviewOfLibraries();
-        preview.setEditable(false);
-        JScrollPane previewArea = new JScrollPane(preview);
-        GridBagConstraints previewConstraints = new GridBagConstraints();
-        previewConstraints.gridx = 2;
-        previewConstraints.gridy = 1;
-        previewConstraints.weightx = 1.0;
-        previewConstraints.weighty = 1.0;
-        previewConstraints.fill = BOTH;
-        layout.setConstraints(previewArea, previewConstraints);
-        add(previewArea);
-
+    private void createButtonSection() {
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) {
@@ -315,19 +331,14 @@ public class LibraryLoader
         JButton createCFGButton = new JButton("OK");
         createCFGButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent ev) {
-                    preview.setText("");
-                    ArrayList<File> parentSelected = new ArrayList<File>();
-                    Iterator<CheckNode> it = nodes.iterator();
-                    while (it.hasNext()) {
-                        CheckNode node = it.next();
-                        //if (node.isSelected()) {
-                        if (node.getUserObject() instanceof File) {
-                            File selected = (File)node.getUserObject();
-                            parentSelected.add(selected.getAbsoluteFile());
-                            preview.append(selected.getAbsolutePath() + "\n");
-                        }
-                        //}
-                    }//end while
+                    Settings s = Luv.getLuv().getSettings();
+                    s.setLibDirs(pathList.getFiles());
+                    // A little more involved with libraries
+                    ArrayList<File> libs = libList.getFiles();
+                    s.setLibs(new ArrayList<String>(libs.size()));
+                    for (File f : libs)
+                        s.addLib(f.getAbsolutePath());
+                    // s.save(); // *** NO, DON'T! *** Let ExecSelectDialog do it
                     setVisible(false);
                 }
             }
@@ -344,119 +355,57 @@ public class LibraryLoader
         buttonPane.add(Box.createHorizontalGlue());
 
         GridBagConstraints buttonConstraints = new GridBagConstraints();
-        buttonConstraints.gridx = 2;
+        buttonConstraints.gridx = 0;
         buttonConstraints.gridy = 2;
+        buttonConstraints.gridwidth = REMAINDER;
         buttonConstraints.fill = HORIZONTAL;
         layout.setConstraints(buttonPane, buttonConstraints);
         add(buttonPane);
     }
-    
-    /*
-     * Adds library file
-     */
-    private void addLibrary(File lib) {
-    	if (lib != null) {
-            CheckNode node = new CheckNode(lib); 
-            if (nodes.size() > 0)
-                nodes.get(0).add(node);
-            nodes.add(node);
-            dyn_tree.addObject(node);
-        }
+
+    // Update contents from current settings
+    private void refresh() {
+        Settings s = Luv.getLuv().getSettings();
+        File planDir = null;
+        if (s.getPlanLocation() != null)
+            planDir = s.getPlanLocation().getParentFile();
+        else
+            planDir = new File(System.getenv("HOME"));
+
+        Collection<File> dirs = s.getLibDirs();
+        if (!dirs.isEmpty())
+            pathList.setFiles(dirs);
+        else if (s.getPlanLocation() != null)
+            // Try to set sane default for path
+            pathList.addFile(planDir);
+        else
+            // no default
+            pathList.clearFiles();
+
+        // Use whatever libraries we have
+        Collection<String> libNames = s.getLibs();
+        ArrayList<File> libFiles = new ArrayList<File>(libNames.size());
+        for (String name : libNames)
+            libFiles.add(new File(planDir, name)); // parse relative to plan/homedir
+        libList.setFiles(libFiles);
     }
-    
-    /*
-     * Removes all check nodes
-     */
-    public void removeAllNodes() {
-    	dyn_tree.clear();
-        preview.setText(null);
-        nodes.removeAll(nodes);
-        nodes.add(new CheckNode(Constants.PLEXIL_EXAMPLES_DIR));
-    }
+
 
     // Called by ExecSelectDialog
     // *** FIXME ***
     public void openDialog() {
         try {
-            removeAllNodes();
-            selectLibraries();
             open();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    // *** FIXME ***
-    private void selectLibraries() throws FileNotFoundException {
-        ArrayList<String> uniqArr = new ArrayList<String>();
-        for (String lib: Luv.getLuv().getSettings().getLibs())
-        	if (!lib.isEmpty()) { // FIXME: why isn't this an error?
-                boolean dup = false;
-                for (String loaded : uniqArr)
-                    if (loaded.equals(lib)) {
-                        dup = true;
-                        break;
-                    }
-                if (!dup) {
-                    // *** FIXME ***
-                    addLibrary(new File(lib));
-                    uniqArr.add(lib);
-                }
-            }
-    }
-
-    /*
-     * Display text for libraries
-     */
-    private void setPreviewOfLibraries() {
-        ArrayList<File> lines = new ArrayList<File>();
-        //TODO: Initialize Libraries
-
-        if (!lines.isEmpty()) {
-            preview.setText("");
-            for (File line : lines) {
-                preview.append(line.getAbsolutePath() + "\n");
-            }
-        } else {
-            if (preview != null) {
-                preview.setText("");
-            }
-        }
-    }
-    
-    /*
-     * Expose preview window
-     */
-    public JTextArea getPreview() {
-    	return preview;
-    }
-    
-    /*
-     * Expose library list of directories
-     */
-    public ArrayList<File> getLibraryList() {
-    	File selected = null;    	
-    	ArrayList<File> list = new ArrayList<File>();
-    	for(CheckNode node : nodes) {
-            selected = (File)node.getUserObject();
-            //if(node.isSelected)
-            list.add(selected);
-        }
-    	return list;
-    }
-
     /** Displays the LibraryLoader.  */
     public void open() throws FileNotFoundException {
         setVisible(false);
-        setPreferredSize(Luv.getLuv().getSettings().getDimension(PROP_CFGWIN_SIZE));
-        setLocation(Luv.getLuv().getSettings().getPoint(PROP_CFGWIN_LOC));
-        pack();
+        refresh();
         setVisible(true);
-    }
-
-    /** {@inheritDoc} */
-    public void itemStateChanged(ItemEvent e) {
-        setPreviewOfLibraries();
     }
 
 }

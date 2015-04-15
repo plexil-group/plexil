@@ -634,7 +634,8 @@ public class Settings {
         return libDirs;
     }
 
-    private void setLibDirs(ArrayList<File> dirs) {
+    // Used by LibraryLoader
+    public void setLibDirs(ArrayList<File> dirs) {
         libDirs = dirs;
     }
 
@@ -650,7 +651,8 @@ public class Settings {
         return libs;
     }
 
-    private void setLibs(ArrayList<String> names) {
+    // Used by LibraryLoader
+    public void setLibs(ArrayList<String> names) {
         libs = names;
     }
 

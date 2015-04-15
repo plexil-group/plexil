@@ -143,19 +143,17 @@ public class CheckRenderer
 
             if ((str = getText()) != null) {
                 if (0 < str.length()) {
-                    if (isSelected) {
-                        g.setColor(UIManager.getColor("Tree.selectionBackground"));
-                    } else {
+                    if (isSelected)
+                        g.setColor(Color.PINK); // was: UIManager.getColor("Tree.selectionBackground"));
+                    else
                         g.setColor(UIManager.getColor("Tree.textBackground"));
-                    }
 
                     Dimension d = getPreferredSize();
                     int imageOffset = 0;
                     Icon currentI = getIcon();
 
-                    if (currentI != null) {
+                    if (currentI != null)
                         imageOffset = currentI.getIconWidth() + Math.max(0, getIconTextGap() - 1);
-                    }
 
                     g.fillRect(imageOffset, 0, d.width - 1 - imageOffset, d.height);
 
