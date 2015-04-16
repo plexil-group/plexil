@@ -45,7 +45,7 @@ namespace PLEXIL {
   }
 
   static inline void endTag(std::ostream& s, const char* val) {
-    s << "</" << val << "> ";
+    s << "</" << val << ">";
   }
 
   /**
