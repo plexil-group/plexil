@@ -62,6 +62,8 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         switch (tokenType) {
             // Arithmetic operators
         case PlexilLexer.ABS_KYWD:
+        case PlexilLexer.ARRAY_MAX_SIZE_KYWD:
+        case PlexilLexer.ARRAY_SIZE_KYWD:
         case PlexilLexer.ASTERISK:
         case PlexilLexer.CEIL_KYWD:
         case PlexilLexer.FLOOR_KYWD:

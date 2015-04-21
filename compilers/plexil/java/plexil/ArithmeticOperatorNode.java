@@ -101,6 +101,10 @@ public class ArithmeticOperatorNode extends ExpressionNode
         case PlexilLexer.STRLEN_KYWD:
             m_dataType = checkStringLength(state); break;
 
+        case PlexilLexer.ARRAY_MAX_SIZE_KYWD:
+        case PlexilLexer.ARRAY_SIZE_KYWD:
+            m_dataType = checkArraySize(state); break;
+
         default:
             m_dataType = PlexilDataType.ERROR_TYPE;
         }
@@ -343,7 +347,21 @@ public class ArithmeticOperatorNode extends ExpressionNode
         PlexilDataType argType = ((ExpressionNode) this.getChild(0)).getDataType();
         if (argType != PlexilDataType.STRING_TYPE) {
             state.addDiagnostic(this.getChild(0),
-                                "Invalid argument to StringLength function",
+                                "Non-string argument to " + this.getText() + " function",
+                                Severity.ERROR);
+            return PlexilDataType.ERROR_TYPE;
+        }
+        else
+            return PlexilDataType.INTEGER_TYPE;
+    }
+
+    private PlexilDataType checkArraySize(CompilerState state)
+    {
+        // ArraySize and ArrayMaxSize have exactly one child, which must be an array-valued expression
+        PlexilDataType argType = ((ExpressionNode) this.getChild(0)).getDataType();
+        if (!argType.isArray()) {
+            state.addDiagnostic(this.getChild(0),
+                                "Non-array argument to " + this.getText() + " function",
                                 Severity.ERROR);
             return PlexilDataType.ERROR_TYPE;
         }
@@ -368,6 +386,12 @@ public class ArithmeticOperatorNode extends ExpressionNode
         switch (this.getType()) {
         case PlexilLexer.ABS_KYWD:
             return "ABS";
+
+        case PlexilLexer.ARRAY_MAX_SIZE_KYWD:
+            return "ArrayMaxSize";
+
+        case PlexilLexer.ARRAY_SIZE_KYWD:
+            return "ArraySize";
 
         case PlexilLexer.ASTERISK:
             return "MUL";

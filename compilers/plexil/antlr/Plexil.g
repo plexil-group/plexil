@@ -147,6 +147,10 @@ REAL_TO_INT_KYWD = 'real_to_int';
 // String functions
 STRLEN_KYWD = 'strlen';
 
+// Array functions
+ARRAY_SIZE_KYWD = 'arraySize';
+ARRAY_MAX_SIZE_KYWD = 'arrayMaxSize';
+
 // NodeRef directions
 CHILD_KYWD = 'Child';
 PARENT_KYWD = 'Parent';
@@ -954,6 +958,8 @@ oneArgFn :
   | TRUNC_KYWD
   | REAL_TO_INT_KYWD
   | STRLEN_KYWD
+  | ARRAY_SIZE_KYWD
+  | ARRAY_MAX_SIZE_KYWD
  ;
 
 twoArgFn :

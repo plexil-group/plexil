@@ -51,7 +51,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
               iterationSucceeded1 iterationEnded1 iterationFailed1 preconditionFailed1 \
               inactive1 wait1 date1 \
               time-lookup-test time-lookup-test1 time_tolerance_test timed-iteration \
-              strlen_test
+              strlen_test array_size_test
 
 SYNTAX_ERROR_TESTS   = array-library-call
 
