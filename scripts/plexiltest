@@ -159,7 +159,9 @@ help_text="Options:\n\
 \t 	specifies a plan library (.plx file)\n\
  -? | -help \n\
 \t	shows this message of options
- -a | -nochecks \n\
+ -a | -autorun \n\
+\t  Runs the specified plan immediately at Viewer startup \n\
+ --for-viewer \n\
 \t  Runs the exec with the supplied options, without checking them, and without starting the Viewer. \n\
 \t  Intended for use by the Plexil Viewer or other scripts."
 
@@ -189,6 +191,7 @@ libraries=""
 library_dirs=""
 debug_cmd=""
 check=""
+auto_run_cmd=""
 
 if [ ! $1 ]
 then
@@ -200,8 +203,8 @@ while [ -n "$1" ]
 do
     save=$1
     case $1 in
-	    -a | -nochecks)
-            automate=$1;;
+	    -a | -autorun )
+            auto_run_cmd=$1;;
 
 	    -b | -blocking )
             block=$1;;	#enable viewer break point	
@@ -213,6 +216,9 @@ do
             shift
 	        validate_file "$1" $save
             debug_cmd="-d $1";;
+
+        --for-viewer)
+            automate=$1;;
 
 	    -h | -hostname )
             shift
@@ -430,8 +436,8 @@ fi
 if [ -n "$viewer" ]
 then
     # Launch the viewer, which will in turn invoke this script again with the automate flag
-    #echo "plexil -plexiltest $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block"
-    exec plexil -plexiltest $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block
+    #echo "plexil -plexiltest $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block $auto_run_cmd"
+    exec plexil -plexiltest $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block $auto_run_cmd
 else
     # User doesn't want viewer
     #echo "$prog $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block"

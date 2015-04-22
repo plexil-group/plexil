@@ -69,6 +69,7 @@ public class Settings {
         + " -L  | -libraryPath <directory name>\n\t specifies a directory for finding PLEXIL library files\n"
         + "\t (option may be repeated)\n"
         + "\nOther options:\n"
+        + " -a  | -autorun\n\t start execution immediately\n"
         + " -b  | -blocking\n\t enables breakpoints in viewer\n"
         + " -ch | -check\n\t runs the PLEXIL static checker prior to executing plan\n"
         + " -n  | -port <number>\n\t TCP port number for viewer-exec comms (default " + Integer.toString(NET_SERVER_PORT_DEF) + ")\n"
@@ -87,6 +88,7 @@ public class Settings {
     private static final String    PROP_DEBUG_FILE       = "plexil.debug";
     private static final String    PROP_BLOCKS_EXEC      = "plexil.viewer.blocks_exec";
     private static final String    PROP_CHECK_PLAN       = "plexil.checkPlan";
+    private static final String    PROP_AUTO_RUN         = "plexil.autoRun";
 
     // Persistent storage
     private File m_file;
@@ -96,6 +98,7 @@ public class Settings {
     private int serverPort;
 
     // Tracking supplied options, to distinguish them from saved values
+    private boolean autoRunSupplied;
     private boolean blockSupplied;
     private boolean checkSupplied;
     private boolean configSupplied;
@@ -115,6 +118,7 @@ public class Settings {
         m_properties = new java.util.Properties(getDefaultDefaults());
         libDirs = new ArrayList<File>();
         libs = new ArrayList<String>();
+        autoRunSupplied = false;
         blockSupplied = false;
         checkSupplied = false;
         configSupplied = false;
@@ -137,6 +141,7 @@ public class Settings {
         defaults.setProperty(PROP_NET_SERVER_PORT, Integer.toString(NET_SERVER_PORT_DEF));
         defaults.setProperty(PROP_BLOCKS_EXEC, Boolean.toString(PROP_BLOCKS_EXEC_DEF));
         defaults.setProperty(PROP_CHECK_PLAN, Boolean.toString(PROP_CHECK_PLAN_DEF));
+        defaults.setProperty(PROP_AUTO_RUN, Boolean.toString(PROP_AUTO_RUN_DEF));
 
         defaults.setProperty(PROP_ARRAY_MAX_CHARS, Integer.toString(PROP_ARRAY_MAX_CHARS_DEF));
 
@@ -164,6 +169,7 @@ public class Settings {
 
     public boolean parseCommandOptions(String[] opts) {
         // Reset option-supplied flags
+        autoRunSupplied = false;
         blockSupplied = false;
         checkSupplied = false;
         configSupplied = false;
@@ -184,12 +190,17 @@ public class Settings {
         int port = 0;
         boolean block = false;
         boolean check = false;
+        boolean autoRun = false;
 
         AppType specdMode = PLEXIL_TEST;
         for (int i = 0; i < opts.length; ++i) {
             String opt = opts[i];
             try {
-                if (opt.equals("-b") || opt.equals("-blocking")) {
+                if (opt.equals("-a") || opt.equals("-autorun")) {
+                    autoRunSupplied = true;
+                    autoRun = true;
+                }
+                else if (opt.equals("-b") || opt.equals("-blocking")) {
                     block = true;
                     blockSupplied = true;
                 }
@@ -266,16 +277,17 @@ public class Settings {
         }
 
         // Store results of parse
+        if (autoRunSupplied)
+            setAutoRun(autoRun);
+
         if (modeSupplied)
             setAppMode(specdMode);
 
-        if (blockSupplied) {
+        if (blockSupplied)
             setBlocksExec(block);
-        }
 
-        if (checkSupplied) {
+        if (checkSupplied)
             setCheckPlan(check);
-        }
 
         if (portSupplied) {
             if (port < 1 || port > 65535) {
@@ -518,6 +530,21 @@ public class Settings {
     //
     // Particular settings
     //
+
+    public boolean getAutoRunSupplied() {
+        return autoRunSupplied;
+    }
+
+    public boolean getAutoRun() {
+        String a = m_properties.getProperty(PROP_AUTO_RUN);
+        if (a != null)
+            return Boolean.valueOf(a);
+        return PROP_AUTO_RUN_DEF;
+    }
+    
+    public void setAutoRun(boolean val) {
+        set(PROP_AUTO_RUN, val);
+    }
 
     public boolean getModeSupplied() {
         return modeSupplied;

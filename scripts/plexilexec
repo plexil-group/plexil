@@ -131,7 +131,7 @@ summarize()
 }
 
 usage_text="Usage:\n\tplexilexec [-p <plan>] [-c <interface config>] [-d <debug file>] [-L <library dir>]* [-l <library>]*\
- [-v [-h <hostname>] [-n <portnumber>] [-b]] [-ch] [-q] \n"
+ [-v [-h <hostname>] [-n <portnumber>] [-b]] [-a] [-ch] [-q] \n"
 
 usage()
 {
@@ -165,7 +165,9 @@ help_text=" Options:\n\
 \t 	Port number to use for Viewer \n\
  -ch | -check \n\
 \t 	Runs the PLEXIL static checker prior to executing plan \n\
- -a | -nochecks \n\
+ -a | -autorun \n\
+\t  Runs the specified plan immediately at Viewer startup \n\
+ --for-viewer \n\
 \t  Runs the exec with the supplied options, without checking them, and without starting the Viewer. \n\
 \t  Intended for use by the Plexil Viewer or other scripts."
 
@@ -200,6 +202,7 @@ libraries="" #library files
 library_dirs="" #library files
 debug_cmd="" #debug cmd
 check="" #run static checker
+auto_run_cmd="" # Viewer autorun option
 
 if [ ! $1 ]
 then
@@ -212,8 +215,8 @@ do
     save=$1
     case $1 in
         
-	    -a | -nochecks )
-            automate=$1;;
+	    -a | -autorun )
+            auto_run_cmd=$1;;
 
 	    -b | -blocking )
             block=$1;;
@@ -229,6 +232,9 @@ do
             shift
 	        validate_file "$1" $save
             debug_cmd="-d $1";;
+
+        --for-viewer )
+            automate=$1;;
 
 	    -h | -hostname )
             shift
@@ -421,8 +427,8 @@ fi
 if [ -n "$viewer" ]
 then
     # Launch the viewer, which will in turn invoke this script again with the automate flag
-    #echo "plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block"
-    exec plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block
+    #echo "plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block $auto_run_cmd"
+    exec plexil -plexilexec $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block $auto_run_cmd
 else
     # User doesn't want viewer
     #echo "$prog $plan_cmd $config_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block"

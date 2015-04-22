@@ -413,7 +413,7 @@ public class ExecutionHandler
             if (s.blocksExec())
                 command.add("-b");
             //automation to allow PID capture	  
-            command.add("-a");
+            command.add("--for-viewer");
 
             //debug file		   
             File debug = s.getDebugLocation();
@@ -479,7 +479,7 @@ public class ExecutionHandler
                 command.add("-b");
 
             //automation to allow PID capture
-            command.add("-a");
+            command.add("--for-viewer");
 
             //debug file		   
             File debug = s.getDebugLocation();

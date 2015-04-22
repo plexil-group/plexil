@@ -154,6 +154,9 @@ public class Constants
     /** Default check-plan value. */
     public static final boolean   PROP_CHECK_PLAN_DEF = false;
 
+    /** Default auto-run value. */
+    public static final boolean   PROP_AUTO_RUN_DEF = false;
+
       
     //////////// Port configuration information /////////////
     /** Represents the smallest port value. */      

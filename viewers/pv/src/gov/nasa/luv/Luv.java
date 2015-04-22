@@ -188,14 +188,16 @@ public class Luv extends JFrame {
         // Display the plan if one was named on the command line
         if (settings.getPlanSupplied()
             && settings.getPlanLocation().isFile()) {
-            // Pause long enough to see start screen (?)
-            try {
-                Thread.currentThread().sleep(5000);
-            } catch (InterruptedException e) {
-            }
-
             loadPlan(settings.getPlanLocation());
             readyState();
+
+            // Go ahead and run it if requested
+            if (settings.getAutoRun()) {
+                if (!executionHandler.runExec()) {
+                    statusMessageHandler.showStatus("Stopped execution", Color.lightGray, 1000);
+                    readyState();
+                }
+            }
         }
     }
 
