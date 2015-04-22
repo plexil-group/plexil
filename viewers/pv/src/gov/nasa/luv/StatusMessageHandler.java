@@ -266,14 +266,12 @@ public class StatusMessageHandler
     public void showIdlePortMessage() {    	
     	if (Luv.getLuv().getIsExecuting()
             && (Luv.getLuv().getCurrentPlan() == null
-                || Luv.getLuv().getCurrentPlan().getPlanName().equals(UNKNOWN))) {
+                || Luv.getLuv().getCurrentPlan().getPlanName() == null)) {
     		idleMessage = true;
-            if (!message.isEmpty())
+            if (message != null && !message.isEmpty())
                 PortStatusMessageHandlerQ.add(new StatusMessageHandler(message, Color.GREEN, idleMessage, DEFAULT_WAIT));
     	}
     }
-
-    // TODO: reduce number of versions
     
     /**
      * Displays the specified message to the port status bar and not the Debug Window.
