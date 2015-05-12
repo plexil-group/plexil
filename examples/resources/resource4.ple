@@ -22,7 +22,7 @@ Concurrence {
     Resource Name = "sys_memory",
       LowerBound = 0.3,
       UpperBound = 0.3,
-      Priority = 30;
+      Priority = mem_priority;
     returnValue = c2();
   }
   C3: {
