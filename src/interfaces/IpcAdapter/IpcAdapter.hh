@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -123,7 +123,7 @@ namespace PLEXIL
     /**
      * @brief Perform an immediate lookup on an existing state.
      * @param state The state.
-     * @return The current value for the state.
+     * @param entry The state cache entry in which to store the result.
      */
     virtual void lookupNow(const State& state, StateCacheEntry &entry);
 

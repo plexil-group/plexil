@@ -142,6 +142,26 @@ namespace PLEXIL
     // Register with AdapterExecInterface
     g_configuration->defaultRegisterAdapter(this);
 
+    // Auto-register for standard IPC commands, if not already done
+    if ((g_configuration->getDefaultInterface() != this)
+        && (g_configuration->getDefaultCommandInterface() != this)) {
+      static const std::string sl_internalCommands[] =
+        {SEND_MESSAGE_COMMAND(),
+         RECEIVE_MESSAGE_COMMAND(),
+         RECEIVE_COMMAND_COMMAND(),
+         GET_PARAMETER_COMMAND(),
+         SEND_RETURN_VALUE_COMMAND(),
+         UPDATE_LOOKUP_COMMAND(),
+         ""
+        };
+      for (size_t i = 0; !sl_internalCommands[i].empty(); ++i) {
+        std::string const &cmd = sl_internalCommands[i];
+        InterfaceAdapter const *adapter = g_configuration->getCommandInterface(cmd);
+        if (adapter == NULL || adapter != this)
+          g_configuration->registerCommandInterface(cmd, this);
+      }
+    }
+
     debugMsg("IpcAdapter:initialize", " succeeded");
     return true;
   }
@@ -193,7 +213,7 @@ namespace PLEXIL
   /**
    * @brief Perform an immediate lookup on an existing state.
    * @param state The state.
-   * @return The current value for the state.
+   * @param entry The state cache entry in which to store the result.
    */
 
   void IpcAdapter::lookupNow(const State& state, StateCacheEntry &entry) 
@@ -256,7 +276,6 @@ namespace PLEXIL
 
     // Set up to receive this lookup
     m_activeChangeLookupListeners[state.name()] = state;
-    // *** TODO: implement receiving planner update
   }
 
   /**
@@ -297,10 +316,7 @@ namespace PLEXIL
 
   /**
    * @brief Send the name of the supplied node, and the supplied value pairs, to the planner.
-   * @param node The Node requesting the update.
-   * @param valuePairs A map of <LabelStr key, value> pairs.
-   * @param ack The expression in which to store an acknowledgement of completion.
-   * @note Derived classes may implement this method.  The default method causes an assertion to fail.
+   * @param update The Update object.
    */
 
   void IpcAdapter::sendPlannerUpdate(Update * /* update */)
@@ -311,10 +327,7 @@ namespace PLEXIL
 
   /**
    * @brief Execute a command with the requested arguments.
-   * @param name The LabelString representing the command name.
-   * @param args The command arguments expressed as doubles.
-   * @param dest The expression in which to store any value returned from the command.
-   * @param ack The expression in which to store an acknowledgement of command transmission.
+   * @param command The Command object.
    */
 
   void IpcAdapter::executeCommand(Command *command) 
@@ -341,8 +354,10 @@ namespace PLEXIL
       // general case
       executeDefaultCommand(command);
   }
+
   /**
-   * @brief Abort the pending command with the supplied name and arguments.
+   * @brief Abort the pending command.
+   * @param command The Command object.
    */
 
   void IpcAdapter::invokeAbort(Command *command) {
