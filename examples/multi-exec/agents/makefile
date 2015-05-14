@@ -17,12 +17,6 @@ dock:
 test2: test2.plx
 	plexilexec -p test2.plx
 
-udp:
-	$(MAKE) -C ../../../src/interfaces/UdpAdapter
-
-udp-clean:
-	$(MAKE) -C ../../../src/interfaces/UdpAdapter cleaner
-
-.PHONY: cmd dock test2 udp
+.PHONY: cmd dock test2
 
 # EOF
