@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,37 +23,25 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-ifeq ($(shell uname),Darwin)
-  DYLIB=dylib
-else
-  DYLIB=so
-endif
-
 OPTS= -no-ipc #-v -x -vx -d
 
 include $(PLEXIL_HOME)/makeinclude/generic-plexil.make
 
-demo: ../libUdpAdapter.$(DYLIB)
+demo: test-recv.plx test-send.plx
 	@echo ' '
 	$(RUN_AGENTS) $(OPTS) test-recv -c udp test-send -c udp
 
-timeout1: ../libUdpAdapter.$(DYLIB) test-recv.plx
+timeout1: test-recv.plx
 	@echo ' '
 	plexilexec -p test-recv.plx -c udp.xml
 
-timeout2: ../libUdpAdapter.$(DYLIB) test-send.plx
+timeout2: test-send.plx
 	@echo ' '
 	plexilexec -p test-send.plx -c udp.xml
 
-../libUdpAdapter.$(DYLIB):
-	$(MAKE) -C ../
+.PHONY: demo timeout1 timeout2
 
-udp:
-	$(MAKE) -C ../
-
-cleaner: clean
-	make -C ../ cleaner
-
-.PHONY: demo udp
+%.plx : %.ple
+	$(PLEXIL_HOME)/scripts/plexilc $<
 
 # EOF
