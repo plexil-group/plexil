@@ -1,54 +1,102 @@
 This is the top level directory of the PLEXIL distribution.
 
-See http://sourceforge.net/projects/plexil for information about this 
-software, including its user manuals.  There is more information in the 
-README files found in each subdirectory of this directory.
+See http://sourceforge.net/projects/plexil for information about this
+software, including its user manuals.  There is more information in
+the README files found in each subdirectory of this directory.
 
-The Versions file describes previous releases of Plexil, as well as the latest
-features not yet released in a binary distribution.
+The Versions file describes previous releases of Plexil, as well as
+the latest features not yet released in a binary distribution.
 
-The CAVEATS file describes problems and issues in this release.  Please read it!
-
-The instructions supercede those found on PLEXIL's Sourceforge wiki (4/15/14).
+The CAVEATS file describes known problems and issues in this release.
 
 
 How to build PLEXIL
 -------------------
 
-If you have obtained PLEXIL as a binary distribution, there is nothing to build.
-If you have checked it out as source code, follow these steps.
+If you have obtained PLEXIL as a binary distribution, there is nothing
+to build.
 
-1. Setup your Unix environment.  The following two environment variable settings
-are needed for building and running PLEXIL, so best to put them in your shell
-init file.  This example uses the Bash shell, and assumes you've filed PLEXIL as
-~/plexil-4.
+If you have checked out source files from SVN or expanded a source
+code tarball, follow these steps to build the Executive and various
+support programs.
+
+1. Set up your Unix environment. The PLEXIL build system must be told
+where its files are. This example uses the Bash shell, and assumes
+you've filed PLEXIL as ~/plexil-4.
+ 
+  export PLEXIL_HOME=~/work/plexil-4
+
+2. Build and install the binaries.
+
+  make
+
+
+Advanced builds
+---------------
+
+The PLEXIL Executive uses the GNU autotools to allow for easy
+customization and cross-compilation when the standard build (above)
+is not appropriate for a specific application.
+
+The file $PLEXIL_HOME/src/build-for-buildroot.sh is an example of
+cross-compiling the PLEXIL Executive for use with the 'buildroot'
+embedded Linux tool suite on an ARM processor.
+
+1. Set up your Unix environment. The PLEXIL build system must be told
+where its files are. This example uses the Bash shell, and assumes
+you've filed PLEXIL as ~/plexil-4.
  
    export PLEXIL_HOME=~/work/plexil-4
-   export PATH=$PLEXIL_HOME/scripts:$PATH
 
-1. In a Unix shell, change to the build directory
+2. Change to the build directory.
 
   cd ~/plexil-4/src
 
-2. Configure for the build.  This example includes all the optional PLEXIL
-components (recommended) and has binaries installed in the PLEXIL installation
-directory.  You can omit or change options as desired.
+3. If you are building from a fresh SVN checkout, you will need to
+run the GNU autotools first. This step is unnecessary if you
+downloaded a binary distribution or source tarball.
 
-  ./configure --prefix=$PLEXIL_HOME --enable-gantt --enable-module-tests --enable-test-exec --enable-udp
+  autoreconf -f -i
 
-3. Build and install the binaries.
+4. Configure the build using the standard 'configure' script. To get a
+listing of the various options, type:
 
-  make
+  ./configure --help
+
+The example below includes all the optional PLEXIL components as built
+in the previous section, with binaries and libraries installed in the
+PLEXIL installation directory.  You can omit or change options as
+desired.
+
+  ./configure --prefix=$PLEXIL_HOME --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+
+5. Build and install the system:
+
   make install
 
-4. Build the following PLEXIL tools individually (we'll fold them into the main
-build eventually).
 
-  cd $PLEXIL_HOME/compilers/plexil
-  make
+Running PLEXIL
+--------------
 
-  cd $PLEXIL_HOME/compilers/plexilscript
-  ant
+1. Set up your Unix environment. The PLEXIL shell scripts depend on
+the setting of PLEXIL_HOME, and for convenience you will want to add
+the PLEXIL scripts and binaries to your shell's path. This example is
+for the Bourne shell or similar.
 
-  cd $PLEXIL_HOME/viewers/pv
-  ant jar
+  export PLEXIL_HOME='/location/of/plexil'
+  . $PLEXIL_HOME/scripts/plexil-setup.sh
+
+You may wish to add these two lines to your shell init file.
+
+2. The 'plexil' script launches the Plexil Viewer, in which you can
+examine, run, and debug plans. You may wish to use the plans in the
+'examples' directory as a starting point.
+
+  plexil
+
+3. The 'plexilc' script compiles a PLEXIL plan or Plexilscript
+simulation script, depending on the file extension, to the executable
+XML representation.
+
+  plexilc my_plan.ple
+

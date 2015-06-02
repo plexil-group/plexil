@@ -2,68 +2,45 @@ This file, plexil/CAVEATS, lists known bugs and issues in this version
 of PLEXIL.
 
 Build: 
- * The build process of the plexil-3 branch is *very* different from
-   that of the trunk-based distribution. This build system was
-   introduced to better support cross-platform builds. Unfortunately
-   it is more complex, and requires GNU tools that might not be
-   installed on your system by default. Here's an overview of the
-   differences.
-
-   Previous PLEXIL distributions:
-     - use basic Makefiles
-     - entire system built by typing 'make' in the top level 'plexil'
-     directory 
-
-   plexil-3 branch:
-     - based on GNU "autotools" (autoconf/automake/libtool/etc.),
-     which auto-generate Makefiles 
-     - supports cross-compilation via the --host option and various
-     environment variables (for details, see the GNU autoconf
-     documentation)  
-     - building the executive requires three commands, which must be
-     done in plexil-3/src:
-      ./configure (with options)
-      make 
-      make install
-     - not yet fully integrated into top-level Makefile
-
  * If the GNU autotools installed on your system are a different
    version from the ones used to build this release, you may encounter
    errors running 'make'. The following commands can replace the bad
    files with compatible ones from your local installation:
+     cd $PLEXIL_HOME/src
      aclocal --force
      libtoolize --force --copy
      autoreconf --force --install
    You should be able to re-run 'make' successfully at this point.
 
- * The following subsystems in $PLEXIL_HOME/src are no longer built by
-   default: 
+ * The following subsystems are built by default: 
      - the Test Executive
-     - module tests
      - the UDP adapter
      - Gantt viewer support
      - IPC and modules which depend on it: Plexil Simulator, Robosim,
      IPC adapter, et al
 
-   Most of these modules can be enabled via options to 'configure'.
-   Type: 
-      ./configure --help
-   to see these options.  
-   
-   To include all currently supported PLEXIL systems:
-      ./configure --enable-gantt --enable-module-tests --enable-test-exec --enable-udp
+   The following are not built by default:
+     - module tests
 
- * IPC and the IPC adapter, and thus the applications that use them
-   (Robosim, Plexil Simulator), are NOT supported in this branch at
-   this time. IPC and related modules have not yet been ported to the
-   autotools build system.
+   See the "Advanced builds" section in the README file for
+   instructions on how to use the 'configure' script to select the
+   particular subsystems and applications you need.
+
+ * The Plexil example plans and applications (found in
+   plexil-4/examples) are NOT compiled by default. Plans (.ple files)
+   must be compiled manually (with plexilc) to produce .plx files. The
+   application directories (examples/sample-app and examples/robosim)
+   must be built by typing 'make'.
+
+Custom builds:
 
  * The default installation location for PLEXIL libraries and
    executables under the GNU autotools is /usr/local. The installation
-   location can be specified with the '--prefix=' option to
-   'configure'. We recommend installing these files in the PLEXIL
-   installation directory itself. E.g.:
-    ./configure --prefix=$PLEXIL_HOME [... more options ...]
+   locations can be specified with the '--prefix=', '--bindir=',
+   '--libdir=', and '--includedir' option to 'configure'. We recommend
+   installing these files in the PLEXIL installation directory
+   itself. E.g.:
+     cd $PLEXIL_HOME/src ./configure --prefix=$PLEXIL_HOME [... more options ...]
 
  * By default, the GNU autotools build both dynamic and static
    libraries.  Static linking currently does not work on some
@@ -71,27 +48,6 @@ Build:
    build only the dynamic (shared) libraries on modern Linux and Mac
    platforms. This is done by supplying the '--disable-static' option
    to 'configure'.
-
- * The Plexil and Plexilscript compilers are not part of
-   $PLEXIL_HOME/src, and need to be built separately. To do this:
-    cd $PLEXIL_HOME/compilers/plexil
-    make
-    cd $PLEXIL_HOME/compilers/plexilscript
-    ant
-
- * The Plexil example plans and applications (found in
-   plexil-3/examples) are NOT compiled by default. Plans (.ple files)
-   must be compiled manually (with plexilc) to produce .plx files. The
-   application directories (examples/sample-app and examples/robosim)
-   must be built by typing 'make' -- though note that 'robosim' cannot
-   be built at present due to the lack of IPC support mentioned above.
-
- * For the manually-built PLEXIL subystems and applications mentioned
-   above, the dynamic libraries produced (e.g. .dylib files in Mac OS,
-   .so files in Linux) might not be automatically copied to, or linked
-   to from, the directory in which they are expected to be found,
-   which is $PLEXIL_HOME/lib. You may have to make these copies or
-   symbolic links manually. 
 
 
 Plexil Viewer: 
@@ -116,10 +72,3 @@ Plexil compiler ('plexilc'):
 
  * Node timepoints cannot be assigned to variables.
 
-
-Robosim application:
-
- * Robosim depends on IPC, which has not yet been ported to the
-   autotools build system.
-
- * The (graphical) robot simulator does not always shut down cleanly.
