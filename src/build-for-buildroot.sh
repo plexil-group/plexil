@@ -1,7 +1,7 @@
 #! /bin/bash
 # How to cross-compile Plexil with buildroot
 
-# Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,27 +33,37 @@ TARGET=arm-unknown-linux-uclibcgnueabi
 #TARGET=arm-linux-uclibcgnueabi
 
 # Substitute the appropriate paths.
-PLEXIL_HOME=/home/cfry/src/plexil-3
-BUILDROOT_HOME=/home/cfry/buildroot/buildroot-2012.08
+PLEXIL_HOME=/home/JRandomUser/src/plexil-4
+BUILDROOT_HOME=/home/JRandomUser/src/buildroot/buildroot-2012.08
 # Newer buildroot versions
 TOOLCHAIN_ROOT=${BUILDROOT_HOME}/output/host
 # Older buildroot versions
 #TOOLCHAIN_ROOT=${BUILDROOT_HOME}/output/staging
 
+# Uncomment this to build module tests and TestExec regression tests.
+#BUILD_TESTS=1
+
 # These should not need to be changed.
 TARGET_GCC=${TOOLCHAIN_ROOT}/usr/bin/${TARGET}-gcc
 TARGET_GXX=${TOOLCHAIN_ROOT}/usr/bin/${TARGET}-g++
 TARGET_NM=${TOOLCHAIN_ROOT}/usr/bin/${TARGET}-nm
-BUILD_ROOT=${TOOLCHAIN_ROOT}/output/build/plexil-3.0.0a1
+BUILD_ROOT=${TOOLCHAIN_ROOT}/output/build/plexil-4.0
 TARGET_ROOT=${BUILDROOT_HOME}/output/target
 TARGET_INCLUDES=${TARGET_ROOT}/usr/include
 TARGET_SHARE=${TARGET_ROOT}/usr/share
+
+TEST_CONFIGURE_OPTS=
+if (-n "$BUILD_TESTS")
+then
+    TEST_CONFIGURE_OPTS='-enable-module-tests -enable-test-exec'
+fi
 
 export PATH=${PLEXIL_HOME}/src:${TOOLCHAIN_ROOT}/usr/bin:${TOOLCHAIN_ROOT}/usr/sbin:${PATH}
 
 # Exit on error
 set -e
 
+# Build PLEXIL for target
 mkdir -p $BUILD_ROOT
 cd $BUILD_ROOT
 ${PLEXIL_HOME}/src/configure --target=$TARGET --host=$TARGET \
@@ -61,16 +71,20 @@ ${PLEXIL_HOME}/src/configure --target=$TARGET --host=$TARGET \
  CXX=$TARGET_GXX \
  NM=$TARGET_NM \
  --prefix=${TARGET_ROOT}/usr \
- --enable-module-tests --enable-test-exec
+ $TEST_CONFIGURE_OPTS
 make
 
 # Copy files to target filesystem
 make install
 mkdir -p ${TARGET_SHARE}/plexil
 cd ${TARGET_SHARE}/plexil
-svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-3/examples
-svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-3/scripts
-svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-3/test
-mkdir -p test/utils-module-tests test/exec-module-tests
-cp ${PLEXIL_HOME}/src/utils/test/debug*.cfg test/utils-module-tests/
-cp ${PLEXIL_HOME}/src/exec/test/Debug.cfg test/exec-module-tests/
+svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-4/scripts
+if (-n "$BUILD_TESTS")
+then
+    svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-4/examples
+    svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-4/test
+    # The utils and exec module tests require certain files in the working directory
+    mkdir -p test/utils-module-tests test/exec-module-tests
+    cp ${PLEXIL_HOME}/src/utils/test/debug*.cfg test/utils-module-tests/
+    cp ${PLEXIL_HOME}/src/exec/test/Debug.cfg test/exec-module-tests/
+fi
