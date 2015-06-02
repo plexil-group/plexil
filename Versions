@@ -1,5 +1,19 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
+4.0 (plexil-4 branch, release date and SVN revision # TBD)
+
+ - Executive core has been reimplemented for speed and memory safety.
+ - Real-to-Integer conversion functions added.
+ - Standard PLEXIL compiler now has optimization phase, performs 'peephole'
+   optimizations where possible.
+ - Extended PLEXIL now translates to smaller Core PLEXIL plans in many instances.
+ - Shell scripts plexil, plexilexec, plexiltest, plexilsim revised, with improved
+   checking for free TCP ports for Viewer.
+ - Plexil Viewer significantly improved.
+ - Plexil Viewer requires Java 8.
+ - Plexil Checker updated and significantly improved.
+ - Tests and examples updated, cleaned up.
+
 3.0 (March 14, 2014; SVN revision 3336 of the plexil-3 branch)
 
  - NOTE:
