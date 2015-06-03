@@ -1,6 +1,6 @@
 # Platform definitions for cross-compilation for VxWorks RTOS
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -55,8 +55,7 @@ INC_DIRS	+= $(WIND_BASE)/target/usr/h $(WIND_BASE)/target/usr/h/wrn/coreip $(WIN
 
 # Define this as a Real Time Process project
 
-DEFINES		+= -DPLEXIL_VXWORKS -D__RTP__ -DCPU=$(CPU) -DTOOL=$(TOOL) -DTOOL_FAMILY=$(TOOL_FAMILY) \
-                   -DPLATFORM_HAS_DINKUM_HASH_MAP
+DEFINES		+= -DPLEXIL_VXWORKS -D__RTP__ -DCPU=$(CPU) -DTOOL=$(TOOL) -DTOOL_FAMILY=$(TOOL_FAMILY)
 
 STANDARD_CFLAGS		+= $(CC_ARCH_SPEC)
 STANDARD_CXXFLAGS	+= $(CC_ARCH_SPEC)

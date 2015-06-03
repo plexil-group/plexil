@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,7 @@
 # C/C++ compiler flag overrides
 #
 
-DEFINES		+= -DPLATFORM_HAS_GNU_HASH_MAP
+DEFINES		+=
 
 #
 # Compiler/linker option overrides
