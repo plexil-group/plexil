@@ -120,8 +120,8 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
         <xsd:element ref="DurationValue"/>
         <xsd:element ref="NodeTimepointValue"/>
         <!-- read operations for arrays-->
-        <xsd:element name="ArraySize" type="xsd:NCName"/>
-        <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
+        <xsd:element ref="ArraySize"/>
+        <xsd:element ref="ArrayMaxSize"/>
       </xsd:choice>
     </xsd:group>
   </xsd:redefine>

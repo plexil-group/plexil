@@ -980,8 +980,8 @@ element.  It is used as an included schema only.
       <xsd:element ref="RealValue"/>
       <xsd:element ref="NodeTimepointValue"/>
       <!-- read operations for arrays-->
-      <xsd:element name="ArraySize" type="xsd:NCName"/>
-      <xsd:element name="ArrayMaxSize" type="xsd:NCName"/>
+      <xsd:element ref="ArraySize"/>
+      <xsd:element ref="ArrayMaxSize"/>
     </xsd:choice>
   </xsd:group>
 
@@ -1128,6 +1128,20 @@ element.  It is used as an included schema only.
   <xsd:element name="STRLEN">
     <xsd:complexType>
       <xsd:group ref="GeneralizedStringExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ArraySize">
+    <xsd:complexType>
+      <xsd:group ref="GeneralizedArrayExpression"/>
+      <xsd:attributeGroup ref="SourceLocators"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ArrayMaxSize">
+    <xsd:complexType>
+      <xsd:group ref="GeneralizedArrayExpression"/>
       <xsd:attributeGroup ref="SourceLocators"/>
     </xsd:complexType>
   </xsd:element>
