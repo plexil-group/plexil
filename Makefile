@@ -37,6 +37,13 @@ export PLEXIL_HOME := $(MY_PLEXIL_HOME)
 include makeinclude/standard-defs.make
 
 #
+# Compiler defaults
+#
+
+CC ?= gcc
+CXX ?= g++
+
+#
 # Locations for GNU autotools
 #
 
@@ -47,7 +54,10 @@ AUTORECONF := autoreconf
 LIBTOOLIZE := libtoolize
 
 # Primary target
-plexil-default: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim robosim sample pv
+plexil-default: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv robosim sample
+
+# Just the tools without the examples
+tools: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv
 
 #
 # Standalone targets
@@ -143,7 +153,9 @@ most-install: most-build src/Makefile
 	$(MAKE) -C src install
 
 src/Makefile: src/configure
-	cd ./src && ./configure --prefix=$(PLEXIL_HOME) --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+	cd ./src && ./configure --prefix=$(PLEXIL_HOME) \
+ CC=$(CC) CXX=$(CXX) --disable-static \
+ --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
 
 #
 # Bootstrapping autobuild files
