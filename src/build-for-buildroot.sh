@@ -79,7 +79,7 @@ make install
 mkdir -p ${TARGET_SHARE}/plexil
 cd ${TARGET_SHARE}/plexil
 svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-4/scripts
-if (-n "$BUILD_TESTS")
+if ( -n "$BUILD_TESTS" )
 then
     svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-4/examples
     svn export --force https://plexil.svn.sourceforge.net/svnroot/plexil/branches/plexil-4/test
