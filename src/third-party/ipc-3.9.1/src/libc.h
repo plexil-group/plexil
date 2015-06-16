@@ -483,12 +483,14 @@
 #include <memory.h>
 #include <sys/socket.h>
 #include <ctype.h>
-#if !defined(sparc) && !defined(__CYGWIN__)
+#if !defined(sparc) && !defined(__CYGWIN__) && !defined(__FreeBSD__)
 #include <sys/stream.h>		/* TNgo, 11/17/97 */
+#endif
+#if !defined(sparc) && !defined(__CYGWIN__)
 #include <sys/socketvar.h>
 #endif
 #include <sys/stat.h>
-#if !defined(__CYGWIN__)
+#if !defined(__CYGWIN__) && !defined(__FreeBSD__)
 #include <sys/ttold.h>
 #include <sys/ttydev.h>
 #endif
