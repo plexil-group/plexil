@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -138,10 +138,11 @@ AC_CHECK_LIB([dl], [dlopen])
 AC_CHECK_LIB([pthread], [pthread_create])
 AC_CHECK_LIB([rt], [timer_create])
 AC_CHECK_LIB([m], [sqrt])
+AC_CHECK_LIB([execinfo], [backtrace])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h dlfcn.h float.h limits.h netdb.h netinet/in.h stddef.h stdint.h sys/socket.h sys/time.h unistd.h wchar.h])
+AC_CHECK_HEADERS([arpa/inet.h dlfcn.h execinfo.h float.h limits.h netdb.h netinet/in.h stddef.h stdint.h sys/socket.h sys/time.h unistd.h wchar.h])
 
 AM_CONDITIONAL([PLEXIL_DLFCN_H], [test "x$ac_cv_header_dlfcn_h" = "xyes"])
 
@@ -188,7 +189,7 @@ AS_IF([test "x$enable_ipc" = "xyes"], [
 AC_CHECK_LIB([nsl], [inet_ntoa])
 AC_CHECK_LIB([wrap], [hosts_ctl])
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS([execinfo.h fcntl.h malloc.h memory.h strings.h sys/file.h sys/ioctl.h sys/param.h sys/timeb.h termios.h])
+AC_CHECK_HEADERS([fcntl.h malloc.h memory.h strings.h sys/file.h sys/ioctl.h sys/param.h sys/timeb.h termios.h])
 AC_FUNC_FORK
 AC_FUNC_SETPGRP
 AC_FUNC_SETVBUF_REVERSED
