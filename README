@@ -10,25 +10,44 @@ the latest features not yet released in a binary distribution.
 The CAVEATS file describes known problems and issues in this release.
 
 
-How to build PLEXIL
--------------------
+Software requirements
+---------------------
 
-If you have obtained PLEXIL as a binary distribution, there is nothing
-to build.
+The complete PLEXIL suite should run on most recent versions of Linux
+and Mac OS X.
 
-If you have checked out source files from SVN or expanded a source
-code tarball, follow these steps to build the Executive and various
-support programs.
+Building the PLEXIL tool suite requires the following software to be
+installed:
 
-1. Set up your Unix environment. The PLEXIL build system must be told
-where its files are. This example uses the Bash shell, and assumes
-you've filed PLEXIL as ~/plexil-4.
- 
-  export PLEXIL_HOME=~/work/plexil-4
+ GNU Make
+ GNU Bash
+ gcc/g++ (default), clang/clang++, or other C99 and C++03 compliant compilers
+ OpenJDK 8 or Oracle Java SDK 8 (development package, not just runtime)
+ Apache ant, including the antlr module
 
-2. Build and install the binaries.
+The robosim example program also requires:
 
-  make
+ X11 libraries freeglut, libxi, libxmu and their header files
+
+In addition, if you are building from an SVN checkout, the GNU
+autotools (autoconf, automake, and libtool) are required.
+
+
+How to build PLEXIL - Simple version
+------------------------------------
+
+To build the PLEXIL distribution including the examples, simply change
+to this top level directory and type:
+
+ make
+
+To build the tool suite without the example applications:
+
+ make tools
+
+To specify a compiler other than gcc/g++, e.g. clang:
+
+ make CC=clang CXX=clang++
 
 
 Advanced builds
@@ -38,27 +57,17 @@ The PLEXIL Executive uses the GNU autotools to allow for easy
 customization and cross-compilation when the standard build (above)
 is not appropriate for a specific application.
 
-The file $PLEXIL_HOME/src/build-for-buildroot.sh is an example of
-cross-compiling the PLEXIL Executive for use with the 'buildroot'
-embedded Linux tool suite on an ARM processor.
-
-1. Set up your Unix environment. The PLEXIL build system must be told
-where its files are. This example uses the Bash shell, and assumes
-you've filed PLEXIL as ~/plexil-4.
- 
-   export PLEXIL_HOME=~/work/plexil-4
-
-2. Change to the build directory.
+1. Change to the build directory.
 
   cd ~/plexil-4/src
 
-3. If you are building from a fresh SVN checkout, you will need to
+2. If you are building from a fresh SVN checkout, you will need to
 run the GNU autotools first. This step is unnecessary if you
 downloaded a binary distribution or source tarball.
 
   autoreconf -f -i
 
-4. Configure the build using the standard 'configure' script. To get a
+3. Configure the build using the standard 'configure' script. To get a
 listing of the various options, type:
 
   ./configure --help
@@ -70,18 +79,32 @@ desired.
 
   ./configure --prefix=$PLEXIL_HOME --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
 
-5. Build and install the system:
+Please see the CAVEATS file in this directory for advice on options to
+'configure'.
+
+4. Build and install the system:
 
   make install
+
+
+Cross-compiling the PLEXIL Executive
+------------------------------------
+
+The use of the GNU autotools enables straightforward cross-compilation
+of the PLEXIL Executive for embedded applications.
+
+The file $PLEXIL_HOME/src/build-for-buildroot.sh is an example of
+cross-compiling the PLEXIL Executive for use with the 'buildroot'
+embedded Linux tool suite on an ARM processor.
 
 
 Running PLEXIL
 --------------
 
-1. Set up your Unix environment. The PLEXIL shell scripts depend on
-the setting of PLEXIL_HOME, and for convenience you will want to add
-the PLEXIL scripts and binaries to your shell's path. This example is
-for the Bourne shell or similar.
+1. Set up your environment. The PLEXIL shell scripts depend on the
+setting of PLEXIL_HOME, and for convenience you may wish to add the
+PLEXIL scripts and binaries to your shell's path. This example is for
+the Bourne/bash shells or similar.
 
   export PLEXIL_HOME='/location/of/plexil'
   . $PLEXIL_HOME/scripts/plexil-setup.sh

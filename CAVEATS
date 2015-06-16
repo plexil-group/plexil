@@ -2,22 +2,26 @@ This file, plexil/CAVEATS, lists known bugs and issues in this version
 of PLEXIL.
 
 Build: 
+
  * If the GNU autotools installed on your system are a different
    version from the ones used to build this release, you may encounter
    errors running 'make'. The following commands can replace the bad
    files with compatible ones from your local installation:
-     cd $PLEXIL_HOME/src
-     aclocal --force
-     libtoolize --force --copy
-     autoreconf --force --install
-   You should be able to re-run 'make' successfully at this point.
+
+  cd $PLEXIL_HOME/src
+  aclocal --force
+  libtoolize --force --copy
+  autoreconf --force --install
+
+   You should be able to re-run 'configure' and 'make' successfully at
+   this point.
 
  * The following subsystems are built by default: 
      - the Test Executive
-     - the UDP adapter
      - Gantt viewer support
      - IPC and modules which depend on it: Plexil Simulator, Robosim,
      IPC adapter, et al
+     - the UDP adapter
 
    The following are not built by default:
      - module tests
@@ -37,18 +41,21 @@ Custom builds:
  * The default installation location for PLEXIL libraries and
    executables under the GNU autotools is /usr/local. The installation
    locations can be specified with the '--prefix=', '--bindir=',
-   '--libdir=', and '--includedir' option to 'configure'. We recommend
-   installing these files in the PLEXIL installation directory
-   itself. E.g.:
-     cd $PLEXIL_HOME/src ./configure --prefix=$PLEXIL_HOME [... more options ...]
+   '--libdir=', and '--includedir=' options to 'configure'. We
+   recommend installing these files in the PLEXIL installation
+   directory itself. E.g.:
+
+ cd $PLEXIL_HOME/src ./configure --prefix=$PLEXIL_HOME [... more options ...]
 
  * By default, the GNU autotools build both dynamic and static
-   libraries.  Static linking currently does not work on some
-   systems. To save build time and disk space, we recommend that you
-   build only the dynamic (shared) libraries on modern Linux and Mac
-   platforms. This is done by supplying the '--disable-static' option
-   to 'configure'.
+   libraries. This consumes time and disk space. Unless your
+   application specifically requires static libraries, we recommend
+   that you build only the dynamic (shared) libraries. This is done by
+   supplying the '--disable-static' option to 'configure'.
 
+Standard Plexil language:
+
+ * Node timepoints cannot be assigned to variables.
 
 Plexil Viewer: 
 
@@ -63,12 +70,8 @@ Plexil Viewer:
    distinguish between "normal" and Core Plexil plan view, always
    showing the latter.
 
-
 Plexil compiler ('plexilc'): 
 
  * File extensions included in the '-o' option are ignored:
    Extended and Core Plexil files are always written with the
    ".epx" and ".plx" extensions, respectively.
-
- * Node timepoints cannot be assigned to variables.
-
