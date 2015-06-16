@@ -41,8 +41,6 @@ RUNTIME_SHARED_LIBRARY_PATH_FLAG	:= -rpath
 SHARED_FLAGS				:= -shared
 # Extension for shared library
 SUFSHARE				:= .so
-# Name of system library with dynamic loading API
-DLOPEN_LIB				:= dl
 # Name of the library with the pthreads API
 PTHREAD_LIB   	      	       	        := pthread
 # Name of system library with realtime clock API
