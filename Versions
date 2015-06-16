@@ -1,9 +1,11 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
-4.0 (plexil-4 branch, release date and SVN revision # TBD)
+4.0 (15 June 2015; SVN revision 4336 of the plexil-4 branch)
 
+ - Please see the README file for up-to-date build instructions.
  - Executive core has been reimplemented for speed and memory safety.
  - Real-to-Integer conversion functions added.
+ - Interfacing API has changed.
  - Standard PLEXIL compiler now has optimization phase, performs 'peephole'
    optimizations where possible.
  - Extended PLEXIL now translates to smaller Core PLEXIL plans in many instances.
