@@ -169,6 +169,19 @@ fi
 # For readability
 echo " "
 
+# Try to figure out which make to use
+MAKE=make
+if [ `uname -s` = 'FreeBSD' ]
+then
+    if ( which gmake )
+    then
+	MAKE=gmake
+    else
+	echo 'ERROR: GNU make not found. Please install it.'
+	exit 1
+    fi
+fi
+
 # Try to figure out which makefile to use
 if [ -e "makefile" ] ; then
     make_file=makefile
@@ -179,7 +192,7 @@ else
 fi
 
 # Keep the plans up-to-date if possible...
-make -f $make_file $agent1.plx $agent2.plx
+${MAKE} -f $make_file $agent1.plx $agent2.plx
 make_status=$?
 # bail if things don't compile properly
 if [ $make_status != 0 ] ;
@@ -198,7 +211,7 @@ do
         else echo "$lib.pli not found" ; exit ;
         fi
     fi
-    make $lib.plx
+    ${MAKE} $lib.plx
     # stop of the compile fails
     if [ $? != 0 ] ; then echo "Error: $lib.plx failed to compile" ; exit ; fi
     libraries1+=`echo " -l " $lib.plx`
@@ -212,7 +225,7 @@ do
         else echo "$lib.pli not found" ; exit ;
         fi
     fi
-    make $lib.plx
+    ${MAKE} $lib.plx
     if [ $? != 0 ] ; then echo "Error: $lib.plx failed to compile" ; exit ; fi
     libraries2+=`echo " -l " $lib.plx`
 done
