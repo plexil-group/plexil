@@ -6,11 +6,11 @@ include $(PLEXIL_HOME)/makeinclude/generic-plexil.make
 
 #OPTS=				#-v -x -vx -d
 
-cmd:
+cmd: sim.plx cmd.plx lib/state-request.plx
 	@echo " "
 	$(RUN_AGENTS) $(OPTS) sim -l state-request cmd
 
-dock:
+dock: dock.plx rover.plx lib/setup-bay.plx lib/update-bay.plx lib/dock-rover.plx
 	@echo " "
 	$(RUN_AGENTS) $(OPTS) dock -l setup-bay -l update-bay rover -l dock-rover
 
