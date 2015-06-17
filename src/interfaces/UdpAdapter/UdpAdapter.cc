@@ -43,6 +43,12 @@
 #include <climits>
 #include <cstring>
 #include <unistd.h> // for close()
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
 
 namespace PLEXIL
 {
