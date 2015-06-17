@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 # How to cross-compile Plexil with buildroot
 
 # Copyright (c) 2006-2015, Universities Space Research Association (USRA).
