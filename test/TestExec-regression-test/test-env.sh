@@ -1,7 +1,7 @@
-#! /bin/bash
+#! /usr/bin/env bash
 # Environment setup for TestExec regression tests
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without

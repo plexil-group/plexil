@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 sed_cmd='s/id_[0-9]*/id_/g'
 
