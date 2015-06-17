@@ -38,7 +38,7 @@ endif
 ifeq (FreeBSD,$(OSNAME))
 OPENGL_LIB_PATH := /usr/local/lib
 OPENGL_LIBS	:= GL GLU glut Xi Xmu
-INCLUDES += -I/usr/local/lib
+INCLUDES += -I/usr/local/include
 endif
 
 EXECUTABLE := robotSimulator
