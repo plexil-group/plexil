@@ -597,47 +597,47 @@ typedef enum
 #endif /* __TURBOC__ */
 
 #if defined(M68K) || defined(__m68k__) || defined(__mc68000__)
-#define ALIGN ALIGN_WORD
+#define IPC_ALIGN ALIGN_WORD
 #elif defined (i386) && !defined(__CYGWIN__)         /* Get this before PPC603 which comes from ? */
-#define ALIGN ALIGN_INT
+#define IPC_ALIGN ALIGN_INT
 #elif defined(__x86_64)
-#define ALIGN ALIGN_LONGEST
+#define IPC_ALIGN ALIGN_LONGEST
 #elif defined (i386) && defined(__CYGWIN__)
-#define ALIGN ALIGN_LONGEST
+#define IPC_ALIGN ALIGN_LONGEST
 #elif defined(ppc) || defined(PPC603)
-#define ALIGN ALIGN_LONGEST
+#define IPC_ALIGN ALIGN_LONGEST
 #elif defined(THINK_C) || defined(sun3) || defined(SUN3)
-#define ALIGN ALIGN_WORD
+#define IPC_ALIGN ALIGN_WORD
 #elif defined(macintosh) && defined(__POWERPC__)
-#define ALIGN ALIGN_MAC_PPC
+#define IPC_ALIGN ALIGN_MAC_PPC
 #elif defined(__APPLE__) && defined(_ARCH_PPC)
-#define ALIGN ALIGN_MAC_PPC
+#define IPC_ALIGN ALIGN_MAC_PPC
 #elif defined(sun4) || defined(SUN4) || defined(sparc) || defined(__sparc)
-#define ALIGN ALIGN_LONGEST
+#define IPC_ALIGN ALIGN_LONGEST
 #elif defined(pmax) || defined(alpha) || defined(__alpha) || defined(__alpha__)
-#define ALIGN ALIGN_LONGEST
+#define IPC_ALIGN ALIGN_LONGEST
 #elif _MSC_VER == 1200  /* JSM Microsoft VC++ Version 6.0 aligns on 8-byte boundaries */
-#define ALIGN ALIGN_LONGEST
+#define IPC_ALIGN ALIGN_LONGEST
 #elif defined(i386) || defined(__TURBOC__) || defined(OS2) || defined(_WIN95_MSC_) || defined(WIN32)
-#define ALIGN ALIGN_INT
+#define IPC_ALIGN ALIGN_INT
 #elif defined(__sgi) || defined(MIPSEB)
-#define ALIGN ALIGN_LONGEST
+#define IPC_ALIGN ALIGN_LONGEST
 /* Note, the next line is only valid for gcc, but will only be evaluated 
  * if the machine type is unknown.
  */
 #elif #machine (sparc)
-#define ALIGN ALIGN_LONGEST
+#define IPC_ALIGN ALIGN_LONGEST
 #elif #machine (arm)
-#define ALIGN ALIGN_ARM
+#define IPC_ALIGN ALIGN_ARM
 #else 
-#undef ALIGN
+#undef IPC_ALIGN
 #endif
 
 #ifdef BOB_DOESNT_KNOW_WHAT_HES_DOING
 #ifdef AERCAMII					/* Nasa-JSC Aercam II project, needs all alignments the same  */
-#undef ALIGN					/* Across Sparc, Pentiums, Mc680x0, hardware and */
-#define ALIGN ALIGN_INT			/* OS/2, Win95, VxWorks, SunOS, Solaris operating systems */
-/*#define ALIGN ALIGN_WORD */			/* OS/2, Win95, VxWorks, SunOS, Solaris operating systems */
+#undef IPC_ALIGN					/* Across Sparc, Pentiums, Mc680x0, hardware and */
+#define IPC_ALIGN ALIGN_INT			/* OS/2, Win95, VxWorks, SunOS, Solaris operating systems */
+/*#define IPC_ALIGN ALIGN_WORD */			/* OS/2, Win95, VxWorks, SunOS, Solaris operating systems */
 #endif
 #endif
 

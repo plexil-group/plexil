@@ -1159,7 +1159,7 @@ DATA_MSG_PTR x_ipc_dataMsgCreate(int32 parentRef, int32 intent, int32 classId,
   dataMsg->dataStruct = (const char *)msgData;
   dataMsg->dataByteOrder = BYTE_ORDER;
   dataMsg->classByteOrder = BYTE_ORDER;
-  dataMsg->alignment = (ALIGNMENT_TYPE)ALIGN;
+  dataMsg->alignment = (ALIGNMENT_TYPE)IPC_ALIGN;
   
   return dataMsg;
 }

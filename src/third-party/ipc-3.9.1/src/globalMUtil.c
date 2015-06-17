@@ -485,7 +485,7 @@ void x_ipc_globalMInit(void)
   GET_C_GLOBAL(valid) = FALSE;
   
   GET_M_GLOBAL(byteOrder) = BYTE_ORDER;
-  GET_M_GLOBAL(alignment) = (ALIGNMENT_TYPE)ALIGN;
+  GET_M_GLOBAL(alignment) = (ALIGNMENT_TYPE)IPC_ALIGN;
   
   GET_C_GLOBAL(serverRead) = NO_SERVER_GLOBAL;
   GET_C_GLOBAL(serverWrite) = NO_SERVER_GLOBAL;

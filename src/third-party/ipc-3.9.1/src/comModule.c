@@ -939,7 +939,7 @@ void x_ipcModuleInitialize(void)
   GET_M_GLOBAL(versionGlobal).x_ipcMinor = X_IPC_VERSION_MINOR;
   
   GET_M_GLOBAL(byteOrder) = BYTE_ORDER;
-  GET_M_GLOBAL(alignment) = (ALIGNMENT_TYPE)ALIGN;
+  GET_M_GLOBAL(alignment) = (ALIGNMENT_TYPE)IPC_ALIGN;
   
   x_ipc_dataMsgInitialize();
   

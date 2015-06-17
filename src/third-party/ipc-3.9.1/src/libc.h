@@ -589,7 +589,7 @@ extern int unlink _PARAMS((char *));
 #include <ctype.h>
 #include <string.h>
 #include <sys/socket.h>
-#undef ALIGN
+#undef IPC_ALIGN
 #include <sys/stat.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>

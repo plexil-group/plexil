@@ -1576,8 +1576,8 @@ struct iovec *x_ipc_copyVectorization(const struct iovec *vec, int32 space)
  *
  *****************************************************************************/
 
-#if ((ALIGN & ALIGN_LONGEST) || (ALIGN & ALIGN_INT) || (ALIGN & ALIGN_MAC_PPC)\
-     || (ALIGN & ALIGN_ARM))
+#if ((IPC_ALIGN & ALIGN_LONGEST) || (IPC_ALIGN & ALIGN_INT) || (IPC_ALIGN & ALIGN_MAC_PPC)\
+     || (IPC_ALIGN & ALIGN_ARM))
 static int32 x_ipc_mostRestrictiveElement(CONST_FORMAT_PTR format)
 {
   int32 maxSize=0;
@@ -1589,9 +1589,9 @@ static int32 x_ipc_mostRestrictiveElement(CONST_FORMAT_PTR format)
     LOCK_M_MUTEX;
     maxSize = (GET_M_GLOBAL(TransTable)[format->formatter.i].RLength)();
     UNLOCK_M_MUTEX;
-#if (ALIGN & ALIGN_LONGEST)
+#if (IPC_ALIGN & ALIGN_LONGEST)
     return maxSize;
-#elif (ALIGN & ALIGN_INT) || (ALIGN & ALIGN_MAC_PPC) || (ALIGN & ALIGN_ARM)
+#elif (IPC_ALIGN & ALIGN_INT) || (IPC_ALIGN & ALIGN_MAC_PPC) || (IPC_ALIGN & ALIGN_ARM)
     return (maxSize < (int32)sizeof(int32) ? maxSize : sizeof(int32));
 #else
     /* should never get here. */
@@ -1605,7 +1605,7 @@ static int32 x_ipc_mostRestrictiveElement(CONST_FORMAT_PTR format)
     return x_ipc_mostRestrictiveElement(format->formatter.a[1].f);
     
   case StructFMT:
-#if (ALIGN & ALIGN_ARM)
+#if (IPC_ALIGN & ALIGN_ARM)
     return (int32)sizeof(int32);
 #else
     {
@@ -1615,9 +1615,9 @@ static int32 x_ipc_mostRestrictiveElement(CONST_FORMAT_PTR format)
 	nextSize = x_ipc_mostRestrictiveElement(format->formatter.a[i].f);
 	if (nextSize > maxSize) maxSize = nextSize;
       }
-#if (ALIGN & ALIGN_LONGEST)
+#if (IPC_ALIGN & ALIGN_LONGEST)
       return maxSize;
-#elif (ALIGN & ALIGN_INT) || (ALIGN & ALIGN_MAC_PPC)
+#elif (IPC_ALIGN & ALIGN_INT) || (IPC_ALIGN & ALIGN_MAC_PPC)
       return (maxSize < (int32)sizeof(int32) ? maxSize : sizeof(int32));
 #endif
     }
@@ -1650,7 +1650,7 @@ static int32 x_ipc_mostRestrictiveElement(CONST_FORMAT_PTR format)
  *
  *****************************************************************************/
 
-#if (ALIGN & ALIGN_MAC_PPC)
+#if (IPC_ALIGN & ALIGN_MAC_PPC)
 static int32 firstElementSize(CONST_FORMAT_PTR format)
 {  
   switch (format->type) {
@@ -1687,7 +1687,7 @@ static int32 firstElementSize(CONST_FORMAT_PTR format)
 }
 #endif
 
-#if (ALIGN & ALIGN_WORD)
+#if (IPC_ALIGN & ALIGN_WORD)
 /* TRUE if the format is "simple" and the elements are odd-length bytes */
 static int32 oddSimpleFormat (CONST_FORMAT_PTR format)
 {
@@ -1746,7 +1746,7 @@ static int32 oddSimpleFormat (CONST_FORMAT_PTR format)
 int32 x_ipc_alignField(CONST_FORMAT_PTR format, int32 currentField, 
 		 int32 currentDataSize)
 { 
-#if (ALIGN & ALIGN_WORD)
+#if (IPC_ALIGN & ALIGN_WORD)
   int32 nextField;
   FORMAT_PTR nextFormat;
   FORMAT_ARRAY_PTR formatArray; 
@@ -1765,8 +1765,8 @@ int32 x_ipc_alignField(CONST_FORMAT_PTR format, int32 currentField,
 	      ? currentDataSize : currentDataSize + 1);
     }
   }
-#elif ((ALIGN & ALIGN_LONGEST) | (ALIGN & ALIGN_INT) | (ALIGN & ALIGN_MAC_PPC)\
-       | (ALIGN & ALIGN_ARM))
+#elif ((IPC_ALIGN & ALIGN_LONGEST) | (IPC_ALIGN & ALIGN_INT) | (IPC_ALIGN & ALIGN_MAC_PPC)\
+       | (IPC_ALIGN & ALIGN_ARM))
   int32 nextField, appropriateSize, rem;
   FORMAT_ARRAY_PTR formatArray;   
   
@@ -1775,7 +1775,7 @@ int32 x_ipc_alignField(CONST_FORMAT_PTR format, int32 currentField,
   if (nextField == formatArray[0].i) {
     /* end of structure; pad to appropriate boundary of longest subelement */
     appropriateSize = x_ipc_mostRestrictiveElement(format);
-#if (ALIGN & ALIGN_MAC_PPC)
+#if (IPC_ALIGN & ALIGN_MAC_PPC)
     /* CodeWarrior seems to have a strange padding rule: It uses ALIGN_INT,
        except that it pads to 8-byte boundaries if the first element in
        the structure is a double! */
