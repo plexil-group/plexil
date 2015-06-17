@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,12 @@ endif
 ifeq (Linux,$(OSNAME))
 OPENGL_LIB_PATH := /usr/X11R6/lib
 OPENGL_LIBS	:= GL GLU glut Xi Xmu
+endif
+
+ifeq (FreeBSD,$(OSNAME))
+OPENGL_LIB_PATH := /usr/local/lib
+OPENGL_LIBS	:= GL GLU glut Xi Xmu
+INCLUDES += -I/usr/local/lib
 endif
 
 EXECUTABLE := robotSimulator
