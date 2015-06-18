@@ -41,7 +41,4 @@ timeout2: test-send.plx
 
 .PHONY: demo timeout1 timeout2
 
-%.plx : %.ple
-	$(PLEXIL_HOME)/scripts/plexilc $<
-
 # EOF
