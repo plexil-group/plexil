@@ -14,7 +14,9 @@ Software requirements
 ---------------------
 
 The complete PLEXIL suite should run on most recent versions of Linux
-and Mac OS X.
+and Mac OS X. It builds on FreeBSD as well, and most of the suite
+works out of the box; however, IPC is not yet working, nor is anything
+dependent on it (i.e. many of the example apps).
 
 Building the PLEXIL tool suite requires the following software to be
 installed:
@@ -36,8 +38,8 @@ autotools (autoconf, automake, and libtool) are required.
 How to build PLEXIL - Simple version
 ------------------------------------
 
-To build the PLEXIL distribution including the examples, simply change
-to this top level directory and type:
+To build the PLEXIL distribution, including the examples, on Linux or
+Mac OS X, simply change to this top level directory and type:
 
  make
 
@@ -48,6 +50,11 @@ To build the tool suite without the example applications:
 To specify a compiler other than gcc/g++, e.g. clang:
 
  make CC=clang CXX=clang++
+
+On FreeBSD, ensure that GNU make is installed (typically named 'gmake'
+on this OS):
+
+ gmake CC=clang CXX=clang++
 
 
 Advanced builds
@@ -63,7 +70,7 @@ is not appropriate for a specific application.
 
 2. If you are building from a fresh SVN checkout, you will need to
 run the GNU autotools first. This step is unnecessary if you
-downloaded a binary distribution or source tarball.
+downloaded a source tarball.
 
   autoreconf -f -i
 

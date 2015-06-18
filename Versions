@@ -1,6 +1,11 @@
 This file is a compendium of past release notes for PLEXIL distributions.
 
-4.0 (15 June 2015; SVN revision 4336 of the plexil-4 branch)
+4.0.1 (17 June 2015; SVN revision 4357 of the plexil-4 branch)
+
+ - The PLEXIL suite now builds "out of the box" on FreeBSD. Most tools
+   work correctly, however IPC is not yet working on FreeBSD.
+
+4.0.0 (15 June 2015; SVN revision 4336 of the plexil-4 branch)
 
  - Please see the README file for up-to-date build instructions.
  - Executive core has been reimplemented for speed and memory safety.

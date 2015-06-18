@@ -45,13 +45,20 @@ Custom builds:
    recommend installing these files in the PLEXIL installation
    directory itself. E.g.:
 
- cd $PLEXIL_HOME/src ./configure --prefix=$PLEXIL_HOME [... more options ...]
+ cd $PLEXIL_HOME/src
+ ./configure --prefix=$PLEXIL_HOME [... more options ...]
 
  * By default, the GNU autotools build both dynamic and static
    libraries. This consumes time and disk space. Unless your
    application specifically requires static libraries, we recommend
    that you build only the dynamic (shared) libraries. This is done by
    supplying the '--disable-static' option to 'configure'.
+
+PLEXIL executive and interfaces:
+
+ * The IPC subsystem is not yet working on FreeBSD (as of PLEXIL
+   4.0.1). Unfortunately, this means many of the example applications
+   cannot be used on FreeBSD.
 
 Standard Plexil language:
 
