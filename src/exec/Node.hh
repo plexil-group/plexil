@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,7 +47,9 @@ namespace PLEXIL {
    * responses to the various conditions changing value, accessors for the node information and the conditions, there should
    * be error checking in all of the state transitions for node types (FAILING, for instance, can only be occupied by list nodes).
    */
-  class Node : public NodeConnector
+  class Node :
+    public NodeConnector,
+    public ExpressionListener
   {
   public:
     //condition names
@@ -167,6 +169,12 @@ namespace PLEXIL {
      * @note Default method; only assignment nodes care about priority.
      */
     virtual int32_t getPriority() const {return WORST_PRIORITY;}
+
+    //
+    // ExpressionListener API
+    //
+
+    virtual void notifyChanged(Expression const *src);
 
     /**
      * @brief Gets the destination state of this node, were it to transition, based on the values of various conditions.
@@ -475,28 +483,6 @@ namespace PLEXIL {
     virtual NodeState nodeStateMax() const { return FINISHED_STATE; } // empty node method
 
     //
-    // Listener class
-    //
-
-    class ConditionChangeListener : public ExpressionListener 
-    {
-    public:
-      ConditionChangeListener(Node& node);
-      ~ConditionChangeListener();
-
-      void notifyChanged(Expression const *src);
-
-    private:
-
-      // Deliberately unimplemented
-      ConditionChangeListener();
-      ConditionChangeListener(const ConditionChangeListener&);
-      ConditionChangeListener& operator=(const ConditionChangeListener&);
-
-      Node& m_node;
-    };
-
-    //
     // Common state
     //
     bool m_checkConditionsPending; /*!< True if some condition has had a notification. */
@@ -510,7 +496,6 @@ namespace PLEXIL {
 
     Node *m_parent;                              /*!< The parent of this node.*/
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
-    ConditionChangeListener m_listener;          /*!< Notifies the node when a condition's inputs have changed. */
  
     std::vector<Expression *> m_localVariables; /*!< Variables created in this node. */
     StateVariable m_stateVariable;

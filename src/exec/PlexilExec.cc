@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ namespace PLEXIL
     root->activate();
     debugMsg("PlexilExec:addPlan",
              "Added plan: " << std::endl << root->toString());
-    root->conditionChanged(); // redundant?
+    root->notifyChanged(NULL); // redundant?
     return true;
   }
 
@@ -346,7 +346,7 @@ namespace PLEXIL
       for (std::vector<Node *>::const_iterator it = m_stateChangeQueue.begin();
            it != m_stateChangeQueue.end();
            ++it)
-         (*it)->conditionChanged();
+        (*it)->notifyChanged(NULL); // FIXME: move this to nodes' state transition code
 
       // Publish the transitions
       // FIXME: Move call to listener outside of quiescence loop

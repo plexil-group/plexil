@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -45,23 +45,6 @@
 #include <sstream>
 
 namespace PLEXIL {
-
-  Node::ConditionChangeListener::ConditionChangeListener(Node &node)
-    : ExpressionListener(), m_node(node)
-  {
-  }
-
-  Node::ConditionChangeListener::~ConditionChangeListener()
-  {
-  }
-
-  void Node::ConditionChangeListener::notifyChanged(Expression const *src)
-  {
-    // Uncomment this if you need to identify the source of an
-    // unexpected notification.
-    // debugMsg("Node:conditionChanged", " node " << m_node.getNodeId() << " from " << *src);
-    m_node.conditionChanged();
-  }
 
   // Initialize static variable
   static std::vector<std::string> s_allConditions;
@@ -118,6 +101,7 @@ namespace PLEXIL {
 
   Node::Node(char const *nodeId, Node *parent)
     : NodeConnector(),
+      ExpressionListener(),
       m_checkConditionsPending(false),
       m_state(INACTIVE_STATE),
       m_outcome(NO_OUTCOME),
@@ -127,7 +111,6 @@ namespace PLEXIL {
       m_nextFailureType(NO_FAILURE),
       m_parent(parent),
       m_conditions(),
-      m_listener(*this),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
@@ -158,7 +141,6 @@ namespace PLEXIL {
       m_nextFailureType(NO_FAILURE),
       m_parent(parent),
       m_conditions(),
-      m_listener(*this),
       m_stateVariable(*this),
       m_outcomeVariable(*this),
       m_failureTypeVariable(*this),
@@ -181,7 +163,7 @@ namespace PLEXIL {
       m_conditions[i] = expr;
       m_garbageConditions[i] = true;
       if (i != preIdx && i != postIdx && getCondition(i))
-        getCondition(i)->addListener(&m_listener);
+        getCondition(i)->addListener(this);
     }
 
     PlexilNodeType nodeType = parseNodeType(type.c_str());
@@ -284,7 +266,7 @@ namespace PLEXIL {
 
       default:
         if (m_conditions[condIdx])
-          m_conditions[condIdx]->addListener(&m_listener);
+          m_conditions[condIdx]->addListener(this);
         break;
       }
 
@@ -293,15 +275,15 @@ namespace PLEXIL {
     if (m_parent) {
       Expression *ancestorCond = getAncestorExitCondition();
       if (ancestorCond)
-        ancestorCond->addListener(&m_listener);
+        ancestorCond->addListener(this);
 
       ancestorCond = getAncestorInvariantCondition();
       if (ancestorCond)
-        ancestorCond->addListener(&m_listener);
+        ancestorCond->addListener(this);
 
       ancestorCond = getAncestorEndCondition();
       if (ancestorCond)
-        ancestorCond->addListener(&m_listener);
+        ancestorCond->addListener(this);
     }
   }
 
@@ -345,7 +327,7 @@ namespace PLEXIL {
     for (size_t i = 0; i < conditionIndexMax; ++i) {
       Expression *cond = getCondition(i);
       if (cond)
-        cond->removeListener(&m_listener);
+        cond->removeListener(this);
     }
 
     // Clean up conditions
@@ -458,11 +440,14 @@ namespace PLEXIL {
 
   /**
    * @brief Notifies the node that one of its conditions has changed.
+   * @note Renamed from conditionChanged.
    */
-  void Node::conditionChanged()
+  void Node::notifyChanged(Expression const * /* src */)
   {
     if (m_checkConditionsPending)
       return; // already in the queue
+    // uncomment next line to trace unexpected notifications
+    // debugMsg("Node:notifyChanged", " node " << m_node.getNodeId() << " from " << *src);
     m_checkConditionsPending = true;
     debugMsg("Node:conditionChanged", " for node " << m_nodeId);
     g_exec->notifyNodeConditionChanged(this);
