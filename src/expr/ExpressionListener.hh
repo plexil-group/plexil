@@ -35,18 +35,12 @@ namespace PLEXIL
   class Expression;
 
   /**
-   * @brief Abstract base class for listeners in the expression notification graph.
+   * @brief Stateless abstract base class for listeners in the expression notification graph.
    * An expression listener may listen to multiple expressions.
-   * A listener may be owned by another expression, a node, or some other object.
    */
   class ExpressionListener
   {
   public:
-
-    ExpressionListener() {}
-    ExpressionListener(ExpressionListener const &) {}
-    ExpressionListener &operator=(ExpressionListener const &) 
-    { return *this; }
 
     virtual ~ExpressionListener() {}
 
