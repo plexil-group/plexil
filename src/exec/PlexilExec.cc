@@ -304,7 +304,7 @@ namespace PLEXIL
 
       // Evaluate conditions of nodes reporting a change
       while (!m_nodesToConsider.empty()) {
-        Node *candidate = m_nodesToConsider.front();
+        Node *candidate = dynamic_cast<Node *>(m_nodesToConsider.front());
         m_nodesToConsider.pop();
         check_error_1(candidate);
         candidate->checkConditions(); // modifies m_stateChangeQueue, m_resourceConflicts

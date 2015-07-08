@@ -102,7 +102,8 @@ namespace PLEXIL {
   Node::Node(char const *nodeId, Node *parent)
     : NodeConnector(),
       ExpressionListener(),
-      m_checkConditionsPending(false),
+      CheckQueueEntry<Node>(),
+      m_checkNext(this),
       m_state(INACTIVE_STATE),
       m_outcome(NO_OUTCOME),
       m_failureType(NO_FAILURE),
@@ -132,7 +133,8 @@ namespace PLEXIL {
              NodeState state,
              Node *parent)
     : NodeConnector(),
-      m_checkConditionsPending(false),
+      ExpressionListener(),
+      m_checkNext(this),
       m_state(state),
       m_outcome(NO_OUTCOME),
       m_failureType(NO_FAILURE),
@@ -438,17 +440,45 @@ namespace PLEXIL {
     return sl_emptyNodeVec;
   }
 
+
+  //
+  // Check-conditions queue API
+  //
+
+  /**
+   * @brief Set the next node in the check-conditions queue after this node
+   * @param nxt Pointer to the next node in the queue.
+   * @note By convention, nxt == this means not in queue; nxt == NULL means at end.
+   */
+  void Node::setCheckNext(CheckQueueEntry<Node> *nxt)
+  {
+    m_checkNext = nxt;
+  }
+
+  /**
+   * @brief Get the next node in the check-conditions queue.
+   */
+  CheckQueueEntry<Node> *Node::getCheckNext()
+  {
+    return m_checkNext;
+  }
+
+  /**
+   * @brief Returns true if this node is in the check-conditions queue.
+   */
+  bool Node::isCheckConditionsPending()
+  {
+    return m_checkNext != this;
+  }
+
   /**
    * @brief Notifies the node that one of its conditions has changed.
    * @note Renamed from conditionChanged.
    */
   void Node::notifyChanged(Expression const * /* src */)
   {
-    if (m_checkConditionsPending)
+    if (isCheckConditionsPending())
       return; // already in the queue
-    // uncomment next line to trace unexpected notifications
-    // debugMsg("Node:notifyChanged", " node " << m_node.getNodeId() << " from " << *src);
-    m_checkConditionsPending = true;
     debugMsg("Node:conditionChanged", " for node " << m_nodeId);
     g_exec->notifyNodeConditionChanged(this);
   }
@@ -459,7 +489,6 @@ namespace PLEXIL {
   void Node::checkConditions() {
     debugMsg("Node:checkConditions",
              "Checking condition change for node " << m_nodeId);
-    m_checkConditionsPending = false;
     if (getDestState()) {
       debugMsg("Node:checkConditions",
                "Can (possibly) transition to " << nodeStateName(m_nextState));

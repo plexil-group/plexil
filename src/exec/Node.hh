@@ -27,6 +27,7 @@
 #ifndef _H_Node
 #define _H_Node
 
+#include "CheckQueue.hh"
 #include "ConstantMacros.hh"
 #include "Expression.hh"
 #include "NodeConnector.hh"
@@ -49,7 +50,8 @@ namespace PLEXIL {
    */
   class Node :
     public NodeConnector,
-    public ExpressionListener
+    public ExpressionListener,
+    public CheckQueueEntry<Node>
   {
   public:
     //condition names
@@ -368,6 +370,30 @@ namespace PLEXIL {
      */
     void finalizeConditions();
 
+    //
+    // CheckQueue API
+    //
+
+    /**
+     * @brief Set the next node in the check-conditions queue after this node
+     * @param nxt Pointer to the next node in the queue.
+     */
+    void setCheckNext(CheckQueueEntry<Node> *nxt);
+
+    /**
+     * @brief Get the next node in the check-conditions queue.
+     */
+    CheckQueueEntry<Node> *getCheckNext();
+
+    /**
+     * @brief Returns true if this node is in the check-conditions queue.
+     */
+    bool isCheckConditionsPending();
+
+    //
+    // Utility
+    //
+    
     static ConditionIndex getConditionIndex(char const *cName);
     static const std::string& getConditionName(size_t idx);
 
@@ -485,14 +511,18 @@ namespace PLEXIL {
     //
     // Common state
     //
-    bool m_checkConditionsPending; /*!< True if some condition has had a notification. */
+
+    CheckQueueEntry<Node> *m_checkNext;             /*!< Pointer to next node in the check-condition queue. */
+
+    // bool m_checkConditionsPending; /*!< True if some condition has had a notification. */
     uint8_t m_state;               /*!< The current state of the node. */
     uint8_t m_outcome;             /*!< The current outcome. */
     uint8_t m_failureType;         /*!< The current failure. */
-    bool m_pad; // for 4 byte alignment
+    bool m_pad1; // for 4 byte alignment
     uint8_t m_nextState;           /*!< The state returned by getDestState() the last time checkConditions() was called. */
     uint8_t m_nextOutcome;         /*!< The pending outcome. */
     uint8_t m_nextFailureType;     /*!< The pending failure. */
+    bool m_pad2; // for 8 byte alignment
 
     Node *m_parent;                              /*!< The parent of this node.*/
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */

@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ lib_LTLIBRARIES = libPlexilExec.la
 libPlexilExec_la_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 
-include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
+include_HEADERS = Assignment.hh AssignmentNode.hh CheckQueue.hh CommandNode.hh \
  ExecConnector.hh ExecListenerBase.hh InterfaceSchema.hh \
  LibraryCallNode.hh ListNode.hh Node.hh NodeFactory.hh NodeTimepointValue.hh \
  NodeVariableMap.hh NodeVariables.hh PlexilExec.hh PlexilNodeType.hh \

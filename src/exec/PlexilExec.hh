@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #ifndef _H_PlexilExec
 #define _H_PlexilExec
 
+#include "CheckQueue.hh"
 #include "ExecConnector.hh"
 #include "VariableConflictSet.hh"
 
@@ -171,12 +172,12 @@ namespace PLEXIL
     ExecListenerBase *m_listener;
     std::list<Node *> m_plan; /*<! The root of the plan.*/
     std::vector<Node *> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
-    std::queue<Node *> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
     std::vector<Node *> m_stateChangeQueue; /*<! Nodes that are eligible for state transition.*/
     std::vector<Assignment *> m_assignmentsToExecute;
     std::vector<Assignment *> m_assignmentsToRetract;
     std::vector<Assignable *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
     std::vector<Assignable *> m_resourceConflicts; /*<! List of variables to consider for resource contention. */
+    CheckQueue<Node> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
     unsigned int m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };
