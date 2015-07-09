@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@ lib_LTLIBRARIES = libPlexilUtils.la
 
 libPlexilUtils_la_CPPFLAGS =
 
-include_HEADERS = ConstantMacros.hh Debug.hh Error.hh Logging.hh \
+include_HEADERS = ConstantMacros.hh Debug.hh Error.hh LinkedQueue.hh Logging.hh \
  ParserException.hh SimpleMap.hh TestSupport.hh lifecycle-utils.h map-utils.hh \
  stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
 
@@ -57,7 +57,8 @@ endif
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/utils-module-tests
   noinst_HEADERS = test/TestData.hh test/util-test-module.hh
-  test_utils_module_tests_SOURCES = test/SimpleMapTest.cc test/TestData.cc test/util-test-module.cc test/module-tests.cc
+  test_utils_module_tests_SOURCES = test/LinkedQueueTest.cc test/SimpleMapTest.cc \
+ test/TestData.cc test/util-test-module.cc test/module-tests.cc
   test_utils_module_tests_LDADD = libPlexilUtils.la
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh

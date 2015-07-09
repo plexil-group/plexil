@@ -83,6 +83,7 @@
 
 // Tests not in this source file
 
+extern bool LinkedQueueTest();
 extern bool SimpleMapTest();
 
 /**
@@ -542,6 +543,7 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(StricmpTests::test);
 
   runTestSuite(SimpleMapTest);
+  runTestSuite(LinkedQueueTest);
 
   // Do cleanup
   runFinalizers();
