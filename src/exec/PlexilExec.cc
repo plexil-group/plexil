@@ -35,7 +35,6 @@
 #include "Node.hh"
 #include "NodeConstants.hh"
 #include "NodeFactory.hh"
-#include "NodeTransition.hh"
 
 #include <algorithm> // for find(), transform
 #include <iterator> // for back_insert_iterator
@@ -305,6 +304,7 @@ namespace PLEXIL
     // Only used in debugMsg calls
     unsigned int cycleNum = g_interface->getCycleCount();
 #endif
+
     debugMsg("PlexilExec:cycle", "==>Start cycle " << cycleNum);
 
     // BEGIN QUIESCENCE LOOP
@@ -339,8 +339,7 @@ namespace PLEXIL
       unsigned int microStepCount = 0;
 
       // Transition the nodes
-      std::vector<NodeTransition> transitionsToPublish;
-      transitionsToPublish.reserve(m_stateChangeQueue.size());
+      m_transitionsToPublish.reserve(m_stateChangeQueue.size());
       while (!m_stateChangeQueue.empty()) {
         Node *node = getStateChangeNode();
         debugMsg("PlexilExec:step",
@@ -350,7 +349,7 @@ namespace PLEXIL
                  << " to " << nodeStateName(node->getNextState()));
         NodeState oldState = node->getState();
         node->transition(startTime); // may put node on m_candidateQueue or m_finishedRootNodes
-        transitionsToPublish.push_back(NodeTransition(node, oldState));
+        m_transitionsToPublish.push_back(NodeTransition(node, oldState));
         ++microStepCount;
       }
 
@@ -359,7 +358,8 @@ namespace PLEXIL
       // Publish the transitions
       // FIXME: Move call to listener outside of quiescence loop
       if (m_listener)
-        m_listener->notifyOfTransitions(transitionsToPublish);
+        m_listener->notifyOfTransitions(m_transitionsToPublish);
+      m_transitionsToPublish.clear();
 
       // done with this batch
       ++stepCount;

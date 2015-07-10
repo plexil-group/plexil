@@ -29,6 +29,7 @@
 
 #include "ExecConnector.hh"
 #include "LinkedQueue.hh"
+#include "NodeTransition.hh"
 #include "VariableConflictSet.hh"
 
 #include <list>
@@ -198,6 +199,7 @@ namespace PLEXIL
     LinkedQueue<Node> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
     ExecListenerBase *m_listener;
     std::list<Node *> m_plan; /*<! The root of the plan.*/
+    std::vector<NodeTransition> m_transitionsToPublish;
     std::vector<Assignment *> m_assignmentsToExecute;
     std::vector<Assignment *> m_assignmentsToRetract;
     std::vector<Assignable *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
