@@ -45,7 +45,8 @@ namespace PLEXIL
     ExecConnector() {}
     virtual ~ExecConnector() {}
     virtual void notifyNodeConditionChanged(Node *node) = 0;
-    virtual void handleConditionsChanged(Node *node, NodeState newState) = 0;
+    virtual void removeNodeFromConsideration(Node *node) = 0;
+    virtual void handleConditionsChanged(Node *node) = 0;
 
     /**
      * @brief Schedule this assignment for execution.

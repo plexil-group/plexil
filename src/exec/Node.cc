@@ -102,8 +102,8 @@ namespace PLEXIL {
   Node::Node(char const *nodeId, Node *parent)
     : NodeConnector(),
       ExpressionListener(),
-      CheckQueueEntry<Node>(),
-      m_checkNext(this),
+      QueueItem<Node>(),
+      m_queueStatus(0),
       m_state(INACTIVE_STATE),
       m_outcome(NO_OUTCOME),
       m_failureType(NO_FAILURE),
@@ -134,7 +134,8 @@ namespace PLEXIL {
              Node *parent)
     : NodeConnector(),
       ExpressionListener(),
-      m_checkNext(this),
+      QueueItem<Node>(),
+      m_queueStatus(0),
       m_state(state),
       m_outcome(NO_OUTCOME),
       m_failureType(NO_FAILURE),
@@ -440,60 +441,13 @@ namespace PLEXIL {
     return sl_emptyNodeVec;
   }
 
-
-  //
-  // Check-conditions queue API
-  //
-
-  /**
-   * @brief Set the next node in the check-conditions queue after this node
-   * @param nxt Pointer to the next node in the queue.
-   * @note By convention, nxt == this means not in queue; nxt == NULL means at end.
-   */
-  void Node::setCheckNext(CheckQueueEntry<Node> *nxt)
-  {
-    m_checkNext = nxt;
-  }
-
-  /**
-   * @brief Get the next node in the check-conditions queue.
-   */
-  CheckQueueEntry<Node> *Node::getCheckNext()
-  {
-    return m_checkNext;
-  }
-
-  /**
-   * @brief Returns true if this node is in the check-conditions queue.
-   */
-  bool Node::isCheckConditionsPending()
-  {
-    return m_checkNext != this;
-  }
-
   /**
    * @brief Notifies the node that one of its conditions has changed.
    * @note Renamed from conditionChanged.
    */
   void Node::notifyChanged(Expression const * /* src */)
   {
-    if (isCheckConditionsPending())
-      return; // already in the queue
-    debugMsg("Node:conditionChanged", " for node " << m_nodeId);
     g_exec->notifyNodeConditionChanged(this);
-  }
-
-  /**
-   * @brief Evaluates the conditions to see if the node is eligible to transition.
-   */
-  void Node::checkConditions() {
-    debugMsg("Node:checkConditions",
-             "Checking condition change for node " << m_nodeId);
-    if (getDestState()) {
-      debugMsg("Node:checkConditions",
-               "Can (possibly) transition to " << nodeStateName(m_nextState));
-      g_exec->handleConditionsChanged(this, (NodeState) m_nextState);
-    }
   }
 
   /**
@@ -1241,11 +1195,13 @@ namespace PLEXIL {
                "Attempted to set an invalid NodeState value for this node");
     m_state = newValue;
     logTransition(tym, newValue);
+    m_stateVariable.changed();
     if (m_state == FINISHED_STATE && !m_parent)
       // Mark this node as ready to be deleted -
-      // with no parent, it cannot be reset.
-      g_exec->markRootNodeFinished(this);
-    m_stateVariable.changed();
+      // with no parent, it cannot be reset, therefore cannot transition again.
+      g_exec->markRootNodeFinished(this); // puts node on exec's finished queue
+    else
+      notifyChanged(&m_stateVariable); // check for potential of additional transitions
   }
 
   //

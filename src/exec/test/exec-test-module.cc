@@ -51,7 +51,8 @@ class TransitionExecConnector : public ExecConnector
 public:
   TransitionExecConnector() : ExecConnector() {}
   void notifyNodeConditionChanged(Node * /* node */) {}
-  void handleConditionsChanged(Node * /* node */, NodeState /* newState */) {}
+  void removeNodeFromConsideration(Node * /* node */) {}
+  void handleConditionsChanged(Node * /* node */) {}
   void enqueueAssignment(Assignment * /* assign */) {}
   void enqueueAssignmentForRetraction(Assignment * /* assign */) {}
   void markRootNodeFinished(Node * /* node */) {}

@@ -31,9 +31,13 @@
 
 namespace PLEXIL
 {
+  // Forward declaration
+  template <typename T> class LinkedQueue; 
 
   template <typename T> class QueueItem
   {
+    friend class LinkedQueue<T>;
+    
   public:
     QueueItem()
       : m_next(NULL)
@@ -43,43 +47,38 @@ namespace PLEXIL
     virtual ~QueueItem()
     {
     }
-    
-    QueueItem<T> *next() const
+
+    T *next() const
     {
-      return m_next;
-    }
-    
-    void setNext(QueueItem<T> *item)
-    {
-      m_next = item;
+      return static_cast<T *>(m_next);
     }
 
   private:
     QueueItem<T> *m_next;
   };
 
-  template <typename T> class LinkedQueue
+  template <typename T> class LinkedQueue :
+    public QueueItem<T>
   {
   private:
-    QueueItem<T> *m_head;
     QueueItem<T> *m_tail;
     size_t m_count;
 
   public:
     LinkedQueue()
-      : m_head(NULL),
+      : QueueItem<T>(),
         m_tail(NULL),
         m_count(0)
     {
     }
     
-    virtual ~LinkedQueue()
+    ~LinkedQueue()
     {
     }
 
     T *front() const
     {
-      return static_cast<T *>(m_head); // may be null
+      return static_cast<T *>(this->m_next); // may be null
     }
 
     size_t size() const
@@ -89,40 +88,66 @@ namespace PLEXIL
 
     bool empty() const
     {
-      return (m_head == NULL);
+      return (this->m_next == NULL);
     }
 
     void pop()
     {
-      if (!m_head)
+      if (!this->m_next)
         return; // empty, nothing to do
-      QueueItem<T> *oldHead = m_head;
-      if (m_head == m_tail)
+
+      if (this->m_next == m_tail)
         // Exactly one item was in queue, is now empty
-        m_head = m_tail = NULL;
+        this->m_next = m_tail = NULL;
       else
-        m_head = oldHead->next();
+        this->m_next = this->m_next->m_next;
       --m_count; // better be 0 if empty!
-      oldHead->setNext(NULL);
     }
 
     void push(T *item_as_T)
     {
       QueueItem<T> *item = static_cast<QueueItem<T> *>(item_as_T);
-      item->setNext(NULL); // mark as end of queue
-      if (!m_head)
+      item->m_next = NULL; // mark as end of queue
+      if (!this->m_next)
         // Was empty
-        m_head = item;
+        this->m_next = item;
       else
-        m_tail->setNext(item);
+        m_tail->m_next = item;
       m_tail = item;
       ++m_count;
     }
-    
+
+    void remove(T *item_as_T)
+    {
+      if (!item_as_T || !this->m_next)
+        return;
+      QueueItem<T> *item = static_cast<QueueItem<T> *>(item_as_T);
+      QueueItem<T> *ptr =  static_cast<QueueItem<T> *>(this);
+      while (ptr->m_next) {
+        QueueItem<T> *nxt = ptr->m_next;
+        if (item == nxt) {
+          // unlink it
+          ptr->m_next = nxt->m_next;
+          if (this->m_next == NULL)
+            // Deleted only item in queue
+            m_tail = NULL;
+          --m_count;
+          return;
+        }
+        ptr = ptr->m_next;
+      }
+      // Can fall through to here without finding item
+    }
+
+    // TODO: null out links of items?
+    void clear()
+    {
+      this->m_next = m_tail = NULL;
+      m_count = 0;
+    }
+
   };
 
 }
-
-
 
 #endif // LINKED_QUEUE_HH

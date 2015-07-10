@@ -27,8 +27,8 @@
 #ifndef _H_PlexilExec
 #define _H_PlexilExec
 
-#include "CheckQueue.hh"
 #include "ExecConnector.hh"
+#include "LinkedQueue.hh"
 #include "VariableConflictSet.hh"
 
 #include <list>
@@ -125,11 +125,16 @@ namespace PLEXIL
     void notifyNodeConditionChanged(Node *node);
 
     /**
+     * @brief Remove node from consideration for state change.
+     * @param node The node which is ineligible for state change.
+     */
+    void removeNodeFromConsideration(Node *node);
+
+    /**
      * @brief Handle the fact that a node's relevant conditions have changed (it is eligible for state change).
      * @param node The node which is eligible for state change.
-     * @param newState The state the node will transition to.
      */
-    void handleConditionsChanged(Node *node, NodeState newState);
+    void handleConditionsChanged(Node *node);
 
   private:
     // Not implemented
@@ -159,25 +164,44 @@ namespace PLEXIL
      */
     void removeFromResourceContention(Node *node);
 
+    //
+    // Internal queue management
+    //
+
+    void addCandidateNode(Node *node);
+    Node *getCandidateNode();
+    void removeCandidateNode(Node *node);
+
+    void addStateChangeNode(Node *node);
+    Node *getStateChangeNode();
+
+    void addFinishedRootNode(Node *node);
+    Node *getFinishedRootNode();
+
+    /**
+     * @brief Gets a stringified version of the current check queue.
+     */
+    std::string conditionCheckQueueStr() const;
+
     /**
      * @brief Gets a stringified version of the current state change queue.
      */
-    std::string stateChangeQueueStr();
+    std::string stateChangeQueueStr() const;
 
     /**
      * @brief Batch-perform internal assignments queued up from a quiescence step.
      */
     void performAssignments();
 
+    LinkedQueue<Node> m_candidateQueue;    /*<! Nodes whose conditions have changed and may be eligible to transition. */
+    LinkedQueue<Node> m_stateChangeQueue;  /*<! Nodes awaiting state transition.*/
+    LinkedQueue<Node> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
     ExecListenerBase *m_listener;
     std::list<Node *> m_plan; /*<! The root of the plan.*/
-    std::vector<Node *> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
-    std::vector<Node *> m_stateChangeQueue; /*<! Nodes that are eligible for state transition.*/
     std::vector<Assignment *> m_assignmentsToExecute;
     std::vector<Assignment *> m_assignmentsToRetract;
     std::vector<Assignable *> m_variablesToRetract; /*<! Set of variables with assignments to be retracted due to node failures */
     std::vector<Assignable *> m_resourceConflicts; /*<! List of variables to consider for resource contention. */
-    CheckQueue<Node> m_nodesToConsider; /*<! Nodes whose conditions have changed and may be eligible to transition. */
     unsigned int m_queuePos;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
   };

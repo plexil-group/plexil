@@ -27,13 +27,13 @@
 #ifndef _H_Node
 #define _H_Node
 
-#include "CheckQueue.hh"
 #include "ConstantMacros.hh"
 #include "Expression.hh"
+#include "LinkedQueue.hh"
 #include "NodeConnector.hh"
 #include "NodeVariables.hh"
-#include "PlexilNodeType.hh"
 #include "NodeVariableMap.hh"
+#include "PlexilNodeType.hh"
 
 // Take care of annoying VxWorks macro
 #undef UPDATE
@@ -51,7 +51,7 @@ namespace PLEXIL {
   class Node :
     public NodeConnector,
     public ExpressionListener,
-    public CheckQueueEntry<Node>
+    public QueueItem<Node>
   {
   public:
     //condition names
@@ -182,7 +182,6 @@ namespace PLEXIL {
      * @brief Gets the destination state of this node, were it to transition, based on the values of various conditions.
      * @return True if the new destination state is different from the last check, false otherwise.
      * @note Sets m_nextState, m_nextOutcome, m_nextFailureType as a side effect.
-     * @note External only for convenience of unit tests.
      */
     bool getDestState();
 
@@ -278,15 +277,19 @@ namespace PLEXIL {
     virtual Node const *findChild(char const *childName) const;
     virtual Node *findChild(char const *childName);
 
-    /**
-     * @brief Notifies the node that one of its conditions has changed.
-     */
-    void conditionChanged();
+    //
+    // For convenience of PlexilExec queue management
+    //
 
-    /**
-     * @brief Evaluates the conditions to see if the node is eligible to transition.
-     */
-    void checkConditions();
+    uint8_t getQueueStatus() const
+    {
+      return m_queueStatus;
+    }
+
+    void setQueueStatus(uint8_t newval)
+    {
+      m_queueStatus = newval;
+    }
 
     std::string toString(const unsigned int indent = 0);
     void print(std::ostream& stream, const unsigned int indent = 0) const;
@@ -369,26 +372,6 @@ namespace PLEXIL {
      * @brief Construct any internal conditions now that the node is complete.
      */
     void finalizeConditions();
-
-    //
-    // CheckQueue API
-    //
-
-    /**
-     * @brief Set the next node in the check-conditions queue after this node
-     * @param nxt Pointer to the next node in the queue.
-     */
-    void setCheckNext(CheckQueueEntry<Node> *nxt);
-
-    /**
-     * @brief Get the next node in the check-conditions queue.
-     */
-    CheckQueueEntry<Node> *getCheckNext();
-
-    /**
-     * @brief Returns true if this node is in the check-conditions queue.
-     */
-    bool isCheckConditionsPending();
 
     //
     // Utility
@@ -512,17 +495,15 @@ namespace PLEXIL {
     // Common state
     //
 
-    CheckQueueEntry<Node> *m_checkNext;             /*!< Pointer to next node in the check-condition queue. */
-
-    // bool m_checkConditionsPending; /*!< True if some condition has had a notification. */
+    uint8_t m_queueStatus;         /*!< Which exec queue the node is in, if any. */
     uint8_t m_state;               /*!< The current state of the node. */
     uint8_t m_outcome;             /*!< The current outcome. */
     uint8_t m_failureType;         /*!< The current failure. */
-    bool m_pad1; // for 4 byte alignment
+
+    bool m_pad; // to ensure 8 byte alignment
     uint8_t m_nextState;           /*!< The state returned by getDestState() the last time checkConditions() was called. */
     uint8_t m_nextOutcome;         /*!< The pending outcome. */
     uint8_t m_nextFailureType;     /*!< The pending failure. */
-    bool m_pad2; // for 8 byte alignment
 
     Node *m_parent;                              /*!< The parent of this node.*/
     Expression *m_conditions[conditionIndexMax]; /*!< The condition expressions. */
@@ -546,12 +527,11 @@ namespace PLEXIL {
 
   private:
 
-    void logTransition(double time, NodeState newState);
-
-    // These 3 should only be called from transition().
+    // These should only be called from transition().
     void setNodeOutcome(NodeOutcome o);
     void transitionFrom();
     void transitionTo(double tym); // FIXME
+    void logTransition(double time, NodeState newState);
 
     //
     // Internal versions
