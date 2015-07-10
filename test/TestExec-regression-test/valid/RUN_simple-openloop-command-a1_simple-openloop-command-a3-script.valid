@@ -8,20 +8,23 @@ SimpleDrive{
 
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:cycle]==>Start cycle 1
+[PlexilExec:step][1:0] Check queue: SimpleDrive 
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 1
 [PlexilExec:step][1:0] State change queue: SimpleDrive 
 [PlexilExec:step][1:0:0] Transitioning node SimpleDrive from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:step][1:1] Check queue: SimpleDrive 
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 2
 [PlexilExec:step][1:1] State change queue: SimpleDrive 
 [PlexilExec:step][1:1:0] Transitioning node SimpleDrive from WAITING to EXECUTING
+[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'SimpleDrive' of type 'NodeList' to be executed.
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:step][1:2] Check queue: SimpleDrive Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 3
@@ -29,33 +32,35 @@ SimpleDrive{
 [PlexilExec:step][1:2:0] Transitioning node Drive from INACTIVE to WAITING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:notifyNodeConditionChanged] for node Drive
+[PlexilExec:step][1:3] Check queue: SimpleDrive Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 4
 [PlexilExec:step][1:3] State change queue: Drive 
 [PlexilExec:step][1:3:0] Transitioning node Drive from WAITING to EXECUTING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
-[PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:notifyNodeConditionChanged] for node Drive
+[PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fc65bc06f20 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fd3b2406de0 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fc65bc071d0 [a](0) (StateVariable NodeState Drive 0x7fc65bc06e00 [a](EXECUTING)))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fc65bc07110 [i](UNKNOWN) (StateVariable NodeState Drive 0x7fc65bc06e00 [a](EXECUTING)))
+ EndCondition: (AllChildrenFinished Boolean 0x7fd3b24070e0 [a](0) (StateVariable NodeState Drive 0x7fd3b2406c70 [a](EXECUTING)))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fd3b2407020 [i](UNKNOWN) (StateVariable NodeState Drive 0x7fd3b2406c70 [a](EXECUTING)))
   Drive{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fc65bc07610 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fc65bc06f20 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x1027927c8 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (IsKnown Boolean 0x7fc65bc06270 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fc65bc06f20 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fc65bc06f60 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc65bc06f20 [a](UNKNOWN))
+   PostCondition: (EQ Boolean 0x7fd3b24074f0 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd3b2406de0 [a](UNKNOWN)) (CommandHandleValue NodeCommandHandle 0x103d04548 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fd3b2406f60 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fd3b2406de0 [a](UNKNOWN)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fd3b2406e20 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd3b2406de0 [a](UNKNOWN))
   }
 }
 
 [Test:testOutput]Sending command ACK drive() = (string)COMMAND_DENIED
 [PlexilExec:cycle]==>Start cycle 2
+[PlexilExec:step][2:0] Check queue: SimpleDrive Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 5
@@ -63,6 +68,7 @@ SimpleDrive{
 [PlexilExec:step][2:0:0] Transitioning node Drive from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:notifyNodeConditionChanged] for node Drive
+[PlexilExec:step][2:1] Check queue: SimpleDrive Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 6
@@ -70,6 +76,7 @@ SimpleDrive{
 [PlexilExec:step][2:1:0] Transitioning node Drive from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:notifyNodeConditionChanged] for node Drive
+[PlexilExec:step][2:2] Check queue: SimpleDrive Drive 
 [PlexilExec:handleConditionsChanged]Node Drive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'Drive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'Drive' on the state change queue in position 7
@@ -77,24 +84,26 @@ SimpleDrive{
 [PlexilExec:step][2:2:0] Transitioning node Drive from ITERATION_ENDED to FINISHED
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:notifyNodeConditionChanged] for node Drive
+[PlexilExec:step][2:3] Check queue: SimpleDrive Drive 
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 8
 [PlexilExec:step][2:3] State change queue: SimpleDrive 
 [PlexilExec:step][2:3:0] Transitioning node SimpleDrive from EXECUTING to FINISHING
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:step][2:4] Check queue: SimpleDrive 
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 9
 [PlexilExec:step][2:4] State change queue: SimpleDrive 
 [PlexilExec:step][2:4:0] Transitioning node SimpleDrive from FINISHING to ITERATION_ENDED
 [PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
+[PlexilExec:step][2:5] Check queue: SimpleDrive 
 [PlexilExec:handleConditionsChanged]Node SimpleDrive had a relevant condition change.
 [PlexilExec:handleConditionsChanged]Considering node 'SimpleDrive' for state transition.
 [PlexilExec:handleConditionsChanged]Placing node 'SimpleDrive' on the state change queue in position 10
 [PlexilExec:step][2:5] State change queue: SimpleDrive 
 [PlexilExec:step][2:5:0] Transitioning node SimpleDrive from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node SimpleDrive
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
 [PlexilExec:cycle]==>End cycle 2
 [PlexilExec:printPlan]
@@ -105,7 +114,7 @@ SimpleDrive{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc65bc06f20 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fd3b2406de0 [i](UNKNOWN))
   }
 }
 
