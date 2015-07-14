@@ -168,6 +168,7 @@ values returns [List<String> ast = null] :
 value returns [String ast = null] :
       "true"   { ast = "true"; }
     | "false"  { ast = "false"; }
+    | u:UNKNOWN { ast = "Plexil_Unknown"; }
     | s:STRING { ast = s.getText(); }
     | n:NUMBER { ast = n.getText(); }
     ;
@@ -198,6 +199,7 @@ EQUALS : '=';
 protected LETTER : 'A'..'Z' | 'a'..'z' ;
 protected DIGIT  : '0'..'9' ;
 
+UNKNOWN : '<' 'u' 'n' 'k' 'n' 'o' 'w' 'n' '>' ;
 STRING : '"'! (~'"')* '"'! ;
 NUMBER : ('-')? (DIGIT)+ ('.' (DIGIT)+)? ;
 ID      : LETTER (LETTER|DIGIT|'_'|'-'|'.')* ;

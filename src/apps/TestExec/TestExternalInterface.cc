@@ -446,8 +446,11 @@ namespace PLEXIL
   static Value parseOneValue(const std::string& type, 
                              const std::string& valStr)
   {
+    // Unknown
+    if (0 == stricmp(valStr.c_str(), "Plexil_Unknown")) return Value();
+
     // string or string-array
-    if (type.find("string") == 0) {
+    else if (type.find("string") == 0) {
       return Value(valStr);
     }
     // int, int-array
