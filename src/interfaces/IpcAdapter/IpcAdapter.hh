@@ -294,9 +294,6 @@ namespace PLEXIL
     // Private data types
     //
 
-    //* brief Associates serial numbers with active LookupOnChange instances
-    typedef std::map<uint32_t, State> IpcChangeLookupMap;
-
     //* brief Cache of message/command/lookup names we're actively listening for
     typedef std::map<std::string, State> ActiveListenerMap;
 
@@ -325,9 +322,6 @@ namespace PLEXIL
     //* @brief Map of queues for holding complete messages and message handlers while they wait to be paired
     MessageQueueMap m_messageQueues;
 
-    //* @brief Cache of active outgoing LookupOnChange instances
-    IpcChangeLookupMap m_changeLookups;
-
     //* @brief Cache of open LookupOnChange instances for messages
     ActiveListenerMap m_activeMessageListeners;
 
@@ -337,17 +331,17 @@ namespace PLEXIL
     //* @brief Cache of open LookupOnChange instances for LookupNow
     ActiveListenerMap m_activeLookupListeners;
 
-    //* @brief Cache of open LookupOnChange instances for LookupOnChange
-    ActiveListenerMap m_activeChangeLookupListeners;
-
     //* @brief Cache of ack and return value variables for commands we sent
     PendingCommandsMap m_pendingCommands;
 
-    //* @brief Semaphore for return values from LookupNow
-    ThreadSemaphore m_lookupSem;
+    //* @brief Map of external lookup values.
+    ExternalLookupMap m_externalLookups;
 
     //* @brief Listener instance to receive messages.
     MessageListener m_listener;
+
+    //* @brief Semaphore for return values from LookupNow
+    ThreadSemaphore m_lookupSem;
 
     /**
      * @brief Mutex used to hold the processing of incoming return values while commands
@@ -355,13 +349,13 @@ namespace PLEXIL
      */
     ThreadMutex m_cmdMutex;
 
-    //* @brief Serial # of current pending LookupNow request, or 0
-    uint32_t m_pendingLookupSerial;
-
     //* @brief Place to store result of current pending LookupNow request
     Value m_pendingLookupResult;
 
-    //* @brief Map of external lookup values.
-    ExternalLookupMap m_externalLookups;
+    //* @brief Place to store state name of pending LookupNow
+    std::string m_pendingLookupStateName;
+
+    //* @brief Serial # of current pending LookupNow request, or 0
+    uint32_t m_pendingLookupSerial;
   };
 }

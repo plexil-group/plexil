@@ -56,12 +56,13 @@ namespace PLEXIL
     InterfaceAdapter(execInterface),
     m_ipcFacade(),
     m_messageQueues(execInterface),
-    m_lookupSem(),
+    m_externalLookups(),
     m_listener(*this),
+    m_lookupSem(),
     m_cmdMutex(),
-    m_pendingLookupSerial(0),
     m_pendingLookupResult(),
-    m_externalLookups()
+    m_pendingLookupStateName(),
+    m_pendingLookupSerial(0)
   {
     debugMsg("IpcAdapter:IpcAdapter", " configuration XML not provided");
   }
@@ -75,12 +76,13 @@ namespace PLEXIL
     InterfaceAdapter(execInterface, xml),
     m_ipcFacade(),
     m_messageQueues(execInterface),
-    m_lookupSem(),
+    m_externalLookups(),
     m_listener(*this),
+    m_lookupSem(),
     m_cmdMutex(),
-    m_pendingLookupSerial(0),
     m_pendingLookupResult(),
-    m_externalLookups()
+    m_pendingLookupStateName(),
+    m_pendingLookupSerial(0)
   {
     condDebugMsg(xml == NULL, "IpcAdapter:IpcAdapter", " configuration XML not provided");
     condDebugMsg(xml != NULL, "IpcAdapter:IpcAdapter", " configuration XML = " << xml);
@@ -240,11 +242,14 @@ namespace PLEXIL
       {
         ThreadMutexGuard g(m_cmdMutex);
         if (sep_pos != std::string::npos) {
-          std::string const name(stateName.substr(sep_pos + 1));
           std::string const dest(stateName.substr(0, sep_pos));
-          m_pendingLookupSerial = m_ipcFacade.sendLookupNow(name, dest, params);
+          m_pendingLookupStateName = stateName.substr(sep_pos + 1);
+          m_pendingLookupSerial = m_ipcFacade.sendLookupNow(m_pendingLookupStateName,
+                                                            dest,
+                                                            params);
         }
         else {
+          m_pendingLookupStateName = stateName;
           m_pendingLookupSerial = m_ipcFacade.publishLookupNow(stateName, params);
         }
       }
@@ -259,7 +264,11 @@ namespace PLEXIL
       entry.update(m_pendingLookupResult);
 
       // Clean up
-      m_pendingLookupSerial = 0;
+      {
+        ThreadMutexGuard g(m_cmdMutex);
+        m_pendingLookupSerial = 0;
+        m_pendingLookupStateName.clear();
+      }
       m_pendingLookupResult.setUnknown();
     }
   }
@@ -267,35 +276,21 @@ namespace PLEXIL
   /**
    * @brief Inform the interface that it should report changes in value of this state.
    * @param state The state.
+   * @note Since all telemetry received is sent to the Exec, this is a no-op.
    */
 
   void IpcAdapter::subscribe(const State& state)
   {
-    debugMsg("IpcAdapter:subscribe",
-             " for state " << state);
-
-    // Set up to receive this lookup
-    m_activeChangeLookupListeners[state.name()] = state;
   }
 
   /**
    * @brief Inform the interface that a lookup should no longer receive updates.
    * @param state The state.
+   * @note Since all telemetry received is sent to the Exec, this is a no-op.
    */
 
   void IpcAdapter::unsubscribe(const State& state)
   {
-    debugMsg("IpcAdapter:unsubscribe",
-             " for state " << state);
-
-    // Stop looking for this lookup
-    ActiveListenerMap::iterator it = m_activeChangeLookupListeners.find(state.name());
-    assertTrueMsg(it != m_activeChangeLookupListeners.end(),
-                  "IpcAdapter::unsubscribe: internal error: can't find change lookup \""
-                  << state.name() << "\"");
-    m_activeChangeLookupListeners.erase(it);
-    // *** TODO: implement receiving planner update
-    debugMsg("IpcAdapter:unsubscribe", " completed");
   }
 
   /**
@@ -569,7 +564,7 @@ namespace PLEXIL
     //Set value internally
     it->second = args[1];
     //send telemetry
-    assertTrueMsg(m_ipcFacade.publishTelemetry(m_ipcFacade.getUID() + TRANSACTION_ID_SEPARATOR_CHAR + *lookupName,
+    assertTrueMsg(m_ipcFacade.publishTelemetry(*lookupName,
                                                std::vector<Value>(1, it->second))
                   != IpcFacade::ERROR_SERIAL(),
                   "IpcAdapter: publishTelemetry returned status \"" << m_ipcFacade.getError() << "\"");
@@ -595,7 +590,7 @@ namespace PLEXIL
     //lock mutex to ensure no return values are processed while the command is being
     //sent and logged
     ThreadMutexGuard guard(m_cmdMutex);
-    //decide to direct or publish lookup
+    //decide to direct or publish command
     if (sep_pos != std::string::npos) {
       serial = m_ipcFacade.sendCommand(name.substr(sep_pos + 1), name.substr(0, sep_pos), args);
     }
@@ -799,11 +794,10 @@ namespace PLEXIL
   void IpcAdapter::handleTelemetryValuesSequence(const std::vector<const PlexilMsgBase*>& msgs) 
   {
     const PlexilStringValueMsg* tv = reinterpret_cast<const PlexilStringValueMsg*>(msgs[0]);
-    // Chop off sender UID
-    char const *stateName = strchr(tv->stringValue, TRANSACTION_ID_SEPARATOR_CHAR);
-    if (!stateName || !*(++stateName)) {
+    char const *stateName = tv->stringValue;
+    if (!stateName || !*stateName) {
       debugMsg("IpcAdapter:handleTelemetryValuesSequence",
-               " separator character or state name missing, ignoring");
+               " state name missing or empty, ignoring");
       return;
     }
     State state(stateName);
@@ -812,7 +806,18 @@ namespace PLEXIL
     size_t nValues = msgs[0]->count;
     checkError(nValues == 1,
                "Telemetry values message only supports 1 value, but received " << nValues);
-    m_execInterface.handleValueChange(state, getPlexilMsgValue(msgs[1]));
+    Value result = getPlexilMsgValue(msgs[1]);
+    // Check to see if a LookupNow is waiting on this value
+    {
+      ThreadMutexGuard g(m_cmdMutex);
+      if (m_pendingLookupStateName == stateName) {
+        m_pendingLookupResult = result;
+        m_lookupSem.post();
+        return;
+      }
+    }
+    // Otherwise process normally
+    m_execInterface.handleValueChange(state, result);
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -835,17 +840,6 @@ namespace PLEXIL
       return;
     }
 
-    // FIXME: no one ever inserts to m_changeLookups!
-    IpcChangeLookupMap::const_iterator it = m_changeLookups.find(rv->requestSerial);
-    if (it != m_changeLookups.end()) {
-      // Active LookupOnChange
-      debugMsg("IpcAdapter:handleReturnValuesSequence",
-               " processing value(s) for an active LookupOnChange");
-      const State& state = it->second;
-      m_execInterface.handleValueChange(state, parseReturnValue(msgs));
-      m_execInterface.notifyOfExternalEvent();
-      return;
-    }
     PendingCommandsMap::iterator cit = m_pendingCommands.find(rv->requestSerial);
     if (cit != m_pendingCommands.end()) {
       Command *cmd = cit->second;
