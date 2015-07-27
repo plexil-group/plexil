@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xmlns:tr="extended-plexil-translator">
-   <GlobalDeclarations LineNo="1" ColNo="0">
-      <CommandDeclaration LineNo="1" ColNo="0">
+            xmlns:tr="extended-plexil-translator"
+            FileName="Plan1.ple">
+   <GlobalDeclarations LineNo="2" ColNo="0">
+      <CommandDeclaration LineNo="2" ColNo="0">
          <Name>Foo</Name>
          <Parameter>
             <Type>Integer</Type>
@@ -11,25 +12,25 @@
             <Type>String</Type>
          </Parameter>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="2" ColNo="0">
+      <CommandDeclaration LineNo="3" ColNo="0">
          <Name>pprint</Name>
       </CommandDeclaration>
-      <CommandDeclaration LineNo="3" ColNo="5">
+      <CommandDeclaration LineNo="4" ColNo="5">
          <Name>Bar</Name>
          <Return>
             <Name>_return_0</Name>
             <Type>Real</Type>
          </Return>
       </CommandDeclaration>
-      <StateDeclaration LineNo="4" ColNo="8">
+      <StateDeclaration LineNo="5" ColNo="5">
          <Name>X</Name>
          <Return>
             <Name>_return_0</Name>
-            <Type>Integer</Type>
+            <Type>Real</Type>
          </Return>
       </StateDeclaration>
    </GlobalDeclarations>
-   <Node NodeType="NodeList" epx="Sequence" LineNo="8" ColNo="2">
+   <Node NodeType="NodeList" epx="Sequence" LineNo="9" ColNo="2">
       <NodeId>Plan1</NodeId>
       <VariableDeclarations>
          <DeclareVariable LineNo="8" ColNo="2">
@@ -48,42 +49,80 @@
          </GT>
       </StartCondition>
       <InvariantCondition>
-         <AND>
-            <NOT>
-               <OR>
+         <NOT>
+            <OR>
+               <AND>
                   <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>COMMAND__0</NodeId>
+                        <NodeRef dir="child">COMMAND__0</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
                   <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">COMMAND__0</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>ASSIGNMENT__1</NodeId>
+                        <NodeRef dir="child">ASSIGNMENT__1</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
                   <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">ASSIGNMENT__1</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>COMMAND__2</NodeId>
+                        <NodeRef dir="child">COMMAND__2</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
                   <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">COMMAND__2</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>ASSIGNMENT__3</NodeId>
+                        <NodeRef dir="child">ASSIGNMENT__3</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
                   <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">ASSIGNMENT__3</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+               <AND>
+                  <EQInternal>
                      <NodeOutcomeVariable>
-                        <NodeId>COMMAND__4</NodeId>
+                        <NodeRef dir="child">COMMAND__4</NodeRef>
                      </NodeOutcomeVariable>
                      <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
                   </EQInternal>
-               </OR>
-            </NOT>
-         </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="child">COMMAND__4</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
+               </AND>
+            </OR>
+         </NOT>
       </InvariantCondition>
       <NodeBody>
          <NodeList>
@@ -94,7 +133,7 @@
                      <Name>
                         <StringValue>Foo</StringValue>
                      </Name>
-                     <Arguments LineNo="11" ColNo="7">
+                     <Arguments LineNo="12" ColNo="7">
                         <IntegerValue>1</IntegerValue>
                         <StringValue>blue</StringValue>
                      </Arguments>
@@ -104,14 +143,12 @@
             <Node NodeType="Command" LineNo="13" ColNo="6">
                <NodeId>ASSIGNMENT__1</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>COMMAND__0</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="sibling">COMMAND__0</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <NodeBody>
                   <Command>
@@ -125,21 +162,19 @@
             <Node NodeType="Command" LineNo="14" ColNo="2">
                <NodeId>COMMAND__2</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>ASSIGNMENT__1</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="sibling">ASSIGNMENT__1</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <NodeBody>
                   <Command>
                      <Name>
                         <StringValue>pprint</StringValue>
                      </Name>
-                     <Arguments LineNo="14" ColNo="10">
+                     <Arguments LineNo="15" ColNo="10">
                         <RealVariable>b</RealVariable>
                      </Arguments>
                   </Command>
@@ -148,14 +183,12 @@
             <Node NodeType="Command" LineNo="16" ColNo="6">
                <NodeId>ASSIGNMENT__3</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>COMMAND__2</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="sibling">COMMAND__2</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <NodeBody>
                   <Command>
@@ -169,21 +202,19 @@
             <Node NodeType="Command" LineNo="17" ColNo="2">
                <NodeId>COMMAND__4</NodeId>
                <StartCondition>
-                  <AND>
-                     <EQInternal>
-                        <NodeStateVariable>
-                           <NodeId>ASSIGNMENT__3</NodeId>
-                        </NodeStateVariable>
-                        <NodeStateValue>FINISHED</NodeStateValue>
-                     </EQInternal>
-                  </AND>
+                  <EQInternal>
+                     <NodeStateVariable>
+                        <NodeRef dir="sibling">ASSIGNMENT__3</NodeRef>
+                     </NodeStateVariable>
+                     <NodeStateValue>FINISHED</NodeStateValue>
+                  </EQInternal>
                </StartCondition>
                <NodeBody>
                   <Command>
                      <Name>
                         <StringValue>pprint</StringValue>
                      </Name>
-                     <Arguments LineNo="17" ColNo="10">
+                     <Arguments LineNo="18" ColNo="10">
                         <RealVariable>b</RealVariable>
                      </Arguments>
                   </Command>

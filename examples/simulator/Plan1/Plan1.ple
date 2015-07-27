@@ -1,7 +1,7 @@
 Command Foo (Integer, String);
 Command pprint (...);
 Real Command Bar ();
-Integer Lookup X ();
+Real Lookup X ();
 
 Plan1:
 {
