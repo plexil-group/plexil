@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ namespace PLEXIL
     DECLARE_STATIC_CLASS_CONST(char*, LIB_PATH_ATTR, "LibPath");
     DECLARE_STATIC_CLASS_CONST(char*, FILTER_TYPE_ATTR, "FilterType");
     DECLARE_STATIC_CLASS_CONST(char*, LISTENER_TYPE_ATTR, "ListenerType");
-
+    DECLARE_STATIC_CLASS_CONST(char*, TELEMETRY_ONLY_ATTR, "TelemetryOnly");
 
     /**
      * Extract comma separated arguments from a character string.

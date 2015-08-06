@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -202,6 +202,14 @@ namespace PLEXIL {
     InterfaceAdapter *getLookupInterface(std::string const& stateName);
 
     /**
+     * @brief Query configuration data to determine if a state is only available as telemetry.
+     * @param stateName The state.
+     * @return True if state is declared telemetry-only, false otherwise.
+     * @note In the absence of a declaration, a state is presumed not to be telemetry.
+     */
+    bool lookupIsTelemetry(std::string const &stateName) const;
+
+    /**
      * @brief Return the current default interface adapter for lookups.
               May return NULL.
      */
@@ -315,6 +323,8 @@ namespace PLEXIL {
     typedef std::map<std::string, InterfaceAdapter *> InterfaceMap;
     InterfaceMap m_lookupMap;
     InterfaceMap m_commandMap;
+
+    std::set<std::string> m_telemetryLookups;
 
     //* ExecListener hub
     ExecListenerHub *m_listenerHub;

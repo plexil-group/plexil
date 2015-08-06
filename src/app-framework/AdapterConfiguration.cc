@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -476,8 +476,11 @@ namespace PLEXIL {
                    << InterfaceSchema::LOOKUP_NAMES_TAG()
                    << " requires one or more comma-separated lookup names");
         std::vector<std::string> * lookupNames = InterfaceSchema::parseCommaSeparatedArgs(text);
-        for (std::vector<std::string>::const_iterator it = lookupNames->begin(); it != lookupNames->end(); ++it) {
+        for (std::vector<std::string>::const_iterator it = lookupNames->begin(); it != lookupNames->end(); ++it)
           registerLookupInterface(*it, adapter);
+        if (element.attribute(InterfaceSchema::TELEMETRY_ONLY_ATTR()).as_bool()) {
+          for (std::vector<std::string>::const_iterator it = lookupNames->begin(); it != lookupNames->end(); ++it)
+            m_telemetryLookups.insert(*it);
         }
         delete lookupNames;
       }
@@ -624,7 +627,7 @@ namespace PLEXIL {
 
   /**
    * @brief Return the interface adapter in effect for this command, whether
-   specifically registered or default. May return noId().
+   specifically registered or default. May return NULL.
    * @param commandName The command.
    */
   InterfaceAdapter *AdapterConfiguration:: getCommandInterface(std::string const &commandName) {
@@ -651,7 +654,7 @@ namespace PLEXIL {
 
   /**
    * @brief Return the current default interface adapter for commands.
-            May return noId(). Returns noId() if default interfaces are not implemented.
+            May return NULL. Returns NULL if default interfaces are not implemented.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultCommandInterface() {
     return m_defaultCommandInterface;
@@ -659,7 +662,7 @@ namespace PLEXIL {
 
   /**
    * @brief Return the interface adapter in effect for lookups with this state name,
-   whether specifically registered or default. May return noId(). Returns noId() if default interfaces are not implemented.
+   whether specifically registered or default. May return NULL. Returns NULL if default interfaces are not implemented.
    * @param stateName The state.
    */
   InterfaceAdapter *AdapterConfiguration:: getLookupInterface(std::string const &stateName) {
@@ -685,8 +688,19 @@ namespace PLEXIL {
   }
 
   /**
+   * @brief Query configuration data to determine if a state is only available as telemetry.
+   * @param stateName The state.
+   * @return True if state is declared telemetry-only, false otherwise.
+   * @note In the absence of a declaration, a state is presumed not to be telemetry.
+   */
+  bool AdapterConfiguration::lookupIsTelemetry(std::string const &stateName) const
+  {
+    return m_telemetryLookups.find(stateName) != m_telemetryLookups.end();
+  }
+
+  /**
    * @brief Return the current default interface adapter for lookups.
-            May return noId().
+            May return NULL.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultLookupInterface() {
     return m_defaultLookupInterface;
@@ -694,8 +708,8 @@ namespace PLEXIL {
 
   /**
    * @brief Return the interface adapter in effect for planner updates,
-            whether specifically registered or default. May return noId().
-            Returns noId() if default interfaces are not implemented.
+            whether specifically registered or default. May return NULL.
+            Returns NULL if default interfaces are not defined.
    */
   InterfaceAdapter *AdapterConfiguration:: getPlannerUpdateInterface() {
     if (!m_plannerUpdateInterface) {
@@ -709,7 +723,7 @@ namespace PLEXIL {
   }
 
   /**
-   * @brief Return the current default interface adapter. May return noId().
+   * @brief Return the current default interface adapter. May return NULL.
    */
   InterfaceAdapter *AdapterConfiguration:: getDefaultInterface() {
     return m_defaultInterface;
@@ -743,6 +757,7 @@ namespace PLEXIL {
   {
     m_lookupMap.clear();
     m_commandMap.clear();
+    m_telemetryLookups.clear();
     m_plannerUpdateInterface = NULL;
     m_defaultInterface = NULL;
     m_defaultCommandInterface = NULL;
