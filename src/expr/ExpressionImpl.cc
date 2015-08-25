@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -277,14 +277,124 @@ namespace PLEXIL
   // Explicit instantiations
   //
   template class ExpressionImpl<bool>;
+
+  template bool ExpressionImpl<bool>::getValueImpl(uint16_t &) const;
+  template bool ExpressionImpl<bool>::getValueImpl(int32_t &) const;
+  template bool ExpressionImpl<bool>::getValueImpl(double &) const;
+  template bool ExpressionImpl<bool>::getValueImpl(std::string &) const;
+
+  template bool ExpressionImpl<bool>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<bool>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<bool>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<bool>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<bool>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<bool>::getValuePointerImpl(StringArray const *&) const;
+
   template class ExpressionImpl<uint16_t>;
+
+  template bool ExpressionImpl<uint16_t>::getValueImpl(bool &) const;
+  template bool ExpressionImpl<uint16_t>::getValueImpl(int32_t &) const;
+  template bool ExpressionImpl<uint16_t>::getValueImpl(double &) const;
+  template bool ExpressionImpl<uint16_t>::getValueImpl(std::string &) const;
+
+  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<uint16_t>::getValuePointerImpl(StringArray const *&) const;
+
   template class ExpressionImpl<int32_t>;
+
+  template bool ExpressionImpl<int32_t>::getValueImpl(bool &) const;
+  template bool ExpressionImpl<int32_t>::getValueImpl(uint16_t &) const;
+  template bool ExpressionImpl<int32_t>::getValueImpl(double &) const;
+  template bool ExpressionImpl<int32_t>::getValueImpl(std::string &) const;
+
+  template bool ExpressionImpl<int32_t>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<int32_t>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<int32_t>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<int32_t>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<int32_t>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<int32_t>::getValuePointerImpl(StringArray const *&) const;
+
   template class ExpressionImpl<double>;
+
+  template bool ExpressionImpl<double>::getValueImpl(bool &) const;
+  template bool ExpressionImpl<double>::getValueImpl(uint16_t &) const;
+  template bool ExpressionImpl<double>::getValueImpl(std::string &) const;
+
+  template bool ExpressionImpl<double>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<double>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<double>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<double>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<double>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<double>::getValuePointerImpl(StringArray const *&) const;
+
   //template class ExpressionImpl<std::string>;
 
+  template bool ExpressionImpl<std::string>::getValueImpl(bool &) const;
+  template bool ExpressionImpl<std::string>::getValueImpl(uint16_t &) const;
+  template bool ExpressionImpl<std::string>::getValueImpl(int32_t &) const;
+  template bool ExpressionImpl<std::string>::getValueImpl(double &) const;
+  
+  template bool ExpressionImpl<std::string>::getValuePointerImpl(Array const *&) const;
+  template bool ExpressionImpl<std::string>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<std::string>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<std::string>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<std::string>::getValuePointerImpl(StringArray const *&) const;
+
   template class ExpressionImpl<BooleanArray>;
+
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(bool &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(uint16_t &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(int32_t &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(double &) const;
+  template bool ExpressionImpl<BooleanArray>::getValueImpl(std::string &) const;
+
+  template bool ExpressionImpl<BooleanArray>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<BooleanArray>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<BooleanArray>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<BooleanArray>::getValuePointerImpl(StringArray const *&) const;
+
   template class ExpressionImpl<IntegerArray>;
+
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(bool &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(uint16_t &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(int32_t &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(double &) const;
+  template bool ExpressionImpl<IntegerArray>::getValueImpl(std::string &) const;
+
+  template bool ExpressionImpl<IntegerArray>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<IntegerArray>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<IntegerArray>::getValuePointerImpl(RealArray const *&) const;
+  template bool ExpressionImpl<IntegerArray>::getValuePointerImpl(StringArray const *&) const;
+
   template class ExpressionImpl<RealArray>;
+
+  template bool ExpressionImpl<RealArray>::getValueImpl(bool &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(uint16_t &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(int32_t &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(double &) const;
+  template bool ExpressionImpl<RealArray>::getValueImpl(std::string &) const;
+
+  template bool ExpressionImpl<RealArray>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<RealArray>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<RealArray>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<RealArray>::getValuePointerImpl(StringArray const *&) const;
+
   template class ExpressionImpl<StringArray>;
+
+  template bool ExpressionImpl<StringArray>::getValueImpl(bool &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(uint16_t &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(int32_t &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(double &) const;
+  template bool ExpressionImpl<StringArray>::getValueImpl(std::string &) const;
+
+  template bool ExpressionImpl<StringArray>::getValuePointerImpl(std::string const *&) const;
+  template bool ExpressionImpl<StringArray>::getValuePointerImpl(BooleanArray const *&) const;
+  template bool ExpressionImpl<StringArray>::getValuePointerImpl(IntegerArray const *&) const;
+  template bool ExpressionImpl<StringArray>::getValuePointerImpl(RealArray const *&) const;
+
 
 } // namespace PLEXIL
