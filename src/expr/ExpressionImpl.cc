@@ -308,7 +308,6 @@ namespace PLEXIL
 
   template bool ExpressionImpl<int32_t>::getValueImpl(bool &) const;
   template bool ExpressionImpl<int32_t>::getValueImpl(uint16_t &) const;
-  template bool ExpressionImpl<int32_t>::getValueImpl(double &) const;
   template bool ExpressionImpl<int32_t>::getValueImpl(std::string &) const;
 
   template bool ExpressionImpl<int32_t>::getValuePointerImpl(std::string const *&) const;
@@ -322,6 +321,7 @@ namespace PLEXIL
 
   template bool ExpressionImpl<double>::getValueImpl(bool &) const;
   template bool ExpressionImpl<double>::getValueImpl(uint16_t &) const;
+  template bool ExpressionImpl<double>::getValueImpl(int32_t &) const;
   template bool ExpressionImpl<double>::getValueImpl(std::string &) const;
 
   template bool ExpressionImpl<double>::getValuePointerImpl(std::string const *&) const;
