@@ -298,7 +298,7 @@ namespace PLEXIL
 
   /**
    * @brief Perform an immediate lookup on a new state.
-   * @param key The key for the state to be used in future communications about the state.
+   * @param state The state.
    */
   void 
   InterfaceManager::lookupNow(State const &state, StateCacheEntry &cacheEntry)
@@ -310,6 +310,11 @@ namespace PLEXIL
            << state.name() << ", returning UNKNOWN");
       return;
     }
+
+    if (g_configuration->lookupIsTelemetry(state.name()))
+      // LookupNow not supported for this state, use last cached value
+      return;
+
     adapter->lookupNow(state, cacheEntry);
     // update internal idea of time if required
     if (state == State::timeState()) {
