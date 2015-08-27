@@ -136,9 +136,11 @@ namespace PLEXIL {
               or registering a lookup interface is not implemented.
      * @param stateName The name of the state to map to this adapter.
      * @param intf The interface adapter to handle this lookup.
+     * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
      */
     bool registerLookupInterface(std::string const &stateName,
-                                 InterfaceAdapter *intf);
+                                 InterfaceAdapter *intf,
+                                 bool telemetryOnly = false);
 
     /**
      * @brief Register the given interface adapter for planner updates.

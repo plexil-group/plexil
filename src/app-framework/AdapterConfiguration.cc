@@ -461,9 +461,8 @@ namespace PLEXIL {
                    << InterfaceSchema::COMMAND_NAMES_TAG()
                    << " requires one or more comma-separated command names");
         std::vector<std::string> * cmdNames = InterfaceSchema::parseCommaSeparatedArgs(text);
-        for (std::vector<std::string>::const_iterator it = cmdNames->begin(); it != cmdNames->end(); ++it) {
+        for (std::vector<std::string>::const_iterator it = cmdNames->begin(); it != cmdNames->end(); ++it)
           registerCommandInterface(*it, adapter);
-        }
         delete cmdNames;
       } 
       else if (strcmp(elementType, InterfaceSchema::LOOKUP_NAMES_TAG()) == 0) {
@@ -476,12 +475,9 @@ namespace PLEXIL {
                    << InterfaceSchema::LOOKUP_NAMES_TAG()
                    << " requires one or more comma-separated lookup names");
         std::vector<std::string> * lookupNames = InterfaceSchema::parseCommaSeparatedArgs(text);
+        bool telemOnly = element.attribute(InterfaceSchema::TELEMETRY_ONLY_ATTR()).as_bool();
         for (std::vector<std::string>::const_iterator it = lookupNames->begin(); it != lookupNames->end(); ++it)
-          registerLookupInterface(*it, adapter);
-        if (element.attribute(InterfaceSchema::TELEMETRY_ONLY_ATTR()).as_bool()) {
-          for (std::vector<std::string>::const_iterator it = lookupNames->begin(); it != lookupNames->end(); ++it)
-            m_telemetryLookups.insert(*it);
-        }
+          registerLookupInterface(*it, adapter, telemOnly);
         delete lookupNames;
       }
       // ignore other tags, they're for adapter's use
@@ -522,9 +518,11 @@ namespace PLEXIL {
             or registering a lookup interface is not implemented.
    * @param stateName The name of the state to map to this adapter.
    * @param intf The interface adapter to handle this lookup.
+   * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
    */
   bool AdapterConfiguration::registerLookupInterface(std::string const &stateName,
-                                                     InterfaceAdapter *intf) {
+                                                     InterfaceAdapter *intf,
+                                                     bool telemetryOnly) {
     InterfaceMap::iterator it = m_lookupMap.find(stateName);
     if (it == m_lookupMap.end()) {
       // Not found, OK to add
@@ -532,6 +530,8 @@ namespace PLEXIL {
                " registering interface for lookup '" << stateName << "'");
       m_lookupMap.insert(std::pair<std::string, InterfaceAdapter *>(stateName, intf));
       m_adapters.insert(intf);
+      if (telemetryOnly)
+        m_telemetryLookups.insert(stateName);
       return true;
     } else {
       debugMsg("AdapterConfiguration:registerLookupInterface",
