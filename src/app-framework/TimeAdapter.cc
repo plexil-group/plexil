@@ -80,6 +80,11 @@ namespace PLEXIL
    */
   bool TimeAdapter::initialize()
   {
+    if (!configureSignalHandling()) {
+      debugMsg("TimeAdapter:start", " signal handling initialization failed");
+      return false;
+    }
+
     // Automatically register self for time
     g_configuration->registerLookupInterface("time", this);
     return true;
@@ -91,11 +96,6 @@ namespace PLEXIL
    */
   bool TimeAdapter::start()
   {
-    if (!configureSignalHandling()) {
-      debugMsg("TimeAdapter:start", " signal handling initialization failed");
-      return false;
-    }
-
     if (!initializeTimer()) {
       debugMsg("TimeAdapter:start", " timer initialization failed");
       return false;
