@@ -28,6 +28,7 @@
 
 #include "ArrayImpl.hh"
 #include "CachedValue.hh"
+#include "Debug.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh"
 #include "Lookup.hh"
@@ -201,10 +202,10 @@ namespace PLEXIL
         return true;
 
       // Type mismatch
-      // FIXME this is most likely a plan error, handle more gracefully
-      // assertTrueMsg(ALWAYS_FAIL,
-      //               "ensureCachedValue: requested type " << valueTypeName(v)
-      //               << " but existing value is type " << valueTypeName(ct));
+      // FIXME this is likely a plan or interface coding error, handle more gracefully
+      debugMsg("StateCacheEntry:update",
+               " requested type " << valueTypeName(v)
+               << " but existing value is type " << valueTypeName(ct));
       return false;
     }
     else {
