@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,27 @@
 
 namespace PLEXIL
 {
+
+  //
+  // Type aliases
+  //
+
+  typedef bool        Boolean;
+  typedef int32_t     Integer;
+  typedef double      Real;
+  typedef std::string String;
+
+  // Subject to change in the future.
+  typedef double      Duration;
+  typedef double      Time;
+
+  // Array types declared in ArrayFwd.hh, defined in ArrayImpl.hh:
+  // BooleanArray
+  // IntegerArray
+  // RealArray
+  // StringArray
+
+
   /**
    * @class Value
    * @brief An encapsulation representing any possible value in the PLEXIL language.
