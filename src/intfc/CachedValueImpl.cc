@@ -27,6 +27,7 @@
 #include "CachedValueImpl.hh"
 
 #include "ArrayImpl.hh"
+#include "Debug.hh"
 #include "Error.hh"
 #include "ExternalInterface.hh"
 #include "Value.hh"
@@ -556,8 +557,12 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     T nativeVal;
     if (val.getValue(nativeVal))
       return this->updateImpl(timestamp, nativeVal);
-    else
+    else {
+      debugMsg("CachedValue:mismatch",
+               " value " << val << "is wrong type for "
+               << valueTypeName(valueType()) << " lookup");
       return setUnknown(timestamp);
+    }
   }
 
   // Special case for string
@@ -566,8 +571,11 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     std::string const *valPtr;
     if (val.getValuePointer(valPtr))
       return this->updatePtrImpl(timestamp, valPtr);
-    else
+    else {
+      debugMsg("CachedValue:mismatch",
+               " value " << val << "is wrong type for String lookup");
       return setUnknown(timestamp);
+    }
   }
 
   // Array method
@@ -577,8 +585,12 @@ bool CachedValueImpl<ArrayImpl<T> >::operator==(CachedValue const &other) const
     ArrayImpl<T> const *valPtr;
     if (val.getValuePointer(valPtr))
       return this->updatePtrImpl(timestamp, valPtr);
-    else
+    else {
+      debugMsg("CachedValue:mismatch",
+               " value " << val << "is wrong type for "
+               << valueTypeName(valueType()) << " lookup");
       return setUnknown(timestamp);
+    }
   }
 
 //
