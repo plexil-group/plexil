@@ -37,7 +37,12 @@ else
     _plexil_libpath=$PLEXIL_HOME/lib
 
     # Linux
-    export LD_LIBRARY_PATH=$_plexil_libpath
+    if [ -z "$LD_LIBRARY_PATH" ]
+    then
+		export LD_LIBRARY_PATH=$_plexil_libpath
+	else
+		export LD_LIBRARY_PATH=$_plexil_libpath:$LD_LIBRARY_PATH
+	fi		
 
     # Mac
     if [ -z "$DYLD_LIBRARY_PATH" ]
