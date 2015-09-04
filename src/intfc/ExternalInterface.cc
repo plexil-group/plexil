@@ -128,10 +128,7 @@ namespace PLEXIL
 
   void ExternalInterface::lookupReturn(State const &state, Value const &value)
   {
-    StateCacheEntry *cacheEntry = StateCacheMap::instance().findStateCacheEntry(state);
-    // Silently ignore any data we don't know about
-    if (cacheEntry)
-      cacheEntry->update(value);
+    StateCacheMap::instance().ensureStateCacheEntry(state)->update(value);
   }
 
   void ExternalInterface::commandReturn(Command *cmd, Value const &value)
