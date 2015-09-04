@@ -40,7 +40,12 @@ else
     export LD_LIBRARY_PATH=$_plexil_libpath
 
     # Mac
-    export DYLD_LIBRARY_PATH=$_plexil_libpath
+    if [ -z "$DYLD_LIBRARY_PATH" ]
+	   then
+		   export DYLD_LIBRARY_PATH=$_plexil_libpath
+	else
+		export DYLD_LIBRARY_PATH=$_plexil_libpath:$DYLD_LIBRARY_PATH
+	fi
 
     unset _plexil_libpath
 fi
