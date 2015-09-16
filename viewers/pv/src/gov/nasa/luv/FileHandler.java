@@ -170,18 +170,21 @@ public class FileHandler
 
         // Try plan directory next
         String candidateName = libraryName + ".plx";
-    	File libDir = Luv.getLuv().getSettings().getPlanLocation().getParentFile();
-        File candidate = new File(libDir, candidateName);
-        if (candidate.isFile()) {
-            Model result = loadLibraryFile(candidate);
-            if (result != null)
-                return result;
-        }
+	File planLoc = Luv.getLuv().getSettings().getPlanLocation();
+	if (planLoc != null) {
+	    File libDir = planLoc.getParentFile();
+	    File candidate = new File(libDir, candidateName);
+	    if (candidate.isFile()) {
+		Model result = loadLibraryFile(candidate);
+		if (result != null)
+		    return result;
+	    }
+	}
 
         // Check user specified library path
         for (File entry : Luv.getLuv().getSettings().getLibDirs()) {
             if (entry.isDirectory()) {
-                candidate = new File(entry, candidateName);
+                File candidate = new File(entry, candidateName);
                 if (candidate.isFile()) {
                     Model m = loadLibraryFile(candidate);
                     if (m != null)
@@ -192,7 +195,7 @@ public class FileHandler
             
         // Search failed, ask user
         if (askUser) {
-            candidate = unfoundLibrary(libraryName);
+            File candidate = unfoundLibrary(libraryName);
             if (candidate != null && candidate.isFile()) {
                 return loadLibraryFile(candidate);
             }
