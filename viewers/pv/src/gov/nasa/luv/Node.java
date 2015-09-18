@@ -202,8 +202,12 @@ public class Node
         String oldState = state;
         state = newval;
         if (oldState == null || !oldState.equals(state))
-            for (ChangeListener cl: changeListeners)
-                cl.propertyChange(this, NODE_STATE);
+	    notifyPropertyChange(NODE_STATE);
+    }
+
+    synchronized private void notifyPropertyChange(String prop) {
+	for (ChangeListener cl: changeListeners)
+	    cl.propertyChange(this, NODE_STATE);
     }
 
     public String getOutcome() {
@@ -214,8 +218,7 @@ public class Node
         String oldOutcome = outcome;
         outcome = newval;
         if (oldOutcome == null || !oldOutcome.equals(outcome))
-            for (ChangeListener cl: changeListeners)
-                cl.propertyChange(this, NODE_OUTCOME);
+	    notifyPropertyChange(NODE_OUTCOME);
     }
 
     public String getFailureType() {
@@ -226,8 +229,7 @@ public class Node
         String oldFailureType = failureType;
         failureType = newval;
         if (oldFailureType == null || !oldFailureType.equals(failureType))
-            for (ChangeListener cl: changeListeners)
-                cl.propertyChange(this, NODE_FAILURE_TYPE);
+	    notifyPropertyChange(NODE_FAILURE_TYPE);
     }
 
     /** Returns the HashMap of Conditions for this Node.
@@ -377,12 +379,15 @@ public class Node
         }
 
         Object result = super.setProperty(key, value);
-        if (value == null || value != result && value.equals(result) == false) {
-            for (ChangeListener cl: changeListeners)
-                cl.propertyChange(this, key);
-        }
+        if (value == null || value != result && value.equals(result) == false)
+	    notifyChangeListeners(key);
          
         return result;
+    }
+
+    synchronized private void notifyChangeListeners(String key) {
+	for (ChangeListener cl: changeListeners)
+	    cl.propertyChange(this, key);
     }
 
 	public void setVariable(String vName, String value) {
@@ -416,11 +421,15 @@ public class Node
 				if(!(var instanceof ArrayVariable))
 					var.setValue(value);
 				System.out.println("Assigned " + value + " to variable " + vName);
-				for (ChangeListener cl : walker.changeListeners)
-					cl.variableAssigned(this, vName);
+				walker.notifyVariableAssigned(vName);
 			}
 		}
 	}
+
+    synchronized private void notifyVariableAssigned(String vName) {
+	for (ChangeListener cl : changeListeners)
+	    cl.variableAssigned(this, vName);
+    }
     
     /**
      * Adds the specified condition and condition equation to the ArrayList of conditions for this Node.
@@ -608,7 +617,7 @@ public class Node
      * Adds a property change listener to this Node. 
      * @param listener the property change listener
      */
-    public void addChangeListener(ChangeListener listener) {
+    synchronized public void addChangeListener(ChangeListener listener) {
         changeListeners.add(listener);
     }
 
@@ -616,7 +625,7 @@ public class Node
      * Removes a property change listener to this Node. 
      * @param listener the property change listener
      */
-    public void removeChangeListener(ChangeListener listener) {
+    synchronized public void removeChangeListener(ChangeListener listener) {
         changeListeners.remove(listener);
     }
          
