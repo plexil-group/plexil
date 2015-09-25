@@ -94,7 +94,7 @@ test: | setup output
 		  echo "Verified $$i.epx" >> tempRegressionResults ; \
 		  echo "Verified $$i.epx" ; \
 		else \
-			cat diff >> tempRegressionResults ; \
+			cat $(DIFF) >> tempRegressionResults ; \
 			echo "*** Verification of $$i.epx failed ***" >> tempRegressionResults ; \
 			echo "*** Verification of $$i.epx failed ***" ; \
 			failure=1 ; \
