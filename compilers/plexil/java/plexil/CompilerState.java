@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,6 @@ public class CompilerState
     public boolean debug = false;
     public boolean epxOnly = false;
     public boolean keepEpx = false;
-    public boolean prettyPrintEpx = false;
     public boolean semanticsOnly = false;
     public boolean syntaxOnly = false;
 
@@ -122,11 +121,9 @@ public class CompilerState
             else if (m_args[i].equals("-e") || m_args[i].equals("--epx-only")) {
                 epxOnly = true;
                 keepEpx = true;
-                prettyPrintEpx = true;
             }
             else if (m_args[i].equals("-k") || m_args[i].equals("--keep-epx")) {
                 keepEpx = true;
-                prettyPrintEpx = true;
             }
             else if (m_args[i].equals("-o")) {
                 m_outfile = new File(m_args[++i]);
