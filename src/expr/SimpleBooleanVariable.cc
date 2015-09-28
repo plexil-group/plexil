@@ -28,6 +28,7 @@
 
 #include "Error.hh"
 
+#include <cstdlib> // free()
 #include <cstring> // strdup()
 
 namespace PLEXIL
@@ -44,7 +45,7 @@ namespace PLEXIL
 
   SimpleBooleanVariable::~SimpleBooleanVariable()
   {
-    delete m_name;
+    free((void *) m_name);
   }
 
   char const *SimpleBooleanVariable::exprName() const

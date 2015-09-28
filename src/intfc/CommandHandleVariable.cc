@@ -28,7 +28,8 @@
 
 #include "Command.hh"
 
-#include <cstring>
+#include <cstdlib> // free()
+#include <cstring> // strdup()
 
 namespace PLEXIL
 {
@@ -47,7 +48,7 @@ namespace PLEXIL
 
   CommandHandleVariable::~CommandHandleVariable()
   {
-    delete m_name;
+    free((void *) m_name);
   }
 
   char const *CommandHandleVariable::getName() const
