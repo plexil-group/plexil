@@ -26,8 +26,9 @@
 
 #include "InterfaceAdapter.hh"
 #include "IpcFacade.hh"
-#include "ThreadSemaphore.hh"
 #include "MessageQueueMap.hh"
+#include "State.hh"
+#include "ThreadSemaphore.hh"
 
 #include <ipc.h>
 
@@ -300,7 +301,7 @@ namespace PLEXIL
     //* brief Cache of command serials and their corresponding ack and return value variables
     typedef std::map<uint32_t, Command *> PendingCommandsMap;
 
-    typedef std::map<std::string, Value> ExternalLookupMap;
+    typedef std::map<State, Value> ExternalLookupMap;
 
     //* brief Class to receive messages from Ipc
     class MessageListener : public IpcMessageListener {
@@ -321,15 +322,6 @@ namespace PLEXIL
 
     //* @brief Map of queues for holding complete messages and message handlers while they wait to be paired
     MessageQueueMap m_messageQueues;
-
-    //* @brief Cache of open LookupOnChange instances for messages
-    ActiveListenerMap m_activeMessageListeners;
-
-    //* @brief Cache of open LookupOnChange instances for commands
-    ActiveListenerMap m_activeCommandListeners;
-
-    //* @brief Cache of open LookupOnChange instances for LookupNow
-    ActiveListenerMap m_activeLookupListeners;
 
     //* @brief Cache of ack and return value variables for commands we sent
     PendingCommandsMap m_pendingCommands;
@@ -352,8 +344,8 @@ namespace PLEXIL
     //* @brief Place to store result of current pending LookupNow request
     Value m_pendingLookupResult;
 
-    //* @brief Place to store state name of pending LookupNow
-    std::string m_pendingLookupStateName;
+    //* @brief Place to store state of pending LookupNow
+    State m_pendingLookupState;
 
     //* @brief Serial # of current pending LookupNow request, or 0
     uint32_t m_pendingLookupSerial;

@@ -61,7 +61,7 @@ namespace PLEXIL
     m_lookupSem(),
     m_cmdMutex(),
     m_pendingLookupResult(),
-    m_pendingLookupStateName(),
+    m_pendingLookupState(),
     m_pendingLookupSerial(0)
   {
     debugMsg("IpcAdapter:IpcAdapter", " configuration XML not provided");
@@ -81,7 +81,7 @@ namespace PLEXIL
     m_lookupSem(),
     m_cmdMutex(),
     m_pendingLookupResult(),
-    m_pendingLookupStateName(),
+    m_pendingLookupState(),
     m_pendingLookupSerial(0)
   {
     condDebugMsg(xml == NULL, "IpcAdapter:IpcAdapter", " configuration XML not provided");
@@ -220,10 +220,10 @@ namespace PLEXIL
 
   void IpcAdapter::lookupNow(const State& state, StateCacheEntry &entry) 
   {
-    ExternalLookupMap::iterator it = m_externalLookups.find(state.name());
+    ExternalLookupMap::iterator it = m_externalLookups.find(state);
     if (it != m_externalLookups.end()) {
       debugMsg("IpcAdapter:lookupNow",
-               " returning external lookup " << state.name()
+               " returning external lookup " << state
                << " with internal value " << it->second);
       entry.update(it->second);
     }
@@ -243,13 +243,15 @@ namespace PLEXIL
         ThreadMutexGuard g(m_cmdMutex);
         if (sep_pos != std::string::npos) {
           std::string const dest(stateName.substr(0, sep_pos));
-          m_pendingLookupStateName = stateName.substr(sep_pos + 1);
-          m_pendingLookupSerial = m_ipcFacade.sendLookupNow(m_pendingLookupStateName,
+          std::string const sentStateName = stateName.substr(sep_pos + 1);
+          m_pendingLookupState = state;
+          m_pendingLookupState.setName(sentStateName);
+          m_pendingLookupSerial = m_ipcFacade.sendLookupNow(sentStateName,
                                                             dest,
                                                             params);
         }
         else {
-          m_pendingLookupStateName = stateName;
+          m_pendingLookupState = state;
           m_pendingLookupSerial = m_ipcFacade.publishLookupNow(stateName, params);
         }
       }
@@ -267,7 +269,7 @@ namespace PLEXIL
       {
         ThreadMutexGuard g(m_cmdMutex);
         m_pendingLookupSerial = 0;
-        m_pendingLookupStateName.clear();
+        m_pendingLookupState = State();
       }
       m_pendingLookupResult.setUnknown();
     }
@@ -550,22 +552,31 @@ namespace PLEXIL
   void IpcAdapter::executeUpdateLookupCommand(Command *command) 
   {
     std::vector<Value> const &args = command->getArgValues();
-    assertTrueMsg(args.size() == 2,
-                  "IpcAdapter: The " << UPDATE_LOOKUP_COMMAND() << " command requires exactly two arguments");
+    size_t nargs = args.size();
+    assertTrueMsg(nargs >= 2,
+                  "IpcAdapter: The " << UPDATE_LOOKUP_COMMAND() << " command requires at least two arguments");
     assertTrueMsg(args.front().isKnown() && args.front().valueType() == STRING_TYPE,
                   "IpcAdapter: The argument to the " << UPDATE_LOOKUP_COMMAND().c_str()
                   << " command, " << args.front() << ", is not a string");
     ThreadMutexGuard guard(m_cmdMutex);
+
+    // Extract state from command parameters
     std::string const *lookupName;
     args.front().getValuePointer(lookupName);
-    ExternalLookupMap::iterator it = m_externalLookups.find(*lookupName);
+    State state(*lookupName, nargs - 2);
+    for (size_t i = 2; i < nargs; ++i)
+      state.setParameter(i - 2, args[i]);
+
+    ExternalLookupMap::iterator it = m_externalLookups.find(state);
     assertTrueMsg(it != m_externalLookups.end(),
-                  "IpcAdapter: The external lookup " << *lookupName << " is not defined");
+                  "IpcAdapter: The external lookup " << state << " is not defined");
     //Set value internally
     it->second = args[1];
     //send telemetry
-    assertTrueMsg(m_ipcFacade.publishTelemetry(*lookupName,
-                                               std::vector<Value>(1, it->second))
+    std::vector<Value> result_and_args(nargs - 1);
+    for (size_t i = 1; i < nargs; ++i)
+      result_and_args[i - 1] = args[i];
+    assertTrueMsg(m_ipcFacade.publishTelemetry(*lookupName, result_and_args)
                   != IpcFacade::ERROR_SERIAL(),
                   "IpcAdapter: publishTelemetry returned status \"" << m_ipcFacade.getError() << "\"");
     m_execInterface.handleCommandAck(command, COMMAND_SUCCESS);
@@ -609,7 +620,7 @@ namespace PLEXIL
 
   void IpcAdapter::parseExternalLookups(pugi::xml_node const external) 
   {
-    if (external != NULL) {
+    if (external) {
 
       //process external lookups
       pugi::xml_node lookup = external.child("Lookup");
@@ -623,23 +634,26 @@ namespace PLEXIL
         const pugi::xml_attribute defAttr = lookup.attribute("value");
         assertTrueMsg(!defAttr.empty() && defAttr.value(),
                       "IpcAdapter:parseExternalLookups: Lookup element attribute 'value' missing or empty");
+
+        std::string const nameString(nameAttr.value());
+        State state(nameString);
+
         debugMsg("IpcAdapter:parseExternalLookups",
-                 "External Lookup: name=\"" << nameAttr.value()
+                 "External Lookup: state=\"" << nameString
                  << "\" type=\"" << typeAttr.value()
                  << "\" default=\"" << defAttr.value() << "\"");
-        std::string const nameString(nameAttr.value());
         const char *type = typeAttr.value();
         g_configuration->registerLookupInterface(nameString, this);
         if (strcmp(type, "String") == 0)
-          m_externalLookups[nameString] = Value(defAttr.value());
+          m_externalLookups[state] = Value(defAttr.value());
         // FIXME: pugixml attribute routines don't have out-of-band error signaling
         else if (strcmp(type, "Real") == 0)
-          m_externalLookups[nameString] = Value(defAttr.as_double());
+          m_externalLookups[state] = Value(defAttr.as_double());
         // FIXME: pugixml relies on compiler definition of int type
         else if (strcmp(type, "Integer") == 0)
-          m_externalLookups[nameString] = Value((int32_t) defAttr.as_int());
+          m_externalLookups[state] = Value((int32_t) defAttr.as_int());
         else if (strcmp(type, "Boolean") == 0)
-          m_externalLookups[nameString] = Value(defAttr.as_bool());
+          m_externalLookups[state] = Value(defAttr.as_bool());
         else
           assertTrueMsg(ALWAYS_FAIL,
                         "IpcAdapter: invalid or unimplemented lookup value type " << type);
@@ -800,17 +814,24 @@ namespace PLEXIL
                " state name missing or empty, ignoring");
       return;
     }
-    State state(stateName);
+
+    size_t nValues = msgs[0]->count;
+    checkError(nValues > 0,
+               "Telemetry values message requires at least 1 value");
+
+    // Extract state parameters from trailing messages
+    State state(stateName, nValues - 1);
+    for (size_t i = 1; i < nValues; ++i)
+      state.setParameter(i - 1, getPlexilMsgValue(msgs[i]));
+    
     debugMsg("IpcAdapter:handleTelemetryValuesSequence",
              " state \"" << stateName << "\" found, processing");
-    size_t nValues = msgs[0]->count;
-    checkError(nValues == 1,
-               "Telemetry values message only supports 1 value, but received " << nValues);
+
     Value result = getPlexilMsgValue(msgs[1]);
     // Check to see if a LookupNow is waiting on this value
     {
       ThreadMutexGuard g(m_cmdMutex);
-      if (m_pendingLookupStateName == stateName) {
+      if (m_pendingLookupState == state) {
         m_pendingLookupResult = result;
         m_lookupSem.post();
         return;
@@ -885,24 +906,42 @@ namespace PLEXIL
   }
 
   /**
-   * @brief Process a LookupNow. Ignores any lookups that are not defined in config
+   * @brief Process a LookupNow. Ignores any lookups that are not defined in config or published.
    */
   void IpcAdapter::handleLookupNow(const std::vector<const PlexilMsgBase*>& msgs) 
   {
-    debugMsg("IpcAdapter:handleLookupNow", " received message. processing as LookupNow");
+    debugMsg("IpcAdapter:handleLookupNow", " received LookupNow");
     const PlexilStringValueMsg* msg = reinterpret_cast<const PlexilStringValueMsg*> (msgs.front());
-    std::string lookup(msg->stringValue);
+    std::string name(msg->stringValue);
+    size_t nParms = msgs.front()->count - 1;
+    State lookup(name, nParms);
+    for (size_t i = 1 ; i < nParms ; ++i)
+      lookup.setParameter(i - 1, getPlexilMsgValue(msgs[i]));
+
     ThreadMutexGuard guard(m_cmdMutex);
+      
     ExternalLookupMap::iterator it = m_externalLookups.find(lookup);
-    if (it == m_externalLookups.end()) {
-      debugMsg("IpcAdapter:handleLookupNow",
-               " undefined external lookup \"" << msg->stringValue << "\", discarding");
-    }
-    else {
-      debugMsg("IpcAdapter:handleLookupNow", " Publishing value of external lookup \"" << msg->stringValue
+    if (it != m_externalLookups.end()) {
+      debugMsg("IpcAdapter:handleLookupNow", " Publishing value of external lookup \"" << lookup
                << "\" with internal value '" << (*it).second << "'");
       m_ipcFacade.publishReturnValues(msg->header.serial, msg->header.senderUID, (*it).second);
+      return;
     }
+
+    if (nParms > 0) {
+      // See if name is declared, and return default value
+      lookup.setParameterCount(0);
+      it = m_externalLookups.find(lookup);
+      if (it != m_externalLookups.end()) {
+        debugMsg("IpcAdapter:handleLookupNow", " Publishing default value of external lookup \"" << name
+                 << "\" = '" << (*it).second << "'");
+        m_ipcFacade.publishReturnValues(msg->header.serial, msg->header.senderUID, (*it).second);
+        return;
+      }      
+    }
+
+    debugMsg("IpcAdapter:handleLookupNow",
+             " undeclared external lookup \"" << name << "\", ignoring");
   }
 
   /**

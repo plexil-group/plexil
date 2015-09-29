@@ -27,6 +27,7 @@
 #include "IpcFacade.hh"
 
 #include "ArrayImpl.hh"
+#include "CommandHandle.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ThreadSpawn.hh"
@@ -59,7 +60,6 @@ namespace PLEXIL
   {
     switch (typ) {
     case PlexilMsgType_NotifyExec:
-    case PlexilMsgType_TerminateChangeLookup:
     case PlexilMsgType_UnknownValue:
 
       return MSG_BASE;
@@ -72,31 +72,25 @@ namespace PLEXIL
     case PlexilMsgType_Command:
     case PlexilMsgType_Message:
     case PlexilMsgType_LookupNow:
-    case PlexilMsgType_LookupOnChange:
     case PlexilMsgType_PlannerUpdate:
     case PlexilMsgType_StringValue:
     case PlexilMsgType_TelemetryValues:
-
       return STRING_VALUE_MSG;
       break;
 
     case PlexilMsgType_ReturnValues:
-
       return RETURN_VALUE_MSG;
       break;
 
     case PlexilMsgType_BooleanValue:
-
       return BOOLEAN_VALUE_MSG;
       break;
 
     case PlexilMsgType_IntegerValue:
-
       return INTEGER_VALUE_MSG;
       break;
 
     case PlexilMsgType_RealValue:
-
       return REAL_VALUE_MSG;
       break;
               
@@ -144,59 +138,53 @@ namespace PLEXIL
    * @return Pointer to newly allocated IPC message.
    * @note Returns NULL for unimplemented/invalid Values.
    */
-  PlexilMsgBase *constructPlexilValueMsg(Value const val)
+  struct PlexilMsgBase *constructPlexilValueMsg(Value const &val)
   {
-    PlexilMsgBase *result = NULL;
     if (val.isKnown())
       switch (val.valueType()) {
       case BOOLEAN_TYPE: {
         bool b;
         val.getValue(b);
-        struct PlexilBooleanValueMsg *boolMsg = new PlexilBooleanValueMsg;
+        struct PlexilBooleanValueMsg *boolMsg = new struct PlexilBooleanValueMsg;
+        boolMsg->header.msgType = PlexilMsgType_BooleanValue;
         boolMsg->boolValue = (unsigned char) b;
         debugMsg("constructPlexilValueMsg", "Boolean value is " << b);
-        result = (PlexilMsgBase*) boolMsg;
-        result->msgType = PlexilMsgType_BooleanValue;
-        break;
+        return (struct PlexilMsgBase *) boolMsg;
       }
 
       case INTEGER_TYPE: {
-        struct PlexilIntegerValueMsg *intMsg = new PlexilIntegerValueMsg;
+        struct PlexilIntegerValueMsg *intMsg = new struct PlexilIntegerValueMsg;
+        intMsg->header.msgType = PlexilMsgType_IntegerValue;
         val.getValue(intMsg->intValue);
         debugMsg("constructPlexilValueMsg", "Integer value is " << intMsg->intValue);
-        result = (PlexilMsgBase*) intMsg;
-        result->msgType = PlexilMsgType_IntegerValue;
-        break;
+        return (struct PlexilMsgBase *) intMsg;
       }
 
       case REAL_TYPE: {
-        struct PlexilRealValueMsg *realMsg = new PlexilRealValueMsg;
+        struct PlexilRealValueMsg *realMsg = new struct PlexilRealValueMsg;
+        realMsg->header.msgType = PlexilMsgType_RealValue;
         val.getValue(realMsg->doubleValue);
         debugMsg("constructPlexilValueMsg", "Real value is " << realMsg->doubleValue);
-        result = (PlexilMsgBase*) realMsg;
-        result->msgType = PlexilMsgType_RealValue;
-        break;
+        return (struct PlexilMsgBase *) realMsg;
       }
 
-      case STRING_TYPE:  {
+      case STRING_TYPE: {
         std::string const *sp;
         val.getValuePointer(sp);
-        struct PlexilStringValueMsg *stringMsg = new PlexilStringValueMsg;
+        struct PlexilStringValueMsg *stringMsg = new struct PlexilStringValueMsg;
+        stringMsg->header.msgType = PlexilMsgType_StringValue;
         stringMsg->stringValue = sp->c_str();
-        debugMsg("constructPlexilValueMsg", "String value is \"" << *sp << "\"");
-        result = (PlexilMsgBase*) stringMsg;
-        result->msgType = PlexilMsgType_StringValue;
-        break;
+        debugMsg("constructPlexilValueMsg", "String value is \"" << stringMsg->stringValue << "\"");
+        return (struct PlexilMsgBase *) stringMsg;
       }
 
       case COMMAND_HANDLE_TYPE: {
         uint16_t handle;
         val.getValue(handle);
-        struct PlexilCommandHandleValueMsg *handleMsg = new PlexilCommandHandleValueMsg;
+        struct PlexilCommandHandleValueMsg *handleMsg = new struct PlexilCommandHandleValueMsg;
+        handleMsg->header.msgType = PlexilMsgType_CommandHandleValue;
         handleMsg->commandHandleValue = handle;
-        result = (PlexilMsgBase *) handleMsg;
-        result->msgType = PlexilMsgType_CommandHandleValue;
-        break;
+        return (struct PlexilMsgBase *) handleMsg;
       }
 
       case BOOLEAN_ARRAY_TYPE: {
@@ -211,12 +199,16 @@ namespace PLEXIL
           bools[i] = (unsigned char) b;
         }
         struct PlexilBooleanArrayMsg* boolArrayMsg = new PlexilBooleanArrayMsg();
+        boolArrayMsg->header.msgType = PlexilMsgType_BooleanArray;
         boolArrayMsg->arraySize = size;
         boolArrayMsg->boolArray = bools;
+        debugMsg("constructPlexilValueMsg",
+                 "Boolean array size " << boolArrayMsg->arraySize);
+        debugStmt("constructPlexilValueMsg",
+                  for (size_t i = 0; i < size; ++i) 
+                    std::cout << "elt " << i << ": " << (bool) boolArrayMsg->boolArray[i] << '\n');
         debugMsg("constructPlexilValueMsg", "First parameter of Boolean array is " << (bool) boolArrayMsg->boolArray[0]);
-        result = (PlexilMsgBase*) boolArrayMsg;
-        result->msgType = PlexilMsgType_BooleanArray;
-        break;
+        return (struct PlexilMsgBase *) boolArrayMsg;
       }
 
       case INTEGER_ARRAY_TYPE: {
@@ -228,12 +220,15 @@ namespace PLEXIL
         for (size_t i = 0; i < size; i++) 
           assertTrue_2(ia->getElement(i, nums[i]), "Integer array element is UNKNOWN");
         struct PlexilIntegerArrayMsg* intArrayMsg = new PlexilIntegerArrayMsg();
+        intArrayMsg->header.msgType = PlexilMsgType_IntegerArray;
         intArrayMsg->arraySize = size;
         intArrayMsg->intArray = nums;
-        debugMsg("constructPlexilValueMsg", "First parameter of Integer array is " << intArrayMsg->intArray[0]);
-        result = (PlexilMsgBase*) intArrayMsg;
-        result->msgType = PlexilMsgType_IntegerArray;
-        break;
+        debugMsg("constructPlexilValueMsg",
+                 "Integer array size " << intArrayMsg->arraySize);
+        debugStmt("constructPlexilValueMsg",
+                  for (size_t i = 0; i < size; ++i) 
+                    std::cout << "elt " << i << ": " << intArrayMsg->intArray[i] << '\n');
+        return (struct PlexilMsgBase*) intArrayMsg;
       }
 
       case REAL_ARRAY_TYPE: {
@@ -245,12 +240,15 @@ namespace PLEXIL
         for (size_t i = 0; i < size; i++) 
           assertTrue_1(ra->getElement(i, nums[i]));
         struct PlexilRealArrayMsg* realArrayMsg = new PlexilRealArrayMsg();
+        realArrayMsg->header.msgType = PlexilMsgType_RealArray;
         realArrayMsg->arraySize = size;
         realArrayMsg->doubleArray = nums;
-        debugMsg("constructPlexilValueMsg", "First parameter of Real array is " << realArrayMsg->doubleArray[0]);
-        result = (PlexilMsgBase*) realArrayMsg;
-        result->msgType = PlexilMsgType_RealArray;
-        break;
+        debugMsg("constructPlexilValueMsg",
+                 "Real array size " << realArrayMsg->arraySize);
+        debugStmt("constructPlexilValueMsg",
+                  for (size_t i = 0; i < size; ++i) 
+                    std::cout << "elt " << i << ": " << realArrayMsg->doubleArray[i] << '\n');
+        return (struct PlexilMsgBase *) realArrayMsg;
       }
 
       case STRING_ARRAY_TYPE: {
@@ -265,27 +263,28 @@ namespace PLEXIL
           strings[i] = temp->c_str();
         }
         struct PlexilStringArrayMsg* strArrayMsg = new PlexilStringArrayMsg();
+        strArrayMsg->header.msgType = PlexilMsgType_StringArray;
         strArrayMsg->arraySize = size;
         strArrayMsg->stringArray = strings;
         debugMsg("constructPlexilValueMsg",
-                 "First parameter of String array is \"" << strArrayMsg->stringArray[0] << "\"");
-        result = (PlexilMsgBase*) strArrayMsg;
-        result->msgType = PlexilMsgType_StringArray;
-        break;
+                 "String array size " << strArrayMsg->arraySize);
+        debugStmt("constructPlexilValueMsg",
+                  for (size_t i = 0; i < size; ++i) 
+                    std::cout << "elt " << i << ": " << strArrayMsg->stringArray[i] << '\n');
+        return (struct PlexilMsgBase *) strArrayMsg;
       }
 
       default:
         assertTrue_2(ALWAYS_FAIL, "Invalid or unimplemented PLEXIL data type");
-        break;
+        return NULL;
       }
     else {
       // Unknown
-      result = (PlexilMsgBase *) new PlexilUnknownValueMsg;
-      result->msgType = PlexilMsgType_UnknownValue;
+      struct PlexilUnknownValueMsg *unkMsg = new struct PlexilUnknownValueMsg;
+      unkMsg->header.msgType = PlexilMsgType_UnknownValue;
       debugMsg("constructPlexilValueMsg", " Unknown value");
+      return (struct PlexilMsgBase *) unkMsg;
     }
-
-    return result;
   }
 
   /**
@@ -294,36 +293,51 @@ namespace PLEXIL
    * @return The Value represented by the message.
    * @note The returned value will be unknown if the message is not a value message.
    */
-  Value getPlexilMsgValue(PlexilMsgBase const *msg)
+  Value getPlexilMsgValue(struct PlexilMsgBase const *msg)
   {
     switch ((PlexilMsgType) msg->msgType) {
     case PlexilMsgType_CommandHandleValue: {
-      PlexilCommandHandleValueMsg const *param = reinterpret_cast<const PlexilCommandHandleValueMsg*> (msg);
+      PlexilCommandHandleValueMsg const *param = reinterpret_cast<const struct PlexilCommandHandleValueMsg*> (msg);
+      debugMsg("getPlexilMsgValue",
+               " received CommandHandle " << commandHandleValueName(param->commandHandleValue));
       return Value(param->commandHandleValue, COMMAND_HANDLE_TYPE);
     }
 
     case PlexilMsgType_BooleanValue: {
-      const PlexilBooleanValueMsg* param = reinterpret_cast<const PlexilBooleanValueMsg*> (msg);
+      const struct PlexilBooleanValueMsg* param = reinterpret_cast<const struct PlexilBooleanValueMsg*> (msg);
+      debugMsg("getPlexilMsgValue",
+               " received Boolean " << param->boolValue);
       return Value((bool) param->boolValue);
     }
 
     case PlexilMsgType_IntegerValue: {
-      const PlexilIntegerValueMsg* param = reinterpret_cast<const PlexilIntegerValueMsg*> (msg);
+      const struct PlexilIntegerValueMsg* param = reinterpret_cast<const struct PlexilIntegerValueMsg*> (msg);
+      debugMsg("getPlexilMsgValue",
+               " received Integer " << param->intValue);
       return Value(param->intValue);
     }
 
     case PlexilMsgType_RealValue: {
-      const PlexilRealValueMsg* param = reinterpret_cast<const PlexilRealValueMsg*> (msg);
+      const struct PlexilRealValueMsg* param = reinterpret_cast<const struct PlexilRealValueMsg*> (msg);
+      debugMsg("getPlexilMsgValue",
+               " received Real " << param->doubleValue);
       return Value(param->doubleValue);
     }
 
     case PlexilMsgType_StringValue: {
-      const PlexilStringValueMsg* param = reinterpret_cast<const PlexilStringValueMsg*> (msg);
+      const struct PlexilStringValueMsg* param = reinterpret_cast<const struct PlexilStringValueMsg*> (msg);
+      debugMsg("getPlexilMsgValue",
+               " received String " << param->stringValue);
       return Value(param->stringValue);
     }
 
     case PlexilMsgType_BooleanArray: {
-      const PlexilBooleanArrayMsg* param = reinterpret_cast<const PlexilBooleanArrayMsg*> (msg);
+      const struct PlexilBooleanArrayMsg* param = reinterpret_cast<const struct PlexilBooleanArrayMsg*> (msg);
+      debugMsg("getPlexilMsgValue",
+               " received Boolean array of size " << param->arraySize);
+      debugStmt("getPlexilMsgValue",
+                for (size_t j = 0; j < param->arraySize; j++)
+                  std::cout << " elt " << j << ": " << (bool) param->boolArray[j] << '\n');
       BooleanArray array(param->arraySize);
       for (size_t j = 0; j < param->arraySize; j++)
         array.setElement(j, (bool) param->boolArray[j]);
@@ -331,7 +345,12 @@ namespace PLEXIL
     }
 
     case PlexilMsgType_IntegerArray: {
-      const PlexilIntegerArrayMsg* param = reinterpret_cast<const PlexilIntegerArrayMsg*> (msg);
+      const struct PlexilIntegerArrayMsg* param = reinterpret_cast<const struct PlexilIntegerArrayMsg*> (msg);
+      debugMsg("getPlexilMsgValue",
+               " received Integer array of size " << param->arraySize);
+      debugStmt("getPlexilMsgValue",
+                for (size_t j = 0; j < param->arraySize; j++)
+                  std::cout << " elt " << j << ": " << param->intArray[j] << '\n');
       IntegerArray array(param->arraySize);
       for (size_t j = 0; j < param->arraySize; j++)
         array.setElement(j, param->intArray[j]);
@@ -339,7 +358,12 @@ namespace PLEXIL
     }
 
     case PlexilMsgType_RealArray: {
-      const PlexilRealArrayMsg* param = reinterpret_cast<const PlexilRealArrayMsg*> (msg);
+      const struct PlexilRealArrayMsg* param = reinterpret_cast<const struct PlexilRealArrayMsg*> (msg);
+      debugMsg("getPlexilMsgValue",
+               " received Real array of size " << param->arraySize);
+      debugStmt("getPlexilMsgValue",
+                for (size_t j = 0; j < param->arraySize; j++)
+                  std::cout << " elt " << j << ": " << param->doubleArray[j] << '\n');
       RealArray array(param->arraySize);
       for (size_t j = 0; j < param->arraySize; j++)
         array.setElement(j, param->doubleArray[j]);
@@ -347,7 +371,12 @@ namespace PLEXIL
     }
 
     case PlexilMsgType_StringArray: {
-      const PlexilStringArrayMsg* param = reinterpret_cast<const PlexilStringArrayMsg*> (msg);
+      const struct PlexilStringArrayMsg* param = reinterpret_cast<const struct PlexilStringArrayMsg*> (msg);
+      debugMsg("getPlexilMsgValue",
+               " received String array of size " << param->arraySize);
+      debugStmt("getPlexilMsgValue",
+                for (size_t j = 0; j < param->arraySize; j++)
+                  std::cout << " elt " << j << ": " << param->stringArray[j] << '\n');
       StringArray array(param->arraySize);
       for (size_t j = 0; j < param->arraySize; j++)
         array.setElement(j, std::string(param->stringArray[j]));
@@ -739,10 +768,14 @@ namespace PLEXIL
     // Send the messages
     IPC_RETURN_TYPE result = IPC_OK;
     for (size_t i = 0; i < nParams && result == IPC_OK; i++) {
-      std::string msgName = 
-        formatMsgName(std::string(msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType)),
-                      dest);
-      result = IPC_publishData(msgName.c_str(), paramMsgs[i]);
+      char const *msgFormat = msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType);
+      std::string msgName;
+      if (!dest.empty()) {
+        msgName = formatMsgName(msgFormat, dest);
+        msgFormat = msgName.c_str();
+      }
+      debugMsg("IpcFacade:sendParameters", " using format " << msgFormat << " for parameter " << i);
+      result = IPC_publishData(msgFormat, paramMsgs[i]);
     }
 
     // free the parameter packets
@@ -940,13 +973,10 @@ namespace PLEXIL
     PlexilMsgType msgType = (PlexilMsgType) msgData->msgType;
     debugMsg("IpcFacade:messageHandler", " received message type = " << msgType);
     switch (msgType) {
-      // LookupNow and LookupOnChange are PlexilStringValueMsg
-      // Optionally followed by parameters
-
       // TODO: filter out commands/msgs we aren't prepared to handle
+
     case PlexilMsgType_Command:
     case PlexilMsgType_LookupNow:
-    case PlexilMsgType_LookupOnChange:
     case PlexilMsgType_PlannerUpdate:
     case PlexilMsgType_TelemetryValues:
       debugMsg("IpcFacade:messageHandler", "processing as multi-part message");
@@ -1038,6 +1068,8 @@ namespace PLEXIL
     msgs.push_back(msgData);
     // Have we got them all?
     if (msgs.size() > msgs[0]->count) {
+      debugMsg("IpcFacade:cacheMessageTrailer",
+               " delivering " << msgs.size() << " messages");
       deliverMessage(msgs);
       m_incompletes.erase(it);
     }

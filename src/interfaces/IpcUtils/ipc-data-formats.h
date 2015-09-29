@@ -276,14 +276,12 @@ typedef enum {
   /* PlexilMsgBase - 
    * These messages are complete unto themselves */
   PlexilMsgType_NotifyExec,
-  PlexilMsgType_TerminateChangeLookup,
 
   /* PlexilStringValueMsg -
    * These have an operation (or state) name and an argument count */
   PlexilMsgType_Command,
   PlexilMsgType_Message,
   PlexilMsgType_LookupNow,
-  PlexilMsgType_LookupOnChange,
   PlexilMsgType_TelemetryValues,
 
   /* PlexilReturnValuesMsg - 

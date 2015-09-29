@@ -370,7 +370,7 @@ namespace PLEXIL {
    * @return Pointer to newly allocated IPC message.
    * @note Returns NULL for unimplemented/invalid Values.
    */
-  extern PlexilMsgBase *constructPlexilValueMsg(Value const val);
+  extern struct PlexilMsgBase *constructPlexilValueMsg(Value const &val);
 
   /**
    * @brief Utility function to extract the value from a value message.
@@ -378,7 +378,7 @@ namespace PLEXIL {
    * @return The Value represented by the message.
    * @note The returned value will be unknown if the message is not a value message.
    */
-  extern Value getPlexilMsgValue(PlexilMsgBase const *msg);
+  extern Value getPlexilMsgValue(struct PlexilMsgBase const *msg);
 
 }
 
