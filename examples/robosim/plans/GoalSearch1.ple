@@ -5,7 +5,7 @@
 
 // Contributed by Sudhanshu Vias of Iowa State University.
 
-// Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -33,16 +33,17 @@
 Real[5] Command QueryGoalSensor(String name);
 Integer[4] Command QueryVisibilitySensor(String name);
 Integer Command Move(String name, Integer direction);
-
+Command pprint(...);
 
 GoalSearch:
 {
 	String RobotName = "RobotYellow";
-	Integer Direction;
-	Real RobotGoal[5];
-	Real HighestSensorVal;
-	Integer RobotVisibility[4];
-	while ((! isKnown(RobotGoal[4])) || RobotGoal[4] != 1) {
+    Boolean AtGoal = false;
+    Boolean Stuck = false;
+	while (!AtGoal && !Stuck) {
+        Real RobotGoal[5];
+
+        pprint("Read goal sensors");
 		ReadGoalSensors:
 		{
 			// Exit node only after sensor data is registered
@@ -50,98 +51,110 @@ GoalSearch:
 			RobotGoal = QueryGoalSensor(RobotName);
 		}
 
-		ReadVisibility: // Check if anything is blocking the path
-		{
-			EndCondition isKnown(RobotVisibility[0]);
-			RobotVisibility = QueryVisibilitySensor(RobotName);
-		}
+        CheckGoal:
+        if (RobotGoal[4] == 1) {
+            pprint("Reached goal");
+            AtGoal = true;
+        }
+        endif
 
-		InitReadSensor:
-		{
-			ReadUp:
-            // Set value to start a comparison
-			HighestSensorVal = RobotGoal[0];
+        if (!AtGoal) {
+            Integer RobotVisibility[4];
+            // Direction defaults to an invalid value.
+            // If the value remains -1 the robot will not move.
+            Integer Direction = -1;
 
-			ResetDir:
-			// Set direction to an invalid value. In 'Move' stage if the 
-			// value remains -1 the robot will not move.
-			Direction = -1;
-		}
+            pprint("Read visibility sensors");
+            ReadVisibility: // Check if anything is blocking the path
+            {
+                EndCondition isKnown(RobotVisibility[0]);
+                RobotVisibility = QueryVisibilitySensor(RobotName);
+            }
 
-		CompareSensors:
-		{
-			// Compare each Sensor value.
-			// If higher than previous store and change direction.
-			for (Integer i = 1; i < 4; i + 1) {
-				if (HighestSensorVal < RobotGoal[i]) {
-					SetVal:
-					HighestSensorVal = RobotGoal[i];
-					ChangeDir:
-					Direction = i;
-				}
-				endif
-			} // For
-		} // CompareSensors
+            CompareSensors:
+            {
+                Real HighestSensorVal;
+                HighestSensorVal = RobotGoal[4]; // value at current position
 
-		Move:
-		{
-			Integer Result;
-			EndCondition isKnown(Result);
-			if (Direction == -1)
-				if (HighestSensorVal == 0) 
-					//If direction invalid(-1)  do not move
-					Result = 0;
-				else 
-					MoveUp:
-					{
-						EndCondition isKnown(Result);
-						Result = Move(RobotName,0);
-					}
-			    endif
-				elseif (RobotVisibility[Direction] == 0) {
-				// Obstacle handling logic
-				TurnOne:
-				// Turn 90 degrees clockwise
-				Direction = Direction + 1; 
+                // Compare each Sensor value.
+                // If higher than previous store and change direction.
+                for (Integer i = 0; i < 4; i + 1) {
+                    if (HighestSensorVal < RobotGoal[i]) {
+                        HighestSensorVal = RobotGoal[i];
+                        Direction = i;
+                    }
+                    endif
+                } // For
+                pprint("Goal signal strongest in direction ", Direction);
+            } // CompareSensors
 
-				checkbound:
-				if (Direction > 3)
-					// Correct direction value if beyond 3,
-					// e.g. if previously moving left (3)and then turn 90
-					// degrees we must change the 4 to a 0 for up
-					Direction = Direction - 4; 
-				endif
+            Move:
+            {
+                Integer Result;
+                EndCondition isKnown(Result);
 
-				MakeTurnOne:
-				{
-					Integer move_turn1;
-					EndCondition isKnown(move_turn1);
-					for (Integer j = 0; j < 2; j + 1)
-						//move two paces in the new direction
-						move_turn1 = Move(RobotName,Direction);
-				}
-				DecideTurnTwo:
-				Direction = Direction + 1;             
-				checkturn: // Note should make as function or callable Node
-				if (Direction > 3)
-					Direction = Direction - 4;
-				endif
+                if (Direction == -1) {
+                    pprint("Can't find a good direction to move");
+                    Result = 0;
+                    Stuck = true;
+                }
+                elseif (RobotVisibility[Direction] == 0) {
+                    // Obstacle handling logic
+                    pprint("Attempting to avoid obstacle by turning clockwise");
 
-				TaketurnTwo:
-				{
-					// Using Result and not local variable to 
-					// satisfy Move Node's EndCondition.
-					EndCondition isKnown(Result);
-					for (Integer i = 0; i < 2; i + 1)
-						Result = Move(RobotName,Direction);
-				}
+                    TurnOne:
+                    // Turn 90 degrees clockwise
+                    Direction = (Direction + 1) % 4; 
+                    
+                    pprint("New direction is ", Direction);
 
-			} // End of obstacle handling logic
-			else
-				// No static obstacle
-				Result = Move(RobotName,Direction);
-			endif
-		} // End Move
+                    MakeTurnOne:
+                    for (Integer j = 0; j < 2; j + 1) {
+                        //move two paces in the new direction
+                        Integer move_turn1;
+                        EndCondition isKnown(move_turn1);
+                        move_turn1 = Move(RobotName,Direction);
+                    }
+                    DecideTurnTwo:
+                    Direction = (Direction + 1) % 4;             
+                    pprint("New direction is ", Direction);
+
+                    TaketurnTwo:
+                    {
+                        // Using Result and not local variable to 
+                        // satisfy Move Node's EndCondition.
+                        EndCondition isKnown(Result);
+                        for (Integer i = 0; i < 2; i + 1) {
+                            Integer move_turn2;
+                            {
+                                EndCondition isKnown(move_turn2);
+                                move_turn2 = Move(RobotName,Direction);
+                            }
+                            if (i == 1)
+                                Result = move_turn2;
+                            endif
+                                }
+                    }
+                } // End of obstacle handling logic
+                else {
+                    // No obstacle
+                    pprint("Moving in direction ", Direction);
+                    {
+                        EndCondition isKnown(Result);
+                        Result = Move(RobotName, Direction);
+                    }
+                }
+                endif
+                    } // End Move
+            pprint("Move complete");
+        }
+        endif // !AtGoal
 	} // End Loop
+
+    if (Stuck)
+        pprint("Unable to find path to goal");
+    else
+        pprint("Found goal!");
+    endif
 }
 
