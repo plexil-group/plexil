@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -85,21 +85,23 @@ void IpcRobotAdapter::registerRobot(const std::string& name,
 // Additional arguments are ignored.
 void IpcRobotAdapter::processCommand(const std::vector<const PlexilMsgBase*>& msgs)
 {
-  const std::string cmdName(((const PlexilStringValueMsg*)msgs[0])->stringValue);
+  PlexilStringValueMsg const *cmdMsg = (PlexilStringValueMsg const *) msgs[0];
+  const std::string cmdName(cmdMsg->stringValue);
   assertTrueMsg(msgs[0]->count >= 1,
-		"IpcRobotAdapter::processCommand: robot name argument missing for command \"" << cmdName << "\"");
+                "IpcRobotAdapter::processCommand: robot name argument missing for command \"" << cmdName << "\"");
+  assertTrueMsg(msgs.size() >= 2,
+                "IpcRobotAdapter::processCommand: internal error: not enough arguments to \""
+                << cmdName << "\" command");
   assertTrueMsg(msgs[1]->msgType == PlexilMsgType_StringValue,
-		"IpcRobotAdapter::processCommand: robot name argument for command \"" << cmdName << "\" is not a string");
-  checkError(msgs.size() >= 2,
-	     "IpcRobotAdapter::processCommand: internal error: not enough arguments to \""
-	     << cmdName << "\" command");
-  const std::string robotName(((const PlexilStringValueMsg*)msgs[1])->stringValue);
+                "IpcRobotAdapter::processCommand: robot name argument for command \"" << cmdName << "\" is not a string");
+  PlexilStringValueMsg const *nameMsg = (PlexilStringValueMsg const *) msgs[1];
+  const std::string robotName(nameMsg->stringValue);
   NameToRobotMap::const_iterator it = m_robots.find(robotName);
   assertTrueMsg(it != m_robots.end(),
-		"IpcRobotAdapter::processCommand: no robot named \"" << robotName << "\"");
+                "IpcRobotAdapter::processCommand: no robot named \"" << robotName << "\"");
   RobotBase* robot = it->second;
   assertTrueMsg(robot != NULL,
-		"IpcRobotAdapter::processCommand: robot named \"" << robotName << "\" is null!");
+                "IpcRobotAdapter::processCommand: robot named \"" << robotName << "\" is null!");
   IpcMessageId transId = IpcMessageId(msgs[0]->senderUID, msgs[0]->serial);
   double parameter = 0.0;
   // Check for missing parameter
@@ -121,6 +123,14 @@ void IpcRobotAdapter::processCommand(const std::vector<const PlexilMsgBase*>& ms
     condDebugMsg(msgs[0]->count > 1,
                  "IpcRobotAdapter:processCommand",
                  "Ignoring " << msgs[0]->count - 1 << " argument(s)");
+  }
+  if (msgs[0]->count > 1) {
+  debugMsg("IpcRobotAdapter:processCommand",
+           " processing " << cmdName << '(' << robotName << ", " << parameter << ')');
+  }
+  else {
+  debugMsg("IpcRobotAdapter:processCommand",
+           " processing " << cmdName << '(' << robotName << ')');
   }
   m_ipcFacade.publishReturnValues(transId.second, transId.first,
                                   robot->processCommand(cmdName, parameter));
