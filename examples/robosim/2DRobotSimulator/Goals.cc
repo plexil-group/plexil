@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,8 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Debug.hh"
+
 #include <climits>
 #include <cmath>
 
@@ -35,6 +37,7 @@ Goals::Goals(int _size, double _radius) : m_TerrainSize(_size), m_Radius(_radius
 {
   readGoalLocations();
 }
+
 Goals::~Goals()
 {
 }
@@ -69,20 +72,29 @@ double Goals::determineGoalLevel(int rowCurr, int colCurr) const
   // Loop through each goal and return the max.
   
   double maxValue = -1.0 * static_cast<double>(INT_MAX);
+  int bestRow = 0, bestCol = 0;
   
-  for (unsigned int i = 0; i < m_GoalLocations.size(); ++i)
-    {
-      int row = m_GoalLocations[i][0];
-      int col = m_GoalLocations[i][1];
+  for (unsigned int i = 0; i < m_GoalLocations.size(); ++i) {
+    int row = m_GoalLocations[i][0];
+    int col = m_GoalLocations[i][1];
       
-      // Get Euclidean distance
-      double d = EUCLIDEAN_DISTANCE(rowCurr, colCurr, row, col);
+    // Get Euclidean distance
+    double d = EUCLIDEAN_DISTANCE(rowCurr, colCurr, row, col);
       
-      // linearly interpolate value of distance is < m_Radius. Else = 0;
-      double rValue = (d < m_Radius) ? (1.0 - d / m_Radius) : 0.0;
+    // linearly interpolate value at distance if < m_Radius. Else = 0;
+    double rValue = (d < m_Radius) ? 1.0 - d / m_Radius : 0.0;
       
-      if (rValue > maxValue) maxValue = rValue;
+    if (rValue > maxValue) {
+      maxValue = rValue;
+      bestRow = row;
+      bestCol = col;
     }
+  }
+
+  debugMsg("Goals:determineGoalLevel",
+           " at " << rowCurr << ", " << colCurr
+           << " best goal is at " << bestRow << ", " << bestCol
+           << ", value = " << maxValue);
   
   return maxValue;
 }
