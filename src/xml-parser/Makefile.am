@@ -43,8 +43,19 @@ libPlexilXmlParser_la_SOURCES = ArithmeticFunctionFactory.cc \
  parsePlan.cc parser-utils.cc planLibrary.cc PlexilSchema.cc updateXmlParser.cc \
  UserVariableFactory.cc
 
+bin_PROGRAMS = analyzePlan
+
+analyzePlan_SOURCES = analyzePlan.cc
+analyzePlan_LDADD = libPlexilXmlParser.la \
+ ../third-party/pugixml/src/libpugixml.la ../exec/libPlexilExec.la \
+ ../intfc/libPlexilIntfc.la ../expr/libPlexilExpr.la ../value/libPlexilValue.la \
+ ../utils/libPlexilUtils.la
+analyzePlan_CPPFLAGS = -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
+ -I@top_srcdir@/value -I@top_srcdir@/utils
+
 if MODULE_TESTS_OPT
-  bin_PROGRAMS = test/parser-module-tests test/benchmark
+  bin_PROGRAMS += test/parser-module-tests test/benchmark
   noinst_HEADERS =
   test_parser_module_tests_SOURCES = test/parser-test-module.cc \
    test/FactoryTestNodeConnector.cc test/TrivialNodeConnector.cc \
