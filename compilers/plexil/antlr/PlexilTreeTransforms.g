@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -84,6 +84,7 @@ bottomup:
     |   leftAssociativeReduction
     |   rightAssociativeReduction
     |   identityElision
+    |   booleanEqualityReduction
     |   trivialReduction    
     |   flattenTrivialBlocks
     |   flattenTrivialConcurrences
@@ -164,6 +165,17 @@ identityElision:
     |   ^(ASTERISK (args+=.)* d=DOUBLE (args+=.)* {Double.valueOf($d.text) == 1}?) -> ^(ASTERISK $args*)
     |   ^(SLASH (args+=.)+ i=INT (args+=.)* {Integer.valueOf($i.text) == 1}?) -> ^(SLASH $args*)
     |   ^(SLASH (args+=.)+ d=DOUBLE (args+=.)* {Double.valueOf($d.text) == 1}?) -> ^(SLASH $args*)
+    ;
+
+booleanEqualityReduction:
+        ^(DEQUALS arg=. TRUE_KYWD) -> $arg
+    |   ^(DEQUALS TRUE_KYWD arg=.) -> $arg
+    |   ^(DEQUALS arg=. FALSE_KYWD) -> ^(NOT_KYWD $arg)
+    |   ^(DEQUALS FALSE_KYWD arg=.) -> ^(NOT_KYWD $arg)
+    |   ^(NEQUALS arg=. FALSE_KYWD) -> $arg
+    |   ^(NEQUALS FALSE_KYWD arg=.) -> $arg
+    |   ^(NEQUALS arg=. TRUE_KYWD) -> ^(NOT_KYWD $arg)
+    |   ^(NEQUALS TRUE_KYWD arg=.) -> ^(NOT_KYWD $arg)
     ;
 
 // Block flattening
