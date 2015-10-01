@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -40,7 +40,6 @@ public class BlockNode extends PlexilTreeNode
 
     // Components of the block
     PlexilTreeNode m_comment = null;
-    Vector<PlexilTreeNode> m_declarations = null;
     Vector<PlexilTreeNode> m_conditions = null;
     Vector<PlexilTreeNode> m_attributes = null;
     Vector<PlexilTreeNode> m_resources = null;
@@ -55,7 +54,6 @@ public class BlockNode extends PlexilTreeNode
     {
         super(n);
 		m_comment = n.m_comment;
-		m_declarations = n.m_declarations;
 		m_conditions = n.m_conditions;
 		m_attributes = n.m_attributes;
 		m_resources = n.m_resources;
@@ -154,7 +152,6 @@ public class BlockNode extends PlexilTreeNode
 
     private void partitionChildren()
     {
-        m_declarations = new Vector<PlexilTreeNode>();
         m_conditions = new Vector<PlexilTreeNode>();
         m_attributes = new Vector<PlexilTreeNode>();
         m_resources = new Vector<PlexilTreeNode>();
@@ -172,7 +169,7 @@ public class BlockNode extends PlexilTreeNode
                 case PlexilLexer.IN_KYWD:
                 case PlexilLexer.IN_OUT_KYWD:
                 case PlexilLexer.VARIABLE_DECLARATIONS:
-                    m_declarations.add(child);
+                    // declarations take care of themselves
                     break;
 
                 case PlexilLexer.END_CONDITION_KYWD:
