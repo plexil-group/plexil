@@ -53,9 +53,13 @@ using PLEXIL::PlexilNodeType;
 static unsigned int g_nodeCount = 0;
 
 static unsigned int g_nodeTypeCounts[NodeType_error];
+static unsigned int g_conditionCounts[Node::conditionIndexMax];
+static unsigned int g_conditionCountNodes[Node::conditionIndexMax];
+static unsigned int g_conditionCountListNodes[Node::conditionIndexMax];
 
-// Initialize to a semi-sane value
+// Initialize to semi-sane values
 static std::vector<unsigned int> g_nodeChildCounts(16, 0);
+static std::vector<unsigned int> g_nodeVariableCounts(16, 0);
 
 typedef std::map<std::string, unsigned int> LibraryCallMap;
 typedef std::pair<std::string, unsigned int> LibraryCallEntry;
@@ -69,6 +73,13 @@ static void incrementNodeChildCount(unsigned int nKids)
   if (nKids >= g_nodeChildCounts.size())
     g_nodeChildCounts.resize(nKids * 2, 0); // grow rapidly to minimize resizing
   ++g_nodeChildCounts[nKids];
+}
+
+static void incrementNodeVariableCount(unsigned int nVars)
+{
+  if (nVars >= g_nodeVariableCounts.size())
+    g_nodeVariableCounts.resize(nVars * 2, 0); // grow rapidly to minimize resizing
+  ++g_nodeVariableCounts[nVars];
 }
 
 static void incrementLibraryCallCount(std::string const &name)
@@ -87,6 +98,13 @@ static void initializeStatistics()
   for (size_t i = 0; i < NodeType_error; ++i)
     g_nodeTypeCounts[i] = 0;
   g_nodeChildCounts.clear();
+  g_nodeVariableCounts.clear();
+  for (size_t i = 0; i < Node::conditionIndexMax; ++i)
+    g_conditionCounts[i] = 0;
+  for (size_t i = 0; i < Node::conditionIndexMax; ++i)
+    g_conditionCountNodes[i] = 0;
+  for (size_t i = 0; i < Node::conditionIndexMax; ++i)
+    g_conditionCountListNodes[i] = 0;
   g_calledLibs.clear();
 }
 
@@ -94,17 +112,39 @@ static void initializeStatistics()
 static void getNodeStatistics(Node const *node)
 {
   ++g_nodeCount;
+
+  // Count node type
   PlexilNodeType typ = node->getType();
   ++g_nodeTypeCounts[typ];
+
+  // Count variables
+  incrementNodeVariableCount(const_cast<Node *>(node)->getLocalVariables().size());
+
+  // Count total conditions on this node
+  size_t nConds = 0;
+  for (size_t i = 0 ; i < Node::conditionIndexMax; ++i) 
+    if (node->getCondition(i)) {
+      ++nConds;
+      ++g_conditionCounts[i];
+    }
+  ++g_conditionCountNodes[nConds];
+  if (typ == NodeType_NodeList)
+    ++g_conditionCountListNodes[nConds];
+
+  // Count children
   std::vector<Node *> const &kids = node->getChildren();
   incrementNodeChildCount(kids.size());
+
   switch (typ) {
   case NodeType_LibraryNodeCall:
     incrementLibraryCallCount(kids.front()->getNodeId());
     ++g_currentCallDepth;
     if (g_currentCallDepth > g_maxCallDepth)
       g_maxCallDepth = g_currentCallDepth;
+
+    // Recurse on child
     getNodeStatistics(kids.front());
+
     --g_currentCallDepth;
     break;
 
@@ -124,14 +164,14 @@ static void getNodeStatistics(Node const *node)
 static void reportLibraryStatistics()
 {
   if (!g_calledLibs.empty()) {
-    std::cout << "--- Libraries ---\n\n";
+    std::cout << "\n--- Libraries ---\n\n";
+    std::cout << "Maximum library call depth: " << g_maxCallDepth << "\n\n";
     std::cout << g_calledLibs.size() << " libraries called:\n\n";
     for (LibraryCallMap::const_iterator it = g_calledLibs.begin();
          it != g_calledLibs.end();
          ++it)
       std::cout << it->first << " called " << it->second << " times\n";
     std::cout << '\n';
-    std::cout << "Maximum library call depth: " << g_maxCallDepth << "\n\n";
   }
 }
 
@@ -139,16 +179,46 @@ static void reportStatistics()
 {
   std::cout << '\n';
   std::cout << g_nodeCount << " total nodes\n";
+
   std::cout << "\n--- Node Type Counts --- \n\n";
   for (size_t i = NodeType_NodeList; i < NodeType_error; ++i)
     if (g_nodeTypeCounts[i])
       std::cout << nodeTypeString((PlexilNodeType) i) << ": " << g_nodeTypeCounts[i] << '\n';
+  std::cout << '\n';
+
+  std::cout << "\n--- Node Variable Counts --- \n\n";
+  for (size_t i = 0; i < g_nodeVariableCounts.size(); ++i)
+    if (g_nodeVariableCounts[i])
+      std::cout << g_nodeVariableCounts[i] << " nodes with " << i << " variables\n";
+  std::cout << '\n';
+
   std::cout << "\n--- Node Child Counts --- \n\n";
   std::cout << g_nodeChildCounts[0] << " leaf nodes\n";
   std::cout << g_nodeChildCounts[1] << " nodes with 1 child (includes library calls)\n";
   for (size_t i = 2; i < g_nodeChildCounts.size(); ++i)
     if (g_nodeChildCounts[i])
       std::cout << g_nodeChildCounts[i] << " nodes with " << i << " children\n";
+  std::cout << '\n';
+
+  std::cout << "\n--- Nodes With Specific Conditions --- \n\n";
+  for (size_t i = 0; i < Node::conditionIndexMax; ++i) {
+    std::cout << g_conditionCounts[i] << " nodes with "
+	      << Node::getConditionName(i) << '\n';
+  }
+  std::cout << '\n';
+
+  std::cout << "\n--- Total Node Condition Counts --- \n\n";
+  for (size_t i = 0; i < Node::conditionIndexMax; ++i) {
+    if (g_conditionCountNodes[i])  
+      std::cout << g_conditionCountNodes[i] << " nodes with " << i << " conditions\n";
+  }
+  std::cout << '\n';
+
+  std::cout << "\n--- List Node Condition Counts --- \n\n";
+  for (size_t i = 0; i < Node::conditionIndexMax; ++i) {
+    if (g_conditionCountListNodes[i])  
+      std::cout << g_conditionCountListNodes[i] << " nodes with " << i << " conditions\n";
+  }
   std::cout << '\n';
 
   reportLibraryStatistics();
