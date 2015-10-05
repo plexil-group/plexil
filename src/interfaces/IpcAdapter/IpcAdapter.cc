@@ -574,7 +574,7 @@ namespace PLEXIL
     it->second = args[1];
     //send telemetry
     std::vector<Value> result_and_args(nargs - 1);
-    for (size_t i = 1; i < nargs; ++i)
+    for (size_t i = 1; i <= nargs; ++i)
       result_and_args[i - 1] = args[i];
     assertTrueMsg(m_ipcFacade.publishTelemetry(*lookupName, result_and_args)
                   != IpcFacade::ERROR_SERIAL(),
@@ -821,7 +821,7 @@ namespace PLEXIL
 
     // Extract state parameters from trailing messages
     State state(stateName, nValues - 1);
-    for (size_t i = 1; i < nValues; ++i)
+    for (size_t i = 1; i <= nValues; ++i)
       state.setParameter(i - 1, getPlexilMsgValue(msgs[i]));
     
     debugMsg("IpcAdapter:handleTelemetryValuesSequence",
@@ -915,7 +915,7 @@ namespace PLEXIL
     std::string name(msg->stringValue);
     size_t nParms = msgs.front()->count - 1;
     State lookup(name, nParms);
-    for (size_t i = 1 ; i < nParms ; ++i)
+    for (size_t i = 1 ; i <= nParms ; ++i)
       lookup.setParameter(i - 1, getPlexilMsgValue(msgs[i]));
 
     ThreadMutexGuard guard(m_cmdMutex);
