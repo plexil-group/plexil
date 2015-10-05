@@ -913,7 +913,7 @@ namespace PLEXIL
     debugMsg("IpcAdapter:handleLookupNow", " received LookupNow");
     const PlexilStringValueMsg* msg = reinterpret_cast<const PlexilStringValueMsg*> (msgs.front());
     std::string name(msg->stringValue);
-    size_t nParms = msgs.front()->count - 1;
+    size_t nParms = msgs.front()->count;
     State lookup(name, nParms);
     for (size_t i = 1 ; i <= nParms ; ++i)
       lookup.setParameter(i - 1, getPlexilMsgValue(msgs[i]));
