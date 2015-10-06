@@ -43,44 +43,62 @@
 #include <string>
 #include <cstring>
 
+using PLEXIL::Expression;
 using PLEXIL::Node;
 using PLEXIL::NodeType_error;
 using PLEXIL::NodeType_NodeList;
 using PLEXIL::NodeType_LibraryNodeCall;
 using PLEXIL::nodeTypeString;
+using PLEXIL::NotifierImpl;
 using PLEXIL::PlexilNodeType;
 
-static unsigned int g_nodeCount = 0;
+static size_t g_nodeCount = 0;
 
-static unsigned int g_nodeTypeCounts[NodeType_error];
-static unsigned int g_conditionCounts[Node::conditionIndexMax];
-static unsigned int g_conditionCountNodes[Node::conditionIndexMax];
-static unsigned int g_conditionCountListNodes[Node::conditionIndexMax];
+static size_t g_nodeTypeCounts[NodeType_error];
+static size_t g_conditionCounts[Node::conditionIndexMax];
+static size_t g_conditionCountNodes[Node::conditionIndexMax];
+static size_t g_conditionCountListNodes[Node::conditionIndexMax];
 
 // Initialize to semi-sane values
-static std::vector<unsigned int> g_nodeChildCounts(16, 0);
-static std::vector<unsigned int> g_nodeVariableCounts(16, 0);
+static std::vector<size_t> g_nodeChildCounts(16, 0);
+static std::vector<size_t> g_nodeVariableCounts(16, 0);
+#ifdef RECORD_EXPRESSION_STATS
+static std::vector<size_t> g_expressionListenerCounts(256, 0);
+static size_t g_listenerHighWater = 0;
+static NotifierImpl const *g_highWaterExpression = NULL;
+#endif
 
-typedef std::map<std::string, unsigned int> LibraryCallMap;
-typedef std::pair<std::string, unsigned int> LibraryCallEntry;
+typedef std::map<std::string, size_t> LibraryCallMap;
+typedef std::pair<std::string, size_t> LibraryCallEntry;
 LibraryCallMap g_calledLibs;
 
-static unsigned int g_currentCallDepth = 0;
-static unsigned int g_maxCallDepth = 0;
+static size_t g_currentCallDepth = 0;
+static size_t g_maxCallDepth = 0;
 
-static void incrementNodeChildCount(unsigned int nKids)
+static void incrementNodeChildCount(size_t nKids)
 {
   if (nKids >= g_nodeChildCounts.size())
     g_nodeChildCounts.resize(nKids * 2, 0); // grow rapidly to minimize resizing
   ++g_nodeChildCounts[nKids];
 }
 
-static void incrementNodeVariableCount(unsigned int nVars)
+static void incrementNodeVariableCount(size_t nVars)
 {
   if (nVars >= g_nodeVariableCounts.size())
     g_nodeVariableCounts.resize(nVars * 2, 0); // grow rapidly to minimize resizing
   ++g_nodeVariableCounts[nVars];
 }
+
+#ifdef RECORD_EXPRESSION_STATS
+
+static void incrementExpressionListenerCount(size_t nVars)
+{
+  if (nVars >= g_expressionListenerCounts.size())
+    g_expressionListenerCounts.resize(nVars * 2, 0); // grow rapidly to minimize resizing
+  ++g_expressionListenerCounts[nVars];
+}
+
+#endif
 
 static void incrementLibraryCallCount(std::string const &name)
 {
@@ -99,6 +117,9 @@ static void initializeStatistics()
     g_nodeTypeCounts[i] = 0;
   g_nodeChildCounts.clear();
   g_nodeVariableCounts.clear();
+#ifdef RECORD_EXPRESSION_STATS
+  g_expressionListenerCounts.clear();
+#endif
   for (size_t i = 0; i < Node::conditionIndexMax; ++i)
     g_conditionCounts[i] = 0;
   for (size_t i = 0; i < Node::conditionIndexMax; ++i)
@@ -106,6 +127,38 @@ static void initializeStatistics()
   for (size_t i = 0; i < Node::conditionIndexMax; ++i)
     g_conditionCountListNodes[i] = 0;
   g_calledLibs.clear();
+}
+
+static Expression const *getNodeCondition(Node const *node, size_t idx)
+{
+  switch (idx) {
+  case Node::ancestorExitIdx:
+  case Node::ancestorInvariantIdx:
+  case Node::ancestorEndIdx: {
+    std::vector<Node *> const &kids = node->getChildren();
+    if (kids.empty())
+      return NULL;
+    return (const_cast<Node const *>(kids.front()))->getCondition(idx);
+  }
+
+  default:
+    return node->getCondition(idx);
+  }
+
+}
+
+static void getConditionStatistics(Node const *node)
+{
+  // Count total conditions on this node
+  size_t nConds = 0;
+  for (size_t i = 0 ; i < Node::conditionIndexMax; ++i) 
+    if (getNodeCondition(node, i)) {
+      ++nConds;
+      ++g_conditionCounts[i];
+    }
+  ++g_conditionCountNodes[nConds];
+  if (node->getType() == NodeType_NodeList)
+    ++g_conditionCountListNodes[nConds];
 }
 
 // Recursive function for plan traversal
@@ -120,16 +173,7 @@ static void getNodeStatistics(Node const *node)
   // Count variables
   incrementNodeVariableCount(const_cast<Node *>(node)->getLocalVariables().size());
 
-  // Count total conditions on this node
-  size_t nConds = 0;
-  for (size_t i = 0 ; i < Node::conditionIndexMax; ++i) 
-    if (node->getCondition(i)) {
-      ++nConds;
-      ++g_conditionCounts[i];
-    }
-  ++g_conditionCountNodes[nConds];
-  if (typ == NodeType_NodeList)
-    ++g_conditionCountListNodes[nConds];
+  getConditionStatistics(node);
 
   // Count children
   std::vector<Node *> const &kids = node->getChildren();
@@ -157,6 +201,22 @@ static void getNodeStatistics(Node const *node)
   }
 }
 
+#ifdef RECORD_EXPRESSION_STATS
+static void getExpressionStatistics()
+{
+  std::vector<NotifierImpl *> const &exprs = NotifierImpl::getInstances();
+  size_t nExprs = exprs.size();
+  for (size_t i = 0; i < nExprs; ++i) {
+    size_t listeners = exprs[i]->getListenerCount();
+    if (listeners > g_listenerHighWater) {
+      g_listenerHighWater = listeners;
+      g_highWaterExpression = exprs[i];
+    }
+    incrementExpressionListenerCount(listeners);
+  }
+}
+#endif
+
 //
 // Reporting
 //
@@ -174,6 +234,21 @@ static void reportLibraryStatistics()
     std::cout << '\n';
   }
 }
+
+#ifdef RECORD_EXPRESSION_STATS
+static void reportExpressionStatistics()
+{
+  std::cout << "\n--- Expression Listener Counts --- \n\n";
+  std::cout << NotifierImpl::getInstances().size() << " expressions with listeners\n\n";
+  std::cout << "Expression " << *g_highWaterExpression
+            << "\n has largest count of listeners, " << g_listenerHighWater << "\n\n";
+  size_t ncounts = g_expressionListenerCounts.size();
+  for (size_t i = 0; i < ncounts; ++i)
+    if (g_expressionListenerCounts[i])
+      std::cout << g_expressionListenerCounts[i] << " expressions with " << i << " listeners\n";
+  std::cout << '\n';
+}
+#endif
 
 static void reportStatistics()
 {
@@ -222,10 +297,10 @@ static void reportStatistics()
   std::cout << '\n';
 
   reportLibraryStatistics();
-}
 
-static void cleanUpStatistics()
-{
+#ifdef RECORD_EXPRESSION_STATS
+  reportExpressionStatistics();
+#endif
 }
 
 static void loadAndAnalyzePlan(std::string const &planFile)
@@ -240,10 +315,13 @@ static void loadAndAnalyzePlan(std::string const &planFile)
   // Analyze plan
   initializeStatistics();
   getNodeStatistics(root);
+#ifdef RECORD_EXPRESSION_STATS
+  getExpressionStatistics();
+#endif
+
   reportStatistics();
 
   // Clean up
-  cleanUpStatistics();
   delete root;
   delete doc;
 }
