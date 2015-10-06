@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -76,6 +76,7 @@ namespace PLEXIL
     bool isConstant() const;
     virtual const char *exprName() const;
     void printValue(std::ostream &s) const;
+    void printSubexpressions(std::ostream &s) const;
 
     // Common behavior required by NotifierImpl
     void handleActivate();

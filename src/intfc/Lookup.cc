@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,14 +47,21 @@ namespace PLEXIL
       m_entry(NULL),
       m_known(false),
       m_stateKnown(false),
-      m_stateIsConstant(false),
+      m_stateIsConstant(true),
       m_stateNameIsGarbage(stateNameIsGarbage)
   {
     assertTrue_2(stateName, "Lookup constructor: Null state name expression");
-    if (!m_stateName->isConstant())
+    if (!m_stateName->isConstant()) {
       m_stateName->addListener(this);
-    if (m_paramVec)
+      m_stateIsConstant = false;
+    }
+    if (m_paramVec) {
       m_paramVec->addListener(this);
+      for (size_t i = 0; i < m_paramVec->size(); ++i)
+        if (!(*m_paramVec)[i]->isConstant())
+          m_stateIsConstant = false;
+    }
+    
     // TODO: If all expressions are constants, can cache state now
   }
 
@@ -95,8 +102,17 @@ namespace PLEXIL
     s << this->toValue();
   }
 
-  // TODO:
-  // - potential for optimization in the case of constant states
+  void Lookup::printSubexpressions(std::ostream &s) const
+  {
+    s << " name " << *m_stateName;
+    if (m_paramVec) {
+      s << " params";
+      for (size_t i = 0; i < m_paramVec->size(); ++i)
+        s << ' ' << *(*m_paramVec)[i];
+    }
+    s << ' ';
+  }
+
   void Lookup::handleActivate()
   {
     // Activate all subexpressions
@@ -115,8 +131,6 @@ namespace PLEXIL
       m_entry->registerLookup(this);
   }
 
-  // TODO:
-  // - potential for optimization in the case of constant states
   void Lookup::handleDeactivate()
   {
     // Dectivate all subexpressions
@@ -126,7 +140,10 @@ namespace PLEXIL
 
     if (m_stateKnown)
       m_entry->unregisterLookup(this);
-    m_entry = NULL;
+
+    // Preserve cache entry if state is known constant
+    if (!m_stateIsConstant)
+      m_entry = NULL;
   }
 
   // Called whenever state name or parameter changes
