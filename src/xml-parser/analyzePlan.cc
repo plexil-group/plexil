@@ -64,6 +64,7 @@ static std::vector<size_t> g_nodeChildCounts(16, 0);
 static std::vector<size_t> g_nodeVariableCounts(16, 0);
 #ifdef RECORD_EXPRESSION_STATS
 static std::vector<size_t> g_expressionListenerCounts(256, 0);
+static size_t g_expressionCount = 0;
 static size_t g_listenerHighWater = 0;
 static NotifierImpl const *g_highWaterExpression = NULL;
 #endif
@@ -118,6 +119,7 @@ static void initializeStatistics()
   g_nodeChildCounts.clear();
   g_nodeVariableCounts.clear();
 #ifdef RECORD_EXPRESSION_STATS
+  g_expressionCount = 0;
   g_expressionListenerCounts.clear();
 #endif
   for (size_t i = 0; i < Node::conditionIndexMax; ++i)
@@ -204,13 +206,12 @@ static void getNodeStatistics(Node const *node)
 #ifdef RECORD_EXPRESSION_STATS
 static void getExpressionStatistics()
 {
-  std::vector<NotifierImpl *> const &exprs = NotifierImpl::getInstances();
-  size_t nExprs = exprs.size();
-  for (size_t i = 0; i < nExprs; ++i) {
-    size_t listeners = exprs[i]->getListenerCount();
+  for (NotifierImpl const *it = NotifierImpl::getInstanceList(); it; it = it->next()) {
+    ++g_expressionCount;
+    size_t listeners = it->getListenerCount();
     if (listeners > g_listenerHighWater) {
       g_listenerHighWater = listeners;
-      g_highWaterExpression = exprs[i];
+      g_highWaterExpression = it;
     }
     incrementExpressionListenerCount(listeners);
   }
@@ -239,7 +240,7 @@ static void reportLibraryStatistics()
 static void reportExpressionStatistics()
 {
   std::cout << "\n--- Expression Listener Counts --- \n\n";
-  std::cout << NotifierImpl::getInstances().size() << " expressions with listeners\n\n";
+  std::cout << g_expressionCount << " expressions with listeners\n\n";
   std::cout << "Expression " << *g_highWaterExpression
             << "\n has largest count of listeners, " << g_listenerHighWater << "\n\n";
   size_t ncounts = g_expressionListenerCounts.size();

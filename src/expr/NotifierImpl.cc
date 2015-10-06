@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ namespace PLEXIL {
 
   // Static initialization
 #ifdef RECORD_EXPRESSION_STATS
-  std::vector<NotifierImpl *> NotifierImpl::s_instances;
+  NotifierImpl *NotifierImpl::s_instanceList = NULL;
 #endif
 
   NotifierImpl::NotifierImpl()
@@ -48,7 +48,11 @@ namespace PLEXIL {
       m_outgoingListeners()
   {
 #ifdef RECORD_EXPRESSION_STATS
-    s_instances.push_back(this);
+    m_prev = NULL;
+    m_next = s_instanceList;
+    s_instanceList = this;
+    if (m_next)
+      m_next->m_prev = this;
 #endif
   }
 
@@ -57,8 +61,14 @@ namespace PLEXIL {
     assertTrue_2(m_outgoingListeners.empty(),
                  "Error: Expression still has outgoing listeners.");
 #ifdef RECORD_EXPRESSION_STATS
-    // FIXME: This is insanely expensive - O(n^2) or worse
-    s_instances.erase(std::find(s_instances.begin(), s_instances.end(), this));
+    // Delete this from instance list
+    if (m_prev)
+      m_prev->m_next = m_next; // may be null
+    else
+      s_instanceList = m_next; // this was newest - next may be null
+
+    if (m_next)
+      m_next->m_prev = m_prev; // may be null
 #endif
   }
 
@@ -148,15 +158,20 @@ namespace PLEXIL {
         (*it)->notifyChanged(src);
   }
 
-#ifdef RECORD_EXPRESSION_STATS
   size_t NotifierImpl::getListenerCount() const
   {
     return m_outgoingListeners.size();
   }
-  
-  std::vector<NotifierImpl *> const &NotifierImpl::getInstances()
+
+#ifdef RECORD_EXPRESSION_STATS
+  NotifierImpl const *NotifierImpl::next() const
   {
-    return s_instances;
+    return m_next;
+  }
+  
+  NotifierImpl const *NotifierImpl::getInstanceList()
+  {
+    return s_instanceList;
   }
 #endif
 

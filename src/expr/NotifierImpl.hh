@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,9 @@
 #include <cstddef> // size_t
 
 // Uncomment this to enable data gathering.
-// Note that this is VERY expensive. Not for production use.
-//#define RECORD_EXPRESSION_STATS 1
+// Note that deleting instance is expensive when this is enabled.
+// Not for production use.
+#define RECORD_EXPRESSION_STATS 1
 
 namespace PLEXIL {
 
@@ -97,15 +98,18 @@ namespace PLEXIL {
      */
     void notifyChanged(Expression const *src);
 
-#ifdef RECORD_EXPRESSION_STATS    
-
     size_t getListenerCount() const;
 
+#ifdef RECORD_EXPRESSION_STATS    
     /**
-     * @brief Get the largest number of listeners to this point.
+     * @brief Get head of list of instances.
      */
-    static std::vector<NotifierImpl *> const &getInstances();
+    static NotifierImpl const *getInstanceList();
 
+    /**
+     * @brief Get next in instance list
+     */
+    NotifierImpl const *next() const;
 #endif
 
   protected:
@@ -151,7 +155,10 @@ namespace PLEXIL {
     std::vector<ExpressionListener *> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
 
 #ifdef RECORD_EXPRESSION_STATS
-    static std::vector<NotifierImpl *> s_instances;
+    NotifierImpl *m_prev; // pointer to newer instance
+    NotifierImpl *m_next; // pointer to older instance
+
+    static NotifierImpl *s_instanceList;
 #endif
     
   };
