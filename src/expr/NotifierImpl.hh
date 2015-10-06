@@ -33,9 +33,8 @@
 #include <cstddef> // size_t
 
 // Uncomment this to enable data gathering.
-// Note that deleting instance is expensive when this is enabled.
-// Not for production use.
-#define RECORD_EXPRESSION_STATS 1
+// Not intended for production use.
+// #define RECORD_EXPRESSION_STATS 1
 
 namespace PLEXIL {
 
