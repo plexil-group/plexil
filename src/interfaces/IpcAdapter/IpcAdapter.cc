@@ -574,7 +574,7 @@ namespace PLEXIL
     it->second = args[1];
     //send telemetry
     std::vector<Value> result_and_args(nargs - 1);
-    for (size_t i = 1; i <= nargs; ++i)
+    for (size_t i = 1; i < nargs; ++i)
       result_and_args[i - 1] = args[i];
     assertTrueMsg(m_ipcFacade.publishTelemetry(*lookupName, result_and_args)
                   != IpcFacade::ERROR_SERIAL(),
@@ -818,16 +818,20 @@ namespace PLEXIL
     size_t nValues = msgs[0]->count;
     checkError(nValues > 0,
                "Telemetry values message requires at least 1 value");
+    checkError(nValues + 1 == msgs.size(),
+               "handleTelemetryValuesSequence: Expecting " << nValues + 1 << " messages, got " << msgs.size());
+
+    // Result is next in sequence
+    Value result = getPlexilMsgValue(msgs[1]);
 
     // Extract state parameters from trailing messages
     State state(stateName, nValues - 1);
-    for (size_t i = 1; i <= nValues; ++i)
-      state.setParameter(i - 1, getPlexilMsgValue(msgs[i]));
+    for (size_t i = 2; i <= nValues; ++i)
+      state.setParameter(i - 2, getPlexilMsgValue(msgs[i]));
     
     debugMsg("IpcAdapter:handleTelemetryValuesSequence",
              " state \"" << stateName << "\" found, processing");
 
-    Value result = getPlexilMsgValue(msgs[1]);
     // Check to see if a LookupNow is waiting on this value
     {
       ThreadMutexGuard g(m_cmdMutex);
