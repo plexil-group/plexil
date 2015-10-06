@@ -326,6 +326,9 @@ namespace PLEXIL
     //* @brief Cache of ack and return value variables for commands we sent
     PendingCommandsMap m_pendingCommands;
 
+    //* @brief Stores names of declared external lookups
+    std::vector<std::string> m_externalLookupNames;
+
     //* @brief Map of external lookup values.
     ExternalLookupMap m_externalLookups;
 
