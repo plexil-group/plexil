@@ -56,6 +56,7 @@ namespace PLEXIL
     InterfaceAdapter(execInterface),
     m_ipcFacade(),
     m_messageQueues(execInterface),
+    m_externalLookupNames(),
     m_externalLookups(),
     m_listener(*this),
     m_lookupSem(),
@@ -76,6 +77,7 @@ namespace PLEXIL
     InterfaceAdapter(execInterface, xml),
     m_ipcFacade(),
     m_messageQueues(execInterface),
+    m_externalLookupNames(),
     m_externalLookups(),
     m_listener(*this),
     m_lookupSem(),
@@ -563,23 +565,40 @@ namespace PLEXIL
     // Extract state from command parameters
     std::string const *lookupName;
     args.front().getValuePointer(lookupName);
+    // Warn, but do not crash, if not declared
+    if (std::find(m_externalLookupNames.begin(),
+                  m_externalLookupNames.end(),
+                  *lookupName)
+        == m_externalLookupNames.end()) {
+      warn("IpcAdapter: The external lookup " << *lookupName << " is not declared. Ignoring UpdateLookup command.");
+      m_execInterface.handleCommandAck(command, COMMAND_FAILED);
+      m_execInterface.notifyOfExternalEvent();
+      return;
+    }
+      
     State state(*lookupName, nargs - 2);
     for (size_t i = 2; i < nargs; ++i)
       state.setParameter(i - 2, args[i]);
 
-    ExternalLookupMap::iterator it = m_externalLookups.find(state);
-    assertTrueMsg(it != m_externalLookups.end(),
-                  "IpcAdapter: The external lookup " << state << " is not defined");
     //Set value internally
-    it->second = args[1];
+    m_externalLookups[state] = args[1];
+    // Notify internal users, if any
+    m_execInterface.handleValueChange(state, args[1]);
+
     //send telemetry
     std::vector<Value> result_and_args(nargs - 1);
     for (size_t i = 1; i < nargs; ++i)
       result_and_args[i - 1] = args[i];
-    assertTrueMsg(m_ipcFacade.publishTelemetry(*lookupName, result_and_args)
-                  != IpcFacade::ERROR_SERIAL(),
-                  "IpcAdapter: publishTelemetry returned status \"" << m_ipcFacade.getError() << "\"");
-    m_execInterface.handleCommandAck(command, COMMAND_SUCCESS);
+    if (m_ipcFacade.publishTelemetry(*lookupName, result_and_args)
+        == IpcFacade::ERROR_SERIAL()) {
+      warn("IpcAdapter: publishTelemetry returned status \"" << m_ipcFacade.getError() << "\"");
+      m_execInterface.handleCommandAck(command, COMMAND_FAILED);
+    }
+    else {
+      // Notify of success
+      m_execInterface.handleCommandAck(command, COMMAND_SUCCESS);
+    }
+    
     m_execInterface.notifyOfExternalEvent();
   }
 
@@ -636,27 +655,36 @@ namespace PLEXIL
                       "IpcAdapter:parseExternalLookups: Lookup element attribute 'value' missing or empty");
 
         std::string const nameString(nameAttr.value());
-        State state(nameString);
 
         debugMsg("IpcAdapter:parseExternalLookups",
                  "External Lookup: state=\"" << nameString
                  << "\" type=\"" << typeAttr.value()
                  << "\" default=\"" << defAttr.value() << "\"");
         const char *type = typeAttr.value();
-        g_configuration->registerLookupInterface(nameString, this);
-        if (strcmp(type, "String") == 0)
-          m_externalLookups[state] = Value(defAttr.value());
-        // FIXME: pugixml attribute routines don't have out-of-band error signaling
-        else if (strcmp(type, "Real") == 0)
-          m_externalLookups[state] = Value(defAttr.as_double());
-        // FIXME: pugixml relies on compiler definition of int type
-        else if (strcmp(type, "Integer") == 0)
-          m_externalLookups[state] = Value((int32_t) defAttr.as_int());
-        else if (strcmp(type, "Boolean") == 0)
-          m_externalLookups[state] = Value(defAttr.as_bool());
-        else
-          assertTrueMsg(ALWAYS_FAIL,
-                        "IpcAdapter: invalid or unimplemented lookup value type " << type);
+        if (std::find(m_externalLookupNames.begin(),
+                      m_externalLookupNames.end(),
+                      nameString)
+            != m_externalLookupNames.end()) {
+          warn("IpcAdapter: Lookup name \"" << nameString << "\" multiply declared");
+        }
+        else {
+          m_externalLookupNames.push_back(nameString);
+          State state(nameString);
+          g_configuration->registerLookupInterface(nameString, this);
+          if (strcmp(type, "String") == 0)
+            m_externalLookups[state] = Value(defAttr.value());
+          // FIXME: pugixml attribute routines don't have out-of-band error signaling
+          else if (strcmp(type, "Real") == 0)
+            m_externalLookups[state] = Value(defAttr.as_double());
+          // FIXME: pugixml relies on compiler definition of int type
+          else if (strcmp(type, "Integer") == 0)
+            m_externalLookups[state] = Value((int32_t) defAttr.as_int());
+          else if (strcmp(type, "Boolean") == 0)
+            m_externalLookups[state] = Value(defAttr.as_bool());
+          else
+            assertTrueMsg(ALWAYS_FAIL,
+                          "IpcAdapter: invalid or unimplemented lookup value type " << type);
+        }
         lookup = lookup.next_sibling("Lookup");
       }
     }
@@ -944,6 +972,8 @@ namespace PLEXIL
       }      
     }
 
+    // Ignore silently if we're not declared to handle it
+    // Tracing here for debugging purposes
     debugMsg("IpcAdapter:handleLookupNow",
              " undeclared external lookup \"" << name << "\", ignoring");
   }
