@@ -32,6 +32,10 @@
 #include <vector>
 #include <cstddef> // size_t
 
+// Uncomment this to enable data gathering.
+// Note that this is VERY expensive. Not for production use.
+//#define RECORD_EXPRESSION_STATS 1
+
 namespace PLEXIL {
 
   /**
@@ -93,6 +97,17 @@ namespace PLEXIL {
      */
     void notifyChanged(Expression const *src);
 
+#ifdef RECORD_EXPRESSION_STATS    
+
+    size_t getListenerCount() const;
+
+    /**
+     * @brief Get the largest number of listeners to this point.
+     */
+    static std::vector<NotifierImpl *> const &getInstances();
+
+#endif
+
   protected:
 
     /**
@@ -134,6 +149,11 @@ namespace PLEXIL {
     // Essential member variables
     size_t m_activeCount; // align to word size
     std::vector<ExpressionListener *> m_outgoingListeners; /*<! For outgoing message notifications (this expression's value has changed) */
+
+#ifdef RECORD_EXPRESSION_STATS
+    static std::vector<NotifierImpl *> s_instances;
+#endif
+    
   };
 
 } // namespace PLEXIL

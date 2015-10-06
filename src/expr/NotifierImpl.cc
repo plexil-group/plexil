@@ -37,17 +37,29 @@ namespace PLEXIL {
   // NotifierImpl
   //
 
+  // Static initialization
+#ifdef RECORD_EXPRESSION_STATS
+  std::vector<NotifierImpl *> NotifierImpl::s_instances;
+#endif
+
   NotifierImpl::NotifierImpl()
     : Expression(),
       m_activeCount(0),
       m_outgoingListeners()
   {
+#ifdef RECORD_EXPRESSION_STATS
+    s_instances.push_back(this);
+#endif
   }
 
   NotifierImpl::~NotifierImpl()
   {
     assertTrue_2(m_outgoingListeners.empty(),
                  "Error: Expression still has outgoing listeners.");
+#ifdef RECORD_EXPRESSION_STATS
+    // FIXME: This is insanely expensive - O(n^2) or worse
+    s_instances.erase(std::find(s_instances.begin(), s_instances.end(), this));
+#endif
   }
 
   bool NotifierImpl::isActive() const
@@ -135,5 +147,17 @@ namespace PLEXIL {
            ++it)
         (*it)->notifyChanged(src);
   }
+
+#ifdef RECORD_EXPRESSION_STATS
+  size_t NotifierImpl::getListenerCount() const
+  {
+    return m_outgoingListeners.size();
+  }
+  
+  std::vector<NotifierImpl *> const &NotifierImpl::getInstances()
+  {
+    return s_instances;
+  }
+#endif
 
 } // namespace PLEXIL
