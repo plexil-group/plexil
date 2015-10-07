@@ -186,6 +186,20 @@ ifneq ($(PLEXIL_STATIC),)
 EXE_FLAGS				+= $(STATIC_EXE_FLAG)
 endif
 
+##### Java
+
+# Choose appropriate default version of Java
+ifeq ($(JAVA_HOME),)
+JAVA	?= java
+JAVAC	?= javac
+JAR	?= jar
+else
+JAVA	?= $(JAVA_HOME)/bin/java
+JAVAC	?= $(JAVA_HOME)/bin/javac
+JAR	?= $(JAVA_HOME)/bin/jar
+endif
+
+
 ##### Conveniences
 
 # Default for CVS targets in svn.make; should be shadowed to be more useful.
