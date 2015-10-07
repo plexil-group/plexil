@@ -48,11 +48,17 @@ if [ ! -e $prog ]
     exit 1
 fi
 
+JAVA=java
+if [ -n "$JAVA_HOME" ]
+then
+    JAVA=$JAVA_HOME/bin/java
+fi
+
 if [ `uname` = "Darwin"  ]
   then
-	 exec java -Xdock:name="Plexil Viewer" \
+	 exec $JAVA -Xdock:name="Plexil Viewer" \
 	 -Xdock:icon="${PLEXIL_HOME}/luv/resources/icons/LUV_plexil-logo.jpg" \
 	 -jar $prog $* &
   else
-  	 exec java -jar $prog $* &
+  	 exec $JAVA -jar $prog $* &
 fi

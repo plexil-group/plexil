@@ -44,6 +44,11 @@ fi
 
 prog=${PLEXIL_HOME}/checker/global-decl-checker.jar
 args=$*
+JAVA=java
+if [ -n "$JAVA_HOME" ]
+then
+    JAVA=$JAVA_HOME/bin/java
+fi
 
 # Make sure jar file exists
 if [ ! -f "${prog}" ]
@@ -84,7 +89,7 @@ then
 fi
 
 # Run the program
-java -jar ${prog} $args
+$JAVA -jar ${prog} $args
 
 # Check result of the program
 result=$?

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (c) 2006-2012, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -46,4 +46,10 @@ if [ $# = 2 ]
     exit 1
 fi
 
-exec java -jar $PLEXIL_HOME/jars/saxon9he.jar -o $output_file $input_file $PLEXIL_HOME/schema/translate-plexil.xsl
+JAVA=java
+if [ -n "$JAVA_HOME" ]
+then
+    JAVA=$JAVA_HOME/bin/java
+fi
+
+exec $JAVA -jar $PLEXIL_HOME/jars/saxon9he.jar -o $output_file $input_file $PLEXIL_HOME/schema/translate-plexil.xsl
