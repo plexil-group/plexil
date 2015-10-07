@@ -66,10 +66,15 @@ fi
 
 JARS_DIR=${PLEXIL_HOME}/jars
 ANTLR_RUNTIME_JAR=antlr-3.5.2-complete-no-st3.jar
+JAVA=java
+if [ -n "$JAVA_HOME" ]
+then
+    JAVA=$JAVA_HOME/bin/java
+fi
 
 # Commands to execute
-plexil_compiler="java -classpath $JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler"
-plexilscript_compiler="java -cp ${JARS_DIR}/plexilscript.jar:${JARS_DIR}/antlr.jar plexilscript.PlexilScriptParse"
+plexil_compiler="$JAVA -classpath $JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler"
+plexilscript_compiler="$JAVA -cp ${JARS_DIR}/plexilscript.jar:${JARS_DIR}/antlr.jar plexilscript.PlexilScriptParse"
 plexil_checker="$PLEXIL_HOME/scripts/checkDecls"
 
 # Parse options
