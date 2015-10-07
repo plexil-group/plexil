@@ -27,9 +27,6 @@ PLEXIL_HOME			?= ../..
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 # Program defaults
-JAVA	?= java
-JAVAC	?= javac
-JAR		?= jar
 
 # Locations
 PARSER_SRC_DIR		:= antlr
