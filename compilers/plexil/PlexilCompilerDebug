@@ -38,5 +38,10 @@ fi
 
 JARS_DIR=${PLEXIL_HOME}/jars
 ANTLR_RUNTIME_JAR=antlr-3.5.2-complete-no-st3.jar
+JDB=jdb
+if [ -n "$JAVA_HOME" ]
+then
+    JDB=$JAVA_HOME/bin/jdb
+fi
 
-jdb -classpath $JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler $@
+exec $JDB -classpath $JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/nanoxml.jar:$JARS_DIR/saxon.jar plexil.Compiler $@
