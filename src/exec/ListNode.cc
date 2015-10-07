@@ -199,6 +199,61 @@ namespace PLEXIL
     AllWaitingOrFinished &operator=(AllWaitingOrFinished const &);
   };
 
+  //
+  // Specialization of ExprVec for state variables
+  //
+  class StateVarVec : public ExprVec
+  {
+  public:
+    StateVarVec(std::vector<Expression *> const &vec)
+      : m_vector(vec)
+    {
+    }
+
+    virtual ~StateVarVec()
+    {
+    }
+
+    void print(std::ostream & s) const
+    {
+      for (size_t i = 0; i < m_vector.size(); ++i) {
+        s << ' ';
+        m_vector[i]->print(s);
+      }
+    }
+
+    size_t size() const
+    {
+      return m_vector.size();
+    }
+
+    Expression const *operator[](size_t n) const
+    {
+      return m_vector[n];
+    }
+
+    Expression *operator[](size_t n)
+    {
+      return m_vector[n];
+    }
+
+    void setArgument(size_t i, Expression *exp, bool garbage)
+    {
+      assertTrue_2(ALWAYS_FAIL, "StateVarVec::setArgument: this call should never happen");
+    }
+
+    virtual void activate() {}   // No-op, state variables are always active
+    virtual void deactivate() {} // No-op, state variables are always active
+
+  private:
+
+    std::vector<Expression *> const &m_vector;
+  };
+
+  //
+  // ListNode member functions
+  //
+
   ListNode::ListNode(char const *nodeId, Node *parent)
     : Node(nodeId, parent)
   {
@@ -253,14 +308,22 @@ namespace PLEXIL
     return &m_variablesByName;
   }
 
-    // Used in createConditionWrappers()
-  ExprVec *ListNode::newStateVarExprVec() const
+  // Used in createConditionWrappers()
+  std::vector<Expression *> const &ListNode::ensureStateVarVector()
   {
-    size_t nkids = m_children.size();
-    ExprVec *result = makeExprVec(nkids);
-    for (size_t i = 0; i < nkids; ++i)
-      result->setArgument(i, m_children[i]->getStateVariable(), false);
-    return result;
+    if (m_childStateVars.empty() && !m_children.empty()) {
+      size_t nkids = m_children.size();
+      m_childStateVars.resize(nkids, NULL);
+      for (size_t i = 0; i < nkids; ++i)
+        m_childStateVars[i] = m_children[i]->getStateVariable();
+    }
+    return m_childStateVars;
+  }
+
+  // Used in createConditionWrappers()
+  ExprVec *ListNode::newStateVarExprVec()
+  {
+    return new StateVarVec(ensureStateVarVector());
   }
 
   // Create the ancestor end, ancestor exit, and ancestor invariant conditions required by children
@@ -388,6 +451,9 @@ namespace PLEXIL
   void ListNode::cleanUpNodeBody()
   {
     debugMsg("ListNode:cleanUpNodeBody", " for " << m_nodeId);
+
+    m_childStateVars.clear();
+
     // Delete children
     for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
       delete (Node*) (*it);

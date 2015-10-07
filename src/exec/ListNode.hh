@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -128,7 +128,11 @@ namespace PLEXIL
     virtual void transitionToFailing();
 
     // Used in createConditionWrappers()
-    ExprVec *newStateVarExprVec() const;
+    ExprVec *newStateVarExprVec();
+    std::vector<Expression *> const &ensureStateVarVector();
+
+    // Used indirectly in createConditionWrappers()
+    std::vector<Expression *> m_childStateVars;
 
     // Shared with derived class LibraryCallNode
     std::vector<Node *> m_children; /*<! Vector of child nodes. */
