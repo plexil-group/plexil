@@ -32,7 +32,8 @@
 #include "ExecConnector.hh"
 #include "ExprVec.hh"
 #include "Function.hh"
-#include "Operator.hh"
+#include "NodeFunction.hh"
+#include "NodeOperatorImpl.hh"
 #include "UserVariable.hh"
 
 #include <algorithm> // for find_if
@@ -44,59 +45,26 @@ namespace PLEXIL
   // Condition operators only used by ListNode
   //
 
-  class AllFinished : public OperatorImpl<bool>
+  class AllFinished : public NodeOperatorImpl<bool>
   {
   public:
     ~AllFinished()
     {
     }
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(AllFinished, bool);
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllFinished, bool);
 
     bool checkArgCount(size_t count) const
     {
       return true;
     }
 
-    // One-arg case
-    bool operator()(bool &result, Expression const *arg) const
+    bool operator()(bool &result, Node const *node) const
     {
-      uint16_t state;
-      assertTrue_2(arg->getValue(state), // should ALWAYS be known
-                   "AllFinished: node states may not be unknown.");
-      result = (state == FINISHED_STATE);
-      debugMsg("AllFinished", "result = " << result);
-      return true;
-    }
-
-    // Two-arg case
-    bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const
-    {
-      uint16_t state;
-      assertTrue_2(arg0->getValue(state), // should ALWAYS be known
-                   "AllFinished: node states may not be unknown.");
-      if (state != FINISHED_STATE) {
-        result = false;
-        debugMsg("AllFinished", "result = " << result);
-        return true;
-      }
-      assertTrue_2(arg1->getValue(state), // should ALWAYS be known
-                   "AllFinished: node states may not be unknown.");
-      result = (state == FINISHED_STATE);
-      debugMsg("AllFinished", "result = " << result);
-      return true;
-    }
-
-    // General case
-    bool operator()(bool &result,
-                    ExprVec const &args) const
-    {
-      size_t total = args.size();
+      std::vector<Node *> const &kids = node->getChildren();
+      size_t total = kids.size();
       for (size_t i = 0; i < total; ++i) {
-        uint16_t state;
-        assertTrue_2(args[i]->getValue(state), // should ALWAYS be known
-                     "AllFinished: node states may not be unknown.");
-        if (state != FINISHED_STATE) {
+        if (kids[i]->getState() != FINISHED_STATE) {
           result = false;
           debugMsg("AllFinished", "result = false");
           return true;
@@ -110,7 +78,7 @@ namespace PLEXIL
   private:
 
     AllFinished()
-      : OperatorImpl<bool>("AllChildrenFinished")
+      : NodeOperatorImpl<bool>("AllChildrenFinished")
     {
     }
 
@@ -119,59 +87,26 @@ namespace PLEXIL
     AllFinished &operator=(AllFinished const &);
   };
 
-  class AllWaitingOrFinished : public OperatorImpl<bool>
+  class AllWaitingOrFinished : public NodeOperatorImpl<bool>
   {
   public:
     ~AllWaitingOrFinished()
     {
     }
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished, bool);
+    DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished, bool);
 
     bool checkArgCount(size_t count) const
     {
       return true;
     }
 
-    // One-arg case
-    bool operator()(bool &result, Expression const *arg) const
+    bool operator()(bool &result, Node const *node) const
     {
-      uint16_t state;
-      assertTrue_2(arg->getValue(state), // should ALWAYS be known
-                   "AllWaitingOrFinished: node states may not be unknown.");
-      result = (state == FINISHED_STATE) || (state == WAITING_STATE);
-      debugMsg("AllWaitingOrFinished", " result = " << result);
-      return true;
-    }
-
-    // Two-arg case
-    bool operator()(bool &result, Expression const *arg0, Expression const *arg1) const
-    {
-      uint16_t state;
-      assertTrue_2(arg0->getValue(state), // should ALWAYS be known
-                   "AllWaitingOrFinished: node states may not be unknown.");
-      if (state != FINISHED_STATE && state != WAITING_STATE) {
-        result = false;
-        debugMsg("AllWaitingOrFinished", " result = " << result);
-        return true;
-      }
-      assertTrue_2(arg1->getValue(state), // should ALWAYS be known
-                   "AllWaitingOrFinished: node states may not be unknown.");
-      result = (state == FINISHED_STATE || state == WAITING_STATE);
-      debugMsg("AllWaitingOrFinished", " result = " << result);
-      return true;
-    }
-
-    // General case
-    bool operator()(bool &result,
-                    ExprVec const &args) const
-    {
-      size_t total = args.size();
+      std::vector<Node *> const &kids = node->getChildren();
+      size_t total = kids.size();
       for (size_t i = 0; i < total; ++i) {
-        uint16_t state;
-        assertTrue_2(args[i]->getValue(state), // should ALWAYS be known
-                     "AllWaitingOrFinished: node states may not be unknown.");
-        switch (state) {
+        switch (kids[i]->getState()) {
         case WAITING_STATE:
         case FINISHED_STATE:
           break;
@@ -190,64 +125,13 @@ namespace PLEXIL
   private:
     // Should only be called from instance() static member function
     AllWaitingOrFinished()
-      : OperatorImpl<bool>("AllChildrenWaitingOrFinished")
+      : NodeOperatorImpl<bool>("AllChildrenWaitingOrFinished")
     {
     }
 
     // Disallow copy, assign
     AllWaitingOrFinished(AllWaitingOrFinished const &);
     AllWaitingOrFinished &operator=(AllWaitingOrFinished const &);
-  };
-
-  //
-  // Specialization of ExprVec for state variables
-  //
-  class StateVarVec : public ExprVec
-  {
-  public:
-    StateVarVec(std::vector<Expression *> const &vec)
-      : m_vector(vec)
-    {
-    }
-
-    virtual ~StateVarVec()
-    {
-    }
-
-    void print(std::ostream & s) const
-    {
-      for (size_t i = 0; i < m_vector.size(); ++i) {
-        s << ' ';
-        m_vector[i]->print(s);
-      }
-    }
-
-    size_t size() const
-    {
-      return m_vector.size();
-    }
-
-    Expression const *operator[](size_t n) const
-    {
-      return m_vector[n];
-    }
-
-    Expression *operator[](size_t n)
-    {
-      return m_vector[n];
-    }
-
-    void setArgument(size_t i, Expression *exp, bool garbage)
-    {
-      assertTrue_2(ALWAYS_FAIL, "StateVarVec::setArgument: this call should never happen");
-    }
-
-    virtual void activate() {}   // No-op, state variables are always active
-    virtual void deactivate() {} // No-op, state variables are always active
-
-  private:
-
-    std::vector<Expression *> const &m_vector;
   };
 
   //
@@ -308,32 +192,20 @@ namespace PLEXIL
     return &m_variablesByName;
   }
 
-  // Used in createConditionWrappers()
-  std::vector<Expression *> const &ListNode::ensureStateVarVector()
-  {
-    if (m_childStateVars.empty() && !m_children.empty()) {
-      size_t nkids = m_children.size();
-      m_childStateVars.resize(nkids, NULL);
-      for (size_t i = 0; i < nkids; ++i)
-        m_childStateVars[i] = m_children[i]->getStateVariable();
-    }
-    return m_childStateVars;
-  }
-
-  // Used in createConditionWrappers()
-  ExprVec *ListNode::newStateVarExprVec()
-  {
-    return new StateVarVec(ensureStateVarVector());
-  }
-
   // Create the ancestor end, ancestor exit, and ancestor invariant conditions required by children
   // This method is called after all user-spec'd conditions have been instantiated
   void ListNode::createConditionWrappers()
   {
+    // At least one node state function is dependent on child states,
+    // so just add this node as a listener to each state variable.
+    for (std::vector<Node *>::iterator it = m_children.begin();
+         it != m_children.end();
+         ++it)
+      (*it)->getStateVariable()->addListener(this);
+
     // Not really a "wrapper", but this is best place to add it.
     Expression *cond =
-      new Function(AllWaitingOrFinished::instance(),
-                   newStateVarExprVec());
+      new NodeFunction(AllWaitingOrFinished::instance(), this);
     m_conditions[actionCompleteIdx] = cond;
     m_garbageConditions[actionCompleteIdx] = true;
 
@@ -387,7 +259,7 @@ namespace PLEXIL
       else {
         // No user-spec'd end condition - build one
         m_conditions[endIdx] =
-          new Function(AllFinished::instance(), newStateVarExprVec());
+          new NodeFunction(AllFinished::instance(), this);
         m_garbageConditions[endIdx] = true;
         // *** N.B. ***
         // Normally ancestor-end is our end condition ORed with parent's ancestor-end.
@@ -411,7 +283,7 @@ namespace PLEXIL
       else {
         // No user-spec'd end condition - build one
         m_conditions[endIdx] =           
-          new Function(AllFinished::instance(), newStateVarExprVec());
+          new NodeFunction(AllFinished::instance(), this);
         m_garbageConditions[endIdx] = true;
         // *** N.B. ***
         // Normally for root nodes, ancestor-end is same as end. 
@@ -446,18 +318,20 @@ namespace PLEXIL
     cleanUpChildConditions();
 
     Node::cleanUpConditions();
+
+    for (std::vector<Node *>::iterator it = m_children.begin();
+         it != m_children.end();
+         ++it)
+      (*it)->getStateVariable()->removeListener(this);
   }
 
   void ListNode::cleanUpNodeBody()
   {
     debugMsg("ListNode:cleanUpNodeBody", " for " << m_nodeId);
 
-    m_childStateVars.clear();
-
     // Delete children
-    for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it) {
+    for (std::vector<Node *>::iterator it = m_children.begin(); it != m_children.end(); ++it)
       delete (Node*) (*it);
-    }
     m_children.clear();
   }
 
