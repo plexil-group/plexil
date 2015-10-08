@@ -42,18 +42,18 @@ SimpleDrive{
 [PlexilExec:notifyNodeConditionChanged] for node Drive
 [PlexilExec:handleNeedsExecution]Storing action for node 'Drive' of type 'Command' to be executed.
 [PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fa058c06cb0 [a](UNKNOWN))
+[Test:testOutput]Executing drive() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fc74a700730 [a](UNKNOWN))
 [PlexilExec:cycle]==>End cycle 1
 [PlexilExec:printPlan]
 SimpleDrive{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fa058c06fb0 [a](0) (StateVariable NodeState Drive 0x7fa058c06b40 [a](EXECUTING)))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fa058c06ef0 [i](UNKNOWN) (StateVariable NodeState Drive 0x7fa058c06b40 [a](EXECUTING)))
+ EndCondition: (AllChildrenFinished Boolean 0x7fc74a7009d0 [a](0))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fc74a700940 [i](UNKNOWN))
   Drive{
    State: EXECUTING (0)
-   ActionCompleteCondition: (IsKnown Boolean 0x7fa058c06e30 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fa058c06cb0 [a](UNKNOWN)))
-   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fa058c06cf0 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fa058c06cb0 [a](UNKNOWN))
+   ActionCompleteCondition: (IsKnown Boolean 0x7fc74a700890 [i](UNKNOWN) (CommandHandleVariable NodeCommandHandle 0x7fc74a700730 [a](UNKNOWN)))
+   AbortCompleteCondition: (InternalVariable Boolean Drive abortComplete 0x7fc74a700770 [a](0))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc74a700730 [a](UNKNOWN))
   }
 }
 
@@ -112,7 +112,7 @@ SimpleDrive{
   Drive{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fa058c06cb0 [i](UNKNOWN))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fc74a700730 [i](UNKNOWN))
   }
 }
 
