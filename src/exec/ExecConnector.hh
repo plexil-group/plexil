@@ -29,6 +29,8 @@
 
 #include "NodeConstants.hh"
 
+#include <list>
+
 namespace PLEXIL
 {
   // Forward references
@@ -90,6 +92,14 @@ namespace PLEXIL
     virtual void deleteFinishedPlans() = 0;
 
     virtual bool allPlansFinished() const = 0;
+
+    // Introspection
+    
+    /**
+     * @brief Get the list of active plans.
+     */
+    virtual std::list<Node *> const &getPlans() const = 0;
+
   };
 
   // Global pointer to the exec instance

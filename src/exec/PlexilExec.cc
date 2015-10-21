@@ -81,6 +81,14 @@ namespace PLEXIL
       delete (Node*) (*it);
   }
 
+  /**
+   * @brief Get the list of active plans.
+   */
+  std::list<Node *> const &PlexilExec::getPlans() const
+  {
+    return m_plan;
+  }
+
   bool PlexilExec::addPlan(Node *root)
   {
     m_plan.push_back(root);

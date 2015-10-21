@@ -137,6 +137,11 @@ namespace PLEXIL
      */
     void handleConditionsChanged(Node *node);
 
+    /**
+     * @brief Get the list of active plans.
+     */
+    std::list<Node *> const &getPlans() const;
+
   private:
     // Not implemented
     PlexilExec(PlexilExec const &);

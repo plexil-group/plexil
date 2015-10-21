@@ -46,6 +46,8 @@ using namespace PLEXIL;
 #define IDX_FALSE 1
 #define IDX_TRUE 2
 
+std::list<Node *> const g_dummyPlanList;
+
 class TransitionExecConnector : public ExecConnector
 {
 public:
@@ -62,6 +64,7 @@ public:
   void setExecListener(ExecListenerBase * /* l */) {}
   void deleteFinishedPlans() {}
   bool allPlansFinished() const { return true; }
+  std::list<Node *> const &getPlans() const { return g_dummyPlanList; }
 };
 
 static bool inactiveDestTest() 
