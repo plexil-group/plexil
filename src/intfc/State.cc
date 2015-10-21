@@ -56,6 +56,12 @@ namespace PLEXIL
   {
   }
 
+  State::State(std::string const &name, Value const &arg0)
+    : m_name(name),
+      m_parameters(1, arg0)
+  {
+  }
+
   State::~State()
   {
   }

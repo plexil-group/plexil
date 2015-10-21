@@ -44,6 +44,9 @@ namespace PLEXIL
     State(char const *name, size_t n = 0);
     State(std::string const &name, size_t n = 0);
 
+    // Convenience for interface adapters
+    State(std::string const &name, Value const &arg0);
+
     ~State();
 
     State &operator=(State const &other);
