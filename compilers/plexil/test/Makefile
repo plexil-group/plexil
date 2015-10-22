@@ -1,6 +1,6 @@
 # Makefile for Plexil compiler test suite
 
-# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,7 @@ SMALL_TESTS = empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
 SYNTAX_ERROR_TESTS   = array-library-call
 
 SEMANTIC_ERROR_TESTS = on-message3 duplicateLookupDecl1 expr5 expr2 lookup1 \
-          LibraryCall5 LibraryCall6
+          LibraryCall5 LibraryCall6 SeekGoalAndEnergy
 
 TESTS	         := $(SMALL_TESTS)
 
