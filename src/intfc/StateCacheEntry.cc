@@ -33,6 +33,8 @@
 #include "ExternalInterface.hh"
 #include "Lookup.hh"
 
+#include <algorithm> // std::find
+
 namespace PLEXIL
 {
   StateCacheEntry::StateCacheEntry(State const &state)
@@ -86,24 +88,24 @@ namespace PLEXIL
 
   void StateCacheEntry::unregisterLookup(Lookup *l)
   {
-    // Most likely to remove last item first, so check for that special case.
+    if (m_lookups.empty())
+      return; // can't possibly be registered
+
+    // Somewhat likely to remove last item first, so check for that special case.
+    // TODO: analyze to see if this is true!
     if (l == m_lookups.back())
       m_lookups.pop_back();
     else {
-      // Do it the hard way.
-      for (std::vector<Lookup *>::iterator it = m_lookups.begin();
-           it != m_lookups.end();
-           ++it) {
-        if (l == *it) {
-          m_lookups.erase(it);
-          break;
-        }
-      }
+      std::vector<Lookup *>::iterator it =
+        std::find(m_lookups.begin(), m_lookups.end(), l);
+      if (it != m_lookups.end())
+        m_lookups.erase(it);
+      else
+        return; // not found
     }
 
-    if (m_lookups.empty()) {
+    if (m_lookups.empty())
       g_interface->unsubscribe(m_state);
-    }
   }
 
   void StateCacheEntry::setThresholds(Expression const *tolerance)
