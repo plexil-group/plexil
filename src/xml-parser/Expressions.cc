@@ -70,6 +70,9 @@ namespace PLEXIL
       REGISTER_FUNCTION(BooleanAnd, AND);
       REGISTER_FUNCTION(AnyElementsKnown, ANY_KNOWN);
 
+      REGISTER_FUNCTION(ArraySize, ArraySize);
+      REGISTER_FUNCTION(ArrayMaxSize, ArrayMaxSize);
+
       REGISTER_EXPRESSION(ArrayReference, ArrayElement);
       new ArrayLiteralFactory("ArrayValue"); // for effect
       new VariableReferenceFactory("ArrayVariable"); // for effect
@@ -143,8 +146,6 @@ namespace PLEXIL
 
       REGISTER_EXPRESSION(RealConstant, RealValue);
       new VariableReferenceFactory("RealVariable"); // for effect
-
-      REGISTER_FUNCTION(ArrayLength, SIZE);
 
       REGISTER_FUNCTION(SquareRoot<double>, SQRT);
 
