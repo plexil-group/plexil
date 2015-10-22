@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -112,6 +112,14 @@ public class LibraryCallNode extends PlexilTreeNode
                     VariableName param = libDecl.getParameterByName(paramName);
                     ExpressionNode valueExp = (ExpressionNode) alias.getChild(1);
 
+                    if (param == null) {
+                        state.addDiagnostic(alias.getChild(0),
+                                            "Library action \"" + libName
+                                            + "\" has no parameter named \""
+                                            + paramName + "\"",
+                                            Severity.ERROR);
+                        continue;
+                    }
                     used.add(paramName);
                     if (param.isAssignable()) {
                         if (!valueExp.isAssignable()) {
@@ -159,7 +167,8 @@ public class LibraryCallNode extends PlexilTreeNode
                     PlexilTreeNode alias = aliases.getChild(i);
                     VariableName param = libDecl.getParameterByName(alias.getChild(0).getText());
                     ExpressionNode valueExp = (ExpressionNode) alias.getChild(1);
-                    valueExp.assumeType(param.getVariableType(), state); // for effect
+                    if (param != null) // error already reported in earlyCheck
+                        valueExp.assumeType(param.getVariableType(), state); // for effect
                 }
             }
         }
