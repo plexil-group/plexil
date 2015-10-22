@@ -121,11 +121,13 @@ namespace PLEXIL
       m_paramVec->activate();
 
     // Compute current state and cache it
-    m_stateKnown = getState(m_cachedState);
-    if (m_stateKnown) {
-      m_entry =
-        StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
-      assertTrue_2(m_entry != NULL, "Lookup::handleActivate: Failed to get state cache entry");
+    if (!m_stateIsConstant || !m_entry) {
+      m_stateKnown = getState(m_cachedState);
+      if (m_stateKnown) {
+        m_entry =
+          StateCacheMap::instance().ensureStateCacheEntry(m_cachedState);
+        assertTrue_2(m_entry != NULL, "Lookup::handleActivate: Failed to get state cache entry");
+      }
     }
     if (m_entry)
       m_entry->registerLookup(this);
