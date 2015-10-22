@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,22 +32,40 @@
 namespace PLEXIL
 {
 
-  class ArrayLength : public OperatorImpl<int32_t>
+  class ArraySize : public OperatorImpl<int32_t>
   {
   public:
-    ArrayLength();
-    ~ArrayLength();
+    ArraySize();
+    ~ArraySize();
 
     bool checkArgCount(size_t count) const;
 
     bool operator()(int32_t &result, Expression const *arg) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(ArrayLength, int32_t);
+    DECLARE_OPERATOR_STATIC_INSTANCE(ArraySize, int32_t);
 
   private:
     // Disallow copy, assign
-    ArrayLength(const ArrayLength &);
-    ArrayLength &operator=(const ArrayLength &);
+    ArraySize(const ArraySize &);
+    ArraySize &operator=(const ArraySize &);
+  };
+
+  class ArrayMaxSize : public OperatorImpl<int32_t>
+  {
+  public:
+    ArrayMaxSize();
+    ~ArrayMaxSize();
+
+    bool checkArgCount(size_t count) const;
+
+    bool operator()(int32_t &result, Expression const *arg) const;
+
+    DECLARE_OPERATOR_STATIC_INSTANCE(ArrayMaxSize, int32_t);
+
+  private:
+    // Disallow copy, assign
+    ArrayMaxSize(const ArrayMaxSize &);
+    ArrayMaxSize &operator=(const ArrayMaxSize &);
   };
 
   class AllElementsKnown : public OperatorImpl<bool>

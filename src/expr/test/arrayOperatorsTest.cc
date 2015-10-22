@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,14 +35,14 @@
 
 using namespace PLEXIL;
 
-static bool testArrayLength()
+static bool testArraySize()
 {
   BooleanArrayVariable bav;
   IntegerArrayVariable iav;
   RealArrayVariable rav;
   StringArrayVariable sav;
 
-  ArrayLength lop;
+  ArraySize lop;
 
   std::vector<bool> garbage1(1, false);
   std::vector<Expression *> bexp(1, &bav);
@@ -300,6 +300,8 @@ static bool testAllElementsKnown()
   return true;
 }
 
+// *** TODO: Implement tests for ArrayMaxSize ***
+
 static bool testAnyElementsKnown()
 {
   BooleanArrayVariable bav;
@@ -443,7 +445,7 @@ static bool testAnyElementsKnown()
 
 bool arrayOperatorsTest()
 {
-  runTest(testArrayLength);
+  runTest(testArraySize);
   runTest(testAllElementsKnown);
   runTest(testAnyElementsKnown);
   return true;

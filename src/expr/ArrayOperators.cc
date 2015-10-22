@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,25 +30,53 @@
 namespace PLEXIL
 {
   //
-  // ArrayLength
+  // ArraySize
   //
 
-  ArrayLength::ArrayLength()
-    : OperatorImpl<int32_t>("SIZE")
+  ArraySize::ArraySize()
+    : OperatorImpl<int32_t>("ArraySize")
   {
   }
   
-  ArrayLength::~ArrayLength()
+  ArraySize::~ArraySize()
   {
   }
 
-  bool ArrayLength::checkArgCount(size_t count) const
+  bool ArraySize::checkArgCount(size_t count) const
   {
     return count == 1;
   }
 
-  bool ArrayLength::operator()(int32_t &result, Expression const *arg) const
+  bool ArraySize::operator()(int32_t &result, Expression const *arg) const
   {
+    Array const *ary;
+    if (!arg->getValuePointer(ary))
+      return false;
+    result = ary->size();
+    return true;
+  }
+
+  //
+  // ArrayMaxSize
+  //
+
+  ArrayMaxSize::ArrayMaxSize()
+    : OperatorImpl<int32_t>("ArrayMaxSize")
+  {
+  }
+  
+  ArrayMaxSize::~ArrayMaxSize()
+  {
+  }
+
+  bool ArrayMaxSize::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  bool ArrayMaxSize::operator()(int32_t &result, Expression const *arg) const
+  {
+    // *** TODO: Reimplement as Expression metadata query, not expression value query ***
     Array const *ary;
     if (!arg->getValuePointer(ary))
       return false;
