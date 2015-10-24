@@ -27,14 +27,7 @@
 #ifndef PLEXIL_VALUE_HH
 #define PLEXIL_VALUE_HH
 
-#include "Array.hh"
 #include "ValueType.hh"
-
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#elif defined(__VXWORKS__)
-#include <vxWorks.h>
-#endif
 
 namespace PLEXIL
 {
