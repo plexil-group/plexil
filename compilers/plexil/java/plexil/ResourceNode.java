@@ -140,6 +140,12 @@ public class ResourceNode extends PlexilTreeNode
 				break;
 			}
 		}
+        // Priority is required
+        if (m_priority == null) {
+            state.addDiagnostic(this,
+                                "Resource statement missing Priority",
+                                Severity.ERROR);
+        }
 	}
 
 	public void checkSelf(NodeContext context, CompilerState state)
@@ -188,6 +194,11 @@ public class ResourceNode extends PlexilTreeNode
 		IXMLElement nameElt = new XMLElement("ResourceName");
 		nameElt.addChild(m_name.getXML());
 		m_xml.addChild(nameElt);
+
+        IXMLElement prio = new XMLElement("ResourcePriority");
+        prio.addChild(m_priority.getXML());
+        m_xml.addChild(prio);
+
 		if (m_lowerBound != null) {
 			IXMLElement lbound = new XMLElement("ResourceLowerBound");
 			lbound.addChild(m_lowerBound.getXML());
@@ -197,11 +208,6 @@ public class ResourceNode extends PlexilTreeNode
 			IXMLElement ubound = new XMLElement("ResourceUpperBound");
 			ubound.addChild(m_upperBound.getXML());
 			m_xml.addChild(ubound);
-		}
-		if (m_priority != null) {
-			IXMLElement prio = new XMLElement("ResourcePriority");
-			prio.addChild(m_priority.getXML());
-			m_xml.addChild(prio);
 		}
 		if (m_releaseAtTermination != null) {
 			IXMLElement rat = new XMLElement("ResourceReleaseAtTermination");
